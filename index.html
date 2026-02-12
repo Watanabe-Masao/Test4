@@ -263,7 +263,28 @@
         </div>
     </div>
 
+    <!-- Force Cache Clear for Updated Files -->
+    <script>
+        // Clear service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(reg => reg.unregister());
+            });
+        }
+
+        // Clear cache storage
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+
+        // Log cache clear
+        console.log('🧹 Cache cleared - Loading fresh JavaScript modules');
+        console.log('📦 Module version: 2.1 (2026-02-12)');
+    </script>
+
     <!-- Modular JavaScript Entry Point -->
-    <script type="module" src="js/main.js?v=2.0"></script>
+    <script type="module" src="js/main.js?v=2.1&t=20260212"></script>
 </body>
 </html>

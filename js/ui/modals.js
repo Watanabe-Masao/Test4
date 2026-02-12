@@ -1,6 +1,7 @@
 /**
  * Modal Management Module
  * Handles all modal dialogs in the application
+ * @version 2.0.1 - Fixed quote escaping and global exports
  */
 
 import { appState } from '../models/state.js';
