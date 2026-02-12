@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仕入粗利管理システム v3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root{--bg:#09090b;--bg2:#0f1117;--bg3:#16181f;--bg4:#1c1f28;--border:rgba(255,255,255,0.06);--primary:#6366f1;--success:#34d399;--warning:#fbbf24;--danger:#f87171;--info:#38bdf8;--purple:#a78bfa;--text:#f4f4f5;--text2:#a1a1aa;--text3:#71717a;--text4:#52525b;--r:10px;--t:0.2s}
+        /* ライトテーマ */
+        [data-theme="light"]{--bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;--border:rgba(0,0,0,0.08);--text:#0f172a;--text2:#475569;--text3:#64748b;--text4:#94a3b8}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s}
+        .app{display:grid;grid-template-columns:56px 260px 1fr;height:100vh;overflow:hidden}
+        .nav{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px}
+        .nav-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+        .nav-item{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text4);transition:all var(--t)}
+        .nav-item:hover{background:var(--bg4);color:var(--text2)}
+        .nav-item.active{background:rgba(99,102,241,0.15);color:var(--primary)}
+        .nav-spacer{flex:1}
+        .sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+        .sidebar-header{padding:16px;border-bottom:1px solid var(--border)}
+        .sidebar-title{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text4);margin-bottom:2px}
+        .sidebar-heading{font-size:0.9rem;font-weight:700}
+        .sidebar-content{flex:1;overflow-y:auto;padding:14px}
+        .sidebar-section{margin-bottom:16px}
+        .section-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;color:var(--text4);margin-bottom:8px}
+        .upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+        .upload-card{background:var(--bg3);border:1.5px dashed rgba(255,255,255,0.08);border-radius:7px;padding:10px 4px 8px;text-align:center;cursor:pointer;transition:all var(--t);position:relative}
+        .upload-card:hover{border-color:rgba(99,102,241,0.3);background:var(--bg4)}
+        .upload-card.loaded{border-color:rgba(52,211,153,0.4);border-style:solid;background:rgba(52,211,153,0.08)}
+        .upload-card.loaded::after{content:'✓';position:absolute;top:3px;right:5px;font-size:0.55rem;color:var(--success);font-weight:700}
+        .upload-card .icon{font-size:1.1rem;margin-bottom:2px}
+        .upload-card .name{font-size:0.6rem;font-weight:600;color:var(--text3)}
+        .upload-card.loaded .name{color:var(--success)}
+        .upload-card input{display:none}
+        .chip-group{display:flex;flex-wrap:wrap;gap:4px}
+        .chip{padding:5px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:0.65rem;font-weight:600;cursor:pointer;color:var(--text3);transition:all var(--t)}
+        .chip:hover{border-color:rgba(99,102,241,0.3);color:var(--text2)}
+        .chip.active{background:var(--primary);border-color:var(--primary);color:white}
+        .input-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+        .input-field{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+        .input-field label{display:block;font-size:0.52rem;font-weight:700;text-transform:uppercase;color:var(--text4);margin-bottom:2px}
+        .input-field input{width:100%;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.78rem;text-align:right}
+        .input-field input:focus{outline:none}
+        .btn{width:100%;padding:10px 14px;border:none;border-radius:7px;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all var(--t)}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),#4f46e5);color:white}
+        .btn-primary:hover{transform:translateY(-1px)}
+        .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+        .btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:white;margin-top:6px}
+        .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--text2)}
+        .btn-outline:hover{border-color:rgba(99,102,241,0.3);background:var(--bg4)}
+        .main{display:flex;flex-direction:column;overflow:hidden}
+        .topbar{padding:10px 20px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+        .topbar-title{font-size:0.95rem;font-weight:700;display:flex;align-items:center;gap:8px}
+        .topbar-badge{padding:2px 8px;background:var(--primary);border-radius:5px;font-size:0.6rem;font-weight:700}
+        .topbar-tabs{display:flex;gap:3px;margin-left:auto;background:var(--bg3);border-radius:7px;padding:3px;border:1px solid var(--border)}
+        .topbar-tab{padding:5px 12px;background:transparent;border:none;border-radius:5px;font-size:0.7rem;font-weight:600;cursor:pointer;color:var(--text3);font-family:inherit}
+        .topbar-tab:hover{color:var(--text2);background:var(--bg4)}
+        .topbar-tab.active{background:var(--primary);color:white}
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--border)}
+        .stat-card{background:var(--bg3);border-radius:var(--r);padding:12px 14px;border:1px solid var(--border);position:relative;overflow:hidden}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+        .stat-card:nth-child(1)::before{background:linear-gradient(90deg,var(--primary),#818cf8)}
+        .stat-card:nth-child(2)::before{background:linear-gradient(90deg,var(--warning),#f59e0b)}
+        .stat-card:nth-child(3)::before{background:linear-gradient(90deg,var(--success),#34d399)}
+        .stat-card:nth-child(4)::before{background:linear-gradient(90deg,var(--info),#38bdf8)}
+        .stat-card .label{font-size:0.58rem;font-weight:700;text-transform:uppercase;color:var(--text4);margin-bottom:4px}
+        .stat-card .value{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600}
+        .stat-card .sub{font-size:0.6rem;color:var(--text3);margin-top:3px}
+        .content{flex:1;overflow:auto;padding:16px 20px}
+        .section{background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);margin-bottom:12px;overflow:hidden}
+        .section-header{padding:10px 14px;background:var(--bg3);border-bottom:1px solid transparent;display:flex;align-items:center;gap:10px;cursor:pointer}
+        .section.expanded .section-header{border-bottom-color:var(--border)}
+        .section-header:hover{background:var(--bg4)}
+        .section-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.95rem}
+        .section-icon.ti{background:linear-gradient(135deg,#4ade80,#22c55e)}
+        .section-icon.to{background:linear-gradient(135deg,#fb7185,#f43f5e)}
+        .section-icon.bi{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+        .section-icon.bo{background:linear-gradient(135deg,#c084fc,#a855f7)}
+        .section-icon.daily{background:linear-gradient(135deg,#fbbf24,#f59e0b)}
+        .section-icon.market{background:linear-gradient(135deg,#fbbf24,#f59e0b)}
+        .section-icon.lfc{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+        .section-icon.salad{background:linear-gradient(135deg,#4ade80,#22c55e)}
+        .section-icon.kakou{background:linear-gradient(135deg,#c084fc,#a855f7)}
+        .section-icon.chokuden{background:linear-gradient(135deg,#22d3ee,#06b6d4)}
+        .section-icon.hana{background:linear-gradient(135deg,#f472b6,#ec4899)}
+        .section-icon.sanchoku{background:linear-gradient(135deg,#a3e635,#84cc16)}
+        .section-icon.consumable{background:linear-gradient(135deg,#f97316,#ea580c)}
+        .section-icon.tenkan{background:linear-gradient(135deg,#fb7185,#f43f5e)}
+        .section-icon.bumonkan{background:linear-gradient(135deg,#a78bfa,#8b5cf6)}
+        .section-icon.other{background:linear-gradient(135deg,#94a3b8,#64748b)}
+        .section-info{flex:1}
+        .section-name{font-weight:600;font-size:0.82rem}
+        .section-meta{font-size:0.62rem;color:var(--text3)}
+        .section-stats{display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500}
+        .section-stats .sl{color:var(--text4);font-size:0.55rem;font-family:'Noto Sans JP',sans-serif}
+        .section-stats .cost{color:var(--warning)}
+        .section-stats .price{color:var(--success)}
+        .section-toggle{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--text4);transition:transform var(--t);font-size:0.65rem}
+        .section.expanded .section-toggle{transform:rotate(180deg)}
+        .section-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+        .section.expanded .section-body{max-height:600px;overflow:auto}
+        table{width:100%;border-collapse:collapse;font-size:0.68rem}
+        th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+        th{background:var(--bg3);color:var(--text4);font-weight:700;font-size:0.56rem;text-transform:uppercase;position:sticky;top:0;z-index:5}
+        th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--bg2);z-index:3}
+        th:first-child{z-index:10;background:var(--bg3)}
+        tr:hover td{background:var(--bg4)}
+        tr:hover td:first-child{background:var(--bg4)}
+        .row-total{background:rgba(99,102,241,0.05)}
+        .row-total td{font-weight:700;border-top:1px solid rgba(255,255,255,0.1)}
+        td.positive{color:var(--success)}
+        td.negative{color:var(--danger)}
+        td.highlight{color:var(--info)}
+        .col-cost{background:rgba(251,191,36,0.02)}
+        .col-price{background:rgba(52,211,153,0.02)}
+        .summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;border-bottom:1px solid var(--border)}
+        .summary-card{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;position:relative;overflow:hidden}
+        .summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+        .summary-card.ti::before{background:linear-gradient(90deg,#4ade80,#22c55e)}
+        .summary-card.to::before{background:linear-gradient(90deg,#fb7185,#f43f5e)}
+        .summary-card.bi::before{background:linear-gradient(90deg,#60a5fa,#3b82f6)}
+        .summary-card.bo::before{background:linear-gradient(90deg,#c084fc,#a855f7)}
+        .summary-card .sc-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;color:var(--text4);margin-bottom:4px}
+        .summary-card .sc-value{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600}
+        .summary-card .sc-sub{font-size:0.6rem;color:var(--text3);margin-top:2px}
+        .store-tag{display:inline-flex;align-items:center;gap:2px;padding:2px 8px;border-radius:4px;font-size:0.62rem;font-weight:600;font-family:'JetBrains Mono',monospace;margin:1px}
+        .store-tag.from{background:rgba(52,211,153,0.1);color:var(--success);border:1px solid rgba(52,211,153,0.2)}
+        .store-tag.to{background:rgba(248,113,113,0.1);color:var(--danger);border:1px solid rgba(248,113,113,0.2)}
+        .store-tag.bumon{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.2)}
+        .flow-self{color:var(--purple);font-size:0.65rem;font-style:italic}
+        .stores-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+        .store-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--t)}
+        .store-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-3px)}
+        .store-card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+        .store-card-icon{width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+        .store-card-name{font-weight:700;font-size:0.88rem}
+        .store-card-code{font-size:0.65rem;color:var(--text4);font-family:'JetBrains Mono',monospace}
+        .store-card-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .store-card-stat .label{font-size:0.55rem;color:var(--text4);font-weight:600;text-transform:uppercase}
+        .store-card-stat .value{font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:600;margin-top:1px}
+        .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+        .summary-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+        .summary-panel-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+        .summary-panel-icon{width:34px;height:34px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center}
+        .summary-panel-title{font-weight:700;font-size:0.82rem}
+        .summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.78rem}
+        .summary-row:last-child{border-bottom:none}
+        .summary-row .lt{color:var(--text2)}
+        .summary-row .value{font-family:'JetBrains Mono',monospace;font-weight:500}
+        .summary-total{margin-top:10px;padding:10px 12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.15);border-radius:7px;display:flex;justify-content:space-between;font-weight:700}
+        .summary-total .value{color:var(--success);font-family:'JetBrains Mono',monospace}
+        .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center}
+        .empty-icon{width:72px;height:72px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:18px}
+        .empty-state h3{font-size:1rem;font-weight:600;margin-bottom:6px;color:var(--text2)}
+        .empty-state p{font-size:0.8rem;color:var(--text3);max-width:300px}
+        .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px}
+        .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .toast-container{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+        .toast{background:var(--bg3);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:10px 16px;font-size:0.78rem;font-weight:500;display:flex;align-items:center;gap:8px;animation:toastIn 0.3s ease,toastOut 0.3s ease 2.7s forwards}
+        @keyframes toastIn{from{opacity:0;transform:translateY(10px)}}
+        @keyframes toastOut{to{opacity:0}}
+        .toast.success{border-left:3px solid var(--success)}
+        .toast.error{border-left:3px solid var(--danger)}
+        .toast.info{border-left:3px solid var(--info)}
+        .toast.warning{border-left:3px solid var(--warning)}
+        /* ドラッグ&ドロップゾーン */
+        .drop-zone{border:2px dashed rgba(99,102,241,0.3);border-radius:10px;padding:16px;margin-bottom:10px;text-align:center;transition:all 0.3s;background:rgba(99,102,241,0.03)}
+        .drop-zone.drag-over{border-color:var(--success);background:rgba(52,211,153,0.1);transform:scale(1.02)}
+        .drop-zone-icon{font-size:1.8rem;margin-bottom:6px}
+        .drop-zone-text{font-size:0.7rem;color:var(--text2);margin-bottom:2px}
+        .drop-zone-hint{font-size:0.6rem;color:var(--text4)}
+        /* ツールチップ */
+        [data-tip]{position:relative;cursor:help}
+        [data-tip]::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding:6px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:6px;font-size:0.6rem;font-weight:400;color:var(--text2);white-space:pre-line;max-width:220px;text-align:left;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:100;margin-bottom:5px;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+        [data-tip]:hover::after{opacity:1}
+        /* アラートカード */
+        .alert-card{padding:12px 14px;border-radius:8px;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px}
+        .alert-card.danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}
+        .alert-card.warning{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3)}
+        .alert-card.success{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3)}
+        .alert-card.info{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3)}
+        .alert-icon{font-size:1.1rem}
+        .alert-content{flex:1}
+        .alert-title{font-size:0.75rem;font-weight:600;margin-bottom:2px}
+        .alert-desc{font-size:0.65rem;color:var(--text3)}
+        /* KPIダッシュボード */
+        .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+        .kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+        .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+        .kpi-card[data-color="primary"]::before{background:var(--primary)}
+        .kpi-card[data-color="success"]::before{background:var(--success)}
+        .kpi-card[data-color="warning"]::before{background:var(--warning)}
+        .kpi-card[data-color="danger"]::before{background:var(--danger)}
+        .kpi-card[data-color="info"]::before{background:var(--info)}
+        .kpi-card[data-color="purple"]::before{background:var(--purple)}
+        .kpi-card[data-color="cyan"]::before{background:#06b6d4}
+        .kpi-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .kpi-label{font-size:0.6rem;font-weight:600;color:var(--text4);text-transform:uppercase}
+        .kpi-icon{font-size:1rem}
+        .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;margin-bottom:4px}
+        .kpi-sub{font-size:0.62rem;color:var(--text3)}
+        .kpi-progress{height:4px;background:var(--bg4);border-radius:2px;margin-top:10px;overflow:hidden}
+        .kpi-progress-bar{height:100%;border-radius:2px;transition:width 0.5s ease}
+        /* 週間予測カード */
+        .forecast-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+        .forecast-day{background:var(--bg3);border-radius:8px;padding:10px 6px;text-align:center;border:1px solid var(--border)}
+        .forecast-day.today{border-color:var(--primary);background:rgba(99,102,241,0.1)}
+        .forecast-day.past{opacity:0.6}
+        .forecast-day-name{font-size:0.55rem;font-weight:600;color:var(--text4);margin-bottom:2px}
+        .forecast-day-date{font-size:0.6rem;color:var(--text3);margin-bottom:6px}
+        .forecast-day-value{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600}
+        .forecast-day-target{font-size:0.5rem;color:var(--text4);margin-top:2px}
+        /* レポートカード */
+        .report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+        .report-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all 0.2s}
+        .report-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+        .report-card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+        .report-card-title{font-weight:600;font-size:0.85rem;margin-bottom:4px}
+        .report-card-desc{font-size:0.65rem;color:var(--text3)}
+        /* カラム設定 */
+        .column-config{display:flex;flex-direction:column;gap:6px}
+        .column-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:6px;cursor:grab;user-select:none}
+        .column-item:active{cursor:grabbing}
+        .column-item.dragging{opacity:0.5;background:var(--bg4)}
+        .column-item-handle{color:var(--text4);font-size:0.8rem}
+        .column-item-name{flex:1;font-size:0.75rem}
+        .column-item-toggle{width:36px;height:20px;background:var(--bg4);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s}
+        .column-item-toggle.active{background:var(--primary)}
+        .column-item-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left 0.2s}
+        .column-item-toggle.active::after{left:18px}
+        /* プリント用 */
+        @media print{.app{display:block}.nav,.sidebar{display:none}.main{width:100%}.topbar{display:none}.content{padding:0}.section{break-inside:avoid}}
+        ::-webkit-scrollbar{width:5px;height:5px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <nav class="nav">
+            <div class="nav-logo">📊</div>
+            <div class="nav-item active" title="データ管理">📁</div>
+            <div class="nav-item" title="分析">📈</div>
+            <div class="nav-spacer"></div>
+            <div class="nav-item" id="theme-toggle" onclick="toggleTheme()" title="テーマ切替">🌙</div>
+            <div class="nav-item" onclick="showSettingsModal()" title="設定">⚙️</div>
+        </nav>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">仕入粗利管理</div>
+                <div class="sidebar-heading">取引先別フォーマット v8</div>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="section-label">📁 データファイル</div>
+                    <!-- ドラッグ&ドロップゾーン -->
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-icon">📂</div>
+                        <div class="drop-zone-text">ファイルをドラッグ＆ドロップ</div>
+                        <div class="drop-zone-hint">または下のカードをクリック</div>
+                    </div>
+                    <div class="upload-grid">
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'shiire')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">💰</div><div class="name">売上</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'uriage')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📉</div><div class="name">売変</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'baihen')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'settings')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'budget')"></div>
+                        <div class="upload-card" onclick="showConsumableModal()"><div class="icon">🧾</div><div class="name">消耗品</div><input type="file" id="consumable-input" accept=".xlsx,.xls" multiple style="display:none" onchange="processConsumableFiles(this)"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanIn')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanOut')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'sanchoku')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'hana')"></div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🎯 目標設定</div>
+                    <div class="input-grid">
+                        <div class="input-field" style="border-left:3px solid var(--success)">
+                            <label>目標粗利率 (%)</label>
+                            <input type="text" id="target-margin" value="25.00">
+                        </div>
+                        <div class="input-field" style="border-left:3px solid var(--warning)">
+                            <label>警告しきい値 (%)</label>
+                            <input type="text" id="warning-margin" value="23.00">
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🌸🥬 花・産直 掛け率</div>
+                    <div class="input-grid">
+                        <div class="input-field" style="border-left:3px solid #f472b6">
+                            <label>🌸 花 掛け率</label>
+                            <input type="text" id="hana-rate" value="0.80">
+                        </div>
+                        <div class="input-field" style="border-left:3px solid #a3e635">
+                            <label>🥬 産直 掛け率</label>
+                            <input type="text" id="sanchoku-rate" value="0.85">
+                        </div>
+                    </div>
+                    <div style="margin-top:6px;padding:6px 8px;background:var(--bg4);border-radius:5px;font-size:0.58rem;color:var(--text3)">
+                        売上納品のため、売価×掛け率=原価として計算
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">⚙️ 仕入先・帳合設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(クリックで開く)</span></div>
+                    <button onclick="showSupplierSettingsModal()" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                        <span>🏭</span> 仕入先別設定・帳合分類を編集
+                    </button>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🏪 店舗</div>
+                    <div class="chip-group" id="store-chips"><div class="chip active" data-store="all">全店舗</div></div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">📦 店舗別 在庫設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(初期設定で自動入力)</span></div>
+                    <div id="store-inventory-container" style="max-height:180px;overflow-y:auto;margin-bottom:8px">
+                        <div style="font-size:0.65rem;color:var(--text4);padding:8px;text-align:center">店舗データ読込後に表示</div>
+                    </div>
+                    <div class="input-grid">
+                        <div class="input-field"><label>デフォルト予算</label><input type="text" id="budget" value="6,450,000" oninput="formatInput(this)"></div>
+                        <div class="input-field"><label>値入率</label><input type="text" id="margin-rate" value="0.26"></div>
+                    </div>
+                    <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
+                </div>
+                <div class="sidebar-section">
+                    <button class="btn btn-primary" id="btn-generate" onclick="generate()" disabled>📊 フォーマット作成</button>
+                    <button class="btn btn-success" id="btn-export" onclick="exportExcel()" style="display:none;">📥 Excel出力</button>
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <span id="view-title">データ読込待ち</span>
+                    <span class="topbar-badge" id="store-badge" style="display:none;">01</span>
+                </div>
+                <div class="topbar-tabs" id="view-tabs" style="display:none;">
+                    <button class="topbar-tab active" data-view="dashboard">📊 ダッシュボード</button>
+                    <button class="topbar-tab" data-view="category">帳合別</button>
+                    <button class="topbar-tab" data-view="forecast">📅 週間予測</button>
+                    <button class="topbar-tab" data-view="analysis">予算分析</button>
+                    <button class="topbar-tab" data-view="daily">日別推移</button>
+                    <button class="topbar-tab" data-view="summary">荒利計算</button>
+                    <button class="topbar-tab" data-view="reports">📋 レポート</button>
+                </div>
+            </div>
+            <div class="stats-row" id="stats-row" style="display:none;">
+                <div class="stat-card"><div class="label">売上実績</div><div class="value" id="stat-sales">-</div><div class="sub" id="stat-sales-sub">-</div></div>
+                <div class="stat-card"><div class="label">総仕入高</div><div class="value" style="color:var(--warning)" id="stat-cost">-</div><div class="sub" id="stat-consumable">-</div></div>
+                <div class="stat-card"><div class="label">荒利率(税抜前)</div><div class="value" style="color:var(--info)" id="stat-rate-before">-</div><div class="sub" id="stat-profit-before">-</div></div>
+                <div class="stat-card"><div class="label">荒利率(税抜後)</div><div class="value" style="color:var(--success)" id="stat-rate">-</div><div class="sub" id="stat-profit-sub">-</div></div>
+            </div>
+            <div class="content" id="content">
+                <div class="empty-state">
+                    <div class="empty-icon">📂</div>
+                    <h3>データファイルをアップロードしてください</h3>
+                    <p>左のパネルから「仕入」と「売上」ファイルを読み込むと、分析を開始できます</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast-container" id="toast-container"></div>
+    
+    <!-- 消耗品モーダル -->
+    <div id="consumable-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:340px;max-width:90%">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:8px;display:flex;align-items:center;justify-content:center">🧾</span>
+                消耗品データ読込
+            </div>
+            <div id="consumable-status" style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:16px;font-size:0.75rem">
+                <div style="color:var(--text3)">現在のデータ:</div>
+                <div id="consumable-count" style="font-family:'JetBrains Mono',monospace;color:var(--text);margin-top:4px">未読込</div>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text3);margin-bottom:12px">読込方法を選択してください:</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <input type="radio" name="consumable-mode" value="overwrite" checked style="accent-color:var(--primary)">
+                    <div>
+                        <div style="font-weight:600;font-size:0.8rem">🔄 上書き</div>
+                        <div style="font-size:0.65rem;color:var(--text3)">既存データをクリアして新規読込</div>
+                    </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--success)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <input type="radio" name="consumable-mode" value="append" style="accent-color:var(--success)">
+                    <div>
+                        <div style="font-weight:600;font-size:0.8rem">➕ 追加</div>
+                        <div style="font-size:0.65rem;color:var(--text3)">既存データに追加（同日は合算）</div>
+                    </div>
+                </label>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button onclick="closeConsumableModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">キャンセル</button>
+                <button onclick="selectConsumableFiles()" style="flex:1;padding:10px;background:linear-gradient(135deg,#f97316,#ea580c);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">ファイル選択</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 仕入先設定モーダル -->
+    <div id="supplier-settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">🏭</span>
+                仕入先・帳合設定
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="supplier-settings-content">
+                <div style="font-size:0.65rem;color:var(--text4);padding:16px;text-align:center">仕入データ読込後に表示されます</div>
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeSupplierSettingsModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="saveSupplierSettings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">💾 設定を保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 設定モーダル -->
+    <div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">⚙️</span>
+                設定
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="settings-content">
+                <!-- 設定内容はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeSettingsModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">キャンセル</button>
+                <button onclick="saveAllSettings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">💾 保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- データ検証モーダル -->
+    <div id="validation-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:8px;display:flex;align-items:center;justify-content:center">⚠️</span>
+                データ検証結果
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="validation-content">
+                <!-- 検証結果はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeValidationModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="proceedWithWarnings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">警告を無視して続行</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- レポートプレビューモーダル -->
+    <div id="report-preview-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:800px;max-width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+                <span id="report-preview-icon" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">📋</span>
+                <div style="flex:1">
+                    <div id="report-preview-title" style="font-size:1rem;font-weight:700">レポートプレビュー</div>
+                    <div id="report-preview-sub" style="font-size:0.65rem;color:var(--text3)"></div>
+                </div>
+                <button onclick="closeReportPreview()" style="width:32px;height:32px;background:var(--bg3);border:none;border-radius:6px;color:var(--text2);cursor:pointer;font-size:1rem">✕</button>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:20px" id="report-preview-content">
+                <!-- レポート内容はJSで生成 -->
+            </div>
+            <div style="padding:12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+                <button onclick="printReport()" style="padding:10px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:6px">🖨️ 印刷</button>
+                <button onclick="exportReportExcel()" style="padding:10px 20px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">📥 Excel出力</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- カラム設定モーダル -->
+    <div id="column-config-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:400px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#06b6d4,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center">📊</span>
+                表示列の設定
+            </div>
+            <div style="font-size:0.65rem;color:var(--text3);margin-bottom:12px">ドラッグで並び順を変更、トグルで表示/非表示を切り替え</div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="column-config-content">
+                <!-- カラム設定はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeColumnConfig()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="applyColumnConfig()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">適用</button>
+            </div>
+        </div>
+    </div>
+<script>
+const DATA={};let STORES={},SUPPLIERS={};let currentStore='all',currentView='dashboard',result=null;
+let STORE_INVENTORY={};  // 店舗別在庫データ {storeId: {invStart: number, invEnd: number}}
+let STORE_BUDGET={};     // 店舗別日別予算データ {storeId: {day: budget}}
+let CONSUMABLES={};      // 原価算入比データ {storeId: {day: {cost: number, items: []}}}
+let SUPPLIER_SETTINGS={};// 仕入先別設定 {code: {marginRate: number, usePriceCalc: boolean}}
+let CATEGORIES={market:{name:'市場',icon:'🏪',order:1},lfc:{name:'LFC',icon:'🚚',order:2},salad:{name:'サラダクラブ',icon:'🥗',order:3},kakou:{name:'加工品',icon:'📦',order:4},chokuden:{name:'直伝',icon:'🍜',order:5},hana:{name:'花',icon:'🌸',order:6},sanchoku:{name:'産直',icon:'🥬',order:7},consumable:{name:'原価算入比',icon:'🧾',order:7.5},tenkan:{name:'店間移動',icon:'🔄',order:8},bumonkan:{name:'部門間移動',icon:'🔀',order:9},other:{name:'その他',icon:'📋',order:99}};
+let SUPPLIER_CAT_MAP={'0074721':'market','0012104':'lfc','0012072':'lfc','0017175':'salad','0030627':'kakou','0030344':'kakou','0044121':'kakou','0074017':'kakou','0074088':'chokuden','0076511':'chokuden','0017426':'other','0017663':'other','0074508':'other','0075825':'hana','0076686':'hana','0037923':'hana','0011002':'other'};
+// デフォルト: 0074721は売価が仮なので値入率で計算
+SUPPLIER_SETTINGS['0074721']={marginRate:0.26,usePriceCalc:true};
+
+// ファイルタイプ定義（自動判定用）
+const FILE_TYPES={
+    shiire:{name:'仕入',patterns:['仕入','shiire'],headerPatterns:['取引先コード','原価金額','売価金額']},
+    uriage:{name:'売上',patterns:['売上','uriage'],headerPatterns:['販売金額','売上']},
+    baihen:{name:'売変',patterns:['売変','baihen'],headerPatterns:['売変合計','値引']},
+    settings:{name:'初期設定',patterns:['初期','設定','setting'],headerPatterns:['期首','期末']},
+    budget:{name:'予算',patterns:['予算','budget'],headerPatterns:['予算']},
+    tenkanIn:{name:'店間入',patterns:['店間入','入庫'],headerPatterns:['店舗コードIN']},
+    tenkanOut:{name:'店間出',patterns:['店間出','出庫'],headerPatterns:['店舗コードOUT']},
+    hana:{name:'花',patterns:['花','hana'],headerPatterns:['販売金額']},
+    sanchoku:{name:'産直',patterns:['産直','sanchoku'],headerPatterns:['販売金額']}
+};
+
+const parseNum=s=>parseInt(String(s).replace(/[^\d.-]/g,''))||0;
+const fmt=n=>n==null||isNaN(n)?'-':Math.round(n).toLocaleString('ja-JP');
+const fmtPct=(n,d=2)=>n==null||isNaN(n)?'-':(n*100).toFixed(d)+'%';
+function formatInput(el){let v=el.value.replace(/[^\d]/g,'');if(v)el.value=parseInt(v).toLocaleString('ja-JP');}
+function parseDate(v){if(!v)return null;if(typeof v==='number')return new Date((v-25569)*86400*1000);const s=String(v);let m=s.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=s.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);return null;}
+function getCatOrder(){return Object.entries(CATEGORIES).sort((a,b)=>a[1].order-b[1].order).map(([k])=>k);}
+function showToast(msg,type='info'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className='toast '+type;t.innerHTML='<span>'+(type==='success'?'✓':type==='error'?'✕':type==='warning'?'⚠':'ℹ')+'</span> '+msg;c.appendChild(t);setTimeout(()=>t.remove(),3200);}
+
+// ===== ドラッグ&ドロップ機能 =====
+function initDropZone(){
+    const dropZone=document.getElementById('drop-zone');
+    if(!dropZone)return;
+    
+    dropZone.addEventListener('dragover',e=>{
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave',()=>{
+        dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop',e=>{
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        handleDroppedFiles(e.dataTransfer.files);
+    });
+    dropZone.addEventListener('click',()=>{
+        const input=document.createElement('input');
+        input.type='file';
+        input.multiple=true;
+        input.accept='.xlsx,.xls';
+        input.onchange=()=>handleDroppedFiles(input.files);
+        input.click();
+    });
+}
+
+// ファイル自動判定
+function detectFileType(filename,data){
+    const lowerName=filename.toLowerCase();
+    // ファイル名パターンでチェック
+    for(const[type,config]of Object.entries(FILE_TYPES)){
+        for(const pattern of config.patterns){
+            if(lowerName.includes(pattern.toLowerCase()))return type;
+        }
+    }
+    // ヘッダーパターンでチェック
+    if(data&&data.length>0){
+        const headerStr=data.slice(0,3).flat().map(x=>String(x||'')).join(' ').toLowerCase();
+        for(const[type,config]of Object.entries(FILE_TYPES)){
+            const matches=config.headerPatterns.filter(p=>headerStr.includes(p.toLowerCase()));
+            if(matches.length>=1)return type;
+        }
+    }
+    return null;
+}
+
+// ドロップされたファイルを処理
+async function handleDroppedFiles(files){
+    const fileArray=Array.from(files);
+    let loadedCount=0;
+    
+    for(const file of fileArray){
+        try{
+            const data=await readExcelFile(file);
+            const type=detectFileType(file.name,data);
+            
+            if(type){
+                DATA[type]=data;
+                const card=document.querySelector(`.upload-card input[onchange*="${type}"]`)?.closest('.upload-card');
+                if(card)card.classList.add('loaded');
+                
+                // 特定ファイルの後処理
+                if(type==='shiire')detectStoresAndSuppliers();
+                if(type==='hana'||type==='sanchoku')detectStoresFromHanaSanchoku(type);
+                if(type==='settings')processSettings();
+                if(type==='budget')processBudget();
+                
+                showToast(`${FILE_TYPES[type].name}: ${file.name}`,'success');
+                loadedCount++;
+            }else{
+                showToast(`${file.name}の種類を判定できません`,'warning');
+            }
+        }catch(err){
+            showToast(`${file.name}: ${err.message}`,'error');
+        }
+    }
+    
+    if(loadedCount>0){
+        showToast(`${loadedCount}件のファイルを読み込みました`,'success');
+        document.getElementById('btn-generate').disabled=!(DATA.shiire&&DATA.uriage);
+    }
+}
+
+function readExcelFile(file){
+    return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+            try{
+                const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+                const data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+                resolve(data);
+            }catch(err){reject(err);}
+        };
+        reader.onerror=()=>reject(new Error('ファイル読込エラー'));
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+// 初期化
+document.addEventListener('DOMContentLoaded',()=>{
+    initDropZone();
+    loadSavedSettings();
+    applyTheme();
+});
+
+// ===== テーマ管理 =====
+let currentTheme='dark';
+
+function toggleTheme(){
+    currentTheme=currentTheme==='dark'?'light':'dark';
+    applyTheme();
+    saveSettingsToStorage();
+}
+
+function applyTheme(){
+    document.documentElement.setAttribute('data-theme',currentTheme);
+    const btn=document.getElementById('theme-toggle');
+    if(btn)btn.textContent=currentTheme==='dark'?'🌙':'☀️';
+}
+
+// ===== LocalStorage設定保存 =====
+function saveSettingsToStorage(){
+    try{
+        const settings={
+            theme:currentTheme,
+            targetMargin:document.getElementById('target-margin')?.value||'25.00',
+            warningMargin:document.getElementById('warning-margin')?.value||'23.00',
+            hanaRate:document.getElementById('hana-rate')?.value||'0.80',
+            sanchokuRate:document.getElementById('sanchoku-rate')?.value||'0.85',
+            marginRate:document.getElementById('margin-rate')?.value||'0.26',
+            supplierSettings:SUPPLIER_SETTINGS,
+            supplierCatMap:SUPPLIER_CAT_MAP
+        };
+        localStorage.setItem('shiire_settings_v8',JSON.stringify(settings));
+    }catch(e){console.warn('設定保存エラー:',e);}
+}
+
+function loadSavedSettings(){
+    try{
+        const saved=localStorage.getItem('shiire_settings_v8');
+        if(saved){
+            const s=JSON.parse(saved);
+            currentTheme=s.theme||'dark';
+            if(s.targetMargin)document.getElementById('target-margin').value=s.targetMargin;
+            if(s.warningMargin)document.getElementById('warning-margin').value=s.warningMargin;
+            if(s.hanaRate)document.getElementById('hana-rate').value=s.hanaRate;
+            if(s.sanchokuRate)document.getElementById('sanchoku-rate').value=s.sanchokuRate;
+            if(s.marginRate)document.getElementById('margin-rate').value=s.marginRate;
+            if(s.supplierSettings)Object.assign(SUPPLIER_SETTINGS,s.supplierSettings);
+            if(s.supplierCatMap)Object.assign(SUPPLIER_CAT_MAP,s.supplierCatMap);
+            showToast('保存された設定を復元しました','info');
+        }
+    }catch(e){console.warn('設定読込エラー:',e);}
+}
+
+// ===== 設定モーダル =====
+function showSettingsModal(){
+    renderSettingsContent();
+    document.getElementById('settings-modal').style.display='flex';
+}
+
+function closeSettingsModal(){
+    document.getElementById('settings-modal').style.display='none';
+}
+
+function renderSettingsContent(){
+    const container=document.getElementById('settings-content');
+    container.innerHTML=`
+        <div style="margin-bottom:20px">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">📊 目標設定</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="background:var(--bg3);padding:10px;border-radius:7px">
+                    <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">目標粗利率 (%)</label>
+                    <input type="number" id="set-target-margin" value="${document.getElementById('target-margin')?.value||'25.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                </div>
+                <div style="background:var(--bg3);padding:10px;border-radius:7px">
+                    <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">警告しきい値 (%)</label>
+                    <input type="number" id="set-warning-margin" value="${document.getElementById('warning-margin')?.value||'23.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                </div>
+            </div>
+        </div>
+        <div style="margin-bottom:20px">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">🌸 売上納品掛率</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="background:var(--bg3);padding:10px;border-radius:7px">
+                    <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">花 掛け率</label>
+                    <input type="number" id="set-hana-rate" value="${document.getElementById('hana-rate')?.value||'0.80'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                </div>
+                <div style="background:var(--bg3);padding:10px;border-radius:7px">
+                    <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">産直 掛け率</label>
+                    <input type="number" id="set-sanchoku-rate" value="${document.getElementById('sanchoku-rate')?.value||'0.85'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                </div>
+            </div>
+        </div>
+        <div style="margin-bottom:20px">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">🎨 表示設定</div>
+            <div style="background:var(--bg3);padding:12px;border-radius:7px;display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div style="font-size:0.75rem;font-weight:500">テーマ</div>
+                    <div style="font-size:0.6rem;color:var(--text4)">ダーク / ライト</div>
+                </div>
+                <select id="set-theme" style="padding:6px 12px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:0.75rem">
+                    <option value="dark" ${currentTheme==='dark'?'selected':''}>🌙 ダーク</option>
+                    <option value="light" ${currentTheme==='light'?'selected':''}>☀️ ライト</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-bottom:20px">
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px">💾 データ管理</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button onclick="exportSettings()" style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">📤 設定エクスポート</button>
+                <button onclick="document.getElementById('import-settings').click()" style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">📥 設定インポート</button>
+                <input type="file" id="import-settings" accept=".json" style="display:none" onchange="importSettings(this)">
+            </div>
+            <button onclick="clearAllSettings()" style="width:100%;margin-top:8px;padding:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:7px;color:var(--danger);font-size:0.7rem;cursor:pointer">🗑️ 全設定をリセット</button>
+        </div>
+    `;
+}
+
+function saveAllSettings(){
+    document.getElementById('target-margin').value=document.getElementById('set-target-margin').value;
+    document.getElementById('warning-margin').value=document.getElementById('set-warning-margin').value;
+    document.getElementById('hana-rate').value=document.getElementById('set-hana-rate').value;
+    document.getElementById('sanchoku-rate').value=document.getElementById('set-sanchoku-rate').value;
+    currentTheme=document.getElementById('set-theme').value;
+    applyTheme();
+    saveSettingsToStorage();
+    closeSettingsModal();
+    showToast('設定を保存しました','success');
+    if(result)render();
+}
+
+function exportSettings(){
+    const settings={
+        version:'v8',
+        exportDate:new Date().toISOString(),
+        theme:currentTheme,
+        targetMargin:document.getElementById('target-margin')?.value,
+        warningMargin:document.getElementById('warning-margin')?.value,
+        hanaRate:document.getElementById('hana-rate')?.value,
+        sanchokuRate:document.getElementById('sanchoku-rate')?.value,
+        marginRate:document.getElementById('margin-rate')?.value,
+        supplierSettings:SUPPLIER_SETTINGS,
+        supplierCatMap:SUPPLIER_CAT_MAP
+    };
+    const blob=new Blob([JSON.stringify(settings,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='shiire_settings_'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('設定をエクスポートしました','success');
+}
+
+function importSettings(input){
+    const file=input.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+        try{
+            const s=JSON.parse(e.target.result);
+            if(s.theme)currentTheme=s.theme;
+            if(s.targetMargin)document.getElementById('target-margin').value=s.targetMargin;
+            if(s.warningMargin)document.getElementById('warning-margin').value=s.warningMargin;
+            if(s.hanaRate)document.getElementById('hana-rate').value=s.hanaRate;
+            if(s.sanchokuRate)document.getElementById('sanchoku-rate').value=s.sanchokuRate;
+            if(s.marginRate)document.getElementById('margin-rate').value=s.marginRate;
+            if(s.supplierSettings)Object.assign(SUPPLIER_SETTINGS,s.supplierSettings);
+            if(s.supplierCatMap)Object.assign(SUPPLIER_CAT_MAP,s.supplierCatMap);
+            applyTheme();
+            saveSettingsToStorage();
+            renderSettingsContent();
+            showToast('設定をインポートしました','success');
+        }catch(err){
+            showToast('インポートエラー: '+err.message,'error');
+        }
+    };
+    reader.readAsText(file);
+    input.value='';
+}
+
+function clearAllSettings(){
+    if(!confirm('全ての設定をリセットしますか？'))return;
+    localStorage.removeItem('shiire_settings_v8');
+    currentTheme='dark';
+    SUPPLIER_SETTINGS={'0074721':{marginRate:0.26,usePriceCalc:true}};
+    document.getElementById('target-margin').value='25.00';
+    document.getElementById('warning-margin').value='23.00';
+    document.getElementById('hana-rate').value='0.80';
+    document.getElementById('sanchoku-rate').value='0.85';
+    document.getElementById('margin-rate').value='0.26';
+    applyTheme();
+    renderSettingsContent();
+    showToast('設定をリセットしました','info');
+}
+
+// ===== データ検証 =====
+let validationWarnings=[];
+
+function validateData(){
+    validationWarnings=[];
+    
+    // 必須ファイルチェック
+    if(!DATA.shiire)validationWarnings.push({type:'error',msg:'仕入データがありません',detail:'仕入ファイルを読み込んでください'});
+    if(!DATA.uriage)validationWarnings.push({type:'error',msg:'売上データがありません',detail:'売上ファイルを読み込んでください'});
+    
+    // 店舗数チェック
+    const storeCount=Object.keys(STORES).length;
+    if(storeCount===0)validationWarnings.push({type:'warning',msg:'店舗が検出されません',detail:'仕入データの形式を確認してください'});
+    
+    // 在庫設定チェック
+    const invCount=Object.keys(STORE_INVENTORY).length;
+    if(invCount===0)validationWarnings.push({type:'warning',msg:'在庫設定がありません',detail:'初期設定ファイルを読み込むか、手動で設定してください'});
+    else if(invCount<storeCount)validationWarnings.push({type:'warning',msg:`一部店舗の在庫設定がありません (${invCount}/${storeCount})`,detail:'全店舗の期首・期末在庫を設定してください'});
+    
+    // 予算チェック
+    const budgetCount=Object.keys(STORE_BUDGET).length;
+    if(budgetCount===0)validationWarnings.push({type:'info',msg:'予算データがありません',detail:'予算ファイルを読み込むとより詳細な分析が可能です'});
+    
+    // 売変チェック
+    if(!DATA.baihen)validationWarnings.push({type:'info',msg:'売変データがありません',detail:'売変ファイルを読み込むと推定粗利計算が可能です'});
+    
+    return validationWarnings.filter(w=>w.type==='error').length===0;
+}
+
+function showValidationModal(){
+    const container=document.getElementById('validation-content');
+    let h='<div style="display:flex;flex-direction:column;gap:8px">';
+    
+    if(validationWarnings.length===0){
+        h+='<div style="text-align:center;padding:24px;color:var(--success)"><div style="font-size:2rem;margin-bottom:8px">✅</div><div style="font-weight:600">全てのチェックをパスしました</div></div>';
+    }else{
+        validationWarnings.forEach(w=>{
+            const color=w.type==='error'?'var(--danger)':w.type==='warning'?'var(--warning)':'var(--info)';
+            const icon=w.type==='error'?'❌':w.type==='warning'?'⚠️':'ℹ️';
+            h+=`<div style="padding:12px;background:var(--bg3);border-radius:8px;border-left:3px solid ${color}">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                    <span>${icon}</span>
+                    <span style="font-weight:600;color:${color}">${w.msg}</span>
+                </div>
+                <div style="font-size:0.7rem;color:var(--text3);margin-left:24px">${w.detail}</div>
+            </div>`;
+        });
+    }
+    
+    h+='</div>';
+    container.innerHTML=h;
+    document.getElementById('validation-modal').style.display='flex';
+}
+
+function closeValidationModal(){
+    document.getElementById('validation-modal').style.display='none';
+}
+
+function proceedWithWarnings(){
+    closeValidationModal();
+    generateWithoutValidation();
+}
+
+document.getElementById('view-tabs').addEventListener('click',e=>{const t=e.target.closest('.topbar-tab');if(!t)return;document.querySelectorAll('.topbar-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');currentView=t.dataset.view;if(result)render();});
+document.getElementById('store-chips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;document.querySelectorAll('#store-chips .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');currentStore=c.dataset.store;if(result)render();});
+
+function loadFile(input,key){const file=input.files[0];if(!file)return;const card=input.closest('.upload-card');const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});DATA[key]=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});card.classList.add('loaded');showToast(file.name+' を読込みました','success');if(key==='shiire')detectStoresAndSuppliers();if(key==='hana'||key==='sanchoku')detectStoresFromHanaSanchoku(key);if(key==='settings')processSettings();if(key==='budget')processBudget();document.getElementById('btn-generate').disabled=!(DATA.shiire&&DATA.uriage);}catch(err){showToast('読込エラー: '+err.message,'error');}};reader.readAsArrayBuffer(file);}
+
+// 初期設定ファイルを処理
+function processSettings(){
+    const data=DATA.settings;if(!data||data.length<2)return;
+    for(let row=1;row<data.length;row++){
+        const storeCode=data[row][0];
+        const invStart=parseFloat(data[row][1])||0;
+        const invEnd=parseFloat(data[row][2])||0;
+        if(storeCode){
+            const sid=String(parseInt(storeCode));
+            STORE_INVENTORY[sid]={invStart,invEnd};
+        }
+    }
+    updateStoreInventoryUI();
+    showToast('店舗別在庫設定を読み込みました','success');
+}
+
+// 消耗品モーダル表示
+function showConsumableModal(){
+    updateConsumableStatus();
+    document.getElementById('consumable-modal').style.display='flex';
+}
+
+function closeConsumableModal(){
+    document.getElementById('consumable-modal').style.display='none';
+}
+
+// 仕入先設定モーダル
+function showSupplierSettingsModal(){
+    updateSupplierSettingsUI();
+    document.getElementById('supplier-settings-modal').style.display='flex';
+}
+
+function closeSupplierSettingsModal(){
+    document.getElementById('supplier-settings-modal').style.display='none';
+}
+
+function updateSupplierSettingsUI(){
+    const container=document.getElementById('supplier-settings-content');
+    const supCodes=Object.keys(SUPPLIERS).sort();
+    if(supCodes.length===0){
+        container.innerHTML='<div style="font-size:0.65rem;color:var(--text4);padding:16px;text-align:center">仕入データ読込後に表示されます</div>';
+        return;
+    }
+    
+    const catOptions=Object.entries(CATEGORIES).map(([k,v])=>'<option value="'+k+'">'+v.icon+' '+v.name+'</option>').join('');
+    
+    let h='<table style="width:100%;font-size:0.68rem;border-collapse:collapse">';
+    h+='<thead><tr style="background:var(--bg4);position:sticky;top:0"><th style="padding:8px;text-align:left">コード</th><th style="padding:8px;text-align:left">仕入先名</th><th style="padding:8px;text-align:center">帳合分類</th><th style="padding:8px;text-align:center">売価計算</th><th style="padding:8px;text-align:center">値入率</th></tr></thead><tbody>';
+    
+    supCodes.forEach(code=>{
+        const sup=SUPPLIERS[code];
+        const setting=SUPPLIER_SETTINGS[code]||{};
+        const currentCat=SUPPLIER_CAT_MAP[code]||'other';
+        const usePriceCalc=setting.usePriceCalc||false;
+        const marginRate=setting.marginRate||0.26;
+        
+        h+='<tr style="border-bottom:1px solid var(--border)">';
+        h+='<td style="padding:6px;font-family:\'JetBrains Mono\',monospace;color:var(--text3)">'+code+'</td>';
+        h+='<td style="padding:6px">'+sup.name+'</td>';
+        h+='<td style="padding:6px"><select data-code="'+code+'" data-field="cat" style="width:100%;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.65rem">';
+        Object.entries(CATEGORIES).forEach(([k,v])=>{
+            h+='<option value="'+k+'"'+(k===currentCat?' selected':'')+'>'+v.icon+' '+v.name+'</option>';
+        });
+        h+='</select></td>';
+        h+='<td style="padding:6px;text-align:center"><label style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer"><input type="checkbox" data-code="'+code+'" data-field="usePriceCalc" '+(usePriceCalc?'checked':'')+' style="accent-color:var(--primary)"> <span style="font-size:0.6rem;color:var(--text3)">値入率から算出</span></label></td>';
+        h+='<td style="padding:6px"><input type="text" data-code="'+code+'" data-field="marginRate" value="'+marginRate+'" style="width:60px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;text-align:center" '+(usePriceCalc?'':'disabled')+'></td>';
+        h+='</tr>';
+    });
+    h+='</tbody></table>';
+    
+    h+='<div style="margin-top:12px;padding:10px;background:var(--bg4);border-radius:6px;font-size:0.6rem;color:var(--text3)">';
+    h+='<strong>💡 売価計算について:</strong><br>';
+    h+='「値入率から算出」にチェックを入れると、仕入ファイルの売価を無視し、原価÷(1-値入率)で売価を再計算します。<br>';
+    h+='（例: 0074721 あさくらセンタの売価が仮の場合に使用）';
+    h+='</div>';
+    
+    container.innerHTML=h;
+    
+    // チェックボックス変更時に値入率入力を有効/無効切り替え
+    container.querySelectorAll('input[data-field="usePriceCalc"]').forEach(cb=>{
+        cb.addEventListener('change',e=>{
+            const code=e.target.dataset.code;
+            const marginInput=container.querySelector('input[data-code="'+code+'"][data-field="marginRate"]');
+            if(marginInput)marginInput.disabled=!e.target.checked;
+        });
+    });
+}
+
+function saveSupplierSettings(){
+    const container=document.getElementById('supplier-settings-content');
+    
+    // 帳合分類を更新
+    container.querySelectorAll('select[data-field="cat"]').forEach(sel=>{
+        SUPPLIER_CAT_MAP[sel.dataset.code]=sel.value;
+        if(SUPPLIERS[sel.dataset.code])SUPPLIERS[sel.dataset.code].cat=sel.value;
+    });
+    
+    // 仕入先設定を更新
+    container.querySelectorAll('input[data-field="usePriceCalc"]').forEach(cb=>{
+        const code=cb.dataset.code;
+        const marginInput=container.querySelector('input[data-code="'+code+'"][data-field="marginRate"]');
+        if(!SUPPLIER_SETTINGS[code])SUPPLIER_SETTINGS[code]={};
+        SUPPLIER_SETTINGS[code].usePriceCalc=cb.checked;
+        SUPPLIER_SETTINGS[code].marginRate=parseFloat(marginInput?.value)||0.26;
+    });
+    
+    closeSupplierSettingsModal();
+    showToast('仕入先設定を保存しました','success');
+}
+
+function updateConsumableStatus(){
+    const countEl=document.getElementById('consumable-count');
+    const storeCount=Object.keys(CONSUMABLES).length;
+    if(storeCount===0){
+        countEl.innerHTML='未読込';
+        return;
+    }
+    let totalCost=0,totalItems=0;
+    Object.values(CONSUMABLES).forEach(storeDays=>{
+        Object.values(storeDays).forEach(day=>{
+            totalCost+=day.cost;
+            totalItems+=day.items.length;
+        });
+    });
+    countEl.innerHTML=storeCount+'店舗 / '+totalItems+'品目 / <span style="color:#f97316">'+fmt(totalCost)+'円</span>';
+}
+
+function selectConsumableFiles(){
+    document.getElementById('consumable-input').click();
+}
+
+let consumableMode='overwrite';
+
+function processConsumableFiles(input){
+    const files=input.files;if(!files||files.length===0)return;
+    consumableMode=document.querySelector('input[name="consumable-mode"]:checked').value;
+    closeConsumableModal();
+    
+    const card=document.querySelector('.upload-card:has(#consumable-input)')||document.querySelectorAll('.upload-card')[4];
+    let loadedCount=0,totalCost=0,newItems=0;
+    
+    // 上書きモードの場合はクリア
+    if(consumableMode==='overwrite'){
+        CONSUMABLES={};
+    }
+    
+    Array.from(files).forEach(file=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+            try{
+                const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+                const data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+                
+                // ファイル名から店舗コードを取得（先頭2桁）
+                const storeMatch=file.name.match(/^(\d{2})/);
+                if(!storeMatch)return;
+                const sid=String(parseInt(storeMatch[1]));
+                
+                // 勘定コード81257のデータを抽出
+                for(let row=1;row<data.length;row++){
+                    const kamokuCode=String(data[row][0]||'');
+                    if(kamokuCode!=='81257')continue;
+                    
+                    const itemCode=String(data[row][1]||'');
+                    const itemName=String(data[row][2]||'');
+                    const qty=parseFloat(data[row][3])||0;
+                    const cost=parseFloat(data[row][4])||0;
+                    const dateStr=String(data[row][5]||'');
+                    
+                    const date=parseDate(dateStr);
+                    if(!date)continue;
+                    const day=date.getDate();
+                    
+                    if(!CONSUMABLES[sid])CONSUMABLES[sid]={};
+                    if(!CONSUMABLES[sid][day])CONSUMABLES[sid][day]={cost:0,items:[]};
+                    CONSUMABLES[sid][day].cost+=cost;
+                    CONSUMABLES[sid][day].items.push({itemCode,itemName,qty,cost});
+                    totalCost+=cost;
+                    newItems++;
+                }
+                
+                loadedCount++;
+                if(loadedCount===files.length){
+                    card.classList.add('loaded');
+                    const modeText=consumableMode==='overwrite'?'上書き':'追加';
+                    showToast('原価算入比 '+files.length+'ファイル'+modeText+' ('+newItems+'品/'+fmt(totalCost)+')','success');
+                    input.value=''; // リセットして同じファイルを再選択可能に
+                }
+            }catch(err){
+                showToast('消耗品読込エラー: '+err.message,'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+// 予算ファイルを処理
+function processBudget(){
+    const data=DATA.budget;if(!data||data.length<2)return;
+    STORE_BUDGET={};
+    for(let row=1;row<data.length;row++){
+        const storeCode=data[row][0];
+        const dateStr=String(data[row][1]||'');
+        const budgetVal=parseFloat(data[row][2])||0;
+        if(!storeCode)continue;
+        const sid=String(parseInt(storeCode));
+        const date=parseDate(dateStr);
+        if(!date)continue;
+        const day=date.getDate();
+        if(!STORE_BUDGET[sid])STORE_BUDGET[sid]={daily:{},total:0};
+        STORE_BUDGET[sid].daily[day]=budgetVal;
+        STORE_BUDGET[sid].total+=budgetVal;
+    }
+    showToast('日別予算データを読み込みました（'+Object.keys(STORE_BUDGET).length+'店舗）','success');
+}
+
+// 売変（値引）データを処理
+function processBaihen(){
+    const data=DATA.baihen;if(!data||data.length<3)return {};
+    const r={},cols={};
+    // ヘッダー行(row 0)から店舗を検出
+    for(let col=3;col<data[0].length;col+=2){
+        const stoStr=String(data[0][col]||'');
+        const stoMatch=stoStr.match(/(\d{4}):/);
+        if(stoMatch){
+            const sid=String(parseInt(stoMatch[1]));
+            cols[sid]={sales:col,baihen:col+1};
+        }
+    }
+    // データ行を処理（row 3から）
+    for(let row=3;row<data.length;row++){
+        const dateStr=String(data[row][0]||'');
+        const date=parseDate(dateStr);
+        if(!date)continue;
+        const day=date.getDate();
+        Object.entries(cols).forEach(([sid,colInfo])=>{
+            const sales=parseFloat(data[row][colInfo.sales])||0;
+            const baihen=parseFloat(data[row][colInfo.baihen])||0; // マイナス値
+            if(sales===0)return;
+            if(!r[sid])r[sid]={};
+            r[sid][day]={sales,baihen:Math.abs(baihen)}; // 絶対値で保存
+        });
+    }
+    return r;
+}
+
+// 店舗別在庫UIを更新
+function updateStoreInventoryUI(){
+    const container=document.getElementById('store-inventory-container');
+    const storeIds=Object.keys(STORES).sort((a,b)=>+a-+b);
+    if(storeIds.length===0){
+        container.innerHTML='<div style="font-size:0.65rem;color:var(--text4);padding:8px;text-align:center">店舗データ読込後に表示</div>';
+        return;
+    }
+    let h='<table style="width:100%;font-size:0.62rem;border-collapse:collapse"><thead><tr style="background:var(--bg4)"><th style="padding:4px;text-align:left">店舗</th><th style="padding:4px;text-align:right">期首在庫</th><th style="padding:4px;text-align:right">期末在庫</th></tr></thead><tbody>';
+    storeIds.forEach(sid=>{
+        const st=STORES[sid];
+        const inv=STORE_INVENTORY[sid]||{invStart:0,invEnd:0};
+        h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:4px;color:var(--text2)">'+sid.padStart(2,'0')+' '+(st?.name||'')+'</td><td style="padding:2px"><input type="text" class="inv-input" data-store="'+sid+'" data-type="start" value="'+fmt(inv.invStart)+'" onchange="updateStoreInv(this)" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;text-align:right"></td><td style="padding:2px"><input type="text" class="inv-input" data-store="'+sid+'" data-type="end" value="'+fmt(inv.invEnd)+'" onchange="updateStoreInv(this)" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;text-align:right"></td></tr>';
+    });
+    h+='</tbody></table>';
+    container.innerHTML=h;
+}
+
+// 店舗在庫を更新
+function updateStoreInv(el){
+    const sid=el.dataset.store;
+    const type=el.dataset.type;
+    const val=parseNum(el.value);
+    if(!STORE_INVENTORY[sid])STORE_INVENTORY[sid]={invStart:0,invEnd:0};
+    if(type==='start')STORE_INVENTORY[sid].invStart=val;
+    else STORE_INVENTORY[sid].invEnd=val;
+    el.value=fmt(val);
+}
+
+// 花・産直ファイルから店舗を検出
+function detectStoresFromHanaSanchoku(type){const data=DATA[type];if(!data||data.length<2)return;for(let col=3;col<data[0].length;col+=2){const stoStr=String(data[0][col]||'');const stoMatch=stoStr.match(/(\d{4}):(.+)$/);if(stoMatch){const code=stoMatch[1],name=stoMatch[2].replace(/毎日屋/g,'').trim(),id=String(parseInt(code));if(!STORES[id])STORES[id]={code,name};}}updateStoreChips();updateStoreInventoryUI();}
+
+function detectStoresAndSuppliers(){const data=DATA.shiire;if(!data||data.length<2)return;STORES={};SUPPLIERS={};for(let col=3;col<data[0].length;col+=2){const supStr=String(data[0][col]||''),stoStr=String(data[1][col]||'');const supMatch=supStr.match(/(\d{7}):?(.*)$/);if(supMatch){const code=supMatch[1],name=supMatch[2]?.trim()||code;if(!SUPPLIERS[code])SUPPLIERS[code]={name,cat:SUPPLIER_CAT_MAP[code]||'other'};}const stoMatch=stoStr.match(/(\d{4}):(.+)$/);if(stoMatch){const code=stoMatch[1],name=stoMatch[2].replace(/毎日屋/g,'').trim(),id=String(parseInt(code));if(!STORES[id])STORES[id]={code,name};}}updateStoreChips();updateStoreInventoryUI();}
+
+function updateStoreChips(){const c=document.getElementById('store-chips');let h='<div class="chip active" data-store="all">全店舗</div>';Object.entries(STORES).sort((a,b)=>+a[0]-+b[0]).forEach(([id])=>{h+='<div class="chip" data-store="'+id+'">'+id.padStart(2,'0')+'</div>';});c.innerHTML=h;}
+
+function processShiire(){const data=DATA.shiire;if(!data||data.length<4)return {};const r={};for(let col=3;col<data[0].length;col+=2){const supMatch=String(data[0][col]||'').match(/(\d{7})/),stoMatch=String(data[1][col]||'').match(/(\d{4}):/);if(!supMatch||!stoMatch)continue;const sc=supMatch[1],si=SUPPLIERS[sc]||{name:sc,cat:'other'},sid=String(parseInt(stoMatch[1]));if(!STORES[sid])continue;
+// 仕入先設定を取得
+const supSetting=SUPPLIER_SETTINGS[sc]||{};
+const usePriceCalc=supSetting.usePriceCalc||false;
+const supMarginRate=supSetting.marginRate||0.26;
+for(let row=4;row<data.length;row++){const date=parseDate(data[row][0]);if(!date)continue;const day=date.getDate(),cost=parseFloat(data[row][col])||0;let price=parseFloat(data[row][col+1])||0;
+// 売価計算設定がある場合は値入率から売価を再計算
+if(usePriceCalc&&cost>0){price=Math.round(cost/(1-supMarginRate));}
+if(cost===0&&price===0)continue;if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={suppliers:{},total:{cost:0,price:0}};if(!r[sid][day].suppliers[sc])r[sid][day].suppliers[sc]={...si,cost:0,price:0,usePriceCalc};r[sid][day].suppliers[sc].cost+=cost;r[sid][day].suppliers[sc].price+=price;r[sid][day].total.cost+=cost;r[sid][day].total.price+=price;}}return r;}
+
+function processUriage(){const data=DATA.uriage;if(!data||data.length<3)return {};const r={},cols={};for(let col=3;col<data[0].length;col+=2){const m=String(data[0][col]||'').match(/(\d{4}):/);if(m){const sid=String(parseInt(m[1]));if(STORES[sid])cols[sid]=col;}}for(let row=3;row<data.length;row++){const date=parseDate(data[row][0]);if(!date)continue;const day=date.getDate();Object.entries(cols).forEach(([sid,col])=>{if(!r[sid])r[sid]={};r[sid][day]={sales:parseFloat(data[row][col])||0};});}return r;}
+
+// 店間部門間入: 店舗コード=店コードOUT→部門間入, 異なる→店間入
+function processTenkanIn(){const data=DATA.tenkanIn;if(!data||data.length<2)return {};const r={};for(let row=1;row<data.length;row++){const storeCode=String(data[row][0]||'').trim(),dateVal=data[row][1],storeCodeOut=String(data[row][2]||'').trim(),costIn=parseFloat(data[row][3])||0,priceIn=parseFloat(data[row][4])||0;const date=parseDate(dateVal);if(!date)continue;const day=date.getDate(),sid=String(parseInt(storeCode)||0),sidOut=String(parseInt(storeCodeOut)||0);if(!STORES[sid])continue;const isBumon=(storeCode===storeCodeOut)||(sid===sidOut);if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={tenkanIn:[],bumonIn:[]};if(isBumon){r[sid][day].bumonIn.push({cost:costIn,price:priceIn,fromStore:sidOut});}else{r[sid][day].tenkanIn.push({cost:costIn,price:priceIn,fromStore:sidOut,fromStoreName:STORES[sidOut]?.name||sidOut});}}return r;}
+
+// 店間部門間出: 店舗コード=店コードIN→部門間出, 異なる→店間出
+function processTenkanOut(){const data=DATA.tenkanOut;if(!data||data.length<2)return {};const r={};for(let row=1;row<data.length;row++){const dateVal=data[row][0],storeCode=String(data[row][1]||'').trim(),storeCodeIn=String(data[row][2]||'').trim(),bumonCodeIn=String(data[row][3]||'').trim(),costOut=parseFloat(data[row][4])||0,priceOut=parseFloat(data[row][5])||0;const date=parseDate(dateVal);if(!date)continue;const day=date.getDate(),sid=String(parseInt(storeCode)||0),sidIn=String(parseInt(storeCodeIn)||0);if(!STORES[sid])continue;const isBumon=(storeCode===storeCodeIn)||(sid===sidIn);if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={tenkanOut:[],bumonOut:[]};if(isBumon){r[sid][day].bumonOut.push({cost:costOut,price:priceOut,toStore:sidIn,bumonCode:bumonCodeIn});}else{r[sid][day].tenkanOut.push({cost:costOut,price:priceOut,toStore:sidIn,toStoreName:STORES[sidIn]?.name||sidIn,bumonCode:bumonCodeIn});}}return r;}
+
+// 花・産直データ処理（掛け率対応）- 売上納品形式
+function processHanaSanchoku(type){
+    const data=DATA[type];if(!data||data.length<3)return {};
+    const rate=parseFloat(document.getElementById(type+'-rate')?.value)||(type==='hana'?0.80:0.85);
+    const r={},cols={};
+    // ヘッダー行(row 0)から店舗を検出: 0001:店舗名 形式
+    for(let col=3;col<data[0].length;col+=2){
+        const stoStr=String(data[0][col]||'');
+        const stoMatch=stoStr.match(/(\d{4}):/);
+        if(stoMatch){const sid=String(parseInt(stoMatch[1]));cols[sid]=col;}
+    }
+    // データ行を処理（row 3から）
+    for(let row=3;row<data.length;row++){
+        const dateStr=String(data[row][0]||'');
+        const date=parseDate(dateStr);
+        if(!date)continue;
+        const day=date.getDate();
+        Object.entries(cols).forEach(([sid,col])=>{
+            const price=parseFloat(data[row][col])||0;
+            if(price===0)return;
+            const cost=Math.round(price*rate);
+            if(!r[sid])r[sid]={};
+            if(!r[sid][day])r[sid][day]={price:0,cost:0};
+            r[sid][day].price+=price;
+            r[sid][day].cost+=cost;
+        });
+    }
+    return r;
+}
+
+function generate(){
+    // データ検証
+    const isValid=validateData();
+    if(!isValid){
+        showValidationModal();
+        return;
+    }
+    
+    // 警告がある場合は確認モーダルを表示
+    if(validationWarnings.length>0){
+        showValidationModal();
+        return;
+    }
+    
+    generateWithoutValidation();
+}
+
+function generateWithoutValidation(){document.getElementById('content').innerHTML='<div class="loading-state"><div class="spinner"></div><p>データ処理中...</p></div>';setTimeout(()=>{try{
+const shiire=processShiire(),uriage=processUriage(),tenkanInData=processTenkanIn(),tenkanOutData=processTenkanOut(),hana=processHanaSanchoku('hana'),sanchoku=processHanaSanchoku('sanchoku'),baihenData=processBaihen();
+result={};Object.keys(STORES).forEach(sid=>{
+const storeInv=STORE_INVENTORY[sid]||{invStart:0,invEnd:0};
+const invStart=storeInv.invStart,invEnd=storeInv.invEnd,budget=parseNum(document.getElementById('budget').value),marginRate=parseFloat(document.getElementById('margin-rate').value)||0.26;
+const daily={},catTotals={},supTotals={},transferDetails={tenkanIn:[],tenkanOut:[],bumonIn:[],bumonOut:[]};
+let totalConsumable=0,totalBaihen=0,totalCoreSales=0,totalCorePrice=0; // 原価算入比合計、売変合計、コア売上、コア売価
+for(let day=1;day<=31;day++){const s=shiire[sid]?.[day]||{suppliers:{},total:{cost:0,price:0}},u=uriage[sid]?.[day]||{sales:0},ti=tenkanInData[sid]?.[day]||{tenkanIn:[],bumonIn:[]},to=tenkanOutData[sid]?.[day]||{tenkanOut:[],bumonOut:[]},h=hana[sid]?.[day]||{cost:0,price:0},sa=sanchoku[sid]?.[day]||{cost:0,price:0},bh=baihenData[sid]?.[day]||{sales:0,baihen:0};
+// 原価算入比データを取得
+const cons=CONSUMABLES[sid]?.[day]||{cost:0,items:[]};
+const tenkanInTotal={cost:0,price:0},tenkanOutTotal={cost:0,price:0},bumonInTotal={cost:0,price:0},bumonOutTotal={cost:0,price:0};
+(ti.tenkanIn||[]).forEach(t=>{tenkanInTotal.cost+=t.cost;tenkanInTotal.price+=t.price;});
+(ti.bumonIn||[]).forEach(t=>{bumonInTotal.cost+=t.cost;bumonInTotal.price+=t.price;});
+(to.tenkanOut||[]).forEach(t=>{tenkanOutTotal.cost+=t.cost;tenkanOutTotal.price+=t.price;});
+(to.bumonOut||[]).forEach(t=>{bumonOutTotal.cost+=t.cost;bumonOutTotal.price+=t.price;});
+if(u.sales===0&&s.total.cost===0&&tenkanInTotal.cost===0&&tenkanOutTotal.cost===0&&bumonInTotal.cost===0&&bumonOutTotal.cost===0&&h.cost===0&&sa.cost===0&&cons.cost===0)continue;
+
+// 売変率計算（売価ベース: 値引額/（売上+値引額））
+const baihenAmt=bh.baihen||0;
+const grossSales=u.sales+baihenAmt; // 値引前売上（売上+値引額）
+const baihenRate=grossSales>0?baihenAmt/grossSales:0;
+
+// コア売上（花・産直を除いた売上）
+const coreSales=u.sales-(h.price||0)-(sa.price||0);
+const coreGrossSales=coreSales+baihenAmt;
+
+daily[day]={sales:u.sales,suppliers:s.suppliers,shiire:s.total,tenkanIn:ti.tenkanIn||[],tenkanOut:to.tenkanOut||[],bumonIn:ti.bumonIn||[],bumonOut:to.bumonOut||[],tenkanInTotal,tenkanOutTotal,bumonInTotal,bumonOutTotal,hana:h,sanchoku:sa,consumable:cons,baihen:baihenAmt,baihenRate,grossSales,coreSales,coreGrossSales};
+totalConsumable+=cons.cost;
+totalBaihen+=baihenAmt;
+totalCoreSales+=coreSales;
+totalCorePrice+=s.total.price;
+
+(ti.tenkanIn||[]).forEach(t=>transferDetails.tenkanIn.push({...t,day}));
+(ti.bumonIn||[]).forEach(t=>transferDetails.bumonIn.push({...t,day}));
+(to.tenkanOut||[]).forEach(t=>transferDetails.tenkanOut.push({...t,day}));
+(to.bumonOut||[]).forEach(t=>transferDetails.bumonOut.push({...t,day}));
+Object.entries(s.suppliers).forEach(([code,data])=>{if(!supTotals[code])supTotals[code]={...data,cost:0,price:0};supTotals[code].cost+=data.cost;supTotals[code].price+=data.price;const cat=SUPPLIERS[code]?.cat||'other';if(!catTotals[cat])catTotals[cat]={cost:0,price:0};catTotals[cat].cost+=data.cost;catTotals[cat].price+=data.price;});
+if(tenkanInTotal.cost!==0||tenkanOutTotal.cost!==0){if(!catTotals['tenkan'])catTotals['tenkan']={cost:0,price:0};catTotals['tenkan'].cost+=tenkanInTotal.cost+tenkanOutTotal.cost;catTotals['tenkan'].price+=tenkanInTotal.price+tenkanOutTotal.price;}
+if(bumonInTotal.cost!==0||bumonOutTotal.cost!==0){if(!catTotals['bumonkan'])catTotals['bumonkan']={cost:0,price:0};catTotals['bumonkan'].cost+=bumonInTotal.cost+bumonOutTotal.cost;catTotals['bumonkan'].price+=bumonInTotal.price+bumonOutTotal.price;}
+if(h.price>0){if(!catTotals['hana'])catTotals['hana']={cost:0,price:0};catTotals['hana'].cost+=h.cost;catTotals['hana'].price+=h.price;}
+if(sa.price>0){if(!catTotals['sanchoku'])catTotals['sanchoku']={cost:0,price:0};catTotals['sanchoku'].cost+=sa.cost;catTotals['sanchoku'].price+=sa.price;}
+if(cons.cost>0){if(!catTotals['consumable'])catTotals['consumable']={cost:0,price:0};catTotals['consumable'].cost+=cons.cost;catTotals['consumable'].price+=cons.cost;}} // 原価算入比は売価=原価
+
+const totalSales=Object.values(daily).reduce((s,d)=>s+d.sales,0),totalCost=Object.values(catTotals).reduce((s,c)=>s+c.cost,0),totalPrice=Object.values(catTotals).reduce((s,c)=>s+c.price,0);
+
+// 花・産直の合計
+const hanaTotalCost=catTotals['hana']?.cost||0;
+const hanaTotalPrice=catTotals['hana']?.price||0;
+const sanchokuTotalCost=catTotals['sanchoku']?.cost||0;
+const sanchokuTotalPrice=catTotals['sanchoku']?.price||0;
+const deliverySalesCost=hanaTotalCost+sanchokuTotalCost; // 売上納品原価
+const deliverySalesPrice=hanaTotalPrice+sanchokuTotalPrice; // 売上納品売価
+
+// コア仕入（花・産直・原価算入比を除いた仕入）
+const coreCost=totalCost-deliverySalesCost-totalConsumable;
+const corePrice=totalPrice-deliverySalesPrice-totalConsumable;
+
+// === 推定在庫計算（シンプルな数式） ===
+// 
+// 【前提】
+// - d: 値引率（売価ベース）= 値引額 / (売上 + 値引額)
+// - m: 値入率（売価ベース）= (売価 - 原価) / 売価
+// - S_net: 値引後売上（ネット売上）
+// - BI: 期首在庫
+// - P: 期中仕入（原価）
+//
+// 【計算式】
+// 1. S_gross = S_net / (1 - d)  ← グロス売上
+// 2. COGS_est = S_gross × (1 - m)  ← 推定売上原価
+// 3. EI_est = BI + P - COGS_est  ← 推定期末在庫
+//
+// 【注意】売上納品（花・産直）は別の値入率を適用
+
+// 売価ベース売変率 d = 値引額 / (売上 + 値引額)
+const totalGrossSales=totalSales+totalBaihen; // S_net + 値引額
+const baihenRateSales=totalGrossSales>0?totalBaihen/totalGrossSales:0; // d
+
+// コア部分の値入率 m（売価ベース）
+const coreMarginRate=corePrice>0?(corePrice-coreCost)/corePrice:marginRate;
+
+// 売上納品（花・産直）の値入率
+const deliveryMarginRate=deliverySalesPrice>0?(deliverySalesPrice-deliverySalesCost)/deliverySalesPrice:0;
+
+// === コア部分の計算 ===
+// コア売上（ネット）= 総売上 - 花売価 - 産直売価
+const coreNetSales=totalCoreSales;
+
+// コアのグロス売上 = コアネット売上 / (1 - d)
+// ※値引は在庫販売（コア）のみに適用されると仮定
+const coreGrossSales=(1-baihenRateSales)>0?coreNetSales/(1-baihenRateSales):coreNetSales;
+
+// コアの推定売上原価 = コアグロス売上 × (1 - m)
+const coreEstCogs=coreGrossSales*(1-coreMarginRate);
+
+// === 売上納品（花・産直）の計算 ===
+// 売上納品は値引なし、売価=売上として扱う
+// 売上納品の売上原価 = 原価そのまま（または売価×(1-値入率)）
+const deliveryEstCogs=deliverySalesCost; // 原価をそのまま使用
+
+// === 消耗品（原価算入比）===
+// 消耗品は売上原価としてそのまま加算
+const consumableEstCogs=totalConsumable;
+
+// === 推定売上原価合計 ===
+const estimatedCogs=coreEstCogs+deliveryEstCogs+consumableEstCogs;
+
+// === 推定期末在庫 ===
+// EI_est = BI + P - COGS_est
+const estimatedInvEnd=invStart+totalCost-estimatedCogs;
+
+// === 推定粗利 ===
+const estimatedGrossProfit=totalSales-estimatedCogs;
+const estimatedGrossRate=totalSales>0?estimatedGrossProfit/totalSales:0;
+
+// コア推定粗利率 = (m - d) / (1 - d) ※参考値
+const estimatedCoreGrossRate=(1-baihenRateSales)>0?(coreMarginRate-baihenRateSales)/(1-baihenRateSales):coreMarginRate;
+
+// 原価値引率（参考値）= d / (1 - m + d)
+const baihenRateCost=(1-coreMarginRate+baihenRateSales)>0?baihenRateSales/(1-coreMarginRate+baihenRateSales):0;
+
+// 値引による原価損失 = グロス売上原価 - ネット売上原価（理論値）
+// = coreGrossSales × (1-m) - coreNetSales × (1-m)
+// = (1-m) × (coreGrossSales - coreNetSales)
+// = (1-m) × coreNetSales × d / (1-d)
+const baihenLossCost=(1-coreMarginRate)*coreNetSales*baihenRateSales/(1-baihenRateSales||1);
+
+// 日別の推定在庫を計算
+let dailyInvData=[];
+let runningInv=invStart;
+let runningCumSales=0,runningCumCost=0,runningCumBaihen=0;
+for(let day=1;day<=31;day++){
+    const d=daily[day];
+    if(d){
+        const daySales=d.sales||0;
+        const dayShiireCost=d.shiire?.cost||0;
+        const dayTenkanIn=d.tenkanInTotal?.cost||0;
+        const dayTenkanOut=d.tenkanOutTotal?.cost||0;
+        const dayBumonIn=d.bumonInTotal?.cost||0;
+        const dayBumonOut=d.bumonOutTotal?.cost||0;
+        const dayHanaCost=d.hana?.cost||0;
+        const daySanchokuCost=d.sanchoku?.cost||0;
+        const dayConsCost=d.consumable?.cost||0;
+        const dayBaihen=d.baihen||0;
+        const dayHanaPrice=d.hana?.price||0;
+        const daySanchokuPrice=d.sanchoku?.price||0;
+        
+        // 日次仕入合計（原価）
+        const dayTotalCost=dayShiireCost+dayTenkanIn+dayTenkanOut+dayBumonIn+dayBumonOut+dayHanaCost+daySanchokuCost+dayConsCost;
+        
+        // 日次コア売上（ネット）
+        const dayCoreSales=daySales-dayHanaPrice-daySanchokuPrice;
+        
+        // 日次グロス売上 = ネット売上 / (1 - d)
+        const dayGrossSales=(1-baihenRateSales)>0?dayCoreSales/(1-baihenRateSales):dayCoreSales;
+        
+        // 日次コア売上原価 = グロス売上 × (1 - m)
+        const dayCoreCogs=dayGrossSales*(1-coreMarginRate);
+        
+        // 日次売上納品原価
+        const dayDeliveryCogs=dayHanaCost+daySanchokuCost;
+        
+        // 日次推定売上原価合計
+        const dayEstCogs=dayCoreCogs+dayDeliveryCogs+dayConsCost;
+        
+        // 推定在庫 = 前日在庫 + 当日仕入 - 当日売上原価
+        runningInv=runningInv+dayTotalCost-dayEstCogs;
+        runningCumSales+=daySales;
+        runningCumCost+=dayTotalCost;
+        runningCumBaihen+=dayBaihen;
+    }
+    dailyInvData.push({day,inv:runningInv,cumSales:runningCumSales,cumCost:runningCumCost,cumBaihen:runningCumBaihen,hasData:!!daily[day]});
+}
+
+// 実績ベースの荒利計算（従来通り）
+const costBeforeConsumable=totalCost-totalConsumable;
+const grossProfitBeforeConsumable=totalSales-(invStart+costBeforeConsumable-invEnd);
+const grossProfitRateBeforeConsumable=totalSales>0?grossProfitBeforeConsumable/totalSales:0;
+const grossProfit=totalSales-(invStart+totalCost-invEnd),grossProfitRate=totalSales>0?grossProfit/totalSales:0,avgMargin=totalPrice>0?(totalPrice-totalCost)/totalPrice:marginRate;
+const consumableRate=totalSales>0?totalConsumable/totalSales:0;
+
+const hanaRate=parseFloat(document.getElementById('hana-rate')?.value)||0.80;
+const sanchokuRate=parseFloat(document.getElementById('sanchoku-rate')?.value)||0.85;
+// 予算データを取得
+const storeBudget=STORE_BUDGET[sid]||{daily:{},total:parseNum(document.getElementById('budget').value)};
+const budgetTotal=storeBudget.total||parseNum(document.getElementById('budget').value);
+// 日別の予算消化を計算
+let budgetConsumed=0,salesDays=0,lastDay=0;
+Object.entries(daily).forEach(([day,d])=>{
+    const dayNum=parseInt(day);
+    if(d.sales>0){salesDays++;lastDay=Math.max(lastDay,dayNum);}
+    const dayBudget=storeBudget.daily[dayNum]||0;
+    budgetConsumed+=dayBudget;
+});
+// 経過日数と残予算
+const elapsedDays=lastDay;
+const remainingBudget=budgetTotal-totalSales;
+const budgetAchievement=budgetTotal>0?totalSales/budgetTotal:0;
+const budgetConsumptionRate=budgetTotal>0?budgetConsumed/budgetTotal:0;
+const avgDailySales=salesDays>0?totalSales/salesDays:0;
+const projectedSales=avgDailySales*31;
+const projectedAchievement=budgetTotal>0?projectedSales/budgetTotal:0;
+result[sid]={daily,catTotals,supTotals,transferDetails,invStart,invEnd,budget:budgetTotal,budgetDaily:storeBudget.daily,marginRate,totalSales,totalCost,totalPrice,grossProfit,grossProfitRate,avgMargin,hanaRate,sanchokuRate,budgetConsumed,budgetAchievement,budgetConsumptionRate,remainingBudget,avgDailySales,projectedSales,projectedAchievement,salesDays,elapsedDays,totalConsumable,consumableRate,grossProfitBeforeConsumable,grossProfitRateBeforeConsumable,totalBaihen,baihenRateSales,baihenRateCost,coreMarginRate,estimatedCoreGrossRate,estimatedGrossProfit,estimatedGrossRate,estimatedInvEnd,estimatedCogs,baihenLossCost,dailyInvData,deliverySalesCost,deliverySalesPrice,coreCost,corePrice,totalCoreSales};});
+document.getElementById('btn-export').style.display='flex';document.getElementById('view-tabs').style.display='flex';document.getElementById('stats-row').style.display='grid';
+const hr=parseFloat(document.getElementById('hana-rate')?.value)||0.80;
+const sr=parseFloat(document.getElementById('sanchoku-rate')?.value)||0.85;
+showToast('フォーマット作成完了（花:'+hr+'掛/産直:'+sr+'掛）','success');render();}catch(err){console.error(err);document.getElementById('content').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>エラー</h3><p>'+err.message+'</p></div>';showToast('エラー: '+err.message,'error');}},150);}
+
+function render(){updateStats();if(currentStore==='all')renderAllStores();else{switch(currentView){case'dashboard':renderDashboard();break;case'category':renderCategory();break;case'forecast':renderForecast();break;case'analysis':renderAnalysis();break;case'supplier':renderSupplier();break;case'daily':renderDaily();break;case'summary':renderSummary();break;case'reports':renderReports();break;default:renderDashboard();}}}
+
+// ===== ダッシュボード =====
+function renderDashboard(){
+    const data=result[currentStore];if(!data)return;
+    
+    // 目標設定を取得
+    const targetMargin=parseFloat(document.getElementById('target-margin')?.value)/100||0.25;
+    const warningMargin=parseFloat(document.getElementById('warning-margin')?.value)/100||0.23;
+    
+    // アラート生成
+    const alerts=[];
+    if(data.grossProfitRate<warningMargin){
+        if(data.grossProfitRate<0.20){
+            alerts.push({type:'danger',icon:'🚨',title:'粗利率が危険水準',desc:`現在 ${fmtPct(data.grossProfitRate)} は目標 ${fmtPct(targetMargin)} を大きく下回っています`});
+        }else{
+            alerts.push({type:'warning',icon:'⚠️',title:'粗利率が目標未達',desc:`現在 ${fmtPct(data.grossProfitRate)} は目標 ${fmtPct(targetMargin)} を下回っています`});
+        }
+    }else{
+        alerts.push({type:'success',icon:'✅',title:'粗利率は目標達成',desc:`現在 ${fmtPct(data.grossProfitRate)} は良好です`});
+    }
+    
+    // 在庫アラート
+    const invRatio=data.invStart>0?data.estimatedInvEnd/data.invStart:1;
+    if(invRatio<0.5){
+        alerts.push({type:'danger',icon:'📦',title:'在庫が危険水準',desc:`推定在庫が期首の${fmtPct(invRatio)}まで減少`});
+    }else if(invRatio<0.7){
+        alerts.push({type:'warning',icon:'📦',title:'在庫減少傾向',desc:`推定在庫は期首の${fmtPct(invRatio)}です`});
+    }
+    
+    // 月末着地予測
+    const projectedSales=data.avgDailySales*31;
+    const projectedAchievement=data.budget>0?projectedSales/data.budget:0;
+    
+    // KPIカラー
+    const gpColor=data.grossProfitRate>=targetMargin?'success':data.grossProfitRate>=warningMargin?'warning':'danger';
+    
+    let h='';
+    
+    // アラートセクション
+    if(alerts.length>0){
+        h+='<div style="margin-bottom:16px">';
+        alerts.forEach(a=>{
+            h+=`<div class="alert-card ${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`;
+        });
+        h+='</div>';
+    }
+    
+    // KPIカード
+    h+='<div class="kpi-grid">';
+    
+    // 売上
+    h+=`<div class="kpi-card" data-color="primary"><div class="kpi-header"><span class="kpi-label">売上高</span><span class="kpi-icon">💰</span></div><div class="kpi-value">¥${fmt(data.totalSales)}</div><div class="kpi-sub">日平均 ¥${fmt(data.avgDailySales)}</div></div>`;
+    
+    // 荒利率
+    h+=`<div class="kpi-card" data-color="${gpColor}"><div class="kpi-header"><span class="kpi-label" data-tip="売上-(期首+仕入-期末)÷売上">荒利率(実績)</span><span class="kpi-icon">📊</span></div><div class="kpi-value" style="color:var(--${gpColor})">${fmtPct(data.grossProfitRate)}</div><div class="kpi-sub">荒利 ¥${fmt(data.grossProfit)}</div><div class="kpi-progress"><div class="kpi-progress-bar" style="width:${Math.min(data.grossProfitRate/targetMargin*100,100)}%;background:var(--${gpColor})"></div></div></div>`;
+    
+    // 推定粗利率
+    h+=`<div class="kpi-card" data-color="purple"><div class="kpi-header"><span class="kpi-label" data-tip="(値入率-売変率)÷(1-売変率)">推定粗利率</span><span class="kpi-icon">🎯</span></div><div class="kpi-value" style="color:var(--purple)">${fmtPct(data.estimatedGrossRate)}</div><div class="kpi-sub">推定荒利 ¥${fmt(data.estimatedGrossProfit)}</div></div>`;
+    
+    // 売変率
+    h+=`<div class="kpi-card" data-color="danger"><div class="kpi-header"><span class="kpi-label" data-tip="値引額÷(売上+値引額)">売変率</span><span class="kpi-icon">📉</span></div><div class="kpi-value" style="color:var(--danger)">${fmtPct(data.baihenRateSales)}</div><div class="kpi-sub">値引額 ¥${fmt(data.totalBaihen)}</div></div>`;
+    
+    // 推定在庫
+    h+=`<div class="kpi-card" data-color="cyan"><div class="kpi-header"><span class="kpi-label" data-tip="期首+仕入-推定売上原価">推定期末在庫</span><span class="kpi-icon">📦</span></div><div class="kpi-value" style="color:#06b6d4">¥${fmt(data.estimatedInvEnd)}</div><div class="kpi-sub">実績 ¥${fmt(data.invEnd)} / 差異 ¥${fmt(data.estimatedInvEnd-data.invEnd)}</div></div>`;
+    
+    // 月末着地予測
+    const projColor=projectedAchievement>=1?'success':projectedAchievement>=0.9?'warning':'danger';
+    h+=`<div class="kpi-card" data-color="${projColor}"><div class="kpi-header"><span class="kpi-label">月末着地予測</span><span class="kpi-icon">🔮</span></div><div class="kpi-value" style="color:var(--${projColor})">¥${fmt(projectedSales)}</div><div class="kpi-sub">予算達成率 ${fmtPct(projectedAchievement)} (予測)</div></div>`;
+    
+    h+='</div>';
+    
+    // 詳細計算カード
+    h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px">';
+    
+    // サマリーカード
+    h+=`<div class="section expanded" style="margin-bottom:0"><div class="section-header"><div class="section-icon" style="background:linear-gradient(135deg,var(--primary),var(--purple))">📊</div><div class="section-info"><div class="section-name">サマリー</div></div></div><div class="section-body" style="padding:14px">
+        <div style="display:grid;gap:6px;font-size:0.75rem">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">期首在庫</span><span style="font-family:'JetBrains Mono',monospace">¥${fmt(data.invStart)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">総仕入</span><span style="font-family:'JetBrains Mono',monospace">¥${fmt(data.totalCost)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">期末在庫</span><span style="font-family:'JetBrains Mono',monospace">¥${fmt(data.invEnd)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">売上原価</span><span style="font-family:'JetBrains Mono',monospace;color:var(--warning)">¥${fmt(data.invStart+data.totalCost-data.invEnd)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">平均値入率</span><span style="font-family:'JetBrains Mono',monospace;color:var(--info)">${fmtPct(data.avgMargin)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:600"><span>荒利益</span><span style="font-family:'JetBrains Mono',monospace;color:var(--success)">¥${fmt(data.grossProfit)}</span></div>
+        </div>
+    </div></div>`;
+    
+    // 推定在庫計算カード
+    const coreGrossSales=(1-data.baihenRateSales)>0?data.totalCoreSales/(1-data.baihenRateSales):data.totalCoreSales;
+    h+=`<div class="section expanded" style="margin-bottom:0"><div class="section-header"><div class="section-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">🧮</div><div class="section-info"><div class="section-name">推定在庫計算</div></div></div><div class="section-body" style="padding:14px">
+        <div style="font-size:0.6rem;color:var(--text4);padding:8px;background:var(--bg4);border-radius:5px;margin-bottom:10px;line-height:1.5">
+            <strong>計算式:</strong><br>① グロス売上 = ネット売上 ÷ (1-d)<br>② 推定原価 = グロス売上 × (1-m)<br>③ 推定在庫 = 期首 + 仕入 - 原価
+        </div>
+        <div style="display:grid;gap:4px;font-size:0.7rem">
+            <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--text4)">ネット売上 (S_net)</span><span style="font-family:'JetBrains Mono',monospace">¥${fmt(data.totalCoreSales)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--text4)">÷ (1-d) → グロス売上</span><span style="font-family:'JetBrains Mono',monospace;color:var(--warning)">¥${fmt(coreGrossSales)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--text4)">× (1-m) → 推定原価</span><span style="font-family:'JetBrains Mono',monospace;color:var(--danger)">¥${fmt(coreGrossSales*(1-data.avgMargin))}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;margin-top:4px;border-top:1px solid var(--border);font-weight:600"><span>推定期末在庫</span><span style="font-family:'JetBrains Mono',monospace;color:#06b6d4">¥${fmt(data.estimatedInvEnd)}</span></div>
+        </div>
+    </div></div>`;
+    
+    h+='</div>';
+    
+    document.getElementById('content').innerHTML=h;
+}
+
+// ===== 週間予測 =====
+function renderForecast(){
+    const data=result[currentStore];if(!data)return;
+    
+    // 週開始日（水曜日=3）
+    const weekStartDay=3;
+    const today=new Date();
+    const currentDayOfWeek=today.getDay();
+    const daysFromWeekStart=(currentDayOfWeek-weekStartDay+7)%7;
+    
+    const weekStart=new Date(today);
+    weekStart.setDate(today.getDate()-daysFromWeekStart);
+    
+    // 週の7日分を生成
+    const dayNames=['日','月','火','水','木','金','土'];
+    const weekDays=[];
+    for(let i=0;i<7;i++){
+        const d=new Date(weekStart);
+        d.setDate(weekStart.getDate()+i);
+        weekDays.push({
+            date:d,
+            day:d.getDate(),
+            dayName:dayNames[d.getDay()],
+            isToday:d.toDateString()===today.toDateString(),
+            isPast:d<today&&d.toDateString()!==today.toDateString()
+        });
+    }
+    
+    // 週間データ集計
+    let weekSales=0,weekBaihen=0,weekCost=0;
+    weekDays.forEach(wd=>{
+        const dayData=data.daily[wd.day];
+        if(dayData){
+            weekSales+=dayData.sales;
+            weekBaihen+=dayData.baihen||0;
+            weekCost+=dayData.shiire?.cost||0;
+        }
+    });
+    
+    // 週間目標
+    const targetMargin=parseFloat(document.getElementById('target-margin')?.value)/100||0.25;
+    const weeklyTargetSales=data.avgDailySales*7;
+    const weekProgress=weeklyTargetSales>0?weekSales/weeklyTargetSales:0;
+    
+    // 残り日数と必要売上
+    const daysWithData=weekDays.filter(wd=>data.daily[wd.day]&&data.daily[wd.day].sales>0).length;
+    const daysRemaining=7-daysWithData;
+    const requiredDaily=daysRemaining>0?Math.max(0,(weeklyTargetSales-weekSales)/daysRemaining):0;
+    
+    let h='';
+    
+    // KPIカード
+    h+='<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">';
+    
+    h+=`<div class="kpi-card" data-color="primary"><div class="kpi-header"><span class="kpi-label">週間売上</span><span class="kpi-icon">📅</span></div><div class="kpi-value">¥${fmt(weekSales)}</div><div class="kpi-sub">目標 ¥${fmt(weeklyTargetSales)}</div></div>`;
+    
+    const progressColor=weekProgress>=1?'success':weekProgress>=0.7?'warning':'danger';
+    h+=`<div class="kpi-card" data-color="${progressColor}"><div class="kpi-header"><span class="kpi-label">週間達成率</span><span class="kpi-icon">🎯</span></div><div class="kpi-value" style="color:var(--${progressColor})">${fmtPct(weekProgress)}</div><div class="kpi-progress"><div class="kpi-progress-bar" style="width:${Math.min(weekProgress*100,100)}%;background:var(--${progressColor})"></div></div></div>`;
+    
+    h+=`<div class="kpi-card" data-color="info"><div class="kpi-header"><span class="kpi-label">残り${daysRemaining}日の目標</span><span class="kpi-icon">📊</span></div><div class="kpi-value" style="color:var(--info)">¥${fmt(requiredDaily)}</div><div class="kpi-sub">/日あたり必要売上</div></div>`;
+    
+    h+=`<div class="kpi-card" data-color="danger"><div class="kpi-header"><span class="kpi-label">週間値引</span><span class="kpi-icon">📉</span></div><div class="kpi-value" style="color:var(--danger)">¥${fmt(weekBaihen)}</div><div class="kpi-sub">売変率 ${fmtPct((weekSales+weekBaihen)>0?weekBaihen/(weekSales+weekBaihen):0)}</div></div>`;
+    
+    h+='</div>';
+    
+    // 週間カレンダー
+    h+=`<div class="section expanded"><div class="section-header"><div class="section-icon" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">📅</div><div class="section-info"><div class="section-name">週間カレンダー（水曜〜火曜）</div><div class="section-meta">${weekStart.getMonth()+1}/${weekStart.getDate()} 〜 ${weekDays[6].date.getMonth()+1}/${weekDays[6].day}</div></div></div><div class="section-body" style="padding:14px">`;
+    
+    h+='<div class="forecast-grid">';
+    weekDays.forEach(wd=>{
+        const dayData=data.daily[wd.day];
+        const hasSales=dayData&&dayData.sales>0;
+        const classList=['forecast-day'];
+        if(wd.isToday)classList.push('today');
+        if(wd.isPast&&!hasSales)classList.push('past');
+        
+        const salesColor=hasSales?'var(--text)':'var(--text4)';
+        const achieveRate=hasSales&&data.avgDailySales>0?dayData.sales/data.avgDailySales:0;
+        const achieveColor=achieveRate>=1?'var(--success)':achieveRate>=0.8?'var(--warning)':'var(--danger)';
+        
+        h+=`<div class="${classList.join(' ')}">
+            <div class="forecast-day-name">${wd.dayName}</div>
+            <div class="forecast-day-date">${wd.date.getMonth()+1}/${wd.day}</div>
+            <div class="forecast-day-value" style="color:${salesColor}">${hasSales?'¥'+fmt(dayData.sales):'-'}</div>
+            <div class="forecast-day-target">${hasSales?fmtPct(achieveRate):'目標 ¥'+fmt(data.avgDailySales)}</div>
+        </div>`;
+    });
+    h+='</div>';
+    
+    h+='</div></div>';
+    
+    // 目標達成シミュレーション
+    h+=`<div class="section expanded"><div class="section-header"><div class="section-icon" style="background:linear-gradient(135deg,var(--success),#059669)">🎯</div><div class="section-info"><div class="section-name">目標達成シミュレーション</div></div></div><div class="section-body" style="padding:14px">`;
+    
+    const targetSalesForMargin=data.totalCost/(1-targetMargin);
+    const remainingForTarget=Math.max(0,targetSalesForMargin-data.totalSales);
+    const remainingDays=31-data.salesDays;
+    const requiredDailySales=remainingDays>0?remainingForTarget/remainingDays:0;
+    
+    h+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center">
+        <div style="background:var(--bg4);padding:14px;border-radius:8px">
+            <div style="font-size:0.6rem;color:var(--text4);margin-bottom:4px">目標粗利率達成に必要な売上</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--warning)">¥${fmt(targetSalesForMargin)}</div>
+        </div>
+        <div style="background:var(--bg4);padding:14px;border-radius:8px">
+            <div style="font-size:0.6rem;color:var(--text4);margin-bottom:4px">残り必要売上</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:${remainingForTarget>0?'var(--danger)':'var(--success)'}">¥${fmt(remainingForTarget)}</div>
+        </div>
+        <div style="background:var(--bg4);padding:14px;border-radius:8px">
+            <div style="font-size:0.6rem;color:var(--text4);margin-bottom:4px">残り${remainingDays}日の日平均必要売上</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--info)">¥${fmt(requiredDailySales)}</div>
+        </div>
+    </div>`;
+    
+    h+='</div></div>';
+    
+    document.getElementById('content').innerHTML=h;
+}
+
+function updateStats(){let d;if(currentStore==='all'){d={totalSales:0,totalCost:0,grossProfit:0,budget:0,totalConsumable:0,grossProfitBeforeConsumable:0};Object.values(result).forEach(x=>{d.totalSales+=x.totalSales;d.totalCost+=x.totalCost;d.grossProfit+=x.grossProfit;d.budget+=x.budget;d.totalConsumable+=x.totalConsumable||0;d.grossProfitBeforeConsumable+=x.grossProfitBeforeConsumable||0;});d.grossProfitRate=d.totalSales>0?d.grossProfit/d.totalSales:0;d.grossProfitRateBeforeConsumable=d.totalSales>0?d.grossProfitBeforeConsumable/d.totalSales:0;d.consumableRate=d.totalSales>0?d.totalConsumable/d.totalSales:0;}else d=result[currentStore];if(!d)return;document.getElementById('view-title').textContent=currentStore==='all'?'全店舗サマリー':STORES[currentStore]?.name||currentStore;const b=document.getElementById('store-badge');b.style.display=currentStore==='all'?'none':'inline';b.textContent=currentStore.padStart(2,'0');document.getElementById('stat-sales').textContent='¥'+fmt(d.totalSales);document.getElementById('stat-sales-sub').textContent='予算比 '+fmtPct(d.totalSales/d.budget);document.getElementById('stat-cost').textContent='¥'+fmt(d.totalCost);document.getElementById('stat-consumable').textContent='原価算入比 '+fmt(d.totalConsumable||0)+' ('+fmtPct(d.consumableRate||0)+')';document.getElementById('stat-rate-before').textContent=fmtPct(d.grossProfitRateBeforeConsumable||0);document.getElementById('stat-profit-before').textContent='荒利 '+fmt(d.grossProfitBeforeConsumable||0);document.getElementById('stat-rate').textContent=fmtPct(d.grossProfitRate);document.getElementById('stat-profit-sub').textContent='荒利 '+fmt(d.grossProfit);}
+
+function renderAllStores(){let h='<div class="stores-grid">';Object.entries(result).sort((a,b)=>+a[0]-+b[0]).forEach(([sid,d])=>{const st=STORES[sid];if(!st)return;const pc=d.grossProfitRate>=0.25?'var(--success)':d.grossProfitRate>=0.2?'var(--warning)':'var(--danger)';h+='<div class="store-card" onclick="selectStore(\''+sid+'\')"><div class="store-card-header"><div class="store-card-icon">🏪</div><div><div class="store-card-name">'+st.name+'</div><div class="store-card-code">'+st.code+'</div></div></div><div class="store-card-stats"><div class="store-card-stat"><div class="label">売上</div><div class="value">'+fmt(d.totalSales)+'</div></div><div class="store-card-stat"><div class="label">荒利益</div><div class="value" style="color:var(--success)">'+fmt(d.grossProfit)+'</div></div><div class="store-card-stat"><div class="label">荒利率</div><div class="value" style="color:'+pc+'">'+fmtPct(d.grossProfitRate)+'</div></div><div class="store-card-stat"><div class="label">値入率</div><div class="value" style="color:var(--info)">'+fmtPct(d.avgMargin)+'</div></div></div></div>';});h+='</div>';document.getElementById('content').innerHTML=h;}
+
+function selectStore(sid){currentStore=sid;document.querySelectorAll('#store-chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.store===sid));render();}
+
+function renderCategory(){const data=result[currentStore];if(!data)return;let h='';getCatOrder().forEach(cat=>{const cd=data.catTotals[cat];if(!cd||(cd.cost===0&&cd.price===0))return;const info=CATEGORIES[cat]||{name:cat,icon:'📋'},mr=cd.price>0?(cd.price-cd.cost)/cd.price:0;const sups=Object.entries(data.supTotals).filter(([code])=>(SUPPLIERS[code]?.cat||'other')===cat).sort((a,b)=>b[1].cost-a[1].cost);h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon '+cat+'">'+info.icon+'</div><div class="section-info"><div class="section-name">'+info.name+'</div><div class="section-meta">'+(sups.length>0?sups.length+'社':'')+'</div></div><div class="section-stats"><span><span class="sl">原価</span> <span class="cost">'+fmt(cd.cost)+'</span></span><span><span class="sl">売価</span> <span class="price">'+fmt(cd.price)+'</span></span><span><span class="sl">値入</span> <span class="highlight">'+fmtPct(mr)+'</span></span></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th>';if(cat==='tenkan')h+='<th class="col-cost">入原価</th><th class="col-price">入売価</th><th>入元</th><th class="col-cost">出原価</th><th class="col-price">出売価</th><th>出先</th>';else if(cat==='bumonkan')h+='<th class="col-cost">入原価</th><th class="col-price">入売価</th><th class="col-cost">出原価</th><th class="col-price">出売価</th><th>部門</th>';else if(cat==='hana'||cat==='sanchoku')h+='<th class="col-price">売価(納品)</th><th class="col-cost">原価(掛け率)</th>';else if(cat==='consumable')h+='<th class="col-cost">原価金額</th><th>品目数</th>';else{sups.forEach(([,s])=>{h+='<th class="col-cost">'+s.name.substring(0,6)+'<br>原価</th><th class="col-price">売価</th>';});if(sups.length>1)h+='<th class="col-cost">計</th><th class="col-price">計</th>';}h+='</tr></thead><tbody>';Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{h+='<tr><td>'+day+'日</td>';if(cat==='tenkan'){const tiS=d.tenkanIn.map(t=>'<span class="store-tag from">'+t.fromStore.padStart(2,'0')+'</span>').join(' ');const toS=d.tenkanOut.map(t=>'<span class="store-tag to">'+t.toStore.padStart(2,'0')+'</span>').join(' ');h+='<td class="col-cost">'+(d.tenkanInTotal.cost?fmt(d.tenkanInTotal.cost):'')+'</td><td class="col-price">'+(d.tenkanInTotal.price?fmt(d.tenkanInTotal.price):'')+'</td><td style="text-align:left">'+(tiS||'')+'</td><td class="col-cost '+(d.tenkanOutTotal.cost<0?'negative':'')+'">'+(d.tenkanOutTotal.cost?fmt(d.tenkanOutTotal.cost):'')+'</td><td class="col-price">'+(d.tenkanOutTotal.price?fmt(d.tenkanOutTotal.price):'')+'</td><td style="text-align:left">'+(toS||'')+'</td>';}else if(cat==='bumonkan'){const buS=d.bumonOut.map(t=>'<span class="store-tag bumon">'+(t.bumonCode||'?')+'</span>').join(' ');h+='<td class="col-cost">'+(d.bumonInTotal.cost?fmt(d.bumonInTotal.cost):'')+'</td><td class="col-price">'+(d.bumonInTotal.price?fmt(d.bumonInTotal.price):'')+'</td><td class="col-cost '+(d.bumonOutTotal.cost<0?'negative':'')+'">'+(d.bumonOutTotal.cost?fmt(d.bumonOutTotal.cost):'')+'</td><td class="col-price">'+(d.bumonOutTotal.price?fmt(d.bumonOutTotal.price):'')+'</td><td style="text-align:left">'+(buS||'')+'</td>';}else if(cat==='hana'){const mr=d.hana?.price>0?(d.hana.price-d.hana.cost)/d.hana.price:0;h+='<td class="col-price" style="color:#f472b6">'+(d.hana?.price?fmt(d.hana.price):'')+'</td><td class="col-cost">'+(d.hana?.cost?fmt(d.hana.cost):'')+'</td>';}else if(cat==='sanchoku'){const mr=d.sanchoku?.price>0?(d.sanchoku.price-d.sanchoku.cost)/d.sanchoku.price:0;h+='<td class="col-price" style="color:#a3e635">'+(d.sanchoku?.price?fmt(d.sanchoku.price):'')+'</td><td class="col-cost">'+(d.sanchoku?.cost?fmt(d.sanchoku.cost):'')+'</td>';}else if(cat==='consumable'){h+='<td class="col-cost" style="color:#f97316">'+(d.consumable?.cost?fmt(d.consumable.cost):'')+'</td><td>'+(d.consumable?.items?.length||'')+'</td>';}else{let sc=0,sp=0;sups.forEach(([code])=>{const s=d.suppliers[code];h+='<td class="col-cost">'+(s?.cost?fmt(s.cost):'')+'</td><td class="col-price">'+(s?.price?fmt(s.price):'')+'</td>';if(s){sc+=s.cost;sp+=s.price;}});if(sups.length>1)h+='<td class="col-cost">'+(sc?fmt(sc):'')+'</td><td class="col-price">'+(sp?fmt(sp):'')+'</td>';}h+='</tr>';});h+='<tr class="row-total"><td>合計</td>';if(cat==='tenkan'){const ti=Object.values(data.daily).reduce((s,d)=>({cost:s.cost+d.tenkanInTotal.cost,price:s.price+d.tenkanInTotal.price}),{cost:0,price:0}),to=Object.values(data.daily).reduce((s,d)=>({cost:s.cost+d.tenkanOutTotal.cost,price:s.price+d.tenkanOutTotal.price}),{cost:0,price:0});h+='<td class="col-cost">'+fmt(ti.cost)+'</td><td class="col-price">'+fmt(ti.price)+'</td><td></td><td class="col-cost">'+fmt(to.cost)+'</td><td class="col-price">'+fmt(to.price)+'</td><td></td>';}else if(cat==='bumonkan'){const bi=Object.values(data.daily).reduce((s,d)=>({cost:s.cost+d.bumonInTotal.cost,price:s.price+d.bumonInTotal.price}),{cost:0,price:0}),bo=Object.values(data.daily).reduce((s,d)=>({cost:s.cost+d.bumonOutTotal.cost,price:s.price+d.bumonOutTotal.price}),{cost:0,price:0});h+='<td class="col-cost">'+fmt(bi.cost)+'</td><td class="col-price">'+fmt(bi.price)+'</td><td class="col-cost">'+fmt(bo.cost)+'</td><td class="col-price">'+fmt(bo.price)+'</td><td></td>';}else if(cat==='hana'||cat==='sanchoku'){h+='<td class="col-price" style="color:'+(cat==='hana'?'#f472b6':'#a3e635')+'">'+fmt(cd.price)+'</td><td class="col-cost">'+fmt(cd.cost)+'</td>';}else if(cat==='consumable'){const itemCount=Object.values(data.daily).reduce((s,d)=>s+(d.consumable?.items?.length||0),0);h+='<td class="col-cost" style="color:#f97316">'+fmt(cd.cost)+'</td><td>'+itemCount+'品</td>';}else{sups.forEach(([,s])=>h+='<td class="col-cost">'+fmt(s.cost)+'</td><td class="col-price">'+fmt(s.price)+'</td>');if(sups.length>1)h+='<td class="col-cost">'+fmt(cd.cost)+'</td><td class="col-price">'+fmt(cd.price)+'</td>';}h+='</tr></tbody></table></div></div>';});document.getElementById('content').innerHTML=h;}
+
+function renderTransfer(){const data=result[currentStore];if(!data)return;const td=data.transferDetails;const totTiC=td.tenkanIn.reduce((s,t)=>s+t.cost,0),totTiP=td.tenkanIn.reduce((s,t)=>s+t.price,0);const totToC=td.tenkanOut.reduce((s,t)=>s+t.cost,0),totToP=td.tenkanOut.reduce((s,t)=>s+t.price,0);const totBiC=td.bumonIn.reduce((s,t)=>s+t.cost,0),totBiP=td.bumonIn.reduce((s,t)=>s+t.price,0);const totBoC=td.bumonOut.reduce((s,t)=>s+t.cost,0),totBoP=td.bumonOut.reduce((s,t)=>s+t.price,0);
+let h='<div class="summary-cards"><div class="summary-card ti"><div class="sc-label">📥 店間入庫</div><div class="sc-value" style="color:var(--success)">'+fmt(totTiC)+'</div><div class="sc-sub">売価 '+fmt(totTiP)+' ／ '+td.tenkanIn.length+'件</div></div><div class="summary-card to"><div class="sc-label">📤 店間出庫</div><div class="sc-value" style="color:var(--danger)">'+fmt(totToC)+'</div><div class="sc-sub">売価 '+fmt(totToP)+' ／ '+td.tenkanOut.length+'件</div></div><div class="summary-card bi"><div class="sc-label">🔄 部門間入庫</div><div class="sc-value" style="color:var(--info)">'+fmt(totBiC)+'</div><div class="sc-sub">売価 '+fmt(totBiP)+' ／ '+td.bumonIn.length+'件</div></div><div class="summary-card bo"><div class="sc-label">🔀 部門間出庫</div><div class="sc-value" style="color:var(--purple)">'+fmt(totBoC)+'</div><div class="sc-sub">売価 '+fmt(totBoP)+' ／ '+td.bumonOut.length+'件</div></div></div>';
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon ti">📥</div><div class="section-info"><div class="section-name">店間入庫明細</div><div class="section-meta">他店舗からの入庫 '+td.tenkanIn.length+'件</div></div><div class="section-stats"><span class="cost">'+fmt(totTiC)+'</span></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th>出庫元店舗</th><th class="col-cost">原価</th><th class="col-price">売価</th><th>値入率</th></tr></thead><tbody>';
+if(td.tenkanIn.length===0)h+='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">店間入庫データなし</td></tr>';else{td.tenkanIn.sort((a,b)=>a.day-b.day).forEach(t=>{const mr=t.price?(t.price-t.cost)/t.price:0;h+='<tr><td><strong>'+t.day+'日</strong></td><td style="text-align:left"><span class="store-tag from">'+t.fromStore.padStart(2,'0')+'</span> '+(t.fromStoreName||'')+'</td><td class="col-cost positive">'+fmt(t.cost)+'</td><td class="col-price positive">'+fmt(t.price)+'</td><td class="highlight">'+fmtPct(mr)+'</td></tr>';});h+='<tr class="row-total"><td colspan="2" style="text-align:right"><strong>合計</strong></td><td class="col-cost positive"><strong>'+fmt(totTiC)+'</strong></td><td class="col-price positive"><strong>'+fmt(totTiP)+'</strong></td><td></td></tr>';}
+h+='</tbody></table></div></div>';
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon to">📤</div><div class="section-info"><div class="section-name">店間出庫明細</div><div class="section-meta">他店舗への出庫 '+td.tenkanOut.length+'件</div></div><div class="section-stats"><span class="cost">'+fmt(totToC)+'</span></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th>出庫先店舗</th><th>部門</th><th class="col-cost">原価</th><th class="col-price">売価</th><th>値入率</th></tr></thead><tbody>';
+if(td.tenkanOut.length===0)h+='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">店間出庫データなし</td></tr>';else{td.tenkanOut.sort((a,b)=>a.day-b.day).forEach(t=>{const mr=t.price?(t.price-t.cost)/t.price:0;h+='<tr><td><strong>'+t.day+'日</strong></td><td style="text-align:left"><span class="store-tag to">'+t.toStore.padStart(2,'0')+'</span> '+(t.toStoreName||'')+'</td><td><span class="store-tag bumon">'+(t.bumonCode||'-')+'</span></td><td class="col-cost negative">'+fmt(t.cost)+'</td><td class="col-price negative">'+fmt(t.price)+'</td><td class="highlight">'+fmtPct(mr)+'</td></tr>';});h+='<tr class="row-total"><td colspan="3" style="text-align:right"><strong>合計</strong></td><td class="col-cost negative"><strong>'+fmt(totToC)+'</strong></td><td class="col-price negative"><strong>'+fmt(totToP)+'</strong></td><td></td></tr>';}
+h+='</tbody></table></div></div>';
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon bi">🔄</div><div class="section-info"><div class="section-name">部門間入庫明細</div><div class="section-meta">同一店舗内部門間移動（入） '+td.bumonIn.length+'件</div></div><div class="section-stats"><span class="cost">'+fmt(totBiC)+'</span></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th>移動元</th><th class="col-cost">原価</th><th class="col-price">売価</th><th>値入率</th></tr></thead><tbody>';
+if(td.bumonIn.length===0)h+='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">部門間入庫データなし</td></tr>';else{td.bumonIn.sort((a,b)=>a.day-b.day).forEach(t=>{const mr=t.price?(t.price-t.cost)/t.price:0;h+='<tr><td><strong>'+t.day+'日</strong></td><td style="text-align:left"><span class="flow-self">同一店舗内移動</span></td><td class="col-cost positive">'+fmt(t.cost)+'</td><td class="col-price positive">'+fmt(t.price)+'</td><td class="highlight">'+fmtPct(mr)+'</td></tr>';});h+='<tr class="row-total"><td colspan="2" style="text-align:right"><strong>合計</strong></td><td class="col-cost positive"><strong>'+fmt(totBiC)+'</strong></td><td class="col-price positive"><strong>'+fmt(totBiP)+'</strong></td><td></td></tr>';}
+h+='</tbody></table></div></div>';
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon bo">🔀</div><div class="section-info"><div class="section-name">部門間出庫明細</div><div class="section-meta">同一店舗内部門間移動（出） '+td.bumonOut.length+'件</div></div><div class="section-stats"><span class="cost">'+fmt(totBoC)+'</span></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th>移動先部門</th><th class="col-cost">原価</th><th class="col-price">売価</th><th>値入率</th></tr></thead><tbody>';
+if(td.bumonOut.length===0)h+='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">部門間出庫データなし</td></tr>';else{td.bumonOut.sort((a,b)=>a.day-b.day).forEach(t=>{const mr=t.price?(t.price-t.cost)/t.price:0;h+='<tr><td><strong>'+t.day+'日</strong></td><td style="text-align:left"><span class="store-tag bumon">'+(t.bumonCode||'部門')+'</span></td><td class="col-cost negative">'+fmt(t.cost)+'</td><td class="col-price negative">'+fmt(t.price)+'</td><td class="highlight">'+fmtPct(mr)+'</td></tr>';});h+='<tr class="row-total"><td colspan="2" style="text-align:right"><strong>合計</strong></td><td class="col-cost negative"><strong>'+fmt(totBoC)+'</strong></td><td class="col-price negative"><strong>'+fmt(totBoP)+'</strong></td><td></td></tr>';}
+h+='</tbody></table></div></div>';
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon daily">📅</div><div class="section-info"><div class="section-name">日別サマリー</div><div class="section-meta">店間・部門間の日別推移</div></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th class="col-cost">店間入</th><th>入元</th><th class="col-cost">店間出</th><th>出先</th><th class="col-cost">部門入</th><th class="col-cost">部門出</th><th>部門</th><th>差引</th></tr></thead><tbody>';
+Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{const hasTi=d.tenkanInTotal.cost||d.tenkanInTotal.price,hasTo=d.tenkanOutTotal.cost||d.tenkanOutTotal.price,hasBi=d.bumonInTotal.cost||d.bumonInTotal.price,hasBo=d.bumonOutTotal.cost||d.bumonOutTotal.price;if(!hasTi&&!hasTo&&!hasBi&&!hasBo)return;const tiS=d.tenkanIn.map(t=>'<span class="store-tag from">'+t.fromStore.padStart(2,'0')+'</span>').join(' ');const toS=d.tenkanOut.map(t=>'<span class="store-tag to">'+t.toStore.padStart(2,'0')+'</span>').join(' ');const buS=d.bumonOut.map(t=>'<span class="store-tag bumon">'+(t.bumonCode||'?')+'</span>').join(' ');const net=d.tenkanInTotal.cost+d.tenkanOutTotal.cost+d.bumonInTotal.cost+d.bumonOutTotal.cost;h+='<tr><td><strong>'+day+'日</strong></td><td class="col-cost '+(d.tenkanInTotal.cost>0?'positive':'')+'">'+(hasTi?fmt(d.tenkanInTotal.cost):'')+'</td><td style="text-align:left">'+(tiS||'')+'</td><td class="col-cost '+(d.tenkanOutTotal.cost<0?'negative':'')+'">'+(hasTo?fmt(d.tenkanOutTotal.cost):'')+'</td><td style="text-align:left">'+(toS||'')+'</td><td class="col-cost '+(d.bumonInTotal.cost>0?'positive':'')+'">'+(hasBi?fmt(d.bumonInTotal.cost):'')+'</td><td class="col-cost '+(d.bumonOutTotal.cost<0?'negative':'')+'">'+(hasBo?fmt(d.bumonOutTotal.cost):'')+'</td><td style="text-align:left">'+(buS||'')+'</td><td class="'+(net<0?'negative':net>0?'positive':'')+'">'+fmt(net)+'</td></tr>';});
+const netTotal=totTiC+totToC+totBiC+totBoC;h+='<tr class="row-total"><td><strong>合計</strong></td><td class="col-cost positive"><strong>'+fmt(totTiC)+'</strong></td><td></td><td class="col-cost negative"><strong>'+fmt(totToC)+'</strong></td><td></td><td class="col-cost positive"><strong>'+fmt(totBiC)+'</strong></td><td class="col-cost negative"><strong>'+fmt(totBoC)+'</strong></td><td></td><td class="'+(netTotal<0?'negative':'positive')+'"><strong>'+fmt(netTotal)+'</strong></td></tr>';
+h+='</tbody></table></div></div>';document.getElementById('content').innerHTML=h;}
+
+function renderSupplier(){const data=result[currentStore];if(!data)return;const sups=Object.entries(data.supTotals).sort((a,b)=>b[1].cost-a[1].cost),tc=sups.reduce((s,[,sup])=>s+sup.cost,0);let h='<div class="section expanded"><div class="section-header"><div class="section-icon other">📋</div><div class="section-info"><div class="section-name">仕入先別明細</div><div class="section-meta">'+sups.length+'社</div></div></div><div class="section-body"><table><thead><tr><th>コード</th><th>仕入先名</th><th>帳合</th><th class="col-cost">原価</th><th class="col-price">売価</th><th>値入率</th><th>構成比</th></tr></thead><tbody>';sups.forEach(([code,sup])=>{const cat=SUPPLIERS[code]?.cat||'other',ci=CATEGORIES[cat]||{name:'その他'},mr=sup.price>0?(sup.price-sup.cost)/sup.price:0,sh=tc>0?sup.cost/tc:0;h+='<tr><td style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:var(--text3)">'+code+'</td><td>'+sup.name+'</td><td style="color:var(--text3)">'+ci.name+'</td><td class="col-cost">'+fmt(sup.cost)+'</td><td class="col-price">'+fmt(sup.price)+'</td><td class="highlight">'+fmtPct(mr)+'</td><td>'+fmtPct(sh)+'</td></tr>';});h+='</tbody></table></div></div>';document.getElementById('content').innerHTML=h;}
+
+function renderDaily(){const data=result[currentStore];if(!data)return;let h='<div class="section expanded"><div class="section-header"><div class="section-icon daily">📅</div><div class="section-info"><div class="section-name">日別推移</div></div></div><div class="section-body"><table><thead><tr><th>日</th><th>売上</th><th style="color:#ef4444">売変額</th><th style="color:#dc2626">値引率(原価)</th><th class="col-cost">仕入原価</th><th>店間入</th><th>店間出</th><th style="color:#f472b6">花</th><th style="color:#a3e635">産直</th><th style="color:#f97316">原価算入比</th><th>累計売上</th><th>累計仕入</th></tr></thead><tbody>';let cs=0,cc=0;Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{cs+=d.sales;cc+=d.shiire.cost+d.tenkanInTotal.cost+d.tenkanOutTotal.cost+(d.hana?.cost||0)+(d.sanchoku?.cost||0)+(d.consumable?.cost||0);
+// 日別の原価値引率計算
+const dayCoreMargin=data.coreMarginRate||0.26;
+const dayCoreSales=d.coreSales||d.sales;
+const dayCoreCost=dayCoreSales*(1-dayCoreMargin);
+const dayBaihenCost=dayCoreCost>0?(d.baihen||0)/dayCoreCost:0;
+h+='<tr><td>'+day+'日</td><td>'+fmt(d.sales)+'</td><td style="color:#ef4444">'+(d.baihen?fmt(d.baihen):'')+'</td><td style="color:#dc2626;font-weight:600">'+(d.baihen?fmtPct(dayBaihenCost):'')+'</td><td class="col-cost">'+fmt(d.shiire.cost)+'</td><td>'+(d.tenkanInTotal.cost?fmt(d.tenkanInTotal.cost):'')+'</td><td class="'+(d.tenkanOutTotal.cost<0?'negative':'')+'">'+(d.tenkanOutTotal.cost?fmt(d.tenkanOutTotal.cost):'')+'</td><td style="color:#f472b6">'+(d.hana?.price?fmt(d.hana.price):'')+'</td><td style="color:#a3e635">'+(d.sanchoku?.price?fmt(d.sanchoku.price):'')+'</td><td style="color:#f97316">'+(d.consumable?.cost?fmt(d.consumable.cost):'')+'</td><td class="highlight">'+fmt(cs)+'</td><td class="highlight">'+fmt(cc)+'</td></tr>';});h+='<tr class="row-total"><td>合計</td><td>'+fmt(data.totalSales)+'</td><td style="color:#ef4444">'+fmt(data.totalBaihen)+'</td><td style="color:#dc2626;font-weight:600">'+fmtPct(data.baihenRateCost)+'</td><td class="col-cost">'+fmt(data.coreCost+data.deliverySalesCost)+'</td><td colspan="6"></td><td class="highlight">'+fmt(data.totalCost)+'</td></tr>';h+='</tbody></table></div></div>';document.getElementById('content').innerHTML=h;}
+
+function renderAnalysis(){
+const data=result[currentStore];if(!data)return;
+const progressPct=data.budgetAchievement*100;
+const consumePct=data.budgetConsumptionRate*100;
+const projPct=data.projectedAchievement*100;
+const progressColor=progressPct>=100?'var(--success)':progressPct>=80?'var(--warning)':'var(--danger)';
+const projColor=projPct>=100?'var(--success)':projPct>=90?'var(--warning)':'var(--danger)';
+const beforeRate=(data.grossProfitRateBeforeConsumable||0)*100;
+const afterRate=(data.grossProfitRate||0)*100;
+
+let h='<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">';
+// KPIカード
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;border-top:3px solid var(--primary)"><div style="font-size:0.55rem;color:var(--text4);font-weight:700;text-transform:uppercase;margin-bottom:4px">📊 予算達成率</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:1.2rem;font-weight:700;color:'+progressColor+'">'+fmtPct(data.budgetAchievement)+'</div><div style="margin-top:6px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(progressPct,100)+'%;background:'+progressColor+';border-radius:3px"></div></div><div style="font-size:0.55rem;color:var(--text3);margin-top:3px">'+fmt(data.totalSales)+' / '+fmt(data.budget)+'</div></div>';
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;border-top:3px solid var(--info)"><div style="font-size:0.55rem;color:var(--text4);font-weight:700;text-transform:uppercase;margin-bottom:4px">📅 予算消化率</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:1.2rem;font-weight:700;color:var(--info)">'+fmtPct(data.budgetConsumptionRate)+'</div><div style="margin-top:6px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(consumePct,100)+'%;background:var(--info);border-radius:3px"></div></div><div style="font-size:0.55rem;color:var(--text3);margin-top:3px">経過 '+fmt(data.budgetConsumed)+'</div></div>';
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;border-top:3px solid var(--purple)"><div style="font-size:0.55rem;color:var(--text4);font-weight:700;text-transform:uppercase;margin-bottom:4px">🎯 着地予測</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:1.2rem;font-weight:700;color:'+projColor+'">'+fmtPct(data.projectedAchievement)+'</div><div style="margin-top:6px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(projPct,100)+'%;background:'+projColor+';border-radius:3px"></div></div><div style="font-size:0.55rem;color:var(--text3);margin-top:3px">予測 '+fmt(data.projectedSales)+'</div></div>';
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;border-top:3px solid #60a5fa"><div style="font-size:0.55rem;color:var(--text4);font-weight:700;text-transform:uppercase;margin-bottom:4px">📈 荒利率(税抜前)</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:1.2rem;font-weight:700;color:#60a5fa">'+fmtPct(data.grossProfitRateBeforeConsumable)+'</div><div style="margin-top:6px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+beforeRate+'%;background:#60a5fa;border-radius:3px"></div></div><div style="font-size:0.55rem;color:var(--text3);margin-top:3px">荒利 '+fmt(data.grossProfitBeforeConsumable)+'</div></div>';
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;border-top:3px solid var(--success)"><div style="font-size:0.55rem;color:var(--text4);font-weight:700;text-transform:uppercase;margin-bottom:4px">💰 荒利率(税抜後)</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:1.2rem;font-weight:700;color:var(--success)">'+fmtPct(data.grossProfitRate)+'</div><div style="margin-top:6px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+afterRate+'%;background:var(--success);border-radius:3px"></div></div><div style="font-size:0.55rem;color:var(--text3);margin-top:3px">荒利 '+fmt(data.grossProfit)+'</div></div>';
+h+='</div>';
+h+='</div>';
+
+// サマリーパネル
+h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">';
+// 売上分析
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px"><div style="font-size:0.75rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;background:var(--bg3);border-radius:7px;display:flex;align-items:center;justify-content:center">💰</span>売上分析</div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">月間予算</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500">'+fmt(data.budget)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">売上実績</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500">'+fmt(data.totalSales)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">予算残</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:'+(data.remainingBudget>0?'var(--warning)':'var(--success)')+'">'+fmt(data.remainingBudget)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.75rem"><span style="color:var(--text2)">日販平均</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500">'+fmt(data.avgDailySales)+'</span></div>';
+h+='</div>';
+
+// 進捗分析
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px"><div style="font-size:0.75rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;background:var(--bg3);border-radius:7px;display:flex;align-items:center;justify-content:center">📈</span>進捗分析</div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">営業日数</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500">'+data.salesDays+'日</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">最終日</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500">'+data.elapsedDays+'日</span></div>';
+const pace=data.budgetConsumptionRate>0?(data.budgetAchievement/data.budgetConsumptionRate):0;
+const paceColor=pace>=1?'var(--success)':pace>=0.9?'var(--warning)':'var(--danger)';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">ペース</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:'+paceColor+'">'+fmtPct(pace)+'</span></div>';
+const needDaily=data.remainingBudget>0&&(31-data.elapsedDays)>0?data.remainingBudget/(31-data.elapsedDays):0;
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.75rem"><span style="color:var(--text2)">必要日販</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:var(--warning)">'+fmt(needDaily)+'</span></div>';
+h+='</div>';
+
+// 利益分析
+h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px"><div style="font-size:0.75rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;background:var(--bg3);border-radius:7px;display:flex;align-items:center;justify-content:center">📊</span>利益分析</div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">📉 売変率(売価)</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:#ef4444">'+fmtPct(data.baihenRateSales||0)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">📉 値引率(原価)</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:600;color:#dc2626">'+fmtPct(data.baihenRateCost||0)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">値入率(コア)</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:var(--info)">'+fmtPct(data.coreMarginRate||0)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">🎯 推定粗利率</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:#8b5cf6">'+fmtPct(data.estimatedGrossRate||0)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">🧾 原価算入比</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:#f97316">'+fmt(data.totalConsumable||0)+' ('+fmtPct(data.consumableRate||0)+')</span></div>';
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.75rem"><span style="color:var(--text2)">荒利率(実績)</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:var(--success)">'+fmtPct(data.grossProfitRate)+'</span></div>';
+const lossRate=data.avgMargin-data.grossProfitRate;
+h+='<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.75rem"><span style="color:var(--text2)">ロス率</span><span style="font-family:\'JetBrains Mono\',monospace;font-weight:500;color:var(--danger)">'+fmtPct(lossRate)+'</span></div>';
+h+='</div></div>';
+
+// 日別予算vs実績テーブル
+h+='<div class="section expanded"><div class="section-header" onclick="this.parentElement.classList.toggle(\'expanded\')"><div class="section-icon daily">📅</div><div class="section-info"><div class="section-name">日別 予算 vs 実績</div><div class="section-meta">売上推移と予算消化状況</div></div><div class="section-toggle">▼</div></div><div class="section-body"><table><thead><tr><th>日</th><th>予算</th><th>実績</th><th>差異</th><th>達成率</th><th>累計予算</th><th>累計実績</th><th>累計達成</th><th>荒利</th></tr></thead><tbody>';
+let cumBudget=0,cumSales=0,cumCost=0;
+for(let day=1;day<=31;day++){
+    const d=data.daily[day];
+    const dayBudget=data.budgetDaily?.[day]||0;
+    if(!d&&dayBudget===0)continue;
+    const daySales=d?.sales||0;
+    const dayCost=(d?.shiire?.cost||0)+(d?.tenkanInTotal?.cost||0)+(d?.tenkanOutTotal?.cost||0)+(d?.bumonInTotal?.cost||0)+(d?.bumonOutTotal?.cost||0)+(d?.hana?.cost||0)+(d?.sanchoku?.cost||0)+(d?.consumable?.cost||0);
+    cumBudget+=dayBudget;
+    cumSales+=daySales;
+    cumCost+=dayCost;
+    const diff=daySales-dayBudget;
+    const dayAch=dayBudget>0?daySales/dayBudget:0;
+    const cumAch=cumBudget>0?cumSales/cumBudget:0;
+    const dayProfit=daySales-dayCost;
+    const achColor=dayAch>=1?'positive':dayAch>=0.9?'':'negative';
+    const cumAchColor=cumAch>=1?'positive':cumAch>=0.9?'':'negative';
+    h+='<tr><td>'+day+'日</td><td>'+fmt(dayBudget)+'</td><td>'+fmt(daySales)+'</td><td class="'+(diff>=0?'positive':'negative')+'">'+fmt(diff)+'</td><td class="'+achColor+'">'+fmtPct(dayAch)+'</td><td style="color:var(--text3)">'+fmt(cumBudget)+'</td><td class="highlight">'+fmt(cumSales)+'</td><td class="'+cumAchColor+'">'+fmtPct(cumAch)+'</td><td class="'+(dayProfit>=0?'positive':'negative')+'">'+fmt(dayProfit)+'</td></tr>';
+}
+h+='<tr class="row-total"><td>合計</td><td>'+fmt(data.budget)+'</td><td>'+fmt(data.totalSales)+'</td><td class="'+(data.totalSales-data.budget>=0?'positive':'negative')+'">'+fmt(data.totalSales-data.budget)+'</td><td class="'+(data.budgetAchievement>=1?'positive':'negative')+'">'+fmtPct(data.budgetAchievement)+'</td><td></td><td></td><td></td><td class="positive">'+fmt(data.grossProfit)+'</td></tr>';
+h+='</tbody></table></div></div>';
+document.getElementById('content').innerHTML=h;
+}
+
+function renderSummary(){const data=result[currentStore];if(!data)return;const cogs=data.invStart+data.totalCost-data.invEnd;
+let h='<div class="summary-grid">';
+
+// 実績ベース荒利計算
+h+='<div class="summary-panel"><div class="summary-panel-header"><div class="summary-panel-icon">📊</div><div class="summary-panel-title">実績荒利計算</div></div><div class="summary-row"><span class="lt">期首在庫</span><span class="value">'+fmt(data.invStart)+'</span></div><div class="summary-row"><span class="lt">＋ 総仕入</span><span class="value">'+fmt(data.totalCost)+'</span></div><div class="summary-row"><span class="lt">－ 期末在庫</span><span class="value">'+fmt(data.invEnd)+'</span></div><div class="summary-row"><span class="lt">＝ 売上原価</span><span class="value" style="color:var(--warning)">'+fmt(cogs)+'</span></div><div class="summary-total"><span>荒利益(実績)</span><span class="value">'+fmt(data.grossProfit)+' ('+fmtPct(data.grossProfitRate)+')</span></div></div>';
+
+// 推定荒利計算（値引損失の詳細を追加）
+h+='<div class="summary-panel"><div class="summary-panel-header"><div class="summary-panel-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">🎯</div><div class="summary-panel-title">推定荒利計算</div></div>';
+h+='<div class="summary-row"><span class="lt">📉 売変額合計</span><span class="value" style="color:#ef4444">'+fmt(data.totalBaihen)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">📉 売変率(売価)</span><span class="value" style="color:#ef4444">'+fmtPct(data.baihenRateSales)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">📉 値引率(原価)</span><span class="value" style="color:#dc2626;font-weight:600">'+fmtPct(data.baihenRateCost)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">💸 値引原価損失</span><span class="value" style="color:#dc2626">'+fmt(data.baihenLossCost||0)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">値入率(コア)</span><span class="value" style="color:var(--info)">'+fmtPct(data.coreMarginRate)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">推定粗利率(コア)</span><span class="value" style="color:#8b5cf6">'+fmtPct(data.estimatedCoreGrossRate)+'</span></div>';
+h+='<div style="font-size:0.55rem;color:var(--text4);padding:4px 0;border-bottom:1px solid var(--border)">(値入率 - 売変率) / (1 - 売変率)</div>';
+h+='<div class="summary-total"><span>推定荒利</span><span class="value" style="color:#8b5cf6">'+fmt(data.estimatedGrossProfit)+' ('+fmtPct(data.estimatedGrossRate)+')</span></div></div>';
+
+// 推定在庫（値引損失の影響を明示）
+const estimatedCogs=data.estimatedCogs||data.totalSales-data.estimatedGrossProfit;
+const invDiff=data.estimatedInvEnd-data.invEnd;
+// グロス売上（コア）= ネット売上 / (1 - d)
+const coreGrossSales=(1-data.baihenRateSales)>0?data.totalCoreSales/(1-data.baihenRateSales):data.totalCoreSales;
+// 値引なしの理論在庫（ネット売上に値入率を適用）
+const theoryCogs=data.totalCoreSales*(1-data.coreMarginRate)+(data.deliverySalesCost||0)+data.totalConsumable;
+const theoryInvEnd=data.invStart+data.totalCost-theoryCogs;
+const baihenImpact=theoryInvEnd-data.estimatedInvEnd; // 値引が在庫に与える影響
+
+h+='<div class="summary-panel"><div class="summary-panel-header"><div class="summary-panel-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">📦</div><div class="summary-panel-title">推定在庫計算</div></div>';
+
+// 計算式の説明
+h+='<div style="font-size:0.55rem;color:var(--text4);padding:6px 8px;background:var(--bg4);border-radius:4px;margin-bottom:8px;line-height:1.5">';
+h+='<div><strong>計算式:</strong></div>';
+h+='<div>① グロス売上 = ネット売上 ÷ (1-d)</div>';
+h+='<div>② 推定売上原価 = グロス売上 × (1-m)</div>';
+h+='<div>③ 推定在庫 = 期首 + 仕入 - 売上原価</div>';
+h+='</div>';
+
+h+='<div class="summary-row"><span class="lt">コアネット売上</span><span class="value">'+fmt(data.totalCoreSales)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">÷ (1 - d) → グロス売上</span><span class="value" style="color:#f97316">'+fmt(coreGrossSales)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">× (1 - m) → コア原価</span><span class="value" style="color:var(--warning)">'+fmt(coreGrossSales*(1-data.coreMarginRate))+'</span></div>';
+h+='<div class="summary-row"><span class="lt">＋ 売上納品原価</span><span class="value">'+fmt(data.deliverySalesCost||0)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">＋ 消耗品</span><span class="value">'+fmt(data.totalConsumable||0)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">＝ 推定売上原価</span><span class="value" style="color:var(--warning);font-weight:600">'+fmt(estimatedCogs)+'</span></div>';
+
+h+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">';
+h+='<div class="summary-row"><span class="lt">期首在庫 (BI)</span><span class="value">'+fmt(data.invStart)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">＋ 総仕入 (P)</span><span class="value">'+fmt(data.totalCost)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">－ 推定原価 (COGS)</span><span class="value" style="color:var(--warning)">'+fmt(estimatedCogs)+'</span></div>';
+h+='<div class="summary-row" style="font-weight:700"><span class="lt">＝ 推定期末在庫</span><span class="value" style="color:#06b6d4">'+fmt(data.estimatedInvEnd)+'</span></div>';
+h+='</div>';
+
+h+='<div style="margin-top:8px;padding:8px;background:var(--bg4);border-radius:6px;font-size:0.65rem">';
+h+='<div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">値引なし理論在庫</span><span style="font-family:\'JetBrains Mono\',monospace">'+fmt(theoryInvEnd)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;margin-top:3px"><span style="color:#dc2626">💸 値引による在庫減</span><span style="font-family:\'JetBrains Mono\',monospace;color:#dc2626">-'+fmt(baihenImpact)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;margin-top:3px;padding-top:5px;border-top:1px solid var(--border)"><span style="color:var(--text3)">実際期末在庫</span><span style="font-family:\'JetBrains Mono\',monospace">'+fmt(data.invEnd)+'</span></div>';
+h+='<div style="display:flex;justify-content:space-between;margin-top:3px"><span style="color:var(--text3)">推定との差異</span><span style="font-family:\'JetBrains Mono\',monospace;color:'+(invDiff>=0?'var(--success)':'var(--danger)')+'">'+fmt(invDiff)+'</span></div>';
+h+='</div></div>';
+
+// 売上構成
+h+='<div class="summary-panel"><div class="summary-panel-header"><div class="summary-panel-icon">💰</div><div class="summary-panel-title">売上構成</div></div>';
+h+='<div class="summary-row"><span class="lt">総売上</span><span class="value">'+fmt(data.totalSales)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">🌸 花 売上</span><span class="value" style="color:#f472b6">'+fmt(data.deliverySalesPrice-(data.catTotals.sanchoku?.price||0))+'</span></div>';
+h+='<div class="summary-row"><span class="lt">🥬 産直 売上</span><span class="value" style="color:#a3e635">'+fmt(data.catTotals.sanchoku?.price||0)+'</span></div>';
+h+='<div class="summary-row"><span class="lt">コア売上</span><span class="value">'+fmt(data.totalCoreSales)+'</span></div>';
+h+='<div class="summary-total"><span>予算達成率</span><span class="value">'+fmtPct(data.totalSales/data.budget)+'</span></div></div>';
+
+// 帳合構成
+h+='<div class="summary-panel"><div class="summary-panel-header"><div class="summary-panel-icon">📦</div><div class="summary-panel-title">帳合構成</div></div>';getCatOrder().forEach(cat=>{const c=data.catTotals[cat];if(!c||c.cost===0)return;const sh=data.totalCost>0?c.cost/data.totalCost:0,info=CATEGORIES[cat]||{name:cat,icon:'📋'};h+='<div class="summary-row"><span class="lt">'+info.icon+' '+info.name+'</span><span class="value">'+fmtPct(sh)+'</span></div>';});h+='</div>';
+
+h+='</div>';
+
+// 日別在庫推移グラフ
+if(data.dailyInvData&&data.dailyInvData.length>0){
+    h+=renderInventoryChart(data);
+}
+
+document.getElementById('content').innerHTML=h;}
+
+// 日別在庫推移グラフを描画
+function renderInventoryChart(data){
+    const invData=data.dailyInvData.filter(d=>d.hasData||d.day===1);
+    if(invData.length===0)return '';
+    
+    // データのある最終日を取得
+    let lastDataDay=1;
+    data.dailyInvData.forEach(d=>{if(d.hasData)lastDataDay=d.day;});
+    const chartData=data.dailyInvData.filter(d=>d.day<=lastDataDay);
+    
+    // 最大・最小値を計算
+    const invValues=chartData.map(d=>d.inv);
+    const maxInv=Math.max(data.invStart,...invValues)*1.1;
+    const minInv=Math.min(data.invStart,...invValues)*0.9;
+    const range=maxInv-minInv;
+    
+    const chartWidth=100;
+    const chartHeight=180;
+    const padding={top:20,right:15,bottom:30,left:10};
+    const graphWidth=chartWidth-padding.left-padding.right;
+    const graphHeight=chartHeight-padding.top-padding.bottom;
+    
+    // SVGパスを生成
+    let pathD='';
+    let areaD='';
+    const points=[];
+    
+    chartData.forEach((d,i)=>{
+        const x=padding.left+(i/(chartData.length-1||1))*graphWidth;
+        const y=padding.top+graphHeight-(d.inv-minInv)/range*graphHeight;
+        points.push({x,y,day:d.day,inv:d.inv,hasData:d.hasData});
+        if(i===0){
+            pathD=`M ${x} ${y}`;
+            areaD=`M ${x} ${padding.top+graphHeight} L ${x} ${y}`;
+        }else{
+            pathD+=` L ${x} ${y}`;
+            areaD+=` L ${x} ${y}`;
+        }
+    });
+    areaD+=` L ${padding.left+graphWidth} ${padding.top+graphHeight} Z`;
+    
+    // 期首在庫ライン
+    const startY=padding.top+graphHeight-(data.invStart-minInv)/range*graphHeight;
+    // 期末在庫ライン（実績）
+    const endY=padding.top+graphHeight-(data.invEnd-minInv)/range*graphHeight;
+    // 推定期末在庫ライン
+    const estEndY=padding.top+graphHeight-(data.estimatedInvEnd-minInv)/range*graphHeight;
+    
+    let h='<div class="section expanded" style="margin-top:16px"><div class="section-header"><div class="section-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">📈</div><div class="section-info"><div class="section-name">日別推定在庫推移</div><div class="section-meta">期首在庫からの変動（値引損失反映）</div></div></div>';
+    h+='<div class="section-body" style="padding:16px">';
+    
+    // SVGグラフ
+    h+='<div style="position:relative;width:100%;height:'+chartHeight+'px;background:var(--bg3);border-radius:8px;overflow:hidden">';
+    h+='<svg viewBox="0 0 '+chartWidth+' '+chartHeight+'" style="width:100%;height:100%" preserveAspectRatio="none">';
+    
+    // グリッド線
+    for(let i=0;i<=4;i++){
+        const y=padding.top+graphHeight*i/4;
+        const val=maxInv-range*i/4;
+        h+='<line x1="'+padding.left+'" y1="'+y+'" x2="'+(chartWidth-padding.right)+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="2,2"/>';
+    }
+    
+    // 期首在庫基準線
+    h+='<line x1="'+padding.left+'" y1="'+startY+'" x2="'+(chartWidth-padding.right)+'" y2="'+startY+'" stroke="#60a5fa" stroke-width="0.5" stroke-dasharray="3,2"/>';
+    
+    // 実績期末在庫基準線
+    h+='<line x1="'+padding.left+'" y1="'+endY+'" x2="'+(chartWidth-padding.right)+'" y2="'+endY+'" stroke="#22c55e" stroke-width="0.5" stroke-dasharray="3,2"/>';
+    
+    // エリア塗りつぶし
+    h+='<path d="'+areaD+'" fill="url(#invGradient)" opacity="0.3"/>';
+    
+    // 在庫推移ライン
+    h+='<path d="'+pathD+'" fill="none" stroke="#06b6d4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>';
+    
+    // グラデーション定義
+    h+='<defs><linearGradient id="invGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0.05"/></linearGradient></defs>';
+    
+    // データポイント
+    points.forEach(p=>{
+        if(p.hasData){
+            h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="1.5" fill="#06b6d4" stroke="var(--bg2)" stroke-width="0.5"/>';
+        }
+    });
+    
+    h+='</svg>';
+    
+    // 凡例（オーバーレイ）
+    h+='<div style="position:absolute;top:8px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:0.55rem">';
+    h+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="width:12px;height:2px;background:#60a5fa;display:inline-block"></span><span style="color:var(--text3)">期首 '+fmt(data.invStart)+'</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="width:12px;height:2px;background:#06b6d4;display:inline-block"></span><span style="color:#06b6d4">推定 '+fmt(data.estimatedInvEnd)+'</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#22c55e;display:inline-block"></span><span style="color:#22c55e">実績 '+fmt(data.invEnd)+'</span></div>';
+    h+='</div>';
+    
+    h+='</div>';
+    
+    // 日別データテーブル
+    h+='<div style="margin-top:12px;max-height:200px;overflow-y:auto"><table style="font-size:0.65rem"><thead><tr><th>日</th><th>推定在庫</th><th>累計売上</th><th>累計仕入</th><th>累計値引</th></tr></thead><tbody>';
+    chartData.forEach(d=>{
+        if(!d.hasData&&d.day!==1)return;
+        const invColor=d.inv<data.invStart*0.7?'#ef4444':d.inv<data.invStart*0.85?'#f97316':'#06b6d4';
+        h+='<tr><td>'+(d.day===1?'期首':d.day+'日')+'</td><td style="font-family:\'JetBrains Mono\',monospace;color:'+invColor+'">'+fmt(d.inv)+'</td><td>'+fmt(d.cumSales)+'</td><td>'+fmt(d.cumCost)+'</td><td style="color:#ef4444">'+(d.cumBaihen?fmt(d.cumBaihen):'-')+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    
+    h+='</div></div>';
+    return h;
+}
+
+// ===== レポート機能 =====
+let currentReportType=null;
+let currentReportData=null;
+
+function renderReports(){
+    const data=result[currentStore];if(!data)return;
+    
+    let h='<div style="margin-bottom:20px"><div style="font-size:1.1rem;font-weight:700;margin-bottom:8px">📋 レポート出力</div><div style="font-size:0.75rem;color:var(--text3)">各種帳票を生成・出力します</div></div>';
+    
+    h+='<div class="report-grid">';
+    
+    // 日報
+    h+=`<div class="report-card" onclick="generateReport('daily')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">📅</div>
+        <div class="report-card-title">日報</div>
+        <div class="report-card-desc">日別の売上・仕入・粗利データ</div>
+    </div>`;
+    
+    // 週報
+    h+=`<div class="report-card" onclick="generateReport('weekly')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">📆</div>
+        <div class="report-card-title">週報</div>
+        <div class="report-card-desc">週間集計（水曜〜火曜）レポート</div>
+    </div>`;
+    
+    // 月報
+    h+=`<div class="report-card" onclick="generateReport('monthly')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">📊</div>
+        <div class="report-card-title">月報</div>
+        <div class="report-card-desc">月間サマリーレポート</div>
+    </div>`;
+    
+    // 帳合別
+    h+=`<div class="report-card" onclick="generateReport('category')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#a78bfa,#8b5cf6)">📦</div>
+        <div class="report-card-title">帳合別レポート</div>
+        <div class="report-card-desc">帳合分類別の仕入集計</div>
+    </div>`;
+    
+    // 仕入先別
+    h+=`<div class="report-card" onclick="generateReport('supplier')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">🏭</div>
+        <div class="report-card-title">仕入先別レポート</div>
+        <div class="report-card-desc">取引先別の詳細集計</div>
+    </div>`;
+    
+    // 在庫推移
+    h+=`<div class="report-card" onclick="generateReport('inventory')">
+        <div class="report-card-icon" style="background:linear-gradient(135deg,#ec4899,#be185d)">📈</div>
+        <div class="report-card-title">在庫推移レポート</div>
+        <div class="report-card-desc">日別推定在庫の変動</div>
+    </div>`;
+    
+    h+='</div>';
+    
+    // クイックアクション
+    h+='<div style="margin-top:24px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px">';
+    h+='<div style="font-size:0.85rem;font-weight:600;margin-bottom:12px">⚡ クイックアクション</div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    h+='<button onclick="exportAllReports()" style="padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px">📥 全レポートExcel出力</button>';
+    h+='<button onclick="window.print()" style="padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px">🖨️ 現在の画面を印刷</button>';
+    h+='<button onclick="showColumnConfig()" style="padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px">📊 表示列設定</button>';
+    h+='</div></div>';
+    
+    document.getElementById('content').innerHTML=h;
+}
+
+function generateReport(type){
+    currentReportType=type;
+    const data=result[currentStore];if(!data)return;
+    
+    const titles={
+        daily:{title:'日報',icon:'📅',bg:'linear-gradient(135deg,#fbbf24,#f59e0b)'},
+        weekly:{title:'週報',icon:'📆',bg:'linear-gradient(135deg,#6366f1,#4f46e5)'},
+        monthly:{title:'月報',icon:'📊',bg:'linear-gradient(135deg,#22c55e,#16a34a)'},
+        category:{title:'帳合別レポート',icon:'📦',bg:'linear-gradient(135deg,#a78bfa,#8b5cf6)'},
+        supplier:{title:'仕入先別レポート',icon:'🏭',bg:'linear-gradient(135deg,#06b6d4,#0891b2)'},
+        inventory:{title:'在庫推移レポート',icon:'📈',bg:'linear-gradient(135deg,#ec4899,#be185d)'}
+    };
+    
+    const info=titles[type]||{title:type,icon:'📋',bg:'linear-gradient(135deg,#6366f1,#4f46e5)'};
+    
+    document.getElementById('report-preview-icon').style.background=info.bg;
+    document.getElementById('report-preview-icon').textContent=info.icon;
+    document.getElementById('report-preview-title').textContent=info.title;
+    document.getElementById('report-preview-sub').textContent=STORES[currentStore]?.name||'全店舗';
+    
+    let content='';
+    
+    switch(type){
+        case'daily':content=generateDailyReport(data);break;
+        case'weekly':content=generateWeeklyReport(data);break;
+        case'monthly':content=generateMonthlyReport(data);break;
+        case'category':content=generateCategoryReport(data);break;
+        case'supplier':content=generateSupplierReport(data);break;
+        case'inventory':content=generateInventoryReport(data);break;
+    }
+    
+    document.getElementById('report-preview-content').innerHTML=content;
+    document.getElementById('report-preview-modal').style.display='flex';
+}
+
+function generateDailyReport(data){
+    let h='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<thead><tr style="background:var(--bg3)"><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">日付</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">売上</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">仕入原価</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">値引額</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">累計売上</th></tr></thead><tbody>';
+    
+    let cumSales=0;
+    Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{
+        cumSales+=d.sales;
+        h+=`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px">${day}日</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(d.sales)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(d.shiire?.cost||0)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--danger)">${d.baihen?'¥'+fmt(d.baihen):'-'}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600">¥${fmt(cumSales)}</td>
+        </tr>`;
+    });
+    
+    h+='<tr style="background:var(--bg3);font-weight:600"><td style="padding:10px">合計</td><td style="padding:10px;text-align:right">¥'+fmt(data.totalSales)+'</td><td style="padding:10px;text-align:right">¥'+fmt(data.totalCost)+'</td><td style="padding:10px;text-align:right;color:var(--danger)">¥'+fmt(data.totalBaihen)+'</td><td></td></tr>';
+    h+='</tbody></table>';
+    return h;
+}
+
+function generateWeeklyReport(data){
+    // 週別に集計
+    const weeks={};
+    const weekStartDay=3; // Wednesday
+    
+    Object.entries(data.daily).forEach(([day,d])=>{
+        const dayNum=parseInt(day);
+        const weekNum=Math.floor((dayNum+3)/7); // 簡易的な週番号計算
+        if(!weeks[weekNum])weeks[weekNum]={sales:0,cost:0,baihen:0,days:[]};
+        weeks[weekNum].sales+=d.sales;
+        weeks[weekNum].cost+=d.shiire?.cost||0;
+        weeks[weekNum].baihen+=d.baihen||0;
+        weeks[weekNum].days.push(dayNum);
+    });
+    
+    let h='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<thead><tr style="background:var(--bg3)"><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">週</th><th style="padding:10px;text-align:center;border-bottom:2px solid var(--border)">期間</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">売上</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">仕入</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">値引</th></tr></thead><tbody>';
+    
+    Object.entries(weeks).sort((a,b)=>+a[0]-+b[0]).forEach(([weekNum,w])=>{
+        const minDay=Math.min(...w.days);
+        const maxDay=Math.max(...w.days);
+        h+=`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px">第${parseInt(weekNum)+1}週</td>
+            <td style="padding:8px;text-align:center">${minDay}日〜${maxDay}日</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(w.sales)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(w.cost)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--danger)">¥${fmt(w.baihen)}</td>
+        </tr>`;
+    });
+    
+    h+='</tbody></table>';
+    return h;
+}
+
+function generateMonthlyReport(data){
+    let h='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px">';
+    
+    // KPIサマリー
+    h+=`<div style="background:var(--bg3);padding:16px;border-radius:8px">
+        <div style="font-size:0.65rem;color:var(--text4);margin-bottom:4px">売上高</div>
+        <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace">¥${fmt(data.totalSales)}</div>
+    </div>`;
+    h+=`<div style="background:var(--bg3);padding:16px;border-radius:8px">
+        <div style="font-size:0.65rem;color:var(--text4);margin-bottom:4px">荒利益</div>
+        <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--success)">¥${fmt(data.grossProfit)}</div>
+    </div>`;
+    h+=`<div style="background:var(--bg3);padding:16px;border-radius:8px">
+        <div style="font-size:0.65rem;color:var(--text4);margin-bottom:4px">荒利率</div>
+        <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--primary)">${fmtPct(data.grossProfitRate)}</div>
+    </div>`;
+    h+=`<div style="background:var(--bg3);padding:16px;border-radius:8px">
+        <div style="font-size:0.65rem;color:var(--text4);margin-bottom:4px">値入率</div>
+        <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--info)">${fmtPct(data.avgMargin)}</div>
+    </div>`;
+    
+    h+='</div>';
+    
+    // 詳細テーブル
+    h+='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<tbody>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">期首在庫</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace">¥'+fmt(data.invStart)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">総仕入高</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace">¥'+fmt(data.totalCost)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">期末在庫</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace">¥'+fmt(data.invEnd)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">売上原価</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace;color:var(--warning)">¥'+fmt(data.invStart+data.totalCost-data.invEnd)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">値引額合計</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace;color:var(--danger)">¥'+fmt(data.totalBaihen)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">売変率</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace;color:var(--danger)">'+fmtPct(data.baihenRateSales)+'</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">営業日数</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace">'+data.salesDays+'日</td></tr>';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px">日平均売上</td><td style="padding:10px;text-align:right;font-family:\'JetBrains Mono\',monospace">¥'+fmt(data.avgDailySales)+'</td></tr>';
+    h+='</tbody></table>';
+    
+    return h;
+}
+
+function generateCategoryReport(data){
+    let h='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<thead><tr style="background:var(--bg3)"><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">帳合</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">原価</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">売価</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">値入率</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">構成比</th></tr></thead><tbody>';
+    
+    getCatOrder().forEach(cat=>{
+        const c=data.catTotals[cat];
+        if(!c||c.cost===0)return;
+        const mr=c.price>0?(c.price-c.cost)/c.price:0;
+        const share=data.totalCost>0?c.cost/data.totalCost:0;
+        const info=CATEGORIES[cat]||{name:cat,icon:'📋'};
+        
+        h+=`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px"><span style="margin-right:6px">${info.icon}</span>${info.name}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(c.cost)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(c.price)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--primary)">${fmtPct(mr)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">${fmtPct(share)}</td>
+        </tr>`;
+    });
+    
+    h+='</tbody></table>';
+    return h;
+}
+
+function generateSupplierReport(data){
+    const suppliers=Object.entries(data.supTotals).sort((a,b)=>b[1].cost-a[1].cost);
+    
+    let h='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<thead><tr style="background:var(--bg3)"><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">仕入先</th><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">帳合</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">原価</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">売価</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">値入率</th></tr></thead><tbody>';
+    
+    suppliers.forEach(([code,sup])=>{
+        const cat=SUPPLIERS[code]?.cat||'other';
+        const catInfo=CATEGORIES[cat]||{name:'その他',icon:'📋'};
+        const mr=sup.price>0?(sup.price-sup.cost)/sup.price:0;
+        
+        h+=`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px"><span style="font-size:0.6rem;color:var(--text4);margin-right:6px">${code}</span>${sup.name}</td>
+            <td style="padding:8px">${catInfo.icon} ${catInfo.name}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(sup.cost)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(sup.price)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--primary)">${fmtPct(mr)}</td>
+        </tr>`;
+    });
+    
+    h+='</tbody></table>';
+    return h;
+}
+
+function generateInventoryReport(data){
+    // 日別推定在庫を計算
+    const invData=[];
+    let runningInv=data.invStart;
+    const avgMargin=data.avgMargin||0.26;
+    const baihenRate=data.baihenRateSales||0;
+    
+    for(let day=1;day<=31;day++){
+        const d=data.daily[day];
+        if(d){
+            const daySales=d.sales||0;
+            const dayCost=d.shiire?.cost||0;
+            const dayGrossSales=(1-baihenRate)>0?daySales/(1-baihenRate):daySales;
+            const dayEstCogs=dayGrossSales*(1-avgMargin);
+            runningInv=runningInv+dayCost-dayEstCogs;
+            invData.push({day,inv:runningInv,sales:daySales,cost:dayCost});
+        }
+    }
+    
+    let h='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">';
+    h+=`<div style="background:var(--bg3);padding:12px;border-radius:8px;text-align:center"><div style="font-size:0.6rem;color:var(--text4)">期首在庫</div><div style="font-size:1.1rem;font-weight:600;font-family:'JetBrains Mono',monospace">¥${fmt(data.invStart)}</div></div>`;
+    h+=`<div style="background:var(--bg3);padding:12px;border-radius:8px;text-align:center"><div style="font-size:0.6rem;color:var(--text4)">推定期末在庫</div><div style="font-size:1.1rem;font-weight:600;font-family:'JetBrains Mono',monospace;color:#06b6d4">¥${fmt(data.estimatedInvEnd)}</div></div>`;
+    h+=`<div style="background:var(--bg3);padding:12px;border-radius:8px;text-align:center"><div style="font-size:0.6rem;color:var(--text4)">実績期末在庫</div><div style="font-size:1.1rem;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--success)">¥${fmt(data.invEnd)}</div></div>`;
+    h+='</div>';
+    
+    h+='<table style="width:100%;border-collapse:collapse;font-size:0.75rem">';
+    h+='<thead><tr style="background:var(--bg3)"><th style="padding:10px;text-align:left;border-bottom:2px solid var(--border)">日</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">推定在庫</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">売上</th><th style="padding:10px;text-align:right;border-bottom:2px solid var(--border)">仕入</th></tr></thead><tbody>';
+    
+    invData.forEach(d=>{
+        const invColor=d.inv<data.invStart*0.7?'var(--danger)':d.inv<data.invStart*0.85?'var(--warning)':'#06b6d4';
+        h+=`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px">${d.day}日</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color:${invColor};font-weight:600">¥${fmt(d.inv)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(d.sales)}</td>
+            <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">¥${fmt(d.cost)}</td>
+        </tr>`;
+    });
+    
+    h+='</tbody></table>';
+    return h;
+}
+
+function closeReportPreview(){
+    document.getElementById('report-preview-modal').style.display='none';
+}
+
+function printReport(){
+    const content=document.getElementById('report-preview-content').innerHTML;
+    const win=window.open('','','width=800,height=600');
+    win.document.write('<html><head><title>レポート印刷</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:left}</style></head><body>'+content+'</body></html>');
+    win.document.close();
+    win.print();
+}
+
+function exportReportExcel(){
+    if(!result||!currentReportType)return;
+    const data=result[currentStore];
+    const wb=XLSX.utils.book_new();
+    
+    let sheetData=[];
+    switch(currentReportType){
+        case'daily':
+            sheetData=[['日','売上','仕入原価','値引額']];
+            Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{
+                sheetData.push([day+'日',d.sales,d.shiire?.cost||0,d.baihen||0]);
+            });
+            break;
+        case'monthly':
+            sheetData=[
+                ['項目','値'],
+                ['売上高',data.totalSales],
+                ['荒利益',data.grossProfit],
+                ['荒利率',data.grossProfitRate],
+                ['期首在庫',data.invStart],
+                ['総仕入高',data.totalCost],
+                ['期末在庫',data.invEnd],
+                ['値引額合計',data.totalBaihen]
+            ];
+            break;
+        case'category':
+            sheetData=[['帳合','原価','売価','値入率','構成比']];
+            getCatOrder().forEach(cat=>{
+                const c=data.catTotals[cat];
+                if(!c||c.cost===0)return;
+                const mr=c.price>0?(c.price-c.cost)/c.price:0;
+                const share=data.totalCost>0?c.cost/data.totalCost:0;
+                sheetData.push([CATEGORIES[cat]?.name||cat,c.cost,c.price,mr,share]);
+            });
+            break;
+        default:
+            sheetData=[['レポートデータ']];
+    }
+    
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sheetData),currentReportType);
+    XLSX.writeFile(wb,'report_'+currentReportType+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+    showToast('レポートをエクスポートしました','success');
+}
+
+function exportAllReports(){
+    if(!result)return;
+    const data=result[currentStore];
+    const wb=XLSX.utils.book_new();
+    
+    // 日報
+    let daily=[['日','売上','仕入原価','値引額']];
+    Object.entries(data.daily).sort((a,b)=>+a[0]-+b[0]).forEach(([day,d])=>{
+        daily.push([day+'日',d.sales,d.shiire?.cost||0,d.baihen||0]);
+    });
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(daily),'日報');
+    
+    // 月報
+    let monthly=[
+        ['項目','値'],
+        ['売上高',data.totalSales],
+        ['荒利益',data.grossProfit],
+        ['荒利率',data.grossProfitRate],
+        ['期首在庫',data.invStart],
+        ['総仕入高',data.totalCost],
+        ['期末在庫',data.invEnd]
+    ];
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(monthly),'月報');
+    
+    // 帳合別
+    let category=[['帳合','原価','売価','値入率']];
+    getCatOrder().forEach(cat=>{
+        const c=data.catTotals[cat];
+        if(!c||c.cost===0)return;
+        const mr=c.price>0?(c.price-c.cost)/c.price:0;
+        category.push([CATEGORIES[cat]?.name||cat,c.cost,c.price,mr]);
+    });
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(category),'帳合別');
+    
+    XLSX.writeFile(wb,'全レポート_'+new Date().toISOString().slice(0,10)+'.xlsx');
+    showToast('全レポートをエクスポートしました','success');
+}
+
+// ===== カラム設定 =====
+let columnConfig={
+    daily:[
+        {id:'day',name:'日',visible:true},
+        {id:'sales',name:'売上',visible:true},
+        {id:'baihen',name:'値引額',visible:true},
+        {id:'baihenRate',name:'値引率',visible:true},
+        {id:'shiireCost',name:'仕入原価',visible:true},
+        {id:'tenkanIn',name:'店間入',visible:true},
+        {id:'tenkanOut',name:'店間出',visible:true},
+        {id:'hana',name:'花',visible:true},
+        {id:'sanchoku',name:'産直',visible:true},
+        {id:'consumable',name:'原価算入比',visible:true},
+        {id:'cumSales',name:'累計売上',visible:true},
+        {id:'cumCost',name:'累計仕入',visible:true}
+    ]
+};
+
+function showColumnConfig(){
+    renderColumnConfig();
+    document.getElementById('column-config-modal').style.display='flex';
+}
+
+function closeColumnConfig(){
+    document.getElementById('column-config-modal').style.display='none';
+}
+
+function renderColumnConfig(){
+    const container=document.getElementById('column-config-content');
+    let h='<div class="column-config" id="column-config-list">';
+    
+    columnConfig.daily.forEach((col,i)=>{
+        h+=`<div class="column-item" draggable="true" data-index="${i}">
+            <div class="column-item-handle">≡</div>
+            <div class="column-item-name">${col.name}</div>
+            <div class="column-item-toggle ${col.visible?'active':''}" onclick="toggleColumn(${i})"></div>
+        </div>`;
+    });
+    
+    h+='</div>';
+    container.innerHTML=h;
+    
+    // ドラッグ&ドロップ
+    initColumnDragDrop();
+}
+
+function toggleColumn(index){
+    columnConfig.daily[index].visible=!columnConfig.daily[index].visible;
+    renderColumnConfig();
+}
+
+function initColumnDragDrop(){
+    const list=document.getElementById('column-config-list');
+    if(!list)return;
+    
+    let draggedItem=null;
+    
+    list.querySelectorAll('.column-item').forEach(item=>{
+        item.addEventListener('dragstart',e=>{
+            draggedItem=item;
+            item.classList.add('dragging');
+        });
+        
+        item.addEventListener('dragend',()=>{
+            item.classList.remove('dragging');
+            draggedItem=null;
+        });
+        
+        item.addEventListener('dragover',e=>{
+            e.preventDefault();
+            if(!draggedItem||draggedItem===item)return;
+            
+            const rect=item.getBoundingClientRect();
+            const midY=rect.top+rect.height/2;
+            
+            if(e.clientY<midY){
+                list.insertBefore(draggedItem,item);
+            }else{
+                list.insertBefore(draggedItem,item.nextSibling);
+            }
+        });
+    });
+}
+
+function applyColumnConfig(){
+    // 現在の並び順を取得
+    const newOrder=[];
+    document.querySelectorAll('#column-config-list .column-item').forEach(item=>{
+        const index=parseInt(item.dataset.index);
+        newOrder.push(columnConfig.daily[index]);
+    });
+    columnConfig.daily=newOrder;
+    
+    // インデックスを更新
+    columnConfig.daily.forEach((col,i)=>col.index=i);
+    
+    saveSettingsToStorage();
+    closeColumnConfig();
+    showToast('カラム設定を適用しました','success');
+    if(result)render();
+}
+
+function exportExcel(){if(!result)return;const wb=XLSX.utils.book_new(),sids=Object.keys(STORES).sort((a,b)=>+a-+b);const allData=[['日']];getCatOrder().forEach(cat=>{sids.forEach(sid=>{if(!result[sid]?.catTotals[cat])return;allData[0].push((CATEGORIES[cat]?.name||cat)+'_'+sid.padStart(2,'0')+'_原価','_売価');});});for(let day=1;day<=31;day++){const row=[day+'日'];getCatOrder().forEach(cat=>{sids.forEach(sid=>{if(!result[sid]?.catTotals[cat])return;const d=result[sid].daily[day];let c=0,p=0;if(d){if(cat==='tenkan'){c=d.tenkanInTotal.cost+d.tenkanOutTotal.cost;p=d.tenkanInTotal.price+d.tenkanOutTotal.price;}else if(cat==='bumonkan'){c=d.bumonInTotal.cost+d.bumonOutTotal.cost;p=d.bumonInTotal.price+d.bumonOutTotal.price;}else if(cat==='hana'){c=d.hana.cost;p=d.hana.price;}else if(cat==='sanchoku'){c=d.sanchoku.cost;p=d.sanchoku.price;}else Object.entries(d.suppliers).forEach(([code,sup])=>{if((SUPPLIERS[code]?.cat||'other')===cat){c+=sup.cost;p+=sup.price;}});}row.push(c||'',p||'');});});allData.push(row);}XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(allData),'取引先別');sids.forEach(sid=>{const d=result[sid];const ws=[['店舗',STORES[sid].name],['期首在庫',d.invStart],['総仕入',d.totalCost],['期末在庫',d.invEnd],['売上原価',d.invStart+d.totalCost-d.invEnd],['売上実績',d.totalSales],['荒利益',d.grossProfit],['荒利率',d.grossProfitRate],['値入率',d.avgMargin],[],['帳合','原価','売価','値入率','構成比']];getCatOrder().forEach(cat=>{const c=d.catTotals[cat];if(!c)return;ws.push([CATEGORIES[cat]?.name||cat,c.cost,c.price,c.price>0?(c.price-c.cost)/c.price:0,d.totalCost>0?c.cost/d.totalCost:0]);});ws.push([],['=== 店間・部門間移動詳細 ==='],['日','種別','移動先/元','部門','原価','売価']);d.transferDetails.tenkanIn.forEach(t=>{ws.push([t.day+'日','店間入庫',t.fromStore,'',t.cost,t.price]);});d.transferDetails.tenkanOut.forEach(t=>{ws.push([t.day+'日','店間出庫',t.toStore,t.bumonCode||'',t.cost,t.price]);});d.transferDetails.bumonIn.forEach(t=>{ws.push([t.day+'日','部門間入庫','','',t.cost,t.price]);});d.transferDetails.bumonOut.forEach(t=>{ws.push([t.day+'日','部門間出庫','',t.bumonCode||'',t.cost,t.price]);});XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ws),'店舗'+sid.padStart(2,'0'));});XLSX.writeFile(wb,'仕入粗利管理_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.xlsx');showToast('Excelを出力しました','success');}
+</script>
+</body>
+</html>
