@@ -333,3 +333,44 @@ export function cleanupInlineHandlers() {
         }
     });
 }
+
+/**
+ * Setup global functions for file loading callbacks
+ * Exports functions to window for HTML inline event handlers
+ */
+export function setupFileLoadingGlobalFunctions() {
+    // Wrapper for loadFile that takes input element
+    window.loadFile = async function(inputElement, type) {
+        const file = inputElement.files?.[0];
+        if (!file) return;
+
+        try {
+            await loadFile(file, type);
+            const card = inputElement.closest('.upload-card');
+            if (card) card.classList.add('loaded');
+
+            // Update UI components
+            updateStoreChips();
+            updateStoreInventoryUI();
+
+            // Check if can generate
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            updateGenerateButton(canGenerate);
+        } catch (err) {
+            console.error('File load error:', err);
+        }
+    };
+
+    // Wrapper for processConsumableFiles
+    window.processConsumableFiles = function(inputElement) {
+        // Show modal instead of processing directly
+        showConsumableModal();
+    };
+
+    // Additional modal functions
+    window.selectConsumableFiles = function() {
+        document.getElementById('consumable-input')?.click();
+    };
+
+    window.closeConsumableModal = closeConsumableModal;
+}

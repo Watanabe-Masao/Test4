@@ -12,7 +12,8 @@ import {
     initializeEventHandlers,
     setupGenerateHandler,
     setupExportHandler,
-    setupConsumableFileHandler
+    setupConsumableFileHandler,
+    setupFileLoadingGlobalFunctions
 } from './ui/eventHandlers.js';
 import {
     setupModalGlobalFunctions,
@@ -56,6 +57,9 @@ class App {
 
             // Setup global functions for modals
             setupModalGlobalFunctions();
+
+            // Setup global functions for file loading
+            setupFileLoadingGlobalFunctions();
 
             // Initialize event handlers
             initializeEventHandlers();
