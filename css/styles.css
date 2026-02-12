@@ -1465,3 +1465,51 @@ td.highlight {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 3px;
 }
+
+/* ============================================
+   Debug Panel Styles (Development Only)
+   ============================================ */
+
+#debug-panel {
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+#debug-panel button {
+    transition: all 0.2s ease;
+}
+
+#debug-panel button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#debug-panel button:active {
+    transform: translateY(0);
+}
+
+#debug-toggle {
+    transition: all 0.3s ease;
+}
+
+#debug-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+}
+
+#debug-toggle:active {
+    transform: scale(0.95);
+}
+
+/* デバッグパネルのスクロールバー */
+#debug-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+#debug-panel::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.4);
+    border-radius: 2px;
+}
+
+#debug-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 68, 68, 0.6);
+}

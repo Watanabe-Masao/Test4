@@ -263,6 +263,43 @@
         </div>
     </div>
 
+    <!-- デバッグパネル (開発用) -->
+    <div id="debug-panel" style="position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:320px;max-height:500px;overflow-y:auto;z-index:4000;box-shadow:0 4px 20px rgba(0,0,0,0.3)">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <span style="width:32px;height:32px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:8px;display:flex;align-items:center;justify-content:center">🛠️</span>
+            デバッグパネル
+        </div>
+
+        <!-- データ情報 -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">📊 データ情報</div>
+            <pre id="data-info" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text3);white-space:pre-wrap;margin:0">読込中...</pre>
+            <button id="refresh-info" style="width:100%;padding:6px;margin-top:8px;background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.65rem;cursor:pointer;font-family:inherit">🔄 更新</button>
+        </div>
+
+        <!-- データクリア -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">🗑️ データクリア</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <button id="clear-shiire" style="width:100%;padding:8px;background:var(--warning);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">📦 仕入データ削除</button>
+                <button id="clear-araki" style="width:100%;padding:8px;background:var(--warning);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">💰 荒利データ削除</button>
+                <button id="clear-all" style="width:100%;padding:8px;background:#f97316;border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">🗑️ 全データ削除</button>
+            </div>
+        </div>
+
+        <!-- 完全リセット -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">⚠️ 完全リセット</div>
+            <button id="reset-app" style="width:100%;padding:8px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">🔄 DB削除 + リロード</button>
+            <div style="margin-top:6px;font-size:0.6rem;color:var(--text4);text-align:center">データベースを削除してページをリロードします</div>
+        </div>
+    </div>
+
+    <!-- デバッグパネル トグルボタン -->
+    <button id="debug-toggle" style="position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:50%;color:white;font-size:1.3rem;cursor:pointer;z-index:4001;box-shadow:0 4px 12px rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center" title="開発用デバッグパネル">
+        🛠️
+    </button>
+
     <!-- Force Cache Clear for Updated Files -->
     <script>
         // Clear service workers
@@ -283,6 +320,9 @@
         console.log('🧹 Cache cleared - Loading fresh JavaScript modules');
         console.log('📦 Module version: 2.1 (2026-02-12)');
     </script>
+
+    <!-- Debug Panel (Development Only) -->
+    <script src="js/debugPanel.js?v=2.1&t=20260212"></script>
 
     <!-- Modular JavaScript Entry Point -->
     <script type="module" src="js/main.js?v=2.1&t=20260212"></script>
