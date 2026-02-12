@@ -28,6 +28,20 @@ export {
   DataRepository
 } from './repository.js';
 
+// 同期マネージャー
+export {
+  SyncManager,
+  syncManager,
+  MERGE_MODE
+} from './syncManager.js';
+
+// DataLoader統合
+export {
+  importToIndexedDB,
+  importMultipleToIndexedDB,
+  getConverterForType
+} from './dataLoaderIntegration.js';
+
 // テストモジュール
 export {
   DatabaseTest,
