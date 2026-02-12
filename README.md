@@ -322,6 +322,27 @@ const currentStore = appState.getCurrentStore();
 - All functionality remains the same
 - No breaking changes to user experience
 
+## 📚 関連ドキュメント
+
+このリファクタリングプロジェクトには、以下の詳細ドキュメントが含まれています:
+
+### 📖 [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)
+旧版から新版への移行方法を詳しく説明:
+- 変更点の概要
+- 移行手順 (ステップバイステップ)
+- 関数の移行マップ
+- Before & After コード例
+- トラブルシューティング
+
+### 🏛️ [ARCHITECTURE.md](./ARCHITECTURE.md)
+システムアーキテクチャの詳細:
+- 全体構造とレイヤー設計
+- データフロー図
+- モジュール依存関係
+- 設計原則 (SOLID)
+- テスト戦略
+- パフォーマンス考慮事項
+
 ## 📞 サポート
 
 For questions or issues with the refactored codebase, please refer to this documentation or contact the development team.
