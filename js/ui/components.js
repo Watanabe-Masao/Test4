@@ -53,8 +53,8 @@ export function updateStoreInventoryUI() {
 
         html += '<tr style="border-bottom:1px solid var(--border)">';
         html += `<td style="padding:4px;color:var(--text2)">${sid.padStart(2, '0')} ${store?.name || ''}</td>`;
-        html += `<td style="padding:2px"><input type="text" class="inv-input" data-store="${sid}" data-type="start" value="${fmt(inv.invStart)}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.62rem;text-align:right"></td>`;
-        html += `<td style="padding:2px"><input type="text" class="inv-input" data-store="${sid}" data-type="end" value="${fmt(inv.invEnd)}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.62rem;text-align:right"></td>`;
+        html += `<td style="padding:2px"><input type="text" class="inv-input" data-store="${sid}" data-type="start" value="${fmt(inv.invStart)}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;text-align:right"></td>`;
+        html += `<td style="padding:2px"><input type="text" class="inv-input" data-store="${sid}" data-type="end" value="${fmt(inv.invEnd)}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;text-align:right"></td>`;
         html += '</tr>';
     });
 
