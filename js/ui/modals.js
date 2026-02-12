@@ -150,8 +150,7 @@ function updateSupplierSettingsUI() {
     container.querySelectorAll('input[data-field="usePriceCalc"]').forEach(cb => {
         cb.addEventListener('change', e => {
             const code = e.target.dataset.code;
-            const selector = 'input[data-code="' + code + '"][data-field="marginRate"]';
-            const marginInput = container.querySelector(selector);
+            const marginInput = container.querySelector(`input[data-code='${code}'][data-field='marginRate']`);
             if (marginInput) {
                 marginInput.disabled = !e.target.checked;
             }
@@ -181,8 +180,7 @@ export function saveSupplierSettings() {
     // Update supplier settings
     container.querySelectorAll('input[data-field="usePriceCalc"]').forEach(cb => {
         const code = cb.dataset.code;
-        const selector = 'input[data-code="' + code + '"][data-field="marginRate"]';
-        const marginInput = container.querySelector(selector);
+        const marginInput = container.querySelector(`input[data-code='${code}'][data-field='marginRate']`);
 
         const settings = {
             usePriceCalc: cb.checked,
