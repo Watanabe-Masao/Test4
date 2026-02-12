@@ -266,3 +266,39 @@ export function sortBy(arr, key, ascending = true) {
         return 0;
     });
 }
+
+/**
+ * 数値をフォーマット（カンマ区切り）
+ * @param {number} num - 数値
+ * @returns {string}
+ */
+export function formatNumber(num) {
+  if (num === null || num === undefined || isNaN(num)) {
+    return '0';
+  }
+  return Math.round(num).toLocaleString('ja-JP');
+}
+
+/**
+ * 日付をフォーマット
+ * @param {Date} date - 日付
+ * @returns {string}
+ */
+export function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toLocaleDateString('ja-JP');
+}
+
+/**
+ * パーセントをフォーマット
+ * @param {number} percent - パーセント
+ * @returns {string}
+ */
+export function formatPercent(percent) {
+  if (percent === null || percent === undefined || isNaN(percent)) {
+    return '0.0%';
+  }
+  return `${percent.toFixed(1)}%`;
+}
