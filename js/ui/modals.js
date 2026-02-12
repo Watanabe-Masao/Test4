@@ -230,11 +230,11 @@ function renderSettingsContent() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">目標粗利率 (%)</label>
-                    <input type="number" id="set-target-margin" value="${document.getElementById('target-margin')?.value || '25.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-target-margin" value="${document.getElementById('target-margin')?.value || 25.00}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
                 </div>
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">警告しきい値 (%)</label>
-                    <input type="number" id="set-warning-margin" value="${document.getElementById('warning-margin')?.value || '23.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-warning-margin" value="${document.getElementById('warning-margin')?.value || 23.00}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
                 </div>
             </div>
         </div>
@@ -243,11 +243,11 @@ function renderSettingsContent() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">花 掛け率</label>
-                    <input type="number" id="set-hana-rate" value="${document.getElementById('hana-rate')?.value || '0.80'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-hana-rate" value="${document.getElementById('hana-rate')?.value || 0.80}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
                 </div>
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">産直 掛け率</label>
-                    <input type="number" id="set-sanchoku-rate" value="${document.getElementById('sanchoku-rate')?.value || '0.85'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-sanchoku-rate" value="${document.getElementById('sanchoku-rate')?.value || 0.85}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
                 </div>
             </div>
         </div>
