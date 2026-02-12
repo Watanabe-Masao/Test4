@@ -27,6 +27,7 @@ import {
     createLoadingState,
     createEmptyState
 } from './ui/components.js';
+import { initDatabase, showDatabaseInfo } from './services/database/index.js';
 
 /**
  * Application class
@@ -45,6 +46,11 @@ class App {
         console.log('🚀 Initializing 仕入粗利管理システム v8 (Refactored)');
 
         try {
+            // Initialize IndexedDB
+            console.log('💾 Initializing database...');
+            await initDatabase();
+            console.log('✅ Database initialized');
+
             // Load saved settings
             loadAndApplyAllSettings();
 
@@ -61,6 +67,9 @@ class App {
 
             // Setup global render function
             window.render = () => this.render();
+
+            // Setup global database info function (for debugging)
+            window.showDbInfo = showDatabaseInfo;
 
             // Show initial empty state
             this.showEmptyState();
