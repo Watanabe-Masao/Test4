@@ -48,6 +48,14 @@ export class ImportDialog {
       this.dialog = null;
     }
 
+    // DOM内の全ての古いダイアログオーバーレイを削除（念のため）
+    const oldOverlays = document.querySelectorAll('.import-dialog-overlay');
+    oldOverlays.forEach(overlay => {
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    });
+
     this.dataType = dataType;
     this.data = data;
     this.onConfirm = onConfirm;
@@ -443,11 +451,13 @@ export class ImportDialog {
         justify-content: center;
         z-index: 10000;
         opacity: 0;
+        pointer-events: none;
         transition: opacity 0.3s;
       }
 
       .import-dialog-overlay.show {
         opacity: 1;
+        pointer-events: auto;
       }
 
       .import-dialog {
