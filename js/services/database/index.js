@@ -42,6 +42,37 @@ export {
   getConverterForType
 } from './dataLoaderIntegration.js';
 
+// クエリビルダー
+export {
+  QueryBuilder,
+  query,
+  Search,
+  OPERATORS,
+  LOGICAL,
+  SORT_ORDER
+} from './queryBuilder.js';
+
+// 計算エンジン
+export {
+  CalculationEngine,
+  calculator
+} from './calculationEngine.js';
+
+// 集計機能
+export {
+  Aggregator,
+  aggregate,
+  AGGREGATE_FUNCTIONS
+} from './aggregator.js';
+
+// レポート生成
+export {
+  ReportGenerator,
+  reportGenerator,
+  REPORT_FORMAT,
+  REPORT_TYPE
+} from './reportGenerator.js';
+
 // テストモジュール
 export {
   DatabaseTest,
