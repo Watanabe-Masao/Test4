@@ -134,7 +134,7 @@ function updateSupplierSettingsUI() {
         html += `<input type="checkbox" data-code="${code}" data-field="usePriceCalc" ${usePriceCalc ? 'checked' : ''} style="accent-color:var(--primary)">`;
         html += '<span style="font-size:0.6rem;color:var(--text3)">値入率から算出</span></label></td>';
         html += `<td style="padding:6px"><input type="text" data-code="${code}" data-field="marginRate" value="${marginRate}" `;
-        html += `style="width:60px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;text-align:center" ${usePriceCalc ? '' : 'disabled'}></td>';
+        html += `style="width:60px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;text-align:center" ${usePriceCalc ? '' : 'disabled'}></td>`;
         html += '</tr>';
     });
 
