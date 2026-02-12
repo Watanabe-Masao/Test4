@@ -357,6 +357,14 @@ export function closeValidationModal() {
  * Setup global functions for modal callbacks
  */
 export function setupModalGlobalFunctions() {
+    // Export modal functions to global scope for HTML onclick handlers
+    window.showSettingsModal = showSettingsModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.saveAllSettings = saveAllSettings;
+    window.showSupplierSettingsModal = showSupplierSettingsModal;
+    window.closeSupplierSettingsModal = closeSupplierSettingsModal;
+    window.saveSupplierSettings = saveSupplierSettings;
+
     window.exportSettingsClick = () => {
         const settings = exportSettingsToFile();
         const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
