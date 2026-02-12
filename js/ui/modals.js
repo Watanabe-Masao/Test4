@@ -1,6 +1,7 @@
 /**
  * Modal Management Module
  * Handles all modal dialogs in the application
+ * @version 2.0.1 - Fixed quote escaping and global exports
  */
 
 import { appState } from '../models/state.js';
@@ -120,7 +121,7 @@ function updateSupplierSettingsUI() {
         const marginRate = setting.marginRate || 0.26;
 
         html += '<tr style="border-bottom:1px solid var(--border)">';
-        html += `<td style="padding:6px;font-family:'JetBrains Mono',monospace;color:var(--text3)">${code}</td>`;
+        html += `<td style="padding:6px;font-family:\'JetBrains Mono\',monospace;color:var(--text3)">${code}</td>`;
         html += `<td style="padding:6px">${sup.name}</td>`;
         html += `<td style="padding:6px"><select data-code="${code}" data-field="cat" style="width:100%;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.65rem">`;
 
@@ -133,7 +134,7 @@ function updateSupplierSettingsUI() {
         html += `<input type="checkbox" data-code="${code}" data-field="usePriceCalc" ${usePriceCalc ? 'checked' : ''} style="accent-color:var(--primary)">`;
         html += '<span style="font-size:0.6rem;color:var(--text3)">値入率から算出</span></label></td>';
         html += `<td style="padding:6px"><input type="text" data-code="${code}" data-field="marginRate" value="${marginRate}" `;
-        html += `style="width:60px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.65rem;text-align:center" ${usePriceCalc ? '' : 'disabled'}></td>';
+        html += `style="width:60px;padding:4px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;text-align:center" ${usePriceCalc ? '' : 'disabled'}></td>';
         html += '</tr>';
     });
 
@@ -230,11 +231,11 @@ function renderSettingsContent() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">目標粗利率 (%)</label>
-                    <input type="number" id="set-target-margin" value="${document.getElementById('target-margin')?.value || '25.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-target-margin" value="${document.getElementById('target-margin')?.value || 25.00}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.8rem">
                 </div>
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">警告しきい値 (%)</label>
-                    <input type="number" id="set-warning-margin" value="${document.getElementById('warning-margin')?.value || '23.00'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-warning-margin" value="${document.getElementById('warning-margin')?.value || 23.00}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.8rem">
                 </div>
             </div>
         </div>
@@ -243,11 +244,11 @@ function renderSettingsContent() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">花 掛け率</label>
-                    <input type="number" id="set-hana-rate" value="${document.getElementById('hana-rate')?.value || '0.80'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-hana-rate" value="${document.getElementById('hana-rate')?.value || 0.80}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.8rem">
                 </div>
                 <div style="background:var(--bg3);padding:10px;border-radius:7px">
                     <label style="display:block;font-size:0.6rem;color:var(--text4);margin-bottom:4px">産直 掛け率</label>
-                    <input type="number" id="set-sanchoku-rate" value="${document.getElementById('sanchoku-rate')?.value || '0.85'}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.8rem">
+                    <input type="number" id="set-sanchoku-rate" value="${document.getElementById('sanchoku-rate')?.value || 0.85}" step="0.01" style="width:100%;padding:6px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:\'JetBrains Mono\',monospace;font-size:0.8rem">
                 </div>
             </div>
         </div>
@@ -357,6 +358,14 @@ export function closeValidationModal() {
  * Setup global functions for modal callbacks
  */
 export function setupModalGlobalFunctions() {
+    // Export modal functions to global scope for HTML onclick handlers
+    window.showSettingsModal = showSettingsModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.saveAllSettings = saveAllSettings;
+    window.showSupplierSettingsModal = showSupplierSettingsModal;
+    window.closeSupplierSettingsModal = closeSupplierSettingsModal;
+    window.saveSupplierSettings = saveSupplierSettings;
+
     window.exportSettingsClick = () => {
         const settings = exportSettingsToFile();
         const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });

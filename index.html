@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>仕入粗利管理システム v8</title>
     <meta name="description" content="仕入粗利管理システム - 取引先別フォーマット v8 (リファクタリング版)">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app">
@@ -260,7 +263,28 @@
         </div>
     </div>
 
+    <!-- Force Cache Clear for Updated Files -->
+    <script>
+        // Clear service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(reg => reg.unregister());
+            });
+        }
+
+        // Clear cache storage
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+
+        // Log cache clear
+        console.log('🧹 Cache cleared - Loading fresh JavaScript modules');
+        console.log('📦 Module version: 2.1 (2026-02-12)');
+    </script>
+
     <!-- Modular JavaScript Entry Point -->
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=2.1&t=20260212"></script>
 </body>
 </html>
