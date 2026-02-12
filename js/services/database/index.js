@@ -73,6 +73,13 @@ export {
   REPORT_TYPE
 } from './reportGenerator.js';
 
+// キャッシュマネージャー
+export {
+  CacheManager,
+  cacheManager,
+  startAutoCleanup
+} from './cacheManager.js';
+
 // テストモジュール
 export {
   DatabaseTest,

@@ -6,6 +6,7 @@
 import { appState } from '../models/state.js';
 import { FILE_TYPES } from '../config/constants.js';
 import { parseDate, parseNum, showToast, readExcelFile, fmt } from '../utils/helpers.js';
+import { importToIndexedDB } from './database/index.js';
 
 /**
  * Detects the file type based on filename and content
@@ -50,9 +51,10 @@ export function detectFileType(filename, data) {
  * Loads a single file
  * @param {File} file - The file to load
  * @param {string} type - The file type
+ * @param {boolean} saveToIndexedDB - IndexedDBに保存するか（デフォルト: true）
  * @returns {Promise<void>}
  */
-export async function loadFile(file, type) {
+export async function loadFile(file, type, saveToIndexedDB = true) {
     try {
         const data = await readExcelFile(file);
         appState.setData(type, data);
@@ -68,12 +70,36 @@ export async function loadFile(file, type) {
             processBudget(data);
         }
 
+        // IndexedDBに保存
+        if (saveToIndexedDB && isDataTypeSupported(type)) {
+            try {
+                await importToIndexedDB(type, data, true); // ダイアログ表示
+                console.log(`✅ ${type} data saved to IndexedDB`);
+            } catch (err) {
+                console.warn(`⚠️ Failed to save ${type} to IndexedDB:`, err);
+                // IndexedDB保存失敗はエラーにしない（メモリ上のデータは保持）
+            }
+        }
+
         showToast(`${FILE_TYPES[type].name}: ${file.name}`, 'success');
         return { success: true, type, filename: file.name };
     } catch (err) {
         showToast(`${file.name}: ${err.message}`, 'error');
         throw err;
     }
+}
+
+/**
+ * IndexedDBに保存可能なデータタイプかチェック
+ * @param {string} type - データタイプ
+ * @returns {boolean}
+ */
+function isDataTypeSupported(type) {
+    const supportedTypes = [
+        'shiire', 'uriage', 'baihen', 'consumables',
+        'tenkanIn', 'tenkanOut', 'sanchoku', 'hana', 'budget'
+    ];
+    return supportedTypes.includes(type);
 }
 
 /**
@@ -470,4 +496,90 @@ export function validateRequiredData() {
         hasWarnings: warnings.filter(w => w.type === 'warning').length > 0,
         hasInfo: warnings.filter(w => w.type === 'info').length > 0
     };
+}
+
+/**
+ * IndexedDBからデータをロード
+ * @param {string} dataType - データタイプ
+ * @returns {Promise<boolean>} 成功したかどうか
+ */
+export async function loadFromIndexedDB(dataType) {
+    try {
+        const { DataRepository, DATA_TYPE_MAP } = await import('./database/index.js');
+        
+        const repo = new DataRepository(DATA_TYPE_MAP[dataType]);
+        const data = await repo.getAll();
+        
+        if (data.length === 0) {
+            console.log(`ℹ️ No ${dataType} data in IndexedDB`);
+            return false;
+        }
+        
+        // appStateに設定（IndexedDB形式から元の形式に変換は必要に応じて）
+        appState.setData(dataType, data);
+        
+        console.log(`✅ Loaded ${data.length} records from IndexedDB (${dataType})`);
+        showToast(`${FILE_TYPES[dataType]?.name || dataType}: IndexedDBから読込`, 'success');
+        
+        return true;
+    } catch (err) {
+        console.error(`Failed to load ${dataType} from IndexedDB:`, err);
+        return false;
+    }
+}
+
+/**
+ * すべてのデータタイプをIndexedDBからロード
+ * @returns {Promise<Object>} ロード結果
+ */
+export async function loadAllFromIndexedDB() {
+    const dataTypes = ['shiire', 'uriage', 'baihen', 'consumables', 
+                       'tenkanIn', 'tenkanOut', 'sanchoku', 'hana', 'budget'];
+    
+    const results = {
+        loaded: [],
+        failed: [],
+        total: 0
+    };
+    
+    for (const dataType of dataTypes) {
+        const success = await loadFromIndexedDB(dataType);
+        if (success) {
+            results.loaded.push(dataType);
+            results.total++;
+        } else {
+            results.failed.push(dataType);
+        }
+    }
+    
+    if (results.loaded.length > 0) {
+        showToast(
+            `IndexedDBから${results.loaded.length}種類のデータを読込`, 
+            'success'
+        );
+    }
+    
+    return results;
+}
+
+/**
+ * IndexedDBにデータがあるかチェック
+ * @returns {Promise<boolean>}
+ */
+export async function hasIndexedDBData() {
+    try {
+        const { dbInstance } = await import('./database/index.js');
+        
+        if (!dbInstance.isConnected()) {
+            await dbInstance.open();
+        }
+        
+        const info = await dbInstance.getInfo();
+        const hasData = info.stores.some(store => store.recordCount > 0);
+        
+        return hasData;
+    } catch (err) {
+        console.error('Failed to check IndexedDB data:', err);
+        return false;
+    }
 }
