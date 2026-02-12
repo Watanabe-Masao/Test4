@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仕入粗利管理システム v8</title>
+    <meta name="description" content="仕入粗利管理システム - 取引先別フォーマット v8 (リファクタリング版)">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <nav class="nav">
+            <div class="nav-logo">📊</div>
+            <div class="nav-item active" title="データ管理">📁</div>
+            <div class="nav-item" title="分析">📈</div>
+            <div class="nav-spacer"></div>
+            <div class="nav-item" id="theme-toggle" title="テーマ切替">🌙</div>
+            <div class="nav-item" onclick="showSettingsModal()" title="設定">⚙️</div>
+        </nav>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">仕入粗利管理</div>
+                <div class="sidebar-heading">取引先別フォーマット v8</div>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="section-label">📁 データファイル</div>
+                    <!-- ドラッグ&ドロップゾーン -->
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-icon">📂</div>
+                        <div class="drop-zone-text">ファイルをドラッグ＆ドロップ</div>
+                        <div class="drop-zone-hint">または下のカードをクリック</div>
+                    </div>
+                    <div class="upload-grid">
+                        <div class="upload-card"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'shiire')"></div>
+                        <div class="upload-card"><div class="icon">💰</div><div class="name">売上</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'uriage')"></div>
+                        <div class="upload-card"><div class="icon">📉</div><div class="name">売変</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'baihen')"></div>
+                        <div class="upload-card"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'settings')"></div>
+                        <div class="upload-card"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'budget')"></div>
+                        <div class="upload-card"><div class="icon">🧾</div><div class="name">消耗品</div><input type="file" id="consumable-input" accept=".xlsx,.xls" multiple style="display:none" onchange="processConsumableFiles(this)"></div>
+                        <div class="upload-card"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanIn')"></div>
+                        <div class="upload-card"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanOut')"></div>
+                        <div class="upload-card"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'sanchoku')"></div>
+                        <div class="upload-card"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'hana')"></div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🎯 目標設定</div>
+                    <div class="input-grid">
+                        <div class="input-field" style="border-left:3px solid var(--success)">
+                            <label>目標粗利率 (%)</label>
+                            <input type="text" id="target-margin" value="25.00">
+                        </div>
+                        <div class="input-field" style="border-left:3px solid var(--warning)">
+                            <label>警告しきい値 (%)</label>
+                            <input type="text" id="warning-margin" value="23.00">
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🌸🥬 花・産直 掛け率</div>
+                    <div class="input-grid">
+                        <div class="input-field" style="border-left:3px solid #f472b6">
+                            <label>🌸 花 掛け率</label>
+                            <input type="text" id="hana-rate" value="0.80">
+                        </div>
+                        <div class="input-field" style="border-left:3px solid #a3e635">
+                            <label>🥬 産直 掛け率</label>
+                            <input type="text" id="sanchoku-rate" value="0.85">
+                        </div>
+                    </div>
+                    <div style="margin-top:6px;padding:6px 8px;background:var(--bg4);border-radius:5px;font-size:0.58rem;color:var(--text3)">
+                        売上納品のため、売価×掛け率=原価として計算
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">⚙️ 仕入先・帳合設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(クリックで開く)</span></div>
+                    <button onclick="showSupplierSettingsModal()" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                        <span>🏭</span> 仕入先別設定・帳合分類を編集
+                    </button>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">🏪 店舗</div>
+                    <div class="chip-group" id="store-chips"><div class="chip active" data-store="all">全店舗</div></div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="section-label">📦 店舗別 在庫設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(初期設定で自動入力)</span></div>
+                    <div id="store-inventory-container" style="max-height:180px;overflow-y:auto;margin-bottom:8px">
+                        <div style="font-size:0.65rem;color:var(--text4);padding:8px;text-align:center">店舗データ読込後に表示</div>
+                    </div>
+                    <div class="input-grid">
+                        <div class="input-field"><label>デフォルト予算</label><input type="text" id="budget" value="6,450,000" oninput="formatInput(this)"></div>
+                        <div class="input-field"><label>値入率</label><input type="text" id="margin-rate" value="0.26"></div>
+                    </div>
+                    <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
+                </div>
+                <div class="sidebar-section">
+                    <button class="btn btn-primary" id="btn-generate" disabled>📊 フォーマット作成</button>
+                    <button class="btn btn-success" id="btn-export" style="display:none;">📥 Excel出力</button>
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <span id="view-title">データ読込待ち</span>
+                    <span class="topbar-badge" id="store-badge" style="display:none;">01</span>
+                </div>
+                <div class="topbar-tabs" id="view-tabs" style="display:none;">
+                    <button class="topbar-tab active" data-view="dashboard">📊 ダッシュボード</button>
+                    <button class="topbar-tab" data-view="category">帳合別</button>
+                    <button class="topbar-tab" data-view="forecast">📅 週間予測</button>
+                    <button class="topbar-tab" data-view="analysis">予算分析</button>
+                    <button class="topbar-tab" data-view="daily">日別推移</button>
+                    <button class="topbar-tab" data-view="summary">荒利計算</button>
+                    <button class="topbar-tab" data-view="reports">📋 レポート</button>
+                </div>
+            </div>
+            <div class="stats-row" id="stats-row" style="display:none;">
+                <div class="stat-card"><div class="label">売上実績</div><div class="value" id="stat-sales">-</div><div class="sub" id="stat-sales-sub">-</div></div>
+                <div class="stat-card"><div class="label">総仕入高</div><div class="value" style="color:var(--warning)" id="stat-cost">-</div><div class="sub" id="stat-consumable">-</div></div>
+                <div class="stat-card"><div class="label">荒利率(税抜前)</div><div class="value" style="color:var(--info)" id="stat-rate-before">-</div><div class="sub" id="stat-profit-before">-</div></div>
+                <div class="stat-card"><div class="label">荒利率(税抜後)</div><div class="value" style="color:var(--success)" id="stat-rate">-</div><div class="sub" id="stat-profit-sub">-</div></div>
+            </div>
+            <div class="content" id="content">
+                <div class="empty-state">
+                    <div class="empty-icon">📂</div>
+                    <h3>データファイルをアップロードしてください</h3>
+                    <p>左のパネルから「仕入」と「売上」ファイルを読み込むと、分析を開始できます</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- 消耗品モーダル -->
+    <div id="consumable-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:340px;max-width:90%">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:8px;display:flex;align-items:center;justify-content:center">🧾</span>
+                消耗品データ読込
+            </div>
+            <div id="consumable-status" style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:16px;font-size:0.75rem">
+                <div style="color:var(--text3)">現在のデータ:</div>
+                <div id="consumable-count" style="font-family:'JetBrains Mono',monospace;color:var(--text);margin-top:4px">未読込</div>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text3);margin-bottom:12px">読込方法を選択してください:</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <input type="radio" name="consumable-mode" value="overwrite" checked style="accent-color:var(--primary)">
+                    <div>
+                        <div style="font-weight:600;font-size:0.8rem">🔄 上書き</div>
+                        <div style="font-size:0.65rem;color:var(--text3)">既存データをクリアして新規読込</div>
+                    </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--success)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <input type="radio" name="consumable-mode" value="append" style="accent-color:var(--success)">
+                    <div>
+                        <div style="font-weight:600;font-size:0.8rem">➕ 追加</div>
+                        <div style="font-size:0.65rem;color:var(--text3)">既存データに追加（同日は合算）</div>
+                    </div>
+                </label>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button onclick="closeConsumableModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">キャンセル</button>
+                <button onclick="selectConsumableFiles()" style="flex:1;padding:10px;background:linear-gradient(135deg,#f97316,#ea580c);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">ファイル選択</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 仕入先設定モーダル -->
+    <div id="supplier-settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">🏭</span>
+                仕入先・帳合設定
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="supplier-settings-content">
+                <div style="font-size:0.65rem;color:var(--text4);padding:16px;text-align:center">仕入データ読込後に表示されます</div>
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeSupplierSettingsModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="saveSupplierSettings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">💾 設定を保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">⚙️</span>
+                設定
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="settings-content">
+                <!-- 設定内容はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeSettingsModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">キャンセル</button>
+                <button onclick="saveAllSettings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">💾 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- データ検証モーダル -->
+    <div id="validation-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:8px;display:flex;align-items:center;justify-content:center">⚠️</span>
+                データ検証結果
+            </div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="validation-content">
+                <!-- 検証結果はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeValidationModal()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="proceedWithWarnings()" style="flex:1;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">警告を無視して続行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- レポートプレビューモーダル -->
+    <div id="report-preview-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:800px;max-width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+                <span id="report-preview-icon" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">📋</span>
+                <div style="flex:1">
+                    <div id="report-preview-title" style="font-size:1rem;font-weight:700">レポートプレビュー</div>
+                    <div id="report-preview-sub" style="font-size:0.65rem;color:var(--text3)"></div>
+                </div>
+                <button onclick="closeReportPreview()" style="width:32px;height:32px;background:var(--bg3);border:none;border-radius:6px;color:var(--text2);cursor:pointer;font-size:1rem">✕</button>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:20px" id="report-preview-content">
+                <!-- レポート内容はJSで生成 -->
+            </div>
+            <div style="padding:12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+                <button onclick="printReport()" style="padding:10px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:6px">🖨️ 印刷</button>
+                <button onclick="exportReportExcel()" style="padding:10px 20px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">📥 Excel出力</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カラム設定モーダル -->
+    <div id="column-config-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:400px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#06b6d4,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center">📊</span>
+                表示列の設定
+            </div>
+            <div style="font-size:0.65rem;color:var(--text3);margin-bottom:12px">ドラッグで並び順を変更、トグルで表示/非表示を切り替え</div>
+            <div style="flex:1;overflow-y:auto;margin-bottom:16px" id="column-config-content">
+                <!-- カラム設定はJSで生成 -->
+            </div>
+            <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:16px">
+                <button onclick="closeColumnConfig()" style="flex:1;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-family:inherit;font-size:0.78rem;cursor:pointer">閉じる</button>
+                <button onclick="applyColumnConfig()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:7px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer">適用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular JavaScript Entry Point -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
