@@ -17,6 +17,7 @@ export class ImportDialog {
     this.onConfirm = null;
     this.onCancel = null;
     this.closeTimeout = null;
+    this.isShowing = false;
   }
 
   /**
@@ -27,6 +28,14 @@ export class ImportDialog {
    * @param {Function} onCancel - キャンセル時のコールバック
    */
   async show(dataType, data, onConfirm, onCancel) {
+    // 既に表示中の場合は無視
+    if (this.isShowing) {
+      console.warn('Dialog is already showing, ignoring duplicate call');
+      return;
+    }
+
+    this.isShowing = true;
+
     // 既存のダイアログがあれば即座にクリーンアップ
     if (this.dialog) {
       if (this.closeTimeout) {
@@ -85,6 +94,7 @@ export class ImportDialog {
       }
       this.dialog = null;
       this.closeTimeout = null;
+      this.isShowing = false;
     }, 300);
   }
 
