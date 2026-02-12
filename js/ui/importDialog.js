@@ -16,6 +16,7 @@ export class ImportDialog {
     this.diff = null;
     this.onConfirm = null;
     this.onCancel = null;
+    this.closeTimeout = null;
   }
 
   /**
@@ -26,6 +27,18 @@ export class ImportDialog {
    * @param {Function} onCancel - キャンセル時のコールバック
    */
   async show(dataType, data, onConfirm, onCancel) {
+    // 既存のダイアログがあれば即座にクリーンアップ
+    if (this.dialog) {
+      if (this.closeTimeout) {
+        clearTimeout(this.closeTimeout);
+        this.closeTimeout = null;
+      }
+      if (this.dialog.parentNode) {
+        this.dialog.parentNode.removeChild(this.dialog);
+      }
+      this.dialog = null;
+    }
+
     this.dataType = dataType;
     this.data = data;
     this.onConfirm = onConfirm;
@@ -47,7 +60,9 @@ export class ImportDialog {
 
     // アニメーション
     setTimeout(() => {
-      this.dialog.classList.add('show');
+      if (this.dialog) {
+        this.dialog.classList.add('show');
+      }
     }, 10);
   }
 
@@ -59,11 +74,17 @@ export class ImportDialog {
 
     this.dialog.classList.remove('show');
 
-    setTimeout(() => {
+    // 既存のタイムアウトをクリア
+    if (this.closeTimeout) {
+      clearTimeout(this.closeTimeout);
+    }
+
+    this.closeTimeout = setTimeout(() => {
       if (this.dialog && this.dialog.parentNode) {
         this.dialog.parentNode.removeChild(this.dialog);
       }
       this.dialog = null;
+      this.closeTimeout = null;
     }, 300);
   }
 
@@ -323,6 +344,12 @@ export class ImportDialog {
    * 確認ボタンのハンドラー
    */
   async handleConfirm() {
+    // ダイアログが存在しない場合は何もしない
+    if (!this.dialog) {
+      console.warn('Dialog is not open');
+      return;
+    }
+
     const selectedMode = this.dialog.querySelector('input[name="merge-mode"]:checked').value;
 
     // ボタンを無効化
@@ -374,6 +401,12 @@ export class ImportDialog {
    * キャンセルボタンのハンドラー
    */
   handleCancel() {
+    // ダイアログが存在しない場合は何もしない
+    if (!this.dialog) {
+      console.warn('Dialog is not open');
+      return;
+    }
+
     if (this.onCancel) {
       this.onCancel();
     }
