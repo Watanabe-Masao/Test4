@@ -199,24 +199,39 @@ export function convertConsumablesData(rawData) {
  * 店間データをIndexedDB用に変換
  */
 export function convertTenkanData(rawData, isIn = true) {
+  console.log(`🔍 convertTenkanData called with ${isIn ? 'IN' : 'OUT'} mode`);
+  console.log(`📊 Raw data length: ${rawData?.length || 0}`);
+
   if (!rawData || rawData.length < 3) {
+    console.warn('⚠️ Raw data is empty or too short (need at least 3 rows)');
     return [];
   }
 
   const converted = [];
   const headerRow = rawData[0];
 
+  console.log('📋 Header row:', headerRow);
+  console.log('📋 First data row:', rawData[1]);
+
   for (let row = 1; row < rawData.length; row++) {
     const dateValue = rawData[row][0];
     if (!dateValue) continue;
 
     const date = parseDate(dateValue);
-    if (!date) continue;
+    if (!date) {
+      console.warn(`⚠️ Could not parse date at row ${row}:`, dateValue);
+      continue;
+    }
 
     for (let col = 1; col < headerRow.length; col++) {
       const storeStr = String(headerRow[col] || '');
       const stoMatch = storeStr.match(/(\d{4})/);
-      if (!stoMatch) continue;
+      if (!stoMatch) {
+        if (col === 1) {
+          console.warn(`⚠️ Header column ${col} does not match pattern /\\d{4}/:`, storeStr);
+        }
+        continue;
+      }
 
       const storeCode = String(parseInt(stoMatch[1]));
       const amount = parseNum(rawData[row][col]);
@@ -229,6 +244,16 @@ export function convertTenkanData(rawData, isIn = true) {
         amount
       });
     }
+  }
+
+  console.log(`✅ Converted ${converted.length} tenkan ${isIn ? 'IN' : 'OUT'} records`);
+  if (converted.length > 0) {
+    console.log('📦 Sample converted record:', converted[0]);
+  } else {
+    console.warn('⚠️ No records were converted! Check:');
+    console.warn('  1. Header row has store codes in format like "0001" or "店舗0001"');
+    console.warn('  2. Data rows have valid dates in column 0');
+    console.warn('  3. Data rows have non-zero amounts');
   }
 
   return converted;
