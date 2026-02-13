@@ -1,7 +1,7 @@
 /**
  * @file Professional Dashboard Application
  * @description Main orchestrator for the professional purchasing and profit management dashboard
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 import { DataRepository } from '../../services/database/repository.js';
@@ -50,6 +50,15 @@ export class DashboardApp {
       hana: new DataRepository('hana'),
       consumables: new DataRepository('consumables')
     };
+  }
+
+  /**
+   * Normalize timestamp to midnight (start of day) to merge same-day data
+   * @private
+   */
+  _normalizeDate(timestamp) {
+    const d = new Date(timestamp);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   }
 
   /**
@@ -110,19 +119,24 @@ export class DashboardApp {
       ...(this._allTenkanIn || []),
       ...(this._allTenkanOut || []),
       ...(this._allSanchoku || []),
-      ...(this._allHana || [])
+      ...(this._allHana || []),
+      ...(this._allConsumables || [])
     ];
     if (allData.length === 0) return;
 
     let minDate = Infinity, maxDate = -Infinity;
     allData.forEach(item => {
-      if (item.date < minDate) minDate = item.date;
-      if (item.date > maxDate) maxDate = item.date;
+      const nd = this._normalizeDate(item.date);
+      if (nd < minDate) minDate = nd;
+      if (nd > maxDate) maxDate = nd;
     });
 
     if (minDate !== Infinity) {
       this.state.dateRange = { start: minDate, end: maxDate };
-      const inRange = (item) => item.date >= minDate && item.date <= maxDate;
+      const inRange = (item) => {
+        const nd = this._normalizeDate(item.date);
+        return nd >= minDate && nd <= maxDate;
+      };
       // Re-filter all data with the new date range
       this.state.data.shiire = (this._allShiire || []).filter(inRange);
       this.state.data.uriage = (this._allUriage || []).filter(inRange);
@@ -142,7 +156,10 @@ export class DashboardApp {
    */
   async _loadData() {
     const { start, end } = this.state.dateRange;
-    const inRange = (item) => item.date >= start && item.date <= end;
+    const inRange = (item) => {
+      const nd = this._normalizeDate(item.date);
+      return nd >= start && nd <= end;
+    };
 
     try {
       // Load purchasing data
@@ -163,7 +180,7 @@ export class DashboardApp {
       // Load budget data
       this.state.data.budget = await this.repositories.budget.getAll();
 
-      // Load settings
+      // Load settings (初期設定: 機首在庫, 期末在庫, 粗利額予算)
       this.state.data.settings = await this.repositories.settings.getAll();
 
       // Load transfer data (店間入/出)
@@ -224,6 +241,23 @@ export class DashboardApp {
   _getSanchokuRate() {
     const el = document.getElementById('sanchoku-rate');
     return el ? parseFloat(el.value) || 0.85 : 0.85;
+  }
+
+  /**
+   * Get store settings (機首在庫, 期末在庫, 粗利額予算) grouped by store
+   * @private
+   */
+  _getStoreSettings() {
+    const settings = this.state.data.settings || [];
+    const map = new Map();
+    settings.forEach(s => {
+      map.set(String(s.store), {
+        openingInventory: s.openingInventory || 0,
+        closingInventory: s.closingInventory || 0,
+        profitBudget: s.profitBudget || 0
+      });
+    });
+    return map;
   }
 
   /**
@@ -337,6 +371,7 @@ export class DashboardApp {
     this.state.data.tenkanOut.forEach(item => stores.add(item.store));
     this.state.data.sanchoku.forEach(item => stores.add(item.store));
     this.state.data.hana.forEach(item => stores.add(item.store));
+    this.state.data.consumables.forEach(item => stores.add(item.store));
 
     const storeArray = ['all', ...Array.from(stores).sort()];
     const selectedStores = this.state.selectedStores;
@@ -434,20 +469,20 @@ export class DashboardApp {
         color: 'yellow'
       },
       {
-        title: '売変率',
-        value: metrics.baihenRate,
-        unit: '%',
-        icon: '💸',
-        trend: 0,
-        color: 'pink'
-      },
-      {
-        title: '日平均売上',
-        value: metrics.avgDailySales,
+        title: '期首在庫',
+        value: metrics.openingInventory,
         unit: '円',
-        icon: '📅',
+        icon: '📦',
         trend: 0,
         color: 'cyan'
+      },
+      {
+        title: '推定期末在庫',
+        value: metrics.estimatedClosingInventory,
+        unit: '円',
+        icon: '📦',
+        trend: 0,
+        color: 'pink'
       }
     ];
 
@@ -482,7 +517,7 @@ export class DashboardApp {
   }
 
   /**
-   * Calculate metrics including all data types
+   * Calculate metrics including all data types with 機首在庫/期末在庫
    * @private
    */
   _calculateMetrics() {
@@ -507,53 +542,95 @@ export class DashboardApp {
     const hanaRate = this._getHanaRate();
     const sanchokuRate = this._getSanchokuRate();
 
+    // --- Store settings (機首在庫, 期末在庫) ---
+    const storeSettings = this._getStoreSettings();
+    let openingInventory = 0;
+    let closingInventory = 0;
+    let profitBudgetTotal = 0;
+    if (selectedStores.includes('all')) {
+      storeSettings.forEach(s => {
+        openingInventory += s.openingInventory;
+        closingInventory += s.closingInventory;
+        profitBudgetTotal += s.profitBudget;
+      });
+    } else {
+      selectedStores.forEach(store => {
+        const s = storeSettings.get(store);
+        if (s) {
+          openingInventory += s.openingInventory;
+          closingInventory += s.closingInventory;
+          profitBudgetTotal += s.profitBudget;
+        }
+      });
+    }
+
     // Total sales from uriage
     const totalSales = filteredUriage.reduce((sum, item) => sum + (item.sales || 0), 0);
 
-    // Total purchase cost from shiire
+    // Total purchase cost from shiire (原価)
     const totalShiireCost = filteredShiire.reduce((sum, item) => sum + (item.cost || 0), 0);
+    // Total shiire selling price (売価)
+    const totalShiireAmount = filteredShiire.reduce((sum, item) => sum + (item.amount || 0), 0);
 
     // Transfer costs
     const totalTenkanIn = filteredTenkanIn.reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalTenkanOut = filteredTenkanOut.reduce((sum, item) => sum + (item.amount || 0), 0);
 
-    // Sanchoku/Hana: cost = amount * rate (amount is selling price)
+    // Sanchoku: cost = amount * rate (amount is selling price in the data)
     const totalSanchokuAmount = filteredSanchoku.reduce((sum, item) => sum + (item.amount || item.cost || 0), 0);
     const totalSanchokuCost = totalSanchokuAmount * sanchokuRate;
+
+    // Hana: cost = amount * rate
     const totalHanaAmount = filteredHana.reduce((sum, item) => sum + (item.amount || item.cost || 0), 0);
     const totalHanaCost = totalHanaAmount * hanaRate;
 
     // Consumables
     const totalConsumables = filteredConsumables.reduce((sum, item) => sum + (item.cost || 0), 0);
 
-    // Total COGS (before consumables) = shiire + tenkanIn - tenkanOut + sanchokuCost + hanaCost
-    const totalCostBefore = totalShiireCost + totalTenkanIn - totalTenkanOut + totalSanchokuCost + totalHanaCost;
+    // --- 当期仕入高 (total purchase for the period) ---
+    // = 仕入原価 + 店間入 - 店間出 + 産直原価 + 花原価
+    const totalPurchaseCost = totalShiireCost + totalTenkanIn - totalTenkanOut + totalSanchokuCost + totalHanaCost;
 
-    // Total COGS (after consumables)
-    const totalCostAfter = totalCostBefore + totalConsumables;
-
-    // Total selling price = shiire selling price + sanchoku amount + hana amount
-    const totalShiireAmount = filteredShiire.reduce((sum, item) => sum + (item.amount || 0), 0);
+    // --- 売価合計 (total selling price for pivot display) ---
     const totalSellingPrice = totalShiireAmount + totalSanchokuAmount + totalHanaAmount;
 
-    // Gross profit
-    const grossProfitBefore = totalSellingPrice - totalCostBefore;
-    const grossProfitAfter = totalSellingPrice - totalCostAfter;
+    // --- 売上原価 (COGS) using inventory formula ---
+    // 売上原価 = 期首在庫 + 当期仕入高 - 期末在庫
+    // If no settings, fallback to direct cost comparison
+    const hasInventorySettings = openingInventory > 0 || closingInventory > 0;
 
-    // Profit rates
-    const profitRateBefore = totalSellingPrice > 0 ? (grossProfitBefore / totalSellingPrice) * 100 : 0;
-    const profitRateAfter = totalSellingPrice > 0 ? (grossProfitAfter / totalSellingPrice) * 100 : 0;
+    // COGS before consumables
+    const cogsBefore = hasInventorySettings
+      ? (openingInventory + totalPurchaseCost - closingInventory)
+      : totalPurchaseCost;
+
+    // COGS after consumables
+    const cogsAfter = cogsBefore + totalConsumables;
+
+    // Gross profit
+    const grossProfitBefore = totalSales - cogsBefore;
+    const grossProfitAfter = totalSales - cogsAfter;
+
+    // Profit rates (based on sales)
+    const profitRateBefore = totalSales > 0 ? (grossProfitBefore / totalSales) * 100 : 0;
+    const profitRateAfter = totalSales > 0 ? (grossProfitAfter / totalSales) * 100 : 0;
 
     // Baihen rate
     const totalBaihen = Math.abs(filteredBaihen.reduce((sum, item) => sum + (item.amount || 0), 0));
     const baihenRate = (totalSales + totalBaihen) > 0 ? (totalBaihen / (totalSales + totalBaihen)) * 100 : 0;
 
     // Average daily sales
-    const uniqueDays = new Set(filteredUriage.map(item => new Date(item.date).toDateString())).size;
+    const uniqueDays = new Set(filteredUriage.map(item => this._normalizeDate(item.date))).size;
     const avgDailySales = uniqueDays > 0 ? totalSales / uniqueDays : 0;
 
-    // Total purchase for display
-    const totalPurchase = totalCostBefore;
+    // Estimated closing inventory = 期首在庫 + 仕入原価 - 売上原価(estimated)
+    // Using: 推定在庫 = 期首在庫 + 当期仕入高 - (売上高 × (1 - 目標粗利率))
+    // Simplified: 推定在庫 = 期首在庫 + 当期仕入高 - 売上原価推定
+    // But we use actual COGS: estimatedClosing = 期首在庫 + 当期仕入高 - (totalSales - grossProfitBefore)
+    // = 期首在庫 + 当期仕入高 - cogsBefore... which is closingInventory when settings exist
+    // Better: just show the dynamic inventory = 期首 + 仕入 - 売上原価(uriage cost)
+    const uriageCost = filteredUriage.reduce((sum, item) => sum + (item.cost || 0), 0);
+    const estimatedClosingInventory = openingInventory + totalPurchaseCost - uriageCost;
 
     return {
       totalSales,
@@ -561,10 +638,14 @@ export class DashboardApp {
       grossProfitAfter,
       profitRateBefore,
       profitRateAfter,
-      totalPurchase,
+      totalPurchase: totalPurchaseCost,
       totalConsumables,
       baihenRate,
       avgDailySales,
+      openingInventory,
+      closingInventory,
+      estimatedClosingInventory,
+      profitBudgetTotal,
       salesTrend: 0,
       profitTrend: 0,
       rateTrend: 0,
@@ -592,7 +673,8 @@ export class DashboardApp {
         this.state.data.tenkanIn.length === 0 &&
         this.state.data.tenkanOut.length === 0 &&
         this.state.data.sanchoku.length === 0 &&
-        this.state.data.hana.length === 0) {
+        this.state.data.hana.length === 0 &&
+        this.state.data.consumables.length === 0) {
       container.innerHTML = '<div class="no-data">データがありません</div>';
       return;
     }
@@ -608,6 +690,7 @@ export class DashboardApp {
 
   /**
    * Render supplier-based pivot table with all data types
+   * Dates are normalized to merge same-day rows from different data sources
    * @private
    */
   _renderSupplierPivotHTML(data) {
@@ -642,61 +725,75 @@ export class DashboardApp {
     const hasHana = hanaData.length > 0;
     const hasConsumables = consumablesData.length > 0;
 
-    // === Collect unique dates (sorted) from all sources ===
+    // === Collect unique NORMALIZED dates from all sources ===
     const dateSet = new Set();
-    data.forEach(item => dateSet.add(item.date));
-    tenkanIn.forEach(item => dateSet.add(item.date));
-    tenkanOut.forEach(item => dateSet.add(item.date));
-    sanchokuData.forEach(item => dateSet.add(item.date));
-    hanaData.forEach(item => dateSet.add(item.date));
-    consumablesData.forEach(item => dateSet.add(item.date));
+    data.forEach(item => dateSet.add(this._normalizeDate(item.date)));
+    tenkanIn.forEach(item => dateSet.add(this._normalizeDate(item.date)));
+    tenkanOut.forEach(item => dateSet.add(this._normalizeDate(item.date)));
+    sanchokuData.forEach(item => dateSet.add(this._normalizeDate(item.date)));
+    hanaData.forEach(item => dateSet.add(this._normalizeDate(item.date)));
+    consumablesData.forEach(item => dateSet.add(this._normalizeDate(item.date)));
     const dates = Array.from(dateSet).sort((a, b) => a - b);
 
-    // === Build data maps ===
-    // Shiire: "date::supplier" -> { cost, amount }
+    // === Build data maps using NORMALIZED dates ===
+    // Shiire: "normalizedDate::supplier" -> { cost, amount }
     const shiireMap = new Map();
     data.forEach(item => {
-      const key = `${item.date}::${item.supplier || 'unknown'}`;
+      const nd = this._normalizeDate(item.date);
+      const key = `${nd}::${item.supplier || 'unknown'}`;
       if (!shiireMap.has(key)) shiireMap.set(key, { cost: 0, amount: 0 });
       const entry = shiireMap.get(key);
       entry.cost += item.cost || 0;
       entry.amount += item.amount || 0;
     });
 
-    // TenkanIn: "date" -> amount
+    // TenkanIn: normalizedDate -> amount
     const tenkanInMap = new Map();
     tenkanIn.forEach(item => {
-      const key = item.date;
-      tenkanInMap.set(key, (tenkanInMap.get(key) || 0) + (item.amount || 0));
+      const nd = this._normalizeDate(item.date);
+      tenkanInMap.set(nd, (tenkanInMap.get(nd) || 0) + (item.amount || 0));
     });
 
-    // TenkanOut: "date" -> amount
+    // TenkanOut: normalizedDate -> amount
     const tenkanOutMap = new Map();
     tenkanOut.forEach(item => {
-      const key = item.date;
-      tenkanOutMap.set(key, (tenkanOutMap.get(key) || 0) + (item.amount || 0));
+      const nd = this._normalizeDate(item.date);
+      tenkanOutMap.set(nd, (tenkanOutMap.get(nd) || 0) + (item.amount || 0));
     });
 
-    // Sanchoku: "date" -> amount (selling price)
+    // Sanchoku: normalizedDate -> amount (selling price)
     const sanchokuMap = new Map();
     sanchokuData.forEach(item => {
-      const key = item.date;
-      sanchokuMap.set(key, (sanchokuMap.get(key) || 0) + (item.amount || item.cost || 0));
+      const nd = this._normalizeDate(item.date);
+      sanchokuMap.set(nd, (sanchokuMap.get(nd) || 0) + (item.amount || item.cost || 0));
     });
 
-    // Hana: "date" -> amount (selling price)
+    // Hana: normalizedDate -> amount (selling price)
     const hanaMap = new Map();
     hanaData.forEach(item => {
-      const key = item.date;
-      hanaMap.set(key, (hanaMap.get(key) || 0) + (item.amount || item.cost || 0));
+      const nd = this._normalizeDate(item.date);
+      hanaMap.set(nd, (hanaMap.get(nd) || 0) + (item.amount || item.cost || 0));
     });
 
-    // Consumables: "date" -> cost
+    // Consumables: normalizedDate -> cost
     const consumablesMap = new Map();
     consumablesData.forEach(item => {
-      const key = item.date;
-      consumablesMap.set(key, (consumablesMap.get(key) || 0) + (item.cost || 0));
+      const nd = this._normalizeDate(item.date);
+      consumablesMap.set(nd, (consumablesMap.get(nd) || 0) + (item.cost || 0));
     });
+
+    // === Settings for inventory row ===
+    const storeSettings = this._getStoreSettings();
+    let openingInventory = 0, closingInventory = 0;
+    if (selectedStores.includes('all')) {
+      storeSettings.forEach(s => { openingInventory += s.openingInventory; closingInventory += s.closingInventory; });
+    } else {
+      selectedStores.forEach(store => {
+        const s = storeSettings.get(store);
+        if (s) { openingInventory += s.openingInventory; closingInventory += s.closingInventory; }
+      });
+    }
+    const hasInventory = openingInventory > 0 || closingInventory > 0;
 
     // === Build HTML ===
     let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
@@ -882,7 +979,10 @@ export class DashboardApp {
     html += '</tr>';
 
     // === Gross profit rate BEFORE consumables (粗利率 算入前) ===
-    const costBeforeConsumables = grandTotalCost;
+    // Uses inventory: COGS = 期首在庫 + 原価合計 - 期末在庫
+    const costBeforeConsumables = hasInventory
+      ? (openingInventory + grandTotalCost - closingInventory)
+      : grandTotalCost;
     html += '<tr class="pivot-row-rate">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.08);font-weight:700">粗利率(算入前)</td>';
     suppliers.forEach(([code], idx) => {
@@ -902,7 +1002,7 @@ export class DashboardApp {
     html += '</tr>';
 
     // === Gross profit rate AFTER consumables (粗利率 算入後) ===
-    const costAfterConsumables = grandTotalCost + totalConsumablesSum;
+    const costAfterConsumables = costBeforeConsumables + totalConsumablesSum;
     html += '<tr class="pivot-row-rate" style="background:rgba(16,185,129,0.12)">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.12);font-weight:700">粗利率(算入後)</td>';
     suppliers.forEach(([code], idx) => {
@@ -916,6 +1016,18 @@ export class DashboardApp {
     const profitColorAfter = parseFloat(profitRateAfter) >= 25 ? 'var(--success-green)' : parseFloat(profitRateAfter) >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
     html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;font-size:14px;color:${profitColorAfter}">${profitRateAfter}%</td>`;
     html += '</tr>';
+
+    // === Inventory info row (期首/期末在庫) if settings exist ===
+    if (hasInventory) {
+      html += '<tr style="background:rgba(6,182,212,0.08)">';
+      const totalColCount = suppliers.length * 2 + extraColSpan + 2; // +2 for 合計
+      html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(6,182,212,0.08);font-weight:700">在庫情報</td>';
+      html += `<td class="pivot-cell-value" colspan="${totalColCount}" style="text-align:left;font-size:12px;padding:8px 12px">`;
+      html += `📦 期首在庫: <strong>${Math.round(openingInventory).toLocaleString()}</strong>円`;
+      html += ` ｜ 📦 期末在庫: <strong>${Math.round(closingInventory).toLocaleString()}</strong>円`;
+      html += ` ｜ 差額(在庫増減): <strong>${Math.round(openingInventory - closingInventory).toLocaleString()}</strong>円`;
+      html += '</td></tr>';
+    }
 
     html += '</tbody></table></div>';
     return html;
@@ -939,18 +1051,19 @@ export class DashboardApp {
     this.state.data.consumables.forEach(item => storeSet.add(item.store));
     const stores = Array.from(storeSet).sort();
 
-    // Collect unique dates
+    // Collect unique NORMALIZED dates
     const dateSet = new Set();
     [data, this.state.data.tenkanIn, this.state.data.tenkanOut,
      this.state.data.sanchoku, this.state.data.hana, this.state.data.consumables
-    ].forEach(arr => arr.forEach(item => dateSet.add(item.date)));
+    ].forEach(arr => arr.forEach(item => dateSet.add(this._normalizeDate(item.date))));
     const dates = Array.from(dateSet).sort((a, b) => a - b);
 
-    // Build data maps: "date::store" -> { cost, amount }
+    // Build data maps: "normalizedDate::store" -> { cost, amount }
     const buildMap = (arr, getCost, getAmount) => {
       const map = new Map();
       arr.forEach(item => {
-        const key = `${item.date}::${item.store}`;
+        const nd = this._normalizeDate(item.date);
+        const key = `${nd}::${item.store}`;
         if (!map.has(key)) map.set(key, { cost: 0, amount: 0 });
         const e = map.get(key);
         e.cost += getCost(item);
@@ -965,6 +1078,9 @@ export class DashboardApp {
     const sanchokuMap = buildMap(this.state.data.sanchoku, i => (i.amount || i.cost || 0) * sanchokuRate, i => i.amount || i.cost || 0);
     const hanaMap = buildMap(this.state.data.hana, i => (i.amount || i.cost || 0) * hanaRate, i => i.amount || i.cost || 0);
     const consumablesMap = buildMap(this.state.data.consumables, i => i.cost || 0, () => 0);
+
+    // Store settings
+    const storeSettingsMap = this._getStoreSettings();
 
     let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
 
@@ -1045,36 +1161,71 @@ export class DashboardApp {
     html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${fmtNum(grandAmount)}</td>`;
     html += '</tr>';
 
-    // Profit rate before consumables
+    // Profit rate before consumables (with inventory)
     html += '<tr class="pivot-row-rate">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.08);font-weight:700">粗利率(算入前)</td>';
     stores.forEach((store, idx) => {
       const st = storeTotals.get(store);
-      const rate = st.amount > 0 ? (((st.amount - st.cost) / st.amount) * 100).toFixed(1) : '-';
-      const rateNum = st.amount > 0 ? ((st.amount - st.cost) / st.amount) * 100 : 0;
+      const ss = storeSettingsMap.get(store);
+      let costWithInventory = st.cost;
+      if (ss && (ss.openingInventory > 0 || ss.closingInventory > 0)) {
+        costWithInventory = ss.openingInventory + st.cost - ss.closingInventory;
+      }
+      const rate = st.amount > 0 ? (((st.amount - costWithInventory) / st.amount) * 100).toFixed(1) : '-';
+      const rateNum = st.amount > 0 ? ((st.amount - costWithInventory) / st.amount) * 100 : 0;
       const color = rateNum >= 25 ? 'var(--success-green)' : rateNum >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
       html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
     });
-    const profitBefore = grandAmount > 0 ? (((grandAmount - grandCost) / grandAmount) * 100).toFixed(1) : '-';
+    // Grand profit before with inventory
+    let grandOpeningInv = 0, grandClosingInv = 0;
+    stores.forEach(store => {
+      const ss = storeSettingsMap.get(store);
+      if (ss) { grandOpeningInv += ss.openingInventory; grandClosingInv += ss.closingInventory; }
+    });
+    const grandCostWithInv = (grandOpeningInv > 0 || grandClosingInv > 0)
+      ? (grandOpeningInv + grandCost - grandClosingInv) : grandCost;
+    const profitBefore = grandAmount > 0 ? (((grandAmount - grandCostWithInv) / grandAmount) * 100).toFixed(1) : '-';
     html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${profitBefore}%</td>`;
     html += '</tr>';
 
-    // Profit rate after consumables
+    // Profit rate after consumables (with inventory)
     html += '<tr class="pivot-row-rate" style="background:rgba(16,185,129,0.12)">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.12);font-weight:700">粗利率(算入後)</td>';
     stores.forEach((store, idx) => {
       const st = storeTotals.get(store);
-      const totalWithCon = st.cost + st.consumables;
+      const ss = storeSettingsMap.get(store);
+      let costWithInventory = st.cost;
+      if (ss && (ss.openingInventory > 0 || ss.closingInventory > 0)) {
+        costWithInventory = ss.openingInventory + st.cost - ss.closingInventory;
+      }
+      const totalWithCon = costWithInventory + st.consumables;
       const rate = st.amount > 0 ? (((st.amount - totalWithCon) / st.amount) * 100).toFixed(1) : '-';
       const rateNum = st.amount > 0 ? ((st.amount - totalWithCon) / st.amount) * 100 : 0;
       const color = rateNum >= 25 ? 'var(--success-green)' : rateNum >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
       html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
     });
-    const profitAfter = grandAmount > 0 ? (((grandAmount - grandCost - grandConsumables) / grandAmount) * 100).toFixed(1) : '-';
+    const profitAfter = grandAmount > 0 ? (((grandAmount - grandCostWithInv - grandConsumables) / grandAmount) * 100).toFixed(1) : '-';
     html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;font-size:14px;color:var(--color-amber)">${profitAfter}%</td>`;
     html += '</tr>';
+
+    // Inventory info row per store
+    if (grandOpeningInv > 0 || grandClosingInv > 0) {
+      html += '<tr style="background:rgba(6,182,212,0.08)">';
+      html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(6,182,212,0.08);font-weight:700">在庫情報</td>';
+      stores.forEach((store, idx) => {
+        const ss = storeSettingsMap.get(store);
+        const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.03)' : 'rgba(16,185,129,0.03)';
+        if (ss && (ss.openingInventory > 0 || ss.closingInventory > 0)) {
+          html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-size:10px;background:${bg}">首:${fmtNum(ss.openingInventory)} / 末:${fmtNum(ss.closingInventory)}</td>`;
+        } else {
+          html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;background:${bg}">-</td>`;
+        }
+      });
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-size:11px">首:${fmtNum(grandOpeningInv)} / 末:${fmtNum(grandClosingInv)}</td>`;
+      html += '</tr>';
+    }
 
     html += '</tbody></table></div>';
     return html;
@@ -1098,7 +1249,7 @@ export class DashboardApp {
 
     if (uriage.length === 0) return;
 
-    // Aggregate by date
+    // Aggregate by normalized date
     const dailyData = this._aggregateByDate(uriage);
 
     const chartData = {
@@ -1136,15 +1287,15 @@ export class DashboardApp {
   }
 
   /**
-   * Render inventory chart
+   * Render inventory chart using 機首在庫 + cumulative purchases - cumulative sales cost
    * @private
    */
   _renderInventoryChart() {
-    const { shiire, uriage, settings } = this.state.data;
+    const { shiire, uriage } = this.state.data;
 
     if (shiire.length === 0 && uriage.length === 0) return;
 
-    // Calculate daily inventory estimation
+    // Calculate daily inventory estimation with 機首在庫
     const dailyInventory = this._calculateDailyInventory();
 
     const chartData = {
@@ -1216,57 +1367,90 @@ export class DashboardApp {
   }
 
   /**
-   * Aggregate data by date
+   * Aggregate data by normalized date
    * @private
    */
   _aggregateByDate(data) {
     const grouped = new Map();
 
     data.forEach(item => {
-      const date = new Date(item.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+      const nd = this._normalizeDate(item.date);
+      const dateLabel = new Date(nd).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
 
-      if (!grouped.has(date)) {
-        grouped.set(date, { date, sales: 0, cost: 0, profit: 0 });
+      if (!grouped.has(nd)) {
+        grouped.set(nd, { nd, date: dateLabel, sales: 0, cost: 0, profit: 0 });
       }
 
-      const agg = grouped.get(date);
+      const agg = grouped.get(nd);
       agg.sales += item.sales || 0;
       agg.cost += item.cost || 0;
       agg.profit += item.profit || 0;
     });
 
-    return Array.from(grouped.values()).sort((a, b) =>
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    return Array.from(grouped.values()).sort((a, b) => a.nd - b.nd);
   }
 
   /**
-   * Calculate daily inventory
+   * Calculate daily inventory using 機首在庫 as starting point
+   * Inventory = 期首在庫 + cumulative(仕入原価 + 店間入 - 店間出 + 産直原価 + 花原価) - cumulative(売上原価)
    * @private
    */
   _calculateDailyInventory() {
-    const { settings, shiire, uriage } = this.state.data;
+    const { shiire, uriage, tenkanIn, tenkanOut, sanchoku, hana } = this.state.data;
 
-    const openingInventory = settings.reduce((sum, item) => sum + (item.openingInventory || 0), 0);
+    const selectedStores = this.state.selectedStores;
+    const filterByStore = (item) => {
+      if (selectedStores.includes('all')) return true;
+      return selectedStores.includes(item.store);
+    };
 
-    const dates = new Set();
-    shiire.forEach(item => dates.add(item.date));
-    uriage.forEach(item => dates.add(item.date));
+    // Get opening inventory from settings
+    const storeSettings = this._getStoreSettings();
+    let openingInventory = 0;
+    if (selectedStores.includes('all')) {
+      storeSettings.forEach(s => { openingInventory += s.openingInventory; });
+    } else {
+      selectedStores.forEach(store => {
+        const s = storeSettings.get(store);
+        if (s) openingInventory += s.openingInventory;
+      });
+    }
 
-    const sortedDates = Array.from(dates).sort((a, b) => a - b);
+    const hanaRate = this._getHanaRate();
+    const sanchokuRate = this._getSanchokuRate();
+
+    // Collect all normalized dates
+    const dateSet = new Set();
+    [shiire, uriage, tenkanIn, tenkanOut, sanchoku, hana].forEach(arr =>
+      arr.filter(filterByStore).forEach(item => dateSet.add(this._normalizeDate(item.date)))
+    );
+    const sortedDates = Array.from(dateSet).sort((a, b) => a - b);
 
     let inventory = openingInventory;
     const result = [];
 
-    sortedDates.forEach(timestamp => {
-      const date = new Date(timestamp).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+    sortedDates.forEach(nd => {
+      const dateLabel = new Date(nd).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
 
-      const dayShiire = shiire.filter(item => item.date === timestamp).reduce((sum, item) => sum + (item.cost || 0), 0);
-      const dayUriage = uriage.filter(item => item.date === timestamp).reduce((sum, item) => sum + (item.cost || 0), 0);
+      // Daily purchases (adds to inventory)
+      const dayShiire = shiire.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + (i.cost || 0), 0);
+      const dayTenkanIn = tenkanIn.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + (i.amount || 0), 0);
+      const dayTenkanOut = tenkanOut.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + (i.amount || 0), 0);
+      const daySanchoku = sanchoku.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + ((i.amount || i.cost || 0) * sanchokuRate), 0);
+      const dayHana = hana.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + ((i.amount || i.cost || 0) * hanaRate), 0);
 
-      inventory += dayShiire - dayUriage;
+      // Daily sales cost (subtracts from inventory)
+      const dayUriageCost = uriage.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + (i.cost || 0), 0);
 
-      result.push({ date, inventory });
+      inventory += dayShiire + dayTenkanIn - dayTenkanOut + daySanchoku + dayHana - dayUriageCost;
+
+      result.push({ date: dateLabel, inventory });
     });
 
     return result;
