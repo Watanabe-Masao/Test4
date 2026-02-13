@@ -105,8 +105,8 @@ export async function loadFile(file, type, saveToIndexedDB = true) {
  */
 function isDataTypeSupported(type) {
     const supportedTypes = [
-        'shiire', 'uriage', 'baihen', 'consumables',
-        'tenkanIn', 'tenkanOut', 'sanchoku', 'hana', 'budget'
+        'shiire', 'uriage', 'baihen', 'uriageBaihen', 'consumables',
+        'tenkanIn', 'tenkanOut', 'sanchoku', 'hana', 'budget', 'settings'
     ];
     return supportedTypes.includes(type);
 }
