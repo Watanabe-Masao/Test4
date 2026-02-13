@@ -88,6 +88,57 @@ export class Dashboard {
       default:
         throw new Error('Invalid view type');
     }
+
+    // 推定計算を実行
+    await this._calculateEstimatedMetrics();
+  }
+
+  /**
+   * 推定計算を実行
+   * @private
+   */
+  async _calculateEstimatedMetrics() {
+    if (!this.data) return;
+
+    // 月次ビューの場合のみ推定計算を実行
+    if (this.currentView === 'monthly') {
+      const year = this.currentDate.getFullYear();
+      const month = this.currentDate.getMonth() + 1;
+
+      // 推定計算用のパラメータを準備
+      const params = {
+        invStart: this.data.inventory?.start || 0,
+        totalCost: this.data.cost?.adjusted || this.data.cost?.original || 0,
+        totalSales: this.data.sales || 0,
+        totalBaihen: this.data.baihen || 0,
+        deliverySalesCost: this.data.delivery?.cost || 0,
+        deliverySalesPrice: this.data.delivery?.sales || 0,
+        totalConsumable: this.data.consumable || 0,
+        defaultMarginRate: 0.26
+      };
+
+      // 推定計算を実行
+      this.data.estimated = calculator.calculateEstimatedMetrics(params);
+
+      // 日別推定在庫を計算
+      if (this.data.dailyData && this.data.dailyData.length > 0) {
+        const dailyParams = this.data.dailyData.map(day => ({
+          date: day.date,
+          invStart: day.inventory?.start || 0,
+          purchases: day.shiire || 0,
+          sales: day.sales || 0,
+          baihen: day.baihen || 0,
+          marginRate: this.data.estimated.coreMarginRate
+        }));
+
+        this.data.estimatedInventoryTrend = calculator.calculateDailyEstimatedInventory(
+          dailyParams,
+          params.invStart,
+          this.data.estimated.coreMarginRate,
+          this.data.estimated.baihenRateSales
+        );
+      }
+    }
   }
 
   /**
@@ -157,7 +208,8 @@ export class Dashboard {
     const profitRate = this.data.profit?.rate || 0;
     const cost = this.data.cost?.adjusted || this.data.cost?.original || 0;
 
-    return `
+    // 基本カード
+    let cardsHtml = `
       <div class="summary-cards">
         <div class="summary-card sales">
           <div class="card-icon">💰</div>
@@ -190,8 +242,51 @@ export class Dashboard {
             <div class="card-value">${formatNumber(cost)}円</div>
           </div>
         </div>
-      </div>
     `;
+
+    // 推定計算カード（月次ビューのみ）
+    if (this.currentView === 'monthly' && this.data.estimated) {
+      const est = this.data.estimated;
+      cardsHtml += `
+        <div class="summary-card estimated-inventory">
+          <div class="card-icon">📦</div>
+          <div class="card-content">
+            <div class="card-label">推定期末在庫</div>
+            <div class="card-value">${formatNumber(est.estimatedInvEnd)}円</div>
+          </div>
+        </div>
+
+        <div class="summary-card estimated-margin">
+          <div class="card-icon">💎</div>
+          <div class="card-content">
+            <div class="card-label">推定粗利率</div>
+            <div class="card-value">${formatPercent(est.estimatedGrossRate * 100)}</div>
+            <div class="card-detail">コア値入率: ${formatPercent(est.coreMarginRate * 100)}</div>
+          </div>
+        </div>
+
+        <div class="summary-card baihen-rate">
+          <div class="card-icon">🏷️</div>
+          <div class="card-content">
+            <div class="card-label">売変率</div>
+            <div class="card-value">${formatPercent(est.baihenRateSales * 100)}</div>
+            <div class="card-detail">値引損失: ${formatNumber(est.baihenLossCost)}円</div>
+          </div>
+        </div>
+
+        <div class="summary-card cost-discount">
+          <div class="card-icon">⚠️</div>
+          <div class="card-content">
+            <div class="card-label">原価値引率</div>
+            <div class="card-value">${formatPercent(est.baihenRateCost * 100)}</div>
+            <div class="card-detail">推定粗利: ${formatNumber(est.estimatedGrossProfit)}円</div>
+          </div>
+        </div>
+      `;
+    }
+
+    cardsHtml += `</div>`;
+    return cardsHtml;
   }
 
   /**
@@ -201,8 +296,21 @@ export class Dashboard {
   _createCharts() {
     if (!this.data) return '';
 
-    return `
-      <div class="charts-container">
+    let chartsHtml = `<div class="charts-container">`;
+
+    // 推定在庫推移グラフ（月次ビュー、推定データがある場合）
+    if (this.currentView === 'monthly' && this.data.estimatedInventoryTrend) {
+      chartsHtml += `
+        <div class="chart-card">
+          <h3>📊 推定在庫推移</h3>
+          <div id="inventory-trend-chart" class="chart-content">
+            ${this._createInventoryTrendChart()}
+          </div>
+        </div>
+      `;
+    }
+
+    chartsHtml += `
         <div class="chart-card">
           <h3>📈 推移グラフ</h3>
           <div id="trend-chart" class="chart-placeholder">
@@ -215,6 +323,82 @@ export class Dashboard {
           <div id="category-chart" class="chart-placeholder">
             ${this._createCategoryBreakdown()}
           </div>
+        </div>
+      </div>
+    `;
+
+    return chartsHtml;
+  }
+
+  /**
+   * 推定在庫推移チャートを作成
+   * @private
+   */
+  _createInventoryTrendChart() {
+    if (!this.data.estimatedInventoryTrend) return '';
+
+    const trend = this.data.estimatedInventoryTrend;
+    const maxValue = Math.max(...trend.map(d => d.estimatedInventory));
+    const minValue = Math.min(...trend.map(d => d.estimatedInventory));
+    const range = maxValue - minValue;
+
+    // シンプルな折れ線グラフを作成
+    const points = trend.map((d, i) => {
+      const x = (i / (trend.length - 1)) * 100;
+      const y = range > 0 ? ((maxValue - d.estimatedInventory) / range) * 80 + 10 : 50;
+      return `${x},${y}`;
+    }).join(' ');
+
+    return `
+      <div class="inventory-trend-container">
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background: #4CAF50;"></span>
+            <span>推定在庫</span>
+          </div>
+          <div class="legend-stats">
+            <span>最大: ${formatNumber(maxValue)}円</span>
+            <span>最小: ${formatNumber(minValue)}円</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 100 100" class="inventory-chart">
+          <polyline
+            points="${points}"
+            fill="none"
+            stroke="#4CAF50"
+            stroke-width="0.5"
+            stroke-linejoin="round"
+          />
+          ${trend.map((d, i) => {
+            const x = (i / (trend.length - 1)) * 100;
+            const y = range > 0 ? ((maxValue - d.estimatedInventory) / range) * 80 + 10 : 50;
+            return `<circle cx="${x}" cy="${y}" r="1" fill="#4CAF50"/>`;
+          }).join('')}
+        </svg>
+        <div class="chart-table">
+          <table>
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>推定在庫</th>
+                <th>推定売上原価</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${trend.slice(0, 10).map(d => `
+                <tr>
+                  <td>${formatDate(new Date(d.date))}</td>
+                  <td class="text-right">${formatNumber(d.estimatedInventory)}</td>
+                  <td class="text-right">${formatNumber(d.estimatedCogs)}</td>
+                </tr>
+              `).join('')}
+              ${trend.length > 10 ? `
+                <tr>
+                  <td colspan="3" class="text-center">... 他${trend.length - 10}日</td>
+                </tr>
+              ` : ''}
+            </tbody>
+          </table>
         </div>
       </div>
     `;
