@@ -117,7 +117,7 @@ function setupFileUploadHandlers() {
                     updateStoreInventoryUI();
 
                     // Check if can generate
-                    const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+                    const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
                     updateGenerateButton(canGenerate);
                 } catch (err) {
                     console.error('File load error:', err);
@@ -226,7 +226,7 @@ function setupDropZoneHandler() {
         updateStoreInventoryUI();
 
         // Check if can generate
-        const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+        const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
         updateGenerateButton(canGenerate);
     });
 
@@ -244,7 +244,7 @@ function setupDropZoneHandler() {
             updateStoreInventoryUI();
 
             // Check if can generate
-            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
             updateGenerateButton(canGenerate);
         };
 
@@ -351,7 +351,7 @@ export function setupFileLoadingGlobalFunctions() {
             updateStoreInventoryUI();
 
             // Check if can generate
-            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
             updateGenerateButton(canGenerate);
         } catch (err) {
             console.error('File load error:', err);

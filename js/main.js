@@ -113,12 +113,12 @@ class App {
             const uriageRepo = new DataRepository('uriage');
             const uriageData = await uriageRepo.getAll();
             if (uriageData && uriageData.length > 0) {
-                appState.setData('uriage', uriageData);
+                appState.setData('uriageBaihen', uriageData);
                 console.log(`✅ Restored ${uriageData.length} uriage records`);
             }
 
             // Update generate button state
-            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
             updateGenerateButton(canGenerate);
 
             if (canGenerate) {
