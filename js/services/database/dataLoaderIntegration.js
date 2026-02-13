@@ -157,6 +157,128 @@ export function convertBaihenData(rawData) {
 }
 
 /**
+ * 売上・売変統合データを変換
+ *
+ * データ形式(3行ヘッダー):
+ *   行1: 【店舗】       【店舗】     【店舗】     ...
+ *   行2: 0001:名前     0001:名前    0006:名前    0006:名前    ...
+ *   行3: 販売金額      売変合計金額  販売金額     売変合計金額 ...
+ *   行4: 【期間別】    (空)         (空)         (空)        ...
+ *   行5+: 日付         金額1        金額2        金額3       ...
+ *
+ * @param {Array} rawData - Excelから読み込んだ生データ
+ * @returns {Object} { uriage: [], baihen: [] } 両方のデータを含むオブジェクト
+ */
+export function convertUriageBaihenData(rawData) {
+  console.log('🔍 convertUriageBaihenData called');
+  console.log(`📊 Raw data length: ${rawData?.length || 0}`);
+
+  if (!rawData || rawData.length < 5) {
+    console.warn('⚠️ Raw data is empty or too short (need at least 5 rows)');
+    return { uriage: [], baihen: [] };
+  }
+
+  const row1 = rawData[0]; // 【店舗】
+  const row2 = rawData[1]; // 店舗コード:名前
+  const row3 = rawData[2]; // 販売金額 / 売変合計金額
+  // row4 = 【期間別】 (スキップ)
+  const dataStartRow = 4;
+
+  console.log('📋 Header row 1:', row1);
+  console.log('📋 Header row 2:', row2);
+  console.log('📋 Header row 3:', row3);
+
+  // 列情報を解析
+  const columns = [];
+  for (let col = 1; col < row2.length; col++) {
+    const storeStr = String(row2[col] || '');
+    const typeStr = String(row3[col] || '');
+
+    // 店舗コードを抽出
+    const stoMatch = storeStr.match(/(\d{4})/);
+    if (!stoMatch) continue;
+
+    const storeCode = String(parseInt(stoMatch[1]));
+
+    // データタイプを判定（販売金額 or 売変合計金額）
+    const isUriage = typeStr.includes('販売') || typeStr.includes('売上');
+    const isBaihen = typeStr.includes('売変');
+
+    if (isUriage || isBaihen) {
+      columns.push({
+        col,
+        store: storeCode,
+        type: isUriage ? 'uriage' : 'baihen'
+      });
+    }
+  }
+
+  console.log(`📊 Found ${columns.length} columns:`, columns.slice(0, 5));
+
+  const uriageData = [];
+  const baihenData = [];
+
+  // データ行を処理
+  for (let row = dataStartRow; row < rawData.length; row++) {
+    const dataRow = rawData[row];
+    const dateValue = dataRow[0];
+
+    if (!dateValue) continue;
+
+    const date = parseDate(dateValue);
+    if (!date) {
+      console.warn(`⚠️ Could not parse date at row ${row}:`, dateValue);
+      continue;
+    }
+
+    const timestamp = date.getTime();
+
+    // 各列のデータを処理
+    for (const colInfo of columns) {
+      const value = parseNum(dataRow[colInfo.col]);
+
+      if (value === 0) continue;
+
+      if (colInfo.type === 'uriage') {
+        // 売上データ
+        // 注: 現在のスキーマでは sales, cost, profit が必要
+        // cost と profit は別途計算するか、またはスキーマを変更する必要がある
+        uriageData.push({
+          date: timestamp,
+          store: colInfo.store,
+          sales: value,
+          cost: 0, // TODO: 原価データが必要な場合は別途処理
+          profit: 0, // TODO: 粗利データが必要な場合は別途処理
+          profitRate: 0
+        });
+      } else if (colInfo.type === 'baihen') {
+        // 売変データ
+        baihenData.push({
+          date: timestamp,
+          store: colInfo.store,
+          amount: value
+        });
+      }
+    }
+  }
+
+  console.log(`✅ Converted ${uriageData.length} uriage records`);
+  console.log(`✅ Converted ${baihenData.length} baihen records`);
+
+  if (uriageData.length > 0) {
+    console.log('📦 Sample uriage record:', uriageData[0]);
+  }
+  if (baihenData.length > 0) {
+    console.log('📦 Sample baihen record:', baihenData[0]);
+  }
+
+  return {
+    uriage: uriageData,
+    baihen: baihenData
+  };
+}
+
+/**
  * 消耗品データをIndexedDB用に変換
  */
 export function convertConsumablesData(rawData) {
@@ -365,6 +487,67 @@ export function convertBudgetData(rawData) {
 }
 
 /**
+ * 初期設定データ(店舗別目標・在庫)をIndexedDB用に変換
+ *
+ * データ形式:
+ *   列0: 店舗コード
+ *   列1: 期首在庫
+ *   列2: 期末在庫
+ *   列3: 粗利額予算
+ *
+ * 粗利率は budget ファイルの売上予算と組み合わせて計算されます
+ */
+export function convertSettingsData(rawData) {
+  console.log('🔍 convertSettingsData called');
+  console.log(`📊 Raw data length: ${rawData?.length || 0}`);
+
+  if (!rawData || rawData.length < 2) {
+    console.warn('⚠️ Raw data is empty or too short (need at least 2 rows)');
+    return [];
+  }
+
+  const converted = [];
+  const headerRow = rawData[0];
+
+  console.log('📋 Header row:', headerRow);
+  console.log('📋 First data row:', rawData[1]);
+
+  // ヘッダー行をスキップしてデータ行を処理
+  for (let row = 1; row < rawData.length; row++) {
+    const dataRow = rawData[row];
+
+    // 空行をスキップ
+    if (!dataRow || dataRow.length === 0) continue;
+
+    const storeValue = dataRow[0];
+    if (!storeValue) continue;
+
+    const storeCode = String(parseInt(storeValue));
+    const openingInventory = parseNum(dataRow[1]); // 期首在庫
+    const closingInventory = parseNum(dataRow[2]); // 期末在庫
+    const profitBudget = parseNum(dataRow[3]);     // 粗利額予算
+
+    converted.push({
+      store: storeCode,
+      openingInventory,
+      closingInventory,
+      profitBudget
+    });
+  }
+
+  console.log(`✅ Converted ${converted.length} settings records`);
+  if (converted.length > 0) {
+    console.log('📦 Sample converted records:', converted.slice(0, 3));
+  } else {
+    console.warn('⚠️ No records were converted! Check:');
+    console.warn('  1. File has valid store codes in column 0');
+    console.warn('  2. Data rows have inventory and budget values');
+  }
+
+  return converted;
+}
+
+/**
  * 仕入先コードからカテゴリを判定
  * @param {string} supplierCode - 仕入先コード
  * @returns {string} カテゴリ
@@ -391,12 +574,14 @@ export function getConverterForType(dataType) {
     shiire: convertShiireData,
     uriage: convertUriageData,
     baihen: convertBaihenData,
+    uriageBaihen: convertUriageBaihenData, // 売上・売変統合
     consumables: convertConsumablesData,
     tenkanIn: (data) => convertTenkanData(data, true),
     tenkanOut: (data) => convertTenkanData(data, false),
     sanchoku: (data) => convertHanaSanchokuData(data, 'sanchoku'),
     hana: (data) => convertHanaSanchokuData(data, 'hana'),
-    budget: convertBudgetData
+    budget: convertBudgetData,
+    settings: convertSettingsData
   };
 
   return converters[dataType] || null;
@@ -418,32 +603,72 @@ export async function importToIndexedDB(dataType, rawData, showDialog = true) {
 
   const convertedData = converter(rawData);
 
-  if (convertedData.length === 0) {
-    throw new Error('変換できるデータがありません');
-  }
+  // 複数のデータタイプを含むオブジェクトか確認
+  // (例: uriageBaihen -> { uriage: [], baihen: [] })
+  const isMultiType = convertedData && typeof convertedData === 'object' && !Array.isArray(convertedData);
 
-  console.log(`📊 Converted ${convertedData.length} records for ${dataType}`);
+  if (isMultiType) {
+    // 複数のデータタイプを一括インポート
+    console.log(`📊 Multi-type import for ${dataType}:`, Object.keys(convertedData));
 
-  if (showDialog) {
-    // ダイアログを表示してユーザーに確認
-    return new Promise((resolve, reject) => {
-      importDialog.show(
-        dataType,
-        convertedData,
-        async (mode) => {
-          // インポート完了
-          const result = syncManager.getLastSync(dataType);
-          resolve(result);
-        },
-        () => {
-          // キャンセル
-          reject(new Error('User cancelled import'));
+    const results = {};
+    for (const [subType, subData] of Object.entries(convertedData)) {
+      if (Array.isArray(subData) && subData.length > 0) {
+        console.log(`  ➜ ${subType}: ${subData.length} records`);
+
+        if (showDialog) {
+          // 各サブタイプごとにダイアログを表示
+          await new Promise((resolve, reject) => {
+            importDialog.show(
+              subType,
+              subData,
+              async (mode) => {
+                const result = syncManager.getLastSync(subType);
+                results[subType] = result;
+                resolve(result);
+              },
+              () => {
+                reject(new Error(`User cancelled import for ${subType}`));
+              }
+            );
+          });
+        } else {
+          // ダイアログなしで直接インポート
+          results[subType] = await syncManager.importData(subType, subData, MERGE_MODE.SMART);
         }
-      );
-    });
+      }
+    }
+
+    return results;
   } else {
-    // ダイアログなしで直接インポート（SMARTモード）
-    return await syncManager.importData(dataType, convertedData, MERGE_MODE.SMART);
+    // 単一のデータタイプ（従来の動作）
+    if (!Array.isArray(convertedData) || convertedData.length === 0) {
+      throw new Error('変換できるデータがありません');
+    }
+
+    console.log(`📊 Converted ${convertedData.length} records for ${dataType}`);
+
+    if (showDialog) {
+      // ダイアログを表示してユーザーに確認
+      return new Promise((resolve, reject) => {
+        importDialog.show(
+          dataType,
+          convertedData,
+          async (mode) => {
+            // インポート完了
+            const result = syncManager.getLastSync(dataType);
+            resolve(result);
+          },
+          () => {
+            // キャンセル
+            reject(new Error('User cancelled import'));
+          }
+        );
+      });
+    } else {
+      // ダイアログなしで直接インポート（SMARTモード）
+      return await syncManager.importData(dataType, convertedData, MERGE_MODE.SMART);
+    }
   }
 }
 
