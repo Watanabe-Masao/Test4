@@ -22,6 +22,7 @@ export class DashboardApp {
     this.state = {
       dateRange: this._getDefaultDateRange(),
       selectedStores: ['all'],
+      pivotMode: 'simple', // 'simple' or 'detailed'
       data: {
         shiire: [],
         uriage: [],
@@ -139,6 +140,9 @@ export class DashboardApp {
           <div class="header-left">
             <h1 class="dashboard-title">📊 仕入・粗利・在庫管理ダッシュボード</h1>
             <div class="date-range-display" id="date-range-display"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap" id="store-selector">
+              <!-- Store chips will be inserted here -->
+            </div>
           </div>
           <div class="header-right">
             <button class="btn-icon" id="btn-refresh" title="更新">🔄</button>
@@ -157,8 +161,11 @@ export class DashboardApp {
           <!-- Pivot Table Section -->
           <div class="dashboard-card pivot-card">
             <div class="card-header">
-              <h2>📊 店舗×日付別 仕入分析</h2>
-              <button class="btn-small" id="btn-pivot-export">CSV出力</button>
+              <h2>📊 仕入分析 (店舗×日付×帳合先)</h2>
+              <div style="display:flex;gap:8px">
+                <button class="btn-small" id="btn-toggle-pivot-mode">表示切替</button>
+                <button class="btn-small" id="btn-pivot-export">CSV出力</button>
+              </div>
             </div>
             <div class="card-body">
               <div id="pivot-table-container"></div>
@@ -209,10 +216,42 @@ export class DashboardApp {
    */
   _renderDashboard() {
     this._renderDateRange();
+    this._renderStoreSelector();
     this._renderKPICards();
     this._renderPivotTable();
     this._renderCharts();
     this._renderBudgetProgress();
+  }
+
+  /**
+   * Render store selector chips
+   * @private
+   */
+  _renderStoreSelector() {
+    const container = document.getElementById('store-selector');
+    if (!container) return;
+
+    // Get unique stores from data
+    const stores = new Set();
+    this.state.data.shiire.forEach(item => stores.add(item.store));
+    this.state.data.uriage.forEach(item => stores.add(item.store));
+
+    const storeArray = ['all', ...Array.from(stores).sort()];
+    const selectedStores = this.state.selectedStores;
+
+    container.innerHTML = storeArray.map(store => {
+      const isSelected = selectedStores.includes(store);
+      const label = store === 'all' ? '全店舗' : `店舗 ${store}`;
+      return `
+        <button
+          class="btn-small store-chip"
+          data-store="${store}"
+          style="background: ${isSelected ? 'var(--primary-blue)' : 'var(--bg-hover)'}; color: ${isSelected ? 'white' : 'var(--text-secondary)'}; border: 1px solid ${isSelected ? 'var(--primary-blue)' : 'var(--bg-border)'}"
+        >
+          ${label}
+        </button>
+      `;
+    }).join('');
   }
 
   /**
@@ -347,35 +386,48 @@ export class DashboardApp {
   _calculateMetrics() {
     const { shiire, uriage, baihen, budget, settings } = this.state.data;
 
+    // Filter by selected stores if not "all"
+    const selectedStores = this.state.selectedStores;
+    const filterByStore = (item) => {
+      if (selectedStores.includes('all')) return true;
+      return selectedStores.includes(item.store);
+    };
+
+    const filteredShiire = shiire.filter(filterByStore);
+    const filteredUriage = uriage.filter(filterByStore);
+    const filteredBaihen = baihen.filter(filterByStore);
+    const filteredBudget = budget.filter(filterByStore);
+
     // Total sales
-    const totalSales = uriage.reduce((sum, item) => sum + item.sales, 0);
+    const totalSales = filteredUriage.reduce((sum, item) => sum + (item.sales || 0), 0);
 
-    // Total purchase cost
-    const totalPurchase = shiire.reduce((sum, item) => sum + item.cost, 0);
+    // Total purchase cost (COGS from shiire data)
+    const totalPurchase = filteredShiire.reduce((sum, item) => sum + (item.cost || 0), 0);
 
-    // Gross profit
-    const totalCost = uriage.reduce((sum, item) => sum + item.cost, 0);
-    const grossProfit = totalSales - totalCost;
+    // Gross profit = Sales - Purchase Cost
+    // 注: 実際の原価は仕入データから取得
+    const grossProfit = totalSales - totalPurchase;
 
     // Profit rate
     const profitRate = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
 
-    // Baihen rate
-    const totalBaihen = baihen.reduce((sum, item) => sum + item.amount, 0);
-    const baihenRate = totalSales > 0 ? (totalBaihen / (totalSales + totalBaihen)) * 100 : 0;
+    // Baihen rate (discount rate)
+    const totalBaihen = Math.abs(filteredBaihen.reduce((sum, item) => sum + (item.amount || 0), 0));
+    const baihenRate = (totalSales + totalBaihen) > 0 ? (totalBaihen / (totalSales + totalBaihen)) * 100 : 0;
 
     // Average daily sales
-    const uniqueDays = new Set(uriage.map(item => new Date(item.date).toDateString())).size;
+    const uniqueDays = new Set(filteredUriage.map(item => new Date(item.date).toDateString())).size;
     const avgDailySales = uniqueDays > 0 ? totalSales / uniqueDays : 0;
 
     // Budget achievement
-    const totalBudget = budget.reduce((sum, item) => sum + item.sales, 0);
+    const totalBudget = filteredBudget.reduce((sum, item) => sum + (item.sales || 0), 0);
     const budgetAchievement = totalBudget > 0 ? (totalSales / totalBudget) * 100 : 0;
 
-    // Estimated inventory (simplified)
-    const openingInventory = settings.reduce((sum, item) => sum + (item.openingInventory || 0), 0);
-    const closingInventory = settings.reduce((sum, item) => sum + (item.closingInventory || 0), 0);
-    const estimatedInventory = openingInventory + totalPurchase - totalCost;
+    // Estimated inventory
+    const openingInventory = settings
+      .filter(s => selectedStores.includes('all') || selectedStores.includes(s.store))
+      .reduce((sum, item) => sum + (item.openingInventory || 0), 0);
+    const estimatedInventory = openingInventory + totalPurchase - totalPurchase;
 
     return {
       totalSales,
@@ -404,31 +456,56 @@ export class DashboardApp {
     if (!container) return;
 
     const { shiire } = this.state.data;
+    const selectedStores = this.state.selectedStores;
 
-    if (shiire.length === 0) {
+    // Filter by selected stores
+    const filteredShiire = shiire.filter(item =>
+      selectedStores.includes('all') || selectedStores.includes(item.store)
+    );
+
+    if (filteredShiire.length === 0) {
       container.innerHTML = '<div class="no-data">データがありません</div>';
       return;
     }
 
-    // Prepare data for pivot
-    const pivotData = shiire.map(item => ({
+    // Prepare data for pivot with supplier/category info
+    const pivotData = filteredShiire.map(item => ({
       date: new Date(item.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
       store: item.store,
+      supplier: item.supplierName || item.supplier || '不明',
+      category: item.category || 'その他',
       cost: item.cost
     }));
 
+    // Determine pivot mode (date×store or date×supplier×store)
+    const pivotMode = this.state.pivotMode || 'simple'; // 'simple' or 'detailed'
+
     // Create pivot
     try {
-      const pivot = createPivot(pivotData, {
-        rows: ['date'],
-        columns: ['store'],
-        valueField: 'cost',
-        aggFunc: 'sum',
-        showGrandTotal: true,
-        showSubtotals: false
-      });
+      let pivot;
+      if (pivotMode === 'detailed') {
+        // 日付 × 帳合先 × 店舗
+        pivot = createPivot(pivotData, {
+          rows: ['date', 'category'],
+          columns: ['store'],
+          valueField: 'cost',
+          aggFunc: 'sum',
+          showGrandTotal: true,
+          showSubtotals: true
+        });
+      } else {
+        // 日付 × 店舗 (シンプル)
+        pivot = createPivot(pivotData, {
+          rows: ['date'],
+          columns: ['store'],
+          valueField: 'cost',
+          aggFunc: 'sum',
+          showGrandTotal: true,
+          showSubtotals: false
+        });
+      }
 
-      container.innerHTML = this._renderPivotTableHTML(pivot);
+      container.innerHTML = this._renderPivotTableHTML(pivot, pivotMode);
     } catch (error) {
       console.error('Failed to create pivot:', error);
       container.innerHTML = '<div class="error">ピボットテーブルの生成に失敗しました</div>';
@@ -679,6 +756,46 @@ export class DashboardApp {
     const btnPivotExport = document.getElementById('btn-pivot-export');
     if (btnPivotExport) {
       btnPivotExport.addEventListener('click', () => this.exportPivotTable());
+    }
+
+    // Pivot mode toggle button
+    const btnTogglePivotMode = document.getElementById('btn-toggle-pivot-mode');
+    if (btnTogglePivotMode) {
+      btnTogglePivotMode.addEventListener('click', () => {
+        this.state.pivotMode = this.state.pivotMode === 'simple' ? 'detailed' : 'simple';
+        this._renderPivotTable();
+        btnTogglePivotMode.textContent = this.state.pivotMode === 'simple' ? '詳細表示' : 'シンプル表示';
+      });
+    }
+
+    // Store selector chips (delegated event)
+    const storeSelector = document.getElementById('store-selector');
+    if (storeSelector) {
+      storeSelector.addEventListener('click', (e) => {
+        const chip = e.target.closest('.store-chip');
+        if (!chip) return;
+
+        const store = chip.dataset.store;
+
+        if (store === 'all') {
+          this.state.selectedStores = ['all'];
+        } else {
+          // Toggle store selection
+          if (this.state.selectedStores.includes('all')) {
+            this.state.selectedStores = [store];
+          } else if (this.state.selectedStores.includes(store)) {
+            this.state.selectedStores = this.state.selectedStores.filter(s => s !== store);
+            if (this.state.selectedStores.length === 0) {
+              this.state.selectedStores = ['all'];
+            }
+          } else {
+            this.state.selectedStores.push(store);
+          }
+        }
+
+        this._renderStoreSelector();
+        this._renderDashboard();
+      });
     }
   }
 
