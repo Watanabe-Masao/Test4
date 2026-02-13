@@ -73,8 +73,17 @@ export async function loadFile(file, type, saveToIndexedDB = true) {
         // IndexedDBに保存
         if (saveToIndexedDB && isDataTypeSupported(type)) {
             try {
-                await importToIndexedDB(type, data, true); // ダイアログ表示
+                const result = await importToIndexedDB(type, data, true); // ダイアログ表示
                 console.log(`✅ ${type} data saved to IndexedDB`);
+
+                // 複数のデータタイプが保存された場合（uriageBaihen など）、
+                // appState にもマークを付ける
+                if (result && typeof result === 'object' && !Array.isArray(result)) {
+                    // result が { uriage: {...}, baihen: {...} } のような形式
+                    Object.keys(result).forEach(subType => {
+                        appState.setData(subType, true); // データが存在することをマーク
+                    });
+                }
             } catch (err) {
                 console.warn(`⚠️ Failed to save ${type} to IndexedDB:`, err);
                 // IndexedDB保存失敗はエラーにしない（メモリ上のデータは保持）

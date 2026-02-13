@@ -21,6 +21,10 @@ import {
     closeValidationModal
 } from './ui/modals.js';
 import {
+    showDataManagementModal,
+    closeDataManagementModal
+} from './ui/dataManagementModal.js';
+import {
     updateViewTabs,
     updateStatsRow,
     updateViewTitle,
