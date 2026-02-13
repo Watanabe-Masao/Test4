@@ -236,6 +236,7 @@ export const DATA_TYPE_MAP = {
   shiire: 'shiire',
   uriage: 'uriage',
   baihen: 'baihen',
+  uriageBaihen: 'uriage', // 売上・売変統合 (実際には uriage と baihen の両方に保存)
   consumables: 'consumables',
   tenkanIn: 'tenkan_in',
   tenkanOut: 'tenkan_out',

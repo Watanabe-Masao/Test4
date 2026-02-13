@@ -108,20 +108,15 @@ export const FILE_TYPES = {
         patterns: ['仕入', 'shiire'],
         headerPatterns: ['取引先コード', '原価金額', '売価金額']
     },
-    uriage: {
-        name: '売上',
-        patterns: ['売上', 'uriage'],
-        headerPatterns: ['販売金額', '売上']
-    },
-    baihen: {
-        name: '売変',
-        patterns: ['売変', 'baihen'],
-        headerPatterns: ['売変合計', '値引']
+    uriageBaihen: {
+        name: '売上・売変',
+        patterns: ['売上', 'uriage', '売変', 'baihen'],
+        headerPatterns: ['販売金額', '売上', '売変合計']
     },
     settings: {
         name: '初期設定',
         patterns: ['初期', '設定', 'setting'],
-        headerPatterns: ['期首', '期末']
+        headerPatterns: ['期首', '期末', '在庫']
     },
     budget: {
         name: '予算',
