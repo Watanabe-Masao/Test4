@@ -57,9 +57,8 @@ function setupViewTabHandlers() {
         const view = tab.dataset.view;
         appState.setCurrentView(view);
 
-        // Trigger render if result exists
-        const result = appState.getResult();
-        if (result && window.render) {
+        // Trigger render
+        if (window.render) {
             window.render();
         }
     });
@@ -88,9 +87,8 @@ function setupStoreChipHandlers() {
         const storeId = chip.dataset.store;
         appState.setCurrentStore(storeId);
 
-        // Trigger render if result exists
-        const result = appState.getResult();
-        if (result && window.render) {
+        // Trigger render
+        if (window.render) {
             window.render();
         }
     });

@@ -46,6 +46,7 @@ import { initDatabase, showDatabaseInfo, DataRepository } from './services/datab
 class App {
     constructor() {
         this.initialized = false;
+        this.dashboardInstance = null;
     }
 
     /**
@@ -112,14 +113,29 @@ class App {
             if (shiireData && shiireData.length > 0) {
                 appState.setData('shiire', shiireData);
                 console.log(`✅ Restored ${shiireData.length} shiire records`);
+                this.markUploadCardLoaded('shiire');
             }
 
             // Restore uriage data
             const uriageRepo = new DataRepository('uriage');
             const uriageData = await uriageRepo.getAll();
             if (uriageData && uriageData.length > 0) {
+                appState.setData('uriage', uriageData);
                 appState.setData('uriageBaihen', uriageData);
                 console.log(`✅ Restored ${uriageData.length} uriage records`);
+            }
+
+            // Restore baihen data
+            const baihenRepo = new DataRepository('baihen');
+            const baihenData = await baihenRepo.getAll();
+            if (baihenData && baihenData.length > 0) {
+                appState.setData('baihen', baihenData);
+                console.log(`✅ Restored ${baihenData.length} baihen records`);
+            }
+
+            // Mark upload card as loaded if we have sales/baihen data
+            if ((uriageData && uriageData.length > 0) || (baihenData && baihenData.length > 0)) {
+                this.markUploadCardLoaded('uriageBaihen');
             }
 
             // Update generate button state
@@ -131,6 +147,17 @@ class App {
             }
         } catch (error) {
             console.warn('⚠️ Failed to restore data from IndexedDB:', error);
+        }
+    }
+
+    /**
+     * Marks an upload card as loaded
+     * @param {string} type - The data type
+     */
+    markUploadCardLoaded(type) {
+        const card = document.querySelector(`.upload-card[data-type="${type}"]`);
+        if (card) {
+            card.classList.add('loaded');
         }
     }
 
@@ -156,22 +183,24 @@ class App {
 
     /**
      * Generates the analysis
+     * @param {boolean} skipValidation - Skip validation (used when proceeding with warnings)
      */
-    async generate() {
+    async generate(skipValidation = false) {
         console.log('📊 Starting data generation...');
 
         // Validate data
-        const validation = validateRequiredData();
-
-        if (!validation.isValid || validation.hasWarnings) {
-            showValidationModal(validation.warnings);
+        if (!skipValidation) {
+            const validation = validateRequiredData();
 
             if (validation.hasErrors) {
+                showValidationModal(validation.warnings);
                 return; // Stop if there are errors
             }
 
-            // If only warnings, allow user to proceed
-            return;
+            if (validation.hasWarnings) {
+                showValidationModal(validation.warnings);
+                return; // Show warnings, user can click proceed
+            }
         }
 
         // Show loading state
@@ -183,9 +212,16 @@ class App {
 
         content.innerHTML = createLoadingState('ダッシュボードを初期化中...');
 
+        // Destroy previous dashboard instance
+        if (this.dashboardInstance) {
+            try { this.dashboardInstance.destroy(); } catch (e) { /* ignore */ }
+            this.dashboardInstance = null;
+        }
+
         // Initialize professional dashboard
         try {
-            await initProfessionalDashboard('content');
+            this.dashboardInstance = await initProfessionalDashboard('content');
+            appState.setCurrentView('dashboard');
             console.log('✅ Professional dashboard initialized successfully');
         } catch (err) {
             console.error('❌ Dashboard initialization failed:', err);
@@ -268,23 +304,41 @@ class App {
     render() {
         const currentView = appState.getCurrentView();
         const currentStore = appState.getCurrentStore();
-        const result = appState.getResult();
 
         console.log(`🎨 Rendering view: ${currentView}, store: ${currentStore}`);
 
-        if (!result) {
+        // Check if we have data to work with
+        const hasData = appState.hasData('shiire') || appState.hasData('uriageBaihen');
+        if (!hasData) {
             this.showEmptyState();
             return;
         }
 
-        // This would be replaced with actual rendering logic
-        // For now, just show a placeholder
+        if (currentView === 'dashboard') {
+            // Re-initialize the professional dashboard
+            if (!this.dashboardInstance) {
+                this.generate(true);
+            }
+            // If dashboard already exists, do nothing (keep it as-is)
+            return;
+        }
+
+        // For other views, show a coming-soon placeholder
         const content = document.getElementById('content');
         if (content) {
+            const viewNames = {
+                category: '帳合別分析',
+                forecast: '週間予測',
+                analysis: '予算分析',
+                daily: '日別推移',
+                summary: '荒利計算',
+                reports: 'レポート'
+            };
+            const viewName = viewNames[currentView] || currentView;
             content.innerHTML = createEmptyState(
-                '🎨',
-                'レンダリングエンジンは次のフェーズで実装予定',
-                `View: ${currentView}\nStore: ${currentStore}`
+                '🚧',
+                `${viewName} ビューは開発中です`,
+                'ダッシュボードタブをクリックして分析画面に戻れます'
             );
         }
     }
@@ -294,7 +348,7 @@ class App {
      */
     proceedWithWarnings() {
         closeValidationModal();
-        this.generate();
+        this.generate(true);
     }
 }
 

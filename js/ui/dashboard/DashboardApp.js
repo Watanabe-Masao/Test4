@@ -5,7 +5,6 @@
  */
 
 import { DataRepository } from '../../services/database/repository.js';
-import { createPivot } from '../../services/database/pivotEngine.js';
 import { LineChart, BarChart, AreaChart } from '../components/ChartBase.js';
 import { showToast } from '../../utils/helpers.js';
 
@@ -22,7 +21,7 @@ export class DashboardApp {
     this.state = {
       dateRange: this._getDefaultDateRange(),
       selectedStores: ['all'],
-      pivotMode: 'simple', // 'simple' or 'detailed'
+      pivotMode: 'supplier', // 'supplier' or 'store'
       data: {
         shiire: [],
         uriage: [],
@@ -53,6 +52,7 @@ export class DashboardApp {
       this._showLoading();
 
       await this._loadData();
+      this._adjustDateRangeToData();
       this._renderDashboard();
       this._setupEventListeners();
 
@@ -84,6 +84,43 @@ export class DashboardApp {
   }
 
   /**
+   * Adjust date range to match actual data if current month has no data
+   * @private
+   */
+  _adjustDateRangeToData() {
+    const { shiire, uriage } = this.state.data;
+
+    // If we already have data in the current range, keep it
+    if (shiire.length > 0 || uriage.length > 0) return;
+
+    // Otherwise, find the actual date range from all data in repositories
+    // and reload with that range
+    const allData = [...(this._allShiire || []), ...(this._allUriage || [])];
+    if (allData.length === 0) return;
+
+    let minDate = Infinity, maxDate = -Infinity;
+    allData.forEach(item => {
+      if (item.date < minDate) minDate = item.date;
+      if (item.date > maxDate) maxDate = item.date;
+    });
+
+    if (minDate !== Infinity) {
+      this.state.dateRange = { start: minDate, end: maxDate };
+      // Re-filter data with the new date range
+      this.state.data.shiire = (this._allShiire || []).filter(
+        item => item.date >= minDate && item.date <= maxDate
+      );
+      this.state.data.uriage = (this._allUriage || []).filter(
+        item => item.date >= minDate && item.date <= maxDate
+      );
+      this.state.data.baihen = (this._allBaihen || []).filter(
+        item => item.date >= minDate && item.date <= maxDate
+      );
+      console.log(`📅 Date range adjusted to: ${new Date(minDate).toLocaleDateString()} ~ ${new Date(maxDate).toLocaleDateString()}`);
+    }
+  }
+
+  /**
    * Load data from IndexedDB
    * @private
    */
@@ -93,18 +130,21 @@ export class DashboardApp {
     try {
       // Load purchasing data
       const shiireData = await this.repositories.shiire.getAll();
+      this._allShiire = shiireData;
       this.state.data.shiire = shiireData.filter(item =>
         item.date >= start && item.date <= end
       );
 
       // Load sales data
       const uriageData = await this.repositories.uriage.getAll();
+      this._allUriage = uriageData;
       this.state.data.uriage = uriageData.filter(item =>
         item.date >= start && item.date <= end
       );
 
       // Load discount data
       const baihenData = await this.repositories.baihen.getAll();
+      this._allBaihen = baihenData;
       this.state.data.baihen = baihenData.filter(item =>
         item.date >= start && item.date <= end
       );
@@ -161,9 +201,9 @@ export class DashboardApp {
           <!-- Pivot Table Section -->
           <div class="dashboard-card pivot-card">
             <div class="card-header">
-              <h2>📊 仕入分析 (店舗×日付×帳合先)</h2>
+              <h2>📊 仕入分析 (日付別×帳合先別)</h2>
               <div style="display:flex;gap:8px">
-                <button class="btn-small" id="btn-toggle-pivot-mode">表示切替</button>
+                <button class="btn-small" id="btn-toggle-pivot-mode">店舗別に切替</button>
                 <button class="btn-small" id="btn-pivot-export">CSV出力</button>
               </div>
             </div>
@@ -448,7 +488,7 @@ export class DashboardApp {
   }
 
   /**
-   * Render pivot table
+   * Render pivot table (日付別×帳合先別 with 原価/売価 sub-columns)
    * @private
    */
   _renderPivotTable() {
@@ -468,79 +508,250 @@ export class DashboardApp {
       return;
     }
 
-    // Prepare data for pivot with supplier/category info
-    const pivotData = filteredShiire.map(item => ({
-      date: new Date(item.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
-      store: item.store,
-      supplier: item.supplierName || item.supplier || '不明',
-      category: item.category || 'その他',
-      cost: item.cost
-    }));
+    const pivotMode = this.state.pivotMode || 'supplier';
 
-    // Determine pivot mode (date×store or date×supplier×store)
-    const pivotMode = this.state.pivotMode || 'simple'; // 'simple' or 'detailed'
-
-    // Create pivot
-    try {
-      let pivot;
-      if (pivotMode === 'detailed') {
-        // 日付 × 帳合先 × 店舗
-        pivot = createPivot(pivotData, {
-          rows: ['date', 'category'],
-          columns: ['store'],
-          valueField: 'cost',
-          aggFunc: 'sum',
-          showGrandTotal: true,
-          showSubtotals: true
-        });
-      } else {
-        // 日付 × 店舗 (シンプル)
-        pivot = createPivot(pivotData, {
-          rows: ['date'],
-          columns: ['store'],
-          valueField: 'cost',
-          aggFunc: 'sum',
-          showGrandTotal: true,
-          showSubtotals: false
-        });
-      }
-
-      container.innerHTML = this._renderPivotTableHTML(pivot, pivotMode);
-    } catch (error) {
-      console.error('Failed to create pivot:', error);
-      container.innerHTML = '<div class="error">ピボットテーブルの生成に失敗しました</div>';
+    if (pivotMode === 'store') {
+      container.innerHTML = this._renderStorePivotHTML(filteredShiire);
+    } else {
+      container.innerHTML = this._renderSupplierPivotHTML(filteredShiire);
     }
   }
 
   /**
-   * Render pivot table HTML
+   * Render supplier-based pivot table (日付×帳合先 with 原価/売価)
    * @private
    */
-  _renderPivotTableHTML(pivot) {
+  _renderSupplierPivotHTML(data) {
+    // Collect unique suppliers
+    const supplierMap = new Map();
+    data.forEach(item => {
+      const key = item.supplier || 'unknown';
+      if (!supplierMap.has(key)) {
+        supplierMap.set(key, item.supplierName || item.supplier || '不明');
+      }
+    });
+    const suppliers = Array.from(supplierMap.entries())
+      .sort((a, b) => a[1].localeCompare(b[1], 'ja'));
+
+    // Collect unique dates (sorted)
+    const dateSet = new Set();
+    data.forEach(item => dateSet.add(item.date));
+    const dates = Array.from(dateSet).sort((a, b) => a - b);
+
+    // Build data map: "date::supplier" -> { cost, amount }
+    const dataMap = new Map();
+    data.forEach(item => {
+      const key = `${item.date}::${item.supplier || 'unknown'}`;
+      if (!dataMap.has(key)) {
+        dataMap.set(key, { cost: 0, amount: 0 });
+      }
+      const entry = dataMap.get(key);
+      entry.cost += item.cost || 0;
+      entry.amount += item.amount || 0;
+    });
+
+    // --- Build HTML ---
     let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
 
-    // Header row
+    // Header row 1: Supplier names with colspan=2
     html += '<thead><tr>';
-    pivot.headers.forEach(header => {
-      html += `<th>${header.label}</th>`;
+    html += '<th rowspan="2" style="min-width:70px">日付</th>';
+    suppliers.forEach(([code, name], idx) => {
+      const bgClass = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:${bgClass}">${name}</th>`;
     });
+    html += '<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:var(--primary-blue);color:white">合計</th>';
+    html += '</tr>';
+
+    // Header row 2: 原価/売価 sub-columns
+    html += '<tr>';
+    suppliers.forEach(([code, name], idx) => {
+      const bgClass = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bgClass}">原価</th>`;
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bgClass}">売価</th>`;
+    });
+    html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">原価</th>';
+    html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">売価</th>';
     html += '</tr></thead>';
 
     // Data rows
     html += '<tbody>';
-    pivot.rows.slice(0, 31).forEach(row => { // Limit to 31 days
-      html += `<tr class="pivot-row-${row.type}">`;
-      row.cells.forEach(cell => {
-        const className = cell.type === 'dimension' ? 'pivot-cell-dim' : 'pivot-cell-value';
-        const value = cell.type === 'dimension' ? cell.value : cell.formatted;
-        html += `<td class="${className}">${value}</td>`;
+    const supplierTotals = new Map();
+    suppliers.forEach(([code]) => supplierTotals.set(code, { cost: 0, amount: 0 }));
+    let grandTotalCost = 0;
+    let grandTotalAmount = 0;
+
+    dates.forEach(date => {
+      const d = new Date(date);
+      const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+      let rowCost = 0;
+      let rowAmount = 0;
+
+      html += '<tr>';
+      html += `<td class="pivot-cell-dim pivot-cell-sticky">${dateStr}</td>`;
+
+      suppliers.forEach(([code], idx) => {
+        const key = `${date}::${code}`;
+        const val = dataMap.get(key) || { cost: 0, amount: 0 };
+        rowCost += val.cost;
+        rowAmount += val.amount;
+        const st = supplierTotals.get(code);
+        st.cost += val.cost;
+        st.amount += val.amount;
+
+        const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.03)' : 'rgba(16,185,129,0.03)';
+        html += `<td class="pivot-cell-value" style="background:${bg}">${val.cost ? Math.round(val.cost).toLocaleString() : ''}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${val.amount ? Math.round(val.amount).toLocaleString() : ''}</td>`;
       });
+
+      grandTotalCost += rowCost;
+      grandTotalAmount += rowAmount;
+
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowCost ? Math.round(rowCost).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowAmount ? Math.round(rowAmount).toLocaleString() : ''}</td>`;
       html += '</tr>';
     });
-    html += '</tbody>';
 
-    html += '</table></div>';
+    // Total row
+    html += '<tr class="pivot-row-total">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:var(--bg-hover);font-weight:700">合計</td>';
+    suppliers.forEach(([code], idx) => {
+      const st = supplierTotals.get(code);
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.08)' : 'rgba(16,185,129,0.08)';
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.cost ? Math.round(st.cost).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.amount ? Math.round(st.amount).toLocaleString() : ''}</td>`;
+    });
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandTotalCost).toLocaleString()}</td>`;
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandTotalAmount).toLocaleString()}</td>`;
+    html += '</tr>';
 
+    // Rate row (原価率 = 原価 / 売価 × 100)
+    html += '<tr class="pivot-row-rate">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(79,70,229,0.06);font-weight:700">原価率</td>';
+    suppliers.forEach(([code], idx) => {
+      const st = supplierTotals.get(code);
+      const rate = st.amount > 0 ? ((st.cost / st.amount) * 100).toFixed(1) : '-';
+      const rateNum = st.amount > 0 ? (st.cost / st.amount) * 100 : 0;
+      const color = rateNum > 80 ? 'var(--danger-red)' : rateNum > 60 ? 'var(--warning-yellow)' : 'var(--success-green)';
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
+    });
+    const totalRate = grandTotalAmount > 0 ? ((grandTotalCost / grandTotalAmount) * 100).toFixed(1) : '-';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${totalRate}%</td>`;
+    html += '</tr>';
+
+    // Profit rate row (粗利率 = (売価 - 原価) / 売価 × 100)
+    html += '<tr class="pivot-row-rate">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(79,70,229,0.06);font-weight:700">粗利率</td>';
+    suppliers.forEach(([code], idx) => {
+      const st = supplierTotals.get(code);
+      const rate = st.amount > 0 ? (((st.amount - st.cost) / st.amount) * 100).toFixed(1) : '-';
+      const rateNum = st.amount > 0 ? ((st.amount - st.cost) / st.amount) * 100 : 0;
+      const color = rateNum >= 30 ? 'var(--success-green)' : rateNum >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
+    });
+    const totalProfitRate = grandTotalAmount > 0 ? (((grandTotalAmount - grandTotalCost) / grandTotalAmount) * 100).toFixed(1) : '-';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${totalProfitRate}%</td>`;
+    html += '</tr>';
+
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  /**
+   * Render store-based pivot table (日付×店舗 with 原価/売価)
+   * @private
+   */
+  _renderStorePivotHTML(data) {
+    // Collect unique stores
+    const storeSet = new Set();
+    data.forEach(item => storeSet.add(item.store));
+    const stores = Array.from(storeSet).sort();
+
+    // Collect unique dates
+    const dateSet = new Set();
+    data.forEach(item => dateSet.add(item.date));
+    const dates = Array.from(dateSet).sort((a, b) => a - b);
+
+    // Build data map: "date::store" -> { cost, amount }
+    const dataMap = new Map();
+    data.forEach(item => {
+      const key = `${item.date}::${item.store}`;
+      if (!dataMap.has(key)) {
+        dataMap.set(key, { cost: 0, amount: 0 });
+      }
+      const entry = dataMap.get(key);
+      entry.cost += item.cost || 0;
+      entry.amount += item.amount || 0;
+    });
+
+    let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
+
+    // Headers
+    html += '<thead><tr>';
+    html += '<th rowspan="2" style="min-width:70px">日付</th>';
+    stores.forEach((store, idx) => {
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:${bg}">店舗 ${store}</th>`;
+    });
+    html += '<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:var(--primary-blue);color:white">合計</th>';
+    html += '</tr><tr>';
+    stores.forEach((store, idx) => {
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bg}">原価</th>`;
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bg}">売価</th>`;
+    });
+    html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">原価</th>';
+    html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">売価</th>';
+    html += '</tr></thead>';
+
+    html += '<tbody>';
+    const storeTotals = new Map();
+    stores.forEach(s => storeTotals.set(s, { cost: 0, amount: 0 }));
+    let grandCost = 0, grandAmount = 0;
+
+    dates.forEach(date => {
+      const d = new Date(date);
+      const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+      let rowCost = 0, rowAmount = 0;
+
+      html += '<tr>';
+      html += `<td class="pivot-cell-dim pivot-cell-sticky">${dateStr}</td>`;
+
+      stores.forEach((store, idx) => {
+        const val = dataMap.get(`${date}::${store}`) || { cost: 0, amount: 0 };
+        rowCost += val.cost;
+        rowAmount += val.amount;
+        const st = storeTotals.get(store);
+        st.cost += val.cost;
+        st.amount += val.amount;
+        const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.03)' : 'rgba(16,185,129,0.03)';
+        html += `<td class="pivot-cell-value" style="background:${bg}">${val.cost ? Math.round(val.cost).toLocaleString() : ''}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${val.amount ? Math.round(val.amount).toLocaleString() : ''}</td>`;
+      });
+
+      grandCost += rowCost;
+      grandAmount += rowAmount;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowCost ? Math.round(rowCost).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowAmount ? Math.round(rowAmount).toLocaleString() : ''}</td>`;
+      html += '</tr>';
+    });
+
+    // Total row
+    html += '<tr class="pivot-row-total">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:var(--bg-hover);font-weight:700">合計</td>';
+    stores.forEach((store, idx) => {
+      const st = storeTotals.get(store);
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.08)' : 'rgba(16,185,129,0.08)';
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.cost ? Math.round(st.cost).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.amount ? Math.round(st.amount).toLocaleString() : ''}</td>`;
+    });
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandCost).toLocaleString()}</td>`;
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandAmount).toLocaleString()}</td>`;
+    html += '</tr>';
+
+    html += '</tbody></table></div>';
     return html;
   }
 
@@ -762,9 +973,9 @@ export class DashboardApp {
     const btnTogglePivotMode = document.getElementById('btn-toggle-pivot-mode');
     if (btnTogglePivotMode) {
       btnTogglePivotMode.addEventListener('click', () => {
-        this.state.pivotMode = this.state.pivotMode === 'simple' ? 'detailed' : 'simple';
+        this.state.pivotMode = this.state.pivotMode === 'supplier' ? 'store' : 'supplier';
         this._renderPivotTable();
-        btnTogglePivotMode.textContent = this.state.pivotMode === 'simple' ? '詳細表示' : 'シンプル表示';
+        btnTogglePivotMode.textContent = this.state.pivotMode === 'supplier' ? '店舗別に切替' : '帳合先別に切替';
       });
     }
 

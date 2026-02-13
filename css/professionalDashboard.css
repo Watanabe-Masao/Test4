@@ -356,6 +356,62 @@
   color: var(--color-amber);
 }
 
+.pivot-table thead th[rowspan] {
+  position: sticky;
+  left: 0;
+  z-index: 12;
+  background: var(--bg-hover);
+}
+
+.pivot-table thead tr:nth-child(2) th {
+  top: 40px;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.pivot-table .supplier-group-even th {
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.pivot-table .supplier-group-odd th {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.pivot-cell-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-card);
+}
+
+.pivot-row-total {
+  background: var(--bg-hover);
+  font-weight: 700;
+  border-top: 2px solid var(--primary-blue);
+}
+
+.pivot-row-total td {
+  padding: 10px 12px;
+}
+
+.pivot-row-rate {
+  background: rgba(79, 70, 229, 0.06);
+  font-weight: 600;
+}
+
+.pivot-row-rate td {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.pivot-value-positive {
+  color: var(--success-green);
+}
+
+.pivot-value-negative {
+  color: var(--danger-red);
+}
+
 .no-data, .error {
   text-align: center;
   padding: var(--spacing-xl);
@@ -593,7 +649,7 @@ canvas {
 
 .kpi-card,
 .dashboard-card {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out backwards;
 }
 
 .kpi-card:nth-child(1) { animation-delay: 0.05s; }
