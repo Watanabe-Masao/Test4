@@ -611,32 +611,25 @@ export async function importToIndexedDB(dataType, rawData, showDialog = true) {
     // 複数のデータタイプを一括インポート
     console.log(`📊 Multi-type import for ${dataType}:`, Object.keys(convertedData));
 
+    // 複数データタイプの場合、確認なしで直接インポート
+    // (TODO: 将来的には統合ダイアログを実装)
     const results = {};
+    let totalRecords = 0;
+
     for (const [subType, subData] of Object.entries(convertedData)) {
       if (Array.isArray(subData) && subData.length > 0) {
         console.log(`  ➜ ${subType}: ${subData.length} records`);
+        totalRecords += subData.length;
 
-        if (showDialog) {
-          // 各サブタイプごとにダイアログを表示
-          await new Promise((resolve, reject) => {
-            importDialog.show(
-              subType,
-              subData,
-              async (mode) => {
-                const result = syncManager.getLastSync(subType);
-                results[subType] = result;
-                resolve(result);
-              },
-              () => {
-                reject(new Error(`User cancelled import for ${subType}`));
-              }
-            );
-          });
-        } else {
-          // ダイアログなしで直接インポート
-          results[subType] = await syncManager.importData(subType, subData, MERGE_MODE.SMART);
-        }
+        // ダイアログなしで直接インポート (SMARTモード)
+        results[subType] = await syncManager.importData(subType, subData, MERGE_MODE.SMART);
       }
+    }
+
+    // 成功メッセージを表示
+    if (totalRecords > 0) {
+      const typeNames = Object.keys(results).join('・');
+      console.log(`✅ Imported ${totalRecords} records (${typeNames})`);
     }
 
     return results;
