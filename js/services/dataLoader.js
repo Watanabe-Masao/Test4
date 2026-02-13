@@ -436,11 +436,11 @@ export function validateRequiredData() {
         });
     }
 
-    if (!appState.hasData('uriage')) {
+    if (!appState.hasData('uriageBaihen')) {
         warnings.push({
             type: 'error',
-            msg: '売上データがありません',
-            detail: '売上ファイルを読み込んでください'
+            msg: '売上・売変データがありません',
+            detail: '売上・売変ファイルを読み込んでください'
         });
     }
 
@@ -484,15 +484,6 @@ export function validateRequiredData() {
             type: 'info',
             msg: '予算データがありません',
             detail: '予算ファイルを読み込むとより詳細な分析が可能です'
-        });
-    }
-
-    // Baihen check
-    if (!appState.hasData('baihen')) {
-        warnings.push({
-            type: 'info',
-            msg: '売変データがありません',
-            detail: '売変ファイルを読み込むと推定粗利計算が可能です'
         });
     }
 
