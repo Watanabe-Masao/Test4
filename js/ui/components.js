@@ -200,20 +200,55 @@ export function createStoreTag(storeId, type = 'from') {
 }
 
 /**
- * Creates an empty state element
+ * Creates an empty state element with optional onboarding steps
  * @param {string} icon - Icon emoji
  * @param {string} title - Title text
  * @param {string} description - Description text
+ * @param {boolean} showOnboarding - Whether to show onboarding steps
  * @returns {string} HTML string
  */
-export function createEmptyState(icon, title, description) {
-    return `
+export function createEmptyState(icon, title, description, showOnboarding = false) {
+    let html = `
         <div class="empty-state">
             <div class="empty-icon">${icon}</div>
             <h3>${title}</h3>
-            <p>${description}</p>
-        </div>
-    `;
+            <p>${description}</p>`;
+
+    if (showOnboarding) {
+        const hasShiire = appState.hasData('shiire');
+        const hasUriage = appState.hasData('uriageBaihen');
+
+        html += `
+            <div class="onboarding-steps">
+                <div class="onboarding-step ${hasShiire ? 'completed' : ''}">
+                    <div class="onboarding-step-num">${hasShiire ? '✓' : '1'}</div>
+                    <div class="onboarding-step-text">
+                        <div class="onboarding-step-title">仕入データを読込</div>
+                        <div class="onboarding-step-desc">仕入Excelファイルをアップロード</div>
+                    </div>
+                    <div class="onboarding-step-status">${hasShiire ? '完了' : '必須'}</div>
+                </div>
+                <div class="onboarding-step ${hasUriage ? 'completed' : ''}">
+                    <div class="onboarding-step-num">${hasUriage ? '✓' : '2'}</div>
+                    <div class="onboarding-step-text">
+                        <div class="onboarding-step-title">売上・売変データを読込</div>
+                        <div class="onboarding-step-desc">売上・売変Excelファイルをアップロード</div>
+                    </div>
+                    <div class="onboarding-step-status">${hasUriage ? '完了' : '必須'}</div>
+                </div>
+                <div class="onboarding-step">
+                    <div class="onboarding-step-num">3</div>
+                    <div class="onboarding-step-text">
+                        <div class="onboarding-step-title">ダッシュボードを表示</div>
+                        <div class="onboarding-step-desc">分析結果をダッシュボードで確認</div>
+                    </div>
+                    <div class="onboarding-step-status">次のステップ</div>
+                </div>
+            </div>`;
+    }
+
+    html += '</div>';
+    return html;
 }
 
 /**

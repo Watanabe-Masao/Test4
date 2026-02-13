@@ -97,6 +97,8 @@ export function getCatOrder() {
  */
 export function showToast(msg, type = 'info') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
+
     const toast = document.createElement('div');
     toast.className = 'toast ' + type;
 
@@ -104,10 +106,21 @@ export function showToast(msg, type = 'info') {
                  type === 'error' ? '✕' :
                  type === 'warning' ? '⚠' : 'ℹ';
 
-    toast.innerHTML = `<span>${icon}</span> ${msg}`;
+    toast.innerHTML = `<span>${icon}</span><span style="flex:1">${msg}</span><span style="cursor:pointer;opacity:0.5;font-size:0.7rem;padding:2px 4px" onclick="this.parentElement.remove()">✕</span>`;
     container.appendChild(toast);
 
-    setTimeout(() => toast.remove(), CALC_CONSTANTS.TOAST_DURATION);
+    // Limit max visible toasts to 5
+    const toasts = container.querySelectorAll('.toast');
+    if (toasts.length > 5) {
+        toasts[0].remove();
+    }
+
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, CALC_CONSTANTS.TOAST_DURATION);
 }
 
 /**
