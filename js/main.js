@@ -29,10 +29,11 @@ import {
     updateStatsRow,
     updateViewTitle,
     toggleExportButton,
+    updateGenerateButton,
     createLoadingState,
     createEmptyState
 } from './ui/components.js';
-import { initDatabase, showDatabaseInfo } from './services/database/index.js';
+import { initDatabase, showDatabaseInfo, DataRepository } from './services/database/index.js';
 
 /**
  * Application class
@@ -55,6 +56,9 @@ class App {
             console.log('💾 Initializing database...');
             await initDatabase();
             console.log('✅ Database initialized');
+
+            // Restore data from IndexedDB
+            await this.restoreDataFromDB();
 
             // Load saved settings
             loadAndApplyAllSettings();
@@ -87,6 +91,41 @@ class App {
         } catch (err) {
             console.error('❌ Application initialization failed:', err);
             throw err;
+        }
+    }
+
+    /**
+     * Restores data from IndexedDB to appState
+     */
+    async restoreDataFromDB() {
+        try {
+            console.log('🔄 Restoring data from IndexedDB...');
+
+            // Restore shiire data
+            const shiireRepo = new DataRepository('shiire');
+            const shiireData = await shiireRepo.getAll();
+            if (shiireData && shiireData.length > 0) {
+                appState.setData('shiire', shiireData);
+                console.log(`✅ Restored ${shiireData.length} shiire records`);
+            }
+
+            // Restore uriage data
+            const uriageRepo = new DataRepository('uriage');
+            const uriageData = await uriageRepo.getAll();
+            if (uriageData && uriageData.length > 0) {
+                appState.setData('uriage', uriageData);
+                console.log(`✅ Restored ${uriageData.length} uriage records`);
+            }
+
+            // Update generate button state
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            updateGenerateButton(canGenerate);
+
+            if (canGenerate) {
+                console.log('✅ Data restored - Generate button enabled');
+            }
+        } catch (error) {
+            console.warn('⚠️ Failed to restore data from IndexedDB:', error);
         }
     }
 
