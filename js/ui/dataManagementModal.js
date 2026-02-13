@@ -3,7 +3,7 @@
  * @description IndexedDB のデータを表示・削除する UI
  */
 
-import { dbService } from '../services/database/index.js';
+import { DataRepository } from '../services/database/index.js';
 import { DATA_TYPE_MAP } from '../services/database/schema.js';
 import { FILE_TYPES } from '../config/constants.js';
 
@@ -61,10 +61,11 @@ async function getDataStats() {
   // すべてのデータタイプについて統計を取得
   for (const [dataType, storeName] of Object.entries(DATA_TYPE_MAP)) {
     try {
-      const count = await dbService.count(storeName);
+      const repo = new DataRepository(storeName);
+      const count = await repo.count();
 
       if (count > 0) {
-        const allData = await dbService.getAll(storeName);
+        const allData = await repo.getAll();
 
         // 日付範囲を計算
         let minDate = null;
@@ -173,7 +174,8 @@ function renderDataManagement(stats) {
 window.viewDataDetails = async function(dataType) {
   try {
     const storeName = DATA_TYPE_MAP[dataType];
-    const data = await dbService.getAll(storeName);
+    const repo = new DataRepository(storeName);
+    const data = await repo.getAll();
 
     // 新しいモーダルを表示
     const modal = document.createElement('div');
@@ -265,7 +267,8 @@ window.deleteDataType = async function(dataType) {
 
   try {
     const storeName = DATA_TYPE_MAP[dataType];
-    await dbService.clear(storeName);
+    const repo = new DataRepository(storeName);
+    await repo.clear();
 
     alert(`${fileType.name} のデータを削除しました`);
 
