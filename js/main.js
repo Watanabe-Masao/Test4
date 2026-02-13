@@ -8,6 +8,8 @@ import { loadAndApplyAllSettings, saveAllSettings } from './services/storageServ
 import { validateRequiredData } from './services/dataLoader.js';
 import { exportExcel } from './services/excelService.js';
 import { processConsumableFiles } from './services/dataLoader.js';
+import { calculator } from './services/database/calculationEngine.js';
+import { initDashboard } from './ui/dashboard.js';
 import {
     initializeEventHandlers,
     setupGenerateHandler,
@@ -170,31 +172,26 @@ class App {
 
         // Show loading state
         const content = document.getElementById('content');
-        if (content) {
-            content.innerHTML = createLoadingState('データ処理中...');
+        if (!content) {
+            console.error('Content container not found');
+            return;
         }
 
-        // Simulate processing (in real implementation, this would call the calculator)
-        setTimeout(() => {
-            try {
-                // This would be replaced with actual calculation logic
-                // For now, just show a placeholder
-                content.innerHTML = createEmptyState(
-                    '🔧',
-                    '計算エンジンは次のフェーズで実装予定',
-                    'Phase 3ではUI層のリファクタリングを完了しました。\n計算エンジンはPhase 4で実装されます。'
-                );
+        content.innerHTML = createLoadingState('ダッシュボードを初期化中...');
 
-                console.log('✅ Generation completed');
-            } catch (err) {
-                console.error('❌ Generation failed:', err);
-                content.innerHTML = createEmptyState(
-                    '❌',
-                    'エラーが発生しました',
-                    err.message
-                );
-            }
-        }, 500);
+        // Initialize dashboard
+        try {
+            const dashboard = initDashboard('content');
+            await dashboard.initialize();
+            console.log('✅ Dashboard initialized successfully');
+        } catch (err) {
+            console.error('❌ Dashboard initialization failed:', err);
+            content.innerHTML = createEmptyState(
+                '❌',
+                'ダッシュボードの初期化に失敗しました',
+                err.message || '不明なエラーが発生しました'
+            );
+        }
     }
 
     /**
