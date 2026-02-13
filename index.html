@@ -37,15 +37,15 @@
                         <div class="drop-zone-hint">または下のカードをクリック</div>
                     </div>
                     <div class="upload-grid">
-                        <div class="upload-card"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'shiire')"></div>
-                        <div class="upload-card"><div class="icon">💰</div><div class="name">売上・売変</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'uriageBaihen')"></div>
-                        <div class="upload-card"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'settings')"></div>
-                        <div class="upload-card"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'budget')"></div>
+                        <div class="upload-card" data-type="shiire"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="uriageBaihen"><div class="icon">💰</div><div class="name">売上・売変</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="settings"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="budget"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls"></div>
                         <div class="upload-card"><div class="icon">🧾</div><div class="name">消耗品</div><input type="file" id="consumable-input" accept=".xlsx,.xls" multiple style="display:none" onchange="processConsumableFiles(this)"></div>
-                        <div class="upload-card"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanIn')"></div>
-                        <div class="upload-card"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanOut')"></div>
-                        <div class="upload-card"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'sanchoku')"></div>
-                        <div class="upload-card"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'hana')"></div>
+                        <div class="upload-card" data-type="tenkanIn"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="tenkanOut"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="sanchoku"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="hana"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls"></div>
                     </div>
                 </div>
                 <div class="sidebar-section">
