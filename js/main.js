@@ -12,6 +12,7 @@ import { calculator } from './services/database/calculationEngine.js';
 import { initDashboard } from './ui/dashboard.js';
 import { initSpreadsheetView } from './ui/spreadsheetView.js';
 import { initModernDashboard } from './ui/modernDashboard.js';
+import { initProfessionalDashboard } from './ui/dashboard/DashboardApp.js';
 import {
     initializeEventHandlers,
     setupGenerateHandler,
@@ -181,10 +182,10 @@ class App {
 
         content.innerHTML = createLoadingState('ダッシュボードを初期化中...');
 
-        // Initialize modern dashboard
+        // Initialize professional dashboard
         try {
-            await initModernDashboard('content');
-            console.log('✅ Modern dashboard initialized successfully');
+            await initProfessionalDashboard('content');
+            console.log('✅ Professional dashboard initialized successfully');
         } catch (err) {
             console.error('❌ Dashboard initialization failed:', err);
             content.innerHTML = createEmptyState(
