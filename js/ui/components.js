@@ -309,9 +309,14 @@ export function createTable(headers, rows, options = {}) {
  * @param {boolean} enabled - Whether button should be enabled
  */
 export function updateGenerateButton(enabled) {
-    const btn = document.getElementById('btn-generate');
-    if (btn) {
-        btn.disabled = !enabled;
+    const generateBtn = document.getElementById('btn-generate');
+    const spreadsheetBtn = document.getElementById('btn-spreadsheet');
+
+    if (generateBtn) {
+        generateBtn.disabled = !enabled;
+    }
+    if (spreadsheetBtn) {
+        spreadsheetBtn.disabled = !enabled;
     }
 }
 

@@ -497,6 +497,256 @@ export class CalculationEngine {
 
     return slope;
   }
+
+  // ========== 推定計算ロジック（参考HTML準拠） ==========
+
+  /**
+   * 推定在庫・推定粗利を計算（値引を考慮した高度な計算）
+   * @param {Object} params - 計算パラメータ
+   * @param {number} params.invStart - 期首在庫
+   * @param {number} params.totalCost - 総仕入高
+   * @param {number} params.totalSales - 総売上高
+   * @param {number} params.totalBaihen - 値引額合計
+   * @param {number} params.deliverySalesCost - 売上納品原価（花・産直）
+   * @param {number} params.deliverySalesPrice - 売上納品売価（花・産直）
+   * @param {number} params.totalConsumable - 消耗品合計
+   * @param {number} params.defaultMarginRate - デフォルト値入率
+   * @returns {Object} 推定計算結果
+   */
+  calculateEstimatedMetrics(params) {
+    const {
+      invStart = 0,
+      totalCost = 0,
+      totalSales = 0,
+      totalBaihen = 0,
+      deliverySalesCost = 0,
+      deliverySalesPrice = 0,
+      totalConsumable = 0,
+      defaultMarginRate = 0.26
+    } = params;
+
+    // === Step 1: 基本計算 ===
+
+    // コア売上（花・産直を除いた売上）
+    const coreSales = totalSales - deliverySalesPrice;
+
+    // コア仕入（花・産直・消耗品を除いた仕入）
+    const coreCost = totalCost - deliverySalesCost - totalConsumable;
+
+    // コア売価（仕入ファイルの売価）
+    const corePrice = totalCost - deliverySalesCost - totalConsumable; // 簡易実装
+
+    // === Step 2: 売変率（売価ベース）===
+
+    // グロス売上 = ネット売上 + 値引額
+    const totalGrossSales = totalSales + totalBaihen;
+
+    // 売変率（売価ベース）d = 値引額 / (売上 + 値引額)
+    const baihenRateSales = totalGrossSales > 0 ? totalBaihen / totalGrossSales : 0;
+
+    // === Step 3: コア値入率（売価ベース）===
+
+    // コア値入率 m = (売価 - 原価) / 売価
+    const coreMarginRate = corePrice > 0
+      ? (corePrice - coreCost) / corePrice
+      : defaultMarginRate;
+
+    // === Step 4: 推定売上原価の計算 ===
+
+    // コアグロス売上 = コアネット売上 / (1 - d)
+    const coreGrossSales = (1 - baihenRateSales) > 0
+      ? coreSales / (1 - baihenRateSales)
+      : coreSales;
+
+    // コア推定売上原価 = コアグロス売上 × (1 - m)
+    const coreEstCogs = coreGrossSales * (1 - coreMarginRate);
+
+    // 売上納品の売上原価（原価をそのまま使用）
+    const deliveryEstCogs = deliverySalesCost;
+
+    // 消耗品の売上原価
+    const consumableEstCogs = totalConsumable;
+
+    // 推定売上原価合計
+    const estimatedCogs = coreEstCogs + deliveryEstCogs + consumableEstCogs;
+
+    // === Step 5: 推定期末在庫 ===
+
+    // 推定期末在庫 = BI + P - COGS_est
+    const estimatedInvEnd = invStart + totalCost - estimatedCogs;
+
+    // === Step 6: 推定粗利 ===
+
+    // 推定粗利 = 売上 - 推定売上原価
+    const estimatedGrossProfit = totalSales - estimatedCogs;
+
+    // 推定粗利率
+    const estimatedGrossRate = totalSales > 0 ? estimatedGrossProfit / totalSales : 0;
+
+    // === Step 7: 推定粗利率（コア）===
+
+    // 推定粗利率（コア）= (m - d) / (1 - d)
+    const estimatedCoreGrossRate = (1 - baihenRateSales) > 0
+      ? (coreMarginRate - baihenRateSales) / (1 - baihenRateSales)
+      : coreMarginRate;
+
+    // === Step 8: 原価値引率 ===
+
+    // 原価値引率 = d / (1 - m + d)
+    const baihenRateCost = (1 - coreMarginRate + baihenRateSales) > 0
+      ? baihenRateSales / (1 - coreMarginRate + baihenRateSales)
+      : 0;
+
+    // === Step 9: 値引による原価損失 ===
+
+    // 値引原価損失 = (1 - m) × ネット売上 × d / (1 - d)
+    const baihenLossCost = (1 - coreMarginRate) * coreSales * baihenRateSales / (1 - baihenRateSales || 1);
+
+    // === Step 10: 値引なし理論在庫 ===
+
+    // 理論売上原価（値引なし）= ネット売上 × (1 - m) + 売上納品 + 消耗品
+    const theoryCogs = coreSales * (1 - coreMarginRate) + deliveryEstCogs + consumableEstCogs;
+
+    // 理論期末在庫 = BI + P - 理論COGS
+    const theoryInvEnd = invStart + totalCost - theoryCogs;
+
+    // 値引が在庫に与える影響
+    const baihenImpact = theoryInvEnd - estimatedInvEnd;
+
+    return {
+      // 基本データ
+      coreSales,
+      coreCost,
+      corePrice,
+      totalGrossSales,
+
+      // 売変率
+      baihenRateSales,
+      baihenRateCost,
+      baihenLossCost,
+      baihenImpact,
+
+      // 値入率
+      coreMarginRate,
+      deliveryMarginRate: deliverySalesPrice > 0
+        ? (deliverySalesPrice - deliverySalesCost) / deliverySalesPrice
+        : 0,
+
+      // 推定売上原価
+      coreEstCogs,
+      deliveryEstCogs,
+      consumableEstCogs,
+      estimatedCogs,
+
+      // 推定在庫
+      estimatedInvEnd,
+      theoryInvEnd,
+
+      // 推定粗利
+      estimatedGrossProfit,
+      estimatedGrossRate,
+      estimatedCoreGrossRate
+    };
+  }
+
+  /**
+   * 日別推定在庫を計算
+   * @param {Array} dailyData - 日別データ配列
+   * @param {number} invStart - 期首在庫
+   * @param {number} defaultMarginRate - デフォルト値入率
+   * @param {number} baihenRateSales - 売変率
+   * @returns {Array} 日別推定在庫データ
+   */
+  calculateDailyEstimatedInventory(dailyData, invStart, defaultMarginRate = 0.26, baihenRateSales = 0) {
+    let runningInv = invStart;
+    const result = [];
+
+    dailyData.forEach(dayData => {
+      const daySales = dayData.sales || 0;
+      const dayCost = dayData.cost || 0;
+
+      // 日次グロス売上
+      const dayGrossSales = (1 - baihenRateSales) > 0
+        ? daySales / (1 - baihenRateSales)
+        : daySales;
+
+      // 日次推定売上原価
+      const dayEstCogs = dayGrossSales * (1 - defaultMarginRate);
+
+      // 推定在庫 = 前日在庫 + 当日仕入 - 当日売上原価
+      runningInv = runningInv + dayCost - dayEstCogs;
+
+      result.push({
+        day: dayData.day,
+        inv: runningInv,
+        sales: daySales,
+        cost: dayCost,
+        estCogs: dayEstCogs,
+        grossSales: dayGrossSales
+      });
+    });
+
+    return result;
+  }
+
+  /**
+   * 週間予測を計算
+   * @param {Array} dailyData - 日別データ配列（過去データ）
+   * @param {number} daysToPredict - 予測日数
+   * @returns {Object} 週間予測結果
+   */
+  calculateWeeklyForecast(dailyData, daysToPredict = 7) {
+    if (dailyData.length === 0) {
+      return null;
+    }
+
+    // 平均日販
+    const avgDailySales = this._average(dailyData.map(d => d.sales || 0));
+
+    // トレンド（傾き）
+    const salesTrend = this._calculateTrend(dailyData.map(d => d.sales || 0));
+
+    // 予測売上
+    const forecastedSales = [];
+    for (let i = 0; i < daysToPredict; i++) {
+      const forecastValue = avgDailySales + salesTrend * (dailyData.length + i);
+      forecastedSales.push(Math.max(0, forecastValue)); // 負の値を防ぐ
+    }
+
+    return {
+      avgDailySales,
+      trend: salesTrend,
+      forecastedSales,
+      totalForecast: forecastedSales.reduce((sum, v) => sum + v, 0)
+    };
+  }
+
+  /**
+   * 予算達成に必要な日販を計算
+   * @param {number} totalSales - 現在の総売上
+   * @param {number} budget - 目標予算
+   * @param {number} elapsedDays - 経過日数
+   * @param {number} totalDays - 総日数（通常31日）
+   * @returns {Object} 必要日販情報
+   */
+  calculateRequiredDailySales(totalSales, budget, elapsedDays, totalDays = 31) {
+    const remainingBudget = Math.max(0, budget - totalSales);
+    const remainingDays = Math.max(1, totalDays - elapsedDays);
+    const requiredDailySales = remainingBudget / remainingDays;
+
+    const currentAchievement = budget > 0 ? totalSales / budget : 0;
+    const projectedSales = totalSales + (requiredDailySales * remainingDays);
+    const projectedAchievement = budget > 0 ? projectedSales / budget : 0;
+
+    return {
+      remainingBudget,
+      remainingDays,
+      requiredDailySales,
+      currentAchievement,
+      projectedSales,
+      projectedAchievement
+    };
+  }
 }
 
 /**

@@ -10,6 +10,10 @@
     <meta name="description" content="仕入粗利管理システム - 取引先別フォーマット v8 (リファクタリング版)">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/spreadsheet.css">
+    <link rel="stylesheet" href="css/modernDashboard.css">
+    <link rel="stylesheet" href="css/professionalDashboard.css">
     <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -37,16 +41,15 @@
                         <div class="drop-zone-hint">または下のカードをクリック</div>
                     </div>
                     <div class="upload-grid">
-                        <div class="upload-card"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'shiire')"></div>
-                        <div class="upload-card"><div class="icon">💰</div><div class="name">売上</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'uriage')"></div>
-                        <div class="upload-card"><div class="icon">📉</div><div class="name">売変</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'baihen')"></div>
-                        <div class="upload-card"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'settings')"></div>
-                        <div class="upload-card"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'budget')"></div>
+                        <div class="upload-card" data-type="shiire"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="uriageBaihen"><div class="icon">💰</div><div class="name">売上・売変</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="settings"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="budget"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls"></div>
                         <div class="upload-card"><div class="icon">🧾</div><div class="name">消耗品</div><input type="file" id="consumable-input" accept=".xlsx,.xls" multiple style="display:none" onchange="processConsumableFiles(this)"></div>
-                        <div class="upload-card"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanIn')"></div>
-                        <div class="upload-card"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'tenkanOut')"></div>
-                        <div class="upload-card"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'sanchoku')"></div>
-                        <div class="upload-card"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls" onchange="loadFile(this,'hana')"></div>
+                        <div class="upload-card" data-type="tenkanIn"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="tenkanOut"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="sanchoku"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls"></div>
+                        <div class="upload-card" data-type="hana"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls"></div>
                     </div>
                 </div>
                 <div class="sidebar-section">
@@ -79,6 +82,13 @@
                     </div>
                 </div>
                 <div class="sidebar-section">
+                    <div class="section-label">🗄️ データ管理</div>
+                    <button onclick="showDataManagementModal()" style="width:100%;padding:12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:8px;color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+                        <span>📊</span>
+                        <span>データベース管理</span>
+                    </button>
+                </div>
+                <div class="sidebar-section">
                     <div class="section-label">⚙️ 仕入先・帳合設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(クリックで開く)</span></div>
                     <button onclick="showSupplierSettingsModal()" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
                         <span>🏭</span> 仕入先別設定・帳合分類を編集
@@ -100,7 +110,8 @@
                     <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
                 </div>
                 <div class="sidebar-section">
-                    <button class="btn btn-primary" id="btn-generate" disabled>📊 フォーマット作成</button>
+                    <button class="btn btn-primary" id="btn-generate" disabled>📊 ダッシュボード表示</button>
+                    <button class="btn btn-secondary" id="btn-spreadsheet" onclick="showSpreadsheet()" disabled style="margin-top: 8px;">📋 スプレッドシート表示</button>
                     <button class="btn btn-success" id="btn-export" style="display:none;">📥 Excel出力</button>
                 </div>
             </div>
@@ -263,6 +274,60 @@
         </div>
     </div>
 
+    <!-- データ管理モーダル -->
+    <div id="data-management-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:900px;max-width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+            <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+                <span style="width:36px;height:36px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🗄️</span>
+                <div style="flex:1">
+                    <div style="font-size:1rem;font-weight:700">データベース管理</div>
+                    <div style="font-size:0.65rem;color:var(--text3)">IndexedDB に保存されているデータの確認・削除</div>
+                </div>
+                <button onclick="closeDataManagementModal()" style="width:32px;height:32px;background:var(--bg3);border:none;border-radius:6px;color:var(--text2);cursor:pointer;font-size:1rem">✕</button>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:20px" id="data-management-content">
+                <!-- データ管理コンテンツは JS で生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- デバッグパネル (開発用) -->
+    <div id="debug-panel" style="position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:320px;max-height:500px;overflow-y:auto;z-index:4000;box-shadow:0 4px 20px rgba(0,0,0,0.3)">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <span style="width:32px;height:32px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:8px;display:flex;align-items:center;justify-content:center">🛠️</span>
+            デバッグパネル
+        </div>
+
+        <!-- データ情報 -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">📊 データ情報</div>
+            <pre id="data-info" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text3);white-space:pre-wrap;margin:0">読込中...</pre>
+            <button id="refresh-info" style="width:100%;padding:6px;margin-top:8px;background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.65rem;cursor:pointer;font-family:inherit">🔄 更新</button>
+        </div>
+
+        <!-- データクリア -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">🗑️ データクリア</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <button id="clear-shiire" style="width:100%;padding:8px;background:var(--warning);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">📦 仕入データ削除</button>
+                <button id="clear-araki" style="width:100%;padding:8px;background:var(--warning);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">💰 荒利データ削除</button>
+                <button id="clear-all" style="width:100%;padding:8px;background:#f97316;border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">🗑️ 全データ削除</button>
+            </div>
+        </div>
+
+        <!-- 完全リセット -->
+        <div style="background:var(--bg3);border-radius:8px;padding:12px">
+            <div style="font-size:0.7rem;font-weight:600;margin-bottom:8px;color:var(--text2)">⚠️ 完全リセット</div>
+            <button id="reset-app" style="width:100%;padding:8px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:6px;color:white;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit">🔄 DB削除 + リロード</button>
+            <div style="margin-top:6px;font-size:0.6rem;color:var(--text4);text-align:center">データベースを削除してページをリロードします</div>
+        </div>
+    </div>
+
+    <!-- デバッグパネル トグルボタン -->
+    <button id="debug-toggle" style="position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:50%;color:white;font-size:1.3rem;cursor:pointer;z-index:4001;box-shadow:0 4px 12px rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center" title="開発用デバッグパネル">
+        🛠️
+    </button>
+
     <!-- Force Cache Clear for Updated Files -->
     <script>
         // Clear service workers
@@ -283,6 +348,9 @@
         console.log('🧹 Cache cleared - Loading fresh JavaScript modules');
         console.log('📦 Module version: 2.1 (2026-02-12)');
     </script>
+
+    <!-- Debug Panel (Development Only) -->
+    <script src="js/debugPanel.js?v=2.1&t=20260212"></script>
 
     <!-- Modular JavaScript Entry Point -->
     <script type="module" src="js/main.js?v=2.1&t=20260212"></script>

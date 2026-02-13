@@ -18,6 +18,7 @@ import {
     saveAllSettings
 } from './modals.js';
 import { updateStoreChips, updateStoreInventoryUI, updateGenerateButton } from './components.js';
+import { formatInput } from '../utils/helpers.js';
 
 /**
  * Initializes all event handlers
@@ -98,34 +99,31 @@ function setupStoreChipHandlers() {
  */
 function setupFileUploadHandlers() {
     // Individual file upload handlers
-    const uploadInputs = document.querySelectorAll('.upload-card input[type="file"]');
-    uploadInputs.forEach(input => {
-        const onchangeAttr = input.getAttribute('onchange');
-        if (onchangeAttr && onchangeAttr.includes('loadFile')) {
-            const typeMatch = onchangeAttr.match(/loadFile\(this,'(\w+)'\)/);
-            if (typeMatch) {
-                const type = typeMatch[1];
-                input.addEventListener('change', async function() {
-                    const file = this.files[0];
-                    if (!file) return;
+    const uploadCards = document.querySelectorAll('.upload-card[data-type]');
+    uploadCards.forEach(card => {
+        const input = card.querySelector('input[type="file"]');
+        const type = card.dataset.type;
 
-                    try {
-                        await loadFile(file, type);
-                        const card = this.closest('.upload-card');
-                        if (card) card.classList.add('loaded');
+        if (input && type) {
+            input.addEventListener('change', async function() {
+                const file = this.files[0];
+                if (!file) return;
 
-                        // Update UI components
-                        updateStoreChips();
-                        updateStoreInventoryUI();
+                try {
+                    await loadFile(file, type);
+                    card.classList.add('loaded');
 
-                        // Check if can generate
-                        const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
-                        updateGenerateButton(canGenerate);
-                    } catch (err) {
-                        console.error('File load error:', err);
-                    }
-                });
-            }
+                    // Update UI components
+                    updateStoreChips();
+                    updateStoreInventoryUI();
+
+                    // Check if can generate
+                    const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
+                    updateGenerateButton(canGenerate);
+                } catch (err) {
+                    console.error('File load error:', err);
+                }
+            });
         }
     });
 
@@ -229,7 +227,7 @@ function setupDropZoneHandler() {
         updateStoreInventoryUI();
 
         // Check if can generate
-        const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+        const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
         updateGenerateButton(canGenerate);
     });
 
@@ -247,7 +245,7 @@ function setupDropZoneHandler() {
             updateStoreInventoryUI();
 
             // Check if can generate
-            const canGenerate = appState.hasData('shiire') && appState.hasData('uriage');
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
             updateGenerateButton(canGenerate);
         };
 
@@ -332,4 +330,48 @@ export function cleanupInlineHandlers() {
             // Add more as needed
         }
     });
+}
+
+/**
+ * Setup global functions for file loading callbacks
+ * Exports functions to window for HTML inline event handlers
+ */
+export function setupFileLoadingGlobalFunctions() {
+    // Wrapper for loadFile that takes input element
+    window.loadFile = async function(inputElement, type) {
+        const file = inputElement.files?.[0];
+        if (!file) return;
+
+        try {
+            await loadFile(file, type);
+            const card = inputElement.closest('.upload-card');
+            if (card) card.classList.add('loaded');
+
+            // Update UI components
+            updateStoreChips();
+            updateStoreInventoryUI();
+
+            // Check if can generate
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
+            updateGenerateButton(canGenerate);
+        } catch (err) {
+            console.error('File load error:', err);
+        }
+    };
+
+    // Wrapper for processConsumableFiles
+    window.processConsumableFiles = function(inputElement) {
+        // Show modal instead of processing directly
+        showConsumableModal();
+    };
+
+    // Additional modal functions
+    window.selectConsumableFiles = function() {
+        document.getElementById('consumable-input')?.click();
+    };
+
+    window.closeConsumableModal = closeConsumableModal;
+
+    // Export utility functions
+    window.formatInput = formatInput;
 }

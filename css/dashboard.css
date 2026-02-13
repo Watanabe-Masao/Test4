@@ -29,6 +29,58 @@
   gap: 10px;
 }
 
+/* Export Dropdown */
+.export-dropdown {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 150px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s;
+  z-index: 1000;
+}
+
+.export-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.export-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.export-menu button:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.export-menu button:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.export-menu button:hover {
+  background: #f0f0f0;
+}
+
 /* Control Bar */
 .control-bar {
   display: flex;
@@ -158,10 +210,20 @@
   color: #333;
 }
 
+.card-detail {
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
+}
+
 .summary-card.sales .card-icon { color: #4CAF50; }
 .summary-card.profit .card-icon { color: #2196F3; }
 .summary-card.rate .card-icon { color: #FF9800; }
 .summary-card.cost .card-icon { color: #9C27B0; }
+.summary-card.estimated-inventory .card-icon { color: #00BCD4; }
+.summary-card.estimated-margin .card-icon { color: #E91E63; }
+.summary-card.baihen-rate .card-icon { color: #FFC107; }
+.summary-card.cost-discount .card-icon { color: #FF5722; }
 
 /* Charts */
 .charts-container {
@@ -222,6 +284,261 @@
 .category-value {
   font-size: 12px;
   color: #999;
+}
+
+/* Analysis Section */
+.analysis-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.analysis-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.analysis-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analysis-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.analysis-card .card-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.analysis-card .card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.analysis-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.large-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.metric-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-row.alert {
+  background: #fff3e0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-bottom: none;
+}
+
+.detail-row.alert .detail-label,
+.detail-row.alert .detail-value {
+  color: #f57c00;
+}
+
+.detail-row.success {
+  background: #e8f5e9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-bottom: none;
+  justify-content: center;
+}
+
+.detail-row.success .detail-label {
+  color: #2e7d32;
+}
+
+/* Budget Comparison Card States */
+.analysis-card.budget-comparison.on-track .large-metric {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.analysis-card.budget-comparison.on-track .metric-value {
+  color: #2e7d32;
+}
+
+.analysis-card.budget-comparison.behind .large-metric {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.analysis-card.budget-comparison.behind .metric-value {
+  color: #f57c00;
+}
+
+/* Forecast Card */
+.analysis-card.forecast .large-metric {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.analysis-card.forecast .metric-value {
+  color: #1976d2;
+}
+
+/* Required Sales Card */
+.analysis-card.required-sales.on-pace .large-metric {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.analysis-card.required-sales.on-pace .metric-value {
+  color: #2e7d32;
+}
+
+.analysis-card.required-sales.needs-increase .large-metric {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+}
+
+.analysis-card.required-sales.needs-increase .metric-value {
+  color: #c2185b;
+}
+
+/* Inventory Trend Chart */
+.inventory-trend-container {
+  width: 100%;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.legend-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #999;
+}
+
+.inventory-chart {
+  width: 100%;
+  height: 200px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.chart-content {
+  min-height: 400px;
+}
+
+.chart-table {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.chart-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.chart-table th,
+.chart-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.chart-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.chart-table .text-right {
+  text-align: right;
+}
+
+.chart-table .text-center {
+  text-align: center;
+  color: #999;
+  font-style: italic;
 }
 
 /* Data Table */
@@ -370,6 +687,10 @@
   }
 
   .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-cards {
     grid-template-columns: 1fr;
   }
 }

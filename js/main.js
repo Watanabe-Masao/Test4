@@ -8,11 +8,17 @@ import { loadAndApplyAllSettings, saveAllSettings } from './services/storageServ
 import { validateRequiredData } from './services/dataLoader.js';
 import { exportExcel } from './services/excelService.js';
 import { processConsumableFiles } from './services/dataLoader.js';
+import { calculator } from './services/database/calculationEngine.js';
+import { initDashboard } from './ui/dashboard.js';
+import { initSpreadsheetView } from './ui/spreadsheetView.js';
+import { initModernDashboard } from './ui/modernDashboard.js';
+import { initProfessionalDashboard } from './ui/dashboard/DashboardApp.js';
 import {
     initializeEventHandlers,
     setupGenerateHandler,
     setupExportHandler,
-    setupConsumableFileHandler
+    setupConsumableFileHandler,
+    setupFileLoadingGlobalFunctions
 } from './ui/eventHandlers.js';
 import {
     setupModalGlobalFunctions,
@@ -20,14 +26,19 @@ import {
     closeValidationModal
 } from './ui/modals.js';
 import {
+    showDataManagementModal,
+    closeDataManagementModal
+} from './ui/dataManagementModal.js';
+import {
     updateViewTabs,
     updateStatsRow,
     updateViewTitle,
     toggleExportButton,
+    updateGenerateButton,
     createLoadingState,
     createEmptyState
 } from './ui/components.js';
-import { initDatabase, showDatabaseInfo } from './services/database/index.js';
+import { initDatabase, showDatabaseInfo, DataRepository } from './services/database/index.js';
 
 /**
  * Application class
@@ -51,11 +62,17 @@ class App {
             await initDatabase();
             console.log('✅ Database initialized');
 
+            // Restore data from IndexedDB
+            await this.restoreDataFromDB();
+
             // Load saved settings
             loadAndApplyAllSettings();
 
             // Setup global functions for modals
             setupModalGlobalFunctions();
+
+            // Setup global functions for file loading
+            setupFileLoadingGlobalFunctions();
 
             // Initialize event handlers
             initializeEventHandlers();
@@ -83,6 +100,41 @@ class App {
     }
 
     /**
+     * Restores data from IndexedDB to appState
+     */
+    async restoreDataFromDB() {
+        try {
+            console.log('🔄 Restoring data from IndexedDB...');
+
+            // Restore shiire data
+            const shiireRepo = new DataRepository('shiire');
+            const shiireData = await shiireRepo.getAll();
+            if (shiireData && shiireData.length > 0) {
+                appState.setData('shiire', shiireData);
+                console.log(`✅ Restored ${shiireData.length} shiire records`);
+            }
+
+            // Restore uriage data
+            const uriageRepo = new DataRepository('uriage');
+            const uriageData = await uriageRepo.getAll();
+            if (uriageData && uriageData.length > 0) {
+                appState.setData('uriageBaihen', uriageData);
+                console.log(`✅ Restored ${uriageData.length} uriage records`);
+            }
+
+            // Update generate button state
+            const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
+            updateGenerateButton(canGenerate);
+
+            if (canGenerate) {
+                console.log('✅ Data restored - Generate button enabled');
+            }
+        } catch (error) {
+            console.warn('⚠️ Failed to restore data from IndexedDB:', error);
+        }
+    }
+
+    /**
      * Shows empty state
      */
     showEmptyState() {
@@ -91,7 +143,7 @@ class App {
             content.innerHTML = createEmptyState(
                 '📂',
                 'データファイルをアップロードしてください',
-                '左のパネルから「仕入」と「売上」ファイルを読み込むと、分析を開始できます'
+                '左のパネルから「仕入」と「売上・売変」ファイルを読み込むと、分析を開始できます'
             );
         }
 
@@ -123,31 +175,68 @@ class App {
 
         // Show loading state
         const content = document.getElementById('content');
-        if (content) {
-            content.innerHTML = createLoadingState('データ処理中...');
+        if (!content) {
+            console.error('Content container not found');
+            return;
         }
 
-        // Simulate processing (in real implementation, this would call the calculator)
-        setTimeout(() => {
-            try {
-                // This would be replaced with actual calculation logic
-                // For now, just show a placeholder
-                content.innerHTML = createEmptyState(
-                    '🔧',
-                    '計算エンジンは次のフェーズで実装予定',
-                    'Phase 3ではUI層のリファクタリングを完了しました。\n計算エンジンはPhase 4で実装されます。'
-                );
+        content.innerHTML = createLoadingState('ダッシュボードを初期化中...');
 
-                console.log('✅ Generation completed');
-            } catch (err) {
-                console.error('❌ Generation failed:', err);
-                content.innerHTML = createEmptyState(
-                    '❌',
-                    'エラーが発生しました',
-                    err.message
-                );
+        // Initialize professional dashboard
+        try {
+            await initProfessionalDashboard('content');
+            console.log('✅ Professional dashboard initialized successfully');
+        } catch (err) {
+            console.error('❌ Dashboard initialization failed:', err);
+            content.innerHTML = createEmptyState(
+                '❌',
+                'ダッシュボードの初期化に失敗しました',
+                err.message || '不明なエラーが発生しました'
+            );
+        }
+    }
+
+    /**
+     * Shows spreadsheet view
+     */
+    async showSpreadsheet() {
+        console.log('📊 Opening spreadsheet view...');
+
+        // Validate data
+        const validation = validateRequiredData();
+
+        if (!validation.isValid || validation.hasWarnings) {
+            showValidationModal(validation.warnings);
+
+            if (validation.hasErrors) {
+                return; // Stop if there are errors
             }
-        }, 500);
+
+            // If only warnings, allow user to proceed
+            return;
+        }
+
+        // Show loading state
+        const content = document.getElementById('content');
+        if (!content) {
+            console.error('Content container not found');
+            return;
+        }
+
+        content.innerHTML = createLoadingState('スプレッドシートを初期化中...');
+
+        // Initialize spreadsheet view
+        try {
+            await initSpreadsheetView('content');
+            console.log('✅ Spreadsheet view initialized successfully');
+        } catch (err) {
+            console.error('❌ Spreadsheet view initialization failed:', err);
+            content.innerHTML = createEmptyState(
+                '❌',
+                'スプレッドシートビューの初期化に失敗しました',
+                err.message || '不明なエラーが発生しました'
+            );
+        }
     }
 
     /**
@@ -221,5 +310,6 @@ if (document.readyState === 'loading') {
 // Export for global access if needed
 window.app = app;
 window.proceedWithWarnings = () => app.proceedWithWarnings();
+window.showSpreadsheet = () => app.showSpreadsheet();
 
 export default app;
