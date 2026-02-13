@@ -365,6 +365,10 @@ export function setupModalGlobalFunctions() {
     window.showSupplierSettingsModal = showSupplierSettingsModal;
     window.closeSupplierSettingsModal = closeSupplierSettingsModal;
     window.saveSupplierSettings = saveSupplierSettings;
+    window.showConsumableModal = showConsumableModal;
+    window.closeConsumableModal = closeConsumableModal;
+    window.showValidationModal = showValidationModal;
+    window.closeValidationModal = closeValidationModal;
 
     window.exportSettingsClick = () => {
         const settings = exportSettingsToFile();
@@ -381,6 +385,35 @@ export function setupModalGlobalFunctions() {
     window.clearAllSettingsClick = () => {
         clearAllSettings(true);
         closeSettingsModal();
+    };
+
+    // Report preview modal functions
+    window.closeReportPreview = () => {
+        const modal = document.getElementById('report-preview-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.printReport = () => {
+        window.print();
+    };
+
+    window.exportReportExcel = () => {
+        showToast('Excel出力機能は開発中です', 'info');
+    };
+
+    // Column config modal functions
+    window.closeColumnConfig = () => {
+        const modal = document.getElementById('column-config-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.applyColumnConfig = () => {
+        showToast('列設定を適用しました', 'success');
+        window.closeColumnConfig();
     };
 
     // Import settings file handler

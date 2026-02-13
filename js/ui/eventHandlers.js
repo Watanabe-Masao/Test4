@@ -18,6 +18,7 @@ import {
     saveAllSettings
 } from './modals.js';
 import { updateStoreChips, updateStoreInventoryUI, updateGenerateButton } from './components.js';
+import { formatInput } from '../utils/helpers.js';
 
 /**
  * Initializes all event handlers
@@ -370,4 +371,7 @@ export function setupFileLoadingGlobalFunctions() {
     };
 
     window.closeConsumableModal = closeConsumableModal;
+
+    // Export utility functions
+    window.formatInput = formatInput;
 }
