@@ -1,7 +1,7 @@
 /**
  * @file Professional Dashboard Application
  * @description Main orchestrator for the professional purchasing and profit management dashboard
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 import { DataRepository } from '../../services/database/repository.js';
@@ -27,7 +27,12 @@ export class DashboardApp {
         uriage: [],
         baihen: [],
         budget: [],
-        settings: []
+        settings: [],
+        tenkanIn: [],
+        tenkanOut: [],
+        sanchoku: [],
+        hana: [],
+        consumables: []
       },
       charts: {},
       isLoading: false
@@ -38,7 +43,12 @@ export class DashboardApp {
       uriage: new DataRepository('uriage'),
       baihen: new DataRepository('baihen'),
       budget: new DataRepository('budget'),
-      settings: new DataRepository('settings')
+      settings: new DataRepository('settings'),
+      tenkanIn: new DataRepository('tenkan_in'),
+      tenkanOut: new DataRepository('tenkan_out'),
+      sanchoku: new DataRepository('sanchoku'),
+      hana: new DataRepository('hana'),
+      consumables: new DataRepository('consumables')
     };
   }
 
@@ -93,9 +103,15 @@ export class DashboardApp {
     // If we already have data in the current range, keep it
     if (shiire.length > 0 || uriage.length > 0) return;
 
-    // Otherwise, find the actual date range from all data in repositories
-    // and reload with that range
-    const allData = [...(this._allShiire || []), ...(this._allUriage || [])];
+    // Gather dates from all data sources
+    const allData = [
+      ...(this._allShiire || []),
+      ...(this._allUriage || []),
+      ...(this._allTenkanIn || []),
+      ...(this._allTenkanOut || []),
+      ...(this._allSanchoku || []),
+      ...(this._allHana || [])
+    ];
     if (allData.length === 0) return;
 
     let minDate = Infinity, maxDate = -Infinity;
@@ -106,16 +122,16 @@ export class DashboardApp {
 
     if (minDate !== Infinity) {
       this.state.dateRange = { start: minDate, end: maxDate };
-      // Re-filter data with the new date range
-      this.state.data.shiire = (this._allShiire || []).filter(
-        item => item.date >= minDate && item.date <= maxDate
-      );
-      this.state.data.uriage = (this._allUriage || []).filter(
-        item => item.date >= minDate && item.date <= maxDate
-      );
-      this.state.data.baihen = (this._allBaihen || []).filter(
-        item => item.date >= minDate && item.date <= maxDate
-      );
+      const inRange = (item) => item.date >= minDate && item.date <= maxDate;
+      // Re-filter all data with the new date range
+      this.state.data.shiire = (this._allShiire || []).filter(inRange);
+      this.state.data.uriage = (this._allUriage || []).filter(inRange);
+      this.state.data.baihen = (this._allBaihen || []).filter(inRange);
+      this.state.data.tenkanIn = (this._allTenkanIn || []).filter(inRange);
+      this.state.data.tenkanOut = (this._allTenkanOut || []).filter(inRange);
+      this.state.data.sanchoku = (this._allSanchoku || []).filter(inRange);
+      this.state.data.hana = (this._allHana || []).filter(inRange);
+      this.state.data.consumables = (this._allConsumables || []).filter(inRange);
       console.log(`📅 Date range adjusted to: ${new Date(minDate).toLocaleDateString()} ~ ${new Date(maxDate).toLocaleDateString()}`);
     }
   }
@@ -126,28 +142,23 @@ export class DashboardApp {
    */
   async _loadData() {
     const { start, end } = this.state.dateRange;
+    const inRange = (item) => item.date >= start && item.date <= end;
 
     try {
       // Load purchasing data
       const shiireData = await this.repositories.shiire.getAll();
       this._allShiire = shiireData;
-      this.state.data.shiire = shiireData.filter(item =>
-        item.date >= start && item.date <= end
-      );
+      this.state.data.shiire = shiireData.filter(inRange);
 
       // Load sales data
       const uriageData = await this.repositories.uriage.getAll();
       this._allUriage = uriageData;
-      this.state.data.uriage = uriageData.filter(item =>
-        item.date >= start && item.date <= end
-      );
+      this.state.data.uriage = uriageData.filter(inRange);
 
       // Load discount data
       const baihenData = await this.repositories.baihen.getAll();
       this._allBaihen = baihenData;
-      this.state.data.baihen = baihenData.filter(item =>
-        item.date >= start && item.date <= end
-      );
+      this.state.data.baihen = baihenData.filter(inRange);
 
       // Load budget data
       this.state.data.budget = await this.repositories.budget.getAll();
@@ -155,17 +166,64 @@ export class DashboardApp {
       // Load settings
       this.state.data.settings = await this.repositories.settings.getAll();
 
+      // Load transfer data (店間入/出)
+      const tenkanInData = await this.repositories.tenkanIn.getAll();
+      this._allTenkanIn = tenkanInData;
+      this.state.data.tenkanIn = tenkanInData.filter(inRange);
+
+      const tenkanOutData = await this.repositories.tenkanOut.getAll();
+      this._allTenkanOut = tenkanOutData;
+      this.state.data.tenkanOut = tenkanOutData.filter(inRange);
+
+      // Load sanchoku data (産直)
+      const sanchokuData = await this.repositories.sanchoku.getAll();
+      this._allSanchoku = sanchokuData;
+      this.state.data.sanchoku = sanchokuData.filter(inRange);
+
+      // Load hana data (花)
+      const hanaData = await this.repositories.hana.getAll();
+      this._allHana = hanaData;
+      this.state.data.hana = hanaData.filter(inRange);
+
+      // Load consumables data (消耗品)
+      const consumablesData = await this.repositories.consumables.getAll();
+      this._allConsumables = consumablesData;
+      this.state.data.consumables = consumablesData.filter(inRange);
+
       console.log('✅ Data loaded:', {
         shiire: this.state.data.shiire.length,
         uriage: this.state.data.uriage.length,
         baihen: this.state.data.baihen.length,
         budget: this.state.data.budget.length,
-        settings: this.state.data.settings.length
+        settings: this.state.data.settings.length,
+        tenkanIn: this.state.data.tenkanIn.length,
+        tenkanOut: this.state.data.tenkanOut.length,
+        sanchoku: this.state.data.sanchoku.length,
+        hana: this.state.data.hana.length,
+        consumables: this.state.data.consumables.length
       });
     } catch (error) {
       console.error('Failed to load data:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get hana rate from sidebar input
+   * @private
+   */
+  _getHanaRate() {
+    const el = document.getElementById('hana-rate');
+    return el ? parseFloat(el.value) || 0.80 : 0.80;
+  }
+
+  /**
+   * Get sanchoku rate from sidebar input
+   * @private
+   */
+  _getSanchokuRate() {
+    const el = document.getElementById('sanchoku-rate');
+    return el ? parseFloat(el.value) || 0.85 : 0.85;
   }
 
   /**
@@ -251,16 +309,16 @@ export class DashboardApp {
   }
 
   /**
-   * Render dashboard content
+   * Render dashboard content (each section wrapped in try-catch for error isolation)
    * @private
    */
   _renderDashboard() {
-    this._renderDateRange();
-    this._renderStoreSelector();
-    this._renderKPICards();
-    this._renderPivotTable();
-    this._renderCharts();
-    this._renderBudgetProgress();
+    try { this._renderDateRange(); } catch (e) { console.error('DateRange render failed:', e); }
+    try { this._renderStoreSelector(); } catch (e) { console.error('StoreSelector render failed:', e); }
+    try { this._renderKPICards(); } catch (e) { console.error('KPI render failed:', e); }
+    try { this._renderPivotTable(); } catch (e) { console.error('PivotTable render failed:', e); }
+    try { this._renderCharts(); } catch (e) { console.error('Charts render failed:', e); }
+    try { this._renderBudgetProgress(); } catch (e) { console.error('BudgetProgress render failed:', e); }
   }
 
   /**
@@ -271,10 +329,14 @@ export class DashboardApp {
     const container = document.getElementById('store-selector');
     if (!container) return;
 
-    // Get unique stores from data
+    // Get unique stores from all data types
     const stores = new Set();
     this.state.data.shiire.forEach(item => stores.add(item.store));
     this.state.data.uriage.forEach(item => stores.add(item.store));
+    this.state.data.tenkanIn.forEach(item => stores.add(item.store));
+    this.state.data.tenkanOut.forEach(item => stores.add(item.store));
+    this.state.data.sanchoku.forEach(item => stores.add(item.store));
+    this.state.data.hana.forEach(item => stores.add(item.store));
 
     const storeArray = ['all', ...Array.from(stores).sort()];
     const selectedStores = this.state.selectedStores;
@@ -332,20 +394,28 @@ export class DashboardApp {
         color: 'blue'
       },
       {
-        title: '粗利額',
-        value: metrics.grossProfit,
+        title: '粗利額(算入前)',
+        value: metrics.grossProfitBefore,
         unit: '円',
         icon: '💎',
         trend: metrics.profitTrend,
         color: 'green'
       },
       {
-        title: '粗利率',
-        value: metrics.profitRate,
+        title: '粗利率(算入前)',
+        value: metrics.profitRateBefore,
         unit: '%',
         icon: '📊',
         trend: metrics.rateTrend,
         color: 'purple'
+      },
+      {
+        title: '粗利率(算入後)',
+        value: metrics.profitRateAfter,
+        unit: '%',
+        icon: '📊',
+        trend: 0,
+        color: 'indigo'
       },
       {
         title: '総仕入高',
@@ -356,20 +426,12 @@ export class DashboardApp {
         color: 'orange'
       },
       {
-        title: '推定在庫',
-        value: metrics.estimatedInventory,
+        title: '消耗品費',
+        value: metrics.totalConsumables,
         unit: '円',
-        icon: '🏪',
-        trend: metrics.inventoryTrend,
-        color: 'cyan'
-      },
-      {
-        title: '予算達成率',
-        value: metrics.budgetAchievement,
-        unit: '%',
-        icon: '🎯',
-        trend: metrics.achievementTrend,
-        color: 'pink'
+        icon: '🧾',
+        trend: 0,
+        color: 'yellow'
       },
       {
         title: '売変率',
@@ -377,7 +439,7 @@ export class DashboardApp {
         unit: '%',
         icon: '💸',
         trend: 0,
-        color: 'yellow'
+        color: 'pink'
       },
       {
         title: '日平均売上',
@@ -385,7 +447,7 @@ export class DashboardApp {
         unit: '円',
         icon: '📅',
         trend: 0,
-        color: 'indigo'
+        color: 'cyan'
       }
     ];
 
@@ -412,7 +474,7 @@ export class DashboardApp {
           <div class="kpi-value">${formattedValue}<span class="kpi-unit">${card.unit}</span></div>
           <div class="kpi-trend trend-${trendClass}">
             <span class="trend-icon">${trendIcon}</span>
-            <span class="trend-value">${Math.abs(card.trend).toFixed(1)}%</span>
+            <span class="trend-value">${Math.abs(card.trend || 0).toFixed(1)}%</span>
           </div>
         </div>
       </div>
@@ -420,13 +482,12 @@ export class DashboardApp {
   }
 
   /**
-   * Calculate metrics
+   * Calculate metrics including all data types
    * @private
    */
   _calculateMetrics() {
-    const { shiire, uriage, baihen, budget, settings } = this.state.data;
+    const { shiire, uriage, baihen, budget, settings, tenkanIn, tenkanOut, sanchoku, hana, consumables } = this.state.data;
 
-    // Filter by selected stores if not "all"
     const selectedStores = this.state.selectedStores;
     const filterByStore = (item) => {
       if (selectedStores.includes('all')) return true;
@@ -437,21 +498,53 @@ export class DashboardApp {
     const filteredUriage = uriage.filter(filterByStore);
     const filteredBaihen = baihen.filter(filterByStore);
     const filteredBudget = budget.filter(filterByStore);
+    const filteredTenkanIn = tenkanIn.filter(filterByStore);
+    const filteredTenkanOut = tenkanOut.filter(filterByStore);
+    const filteredSanchoku = sanchoku.filter(filterByStore);
+    const filteredHana = hana.filter(filterByStore);
+    const filteredConsumables = consumables.filter(filterByStore);
 
-    // Total sales
+    const hanaRate = this._getHanaRate();
+    const sanchokuRate = this._getSanchokuRate();
+
+    // Total sales from uriage
     const totalSales = filteredUriage.reduce((sum, item) => sum + (item.sales || 0), 0);
 
-    // Total purchase cost (COGS from shiire data)
-    const totalPurchase = filteredShiire.reduce((sum, item) => sum + (item.cost || 0), 0);
+    // Total purchase cost from shiire
+    const totalShiireCost = filteredShiire.reduce((sum, item) => sum + (item.cost || 0), 0);
 
-    // Gross profit = Sales - Purchase Cost
-    // 注: 実際の原価は仕入データから取得
-    const grossProfit = totalSales - totalPurchase;
+    // Transfer costs
+    const totalTenkanIn = filteredTenkanIn.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalTenkanOut = filteredTenkanOut.reduce((sum, item) => sum + (item.amount || 0), 0);
 
-    // Profit rate
-    const profitRate = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
+    // Sanchoku/Hana: cost = amount * rate (amount is selling price)
+    const totalSanchokuAmount = filteredSanchoku.reduce((sum, item) => sum + (item.amount || item.cost || 0), 0);
+    const totalSanchokuCost = totalSanchokuAmount * sanchokuRate;
+    const totalHanaAmount = filteredHana.reduce((sum, item) => sum + (item.amount || item.cost || 0), 0);
+    const totalHanaCost = totalHanaAmount * hanaRate;
 
-    // Baihen rate (discount rate)
+    // Consumables
+    const totalConsumables = filteredConsumables.reduce((sum, item) => sum + (item.cost || 0), 0);
+
+    // Total COGS (before consumables) = shiire + tenkanIn - tenkanOut + sanchokuCost + hanaCost
+    const totalCostBefore = totalShiireCost + totalTenkanIn - totalTenkanOut + totalSanchokuCost + totalHanaCost;
+
+    // Total COGS (after consumables)
+    const totalCostAfter = totalCostBefore + totalConsumables;
+
+    // Total selling price = shiire selling price + sanchoku amount + hana amount
+    const totalShiireAmount = filteredShiire.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalSellingPrice = totalShiireAmount + totalSanchokuAmount + totalHanaAmount;
+
+    // Gross profit
+    const grossProfitBefore = totalSellingPrice - totalCostBefore;
+    const grossProfitAfter = totalSellingPrice - totalCostAfter;
+
+    // Profit rates
+    const profitRateBefore = totalSellingPrice > 0 ? (grossProfitBefore / totalSellingPrice) * 100 : 0;
+    const profitRateAfter = totalSellingPrice > 0 ? (grossProfitAfter / totalSellingPrice) * 100 : 0;
+
+    // Baihen rate
     const totalBaihen = Math.abs(filteredBaihen.reduce((sum, item) => sum + (item.amount || 0), 0));
     const baihenRate = (totalSales + totalBaihen) > 0 ? (totalBaihen / (totalSales + totalBaihen)) * 100 : 0;
 
@@ -459,36 +552,28 @@ export class DashboardApp {
     const uniqueDays = new Set(filteredUriage.map(item => new Date(item.date).toDateString())).size;
     const avgDailySales = uniqueDays > 0 ? totalSales / uniqueDays : 0;
 
-    // Budget achievement
-    const totalBudget = filteredBudget.reduce((sum, item) => sum + (item.sales || 0), 0);
-    const budgetAchievement = totalBudget > 0 ? (totalSales / totalBudget) * 100 : 0;
-
-    // Estimated inventory
-    const openingInventory = settings
-      .filter(s => selectedStores.includes('all') || selectedStores.includes(s.store))
-      .reduce((sum, item) => sum + (item.openingInventory || 0), 0);
-    const estimatedInventory = openingInventory + totalPurchase - totalPurchase;
+    // Total purchase for display
+    const totalPurchase = totalCostBefore;
 
     return {
       totalSales,
-      grossProfit,
-      profitRate,
+      grossProfitBefore,
+      grossProfitAfter,
+      profitRateBefore,
+      profitRateAfter,
       totalPurchase,
-      estimatedInventory,
-      budgetAchievement,
+      totalConsumables,
       baihenRate,
       avgDailySales,
-      salesTrend: 5.2,
-      profitTrend: 3.8,
-      rateTrend: -0.5,
-      purchaseTrend: 2.1,
-      inventoryTrend: -1.2,
-      achievementTrend: 7.5
+      salesTrend: 0,
+      profitTrend: 0,
+      rateTrend: 0,
+      purchaseTrend: 0
     };
   }
 
   /**
-   * Render pivot table (日付別×帳合先別 with 原価/売価 sub-columns)
+   * Render pivot table (日付別×帳合先別 with 原価/売価 sub-columns + 店間/産直/花/消耗品)
    * @private
    */
   _renderPivotTable() {
@@ -503,7 +588,11 @@ export class DashboardApp {
       selectedStores.includes('all') || selectedStores.includes(item.store)
     );
 
-    if (filteredShiire.length === 0) {
+    if (filteredShiire.length === 0 &&
+        this.state.data.tenkanIn.length === 0 &&
+        this.state.data.tenkanOut.length === 0 &&
+        this.state.data.sanchoku.length === 0 &&
+        this.state.data.hana.length === 0) {
       container.innerHTML = '<div class="no-data">データがありません</div>';
       return;
     }
@@ -518,11 +607,17 @@ export class DashboardApp {
   }
 
   /**
-   * Render supplier-based pivot table (日付×帳合先 with 原価/売価)
+   * Render supplier-based pivot table with all data types
    * @private
    */
   _renderSupplierPivotHTML(data) {
-    // Collect unique suppliers
+    const selectedStores = this.state.selectedStores;
+    const storeFilter = (item) => selectedStores.includes('all') || selectedStores.includes(item.store);
+
+    const hanaRate = this._getHanaRate();
+    const sanchokuRate = this._getSanchokuRate();
+
+    // === Collect unique suppliers from shiire ===
     const supplierMap = new Map();
     data.forEach(item => {
       const key = item.supplier || 'unknown';
@@ -533,99 +628,238 @@ export class DashboardApp {
     const suppliers = Array.from(supplierMap.entries())
       .sort((a, b) => a[1].localeCompare(b[1], 'ja'));
 
-    // Collect unique dates (sorted)
+    // === Filter extra data by store ===
+    const tenkanIn = this.state.data.tenkanIn.filter(storeFilter);
+    const tenkanOut = this.state.data.tenkanOut.filter(storeFilter);
+    const sanchokuData = this.state.data.sanchoku.filter(storeFilter);
+    const hanaData = this.state.data.hana.filter(storeFilter);
+    const consumablesData = this.state.data.consumables.filter(storeFilter);
+
+    // === Determine which extra columns to show ===
+    const hasTenkanIn = tenkanIn.length > 0;
+    const hasTenkanOut = tenkanOut.length > 0;
+    const hasSanchoku = sanchokuData.length > 0;
+    const hasHana = hanaData.length > 0;
+    const hasConsumables = consumablesData.length > 0;
+
+    // === Collect unique dates (sorted) from all sources ===
     const dateSet = new Set();
     data.forEach(item => dateSet.add(item.date));
+    tenkanIn.forEach(item => dateSet.add(item.date));
+    tenkanOut.forEach(item => dateSet.add(item.date));
+    sanchokuData.forEach(item => dateSet.add(item.date));
+    hanaData.forEach(item => dateSet.add(item.date));
+    consumablesData.forEach(item => dateSet.add(item.date));
     const dates = Array.from(dateSet).sort((a, b) => a - b);
 
-    // Build data map: "date::supplier" -> { cost, amount }
-    const dataMap = new Map();
+    // === Build data maps ===
+    // Shiire: "date::supplier" -> { cost, amount }
+    const shiireMap = new Map();
     data.forEach(item => {
       const key = `${item.date}::${item.supplier || 'unknown'}`;
-      if (!dataMap.has(key)) {
-        dataMap.set(key, { cost: 0, amount: 0 });
-      }
-      const entry = dataMap.get(key);
+      if (!shiireMap.has(key)) shiireMap.set(key, { cost: 0, amount: 0 });
+      const entry = shiireMap.get(key);
       entry.cost += item.cost || 0;
       entry.amount += item.amount || 0;
     });
 
-    // --- Build HTML ---
+    // TenkanIn: "date" -> amount
+    const tenkanInMap = new Map();
+    tenkanIn.forEach(item => {
+      const key = item.date;
+      tenkanInMap.set(key, (tenkanInMap.get(key) || 0) + (item.amount || 0));
+    });
+
+    // TenkanOut: "date" -> amount
+    const tenkanOutMap = new Map();
+    tenkanOut.forEach(item => {
+      const key = item.date;
+      tenkanOutMap.set(key, (tenkanOutMap.get(key) || 0) + (item.amount || 0));
+    });
+
+    // Sanchoku: "date" -> amount (selling price)
+    const sanchokuMap = new Map();
+    sanchokuData.forEach(item => {
+      const key = item.date;
+      sanchokuMap.set(key, (sanchokuMap.get(key) || 0) + (item.amount || item.cost || 0));
+    });
+
+    // Hana: "date" -> amount (selling price)
+    const hanaMap = new Map();
+    hanaData.forEach(item => {
+      const key = item.date;
+      hanaMap.set(key, (hanaMap.get(key) || 0) + (item.amount || item.cost || 0));
+    });
+
+    // Consumables: "date" -> cost
+    const consumablesMap = new Map();
+    consumablesData.forEach(item => {
+      const key = item.date;
+      consumablesMap.set(key, (consumablesMap.get(key) || 0) + (item.cost || 0));
+    });
+
+    // === Build HTML ===
     let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
 
-    // Header row 1: Supplier names with colspan=2
+    // --- Header row 1: Category names ---
     html += '<thead><tr>';
     html += '<th rowspan="2" style="min-width:70px">日付</th>';
+
+    // Supplier headers
     suppliers.forEach(([code, name], idx) => {
-      const bgClass = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
-      html += `<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:${bgClass}">${name}</th>`;
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:${bg}">${name}</th>`;
     });
+
+    // Extra columns
+    if (hasTenkanIn) html += '<th rowspan="2" style="text-align:center;background:rgba(6,182,212,0.1);border-bottom:1px solid var(--bg-border)">📥 店間入</th>';
+    if (hasTenkanOut) html += '<th rowspan="2" style="text-align:center;background:rgba(239,68,68,0.08);border-bottom:1px solid var(--bg-border)">📤 店間出</th>';
+    if (hasSanchoku) html += '<th colspan="2" style="text-align:center;background:rgba(163,230,53,0.08);border-bottom:1px solid var(--bg-border)">🥬 産直</th>';
+    if (hasHana) html += '<th colspan="2" style="text-align:center;background:rgba(244,114,182,0.08);border-bottom:1px solid var(--bg-border)">🌸 花</th>';
+    if (hasConsumables) html += '<th rowspan="2" style="text-align:center;background:rgba(249,115,22,0.08);border-bottom:1px solid var(--bg-border)">🧾 消耗品</th>';
+
+    // Total header
     html += '<th colspan="2" style="text-align:center;border-bottom:1px solid var(--bg-border);background:var(--primary-blue);color:white">合計</th>';
     html += '</tr>';
 
-    // Header row 2: 原価/売価 sub-columns
+    // --- Header row 2: Sub-columns ---
     html += '<tr>';
     suppliers.forEach(([code, name], idx) => {
-      const bgClass = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
-      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bgClass}">原価</th>`;
-      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bgClass}">売価</th>`;
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bg}">原価</th>`;
+      html += `<th style="text-align:right;font-size:11px;padding:6px 10px;background:${bg}">売価</th>`;
     });
+    // TenkanIn/Out are single columns (rowspan=2), no sub-header
+    if (hasSanchoku) {
+      html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:rgba(163,230,53,0.06)">原価</th>';
+      html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:rgba(163,230,53,0.06)">売価</th>';
+    }
+    if (hasHana) {
+      html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:rgba(244,114,182,0.06)">原価</th>';
+      html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:rgba(244,114,182,0.06)">売価</th>';
+    }
+    // Consumables is single column (rowspan=2)
     html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">原価</th>';
     html += '<th style="text-align:right;font-size:11px;padding:6px 10px;background:var(--primary-blue);color:white">売価</th>';
     html += '</tr></thead>';
 
-    // Data rows
+    // --- Data rows ---
     html += '<tbody>';
+
+    // Accumulators for totals
     const supplierTotals = new Map();
     suppliers.forEach(([code]) => supplierTotals.set(code, { cost: 0, amount: 0 }));
-    let grandTotalCost = 0;
-    let grandTotalAmount = 0;
+    let totalTenkanInSum = 0, totalTenkanOutSum = 0;
+    let totalSanchokuAmount = 0, totalHanaAmount = 0;
+    let totalConsumablesSum = 0;
+    let grandTotalCost = 0, grandTotalAmount = 0;
+
+    const fmtNum = (v) => v ? Math.round(v).toLocaleString() : '';
 
     dates.forEach(date => {
       const d = new Date(date);
       const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
-      let rowCost = 0;
-      let rowAmount = 0;
+      let rowCost = 0, rowAmount = 0;
 
       html += '<tr>';
       html += `<td class="pivot-cell-dim pivot-cell-sticky">${dateStr}</td>`;
 
+      // Supplier columns
       suppliers.forEach(([code], idx) => {
         const key = `${date}::${code}`;
-        const val = dataMap.get(key) || { cost: 0, amount: 0 };
+        const val = shiireMap.get(key) || { cost: 0, amount: 0 };
         rowCost += val.cost;
         rowAmount += val.amount;
         const st = supplierTotals.get(code);
         st.cost += val.cost;
         st.amount += val.amount;
-
         const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.03)' : 'rgba(16,185,129,0.03)';
-        html += `<td class="pivot-cell-value" style="background:${bg}">${val.cost ? Math.round(val.cost).toLocaleString() : ''}</td>`;
-        html += `<td class="pivot-cell-value" style="background:${bg}">${val.amount ? Math.round(val.amount).toLocaleString() : ''}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${fmtNum(val.cost)}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${fmtNum(val.amount)}</td>`;
       });
+
+      // TenkanIn column
+      if (hasTenkanIn) {
+        const v = tenkanInMap.get(date) || 0;
+        totalTenkanInSum += v;
+        rowCost += v; // adds to cost
+        html += `<td class="pivot-cell-value" style="background:rgba(6,182,212,0.03)">${fmtNum(v)}</td>`;
+      }
+
+      // TenkanOut column
+      if (hasTenkanOut) {
+        const v = tenkanOutMap.get(date) || 0;
+        totalTenkanOutSum += v;
+        rowCost -= v; // subtracts from cost
+        html += `<td class="pivot-cell-value" style="background:rgba(239,68,68,0.03);color:var(--danger-red)">${v ? '-' + fmtNum(v) : ''}</td>`;
+      }
+
+      // Sanchoku columns
+      if (hasSanchoku) {
+        const sAmount = sanchokuMap.get(date) || 0;
+        const sCost = sAmount * sanchokuRate;
+        totalSanchokuAmount += sAmount;
+        rowCost += sCost;
+        rowAmount += sAmount;
+        html += `<td class="pivot-cell-value" style="background:rgba(163,230,53,0.03)">${fmtNum(sCost)}</td>`;
+        html += `<td class="pivot-cell-value" style="background:rgba(163,230,53,0.03)">${fmtNum(sAmount)}</td>`;
+      }
+
+      // Hana columns
+      if (hasHana) {
+        const hAmount = hanaMap.get(date) || 0;
+        const hCost = hAmount * hanaRate;
+        totalHanaAmount += hAmount;
+        rowCost += hCost;
+        rowAmount += hAmount;
+        html += `<td class="pivot-cell-value" style="background:rgba(244,114,182,0.03)">${fmtNum(hCost)}</td>`;
+        html += `<td class="pivot-cell-value" style="background:rgba(244,114,182,0.03)">${fmtNum(hAmount)}</td>`;
+      }
+
+      // Consumables column
+      if (hasConsumables) {
+        const cCost = consumablesMap.get(date) || 0;
+        totalConsumablesSum += cCost;
+        html += `<td class="pivot-cell-value" style="background:rgba(249,115,22,0.03)">${fmtNum(cCost)}</td>`;
+      }
 
       grandTotalCost += rowCost;
       grandTotalAmount += rowAmount;
 
-      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowCost ? Math.round(rowCost).toLocaleString() : ''}</td>`;
-      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowAmount ? Math.round(rowAmount).toLocaleString() : ''}</td>`;
+      // Row total
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${fmtNum(rowCost)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${fmtNum(rowAmount)}</td>`;
       html += '</tr>';
     });
 
-    // Total row
+    // === Total row ===
     html += '<tr class="pivot-row-total">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:var(--bg-hover);font-weight:700">合計</td>';
+
     suppliers.forEach(([code], idx) => {
       const st = supplierTotals.get(code);
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.08)' : 'rgba(16,185,129,0.08)';
-      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.cost ? Math.round(st.cost).toLocaleString() : ''}</td>`;
-      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.amount ? Math.round(st.amount).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${fmtNum(st.cost)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${fmtNum(st.amount)}</td>`;
     });
-    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandTotalCost).toLocaleString()}</td>`;
-    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandTotalAmount).toLocaleString()}</td>`;
+
+    if (hasTenkanIn) html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(6,182,212,0.06)">${fmtNum(totalTenkanInSum)}</td>`;
+    if (hasTenkanOut) html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(239,68,68,0.06);color:var(--danger-red)">-${fmtNum(totalTenkanOutSum)}</td>`;
+    if (hasSanchoku) {
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(163,230,53,0.06)">${fmtNum(totalSanchokuAmount * sanchokuRate)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(163,230,53,0.06)">${fmtNum(totalSanchokuAmount)}</td>`;
+    }
+    if (hasHana) {
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(244,114,182,0.06)">${fmtNum(totalHanaAmount * hanaRate)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(244,114,182,0.06)">${fmtNum(totalHanaAmount)}</td>`;
+    }
+    if (hasConsumables) html += `<td class="pivot-cell-value" style="font-weight:700;background:rgba(249,115,22,0.06)">${fmtNum(totalConsumablesSum)}</td>`;
+
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${fmtNum(grandTotalCost)}</td>`;
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${fmtNum(grandTotalAmount)}</td>`;
     html += '</tr>';
 
-    // Rate row (原価率 = 原価 / 売価 × 100)
+    // === Cost ratio row (原価率) ===
     html += '<tr class="pivot-row-rate">';
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(79,70,229,0.06);font-weight:700">原価率</td>';
     suppliers.forEach(([code], idx) => {
@@ -636,13 +870,21 @@ export class DashboardApp {
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
       html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
     });
+    // Extra columns get merged cells for rate display
+    const extraSingleCols = (hasTenkanIn ? 1 : 0) + (hasTenkanOut ? 1 : 0) + (hasConsumables ? 1 : 0);
+    const extraDoubleCols = (hasSanchoku ? 2 : 0) + (hasHana ? 2 : 0);
+    const extraColSpan = extraSingleCols + extraDoubleCols;
+    if (extraColSpan > 0) {
+      html += `<td class="pivot-cell-value" colspan="${extraColSpan}" style="text-align:center;color:var(--text-tertiary)">-</td>`;
+    }
     const totalRate = grandTotalAmount > 0 ? ((grandTotalCost / grandTotalAmount) * 100).toFixed(1) : '-';
     html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${totalRate}%</td>`;
     html += '</tr>';
 
-    // Profit rate row (粗利率 = (売価 - 原価) / 売価 × 100)
+    // === Gross profit rate BEFORE consumables (粗利率 算入前) ===
+    const costBeforeConsumables = grandTotalCost;
     html += '<tr class="pivot-row-rate">';
-    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(79,70,229,0.06);font-weight:700">粗利率</td>';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.08);font-weight:700">粗利率(算入前)</td>';
     suppliers.forEach(([code], idx) => {
       const st = supplierTotals.get(code);
       const rate = st.amount > 0 ? (((st.amount - st.cost) / st.amount) * 100).toFixed(1) : '-';
@@ -651,8 +893,28 @@ export class DashboardApp {
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
       html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
     });
-    const totalProfitRate = grandTotalAmount > 0 ? (((grandTotalAmount - grandTotalCost) / grandTotalAmount) * 100).toFixed(1) : '-';
-    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${totalProfitRate}%</td>`;
+    if (extraColSpan > 0) {
+      html += `<td class="pivot-cell-value" colspan="${extraColSpan}" style="text-align:center;color:var(--text-tertiary)">-</td>`;
+    }
+    const profitRateBefore = grandTotalAmount > 0 ? (((grandTotalAmount - costBeforeConsumables) / grandTotalAmount) * 100).toFixed(1) : '-';
+    const profitColorBefore = parseFloat(profitRateBefore) >= 25 ? 'var(--success-green)' : parseFloat(profitRateBefore) >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:${profitColorBefore}">${profitRateBefore}%</td>`;
+    html += '</tr>';
+
+    // === Gross profit rate AFTER consumables (粗利率 算入後) ===
+    const costAfterConsumables = grandTotalCost + totalConsumablesSum;
+    html += '<tr class="pivot-row-rate" style="background:rgba(16,185,129,0.12)">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.12);font-weight:700">粗利率(算入後)</td>';
+    suppliers.forEach(([code], idx) => {
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:var(--text-tertiary);background:${bg}">-</td>`;
+    });
+    if (extraColSpan > 0) {
+      html += `<td class="pivot-cell-value" colspan="${extraColSpan}" style="text-align:center;color:var(--text-tertiary)">-</td>`;
+    }
+    const profitRateAfter = grandTotalAmount > 0 ? (((grandTotalAmount - costAfterConsumables) / grandTotalAmount) * 100).toFixed(1) : '-';
+    const profitColorAfter = parseFloat(profitRateAfter) >= 25 ? 'var(--success-green)' : parseFloat(profitRateAfter) >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;font-size:14px;color:${profitColorAfter}">${profitRateAfter}%</td>`;
     html += '</tr>';
 
     html += '</tbody></table></div>';
@@ -664,27 +926,45 @@ export class DashboardApp {
    * @private
    */
   _renderStorePivotHTML(data) {
-    // Collect unique stores
+    const hanaRate = this._getHanaRate();
+    const sanchokuRate = this._getSanchokuRate();
+
+    // Collect unique stores from all data
     const storeSet = new Set();
     data.forEach(item => storeSet.add(item.store));
+    this.state.data.tenkanIn.forEach(item => storeSet.add(item.store));
+    this.state.data.tenkanOut.forEach(item => storeSet.add(item.store));
+    this.state.data.sanchoku.forEach(item => storeSet.add(item.store));
+    this.state.data.hana.forEach(item => storeSet.add(item.store));
+    this.state.data.consumables.forEach(item => storeSet.add(item.store));
     const stores = Array.from(storeSet).sort();
 
     // Collect unique dates
     const dateSet = new Set();
-    data.forEach(item => dateSet.add(item.date));
+    [data, this.state.data.tenkanIn, this.state.data.tenkanOut,
+     this.state.data.sanchoku, this.state.data.hana, this.state.data.consumables
+    ].forEach(arr => arr.forEach(item => dateSet.add(item.date)));
     const dates = Array.from(dateSet).sort((a, b) => a - b);
 
-    // Build data map: "date::store" -> { cost, amount }
-    const dataMap = new Map();
-    data.forEach(item => {
-      const key = `${item.date}::${item.store}`;
-      if (!dataMap.has(key)) {
-        dataMap.set(key, { cost: 0, amount: 0 });
-      }
-      const entry = dataMap.get(key);
-      entry.cost += item.cost || 0;
-      entry.amount += item.amount || 0;
-    });
+    // Build data maps: "date::store" -> { cost, amount }
+    const buildMap = (arr, getCost, getAmount) => {
+      const map = new Map();
+      arr.forEach(item => {
+        const key = `${item.date}::${item.store}`;
+        if (!map.has(key)) map.set(key, { cost: 0, amount: 0 });
+        const e = map.get(key);
+        e.cost += getCost(item);
+        e.amount += getAmount(item);
+      });
+      return map;
+    };
+
+    const shiireMap = buildMap(data, i => i.cost || 0, i => i.amount || 0);
+    const tenkanInMap = buildMap(this.state.data.tenkanIn, i => i.amount || 0, () => 0);
+    const tenkanOutMap = buildMap(this.state.data.tenkanOut, i => -(i.amount || 0), () => 0);
+    const sanchokuMap = buildMap(this.state.data.sanchoku, i => (i.amount || i.cost || 0) * sanchokuRate, i => i.amount || i.cost || 0);
+    const hanaMap = buildMap(this.state.data.hana, i => (i.amount || i.cost || 0) * hanaRate, i => i.amount || i.cost || 0);
+    const consumablesMap = buildMap(this.state.data.consumables, i => i.cost || 0, () => 0);
 
     let html = '<div class="pivot-table-wrapper"><table class="pivot-table">';
 
@@ -708,8 +988,9 @@ export class DashboardApp {
 
     html += '<tbody>';
     const storeTotals = new Map();
-    stores.forEach(s => storeTotals.set(s, { cost: 0, amount: 0 }));
-    let grandCost = 0, grandAmount = 0;
+    stores.forEach(s => storeTotals.set(s, { cost: 0, amount: 0, consumables: 0 }));
+    let grandCost = 0, grandAmount = 0, grandConsumables = 0;
+    const fmtNum = (v) => v ? Math.round(v).toLocaleString() : '';
 
     dates.forEach(date => {
       const d = new Date(date);
@@ -720,21 +1001,33 @@ export class DashboardApp {
       html += `<td class="pivot-cell-dim pivot-cell-sticky">${dateStr}</td>`;
 
       stores.forEach((store, idx) => {
-        const val = dataMap.get(`${date}::${store}`) || { cost: 0, amount: 0 };
-        rowCost += val.cost;
-        rowAmount += val.amount;
+        const key = `${date}::${store}`;
+        const shiire = shiireMap.get(key) || { cost: 0, amount: 0 };
+        const tIn = tenkanInMap.get(key) || { cost: 0, amount: 0 };
+        const tOut = tenkanOutMap.get(key) || { cost: 0, amount: 0 };
+        const san = sanchokuMap.get(key) || { cost: 0, amount: 0 };
+        const han = hanaMap.get(key) || { cost: 0, amount: 0 };
+        const con = consumablesMap.get(key) || { cost: 0, amount: 0 };
+
+        const totalCost = shiire.cost + tIn.cost + tOut.cost + san.cost + han.cost;
+        const totalAmount = shiire.amount + san.amount + han.amount;
+
+        rowCost += totalCost;
+        rowAmount += totalAmount;
         const st = storeTotals.get(store);
-        st.cost += val.cost;
-        st.amount += val.amount;
+        st.cost += totalCost;
+        st.amount += totalAmount;
+        st.consumables += con.cost;
+
         const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.03)' : 'rgba(16,185,129,0.03)';
-        html += `<td class="pivot-cell-value" style="background:${bg}">${val.cost ? Math.round(val.cost).toLocaleString() : ''}</td>`;
-        html += `<td class="pivot-cell-value" style="background:${bg}">${val.amount ? Math.round(val.amount).toLocaleString() : ''}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${fmtNum(totalCost)}</td>`;
+        html += `<td class="pivot-cell-value" style="background:${bg}">${fmtNum(totalAmount)}</td>`;
       });
 
       grandCost += rowCost;
       grandAmount += rowAmount;
-      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowCost ? Math.round(rowCost).toLocaleString() : ''}</td>`;
-      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${rowAmount ? Math.round(rowAmount).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${fmtNum(rowCost)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:600;color:var(--color-amber)">${fmtNum(rowAmount)}</td>`;
       html += '</tr>';
     });
 
@@ -743,12 +1036,44 @@ export class DashboardApp {
     html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:var(--bg-hover);font-weight:700">合計</td>';
     stores.forEach((store, idx) => {
       const st = storeTotals.get(store);
+      grandConsumables += st.consumables;
       const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.08)' : 'rgba(16,185,129,0.08)';
-      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.cost ? Math.round(st.cost).toLocaleString() : ''}</td>`;
-      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${st.amount ? Math.round(st.amount).toLocaleString() : ''}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${fmtNum(st.cost)}</td>`;
+      html += `<td class="pivot-cell-value" style="font-weight:700;background:${bg}">${fmtNum(st.amount)}</td>`;
     });
-    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandCost).toLocaleString()}</td>`;
-    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${Math.round(grandAmount).toLocaleString()}</td>`;
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${fmtNum(grandCost)}</td>`;
+    html += `<td class="pivot-cell-value" style="font-weight:700;color:var(--color-amber)">${fmtNum(grandAmount)}</td>`;
+    html += '</tr>';
+
+    // Profit rate before consumables
+    html += '<tr class="pivot-row-rate">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.08);font-weight:700">粗利率(算入前)</td>';
+    stores.forEach((store, idx) => {
+      const st = storeTotals.get(store);
+      const rate = st.amount > 0 ? (((st.amount - st.cost) / st.amount) * 100).toFixed(1) : '-';
+      const rateNum = st.amount > 0 ? ((st.amount - st.cost) / st.amount) * 100 : 0;
+      const color = rateNum >= 25 ? 'var(--success-green)' : rateNum >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
+    });
+    const profitBefore = grandAmount > 0 ? (((grandAmount - grandCost) / grandAmount) * 100).toFixed(1) : '-';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;color:var(--color-amber)">${profitBefore}%</td>`;
+    html += '</tr>';
+
+    // Profit rate after consumables
+    html += '<tr class="pivot-row-rate" style="background:rgba(16,185,129,0.12)">';
+    html += '<td class="pivot-cell-dim pivot-cell-sticky" style="background:rgba(16,185,129,0.12);font-weight:700">粗利率(算入後)</td>';
+    stores.forEach((store, idx) => {
+      const st = storeTotals.get(store);
+      const totalWithCon = st.cost + st.consumables;
+      const rate = st.amount > 0 ? (((st.amount - totalWithCon) / st.amount) * 100).toFixed(1) : '-';
+      const rateNum = st.amount > 0 ? ((st.amount - totalWithCon) / st.amount) * 100 : 0;
+      const color = rateNum >= 25 ? 'var(--success-green)' : rateNum >= 15 ? 'var(--warning-yellow)' : 'var(--danger-red)';
+      const bg = idx % 2 === 0 ? 'rgba(79,70,229,0.06)' : 'rgba(16,185,129,0.06)';
+      html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;color:${color};font-weight:700;background:${bg}">${rate}%</td>`;
+    });
+    const profitAfter = grandAmount > 0 ? (((grandAmount - grandCost - grandConsumables) / grandAmount) * 100).toFixed(1) : '-';
+    html += `<td class="pivot-cell-value" colspan="2" style="text-align:center;font-weight:700;font-size:14px;color:var(--color-amber)">${profitAfter}%</td>`;
     html += '</tr>';
 
     html += '</tbody></table></div>';
@@ -861,7 +1186,8 @@ export class DashboardApp {
 
     const metrics = this._calculateMetrics();
 
-    const achievement = Math.min(metrics.budgetAchievement, 150);
+    const budgetTotal = this.state.data.budget.reduce((sum, item) => sum + (item.sales || 0), 0);
+    const achievement = budgetTotal > 0 ? Math.min((metrics.totalSales / budgetTotal) * 100, 150) : 0;
     const color = achievement >= 100 ? '#10B981' : achievement >= 80 ? '#F59E0B' : '#EF4444';
 
     container.innerHTML = `
@@ -879,7 +1205,7 @@ export class DashboardApp {
       <div class="budget-details">
         <div class="budget-row">
           <span>予算:</span>
-          <span>${this.state.data.budget.reduce((sum, item) => sum + item.sales, 0).toLocaleString('ja-JP')}円</span>
+          <span>${budgetTotal.toLocaleString('ja-JP')}円</span>
         </div>
         <div class="budget-row">
           <span>実績:</span>
@@ -935,8 +1261,8 @@ export class DashboardApp {
     sortedDates.forEach(timestamp => {
       const date = new Date(timestamp).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
 
-      const dayShiire = shiire.filter(item => item.date === timestamp).reduce((sum, item) => sum + item.cost, 0);
-      const dayUriage = uriage.filter(item => item.date === timestamp).reduce((sum, item) => sum + item.cost, 0);
+      const dayShiire = shiire.filter(item => item.date === timestamp).reduce((sum, item) => sum + (item.cost || 0), 0);
+      const dayUriage = uriage.filter(item => item.date === timestamp).reduce((sum, item) => sum + (item.cost || 0), 0);
 
       inventory += dayShiire - dayUriage;
 
@@ -1060,7 +1386,7 @@ export class DashboardApp {
   destroy() {
     Object.values(this.state.charts).forEach(chart => {
       if (chart && chart.destroy) {
-        chart.destroy();
+        try { chart.destroy(); } catch (e) { /* ignore */ }
       }
     });
 
