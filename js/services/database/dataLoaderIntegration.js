@@ -159,12 +159,19 @@ export function convertBaihenData(rawData) {
 /**
  * 売上・売変統合データを変換
  *
- * データ形式(3行ヘッダー):
- *   行1: 【店舗】       【店舗】     【店舗】     ...
- *   行2: 0001:名前     0001:名前    0006:名前    0006:名前    ...
- *   行3: 販売金額      売変合計金額  販売金額     売変合計金額 ...
- *   行4: 【期間別】    (空)         (空)         (空)        ...
- *   行5+: 日付         金額1        金額2        金額3       ...
+ * ヘッダー自動検出:
+ *   形式A (2行ヘッダー):
+ *     行0: 【店舗】  【店舗】  0001:名前  0001:名前  0006:名前 ...
+ *     行1: 販売金額  売変合計  販売金額   売変合計   販売金額  ...
+ *     行2: 【期間別】(合計値)
+ *     行3+: 日付     金額     金額       金額       金額     ...
+ *
+ *   形式B (3行ヘッダー):
+ *     行0: 【店舗】       【店舗】     【店舗】     ...
+ *     行1: 0001:名前     0001:名前    0006:名前    ...
+ *     行2: 販売金額      売変合計金額  販売金額     ...
+ *     行3: 【期間別】    (空)         (空)        ...
+ *     行4+: 日付         金額1        金額2       ...
  *
  * @param {Array} rawData - Excelから読み込んだ生データ
  * @returns {Object} { uriage: [], baihen: [] } 両方のデータを含むオブジェクト
@@ -173,26 +180,49 @@ export function convertUriageBaihenData(rawData) {
   console.log('🔍 convertUriageBaihenData called');
   console.log(`📊 Raw data length: ${rawData?.length || 0}`);
 
-  if (!rawData || rawData.length < 5) {
-    console.warn('⚠️ Raw data is empty or too short (need at least 5 rows)');
+  if (!rawData || rawData.length < 4) {
+    console.warn('⚠️ Raw data is empty or too short (need at least 4 rows)');
     return { uriage: [], baihen: [] };
   }
 
-  const row1 = rawData[0]; // 【店舗】
-  const row2 = rawData[1]; // 店舗コード:名前
-  const row3 = rawData[2]; // 販売金額 / 売変合計金額
-  // row4 = 【期間別】 (スキップ)
-  const dataStartRow = 4;
+  console.log('📋 Header row 0:', rawData[0]);
+  console.log('📋 Header row 1:', rawData[1]);
+  console.log('📋 Header row 2:', rawData[2]);
 
-  console.log('📋 Header row 1:', row1);
-  console.log('📋 Header row 2:', row2);
-  console.log('📋 Header row 3:', row3);
+  // ヘッダー形式を自動検出
+  // rawData[1]にタイプラベル（販売/売変）があれば形式A、なければ形式B
+  let storeRow, typeRow, dataStartRow;
+
+  const row1Sample = String(rawData[1][1] || '');
+  const isFormatA = row1Sample.includes('販売') || row1Sample.includes('売変') || row1Sample.includes('売上');
+
+  if (isFormatA) {
+    // 形式A: 2行ヘッダー（店舗コードはrow0、タイプラベルはrow1）
+    storeRow = rawData[0];
+    typeRow = rawData[1];
+    // 【期間別】行を探してスキップ
+    dataStartRow = 2;
+    for (let i = 2; i < Math.min(rawData.length, 6); i++) {
+      const firstCell = String(rawData[i][0] || '');
+      if (firstCell.includes('期間別') || firstCell.includes('期間')) {
+        dataStartRow = i + 1;
+        break;
+      }
+    }
+    console.log('📋 Detected Format A (2-row header), dataStartRow:', dataStartRow);
+  } else {
+    // 形式B: 3行ヘッダー（店舗コードはrow1、タイプラベルはrow2）
+    storeRow = rawData[1];
+    typeRow = rawData[2];
+    dataStartRow = 4;
+    console.log('📋 Detected Format B (3-row header), dataStartRow:', dataStartRow);
+  }
 
   // 列情報を解析
   const columns = [];
-  for (let col = 1; col < row2.length; col++) {
-    const storeStr = String(row2[col] || '');
-    const typeStr = String(row3[col] || '');
+  for (let col = 1; col < storeRow.length; col++) {
+    const storeStr = String(storeRow[col] || '');
+    const typeStr = String(typeRow[col] || '');
 
     // 店舗コードを抽出
     const stoMatch = storeStr.match(/(\d{4})/);

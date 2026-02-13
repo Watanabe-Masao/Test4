@@ -47,6 +47,7 @@ class App {
     constructor() {
         this.initialized = false;
         this.dashboardInstance = null;
+        this._generating = false;
     }
 
     /**
@@ -186,6 +187,12 @@ class App {
      * @param {boolean} skipValidation - Skip validation (used when proceeding with warnings)
      */
     async generate(skipValidation = false) {
+        // Guard against concurrent calls
+        if (this._generating) {
+            console.log('⏳ Generation already in progress, skipping...');
+            return;
+        }
+
         console.log('📊 Starting data generation...');
 
         // Validate data
@@ -197,16 +204,20 @@ class App {
                 return; // Stop if there are errors
             }
 
+            // Only block on actual warnings, not info messages
             if (validation.hasWarnings) {
                 showValidationModal(validation.warnings);
                 return; // Show warnings, user can click proceed
             }
         }
 
+        this._generating = true;
+
         // Show loading state
         const content = document.getElementById('content');
         if (!content) {
             console.error('Content container not found');
+            this._generating = false;
             return;
         }
 
@@ -222,6 +233,7 @@ class App {
         try {
             this.dashboardInstance = await initProfessionalDashboard('content');
             appState.setCurrentView('dashboard');
+            updateViewTitle('📊 ダッシュボード');
             console.log('✅ Professional dashboard initialized successfully');
         } catch (err) {
             console.error('❌ Dashboard initialization failed:', err);
@@ -230,6 +242,8 @@ class App {
                 'ダッシュボードの初期化に失敗しました',
                 err.message || '不明なエラーが発生しました'
             );
+        } finally {
+            this._generating = false;
         }
     }
 
@@ -315,12 +329,21 @@ class App {
         }
 
         if (currentView === 'dashboard') {
-            // Re-initialize the professional dashboard
-            if (!this.dashboardInstance) {
-                this.generate(true);
+            // Check if dashboard DOM still exists (might be destroyed by tab switch)
+            const dashboardEl = document.querySelector('.professional-dashboard');
+            if (!this.dashboardInstance || !dashboardEl) {
+                if (!this._generating) {
+                    this.generate(true);
+                }
             }
             // If dashboard already exists, do nothing (keep it as-is)
             return;
+        }
+
+        // Switching away from dashboard - destroy instance so it can be recreated later
+        if (this.dashboardInstance) {
+            try { this.dashboardInstance.destroy(); } catch (e) { /* ignore */ }
+            this.dashboardInstance = null;
         }
 
         // For other views, show a coming-soon placeholder
