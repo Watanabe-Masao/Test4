@@ -29,6 +29,58 @@
   gap: 10px;
 }
 
+/* Export Dropdown */
+.export-dropdown {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 150px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s;
+  z-index: 1000;
+}
+
+.export-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.export-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.export-menu button:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.export-menu button:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.export-menu button:hover {
+  background: #f0f0f0;
+}
+
 /* Control Bar */
 .control-bar {
   display: flex;

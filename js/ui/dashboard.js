@@ -151,9 +151,15 @@ export class Dashboard {
       <div class="dashboard-header">
         <h1>📊 粗利ダッシュボード</h1>
         <div class="header-actions">
-          <button class="btn btn-primary" onclick="dashboard.exportReport()">
-            📤 エクスポート
-          </button>
+          <div class="export-dropdown">
+            <button class="btn btn-primary" id="export-btn">
+              📤 エクスポート ▼
+            </button>
+            <div class="export-menu" id="export-menu">
+              <button onclick="dashboard.exportReport('json')">JSON形式</button>
+              <button onclick="dashboard.exportReport('csv')">CSV形式</button>
+            </div>
+          </div>
           <button class="btn btn-secondary" onclick="dashboard.refresh()">
             🔄 更新
           </button>
@@ -701,6 +707,27 @@ export class Dashboard {
         this.changeView(view);
       });
     });
+
+    // エクスポートドロップダウン
+    const exportBtn = document.getElementById('export-btn');
+    const exportMenu = document.getElementById('export-menu');
+
+    if (exportBtn && exportMenu) {
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.classList.toggle('show');
+      });
+
+      // メニュー外クリックで閉じる
+      document.addEventListener('click', () => {
+        exportMenu.classList.remove('show');
+      });
+
+      exportMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.classList.remove('show');
+      });
+    }
   }
 
   /**
@@ -773,20 +800,158 @@ export class Dashboard {
   /**
    * レポートをエクスポート
    */
-  async exportReport() {
+  async exportReport(format = 'json') {
     try {
-      const report = reportGenerator.formatReport(this.data, 'json');
-      const blob = new Blob([report], { type: 'application/json' });
+      // エクスポート用の完全なレポートデータを作成
+      const fullReport = {
+        period: this._formatCurrentPeriod(),
+        viewType: this.currentView,
+        store: this.selectedStore || '全店舗',
+        generatedAt: new Date().toISOString(),
+        summary: {
+          sales: this.data.sales || 0,
+          cost: this.data.cost?.adjusted || this.data.cost?.original || 0,
+          profit: this.data.profit?.actual || this.data.profit || 0,
+          profitRate: this.data.profit?.rate || 0
+        },
+        estimated: this.data.estimated || null,
+        analysis: this._getAnalysisData(),
+        dailyData: this.data.dailyData || [],
+        estimatedInventoryTrend: this.data.estimatedInventoryTrend || []
+      };
+
+      let reportContent, mimeType, extension;
+
+      switch (format) {
+        case 'csv':
+          reportContent = this._generateCSVReport(fullReport);
+          mimeType = 'text/csv';
+          extension = 'csv';
+          break;
+
+        case 'json':
+        default:
+          reportContent = JSON.stringify(fullReport, null, 2);
+          mimeType = 'application/json';
+          extension = 'json';
+          break;
+      }
+
+      const blob = new Blob([reportContent], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `report_${this._formatCurrentPeriod()}.json`;
+      a.download = `report_${this._formatCurrentPeriod()}.${extension}`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export failed:', error);
       alert('エクスポートに失敗しました');
     }
+  }
+
+  /**
+   * 分析データを取得
+   * @private
+   */
+  _getAnalysisData() {
+    if (this.currentView !== 'monthly' || !this.data.dailyData) {
+      return null;
+    }
+
+    const dailyData = this.data.dailyData;
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth() + 1;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const elapsedDays = dailyData.length;
+    const monthlyBudget = this.data.sales * 1.1;
+
+    const weeklyForecast = calculator.calculateWeeklyForecast(dailyData, 7);
+    const requiredDailySales = calculator.calculateRequiredDailySales(
+      this.data.sales,
+      monthlyBudget,
+      elapsedDays,
+      daysInMonth
+    );
+
+    return {
+      weeklyForecast,
+      requiredDailySales,
+      budget: monthlyBudget
+    };
+  }
+
+  /**
+   * CSVレポートを生成
+   * @private
+   */
+  _generateCSVReport(report) {
+    let csv = '';
+
+    // ヘッダー情報
+    csv += `粗利ダッシュボードレポート\n`;
+    csv += `期間,${report.period}\n`;
+    csv += `ビュー,${report.viewType}\n`;
+    csv += `店舗,${report.store}\n`;
+    csv += `生成日時,${new Date(report.generatedAt).toLocaleString('ja-JP')}\n`;
+    csv += `\n`;
+
+    // サマリー
+    csv += `サマリー\n`;
+    csv += `項目,金額\n`;
+    csv += `売上,${report.summary.sales}\n`;
+    csv += `原価,${report.summary.cost}\n`;
+    csv += `粗利,${report.summary.profit}\n`;
+    csv += `粗利率,${report.summary.profitRate}%\n`;
+    csv += `\n`;
+
+    // 推定計算（月次のみ）
+    if (report.estimated) {
+      csv += `推定計算\n`;
+      csv += `項目,値\n`;
+      csv += `推定期末在庫,${report.estimated.estimatedInvEnd}\n`;
+      csv += `推定粗利率,${(report.estimated.estimatedGrossRate * 100).toFixed(2)}%\n`;
+      csv += `売変率,${(report.estimated.baihenRateSales * 100).toFixed(2)}%\n`;
+      csv += `原価値引率,${(report.estimated.baihenRateCost * 100).toFixed(2)}%\n`;
+      csv += `値引損失,${report.estimated.baihenLossCost}\n`;
+      csv += `推定粗利,${report.estimated.estimatedGrossProfit}\n`;
+      csv += `\n`;
+    }
+
+    // 分析データ（月次のみ）
+    if (report.analysis) {
+      csv += `分析・予測\n`;
+      csv += `項目,値\n`;
+      csv += `予算達成率,${(report.analysis.requiredDailySales.currentAchievement * 100).toFixed(2)}%\n`;
+      csv += `残り予算,${report.analysis.requiredDailySales.remainingBudget}\n`;
+      csv += `必要日販,${report.analysis.requiredDailySales.requiredDailySales}\n`;
+      csv += `平均日販,${report.analysis.weeklyForecast.avgDailySales}\n`;
+      csv += `7日間予測,${report.analysis.weeklyForecast.totalForecast}\n`;
+      csv += `\n`;
+    }
+
+    // 日別データ
+    if (report.dailyData && report.dailyData.length > 0) {
+      csv += `日別データ\n`;
+      csv += `日付,売上,原価,粗利,粗利率\n`;
+      report.dailyData.forEach(day => {
+        const date = new Date(day.date).toLocaleDateString('ja-JP');
+        csv += `${date},${day.sales || 0},${day.cost?.adjusted || 0},${day.profit?.actual || 0},${day.profit?.rate || 0}%\n`;
+      });
+      csv += `\n`;
+    }
+
+    // 推定在庫推移
+    if (report.estimatedInventoryTrend && report.estimatedInventoryTrend.length > 0) {
+      csv += `推定在庫推移\n`;
+      csv += `日付,推定在庫,推定売上原価\n`;
+      report.estimatedInventoryTrend.forEach(item => {
+        const date = new Date(item.date).toLocaleDateString('ja-JP');
+        csv += `${date},${item.estimatedInventory},${item.estimatedCogs}\n`;
+      });
+    }
+
+    return csv;
   }
 
   /**
