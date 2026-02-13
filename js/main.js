@@ -10,6 +10,7 @@ import { exportExcel } from './services/excelService.js';
 import { processConsumableFiles } from './services/dataLoader.js';
 import { calculator } from './services/database/calculationEngine.js';
 import { initDashboard } from './ui/dashboard.js';
+import { initSpreadsheetView } from './ui/spreadsheetView.js';
 import {
     initializeEventHandlers,
     setupGenerateHandler,
@@ -195,6 +196,49 @@ class App {
     }
 
     /**
+     * Shows spreadsheet view
+     */
+    async showSpreadsheet() {
+        console.log('📊 Opening spreadsheet view...');
+
+        // Validate data
+        const validation = validateRequiredData();
+
+        if (!validation.isValid || validation.hasWarnings) {
+            showValidationModal(validation.warnings);
+
+            if (validation.hasErrors) {
+                return; // Stop if there are errors
+            }
+
+            // If only warnings, allow user to proceed
+            return;
+        }
+
+        // Show loading state
+        const content = document.getElementById('content');
+        if (!content) {
+            console.error('Content container not found');
+            return;
+        }
+
+        content.innerHTML = createLoadingState('スプレッドシートを初期化中...');
+
+        // Initialize spreadsheet view
+        try {
+            await initSpreadsheetView('content');
+            console.log('✅ Spreadsheet view initialized successfully');
+        } catch (err) {
+            console.error('❌ Spreadsheet view initialization failed:', err);
+            content.innerHTML = createEmptyState(
+                '❌',
+                'スプレッドシートビューの初期化に失敗しました',
+                err.message || '不明なエラーが発生しました'
+            );
+        }
+    }
+
+    /**
      * Exports data to Excel
      */
     exportData() {
@@ -265,5 +309,6 @@ if (document.readyState === 'loading') {
 // Export for global access if needed
 window.app = app;
 window.proceedWithWarnings = () => app.proceedWithWarnings();
+window.showSpreadsheet = () => app.showSpreadsheet();
 
 export default app;

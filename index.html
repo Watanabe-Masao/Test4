@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/spreadsheet.css">
     <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -107,7 +108,8 @@
                     <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
                 </div>
                 <div class="sidebar-section">
-                    <button class="btn btn-primary" id="btn-generate" disabled>📊 フォーマット作成</button>
+                    <button class="btn btn-primary" id="btn-generate" disabled>📊 ダッシュボード表示</button>
+                    <button class="btn btn-secondary" id="btn-spreadsheet" onclick="showSpreadsheet()" disabled style="margin-top: 8px;">📋 スプレッドシート表示</button>
                     <button class="btn btn-success" id="btn-export" style="display:none;">📥 Excel出力</button>
                 </div>
             </div>
