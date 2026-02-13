@@ -46,6 +46,7 @@ export class Dashboard {
           ${this._createHeader()}
           ${this._createControlBar()}
           ${this._createSummaryCards()}
+          ${this._createAnalysisSection()}
           ${this._createCharts()}
           ${this._createDataTable()}
         </div>
@@ -287,6 +288,177 @@ export class Dashboard {
 
     cardsHtml += `</div>`;
     return cardsHtml;
+  }
+
+  /**
+   * 分析セクションを作成
+   * @private
+   */
+  _createAnalysisSection() {
+    // 月次ビューでデータがある場合のみ表示
+    if (this.currentView !== 'monthly' || !this.data || !this.data.dailyData) {
+      return '';
+    }
+
+    const dailyData = this.data.dailyData;
+    const currentDate = new Date();
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth() + 1;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const elapsedDays = dailyData.length;
+
+    // 予算データ（仮）- 実際は設定から取得すべき
+    const monthlyBudget = this.data.sales * 1.1; // 現在の売上の110%を仮の予算とする
+
+    // 週次予測を計算
+    const weeklyForecast = calculator.calculateWeeklyForecast(dailyData, 7);
+
+    // 必要日商を計算
+    const requiredDailySales = calculator.calculateRequiredDailySales(
+      this.data.sales,
+      monthlyBudget,
+      elapsedDays,
+      daysInMonth
+    );
+
+    return `
+      <div class="analysis-section">
+        <h2 class="section-title">📊 分析・予測</h2>
+        <div class="analysis-cards">
+          ${this._createBudgetComparisonCard(requiredDailySales, monthlyBudget)}
+          ${this._createForecastCard(weeklyForecast)}
+          ${this._createRequiredDailySalesCard(requiredDailySales)}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 予算比較カードを作成
+   * @private
+   */
+  _createBudgetComparisonCard(requiredData, budget) {
+    const achievement = requiredData.currentAchievement * 100;
+    const isOnTrack = achievement >= 70; // 70%以上なら順調とする
+    const statusIcon = isOnTrack ? '✅' : '⚠️';
+    const statusClass = isOnTrack ? 'on-track' : 'behind';
+
+    return `
+      <div class="analysis-card budget-comparison ${statusClass}">
+        <div class="card-header">
+          <h3>${statusIcon} 予算達成率</h3>
+        </div>
+        <div class="card-body">
+          <div class="large-metric">
+            <span class="metric-value">${formatPercent(achievement)}</span>
+            <span class="metric-label">達成率</span>
+          </div>
+          <div class="metric-details">
+            <div class="detail-row">
+              <span class="detail-label">実績売上</span>
+              <span class="detail-value">${formatNumber(requiredData.currentAchievement * budget)}円</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">目標予算</span>
+              <span class="detail-value">${formatNumber(budget)}円</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">残り予算</span>
+              <span class="detail-value">${formatNumber(requiredData.remainingBudget)}円</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 予測カードを作成
+   * @private
+   */
+  _createForecastCard(forecast) {
+    if (!forecast) return '';
+
+    const trendDirection = forecast.trend > 0 ? '📈' : forecast.trend < 0 ? '📉' : '➡️';
+    const trendText = forecast.trend > 0 ? '上昇傾向' : forecast.trend < 0 ? '下降傾向' : '横ばい';
+
+    return `
+      <div class="analysis-card forecast">
+        <div class="card-header">
+          <h3>${trendDirection} 週次売上予測</h3>
+        </div>
+        <div class="card-body">
+          <div class="large-metric">
+            <span class="metric-value">${formatNumber(forecast.avgDailySales)}円</span>
+            <span class="metric-label">平均日販</span>
+          </div>
+          <div class="metric-details">
+            <div class="detail-row">
+              <span class="detail-label">トレンド</span>
+              <span class="detail-value">${trendText}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">7日間予測</span>
+              <span class="detail-value">${formatNumber(forecast.totalForecast)}円</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">傾き</span>
+              <span class="detail-value">${formatNumber(forecast.trend)}円/日</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 必要日商カードを作成
+   * @private
+   */
+  _createRequiredDailySalesCard(requiredData) {
+    const currentAvgDaily = requiredData.currentAchievement > 0
+      ? (requiredData.currentAchievement * (requiredData.remainingBudget + (requiredData.projectedSales - requiredData.remainingBudget))) / (requiredData.remainingDays + (31 - requiredData.remainingDays))
+      : 0;
+
+    const diffPercent = currentAvgDaily > 0
+      ? ((requiredData.requiredDailySales - currentAvgDaily) / currentAvgDaily) * 100
+      : 0;
+
+    const needsIncrease = diffPercent > 0;
+
+    return `
+      <div class="analysis-card required-sales ${needsIncrease ? 'needs-increase' : 'on-pace'}">
+        <div class="card-header">
+          <h3>🎯 必要日商</h3>
+        </div>
+        <div class="card-body">
+          <div class="large-metric">
+            <span class="metric-value">${formatNumber(requiredData.requiredDailySales)}円</span>
+            <span class="metric-label">残り期間の必要日販</span>
+          </div>
+          <div class="metric-details">
+            <div class="detail-row">
+              <span class="detail-label">残り日数</span>
+              <span class="detail-value">${requiredData.remainingDays}日</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">予測達成率</span>
+              <span class="detail-value">${formatPercent(requiredData.projectedAchievement * 100)}</span>
+            </div>
+            ${needsIncrease ? `
+            <div class="detail-row alert">
+              <span class="detail-label">⚠️ 必要増加率</span>
+              <span class="detail-value">+${formatPercent(diffPercent)}</span>
+            </div>
+            ` : `
+            <div class="detail-row success">
+              <span class="detail-label">✅ 現状維持で達成可能</span>
+            </div>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   /**
