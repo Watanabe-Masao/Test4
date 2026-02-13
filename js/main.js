@@ -11,6 +11,7 @@ import { processConsumableFiles } from './services/dataLoader.js';
 import { calculator } from './services/database/calculationEngine.js';
 import { initDashboard } from './ui/dashboard.js';
 import { initSpreadsheetView } from './ui/spreadsheetView.js';
+import { initModernDashboard } from './ui/modernDashboard.js';
 import {
     initializeEventHandlers,
     setupGenerateHandler,
@@ -180,11 +181,10 @@ class App {
 
         content.innerHTML = createLoadingState('ダッシュボードを初期化中...');
 
-        // Initialize dashboard
+        // Initialize modern dashboard
         try {
-            const dashboard = initDashboard('content');
-            await dashboard.initialize();
-            console.log('✅ Dashboard initialized successfully');
+            await initModernDashboard('content');
+            console.log('✅ Modern dashboard initialized successfully');
         } catch (err) {
             console.error('❌ Dashboard initialization failed:', err);
             content.innerHTML = createEmptyState(
