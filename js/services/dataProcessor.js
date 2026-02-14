@@ -293,13 +293,20 @@ export function processTenkanOut() {
 /**
  * Processes hana (flowers) or sanchoku (direct delivery) data
  * These are sales-based deliveries with cost calculated from selling price * rate
+ *
+ * ヘッダー形式:
+ *   行0: [空] 【店舗】 【店舗】 0001:店名 0001:店名 0006:店名 0006:店名 ...
+ *   行1: 販売金額 来店客数 販売金額 来店客数 販売金額 来店客数 ...
+ *   行2: 【期間別】 集計値 ...
+ *   行3+: 日付 金額 ...
+ *
  * @param {string} type - 'hana' or 'sanchoku'
  * @param {number} rate - Cost rate (default: 0.80 for hana, 0.85 for sanchoku)
  * @returns {Object} Processed data by store and day
  */
 export function processHanaSanchoku(type, rate = null) {
     const data = appState.getData(type);
-    if (!data || data.length < 3) return {};
+    if (!data || data.length < 4) return {};
 
     // Get rate from parameter or use default
     if (rate === null) {
@@ -308,20 +315,36 @@ export function processHanaSanchoku(type, rate = null) {
 
     const result = {};
     const cols = {};
+    const storeRow = data[0];
+    const typeRow = data[1];
 
-    // Detect store columns from header row (row 0): 0001:StoreName format
-    for (let col = 3; col < data[0].length; col += 2) {
-        const stoStr = String(data[0][col] || '');
+    // 販売金額の列を検出（店舗コード + タイプラベルで判定）
+    for (let col = 1; col < storeRow.length; col++) {
+        const stoStr = String(storeRow[col] || '');
+        const typeStr = String(typeRow[col] || '');
         const stoMatch = stoStr.match(/(\d{4}):/);
 
         if (stoMatch) {
-            const storeId = String(parseInt(stoMatch[1]));
-            cols[storeId] = col;
+            // 販売金額列のみを使用（来店客数は除外）
+            if (typeStr.includes('販売') || typeStr.includes('売上')) {
+                const storeId = String(parseInt(stoMatch[1]));
+                cols[storeId] = col;
+            }
         }
     }
 
-    // Process data rows (starting from row 3)
-    for (let row = 3; row < data.length; row++) {
+    // 【期間別】行を探してデータ開始行を特定
+    let dataStartRow = 3;
+    for (let i = 2; i < Math.min(data.length, 6); i++) {
+        const firstCell = String(data[i][0] || '');
+        if (firstCell.includes('期間別') || firstCell.includes('期間')) {
+            dataStartRow = i + 1;
+            break;
+        }
+    }
+
+    // Process data rows
+    for (let row = dataStartRow; row < data.length; row++) {
         const dateStr = String(data[row][0] || '');
         const date = parseDate(dateStr);
         if (!date) continue;

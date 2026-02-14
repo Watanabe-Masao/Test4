@@ -445,6 +445,15 @@ export function convertTenkanData(rawData, isIn = true) {
 
 /**
  * 産直・花データをIndexedDB用に変換
+ *
+ * ヘッダー形式:
+ *   行0: [空] 【店舗】 【店舗】 0001:店名 0001:店名 0006:店名 0006:店名 ...
+ *   行1: 販売金額 来店客数 販売金額 来店客数 販売金額 来店客数 ...
+ *   行2: 【期間別】 集計値 ...
+ *   行3+: 日付 金額 ...
+ *
+ * 各店舗が「販売金額」「来店客数」の2列を持つ。
+ * 「販売金額」列のみを売価として抽出する。
  */
 export function convertHanaSanchokuData(rawData, type) {
   if (!rawData || rawData.length < 4) {
@@ -452,30 +461,49 @@ export function convertHanaSanchokuData(rawData, type) {
   }
 
   const converted = [];
-  const headerRow = rawData[0];
+  const storeRow = rawData[0];
+  const typeRow = rawData[1];
 
-  // データ行を処理（4行目以降 - row 0:店舗ヘッダー, row 1-2:ラベル/集計行）
-  for (let row = 3; row < rawData.length; row++) {
+  // 販売金額の列を検出（店舗コード + タイプラベルで判定）
+  const columns = [];
+  for (let col = 1; col < storeRow.length; col++) {
+    const storeStr = String(storeRow[col] || '');
+    const typeStr = String(typeRow[col] || '');
+
+    const stoMatch = storeStr.match(/(\d{4})/);
+    if (!stoMatch) continue;
+
+    // 販売金額列のみを使用（来店客数は除外）
+    if (typeStr.includes('販売') || typeStr.includes('売上')) {
+      columns.push({ col, store: String(parseInt(stoMatch[1])) });
+    }
+  }
+
+  // 【期間別】行を探してデータ開始行を特定
+  let dataStartRow = 3;
+  for (let i = 2; i < Math.min(rawData.length, 6); i++) {
+    const firstCell = String(rawData[i][0] || '');
+    if (firstCell.includes('期間別') || firstCell.includes('期間')) {
+      dataStartRow = i + 1;
+      break;
+    }
+  }
+
+  // データ行を処理
+  for (let row = dataStartRow; row < rawData.length; row++) {
     const dateValue = rawData[row][0];
     if (!dateValue) continue;
 
     const date = parseDate(dateValue);
     if (!date) continue;
 
-    for (let col = 3; col < headerRow.length; col += 2) {
-      const storeStr = String(headerRow[col] || '');
-      const stoMatch = storeStr.match(/(\d{4})/);
-      if (!stoMatch) continue;
-
-      const storeCode = String(parseInt(stoMatch[1]));
-      // col = 売価（販売金額）, col+1 = 原価または空
+    for (const { col, store } of columns) {
       const sellingPrice = parseNum(rawData[row][col]);
-
       if (sellingPrice === 0) continue;
 
       converted.push({
         date: date.getTime(),
-        store: storeCode,
+        store,
         amount: sellingPrice,  // 売価（販売金額）
         cost: sellingPrice     // 後方互換: ダッシュボードは amount || cost で売価を取得
       });
