@@ -623,14 +623,13 @@ export class DashboardApp {
     const uniqueDays = new Set(filteredUriage.map(item => this._normalizeDate(item.date))).size;
     const avgDailySales = uniqueDays > 0 ? totalSales / uniqueDays : 0;
 
-    // Estimated closing inventory = 期首在庫 + 仕入原価 - 売上原価(estimated)
-    // Using: 推定在庫 = 期首在庫 + 当期仕入高 - (売上高 × (1 - 目標粗利率))
-    // Simplified: 推定在庫 = 期首在庫 + 当期仕入高 - 売上原価推定
-    // But we use actual COGS: estimatedClosing = 期首在庫 + 当期仕入高 - (totalSales - grossProfitBefore)
-    // = 期首在庫 + 当期仕入高 - cogsBefore... which is closingInventory when settings exist
-    // Better: just show the dynamic inventory = 期首 + 仕入 - 売上原価(uriage cost)
-    const uriageCost = filteredUriage.reduce((sum, item) => sum + (item.cost || 0), 0);
-    const estimatedClosingInventory = openingInventory + totalPurchaseCost - uriageCost;
+    // 推定期末在庫 = 期首在庫 + 当期仕入高 - 推定売上原価
+    // 推定売上原価 = 売上 × 原価率（仕入データの原価/売価比率から算出）
+    const overallCostRatio = totalSellingPrice > 0
+      ? totalPurchaseCost / totalSellingPrice
+      : 0.74; // デフォルト原価率 74%（粗利率26%相当）
+    const estimatedCOGS = totalSales * overallCostRatio;
+    const estimatedClosingInventory = openingInventory + totalPurchaseCost - estimatedCOGS;
 
     return {
       totalSales,
@@ -1367,6 +1366,38 @@ export class DashboardApp {
   }
 
   /**
+   * 仕入データから全体の原価率を算出
+   * @private
+   * @returns {number} 原価率 (0-1)
+   */
+  _getOverallCostRatio() {
+    const { shiire, sanchoku, hana } = this.state.data;
+    const selectedStores = this.state.selectedStores;
+    const filterByStore = (item) => {
+      if (selectedStores.includes('all')) return true;
+      return selectedStores.includes(item.store);
+    };
+
+    const hanaRate = this._getHanaRate();
+    const sanchokuRate = this._getSanchokuRate();
+
+    const filteredShiire = shiire.filter(filterByStore);
+    const totalShiireCost = filteredShiire.reduce((sum, i) => sum + (i.cost || 0), 0);
+    const totalShiireAmount = filteredShiire.reduce((sum, i) => sum + (i.amount || 0), 0);
+
+    const filteredSanchoku = sanchoku.filter(filterByStore);
+    const totalSanchokuAmount = filteredSanchoku.reduce((sum, i) => sum + (i.amount || i.cost || 0), 0);
+
+    const filteredHana = hana.filter(filterByStore);
+    const totalHanaAmount = filteredHana.reduce((sum, i) => sum + (i.amount || i.cost || 0), 0);
+
+    const totalSellingPrice = totalShiireAmount + totalSanchokuAmount + totalHanaAmount;
+    const totalCost = totalShiireCost + totalSanchokuAmount * sanchokuRate + totalHanaAmount * hanaRate;
+
+    return totalSellingPrice > 0 ? totalCost / totalSellingPrice : 0.74;
+  }
+
+  /**
    * Aggregate data by normalized date
    * @private
    */
@@ -1387,7 +1418,20 @@ export class DashboardApp {
       agg.profit += item.profit || 0;
     });
 
-    return Array.from(grouped.values()).sort((a, b) => a.nd - b.nd);
+    const result = Array.from(grouped.values()).sort((a, b) => a.nd - b.nd);
+
+    // 粗利が全て0の場合（売上・売変統合インポート時）、原価率から推定
+    const totalProfit = result.reduce((sum, d) => sum + d.profit, 0);
+    if (totalProfit === 0) {
+      const costRatio = this._getOverallCostRatio();
+      result.forEach(agg => {
+        if (agg.sales > 0) {
+          agg.profit = Math.round(agg.sales * (1 - costRatio));
+        }
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -1419,6 +1463,9 @@ export class DashboardApp {
     const hanaRate = this._getHanaRate();
     const sanchokuRate = this._getSanchokuRate();
 
+    // 原価率を算出（仕入データの原価/売価比率）
+    const costRatio = this._getOverallCostRatio();
+
     // Collect all normalized dates
     const dateSet = new Set();
     [shiire, uriage, tenkanIn, tenkanOut, sanchoku, hana].forEach(arr =>
@@ -1444,11 +1491,13 @@ export class DashboardApp {
       const dayHana = hana.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
         .reduce((sum, i) => sum + ((i.amount || i.cost || 0) * hanaRate), 0);
 
-      // Daily sales cost (subtracts from inventory)
-      const dayUriageCost = uriage.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
-        .reduce((sum, i) => sum + (i.cost || 0), 0);
+      // 日次推定売上原価 = 日次売上 × 原価率
+      // (uriage.cost は売上・売変統合インポート時に0になるため、原価率から推定)
+      const dayUriageSales = uriage.filter(i => filterByStore(i) && this._normalizeDate(i.date) === nd)
+        .reduce((sum, i) => sum + (i.sales || 0), 0);
+      const dayEstimatedCOGS = dayUriageSales * costRatio;
 
-      inventory += dayShiire + dayTenkanIn - dayTenkanOut + daySanchoku + dayHana - dayUriageCost;
+      inventory += dayShiire + dayTenkanIn - dayTenkanOut + daySanchoku + dayHana - dayEstimatedCOGS;
 
       result.push({ date: dateLabel, inventory });
     });

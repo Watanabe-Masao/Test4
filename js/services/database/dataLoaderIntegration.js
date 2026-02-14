@@ -13,7 +13,7 @@ import { parseDate, parseNum } from '../../utils/helpers.js';
  * @returns {Array} 変換されたデータ
  */
 export function convertShiireData(rawData) {
-  if (!rawData || rawData.length < 3) {
+  if (!rawData || rawData.length < 5) {
     return [];
   }
 
@@ -21,8 +21,8 @@ export function convertShiireData(rawData) {
   const headerRow = rawData[0];
   const storeRow = rawData[1];
 
-  // データ行を処理（3行目以降）
-  for (let row = 2; row < rawData.length; row++) {
+  // データ行を処理（5行目以降 - row 0:仕入先, row 1:店舗, row 2-3:ラベル/集計行）
+  for (let row = 4; row < rawData.length; row++) {
     const dateValue = rawData[row][0];
     if (!dateValue) continue;
 
@@ -447,14 +447,15 @@ export function convertTenkanData(rawData, isIn = true) {
  * 産直・花データをIndexedDB用に変換
  */
 export function convertHanaSanchokuData(rawData, type) {
-  if (!rawData || rawData.length < 3) {
+  if (!rawData || rawData.length < 4) {
     return [];
   }
 
   const converted = [];
   const headerRow = rawData[0];
 
-  for (let row = 1; row < rawData.length; row++) {
+  // データ行を処理（4行目以降 - row 0:店舗ヘッダー, row 1-2:ラベル/集計行）
+  for (let row = 3; row < rawData.length; row++) {
     const dateValue = rawData[row][0];
     if (!dateValue) continue;
 
@@ -467,16 +468,16 @@ export function convertHanaSanchokuData(rawData, type) {
       if (!stoMatch) continue;
 
       const storeCode = String(parseInt(stoMatch[1]));
-      const cost = parseNum(rawData[row][col]);
-      const amount = parseNum(rawData[row][col + 1]);
+      // col = 売価（販売金額）, col+1 = 原価または空
+      const sellingPrice = parseNum(rawData[row][col]);
 
-      if (cost === 0) continue;
+      if (sellingPrice === 0) continue;
 
       converted.push({
         date: date.getTime(),
         store: storeCode,
-        cost,
-        amount
+        amount: sellingPrice,  // 売価（販売金額）
+        cost: sellingPrice     // 後方互換: ダッシュボードは amount || cost で売価を取得
       });
     }
   }
