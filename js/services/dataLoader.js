@@ -6,7 +6,7 @@
 import { appState } from '../models/state.js';
 import { FILE_TYPES } from '../config/constants.js';
 import { parseDate, parseNum, showToast, readExcelFile, fmt } from '../utils/helpers.js';
-import { importToIndexedDB } from './database/index.js';
+import { importToIndexedDB, syncManager, MERGE_MODE, DataRepository } from './database/index.js';
 
 /**
  * Detects the file type based on filename and content
@@ -312,6 +312,7 @@ export async function processConsumableFiles(files, mode = 'overwrite') {
     let loadedCount = 0;
     let totalCost = 0;
     let newItems = 0;
+    const dbRecords = []; // IndexedDB用レコードを収集
 
     for (const file of fileArray) {
         try {
@@ -351,6 +352,13 @@ export async function processConsumableFiles(files, mode = 'overwrite') {
                 storeConsumables[day].items.push({ itemCode, itemName, qty, cost });
                 totalCost += cost;
                 newItems++;
+
+                // IndexedDB用レコードを追加（実際の日付を使用）
+                dbRecords.push({
+                    date: date.getTime(),
+                    store: sid,
+                    cost
+                });
             }
 
             appState.setConsumables(sid, storeConsumables);
@@ -360,7 +368,18 @@ export async function processConsumableFiles(files, mode = 'overwrite') {
         }
     }
 
+    // IndexedDBにも保存
     if (loadedCount > 0) {
+        if (dbRecords.length > 0) {
+            try {
+                const mergeMode = mode === 'overwrite' ? MERGE_MODE.REPLACE : MERGE_MODE.SMART;
+                await syncManager.importData('consumables', dbRecords, mergeMode);
+                console.log(`✅ Consumables saved to IndexedDB: ${dbRecords.length} records`);
+            } catch (err) {
+                console.warn('⚠️ Failed to save consumables to IndexedDB:', err);
+            }
+        }
+
         const modeText = mode === 'overwrite' ? '上書き' : '追加';
         showToast(
             `原価算入比 ${loadedCount}ファイル${modeText} (${newItems}品/${fmt(totalCost)})`,

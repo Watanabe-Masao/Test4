@@ -8,6 +8,14 @@ import { DATA_TYPE_MAP } from '../services/database/schema.js';
 import { FILE_TYPES } from '../config/constants.js';
 
 /**
+ * データタイプの表示名マッピング (FILE_TYPESにないもの)
+ */
+const DATA_TYPE_NAMES = {
+  uriage: { name: '売上データ' },
+  baihen: { name: '売変データ' }
+};
+
+/**
  * データ管理モーダルを表示
  */
 export async function showDataManagementModal() {
@@ -59,7 +67,9 @@ async function getDataStats() {
   const stats = {};
 
   // すべてのデータタイプについて統計を取得
+  // uriageBaihen はuriageと同じストアなので重複表示を避けるためスキップ
   for (const [dataType, storeName] of Object.entries(DATA_TYPE_MAP)) {
+    if (dataType === 'uriageBaihen') continue;
     try {
       const repo = new DataRepository(storeName);
       const count = await repo.count();
@@ -124,7 +134,7 @@ function renderDataManagement(stats) {
 
   for (const dataType of dataTypes) {
     const stat = stats[dataType];
-    const fileType = FILE_TYPES[dataType] || { name: dataType };
+    const fileType = FILE_TYPES[dataType] || DATA_TYPE_NAMES[dataType] || { name: dataType };
 
     html += `
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px">

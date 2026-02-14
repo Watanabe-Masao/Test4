@@ -17,7 +17,7 @@ import {
     saveSupplierSettings,
     saveAllSettings
 } from './modals.js';
-import { updateStoreChips, updateStoreInventoryUI, updateGenerateButton } from './components.js';
+import { updateStoreChips, updateStoreInventoryUI, updateGenerateButton, createEmptyState } from './components.js';
 import { formatInput } from '../utils/helpers.js';
 
 /**
@@ -30,6 +30,8 @@ export function initializeEventHandlers() {
     setupModalHandlers();
     setupThemeToggleHandler();
     setupDropZoneHandler();
+    setupKeyboardHandlers();
+    setupModalBackdropClose();
 }
 
 /**
@@ -55,9 +57,8 @@ function setupViewTabHandlers() {
         const view = tab.dataset.view;
         appState.setCurrentView(view);
 
-        // Trigger render if result exists
-        const result = appState.getResult();
-        if (result && window.render) {
+        // Trigger render
+        if (window.render) {
             window.render();
         }
     });
@@ -86,9 +87,8 @@ function setupStoreChipHandlers() {
         const storeId = chip.dataset.store;
         appState.setCurrentStore(storeId);
 
-        // Trigger render if result exists
-        const result = appState.getResult();
-        if (result && window.render) {
+        // Trigger render
+        if (window.render) {
             window.render();
         }
     });
@@ -109,19 +109,26 @@ function setupFileUploadHandlers() {
                 const file = this.files[0];
                 if (!file) return;
 
+                showFileProgress(file.name);
+
                 try {
                     await loadFile(file, type);
                     card.classList.add('loaded');
+                    hideFileProgress(file.name, true);
 
                     // Update UI components
                     updateStoreChips();
                     updateStoreInventoryUI();
 
-                    // Check if can generate
+                    // Check if can generate and refresh empty state
                     const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
                     updateGenerateButton(canGenerate);
+
+                    // Refresh onboarding steps if still in empty state
+                    refreshOnboardingState();
                 } catch (err) {
                     console.error('File load error:', err);
+                    hideFileProgress(file.name, false);
                 }
             });
         }
@@ -220,7 +227,17 @@ function setupDropZoneHandler() {
         e.preventDefault();
         dropZone.classList.remove('drag-over');
 
-        await handleDroppedFiles(e.dataTransfer.files);
+        const fileCount = e.dataTransfer.files.length;
+        if (fileCount > 0) {
+            showFileProgress(`${fileCount}件のファイル`);
+        }
+
+        try {
+            await handleDroppedFiles(e.dataTransfer.files);
+            hideFileProgress(`${fileCount}件のファイル`, true);
+        } catch (err) {
+            hideFileProgress(`ファイル`, false);
+        }
 
         // Update UI
         updateStoreChips();
@@ -229,6 +246,9 @@ function setupDropZoneHandler() {
         // Check if can generate
         const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
         updateGenerateButton(canGenerate);
+
+        // Refresh onboarding state
+        refreshOnboardingState();
     });
 
     dropZone.addEventListener('click', () => {
@@ -238,7 +258,17 @@ function setupDropZoneHandler() {
         input.accept = '.xlsx,.xls';
 
         input.onchange = async () => {
-            await handleDroppedFiles(input.files);
+            const fileCount = input.files.length;
+            if (fileCount > 0) {
+                showFileProgress(`${fileCount}件のファイル`);
+            }
+
+            try {
+                await handleDroppedFiles(input.files);
+                hideFileProgress(`${fileCount}件のファイル`, true);
+            } catch (err) {
+                hideFileProgress('ファイル', false);
+            }
 
             // Update UI
             updateStoreChips();
@@ -247,6 +277,9 @@ function setupDropZoneHandler() {
             // Check if can generate
             const canGenerate = appState.hasData('shiire') && appState.hasData('uriageBaihen');
             updateGenerateButton(canGenerate);
+
+            // Refresh onboarding state
+            refreshOnboardingState();
         };
 
         input.click();
@@ -374,4 +407,179 @@ export function setupFileLoadingGlobalFunctions() {
 
     // Export utility functions
     window.formatInput = formatInput;
+
+    // File progress indicator functions
+    window.showFileProgress = showFileProgress;
+    window.hideFileProgress = hideFileProgress;
+    window.updateFileLoadStatus = updateFileLoadStatus;
+
+    // Sidebar section toggle
+    window.toggleSidebarSection = toggleSidebarSection;
+}
+
+/**
+ * Sets up keyboard event handlers (ESC to close modals)
+ */
+function setupKeyboardHandlers() {
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Close modals in priority order (topmost first)
+            const modalIds = [
+                'report-preview-modal',
+                'column-config-modal',
+                'data-management-modal',
+                'validation-modal',
+                'settings-modal',
+                'supplier-settings-modal',
+                'consumable-modal'
+            ];
+
+            for (const id of modalIds) {
+                const modal = document.getElementById(id);
+                if (modal && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    e.preventDefault();
+                    return;
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Sets up click-outside-to-close for all modals
+ */
+function setupModalBackdropClose() {
+    const modalIds = [
+        'consumable-modal',
+        'supplier-settings-modal',
+        'settings-modal',
+        'validation-modal',
+        'report-preview-modal',
+        'column-config-modal',
+        'data-management-modal'
+    ];
+
+    modalIds.forEach(id => {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.addEventListener('click', (e) => {
+            // Only close if clicking the backdrop itself, not the content
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+}
+
+/**
+ * Shows file loading progress indicator
+ * @param {string} filename - Name of file being loaded
+ */
+function showFileProgress(filename) {
+    const progress = document.getElementById('file-progress');
+    const bar = document.getElementById('file-progress-bar');
+    const status = document.getElementById('file-load-status');
+
+    if (progress) {
+        progress.classList.add('active');
+    }
+    if (bar) {
+        bar.style.width = '30%';
+        // Animate to 80% over time
+        setTimeout(() => { bar.style.width = '80%'; }, 100);
+    }
+    if (status) {
+        status.textContent = `${filename} を読込中...`;
+        status.style.color = 'var(--info)';
+    }
+}
+
+/**
+ * Hides file loading progress indicator
+ * @param {string} filename - Name of file loaded
+ * @param {boolean} success - Whether loading was successful
+ */
+function hideFileProgress(filename, success = true) {
+    const progress = document.getElementById('file-progress');
+    const bar = document.getElementById('file-progress-bar');
+    const status = document.getElementById('file-load-status');
+
+    if (bar) {
+        bar.style.width = '100%';
+    }
+
+    if (status) {
+        if (success) {
+            status.textContent = `${filename} を読込みました`;
+            status.style.color = 'var(--success)';
+        } else {
+            status.textContent = `${filename} の読込に失敗しました`;
+            status.style.color = 'var(--danger)';
+        }
+    }
+
+    // Hide progress bar after completion animation
+    setTimeout(() => {
+        if (progress) {
+            progress.classList.remove('active');
+        }
+        if (bar) {
+            bar.style.width = '0';
+        }
+    }, 800);
+
+    // Clear status message after a delay
+    setTimeout(() => {
+        if (status) {
+            status.textContent = '';
+        }
+    }, 3000);
+}
+
+/**
+ * Updates file load status text
+ * @param {string} text - Status text
+ * @param {string} color - CSS color variable
+ */
+function updateFileLoadStatus(text, color = 'var(--text4)') {
+    const status = document.getElementById('file-load-status');
+    if (status) {
+        status.textContent = text;
+        status.style.color = color;
+    }
+}
+
+/**
+ * Toggles a collapsible sidebar section
+ * @param {string} sectionId - ID of the section element
+ */
+function toggleSidebarSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    section.classList.toggle('collapsed');
+}
+
+/**
+ * Refreshes the onboarding state in the empty state view
+ * Updates checkmarks when files are loaded
+ */
+function refreshOnboardingState() {
+    const emptyState = document.querySelector('.empty-state');
+    if (!emptyState) return;
+
+    const onboardingSteps = emptyState.querySelector('.onboarding-steps');
+    if (!onboardingSteps) return;
+
+    // Re-render empty state with updated onboarding
+    const content = document.getElementById('content');
+    if (content && content.querySelector('.empty-state')) {
+        content.innerHTML = createEmptyState(
+            '📂',
+            'データファイルをアップロードしてください',
+            '左のパネルから「仕入」と「売上・売変」ファイルを読み込むと、分析を開始できます',
+            true
+        );
+    }
 }

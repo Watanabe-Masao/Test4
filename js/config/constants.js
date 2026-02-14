@@ -142,6 +142,11 @@ export const FILE_TYPES = {
         name: '産直',
         patterns: ['産直', 'sanchoku'],
         headerPatterns: ['販売金額']
+    },
+    consumables: {
+        name: '消耗品',
+        patterns: ['消耗', '原価算入', 'consumable'],
+        headerPatterns: ['81257', '勘定科目']
     }
 };
 

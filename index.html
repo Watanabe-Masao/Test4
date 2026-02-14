@@ -51,34 +51,49 @@
                         <div class="upload-card" data-type="sanchoku"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls"></div>
                         <div class="upload-card" data-type="hana"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls"></div>
                     </div>
+                    <!-- ファイル読込 進捗バー -->
+                    <div class="file-progress" id="file-progress">
+                        <div class="file-progress-bar" id="file-progress-bar"></div>
+                    </div>
+                    <div id="file-load-status" style="margin-top:6px;font-size:0.58rem;color:var(--text4);text-align:center;min-height:14px"></div>
                 </div>
-                <div class="sidebar-section">
-                    <div class="section-label">🎯 目標設定</div>
-                    <div class="input-grid">
-                        <div class="input-field" style="border-left:3px solid var(--success)">
-                            <label>目標粗利率 (%)</label>
-                            <input type="text" id="target-margin" value="25.00">
-                        </div>
-                        <div class="input-field" style="border-left:3px solid var(--warning)">
-                            <label>警告しきい値 (%)</label>
-                            <input type="text" id="warning-margin" value="23.00">
+                <div class="sidebar-section" id="section-target">
+                    <div class="sidebar-section-header section-label" onclick="toggleSidebarSection('section-target')">
+                        🎯 目標設定
+                        <span class="sidebar-section-toggle">▼</span>
+                    </div>
+                    <div class="sidebar-section-body">
+                        <div class="input-grid">
+                            <div class="input-field" style="border-left:3px solid var(--success)">
+                                <label>目標粗利率 (%)</label>
+                                <input type="text" id="target-margin" value="25.00">
+                            </div>
+                            <div class="input-field" style="border-left:3px solid var(--warning)">
+                                <label>警告しきい値 (%)</label>
+                                <input type="text" id="warning-margin" value="23.00">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="sidebar-section">
-                    <div class="section-label">🌸🥬 花・産直 掛け率</div>
-                    <div class="input-grid">
-                        <div class="input-field" style="border-left:3px solid #f472b6">
-                            <label>🌸 花 掛け率</label>
-                            <input type="text" id="hana-rate" value="0.80">
-                        </div>
-                        <div class="input-field" style="border-left:3px solid #a3e635">
-                            <label>🥬 産直 掛け率</label>
-                            <input type="text" id="sanchoku-rate" value="0.85">
-                        </div>
+                <div class="sidebar-section collapsed" id="section-rates">
+                    <div class="sidebar-section-header section-label" onclick="toggleSidebarSection('section-rates')">
+                        🌸🥬 花・産直 掛け率
+                        <span class="sidebar-section-toggle">▼</span>
                     </div>
-                    <div style="margin-top:6px;padding:6px 8px;background:var(--bg4);border-radius:5px;font-size:0.58rem;color:var(--text3)">
-                        売上納品のため、売価×掛け率=原価として計算
+                    <div class="sidebar-section-body">
+                        <div class="input-grid">
+                            <div class="input-field" style="border-left:3px solid #f472b6">
+                                <label>🌸 花 掛け率</label>
+                                <input type="text" id="hana-rate" value="0.80">
+                            </div>
+                            <div class="input-field" style="border-left:3px solid #a3e635">
+                                <label>🥬 産直 掛け率</label>
+                                <input type="text" id="sanchoku-rate" value="0.85">
+                            </div>
+                        </div>
+                        <div style="margin-top:6px;padding:6px 8px;background:var(--bg4);border-radius:5px;font-size:0.58rem;color:var(--text3)">
+                            売上納品のため、売価×掛け率=原価として計算
+                        </div>
                     </div>
                 </div>
                 <div class="sidebar-section">
@@ -98,16 +113,21 @@
                     <div class="section-label">🏪 店舗</div>
                     <div class="chip-group" id="store-chips"><div class="chip active" data-store="all">全店舗</div></div>
                 </div>
-                <div class="sidebar-section">
-                    <div class="section-label">📦 店舗別 在庫設定 <span style="font-size:0.5rem;color:var(--text4);font-weight:400">(初期設定で自動入力)</span></div>
-                    <div id="store-inventory-container" style="max-height:180px;overflow-y:auto;margin-bottom:8px">
-                        <div style="font-size:0.65rem;color:var(--text4);padding:8px;text-align:center">店舗データ読込後に表示</div>
+                <div class="sidebar-section collapsed" id="section-inventory">
+                    <div class="sidebar-section-header section-label" onclick="toggleSidebarSection('section-inventory')">
+                        📦 店舗別 在庫設定
+                        <span class="sidebar-section-toggle">▼</span>
                     </div>
-                    <div class="input-grid">
-                        <div class="input-field"><label>デフォルト予算</label><input type="text" id="budget" value="6,450,000" oninput="formatInput(this)"></div>
-                        <div class="input-field"><label>値入率</label><input type="text" id="margin-rate" value="0.26"></div>
+                    <div class="sidebar-section-body">
+                        <div id="store-inventory-container" style="max-height:180px;overflow-y:auto;margin-bottom:8px">
+                            <div style="font-size:0.65rem;color:var(--text4);padding:8px;text-align:center">店舗データ読込後に表示</div>
+                        </div>
+                        <div class="input-grid">
+                            <div class="input-field"><label>デフォルト予算</label><input type="text" id="budget" value="6,450,000" oninput="formatInput(this)"></div>
+                            <div class="input-field"><label>値入率</label><input type="text" id="margin-rate" value="0.26"></div>
+                        </div>
+                        <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
                     </div>
-                    <div style="margin-top:4px;font-size:0.55rem;color:var(--text4)">※予算ファイル読込時は日別予算を使用</div>
                 </div>
                 <div class="sidebar-section">
                     <button class="btn btn-primary" id="btn-generate" disabled>📊 ダッシュボード表示</button>
@@ -150,7 +170,7 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- 消耗品モーダル -->
-    <div id="consumable-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+    <div id="consumable-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:340px;max-width:90%">
             <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:8px;display:flex;align-items:center;justify-content:center">🧾</span>
@@ -185,7 +205,7 @@
     </div>
 
     <!-- 仕入先設定モーダル -->
-    <div id="supplier-settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+    <div id="supplier-settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">🏭</span>
@@ -202,7 +222,7 @@
     </div>
 
     <!-- 設定モーダル -->
-    <div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+    <div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center">⚙️</span>
@@ -219,7 +239,7 @@
     </div>
 
     <!-- データ検証モーダル -->
-    <div id="validation-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+    <div id="validation-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:8px;display:flex;align-items:center;justify-content:center">⚠️</span>
@@ -236,7 +256,7 @@
     </div>
 
     <!-- レポートプレビューモーダル -->
-    <div id="report-preview-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center">
+    <div id="report-preview-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:800px;max-width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
                 <span id="report-preview-icon" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">📋</span>
@@ -257,7 +277,7 @@
     </div>
 
     <!-- カラム設定モーダル -->
-    <div id="column-config-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center">
+    <div id="column-config-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:400px;max-width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#06b6d4,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center">📊</span>
@@ -275,7 +295,7 @@
     </div>
 
     <!-- データ管理モーダル -->
-    <div id="data-management-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center">
+    <div id="data-management-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:900px;max-width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
             <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
                 <span style="width:36px;height:36px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🗄️</span>
