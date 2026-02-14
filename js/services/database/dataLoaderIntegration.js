@@ -417,7 +417,10 @@ export function convertTenkanData(rawData, isIn = true) {
     }
 
     // 金額を数値に変換
-    const amount = parseNum(amountValue);
+    // 店間出の金額はExcelで負の値（例: -3,786）として格納されている。
+    // ダッシュボードの計算式は正の値を前提としているため、Math.abs()で正に変換する。
+    const rawAmount = parseNum(amountValue);
+    const amount = isIn ? rawAmount : Math.abs(rawAmount);
     if (amount === 0) {
       continue; // 金額が0の行はスキップ
     }

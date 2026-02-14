@@ -247,8 +247,9 @@ export function processTenkanOut() {
         const storeCode = String(data[row][1] || '').trim();
         const storeCodeIn = String(data[row][2] || '').trim();
         const bumonCodeIn = String(data[row][3] || '').trim();
-        const costOut = parseFloat(data[row][4]) || 0;
-        const priceOut = parseFloat(data[row][5]) || 0;
+        // 店間出の金額はExcelで負の値として格納されているため、Math.abs()で正に変換
+        const costOut = Math.abs(parseFloat(data[row][4]) || 0);
+        const priceOut = Math.abs(parseFloat(data[row][5]) || 0);
 
         const date = parseDate(dateVal);
         if (!date) continue;
