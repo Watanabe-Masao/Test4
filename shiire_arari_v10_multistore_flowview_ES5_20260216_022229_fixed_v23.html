@@ -586,16 +586,16 @@
                         <div class="drop-zone-hint">または下のカードをクリック</div>
                     </div>
                     <div class="upload-grid">
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'shiire')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">💰</div><div class="name">売上</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'uriage')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📉</div><div class="name">売変</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'baihen')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'settings')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'budget')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📦</div><div class="name">仕入</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="shiire"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">💰</div><div class="name">売上</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="uriage"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📉</div><div class="name">売変</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="baihen"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">⚙️</div><div class="name">初期設定</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="settings"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📊</div><div class="name">予算</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="budget"></div>
                         <div class="upload-card" onclick="showConsumableModal()"><div class="icon">🧾</div><div class="name">消耗品</div><input type="file" id="consumable-input" accept=".xlsx,.xls,.csv" multiple style="display:none" onchange="processConsumableFiles(this)"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'tenkanIn')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'tenkanOut')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'sanchoku')"></div>
-                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this,'hana')"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📥</div><div class="name">店間入</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="tenkanIn"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">📤</div><div class="name">店間出</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="tenkanOut"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🥬</div><div class="name">産直</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="sanchoku"></div>
+                        <div class="upload-card" onclick="this.querySelector('input').click()"><div class="icon">🌸</div><div class="name">花</div><input type="file" accept=".xlsx,.xls,.csv" data-load-key="hana"></div>
                     </div>
                 </div>
                 <div class="sidebar-section">
@@ -815,8 +815,12 @@
             </div>
         </div>
     </div>
+<script src="./state/appState.js"></script>
 <script>
-const DATA={};let STORES={},SUPPLIERS={};let currentStore='all',currentView='dashboard',result=null;
+const appState=createAppState({DATA:{},STORES:{},SUPPLIERS:{},STORE_INVENTORY:{},STORE_BUDGET:{},result:null});
+['DATA','STORES','SUPPLIERS','STORE_INVENTORY','STORE_BUDGET','result'].forEach(k=>appState.wireAlias(k,k));
+let currentStore='all',currentView='dashboard';
+let transferFlowRenderer=null;
 // データ期間（年月推定ではなく、ファイルから取得）
 let BUDGET_RANGE=null; // {min:Date,max:Date}
 let BAIHEN_RANGE=null; // {min:Date,max:Date}
@@ -840,11 +844,6 @@ function updateTopbarMeta(){
   meta.style.display = 'flex'; // 常時表示
 }
 
-
-// Expose handlers for inline HTML attributes (file inputs)
-window.loadFile = window.loadFile || function(){
-  console.error('loadFile is not initialized yet');
-};
 
 function normalizeStoreId(s){
   if(s==null) return s;
@@ -1043,8 +1042,7 @@ function ensureAllAggregate(){
 }
 
 let overDeliveryWarned=false;
-let STORE_INVENTORY={};  // 店舗別在庫データ {storeId: {invStart: number, invEnd: number}}
-let STORE_BUDGET={};     // 店舗別日別予算データ {storeId: {day: budget}}
+// STORE_INVENTORY / STORE_BUDGET are managed by appState aliases
 let STORE_GP_BUDGET={};  // 店舗別 月間粗利額予算 {storeId: number}（初期設定ファイルから）
 let CONSUMABLES={};      // 原価算入比データ {storeId: {day: {cost: number, items: []}}}
 let SUPPLIER_SETTINGS={};// 仕入先別設定 {code: {marginRate: number, usePriceCalc: boolean}}
@@ -1519,6 +1517,12 @@ function proceedWithWarnings(){
 }
 
 document.getElementById('view-tabs').addEventListener('click',e=>{const t=e.target.closest('.topbar-tab');if(!t)return;currentView=t.dataset.view;syncViewTabs();if(result)render();});
+bindFileLoaders();
+appState.subscribe((next,prev,changed)=>{
+  if(changed.indexOf('result')!==-1 && typeof render==='function' && next.result){
+    try{ render(); }catch(e){}
+  }
+});
 document.getElementById('store-chips').addEventListener('click', e=>{
   // Multi-select store chips are handled by bindChips() (store selection module).
   // Keep this legacy handler inert to avoid overriding multi-selection behavior.
@@ -1561,8 +1565,23 @@ async function loadFile(input, key){
     }
 }
 
-// Make loadFile available to inline onchange handlers
-window.loadFile = loadFile;
+// DI: bind file inputs/events without window.* assignments
+function bindFileLoaders(){
+  document.querySelectorAll('input[data-load-key]').forEach(input=>{
+    if(input.dataset.boundLoad==='1') return;
+    input.dataset.boundLoad='1';
+    input.addEventListener('change',()=>{
+      const key=input.dataset.loadKey;
+      if(!key) return;
+      document.dispatchEvent(new CustomEvent('app:load-file',{detail:{input,key}}));
+    });
+  });
+}
+document.addEventListener('app:load-file',e=>{
+  const d=e.detail||{};
+  if(d.input && d.key) loadFile(d.input, d.key);
+});
+
 
 // 初期設定ファイルを処理
 function processSettings(){
@@ -2214,7 +2233,7 @@ function render(){
 
   // 🔁 移動フロー（統一ダッシュボード）
   if(currentView==='flow'){
-    if(typeof renderTransferFlowView==='function'){ renderTransferFlowView(); }
+    if(typeof transferFlowRenderer==='function'){ transferFlowRenderer(); }
     else{
       const host=document.getElementById('content');
       if(host) host.innerHTML='<div class="card" style="padding:16px;">移動フロー表示の初期化に失敗しました（renderTransferFlowView未定義）</div>';
@@ -4941,7 +4960,7 @@ render = function(){
   v9_ensureAllAggregate();
   // 🔁 移動フロー（統一KPI）
   if(currentView==='flow'){
-    if(typeof renderTransferFlowView==='function'){ renderTransferFlowView(); }
+    if(typeof transferFlowRenderer==='function'){ transferFlowRenderer(); }
     else{
       const host=document.getElementById('content');
       if(host) host.innerHTML='<div class="empty-state"><div class="empty-icon">🔁</div><h3>移動フロー</h3><p>移動フロー表示が初期化されていません（renderTransferFlowView未定義）。</p></div>';
@@ -4979,10 +4998,6 @@ render = function(){
 // Kick a re-render once after overrides are installed
 try{ setTimeout(()=>{ try{ render(); }catch(e){} }, 0); }catch(e){}
 
-;
-// expose key functions
-try{ window.render = render; }catch(e){}
-try{ window.loadFile = loadFile; }catch(e){}
 
 /* =========================
    v19 PATCH: ALL dashboard + margin pill + view reset
@@ -5114,16 +5129,16 @@ try{ window.loadFile = loadFile; }catch(e){}
   };
 
   // 4) patch renderDashboardV2 to always have all aggregate + pill
-  const _oldRenderDashboardV2 = window.renderDashboardV2;
-  window.renderDashboardV2 = function(){
+  const _oldRenderDashboardV2 = renderDashboardV2;
+  renderDashboardV2 = function(){
     if(result) ensureAllAggregateV19();
     updateMarginPill();
     return _oldRenderDashboardV2 ? _oldRenderDashboardV2() : undefined;
   };
 
   // 5) patch render() to call ensureAllAggregate + pill consistently
-  const _oldRender = window.render;
-  window.render = function(){
+  const _oldRender = render;
+  render = function(){
     try{
       if(result) ensureAllAggregateV19();
       updateMarginPill();
@@ -5131,12 +5146,7 @@ try{ window.loadFile = loadFile; }catch(e){}
     return _oldRender ? _oldRender() : undefined;
   };
 
-  // 6) ensure loadFile is globally available (safety)
-  if(typeof window.loadFile==='function'){
-    // ok
-  }else if(typeof loadFile==='function'){
-    window.loadFile = loadFile;
-  }
+  // 6) loadFile is bound via event listeners (DI)
 
   // initial
   try{ ensureMarginPill(); updateMarginPill(); }catch(e){}
@@ -5445,7 +5455,7 @@ try{ window.loadFile = loadFile; }catch(e){}
       window.__STORE_SELECTION__.lastSingle = norm;
     }
     _applySelectionRender();
-    if(typeof window.render==='function') window.render();
+    if(typeof render==='function') render();
   };
 
   // chips: toggle / all
@@ -5474,7 +5484,7 @@ try{ window.loadFile = loadFile; }catch(e){}
         }
       }
       _applySelectionRender();
-      if(typeof window.render==='function') window.render();
+      if(typeof render==='function') render();
     }, true);
   }
 
@@ -5494,9 +5504,9 @@ try{ window.loadFile = loadFile; }catch(e){}
   };
 
   // patch renderDashboardV2 scope label for multi-select
-  if(typeof window.renderDashboardV2==='function'){
-    const _oldDash = window.renderDashboardV2;
-    window.renderDashboardV2 = function(){
+  if(typeof renderDashboardV2==='function'){
+    const _oldDash = renderDashboardV2;
+    renderDashboardV2 = function(){
       try{
         // ensure aggregate for selection key if needed
         _applySelectionRender();
@@ -5802,14 +5812,14 @@ try{ window.loadFile = loadFile; }catch(e){}
   }
 
   // ---------- hook render ----------
-  const _prevRender = window.render;
-  window.render = function(){
+  const _prevRender = render;
+  render = function(){
     // keep the existing wrapper behavior (ensureAllAggregateV19 etc.) inside _prevRender
-    if(window.currentView==='flow'){
+    if(currentView==='flow'){
       try{
         // Make sure tab exists and is active
         ensureFlowTab();
-        renderTransferFlowView();
+        if(typeof transferFlowRenderer==='function') transferFlowRenderer();
         return;
       }catch(e){
         // fall back
@@ -5819,8 +5829,8 @@ try{ window.loadFile = loadFile; }catch(e){}
   };
 
 
-  // expose for main renderer
-  window.renderTransferFlowView = renderTransferFlowView;
+  // expose through local symbol only
+  transferFlowRenderer = renderTransferFlowView;
 })();
 </script>
 
