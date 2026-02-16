@@ -817,6 +817,9 @@
     </div>
 <script>
 const DATA={};let STORES={},SUPPLIERS={};let currentStore='all',currentView='dashboard',result=null;
+const STORE_SCOPE=Object.freeze({ALL:'all'});
+const VIEW_MODE=Object.freeze({DASHBOARD:'dashboard',CATEGORY:'category'});
+const TRANSFER_KIND=Object.freeze({TENKAN_IN:'tenkanIn',TENKAN_OUT:'tenkanOut',BUMON_IN:'bumonIn',BUMON_OUT:'bumonOut'});
 // データ期間（年月推定ではなく、ファイルから取得）
 let BUDGET_RANGE=null; // {min:Date,max:Date}
 let BAIHEN_RANGE=null; // {min:Date,max:Date}
@@ -846,98 +849,92 @@ window.loadFile = window.loadFile || function(){
   console.error('loadFile is not initialized yet');
 };
 
-function normalizeStoreId(s){
-  if(s==null) return s;
-  if(s==='all') return 'all';
-  const cand=[String(s), String(parseInt(String(s),10)), String(parseInt(String(s),10)).padStart(2,'0')];
-  for(const c of cand){
-    if(result && result[c]) return c;
-    if(STORES && STORES[c]) return c;
+function normalizeStoreId(storeId){
+  if(storeId==null) return storeId;
+  if(storeId===STORE_SCOPE.ALL) return STORE_SCOPE.ALL;
+  const candidateStoreIds=[String(storeId), String(parseInt(String(storeId),10)), String(parseInt(String(storeId),10)).padStart(2,'0')];
+  for(const candidateStoreId of candidateStoreIds){
+    if(result && result[candidateStoreId]) return candidateStoreId;
+    if(STORES && STORES[candidateStoreId]) return candidateStoreId;
   }
-  return String(s);
+  return String(storeId);
 }
+/**
+ * @typedef {Object} StoreAggregate
+ * @property {Object<string, any>} daily
+ * @property {Object<string, any>} catTotals
+ * @property {Object<string, any>} supTotals
+ */
+function calculateStoreAggregate(sourceResult){
+  const storeIds = Object.keys(sourceResult).filter(storeId=>storeId!==STORE_SCOPE.ALL);
+  if(storeIds.length===0) return null;
 
-function ensureAllAggregate(){
-  if(!result) return;
-  if(result['all']) return;
-
-  const storeIds = Object.keys(result).filter(k=>k!=='all');
-  if(storeIds.length===0) return;
-
-  const allDaily = {};
-  const allCatTotals = {};
-  const allSupTotals = {};
-  const allTransfer = {tenkanIn:[], tenkanOut:[], bumonIn:[], bumonOut:[]};
+  const dailySales = {};
+  const categoryTotals = {};
+  const supplierTotals = {};
+  const transferTotals = {[TRANSFER_KIND.TENKAN_IN]:[], [TRANSFER_KIND.TENKAN_OUT]:[], [TRANSFER_KIND.BUMON_IN]:[], [TRANSFER_KIND.BUMON_OUT]:[]};
 
   let invStart=0, invEnd=0, budget=0, gpBudget=0, gpRateBudget=0;
   let totalConsumable=0, totalBaihen=0, totalCoreSales=0, coreCost=0, corePrice=0;
   let estimatedCogs=0, baihenLossCost=0;
-
-  // Use calendar/day counts from the first store as baseline (they should be identical)
   let elapsedDays=0, salesDays=0, avgDailySales=0;
-  let budgetDaily = {};
+  const budgetDaily = {};
 
-  // Aggregate monthly totals and daily structures
-  for(const sid of storeIds){
-    const d = result[sid];
-    if(!d) continue;
+  for(const storeId of storeIds){
+    const storeAggregate = sourceResult[storeId];
+    if(!storeAggregate) continue;
 
-    invStart += (d.invStart||0);
-    invEnd   += (d.invEnd||0);
-    budget   += (d.budget||0);
-    gpBudget += (d.gpBudget||0);
+    invStart += (storeAggregate.invStart||0);
+    invEnd   += (storeAggregate.invEnd||0);
+    budget   += (storeAggregate.budget||0);
+    gpBudget += (storeAggregate.gpBudget||0);
 
-    totalConsumable += (d.totalConsumable||0);
-    totalBaihen     += (d.totalBaihen||0);
-    totalCoreSales  += (d.totalCoreSales||0);
-    coreCost        += (d.coreCost||0);
-    corePrice       += (d.corePrice||0);
+    totalConsumable += (storeAggregate.totalConsumable||0);
+    totalBaihen     += (storeAggregate.totalBaihen||0);
+    totalCoreSales  += (storeAggregate.totalCoreSales||0);
+    coreCost        += (storeAggregate.coreCost||0);
+    corePrice       += (storeAggregate.corePrice||0);
 
-    estimatedCogs    += (d.estimatedCogs||0);
-    baihenLossCost   += (d.baihenLossCost||0);
+    estimatedCogs  += (storeAggregate.estimatedCogs||0);
+    baihenLossCost += (storeAggregate.baihenLossCost||0);
 
-    elapsedDays = Math.max(elapsedDays, d.elapsedDays||0);
-    salesDays   = Math.max(salesDays, d.salesDays||0);
+    elapsedDays = Math.max(elapsedDays, storeAggregate.elapsedDays||0);
+    salesDays   = Math.max(salesDays, storeAggregate.salesDays||0);
 
-    // Budget daily: sum by day (営業日ベースの割当がある前提)
-    if(d.budgetDaily){
-      for(const [day, val] of Object.entries(d.budgetDaily)){
-        budgetDaily[day] = (budgetDaily[day]||0) + (val||0);
+    if(storeAggregate.budgetDaily){
+      for(const [day, value] of Object.entries(storeAggregate.budgetDaily)){
+        budgetDaily[day] = (budgetDaily[day]||0) + (value||0);
       }
     }
 
-    // Category totals
-    if(d.catTotals){
-      for(const [cat, v] of Object.entries(d.catTotals)){
-        if(!allCatTotals[cat]) allCatTotals[cat] = {cost:0, price:0};
-        allCatTotals[cat].cost += (v.cost||0);
-        allCatTotals[cat].price += (v.price||0);
+    if(storeAggregate.catTotals){
+      for(const [categoryCode, categoryValue] of Object.entries(storeAggregate.catTotals)){
+        if(!categoryTotals[categoryCode]) categoryTotals[categoryCode] = {cost:0, price:0};
+        categoryTotals[categoryCode].cost += (categoryValue.cost||0);
+        categoryTotals[categoryCode].price += (categoryValue.price||0);
       }
     }
 
-    // Supplier totals
-    if(d.supTotals){
-      for(const [code, v] of Object.entries(d.supTotals)){
-        if(!allSupTotals[code]) allSupTotals[code] = {...v, cost:0, price:0};
-        allSupTotals[code].cost += (v.cost||0);
-        allSupTotals[code].price += (v.price||0);
+    if(storeAggregate.supTotals){
+      for(const [supplierCode, supplierValue] of Object.entries(storeAggregate.supTotals)){
+        if(!supplierTotals[supplierCode]) supplierTotals[supplierCode] = {...supplierValue, cost:0, price:0};
+        supplierTotals[supplierCode].cost += (supplierValue.cost||0);
+        supplierTotals[supplierCode].price += (supplierValue.price||0);
       }
     }
 
-    // Transfers (concat)
-    if(d.transferDetails){
-      (d.transferDetails.tenkanIn||[]).forEach(x=>allTransfer.tenkanIn.push(x));
-      (d.transferDetails.tenkanOut||[]).forEach(x=>allTransfer.tenkanOut.push(x));
-      (d.transferDetails.bumonIn||[]).forEach(x=>allTransfer.bumonIn.push(x));
-      (d.transferDetails.bumonOut||[]).forEach(x=>allTransfer.bumonOut.push(x));
+    if(storeAggregate.transferDetails){
+      (storeAggregate.transferDetails.tenkanIn||[]).forEach(item=>transferTotals.tenkanIn.push(item));
+      (storeAggregate.transferDetails.tenkanOut||[]).forEach(item=>transferTotals.tenkanOut.push(item));
+      (storeAggregate.transferDetails.bumonIn||[]).forEach(item=>transferTotals.bumonIn.push(item));
+      (storeAggregate.transferDetails.bumonOut||[]).forEach(item=>transferTotals.bumonOut.push(item));
     }
 
-    // Daily aggregation (needed for charts and day view)
     for(let day=1; day<=31; day++){
-      const dd = d.daily?.[day];
-      if(!dd) continue;
-      if(!allDaily[day]){
-        allDaily[day] = {
+      const dailyAggregate = storeAggregate.daily?.[day];
+      if(!dailyAggregate) continue;
+      if(!dailySales[day]){
+        dailySales[day] = {
           sales:0,
           suppliers:{},
           shiire:{cost:0, price:0},
@@ -958,70 +955,58 @@ function ensureAllAggregate(){
           baihenRate:0
         };
       }
-      const ad = allDaily[day];
+      const dailyStore = dailySales[day];
+      dailyStore.sales += (dailyAggregate.sales||0);
+      dailyStore.shiire.cost += (dailyAggregate.shiire?.cost||0);
+      dailyStore.shiire.price += (dailyAggregate.shiire?.price||0);
+      dailyStore.tenkanInTotal.cost += (dailyAggregate.tenkanInTotal?.cost||0);
+      dailyStore.tenkanInTotal.price += (dailyAggregate.tenkanInTotal?.price||0);
+      dailyStore.tenkanOutTotal.cost += (dailyAggregate.tenkanOutTotal?.cost||0);
+      dailyStore.tenkanOutTotal.price += (dailyAggregate.tenkanOutTotal?.price||0);
+      dailyStore.bumonInTotal.cost += (dailyAggregate.bumonInTotal?.cost||0);
+      dailyStore.bumonInTotal.price += (dailyAggregate.bumonInTotal?.price||0);
+      dailyStore.bumonOutTotal.cost += (dailyAggregate.bumonOutTotal?.cost||0);
+      dailyStore.bumonOutTotal.price += (dailyAggregate.bumonOutTotal?.price||0);
+      dailyStore.hana.cost += (dailyAggregate.hana?.cost||0);
+      dailyStore.hana.price += (dailyAggregate.hana?.price||0);
+      dailyStore.sanchoku.cost += (dailyAggregate.sanchoku?.cost||0);
+      dailyStore.sanchoku.price += (dailyAggregate.sanchoku?.price||0);
+      dailyStore.consumable.cost += (dailyAggregate.consumable?.cost||0);
+      dailyStore.baihen += (dailyAggregate.baihen||0);
+      dailyStore.baihenAbs += (dailyAggregate.baihenAbs!=null?dailyAggregate.baihenAbs:Math.abs(dailyAggregate.baihen||0));
 
-      ad.sales += (dd.sales||0);
-      ad.shiire.cost += (dd.shiire?.cost||0);
-      ad.shiire.price += (dd.shiire?.price||0);
-
-      ad.tenkanInTotal.cost  += (dd.tenkanInTotal?.cost||0);
-      ad.tenkanInTotal.price += (dd.tenkanInTotal?.price||0);
-      ad.tenkanOutTotal.cost  += (dd.tenkanOutTotal?.cost||0);
-      ad.tenkanOutTotal.price += (dd.tenkanOutTotal?.price||0);
-      ad.bumonInTotal.cost  += (dd.bumonInTotal?.cost||0);
-      ad.bumonInTotal.price += (dd.bumonInTotal?.price||0);
-      ad.bumonOutTotal.cost  += (dd.bumonOutTotal?.cost||0);
-      ad.bumonOutTotal.price += (dd.bumonOutTotal?.price||0);
-
-      ad.hana.cost += (dd.hana?.cost||0);
-      ad.hana.price += (dd.hana?.price||0);
-      ad.sanchoku.cost += (dd.sanchoku?.cost||0);
-      ad.sanchoku.price += (dd.sanchoku?.price||0);
-
-      ad.consumable.cost += (dd.consumable?.cost||0);
-
-      // baihen: keep as net negative if present; store-level already keeps raw (can be negative)
-      ad.baihen += (dd.baihen||0);
-      ad.baihenAbs += (dd.baihenAbs!=null?dd.baihenAbs:Math.abs(dd.baihen||0));
-
-      // suppliers daily
-      if(dd.suppliers){
-        for(const [code, sv] of Object.entries(dd.suppliers)){
-          if(!ad.suppliers[code]) ad.suppliers[code] = {...sv, cost:0, price:0};
-          ad.suppliers[code].cost += (sv.cost||0);
-          ad.suppliers[code].price += (sv.price||0);
+      if(dailyAggregate.suppliers){
+        for(const [supplierCode, supplierValue] of Object.entries(dailyAggregate.suppliers)){
+          if(!dailyStore.suppliers[supplierCode]) dailyStore.suppliers[supplierCode] = {...supplierValue, cost:0, price:0};
+          dailyStore.suppliers[supplierCode].cost += (supplierValue.cost||0);
+          dailyStore.suppliers[supplierCode].price += (supplierValue.price||0);
         }
       }
     }
   }
 
-  // Derived monthly totals
-  const totalSales = Object.values(allDaily).reduce((s,d)=>s+(d.sales||0),0);
-  const totalCost  = Object.values(allCatTotals).reduce((s,c)=>s+(c.cost||0),0);
-  const totalPrice = Object.values(allCatTotals).reduce((s,c)=>s+(c.price||0),0);
+  const totalSales = Object.values(dailySales).reduce((sum,daily)=>sum+(daily.sales||0),0);
+  const totalCost  = Object.values(categoryTotals).reduce((sum,category)=>sum+(category.cost||0),0);
+  const totalPrice = Object.values(categoryTotals).reduce((sum,category)=>sum+(category.price||0),0);
 
   const grossProfit = totalSales - (invStart + totalCost - invEnd);
   const grossProfitRate = totalSales>0 ? grossProfit/totalSales : 0;
   const avgMargin = totalPrice>0 ? (totalPrice-totalCost)/totalPrice : 0;
-
-  const totalGrossSales = totalSales + totalBaihen; // net + discountAbs
+  const totalGrossSales = totalSales + totalBaihen;
   const baihenRateSales = totalGrossSales>0 ? (totalBaihen/totalGrossSales) : 0;
   const coreMarginRate = corePrice>0 ? (corePrice-coreCost)/corePrice : avgMargin;
-
   const estimatedGrossProfit = totalSales - estimatedCogs;
-  const estimatedGrossRate   = totalSales>0 ? estimatedGrossProfit/totalSales : 0;
-  const estimatedInvEnd      = invStart + totalCost - estimatedCogs;
+  const estimatedGrossRate = totalSales>0 ? estimatedGrossProfit/totalSales : 0;
+  const estimatedInvEnd = invStart + totalCost - estimatedCogs;
 
   avgDailySales = (elapsedDays>0) ? (totalSales/elapsedDays) : 0;
-
-  // gpRateBudget: total gpBudget / total budget if available
   gpRateBudget = (budget>0 && gpBudget>0) ? (gpBudget/budget) : 0;
 
-  result['all'] = {
-    daily: allDaily,
-    catTotals: allCatTotals,
-    supTotals: allSupTotals,
-    transferDetails: allTransfer,
+  return {
+    daily: dailySales,
+    catTotals: categoryTotals,
+    supTotals: supplierTotals,
+    transferDetails: transferTotals,
     invStart, invEnd,
     budget, gpBudget, gpRateBudget,
     budgetDaily,
@@ -1042,14 +1027,24 @@ function ensureAllAggregate(){
   };
 }
 
+function ensureAllAggregate(){
+  if(!result) return;
+  if(result[STORE_SCOPE.ALL]) return;
+  const allStoreAggregate = calculateStoreAggregate(result);
+  if(!allStoreAggregate) return;
+  result[STORE_SCOPE.ALL] = allStoreAggregate;
+}
+
+
 let overDeliveryWarned=false;
 let STORE_INVENTORY={};  // 店舗別在庫データ {storeId: {invStart: number, invEnd: number}}
 let STORE_BUDGET={};     // 店舗別日別予算データ {storeId: {day: budget}}
 let STORE_GP_BUDGET={};  // 店舗別 月間粗利額予算 {storeId: number}（初期設定ファイルから）
 let CONSUMABLES={};      // 原価算入比データ {storeId: {day: {cost: number, items: []}}}
 let SUPPLIER_SETTINGS={};// 仕入先別設定 {code: {marginRate: number, usePriceCalc: boolean}}
-let CATEGORIES={market:{name:'市場',icon:'🏪',order:1},lfc:{name:'LFC',icon:'🚚',order:2},salad:{name:'サラダクラブ',icon:'🥗',order:3},kakou:{name:'加工品',icon:'📦',order:4},chokuden:{name:'直伝',icon:'🍜',order:5},hana:{name:'花',icon:'🌸',order:6},sanchoku:{name:'産直',icon:'🥬',order:7},consumable:{name:'原価算入比',icon:'🧾',order:7.5},tenkan:{name:'店間移動',icon:'🔄',order:8},bumonkan:{name:'部門間移動',icon:'🔀',order:9},other:{name:'その他',icon:'📋',order:99}};
-let SUPPLIER_CAT_MAP={'0074721':'market','0012104':'lfc','0012072':'lfc','0017175':'salad','0030627':'kakou','0030344':'kakou','0044121':'kakou','0074017':'kakou','0074088':'chokuden','0076511':'chokuden','0017426':'other','0017663':'other','0074508':'other','0075825':'hana','0076686':'hana','0037923':'hana','0011002':'other'};
+const CATEGORY_CODE=Object.freeze({MARKET:'market',LFC:'lfc',SALAD:'salad',KAKOU:'kakou',CHOKUDEN:'chokuden',HANA:'hana',SANCHOKU:'sanchoku',CONSUMABLE:'consumable',TENKAN:'tenkan',BUMONKAN:'bumonkan',OTHER:'other'});
+let CATEGORIES={[CATEGORY_CODE.MARKET]:{name:'市場',icon:'🏪',order:1},[CATEGORY_CODE.LFC]:{name:'LFC',icon:'🚚',order:2},[CATEGORY_CODE.SALAD]:{name:'サラダクラブ',icon:'🥗',order:3},[CATEGORY_CODE.KAKOU]:{name:'加工品',icon:'📦',order:4},[CATEGORY_CODE.CHOKUDEN]:{name:'直伝',icon:'🍜',order:5},[CATEGORY_CODE.HANA]:{name:'花',icon:'🌸',order:6},[CATEGORY_CODE.SANCHOKU]:{name:'産直',icon:'🥬',order:7},[CATEGORY_CODE.CONSUMABLE]:{name:'原価算入比',icon:'🧾',order:7.5},[CATEGORY_CODE.TENKAN]:{name:'店間移動',icon:'🔄',order:8},[CATEGORY_CODE.BUMONKAN]:{name:'部門間移動',icon:'🔀',order:9},[CATEGORY_CODE.OTHER]:{name:'その他',icon:'📋',order:99}};
+let SUPPLIER_CAT_MAP={'0074721':CATEGORY_CODE.MARKET,'0012104':CATEGORY_CODE.LFC,'0012072':CATEGORY_CODE.LFC,'0017175':CATEGORY_CODE.SALAD,'0030627':CATEGORY_CODE.KAKOU,'0030344':CATEGORY_CODE.KAKOU,'0044121':CATEGORY_CODE.KAKOU,'0074017':CATEGORY_CODE.KAKOU,'0074088':CATEGORY_CODE.CHOKUDEN,'0076511':CATEGORY_CODE.CHOKUDEN,'0017426':CATEGORY_CODE.OTHER,'0017663':CATEGORY_CODE.OTHER,'0074508':CATEGORY_CODE.OTHER,'0075825':CATEGORY_CODE.HANA,'0076686':CATEGORY_CODE.HANA,'0037923':CATEGORY_CODE.HANA,'0011002':CATEGORY_CODE.OTHER};
 // デフォルト: 0074721は売価が仮なので値入率で計算
 SUPPLIER_SETTINGS['0074721']={marginRate:0.26,usePriceCalc:true};
 
@@ -1623,7 +1618,7 @@ function updateSupplierSettingsUI(){
     supCodes.forEach(code=>{
         const sup=SUPPLIERS[code];
         const setting=SUPPLIER_SETTINGS[code]||{};
-        const currentCat=SUPPLIER_CAT_MAP[code]||'other';
+        const currentCat=SUPPLIER_CAT_MAP[code]||CATEGORY_CODE.OTHER;
         const usePriceCalc=setting.usePriceCalc||false;
         const marginRate=setting.marginRate||0.26;
         
@@ -1873,24 +1868,120 @@ function updateStoreInv(el){
 // 花・産直ファイルから店舗を検出
 function detectStoresFromHanaSanchoku(type){const data=DATA[type];if(!data||data.length<2)return;for(let col=3;col<data[0].length;col+=2){const stoStr=String(data[0][col]||'');const stoMatch=stoStr.match(/(\d{4}):(.+)$/);if(stoMatch){const code=stoMatch[1],name=stoMatch[2].replace(/毎日屋/g,'').trim(),id=String(parseInt(code));if(!STORES[id])STORES[id]={code,name};}}updateStoreChips();updateStoreInventoryUI();}
 
-function detectStoresAndSuppliers(){const data=DATA.shiire;if(!data||data.length<2)return;STORES={};SUPPLIERS={};for(let col=3;col<data[0].length;col+=2){const supStr=String(data[0][col]||''),stoStr=String(data[1][col]||'');const supMatch=supStr.match(/(\d{7}):?(.*)$/);if(supMatch){const code=supMatch[1],name=supMatch[2]?.trim()||code;if(!SUPPLIERS[code])SUPPLIERS[code]={name,cat:SUPPLIER_CAT_MAP[code]||'other'};}const stoMatch=stoStr.match(/(\d{4}):(.+)$/);if(stoMatch){const code=stoMatch[1],name=stoMatch[2].replace(/毎日屋/g,'').trim(),id=String(parseInt(code));if(!STORES[id])STORES[id]={code,name};}}updateStoreChips();updateStoreInventoryUI();}
+function detectStoresAndSuppliers(){const data=DATA.shiire;if(!data||data.length<2)return;STORES={};SUPPLIERS={};for(let col=3;col<data[0].length;col+=2){const supStr=String(data[0][col]||''),stoStr=String(data[1][col]||'');const supMatch=supStr.match(/(\d{7}):?(.*)$/);if(supMatch){const code=supMatch[1],name=supMatch[2]?.trim()||code;if(!SUPPLIERS[code])SUPPLIERS[code]={name,cat:SUPPLIER_CAT_MAP[code]||CATEGORY_CODE.OTHER};}const stoMatch=stoStr.match(/(\d{4}):(.+)$/);if(stoMatch){const code=stoMatch[1],name=stoMatch[2].replace(/毎日屋/g,'').trim(),id=String(parseInt(code));if(!STORES[id])STORES[id]={code,name};}}updateStoreChips();updateStoreInventoryUI();}
 
-function updateStoreChips(){const c=document.getElementById('store-chips');let h='<div class="chip active" data-store="all">全店舗</div>';Object.entries(STORES).sort((a,b)=>+a[0]-+b[0]).forEach(([id])=>{h+='<div class="chip" data-store="'+id+'">'+id.padStart(2,'0')+'</div>';});c.innerHTML=h;}
+function updateStoreChips(){const c=document.getElementById('store-chips');let h='<div class="chip active" data-store="'+STORE_SCOPE.ALL+'">全店舗</div>';Object.entries(STORES).sort((a,b)=>+a[0]-+b[0]).forEach(([id])=>{h+='<div class="chip" data-store="'+id+'">'+id.padStart(2,'0')+'</div>';});c.innerHTML=h;}
 
-function processShiire(){const data=DATA.shiire;if(!data||data.length<4)return {};const r={};for(let col=3;col<data[0].length;col+=2){const supMatch=String(data[0][col]||'').match(/(\d{7})/),stoMatch=String(data[1][col]||'').match(/(\d{4}):/);if(!supMatch||!stoMatch)continue;const sc=supMatch[1],si=SUPPLIERS[sc]||{name:sc,cat:'other'},sid=String(parseInt(stoMatch[1]));if(!STORES[sid])continue;
-// 仕入先設定を取得
-const supSetting=SUPPLIER_SETTINGS[sc]||{};
-const usePriceCalc=supSetting.usePriceCalc||false;
-const supMarginRate=supSetting.marginRate||0.26;
-for(let row=4;row<data.length;row++){const date=parseDate(data[row][0]);if(!date)continue;const day=date.getDate(),cost=parseFloat(data[row][col])||0;let price=parseFloat(data[row][col+1])||0;
-// 売価計算設定がある場合は値入率から売価を再計算
-if(usePriceCalc&&cost>0){price=Math.round(cost/(1-supMarginRate));}
-if(cost===0&&price===0)continue;if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={suppliers:{},total:{cost:0,price:0}};if(!r[sid][day].suppliers[sc])r[sid][day].suppliers[sc]={...si,cost:0,price:0,usePriceCalc};r[sid][day].suppliers[sc].cost+=cost;r[sid][day].suppliers[sc].price+=price;r[sid][day].total.cost+=cost;r[sid][day].total.price+=price;}}return r;}
+function processShiire(){
+  const shiireRows=DATA.shiire;
+  if(!shiireRows||shiireRows.length<4) return {};
 
-function processUriage(){const data=DATA.uriage;if(!data||data.length<3)return {};const r={},cols={};for(let col=3;col<data[0].length;col+=2){const m=String(data[0][col]||'').match(/(\d{4}):/);if(m){const sid=String(parseInt(m[1]));if(STORES[sid])cols[sid]=col;}}for(let row=3;row<data.length;row++){const date=parseDate(data[row][0]);if(!date)continue;const day=date.getDate();Object.entries(cols).forEach(([sid,col])=>{if(!r[sid])r[sid]={};r[sid][day]={sales:parseFloat(data[row][col])||0};});}return r;}
+  const storeDailyPurchases={};
+  for(let col=3;col<shiireRows[0].length;col+=2){
+    const supplierMatch=String(shiireRows[0][col]||'').match(/(\d{7})/);
+    const storeMatch=String(shiireRows[1][col]||'').match(/(\d{4}):/);
+    if(!supplierMatch||!storeMatch) continue;
+
+    const supplierCode=supplierMatch[1];
+    const supplierMaster=SUPPLIERS[supplierCode]||{name:supplierCode,cat:CATEGORY_CODE.OTHER};
+    const storeId=String(parseInt(storeMatch[1]));
+    if(!STORES[storeId]) continue;
+
+    const supplierSetting=SUPPLIER_SETTINGS[supplierCode]||{};
+    const usePriceCalc=supplierSetting.usePriceCalc||false;
+    const supplierMarginRate=supplierSetting.marginRate||0.26;
+
+    for(let row=4;row<shiireRows.length;row++){
+      const date=parseDate(shiireRows[row][0]);
+      if(!date) continue;
+      const day=date.getDate();
+      const cost=parseFloat(shiireRows[row][col])||0;
+      let price=parseFloat(shiireRows[row][col+1])||0;
+
+      if(usePriceCalc&&cost>0){
+        price=Math.round(cost/(1-supplierMarginRate));
+      }
+      if(cost===0&&price===0) continue;
+
+      if(!storeDailyPurchases[storeId]) storeDailyPurchases[storeId]={};
+      if(!storeDailyPurchases[storeId][day]) storeDailyPurchases[storeId][day]={suppliers:{},total:{cost:0,price:0}};
+      if(!storeDailyPurchases[storeId][day].suppliers[supplierCode]){
+        storeDailyPurchases[storeId][day].suppliers[supplierCode]={...supplierMaster,cost:0,price:0,usePriceCalc};
+      }
+
+      storeDailyPurchases[storeId][day].suppliers[supplierCode].cost+=cost;
+      storeDailyPurchases[storeId][day].suppliers[supplierCode].price+=price;
+      storeDailyPurchases[storeId][day].total.cost+=cost;
+      storeDailyPurchases[storeId][day].total.price+=price;
+    }
+  }
+  return storeDailyPurchases;
+}
+
+function processUriage(){
+  const uriageRows=DATA.uriage;
+  if(!uriageRows||uriageRows.length<3) return {};
+
+  const salesByStoreAndDay={};
+  const uriageColumnsByStore={};
+  for(let col=3;col<uriageRows[0].length;col+=2){
+    const storeMatch=String(uriageRows[0][col]||'').match(/(\d{4}):/);
+    if(!storeMatch) continue;
+    const storeId=String(parseInt(storeMatch[1]));
+    if(STORES[storeId]) uriageColumnsByStore[storeId]=col;
+  }
+
+  for(let row=3;row<uriageRows.length;row++){
+    const date=parseDate(uriageRows[row][0]);
+    if(!date) continue;
+    const day=date.getDate();
+    Object.entries(uriageColumnsByStore).forEach(([storeId,col])=>{
+      if(!salesByStoreAndDay[storeId]) salesByStoreAndDay[storeId]={};
+      salesByStoreAndDay[storeId][day]={sales:parseFloat(uriageRows[row][col])||0};
+    });
+  }
+  return salesByStoreAndDay;
+}
 
 // 店間部門間入: 店舗コード=店コードOUT→部門間入, 異なる→店間入
-function processTenkanIn(){const data=DATA.tenkanIn;if(!data||data.length<2)return {};const r={};for(let row=1;row<data.length;row++){const storeCode=String(data[row][0]||'').trim(),dateVal=data[row][1],storeCodeOut=String(data[row][2]||'').trim(),costIn=Math.abs(parseFloat(data[row][3])||0),priceIn=Math.abs(parseFloat(data[row][4])||0);const date=parseDate(dateVal);if(!date)continue;const day=date.getDate(),sid=String(parseInt(storeCode)||0),sidOut=String(parseInt(storeCodeOut)||0);if(!STORES[sid])continue;const isBumon=(storeCode===storeCodeOut)||(sid===sidOut);if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={tenkanIn:[],bumonIn:[]};if(isBumon){r[sid][day].bumonIn.push({cost:costIn,price:priceIn,fromStore:sidOut});}else{r[sid][day].tenkanIn.push({cost:costIn,price:priceIn,fromStore:sidOut,fromStoreName:STORES[sidOut]?.name||sidOut});}}return r;}
+function processTenkanIn(){
+  const tenkanInRows=DATA.tenkanIn;
+  if(!tenkanInRows||tenkanInRows.length<2) return {};
+
+  const transferInByStoreAndDay={};
+  for(let row=1;row<tenkanInRows.length;row++){
+    const storeCodeIn=String(tenkanInRows[row][0]||'').trim();
+    const dateValue=tenkanInRows[row][1];
+    const storeCodeOut=String(tenkanInRows[row][2]||'').trim();
+    const transferCostIn=Math.abs(parseFloat(tenkanInRows[row][3])||0);
+    const transferPriceIn=Math.abs(parseFloat(tenkanInRows[row][4])||0);
+
+    const date=parseDate(dateValue);
+    if(!date) continue;
+
+    const day=date.getDate();
+    const storeId=String(parseInt(storeCodeIn)||0);
+    const fromStoreId=String(parseInt(storeCodeOut)||0);
+    if(!STORES[storeId]) continue;
+
+    const isBumonTransfer=(storeCodeIn===storeCodeOut)||(storeId===fromStoreId);
+    if(!transferInByStoreAndDay[storeId]) transferInByStoreAndDay[storeId]={};
+    if(!transferInByStoreAndDay[storeId][day]) transferInByStoreAndDay[storeId][day]={[TRANSFER_KIND.TENKAN_IN]:[],[TRANSFER_KIND.BUMON_IN]:[]};
+
+    if(isBumonTransfer){
+      transferInByStoreAndDay[storeId][day][TRANSFER_KIND.BUMON_IN].push({cost:transferCostIn,price:transferPriceIn,fromStore:fromStoreId});
+    }else{
+      transferInByStoreAndDay[storeId][day][TRANSFER_KIND.TENKAN_IN].push({
+        cost:transferCostIn,
+        price:transferPriceIn,
+        fromStore:fromStoreId,
+        fromStoreName:STORES[fromStoreId]?.name||fromStoreId
+      });
+    }
+  }
+  return transferInByStoreAndDay;
+}
+
 
 // 店間部門間出: 店舗コード=店コードIN→部門間出, 異なる→店間出
 function processTenkanOut(){const data=DATA.tenkanOut;if(!data||data.length<2)return {};const r={};for(let row=1;row<data.length;row++){const dateVal=data[row][0],storeCode=String(data[row][1]||'').trim(),storeCodeIn=String(data[row][2]||'').trim(),bumonCodeIn=String(data[row][3]||'').trim(),costOut=-Math.abs(parseFloat(data[row][4])||0),priceOut=-Math.abs(parseFloat(data[row][5])||0);const date=parseDate(dateVal);if(!date)continue;const day=date.getDate(),sid=String(parseInt(storeCode)||0),sidIn=String(parseInt(storeCodeIn)||0);if(!STORES[sid])continue;const isBumon=(storeCode===storeCodeIn)||(sid===sidIn);if(!r[sid])r[sid]={};if(!r[sid][day])r[sid][day]={tenkanOut:[],bumonOut:[]};if(isBumon){r[sid][day].bumonOut.push({cost:costOut,price:priceOut,toStore:sidIn,bumonCode:bumonCodeIn});}else{r[sid][day].tenkanOut.push({cost:costOut,price:priceOut,toStore:sidIn,toStoreName:STORES[sidIn]?.name||sidIn,bumonCode:bumonCodeIn});}}return r;}
@@ -4992,7 +5083,7 @@ try{ window.loadFile = loadFile; }catch(e){}
   function ensureAllAggregateV19(){
     try{
       if(!result) return;
-      if(result['all'] && result['all'].__isAllAggregate) return;
+      if(result[STORE_SCOPE.ALL] && result[STORE_SCOPE.ALL].__isAllAggregate) return;
 
       const ids = Object.keys(result||{}).filter(id=>id!=='all');
       if(!ids.length) return;
@@ -5070,7 +5161,7 @@ try{ window.loadFile = loadFile; }catch(e){}
       agg.coreMarginRate = (wSales>0) ? (wMargin/wSales) : null;
       agg.baihenRateSales = (wSales>0) ? (wBaihen/wSales) : null;
 
-      result['all'] = agg;
+      result[STORE_SCOPE.ALL] = agg;
     }catch(e){
       console.error('[v19] ensureAllAggregate failed', e);
     }
@@ -5102,7 +5193,7 @@ try{ window.loadFile = loadFile; }catch(e){}
       const norm = (typeof normalizeStoreId==='function') ? normalizeStoreId(sid) : sid;
       currentStore = norm;
       if(norm==='all'){
-        currentView='dashboard';
+        currentView=VIEW_MODE.DASHBOARD;
       }
       // update chip active (compare normalized)
       document.querySelectorAll('#store-chips .chip').forEach(c=>{
