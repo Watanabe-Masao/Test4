@@ -75,43 +75,426 @@
 - インポート進捗表示
 - データ検証＆警告（検証モーダル付き）
 
-### 3.2 計算エンジン
+#### 3.1.4 ファイル種別自動判定ルール
 
-#### 3.2.1 粗利計算
+| データ種別 | ファイル名パターン | ヘッダーパターン |
+|-----------|-------------------|-----------------|
+| 仕入 | `仕入`, `shiire` | `取引先コード`, `原価金額`, `売価金額` |
+| 売上 | `売上`, `uriage` | `販売金額`, `売上` |
+| 売変 | `売変`, `baihen` | `売変合計`, `値引` |
+| 初期設定 | `初期`, `設定`, `setting` | `期首`, `期末` |
+| 予算 | `予算`, `budget` | `予算` |
+| 店間入 | `店間入`, `入庫` | `店舗コードIN` |
+| 店間出 | `店間出`, `出庫` | `店舗コードOUT` |
+| 花 | `花`, `hana` | `販売金額` |
+| 産直 | `産直`, `sanchoku` | `販売金額` |
+
+> **注意**: 花・産直はヘッダーパターンが同一（`販売金額`）のため、ファイル名パターンで先に判定する。
+
+#### 3.1.5 ファイル形式詳細仕様
+
+##### (1) 仕入データ（purchase）
 
 ```
-■ 在庫法（実績）
+行0: 取引先コード（"NNNNNNN:取引先名" 形式、7桁コード、Col3〜）
+行1: 店舗コード（"NNNN:店舗名" 形式、4桁コード、Col3〜）
+行2: (メタ情報)
+行3: (メタ情報)
+行4+: データ行
+  Col0: 日付
+  Col3+: 2列ペアで繰り返し
+    偶数列(3,5,7...): 原価金額
+    奇数列(4,6,8...): 売価金額
+```
+
+- 最低4行必要（データは行4以降）
+- 取引先コード抽出: 正規表現 `/(\d{7})/`
+- 店舗コード抽出: 正規表現 `/(\d{4}):/`
+- 値の解析: `parseFloat()`, NaN → 0
+
+##### (2) 売上データ（sales）
+
+```
+行0: 店舗コード（"NNNN:店舗名" 形式、Col3〜）
+行1: (メタ情報)
+行2: (メタ情報)
+行3+: データ行
+  Col0: 日付
+  Col3+: 店舗別売上金額（2列ペア）
+```
+
+- 最低3行必要（データは行3以降）
+- 店舗コード抽出: 正規表現 `/(\d{4}):/`
+
+##### (3) 売変データ（discount）
+
+```
+行0: 店舗コード（"NNNN:店舗名" 形式、Col3〜）
+行1: (ヘッダー)
+行2+: データ行
+  Col0: 日付
+  Col3+: 2列ペアで繰り返し
+    偶数列: 売上金額
+    奇数列: 売変額
+```
+
+- 最低3行必要（データは行2以降）
+- 売変額は**絶対値**で格納: `Math.abs(value)`
+- 売上が0の行はスキップ
+
+##### (4) 初期設定（initialSettings）
+
+```
+行0: ヘッダー
+行1+: データ行
+  Col0: 店舗コード
+  Col1: 期首在庫
+  Col2: 期末在庫
+  Col3: 月間粗利額予算
+```
+
+- 最低2行必要（データは行1以降）
+- 店舗ID変換: `String(parseInt(storeCode))`
+- 粗利予算 > 0 のみ登録
+
+##### (5) 予算データ（budget）
+
+```
+行0: ヘッダー
+行1+: データ行
+  Col0: 店舗コード
+  Col1: 日付
+  Col2: 予算金額
+```
+
+- 最低2行必要（データは行1以降）
+- 予算金額 ≤ 0 はスキップ
+- 日付範囲を追跡（min/max）
+
+##### (6) 店間入データ（interStoreIn）
+
+```
+行0: ヘッダー
+行1+: データ行
+  Col0: 入庫店舗コード
+  Col1: 日付
+  Col2: 出庫元店舗コード
+  Col3: 原価
+  Col4: 売価
+```
+
+- 最低2行必要（データは行1以降）
+- 金額は絶対値: `Math.abs(value)`
+- **部門間移動判定**: 入庫店舗コード === 出庫元店舗コード → 部門間移動（bumonIn）
+
+##### (7) 店間出データ（interStoreOut）
+
+```
+行0: ヘッダー
+行1+: データ行
+  Col0: 日付
+  Col1: 出庫元店舗コード
+  Col2: 入庫先店舗コード
+  Col3: 部門コード
+  Col4: 原価
+  Col5: 売価
+```
+
+- 最低2行必要（データは行1以降）
+- 金額は**負の絶対値**: `-Math.abs(value)`
+- **部門間移動判定**: 同上（同一店舗コード → 部門間移動）
+
+##### (8) 花データ（flowers）
+
+```
+行0: 店舗コード（"NNNN:店舗名" 形式、Col3〜）
+行1-2: (メタ情報)
+行3+: データ行
+  Col0: 日付
+  Col3+: 店舗別売価金額
+```
+
+- 最低3行必要（データは行3以降）
+- 原価計算: `cost = Math.round(price × flowerCostRate)` （デフォルト 0.80）
+- 売価 > 0 のみ処理
+
+##### (9) 産直データ（directProduce）
+
+```
+（花データと同一フォーマット）
+原価計算: cost = Math.round(price × directProduceCostRate)（デフォルト 0.85）
+```
+
+##### (10) 消耗品データ（consumables）
+
+```
+行0: ヘッダー
+行1+: データ行
+  Col0: 勘定コード（'81257' のみ対象）
+  Col1: 品目コード
+  Col2: 品目名
+  Col3: 数量
+  Col4: 原価
+  Col5: 日付
+```
+
+- 最低2行必要（データは行1以降）
+- **店舗判定**: ファイル名先頭2桁 → 正規表現 `/^(\d{2})/`
+- **勘定コードフィルタ**: `'81257'` 以外の行はスキップ
+- 複数ファイル対応（追加/上書きモード選択）
+
+#### 3.1.6 日付パーサー仕様
+
+以下の形式を自動認識:
+
+| 形式 | 例 | 備考 |
+|------|-----|------|
+| Excelシリアル値 | `45338` | 数値型をDate変換 |
+| 日本語形式 | `2026年2月15日` | 正規表現マッチ |
+| ISO形式 | `2026-02-15` | ハイフン区切り |
+| スラッシュ形式 | `2026/02/15` | スラッシュ区切り |
+
+パース不能な場合は `null` を返し、その行はスキップされる。
+
+#### 3.1.7 バリデーションルール
+
+**分析実行前チェック:**
+
+| レベル | 条件 | メッセージ |
+|--------|------|-----------|
+| ERROR | 仕入データ未読込 | 仕入データが必要です |
+| ERROR | 売上データ未読込 | 売上データが必要です |
+| WARNING | 検出店舗数 = 0 | 店舗が検出されません |
+| WARNING | 在庫設定未登録の店舗あり | 在庫設定が必要です |
+| INFO | 予算データ未読込 | 予算データの読込を推奨 |
+| INFO | 売変データ未読込 | 売変データで精度向上 |
+
+### 3.2 計算エンジン（推定在庫・粗利管理 ロジック仕様）
+
+> **設計思想**: 売変（値引）・値入率を考慮した推定原価・推定粗利・推定期末在庫を、
+> **在庫販売のみ**を対象として一貫したロジックで算出する。
+> 売上納品・花・産直など値入率管理の対象外売上を除外し、
+> 売上・原価・在庫が同一の範囲（＝**同一の"世界線"**）で対応することを目的とする。
+
+#### 3.2.0 対象範囲と前提条件
+
+**売上の構成:**
+- 総売上高には以下を含む
+  - 在庫販売（値入率管理対象）
+  - 売上納品
+  - 花売上
+  - 産直売上
+
+**原価の構成:**
+- 総仕入原価には以下を含む
+  - 在庫仕入原価
+  - 売上納品売上から換算した原価
+- 消耗品費は在庫販売に付随する費用として扱う
+
+**推定法の対象:**
+- 本推定ロジックの対象は**在庫販売のみ**とする
+- 売上納品・花・産直は、売上・原価・在庫**すべてから除外**する
+
+**用語定義:**
+
+| 用語 | 定義 |
+|------|------|
+| 売変率 | 売価ベースの値引率 |
+| 値入率 | 売価ベースの粗利率 |
+| コア売上 | 総売上から花・産直・売上納品を除外した売上 |
+| 粗売上 | 売変前の売価ベース売上 |
+
+#### 3.2.1 在庫法（実績値）
+
+```
+■ 売上原価（実績）
   売上原価 = 期首在庫 + 総仕入高 - 期末在庫
+
+■ 粗利益・粗利率（実績）
   粗利益 = 売上高 - 売上原価
   粗利率 = 粗利益 / 売上高
-
-■ 推定法（予測）
-  コア売上（花・産直除く） = 総売上 - 花売価 - 産直売価
-  粗売上 = コア売上 / (1 - 売変率)
-  推定原価 = 粗売上 × (1 - 値入率) + 納品原価 + 消耗品費
-  推定粗利 = 売上高 - 推定原価
-  推定粗利率 = 推定粗利 / 売上高
-
-■ 売変影響額
-  売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 / (1 - 売変率)
 ```
 
-#### 3.2.2 予算分析
+#### 3.2.2 推定法（予測ロジック）
+
+```
+■ コア売上の算出
+  コア売上 = 総売上 - 花売価 - 産直売価 - 売上納品売価
+  ※ 値入率管理対象の在庫販売売上のみを抽出する
+
+■ 粗売上（売変前売価）の算出
+  粗売上 = コア売上 / (1 - 売変率)
+
+■ 推定原価（在庫販売分）
+  推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+  【重要】コア売上から売上納品を除外しているため、
+          推定原価に売上納品原価を含めてはならない。
+          売上と原価は必ず同一範囲で対応させる。
+
+■ 推定粗利・推定粗利率
+  推定粗利   = コア売上 - 推定原価
+  推定粗利率 = 推定粗利 / コア売上
+```
+
+#### 3.2.3 売変影響額（原価ベース）
+
+```
+■ 売変ロス原価
+  売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 / (1 - 売変率)
+
+■ 意味
+  売変（値引）によって失われた売価を、原価換算した金額。
+  在庫評価・在庫差異分析の補助指標として使用可能。
+```
+
+#### 3.2.4 推定期末在庫（原価）
+
+```
+■ 算出式
+  推定期末在庫 = 期首在庫（在庫販売分） + 期中仕入原価（在庫販売分） - 推定原価
+  ※ 期中仕入原価から売上納品仕入分は除外して使用すること
+```
+
+#### 3.2.5 差異分析の基本分解（参考）
+
+```
+■ 差異分解
+  実績期末在庫 - 推定期末在庫 = 売変差 + 値入差 + 数量差 + その他差異
+
+  本仕様は、売変差・値入差を明確に分離できる設計となっている。
+```
+
+#### 3.2.6 仕様上の原則（最重要）
+
+1. **売上・原価・在庫は必ず同一範囲で対応させる**
+2. **値入率は在庫販売のみに適用する**
+3. **管理対象外売上（売上納品・花・産直）は完全に切り離す**
+4. **推定ロジックは在庫評価・経営判断用であり、会計仕訳そのものではない**
+
+> **付記**: 本仕様に基づく推定在庫・推定粗利は、
+> 月次速報、棚卸前の異常検知、売変影響分析に使用することを想定する。
+
+#### 3.2.7 予算分析
 - 月間予算消化率（日別累計 vs 予算累計）
 - 営業日ベースの進捗率
 - 月末予測（営業日平均 × 残日数）
 - 予算達成率
 
-#### 3.2.3 週間予測
+#### 3.2.8 週間予測
 - 月間カレンダー（月曜始まり）
 - 週単位の売上・粗利集計
 - 曜日別平均
 - 異常値検出（平均±標準偏差からの乖離）
 
-#### 3.2.4 全店集計
+#### 3.2.9 全店集計
 - 個別店舗データの自動合算
 - 日別・帳合別・取引先別の集計
 - 店間移動の集約
+- **集計方式**:
+  - 金額項目（売上・原価・粗利・在庫等）: **単純合計**
+  - 率項目（値入率・売変率等）: **売上高加重平均**
+  - 加重平均の除数が0の場合: `null` を返す
+
+#### 3.2.10 エッジケース処理仕様
+
+##### (1) ゼロ除算の防止
+
+全ての除算に対しガード条件を適用する:
+
+| 計算 | ガード条件 | フォールバック値 |
+|------|-----------|-----------------|
+| 粗利率 = 粗利 / 売上高 | `totalSales > 0` | `0` |
+| 売変率 = 売変額 / (売上 + 売変額) | `(sales + discount) > 0` | `0` |
+| 値入率 = (売価 - 原価) / 売価 | `corePrice > 0` | グローバル設定の `marginRate` |
+| 予算達成率 = 売上 / 予算 | `budget > 0` | `0` |
+| 粗売上 = コア売上 / (1 - 売変率) | `(1 - discountRate) > 0` | `コア売上`（売変率0扱い） |
+| 売変ロス原価の除数 | `(1 - baihenRate)` が0 | `1` をフォールバック |
+
+##### (2) 売上納品超過（コア売上がマイナスになるケース）
+
+花売上 + 産直売上が総売上を超える場合:
+
+```
+if (coreSales < 0) {
+  overDelivery = true;
+  overDeliveryAmount = -coreSales;  // 超過分を記録
+  coreSales = 0;                     // 0にクランプ
+}
+```
+
+- **警告**: セッション中1回のみトースト表示
+- **影響**: 推定原価計算はコア売上=0で実行される
+
+##### (3) Null/NaN/Undefined の統一処理
+
+```typescript
+// 安全な数値変換
+function safeNumber(n: unknown): number {
+  return (n == null || isNaN(Number(n))) ? 0 : Number(n);
+}
+
+// 表示用フォーマット（null/NaN → '-'）
+function formatCurrency(n: number | null): string {
+  return (n == null || isNaN(n)) ? '-' : Math.round(n).toLocaleString('ja-JP');
+}
+
+function formatPercent(n: number | null, decimals = 2): string {
+  return (n == null || isNaN(n)) ? '-' : (n * 100).toFixed(decimals) + '%';
+}
+```
+
+##### (4) 負の値の取り扱い
+
+| データ | 処理 |
+|--------|------|
+| 売変額 | **絶対値**で格納: `Math.abs(value)` |
+| 店間入（原価・売価） | **絶対値**: `Math.abs(value)` |
+| 店間出（原価・売価） | **負の絶対値**: `-Math.abs(value)` |
+| 在庫値 | 負値を許容（棚卸差異等の表現） |
+
+##### (5) データ欠損時のフォールバック
+
+| データ | フォールバック |
+|--------|---------------|
+| 期首在庫 | `null` → 推定在庫計算スキップ |
+| 期末在庫 | `null` → 在庫法粗利計算スキップ |
+| 売変データ | 売変率 = 0 として計算続行 |
+| 予算データ | デフォルト予算（6,450,000）を使用 |
+| 値入率（個別） | グローバルデフォルト値入率（0.26）を使用 |
+| 花掛け率 | デフォルト 0.80（範囲制限: 0〜1.2） |
+| 産直掛け率 | デフォルト 0.85（範囲制限: 0〜1.2） |
+
+#### 3.2.11 数値フォーマット仕様
+
+| 種別 | フォーマット | 例 |
+|------|------------|-----|
+| 金額（通常） | 四捨五入 → カンマ区切り（`ja-JP`） | `1,234,567` |
+| 金額（万円表示） | ÷10,000 → 四捨五入 → ±符号 → `万円` | `+123万円` |
+| 率（パーセント） | ×100 → 小数2桁 → `%` | `25.00%` |
+| 率（ポイント差） | ×100 → 小数1桁 → ±符号 → `pt` | `+1.5pt` |
+| Null/NaN | `-`（ハイフン） | `-` |
+
+#### 3.2.12 データフロー（トリガーと再計算）
+
+```
+ファイルインポート
+  ↓
+ファイル種別自動判定 → データ解析 → グローバルデータ格納
+  ↓
+バリデーションチェック（必須ファイル確認）
+  ↓
+ユーザー操作: 「フォーマット作成」ボタン押下 ← ★ 再計算トリガー
+  ↓
+全店舗ループ（各店舗 × 日1-31）:
+  仕入集計 → 売上集計 → 花/産直集計 → 売変集計 → 店間集計
+  → コア売上算出 → 推定原価算出 → 粗利算出
+  ↓
+全店集計（加重平均）
+  ↓
+UI描画
+```
+
+> **注意**: 設定変更（値入率、掛け率等）後は手動で再計算が必要。自動再計算は行わない。
 
 ### 3.3 表示機能（ビュー）
 
@@ -495,8 +878,11 @@ type CategoryType =
 // 日別レコード
 interface DailyRecord {
   readonly day: number;                              // 1-31
-  readonly sales: number;                            // 売上高
+  readonly sales: number;                            // 売上高（総売上）
+  readonly coreSales: number;                       // コア売上（花・産直・売上納品除外）
+  readonly grossSales: number;                      // 粗売上（売変前売価）
   readonly purchase: CostPricePair;                  // 仕入（原価/売価）
+  readonly deliverySales: CostPricePair;            // 売上納品（原価/売価）
   readonly interStoreIn: CostPricePair;             // 店間入
   readonly interStoreOut: CostPricePair;            // 店間出
   readonly interDepartmentIn: CostPricePair;        // 部門間入
@@ -506,8 +892,6 @@ interface DailyRecord {
   readonly consumable: ConsumableDailyRecord;       // 消耗品
   readonly discountAmount: number;                  // 売変額
   readonly discountAbsolute: number;                // 売変絶対値
-  readonly grossSales: number;                      // 粗売上
-  readonly coreSales: number;                       // コア売上
   readonly supplierBreakdown: ReadonlyMap<string, CostPricePair>;
 }
 
@@ -527,33 +911,45 @@ interface ConsumableDailyRecord {
 interface StoreResult {
   readonly storeId: string;
 
-  // 在庫
-  readonly openingInventory: number;
-  readonly closingInventory: number;
+  // 在庫（実績）
+  readonly openingInventory: number;          // 期首在庫
+  readonly closingInventory: number;          // 期末在庫（実績）
+  readonly estimatedClosingInventory: number; // 推定期末在庫（※3.2.4参照）
 
-  // 売上・原価
-  readonly totalSales: number;
-  readonly totalCoreSales: number;
-  readonly totalCost: number;
-  readonly coreCost: number;
-  readonly deliverySalesCost: number;
+  // 売上
+  readonly totalSales: number;                // 総売上高
+  readonly totalCoreSales: number;            // コア売上（花・産直・売上納品除外）
+  readonly deliverySalesPrice: number;        // 売上納品売価
+  readonly flowerSalesPrice: number;          // 花売価
+  readonly directProduceSalesPrice: number;   // 産直売価
+  readonly grossSales: number;                // 粗売上（売変前売価）
 
-  // 粗利
-  readonly grossProfit: number;
-  readonly grossProfitRate: number;
-  readonly estimatedGrossProfit: number;
-  readonly estimatedGrossProfitRate: number;
-  readonly estimatedCostOfGoodsSold: number;
+  // 原価
+  readonly totalCost: number;                 // 総仕入原価（全体）
+  readonly inventoryCost: number;             // 在庫仕入原価（売上納品分除外）
+  readonly deliverySalesCost: number;         // 売上納品原価
+
+  // 粗利（在庫法 = 実績）
+  readonly grossProfit: number;               // 粗利益
+  readonly grossProfitRate: number;           // 粗利率
+
+  // 推定（推定法 = 予測、在庫販売のみの"世界線"）
+  readonly estimatedCostOfGoodsSold: number;  // 推定原価
+  readonly estimatedGrossProfit: number;      // 推定粗利 = コア売上 - 推定原価
+  readonly estimatedGrossProfitRate: number;  // 推定粗利率 = 推定粗利 / コア売上
 
   // 売変
-  readonly totalDiscount: number;
-  readonly discountRateOnSales: number;
-  readonly discountRateOnCost: number;
-  readonly discountLossCost: number;
+  readonly totalDiscount: number;             // 売変額合計
+  readonly discountRate: number;              // 売変率（売価ベース）
+  readonly discountLossCost: number;          // 売変ロス原価
 
   // 値入率
-  readonly averageMarkupRate: number;
-  readonly coreMarkupRate: number;
+  readonly averageMarkupRate: number;         // 平均値入率（全体）
+  readonly coreMarkupRate: number;            // コア値入率（在庫販売対象）
+
+  // 消耗品
+  readonly totalConsumable: number;           // 消耗品費合計
+  readonly consumableRate: number;            // 消耗品率
 
   // 予算
   readonly budget: number;
@@ -570,13 +966,11 @@ interface StoreResult {
   readonly transferDetails: TransferDetails;
 
   // 予測・KPI
-  readonly elapsedDays: number;
-  readonly salesDays: number;
-  readonly averageDailySales: number;
-  readonly projectedSales: number;
-  readonly projectedAchievement: number;
-  readonly totalConsumable: number;
-  readonly consumableRate: number;
+  readonly elapsedDays: number;               // 経過日数
+  readonly salesDays: number;                 // 営業日数
+  readonly averageDailySales: number;         // 日平均売上
+  readonly projectedSales: number;            // 月末予測売上
+  readonly projectedAchievement: number;      // 予算達成率予測
 }
 ```
 
