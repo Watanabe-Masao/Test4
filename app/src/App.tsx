@@ -1,5 +1,5 @@
 import { ThemeProvider } from 'styled-components'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, createContext, useContext } from 'react'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { AppStateProvider, useAppState, useAppDispatch } from '@/application/context'
@@ -20,9 +20,18 @@ import { DailyPage } from '@/presentation/pages/Daily/DailyPage'
 import { AnalysisPage } from '@/presentation/pages/Analysis/AnalysisPage'
 import { CategoryPage } from '@/presentation/pages/Category/CategoryPage'
 import { SummaryPage } from '@/presentation/pages/Summary/SummaryPage'
+import { ForecastPage } from '@/presentation/pages/Forecast/ForecastPage'
+import { ReportsPage } from '@/presentation/pages/Reports/ReportsPage'
 import { ALL_STORES_ID } from '@/domain/constants/defaults'
 import type { ViewType, DataType } from '@/domain/models'
 import styled from 'styled-components'
+
+// ─── テーマトグルコンテキスト ────────────────────────────────
+const ThemeToggleContext = createContext<{ mode: ThemeMode; toggle: () => void }>({
+  mode: 'dark',
+  toggle: () => {},
+})
+export const useThemeToggle = () => useContext(ThemeToggleContext)
 
 function getInitialTheme(): ThemeMode {
   if (typeof window !== 'undefined') {
@@ -51,6 +60,11 @@ const SectionLabel = styled.div`
   text-transform: uppercase;
 `
 
+const SidebarActions = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
 const uploadTypes: { type: DataType; label: string }[] = [
   { type: 'purchase', label: '仕入' },
   { type: 'sales', label: '売上' },
@@ -73,9 +87,9 @@ function ViewRouter({ view }: { view: ViewType }) {
     case 'summary':
       return <SummaryPage />
     case 'forecast':
-      return <DailyPage /> // Phase 7で独自実装
+      return <ForecastPage />
     case 'reports':
-      return <DashboardPage /> // Phase 7で独自実装
+      return <ReportsPage />
     default:
       return <DashboardPage />
   }
@@ -89,6 +103,7 @@ function AppContent() {
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
   const [showSettings, setShowSettings] = useState(false)
+  const { mode, toggle } = useThemeToggle()
 
   const handleFiles = useCallback(
     async (files: FileList) => {
@@ -136,6 +151,8 @@ function AppContent() {
           <NavBar
             currentView={state.ui.currentView}
             onViewChange={handleViewChange}
+            themeMode={mode}
+            onThemeToggle={toggle}
           />
         }
         sidebar={
@@ -183,9 +200,11 @@ function AppContent() {
             )}
 
             <SidebarSection>
-              <Button $variant="outline" onClick={() => setShowSettings(true)}>
-                ⚙ 設定
-              </Button>
+              <SidebarActions>
+                <Button $variant="outline" onClick={() => setShowSettings(true)}>
+                  ⚙ 設定
+                </Button>
+              </SidebarActions>
             </SidebarSection>
           </Sidebar>
         }
@@ -204,19 +223,29 @@ function AppContent() {
 }
 
 function App() {
-  const [themeMode] = useState<ThemeMode>(getInitialTheme)
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme)
+
+  const toggleTheme = useCallback(() => {
+    setThemeMode((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      localStorage.setItem('theme', next)
+      return next
+    })
+  }, [])
 
   const theme = themeMode === 'dark' ? darkTheme : lightTheme
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <AppStateProvider>
-        <ToastProvider>
-          <AppContent />
-        </ToastProvider>
-      </AppStateProvider>
-    </ThemeProvider>
+    <ThemeToggleContext.Provider value={{ mode: themeMode, toggle: toggleTheme }}>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <AppStateProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
+        </AppStateProvider>
+      </ThemeProvider>
+    </ThemeToggleContext.Provider>
   )
 }
 
