@@ -1,0 +1,32 @@
+/** アプリケーション設定 */
+export interface AppSettings {
+  readonly targetGrossProfitRate: number // 目標粗利率 (default: 0.25)
+  readonly warningThreshold: number // 警告しきい値 (default: 0.23)
+  readonly flowerCostRate: number // 花掛け率 (default: 0.80)
+  readonly directProduceCostRate: number // 産直掛け率 (default: 0.85)
+  readonly defaultMarkupRate: number // デフォルト値入率 (default: 0.26)
+  readonly defaultBudget: number // デフォルト予算 (default: 6,450,000)
+}
+
+/** ビュー種別 */
+export type ViewType =
+  | 'dashboard'
+  | 'category'
+  | 'forecast'
+  | 'analysis'
+  | 'daily'
+  | 'summary'
+  | 'reports'
+
+/** データ種別 */
+export type DataType =
+  | 'purchase'
+  | 'sales'
+  | 'discount'
+  | 'initialSettings'
+  | 'budget'
+  | 'consumables'
+  | 'interStoreIn'
+  | 'interStoreOut'
+  | 'flowers'
+  | 'directProduce'
