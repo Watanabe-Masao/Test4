@@ -561,6 +561,13 @@
 })();
 </script>
 
+<script src="features/import/importErrors.js"></script>
+<script src="features/import/fileReader.js"></script>
+<script src="features/import/csvParser.js"></script>
+<script src="features/import/xlsxParser.js"></script>
+<script src="features/import/fileTypeDetector.js"></script>
+<script src="features/import/importService.js"></script>
+
 
     <div class="app">
         <nav class="nav">
@@ -1162,145 +1169,49 @@ function initDropZone(){
 
 // ファイル自動判定
 function detectFileType(filename,data){
-    const lowerName=filename.toLowerCase();
-    // ファイル名パターンでチェック
-    for(const[type,config]of Object.entries(FILE_TYPES)){
-        for(const pattern of config.patterns){
-            if(lowerName.includes(pattern.toLowerCase()))return type;
-        }
-    }
-    // ヘッダーパターンでチェック
-    if(data&&data.length>0){
-        const headerStr=data.slice(0,3).flat().map(x=>String(x||'')).join(' ').toLowerCase();
-        for(const[type,config]of Object.entries(FILE_TYPES)){
-            const matches=config.headerPatterns.filter(p=>headerStr.includes(p.toLowerCase()));
-            if(matches.length>=1)return type;
-        }
-    }
-    return null;
+    return window.ImportFileTypeDetector.detectFileType(filename,data,FILE_TYPES);
 }
 
 // ドロップされたファイルを処理
 async function handleDroppedFiles(files){
-    const fileArray=Array.from(files);
-    let loadedCount=0;
-    
-    for(const file of fileArray){
-        try{
-            const data=await readExcelFile(file);
-            const type=detectFileType(file.name,data);
-            
-            if(type){
-                DATA[type]=data;
-                const card=document.querySelector((".upload-card input[onchange*=\"" + (type) + "\"]"))?.closest('.upload-card');
-                if(card)card.classList.add('loaded');
-                
-                // 特定ファイルの後処理
-                if(type==='shiire')detectStoresAndSuppliers();
-                if(type==='hana'||type==='sanchoku')detectStoresFromHanaSanchoku(type);
-                if(type==='settings')processSettings();
-                if(type==='budget')processBudget();
-                
-                showToast(((FILE_TYPES[type].name) + ": " + (file.name)),'success');
-                loadedCount++;
-            }else{
-                showToast(((file.name) + "\u306e\u7a2e\u985e\u3092\u5224\u5b9a\u3067\u304d\u307e\u305b\u3093"),'warning');
-            }
-        }catch(err){
-            showToast(((file.name) + ": " + (err.message)),'error');
+    const progressTotal=(files&&files.length)||0;
+    if(progressTotal===0)return;
+    showToast(("解析中: 0/" + progressTotal),'info');
+
+    const summary=await window.ImportService.processDroppedFiles(files,{fileTypes:FILE_TYPES});
+
+    summary.results.forEach((result,index)=>{
+        if(result.ok){
+            const type=result.type;
+            DATA[type]=result.rows;
+            const card=document.querySelector((".upload-card input[onchange*=\"" + (type) + "\"]"))?.closest('.upload-card');
+            if(card)card.classList.add('loaded');
+
+            if(type==='shiire')detectStoresAndSuppliers();
+            if(type==='hana'||type==='sanchoku')detectStoresFromHanaSanchoku(type);
+            if(type==='settings')processSettings();
+            if(type==='budget')processBudget();
+
+            showToast(("解析中: " + (index+1) + "/" + progressTotal),'info');
+            showToast(((FILE_TYPES[type].name) + ": " + (result.file.name)),'success');
+        }else{
+            const message=window.ImportErrors.getImportErrorMessage(result.error);
+            showToast(((result.file.name) + ": " + message),'error');
         }
-    }
-    
-    if(loadedCount>0){
-        showToast(((loadedCount) + "\u4ef6\u306e\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f"),'success');
+    });
+
+    if(summary.successCount>0){
+        showToast(((summary.successCount) + "\u4ef6\u306e\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f"),'success');
         document.getElementById('btn-generate').disabled=!(DATA.shiire&&DATA.uriage);
     }
 }
 
-function readFileAsArrayBuffer(file){
-    return new Promise((resolve, reject)=>{
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = () => reject(new Error('ファイル読込エラー'));
-        reader.readAsArrayBuffer(file);
-    });
-}
-
-function readFileAsText(file, encoding='utf-8'){
-    return new Promise((resolve, reject)=>{
-        const reader = new FileReader();
-        reader.onload = e => resolve(String(e.target.result||''));
-        reader.onerror = () => reject(new Error('ファイル読込エラー'));
-        reader.readAsText(file, encoding);
-    });
+function readTabularFile(file){
+    return window.ImportService.readTabularFile(file);
 }
 
 function parseCsvToRows(text){
-    // Basic CSV parser (handles quotes and escaped quotes)
-    const src = String(text||'').replace(/^\uFEFF/, '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-    const lines = src.split('\n').filter(l=>l.trim()!=='');
-    const rows = [];
-
-    for(const line of lines){
-        const out = [];
-        let cur = '';
-        let inQuotes = false;
-
-        for(let i=0; i<line.length; i++){
-            const ch = line[i];
-
-            if(inQuotes){
-                if(ch === '"'){
-                    if(line[i+1] === '"'){
-                        cur += '"';
-                        i++;
-                    }else{
-                        inQuotes = false;
-                    }
-                }else{
-                    cur += ch;
-                }
-            }else{
-                if(ch === ','){
-                    out.push(cur.trim());
-                    cur = '';
-                }else if(ch === '"'){
-                    inQuotes = true;
-                }else{
-                    cur += ch;
-                }
-            }
-        }
-        out.push(cur.trim());
-        rows.push(out);
-    }
-
-    return rows;
-}
-
-async function readTabularFile(file){
-    const ext = (file?.name?.split('.').pop()||'').toLowerCase();
-
-    // CSVはライブラリ不要
-    if(ext === 'csv'){
-        const text = await readFileAsText(file, 'utf-8');
-        return parseCsvToRows(text);
-    }
-
-    // ExcelはXLSXが必要
-    if(typeof XLSX === 'undefined'){
-        if(window.__ensureXLSX__) await window.__ensureXLSX__();
-        if(typeof XLSX === 'undefined'){
-            const b = document.getElementById('xlsxBanner');
-            if(b) b.style.display = 'block';
-            throw new Error('XLSXライブラリ未読み込み');
-        }
-    }
-
-    const buf = await readFileAsArrayBuffer(file);
-    const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    return XLSX.utils.sheet_to_json(sheet, {header:1});
+    return window.ImportCsvParser.parseCsvToRows(text);
 }
 
 // Backward compatibility (旧コードは readExcelFile を参照している)
@@ -1554,7 +1465,8 @@ async function loadFile(input, key){
         const btn = document.getElementById('btn-generate');
         if(btn) btn.disabled = !(DATA.shiire && DATA.uriage);
     }catch(err){
-        showToast('読込エラー: ' + (err?.message || err), 'error');
+        const message = window.ImportErrors.getImportErrorMessage(err);
+        showToast((file.name + ': ' + message), 'error');
     }finally{
         // 同じファイルを再選択可能に
         try{ input.value=''; }catch(e){}
