@@ -864,26 +864,6 @@ function normalizeStoreId(s){
 }
 
 
-function ensureAllStoreAggregate(){
-  if(!result) return;
-
-  const v19Aggregate = (typeof ensureAllAggregateV19==='function')
-    ? ensureAllAggregateV19
-    : ((typeof window!=='undefined' && typeof window.ensureAllAggregateV19==='function')
-      ? window.ensureAllAggregateV19
-      : null);
-
-  if(v19Aggregate){
-    v19Aggregate();
-    return;
-  }
-  if(typeof v9_ensureAllAggregate==='function'){
-    v9_ensureAllAggregate();
-    return;
-  }
-  ensureAllAggregate();
-}
-
 function ensureAllAggregate(){
   if(!result) return;
   if(result['all']) return;
@@ -2159,7 +2139,7 @@ showToast('フォーマット作成完了（花:'+hr+'掛/産直:'+sr+'掛）','
 render();}catch(err){console.error(err);document.getElementById('content').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>エラー</h3><p>'+err.message+'</p></div>';showToast('エラー: '+err.message,'error');}},150);}
 
 function render(){
-  if(result) ensureAllStoreAggregate();
+  if(result) ensureAllAggregate();
   updateTopbarMeta();
   syncViewTabs();
   updateStats();
@@ -4890,7 +4870,7 @@ function v9_ensureAllAggregate(){
 const _v9_oldRender = render;
 render = function(){
   updateStats();
-  ensureAllStoreAggregate();
+  v9_ensureAllAggregate();
   // 🔁 移動フロー（統一KPI）
   if(currentView==='flow'){
     if(typeof transferFlowRenderer==='function'){ transferFlowRenderer(); }
@@ -5023,8 +5003,6 @@ try{ setTimeout(()=>{ try{ render(); }catch(e){} }, 0); }catch(e){}
       console.error('[v19] ensureAllAggregate failed', e);
     }
   }
-
-  try{ window.ensureAllAggregateV19 = ensureAllAggregateV19; }catch(e){}
 
 
   // 2) margin-rate pill UI injection
