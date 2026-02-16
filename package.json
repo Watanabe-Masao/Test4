@@ -1,0 +1,15 @@
+{
+  "name": "test4-gross-profit-validation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "unit": "npm run build --silent && node --test dist/tests/*.test.js",
+    "snapshot:compare": "npm run build --silent && node dist/scripts/compare-snapshot.js",
+    "generate:snapshot": "npm run build --silent && node dist/scripts/generate-snapshot.js",
+    "dashboard": "npm run build --silent && node dist/scripts/diff-dashboard.js"
+  }
+}
