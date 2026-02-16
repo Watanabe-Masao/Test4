@@ -610,8 +610,8 @@ src/
 │   │   └── index.ts
 │   │
 │   ├── calculations/             # ★ ビジネスロジック（純粋関数）
-│   │   ├── grossProfit.ts        #   粗利計算
-│   │   ├── estimatedCogs.ts      #   推定原価計算
+│   │   ├── invMethod.ts          #   在庫法: 実績粗利（全体スコープ）
+│   │   ├── estMethod.ts          #   推定法: 推定粗利・推定在庫（在庫販売スコープ）
 │   │   ├── budgetAnalysis.ts     #   予算分析
 │   │   ├── forecast.ts           #   予測・異常値検出
 │   │   ├── aggregation.ts        #   全店集計
@@ -724,8 +724,8 @@ src/
 ├── __tests__/                    # テスト
 │   ├── domain/
 │   │   ├── calculations/
-│   │   │   ├── grossProfit.test.ts
-│   │   │   ├── estimatedCogs.test.ts
+│   │   │   ├── invMethod.test.ts
+│   │   │   ├── estMethod.test.ts
 │   │   │   ├── budgetAnalysis.test.ts
 │   │   │   ├── forecast.test.ts
 │   │   │   └── aggregation.test.ts
@@ -844,7 +844,12 @@ type AppAction =
 | `invStart/invEnd` | `openingInventory/closingInventory` | `number` | 期首/期末在庫 |
 | `gpBudget` | `grossProfitBudget` | `number` | 粗利予算 |
 | `gpRateBudget` | `grossProfitRateBudget` | `number` | 粗利率予算 |
-| `estimatedCogs` | `estimatedCostOfGoodsSold` | `number` | 推定原価 |
+| `grossProfit` (在庫法) | `invMethodGrossProfit` | `number` | 在庫法: 粗利益（全体スコープ） |
+| `grossProfitRate` (在庫法) | `invMethodGrossProfitRate` | `number` | 在庫法: 粗利率（分母=総売上高） |
+| `estimatedGP` (推定法) | `estMethodGrossProfit` | `number` | 推定法: 推定粗利（在庫販売スコープ） |
+| `estimatedGPRate` (推定法) | `estMethodGrossProfitRate` | `number` | 推定法: 推定粗利率（分母=コア売上） |
+| `estimatedCogs` | `estMethodCogs` | `number` | 推定法: 推定原価 |
+| `estimatedInv` | `estMethodClosingInventory` | `number` | 推定法: 推定期末在庫 |
 | `baihenLossCost` | `discountLossCost` | `number` | 売変ロス原価 |
 | `coreMarginRate` | `coreMarkupRate` | `number` | コア値入率 |
 | `hanaRate` | `flowerCostRate` | `number` | 花掛け率 |
@@ -935,61 +940,92 @@ interface ConsumableDailyRecord {
 interface StoreResult {
   readonly storeId: string;
 
+  // ============================================================
   // 在庫（実績）
+  // ============================================================
   readonly openingInventory: number;          // 期首在庫
   readonly closingInventory: number;          // 期末在庫（実績）
-  readonly estimatedClosingInventory: number; // 推定期末在庫（※3.2.4参照）
 
+  // ============================================================
   // 売上
-  readonly totalSales: number;                // 総売上高
+  // ============================================================
+  readonly totalSales: number;                // 総売上高（全体 = コア + 花 + 産直 + 売上納品）
   readonly totalCoreSales: number;            // コア売上（花・産直・売上納品除外）
   readonly deliverySalesPrice: number;        // 売上納品売価
   readonly flowerSalesPrice: number;          // 花売価
   readonly directProduceSalesPrice: number;   // 産直売価
   readonly grossSales: number;                // 粗売上（売変前売価）
 
+  // ============================================================
   // 原価
+  // ============================================================
   readonly totalCost: number;                 // 総仕入原価（全体）
   readonly inventoryCost: number;             // 在庫仕入原価（売上納品分除外）
   readonly deliverySalesCost: number;         // 売上納品原価
 
-  // 粗利（在庫法 = 実績）
-  readonly grossProfit: number;               // 粗利益
-  readonly grossProfitRate: number;           // 粗利率
+  // ============================================================
+  // 【在庫法】実績粗利  ← スコープ: 全売上・全仕入
+  //   売上原価 = 期首在庫 + 総仕入高 - 期末在庫
+  //   粗利益   = 総売上高 - 売上原価
+  //   粗利率   = 粗利益 / 総売上高
+  // ============================================================
+  readonly invMethodCogs: number;             // 在庫法: 売上原価
+  readonly invMethodGrossProfit: number;      // 在庫法: 粗利益
+  readonly invMethodGrossProfitRate: number;  // 在庫法: 粗利率（分母=総売上高）
 
-  // 推定（推定法 = 予測、在庫販売のみの"世界線"）
-  readonly estimatedCostOfGoodsSold: number;  // 推定原価
-  readonly estimatedGrossProfit: number;      // 推定粗利 = コア売上 - 推定原価
-  readonly estimatedGrossProfitRate: number;  // 推定粗利率 = 推定粗利 / コア売上
+  // ============================================================
+  // 【推定法】推定粗利  ← スコープ: 在庫販売のみ（花・産直・売上納品除外）
+  //   推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+  //   推定粗利 = コア売上 - 推定原価
+  //   推定粗利率 = 推定粗利 / コア売上
+  // ============================================================
+  readonly estMethodCogs: number;             // 推定法: 推定原価
+  readonly estMethodGrossProfit: number;      // 推定法: 推定粗利
+  readonly estMethodGrossProfitRate: number;  // 推定法: 推定粗利率（分母=コア売上）
+  readonly estMethodClosingInventory: number; // 推定法: 推定期末在庫（※3.2.4参照）
 
+  // ============================================================
   // 売変
+  // ============================================================
   readonly totalDiscount: number;             // 売変額合計
   readonly discountRate: number;              // 売変率（売価ベース）
   readonly discountLossCost: number;          // 売変ロス原価
 
+  // ============================================================
   // 値入率
+  // ============================================================
   readonly averageMarkupRate: number;         // 平均値入率（全体）
   readonly coreMarkupRate: number;            // コア値入率（在庫販売対象）
 
+  // ============================================================
   // 消耗品
+  // ============================================================
   readonly totalConsumable: number;           // 消耗品費合計
   readonly consumableRate: number;            // 消耗品率
 
+  // ============================================================
   // 予算
+  // ============================================================
   readonly budget: number;
   readonly grossProfitBudget: number;
   readonly grossProfitRateBudget: number;
   readonly budgetDaily: ReadonlyMap<number, number>;
 
+  // ============================================================
   // 日別データ
+  // ============================================================
   readonly daily: ReadonlyMap<number, DailyRecord>;
 
+  // ============================================================
   // 集計
+  // ============================================================
   readonly categoryTotals: ReadonlyMap<CategoryType, CostPricePair>;
   readonly supplierTotals: ReadonlyMap<string, SupplierTotal>;
   readonly transferDetails: TransferDetails;
 
+  // ============================================================
   // 予測・KPI
+  // ============================================================
   readonly elapsedDays: number;               // 経過日数
   readonly salesDays: number;                 // 営業日数
   readonly averageDailySales: number;         // 日平均売上
@@ -1028,8 +1064,8 @@ interface StoreResult {
 |---|--------|--------|
 | 2-1 | 全型定義（models/） | 型チェック通過 |
 | 2-2 | 定数定義（categories, defaults） | - |
-| 2-3 | `grossProfit.ts` - 粗利計算 | 10+ テストケース |
-| 2-4 | `estimatedCogs.ts` - 推定原価計算 | 10+ テストケース |
+| 2-3 | `invMethod.ts` - 在庫法: 実績粗利（全体スコープ） | 10+ テストケース |
+| 2-4 | `estMethod.ts` - 推定法: 推定粗利・推定在庫（在庫販売スコープ） | 10+ テストケース |
 | 2-5 | `budgetAnalysis.ts` - 予算分析 | 8+ テストケース |
 | 2-6 | `forecast.ts` - 予測・異常値検出 | 8+ テストケース |
 | 2-7 | `aggregation.ts` - 全店集計 | 5+ テストケース |
