@@ -2,6 +2,21 @@ import { ThemeProvider } from 'styled-components'
 import { useState, useCallback } from 'react'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
+import { AppStateProvider, useAppState, useAppDispatch } from '@/application/context'
+import { useImport, useStoreSelection } from '@/application/hooks'
+import { AppShell, NavBar, Sidebar } from '@/presentation/components/Layout'
+import {
+  FileDropZone,
+  UploadCard,
+  Chip,
+  ChipGroup,
+  ToastProvider,
+  useToast,
+} from '@/presentation/components/common'
+import { DashboardPage } from '@/presentation/pages/Dashboard/DashboardPage'
+import { ALL_STORES_ID } from '@/domain/constants/defaults'
+import type { ViewType, DataType } from '@/domain/models'
+import styled from 'styled-components'
 
 function getInitialTheme(): ThemeMode {
   if (typeof window !== 'undefined') {
@@ -11,43 +26,152 @@ function getInitialTheme(): ThemeMode {
   return 'dark'
 }
 
-function App() {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme)
+const UploadGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${({ theme }) => theme.spacing[3]};
+`
 
-  const toggleTheme = useCallback(() => {
-    setThemeMode((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('theme', next)
-      return next
-    })
-  }, [])
+const SidebarSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const SectionLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text4};
+  text-transform: uppercase;
+`
+
+const uploadTypes: { type: DataType; label: string }[] = [
+  { type: 'purchase', label: '仕入' },
+  { type: 'sales', label: '売上' },
+  { type: 'discount', label: '売変' },
+  { type: 'initialSettings', label: '初期設定' },
+  { type: 'budget', label: '予算' },
+  { type: 'consumables', label: '消耗品' },
+]
+
+function AppContent() {
+  const state = useAppState()
+  const dispatch = useAppDispatch()
+  const { importFiles } = useImport()
+  const { currentStoreId, stores, selectStore, selectAllStores } = useStoreSelection()
+  const showToast = useToast()
+
+  const handleFiles = useCallback(
+    async (files: FileList) => {
+      const summary = await importFiles(files)
+      summary.results.forEach((r) => {
+        if (r.ok) {
+          showToast(`${r.typeName}: ${r.filename}`, 'success')
+        } else {
+          showToast(`${r.filename}: ${r.error}`, 'error')
+        }
+      })
+    },
+    [importFiles, showToast],
+  )
+
+  const handleSingleFile = useCallback(
+    async (file: File) => {
+      const list = new DataTransfer()
+      list.items.add(file)
+      await handleFiles(list.files)
+    },
+    [handleFiles],
+  )
+
+  const handleViewChange = useCallback(
+    (view: ViewType) => {
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
+    },
+    [dispatch],
+  )
+
+  // Determine which data types are loaded
+  const loadedTypes = new Set<DataType>()
+  if (Object.keys(state.data.purchase).length > 0) loadedTypes.add('purchase')
+  if (Object.keys(state.data.sales).length > 0) loadedTypes.add('sales')
+  if (Object.keys(state.data.discount).length > 0) loadedTypes.add('discount')
+  if (state.data.settings.size > 0) loadedTypes.add('initialSettings')
+  if (state.data.budget.size > 0) loadedTypes.add('budget')
+  if (Object.keys(state.data.consumables).length > 0) loadedTypes.add('consumables')
+
+  return (
+    <AppShell
+      nav={
+        <NavBar
+          currentView={state.ui.currentView}
+          onViewChange={handleViewChange}
+        />
+      }
+      sidebar={
+        <Sidebar title="データ管理">
+          <SidebarSection>
+            <FileDropZone onFiles={handleFiles} />
+          </SidebarSection>
+
+          <SidebarSection>
+            <SectionLabel>ファイル種別</SectionLabel>
+            <UploadGrid>
+              {uploadTypes.map(({ type, label }) => (
+                <UploadCard
+                  key={type}
+                  dataType={type}
+                  label={label}
+                  loaded={loadedTypes.has(type)}
+                  onFile={handleSingleFile}
+                />
+              ))}
+            </UploadGrid>
+          </SidebarSection>
+
+          {stores.size > 0 && (
+            <SidebarSection>
+              <SectionLabel>店舗選択</SectionLabel>
+              <ChipGroup>
+                <Chip
+                  $active={currentStoreId === ALL_STORES_ID}
+                  onClick={selectAllStores}
+                >
+                  全店
+                </Chip>
+                {Array.from(stores.values()).map((s) => (
+                  <Chip
+                    key={s.id}
+                    $active={currentStoreId === s.id}
+                    onClick={() => selectStore(s.id)}
+                  >
+                    {s.name}
+                  </Chip>
+                ))}
+              </ChipGroup>
+            </SidebarSection>
+          )}
+        </Sidebar>
+      }
+    >
+      <DashboardPage />
+    </AppShell>
+  )
+}
+
+function App() {
+  const [themeMode] = useState<ThemeMode>(getInitialTheme)
 
   const theme = themeMode === 'dark' ? darkTheme : lightTheme
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>仕入荒利管理システム</h1>
-        <p style={{ color: theme.colors.text2, marginTop: '8px' }}>
-          Phase 1: プロジェクト基盤構築完了
-        </p>
-        <button
-          onClick={toggleTheme}
-          style={{
-            marginTop: '16px',
-            padding: '8px 16px',
-            borderRadius: theme.radii.md,
-            border: `1px solid ${theme.colors.border}`,
-            background: theme.colors.bg3,
-            color: theme.colors.text,
-            cursor: 'pointer',
-            fontFamily: theme.typography.fontFamily.primary,
-          }}
-        >
-          {themeMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-        </button>
-      </div>
+      <AppStateProvider>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </AppStateProvider>
     </ThemeProvider>
   )
 }
