@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { ViewType } from '@/domain/models'
+import type { ThemeMode } from '@/presentation/theme'
 
 const Nav = styled.nav`
   display: flex;
@@ -46,6 +47,30 @@ const NavButton = styled.button<{ $active?: boolean }>`
   }
 `
 
+const Spacer = styled.div`
+  flex: 1;
+`
+
+const ThemeButton = styled.button`
+  width: ${({ theme }) => theme.layout.navIconSize};
+  height: ${({ theme }) => theme.layout.navIconSize};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border: none;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`
+
 const navItems: { view: ViewType; label: string; icon: string }[] = [
   { view: 'dashboard', label: 'ダッシュボード', icon: '📊' },
   { view: 'category', label: 'カテゴリ', icon: '📁' },
@@ -59,9 +84,13 @@ const navItems: { view: ViewType; label: string; icon: string }[] = [
 export function NavBar({
   currentView,
   onViewChange,
+  themeMode,
+  onThemeToggle,
 }: {
   currentView: ViewType
   onViewChange: (view: ViewType) => void
+  themeMode: ThemeMode
+  onThemeToggle: () => void
 }) {
   return (
     <Nav>
@@ -76,6 +105,13 @@ export function NavBar({
           {item.icon}
         </NavButton>
       ))}
+      <Spacer />
+      <ThemeButton
+        onClick={onThemeToggle}
+        title={themeMode === 'dark' ? 'ライトモード' : 'ダークモード'}
+      >
+        {themeMode === 'dark' ? '🌙' : '☀️'}
+      </ThemeButton>
     </Nav>
   )
 }
