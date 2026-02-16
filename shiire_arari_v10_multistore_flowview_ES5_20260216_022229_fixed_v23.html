@@ -5316,9 +5316,12 @@ try{ setTimeout(()=>{ try{ render(); }catch(e){} }, 0); }catch(e){}
 
     if(isAll){
       currentStore = 'all';
-      // for backwards compat: ensureAllAggregate if present
-      if(typeof window.ensureAllAggregateV19==='function' && result){
-        try{ window.ensureAllAggregateV19(); }catch(e){}
+      // for backwards compat: rebuild ALL aggregate with available function
+      if(result){
+        try{
+          if(typeof ensureAllAggregate==='function') ensureAllAggregate();
+          else if(typeof v9_ensureAllAggregate==='function') v9_ensureAllAggregate();
+        }catch(e){}
       }
     }else if(sel.size===1){
       const only = _first(sel);
