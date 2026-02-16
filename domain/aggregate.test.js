@@ -57,3 +57,38 @@ test('buildAggregate aggregates inventory/gp/margin/transfer/budget/baihen', () 
   assert.equal(agg.baihenRateSales, 12 / 1212);
   assert.equal(agg.coreMarginRate, (600 - 430) / 600);
 });
+
+
+test('repository has no unresolved merge conflict markers', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const roots = [
+    path.join(__dirname, '..', 'domain'),
+    path.join(__dirname, '..', 'shiire_arari_v10_multistore_flowview_ES5_20260216_022229_fixed_v23.html'),
+  ];
+
+  const files = [];
+  for (const root of roots) {
+    if (!fs.existsSync(root)) continue;
+    const stat = fs.statSync(root);
+    if (stat.isFile()) {
+      files.push(root);
+      continue;
+    }
+    const stack = [root];
+    while (stack.length > 0) {
+      const dir = stack.pop();
+      for (const name of fs.readdirSync(dir)) {
+        const full = path.join(dir, name);
+        const s = fs.statSync(full);
+        if (s.isDirectory()) stack.push(full);
+        else files.push(full);
+      }
+    }
+  }
+
+  const markerRe = /^(<<<<<<<|=======|>>>>>>>)/m;
+  const offenders = files.filter((f) => markerRe.test(fs.readFileSync(f, 'utf8')));
+  assert.deepEqual(offenders, []);
+});
