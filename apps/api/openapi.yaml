@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Imports & Reporting API
+  version: 0.1.0
+  description: |
+    Minimal API for upload -> normalize -> aggregate.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      operationId: healthz
+      responses:
+        '200':
+          description: health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+  /v1/imports:
+    post:
+      operationId: uploadImport
+      summary: Upload CSV and return normalized aggregation result
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  format: int64
+                imported_by:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+              required: [store_id, imported_by, file]
+      responses:
+        '201':
+          description: Import completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    DailyTotal:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        total_amount:
+          type: number
+          format: double
+      required: [date, total_amount]
+    ImportResult:
+      type: object
+      properties:
+        import_id:
+          type: string
+          format: uuid
+        report_id:
+          type: string
+          format: uuid
+        store_id:
+          type: integer
+          format: int64
+        imported_by:
+          type: string
+        imported_at:
+          type: string
+          format: date-time
+        file_sha256:
+          type: string
+        rows_count:
+          type: integer
+        total_amount:
+          type: number
+          format: double
+        daily_totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyTotal'
+      required:
+        - import_id
+        - report_id
+        - store_id
+        - imported_by
+        - imported_at
+        - file_sha256
+        - rows_count
+        - total_amount
+        - daily_totals
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
