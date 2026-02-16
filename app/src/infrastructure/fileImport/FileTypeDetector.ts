@@ -31,6 +31,13 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['仕入', 'shiire'],
     headerPatterns: ['取引先コード', '原価金額', '売価金額'],
   },
+  // 売上売変の複合ファイルを sales / discount より先に判定する
+  {
+    type: 'salesDiscount',
+    name: '売上売変',
+    filenamePatterns: ['売上売変', 'uriage_baihen', 'uriageBaihen'],
+    headerPatterns: [],
+  },
   {
     type: 'sales',
     name: '売上',

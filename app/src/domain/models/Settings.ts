@@ -23,6 +23,7 @@ export type DataType =
   | 'purchase'
   | 'sales'
   | 'discount'
+  | 'salesDiscount'
   | 'initialSettings'
   | 'budget'
   | 'consumables'
