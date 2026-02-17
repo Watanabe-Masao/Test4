@@ -5,6 +5,7 @@ import {
   validateImportedData,
   hasValidationErrors,
 } from '@/infrastructure/ImportService'
+import { getDaysInMonth } from '@/domain/constants/defaults'
 
 /** 計算実行フック（データ変更時に自動計算） */
 export function useCalculation() {
@@ -15,8 +16,10 @@ export function useCalculation() {
     Object.keys(state.data.purchase).length > 0 &&
     Object.keys(state.data.sales).length > 0
 
+  const daysInMonth = getDaysInMonth(state.settings.targetYear, state.settings.targetMonth)
+
   const calculate = useCallback(
-    (daysInMonth: number) => {
+    () => {
       const messages = validateImportedData(state.data)
       dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
@@ -28,16 +31,13 @@ export function useCalculation() {
       dispatch({ type: 'SET_STORE_RESULTS', payload: results })
       return true
     },
-    [state.data, state.settings, dispatch],
+    [state.data, state.settings, daysInMonth, dispatch],
   )
 
   // データ変更時に自動計算
   useEffect(() => {
     if (!canCalculate || state.ui.isImporting || state.ui.isCalculated) return
-
-    const today = new Date()
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
-    calculate(daysInMonth)
+    calculate()
   }, [canCalculate, state.ui.isImporting, state.ui.isCalculated, calculate])
 
   return {
@@ -45,5 +45,6 @@ export function useCalculation() {
     canCalculate,
     isCalculated: state.ui.isCalculated,
     storeResults: state.storeResults,
+    daysInMonth,
   }
 }

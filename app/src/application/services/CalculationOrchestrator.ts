@@ -246,8 +246,11 @@ export function calculateStoreResult(
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
   // 値入率
-  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
-  const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
+  const allPurchasePrice = totalPurchasePrice + totalFlowerPrice + totalDirectProducePrice
+  const allPurchaseCost = totalPurchaseCost + totalFlowerCost + totalDirectProduceCost
+  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
+  // コア値入率 = 仕入データのみ（花・産直を除く）
   const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, settings.defaultMarkupRate)
 
   // 【在庫法】
@@ -402,11 +405,10 @@ function addToCategory(
 /**
  * 複数店舗の StoreResult を合算する
  */
-export function aggregateStoreResults(results: readonly StoreResult[]): StoreResult {
+export function aggregateStoreResults(results: readonly StoreResult[], daysInMonth: number): StoreResult {
   if (results.length === 0) {
     throw new Error('Cannot aggregate 0 results')
   }
-  if (results.length === 1) return results[0]
 
   let totalSales = 0
   let totalCoreSales = 0
@@ -527,7 +529,7 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     aggTransfer.interDepartmentOut = addCostPricePairs(aggTransfer.interDepartmentOut, r.transferDetails.interDepartmentOut)
   }
 
-  const discountRate = safeDivide(totalDiscount, totalSales + totalDiscount, 0)
+  const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
   // 値入率: 集計済み取引先データから仕入売価・原価を再計算
   let totalPurchaseCost = 0
@@ -536,8 +538,13 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
-  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
-  const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
+  const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
+  const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
+  const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price
+  const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost
+  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
+  // コア値入率 = 仕入データのみ（花・産直を除く）
   const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
 
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)
@@ -566,7 +573,6 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     : null
 
   const discountLossCost = results.reduce((s, r) => s + r.discountLossCost, 0)
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
   const remainingDays = daysInMonth - elapsedDays
   const projectedSales = totalSales + averageDailySales * remainingDays
   const projectedAchievement = safeDivide(projectedSales, budget, 0)

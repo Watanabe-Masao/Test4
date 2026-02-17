@@ -141,9 +141,10 @@ export function ReportsPage() {
   }
 
   const r = currentResult
+  const { daysInMonth } = useCalculation()
+  const { targetYear, targetMonth } = useAppState().settings
   const today = new Date()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
-  const reportDate = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`
+  const reportDate = `${targetYear}年${targetMonth}月${today.getDate()}日`
 
   // Budget analysis
   const salesDaily = new Map<number, number>()

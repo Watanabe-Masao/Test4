@@ -95,8 +95,7 @@ export function DailyPage() {
   }
 
   const r = currentResult
-  const today = new Date()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+  const { daysInMonth } = useCalculation()
 
   // 日別データをソート
   const days = Array.from(r.daily.entries()).sort(([a], [b]) => a - b)

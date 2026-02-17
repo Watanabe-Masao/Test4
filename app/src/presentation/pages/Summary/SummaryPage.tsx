@@ -78,8 +78,7 @@ export function SummaryPage() {
   }
 
   const r = currentResult
-  const today = new Date()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+  const { daysInMonth } = useCalculation()
 
   return (
     <MainContent title="粗利計算" storeName={storeName}>
