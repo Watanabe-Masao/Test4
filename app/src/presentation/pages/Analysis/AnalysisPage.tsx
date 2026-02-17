@@ -96,8 +96,7 @@ export function AnalysisPage() {
   }
 
   const r = currentResult
-  const today = new Date()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+  const { daysInMonth } = useCalculation()
 
   // 予算分析
   const { salesDaily, analysis } = buildAnalysis(r, daysInMonth)

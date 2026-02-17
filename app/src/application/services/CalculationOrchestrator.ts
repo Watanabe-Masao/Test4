@@ -405,7 +405,7 @@ function addToCategory(
 /**
  * 複数店舗の StoreResult を合算する
  */
-export function aggregateStoreResults(results: readonly StoreResult[]): StoreResult {
+export function aggregateStoreResults(results: readonly StoreResult[], daysInMonth: number): StoreResult {
   if (results.length === 0) {
     throw new Error('Cannot aggregate 0 results')
   }
@@ -529,7 +529,7 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     aggTransfer.interDepartmentOut = addCostPricePairs(aggTransfer.interDepartmentOut, r.transferDetails.interDepartmentOut)
   }
 
-  const discountRate = safeDivide(totalDiscount, totalSales + totalDiscount, 0)
+  const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
   // 値入率: 集計済み取引先データから仕入売価・原価を再計算
   let totalPurchaseCost = 0
@@ -573,7 +573,6 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     : null
 
   const discountLossCost = results.reduce((s, r) => s + r.discountLossCost, 0)
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
   const remainingDays = daysInMonth - elapsedDays
   const projectedSales = totalSales + averageDailySales * remainingDays
   const projectedAchievement = safeDivide(projectedSales, budget, 0)

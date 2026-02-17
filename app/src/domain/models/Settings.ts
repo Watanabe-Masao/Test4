@@ -7,6 +7,8 @@ export const CUSTOM_CATEGORIES: readonly CustomCategory[] = [
 
 /** アプリケーション設定 */
 export interface AppSettings {
+  readonly targetYear: number // 対象年
+  readonly targetMonth: number // 対象月 (1-12)
   readonly targetGrossProfitRate: number // 目標粗利率 (default: 0.25)
   readonly warningThreshold: number // 警告しきい値 (default: 0.23)
   readonly flowerCostRate: number // 花掛け率 (default: 0.80)

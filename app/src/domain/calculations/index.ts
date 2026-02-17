@@ -34,6 +34,5 @@ export type {
   AnomalyDetectionResult,
 } from './forecast'
 
-// 全店集計
-export { aggregateStores, sumStoreValues, sumNullableValues, weightedAverageBySales } from './aggregation'
-export type { AggregatedResult } from './aggregation'
+// 全店集計ユーティリティ
+export { sumStoreValues, sumNullableValues, weightedAverageBySales } from './aggregation'
