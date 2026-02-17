@@ -12,7 +12,7 @@ import type { StoreResult } from '@/domain/models'
 import type { CategoryType } from '@/domain/models'
 import styled from 'styled-components'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-import { useChartTheme, toComma } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme } from '@/presentation/components/charts/chartTheme'
 
 const ChartGrid = styled.div`
   display: grid;

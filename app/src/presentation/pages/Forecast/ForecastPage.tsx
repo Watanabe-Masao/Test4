@@ -405,7 +405,7 @@ function WeeklyChart({ data }: { data: Record<string, string | number>[] }) {
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value: number, name: string) => [toComma(value), name]}
+            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
