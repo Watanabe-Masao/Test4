@@ -33,6 +33,7 @@ const Title = styled.div`
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
+  prevYearDaily?: ReadonlyMap<number, { sales: number }>
 }
 
 /** N日移動平均を計算 */
@@ -45,7 +46,7 @@ function movingAverage(values: number[], window: number): (number | null)[] {
   })
 }
 
-export function DailySalesChart({ daily, daysInMonth }: Props) {
+export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
 
   const rawSales: number[] = []
@@ -57,7 +58,8 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
     const discount = rec?.discountAbsolute ?? 0
     rawSales.push(sales)
     rawDiscount.push(discount)
-    baseData.push({ day: d, sales, discount })
+    const prevSales = prevYearDaily?.get(d)?.sales ?? null
+    baseData.push({ day: d, sales, discount, prevYearSales: prevSales })
   }
 
   // 7日移動平均（売上・売変額）
@@ -124,6 +126,7 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
                 discount: '売変額',
                 salesMa7: '売上7日移動平均',
                 discountMa7: '売変額7日移動平均',
+                prevYearSales: '前年売上',
               }
               return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
             }}
@@ -137,6 +140,7 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
                 discount: '売変額',
                 salesMa7: '売上7日移動平均',
                 discountMa7: '売変額7日移動平均',
+                prevYearSales: '前年売上',
               }
               return labels[value] ?? value
             }}
@@ -174,6 +178,18 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
             dot={false}
             connectNulls
           />
+          {prevYearDaily && (
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="prevYearSales"
+              stroke="#9ca3af"
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              connectNulls
+            />
+          )}
         </ComposedChart>
       </ResponsiveContainer>
     </Wrapper>

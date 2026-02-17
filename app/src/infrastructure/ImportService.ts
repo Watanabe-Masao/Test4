@@ -46,6 +46,8 @@ export interface ImportedData {
   readonly purchase: PurchaseData
   readonly sales: SalesData
   readonly discount: DiscountData
+  readonly prevYearSales: SalesData
+  readonly prevYearDiscount: DiscountData
   readonly interStoreIn: TransferData
   readonly interStoreOut: TransferData
   readonly flowers: SpecialSalesData
@@ -63,6 +65,8 @@ export function createEmptyImportedData(): ImportedData {
     purchase: {},
     sales: {},
     discount: {},
+    prevYearSales: {},
+    prevYearDiscount: {},
     interStoreIn: {},
     interStoreOut: {},
     flowers: {},
@@ -170,6 +174,23 @@ export function processFileData(
         stores: mutableStores,
         sales: salesData,
         discount: discountData,
+      }
+    }
+
+    case 'prevYearSalesDiscount': {
+      // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
+      const prevDiscountData = processDiscount(rows)
+      const prevSalesData: Record<string, Record<number, { sales: number }>> = {}
+      for (const [storeId, days] of Object.entries(prevDiscountData)) {
+        prevSalesData[storeId] = {}
+        for (const [day, d] of Object.entries(days)) {
+          prevSalesData[storeId][Number(day)] = { sales: d.sales }
+        }
+      }
+      return {
+        ...current,
+        prevYearSales: prevSalesData,
+        prevYearDiscount: prevDiscountData,
       }
     }
 

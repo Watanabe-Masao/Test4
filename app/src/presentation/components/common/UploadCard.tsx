@@ -39,6 +39,7 @@ const fileTypeIcons: Record<string, string> = {
   sales: '💰',
   discount: '🏷️',
   salesDiscount: '💰',
+  prevYearSalesDiscount: '📅',
   initialSettings: '⚙️',
   budget: '📊',
   flowers: '🌸',

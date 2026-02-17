@@ -38,6 +38,13 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['売上予算', '予算', 'budget'],
     headerPatterns: ['売上予算', '予算'],
   },
+  // 前年売上売変を salesDiscount より先に判定する（「前年」キーワードで区別）
+  {
+    type: 'prevYearSalesDiscount',
+    name: '前年売上売変',
+    filenamePatterns: ['前年売上売変', '前年売上', 'prev_uriage'],
+    headerPatterns: [],
+  },
   // 売上売変の複合ファイルを sales / discount より先に判定する
   {
     type: 'salesDiscount',
@@ -96,6 +103,7 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
   { prefix: '6_', type: 'interStoreOut' },
   { prefix: '7_', type: 'initialSettings' },
   { prefix: '8_', type: 'consumables' },
+  { prefix: '998_', type: 'prevYearSalesDiscount' },
 ]
 
 /**

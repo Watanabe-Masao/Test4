@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { BudgetVsActualChart } from '@/presentation/components/charts'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import type { StoreResult } from '@/domain/models/StoreResult'
@@ -85,6 +85,7 @@ function buildAnalysis(r: StoreResult, daysInMonth: number) {
 export function AnalysisPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName } = useStoreSelection()
+  const prevYear = usePrevYearData()
   const [viewMode, setViewMode] = useState<ViewMode>('total')
 
   if (!isCalculated || !currentResult) {
@@ -196,12 +197,17 @@ export function AnalysisPage() {
                     <Th>達成率</Th>
                     <Th>売変率</Th>
                     <Th>累計売変率</Th>
+                    {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                    {prevYear.hasPrevYear && <Th>前年比</Th>}
+                    {prevYear.hasPrevYear && <Th>前年累計</Th>}
+                    {prevYear.hasPrevYear && <Th>累計前年比</Th>}
                   </tr>
                 </thead>
                 <tbody>
                   {(() => {
                     let cumDiscount = 0
                     let cumGrossSales = 0
+                    let cumPrevYear = 0
                     return chartData.filter((d) => d.actualCum > 0 || d.budgetCum > 0).map((d) => {
                       const dailyRec = r.daily.get(d.day)
                       const daySales = salesDaily.get(d.day) ?? 0
@@ -225,6 +231,12 @@ export function AnalysisPage() {
                       // 予算差異（累計）
                       const budgetVariance = d.actualCum - d.budgetCum
 
+                      // 前年データ
+                      const pyDaySales = prevYear.daily.get(d.day)?.sales ?? 0
+                      cumPrevYear += pyDaySales
+                      const pyDayRatio = pyDaySales > 0 ? daySales / pyDaySales : 0
+                      const pyCumRatio = cumPrevYear > 0 ? d.actualCum / cumPrevYear : 0
+
                       return (
                         <Tr key={d.day}>
                           <Td>{d.day}</Td>
@@ -244,6 +256,10 @@ export function AnalysisPage() {
                           </Td>
                           <Td>{formatPercent(discountRateCum)}</Td>
                           <Td>{formatPercent(cumDiscountRate)}</Td>
+                          {prevYear.hasPrevYear && <Td>{pyDaySales > 0 ? formatCurrency(pyDaySales) : '-'}</Td>}
+                          {prevYear.hasPrevYear && <Td $positive={pyDayRatio >= 1} $negative={pyDayRatio > 0 && pyDayRatio < 1}>{pyDaySales > 0 ? formatPercent(pyDayRatio) : '-'}</Td>}
+                          {prevYear.hasPrevYear && <Td>{cumPrevYear > 0 ? formatCurrency(cumPrevYear) : '-'}</Td>}
+                          {prevYear.hasPrevYear && <Td $positive={pyCumRatio >= 1} $negative={pyCumRatio > 0 && pyCumRatio < 1}>{cumPrevYear > 0 ? formatPercent(pyCumRatio) : '-'}</Td>}
                         </Tr>
                       )
                     })
