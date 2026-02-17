@@ -516,7 +516,7 @@ function StoreComparisonCategoryBarChart({
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value: number, name: string) => [toComma(value), name]}
+            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {selectedResults.map((sr, i) => {
@@ -600,7 +600,7 @@ function StoreComparisonMarkupRadarChart({
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, '']}
+            formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(1)}%`, '']}
           />
         </RadarChart>
       </ResponsiveContainer>
