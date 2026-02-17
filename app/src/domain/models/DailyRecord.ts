@@ -1,6 +1,14 @@
 import type { CostPricePair } from './CostPricePair'
 import type { ConsumableDailyRecord } from './ConsumableItem'
 
+/** 移動明細行（from → to のペア別集計） */
+export interface TransferBreakdownEntry {
+  readonly fromStoreId: string
+  readonly toStoreId: string
+  readonly cost: number
+  readonly price: number
+}
+
 /** 日別レコード */
 export interface DailyRecord {
   readonly day: number // 1-31
@@ -19,6 +27,12 @@ export interface DailyRecord {
   readonly discountAmount: number // 売変額
   readonly discountAbsolute: number // 売変絶対値
   readonly supplierBreakdown: ReadonlyMap<string, CostPricePair>
+  readonly transferBreakdown: {
+    readonly interStoreIn: readonly TransferBreakdownEntry[]
+    readonly interStoreOut: readonly TransferBreakdownEntry[]
+    readonly interDepartmentIn: readonly TransferBreakdownEntry[]
+    readonly interDepartmentOut: readonly TransferBreakdownEntry[]
+  }
 }
 
 /**

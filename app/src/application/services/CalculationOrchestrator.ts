@@ -6,6 +6,7 @@ import type {
   DailyRecord,
   StoreResult,
   TransferDetails,
+  TransferBreakdownEntry,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
@@ -102,6 +103,12 @@ export function calculateStoreResult(
     let interDepartmentIn = ZERO_COST_PRICE_PAIR
     let interDepartmentOut = ZERO_COST_PRICE_PAIR
 
+    // 移動明細（from→to別）
+    const tbInterStoreIn: TransferBreakdownEntry[] = []
+    const tbInterStoreOut: TransferBreakdownEntry[] = []
+    const tbInterDepartmentIn: TransferBreakdownEntry[] = []
+    const tbInterDepartmentOut: TransferBreakdownEntry[] = []
+
     if (interInDay) {
       const sumIn = interInDay.interStoreIn.reduce(
         (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
@@ -113,6 +120,13 @@ export function calculateStoreResult(
       )
       interStoreIn = sumIn
       interDepartmentIn = sumDeptIn
+
+      for (const r of interInDay.interStoreIn) {
+        tbInterStoreIn.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+      }
+      for (const r of interInDay.interDepartmentIn) {
+        tbInterDepartmentIn.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+      }
     }
 
     if (interOutDay) {
@@ -126,6 +140,13 @@ export function calculateStoreResult(
       )
       interStoreOut = sumOut
       interDepartmentOut = sumDeptOut
+
+      for (const r of interOutDay.interStoreOut) {
+        tbInterStoreOut.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+      }
+      for (const r of interOutDay.interDepartmentOut) {
+        tbInterDepartmentOut.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+      }
     }
 
     // 消耗品
@@ -198,6 +219,12 @@ export function calculateStoreResult(
         discountAmount,
         discountAbsolute,
         supplierBreakdown,
+        transferBreakdown: {
+          interStoreIn: tbInterStoreIn,
+          interStoreOut: tbInterStoreOut,
+          interDepartmentIn: tbInterDepartmentIn,
+          interDepartmentOut: tbInterDepartmentOut,
+        },
       }
       daily.set(day, rec)
       totalCost += getDailyTotalCost(rec)
@@ -463,7 +490,16 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     for (const [day, rec] of r.daily) {
       const existing = aggDaily.get(day)
       if (!existing) {
-        aggDaily.set(day, { ...rec, supplierBreakdown: new Map(rec.supplierBreakdown) })
+        aggDaily.set(day, {
+          ...rec,
+          supplierBreakdown: new Map(rec.supplierBreakdown),
+          transferBreakdown: {
+            interStoreIn: [...rec.transferBreakdown.interStoreIn],
+            interStoreOut: [...rec.transferBreakdown.interStoreOut],
+            interDepartmentIn: [...rec.transferBreakdown.interDepartmentIn],
+            interDepartmentOut: [...rec.transferBreakdown.interDepartmentOut],
+          },
+        })
       } else {
         const mergedSB = new Map(existing.supplierBreakdown)
         for (const [code, pair] of rec.supplierBreakdown) {
@@ -490,6 +526,12 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
           discountAmount: existing.discountAmount + rec.discountAmount,
           discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
           supplierBreakdown: mergedSB,
+          transferBreakdown: {
+            interStoreIn: [...existing.transferBreakdown.interStoreIn, ...rec.transferBreakdown.interStoreIn],
+            interStoreOut: [...existing.transferBreakdown.interStoreOut, ...rec.transferBreakdown.interStoreOut],
+            interDepartmentIn: [...existing.transferBreakdown.interDepartmentIn, ...rec.transferBreakdown.interDepartmentIn],
+            interDepartmentOut: [...existing.transferBreakdown.interDepartmentOut, ...rec.transferBreakdown.interDepartmentOut],
+          },
         })
       }
     }
