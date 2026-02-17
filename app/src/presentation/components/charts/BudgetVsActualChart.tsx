@@ -33,19 +33,22 @@ interface DataPoint {
   day: number
   actualCum: number
   budgetCum: number
+  prevYearCum?: number | null
 }
 
 interface Props {
   data: readonly DataPoint[]
   budget: number
+  showPrevYear?: boolean
 }
 
-export function BudgetVsActualChart({ data, budget }: Props) {
+export function BudgetVsActualChart({ data, budget, showPrevYear }: Props) {
   const ct = useChartTheme()
+  const hasPrevYear = showPrevYear && data.some(d => d.prevYearCum != null && d.prevYearCum > 0)
 
   return (
     <Wrapper>
-      <Title>予算 vs 実績（累計推移）</Title>
+      <Title>{hasPrevYear ? '予算 vs 実績 vs 前年同曜日（累計推移）' : '予算 vs 実績（累計推移）'}</Title>
       <ResponsiveContainer width="100%" height="90%">
         <AreaChart data={[...data]} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -56,6 +59,10 @@ export function BudgetVsActualChart({ data, budget }: Props) {
             <linearGradient id="budgetArea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={ct.colors.info} stopOpacity={0.15} />
               <stop offset="100%" stopColor={ct.colors.info} stopOpacity={0.02} />
+            </linearGradient>
+            <linearGradient id="prevYearArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#9ca3af" stopOpacity={0.15} />
+              <stop offset="100%" stopColor="#9ca3af" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -82,8 +89,12 @@ export function BudgetVsActualChart({ data, budget }: Props) {
               color: ct.text,
             }}
             formatter={(value, name) => {
-              const label = name === 'actualCum' ? '実績累計' : '予算累計'
-              return [toComma(value as number), label]
+              const labels: Record<string, string> = {
+                actualCum: '実績累計',
+                budgetCum: '予算累計',
+                prevYearCum: '前年同曜日累計',
+              }
+              return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
             }}
             labelFormatter={(label) => `${label}日`}
           />
@@ -93,6 +104,7 @@ export function BudgetVsActualChart({ data, budget }: Props) {
               const labels: Record<string, string> = {
                 actualCum: '実績累計',
                 budgetCum: '予算累計',
+                prevYearCum: '前年同曜日累計',
               }
               return labels[value] ?? value
             }}
@@ -115,6 +127,18 @@ export function BudgetVsActualChart({ data, budget }: Props) {
             dot={false}
             activeDot={{ r: 4, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
           />
+          {hasPrevYear && (
+            <Area
+              type="monotone"
+              dataKey="prevYearCum"
+              stroke="#9ca3af"
+              strokeWidth={2}
+              strokeDasharray="4 3"
+              fill="url(#prevYearArea)"
+              dot={false}
+              connectNulls
+            />
+          )}
           {budget > 0 && (
             <ReferenceLine
               y={budget}
