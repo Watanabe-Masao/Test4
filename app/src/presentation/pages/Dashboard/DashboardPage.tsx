@@ -7,7 +7,7 @@ import { useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
-import { calculateWeeklySummaries, calculateDayOfWeekAverages } from '@/domain/calculations/forecast'
+import { getWeekRanges } from '@/domain/calculations/forecast'
 import type { StoreResult } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
 import styled from 'styled-components'
@@ -946,14 +946,36 @@ function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
 function renderDowAverage(ctx: WidgetContext): ReactNode {
   const { result: r, year, month } = ctx
   const dailySales = new Map<number, number>()
-  const dailyGP = new Map<number, number>()
+  const dailyBudget = new Map<number, number>()
   for (const [d, rec] of r.daily) {
     dailySales.set(d, rec.sales)
-    dailyGP.set(d, rec.sales - rec.purchase.cost)
   }
-  const averages = calculateDayOfWeekAverages({ year, month, dailySales, dailyGrossProfit: dailyGP })
+  for (const [d, b] of r.budgetDaily) {
+    dailyBudget.set(d, b)
+  }
+
+  // 曜日別集計（売上 + 予算）
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
-  const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => ({ ...averages[i], label: DOW_LABELS[i] }))
+  const buckets = Array.from({ length: 7 }, () => ({
+    salesTotal: 0, budgetTotal: 0, count: 0,
+  }))
+  const daysInMonth = new Date(year, month, 0).getDate()
+  for (let d = 1; d <= daysInMonth; d++) {
+    const sales = dailySales.get(d) ?? 0
+    const budget = dailyBudget.get(d) ?? 0
+    if (sales > 0 || budget > 0) {
+      const dow = new Date(year, month - 1, d).getDay()
+      buckets[dow].salesTotal += sales
+      buckets[dow].budgetTotal += budget
+      buckets[dow].count++
+    }
+  }
+  const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => {
+    const b = buckets[i]
+    const avgSales = b.count > 0 ? b.salesTotal / b.count : 0
+    const avgBudget = b.count > 0 ? b.budgetTotal / b.count : 0
+    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, count: b.count }
+  })
 
   return (
     <STableWrapper>
@@ -963,17 +985,24 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
           <tr>
             <STh>曜日</STh>
             <STh>平均売上</STh>
+            <STh>平均予算</STh>
+            <STh>予算差</STh>
             <STh>日数</STh>
           </tr>
         </thead>
         <tbody>
-          {ordered.map(a => (
-            <tr key={a.label}>
-              <STd>{a.label}</STd>
-              <STd>{formatCurrency(a.averageSales)}</STd>
-              <STd>{a.count}日</STd>
-            </tr>
-          ))}
+          {ordered.map(a => {
+            const diffColor = a.diff >= 0 ? '#22c55e' : '#ef4444'
+            return (
+              <tr key={a.label}>
+                <STd>{a.label}</STd>
+                <STd>{formatCurrency(a.avgSales)}</STd>
+                <STd>{formatCurrency(a.avgBudget)}</STd>
+                <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
+                <STd>{a.count}日</STd>
+              </tr>
+            )
+          })}
         </tbody>
       </STable>
     </STableWrapper>
@@ -982,14 +1011,23 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
 
 function renderWeeklySummary(ctx: WidgetContext): ReactNode {
   const { result: r, year, month } = ctx
-  const dailySales = new Map<number, number>()
-  const dailyGP = new Map<number, number>()
-  for (const [d, rec] of r.daily) {
-    dailySales.set(d, rec.sales)
-    dailyGP.set(d, rec.sales - rec.purchase.cost)
-  }
 
-  const summaries = calculateWeeklySummaries({ year, month, dailySales, dailyGrossProfit: dailyGP })
+  // 週別の売上・予算を集計（粗利は期末在庫なしでは算出不可のため表示しない）
+  const weekRanges = getWeekRanges(year, month)
+  const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
+    let totalSales = 0
+    let totalBudget = 0
+    let days = 0
+    for (let d = startDay; d <= endDay; d++) {
+      const rec = r.daily.get(d)
+      const budget = r.budgetDaily.get(d) ?? 0
+      const sales = rec?.sales ?? 0
+      if (sales > 0) days++
+      totalSales += sales
+      totalBudget += budget
+    }
+    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, days }
+  })
 
   return (
     <STableWrapper>
@@ -1000,22 +1038,29 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>週</STh>
             <STh>期間</STh>
             <STh>売上</STh>
-            <STh>粗利</STh>
-            <STh>粗利率</STh>
+            <STh>予算</STh>
+            <STh>予算差</STh>
+            <STh>達成率</STh>
             <STh>日数</STh>
           </tr>
         </thead>
         <tbody>
-          {summaries.map(w => (
-            <tr key={w.weekNumber}>
-              <STd>第{w.weekNumber}週</STd>
-              <STd>{month}/{w.startDay}～{month}/{w.endDay}</STd>
-              <STd>{formatCurrency(w.totalSales)}</STd>
-              <STd>{formatCurrency(w.totalGrossProfit)}</STd>
-              <STd>{formatPercent(w.grossProfitRate)}</STd>
-              <STd>{w.days}日</STd>
-            </tr>
-          ))}
+          {summaries.map(w => {
+            const achievement = w.totalBudget > 0 ? w.totalSales / w.totalBudget : 0
+            const diffColor = w.diff >= 0 ? '#22c55e' : '#ef4444'
+            const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+            return (
+              <tr key={w.weekNumber}>
+                <STd>第{w.weekNumber}週</STd>
+                <STd>{month}/{w.startDay}～{month}/{w.endDay}</STd>
+                <STd>{formatCurrency(w.totalSales)}</STd>
+                <STd>{formatCurrency(w.totalBudget)}</STd>
+                <STd style={{ color: diffColor }}>{formatCurrency(w.diff)}</STd>
+                <STd style={{ color: achColor }}>{w.totalBudget > 0 ? formatPercent(achievement, 0) : '-'}</STd>
+                <STd>{w.days}日</STd>
+              </tr>
+            )
+          })}
         </tbody>
       </STable>
     </STableWrapper>
