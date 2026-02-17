@@ -65,12 +65,10 @@ describe('processFileData', () => {
     expect(result.settings.get('1')?.openingInventory).toBe(100000)
   })
 
-  it('予算データの処理（ピボット形式）', () => {
+  it('予算データの処理（フラット形式）', () => {
     const rows = [
-      ['', '', '', '0001:店舗A'],
-      ['月日', '', '', '売上予算'],
-      ['期間合計', '', '', 200000],
-      ['2026-02-01', '', '', 200000],
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-02-01', 200000],
     ]
     const result = processFileData('budget', rows, 'budget.xlsx', emptyData(), DEFAULT_SETTINGS)
 
@@ -142,10 +140,8 @@ describe('processFileData', () => {
       ['2026-02-01', '', '', 50000, 3000],
     ]
     const budgetRows = [
-      ['', '', '', '0001:店舗A'],
-      ['月日', '', '', '売上予算'],
-      ['合計', '', '', 200000],
-      ['2026-02-01', '', '', 200000],
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-02-01', 200000],
     ]
 
     let result = processFileData('salesDiscount', salesRows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
