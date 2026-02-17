@@ -95,6 +95,52 @@ describe('calculateStoreResult', () => {
     expect(result.totalCoreSales).toBe(40000) // 50000 - 10000
   })
 
+  it('総仕入原価に売上納品原価が反映される', () => {
+    const data = buildTestData({
+      purchase: {
+        '1': {
+          1: { suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+        },
+      },
+      sales: { '1': { 1: { sales: 60000 } } },
+      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      directProduce: { '1': { 1: { price: 5000, cost: 4250 } } },
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    // 売上納品原価 = 花(8000) + 産直(4250) = 12250
+    expect(result.deliverySalesCost).toBe(12250)
+    // 在庫仕入原価 = 仕入原価(30000)（移動なし）
+    expect(result.inventoryCost).toBe(30000)
+    // 総仕入原価 = 在庫仕入原価(30000) + 売上納品原価(12250) = 42250
+    expect(result.totalCost).toBe(42250)
+  })
+
+  it('在庫法: 売上納品原価が総仕入原価に含まれてCOGS計算される', () => {
+    const data = buildTestData({
+      purchase: {
+        '1': {
+          1: { suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+        },
+      },
+      sales: { '1': { 1: { sales: 60000 } } },
+      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      settings: new Map([
+        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 110000, grossProfitBudget: null }],
+      ]),
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    // 総仕入原価 = 仕入原価(30000) + 花原価(8000) = 38000
+    expect(result.totalCost).toBe(38000)
+    // COGS = 期首(100000) + 総仕入原価(38000) - 期末(110000) = 28000
+    expect(result.invMethodCogs).toBe(28000)
+    // 粗利 = 売上(60000) - COGS(28000) = 32000
+    expect(result.invMethodGrossProfit).toBe(32000)
+  })
+
   it('売変データの集計', () => {
     const data = buildTestData({
       sales: { '1': { 1: { sales: 50000 } } },

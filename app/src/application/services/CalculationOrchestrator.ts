@@ -227,16 +227,16 @@ export function calculateStoreResult(
     totalDirectProducePrice,
   )
 
-  // 在庫仕入原価 = 総仕入原価 + 店間入 + 店間出 + 部門間入 + 部門間出 - 売上納品原価
+  // 在庫仕入原価 = 仕入原価(仕入データ) + 店間入 + 店間出 + 部門間入 + 部門間出
+  // ※ 仕入データに売上納品(花・産直)の原価は含まれないため差し引き不要
   const inventoryCost =
     totalPurchaseCost +
     transferTotals.interStoreIn.cost +
     transferTotals.interStoreOut.cost +
     transferTotals.interDepartmentIn.cost +
-    transferTotals.interDepartmentOut.cost -
-    deliverySalesCost
+    transferTotals.interDepartmentOut.cost
 
-  // 総原価（在庫法用） = 在庫仕入原価 + 売上納品原価
+  // 総仕入原価 = 在庫仕入原価 + 売上納品原価
   const totalCost = inventoryCost + deliverySalesCost
 
   // 粗売上（月間）
@@ -246,10 +246,9 @@ export function calculateStoreResult(
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
   // 値入率
+  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
   const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
-  const corePurchaseCost = totalPurchaseCost - deliverySalesCost
-  const corePurchasePrice = totalPurchasePrice - deliverySalesPrice
-  const coreMarkupRate = safeDivide(corePurchasePrice - corePurchaseCost, corePurchasePrice, settings.defaultMarkupRate)
+  const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, settings.defaultMarkupRate)
 
   // 【在庫法】
   const invResult = calculateInvMethod({
@@ -537,10 +536,9 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
+  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
   const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
-  const corePurchaseCost = totalPurchaseCost - deliverySalesCost
-  const corePurchasePrice = totalPurchasePrice - deliverySalesPrice
-  const coreMarkupRate = safeDivide(corePurchasePrice - corePurchaseCost, corePurchasePrice, 0)
+  const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
 
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)
   const averageDailySales = safeDivide(totalSales, salesDays, 0)
