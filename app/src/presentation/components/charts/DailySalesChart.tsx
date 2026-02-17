@@ -126,7 +126,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
                 discount: '売変額',
                 salesMa7: '売上7日移動平均',
                 discountMa7: '売変額7日移動平均',
-                prevYearSales: '前年売上',
+                prevYearSales: '前年同曜日売上',
               }
               return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
             }}
@@ -140,7 +140,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
                 discount: '売変額',
                 salesMa7: '売上7日移動平均',
                 discountMa7: '売変額7日移動平均',
-                prevYearSales: '前年売上',
+                prevYearSales: '前年同曜日売上',
               }
               return labels[value] ?? value
             }}

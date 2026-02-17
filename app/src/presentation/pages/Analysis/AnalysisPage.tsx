@@ -197,9 +197,9 @@ export function AnalysisPage() {
                     <Th>達成率</Th>
                     <Th>売変率</Th>
                     <Th>累計売変率</Th>
-                    {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                    {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
                     {prevYear.hasPrevYear && <Th>前年比</Th>}
-                    {prevYear.hasPrevYear && <Th>前年累計</Th>}
+                    {prevYear.hasPrevYear && <Th>前年同曜日累計</Th>}
                     {prevYear.hasPrevYear && <Th>累計前年比</Th>}
                   </tr>
                 </thead>

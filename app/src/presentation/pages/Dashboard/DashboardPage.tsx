@@ -569,11 +569,11 @@ function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
               <>
                 <ExecDividerLine />
                 <ExecMetric
-                  label="前年同期売上"
+                  label="前年同曜日売上"
                   value={formatCurrency(ctx.prevYear.totalSales)}
                 />
                 <ExecMetric
-                  label="前年比"
+                  label="前年同曜日比"
                   value={formatPercent(pyRatio)}
                   subColor={pyRatio >= 1 ? '#22c55e' : '#ef4444'}
                 />
@@ -697,16 +697,20 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     weeks.push(currentWeek)
   }
 
-  // Cumulative budget & sales
+  // Cumulative budget & sales & prev year
   const cumBudget = new Map<number, number>()
   const cumSales = new Map<number, number>()
+  const cumPrevYear = new Map<number, number>()
   let runBudget = 0
   let runSales = 0
+  let runPrevYear = 0
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
     runSales += (r.daily.get(d)?.sales ?? 0)
+    runPrevYear += prevYear.daily.get(d)?.sales ?? 0
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
+    cumPrevYear.set(d, runPrevYear)
   }
 
   // Calculate pin intervals
@@ -793,11 +797,16 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             const pySales = prevYear.daily.get(day)?.sales ?? 0
                             const pyRatio = pySales > 0 ? actual / pySales : 0
                             const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
-                            return pySales > 0 ? (
+                            const cPy = cumPrevYear.get(day) ?? 0
+                            const cPyRatio = cPy > 0 ? cSales / cPy : 0
+                            const cPyColor = cPyRatio >= 1 ? '#22c55e' : cPyRatio > 0 ? '#ef4444' : undefined
+                            return pySales > 0 || cPy > 0 ? (
                               <>
                                 <CalDivider />
-                                <CalCell $color="#9ca3af">前年 {formatCurrency(pySales)}</CalCell>
-                                <CalCell $color={pyColor}>前年比 {formatPercent(pyRatio, 0)}</CalCell>
+                                <CalCell $color="#9ca3af">前同 {formatCurrency(pySales)}</CalCell>
+                                <CalCell $color={pyColor}>前比 {pySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
+                                <CalCell $color="#9ca3af">前累 {formatCurrency(cPy)}</CalCell>
+                                <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
                               </>
                             ) : null
                           })()}
@@ -1084,8 +1093,8 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             <STh>平均予算</STh>
             <STh>予算日数</STh>
             <STh>平均差</STh>
-            {prevYear.hasPrevYear && <STh>前年平均</STh>}
-            {prevYear.hasPrevYear && <STh>前年比</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日平均</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
         <tbody>
@@ -1157,8 +1166,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>達成率</STh>
             <STh>値入率</STh>
             <STh>日数</STh>
-            {prevYear.hasPrevYear && <STh>前年売上</STh>}
-            {prevYear.hasPrevYear && <STh>前年比</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日売上</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
         <tbody>
@@ -1510,7 +1519,7 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryValue>{formatCurrency(r.totalSales)}</ExecSummaryValue>
           {pyRatio != null && (
             <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
-              前年比: {pyRatio.toFixed(1)}%
+              前年同曜日比: {pyRatio.toFixed(1)}%
             </ExecSummarySub>
           )}
         </ExecSummaryItem>

@@ -282,7 +282,7 @@ export function DailyPage() {
               <tr>
                 <Th>日</Th>
                 <Th>売上</Th>
-                {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
                 {prevYear.hasPrevYear && <Th>前年比</Th>}
                 <Th
                   $clickable
