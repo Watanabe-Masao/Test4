@@ -188,29 +188,48 @@ const CalTh = styled.th<{ $weekend?: boolean }>`
   width: calc(100% / 7);
 `
 
-const CalTd = styled.td<{ $empty?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]};
+const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   vertical-align: top;
-  height: 110px;
+  height: 150px;
   ${({ $empty, theme }) => $empty ? `background: ${theme.colors.bg2};` : ''}
+  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual === false ? `
+    background: ${theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
+    opacity: 0.7;
+  ` : ''}
+  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual ? `
+    background: ${theme.mode === 'dark' ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.03)'};
+  ` : ''}
 `
 
 const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: 2px;
 `
 
-const CalLine = styled.div<{ $color?: string }>`
+const CalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 2px;
+`
+
+const CalCell = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
-  line-height: 1.6;
+  line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`
+
+const CalDivider = styled.div`
+  grid-column: 1 / -1;
+  border-top: 1px dashed ${({ theme }) => theme.colors.border};
+  margin: 1px 0;
 `
 
 // ─── Pin & Interval Styled Components ───────────────────
@@ -652,6 +671,18 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     weeks.push(currentWeek)
   }
 
+  // Cumulative budget & sales
+  const cumBudget = new Map<number, number>()
+  const cumSales = new Map<number, number>()
+  let runBudget = 0
+  let runSales = 0
+  for (let d = 1; d <= daysInMonth; d++) {
+    runBudget += r.budgetDaily.get(d) ?? 0
+    runSales += (r.daily.get(d)?.sales ?? 0)
+    cumBudget.set(d, runBudget)
+    cumSales.set(d, runSales)
+  }
+
   // Calculate pin intervals
   const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
   const intervals = calculatePinIntervals(r, sortedPins)
@@ -701,10 +732,20 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const isWeekend = di >= 5
                 const diffColor = diff >= 0 ? '#22c55e' : '#ef4444'
                 const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+                const hasActual = actual > 0
+
+                // Cumulative
+                const cBudget = cumBudget.get(day) ?? 0
+                const cSales = cumSales.get(day) ?? 0
+                const cDiff = cSales - cBudget
+                const cAch = cBudget > 0 ? cSales / cBudget : 0
+                const cDiffColor = cDiff >= 0 ? '#22c55e' : '#ef4444'
+                const cAchColor = cAch >= 1 ? '#22c55e' : cAch >= 0.9 ? '#f59e0b' : '#ef4444'
+
                 const isPinned = pins.has(day)
                 const interval = isPinned ? getIntervalForDay(day) : undefined
                 return (
-                  <CalTd key={di}>
+                  <CalTd key={di} $hasActual={hasActual}>
                     <CalDayCell
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
@@ -712,12 +753,17 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     >
                       <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
                       {(budget > 0 || actual > 0) && (
-                        <>
-                          <CalLine>予 {formatCurrency(budget)}</CalLine>
-                          <CalLine>実 {formatCurrency(actual)}</CalLine>
-                          <CalLine $color={diffColor}>差 {formatCurrency(diff)}</CalLine>
-                          <CalLine $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalLine>
-                        </>
+                        <CalGrid>
+                          <CalCell>予 {formatCurrency(budget)}</CalCell>
+                          <CalCell>実 {formatCurrency(actual)}</CalCell>
+                          <CalCell $color={diffColor}>差 {formatCurrency(diff)}</CalCell>
+                          <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
+                          <CalDivider />
+                          <CalCell>予累 {formatCurrency(cBudget)}</CalCell>
+                          <CalCell>実累 {formatCurrency(cSales)}</CalCell>
+                          <CalCell $color={cDiffColor}>差累 {formatCurrency(cDiff)}</CalCell>
+                          <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
+                        </CalGrid>
                       )}
                       {isPinned && interval && (
                         <PinIndicator>GP {formatPercent(interval.grossProfitRate, 1)}</PinIndicator>
