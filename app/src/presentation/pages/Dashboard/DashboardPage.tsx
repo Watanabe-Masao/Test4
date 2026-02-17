@@ -610,7 +610,14 @@ function calculatePinIntervals(result: StoreResult, pins: [number, number][]): P
       const rec = result.daily.get(d)
       if (rec) {
         totalSales += rec.sales
-        totalPurchaseCost += rec.purchase.cost
+        // 在庫法と同じ: 仕入原価 + 店間入出 + 部門間入出 + 売上納品原価
+        totalPurchaseCost +=
+          rec.purchase.cost +
+          rec.interStoreIn.cost +
+          rec.interStoreOut.cost +
+          rec.interDepartmentIn.cost +
+          rec.interDepartmentOut.cost +
+          rec.deliverySales.cost
       }
     }
     const cogs = prevInventory + totalPurchaseCost - closingInv
