@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, Button } from '@/presentation/components/common'
 import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart } from '@/presentation/components/charts'
@@ -31,6 +31,7 @@ interface WidgetContext {
   year: number
   month: number
   budgetChartData: { day: number; actualCum: number; budgetCum: number }[]
+  storeKey: string
 }
 
 // ─── Executive Dashboard Styled Components ──────────────
@@ -158,28 +159,29 @@ const CalWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[8]};
   overflow-x: auto;
 `
 
 const CalSectionTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
 
 const CalTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   table-layout: fixed;
 `
 
 const CalTh = styled.th<{ $weekend?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[2]}`};
   text-align: center;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   width: calc(100% / 7);
@@ -189,22 +191,22 @@ const CalTd = styled.td<{ $empty?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   vertical-align: top;
-  height: 80px;
+  height: 110px;
   ${({ $empty, theme }) => $empty ? `background: ${theme.colors.bg2};` : ''}
 `
 
 const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 const CalLine = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.5rem;
+  font-size: 0.65rem;
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -216,61 +218,66 @@ const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean }>`
   cursor: pointer;
   position: relative;
   height: 100%;
-  ${({ $pinned }) => $pinned ? `
+  padding: 2px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  transition: background 0.15s;
+  ${({ $pinned, theme }) => $pinned ? `
+    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
     &::after {
-      content: '';
+      content: '📌';
       position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #6366f1;
+      top: 1px;
+      right: 3px;
+      font-size: 0.7rem;
     }
   ` : ''}
-  ${({ $inInterval, theme }) => $inInterval ? `
-    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)'};
+  ${({ $inInterval, $pinned, theme }) => $inInterval && !$pinned ? `
+    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
   ` : ''}
-  &:hover { opacity: 0.8; }
+  &:hover {
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  }
 `
 
 const PinIndicator = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.45rem;
+  font-size: 0.6rem;
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-top: ${({ theme }) => theme.spacing[1]};
-  border-top: 1px dashed ${({ theme }) => theme.colors.palette.primary};
-  padding-top: 1px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.10)'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 1px 3px;
+  text-align: center;
 `
 
 const IntervalSummary = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[6]};
+  margin-top: ${({ theme }) => theme.spacing[8]};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[4]};
+  gap: ${({ theme }) => theme.spacing[6]};
 `
 
 const IntervalCard = styled.div<{ $color?: string }>`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 3px solid ${({ $color }) => $color ?? '#6366f1'};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  border-left: 4px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => `${theme.spacing[6]} ${theme.spacing[8]}`};
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: ${({ theme }) => theme.spacing[4]};
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: ${({ theme }) => theme.spacing[6]};
 `
 
 const IntervalMetricLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   color: ${({ theme }) => theme.colors.text3};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 const IntervalMetricValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
@@ -278,7 +285,7 @@ const IntervalMetricValue = styled.div`
 const PinModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -288,26 +295,27 @@ const PinModalOverlay = styled.div`
 const PinModalContent = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[8]};
-  min-width: 320px;
+  border-radius: ${({ theme }) => theme.radii.xl};
+  padding: ${({ theme }) => `${theme.spacing[10]} ${theme.spacing[10]}`};
+  min-width: 400px;
   max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 `
 
 const PinModalTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
 `
 
 const PinInputField = styled.input`
   width: 100%;
-  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 2px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
@@ -317,14 +325,15 @@ const PinInputField = styled.input`
 const PinButtonRow = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[4]};
-  margin-top: ${({ theme }) => theme.spacing[6]};
+  margin-top: ${({ theme }) => theme.spacing[8]};
 `
 
 const PinInputLabel = styled.label`
   display: block;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
 // ─── Forecast Tools Styled Components ───────────────────
@@ -332,7 +341,7 @@ const PinInputLabel = styled.label`
 const ForecastToolsGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing[6]};
+  gap: ${({ theme }) => theme.spacing[8]};
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
   }
@@ -341,29 +350,29 @@ const ForecastToolsGrid = styled.div`
 const ToolCard = styled.div<{ $accent: string }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-top: 3px solid ${({ $accent }) => $accent};
+  border-top: 4px solid ${({ $accent }) => $accent};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[8]};
 `
 
 const ToolCardTitle = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
 `
 
 const ToolInputGroup = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
 
 const ToolInputField = styled.input`
   width: 100%;
-  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 2px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
@@ -371,23 +380,23 @@ const ToolInputField = styled.input`
 `
 
 const ToolResultSection = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[6]};
-  padding-top: ${({ theme }) => theme.spacing[4]};
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
+  margin-top: ${({ theme }) => theme.spacing[8]};
+  padding-top: ${({ theme }) => theme.spacing[6]};
+  border-top: 2px solid ${({ theme }) => theme.colors.border};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
+  gap: ${({ theme }) => theme.spacing[4]};
 `
 
 const ToolResultValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ $color, theme }) => $color ?? theme.colors.text};
 `
 
 const ToolResultLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -619,11 +628,22 @@ function calculatePinIntervals(result: StoreResult, pins: [number, number][]): P
 }
 
 function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
-  const { result: r, daysInMonth, year, month } = ctx
+  const { result: r, daysInMonth, year, month, storeKey } = ctx
   const [pins, setPins] = useState<Map<number, number>>(new Map())
   const [editDay, setEditDay] = useState<number | null>(null)
   const [inputVal, setInputVal] = useState('')
+  const prevStoreKeyRef = useRef(storeKey)
   const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
+
+  // Reset pins when store changes
+  useEffect(() => {
+    if (prevStoreKeyRef.current !== storeKey) {
+      setPins(new Map())
+      setEditDay(null)
+      setInputVal('')
+      prevStoreKeyRef.current = storeKey
+    }
+  }, [storeKey])
 
   // Build weeks (Monday start)
   const weeks: (number | null)[][] = []
@@ -794,6 +814,17 @@ function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const [salesLandingInput, setSalesLandingInput] = useState('')
   const [remainGPRateInput, setRemainGPRateInput] = useState('')
   const [targetGPRateInput, setTargetGPRateInput] = useState('')
+  const prevStoreKeyRef = useRef(ctx.storeKey)
+
+  // Reset inputs when store changes
+  useEffect(() => {
+    if (prevStoreKeyRef.current !== ctx.storeKey) {
+      setSalesLandingInput('')
+      setRemainGPRateInput('')
+      setTargetGPRateInput('')
+      prevStoreKeyRef.current = ctx.storeKey
+    }
+  }, [ctx.storeKey])
 
   // Current actuals
   const actualSales = r.totalSales
@@ -1816,6 +1847,7 @@ export function DashboardPage() {
     year: appState.settings.targetYear,
     month: appState.settings.targetMonth,
     budgetChartData,
+    storeKey: storeName,
   }
 
   // Resolve active widgets
