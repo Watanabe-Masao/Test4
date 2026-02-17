@@ -615,6 +615,15 @@ export function CategoryPage() {
   const dispatch = useAppDispatch()
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
 
+  // Build store name map for comparison charts (must be before early return)
+  const storeNames = useMemo(() => {
+    const map = new Map<string, string>()
+    selectedResults.forEach((sr) => {
+      map.set(sr.storeId, stores.get(sr.storeId)?.name ?? sr.storeId)
+    })
+    return map
+  }, [selectedResults, stores])
+
   if (!isCalculated || !currentResult) {
     return (
       <MainContent title="カテゴリ分析" storeName={storeName}>
@@ -649,15 +658,6 @@ export function CategoryPage() {
   }
 
   const showComparison = comparisonMode === 'comparison' && hasMultipleStores
-
-  // Build store name map for comparison charts
-  const storeNames = useMemo(() => {
-    const map = new Map<string, string>()
-    selectedResults.forEach((sr) => {
-      map.set(sr.storeId, stores.get(sr.storeId)?.name ?? sr.storeId)
-    })
-    return map
-  }, [selectedResults, stores])
 
   return (
     <MainContent title="カテゴリ分析" storeName={storeName}>
