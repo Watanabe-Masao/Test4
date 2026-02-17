@@ -9,13 +9,19 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('filename')
   })
 
-  it('売上: ファイル名', () => {
+  it('売上売変: ファイル名（salesDiscountとして判定）', () => {
+    const result = detectFileType('1_売上売変.xlsx', [])
+    expect(result.type).toBe('salesDiscount')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('売上: ファイル名（売変を含まない場合）', () => {
     const result = detectFileType('売上データ.csv', [])
     expect(result.type).toBe('sales')
     expect(result.confidence).toBe('filename')
   })
 
-  it('売変: ファイル名', () => {
+  it('売変: ファイル名（売上を含まない場合）', () => {
     const result = detectFileType('売変.xlsx', [])
     expect(result.type).toBe('discount')
   })
@@ -85,13 +91,18 @@ describe('detectFileType', () => {
     expect(result.type).toBe('budget')
   })
 
-  it('店間入: ヘッダー', () => {
+  it('店間入: ヘッダー（店コードIN）', () => {
+    const result = detectFileType('data.xlsx', [['店コードIN', '日付']])
+    expect(result.type).toBe('interStoreIn')
+  })
+
+  it('店間入: ヘッダー（店舗コードIN でも判定可）', () => {
     const result = detectFileType('data.xlsx', [['店舗コードIN', '日付']])
     expect(result.type).toBe('interStoreIn')
   })
 
-  it('店間出: ヘッダー', () => {
-    const result = detectFileType('data.xlsx', [['日付', '店舗コードOUT']])
+  it('店間出: ヘッダー（店コードOUT）', () => {
+    const result = detectFileType('data.xlsx', [['店コードOUT', '日付']])
     expect(result.type).toBe('interStoreOut')
   })
 

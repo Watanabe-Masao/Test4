@@ -38,6 +38,7 @@ const fileTypeIcons: Record<string, string> = {
   purchase: '📦',
   sales: '💰',
   discount: '🏷️',
+  salesDiscount: '💰',
   initialSettings: '⚙️',
   budget: '📊',
   flowers: '🌸',

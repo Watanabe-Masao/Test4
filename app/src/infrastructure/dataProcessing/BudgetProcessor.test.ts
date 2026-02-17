@@ -2,12 +2,13 @@ import { describe, it, expect } from 'vitest'
 import { processBudget } from './BudgetProcessor'
 
 describe('processBudget', () => {
-  it('基本的な予算データ処理', () => {
+  it('ピボット形式の予算データ処理', () => {
     const rows = [
-      ['店舗コード', '日付', '予算'],
-      ['0001', '2026-02-01', 200000],
-      ['0001', '2026-02-02', 250000],
-      ['0002', '2026-02-01', 150000],
+      ['', '', '', '0001:店舗A', '0002:店舗B'],
+      ['月日', '', '', '売上予算', '売上予算'],
+      ['期間合計', '', '', 450000, 150000],
+      ['2026-02-01', '', '', 200000, 150000],
+      ['2026-02-02', '', '', 250000, 0],
     ]
 
     const result = processBudget(rows)
@@ -25,15 +26,27 @@ describe('processBudget', () => {
 
   it('予算≤0はスキップ', () => {
     const rows = [
-      ['header', '', ''],
-      ['0001', '2026-02-01', 0],
-      ['0001', '2026-02-02', -100],
+      ['', '', '', '0001:A'],
+      ['月日', '', '', '売上予算'],
+      ['合計', '', '', 0],
+      ['2026-02-01', '', '', 0],
+      ['2026-02-02', '', '', -100],
     ]
     const result = processBudget(rows)
     expect(result.size).toBe(0)
   })
 
   it('行数不足の場合は空', () => {
-    expect(processBudget([['header']])).toEqual(new Map())
+    expect(processBudget([['header'], ['sub'], ['total']])).toEqual(new Map())
+  })
+
+  it('店舗コードが見つからない場合は空', () => {
+    const rows = [
+      ['', '', '', 'invalid'],
+      ['月日'],
+      ['合計'],
+      ['2026-02-01', '', '', 100000],
+    ]
+    expect(processBudget(rows)).toEqual(new Map())
   })
 })
