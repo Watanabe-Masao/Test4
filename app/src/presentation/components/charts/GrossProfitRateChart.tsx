@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, toPct } from './chartTheme'
+import { getDailyTotalCost } from '@/domain/models'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 
@@ -49,7 +50,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
     const rec = daily.get(d)
     if (rec) {
       cumSales += rec.sales
-      cumCost += rec.purchase.cost
+      cumCost += getDailyTotalCost(rec)
     }
     const rate = safeDivide(cumSales - cumCost, cumSales, 0)
     data.push({
