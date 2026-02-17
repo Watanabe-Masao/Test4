@@ -86,10 +86,10 @@ describe('processFileData', () => {
     expect(result.interStoreIn['1']?.[1]?.interStoreIn).toHaveLength(1)
   })
 
-  it('店間出データの処理（Col0=出庫元, Col1=日付）', () => {
+  it('店間出データの処理（Col0=日付, Col1=出庫元）', () => {
     const rows = [
       ['header'],
-      ['0001', '2026-02-01', '0002', '001', 10000, 13000],
+      ['2026-02-01', '0001', '0002', '001', 10000, 13000],
     ]
     const result = processFileData('interStoreOut', rows, 'tenkandashi.xlsx', emptyData(), DEFAULT_SETTINGS)
 
