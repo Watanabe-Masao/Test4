@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, Button } from '@/presentation/components/common'
-import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart } from '@/presentation/components/charts'
-import { useCalculation } from '@/application/hooks'
+import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart, PrevYearComparisonChart } from '@/presentation/components/charts'
+import { useCalculation, usePrevYearData } from '@/application/hooks'
 import { useStoreSelection } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
@@ -33,6 +34,7 @@ interface WidgetContext {
   month: number
   budgetChartData: { day: number; actualCum: number; budgetCum: number }[]
   storeKey: string
+  prevYear: PrevYearData
 }
 
 // ─── Executive Dashboard Styled Components ──────────────
@@ -63,6 +65,13 @@ const ExecSummaryValue = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.lg};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
+`
+
+const ExecSummarySub = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text3};
+  margin-top: ${({ theme }) => theme.spacing[1]};
 `
 
 const ExecGrid = styled.div`
@@ -554,6 +563,23 @@ function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             value={formatPercent(salesAchievement)}
             sub={`進捗比: ${formatPercent(progressRatio)}`}
           />
+          {ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0 && (() => {
+            const pyRatio = r.totalSales / ctx.prevYear.totalSales
+            return (
+              <>
+                <ExecDividerLine />
+                <ExecMetric
+                  label="前年同期売上"
+                  value={formatCurrency(ctx.prevYear.totalSales)}
+                />
+                <ExecMetric
+                  label="前年比"
+                  value={formatPercent(pyRatio)}
+                  subColor={pyRatio >= 1 ? '#22c55e' : '#ef4444'}
+                />
+              </>
+            )
+          })()}
           <ExecDividerLine />
           <ExecMetric
             label="期中粗利額実績"
@@ -648,7 +674,7 @@ function calculatePinIntervals(result: StoreResult, pins: [number, number][]): P
 }
 
 function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
-  const { result: r, daysInMonth, year, month } = ctx
+  const { result: r, daysInMonth, year, month, prevYear } = ctx
   const [pins, setPins] = useState<Map<number, number>>(new Map())
   const [editDay, setEditDay] = useState<number | null>(null)
   const [inputVal, setInputVal] = useState('')
@@ -763,6 +789,18 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                           <CalCell>実累 {formatCurrency(cSales)}</CalCell>
                           <CalCell $color={cDiffColor}>差累 {formatCurrency(cDiff)}</CalCell>
                           <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
+                          {prevYear.hasPrevYear && (() => {
+                            const pySales = prevYear.daily.get(day)?.sales ?? 0
+                            const pyRatio = pySales > 0 ? actual / pySales : 0
+                            const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
+                            return pySales > 0 ? (
+                              <>
+                                <CalDivider />
+                                <CalCell $color="#9ca3af">前年 {formatCurrency(pySales)}</CalCell>
+                                <CalCell $color={pyColor}>前年比 {formatPercent(pyRatio, 0)}</CalCell>
+                              </>
+                            ) : null
+                          })()}
                         </CalGrid>
                       )}
                       {isPinned && interval && (
@@ -990,7 +1028,7 @@ function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
 }
 
 function renderDowAverage(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month } = ctx
+  const { result: r, year, month, prevYear } = ctx
   const dailySales = new Map<number, number>()
   const dailyBudget = new Map<number, number>()
   for (const [d, rec] of r.daily) {
@@ -1005,6 +1043,7 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
   const buckets = Array.from({ length: 7 }, () => ({
     salesTotal: 0, salesCount: 0,
     budgetTotal: 0, budgetCount: 0,
+    prevYearTotal: 0, prevYearCount: 0,
   }))
   const daysInMonth = new Date(year, month, 0).getDate()
   for (let d = 1; d <= daysInMonth; d++) {
@@ -1019,12 +1058,18 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
       buckets[dow].budgetTotal += budget
       buckets[dow].budgetCount++
     }
+    const pySales = prevYear.daily.get(d)?.sales ?? 0
+    if (pySales > 0) {
+      buckets[dow].prevYearTotal += pySales
+      buckets[dow].prevYearCount++
+    }
   }
   const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => {
     const b = buckets[i]
     const avgSales = b.salesCount > 0 ? b.salesTotal / b.salesCount : 0
     const avgBudget = b.budgetCount > 0 ? b.budgetTotal / b.budgetCount : 0
-    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount }
+    const avgPrevYear = b.prevYearCount > 0 ? b.prevYearTotal / b.prevYearCount : 0
+    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount, avgPrevYear }
   })
 
   return (
@@ -1039,11 +1084,15 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             <STh>平均予算</STh>
             <STh>予算日数</STh>
             <STh>平均差</STh>
+            {prevYear.hasPrevYear && <STh>前年平均</STh>}
+            {prevYear.hasPrevYear && <STh>前年比</STh>}
           </tr>
         </thead>
         <tbody>
           {ordered.map(a => {
             const diffColor = a.diff >= 0 ? '#22c55e' : '#ef4444'
+            const pyRatio = a.avgPrevYear > 0 ? a.avgSales / a.avgPrevYear : 0
+            const pyColor = pyRatio >= 1 ? '#22c55e' : '#ef4444'
             return (
               <tr key={a.label}>
                 <STd>{a.label}</STd>
@@ -1052,6 +1101,8 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
                 <STd>{formatCurrency(a.avgBudget)}</STd>
                 <STd>{a.budgetCount}日</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
+                {prevYear.hasPrevYear && <STd>{formatCurrency(a.avgPrevYear)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyColor : undefined }}>{a.avgPrevYear > 0 ? formatPercent(pyRatio, 0) : '-'}</STd>}
               </tr>
             )
           })}
@@ -1062,7 +1113,7 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
 }
 
 function renderWeeklySummary(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month } = ctx
+  const { result: r, year, month, prevYear } = ctx
 
   // 週別の売上・予算・値入を集計
   const weekRanges = getWeekRanges(year, month)
@@ -1072,6 +1123,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
     let totalPurchasePrice = 0
     let totalPurchaseCost = 0
     let days = 0
+    let prevYearWeekSales = 0
     for (let d = startDay; d <= endDay; d++) {
       const rec = r.daily.get(d)
       const budget = r.budgetDaily.get(d) ?? 0
@@ -1083,11 +1135,12 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
         totalPurchasePrice += rec.purchase.price + rec.flowers.price + rec.directProduce.price
         totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
       }
+      prevYearWeekSales += prevYear.daily.get(d)?.sales ?? 0
     }
     const markupRate = totalPurchasePrice > 0
       ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice
       : 0
-    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days }
+    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days, prevYearWeekSales }
   })
 
   return (
@@ -1104,6 +1157,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>達成率</STh>
             <STh>値入率</STh>
             <STh>日数</STh>
+            {prevYear.hasPrevYear && <STh>前年売上</STh>}
+            {prevYear.hasPrevYear && <STh>前年比</STh>}
           </tr>
         </thead>
         <tbody>
@@ -1111,6 +1166,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             const achievement = w.totalBudget > 0 ? w.totalSales / w.totalBudget : 0
             const diffColor = w.diff >= 0 ? '#22c55e' : '#ef4444'
             const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+            const pyWeekRatio = w.prevYearWeekSales > 0 ? w.totalSales / w.prevYearWeekSales : 0
+            const pyWeekColor = pyWeekRatio >= 1 ? '#22c55e' : '#ef4444'
             return (
               <tr key={w.weekNumber}>
                 <STd>第{w.weekNumber}週</STd>
@@ -1121,6 +1178,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd style={{ color: achColor }}>{w.totalBudget > 0 ? formatPercent(achievement, 0) : '-'}</STd>
                 <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
+                {prevYear.hasPrevYear && <STd>{formatCurrency(w.prevYearWeekSales)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekColor : undefined }}>{w.prevYearWeekSales > 0 ? formatPercent(pyWeekRatio, 0) : '-'}</STd>}
               </tr>
             )
           })}
@@ -1377,8 +1436,8 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '日別売上チャート',
     group: 'チャート',
     size: 'full',
-    render: ({ result: r, daysInMonth }) => (
-      <DailySalesChart daily={r.daily} daysInMonth={daysInMonth} />
+    render: ({ result: r, daysInMonth, prevYear }) => (
+      <DailySalesChart daily={r.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} />
     ),
   },
   {
@@ -1422,17 +1481,38 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <CategoryPieChart categoryTotals={r.categoryTotals} mode="price" />
     ),
   },
+  {
+    id: 'chart-prev-year-comparison',
+    label: '前年比推移',
+    group: 'チャート',
+    size: 'full',
+    render: ({ result: r, daysInMonth, prevYear }) => {
+      if (!prevYear.hasPrevYear) return null
+      const currentDaily = new Map<number, { sales: number }>()
+      for (const [d, rec] of r.daily) currentDaily.set(d, { sales: rec.sales })
+      return <PrevYearComparisonChart currentDaily={currentDaily} prevYearDaily={prevYear.daily} daysInMonth={daysInMonth} />
+    },
+  },
   // ── 本部・経営者向け ──
   {
     id: 'exec-summary-bar',
     label: 'サマリーバー',
     group: '本部・経営者向け',
     size: 'full',
-    render: ({ result: r }) => (
+    render: ({ result: r, prevYear }) => {
+      const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
+        ? (r.totalSales / prevYear.totalSales) * 100
+        : null
+      return (
       <ExecSummaryBar>
         <ExecSummaryItem $accent="#6366f1">
           <ExecSummaryLabel>売上実績</ExecSummaryLabel>
           <ExecSummaryValue>{formatCurrency(r.totalSales)}</ExecSummaryValue>
+          {pyRatio != null && (
+            <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
+              前年比: {pyRatio.toFixed(1)}%
+            </ExecSummarySub>
+          )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f59e0b">
           <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
@@ -1451,7 +1531,8 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryValue>{formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
         </ExecSummaryItem>
       </ExecSummaryBar>
-    ),
+      )
+    },
   },
   {
     id: 'exec-plan-actual-forecast',
@@ -1837,6 +1918,7 @@ export function DashboardPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const appState = useAppState()
+  const prevYear = usePrevYearData()
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -1936,6 +2018,7 @@ export function DashboardPage() {
     month: appState.settings.targetMonth,
     budgetChartData,
     storeKey: storeName,
+    prevYear,
   }
 
   // Resolve active widgets

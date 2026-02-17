@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle } from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
@@ -115,6 +115,15 @@ const Tr = styled.tr`
   }
 `
 
+const PrevYearTd = styled.td<{ $positive?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ $positive, theme }) =>
+    $positive === undefined ? theme.colors.text3 : $positive ? '#16a34a' : '#dc2626'};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
 const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[12]};
@@ -192,6 +201,7 @@ export function DailyPage() {
   const { currentResult, storeName, stores } = useStoreSelection()
   const appState = useAppState()
   const { settings } = appState
+  const prevYear = usePrevYearData()
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
 
@@ -255,7 +265,7 @@ export function DailyPage() {
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
       <ChartGrid>
-        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} />
+        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} />
         <GrossProfitRateChart
           daily={currentResult.daily}
           daysInMonth={daysInMonth}
@@ -272,6 +282,8 @@ export function DailyPage() {
               <tr>
                 <Th>日</Th>
                 <Th>売上</Th>
+                {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                {prevYear.hasPrevYear && <Th>前年比</Th>}
                 <Th
                   $clickable
                   $expanded={isPurchaseExpanded}
@@ -343,6 +355,16 @@ export function DailyPage() {
                 <Tr key={day}>
                   <Td>{day}</Td>
                   <Td>{formatCurrency(rec.sales)}</Td>
+                  {prevYear.hasPrevYear && (() => {
+                    const ps = prevYear.daily.get(day)?.sales ?? 0
+                    return <PrevYearTd>{ps > 0 ? formatCurrency(ps) : '-'}</PrevYearTd>
+                  })()}
+                  {prevYear.hasPrevYear && (() => {
+                    const ps = prevYear.daily.get(day)?.sales
+                    if (!ps || ps === 0) return <PrevYearTd>-</PrevYearTd>
+                    const ratio = (rec.sales / ps) * 100
+                    return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
+                  })()}
                   {/* 仕入原価 + 詳細 */}
                   <Td>{formatCurrency(rec.purchase.cost)}</Td>
                   {isPurchaseExpanded && supplierKeys.map(s => {
