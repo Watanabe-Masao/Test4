@@ -109,8 +109,8 @@ function AppContent() {
   const { mode, toggle } = useThemeToggle()
 
   const handleFiles = useCallback(
-    async (files: FileList | File[]) => {
-      const summary = await importFiles(files)
+    async (files: FileList | File[], overrideType?: DataType) => {
+      const summary = await importFiles(files, overrideType)
       summary.results.forEach((r) => {
         if (r.ok) {
           showToast(`${r.typeName}: ${r.filename}`, 'success')
@@ -123,8 +123,8 @@ function AppContent() {
   )
 
   const handleSingleFile = useCallback(
-    async (file: File) => {
-      await handleFiles([file])
+    async (file: File, typeHint: string) => {
+      await handleFiles([file], typeHint as DataType)
     },
     [handleFiles],
   )

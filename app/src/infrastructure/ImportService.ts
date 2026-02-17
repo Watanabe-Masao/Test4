@@ -212,12 +212,14 @@ export function processFileData(
 
 /**
  * 複数ファイルをバッチインポートする
+ * overrideType が指定された場合、自動判定をスキップしてそのタイプで処理する
  */
 export async function processDroppedFiles(
   files: FileList | File[],
   appSettings: AppSettings,
   currentData: ImportedData,
   onProgress?: ProgressCallback,
+  overrideType?: DataType,
 ): Promise<{ summary: ImportSummary; data: ImportedData }> {
   const fileArray = Array.from(files)
   const results: FileImportResult[] = []
@@ -228,7 +230,26 @@ export async function processDroppedFiles(
     onProgress?.(i + 1, fileArray.length, file.name)
 
     try {
-      const { rows, type, typeName } = await readAndDetect(file)
+      let rows: unknown[][]
+      let type: DataType
+      let typeName: string
+
+      if (overrideType) {
+        // UploadCardから種別指定された場合: 自動判定をスキップ
+        rows = await readTabularFile(file)
+        if (rows.length === 0) {
+          throw new ImportError('ファイルが空です', 'INVALID_FORMAT', file.name)
+        }
+        type = overrideType
+        typeName = getDataTypeName(overrideType)
+      } else {
+        // ドラッグ＆ドロップの場合: 自動判定
+        const detected = await readAndDetect(file)
+        rows = detected.rows
+        type = detected.type
+        typeName = detected.typeName
+      }
+
       data = processFileData(type, rows, file.name, data, appSettings)
       results.push({ ok: true, filename: file.name, type, typeName })
     } catch (err) {
