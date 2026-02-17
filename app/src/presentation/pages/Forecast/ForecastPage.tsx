@@ -16,6 +16,11 @@ import {
   ResponsiveContainer,
   Cell,
   Legend,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from 'recharts'
 import styled from 'styled-components'
 
@@ -121,8 +126,51 @@ const ModeToggleWrapper = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
 
-const DOW_LABELS = ['\u65e5', '\u6708', '\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f']
-const DOW_COLORS = ['#ef4444', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#22c55e']
+const ColorPickerRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  flex-wrap: wrap;
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+`
+
+const ColorPickerLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text2};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  cursor: pointer;
+`
+
+const ColorInput = styled.input`
+  width: 28px;
+  height: 22px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 1px;
+  cursor: pointer;
+  background: transparent;
+  &::-webkit-color-swatch-wrapper { padding: 0; }
+  &::-webkit-color-swatch { border: none; border-radius: 2px; }
+`
+
+const ColorPickerTitle = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text3};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  margin-right: ${({ theme }) => theme.spacing[2]};
+`
+
+const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
+const DEFAULT_DOW_COLORS = ['#ef4444', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#22c55e']
 
 /** Build a ForecastInput from a StoreResult */
 function buildForecastInput(
@@ -148,7 +196,7 @@ function computeStackedWeekData(
   month: number,
 ): Record<string, string | number>[] {
   return weeks.map((w) => {
-    const entry: Record<string, string | number> = { name: `\u7b2c${w.weekNumber}\u9031` }
+    const entry: Record<string, string | number> = { name: `第${w.weekNumber}週` }
     // Initialize all DOW keys to 0
     for (const label of DOW_LABELS) {
       entry[label] = 0
@@ -168,11 +216,12 @@ export function ForecastPage() {
   const { isCalculated } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const [compareMode, setCompareMode] = useState(false)
+  const [dowColors, setDowColors] = useState<string[]>([...DEFAULT_DOW_COLORS])
 
   if (!isCalculated || !currentResult) {
     return (
-      <MainContent title="\u4e88\u6e2c\u5206\u6790" storeName={storeName}>
-        <EmptyState>\u8a08\u7b97\u3092\u5b9f\u884c\u3057\u3066\u304f\u3060\u3055\u3044</EmptyState>
+      <MainContent title="予測分析" storeName={storeName}>
+        <EmptyState>計算を実行してください</EmptyState>
       </MainContent>
     )
   }
@@ -213,49 +262,80 @@ export function ForecastPage() {
       })
     : []
 
+  const handleDowColorChange = (index: number, color: string) => {
+    setDowColors((prev) => {
+      const next = [...prev]
+      next[index] = color
+      return next
+    })
+  }
+
   return (
-    <MainContent title="\u4e88\u6e2c\u5206\u6790" storeName={storeName}>
+    <MainContent title="予測分析" storeName={storeName}>
       <KpiGrid>
         <KpiCard
-          label="\u55b6\u696d\u65e5\u6570"
-          value={`${r.salesDays}\u65e5`}
-          subText={`\u7d4c\u904e: ${r.elapsedDays}\u65e5`}
+          label="営業日数"
+          value={`${r.salesDays}日`}
+          subText={`経過: ${r.elapsedDays}日`}
           accent="#6366f1"
         />
         <KpiCard
-          label="\u65e5\u5e73\u5747\u58f2\u4e0a"
+          label="日平均売上"
           value={formatCurrency(r.averageDailySales)}
           accent="#22c55e"
         />
         <KpiCard
-          label="\u6708\u672b\u4e88\u6e2c\u58f2\u4e0a"
+          label="月末予測売上"
           value={formatCurrency(r.projectedSales)}
-          subText={`\u9054\u6210\u7387\u4e88\u6e2c: ${formatPercent(r.projectedAchievement)}`}
+          subText={`達成率予測: ${formatPercent(r.projectedAchievement)}`}
           accent="#0ea5e9"
         />
         <KpiCard
-          label="\u7570\u5e38\u5024\u691c\u51fa"
-          value={`${forecast.anomalies.length}\u4ef6`}
-          subText={forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '\u7570\u5e38\u306a\u3057'}
+          label="異常値検出"
+          value={`${forecast.anomalies.length}件`}
+          subText={forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '異常なし'}
           accent={forecast.anomalies.length > 0 ? '#f59e0b' : '#22c55e'}
         />
       </KpiGrid>
 
+      {/* 曜日カラー設定 */}
+      <ColorPickerRow>
+        <ColorPickerTitle>曜日カラー設定:</ColorPickerTitle>
+        {DOW_LABELS.map((label, i) => (
+          <ColorPickerLabel key={label}>
+            <ColorInput
+              type="color"
+              value={dowColors[i]}
+              onChange={(e) => handleDowColorChange(i, e.target.value)}
+            />
+            {label}
+          </ColorPickerLabel>
+        ))}
+      </ColorPickerRow>
+
       <ChartGrid>
-        <WeeklyChart data={stackedData} />
-        <DayOfWeekChart averages={forecast.dayOfWeekAverages} />
+        <WeeklyChart data={stackedData} dowColors={dowColors} />
+        <DayOfWeekChart averages={forecast.dayOfWeekAverages} dowColors={dowColors} />
       </ChartGrid>
+
+      {/* 店舗間比較チャート */}
+      {selectedResults.length > 1 && compareMode && storeForecasts.length > 0 && (
+        <ChartGrid>
+          <StoreComparisonRadarChart storeForecasts={storeForecasts} />
+          <StoreComparisonBarChart storeForecasts={storeForecasts} />
+        </ChartGrid>
+      )}
 
       <Section>
         <ModeToggleWrapper>
-          <SectionTitle style={{ marginBottom: 0 }}>\u9031\u5225\u30b5\u30de\u30ea\u30fc</SectionTitle>
+          <SectionTitle style={{ marginBottom: 0 }}>週別サマリー</SectionTitle>
           {selectedResults.length > 1 && (
             <ChipGroup>
               <Chip $active={!compareMode} onClick={() => setCompareMode(false)}>
-                \u5408\u8a08\u30e2\u30fc\u30c9
+                合計モード
               </Chip>
               <Chip $active={compareMode} onClick={() => setCompareMode(true)}>
-                \u6bd4\u8f03\u30e2\u30fc\u30c9
+                比較モード
               </Chip>
             </ChipGroup>
           )}
@@ -266,22 +346,22 @@ export function ForecastPage() {
             <Table>
               <thead>
                 <tr>
-                  <Th>\u9031</Th>
-                  <Th>\u671f\u9593</Th>
-                  <Th>\u55b6\u696d\u65e5\u6570</Th>
-                  <Th>\u58f2\u4e0a\u5408\u8a08</Th>
-                  <Th>\u7c97\u5229\u5408\u8a08</Th>
-                  <Th>\u7c97\u5229\u7387</Th>
+                  <Th>週</Th>
+                  <Th>期間</Th>
+                  <Th>営業日数</Th>
+                  <Th>売上合計</Th>
+                  <Th>粗利合計</Th>
+                  <Th>粗利率</Th>
                 </tr>
               </thead>
               <tbody>
                 {forecast.weeklySummaries.map((w) => (
                   <Tr key={w.weekNumber}>
                     <Td $highlight={w === bestWeek || w === worstWeek}>
-                      \u7b2c{w.weekNumber}\u9031
+                      第{w.weekNumber}週
                     </Td>
-                    <Td>{w.startDay}\u65e5\u301c{w.endDay}\u65e5</Td>
-                    <Td>{w.days}\u65e5</Td>
+                    <Td>{w.startDay}日〜{w.endDay}日</Td>
+                    <Td>{w.days}日</Td>
                     <Td>{formatCurrency(w.totalSales)}</Td>
                     <Td>{formatCurrency(w.totalGrossProfit)}</Td>
                     <Td>{formatPercent(w.grossProfitRate)}</Td>
@@ -295,21 +375,21 @@ export function ForecastPage() {
             <Table>
               <thead>
                 <tr>
-                  <Th>\u9031</Th>
-                  <Th>\u671f\u9593</Th>
+                  <Th>週</Th>
+                  <Th>期間</Th>
                   {storeForecasts.map((sf) => (
-                    <Th key={`sales-${sf.storeId}`}>{sf.storeName} \u58f2\u4e0a</Th>
+                    <Th key={`sales-${sf.storeId}`}>{sf.storeName} 売上</Th>
                   ))}
                   {storeForecasts.map((sf) => (
-                    <Th key={`gp-${sf.storeId}`}>{sf.storeName} \u7c97\u5229</Th>
+                    <Th key={`gp-${sf.storeId}`}>{sf.storeName} 粗利</Th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {forecast.weeklySummaries.map((w, wi) => (
                   <Tr key={w.weekNumber}>
-                    <Td>\u7b2c{w.weekNumber}\u9031</Td>
-                    <Td>{w.startDay}\u65e5\u301c{w.endDay}\u65e5</Td>
+                    <Td>第{w.weekNumber}週</Td>
+                    <Td>{w.startDay}日〜{w.endDay}日</Td>
                     {storeForecasts.map((sf) => {
                       const sw = sf.forecast.weeklySummaries[wi]
                       return (
@@ -336,30 +416,30 @@ export function ForecastPage() {
 
       {forecast.anomalies.length > 0 && (
         <Section>
-          <SectionTitle>\u7570\u5e38\u5024\u691c\u51fa</SectionTitle>
+          <SectionTitle>異常値検出</SectionTitle>
           <Card>
-            <CardTitle>\u7d71\u8a08\u7684\u7570\u5e38\u5024\uff08Z-Score &gt; 2.0\uff09</CardTitle>
+            <CardTitle>統計的異常値（Z-Score &gt; 2.0）</CardTitle>
             <TableWrapper>
               <Table>
                 <thead>
                   <tr>
-                    <Th>\u65e5</Th>
-                    <Th>\u58f2\u4e0a</Th>
-                    <Th>\u5e73\u5747</Th>
+                    <Th>日</Th>
+                    <Th>売上</Th>
+                    <Th>平均</Th>
                     <Th>Z-Score</Th>
-                    <Th>\u5224\u5b9a</Th>
+                    <Th>判定</Th>
                   </tr>
                 </thead>
                 <tbody>
                   {forecast.anomalies.map((a) => (
                     <Tr key={a.day}>
-                      <Td>{a.day}\u65e5</Td>
+                      <Td>{a.day}日</Td>
                       <Td>{formatCurrency(a.value)}</Td>
                       <Td>{formatCurrency(a.mean)}</Td>
                       <Td>{a.zScore.toFixed(2)}</Td>
                       <Td>
                         <AnomalyBadge $type={a.zScore > 0 ? 'high' : 'low'}>
-                          {a.zScore > 0 ? '\u9ad8\u58f2\u4e0a' : '\u4f4e\u58f2\u4e0a'}
+                          {a.zScore > 0 ? '高売上' : '低売上'}
                         </AnomalyBadge>
                       </Td>
                     </Tr>
@@ -374,12 +454,12 @@ export function ForecastPage() {
   )
 }
 
-function WeeklyChart({ data }: { data: Record<string, string | number>[] }) {
+function WeeklyChart({ data, dowColors }: { data: Record<string, string | number>[]; dowColors: string[] }) {
   const ct = useChartTheme()
 
   return (
     <ChartWrapper>
-      <ChartTitle>\u9031\u5225\u58f2\u4e0a\u63a8\u79fb\uff08\u66dc\u65e5\u5225\uff09</ChartTitle>
+      <ChartTitle>週別売上推移（曜日別）</ChartTitle>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -415,7 +495,7 @@ function WeeklyChart({ data }: { data: Record<string, string | number>[] }) {
               key={label}
               dataKey={label}
               stackId="dow"
-              fill={DOW_COLORS[i]}
+              fill={dowColors[i]}
               fillOpacity={0.8}
               radius={i === DOW_LABELS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
               maxBarSize={40}
@@ -427,19 +507,19 @@ function WeeklyChart({ data }: { data: Record<string, string | number>[] }) {
   )
 }
 
-function DayOfWeekChart({ averages }: { averages: readonly import('@/domain/calculations/forecast').DayOfWeekAverage[] }) {
+function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/domain/calculations/forecast').DayOfWeekAverage[]; dowColors: string[] }) {
   const ct = useChartTheme()
 
   const data = averages.map((a, i) => ({
     name: DOW_LABELS[i],
     average: a.averageSales,
     count: a.count,
-    color: DOW_COLORS[i],
+    color: dowColors[i],
   }))
 
   return (
     <ChartWrapper>
-      <ChartTitle>\u66dc\u65e5\u5225\u5e73\u5747\u58f2\u4e0a</ChartTitle>
+      <ChartTitle>曜日別平均売上</ChartTitle>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -465,7 +545,7 @@ function DayOfWeekChart({ averages }: { averages: readonly import('@/domain/calc
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value) => [toComma(value as number), '\u5e73\u5747\u58f2\u4e0a']}
+            formatter={(value) => [toComma(value as number), '平均売上']}
           />
           <Bar dataKey="average" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {data.map((entry, index) => (
@@ -476,6 +556,133 @@ function DayOfWeekChart({ averages }: { averages: readonly import('@/domain/calc
               />
             ))}
           </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartWrapper>
+  )
+}
+
+/** 店舗間比較レーダーチャート */
+function StoreComparisonRadarChart({
+  storeForecasts,
+}: {
+  storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
+}) {
+  const ct = useChartTheme()
+  const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
+
+  // Build radar data from day-of-week averages
+  const radarData = DOW_LABELS.map((label, i) => {
+    const entry: Record<string, string | number> = { subject: label }
+    storeForecasts.forEach((sf) => {
+      entry[sf.storeName] = sf.forecast.dayOfWeekAverages[i]?.averageSales ?? 0
+    })
+    return entry
+  })
+
+  return (
+    <ChartWrapper>
+      <ChartTitle>店舗間 曜日別売上レーダー</ChartTitle>
+      <ResponsiveContainer width="100%" height="85%">
+        <RadarChart data={radarData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
+          <PolarGrid stroke={ct.grid} strokeOpacity={0.4} />
+          <PolarAngleAxis
+            dataKey="subject"
+            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+          />
+          <PolarRadiusAxis
+            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+            tickFormatter={toManYen}
+          />
+          {storeForecasts.map((sf, i) => (
+            <Radar
+              key={sf.storeId}
+              name={sf.storeName}
+              dataKey={sf.storeName}
+              stroke={STORE_COLORS[i % STORE_COLORS.length]}
+              fill={STORE_COLORS[i % STORE_COLORS.length]}
+              fillOpacity={0.15}
+              strokeWidth={2}
+            />
+          ))}
+          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
+          <Tooltip
+            contentStyle={{
+              background: ct.bg2,
+              border: `1px solid ${ct.grid}`,
+              borderRadius: 8,
+              fontSize: ct.fontSize.sm,
+              fontFamily: ct.fontFamily,
+              color: ct.text,
+            }}
+            formatter={(value: number) => [toComma(value), '']}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </ChartWrapper>
+  )
+}
+
+/** 店舗間比較バーチャート */
+function StoreComparisonBarChart({
+  storeForecasts,
+}: {
+  storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
+}) {
+  const ct = useChartTheme()
+  const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
+
+  // Build grouped bar data per week
+  const data = storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
+    const entry: Record<string, string | number> = { name: `第${w.weekNumber}週` }
+    storeForecasts.forEach((sf) => {
+      const sw = sf.forecast.weeklySummaries[wi]
+      entry[sf.storeName] = sw?.totalSales ?? 0
+    })
+    return entry
+  }) ?? []
+
+  return (
+    <ChartWrapper>
+      <ChartTitle>店舗間 週別売上比較</ChartTitle>
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
+          <XAxis
+            dataKey="name"
+            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+            axisLine={{ stroke: ct.grid }}
+            tickLine={false}
+          />
+          <YAxis
+            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={toManYen}
+            width={50}
+          />
+          <Tooltip
+            contentStyle={{
+              background: ct.bg2,
+              border: `1px solid ${ct.grid}`,
+              borderRadius: 8,
+              fontSize: ct.fontSize.sm,
+              fontFamily: ct.fontFamily,
+              color: ct.text,
+            }}
+            formatter={(value: number, name: string) => [toComma(value), name]}
+          />
+          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
+          {storeForecasts.map((sf, i) => (
+            <Bar
+              key={sf.storeId}
+              dataKey={sf.storeName}
+              fill={STORE_COLORS[i % STORE_COLORS.length]}
+              fillOpacity={0.8}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={30}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>
