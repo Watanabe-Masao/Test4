@@ -219,13 +219,17 @@ export function AnalysisPage() {
             {chartMode === 'budget-vs-actual' && (
               <BudgetVsActualChart data={chartData} budget={r.budget} />
             )}
-            {chartMode === 'prev-year' && prevYear.hasPrevYear && (
-              <PrevYearComparisonChart
-                currentDaily={salesDaily as ReadonlyMap<number, { sales: number }>}
-                prevYearDaily={prevYear.daily}
-                daysInMonth={daysInMonth}
-              />
-            )}
+            {chartMode === 'prev-year' && prevYear.hasPrevYear && (() => {
+              const currentDaily = new Map<number, { sales: number }>()
+              for (const [d, s] of salesDaily) currentDaily.set(d, { sales: s })
+              return (
+                <PrevYearComparisonChart
+                  currentDaily={currentDaily}
+                  prevYearDaily={prevYear.daily}
+                  daysInMonth={daysInMonth}
+                />
+              )
+            })()}
             {chartMode === 'all-three' && (
               <BudgetVsActualChart data={chartData} budget={r.budget} showPrevYear />
             )}
