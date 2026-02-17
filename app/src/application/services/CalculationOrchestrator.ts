@@ -7,7 +7,7 @@ import type {
   StoreResult,
   TransferDetails,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY } from '@/domain/models'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
 import {
   calculateEstMethod,
@@ -47,6 +47,7 @@ export function calculateStoreResult(
 
   // 月間集計用
   let totalSales = 0
+  let totalCost = 0 // getDailyTotalCost() で積み上げ
   let totalFlowerPrice = 0
   let totalFlowerCost = 0
   let totalDirectProducePrice = 0
@@ -172,13 +173,15 @@ export function calculateStoreResult(
       purchase.cost !== 0 ||
       deliverySales.cost !== 0 ||
       interStoreIn.cost !== 0 ||
-      interStoreOut.cost !== 0
+      interStoreOut.cost !== 0 ||
+      interDepartmentIn.cost !== 0 ||
+      interDepartmentOut.cost !== 0
 
     if (hasData) {
       elapsedDays = day
       if (daySales > 0) salesDays++
 
-      daily.set(day, {
+      const rec: DailyRecord = {
         day,
         sales: daySales,
         coreSales,
@@ -195,7 +198,9 @@ export function calculateStoreResult(
         discountAmount,
         discountAbsolute,
         supplierBreakdown,
-      })
+      }
+      daily.set(day, rec)
+      totalCost += getDailyTotalCost(rec)
     }
 
     // 月間集計
@@ -227,17 +232,9 @@ export function calculateStoreResult(
     totalDirectProducePrice,
   )
 
-  // 在庫仕入原価 = 仕入原価(仕入データ) + 店間入 + 店間出 + 部門間入 + 部門間出
-  // ※ 仕入データに売上納品(花・産直)の原価は含まれないため差し引き不要
-  const inventoryCost =
-    totalPurchaseCost +
-    transferTotals.interStoreIn.cost +
-    transferTotals.interStoreOut.cost +
-    transferTotals.interDepartmentIn.cost +
-    transferTotals.interDepartmentOut.cost
-
-  // 総仕入原価 = 在庫仕入原価 + 売上納品原価
-  const totalCost = inventoryCost + deliverySalesCost
+  // 在庫仕入原価 = 総仕入原価 - 売上納品原価
+  // ※ totalCost は getDailyTotalCost() でループ中に積み上げ済み
+  const inventoryCost = totalCost - deliverySalesCost
 
   // 粗売上（月間）
   const grossSales = totalSales + totalDiscount

@@ -20,3 +20,21 @@ export interface DailyRecord {
   readonly discountAbsolute: number // 売変絶対値
   readonly supplierBreakdown: ReadonlyMap<string, CostPricePair>
 }
+
+/**
+ * 日別レコードの総仕入原価を算出する
+ * = 仕入原価 + 店間入 + 店間出 + 部門間入 + 部門間出 + 売上納品原価
+ *
+ * CalculationOrchestrator の在庫法計算 (totalCost = inventoryCost + deliverySalesCost) と同一。
+ * この関数を唯一の計算元とすることで、コスト計算の不整合を防ぐ。
+ */
+export function getDailyTotalCost(rec: DailyRecord): number {
+  return (
+    rec.purchase.cost +
+    rec.interStoreIn.cost +
+    rec.interStoreOut.cost +
+    rec.interDepartmentIn.cost +
+    rec.interDepartmentOut.cost +
+    rec.deliverySales.cost
+  )
+}
