@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle } from '@/presentation/components/common'
+import { Card, CardTitle, Chip, ChipGroup } from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
+import type { DailyChartMode } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency } from '@/domain/calculations/utils'
@@ -9,6 +10,10 @@ import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domai
 import styled, { css } from 'styled-components'
 
 type ExpandableColumn = 'purchase' | 'interStoreIn' | 'interStoreOut' | 'interDepartmentIn' | 'interDepartmentOut'
+
+const ChartToggle = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
 
 const ChartGrid = styled.div`
   display: grid;
@@ -204,6 +209,7 @@ export function DailyPage() {
   const prevYear = usePrevYearData()
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
+  const [chartMode, setChartMode] = useState<DailyChartMode>('sales')
 
   const isPurchaseExpanded = expanded.has('purchase')
   const isInterStoreInExpanded = expanded.has('interStoreIn')
@@ -264,8 +270,15 @@ export function DailyPage() {
 
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
+      <ChartToggle>
+        <ChipGroup>
+          <Chip $active={chartMode === 'sales'} onClick={() => setChartMode('sales')}>売上</Chip>
+          <Chip $active={chartMode === 'discount'} onClick={() => setChartMode('discount')}>売変</Chip>
+          <Chip $active={chartMode === 'all'} onClick={() => setChartMode('all')}>全表示</Chip>
+        </ChipGroup>
+      </ChartToggle>
       <ChartGrid>
-        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} />
+        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} mode={chartMode} />
         <GrossProfitRateChart
           daily={currentResult.daily}
           daysInMonth={daysInMonth}
@@ -282,7 +295,7 @@ export function DailyPage() {
               <tr>
                 <Th>日</Th>
                 <Th>売上</Th>
-                {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
                 {prevYear.hasPrevYear && <Th>前年比</Th>}
                 <Th
                   $clickable

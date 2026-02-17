@@ -56,7 +56,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
 
   return (
     <Wrapper>
-      <Title>当年 vs 前年（累計売上推移）</Title>
+      <Title>当年 vs 前年同曜日（累計売上推移）</Title>
       <ResponsiveContainer width="100%" height="90%">
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -93,7 +93,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
               color: ct.text,
             }}
             formatter={(value, name) => {
-              const label = name === 'currentCum' ? '当年累計' : '前年累計'
+              const label = name === 'currentCum' ? '当年累計' : '前年同曜日累計'
               return [value != null ? toComma(value as number) : '-', label]
             }}
             labelFormatter={(label) => `${label}日`}
@@ -103,7 +103,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
             formatter={(value) => {
               const labels: Record<string, string> = {
                 currentCum: '当年累計',
-                prevYearCum: '前年累計',
+                prevYearCum: '前年同曜日累計',
               }
               return labels[value] ?? value
             }}
@@ -134,7 +134,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
               strokeDasharray="4 4"
               strokeWidth={1.5}
               label={{
-                value: `前年月間 ${toManYen(prevTotal)}`,
+                value: `前年同曜日月間 ${toManYen(prevTotal)}`,
                 position: 'right',
                 fill: '#9ca3af',
                 fontSize: ct.fontSize.xs,

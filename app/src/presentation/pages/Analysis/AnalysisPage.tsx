@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
-import { BudgetVsActualChart } from '@/presentation/components/charts'
+import { BudgetVsActualChart, PrevYearComparisonChart } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
@@ -64,6 +64,7 @@ const ToggleSection = styled.div`
 `
 
 type ViewMode = 'total' | 'comparison'
+type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
 
 function buildAnalysis(r: StoreResult, daysInMonth: number) {
   const salesDaily = new Map<number, number>()
@@ -87,6 +88,7 @@ export function AnalysisPage() {
   const { currentResult, selectedResults, storeName } = useStoreSelection()
   const prevYear = usePrevYearData()
   const [viewMode, setViewMode] = useState<ViewMode>('total')
+  const [chartMode, setChartMode] = useState<ChartMode>('budget-vs-actual')
 
   if (!isCalculated || !currentResult) {
     return (
@@ -105,10 +107,17 @@ export function AnalysisPage() {
   const chartData = []
   let cumActual = 0
   let cumBudget = 0
+  let cumPy = 0
   for (let d = 1; d <= daysInMonth; d++) {
     cumActual += salesDaily.get(d) ?? 0
     cumBudget += r.budgetDaily.get(d) ?? 0
-    chartData.push({ day: d, actualCum: cumActual, budgetCum: cumBudget })
+    cumPy += prevYear.daily.get(d)?.sales ?? 0
+    chartData.push({
+      day: d,
+      actualCum: cumActual,
+      budgetCum: cumBudget,
+      prevYearCum: prevYear.hasPrevYear ? cumPy : null,
+    })
   }
 
   // 粗利実績
@@ -172,11 +181,57 @@ export function AnalysisPage() {
               subText={`予算: ${formatPercent(r.grossProfitRateBudget)}`}
               accent="#ec4899"
             />
+            {prevYear.hasPrevYear && (
+              <KpiCard
+                label="前年同曜日売上"
+                value={formatCurrency(prevYear.totalSales)}
+                subText={`前年同曜日比: ${prevYear.totalSales > 0 ? formatPercent(r.totalSales / prevYear.totalSales) : '-'}`}
+                accent="#9ca3af"
+              />
+            )}
+            {prevYear.hasPrevYear && prevYear.totalSales > 0 && (
+              <KpiCard
+                label="前年同曜日比"
+                value={formatPercent(r.totalSales / prevYear.totalSales)}
+                subText={`差額: ${formatCurrency(r.totalSales - prevYear.totalSales)}`}
+                accent={r.totalSales >= prevYear.totalSales ? '#22c55e' : '#ef4444'}
+              />
+            )}
           </KpiGrid>
 
-          {/* チャート */}
+          {/* チャート切替 */}
+          {prevYear.hasPrevYear && (
+            <ToggleSection>
+              <ChipGroup>
+                <Chip $active={chartMode === 'budget-vs-actual'} onClick={() => setChartMode('budget-vs-actual')}>
+                  予算 vs 実績
+                </Chip>
+                <Chip $active={chartMode === 'prev-year'} onClick={() => setChartMode('prev-year')}>
+                  当年 vs 前年同曜日
+                </Chip>
+                <Chip $active={chartMode === 'all-three'} onClick={() => setChartMode('all-three')}>
+                  予算 vs 実績 vs 前年
+                </Chip>
+              </ChipGroup>
+            </ToggleSection>
+          )}
           <ChartSection>
-            <BudgetVsActualChart data={chartData} budget={r.budget} />
+            {chartMode === 'budget-vs-actual' && (
+              <BudgetVsActualChart data={chartData} budget={r.budget} />
+            )}
+            {chartMode === 'prev-year' && prevYear.hasPrevYear && (
+              <PrevYearComparisonChart
+                currentDaily={salesDaily as ReadonlyMap<number, { sales: number }>}
+                prevYearDaily={prevYear.daily}
+                daysInMonth={daysInMonth}
+              />
+            )}
+            {chartMode === 'all-three' && (
+              <BudgetVsActualChart data={chartData} budget={r.budget} showPrevYear />
+            )}
+            {chartMode !== 'budget-vs-actual' && !prevYear.hasPrevYear && (
+              <BudgetVsActualChart data={chartData} budget={r.budget} />
+            )}
           </ChartSection>
 
           {/* 日別テーブル */}
@@ -197,9 +252,9 @@ export function AnalysisPage() {
                     <Th>達成率</Th>
                     <Th>売変率</Th>
                     <Th>累計売変率</Th>
-                    {prevYear.hasPrevYear && <Th>前年売上</Th>}
+                    {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
                     {prevYear.hasPrevYear && <Th>前年比</Th>}
-                    {prevYear.hasPrevYear && <Th>前年累計</Th>}
+                    {prevYear.hasPrevYear && <Th>前年同曜日累計</Th>}
                     {prevYear.hasPrevYear && <Th>累計前年比</Th>}
                   </tr>
                 </thead>

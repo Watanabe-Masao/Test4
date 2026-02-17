@@ -1,4 +1,5 @@
 export { DailySalesChart } from './DailySalesChart'
+export type { DailyChartMode } from './DailySalesChart'
 export { BudgetVsActualChart } from './BudgetVsActualChart'
 export { GrossProfitRateChart } from './GrossProfitRateChart'
 export { CategoryPieChart } from './CategoryPieChart'

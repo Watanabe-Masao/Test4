@@ -569,11 +569,11 @@ function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
               <>
                 <ExecDividerLine />
                 <ExecMetric
-                  label="前年同期売上"
+                  label="前年同曜日売上"
                   value={formatCurrency(ctx.prevYear.totalSales)}
                 />
                 <ExecMetric
-                  label="前年比"
+                  label="前年同曜日比"
                   value={formatPercent(pyRatio)}
                   subColor={pyRatio >= 1 ? '#22c55e' : '#ef4444'}
                 />
@@ -697,16 +697,20 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     weeks.push(currentWeek)
   }
 
-  // Cumulative budget & sales
+  // Cumulative budget & sales & prev year
   const cumBudget = new Map<number, number>()
   const cumSales = new Map<number, number>()
+  const cumPrevYear = new Map<number, number>()
   let runBudget = 0
   let runSales = 0
+  let runPrevYear = 0
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
     runSales += (r.daily.get(d)?.sales ?? 0)
+    runPrevYear += prevYear.daily.get(d)?.sales ?? 0
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
+    cumPrevYear.set(d, runPrevYear)
   }
 
   // Calculate pin intervals
@@ -793,11 +797,16 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             const pySales = prevYear.daily.get(day)?.sales ?? 0
                             const pyRatio = pySales > 0 ? actual / pySales : 0
                             const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
-                            return pySales > 0 ? (
+                            const cPy = cumPrevYear.get(day) ?? 0
+                            const cPyRatio = cPy > 0 ? cSales / cPy : 0
+                            const cPyColor = cPyRatio >= 1 ? '#22c55e' : cPyRatio > 0 ? '#ef4444' : undefined
+                            return pySales > 0 || cPy > 0 ? (
                               <>
                                 <CalDivider />
-                                <CalCell $color="#9ca3af">前年 {formatCurrency(pySales)}</CalCell>
-                                <CalCell $color={pyColor}>前年比 {formatPercent(pyRatio, 0)}</CalCell>
+                                <CalCell $color="#9ca3af">前同 {formatCurrency(pySales)}</CalCell>
+                                <CalCell $color={pyColor}>前比 {pySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
+                                <CalCell $color="#9ca3af">前累 {formatCurrency(cPy)}</CalCell>
+                                <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
                               </>
                             ) : null
                           })()}
@@ -1084,8 +1093,9 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             <STh>平均予算</STh>
             <STh>予算日数</STh>
             <STh>平均差</STh>
-            {prevYear.hasPrevYear && <STh>前年平均</STh>}
-            {prevYear.hasPrevYear && <STh>前年比</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日平均</STh>}
+            {prevYear.hasPrevYear && <STh>前年差額</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
         <tbody>
@@ -1093,6 +1103,8 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             const diffColor = a.diff >= 0 ? '#22c55e' : '#ef4444'
             const pyRatio = a.avgPrevYear > 0 ? a.avgSales / a.avgPrevYear : 0
             const pyColor = pyRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyDiff = a.avgSales - a.avgPrevYear
+            const pyDiffColor = pyDiff >= 0 ? '#22c55e' : '#ef4444'
             return (
               <tr key={a.label}>
                 <STd>{a.label}</STd>
@@ -1102,6 +1114,7 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
                 <STd>{a.budgetCount}日</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
                 {prevYear.hasPrevYear && <STd>{formatCurrency(a.avgPrevYear)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyDiffColor : undefined }}>{a.avgPrevYear > 0 ? formatCurrency(pyDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyColor : undefined }}>{a.avgPrevYear > 0 ? formatPercent(pyRatio, 0) : '-'}</STd>}
               </tr>
             )
@@ -1157,8 +1170,9 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>達成率</STh>
             <STh>値入率</STh>
             <STh>日数</STh>
-            {prevYear.hasPrevYear && <STh>前年売上</STh>}
-            {prevYear.hasPrevYear && <STh>前年比</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日売上</STh>}
+            {prevYear.hasPrevYear && <STh>前年差額</STh>}
+            {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
         <tbody>
@@ -1168,6 +1182,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
             const pyWeekRatio = w.prevYearWeekSales > 0 ? w.totalSales / w.prevYearWeekSales : 0
             const pyWeekColor = pyWeekRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyWeekDiff = w.totalSales - w.prevYearWeekSales
+            const pyWeekDiffColor = pyWeekDiff >= 0 ? '#22c55e' : '#ef4444'
             return (
               <tr key={w.weekNumber}>
                 <STd>第{w.weekNumber}週</STd>
@@ -1179,6 +1195,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
                 {prevYear.hasPrevYear && <STd>{formatCurrency(w.prevYearWeekSales)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekDiffColor : undefined }}>{w.prevYearWeekSales > 0 ? formatCurrency(pyWeekDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekColor : undefined }}>{w.prevYearWeekSales > 0 ? formatPercent(pyWeekRatio, 0) : '-'}</STd>}
               </tr>
             )
@@ -1510,7 +1527,7 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryValue>{formatCurrency(r.totalSales)}</ExecSummaryValue>
           {pyRatio != null && (
             <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
-              前年比: {pyRatio.toFixed(1)}%
+              前年同曜日比: {pyRatio.toFixed(1)}%
             </ExecSummarySub>
           )}
         </ExecSummaryItem>

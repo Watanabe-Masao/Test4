@@ -30,10 +30,13 @@ const Title = styled.div`
   padding-left: ${({ theme }) => theme.spacing[4]};
 `
 
+export type DailyChartMode = 'sales' | 'discount' | 'all'
+
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
   prevYearDaily?: ReadonlyMap<number, { sales: number }>
+  mode?: DailyChartMode
 }
 
 /** N日移動平均を計算 */
@@ -46,7 +49,13 @@ function movingAverage(values: number[], window: number): (number | null)[] {
   })
 }
 
-export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
+const TITLES: Record<DailyChartMode, string> = {
+  sales: '日別売上推移',
+  discount: '日別売変推移',
+  all: '日別売上・売変推移',
+}
+
+export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
 
   const rawSales: number[] = []
@@ -62,7 +71,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
     baseData.push({ day: d, sales, discount, prevYearSales: prevSales })
   }
 
-  // 7日移動平均（売上・売変額）
+  // 7日移動平均
   const salesMa7 = movingAverage(rawSales, 7)
   const discountMa7 = movingAverage(rawDiscount, 7)
 
@@ -72,9 +81,22 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
     discountMa7: discountMa7[i],
   }))
 
+  const showSales = mode === 'sales' || mode === 'all'
+  const showDiscount = mode === 'discount' || mode === 'all'
+  const showPrevYear = showSales && !!prevYearDaily
+
+  // Build label maps per mode
+  const allLabels: Record<string, string> = {
+    sales: '売上',
+    discount: '売変額',
+    salesMa7: '売上7日移動平均',
+    discountMa7: '売変額7日移動平均',
+    prevYearSales: '前年同曜日売上',
+  }
+
   return (
     <Wrapper>
-      <Title>日別売上・売変推移</Title>
+      <Title>{TITLES[mode]}</Title>
       <ResponsiveContainer width="100%" height="90%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -102,15 +124,17 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
             tickFormatter={toManYen}
             width={50}
           />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toManYen}
-            width={45}
-          />
+          {showDiscount && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={toManYen}
+              width={45}
+            />
+          )}
           <Tooltip
             contentStyle={{
               background: ct.bg2,
@@ -121,64 +145,56 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily }: Props) {
               color: ct.text,
             }}
             formatter={(value, name) => {
-              const labels: Record<string, string> = {
-                sales: '売上',
-                discount: '売変額',
-                salesMa7: '売上7日移動平均',
-                discountMa7: '売変額7日移動平均',
-                prevYearSales: '前年売上',
-              }
-              return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
+              return [value != null ? toComma(value as number) : '-', allLabels[name as string] ?? String(name)]
             }}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => {
-              const labels: Record<string, string> = {
-                sales: '売上',
-                discount: '売変額',
-                salesMa7: '売上7日移動平均',
-                discountMa7: '売変額7日移動平均',
-                prevYearSales: '前年売上',
-              }
-              return labels[value] ?? value
-            }}
+            formatter={(value) => allLabels[value] ?? value}
           />
-          <Bar
-            yAxisId="left"
-            dataKey="sales"
-            fill="url(#salesGrad)"
-            radius={[3, 3, 0, 0]}
-            maxBarSize={18}
-          />
-          <Bar
-            yAxisId="right"
-            dataKey="discount"
-            fill="url(#discountGrad)"
-            radius={[3, 3, 0, 0]}
-            maxBarSize={12}
-          />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="salesMa7"
-            stroke="#06b6d4"
-            strokeWidth={2}
-            dot={false}
-            connectNulls
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="discountMa7"
-            stroke="#f97316"
-            strokeWidth={2}
-            strokeDasharray="5 3"
-            dot={false}
-            connectNulls
-          />
-          {prevYearDaily && (
+          {showSales && (
+            <Bar
+              yAxisId="left"
+              dataKey="sales"
+              fill="url(#salesGrad)"
+              radius={[3, 3, 0, 0]}
+              maxBarSize={showDiscount ? 18 : 24}
+            />
+          )}
+          {showDiscount && (
+            <Bar
+              yAxisId={showSales ? 'right' : 'left'}
+              dataKey="discount"
+              fill="url(#discountGrad)"
+              radius={[3, 3, 0, 0]}
+              maxBarSize={showSales ? 12 : 24}
+            />
+          )}
+          {showSales && (
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="salesMa7"
+              stroke="#06b6d4"
+              strokeWidth={2}
+              dot={false}
+              connectNulls
+            />
+          )}
+          {showDiscount && (
+            <Line
+              yAxisId={showSales ? 'right' : 'left'}
+              type="monotone"
+              dataKey="discountMa7"
+              stroke="#f97316"
+              strokeWidth={2}
+              strokeDasharray="5 3"
+              dot={false}
+              connectNulls
+            />
+          )}
+          {showPrevYear && (
             <Line
               yAxisId="left"
               type="monotone"
