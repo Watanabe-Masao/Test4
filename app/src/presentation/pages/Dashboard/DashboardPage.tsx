@@ -1094,6 +1094,7 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             <STh>予算日数</STh>
             <STh>平均差</STh>
             {prevYear.hasPrevYear && <STh>前年同曜日平均</STh>}
+            {prevYear.hasPrevYear && <STh>前年差額</STh>}
             {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
@@ -1102,6 +1103,8 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
             const diffColor = a.diff >= 0 ? '#22c55e' : '#ef4444'
             const pyRatio = a.avgPrevYear > 0 ? a.avgSales / a.avgPrevYear : 0
             const pyColor = pyRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyDiff = a.avgSales - a.avgPrevYear
+            const pyDiffColor = pyDiff >= 0 ? '#22c55e' : '#ef4444'
             return (
               <tr key={a.label}>
                 <STd>{a.label}</STd>
@@ -1111,6 +1114,7 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
                 <STd>{a.budgetCount}日</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
                 {prevYear.hasPrevYear && <STd>{formatCurrency(a.avgPrevYear)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyDiffColor : undefined }}>{a.avgPrevYear > 0 ? formatCurrency(pyDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyColor : undefined }}>{a.avgPrevYear > 0 ? formatPercent(pyRatio, 0) : '-'}</STd>}
               </tr>
             )
@@ -1167,6 +1171,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>値入率</STh>
             <STh>日数</STh>
             {prevYear.hasPrevYear && <STh>前年同曜日売上</STh>}
+            {prevYear.hasPrevYear && <STh>前年差額</STh>}
             {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
           </tr>
         </thead>
@@ -1177,6 +1182,8 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
             const pyWeekRatio = w.prevYearWeekSales > 0 ? w.totalSales / w.prevYearWeekSales : 0
             const pyWeekColor = pyWeekRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyWeekDiff = w.totalSales - w.prevYearWeekSales
+            const pyWeekDiffColor = pyWeekDiff >= 0 ? '#22c55e' : '#ef4444'
             return (
               <tr key={w.weekNumber}>
                 <STd>第{w.weekNumber}週</STd>
@@ -1188,6 +1195,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
                 {prevYear.hasPrevYear && <STd>{formatCurrency(w.prevYearWeekSales)}</STd>}
+                {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekDiffColor : undefined }}>{w.prevYearWeekSales > 0 ? formatCurrency(pyWeekDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekColor : undefined }}>{w.prevYearWeekSales > 0 ? formatPercent(pyWeekRatio, 0) : '-'}</STd>}
               </tr>
             )
