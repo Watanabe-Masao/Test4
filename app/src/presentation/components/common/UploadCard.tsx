@@ -59,7 +59,7 @@ export function UploadCard({
   label: string
   loaded: boolean
   filename?: string
-  onFile: (file: File) => void
+  onFile: (file: File, typeHint: string) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -71,11 +71,11 @@ export function UploadCard({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
       if (file) {
-        onFile(file)
+        onFile(file, dataType)
         e.target.value = ''
       }
     },
-    [onFile],
+    [onFile, dataType],
   )
 
   return (

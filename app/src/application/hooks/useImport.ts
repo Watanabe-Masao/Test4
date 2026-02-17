@@ -5,7 +5,7 @@ import {
   validateImportedData,
 } from '@/infrastructure/ImportService'
 import type { ImportSummary, ImportedData } from '@/infrastructure/ImportService'
-import type { AppSettings } from '@/domain/models'
+import type { AppSettings, DataType } from '@/domain/models'
 
 /** ファイルインポートフック */
 export function useImport() {
@@ -20,7 +20,7 @@ export function useImport() {
   settingsRef.current = state.settings
 
   const importFiles = useCallback(
-    async (files: FileList | File[]): Promise<ImportSummary> => {
+    async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       dispatch({ type: 'SET_IMPORTING', payload: true })
 
       try {
@@ -28,6 +28,8 @@ export function useImport() {
           files,
           settingsRef.current,
           dataRef.current,
+          undefined,
+          overrideType,
         )
 
         if (summary.successCount > 0) {
