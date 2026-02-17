@@ -954,27 +954,31 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
     dailyBudget.set(d, b)
   }
 
-  // 曜日別集計（売上 + 予算）
+  // 曜日別集計（売上日数と予算日数を分離）
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
   const buckets = Array.from({ length: 7 }, () => ({
-    salesTotal: 0, budgetTotal: 0, count: 0,
+    salesTotal: 0, salesCount: 0,
+    budgetTotal: 0, budgetCount: 0,
   }))
   const daysInMonth = new Date(year, month, 0).getDate()
   for (let d = 1; d <= daysInMonth; d++) {
     const sales = dailySales.get(d) ?? 0
     const budget = dailyBudget.get(d) ?? 0
-    if (sales > 0 || budget > 0) {
-      const dow = new Date(year, month - 1, d).getDay()
+    const dow = new Date(year, month - 1, d).getDay()
+    if (sales > 0) {
       buckets[dow].salesTotal += sales
+      buckets[dow].salesCount++
+    }
+    if (budget > 0) {
       buckets[dow].budgetTotal += budget
-      buckets[dow].count++
+      buckets[dow].budgetCount++
     }
   }
   const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => {
     const b = buckets[i]
-    const avgSales = b.count > 0 ? b.salesTotal / b.count : 0
-    const avgBudget = b.count > 0 ? b.budgetTotal / b.count : 0
-    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, count: b.count }
+    const avgSales = b.salesCount > 0 ? b.salesTotal / b.salesCount : 0
+    const avgBudget = b.budgetCount > 0 ? b.budgetTotal / b.budgetCount : 0
+    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount }
   })
 
   return (
@@ -985,9 +989,10 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
           <tr>
             <STh>曜日</STh>
             <STh>平均売上</STh>
+            <STh>実績日数</STh>
             <STh>平均予算</STh>
-            <STh>予算差</STh>
-            <STh>日数</STh>
+            <STh>予算日数</STh>
+            <STh>平均差</STh>
           </tr>
         </thead>
         <tbody>
@@ -997,9 +1002,10 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
               <tr key={a.label}>
                 <STd>{a.label}</STd>
                 <STd>{formatCurrency(a.avgSales)}</STd>
+                <STd>{a.salesCount}日</STd>
                 <STd>{formatCurrency(a.avgBudget)}</STd>
+                <STd>{a.budgetCount}日</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
-                <STd>{a.count}日</STd>
               </tr>
             )
           })}
