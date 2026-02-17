@@ -16,7 +16,7 @@ export function processBudget(rows: readonly unknown[][]): Map<string, BudgetDat
   if (rows.length < 2) return result
 
   // 一時的にmutableで構築
-  const temp: Record<string, { daily: Map<number, number>; total: number }> = {}
+  const temp: Record<string, Map<number, number>> = {}
 
   // データ行処理（行1以降、ヘッダー行をスキップ）
   for (let row = 1; row < rows.length; row++) {
@@ -35,17 +35,15 @@ export function processBudget(rows: readonly unknown[][]): Map<string, BudgetDat
     if (budgetVal <= 0) continue
 
     const day = date.getDate()
-    if (!temp[sid]) temp[sid] = { daily: new Map(), total: 0 }
-    temp[sid].daily.set(day, budgetVal)
-    temp[sid].total += budgetVal
+    if (!temp[sid]) temp[sid] = new Map()
+    temp[sid].set(day, budgetVal)
   }
 
-  for (const [storeId, data] of Object.entries(temp)) {
-    result.set(storeId, {
-      storeId,
-      daily: data.daily,
-      total: data.total,
-    })
+  // total を daily の合計から算出（重複行があっても不整合にならない）
+  for (const [storeId, daily] of Object.entries(temp)) {
+    let total = 0
+    for (const v of daily.values()) total += v
+    result.set(storeId, { storeId, daily, total })
   }
 
   return result

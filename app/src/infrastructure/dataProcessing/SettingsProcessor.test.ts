@@ -26,14 +26,19 @@ describe('processSettings', () => {
     expect(processSettings([['header']])).toEqual(new Map())
   })
 
-  it('在庫0はnull', () => {
+  it('在庫0は有効値として保持、空欄はnull', () => {
     const rows = [
       ['header', '', '', ''],
       ['0001', 0, 0, 0],
+      ['0002', '', null, 0],
     ]
     const result = processSettings(rows)
-    const store = result.get('1')
-    expect(store?.openingInventory).toBeNull()
-    expect(store?.closingInventory).toBeNull()
+    const store1 = result.get('1')
+    expect(store1?.openingInventory).toBe(0)
+    expect(store1?.closingInventory).toBe(0)
+
+    const store2 = result.get('2')
+    expect(store2?.openingInventory).toBeNull()
+    expect(store2?.closingInventory).toBeNull()
   })
 })

@@ -1,6 +1,14 @@
 import { safeNumber } from '@/domain/calculations/utils'
 import type { InventoryConfig } from '@/domain/models'
 
+/** セルが数値として有効かどうか判定（空欄・null と 0 を区別） */
+function isNumericCell(value: unknown): boolean {
+  if (value == null) return false
+  const s = String(value).trim()
+  if (s === '') return false
+  return !isNaN(Number(s))
+}
+
 /**
  * 初期設定データを処理する
  *
@@ -19,14 +27,12 @@ export function processSettings(
     if (storeCode == null || String(storeCode).trim() === '') continue
 
     const storeId = String(parseInt(String(storeCode)))
-    const openingInventory = safeNumber(r[1])
-    const closingInventory = safeNumber(r[2])
     const gpBudget = safeNumber(r[3])
 
     result.set(storeId, {
       storeId,
-      openingInventory: openingInventory || null,
-      closingInventory: closingInventory || null,
+      openingInventory: isNumericCell(r[1]) ? safeNumber(r[1]) : null,
+      closingInventory: isNumericCell(r[2]) ? safeNumber(r[2]) : null,
       grossProfitBudget: gpBudget > 0 ? gpBudget : null,
     })
   }
