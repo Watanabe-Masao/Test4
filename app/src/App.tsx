@@ -106,7 +106,7 @@ function AppContent() {
   const { mode, toggle } = useThemeToggle()
 
   const handleFiles = useCallback(
-    async (files: FileList) => {
+    async (files: FileList | File[]) => {
       const summary = await importFiles(files)
       summary.results.forEach((r) => {
         if (r.ok) {
@@ -121,9 +121,7 @@ function AppContent() {
 
   const handleSingleFile = useCallback(
     async (file: File) => {
-      const list = new DataTransfer()
-      list.items.add(file)
-      await handleFiles(list.files)
+      await handleFiles([file])
     },
     [handleFiles],
   )

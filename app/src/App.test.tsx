@@ -15,7 +15,7 @@ describe('App', () => {
 
   it('renders file upload area', () => {
     render(<App />)
-    expect(screen.getByText('ファイルをドラッグ＆ドロップ')).toBeInTheDocument()
+    expect(screen.getByText('ファイル/フォルダをドラッグ＆ドロップ')).toBeInTheDocument()
   })
 
   it('renders upload cards for file types', () => {

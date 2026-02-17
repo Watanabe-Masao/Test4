@@ -149,6 +149,30 @@ export function processFileData(
     case 'discount':
       return { ...current, discount: processDiscount(rows) }
 
+    case 'salesDiscount': {
+      // 売上売変の複合ファイル: DiscountProcessor で売上・売変両方を抽出
+      const newStores = extractStoresFromSales(rows)
+      for (const [id, s] of newStores) mutableStores.set(id, s)
+
+      const discountData = processDiscount(rows)
+
+      // DiscountData から SalesData を構築
+      const salesData: Record<string, Record<number, { sales: number }>> = {}
+      for (const [storeId, days] of Object.entries(discountData)) {
+        salesData[storeId] = {}
+        for (const [day, d] of Object.entries(days)) {
+          salesData[storeId][Number(day)] = { sales: d.sales }
+        }
+      }
+
+      return {
+        ...current,
+        stores: mutableStores,
+        sales: salesData,
+        discount: discountData,
+      }
+    }
+
     case 'initialSettings':
       return { ...current, settings: processSettings(rows) }
 

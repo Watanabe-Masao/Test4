@@ -35,7 +35,47 @@ const HintText = styled.div`
   margin-top: ${({ theme }) => theme.spacing[2]};
 `
 
-export function FileDropZone({ onFiles }: { onFiles: (files: FileList) => void }) {
+const ACCEPT_EXTENSIONS = ['.xlsx', '.xls', '.csv']
+
+function isAcceptedFile(name: string): boolean {
+  const lower = name.toLowerCase()
+  return ACCEPT_EXTENSIONS.some((ext) => lower.endsWith(ext))
+}
+
+/** DataTransferItem のエントリからファイルを再帰的に収集する */
+async function collectFilesFromEntries(items: DataTransferItemList): Promise<File[]> {
+  const files: File[] = []
+
+  const readEntry = (entry: FileSystemEntry): Promise<void> => {
+    return new Promise((resolve) => {
+      if (entry.isFile) {
+        ;(entry as FileSystemFileEntry).file((f) => {
+          if (isAcceptedFile(f.name)) files.push(f)
+          resolve()
+        })
+      } else if (entry.isDirectory) {
+        const reader = (entry as FileSystemDirectoryEntry).createReader()
+        reader.readEntries(async (entries) => {
+          for (const e of entries) await readEntry(e)
+          resolve()
+        })
+      } else {
+        resolve()
+      }
+    })
+  }
+
+  const entries: FileSystemEntry[] = []
+  for (let i = 0; i < items.length; i++) {
+    const entry = items[i].webkitGetAsEntry?.()
+    if (entry) entries.push(entry)
+  }
+
+  for (const entry of entries) await readEntry(entry)
+  return files
+}
+
+export function FileDropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
   const [isDragOver, setIsDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -49,11 +89,26 @@ export function FileDropZone({ onFiles }: { onFiles: (files: FileList) => void }
   }, [])
 
   const handleDrop = useCallback(
-    (e: DragEvent) => {
+    async (e: DragEvent) => {
       e.preventDefault()
       setIsDragOver(false)
+
+      // フォルダが含まれる場合は再帰的にファイルを収集
+      if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+        const hasDirectory = Array.from(e.dataTransfer.items).some(
+          (item) => item.webkitGetAsEntry?.()?.isDirectory,
+        )
+
+        if (hasDirectory) {
+          const files = await collectFilesFromEntries(e.dataTransfer.items)
+          if (files.length > 0) onFiles(files)
+          return
+        }
+      }
+
+      // 通常のファイルドロップ
       if (e.dataTransfer.files.length > 0) {
-        onFiles(e.dataTransfer.files)
+        onFiles(Array.from(e.dataTransfer.files))
       }
     },
     [onFiles],
@@ -66,7 +121,7 @@ export function FileDropZone({ onFiles }: { onFiles: (files: FileList) => void }
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
-        onFiles(e.target.files)
+        onFiles(Array.from(e.target.files))
         e.target.value = ''
       }
     },
@@ -82,8 +137,8 @@ export function FileDropZone({ onFiles }: { onFiles: (files: FileList) => void }
       onClick={handleClick}
     >
       <Icon>📂</Icon>
-      <MainText>ファイルをドラッグ＆ドロップ</MainText>
-      <HintText>Excel (.xlsx) / CSV (.csv) 対応</HintText>
+      <MainText>ファイル/フォルダをドラッグ＆ドロップ</MainText>
+      <HintText>Excel (.xlsx, .xls) / CSV (.csv) 対応</HintText>
       <input
         ref={inputRef}
         type="file"
