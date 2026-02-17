@@ -31,6 +31,13 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['仕入', 'shiire'],
     headerPatterns: ['取引先コード', '原価金額', '売価金額'],
   },
+  // 予算は「売上予算」を含むため sales より先に判定する
+  {
+    type: 'budget',
+    name: '予算',
+    filenamePatterns: ['売上予算', '予算', 'budget'],
+    headerPatterns: ['売上予算', '予算'],
+  },
   // 売上売変の複合ファイルを sales / discount より先に判定する
   {
     type: 'salesDiscount',
@@ -55,12 +62,6 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     name: '初期設定',
     filenamePatterns: ['初期', '設定', 'setting'],
     headerPatterns: ['期首', '期末'],
-  },
-  {
-    type: 'budget',
-    name: '予算',
-    filenamePatterns: ['予算', 'budget'],
-    headerPatterns: ['予算'],
   },
   {
     type: 'interStoreIn',
