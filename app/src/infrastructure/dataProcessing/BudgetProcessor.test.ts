@@ -37,7 +37,19 @@ describe('processBudget', () => {
   })
 
   it('行数不足の場合は空', () => {
-    expect(processBudget([['header'], ['sub'], ['total']])).toEqual(new Map())
+    expect(processBudget([['0001:A']])).toEqual(new Map())
+  })
+
+  it('店舗がCol1開始でも検出する', () => {
+    const rows = [
+      ['', '0001:店舗A', '0006:店舗B'],
+      ['月日', '売上予算', '売上予算'],
+      ['2026-02-01', 200000, 150000],
+    ]
+    const result = processBudget(rows)
+    expect(result.size).toBe(2)
+    expect(result.get('1')?.daily.get(1)).toBe(200000)
+    expect(result.get('6')?.daily.get(1)).toBe(150000)
   })
 
   it('店舗コードが見つからない場合は空', () => {

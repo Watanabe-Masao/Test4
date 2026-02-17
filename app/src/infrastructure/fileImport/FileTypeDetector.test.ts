@@ -36,6 +36,12 @@ describe('detectFileType', () => {
     expect(result.type).toBe('budget')
   })
 
+  it('売上予算: salesではなくbudgetとして判定', () => {
+    const result = detectFileType('0_売上予算.xlsx', [])
+    expect(result.type).toBe('budget')
+    expect(result.confidence).toBe('filename')
+  })
+
   it('店間入: ファイル名', () => {
     const result = detectFileType('店間入.xlsx', [])
     expect(result.type).toBe('interStoreIn')
@@ -69,8 +75,7 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('header')
   })
 
-  it('売上: ヘッダー（花・産直より売上固有パターン優先）', () => {
-    // 販売金額は花にもマッチするため、売上固有ヘッダーを使う
+  it('売上: ヘッダーに「売上」がある場合', () => {
     const result = detectFileType('data.xlsx', [['', '', '', '売上']])
     expect(result.type).toBe('sales')
     expect(result.confidence).toBe('header')
@@ -86,9 +91,14 @@ describe('detectFileType', () => {
     expect(result.type).toBe('initialSettings')
   })
 
-  it('予算: ヘッダー', () => {
-    const result = detectFileType('data.xlsx', [['店舗', '日付', '予算']])
+  it('予算: ヘッダー（予算パターン）', () => {
+    const result = detectFileType('data.xlsx', [['', '', '', '0001:A'], ['月日', '', '', '売上予算']])
     expect(result.type).toBe('budget')
+  })
+
+  it('予算: ヘッダー（売上予算は budget であり sales ではない）', () => {
+    const result = detectFileType('data.xlsx', [['', '', '', '0001:A'], ['月日', '', '', '売上予算']])
+    expect(result.type).not.toBe('sales')
   })
 
   it('店間入: ヘッダー（店コードIN）', () => {
