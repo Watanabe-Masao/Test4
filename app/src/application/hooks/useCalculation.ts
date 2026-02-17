@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import { calculateAllStores } from '../services/CalculationOrchestrator'
 import {
@@ -6,10 +6,14 @@ import {
   hasValidationErrors,
 } from '@/infrastructure/ImportService'
 
-/** 計算実行フック */
+/** 計算実行フック（データ変更時に自動計算） */
 export function useCalculation() {
   const state = useAppState()
   const dispatch = useAppDispatch()
+
+  const canCalculate =
+    Object.keys(state.data.purchase).length > 0 &&
+    Object.keys(state.data.sales).length > 0
 
   const calculate = useCallback(
     (daysInMonth: number) => {
@@ -27,9 +31,14 @@ export function useCalculation() {
     [state.data, state.settings, dispatch],
   )
 
-  const canCalculate =
-    Object.keys(state.data.purchase).length > 0 &&
-    Object.keys(state.data.sales).length > 0
+  // データ変更時に自動計算
+  useEffect(() => {
+    if (!canCalculate || state.ui.isImporting || state.ui.isCalculated) return
+
+    const today = new Date()
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+    calculate(daysInMonth)
+  }, [canCalculate, state.ui.isImporting, state.ui.isCalculated, calculate])
 
   return {
     calculate,
