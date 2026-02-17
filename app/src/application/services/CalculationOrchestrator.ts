@@ -246,8 +246,11 @@ export function calculateStoreResult(
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
   // 値入率
-  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
-  const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
+  const allPurchasePrice = totalPurchasePrice + totalFlowerPrice + totalDirectProducePrice
+  const allPurchaseCost = totalPurchaseCost + totalFlowerCost + totalDirectProduceCost
+  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
+  // コア値入率 = 仕入データのみ（花・産直を除く）
   const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, settings.defaultMarkupRate)
 
   // 【在庫法】
@@ -536,8 +539,13 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
-  // ※ 仕入データに売上納品(花・産直)は含まれないため、仕入データ全体 = コア仕入
-  const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
+  const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
+  const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
+  const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price
+  const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost
+  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
+  // コア値入率 = 仕入データのみ（花・産直を除く）
   const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
 
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)

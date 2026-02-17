@@ -141,6 +141,29 @@ describe('calculateStoreResult', () => {
     expect(result.invMethodGrossProfit).toBe(32000)
   })
 
+  it('平均値入率は花・産直を含み、コア値入率は仕入のみ', () => {
+    const data = buildTestData({
+      purchase: {
+        '1': {
+          1: { suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+        },
+      },
+      sales: { '1': { 1: { sales: 60000 } } },
+      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      directProduce: { '1': { 1: { price: 5000, cost: 4250 } } },
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    // コア値入率 = (40000 - 30000) / 40000 = 0.25
+    expect(result.coreMarkupRate).toBeCloseTo(0.25, 4)
+    // 平均値入率 = (40000+10000+5000 - 30000-8000-4250) / (40000+10000+5000)
+    //            = 12750 / 55000 ≈ 0.2318
+    expect(result.averageMarkupRate).toBeCloseTo(12750 / 55000, 4)
+    // 花・産直の掛け率(0.80, 0.85)は仕入より低いので平均値入率 < コア値入率
+    expect(result.averageMarkupRate).toBeLessThan(result.coreMarkupRate)
+  })
+
   it('売変データの集計', () => {
     const data = buildTestData({
       sales: { '1': { 1: { sales: 50000 } } },
