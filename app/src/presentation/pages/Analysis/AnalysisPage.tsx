@@ -83,7 +83,7 @@ function buildAnalysis(r: StoreResult, daysInMonth: number) {
 }
 
 export function AnalysisPage() {
-  const { isCalculated } = useCalculation()
+  const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName } = useStoreSelection()
   const [viewMode, setViewMode] = useState<ViewMode>('total')
 
@@ -96,7 +96,6 @@ export function AnalysisPage() {
   }
 
   const r = currentResult
-  const { daysInMonth } = useCalculation()
 
   // 予算分析
   const { salesDaily, analysis } = buildAnalysis(r, daysInMonth)

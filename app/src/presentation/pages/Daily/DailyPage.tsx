@@ -82,7 +82,7 @@ const EmptyState = styled.div`
 `
 
 export function DailyPage() {
-  const { isCalculated } = useCalculation()
+  const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
   const { settings } = useAppState()
 
@@ -95,7 +95,6 @@ export function DailyPage() {
   }
 
   const r = currentResult
-  const { daysInMonth } = useCalculation()
 
   // 日別データをソート
   const days = Array.from(r.daily.entries()).sort(([a], [b]) => a - b)
