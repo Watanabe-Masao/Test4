@@ -102,22 +102,25 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
  * ファイル名からデータ種別を判定する
  */
 function matchByFilename(filename: string): DataType | null {
-  // 命名規則プレフィックス判定（最優先）
   const basename = filename.replace(/^.*[\\/]/, '')
-  for (const rule of PREFIX_RULES) {
-    if (basename.startsWith(rule.prefix)) return rule.type
-  }
 
   // 消耗品: 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
   if (/^\d{2}消耗/.test(basename)) return 'consumables'
 
-  // 従来のキーワードマッチ
+  // キーワードマッチ（優先: ファイル名に明示的なデータ種別名がある場合）
+  // ※ プレフィックス番号がユーザー環境と異なる場合でも正しく判定できる
   const lower = filename.toLowerCase()
   for (const rule of FILE_TYPE_RULES) {
     if (rule.filenamePatterns.some((p) => lower.includes(p.toLowerCase()))) {
       return rule.type
     }
   }
+
+  // 命名規則プレフィックス判定（フォールバック: キーワードで判定できない場合）
+  for (const rule of PREFIX_RULES) {
+    if (basename.startsWith(rule.prefix)) return rule.type
+  }
+
   return null
 }
 

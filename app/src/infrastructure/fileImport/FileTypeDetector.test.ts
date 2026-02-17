@@ -116,6 +116,44 @@ describe('detectFileType', () => {
     expect(result.type).toBe('interStoreOut')
   })
 
+  // プレフィックスとキーワードが矛盾する場合、キーワードを優先
+  it('5_店間出: プレフィックス(5_=店間入)よりキーワード(店間出)を優先', () => {
+    const result = detectFileType('5_店間出.xlsx', [])
+    expect(result.type).toBe('interStoreOut')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('6_店間入: プレフィックス(6_=店間出)よりキーワード(店間入)を優先', () => {
+    const result = detectFileType('6_店間入.xlsx', [])
+    expect(result.type).toBe('interStoreIn')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('7_仕入: プレフィックス(7_=初期設定)よりキーワード(仕入)を優先', () => {
+    const result = detectFileType('7_仕入.xlsx', [])
+    expect(result.type).toBe('purchase')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('売上納品_花: 売上ではなく花として判定', () => {
+    const result = detectFileType('3_売上納品_花.xlsx', [])
+    expect(result.type).toBe('flowers')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('売上納品_産直: 売上ではなく産直として判定', () => {
+    const result = detectFileType('3_売上納品_産直.xlsx', [])
+    expect(result.type).toBe('directProduce')
+    expect(result.confidence).toBe('filename')
+  })
+
+  // キーワードなしの場合、プレフィックスにフォールバック
+  it('プレフィックスのみでキーワードなし: フォールバック判定', () => {
+    const result = detectFileType('5_data.xlsx', [])
+    expect(result.type).toBe('interStoreIn')
+    expect(result.confidence).toBe('filename')
+  })
+
   // 判定不能
   it('不明なファイル', () => {
     const result = detectFileType('unknown.txt', [['foo', 'bar']])
