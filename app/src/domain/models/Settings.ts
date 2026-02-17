@@ -1,3 +1,10 @@
+/** カスタムカテゴリ */
+export type CustomCategory = '市場仕入' | 'LFC' | 'サラダ' | '加工品' | '消耗品' | '直伝' | 'その他'
+
+export const CUSTOM_CATEGORIES: readonly CustomCategory[] = [
+  '市場仕入', 'LFC', 'サラダ', '加工品', '消耗品', '直伝', 'その他',
+] as const
+
 /** アプリケーション設定 */
 export interface AppSettings {
   readonly targetGrossProfitRate: number // 目標粗利率 (default: 0.25)
@@ -6,6 +13,7 @@ export interface AppSettings {
   readonly directProduceCostRate: number // 産直掛け率 (default: 0.85)
   readonly defaultMarkupRate: number // デフォルト値入率 (default: 0.26)
   readonly defaultBudget: number // デフォルト予算 (default: 6,450,000)
+  readonly supplierCategoryMap: Readonly<Record<string, CustomCategory>> // 取引先→カテゴリ
 }
 
 /** ビュー種別 */

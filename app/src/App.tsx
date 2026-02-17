@@ -64,6 +64,54 @@ const SidebarActions = styled.div`
   gap: ${({ theme }) => theme.spacing[3]};
 `
 
+const InventoryInputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const InventoryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const InventoryLabel = styled.label`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  white-space: nowrap;
+  min-width: 48px;
+`
+
+const InventoryInput = styled.input`
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const StoreInventoryBlock = styled.div`
+  padding: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+`
+
+const StoreInventoryTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'salesDiscount', label: '1_売上売変' },
@@ -208,6 +256,58 @@ function AppContent() {
                     </Chip>
                   ))}
                 </ChipGroup>
+              </SidebarSection>
+            )}
+
+            {stores.size > 0 && (
+              <SidebarSection>
+                <SectionLabel>在庫設定</SectionLabel>
+                <InventoryInputGroup>
+                  {Array.from(stores.values()).map((s) => {
+                    const cfg = state.data.settings.get(s.id)
+                    return (
+                      <StoreInventoryBlock key={s.id}>
+                        <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
+                        <InventoryRow>
+                          <InventoryLabel>期首</InventoryLabel>
+                          <InventoryInput
+                            type="number"
+                            placeholder="期首在庫"
+                            value={cfg?.openingInventory ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? null : Number(e.target.value)
+                              dispatch({
+                                type: 'UPDATE_INVENTORY',
+                                payload: {
+                                  storeId: s.id,
+                                  config: { openingInventory: val },
+                                },
+                              })
+                            }}
+                          />
+                        </InventoryRow>
+                        <InventoryRow>
+                          <InventoryLabel>期末</InventoryLabel>
+                          <InventoryInput
+                            type="number"
+                            placeholder="期末在庫"
+                            value={cfg?.closingInventory ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? null : Number(e.target.value)
+                              dispatch({
+                                type: 'UPDATE_INVENTORY',
+                                payload: {
+                                  storeId: s.id,
+                                  config: { closingInventory: val },
+                                },
+                              })
+                            }}
+                          />
+                        </InventoryRow>
+                      </StoreInventoryBlock>
+                    )
+                  })}
+                </InventoryInputGroup>
               </SidebarSection>
             )}
 

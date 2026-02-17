@@ -1,6 +1,7 @@
 import {
   ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -34,23 +35,45 @@ interface Props {
   daysInMonth: number
 }
 
+/** N日移動平均を計算 */
+function movingAverage(values: number[], window: number): (number | null)[] {
+  return values.map((_, i) => {
+    if (i < window - 1) return null
+    let sum = 0
+    for (let j = i - window + 1; j <= i; j++) sum += values[j]
+    return sum / window
+  })
+}
+
 export function DailySalesChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
 
-  const data = []
+  const rawSales: number[] = []
+  const baseData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
-    data.push({
+    const sales = rec?.sales ?? 0
+    rawSales.push(sales)
+    baseData.push({
       day: d,
-      sales: rec?.sales ?? 0,
+      sales,
       discount: rec?.discountAbsolute ?? 0,
-      grossProfit: rec ? rec.sales - (rec.purchase.cost - (rec.flowers.cost + rec.directProduce.cost)) : 0,
     })
   }
 
+  // 3日・7日移動平均
+  const ma3 = movingAverage(rawSales, 3)
+  const ma7 = movingAverage(rawSales, 7)
+
+  const data = baseData.map((d, i) => ({
+    ...d,
+    ma3: ma3[i],
+    ma7: ma7[i],
+  }))
+
   return (
     <Wrapper>
-      <Title>日別売上・売変推移</Title>
+      <Title>日別売上・売変推移（移動平均付き）</Title>
       <ResponsiveContainer width="100%" height="90%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -97,15 +120,25 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
               color: ct.text,
             }}
             formatter={(value, name) => {
-              const label = name === 'sales' ? '売上' : name === 'discount' ? '売変額' : String(name)
-              return [toComma(value as number), label]
+              const labels: Record<string, string> = {
+                sales: '売上',
+                discount: '売変額',
+                ma3: '3日移動平均',
+                ma7: '7日移動平均',
+              }
+              return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
             }}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => {
-              const labels: Record<string, string> = { sales: '売上', discount: '売変額' }
+              const labels: Record<string, string> = {
+                sales: '売上',
+                discount: '売変額',
+                ma3: '3日移動平均',
+                ma7: '7日移動平均',
+              }
               return labels[value] ?? value
             }}
           />
@@ -122,6 +155,24 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
             fill="url(#discountGrad)"
             radius={[3, 3, 0, 0]}
             maxBarSize={12}
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="ma3"
+            stroke="#f59e0b"
+            strokeWidth={2}
+            dot={false}
+            connectNulls
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="ma7"
+            stroke="#06b6d4"
+            strokeWidth={2}
+            dot={false}
+            connectNulls
           />
         </ComposedChart>
       </ResponsiveContainer>

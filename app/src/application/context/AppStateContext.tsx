@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react'
-import type { AppSettings, ViewType, StoreResult } from '@/domain/models'
+import type { AppSettings, ViewType, StoreResult, InventoryConfig } from '@/domain/models'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 import type { ImportedData } from '@/infrastructure/ImportService'
 import { createEmptyImportedData } from '@/infrastructure/ImportService'
@@ -43,6 +43,7 @@ export type AppAction =
   | { type: 'SET_CURRENT_VIEW'; payload: ViewType }
   | { type: 'SET_IMPORTING'; payload: boolean }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
+  | { type: 'UPDATE_INVENTORY'; payload: { storeId: string; config: Partial<InventoryConfig> } }
   | { type: 'RESET' }
 
 /** リデューサー */
@@ -90,6 +91,23 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         settings: { ...state.settings, ...action.payload },
         ui: { ...state.ui, isCalculated: false },
       }
+
+    case 'UPDATE_INVENTORY': {
+      const { storeId, config } = action.payload
+      const newSettings = new Map(state.data.settings)
+      const existing = newSettings.get(storeId) ?? {
+        storeId,
+        openingInventory: null,
+        closingInventory: null,
+        grossProfitBudget: null,
+      }
+      newSettings.set(storeId, { ...existing, ...config })
+      return {
+        ...state,
+        data: { ...state.data, settings: newSettings },
+        ui: { ...state.ui, isCalculated: false },
+      }
+    }
 
     case 'RESET':
       return initialState

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
+import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { calculateForecast } from '@/domain/calculations/forecast'
+import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { useChartTheme, toManYen, toComma } from '@/presentation/components/charts/chartTheme'
 import {
@@ -13,6 +15,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  Legend,
 } from 'recharts'
 import styled from 'styled-components'
 
@@ -111,17 +114,65 @@ const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
+const ModeToggleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
+const DOW_LABELS = ['\u65e5', '\u6708', '\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f']
 const DOW_COLORS = ['#ef4444', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#22c55e']
+
+/** Build a ForecastInput from a StoreResult */
+function buildForecastInput(
+  r: { daily: ReadonlyMap<number, { sales: number; purchase: { cost: number } }> },
+  year: number,
+  month: number,
+): ForecastInput {
+  const dailySales = new Map<number, number>()
+  const dailyGrossProfit = new Map<number, number>()
+  for (const [d, rec] of r.daily) {
+    dailySales.set(d, rec.sales)
+    const gp = rec.sales - rec.purchase.cost
+    dailyGrossProfit.set(d, gp)
+  }
+  return { year, month, dailySales, dailyGrossProfit }
+}
+
+/** Compute stacked bar data: for each week, break down sales by day-of-week */
+function computeStackedWeekData(
+  weeks: readonly WeeklySummary[],
+  dailySales: ReadonlyMap<number, number>,
+  year: number,
+  month: number,
+): Record<string, string | number>[] {
+  return weeks.map((w) => {
+    const entry: Record<string, string | number> = { name: `\u7b2c${w.weekNumber}\u9031` }
+    // Initialize all DOW keys to 0
+    for (const label of DOW_LABELS) {
+      entry[label] = 0
+    }
+    // Accumulate sales for each day in this week
+    for (let d = w.startDay; d <= w.endDay; d++) {
+      const sales = dailySales.get(d) ?? 0
+      const dow = new Date(year, month - 1, d).getDay() // 0=Sun
+      const label = DOW_LABELS[dow]
+      entry[label] = (entry[label] as number) + sales
+    }
+    return entry
+  })
+}
 
 export function ForecastPage() {
   const { isCalculated } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
+  const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
+  const [compareMode, setCompareMode] = useState(false)
 
   if (!isCalculated || !currentResult) {
     return (
-      <MainContent title="予測分析" storeName={storeName}>
-        <EmptyState>計算を実行してください</EmptyState>
+      <MainContent title="\u4e88\u6e2c\u5206\u6790" storeName={storeName}>
+        <EmptyState>\u8a08\u7b97\u3092\u5b9f\u884c\u3057\u3066\u304f\u3060\u3055\u3044</EmptyState>
       </MainContent>
     )
   }
@@ -132,15 +183,8 @@ export function ForecastPage() {
   const month = today.getMonth() + 1
 
   // Build forecast input
-  const dailySales = new Map<number, number>()
-  const dailyGrossProfit = new Map<number, number>()
-  for (const [d, rec] of r.daily) {
-    dailySales.set(d, rec.sales)
-    const gp = rec.sales - rec.purchase.cost
-    dailyGrossProfit.set(d, gp)
-  }
-
-  const forecast = calculateForecast({ year, month, dailySales, dailyGrossProfit })
+  const forecastInput = buildForecastInput(r, year, month)
+  const forecast = calculateForecast(forecastInput)
 
   // Find best/worst week
   const activeWeeks = forecast.weeklySummaries.filter((w) => w.totalSales > 0)
@@ -151,97 +195,171 @@ export function ForecastPage() {
     ? activeWeeks.reduce((a, b) => a.totalSales < b.totalSales ? a : b)
     : null
 
+  // Compute stacked data for weekly chart
+  const stackedData = computeStackedWeekData(
+    forecast.weeklySummaries,
+    forecastInput.dailySales,
+    year,
+    month,
+  )
+
+  // Build per-store forecasts for comparison mode
+  const storeForecasts = compareMode
+    ? selectedResults.map((sr) => {
+        const input = buildForecastInput(sr, year, month)
+        const fc = calculateForecast(input)
+        const name = stores.get(sr.storeId)?.name ?? sr.storeId
+        return { storeId: sr.storeId, storeName: name, forecast: fc }
+      })
+    : []
+
   return (
-    <MainContent title="予測分析" storeName={storeName}>
+    <MainContent title="\u4e88\u6e2c\u5206\u6790" storeName={storeName}>
       <KpiGrid>
         <KpiCard
-          label="営業日数"
-          value={`${r.salesDays}日`}
-          subText={`経過: ${r.elapsedDays}日`}
+          label="\u55b6\u696d\u65e5\u6570"
+          value={`${r.salesDays}\u65e5`}
+          subText={`\u7d4c\u904e: ${r.elapsedDays}\u65e5`}
           accent="#6366f1"
         />
         <KpiCard
-          label="日平均売上"
+          label="\u65e5\u5e73\u5747\u58f2\u4e0a"
           value={formatCurrency(r.averageDailySales)}
           accent="#22c55e"
         />
         <KpiCard
-          label="月末予測売上"
+          label="\u6708\u672b\u4e88\u6e2c\u58f2\u4e0a"
           value={formatCurrency(r.projectedSales)}
-          subText={`達成率予測: ${formatPercent(r.projectedAchievement)}`}
+          subText={`\u9054\u6210\u7387\u4e88\u6e2c: ${formatPercent(r.projectedAchievement)}`}
           accent="#0ea5e9"
         />
         <KpiCard
-          label="異常値検出"
-          value={`${forecast.anomalies.length}件`}
-          subText={forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '異常なし'}
+          label="\u7570\u5e38\u5024\u691c\u51fa"
+          value={`${forecast.anomalies.length}\u4ef6`}
+          subText={forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '\u7570\u5e38\u306a\u3057'}
           accent={forecast.anomalies.length > 0 ? '#f59e0b' : '#22c55e'}
         />
       </KpiGrid>
 
       <ChartGrid>
-        <WeeklyChart weeks={forecast.weeklySummaries} />
+        <WeeklyChart data={stackedData} />
         <DayOfWeekChart averages={forecast.dayOfWeekAverages} />
       </ChartGrid>
 
       <Section>
-        <SectionTitle>週別サマリー</SectionTitle>
-        <TableWrapper>
-          <Table>
-            <thead>
-              <tr>
-                <Th>週</Th>
-                <Th>期間</Th>
-                <Th>営業日数</Th>
-                <Th>売上合計</Th>
-                <Th>粗利合計</Th>
-                <Th>粗利率</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {forecast.weeklySummaries.map((w) => (
-                <Tr key={w.weekNumber}>
-                  <Td $highlight={w === bestWeek || w === worstWeek}>
-                    第{w.weekNumber}週
-                  </Td>
-                  <Td>{w.startDay}日〜{w.endDay}日</Td>
-                  <Td>{w.days}日</Td>
-                  <Td>{formatCurrency(w.totalSales)}</Td>
-                  <Td>{formatCurrency(w.totalGrossProfit)}</Td>
-                  <Td>{formatPercent(w.grossProfitRate)}</Td>
-                </Tr>
-              ))}
-            </tbody>
-          </Table>
-        </TableWrapper>
+        <ModeToggleWrapper>
+          <SectionTitle style={{ marginBottom: 0 }}>\u9031\u5225\u30b5\u30de\u30ea\u30fc</SectionTitle>
+          {selectedResults.length > 1 && (
+            <ChipGroup>
+              <Chip $active={!compareMode} onClick={() => setCompareMode(false)}>
+                \u5408\u8a08\u30e2\u30fc\u30c9
+              </Chip>
+              <Chip $active={compareMode} onClick={() => setCompareMode(true)}>
+                \u6bd4\u8f03\u30e2\u30fc\u30c9
+              </Chip>
+            </ChipGroup>
+          )}
+        </ModeToggleWrapper>
+
+        {!compareMode ? (
+          <TableWrapper>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>\u9031</Th>
+                  <Th>\u671f\u9593</Th>
+                  <Th>\u55b6\u696d\u65e5\u6570</Th>
+                  <Th>\u58f2\u4e0a\u5408\u8a08</Th>
+                  <Th>\u7c97\u5229\u5408\u8a08</Th>
+                  <Th>\u7c97\u5229\u7387</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {forecast.weeklySummaries.map((w) => (
+                  <Tr key={w.weekNumber}>
+                    <Td $highlight={w === bestWeek || w === worstWeek}>
+                      \u7b2c{w.weekNumber}\u9031
+                    </Td>
+                    <Td>{w.startDay}\u65e5\u301c{w.endDay}\u65e5</Td>
+                    <Td>{w.days}\u65e5</Td>
+                    <Td>{formatCurrency(w.totalSales)}</Td>
+                    <Td>{formatCurrency(w.totalGrossProfit)}</Td>
+                    <Td>{formatPercent(w.grossProfitRate)}</Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableWrapper>
+        ) : (
+          <TableWrapper>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>\u9031</Th>
+                  <Th>\u671f\u9593</Th>
+                  {storeForecasts.map((sf) => (
+                    <Th key={`sales-${sf.storeId}`}>{sf.storeName} \u58f2\u4e0a</Th>
+                  ))}
+                  {storeForecasts.map((sf) => (
+                    <Th key={`gp-${sf.storeId}`}>{sf.storeName} \u7c97\u5229</Th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {forecast.weeklySummaries.map((w, wi) => (
+                  <Tr key={w.weekNumber}>
+                    <Td>\u7b2c{w.weekNumber}\u9031</Td>
+                    <Td>{w.startDay}\u65e5\u301c{w.endDay}\u65e5</Td>
+                    {storeForecasts.map((sf) => {
+                      const sw = sf.forecast.weeklySummaries[wi]
+                      return (
+                        <Td key={`sales-${sf.storeId}`}>
+                          {sw ? formatCurrency(sw.totalSales) : '-'}
+                        </Td>
+                      )
+                    })}
+                    {storeForecasts.map((sf) => {
+                      const sw = sf.forecast.weeklySummaries[wi]
+                      return (
+                        <Td key={`gp-${sf.storeId}`}>
+                          {sw ? formatCurrency(sw.totalGrossProfit) : '-'}
+                        </Td>
+                      )
+                    })}
+                  </Tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableWrapper>
+        )}
       </Section>
 
       {forecast.anomalies.length > 0 && (
         <Section>
-          <SectionTitle>異常値検出</SectionTitle>
+          <SectionTitle>\u7570\u5e38\u5024\u691c\u51fa</SectionTitle>
           <Card>
-            <CardTitle>統計的異常値（Z-Score &gt; 2.0）</CardTitle>
+            <CardTitle>\u7d71\u8a08\u7684\u7570\u5e38\u5024\uff08Z-Score &gt; 2.0\uff09</CardTitle>
             <TableWrapper>
               <Table>
                 <thead>
                   <tr>
-                    <Th>日</Th>
-                    <Th>売上</Th>
-                    <Th>平均</Th>
+                    <Th>\u65e5</Th>
+                    <Th>\u58f2\u4e0a</Th>
+                    <Th>\u5e73\u5747</Th>
                     <Th>Z-Score</Th>
-                    <Th>判定</Th>
+                    <Th>\u5224\u5b9a</Th>
                   </tr>
                 </thead>
                 <tbody>
                   {forecast.anomalies.map((a) => (
                     <Tr key={a.day}>
-                      <Td>{a.day}日</Td>
+                      <Td>{a.day}\u65e5</Td>
                       <Td>{formatCurrency(a.value)}</Td>
                       <Td>{formatCurrency(a.mean)}</Td>
                       <Td>{a.zScore.toFixed(2)}</Td>
                       <Td>
                         <AnomalyBadge $type={a.zScore > 0 ? 'high' : 'low'}>
-                          {a.zScore > 0 ? '高売上' : '低売上'}
+                          {a.zScore > 0 ? '\u9ad8\u58f2\u4e0a' : '\u4f4e\u58f2\u4e0a'}
                         </AnomalyBadge>
                       </Td>
                     </Tr>
@@ -256,18 +374,12 @@ export function ForecastPage() {
   )
 }
 
-function WeeklyChart({ weeks }: { weeks: readonly import('@/domain/calculations/forecast').WeeklySummary[] }) {
+function WeeklyChart({ data }: { data: Record<string, string | number>[] }) {
   const ct = useChartTheme()
-
-  const data = weeks.map((w) => ({
-    name: `第${w.weekNumber}週`,
-    sales: w.totalSales,
-    profit: w.totalGrossProfit,
-  }))
 
   return (
     <ChartWrapper>
-      <ChartTitle>週別売上推移</ChartTitle>
+      <ChartTitle>\u9031\u5225\u58f2\u4e0a\u63a8\u79fb\uff08\u66dc\u65e5\u5225\uff09</ChartTitle>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -293,17 +405,22 @@ function WeeklyChart({ weeks }: { weeks: readonly import('@/domain/calculations/
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value) => [toComma(value as number), '売上']}
+            formatter={(value: number, name: string) => [toComma(value), name]}
           />
-          <Bar dataKey="sales" radius={[4, 4, 0, 0]} maxBarSize={40}>
-            {data.map((_, index) => (
-              <Cell
-                key={index}
-                fill={ct.colors.primary}
-                fillOpacity={0.8}
-              />
-            ))}
-          </Bar>
+          <Legend
+            wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+          />
+          {DOW_LABELS.map((label, i) => (
+            <Bar
+              key={label}
+              dataKey={label}
+              stackId="dow"
+              fill={DOW_COLORS[i]}
+              fillOpacity={0.8}
+              radius={i === DOW_LABELS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+              maxBarSize={40}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -322,7 +439,7 @@ function DayOfWeekChart({ averages }: { averages: readonly import('@/domain/calc
 
   return (
     <ChartWrapper>
-      <ChartTitle>曜日別平均売上</ChartTitle>
+      <ChartTitle>\u66dc\u65e5\u5225\u5e73\u5747\u58f2\u4e0a</ChartTitle>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -348,7 +465,7 @@ function DayOfWeekChart({ averages }: { averages: readonly import('@/domain/calc
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value) => [toComma(value as number), '平均売上']}
+            formatter={(value) => [toComma(value as number), '\u5e73\u5747\u58f2\u4e0a']}
           />
           <Bar dataKey="average" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {data.map((entry, index) => (

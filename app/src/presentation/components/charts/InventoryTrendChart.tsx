@@ -47,28 +47,31 @@ export function InventoryTrendChart({
 
   if (openingInventory == null) return null
 
-  const data: { day: number; estimated: number | null }[] = []
+  const data: { day: number; estimated: number | null; actual: number | null }[] = []
   let cumCost = 0
   let cumEstCogs = 0
 
-  // 簡易推定在庫推移: 期首 + 累計仕入原価 - 累計推定原価
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     if (rec) {
       cumCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost
-      // 簡易: 推定原価 ≈ 売上 × (1 - 値入率)で近似
       const dayCost = rec.purchase.cost
       cumEstCogs += dayCost > 0 ? dayCost : rec.sales * 0.74
     }
+
+    // 実在庫は月末日のみプロット
+    const actualInv = (d === daysInMonth && closingInventory != null) ? closingInventory : null
+
     data.push({
       day: d,
       estimated: openingInventory + cumCost - cumEstCogs,
+      actual: actualInv,
     })
   }
 
   return (
     <Wrapper>
-      <Title>推定在庫推移</Title>
+      <Title>推定在庫推移 vs 実在庫</Title>
       <ResponsiveContainer width="100%" height="90%">
         <LineChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -94,13 +97,16 @@ export function InventoryTrendChart({
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value) => [toComma(value as number), '推定在庫']}
+            formatter={(value, name) => {
+              const labels: Record<string, string> = { estimated: '推定在庫', actual: '実在庫' }
+              return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
+            }}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => {
-              const labels: Record<string, string> = { estimated: '推定在庫' }
+              const labels: Record<string, string> = { estimated: '推定在庫', actual: '実在庫' }
               return labels[value] ?? value
             }}
           />
@@ -112,6 +118,15 @@ export function InventoryTrendChart({
             dot={false}
             activeDot={{ r: 4, fill: ct.colors.cyan, stroke: ct.bg2, strokeWidth: 2 }}
           />
+          {closingInventory != null && (
+            <Line
+              type="monotone"
+              dataKey="actual"
+              stroke={ct.colors.success}
+              strokeWidth={0}
+              dot={{ r: 6, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
+            />
+          )}
           {openingInventory != null && (
             <ReferenceLine
               y={openingInventory}
@@ -134,7 +149,7 @@ export function InventoryTrendChart({
               strokeDasharray="4 4"
               strokeWidth={1}
               label={{
-                value: `期末 ${toManYen(closingInventory)}`,
+                value: `実在庫 ${toManYen(closingInventory)}`,
                 position: 'right',
                 fill: ct.colors.success,
                 fontSize: ct.fontSize.xs,
