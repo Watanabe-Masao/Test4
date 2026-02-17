@@ -13,12 +13,13 @@ const ISO_DATE_RE = /(\d{4})-(\d{1,2})-(\d{1,2})/
 const SLASH_DATE_RE = /(\d{4})\/(\d{1,2})\/(\d{1,2})/
 
 /**
- * Excel シリアル値を Date に変換
+ * Excel シリアル値を Date に変換（ローカルタイムゾーン）
  * Excel基準日: 1900/1/1 = 1, ただしロータスバグで1900/2/29が存在する前提
- * JS: (serial - 25569) × 86400 × 1000
+ * UTC で年月日を算出し、ローカルタイムゾーンの Date を返す
  */
 function fromExcelSerial(serial: number): Date {
-  return new Date((serial - 25569) * 86400 * 1000)
+  const utc = new Date((serial - 25569) * 86400 * 1000)
+  return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate())
 }
 
 /**
