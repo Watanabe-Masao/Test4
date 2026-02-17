@@ -1012,11 +1012,13 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
 function renderWeeklySummary(ctx: WidgetContext): ReactNode {
   const { result: r, year, month } = ctx
 
-  // 週別の売上・予算を集計（粗利は期末在庫なしでは算出不可のため表示しない）
+  // 週別の売上・予算・値入を集計
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
     let totalSales = 0
     let totalBudget = 0
+    let totalPurchasePrice = 0
+    let totalPurchaseCost = 0
     let days = 0
     for (let d = startDay; d <= endDay; d++) {
       const rec = r.daily.get(d)
@@ -1025,8 +1027,15 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
       if (sales > 0) days++
       totalSales += sales
       totalBudget += budget
+      if (rec) {
+        totalPurchasePrice += rec.purchase.price + rec.flowers.price + rec.directProduce.price
+        totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
+      }
     }
-    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, days }
+    const markupRate = totalPurchasePrice > 0
+      ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice
+      : 0
+    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days }
   })
 
   return (
@@ -1041,6 +1050,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>予算</STh>
             <STh>予算差</STh>
             <STh>達成率</STh>
+            <STh>値入率</STh>
             <STh>日数</STh>
           </tr>
         </thead>
@@ -1057,6 +1067,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd>{formatCurrency(w.totalBudget)}</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(w.diff)}</STd>
                 <STd style={{ color: achColor }}>{w.totalBudget > 0 ? formatPercent(achievement, 0) : '-'}</STd>
+                <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
               </tr>
             )
@@ -1442,14 +1453,14 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     id: 'exec-dow-average',
     label: '曜日平均',
     group: '本部・経営者向け',
-    size: 'half',
+    size: 'full',
     render: (ctx) => renderDowAverage(ctx),
   },
   {
     id: 'exec-weekly-summary',
     label: '週別サマリー',
     group: '本部・経営者向け',
-    size: 'half',
+    size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
   },
   {
@@ -1474,7 +1485,7 @@ const DEFAULT_WIDGET_IDS: string[] = [
   'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v2'
+const STORAGE_KEY = 'dashboard_layout_v3'
 
 function loadLayout(): string[] {
   try {
