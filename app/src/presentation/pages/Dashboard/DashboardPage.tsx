@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useCallback, useRef, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, Button } from '@/presentation/components/common'
 import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart } from '@/presentation/components/charts'
@@ -628,22 +628,11 @@ function calculatePinIntervals(result: StoreResult, pins: [number, number][]): P
 }
 
 function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
-  const { result: r, daysInMonth, year, month, storeKey } = ctx
+  const { result: r, daysInMonth, year, month } = ctx
   const [pins, setPins] = useState<Map<number, number>>(new Map())
   const [editDay, setEditDay] = useState<number | null>(null)
   const [inputVal, setInputVal] = useState('')
-  const prevStoreKeyRef = useRef(storeKey)
   const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
-
-  // Reset pins when store changes
-  useEffect(() => {
-    if (prevStoreKeyRef.current !== storeKey) {
-      setPins(new Map())
-      setEditDay(null)
-      setInputVal('')
-      prevStoreKeyRef.current = storeKey
-    }
-  }, [storeKey])
 
   // Build weeks (Monday start)
   const weeks: (number | null)[][] = []
@@ -811,20 +800,10 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
 function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
+
   const [salesLandingInput, setSalesLandingInput] = useState('')
   const [remainGPRateInput, setRemainGPRateInput] = useState('')
   const [targetGPRateInput, setTargetGPRateInput] = useState('')
-  const prevStoreKeyRef = useRef(ctx.storeKey)
-
-  // Reset inputs when store changes
-  useEffect(() => {
-    if (prevStoreKeyRef.current !== ctx.storeKey) {
-      setSalesLandingInput('')
-      setRemainGPRateInput('')
-      setTargetGPRateInput('')
-      prevStoreKeyRef.current = ctx.storeKey
-    }
-  }, [ctx.storeKey])
 
   // Current actuals
   const actualSales = r.totalSales
@@ -1411,7 +1390,7 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '月間カレンダー',
     group: '本部・経営者向け',
     size: 'full',
-    render: (ctx) => <MonthlyCalendarWidget ctx={ctx} />,
+    render: (ctx) => <MonthlyCalendarWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'exec-dow-average',
@@ -1432,7 +1411,7 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '着地予測・ゴールシーク',
     group: '本部・経営者向け',
     size: 'full',
-    render: (ctx) => <ForecastToolsWidget ctx={ctx} />,
+    render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
   },
 ]
 
