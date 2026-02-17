@@ -66,13 +66,13 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     type: 'interStoreIn',
     name: '店間入',
     filenamePatterns: ['店間入', '入庫'],
-    headerPatterns: ['店舗コードIN'],
+    headerPatterns: ['店コードIN', '店舗コードIN'],
   },
   {
     type: 'interStoreOut',
     name: '店間出',
     filenamePatterns: ['店間出', '出庫'],
-    headerPatterns: ['店舗コードOUT'],
+    headerPatterns: ['店コードOUT', '店舗コードOUT'],
   },
   {
     type: 'consumables',

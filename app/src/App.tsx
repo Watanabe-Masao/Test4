@@ -66,9 +66,12 @@ const SidebarActions = styled.div`
 `
 
 const uploadTypes: { type: DataType; label: string }[] = [
+  { type: 'salesDiscount', label: '売上売変' },
   { type: 'purchase', label: '仕入' },
-  { type: 'sales', label: '売上' },
-  { type: 'discount', label: '売変' },
+  { type: 'flowers', label: '花' },
+  { type: 'directProduce', label: '産直' },
+  { type: 'interStoreIn', label: '店間入' },
+  { type: 'interStoreOut', label: '店間出' },
   { type: 'initialSettings', label: '初期設定' },
   { type: 'budget', label: '予算' },
   { type: 'consumables', label: '消耗品' },
@@ -136,11 +139,21 @@ function AppContent() {
   // Determine which data types are loaded
   const loadedTypes = new Set<DataType>()
   if (Object.keys(state.data.purchase).length > 0) loadedTypes.add('purchase')
-  if (Object.keys(state.data.sales).length > 0) loadedTypes.add('sales')
-  if (Object.keys(state.data.discount).length > 0) loadedTypes.add('discount')
+  if (Object.keys(state.data.sales).length > 0) {
+    loadedTypes.add('sales')
+    loadedTypes.add('salesDiscount')
+  }
+  if (Object.keys(state.data.discount).length > 0) {
+    loadedTypes.add('discount')
+    loadedTypes.add('salesDiscount')
+  }
   if (state.data.settings.size > 0) loadedTypes.add('initialSettings')
   if (state.data.budget.size > 0) loadedTypes.add('budget')
   if (Object.keys(state.data.consumables).length > 0) loadedTypes.add('consumables')
+  if (Object.keys(state.data.flowers).length > 0) loadedTypes.add('flowers')
+  if (Object.keys(state.data.directProduce).length > 0) loadedTypes.add('directProduce')
+  if (Object.keys(state.data.interStoreIn).length > 0) loadedTypes.add('interStoreIn')
+  if (Object.keys(state.data.interStoreOut).length > 0) loadedTypes.add('interStoreOut')
 
   return (
     <>

@@ -4,7 +4,7 @@ import { processInterStoreIn, processInterStoreOut } from './TransferProcessor'
 describe('processInterStoreIn', () => {
   it('基本的な店間入データ処理', () => {
     const rows = [
-      ['入庫店舗', '日付', '出庫元', '原価', '売価'],
+      ['店コードIN', '日付', '店コードOUT', '原価金額IN', '売価金額IN'],
       ['0001', '2026-02-01', '0002', 10000, 13000],
     ]
 
@@ -17,7 +17,7 @@ describe('processInterStoreIn', () => {
 
   it('部門間移動の判定（同一店舗コード）', () => {
     const rows = [
-      ['入庫店舗', '日付', '出庫元', '原価', '売価'],
+      ['店コードIN', '日付', '店コードOUT', '原価金額IN', '売価金額IN'],
       ['0001', '2026-02-01', '0001', 5000, 6500],
     ]
 
@@ -43,10 +43,10 @@ describe('processInterStoreIn', () => {
 })
 
 describe('processInterStoreOut', () => {
-  it('基本的な店間出データ処理', () => {
+  it('基本的な店間出データ処理（Col0=出庫元, Col1=日付）', () => {
     const rows = [
-      ['日付', '出庫元', '入庫先', '部門', '原価', '売価'],
-      ['2026-02-01', '0001', '0002', '001', 10000, 13000],
+      ['店コードOUT', '日付', '店コードIN', '部門コード', '原価金額OUT', '売価金額OUT'],
+      ['0001', '2026-02-01', '0002', '001', 10000, 13000],
     ]
 
     const result = processInterStoreOut(rows)
@@ -59,7 +59,7 @@ describe('processInterStoreOut', () => {
   it('部門間移動の判定', () => {
     const rows = [
       ['header'],
-      ['2026-02-01', '0001', '0001', '001', 5000, 6500],
+      ['0001', '2026-02-01', '0001', '001', 5000, 6500],
     ]
     const result = processInterStoreOut(rows)
     expect(result['1']?.[1]?.interDepartmentOut).toHaveLength(1)

@@ -21,6 +21,8 @@ describe('App', () => {
   it('renders upload cards for file types', () => {
     render(<App />)
     expect(screen.getByText('仕入')).toBeInTheDocument()
-    expect(screen.getByText('売上')).toBeInTheDocument()
+    expect(screen.getByText('売上売変')).toBeInTheDocument()
+    expect(screen.getByText('花')).toBeInTheDocument()
+    expect(screen.getByText('店間入')).toBeInTheDocument()
   })
 })

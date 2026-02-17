@@ -80,7 +80,7 @@ export function processInterStoreIn(rows: readonly unknown[][]): TransferData {
  * 店間出データを処理する
  *
  * 行0: ヘッダー
- * 行1+: Col0: 日付, Col1: 出庫元店舗コード, Col2: 入庫先店舗コード, Col3: 部門コード, Col4: 原価, Col5: 売価
+ * 行1+: Col0: 出庫元店舗コード, Col1: 日付, Col2: 入庫先店舗コード, Col3: 部門コード, Col4: 原価, Col5: 売価
  */
 export function processInterStoreOut(rows: readonly unknown[][]): TransferData {
   if (rows.length < 2) return {}
@@ -94,8 +94,8 @@ export function processInterStoreOut(rows: readonly unknown[][]): TransferData {
 
   for (let row = 1; row < rows.length; row++) {
     const r = rows[row] as unknown[]
-    const day = getDayOfMonth(r[0])
-    const fromStoreCode = String(r[1] ?? '').trim()
+    const fromStoreCode = String(r[0] ?? '').trim()
+    const day = getDayOfMonth(r[1])
     const toStoreCode = String(r[2] ?? '').trim()
     if (day == null) continue
 

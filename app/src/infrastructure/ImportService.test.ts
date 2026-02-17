@@ -65,10 +65,12 @@ describe('processFileData', () => {
     expect(result.settings.get('1')?.openingInventory).toBe(100000)
   })
 
-  it('予算データの処理', () => {
+  it('予算データの処理（ピボット形式）', () => {
     const rows = [
-      ['header'],
-      ['0001', '2026-02-01', 200000],
+      ['', '', '', '0001:店舗A'],
+      ['月日', '', '', '売上予算'],
+      ['期間合計', '', '', 200000],
+      ['2026-02-01', '', '', 200000],
     ]
     const result = processFileData('budget', rows, 'budget.xlsx', emptyData(), DEFAULT_SETTINGS)
 
@@ -86,10 +88,10 @@ describe('processFileData', () => {
     expect(result.interStoreIn['1']?.[1]?.interStoreIn).toHaveLength(1)
   })
 
-  it('店間出データの処理', () => {
+  it('店間出データの処理（Col0=出庫元, Col1=日付）', () => {
     const rows = [
       ['header'],
-      ['2026-02-01', '0001', '0002', '001', 10000, 13000],
+      ['0001', '2026-02-01', '0002', '001', 10000, 13000],
     ]
     const result = processFileData('interStoreOut', rows, 'tenkandashi.xlsx', emptyData(), DEFAULT_SETTINGS)
 
@@ -116,6 +118,44 @@ describe('processFileData', () => {
     const result = processFileData('directProduce', rows, 'sanchoku.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.directProduce['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
+  })
+
+  it('売上売変複合データの処理', () => {
+    const rows = [
+      ['', '', '', '0001:店舗A', ''],
+      ['', '', '', '販売金額', '売変合計'],
+      ['期間合計', '', '', 100000, 5000],
+      ['2026-02-01', '', '', 50000, 3000],
+    ]
+    const result = processFileData('salesDiscount', rows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+
+    expect(result.stores.size).toBe(1)
+    expect(result.sales['1']?.[1]?.sales).toBe(50000)
+    expect(result.discount['1']?.[1]?.discount).toBe(3000)
+  })
+
+  it('売上売変の後に予算を取り込んでも売上データが維持される', () => {
+    const salesRows = [
+      ['', '', '', '0001:店舗A', ''],
+      ['', '', '', '販売金額', '売変合計'],
+      ['合計', '', '', 100000, 5000],
+      ['2026-02-01', '', '', 50000, 3000],
+    ]
+    const budgetRows = [
+      ['', '', '', '0001:店舗A'],
+      ['月日', '', '', '売上予算'],
+      ['合計', '', '', 200000],
+      ['2026-02-01', '', '', 200000],
+    ]
+
+    let result = processFileData('salesDiscount', salesRows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+    result = processFileData('budget', budgetRows, '0_売上予算.xlsx', result, DEFAULT_SETTINGS)
+
+    // 売上・売変データが維持されること
+    expect(result.sales['1']?.[1]?.sales).toBe(50000)
+    expect(result.discount['1']?.[1]?.discount).toBe(3000)
+    // 予算も追加されること
+    expect(result.budget.get('1')?.total).toBe(200000)
   })
 
   it('消耗品データの処理（マージモード）', () => {
