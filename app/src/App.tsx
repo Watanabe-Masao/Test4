@@ -122,6 +122,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'interStoreOut', label: '6_店間出' },
   { type: 'initialSettings', label: '7_初期設定' },
   { type: 'consumables', label: '8_消耗品', multi: true },
+  { type: 'prevYearSalesDiscount', label: '998_前年売上売変' },
 ]
 
 function ViewRouter({ view }: { view: ViewType }) {
@@ -202,6 +203,7 @@ function AppContent() {
   if (Object.keys(state.data.directProduce).length > 0) loadedTypes.add('directProduce')
   if (Object.keys(state.data.interStoreIn).length > 0) loadedTypes.add('interStoreIn')
   if (Object.keys(state.data.interStoreOut).length > 0) loadedTypes.add('interStoreOut')
+  if (Object.keys(state.data.prevYearSales).length > 0) loadedTypes.add('prevYearSalesDiscount')
 
   return (
     <>

@@ -34,6 +34,7 @@ export type DataType =
   | 'sales'
   | 'discount'
   | 'salesDiscount'
+  | 'prevYearSalesDiscount'
   | 'initialSettings'
   | 'budget'
   | 'consumables'
