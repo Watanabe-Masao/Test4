@@ -210,6 +210,187 @@ const CalLine = styled.div<{ $color?: string }>`
   text-overflow: ellipsis;
 `
 
+// ─── Pin & Interval Styled Components ───────────────────
+
+const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean }>`
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+  ${({ $pinned }) => $pinned ? `
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6366f1;
+    }
+  ` : ''}
+  ${({ $inInterval, theme }) => $inInterval ? `
+    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)'};
+  ` : ''}
+  &:hover { opacity: 0.8; }
+`
+
+const PinIndicator = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.45rem;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  border-top: 1px dashed ${({ theme }) => theme.colors.palette.primary};
+  padding-top: 1px;
+`
+
+const IntervalSummary = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[6]};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const IntervalCard = styled.div<{ $color?: string }>`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 3px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const IntervalMetricLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+const IntervalMetricValue = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const PinModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const PinModalContent = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[8]};
+  min-width: 320px;
+  max-width: 90vw;
+`
+
+const PinModalTitle = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
+const PinInputField = styled.input`
+  width: 100%;
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  &:focus { border-color: ${({ theme }) => theme.colors.palette.primary}; }
+`
+
+const PinButtonRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-top: ${({ theme }) => theme.spacing[6]};
+`
+
+const PinInputLabel = styled.label`
+  display: block;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+// ─── Forecast Tools Styled Components ───────────────────
+
+const ForecastToolsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const ToolCard = styled.div<{ $accent: string }>`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-top: 3px solid ${({ $accent }) => $accent};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[6]};
+`
+
+const ToolCardTitle = styled.h4`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
+const ToolInputGroup = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const ToolInputField = styled.input`
+  width: 100%;
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  &:focus { border-color: ${({ theme }) => theme.colors.palette.primary}; }
+`
+
+const ToolResultSection = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[6]};
+  padding-top: ${({ theme }) => theme.spacing[4]};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const ToolResultValue = styled.span<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+const ToolResultLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ─── Summary Table Styled Components ────────────────────
 
 const STableWrapper = styled.div`
@@ -395,8 +576,53 @@ function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   )
 }
 
-function renderMonthlyCalendar(ctx: WidgetContext): ReactNode {
+interface PinInterval {
+  startDay: number
+  endDay: number
+  openingInventory: number
+  closingInventory: number
+  totalSales: number
+  totalPurchaseCost: number
+  cogs: number
+  grossProfit: number
+  grossProfitRate: number
+}
+
+function calculatePinIntervals(result: StoreResult, pins: [number, number][]): PinInterval[] {
+  if (pins.length === 0) return []
+  const intervals: PinInterval[] = []
+  let prevDay = 0
+  let prevInventory = result.openingInventory ?? 0
+
+  for (const [day, closingInv] of pins) {
+    let totalSales = 0
+    let totalPurchaseCost = 0
+    for (let d = prevDay + 1; d <= day; d++) {
+      const rec = result.daily.get(d)
+      if (rec) {
+        totalSales += rec.sales
+        totalPurchaseCost += rec.purchase.cost
+      }
+    }
+    const cogs = prevInventory + totalPurchaseCost - closingInv
+    const grossProfit = totalSales - cogs
+    const grossProfitRate = totalSales > 0 ? grossProfit / totalSales : 0
+    intervals.push({
+      startDay: prevDay + 1, endDay: day,
+      openingInventory: prevInventory, closingInventory: closingInv,
+      totalSales, totalPurchaseCost, cogs, grossProfit, grossProfitRate,
+    })
+    prevDay = day
+    prevInventory = closingInv
+  }
+  return intervals
+}
+
+function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const { result: r, daysInMonth, year, month } = ctx
+  const [pins, setPins] = useState<Map<number, number>>(new Map())
+  const [editDay, setEditDay] = useState<number | null>(null)
+  const [inputVal, setInputVal] = useState('')
   const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
 
   // Build weeks (Monday start)
@@ -416,9 +642,34 @@ function renderMonthlyCalendar(ctx: WidgetContext): ReactNode {
     weeks.push(currentWeek)
   }
 
+  // Calculate pin intervals
+  const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
+  const intervals = calculatePinIntervals(r, sortedPins)
+  const getIntervalForDay = (day: number) =>
+    intervals.find(iv => day >= iv.startDay && day <= iv.endDay)
+
+  const handleDayClick = (day: number) => {
+    setEditDay(day)
+    setInputVal(pins.has(day) ? String(pins.get(day)) : '')
+  }
+
+  const handlePinConfirm = () => {
+    if (editDay == null) return
+    const val = Number(inputVal.replace(/,/g, ''))
+    if (isNaN(val) || val < 0) return
+    setPins(prev => { const next = new Map(prev); next.set(editDay, val); return next })
+    setEditDay(null)
+  }
+
+  const handlePinRemove = () => {
+    if (editDay == null) return
+    setPins(prev => { const next = new Map(prev); next.delete(editDay); return next })
+    setEditDay(null)
+  }
+
   return (
     <CalWrapper>
-      <CalSectionTitle>月間カレンダー（{year}年{month}月）</CalSectionTitle>
+      <CalSectionTitle>月間カレンダー（{year}年{month}月）- 日付クリックで期末在庫を入力・粗利率ピン止め</CalSectionTitle>
       <CalTable>
         <thead>
           <tr>
@@ -440,17 +691,28 @@ function renderMonthlyCalendar(ctx: WidgetContext): ReactNode {
                 const isWeekend = di >= 5
                 const diffColor = diff >= 0 ? '#22c55e' : '#ef4444'
                 const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+                const isPinned = pins.has(day)
+                const interval = isPinned ? getIntervalForDay(day) : undefined
                 return (
                   <CalTd key={di}>
-                    <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
-                    {(budget > 0 || actual > 0) && (
-                      <>
-                        <CalLine>予 {formatCurrency(budget)}</CalLine>
-                        <CalLine>実 {formatCurrency(actual)}</CalLine>
-                        <CalLine $color={diffColor}>差 {formatCurrency(diff)}</CalLine>
-                        <CalLine $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalLine>
-                      </>
-                    )}
+                    <CalDayCell
+                      $pinned={isPinned}
+                      $inInterval={!!getIntervalForDay(day)}
+                      onClick={() => handleDayClick(day)}
+                    >
+                      <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
+                      {(budget > 0 || actual > 0) && (
+                        <>
+                          <CalLine>予 {formatCurrency(budget)}</CalLine>
+                          <CalLine>実 {formatCurrency(actual)}</CalLine>
+                          <CalLine $color={diffColor}>差 {formatCurrency(diff)}</CalLine>
+                          <CalLine $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalLine>
+                        </>
+                      )}
+                      {isPinned && interval && (
+                        <PinIndicator>GP {formatPercent(interval.grossProfitRate, 1)}</PinIndicator>
+                      )}
+                    </CalDayCell>
                   </CalTd>
                 )
               })}
@@ -458,7 +720,215 @@ function renderMonthlyCalendar(ctx: WidgetContext): ReactNode {
           ))}
         </tbody>
       </CalTable>
+
+      {/* Interval Summary */}
+      {intervals.length > 0 && (
+        <IntervalSummary>
+          <CalSectionTitle>区間別粗利率（ピン止め計算）</CalSectionTitle>
+          {intervals.map((iv, i) => (
+            <IntervalCard
+              key={i}
+              $color={iv.grossProfitRate >= ctx.targetRate ? '#22c55e' : iv.grossProfitRate >= ctx.warningRate ? '#f59e0b' : '#ef4444'}
+            >
+              <div>
+                <IntervalMetricLabel>{iv.startDay}日 ～ {iv.endDay}日</IntervalMetricLabel>
+                <IntervalMetricValue>{formatPercent(iv.grossProfitRate)}</IntervalMetricValue>
+              </div>
+              <div>
+                <IntervalMetricLabel>売上</IntervalMetricLabel>
+                <IntervalMetricValue>{formatCurrency(iv.totalSales)}</IntervalMetricValue>
+              </div>
+              <div>
+                <IntervalMetricLabel>粗利</IntervalMetricLabel>
+                <IntervalMetricValue>{formatCurrency(iv.grossProfit)}</IntervalMetricValue>
+              </div>
+              <div>
+                <IntervalMetricLabel>売上原価</IntervalMetricLabel>
+                <IntervalMetricValue>{formatCurrency(iv.cogs)}</IntervalMetricValue>
+              </div>
+              <div>
+                <IntervalMetricLabel>期首在庫</IntervalMetricLabel>
+                <IntervalMetricValue>{formatCurrency(iv.openingInventory)}</IntervalMetricValue>
+              </div>
+              <div>
+                <IntervalMetricLabel>期末在庫</IntervalMetricLabel>
+                <IntervalMetricValue>{formatCurrency(iv.closingInventory)}</IntervalMetricValue>
+              </div>
+            </IntervalCard>
+          ))}
+        </IntervalSummary>
+      )}
+
+      {/* Pin Input Modal */}
+      {editDay != null && (
+        <PinModalOverlay onClick={() => setEditDay(null)}>
+          <PinModalContent onClick={(e) => e.stopPropagation()}>
+            <PinModalTitle>{month}月{editDay}日 - 期末在庫入力</PinModalTitle>
+            <ToolInputGroup>
+              <PinInputLabel>期末在庫（原価）</PinInputLabel>
+              <PinInputField
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handlePinConfirm() }}
+                placeholder="例: 2000000"
+                autoFocus
+              />
+            </ToolInputGroup>
+            <PinButtonRow>
+              <Button $variant="primary" onClick={handlePinConfirm}>確定（ピン止め）</Button>
+              {pins.has(editDay) && (
+                <Button $variant="outline" onClick={handlePinRemove}>ピン解除</Button>
+              )}
+              <Button $variant="outline" onClick={() => setEditDay(null)}>キャンセル</Button>
+            </PinButtonRow>
+          </PinModalContent>
+        </PinModalOverlay>
+      )}
     </CalWrapper>
+  )
+}
+
+function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
+  const r = ctx.result
+  const [salesLandingInput, setSalesLandingInput] = useState('')
+  const [remainGPRateInput, setRemainGPRateInput] = useState('')
+  const [targetGPRateInput, setTargetGPRateInput] = useState('')
+
+  // Current actuals
+  const actualSales = r.totalSales
+  const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
+  const actualGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+
+  // Tool 1: Sales Landing + Remaining GP Rate → Final projections
+  const salesLanding = Number(salesLandingInput.replace(/,/g, '')) || 0
+  const remainGPRate = Number(remainGPRateInput) / 100 || 0
+  const tool1Valid = salesLanding > 0 && remainGPRate > 0
+  const remainingSales1 = salesLanding - actualSales
+  const remainingGP1 = remainingSales1 * remainGPRate
+  const totalGP1 = actualGP + remainingGP1
+  const landingGPRate1 = salesLanding > 0 ? totalGP1 / salesLanding : 0
+
+  // Tool 2: Goal Seek - Target GP Rate → Required remaining GP rate
+  const targetGPRate = Number(targetGPRateInput) / 100 || 0
+  const tool2Valid = targetGPRate > 0
+  const projectedTotalSales2 = r.projectedSales
+  const targetTotalGP2 = targetGPRate * projectedTotalSales2
+  const requiredRemainingGP2 = targetTotalGP2 - actualGP
+  const remainingSales2 = projectedTotalSales2 - actualSales
+  const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
+
+  return (
+    <ForecastToolsGrid>
+      {/* Tool 1: Projection Calculator */}
+      <ToolCard $accent="#6366f1">
+        <ToolCardTitle>着地見込み計算</ToolCardTitle>
+        <ToolInputGroup>
+          <PinInputLabel>売上着地見込み（円）</PinInputLabel>
+          <ToolInputField
+            type="text"
+            value={salesLandingInput}
+            onChange={(e) => setSalesLandingInput(e.target.value)}
+            placeholder={`例: ${Math.round(r.projectedSales)}`}
+          />
+        </ToolInputGroup>
+        <ToolInputGroup>
+          <PinInputLabel>残期間の粗利率予測（%）</PinInputLabel>
+          <ToolInputField
+            type="text"
+            value={remainGPRateInput}
+            onChange={(e) => setRemainGPRateInput(e.target.value)}
+            placeholder={`例: ${(actualGPRate * 100).toFixed(1)}`}
+          />
+        </ToolInputGroup>
+        {tool1Valid && (
+          <ToolResultSection>
+            <ExecRow>
+              <ToolResultLabel>現在売上実績</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(actualSales)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>残期間売上</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(remainingSales1)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>現在粗利実績</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(actualGP)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>残期間粗利見込み</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(remainingGP1)}</ToolResultValue>
+            </ExecRow>
+            <ExecDividerLine />
+            <ExecRow>
+              <ToolResultLabel>最終売上着地</ToolResultLabel>
+              <ToolResultValue $color="#6366f1">{formatCurrency(salesLanding)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>最終粗利額着地</ToolResultLabel>
+              <ToolResultValue $color="#22c55e">{formatCurrency(totalGP1)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>最終粗利率着地</ToolResultLabel>
+              <ToolResultValue $color={landingGPRate1 >= ctx.targetRate ? '#22c55e' : '#ef4444'}>
+                {formatPercent(landingGPRate1)}
+              </ToolResultValue>
+            </ExecRow>
+          </ToolResultSection>
+        )}
+      </ToolCard>
+
+      {/* Tool 2: Goal Seek */}
+      <ToolCard $accent="#f59e0b">
+        <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
+        <ToolInputGroup>
+          <PinInputLabel>目標着地粗利率（%）</PinInputLabel>
+          <ToolInputField
+            type="text"
+            value={targetGPRateInput}
+            onChange={(e) => setTargetGPRateInput(e.target.value)}
+            placeholder={`例: ${(r.grossProfitRateBudget * 100).toFixed(1)}`}
+          />
+        </ToolInputGroup>
+        {tool2Valid && (
+          <ToolResultSection>
+            <ExecRow>
+              <ToolResultLabel>予測月末売上</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(projectedTotalSales2)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>目標粗利総額</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(targetTotalGP2)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>現在粗利実績</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(actualGP)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>残期間必要粗利</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(requiredRemainingGP2)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>残期間売上見込み</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(remainingSales2)}</ToolResultValue>
+            </ExecRow>
+            <ExecDividerLine />
+            <ExecRow>
+              <ToolResultLabel>残期間必要粗利率</ToolResultLabel>
+              <ToolResultValue $color={requiredRemainingGPRate2 <= actualGPRate ? '#22c55e' : '#ef4444'}>
+                {formatPercent(requiredRemainingGPRate2)}
+              </ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>現在粗利率との差</ToolResultLabel>
+              <ToolResultValue $color={requiredRemainingGPRate2 <= actualGPRate ? '#22c55e' : '#ef4444'}>
+                {formatPointDiff(requiredRemainingGPRate2 - actualGPRate)}
+              </ToolResultValue>
+            </ExecRow>
+          </ToolResultSection>
+        )}
+      </ToolCard>
+    </ForecastToolsGrid>
   )
 }
 
@@ -910,7 +1380,7 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '月間カレンダー',
     group: '本部・経営者向け',
     size: 'full',
-    render: (ctx) => renderMonthlyCalendar(ctx),
+    render: (ctx) => <MonthlyCalendarWidget ctx={ctx} />,
   },
   {
     id: 'exec-dow-average',
@@ -926,6 +1396,13 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'half',
     render: (ctx) => renderWeeklySummary(ctx),
   },
+  {
+    id: 'exec-forecast-tools',
+    label: '着地予測・ゴールシーク',
+    group: '本部・経営者向け',
+    size: 'full',
+    render: (ctx) => <ForecastToolsWidget ctx={ctx} />,
+  },
 ]
 
 const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
@@ -936,6 +1413,7 @@ const DEFAULT_WIDGET_IDS: string[] = [
   'exec-inventory-metrics',
   'exec-monthly-calendar',
   'exec-dow-average', 'exec-weekly-summary',
+  'exec-forecast-tools',
   'chart-daily-sales',
   'chart-budget-vs-actual',
 ]
