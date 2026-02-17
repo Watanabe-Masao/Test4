@@ -1,7 +1,5 @@
-import { useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { KpiCard, KpiGrid, Button } from '@/presentation/components/common'
-import { useToast } from '@/presentation/components/common'
+import { KpiCard, KpiGrid } from '@/presentation/components/common'
 import { useCalculation } from '@/application/hooks'
 import { useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
@@ -37,41 +35,16 @@ const EmptyTitle = styled.div`
 `
 
 export function DashboardPage() {
-  const { calculate, canCalculate, isCalculated } = useCalculation()
+  const { isCalculated } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
-  const showToast = useToast()
-
-  const handleCalculate = useCallback(() => {
-    const today = new Date()
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
-    const ok = calculate(daysInMonth)
-    if (ok) {
-      showToast(`${stores.size}店舗の計算が完了しました`, 'success')
-    } else {
-      showToast('データが不足しています。仕入・売上ファイルを読み込んでください', 'error')
-    }
-  }, [calculate, stores.size, showToast])
 
   if (!isCalculated) {
     return (
-      <MainContent
-        title="ダッシュボード"
-        actions={
-          canCalculate ? (
-            <Button $variant="success" onClick={handleCalculate}>
-              フォーマット作成
-            </Button>
-          ) : undefined
-        }
-      >
+      <MainContent title="ダッシュボード">
         <EmptyState>
           <EmptyIcon>📊</EmptyIcon>
           <EmptyTitle>データを読み込んでください</EmptyTitle>
-          {canCalculate ? (
-            <p>仕入・売上データが揃いました。「フォーマット作成」を押して計算を実行してください。</p>
-          ) : (
-            <p>左のサイドバーからファイルをドラッグ＆ドロップしてください。</p>
-          )}
+          <p>左のサイドバーからファイルをドラッグ＆ドロップすると自動で計算されます。</p>
         </EmptyState>
       </MainContent>
     )
