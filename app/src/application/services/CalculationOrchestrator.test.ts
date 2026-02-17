@@ -127,6 +127,11 @@ describe('calculateStoreResult', () => {
 
   it('店間移動の集計', () => {
     const data = buildTestData({
+      purchase: {
+        '1': {
+          1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } },
+        },
+      },
       sales: { '1': { 1: { sales: 50000 } } },
       interStoreIn: {
         '1': {
@@ -138,12 +143,26 @@ describe('calculateStoreResult', () => {
           },
         },
       },
+      interStoreOut: {
+        '1': {
+          1: {
+            interStoreIn: [],
+            interStoreOut: [{ day: 1, cost: -3000, price: -3900, fromStoreId: '1', toStoreId: '3', isDepartmentTransfer: false }],
+            interDepartmentIn: [],
+            interDepartmentOut: [],
+          },
+        },
+      },
     })
 
     const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
 
     expect(result.transferDetails.interStoreIn.cost).toBe(5000)
     expect(result.transferDetails.interStoreIn.price).toBe(6500)
+    expect(result.transferDetails.interStoreOut.cost).toBe(-3000)
+    expect(result.transferDetails.interStoreOut.price).toBe(-3900)
+    // 総仕入原価 = 仕入原価(10000) + 店間入(5000) + 店間出(-3000) = 12000
+    expect(result.totalCost).toBe(12000)
   })
 
   it('予算分析', () => {

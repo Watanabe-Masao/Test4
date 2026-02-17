@@ -529,16 +529,19 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
   }
 
   const discountRate = safeDivide(totalDiscount, totalSales + totalDiscount, 0)
-  const averageMarkupRate = safeDivide(
-    results.reduce((s, r) => s + r.averageMarkupRate, 0),
-    results.length,
-    0,
-  )
-  const coreMarkupRate = safeDivide(
-    results.reduce((s, r) => s + r.coreMarkupRate, 0),
-    results.length,
-    0,
-  )
+
+  // 値入率: 集計済み取引先データから仕入売価・原価を再計算
+  let totalPurchaseCost = 0
+  let totalPurchasePrice = 0
+  for (const [, st] of aggSupplier) {
+    totalPurchaseCost += st.cost
+    totalPurchasePrice += st.price
+  }
+  const averageMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  const corePurchaseCost = totalPurchaseCost - deliverySalesCost
+  const corePurchasePrice = totalPurchasePrice - deliverySalesPrice
+  const coreMarkupRate = safeDivide(corePurchasePrice - corePurchaseCost, corePurchasePrice, 0)
+
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)
   const averageDailySales = safeDivide(totalSales, salesDays, 0)
 
