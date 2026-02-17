@@ -548,9 +548,9 @@ function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value: number, name: string) => {
-              if (name === 'index') return [formatPercent(value), '曜日指数']
-              return [toComma(value), '平均売上']
+            formatter={(value: number | undefined, name: string | undefined) => {
+              if (name === 'index') return [formatPercent(value ?? 0), '曜日指数']
+              return [toComma(value ?? 0), '平均売上']
             }}
           />
           <Bar dataKey="index" radius={[4, 4, 0, 0]} maxBarSize={40} label={{
@@ -558,7 +558,7 @@ function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/
             fill: ct.textSecondary,
             fontSize: ct.fontSize.xs,
             fontFamily: ct.monoFamily,
-            formatter: (v: number) => `${(v * 100).toFixed(1)}%`,
+            formatter: (v: unknown) => `${(Number(v) * 100).toFixed(1)}%`,
           }}>
             {data.map((entry, index) => (
               <Cell
