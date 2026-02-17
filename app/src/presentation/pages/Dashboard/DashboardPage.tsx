@@ -5,8 +5,9 @@ import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPie
 import { useCalculation } from '@/application/hooks'
 import { useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
+import { calculateWeeklySummaries, calculateDayOfWeekAverages } from '@/domain/calculations/forecast'
 import type { StoreResult } from '@/domain/models'
 import styled from 'styled-components'
 
@@ -27,7 +28,517 @@ interface WidgetContext {
   daysInMonth: number
   targetRate: number
   warningRate: number
+  year: number
+  month: number
   budgetChartData: { day: number; actualCum: number; budgetCum: number }[]
+}
+
+// ─── Executive Dashboard Styled Components ──────────────
+
+const ExecSummaryBar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const ExecSummaryItem = styled.div<{ $accent: string }>`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-top: 2px solid ${({ $accent }) => $accent};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+`
+
+const ExecSummaryLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+const ExecSummaryValue = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const ExecGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const ExecColumn = styled.div`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  overflow: hidden;
+`
+
+const ExecColHeader = styled.div<{ $color: string }>`
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  border-top: 3px solid ${({ $color }) => $color};
+`
+
+const ExecColTag = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ExecColTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+`
+
+const ExecColSub = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ExecBody = styled.div`
+  padding: ${({ theme }) => theme.spacing[6]};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const ExecRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+const ExecLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  flex-shrink: 0;
+`
+
+const ExecVal = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  text-align: right;
+`
+
+const ExecSub = styled.div<{ $color?: string }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text3};
+  text-align: right;
+`
+
+const ExecDividerLine = styled.hr`
+  border: none;
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+  margin: 0;
+`
+
+const InventoryBar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+// ─── Calendar Styled Components ─────────────────────────
+
+const CalWrapper = styled.div`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[6]};
+  overflow-x: auto;
+`
+
+const CalSectionTitle = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const CalTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  table-layout: fixed;
+`
+
+const CalTh = styled.th<{ $weekend?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]};
+  text-align: center;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text3};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  width: calc(100% / 7);
+`
+
+const CalTd = styled.td<{ $empty?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  vertical-align: top;
+  height: 80px;
+  ${({ $empty, theme }) => $empty ? `background: ${theme.colors.bg2};` : ''}
+`
+
+const CalDayNum = styled.div<{ $weekend?: boolean }>`
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+const CalLine = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.5rem;
+  color: ${({ $color, theme }) => $color ?? theme.colors.text2};
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
+// ─── Summary Table Styled Components ────────────────────
+
+const STableWrapper = styled.div`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[6]};
+`
+
+const STableTitle = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const STable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
+const STh = styled.th`
+  padding: ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text3};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  &:first-child { text-align: left; }
+`
+
+const STd = styled.td`
+  padding: ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  &:first-child {
+    text-align: left;
+    font-family: inherit;
+    color: ${({ theme }) => theme.colors.text};
+  }
+`
+
+// ─── Executive Helper Components ────────────────────────
+
+function ExecMetric({ label, value, sub, subColor }: {
+  label: string
+  value: string
+  sub?: string
+  subColor?: string
+}) {
+  return (
+    <div>
+      <ExecRow>
+        <ExecLabel>{label}</ExecLabel>
+        <ExecVal>{value}</ExecVal>
+      </ExecRow>
+      {sub && <ExecSub $color={subColor}>{sub}</ExecSub>}
+    </div>
+  )
+}
+
+function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
+  const r = ctx.result
+  const { daysInMonth } = ctx
+
+  // 期中予算
+  let elapsedBudget = 0
+  for (let d = 1; d <= r.elapsedDays; d++) {
+    elapsedBudget += r.budgetDaily.get(d) ?? 0
+  }
+
+  // 粗利実績
+  const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
+  const actualGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+
+  // 期中粗利予算（按分）
+  const elapsedGPBudget = r.grossProfitBudget > 0
+    ? r.grossProfitBudget * safeDivide(r.elapsedDays, daysInMonth)
+    : 0
+
+  // 粗利着地予測
+  const remainingDays = daysInMonth - r.elapsedDays
+  const dailyAvgGP = r.salesDays > 0 ? actualGP / r.salesDays : 0
+  const projectedGP = actualGP + dailyAvgGP * remainingDays
+
+  // 達成率
+  const salesAchievement = safeDivide(r.totalSales, elapsedBudget)
+  const progressRatio = safeDivide(
+    safeDivide(r.totalSales, r.budget),
+    safeDivide(r.elapsedDays, daysInMonth),
+  )
+  const projectedGPAchievement = safeDivide(projectedGP, r.grossProfitBudget)
+
+  return (
+    <ExecGrid>
+      {/* PLAN */}
+      <ExecColumn>
+        <ExecColHeader $color="#6366f1">
+          <ExecColTag>PLAN</ExecColTag>
+          <ExecColTitle>前提</ExecColTitle>
+          <ExecColSub>予算・在庫</ExecColSub>
+        </ExecColHeader>
+        <ExecBody>
+          <ExecMetric label="月間売上予算" value={formatCurrency(r.budget)} />
+          <ExecMetric label="月間粗利額予算" value={formatCurrency(r.grossProfitBudget)} />
+          <ExecMetric label="月間粗利率予算" value={formatPercent(r.grossProfitRateBudget)} />
+          <ExecDividerLine />
+          <ExecMetric label="期首在庫" value={formatCurrency(r.openingInventory)} />
+          <ExecMetric label="期末在庫目標" value={formatCurrency(r.closingInventory)} />
+        </ExecBody>
+      </ExecColumn>
+
+      {/* ACTUAL */}
+      <ExecColumn>
+        <ExecColHeader $color="#22c55e">
+          <ExecColTag>ACTUAL</ExecColTag>
+          <ExecColTitle>現在地</ExecColTitle>
+          <ExecColSub>期中実績（{r.elapsedDays}日経過 / {r.salesDays}営業日）</ExecColSub>
+        </ExecColHeader>
+        <ExecBody>
+          <ExecMetric label="期中売上予算" value={formatCurrency(elapsedBudget)} />
+          <ExecMetric
+            label="期中売上実績"
+            value={formatCurrency(r.totalSales)}
+            sub={`差異: ${formatCurrency(r.totalSales - elapsedBudget)}`}
+            subColor={r.totalSales >= elapsedBudget ? '#22c55e' : '#ef4444'}
+          />
+          <ExecMetric
+            label="売上達成率"
+            value={formatPercent(salesAchievement)}
+            sub={`進捗比: ${formatPercent(progressRatio)}`}
+          />
+          <ExecDividerLine />
+          <ExecMetric
+            label="期中粗利額実績"
+            value={formatCurrency(actualGP)}
+            sub={`差異: ${formatCurrency(actualGP - elapsedGPBudget)}`}
+            subColor={actualGP >= elapsedGPBudget ? '#22c55e' : '#ef4444'}
+          />
+          <ExecMetric
+            label="期中粗利率実績"
+            value={formatPercent(actualGPRate)}
+            sub={`予算比: ${formatPointDiff(actualGPRate - r.grossProfitRateBudget)}`}
+            subColor={actualGPRate >= r.grossProfitRateBudget ? '#22c55e' : '#ef4444'}
+          />
+        </ExecBody>
+      </ExecColumn>
+
+      {/* FORECAST */}
+      <ExecColumn>
+        <ExecColHeader $color="#f59e0b">
+          <ExecColTag>FORECAST</ExecColTag>
+          <ExecColTitle>着地</ExecColTitle>
+          <ExecColSub>営業日ベース予測</ExecColSub>
+        </ExecColHeader>
+        <ExecBody>
+          <ExecMetric
+            label="月末売上着地"
+            value={formatCurrency(r.projectedSales)}
+            sub={`予算差: ${formatCurrency(r.projectedSales - r.budget)}`}
+            subColor={r.projectedSales >= r.budget ? '#22c55e' : '#ef4444'}
+          />
+          <ExecMetric
+            label="着地売上達成率"
+            value={formatPercent(r.projectedAchievement)}
+          />
+          <ExecDividerLine />
+          <ExecMetric
+            label="月末粗利着地"
+            value={formatCurrency(projectedGP)}
+            sub={`予算差: ${formatCurrency(projectedGP - r.grossProfitBudget)}`}
+            subColor={projectedGP >= r.grossProfitBudget ? '#22c55e' : '#ef4444'}
+          />
+          <ExecMetric
+            label="着地粗利達成率"
+            value={formatPercent(projectedGPAchievement)}
+          />
+        </ExecBody>
+      </ExecColumn>
+    </ExecGrid>
+  )
+}
+
+function renderMonthlyCalendar(ctx: WidgetContext): ReactNode {
+  const { result: r, daysInMonth, year, month } = ctx
+  const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
+
+  // Build weeks (Monday start)
+  const weeks: (number | null)[][] = []
+  let currentWeek: (number | null)[] = []
+  const firstDow = (new Date(year, month - 1, 1).getDay() + 6) % 7
+  for (let i = 0; i < firstDow; i++) currentWeek.push(null)
+  for (let d = 1; d <= daysInMonth; d++) {
+    currentWeek.push(d)
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek)
+      currentWeek = []
+    }
+  }
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) currentWeek.push(null)
+    weeks.push(currentWeek)
+  }
+
+  return (
+    <CalWrapper>
+      <CalSectionTitle>月間カレンダー（{year}年{month}月）</CalSectionTitle>
+      <CalTable>
+        <thead>
+          <tr>
+            {DOW_LABELS.map((label, i) => (
+              <CalTh key={label} $weekend={i >= 5}>{label}</CalTh>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {weeks.map((week, wi) => (
+            <tr key={wi}>
+              {week.map((day, di) => {
+                if (day == null) return <CalTd key={di} $empty />
+                const rec = r.daily.get(day)
+                const budget = r.budgetDaily.get(day) ?? 0
+                const actual = rec?.sales ?? 0
+                const diff = actual - budget
+                const achievement = budget > 0 ? actual / budget : 0
+                const isWeekend = di >= 5
+                const diffColor = diff >= 0 ? '#22c55e' : '#ef4444'
+                const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+                return (
+                  <CalTd key={di}>
+                    <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
+                    {(budget > 0 || actual > 0) && (
+                      <>
+                        <CalLine>予 {formatCurrency(budget)}</CalLine>
+                        <CalLine>実 {formatCurrency(actual)}</CalLine>
+                        <CalLine $color={diffColor}>差 {formatCurrency(diff)}</CalLine>
+                        <CalLine $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalLine>
+                      </>
+                    )}
+                  </CalTd>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </CalTable>
+    </CalWrapper>
+  )
+}
+
+function renderDowAverage(ctx: WidgetContext): ReactNode {
+  const { result: r, year, month } = ctx
+  const dailySales = new Map<number, number>()
+  const dailyGP = new Map<number, number>()
+  for (const [d, rec] of r.daily) {
+    dailySales.set(d, rec.sales)
+    dailyGP.set(d, rec.sales - rec.purchase.cost)
+  }
+  const averages = calculateDayOfWeekAverages({ year, month, dailySales, dailyGrossProfit: dailyGP })
+  const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
+  const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => ({ ...averages[i], label: DOW_LABELS[i] }))
+
+  return (
+    <STableWrapper>
+      <STableTitle>曜日平均</STableTitle>
+      <STable>
+        <thead>
+          <tr>
+            <STh>曜日</STh>
+            <STh>平均売上</STh>
+            <STh>日数</STh>
+          </tr>
+        </thead>
+        <tbody>
+          {ordered.map(a => (
+            <tr key={a.label}>
+              <STd>{a.label}</STd>
+              <STd>{formatCurrency(a.averageSales)}</STd>
+              <STd>{a.count}日</STd>
+            </tr>
+          ))}
+        </tbody>
+      </STable>
+    </STableWrapper>
+  )
+}
+
+function renderWeeklySummary(ctx: WidgetContext): ReactNode {
+  const { result: r, year, month } = ctx
+  const dailySales = new Map<number, number>()
+  const dailyGP = new Map<number, number>()
+  for (const [d, rec] of r.daily) {
+    dailySales.set(d, rec.sales)
+    dailyGP.set(d, rec.sales - rec.purchase.cost)
+  }
+
+  const summaries = calculateWeeklySummaries({ year, month, dailySales, dailyGrossProfit: dailyGP })
+
+  return (
+    <STableWrapper>
+      <STableTitle>週別サマリー</STableTitle>
+      <STable>
+        <thead>
+          <tr>
+            <STh>週</STh>
+            <STh>期間</STh>
+            <STh>売上</STh>
+            <STh>粗利</STh>
+            <STh>粗利率</STh>
+            <STh>日数</STh>
+          </tr>
+        </thead>
+        <tbody>
+          {summaries.map(w => (
+            <tr key={w.weekNumber}>
+              <STd>第{w.weekNumber}週</STd>
+              <STd>{month}/{w.startDay}～{month}/{w.endDay}</STd>
+              <STd>{formatCurrency(w.totalSales)}</STd>
+              <STd>{formatCurrency(w.totalGrossProfit)}</STd>
+              <STd>{formatPercent(w.grossProfitRate)}</STd>
+              <STd>{w.days}日</STd>
+            </tr>
+          ))}
+        </tbody>
+      </STable>
+    </STableWrapper>
+  )
 }
 
 const WIDGET_REGISTRY: readonly WidgetDef[] = [
@@ -322,18 +833,114 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <CategoryPieChart categoryTotals={r.categoryTotals} mode="price" />
     ),
   },
+  // ── 本部・経営者向け ──
+  {
+    id: 'exec-summary-bar',
+    label: 'サマリーバー',
+    group: '本部・経営者向け',
+    size: 'full',
+    render: ({ result: r }) => (
+      <ExecSummaryBar>
+        <ExecSummaryItem $accent="#6366f1">
+          <ExecSummaryLabel>売上実績</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.totalSales)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#f59e0b">
+          <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.totalCost)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#3b82f6">
+          <ExecSummaryLabel>値入率</ExecSummaryLabel>
+          <ExecSummaryValue>{formatPercent(r.averageMarkupRate)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#22c55e">
+          <ExecSummaryLabel>粗利率（在庫法）</ExecSummaryLabel>
+          <ExecSummaryValue>{r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#0ea5e9">
+          <ExecSummaryLabel>粗利率（推定法）</ExecSummaryLabel>
+          <ExecSummaryValue>{formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
+        </ExecSummaryItem>
+      </ExecSummaryBar>
+    ),
+  },
+  {
+    id: 'exec-plan-actual-forecast',
+    label: 'PLAN / ACTUAL / FORECAST',
+    group: '本部・経営者向け',
+    size: 'full',
+    render: (ctx) => renderPlanActualForecast(ctx),
+  },
+  {
+    id: 'exec-inventory-metrics',
+    label: '在庫・値入・売変',
+    group: '本部・経営者向け',
+    size: 'full',
+    render: ({ result: r }) => (
+      <InventoryBar>
+        <ExecSummaryItem $accent="#8b5cf6">
+          <ExecSummaryLabel>期首在庫</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.openingInventory)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#6366f1">
+          <ExecSummaryLabel>期末在庫</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.closingInventory)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#0ea5e9">
+          <ExecSummaryLabel>推定在庫</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.estMethodClosingInventory)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#3b82f6">
+          <ExecSummaryLabel>値入率</ExecSummaryLabel>
+          <ExecSummaryValue>{formatPercent(r.averageMarkupRate)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#f43f5e">
+          <ExecSummaryLabel>売変額</ExecSummaryLabel>
+          <ExecSummaryValue>{formatCurrency(r.totalDiscount)}</ExecSummaryValue>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#ef4444">
+          <ExecSummaryLabel>売変率</ExecSummaryLabel>
+          <ExecSummaryValue>{formatPercent(r.discountRate)}</ExecSummaryValue>
+        </ExecSummaryItem>
+      </InventoryBar>
+    ),
+  },
+  {
+    id: 'exec-monthly-calendar',
+    label: '月間カレンダー',
+    group: '本部・経営者向け',
+    size: 'full',
+    render: (ctx) => renderMonthlyCalendar(ctx),
+  },
+  {
+    id: 'exec-dow-average',
+    label: '曜日平均',
+    group: '本部・経営者向け',
+    size: 'half',
+    render: (ctx) => renderDowAverage(ctx),
+  },
+  {
+    id: 'exec-weekly-summary',
+    label: '週別サマリー',
+    group: '本部・経営者向け',
+    size: 'half',
+    render: (ctx) => renderWeeklySummary(ctx),
+  },
 ]
 
 const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 
 const DEFAULT_WIDGET_IDS: string[] = [
-  'kpi-total-sales', 'kpi-core-sales', 'kpi-inv-gross-profit', 'kpi-est-margin',
-  'kpi-total-cost', 'kpi-inventory-cost', 'kpi-delivery-sales', 'kpi-consumable',
-  'kpi-discount', 'kpi-discount-loss', 'kpi-avg-markup', 'kpi-core-markup',
-  'kpi-budget', 'kpi-avg-daily-sales', 'kpi-projected-sales', 'kpi-projected-achievement',
+  'exec-summary-bar',
+  'exec-plan-actual-forecast',
+  'exec-inventory-metrics',
+  'exec-monthly-calendar',
+  'exec-dow-average', 'exec-weekly-summary',
+  'chart-daily-sales',
+  'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v1'
+const STORAGE_KEY = 'dashboard_layout_v2'
 
 function loadLayout(): string[] {
   try {
@@ -728,6 +1335,8 @@ export function DashboardPage() {
     daysInMonth,
     targetRate: appState.settings.targetGrossProfitRate,
     warningRate: appState.settings.warningThreshold,
+    year: appState.settings.targetYear,
+    month: appState.settings.targetMonth,
     budgetChartData,
   }
 
