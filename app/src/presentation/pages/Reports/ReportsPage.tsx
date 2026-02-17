@@ -128,7 +128,7 @@ const EmptyState = styled.div`
 `
 
 export function ReportsPage() {
-  const { isCalculated } = useCalculation()
+  const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
   const { settings } = useAppState()
 
@@ -141,10 +141,8 @@ export function ReportsPage() {
   }
 
   const r = currentResult
-  const { daysInMonth } = useCalculation()
-  const { targetYear, targetMonth } = useAppState().settings
   const today = new Date()
-  const reportDate = `${targetYear}年${targetMonth}月${today.getDate()}日`
+  const reportDate = `${settings.targetYear}年${settings.targetMonth}月${today.getDate()}日`
 
   // Budget analysis
   const salesDaily = new Map<number, number>()
