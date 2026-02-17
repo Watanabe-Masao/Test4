@@ -49,31 +49,30 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
 
   const rawSales: number[] = []
+  const rawDiscount: number[] = []
   const baseData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     const sales = rec?.sales ?? 0
+    const discount = rec?.discountAbsolute ?? 0
     rawSales.push(sales)
-    baseData.push({
-      day: d,
-      sales,
-      discount: rec?.discountAbsolute ?? 0,
-    })
+    rawDiscount.push(discount)
+    baseData.push({ day: d, sales, discount })
   }
 
-  // 3日・7日移動平均
-  const ma3 = movingAverage(rawSales, 3)
-  const ma7 = movingAverage(rawSales, 7)
+  // 7日移動平均（売上・売変額）
+  const salesMa7 = movingAverage(rawSales, 7)
+  const discountMa7 = movingAverage(rawDiscount, 7)
 
   const data = baseData.map((d, i) => ({
     ...d,
-    ma3: ma3[i],
-    ma7: ma7[i],
+    salesMa7: salesMa7[i],
+    discountMa7: discountMa7[i],
   }))
 
   return (
     <Wrapper>
-      <Title>日別売上・売変推移（移動平均付き）</Title>
+      <Title>日別売上・売変推移</Title>
       <ResponsiveContainer width="100%" height="90%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -123,8 +122,8 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
               const labels: Record<string, string> = {
                 sales: '売上',
                 discount: '売変額',
-                ma3: '3日移動平均',
-                ma7: '7日移動平均',
+                salesMa7: '売上7日移動平均',
+                discountMa7: '売変額7日移動平均',
               }
               return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
             }}
@@ -136,8 +135,8 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
               const labels: Record<string, string> = {
                 sales: '売上',
                 discount: '売変額',
-                ma3: '3日移動平均',
-                ma7: '7日移動平均',
+                salesMa7: '売上7日移動平均',
+                discountMa7: '売変額7日移動平均',
               }
               return labels[value] ?? value
             }}
@@ -159,18 +158,19 @@ export function DailySalesChart({ daily, daysInMonth }: Props) {
           <Line
             yAxisId="left"
             type="monotone"
-            dataKey="ma3"
-            stroke="#f59e0b"
+            dataKey="salesMa7"
+            stroke="#06b6d4"
             strokeWidth={2}
             dot={false}
             connectNulls
           />
           <Line
-            yAxisId="left"
+            yAxisId="right"
             type="monotone"
-            dataKey="ma7"
-            stroke="#06b6d4"
+            dataKey="discountMa7"
+            stroke="#f97316"
             strokeWidth={2}
+            strokeDasharray="5 3"
             dot={false}
             connectNulls
           />

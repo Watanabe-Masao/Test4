@@ -709,77 +709,74 @@ export function CategoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {categoryData.map((d) => {
-                    const totalCost = categoryData.reduce((s, c) => s + Math.abs(c.cost), 0)
-                    const costShare = safeDivide(Math.abs(d.cost), totalCost, 0)
+                  {(() => {
+                    const allData = [...categoryData, ...customCategoryData]
+                    const totalCost = allData.reduce((s, c) => s + Math.abs(c.cost), 0)
+                    const totalPrice = allData.reduce((s, c) => s + Math.abs(c.price), 0)
                     return (
-                      <Tr key={d.category}>
-                        <Td><Badge $color={d.color} />{d.label}</Td>
-                        <Td>{formatCurrency(d.cost)}</Td>
-                        <Td>{formatCurrency(d.price)}</Td>
-                        <Td>{formatPercent(d.markup)}</Td>
-                        <Td>{formatPercent(costShare)}</Td>
-                        <Td>{formatPercent(d.priceShare)}</Td>
-                        <Td>{formatPercent(d.crossMultiplication)}</Td>
-                      </Tr>
+                      <>
+                        {categoryData.map((d) => {
+                          const costShare = safeDivide(Math.abs(d.cost), totalCost, 0)
+                          const priceShare = safeDivide(Math.abs(d.price), totalPrice, 0)
+                          const markupRate = d.markup
+                          const crossMult = priceShare * markupRate
+                          return (
+                            <Tr key={d.category}>
+                              <Td><Badge $color={d.color} />{d.label}</Td>
+                              <Td>{formatCurrency(d.cost)}</Td>
+                              <Td>{formatCurrency(d.price)}</Td>
+                              <Td>{formatPercent(d.markup)}</Td>
+                              <Td>{formatPercent(costShare)}</Td>
+                              <Td>{formatPercent(priceShare)}</Td>
+                              <Td>{formatPercent(crossMult)}</Td>
+                            </Tr>
+                          )
+                        })}
+                        {customCategoryData.map((d) => {
+                          const costShare = safeDivide(Math.abs(d.cost), totalCost, 0)
+                          const priceShare = safeDivide(Math.abs(d.price), totalPrice, 0)
+                          const markupRate = d.markup
+                          const crossMult = priceShare * markupRate
+                          return (
+                            <Tr key={`custom-${d.category}`}>
+                              <Td><Badge $color={d.color} />{d.label}</Td>
+                              <Td>{formatCurrency(d.cost)}</Td>
+                              <Td>{formatCurrency(d.price)}</Td>
+                              <Td>{formatPercent(markupRate)}</Td>
+                              <Td>{formatPercent(costShare)}</Td>
+                              <Td>{formatPercent(priceShare)}</Td>
+                              <Td>{formatPercent(crossMult)}</Td>
+                            </Tr>
+                          )
+                        })}
+                        <TrTotal>
+                          <Td>合計</Td>
+                          <Td>{formatCurrency(allData.reduce((s, c) => s + c.cost, 0))}</Td>
+                          <Td>{formatCurrency(allData.reduce((s, c) => s + c.price, 0))}</Td>
+                          <Td>
+                            {formatPercent(
+                              safeDivide(
+                                allData.reduce((s, c) => s + c.price, 0) -
+                                  allData.reduce((s, c) => s + c.cost, 0),
+                                allData.reduce((s, c) => s + c.price, 0),
+                                0,
+                              ),
+                            )}
+                          </Td>
+                          <Td>-</Td>
+                          <Td>-</Td>
+                          <Td>{formatPercent(allData.reduce((s, c) => {
+                            const ps = safeDivide(Math.abs(c.price), totalPrice, 0)
+                            return s + ps * c.markup
+                          }, 0))}</Td>
+                        </TrTotal>
+                      </>
                     )
-                  })}
+                  })()}
                 </tbody>
               </Table>
             </TableWrapper>
           </Section>
-
-          {/* カスタムカテゴリ集計 */}
-          {customCategoryData.length > 0 && (
-            <Section>
-              <SectionTitle>カスタムカテゴリ別集計</SectionTitle>
-              <TableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>カスタムカテゴリ</Th>
-                      <Th>原価</Th>
-                      <Th>売価</Th>
-                      <Th>値入率</Th>
-                      <Th>売価構成比</Th>
-                      <Th>相乗積</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customCategoryData.map((d) => {
-                      return (
-                        <Tr key={d.category}>
-                          <Td><Badge $color={d.color} />{d.label}</Td>
-                          <Td>{formatCurrency(d.cost)}</Td>
-                          <Td>{formatCurrency(d.price)}</Td>
-                          <Td>{formatPercent(d.markup)}</Td>
-                          <Td>{formatPercent(d.priceShare)}</Td>
-                          <Td>{formatPercent(d.crossMultiplication)}</Td>
-                        </Tr>
-                      )
-                    })}
-                    <TrTotal>
-                      <Td>合計</Td>
-                      <Td>{formatCurrency(customCategoryData.reduce((s, d) => s + d.cost, 0))}</Td>
-                      <Td>{formatCurrency(customCategoryData.reduce((s, d) => s + d.price, 0))}</Td>
-                      <Td>
-                        {formatPercent(
-                          safeDivide(
-                            customCategoryData.reduce((s, d) => s + d.price, 0) -
-                              customCategoryData.reduce((s, d) => s + d.cost, 0),
-                            customCategoryData.reduce((s, d) => s + d.price, 0),
-                            0,
-                          ),
-                        )}
-                      </Td>
-                      <Td>-</Td>
-                      <Td>{formatPercent(customCategoryData.reduce((s, d) => s + d.crossMultiplication, 0))}</Td>
-                    </TrTotal>
-                  </tbody>
-                </Table>
-              </TableWrapper>
-            </Section>
-          )}
 
           {supplierData.length > 0 && (
             <Section>

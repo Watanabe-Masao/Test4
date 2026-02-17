@@ -188,29 +188,48 @@ const CalTh = styled.th<{ $weekend?: boolean }>`
   width: calc(100% / 7);
 `
 
-const CalTd = styled.td<{ $empty?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]};
+const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   vertical-align: top;
-  height: 110px;
+  height: 150px;
   ${({ $empty, theme }) => $empty ? `background: ${theme.colors.bg2};` : ''}
+  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual === false ? `
+    background: ${theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
+    opacity: 0.7;
+  ` : ''}
+  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual ? `
+    background: ${theme.mode === 'dark' ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.03)'};
+  ` : ''}
 `
 
 const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: 2px;
 `
 
-const CalLine = styled.div<{ $color?: string }>`
+const CalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 2px;
+`
+
+const CalCell = styled.div<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
-  line-height: 1.6;
+  line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`
+
+const CalDivider = styled.div`
+  grid-column: 1 / -1;
+  border-top: 1px dashed ${({ theme }) => theme.colors.border};
+  margin: 1px 0;
 `
 
 // ─── Pin & Interval Styled Components ───────────────────
@@ -652,6 +671,18 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     weeks.push(currentWeek)
   }
 
+  // Cumulative budget & sales
+  const cumBudget = new Map<number, number>()
+  const cumSales = new Map<number, number>()
+  let runBudget = 0
+  let runSales = 0
+  for (let d = 1; d <= daysInMonth; d++) {
+    runBudget += r.budgetDaily.get(d) ?? 0
+    runSales += (r.daily.get(d)?.sales ?? 0)
+    cumBudget.set(d, runBudget)
+    cumSales.set(d, runSales)
+  }
+
   // Calculate pin intervals
   const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
   const intervals = calculatePinIntervals(r, sortedPins)
@@ -701,10 +732,20 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const isWeekend = di >= 5
                 const diffColor = diff >= 0 ? '#22c55e' : '#ef4444'
                 const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+                const hasActual = actual > 0
+
+                // Cumulative
+                const cBudget = cumBudget.get(day) ?? 0
+                const cSales = cumSales.get(day) ?? 0
+                const cDiff = cSales - cBudget
+                const cAch = cBudget > 0 ? cSales / cBudget : 0
+                const cDiffColor = cDiff >= 0 ? '#22c55e' : '#ef4444'
+                const cAchColor = cAch >= 1 ? '#22c55e' : cAch >= 0.9 ? '#f59e0b' : '#ef4444'
+
                 const isPinned = pins.has(day)
                 const interval = isPinned ? getIntervalForDay(day) : undefined
                 return (
-                  <CalTd key={di}>
+                  <CalTd key={di} $hasActual={hasActual}>
                     <CalDayCell
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
@@ -712,12 +753,17 @@ function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     >
                       <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
                       {(budget > 0 || actual > 0) && (
-                        <>
-                          <CalLine>予 {formatCurrency(budget)}</CalLine>
-                          <CalLine>実 {formatCurrency(actual)}</CalLine>
-                          <CalLine $color={diffColor}>差 {formatCurrency(diff)}</CalLine>
-                          <CalLine $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalLine>
-                        </>
+                        <CalGrid>
+                          <CalCell>予 {formatCurrency(budget)}</CalCell>
+                          <CalCell>実 {formatCurrency(actual)}</CalCell>
+                          <CalCell $color={diffColor}>差 {formatCurrency(diff)}</CalCell>
+                          <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
+                          <CalDivider />
+                          <CalCell>予累 {formatCurrency(cBudget)}</CalCell>
+                          <CalCell>実累 {formatCurrency(cSales)}</CalCell>
+                          <CalCell $color={cDiffColor}>差累 {formatCurrency(cDiff)}</CalCell>
+                          <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
+                        </CalGrid>
                       )}
                       {isPinned && interval && (
                         <PinIndicator>GP {formatPercent(interval.grossProfitRate, 1)}</PinIndicator>
@@ -954,27 +1000,31 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
     dailyBudget.set(d, b)
   }
 
-  // 曜日別集計（売上 + 予算）
+  // 曜日別集計（売上日数と予算日数を分離）
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
   const buckets = Array.from({ length: 7 }, () => ({
-    salesTotal: 0, budgetTotal: 0, count: 0,
+    salesTotal: 0, salesCount: 0,
+    budgetTotal: 0, budgetCount: 0,
   }))
   const daysInMonth = new Date(year, month, 0).getDate()
   for (let d = 1; d <= daysInMonth; d++) {
     const sales = dailySales.get(d) ?? 0
     const budget = dailyBudget.get(d) ?? 0
-    if (sales > 0 || budget > 0) {
-      const dow = new Date(year, month - 1, d).getDay()
+    const dow = new Date(year, month - 1, d).getDay()
+    if (sales > 0) {
       buckets[dow].salesTotal += sales
+      buckets[dow].salesCount++
+    }
+    if (budget > 0) {
       buckets[dow].budgetTotal += budget
-      buckets[dow].count++
+      buckets[dow].budgetCount++
     }
   }
   const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => {
     const b = buckets[i]
-    const avgSales = b.count > 0 ? b.salesTotal / b.count : 0
-    const avgBudget = b.count > 0 ? b.budgetTotal / b.count : 0
-    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, count: b.count }
+    const avgSales = b.salesCount > 0 ? b.salesTotal / b.salesCount : 0
+    const avgBudget = b.budgetCount > 0 ? b.budgetTotal / b.budgetCount : 0
+    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount }
   })
 
   return (
@@ -985,9 +1035,10 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
           <tr>
             <STh>曜日</STh>
             <STh>平均売上</STh>
+            <STh>実績日数</STh>
             <STh>平均予算</STh>
-            <STh>予算差</STh>
-            <STh>日数</STh>
+            <STh>予算日数</STh>
+            <STh>平均差</STh>
           </tr>
         </thead>
         <tbody>
@@ -997,9 +1048,10 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
               <tr key={a.label}>
                 <STd>{a.label}</STd>
                 <STd>{formatCurrency(a.avgSales)}</STd>
+                <STd>{a.salesCount}日</STd>
                 <STd>{formatCurrency(a.avgBudget)}</STd>
+                <STd>{a.budgetCount}日</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
-                <STd>{a.count}日</STd>
               </tr>
             )
           })}
@@ -1012,11 +1064,13 @@ function renderDowAverage(ctx: WidgetContext): ReactNode {
 function renderWeeklySummary(ctx: WidgetContext): ReactNode {
   const { result: r, year, month } = ctx
 
-  // 週別の売上・予算を集計（粗利は期末在庫なしでは算出不可のため表示しない）
+  // 週別の売上・予算・値入を集計
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
     let totalSales = 0
     let totalBudget = 0
+    let totalPurchasePrice = 0
+    let totalPurchaseCost = 0
     let days = 0
     for (let d = startDay; d <= endDay; d++) {
       const rec = r.daily.get(d)
@@ -1025,8 +1079,15 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
       if (sales > 0) days++
       totalSales += sales
       totalBudget += budget
+      if (rec) {
+        totalPurchasePrice += rec.purchase.price + rec.flowers.price + rec.directProduce.price
+        totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
+      }
     }
-    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, days }
+    const markupRate = totalPurchasePrice > 0
+      ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice
+      : 0
+    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days }
   })
 
   return (
@@ -1041,6 +1102,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             <STh>予算</STh>
             <STh>予算差</STh>
             <STh>達成率</STh>
+            <STh>値入率</STh>
             <STh>日数</STh>
           </tr>
         </thead>
@@ -1057,6 +1119,7 @@ function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd>{formatCurrency(w.totalBudget)}</STd>
                 <STd style={{ color: diffColor }}>{formatCurrency(w.diff)}</STd>
                 <STd style={{ color: achColor }}>{w.totalBudget > 0 ? formatPercent(achievement, 0) : '-'}</STd>
+                <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
               </tr>
             )
@@ -1442,14 +1505,14 @@ const WIDGET_REGISTRY: readonly WidgetDef[] = [
     id: 'exec-dow-average',
     label: '曜日平均',
     group: '本部・経営者向け',
-    size: 'half',
+    size: 'full',
     render: (ctx) => renderDowAverage(ctx),
   },
   {
     id: 'exec-weekly-summary',
     label: '週別サマリー',
     group: '本部・経営者向け',
-    size: 'half',
+    size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
   },
   {
@@ -1474,7 +1537,7 @@ const DEFAULT_WIDGET_IDS: string[] = [
   'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v2'
+const STORAGE_KEY = 'dashboard_layout_v3'
 
 function loadLayout(): string[] {
   try {

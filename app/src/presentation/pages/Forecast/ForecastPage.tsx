@@ -4,7 +4,7 @@ import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentati
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { calculateForecast } from '@/domain/calculations/forecast'
 import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { useChartTheme, toManYen, toComma } from '@/presentation/components/charts/chartTheme'
 import {
   BarChart,
@@ -170,7 +170,7 @@ const ColorPickerTitle = styled.span`
 `
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
-const DEFAULT_DOW_COLORS = ['#ef4444', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#22c55e']
+const DEFAULT_DOW_COLORS = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#06b6d4', '#ec4899']
 
 /** Build a ForecastInput from a StoreResult */
 function buildForecastInput(
@@ -510,18 +510,21 @@ function WeeklyChart({ data, dowColors }: { data: Record<string, string | number
 function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/domain/calculations/forecast').DayOfWeekAverage[]; dowColors: string[] }) {
   const ct = useChartTheme()
 
+  const totalAvg = averages.reduce((s, a) => s + a.averageSales, 0)
+
   const data = averages.map((a, i) => ({
     name: DOW_LABELS[i],
     average: a.averageSales,
+    index: safeDivide(a.averageSales, totalAvg, 0),
     count: a.count,
     color: dowColors[i],
   }))
 
   return (
     <ChartWrapper>
-      <ChartTitle>曜日別平均売上</ChartTitle>
+      <ChartTitle>曜日指数（曜日別構成比）</ChartTitle>
       <ResponsiveContainer width="100%" height="85%">
-        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
             dataKey="name"
@@ -533,8 +536,8 @@ function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
-            width={50}
+            tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+            width={45}
           />
           <Tooltip
             contentStyle={{
@@ -545,9 +548,18 @@ function DayOfWeekChart({ averages, dowColors }: { averages: readonly import('@/
               fontFamily: ct.fontFamily,
               color: ct.text,
             }}
-            formatter={(value) => [toComma(value as number), '平均売上']}
+            formatter={(value: number, name: string) => {
+              if (name === 'index') return [formatPercent(value), '曜日指数']
+              return [toComma(value), '平均売上']
+            }}
           />
-          <Bar dataKey="average" radius={[4, 4, 0, 0]} maxBarSize={40}>
+          <Bar dataKey="index" radius={[4, 4, 0, 0]} maxBarSize={40} label={{
+            position: 'top',
+            fill: ct.textSecondary,
+            fontSize: ct.fontSize.xs,
+            fontFamily: ct.monoFamily,
+            formatter: (v: number) => `${(v * 100).toFixed(1)}%`,
+          }}>
             {data.map((entry, index) => (
               <Cell
                 key={index}
