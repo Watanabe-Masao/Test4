@@ -2,13 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { processBudget } from './BudgetProcessor'
 
 describe('processBudget', () => {
-  it('ピボット形式の予算データ処理', () => {
+  it('フラット形式の予算データ処理', () => {
     const rows = [
-      ['', '', '', '0001:店舗A', '0002:店舗B'],
-      ['月日', '', '', '売上予算', '売上予算'],
-      ['期間合計', '', '', 450000, 150000],
-      ['2026-02-01', '', '', 200000, 150000],
-      ['2026-02-02', '', '', 250000, 0],
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-02-01', 200000],
+      ['0001', '2026-02-02', 250000],
+      ['0002', '2026-02-01', 150000],
     ]
 
     const result = processBudget(rows)
@@ -26,39 +25,76 @@ describe('processBudget', () => {
 
   it('予算≤0はスキップ', () => {
     const rows = [
-      ['', '', '', '0001:A'],
-      ['月日', '', '', '売上予算'],
-      ['合計', '', '', 0],
-      ['2026-02-01', '', '', 0],
-      ['2026-02-02', '', '', -100],
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-02-01', 0],
+      ['0001', '2026-02-02', -100],
     ]
     const result = processBudget(rows)
     expect(result.size).toBe(0)
   })
 
   it('行数不足の場合は空', () => {
-    expect(processBudget([['0001:A']])).toEqual(new Map())
+    expect(processBudget([['店舗コード', '日付', '売上予算']])).toEqual(new Map())
   })
 
-  it('店舗がCol1開始でも検出する', () => {
+  it('店舗コードが空の行はスキップ', () => {
     const rows = [
-      ['', '0001:店舗A', '0006:店舗B'],
-      ['月日', '売上予算', '売上予算'],
-      ['2026-02-01', 200000, 150000],
+      ['店舗コード', '日付', '売上予算'],
+      ['', '2026-02-01', 100000],
+      ['0001', '2026-02-01', 200000],
+    ]
+    const result = processBudget(rows)
+    expect(result.size).toBe(1)
+    expect(result.get('1')?.daily.get(1)).toBe(200000)
+  })
+
+  it('日付が無効な行はスキップ', () => {
+    const rows = [
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '合計', 500000],
+      ['0001', '2026-02-01', 200000],
+    ]
+    const result = processBudget(rows)
+    expect(result.size).toBe(1)
+    expect(result.get('1')?.daily.size).toBe(1)
+    expect(result.get('1')?.total).toBe(200000)
+  })
+
+  it('5桁店舗コードも処理可能', () => {
+    const rows = [
+      ['店舗コード', '日付', '売上予算'],
+      ['81257', '2026-02-01', 300000],
+    ]
+    const result = processBudget(rows)
+    expect(result.size).toBe(1)
+    expect(result.get('81257')?.daily.get(1)).toBe(300000)
+  })
+
+  it('Excelシリアル値の日付に対応', () => {
+    // 46054 = 2026-02-01 in Excel serial
+    const rows = [
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', 46054, 200000],
+    ]
+    const result = processBudget(rows)
+    expect(result.size).toBe(1)
+    expect(result.get('1')?.daily.get(1)).toBe(200000)
+  })
+
+  it('複数店舗・複数日の集計', () => {
+    const rows = [
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-02-01', 100000],
+      ['0001', '2026-02-02', 150000],
+      ['0001', '2026-02-03', 120000],
+      ['0006', '2026-02-01', 80000],
+      ['0006', '2026-02-02', 90000],
     ]
     const result = processBudget(rows)
     expect(result.size).toBe(2)
-    expect(result.get('1')?.daily.get(1)).toBe(200000)
-    expect(result.get('6')?.daily.get(1)).toBe(150000)
-  })
-
-  it('店舗コードが見つからない場合は空', () => {
-    const rows = [
-      ['', '', '', 'invalid'],
-      ['月日'],
-      ['合計'],
-      ['2026-02-01', '', '', 100000],
-    ]
-    expect(processBudget(rows)).toEqual(new Map())
+    expect(result.get('1')?.total).toBe(370000)
+    expect(result.get('1')?.daily.size).toBe(3)
+    expect(result.get('6')?.total).toBe(170000)
+    expect(result.get('6')?.daily.size).toBe(2)
   })
 })
