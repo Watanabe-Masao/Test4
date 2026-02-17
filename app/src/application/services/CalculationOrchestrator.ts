@@ -409,7 +409,6 @@ export function aggregateStoreResults(results: readonly StoreResult[]): StoreRes
   if (results.length === 0) {
     throw new Error('Cannot aggregate 0 results')
   }
-  if (results.length === 1) return results[0]
 
   let totalSales = 0
   let totalCoreSales = 0
