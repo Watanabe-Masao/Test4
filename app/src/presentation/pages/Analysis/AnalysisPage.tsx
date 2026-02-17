@@ -59,11 +59,7 @@ const Tr = styled.tr`
 
 export function AnalysisPage() {
   const { isCalculated } = useCalculation()
-  const { currentStoreId, currentResult, isAllStores, stores } = useStoreSelection()
-
-  const storeName = isAllStores
-    ? '全店合計'
-    : stores.get(currentStoreId)?.name ?? currentStoreId
+  const { currentResult, storeName } = useStoreSelection()
 
   if (!isCalculated || !currentResult) {
     return (

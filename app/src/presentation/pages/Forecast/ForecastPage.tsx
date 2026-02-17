@@ -116,11 +116,7 @@ const DOW_COLORS = ['#ef4444', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b8
 
 export function ForecastPage() {
   const { isCalculated } = useCalculation()
-  const { currentStoreId, currentResult, isAllStores, stores } = useStoreSelection()
-
-  const storeName = isAllStores
-    ? '全店合計'
-    : stores.get(currentStoreId)?.name ?? currentStoreId
+  const { currentResult, storeName } = useStoreSelection()
 
   if (!isCalculated || !currentResult) {
     return (

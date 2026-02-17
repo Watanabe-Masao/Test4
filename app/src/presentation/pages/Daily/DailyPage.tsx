@@ -83,12 +83,8 @@ const EmptyState = styled.div`
 
 export function DailyPage() {
   const { isCalculated } = useCalculation()
-  const { currentStoreId, currentResult, isAllStores, stores } = useStoreSelection()
+  const { currentResult, storeName } = useStoreSelection()
   const { settings } = useAppState()
-
-  const storeName = isAllStores
-    ? '全店合計'
-    : stores.get(currentStoreId)?.name ?? currentStoreId
 
   if (!isCalculated || !currentResult) {
     return (

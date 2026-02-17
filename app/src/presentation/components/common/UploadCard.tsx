@@ -54,12 +54,14 @@ export function UploadCard({
   loaded,
   filename,
   onFile,
+  multiple,
 }: {
   dataType: string
   label: string
   loaded: boolean
   filename?: string
-  onFile: (file: File, typeHint: string) => void
+  onFile: (files: File | File[], typeHint: string) => void
+  multiple?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -69,13 +71,17 @@ export function UploadCard({
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) {
-        onFile(file, dataType)
-        e.target.value = ''
+      const files = e.target.files
+      if (!files || files.length === 0) return
+
+      if (multiple && files.length > 1) {
+        onFile(Array.from(files), dataType)
+      } else {
+        onFile(files[0], dataType)
       }
+      e.target.value = ''
     },
-    [onFile, dataType],
+    [onFile, dataType, multiple],
   )
 
   return (
@@ -87,6 +93,7 @@ export function UploadCard({
         ref={inputRef}
         type="file"
         accept=".xlsx,.xls,.csv"
+        multiple={multiple}
         style={{ display: 'none' }}
         onChange={handleChange}
       />

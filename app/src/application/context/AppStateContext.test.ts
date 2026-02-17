@@ -30,9 +30,26 @@ describe('appReducer', () => {
     expect(next.validationMessages).toHaveLength(1)
   })
 
-  it('SET_CURRENT_STORE', () => {
-    const next = appReducer(initialState, { type: 'SET_CURRENT_STORE', payload: '1' })
-    expect(next.ui.currentStoreId).toBe('1')
+  it('TOGGLE_STORE: 店舗のトグル', () => {
+    const next = appReducer(initialState, { type: 'TOGGLE_STORE', payload: '1' })
+    expect(next.ui.selectedStoreIds.has('1')).toBe(true)
+
+    const next2 = appReducer(next, { type: 'TOGGLE_STORE', payload: '1' })
+    expect(next2.ui.selectedStoreIds.has('1')).toBe(false)
+  })
+
+  it('TOGGLE_STORE: 複数店舗選択', () => {
+    let state = appReducer(initialState, { type: 'TOGGLE_STORE', payload: '1' })
+    state = appReducer(state, { type: 'TOGGLE_STORE', payload: '2' })
+    expect(state.ui.selectedStoreIds.size).toBe(2)
+    expect(state.ui.selectedStoreIds.has('1')).toBe(true)
+    expect(state.ui.selectedStoreIds.has('2')).toBe(true)
+  })
+
+  it('SELECT_ALL_STORES: 全店選択（空セット）', () => {
+    let state = appReducer(initialState, { type: 'TOGGLE_STORE', payload: '1' })
+    state = appReducer(state, { type: 'SELECT_ALL_STORES' })
+    expect(state.ui.selectedStoreIds.size).toBe(0)
   })
 
   it('SET_CURRENT_VIEW', () => {
@@ -58,13 +75,10 @@ describe('appReducer', () => {
   })
 
   it('RESET: 初期状態に戻る', () => {
-    const modified = appReducer(initialState, {
-      type: 'SET_CURRENT_STORE',
-      payload: '3',
-    })
+    const modified = appReducer(initialState, { type: 'TOGGLE_STORE', payload: '3' })
     const reset = appReducer(modified, { type: 'RESET' })
 
-    expect(reset).toEqual(initialState)
+    expect(reset.ui.selectedStoreIds.size).toBe(0)
   })
 
   it('未知のアクションは状態を返す', () => {
