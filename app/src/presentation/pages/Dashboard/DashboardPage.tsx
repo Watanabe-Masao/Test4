@@ -9,6 +9,7 @@ import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/do
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import { calculateWeeklySummaries, calculateDayOfWeekAverages } from '@/domain/calculations/forecast'
 import type { StoreResult } from '@/domain/models'
+import { getDailyTotalCost } from '@/domain/models'
 import styled from 'styled-components'
 
 // ─── Widget Definition ────────────────────────────────────
@@ -610,14 +611,7 @@ function calculatePinIntervals(result: StoreResult, pins: [number, number][]): P
       const rec = result.daily.get(d)
       if (rec) {
         totalSales += rec.sales
-        // 在庫法と同じ: 仕入原価 + 店間入出 + 部門間入出 + 売上納品原価
-        totalPurchaseCost +=
-          rec.purchase.cost +
-          rec.interStoreIn.cost +
-          rec.interStoreOut.cost +
-          rec.interDepartmentIn.cost +
-          rec.interDepartmentOut.cost +
-          rec.deliverySales.cost
+        totalPurchaseCost += getDailyTotalCost(rec)
       }
     }
     const cogs = prevInventory + totalPurchaseCost - closingInv
