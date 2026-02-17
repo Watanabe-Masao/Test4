@@ -1,10 +1,14 @@
+import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle } from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency } from '@/domain/calculations/utils'
-import styled from 'styled-components'
+import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
+import styled, { css } from 'styled-components'
+
+type ExpandableColumn = 'purchase' | 'interStoreIn' | 'interStoreOut' | 'interDepartmentIn' | 'interDepartmentOut'
 
 const ChartGrid = styled.div`
   display: grid;
@@ -30,7 +34,15 @@ const Table = styled.table`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
-const Th = styled.th`
+const clickableHeaderCss = css`
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const Th = styled.th<{ $clickable?: boolean; $expanded?: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   background: ${({ theme }) => theme.colors.bg2};
@@ -50,6 +62,26 @@ const Th = styled.th`
     z-index: 6;
     background: ${({ theme }) => theme.colors.bg2};
   }
+
+  ${({ $clickable }) => $clickable && clickableHeaderCss}
+  ${({ $expanded, theme }) => $expanded && css`
+    color: ${theme.colors.palette.primary};
+  `}
+`
+
+const SubTh = styled.th`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text4};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 4;
 `
 
 const Td = styled.td<{ $negative?: boolean }>`
@@ -69,6 +101,14 @@ const Td = styled.td<{ $negative?: boolean }>`
   }
 `
 
+const SubTd = styled.td<{ $negative?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ $negative, theme }) => $negative ? theme.colors.palette.danger : theme.colors.text3};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
 const Tr = styled.tr`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
@@ -81,10 +121,121 @@ const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ToggleIcon = styled.span<{ $expanded?: boolean }>`
+  display: inline-block;
+  margin-left: 2px;
+  font-size: 0.6rem;
+  transition: transform ${({ theme }) => theme.transitions.fast};
+  ${({ $expanded }) => $expanded && css`transform: rotate(90deg);`}
+`
+
+/** 取引先別の内訳キーを全日から収集 */
+function collectSupplierKeys(
+  days: [number, DailyRecord][],
+  suppliers: ReadonlyMap<string, { code: string; name: string }>,
+): { code: string; name: string }[] {
+  const seen = new Map<string, string>()
+  for (const [, rec] of days) {
+    for (const [code] of rec.supplierBreakdown) {
+      if (!seen.has(code)) {
+        seen.set(code, suppliers.get(code)?.name ?? code)
+      }
+    }
+  }
+  return Array.from(seen.entries()).map(([code, name]) => ({ code, name }))
+}
+
+/** 移動明細のfrom→toキーを収集 */
+function collectTransferKeys(
+  days: [number, DailyRecord][],
+  field: keyof DailyRecord['transferBreakdown'],
+  stores: ReadonlyMap<string, { id: string; name: string }>,
+): { key: string; from: string; to: string; label: string }[] {
+  const seen = new Map<string, { from: string; to: string }>()
+  for (const [, rec] of days) {
+    const entries = rec.transferBreakdown[field]
+    for (const e of entries) {
+      const key = `${e.fromStoreId}->${e.toStoreId}`
+      if (!seen.has(key)) {
+        seen.set(key, { from: e.fromStoreId, to: e.toStoreId })
+      }
+    }
+  }
+  return Array.from(seen.entries()).map(([key, { from, to }]) => {
+    const fromName = stores.get(from)?.name ?? from
+    const toName = stores.get(to)?.name ?? to
+    // コンパクトな店番号表示を試行
+    const fromLabel = from.length <= 3 ? from.padStart(2, '0') : fromName
+    const toLabel = to.length <= 3 ? to.padStart(2, '0') : toName
+    return { key, from, to, label: `${fromLabel}→${toLabel}` }
+  })
+}
+
+/** 移動明細の特定キーの合計を取得 */
+function getTransferAmount(
+  entries: readonly TransferBreakdownEntry[],
+  from: string,
+  to: string,
+): number {
+  let total = 0
+  for (const e of entries) {
+    if (e.fromStoreId === from && e.toStoreId === to) total += e.cost
+  }
+  return total
+}
+
+const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
+const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
+
 export function DailyPage() {
   const { isCalculated, daysInMonth } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
-  const { settings } = useAppState()
+  const { currentResult, storeName, stores } = useStoreSelection()
+  const appState = useAppState()
+  const { settings } = appState
+
+  const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
+
+  const isPurchaseExpanded = expanded.has('purchase')
+  const isInterStoreInExpanded = expanded.has('interStoreIn')
+  const isInterStoreOutExpanded = expanded.has('interStoreOut')
+  const isInterDeptInExpanded = expanded.has('interDepartmentIn')
+  const isInterDeptOutExpanded = expanded.has('interDepartmentOut')
+
+  const days = useMemo(
+    () => currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
+    [currentResult],
+  )
+
+  const supplierKeys = useMemo(
+    () => isPurchaseExpanded && days.length > 0 ? collectSupplierKeys(days, appState.data.suppliers) : EMPTY_SUPPLIER_KEYS,
+    [isPurchaseExpanded, days, appState.data.suppliers],
+  )
+
+  const interStoreInKeys = useMemo(
+    () => isInterStoreInExpanded && days.length > 0 ? collectTransferKeys(days, 'interStoreIn', stores) : EMPTY_TRANSFER_KEYS,
+    [isInterStoreInExpanded, days, stores],
+  )
+  const interStoreOutKeys = useMemo(
+    () => isInterStoreOutExpanded && days.length > 0 ? collectTransferKeys(days, 'interStoreOut', stores) : EMPTY_TRANSFER_KEYS,
+    [isInterStoreOutExpanded, days, stores],
+  )
+  const interDeptInKeys = useMemo(
+    () => isInterDeptInExpanded && days.length > 0 ? collectTransferKeys(days, 'interDepartmentIn', stores) : EMPTY_TRANSFER_KEYS,
+    [isInterDeptInExpanded, days, stores],
+  )
+  const interDeptOutKeys = useMemo(
+    () => isInterDeptOutExpanded && days.length > 0 ? collectTransferKeys(days, 'interDepartmentOut', stores) : EMPTY_TRANSFER_KEYS,
+    [isInterDeptOutExpanded, days, stores],
+  )
+
+  const toggleExpand = (col: ExpandableColumn) => {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(col)) next.delete(col)
+      else next.add(col)
+      return next
+    })
+  }
 
   if (!isCalculated || !currentResult) {
     return (
@@ -94,17 +245,19 @@ export function DailyPage() {
     )
   }
 
-  const r = currentResult
+  const renderExpandIcon = (col: ExpandableColumn) => (
+    <ToggleIcon $expanded={expanded.has(col)}>&#9654;</ToggleIcon>
+  )
 
-  // 日別データをソート
-  const days = Array.from(r.daily.entries()).sort(([a], [b]) => a - b)
+  const fmtOrDash = (val: number) => val !== 0 ? formatCurrency(val) : '-'
+  const fmtOrDashPositive = (val: number) => val > 0 ? formatCurrency(val) : '-'
 
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
       <ChartGrid>
-        <DailySalesChart daily={r.daily} daysInMonth={daysInMonth} />
+        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} />
         <GrossProfitRateChart
-          daily={r.daily}
+          daily={currentResult.daily}
           daysInMonth={daysInMonth}
           targetRate={settings.targetGrossProfitRate}
           warningRate={settings.warningThreshold}
@@ -119,12 +272,66 @@ export function DailyPage() {
               <tr>
                 <Th>日</Th>
                 <Th>売上</Th>
-                <Th>仕入原価</Th>
-                <Th>仕入売価</Th>
-                <Th>店間入</Th>
-                <Th>店間出</Th>
-                <Th>部門間入</Th>
-                <Th>部門間出</Th>
+                <Th
+                  $clickable
+                  $expanded={isPurchaseExpanded}
+                  onClick={() => toggleExpand('purchase')}
+                >
+                  仕入原価{renderExpandIcon('purchase')}
+                </Th>
+                {isPurchaseExpanded && supplierKeys.map(s => (
+                  <SubTh key={`sup-cost-${s.code}`}>{s.name}</SubTh>
+                ))}
+                <Th
+                  $clickable
+                  $expanded={isPurchaseExpanded}
+                  onClick={() => toggleExpand('purchase')}
+                >
+                  仕入売価{renderExpandIcon('purchase')}
+                </Th>
+                {isPurchaseExpanded && supplierKeys.map(s => (
+                  <SubTh key={`sup-price-${s.code}`}>{s.name}</SubTh>
+                ))}
+                <Th
+                  $clickable
+                  $expanded={isInterStoreInExpanded}
+                  onClick={() => toggleExpand('interStoreIn')}
+                >
+                  店間入{renderExpandIcon('interStoreIn')}
+                </Th>
+                {isInterStoreInExpanded && interStoreInKeys.map(k => (
+                  <SubTh key={`si-${k.key}`}>{k.label}</SubTh>
+                ))}
+                <Th
+                  $clickable
+                  $expanded={isInterStoreOutExpanded}
+                  onClick={() => toggleExpand('interStoreOut')}
+                >
+                  店間出{renderExpandIcon('interStoreOut')}
+                </Th>
+                {isInterStoreOutExpanded && interStoreOutKeys.map(k => (
+                  <SubTh key={`so-${k.key}`}>{k.label}</SubTh>
+                ))}
+                <Th
+                  $clickable
+                  $expanded={isInterDeptInExpanded}
+                  onClick={() => toggleExpand('interDepartmentIn')}
+                >
+                  部門間入{renderExpandIcon('interDepartmentIn')}
+                </Th>
+                {isInterDeptInExpanded && interDeptInKeys.map(k => (
+                  <SubTh key={`di-${k.key}`}>{k.label}</SubTh>
+                ))}
+                <Th
+                  $clickable
+                  $expanded={isInterDeptOutExpanded}
+                  onClick={() => toggleExpand('interDepartmentOut')}
+                >
+                  部門間出{renderExpandIcon('interDepartmentOut')}
+                </Th>
+                {isInterDeptOutExpanded && interDeptOutKeys.map(k => (
+                  <SubTh key={`do-${k.key}`}>{k.label}</SubTh>
+                ))}
                 <Th>花</Th>
                 <Th>産直</Th>
                 <Th>売変額</Th>
@@ -136,18 +343,48 @@ export function DailyPage() {
                 <Tr key={day}>
                   <Td>{day}</Td>
                   <Td>{formatCurrency(rec.sales)}</Td>
+                  {/* 仕入原価 + 詳細 */}
                   <Td>{formatCurrency(rec.purchase.cost)}</Td>
+                  {isPurchaseExpanded && supplierKeys.map(s => {
+                    const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                    return <SubTd key={`sup-cost-${s.code}`}>{pair ? fmtOrDash(pair.cost) : '-'}</SubTd>
+                  })}
+                  {/* 仕入売価 + 詳細 */}
                   <Td>{formatCurrency(rec.purchase.price)}</Td>
-                  <Td>{rec.interStoreIn.cost !== 0 ? formatCurrency(rec.interStoreIn.cost) : '-'}</Td>
+                  {isPurchaseExpanded && supplierKeys.map(s => {
+                    const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                    return <SubTd key={`sup-price-${s.code}`}>{pair ? fmtOrDash(pair.price) : '-'}</SubTd>
+                  })}
+                  {/* 店間入 + 詳細 */}
+                  <Td>{fmtOrDash(rec.interStoreIn.cost)}</Td>
+                  {isInterStoreInExpanded && interStoreInKeys.map(k => {
+                    const amt = getTransferAmount(rec.transferBreakdown.interStoreIn, k.from, k.to)
+                    return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                  })}
+                  {/* 店間出 + 詳細 */}
                   <Td $negative={rec.interStoreOut.cost < 0}>
-                    {rec.interStoreOut.cost !== 0 ? formatCurrency(rec.interStoreOut.cost) : '-'}
+                    {fmtOrDash(rec.interStoreOut.cost)}
                   </Td>
-                  <Td>{rec.interDepartmentIn.cost !== 0 ? formatCurrency(rec.interDepartmentIn.cost) : '-'}</Td>
+                  {isInterStoreOutExpanded && interStoreOutKeys.map(k => {
+                    const amt = getTransferAmount(rec.transferBreakdown.interStoreOut, k.from, k.to)
+                    return <SubTd key={`so-${k.key}`} $negative={amt < 0}>{fmtOrDash(amt)}</SubTd>
+                  })}
+                  {/* 部門間入 + 詳細 */}
+                  <Td>{fmtOrDash(rec.interDepartmentIn.cost)}</Td>
+                  {isInterDeptInExpanded && interDeptInKeys.map(k => {
+                    const amt = getTransferAmount(rec.transferBreakdown.interDepartmentIn, k.from, k.to)
+                    return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                  })}
+                  {/* 部門間出 + 詳細 */}
                   <Td $negative={rec.interDepartmentOut.cost < 0}>
-                    {rec.interDepartmentOut.cost !== 0 ? formatCurrency(rec.interDepartmentOut.cost) : '-'}
+                    {fmtOrDash(rec.interDepartmentOut.cost)}
                   </Td>
-                  <Td>{rec.flowers.price > 0 ? formatCurrency(rec.flowers.price) : '-'}</Td>
-                  <Td>{rec.directProduce.price > 0 ? formatCurrency(rec.directProduce.price) : '-'}</Td>
+                  {isInterDeptOutExpanded && interDeptOutKeys.map(k => {
+                    const amt = getTransferAmount(rec.transferBreakdown.interDepartmentOut, k.from, k.to)
+                    return <SubTd key={`do-${k.key}`} $negative={amt < 0}>{fmtOrDash(amt)}</SubTd>
+                  })}
+                  <Td>{fmtOrDashPositive(rec.flowers.price)}</Td>
+                  <Td>{fmtOrDashPositive(rec.directProduce.price)}</Td>
                   <Td $negative={rec.discountAbsolute > 0}>
                     {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
                   </Td>
