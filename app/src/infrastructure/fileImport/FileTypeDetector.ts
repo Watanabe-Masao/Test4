@@ -84,9 +84,34 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
 ] as const
 
 /**
+ * 命名規則によるプレフィックス判定: 0_売上予算.xlsx, 1_売上売変.xlsx, ...
+ */
+const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
+  { prefix: '0_', type: 'budget' },
+  { prefix: '1_', type: 'salesDiscount' },
+  { prefix: '2_', type: 'purchase' },
+  { prefix: '3_', type: 'flowers' },
+  { prefix: '4_', type: 'directProduce' },
+  { prefix: '5_', type: 'interStoreIn' },
+  { prefix: '6_', type: 'interStoreOut' },
+  { prefix: '7_', type: 'initialSettings' },
+  { prefix: '8_', type: 'consumables' },
+]
+
+/**
  * ファイル名からデータ種別を判定する
  */
 function matchByFilename(filename: string): DataType | null {
+  // 命名規則プレフィックス判定（最優先）
+  const basename = filename.replace(/^.*[\\/]/, '')
+  for (const rule of PREFIX_RULES) {
+    if (basename.startsWith(rule.prefix)) return rule.type
+  }
+
+  // 消耗品: 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
+  if (/^\d{2}消耗/.test(basename)) return 'consumables'
+
+  // 従来のキーワードマッチ
   const lower = filename.toLowerCase()
   for (const rule of FILE_TYPE_RULES) {
     if (rule.filenamePatterns.some((p) => lower.includes(p.toLowerCase()))) {

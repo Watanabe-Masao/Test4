@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
   directProduceCostRate: 0.85,
   defaultMarkupRate: 0.26,
   defaultBudget: 6_450_000,
+  supplierCategoryMap: {},
 } as const
 
 /** 掛け率の範囲制限 */

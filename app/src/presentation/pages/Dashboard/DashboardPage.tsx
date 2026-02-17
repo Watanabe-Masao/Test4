@@ -5,7 +5,6 @@ import { useToast } from '@/presentation/components/common'
 import { useCalculation } from '@/application/hooks'
 import { useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-// ALL_STORES_ID is used by useStoreSelection internally
 import styled from 'styled-components'
 
 const Section = styled.section`
@@ -39,7 +38,7 @@ const EmptyTitle = styled.div`
 
 export function DashboardPage() {
   const { calculate, canCalculate, isCalculated } = useCalculation()
-  const { currentStoreId, currentResult, isAllStores, stores } = useStoreSelection()
+  const { currentResult, storeName, stores } = useStoreSelection()
   const showToast = useToast()
 
   const handleCalculate = useCallback(() => {
@@ -52,10 +51,6 @@ export function DashboardPage() {
       showToast('データが不足しています。仕入・売上ファイルを読み込んでください', 'error')
     }
   }, [calculate, stores.size, showToast])
-
-  const storeName = isAllStores
-    ? '全店合計'
-    : stores.get(currentStoreId)?.name ?? currentStoreId
 
   if (!isCalculated) {
     return (
@@ -82,8 +77,7 @@ export function DashboardPage() {
     )
   }
 
-  // All stores view → aggregate (Phase 6で詳細実装)
-  if (isAllStores || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="ダッシュボード" storeName={storeName}>
         <Section>

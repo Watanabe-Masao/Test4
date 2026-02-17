@@ -22,7 +22,6 @@ import { CategoryPage } from '@/presentation/pages/Category/CategoryPage'
 import { SummaryPage } from '@/presentation/pages/Summary/SummaryPage'
 import { ForecastPage } from '@/presentation/pages/Forecast/ForecastPage'
 import { ReportsPage } from '@/presentation/pages/Reports/ReportsPage'
-import { ALL_STORES_ID } from '@/domain/constants/defaults'
 import type { ViewType, DataType } from '@/domain/models'
 import styled from 'styled-components'
 
@@ -65,16 +64,64 @@ const SidebarActions = styled.div`
   gap: ${({ theme }) => theme.spacing[3]};
 `
 
-const uploadTypes: { type: DataType; label: string }[] = [
-  { type: 'salesDiscount', label: '売上売変' },
-  { type: 'purchase', label: '仕入' },
-  { type: 'flowers', label: '花' },
-  { type: 'directProduce', label: '産直' },
-  { type: 'interStoreIn', label: '店間入' },
-  { type: 'interStoreOut', label: '店間出' },
-  { type: 'initialSettings', label: '初期設定' },
-  { type: 'budget', label: '予算' },
-  { type: 'consumables', label: '消耗品' },
+const InventoryInputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const InventoryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const InventoryLabel = styled.label`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  white-space: nowrap;
+  min-width: 48px;
+`
+
+const InventoryInput = styled.input`
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const StoreInventoryBlock = styled.div`
+  padding: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+`
+
+const StoreInventoryTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
+  { type: 'budget', label: '0_売上予算' },
+  { type: 'salesDiscount', label: '1_売上売変' },
+  { type: 'purchase', label: '2_仕入' },
+  { type: 'flowers', label: '3_花' },
+  { type: 'directProduce', label: '4_産直' },
+  { type: 'interStoreIn', label: '5_店間入' },
+  { type: 'interStoreOut', label: '6_店間出' },
+  { type: 'initialSettings', label: '7_初期設定' },
+  { type: 'consumables', label: '8_消耗品', multi: true },
 ]
 
 function ViewRouter({ view }: { view: ViewType }) {
@@ -102,7 +149,7 @@ function AppContent() {
   const state = useAppState()
   const dispatch = useAppDispatch()
   const { importFiles } = useImport()
-  const { currentStoreId, stores, selectStore, selectAllStores } = useStoreSelection()
+  const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
   const [showSettings, setShowSettings] = useState(false)
@@ -123,8 +170,9 @@ function AppContent() {
   )
 
   const handleSingleFile = useCallback(
-    async (file: File, typeHint: string) => {
-      await handleFiles([file], typeHint as DataType)
+    async (files: File | File[], typeHint: string) => {
+      const fileArray = Array.isArray(files) ? files : [files]
+      await handleFiles(fileArray, typeHint as DataType)
     },
     [handleFiles],
   )
@@ -175,13 +223,14 @@ function AppContent() {
             <SidebarSection>
               <SectionLabel>ファイル種別</SectionLabel>
               <UploadGrid>
-                {uploadTypes.map(({ type, label }) => (
+                {uploadTypes.map(({ type, label, multi }) => (
                   <UploadCard
                     key={type}
                     dataType={type}
                     label={label}
                     loaded={loadedTypes.has(type)}
                     onFile={handleSingleFile}
+                    multiple={multi}
                   />
                 ))}
               </UploadGrid>
@@ -189,10 +238,10 @@ function AppContent() {
 
             {stores.size > 0 && (
               <SidebarSection>
-                <SectionLabel>店舗選択</SectionLabel>
+                <SectionLabel>店舗選択（複数可）</SectionLabel>
                 <ChipGroup>
                   <Chip
-                    $active={currentStoreId === ALL_STORES_ID}
+                    $active={selectedStoreIds.size === 0}
                     onClick={selectAllStores}
                   >
                     全店
@@ -200,13 +249,65 @@ function AppContent() {
                   {Array.from(stores.values()).map((s) => (
                     <Chip
                       key={s.id}
-                      $active={currentStoreId === s.id}
-                      onClick={() => selectStore(s.id)}
+                      $active={selectedStoreIds.has(s.id)}
+                      onClick={() => toggleStore(s.id)}
                     >
                       {s.name}
                     </Chip>
                   ))}
                 </ChipGroup>
+              </SidebarSection>
+            )}
+
+            {stores.size > 0 && (
+              <SidebarSection>
+                <SectionLabel>在庫設定</SectionLabel>
+                <InventoryInputGroup>
+                  {Array.from(stores.values()).map((s) => {
+                    const cfg = state.data.settings.get(s.id)
+                    return (
+                      <StoreInventoryBlock key={s.id}>
+                        <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
+                        <InventoryRow>
+                          <InventoryLabel>期首</InventoryLabel>
+                          <InventoryInput
+                            type="number"
+                            placeholder="期首在庫"
+                            value={cfg?.openingInventory ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? null : Number(e.target.value)
+                              dispatch({
+                                type: 'UPDATE_INVENTORY',
+                                payload: {
+                                  storeId: s.id,
+                                  config: { openingInventory: val },
+                                },
+                              })
+                            }}
+                          />
+                        </InventoryRow>
+                        <InventoryRow>
+                          <InventoryLabel>期末</InventoryLabel>
+                          <InventoryInput
+                            type="number"
+                            placeholder="期末在庫"
+                            value={cfg?.closingInventory ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? null : Number(e.target.value)
+                              dispatch({
+                                type: 'UPDATE_INVENTORY',
+                                payload: {
+                                  storeId: s.id,
+                                  config: { closingInventory: val },
+                                },
+                              })
+                            }}
+                          />
+                        </InventoryRow>
+                      </StoreInventoryBlock>
+                    )
+                  })}
+                </InventoryInputGroup>
               </SidebarSection>
             )}
 

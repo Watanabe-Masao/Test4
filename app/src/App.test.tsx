@@ -20,9 +20,9 @@ describe('App', () => {
 
   it('renders upload cards for file types', () => {
     render(<App />)
-    expect(screen.getByText('仕入')).toBeInTheDocument()
-    expect(screen.getByText('売上売変')).toBeInTheDocument()
-    expect(screen.getByText('花')).toBeInTheDocument()
-    expect(screen.getByText('店間入')).toBeInTheDocument()
+    expect(screen.getByText('2_仕入')).toBeInTheDocument()
+    expect(screen.getByText('1_売上売変')).toBeInTheDocument()
+    expect(screen.getByText('3_花')).toBeInTheDocument()
+    expect(screen.getByText('5_店間入')).toBeInTheDocument()
   })
 })

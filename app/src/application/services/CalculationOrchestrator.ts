@@ -399,3 +399,226 @@ function addToCategory(
   const existing = map.get(category) ?? ZERO_COST_PRICE_PAIR
   map.set(category, addCostPricePairs(existing, pair))
 }
+
+/**
+ * 複数店舗の StoreResult を合算する
+ */
+export function aggregateStoreResults(results: readonly StoreResult[]): StoreResult {
+  if (results.length === 0) {
+    throw new Error('Cannot aggregate 0 results')
+  }
+  if (results.length === 1) return results[0]
+
+  let totalSales = 0
+  let totalCoreSales = 0
+  let deliverySalesPrice = 0
+  let flowerSalesPrice = 0
+  let directProduceSalesPrice = 0
+  let grossSales = 0
+  let totalCost = 0
+  let inventoryCost = 0
+  let deliverySalesCost = 0
+  let totalDiscount = 0
+  let totalConsumable = 0
+  let budget = 0
+  let gpBudget = 0
+  let elapsedDays = 0
+  let salesDays = 0
+
+  let openInv = 0
+  let closeInv = 0
+  let hasOpening = false
+  let hasClosing = false
+
+  const aggDaily = new Map<number, DailyRecord>()
+  const aggCategory = new Map<CategoryType, CostPricePair>()
+  const aggSupplier = new Map<string, SupplierTotal>()
+  const aggBudgetDaily = new Map<number, number>()
+  const aggTransfer = {
+    interStoreIn: { ...ZERO_COST_PRICE_PAIR },
+    interStoreOut: { ...ZERO_COST_PRICE_PAIR },
+    interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
+    interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
+  }
+
+  for (const r of results) {
+    totalSales += r.totalSales
+    totalCoreSales += r.totalCoreSales
+    deliverySalesPrice += r.deliverySalesPrice
+    flowerSalesPrice += r.flowerSalesPrice
+    directProduceSalesPrice += r.directProduceSalesPrice
+    grossSales += r.grossSales
+    totalCost += r.totalCost
+    inventoryCost += r.inventoryCost
+    deliverySalesCost += r.deliverySalesCost
+    totalDiscount += r.totalDiscount
+    totalConsumable += r.totalConsumable
+    budget += r.budget
+    gpBudget += r.grossProfitBudget
+    elapsedDays = Math.max(elapsedDays, r.elapsedDays)
+    salesDays = Math.max(salesDays, r.salesDays)
+
+    if (r.openingInventory != null) { openInv += r.openingInventory; hasOpening = true }
+    if (r.closingInventory != null) { closeInv += r.closingInventory; hasClosing = true }
+
+    // 日別集計
+    for (const [day, rec] of r.daily) {
+      const existing = aggDaily.get(day)
+      if (!existing) {
+        aggDaily.set(day, { ...rec, supplierBreakdown: new Map(rec.supplierBreakdown) })
+      } else {
+        const mergedSB = new Map(existing.supplierBreakdown)
+        for (const [code, pair] of rec.supplierBreakdown) {
+          const ex = mergedSB.get(code) ?? ZERO_COST_PRICE_PAIR
+          mergedSB.set(code, addCostPricePairs(ex, pair))
+        }
+        aggDaily.set(day, {
+          day,
+          sales: existing.sales + rec.sales,
+          coreSales: existing.coreSales + rec.coreSales,
+          grossSales: existing.grossSales + rec.grossSales,
+          purchase: addCostPricePairs(existing.purchase, rec.purchase),
+          deliverySales: addCostPricePairs(existing.deliverySales, rec.deliverySales),
+          interStoreIn: addCostPricePairs(existing.interStoreIn, rec.interStoreIn),
+          interStoreOut: addCostPricePairs(existing.interStoreOut, rec.interStoreOut),
+          interDepartmentIn: addCostPricePairs(existing.interDepartmentIn, rec.interDepartmentIn),
+          interDepartmentOut: addCostPricePairs(existing.interDepartmentOut, rec.interDepartmentOut),
+          flowers: addCostPricePairs(existing.flowers, rec.flowers),
+          directProduce: addCostPricePairs(existing.directProduce, rec.directProduce),
+          consumable: {
+            cost: existing.consumable.cost + rec.consumable.cost,
+            items: [...existing.consumable.items, ...rec.consumable.items],
+          },
+          discountAmount: existing.discountAmount + rec.discountAmount,
+          discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
+          supplierBreakdown: mergedSB,
+        })
+      }
+    }
+
+    // カテゴリ集計
+    for (const [cat, pair] of r.categoryTotals) {
+      addToCategory(aggCategory, cat, pair)
+    }
+
+    // 取引先集計
+    for (const [code, st] of r.supplierTotals) {
+      const ex = aggSupplier.get(code)
+      if (!ex) {
+        aggSupplier.set(code, { ...st })
+      } else {
+        aggSupplier.set(code, {
+          ...ex,
+          cost: ex.cost + st.cost,
+          price: ex.price + st.price,
+          markupRate: safeDivide(ex.price + st.price - ex.cost - st.cost, ex.price + st.price, 0),
+        })
+      }
+    }
+
+    // 予算日別集計
+    for (const [day, val] of r.budgetDaily) {
+      aggBudgetDaily.set(day, (aggBudgetDaily.get(day) ?? 0) + val)
+    }
+
+    // 移動集計
+    aggTransfer.interStoreIn = addCostPricePairs(aggTransfer.interStoreIn, r.transferDetails.interStoreIn)
+    aggTransfer.interStoreOut = addCostPricePairs(aggTransfer.interStoreOut, r.transferDetails.interStoreOut)
+    aggTransfer.interDepartmentIn = addCostPricePairs(aggTransfer.interDepartmentIn, r.transferDetails.interDepartmentIn)
+    aggTransfer.interDepartmentOut = addCostPricePairs(aggTransfer.interDepartmentOut, r.transferDetails.interDepartmentOut)
+  }
+
+  const discountRate = safeDivide(totalDiscount, totalSales + totalDiscount, 0)
+  const averageMarkupRate = safeDivide(
+    results.reduce((s, r) => s + r.averageMarkupRate, 0),
+    results.length,
+    0,
+  )
+  const coreMarkupRate = safeDivide(
+    results.reduce((s, r) => s + r.coreMarkupRate, 0),
+    results.length,
+    0,
+  )
+  const consumableRate = safeDivide(totalConsumable, totalSales, 0)
+  const averageDailySales = safeDivide(totalSales, salesDays, 0)
+
+  const openingInventory = hasOpening ? openInv : null
+  const closingInventory = hasClosing ? closeInv : null
+
+  // 在庫法集計
+  let invMethodCogs: number | null = null
+  let invMethodGrossProfit: number | null = null
+  let invMethodGrossProfitRate: number | null = null
+  if (openingInventory != null && closingInventory != null) {
+    invMethodCogs = openingInventory + totalCost - closingInventory
+    invMethodGrossProfit = totalSales - invMethodCogs
+    invMethodGrossProfitRate = safeDivide(invMethodGrossProfit, totalSales, 0)
+  }
+
+  // 推定法集計
+  const estMethodCogs = results.reduce((s, r) => s + r.estMethodCogs, 0)
+  const estMethodMargin = results.reduce((s, r) => s + r.estMethodMargin, 0)
+  const estMethodMarginRate = safeDivide(estMethodMargin, totalCoreSales, 0)
+  const hasEstClosing = results.some((r) => r.estMethodClosingInventory != null)
+  const estMethodClosingInventory = hasEstClosing
+    ? results.reduce((s, r) => s + (r.estMethodClosingInventory ?? 0), 0)
+    : null
+
+  const discountLossCost = results.reduce((s, r) => s + r.discountLossCost, 0)
+  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
+  const remainingDays = daysInMonth - elapsedDays
+  const projectedSales = totalSales + averageDailySales * remainingDays
+  const projectedAchievement = safeDivide(projectedSales, budget, 0)
+
+  const transferDetails: TransferDetails = {
+    ...aggTransfer,
+    netTransfer: {
+      cost: aggTransfer.interStoreIn.cost + aggTransfer.interStoreOut.cost +
+        aggTransfer.interDepartmentIn.cost + aggTransfer.interDepartmentOut.cost,
+      price: aggTransfer.interStoreIn.price + aggTransfer.interStoreOut.price +
+        aggTransfer.interDepartmentIn.price + aggTransfer.interDepartmentOut.price,
+    },
+  }
+
+  return {
+    storeId: 'aggregate',
+    openingInventory,
+    closingInventory,
+    totalSales,
+    totalCoreSales,
+    deliverySalesPrice,
+    flowerSalesPrice,
+    directProduceSalesPrice,
+    grossSales,
+    totalCost,
+    inventoryCost,
+    deliverySalesCost,
+    invMethodCogs,
+    invMethodGrossProfit,
+    invMethodGrossProfitRate,
+    estMethodCogs,
+    estMethodMargin,
+    estMethodMarginRate,
+    estMethodClosingInventory,
+    totalDiscount,
+    discountRate,
+    discountLossCost,
+    averageMarkupRate,
+    coreMarkupRate,
+    totalConsumable,
+    consumableRate,
+    budget,
+    grossProfitBudget: gpBudget,
+    grossProfitRateBudget: safeDivide(gpBudget, budget, 0),
+    budgetDaily: aggBudgetDaily,
+    daily: aggDaily,
+    categoryTotals: aggCategory,
+    supplierTotals: aggSupplier,
+    transferDetails,
+    elapsedDays,
+    salesDays,
+    averageDailySales,
+    projectedSales,
+    projectedAchievement,
+  }
+}
