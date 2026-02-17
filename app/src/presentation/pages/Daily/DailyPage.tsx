@@ -123,6 +123,10 @@ export function DailyPage() {
                 <Th>売上</Th>
                 <Th>仕入原価</Th>
                 <Th>仕入売価</Th>
+                <Th>店間入</Th>
+                <Th>店間出</Th>
+                <Th>部門間入</Th>
+                <Th>部門間出</Th>
                 <Th>花</Th>
                 <Th>産直</Th>
                 <Th>売変額</Th>
@@ -136,6 +140,14 @@ export function DailyPage() {
                   <Td>{formatCurrency(rec.sales)}</Td>
                   <Td>{formatCurrency(rec.purchase.cost)}</Td>
                   <Td>{formatCurrency(rec.purchase.price)}</Td>
+                  <Td>{rec.interStoreIn.cost !== 0 ? formatCurrency(rec.interStoreIn.cost) : '-'}</Td>
+                  <Td $negative={rec.interStoreOut.cost < 0}>
+                    {rec.interStoreOut.cost !== 0 ? formatCurrency(rec.interStoreOut.cost) : '-'}
+                  </Td>
+                  <Td>{rec.interDepartmentIn.cost !== 0 ? formatCurrency(rec.interDepartmentIn.cost) : '-'}</Td>
+                  <Td $negative={rec.interDepartmentOut.cost < 0}>
+                    {rec.interDepartmentOut.cost !== 0 ? formatCurrency(rec.interDepartmentOut.cost) : '-'}
+                  </Td>
                   <Td>{rec.flowers.price > 0 ? formatCurrency(rec.flowers.price) : '-'}</Td>
                   <Td>{rec.directProduce.price > 0 ? formatCurrency(rec.directProduce.price) : '-'}</Td>
                   <Td $negative={rec.discountAbsolute > 0}>
