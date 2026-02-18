@@ -1,12 +1,8 @@
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import type { DiscountData } from '@/domain/models'
 
-/** 売変パース結果: storeId → day → { sales, discount } */
-export interface DiscountData {
-  readonly [storeId: string]: {
-    readonly [day: number]: { readonly sales: number; readonly discount: number }
-  }
-}
+export type { DiscountData } from '@/domain/models'
 
 /**
  * 売変データを処理する

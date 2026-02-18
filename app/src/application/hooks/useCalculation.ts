@@ -4,7 +4,7 @@ import { calculateAllStores } from '../services/CalculationOrchestrator'
 import {
   validateImportedData,
   hasValidationErrors,
-} from '@/infrastructure/ImportService'
+} from '@/application/services/FileImportService'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 
 /** 計算実行フック（データ変更時に自動計算） */

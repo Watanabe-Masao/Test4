@@ -1,21 +1,31 @@
-import { createContext, useContext, useReducer, type ReactNode } from 'react'
-import type { AppSettings, ViewType, StoreResult, InventoryConfig } from '@/domain/models'
-import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
-import type { ImportedData } from '@/infrastructure/ImportService'
-import { createEmptyImportedData } from '@/infrastructure/ImportService'
-import type { ValidationMessage } from '@/infrastructure/fileImport/errors'
+import { createContext, useContext, useReducer, useMemo, type ReactNode } from 'react'
+import type { AppSettings, ViewType, StoreResult, InventoryConfig, ImportedData, ValidationMessage } from '@/domain/models'
+import { createDefaultSettings } from '@/domain/constants/defaults'
+import { createEmptyImportedData } from '@/domain/models'
+
+// ─── State types ──────────────────────────────────────────
+
+/** UI 状態スライス */
+export interface UiState {
+  readonly selectedStoreIds: ReadonlySet<string>
+  readonly currentView: ViewType
+  readonly isCalculated: boolean
+  readonly isImporting: boolean
+}
+
+/** データ状態スライス */
+export interface DataState {
+  readonly data: ImportedData
+  readonly storeResults: ReadonlyMap<string, StoreResult>
+  readonly validationMessages: readonly ValidationMessage[]
+}
 
 /** アプリケーション状態 */
 export interface AppState {
   readonly data: ImportedData
   readonly storeResults: ReadonlyMap<string, StoreResult>
   readonly validationMessages: readonly ValidationMessage[]
-  readonly ui: {
-    readonly selectedStoreIds: ReadonlySet<string>
-    readonly currentView: ViewType
-    readonly isCalculated: boolean
-    readonly isImporting: boolean
-  }
+  readonly ui: UiState
   readonly settings: AppSettings
 }
 
@@ -30,10 +40,11 @@ export const initialState: AppState = {
     isCalculated: false,
     isImporting: false,
   },
-  settings: DEFAULT_SETTINGS,
+  settings: createDefaultSettings(),
 }
 
-/** アクション */
+// ─── Actions ──────────────────────────────────────────────
+
 export type AppAction =
   | { type: 'SET_IMPORTED_DATA'; payload: ImportedData }
   | { type: 'SET_STORE_RESULTS'; payload: ReadonlyMap<string, StoreResult> }
@@ -46,7 +57,8 @@ export type AppAction =
   | { type: 'UPDATE_INVENTORY'; payload: { storeId: string; config: Partial<InventoryConfig> } }
   | { type: 'RESET' }
 
-/** リデューサー */
+// ─── Reducer ──────────────────────────────────────────────
+
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_IMPORTED_DATA':
@@ -117,29 +129,71 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   }
 }
 
-/** コンテキスト */
-const AppStateContext = createContext<AppState>(initialState)
+// ─── Contexts ─────────────────────────────────────────────
+
+const UiContext = createContext<UiState>(initialState.ui)
+const DataContext = createContext<DataState>({
+  data: initialState.data,
+  storeResults: initialState.storeResults,
+  validationMessages: initialState.validationMessages,
+})
+const SettingsContext = createContext<AppSettings>(initialState.settings)
 const AppDispatchContext = createContext<React.Dispatch<AppAction>>(() => {})
 
-/** プロバイダー */
+// Backward compat: full state context
+const AppStateContext = createContext<AppState>(initialState)
+
+// ─── Provider ─────────────────────────────────────────────
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
 
+  const uiValue = state.ui
+  const dataValue = useMemo<DataState>(() => ({
+    data: state.data,
+    storeResults: state.storeResults,
+    validationMessages: state.validationMessages,
+  }), [state.data, state.storeResults, state.validationMessages])
+  const settingsValue = state.settings
+
   return (
-    <AppStateContext.Provider value={state}>
-      <AppDispatchContext.Provider value={dispatch}>
-        {children}
-      </AppDispatchContext.Provider>
-    </AppStateContext.Provider>
+    <AppDispatchContext.Provider value={dispatch}>
+      <AppStateContext.Provider value={state}>
+        <UiContext.Provider value={uiValue}>
+          <DataContext.Provider value={dataValue}>
+            <SettingsContext.Provider value={settingsValue}>
+              {children}
+            </SettingsContext.Provider>
+          </DataContext.Provider>
+        </UiContext.Provider>
+      </AppStateContext.Provider>
+    </AppDispatchContext.Provider>
   )
 }
 
-/** 状態を取得するフック */
+// ─── Hooks ────────────────────────────────────────────────
+
+/** 全状態を取得（既存互換） */
 export function useAppState(): AppState {
   return useContext(AppStateContext)
 }
 
-/** ディスパッチを取得するフック */
+/** UI 状態のみ取得（店舗選択、ビュー、計算状態） */
+export function useAppUi(): UiState {
+  return useContext(UiContext)
+}
+
+/** データ状態のみ取得（インポートデータ、計算結果） */
+export function useAppData(): DataState {
+  return useContext(DataContext)
+}
+
+/** 設定のみ取得 */
+export function useAppSettings(): AppSettings {
+  return useContext(SettingsContext)
+}
+
+/** ディスパッチを取得 */
 export function useAppDispatch(): React.Dispatch<AppAction> {
   return useContext(AppDispatchContext)
 }

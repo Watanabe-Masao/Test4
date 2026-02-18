@@ -3,9 +3,9 @@ import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import {
   processDroppedFiles,
   validateImportedData,
-} from '@/infrastructure/ImportService'
-import type { ImportSummary, ImportedData } from '@/infrastructure/ImportService'
-import type { AppSettings, DataType } from '@/domain/models'
+} from '@/application/services/FileImportService'
+import type { ImportSummary } from '@/application/services/FileImportService'
+import type { AppSettings, DataType, ImportedData } from '@/domain/models'
 
 /** ファイルインポートフック */
 export function useImport() {

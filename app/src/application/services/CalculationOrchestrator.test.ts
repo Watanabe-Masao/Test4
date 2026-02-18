@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { calculateStoreResult, calculateAllStores } from './CalculationOrchestrator'
-import { createEmptyImportedData } from '@/infrastructure/ImportService'
-import type { ImportedData } from '@/infrastructure/ImportService'
+import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from './CalculationOrchestrator'
+import { createEmptyImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 
 function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
@@ -301,5 +301,73 @@ describe('calculateAllStores', () => {
   it('空データでは空マップ', () => {
     const results = calculateAllStores(createEmptyImportedData(), DEFAULT_SETTINGS, 28)
     expect(results.size).toBe(0)
+  })
+})
+
+describe('aggregateStoreResults', () => {
+  it('複数店舗の合算', () => {
+    const data: ImportedData = {
+      ...createEmptyImportedData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+        ['2', { id: '2', code: '0002', name: '店舗B' }],
+      ]),
+      purchase: {
+        '1': { 1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } } },
+        '2': { 1: { suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } }, total: { cost: 20000, price: 26000 } } },
+      },
+      sales: {
+        '1': { 1: { sales: 15000 } },
+        '2': { 1: { sales: 30000 } },
+      },
+    }
+
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const results = Array.from(allResults.values())
+    const aggregated = aggregateStoreResults(results, 28)
+
+    expect(aggregated.totalSales).toBe(45000) // 15000 + 30000
+    expect(aggregated.totalCost).toBe(30000) // 10000 + 20000
+    expect(aggregated.daily.get(1)?.sales).toBe(45000)
+    expect(aggregated.storeId).toBe('aggregate')
+  })
+
+  it('在庫法集計: 両店舗に在庫設定がある場合', () => {
+    const data: ImportedData = {
+      ...createEmptyImportedData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+        ['2', { id: '2', code: '0002', name: '店舗B' }],
+      ]),
+      purchase: {
+        '1': { 1: { suppliers: {}, total: { cost: 10000, price: 13000 } } },
+        '2': { 1: { suppliers: {}, total: { cost: 20000, price: 26000 } } },
+      },
+      sales: {
+        '1': { 1: { sales: 50000 } },
+        '2': { 1: { sales: 80000 } },
+      },
+      settings: new Map([
+        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 95000, grossProfitBudget: null }],
+        ['2', { storeId: '2', openingInventory: 200000, closingInventory: 190000, grossProfitBudget: null }],
+      ]),
+    }
+
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const results = Array.from(allResults.values())
+    const agg = aggregateStoreResults(results, 28)
+
+    // 合算期首 = 100000 + 200000 = 300000
+    expect(agg.openingInventory).toBe(300000)
+    // 合算期末 = 95000 + 190000 = 285000
+    expect(agg.closingInventory).toBe(285000)
+    // 在庫法COGS = 300000 + 30000 - 285000 = 45000
+    expect(agg.invMethodCogs).toBe(45000)
+    // 在庫法粗利 = 130000 - 45000 = 85000
+    expect(agg.invMethodGrossProfit).toBe(85000)
+  })
+
+  it('0件でエラーをスロー', () => {
+    expect(() => aggregateStoreResults([], 28)).toThrow('Cannot aggregate 0 results')
   })
 })

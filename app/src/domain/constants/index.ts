@@ -1,4 +1,5 @@
 export {
+  createDefaultSettings,
   DEFAULT_SETTINGS,
   COST_RATE_MIN,
   COST_RATE_MAX,

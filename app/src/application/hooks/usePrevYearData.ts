@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useAppState } from '../context/AppStateContext'
 import { useStoreSelection } from './useStoreSelection'
+import { getDaysInMonth } from '@/domain/constants/defaults'
 
 export interface PrevYearDailyEntry {
   readonly sales: number
@@ -29,7 +30,7 @@ const EMPTY: PrevYearData = {
  * → 当年 day d に対応する前年の日は d + offset
  * → Map 構築時に前年 day を day - offset のキーで格納する
  */
-function calcSameDowOffset(year: number, month: number): number {
+export function calcSameDowOffset(year: number, month: number): number {
   const currentDow = new Date(year, month - 1, 1).getDay()
   const prevDow = new Date(year - 1, month - 1, 1).getDay()
   return ((currentDow - prevDow) % 7 + 7) % 7
@@ -56,6 +57,7 @@ export function usePrevYearData(): PrevYearData {
 
     // 前年同曜日オフセット
     const offset = calcSameDowOffset(targetYear, targetMonth)
+    const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
 
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
     const daily = new Map<number, { sales: number; discount: number }>()
@@ -65,7 +67,7 @@ export function usePrevYearData(): PrevYearData {
       for (const [dayStr, entry] of Object.entries(days)) {
         const origDay = Number(dayStr)
         const mappedDay = origDay - offset // 当年の日番号に対応付け
-        if (mappedDay < 1) continue // 対応する当年日がない場合はスキップ
+        if (mappedDay < 1 || mappedDay > daysInTargetMonth) continue // 当年月の範囲外はスキップ
 
         const existing = daily.get(mappedDay)
         if (existing) {

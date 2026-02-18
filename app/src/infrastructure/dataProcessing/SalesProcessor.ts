@@ -1,12 +1,8 @@
 import { getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import type { SalesData } from '@/domain/models'
 
-/** 売上パース結果: storeId → day → { sales } */
-export interface SalesData {
-  readonly [storeId: string]: {
-    readonly [day: number]: { readonly sales: number }
-  }
-}
+export type { SalesData } from '@/domain/models'
 
 /**
  * 売上データを処理する

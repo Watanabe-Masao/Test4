@@ -1,21 +1,8 @@
 import { getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import type { PurchaseData } from '@/domain/models'
 
-/** 仕入パース結果: storeId → day → { suppliers, total } */
-export interface PurchaseData {
-  readonly [storeId: string]: {
-    readonly [day: number]: {
-      readonly suppliers: {
-        readonly [supplierCode: string]: {
-          readonly name: string
-          readonly cost: number
-          readonly price: number
-        }
-      }
-      readonly total: { readonly cost: number; readonly price: number }
-    }
-  }
-}
+export type { PurchaseData } from '@/domain/models'
 
 /** 既知の店舗IDセット */
 type StoreSet = ReadonlySet<string>

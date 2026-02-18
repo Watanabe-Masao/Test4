@@ -1,20 +1,23 @@
 import type { AppSettings } from '../models'
 
-/** 現在の年月を取得 */
-const now = new Date()
+/** デフォルトアプリケーション設定を生成する（呼び出し時の現在日時を使用） */
+export function createDefaultSettings(): Readonly<AppSettings> {
+  const now = new Date()
+  return {
+    targetYear: now.getFullYear(),
+    targetMonth: now.getMonth() + 1,
+    targetGrossProfitRate: 0.25,
+    warningThreshold: 0.23,
+    flowerCostRate: 0.8,
+    directProduceCostRate: 0.85,
+    defaultMarkupRate: 0.26,
+    defaultBudget: 6_450_000,
+    supplierCategoryMap: {},
+  }
+}
 
-/** デフォルトアプリケーション設定 */
-export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
-  targetYear: now.getFullYear(),
-  targetMonth: now.getMonth() + 1,
-  targetGrossProfitRate: 0.25,
-  warningThreshold: 0.23,
-  flowerCostRate: 0.8,
-  directProduceCostRate: 0.85,
-  defaultMarkupRate: 0.26,
-  defaultBudget: 6_450_000,
-  supplierCategoryMap: {},
-} as const
+/** @deprecated createDefaultSettings() を使用してください */
+export const DEFAULT_SETTINGS: Readonly<AppSettings> = createDefaultSettings()
 
 /** 対象年月から月の日数を算出 */
 export function getDaysInMonth(year: number, month: number): number {

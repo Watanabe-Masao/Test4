@@ -1,27 +1,33 @@
-import type { DataType, Store, AppSettings } from '@/domain/models'
-import type { InventoryConfig, BudgetData } from '@/domain/models'
+import type { DataType, AppSettings, ValidationMessage, ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models'
+import type { DiscountData, SalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { ImportError } from './fileImport/errors'
-import type { ValidationMessage } from './fileImport/errors'
 import {
   processPurchase,
   extractStoresFromPurchase,
   extractSuppliersFromPurchase,
 } from './dataProcessing/PurchaseProcessor'
-import type { PurchaseData } from './dataProcessing/PurchaseProcessor'
 import { processSales, extractStoresFromSales } from './dataProcessing/SalesProcessor'
-import type { SalesData } from './dataProcessing/SalesProcessor'
 import { processDiscount } from './dataProcessing/DiscountProcessor'
-import type { DiscountData } from './dataProcessing/DiscountProcessor'
 import { processSettings } from './dataProcessing/SettingsProcessor'
 import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
-import type { TransferData } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
-import type { SpecialSalesData } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
-import type { ConsumableData } from './dataProcessing/ConsumableProcessor'
+
+/** DiscountData から SalesData を構築する */
+function discountToSalesData(discountData: DiscountData): SalesData {
+  const salesData: Record<string, Record<number, { sales: number }>> = {}
+  for (const [storeId, days] of Object.entries(discountData)) {
+    salesData[storeId] = {}
+    for (const [day, d] of Object.entries(days)) {
+      salesData[storeId][Number(day)] = { sales: d.sales }
+    }
+  }
+  return salesData
+}
 
 /** 単一ファイルのインポート結果 */
 export interface FileImportResult {
@@ -39,46 +45,12 @@ export interface ImportSummary {
   readonly failureCount: number
 }
 
-/** インポートされた全データの集約 */
-export interface ImportedData {
-  readonly stores: ReadonlyMap<string, Store>
-  readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
-  readonly purchase: PurchaseData
-  readonly sales: SalesData
-  readonly discount: DiscountData
-  readonly prevYearSales: SalesData
-  readonly prevYearDiscount: DiscountData
-  readonly interStoreIn: TransferData
-  readonly interStoreOut: TransferData
-  readonly flowers: SpecialSalesData
-  readonly directProduce: SpecialSalesData
-  readonly consumables: ConsumableData
-  readonly settings: ReadonlyMap<string, InventoryConfig>
-  readonly budget: ReadonlyMap<string, BudgetData>
-}
-
-/** 空のインポートデータ */
-export function createEmptyImportedData(): ImportedData {
-  return {
-    stores: new Map(),
-    suppliers: new Map(),
-    purchase: {},
-    sales: {},
-    discount: {},
-    prevYearSales: {},
-    prevYearDiscount: {},
-    interStoreIn: {},
-    interStoreOut: {},
-    flowers: {},
-    directProduce: {},
-    consumables: {},
-    settings: new Map(),
-    budget: new Map(),
-  }
-}
-
 /** 進捗コールバック */
 export type ProgressCallback = (current: number, total: number, filename: string) => void
+
+// Re-export from domain for backward compatibility
+export type { ImportedData } from '@/domain/models'
+export { createEmptyImportedData } from '@/domain/models'
 
 /**
  * ファイルを読み込みデータ種別を判定する
@@ -160,19 +132,10 @@ export function processFileData(
 
       const discountData = processDiscount(rows)
 
-      // DiscountData から SalesData を構築
-      const salesData: Record<string, Record<number, { sales: number }>> = {}
-      for (const [storeId, days] of Object.entries(discountData)) {
-        salesData[storeId] = {}
-        for (const [day, d] of Object.entries(days)) {
-          salesData[storeId][Number(day)] = { sales: d.sales }
-        }
-      }
-
       return {
         ...current,
         stores: mutableStores,
-        sales: salesData,
+        sales: discountToSalesData(discountData),
         discount: discountData,
       }
     }
@@ -181,16 +144,9 @@ export function processFileData(
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
       // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
       const prevDiscountData = processDiscount(rows, appSettings.targetMonth)
-      const prevSalesData: Record<string, Record<number, { sales: number }>> = {}
-      for (const [storeId, days] of Object.entries(prevDiscountData)) {
-        prevSalesData[storeId] = {}
-        for (const [day, d] of Object.entries(days)) {
-          prevSalesData[storeId][Number(day)] = { sales: d.sales }
-        }
-      }
       return {
         ...current,
-        prevYearSales: prevSalesData,
+        prevYearSales: discountToSalesData(prevDiscountData),
         prevYearDiscount: prevDiscountData,
       }
     }
@@ -296,60 +252,3 @@ export async function processDroppedFiles(
   }
 }
 
-/**
- * インポートデータのバリデーション
- */
-export function validateImportedData(data: ImportedData): readonly ValidationMessage[] {
-  const messages: ValidationMessage[] = []
-  const storeCount = data.stores.size
-
-  // 必須データチェック
-  if (Object.keys(data.purchase).length === 0) {
-    messages.push({ level: 'error', message: '仕入データがありません' })
-  }
-  if (Object.keys(data.sales).length === 0) {
-    messages.push({ level: 'error', message: '売上データがありません' })
-  }
-
-  // 店舗チェック
-  if (storeCount === 0) {
-    messages.push({ level: 'warning', message: '店舗が検出されませんでした' })
-  }
-
-  // 在庫設定チェック
-  const invCount = data.settings.size
-  if (invCount === 0) {
-    messages.push({
-      level: 'warning',
-      message: '在庫設定がありません。初期設定ファイルを読み込むか手動設定してください',
-    })
-  } else if (invCount < storeCount) {
-    messages.push({
-      level: 'warning',
-      message: `一部店舗の在庫設定がありません (${invCount}/${storeCount})`,
-    })
-  }
-
-  // オプショナルデータ
-  if (data.budget.size === 0) {
-    messages.push({
-      level: 'info',
-      message: '予算データがありません。予算ファイルを読み込むとより詳細な分析が可能です',
-    })
-  }
-  if (Object.keys(data.discount).length === 0) {
-    messages.push({
-      level: 'info',
-      message: '売変データがありません。売変ファイルを読み込むと推定粗利計算が可能です',
-    })
-  }
-
-  return messages
-}
-
-/**
- * バリデーションにエラーがないかチェック
- */
-export function hasValidationErrors(messages: readonly ValidationMessage[]): boolean {
-  return messages.some((m) => m.level === 'error')
-}

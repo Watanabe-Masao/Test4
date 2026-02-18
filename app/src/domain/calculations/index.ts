@@ -36,3 +36,7 @@ export type {
 
 // 全店集計ユーティリティ
 export { sumStoreValues, sumNullableValues, weightedAverageBySales } from './aggregation'
+
+// ピン止め区間計算
+export { calculatePinIntervals } from './pinIntervals'
+export type { PinInterval } from './pinIntervals'

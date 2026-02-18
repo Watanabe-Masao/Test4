@@ -49,7 +49,7 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
       return pair && (mode === 'cost' ? pair.cost : pair.price) !== 0
     })
     .map((cat) => {
-      const pair = categoryTotals.get(cat)!
+      const pair = categoryTotals.get(cat) ?? { cost: 0, price: 0 }
       const value = Math.abs(mode === 'cost' ? pair.cost : pair.price)
       return {
         name: CATEGORY_LABELS[cat],
@@ -60,8 +60,7 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
 
   if (data.length === 0) return null
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderLabel = (props: any) => {
+  const renderLabel = (props: { cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number; name: string }) => {
     const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props
     const pct = Number(percent)
     if (pct < 0.03) return null
