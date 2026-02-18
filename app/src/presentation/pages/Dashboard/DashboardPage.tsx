@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { KpiCard, KpiGrid, Chip, ChipGroup, Button } from '@/presentation/components/common'
+import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import type { WidgetDef, WidgetContext } from './widgets/types'

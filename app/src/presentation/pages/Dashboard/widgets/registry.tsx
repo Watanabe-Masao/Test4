@@ -2,7 +2,7 @@ import { KpiCard } from '@/presentation/components/common'
 import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart, PrevYearComparisonChart } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
-import type { WidgetDef, WidgetContext } from './types'
+import type { WidgetDef } from './types'
 import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } from './ExecWidgets'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
 import {
