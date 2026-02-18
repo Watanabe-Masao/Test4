@@ -125,7 +125,7 @@ export const DetailClose = styled.button`
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.full};
+  border-radius: ${({ theme }) => theme.radii.pill};
   background: ${({ theme }) => theme.colors.bg4};
   color: ${({ theme }) => theme.colors.text3};
   cursor: pointer;
