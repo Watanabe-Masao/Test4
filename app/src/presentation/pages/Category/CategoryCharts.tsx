@@ -43,12 +43,11 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
   const ct = useChartTheme()
   const [view, setView] = useState<ChartView>('pie')
 
-  const totalPrice = items.reduce((s, d) => s + Math.abs(d.price), 0)
+  const totalPrice = items.reduce((s, d) => s + d.price, 0)
 
   const data = items
     .map((d) => {
-      const priceShare = safeDivide(Math.abs(d.price), totalPrice, 0)
-      const crossMult = priceShare * d.markup
+      const crossMult = safeDivide(d.price - d.cost, totalPrice, 0)
       return { name: d.label, value: Math.abs(crossMult), color: d.color }
     })
     .filter((d) => d.value > 0)
