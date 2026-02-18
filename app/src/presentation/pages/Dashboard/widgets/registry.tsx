@@ -400,15 +400,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
           <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
           {(() => {
-            // 表示値と同じフィールドから明示的に COGS を算出
             if (r.openingInventory == null || r.closingInventory == null) {
-              return <ExecSummarySub>原価算入比: -（在庫データ未入力）</ExecSummarySub>
+              return <ExecSummarySub>売上原価: -（在庫データ未入力）</ExecSummarySub>
             }
             const cogs = r.openingInventory + r.totalCost - r.closingInventory
             return (
-              <ExecSummarySub $color={cogs > 0 ? '#f59e0b' : undefined}>
-                原価算入比: {formatCurrency(cogs)}（{formatPercent(safeDivide(cogs, r.totalSales, 0))}）
-              </ExecSummarySub>
+              <ExecSummaryValue>{formatCurrency(cogs)}</ExecSummaryValue>
             )
           })()}
         </ExecSummaryItem>
@@ -429,27 +426,28 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#22c55e">
-          <ExecSummaryLabel>粗利率（在庫法）</ExecSummaryLabel>
+          <ExecSummaryLabel>粗利率</ExecSummaryLabel>
           {r.invMethodGrossProfitRate != null ? (() => {
-            const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
-            const diff = r.invMethodGrossProfitRate - afterRate
+            const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+            const invDiff = r.invMethodGrossProfitRate - invAfterRate
+            const estBeforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+            const estDiff = estBeforeRate - r.estMethodMarginRate
             return (
               <>
-                <ExecSummaryValue>{formatPercent(r.invMethodGrossProfitRate)} / {formatPercent(afterRate)}</ExecSummaryValue>
-                <ExecSummarySub>減算比 {formatPointDiff(diff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
+                <ExecSummaryValue>{formatPercent(r.invMethodGrossProfitRate)} / {formatPercent(invAfterRate)}</ExecSummaryValue>
+                <ExecSummarySub>在庫法 減算比 {formatPointDiff(invDiff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
+                <ExecSummarySub $color="#64748b">
+                  参考（推定法）: {formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}（減算比 {formatPointDiff(estDiff)}）
+                </ExecSummarySub>
               </>
             )
-          })() : <ExecSummaryValue>-</ExecSummaryValue>}
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#0ea5e9">
-          <ExecSummaryLabel>粗利率（推定法）</ExecSummaryLabel>
-          {(() => {
-            const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
-            const diff = beforeRate - r.estMethodMarginRate
+          })() : (() => {
+            const estBeforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+            const estDiff = estBeforeRate - r.estMethodMarginRate
             return (
               <>
-                <ExecSummaryValue>{formatPercent(beforeRate)} / {formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
-                <ExecSummarySub>減算比 {formatPointDiff(diff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
+                <ExecSummaryValue>{formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
+                <ExecSummarySub>推定法 減算比 {formatPointDiff(estDiff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
               </>
             )
           })()}
