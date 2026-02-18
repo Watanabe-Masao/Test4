@@ -9,24 +9,14 @@ import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } 
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
 import {
   ExecSummaryBar, ExecSummaryItem, ExecSummaryLabel, ExecSummaryValue, ExecSummarySub,
-  InventoryBar,
 } from '../DashboardPage.styles'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
-  // ── KPI: 売上・利益 ──
-  {
-    id: 'kpi-total-sales',
-    label: '総売上高',
-    group: '売上・利益',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent="#6366f1" />
-    ),
-  },
+  // ── KPI: 売上・粗利 ──
   {
     id: 'kpi-core-sales',
     label: 'コア売上',
-    group: '売上・利益',
+    group: '売上・粗利',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard
@@ -40,7 +30,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-inv-gross-profit',
     label: '【在庫法】粗利益',
-    group: '売上・利益',
+    group: '売上・粗利',
     size: 'kpi',
     render: ({ result: r }) => {
       if (r.invMethodGrossProfitRate == null) {
@@ -60,7 +50,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-est-margin',
     label: '【推定法】マージン',
-    group: '売上・利益',
+    group: '売上・粗利',
     size: 'kpi',
     render: ({ result: r }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
@@ -74,16 +64,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       )
     },
   },
-  // ── KPI: 仕入・原価 ──
   {
-    id: 'kpi-total-cost',
-    label: '総仕入原価',
-    group: '仕入・原価',
+    id: 'kpi-gross-profit-budget',
+    label: '粗利額予算',
+    group: '売上・粗利',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="総仕入原価" value={formatCurrency(r.totalCost)} accent="#f59e0b" />
-    ),
+    render: ({ result: r }) => {
+      const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
+      return (
+        <KpiCard
+          label="粗利額予算"
+          value={formatCurrency(r.grossProfitBudget)}
+          subText={`実績: ${formatCurrency(actualGP)}`}
+          accent="#8b5cf6"
+        />
+      )
+    },
   },
+  // ── KPI: 仕入・原価 ──
   {
     id: 'kpi-inventory-cost',
     label: '在庫仕入原価',
@@ -121,62 +119,29 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
-  // ── KPI: 売変・値入 ──
-  {
-    id: 'kpi-discount',
-    label: '売変額合計',
-    group: '売変・値入',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard
-        label="売変額合計"
-        value={formatCurrency(r.totalDiscount)}
-        subText={`売変率: ${formatPercent(r.discountRate)}`}
-        accent="#f43f5e"
-      />
-    ),
-  },
   {
     id: 'kpi-discount-loss',
     label: '売変ロス原価',
-    group: '売変・値入',
+    group: '仕入・原価',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} accent="#dc2626" />
     ),
   },
   {
-    id: 'kpi-avg-markup',
-    label: '平均値入率',
-    group: '売変・値入',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="平均値入率" value={formatPercent(r.averageMarkupRate)} accent="#3b82f6" />
-    ),
-  },
-  {
     id: 'kpi-core-markup',
     label: 'コア値入率',
-    group: '売変・値入',
+    group: '仕入・原価',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" />
     ),
   },
-  // ── KPI: 予算・予測 ──
-  {
-    id: 'kpi-budget',
-    label: '月間予算',
-    group: '予算・予測',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
-    ),
-  },
+  // ── KPI: 予測 ──
   {
     id: 'kpi-avg-daily-sales',
     label: '日平均売上',
-    group: '予算・予測',
+    group: '予測',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard
@@ -190,7 +155,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-projected-sales',
     label: '月末予測売上',
-    group: '予算・予測',
+    group: '予測',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard label="月末予測売上" value={formatCurrency(r.projectedSales)} accent="#22c55e" />
@@ -199,60 +164,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-projected-achievement',
     label: '予算達成率予測',
-    group: '予算・予測',
+    group: '予測',
     size: 'kpi',
     render: ({ result: r }) => (
       <KpiCard label="予算達成率予測" value={formatPercent(r.projectedAchievement)} accent="#0ea5e9" />
     ),
-  },
-  // ── KPI: 予算分析 ──
-  {
-    id: 'kpi-budget-progress',
-    label: '予算達成率',
-    group: '予算分析',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard
-        label="予算達成率"
-        value={formatPercent(r.budgetProgressRate)}
-        subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
-        accent="#6366f1"
-      />
-    ),
-  },
-  {
-    id: 'kpi-gross-profit-budget',
-    label: '粗利額予算',
-    group: '予算分析',
-    size: 'kpi',
-    render: ({ result: r }) => {
-      const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
-      return (
-        <KpiCard
-          label="粗利額予算"
-          value={formatCurrency(r.grossProfitBudget)}
-          subText={`実績: ${formatCurrency(actualGP)}`}
-          accent="#8b5cf6"
-        />
-      )
-    },
-  },
-  {
-    id: 'kpi-gross-profit-rate',
-    label: '粗利率（実績vs予算）',
-    group: '予算分析',
-    size: 'kpi',
-    render: ({ result: r }) => {
-      const actualRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
-      return (
-        <KpiCard
-          label="粗利率"
-          value={formatPercent(actualRate)}
-          subText={`予算: ${formatPercent(r.grossProfitRateBudget)}`}
-          accent="#ec4899"
-        />
-      )
-    },
   },
   // ── チャート ──
   {
@@ -384,7 +300,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>（月間）</ExecSummaryLabel>
+          <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
           <ExecSummarySub $color={r.budgetAchievementRate >= 1 ? '#22c55e' : '#ef4444'}>
@@ -395,7 +311,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           </ExecSummarySub>
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f59e0b">
-          <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
+          <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
           <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
           <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
@@ -426,7 +342,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#22c55e">
-          <ExecSummaryLabel>粗利率</ExecSummaryLabel>
+          <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
           {r.invMethodGrossProfitRate != null ? (() => {
             const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
             const invDiff = r.invMethodGrossProfitRate - invAfterRate
@@ -464,52 +380,6 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
-    id: 'exec-inventory-metrics',
-    label: '在庫・値入・売変',
-    group: '本部・経営者向け',
-    size: 'full',
-    render: ({ result: r }) => (
-      <InventoryBar>
-        <ExecSummaryItem $accent="#8b5cf6">
-          <ExecSummaryLabel>期首在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.openingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>期末在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.closingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#0ea5e9">
-          <ExecSummaryLabel>推定在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.estMethodClosingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#3b82f6">
-          <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
-          {(() => {
-            const markupAmount = r.grossSales - r.totalCost
-            const estGpRate = r.averageMarkupRate - r.discountRate * (1 - r.discountRate)
-            return (
-              <>
-                <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
-                <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub $color={estGpRate >= 0.20 ? '#22c55e' : estGpRate >= 0.15 ? '#f59e0b' : '#ef4444'}>
-                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
-                </ExecSummarySub>
-              </>
-            )
-          })()}
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#f43f5e">
-          <ExecSummaryLabel>売変額</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.totalDiscount)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#ef4444">
-          <ExecSummaryLabel>売変率</ExecSummaryLabel>
-          <ExecSummaryValue>{formatPercent(r.discountRate)}</ExecSummaryValue>
-        </ExecSummaryItem>
-      </InventoryBar>
-    ),
-  },
-  {
     id: 'exec-monthly-calendar',
     label: '月間カレンダー',
     group: '本部・経営者向け',
@@ -544,7 +414,6 @@ export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-summary-bar',
   'exec-plan-actual-forecast',
-  'exec-inventory-metrics',
   'exec-monthly-calendar',
   'exec-dow-average', 'exec-weekly-summary',
   'exec-forecast-tools',
@@ -552,7 +421,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v3'
+const STORAGE_KEY = 'dashboard_layout_v4'
 
 export function loadLayout(): string[] {
   try {

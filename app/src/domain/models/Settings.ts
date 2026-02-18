@@ -25,6 +25,8 @@ export type ViewType =
   | 'forecast'
   | 'analysis'
   | 'daily'
+  | 'transfer'
+  | 'consumable'
   | 'summary'
   | 'reports'
 

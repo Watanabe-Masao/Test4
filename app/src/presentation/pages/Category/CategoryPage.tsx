@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Chip, ChipGroup } from '@/presentation/components/common'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
-import { useAppState, useAppDispatch } from '@/application/context'
+import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
+import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
@@ -24,7 +24,7 @@ export function CategoryPage() {
   const { isCalculated } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const appState = useAppState()
-  const dispatch = useAppDispatch()
+  const { updateSettings } = useSettings()
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
 
   // Build store name map for comparison charts (must be before early return)
@@ -62,11 +62,8 @@ export function CategoryPage() {
 
   const handleCustomCategoryChange = (supplierCode: string, newCategory: CustomCategory) => {
     const currentMap = appState.settings.supplierCategoryMap
-    dispatch({
-      type: 'UPDATE_SETTINGS',
-      payload: {
-        supplierCategoryMap: { ...currentMap, [supplierCode]: newCategory },
-      },
+    updateSettings({
+      supplierCategoryMap: { ...currentMap, [supplierCode]: newCategory },
     })
   }
 
