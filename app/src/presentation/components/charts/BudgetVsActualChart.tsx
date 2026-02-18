@@ -122,8 +122,6 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
 
   // 達成率（対予算累計）
   const progressRate = currentBudgetCum > 0 ? currentActual / currentBudgetCum : 0
-  // 月間予算達成率
-  const achievementRate = budget > 0 ? currentActual / budget : 0
   // 着地見込み
   const totalDays = daysInMonth ?? data.length
   const effectiveSalesDays = salesDays ?? currentDay
