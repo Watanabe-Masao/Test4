@@ -23,6 +23,18 @@ import type { SpecialSalesData } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
 import type { ConsumableData } from './dataProcessing/ConsumableProcessor'
 
+/** DiscountData から SalesData を構築する */
+function discountToSalesData(discountData: DiscountData): SalesData {
+  const salesData: Record<string, Record<number, { sales: number }>> = {}
+  for (const [storeId, days] of Object.entries(discountData)) {
+    salesData[storeId] = {}
+    for (const [day, d] of Object.entries(days)) {
+      salesData[storeId][Number(day)] = { sales: d.sales }
+    }
+  }
+  return salesData
+}
+
 /** 単一ファイルのインポート結果 */
 export interface FileImportResult {
   readonly ok: boolean
@@ -160,19 +172,10 @@ export function processFileData(
 
       const discountData = processDiscount(rows)
 
-      // DiscountData から SalesData を構築
-      const salesData: Record<string, Record<number, { sales: number }>> = {}
-      for (const [storeId, days] of Object.entries(discountData)) {
-        salesData[storeId] = {}
-        for (const [day, d] of Object.entries(days)) {
-          salesData[storeId][Number(day)] = { sales: d.sales }
-        }
-      }
-
       return {
         ...current,
         stores: mutableStores,
-        sales: salesData,
+        sales: discountToSalesData(discountData),
         discount: discountData,
       }
     }
@@ -181,16 +184,9 @@ export function processFileData(
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
       // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
       const prevDiscountData = processDiscount(rows, appSettings.targetMonth)
-      const prevSalesData: Record<string, Record<number, { sales: number }>> = {}
-      for (const [storeId, days] of Object.entries(prevDiscountData)) {
-        prevSalesData[storeId] = {}
-        for (const [day, d] of Object.entries(days)) {
-          prevSalesData[storeId][Number(day)] = { sales: d.sales }
-        }
-      }
       return {
         ...current,
-        prevYearSales: prevSalesData,
+        prevYearSales: discountToSalesData(prevDiscountData),
         prevYearDiscount: prevDiscountData,
       }
     }

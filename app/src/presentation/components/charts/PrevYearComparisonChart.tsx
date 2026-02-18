@@ -41,7 +41,6 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
   // 累計データ構築
   let currentCum = 0
   let prevCum = 0
-  const prevTotal = Array.from(prevYearDaily.values()).reduce((s, e) => s + e.sales, 0)
 
   const data = []
   for (let d = 1; d <= daysInMonth; d++) {
@@ -53,6 +52,9 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
       prevYearCum: prevCum > 0 ? prevCum : null,
     })
   }
+
+  // ループ後の prevCum が前年月間合計
+  const prevTotal = prevCum
 
   return (
     <Wrapper>

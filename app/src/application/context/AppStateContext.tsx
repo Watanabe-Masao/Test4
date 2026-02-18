@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react'
 import type { AppSettings, ViewType, StoreResult, InventoryConfig } from '@/domain/models'
-import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
+import { createDefaultSettings } from '@/domain/constants/defaults'
 import type { ImportedData } from '@/infrastructure/ImportService'
 import { createEmptyImportedData } from '@/infrastructure/ImportService'
 import type { ValidationMessage } from '@/infrastructure/fileImport/errors'
@@ -30,7 +30,7 @@ export const initialState: AppState = {
     isCalculated: false,
     isImporting: false,
   },
-  settings: DEFAULT_SETTINGS,
+  settings: createDefaultSettings(),
 }
 
 /** アクション */
