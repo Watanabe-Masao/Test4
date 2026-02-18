@@ -13,6 +13,8 @@ import { CategoryPage } from '@/presentation/pages/Category/CategoryPage'
 import { SummaryPage } from '@/presentation/pages/Summary/SummaryPage'
 import { ForecastPage } from '@/presentation/pages/Forecast/ForecastPage'
 import { ReportsPage } from '@/presentation/pages/Reports/ReportsPage'
+import { TransferPage } from '@/presentation/pages/Transfer/TransferPage'
+import { ConsumablePage } from '@/presentation/pages/Consumable/ConsumablePage'
 import type { ViewType } from '@/domain/models'
 
 // ─── テーマトグルコンテキスト ────────────────────────────────
@@ -44,6 +46,10 @@ function ViewRouter({ view }: { view: ViewType }) {
       return <SummaryPage />
     case 'forecast':
       return <ForecastPage />
+    case 'transfer':
+      return <TransferPage />
+    case 'consumable':
+      return <ConsumablePage />
     case 'reports':
       return <ReportsPage />
     default:
