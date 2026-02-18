@@ -70,11 +70,15 @@ export const TrDetailLast = styled(TrDetail)`
   }
 `
 
-export const DetailLabel = styled.span`
+export const DetailLabel = styled.span<{ $sub?: boolean }>`
   display: inline-block;
   min-width: 80px;
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text4};
+  ${({ $sub, theme }) => $sub && `
+    font-weight: ${theme.typography.fontWeight.semibold};
+    color: ${theme.colors.text3};
+  `}
 `
 
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`

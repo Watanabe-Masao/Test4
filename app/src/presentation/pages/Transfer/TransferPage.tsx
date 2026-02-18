@@ -239,16 +239,57 @@ export function TransferPage() {
                   const net = inRec.cost + outRec.cost
                   const hasData = inRec.cost !== 0 || outRec.cost !== 0
                   if (!hasData) return null
-                  const breakdown = [
-                    ...rec.transferBreakdown[inField],
-                    ...rec.transferBreakdown[outField],
-                  ]
+                  const inEntries = rec.transferBreakdown[inField]
+                  const outEntries = rec.transferBreakdown[outField]
+                  const hasBreakdown = inEntries.length > 0 || outEntries.length > 0
                   const isExpanded = expandedDay === day
+                  // 展開行を構築: IN(←)エントリ → IN小計 → OUT(→)エントリ → OUT小計
+                  const detailRows: { key: string; label: string; isSub: boolean; inCost: number; inPrice: number; outCost: number; outPrice: number }[] = []
+                  if (isExpanded) {
+                    // IN entries: XX←YY
+                    for (const e of inEntries) {
+                      const partner = stores.get(e.fromStoreId)?.name ?? e.fromStoreId
+                      detailRows.push({
+                        key: `in-${e.fromStoreId}-${e.toStoreId}`,
+                        label: `${e.toStoreId}←${e.fromStoreId}  ${partner}`,
+                        isSub: false,
+                        inCost: e.cost, inPrice: e.price, outCost: 0, outPrice: 0,
+                      })
+                    }
+                    if (inEntries.length > 1) {
+                      const toId = inEntries[0]?.toStoreId ?? ''
+                      detailRows.push({
+                        key: 'in-sub',
+                        label: `${toId}← 小計`,
+                        isSub: true,
+                        inCost: inRec.cost, inPrice: inRec.price, outCost: 0, outPrice: 0,
+                      })
+                    }
+                    // OUT entries: XX→YY
+                    for (const e of outEntries) {
+                      const partner = stores.get(e.toStoreId)?.name ?? e.toStoreId
+                      detailRows.push({
+                        key: `out-${e.fromStoreId}-${e.toStoreId}`,
+                        label: `${e.fromStoreId}→${e.toStoreId}  ${partner}`,
+                        isSub: false,
+                        inCost: 0, inPrice: 0, outCost: e.cost, outPrice: e.price,
+                      })
+                    }
+                    if (outEntries.length > 1) {
+                      const fromId = outEntries[0]?.fromStoreId ?? ''
+                      detailRows.push({
+                        key: 'out-sub',
+                        label: `${fromId}→ 小計`,
+                        isSub: true,
+                        inCost: 0, inPrice: 0, outCost: outRec.cost, outPrice: outRec.price,
+                      })
+                    }
+                  }
                   return (
                     <>{/* Fragment for day + detail rows */}
-                      <Tr key={day} $clickable={breakdown.length > 0} $expanded={isExpanded} onClick={() => breakdown.length > 0 && handleDayClick(day)}>
+                      <Tr key={day} $clickable={hasBreakdown} $expanded={isExpanded} onClick={() => hasBreakdown && handleDayClick(day)}>
                         <Td>
-                          {breakdown.length > 0 && <ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>}
+                          {hasBreakdown && <ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>}
                           {day}日
                         </Td>
                         <Td>{fmtOrDash(inRec.cost)}</Td>
@@ -257,19 +298,18 @@ export function TransferPage() {
                         <Td $negative={outRec.price < 0}>{fmtOrDash(outRec.price)}</Td>
                         <Td $negative={net < 0} $positive={net > 0}>{fmtOrDash(net)}</Td>
                       </Tr>
-                      {isExpanded && breakdown.map((entry, idx) => {
-                        const isLast = idx === breakdown.length - 1
+                      {isExpanded && detailRows.map((row, idx) => {
+                        const isLast = idx === detailRows.length - 1
                         const TrRow = isLast ? TrDetailLast : TrDetail
-                        const fromName = stores.get(entry.fromStoreId)?.name ?? entry.fromStoreId
-                        const toName = stores.get(entry.toStoreId)?.name ?? entry.toStoreId
+                        const rowNet = row.inCost + row.outCost
                         return (
-                          <TrRow key={`${day}-${entry.fromStoreId}-${entry.toStoreId}`}>
-                            <Td><DetailLabel>{entry.fromStoreId}→{entry.toStoreId}</DetailLabel> {fromName}→{toName}</Td>
-                            <Td>{entry.cost > 0 ? formatCurrency(entry.cost) : '-'}</Td>
-                            <Td>{entry.price > 0 ? formatCurrency(entry.price) : '-'}</Td>
-                            <Td $negative={entry.cost < 0}>{entry.cost < 0 ? formatCurrency(entry.cost) : '-'}</Td>
-                            <Td $negative={entry.price < 0}>{entry.price < 0 ? formatCurrency(entry.price) : '-'}</Td>
-                            <Td>{formatCurrency(entry.cost)}</Td>
+                          <TrRow key={`${day}-${row.key}`}>
+                            <Td><DetailLabel $sub={row.isSub}>{row.label}</DetailLabel></Td>
+                            <Td>{row.inCost !== 0 ? formatCurrency(row.inCost) : '-'}</Td>
+                            <Td>{row.inPrice !== 0 ? formatCurrency(row.inPrice) : '-'}</Td>
+                            <Td $negative={row.outCost < 0}>{row.outCost !== 0 ? formatCurrency(row.outCost) : '-'}</Td>
+                            <Td $negative={row.outPrice < 0}>{row.outPrice !== 0 ? formatCurrency(row.outPrice) : '-'}</Td>
+                            <Td $negative={rowNet < 0} $positive={rowNet > 0}>{rowNet !== 0 ? formatCurrency(rowNet) : '-'}</Td>
                           </TrRow>
                         )
                       })}
