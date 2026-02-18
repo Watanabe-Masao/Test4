@@ -1,7 +1,7 @@
 import { calculateForecast } from '@/domain/calculations/forecast'
 import type { DayOfWeekAverage } from '@/domain/calculations/forecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { useChartTheme, toManYen, toComma } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
 import {
   BarChart,
   Bar,
@@ -44,14 +44,7 @@ export function WeeklyChart({ data, dowColors }: { data: Record<string, string |
             width={50}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
           />
           <Legend
@@ -107,14 +100,7 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
             width={45}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => {
               if (name === 'index') return [formatPercent(value ?? 0), '曜日指数']
               return [toComma(value ?? 0), '平均売上']
@@ -148,7 +134,6 @@ export function StoreComparisonRadarChart({
   storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
 }) {
   const ct = useChartTheme()
-  const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
 
   // Build radar data from day-of-week averages
   const radarData = DOW_LABELS.map((label, i) => {
@@ -186,14 +171,7 @@ export function StoreComparisonRadarChart({
           ))}
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined) => [toComma(value ?? 0), '']}
           />
         </RadarChart>
@@ -209,7 +187,6 @@ export function StoreComparisonBarChart({
   storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
 }) {
   const ct = useChartTheme()
-  const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
 
   // Build grouped bar data per week
   const data = storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
@@ -241,14 +218,7 @@ export function StoreComparisonBarChart({
             width={50}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />

@@ -5,10 +5,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
-import { useChartTheme, toManYen, toComma } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
-
-const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
 
 /** 店舗間カテゴリ比較バーチャート */
 export function StoreComparisonCategoryBarChart({
@@ -52,14 +50,7 @@ export function StoreComparisonCategoryBarChart({
             width={50}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
@@ -135,14 +126,7 @@ export function StoreComparisonMarkupRadarChart({
           })}
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(1)}%`, '']}
           />
         </RadarChart>

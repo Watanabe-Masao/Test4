@@ -7,7 +7,7 @@ import {
   ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line,
   type PieLabelRenderProps,
 } from 'recharts'
-import { useChartTheme, toManYen } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
@@ -56,6 +56,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
   if (data.length === 0) return null
 
   const renderLabel = makePieLabel(ct)
+  const paretoData = buildParetoData(data)
 
   return (
     <PieWrapper>
@@ -83,17 +84,14 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                background: ct.bg2, border: `1px solid ${ct.grid}`,
-                borderRadius: 8, fontSize: ct.fontSize.sm, fontFamily: ct.fontFamily, color: ct.text,
-              }}
+              contentStyle={tooltipStyle(ct)}
               formatter={(value) => [`${((value as number) * 100).toFixed(2)}%`, '相乗積']}
             />
           </PieChart>
         </ResponsiveContainer>
       ) : (
         <ResponsiveContainer width="100%" height="80%">
-          <ComposedChart data={buildParetoData(data)} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
+          <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
             <XAxis
               dataKey="name"
@@ -122,10 +120,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               width={45}
             />
             <Tooltip
-              contentStyle={{
-                background: ct.bg2, border: `1px solid ${ct.grid}`,
-                borderRadius: 8, fontSize: ct.fontSize.sm, fontFamily: ct.fontFamily, color: ct.text,
-              }}
+              contentStyle={tooltipStyle(ct)}
               formatter={(value: unknown, name: string | undefined) => {
                 const v = Number(value)
                 if (name === 'cumPct') return [`${(v * 100).toFixed(1)}%`, '累計']
@@ -133,7 +128,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               }}
             />
             <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
-              {buildParetoData(data).map((entry, i) => (
+              {paretoData.map((entry, i) => (
                 <Cell key={i} fill={entry.color} fillOpacity={0.8} />
               ))}
             </Bar>
@@ -168,6 +163,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
   if (data.length === 0) return null
 
   const renderLabel = makePieLabel(ct)
+  const paretoData = buildParetoData(data)
 
   return (
     <PieWrapper>
@@ -198,17 +194,14 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                background: ct.bg2, border: `1px solid ${ct.grid}`,
-                borderRadius: 8, fontSize: ct.fontSize.sm, fontFamily: ct.fontFamily, color: ct.text,
-              }}
+              contentStyle={tooltipStyle(ct)}
               formatter={(value) => [formatCurrency(value as number), mode === 'cost' ? '原価' : '売価']}
             />
           </PieChart>
         </ResponsiveContainer>
       ) : (
         <ResponsiveContainer width="100%" height="75%">
-          <ComposedChart data={buildParetoData(data)} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
+          <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
             <XAxis
               dataKey="name"
@@ -237,10 +230,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               width={45}
             />
             <Tooltip
-              contentStyle={{
-                background: ct.bg2, border: `1px solid ${ct.grid}`,
-                borderRadius: 8, fontSize: ct.fontSize.sm, fontFamily: ct.fontFamily, color: ct.text,
-              }}
+              contentStyle={tooltipStyle(ct)}
               formatter={(value: unknown, name: string | undefined) => {
                 const v = Number(value)
                 if (name === 'cumPct') return [`${(v * 100).toFixed(1)}%`, '累計']
@@ -248,7 +238,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               }}
             />
             <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
-              {buildParetoData(data).map((entry, i) => (
+              {paretoData.map((entry, i) => (
                 <Cell key={i} fill={entry.color} fillOpacity={0.8} />
               ))}
             </Bar>
