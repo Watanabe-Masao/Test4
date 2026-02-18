@@ -775,6 +775,14 @@ export const ToolInputField = styled.input`
   &:focus { border-color: ${({ theme }) => theme.colors.palette.primary}; }
 `
 
+export const ToolInputSub = styled.div<{ $color?: string }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text4};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  text-align: right;
+`
+
 export const ToolResultSection = styled.div`
   margin-top: ${({ theme }) => theme.spacing[8]};
   padding-top: ${({ theme }) => theme.spacing[6]};
