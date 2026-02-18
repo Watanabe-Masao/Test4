@@ -6,7 +6,7 @@ import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { DailyRecord } from '@/domain/models'
 import {
   Section, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
-  Bar, RankBadge, PairGrid,
+  Bar, RankBadge, PairGrid, DetailPanel, DetailHeader, DetailTitle, DetailClose,
 } from './ConsumablePage.styles'
 
 type ViewMode = 'item' | 'account' | 'daily'
@@ -26,6 +26,15 @@ interface AccountAggregate {
   accountCode: string
   totalCost: number
   itemCount: number
+}
+
+/** 品目の発注詳細行 */
+interface ItemDetail {
+  day: number
+  storeId: string
+  storeName: string
+  quantity: number
+  cost: number
 }
 
 /** 全日から品目別集計を構築 */
@@ -91,8 +100,9 @@ function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
 
 export function ConsumablePage() {
   const { isCalculated } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
+  const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const [viewMode, setViewMode] = useState<ViewMode>('item')
+  const [selectedItem, setSelectedItem] = useState<string | null>(null)
 
   const days = useMemo(
     () => currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
@@ -101,6 +111,33 @@ export function ConsumablePage() {
 
   const itemAggregates = useMemo(() => aggregateByItem(days), [days])
   const accountAggregates = useMemo(() => aggregateByAccount(itemAggregates), [itemAggregates])
+
+  // 品目クリック時の詳細データ（いつ・どこが・いくつ）
+  const itemDetailData = useMemo(() => {
+    if (!selectedItem) return null
+    const details: ItemDetail[] = []
+
+    for (const result of selectedResults) {
+      const stName = stores.get(result.storeId)?.name ?? result.storeId
+      for (const [day, rec] of result.daily) {
+        for (const item of rec.consumable.items) {
+          if (item.itemCode === selectedItem) {
+            details.push({
+              day,
+              storeId: result.storeId,
+              storeName: stName,
+              quantity: item.quantity,
+              cost: item.cost,
+            })
+          }
+        }
+      }
+    }
+
+    return details.sort((a, b) => a.day - b.day || a.storeId.localeCompare(b.storeId))
+  }, [selectedItem, selectedResults, stores])
+
+  const selectedItemInfo = selectedItem ? itemAggregates.find(i => i.itemCode === selectedItem) : null
 
   if (!isCalculated || !currentResult) {
     return (
@@ -127,6 +164,10 @@ export function ConsumablePage() {
 
   const hasData = totalCost > 0 || itemAggregates.length > 0
 
+  const handleItemClick = (itemCode: string) => {
+    setSelectedItem(selectedItem === itemCode ? null : itemCode)
+  }
+
   return (
     <MainContent title="消耗品分析" storeName={storeName}>
       {/* サマリーKPI */}
@@ -144,63 +185,115 @@ export function ConsumablePage() {
           {/* ビュー切替 */}
           <Section>
             <ChipGroup>
-              <Chip $active={viewMode === 'item'} onClick={() => setViewMode('item')}>品目別</Chip>
-              <Chip $active={viewMode === 'account'} onClick={() => setViewMode('account')}>勘定科目別</Chip>
-              <Chip $active={viewMode === 'daily'} onClick={() => setViewMode('daily')}>日別明細</Chip>
+              <Chip $active={viewMode === 'item'} onClick={() => { setViewMode('item'); setSelectedItem(null) }}>品目別</Chip>
+              <Chip $active={viewMode === 'account'} onClick={() => { setViewMode('account'); setSelectedItem(null) }}>勘定科目別</Chip>
+              <Chip $active={viewMode === 'daily'} onClick={() => { setViewMode('daily'); setSelectedItem(null) }}>日別明細</Chip>
             </ChipGroup>
           </Section>
 
           {/* 品目別 */}
           {viewMode === 'item' && (
-            <Card>
-              <CardTitle>品目別消耗品集計</CardTitle>
-              <TableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>#</Th>
-                      <Th>品名</Th>
-                      <Th>品目コード</Th>
-                      <Th>勘定科目</Th>
-                      <Th>数量</Th>
-                      <Th>金額</Th>
-                      <Th>構成比</Th>
-                      <Th>計上日数</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itemAggregates.map((item, idx) => {
-                      const ratio = totalCost > 0 ? item.totalCost / totalCost : 0
-                      return (
-                        <Tr key={item.itemCode}>
-                          <Td><RankBadge $rank={idx + 1}>{idx + 1}</RankBadge></Td>
-                          <Td>{item.itemName}</Td>
-                          <Td $muted>{item.itemCode}</Td>
-                          <Td $muted>{item.accountCode}</Td>
-                          <Td>{item.totalQuantity.toLocaleString()}</Td>
-                          <Td>
-                            <Bar $width={(item.totalCost / maxItemCost) * 100} $color="#f97316" />
-                            {formatCurrency(item.totalCost)}
-                          </Td>
-                          <Td>{formatPercent(ratio)}</Td>
-                          <Td>{item.dayCount}日</Td>
-                        </Tr>
-                      )
-                    })}
-                    <TrTotal>
-                      <Td />
-                      <Td>合計</Td>
-                      <Td />
-                      <Td />
-                      <Td>{itemAggregates.reduce((s, i) => s + i.totalQuantity, 0).toLocaleString()}</Td>
-                      <Td>{formatCurrency(totalCost)}</Td>
-                      <Td>100.0%</Td>
-                      <Td />
-                    </TrTotal>
-                  </tbody>
-                </Table>
-              </TableWrapper>
-            </Card>
+            <>
+              <Card>
+                <CardTitle>品目別消耗品集計</CardTitle>
+                <TableWrapper>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>#</Th>
+                        <Th>品名</Th>
+                        <Th>品目コード</Th>
+                        <Th>勘定科目</Th>
+                        <Th>数量</Th>
+                        <Th>金額</Th>
+                        <Th>構成比</Th>
+                        <Th>計上日数</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itemAggregates.map((item, idx) => {
+                        const ratio = totalCost > 0 ? item.totalCost / totalCost : 0
+                        return (
+                          <Tr
+                            key={item.itemCode}
+                            $clickable
+                            $selected={selectedItem === item.itemCode}
+                            onClick={() => handleItemClick(item.itemCode)}
+                          >
+                            <Td><RankBadge $rank={idx + 1}>{idx + 1}</RankBadge></Td>
+                            <Td>{item.itemName}</Td>
+                            <Td $muted>{item.itemCode}</Td>
+                            <Td $muted>{item.accountCode}</Td>
+                            <Td>{item.totalQuantity.toLocaleString()}</Td>
+                            <Td>
+                              <Bar $width={(item.totalCost / maxItemCost) * 100} $color="#f97316" />
+                              {formatCurrency(item.totalCost)}
+                            </Td>
+                            <Td>{formatPercent(ratio)}</Td>
+                            <Td>{item.dayCount}日</Td>
+                          </Tr>
+                        )
+                      })}
+                      <TrTotal>
+                        <Td />
+                        <Td>合計</Td>
+                        <Td />
+                        <Td />
+                        <Td>{itemAggregates.reduce((s, i) => s + i.totalQuantity, 0).toLocaleString()}</Td>
+                        <Td>{formatCurrency(totalCost)}</Td>
+                        <Td>100.0%</Td>
+                        <Td />
+                      </TrTotal>
+                    </tbody>
+                  </Table>
+                </TableWrapper>
+              </Card>
+
+              {/* 品目詳細パネル */}
+              {selectedItem && selectedItemInfo && itemDetailData && (
+                <DetailPanel>
+                  <DetailHeader>
+                    <DetailTitle>{selectedItemInfo.itemName}（{selectedItemInfo.itemCode}）の発注詳細</DetailTitle>
+                    <DetailClose onClick={() => setSelectedItem(null)}>×</DetailClose>
+                  </DetailHeader>
+                  {itemDetailData.length === 0 ? (
+                    <EmptyState>詳細データがありません</EmptyState>
+                  ) : (
+                    <TableWrapper>
+                      <Table>
+                        <thead>
+                          <tr>
+                            <Th>日</Th>
+                            <Th>店舗</Th>
+                            <Th>数量</Th>
+                            <Th>金額</Th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {itemDetailData.map((d, i) => (
+                            <Tr key={`${d.day}-${d.storeId}-${i}`}>
+                              <Td>{d.day}日</Td>
+                              <Td>{d.storeName}</Td>
+                              <Td>{d.quantity.toLocaleString()}</Td>
+                              <Td>{formatCurrency(d.cost)}</Td>
+                            </Tr>
+                          ))}
+                          <TrTotal>
+                            <Td>合計</Td>
+                            <Td>{(() => {
+                              const storeSet = new Set(itemDetailData.map(d => d.storeId))
+                              return `${storeSet.size}店舗`
+                            })()}</Td>
+                            <Td>{itemDetailData.reduce((s, d) => s + d.quantity, 0).toLocaleString()}</Td>
+                            <Td>{formatCurrency(itemDetailData.reduce((s, d) => s + d.cost, 0))}</Td>
+                          </TrTotal>
+                        </tbody>
+                      </Table>
+                    </TableWrapper>
+                  )}
+                </DetailPanel>
+              )}
+            </>
           )}
 
           {/* 勘定科目別 */}

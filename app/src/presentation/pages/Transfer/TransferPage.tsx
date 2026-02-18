@@ -5,12 +5,10 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import {
-  Section, SectionTitle, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
-  FlowCard, FlowLabel, FlowValue, FlowSub, FlowGrid,
+  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
 } from './TransferPage.styles'
 
 type TransferType = 'interStore' | 'interDepartment'
-type ViewMode = 'flow' | 'daily'
 
 /** from→to ペアの月間集計 */
 interface FlowEntry {
@@ -68,7 +66,7 @@ export function TransferPage() {
   const { isCalculated } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const [transferType, setTransferType] = useState<TransferType>('interStore')
-  const [viewMode, setViewMode] = useState<ViewMode>('flow')
+  const [selectedPair, setSelectedPair] = useState<string | null>(null)
 
   const days = useMemo(
     () => currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
@@ -84,6 +82,11 @@ export function TransferPage() {
     [days, inField, outField, stores],
   )
 
+  const handleTypeChange = (type: TransferType) => {
+    setTransferType(type)
+    setSelectedPair(null)
+  }
+
   if (!isCalculated || !currentResult) {
     return (
       <MainContent title="店間・部門間移動" storeName={storeName}>
@@ -92,11 +95,31 @@ export function TransferPage() {
     )
   }
 
-  const r = currentResult
-  const td = r.transferDetails
+  const td = currentResult.transferDetails
   const fmtOrDash = (val: number) => val !== 0 ? formatCurrency(val) : '-'
 
-  // 日別合計行の計算
+  const typeIn = isInterStore ? td.interStoreIn : td.interDepartmentIn
+  const typeOut = isInterStore ? td.interStoreOut : td.interDepartmentOut
+  const typeNet = { cost: typeIn.cost + typeOut.cost, price: typeIn.price + typeOut.price }
+  const typeLabel = isInterStore ? '店間' : '部門間'
+
+  // ペア別日別データ（ペア選択時）
+  const pairDailyData = useMemo(() => {
+    if (!selectedPair) return null
+    return days
+      .map(([day, rec]) => {
+        const entries = [
+          ...rec.transferBreakdown[inField],
+          ...rec.transferBreakdown[outField],
+        ].filter(e => `${e.fromStoreId}->${e.toStoreId}` === selectedPair)
+        const cost = entries.reduce((s, e) => s + e.cost, 0)
+        const price = entries.reduce((s, e) => s + e.price, 0)
+        return { day, cost, price }
+      })
+      .filter(d => d.cost !== 0 || d.price !== 0)
+  }, [selectedPair, days, inField, outField])
+
+  // 全体の日別合計
   const dailyTotals = days.reduce(
     (acc, [, rec]) => {
       const inRec = rec[inField]
@@ -111,105 +134,96 @@ export function TransferPage() {
     { inCost: 0, inPrice: 0, outCost: 0, outPrice: 0 },
   )
 
+  const selectedFlow = selectedPair ? flows.find(f => `${f.from}->${f.to}` === selectedPair) : null
+
   return (
     <MainContent title="店間・部門間移動" storeName={storeName}>
-      {/* サマリーKPI */}
+      {/* タイプ切替 */}
+      <Section>
+        <ChipGroup>
+          <Chip $active={transferType === 'interStore'} onClick={() => handleTypeChange('interStore')}>店間移動</Chip>
+          <Chip $active={transferType === 'interDepartment'} onClick={() => handleTypeChange('interDepartment')}>部門間移動</Chip>
+        </ChipGroup>
+      </Section>
+
+      {/* KPI（選択タイプの入/出/純増減） */}
       <KpiGrid>
-        <KpiCard label="店間入" value={formatCurrency(td.interStoreIn.cost)} subText={`売価: ${formatCurrency(td.interStoreIn.price)}`} accent="#3b82f6" />
-        <KpiCard label="店間出" value={formatCurrency(td.interStoreOut.cost)} subText={`売価: ${formatCurrency(td.interStoreOut.price)}`} accent="#f43f5e" />
-        <KpiCard label="部門間入" value={formatCurrency(td.interDepartmentIn.cost)} subText={`売価: ${formatCurrency(td.interDepartmentIn.price)}`} accent="#8b5cf6" />
-        <KpiCard label="部門間出" value={formatCurrency(td.interDepartmentOut.cost)} subText={`売価: ${formatCurrency(td.interDepartmentOut.price)}`} accent="#f59e0b" />
+        <KpiCard label={`${typeLabel}入`} value={formatCurrency(typeIn.cost)} subText={`売価: ${formatCurrency(typeIn.price)}`} accent="#3b82f6" />
+        <KpiCard label={`${typeLabel}出`} value={formatCurrency(typeOut.cost)} subText={`売価: ${formatCurrency(typeOut.price)}`} accent="#f43f5e" />
         <KpiCard
-          label="店間純増減"
-          value={formatCurrency(td.netTransfer.cost)}
-          subText={`売価: ${formatCurrency(td.netTransfer.price)}`}
-          accent={td.netTransfer.cost >= 0 ? '#22c55e' : '#ef4444'}
+          label="純増減"
+          value={formatCurrency(typeNet.cost)}
+          subText={`売価: ${formatCurrency(typeNet.price)}`}
+          accent={typeNet.cost >= 0 ? '#22c55e' : '#ef4444'}
         />
       </KpiGrid>
 
-      {/* モード切替 */}
-      <Section>
-        <ChipGroup>
-          <Chip $active={transferType === 'interStore'} onClick={() => setTransferType('interStore')}>店間移動</Chip>
-          <Chip $active={transferType === 'interDepartment'} onClick={() => setTransferType('interDepartment')}>部門間移動</Chip>
-        </ChipGroup>
-      </Section>
-
-      <Section>
-        <ChipGroup>
-          <Chip $active={viewMode === 'flow'} onClick={() => setViewMode('flow')}>フロー分析</Chip>
-          <Chip $active={viewMode === 'daily'} onClick={() => setViewMode('daily')}>日別明細</Chip>
-        </ChipGroup>
-      </Section>
-
-      {/* フロー分析 */}
-      {viewMode === 'flow' && (
-        <>
-          <SectionTitle>{isInterStore ? '店間' : '部門間'}移動フロー（from → to ペア別集計）</SectionTitle>
-          {flows.length === 0 ? (
-            <EmptyState>{isInterStore ? '店間' : '部門間'}移動データがありません</EmptyState>
-          ) : (
-            <>
-              <FlowGrid>
-                {flows.map(f => (
-                  <FlowCard key={`${f.from}->${f.to}`} $accent={f.cost >= 0 ? '#3b82f6' : '#f43f5e'}>
-                    <FlowLabel>{f.fromName} → {f.toName}</FlowLabel>
-                    <FlowValue>{formatCurrency(f.cost)}</FlowValue>
-                    <FlowSub>売価: {formatCurrency(f.price)}</FlowSub>
-                  </FlowCard>
-                ))}
-              </FlowGrid>
-
-              <Card>
-                <CardTitle>ペア別集計テーブル</CardTitle>
-                <TableWrapper>
-                  <Table>
-                    <thead>
-                      <tr>
-                        <Th>From</Th>
-                        <Th>To</Th>
-                        <Th>原価</Th>
-                        <Th>売価</Th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {flows.map(f => (
-                        <Tr key={`${f.from}->${f.to}`}>
-                          <Td>{f.fromName}</Td>
-                          <Td>{f.toName}</Td>
-                          <Td $negative={f.cost < 0}>{formatCurrency(f.cost)}</Td>
-                          <Td $negative={f.price < 0}>{formatCurrency(f.price)}</Td>
-                        </Tr>
-                      ))}
-                      <TrTotal>
-                        <Td>合計</Td>
-                        <Td />
-                        <Td>{formatCurrency(flows.reduce((s, f) => s + f.cost, 0))}</Td>
-                        <Td>{formatCurrency(flows.reduce((s, f) => s + f.price, 0))}</Td>
-                      </TrTotal>
-                    </tbody>
-                  </Table>
-                </TableWrapper>
-              </Card>
-            </>
-          )}
-        </>
+      {/* ペアチップ */}
+      {flows.length > 0 && (
+        <Section>
+          <ChipGroup>
+            <Chip $active={selectedPair === null} onClick={() => setSelectedPair(null)}>全て</Chip>
+            {flows.map(f => {
+              const key = `${f.from}->${f.to}`
+              return (
+                <Chip
+                  key={key}
+                  $active={selectedPair === key}
+                  onClick={() => setSelectedPair(selectedPair === key ? null : key)}
+                >
+                  {f.from}→{f.to}
+                </Chip>
+              )
+            })}
+          </ChipGroup>
+        </Section>
       )}
 
-      {/* 日別明細 */}
-      {viewMode === 'daily' && (
+      {/* データ */}
+      {flows.length === 0 ? (
+        <EmptyState>{typeLabel}移動データがありません</EmptyState>
+      ) : selectedPair && pairDailyData ? (
         <Card>
-          <CardTitle>{isInterStore ? '店間' : '部門間'}移動 日別明細</CardTitle>
+          <CardTitle>{selectedFlow?.fromName ?? ''} → {selectedFlow?.toName ?? ''}</CardTitle>
           <TableWrapper>
             <Table>
               <thead>
                 <tr>
                   <Th>日</Th>
-                  <Th>{isInterStore ? '店間入' : '部門間入'}原価</Th>
-                  <Th>{isInterStore ? '店間入' : '部門間入'}売価</Th>
-                  <Th>{isInterStore ? '店間出' : '部門間出'}原価</Th>
-                  <Th>{isInterStore ? '店間出' : '部門間出'}売価</Th>
-                  <Th>差引（原価）</Th>
+                  <Th>原価</Th>
+                  <Th>売価</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {pairDailyData.map(d => (
+                  <Tr key={d.day}>
+                    <Td>{d.day}日</Td>
+                    <Td $negative={d.cost < 0}>{formatCurrency(d.cost)}</Td>
+                    <Td $negative={d.price < 0}>{formatCurrency(d.price)}</Td>
+                  </Tr>
+                ))}
+                <TrTotal>
+                  <Td>合計</Td>
+                  <Td>{formatCurrency(pairDailyData.reduce((s, d) => s + d.cost, 0))}</Td>
+                  <Td>{formatCurrency(pairDailyData.reduce((s, d) => s + d.price, 0))}</Td>
+                </TrTotal>
+              </tbody>
+            </Table>
+          </TableWrapper>
+        </Card>
+      ) : (
+        <Card>
+          <CardTitle>{typeLabel}移動 日別明細</CardTitle>
+          <TableWrapper>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>日</Th>
+                  <Th>入（原価）</Th>
+                  <Th>入（売価）</Th>
+                  <Th>出（原価）</Th>
+                  <Th>出（売価）</Th>
+                  <Th>差引</Th>
                 </tr>
               </thead>
               <tbody>
