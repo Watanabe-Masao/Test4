@@ -395,7 +395,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           </ExecSummarySub>
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f59e0b">
-          <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
+          <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
           <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
           <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
