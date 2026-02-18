@@ -1,5 +1,8 @@
 import { KpiCard } from '@/presentation/components/common'
-import { DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart, PrevYearComparisonChart } from '@/presentation/components/charts'
+import {
+  DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart,
+  PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
+} from '@/presentation/components/charts'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import type { WidgetDef } from './types'
@@ -266,8 +269,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算vs実績チャート',
     group: 'チャート',
     size: 'full',
-    render: ({ result: r, budgetChartData }) => (
-      <BudgetVsActualChart data={budgetChartData} budget={r.budget} />
+    render: ({ result: r, budgetChartData, daysInMonth }) => (
+      <BudgetVsActualChart data={budgetChartData} budget={r.budget} salesDays={r.salesDays} daysInMonth={daysInMonth} />
     ),
   },
   {
@@ -313,6 +316,42 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       for (const [d, rec] of r.daily) currentDaily.set(d, { sales: rec.sales })
       return <PrevYearComparisonChart currentDaily={currentDaily} prevYearDaily={prevYear.daily} daysInMonth={daysInMonth} />
     },
+  },
+  {
+    id: 'chart-gross-profit-amount',
+    label: '粗利額累計推移',
+    group: 'チャート',
+    size: 'full',
+    render: ({ result: r, daysInMonth, targetRate }) => (
+      <GrossProfitAmountChart
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        grossProfitBudget={r.grossProfitBudget}
+        targetRate={targetRate}
+      />
+    ),
+  },
+  {
+    id: 'chart-discount-trend',
+    label: '売変インパクト分析',
+    group: 'チャート',
+    size: 'full',
+    render: ({ result: r, daysInMonth }) => (
+      <DiscountTrendChart daily={r.daily} daysInMonth={daysInMonth} />
+    ),
+  },
+  {
+    id: 'chart-budget-diff-trend',
+    label: '予算差・前年差推移',
+    group: 'チャート',
+    size: 'full',
+    render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
+      <BudgetDiffTrendChart
+        data={budgetChartData}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+        daysInMonth={daysInMonth}
+      />
+    ),
   },
   // ── 本部・経営者向け ──
   {
