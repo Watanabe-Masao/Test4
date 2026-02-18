@@ -12,3 +12,21 @@ export type { StoreResult } from './StoreResult'
 export type { BudgetData, InventoryConfig } from './BudgetData'
 export type { AppSettings, ViewType, DataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'
+export type {
+  StoreDayRecord,
+  PurchaseData,
+  PurchaseDayEntry,
+  SalesData,
+  SalesDayEntry,
+  DiscountData,
+  DiscountDayEntry,
+  TransferRecord,
+  TransferData,
+  TransferDayEntry,
+  SpecialSalesData,
+  SpecialSalesDayEntry,
+  ConsumableData,
+} from './DataTypes'
+export type { ImportedData } from './ImportedData'
+export { createEmptyImportedData } from './ImportedData'
+export type { ValidationMessage } from './ValidationMessage'

@@ -1,16 +1,8 @@
 import { getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { ConsumableItem } from '@/domain/models'
+import type { ConsumableItem, ConsumableData } from '@/domain/models'
 
-/** 消耗品パース結果: storeId → day → { cost, items } */
-export interface ConsumableData {
-  readonly [storeId: string]: {
-    readonly [day: number]: {
-      readonly cost: number
-      readonly items: readonly ConsumableItem[]
-    }
-  }
-}
+export type { ConsumableData } from '@/domain/models'
 
 /** 勘定コードフィルタ */
 const TARGET_ACCOUNT_CODE = '81257'

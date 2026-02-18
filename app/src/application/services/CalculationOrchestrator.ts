@@ -7,6 +7,7 @@ import type {
   StoreResult,
   TransferDetails,
   TransferBreakdownEntry,
+  ImportedData,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
@@ -18,20 +19,44 @@ import {
 import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
 import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import { safeDivide } from '@/domain/calculations/utils'
-import type { ImportedData } from '@/infrastructure/ImportService'
+
+// ─── Internal types ───────────────────────────────────────
+
+/** 日別ループで蓄積される月間集計 */
+interface MonthlyAccumulator {
+  daily: Map<number, DailyRecord>
+  categoryTotals: Map<CategoryType, CostPricePair>
+  supplierTotals: Map<string, SupplierTotal>
+  totalSales: number
+  totalCost: number
+  totalFlowerPrice: number
+  totalFlowerCost: number
+  totalDirectProducePrice: number
+  totalDirectProduceCost: number
+  totalPurchaseCost: number
+  totalPurchasePrice: number
+  totalDiscount: number
+  totalConsumable: number
+  salesDays: number
+  elapsedDays: number
+  transferTotals: {
+    interStoreIn: CostPricePair
+    interStoreOut: CostPricePair
+    interDepartmentIn: CostPricePair
+    interDepartmentOut: CostPricePair
+  }
+}
+
+// ─── Daily record builder ─────────────────────────────────
 
 /**
- * 店舗別の計算結果を生成する
+ * 店舗の日別レコードを構築し、月間集計を蓄積する
  */
-export function calculateStoreResult(
+function buildDailyRecords(
   storeId: string,
   data: ImportedData,
-  settings: AppSettings,
   daysInMonth: number,
-): StoreResult {
-  const invConfig = data.settings.get(storeId)
-  const budgetData = data.budget.get(storeId)
-
+): MonthlyAccumulator {
   const purchaseStore = data.purchase[storeId] ?? {}
   const salesStore = data.sales[storeId] ?? {}
   const discountStore = data.discount[storeId] ?? {}
@@ -41,14 +66,12 @@ export function calculateStoreResult(
   const directProduceStore = data.directProduce[storeId] ?? {}
   const consumablesStore = data.consumables[storeId] ?? {}
 
-  // 日別レコード構築
   const daily = new Map<number, DailyRecord>()
   const categoryTotals = new Map<CategoryType, CostPricePair>()
   const supplierTotals = new Map<string, SupplierTotal>()
 
-  // 月間集計用
   let totalSales = 0
-  let totalCost = 0 // getDailyTotalCost() で積み上げ
+  let totalCost = 0
   let totalFlowerPrice = 0
   let totalFlowerCost = 0
   let totalDirectProducePrice = 0
@@ -60,7 +83,6 @@ export function calculateStoreResult(
   let salesDays = 0
   let elapsedDays = 0
 
-  // 移動集計
   const transferTotals = {
     interStoreIn: { ...ZERO_COST_PRICE_PAIR },
     interStoreOut: { ...ZERO_COST_PRICE_PAIR },
@@ -110,17 +132,14 @@ export function calculateStoreResult(
     const tbInterDepartmentOut: TransferBreakdownEntry[] = []
 
     if (interInDay) {
-      const sumIn = interInDay.interStoreIn.reduce(
+      interStoreIn = interInDay.interStoreIn.reduce(
         (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
         { ...ZERO_COST_PRICE_PAIR },
       )
-      const sumDeptIn = interInDay.interDepartmentIn.reduce(
+      interDepartmentIn = interInDay.interDepartmentIn.reduce(
         (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
         { ...ZERO_COST_PRICE_PAIR },
       )
-      interStoreIn = sumIn
-      interDepartmentIn = sumDeptIn
-
       for (const r of interInDay.interStoreIn) {
         tbInterStoreIn.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
       }
@@ -130,17 +149,14 @@ export function calculateStoreResult(
     }
 
     if (interOutDay) {
-      const sumOut = interOutDay.interStoreOut.reduce(
+      interStoreOut = interOutDay.interStoreOut.reduce(
         (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
         { ...ZERO_COST_PRICE_PAIR },
       )
-      const sumDeptOut = interOutDay.interDepartmentOut.reduce(
+      interDepartmentOut = interOutDay.interDepartmentOut.reduce(
         (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
         { ...ZERO_COST_PRICE_PAIR },
       )
-      interStoreOut = sumOut
-      interDepartmentOut = sumDeptOut
-
       for (const r of interOutDay.interStoreOut) {
         tbInterStoreOut.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
       }
@@ -168,7 +184,6 @@ export function calculateStoreResult(
       for (const [code, sup] of Object.entries(purchaseDay.suppliers)) {
         supplierBreakdown.set(code, { cost: sup.cost, price: sup.price })
 
-        // 月間取引先集計
         if (!supplierTotals.has(code)) {
           supplierTotals.set(code, {
             supplierCode: code,
@@ -248,41 +263,77 @@ export function calculateStoreResult(
     transferTotals.interDepartmentOut = addCostPricePairs(transferTotals.interDepartmentOut, interDepartmentOut)
   }
 
+  return {
+    daily,
+    categoryTotals,
+    supplierTotals,
+    totalSales,
+    totalCost,
+    totalFlowerPrice,
+    totalFlowerCost,
+    totalDirectProducePrice,
+    totalDirectProduceCost,
+    totalPurchaseCost,
+    totalPurchasePrice,
+    totalDiscount,
+    totalConsumable,
+    salesDays,
+    elapsedDays,
+    transferTotals,
+  }
+}
+
+// ─── Store result assembler ───────────────────────────────
+
+/**
+ * 月間集計から最終的な StoreResult を組み立てる
+ */
+function assembleStoreResult(
+  storeId: string,
+  acc: MonthlyAccumulator,
+  data: ImportedData,
+  settings: AppSettings,
+  daysInMonth: number,
+): StoreResult {
+  const invConfig = data.settings.get(storeId)
+  const budgetData = data.budget.get(storeId)
+
   // 売上納品
-  const deliverySalesPrice = totalFlowerPrice + totalDirectProducePrice
-  const deliverySalesCost = totalFlowerCost + totalDirectProduceCost
+  const deliverySalesPrice = acc.totalFlowerPrice + acc.totalDirectProducePrice
+  const deliverySalesCost = acc.totalFlowerCost + acc.totalDirectProduceCost
 
   // コア売上（月間）
   const { coreSales: totalCoreSales } = calculateCoreSales(
-    totalSales,
-    totalFlowerPrice,
-    totalDirectProducePrice,
+    acc.totalSales,
+    acc.totalFlowerPrice,
+    acc.totalDirectProducePrice,
   )
 
   // 在庫仕入原価 = 総仕入原価 - 売上納品原価
-  // ※ totalCost は getDailyTotalCost() でループ中に積み上げ済み
-  const inventoryCost = totalCost - deliverySalesCost
+  const inventoryCost = acc.totalCost - deliverySalesCost
 
   // 粗売上（月間）
-  const grossSales = totalSales + totalDiscount
+  const grossSales = acc.totalSales + acc.totalDiscount
 
   // 売変率
-  const discountRate = calculateDiscountRate(totalSales, totalDiscount)
+  const discountRate = calculateDiscountRate(acc.totalSales, acc.totalDiscount)
 
   // 値入率
-  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
-  const allPurchasePrice = totalPurchasePrice + totalFlowerPrice + totalDirectProducePrice
-  const allPurchaseCost = totalPurchaseCost + totalFlowerCost + totalDirectProduceCost
+  const allPurchasePrice = acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice
+  const allPurchaseCost = acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  // コア値入率 = 仕入データのみ（花・産直を除く）
-  const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, settings.defaultMarkupRate)
+  const coreMarkupRate = safeDivide(
+    acc.totalPurchasePrice - acc.totalPurchaseCost,
+    acc.totalPurchasePrice,
+    settings.defaultMarkupRate,
+  )
 
   // 【在庫法】
   const invResult = calculateInvMethod({
     openingInventory: invConfig?.openingInventory ?? null,
     closingInventory: invConfig?.closingInventory ?? null,
-    totalPurchaseCost: totalCost,
-    totalSales,
+    totalPurchaseCost: acc.totalCost,
+    totalSales: acc.totalSales,
   })
 
   // 【推定法】
@@ -290,7 +341,7 @@ export function calculateStoreResult(
     coreSales: totalCoreSales,
     discountRate,
     markupRate: coreMarkupRate,
-    consumableCost: totalConsumable,
+    consumableCost: acc.totalConsumable,
     openingInventory: invConfig?.openingInventory ?? null,
     inventoryPurchaseCost: inventoryCost,
   })
@@ -303,35 +354,35 @@ export function calculateStoreResult(
   })
 
   // 消耗品率
-  const consumableRate = safeDivide(totalConsumable, totalSales, 0)
+  const consumableRate = safeDivide(acc.totalConsumable, acc.totalSales, 0)
 
   // カテゴリ集計
-  addToCategory(categoryTotals, 'flowers', { cost: totalFlowerCost, price: totalFlowerPrice })
-  addToCategory(categoryTotals, 'directProduce', { cost: totalDirectProduceCost, price: totalDirectProducePrice })
-  addToCategory(categoryTotals, 'consumables', { cost: totalConsumable, price: 0 })
-  addToCategory(categoryTotals, 'interStore', addCostPricePairs(transferTotals.interStoreIn, transferTotals.interStoreOut))
-  addToCategory(categoryTotals, 'interDepartment', addCostPricePairs(transferTotals.interDepartmentIn, transferTotals.interDepartmentOut))
+  addToCategory(acc.categoryTotals, 'flowers', { cost: acc.totalFlowerCost, price: acc.totalFlowerPrice })
+  addToCategory(acc.categoryTotals, 'directProduce', { cost: acc.totalDirectProduceCost, price: acc.totalDirectProducePrice })
+  addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalConsumable, price: 0 })
+  addToCategory(acc.categoryTotals, 'interStore', addCostPricePairs(acc.transferTotals.interStoreIn, acc.transferTotals.interStoreOut))
+  addToCategory(acc.categoryTotals, 'interDepartment', addCostPricePairs(acc.transferTotals.interDepartmentIn, acc.transferTotals.interDepartmentOut))
 
   // 移動詳細
   const transferDetails: TransferDetails = {
-    ...transferTotals,
+    ...acc.transferTotals,
     netTransfer: {
       cost:
-        transferTotals.interStoreIn.cost +
-        transferTotals.interStoreOut.cost +
-        transferTotals.interDepartmentIn.cost +
-        transferTotals.interDepartmentOut.cost,
+        acc.transferTotals.interStoreIn.cost +
+        acc.transferTotals.interStoreOut.cost +
+        acc.transferTotals.interDepartmentIn.cost +
+        acc.transferTotals.interDepartmentOut.cost,
       price:
-        transferTotals.interStoreIn.price +
-        transferTotals.interStoreOut.price +
-        transferTotals.interDepartmentIn.price +
-        transferTotals.interDepartmentOut.price,
+        acc.transferTotals.interStoreIn.price +
+        acc.transferTotals.interStoreOut.price +
+        acc.transferTotals.interDepartmentIn.price +
+        acc.transferTotals.interDepartmentOut.price,
     },
   }
 
   // 取引先値入率の後計算
-  for (const [code, st] of supplierTotals) {
-    supplierTotals.set(code, {
+  for (const [code, st] of acc.supplierTotals) {
+    acc.supplierTotals.set(code, {
       ...st,
       markupRate: safeDivide(st.price - st.cost, st.price, 0),
     })
@@ -344,16 +395,16 @@ export function calculateStoreResult(
 
   // 予算分析
   const salesDaily = new Map<number, number>()
-  for (const [d, rec] of daily) {
+  for (const [d, rec] of acc.daily) {
     salesDaily.set(d, rec.sales)
   }
   const budgetAnalysis = calculateBudgetAnalysis({
-    totalSales,
+    totalSales: acc.totalSales,
     budget,
     budgetDaily,
     salesDaily,
-    elapsedDays,
-    salesDays,
+    elapsedDays: acc.elapsedDays,
+    salesDays: acc.salesDays,
     daysInMonth,
   })
 
@@ -361,13 +412,13 @@ export function calculateStoreResult(
     storeId,
     openingInventory: invConfig?.openingInventory ?? null,
     closingInventory: invConfig?.closingInventory ?? null,
-    totalSales,
+    totalSales: acc.totalSales,
     totalCoreSales,
     deliverySalesPrice,
-    flowerSalesPrice: totalFlowerPrice,
-    directProduceSalesPrice: totalDirectProducePrice,
+    flowerSalesPrice: acc.totalFlowerPrice,
+    directProduceSalesPrice: acc.totalDirectProducePrice,
     grossSales,
-    totalCost,
+    totalCost: acc.totalCost,
     inventoryCost,
     deliverySalesCost,
     invMethodCogs: invResult.cogs,
@@ -377,27 +428,42 @@ export function calculateStoreResult(
     estMethodMargin: estResult.margin,
     estMethodMarginRate: estResult.marginRate,
     estMethodClosingInventory: estResult.closingInventory,
-    totalDiscount,
+    totalDiscount: acc.totalDiscount,
     discountRate,
     discountLossCost,
     averageMarkupRate,
     coreMarkupRate,
-    totalConsumable,
+    totalConsumable: acc.totalConsumable,
     consumableRate,
     budget,
     grossProfitBudget: gpBudget,
     grossProfitRateBudget: safeDivide(gpBudget, budget, 0),
     budgetDaily,
-    daily,
-    categoryTotals,
-    supplierTotals,
+    daily: acc.daily,
+    categoryTotals: acc.categoryTotals,
+    supplierTotals: acc.supplierTotals,
     transferDetails,
-    elapsedDays,
-    salesDays,
+    elapsedDays: acc.elapsedDays,
+    salesDays: acc.salesDays,
     averageDailySales: budgetAnalysis.averageDailySales,
     projectedSales: budgetAnalysis.projectedSales,
     projectedAchievement: budgetAnalysis.projectedAchievement,
   }
+}
+
+// ─── Public API ───────────────────────────────────────────
+
+/**
+ * 店舗別の計算結果を生成する
+ */
+export function calculateStoreResult(
+  storeId: string,
+  data: ImportedData,
+  settings: AppSettings,
+  daysInMonth: number,
+): StoreResult {
+  const acc = buildDailyRecords(storeId, data, daysInMonth)
+  return assembleStoreResult(storeId, acc, data, settings, daysInMonth)
 }
 
 /**
@@ -417,6 +483,8 @@ export function calculateAllStores(
   return results
 }
 
+// ─── Aggregation ──────────────────────────────────────────
+
 function addToCategory(
   map: Map<CategoryType, CostPricePair>,
   category: CategoryType,
@@ -424,6 +492,43 @@ function addToCategory(
 ): void {
   const existing = map.get(category) ?? ZERO_COST_PRICE_PAIR
   map.set(category, addCostPricePairs(existing, pair))
+}
+
+/** 日別レコードをマージする */
+function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord {
+  const mergedSB = new Map(existing.supplierBreakdown)
+  for (const [code, pair] of rec.supplierBreakdown) {
+    const ex = mergedSB.get(code) ?? ZERO_COST_PRICE_PAIR
+    mergedSB.set(code, addCostPricePairs(ex, pair))
+  }
+
+  return {
+    day: existing.day,
+    sales: existing.sales + rec.sales,
+    coreSales: existing.coreSales + rec.coreSales,
+    grossSales: existing.grossSales + rec.grossSales,
+    purchase: addCostPricePairs(existing.purchase, rec.purchase),
+    deliverySales: addCostPricePairs(existing.deliverySales, rec.deliverySales),
+    interStoreIn: addCostPricePairs(existing.interStoreIn, rec.interStoreIn),
+    interStoreOut: addCostPricePairs(existing.interStoreOut, rec.interStoreOut),
+    interDepartmentIn: addCostPricePairs(existing.interDepartmentIn, rec.interDepartmentIn),
+    interDepartmentOut: addCostPricePairs(existing.interDepartmentOut, rec.interDepartmentOut),
+    flowers: addCostPricePairs(existing.flowers, rec.flowers),
+    directProduce: addCostPricePairs(existing.directProduce, rec.directProduce),
+    consumable: {
+      cost: existing.consumable.cost + rec.consumable.cost,
+      items: [...existing.consumable.items, ...rec.consumable.items],
+    },
+    discountAmount: existing.discountAmount + rec.discountAmount,
+    discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
+    supplierBreakdown: mergedSB,
+    transferBreakdown: {
+      interStoreIn: [...existing.transferBreakdown.interStoreIn, ...rec.transferBreakdown.interStoreIn],
+      interStoreOut: [...existing.transferBreakdown.interStoreOut, ...rec.transferBreakdown.interStoreOut],
+      interDepartmentIn: [...existing.transferBreakdown.interDepartmentIn, ...rec.transferBreakdown.interDepartmentIn],
+      interDepartmentOut: [...existing.transferBreakdown.interDepartmentOut, ...rec.transferBreakdown.interDepartmentOut],
+    },
+  }
 }
 
 /**
@@ -501,38 +606,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
           },
         })
       } else {
-        const mergedSB = new Map(existing.supplierBreakdown)
-        for (const [code, pair] of rec.supplierBreakdown) {
-          const ex = mergedSB.get(code) ?? ZERO_COST_PRICE_PAIR
-          mergedSB.set(code, addCostPricePairs(ex, pair))
-        }
-        aggDaily.set(day, {
-          day,
-          sales: existing.sales + rec.sales,
-          coreSales: existing.coreSales + rec.coreSales,
-          grossSales: existing.grossSales + rec.grossSales,
-          purchase: addCostPricePairs(existing.purchase, rec.purchase),
-          deliverySales: addCostPricePairs(existing.deliverySales, rec.deliverySales),
-          interStoreIn: addCostPricePairs(existing.interStoreIn, rec.interStoreIn),
-          interStoreOut: addCostPricePairs(existing.interStoreOut, rec.interStoreOut),
-          interDepartmentIn: addCostPricePairs(existing.interDepartmentIn, rec.interDepartmentIn),
-          interDepartmentOut: addCostPricePairs(existing.interDepartmentOut, rec.interDepartmentOut),
-          flowers: addCostPricePairs(existing.flowers, rec.flowers),
-          directProduce: addCostPricePairs(existing.directProduce, rec.directProduce),
-          consumable: {
-            cost: existing.consumable.cost + rec.consumable.cost,
-            items: [...existing.consumable.items, ...rec.consumable.items],
-          },
-          discountAmount: existing.discountAmount + rec.discountAmount,
-          discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
-          supplierBreakdown: mergedSB,
-          transferBreakdown: {
-            interStoreIn: [...existing.transferBreakdown.interStoreIn, ...rec.transferBreakdown.interStoreIn],
-            interStoreOut: [...existing.transferBreakdown.interStoreOut, ...rec.transferBreakdown.interStoreOut],
-            interDepartmentIn: [...existing.transferBreakdown.interDepartmentIn, ...rec.transferBreakdown.interDepartmentIn],
-            interDepartmentOut: [...existing.transferBreakdown.interDepartmentOut, ...rec.transferBreakdown.interDepartmentOut],
-          },
-        })
+        aggDaily.set(day, mergeDailyRecord(existing, rec))
       }
     }
 
@@ -570,20 +644,18 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
 
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
-  // 値入率: 集計済み取引先データから仕入売価・原価を再計算
+  // 値入率
   let totalPurchaseCost = 0
   let totalPurchasePrice = 0
   for (const [, st] of aggSupplier) {
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
-  // 平均値入率 = 仕入 + 花 + 産直 を含めた全体の値入率
   const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
   const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
   const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price
   const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  // コア値入率 = 仕入データのみ（花・産直を除く）
   const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
 
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)

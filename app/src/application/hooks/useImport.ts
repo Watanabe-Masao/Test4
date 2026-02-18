@@ -4,8 +4,8 @@ import {
   processDroppedFiles,
   validateImportedData,
 } from '@/infrastructure/ImportService'
-import type { ImportSummary, ImportedData } from '@/infrastructure/ImportService'
-import type { AppSettings, DataType } from '@/domain/models'
+import type { ImportSummary } from '@/infrastructure/ImportService'
+import type { AppSettings, DataType, ImportedData } from '@/domain/models'
 
 /** ファイルインポートフック */
 export function useImport() {

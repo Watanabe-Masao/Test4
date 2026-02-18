@@ -19,8 +19,4 @@ export class ImportError extends Error {
   }
 }
 
-/** バリデーション結果 */
-export interface ValidationMessage {
-  readonly level: 'error' | 'warning' | 'info'
-  readonly message: string
-}
+export type { ValidationMessage } from '@/domain/models'

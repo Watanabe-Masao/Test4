@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from './CalculationOrchestrator'
-import { createEmptyImportedData } from '@/infrastructure/ImportService'
-import type { ImportedData } from '@/infrastructure/ImportService'
+import { createEmptyImportedData } from '@/domain/models'
+import type { ImportedData } from '@/domain/models'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 
 function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {

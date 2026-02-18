@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { appReducer, initialState } from './AppStateContext'
-import { createEmptyImportedData } from '@/infrastructure/ImportService'
+import { createEmptyImportedData } from '@/domain/models'
 
 describe('appReducer', () => {
   it('SET_IMPORTED_DATA: データ更新 + isCalculated false', () => {

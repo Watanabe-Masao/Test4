@@ -1,27 +1,8 @@
 import { getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import type { TransferRecord, TransferData } from '@/domain/models'
 
-/** 移動レコード */
-export interface TransferRecord {
-  readonly day: number
-  readonly cost: number
-  readonly price: number
-  readonly fromStoreId: string
-  readonly toStoreId: string
-  readonly isDepartmentTransfer: boolean
-}
-
-/** 店間移動パース結果: storeId → day → { transfers } */
-export interface TransferData {
-  readonly [storeId: string]: {
-    readonly [day: number]: {
-      readonly interStoreIn: readonly TransferRecord[]
-      readonly interStoreOut: readonly TransferRecord[]
-      readonly interDepartmentIn: readonly TransferRecord[]
-      readonly interDepartmentOut: readonly TransferRecord[]
-    }
-  }
-}
+export type { TransferRecord, TransferData } from '@/domain/models'
 
 /**
  * 店間入データを処理する

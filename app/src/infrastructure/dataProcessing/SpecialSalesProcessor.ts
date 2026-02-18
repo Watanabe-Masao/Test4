@@ -1,12 +1,8 @@
 import { getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import type { SpecialSalesData } from '@/domain/models'
 
-/** 花/産直パース結果: storeId → day → { price, cost } */
-export interface SpecialSalesData {
-  readonly [storeId: string]: {
-    readonly [day: number]: { readonly price: number; readonly cost: number }
-  }
-}
+export type { SpecialSalesData } from '@/domain/models'
 
 /**
  * 花・産直データを処理する

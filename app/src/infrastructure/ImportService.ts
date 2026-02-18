@@ -1,27 +1,21 @@
-import type { DataType, Store, AppSettings } from '@/domain/models'
-import type { InventoryConfig, BudgetData } from '@/domain/models'
+import type { DataType, AppSettings, ValidationMessage, ImportedData } from '@/domain/models'
+import { createEmptyImportedData } from '@/domain/models'
+import type { DiscountData, SalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { ImportError } from './fileImport/errors'
-import type { ValidationMessage } from './fileImport/errors'
 import {
   processPurchase,
   extractStoresFromPurchase,
   extractSuppliersFromPurchase,
 } from './dataProcessing/PurchaseProcessor'
-import type { PurchaseData } from './dataProcessing/PurchaseProcessor'
 import { processSales, extractStoresFromSales } from './dataProcessing/SalesProcessor'
-import type { SalesData } from './dataProcessing/SalesProcessor'
 import { processDiscount } from './dataProcessing/DiscountProcessor'
-import type { DiscountData } from './dataProcessing/DiscountProcessor'
 import { processSettings } from './dataProcessing/SettingsProcessor'
 import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
-import type { TransferData } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
-import type { SpecialSalesData } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
-import type { ConsumableData } from './dataProcessing/ConsumableProcessor'
 
 /** DiscountData から SalesData を構築する */
 function discountToSalesData(discountData: DiscountData): SalesData {
@@ -51,43 +45,9 @@ export interface ImportSummary {
   readonly failureCount: number
 }
 
-/** インポートされた全データの集約 */
-export interface ImportedData {
-  readonly stores: ReadonlyMap<string, Store>
-  readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
-  readonly purchase: PurchaseData
-  readonly sales: SalesData
-  readonly discount: DiscountData
-  readonly prevYearSales: SalesData
-  readonly prevYearDiscount: DiscountData
-  readonly interStoreIn: TransferData
-  readonly interStoreOut: TransferData
-  readonly flowers: SpecialSalesData
-  readonly directProduce: SpecialSalesData
-  readonly consumables: ConsumableData
-  readonly settings: ReadonlyMap<string, InventoryConfig>
-  readonly budget: ReadonlyMap<string, BudgetData>
-}
-
-/** 空のインポートデータ */
-export function createEmptyImportedData(): ImportedData {
-  return {
-    stores: new Map(),
-    suppliers: new Map(),
-    purchase: {},
-    sales: {},
-    discount: {},
-    prevYearSales: {},
-    prevYearDiscount: {},
-    interStoreIn: {},
-    interStoreOut: {},
-    flowers: {},
-    directProduce: {},
-    consumables: {},
-    settings: new Map(),
-    budget: new Map(),
-  }
-}
+// Re-export from domain for backward compatibility
+export type { ImportedData } from '@/domain/models'
+export { createEmptyImportedData } from '@/domain/models'
 
 /** 進捗コールバック */
 export type ProgressCallback = (current: number, total: number, filename: string) => void
