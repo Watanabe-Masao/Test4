@@ -103,9 +103,15 @@ const VIEW_TITLES: Record<ViewType, string> = {
   area: '日別売上推移（エリア）',
 }
 
+const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
+  all: 'standard',
+  sales: 'salesOnly',
+  discount: 'discountOnly',
+}
+
 export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
-  const [view, setView] = useState<ViewType>('standard')
+  const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
 
   const rawSales: number[] = []
   const rawDiscount: number[] = []
