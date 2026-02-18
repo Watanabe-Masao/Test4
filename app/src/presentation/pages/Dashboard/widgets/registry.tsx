@@ -396,7 +396,16 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f59e0b">
           <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.totalCost)}</ExecSummaryValue>
+          <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
+          <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
+          <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
+          {r.invMethodCogs != null ? (
+            <ExecSummarySub $color={r.invMethodCogs > 0 ? '#f59e0b' : undefined}>
+              原価算入比: {formatCurrency(r.invMethodCogs)}（{formatPercent(safeDivide(r.invMethodCogs, r.totalSales, 0))}）
+            </ExecSummarySub>
+          ) : (
+            <ExecSummarySub>原価算入比: -</ExecSummarySub>
+          )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#3b82f6">
           <ExecSummaryLabel>値入率</ExecSummaryLabel>
