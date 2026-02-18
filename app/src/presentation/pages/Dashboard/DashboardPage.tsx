@@ -18,7 +18,7 @@ export function DashboardPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const appState = useAppState()
-  const prevYear = usePrevYearData()
+  const prevYear = usePrevYearData(currentResult?.elapsedDays)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)

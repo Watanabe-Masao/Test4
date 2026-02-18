@@ -11,7 +11,9 @@ export interface PrevYearDailyEntry {
 export interface PrevYearData {
   readonly hasPrevYear: boolean
   readonly daily: ReadonlyMap<number, PrevYearDailyEntry>
+  /** 経過日数分の前年同曜日売上合計 */
   readonly totalSales: number
+  /** 経過日数分の前年同曜日売変合計 */
   readonly totalDiscount: number
 }
 
@@ -36,8 +38,13 @@ export function calcSameDowOffset(year: number, month: number): number {
   return ((currentDow - prevDow) % 7 + 7) % 7
 }
 
-/** 前年データ集計フック（店舗選択に連動、同曜日対応付け） */
-export function usePrevYearData(): PrevYearData {
+/**
+ * 前年データ集計フック（店舗選択に連動、同曜日対応付け）
+ *
+ * @param elapsedDays 当期の経過日数。指定すると totalSales/totalDiscount は
+ *                    1〜elapsedDays の範囲のみ合計する（予算と同じ比較基準）
+ */
+export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const state = useAppState()
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
@@ -81,13 +88,17 @@ export function usePrevYearData(): PrevYearData {
       }
     }
 
+    // 経過日数分のみ合計（elapsedDays 指定時）
+    const upperDay = elapsedDays ?? daysInTargetMonth
     let totalSales = 0
     let totalDiscount = 0
-    for (const entry of daily.values()) {
-      totalSales += entry.sales
-      totalDiscount += entry.discount
+    for (const [day, entry] of daily) {
+      if (day <= upperDay) {
+        totalSales += entry.sales
+        totalDiscount += entry.discount
+      }
     }
 
     return { hasPrevYear: true, daily, totalSales, totalDiscount }
-  }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth])
+  }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays])
 }

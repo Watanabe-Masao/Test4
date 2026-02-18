@@ -13,7 +13,7 @@ type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
 export function AnalysisPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName } = useStoreSelection()
-  const prevYear = usePrevYearData()
+  const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const [viewMode, setViewMode] = useState<ViewMode>('total')
   const [chartMode, setChartMode] = useState<ChartMode>('budget-vs-actual')
 
