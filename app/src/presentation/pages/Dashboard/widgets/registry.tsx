@@ -5,7 +5,9 @@ import {
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
-import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } from './ExecWidgets'
+import { renderPlanActualForecast } from './PlanActualForecast'
+import { MonthlyCalendarWidget } from './MonthlyCalendar'
+import { ForecastToolsWidget } from './ForecastTools'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
 import {
   ExecSummaryBar, ExecSummaryItem, ExecSummaryLabel, ExecSummaryValue, ExecSummarySub,

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { DataTableWrapper, DataTableTitle, DataTable, DataTh, DataTd } from '@/presentation/components/common'
 
 // ─── Executive Dashboard Styled Components ──────────────
 
@@ -805,42 +806,29 @@ export const ToolResultLabel = styled.span`
 `
 
 // ─── Summary Table Styled Components ────────────────────
+// DataTable ベースに Dashboard 固有のスタイルを上書き
 
-export const STableWrapper = styled.div`
+export const STableWrapper = styled(DataTableWrapper)`
   background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
 `
 
-export const STableTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
+export const STableTitle = DataTableTitle
+
+export const STable = styled(DataTable)`
+  font-family: inherit;
 `
 
-export const STable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-export const STh = styled.th`
+export const STh = styled(DataTh)`
   padding: ${({ theme }) => theme.spacing[3]};
-  text-align: right;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text3};
+  background: transparent;
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   &:first-child { text-align: left; }
 `
 
-export const STd = styled.td`
+export const STd = styled(DataTd)`
   padding: ${({ theme }) => theme.spacing[3]};
-  text-align: right;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   &:first-child {
     text-align: left;
     font-family: inherit;

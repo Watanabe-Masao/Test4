@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { BudgetVsActualChart, PrevYearComparisonChart } from '@/presentation/components/charts'
@@ -28,25 +28,31 @@ export function AnalysisPage() {
   const r = currentResult
 
   // 日別売上マップ
-  const salesDaily = new Map<number, number>()
-  for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
+  const salesDaily = useMemo(() => {
+    const m = new Map<number, number>()
+    for (const [d, rec] of r.daily) m.set(d, rec.sales)
+    return m
+  }, [r.daily])
 
   // 累計データ
-  const chartData = []
-  let cumActual = 0
-  let cumBudget = 0
-  let cumPy = 0
-  for (let d = 1; d <= daysInMonth; d++) {
-    cumActual += salesDaily.get(d) ?? 0
-    cumBudget += r.budgetDaily.get(d) ?? 0
-    cumPy += prevYear.daily.get(d)?.sales ?? 0
-    chartData.push({
-      day: d,
-      actualCum: cumActual,
-      budgetCum: cumBudget,
-      prevYearCum: prevYear.hasPrevYear ? cumPy : null,
-    })
-  }
+  const chartData = useMemo(() => {
+    const data = []
+    let cumActual = 0
+    let cumBudget = 0
+    let cumPy = 0
+    for (let d = 1; d <= daysInMonth; d++) {
+      cumActual += salesDaily.get(d) ?? 0
+      cumBudget += r.budgetDaily.get(d) ?? 0
+      cumPy += prevYear.daily.get(d)?.sales ?? 0
+      data.push({
+        day: d,
+        actualCum: cumActual,
+        budgetCum: cumBudget,
+        prevYearCum: prevYear.hasPrevYear ? cumPy : null,
+      })
+    }
+    return data
+  }, [salesDaily, r.budgetDaily, prevYear, daysInMonth])
 
   // 粗利実績
   const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
