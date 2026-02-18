@@ -70,4 +70,8 @@ export interface StoreResult {
   readonly averageDailySales: number // 日平均売上
   readonly projectedSales: number // 月末予測売上
   readonly projectedAchievement: number // 予算達成率予測
+  readonly budgetAchievementRate: number // 予算達成率（実績/予算）
+  readonly budgetProgressRate: number // 予算消化率（実績/経過予算）
+  readonly remainingBudget: number // 残余予算
+  readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }> // 日別累計
 }

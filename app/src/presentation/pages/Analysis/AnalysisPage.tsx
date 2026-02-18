@@ -5,7 +5,7 @@ import { BudgetVsActualChart, PrevYearComparisonChart } from '@/presentation/com
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { ChartSection, EmptyState, TableWrapper, Table, Th, Td, Tr, ToggleSection } from './AnalysisPage.styles'
-import { buildAnalysis, ComparisonView } from './ComparisonView'
+import { ComparisonView } from './ComparisonView'
 
 type ViewMode = 'total' | 'comparison'
 type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
@@ -27,8 +27,9 @@ export function AnalysisPage() {
 
   const r = currentResult
 
-  // 予算分析
-  const { salesDaily, analysis } = buildAnalysis(r, daysInMonth)
+  // 日別売上マップ
+  const salesDaily = new Map<number, number>()
+  for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
 
   // 累計データ
   const chartData = []
@@ -68,32 +69,32 @@ export function AnalysisPage() {
       )}
 
       {viewMode === 'comparison' && selectedResults.length > 1 ? (
-        <ComparisonView results={selectedResults} daysInMonth={daysInMonth} />
+        <ComparisonView results={selectedResults} />
       ) : (
         <>
           {/* KPI */}
           <KpiGrid>
             <KpiCard
               label="予算達成率"
-              value={formatPercent(analysis.budgetProgressRate)}
+              value={formatPercent(r.budgetProgressRate)}
               subText={`経過日予算累計比: ${r.elapsedDays}日分`}
               accent="#6366f1"
             />
             <KpiCard
               label="予算消化率"
-              value={formatPercent(analysis.budgetAchievementRate)}
+              value={formatPercent(r.budgetAchievementRate)}
               subText={`予算: ${formatCurrency(r.budget)}`}
               accent="#22c55e"
             />
             <KpiCard
               label="月末予測売上"
-              value={formatCurrency(analysis.projectedSales)}
+              value={formatCurrency(r.projectedSales)}
               accent="#0ea5e9"
             />
             <KpiCard
               label="達成率予測"
-              value={formatPercent(analysis.projectedAchievement)}
-              subText={`残余予算: ${formatCurrency(analysis.remainingBudget)}`}
+              value={formatPercent(r.projectedAchievement)}
+              subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
               accent="#f59e0b"
             />
             <KpiCard

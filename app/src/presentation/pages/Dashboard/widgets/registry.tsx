@@ -4,7 +4,6 @@ import {
   PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import type { WidgetDef } from './types'
 import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } from './ExecWidgets'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
@@ -203,22 +202,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算達成率',
     group: '予算分析',
     size: 'kpi',
-    render: ({ result: r, daysInMonth }) => {
-      const salesDaily = new Map<number, number>()
-      for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
-      const analysis = calculateBudgetAnalysis({
-        totalSales: r.totalSales, budget: r.budget, budgetDaily: r.budgetDaily,
-        salesDaily, elapsedDays: r.elapsedDays, salesDays: r.salesDays, daysInMonth,
-      })
-      return (
-        <KpiCard
-          label="予算達成率"
-          value={formatPercent(analysis.budgetProgressRate)}
-          subText={`残余予算: ${formatCurrency(analysis.remainingBudget)}`}
-          accent="#6366f1"
-        />
-      )
-    },
+    render: ({ result: r }) => (
+      <KpiCard
+        label="予算達成率"
+        value={formatPercent(r.budgetProgressRate)}
+        subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
+        accent="#6366f1"
+      />
+    ),
   },
   {
     id: 'kpi-gross-profit-budget',
