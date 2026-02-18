@@ -5,7 +5,7 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import {
-  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
+  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, TrDetail, TrDetailLast, DetailLabel, ToggleIcon, EmptyState,
 } from './TransferPage.styles'
 
 type TransferType = 'interStore' | 'interDepartment'
@@ -67,6 +67,7 @@ export function TransferPage() {
   const { currentResult, storeName, stores } = useStoreSelection()
   const [transferType, setTransferType] = useState<TransferType>('interStore')
   const [selectedPair, setSelectedPair] = useState<string | null>(null)
+  const [expandedDay, setExpandedDay] = useState<number | null>(null)
 
   const days = useMemo(
     () => currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
@@ -116,6 +117,11 @@ export function TransferPage() {
   const handleTypeChange = (type: TransferType) => {
     setTransferType(type)
     setSelectedPair(null)
+    setExpandedDay(null)
+  }
+
+  const handleDayClick = (day: number) => {
+    setExpandedDay(expandedDay === day ? null : day)
   }
 
   if (!isCalculated || !currentResult) {
@@ -233,15 +239,41 @@ export function TransferPage() {
                   const net = inRec.cost + outRec.cost
                   const hasData = inRec.cost !== 0 || outRec.cost !== 0
                   if (!hasData) return null
+                  const breakdown = [
+                    ...rec.transferBreakdown[inField],
+                    ...rec.transferBreakdown[outField],
+                  ]
+                  const isExpanded = expandedDay === day
                   return (
-                    <Tr key={day}>
-                      <Td>{day}日</Td>
-                      <Td>{fmtOrDash(inRec.cost)}</Td>
-                      <Td>{fmtOrDash(inRec.price)}</Td>
-                      <Td $negative={outRec.cost < 0}>{fmtOrDash(outRec.cost)}</Td>
-                      <Td $negative={outRec.price < 0}>{fmtOrDash(outRec.price)}</Td>
-                      <Td $negative={net < 0} $positive={net > 0}>{fmtOrDash(net)}</Td>
-                    </Tr>
+                    <>{/* Fragment for day + detail rows */}
+                      <Tr key={day} $clickable={breakdown.length > 0} $expanded={isExpanded} onClick={() => breakdown.length > 0 && handleDayClick(day)}>
+                        <Td>
+                          {breakdown.length > 0 && <ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>}
+                          {day}日
+                        </Td>
+                        <Td>{fmtOrDash(inRec.cost)}</Td>
+                        <Td>{fmtOrDash(inRec.price)}</Td>
+                        <Td $negative={outRec.cost < 0}>{fmtOrDash(outRec.cost)}</Td>
+                        <Td $negative={outRec.price < 0}>{fmtOrDash(outRec.price)}</Td>
+                        <Td $negative={net < 0} $positive={net > 0}>{fmtOrDash(net)}</Td>
+                      </Tr>
+                      {isExpanded && breakdown.map((entry, idx) => {
+                        const isLast = idx === breakdown.length - 1
+                        const TrRow = isLast ? TrDetailLast : TrDetail
+                        const fromName = stores.get(entry.fromStoreId)?.name ?? entry.fromStoreId
+                        const toName = stores.get(entry.toStoreId)?.name ?? entry.toStoreId
+                        return (
+                          <TrRow key={`${day}-${entry.fromStoreId}-${entry.toStoreId}`}>
+                            <Td><DetailLabel>{entry.fromStoreId}→{entry.toStoreId}</DetailLabel> {fromName}→{toName}</Td>
+                            <Td>{entry.cost > 0 ? formatCurrency(entry.cost) : '-'}</Td>
+                            <Td>{entry.price > 0 ? formatCurrency(entry.price) : '-'}</Td>
+                            <Td $negative={entry.cost < 0}>{entry.cost < 0 ? formatCurrency(entry.cost) : '-'}</Td>
+                            <Td $negative={entry.price < 0}>{entry.price < 0 ? formatCurrency(entry.price) : '-'}</Td>
+                            <Td>{formatCurrency(entry.cost)}</Td>
+                          </TrRow>
+                        )
+                      })}
+                    </>
                   )
                 })}
                 <TrTotal>

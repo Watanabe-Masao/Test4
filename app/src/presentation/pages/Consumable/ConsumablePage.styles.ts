@@ -57,6 +57,34 @@ export const Tr = styled.tr<{ $clickable?: boolean; $selected?: boolean }>`
   `}
 `
 
+export const TrDetail = styled.tr`
+  background: ${({ theme }) => theme.colors.bg3};
+  td {
+    padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
+    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    color: ${({ theme }) => theme.colors.text3};
+    border-bottom: none;
+    &:first-child {
+      color: ${({ theme }) => theme.colors.text4};
+    }
+  }
+`
+
+export const TrDetailLast = styled(TrDetail)`
+  td {
+    padding-bottom: ${({ theme }) => theme.spacing[3]};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
+`
+
+export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.6rem;
+  transition: transform 0.15s ease;
+  ${({ $expanded }) => $expanded && `transform: rotate(90deg);`}
+`
+
 export const TrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
