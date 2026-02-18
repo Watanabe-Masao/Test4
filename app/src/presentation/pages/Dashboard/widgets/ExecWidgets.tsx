@@ -544,8 +544,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                       <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} width={45} />
                       <Tooltip
-                        formatter={(val: number, name: string) => [formatCurrency(val), name === 'budget' ? '予算' : name === 'actual' ? '実績' : '前年']}
-                        labelFormatter={(d: number) => `${d}日`}
+                        formatter={(val: number | undefined, name: string) => [formatCurrency(val ?? 0), name === 'budget' ? '予算' : name === 'actual' ? '実績' : '前年']}
+                        labelFormatter={(d) => `${d}日`}
                       />
                       <Area type="monotone" dataKey="budget" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeDasharray="4 4" name="budget" />
                       <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} name="actual" />
@@ -617,7 +617,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                               <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} />
                               <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={60} />
-                              <Tooltip formatter={(val: number, name: string) => [formatCurrency(val), name === 'cost' ? '原価' : '売価']} />
+                              <Tooltip formatter={(val: number | undefined, name: string) => [formatCurrency(val ?? 0), name === 'cost' ? '原価' : '売価']} />
                               <Bar dataKey="cost" fill="#f59e0b" name="cost" barSize={8}>
                                 {barData.map((_, i) => <ReCell key={i} fill="#f59e0b" />)}
                               </Bar>
@@ -640,10 +640,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <DetailLabel>総仕入原価</DetailLabel>
                         <DetailValue>{formatCurrency(totalCost)}</DetailValue>
                       </DetailRow>
-                      {detailRec.consumable.total > 0 && (
+                      {detailRec.consumable.cost > 0 && (
                         <DetailRow>
                           <DetailLabel>消耗品費</DetailLabel>
-                          <DetailValue>{formatCurrency(detailRec.consumable.total)}</DetailValue>
+                          <DetailValue>{formatCurrency(detailRec.consumable.cost)}</DetailValue>
                         </DetailRow>
                       )}
                       {detailRec.discountAmount !== 0 && (
