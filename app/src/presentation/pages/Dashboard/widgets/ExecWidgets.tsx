@@ -24,16 +24,16 @@ import {
   ToolResultSection, ToolResultValue, ToolResultLabel,
 } from '../DashboardPage.styles'
 
-/** 万円表記 (コンパクト) */
-function fmtMan(n: number): string {
-  const man = Math.round(n / 10_000)
-  return `${man.toLocaleString()}万`
+/** 千円表記 (コンパクト) */
+function fmtSen(n: number): string {
+  const sen = Math.round(n / 1_000)
+  return `${sen.toLocaleString()}千`
 }
 
-/** 万円表記 (符号付き) */
-function fmtManDiff(n: number): string {
-  const man = Math.round(n / 10_000)
-  return `${man >= 0 ? '+' : ''}${man.toLocaleString()}万`
+/** 千円表記 (符号付き) */
+function fmtSenDiff(n: number): string {
+  const sen = Math.round(n / 1_000)
+  return `${sen >= 0 ? '+' : ''}${sen.toLocaleString()}千`
 }
 
 function ExecMetric({ label, value, sub, subColor }: {
@@ -357,14 +357,14 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       {(budget > 0 || actual > 0) && (
                         <CalDataArea onClick={() => setDetailDay(day)}>
                           <CalGrid>
-                            <CalCell>予 {fmtMan(budget)}</CalCell>
-                            <CalCell>実 {fmtMan(actual)}</CalCell>
-                            <CalCell $color={diffColor}>差 {fmtManDiff(diff)}</CalCell>
+                            <CalCell>予 {fmtSen(budget)}</CalCell>
+                            <CalCell>実 {fmtSen(actual)}</CalCell>
+                            <CalCell $color={diffColor}>差 {fmtSenDiff(diff)}</CalCell>
                             <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
                             <CalDivider />
-                            <CalCell>予累 {fmtMan(cBudget)}</CalCell>
-                            <CalCell>実累 {fmtMan(cSales)}</CalCell>
-                            <CalCell $color={cDiffColor}>差累 {fmtManDiff(cDiff)}</CalCell>
+                            <CalCell>予累 {fmtSen(cBudget)}</CalCell>
+                            <CalCell>実累 {fmtSen(cSales)}</CalCell>
+                            <CalCell $color={cDiffColor}>差累 {fmtSenDiff(cDiff)}</CalCell>
                             <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
                             {prevYear.hasPrevYear && (() => {
                               const pySales = prevYear.daily.get(day)?.sales ?? 0
@@ -376,9 +376,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               return pySales > 0 || cPy > 0 ? (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color="#9ca3af">前同 {fmtMan(pySales)}</CalCell>
+                                  <CalCell $color="#9ca3af">前同 {fmtSen(pySales)}</CalCell>
                                   <CalCell $color={pyColor}>前比 {pySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
-                                  <CalCell $color="#9ca3af">前累 {fmtMan(cPy)}</CalCell>
+                                  <CalCell $color="#9ca3af">前累 {fmtSen(cPy)}</CalCell>
                                   <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
                                 </>
                               ) : null
@@ -506,7 +506,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <DetailBarLabel>予算</DetailBarLabel>
                       <DetailBarTrack>
                         <DetailBarFill $width={(detailBudget / maxVal) * 100} $color="#6366f1">
-                          <DetailBarAmount>{fmtMan(detailBudget)}</DetailBarAmount>
+                          <DetailBarAmount>{fmtSen(detailBudget)}</DetailBarAmount>
                         </DetailBarFill>
                       </DetailBarTrack>
                     </DetailBarRow>
@@ -514,7 +514,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <DetailBarLabel>実績</DetailBarLabel>
                       <DetailBarTrack>
                         <DetailBarFill $width={(detailActual / maxVal) * 100} $color="#22c55e">
-                          <DetailBarAmount>{fmtMan(detailActual)}</DetailBarAmount>
+                          <DetailBarAmount>{fmtSen(detailActual)}</DetailBarAmount>
                         </DetailBarFill>
                       </DetailBarTrack>
                     </DetailBarRow>
@@ -523,7 +523,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <DetailBarLabel>前年</DetailBarLabel>
                         <DetailBarTrack>
                           <DetailBarFill $width={(detailPySales / maxVal) * 100} $color="#9ca3af">
-                            <DetailBarAmount>{fmtMan(detailPySales)}</DetailBarAmount>
+                            <DetailBarAmount>{fmtSen(detailPySales)}</DetailBarAmount>
                           </DetailBarFill>
                         </DetailBarTrack>
                       </DetailBarRow>
@@ -544,8 +544,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                       <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} width={45} />
                       <Tooltip
-                        formatter={(val: number, name: string) => [formatCurrency(val), name === 'budget' ? '予算' : name === 'actual' ? '実績' : '前年']}
-                        labelFormatter={(d: number) => `${d}日`}
+                        formatter={(val: number | undefined, name: string) => [formatCurrency(val ?? 0), name === 'budget' ? '予算' : name === 'actual' ? '実績' : '前年']}
+                        labelFormatter={(d) => `${d}日`}
                       />
                       <Area type="monotone" dataKey="budget" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeDasharray="4 4" name="budget" />
                       <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} name="actual" />
@@ -617,7 +617,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                               <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} />
                               <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={60} />
-                              <Tooltip formatter={(val: number, name: string) => [formatCurrency(val), name === 'cost' ? '原価' : '売価']} />
+                              <Tooltip formatter={(val: number | undefined, name: string) => [formatCurrency(val ?? 0), name === 'cost' ? '原価' : '売価']} />
                               <Bar dataKey="cost" fill="#f59e0b" name="cost" barSize={8}>
                                 {barData.map((_, i) => <ReCell key={i} fill="#f59e0b" />)}
                               </Bar>
@@ -640,10 +640,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <DetailLabel>総仕入原価</DetailLabel>
                         <DetailValue>{formatCurrency(totalCost)}</DetailValue>
                       </DetailRow>
-                      {detailRec.consumable.total > 0 && (
+                      {detailRec.consumable.cost > 0 && (
                         <DetailRow>
                           <DetailLabel>消耗品費</DetailLabel>
-                          <DetailValue>{formatCurrency(detailRec.consumable.total)}</DetailValue>
+                          <DetailValue>{formatCurrency(detailRec.consumable.cost)}</DetailValue>
                         </DetailRow>
                       )}
                       {detailRec.discountAmount !== 0 && (
