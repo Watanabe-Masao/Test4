@@ -345,7 +345,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算差・前年差推移',
     group: 'チャート',
     size: 'full',
-    render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
+    render: ({ budgetChartData, daysInMonth, prevYear }) => (
       <BudgetDiffTrendChart
         data={budgetChartData}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}

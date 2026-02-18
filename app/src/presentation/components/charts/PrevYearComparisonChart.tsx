@@ -125,7 +125,6 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
 
   // ループ後の prevCum が前年月間合計
   const prevTotal = prevCum
-  const currentTotal = currentCum
   const latestCurrentCum = latestDay > 0
     ? data.find(d => d.day === latestDay)?.currentCum ?? 0
     : 0
