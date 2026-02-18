@@ -399,17 +399,34 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
           <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
-          {r.invMethodCogs != null ? (
-            <ExecSummarySub $color={r.invMethodCogs > 0 ? '#f59e0b' : undefined}>
-              原価算入比: {formatCurrency(r.invMethodCogs)}（{formatPercent(safeDivide(r.invMethodCogs, r.totalSales, 0))}）
-            </ExecSummarySub>
-          ) : (
-            <ExecSummarySub>原価算入比: -</ExecSummarySub>
-          )}
+          {(() => {
+            // 表示値と同じフィールドから明示的に COGS を算出
+            if (r.openingInventory == null || r.closingInventory == null) {
+              return <ExecSummarySub>原価算入比: -（在庫データ未入力）</ExecSummarySub>
+            }
+            const cogs = r.openingInventory + r.totalCost - r.closingInventory
+            return (
+              <ExecSummarySub $color={cogs > 0 ? '#f59e0b' : undefined}>
+                原価算入比: {formatCurrency(cogs)}（{formatPercent(safeDivide(cogs, r.totalSales, 0))}）
+              </ExecSummarySub>
+            )
+          })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#3b82f6">
-          <ExecSummaryLabel>値入率</ExecSummaryLabel>
-          <ExecSummaryValue>{formatPercent(r.averageMarkupRate)}</ExecSummaryValue>
+          <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
+          {(() => {
+            const markupAmount = r.grossSales - r.totalCost
+            const estGpRate = r.averageMarkupRate - r.discountRate * (1 - r.discountRate)
+            return (
+              <>
+                <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
+                <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
+                <ExecSummarySub $color={estGpRate >= 0.20 ? '#22c55e' : estGpRate >= 0.15 ? '#f59e0b' : '#ef4444'}>
+                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
+                </ExecSummarySub>
+              </>
+            )
+          })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#22c55e">
           <ExecSummaryLabel>粗利率（在庫法）</ExecSummaryLabel>
@@ -468,8 +485,20 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryValue>{formatCurrency(r.estMethodClosingInventory)}</ExecSummaryValue>
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#3b82f6">
-          <ExecSummaryLabel>値入率</ExecSummaryLabel>
-          <ExecSummaryValue>{formatPercent(r.averageMarkupRate)}</ExecSummaryValue>
+          <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
+          {(() => {
+            const markupAmount = r.grossSales - r.totalCost
+            const estGpRate = r.averageMarkupRate - r.discountRate * (1 - r.discountRate)
+            return (
+              <>
+                <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
+                <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
+                <ExecSummarySub $color={estGpRate >= 0.20 ? '#22c55e' : estGpRate >= 0.15 ? '#f59e0b' : '#ef4444'}>
+                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
+                </ExecSummarySub>
+              </>
+            )
+          })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f43f5e">
           <ExecSummaryLabel>売変額</ExecSummaryLabel>

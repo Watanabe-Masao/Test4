@@ -297,6 +297,12 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     setRangeBStart(''); setRangeBEnd('')
   }
 
+  const handleRangeSwap = () => {
+    const tmpS = rangeAStart, tmpE = rangeAEnd
+    setRangeAStart(rangeBStart); setRangeAEnd(rangeBEnd)
+    setRangeBStart(tmpS); setRangeBEnd(tmpE)
+  }
+
   const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
   const intervals = calculatePinIntervals(r.daily, r.openingInventory, sortedPins)
   const getIntervalForDay = (day: number) =>
@@ -364,7 +370,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           type="text" value={rangeAEnd} placeholder="終了"
           onChange={(e) => setRangeAEnd(e.target.value)}
         />
-        <span style={{ margin: '0 4px', color: '#9ca3af' }}>|</span>
+        <Button $variant="outline" onClick={handleRangeSwap} title="A⇄B 入替">⇄</Button>
         <RangeLabel>期間B:</RangeLabel>
         <RangeInput
           type="text" value={rangeBStart} placeholder="開始"
