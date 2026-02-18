@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -112,6 +113,7 @@ const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
 export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const rawSales: number[] = []
   const rawDiscount: number[] = []
@@ -140,7 +142,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     salesMa7: salesMa7[i],
     discountMa7: discountMa7[i],
     prevDiscountMa7: prevDiscountMa7[i],
-  }))
+  })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   const hasPrev = !!prevYearDaily
 
@@ -169,7 +171,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           ))}
         </ViewToggle>
       </HeaderRow>
-      <ResponsiveContainer width="100%" height="88%">
+      <ResponsiveContainer width="100%" height="82%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
@@ -332,6 +334,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           )}
         </ComposedChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

@@ -44,8 +44,49 @@ export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
   }
 `
 
-export const Tr = styled.tr`
+export const Tr = styled.tr<{ $clickable?: boolean; $expanded?: boolean }>`
   &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  ${({ $expanded, theme }) => $expanded && `
+    background: ${theme.colors.palette.primary}10;
+    &:hover { background: ${theme.colors.palette.primary}18; }
+  `}
+`
+
+export const TrDetail = styled.tr`
+  background: ${({ theme }) => theme.colors.bg3};
+  td {
+    padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
+    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    color: ${({ theme }) => theme.colors.text3};
+    border-bottom: none;
+  }
+`
+
+export const TrDetailLast = styled(TrDetail)`
+  td {
+    padding-bottom: ${({ theme }) => theme.spacing[3]};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
+`
+
+export const DetailLabel = styled.span<{ $sub?: boolean }>`
+  display: inline-block;
+  min-width: 80px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  color: ${({ theme }) => theme.colors.text4};
+  ${({ $sub, theme }) => $sub && `
+    font-weight: ${theme.typography.fontWeight.semibold};
+    color: ${theme.colors.text3};
+  `}
+`
+
+export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.6rem;
+  transition: transform 0.15s ease;
+  ${({ $expanded }) => $expanded && `transform: rotate(90deg);`}
 `
 
 export const TrTotal = styled.tr`

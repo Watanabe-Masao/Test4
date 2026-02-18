@@ -5,8 +5,8 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { DailyRecord } from '@/domain/models'
 import {
-  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
-  Bar, RankBadge, PairGrid, DetailPanel, DetailHeader, DetailTitle, DetailClose,
+  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, TrDetail, TrDetailLast, ToggleIcon, EmptyState,
+  Bar, RankBadge, PairGrid,
 } from './ConsumablePage.styles'
 
 type ViewMode = 'item' | 'account' | 'daily'
@@ -193,35 +193,37 @@ export function ConsumablePage() {
 
           {/* 品目別 */}
           {viewMode === 'item' && (
-            <>
-              <Card>
-                <CardTitle>品目別消耗品集計</CardTitle>
-                <TableWrapper>
-                  <Table>
-                    <thead>
-                      <tr>
-                        <Th>#</Th>
-                        <Th>品名</Th>
-                        <Th>品目コード</Th>
-                        <Th>勘定科目</Th>
-                        <Th>数量</Th>
-                        <Th>金額</Th>
-                        <Th>構成比</Th>
-                        <Th>計上日数</Th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {itemAggregates.map((item, idx) => {
-                        const ratio = totalCost > 0 ? item.totalCost / totalCost : 0
-                        return (
+            <Card>
+              <CardTitle>品目別消耗品集計</CardTitle>
+              <TableWrapper>
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>#</Th>
+                      <Th>品名</Th>
+                      <Th>品目コード</Th>
+                      <Th>勘定科目</Th>
+                      <Th>数量</Th>
+                      <Th>金額</Th>
+                      <Th>構成比</Th>
+                      <Th>計上日数</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {itemAggregates.map((item, idx) => {
+                      const ratio = totalCost > 0 ? item.totalCost / totalCost : 0
+                      const isExpanded = selectedItem === item.itemCode
+                      const details = isExpanded ? itemDetailData : null
+                      return (
+                        <>{/* Fragment for item + detail rows */}
                           <Tr
                             key={item.itemCode}
                             $clickable
-                            $selected={selectedItem === item.itemCode}
+                            $selected={isExpanded}
                             onClick={() => handleItemClick(item.itemCode)}
                           >
                             <Td><RankBadge $rank={idx + 1}>{idx + 1}</RankBadge></Td>
-                            <Td>{item.itemName}</Td>
+                            <Td><ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>{item.itemName}</Td>
                             <Td $muted>{item.itemCode}</Td>
                             <Td $muted>{item.accountCode}</Td>
                             <Td>{item.totalQuantity.toLocaleString()}</Td>
@@ -232,68 +234,39 @@ export function ConsumablePage() {
                             <Td>{formatPercent(ratio)}</Td>
                             <Td>{item.dayCount}日</Td>
                           </Tr>
-                        )
-                      })}
-                      <TrTotal>
-                        <Td />
-                        <Td>合計</Td>
-                        <Td />
-                        <Td />
-                        <Td>{itemAggregates.reduce((s, i) => s + i.totalQuantity, 0).toLocaleString()}</Td>
-                        <Td>{formatCurrency(totalCost)}</Td>
-                        <Td>100.0%</Td>
-                        <Td />
-                      </TrTotal>
-                    </tbody>
-                  </Table>
-                </TableWrapper>
-              </Card>
-
-              {/* 品目詳細パネル */}
-              {selectedItem && selectedItemInfo && itemDetailData && (
-                <DetailPanel>
-                  <DetailHeader>
-                    <DetailTitle>{selectedItemInfo.itemName}（{selectedItemInfo.itemCode}）の発注詳細</DetailTitle>
-                    <DetailClose onClick={() => setSelectedItem(null)}>×</DetailClose>
-                  </DetailHeader>
-                  {itemDetailData.length === 0 ? (
-                    <EmptyState>詳細データがありません</EmptyState>
-                  ) : (
-                    <TableWrapper>
-                      <Table>
-                        <thead>
-                          <tr>
-                            <Th>日</Th>
-                            <Th>店舗</Th>
-                            <Th>数量</Th>
-                            <Th>金額</Th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {itemDetailData.map((d, i) => (
-                            <Tr key={`${d.day}-${d.storeId}-${i}`}>
-                              <Td>{d.day}日</Td>
-                              <Td>{d.storeName}</Td>
-                              <Td>{d.quantity.toLocaleString()}</Td>
-                              <Td>{formatCurrency(d.cost)}</Td>
-                            </Tr>
-                          ))}
-                          <TrTotal>
-                            <Td>合計</Td>
-                            <Td>{(() => {
-                              const storeSet = new Set(itemDetailData.map(d => d.storeId))
-                              return `${storeSet.size}店舗`
-                            })()}</Td>
-                            <Td>{itemDetailData.reduce((s, d) => s + d.quantity, 0).toLocaleString()}</Td>
-                            <Td>{formatCurrency(itemDetailData.reduce((s, d) => s + d.cost, 0))}</Td>
-                          </TrTotal>
-                        </tbody>
-                      </Table>
-                    </TableWrapper>
-                  )}
-                </DetailPanel>
-              )}
-            </>
+                          {isExpanded && details && details.length > 0 && details.map((d, i) => {
+                            const isLast = i === details.length - 1
+                            const TrRow = isLast ? TrDetailLast : TrDetail
+                            return (
+                              <TrRow key={`detail-${d.day}-${d.storeId}-${i}`}>
+                                <Td />
+                                <Td>{d.day}日 {d.storeName}</Td>
+                                <Td />
+                                <Td />
+                                <Td>{d.quantity.toLocaleString()}</Td>
+                                <Td>{formatCurrency(d.cost)}</Td>
+                                <Td />
+                                <Td />
+                              </TrRow>
+                            )
+                          })}
+                        </>
+                      )
+                    })}
+                    <TrTotal>
+                      <Td />
+                      <Td>合計</Td>
+                      <Td />
+                      <Td />
+                      <Td>{itemAggregates.reduce((s, i) => s + i.totalQuantity, 0).toLocaleString()}</Td>
+                      <Td>{formatCurrency(totalCost)}</Td>
+                      <Td>100.0%</Td>
+                      <Td />
+                    </TrTotal>
+                  </tbody>
+                </Table>
+              </TableWrapper>
+            </Card>
           )}
 
           {/* 勘定科目別 */}

@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -100,21 +101,24 @@ interface Props {
 
 export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   // 累計データ構築
   let currentCum = 0
   let prevCum = 0
 
-  const data = []
+  const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
     currentCum += currentDaily.get(d)?.sales ?? 0
     prevCum += prevYearDaily.get(d)?.sales ?? 0
-    data.push({
+    allData.push({
       day: d,
       currentCum,
       prevYearCum: prevCum > 0 ? prevCum : null,
     })
   }
+
+  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   // 前年の同時点累計（実績のある最終日まで）
   const latestDay = [...currentDaily.keys()].filter(d => (currentDaily.get(d)?.sales ?? 0) > 0).sort((a, b) => b - a)[0] ?? 0
@@ -243,6 +247,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           </AreaChart>
         </ResponsiveContainer>
       </ChartArea>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

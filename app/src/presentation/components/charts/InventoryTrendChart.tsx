@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -44,10 +45,11 @@ export function InventoryTrendChart({
   closingInventory,
 }: Props) {
   const ct = useChartTheme()
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   if (openingInventory == null) return null
 
-  const data: { day: number; estimated: number | null; actual: number | null }[] = []
+  const allData: { day: number; estimated: number | null; actual: number | null }[] = []
   let cumCost = 0
   let cumEstCogs = 0
 
@@ -62,17 +64,19 @@ export function InventoryTrendChart({
     // 実在庫は月末日のみプロット
     const actualInv = (d === daysInMonth && closingInventory != null) ? closingInventory : null
 
-    data.push({
+    allData.push({
       day: d,
       estimated: openingInventory + cumCost - cumEstCogs,
       actual: actualInv,
     })
   }
 
+  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+
   return (
     <Wrapper>
       <Title>推定在庫推移 vs 実在庫</Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer width="100%" height="84%">
         <LineChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -152,6 +156,7 @@ export function InventoryTrendChart({
           )}
         </LineChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

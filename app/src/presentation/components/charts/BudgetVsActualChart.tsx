@@ -15,6 +15,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -166,6 +167,8 @@ interface Props {
 export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, daysInMonth }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<BudgetViewType>('line')
+  const totalDaysForSlider = daysInMonth ?? data.length
+  const [rangeStart, rangeEnd, setRange] = useDayRange(totalDaysForSlider)
   const hasPrevYear = showPrevYear && data.some(d => d.prevYearCum != null && d.prevYearCum > 0)
 
   // 最新の実績データを取得
@@ -195,11 +198,13 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
   const projColor = getStatusColor(projectedAchievement)
 
   // 差分・達成率を含む拡張データ
-  const chartData = [...data].map(d => ({
-    ...d,
-    diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-    achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
-  }))
+  const chartData = [...data]
+    .map(d => ({
+      ...d,
+      diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
+      achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
+    }))
+    .filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   const allLabels: Record<string, string> = {
     actualCum: '実績累計',
@@ -439,6 +444,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </ComposedChart>
         </ResponsiveContainer>
       </ChartArea>
+      <DayRangeSlider min={1} max={totalDaysForSlider} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

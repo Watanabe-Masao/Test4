@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -38,11 +39,12 @@ interface Props {
 /** 売変インパクト分析チャート（バー: 日別売変額 / ライン: 累計売変率） */
 export function DiscountTrendChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   let cumDiscount = 0
   let cumGrossSales = 0
 
-  const data = []
+  const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     const dayDiscount = rec?.discountAbsolute ?? 0
@@ -53,7 +55,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
 
     const cumRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
 
-    data.push({
+    allData.push({
       day: d,
       discount: dayDiscount,
       cumRate,
@@ -61,13 +63,15 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
     })
   }
 
-  const hasData = data.some(d => d.discount > 0)
+  const hasData = allData.some(d => d.discount > 0)
   if (!hasData) return null
+
+  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   return (
     <Wrapper>
       <Title>売変インパクト分析（バー: 日別売変額 / ライン: 累計売変率）</Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="discGrad" x1="0" y1="0" x2="0" y2="1">
@@ -132,6 +136,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
           />
         </ComposedChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
 
@@ -42,11 +43,12 @@ interface Props {
 /** 粗利額累計推移（バー: 粗利額, ライン: 粗利率） */
 export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, targetRate }: Props) {
   const ct = useChartTheme()
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   let cumSales = 0
   let cumCost = 0
 
-  const data = []
+  const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     if (rec) {
@@ -55,7 +57,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
     }
     const grossProfit = cumSales - cumCost
     const rate = cumSales > 0 ? grossProfit / cumSales : 0
-    data.push({
+    allData.push({
       day: d,
       grossProfit,
       rate,
@@ -63,10 +65,12 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
     })
   }
 
+  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+
   return (
     <Wrapper>
       <Title>粗利額累計推移（バー: 粗利額 / ライン: 粗利率）</Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">
@@ -163,6 +167,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
           />
         </ComposedChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }
