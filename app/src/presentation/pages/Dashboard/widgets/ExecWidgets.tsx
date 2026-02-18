@@ -25,6 +25,11 @@ import {
   RangeToolbar, RangeLabel, RangeInput,
   RangeSummaryPanel, RangeSummaryTitle, RangeSummaryGrid,
   RangeSummaryItem, RangeSummaryItemLabel, RangeSummaryItemValue,
+  RangeCompareContainer, RangeColumn, RangeColumnHeader, RangeColumnDot, RangeColumnTitle,
+  RangeMetricRow, RangeMetricLabel, RangeMetricValue,
+  RangeCenterCol, RangeCenterHeader,
+  CompareBarRow, CompareBarLabel, CompareBarDiff, CompareBarTrack, CompareBarSegment,
+  CompareIndicator, CompareIndicatorValue, CompareIndicatorLabel,
 } from '../DashboardPage.styles'
 
 /** 千円表記 (コンパクト) */
@@ -376,126 +381,256 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       </RangeToolbar>
 
       {/* ── Range Summary Panel ── */}
-      {hasAnyRange && (
-        <RangeSummaryPanel>
-          <RangeSummaryTitle>
-            {rangeAData && rangeBData
-              ? `期間比較: ${rangeAData.start}～${rangeAData.end}日 vs ${rangeBData.start}～${rangeBData.end}日`
-              : rangeAData
-                ? `期間集計: ${rangeAData.start}～${rangeAData.end}日`
-                : rangeBData
-                  ? `期間集計: ${rangeBData.start}～${rangeBData.end}日`
-                  : ''}
-          </RangeSummaryTitle>
-          <div style={{ display: 'grid', gridTemplateColumns: rangeAData && rangeBData ? '1fr 1fr' : '1fr', gap: '16px' }}>
-            {rangeAData && (
-              <div>
-                {rangeBData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px', color: '#f59e0b' }}>期間A: {rangeAData.start}～{rangeAData.end}日（{rangeAData.salesDaysCount}営業日）</RangeSummaryItemLabel>}
-                {!rangeBData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>{rangeAData.salesDaysCount}営業日</RangeSummaryItemLabel>}
+      {hasAnyRange && (() => {
+        // single-range fallback
+        const singleRange = rangeAData && !rangeBData ? rangeAData : !rangeAData && rangeBData ? rangeBData : null
+        if (singleRange) {
+          return (
+            <RangeSummaryPanel>
+              <RangeSummaryTitle>期間集計: {singleRange.start}～{singleRange.end}日（{singleRange.salesDaysCount}営業日）</RangeSummaryTitle>
+              <div style={{ padding: '16px' }}>
                 <RangeSummaryGrid>
                   <RangeSummaryItem>
                     <RangeSummaryItemLabel>売上予算</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeAData.budget)}</RangeSummaryItemValue>
+                    <RangeSummaryItemValue>{formatCurrency(singleRange.budget)}</RangeSummaryItemValue>
                   </RangeSummaryItem>
                   <RangeSummaryItem>
                     <RangeSummaryItemLabel>売上実績</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeAData.sales)}</RangeSummaryItemValue>
+                    <RangeSummaryItemValue>{formatCurrency(singleRange.sales)}</RangeSummaryItemValue>
                   </RangeSummaryItem>
                   <RangeSummaryItem>
                     <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={rangeAData.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(rangeAData.diff)}</RangeSummaryItemValue>
+                    <RangeSummaryItemValue $color={singleRange.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(singleRange.diff)}</RangeSummaryItemValue>
                   </RangeSummaryItem>
                   <RangeSummaryItem>
                     <RangeSummaryItemLabel>予算達成率</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={rangeAData.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeAData.ach)}</RangeSummaryItemValue>
+                    <RangeSummaryItemValue $color={singleRange.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(singleRange.ach)}</RangeSummaryItemValue>
                   </RangeSummaryItem>
-                  {prevYear.hasPrevYear && rangeAData.pySales > 0 && (
+                  {prevYear.hasPrevYear && singleRange.pySales > 0 && (
                     <>
                       <RangeSummaryItem>
-                        <RangeSummaryItemLabel>前年同曜日売上</RangeSummaryItemLabel>
-                        <RangeSummaryItemValue>{formatCurrency(rangeAData.pySales)}</RangeSummaryItemValue>
+                        <RangeSummaryItemLabel>前年同期売上</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue>{formatCurrency(singleRange.pySales)}</RangeSummaryItemValue>
                       </RangeSummaryItem>
                       <RangeSummaryItem>
-                        <RangeSummaryItemLabel>前年同曜日比</RangeSummaryItemLabel>
-                        <RangeSummaryItemValue $color={rangeAData.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeAData.pyRatio)}</RangeSummaryItemValue>
+                        <RangeSummaryItemLabel>前年比</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue $color={singleRange.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(singleRange.pyRatio)}</RangeSummaryItemValue>
                       </RangeSummaryItem>
                     </>
                   )}
                   <RangeSummaryItem>
                     <RangeSummaryItemLabel>日平均売上</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeAData.avgDaily)}</RangeSummaryItemValue>
+                    <RangeSummaryItemValue>{formatCurrency(singleRange.avgDaily)}</RangeSummaryItemValue>
                   </RangeSummaryItem>
                 </RangeSummaryGrid>
               </div>
+            </RangeSummaryPanel>
+          )
+        }
+        if (!rangeAData || !rangeBData) return null
+        // ── 3-column compare ──
+        const cmpColor = (a: number, b: number) => a > b ? '#22c55e' : a < b ? '#ef4444' : '#9ca3af'
+        const barPct = (a: number, b: number) => {
+          const total = a + b
+          if (total === 0) return { a: 50, b: 50 }
+          return { a: Math.round(a / total * 100), b: 100 - Math.round(a / total * 100) }
+        }
+        const salesBar = barPct(rangeAData.sales, rangeBData.sales)
+        const budgetBar = barPct(rangeAData.budget, rangeBData.budget)
+        const avgBar = barPct(rangeAData.avgDaily, rangeBData.avgDaily)
+        const salesDiff = rangeAData.sales - rangeBData.sales
+        const avgDiff = rangeAData.avgDaily - rangeBData.avgDaily
+        const achDiff = rangeAData.ach - rangeBData.ach
+        const pyA = rangeAData.pySales, pyB = rangeBData.pySales
+        const pyBar = barPct(pyA, pyB)
+
+        const renderMetricCol = (d: typeof rangeAData) => (
+          <>
+            <RangeMetricRow>
+              <RangeMetricLabel>売上予算</RangeMetricLabel>
+              <RangeMetricValue>{formatCurrency(d.budget)}</RangeMetricValue>
+            </RangeMetricRow>
+            <RangeMetricRow>
+              <RangeMetricLabel>売上実績</RangeMetricLabel>
+              <RangeMetricValue>{formatCurrency(d.sales)}</RangeMetricValue>
+            </RangeMetricRow>
+            <RangeMetricRow>
+              <RangeMetricLabel>予算差異</RangeMetricLabel>
+              <RangeMetricValue $color={d.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(d.diff)}</RangeMetricValue>
+            </RangeMetricRow>
+            <RangeMetricRow>
+              <RangeMetricLabel>予算達成率</RangeMetricLabel>
+              <RangeMetricValue $color={d.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(d.ach)}</RangeMetricValue>
+            </RangeMetricRow>
+            {prevYear.hasPrevYear && d.pySales > 0 && (
+              <>
+                <RangeMetricRow>
+                  <RangeMetricLabel>前年同期</RangeMetricLabel>
+                  <RangeMetricValue>{formatCurrency(d.pySales)}</RangeMetricValue>
+                </RangeMetricRow>
+                <RangeMetricRow>
+                  <RangeMetricLabel>前年比</RangeMetricLabel>
+                  <RangeMetricValue $color={d.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(d.pyRatio)}</RangeMetricValue>
+                </RangeMetricRow>
+              </>
             )}
-            {rangeBData && (
-              <div>
-                {rangeAData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px', color: '#6366f1' }}>期間B: {rangeBData.start}～{rangeBData.end}日（{rangeBData.salesDaysCount}営業日）</RangeSummaryItemLabel>}
-                {!rangeAData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>{rangeBData.salesDaysCount}営業日</RangeSummaryItemLabel>}
-                <RangeSummaryGrid>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>売上予算</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeBData.budget)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>売上実績</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeBData.sales)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={rangeBData.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(rangeBData.diff)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>予算達成率</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={rangeBData.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeBData.ach)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  {prevYear.hasPrevYear && rangeBData.pySales > 0 && (
-                    <>
-                      <RangeSummaryItem>
-                        <RangeSummaryItemLabel>前年同曜日売上</RangeSummaryItemLabel>
-                        <RangeSummaryItemValue>{formatCurrency(rangeBData.pySales)}</RangeSummaryItemValue>
-                      </RangeSummaryItem>
-                      <RangeSummaryItem>
-                        <RangeSummaryItemLabel>前年同曜日比</RangeSummaryItemLabel>
-                        <RangeSummaryItemValue $color={rangeBData.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeBData.pyRatio)}</RangeSummaryItemValue>
-                      </RangeSummaryItem>
-                    </>
-                  )}
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>日平均売上</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue>{formatCurrency(rangeBData.avgDaily)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                </RangeSummaryGrid>
-              </div>
-            )}
-          </div>
-          {/* ── A vs B comparison ── */}
-          {rangeAData && rangeBData && (() => {
-            const salesDiff = rangeAData.sales - rangeBData.sales
-            const avgDiff = rangeAData.avgDaily - rangeBData.avgDaily
-            const achDiff = rangeAData.ach - rangeBData.ach
-            return (
-              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(128,128,128,0.2)' }}>
-                <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>A - B 差分</RangeSummaryItemLabel>
-                <RangeSummaryGrid>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>売上差</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={salesDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(salesDiff)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>日平均差</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={avgDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(avgDiff)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                  <RangeSummaryItem>
-                    <RangeSummaryItemLabel>達成率差</RangeSummaryItemLabel>
-                    <RangeSummaryItemValue $color={achDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatPointDiff(achDiff)}</RangeSummaryItemValue>
-                  </RangeSummaryItem>
-                </RangeSummaryGrid>
-              </div>
-            )
-          })()}
-        </RangeSummaryPanel>
-      )}
+            <RangeMetricRow>
+              <RangeMetricLabel>日平均売上</RangeMetricLabel>
+              <RangeMetricValue>{formatCurrency(d.avgDaily)}</RangeMetricValue>
+            </RangeMetricRow>
+          </>
+        )
+
+        return (
+          <RangeSummaryPanel>
+            <RangeSummaryTitle>
+              期間比較分析: {rangeAData.start}～{rangeAData.end}日 vs {rangeBData.start}～{rangeBData.end}日
+            </RangeSummaryTitle>
+            <RangeCompareContainer>
+              {/* ── Left: Period A ── */}
+              <RangeColumn>
+                <RangeColumnHeader $color="#f59e0b">
+                  <RangeColumnDot $color="#f59e0b" />
+                  <RangeColumnTitle>期間A: {rangeAData.start}～{rangeAData.end}日（{rangeAData.salesDaysCount}営業日）</RangeColumnTitle>
+                </RangeColumnHeader>
+                {renderMetricCol(rangeAData)}
+              </RangeColumn>
+
+              {/* ── Center: Visual Comparison ── */}
+              <RangeCenterCol>
+                <RangeCenterHeader>
+                  <RangeColumnTitle>A vs B 比較</RangeColumnTitle>
+                </RangeCenterHeader>
+
+                {/* Sales comparison bar */}
+                <CompareBarRow>
+                  <CompareBarLabel>
+                    <span>売上実績</span>
+                    <CompareBarDiff $color={cmpColor(rangeAData.sales, rangeBData.sales)}>
+                      {salesDiff >= 0 ? '+' : ''}{formatCurrency(salesDiff)}
+                    </CompareBarDiff>
+                  </CompareBarLabel>
+                  <CompareBarTrack>
+                    <CompareBarSegment $width={`${salesBar.a}%`} $color="#f59e0b">
+                      A {fmtSen(rangeAData.sales)}
+                    </CompareBarSegment>
+                    <CompareBarSegment $width={`${salesBar.b}%`} $color="#6366f1">
+                      B {fmtSen(rangeBData.sales)}
+                    </CompareBarSegment>
+                  </CompareBarTrack>
+                  <CompareIndicator $color={cmpColor(rangeAData.sales, rangeBData.sales)}>
+                    <CompareIndicatorValue $color={cmpColor(rangeAData.sales, rangeBData.sales)}>
+                      {rangeBData.sales > 0 ? formatPercent(rangeAData.sales / rangeBData.sales) : '-'}
+                    </CompareIndicatorValue>
+                    <CompareIndicatorLabel>A/B 売上比率</CompareIndicatorLabel>
+                  </CompareIndicator>
+                </CompareBarRow>
+
+                {/* Budget comparison bar */}
+                <CompareBarRow>
+                  <CompareBarLabel>
+                    <span>売上予算</span>
+                    <CompareBarDiff $color={cmpColor(rangeAData.budget, rangeBData.budget)}>
+                      {rangeAData.budget - rangeBData.budget >= 0 ? '+' : ''}{formatCurrency(rangeAData.budget - rangeBData.budget)}
+                    </CompareBarDiff>
+                  </CompareBarLabel>
+                  <CompareBarTrack>
+                    <CompareBarSegment $width={`${budgetBar.a}%`} $color="rgba(245,158,11,0.6)">
+                      A {fmtSen(rangeAData.budget)}
+                    </CompareBarSegment>
+                    <CompareBarSegment $width={`${budgetBar.b}%`} $color="rgba(99,102,241,0.6)">
+                      B {fmtSen(rangeBData.budget)}
+                    </CompareBarSegment>
+                  </CompareBarTrack>
+                </CompareBarRow>
+
+                {/* Average daily comparison bar */}
+                <CompareBarRow>
+                  <CompareBarLabel>
+                    <span>日平均売上</span>
+                    <CompareBarDiff $color={cmpColor(rangeAData.avgDaily, rangeBData.avgDaily)}>
+                      {avgDiff >= 0 ? '+' : ''}{formatCurrency(avgDiff)}
+                    </CompareBarDiff>
+                  </CompareBarLabel>
+                  <CompareBarTrack>
+                    <CompareBarSegment $width={`${avgBar.a}%`} $color="#f59e0b">
+                      A {fmtSen(rangeAData.avgDaily)}
+                    </CompareBarSegment>
+                    <CompareBarSegment $width={`${avgBar.b}%`} $color="#6366f1">
+                      B {fmtSen(rangeBData.avgDaily)}
+                    </CompareBarSegment>
+                  </CompareBarTrack>
+                </CompareBarRow>
+
+                {/* Achievement rate comparison */}
+                <CompareBarRow>
+                  <CompareBarLabel>
+                    <span>予算達成率</span>
+                    <CompareBarDiff $color={cmpColor(rangeAData.ach, rangeBData.ach)}>
+                      {formatPointDiff(achDiff)}
+                    </CompareBarDiff>
+                  </CompareBarLabel>
+                  <CompareBarTrack>
+                    <CompareBarSegment
+                      $width={`${Math.min(rangeAData.ach * 50, 100)}%`}
+                      $color={rangeAData.ach >= 1 ? '#22c55e' : '#f59e0b'}
+                    >
+                      A {formatPercent(rangeAData.ach, 0)}
+                    </CompareBarSegment>
+                    <CompareBarSegment
+                      $width={`${Math.min(rangeBData.ach * 50, 100)}%`}
+                      $color={rangeBData.ach >= 1 ? '#22c55e' : '#6366f1'}
+                    >
+                      B {formatPercent(rangeBData.ach, 0)}
+                    </CompareBarSegment>
+                  </CompareBarTrack>
+                </CompareBarRow>
+
+                {/* Previous year comparison */}
+                {prevYear.hasPrevYear && (pyA > 0 || pyB > 0) && (
+                  <CompareBarRow>
+                    <CompareBarLabel>
+                      <span>前年同期売上</span>
+                      <CompareBarDiff $color={cmpColor(pyA, pyB)}>
+                        {pyA - pyB >= 0 ? '+' : ''}{formatCurrency(pyA - pyB)}
+                      </CompareBarDiff>
+                    </CompareBarLabel>
+                    <CompareBarTrack>
+                      <CompareBarSegment $width={`${pyBar.a}%`} $color="rgba(245,158,11,0.5)">
+                        A {fmtSen(pyA)}
+                      </CompareBarSegment>
+                      <CompareBarSegment $width={`${pyBar.b}%`} $color="rgba(99,102,241,0.5)">
+                        B {fmtSen(pyB)}
+                      </CompareBarSegment>
+                    </CompareBarTrack>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <CompareIndicator $color={cmpColor(rangeAData.pyRatio, 1)}>
+                        <CompareIndicatorValue $color={cmpColor(rangeAData.pyRatio, 1)}>
+                          A前年比 {formatPercent(rangeAData.pyRatio, 0)}
+                        </CompareIndicatorValue>
+                      </CompareIndicator>
+                      <CompareIndicator $color={cmpColor(rangeBData.pyRatio, 1)}>
+                        <CompareIndicatorValue $color={cmpColor(rangeBData.pyRatio, 1)}>
+                          B前年比 {formatPercent(rangeBData.pyRatio, 0)}
+                        </CompareIndicatorValue>
+                      </CompareIndicator>
+                    </div>
+                  </CompareBarRow>
+                )}
+              </RangeCenterCol>
+
+              {/* ── Right: Period B ── */}
+              <RangeColumn>
+                <RangeColumnHeader $color="#6366f1">
+                  <RangeColumnDot $color="#6366f1" />
+                  <RangeColumnTitle>期間B: {rangeBData.start}～{rangeBData.end}日（{rangeBData.salesDaysCount}営業日）</RangeColumnTitle>
+                </RangeColumnHeader>
+                {renderMetricCol(rangeBData)}
+              </RangeColumn>
+            </RangeCompareContainer>
+          </RangeSummaryPanel>
+        )
+      })()}
 
       <CalTable>
         <thead>
