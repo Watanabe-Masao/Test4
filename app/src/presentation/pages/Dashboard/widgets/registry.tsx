@@ -9,7 +9,6 @@ import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } 
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
 import {
   ExecSummaryBar, ExecSummaryItem, ExecSummaryLabel, ExecSummaryValue, ExecSummarySub,
-  InventoryBar,
 } from '../DashboardPage.styles'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
@@ -464,52 +463,6 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
-    id: 'exec-inventory-metrics',
-    label: '在庫・値入・売変',
-    group: '本部・経営者向け',
-    size: 'full',
-    render: ({ result: r }) => (
-      <InventoryBar>
-        <ExecSummaryItem $accent="#8b5cf6">
-          <ExecSummaryLabel>期首在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.openingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>期末在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.closingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#0ea5e9">
-          <ExecSummaryLabel>推定在庫</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.estMethodClosingInventory)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#3b82f6">
-          <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
-          {(() => {
-            const markupAmount = r.grossSales - r.totalCost
-            const estGpRate = r.averageMarkupRate - r.discountRate * (1 - r.discountRate)
-            return (
-              <>
-                <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
-                <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub $color={estGpRate >= 0.20 ? '#22c55e' : estGpRate >= 0.15 ? '#f59e0b' : '#ef4444'}>
-                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
-                </ExecSummarySub>
-              </>
-            )
-          })()}
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#f43f5e">
-          <ExecSummaryLabel>売変額</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.totalDiscount)}</ExecSummaryValue>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#ef4444">
-          <ExecSummaryLabel>売変率</ExecSummaryLabel>
-          <ExecSummaryValue>{formatPercent(r.discountRate)}</ExecSummaryValue>
-        </ExecSummaryItem>
-      </InventoryBar>
-    ),
-  },
-  {
     id: 'exec-monthly-calendar',
     label: '月間カレンダー',
     group: '本部・経営者向け',
@@ -544,7 +497,6 @@ export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-summary-bar',
   'exec-plan-actual-forecast',
-  'exec-inventory-metrics',
   'exec-monthly-calendar',
   'exec-dow-average', 'exec-weekly-summary',
   'exec-forecast-tools',
