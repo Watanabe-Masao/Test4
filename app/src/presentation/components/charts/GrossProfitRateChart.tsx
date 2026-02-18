@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { getDailyTotalCost } from '@/domain/models'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -41,8 +42,9 @@ interface Props {
 
 export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRate }: Props) {
   const ct = useChartTheme()
+  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
-  const data = []
+  const allData = []
   let cumSales = 0
   let cumCost = 0
 
@@ -53,12 +55,14 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
       cumCost += getDailyTotalCost(rec)
     }
     const rate = safeDivide(cumSales - cumCost, cumSales, 0)
-    data.push({
+    allData.push({
       day: d,
       rate,
       hasSales: rec ? rec.sales > 0 : false,
     })
   }
+
+  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   // Y軸上限をデータの最大値に基づいて動的に決定（最低0.5、0.1刻みで切り上げ）
   const maxRate = Math.max(...data.filter(d => d.hasSales).map(d => d.rate), 0)
@@ -73,7 +77,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
   return (
     <Wrapper>
       <Title>粗利率推移（累計ベース）</Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer width="100%" height="84%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -132,6 +136,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }

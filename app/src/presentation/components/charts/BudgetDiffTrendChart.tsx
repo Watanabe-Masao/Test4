@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -47,6 +48,8 @@ interface Props {
 /** 予算差・前年差 累計推移チャート */
 export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const totalDays = daysInMonth ?? data.length
+  const [rangeStart, rangeEnd, setRange] = useDayRange(totalDays)
 
   // 前年累計を計算
   let prevCum = 0
@@ -61,16 +64,18 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
 
   const hasPrevYear = prevCumMap.size > 0 && prevCum > 0
 
-  const chartData = data.map((d) => {
-    const budgetDiff = d.actualCum - d.budgetCum
-    const prevYearDiff = hasPrevYear ? d.actualCum - (prevCumMap.get(d.day) ?? 0) : null
-    return {
-      day: d.day,
-      budgetDiff,
-      prevYearDiff,
-      hasActual: d.actualCum > 0,
-    }
-  })
+  const chartData = data
+    .map((d) => {
+      const budgetDiff = d.actualCum - d.budgetCum
+      const prevYearDiff = hasPrevYear ? d.actualCum - (prevCumMap.get(d.day) ?? 0) : null
+      return {
+        day: d.day,
+        budgetDiff,
+        prevYearDiff,
+        hasActual: d.actualCum > 0,
+      }
+    })
+    .filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   return (
     <Wrapper>
@@ -80,7 +85,7 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
           : '予算差 累計推移（実績 − 予算）'
         }
       </Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer width="100%" height="84%">
         <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -144,6 +149,7 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
           )}
         </ComposedChart>
       </ResponsiveContainer>
+      <DayRangeSlider min={1} max={totalDays} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
   )
 }
