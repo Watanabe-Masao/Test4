@@ -3,9 +3,9 @@ import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, Chip, ChipGroup, KpiCard, KpiGrid } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import type { ConsumableItem, DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models'
 import {
-  Section, SectionTitle, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
+  Section, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
   Bar, RankBadge, PairGrid,
 } from './ConsumablePage.styles'
 

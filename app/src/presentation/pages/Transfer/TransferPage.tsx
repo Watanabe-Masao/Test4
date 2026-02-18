@@ -6,7 +6,7 @@ import { formatCurrency } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import {
   Section, SectionTitle, TableWrapper, Table, Th, Td, Tr, TrTotal, EmptyState,
-  FlowCard, FlowLabel, FlowValue, FlowSub, FlowGrid, PairGrid,
+  FlowCard, FlowLabel, FlowValue, FlowSub, FlowGrid,
 } from './TransferPage.styles'
 
 type TransferType = 'interStore' | 'interDepartment'
