@@ -22,6 +22,9 @@ import {
   DetailChartWrapper, DetailColumns,
   ForecastToolsGrid, ToolCard, ToolCardTitle, ToolInputGroup, ToolInputField,
   ToolResultSection, ToolResultValue, ToolResultLabel,
+  RangeToolbar, RangeLabel, RangeInput,
+  RangeSummaryPanel, RangeSummaryTitle, RangeSummaryGrid,
+  RangeSummaryItem, RangeSummaryItemLabel, RangeSummaryItemValue,
 } from '../DashboardPage.styles'
 
 /** 千円表記 (コンパクト) */
@@ -218,6 +221,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const [pinDay, setPinDay] = useState<number | null>(null)
   const [detailDay, setDetailDay] = useState<number | null>(null)
   const [inputVal, setInputVal] = useState('')
+  const [rangeAStart, setRangeAStart] = useState<string>('')
+  const [rangeAEnd, setRangeAEnd] = useState<string>('')
+  const [rangeBStart, setRangeBStart] = useState<string>('')
+  const [rangeBEnd, setRangeBEnd] = useState<string>('')
   const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
 
@@ -250,6 +257,39 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
     cumPrevYear.set(d, runPrevYear)
+  }
+
+  // ── Range selection ──
+  const parseDay = (v: string) => { const n = parseInt(v, 10); return n >= 1 && n <= daysInMonth ? n : null }
+  const rangeA = { start: parseDay(rangeAStart), end: parseDay(rangeAEnd) }
+  const rangeB = { start: parseDay(rangeBStart), end: parseDay(rangeBEnd) }
+
+  const calcRange = (start: number | null, end: number | null) => {
+    if (start == null || end == null || start > end) return null
+    let budget = 0, sales = 0, pySales = 0, salesDaysCount = 0
+    for (let d = start; d <= end; d++) {
+      budget += r.budgetDaily.get(d) ?? 0
+      const daySales = r.daily.get(d)?.sales ?? 0
+      sales += daySales
+      pySales += prevYear.daily.get(d)?.sales ?? 0
+      if (daySales > 0) salesDaysCount++
+    }
+    const diff = sales - budget
+    const ach = safeDivide(sales, budget)
+    const pyRatio = safeDivide(sales, pySales)
+    const avgDaily = salesDaysCount > 0 ? sales / salesDaysCount : 0
+    return { start, end, budget, sales, diff, ach, pySales, pyRatio, salesDaysCount, avgDaily }
+  }
+  const rangeAData = calcRange(rangeA.start, rangeA.end)
+  const rangeBData = calcRange(rangeB.start, rangeB.end)
+  const hasAnyRange = rangeAData != null || rangeBData != null
+
+  const isDayInRangeA = (day: number) => rangeA.start != null && rangeA.end != null && day >= rangeA.start && day <= rangeA.end
+  const isDayInRangeB = (day: number) => rangeB.start != null && rangeB.end != null && day >= rangeB.start && day <= rangeB.end
+
+  const handleRangeClear = () => {
+    setRangeAStart(''); setRangeAEnd('')
+    setRangeBStart(''); setRangeBEnd('')
   }
 
   const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
@@ -288,6 +328,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const detailCumAch = safeDivide(detailCumSales, detailCumBudget)
   const detailPySales = detailDay != null ? (prevYear.daily.get(detailDay)?.sales ?? 0) : 0
   const detailPyRatio = safeDivide(detailActual, detailPySales)
+  const detailCumPrevYear = detailDay != null ? (cumPrevYear.get(detailDay) ?? 0) : 0
+  const detailCumPyRatio = safeDivide(detailCumSales, detailCumPrevYear)
   const detailDayOfWeek = detailDay != null ? DOW_NAMES[new Date(year, month - 1, detailDay).getDay()] : ''
 
   // Cumulative chart data (up to detailDay)
@@ -304,6 +346,157 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   return (
     <CalWrapper>
       <CalSectionTitle>月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め</CalSectionTitle>
+
+      {/* ── Range Selection Toolbar ── */}
+      <RangeToolbar>
+        <RangeLabel>期間A:</RangeLabel>
+        <RangeInput
+          type="text" value={rangeAStart} placeholder="開始"
+          onChange={(e) => setRangeAStart(e.target.value)}
+        />
+        <span>～</span>
+        <RangeInput
+          type="text" value={rangeAEnd} placeholder="終了"
+          onChange={(e) => setRangeAEnd(e.target.value)}
+        />
+        <span style={{ margin: '0 4px', color: '#9ca3af' }}>|</span>
+        <RangeLabel>期間B:</RangeLabel>
+        <RangeInput
+          type="text" value={rangeBStart} placeholder="開始"
+          onChange={(e) => setRangeBStart(e.target.value)}
+        />
+        <span>～</span>
+        <RangeInput
+          type="text" value={rangeBEnd} placeholder="終了"
+          onChange={(e) => setRangeBEnd(e.target.value)}
+        />
+        {hasAnyRange && (
+          <Button $variant="outline" onClick={handleRangeClear}>クリア</Button>
+        )}
+      </RangeToolbar>
+
+      {/* ── Range Summary Panel ── */}
+      {hasAnyRange && (
+        <RangeSummaryPanel>
+          <RangeSummaryTitle>
+            {rangeAData && rangeBData
+              ? `期間比較: ${rangeAData.start}～${rangeAData.end}日 vs ${rangeBData.start}～${rangeBData.end}日`
+              : rangeAData
+                ? `期間集計: ${rangeAData.start}～${rangeAData.end}日`
+                : rangeBData
+                  ? `期間集計: ${rangeBData.start}～${rangeBData.end}日`
+                  : ''}
+          </RangeSummaryTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: rangeAData && rangeBData ? '1fr 1fr' : '1fr', gap: '16px' }}>
+            {rangeAData && (
+              <div>
+                {rangeBData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px', color: '#f59e0b' }}>期間A: {rangeAData.start}～{rangeAData.end}日（{rangeAData.salesDaysCount}営業日）</RangeSummaryItemLabel>}
+                {!rangeBData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>{rangeAData.salesDaysCount}営業日</RangeSummaryItemLabel>}
+                <RangeSummaryGrid>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>売上予算</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeAData.budget)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>売上実績</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeAData.sales)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={rangeAData.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(rangeAData.diff)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>予算達成率</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={rangeAData.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeAData.ach)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  {prevYear.hasPrevYear && rangeAData.pySales > 0 && (
+                    <>
+                      <RangeSummaryItem>
+                        <RangeSummaryItemLabel>前年同曜日売上</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue>{formatCurrency(rangeAData.pySales)}</RangeSummaryItemValue>
+                      </RangeSummaryItem>
+                      <RangeSummaryItem>
+                        <RangeSummaryItemLabel>前年同曜日比</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue $color={rangeAData.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeAData.pyRatio)}</RangeSummaryItemValue>
+                      </RangeSummaryItem>
+                    </>
+                  )}
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>日平均売上</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeAData.avgDaily)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                </RangeSummaryGrid>
+              </div>
+            )}
+            {rangeBData && (
+              <div>
+                {rangeAData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px', color: '#6366f1' }}>期間B: {rangeBData.start}～{rangeBData.end}日（{rangeBData.salesDaysCount}営業日）</RangeSummaryItemLabel>}
+                {!rangeAData && <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>{rangeBData.salesDaysCount}営業日</RangeSummaryItemLabel>}
+                <RangeSummaryGrid>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>売上予算</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeBData.budget)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>売上実績</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeBData.sales)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={rangeBData.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(rangeBData.diff)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>予算達成率</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={rangeBData.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeBData.ach)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  {prevYear.hasPrevYear && rangeBData.pySales > 0 && (
+                    <>
+                      <RangeSummaryItem>
+                        <RangeSummaryItemLabel>前年同曜日売上</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue>{formatCurrency(rangeBData.pySales)}</RangeSummaryItemValue>
+                      </RangeSummaryItem>
+                      <RangeSummaryItem>
+                        <RangeSummaryItemLabel>前年同曜日比</RangeSummaryItemLabel>
+                        <RangeSummaryItemValue $color={rangeBData.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(rangeBData.pyRatio)}</RangeSummaryItemValue>
+                      </RangeSummaryItem>
+                    </>
+                  )}
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>日平均売上</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue>{formatCurrency(rangeBData.avgDaily)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                </RangeSummaryGrid>
+              </div>
+            )}
+          </div>
+          {/* ── A vs B comparison ── */}
+          {rangeAData && rangeBData && (() => {
+            const salesDiff = rangeAData.sales - rangeBData.sales
+            const avgDiff = rangeAData.avgDaily - rangeBData.avgDaily
+            const achDiff = rangeAData.ach - rangeBData.ach
+            return (
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(128,128,128,0.2)' }}>
+                <RangeSummaryItemLabel style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '8px' }}>A - B 差分</RangeSummaryItemLabel>
+                <RangeSummaryGrid>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>売上差</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={salesDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(salesDiff)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>日平均差</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={avgDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(avgDiff)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                  <RangeSummaryItem>
+                    <RangeSummaryItemLabel>達成率差</RangeSummaryItemLabel>
+                    <RangeSummaryItemValue $color={achDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatPointDiff(achDiff)}</RangeSummaryItemValue>
+                  </RangeSummaryItem>
+                </RangeSummaryGrid>
+              </div>
+            )
+          })()}
+        </RangeSummaryPanel>
+      )}
+
       <CalTable>
         <thead>
           <tr>
@@ -341,6 +534,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     <CalDayCell
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
+                      $rangeColor={isDayInRangeA(day) ? '#f59e0b' : isDayInRangeB(day) ? '#6366f1' : undefined}
                     >
                       <CalDayHeader>
                         <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
@@ -497,9 +691,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
             {/* Budget vs Actual Bar */}
             <DetailSection>
-              <DetailSectionTitle>予算 vs 実績</DetailSectionTitle>
+              <DetailSectionTitle>予算 vs 実績（当日）</DetailSectionTitle>
               {(() => {
-                const maxVal = Math.max(detailBudget, detailActual, 1)
+                const maxVal = Math.max(detailBudget, detailActual, detailPySales, 1)
                 return (
                   <DetailBarWrapper>
                     <DetailBarRow>
@@ -514,7 +708,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <DetailBarLabel>実績</DetailBarLabel>
                       <DetailBarTrack>
                         <DetailBarFill $width={(detailActual / maxVal) * 100} $color="#22c55e">
-                          <DetailBarAmount>{fmtSen(detailActual)}</DetailBarAmount>
+                          <DetailBarAmount>{fmtSen(detailActual)}（{formatPercent(detailAch)}）</DetailBarAmount>
                         </DetailBarFill>
                       </DetailBarTrack>
                     </DetailBarRow>
@@ -523,7 +717,45 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <DetailBarLabel>前年</DetailBarLabel>
                         <DetailBarTrack>
                           <DetailBarFill $width={(detailPySales / maxVal) * 100} $color="#9ca3af">
-                            <DetailBarAmount>{fmtSen(detailPySales)}</DetailBarAmount>
+                            <DetailBarAmount>{fmtSen(detailPySales)}（{formatPercent(detailPyRatio)}）</DetailBarAmount>
+                          </DetailBarFill>
+                        </DetailBarTrack>
+                      </DetailBarRow>
+                    )}
+                  </DetailBarWrapper>
+                )
+              })()}
+            </DetailSection>
+
+            {/* Budget vs Actual Bar (Cumulative) */}
+            <DetailSection>
+              <DetailSectionTitle>予算 vs 実績（累計）</DetailSectionTitle>
+              {(() => {
+                const maxVal = Math.max(detailCumBudget, detailCumSales, detailCumPrevYear, 1)
+                return (
+                  <DetailBarWrapper>
+                    <DetailBarRow>
+                      <DetailBarLabel>予算</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailCumBudget / maxVal) * 100} $color="#6366f1">
+                          <DetailBarAmount>{fmtSen(detailCumBudget)}</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    <DetailBarRow>
+                      <DetailBarLabel>実績</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailCumSales / maxVal) * 100} $color="#22c55e">
+                          <DetailBarAmount>{fmtSen(detailCumSales)}（{formatPercent(detailCumAch)}）</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    {prevYear.hasPrevYear && detailCumPrevYear > 0 && (
+                      <DetailBarRow>
+                        <DetailBarLabel>前年</DetailBarLabel>
+                        <DetailBarTrack>
+                          <DetailBarFill $width={(detailCumPrevYear / maxVal) * 100} $color="#9ca3af">
+                            <DetailBarAmount>{fmtSen(detailCumPrevYear)}（{formatPercent(detailCumPyRatio)}）</DetailBarAmount>
                           </DetailBarFill>
                         </DetailBarTrack>
                       </DetailBarRow>
@@ -594,12 +826,12 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     { label: '仕入（在庫）', cost: detailRec.purchase.cost, price: detailRec.purchase.price },
                     { label: '花', cost: detailRec.flowers.cost, price: detailRec.flowers.price },
                     { label: '産直', cost: detailRec.directProduce.cost, price: detailRec.directProduce.price },
-                    { label: '売上納品', cost: detailRec.deliverySales.cost, price: detailRec.deliverySales.price },
                     { label: '店間入', cost: detailRec.interStoreIn.cost, price: detailRec.interStoreIn.price },
                     { label: '店間出', cost: detailRec.interStoreOut.cost, price: detailRec.interStoreOut.price },
                     { label: '部門間入', cost: detailRec.interDepartmentIn.cost, price: detailRec.interDepartmentIn.price },
                     { label: '部門間出', cost: detailRec.interDepartmentOut.cost, price: detailRec.interDepartmentOut.price },
                   ].filter(item => item.cost !== 0 || item.price !== 0)
+                  const totalPrice = items.reduce((sum, item) => sum + Math.abs(item.price), 0)
 
                   // Category bar chart data
                   const barData = items.map(item => ({
@@ -628,14 +860,18 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                           </ResponsiveContainer>
                         </DetailChartWrapper>
                       )}
-                      {items.map((item) => (
-                        <DetailRow key={item.label}>
-                          <DetailLabel>{item.label}</DetailLabel>
-                          <DetailValue>
-                            {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
-                          </DetailValue>
-                        </DetailRow>
-                      ))}
+                      {items.map((item) => {
+                        const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
+                        return (
+                          <DetailRow key={item.label}>
+                            <DetailLabel>{item.label}</DetailLabel>
+                            <DetailValue>
+                              {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
+                              <span style={{ color: '#6366f1', fontSize: '0.75rem', marginLeft: '4px' }}>({formatPercent(ratio)})</span>
+                            </DetailValue>
+                          </DetailRow>
+                        )
+                      })}
                       <DetailRow>
                         <DetailLabel>総仕入原価</DetailLabel>
                         <DetailValue>{formatCurrency(totalCost)}</DetailValue>

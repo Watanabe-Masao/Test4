@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 export const ExecSummaryBar = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: ${({ theme }) => theme.spacing[4]};
 `
 
@@ -126,6 +126,78 @@ export const InventoryBar = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
 `
 
+// ─── Range Selection Styled Components ───────────────────
+
+export const RangeToolbar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  flex-wrap: wrap;
+`
+
+export const RangeLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text2};
+  white-space: nowrap;
+`
+
+export const RangeInput = styled.input`
+  width: 56px;
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text};
+  text-align: center;
+  outline: none;
+  &:focus { border-color: ${({ theme }) => theme.colors.palette.warning}; }
+`
+
+export const RangeSummaryPanel = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[6]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 4px solid #f59e0b;
+  border-radius: ${({ theme }) => theme.radii.lg};
+`
+
+export const RangeSummaryTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+export const RangeSummaryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+export const RangeSummaryItem = styled.div``
+
+export const RangeSummaryItemLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+export const RangeSummaryItemValue = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
 // ─── Calendar Styled Components ─────────────────────────
 
 export const CalWrapper = styled.div`
@@ -206,16 +278,21 @@ export const CalDivider = styled.div`
 
 // ─── Pin & Interval Styled Components ───────────────────
 
-export const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean }>`
+export const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean; $rangeColor?: string }>`
   position: relative;
   height: 100%;
   padding: 2px;
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: background 0.15s;
-  ${({ $pinned, theme }) => $pinned ? `
+  ${({ $rangeColor, theme }) => $rangeColor ? `
+    background: ${theme.mode === 'dark' ? `${$rangeColor}30` : `${$rangeColor}1a`};
+    outline: 2px solid ${$rangeColor};
+    outline-offset: -2px;
+  ` : ''}
+  ${({ $pinned, $rangeColor, theme }) => $pinned && !$rangeColor ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
   ` : ''}
-  ${({ $inInterval, $pinned, theme }) => $inInterval && !$pinned ? `
+  ${({ $inInterval, $pinned, $rangeColor, theme }) => $inInterval && !$pinned && !$rangeColor ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
   ` : ''}
 `
