@@ -1,4 +1,4 @@
-import { getDayOfMonth } from '../fileImport/dateParser'
+import { parseDate, getDayOfMonth } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { SalesData } from '@/domain/models'
 
@@ -9,8 +9,10 @@ export type { SalesData } from '@/domain/models'
  *
  * 行0: 店舗コード（"NNNN:店舗名" Col3〜、2列ペア）
  * 行3+: データ行（Col0: 日付, Col3+: 売上金額）
+ *
+ * targetMonth を指定すると、その月のデータのみ抽出する
  */
-export function processSales(rows: readonly unknown[][]): SalesData {
+export function processSales(rows: readonly unknown[][], targetMonth?: number): SalesData {
   if (rows.length < 4) return {}
 
   const result: Record<string, Record<number, { sales: number }>> = {}
@@ -29,7 +31,15 @@ export function processSales(rows: readonly unknown[][]): SalesData {
   // データ行処理
   for (let row = 3; row < rows.length; row++) {
     const r = rows[row] as unknown[]
-    const day = getDayOfMonth(r[0])
+    let day: number | null
+    if (targetMonth != null) {
+      const date = parseDate(r[0])
+      if (date == null) continue
+      if (date.getMonth() + 1 !== targetMonth) continue
+      day = date.getDate()
+    } else {
+      day = getDayOfMonth(r[0])
+    }
     if (day == null) continue
 
     for (const { col, storeId } of columnMap) {

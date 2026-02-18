@@ -60,13 +60,24 @@ export function assembleStoreResult(
   // 売変率
   const discountRate = calculateDiscountRate(acc.totalSales, acc.totalDiscount)
 
-  // 値入率
-  const allPurchasePrice = acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice
-  const allPurchaseCost = acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost
+  // 値入率（店間・部門間移動も仕入として算入）
+  const transferPrice =
+    acc.transferTotals.interStoreIn.price +
+    acc.transferTotals.interStoreOut.price +
+    acc.transferTotals.interDepartmentIn.price +
+    acc.transferTotals.interDepartmentOut.price
+  const transferCost =
+    acc.transferTotals.interStoreIn.cost +
+    acc.transferTotals.interStoreOut.cost +
+    acc.transferTotals.interDepartmentIn.cost +
+    acc.transferTotals.interDepartmentOut.cost
+
+  const allPurchasePrice = acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
+  const allPurchaseCost = acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
   const coreMarkupRate = safeDivide(
-    acc.totalPurchasePrice - acc.totalPurchaseCost,
-    acc.totalPurchasePrice,
+    (acc.totalPurchasePrice + transferPrice) - (acc.totalPurchaseCost + transferCost),
+    acc.totalPurchasePrice + transferPrice,
     settings.defaultMarkupRate,
   )
 

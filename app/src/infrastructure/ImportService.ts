@@ -2,6 +2,7 @@ import type { DataType, AppSettings, ImportedData } from '@/domain/models'
 import type { DiscountData, SalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
+import { detectYearMonth } from './fileImport/dateParser'
 import { ImportError } from './fileImport/errors'
 import {
   processPurchase,
@@ -78,8 +79,27 @@ export async function readAndDetect(
   }
 }
 
+/** processFileData の戻り値 */
+export interface ProcessFileResult {
+  readonly data: ImportedData
+  /** データの日付から検出された年月（日付を含むファイルの場合のみ） */
+  readonly detectedYearMonth?: { year: number; month: number }
+}
+
+/** データ種別ごとの日付検出開始行 */
+const DATE_START_ROW: Partial<Record<DataType, number>> = {
+  sales: 3,
+  discount: 2,
+  salesDiscount: 2,
+  prevYearSalesDiscount: 2,
+}
+
 /**
  * 単一ファイルのデータを処理し、既存のImportedDataにマージする
+ *
+ * 日付を含むファイル (sales, discount, salesDiscount) の場合、
+ * データ内の日付から対象年月を自動検出して返す。
+ * appSettings.targetMonth が設定されていれば、その月のデータのみ抽出する。
  */
 export function processFileData(
   type: DataType,
@@ -87,9 +107,18 @@ export function processFileData(
   filename: string,
   current: ImportedData,
   appSettings: AppSettings,
-): ImportedData {
+): ProcessFileResult {
   const mutableStores = new Map(current.stores)
   const mutableSuppliers = new Map(current.suppliers)
+
+  // 日付を含むファイルの場合、年月を自動検出
+  const startRow = DATE_START_ROW[type]
+  const detectedYearMonth = startRow != null
+    ? detectYearMonth(rows, 0, startRow) ?? undefined
+    : undefined
+
+  // 対象月: 検出された月 or appSettings の月
+  const effectiveMonth = detectedYearMonth?.month ?? appSettings.targetMonth
 
   switch (type) {
     case 'purchase': {
@@ -103,10 +132,12 @@ export function processFileData(
       // 更新された店舗セットで処理
       const allStores = new Set(mutableStores.keys())
       return {
-        ...current,
-        stores: mutableStores,
-        suppliers: mutableSuppliers,
-        purchase: processPurchase(rows, allStores),
+        data: {
+          ...current,
+          stores: mutableStores,
+          suppliers: mutableSuppliers,
+          purchase: processPurchase(rows, allStores),
+        },
       }
     }
 
@@ -115,81 +146,102 @@ export function processFileData(
       for (const [id, s] of newStores) mutableStores.set(id, s)
 
       return {
-        ...current,
-        stores: mutableStores,
-        sales: processSales(rows),
+        data: {
+          ...current,
+          stores: mutableStores,
+          sales: processSales(rows, effectiveMonth),
+        },
+        detectedYearMonth,
       }
     }
 
     case 'discount':
-      return { ...current, discount: processDiscount(rows) }
+      return {
+        data: { ...current, discount: processDiscount(rows, effectiveMonth) },
+        detectedYearMonth,
+      }
 
     case 'salesDiscount': {
       // 売上売変の複合ファイル: DiscountProcessor で売上・売変両方を抽出
       const newStores = extractStoresFromSales(rows)
       for (const [id, s] of newStores) mutableStores.set(id, s)
 
-      const discountData = processDiscount(rows)
+      const discountData = processDiscount(rows, effectiveMonth)
 
       return {
-        ...current,
-        stores: mutableStores,
-        sales: discountToSalesData(discountData),
-        discount: discountData,
+        data: {
+          ...current,
+          stores: mutableStores,
+          sales: discountToSalesData(discountData),
+          discount: discountData,
+        },
+        detectedYearMonth,
       }
     }
 
     case 'prevYearSalesDiscount': {
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
       // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
-      const prevDiscountData = processDiscount(rows, appSettings.targetMonth)
+      const prevDiscountData = processDiscount(rows, effectiveMonth)
       return {
-        ...current,
-        prevYearSales: discountToSalesData(prevDiscountData),
-        prevYearDiscount: prevDiscountData,
+        data: {
+          ...current,
+          prevYearSales: discountToSalesData(prevDiscountData),
+          prevYearDiscount: prevDiscountData,
+        },
+        detectedYearMonth,
       }
     }
 
     case 'initialSettings':
-      return { ...current, settings: processSettings(rows) }
+      return { data: { ...current, settings: processSettings(rows) } }
 
     case 'budget':
-      return { ...current, budget: processBudget(rows) }
+      return { data: { ...current, budget: processBudget(rows) } }
 
     case 'interStoreIn':
-      return { ...current, interStoreIn: processInterStoreIn(rows) }
+      return { data: { ...current, interStoreIn: processInterStoreIn(rows) } }
 
     case 'interStoreOut':
-      return { ...current, interStoreOut: processInterStoreOut(rows) }
+      return { data: { ...current, interStoreOut: processInterStoreOut(rows) } }
 
     case 'flowers':
       return {
-        ...current,
-        flowers: processSpecialSales(rows, appSettings.flowerCostRate),
+        data: {
+          ...current,
+          flowers: processSpecialSales(rows, appSettings.flowerCostRate),
+        },
       }
 
     case 'directProduce':
       return {
-        ...current,
-        directProduce: processSpecialSales(rows, appSettings.directProduceCostRate),
+        data: {
+          ...current,
+          directProduce: processSpecialSales(rows, appSettings.directProduceCostRate),
+        },
       }
 
     case 'consumables': {
       const newData = processConsumables(rows, filename)
       return {
-        ...current,
-        consumables: mergeConsumableData(current.consumables, newData),
+        data: {
+          ...current,
+          consumables: mergeConsumableData(current.consumables, newData),
+        },
       }
     }
 
     default:
-      return current
+      return { data: current }
   }
 }
 
 /**
  * 複数ファイルをバッチインポートする
  * overrideType が指定された場合、自動判定をスキップしてそのタイプで処理する
+ *
+ * データ内の日付から対象年月を自動検出し、detectedYearMonth として返す。
+ * 検出された年月は後続ファイルの処理にも即座に反映される。
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -197,10 +249,16 @@ export async function processDroppedFiles(
   currentData: ImportedData,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
-): Promise<{ summary: ImportSummary; data: ImportedData }> {
+): Promise<{
+  summary: ImportSummary
+  data: ImportedData
+  detectedYearMonth?: { year: number; month: number }
+}> {
   const fileArray = Array.from(files)
   const results: FileImportResult[] = []
   let data = currentData
+  let effectiveSettings = appSettings
+  let detectedYearMonth: { year: number; month: number } | undefined
 
   for (let i = 0; i < fileArray.length; i++) {
     const file = fileArray[i]
@@ -227,7 +285,19 @@ export async function processDroppedFiles(
         typeName = detected.typeName
       }
 
-      data = processFileData(type, rows, file.name, data, appSettings)
+      const result = processFileData(type, rows, file.name, data, effectiveSettings)
+      data = result.data
+
+      // 年月が検出されたら後続ファイルの処理にも反映
+      if (result.detectedYearMonth && !detectedYearMonth) {
+        detectedYearMonth = result.detectedYearMonth
+        effectiveSettings = {
+          ...effectiveSettings,
+          targetYear: detectedYearMonth.year,
+          targetMonth: detectedYearMonth.month,
+        }
+      }
+
       results.push({ ok: true, filename: file.name, type, typeName })
     } catch (err) {
       const message =
@@ -248,6 +318,7 @@ export async function processDroppedFiles(
   return {
     summary: { results, successCount, failureCount },
     data,
+    detectedYearMonth,
   }
 }
 
