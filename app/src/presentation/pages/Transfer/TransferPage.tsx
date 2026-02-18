@@ -82,6 +82,37 @@ export function TransferPage() {
     [days, inField, outField, stores],
   )
 
+  // ペア別日別データ（ペア選択時）
+  const pairDailyData = useMemo(() => {
+    if (!selectedPair) return null
+    return days
+      .map(([day, rec]) => {
+        const entries = [
+          ...rec.transferBreakdown[inField],
+          ...rec.transferBreakdown[outField],
+        ].filter(e => `${e.fromStoreId}->${e.toStoreId}` === selectedPair)
+        const cost = entries.reduce((s, e) => s + e.cost, 0)
+        const price = entries.reduce((s, e) => s + e.price, 0)
+        return { day, cost, price }
+      })
+      .filter(d => d.cost !== 0 || d.price !== 0)
+  }, [selectedPair, days, inField, outField])
+
+  // 全体の日別合計
+  const dailyTotals = useMemo(() => days.reduce(
+    (acc, [, rec]) => {
+      const inRec = rec[inField]
+      const outRec = rec[outField]
+      return {
+        inCost: acc.inCost + inRec.cost,
+        inPrice: acc.inPrice + inRec.price,
+        outCost: acc.outCost + outRec.cost,
+        outPrice: acc.outPrice + outRec.price,
+      }
+    },
+    { inCost: 0, inPrice: 0, outCost: 0, outPrice: 0 },
+  ), [days, inField, outField])
+
   const handleTypeChange = (type: TransferType) => {
     setTransferType(type)
     setSelectedPair(null)
@@ -102,37 +133,6 @@ export function TransferPage() {
   const typeOut = isInterStore ? td.interStoreOut : td.interDepartmentOut
   const typeNet = { cost: typeIn.cost + typeOut.cost, price: typeIn.price + typeOut.price }
   const typeLabel = isInterStore ? '店間' : '部門間'
-
-  // ペア別日別データ（ペア選択時）
-  const pairDailyData = useMemo(() => {
-    if (!selectedPair) return null
-    return days
-      .map(([day, rec]) => {
-        const entries = [
-          ...rec.transferBreakdown[inField],
-          ...rec.transferBreakdown[outField],
-        ].filter(e => `${e.fromStoreId}->${e.toStoreId}` === selectedPair)
-        const cost = entries.reduce((s, e) => s + e.cost, 0)
-        const price = entries.reduce((s, e) => s + e.price, 0)
-        return { day, cost, price }
-      })
-      .filter(d => d.cost !== 0 || d.price !== 0)
-  }, [selectedPair, days, inField, outField])
-
-  // 全体の日別合計
-  const dailyTotals = days.reduce(
-    (acc, [, rec]) => {
-      const inRec = rec[inField]
-      const outRec = rec[outField]
-      return {
-        inCost: acc.inCost + inRec.cost,
-        inPrice: acc.inPrice + inRec.price,
-        outCost: acc.outCost + outRec.cost,
-        outPrice: acc.outPrice + outRec.price,
-      }
-    },
-    { inCost: 0, inPrice: 0, outCost: 0, outPrice: 0 },
-  )
 
   const selectedFlow = selectedPair ? flows.find(f => `${f.from}->${f.to}` === selectedPair) : null
 
