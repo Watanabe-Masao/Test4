@@ -137,8 +137,6 @@ export function ConsumablePage() {
     return details.sort((a, b) => a.day - b.day || a.storeId.localeCompare(b.storeId))
   }, [selectedItem, selectedResults, stores])
 
-  const selectedItemInfo = selectedItem ? itemAggregates.find(i => i.itemCode === selectedItem) : null
-
   if (!isCalculated || !currentResult) {
     return (
       <MainContent title="消耗品分析" storeName={storeName}>
