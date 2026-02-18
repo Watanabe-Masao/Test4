@@ -194,12 +194,14 @@ function buildDailyRecords(
             markupRate: 0,
           })
         }
-        const st = supplierTotals.get(code)!
-        supplierTotals.set(code, {
-          ...st,
-          cost: st.cost + sup.cost,
-          price: st.price + sup.price,
-        })
+        const st = supplierTotals.get(code)
+        if (st) {
+          supplierTotals.set(code, {
+            ...st,
+            cost: st.cost + sup.cost,
+            price: st.price + sup.price,
+          })
+        }
       }
     }
 

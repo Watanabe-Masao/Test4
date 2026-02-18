@@ -161,16 +161,16 @@ export function ReportsPage() {
 
   // Category data
   const categoryData = CATEGORY_ORDER
-    .filter((cat) => r.categoryTotals.has(cat))
-    .map((cat) => {
-      const pair = r.categoryTotals.get(cat)!
-      return {
+    .flatMap((cat) => {
+      const pair = r.categoryTotals.get(cat)
+      if (!pair) return []
+      return [{
         category: cat,
         label: CATEGORY_LABELS[cat],
         cost: pair.cost,
         price: pair.price,
         markup: safeDivide(pair.price - pair.cost, pair.price, 0),
-      }
+      }]
     })
 
   const totalCategoryCost = categoryData.reduce((s, c) => s + Math.abs(c.cost), 0)

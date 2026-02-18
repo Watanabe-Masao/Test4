@@ -3,8 +3,8 @@ import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import {
   processDroppedFiles,
   validateImportedData,
-} from '@/infrastructure/ImportService'
-import type { ImportSummary } from '@/infrastructure/ImportService'
+} from '@/application/services/FileImportService'
+import type { ImportSummary } from '@/application/services/FileImportService'
 import type { AppSettings, DataType, ImportedData } from '@/domain/models'
 
 /** ファイルインポートフック */

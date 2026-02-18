@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest'
 import {
   createEmptyImportedData,
   processFileData,
+} from './ImportService'
+import {
   validateImportedData,
   hasValidationErrors,
-} from './ImportService'
+} from '@/application/services/FileImportService'
 import type { ImportedData } from './ImportService'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 
