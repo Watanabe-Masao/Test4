@@ -1,6 +1,5 @@
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell as ReCell, CartesianGrid,
-  AreaChart, Area,
 } from 'recharts'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
