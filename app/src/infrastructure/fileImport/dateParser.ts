@@ -66,3 +66,30 @@ export function getDayOfMonth(value: unknown): number | null {
   const date = parseDate(value)
   return date ? date.getDate() : null
 }
+
+/**
+ * データ行の日付列から対象年月を自動検出する
+ *
+ * 最初にパースできた日付の年月を返す。
+ * 対応フォーマット: Excelシリアル値、YYYY年MM月DD日、YYYY年MM月DD日(曜)、YYYY-MM-DD、YYYY/M/D
+ *
+ * @param rows データ行の配列
+ * @param dateColIndex 日付が入っている列インデックス（デフォルト: 0）
+ * @param dataStartRow データ開始行（ヘッダーをスキップ）
+ * @returns { year, month } または null
+ */
+export function detectYearMonth(
+  rows: readonly unknown[][],
+  dateColIndex: number = 0,
+  dataStartRow: number = 2,
+): { year: number; month: number } | null {
+  for (let i = dataStartRow; i < rows.length; i++) {
+    const row = rows[i] as unknown[]
+    if (!row || row.length <= dateColIndex) continue
+    const date = parseDate(row[dateColIndex])
+    if (date) {
+      return { year: date.getFullYear(), month: date.getMonth() + 1 }
+    }
+  }
+  return null
+}

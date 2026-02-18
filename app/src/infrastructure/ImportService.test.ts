@@ -23,7 +23,7 @@ describe('processFileData', () => {
       ['header3'],
       ['2026-02-01', '', '', 10000, 13000],
     ]
-    const result = processFileData('purchase', rows, 'shiire.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('purchase', rows, 'shiire.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.stores.size).toBe(1)
     expect(result.stores.get('1')?.name).toBe('店舗A')
@@ -39,7 +39,7 @@ describe('processFileData', () => {
       ['header2'],
       ['2026-02-01', '', '', 50000, ''],
     ]
-    const result = processFileData('sales', rows, 'uriage.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('sales', rows, 'uriage.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.stores.size).toBe(1)
     expect(result.sales['1']?.[1]?.sales).toBe(50000)
@@ -51,7 +51,7 @@ describe('processFileData', () => {
       ['header1'],
       ['2026-02-01', '', '', 50000, 5000],
     ]
-    const result = processFileData('discount', rows, 'baihen.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('discount', rows, 'baihen.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.discount['1']?.[1]?.discount).toBe(5000)
   })
@@ -61,7 +61,7 @@ describe('processFileData', () => {
       ['header'],
       ['0001', 100000, 120000, 500000],
     ]
-    const result = processFileData('initialSettings', rows, 'settings.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('initialSettings', rows, 'settings.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.settings.size).toBe(1)
     expect(result.settings.get('1')?.openingInventory).toBe(100000)
@@ -72,7 +72,7 @@ describe('processFileData', () => {
       ['店舗コード', '日付', '売上予算'],
       ['0001', '2026-02-01', 200000],
     ]
-    const result = processFileData('budget', rows, 'budget.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('budget', rows, 'budget.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.budget.size).toBe(1)
     expect(result.budget.get('1')?.total).toBe(200000)
@@ -83,7 +83,7 @@ describe('processFileData', () => {
       ['header'],
       ['0001', '2026-02-01', '0002', 10000, 13000],
     ]
-    const result = processFileData('interStoreIn', rows, 'tenkaniri.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('interStoreIn', rows, 'tenkaniri.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.interStoreIn['1']?.[1]?.interStoreIn).toHaveLength(1)
   })
@@ -93,7 +93,7 @@ describe('processFileData', () => {
       ['header'],
       ['2026-02-01', '0001', '0002', '001', 10000, 13000],
     ]
-    const result = processFileData('interStoreOut', rows, 'tenkandashi.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('interStoreOut', rows, 'tenkandashi.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.interStoreOut['1']?.[1]?.interStoreOut).toHaveLength(1)
   })
@@ -104,7 +104,7 @@ describe('processFileData', () => {
       [''], [''],
       ['2026-02-01', '', '', 10000, ''],
     ]
-    const result = processFileData('flowers', rows, 'hana.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('flowers', rows, 'hana.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.flowers['1']?.[1]?.cost).toBe(8000) // 10000 × 0.80
   })
@@ -115,7 +115,7 @@ describe('processFileData', () => {
       [''], [''],
       ['2026-02-01', '', '', 10000, ''],
     ]
-    const result = processFileData('directProduce', rows, 'sanchoku.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('directProduce', rows, 'sanchoku.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.directProduce['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
   })
@@ -127,7 +127,7 @@ describe('processFileData', () => {
       ['期間合計', '', '', 100000, 5000],
       ['2026-02-01', '', '', 50000, 3000],
     ]
-    const result = processFileData('salesDiscount', rows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData('salesDiscount', rows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
 
     expect(result.stores.size).toBe(1)
     expect(result.sales['1']?.[1]?.sales).toBe(50000)
@@ -146,8 +146,8 @@ describe('processFileData', () => {
       ['0001', '2026-02-01', 200000],
     ]
 
-    let result = processFileData('salesDiscount', salesRows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
-    result = processFileData('budget', budgetRows, '0_売上予算.xlsx', result, DEFAULT_SETTINGS)
+    let { data: result } = processFileData('salesDiscount', salesRows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+    ;({ data: result } = processFileData('budget', budgetRows, '0_売上予算.xlsx', result, DEFAULT_SETTINGS))
 
     // 売上・売変データが維持されること
     expect(result.sales['1']?.[1]?.sales).toBe(50000)
@@ -165,8 +165,8 @@ describe('processFileData', () => {
       ['header'],
       ['81257', 'A002', 'ゴミ袋', 5, 3000, '2026-02-01'],
     ]
-    let result = processFileData('consumables', rows1, '01_file1.xlsx', emptyData(), DEFAULT_SETTINGS)
-    result = processFileData('consumables', rows2, '01_file2.xlsx', result, DEFAULT_SETTINGS)
+    let { data: result } = processFileData('consumables', rows1, '01_file1.xlsx', emptyData(), DEFAULT_SETTINGS)
+    ;({ data: result } = processFileData('consumables', rows2, '01_file2.xlsx', result, DEFAULT_SETTINGS))
 
     expect(result.consumables['1']?.[1]?.cost).toBe(8000)
     expect(result.consumables['1']?.[1]?.items).toHaveLength(2)
@@ -186,12 +186,64 @@ describe('processFileData', () => {
       ['2026-02-01', '', '', 50000, ''],
     ]
 
-    let result = processFileData('purchase', purchaseRows, 'shiire.xlsx', base, DEFAULT_SETTINGS)
-    result = processFileData('sales', salesRows, 'uriage.xlsx', result, DEFAULT_SETTINGS)
+    let { data: result } = processFileData('purchase', purchaseRows, 'shiire.xlsx', base, DEFAULT_SETTINGS)
+    ;({ data: result } = processFileData('sales', salesRows, 'uriage.xlsx', result, DEFAULT_SETTINGS))
 
     expect(result.stores.size).toBe(2)
     expect(result.stores.has('1')).toBe(true)
     expect(result.stores.has('2')).toBe(true)
+  })
+
+  it('売上データから年月を自動検出する', () => {
+    const rows = [
+      ['', '', '', '0001:店舗A', ''],
+      ['header1'],
+      ['header2'],
+      ['2026年01月15日', '', '', 50000, ''],
+    ]
+    const { detectedYearMonth } = processFileData('sales', rows, 'uriage.xlsx', emptyData(), DEFAULT_SETTINGS)
+
+    expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
+  })
+
+  it('売変データから年月を自動検出する', () => {
+    const rows = [
+      ['', '', '', '0001:A', ''],
+      ['header1'],
+      ['2026/1/3', '', '', 50000, 5000],
+    ]
+    const { detectedYearMonth } = processFileData('discount', rows, 'baihen.xlsx', emptyData(), DEFAULT_SETTINGS)
+
+    expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
+  })
+
+  it('売上売変複合データから年月を自動検出する', () => {
+    const rows = [
+      ['', '', '', '0001:店舗A', ''],
+      ['', '', '', '販売金額', '売変合計'],
+      ['期間合計', '', '', 100000, 5000],
+      ['2026年01月29日', '', '', 50000, 3000],
+    ]
+    const { detectedYearMonth } = processFileData('salesDiscount', rows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+
+    expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
+  })
+
+  it('対象月でフィルタリングされ別月データが除外される', () => {
+    const rows = [
+      ['', '', '', '0001:店舗A', ''],
+      ['header1'],
+      ['header2'],
+      ['2026-01-15', '', '', 50000, ''],
+      ['2026-02-01', '', '', 30000, ''],
+    ]
+    // 1月データを含むファイルをインポート→1月の日付から自動検出、2月データは除外
+    const { data: result, detectedYearMonth } = processFileData('sales', rows, 'uriage.xlsx', emptyData(), DEFAULT_SETTINGS)
+
+    expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
+    expect(result.sales['1']?.[15]?.sales).toBe(50000)
+    // 2月のデータは1月フィルタにより除外されること
+    expect(result.sales['1']?.[1]).toBeUndefined()
   })
 })
 

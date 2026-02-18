@@ -33,7 +33,7 @@ export function useImport() {
       setProgress(null)
 
       try {
-        const { summary, data } = await processDroppedFiles(
+        const { summary, data, detectedYearMonth } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
@@ -44,6 +44,16 @@ export function useImport() {
         )
 
         if (summary.successCount > 0) {
+          // データの日付から対象年月が検出された場合、設定を更新
+          if (detectedYearMonth) {
+            const updatedSettings = {
+              targetYear: detectedYearMonth.year,
+              targetMonth: detectedYearMonth.month,
+            }
+            dispatch({ type: 'UPDATE_SETTINGS', payload: updatedSettings })
+            settingsRef.current = { ...settingsRef.current, ...updatedSettings }
+          }
+
           dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
           // ref も即座に更新（連続インポートに備える）
           dataRef.current = data

@@ -87,6 +87,8 @@ export function hasValidationErrors(messages: readonly ValidationMessage[]): boo
 /**
  * 複数ファイルをバッチインポートする
  * Infrastructure層の実装に委譲する
+ *
+ * detectedYearMonth: データの日付から検出された対象年月
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -94,6 +96,10 @@ export async function processDroppedFiles(
   currentData: ImportedData,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
-): Promise<{ summary: ImportSummary; data: ImportedData }> {
+): Promise<{
+  summary: ImportSummary
+  data: ImportedData
+  detectedYearMonth?: { year: number; month: number }
+}> {
   return processDroppedFilesImpl(files, appSettings, currentData, onProgress, overrideType)
 }
