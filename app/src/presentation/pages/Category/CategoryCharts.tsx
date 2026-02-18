@@ -5,6 +5,7 @@ import { safeDivide } from '@/domain/calculations/utils'
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line,
+  type PieLabelRenderProps,
 } from 'recharts'
 import { useChartTheme, toManYen } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
@@ -13,7 +14,7 @@ import { buildParetoData } from './categoryData'
 
 /** 共通ラベルレンダラー */
 function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
-  return (props: { cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number; name: string }) => {
+  return (props: PieLabelRenderProps) => {
     const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props
     const pct = Number(percent)
     if (pct < 0.03) return null
