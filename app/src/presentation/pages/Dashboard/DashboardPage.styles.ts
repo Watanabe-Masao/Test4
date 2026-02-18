@@ -207,7 +207,6 @@ export const CalDivider = styled.div`
 // ─── Pin & Interval Styled Components ───────────────────
 
 export const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean }>`
-  cursor: pointer;
   position: relative;
   height: 100%;
   padding: 2px;
@@ -215,17 +214,38 @@ export const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean 
   transition: background 0.15s;
   ${({ $pinned, theme }) => $pinned ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
-    &::after {
-      content: '📌';
-      position: absolute;
-      top: 1px;
-      right: 3px;
-      font-size: 0.7rem;
-    }
   ` : ''}
   ${({ $inInterval, $pinned, theme }) => $inInterval && !$pinned ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
   ` : ''}
+`
+
+export const CalDayHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1px;
+`
+
+export const CalActionBtn = styled.button<{ $color?: string }>`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 1px 3px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text3};
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+  &:hover {
+    opacity: 1;
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
+  }
+`
+
+export const CalDataArea = styled.div`
+  cursor: pointer;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 1px;
   &:hover {
     background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
@@ -326,6 +346,166 @@ export const PinInputLabel = styled.label`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+// ─── Detail Modal Styled Components ─────────────────────
+
+export const DetailModalContent = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.xl};
+  padding: ${({ theme }) => theme.spacing[10]};
+  min-width: 640px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+`
+
+export const DetailHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
+`
+
+export const DetailTitle = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+export const DetailCloseBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  color: ${({ theme }) => theme.colors.text3};
+  padding: ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+`
+
+export const DetailKpiGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
+`
+
+export const DetailKpiCard = styled.div<{ $accent?: string }>`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-top: 2px solid ${({ $accent }) => $accent ?? '#6366f1'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[4]}`};
+  text-align: center;
+`
+
+export const DetailKpiLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+export const DetailKpiValue = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+export const DetailSection = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
+`
+
+export const DetailSectionTitle = styled.h4`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  padding-bottom: ${({ theme }) => theme.spacing[2]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+`
+
+export const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: ${({ theme }) => `${theme.spacing[2]} 0`};
+  border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
+`
+
+export const DetailLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+export const DetailValue = styled.span<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+export const DetailBarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
+export const DetailBarRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+export const DetailBarLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+`
+
+export const DetailBarTrack = styled.div`
+  flex: 1;
+  height: 20px;
+  background: ${({ theme }) => theme.colors.bg4};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  overflow: hidden;
+  position: relative;
+`
+
+export const DetailBarFill = styled.div<{ $width: number; $color: string }>`
+  height: 100%;
+  width: ${({ $width }) => Math.min($width, 100)}%;
+  background: ${({ $color }) => $color};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+`
+
+export const DetailBarAmount = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  white-space: nowrap;
+`
+
+export const DetailChartWrapper = styled.div`
+  height: 200px;
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+export const DetailColumns = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
 `
 
 // ─── Forecast Tools Styled Components ───────────────────
