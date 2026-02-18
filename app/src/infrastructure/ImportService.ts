@@ -1,5 +1,4 @@
-import type { DataType, AppSettings, ValidationMessage, ImportedData } from '@/domain/models'
-import { createEmptyImportedData } from '@/domain/models'
+import type { DataType, AppSettings, ImportedData } from '@/domain/models'
 import type { DiscountData, SalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'

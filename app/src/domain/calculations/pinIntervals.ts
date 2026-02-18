@@ -1,4 +1,4 @@
-import type { StoreResult, DailyRecord } from '@/domain/models'
+import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
 
 export interface PinInterval {

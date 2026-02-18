@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/presentation/components/common'
-import { WIDGET_REGISTRY, WIDGET_MAP, DEFAULT_WIDGET_IDS } from './widgets/registry'
+import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/registry'
 import type { WidgetDef } from './widgets/types'
 import {
   PanelOverlay, Panel, PanelTitle, PanelGroup, PanelGroupTitle,
