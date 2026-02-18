@@ -1,17 +1,40 @@
 import { useState, type ReactNode } from 'react'
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell as ReCell, CartesianGrid,
+  AreaChart, Area,
+} from 'recharts'
 import { Button } from '@/presentation/components/common'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
+import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
 import type { WidgetContext } from './types'
 import {
   ExecGrid, ExecColumn, ExecColHeader, ExecColTag, ExecColTitle, ExecColSub,
   ExecBody, ExecRow, ExecLabel, ExecVal, ExecSub, ExecDividerLine,
   CalWrapper, CalSectionTitle, CalTable, CalTh, CalTd, CalDayNum, CalGrid, CalCell, CalDivider,
-  CalDayCell, PinIndicator, IntervalSummary, IntervalCard, IntervalMetricLabel, IntervalMetricValue,
+  CalDayCell, CalDayHeader, CalActionBtn, CalDataArea,
+  PinIndicator, IntervalSummary, IntervalCard, IntervalMetricLabel, IntervalMetricValue,
   PinModalOverlay, PinModalContent, PinModalTitle, PinInputField, PinButtonRow, PinInputLabel,
+  DetailModalContent, DetailHeader, DetailTitle, DetailCloseBtn,
+  DetailKpiGrid, DetailKpiCard, DetailKpiLabel, DetailKpiValue,
+  DetailSection, DetailSectionTitle, DetailRow, DetailLabel, DetailValue,
+  DetailBarWrapper, DetailBarRow, DetailBarLabel, DetailBarTrack, DetailBarFill, DetailBarAmount,
+  DetailChartWrapper, DetailColumns,
   ForecastToolsGrid, ToolCard, ToolCardTitle, ToolInputGroup, ToolInputField,
   ToolResultSection, ToolResultValue, ToolResultLabel,
 } from '../DashboardPage.styles'
+
+/** 万円表記 (コンパクト) */
+function fmtMan(n: number): string {
+  const man = Math.round(n / 10_000)
+  return `${man.toLocaleString()}万`
+}
+
+/** 万円表記 (符号付き) */
+function fmtManDiff(n: number): string {
+  const man = Math.round(n / 10_000)
+  return `${man >= 0 ? '+' : ''}${man.toLocaleString()}万`
+}
 
 function ExecMetric({ label, value, sub, subColor }: {
   label: string
@@ -192,9 +215,11 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
 export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const { result: r, daysInMonth, year, month, prevYear } = ctx
   const [pins, setPins] = useState<Map<number, number>>(new Map())
-  const [editDay, setEditDay] = useState<number | null>(null)
+  const [pinDay, setPinDay] = useState<number | null>(null)
+  const [detailDay, setDetailDay] = useState<number | null>(null)
   const [inputVal, setInputVal] = useState('')
   const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
+  const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
 
   const weeks: (number | null)[][] = []
   let currentWeek: (number | null)[] = []
@@ -232,28 +257,53 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const getIntervalForDay = (day: number) =>
     intervals.find(iv => day >= iv.startDay && day <= iv.endDay)
 
-  const handleDayClick = (day: number) => {
-    setEditDay(day)
+  const handleOpenPin = (day: number) => {
+    setPinDay(day)
     setInputVal(pins.has(day) ? String(pins.get(day)) : '')
   }
 
   const handlePinConfirm = () => {
-    if (editDay == null) return
+    if (pinDay == null) return
     const val = Number(inputVal.replace(/,/g, ''))
     if (isNaN(val) || val < 0) return
-    setPins(prev => { const next = new Map(prev); next.set(editDay, val); return next })
-    setEditDay(null)
+    setPins(prev => { const next = new Map(prev); next.set(pinDay, val); return next })
+    setPinDay(null)
   }
 
   const handlePinRemove = () => {
-    if (editDay == null) return
-    setPins(prev => { const next = new Map(prev); next.delete(editDay); return next })
-    setEditDay(null)
+    if (pinDay == null) return
+    setPins(prev => { const next = new Map(prev); next.delete(pinDay); return next })
+    setPinDay(null)
   }
+
+  // ── Detail modal data ──
+  const detailRec = detailDay != null ? r.daily.get(detailDay) : undefined
+  const detailBudget = detailDay != null ? (r.budgetDaily.get(detailDay) ?? 0) : 0
+  const detailActual = detailRec?.sales ?? 0
+  const detailDiff = detailActual - detailBudget
+  const detailAch = safeDivide(detailActual, detailBudget)
+  const detailCumBudget = detailDay != null ? (cumBudget.get(detailDay) ?? 0) : 0
+  const detailCumSales = detailDay != null ? (cumSales.get(detailDay) ?? 0) : 0
+  const detailCumDiff = detailCumSales - detailCumBudget
+  const detailCumAch = safeDivide(detailCumSales, detailCumBudget)
+  const detailPySales = detailDay != null ? (prevYear.daily.get(detailDay)?.sales ?? 0) : 0
+  const detailPyRatio = safeDivide(detailActual, detailPySales)
+  const detailDayOfWeek = detailDay != null ? DOW_NAMES[new Date(year, month - 1, detailDay).getDay()] : ''
+
+  // Cumulative chart data (up to detailDay)
+  const cumChartData = detailDay != null ? Array.from({ length: detailDay }, (_, i) => {
+    const d = i + 1
+    return {
+      day: d,
+      budget: cumBudget.get(d) ?? 0,
+      actual: cumSales.get(d) ?? 0,
+      prevYear: cumPrevYear.get(d) ?? 0,
+    }
+  }) : []
 
   return (
     <CalWrapper>
-      <CalSectionTitle>月間カレンダー（{year}年{month}月）- 日付クリックで期末在庫を入力・粗利率ピン止め</CalSectionTitle>
+      <CalSectionTitle>月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め</CalSectionTitle>
       <CalTable>
         <thead>
           <tr>
@@ -291,38 +341,50 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     <CalDayCell
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
-                      onClick={() => handleDayClick(day)}
                     >
-                      <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
+                      <CalDayHeader>
+                        <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
+                        <span>
+                          <CalActionBtn
+                            $color="#6366f1"
+                            title="在庫ピン止め"
+                            onClick={(e) => { e.stopPropagation(); handleOpenPin(day) }}
+                          >
+                            {isPinned ? '📌' : '📌'}
+                          </CalActionBtn>
+                        </span>
+                      </CalDayHeader>
                       {(budget > 0 || actual > 0) && (
-                        <CalGrid>
-                          <CalCell>予 {formatCurrency(budget)}</CalCell>
-                          <CalCell>実 {formatCurrency(actual)}</CalCell>
-                          <CalCell $color={diffColor}>差 {formatCurrency(diff)}</CalCell>
-                          <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
-                          <CalDivider />
-                          <CalCell>予累 {formatCurrency(cBudget)}</CalCell>
-                          <CalCell>実累 {formatCurrency(cSales)}</CalCell>
-                          <CalCell $color={cDiffColor}>差累 {formatCurrency(cDiff)}</CalCell>
-                          <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
-                          {prevYear.hasPrevYear && (() => {
-                            const pySales = prevYear.daily.get(day)?.sales ?? 0
-                            const pyRatio = pySales > 0 ? actual / pySales : 0
-                            const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
-                            const cPy = cumPrevYear.get(day) ?? 0
-                            const cPyRatio = cPy > 0 ? cSales / cPy : 0
-                            const cPyColor = cPyRatio >= 1 ? '#22c55e' : cPyRatio > 0 ? '#ef4444' : undefined
-                            return pySales > 0 || cPy > 0 ? (
-                              <>
-                                <CalDivider />
-                                <CalCell $color="#9ca3af">前同 {formatCurrency(pySales)}</CalCell>
-                                <CalCell $color={pyColor}>前比 {pySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
-                                <CalCell $color="#9ca3af">前累 {formatCurrency(cPy)}</CalCell>
-                                <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
-                              </>
-                            ) : null
-                          })()}
-                        </CalGrid>
+                        <CalDataArea onClick={() => setDetailDay(day)}>
+                          <CalGrid>
+                            <CalCell>予 {fmtMan(budget)}</CalCell>
+                            <CalCell>実 {fmtMan(actual)}</CalCell>
+                            <CalCell $color={diffColor}>差 {fmtManDiff(diff)}</CalCell>
+                            <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
+                            <CalDivider />
+                            <CalCell>予累 {fmtMan(cBudget)}</CalCell>
+                            <CalCell>実累 {fmtMan(cSales)}</CalCell>
+                            <CalCell $color={cDiffColor}>差累 {fmtManDiff(cDiff)}</CalCell>
+                            <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
+                            {prevYear.hasPrevYear && (() => {
+                              const pySales = prevYear.daily.get(day)?.sales ?? 0
+                              const pyRatio = pySales > 0 ? actual / pySales : 0
+                              const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
+                              const cPy = cumPrevYear.get(day) ?? 0
+                              const cPyRatio = cPy > 0 ? cSales / cPy : 0
+                              const cPyColor = cPyRatio >= 1 ? '#22c55e' : cPyRatio > 0 ? '#ef4444' : undefined
+                              return pySales > 0 || cPy > 0 ? (
+                                <>
+                                  <CalDivider />
+                                  <CalCell $color="#9ca3af">前同 {fmtMan(pySales)}</CalCell>
+                                  <CalCell $color={pyColor}>前比 {pySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
+                                  <CalCell $color="#9ca3af">前累 {fmtMan(cPy)}</CalCell>
+                                  <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
+                                </>
+                              ) : null
+                            })()}
+                          </CalGrid>
+                        </CalDataArea>
                       )}
                       {isPinned && interval && (
                         <PinIndicator>GP {formatPercent(interval.grossProfitRate, 1)}</PinIndicator>
@@ -373,10 +435,11 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
         </IntervalSummary>
       )}
 
-      {editDay != null && (
-        <PinModalOverlay onClick={() => setEditDay(null)}>
+      {/* ── Pin Modal (在庫入力) ── */}
+      {pinDay != null && (
+        <PinModalOverlay onClick={() => setPinDay(null)}>
           <PinModalContent onClick={(e) => e.stopPropagation()}>
-            <PinModalTitle>{month}月{editDay}日 - 期末在庫入力</PinModalTitle>
+            <PinModalTitle>{month}月{pinDay}日 - 期末在庫入力</PinModalTitle>
             <ToolInputGroup>
               <PinInputLabel>期末在庫（原価）</PinInputLabel>
               <PinInputField
@@ -390,12 +453,216 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
             </ToolInputGroup>
             <PinButtonRow>
               <Button $variant="primary" onClick={handlePinConfirm}>確定（ピン止め）</Button>
-              {pins.has(editDay) && (
+              {pins.has(pinDay) && (
                 <Button $variant="outline" onClick={handlePinRemove}>ピン解除</Button>
               )}
-              <Button $variant="outline" onClick={() => setEditDay(null)}>キャンセル</Button>
+              <Button $variant="outline" onClick={() => setPinDay(null)}>キャンセル</Button>
             </PinButtonRow>
           </PinModalContent>
+        </PinModalOverlay>
+      )}
+
+      {/* ── Detail Modal (日別詳細) ── */}
+      {detailDay != null && (
+        <PinModalOverlay onClick={() => setDetailDay(null)}>
+          <DetailModalContent onClick={(e) => e.stopPropagation()}>
+            <DetailHeader>
+              <DetailTitle>{month}月{detailDay}日（{detailDayOfWeek}）の詳細</DetailTitle>
+              <DetailCloseBtn onClick={() => setDetailDay(null)}>✕</DetailCloseBtn>
+            </DetailHeader>
+
+            {/* KPI Cards */}
+            <DetailKpiGrid>
+              <DetailKpiCard $accent="#6366f1">
+                <DetailKpiLabel>予算</DetailKpiLabel>
+                <DetailKpiValue>{formatCurrency(detailBudget)}</DetailKpiValue>
+              </DetailKpiCard>
+              <DetailKpiCard $accent={detailActual >= detailBudget ? '#22c55e' : '#ef4444'}>
+                <DetailKpiLabel>実績</DetailKpiLabel>
+                <DetailKpiValue>{formatCurrency(detailActual)}</DetailKpiValue>
+              </DetailKpiCard>
+              <DetailKpiCard $accent={detailDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                <DetailKpiLabel>予算差異</DetailKpiLabel>
+                <DetailKpiValue $color={detailDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                  {formatCurrency(detailDiff)}
+                </DetailKpiValue>
+              </DetailKpiCard>
+              <DetailKpiCard $accent={detailAch >= 1 ? '#22c55e' : detailAch >= 0.9 ? '#f59e0b' : '#ef4444'}>
+                <DetailKpiLabel>達成率</DetailKpiLabel>
+                <DetailKpiValue $color={detailAch >= 1 ? '#22c55e' : detailAch >= 0.9 ? '#f59e0b' : '#ef4444'}>
+                  {formatPercent(detailAch)}
+                </DetailKpiValue>
+              </DetailKpiCard>
+            </DetailKpiGrid>
+
+            {/* Budget vs Actual Bar */}
+            <DetailSection>
+              <DetailSectionTitle>予算 vs 実績</DetailSectionTitle>
+              {(() => {
+                const maxVal = Math.max(detailBudget, detailActual, 1)
+                return (
+                  <DetailBarWrapper>
+                    <DetailBarRow>
+                      <DetailBarLabel>予算</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailBudget / maxVal) * 100} $color="#6366f1">
+                          <DetailBarAmount>{fmtMan(detailBudget)}</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    <DetailBarRow>
+                      <DetailBarLabel>実績</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailActual / maxVal) * 100} $color="#22c55e">
+                          <DetailBarAmount>{fmtMan(detailActual)}</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    {prevYear.hasPrevYear && detailPySales > 0 && (
+                      <DetailBarRow>
+                        <DetailBarLabel>前年</DetailBarLabel>
+                        <DetailBarTrack>
+                          <DetailBarFill $width={(detailPySales / maxVal) * 100} $color="#9ca3af">
+                            <DetailBarAmount>{fmtMan(detailPySales)}</DetailBarAmount>
+                          </DetailBarFill>
+                        </DetailBarTrack>
+                      </DetailBarRow>
+                    )}
+                  </DetailBarWrapper>
+                )
+              })()}
+            </DetailSection>
+
+            <DetailColumns>
+              {/* Left: Cumulative */}
+              <DetailSection>
+                <DetailSectionTitle>累計推移（1日〜{detailDay}日）</DetailSectionTitle>
+                <DetailChartWrapper>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={cumChartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} width={45} />
+                      <Tooltip
+                        formatter={(val: number, name: string) => [formatCurrency(val), name === 'budget' ? '予算' : name === 'actual' ? '実績' : '前年']}
+                        labelFormatter={(d: number) => `${d}日`}
+                      />
+                      <Area type="monotone" dataKey="budget" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeDasharray="4 4" name="budget" />
+                      <Area type="monotone" dataKey="actual" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} name="actual" />
+                      {prevYear.hasPrevYear && (
+                        <Area type="monotone" dataKey="prevYear" stroke="#9ca3af" fill="none" strokeDasharray="2 2" name="prevYear" />
+                      )}
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </DetailChartWrapper>
+                <DetailRow>
+                  <DetailLabel>予算累計</DetailLabel>
+                  <DetailValue>{formatCurrency(detailCumBudget)}</DetailValue>
+                </DetailRow>
+                <DetailRow>
+                  <DetailLabel>実績累計</DetailLabel>
+                  <DetailValue>{formatCurrency(detailCumSales)}</DetailValue>
+                </DetailRow>
+                <DetailRow>
+                  <DetailLabel>累計差異</DetailLabel>
+                  <DetailValue $color={detailCumDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(detailCumDiff)}</DetailValue>
+                </DetailRow>
+                <DetailRow>
+                  <DetailLabel>累計達成率</DetailLabel>
+                  <DetailValue $color={detailCumAch >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(detailCumAch)}</DetailValue>
+                </DetailRow>
+                {prevYear.hasPrevYear && detailPySales > 0 && (
+                  <>
+                    <DetailRow>
+                      <DetailLabel>前年同曜日</DetailLabel>
+                      <DetailValue>{formatCurrency(detailPySales)}</DetailValue>
+                    </DetailRow>
+                    <DetailRow>
+                      <DetailLabel>前年比</DetailLabel>
+                      <DetailValue $color={detailPyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(detailPyRatio)}</DetailValue>
+                    </DetailRow>
+                  </>
+                )}
+              </DetailSection>
+
+              {/* Right: Breakdown */}
+              <DetailSection>
+                <DetailSectionTitle>売上内訳</DetailSectionTitle>
+                {detailRec ? (() => {
+                  const totalCost = getDailyTotalCost(detailRec)
+                  const items: { label: string; cost: number; price: number }[] = [
+                    { label: '仕入（在庫）', cost: detailRec.purchase.cost, price: detailRec.purchase.price },
+                    { label: '花', cost: detailRec.flowers.cost, price: detailRec.flowers.price },
+                    { label: '産直', cost: detailRec.directProduce.cost, price: detailRec.directProduce.price },
+                    { label: '売上納品', cost: detailRec.deliverySales.cost, price: detailRec.deliverySales.price },
+                    { label: '店間入', cost: detailRec.interStoreIn.cost, price: detailRec.interStoreIn.price },
+                    { label: '店間出', cost: detailRec.interStoreOut.cost, price: detailRec.interStoreOut.price },
+                    { label: '部門間入', cost: detailRec.interDepartmentIn.cost, price: detailRec.interDepartmentIn.price },
+                    { label: '部門間出', cost: detailRec.interDepartmentOut.cost, price: detailRec.interDepartmentOut.price },
+                  ].filter(item => item.cost !== 0 || item.price !== 0)
+
+                  // Category bar chart data
+                  const barData = items.map(item => ({
+                    name: item.label,
+                    cost: item.cost,
+                    price: item.price,
+                  }))
+
+                  return (
+                    <>
+                      {barData.length > 0 && (
+                        <DetailChartWrapper>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={barData} layout="vertical" margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                              <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={60} />
+                              <Tooltip formatter={(val: number, name: string) => [formatCurrency(val), name === 'cost' ? '原価' : '売価']} />
+                              <Bar dataKey="cost" fill="#f59e0b" name="cost" barSize={8}>
+                                {barData.map((_, i) => <ReCell key={i} fill="#f59e0b" />)}
+                              </Bar>
+                              <Bar dataKey="price" fill="#6366f1" name="price" barSize={8}>
+                                {barData.map((_, i) => <ReCell key={i} fill="#6366f1" />)}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </DetailChartWrapper>
+                      )}
+                      {items.map((item) => (
+                        <DetailRow key={item.label}>
+                          <DetailLabel>{item.label}</DetailLabel>
+                          <DetailValue>
+                            {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
+                          </DetailValue>
+                        </DetailRow>
+                      ))}
+                      <DetailRow>
+                        <DetailLabel>総仕入原価</DetailLabel>
+                        <DetailValue>{formatCurrency(totalCost)}</DetailValue>
+                      </DetailRow>
+                      {detailRec.consumable.total > 0 && (
+                        <DetailRow>
+                          <DetailLabel>消耗品費</DetailLabel>
+                          <DetailValue>{formatCurrency(detailRec.consumable.total)}</DetailValue>
+                        </DetailRow>
+                      )}
+                      {detailRec.discountAmount !== 0 && (
+                        <DetailRow>
+                          <DetailLabel>売変額</DetailLabel>
+                          <DetailValue $color="#ef4444">{formatCurrency(detailRec.discountAmount)}</DetailValue>
+                        </DetailRow>
+                      )}
+                    </>
+                  )
+                })() : (
+                  <DetailRow>
+                    <DetailLabel>データなし</DetailLabel>
+                    <DetailValue>-</DetailValue>
+                  </DetailRow>
+                )}
+              </DetailSection>
+            </DetailColumns>
+          </DetailModalContent>
         </PinModalOverlay>
       )}
     </CalWrapper>
