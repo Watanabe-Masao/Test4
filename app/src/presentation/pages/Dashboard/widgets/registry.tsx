@@ -384,7 +384,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>（月間）</ExecSummaryLabel>
+          <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
           <ExecSummarySub $color={r.budgetAchievementRate >= 1 ? '#22c55e' : '#ef4444'}>
