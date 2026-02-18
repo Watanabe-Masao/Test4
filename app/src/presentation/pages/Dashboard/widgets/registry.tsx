@@ -363,6 +363,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
         ? (r.totalSales / prevYear.totalSales) * 100
         : null
+      const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
+      const elapsedDiff = r.totalSales - elapsedBudget
       return (
       <ExecSummaryBar>
         <ExecSummaryItem $accent="#6366f1">
@@ -373,6 +375,28 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
               前年同曜日比: {pyRatio.toFixed(1)}%
             </ExecSummarySub>
           )}
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#8b5cf6">
+          <ExecSummaryLabel>（営業日）</ExecSummaryLabel>
+          <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
+          <ExecSummaryValue>{formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
+          <ExecSummarySub $color={elapsedDiff >= 0 ? '#22c55e' : '#ef4444'}>
+            予算差異: {formatCurrency(elapsedDiff)}
+          </ExecSummarySub>
+          <ExecSummarySub $color={r.budgetProgressRate >= 1 ? '#22c55e' : '#ef4444'}>
+            売上予算達成率: {formatPercent(r.budgetProgressRate)}
+          </ExecSummarySub>
+        </ExecSummaryItem>
+        <ExecSummaryItem $accent="#6366f1">
+          <ExecSummaryLabel>（月間）</ExecSummaryLabel>
+          <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
+          <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
+          <ExecSummarySub $color={r.budgetAchievementRate >= 1 ? '#22c55e' : '#ef4444'}>
+            予算消化率: {formatPercent(r.budgetAchievementRate)}
+          </ExecSummarySub>
+          <ExecSummarySub $color={r.remainingBudget <= 0 ? '#22c55e' : undefined}>
+            残予算: {formatCurrency(r.remainingBudget)}
+          </ExecSummarySub>
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#f59e0b">
           <ExecSummaryLabel>総仕入高</ExecSummaryLabel>
