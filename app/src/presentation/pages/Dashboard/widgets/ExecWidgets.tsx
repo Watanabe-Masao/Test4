@@ -288,6 +288,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const detailCumAch = safeDivide(detailCumSales, detailCumBudget)
   const detailPySales = detailDay != null ? (prevYear.daily.get(detailDay)?.sales ?? 0) : 0
   const detailPyRatio = safeDivide(detailActual, detailPySales)
+  const detailCumPrevYear = detailDay != null ? (cumPrevYear.get(detailDay) ?? 0) : 0
+  const detailCumPyRatio = safeDivide(detailCumSales, detailCumPrevYear)
   const detailDayOfWeek = detailDay != null ? DOW_NAMES[new Date(year, month - 1, detailDay).getDay()] : ''
 
   // Cumulative chart data (up to detailDay)
@@ -497,9 +499,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
             {/* Budget vs Actual Bar */}
             <DetailSection>
-              <DetailSectionTitle>予算 vs 実績</DetailSectionTitle>
+              <DetailSectionTitle>予算 vs 実績（当日）</DetailSectionTitle>
               {(() => {
-                const maxVal = Math.max(detailBudget, detailActual, 1)
+                const maxVal = Math.max(detailBudget, detailActual, detailPySales, 1)
                 return (
                   <DetailBarWrapper>
                     <DetailBarRow>
@@ -514,7 +516,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       <DetailBarLabel>実績</DetailBarLabel>
                       <DetailBarTrack>
                         <DetailBarFill $width={(detailActual / maxVal) * 100} $color="#22c55e">
-                          <DetailBarAmount>{fmtSen(detailActual)}</DetailBarAmount>
+                          <DetailBarAmount>{fmtSen(detailActual)}（{formatPercent(detailAch)}）</DetailBarAmount>
                         </DetailBarFill>
                       </DetailBarTrack>
                     </DetailBarRow>
@@ -523,7 +525,45 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         <DetailBarLabel>前年</DetailBarLabel>
                         <DetailBarTrack>
                           <DetailBarFill $width={(detailPySales / maxVal) * 100} $color="#9ca3af">
-                            <DetailBarAmount>{fmtSen(detailPySales)}</DetailBarAmount>
+                            <DetailBarAmount>{fmtSen(detailPySales)}（{formatPercent(detailPyRatio)}）</DetailBarAmount>
+                          </DetailBarFill>
+                        </DetailBarTrack>
+                      </DetailBarRow>
+                    )}
+                  </DetailBarWrapper>
+                )
+              })()}
+            </DetailSection>
+
+            {/* Budget vs Actual Bar (Cumulative) */}
+            <DetailSection>
+              <DetailSectionTitle>予算 vs 実績（累計）</DetailSectionTitle>
+              {(() => {
+                const maxVal = Math.max(detailCumBudget, detailCumSales, detailCumPrevYear, 1)
+                return (
+                  <DetailBarWrapper>
+                    <DetailBarRow>
+                      <DetailBarLabel>予算</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailCumBudget / maxVal) * 100} $color="#6366f1">
+                          <DetailBarAmount>{fmtSen(detailCumBudget)}</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    <DetailBarRow>
+                      <DetailBarLabel>実績</DetailBarLabel>
+                      <DetailBarTrack>
+                        <DetailBarFill $width={(detailCumSales / maxVal) * 100} $color="#22c55e">
+                          <DetailBarAmount>{fmtSen(detailCumSales)}（{formatPercent(detailCumAch)}）</DetailBarAmount>
+                        </DetailBarFill>
+                      </DetailBarTrack>
+                    </DetailBarRow>
+                    {prevYear.hasPrevYear && detailCumPrevYear > 0 && (
+                      <DetailBarRow>
+                        <DetailBarLabel>前年</DetailBarLabel>
+                        <DetailBarTrack>
+                          <DetailBarFill $width={(detailCumPrevYear / maxVal) * 100} $color="#9ca3af">
+                            <DetailBarAmount>{fmtSen(detailCumPrevYear)}（{formatPercent(detailCumPyRatio)}）</DetailBarAmount>
                           </DetailBarFill>
                         </DetailBarTrack>
                       </DetailBarRow>
@@ -594,12 +634,12 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     { label: '仕入（在庫）', cost: detailRec.purchase.cost, price: detailRec.purchase.price },
                     { label: '花', cost: detailRec.flowers.cost, price: detailRec.flowers.price },
                     { label: '産直', cost: detailRec.directProduce.cost, price: detailRec.directProduce.price },
-                    { label: '売上納品', cost: detailRec.deliverySales.cost, price: detailRec.deliverySales.price },
                     { label: '店間入', cost: detailRec.interStoreIn.cost, price: detailRec.interStoreIn.price },
                     { label: '店間出', cost: detailRec.interStoreOut.cost, price: detailRec.interStoreOut.price },
                     { label: '部門間入', cost: detailRec.interDepartmentIn.cost, price: detailRec.interDepartmentIn.price },
                     { label: '部門間出', cost: detailRec.interDepartmentOut.cost, price: detailRec.interDepartmentOut.price },
                   ].filter(item => item.cost !== 0 || item.price !== 0)
+                  const totalPrice = items.reduce((sum, item) => sum + Math.abs(item.price), 0)
 
                   // Category bar chart data
                   const barData = items.map(item => ({
@@ -628,14 +668,18 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                           </ResponsiveContainer>
                         </DetailChartWrapper>
                       )}
-                      {items.map((item) => (
-                        <DetailRow key={item.label}>
-                          <DetailLabel>{item.label}</DetailLabel>
-                          <DetailValue>
-                            {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
-                          </DetailValue>
-                        </DetailRow>
-                      ))}
+                      {items.map((item) => {
+                        const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
+                        return (
+                          <DetailRow key={item.label}>
+                            <DetailLabel>{item.label}</DetailLabel>
+                            <DetailValue>
+                              {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
+                              <span style={{ color: '#6366f1', fontSize: '0.75rem', marginLeft: '4px' }}>({formatPercent(ratio)})</span>
+                            </DetailValue>
+                          </DetailRow>
+                        )
+                      })}
                       <DetailRow>
                         <DetailLabel>総仕入原価</DetailLabel>
                         <DetailValue>{formatCurrency(totalCost)}</DetailValue>
