@@ -10,7 +10,7 @@ import {
   Cell,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
 import { getDailyTotalCost } from '@/domain/models'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -60,6 +60,10 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
     })
   }
 
+  // Y軸上限をデータの最大値に基づいて動的に決定（最低0.5、0.1刻みで切り上げ）
+  const maxRate = Math.max(...data.filter(d => d.hasSales).map(d => d.rate), 0)
+  const yMax = Math.max(0.5, Math.ceil(maxRate * 10) / 10)
+
   const getBarColor = (rate: number) => {
     if (rate >= targetRate) return ct.colors.success
     if (rate >= warningRate) return ct.colors.warning
@@ -79,7 +83,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
             tickLine={false}
           />
           <YAxis
-            domain={[0, 0.5]}
+            domain={[0, yMax]}
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
@@ -87,14 +91,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
             width={40}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value) => [toPct(value as number), '粗利率']}
             labelFormatter={(label) => `${label}日`}
           />

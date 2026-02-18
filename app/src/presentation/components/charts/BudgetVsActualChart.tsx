@@ -10,7 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -61,8 +61,8 @@ export function BudgetVsActualChart({ data, budget, showPrevYear }: Props) {
               <stop offset="100%" stopColor={ct.colors.info} stopOpacity={0.02} />
             </linearGradient>
             <linearGradient id="prevYearArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#9ca3af" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="#9ca3af" stopOpacity={0.02} />
+              <stop offset="0%" stopColor={ct.colors.slate} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={ct.colors.slate} stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -80,14 +80,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear }: Props) {
             width={55}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               const labels: Record<string, string> = {
                 actualCum: '実績累計',
@@ -131,7 +124,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear }: Props) {
             <Area
               type="monotone"
               dataKey="prevYearCum"
-              stroke="#9ca3af"
+              stroke={ct.colors.slate}
               strokeWidth={2}
               strokeDasharray="4 3"
               fill="url(#prevYearArea)"

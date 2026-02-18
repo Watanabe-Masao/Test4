@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
 import type { CostPricePair, CategoryType } from '@/domain/models'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 
@@ -104,14 +104,7 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value) => [toComma(value as number), mode === 'cost' ? '原価' : '売価']}
           />
         </PieChart>

@@ -18,10 +18,13 @@ export function useChartTheme() {
       infoDark: theme.colors.palette.infoDark,
       purple: theme.colors.palette.purple,
       cyan: theme.colors.palette.cyan,
+      cyanDark: theme.colors.palette.cyanDark,
       pink: theme.colors.palette.pink,
       orange: theme.colors.palette.orange,
       blue: theme.colors.palette.blue,
       lime: theme.colors.palette.lime,
+      slate: theme.colors.palette.slate,
+      slateDark: theme.colors.palette.slateDark,
     },
     text: theme.colors.text,
     textSecondary: theme.colors.text2,
@@ -40,6 +43,23 @@ export function useChartTheme() {
     isDark: theme.mode === 'dark',
   }
 }
+
+export type ChartTheme = ReturnType<typeof useChartTheme>
+
+/** Tooltip共通スタイルを生成 */
+export function tooltipStyle(ct: ChartTheme) {
+  return {
+    background: ct.bg2,
+    border: `1px solid ${ct.grid}`,
+    borderRadius: 8,
+    fontSize: ct.fontSize.sm,
+    fontFamily: ct.fontFamily,
+    color: ct.text,
+  } as const
+}
+
+/** 店舗間比較用の共通カラーパレット */
+export const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'] as const
 
 /** 金額を万円表示する */
 export function toManYen(v: number): string {

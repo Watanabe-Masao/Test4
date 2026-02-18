@@ -10,7 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { DailyRecord } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -89,14 +89,7 @@ export function InventoryTrendChart({
             width={55}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               const labels: Record<string, string> = { estimated: '推定在庫', actual: '実在庫' }
               return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]

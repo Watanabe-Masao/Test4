@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { DailyRecord } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -136,14 +136,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             />
           )}
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               return [value != null ? toComma(value as number) : '-', allLabels[name as string] ?? String(name)]
             }}
@@ -176,7 +169,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               yAxisId="left"
               type="monotone"
               dataKey="salesMa7"
-              stroke="#06b6d4"
+              stroke={ct.colors.cyanDark}
               strokeWidth={2}
               dot={false}
               connectNulls
@@ -187,7 +180,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               yAxisId={showSales ? 'right' : 'left'}
               type="monotone"
               dataKey="discountMa7"
-              stroke="#f97316"
+              stroke={ct.colors.orange}
               strokeWidth={2}
               strokeDasharray="5 3"
               dot={false}
@@ -199,7 +192,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               yAxisId="left"
               type="monotone"
               dataKey="prevYearSales"
-              stroke="#9ca3af"
+              stroke={ct.colors.slate}
               strokeWidth={1.5}
               strokeDasharray="4 3"
               dot={false}

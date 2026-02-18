@@ -10,7 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -63,12 +63,12 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="currentCumArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="#6366f1" stopOpacity={0.02} />
+              <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.02} />
             </linearGradient>
             <linearGradient id="prevCumArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#9ca3af" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="#9ca3af" stopOpacity={0.02} />
+              <stop offset="0%" stopColor={ct.colors.slate} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={ct.colors.slate} stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -86,14 +86,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
             width={55}
           />
           <Tooltip
-            contentStyle={{
-              background: ct.bg2,
-              border: `1px solid ${ct.grid}`,
-              borderRadius: 8,
-              fontSize: ct.fontSize.sm,
-              fontFamily: ct.fontFamily,
-              color: ct.text,
-            }}
+            contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               const label = name === 'currentCum' ? '当年累計' : '前年同曜日累計'
               return [value != null ? toComma(value as number) : '-', label]
@@ -113,7 +106,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           <Area
             type="monotone"
             dataKey="prevYearCum"
-            stroke="#9ca3af"
+            stroke={ct.colors.slate}
             strokeWidth={2}
             strokeDasharray="4 3"
             fill="url(#prevCumArea)"
@@ -123,22 +116,22 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           <Area
             type="monotone"
             dataKey="currentCum"
-            stroke="#6366f1"
+            stroke={ct.colors.primary}
             strokeWidth={2.5}
             fill="url(#currentCumArea)"
             dot={false}
-            activeDot={{ r: 4, fill: '#6366f1', stroke: ct.bg2, strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: ct.colors.primary, stroke: ct.bg2, strokeWidth: 2 }}
           />
           {prevTotal > 0 && (
             <ReferenceLine
               y={prevTotal}
-              stroke="#9ca3af"
+              stroke={ct.colors.slate}
               strokeDasharray="4 4"
               strokeWidth={1.5}
               label={{
                 value: `前年同曜日月間 ${toManYen(prevTotal)}`,
                 position: 'right',
-                fill: '#9ca3af',
+                fill: ct.colors.slate,
                 fontSize: ct.fontSize.xs,
                 fontFamily: ct.monoFamily,
               }}
