@@ -426,7 +426,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           })()}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#22c55e">
-          <ExecSummaryLabel>粗利率</ExecSummaryLabel>
+          <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
           {r.invMethodGrossProfitRate != null ? (() => {
             const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
             const invDiff = r.invMethodGrossProfitRate - invAfterRate
