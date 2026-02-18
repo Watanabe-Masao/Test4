@@ -179,7 +179,8 @@ export function processFileData(
 
     case 'prevYearSalesDiscount': {
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
-      const prevDiscountData = processDiscount(rows)
+      // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
+      const prevDiscountData = processDiscount(rows, appSettings.targetMonth)
       const prevSalesData: Record<string, Record<number, { sales: number }>> = {}
       for (const [storeId, days] of Object.entries(prevDiscountData)) {
         prevSalesData[storeId] = {}
