@@ -367,17 +367,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       const elapsedDiff = r.totalSales - elapsedBudget
       return (
       <ExecSummaryBar>
-        <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>売上実績</ExecSummaryLabel>
-          <ExecSummaryValue>{formatCurrency(r.totalSales)}</ExecSummaryValue>
-          {pyRatio != null && (
-            <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
-              前年同曜日比: {pyRatio.toFixed(1)}%
-            </ExecSummarySub>
-          )}
-        </ExecSummaryItem>
         <ExecSummaryItem $accent="#8b5cf6">
-          <ExecSummaryLabel>（営業日）</ExecSummaryLabel>
+          <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
           <ExecSummarySub $color={elapsedDiff >= 0 ? '#22c55e' : '#ef4444'}>
@@ -386,6 +377,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummarySub $color={r.budgetProgressRate >= 1 ? '#22c55e' : '#ef4444'}>
             売上予算達成率: {formatPercent(r.budgetProgressRate)}
           </ExecSummarySub>
+          {pyRatio != null && (
+            <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
+              前年同曜日比: {pyRatio.toFixed(1)}%
+            </ExecSummarySub>
+          )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#6366f1">
           <ExecSummaryLabel>（月間）</ExecSummaryLabel>
