@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, toComma } from './chartTheme'
 import type { CostPricePair, CategoryType } from '@/domain/models'
@@ -60,7 +60,7 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
 
   if (data.length === 0) return null
 
-  const renderLabel = (props: { cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number; name: string }) => {
+  const renderLabel = (props: PieLabelRenderProps) => {
     const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props
     const pct = Number(percent)
     if (pct < 0.03) return null
