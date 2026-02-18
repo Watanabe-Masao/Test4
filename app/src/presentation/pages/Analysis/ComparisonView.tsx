@@ -1,33 +1,14 @@
 import { Card, CardTitle } from '@/presentation/components/common'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 
-export function buildAnalysis(r: StoreResult, daysInMonth: number) {
-  const salesDaily = new Map<number, number>()
-  for (const [d, rec] of r.daily) {
-    salesDaily.set(d, rec.sales)
-  }
-  const analysis = calculateBudgetAnalysis({
-    totalSales: r.totalSales,
-    budget: r.budget,
-    budgetDaily: r.budgetDaily,
-    salesDaily,
-    elapsedDays: r.elapsedDays,
-    salesDays: r.salesDays,
-    daysInMonth,
-  })
-  return { salesDaily, analysis }
-}
-
 /** 比較モード: 店舗別予算メトリクスを横並び表示 */
-export function ComparisonView({ results, daysInMonth }: { results: StoreResult[]; daysInMonth: number }) {
+export function ComparisonView({ results }: { results: StoreResult[] }) {
   const storeAnalyses = results.map((r) => {
-    const { analysis } = buildAnalysis(r, daysInMonth)
     const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
     const actualGrossProfitRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
-    return { r, analysis, actualGrossProfit, actualGrossProfitRate }
+    return { r, actualGrossProfit, actualGrossProfitRate }
   })
 
   return (
@@ -58,49 +39,49 @@ export function ComparisonView({ results, daysInMonth }: { results: StoreResult[
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>予算達成率</Td>
-              {storeAnalyses.map(({ r, analysis }) => (
+              {storeAnalyses.map(({ r }) => (
                 <Td
                   key={r.storeId}
-                  $positive={analysis.budgetProgressRate >= 1}
-                  $negative={analysis.budgetProgressRate < 0.9}
+                  $positive={r.budgetProgressRate >= 1}
+                  $negative={r.budgetProgressRate < 0.9}
                 >
-                  {formatPercent(analysis.budgetProgressRate)}
+                  {formatPercent(r.budgetProgressRate)}
                 </Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>予算消化率</Td>
-              {storeAnalyses.map(({ r, analysis }) => (
-                <Td key={r.storeId}>{formatPercent(analysis.budgetAchievementRate)}</Td>
+              {storeAnalyses.map(({ r }) => (
+                <Td key={r.storeId}>{formatPercent(r.budgetAchievementRate)}</Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>月末予測売上</Td>
-              {storeAnalyses.map(({ r, analysis }) => (
-                <Td key={r.storeId}>{formatCurrency(analysis.projectedSales)}</Td>
+              {storeAnalyses.map(({ r }) => (
+                <Td key={r.storeId}>{formatCurrency(r.projectedSales)}</Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>達成率予測</Td>
-              {storeAnalyses.map(({ r, analysis }) => (
+              {storeAnalyses.map(({ r }) => (
                 <Td
                   key={r.storeId}
-                  $positive={analysis.projectedAchievement >= 1}
-                  $negative={analysis.projectedAchievement < 0.9}
+                  $positive={r.projectedAchievement >= 1}
+                  $negative={r.projectedAchievement < 0.9}
                 >
-                  {formatPercent(analysis.projectedAchievement)}
+                  {formatPercent(r.projectedAchievement)}
                 </Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>残余予算</Td>
-              {storeAnalyses.map(({ r, analysis }) => (
+              {storeAnalyses.map(({ r }) => (
                 <Td
                   key={r.storeId}
-                  $positive={analysis.remainingBudget < 0}
-                  $negative={analysis.remainingBudget > 0}
+                  $positive={r.remainingBudget < 0}
+                  $negative={r.remainingBudget > 0}
                 >
-                  {formatCurrency(analysis.remainingBudget)}
+                  {formatCurrency(r.remainingBudget)}
                 </Td>
               ))}
             </Tr>

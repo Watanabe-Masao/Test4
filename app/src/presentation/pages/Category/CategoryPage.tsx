@@ -54,7 +54,8 @@ export function CategoryPage() {
   const supplierData = Array.from(r.supplierTotals.values())
     .sort((a, b) => b.cost - a.cost)
 
-  const totalSupplierPrice = supplierData.reduce((sum, s) => sum + Math.abs(s.price), 0)
+  const totalSupplierPrice = supplierData.reduce((sum, s) => sum + s.price, 0)
+  const totalSupplierAbsPrice = supplierData.reduce((sum, s) => sum + Math.abs(s.price), 0)
 
   // カスタムカテゴリ集計データ
   const customCategoryData = buildCustomCategoryData(r, appState.settings.supplierCategoryMap)
@@ -130,14 +131,15 @@ export function CategoryPage() {
                   {(() => {
                     const allData = [...categoryData, ...customCategoryData]
                     const totalCost = allData.reduce((s, c) => s + Math.abs(c.cost), 0)
-                    const totalPrice = allData.reduce((s, c) => s + Math.abs(c.price), 0)
+                    const totalAbsPrice = allData.reduce((s, c) => s + Math.abs(c.price), 0)
+                    // 相乗積用: 実際の売価合計（Math.absなし）
+                    const totalActualPrice = allData.reduce((s, c) => s + c.price, 0)
                     return (
                       <>
                         {categoryData.map((d) => {
                           const costShare = safeDivide(Math.abs(d.cost), totalCost, 0)
-                          const priceShare = safeDivide(Math.abs(d.price), totalPrice, 0)
-                          const markupRate = d.markup
-                          const crossMult = priceShare * markupRate
+                          const priceShare = safeDivide(Math.abs(d.price), totalAbsPrice, 0)
+                          const crossMult = safeDivide(d.price - d.cost, totalActualPrice, 0)
                           return (
                             <Tr key={d.category}>
                               <Td><Badge $color={d.color} />{d.label}</Td>
@@ -152,15 +154,14 @@ export function CategoryPage() {
                         })}
                         {customCategoryData.map((d) => {
                           const costShare = safeDivide(Math.abs(d.cost), totalCost, 0)
-                          const priceShare = safeDivide(Math.abs(d.price), totalPrice, 0)
-                          const markupRate = d.markup
-                          const crossMult = priceShare * markupRate
+                          const priceShare = safeDivide(Math.abs(d.price), totalAbsPrice, 0)
+                          const crossMult = safeDivide(d.price - d.cost, totalActualPrice, 0)
                           return (
                             <Tr key={`custom-${d.category}`}>
                               <Td><Badge $color={d.color} />{d.label}</Td>
                               <Td>{formatCurrency(d.cost)}</Td>
                               <Td>{formatCurrency(d.price)}</Td>
-                              <Td>{formatPercent(markupRate)}</Td>
+                              <Td>{formatPercent(d.markup)}</Td>
                               <Td>{formatPercent(costShare)}</Td>
                               <Td>{formatPercent(priceShare)}</Td>
                               <Td>{formatPercent(crossMult)}</Td>
@@ -183,10 +184,7 @@ export function CategoryPage() {
                           </Td>
                           <Td>-</Td>
                           <Td>-</Td>
-                          <Td>{formatPercent(allData.reduce((s, c) => {
-                            const ps = safeDivide(Math.abs(c.price), totalPrice, 0)
-                            return s + ps * c.markup
-                          }, 0))}</Td>
+                          <Td>{formatPercent(allData.reduce((s, c) => s + c.crossMultiplication, 0))}</Td>
                         </TrTotal>
                       </>
                     )
@@ -215,8 +213,8 @@ export function CategoryPage() {
                   </thead>
                   <tbody>
                     {supplierData.map((s) => {
-                      const supplierPriceShare = safeDivide(Math.abs(s.price), totalSupplierPrice, 0)
-                      const supplierCrossMult = supplierPriceShare * s.markupRate
+                      const supplierPriceShare = safeDivide(Math.abs(s.price), totalSupplierAbsPrice, 0)
+                      const supplierCrossMult = safeDivide(s.price - s.cost, totalSupplierPrice, 0)
                       const assignedCategory = appState.settings.supplierCategoryMap[s.supplierCode] as
                         | CustomCategory
                         | undefined
@@ -418,9 +416,8 @@ export function CategoryPage() {
                             return <Td key={`${sr.storeId}-cross`}>-</Td>
                           }
                           const storeTotalPrice = Array.from(sr.supplierTotals.values())
-                            .reduce((sum, s) => sum + Math.abs(s.price), 0)
-                          const priceShare = safeDivide(Math.abs(st.price), storeTotalPrice, 0)
-                          const crossMult = priceShare * st.markupRate
+                            .reduce((sum, s) => sum + s.price, 0)
+                          const crossMult = safeDivide(st.price - st.cost, storeTotalPrice, 0)
                           return (
                             <Td key={`${sr.storeId}-cross`}>
                               {formatPercent(crossMult)}

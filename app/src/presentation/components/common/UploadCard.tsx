@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { useCallback, useRef } from 'react'
+import type { DataType } from '@/domain/models'
 
 const CardWrapper = styled.div<{ $loaded: boolean }>`
   border: 1px ${({ $loaded }) => ($loaded ? 'solid' : 'dashed')}
@@ -57,11 +58,11 @@ export function UploadCard({
   onFile,
   multiple,
 }: {
-  dataType: string
+  dataType: DataType
   label: string
   loaded: boolean
   filename?: string
-  onFile: (files: File | File[], typeHint: string) => void
+  onFile: (files: File | File[], typeHint: DataType) => void
   multiple?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)

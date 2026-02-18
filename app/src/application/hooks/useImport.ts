@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import {
   processDroppedFiles,
@@ -7,10 +7,18 @@ import {
 import type { ImportSummary } from '@/application/services/FileImportService'
 import type { AppSettings, DataType, ImportedData } from '@/domain/models'
 
+/** インポート進捗 */
+export interface ImportProgress {
+  readonly current: number
+  readonly total: number
+  readonly filename: string
+}
+
 /** ファイルインポートフック */
 export function useImport() {
   const state = useAppState()
   const dispatch = useAppDispatch()
+  const [progress, setProgress] = useState<ImportProgress | null>(null)
 
   // ref で最新の値を保持し、ステール・クロージャを回避
   const dataRef = useRef<ImportedData>(state.data)
@@ -22,13 +30,16 @@ export function useImport() {
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       dispatch({ type: 'SET_IMPORTING', payload: true })
+      setProgress(null)
 
       try {
         const { summary, data } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
-          undefined,
+          (current, total, filename) => {
+            setProgress({ current, total, filename })
+          },
           overrideType,
         )
 
@@ -44,6 +55,7 @@ export function useImport() {
         return summary
       } finally {
         dispatch({ type: 'SET_IMPORTING', payload: false })
+        setProgress(null)
       }
     },
     [dispatch],
@@ -52,6 +64,7 @@ export function useImport() {
   return {
     importFiles,
     isImporting: state.ui.isImporting,
+    progress,
     data: state.data,
     validationMessages: state.validationMessages,
   }

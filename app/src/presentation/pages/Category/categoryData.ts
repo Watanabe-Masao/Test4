@@ -40,7 +40,12 @@ export const CUSTOM_CATEGORY_COLORS: Record<string, string> = {
 
 /** カテゴリ別データ生成ヘルパー */
 export function buildCategoryData(result: StoreResult) {
+  // 相乗積の合計が全体値入率と一致するよう、実際の売価合計を使用
   const totalPrice = CATEGORY_ORDER.reduce((sum, cat) => {
+    const pair = result.categoryTotals.get(cat)
+    return sum + (pair ? pair.price : 0)
+  }, 0)
+  const totalAbsPrice = CATEGORY_ORDER.reduce((sum, cat) => {
     const pair = result.categoryTotals.get(cat)
     return sum + (pair ? Math.abs(pair.price) : 0)
   }, 0)
@@ -50,8 +55,9 @@ export function buildCategoryData(result: StoreResult) {
       const pair = result.categoryTotals.get(cat)
       if (!pair) return []
       const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-      const priceShare = safeDivide(Math.abs(pair.price), totalPrice, 0)
-      const crossMultiplication = priceShare * markupRate
+      const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+      // 相乗積 = (売価 - 原価) / 総売価 で直接計算（price=0の消耗品でも正確）
+      const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
       return [{
         category: cat,
         label: CATEGORY_LABELS[cat],
@@ -83,6 +89,9 @@ export function buildCustomCategoryData(
   }
 
   const totalPrice = Array.from(aggregated.values()).reduce(
+    (sum, v) => sum + v.price, 0,
+  )
+  const totalAbsPrice = Array.from(aggregated.values()).reduce(
     (sum, v) => sum + Math.abs(v.price), 0,
   )
 
@@ -91,8 +100,8 @@ export function buildCustomCategoryData(
       const pair = aggregated.get(cc)
       if (!pair) return []
       const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-      const priceShare = safeDivide(Math.abs(pair.price), totalPrice, 0)
-      const crossMultiplication = priceShare * markupRate
+      const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+      const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
       return [{
         category: cc,
         label: cc,

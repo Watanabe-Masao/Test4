@@ -1,10 +1,8 @@
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
-import { useAppState } from '@/application/context'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import { safeDivide } from '@/domain/calculations/utils'
-import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
+import { useAppSettings } from '@/application/context'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import styled from 'styled-components'
 
@@ -130,7 +128,7 @@ const EmptyState = styled.div`
 export function ReportsPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
-  const { settings } = useAppState()
+  const settings = useAppSettings()
 
   if (!isCalculated || !currentResult) {
     return (
@@ -143,21 +141,6 @@ export function ReportsPage() {
   const r = currentResult
   const today = new Date()
   const reportDate = `${settings.targetYear}年${settings.targetMonth}月${today.getDate()}日`
-
-  // Budget analysis
-  const salesDaily = new Map<number, number>()
-  for (const [d, rec] of r.daily) {
-    salesDaily.set(d, rec.sales)
-  }
-  const analysis = calculateBudgetAnalysis({
-    totalSales: r.totalSales,
-    budget: r.budget,
-    budgetDaily: r.budgetDaily,
-    salesDaily,
-    elapsedDays: r.elapsedDays,
-    salesDays: r.salesDays,
-    daysInMonth,
-  })
 
   // Category data
   const categoryData = CATEGORY_ORDER
@@ -199,14 +182,14 @@ export function ReportsPage() {
           />
           <KpiCard
             label="予算達成率"
-            value={formatPercent(analysis.budgetAchievementRate)}
+            value={formatPercent(r.budgetAchievementRate)}
             subText={`予算: ${formatCurrency(r.budget)}`}
             accent="#0ea5e9"
           />
           <KpiCard
             label="月末予測達成率"
-            value={formatPercent(analysis.projectedAchievement)}
-            subText={`予測売上: ${formatCurrency(analysis.projectedSales)}`}
+            value={formatPercent(r.projectedAchievement)}
+            subText={`予測売上: ${formatCurrency(r.projectedSales)}`}
             accent="#f59e0b"
           />
         </KpiGrid>
@@ -359,9 +342,9 @@ export function ReportsPage() {
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
           <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
-          <KpiCard label="予算達成率" value={formatPercent(analysis.budgetAchievementRate)} accent="#22c55e" />
-          <KpiCard label="予算消化率" value={formatPercent(analysis.budgetProgressRate)} subText={`経過: ${r.elapsedDays}/${daysInMonth}日`} accent="#0ea5e9" />
-          <KpiCard label="残余予算" value={formatCurrency(analysis.remainingBudget)} accent="#f59e0b" />
+          <KpiCard label="予算達成率" value={formatPercent(r.budgetAchievementRate)} accent="#22c55e" />
+          <KpiCard label="予算消化率" value={formatPercent(r.budgetProgressRate)} subText={`経過: ${r.elapsedDays}/${daysInMonth}日`} accent="#0ea5e9" />
+          <KpiCard label="残余予算" value={formatCurrency(r.remainingBudget)} accent="#f59e0b" />
         </KpiGrid>
       </Section>
 
@@ -402,7 +385,7 @@ export function ReportsPage() {
                 <Td $accent={r.totalSales >= r.budget}>
                   {r.totalSales >= r.budget ? '+' : ''}{formatCurrency(r.totalSales - r.budget)}
                 </Td>
-                <Td>{analysis.budgetAchievementRate >= 1 ? '達成' : analysis.budgetAchievementRate >= 0.9 ? '進行中' : '要注意'}</Td>
+                <Td>{r.budgetAchievementRate >= 1 ? '達成' : r.budgetAchievementRate >= 0.9 ? '進行中' : '要注意'}</Td>
               </Tr>
               <Tr>
                 <Td>値入率</Td>

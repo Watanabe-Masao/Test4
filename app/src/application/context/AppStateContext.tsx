@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useReducer, useMemo, useEffect, type ReactNode } from 'react'
 import type { AppSettings, ViewType, StoreResult, InventoryConfig, ImportedData, ValidationMessage } from '@/domain/models'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import { createEmptyImportedData } from '@/domain/models'
@@ -29,6 +29,37 @@ export interface AppState {
   readonly settings: AppSettings
 }
 
+// ─── Persistence ─────────────────────────────────────────
+
+const SETTINGS_STORAGE_KEY = 'shiire-arari-settings'
+const UI_STORAGE_KEY = 'shiire-arari-ui'
+
+function loadPersistedSettings(): AppSettings {
+  const defaults = createDefaultSettings()
+  try {
+    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY)
+    if (stored) return { ...defaults, ...JSON.parse(stored) }
+  } catch { /* ignore */ }
+  return defaults
+}
+
+function loadPersistedView(): ViewType {
+  try {
+    const stored = localStorage.getItem(UI_STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (parsed.currentView) return parsed.currentView as ViewType
+    }
+  } catch { /* ignore */ }
+  return 'dashboard'
+}
+
+function saveUiState(ui: { currentView: ViewType }): void {
+  try {
+    localStorage.setItem(UI_STORAGE_KEY, JSON.stringify({ currentView: ui.currentView }))
+  } catch { /* ignore */ }
+}
+
 /** 初期状態 */
 export const initialState: AppState = {
   data: createEmptyImportedData(),
@@ -36,11 +67,11 @@ export const initialState: AppState = {
   validationMessages: [],
   ui: {
     selectedStoreIds: new Set<string>(),
-    currentView: 'dashboard',
+    currentView: loadPersistedView(),
     isCalculated: false,
     isImporting: false,
   },
-  settings: createDefaultSettings(),
+  settings: loadPersistedSettings(),
 }
 
 // ─── Actions ──────────────────────────────────────────────
@@ -147,6 +178,11 @@ const AppStateContext = createContext<AppState>(initialState)
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
+
+  // ビュー変更時にlocalStorageへ永続化
+  useEffect(() => {
+    saveUiState({ currentView: state.ui.currentView })
+  }, [state.ui.currentView])
 
   const uiValue = state.ui
   const dataValue = useMemo<DataState>(() => ({

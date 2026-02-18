@@ -3,8 +3,7 @@ import {
   DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart,
   PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
 } from '@/presentation/components/charts'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
+import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
 import { renderPlanActualForecast, MonthlyCalendarWidget, ForecastToolsWidget } from './ExecWidgets'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
@@ -43,28 +42,37 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '【在庫法】粗利益',
     group: '売上・利益',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard
-        label="【在庫法】粗利益"
-        value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
-        subText={r.invMethodGrossProfitRate != null ? `粗利率: ${formatPercent(r.invMethodGrossProfitRate)}` : '在庫設定なし'}
-        accent="#22c55e"
-      />
-    ),
+    render: ({ result: r }) => {
+      if (r.invMethodGrossProfitRate == null) {
+        return <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent="#22c55e" />
+      }
+      const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+      return (
+        <KpiCard
+          label="【在庫法】粗利益"
+          value={formatCurrency(r.invMethodGrossProfit)}
+          subText={`粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          accent="#22c55e"
+        />
+      )
+    },
   },
   {
     id: 'kpi-est-margin',
     label: '【推定法】マージン',
     group: '売上・利益',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard
-        label="【推定法】マージン"
-        value={formatCurrency(r.estMethodMargin)}
-        subText={`マージン率: ${formatPercent(r.estMethodMarginRate)}`}
-        accent="#0ea5e9"
-      />
-    ),
+    render: ({ result: r }) => {
+      const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+      return (
+        <KpiCard
+          label="【推定法】マージン"
+          value={formatCurrency(r.estMethodMargin)}
+          subText={`マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          accent="#0ea5e9"
+        />
+      )
+    },
   },
   // ── KPI: 仕入・原価 ──
   {
@@ -203,22 +211,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算達成率',
     group: '予算分析',
     size: 'kpi',
-    render: ({ result: r, daysInMonth }) => {
-      const salesDaily = new Map<number, number>()
-      for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
-      const analysis = calculateBudgetAnalysis({
-        totalSales: r.totalSales, budget: r.budget, budgetDaily: r.budgetDaily,
-        salesDaily, elapsedDays: r.elapsedDays, salesDays: r.salesDays, daysInMonth,
-      })
-      return (
-        <KpiCard
-          label="予算達成率"
-          value={formatPercent(analysis.budgetProgressRate)}
-          subText={`残余予算: ${formatCurrency(analysis.remainingBudget)}`}
-          accent="#6366f1"
-        />
-      )
-    },
+    render: ({ result: r }) => (
+      <KpiCard
+        label="予算達成率"
+        value={formatPercent(r.budgetProgressRate)}
+        subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
+        accent="#6366f1"
+      />
+    ),
   },
   {
     id: 'kpi-gross-profit-budget',
@@ -384,11 +384,29 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#22c55e">
           <ExecSummaryLabel>粗利率（在庫法）</ExecSummaryLabel>
-          <ExecSummaryValue>{r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}</ExecSummaryValue>
+          {r.invMethodGrossProfitRate != null ? (() => {
+            const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+            const diff = r.invMethodGrossProfitRate - afterRate
+            return (
+              <>
+                <ExecSummaryValue>{formatPercent(r.invMethodGrossProfitRate)} / {formatPercent(afterRate)}</ExecSummaryValue>
+                <ExecSummarySub>減算比 {formatPointDiff(diff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
+              </>
+            )
+          })() : <ExecSummaryValue>-</ExecSummaryValue>}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#0ea5e9">
           <ExecSummaryLabel>粗利率（推定法）</ExecSummaryLabel>
-          <ExecSummaryValue>{formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
+          {(() => {
+            const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+            const diff = beforeRate - r.estMethodMarginRate
+            return (
+              <>
+                <ExecSummaryValue>{formatPercent(beforeRate)} / {formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
+                <ExecSummarySub>減算比 {formatPointDiff(diff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
+              </>
+            )
+          })()}
         </ExecSummaryItem>
       </ExecSummaryBar>
       )
