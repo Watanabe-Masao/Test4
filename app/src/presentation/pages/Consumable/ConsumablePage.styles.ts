@@ -48,8 +48,13 @@ export const Td = styled.td<{ $muted?: boolean }>`
   }
 `
 
-export const Tr = styled.tr`
+export const Tr = styled.tr<{ $clickable?: boolean; $selected?: boolean }>`
   &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  ${({ $selected, theme }) => $selected && `
+    background: ${theme.colors.palette.primary}10;
+    &:hover { background: ${theme.colors.palette.primary}18; }
+  `}
 `
 
 export const TrTotal = styled.tr`
@@ -89,6 +94,43 @@ export const RankBadge = styled.span<{ $rank: number }>`
     $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#d97706' : 'transparent'};
   color: ${({ $rank, theme }) => $rank <= 3 ? 'white' : theme.colors.text4};
   margin-right: ${({ theme }) => theme.spacing[2]};
+`
+
+export const DetailPanel = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[5]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
+`
+
+export const DetailHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+export const DetailTitle = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+export const DetailClose = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: ${({ theme }) => theme.radii.full};
+  background: ${({ theme }) => theme.colors.bg4};
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  &:hover { background: ${({ theme }) => theme.colors.border}; }
 `
 
 export const PairGrid = styled.div`
