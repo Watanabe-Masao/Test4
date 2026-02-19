@@ -43,6 +43,15 @@ export const palette = {
   // Neutral
   white: '#ffffff',
   black: '#000000',
+
+  // ─── Color Universal Design (色覚多様性対応) ───────────
+  // Wong (2011) palette ベース: 色覚特性に関わらず判別可能なペア
+  positive: '#0ea5e9',       // Sky blue — 良好・プラス指標
+  positiveDark: '#0284c7',
+  negative: '#f97316',       // Orange — 注意・マイナス指標
+  negativeDark: '#ea580c',
+  caution: '#eab308',        // Yellow — 警告・中間
+  cautionDark: '#ca8a04',
 } as const
 
 // ─── カテゴリグラデーション ───────────────────────────────

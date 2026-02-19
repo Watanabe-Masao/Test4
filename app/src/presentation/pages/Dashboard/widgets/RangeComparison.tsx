@@ -1,3 +1,4 @@
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
 import type { PrevYearData } from '@/application/hooks'
 import {
@@ -54,11 +55,11 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
             </RangeSummaryItem>
             <RangeSummaryItem>
               <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
-              <RangeSummaryItemValue $color={singleRange.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(singleRange.diff)}</RangeSummaryItemValue>
+              <RangeSummaryItemValue $color={sc.cond(singleRange.diff >= 0)}>{formatCurrency(singleRange.diff)}</RangeSummaryItemValue>
             </RangeSummaryItem>
             <RangeSummaryItem>
               <RangeSummaryItemLabel>予算達成率</RangeSummaryItemLabel>
-              <RangeSummaryItemValue $color={singleRange.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(singleRange.ach)}</RangeSummaryItemValue>
+              <RangeSummaryItemValue $color={sc.cond(singleRange.ach >= 1)}>{formatPercent(singleRange.ach)}</RangeSummaryItemValue>
             </RangeSummaryItem>
             {prevYear.hasPrevYear && singleRange.pySales > 0 && (
               <>
@@ -68,7 +69,7 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
                 </RangeSummaryItem>
                 <RangeSummaryItem>
                   <RangeSummaryItemLabel>前年比</RangeSummaryItemLabel>
-                  <RangeSummaryItemValue $color={singleRange.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(singleRange.pyRatio)}</RangeSummaryItemValue>
+                  <RangeSummaryItemValue $color={sc.cond(singleRange.pyRatio >= 1)}>{formatPercent(singleRange.pyRatio)}</RangeSummaryItemValue>
                 </RangeSummaryItem>
               </>
             )}
@@ -85,7 +86,7 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
   if (!rangeAData || !rangeBData) return null
 
   // 3-column compare
-  const cmpColor = (a: number, b: number) => a > b ? '#22c55e' : a < b ? '#ef4444' : '#9ca3af'
+  const cmpColor = (a: number, b: number) => a > b ? sc.positive : a < b ? sc.negative : sc.neutral
   const barPct = (a: number, b: number) => {
     const total = a + b
     if (total === 0) return { a: 50, b: 50 }
@@ -112,11 +113,11 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
       </RangeMetricRow>
       <RangeMetricRow>
         <RangeMetricLabel>予算差異</RangeMetricLabel>
-        <RangeMetricValue $color={d.diff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(d.diff)}</RangeMetricValue>
+        <RangeMetricValue $color={sc.cond(d.diff >= 0)}>{formatCurrency(d.diff)}</RangeMetricValue>
       </RangeMetricRow>
       <RangeMetricRow>
         <RangeMetricLabel>予算達成率</RangeMetricLabel>
-        <RangeMetricValue $color={d.ach >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(d.ach)}</RangeMetricValue>
+        <RangeMetricValue $color={sc.cond(d.ach >= 1)}>{formatPercent(d.ach)}</RangeMetricValue>
       </RangeMetricRow>
       {prevYear.hasPrevYear && d.pySales > 0 && (
         <>
@@ -126,7 +127,7 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
           </RangeMetricRow>
           <RangeMetricRow>
             <RangeMetricLabel>前年比</RangeMetricLabel>
-            <RangeMetricValue $color={d.pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(d.pyRatio)}</RangeMetricValue>
+            <RangeMetricValue $color={sc.cond(d.pyRatio >= 1)}>{formatPercent(d.pyRatio)}</RangeMetricValue>
           </RangeMetricRow>
         </>
       )}
@@ -225,13 +226,13 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
             <CompareBarTrack>
               <CompareBarSegment
                 $width={`${Math.min(rangeAData.ach * 50, 100)}%`}
-                $color={rangeAData.ach >= 1 ? '#22c55e' : '#f59e0b'}
+                $color={rangeAData.ach >= 1 ? sc.positive : '#f59e0b'}
               >
                 A {formatPercent(rangeAData.ach, 0)}
               </CompareBarSegment>
               <CompareBarSegment
                 $width={`${Math.min(rangeBData.ach * 50, 100)}%`}
-                $color={rangeBData.ach >= 1 ? '#22c55e' : '#6366f1'}
+                $color={rangeBData.ach >= 1 ? sc.positive : '#6366f1'}
               >
                 B {formatPercent(rangeBData.ach, 0)}
               </CompareBarSegment>

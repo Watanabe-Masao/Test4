@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { sc } from '@/presentation/theme/semanticColors'
 
 export const ChartToggle = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -114,7 +115,7 @@ export const PrevYearTd = styled.td<{ $positive?: boolean }>`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $positive, theme }) =>
-    $positive === undefined ? theme.colors.text3 : $positive ? '#16a34a' : '#dc2626'};
+    $positive === undefined ? theme.colors.text3 : $positive ? sc.positive : sc.negative};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 

@@ -5,6 +5,7 @@ import { BudgetVsActualChart, PrevYearComparisonChart } from '@/presentation/com
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { ChartSection, EmptyState, TableWrapper, Table, Th, Td, Tr, ToggleSection } from './AnalysisPage.styles'
+import { sc } from '@/presentation/theme/semanticColors'
 import { ComparisonView } from './ComparisonView'
 
 type ViewMode = 'total' | 'comparison'
@@ -92,7 +93,7 @@ export function AnalysisPage() {
               label="予算消化率"
               value={formatPercent(r.budgetAchievementRate)}
               subText={`予算: ${formatCurrency(r.budget)}`}
-              accent="#22c55e"
+              accent={sc.positive}
             />
             <KpiCard
               label="月末予測売上"
@@ -130,7 +131,7 @@ export function AnalysisPage() {
                 label="前年同曜日比"
                 value={formatPercent(r.totalSales / prevYear.totalSales)}
                 subText={`差額: ${formatCurrency(r.totalSales - prevYear.totalSales)}`}
-                accent={r.totalSales >= prevYear.totalSales ? '#22c55e' : '#ef4444'}
+                accent={sc.cond(r.totalSales >= prevYear.totalSales)}
               />
             )}
           </KpiGrid>

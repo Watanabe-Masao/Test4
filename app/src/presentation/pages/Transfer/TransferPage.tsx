@@ -7,6 +7,7 @@ import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import {
   Section, TableWrapper, Table, Th, Td, Tr, TrTotal, TrDetail, TrDetailLast, DetailLabel, ToggleIcon, EmptyState,
 } from './TransferPage.styles'
+import { sc } from '@/presentation/theme/semanticColors'
 
 type TransferType = 'interStore' | 'interDepartment'
 
@@ -160,7 +161,7 @@ export function TransferPage() {
           label="純増減"
           value={formatCurrency(typeNet.cost)}
           subText={`売価: ${formatCurrency(typeNet.price)}`}
-          accent={typeNet.cost >= 0 ? '#22c55e' : '#ef4444'}
+          accent={sc.cond(typeNet.cost >= 0)}
         />
       </KpiGrid>
 

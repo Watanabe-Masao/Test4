@@ -3,14 +3,28 @@
  *
  * 対応フォーマット:
  * - Excelシリアル値 (数値型)
- * - 日本語形式: 2026年2月15日
+ * - 日本語形式: 2026年2月15日 / 2026年2月15日(土)
+ * - 和暦形式: 令和8年2月15日 / R8.2.15
  * - ISO形式: 2026-02-15
- * - スラッシュ形式: 2026/02/15
+ * - スラッシュ形式: 2026/02/15 / 2026/2/15
+ * - 短縮年スラッシュ形式: 26/02/15 (2000年代と推定)
+ * - MM/DD形式: 2/15 (年はコンテキストから推定)
+ * - ドット形式: 2026.02.15 / 2026.2.15
+ * - Date オブジェクト (そのまま返す)
  */
 
 const JAPANESE_DATE_RE = /(\d{4})年(\d{1,2})月(\d{1,2})日/
+const WAREKI_KANJI_RE = /(?:令和|Ｒ|R)\s*(\d{1,2})年(\d{1,2})月(\d{1,2})日/
+const WAREKI_DOT_RE = /^(?:R|Ｒ)(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{1,2})$/
 const ISO_DATE_RE = /(\d{4})-(\d{1,2})-(\d{1,2})/
 const SLASH_DATE_RE = /(\d{4})\/(\d{1,2})\/(\d{1,2})/
+const SHORT_YEAR_SLASH_RE = /^(\d{2})\/(\d{1,2})\/(\d{1,2})$/
+const MONTH_DAY_SLASH_RE = /^(\d{1,2})\/(\d{1,2})$/
+const DOT_DATE_RE = /(\d{4})\.(\d{1,2})\.(\d{1,2})/
+const SHORT_YEAR_DOT_RE = /^(\d{2})\.(\d{1,2})\.(\d{1,2})$/
+
+/** 令和元年 = 2019 */
+const REIWA_BASE = 2018
 
 /**
  * Excel シリアル値を Date に変換（ローカルタイムゾーン）
@@ -22,12 +36,37 @@ function fromExcelSerial(serial: number): Date {
   return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate())
 }
 
+/** 日付の妥当性チェック */
+function isValidDate(year: number, month: number, day: number): boolean {
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false
+  const d = new Date(year, month - 1, day)
+  return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day
+}
+
+/** 安全に Date を生成（妥当性チェック付き） */
+function safeDate(year: number, month: number, day: number): Date | null {
+  if (!isValidDate(year, month, day)) return null
+  return new Date(year, month - 1, day)
+}
+
+/** 2桁年→4桁年に変換（00-49 → 2000-2049, 50-99 → 1950-1999） */
+function expandShortYear(y: number): number {
+  return y < 50 ? 2000 + y : 1900 + y
+}
+
 /**
  * 汎用日付パーサー
+ * @param value パースする値
+ * @param contextYear MM/DD形式でのフォールバック年（省略時は現在年）
  * @returns 解析成功時は Date、失敗時は null
  */
-export function parseDate(value: unknown): Date | null {
+export function parseDate(value: unknown, contextYear?: number): Date | null {
   if (value == null) return null
+
+  // Date オブジェクトはそのまま返す
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? null : value
+  }
 
   // Excel シリアル値（数値型）
   if (typeof value === 'number') {
@@ -44,17 +83,44 @@ export function parseDate(value: unknown): Date | null {
     return fromExcelSerial(num)
   }
 
-  // 日本語形式: YYYY年MM月DD日
-  let m = s.match(JAPANESE_DATE_RE)
-  if (m) return new Date(+m[1], +m[2] - 1, +m[3])
+  // 和暦漢字形式: 令和8年2月15日
+  let m = s.match(WAREKI_KANJI_RE)
+  if (m) return safeDate(REIWA_BASE + +m[1], +m[2], +m[3])
+
+  // 和暦ドット形式: R8.2.15
+  m = s.match(WAREKI_DOT_RE)
+  if (m) return safeDate(REIWA_BASE + +m[1], +m[2], +m[3])
+
+  // 日本語形式: YYYY年MM月DD日 / YYYY年MM月DD日(曜)
+  m = s.match(JAPANESE_DATE_RE)
+  if (m) return safeDate(+m[1], +m[2], +m[3])
 
   // ISO形式: YYYY-MM-DD
   m = s.match(ISO_DATE_RE)
-  if (m) return new Date(+m[1], +m[2] - 1, +m[3])
+  if (m) return safeDate(+m[1], +m[2], +m[3])
 
   // スラッシュ形式: YYYY/MM/DD
   m = s.match(SLASH_DATE_RE)
-  if (m) return new Date(+m[1], +m[2] - 1, +m[3])
+  if (m) return safeDate(+m[1], +m[2], +m[3])
+
+  // 短縮年スラッシュ形式: YY/MM/DD
+  m = s.match(SHORT_YEAR_SLASH_RE)
+  if (m) return safeDate(expandShortYear(+m[1]), +m[2], +m[3])
+
+  // ドット形式: YYYY.MM.DD
+  m = s.match(DOT_DATE_RE)
+  if (m) return safeDate(+m[1], +m[2], +m[3])
+
+  // 短縮年ドット形式: YY.MM.DD
+  m = s.match(SHORT_YEAR_DOT_RE)
+  if (m) return safeDate(expandShortYear(+m[1]), +m[2], +m[3])
+
+  // MM/DD形式: 2/15 (年はcontextYearまたは現在年)
+  m = s.match(MONTH_DAY_SLASH_RE)
+  if (m) {
+    const fallbackYear = contextYear ?? new Date().getFullYear()
+    return safeDate(fallbackYear, +m[1], +m[2])
+  }
 
   return null
 }

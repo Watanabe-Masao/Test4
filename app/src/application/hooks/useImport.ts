@@ -58,7 +58,7 @@ export function useImport() {
           // ref も即座に更新（連続インポートに備える）
           dataRef.current = data
 
-          const messages = validateImportedData(data)
+          const messages = validateImportedData(data, summary)
           dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
         }
 

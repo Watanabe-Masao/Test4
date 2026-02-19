@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/domain/calculations/forecast'
 import type { WidgetContext } from './types'
@@ -67,11 +68,11 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
         </thead>
         <tbody>
           {ordered.map(a => {
-            const diffColor = a.diff >= 0 ? '#22c55e' : '#ef4444'
+            const diffColor = sc.cond(a.diff >= 0)
             const pyRatio = a.avgPrevYear > 0 ? a.avgSales / a.avgPrevYear : 0
-            const pyColor = pyRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyColor = sc.cond(pyRatio >= 1)
             const pyDiff = a.avgSales - a.avgPrevYear
-            const pyDiffColor = pyDiff >= 0 ? '#22c55e' : '#ef4444'
+            const pyDiffColor = sc.cond(pyDiff >= 0)
             return (
               <tr key={a.label}>
                 <STd>{a.label}</STd>
@@ -144,12 +145,12 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
         <tbody>
           {summaries.map(w => {
             const achievement = w.totalBudget > 0 ? w.totalSales / w.totalBudget : 0
-            const diffColor = w.diff >= 0 ? '#22c55e' : '#ef4444'
-            const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+            const diffColor = sc.cond(w.diff >= 0)
+            const achColor = sc.achievement(achievement)
             const pyWeekRatio = w.prevYearWeekSales > 0 ? w.totalSales / w.prevYearWeekSales : 0
-            const pyWeekColor = pyWeekRatio >= 1 ? '#22c55e' : '#ef4444'
+            const pyWeekColor = sc.cond(pyWeekRatio >= 1)
             const pyWeekDiff = w.totalSales - w.prevYearWeekSales
-            const pyWeekDiffColor = pyWeekDiff >= 0 ? '#22c55e' : '#ef4444'
+            const pyWeekDiffColor = sc.cond(pyWeekDiff >= 0)
             return (
               <tr key={w.weekNumber}>
                 <STd>第{w.weekNumber}週</STd>

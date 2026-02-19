@@ -1,6 +1,7 @@
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell as ReCell, CartesianGrid,
 } from 'recharts'
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { DailyRecord } from '@/domain/models'
@@ -75,19 +76,19 @@ export function DayDetailModal({
             <DetailKpiLabel>予算</DetailKpiLabel>
             <DetailKpiValue>{formatCurrency(budget)}</DetailKpiValue>
           </DetailKpiCard>
-          <DetailKpiCard $accent={actual >= budget ? '#22c55e' : '#ef4444'}>
+          <DetailKpiCard $accent={sc.cond(actual >= budget)}>
             <DetailKpiLabel>実績</DetailKpiLabel>
             <DetailKpiValue>{formatCurrency(actual)}</DetailKpiValue>
           </DetailKpiCard>
-          <DetailKpiCard $accent={diff >= 0 ? '#22c55e' : '#ef4444'}>
+          <DetailKpiCard $accent={sc.cond(diff >= 0)}>
             <DetailKpiLabel>予算差異</DetailKpiLabel>
-            <DetailKpiValue $color={diff >= 0 ? '#22c55e' : '#ef4444'}>
+            <DetailKpiValue $color={sc.cond(diff >= 0)}>
               {formatCurrency(diff)}
             </DetailKpiValue>
           </DetailKpiCard>
-          <DetailKpiCard $accent={ach >= 1 ? '#22c55e' : ach >= 0.9 ? '#f59e0b' : '#ef4444'}>
+          <DetailKpiCard $accent={sc.achievement(ach)}>
             <DetailKpiLabel>達成率</DetailKpiLabel>
-            <DetailKpiValue $color={ach >= 1 ? '#22c55e' : ach >= 0.9 ? '#f59e0b' : '#ef4444'}>
+            <DetailKpiValue $color={sc.achievement(ach)}>
               {formatPercent(ach)}
             </DetailKpiValue>
           </DetailKpiCard>
@@ -111,7 +112,7 @@ export function DayDetailModal({
                 <DetailBarRow>
                   <DetailBarLabel>実績</DetailBarLabel>
                   <DetailBarTrack>
-                    <DetailBarFill $width={(actual / maxVal) * 100} $color="#22c55e">
+                    <DetailBarFill $width={(actual / maxVal) * 100} $color={sc.positive}>
                       <DetailBarAmount>{fmtSen(actual)}（{formatPercent(ach)}）</DetailBarAmount>
                     </DetailBarFill>
                   </DetailBarTrack>
@@ -149,7 +150,7 @@ export function DayDetailModal({
                 <DetailBarRow>
                   <DetailBarLabel>実績</DetailBarLabel>
                   <DetailBarTrack>
-                    <DetailBarFill $width={(cumSales / maxVal) * 100} $color="#22c55e">
+                    <DetailBarFill $width={(cumSales / maxVal) * 100} $color={sc.positive}>
                       <DetailBarAmount>{fmtSen(cumSales)}（{formatPercent(cumAch)}）</DetailBarAmount>
                     </DetailBarFill>
                   </DetailBarTrack>
@@ -183,11 +184,11 @@ export function DayDetailModal({
             </DetailRow>
             <DetailRow>
               <DetailLabel>累計差異</DetailLabel>
-              <DetailValue $color={cumDiff >= 0 ? '#22c55e' : '#ef4444'}>{formatCurrency(cumDiff)}</DetailValue>
+              <DetailValue $color={sc.cond(cumDiff >= 0)}>{formatCurrency(cumDiff)}</DetailValue>
             </DetailRow>
             <DetailRow>
               <DetailLabel>累計達成率</DetailLabel>
-              <DetailValue $color={cumAch >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(cumAch)}</DetailValue>
+              <DetailValue $color={sc.cond(cumAch >= 1)}>{formatPercent(cumAch)}</DetailValue>
             </DetailRow>
             {prevYear.hasPrevYear && pySales > 0 && (
               <>
@@ -197,7 +198,7 @@ export function DayDetailModal({
                 </DetailRow>
                 <DetailRow>
                   <DetailLabel>前年比</DetailLabel>
-                  <DetailValue $color={pyRatio >= 1 ? '#22c55e' : '#ef4444'}>{formatPercent(pyRatio)}</DetailValue>
+                  <DetailValue $color={sc.cond(pyRatio >= 1)}>{formatPercent(pyRatio)}</DetailValue>
                 </DetailRow>
               </>
             )}
@@ -270,7 +271,7 @@ export function DayDetailModal({
                   {record.discountAmount !== 0 && (
                     <DetailRow>
                       <DetailLabel>売変額</DetailLabel>
-                      <DetailValue $color="#ef4444">{formatCurrency(record.discountAmount)}</DetailValue>
+                      <DetailValue $color={sc.negative}>{formatCurrency(record.discountAmount)}</DetailValue>
                     </DetailRow>
                   )}
                 </>

@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 import { useState, useCallback, useRef, createContext, useContext, type ReactNode } from 'react'
+import { sc } from '@/presentation/theme/semanticColors'
 
 type ToastLevel = 'success' | 'error' | 'warning' | 'info'
 
@@ -25,8 +26,8 @@ const Container = styled.div`
 `
 
 const levelColors: Record<ToastLevel, string> = {
-  success: '#22c55e',
-  error: '#ef4444',
+  success: sc.positive,
+  error: sc.negative,
   warning: '#f59e0b',
   info: '#0ea5e9',
 }

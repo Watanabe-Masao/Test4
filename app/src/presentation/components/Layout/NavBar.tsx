@@ -108,6 +108,13 @@ export function NavBar({
         </NavButton>
       ))}
       <Spacer />
+      <NavButton
+        $active={currentView === 'admin'}
+        onClick={() => onViewChange('admin')}
+        title="管理"
+      >
+        ⚙
+      </NavButton>
       <ThemeButton
         onClick={onThemeToggle}
         title={themeMode === 'dark' ? 'ライトモード' : 'ダークモード'}

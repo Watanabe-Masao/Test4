@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
@@ -69,7 +70,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             placeholder={`例: ${defaultSalesLanding}`}
           />
           {salesEdited && salesDiff !== 0 && (
-            <ToolInputSub $color={salesDiff > 0 ? '#22c55e' : '#ef4444'}>
+            <ToolInputSub $color={sc.cond(salesDiff > 0)}>
               自動予測比: {salesDiff > 0 ? '+' : ''}{formatCurrency(salesDiff)}
             </ToolInputSub>
           )}
@@ -86,7 +87,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             placeholder={`例: ${(defaultRemainGPRate * 100).toFixed(1)}`}
           />
           {gpRateEdited && gpRateDiff !== 0 && (
-            <ToolInputSub $color={gpRateDiff > 0 ? '#22c55e' : '#ef4444'}>
+            <ToolInputSub $color={sc.cond(gpRateDiff > 0)}>
               現在粗利率比: {formatPointDiff(gpRateDiff)}
             </ToolInputSub>
           )}
@@ -119,17 +120,17 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>最終粗利額着地</ToolResultLabel>
-              <ToolResultValue $color="#22c55e">{formatCurrency(totalGP1)}</ToolResultValue>
+              <ToolResultValue $color={sc.positive}>{formatCurrency(totalGP1)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>最終粗利率着地</ToolResultLabel>
-              <ToolResultValue $color={landingGPRate1 >= ctx.targetRate ? '#22c55e' : '#ef4444'}>
+              <ToolResultValue $color={sc.cond(landingGPRate1 >= ctx.targetRate)}>
                 {formatPercent(landingGPRate1)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>粗利率予算比</ToolResultLabel>
-              <ToolResultValue $color={landingGPRate1 >= r.grossProfitRateBudget ? '#22c55e' : '#ef4444'}>
+              <ToolResultValue $color={sc.cond(landingGPRate1 >= r.grossProfitRateBudget)}>
                 {formatPointDiff(landingGPRate1 - r.grossProfitRateBudget)}
               </ToolResultValue>
             </ExecRow>
@@ -148,7 +149,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             placeholder={`例: ${(defaultTargetGPRate * 100).toFixed(1)}`}
           />
           {goalEdited && goalDiff !== 0 && (
-            <ToolInputSub $color={goalDiff > 0 ? '#22c55e' : '#ef4444'}>
+            <ToolInputSub $color={sc.cond(goalDiff > 0)}>
               予算粗利率比: {formatPointDiff(goalDiff)}
             </ToolInputSub>
           )}
@@ -181,13 +182,13 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>残期間必要粗利率</ToolResultLabel>
-              <ToolResultValue $color={requiredRemainingGPRate2 <= actualGPRate ? '#22c55e' : '#ef4444'}>
+              <ToolResultValue $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
                 {formatPercent(requiredRemainingGPRate2)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>現在粗利率との差</ToolResultLabel>
-              <ToolResultValue $color={requiredRemainingGPRate2 <= actualGPRate ? '#22c55e' : '#ef4444'}>
+              <ToolResultValue $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
                 {formatPointDiff(requiredRemainingGPRate2 - actualGPRate)}
               </ToolResultValue>
             </ExecRow>

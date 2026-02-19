@@ -1,3 +1,4 @@
+import { sc } from '@/presentation/theme/semanticColors'
 import { KpiCard } from '@/presentation/components/common'
 import {
   DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart,
@@ -289,14 +290,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
-          <ExecSummarySub $color={elapsedDiff >= 0 ? '#22c55e' : '#ef4444'}>
+          <ExecSummarySub $color={sc.cond(elapsedDiff >= 0)}>
             予算差異: {formatCurrency(elapsedDiff)}
           </ExecSummarySub>
-          <ExecSummarySub $color={r.budgetProgressRate >= 1 ? '#22c55e' : '#ef4444'}>
+          <ExecSummarySub $color={sc.cond(r.budgetProgressRate >= 1)}>
             売上予算達成率: {formatPercent(r.budgetProgressRate)}
           </ExecSummarySub>
           {pyRatio != null && (
-            <ExecSummarySub $color={pyRatio >= 100 ? '#22c55e' : '#ef4444'}>
+            <ExecSummarySub $color={sc.cond(pyRatio >= 100)}>
               前年同曜日比: {pyRatio.toFixed(1)}%
             </ExecSummarySub>
           )}
@@ -305,10 +306,10 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
-          <ExecSummarySub $color={r.budgetAchievementRate >= 1 ? '#22c55e' : '#ef4444'}>
+          <ExecSummarySub $color={sc.cond(r.budgetAchievementRate >= 1)}>
             予算消化率: {formatPercent(r.budgetAchievementRate)}
           </ExecSummarySub>
-          <ExecSummarySub $color={r.remainingBudget <= 0 ? '#22c55e' : undefined}>
+          <ExecSummarySub $color={r.remainingBudget <= 0 ? sc.positive : undefined}>
             残予算: {formatCurrency(r.remainingBudget)}
           </ExecSummarySub>
         </ExecSummaryItem>
@@ -336,7 +337,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
               <>
                 <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
                 <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub $color={estGpRate >= 0.20 ? '#22c55e' : estGpRate >= 0.15 ? '#f59e0b' : '#ef4444'}>
+                <ExecSummarySub $color={sc.cond3(estGpRate >= 0.20, estGpRate >= 0.15)}>
                   推定粗利率（売変還元法）: {formatPercent(estGpRate)}
                 </ExecSummarySub>
               </>

@@ -3,6 +3,7 @@ import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/com
 import { InventoryTrendChart } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { sc } from '@/presentation/theme/semanticColors'
 import styled from 'styled-components'
 
 const Section = styled.section`
@@ -91,7 +92,7 @@ export function SummaryPage() {
       </Section>
 
       <CalcGrid>
-        <Card $accent="#22c55e">
+        <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
           <Formula>売上原価 = 期首在庫 + 総仕入高 - 期末在庫</Formula>
           <CalcRow>
@@ -116,13 +117,13 @@ export function SummaryPage() {
           </CalcRow>
           <CalcRow>
             <CalcLabel>粗利益</CalcLabel>
-            <CalcHighlight $color="#22c55e">
+            <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>粗利率</CalcLabel>
-            <CalcHighlight $color="#22c55e">
+            <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}
             </CalcHighlight>
           </CalcRow>
@@ -175,13 +176,13 @@ export function SummaryPage() {
             label="店間入"
             value={formatCurrency(r.transferDetails.interStoreIn.cost)}
             subText={`売価: ${formatCurrency(r.transferDetails.interStoreIn.price)}`}
-            accent="#22c55e"
+            accent={sc.positive}
           />
           <KpiCard
             label="店間出"
             value={formatCurrency(r.transferDetails.interStoreOut.cost)}
             subText={`売価: ${formatCurrency(r.transferDetails.interStoreOut.price)}`}
-            accent="#ef4444"
+            accent={sc.negative}
           />
           <KpiCard
             label="部門間入"

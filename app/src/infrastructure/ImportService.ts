@@ -36,6 +36,10 @@ export interface FileImportResult {
   readonly type: DataType | null
   readonly typeName: string | null
   readonly error?: string
+  /** 処理された行数 */
+  readonly rowCount?: number
+  /** スキップされた行の詳細 */
+  readonly skippedRows?: readonly string[]
 }
 
 /** バッチインポートの全体結果 */
@@ -43,6 +47,8 @@ export interface ImportSummary {
   readonly results: readonly FileImportResult[]
   readonly successCount: number
   readonly failureCount: number
+  /** スキップされたファイル（拡張子不一致等） */
+  readonly skippedFiles?: readonly string[]
 }
 
 /** 進捗コールバック */

@@ -23,6 +23,7 @@ import {
 } from './ForecastPage.styles'
 import { DOW_LABELS, DEFAULT_DOW_COLORS, buildForecastInput, computeStackedWeekData } from './ForecastPage.helpers'
 import { WeeklyChart, DayOfWeekChart, StoreComparisonRadarChart, StoreComparisonBarChart } from './ForecastCharts'
+import { sc } from '@/presentation/theme/semanticColors'
 
 export function ForecastPage() {
   const { isCalculated } = useCalculation()
@@ -94,7 +95,7 @@ export function ForecastPage() {
         <KpiCard
           label="日平均売上"
           value={formatCurrency(r.averageDailySales)}
-          accent="#22c55e"
+          accent={sc.positive}
         />
         <KpiCard
           label="月末予測売上"
@@ -106,7 +107,7 @@ export function ForecastPage() {
           label="異常値検出"
           value={`${forecast.anomalies.length}件`}
           subText={forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '異常なし'}
-          accent={forecast.anomalies.length > 0 ? '#f59e0b' : '#22c55e'}
+          accent={forecast.anomalies.length > 0 ? sc.caution : sc.positive}
         />
       </KpiGrid>
 
