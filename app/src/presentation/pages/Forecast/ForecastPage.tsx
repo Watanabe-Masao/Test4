@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { calculateForecast } from '@/domain/calculations/forecast'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import {
   EmptyState,
   ChartGrid,
@@ -21,15 +21,37 @@ import {
   Tr,
   AnomalyBadge,
 } from './ForecastPage.styles'
-import { DOW_LABELS, DEFAULT_DOW_COLORS, buildForecastInput, computeStackedWeekData } from './ForecastPage.helpers'
-import { WeeklyChart, DayOfWeekChart, StoreComparisonRadarChart, StoreComparisonBarChart } from './ForecastCharts'
+import {
+  DOW_LABELS,
+  DEFAULT_DOW_COLORS,
+  buildForecastInput,
+  computeStackedWeekData,
+  buildDailyCustomerData,
+  buildDowCustomerAverages,
+  buildMovingAverages,
+  buildRelationshipData,
+  buildRelationshipDataFromPrev,
+} from './ForecastPage.helpers'
+import {
+  WeeklyChart,
+  DayOfWeekChart,
+  StoreComparisonRadarChart,
+  StoreComparisonBarChart,
+  DowCustomerChart,
+  MovingAverageChart,
+  RelationshipChart,
+  CustomerSalesScatterChart,
+  SameDowComparisonChart,
+} from './ForecastCharts'
 import { sc } from '@/presentation/theme/semanticColors'
 
 export function ForecastPage() {
   const { isCalculated } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
+  const prevYear = usePrevYearData()
   const [compareMode, setCompareMode] = useState(false)
   const [dowColors, setDowColors] = useState<string[]>([...DEFAULT_DOW_COLORS])
+  const [relViewMode, setRelViewMode] = useState<'current' | 'prev' | 'compare'>('current')
 
   if (!isCalculated || !currentResult) {
     return (
@@ -75,6 +97,24 @@ export function ForecastPage() {
       })
     : []
 
+  // ─── 客数・客単価分析データ ────────────────────────────
+  const customerEntries = buildDailyCustomerData(r.daily, prevYear)
+  const hasCustomerData = customerEntries.some((e) => e.customers > 0)
+  const dowCustomerAvg = buildDowCustomerAverages(customerEntries, year, month)
+  const movingAvgData = buildMovingAverages(customerEntries, 5)
+  const relationshipData = buildRelationshipData(customerEntries)
+  const prevRelationshipData = buildRelationshipDataFromPrev(customerEntries)
+  const hasPrevCustomers = customerEntries.some((e) => e.prevCustomers > 0)
+
+  // 客数 KPI
+  const totalCustomers = r.totalCustomers
+  const avgDailyCustomers = r.averageCustomersPerDay
+  const avgTxValue = totalCustomers > 0 ? Math.round(r.totalSales / totalCustomers) : 0
+  const prevTotalCustomers = prevYear.totalCustomers
+  const customerYoY = prevTotalCustomers > 0 ? safeDivide(totalCustomers, prevTotalCustomers) : 0
+  const prevAvgTxValue = prevTotalCustomers > 0 ? Math.round(prevYear.totalSales / prevTotalCustomers) : 0
+  const txValueYoY = prevAvgTxValue > 0 ? safeDivide(avgTxValue, prevAvgTxValue) : 0
+
   const handleDowColorChange = (index: number, color: string) => {
     setDowColors((prev) => {
       const next = [...prev]
@@ -111,6 +151,40 @@ export function ForecastPage() {
         />
       </KpiGrid>
 
+      {/* 客数・客単価 KPI（客数データがある場合のみ） */}
+      {hasCustomerData && (
+        <KpiGrid>
+          <KpiCard
+            label="累計客数"
+            value={`${totalCustomers.toLocaleString()}人`}
+            subText={`日平均: ${Math.round(avgDailyCustomers).toLocaleString()}人`}
+            accent="#06b6d4"
+          />
+          <KpiCard
+            label="客単価"
+            value={`${avgTxValue.toLocaleString()}円`}
+            subText={prevAvgTxValue > 0 ? `前年: ${prevAvgTxValue.toLocaleString()}円` : undefined}
+            accent="#8b5cf6"
+          />
+          {prevTotalCustomers > 0 && (
+            <KpiCard
+              label="客数前年比"
+              value={formatPercent(customerYoY)}
+              subText={`前年: ${prevTotalCustomers.toLocaleString()}人`}
+              accent={customerYoY >= 1 ? sc.positive : sc.negative}
+            />
+          )}
+          {prevAvgTxValue > 0 && (
+            <KpiCard
+              label="客単価前年比"
+              value={formatPercent(txValueYoY)}
+              subText={`差額: ${(avgTxValue - prevAvgTxValue >= 0 ? '+' : '')}${(avgTxValue - prevAvgTxValue).toLocaleString()}円`}
+              accent={txValueYoY >= 1 ? sc.positive : sc.negative}
+            />
+          )}
+        </KpiGrid>
+      )}
+
       {/* 曜日カラー設定 */}
       <ColorPickerRow>
         <ColorPickerTitle>曜日カラー設定:</ColorPickerTitle>
@@ -139,6 +213,112 @@ export function ForecastPage() {
         </ChartGrid>
       )}
 
+      {/* ─── 客数・客単価多角分析 ────────────────────────── */}
+      {hasCustomerData && (
+        <>
+          <Section>
+            <SectionTitle>客数・客単価 多角分析</SectionTitle>
+
+            {/* 日別 売上・客数・客単価推移 */}
+            <ChartGrid>
+              <CustomerSalesScatterChart data={customerEntries} />
+              <DowCustomerChart averages={dowCustomerAvg} dowColors={dowColors} />
+            </ChartGrid>
+
+            {/* 移動平均 */}
+            {movingAvgData.length > 0 && (
+              <ChartGrid>
+                <MovingAverageChart data={movingAvgData} hasPrev={hasPrevCustomers} />
+                {hasPrevCustomers && (
+                  <SameDowComparisonChart
+                    entries={customerEntries}
+                    year={year}
+                    month={month}
+                    dowColors={dowColors}
+                  />
+                )}
+              </ChartGrid>
+            )}
+
+            {/* 売上・客数・客単価の関係性推移 */}
+            {relationshipData.length > 0 && (
+              <>
+                <ModeToggleWrapper>
+                  <SectionTitle style={{ marginBottom: 0 }}>売上・客数・客単価 関係性</SectionTitle>
+                  <ChipGroup>
+                    <Chip $active={relViewMode === 'current'} onClick={() => setRelViewMode('current')}>
+                      今年
+                    </Chip>
+                    {hasPrevCustomers && (
+                      <Chip $active={relViewMode === 'prev'} onClick={() => setRelViewMode('prev')}>
+                        前年
+                      </Chip>
+                    )}
+                    {hasPrevCustomers && (
+                      <Chip $active={relViewMode === 'compare'} onClick={() => setRelViewMode('compare')}>
+                        比較
+                      </Chip>
+                    )}
+                  </ChipGroup>
+                </ModeToggleWrapper>
+                <RelationshipChart
+                  data={relationshipData}
+                  prevData={prevRelationshipData}
+                  viewMode={relViewMode}
+                />
+              </>
+            )}
+          </Section>
+
+          {/* 曜日別客数・客単価 詳細テーブル */}
+          <Section>
+            <SectionTitle>曜日別 客数・客単価 詳細</SectionTitle>
+            <TableWrapper>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>曜日</Th>
+                    <Th>日数</Th>
+                    <Th>平均客数</Th>
+                    <Th>平均客単価</Th>
+                    {hasPrevCustomers && <Th>前年客数</Th>}
+                    {hasPrevCustomers && <Th>前年客単価</Th>}
+                    {hasPrevCustomers && <Th>客数前年比</Th>}
+                    {hasPrevCustomers && <Th>客単価前年比</Th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {dowCustomerAvg.map((a) => {
+                    const custRatio = a.prevAvgCustomers > 0 ? a.avgCustomers / a.prevAvgCustomers : 0
+                    const txRatio = a.prevAvgTxValue > 0 ? a.avgTxValue / a.prevAvgTxValue : 0
+                    return (
+                      <Tr key={a.dow}>
+                        <Td>{a.dow}</Td>
+                        <Td>{a.count}日</Td>
+                        <Td>{a.avgCustomers > 0 ? `${a.avgCustomers}人` : '-'}</Td>
+                        <Td>{a.avgTxValue > 0 ? `${a.avgTxValue.toLocaleString()}円` : '-'}</Td>
+                        {hasPrevCustomers && <Td>{a.prevAvgCustomers > 0 ? `${a.prevAvgCustomers}人` : '-'}</Td>}
+                        {hasPrevCustomers && <Td>{a.prevAvgTxValue > 0 ? `${a.prevAvgTxValue.toLocaleString()}円` : '-'}</Td>}
+                        {hasPrevCustomers && (
+                          <Td $highlight={custRatio > 0 && custRatio < 1}>
+                            {custRatio > 0 ? formatPercent(custRatio) : '-'}
+                          </Td>
+                        )}
+                        {hasPrevCustomers && (
+                          <Td $highlight={txRatio > 0 && txRatio < 1}>
+                            {txRatio > 0 ? formatPercent(txRatio) : '-'}
+                          </Td>
+                        )}
+                      </Tr>
+                    )
+                  })}
+                </tbody>
+              </Table>
+            </TableWrapper>
+          </Section>
+        </>
+      )}
+
       <Section>
         <ModeToggleWrapper>
           <SectionTitle style={{ marginBottom: 0 }}>週別サマリー</SectionTitle>
@@ -163,23 +343,40 @@ export function ForecastPage() {
                   <Th>期間</Th>
                   <Th>営業日数</Th>
                   <Th>売上合計</Th>
+                  {hasCustomerData && <Th>客数</Th>}
+                  {hasCustomerData && <Th>客単価</Th>}
                   <Th>粗利合計</Th>
                   <Th>粗利率</Th>
                 </tr>
               </thead>
               <tbody>
-                {forecast.weeklySummaries.map((w) => (
-                  <Tr key={w.weekNumber}>
-                    <Td $highlight={w === bestWeek || w === worstWeek}>
-                      第{w.weekNumber}週
-                    </Td>
-                    <Td>{w.startDay}日〜{w.endDay}日</Td>
-                    <Td>{w.days}日</Td>
-                    <Td>{formatCurrency(w.totalSales)}</Td>
-                    <Td>{formatCurrency(w.totalGrossProfit)}</Td>
-                    <Td>{formatPercent(w.grossProfitRate)}</Td>
-                  </Tr>
-                ))}
+                {forecast.weeklySummaries.map((w) => {
+                  // Calculate weekly customer totals
+                  let weekCustomers = 0
+                  let weekSales = 0
+                  for (let d = w.startDay; d <= w.endDay; d++) {
+                    const rec = r.daily.get(d)
+                    if (rec) {
+                      weekCustomers += rec.customers ?? 0
+                      weekSales += rec.sales
+                    }
+                  }
+                  const weekTxValue = weekCustomers > 0 ? Math.round(weekSales / weekCustomers) : 0
+                  return (
+                    <Tr key={w.weekNumber}>
+                      <Td $highlight={w === bestWeek || w === worstWeek}>
+                        第{w.weekNumber}週
+                      </Td>
+                      <Td>{w.startDay}日〜{w.endDay}日</Td>
+                      <Td>{w.days}日</Td>
+                      <Td>{formatCurrency(w.totalSales)}</Td>
+                      {hasCustomerData && <Td>{weekCustomers > 0 ? `${weekCustomers.toLocaleString()}人` : '-'}</Td>}
+                      {hasCustomerData && <Td>{weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}</Td>}
+                      <Td>{formatCurrency(w.totalGrossProfit)}</Td>
+                      <Td>{formatPercent(w.grossProfitRate)}</Td>
+                    </Tr>
+                  )
+                })}
               </tbody>
             </Table>
           </TableWrapper>
