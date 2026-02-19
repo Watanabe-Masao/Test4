@@ -471,8 +471,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
               <>
                 <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
                 <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub $color={sc.cond3(estGpRate >= 0.20, estGpRate >= 0.15)}>
-                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
+                <ExecSummarySub>
+                  推定粗利額（売変還元法）: {formatCurrency(Math.round(r.grossSales * estGpRate))}
                 </ExecSummarySub>
               </>
             )
