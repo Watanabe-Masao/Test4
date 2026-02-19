@@ -15,6 +15,7 @@ export interface AppSettings {
   readonly directProduceCostRate: number // 産直掛け率 (default: 0.85)
   readonly defaultMarkupRate: number // デフォルト値入率 (default: 0.26)
   readonly defaultBudget: number // デフォルト予算 (default: 6,450,000)
+  readonly dataEndDay: number | null // 取込データ有効末日 (null = 月末まで)
   readonly supplierCategoryMap: Readonly<Record<string, CustomCategory>> // 取引先→カテゴリ
 }
 

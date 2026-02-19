@@ -20,7 +20,11 @@ export function calculateStoreResult(
   settings: AppSettings,
   daysInMonth: number,
 ): StoreResult {
-  const acc = buildDailyRecords(storeId, data, daysInMonth)
+  // 取込データ有効末日: dataEndDay が設定されていれば、その日までのデータのみ集計
+  const effectiveDays = settings.dataEndDay != null
+    ? Math.min(settings.dataEndDay, daysInMonth)
+    : daysInMonth
+  const acc = buildDailyRecords(storeId, data, effectiveDays)
   return assembleStoreResult(storeId, acc, data, settings, daysInMonth)
 }
 
