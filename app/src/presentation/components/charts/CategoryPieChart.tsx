@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
@@ -13,12 +14,40 @@ const Wrapper = styled.div`
   padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
 `
 
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  padding: 0 ${({ theme }) => theme.spacing[4]};
+`
+
 const Title = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  padding-left: ${({ theme }) => theme.spacing[4]};
+`
+
+const TabGroup = styled.div`
+  display: flex;
+  gap: 2px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: 2px;
+`
+
+const Tab = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.primary : 'transparent'};
+  transition: all 0.15s;
+  white-space: nowrap;
+  &:hover { opacity: 0.85; }
 `
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -37,11 +66,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 interface Props {
   categoryTotals: ReadonlyMap<CategoryType, CostPricePair>
-  mode: 'cost' | 'price'
+  mode?: 'cost' | 'price'
 }
 
-export function CategoryPieChart({ categoryTotals, mode }: Props) {
+export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }: Props) {
   const ct = useChartTheme()
+  const [mode, setMode] = useState<'cost' | 'price'>(initialMode)
 
   const data = CATEGORY_ORDER
     .filter((cat) => {
@@ -85,7 +115,13 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
 
   return (
     <Wrapper>
-      <Title>カテゴリ別{mode === 'cost' ? '原価' : '売価'}構成</Title>
+      <HeaderRow>
+        <Title>カテゴリ別{mode === 'cost' ? '原価' : '売価'}構成</Title>
+        <TabGroup>
+          <Tab $active={mode === 'cost'} onClick={() => setMode('cost')}>原価</Tab>
+          <Tab $active={mode === 'price'} onClick={() => setMode('price')}>売価</Tab>
+        </TabGroup>
+      </HeaderRow>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="90%">
         <PieChart>
           <Pie

@@ -131,13 +131,14 @@ const ChartArea = styled.div`
   height: 300px;
 `
 
-type BudgetViewType = 'line' | 'diff' | 'rate' | 'area'
+type BudgetViewType = 'line' | 'diff' | 'rate' | 'area' | 'prevYearDiff'
 
 const VIEW_LABELS: Record<BudgetViewType, string> = {
   line: '線グラフ',
   diff: '差分',
   rate: '達成率',
   area: 'エリア',
+  prevYearDiff: '前年差',
 }
 
 const VIEW_TITLES: Record<BudgetViewType, string> = {
@@ -145,6 +146,7 @@ const VIEW_TITLES: Record<BudgetViewType, string> = {
   diff: '予算差異（実績 − 予算）',
   rate: '予算達成率推移',
   area: '予算 vs 実績（エリア）',
+  prevYearDiff: '予算差・前年差 累計推移',
 }
 
 interface DataPoint {
@@ -162,9 +164,11 @@ interface Props {
   salesDays?: number
   /** 月の総日数 */
   daysInMonth?: number
+  /** 前年日別データ（前年差ビュー用） */
+  prevYearDaily?: ReadonlyMap<number, { sales: number }>
 }
 
-export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, daysInMonth }: Props) {
+export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<BudgetViewType>('line')
   const totalDaysForSlider = daysInMonth ?? data.length
@@ -197,12 +201,26 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
   const paceColor = getStatusColor(progressRate)
   const projColor = getStatusColor(projectedAchievement)
 
+  // 前年累計を計算（prevYearDiff ビュー用）
+  const prevYearCumMap = new Map<number, number>()
+  if (prevYearDaily) {
+    let pCum = 0
+    const days = daysInMonth ?? data.length
+    for (let d = 1; d <= days; d++) {
+      pCum += prevYearDaily.get(d)?.sales ?? 0
+      prevYearCumMap.set(d, pCum)
+    }
+  }
+  const hasPrevYearDiff = prevYearCumMap.size > 0 && (prevYearCumMap.get(prevYearCumMap.size) ?? 0) > 0
+
   // 差分・達成率を含む拡張データ
   const chartData = [...data]
     .map(d => ({
       ...d,
       diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
       achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
+      budgetDiff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
+      prevYearDiff: hasPrevYearDiff && d.actualCum > 0 ? d.actualCum - (prevYearCumMap.get(d.day) ?? 0) : null,
     }))
     .filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
@@ -212,6 +230,8 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
     prevYearCum: '前年同曜日累計',
     diff: '予算差異',
     achieveRate: '達成率(%)',
+    budgetDiff: '予算差（累計）',
+    prevYearDiff: '前年差（累計）',
   }
 
   return (
@@ -272,8 +292,8 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
               tickLine={false}
             />
 
-            {/* ── 線グラフ / エリア: 金額Y軸 ── */}
-            {(view === 'line' || view === 'area') && (
+            {/* ── 線グラフ / エリア / 前年差: 金額Y軸 ── */}
+            {(view === 'line' || view === 'area' || view === 'prevYearDiff') && (
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -439,6 +459,33 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                     }}
                   />
                 )}
+              </>
+            )}
+
+            {/* ── 前年差: 予算差バー + 前年差ライン ── */}
+            {view === 'prevYearDiff' && (
+              <>
+                <Bar yAxisId="left" dataKey="budgetDiff" radius={[3, 3, 0, 0]} maxBarSize={hasPrevYearDiff ? 12 : 18}>
+                  {chartData.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        entry.budgetDiff == null ? 'transparent'
+                        : entry.budgetDiff >= 0 ? ct.colors.success
+                        : ct.colors.danger
+                      }
+                      fillOpacity={entry.budgetDiff != null ? 0.7 : 0}
+                    />
+                  ))}
+                </Bar>
+                {hasPrevYearDiff && (
+                  <Line
+                    yAxisId="left" type="monotone" dataKey="prevYearDiff"
+                    stroke={ct.colors.primary} strokeWidth={2.5}
+                    dot={false} connectNulls
+                  />
+                )}
+                <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeWidth={1.5} />
               </>
             )}
           </ComposedChart>
