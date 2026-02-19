@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import {
   BarChart,
   Bar,
@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  LabelList,
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
@@ -37,9 +38,18 @@ const Title = styled.div`
   color: ${({ theme }) => theme.colors.text2};
 `
 
-const LevelTabs = styled.div`
+const Controls = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing[1]};
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const TabGroup = styled.div`
+  display: flex;
+  gap: 2px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: 2px;
 `
 
 const Tab = styled.button<{ $active: boolean }>`
@@ -48,15 +58,24 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? theme.colors.bg : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
   background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+    $active ? theme.colors.palette.primary : 'transparent'};
+  transition: all 0.15s;
+  white-space: nowrap;
   &:hover {
     opacity: 0.85;
   }
 `
 
+const Separator = styled.span`
+  width: 1px;
+  height: 16px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
+`
+
 type Level = 'department' | 'line' | 'klass'
+type Metric = 'amount' | 'quantity'
 
 const COLORS = [
   '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899',
@@ -73,6 +92,7 @@ interface Props {
 export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds }: Props) {
   const ct = useChartTheme()
   const [level, setLevel] = useState<Level>('department')
+  const [metric, setMetric] = useState<Metric>('amount')
   const { filter } = useCategoryHierarchy()
 
   const data = useMemo(() => {
@@ -103,27 +123,82 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       })
     }
 
-    return Array.from(map.values())
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 20) // 上位20件
-  }, [categoryTimeSales, selectedStoreIds, level, filter])
+    const sorted = Array.from(map.values())
+      .sort((a, b) => metric === 'amount' ? b.amount - a.amount : b.quantity - a.quantity)
+      .slice(0, 20)
+
+    // 構成比を計算
+    const total = sorted.reduce((s, d) => s + (metric === 'amount' ? d.amount : d.quantity), 0)
+    return sorted.map((d) => ({
+      ...d,
+      pct: total > 0 ? ((metric === 'amount' ? d.amount : d.quantity) / total) * 100 : 0,
+    }))
+  }, [categoryTimeSales, selectedStoreIds, level, filter, metric])
+
+  // バー内のカスタムラベル（金額＋構成比）
+  const renderBarLabel = useCallback((props: Record<string, unknown>) => {
+    const { x, y, width, height, index } = props as {
+      x: number; y: number; width: number; height: number; index: number
+    }
+    if (width < 60 || !data[index]) return null
+    const d = data[index]
+    const val = metric === 'amount'
+      ? `${toComma(d.amount)}円`
+      : `${toComma(d.quantity)}点`
+    const pctStr = `${d.pct.toFixed(1)}%`
+    const textX = x + width - 6
+    const textY = y + height / 2
+
+    return (
+      <g>
+        <text
+          x={textX} y={textY - 5}
+          textAnchor="end" fill="#fff" fontSize="0.6rem"
+          fontWeight={600} fontFamily={ct.monoFamily}
+          style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+        >
+          {val}
+        </text>
+        <text
+          x={textX} y={textY + 8}
+          textAnchor="end" fill="rgba(255,255,255,0.8)" fontSize="0.52rem"
+          fontFamily={ct.monoFamily}
+          style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}
+        >
+          {pctStr}
+        </text>
+      </g>
+    )
+  }, [data, metric, ct.monoFamily])
 
   if (data.length === 0) return null
 
-  const chartHeight = Math.max(300, data.length * 28 + 40)
+  const chartHeight = Math.max(300, data.length * 32 + 40)
   const levelLabels: Record<Level, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
+  const metricLabels: Record<Metric, string> = { amount: '売上', quantity: '点数' }
+  const titleSuffix = metric === 'amount' ? '売上' : '点数'
 
   return (
     <Wrapper>
       <Header>
-        <Title>{levelLabels[level]}別売上</Title>
-        <LevelTabs>
-          {(['department', 'line', 'klass'] as Level[]).map((l) => (
-            <Tab key={l} $active={level === l} onClick={() => setLevel(l)}>
-              {levelLabels[l]}
-            </Tab>
-          ))}
-        </LevelTabs>
+        <Title>{levelLabels[level]}別{titleSuffix}</Title>
+        <Controls>
+          <TabGroup>
+            {(['amount', 'quantity'] as Metric[]).map((m) => (
+              <Tab key={m} $active={metric === m} onClick={() => setMetric(m)}>
+                {metricLabels[m]}
+              </Tab>
+            ))}
+          </TabGroup>
+          <Separator />
+          <TabGroup>
+            {(['department', 'line', 'klass'] as Level[]).map((l) => (
+              <Tab key={l} $active={level === l} onClick={() => setLevel(l)}>
+                {levelLabels[l]}
+              </Tab>
+            ))}
+          </TabGroup>
+        </Controls>
       </Header>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
         <BarChart
@@ -137,7 +212,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={metric === 'amount' ? toManYen : (v: number) => `${toComma(v)}点`}
           />
           <YAxis
             type="category"
@@ -154,10 +229,11 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
               return [toComma(value as number) + '点', '数量']
             }}
           />
-          <Bar dataKey="amount" radius={[0, 4, 4, 0]} maxBarSize={22}>
+          <Bar dataKey={metric} radius={[0, 4, 4, 0]} maxBarSize={24}>
             {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.75} />
+              <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.8} />
             ))}
+            <LabelList content={renderBarLabel} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

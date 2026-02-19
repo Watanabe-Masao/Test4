@@ -443,6 +443,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
+          <ExecSummarySub>
+            予算経過率: {formatPercent(r.budgetElapsedRate)}
+          </ExecSummarySub>
           <ExecSummarySub $color={sc.cond(r.budgetAchievementRate >= 1)}>
             予算消化率: {formatPercent(r.budgetAchievementRate)}
           </ExecSummarySub>
@@ -454,16 +457,10 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
           <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
-          <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
-          {(() => {
-            if (r.openingInventory == null || r.closingInventory == null) {
-              return <ExecSummarySub>売上原価: -（在庫データ未入力）</ExecSummarySub>
-            }
-            const cogs = r.openingInventory + r.totalCost - r.closingInventory
-            return (
-              <ExecSummaryValue>{formatCurrency(cogs)}</ExecSummaryValue>
-            )
-          })()}
+          <ExecSummaryValue>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummaryValue>
+          {r.estMethodClosingInventory != null && (
+            <ExecSummarySub>推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}</ExecSummarySub>
+          )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#3b82f6">
           <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
@@ -474,8 +471,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
               <>
                 <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
                 <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub $color={sc.cond3(estGpRate >= 0.20, estGpRate >= 0.15)}>
-                  推定粗利率（売変還元法）: {formatPercent(estGpRate)}
+                <ExecSummarySub>
+                  推定粗利額（売変還元法）: {formatCurrency(Math.round(r.grossSales * estGpRate))}
                 </ExecSummarySub>
               </>
             )

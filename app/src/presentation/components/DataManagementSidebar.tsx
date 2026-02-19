@@ -214,6 +214,40 @@ const DetectedDayHint = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+const SliderNumRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+`
+
+const SliderNumInput = styled.input`
+  width: 42px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 2px 4px;
+  text-align: center;
+  appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const SliderNumUnit = styled.span`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'salesDiscount', label: '1_売上売変客数' },
@@ -387,6 +421,22 @@ export function DataManagementSidebar({
                   }}
                 />
               </SliderTrackWrap>
+              <SliderNumRow>
+                <SliderNumUnit>有効末日:</SliderNumUnit>
+                <SliderNumInput
+                  type="number"
+                  min={1}
+                  max={daysInMonth}
+                  value={currentEndDay}
+                  onChange={(e) => {
+                    const v = Number(e.target.value)
+                    if (!isNaN(v) && v >= 1 && v <= daysInMonth) {
+                      updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+                    }
+                  }}
+                />
+                <SliderNumUnit>日</SliderNumUnit>
+              </SliderNumRow>
             </SliderSection>
           </SidebarSection>
         )}

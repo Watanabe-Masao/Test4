@@ -12,11 +12,11 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
-import { useCategoryHierarchy, filterByHierarchy, getHierarchyLevel } from './CategoryHierarchyContext'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 400px;
+  height: 440px;
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
@@ -29,6 +29,8 @@ const Header = styled.div`
   justify-content: space-between;
   margin-bottom: ${({ theme }) => theme.spacing[4]};
   padding: 0 ${({ theme }) => theme.spacing[4]};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[2]};
 `
 
 const Title = styled.div`
@@ -37,56 +39,140 @@ const Title = styled.div`
   color: ${({ theme }) => theme.colors.text2};
 `
 
-const ToggleGroup = styled.div`
+const Controls = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing[1]};
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  flex-wrap: wrap;
 `
 
-const Toggle = styled.button<{ $active: boolean }>`
+const TabGroup = styled.div`
+  display: flex;
+  gap: 2px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: 2px;
+`
+
+const Tab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? theme.colors.bg : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
   background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+    $active ? theme.colors.palette.primary : 'transparent'};
+  transition: all 0.15s;
+  white-space: nowrap;
   &:hover { opacity: 0.85; }
 `
+
+const Separator = styled.span`
+  width: 1px;
+  height: 16px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
+`
+
+const SelectWrap = styled.select`
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text2};
+  cursor: pointer;
+  &:focus { outline: none; border-color: ${({ theme }) => theme.colors.palette.primary}; }
+`
+
+const TopNSelect = styled(SelectWrap)``
 
 const DEPT_COLORS = [
   '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899',
   '#8b5cf6', '#84cc16', '#f97316', '#14b8a6',
 ]
 
+type GroupLevel = 'department' | 'line' | 'klass'
+type ViewMode = 'stacked' | 'separate'
+
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   selectedStoreIds: ReadonlySet<string>
 }
 
-type ViewMode = 'stacked' | 'separate'
-
-/** 部門別 時間帯パターンチャート */
+/** 部門/ライン/クラス別 時間帯パターンチャート */
 export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
+  const [groupLevel, setGroupLevel] = useState<GroupLevel>('department')
+  const [topN, setTopN] = useState(5)
+  const [lineFilter, setLineFilter] = useState<string>('')
   const { filter } = useCategoryHierarchy()
-  const hierarchyLevel = getHierarchyLevel(filter)
+
+  // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）
+  const availableLines = useMemo(() => {
+    const lineMap = new Map<string, string>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    for (const rec of filtered) {
+      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      if (!lineMap.has(rec.line.code)) {
+        lineMap.set(rec.line.code, rec.line.name || rec.line.code)
+      }
+    }
+    // 金額順でソート
+    const totals = new Map<string, number>()
+    for (const rec of filtered) {
+      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      totals.set(rec.line.code, (totals.get(rec.line.code) ?? 0) + rec.totalAmount)
+    }
+    return Array.from(lineMap.entries())
+      .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
+      .sort((a, b) => b.total - a.total)
+  }, [categoryTimeSales, selectedStoreIds, filter])
+
+  // 利用可能な部門一覧（部門→ライン表示時のフィルタ用）
+  const availableDepartments = useMemo(() => {
+    const deptMap = new Map<string, string>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    for (const rec of filtered) {
+      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      if (!deptMap.has(rec.department.code)) {
+        deptMap.set(rec.department.code, rec.department.name || rec.department.code)
+      }
+    }
+    const totals = new Map<string, number>()
+    for (const rec of filtered) {
+      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      totals.set(rec.department.code, (totals.get(rec.department.code) ?? 0) + rec.totalAmount)
+    }
+    return Array.from(deptMap.entries())
+      .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
+      .sort((a, b) => b.total - a.total)
+  }, [categoryTimeSales, selectedStoreIds, filter])
+
+  const [deptFilter, setDeptFilter] = useState<string>('')
 
   const { data, departments } = useMemo(() => {
-    // group → hour → amount
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    let filtered = filterByHierarchy(categoryTimeSales.records, filter)
+
+    // 追加フィルタ：ラインでクラスを絞る、部門でラインを絞る
+    if (groupLevel === 'klass' && lineFilter) {
+      filtered = filtered.filter((r) => r.line.code === lineFilter)
+    }
+    if (groupLevel === 'line' && deptFilter) {
+      filtered = filtered.filter((r) => r.department.code === deptFilter)
+    }
 
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
-      // 階層レベルに応じてグループ化キーを変更
+
       let deptKey: string, deptName: string
-      if (hierarchyLevel === 'department') {
+      if (groupLevel === 'department') {
         deptKey = rec.department.code; deptName = rec.department.name || deptKey
-      } else if (hierarchyLevel === 'line') {
+      } else if (groupLevel === 'line') {
         deptKey = rec.line.code; deptName = rec.line.name || deptKey
       } else {
         deptKey = rec.klass.code; deptName = rec.klass.name || deptKey
@@ -102,7 +188,6 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
       }
     }
 
-    // Sort depts by total amount, take top 8
     const deptTotals = [...deptHourMap.entries()].map(([code, hourMap]) => ({
       code,
       name: deptNames.get(code) ?? code,
@@ -110,7 +195,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
       hourMap,
     }))
     deptTotals.sort((a, b) => b.total - a.total)
-    const topDepts = deptTotals.slice(0, 8)
+    const topDepts = deptTotals.slice(0, topN)
 
     const hours = [...hourSet].sort((a, b) => a - b)
     const data = hours.map((h) => {
@@ -122,20 +207,85 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     })
 
     return { data, departments: topDepts.map((d) => d.name) }
-  }, [categoryTimeSales, selectedStoreIds, filter, hierarchyLevel])
+  }, [categoryTimeSales, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter])
 
   if (data.length === 0 || departments.length === 0) return null
+
+  const levelLabels: Record<GroupLevel, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
+  const filterLabel = groupLevel === 'klass' && lineFilter
+    ? availableLines.find((l) => l.code === lineFilter)?.name ?? ''
+    : groupLevel === 'line' && deptFilter
+      ? availableDepartments.find((d) => d.code === deptFilter)?.name ?? ''
+      : ''
+  const titleText = filterLabel
+    ? `${filterLabel} ${levelLabels[groupLevel]}別 時間帯パターン（上位${departments.length}件）`
+    : `${levelLabels[groupLevel]}別 時間帯パターン（上位${departments.length}件）`
 
   return (
     <Wrapper>
       <Header>
-        <Title>{{ department: '部門', line: 'ライン', klass: 'クラス' }[hierarchyLevel]}別 時間帯パターン（上位{departments.length}件）</Title>
-        <ToggleGroup>
-          <Toggle $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>積み上げ</Toggle>
-          <Toggle $active={viewMode === 'separate'} onClick={() => setViewMode('separate')}>独立</Toggle>
-        </ToggleGroup>
+        <Title>{titleText}</Title>
+        <Controls>
+          {/* グループレベル切替 */}
+          <TabGroup>
+            {(['department', 'line', 'klass'] as GroupLevel[]).map((l) => (
+              <Tab key={l} $active={groupLevel === l} onClick={() => { setGroupLevel(l); setLineFilter(''); setDeptFilter('') }}>
+                {levelLabels[l]}
+              </Tab>
+            ))}
+          </TabGroup>
+
+          {/* ライン→クラス時のラインフィルタ */}
+          {groupLevel === 'klass' && availableLines.length > 0 && (
+            <>
+              <Separator />
+              <SelectWrap
+                value={lineFilter}
+                onChange={(e) => setLineFilter(e.target.value)}
+              >
+                <option value="">全ライン</option>
+                {availableLines.map((l) => (
+                  <option key={l.code} value={l.code}>{l.name}</option>
+                ))}
+              </SelectWrap>
+            </>
+          )}
+
+          {/* 部門→ライン時の部門フィルタ */}
+          {groupLevel === 'line' && availableDepartments.length > 1 && (
+            <>
+              <Separator />
+              <SelectWrap
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+              >
+                <option value="">全部門</option>
+                {availableDepartments.map((d) => (
+                  <option key={d.code} value={d.code}>{d.name}</option>
+                ))}
+              </SelectWrap>
+            </>
+          )}
+
+          <Separator />
+
+          {/* 上位N件選択 */}
+          <TopNSelect value={topN} onChange={(e) => setTopN(Number(e.target.value))}>
+            {[5, 6, 7, 8, 9, 10].map((n) => (
+              <option key={n} value={n}>上位{n}件</option>
+            ))}
+          </TopNSelect>
+
+          <Separator />
+
+          {/* 表示モード */}
+          <TabGroup>
+            <Tab $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>積み上げ</Tab>
+            <Tab $active={viewMode === 'separate'} onClick={() => setViewMode('separate')}>独立</Tab>
+          </TabGroup>
+        </Controls>
       </Header>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="88%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis

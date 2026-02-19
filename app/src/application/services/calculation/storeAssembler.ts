@@ -205,6 +205,7 @@ export function assembleStoreResult(
     projectedAchievement: budgetAnalysis.projectedAchievement,
     budgetAchievementRate: budgetAnalysis.budgetAchievementRate,
     budgetProgressRate: budgetAnalysis.budgetProgressRate,
+    budgetElapsedRate: budgetAnalysis.budgetElapsedRate,
     remainingBudget: budgetAnalysis.remainingBudget,
     dailyCumulative: budgetAnalysis.dailyCumulative,
   }

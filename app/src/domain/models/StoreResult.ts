@@ -76,6 +76,7 @@ export interface StoreResult {
   readonly projectedAchievement: number // 予算達成率予測
   readonly budgetAchievementRate: number // 予算達成率（実績/予算）
   readonly budgetProgressRate: number // 予算消化率（実績/経過予算）
+  readonly budgetElapsedRate: number // 予算経過率（経過予算/月間予算）
   readonly remainingBudget: number // 残余予算
   readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }> // 日別累計
 }
