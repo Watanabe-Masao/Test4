@@ -194,6 +194,7 @@ export function DataManagementSidebar({
     if (data.settings.size > 0) types.add('initialSettings')
     if (data.budget.size > 0) types.add('budget')
     if (Object.keys(data.consumables).length > 0) types.add('consumables')
+    if (data.categoryTimeSales.records.length > 0) types.add('categoryTimeSales')
     if (Object.keys(data.flowers).length > 0) types.add('flowers')
     if (Object.keys(data.directProduce).length > 0) types.add('directProduce')
     if (Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')

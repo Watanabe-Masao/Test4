@@ -46,6 +46,7 @@ const fileTypeIcons: Record<string, string> = {
   flowers: '🌸',
   directProduce: '🥬',
   consumables: '🧹',
+  categoryTimeSales: '🕐',
   interStoreIn: '🔄',
   interStoreOut: '🔄',
 }
