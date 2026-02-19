@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { StoreResult } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesData } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
@@ -27,4 +27,8 @@ export interface WidgetContext {
   allStoreResults: ReadonlyMap<string, StoreResult>
   /** Store master data */
   stores: ReadonlyMap<string, Store>
+  /** 分類別時間帯売上データ */
+  categoryTimeSales: CategoryTimeSalesData
+  /** 選択中の店舗ID（空 = 全店） */
+  selectedStoreIds: ReadonlySet<string>
 }

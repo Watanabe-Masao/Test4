@@ -16,7 +16,7 @@ import {
 
 export function DashboardPage() {
   const { isCalculated, daysInMonth } = useCalculation()
-  const { currentResult, storeName, stores } = useStoreSelection()
+  const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
   const appState = useAppState()
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
 
@@ -121,6 +121,8 @@ export function DashboardPage() {
     prevYear,
     allStoreResults: appState.storeResults,
     stores: appState.data.stores,
+    categoryTimeSales: appState.data.categoryTimeSales,
+    selectedStoreIds,
   }
 
   // Resolve active widgets
