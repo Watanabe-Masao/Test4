@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
@@ -80,7 +81,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="期中売上実績"
             value={formatCurrency(r.totalSales)}
             sub={`差異: ${formatCurrency(r.totalSales - elapsedBudget)}`}
-            subColor={r.totalSales >= elapsedBudget ? '#22c55e' : '#ef4444'}
+            subColor={sc.cond(r.totalSales >= elapsedBudget)}
           />
           <ExecMetric
             label="売上達成率"
@@ -99,7 +100,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                 <ExecMetric
                   label="前年同曜日比"
                   value={formatPercent(pyRatio)}
-                  subColor={pyRatio >= 1 ? '#22c55e' : '#ef4444'}
+                  subColor={sc.cond(pyRatio >= 1)}
                 />
               </>
             )
@@ -109,13 +110,13 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="期中粗利額実績"
             value={formatCurrency(actualGP)}
             sub={`差異: ${formatCurrency(actualGP - elapsedGPBudget)}`}
-            subColor={actualGP >= elapsedGPBudget ? '#22c55e' : '#ef4444'}
+            subColor={sc.cond(actualGP >= elapsedGPBudget)}
           />
           <ExecMetric
             label="期中粗利率実績"
             value={formatPercent(actualGPRate)}
             sub={`予算比: ${formatPointDiff(actualGPRate - r.grossProfitRateBudget)}`}
-            subColor={actualGPRate >= r.grossProfitRateBudget ? '#22c55e' : '#ef4444'}
+            subColor={sc.cond(actualGPRate >= r.grossProfitRateBudget)}
           />
           {r.totalConsumable > 0 && (() => {
             const isInvMethod = r.invMethodGrossProfitRate != null
@@ -157,7 +158,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="月末売上着地"
             value={formatCurrency(r.projectedSales)}
             sub={`予算差: ${formatCurrency(r.projectedSales - r.budget)}`}
-            subColor={r.projectedSales >= r.budget ? '#22c55e' : '#ef4444'}
+            subColor={sc.cond(r.projectedSales >= r.budget)}
           />
           <ExecMetric
             label="着地売上達成率"
@@ -168,7 +169,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="月末粗利着地"
             value={formatCurrency(projectedGP)}
             sub={`予算差: ${formatCurrency(projectedGP - r.grossProfitBudget)}`}
-            subColor={projectedGP >= r.grossProfitBudget ? '#22c55e' : '#ef4444'}
+            subColor={sc.cond(projectedGP >= r.grossProfitBudget)}
           />
           <ExecMetric
             label="着地粗利達成率"

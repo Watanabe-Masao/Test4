@@ -29,6 +29,7 @@ export type ViewType =
   | 'consumable'
   | 'summary'
   | 'reports'
+  | 'admin'
 
 /** データ種別 */
 export type DataType =

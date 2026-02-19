@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sc } from '@/presentation/theme/semanticColors'
 import { Button } from '@/presentation/components/common'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
@@ -185,16 +186,16 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const dayDiff = actual - budget
                 const achievement = budget > 0 ? actual / budget : 0
                 const isWeekend = di >= 5
-                const diffColor = dayDiff >= 0 ? '#22c55e' : '#ef4444'
-                const achColor = achievement >= 1 ? '#22c55e' : achievement >= 0.9 ? '#f59e0b' : '#ef4444'
+                const diffColor = sc.cond(dayDiff >= 0)
+                const achColor = sc.achievement(achievement)
                 const hasActual = actual > 0
 
                 const cBudget = cumBudget.get(day) ?? 0
                 const cSales = cumSales.get(day) ?? 0
                 const cDiff = cSales - cBudget
                 const cAch = cBudget > 0 ? cSales / cBudget : 0
-                const cDiffColor = cDiff >= 0 ? '#22c55e' : '#ef4444'
-                const cAchColor = cAch >= 1 ? '#22c55e' : cAch >= 0.9 ? '#f59e0b' : '#ef4444'
+                const cDiffColor = sc.cond(cDiff >= 0)
+                const cAchColor = sc.achievement(cAch)
 
                 const isPinned = pins.has(day)
                 const interval = isPinned ? getIntervalForDay(day) : undefined
@@ -232,10 +233,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             {prevYear.hasPrevYear && (() => {
                               const pyDaySales = prevYear.daily.get(day)?.sales ?? 0
                               const pyRatio = pyDaySales > 0 ? actual / pyDaySales : 0
-                              const pyColor = pyRatio >= 1 ? '#22c55e' : pyRatio > 0 ? '#ef4444' : undefined
+                              const pyColor = pyRatio >= 1 ? sc.positive : pyRatio > 0 ? sc.negative : undefined
                               const cPy = cumPrevYear.get(day) ?? 0
                               const cPyRatio = cPy > 0 ? cSales / cPy : 0
-                              const cPyColor = cPyRatio >= 1 ? '#22c55e' : cPyRatio > 0 ? '#ef4444' : undefined
+                              const cPyColor = cPyRatio >= 1 ? sc.positive : cPyRatio > 0 ? sc.negative : undefined
                               return pyDaySales > 0 || cPy > 0 ? (
                                 <>
                                   <CalDivider />
@@ -268,7 +269,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           {intervals.map((iv, i) => (
             <IntervalCard
               key={i}
-              $color={iv.grossProfitRate >= ctx.targetRate ? '#22c55e' : iv.grossProfitRate >= ctx.warningRate ? '#f59e0b' : '#ef4444'}
+              $color={sc.gpRate(iv.grossProfitRate, ctx.targetRate, ctx.warningRate)}
             >
               <div>
                 <IntervalMetricLabel>{iv.startDay}日 ～ {iv.endDay}日</IntervalMetricLabel>

@@ -101,7 +101,13 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'prevYearSalesDiscount', label: '998_前年売上売変' },
 ]
 
-export function DataManagementSidebar() {
+export function DataManagementSidebar({
+  showSettingsExternal,
+  onSettingsExternalClose,
+}: {
+  showSettingsExternal?: boolean
+  onSettingsExternalClose?: () => void
+} = {}) {
   const { data } = useAppData()
   const dispatch = useAppDispatch()
   const { importFiles, progress, validationMessages } = useImport()
@@ -110,6 +116,12 @@ export function DataManagementSidebar() {
   const showToast = useToast()
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
+
+  const isSettingsOpen = showSettings || showSettingsExternal
+  const closeSettings = useCallback(() => {
+    setShowSettings(false)
+    onSettingsExternalClose?.()
+  }, [onSettingsExternalClose])
 
   const handleFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType) => {
@@ -266,11 +278,11 @@ export function DataManagementSidebar() {
         </SidebarSection>
       </Sidebar>
 
-      {showSettings && (
+      {isSettingsOpen && (
         <SettingsModal
           settings={settings}
           onSave={updateSettings}
-          onClose={() => setShowSettings(false)}
+          onClose={closeSettings}
         />
       )}
       {showValidation && validationMessages.length > 0 && (

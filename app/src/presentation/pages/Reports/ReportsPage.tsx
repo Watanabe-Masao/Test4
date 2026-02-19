@@ -4,6 +4,7 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { useAppSettings } from '@/application/context'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
+import { sc } from '@/presentation/theme/semanticColors'
 import styled from 'styled-components'
 
 const Section = styled.section`
@@ -178,7 +179,7 @@ export function ReportsPage() {
             label="【在庫法】粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             subText={r.invMethodGrossProfitRate != null ? `粗利率: ${formatPercent(r.invMethodGrossProfitRate)}` : '在庫設定なし'}
-            accent="#22c55e"
+            accent={sc.positive}
           />
           <KpiCard
             label="予算達成率"
@@ -197,7 +198,7 @@ export function ReportsPage() {
 
       {/* 損益計算 */}
       <SummaryGrid>
-        <Card $accent="#22c55e">
+        <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
           <CalcRow>
             <CalcLabel>総売上高</CalcLabel>
@@ -221,13 +222,13 @@ export function ReportsPage() {
           </CalcRow>
           <CalcRow>
             <CalcLabel>粗利益</CalcLabel>
-            <CalcHighlight $color="#22c55e">
+            <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>粗利率</CalcLabel>
-            <CalcHighlight $color="#22c55e">
+            <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}
             </CalcHighlight>
           </CalcRow>
@@ -275,7 +276,7 @@ export function ReportsPage() {
           <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#f59e0b" />
           <KpiCard label="売上納品原価" value={formatCurrency(r.deliverySalesCost)} subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`} accent="#ec4899" />
           <KpiCard label="消耗品費" value={formatCurrency(r.totalConsumable)} subText={`消耗品率: ${formatPercent(r.consumableRate)}`} accent="#f97316" />
-          <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} subText={`売変額: ${formatCurrency(r.totalDiscount)}`} accent="#ef4444" />
+          <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} subText={`売変額: ${formatCurrency(r.totalDiscount)}`} accent={sc.negative} />
         </KpiGrid>
       </Section>
 
@@ -283,8 +284,8 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>移動集計</SectionTitle>
         <KpiGrid>
-          <KpiCard label="店間入" value={formatCurrency(r.transferDetails.interStoreIn.cost)} accent="#22c55e" />
-          <KpiCard label="店間出" value={formatCurrency(r.transferDetails.interStoreOut.cost)} accent="#ef4444" />
+          <KpiCard label="店間入" value={formatCurrency(r.transferDetails.interStoreIn.cost)} accent={sc.positive} />
+          <KpiCard label="店間出" value={formatCurrency(r.transferDetails.interStoreOut.cost)} accent={sc.negative} />
           <KpiCard label="部門間入" value={formatCurrency(r.transferDetails.interDepartmentIn.cost)} accent="#3b82f6" />
           <KpiCard label="部門間出" value={formatCurrency(r.transferDetails.interDepartmentOut.cost)} accent="#a855f7" />
         </KpiGrid>
@@ -342,7 +343,7 @@ export function ReportsPage() {
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
           <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
-          <KpiCard label="予算達成率" value={formatPercent(r.budgetAchievementRate)} accent="#22c55e" />
+          <KpiCard label="予算達成率" value={formatPercent(r.budgetAchievementRate)} accent={sc.positive} />
           <KpiCard label="予算消化率" value={formatPercent(r.budgetProgressRate)} subText={`経過: ${r.elapsedDays}/${daysInMonth}日`} accent="#0ea5e9" />
           <KpiCard label="残余予算" value={formatCurrency(r.remainingBudget)} accent="#f59e0b" />
         </KpiGrid>

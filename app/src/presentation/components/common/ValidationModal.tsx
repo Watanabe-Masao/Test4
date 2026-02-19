@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { ValidationMessage } from '@/domain/models'
@@ -11,8 +12,8 @@ const MessageList = styled.div`
 
 const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
   display: flex;
-  align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing[3]};
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
@@ -31,6 +32,12 @@ const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
   color: ${({ theme }) => theme.colors.text};
 `
 
+const MessageHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
 const LevelBadge = styled.span<{ $level: ValidationMessage['level'] }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
@@ -44,10 +51,67 @@ const LevelBadge = styled.span<{ $level: ValidationMessage['level'] }>`
         : theme.colors.palette.primary};
 `
 
+const DetailsToggle = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.text3};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  white-space: nowrap;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text2};
+  }
+`
+
+const DetailsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: ${({ theme }) => theme.spacing[8]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  max-height: 150px;
+  overflow-y: auto;
+`
+
+const DetailLine = styled.div`
+  line-height: 1.4;
+`
+
 const LEVEL_LABELS: Record<ValidationMessage['level'], string> = {
   error: 'ERROR',
   warning: 'WARN',
   info: 'INFO',
+}
+
+function MessageEntry({ msg }: { msg: ValidationMessage }) {
+  const [expanded, setExpanded] = useState(false)
+  const hasDetails = msg.details && msg.details.length > 0
+
+  return (
+    <MessageItem $level={msg.level}>
+      <MessageHeader>
+        <LevelBadge $level={msg.level}>{LEVEL_LABELS[msg.level]}</LevelBadge>
+        <span>{msg.message}</span>
+        {hasDetails && (
+          <DetailsToggle onClick={() => setExpanded(!expanded)}>
+            {expanded ? '▲ 閉じる' : `▼ 詳細 (${msg.details!.length})`}
+          </DetailsToggle>
+        )}
+      </MessageHeader>
+      {expanded && hasDetails && (
+        <DetailsList>
+          {msg.details!.map((d, j) => (
+            <DetailLine key={j}>{d}</DetailLine>
+          ))}
+        </DetailsList>
+      )}
+    </MessageItem>
+  )
 }
 
 export function ValidationModal({
@@ -70,10 +134,7 @@ export function ValidationModal({
     >
       <MessageList>
         {sorted.map((msg, i) => (
-          <MessageItem key={i} $level={msg.level}>
-            <LevelBadge $level={msg.level}>{LEVEL_LABELS[msg.level]}</LevelBadge>
-            {msg.message}
-          </MessageItem>
+          <MessageEntry key={i} msg={msg} />
         ))}
       </MessageList>
     </Modal>

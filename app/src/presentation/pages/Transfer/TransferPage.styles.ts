@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { sc } from '@/presentation/theme/semanticColors'
 
 export const Section = styled.section`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -35,7 +36,7 @@ export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $negative, $positive, theme }) =>
     $negative ? theme.colors.palette.danger
-    : $positive ? '#22c55e'
+    : $positive ? sc.positive
     : theme.colors.text};
   &:first-child {
     text-align: left;
