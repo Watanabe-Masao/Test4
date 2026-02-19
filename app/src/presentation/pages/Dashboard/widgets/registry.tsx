@@ -7,7 +7,7 @@ import {
   TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
 } from '@/presentation/components/charts'
-import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
 import { renderPlanActualForecast } from './PlanActualForecast'
 import { MonthlyCalendarWidget } from './MonthlyCalendar'
@@ -16,9 +16,7 @@ import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
-import {
-  ExecSummaryBar, ExecSummaryItem, ExecSummaryLabel, ExecSummaryValue, ExecSummarySub,
-} from '../DashboardPage.styles'
+import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   // ── KPI: 売上・粗利 ──
@@ -73,23 +71,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       )
     },
   },
-  {
-    id: 'kpi-gross-profit-budget',
-    label: '粗利額予算',
-    group: '売上・粗利',
-    size: 'kpi',
-    render: ({ result: r }) => {
-      const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
-      return (
-        <KpiCard
-          label="粗利額予算"
-          value={formatCurrency(r.grossProfitBudget)}
-          subText={`実績: ${formatCurrency(actualGP)}`}
-          accent="#8b5cf6"
-        />
-      )
-    },
-  },
+  // 注: kpi-gross-profit-budget → ExecSummaryBar 粗利率カードに統合
   // ── KPI: 仕入・原価 ──
   {
     id: 'kpi-inventory-cost',
@@ -146,79 +128,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" />
     ),
   },
-  // ── KPI: 予測 ──
-  {
-    id: 'kpi-avg-daily-sales',
-    label: '日平均売上',
-    group: '予測',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard
-        label="日平均売上"
-        value={formatCurrency(r.averageDailySales)}
-        subText={`営業日: ${r.salesDays}日 / 経過: ${r.elapsedDays}日`}
-        accent="#8b5cf6"
-      />
-    ),
-  },
-  {
-    id: 'kpi-projected-sales',
-    label: '月末予測売上',
-    group: '予測',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="月末予測売上" value={formatCurrency(r.projectedSales)} accent={sc.positive} />
-    ),
-  },
-  {
-    id: 'kpi-projected-achievement',
-    label: '予算達成率予測',
-    group: '予測',
-    size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="予算達成率予測" value={formatPercent(r.projectedAchievement)} accent="#0ea5e9" />
-    ),
-  },
-  // ── KPI: 客数・客単価 ──
-  {
-    id: 'kpi-customers',
-    label: '客数',
-    group: '客数・客単価',
-    size: 'kpi',
-    render: ({ result: r, prevYear }) => {
-      const pyRatio = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-        ? (r.totalCustomers / prevYear.totalCustomers * 100).toFixed(1) + '%'
-        : null
-      return (
-        <KpiCard
-          label="客数"
-          value={`${r.totalCustomers.toLocaleString('ja-JP')}人`}
-          subText={`日平均: ${Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人${pyRatio ? ` / 前年比: ${pyRatio}` : ''}`}
-          accent="#06b6d4"
-        />
-      )
-    },
-  },
-  {
-    id: 'kpi-transaction-value',
-    label: '客単価',
-    group: '客数・客単価',
-    size: 'kpi',
-    render: ({ result: r, prevYear }) => {
-      const txValue = r.totalCustomers > 0 ? Math.round(r.totalSales / r.totalCustomers) : 0
-      const pyTxValue = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-        ? Math.round(prevYear.totalSales / prevYear.totalCustomers)
-        : null
-      return (
-        <KpiCard
-          label="客単価"
-          value={formatCurrency(txValue)}
-          subText={pyTxValue ? `前年: ${formatCurrency(pyTxValue)}` : undefined}
-          accent="#8b5cf6"
-        />
-      )
-    },
-  },
+  // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
+  // 注: kpi-customers, kpi-transaction-value → ExecSummaryBar 客数・客単価カードに統合
   // ── チャート ──
   {
     id: 'chart-daily-sales',
@@ -328,176 +239,60 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} />
     ),
   },
-  // ── 本部・経営者向け ──
+  // ── 概要・ステータス ──
   {
     id: 'exec-summary-bar',
     label: 'サマリーバー',
-    group: '本部・経営者向け',
+    group: '概要・ステータス',
     size: 'full',
-    render: ({ result: r, prevYear }) => {
-      const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
-        ? (r.totalSales / prevYear.totalSales) * 100
-        : null
-      const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
-      const elapsedDiff = r.totalSales - elapsedBudget
-      return (
-      <ExecSummaryBar>
-        <ExecSummaryItem $accent="#8b5cf6">
-          <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
-          <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
-          <ExecSummaryValue>{formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
-          <ExecSummarySub $color={sc.cond(elapsedDiff >= 0)}>
-            予算差異: {formatCurrency(elapsedDiff)}
-          </ExecSummarySub>
-          <ExecSummarySub $color={sc.cond(r.budgetProgressRate >= 1)}>
-            売上予算達成率: {formatPercent(r.budgetProgressRate)}
-          </ExecSummarySub>
-          {pyRatio != null && (
-            <ExecSummarySub $color={sc.cond(pyRatio >= 100)}>
-              前年同曜日比: {pyRatio.toFixed(1)}%
-            </ExecSummarySub>
-          )}
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#6366f1">
-          <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
-          <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
-          <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
-          <ExecSummarySub>
-            予算経過率: {formatPercent(r.budgetElapsedRate)}
-          </ExecSummarySub>
-          <ExecSummarySub $color={sc.cond(r.budgetAchievementRate >= 1)}>
-            予算消化率: {formatPercent(r.budgetAchievementRate)}
-          </ExecSummarySub>
-          <ExecSummarySub $color={r.remainingBudget <= 0 ? sc.positive : undefined}>
-            残予算: {formatCurrency(r.remainingBudget)}
-          </ExecSummarySub>
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#f59e0b">
-          <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
-          <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
-          <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
-          <ExecSummaryValue>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummaryValue>
-          {r.estMethodClosingInventory != null && (
-            <ExecSummarySub>推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}</ExecSummarySub>
-          )}
-        </ExecSummaryItem>
-        <ExecSummaryItem $accent="#3b82f6">
-          <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
-          {(() => {
-            const markupAmount = r.grossSales - r.totalCost
-            const estGpRate = r.averageMarkupRate - r.discountRate * (1 - r.discountRate)
-            return (
-              <>
-                <ExecSummaryValue>{formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}</ExecSummaryValue>
-                <ExecSummarySub>売変率 / 売変額: {formatPercent(r.discountRate)} / {formatCurrency(r.totalDiscount)}</ExecSummarySub>
-                <ExecSummarySub>
-                  推定粗利額（売変還元法）: {formatCurrency(Math.round(r.grossSales * estGpRate))}
-                </ExecSummarySub>
-              </>
-            )
-          })()}
-        </ExecSummaryItem>
-        {r.totalCustomers > 0 && (() => {
-          const txValue = Math.round(r.totalSales / r.totalCustomers)
-          const pyCustomers = prevYear.totalCustomers
-          const custRatio = prevYear.hasPrevYear && pyCustomers > 0
-            ? r.totalCustomers / pyCustomers
-            : null
-          const pyTxValue = prevYear.hasPrevYear && pyCustomers > 0
-            ? Math.round(prevYear.totalSales / pyCustomers)
-            : null
-          return (
-            <ExecSummaryItem $accent="#06b6d4">
-              <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
-              <ExecSummarySub>客数: {r.totalCustomers.toLocaleString('ja-JP')}人 / 日平均: {Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人</ExecSummarySub>
-              <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>
-              {custRatio != null && (
-                <ExecSummarySub $color={sc.cond(custRatio >= 1)}>
-                  客数前年比: {formatPercent(custRatio, 1)}
-                </ExecSummarySub>
-              )}
-              {pyTxValue != null && (
-                <ExecSummarySub>
-                  前年客単価: {formatCurrency(pyTxValue)}円
-                </ExecSummarySub>
-              )}
-            </ExecSummaryItem>
-          )
-        })()}
-        <ExecSummaryItem $accent={sc.positive}>
-          <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
-          {r.invMethodGrossProfitRate != null ? (() => {
-            const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
-            const invDiff = r.invMethodGrossProfitRate - invAfterRate
-            const estBeforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
-            const estDiff = estBeforeRate - r.estMethodMarginRate
-            return (
-              <>
-                <ExecSummaryValue>{formatPercent(r.invMethodGrossProfitRate)} / {formatPercent(invAfterRate)}</ExecSummaryValue>
-                <ExecSummarySub>在庫法 減算比 {formatPointDiff(invDiff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
-                <ExecSummarySub $color="#64748b">
-                  参考（推定法）: {formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}（減算比 {formatPointDiff(estDiff)}）
-                </ExecSummarySub>
-              </>
-            )
-          })() : (() => {
-            const estBeforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
-            const estDiff = estBeforeRate - r.estMethodMarginRate
-            return (
-              <>
-                <ExecSummaryValue>{formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}</ExecSummaryValue>
-                <ExecSummarySub>推定法 減算比 {formatPointDiff(estDiff)} 消耗品費: {formatCurrency(r.totalConsumable)}円</ExecSummarySub>
-              </>
-            )
-          })()}
-        </ExecSummaryItem>
-      </ExecSummaryBar>
-      )
-    },
+    render: (ctx) => <ExecSummaryBarWidget key={ctx.storeKey} {...ctx} />,
   },
+  {
+    id: 'analysis-condition-summary',
+    label: 'コンディションサマリー',
+    group: '概要・ステータス',
+    size: 'full',
+    render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
+  },
+  // ── 予実管理 ──
   {
     id: 'exec-plan-actual-forecast',
     label: 'PLAN / ACTUAL / FORECAST',
-    group: '本部・経営者向け',
+    group: '予実管理',
     size: 'full',
     render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
     id: 'exec-monthly-calendar',
     label: '月間カレンダー',
-    group: '本部・経営者向け',
+    group: '予実管理',
     size: 'full',
     render: (ctx) => <MonthlyCalendarWidget key={ctx.storeKey} ctx={ctx} />,
   },
+  // ── パターン分析 ──
   {
     id: 'exec-dow-average',
     label: '曜日平均',
-    group: '本部・経営者向け',
+    group: 'パターン分析',
     size: 'full',
     render: (ctx) => renderDowAverage(ctx),
   },
   {
     id: 'exec-weekly-summary',
     label: '週別サマリー',
-    group: '本部・経営者向け',
+    group: 'パターン分析',
     size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
   },
+  // ── シミュレーション ──
   {
     id: 'exec-forecast-tools',
     label: '着地予測・ゴールシーク',
-    group: '本部・経営者向け',
+    group: 'シミュレーション',
     size: 'full',
     render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
   },
   // ── 分析・可視化 ──
-  {
-    id: 'analysis-condition-summary',
-    label: 'コンディションサマリー',
-    group: '分析・可視化',
-    size: 'full',
-    render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
-  },
   {
     id: 'analysis-waterfall',
     label: '粗利ウォーターフォール',
@@ -517,19 +312,27 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
 export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 
 export const DEFAULT_WIDGET_IDS: string[] = [
+  // 1. 今の状況は？
   'analysis-condition-summary',
+  // 2. 何が起きた？（トレンド視覚化）
+  'chart-daily-sales',
+  // 3. 数値で確認
   'exec-summary-bar',
+  // 4. 予算や前年との比較は？
+  'chart-budget-vs-actual',
+  // 5. 詳細分析
   'exec-plan-actual-forecast',
-  'exec-monthly-calendar',
-  'exec-dow-average', 'exec-weekly-summary',
+  // 6. これからどうなる？
   'exec-forecast-tools',
+  // 補助: 分析ツール
   'analysis-waterfall',
   'analysis-gp-heatmap',
-  'chart-daily-sales',
-  'chart-budget-vs-actual',
+  // 補助: テーブル
+  'exec-monthly-calendar',
+  'exec-dow-average', 'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v6'
+const STORAGE_KEY = 'dashboard_layout_v7'
 
 export function loadLayout(): string[] {
   try {

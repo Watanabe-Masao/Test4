@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { screen } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
 import { WIDGET_MAP } from '../registry'
 import {
   makeWidgetContext,
@@ -17,7 +17,7 @@ describe('ExecSummaryBar ウィジェット', () => {
     expect(widget.size).toBe('full')
   })
 
-  it('売上実績セクションがレンダリングされる', () => {
+  it('売上・予算タブがデフォルトで売上実績セクションを表示する', () => {
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalSales: 1500000,
@@ -34,7 +34,7 @@ describe('ExecSummaryBar ウィジェット', () => {
     expect(screen.getByText('売上消化率（月間）')).toBeInTheDocument()
   })
 
-  it('客数 > 0 で客数・客単価セクションが表示される', () => {
+  it('客数・客単価タブに切り替えると客数情報が表示される', () => {
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,
@@ -48,10 +48,13 @@ describe('ExecSummaryBar ウィジェット', () => {
     const el = widget.render(ctx)
     renderWithTheme(<>{el}</>)
 
-    expect(screen.getByText('客数・客単価')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('客数・客単価'))
+
+    // After switching to the customers tab, the label inside the card should be visible
+    expect(screen.getByText(/日平均/)).toBeInTheDocument()
   })
 
-  it('客数 = 0 では客数セクションが非表示', () => {
+  it('客数 = 0 では客数タブに「データなし」と表示', () => {
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 0,
@@ -63,7 +66,36 @@ describe('ExecSummaryBar ウィジェット', () => {
     const el = widget.render(ctx)
     renderWithTheme(<>{el}</>)
 
-    expect(screen.queryByText('客数・客単価')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('客数・客単価'))
+
+    expect(screen.getByText('客数データなし')).toBeInTheDocument()
+  })
+
+  it('仕入・粗利タブに切り替えると粗利率が表示される', () => {
+    const ctx = makeWidgetContext({
+      result: makeStoreResult({
+        totalSales: 1000000,
+        totalCost: 700000,
+        grossSales: 1100000,
+        totalConsumable: 5000,
+        estMethodMargin: 250000,
+        estMethodMarginRate: 0.25,
+        totalCoreSales: 1000000,
+        averageMarkupRate: 0.3,
+        discountRate: 0.05,
+        totalDiscount: 50000,
+        dailyCumulative: new Map([[15, { sales: 1000000, budget: 1500000 }]]),
+        elapsedDays: 15,
+      }),
+    })
+
+    const el = widget.render(ctx)
+    renderWithTheme(<>{el}</>)
+
+    fireEvent.click(screen.getByText('仕入・粗利'))
+
+    expect(screen.getByText('在庫金額/総仕入高')).toBeInTheDocument()
+    expect(screen.getByText('値入率 / 値入額')).toBeInTheDocument()
   })
 
   it('前年客数データがある場合に前年比が表示される', () => {
@@ -84,6 +116,8 @@ describe('ExecSummaryBar ウィジェット', () => {
     const el = widget.render(ctx)
     renderWithTheme(<>{el}</>)
 
+    fireEvent.click(screen.getByText('客数・客単価'))
+
     expect(screen.getByText(/客数前年比/)).toBeInTheDocument()
   })
 
@@ -101,54 +135,9 @@ describe('ExecSummaryBar ウィジェット', () => {
     const el = widget.render(ctx)
     renderWithTheme(<>{el}</>)
 
+    fireEvent.click(screen.getByText('客数・客単価'))
+
     // 客単価 = 1000000 / 500 = 2000
     expect(screen.getByText('2,000円')).toBeInTheDocument()
-  })
-})
-
-describe('KPI: 客数ウィジェット', () => {
-  const widget = WIDGET_MAP.get('kpi-customers')!
-
-  it('ウィジェットが登録されている', () => {
-    expect(widget).toBeDefined()
-    expect(widget.size).toBe('kpi')
-  })
-
-  it('客数KPIがレンダリングされる', () => {
-    const ctx = makeWidgetContext({
-      result: makeStoreResult({
-        totalCustomers: 500,
-        averageCustomersPerDay: 50,
-      }),
-    })
-
-    const el = widget.render(ctx)
-    renderWithTheme(<>{el}</>)
-
-    expect(screen.getByText('客数')).toBeInTheDocument()
-    expect(screen.getByText('500人')).toBeInTheDocument()
-  })
-})
-
-describe('KPI: 客単価ウィジェット', () => {
-  const widget = WIDGET_MAP.get('kpi-transaction-value')!
-
-  it('ウィジェットが登録されている', () => {
-    expect(widget).toBeDefined()
-    expect(widget.size).toBe('kpi')
-  })
-
-  it('客単価KPIがレンダリングされる', () => {
-    const ctx = makeWidgetContext({
-      result: makeStoreResult({
-        totalCustomers: 500,
-        totalSales: 1000000,
-      }),
-    })
-
-    const el = widget.render(ctx)
-    renderWithTheme(<>{el}</>)
-
-    expect(screen.getByText('客単価')).toBeInTheDocument()
   })
 })

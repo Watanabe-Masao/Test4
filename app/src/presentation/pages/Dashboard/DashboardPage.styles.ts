@@ -38,6 +38,37 @@ export const ExecSummarySub = styled.div<{ $color?: string }>`
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
 
+export const ExecSummaryWrapper = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  overflow: hidden;
+`
+
+export const ExecSummaryTabBar = styled.div`
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
+`
+
+export const ExecSummaryTab = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ $active, theme }) => $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[6]}`};
+  color: ${({ $active, theme }) => $active ? theme.colors.text : theme.colors.text3};
+  border-bottom: 2px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  transition: all 0.15s;
+  white-space: nowrap;
+  &:hover { color: ${({ theme }) => theme.colors.text2}; }
+`
+
+export const ExecSummaryTabContent = styled.div`
+  padding: ${({ theme }) => theme.spacing[4]};
+`
+
 export const ExecGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
