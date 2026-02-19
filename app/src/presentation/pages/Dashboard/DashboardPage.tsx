@@ -119,6 +119,8 @@ export function DashboardPage() {
     budgetChartData,
     storeKey: storeName,
     prevYear,
+    allStoreResults: appState.storeResults,
+    stores: appState.data.stores,
   }
 
   // Resolve active widgets
