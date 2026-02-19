@@ -443,6 +443,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
           <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
           <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
+          <ExecSummarySub>
+            予算経過率: {formatPercent(r.budgetElapsedRate)}
+          </ExecSummarySub>
           <ExecSummarySub $color={sc.cond(r.budgetAchievementRate >= 1)}>
             予算消化率: {formatPercent(r.budgetAchievementRate)}
           </ExecSummarySub>

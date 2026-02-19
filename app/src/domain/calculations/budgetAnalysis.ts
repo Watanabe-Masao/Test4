@@ -19,6 +19,7 @@ export interface BudgetAnalysisInput {
 export interface BudgetAnalysisResult {
   readonly budgetAchievementRate: number // 予算達成率
   readonly budgetProgressRate: number // 予算消化率
+  readonly budgetElapsedRate: number // 予算経過率（経過予算/月間予算）
   readonly averageDailySales: number // 日平均売上
   readonly projectedSales: number // 月末予測売上
   readonly projectedAchievement: number // 予算達成率予測
@@ -41,6 +42,9 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
     cumulativeBudget += budgetDaily.get(d) ?? 0
   }
   const budgetProgressRate = safeDivide(totalSales, cumulativeBudget, 0)
+
+  // 予算経過率 = 経過日までの累計予算 / 月間予算
+  const budgetElapsedRate = safeDivide(cumulativeBudget, budget, 0)
 
   // 日平均売上（営業日ベース）
   const averageDailySales = safeDivide(totalSales, salesDays, 0)
@@ -69,6 +73,7 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
   return {
     budgetAchievementRate,
     budgetProgressRate,
+    budgetElapsedRate,
     averageDailySales,
     projectedSales,
     projectedAchievement,

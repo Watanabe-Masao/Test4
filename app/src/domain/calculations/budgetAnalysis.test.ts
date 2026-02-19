@@ -29,6 +29,8 @@ describe('calculateBudgetAnalysis', () => {
     })
 
     expect(result.budgetAchievementRate).toBeCloseTo(3_500_000 / 6_000_000, 6)
+    // 予算経過率 = 経過14日の累計予算(3,000,000) / 全体予算(6,000,000) = 0.5
+    expect(result.budgetElapsedRate).toBeCloseTo(0.5, 6)
     expect(result.averageDailySales).toBe(250_000)
     // 予測売上 = 3,500,000 + 250,000 × 14 = 7,000,000
     expect(result.projectedSales).toBe(7_000_000)
@@ -47,6 +49,7 @@ describe('calculateBudgetAnalysis', () => {
       daysInMonth: 30,
     })
     expect(result.budgetAchievementRate).toBe(0)
+    expect(result.budgetElapsedRate).toBe(0)
     expect(result.projectedAchievement).toBe(0)
   })
 
@@ -115,6 +118,8 @@ describe('calculateBudgetAnalysis', () => {
     // 経過日累計予算 = 200,000 + 200,000 = 400,000
     // 予算消化率 = 500,000 / 400,000 = 1.25
     expect(result.budgetProgressRate).toBeCloseTo(1.25, 6)
+    // 予算経過率 = 400,000 / 600,000 ≈ 0.6667
+    expect(result.budgetElapsedRate).toBeCloseTo(400_000 / 600_000, 6)
   })
 
   it('営業日0の場合の日平均', () => {
