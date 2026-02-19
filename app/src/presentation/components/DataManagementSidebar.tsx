@@ -14,7 +14,10 @@ import {
   ValidationModal,
   ImportProgressBar,
 } from '@/presentation/components/common'
+import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
+import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType } from '@/domain/models'
+import { clearAllData } from '@/infrastructure/storage/IndexedDBStore'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -110,7 +113,7 @@ export function DataManagementSidebar({
 } = {}) {
   const { data } = useAppData()
   const dispatch = useAppDispatch()
-  const { importFiles, progress, validationMessages } = useImport()
+  const { importFiles, progress, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
@@ -147,6 +150,34 @@ export function DataManagementSidebar({
     },
     [handleFiles],
   )
+
+  const handleDiffConfirm = useCallback(
+    (result: DiffConfirmResult) => {
+      resolveDiff(result.action)
+      if (result.action !== 'cancel') {
+        showToast(
+          result.action === 'overwrite'
+            ? '新規データで上書きしました'
+            : '既存データを維持し、新規分のみ追加しました',
+          'success',
+        )
+        setShowValidation(true)
+      } else {
+        showToast('インポートをキャンセルしました', 'info')
+      }
+    },
+    [resolveDiff, showToast],
+  )
+
+  const handleClearData = useCallback(async () => {
+    dispatch({ type: 'RESET' })
+    try {
+      await clearAllData()
+      showToast('データをクリアしました', 'info')
+    } catch {
+      showToast('データクリアに失敗しました', 'error')
+    }
+  }, [dispatch, showToast])
 
   const loadedTypes = useMemo(() => {
     const types = new Set<DataType>()
@@ -274,6 +305,11 @@ export function DataManagementSidebar({
             <Button $variant="outline" onClick={() => setShowSettings(true)}>
               ⚙ 設定
             </Button>
+            {loadedTypes.size > 0 && (
+              <Button $variant="ghost" onClick={handleClearData}>
+                データクリア
+              </Button>
+            )}
           </SidebarActions>
         </SidebarSection>
       </Sidebar>
@@ -289,6 +325,12 @@ export function DataManagementSidebar({
         <ValidationModal
           messages={validationMessages}
           onClose={() => setShowValidation(false)}
+        />
+      )}
+      {pendingDiff && (
+        <DiffConfirmModal
+          diffResult={pendingDiff.diffResult}
+          onConfirm={handleDiffConfirm}
         />
       )}
     </>

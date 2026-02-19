@@ -1,0 +1,296 @@
+/**
+ * データ永続化フック
+ *
+ * IndexedDB への保存・読み込み・差分チェックを提供する。
+ */
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import {
+  saveImportedData,
+  loadImportedData,
+  getPersistedMeta,
+  clearMonthData,
+  clearAllData,
+  isIndexedDBAvailable,
+} from '@/infrastructure/storage/IndexedDBStore'
+import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
+import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import type { DiffResult } from '@/infrastructure/storage/diffCalculator'
+import type { ImportedData } from '@/domain/models'
+
+// ─── 型定義 ──────────────────────────────────────────────
+
+export interface PersistenceState {
+  /** IndexedDB 利用可能か */
+  readonly available: boolean
+  /** 復元ダイアログ表示中 */
+  readonly showRestoreDialog: boolean
+  /** 復元メタデータ */
+  readonly restoreMeta: PersistedMeta | null
+  /** 差分確認ダイアログ表示中 */
+  readonly showDiffDialog: boolean
+  /** 差分結果 */
+  readonly diffResult: DiffResult | null
+  /** 保存中 */
+  readonly isSaving: boolean
+}
+
+export interface PersistenceActions {
+  /** データを IndexedDB に保存する */
+  saveCurrentData: () => Promise<void>
+  /** 保存データを復元してstateに反映する */
+  restoreData: () => Promise<void>
+  /** 保存データを破棄する */
+  discardSavedData: () => Promise<void>
+  /** 復元ダイアログを閉じる（破棄扱い） */
+  dismissRestoreDialog: () => void
+  /**
+   * インポートデータと既存保存データの差分をチェックする。
+   * 差分がある場合は diffResult を返す。
+   * 差分がない or 既存データなしの場合は null を返す。
+   */
+  checkDiffBeforeImport: (
+    incoming: ImportedData,
+    importedTypes: ReadonlySet<string>,
+  ) => Promise<DiffResult | null>
+  /** 差分確認の結果を処理する（overwrite → 新データで保存、keep-existing → 挿入のみ適用） */
+  applyDiffDecision: (
+    action: 'overwrite' | 'keep-existing',
+    incoming: ImportedData,
+    existing: ImportedData,
+    importedTypes: ReadonlySet<string>,
+  ) => ImportedData
+  /** 差分ダイアログを閉じる */
+  dismissDiffDialog: () => void
+  /** 当月データを削除 */
+  clearCurrentMonth: () => Promise<void>
+  /** 全データ削除 */
+  clearAll: () => Promise<void>
+}
+
+// ─── 挿入のみマージ ─────────────────────────────────────
+
+/**
+ * 既存データに新規挿入分のみをマージして返す。
+ * 既存に値がある場合は変更しない。
+ */
+function mergeInsertsOnly(
+  existing: ImportedData,
+  incoming: ImportedData,
+  importedTypes: ReadonlySet<string>,
+): ImportedData {
+  const result = { ...existing }
+  const storeDayFields: readonly { field: keyof ImportedData; type: string }[] = [
+    { field: 'purchase', type: 'purchase' },
+    { field: 'sales', type: 'sales' },
+    { field: 'discount', type: 'discount' },
+    { field: 'prevYearSales', type: 'prevYearSales' },
+    { field: 'prevYearDiscount', type: 'prevYearDiscount' },
+    { field: 'interStoreIn', type: 'interStoreIn' },
+    { field: 'interStoreOut', type: 'interStoreOut' },
+    { field: 'flowers', type: 'flowers' },
+    { field: 'directProduce', type: 'directProduce' },
+    { field: 'consumables', type: 'consumables' },
+  ]
+
+  for (const { field, type } of storeDayFields) {
+    if (!importedTypes.has(type)) continue
+
+    const existingRecord = existing[field] as Record<string, Record<number, unknown>>
+    const incomingRecord = incoming[field] as Record<string, Record<number, unknown>>
+
+    if (Object.keys(existingRecord).length === 0) {
+      // 既存が空 → 新規データをそのまま使用
+      ;(result as Record<string, unknown>)[field] = incomingRecord
+      continue
+    }
+
+    if (Object.keys(incomingRecord).length === 0) continue
+
+    // 既存データに新規分だけ追加
+    const merged: Record<string, Record<number, unknown>> = { ...existingRecord }
+    for (const [storeId, incomingDays] of Object.entries(incomingRecord)) {
+      if (!merged[storeId]) {
+        // 新しい店舗 → まるごと挿入
+        merged[storeId] = incomingDays
+      } else {
+        const mergedDays = { ...merged[storeId] }
+        for (const [dayStr, entry] of Object.entries(incomingDays)) {
+          const day = Number(dayStr)
+          if (!mergedDays[day]) {
+            // 既存にない日 → 挿入
+            mergedDays[day] = entry
+          }
+          // 既存にある日 → 既存を維持（変更しない）
+        }
+        merged[storeId] = mergedDays
+      }
+    }
+    ;(result as Record<string, unknown>)[field] = merged
+  }
+
+  // stores, suppliers はマージ（新しい店舗は追加）
+  const mergedStores = new Map(existing.stores)
+  for (const [k, v] of incoming.stores) {
+    if (!mergedStores.has(k)) mergedStores.set(k, v)
+  }
+  ;(result as Record<string, unknown>).stores = mergedStores
+
+  const mergedSuppliers = new Map(existing.suppliers)
+  for (const [k, v] of incoming.suppliers) {
+    if (!mergedSuppliers.has(k)) mergedSuppliers.set(k, v)
+  }
+  ;(result as Record<string, unknown>).suppliers = mergedSuppliers
+
+  return result as ImportedData
+}
+
+// ─── フック本体 ──────────────────────────────────────────
+
+export function usePersistence(): PersistenceState & PersistenceActions {
+  const state = useAppState()
+  const dispatch = useAppDispatch()
+
+  const [available] = useState(() => isIndexedDBAvailable())
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false)
+  const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
+  const [showDiffDialog, setShowDiffDialog] = useState(false)
+  const [diffResult, setDiffResult] = useState<DiffResult | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // 初回のみ実行: 保存データの有無をチェック
+  const checkedRef = useRef(false)
+  useEffect(() => {
+    if (!available || checkedRef.current) return
+    checkedRef.current = true
+
+    getPersistedMeta().then((meta) => {
+      if (meta) {
+        setRestoreMeta(meta)
+        setShowRestoreDialog(true)
+      }
+    }).catch(() => {
+      // IndexedDB アクセスエラーは無視
+    })
+  }, [available])
+
+  const saveCurrentData = useCallback(async () => {
+    if (!available) return
+    setIsSaving(true)
+    try {
+      await saveImportedData(
+        state.data,
+        state.settings.targetYear,
+        state.settings.targetMonth,
+      )
+    } finally {
+      setIsSaving(false)
+    }
+  }, [available, state.data, state.settings.targetYear, state.settings.targetMonth])
+
+  const restoreData = useCallback(async () => {
+    if (!available || !restoreMeta) return
+    try {
+      const data = await loadImportedData(restoreMeta.year, restoreMeta.month)
+      if (data) {
+        dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
+        dispatch({
+          type: 'UPDATE_SETTINGS',
+          payload: { targetYear: restoreMeta.year, targetMonth: restoreMeta.month },
+        })
+      }
+    } finally {
+      setShowRestoreDialog(false)
+    }
+  }, [available, restoreMeta, dispatch])
+
+  const discardSavedData = useCallback(async () => {
+    if (!available || !restoreMeta) {
+      setShowRestoreDialog(false)
+      return
+    }
+    try {
+      await clearMonthData(restoreMeta.year, restoreMeta.month)
+      await clearAllData()
+    } finally {
+      setShowRestoreDialog(false)
+    }
+  }, [available, restoreMeta])
+
+  const dismissRestoreDialog = useCallback(() => {
+    setShowRestoreDialog(false)
+  }, [])
+
+  const checkDiffBeforeImport = useCallback(
+    async (
+      incoming: ImportedData,
+      importedTypes: ReadonlySet<string>,
+    ): Promise<DiffResult | null> => {
+      if (!available) return null
+
+      const { targetYear, targetMonth } = state.settings
+      const existing = await loadImportedData(targetYear, targetMonth)
+      if (!existing) return null
+
+      const diff = calculateDiff(existing, incoming, importedTypes)
+      if (diff.needsConfirmation) {
+        setDiffResult(diff)
+        setShowDiffDialog(true)
+        return diff
+      }
+
+      // 確認不要 → 自動的に保存
+      return null
+    },
+    [available, state.settings],
+  )
+
+  const applyDiffDecision = useCallback(
+    (
+      action: 'overwrite' | 'keep-existing',
+      incoming: ImportedData,
+      existing: ImportedData,
+      importedTypes: ReadonlySet<string>,
+    ): ImportedData => {
+      if (action === 'overwrite') {
+        return incoming
+      }
+      // keep-existing: 挿入のみマージ
+      return mergeInsertsOnly(existing, incoming, importedTypes)
+    },
+    [],
+  )
+
+  const dismissDiffDialog = useCallback(() => {
+    setShowDiffDialog(false)
+    setDiffResult(null)
+  }, [])
+
+  const clearCurrentMonth = useCallback(async () => {
+    if (!available) return
+    await clearMonthData(state.settings.targetYear, state.settings.targetMonth)
+  }, [available, state.settings.targetYear, state.settings.targetMonth])
+
+  const clearAllFn = useCallback(async () => {
+    if (!available) return
+    await clearAllData()
+  }, [available])
+
+  return {
+    available,
+    showRestoreDialog,
+    restoreMeta,
+    showDiffDialog,
+    diffResult,
+    isSaving,
+    saveCurrentData,
+    restoreData,
+    discardSavedData,
+    dismissRestoreDialog,
+    checkDiffBeforeImport,
+    applyDiffDecision,
+    dismissDiffDialog,
+    clearCurrentMonth,
+    clearAll: clearAllFn,
+  }
+}

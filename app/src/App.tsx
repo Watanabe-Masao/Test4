@@ -1,12 +1,20 @@
 import { ThemeProvider } from 'styled-components'
-import { useState, useCallback, useMemo, createContext, useContext } from 'react'
+import { useState, useCallback, useEffect, useMemo, createContext, useContext } from 'react'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { AppStateProvider, useAppUi, useAppDispatch } from '@/application/context'
 import { AppShell, NavBar } from '@/presentation/components/Layout'
 import { ToastProvider, useToast } from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
+import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
 import { useKeyboardShortcuts, useUndoRedo, useCalculation } from '@/application/hooks'
+import {
+  getPersistedMeta,
+  loadImportedData,
+  clearAllData,
+  isIndexedDBAvailable,
+} from '@/infrastructure/storage/IndexedDBStore'
+import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
 import { DashboardPage } from '@/presentation/pages/Dashboard/DashboardPage'
 import { DailyPage } from '@/presentation/pages/Daily/DailyPage'
 import { AnalysisPage } from '@/presentation/pages/Analysis/AnalysisPage'
@@ -73,6 +81,40 @@ function AppContent() {
   const { calculate } = useCalculation()
   const { undo, redo } = useUndoRedo()
   const [showSettingsFromShortcut, setShowSettingsFromShortcut] = useState(false)
+  const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
+
+  // 初回: 保存データの有無をチェック
+  useEffect(() => {
+    if (!isIndexedDBAvailable()) return
+    getPersistedMeta().then((meta) => {
+      if (meta) setRestoreMeta(meta)
+    }).catch(() => {})
+  }, [])
+
+  const handleRestore = useCallback(async () => {
+    if (!restoreMeta) return
+    try {
+      const data = await loadImportedData(restoreMeta.year, restoreMeta.month)
+      if (data) {
+        dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
+        dispatch({
+          type: 'UPDATE_SETTINGS',
+          payload: { targetYear: restoreMeta.year, targetMonth: restoreMeta.month },
+        })
+        showToast(`${restoreMeta.year}年${restoreMeta.month}月のデータを復元しました`, 'success')
+      }
+    } catch {
+      showToast('データの復元に失敗しました', 'error')
+    }
+    setRestoreMeta(null)
+  }, [restoreMeta, dispatch, showToast])
+
+  const handleDiscardRestore = useCallback(async () => {
+    try {
+      await clearAllData()
+    } catch { /* ignore */ }
+    setRestoreMeta(null)
+  }, [])
 
   const handleViewChange = useCallback(
     (view: ViewType) => {
@@ -133,6 +175,13 @@ function AppContent() {
       >
         <ViewRouter view={ui.currentView} />
       </AppShell>
+      {restoreMeta && (
+        <RestoreDataModal
+          meta={restoreMeta}
+          onRestore={handleRestore}
+          onDiscard={handleDiscardRestore}
+        />
+      )}
     </SettingsModalContext.Provider>
   )
 }
