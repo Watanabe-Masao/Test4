@@ -136,20 +136,25 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const gpRateDiff = remainGPRateDecimal - defaultRemainGPRate
 
   // Tool 2: Goal Seek
+  const defaultTargetMonthlySales = Math.round(r.projectedSales)
+  const goalSalesMin = Math.round(actualSales)
+  const goalSalesMax = Math.round(defaultTargetMonthlySales * 1.5)
+  const goalSalesStep = Math.round((goalSalesMax - goalSalesMin) / 100) || 1000
+  const [targetMonthlySales, setTargetMonthlySales] = useState(defaultTargetMonthlySales)
+
   const tool2Valid = targetGPRateDecimal > 0
-  const projectedTotalSales2 = r.projectedSales
-  const targetTotalGP2 = targetGPRateDecimal * projectedTotalSales2
+  const targetTotalSales2 = targetMonthlySales
+  const targetTotalGP2 = targetGPRateDecimal * targetTotalSales2
   const requiredRemainingGP2 = targetTotalGP2 - actualGP
-  const remainingSales2 = projectedTotalSales2 - actualSales
+  const remainingSales2 = targetTotalSales2 - actualSales
   const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
   const goalDiff = targetGPRateDecimal - defaultTargetGPRate
+  const goalSalesDiff = targetMonthlySales - defaultTargetMonthlySales
 
   // Tool 2 追加指標: 売上予算系
   const salesBudget = r.budget
+  const projectedTotalSales2 = r.projectedSales
   const projectedSalesAchievement = salesBudget > 0 ? projectedTotalSales2 / salesBudget : 0
-  const targetTotalSales2 = remainingSales2 > 0 && requiredRemainingGPRate2 > 0
-    ? actualSales + remainingSales2
-    : projectedTotalSales2
   const targetSalesAchievement = salesBudget > 0 ? targetTotalSales2 / salesBudget : 0
 
   // Tool 2 追加指標: 粗利予算系
@@ -263,6 +268,34 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
 
       <ToolCard $accent="#f59e0b">
         <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
+        <ToolInputGroup>
+          <PinInputLabel>
+            目標着地月間売上
+            {goalSalesDiff !== 0 && (
+              <DiffBadge $color={sc.cond(goalSalesDiff > 0)}>
+                {' '}({goalSalesDiff > 0 ? '+' : ''}{formatCurrency(goalSalesDiff)})
+              </DiffBadge>
+            )}
+          </PinInputLabel>
+          <SliderWrapper>
+            <SliderRow>
+              <SliderInput
+                type="range"
+                min={goalSalesMin}
+                max={goalSalesMax}
+                step={goalSalesStep}
+                value={targetMonthlySales}
+                onChange={(e) => setTargetMonthlySales(Number(e.target.value))}
+              />
+              <SliderValue>{formatCurrency(targetMonthlySales)}</SliderValue>
+            </SliderRow>
+            <SliderTicks>
+              <span>{formatCurrency(goalSalesMin)}</span>
+              <ResetButton onClick={() => setTargetMonthlySales(defaultTargetMonthlySales)}>リセット</ResetButton>
+              <span>{formatCurrency(goalSalesMax)}</span>
+            </SliderTicks>
+          </SliderWrapper>
+        </ToolInputGroup>
         <ToolInputGroup>
           <PinInputLabel>
             目標着地粗利率
