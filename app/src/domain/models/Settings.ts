@@ -45,3 +45,4 @@ export type DataType =
   | 'interStoreOut'
   | 'flowers'
   | 'directProduce'
+  | 'categoryTimeSales'

@@ -15,6 +15,7 @@ export interface MonthlyAccumulator {
   totalPurchasePrice: number
   totalDiscount: number
   totalConsumable: number
+  totalCustomers: number
   salesDays: number
   elapsedDays: number
   transferTotals: {

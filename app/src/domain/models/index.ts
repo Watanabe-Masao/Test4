@@ -26,6 +26,9 @@ export type {
   SpecialSalesData,
   SpecialSalesDayEntry,
   ConsumableData,
+  TimeSlotEntry,
+  CategoryTimeSalesRecord,
+  CategoryTimeSalesData,
 } from './DataTypes'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'

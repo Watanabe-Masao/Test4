@@ -41,6 +41,7 @@ export function buildDailyRecords(
   let totalPurchasePrice = 0
   let totalDiscount = 0
   let totalConsumable = 0
+  let totalCustomers = 0
   let salesDays = 0
   let elapsedDays = 0
 
@@ -66,8 +67,9 @@ export function buildDailyRecords(
       ? { cost: purchaseDay.total.cost, price: purchaseDay.total.price }
       : ZERO_COST_PRICE_PAIR
 
-    // 売上
+    // 売上・客数
     const daySales = salesDay?.sales ?? 0
+    const dayCustomers = discountDay?.customers ?? salesDay?.customers ?? 0
 
     // 花・産直
     const flowers: CostPricePair = flowerDay
@@ -196,6 +198,7 @@ export function buildDailyRecords(
         flowers,
         directProduce,
         consumable,
+        customers: dayCustomers,
         discountAmount,
         discountAbsolute,
         supplierBreakdown,
@@ -220,6 +223,7 @@ export function buildDailyRecords(
     totalDirectProduceCost += directProduce.cost
     totalDiscount += discountAbsolute
     totalConsumable += consumable.cost
+    totalCustomers += dayCustomers
 
     // 移動集計
     transferTotals.interStoreIn = addCostPricePairs(transferTotals.interStoreIn, interStoreIn)
@@ -242,6 +246,7 @@ export function buildDailyRecords(
     totalPurchasePrice,
     totalDiscount,
     totalConsumable,
+    totalCustomers,
     salesDays,
     elapsedDays,
     transferTotals,

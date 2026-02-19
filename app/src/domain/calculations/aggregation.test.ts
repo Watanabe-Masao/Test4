@@ -32,6 +32,8 @@ function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {
     discountLossCost: 0,
     averageMarkupRate: 0,
     coreMarkupRate: 0,
+    totalCustomers: 0,
+    averageCustomersPerDay: 0,
     totalConsumable: 0,
     consumableRate: 0,
     budget: 0,

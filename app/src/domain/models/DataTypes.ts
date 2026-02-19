@@ -31,6 +31,7 @@ export type PurchaseData = StoreDayRecord<PurchaseDayEntry>
 /** 売上日別レコード */
 export interface SalesDayEntry {
   readonly sales: number
+  readonly customers?: number
 }
 
 /** 売上パース結果: storeId → day → SalesDayEntry */
@@ -40,6 +41,31 @@ export type SalesData = StoreDayRecord<SalesDayEntry>
 export interface DiscountDayEntry {
   readonly sales: number
   readonly discount: number
+  readonly customers?: number
+}
+
+/** 分類別時間帯売上 時間帯レコード */
+export interface TimeSlotEntry {
+  readonly hour: number
+  readonly quantity: number
+  readonly amount: number
+}
+
+/** 分類別時間帯売上 1行レコード */
+export interface CategoryTimeSalesRecord {
+  readonly day: number
+  readonly storeId: string
+  readonly department: { readonly code: string; readonly name: string }
+  readonly line: { readonly code: string; readonly name: string }
+  readonly klass: { readonly code: string; readonly name: string }
+  readonly timeSlots: readonly TimeSlotEntry[]
+  readonly totalQuantity: number
+  readonly totalAmount: number
+}
+
+/** 分類別時間帯売上パース結果 */
+export interface CategoryTimeSalesData {
+  readonly records: readonly CategoryTimeSalesRecord[]
 }
 
 /** 売変パース結果: storeId → day → DiscountDayEntry */

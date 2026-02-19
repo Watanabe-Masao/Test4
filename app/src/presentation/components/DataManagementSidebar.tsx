@@ -93,7 +93,7 @@ const StoreInventoryTitle = styled.div`
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
-  { type: 'salesDiscount', label: '1_売上売変' },
+  { type: 'salesDiscount', label: '1_売上売変客数' },
   { type: 'purchase', label: '2_仕入' },
   { type: 'flowers', label: '3_花' },
   { type: 'directProduce', label: '4_産直' },
@@ -101,6 +101,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'interStoreOut', label: '6_店間出' },
   { type: 'initialSettings', label: '7_初期設定' },
   { type: 'consumables', label: '8_消耗品', multi: true },
+  { type: 'categoryTimeSales', label: '8.分類別時間帯売上', multi: true },
   { type: 'prevYearSalesDiscount', label: '998_前年売上売変' },
 ]
 

@@ -24,6 +24,7 @@ export interface DailyRecord {
   readonly flowers: CostPricePair // 花
   readonly directProduce: CostPricePair // 産直
   readonly consumable: ConsumableDailyRecord // 消耗品
+  readonly customers?: number // 来店客数
   readonly discountAmount: number // 売変額
   readonly discountAbsolute: number // 売変絶対値
   readonly supplierBreakdown: ReadonlyMap<string, CostPricePair>
