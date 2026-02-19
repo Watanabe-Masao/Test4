@@ -13,6 +13,7 @@ import {
 } from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
 import type { DiffResult } from '@/infrastructure/storage/diffCalculator'
+import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
 
 /** インポート進捗 */
 export interface ImportProgress {
@@ -235,6 +236,25 @@ export function mergeInsertsOnly(
       }
     }
     ;(result as Record<string, unknown>)[field] = merged
+  }
+
+  // categoryTimeSales: フラット配列形式のため個別処理
+  if (importedTypes.has('categoryTimeSales')) {
+    const existingCTS = existing.categoryTimeSales
+    const incomingCTS = incoming.categoryTimeSales
+
+    if (existingCTS.records.length === 0) {
+      ;(result as Record<string, unknown>).categoryTimeSales = incomingCTS
+    } else if (incomingCTS.records.length > 0) {
+      // 既存にないレコードのみ追加（keep-existing）
+      const existingKeys = new Set(existingCTS.records.map(categoryTimeSalesRecordKey))
+      const newRecords = incomingCTS.records.filter(
+        (r) => !existingKeys.has(categoryTimeSalesRecordKey(r)),
+      )
+      ;(result as Record<string, unknown>).categoryTimeSales = {
+        records: [...existingCTS.records, ...newRecords],
+      }
+    }
   }
 
   // stores, suppliers は新規追加のみ
