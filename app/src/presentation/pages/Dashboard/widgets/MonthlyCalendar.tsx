@@ -57,20 +57,48 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     weeks.push(currentWeek)
   }
 
-  // Cumulative data
+  // Cumulative data (sales + customers)
   const cumBudget = new Map<number, number>()
   const cumSales = new Map<number, number>()
   const cumPrevYear = new Map<number, number>()
+  const cumCustomers = new Map<number, number>()
+  const cumPrevCustomers = new Map<number, number>()
   let runBudget = 0
   let runSales = 0
   let runPrevYear = 0
+  let runCustomers = 0
+  let runPrevCustomers = 0
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
     runSales += (r.daily.get(d)?.sales ?? 0)
     runPrevYear += prevYear.daily.get(d)?.sales ?? 0
+    runCustomers += r.daily.get(d)?.customers ?? 0
+    runPrevCustomers += prevYear.daily.get(d)?.customers ?? 0
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
     cumPrevYear.set(d, runPrevYear)
+    cumCustomers.set(d, runCustomers)
+    cumPrevCustomers.set(d, runPrevCustomers)
+  }
+
+  // Moving average transaction value (5-day window)
+  const movingAvgTxVal = new Map<number, number>()
+  const WINDOW = 5
+  for (let d = 1; d <= daysInMonth; d++) {
+    let totalSales = 0
+    let totalCust = 0
+    let count = 0
+    for (let i = Math.max(1, d - WINDOW + 1); i <= d; i++) {
+      const rec = r.daily.get(i)
+      if (rec && rec.sales > 0 && (rec.customers ?? 0) > 0) {
+        totalSales += rec.sales
+        totalCust += rec.customers!
+        count++
+      }
+    }
+    if (count > 0 && totalCust > 0) {
+      movingAvgTxVal.set(d, Math.round(totalSales / totalCust))
+    }
   }
 
   // Range selection
@@ -251,11 +279,29 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               const dayCust = rec?.customers ?? 0
                               if (dayCust <= 0) return null
                               const dayTxVal = Math.round(actual / dayCust)
+                              const pyCust = prevYear.hasPrevYear ? (prevYear.daily.get(day)?.customers ?? 0) : 0
+                              const custYoY = pyCust > 0 ? dayCust / pyCust : 0
+                              const custYoYColor = custYoY >= 1 ? sc.positive : custYoY > 0 ? sc.negative : undefined
+                              const cCust = cumCustomers.get(day) ?? 0
+                              const cPyCust = cumPrevCustomers.get(day) ?? 0
+                              const cCustYoY = cPyCust > 0 ? cCust / cPyCust : 0
+                              const cCustYoYColor = cCustYoY >= 1 ? sc.positive : cCustYoY > 0 ? sc.negative : undefined
+                              const maVal = movingAvgTxVal.get(day)
                               return (
                                 <>
                                   <CalDivider />
                                   <CalCell $color="#06b6d4">客 {dayCust}</CalCell>
                                   <CalCell $color="#8b5cf6">単 {dayTxVal.toLocaleString()}</CalCell>
+                                  {pyCust > 0 && (
+                                    <CalCell $color={custYoYColor}>客前比 {formatPercent(custYoY, 0)}</CalCell>
+                                  )}
+                                  {maVal && (
+                                    <CalCell $color="#a78bfa">移平単 {maVal.toLocaleString()}</CalCell>
+                                  )}
+                                  <CalCell $color="#06b6d4">累客 {cCust}</CalCell>
+                                  {cPyCust > 0 && (
+                                    <CalCell $color={cCustYoYColor}>累客比 {formatPercent(cCustYoY, 0)}</CalCell>
+                                  )}
                                 </>
                               )
                             })()}
