@@ -57,6 +57,7 @@ function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {
     projectedAchievement: 0,
     budgetAchievementRate: 0,
     budgetProgressRate: 0,
+    budgetElapsedRate: 0,
     remainingBudget: 0,
     dailyCumulative: new Map(),
     ...overrides,

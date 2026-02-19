@@ -153,7 +153,11 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const rawDiscount: number[] = []
     const rawPrevDiscount: number[] = []
     let cumSales = 0, cumPrevSales = 0, cumDiscount = 0, cumGrossSales = 0
-    const bd = []
+    const bd: {
+      day: number; sales: number; discount: number; prevYearSales: number | null; prevYearDiscount: number | null
+      customers: number; txValue: number | null; prevCustomers: number | null
+      prevTxValue: number | null; currentCum: number; prevYearCum: number | null; cumDiscountRate: number
+    }[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
       const sales = rec?.sales ?? 0
@@ -356,7 +360,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => allLabels[value] ?? value}
-            payload={wfLegendPayload}
+            {...(wfLegendPayload ? { payload: wfLegendPayload as never } : {})}
           />
 
           {/* ── ウォーターフォール: 売上系 ── */}

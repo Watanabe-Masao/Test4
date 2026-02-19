@@ -223,6 +223,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     aggCumulativeBudget += aggBudgetDaily.get(d) ?? 0
   }
   const budgetProgressRate = safeDivide(totalSales, aggCumulativeBudget, 0)
+  const budgetElapsedRate = safeDivide(aggCumulativeBudget, budget, 0)
   const remainingBudget = budget - totalSales
 
   const dailyCumulative = new Map<number, { sales: number; budget: number }>()
@@ -289,6 +290,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     projectedAchievement,
     budgetAchievementRate,
     budgetProgressRate,
+    budgetElapsedRate,
     remainingBudget,
     dailyCumulative,
   }

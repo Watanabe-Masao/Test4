@@ -136,7 +136,8 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
   }, [categoryTimeSales, selectedStoreIds, level, filter, metric])
 
   // バー内のカスタムラベル（金額＋構成比）
-  const renderBarLabel = useCallback((props: Record<string, unknown>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderBarLabel = useCallback((props: any) => {
     const { x, y, width, height, index } = props as {
       x: number; y: number; width: number; height: number; index: number
     }
