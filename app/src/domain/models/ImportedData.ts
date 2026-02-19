@@ -7,6 +7,7 @@ import type {
   TransferData,
   SpecialSalesData,
   ConsumableData,
+  CategoryTimeSalesData,
 } from './DataTypes'
 
 /** インポートされた全データの集約 */
@@ -23,6 +24,7 @@ export interface ImportedData {
   readonly flowers: SpecialSalesData
   readonly directProduce: SpecialSalesData
   readonly consumables: ConsumableData
+  readonly categoryTimeSales: CategoryTimeSalesData
   readonly settings: ReadonlyMap<string, InventoryConfig>
   readonly budget: ReadonlyMap<string, BudgetData>
 }
@@ -42,6 +44,7 @@ export function createEmptyImportedData(): ImportedData {
     flowers: {},
     directProduce: {},
     consumables: {},
+    categoryTimeSales: { records: [] },
     settings: new Map(),
     budget: new Map(),
   }

@@ -37,6 +37,10 @@ export interface StoreResult {
   readonly estMethodMarginRate: number // 推定法: 推定マージン率 ※実粗利率ではない
   readonly estMethodClosingInventory: number | null // 推定法: 推定期末在庫
 
+  // ─── 客数 ──────────────────────────────────────────────
+  readonly totalCustomers: number // 来店客数合計
+  readonly averageCustomersPerDay: number // 日平均客数
+
   // ─── 売変 ──────────────────────────────────────────────
   readonly totalDiscount: number // 売変額合計
   readonly discountRate: number // 売変率（売価ベース）

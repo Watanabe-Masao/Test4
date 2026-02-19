@@ -45,12 +45,19 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['前年売上売変', '前年売上', 'prev_uriage'],
     headerPatterns: [],
   },
-  // 売上売変の複合ファイルを sales / discount より先に判定する
+  // 売上売変客数の複合ファイル（客数を含む新形式も同一タイプで処理）
   {
     type: 'salesDiscount',
     name: '売上売変',
-    filenamePatterns: ['売上売変', 'uriage_baihen', 'uriageBaihen'],
+    filenamePatterns: ['売上売変客数', '売上売変', 'uriage_baihen', 'uriageBaihen'],
     headerPatterns: [],
+  },
+  // 分類別時間帯売上（消耗品の前に配置 — 8. vs 8_ の競合防止）
+  {
+    type: 'categoryTimeSales',
+    name: '分類別時間帯売上',
+    filenamePatterns: ['分類別時間帯売上', '時間帯売上'],
+    headerPatterns: ['取引時間', '【ライン】', '【クラス】'],
   },
   {
     type: 'sales',
@@ -111,6 +118,9 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
  */
 function matchByFilename(filename: string): DataType | null {
   const basename = filename.replace(/^.*[\\/]/, '')
+
+  // 分類別時間帯売上: "8.分類別時間帯売上" (例: 8.分類別時間帯売上260201.csv)
+  if (/^8\.分類別/.test(basename) || /^8\..*時間帯/.test(basename)) return 'categoryTimeSales'
 
   // 消耗品: 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
   if (/^\d{2}消耗/.test(basename)) return 'consumables'

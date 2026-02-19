@@ -44,6 +44,7 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
       cost: existing.consumable.cost + rec.consumable.cost,
       items: [...existing.consumable.items, ...rec.consumable.items],
     },
+    customers: (existing.customers ?? 0) + (rec.customers ?? 0),
     discountAmount: existing.discountAmount + rec.discountAmount,
     discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
     supplierBreakdown: mergedSB,
@@ -75,6 +76,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
   let deliverySalesCost = 0
   let totalDiscount = 0
   let totalConsumable = 0
+  let totalCustomers = 0
   let budget = 0
   let gpBudget = 0
   let elapsedDays = 0
@@ -108,6 +110,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     deliverySalesCost += r.deliverySalesCost
     totalDiscount += r.totalDiscount
     totalConsumable += r.totalConsumable
+    totalCustomers += r.totalCustomers
     budget += r.budget
     gpBudget += r.grossProfitBudget
     elapsedDays = Math.max(elapsedDays, r.elapsedDays)
@@ -262,6 +265,8 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     estMethodMargin,
     estMethodMarginRate,
     estMethodClosingInventory,
+    totalCustomers,
+    averageCustomersPerDay: safeDivide(totalCustomers, salesDays, 0),
     totalDiscount,
     discountRate,
     discountLossCost,

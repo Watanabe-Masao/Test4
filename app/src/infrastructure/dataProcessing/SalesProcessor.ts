@@ -5,9 +5,31 @@ import type { SalesData } from '@/domain/models'
 export type { SalesData } from '@/domain/models'
 
 /**
+ * ヘッダー行から店舗列位置を検出する（2列/3列ペア自動対応）
+ */
+function detectStoreColumns(headerRow: readonly unknown[]): { col: number; storeId: string; stride: number }[] {
+  const storeCols: { col: number; storeId: string }[] = []
+  for (let col = 3; col < headerRow.length; col++) {
+    const cellStr = String(headerRow[col] ?? '')
+    const match = cellStr.match(/(\d{4}):/)
+    if (match) {
+      storeCols.push({ col, storeId: String(parseInt(match[1])) })
+    }
+  }
+
+  if (storeCols.length === 0) return []
+
+  const stride = storeCols.length >= 2
+    ? storeCols[1].col - storeCols[0].col
+    : (headerRow.length - storeCols[0].col) >= 3 ? 3 : 2
+
+  return storeCols.map(({ col, storeId }) => ({ col, storeId, stride }))
+}
+
+/**
  * 売上データを処理する
  *
- * 行0: 店舗コード（"NNNN:店舗名" Col3〜、2列ペア）
+ * 行0: 店舗コード（"NNNN:店舗名" Col3〜）
  * 行3+: データ行（Col0: 日付, Col3+: 売上金額）
  *
  * targetMonth を指定すると、その月のデータのみ抽出する
@@ -15,18 +37,9 @@ export type { SalesData } from '@/domain/models'
 export function processSales(rows: readonly unknown[][], targetMonth?: number): SalesData {
   if (rows.length < 4) return {}
 
-  const result: Record<string, Record<number, { sales: number }>> = {}
+  const result: Record<string, Record<number, { sales: number; customers: number }>> = {}
 
-  // ヘッダー解析: 列→店舗IDのマッピング
-  const columnMap: { col: number; storeId: string }[] = []
-  for (let col = 3; col < (rows[0] as unknown[]).length; col += 2) {
-    const stoStr = String((rows[0] as unknown[])[col] ?? '')
-    const stoMatch = stoStr.match(/(\d{4}):/)
-    if (stoMatch) {
-      const storeId = String(parseInt(stoMatch[1]))
-      columnMap.push({ col, storeId })
-    }
-  }
+  const columnMap = detectStoreColumns(rows[0] as unknown[])
 
   // データ行処理
   for (let row = 3; row < rows.length; row++) {
@@ -42,10 +55,12 @@ export function processSales(rows: readonly unknown[][], targetMonth?: number): 
     }
     if (day == null) continue
 
-    for (const { col, storeId } of columnMap) {
+    for (const { col, storeId, stride } of columnMap) {
       const sales = safeNumber(r[col])
+      // 3列ペアの場合: col=販売金額, col+1=売変, col+2=客数
+      const customers = stride >= 3 ? safeNumber(r[col + 2]) : 0
       if (!result[storeId]) result[storeId] = {}
-      result[storeId][day] = { sales }
+      result[storeId][day] = { sales, customers }
     }
   }
 
@@ -53,14 +68,15 @@ export function processSales(rows: readonly unknown[][], targetMonth?: number): 
 }
 
 /**
- * 売上データから店舗一覧を抽出する
+ * 売上データから店舗一覧を抽出する（2列/3列ペア自動対応）
  */
 export function extractStoresFromSales(rows: readonly unknown[][]): Map<string, { id: string; code: string; name: string }> {
   const stores = new Map<string, { id: string; code: string; name: string }>()
   if (rows.length < 1) return stores
 
-  for (let col = 3; col < (rows[0] as unknown[]).length; col += 2) {
-    const stoStr = String((rows[0] as unknown[])[col] ?? '')
+  const headerRow = rows[0] as unknown[]
+  for (let col = 3; col < headerRow.length; col++) {
+    const stoStr = String(headerRow[col] ?? '')
     const stoMatch = stoStr.match(/(\d{4}):(.*)/)
     if (stoMatch) {
       const code = stoMatch[1]

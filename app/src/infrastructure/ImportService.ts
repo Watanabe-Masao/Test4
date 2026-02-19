@@ -16,14 +16,15 @@ import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
+import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
 
 /** DiscountData から SalesData を構築する */
 function discountToSalesData(discountData: DiscountData): SalesData {
-  const salesData: Record<string, Record<number, { sales: number }>> = {}
+  const salesData: Record<string, Record<number, { sales: number; customers: number }>> = {}
   for (const [storeId, days] of Object.entries(discountData)) {
     salesData[storeId] = {}
     for (const [day, d] of Object.entries(days)) {
-      salesData[storeId][Number(day)] = { sales: d.sales }
+      salesData[storeId][Number(day)] = { sales: d.sales, customers: d.customers ?? 0 }
     }
   }
   return salesData
@@ -98,6 +99,7 @@ const DATE_START_ROW: Partial<Record<DataType, number>> = {
   discount: 2,
   salesDiscount: 2,
   prevYearSalesDiscount: 2,
+  categoryTimeSales: 3,
 }
 
 /**
@@ -234,6 +236,17 @@ export function processFileData(
           ...current,
           consumables: mergeConsumableData(current.consumables, newData),
         },
+      }
+    }
+
+    case 'categoryTimeSales': {
+      const newData = processCategoryTimeSales(rows, effectiveMonth)
+      return {
+        data: {
+          ...current,
+          categoryTimeSales: mergeCategoryTimeSalesData(current.categoryTimeSales, newData),
+        },
+        detectedYearMonth,
       }
     }
 
