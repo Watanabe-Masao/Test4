@@ -102,7 +102,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'initialSettings', label: '7_初期設定' },
   { type: 'consumables', label: '8_消耗品', multi: true },
   { type: 'categoryTimeSales', label: '8.分類別時間帯売上', multi: true },
-  { type: 'prevYearSalesDiscount', label: '998_前年売上売変' },
+  { type: 'prevYearSalesDiscount', label: '998_前年売上売変客数' },
 ]
 
 export function DataManagementSidebar({

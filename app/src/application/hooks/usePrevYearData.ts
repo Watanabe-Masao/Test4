@@ -6,6 +6,7 @@ import { getDaysInMonth } from '@/domain/constants/defaults'
 export interface PrevYearDailyEntry {
   readonly sales: number
   readonly discount: number
+  readonly customers: number
 }
 
 export interface PrevYearData {
@@ -15,6 +16,8 @@ export interface PrevYearData {
   readonly totalSales: number
   /** 経過日数分の前年同曜日売変合計 */
   readonly totalDiscount: number
+  /** 経過日数分の前年同曜日客数合計 */
+  readonly totalCustomers: number
 }
 
 const EMPTY: PrevYearData = {
@@ -22,6 +25,7 @@ const EMPTY: PrevYearData = {
   daily: new Map(),
   totalSales: 0,
   totalDiscount: 0,
+  totalCustomers: 0,
 }
 
 /**
@@ -67,7 +71,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
 
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
-    const daily = new Map<number, { sales: number; discount: number }>()
+    const daily = new Map<number, { sales: number; discount: number; customers: number }>()
     for (const storeId of targetIds) {
       const days = prevYearDiscount[storeId]
       if (!days) continue
@@ -76,14 +80,16 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
         const mappedDay = origDay - offset // 当年の日番号に対応付け
         if (mappedDay < 1 || mappedDay > daysInTargetMonth) continue // 当年月の範囲外はスキップ
 
+        const customers = entry.customers ?? 0
         const existing = daily.get(mappedDay)
         if (existing) {
           daily.set(mappedDay, {
             sales: existing.sales + entry.sales,
             discount: existing.discount + entry.discount,
+            customers: existing.customers + customers,
           })
         } else {
-          daily.set(mappedDay, { sales: entry.sales, discount: entry.discount })
+          daily.set(mappedDay, { sales: entry.sales, discount: entry.discount, customers })
         }
       }
     }
@@ -92,13 +98,15 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     const upperDay = elapsedDays ?? daysInTargetMonth
     let totalSales = 0
     let totalDiscount = 0
+    let totalCustomers = 0
     for (const [day, entry] of daily) {
       if (day <= upperDay) {
         totalSales += entry.sales
         totalDiscount += entry.discount
+        totalCustomers += entry.customers
       }
     }
 
-    return { hasPrevYear: true, daily, totalSales, totalDiscount }
+    return { hasPrevYear: true, daily, totalSales, totalDiscount, totalCustomers }
   }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays])
 }
