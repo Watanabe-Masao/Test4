@@ -119,8 +119,9 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number, name: string, props: { payload: WaterfallItem }) => {
+            formatter={(_value: unknown, _name: unknown, props: { payload?: WaterfallItem }) => {
               const item = props.payload
+              if (!item) return ['-', '-']
               return [formatCurrency(item.value), item.name]
             }}
           />
@@ -132,7 +133,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             <LabelList
               dataKey="value"
               position="top"
-              formatter={(v: number) => toManYen(v)}
+              formatter={(v: unknown) => toManYen(Number(v))}
               style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
             />
             {data.map((item, idx) => (
