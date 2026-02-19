@@ -106,7 +106,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number) => [`${Math.round(value).toLocaleString()}円`, '']}
+            formatter={(value: number | undefined) => [`${Math.round(value ?? 0).toLocaleString()}円`, '']}
           />
         </RadarChart>
       </ResponsiveContainer>
