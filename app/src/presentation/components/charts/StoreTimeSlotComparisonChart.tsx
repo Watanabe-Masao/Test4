@@ -227,9 +227,6 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
           </TabGroup>
         </Controls>
       </Header>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
-
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
         {viewMode === 'radar' ? (
           <RadarChart data={chartData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
@@ -357,6 +354,8 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
           </tbody>
         </MiniTable>
       </CompTable>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

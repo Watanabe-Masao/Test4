@@ -153,8 +153,6 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   return (
     <Wrapper>
       <Title>時間帯×曜日 売上ヒートマップ{modeLabel}</Title>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
       <Grid style={{ gridTemplateColumns: `50px repeat(${DOW_LABELS.length}, 1fr)` }}>
         {/* Header row */}
         <HeaderCell />
@@ -186,6 +184,8 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
         <LegendBar />
         <span>高</span>
       </LegendRow>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

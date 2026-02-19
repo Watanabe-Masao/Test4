@@ -299,9 +299,6 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
         ))}
         {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
       </BreadcrumbBar>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
-
       <SummaryBar>
         <SummaryItem><SummaryLabel>{levelLabels[currentLevel]}数</SummaryLabel><SummaryValue>{items.length}</SummaryValue></SummaryItem>
         <SummaryItem><SummaryLabel>合計金額</SummaryLabel><SummaryValue>{Math.round(totalAmt / 10000).toLocaleString()}万円</SummaryValue></SummaryItem>
@@ -352,6 +349,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
           </tbody>
         </Table>
       </TableWrap>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

@@ -293,8 +293,6 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
           </TabGroup>
         </Controls>
       </Header>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -331,6 +329,8 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
           ))}
         </AreaChart>
       </ResponsiveContainer>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

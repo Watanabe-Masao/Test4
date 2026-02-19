@@ -210,8 +210,6 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
           </TabGroup>
         </Controls>
       </Header>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
         <BarChart
           data={data}
@@ -249,6 +247,8 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

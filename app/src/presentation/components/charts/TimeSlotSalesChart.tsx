@@ -194,9 +194,6 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
         </TabGroup>
       </HeaderRow>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
-
       {viewMode === 'chart' ? (
         <div style={{ width: '100%', height: 340 }}>
           <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
@@ -289,6 +286,8 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           </Card>
         </Grid>
       ) : null}
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }
