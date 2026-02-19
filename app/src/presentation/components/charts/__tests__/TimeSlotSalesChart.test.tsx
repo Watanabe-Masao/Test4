@@ -37,6 +37,9 @@ describe('TimeSlotSalesChart', () => {
       <TimeSlotSalesChart
         categoryTimeSales={categoryTimeSales}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -50,6 +53,9 @@ describe('TimeSlotSalesChart', () => {
       <TimeSlotSalesChart
         categoryTimeSales={categoryTimeSales}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -87,6 +93,9 @@ describe('TimeSlotSalesChart', () => {
       <TimeSlotSalesChart
         categoryTimeSales={categoryTimeSales}
         selectedStoreIds={new Set(['2'])}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
