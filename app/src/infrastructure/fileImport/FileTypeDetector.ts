@@ -41,8 +41,8 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
   // 前年売上売変を salesDiscount より先に判定する（「前年」キーワードで区別）
   {
     type: 'prevYearSalesDiscount',
-    name: '前年売上売変',
-    filenamePatterns: ['前年売上売変', '前年売上', 'prev_uriage'],
+    name: '前年売上売変客数',
+    filenamePatterns: ['前年売上売変客数', '前年売上売変', '前年売上', 'prev_uriage'],
     headerPatterns: [],
   },
   // 売上売変客数の複合ファイル（客数を含む新形式も同一タイプで処理）
