@@ -217,3 +217,176 @@ export function countDowInRange(
   }
   return counts
 }
+
+/* ── 部門/ライン/クラス プルダウンフィルタ ──────────────── */
+
+interface HierarchyOption {
+  code: string
+  name: string
+  total: number
+}
+
+export interface HierarchyFilterState {
+  deptCode: string
+  lineCode: string
+  klassCode: string
+}
+
+export interface HierarchyFilterResult extends HierarchyFilterState {
+  setDeptCode: (code: string) => void
+  setLineCode: (code: string) => void
+  setKlassCode: (code: string) => void
+  departments: HierarchyOption[]
+  lines: HierarchyOption[]
+  klasses: HierarchyOption[]
+  applyFilter: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
+}
+
+/** 部門/ライン/クラスの絞り込みプルダウン用 hook */
+export function useHierarchyDropdown(
+  records: readonly CategoryTimeSalesRecord[],
+  selectedStoreIds: ReadonlySet<string>,
+): HierarchyFilterResult {
+  const [deptCode, setDeptCode] = useState('')
+  const [lineCode, setLineCode] = useState('')
+  const [klassCode, setKlassCode] = useState('')
+
+  const storeFiltered = useMemo(
+    () => selectedStoreIds.size === 0 ? records : records.filter((r) => selectedStoreIds.has(r.storeId)),
+    [records, selectedStoreIds],
+  )
+
+  const departments = useMemo(() => {
+    const map = new Map<string, { name: string; total: number }>()
+    for (const rec of storeFiltered) {
+      const ex = map.get(rec.department.code)
+      if (ex) { ex.total += rec.totalAmount } else {
+        map.set(rec.department.code, { name: rec.department.name || rec.department.code, total: rec.totalAmount })
+      }
+    }
+    return Array.from(map.entries())
+      .map(([code, v]) => ({ code, name: v.name, total: v.total }))
+      .sort((a, b) => b.total - a.total)
+  }, [storeFiltered])
+
+  const lines = useMemo(() => {
+    const filtered = deptCode ? storeFiltered.filter((r) => r.department.code === deptCode) : storeFiltered
+    const map = new Map<string, { name: string; total: number }>()
+    for (const rec of filtered) {
+      const ex = map.get(rec.line.code)
+      if (ex) { ex.total += rec.totalAmount } else {
+        map.set(rec.line.code, { name: rec.line.name || rec.line.code, total: rec.totalAmount })
+      }
+    }
+    return Array.from(map.entries())
+      .map(([code, v]) => ({ code, name: v.name, total: v.total }))
+      .sort((a, b) => b.total - a.total)
+  }, [storeFiltered, deptCode])
+
+  const klasses = useMemo(() => {
+    let filtered = storeFiltered
+    if (deptCode) filtered = filtered.filter((r) => r.department.code === deptCode)
+    if (lineCode) filtered = filtered.filter((r) => r.line.code === lineCode)
+    const map = new Map<string, { name: string; total: number }>()
+    for (const rec of filtered) {
+      const ex = map.get(rec.klass.code)
+      if (ex) { ex.total += rec.totalAmount } else {
+        map.set(rec.klass.code, { name: rec.klass.name || rec.klass.code, total: rec.totalAmount })
+      }
+    }
+    return Array.from(map.entries())
+      .map(([code, v]) => ({ code, name: v.name, total: v.total }))
+      .sort((a, b) => b.total - a.total)
+  }, [storeFiltered, deptCode, lineCode])
+
+  const applyFilter = useCallback(
+    (recs: readonly CategoryTimeSalesRecord[]) => {
+      let result = recs
+      if (deptCode) result = result.filter((r) => r.department.code === deptCode)
+      if (lineCode) result = result.filter((r) => r.line.code === lineCode)
+      if (klassCode) result = result.filter((r) => r.klass.code === klassCode)
+      return result
+    },
+    [deptCode, lineCode, klassCode],
+  )
+
+  // 親が変わったら子をリセット
+  const wrappedSetDept = useCallback((code: string) => {
+    setDeptCode(code); setLineCode(''); setKlassCode('')
+  }, [])
+  const wrappedSetLine = useCallback((code: string) => {
+    setLineCode(code); setKlassCode('')
+  }, [])
+
+  return {
+    deptCode, lineCode, klassCode,
+    setDeptCode: wrappedSetDept, setLineCode: wrappedSetLine, setKlassCode,
+    departments, lines, klasses, applyFilter,
+  }
+}
+
+/* ── HierarchyDropdowns UI ─────────────────────────────── */
+
+const FilterSelect = styled.select`
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text2};
+  cursor: pointer;
+  max-width: 140px;
+  &:focus { outline: none; border-color: ${({ theme }) => theme.colors.palette.primary}; }
+`
+
+const DropdownRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: 0 ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  flex-wrap: wrap;
+`
+
+const DropdownLabel = styled.span`
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.text4};
+  white-space: nowrap;
+`
+
+interface HierarchyDropdownsProps {
+  hf: HierarchyFilterResult
+  /** 表示する階層 (デフォルト: 全て) */
+  levels?: ('dept' | 'line' | 'klass')[]
+}
+
+export function HierarchyDropdowns({ hf, levels = ['dept', 'line', 'klass'] }: HierarchyDropdownsProps) {
+  const showDept = levels.includes('dept') && hf.departments.length > 1
+  const showLine = levels.includes('line') && hf.lines.length > 1
+  const showKlass = levels.includes('klass') && hf.klasses.length > 1
+  if (!showDept && !showLine && !showKlass) return null
+
+  return (
+    <DropdownRow>
+      <DropdownLabel>絞込</DropdownLabel>
+      {showDept && (
+        <FilterSelect value={hf.deptCode} onChange={(e) => hf.setDeptCode(e.target.value)}>
+          <option value="">全部門</option>
+          {hf.departments.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
+        </FilterSelect>
+      )}
+      {showLine && (
+        <FilterSelect value={hf.lineCode} onChange={(e) => hf.setLineCode(e.target.value)}>
+          <option value="">全ライン</option>
+          {hf.lines.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+        </FilterSelect>
+      )}
+      {showKlass && (
+        <FilterSelect value={hf.klassCode} onChange={(e) => hf.setKlassCode(e.target.value)}>
+          <option value="">全クラス</option>
+          {hf.klasses.map((k) => <option key={k.code} value={k.code}>{k.name}</option>)}
+        </FilterSelect>
+      )}
+    </DropdownRow>
+  )
+}

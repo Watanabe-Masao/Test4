@@ -7,7 +7,7 @@ import {
   filterByHierarchy,
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -196,6 +196,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const currentLevel = filter.lineCode ? 'klass' : filter.departmentCode ? 'line' : 'department'
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
@@ -213,10 +215,10 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
   }, [filter])
 
   const filteredRecords = useMemo(() => {
-    let recs = pf.filterRecords(categoryTimeSales.records)
+    let recs = hf.applyFilter(periodRecords)
     if (selectedStoreIds.size > 0) recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
     return filterByHierarchy(recs, filter)
-  }, [categoryTimeSales, selectedStoreIds, filter, pf])
+  }, [periodRecords, selectedStoreIds, filter, hf])
 
   const items = useMemo(() => {
     const map = new Map<string, {
@@ -298,6 +300,7 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
         {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
       </BreadcrumbBar>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
 
       <SummaryBar>
         <SummaryItem><SummaryLabel>{levelLabels[currentLevel]}数</SummaryLabel><SummaryValue>{items.length}</SummaryValue></SummaryItem>

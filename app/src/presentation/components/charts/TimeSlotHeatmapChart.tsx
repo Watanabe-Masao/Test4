@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, countDowInRange } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, countDowInRange, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -103,12 +103,14 @@ interface Props {
 export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth }: Props) {
   const { filter } = useCategoryHierarchy()
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const { hours, matrix, maxVal } = useMemo(() => {
     // hour → dow → amount
     const map = new Map<number, Map<number, number>>()
     const hourSet = new Set<number>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
 
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
@@ -142,7 +144,7 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     const maxVal = Math.max(0, ...matrix.flat())
 
     return { hours, matrix, maxVal }
-  }, [categoryTimeSales, selectedStoreIds, year, month, filter, pf])
+  }, [periodRecords, selectedStoreIds, year, month, filter, pf, hf])
 
   if (hours.length === 0) return null
 
@@ -152,6 +154,7 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     <Wrapper>
       <Title>時間帯×曜日 売上ヒートマップ{modeLabel}</Title>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
       <Grid style={{ gridTemplateColumns: `50px repeat(${DOW_LABELS.length}, 1fr)` }}>
         {/* Header row */}
         <HeaderCell />

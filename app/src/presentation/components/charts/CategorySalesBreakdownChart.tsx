@@ -14,7 +14,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -99,10 +99,12 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
   const [metric, setMetric] = useState<Metric>('amount')
   const { filter } = useCategoryHierarchy()
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const data = useMemo(() => {
     const map = new Map<string, { name: string; amount: number; quantity: number }>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
 
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
@@ -140,7 +142,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       ...d,
       pct: total > 0 ? ((metric === 'amount' ? d.amount : d.quantity) / total) * 100 : 0,
     }))
-  }, [categoryTimeSales, selectedStoreIds, level, filter, metric, pf])
+  }, [periodRecords, selectedStoreIds, level, filter, metric, pf, hf])
 
   // バー内のカスタムラベル（金額＋構成比）
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -209,6 +211,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
         </Controls>
       </Header>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
         <BarChart
           data={data}

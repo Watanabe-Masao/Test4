@@ -19,7 +19,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -137,11 +137,13 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
   const [viewMode, setViewMode] = useState<ViewMode>('bar')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, new Set<string>())
 
   const { data, dataPct, storeNames, hours, storeTotals } = useMemo(() => {
     const storeHourMap = new Map<string, Map<number, number>>()
     const hourSet = new Set<number>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
 
     for (const rec of filtered) {
       if (!storeHourMap.has(rec.storeId)) storeHourMap.set(rec.storeId, new Map())
@@ -190,7 +192,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     })
 
     return { data, dataPct, storeNames, hours, storeTotals }
-  }, [categoryTimeSales, stores, filter, pf])
+  }, [periodRecords, stores, filter, pf, hf])
 
   if (data.length === 0 || storeNames.length <= 1) return null
 
@@ -226,6 +228,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
         </Controls>
       </Header>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
         {viewMode === 'radar' ? (
@@ -259,6 +262,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
                   : `${toComma(Math.round(value ?? 0))}円`,
                 name ?? '',
               ]}
+              itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
             />
           </RadarChart>
         ) : (
@@ -285,6 +289,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
                   : `${toComma(Math.round(value ?? 0))}円`,
                 name ?? '',
               ]}
+              itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
             />
             <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
             {storeNames.map((s, i) => (

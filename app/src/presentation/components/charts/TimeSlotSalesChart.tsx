@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -111,10 +111,12 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const { chartData, kpi } = useMemo(() => {
     const hourly = new Map<number, { amount: number; quantity: number }>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
     const records = filtered.filter(
       (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
     )
@@ -179,7 +181,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         activeHours, avgPerHour, recordCount: records.length,
       } : null,
     }
-  }, [categoryTimeSales, selectedStoreIds, filter, pf])
+  }, [periodRecords, selectedStoreIds, filter, pf, hf])
 
   if (chartData.length === 0) return null
 
@@ -193,6 +195,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         </TabGroup>
       </HeaderRow>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
 
       {viewMode === 'chart' ? (
         <div style={{ width: '100%', height: 340 }}>

@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -113,11 +113,13 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
   const [lineFilter, setLineFilter] = useState<string>('')
   const { filter } = useCategoryHierarchy()
   const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）
   const availableLines = useMemo(() => {
     const lineMap = new Map<string, string>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       if (!lineMap.has(rec.line.code)) {
@@ -133,12 +135,12 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     return Array.from(lineMap.entries())
       .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
       .sort((a, b) => b.total - a.total)
-  }, [categoryTimeSales, selectedStoreIds, filter, pf])
+  }, [periodRecords, selectedStoreIds, filter, hf])
 
   // 利用可能な部門一覧（部門→ライン表示時のフィルタ用）
   const availableDepartments = useMemo(() => {
     const deptMap = new Map<string, string>()
-    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       if (!deptMap.has(rec.department.code)) {
@@ -153,7 +155,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     return Array.from(deptMap.entries())
       .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
       .sort((a, b) => b.total - a.total)
-  }, [categoryTimeSales, selectedStoreIds, filter, pf])
+  }, [periodRecords, selectedStoreIds, filter, hf])
 
   const [deptFilter, setDeptFilter] = useState<string>('')
 
@@ -161,7 +163,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
-    let filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
+    let filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
 
     // 追加フィルタ：ラインでクラスを絞る、部門でラインを絞る
     if (groupLevel === 'klass' && lineFilter) {
@@ -213,7 +215,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     })
 
     return { data, departments: topDepts.map((d) => d.name) }
-  }, [categoryTimeSales, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter, pf])
+  }, [periodRecords, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter, pf, hf])
 
   if (data.length === 0 || departments.length === 0) return null
 
@@ -292,6 +294,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
         </Controls>
       </Header>
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -311,6 +314,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0) + '円', name ?? '']}
+            itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {departments.map((dept, i) => (
