@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@/presentation/components/common'
-import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecRow, ExecDividerLine,

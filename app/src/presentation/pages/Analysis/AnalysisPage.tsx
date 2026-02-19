@@ -17,32 +17,24 @@ export function AnalysisPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('total')
   const [chartMode, setChartMode] = useState<ChartMode>('budget-vs-actual')
 
-  if (!isCalculated || !currentResult) {
-    return (
-      <MainContent title="予算分析" storeName={storeName}>
-        <EmptyState>計算を実行してください</EmptyState>
-      </MainContent>
-    )
-  }
-
-  const r = currentResult
-
   // 日別売上マップ
   const salesDaily = useMemo(() => {
+    if (!currentResult) return new Map<number, number>()
     const m = new Map<number, number>()
-    for (const [d, rec] of r.daily) m.set(d, rec.sales)
+    for (const [d, rec] of currentResult.daily) m.set(d, rec.sales)
     return m
-  }, [r.daily])
+  }, [currentResult])
 
   // 累計データ
   const chartData = useMemo(() => {
+    if (!currentResult) return []
     const data = []
     let cumActual = 0
     let cumBudget = 0
     let cumPy = 0
     for (let d = 1; d <= daysInMonth; d++) {
       cumActual += salesDaily.get(d) ?? 0
-      cumBudget += r.budgetDaily.get(d) ?? 0
+      cumBudget += currentResult.budgetDaily.get(d) ?? 0
       cumPy += prevYear.daily.get(d)?.sales ?? 0
       data.push({
         day: d,
@@ -52,7 +44,17 @@ export function AnalysisPage() {
       })
     }
     return data
-  }, [salesDaily, r.budgetDaily, prevYear, daysInMonth])
+  }, [currentResult, salesDaily, prevYear, daysInMonth])
+
+  if (!isCalculated || !currentResult) {
+    return (
+      <MainContent title="予算分析" storeName={storeName}>
+        <EmptyState>計算を実行してください</EmptyState>
+      </MainContent>
+    )
+  }
+
+  const r = currentResult
 
   // 粗利実績
   const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
