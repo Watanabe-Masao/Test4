@@ -115,6 +115,7 @@ const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
 export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
+  const [showSalesMa, setShowSalesMa] = useState(false)
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const rawSales: number[] = []
@@ -164,8 +165,8 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     txValue: '客単価',
   }
 
-  // 右Y軸が必要か（売変系・客単価を表示する場合）
-  const needRightAxis = view === 'standard' || view === 'discountOnly' || view === 'customers'
+  // 右Y軸が必要か（売変系・客単価を表示する場合、移動平均+売上MA表示時）
+  const needRightAxis = view === 'standard' || view === 'discountOnly' || view === 'customers' || (view === 'movingAvg' && showSalesMa)
 
   return (
     <Wrapper>
@@ -177,6 +178,14 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               {VIEW_LABELS[v]}
             </ViewBtn>
           ))}
+          {view === 'movingAvg' && (
+            <>
+              <ViewBtn $active={false} style={{ cursor: 'default', opacity: 0.4, padding: '3px 2px' }}>|</ViewBtn>
+              <ViewBtn $active={showSalesMa} onClick={() => setShowSalesMa(v => !v)}>
+                売上MA
+              </ViewBtn>
+            </>
+          )}
         </ViewToggle>
       </HeaderRow>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="82%">
@@ -299,23 +308,25 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             </>
           )}
 
-          {/* ── Moving Average: すべて線グラフ ── */}
+          {/* ── Moving Average: 売変系=左軸、売上MA=右軸(切り替え) ── */}
           {view === 'movingAvg' && (
             <>
               <Line
-                yAxisId="left" type="monotone" dataKey="salesMa7"
-                stroke={ct.colors.primary} strokeWidth={2.5}
-                dot={false} connectNulls
-              />
-              <Line
                 yAxisId="left" type="monotone" dataKey="discountMa7"
-                stroke={ct.colors.danger} strokeWidth={2} strokeDasharray="6 3"
+                stroke={ct.colors.danger} strokeWidth={2}
                 dot={false} connectNulls
               />
               {hasPrev && (
                 <Line
                   yAxisId="left" type="monotone" dataKey="prevDiscountMa7"
                   stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2"
+                  dot={false} connectNulls
+                />
+              )}
+              {showSalesMa && (
+                <Line
+                  yAxisId="right" type="monotone" dataKey="salesMa7"
+                  stroke={ct.colors.primary} strokeWidth={2.5}
                   dot={false} connectNulls
                 />
               )}
