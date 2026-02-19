@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 
