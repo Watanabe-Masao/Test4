@@ -11,11 +11,14 @@ export interface PeriodFilterState {
   dayRange: [number, number]
   /** 集計モード: total=期間合計, dailyAvg=期間内日平均, dowAvg=曜日別平均 */
   mode: AggregateMode
+  /** dowAvg 時に対象とする曜日 (0=日〜6=土)。空=全曜日 */
+  selectedDows: ReadonlySet<number>
 }
 
 export interface PeriodFilterResult extends PeriodFilterState {
   setDayRange: (range: [number, number]) => void
   setMode: (mode: AggregateMode) => void
+  toggleDow: (dow: number) => void
   /** 期間でフィルタ済みレコード */
   filterRecords: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
   /** 集計係数（dailyAvg の場合 1/日数） */
@@ -30,11 +33,29 @@ export interface PeriodFilterResult extends PeriodFilterState {
 export function usePeriodFilter(daysInMonth: number, year: number, month: number): PeriodFilterResult {
   const [dayRange, setDayRange] = useState<[number, number]>([1, daysInMonth])
   const [mode, setMode] = useState<AggregateMode>('total')
+  const [selectedDows, setSelectedDows] = useState<ReadonlySet<number>>(new Set<number>())
+
+  const toggleDow = useCallback((dow: number) => {
+    setSelectedDows((prev) => {
+      const next = new Set(prev)
+      if (next.has(dow)) next.delete(dow)
+      else next.add(dow)
+      return next
+    })
+  }, [])
 
   const filterRecords = useCallback(
-    (records: readonly CategoryTimeSalesRecord[]) =>
-      records.filter((r) => r.day >= dayRange[0] && r.day <= dayRange[1]),
-    [dayRange],
+    (records: readonly CategoryTimeSalesRecord[]) => {
+      let result = records.filter((r) => r.day >= dayRange[0] && r.day <= dayRange[1])
+      if (mode === 'dowAvg' && selectedDows.size > 0) {
+        result = result.filter((r) => {
+          const dow = new Date(year, month - 1, r.day).getDay()
+          return selectedDows.has(dow)
+        })
+      }
+      return result
+    },
+    [dayRange, mode, selectedDows, year, month],
   )
 
   const divisor = useMemo(() => {
@@ -47,7 +68,7 @@ export function usePeriodFilter(daysInMonth: number, year: number, month: number
     return 1
   }, [mode, dayRange])
 
-  return { dayRange, setDayRange, mode, setMode, filterRecords, divisor, year, month }
+  return { dayRange, setDayRange, mode, setMode, selectedDows, toggleDow, filterRecords, divisor, year, month }
 }
 
 /* ── Styled ─────────────────────────────────────────────── */
@@ -140,6 +161,32 @@ const Sep = styled.span`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
 
+const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boolean }>`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: ${({ $active, $isSun, $isSat, theme }) =>
+    $active
+      ? '#fff'
+      : $isSun ? '#ef4444' : $isSat ? '#3b82f6' : theme.colors.text3};
+  background: ${({ $active, $isSun, $isSat }) =>
+    $active
+      ? $isSun ? '#ef4444' : $isSat ? '#3b82f6' : '#6366f1'
+      : 'transparent'};
+  border: 1px solid ${({ $active, $isSun, $isSat, theme }) =>
+    $active
+      ? 'transparent'
+      : $isSun ? 'rgba(239,68,68,0.4)' : $isSat ? 'rgba(59,130,246,0.4)' : theme.colors.border};
+  transition: all 0.15s;
+  &:hover { opacity: 0.85; }
+`
+
 /* ── Component ──────────────────────────────────────────── */
 
 interface PeriodFilterBarProps {
@@ -152,6 +199,8 @@ const MODE_LABELS: Record<AggregateMode, string> = {
   dailyAvg: '日平均',
   dowAvg: '曜日別平均',
 }
+
+const DOW_LABELS_FILTER = ['日', '月', '火', '水', '木', '金', '土'] as const
 
 export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
   const isFullRange = pf.dayRange[0] === 1 && pf.dayRange[1] === daysInMonth
@@ -197,6 +246,26 @@ export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
           </Tab>
         ))}
       </TabGroup>
+      {pf.mode === 'dowAvg' && (
+        <>
+          <Sep />
+          <Label>曜日</Label>
+          <TabGroup>
+            {DOW_LABELS_FILTER.map((label, dow) => (
+              <DowToggle
+                key={dow}
+                $active={pf.selectedDows.has(dow)}
+                $isSun={dow === 0}
+                $isSat={dow === 6}
+                onClick={() => pf.toggleDow(dow)}
+                title={`${label}曜日${pf.selectedDows.has(dow) ? 'を除外' : 'を選択'}`}
+              >
+                {label}
+              </DowToggle>
+            ))}
+          </TabGroup>
+        </>
+      )}
     </Bar>
   )
 }
