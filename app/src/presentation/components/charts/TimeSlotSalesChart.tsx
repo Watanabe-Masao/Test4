@@ -12,6 +12,7 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -38,11 +39,13 @@ interface Props {
 /** 時間帯別売上チャート（棒: 売上金額 / 数量） */
 export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Props) {
   const ct = useChartTheme()
+  const { filter } = useCategoryHierarchy()
 
   const data = useMemo(() => {
     const hourly = new Map<number, { amount: number; quantity: number }>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
 
-    for (const rec of categoryTimeSales.records) {
+    for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       for (const slot of rec.timeSlots) {
         const existing = hourly.get(slot.hour) ?? { amount: 0, quantity: 0 }
@@ -61,7 +64,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Prop
       }
     }
     return result
-  }, [categoryTimeSales, selectedStoreIds])
+  }, [categoryTimeSales, selectedStoreIds, filter])
 
   if (data.length === 0) return null
 

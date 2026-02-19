@@ -3,6 +3,7 @@ import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
+import { CategoryHierarchyProvider } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout } from './widgets/registry'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -157,6 +158,7 @@ export function DashboardPage() {
   }
 
   return (
+    <CategoryHierarchyProvider>
     <MainContent title="ダッシュボード" storeName={storeName}>
       <Toolbar>
         <ChipGroup>
@@ -241,5 +243,6 @@ export function DashboardPage() {
         />
       )}
     </MainContent>
+    </CategoryHierarchyProvider>
   )
 }

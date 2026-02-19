@@ -4,6 +4,8 @@ import {
   DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart,
   PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
   CustomerTrendChart, TransactionValueChart, TimeSlotSalesChart, CategorySalesBreakdownChart,
+  TimeSlotHeatmapChart, DeptHourlyPatternChart, TimeSlotKpiSummary, StoreTimeSlotComparisonChart,
+  CategoryHierarchyExplorer,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -345,6 +347,15 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   // ── チャート: 分類別時間帯売上 ──
   {
+    id: 'chart-category-hierarchy-explorer',
+    label: '階層ドリルダウン分析',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds }) => (
+      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    ),
+  },
+  {
     id: 'chart-timeslot-sales',
     label: '時間帯別売上',
     group: '分類別時間帯',
@@ -360,6 +371,42 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     render: ({ categoryTimeSales, selectedStoreIds }) => (
       <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    ),
+  },
+  {
+    id: 'chart-timeslot-kpi-summary',
+    label: '時間帯KPIサマリー',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds }) => (
+      <TimeSlotKpiSummary categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    ),
+  },
+  {
+    id: 'chart-timeslot-heatmap',
+    label: '時間帯×曜日ヒートマップ',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds, year, month }) => (
+      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} />
+    ),
+  },
+  {
+    id: 'chart-dept-hourly-pattern',
+    label: '部門別時間帯パターン',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds }) => (
+      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    ),
+  },
+  {
+    id: 'chart-store-timeslot-comparison',
+    label: '店舗別時間帯比較',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, stores }) => (
+      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} />
     ),
   },
   // ── 本部・経営者向け ──
