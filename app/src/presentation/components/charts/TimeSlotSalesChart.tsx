@@ -13,6 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -99,17 +100,23 @@ type ViewMode = 'chart' | 'kpi'
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   selectedStoreIds: ReadonlySet<string>
+  daysInMonth: number
+  year: number
+  month: number
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替） */
-export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Props) {
+export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
   const ct = useChartTheme()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
+  const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const { chartData, kpi } = useMemo(() => {
     const hourly = new Map<number, { amount: number; quantity: number }>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
     const records = filtered.filter(
       (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
     )
@@ -127,11 +134,17 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Prop
       }
     }
 
+    // 集計モードに応じた除算 (dowAvg は日平均にフォールバック)
+    const div = pf.mode !== 'total' ? pf.divisor : 1
     const chartData = []
     for (let h = 0; h < 24; h++) {
       const entry = hourly.get(h)
       if (entry) {
-        chartData.push({ hour: `${h}時`, amount: entry.amount, quantity: entry.quantity })
+        chartData.push({
+          hour: `${h}時`,
+          amount: Math.round(entry.amount / div),
+          quantity: Math.round(entry.quantity / div),
+        })
       }
     }
 
@@ -168,20 +181,19 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Prop
         activeHours, avgPerHour, recordCount: records.length,
       } : null,
     }
-  }, [categoryTimeSales, selectedStoreIds, filter])
+  }, [periodRecords, selectedStoreIds, filter, pf, hf])
 
   if (chartData.length === 0) return null
 
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>時間帯別売上{viewMode === 'kpi' ? ' サマリー' : ''}</Title>
+        <Title>時間帯別売上{viewMode === 'kpi' ? ' サマリー' : ''}{pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''}</Title>
         <TabGroup>
           <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>チャート</Tab>
           <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
         </TabGroup>
       </HeaderRow>
-
       {viewMode === 'chart' ? (
         <div style={{ width: '100%', height: 340 }}>
           <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
@@ -274,6 +286,8 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds }: Prop
           </Card>
         </Grid>
       ) : null}
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

@@ -13,6 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -98,21 +99,27 @@ type ViewMode = 'stacked' | 'separate'
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   selectedStoreIds: ReadonlySet<string>
+  daysInMonth: number
+  year: number
+  month: number
 }
 
 /** 部門/ライン/クラス別 時間帯パターンチャート */
-export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: Props) {
+export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [groupLevel, setGroupLevel] = useState<GroupLevel>('department')
   const [topN, setTopN] = useState(5)
   const [lineFilter, setLineFilter] = useState<string>('')
   const { filter } = useCategoryHierarchy()
+  const pf = usePeriodFilter(daysInMonth, year, month)
+  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）
   const availableLines = useMemo(() => {
     const lineMap = new Map<string, string>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       if (!lineMap.has(rec.line.code)) {
@@ -128,12 +135,12 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     return Array.from(lineMap.entries())
       .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
       .sort((a, b) => b.total - a.total)
-  }, [categoryTimeSales, selectedStoreIds, filter])
+  }, [periodRecords, selectedStoreIds, filter, hf])
 
   // 利用可能な部門一覧（部門→ライン表示時のフィルタ用）
   const availableDepartments = useMemo(() => {
     const deptMap = new Map<string, string>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       if (!deptMap.has(rec.department.code)) {
@@ -148,7 +155,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     return Array.from(deptMap.entries())
       .map(([code, name]) => ({ code, name, total: totals.get(code) ?? 0 }))
       .sort((a, b) => b.total - a.total)
-  }, [categoryTimeSales, selectedStoreIds, filter])
+  }, [periodRecords, selectedStoreIds, filter, hf])
 
   const [deptFilter, setDeptFilter] = useState<string>('')
 
@@ -156,7 +163,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
-    let filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    let filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
 
     // 追加フィルタ：ラインでクラスを絞る、部門でラインを絞る
     if (groupLevel === 'klass' && lineFilter) {
@@ -197,17 +204,18 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     deptTotals.sort((a, b) => b.total - a.total)
     const topDepts = deptTotals.slice(0, topN)
 
+    const div = pf.mode !== 'total' ? pf.divisor : 1
     const hours = [...hourSet].sort((a, b) => a - b)
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const dept of topDepts) {
-        entry[dept.name] = dept.hourMap.get(h) ?? 0
+        entry[dept.name] = Math.round((dept.hourMap.get(h) ?? 0) / div)
       }
       return entry
     })
 
     return { data, departments: topDepts.map((d) => d.name) }
-  }, [categoryTimeSales, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter])
+  }, [periodRecords, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter, pf, hf])
 
   if (data.length === 0 || departments.length === 0) return null
 
@@ -224,7 +232,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
   return (
     <Wrapper>
       <Header>
-        <Title>{titleText}</Title>
+        <Title>{titleText}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}</Title>
         <Controls>
           {/* グループレベル切替 */}
           <TabGroup>
@@ -285,7 +293,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
           </TabGroup>
         </Controls>
       </Header>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
         <AreaChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -304,6 +312,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0) + '円', name ?? '']}
+            itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {departments.map((dept, i) => (
@@ -320,6 +329,8 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
           ))}
         </AreaChart>
       </ResponsiveContainer>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
 }

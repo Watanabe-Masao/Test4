@@ -6,7 +6,8 @@
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
-import type { ImportedData, StoreDayRecord } from '@/domain/models'
+import type { ImportedData, StoreDayRecord, CategoryTimeSalesData } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
 
 // ─── 差分の型定義 ────────────────────────────────────────
 
@@ -54,6 +55,7 @@ const DATA_TYPE_NAMES: Record<string, string> = {
   flowers: '花',
   directProduce: '産直',
   consumables: '消耗品',
+  categoryTimeSales: '分類別時間帯売上',
   settings: '在庫設定',
   budget: '予算',
 }
@@ -211,6 +213,74 @@ function formatValue(val: unknown): number | string | null {
   return JSON.stringify(val)
 }
 
+// ─── CategoryTimeSales の差分計算 ─────────────────────────
+
+function diffCategoryTimeSales(
+  existing: CategoryTimeSalesData,
+  incoming: CategoryTimeSalesData,
+): DataTypeDiff {
+  const inserts: FieldChange[] = []
+  const modifications: FieldChange[] = []
+  const removals: FieldChange[] = []
+
+  const existingMap = new Map(existing.records.map((r) => [categoryTimeSalesRecordKey(r), r]))
+  const incomingMap = new Map(incoming.records.map((r) => [categoryTimeSalesRecordKey(r), r]))
+
+  // 新規・変更の検出
+  for (const [key, incRec] of incomingMap) {
+    const exRec = existingMap.get(key)
+    const storeName = incRec.storeId
+    const fieldPath = `${incRec.department.name}>${incRec.line.name}>${incRec.klass.name}`
+
+    if (!exRec) {
+      // 新規レコード
+      if (incRec.totalAmount !== 0) {
+        inserts.push({
+          storeId: incRec.storeId,
+          storeName,
+          day: incRec.day,
+          fieldPath,
+          oldValue: null,
+          newValue: incRec.totalAmount,
+        })
+      }
+    } else if (exRec.totalAmount !== incRec.totalAmount || exRec.totalQuantity !== incRec.totalQuantity) {
+      // 値変更
+      modifications.push({
+        storeId: incRec.storeId,
+        storeName,
+        day: incRec.day,
+        fieldPath,
+        oldValue: exRec.totalAmount,
+        newValue: incRec.totalAmount,
+      })
+    }
+  }
+
+  // 削除の検出
+  for (const [key, exRec] of existingMap) {
+    if (!incomingMap.has(key) && exRec.totalAmount !== 0) {
+      const fieldPath = `${exRec.department.name}>${exRec.line.name}>${exRec.klass.name}`
+      removals.push({
+        storeId: exRec.storeId,
+        storeName: exRec.storeId,
+        day: exRec.day,
+        fieldPath,
+        oldValue: exRec.totalAmount,
+        newValue: null,
+      })
+    }
+  }
+
+  return {
+    dataType: 'categoryTimeSales',
+    dataTypeName: DATA_TYPE_NAMES.categoryTimeSales ?? '分類別時間帯売上',
+    inserts,
+    modifications,
+    removals,
+  }
+}
+
 // ─── メイン差分計算 ──────────────────────────────────────
 
 /** StoreDayRecord 系フィールド一覧 */
@@ -269,6 +339,24 @@ export function calculateDiff(
     // 挿入のみで変更・削除なし → 自動承認
     if (diff.modifications.length === 0 && diff.removals.length === 0) {
       autoApproved.push(type)
+    }
+  }
+
+  // CategoryTimeSales: フラット配列形式のため個別処理
+  if (importedTypes.has('categoryTimeSales')) {
+    const existingCTS = existing.categoryTimeSales
+    const incomingCTS = incoming.categoryTimeSales
+
+    if (existingCTS.records.length === 0) {
+      autoApproved.push('categoryTimeSales')
+    } else if (incomingCTS.records.length > 0) {
+      const diff = diffCategoryTimeSales(existingCTS, incomingCTS)
+      if (diff.inserts.length > 0 || diff.modifications.length > 0 || diff.removals.length > 0) {
+        diffs.push(diff)
+      }
+      if (diff.modifications.length === 0 && diff.removals.length === 0) {
+        autoApproved.push('categoryTimeSales')
+      }
     }
   }
 

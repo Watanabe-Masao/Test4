@@ -125,14 +125,25 @@ export function processCategoryTimeSales(
   return { records }
 }
 
+/** レコードの重複判定用キーを生成する */
+export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string {
+  return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
+}
+
 /**
  * 分類別時間帯売上データをマージする（複数日ファイル対応）
+ * 同一キー（日・店舗・部門・ライン・クラス）のレコードは後から来たデータで上書き
  */
 export function mergeCategoryTimeSalesData(
   existing: CategoryTimeSalesData,
   incoming: CategoryTimeSalesData,
 ): CategoryTimeSalesData {
-  return {
-    records: [...existing.records, ...incoming.records],
+  const map = new Map<string, CategoryTimeSalesRecord>()
+  for (const rec of existing.records) {
+    map.set(categoryTimeSalesRecordKey(rec), rec)
   }
+  for (const rec of incoming.records) {
+    map.set(categoryTimeSalesRecordKey(rec), rec)
+  }
+  return { records: [...map.values()] }
 }
