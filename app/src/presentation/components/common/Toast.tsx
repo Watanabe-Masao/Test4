@@ -28,7 +28,7 @@ const Container = styled.div`
 const levelColors: Record<ToastLevel, string> = {
   success: sc.positive,
   error: sc.negative,
-  warning: '#f59e0b',
+  warning: sc.caution,
   info: '#0ea5e9',
 }
 

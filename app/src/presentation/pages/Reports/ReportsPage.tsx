@@ -191,7 +191,7 @@ export function ReportsPage() {
             label="月末予測達成率"
             value={formatPercent(r.projectedAchievement)}
             subText={`予測売上: ${formatCurrency(r.projectedSales)}`}
-            accent="#f59e0b"
+            accent={sc.achievement(r.projectedAchievement)}
           />
         </KpiGrid>
       </Section>
@@ -345,7 +345,7 @@ export function ReportsPage() {
           <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
           <KpiCard label="予算達成率" value={formatPercent(r.budgetAchievementRate)} accent={sc.positive} />
           <KpiCard label="予算消化率" value={formatPercent(r.budgetProgressRate)} subText={`経過: ${r.elapsedDays}/${daysInMonth}日`} accent="#0ea5e9" />
-          <KpiCard label="残余予算" value={formatCurrency(r.remainingBudget)} accent="#f59e0b" />
+          <KpiCard label="残余予算" value={formatCurrency(r.remainingBudget)} accent={sc.cond(r.remainingBudget <= 0)} />
         </KpiGrid>
       </Section>
 

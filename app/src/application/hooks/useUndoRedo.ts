@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import type { AppSettings, InventoryConfig } from '@/domain/models'
 
@@ -26,6 +26,8 @@ export function useUndoRedo() {
 
   const undoStack = useRef<UndoSnapshot[]>([])
   const redoStack = useRef<UndoSnapshot[]>([])
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
 
   /** 現在の状態のスナップショットを取得 */
   const snapshot = useCallback(
@@ -42,6 +44,8 @@ export function useUndoRedo() {
     (label: string) => {
       undoStack.current = [...undoStack.current.slice(-MAX_HISTORY + 1), snapshot(label)]
       redoStack.current = [] // Redo履歴をクリア
+      setCanUndo(true)
+      setCanRedo(false)
     },
     [snapshot],
   )
@@ -80,6 +84,9 @@ export function useUndoRedo() {
         })
       }
     }
+
+    setCanUndo(undoStack.current.length > 0)
+    setCanRedo(true)
   }, [state.settings, state.data.settings, dispatch])
 
   /** Redo: Undoした操作をやり直す */
@@ -100,13 +107,16 @@ export function useUndoRedo() {
     for (const [storeId, config] of next.inventorySettings) {
       dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config } })
     }
+
+    setCanUndo(true)
+    setCanRedo(redoStack.current.length > 0)
   }, [state.settings, state.data.settings, dispatch])
 
   return {
     undo,
     redo,
     saveSnapshot,
-    canUndo: undoStack.current.length > 0,
-    canRedo: redoStack.current.length > 0,
+    canUndo,
+    canRedo,
   }
 }

@@ -226,7 +226,7 @@ export function RangeComparisonPanel({ rangeAData, rangeBData, prevYear }: Range
             <CompareBarTrack>
               <CompareBarSegment
                 $width={`${Math.min(rangeAData.ach * 50, 100)}%`}
-                $color={rangeAData.ach >= 1 ? sc.positive : '#f59e0b'}
+                $color={rangeAData.ach >= 1 ? sc.positive : sc.caution}
               >
                 A {formatPercent(rangeAData.ach, 0)}
               </CompareBarSegment>

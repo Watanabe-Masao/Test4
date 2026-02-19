@@ -37,7 +37,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'kpi',
     render: ({ result: r }) => {
       if (r.invMethodGrossProfitRate == null) {
-        return <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent="#22c55e" />
+        return <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent={sc.positive} />
       }
       const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
       return (
@@ -45,7 +45,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           label="【在庫法】粗利益"
           value={formatCurrency(r.invMethodGrossProfit)}
           subText={`粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
-          accent="#22c55e"
+          accent={sc.positive}
         />
       )
     },
@@ -161,7 +161,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '予測',
     size: 'kpi',
     render: ({ result: r }) => (
-      <KpiCard label="月末予測売上" value={formatCurrency(r.projectedSales)} accent="#22c55e" />
+      <KpiCard label="月末予測売上" value={formatCurrency(r.projectedSales)} accent={sc.positive} />
     ),
   },
   {
@@ -344,7 +344,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
             )
           })()}
         </ExecSummaryItem>
-        <ExecSummaryItem $accent="#22c55e">
+        <ExecSummaryItem $accent={sc.positive}>
           <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
           {r.invMethodGrossProfitRate != null ? (() => {
             const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
