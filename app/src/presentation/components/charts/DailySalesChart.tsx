@@ -145,85 +145,90 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
   const [waterfall, setWaterfall] = useState(false)
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
-  const rawSales: number[] = []
-  const rawDiscount: number[] = []
-  const rawPrevDiscount: number[] = []
-  let cumSales = 0, cumPrevSales = 0, cumDiscount = 0, cumGrossSales = 0
-  const baseData = []
-  for (let d = 1; d <= daysInMonth; d++) {
-    const rec = daily.get(d)
-    const sales = rec?.sales ?? 0
-    const discount = rec?.discountAbsolute ?? 0
-    const grossSales = rec?.grossSales ?? 0
-    rawSales.push(sales)
-    rawDiscount.push(discount)
-    const prevEntry = prevYearDaily?.get(d)
-    const prevSales = prevEntry?.sales ?? null
-    const prevDiscount = prevEntry?.discount ?? null
-    rawPrevDiscount.push(prevEntry?.discount ?? 0)
-    const customers = rec?.customers ?? 0
-    const txValue = customers > 0 ? Math.round(sales / customers) : null
-    const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
-    const pySales = prevEntry?.sales ?? 0
-    const pyCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
-    const prevTxValue = pyCustomers > 0 ? Math.round(pySales / pyCustomers) : null
-
-    // 累計系
-    cumSales += sales
-    cumPrevSales += prevEntry?.sales ?? 0
-    cumDiscount += discount
-    cumGrossSales += grossSales
-    const cumDiscountRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
-
-    baseData.push({
-      day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount,
-      customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null,
-      prevTxValue, currentCum: cumSales, prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
-      cumDiscountRate,
-    })
-  }
-
-  // 7日移動平均
-  const salesMa7 = movingAverage(rawSales, 7)
-  const discountMa7 = movingAverage(rawDiscount, 7)
-  const prevDiscountMa7 = movingAverage(rawPrevDiscount, 7)
-
   const isWf = waterfall && WF_VIEWS.includes(view)
 
-  // ウォーターフォールデータ（前日比増減）
-  const wfData = useMemo(() => {
-    if (!isWf) return null
-    let cumSales = 0, cumDiscount = 0, cumCustomers = 0
+  // 全データ計算を一つのuseMemoに統合
+  const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
+    const rawSales: number[] = []
+    const rawDiscount: number[] = []
+    const rawPrevDiscount: number[] = []
+    let cumSales = 0, cumPrevSales = 0, cumDiscount = 0, cumGrossSales = 0
+    const bd = []
+    for (let d = 1; d <= daysInMonth; d++) {
+      const rec = daily.get(d)
+      const sales = rec?.sales ?? 0
+      const discount = rec?.discountAbsolute ?? 0
+      const grossSales = rec?.grossSales ?? 0
+      rawSales.push(sales)
+      rawDiscount.push(discount)
+      const prevEntry = prevYearDaily?.get(d)
+      const prevSales = prevEntry?.sales ?? null
+      const prevDiscount = prevEntry?.discount ?? null
+      rawPrevDiscount.push(prevEntry?.discount ?? 0)
+      const customers = rec?.customers ?? 0
+      const txValue = customers > 0 ? Math.round(sales / customers) : null
+      const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
+      const pySales = prevEntry?.sales ?? 0
+      const pyCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
+      const prevTxValue = pyCustomers > 0 ? Math.round(pySales / pyCustomers) : null
 
-    return baseData.map((d, i) => {
-      const salesChange = i === 0 ? d.sales : d.sales - baseData[i - 1].sales
-      const discountChange = i === 0 ? d.discount : d.discount - baseData[i - 1].discount
-      const customersChange = i === 0 ? d.customers : d.customers - baseData[i - 1].customers
+      // 累計系
+      cumSales += sales
+      cumPrevSales += prevEntry?.sales ?? 0
+      cumDiscount += discount
+      cumGrossSales += grossSales
+      const cumDiscountRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
 
-      const wfSalesBase = salesChange >= 0 ? cumSales : cumSales + salesChange
-      const wfSalesUp = salesChange >= 0 ? salesChange : 0
-      const wfSalesDown = salesChange < 0 ? Math.abs(salesChange) : 0
-      cumSales += salesChange
+      bd.push({
+        day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount,
+        customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null,
+        prevTxValue, currentCum: cumSales, prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
+        cumDiscountRate,
+      })
+    }
 
-      const wfDiscBase = discountChange >= 0 ? cumDiscount : cumDiscount + discountChange
-      const wfDiscUp = discountChange >= 0 ? discountChange : 0
-      const wfDiscDown = discountChange < 0 ? Math.abs(discountChange) : 0
-      cumDiscount += discountChange
+    // 7日移動平均
+    const sMa7 = movingAverage(rawSales, 7)
+    const dMa7 = movingAverage(rawDiscount, 7)
+    const pdMa7 = movingAverage(rawPrevDiscount, 7)
 
-      const wfCustBase = customersChange >= 0 ? cumCustomers : cumCustomers + customersChange
-      const wfCustUp = customersChange >= 0 ? customersChange : 0
-      const wfCustDown = customersChange < 0 ? Math.abs(customersChange) : 0
-      cumCustomers += customersChange
+    // ウォーターフォールデータ（前日比増減）
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let wf: any[] | null = null
+    if (isWf) {
+      let wfCumSales = 0, wfCumDiscount = 0, wfCumCustomers = 0
+      wf = bd.map((d, i) => {
+        const salesChange = i === 0 ? d.sales : d.sales - bd[i - 1].sales
+        const discountChange = i === 0 ? d.discount : d.discount - bd[i - 1].discount
+        const customersChange = i === 0 ? d.customers : d.customers - bd[i - 1].customers
 
-      return {
-        ...d,
-        wfSalesBase, wfSalesUp, wfSalesDown, wfSalesCum: cumSales,
-        wfDiscBase, wfDiscUp, wfDiscDown, wfDiscCum: cumDiscount,
-        wfCustBase, wfCustUp, wfCustDown, wfCustCum: cumCustomers,
-        salesMa7: salesMa7[i], discountMa7: discountMa7[i], prevDiscountMa7: prevDiscountMa7[i],
-      }
-    })
-  }, [isWf, baseData, salesMa7, discountMa7, prevDiscountMa7])
+        const wfSalesBase = salesChange >= 0 ? wfCumSales : wfCumSales + salesChange
+        const wfSalesUp = salesChange >= 0 ? salesChange : 0
+        const wfSalesDown = salesChange < 0 ? Math.abs(salesChange) : 0
+        wfCumSales += salesChange
+
+        const wfDiscBase = discountChange >= 0 ? wfCumDiscount : wfCumDiscount + discountChange
+        const wfDiscUp = discountChange >= 0 ? discountChange : 0
+        const wfDiscDown = discountChange < 0 ? Math.abs(discountChange) : 0
+        wfCumDiscount += discountChange
+
+        const wfCustBase = customersChange >= 0 ? wfCumCustomers : wfCumCustomers + customersChange
+        const wfCustUp = customersChange >= 0 ? customersChange : 0
+        const wfCustDown = customersChange < 0 ? Math.abs(customersChange) : 0
+        wfCumCustomers += customersChange
+
+        return {
+          ...d,
+          wfSalesBase, wfSalesUp, wfSalesDown, wfSalesCum: wfCumSales,
+          wfDiscBase, wfDiscUp, wfDiscDown, wfDiscCum: wfCumDiscount,
+          wfCustBase, wfCustUp, wfCustDown, wfCustCum: wfCumCustomers,
+          salesMa7: sMa7[i], discountMa7: dMa7[i], prevDiscountMa7: pdMa7[i],
+        }
+      })
+    }
+
+    return { baseData: bd, salesMa7: sMa7, discountMa7: dMa7, prevDiscountMa7: pdMa7, wfData: wf }
+  }, [daily, daysInMonth, prevYearDaily, isWf])
 
   const data = isWf && wfData
     ? wfData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)

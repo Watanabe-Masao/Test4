@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { formatPercent, formatCurrency } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { WidgetContext } from './types'
 
