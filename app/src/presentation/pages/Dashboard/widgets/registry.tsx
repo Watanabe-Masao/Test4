@@ -457,16 +457,10 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
           <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
           <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
-          <ExecSummarySub>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummarySub>
-          {(() => {
-            if (r.openingInventory == null || r.closingInventory == null) {
-              return <ExecSummarySub>売上原価: -（在庫データ未入力）</ExecSummarySub>
-            }
-            const cogs = r.openingInventory + r.totalCost - r.closingInventory
-            return (
-              <ExecSummaryValue>{formatCurrency(cogs)}</ExecSummaryValue>
-            )
-          })()}
+          <ExecSummaryValue>期末在庫: {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}</ExecSummaryValue>
+          {r.estMethodClosingInventory != null && (
+            <ExecSummarySub>推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}</ExecSummarySub>
+          )}
         </ExecSummaryItem>
         <ExecSummaryItem $accent="#3b82f6">
           <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
