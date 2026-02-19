@@ -7,6 +7,7 @@ import {
   filterByHierarchy,
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
+import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -184,13 +185,17 @@ function Sparkline({ data, color = '#6366f1' }: { data: number[]; color?: string
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   selectedStoreIds: ReadonlySet<string>
+  daysInMonth: number
+  year: number
+  month: number
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds }: Props) {
+export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
   const { filter, setFilter } = useCategoryHierarchy()
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const pf = usePeriodFilter(daysInMonth, year, month)
 
   const currentLevel = filter.lineCode ? 'klass' : filter.departmentCode ? 'line' : 'department'
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
@@ -208,10 +213,10 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds 
   }, [filter])
 
   const filteredRecords = useMemo(() => {
-    let recs = categoryTimeSales.records
+    let recs = pf.filterRecords(categoryTimeSales.records)
     if (selectedStoreIds.size > 0) recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
     return filterByHierarchy(recs, filter)
-  }, [categoryTimeSales, selectedStoreIds, filter])
+  }, [categoryTimeSales, selectedStoreIds, filter, pf])
 
   const items = useMemo(() => {
     const map = new Map<string, {
@@ -233,15 +238,18 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds 
       for (const s of rec.timeSlots) ex.hours.set(s.hour, (ex.hours.get(s.hour) ?? 0) + s.amount)
       map.set(key, ex)
     }
-    const total = [...map.values()].reduce((s, v) => s + v.amount, 0)
+    const div = pf.mode !== 'total' ? pf.divisor : 1
+    const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / div
     return [...map.values()].map((it): HierarchyItem => {
-      const hp = Array.from({ length: 24 }, (_, h) => it.hours.get(h) ?? 0)
+      const hp = Array.from({ length: 24 }, (_, h) => Math.round((it.hours.get(h) ?? 0) / div))
       const mx = Math.max(...hp)
-      return { code: it.code, name: it.name, amount: it.amount, quantity: it.quantity,
-        pct: total > 0 ? (it.amount / total) * 100 : 0,
+      const amt = Math.round(it.amount / div)
+      const qty = Math.round(it.quantity / div)
+      return { code: it.code, name: it.name, amount: amt, quantity: qty,
+        pct: total > 0 ? (amt / total) * 100 : 0,
         peakHour: mx > 0 ? hp.indexOf(mx) : -1, hourlyPattern: hp, childCount: it.children.size }
     })
-  }, [filteredRecords, currentLevel])
+  }, [filteredRecords, currentLevel, pf])
 
   const sortedItems = useMemo(() => {
     const arr = [...items]
@@ -289,6 +297,7 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds 
         ))}
         {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
       </BreadcrumbBar>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
 
       <SummaryBar>
         <SummaryItem><SummaryLabel>{levelLabels[currentLevel]}数</SummaryLabel><SummaryValue>{items.length}</SummaryValue></SummaryItem>

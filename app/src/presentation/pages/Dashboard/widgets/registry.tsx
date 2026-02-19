@@ -189,8 +189,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '階層ドリルダウン分析',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds }) => (
-      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
+      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
   },
   {
@@ -198,8 +198,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別売上',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds }) => (
-      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
+      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
   },
   {
@@ -207,8 +207,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '部門・クラス別売上',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds }) => (
-      <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
+      <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
   },
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
@@ -217,8 +217,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯×曜日ヒートマップ',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds, year, month }) => (
-      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} />
+    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth }) => (
+      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} />
     ),
   },
   {
@@ -226,8 +226,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '部門別時間帯パターン',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds }) => (
-      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
+      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
   },
   {
@@ -235,8 +235,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '店舗別時間帯比較',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, stores }) => (
-      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} />
+    render: ({ categoryTimeSales, stores, daysInMonth, year, month }) => (
+      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} />
     ),
   },
   // ── 概要・ステータス ──

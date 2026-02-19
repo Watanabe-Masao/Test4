@@ -14,6 +14,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -86,18 +87,22 @@ const COLORS = [
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   selectedStoreIds: ReadonlySet<string>
+  daysInMonth: number
+  year: number
+  month: number
 }
 
 /** 部門・ライン・クラス別売上チャート */
-export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds }: Props) {
+export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
   const ct = useChartTheme()
   const [level, setLevel] = useState<Level>('department')
   const [metric, setMetric] = useState<Metric>('amount')
   const { filter } = useCategoryHierarchy()
+  const pf = usePeriodFilter(daysInMonth, year, month)
 
   const data = useMemo(() => {
     const map = new Map<string, { name: string; amount: number; quantity: number }>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
 
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
@@ -123,7 +128,9 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       })
     }
 
+    const div = pf.mode !== 'total' ? pf.divisor : 1
     const sorted = Array.from(map.values())
+      .map((d) => ({ ...d, amount: Math.round(d.amount / div), quantity: Math.round(d.quantity / div) }))
       .sort((a, b) => metric === 'amount' ? b.amount - a.amount : b.quantity - a.quantity)
       .slice(0, 20)
 
@@ -133,7 +140,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       ...d,
       pct: total > 0 ? ((metric === 'amount' ? d.amount : d.quantity) / total) * 100 : 0,
     }))
-  }, [categoryTimeSales, selectedStoreIds, level, filter, metric])
+  }, [categoryTimeSales, selectedStoreIds, level, filter, metric, pf])
 
   // バー内のカスタムラベル（金額＋構成比）
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -182,7 +189,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
   return (
     <Wrapper>
       <Header>
-        <Title>{levelLabels[level]}別{titleSuffix}</Title>
+        <Title>{levelLabels[level]}別{titleSuffix}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}</Title>
         <Controls>
           <TabGroup>
             {(['amount', 'quantity'] as Metric[]).map((m) => (
@@ -201,6 +208,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
           </TabGroup>
         </Controls>
       </Header>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
         <BarChart
           data={data}

@@ -19,6 +19,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { usePeriodFilter, PeriodFilterBar } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -124,19 +125,23 @@ type MetricMode = 'amount' | 'pct'
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
   stores: ReadonlyMap<string, Store>
+  daysInMonth: number
+  year: number
+  month: number
 }
 
 /** 店舗別 時間帯売上パターン比較 */
-export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Props) {
+export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysInMonth, year, month }: Props) {
   const ct = useChartTheme()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('bar')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
+  const pf = usePeriodFilter(daysInMonth, year, month)
 
   const { data, dataPct, storeNames, hours, storeTotals } = useMemo(() => {
     const storeHourMap = new Map<string, Map<number, number>>()
     const hourSet = new Set<number>()
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const filtered = filterByHierarchy(pf.filterRecords(categoryTimeSales.records), filter)
 
     for (const rec of filtered) {
       if (!storeHourMap.has(rec.storeId)) storeHourMap.set(rec.storeId, new Map())
@@ -154,11 +159,13 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
       name: stores.get(id)?.name ?? `店舗${id}`,
     }))
 
+    const div = pf.mode !== 'total' ? pf.divisor : 1
+
     // 各店舗の合計金額
     const storeTotals = new Map<string, number>()
     for (const s of storeNames) {
       const hourMap = storeHourMap.get(s.id)!
-      const total = [...hourMap.values()].reduce((sum, v) => sum + v, 0)
+      const total = Math.round([...hourMap.values()].reduce((sum, v) => sum + v, 0) / div)
       storeTotals.set(s.name, total)
     }
 
@@ -166,7 +173,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const s of storeNames) {
-        entry[s.name] = storeHourMap.get(s.id)?.get(h) ?? 0
+        entry[s.name] = Math.round((storeHourMap.get(s.id)?.get(h) ?? 0) / div)
       }
       return entry
     })
@@ -183,7 +190,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
     })
 
     return { data, dataPct, storeNames, hours, storeTotals }
-  }, [categoryTimeSales, stores, filter])
+  }, [categoryTimeSales, stores, filter, pf])
 
   if (data.length === 0 || storeNames.length <= 1) return null
 
@@ -205,7 +212,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
   return (
     <Wrapper>
       <Header>
-        <Title>{titleText}</Title>
+        <Title>{titleText}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}</Title>
         <Controls>
           <TabGroup>
             <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>金額</Tab>
@@ -218,6 +225,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
           </TabGroup>
         </Controls>
       </Header>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
         {viewMode === 'radar' ? (

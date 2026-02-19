@@ -144,6 +144,20 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
   const goalDiff = targetGPRateDecimal - defaultTargetGPRate
 
+  // Tool 2 追加指標: 売上予算系
+  const salesBudget = r.budget
+  const projectedSalesAchievement = salesBudget > 0 ? projectedTotalSales2 / salesBudget : 0
+  const targetTotalSales2 = remainingSales2 > 0 && requiredRemainingGPRate2 > 0
+    ? actualSales + remainingSales2
+    : projectedTotalSales2
+  const targetSalesAchievement = salesBudget > 0 ? targetTotalSales2 / salesBudget : 0
+
+  // Tool 2 追加指標: 粗利予算系
+  const gpBudget = r.grossProfitBudget
+  const projectedTotalGP2 = actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
+  const projectedGPAchievement = gpBudget > 0 ? projectedTotalGP2 / gpBudget : 0
+  const targetGPAchievement = gpBudget > 0 ? targetTotalGP2 / gpBudget : 0
+
   return (
     <ForecastToolsGrid>
       <ToolCard $accent="#6366f1">
@@ -280,13 +294,39 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
         {tool2Valid && (
           <ToolResultSection>
             <ExecRow>
-              <ToolResultLabel>予測月末売上</ToolResultLabel>
-              <ToolResultValue>{formatCurrency(projectedTotalSales2)}</ToolResultValue>
+              <ToolResultLabel style={{ fontWeight: 700 }}>月間売上予算</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(salesBudget)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
-              <ToolResultLabel>目標粗利総額</ToolResultLabel>
-              <ToolResultValue>{formatCurrency(targetTotalGP2)}</ToolResultValue>
+              <ToolResultLabel>予測月末売上</ToolResultLabel>
+              <ToolResultValue>
+                {formatCurrency(projectedTotalSales2)}{' / '}{formatPercent(projectedSalesAchievement)}
+              </ToolResultValue>
             </ExecRow>
+            <ExecRow>
+              <ToolResultLabel style={{ fontWeight: 700 }}>目標月間売上</ToolResultLabel>
+              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(targetSalesAchievement >= 1)}>
+                {formatCurrency(targetTotalSales2)}{' / '}{formatPercent(targetSalesAchievement)}
+              </ToolResultValue>
+            </ExecRow>
+            <ExecDividerLine />
+            <ExecRow>
+              <ToolResultLabel style={{ fontWeight: 700 }}>月間粗利額予算</ToolResultLabel>
+              <ToolResultValue>{formatCurrency(gpBudget)}</ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel>予測月間粗利額</ToolResultLabel>
+              <ToolResultValue>
+                {formatCurrency(projectedTotalGP2)}{' / '}{formatPercent(projectedGPAchievement)}
+              </ToolResultValue>
+            </ExecRow>
+            <ExecRow>
+              <ToolResultLabel style={{ fontWeight: 700 }}>目標粗利総額</ToolResultLabel>
+              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(targetGPAchievement >= 1)}>
+                {formatCurrency(targetTotalGP2)}{' / '}{formatPercent(targetGPAchievement)}
+              </ToolResultValue>
+            </ExecRow>
+            <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>現在粗利実績</ToolResultLabel>
               <ToolResultValue>{formatCurrency(actualGP)}</ToolResultValue>
@@ -296,19 +336,18 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
               <ToolResultValue>{formatCurrency(requiredRemainingGP2)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
-              <ToolResultLabel>残期間売上見込み</ToolResultLabel>
-              <ToolResultValue>{formatCurrency(remainingSales2)}</ToolResultValue>
+              <ToolResultLabel style={{ fontWeight: 700 }}>残期間売上目標</ToolResultLabel>
+              <ToolResultValue style={{ fontWeight: 700 }}>{formatCurrency(remainingSales2)}</ToolResultValue>
             </ExecRow>
-            <ExecDividerLine />
             <ExecRow>
-              <ToolResultLabel>残期間必要粗利率</ToolResultLabel>
-              <ToolResultValue $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
+              <ToolResultLabel style={{ fontWeight: 700 }}>残期間必要粗利率</ToolResultLabel>
+              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
                 {formatPercent(requiredRemainingGPRate2)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
-              <ToolResultLabel>現在粗利率との差</ToolResultLabel>
-              <ToolResultValue $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
+              <ToolResultLabel style={{ fontWeight: 700 }}>現在粗利率との差</ToolResultLabel>
+              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
                 {formatPointDiff(requiredRemainingGPRate2 - actualGPRate)}
               </ToolResultValue>
             </ExecRow>
