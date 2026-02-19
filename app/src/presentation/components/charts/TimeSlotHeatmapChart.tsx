@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -98,12 +99,15 @@ interface Props {
 
 /** 時間帯×曜日 売上ヒートマップ */
 export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month }: Props) {
+  const { filter } = useCategoryHierarchy()
+
   const { hours, matrix, maxVal } = useMemo(() => {
     // hour → dow → amount
     const map = new Map<number, Map<number, number>>()
     const hourSet = new Set<number>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
 
-    for (const rec of categoryTimeSales.records) {
+    for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       const dow = new Date(year, month - 1, rec.day).getDay()
       for (const slot of rec.timeSlots) {
@@ -125,7 +129,7 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     })
 
     return { hours, matrix, maxVal }
-  }, [categoryTimeSales, selectedStoreIds, year, month])
+  }, [categoryTimeSales, selectedStoreIds, year, month, filter])
 
   if (hours.length === 0) return null
 

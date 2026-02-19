@@ -5,6 +5,7 @@ import {
   PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
   CustomerTrendChart, TransactionValueChart, TimeSlotSalesChart, CategorySalesBreakdownChart,
   TimeSlotHeatmapChart, DeptHourlyPatternChart, TimeSlotKpiSummary, StoreTimeSlotComparisonChart,
+  CategoryHierarchyExplorer,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -345,6 +346,15 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     ),
   },
   // ── チャート: 分類別時間帯売上 ──
+  {
+    id: 'chart-category-hierarchy-explorer',
+    label: '階層ドリルダウン分析',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds }) => (
+      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
+    ),
+  },
   {
     id: 'chart-timeslot-sales',
     label: '時間帯別売上',

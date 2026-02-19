@@ -12,6 +12,7 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, STORE_COLORS } from './chartTheme'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -38,13 +39,15 @@ interface Props {
 /** 店舗別 時間帯売上レーダーチャート */
 export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Props) {
   const ct = useChartTheme()
+  const { filter } = useCategoryHierarchy()
 
   const { data, storeNames } = useMemo(() => {
     // store → hour → amount
     const storeHourMap = new Map<string, Map<number, number>>()
     const hourSet = new Set<number>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
 
-    for (const rec of categoryTimeSales.records) {
+    for (const rec of filtered) {
       if (!storeHourMap.has(rec.storeId)) storeHourMap.set(rec.storeId, new Map())
       const hourMap = storeHourMap.get(rec.storeId)!
 
@@ -71,7 +74,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores }: Prop
     })
 
     return { data, storeNames }
-  }, [categoryTimeSales, stores])
+  }, [categoryTimeSales, stores, filter])
 
   if (data.length === 0 || storeNames.length <= 1) return null
 

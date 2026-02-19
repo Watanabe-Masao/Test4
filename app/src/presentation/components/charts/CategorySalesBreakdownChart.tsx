@@ -12,6 +12,7 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -72,11 +73,13 @@ interface Props {
 export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds }: Props) {
   const ct = useChartTheme()
   const [level, setLevel] = useState<Level>('department')
+  const { filter } = useCategoryHierarchy()
 
   const data = useMemo(() => {
     const map = new Map<string, { name: string; amount: number; quantity: number }>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
 
-    for (const rec of categoryTimeSales.records) {
+    for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
 
       let key: string
@@ -103,7 +106,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
     return Array.from(map.values())
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 20) // 上位20件
-  }, [categoryTimeSales, selectedStoreIds, level])
+  }, [categoryTimeSales, selectedStoreIds, level, filter])
 
   if (data.length === 0) return null
 

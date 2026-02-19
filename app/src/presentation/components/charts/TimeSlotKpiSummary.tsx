@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -59,8 +60,11 @@ interface Props {
 
 /** 分類別時間帯 KPIサマリー */
 export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Props) {
+  const { filter } = useCategoryHierarchy()
+
   const kpi = useMemo(() => {
-    const records = categoryTimeSales.records.filter(
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
+    const records = filtered.filter(
       (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
     )
 
@@ -127,7 +131,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
       avgPerHour,
       recordCount: records.length,
     }
-  }, [categoryTimeSales, selectedStoreIds])
+  }, [categoryTimeSales, selectedStoreIds, filter])
 
   if (!kpi) return null
 

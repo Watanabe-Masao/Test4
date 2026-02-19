@@ -12,6 +12,7 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
+import { useCategoryHierarchy, filterByHierarchy, getHierarchyLevel } from './CategoryHierarchyContext'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -69,17 +70,28 @@ type ViewMode = 'stacked' | 'separate'
 export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
+  const { filter } = useCategoryHierarchy()
+  const hierarchyLevel = getHierarchyLevel(filter)
 
   const { data, departments } = useMemo(() => {
-    // dept → hour → amount
+    // group → hour → amount
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
+    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
 
-    for (const rec of categoryTimeSales.records) {
+    for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
-      const deptKey = rec.department.code
-      deptNames.set(deptKey, rec.department.name || deptKey)
+      // 階層レベルに応じてグループ化キーを変更
+      let deptKey: string, deptName: string
+      if (hierarchyLevel === 'department') {
+        deptKey = rec.department.code; deptName = rec.department.name || deptKey
+      } else if (hierarchyLevel === 'line') {
+        deptKey = rec.line.code; deptName = rec.line.name || deptKey
+      } else {
+        deptKey = rec.klass.code; deptName = rec.klass.name || deptKey
+      }
+      deptNames.set(deptKey, deptName)
 
       if (!deptHourMap.has(deptKey)) deptHourMap.set(deptKey, new Map())
       const hourMap = deptHourMap.get(deptKey)!
@@ -110,14 +122,14 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
     })
 
     return { data, departments: topDepts.map((d) => d.name) }
-  }, [categoryTimeSales, selectedStoreIds])
+  }, [categoryTimeSales, selectedStoreIds, filter, hierarchyLevel])
 
   if (data.length === 0 || departments.length === 0) return null
 
   return (
     <Wrapper>
       <Header>
-        <Title>部門別 時間帯パターン（上位{departments.length}部門）</Title>
+        <Title>{{ department: '部門', line: 'ライン', klass: 'クラス' }[hierarchyLevel]}別 時間帯パターン（上位{departments.length}件）</Title>
         <ToggleGroup>
           <Toggle $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>積み上げ</Toggle>
           <Toggle $active={viewMode === 'separate'} onClick={() => setViewMode('separate')}>独立</Toggle>
