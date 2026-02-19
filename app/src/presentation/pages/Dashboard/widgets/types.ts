@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { StoreResult } from '@/domain/models'
+import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
@@ -22,4 +23,8 @@ export interface WidgetContext {
   budgetChartData: { day: number; actualCum: number; budgetCum: number }[]
   storeKey: string
   prevYear: PrevYearData
+  /** All individual store results for multi-store widgets */
+  allStoreResults: ReadonlyMap<string, StoreResult>
+  /** Store master data */
+  stores: ReadonlyMap<string, Store>
 }

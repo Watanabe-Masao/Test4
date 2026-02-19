@@ -9,6 +9,9 @@ import type { WidgetDef } from './types'
 import { renderPlanActualForecast } from './PlanActualForecast'
 import { MonthlyCalendarWidget } from './MonthlyCalendar'
 import { ForecastToolsWidget } from './ForecastTools'
+import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
+import { WaterfallChartWidget } from './WaterfallChart'
+import { ConditionSummaryWidget } from './ConditionSummary'
 import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
 import {
   ExecSummaryBar, ExecSummaryItem, ExecSummaryLabel, ExecSummaryValue, ExecSummarySub,
@@ -410,21 +413,46 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
   },
+  // ── 分析・可視化 ──
+  {
+    id: 'analysis-condition-summary',
+    label: 'コンディションサマリー',
+    group: '分析・可視化',
+    size: 'full',
+    render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
+  },
+  {
+    id: 'analysis-waterfall',
+    label: '粗利ウォーターフォール',
+    group: '分析・可視化',
+    size: 'full',
+    render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
+  },
+  {
+    id: 'analysis-gp-heatmap',
+    label: '粗利率ヒートマップ',
+    group: '分析・可視化',
+    size: 'full',
+    render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
+  },
 ]
 
 export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 
 export const DEFAULT_WIDGET_IDS: string[] = [
+  'analysis-condition-summary',
   'exec-summary-bar',
   'exec-plan-actual-forecast',
   'exec-monthly-calendar',
   'exec-dow-average', 'exec-weekly-summary',
   'exec-forecast-tools',
+  'analysis-waterfall',
+  'analysis-gp-heatmap',
   'chart-daily-sales',
   'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v4'
+const STORAGE_KEY = 'dashboard_layout_v5'
 
 export function loadLayout(): string[] {
   try {
