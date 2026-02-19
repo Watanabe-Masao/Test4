@@ -180,6 +180,9 @@ export async function saveImportedData(
     ),
   )
 
+  // categoryTimeSales（StoreDayRecord ではないが独立保存）
+  await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
+
   // メタデータ
   await dbPut(STORE_META, 'lastSession', {
     year,
@@ -244,6 +247,13 @@ export async function loadImportedData(
     result.budget = new Map()
   }
 
+  // categoryTimeSales
+  const rawCategoryTimeSales = await dbGet<{ records: unknown[] }>(
+    STORE_MONTHLY,
+    monthKey(year, month, 'categoryTimeSales'),
+  )
+  result.categoryTimeSales = rawCategoryTimeSales ?? { records: [] }
+
   return result as unknown as ImportedData
 }
 
@@ -266,6 +276,7 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'suppliers'))
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'settings'))
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'budget'))
+  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
 }
 
 /**
@@ -303,6 +314,10 @@ export async function saveDataSlice(
   dataTypes: readonly DataType[],
 ): Promise<void> {
   for (const dt of dataTypes) {
+    if (dt === 'categoryTimeSales') {
+      await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
+      continue
+    }
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)
     if (fieldDef) {
       await dbPut(STORE_MONTHLY, monthKey(year, month, dt), data[fieldDef.field])
