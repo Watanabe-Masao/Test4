@@ -93,6 +93,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     projectedAchievement: 1.03,
     budgetAchievementRate: 0.5,
     budgetProgressRate: 1.0,
+    budgetElapsedRate: 0.5,
     remainingBudget: 1500000,
     dailyCumulative: new Map(),
   }
@@ -149,6 +150,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     stores: new Map(),
     categoryTimeSales: { records: [] },
     selectedStoreIds: new Set(),
+    dataEndDay: null,
     ...overrides,
   }
 }
