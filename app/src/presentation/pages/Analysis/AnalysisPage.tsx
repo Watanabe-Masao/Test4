@@ -104,7 +104,7 @@ export function AnalysisPage() {
               label="達成率予測"
               value={formatPercent(r.projectedAchievement)}
               subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
-              accent="#f59e0b"
+              accent={sc.achievement(r.projectedAchievement)}
             />
             <KpiCard
               label="粗利額予算"
