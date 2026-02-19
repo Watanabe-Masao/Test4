@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'

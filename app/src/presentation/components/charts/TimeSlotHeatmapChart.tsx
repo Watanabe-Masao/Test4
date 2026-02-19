@@ -119,21 +119,17 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     }
 
     const hours = [...hourSet].sort((a, b) => a - b)
-    let maxVal = 0
     const matrix: number[][] = hours.map((h) => {
       return DOW_LABELS.map((_, dow) => {
-        const val = map.get(h)?.get(dow) ?? 0
-        if (val > maxVal) maxVal = val
-        return val
+        return map.get(h)?.get(dow) ?? 0
       })
     })
+    const maxVal = Math.max(0, ...matrix.flat())
 
     return { hours, matrix, maxVal }
   }, [categoryTimeSales, selectedStoreIds, year, month, filter])
 
   if (hours.length === 0) return null
-
-  const cols = DOW_LABELS.length + 1
 
   return (
     <Wrapper>
