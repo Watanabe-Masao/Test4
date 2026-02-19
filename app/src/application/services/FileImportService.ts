@@ -1,6 +1,5 @@
 import type { DataType, AppSettings, ValidationMessage, ImportedData } from '@/domain/models'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
-import type { ImportSummary as InfraImportSummary } from '@/infrastructure/ImportService'
 
 // ─── Types ───────────────────────────────────────────────
 
