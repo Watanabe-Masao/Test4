@@ -187,7 +187,7 @@ export function useImport() {
  * 既存データに新規挿入分のみをマージして返す。
  * 既存に値がある場合は変更しない。
  */
-function mergeInsertsOnly(
+export function mergeInsertsOnly(
   existing: ImportedData,
   incoming: ImportedData,
   importedTypes: ReadonlySet<string>,
