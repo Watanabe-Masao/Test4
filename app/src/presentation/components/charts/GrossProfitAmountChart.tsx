@@ -70,7 +70,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
   return (
     <Wrapper>
       <Title>粗利額累計推移（バー: 粗利額 / ライン: 粗利率）</Title>
-      <ResponsiveContainer width="100%" height="84%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">

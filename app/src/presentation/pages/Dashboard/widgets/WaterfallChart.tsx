@@ -102,7 +102,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   return (
     <Wrapper>
       <Title>粗利益ウォーターフォール（要因分解）</Title>
-      <ResponsiveContainer width="100%" height={340}>
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
         <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
           <XAxis

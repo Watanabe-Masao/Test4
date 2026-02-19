@@ -71,7 +71,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
   return (
     <Wrapper>
       <Title>売変インパクト分析（バー: 日別売変額 / ライン: 累計売変率）</Title>
-      <ResponsiveContainer width="100%" height="84%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="discGrad" x1="0" y1="0" x2="0" y2="1">

@@ -65,7 +65,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
         <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>パレート図</Chip>
       </PieToggle>
       {view === 'pie' ? (
-        <ResponsiveContainer width="100%" height="80%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
           <PieChart>
             <Pie
               data={data}
@@ -89,7 +89,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
           </PieChart>
         </ResponsiveContainer>
       ) : (
-        <ResponsiveContainer width="100%" height="80%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
           <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
             <XAxis
@@ -175,7 +175,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
         <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>パレート図</Chip>
       </PieToggle>
       {view === 'pie' ? (
-        <ResponsiveContainer width="100%" height="75%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="75%">
           <PieChart>
             <Pie
               data={data}
@@ -199,7 +199,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
           </PieChart>
         </ResponsiveContainer>
       ) : (
-        <ResponsiveContainer width="100%" height="75%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="75%">
           <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
             <XAxis

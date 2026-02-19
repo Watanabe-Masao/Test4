@@ -248,7 +248,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
         </SummaryRow>
       )}
       <ChartArea>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="actualAreaGrad" x1="0" y1="0" x2="0" y2="1">
