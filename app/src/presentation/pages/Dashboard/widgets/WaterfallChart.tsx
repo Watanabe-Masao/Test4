@@ -38,10 +38,8 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const data = useMemo(() => {
     const totalSales = r.totalSales
     const totalCost = r.totalCost
-    const markupAmount = r.grossSales - r.totalCost
     const discountLoss = -r.totalDiscount
     const consumable = -r.totalConsumable
-    const grossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
 
     // Waterfall items: Start from sales, subtract factors
     const items: WaterfallItem[] = []
