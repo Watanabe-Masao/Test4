@@ -79,7 +79,7 @@ const Sep = styled.span`
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
 /** 表示形式 */
-type ViewType = 'standard' | 'salesOnly' | 'discountOnly' | 'movingAvg' | 'area' | 'customers'
+type ViewType = 'standard' | 'salesOnly' | 'discountOnly' | 'movingAvg' | 'area' | 'customers' | 'txValue' | 'prevYearCum' | 'discountImpact'
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
@@ -102,7 +102,10 @@ const VIEW_LABELS: Record<ViewType, string> = {
   standard: '標準',
   salesOnly: '売上',
   discountOnly: '売変',
+  discountImpact: '売変分析',
   customers: '客数',
+  txValue: '客単価',
+  prevYearCum: '前年比累計',
   movingAvg: '移動平均',
   area: 'エリア',
 }
@@ -111,7 +114,10 @@ const VIEW_TITLES: Record<ViewType, string> = {
   standard: '日別売上・売変推移',
   salesOnly: '日別売上推移（当年 vs 前年）',
   discountOnly: '日別売変推移（当年 vs 前年）',
+  discountImpact: '売変インパクト分析（バー: 日別売変額 / ライン: 累計売変率）',
   customers: '日別客数・客単価推移',
+  txValue: '日別客単価推移',
+  prevYearCum: '当年 vs 前年同曜日（累計売上推移）',
   movingAvg: '7日移動平均推移',
   area: '日別売上推移（エリア）',
 }
@@ -142,11 +148,13 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
   const rawSales: number[] = []
   const rawDiscount: number[] = []
   const rawPrevDiscount: number[] = []
+  let cumSales = 0, cumPrevSales = 0, cumDiscount = 0, cumGrossSales = 0
   const baseData = []
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     const sales = rec?.sales ?? 0
     const discount = rec?.discountAbsolute ?? 0
+    const grossSales = rec?.grossSales ?? 0
     rawSales.push(sales)
     rawDiscount.push(discount)
     const prevEntry = prevYearDaily?.get(d)
@@ -156,7 +164,23 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const customers = rec?.customers ?? 0
     const txValue = customers > 0 ? Math.round(sales / customers) : null
     const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
-    baseData.push({ day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount, customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null })
+    const pySales = prevEntry?.sales ?? 0
+    const pyCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
+    const prevTxValue = pyCustomers > 0 ? Math.round(pySales / pyCustomers) : null
+
+    // 累計系
+    cumSales += sales
+    cumPrevSales += prevEntry?.sales ?? 0
+    cumDiscount += discount
+    cumGrossSales += grossSales
+    const cumDiscountRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
+
+    baseData.push({
+      day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount,
+      customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null,
+      prevTxValue, currentCum: cumSales, prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
+      cumDiscountRate,
+    })
   }
 
   // 7日移動平均
@@ -216,14 +240,16 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     sales: '売上', prevYearSales: '前年同曜日売上',
     discount: '売変額', prevYearDiscount: '前年売変額',
     salesMa7: '売上7日移動平均', discountMa7: '売変額7日移動平均', prevDiscountMa7: '前年売変7日移動平均',
-    customers: '客数', prevCustomers: '前年客数', txValue: '客単価',
+    customers: '客数', prevCustomers: '前年客数', txValue: '当年客単価', prevTxValue: '前年客単価',
+    currentCum: '当年累計', prevYearCum: '前年同曜日累計',
+    cumDiscountRate: '累計売変率',
     wfSalesUp: '増加', wfSalesDown: '減少',
     wfDiscUp: '増加', wfDiscDown: '減少',
     wfCustUp: '増加', wfCustDown: '減少',
   }
 
   // 右Y軸が必要か
-  const needRightAxis = !isWf && (view === 'standard' || view === 'discountOnly' || view === 'customers' || (view === 'movingAvg' && showSalesMa))
+  const needRightAxis = !isWf && (view === 'standard' || view === 'discountOnly' || view === 'customers' || view === 'discountImpact' || (view === 'movingAvg' && showSalesMa))
 
   const titleText = isWf ? (WF_TITLES[view] ?? VIEW_TITLES[view]) : VIEW_TITLES[view]
 
@@ -296,8 +322,8 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : toManYen}
-            width={50}
+            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : view === 'txValue' ? (v: number) => `${toComma(v)}円` : toManYen}
+            width={view === 'txValue' ? 60 : 50}
           />
           {needRightAxis && (
             <YAxis
@@ -306,17 +332,18 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : toManYen}
-              width={view === 'customers' ? 55 : 45}
+              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => `${(v * 100).toFixed(1)}%` : toManYen}
+              width={view === 'customers' || view === 'discountImpact' ? 55 : 45}
             />
           )}
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               const n = name as string
-              if (n.includes('Base') || n.includes('Cum')) return [null, null] as unknown as [string, string]
+              if (n.includes('Base') || n === 'wfSalesCum' || n === 'wfDiscCum' || n === 'wfCustCum') return [null, null] as unknown as [string, string]
               if (value == null) return ['-', allLabels[n] ?? String(name)]
-              const suffix = n === 'customers' || n === 'prevCustomers' || n.includes('Cust') ? '人' : n === 'txValue' ? '円' : ''
+              if (n === 'cumDiscountRate') return [`${((value as number) * 100).toFixed(1)}%`, allLabels[n] ?? n]
+              const suffix = n === 'customers' || n === 'prevCustomers' || n.includes('Cust') ? '人' : (n === 'txValue' || n === 'prevTxValue') ? '円' : ''
               return [toComma(value as number) + suffix, allLabels[n] ?? n]
             }}
             labelFormatter={(label) => `${label}日`}
@@ -443,6 +470,54 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
                 <Bar yAxisId="left" dataKey="prevCustomers" fill={ct.colors.slate} radius={[3, 3, 0, 0]} maxBarSize={14} opacity={0.5} />
               )}
               <Line yAxisId="right" type="monotone" dataKey="txValue" stroke={ct.colors.purple} strokeWidth={2} dot={false} connectNulls />
+            </>
+          )}
+
+          {/* ── Transaction Value (客単価) ── */}
+          {view === 'txValue' && (
+            <>
+              <defs>
+                <linearGradient id="txValGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ct.colors.purple} stopOpacity={0.85} />
+                  <stop offset="100%" stopColor={ct.colors.purple} stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <Bar yAxisId="left" dataKey="txValue" fill="url(#txValGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
+              {hasPrev && (
+                <Line yAxisId="left" type="monotone" dataKey="prevTxValue" stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="4 3" dot={false} connectNulls />
+              )}
+            </>
+          )}
+
+          {/* ── Prev Year Cumulative (前年比累計) ── */}
+          {view === 'prevYearCum' && (
+            <>
+              <defs>
+                <linearGradient id="currentCumArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="prevCumArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ct.colors.slate} stopOpacity={0.15} />
+                  <stop offset="100%" stopColor={ct.colors.slate} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <Area yAxisId="left" type="monotone" dataKey="prevYearCum" stroke={ct.colors.slate} strokeWidth={2} strokeDasharray="4 3" fill="url(#prevCumArea)" dot={false} connectNulls />
+              <Area yAxisId="left" type="monotone" dataKey="currentCum" stroke={ct.colors.primary} strokeWidth={2.5} fill="url(#currentCumArea)" dot={false} />
+            </>
+          )}
+
+          {/* ── Discount Impact (売変インパクト分析) ── */}
+          {view === 'discountImpact' && (
+            <>
+              <defs>
+                <linearGradient id="discImpactGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ct.colors.danger} stopOpacity={0.85} />
+                  <stop offset="100%" stopColor={ct.colors.danger} stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <Bar yAxisId="left" dataKey="discount" fill="url(#discImpactGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
+              <Line yAxisId="right" type="monotone" dataKey="cumDiscountRate" stroke={ct.colors.orange} strokeWidth={2} dot={false} connectNulls />
             </>
           )}
         </ComposedChart>

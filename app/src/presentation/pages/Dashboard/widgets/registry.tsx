@@ -1,10 +1,10 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { KpiCard } from '@/presentation/components/common'
 import {
-  DailySalesChart, BudgetVsActualChart, GrossProfitRateChart, CategoryPieChart,
-  PrevYearComparisonChart, GrossProfitAmountChart, DiscountTrendChart, BudgetDiffTrendChart,
-  CustomerTrendChart, TransactionValueChart, TimeSlotSalesChart, CategorySalesBreakdownChart,
-  TimeSlotHeatmapChart, DeptHourlyPatternChart, TimeSlotKpiSummary, StoreTimeSlotComparisonChart,
+  DailySalesChart, BudgetVsActualChart, CategoryPieChart,
+  GrossProfitAmountChart,
+  TimeSlotSalesChart, CategorySalesBreakdownChart,
+  TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
@@ -234,117 +234,44 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算vs実績チャート',
     group: 'チャート',
     size: 'full',
-    render: ({ result: r, budgetChartData, daysInMonth }) => (
-      <BudgetVsActualChart data={budgetChartData} budget={r.budget} salesDays={r.salesDays} daysInMonth={daysInMonth} />
-    ),
-  },
-  {
-    id: 'chart-gross-profit-rate',
-    label: '粗利率推移チャート',
-    group: 'チャート',
-    size: 'full',
-    render: ({ result: r, daysInMonth, targetRate, warningRate }) => (
-      <GrossProfitRateChart
-        daily={r.daily}
+    render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
+      <BudgetVsActualChart
+        data={budgetChartData}
+        budget={r.budget}
+        salesDays={r.salesDays}
         daysInMonth={daysInMonth}
-        targetRate={targetRate}
-        warningRate={warningRate}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
       />
     ),
   },
   {
-    id: 'chart-category-cost-pie',
-    label: 'カテゴリ別原価構成',
+    id: 'chart-category-pie',
+    label: 'カテゴリ別構成',
     group: 'チャート',
     size: 'half',
     render: ({ result: r }) => (
-      <CategoryPieChart categoryTotals={r.categoryTotals} mode="cost" />
+      <CategoryPieChart categoryTotals={r.categoryTotals} />
     ),
-  },
-  {
-    id: 'chart-category-price-pie',
-    label: 'カテゴリ別売価構成',
-    group: 'チャート',
-    size: 'half',
-    render: ({ result: r }) => (
-      <CategoryPieChart categoryTotals={r.categoryTotals} mode="price" />
-    ),
-  },
-  {
-    id: 'chart-prev-year-comparison',
-    label: '前年比推移',
-    group: 'チャート',
-    size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => {
-      if (!prevYear.hasPrevYear) return null
-      const currentDaily = new Map<number, { sales: number }>()
-      for (const [d, rec] of r.daily) currentDaily.set(d, { sales: rec.sales })
-      return <PrevYearComparisonChart currentDaily={currentDaily} prevYearDaily={prevYear.daily} daysInMonth={daysInMonth} />
-    },
   },
   {
     id: 'chart-gross-profit-amount',
-    label: '粗利額累計推移',
+    label: '粗利推移チャート',
     group: 'チャート',
     size: 'full',
-    render: ({ result: r, daysInMonth, targetRate }) => (
+    render: ({ result: r, daysInMonth, targetRate, warningRate }) => (
       <GrossProfitAmountChart
         daily={r.daily}
         daysInMonth={daysInMonth}
         grossProfitBudget={r.grossProfitBudget}
         targetRate={targetRate}
+        warningRate={warningRate}
       />
     ),
   },
-  {
-    id: 'chart-discount-trend',
-    label: '売変インパクト分析',
-    group: 'チャート',
-    size: 'full',
-    render: ({ result: r, daysInMonth }) => (
-      <DiscountTrendChart daily={r.daily} daysInMonth={daysInMonth} />
-    ),
-  },
-  {
-    id: 'chart-budget-diff-trend',
-    label: '予算差・前年差推移',
-    group: 'チャート',
-    size: 'full',
-    render: ({ budgetChartData, daysInMonth, prevYear }) => (
-      <BudgetDiffTrendChart
-        data={budgetChartData}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-        daysInMonth={daysInMonth}
-      />
-    ),
-  },
-  // ── チャート: 客数・客単価 ──
-  {
-    id: 'chart-customer-trend',
-    label: '日別客数推移',
-    group: '客数・客単価',
-    size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => (
-      <CustomerTrendChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-      />
-    ),
-  },
-  {
-    id: 'chart-transaction-value',
-    label: '日別客単価推移',
-    group: '客数・客単価',
-    size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => (
-      <TransactionValueChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-      />
-    ),
-  },
+  // 注: 売変インパクト分析 → DailySalesChart「売変分析」ビューに統合
+  // 注: 予算差・前年差推移 → BudgetVsActualChart「前年差」ビューに統合
+  // 注: 日別客数推移 → DailySalesChart「客数」ビューに統合
+  // 注: 日別客単価推移 → DailySalesChart「客単価」ビューに統合
   // ── チャート: 分類別時間帯売上 ──
   {
     id: 'chart-category-hierarchy-explorer',
@@ -373,15 +300,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
     ),
   },
-  {
-    id: 'chart-timeslot-kpi-summary',
-    label: '時間帯KPIサマリー',
-    group: '分類別時間帯',
-    size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds }) => (
-      <TimeSlotKpiSummary categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} />
-    ),
-  },
+  // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
   {
     id: 'chart-timeslot-heatmap',
     label: '時間帯×曜日ヒートマップ',
@@ -610,7 +529,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'chart-budget-vs-actual',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v5'
+const STORAGE_KEY = 'dashboard_layout_v6'
 
 export function loadLayout(): string[] {
   try {
