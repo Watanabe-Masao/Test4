@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -10,6 +10,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Cell,
+  ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
@@ -66,6 +68,14 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   }
 `
 
+const Sep = styled.span`
+  opacity: 0.4;
+  padding: 3px 2px;
+  cursor: default;
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
 /** 表示形式 */
@@ -106,16 +116,27 @@ const VIEW_TITLES: Record<ViewType, string> = {
   area: '日別売上推移（エリア）',
 }
 
+const WF_TITLES: Record<string, string> = {
+  standard: '日別売上ウォーターフォール（前日比増減）',
+  salesOnly: '日別売上ウォーターフォール（前日比増減）',
+  discountOnly: '日別売変ウォーターフォール（前日比増減）',
+  customers: '日別客数ウォーターフォール（前日比増減）',
+}
+
 const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
   all: 'standard',
   sales: 'salesOnly',
   discount: 'discountOnly',
 }
 
+/** ウォーターフォール対応ビュー */
+const WF_VIEWS: ViewType[] = ['standard', 'salesOnly', 'discountOnly', 'customers']
+
 export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
   const [showSalesMa, setShowSalesMa] = useState(false)
+  const [waterfall, setWaterfall] = useState(false)
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const rawSales: number[] = []
@@ -143,35 +164,82 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
   const discountMa7 = movingAverage(rawDiscount, 7)
   const prevDiscountMa7 = movingAverage(rawPrevDiscount, 7)
 
-  const data = baseData.map((d, i) => ({
-    ...d,
-    salesMa7: salesMa7[i],
-    discountMa7: discountMa7[i],
-    prevDiscountMa7: prevDiscountMa7[i],
-  })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const isWf = waterfall && WF_VIEWS.includes(view)
+
+  // ウォーターフォールデータ（前日比増減）
+  const wfData = useMemo(() => {
+    if (!isWf) return null
+    let cumSales = 0, cumDiscount = 0, cumCustomers = 0
+
+    return baseData.map((d, i) => {
+      const salesChange = i === 0 ? d.sales : d.sales - baseData[i - 1].sales
+      const discountChange = i === 0 ? d.discount : d.discount - baseData[i - 1].discount
+      const customersChange = i === 0 ? d.customers : d.customers - baseData[i - 1].customers
+
+      const wfSalesBase = salesChange >= 0 ? cumSales : cumSales + salesChange
+      const wfSalesUp = salesChange >= 0 ? salesChange : 0
+      const wfSalesDown = salesChange < 0 ? Math.abs(salesChange) : 0
+      cumSales += salesChange
+
+      const wfDiscBase = discountChange >= 0 ? cumDiscount : cumDiscount + discountChange
+      const wfDiscUp = discountChange >= 0 ? discountChange : 0
+      const wfDiscDown = discountChange < 0 ? Math.abs(discountChange) : 0
+      cumDiscount += discountChange
+
+      const wfCustBase = customersChange >= 0 ? cumCustomers : cumCustomers + customersChange
+      const wfCustUp = customersChange >= 0 ? customersChange : 0
+      const wfCustDown = customersChange < 0 ? Math.abs(customersChange) : 0
+      cumCustomers += customersChange
+
+      return {
+        ...d,
+        wfSalesBase, wfSalesUp, wfSalesDown, wfSalesCum: cumSales,
+        wfDiscBase, wfDiscUp, wfDiscDown, wfDiscCum: cumDiscount,
+        wfCustBase, wfCustUp, wfCustDown, wfCustCum: cumCustomers,
+        salesMa7: salesMa7[i], discountMa7: discountMa7[i], prevDiscountMa7: prevDiscountMa7[i],
+      }
+    })
+  }, [isWf, baseData, salesMa7, discountMa7, prevDiscountMa7])
+
+  const data = isWf && wfData
+    ? wfData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+    : baseData.map((d, i) => ({
+        ...d,
+        salesMa7: salesMa7[i],
+        discountMa7: discountMa7[i],
+        prevDiscountMa7: prevDiscountMa7[i],
+      })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
 
   const hasPrev = !!prevYearDaily
 
   const allLabels: Record<string, string> = {
-    sales: '売上',
-    prevYearSales: '前年同曜日売上',
-    discount: '売変額',
-    prevYearDiscount: '前年売変額',
-    salesMa7: '売上7日移動平均',
-    discountMa7: '売変額7日移動平均',
-    prevDiscountMa7: '前年売変7日移動平均',
-    customers: '客数',
-    prevCustomers: '前年客数',
-    txValue: '客単価',
+    sales: '売上', prevYearSales: '前年同曜日売上',
+    discount: '売変額', prevYearDiscount: '前年売変額',
+    salesMa7: '売上7日移動平均', discountMa7: '売変額7日移動平均', prevDiscountMa7: '前年売変7日移動平均',
+    customers: '客数', prevCustomers: '前年客数', txValue: '客単価',
+    wfSalesUp: '増加', wfSalesDown: '減少',
+    wfDiscUp: '増加', wfDiscDown: '減少',
+    wfCustUp: '増加', wfCustDown: '減少',
   }
 
-  // 右Y軸が必要か（売変系・客単価を表示する場合、移動平均+売上MA表示時）
-  const needRightAxis = view === 'standard' || view === 'discountOnly' || view === 'customers' || (view === 'movingAvg' && showSalesMa)
+  // 右Y軸が必要か
+  const needRightAxis = !isWf && (view === 'standard' || view === 'discountOnly' || view === 'customers' || (view === 'movingAvg' && showSalesMa))
+
+  const titleText = isWf ? (WF_TITLES[view] ?? VIEW_TITLES[view]) : VIEW_TITLES[view]
+
+  // ウォーターフォール凡例
+  const wfLegendPayload = isWf ? (() => {
+    const prefix = view === 'customers' ? 'wfCust' : view === 'discountOnly' ? 'wfDisc' : 'wfSales'
+    return [
+      { value: `${prefix}Up`, type: 'rect' as const, color: ct.colors.success },
+      { value: `${prefix}Down`, type: 'rect' as const, color: ct.colors.danger },
+    ]
+  })() : undefined
 
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>{VIEW_TITLES[view]}</Title>
+        <Title>{titleText}</Title>
         <ViewToggle>
           {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
             <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
@@ -180,9 +248,17 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           ))}
           {view === 'movingAvg' && (
             <>
-              <ViewBtn $active={false} style={{ cursor: 'default', opacity: 0.4, padding: '3px 2px' }}>|</ViewBtn>
+              <Sep>|</Sep>
               <ViewBtn $active={showSalesMa} onClick={() => setShowSalesMa(v => !v)}>
                 売上MA
+              </ViewBtn>
+            </>
+          )}
+          {WF_VIEWS.includes(view) && (
+            <>
+              <Sep>|</Sep>
+              <ViewBtn $active={waterfall} onClick={() => setWaterfall(v => !v)}>
+                WF
               </ViewBtn>
             </>
           )}
@@ -237,9 +313,10 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
-              if (value == null) return ['-', allLabels[name as string] ?? String(name)]
               const n = name as string
-              const suffix = n === 'customers' || n === 'prevCustomers' ? '人' : n === 'txValue' ? '円' : ''
+              if (n.includes('Base') || n.includes('Cum')) return [null, null] as unknown as [string, string]
+              if (value == null) return ['-', allLabels[n] ?? String(name)]
+              const suffix = n === 'customers' || n === 'prevCustomers' || n.includes('Cust') ? '人' : n === 'txValue' ? '円' : ''
               return [toComma(value as number) + suffix, allLabels[n] ?? n]
             }}
             labelFormatter={(label) => `${label}日`}
@@ -247,126 +324,125 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => allLabels[value] ?? value}
+            payload={wfLegendPayload}
           />
 
+          {/* ── ウォーターフォール: 売上系 ── */}
+          {isWf && (view === 'standard' || view === 'salesOnly') && (
+            <>
+              <Bar yAxisId="left" dataKey="wfSalesBase" stackId="wfS" fill="transparent" maxBarSize={16} legendType="none" />
+              <Bar yAxisId="left" dataKey="wfSalesUp" stackId="wfS" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              </Bar>
+              <Bar yAxisId="left" dataKey="wfSalesDown" stackId="wfS" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              </Bar>
+              <Line yAxisId="left" type="monotone" dataKey="wfSalesCum" stroke={ct.colors.primary} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
+            </>
+          )}
+
+          {/* ── ウォーターフォール: 売変系 ── */}
+          {isWf && view === 'discountOnly' && (
+            <>
+              <Bar yAxisId="left" dataKey="wfDiscBase" stackId="wfD" fill="transparent" maxBarSize={16} legendType="none" />
+              <Bar yAxisId="left" dataKey="wfDiscUp" stackId="wfD" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              </Bar>
+              <Bar yAxisId="left" dataKey="wfDiscDown" stackId="wfD" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              </Bar>
+              <Line yAxisId="left" type="monotone" dataKey="wfDiscCum" stroke={ct.colors.dangerDark} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
+            </>
+          )}
+
+          {/* ── ウォーターフォール: 客数系 ── */}
+          {isWf && view === 'customers' && (
+            <>
+              <Bar yAxisId="left" dataKey="wfCustBase" stackId="wfC" fill="transparent" maxBarSize={16} legendType="none" />
+              <Bar yAxisId="left" dataKey="wfCustUp" stackId="wfC" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              </Bar>
+              <Bar yAxisId="left" dataKey="wfCustDown" stackId="wfC" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              </Bar>
+              <Line yAxisId="left" type="monotone" dataKey="wfCustCum" stroke={ct.colors.info} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
+            </>
+          )}
+
           {/* ── Standard: 売上+前年売上=棒、売変+前年売変=点線 ── */}
-          {view === 'standard' && (
+          {!isWf && view === 'standard' && (
             <>
               <Bar yAxisId="left" dataKey="sales" fill="url(#salesGrad)" radius={[3, 3, 0, 0]} maxBarSize={18} />
               {hasPrev && (
                 <Bar yAxisId="left" dataKey="prevYearSales" fill="url(#prevSalesGrad)" radius={[3, 3, 0, 0]} maxBarSize={14} />
               )}
-              <Line
-                yAxisId="right" type="monotone" dataKey="discount"
-                stroke={ct.colors.danger} strokeWidth={2} strokeDasharray="6 3"
-                dot={false} connectNulls
-              />
+              <Line yAxisId="right" type="monotone" dataKey="discount" stroke={ct.colors.danger} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />
               {hasPrev && (
-                <Line
-                  yAxisId="right" type="monotone" dataKey="prevYearDiscount"
-                  stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2"
-                  dot={false} connectNulls
-                />
+                <Line yAxisId="right" type="monotone" dataKey="prevYearDiscount" stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
               )}
             </>
           )}
 
-          {/* ── Sales Only: 売上+前年売上 棒グラフ + 移動平均 ── */}
-          {view === 'salesOnly' && (
+          {/* ── Sales Only ── */}
+          {!isWf && view === 'salesOnly' && (
             <>
               <Bar yAxisId="left" dataKey="sales" fill="url(#salesGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
               {hasPrev && (
                 <Bar yAxisId="left" dataKey="prevYearSales" fill="url(#prevSalesGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
               )}
-              <Line
-                yAxisId="left" type="monotone" dataKey="salesMa7"
-                stroke={ct.colors.cyanDark} strokeWidth={2}
-                dot={false} connectNulls
-              />
+              <Line yAxisId="left" type="monotone" dataKey="salesMa7" stroke={ct.colors.cyanDark} strokeWidth={2} dot={false} connectNulls />
             </>
           )}
 
-          {/* ── Discount Only: 売変+前年売変 棒グラフ + 移動平均 ── */}
-          {view === 'discountOnly' && (
+          {/* ── Discount Only ── */}
+          {!isWf && view === 'discountOnly' && (
             <>
               <Bar yAxisId="right" dataKey="discount" fill={ct.colors.danger} radius={[3, 3, 0, 0]} maxBarSize={20} opacity={0.7} />
               {hasPrev && (
                 <Bar yAxisId="right" dataKey="prevYearDiscount" fill={ct.colors.orange} radius={[3, 3, 0, 0]} maxBarSize={16} opacity={0.5} />
               )}
-              <Line
-                yAxisId="right" type="monotone" dataKey="discountMa7"
-                stroke={ct.colors.dangerDark} strokeWidth={2}
-                dot={false} connectNulls
-              />
+              <Line yAxisId="right" type="monotone" dataKey="discountMa7" stroke={ct.colors.dangerDark} strokeWidth={2} dot={false} connectNulls />
               {hasPrev && (
-                <Line
-                  yAxisId="right" type="monotone" dataKey="prevDiscountMa7"
-                  stroke={ct.colors.warningDark} strokeWidth={1.5} strokeDasharray="5 3"
-                  dot={false} connectNulls
-                />
+                <Line yAxisId="right" type="monotone" dataKey="prevDiscountMa7" stroke={ct.colors.warningDark} strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
               )}
             </>
           )}
 
-          {/* ── Moving Average: 売変系=左軸、売上MA=右軸(切り替え) ── */}
+          {/* ── Moving Average ── */}
           {view === 'movingAvg' && (
             <>
-              <Line
-                yAxisId="left" type="monotone" dataKey="discountMa7"
-                stroke={ct.colors.danger} strokeWidth={2}
-                dot={false} connectNulls
-              />
+              <Line yAxisId="left" type="monotone" dataKey="discountMa7" stroke={ct.colors.danger} strokeWidth={2} dot={false} connectNulls />
               {hasPrev && (
-                <Line
-                  yAxisId="left" type="monotone" dataKey="prevDiscountMa7"
-                  stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2"
-                  dot={false} connectNulls
-                />
+                <Line yAxisId="left" type="monotone" dataKey="prevDiscountMa7" stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
               )}
               {showSalesMa && (
-                <Line
-                  yAxisId="right" type="monotone" dataKey="salesMa7"
-                  stroke={ct.colors.primary} strokeWidth={2.5}
-                  dot={false} connectNulls
-                />
+                <Line yAxisId="right" type="monotone" dataKey="salesMa7" stroke={ct.colors.primary} strokeWidth={2.5} dot={false} connectNulls />
               )}
             </>
           )}
 
-          {/* ── Area: 売上エリアチャート + 前年エリア ── */}
+          {/* ── Area ── */}
           {view === 'area' && (
             <>
-              <Area
-                yAxisId="left" type="monotone" dataKey="sales"
-                fill="url(#salesAreaGrad)" stroke={ct.colors.primary} strokeWidth={2}
-              />
+              <Area yAxisId="left" type="monotone" dataKey="sales" fill="url(#salesAreaGrad)" stroke={ct.colors.primary} strokeWidth={2} />
               {hasPrev && (
-                <Area
-                  yAxisId="left" type="monotone" dataKey="prevYearSales"
-                  fill="url(#prevSalesAreaGrad)" stroke={ct.colors.slate} strokeWidth={1.5}
-                  strokeDasharray="4 3"
-                />
+                <Area yAxisId="left" type="monotone" dataKey="prevYearSales" fill="url(#prevSalesAreaGrad)" stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="4 3" />
               )}
-              <Line
-                yAxisId="left" type="monotone" dataKey="salesMa7"
-                stroke={ct.colors.cyanDark} strokeWidth={2}
-                dot={false} connectNulls
-              />
+              <Line yAxisId="left" type="monotone" dataKey="salesMa7" stroke={ct.colors.cyanDark} strokeWidth={2} dot={false} connectNulls />
             </>
           )}
 
-          {/* ── Customers: 客数棒+前年客数+客単価ライン ── */}
-          {view === 'customers' && (
+          {/* ── Customers ── */}
+          {!isWf && view === 'customers' && (
             <>
               <Bar yAxisId="left" dataKey="customers" fill={ct.colors.info} radius={[3, 3, 0, 0]} maxBarSize={18} opacity={0.75} />
               {hasPrev && (
                 <Bar yAxisId="left" dataKey="prevCustomers" fill={ct.colors.slate} radius={[3, 3, 0, 0]} maxBarSize={14} opacity={0.5} />
               )}
-              <Line
-                yAxisId="right" type="monotone" dataKey="txValue"
-                stroke={ct.colors.purple} strokeWidth={2}
-                dot={false} connectNulls
-              />
+              <Line yAxisId="right" type="monotone" dataKey="txValue" stroke={ct.colors.purple} strokeWidth={2} dot={false} connectNulls />
             </>
           )}
         </ComposedChart>
