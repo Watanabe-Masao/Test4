@@ -7,6 +7,10 @@ export type { DiscountData } from '@/domain/models'
 /**
  * ヘッダー行(row0)から店舗列マップを構築する。
  * 2列ペア（販売金額, 売変）と 3列ペア（販売金額, 売変, 客数）の両方に対応。
+ *
+ * Excelのマージセル対応:
+ *   xlsxライブラリはマージされた全セルに値を展開する場合がある。
+ *   同一storeIdの連続列をグループ化し、グループの先頭列のみを使用する。
  */
 function buildColumnMap(headerRow: readonly unknown[]): {
   storeId: string
@@ -14,28 +18,52 @@ function buildColumnMap(headerRow: readonly unknown[]): {
   discountCol: number
   customersCol: number | null
 }[] {
-  // まず全ての店舗コード列を検出
-  const storeCols: { col: number; storeId: string }[] = []
+  // 全列をスキャンし、同一storeIdの連続列をグループ化
+  const groups: { storeId: string; firstCol: number; lastCol: number }[] = []
+  let prevStoreId: string | null = null
+
   for (let col = 3; col < headerRow.length; col++) {
     const cellStr = String(headerRow[col] ?? '')
     const match = cellStr.match(/(\d{4}):/)
     if (match) {
-      storeCols.push({ col, storeId: String(parseInt(match[1])) })
+      const storeId = String(parseInt(match[1]))
+      if (storeId === prevStoreId && groups.length > 0) {
+        // 同一storeIdの連続 → グループ拡張
+        groups[groups.length - 1].lastCol = col
+      } else {
+        // 新しい店舗グループ
+        groups.push({ storeId, firstCol: col, lastCol: col })
+      }
+      prevStoreId = storeId
+    } else {
+      prevStoreId = null
     }
   }
 
-  if (storeCols.length === 0) return []
+  if (groups.length === 0) return []
 
-  // ストライド検出: 2店舗以上あれば差分で判定、1店舗の場合はヘッダー長で推定
-  const stride = storeCols.length >= 2
-    ? storeCols[1].col - storeCols[0].col
-    : (headerRow.length - storeCols[0].col) >= 3 ? 3 : 2
+  // ストライド検出: グループ間の距離、またはグループ幅から推定
+  let stride: number
+  if (groups.length >= 2) {
+    stride = groups[1].firstCol - groups[0].firstCol
+  } else {
+    // 1店舗の場合: グループ幅で判定（マージセルの幅 = 列数）
+    const groupWidth = groups[0].lastCol - groups[0].firstCol + 1
+    if (groupWidth >= 3) {
+      stride = 3
+    } else if (groupWidth === 2) {
+      stride = 2
+    } else {
+      // マージなし: 残り列数で推定
+      stride = (headerRow.length - groups[0].firstCol) >= 3 ? 3 : 2
+    }
+  }
 
-  return storeCols.map(({ col, storeId }) => ({
+  return groups.map(({ storeId, firstCol }) => ({
     storeId,
-    salesCol: col,
-    discountCol: col + 1,
-    customersCol: stride >= 3 ? col + 2 : null,
+    salesCol: firstCol,
+    discountCol: firstCol + 1,
+    customersCol: stride >= 3 ? firstCol + 2 : null,
   }))
 }
 
