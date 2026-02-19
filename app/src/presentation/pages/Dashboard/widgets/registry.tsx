@@ -434,6 +434,33 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
             )
           })()}
         </ExecSummaryItem>
+        {r.totalCustomers > 0 && (() => {
+          const txValue = Math.round(r.totalSales / r.totalCustomers)
+          const pyCustomers = prevYear.totalCustomers
+          const custRatio = prevYear.hasPrevYear && pyCustomers > 0
+            ? r.totalCustomers / pyCustomers
+            : null
+          const pyTxValue = prevYear.hasPrevYear && pyCustomers > 0
+            ? Math.round(prevYear.totalSales / pyCustomers)
+            : null
+          return (
+            <ExecSummaryItem $accent="#06b6d4">
+              <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
+              <ExecSummarySub>客数: {r.totalCustomers.toLocaleString('ja-JP')}人 / 日平均: {Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人</ExecSummarySub>
+              <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>
+              {custRatio != null && (
+                <ExecSummarySub $color={sc.cond(custRatio >= 1)}>
+                  客数前年比: {formatPercent(custRatio, 1)}
+                </ExecSummarySub>
+              )}
+              {pyTxValue != null && (
+                <ExecSummarySub>
+                  前年客単価: {formatCurrency(pyTxValue)}円
+                </ExecSummarySub>
+              )}
+            </ExecSummaryItem>
+          )
+        })()}
         <ExecSummaryItem $accent={sc.positive}>
           <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
           {r.invMethodGrossProfitRate != null ? (() => {

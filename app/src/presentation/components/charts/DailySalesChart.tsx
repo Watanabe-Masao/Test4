@@ -69,12 +69,12 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
 /** 表示形式 */
-type ViewType = 'standard' | 'salesOnly' | 'discountOnly' | 'movingAvg' | 'area'
+type ViewType = 'standard' | 'salesOnly' | 'discountOnly' | 'movingAvg' | 'area' | 'customers'
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number }>
+  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
   mode?: DailyChartMode
 }
 
@@ -92,6 +92,7 @@ const VIEW_LABELS: Record<ViewType, string> = {
   standard: '標準',
   salesOnly: '売上',
   discountOnly: '売変',
+  customers: '客数',
   movingAvg: '移動平均',
   area: 'エリア',
 }
@@ -100,6 +101,7 @@ const VIEW_TITLES: Record<ViewType, string> = {
   standard: '日別売上・売変推移',
   salesOnly: '日別売上推移（当年 vs 前年）',
   discountOnly: '日別売変推移（当年 vs 前年）',
+  customers: '日別客数・客単価推移',
   movingAvg: '7日移動平均推移',
   area: '日別売上推移（エリア）',
 }
@@ -129,7 +131,10 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const prevSales = prevEntry?.sales ?? null
     const prevDiscount = prevEntry?.discount ?? null
     rawPrevDiscount.push(prevEntry?.discount ?? 0)
-    baseData.push({ day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount })
+    const customers = rec?.customers ?? 0
+    const txValue = customers > 0 ? Math.round(sales / customers) : null
+    const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
+    baseData.push({ day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount, customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null })
   }
 
   // 7日移動平均
@@ -154,10 +159,13 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     salesMa7: '売上7日移動平均',
     discountMa7: '売変額7日移動平均',
     prevDiscountMa7: '前年売変7日移動平均',
+    customers: '客数',
+    prevCustomers: '前年客数',
+    txValue: '客単価',
   }
 
-  // 右Y軸が必要か（売変系を表示する場合）
-  const needRightAxis = view === 'standard' || view === 'discountOnly'
+  // 右Y軸が必要か（売変系・客単価を表示する場合）
+  const needRightAxis = view === 'standard' || view === 'discountOnly' || view === 'customers'
 
   return (
     <Wrapper>
@@ -203,7 +211,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : toManYen}
             width={50}
           />
           {needRightAxis && (
@@ -213,14 +221,17 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
-              width={45}
+              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : toManYen}
+              width={view === 'customers' ? 55 : 45}
             />
           )}
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
-              return [value != null ? toComma(value as number) : '-', allLabels[name as string] ?? String(name)]
+              if (value == null) return ['-', allLabels[name as string] ?? String(name)]
+              const n = name as string
+              const suffix = n === 'customers' || n === 'prevCustomers' ? '人' : n === 'txValue' ? '円' : ''
+              return [toComma(value as number) + suffix, allLabels[n] ?? n]
             }}
             labelFormatter={(label) => `${label}日`}
           />
@@ -328,6 +339,21 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               <Line
                 yAxisId="left" type="monotone" dataKey="salesMa7"
                 stroke={ct.colors.cyanDark} strokeWidth={2}
+                dot={false} connectNulls
+              />
+            </>
+          )}
+
+          {/* ── Customers: 客数棒+前年客数+客単価ライン ── */}
+          {view === 'customers' && (
+            <>
+              <Bar yAxisId="left" dataKey="customers" fill={ct.colors.info} radius={[3, 3, 0, 0]} maxBarSize={18} opacity={0.75} />
+              {hasPrev && (
+                <Bar yAxisId="left" dataKey="prevCustomers" fill={ct.colors.slate} radius={[3, 3, 0, 0]} maxBarSize={14} opacity={0.5} />
+              )}
+              <Line
+                yAxisId="right" type="monotone" dataKey="txValue"
+                stroke={ct.colors.purple} strokeWidth={2}
                 dot={false} connectNulls
               />
             </>

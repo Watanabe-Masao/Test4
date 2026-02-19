@@ -21,6 +21,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
     salesTotal: 0, salesCount: 0,
     budgetTotal: 0, budgetCount: 0,
     prevYearTotal: 0, prevYearCount: 0,
+    customersTotal: 0, customersCount: 0,
   }))
   const daysInMonth = new Date(year, month, 0).getDate()
   for (let d = 1; d <= daysInMonth; d++) {
@@ -40,13 +41,23 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
       buckets[dow].prevYearTotal += pySales
       buckets[dow].prevYearCount++
     }
+    const cust = r.daily.get(d)?.customers ?? 0
+    if (cust > 0) {
+      buckets[dow].customersTotal += cust
+      buckets[dow].customersCount++
+    }
   }
+  const hasCustomers = buckets.some(b => b.customersTotal > 0)
   const ordered = [1, 2, 3, 4, 5, 6, 0].map(i => {
     const b = buckets[i]
     const avgSales = b.salesCount > 0 ? b.salesTotal / b.salesCount : 0
     const avgBudget = b.budgetCount > 0 ? b.budgetTotal / b.budgetCount : 0
     const avgPrevYear = b.prevYearCount > 0 ? b.prevYearTotal / b.prevYearCount : 0
-    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount, avgPrevYear }
+    const avgCustomers = b.customersCount > 0 ? Math.round(b.customersTotal / b.customersCount) : 0
+    const avgTxValue = b.customersCount > 0 && b.customersTotal > 0
+      ? Math.round(b.salesTotal / b.customersTotal)
+      : 0
+    return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount, avgPrevYear, avgCustomers, avgTxValue }
   })
 
   return (
@@ -64,6 +75,8 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
             {prevYear.hasPrevYear && <STh>前年同曜日平均</STh>}
             {prevYear.hasPrevYear && <STh>前年差額</STh>}
             {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
+            {hasCustomers && <STh>平均客数</STh>}
+            {hasCustomers && <STh>客単価</STh>}
           </tr>
         </thead>
         <tbody>
@@ -84,6 +97,8 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
                 {prevYear.hasPrevYear && <STd>{formatCurrency(a.avgPrevYear)}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyDiffColor : undefined }}>{a.avgPrevYear > 0 ? formatCurrency(pyDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: a.avgPrevYear > 0 ? pyColor : undefined }}>{a.avgPrevYear > 0 ? formatPercent(pyRatio, 0) : '-'}</STd>}
+                {hasCustomers && <STd>{a.avgCustomers > 0 ? `${a.avgCustomers.toLocaleString('ja-JP')}人` : '-'}</STd>}
+                {hasCustomers && <STd>{a.avgTxValue > 0 ? formatCurrency(a.avgTxValue) + '円' : '-'}</STd>}
               </tr>
             )
           })}
@@ -104,6 +119,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
     let totalPurchaseCost = 0
     let days = 0
     let prevYearWeekSales = 0
+    let totalCustomers = 0
     for (let d = startDay; d <= endDay; d++) {
       const rec = r.daily.get(d)
       const budget = r.budgetDaily.get(d) ?? 0
@@ -114,14 +130,17 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
       if (rec) {
         totalPurchasePrice += rec.purchase.price + rec.flowers.price + rec.directProduce.price
         totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
+        totalCustomers += rec.customers ?? 0
       }
       prevYearWeekSales += prevYear.daily.get(d)?.sales ?? 0
     }
     const markupRate = totalPurchasePrice > 0
       ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice
       : 0
-    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days, prevYearWeekSales }
+    const weekTxValue = totalCustomers > 0 ? Math.round(totalSales / totalCustomers) : 0
+    return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days, prevYearWeekSales, totalCustomers, weekTxValue }
   })
+  const hasWeeklyCustomers = summaries.some(w => w.totalCustomers > 0)
 
   return (
     <STableWrapper>
@@ -140,6 +159,8 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
             {prevYear.hasPrevYear && <STh>前年同曜日売上</STh>}
             {prevYear.hasPrevYear && <STh>前年差額</STh>}
             {prevYear.hasPrevYear && <STh>前年同曜日比</STh>}
+            {hasWeeklyCustomers && <STh>客数</STh>}
+            {hasWeeklyCustomers && <STh>客単価</STh>}
           </tr>
         </thead>
         <tbody>
@@ -164,6 +185,8 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 {prevYear.hasPrevYear && <STd>{formatCurrency(w.prevYearWeekSales)}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekDiffColor : undefined }}>{w.prevYearWeekSales > 0 ? formatCurrency(pyWeekDiff) : '-'}</STd>}
                 {prevYear.hasPrevYear && <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekColor : undefined }}>{w.prevYearWeekSales > 0 ? formatPercent(pyWeekRatio, 0) : '-'}</STd>}
+                {hasWeeklyCustomers && <STd>{w.totalCustomers > 0 ? `${w.totalCustomers.toLocaleString('ja-JP')}人` : '-'}</STd>}
+                {hasWeeklyCustomers && <STd>{w.weekTxValue > 0 ? formatCurrency(w.weekTxValue) + '円' : '-'}</STd>}
               </tr>
             )
           })}
