@@ -171,7 +171,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           ))}
         </ViewToggle>
       </HeaderRow>
-      <ResponsiveContainer width="100%" height="82%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="82%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">

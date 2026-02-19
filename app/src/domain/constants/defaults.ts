@@ -12,6 +12,7 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     directProduceCostRate: 0.85,
     defaultMarkupRate: 0.26,
     defaultBudget: 6_450_000,
+    dataEndDay: null,
     supplierCategoryMap: {},
   }
 }

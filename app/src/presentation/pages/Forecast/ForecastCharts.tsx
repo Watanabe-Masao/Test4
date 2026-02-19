@@ -27,7 +27,7 @@ export function WeeklyChart({ data, dowColors }: { data: Record<string, string |
   return (
     <ChartWrapper>
       <ChartTitle>週別売上推移（曜日別）</ChartTitle>
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -83,7 +83,7 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
   return (
     <ChartWrapper>
       <ChartTitle>曜日指数（曜日別構成比）</ChartTitle>
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <BarChart data={data} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -147,7 +147,7 @@ export function StoreComparisonRadarChart({
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 曜日別売上レーダー</ChartTitle>
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <RadarChart data={radarData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
           <PolarGrid stroke={ct.grid} strokeOpacity={0.4} />
           <PolarAngleAxis
@@ -201,7 +201,7 @@ export function StoreComparisonBarChart({
   return (
     <ChartWrapper>
       <ChartTitle>店舗間 週別売上比較</ChartTitle>
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis

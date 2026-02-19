@@ -77,7 +77,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
   return (
     <Wrapper>
       <Title>粗利率推移（累計ベース）</Title>
-      <ResponsiveContainer width="100%" height="84%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis

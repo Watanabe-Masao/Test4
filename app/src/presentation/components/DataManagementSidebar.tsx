@@ -16,7 +16,8 @@ import {
 } from '@/presentation/components/common'
 import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
-import type { DataType } from '@/domain/models'
+import type { DataType, ImportedData, StoreDayRecord } from '@/domain/models'
+import { getDaysInMonth } from '@/domain/constants/defaults'
 import { clearAllData } from '@/infrastructure/storage/IndexedDBStore'
 
 const UploadGrid = styled.div`
@@ -89,6 +90,128 @@ const StoreInventoryTitle = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+/** StoreDayRecord から最大日を取得 */
+function maxDayOf(record: StoreDayRecord<unknown>): number {
+  let max = 0
+  for (const storeId of Object.keys(record)) {
+    for (const dayStr of Object.keys(record[storeId])) {
+      const d = Number(dayStr)
+      if (d > max) max = d
+    }
+  }
+  return max
+}
+
+/** 予算以外の取込データの最大日を検出 */
+function detectDataMaxDay(data: ImportedData): number {
+  return Math.max(
+    0,
+    maxDayOf(data.purchase),
+    maxDayOf(data.sales),
+    maxDayOf(data.discount),
+    maxDayOf(data.interStoreIn),
+    maxDayOf(data.interStoreOut),
+    maxDayOf(data.flowers),
+    maxDayOf(data.directProduce),
+    maxDayOf(data.consumables),
+  )
+}
+
+// ─── DataEndDay スライダー styled ──────────────────────
+const SliderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const SliderHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`
+
+const SliderLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+  white-space: nowrap;
+`
+
+const SliderTrackWrap = styled.div`
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+`
+
+const SliderTrack = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
+`
+
+const SliderActive = styled.div<{ $width: number }>`
+  position: absolute;
+  left: 0;
+  width: ${({ $width }) => $width}%;
+  height: 4px;
+  border-radius: 2px;
+  background: ${({ theme }) => theme.colors.palette.primary};
+  opacity: 0.6;
+`
+
+const SliderInput = styled.input`
+  position: absolute;
+  width: 100%;
+  height: 24px;
+  appearance: none;
+  background: transparent;
+  margin: 0;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: ${({ theme }) => theme.colors.palette.primary};
+    border: 2px solid ${({ theme }) => theme.colors.bg3};
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: ${({ theme }) => theme.colors.palette.primary};
+    border: 2px solid ${({ theme }) => theme.colors.bg3};
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+`
+
+const SliderResetBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text4};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    color: ${({ theme }) => theme.colors.text3};
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+  }
+`
+
+const DetectedDayHint = styled.span`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
 `
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
@@ -180,6 +303,14 @@ export function DataManagementSidebar({
     }
   }, [dispatch, showToast])
 
+  const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
+  const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
+  const hasNonBudgetData = detectedMaxDay > 0
+  const currentEndDay = settings.dataEndDay != null
+    ? Math.min(settings.dataEndDay, daysInMonth)
+    : daysInMonth
+  const sliderPct = ((currentEndDay - 1) / (daysInMonth - 1)) * 100
+
   const loadedTypes = useMemo(() => {
     const types = new Set<DataType>()
     if (Object.keys(data.purchase).length > 0) types.add('purchase')
@@ -226,6 +357,39 @@ export function DataManagementSidebar({
             ))}
           </UploadGrid>
         </SidebarSection>
+
+        {hasNonBudgetData && (
+          <SidebarSection>
+            <SectionLabel>取込データ有効期間</SectionLabel>
+            <SliderSection>
+              <SliderHeader>
+                <SliderLabel>{currentEndDay}日 / {daysInMonth}日</SliderLabel>
+                {detectedMaxDay > 0 && (
+                  <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>
+                )}
+                {settings.dataEndDay != null && (
+                  <SliderResetBtn onClick={() => updateSettings({ dataEndDay: null })}>
+                    月末まで
+                  </SliderResetBtn>
+                )}
+              </SliderHeader>
+              <SliderTrackWrap>
+                <SliderTrack />
+                <SliderActive $width={sliderPct} />
+                <SliderInput
+                  type="range"
+                  min={1}
+                  max={daysInMonth}
+                  value={currentEndDay}
+                  onChange={(e) => {
+                    const v = Number(e.target.value)
+                    updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+                  }}
+                />
+              </SliderTrackWrap>
+            </SliderSection>
+          </SidebarSection>
+        )}
 
         {stores.size > 0 && (
           <SidebarSection>

@@ -86,7 +86,7 @@ export function CategoryPieChart({ categoryTotals, mode }: Props) {
   return (
     <Wrapper>
       <Title>カテゴリ別{mode === 'cost' ? '原価' : '売価'}構成</Title>
-      <ResponsiveContainer width="100%" height="90%">
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="90%">
         <PieChart>
           <Pie
             data={data}

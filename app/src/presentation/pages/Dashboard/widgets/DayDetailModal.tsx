@@ -230,7 +230,7 @@ export function DayDetailModal({
                 <>
                   {barData.length > 0 && (
                     <DetailChartWrapper>
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
                         <BarChart data={barData} layout="vertical" margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                           <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${Math.round(v / 10000)}万`} />
