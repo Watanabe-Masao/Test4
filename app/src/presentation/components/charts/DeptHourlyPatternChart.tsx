@@ -153,7 +153,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds }: 
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string) => [toComma(value ?? 0) + '円', name]}
+            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0) + '円', name ?? '']}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {departments.map((dept, i) => (

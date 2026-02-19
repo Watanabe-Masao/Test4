@@ -300,7 +300,7 @@ export function DowCustomerChart({
             tickFormatter={toComma}
             label={{ value: '客単価', position: 'insideTopRight', fill: ct.textMuted, fontSize: ct.fontSize.xs }}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string) => [toComma(v ?? 0), name]} />
+          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar yAxisId="left" dataKey="今年客数" fill="#06b6d4" fillOpacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={30}>
             {data.map((_, i) => <Cell key={i} fill={dowColors[i]} fillOpacity={0.8} />)}
@@ -364,7 +364,7 @@ export function MovingAverageChart({
             width={50}
             tickFormatter={toComma}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string) => [toComma(v ?? 0), name]} />
+          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Area yAxisId="left" type="monotone" dataKey="客数MA" fill="#06b6d4" fillOpacity={0.15} stroke="#06b6d4" strokeWidth={2} />
           {hasPrev && (
@@ -448,7 +448,7 @@ export function RelationshipChart({
             width={40}
             domain={['auto', 'auto']}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string) => [`${v ?? 0}%`, name]} />
+          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [`${v ?? 0}%`, name ?? '']} />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {showCurrent && (
             <>
@@ -511,8 +511,8 @@ export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[]
             tickLine={false}
             width={45}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string) =>
-            name === '売上' ? [toComma(v ?? 0), name] : [toComma(v ?? 0), name]
+          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) =>
+            name === '売上' ? [toComma(v ?? 0), name ?? ''] : [toComma(v ?? 0), name ?? '']
           } />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar yAxisId="sales" dataKey="売上" fill="#3b82f6" fillOpacity={0.6} radius={[4, 4, 0, 0]} maxBarSize={20} />
@@ -596,7 +596,7 @@ export function SameDowComparisonChart({
             width={50}
             tickFormatter={toComma}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string) => [toComma(v ?? 0), name]} />
+          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar yAxisId="left" dataKey="今年客数" fill="#06b6d4" fillOpacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={16}>
             {chartData.map((e, i) => <Cell key={i} fill={e.color} fillOpacity={0.8} />)}
