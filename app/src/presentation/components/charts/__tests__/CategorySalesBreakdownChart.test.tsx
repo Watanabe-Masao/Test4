@@ -44,6 +44,9 @@ describe('CategorySalesBreakdownChart', () => {
       <CategorySalesBreakdownChart
         categoryTimeSales={sampleData}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -55,6 +58,9 @@ describe('CategorySalesBreakdownChart', () => {
       <CategorySalesBreakdownChart
         categoryTimeSales={sampleData}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -69,6 +75,9 @@ describe('CategorySalesBreakdownChart', () => {
       <CategorySalesBreakdownChart
         categoryTimeSales={sampleData}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -84,6 +93,9 @@ describe('CategorySalesBreakdownChart', () => {
       <CategorySalesBreakdownChart
         categoryTimeSales={emptyData}
         selectedStoreIds={new Set()}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
@@ -121,6 +133,9 @@ describe('CategorySalesBreakdownChart', () => {
       <CategorySalesBreakdownChart
         categoryTimeSales={data}
         selectedStoreIds={new Set(['999'])}
+        daysInMonth={28}
+        year={2026}
+        month={2}
       />,
     )
 
