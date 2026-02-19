@@ -31,4 +31,6 @@ export interface WidgetContext {
   categoryTimeSales: CategoryTimeSalesData
   /** 選択中の店舗ID（空 = 全店） */
   selectedStoreIds: ReadonlySet<string>
+  /** 取込データ有効末日 (null = 月末) */
+  dataEndDay: number | null
 }

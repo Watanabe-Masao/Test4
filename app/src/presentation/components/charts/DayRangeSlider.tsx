@@ -1,20 +1,40 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
+import { useAppState } from '@/application/context'
 
 const SliderRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
+  gap: ${({ theme }) => theme.spacing[2]};
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]} 0;
 `
 
-const Label = styled.span`
+const NumInput = styled.input`
+  width: 38px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-  white-space: nowrap;
-  min-width: 44px;
+  color: ${({ theme }) => theme.colors.text2};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 1px 4px;
   text-align: center;
+  appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const UnitLabel = styled.span`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+  white-space: nowrap;
 `
 
 const TrackWrap = styled.div`
@@ -85,6 +105,7 @@ const ResetBtn = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
   background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  white-space: nowrap;
   &:hover {
     color: ${({ theme }) => theme.colors.text3};
     background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
@@ -104,9 +125,26 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
   const rightPct = ((max - end) / (max - min)) * 100
   const isFullRange = start === min && end === max
 
+  const handleStartInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value)
+    if (!isNaN(v) && v >= min && v < end) onChange(v, end)
+  }, [min, end, onChange])
+
+  const handleEndInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value)
+    if (!isNaN(v) && v <= max && v > start) onChange(start, v)
+  }, [max, start, onChange])
+
   return (
     <SliderRow>
-      <Label>{start}日</Label>
+      <NumInput
+        type="number"
+        min={min}
+        max={end - 1}
+        value={start}
+        onChange={handleStartInput}
+      />
+      <UnitLabel>日</UnitLabel>
       <TrackWrap>
         <Track />
         <ActiveTrack $left={leftPct} $right={rightPct} />
@@ -131,7 +169,14 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
           }}
         />
       </TrackWrap>
-      <Label>{end}日</Label>
+      <NumInput
+        type="number"
+        min={start + 1}
+        max={max}
+        value={end}
+        onChange={handleEndInput}
+      />
+      <UnitLabel>日</UnitLabel>
       {!isFullRange && (
         <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>
       )}
@@ -139,11 +184,22 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
   )
 }
 
-/** 日付範囲のstate管理フック */
+/** 日付範囲のstate管理フック（取込データ有効期間に自動連動） */
 export function useDayRange(daysInMonth: number): [number, number, (s: number, e: number) => void] {
-  const [range, setRange] = useState<[number, number]>([1, daysInMonth])
+  const { settings } = useAppState()
+  const dataEndDay = settings.dataEndDay
 
-  // daysInMonthが変わった場合にリセット
+  const defaultEnd = dataEndDay != null ? Math.min(dataEndDay, daysInMonth) : daysInMonth
+  const [range, setRange] = useState<[number, number]>([1, defaultEnd])
+  const [prevDataEndDay, setPrevDataEndDay] = useState(dataEndDay)
+
+  // 取込データ有効期間が変わったらリセット
+  if (dataEndDay !== prevDataEndDay) {
+    setPrevDataEndDay(dataEndDay)
+    const newEnd = dataEndDay != null ? Math.min(dataEndDay, daysInMonth) : daysInMonth
+    setRange([1, newEnd])
+  }
+
   const effectiveEnd = Math.min(range[1], daysInMonth)
   const effectiveStart = Math.min(range[0], effectiveEnd)
 
