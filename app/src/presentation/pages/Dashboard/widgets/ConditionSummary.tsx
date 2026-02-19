@@ -143,6 +143,33 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
     },
   ]
 
+  // 7. Customer YoY (if prev year data available)
+  const prevYear = ctx.prevYear
+  if (prevYear.hasPrevYear && prevYear.totalCustomers > 0 && r.totalCustomers > 0) {
+    const custYoY = r.totalCustomers / prevYear.totalCustomers
+    items.push({
+      label: '客数前年比',
+      value: formatPercent(custYoY, 0),
+      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
+      signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
+    })
+  }
+
+  // 8. Transaction Value
+  if (r.totalCustomers > 0) {
+    const txValue = Math.round(r.totalSales / r.totalCustomers)
+    const prevTxValue = prevYear.hasPrevYear && prevYear.totalCustomers > 0
+      ? Math.round(prevYear.totalSales / prevYear.totalCustomers)
+      : null
+    const txYoY = prevTxValue != null && prevTxValue > 0 ? txValue / prevTxValue : null
+    items.push({
+      label: '客単価',
+      value: formatCurrency(txValue),
+      sub: prevTxValue != null ? `前年: ${formatCurrency(prevTxValue)}` : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
+      signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
+    })
+  }
+
   return (
     <Wrapper>
       <Title>コンディションサマリー</Title>

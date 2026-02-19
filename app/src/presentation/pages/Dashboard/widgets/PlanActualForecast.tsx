@@ -105,6 +105,36 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
               </>
             )
           })()}
+          {r.totalCustomers > 0 && (() => {
+            const txValue = Math.round(r.totalSales / r.totalCustomers)
+            const pyCustomers = ctx.prevYear.totalCustomers
+            const pyTxValue = pyCustomers > 0
+              ? Math.round(ctx.prevYear.totalSales / pyCustomers)
+              : null
+            const custRatio = pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
+            return (
+              <>
+                <ExecDividerLine />
+                <ExecMetric
+                  label="期中客数"
+                  value={`${r.totalCustomers.toLocaleString('ja-JP')}人`}
+                  sub={`日平均: ${Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人`}
+                />
+                <ExecMetric
+                  label="客単価"
+                  value={formatCurrency(txValue) + '円'}
+                  sub={pyTxValue ? `前年: ${formatCurrency(pyTxValue)}円` : undefined}
+                />
+                {custRatio != null && (
+                  <ExecMetric
+                    label="客数前年比"
+                    value={formatPercent(custRatio)}
+                    subColor={sc.cond(custRatio >= 1)}
+                  />
+                )}
+              </>
+            )
+          })()}
           <ExecDividerLine />
           <ExecMetric
             label="期中粗利額実績"
@@ -175,6 +205,26 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="着地粗利達成率"
             value={formatPercent(projectedGPAchievement)}
           />
+          {r.totalCustomers > 0 && r.salesDays > 0 && (() => {
+            const avgDailyCustomers = r.totalCustomers / r.salesDays
+            const projectedCustomers = Math.round(r.totalCustomers + avgDailyCustomers * remainingDays)
+            const projectedTxValue = projectedCustomers > 0
+              ? Math.round(r.projectedSales / projectedCustomers)
+              : 0
+            return (
+              <>
+                <ExecDividerLine />
+                <ExecMetric
+                  label="月末客数着地"
+                  value={`${projectedCustomers.toLocaleString('ja-JP')}人`}
+                />
+                <ExecMetric
+                  label="着地客単価"
+                  value={formatCurrency(projectedTxValue) + '円'}
+                />
+              </>
+            )
+          })()}
         </ExecBody>
       </ExecColumn>
     </ExecGrid>

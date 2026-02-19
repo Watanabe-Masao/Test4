@@ -371,3 +371,154 @@ describe('aggregateStoreResults', () => {
     expect(() => aggregateStoreResults([], 28)).toThrow('Cannot aggregate 0 results')
   })
 })
+
+describe('dataEndDay による日数トリミング', () => {
+  it('dataEndDay 設定時、それ以降のデータを除外', () => {
+    const data = buildTestData({
+      sales: {
+        '1': {
+          1: { sales: 10000 },
+          5: { sales: 20000 },
+          10: { sales: 30000 },
+          15: { sales: 40000 },
+        },
+      },
+      purchase: {
+        '1': {
+          1: { suppliers: {}, total: { cost: 5000, price: 7000 } },
+          5: { suppliers: {}, total: { cost: 10000, price: 14000 } },
+          10: { suppliers: {}, total: { cost: 15000, price: 21000 } },
+          15: { suppliers: {}, total: { cost: 20000, price: 28000 } },
+        },
+      },
+    })
+
+    const settings = { ...DEFAULT_SETTINGS, dataEndDay: 10 }
+    const result = calculateStoreResult('1', data, settings, 28)
+
+    // day 15 のデータは除外される
+    expect(result.totalSales).toBe(60000) // 10000 + 20000 + 30000
+    expect(result.totalCost).toBe(30000)  // 5000 + 10000 + 15000
+    expect(result.daily.has(15)).toBe(false)
+    expect(result.daily.size).toBe(3)
+  })
+
+  it('dataEndDay が null の場合は全日集計', () => {
+    const data = buildTestData({
+      sales: {
+        '1': { 1: { sales: 10000 }, 15: { sales: 20000 }, 28: { sales: 30000 } },
+      },
+    })
+
+    const settings = { ...DEFAULT_SETTINGS, dataEndDay: null }
+    const result = calculateStoreResult('1', data, settings, 28)
+
+    expect(result.totalSales).toBe(60000)
+    expect(result.daily.size).toBe(3)
+  })
+
+  it('dataEndDay が daysInMonth を超える場合は daysInMonth まで', () => {
+    const data = buildTestData({
+      sales: {
+        '1': { 1: { sales: 10000 }, 28: { sales: 20000 } },
+      },
+    })
+
+    const settings = { ...DEFAULT_SETTINGS, dataEndDay: 31 }
+    const result = calculateStoreResult('1', data, settings, 28)
+
+    // daysInMonth(28) でクランプされるので全データ含む
+    expect(result.totalSales).toBe(30000)
+    expect(result.daily.size).toBe(2)
+  })
+})
+
+describe('客数集計', () => {
+  it('売上データの客数が集計される', () => {
+    const data = buildTestData({
+      sales: {
+        '1': {
+          1: { sales: 50000, customers: 30 },
+          2: { sales: 60000, customers: 40 },
+        },
+      },
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    expect(result.totalCustomers).toBe(70)
+    expect(result.averageCustomersPerDay).toBeCloseTo(35) // 70 / 2営業日
+    expect(result.daily.get(1)?.customers).toBe(30)
+    expect(result.daily.get(2)?.customers).toBe(40)
+  })
+
+  it('客数がない場合は 0', () => {
+    const data = buildTestData({
+      sales: {
+        '1': { 1: { sales: 50000 } },
+      },
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    expect(result.totalCustomers).toBe(0)
+    expect(result.averageCustomersPerDay).toBe(0)
+  })
+
+  it('売変データの客数が優先される', () => {
+    const data = buildTestData({
+      sales: {
+        '1': { 1: { sales: 50000, customers: 30 } },
+      },
+      discount: {
+        '1': { 1: { sales: 50000, discount: 3000, customers: 35 } },
+      },
+    })
+
+    const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
+
+    // 売変データの customers が優先
+    expect(result.totalCustomers).toBe(35)
+    expect(result.daily.get(1)?.customers).toBe(35)
+  })
+
+  it('aggregateStoreResults で客数が合算される', () => {
+    const data: ImportedData = {
+      ...createEmptyImportedData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+        ['2', { id: '2', code: '0002', name: '店舗B' }],
+      ]),
+      sales: {
+        '1': { 1: { sales: 50000, customers: 30 } },
+        '2': { 1: { sales: 80000, customers: 50 } },
+      },
+    }
+
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const results = Array.from(allResults.values())
+    const agg = aggregateStoreResults(results, 28)
+
+    expect(agg.totalCustomers).toBe(80) // 30 + 50
+    expect(agg.daily.get(1)?.customers).toBe(80)
+  })
+
+  it('dataEndDay で客数もトリミングされる', () => {
+    const data = buildTestData({
+      sales: {
+        '1': {
+          1: { sales: 50000, customers: 30 },
+          10: { sales: 60000, customers: 40 },
+          20: { sales: 70000, customers: 50 },
+        },
+      },
+    })
+
+    const settings = { ...DEFAULT_SETTINGS, dataEndDay: 15 }
+    const result = calculateStoreResult('1', data, settings, 28)
+
+    // day 20 は除外
+    expect(result.totalCustomers).toBe(70) // 30 + 40
+    expect(result.daily.has(20)).toBe(false)
+  })
+})

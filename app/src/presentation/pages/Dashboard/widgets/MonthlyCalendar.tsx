@@ -247,6 +247,18 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                                 </>
                               ) : null
                             })()}
+                            {(() => {
+                              const dayCust = rec?.customers ?? 0
+                              if (dayCust <= 0) return null
+                              const dayTxVal = Math.round(actual / dayCust)
+                              return (
+                                <>
+                                  <CalDivider />
+                                  <CalCell $color="#06b6d4">客 {dayCust}</CalCell>
+                                  <CalCell $color="#8b5cf6">単 {dayTxVal.toLocaleString()}</CalCell>
+                                </>
+                              )
+                            })()}
                           </CalGrid>
                         </CalDataArea>
                       )}
