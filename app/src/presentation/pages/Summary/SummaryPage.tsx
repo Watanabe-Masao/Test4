@@ -1,6 +1,6 @@
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
-import { InventoryTrendChart, EstimatedInventoryDetailChart } from '@/presentation/components/charts'
+import { EstimatedInventoryDetailChart } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -82,19 +82,6 @@ export function SummaryPage() {
 
   return (
     <MainContent title="粗利計算" storeName={storeName}>
-      <Section>
-        <InventoryTrendChart
-          daily={r.daily}
-          daysInMonth={daysInMonth}
-          openingInventory={r.openingInventory}
-          closingInventory={r.closingInventory}
-          markupRate={r.coreMarkupRate}
-          discountRate={r.discountRate}
-          comparisonResults={selectedResults}
-          stores={stores}
-        />
-      </Section>
-
       <CalcGrid>
         <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
@@ -181,6 +168,8 @@ export function SummaryPage() {
           closingInventory={r.closingInventory}
           markupRate={r.coreMarkupRate}
           discountRate={r.discountRate}
+          comparisonResults={selectedResults}
+          stores={stores}
         />
       </Section>
 

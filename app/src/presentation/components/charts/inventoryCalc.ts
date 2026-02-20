@@ -30,11 +30,15 @@ export interface InventoryDetailRow {
  *   在庫仕入原価(日) = getDailyTotalCost(rec) − deliverySales.cost
  *                    = 仕入 + 店間入 + 店間出 + 部門間入 + 部門間出
  *
+ *   コア売上(日)     = 売上 − 花売価 − 産直売価  ※クランプなし
  *   粗売上(日)       = コア売上 / (1 − 売変率)
  *   推定原価(日)     = 粗売上 × (1 − 値入率) + 消耗品費
  *
  *   推定在庫[d]      = 期首在庫 + Σ在庫仕入原価[1..d] − Σ推定原価[1..d]
  *
+ * ※ コア売上は日別に max(0) クランプしない（DailyRecord.coreSales はクランプ済み）。
+ *   日別クランプすると Σ max(0,x_d) ≧ max(0,Σx_d) の不等式により
+ *   月次集計(calculateEstMethod)との差が生じるため。
  * ※ getDailyTotalCost を唯一の原価算出元とすることで
  *   storeAssembler (totalCost → inventoryCost) との整合性を保証する。
  */
@@ -82,10 +86,13 @@ export function computeEstimatedInventoryDetails(
 
     if (rec) {
       sales = rec.sales
-      coreSales = rec.coreSales
+
+      // コア売上 = 売上 − 花売価 − 産直売価（クランプなし）
+      // ※ rec.coreSales は calculateCoreSales で max(0) 済みのため使わない
+      coreSales = rec.sales - rec.flowers.price - rec.directProduce.price
 
       // 粗売上 = コア売上 / (1 − 売変率)
-      grossSales = divisor > 0 ? rec.coreSales / divisor : rec.coreSales
+      grossSales = divisor > 0 ? coreSales / divisor : coreSales
 
       // 在庫仕入原価 = 総仕入原価 − 売上納品原価
       inventoryCost = getDailyTotalCost(rec) - rec.deliverySales.cost
