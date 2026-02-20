@@ -6,6 +6,7 @@ import {
   TimeSlotSalesChart, CategorySalesBreakdownChart,
   TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
+  SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -299,6 +300,23 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: (ctx) => renderDailyInventoryTable(ctx),
   },
   // ── 店舗別 ──
+  {
+    id: 'chart-sales-purchase-comparison',
+    label: '売上・仕入 店舗比較',
+    group: '店舗別',
+    size: 'full',
+    render: ({ allStoreResults, stores, daysInMonth }) => {
+      const results = Array.from(allStoreResults.values())
+      if (results.length < 2) return null
+      return (
+        <SalesPurchaseComparisonChart
+          comparisonResults={results}
+          stores={stores}
+          daysInMonth={daysInMonth}
+        />
+      )
+    },
+  },
   {
     id: 'exec-store-kpi',
     label: '店舗別KPI一覧',
