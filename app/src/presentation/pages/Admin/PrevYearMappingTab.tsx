@@ -135,10 +135,6 @@ const SecondaryButton = styled.button`
   &:hover { background: ${({ theme }) => theme.colors.bg3}; }
 `
 
-const PreviewSection = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[4]};
-`
-
 const PreviewGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
