@@ -23,7 +23,8 @@ export function computeEstimatedInventory(
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     if (rec) {
-      cumInvCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
+      cumInvCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost
+        + rec.interDepartmentIn.cost + rec.interDepartmentOut.cost - rec.deliverySales.cost
       const dayGrossSales = divisor > 0 ? rec.coreSales / divisor : rec.coreSales
       cumEstCogs += dayGrossSales * (1 - markupRate) + rec.consumable.cost
     }
