@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -293,8 +293,8 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
 
         {/* Data rows */}
         {curData.hours.map((h, hi) => (
-          <>
-            <RowLabel key={`label-${h}`}>{h}時</RowLabel>
+          <Fragment key={h}>
+            <RowLabel>{h}時</RowLabel>
             {showDiff
               ? diffMatrix[hi].map((cell, di) => (
                   <DiffCell
@@ -320,7 +320,7 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
                     </HeatCell>
                   )
                 })}
-          </>
+          </Fragment>
         ))}
       </HeatGrid>
       <LegendRow>

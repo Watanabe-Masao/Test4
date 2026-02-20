@@ -75,21 +75,60 @@ function buildColumnMap(headerRow: readonly unknown[]): {
  *
  * 2列ペア (旧形式: 販売金額, 売変) と
  * 3列ペア (新形式: 販売金額, 売変, 来店客数) の両方をサポート
+ *
+ * @param overflowDays 翌月から追加で取り込む日数（前年データ用）。
+ *   同曜日オフセットにより月末付近の対応日が翌月にはみ出す場合に備え、
+ *   翌月先頭の数日を拡張day番号（例: 2月28日の翌日→day 29）として保持する。
  */
-export function processDiscount(rows: readonly unknown[][], targetMonth?: number): DiscountData {
+export function processDiscount(
+  rows: readonly unknown[][],
+  targetMonth?: number,
+  overflowDays: number = 0,
+): DiscountData {
   if (rows.length < 3) return {}
 
   const result: Record<string, Record<number, { sales: number; discount: number; customers: number }>> = {}
 
   const columnMap = buildColumnMap(rows[0] as unknown[])
 
+  // overflowDays > 0 の場合、対象月の日数を特定する（翌月データの拡張day算出用）
+  let daysInTargetMonth = 0
+  if (targetMonth != null && overflowDays > 0) {
+    for (let row = 2; row < rows.length; row++) {
+      const d = parseDate((rows[row] as unknown[])[0])
+      if (d && d.getMonth() + 1 === targetMonth) {
+        daysInTargetMonth = new Date(d.getFullYear(), targetMonth, 0).getDate()
+        break
+      }
+    }
+  }
+  const nextMonth = targetMonth != null ? (targetMonth % 12) + 1 : 0
+
   // データ行処理（行2以降）
   for (let row = 2; row < rows.length; row++) {
     const r = rows[row] as unknown[]
     const date = parseDate(r[0])
     if (date == null) continue
-    if (targetMonth != null && date.getMonth() + 1 !== targetMonth) continue
-    const day = date.getDate()
+
+    let day: number
+    if (targetMonth == null) {
+      day = date.getDate()
+    } else {
+      const dateMonth = date.getMonth() + 1
+      if (dateMonth === targetMonth) {
+        day = date.getDate()
+      } else if (
+        overflowDays > 0 &&
+        daysInTargetMonth > 0 &&
+        dateMonth === nextMonth &&
+        date.getDate() <= overflowDays
+      ) {
+        // 翌月先頭を拡張day番号として取り込む（例: 3/1 → day 29）
+        day = daysInTargetMonth + date.getDate()
+      } else {
+        continue
+      }
+    }
 
     for (const { storeId, salesCol, discountCol, customersCol } of columnMap) {
       const sales = safeNumber(r[salesCol])

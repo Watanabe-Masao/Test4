@@ -63,6 +63,8 @@ export function useImport() {
 
         if (summary.successCount > 0) {
           // データの日付から対象年月が検出された場合、設定を更新
+          // ※ 前年データ種別のみの場合は検出された年月で上書きしない
+          //    （前年データの年は当年と異なるため）
           if (detectedYearMonth) {
             const updatedSettings = {
               targetYear: detectedYearMonth.year,

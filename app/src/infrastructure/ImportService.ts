@@ -20,7 +20,7 @@ import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProc
 import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
 
 /** DiscountData から SalesData を構築する */
-function discountToSalesData(discountData: DiscountData): SalesData {
+export function discountToSalesData(discountData: DiscountData): SalesData {
   const salesData: Record<string, Record<number, { sales: number; customers: number }>> = {}
   for (const [storeId, days] of Object.entries(discountData)) {
     salesData[storeId] = {}
@@ -191,15 +191,15 @@ export function processFileData(
 
     case 'prevYearSalesDiscount': {
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
-      // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
-      const prevDiscountData = processDiscount(rows, effectiveMonth)
+      // 翌月先頭6日分も取り込み（同曜日オフセットで月末がはみ出す場合に備える）
+      const prevDiscountData = processDiscount(rows, effectiveMonth, 6)
       return {
         data: {
           ...current,
           prevYearSales: discountToSalesData(prevDiscountData),
           prevYearDiscount: prevDiscountData,
         },
-        detectedYearMonth,
+        // 前年データの年月で当年の targetYear/Month を上書きしない
       }
     }
 
@@ -260,7 +260,7 @@ export function processFileData(
           ...current,
           prevYearCategoryTimeSales: mergeCategoryTimeSalesData(current.prevYearCategoryTimeSales, newData),
         },
-        detectedYearMonth,
+        // 前年データの年月で当年の targetYear/Month を上書きしない
       }
     }
 
