@@ -1,10 +1,11 @@
 import { ThemeProvider } from 'styled-components'
-import { useState, useCallback, useEffect, useMemo, createContext, useContext } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, createContext, useContext } from 'react'
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { AppStateProvider, useAppUi, useAppDispatch } from '@/application/context'
 import { AppShell, NavBar } from '@/presentation/components/Layout'
-import { ToastProvider, useToast } from '@/presentation/components/common'
+import { ToastProvider, useToast, PageErrorBoundary, PageSkeleton } from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
 import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
 import { useKeyboardShortcuts, useUndoRedo, useCalculation } from '@/application/hooks'
@@ -15,17 +16,37 @@ import {
   isIndexedDBAvailable,
 } from '@/infrastructure/storage/IndexedDBStore'
 import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
-import { DashboardPage } from '@/presentation/pages/Dashboard/DashboardPage'
-import { DailyPage } from '@/presentation/pages/Daily/DailyPage'
-import { AnalysisPage } from '@/presentation/pages/Analysis/AnalysisPage'
-import { CategoryPage } from '@/presentation/pages/Category/CategoryPage'
-import { SummaryPage } from '@/presentation/pages/Summary/SummaryPage'
-import { ForecastPage } from '@/presentation/pages/Forecast/ForecastPage'
-import { ReportsPage } from '@/presentation/pages/Reports/ReportsPage'
-import { TransferPage } from '@/presentation/pages/Transfer/TransferPage'
-import { ConsumablePage } from '@/presentation/pages/Consumable/ConsumablePage'
-import { AdminPage } from '@/presentation/pages/Admin/AdminPage'
 import type { ViewType } from '@/domain/models'
+
+// ─── 遅延ロード: ページコンポーネント ──────────────────────
+const DashboardPage = lazy(() => import('@/presentation/pages/Dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const DailyPage = lazy(() => import('@/presentation/pages/Daily/DailyPage').then(m => ({ default: m.DailyPage })))
+const AnalysisPage = lazy(() => import('@/presentation/pages/Analysis/AnalysisPage').then(m => ({ default: m.AnalysisPage })))
+const CategoryPage = lazy(() => import('@/presentation/pages/Category/CategoryPage').then(m => ({ default: m.CategoryPage })))
+const SummaryPage = lazy(() => import('@/presentation/pages/Summary/SummaryPage').then(m => ({ default: m.SummaryPage })))
+const ForecastPage = lazy(() => import('@/presentation/pages/Forecast/ForecastPage').then(m => ({ default: m.ForecastPage })))
+const ReportsPage = lazy(() => import('@/presentation/pages/Reports/ReportsPage').then(m => ({ default: m.ReportsPage })))
+const TransferPage = lazy(() => import('@/presentation/pages/Transfer/TransferPage').then(m => ({ default: m.TransferPage })))
+const ConsumablePage = lazy(() => import('@/presentation/pages/Consumable/ConsumablePage').then(m => ({ default: m.ConsumablePage })))
+const AdminPage = lazy(() => import('@/presentation/pages/Admin/AdminPage').then(m => ({ default: m.AdminPage })))
+
+// ─── ViewType ↔ URLパス マッピング ──────────────────────────
+const VIEW_TO_PATH: Record<ViewType, string> = {
+  dashboard: '/dashboard',
+  daily: '/daily',
+  analysis: '/analysis',
+  category: '/category',
+  summary: '/summary',
+  forecast: '/forecast',
+  transfer: '/transfer',
+  consumable: '/consumable',
+  reports: '/reports',
+  admin: '/admin',
+}
+
+const PATH_TO_VIEW: Record<string, ViewType> = Object.fromEntries(
+  Object.entries(VIEW_TO_PATH).map(([view, path]) => [path, view as ViewType]),
+) as Record<string, ViewType>
 
 // ─── テーマトグルコンテキスト ────────────────────────────────
 const ThemeToggleContext = createContext<{ mode: ThemeMode; toggle: () => void }>({
@@ -42,36 +63,44 @@ function getInitialTheme(): ThemeMode {
   return 'dark'
 }
 
-function ViewRouter({ view }: { view: ViewType }) {
-  switch (view) {
-    case 'dashboard':
-      return <DashboardPage />
-    case 'daily':
-      return <DailyPage />
-    case 'analysis':
-      return <AnalysisPage />
-    case 'category':
-      return <CategoryPage />
-    case 'summary':
-      return <SummaryPage />
-    case 'forecast':
-      return <ForecastPage />
-    case 'transfer':
-      return <TransferPage />
-    case 'consumable':
-      return <ConsumablePage />
-    case 'reports':
-      return <ReportsPage />
-    case 'admin':
-      return <AdminPage />
-    default:
-      return <DashboardPage />
-  }
-}
-
 // ─── 設定モーダル表示のコンテキスト ─────────────────────────
 const SettingsModalContext = createContext<{ open: () => void }>({ open: () => {} })
 export const useOpenSettings = () => useContext(SettingsModalContext)
+
+// ─── ルート↔状態 同期フック ──────────────────────────────────
+function useRouteSync() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const ui = useAppUi()
+
+  // URL変更 → 状態更新
+  useEffect(() => {
+    const view = PATH_TO_VIEW[location.pathname]
+    if (view && view !== ui.currentView) {
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
+    }
+  }, [location.pathname, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 状態変更 → URL更新
+  const handleViewChange = useCallback(
+    (view: ViewType) => {
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
+      navigate(VIEW_TO_PATH[view])
+    },
+    [dispatch, navigate],
+  )
+
+  // 初回マウント時に状態の currentView と URL を同期
+  useEffect(() => {
+    const currentPath = VIEW_TO_PATH[ui.currentView]
+    if (location.pathname !== currentPath) {
+      navigate(currentPath, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { handleViewChange }
+}
 
 function AppContent() {
   const ui = useAppUi()
@@ -80,6 +109,7 @@ function AppContent() {
   const showToast = useToast()
   const { calculate } = useCalculation()
   const { undo, redo } = useUndoRedo()
+  const { handleViewChange } = useRouteSync()
   const [showSettingsFromShortcut, setShowSettingsFromShortcut] = useState(false)
   const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
 
@@ -115,13 +145,6 @@ function AppContent() {
     } catch { /* ignore */ }
     setRestoreMeta(null)
   }, [])
-
-  const handleViewChange = useCallback(
-    (view: ViewType) => {
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
-    },
-    [dispatch],
-  )
 
   const handleCalculate = useCallback(() => {
     calculate()
@@ -173,7 +196,23 @@ function AppContent() {
           />
         }
       >
-        <ViewRouter view={ui.currentView} />
+        <PageErrorBoundary>
+          <Suspense fallback={<PageSkeleton />}>
+            <Routes>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/daily" element={<DailyPage />} />
+              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/category" element={<CategoryPage />} />
+              <Route path="/summary" element={<SummaryPage />} />
+              <Route path="/forecast" element={<ForecastPage />} />
+              <Route path="/transfer" element={<TransferPage />} />
+              <Route path="/consumable" element={<ConsumablePage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
+        </PageErrorBoundary>
       </AppShell>
       {restoreMeta && (
         <RestoreDataModal
@@ -203,11 +242,13 @@ function App() {
     <ThemeToggleContext.Provider value={{ mode: themeMode, toggle: toggleTheme }}>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <AppStateProvider>
-          <ToastProvider>
-            <AppContent />
-          </ToastProvider>
-        </AppStateProvider>
+        <HashRouter>
+          <AppStateProvider>
+            <ToastProvider>
+              <AppContent />
+            </ToastProvider>
+          </AppStateProvider>
+        </HashRouter>
       </ThemeProvider>
     </ThemeToggleContext.Provider>
   )

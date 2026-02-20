@@ -14,5 +14,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-recharts': ['recharts'],
+          'vendor-xlsx': ['xlsx'],
+          'vendor-styled': ['styled-components'],
+        },
+      },
+    },
   },
 })

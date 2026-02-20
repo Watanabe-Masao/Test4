@@ -3,9 +3,9 @@ import { describe, it, expect } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  it('renders the dashboard', () => {
+  it('renders the dashboard navigation', () => {
     render(<App />)
-    expect(screen.getByText('ダッシュボード')).toBeInTheDocument()
+    expect(screen.getByTitle('ダッシュボード')).toBeInTheDocument()
   })
 
   it('renders the data management sidebar', () => {
