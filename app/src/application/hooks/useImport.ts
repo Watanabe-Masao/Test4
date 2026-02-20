@@ -257,6 +257,24 @@ export function mergeInsertsOnly(
     }
   }
 
+  // prevYearCategoryTimeSales: 前年分類別時間帯売上
+  if (importedTypes.has('prevYearCategoryTimeSales')) {
+    const existingPCTS = existing.prevYearCategoryTimeSales
+    const incomingPCTS = incoming.prevYearCategoryTimeSales
+
+    if (existingPCTS.records.length === 0) {
+      ;(result as Record<string, unknown>).prevYearCategoryTimeSales = incomingPCTS
+    } else if (incomingPCTS.records.length > 0) {
+      const existingKeys = new Set(existingPCTS.records.map(categoryTimeSalesRecordKey))
+      const newRecords = incomingPCTS.records.filter(
+        (r) => !existingKeys.has(categoryTimeSalesRecordKey(r)),
+      )
+      ;(result as Record<string, unknown>).prevYearCategoryTimeSales = {
+        records: [...existingPCTS.records, ...newRecords],
+      }
+    }
+  }
+
   // stores, suppliers は新規追加のみ
   const mergedStores = new Map(existing.stores)
   for (const [k, v] of incoming.stores) {
