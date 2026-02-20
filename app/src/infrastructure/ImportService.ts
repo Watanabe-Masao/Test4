@@ -17,6 +17,7 @@ import { processInterStoreIn, processInterStoreOut } from './dataProcessing/Tran
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
 import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
+import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
 
 /** DiscountData から SalesData を構築する */
 function discountToSalesData(discountData: DiscountData): SalesData {
@@ -247,6 +248,16 @@ export function processFileData(
           categoryTimeSales: mergeCategoryTimeSalesData(current.categoryTimeSales, newData),
         },
         detectedYearMonth,
+      }
+    }
+
+    case 'departmentKpi': {
+      const newData = processDepartmentKpi(rows)
+      return {
+        data: {
+          ...current,
+          departmentKpi: mergeDepartmentKpiData(current.departmentKpi, newData),
+        },
       }
     }
 

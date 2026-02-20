@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/domain/calculations/forecast'
+import type { DepartmentKpiRecord } from '@/domain/models'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
 
@@ -354,6 +355,130 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
                 </tr>
               )
             })}
+          </tbody>
+        </STable>
+      </ScrollWrapper>
+    </STableWrapper>
+  )
+}
+
+/* ── 部門別KPI一覧テーブル ──────────────────────────────── */
+
+const KpiGroupTh = styled(STh)`
+  text-align: center;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+`
+
+const KpiSubTh = styled(STh)`
+  text-align: center;
+  font-size: 0.55rem;
+  white-space: nowrap;
+`
+
+const BudgetTh = styled(KpiSubTh)`
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.15)' : 'rgba(234,179,8,0.12)'};
+`
+
+const BudgetTd = styled(STd)`
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.08)' : 'rgba(234,179,8,0.06)'};
+`
+
+function fmtPct(v: number): string {
+  // 既に小数 (0.2220) なら %表示, 1超えなら既にパーセント値
+  const pct = Math.abs(v) <= 1 ? v * 100 : v
+  return `${pct.toFixed(2)}%`
+}
+
+function fmtPtDiff(v: number): string {
+  // ポイント差異（例: 0.31 → +0.31pt）
+  const sign = v > 0 ? '+' : ''
+  return `${sign}${v.toFixed(2)}`
+}
+
+function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
+  const varColor = sc.cond(rec.gpRateVariance >= 0)
+  const salesDiffColor = sc.cond(rec.salesVariance >= 0)
+  const achColor = sc.achievement(Math.abs(rec.salesAchievement) <= 1 ? rec.salesAchievement : rec.salesAchievement / 100)
+  const discColor = sc.negative
+
+  return (
+    <tr key={rec.deptCode}>
+      <STd style={{ fontWeight: 600 }}>{rec.deptCode}</STd>
+      <STd>{rec.deptName || '-'}</STd>
+      <BudgetTd>{fmtPct(rec.gpRateBudget)}</BudgetTd>
+      <STd>{fmtPct(rec.gpRateActual)}</STd>
+      <STd style={{ color: varColor }}>{fmtPtDiff(rec.gpRateVariance)}</STd>
+      <BudgetTd>{fmtPct(rec.markupRate)}</BudgetTd>
+      <STd style={{ color: discColor }}>{fmtPct(rec.discountRate)}</STd>
+      <BudgetTd>{formatCurrency(rec.salesBudget)}</BudgetTd>
+      <STd>{formatCurrency(rec.salesActual)}</STd>
+      <STd style={{ color: salesDiffColor }}>{formatCurrency(rec.salesVariance)}</STd>
+      <STd style={{ color: achColor }}>{fmtPct(rec.salesAchievement)}</STd>
+      <STd>{formatCurrency(rec.openingInventory)}</STd>
+      <STd>{formatCurrency(rec.closingInventory)}</STd>
+      <BudgetTd>{fmtPct(rec.gpRateLanding)}</BudgetTd>
+      <STd>{rec.salesLanding ? formatCurrency(rec.salesLanding) : '-'}</STd>
+    </tr>
+  )
+}
+
+export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
+  const { departmentKpi } = ctx
+  if (departmentKpi.records.length === 0) {
+    return (
+      <STableWrapper>
+        <STableTitle>部門別KPI一覧</STableTitle>
+        <div style={{ padding: '16px', fontSize: '0.7rem', color: '#888' }}>
+          部門別KPIデータが取り込まれていません。「部門別」を含むCSV/Excelファイルをドロップしてください。
+        </div>
+      </STableWrapper>
+    )
+  }
+
+  const groupBorder = '2px solid rgba(99,102,241,0.25)'
+
+  return (
+    <STableWrapper>
+      <STableTitle>部門別KPI一覧</STableTitle>
+      <ScrollWrapper>
+        <STable>
+          <thead>
+            <tr>
+              <KpiGroupTh rowSpan={2}>部門</KpiGroupTh>
+              <KpiGroupTh rowSpan={2}>名称</KpiGroupTh>
+              <KpiGroupTh colSpan={3} style={{ borderLeft: groupBorder }}>粗利</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>値入/売変</KpiGroupTh>
+              <KpiGroupTh colSpan={4} style={{ borderLeft: groupBorder }}>売上</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>在庫</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>着地</KpiGroupTh>
+            </tr>
+            <tr>
+              {/* 粗利 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>粗利率予算</BudgetTh>
+              <KpiSubTh>粗利率実績</KpiSubTh>
+              <KpiSubTh>予算差異</KpiSubTh>
+              {/* 値入/売変 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>値入</BudgetTh>
+              <KpiSubTh>売変</KpiSubTh>
+              {/* 売上 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>予算</BudgetTh>
+              <KpiSubTh>実績</KpiSubTh>
+              <KpiSubTh>差異</KpiSubTh>
+              <KpiSubTh>達成率</KpiSubTh>
+              {/* 在庫 */}
+              <KpiSubTh style={{ borderLeft: groupBorder }}>機首在庫</KpiSubTh>
+              <KpiSubTh>期末在庫</KpiSubTh>
+              {/* 着地 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>最終粗利着地</BudgetTh>
+              <KpiSubTh>最終売上着地</KpiSubTh>
+            </tr>
+          </thead>
+          <tbody>
+            {departmentKpi.records.map((rec) => renderKpiRow(rec))}
           </tbody>
         </STable>
       </ScrollWrapper>

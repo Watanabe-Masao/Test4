@@ -8,6 +8,7 @@ import type {
   SpecialSalesData,
   ConsumableData,
   CategoryTimeSalesData,
+  DepartmentKpiData,
 } from './DataTypes'
 
 /** インポートされた全データの集約 */
@@ -25,6 +26,7 @@ export interface ImportedData {
   readonly directProduce: SpecialSalesData
   readonly consumables: ConsumableData
   readonly categoryTimeSales: CategoryTimeSalesData
+  readonly departmentKpi: DepartmentKpiData
   readonly settings: ReadonlyMap<string, InventoryConfig>
   readonly budget: ReadonlyMap<string, BudgetData>
 }
@@ -45,6 +47,7 @@ export function createEmptyImportedData(): ImportedData {
     directProduce: {},
     consumables: {},
     categoryTimeSales: { records: [] },
+    departmentKpi: { records: [] },
     settings: new Map(),
     budget: new Map(),
   }

@@ -125,6 +125,7 @@ export function DashboardPage() {
     categoryTimeSales: appState.data.categoryTimeSales,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
+    departmentKpi: appState.data.departmentKpi,
   }
 
   // Resolve active widgets
