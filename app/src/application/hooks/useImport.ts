@@ -52,7 +52,7 @@ export function useImport() {
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       if (importingRef.current) {
-        return { successCount: 0, failCount: 0, results: [] }
+        return { successCount: 0, failureCount: 0, results: [] }
       }
       importingRef.current = true
       dispatch({ type: 'SET_IMPORTING', payload: true })
