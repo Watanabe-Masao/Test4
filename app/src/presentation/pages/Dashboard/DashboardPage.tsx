@@ -26,6 +26,20 @@ export function DashboardPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
 
+  // データ駆動ウィジェットの自動注入
+  useEffect(() => {
+    const injected = autoInjectDataWidgets(widgetIds, {
+      categoryTimeSales: appState.data.categoryTimeSales,
+      prevYearCategoryTimeSales: prevYearCTS,
+      stores,
+    })
+    if (injected) {
+      setWidgetIds(injected)
+      saveLayout(injected)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appState.data.categoryTimeSales.records.length, prevYearCTS.hasPrevYear, stores.size])
+
   // D&D state
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
@@ -136,20 +150,6 @@ export function DashboardPage() {
     departmentKpi: appState.data.departmentKpi,
     prevYearCategoryTimeSales: prevYearCTS,
   }
-
-  // データ駆動ウィジェットの自動注入
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const injected = autoInjectDataWidgets(widgetIds, {
-      categoryTimeSales: appState.data.categoryTimeSales,
-      prevYearCategoryTimeSales: prevYearCTS,
-      stores,
-    })
-    if (injected) {
-      setWidgetIds(injected)
-      saveLayout(injected)
-    }
-  }, [appState.data.categoryTimeSales.records.length, prevYearCTS.hasPrevYear, stores.size])
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
   const activeWidgets = widgetIds
