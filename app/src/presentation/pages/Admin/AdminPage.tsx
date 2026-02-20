@@ -6,6 +6,7 @@ import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store, ImportedData } from '@/domain/models'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { StorageManagementTab } from './StorageManagementTab'
+import { PrevYearMappingTab } from './PrevYearMappingTab'
 
 // ─── Styled Components ──────────────────────────────────
 const Page = styled.div`
@@ -153,7 +154,7 @@ const CATEGORY_COLORS: Record<CustomCategory, string> = {
   'その他': '#94a3b8',
 }
 
-type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage'
+type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
 
 // ─── カテゴリ管理タブ ─────────────────────────────────────
 function CategoryManagementTab() {
@@ -1088,6 +1089,9 @@ export function AdminPage() {
         <Tab $active={activeTab === 'storage'} onClick={() => setActiveTab('storage')}>
           保存データ管理
         </Tab>
+        <Tab $active={activeTab === 'prevyear'} onClick={() => setActiveTab('prevyear')}>
+          前年比設定
+        </Tab>
       </Tabs>
 
       {activeTab === 'categories' && <CategoryManagementTab />}
@@ -1095,6 +1099,7 @@ export function AdminPage() {
       {activeTab === 'history' && <ImportHistoryTab />}
       {activeTab === 'rawdata' && <RawDataTab />}
       {activeTab === 'storage' && <StorageManagementTab />}
+      {activeTab === 'prevyear' && <PrevYearMappingTab />}
     </Page>
   )
 }

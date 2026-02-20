@@ -14,6 +14,9 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     defaultBudget: 6_450_000,
     dataEndDay: null,
     supplierCategoryMap: {},
+    prevYearSourceYear: null,
+    prevYearSourceMonth: null,
+    prevYearDowOffset: null,
   }
 }
 

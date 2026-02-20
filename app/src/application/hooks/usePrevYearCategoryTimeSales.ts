@@ -29,18 +29,21 @@ const EMPTY: PrevYearCategoryTimeSalesData = {
  * 998_前年売上売変客数 と同じ同曜日オフセットロジックを適用する。
  * 例: 当年2026/2/1(日) vs 前年2025/2/1(土) → offset=1
  *     前年 day 2 → 当年 day 1 (共に日曜)
+ *
+ * prevYearDowOffset 設定が指定されている場合、自動計算の代わりに使用する。
  */
 export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
   const state = useAppState()
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearCTS = state.data.prevYearCategoryTimeSales
-  const { targetYear, targetMonth } = state.settings
+  const { targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset } = state.settings
 
   return useMemo(() => {
     if (prevYearCTS.records.length === 0) return EMPTY
 
-    const offset = calcSameDowOffset(targetYear, targetMonth)
+    const offset = prevYearDowOffset ??
+      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear ?? undefined, prevYearSourceMonth ?? undefined)
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
 
     // 対象店舗で絞り込み
@@ -70,5 +73,5 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
       records: mappedRecords,
       offset,
     }
-  }, [prevYearCTS, selectedStoreIds, isAllStores, targetYear, targetMonth])
+  }, [prevYearCTS, selectedStoreIds, isAllStores, targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
 }

@@ -23,39 +23,46 @@ const OVERFLOW_DAYS = 6
  *
  * 翌月先頭 OVERFLOW_DAYS 日分のデータも結合し、
  * 同曜日オフセットによる月末はみ出しに対応する。
+ *
+ * prevYearSourceYear / prevYearSourceMonth 設定が指定されている場合、
+ * そのソースから取得する（手動マッピング対応）。
  */
 export function useAutoLoadPrevYear(): void {
   const state = useAppState()
   const dispatch = useAppDispatch()
 
-  const { targetYear, targetMonth } = state.settings
+  const { targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth } = state.settings
   const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0
   const hasCurrentData = Object.keys(state.data.discount).length > 0
+
+  // ソース年月（オーバーライドまたは自動）
+  const sourceYear = prevYearSourceYear ?? (targetYear - 1)
+  const sourceMonth = prevYearSourceMonth ?? targetMonth
 
   useEffect(() => {
     if (hasPrevYearData || !hasCurrentData) return
 
     let cancelled = false
-    const prevYear = targetYear - 1
-    const nextMonth = (targetMonth % 12) + 1
+    const nextMonth = (sourceMonth % 12) + 1
+    const nextMonthYear = sourceMonth === 12 ? sourceYear + 1 : sourceYear
 
     ;(async () => {
       try {
-        // 前年同月の売変データをロード
-        const prevDiscount = await loadMonthlySlice<DiscountData>(prevYear, targetMonth, 'discount')
+        // ソース年月の売変データをロード
+        const prevDiscount = await loadMonthlySlice<DiscountData>(sourceYear, sourceMonth, 'discount')
         if (!prevDiscount || Object.keys(prevDiscount).length === 0) return
         if (cancelled) return
 
-        // 前年同月の分類別時間帯売上をロード
-        const prevCTS = await loadMonthlySlice<CategoryTimeSalesData>(prevYear, targetMonth, 'categoryTimeSales')
+        // ソース年月の分類別時間帯売上をロード
+        const prevCTS = await loadMonthlySlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
 
-        // 前年翌月（overflow 用）
-        const prevNextDiscount = await loadMonthlySlice<DiscountData>(prevYear, nextMonth, 'discount')
-        const prevNextCTS = await loadMonthlySlice<CategoryTimeSalesData>(prevYear, nextMonth, 'categoryTimeSales')
+        // ソース翌月（overflow 用）
+        const prevNextDiscount = await loadMonthlySlice<DiscountData>(nextMonthYear, nextMonth, 'discount')
+        const prevNextCTS = await loadMonthlySlice<CategoryTimeSalesData>(nextMonthYear, nextMonth, 'categoryTimeSales')
 
         if (cancelled) return
 
-        const daysInPrevMonth = getDaysInMonth(prevYear, targetMonth)
+        const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
 
         // 売変データ: 本月 + 翌月先頭を拡張day番号で結合
         const mergedDiscount: Record<string, Record<number, { sales: number; discount: number; customers: number }>> = {}
@@ -68,7 +75,7 @@ export function useAutoLoadPrevYear(): void {
             for (const [dayStr, entry] of Object.entries(days)) {
               const day = Number(dayStr)
               if (day <= OVERFLOW_DAYS) {
-                mergedDiscount[storeId][daysInPrevMonth + day] = entry
+                mergedDiscount[storeId][daysInSourceMonth + day] = entry
               }
             }
           }
@@ -81,7 +88,7 @@ export function useAutoLoadPrevYear(): void {
         if (prevNextCTS?.records) {
           for (const rec of prevNextCTS.records) {
             if (rec.day <= OVERFLOW_DAYS) {
-              mergedCTSRecords.push({ ...rec, day: daysInPrevMonth + rec.day })
+              mergedCTSRecords.push({ ...rec, day: daysInSourceMonth + rec.day })
             }
           }
         }
@@ -102,5 +109,5 @@ export function useAutoLoadPrevYear(): void {
     })()
 
     return () => { cancelled = true }
-  }, [targetYear, targetMonth, hasPrevYearData, hasCurrentData, dispatch])
+  }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, dispatch])
 }

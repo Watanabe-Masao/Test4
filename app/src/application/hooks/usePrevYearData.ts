@@ -35,10 +35,18 @@ const EMPTY: PrevYearData = {
  * 例: 2026-02-01(日)=0, 2025-02-01(土)=6 → offset = (0-6+7)%7 = 1
  * → 当年 day d に対応する前年の日は d + offset
  * → Map 構築時に前年 day を day - offset のキーで格納する
+ *
+ * sourceYear / sourceMonth を指定すると、デフォルト (year-1, month) ではなく
+ * 指定のソース年月との差分を算出する。
  */
-export function calcSameDowOffset(year: number, month: number): number {
+export function calcSameDowOffset(
+  year: number,
+  month: number,
+  sourceYear?: number,
+  sourceMonth?: number,
+): number {
   const currentDow = new Date(year, month - 1, 1).getDay()
-  const prevDow = new Date(year - 1, month - 1, 1).getDay()
+  const prevDow = new Date(sourceYear ?? (year - 1), (sourceMonth ?? month) - 1, 1).getDay()
   return ((currentDow - prevDow) % 7 + 7) % 7
 }
 
@@ -53,7 +61,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearDiscount = state.data.prevYearDiscount
-  const { targetYear, targetMonth } = state.settings
+  const { targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset } = state.settings
 
   return useMemo(() => {
     const allStoreIds = Object.keys(prevYearDiscount)
@@ -66,8 +74,9 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
     if (targetIds.length === 0) return EMPTY
 
-    // 前年同曜日オフセット
-    const offset = calcSameDowOffset(targetYear, targetMonth)
+    // 前年同曜日オフセット（手動指定 or 自動計算）
+    const offset = prevYearDowOffset ??
+      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear ?? undefined, prevYearSourceMonth ?? undefined)
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
 
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
@@ -108,5 +117,5 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     }
 
     return { hasPrevYear: true, daily, totalSales, totalDiscount, totalCustomers }
-  }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays])
+  }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
 }
