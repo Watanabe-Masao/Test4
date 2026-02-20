@@ -95,10 +95,6 @@ async function dbBatchPut(
   })
 }
 
-async function dbPut(storeName: string, key: string, value: unknown): Promise<void> {
-  return dbBatchPut([{ storeName, key, value }])
-}
-
 async function dbGet<T>(storeName: string, key: string): Promise<T | undefined> {
   const db = await openDB()
   return new Promise((resolve, reject) => {
@@ -106,16 +102,6 @@ async function dbGet<T>(storeName: string, key: string): Promise<T | undefined> 
     const req = tx.objectStore(storeName).get(key)
     req.onsuccess = () => resolve(req.result as T | undefined)
     req.onerror = () => reject(req.error)
-  })
-}
-
-async function dbDelete(storeName: string, key: string): Promise<void> {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite')
-    tx.objectStore(storeName).delete(key)
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
   })
 }
 
