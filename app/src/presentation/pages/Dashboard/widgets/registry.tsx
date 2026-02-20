@@ -192,8 +192,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
-      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => (
+      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
     ),
   },
   {
