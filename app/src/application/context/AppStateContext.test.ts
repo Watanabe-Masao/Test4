@@ -81,6 +81,29 @@ describe('appReducer', () => {
     expect(reset.ui.selectedStoreIds.size).toBe(0)
   })
 
+  it('SET_PREV_YEAR_AUTO_DATA: 前年データのみ更新 + isCalculated false', () => {
+    const state = { ...initialState, ui: { ...initialState.ui, isCalculated: true } }
+    const prevDiscount = { '1': { 1: { sales: 100, discount: 10, customers: 5 } } }
+    const prevSales = { '1': { 1: { sales: 100, customers: 5 } } }
+    const prevCTS = { records: [] }
+    const next = appReducer(state, {
+      type: 'SET_PREV_YEAR_AUTO_DATA',
+      payload: {
+        prevYearSales: prevSales,
+        prevYearDiscount: prevDiscount,
+        prevYearCategoryTimeSales: prevCTS,
+      },
+    })
+
+    expect(next.data.prevYearDiscount).toBe(prevDiscount)
+    expect(next.data.prevYearSales).toBe(prevSales)
+    expect(next.data.prevYearCategoryTimeSales).toBe(prevCTS)
+    expect(next.ui.isCalculated).toBe(false)
+    // 他のデータフィールドは変更なし
+    expect(next.data.discount).toBe(initialState.data.discount)
+    expect(next.data.sales).toBe(initialState.data.sales)
+  })
+
   it('未知のアクションは状態を返す', () => {
     // @ts-expect-error testing unknown action
     const next = appReducer(initialState, { type: 'UNKNOWN' })

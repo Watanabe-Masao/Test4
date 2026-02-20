@@ -20,7 +20,7 @@ import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProc
 import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
 
 /** DiscountData から SalesData を構築する */
-function discountToSalesData(discountData: DiscountData): SalesData {
+export function discountToSalesData(discountData: DiscountData): SalesData {
   const salesData: Record<string, Record<number, { sales: number; customers: number }>> = {}
   for (const [storeId, days] of Object.entries(discountData)) {
     salesData[storeId] = {}

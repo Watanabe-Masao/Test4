@@ -302,6 +302,21 @@ export async function clearAllData(): Promise<void> {
 }
 
 /**
+ * 任意の年月・データ種別のスライスを IndexedDB から直接読み込む。
+ * lastSession メタデータに関係なく、保存されていれば返す。
+ * 保存されていない場合は null を返す。
+ */
+export async function loadMonthlySlice<T>(
+  year: number,
+  month: number,
+  dataType: string,
+): Promise<T | null> {
+  const key = monthKey(year, month, dataType)
+  const val = await dbGet<T>(STORE_MONTHLY, key)
+  return val ?? null
+}
+
+/**
  * IndexedDB が利用可能か判定する
  */
 export function isIndexedDBAvailable(): boolean {

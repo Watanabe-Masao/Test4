@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useMemo, useEffect, type ReactNode } from 'react'
-import type { AppSettings, ViewType, StoreResult, InventoryConfig, ImportedData, ValidationMessage } from '@/domain/models'
+import type { AppSettings, ViewType, StoreResult, InventoryConfig, ImportedData, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData } from '@/domain/models'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import { createEmptyImportedData } from '@/domain/models'
 
@@ -86,6 +86,7 @@ export type AppAction =
   | { type: 'SET_IMPORTING'; payload: boolean }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
   | { type: 'UPDATE_INVENTORY'; payload: { storeId: string; config: Partial<InventoryConfig> } }
+  | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearSales: SalesData; prevYearDiscount: DiscountData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
   | { type: 'RESET' }
 
 // ─── Reducer ──────────────────────────────────────────────
@@ -151,6 +152,18 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ui: { ...state.ui, isCalculated: false },
       }
     }
+
+    case 'SET_PREV_YEAR_AUTO_DATA':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          prevYearSales: action.payload.prevYearSales,
+          prevYearDiscount: action.payload.prevYearDiscount,
+          prevYearCategoryTimeSales: action.payload.prevYearCategoryTimeSales,
+        },
+        ui: { ...state.ui, isCalculated: false },
+      }
 
     case 'RESET':
       return initialState

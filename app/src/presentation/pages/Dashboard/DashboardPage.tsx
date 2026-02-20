@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
-import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection } from '@/application/hooks'
+import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { CategoryHierarchyProvider } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
@@ -21,6 +21,9 @@ export function DashboardPage() {
   const appState = useAppState()
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearCTS = usePrevYearCategoryTimeSales()
+
+  // 前年データが未ロードの場合、IndexedDB から自動取得
+  useAutoLoadPrevYear()
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
