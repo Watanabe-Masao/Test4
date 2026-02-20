@@ -317,6 +317,80 @@ export async function loadMonthlySlice<T>(
 }
 
 /**
+ * IndexedDB に保存されている全ての年月を一覧取得する。
+ * キー形式 `YYYY-MM_dataType` をパースし、ユニークな年月リストを返す。
+ */
+export async function listStoredMonths(): Promise<{ year: number; month: number }[]> {
+  const keys = await dbGetAllKeys(STORE_MONTHLY)
+  const monthSet = new Set<string>()
+  for (const key of keys) {
+    const match = (key as string).match(/^(\d{4})-(\d{2})_/)
+    if (match) {
+      monthSet.add(`${match[1]}-${match[2]}`)
+    }
+  }
+  return Array.from(monthSet)
+    .map((ym) => {
+      const [y, m] = ym.split('-')
+      return { year: Number(y), month: Number(m) }
+    })
+    .sort((a, b) => b.year - a.year || b.month - a.month)
+}
+
+/** 特定年月のデータ種別ごとのレコード数サマリーを取得する */
+export async function getMonthDataSummary(
+  year: number,
+  month: number,
+): Promise<{ dataType: string; label: string; recordCount: number }[]> {
+  const SUMMARY_TYPES: { type: string; label: string }[] = [
+    ...STORE_DAY_FIELDS.map((f) => ({ type: f.type, label: DATA_TYPE_LABELS[f.type] ?? f.type })),
+    { type: 'categoryTimeSales', label: '分類別時間帯売上' },
+    { type: 'prevYearCategoryTimeSales', label: '前年分類別時間帯売上' },
+    { type: 'stores', label: '店舗' },
+    { type: 'suppliers', label: '取引先' },
+    { type: 'settings', label: '在庫設定' },
+    { type: 'budget', label: '予算' },
+  ]
+
+  const results: { dataType: string; label: string; recordCount: number }[] = []
+  for (const { type, label } of SUMMARY_TYPES) {
+    const val = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, type))
+    if (!val) {
+      results.push({ dataType: type, label, recordCount: 0 })
+      continue
+    }
+    let count = 0
+    if (type === 'categoryTimeSales' || type === 'prevYearCategoryTimeSales') {
+      count = ((val as { records?: unknown[] }).records ?? []).length
+    } else if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
+      count = Object.keys(val as Record<string, unknown>).length
+    } else {
+      // StoreDayRecord: storeId → day → entry
+      const rec = val as Record<string, Record<string, unknown>>
+      for (const days of Object.values(rec)) {
+        count += Object.keys(days).length
+      }
+    }
+    results.push({ dataType: type, label, recordCount: count })
+  }
+  return results
+}
+
+/** データ種別の日本語ラベル */
+const DATA_TYPE_LABELS: Record<string, string> = {
+  purchase: '仕入',
+  sales: '売上',
+  discount: '売変',
+  prevYearSales: '前年売上',
+  prevYearDiscount: '前年売変',
+  interStoreIn: '店間入',
+  interStoreOut: '店間出',
+  flowers: '花',
+  directProduce: '産直',
+  consumables: '消耗品',
+}
+
+/**
  * IndexedDB が利用可能か判定する
  */
 export function isIndexedDBAvailable(): boolean {
