@@ -68,7 +68,7 @@ const EmptyState = styled.div`
 
 export function SummaryPage() {
   const { isCalculated, daysInMonth } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
+  const { currentResult, selectedResults, stores, storeName } = useStoreSelection()
 
   if (!isCalculated || !currentResult) {
     return (
@@ -90,6 +90,8 @@ export function SummaryPage() {
           closingInventory={r.closingInventory}
           markupRate={r.coreMarkupRate}
           discountRate={r.discountRate}
+          comparisonResults={selectedResults}
+          stores={stores}
         />
       </Section>
 
