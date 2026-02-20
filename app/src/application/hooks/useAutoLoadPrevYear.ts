@@ -31,16 +31,21 @@ export function useAutoLoadPrevYear(): void {
   const state = useAppState()
   const dispatch = useAppDispatch()
 
-  const { targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth } = state.settings
+  const { targetYear, targetMonth } = state.settings
   const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0
   const hasCurrentData = Object.keys(state.data.discount).length > 0
 
-  // ソース年月（オーバーライドまたは自動）
-  const sourceYear = prevYearSourceYear ?? (targetYear - 1)
-  const sourceMonth = prevYearSourceMonth ?? targetMonth
+  // ソース年月（オーバーライドまたは自動）— NaN/undefined ガード
+  const rawSourceYear = state.settings.prevYearSourceYear
+  const rawSourceMonth = state.settings.prevYearSourceMonth
+  const sourceYear = (typeof rawSourceYear === 'number' && !isNaN(rawSourceYear))
+    ? rawSourceYear : (targetYear - 1)
+  const sourceMonth = (typeof rawSourceMonth === 'number' && !isNaN(rawSourceMonth) && rawSourceMonth >= 1 && rawSourceMonth <= 12)
+    ? rawSourceMonth : targetMonth
 
   useEffect(() => {
     if (hasPrevYearData || !hasCurrentData) return
+    if (isNaN(sourceYear) || isNaN(sourceMonth)) return
 
     let cancelled = false
     const nextMonth = (sourceMonth % 12) + 1
@@ -63,6 +68,7 @@ export function useAutoLoadPrevYear(): void {
         if (cancelled) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
+        if (isNaN(daysInSourceMonth) || daysInSourceMonth <= 0) return
 
         // 売変データ: 本月 + 翌月先頭を拡張day番号で結合
         const mergedDiscount: Record<string, Record<number, DiscountDayEntry>> = {}
@@ -74,7 +80,7 @@ export function useAutoLoadPrevYear(): void {
             if (!mergedDiscount[storeId]) mergedDiscount[storeId] = {}
             for (const [dayStr, entry] of Object.entries(days)) {
               const day = Number(dayStr)
-              if (day <= OVERFLOW_DAYS) {
+              if (!isNaN(day) && day <= OVERFLOW_DAYS) {
                 mergedDiscount[storeId][daysInSourceMonth + day] = entry
               }
             }

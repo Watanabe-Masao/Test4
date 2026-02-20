@@ -23,6 +23,12 @@ const EMPTY: PrevYearCategoryTimeSalesData = {
   offset: 0,
 }
 
+/** null / undefined を除外して有効な数値のみ返す。無効なら undefined。 */
+function validNum(v: number | null | undefined): number | undefined {
+  if (v == null || isNaN(v)) return undefined
+  return v
+}
+
 /**
  * 前年分類別時間帯売上データを同曜日対応付けして返すフック
  *
@@ -37,14 +43,20 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearCTS = state.data.prevYearCategoryTimeSales
-  const { targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset } = state.settings
+  const { targetYear, targetMonth } = state.settings
+  const prevYearSourceYear = validNum(state.settings.prevYearSourceYear)
+  const prevYearSourceMonth = validNum(state.settings.prevYearSourceMonth)
+  const prevYearDowOffset = validNum(state.settings.prevYearDowOffset)
 
   return useMemo(() => {
     if (prevYearCTS.records.length === 0) return EMPTY
 
-    const offset = prevYearDowOffset ??
-      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear ?? undefined, prevYearSourceMonth ?? undefined)
+    const rawOffset = prevYearDowOffset ??
+      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth)
+    const offset = Math.max(0, Math.min(6, Math.round(rawOffset)))
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
+
+    if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
     // 対象店舗で絞り込み
     const allStoreIds = new Set(prevYearCTS.records.map((r) => r.storeId))
