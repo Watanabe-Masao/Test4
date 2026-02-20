@@ -52,6 +52,13 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['売上売変客数', '売上売変', 'uriage_baihen', 'uriageBaihen'],
     headerPatterns: [],
   },
+  // 前年分類別時間帯売上（categoryTimeSales より先に「前年」キーワードで区別）
+  {
+    type: 'prevYearCategoryTimeSales',
+    name: '前年分類別時間帯売上',
+    filenamePatterns: ['前年分類別時間帯売上', '前年時間帯売上'],
+    headerPatterns: [],
+  },
   // 分類別時間帯売上（消耗品の前に配置 — 8. vs 8_ の競合防止）
   {
     type: 'categoryTimeSales',
@@ -125,6 +132,9 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
  */
 function matchByFilename(filename: string): DataType | null {
   const basename = filename.replace(/^.*[\\/]/, '')
+
+  // 前年分類別時間帯売上: "9.分類別時間帯売上" (例: 9.分類別時間帯売上250202.csv)
+  if (/^9\.分類別/.test(basename) || /^9\..*時間帯/.test(basename)) return 'prevYearCategoryTimeSales'
 
   // 分類別時間帯売上: "8.分類別時間帯売上" (例: 8.分類別時間帯売上260201.csv)
   if (/^8\.分類別/.test(basename) || /^8\..*時間帯/.test(basename)) return 'categoryTimeSales'

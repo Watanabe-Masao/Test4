@@ -47,4 +47,5 @@ export type DataType =
   | 'flowers'
   | 'directProduce'
   | 'categoryTimeSales'
+  | 'prevYearCategoryTimeSales'
   | 'departmentKpi'
