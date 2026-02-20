@@ -15,7 +15,7 @@ import { ForecastToolsWidget } from './ForecastTools'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
-import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, renderDepartmentKpiTable, renderDailyInventoryTable } from './TableWidgets'
+import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, renderDepartmentKpiTable, renderDailyInventoryTable, renderStoreKpiTable } from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
@@ -297,6 +297,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: 'パターン分析',
     size: 'full',
     render: (ctx) => renderDailyInventoryTable(ctx),
+  },
+  // ── 店舗別 ──
+  {
+    id: 'exec-store-kpi',
+    label: '店舗別KPI一覧',
+    group: '店舗別',
+    size: 'full',
+    render: (ctx) => renderStoreKpiTable(ctx),
   },
   // ── 部門別 ──
   {

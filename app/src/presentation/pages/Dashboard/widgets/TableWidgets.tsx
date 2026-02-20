@@ -565,6 +565,123 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
   )
 }
 
+/* ── 店舗別KPI一覧テーブル ──────────────────────────────── */
+
+export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
+  const { result: agg, allStoreResults, stores } = ctx
+
+  // 店舗をコード順でソート
+  const storeEntries = [...allStoreResults.entries()]
+    .sort(([, a], [, b]) => {
+      const sa = stores.get(a.storeId)
+      const sb = stores.get(b.storeId)
+      return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
+    })
+    .map(([id, result]) => {
+      const store = stores.get(id)
+      return { id, label: store?.code ?? id, name: store?.name ?? id, result }
+    })
+
+  if (storeEntries.length === 0) {
+    return (
+      <STableWrapper>
+        <STableTitle>店舗別KPI一覧</STableTitle>
+        <div style={{ padding: '16px', fontSize: '0.7rem', color: '#888' }}>
+          店舗データがありません。
+        </div>
+      </STableWrapper>
+    )
+  }
+
+  const groupBorder = '2px solid rgba(99,102,241,0.25)'
+
+  const renderStoreRow = (r: typeof agg, label: string, isSummary?: boolean) => {
+    const gpRateBudget = r.grossProfitRateBudget
+    const gpRateActual = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+    const gpRateVariance = gpRateActual - gpRateBudget
+    const salesVariance = r.totalSales - r.budget
+    const gpLanding = r.estMethodMarginRate
+    const salesLanding = r.projectedSales - r.budget
+
+    const varColor = sc.cond(gpRateVariance >= 0)
+    const salesDiffColor = sc.cond(salesVariance >= 0)
+    const achColor = sc.achievement(r.budgetAchievementRate)
+    const salesLandingColor = sc.cond(salesLanding >= 0)
+
+    const rowStyle = isSummary
+      ? { fontWeight: 700 as const, borderTop: '2px solid rgba(99,102,241,0.3)' }
+      : undefined
+
+    return (
+      <tr key={label} style={rowStyle}>
+        <STd style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{label}</STd>
+        {/* 粗利 */}
+        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(gpRateBudget)}</BudgetTd>
+        <STd>{fmtPct(gpRateActual)}</STd>
+        <STd style={{ color: varColor }}>{fmtPtDiff(gpRateVariance * 100)}</STd>
+        {/* 値入/売変 */}
+        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(r.coreMarkupRate)}</BudgetTd>
+        <STd style={{ color: sc.negative }}>{`-${(r.discountRate * 100).toFixed(2)}%`}</STd>
+        {/* 売上 */}
+        <BudgetTd style={{ borderLeft: groupBorder }}>{formatCurrency(r.budget)}</BudgetTd>
+        <STd>{formatCurrency(r.totalSales)}</STd>
+        <STd style={{ color: salesDiffColor }}>{formatCurrency(salesVariance)}</STd>
+        <STd style={{ color: achColor }}>{formatPercent(r.budgetAchievementRate)}</STd>
+        {/* 在庫 */}
+        <STd style={{ borderLeft: groupBorder }}>{r.openingInventory != null ? formatCurrency(r.openingInventory) : '-'}</STd>
+        <STd>{r.closingInventory != null ? formatCurrency(r.closingInventory) : '-'}</STd>
+        {/* 着地 */}
+        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(gpLanding)}</BudgetTd>
+        <STd style={{ color: salesLandingColor }}>{formatCurrency(salesLanding)}</STd>
+      </tr>
+    )
+  }
+
+  return (
+    <STableWrapper>
+      <STableTitle>店舗別KPI一覧</STableTitle>
+      <ScrollWrapper>
+        <STable>
+          <thead>
+            <tr>
+              <KpiGroupTh rowSpan={2}>店舗</KpiGroupTh>
+              <KpiGroupTh colSpan={3} style={{ borderLeft: groupBorder }}>粗利</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>値入/売変</KpiGroupTh>
+              <KpiGroupTh colSpan={4} style={{ borderLeft: groupBorder }}>売上</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>在庫</KpiGroupTh>
+              <KpiGroupTh colSpan={2} style={{ borderLeft: groupBorder }}>着地</KpiGroupTh>
+            </tr>
+            <tr>
+              {/* 粗利 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>粗利率予算</BudgetTh>
+              <KpiSubTh>粗利率実績</KpiSubTh>
+              <KpiSubTh>予算差異</KpiSubTh>
+              {/* 値入/売変 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>値入</BudgetTh>
+              <KpiSubTh>売変</KpiSubTh>
+              {/* 売上 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>予算</BudgetTh>
+              <KpiSubTh>実績</KpiSubTh>
+              <KpiSubTh>差異</KpiSubTh>
+              <KpiSubTh>達成率</KpiSubTh>
+              {/* 在庫 */}
+              <KpiSubTh style={{ borderLeft: groupBorder }}>期首在庫</KpiSubTh>
+              <KpiSubTh>期末在庫</KpiSubTh>
+              {/* 着地 */}
+              <BudgetTh style={{ borderLeft: groupBorder }}>最終粗利着地</BudgetTh>
+              <KpiSubTh>最終売上着地</KpiSubTh>
+            </tr>
+          </thead>
+          <tbody>
+            {storeEntries.map((s) => renderStoreRow(s.result, s.label))}
+            {storeEntries.length > 1 && renderStoreRow(agg, '合計', true)}
+          </tbody>
+        </STable>
+      </ScrollWrapper>
+    </STableWrapper>
+  )
+}
+
 export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
   const { departmentKpi } = ctx
   if (departmentKpi.records.length === 0) {
