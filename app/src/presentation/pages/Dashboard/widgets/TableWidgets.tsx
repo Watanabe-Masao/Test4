@@ -426,6 +426,136 @@ function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
   )
 }
 
+// ─── 日別推定在庫テーブル ────────────────────────────────
+
+const InvTd = styled(STd)<{ $neg?: boolean }>`
+  color: ${({ $neg, theme }) => $neg ? theme.colors.palette.danger : theme.colors.text2};
+`
+
+export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
+  const { result: r, daysInMonth } = ctx
+
+  const openingInv = r.openingInventory
+  if (openingInv == null) {
+    return (
+      <STableWrapper>
+        <STableTitle>日別推定在庫</STableTitle>
+        <div style={{ padding: '16px', color: '#888', fontSize: '0.8rem' }}>
+          期首在庫が設定されていないため表示できません
+        </div>
+      </STableWrapper>
+    )
+  }
+
+  const closingInv = r.closingInventory
+
+  // 日別データ構築
+  interface DailyInvRow {
+    day: number
+    purchaseCost: number
+    interStoreNet: number
+    salesAmount: number
+    estCogs: number
+    cumPurchase: number
+    cumCogs: number
+    estimatedInv: number
+  }
+
+  const rows: DailyInvRow[] = []
+  let cumPurchase = 0
+  let cumCogs = 0
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const rec = r.daily.get(d)
+    const purchaseCost = rec ? rec.purchase.cost : 0
+    const interStoreNet = rec ? rec.interStoreIn.cost + rec.interStoreOut.cost : 0
+    const salesAmount = rec?.sales ?? 0
+    // 推定売上原価: 仕入原価があればそれを使用、なければ売上 × 0.74（概算原価率）
+    const dayCost = rec ? rec.purchase.cost : 0
+    const estCogs = dayCost > 0 ? dayCost : salesAmount * 0.74
+
+    cumPurchase += purchaseCost + interStoreNet
+    cumCogs += estCogs
+
+    rows.push({
+      day: d,
+      purchaseCost,
+      interStoreNet,
+      salesAmount,
+      estCogs,
+      cumPurchase,
+      cumCogs,
+      estimatedInv: openingInv + cumPurchase - cumCogs,
+    })
+  }
+
+  const lastRow = rows[rows.length - 1]
+  const totalPurchase = lastRow?.cumPurchase ?? 0
+  const totalCogs = lastRow?.cumCogs ?? 0
+  const totalSales = rows.reduce((s, r) => s + r.salesAmount, 0)
+
+  return (
+    <STableWrapper>
+      <STableTitle>
+        日別推定在庫
+        <span style={{ fontSize: '0.7rem', fontWeight: 400, marginLeft: 8, opacity: 0.6 }}>
+          期首在庫: {formatCurrency(openingInv)}
+          {closingInv != null && ` / 実在庫: ${formatCurrency(closingInv)}`}
+        </span>
+      </STableTitle>
+      <div style={{ overflowX: 'auto', maxHeight: '420px' }}>
+        <STable>
+          <thead>
+            <tr>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>日</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>仕入原価</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>店間入出</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>売上</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>推定原価</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>仕入累計</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>原価累計</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>推定在庫</STh>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => {
+              const hasSales = row.salesAmount > 0 || row.purchaseCost > 0
+              return (
+                <tr key={row.day} style={!hasSales ? { opacity: 0.5 } : undefined}>
+                  <STd style={{ textAlign: 'left', fontWeight: 600 }}>{row.day}</STd>
+                  <STd>{row.purchaseCost > 0 ? formatCurrency(row.purchaseCost) : '-'}</STd>
+                  <InvTd $neg={row.interStoreNet < 0}>
+                    {row.interStoreNet !== 0 ? formatCurrency(row.interStoreNet) : '-'}
+                  </InvTd>
+                  <STd>{row.salesAmount > 0 ? formatCurrency(row.salesAmount) : '-'}</STd>
+                  <STd>{row.estCogs > 0 ? formatCurrency(row.estCogs) : '-'}</STd>
+                  <STd>{formatCurrency(row.cumPurchase)}</STd>
+                  <STd>{formatCurrency(row.cumCogs)}</STd>
+                  <InvTd $neg={row.estimatedInv < 0} style={{ fontWeight: 600 }}>
+                    {formatCurrency(row.estimatedInv)}
+                  </InvTd>
+                </tr>
+              )
+            })}
+            <tr style={{ fontWeight: 700, borderTop: '2px solid' }}>
+              <STd style={{ textAlign: 'left' }}>合計</STd>
+              <STd>{formatCurrency(rows.reduce((s, r) => s + r.purchaseCost, 0))}</STd>
+              <STd>{formatCurrency(rows.reduce((s, r) => s + r.interStoreNet, 0))}</STd>
+              <STd>{formatCurrency(totalSales)}</STd>
+              <STd>{formatCurrency(totalCogs)}</STd>
+              <STd>{formatCurrency(totalPurchase)}</STd>
+              <STd>{formatCurrency(totalCogs)}</STd>
+              <InvTd $neg={(lastRow?.estimatedInv ?? 0) < 0} style={{ fontWeight: 700 }}>
+                {formatCurrency(lastRow?.estimatedInv ?? 0)}
+              </InvTd>
+            </tr>
+          </tbody>
+        </STable>
+      </div>
+    </STableWrapper>
+  )
+}
+
 export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
   const { departmentKpi } = ctx
   if (departmentKpi.records.length === 0) {
