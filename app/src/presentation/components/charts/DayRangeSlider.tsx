@@ -97,6 +97,29 @@ const RangeInput = styled.input`
   }
 `
 
+const StepBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 0.55rem;
+  line-height: 1;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+`
+
 const ResetBtn = styled.button`
   all: unset;
   cursor: pointer;
@@ -137,6 +160,7 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
 
   return (
     <SliderRow>
+      <StepBtn disabled={start <= min} onClick={() => onChange(start - 1, end)} aria-label="開始日を1日前へ">◀</StepBtn>
       <NumInput
         type="number"
         min={min}
@@ -144,6 +168,7 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
         value={start}
         onChange={handleStartInput}
       />
+      <StepBtn disabled={start >= end - 1} onClick={() => onChange(start + 1, end)} aria-label="開始日を1日後へ">▶</StepBtn>
       <UnitLabel>日</UnitLabel>
       <TrackWrap>
         <Track />
@@ -169,6 +194,7 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
           }}
         />
       </TrackWrap>
+      <StepBtn disabled={end <= start + 1} onClick={() => onChange(start, end - 1)} aria-label="終了日を1日前へ">◀</StepBtn>
       <NumInput
         type="number"
         min={start + 1}
@@ -176,6 +202,7 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
         value={end}
         onChange={handleEndInput}
       />
+      <StepBtn disabled={end >= max} onClick={() => onChange(start, end + 1)} aria-label="終了日を1日後へ">▶</StepBtn>
       <UnitLabel>日</UnitLabel>
       {!isFullRange && (
         <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>

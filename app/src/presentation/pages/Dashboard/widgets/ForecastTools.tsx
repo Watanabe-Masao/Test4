@@ -102,6 +102,30 @@ const DiffBadge = styled.span<{ $color: string }>`
   text-align: right;
 `
 
+const StepBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 0.6rem;
+  line-height: 1;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  flex-shrink: 0;
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+`
+
 const ResetButton = styled.button`
   all: unset;
   cursor: pointer;
@@ -290,6 +314,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
+              <StepBtn disabled={salesLanding <= salesMin} onClick={() => setSalesLanding(Math.max(salesMin, salesLanding - salesStep))}>◀</StepBtn>
               <SliderInput
                 type="range"
                 min={salesMin}
@@ -298,6 +323,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={salesLanding}
                 onChange={(e) => setSalesLanding(Number(e.target.value))}
               />
+              <StepBtn disabled={salesLanding >= salesMax} onClick={() => setSalesLanding(Math.min(salesMax, salesLanding + salesStep))}>▶</StepBtn>
               <EditableCurrencyValue
                 value={salesLanding}
                 min={salesMin}
@@ -324,6 +350,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
+              <StepBtn disabled={remainGPRate <= 10} onClick={() => setRemainGPRate(Math.max(10, Math.round((remainGPRate - 0.1) * 10) / 10))}>◀</StepBtn>
               <SliderInput
                 type="range"
                 min={10}
@@ -332,6 +359,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={remainGPRate}
                 onChange={(e) => setRemainGPRate(Number(e.target.value))}
               />
+              <StepBtn disabled={remainGPRate >= 40} onClick={() => setRemainGPRate(Math.min(40, Math.round((remainGPRate + 0.1) * 10) / 10))}>▶</StepBtn>
               <EditablePercentValue
                 value={remainGPRate}
                 min={10}
@@ -402,6 +430,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
+              <StepBtn disabled={targetMonthlySales <= goalSalesMin} onClick={() => setTargetMonthlySales(Math.max(goalSalesMin, targetMonthlySales - goalSalesStep))}>◀</StepBtn>
               <SliderInput
                 type="range"
                 min={goalSalesMin}
@@ -410,6 +439,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetMonthlySales}
                 onChange={(e) => setTargetMonthlySales(Number(e.target.value))}
               />
+              <StepBtn disabled={targetMonthlySales >= goalSalesMax} onClick={() => setTargetMonthlySales(Math.min(goalSalesMax, targetMonthlySales + goalSalesStep))}>▶</StepBtn>
               <EditableCurrencyValue
                 value={targetMonthlySales}
                 min={goalSalesMin}
@@ -436,6 +466,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
+              <StepBtn disabled={targetGPRate <= 10} onClick={() => setTargetGPRate(Math.max(10, Math.round((targetGPRate - 0.1) * 10) / 10))}>◀</StepBtn>
               <SliderInput
                 type="range"
                 min={10}
@@ -444,6 +475,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetGPRate}
                 onChange={(e) => setTargetGPRate(Number(e.target.value))}
               />
+              <StepBtn disabled={targetGPRate >= 40} onClick={() => setTargetGPRate(Math.min(40, Math.round((targetGPRate + 0.1) * 10) / 10))}>▶</StepBtn>
               <EditablePercentValue
                 value={targetGPRate}
                 min={10}
