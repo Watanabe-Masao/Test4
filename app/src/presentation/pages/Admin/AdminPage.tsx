@@ -592,7 +592,7 @@ function ImportHistoryTab() {
             <SummaryLabel>登録店舗数</SummaryLabel>
           </SummaryCard>
           <SummaryCard>
-            <SummaryValue>{loadedCount}<span style={{ fontSize: '0.6em', opacity: 0.6 }}> / {overview.length + 2 + 1}</span></SummaryValue>
+            <SummaryValue>{loadedCount}<span style={{ fontSize: '0.6em', opacity: 0.6 }}> / {overview.length + 2 + 2}</span></SummaryValue>
             <SummaryLabel>取込済データ種別</SummaryLabel>
           </SummaryCard>
           <SummaryCard>

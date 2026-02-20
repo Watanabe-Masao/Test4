@@ -56,6 +56,7 @@ const DATA_TYPE_NAMES: Record<string, string> = {
   directProduce: '産直',
   consumables: '消耗品',
   categoryTimeSales: '分類別時間帯売上',
+  prevYearCategoryTimeSales: '前年分類別時間帯売上',
   settings: '在庫設定',
   budget: '予算',
 }
@@ -356,6 +357,30 @@ export function calculateDiff(
       }
       if (diff.modifications.length === 0 && diff.removals.length === 0) {
         autoApproved.push('categoryTimeSales')
+      }
+    }
+  }
+
+  // prevYearCategoryTimeSales: 前年分類別時間帯売上
+  if (importedTypes.has('prevYearCategoryTimeSales')) {
+    const existingPCTS = existing.prevYearCategoryTimeSales
+    const incomingPCTS = incoming.prevYearCategoryTimeSales
+
+    if (existingPCTS.records.length === 0) {
+      autoApproved.push('prevYearCategoryTimeSales')
+    } else if (incomingPCTS.records.length > 0) {
+      const diff = diffCategoryTimeSales(existingPCTS, incomingPCTS)
+      // dataType を上書き
+      const prevDiff: DataTypeDiff = {
+        ...diff,
+        dataType: 'prevYearCategoryTimeSales',
+        dataTypeName: DATA_TYPE_NAMES.prevYearCategoryTimeSales ?? '前年分類別時間帯売上',
+      }
+      if (prevDiff.inserts.length > 0 || prevDiff.modifications.length > 0 || prevDiff.removals.length > 0) {
+        diffs.push(prevDiff)
+      }
+      if (prevDiff.modifications.length === 0 && prevDiff.removals.length === 0) {
+        autoApproved.push('prevYearCategoryTimeSales')
       }
     }
   }
