@@ -153,12 +153,12 @@ export function InventoryTrendChart({
     <Wrapper>
       <Header>
         <Title>売上・仕入・推定在庫</Title>
-        {canCompare && (
-          <TabGroup>
-            <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
+        <TabGroup>
+          <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
+          {canCompare && (
             <Tab $active={viewMode === 'compare'} onClick={() => setViewMode('compare')}>比較</Tab>
-          </TabGroup>
-        )}
+          )}
+        </TabGroup>
       </Header>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={canCompare ? 300 : '84%'}>
         <ComposedChart data={aggregateData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
