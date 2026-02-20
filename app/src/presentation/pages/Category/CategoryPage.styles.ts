@@ -18,7 +18,16 @@ export const SectionTitle = styled.h2`
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: 0;
+`
+
+export const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[3]};
 `
 
 export const TableWrapper = styled.div`
@@ -156,4 +165,73 @@ export const ChartTitle = styled.div`
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
   padding-left: ${({ theme }) => theme.spacing[4]};
+`
+
+/* ── 新規: KPIサマリー行 ── */
+export const KpiRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`
+
+/* ── 新規: 条件付きカラーリング — 値入率セル ── */
+export const MarkupCell = styled.td<{ $rate: number }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $rate }) =>
+    $rate >= 0.30 ? '#16a34a'
+    : $rate >= 0.20 ? '#ca8a04'
+    : $rate > 0 ? '#dc2626'
+    : '#64748b'};
+`
+
+/* ── 新規: 粗利額セル ── */
+export const GrossProfitCell = styled.td<{ $positive: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ $positive }) => ($positive ? '#16a34a' : '#dc2626')};
+`
+
+/* ── 新規: ソートボタン ── */
+export const SortButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  color: ${({ theme }) => theme.colors.text3};
+  &:hover { color: ${({ theme }) => theme.colors.text}; }
+`
+
+/* ── 新規: 取引先フィルター ── */
+export const SupplierToolbar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+export const SupplierFilterInput = styled.input`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  width: 200px;
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.text4};
+  }
 `
