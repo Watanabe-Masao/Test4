@@ -68,7 +68,7 @@ export function InventoryTrendChart({
       // 在庫仕入原価（売上納品除外）
       cumInvCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
       const dayGrossSales = divisor > 0 ? rec.coreSales / divisor : rec.coreSales
-      cumEstCogs += dayGrossSales * (1 - markupRate) + rec.consumable.totalCost
+      cumEstCogs += dayGrossSales * (1 - markupRate) + rec.consumable.cost
     }
 
     // 実在庫は月末日のみプロット

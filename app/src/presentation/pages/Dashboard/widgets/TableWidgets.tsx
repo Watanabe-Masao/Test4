@@ -478,7 +478,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
       ? rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
       : 0
     const coreSales = rec?.coreSales ?? 0
-    const consumable = rec ? rec.consumable.totalCost : 0
+    const consumable = rec ? rec.consumable.cost : 0
 
     // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
     const dayGrossSales = divisor > 0 ? coreSales / divisor : coreSales
