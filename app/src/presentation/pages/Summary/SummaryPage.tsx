@@ -1,6 +1,6 @@
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
-import { InventoryTrendChart } from '@/presentation/components/charts'
+import { InventoryTrendChart, EstimatedInventoryDetailChart } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -172,6 +172,17 @@ export function SummaryPage() {
           </CalcRow>
         </Card>
       </CalcGrid>
+
+      <Section>
+        <EstimatedInventoryDetailChart
+          daily={r.daily}
+          daysInMonth={daysInMonth}
+          openingInventory={r.openingInventory}
+          closingInventory={r.closingInventory}
+          markupRate={r.coreMarkupRate}
+          discountRate={r.discountRate}
+        />
+      </Section>
 
       <Section>
         <SectionTitle>移動集計</SectionTitle>
