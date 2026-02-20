@@ -2,15 +2,15 @@ import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
 
 export interface PinInterval {
-  startDay: number
-  endDay: number
-  openingInventory: number
-  closingInventory: number
-  totalSales: number
-  totalPurchaseCost: number
-  cogs: number
-  grossProfit: number
-  grossProfitRate: number
+  readonly startDay: number
+  readonly endDay: number
+  readonly openingInventory: number
+  readonly closingInventory: number
+  readonly totalSales: number
+  readonly totalPurchaseCost: number
+  readonly cogs: number
+  readonly grossProfit: number
+  readonly grossProfitRate: number
 }
 
 /**

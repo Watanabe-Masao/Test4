@@ -16,7 +16,7 @@ export interface AppSettings {
   readonly defaultMarkupRate: number // デフォルト値入率 (default: 0.26)
   readonly defaultBudget: number // デフォルト予算 (default: 6,450,000)
   readonly dataEndDay: number | null // 取込データ有効末日 (null = 月末まで)
-  readonly supplierCategoryMap: Readonly<Record<string, CustomCategory>> // 取引先→カテゴリ
+  readonly supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>> // 取引先→カテゴリ
   // 前年比マッピング手動オーバーライド (null = 自動)
   readonly prevYearSourceYear: number | null   // 前年データ取得元の年 (null = targetYear - 1)
   readonly prevYearSourceMonth: number | null  // 前年データ取得元の月 (null = targetMonth)

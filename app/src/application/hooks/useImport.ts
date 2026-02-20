@@ -37,6 +37,7 @@ export function useImport() {
   const dispatch = useAppDispatch()
   const [progress, setProgress] = useState<ImportProgress | null>(null)
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // ref で最新の値を保持し、ステール・クロージャを回避
   const dataRef = useRef<ImportedData>(state.data)
@@ -45,10 +46,18 @@ export function useImport() {
   const settingsRef = useRef<AppSettings>(state.settings)
   settingsRef.current = state.settings
 
+  // 同時インポート防止ロック
+  const importingRef = useRef(false)
+
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
+      if (importingRef.current) {
+        return { successCount: 0, failCount: 0, results: [] }
+      }
+      importingRef.current = true
       dispatch({ type: 'SET_IMPORTING', payload: true })
       setProgress(null)
+      setSaveError(null)
 
       try {
         const { summary, data, detectedYearMonth } = await processDroppedFiles(
@@ -123,12 +132,19 @@ export function useImport() {
           // IndexedDB に保存
           if (isIndexedDBAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
-            saveImportedData(data, targetYear, targetMonth).catch(() => {})
+            try {
+              await saveImportedData(data, targetYear, targetMonth)
+            } catch (e) {
+              const msg = e instanceof Error ? e.message : 'IndexedDB 保存に失敗しました'
+              console.error('[useImport] IndexedDB save failed:', e)
+              setSaveError(msg)
+            }
           }
         }
 
         return summary
       } finally {
+        importingRef.current = false
         dispatch({ type: 'SET_IMPORTING', payload: false })
         setProgress(null)
       }
@@ -165,7 +181,11 @@ export function useImport() {
       // IndexedDB に保存
       if (isIndexedDBAvailable()) {
         const { targetYear, targetMonth } = settingsRef.current
-        saveImportedData(finalData, targetYear, targetMonth).catch(() => {})
+        saveImportedData(finalData, targetYear, targetMonth).catch((e) => {
+          const msg = e instanceof Error ? e.message : 'IndexedDB 保存に失敗しました'
+          console.error('[useImport] IndexedDB save failed:', e)
+          setSaveError(msg)
+        })
       }
 
       setPendingDiff(null)
@@ -181,6 +201,7 @@ export function useImport() {
     validationMessages: state.validationMessages,
     pendingDiff,
     resolveDiff,
+    saveError,
   }
 }
 
