@@ -43,6 +43,42 @@ export function CategoryPage() {
     return map
   }, [selectedResults, stores])
 
+  // All useMemo must be before early return (Rules of Hooks)
+  const filteredSupplierData = useMemo(() => {
+    if (!currentResult) return []
+    const supplierList = Array.from(currentResult.supplierTotals.values())
+    const tAbsPrice = supplierList.reduce((sum, s) => sum + Math.abs(s.price), 0)
+    const tPrice = supplierList.reduce((sum, s) => sum + s.price, 0)
+    let list = supplierList
+    if (supplierFilter) {
+      const q = supplierFilter.toLowerCase()
+      list = list.filter(
+        (s) => s.supplierName.toLowerCase().includes(q) || s.supplierCode.includes(q),
+      )
+    }
+    const { key, dir } = supplierSort
+    const sorted = [...list].sort((a, b) => {
+      let va: number, vb: number
+      switch (key) {
+        case 'cost': va = a.cost; vb = b.cost; break
+        case 'price': va = a.price; vb = b.price; break
+        case 'grossProfit': va = a.price - a.cost; vb = b.price - b.cost; break
+        case 'markup': va = a.markupRate; vb = b.markupRate; break
+        case 'priceShare':
+          va = safeDivide(Math.abs(a.price), tAbsPrice, 0)
+          vb = safeDivide(Math.abs(b.price), tAbsPrice, 0)
+          break
+        case 'crossMult':
+          va = safeDivide(a.price - a.cost, tPrice, 0)
+          vb = safeDivide(b.price - b.cost, tPrice, 0)
+          break
+        default: va = a.cost; vb = b.cost
+      }
+      return dir === 'asc' ? va - vb : vb - va
+    })
+    return sorted
+  }, [currentResult, supplierSort, supplierFilter])
+
   if (!isCalculated || !currentResult) {
     return (
       <MainContent title="カテゴリ分析" storeName={storeName}>
@@ -88,37 +124,6 @@ export function CategoryPage() {
 
   const sortIcon = (key: SortKey) =>
     supplierSort.key === key ? (supplierSort.dir === 'asc' ? ' ▲' : ' ▼') : ''
-
-  const filteredSupplierData = useMemo(() => {
-    let list = supplierData
-    if (supplierFilter) {
-      const q = supplierFilter.toLowerCase()
-      list = list.filter(
-        (s) => s.supplierName.toLowerCase().includes(q) || s.supplierCode.includes(q),
-      )
-    }
-    const { key, dir } = supplierSort
-    const sorted = [...list].sort((a, b) => {
-      let va: number, vb: number
-      switch (key) {
-        case 'cost': va = a.cost; vb = b.cost; break
-        case 'price': va = a.price; vb = b.price; break
-        case 'grossProfit': va = a.price - a.cost; vb = b.price - b.cost; break
-        case 'markup': va = a.markupRate; vb = b.markupRate; break
-        case 'priceShare':
-          va = safeDivide(Math.abs(a.price), totalSupplierAbsPrice, 0)
-          vb = safeDivide(Math.abs(b.price), totalSupplierAbsPrice, 0)
-          break
-        case 'crossMult':
-          va = safeDivide(a.price - a.cost, totalSupplierPrice, 0)
-          vb = safeDivide(b.price - b.cost, totalSupplierPrice, 0)
-          break
-        default: va = a.cost; vb = b.cost
-      }
-      return dir === 'asc' ? va - vb : vb - va
-    })
-    return sorted
-  }, [supplierData, supplierSort, supplierFilter, totalSupplierAbsPrice, totalSupplierPrice])
 
   const showComparison = comparisonMode === 'comparison' && hasMultipleStores
 
