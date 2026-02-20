@@ -101,6 +101,7 @@ const DATE_START_ROW: Partial<Record<DataType, number>> = {
   salesDiscount: 2,
   prevYearSalesDiscount: 2,
   categoryTimeSales: 3,
+  prevYearCategoryTimeSales: 3,
 }
 
 /**
@@ -246,6 +247,18 @@ export function processFileData(
         data: {
           ...current,
           categoryTimeSales: mergeCategoryTimeSalesData(current.categoryTimeSales, newData),
+        },
+        detectedYearMonth,
+      }
+    }
+
+    case 'prevYearCategoryTimeSales': {
+      // 前年分類別時間帯売上: categoryTimeSales と同じ構造だが前年データとして格納
+      const newData = processCategoryTimeSales(rows, effectiveMonth)
+      return {
+        data: {
+          ...current,
+          prevYearCategoryTimeSales: mergeCategoryTimeSalesData(current.prevYearCategoryTimeSales, newData),
         },
         detectedYearMonth,
       }

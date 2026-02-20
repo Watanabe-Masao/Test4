@@ -183,6 +183,9 @@ export async function saveImportedData(
   // categoryTimeSales（StoreDayRecord ではないが独立保存）
   await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
 
+  // prevYearCategoryTimeSales（前年分類別時間帯売上）
+  await dbPut(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'), data.prevYearCategoryTimeSales)
+
   // メタデータ
   await dbPut(STORE_META, 'lastSession', {
     year,
@@ -254,6 +257,13 @@ export async function loadImportedData(
   )
   result.categoryTimeSales = rawCategoryTimeSales ?? { records: [] }
 
+  // prevYearCategoryTimeSales
+  const rawPrevYearCategoryTimeSales = await dbGet<{ records: unknown[] }>(
+    STORE_MONTHLY,
+    monthKey(year, month, 'prevYearCategoryTimeSales'),
+  )
+  result.prevYearCategoryTimeSales = rawPrevYearCategoryTimeSales ?? { records: [] }
+
   return result as unknown as ImportedData
 }
 
@@ -277,6 +287,7 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'settings'))
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'budget'))
   await dbDelete(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
+  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'))
 }
 
 /**
@@ -316,6 +327,10 @@ export async function saveDataSlice(
   for (const dt of dataTypes) {
     if (dt === 'categoryTimeSales') {
       await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
+      continue
+    }
+    if (dt === 'prevYearCategoryTimeSales') {
+      await dbPut(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'), data.prevYearCategoryTimeSales)
       continue
     }
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)

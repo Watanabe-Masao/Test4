@@ -259,6 +259,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'initialSettings', label: '7_初期設定' },
   { type: 'consumables', label: '8_消耗品', multi: true },
   { type: 'categoryTimeSales', label: '8.分類別時間帯売上', multi: true },
+  { type: 'prevYearCategoryTimeSales', label: '9.前年分類別時間帯売上', multi: true },
   { type: 'prevYearSalesDiscount', label: '998_前年売上売変客数' },
 ]
 
@@ -360,6 +361,7 @@ export function DataManagementSidebar({
     if (data.budget.size > 0) types.add('budget')
     if (Object.keys(data.consumables).length > 0) types.add('consumables')
     if (data.categoryTimeSales.records.length > 0) types.add('categoryTimeSales')
+    if (data.prevYearCategoryTimeSales.records.length > 0) types.add('prevYearCategoryTimeSales')
     if (Object.keys(data.flowers).length > 0) types.add('flowers')
     if (Object.keys(data.directProduce).length > 0) types.add('directProduce')
     if (Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')

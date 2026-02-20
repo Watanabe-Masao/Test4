@@ -567,6 +567,16 @@ function ImportHistoryTab() {
       })()
     : null
 
+  // 前年時間帯売上
+  const prevYearCTSCount = data.prevYearCategoryTimeSales.records.length
+  const prevYearCTSStores = new Set(data.prevYearCategoryTimeSales.records.map((r) => r.storeId)).size
+  const prevYearCTSDays = data.prevYearCategoryTimeSales.records.length > 0
+    ? (() => {
+        const days = data.prevYearCategoryTimeSales.records.map((r) => r.day)
+        return { min: Math.min(...days), max: Math.max(...days) }
+      })()
+    : null
+
   // 全体の最大日数レンジ（品質スコア用）
   const salesDayRange = overview.find((d) => d.label === '売上')?.dayRange
   const daysInMonth = salesDayRange ? salesDayRange.max : 28
@@ -738,6 +748,29 @@ function ImportHistoryTab() {
                     {categoryTimeSalesDays && (
                       <span style={{ marginLeft: 8, fontSize: '0.8em', opacity: 0.7 }}>
                         {categoryTimeSalesDays.min}日 〜 {categoryTimeSalesDays.max}日
+                      </span>
+                    )}
+                  </>
+                ) : '-'}
+              </Td>
+            </tr>
+            <tr>
+              <Td>
+                前年分類別時間帯売上
+              </Td>
+              <Td>
+                <Badge $color={prevYearCTSCount > 0 ? '#0ea5e9' : undefined}>
+                  {prevYearCTSCount > 0 ? '取込済' : '未取込'}
+                </Badge>
+              </Td>
+              <Td>{prevYearCTSCount > 0 ? `${prevYearCTSCount.toLocaleString()}件` : '-'}</Td>
+              <Td>
+                {prevYearCTSCount > 0 ? (
+                  <>
+                    <StoreIdBadge>{prevYearCTSStores}店舗</StoreIdBadge>
+                    {prevYearCTSDays && (
+                      <span style={{ marginLeft: 8, fontSize: '0.8em', opacity: 0.7 }}>
+                        {prevYearCTSDays.min}日 〜 {prevYearCTSDays.max}日
                       </span>
                     )}
                   </>
