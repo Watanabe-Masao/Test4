@@ -13,7 +13,11 @@ import {
   SettingsModal,
   ValidationModal,
   ImportProgressBar,
+  ImportProgressSteps,
+  ImportSummaryCard,
 } from '@/presentation/components/common'
+import type { ImportStage } from '@/presentation/components/common'
+import type { ImportSummary } from '@/application/services/FileImportService'
 import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType, ImportedData, StoreDayRecord } from '@/domain/models'
@@ -278,6 +282,8 @@ export function DataManagementSidebar({
   const showToast = useToast()
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
+  const [importStage, setImportStage] = useState<ImportStage>('idle')
+  const [lastSummary, setLastSummary] = useState<ImportSummary | null>(null)
 
   const isSettingsOpen = showSettings || showSettingsExternal
   const closeSettings = useCallback(() => {
@@ -287,16 +293,34 @@ export function DataManagementSidebar({
 
   const handleFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType) => {
-      const summary = await importFiles(files, overrideType)
-      summary.results.forEach((r) => {
-        if (r.ok) {
-          showToast(`${r.typeName}: ${r.filename}`, 'success')
-        } else {
-          showToast(`${r.filename}: ${r.error}`, 'error')
+      setImportStage('reading')
+      setLastSummary(null)
+      try {
+        const summary = await importFiles(files, overrideType)
+        setImportStage('validating')
+
+        summary.results.forEach((r) => {
+          if (r.ok) {
+            showToast(`${r.typeName}: ${r.filename}`, 'success')
+          } else {
+            showToast(`${r.filename}: ${r.error}`, 'error')
+          }
+        })
+
+        setImportStage('saving')
+        // 保存は useImport 内で処理されるので少し待つ
+        await new Promise((r) => setTimeout(r, 300))
+        setImportStage('done')
+        setLastSummary(summary)
+
+        if (summary.successCount > 0) {
+          setShowValidation(true)
         }
-      })
-      if (summary.successCount > 0) {
-        setShowValidation(true)
+
+        // 完了ステージを3秒後にリセット
+        setTimeout(() => setImportStage('idle'), 3000)
+      } catch {
+        setImportStage('idle')
       }
     },
     [importFiles, showToast],
@@ -375,7 +399,13 @@ export function DataManagementSidebar({
       <Sidebar title="データ管理">
         <SidebarSection>
           <FileDropZone onFiles={handleFiles} />
-          {progress && <ImportProgressBar progress={progress} />}
+          {importStage !== 'idle' && (
+            <ImportProgressSteps progress={progress} stage={importStage} />
+          )}
+          {importStage === 'idle' && progress && <ImportProgressBar progress={progress} />}
+          {lastSummary && importStage === 'idle' && (
+            <ImportSummaryCard summary={lastSummary} onDismiss={() => setLastSummary(null)} />
+          )}
         </SidebarSection>
 
         <SidebarSection>
