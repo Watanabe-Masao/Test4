@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
-import { useCalculation, usePrevYearData, useStoreSelection } from '@/application/hooks'
+import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { CategoryHierarchyProvider } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
@@ -20,6 +20,7 @@ export function DashboardPage() {
   const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
   const appState = useAppState()
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
+  const prevYearCTS = usePrevYearCategoryTimeSales()
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -133,6 +134,7 @@ export function DashboardPage() {
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     departmentKpi: appState.data.departmentKpi,
+    prevYearCategoryTimeSales: prevYearCTS,
   }
 
   // Resolve active widgets

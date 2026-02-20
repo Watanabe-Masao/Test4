@@ -7,6 +7,7 @@ import {
   TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
+  TimeSlotYoYComparisonChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -199,8 +200,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別売上',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
-      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => (
+      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
     ),
   },
   {
@@ -218,8 +219,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯×曜日ヒートマップ',
     group: '分類別時間帯',
     size: 'full',
-    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth }) => (
-      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} />
+    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearCategoryTimeSales }) => (
+      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
     ),
   },
   {
@@ -239,6 +240,25 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: ({ categoryTimeSales, stores, daysInMonth, year, month }) => (
       <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} />
     ),
+  },
+  {
+    id: 'chart-timeslot-yoy-comparison',
+    label: '時間帯別 前年同曜日比較',
+    group: '分類別時間帯',
+    size: 'full',
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => {
+      if (!prevYearCategoryTimeSales.hasPrevYear) return null
+      return (
+        <TimeSlotYoYComparisonChart
+          categoryTimeSales={categoryTimeSales}
+          prevYearRecords={prevYearCategoryTimeSales.records}
+          selectedStoreIds={selectedStoreIds}
+          daysInMonth={daysInMonth}
+          year={year}
+          month={month}
+        />
+      )
+    },
   },
   // ── 概要・ステータス ──
   {
