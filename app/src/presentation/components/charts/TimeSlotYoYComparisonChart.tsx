@@ -167,12 +167,16 @@ export function TimeSlotYoYComparisonChart({
   const { chartData, summary, tableRows } = useMemo(() => {
     const div = pf.mode !== 'total' ? pf.divisor : 1
 
-    // 当年集計
+    // 前年データがカバーする日の範囲を特定し、当年も同じ日のみ比較する
+    const prevDaySet = new Set(prevPeriodRecords.map((r) => r.day))
+
+    // 当年集計（前年とカバー日が重なるレコードのみ合計に含める）
     const curHourly = new Map<number, number>()
     let curTotal = 0
     const curFiltered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
     for (const rec of curFiltered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      if (!prevDaySet.has(rec.day)) continue
       curTotal += rec.totalAmount
       for (const slot of rec.timeSlots) {
         curHourly.set(slot.hour, (curHourly.get(slot.hour) ?? 0) + slot.amount)
@@ -215,7 +219,7 @@ export function TimeSlotYoYComparisonChart({
     const yoyRatio = prevTotal > 0 ? curTotal / prevTotal : null
     const yoyDiff = curTotal - prevTotal
 
-    // 最大増加・最大減少時間帯
+    // 最大増加・最大減少時間帯（diff は既に div で除算済み→再除算しない）
     let maxIncHour = -1, maxIncDiff = 0
     let maxDecHour = -1, maxDecDiff = 0
     for (const d of chartData) {
@@ -240,9 +244,9 @@ export function TimeSlotYoYComparisonChart({
         yoyRatio,
         yoyDiff,
         maxIncHour,
-        maxIncDiff: Math.round(maxIncDiff / div),
+        maxIncDiff,
         maxDecHour,
-        maxDecDiff: Math.round(maxDecDiff / div),
+        maxDecDiff,
       },
       tableRows,
     }

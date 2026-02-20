@@ -182,10 +182,25 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
 
   const hasPrevYear = prevPeriodRecords.length > 0
 
+  // 前年データがカバーする日の集合（日数一致比較用）
+  const prevDaySet = useMemo(
+    () => new Set(prevPeriodRecords.map((r) => r.day)),
+    [prevPeriodRecords],
+  )
+  // 前年と重複する日のみの当年レコード（前年比の分母分子を揃える）
+  const comparablePeriodRecords = useMemo(
+    () => hasPrevYear ? periodRecords.filter((r) => prevDaySet.has(r.day)) : periodRecords,
+    [periodRecords, prevDaySet, hasPrevYear],
+  )
+
   const div = pf.mode !== 'total' ? pf.divisor : 1
   const current = useMemo(
     () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, div),
     [periodRecords, selectedStoreIds, filter, hf, div],
+  )
+  const comparable = useMemo(
+    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, div) : null,
+    [comparablePeriodRecords, selectedStoreIds, filter, hf, div, hasPrevYear],
   )
   const prev = useMemo(
     () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, div) : null,
@@ -216,10 +231,11 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     const totalAmount = current.totalAmount
     const peakHourPct = totalAmount > 0 ? (peakHourAmount / totalAmount * 100).toFixed(1) : '0'
 
-    // 前年比 KPI
+    // 前年比 KPI（重複日のみで比較し、日数差バイアスを排除）
+    const comparableTotalAmount = comparable?.totalAmount ?? 0
     const prevTotalAmount = prev?.totalAmount ?? 0
-    const yoyRatio = prevTotalAmount > 0 ? totalAmount / prevTotalAmount : null
-    const yoyDiff = prevTotalAmount > 0 ? totalAmount - prevTotalAmount : null
+    const yoyRatio = prevTotalAmount > 0 ? comparableTotalAmount / prevTotalAmount : null
+    const yoyDiff = prevTotalAmount > 0 ? comparableTotalAmount - prevTotalAmount : null
 
     return {
       chartData,
@@ -236,7 +252,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         avgPerHour: current.hourly.size > 0 ? Math.round(totalAmount / current.hourly.size) : 0,
       } : null,
     }
-  }, [current, prev, div])
+  }, [current, comparable, prev, div])
 
   if (chartData.length === 0) return null
 

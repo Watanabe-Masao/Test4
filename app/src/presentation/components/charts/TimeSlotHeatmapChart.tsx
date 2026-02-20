@@ -222,9 +222,26 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   const hasPrevYear = prevPeriodRecords.length > 0
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('amount')
 
+  // 前年データがカバーする日の集合（前年比モード用）
+  const prevDaySet = useMemo(
+    () => new Set(prevPeriodRecords.map((r) => r.day)),
+    [prevPeriodRecords],
+  )
+  // 前年と重複する日のみの当年レコード（前年比の分母分子を揃える）
+  const comparablePeriodRecords = useMemo(
+    () => hasPrevYear ? periodRecords.filter((r) => prevDaySet.has(r.day)) : periodRecords,
+    [periodRecords, prevDaySet, hasPrevYear],
+  )
+
   const curData = useMemo(
     () => buildHourDowMatrix(periodRecords, selectedStoreIds, filter, hf, year, month, pf),
     [periodRecords, selectedStoreIds, year, month, filter, pf, hf],
+  )
+
+  // 前年比較用: 重複日のみで当年マトリックスを構築
+  const comparableCurData = useMemo(
+    () => hasPrevYear ? buildHourDowMatrix(comparablePeriodRecords, selectedStoreIds, filter, hf, year, month, pf) : curData,
+    [comparablePeriodRecords, selectedStoreIds, year, month, filter, pf, hf, hasPrevYear, curData],
   )
 
   const prevData = useMemo(
@@ -232,21 +249,21 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     [prevPeriodRecords, selectedStoreIds, year, month, filter, pf, hf, hasPrevYear],
   )
 
-  // 差分マトリックス (前年比の変化率)
+  // 差分マトリックス (前年比の変化率 — 重複日のみで比較)
   const diffMatrix = useMemo(() => {
     if (!prevData) return null
-    // 当年の hours を基準にする
-    return curData.hours.map((h, hi) => {
+    // 重複日ベースの当年 hours を基準にする
+    return comparableCurData.hours.map((h, hi) => {
       const prevHi = prevData.hours.indexOf(h)
       return DOW_LABELS.map((_, dow) => {
-        const cur = curData.matrix[hi]?.[dow] ?? 0
+        const cur = comparableCurData.matrix[hi]?.[dow] ?? 0
         const prev = prevHi >= 0 ? (prevData.matrix[prevHi]?.[dow] ?? 0) : 0
         if (prev === 0 && cur === 0) return { ratio: 0, diff: 0, hasData: false }
         if (prev === 0) return { ratio: 1, diff: cur, hasData: true }
         return { ratio: (cur - prev) / prev, diff: cur - prev, hasData: true }
       })
     })
-  }, [curData, prevData])
+  }, [comparableCurData, prevData])
 
   const maxVal = Math.max(0, ...curData.matrix.flat())
 
