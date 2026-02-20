@@ -88,6 +88,8 @@ export function SummaryPage() {
           daysInMonth={daysInMonth}
           openingInventory={r.openingInventory}
           closingInventory={r.closingInventory}
+          markupRate={r.coreMarkupRate}
+          discountRate={r.discountRate}
         />
       </Section>
 

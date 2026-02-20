@@ -36,6 +36,8 @@ interface Props {
   daysInMonth: number
   openingInventory: number | null
   closingInventory: number | null
+  markupRate: number
+  discountRate: number
 }
 
 export function InventoryTrendChart({
@@ -43,22 +45,30 @@ export function InventoryTrendChart({
   daysInMonth,
   openingInventory,
   closingInventory,
+  markupRate,
+  discountRate,
 }: Props) {
   const ct = useChartTheme()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   if (openingInventory == null) return null
 
+  // 推定法パラメータ
+  // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+  //   粗売上 = コア売上 / (1 - 売変率)
+  const divisor = 1 - discountRate
+
   const allData: { day: number; estimated: number | null; actual: number | null }[] = []
-  let cumCost = 0
+  let cumInvCost = 0
   let cumEstCogs = 0
 
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = daily.get(d)
     if (rec) {
-      cumCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost
-      const dayCost = rec.purchase.cost
-      cumEstCogs += dayCost > 0 ? dayCost : rec.sales * 0.74
+      // 在庫仕入原価（売上納品除外）
+      cumInvCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
+      const dayGrossSales = divisor > 0 ? rec.coreSales / divisor : rec.coreSales
+      cumEstCogs += dayGrossSales * (1 - markupRate) + rec.consumable.totalCost
     }
 
     // 実在庫は月末日のみプロット
@@ -66,7 +76,7 @@ export function InventoryTrendChart({
 
     allData.push({
       day: d,
-      estimated: openingInventory + cumCost - cumEstCogs,
+      estimated: openingInventory + cumInvCost - cumEstCogs,
       actual: actualInv,
     })
   }

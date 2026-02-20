@@ -448,51 +448,61 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
   }
 
   const closingInv = r.closingInventory
+  // 推定法パラメータ（店舗全体）
+  const markupRate = r.coreMarkupRate
+  const discountRate = r.discountRate
+  const divisor = 1 - discountRate
 
   // 日別データ構築
+  // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+  //   粗売上 = コア売上 / (1 - 売変率)
   interface DailyInvRow {
     day: number
-    purchaseCost: number
-    interStoreNet: number
-    salesAmount: number
-    estCogs: number
-    cumPurchase: number
-    cumCogs: number
+    inventoryCost: number   // 在庫仕入原価（仕入+店間、売上納品除外）
+    coreSales: number
+    consumable: number
+    estCogs: number         // 日次推定原価
+    cumInvCost: number      // 在庫仕入原価累計
+    cumEstCogs: number      // 推定原価累計
     estimatedInv: number
   }
 
   const rows: DailyInvRow[] = []
-  let cumPurchase = 0
-  let cumCogs = 0
+  let cumInvCost = 0
+  let cumEstCogs = 0
 
   for (let d = 1; d <= daysInMonth; d++) {
     const rec = r.daily.get(d)
-    const purchaseCost = rec ? rec.purchase.cost : 0
-    const interStoreNet = rec ? rec.interStoreIn.cost + rec.interStoreOut.cost : 0
-    const salesAmount = rec?.sales ?? 0
-    // 推定売上原価: 仕入原価があればそれを使用、なければ売上 × 0.74（概算原価率）
-    const dayCost = rec ? rec.purchase.cost : 0
-    const estCogs = dayCost > 0 ? dayCost : salesAmount * 0.74
+    // 在庫仕入原価 = 仕入原価 + 店間入出（売上納品除外）
+    const inventoryCost = rec
+      ? rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
+      : 0
+    const coreSales = rec?.coreSales ?? 0
+    const consumable = rec ? rec.consumable.totalCost : 0
 
-    cumPurchase += purchaseCost + interStoreNet
-    cumCogs += estCogs
+    // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+    const dayGrossSales = divisor > 0 ? coreSales / divisor : coreSales
+    const estCogs = dayGrossSales * (1 - markupRate) + consumable
+
+    cumInvCost += inventoryCost
+    cumEstCogs += estCogs
 
     rows.push({
       day: d,
-      purchaseCost,
-      interStoreNet,
-      salesAmount,
+      inventoryCost,
+      coreSales,
+      consumable,
       estCogs,
-      cumPurchase,
-      cumCogs,
-      estimatedInv: openingInv + cumPurchase - cumCogs,
+      cumInvCost,
+      cumEstCogs,
+      estimatedInv: openingInv + cumInvCost - cumEstCogs,
     })
   }
 
   const lastRow = rows[rows.length - 1]
-  const totalPurchase = lastRow?.cumPurchase ?? 0
-  const totalCogs = lastRow?.cumCogs ?? 0
-  const totalSales = rows.reduce((s, r) => s + r.salesAmount, 0)
+  const totalInvCost = lastRow?.cumInvCost ?? 0
+  const totalEstCogs = lastRow?.cumEstCogs ?? 0
+  const totalCoreSales = rows.reduce((s, row) => s + row.coreSales, 0)
 
   return (
     <STableWrapper>
@@ -501,6 +511,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
         <span style={{ fontSize: '0.7rem', fontWeight: 400, marginLeft: 8, opacity: 0.6 }}>
           期首在庫: {formatCurrency(openingInv)}
           {closingInv != null && ` / 実在庫: ${formatCurrency(closingInv)}`}
+          {` / 値入率: ${formatPercent(markupRate)} / 売変率: ${formatPercent(discountRate)}`}
         </span>
       </STableTitle>
       <div style={{ overflowX: 'auto', maxHeight: '420px' }}>
@@ -508,9 +519,9 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
           <thead>
             <tr>
               <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>日</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>仕入原価</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>店間入出</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>売上</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>在庫仕入原価</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>コア売上</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>消耗品</STh>
               <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>推定原価</STh>
               <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>仕入累計</STh>
               <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>原価累計</STh>
@@ -519,18 +530,16 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
           </thead>
           <tbody>
             {rows.map(row => {
-              const hasSales = row.salesAmount > 0 || row.purchaseCost > 0
+              const hasData = row.coreSales > 0 || row.inventoryCost > 0
               return (
-                <tr key={row.day} style={!hasSales ? { opacity: 0.5 } : undefined}>
+                <tr key={row.day} style={!hasData ? { opacity: 0.5 } : undefined}>
                   <STd style={{ textAlign: 'left', fontWeight: 600 }}>{row.day}</STd>
-                  <STd>{row.purchaseCost > 0 ? formatCurrency(row.purchaseCost) : '-'}</STd>
-                  <InvTd $neg={row.interStoreNet < 0}>
-                    {row.interStoreNet !== 0 ? formatCurrency(row.interStoreNet) : '-'}
-                  </InvTd>
-                  <STd>{row.salesAmount > 0 ? formatCurrency(row.salesAmount) : '-'}</STd>
+                  <STd>{row.inventoryCost !== 0 ? formatCurrency(row.inventoryCost) : '-'}</STd>
+                  <STd>{row.coreSales > 0 ? formatCurrency(row.coreSales) : '-'}</STd>
+                  <STd>{row.consumable > 0 ? formatCurrency(row.consumable) : '-'}</STd>
                   <STd>{row.estCogs > 0 ? formatCurrency(row.estCogs) : '-'}</STd>
-                  <STd>{formatCurrency(row.cumPurchase)}</STd>
-                  <STd>{formatCurrency(row.cumCogs)}</STd>
+                  <STd>{formatCurrency(row.cumInvCost)}</STd>
+                  <STd>{formatCurrency(row.cumEstCogs)}</STd>
                   <InvTd $neg={row.estimatedInv < 0} style={{ fontWeight: 600 }}>
                     {formatCurrency(row.estimatedInv)}
                   </InvTd>
@@ -539,12 +548,12 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
             })}
             <tr style={{ fontWeight: 700, borderTop: '2px solid' }}>
               <STd style={{ textAlign: 'left' }}>合計</STd>
-              <STd>{formatCurrency(rows.reduce((s, r) => s + r.purchaseCost, 0))}</STd>
-              <STd>{formatCurrency(rows.reduce((s, r) => s + r.interStoreNet, 0))}</STd>
-              <STd>{formatCurrency(totalSales)}</STd>
-              <STd>{formatCurrency(totalCogs)}</STd>
-              <STd>{formatCurrency(totalPurchase)}</STd>
-              <STd>{formatCurrency(totalCogs)}</STd>
+              <STd>{formatCurrency(totalInvCost)}</STd>
+              <STd>{formatCurrency(totalCoreSales)}</STd>
+              <STd>{formatCurrency(rows.reduce((s, row) => s + row.consumable, 0))}</STd>
+              <STd>{formatCurrency(totalEstCogs)}</STd>
+              <STd>{formatCurrency(totalInvCost)}</STd>
+              <STd>{formatCurrency(totalEstCogs)}</STd>
               <InvTd $neg={(lastRow?.estimatedInv ?? 0) < 0} style={{ fontWeight: 700 }}>
                 {formatCurrency(lastRow?.estimatedInv ?? 0)}
               </InvTd>
