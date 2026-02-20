@@ -17,6 +17,7 @@ import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
 import type { DiffResult } from '@/infrastructure/storage/diffCalculator'
 import type { ImportedData } from '@/domain/models'
+import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
 
@@ -66,83 +67,6 @@ export interface PersistenceActions {
   clearCurrentMonth: () => Promise<void>
   /** 全データ削除 */
   clearAll: () => Promise<void>
-}
-
-// ─── 挿入のみマージ ─────────────────────────────────────
-
-/**
- * 既存データに新規挿入分のみをマージして返す。
- * 既存に値がある場合は変更しない。
- */
-function mergeInsertsOnly(
-  existing: ImportedData,
-  incoming: ImportedData,
-  importedTypes: ReadonlySet<string>,
-): ImportedData {
-  const result = { ...existing }
-  const storeDayFields: readonly { field: keyof ImportedData; type: string }[] = [
-    { field: 'purchase', type: 'purchase' },
-    { field: 'sales', type: 'sales' },
-    { field: 'discount', type: 'discount' },
-    { field: 'prevYearSales', type: 'prevYearSales' },
-    { field: 'prevYearDiscount', type: 'prevYearDiscount' },
-    { field: 'interStoreIn', type: 'interStoreIn' },
-    { field: 'interStoreOut', type: 'interStoreOut' },
-    { field: 'flowers', type: 'flowers' },
-    { field: 'directProduce', type: 'directProduce' },
-    { field: 'consumables', type: 'consumables' },
-  ]
-
-  for (const { field, type } of storeDayFields) {
-    if (!importedTypes.has(type)) continue
-
-    const existingRecord = existing[field] as Record<string, Record<number, unknown>>
-    const incomingRecord = incoming[field] as Record<string, Record<number, unknown>>
-
-    if (Object.keys(existingRecord).length === 0) {
-      // 既存が空 → 新規データをそのまま使用
-      ;(result as Record<string, unknown>)[field] = incomingRecord
-      continue
-    }
-
-    if (Object.keys(incomingRecord).length === 0) continue
-
-    // 既存データに新規分だけ追加
-    const merged: Record<string, Record<number, unknown>> = { ...existingRecord }
-    for (const [storeId, incomingDays] of Object.entries(incomingRecord)) {
-      if (!merged[storeId]) {
-        // 新しい店舗 → まるごと挿入
-        merged[storeId] = incomingDays
-      } else {
-        const mergedDays = { ...merged[storeId] }
-        for (const [dayStr, entry] of Object.entries(incomingDays)) {
-          const day = Number(dayStr)
-          if (!mergedDays[day]) {
-            // 既存にない日 → 挿入
-            mergedDays[day] = entry
-          }
-          // 既存にある日 → 既存を維持（変更しない）
-        }
-        merged[storeId] = mergedDays
-      }
-    }
-    ;(result as Record<string, unknown>)[field] = merged
-  }
-
-  // stores, suppliers はマージ（新しい店舗は追加）
-  const mergedStores = new Map(existing.stores)
-  for (const [k, v] of incoming.stores) {
-    if (!mergedStores.has(k)) mergedStores.set(k, v)
-  }
-  ;(result as Record<string, unknown>).stores = mergedStores
-
-  const mergedSuppliers = new Map(existing.suppliers)
-  for (const [k, v] of incoming.suppliers) {
-    if (!mergedSuppliers.has(k)) mergedSuppliers.set(k, v)
-  }
-  ;(result as Record<string, unknown>).suppliers = mergedSuppliers
-
-  return result as ImportedData
 }
 
 // ─── フック本体 ──────────────────────────────────────────

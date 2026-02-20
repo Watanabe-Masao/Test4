@@ -191,8 +191,8 @@ export function processFileData(
 
     case 'prevYearSalesDiscount': {
       // 前年売上売変: salesDiscount と同じ構造だが前年データとして格納
-      // 対象月以外の日付（例: 2月データに含まれる3/1）を除外
-      const prevDiscountData = processDiscount(rows, effectiveMonth)
+      // 翌月先頭6日分も取り込み（同曜日オフセットで月末がはみ出す場合に備える）
+      const prevDiscountData = processDiscount(rows, effectiveMonth, 6)
       return {
         data: {
           ...current,
