@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   ComposedChart,
   Line,
@@ -98,10 +98,7 @@ export function InventoryTrendChart({
   const [viewMode, setViewMode] = useState<ViewMode>('aggregate')
   const effectiveMode = canCompare ? viewMode : 'aggregate'
 
-  // 1店舗に切り替わったとき比較モードをリセット
-  useEffect(() => {
-    if (!canCompare) setViewMode('aggregate')
-  }, [canCompare])
+  // canCompare が false のとき effectiveMode が 'aggregate' にフォールバックするためリセット不要
 
   const hasInventory = openingInventory != null
 
