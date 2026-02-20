@@ -152,6 +152,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     selectedStoreIds: new Set(),
     dataEndDay: null,
     departmentKpi: { records: [] },
+    prevYearCategoryTimeSales: { hasPrevYear: false, records: [], offset: 0 },
     ...overrides,
   }
 }

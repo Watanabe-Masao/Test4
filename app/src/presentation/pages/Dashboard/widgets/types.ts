@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { StoreResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/hooks'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -35,4 +35,6 @@ export interface WidgetContext {
   dataEndDay: number | null
   /** 部門別KPIデータ */
   departmentKpi: DepartmentKpiData
+  /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */
+  prevYearCategoryTimeSales: PrevYearCategoryTimeSalesData
 }
