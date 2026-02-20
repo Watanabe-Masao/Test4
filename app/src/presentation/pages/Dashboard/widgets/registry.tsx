@@ -15,7 +15,7 @@ import { ForecastToolsWidget } from './ForecastTools'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
-import { renderDowAverage, renderWeeklySummary } from './TableWidgets'
+import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable } from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
@@ -283,6 +283,13 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: 'パターン分析',
     size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
+  },
+  {
+    id: 'exec-daily-store-sales',
+    label: '売上・売変・客数（日別×店舗）',
+    group: 'パターン分析',
+    size: 'full',
+    render: (ctx) => renderDailyStoreSalesTable(ctx),
   },
   // ── シミュレーション ──
   {
