@@ -1,40 +1,39 @@
 import { useCallback } from 'react'
-import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useSettingsStore } from '@/application/stores'
+import { useUiStore } from '@/application/stores'
 import type { AppSettings } from '@/domain/models'
 
-const STORAGE_KEY = 'shiire-arari-settings'
-
-/** 設定管理フック */
+/** 設定管理フック (Zustand ストア版) */
 export function useSettings() {
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const settings = useSettingsStore((s) => s.settings)
+  const zustandUpdate = useSettingsStore((s) => s.updateSettings)
 
   const updateSettings = useCallback(
     (updates: Partial<AppSettings>) => {
-      dispatch({ type: 'UPDATE_SETTINGS', payload: updates })
-
-      // localStorageに永続化
-      try {
-        const merged = { ...state.settings, ...updates }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
-      } catch {
-        // localStorage利用不可時は無視
-      }
+      zustandUpdate(updates)
+      // 設定変更 → 計算無効化
+      useUiStore.getState().invalidateCalculation()
     },
-    [state.settings, dispatch],
+    [zustandUpdate],
   )
 
   return {
-    settings: state.settings,
+    settings,
     updateSettings,
   }
 }
 
-/** localStorageから設定を復元する */
+/** localStorageから設定を復元する (Zustand persist が自動処理するため非推奨) */
 export function loadSettingsFromStorage(): Partial<AppSettings> | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return JSON.parse(stored)
+    const stored = localStorage.getItem('shiire-arari-settings')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      // Zustand persist format: { state: { settings: ... } }
+      if (parsed?.state?.settings) return parsed.state.settings
+      // Legacy format: direct settings object
+      return parsed
+    }
   } catch {
     // パース失敗時は無視
   }

@@ -1,9 +1,29 @@
-import { createContext, useContext, useReducer, useMemo, useEffect, type ReactNode } from 'react'
-import type { AppSettings, ViewType, StoreResult, InventoryConfig, ImportedData, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData } from '@/domain/models'
-import { createDefaultSettings } from '@/domain/constants/defaults'
-import { createEmptyImportedData } from '@/domain/models'
+/**
+ * AppStateContext — Zustand ストアのバックワードコンパチビリティレイヤー
+ *
+ * 既存の useAppState / useAppDispatch / useAppData / useAppUi / useAppSettings
+ * フックの API を維持しつつ、内部的には Zustand ストアを使用する。
+ *
+ * 新規コードでは application/stores から直接 useDataStore / useUiStore / useSettingsStore
+ * を使用することを推奨。
+ */
+import { useCallback, type ReactNode } from 'react'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import type {
+  AppSettings,
+  ViewType,
+  StoreResult,
+  InventoryConfig,
+  ImportedData,
+  ValidationMessage,
+  SalesData,
+  DiscountData,
+  CategoryTimeSalesData,
+} from '@/domain/models'
 
-// ─── State types ──────────────────────────────────────────
+// ─── State types (re-export for backward compat) ──────
 
 /** UI 状態スライス */
 export interface UiState {
@@ -20,7 +40,7 @@ export interface DataState {
   readonly validationMessages: readonly ValidationMessage[]
 }
 
-/** アプリケーション状態 */
+/** アプリケーション状態 (統合ビュー) */
 export interface AppState {
   readonly data: ImportedData
   readonly storeResults: ReadonlyMap<string, StoreResult>
@@ -29,52 +49,7 @@ export interface AppState {
   readonly settings: AppSettings
 }
 
-// ─── Persistence ─────────────────────────────────────────
-
-const SETTINGS_STORAGE_KEY = 'shiire-arari-settings'
-const UI_STORAGE_KEY = 'shiire-arari-ui'
-
-function loadPersistedSettings(): AppSettings {
-  const defaults = createDefaultSettings()
-  try {
-    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY)
-    if (stored) return { ...defaults, ...JSON.parse(stored) }
-  } catch { /* ignore */ }
-  return defaults
-}
-
-function loadPersistedView(): ViewType {
-  try {
-    const stored = localStorage.getItem(UI_STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      if (parsed.currentView) return parsed.currentView as ViewType
-    }
-  } catch { /* ignore */ }
-  return 'dashboard'
-}
-
-function saveUiState(ui: { currentView: ViewType }): void {
-  try {
-    localStorage.setItem(UI_STORAGE_KEY, JSON.stringify({ currentView: ui.currentView }))
-  } catch { /* ignore */ }
-}
-
-/** 初期状態 */
-export const initialState: AppState = {
-  data: createEmptyImportedData(),
-  storeResults: new Map(),
-  validationMessages: [],
-  ui: {
-    selectedStoreIds: new Set<string>(),
-    currentView: loadPersistedView(),
-    isCalculated: false,
-    isImporting: false,
-  },
-  settings: loadPersistedSettings(),
-}
-
-// ─── Actions ──────────────────────────────────────────────
+// ─── Actions (backward compat type) ──────────────────
 
 export type AppAction =
   | { type: 'SET_IMPORTED_DATA'; payload: ImportedData }
@@ -89,160 +64,116 @@ export type AppAction =
   | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearSales: SalesData; prevYearDiscount: DiscountData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
   | { type: 'RESET' }
 
-// ─── Reducer ──────────────────────────────────────────────
+// ─── Legacy reducer (re-export for tests) ────────────
 
-export function appReducer(state: AppState, action: AppAction): AppState {
-  switch (action.type) {
-    case 'SET_IMPORTED_DATA':
-      return {
-        ...state,
-        data: action.payload,
-        ui: { ...state.ui, isCalculated: false },
-      }
+export { initialState, appReducer } from './legacyReducer'
 
-    case 'SET_STORE_RESULTS':
-      return {
-        ...state,
-        storeResults: action.payload,
-        ui: { ...state.ui, isCalculated: true },
-      }
+// ─── Provider ────────────────────────────────────────
+// Zustand はグローバルストアのため Provider 不要だが、
+// 既存の <AppStateProvider> ラッパーとの互換性を維持する。
 
-    case 'SET_VALIDATION_MESSAGES':
-      return { ...state, validationMessages: action.payload }
+export function AppStateProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>
+}
 
-    case 'TOGGLE_STORE': {
-      const next = new Set(state.ui.selectedStoreIds)
-      if (next.has(action.payload)) {
-        next.delete(action.payload)
-      } else {
-        next.add(action.payload)
-      }
-      return { ...state, ui: { ...state.ui, selectedStoreIds: next } }
-    }
+// ─── Hooks ───────────────────────────────────────────
 
-    case 'SELECT_ALL_STORES':
-      return { ...state, ui: { ...state.ui, selectedStoreIds: new Set<string>() } }
+/** 全状態を取得（統合ビュー — 既存互換） */
+export function useAppState(): AppState {
+  const data = useDataStore((s) => s.data)
+  const storeResults = useDataStore((s) => s.storeResults)
+  const validationMessages = useDataStore((s) => s.validationMessages)
+  const selectedStoreIds = useUiStore((s) => s.selectedStoreIds)
+  const currentView = useUiStore((s) => s.currentView)
+  const isCalculated = useUiStore((s) => s.isCalculated)
+  const isImporting = useUiStore((s) => s.isImporting)
+  const settings = useSettingsStore((s) => s.settings)
 
-    case 'SET_CURRENT_VIEW':
-      return { ...state, ui: { ...state.ui, currentView: action.payload } }
-
-    case 'SET_IMPORTING':
-      return { ...state, ui: { ...state.ui, isImporting: action.payload } }
-
-    case 'UPDATE_SETTINGS':
-      return {
-        ...state,
-        settings: { ...state.settings, ...action.payload },
-        ui: { ...state.ui, isCalculated: false },
-      }
-
-    case 'UPDATE_INVENTORY': {
-      const { storeId, config } = action.payload
-      const newSettings = new Map(state.data.settings)
-      const existing = newSettings.get(storeId) ?? {
-        storeId,
-        openingInventory: null,
-        closingInventory: null,
-        grossProfitBudget: null,
-      }
-      newSettings.set(storeId, { ...existing, ...config })
-      return {
-        ...state,
-        data: { ...state.data, settings: newSettings },
-        ui: { ...state.ui, isCalculated: false },
-      }
-    }
-
-    case 'SET_PREV_YEAR_AUTO_DATA':
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          prevYearSales: action.payload.prevYearSales,
-          prevYearDiscount: action.payload.prevYearDiscount,
-          prevYearCategoryTimeSales: action.payload.prevYearCategoryTimeSales,
-        },
-        ui: { ...state.ui, isCalculated: false },
-      }
-
-    case 'RESET':
-      return initialState
-
-    default:
-      return state
+  return {
+    data,
+    storeResults,
+    validationMessages,
+    ui: { selectedStoreIds, currentView, isCalculated, isImporting },
+    settings,
   }
 }
 
-// ─── Contexts ─────────────────────────────────────────────
-
-const UiContext = createContext<UiState>(initialState.ui)
-const DataContext = createContext<DataState>({
-  data: initialState.data,
-  storeResults: initialState.storeResults,
-  validationMessages: initialState.validationMessages,
-})
-const SettingsContext = createContext<AppSettings>(initialState.settings)
-const AppDispatchContext = createContext<React.Dispatch<AppAction>>(() => {})
-
-// Backward compat: full state context
-const AppStateContext = createContext<AppState>(initialState)
-
-// ─── Provider ─────────────────────────────────────────────
-
-export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState)
-
-  // ビュー変更時にlocalStorageへ永続化
-  useEffect(() => {
-    saveUiState({ currentView: state.ui.currentView })
-  }, [state.ui.currentView])
-
-  const uiValue = state.ui
-  const dataValue = useMemo<DataState>(() => ({
-    data: state.data,
-    storeResults: state.storeResults,
-    validationMessages: state.validationMessages,
-  }), [state.data, state.storeResults, state.validationMessages])
-  const settingsValue = state.settings
-
-  return (
-    <AppDispatchContext.Provider value={dispatch}>
-      <AppStateContext.Provider value={state}>
-        <UiContext.Provider value={uiValue}>
-          <DataContext.Provider value={dataValue}>
-            <SettingsContext.Provider value={settingsValue}>
-              {children}
-            </SettingsContext.Provider>
-          </DataContext.Provider>
-        </UiContext.Provider>
-      </AppStateContext.Provider>
-    </AppDispatchContext.Provider>
-  )
-}
-
-// ─── Hooks ────────────────────────────────────────────────
-
-/** 全状態を取得（既存互換） */
-export function useAppState(): AppState {
-  return useContext(AppStateContext)
-}
-
-/** UI 状態のみ取得（店舗選択、ビュー、計算状態） */
+/** UI 状態のみ取得 */
 export function useAppUi(): UiState {
-  return useContext(UiContext)
+  const selectedStoreIds = useUiStore((s) => s.selectedStoreIds)
+  const currentView = useUiStore((s) => s.currentView)
+  const isCalculated = useUiStore((s) => s.isCalculated)
+  const isImporting = useUiStore((s) => s.isImporting)
+  return { selectedStoreIds, currentView, isCalculated, isImporting }
 }
 
-/** データ状態のみ取得（インポートデータ、計算結果） */
+/** データ状態のみ取得 */
 export function useAppData(): DataState {
-  return useContext(DataContext)
+  const data = useDataStore((s) => s.data)
+  const storeResults = useDataStore((s) => s.storeResults)
+  const validationMessages = useDataStore((s) => s.validationMessages)
+  return { data, storeResults, validationMessages }
 }
 
 /** 設定のみ取得 */
 export function useAppSettings(): AppSettings {
-  return useContext(SettingsContext)
+  return useSettingsStore((s) => s.settings)
 }
 
-/** ディスパッチを取得 */
-export function useAppDispatch(): React.Dispatch<AppAction> {
-  return useContext(AppDispatchContext)
+/** ディスパッチを取得（Zustand アクションへの変換レイヤー） */
+export function useAppDispatch(): (action: AppAction) => void {
+  return useCallback((action: AppAction) => {
+    switch (action.type) {
+      case 'SET_IMPORTED_DATA':
+        useDataStore.getState().setImportedData(action.payload)
+        useUiStore.getState().invalidateCalculation()
+        break
+
+      case 'SET_STORE_RESULTS':
+        useDataStore.getState().setStoreResults(action.payload)
+        useUiStore.getState().setCalculated(true)
+        break
+
+      case 'SET_VALIDATION_MESSAGES':
+        useDataStore.getState().setValidationMessages(action.payload)
+        break
+
+      case 'TOGGLE_STORE':
+        useUiStore.getState().toggleStore(action.payload)
+        break
+
+      case 'SELECT_ALL_STORES':
+        useUiStore.getState().selectAllStores()
+        break
+
+      case 'SET_CURRENT_VIEW':
+        useUiStore.getState().setCurrentView(action.payload)
+        break
+
+      case 'SET_IMPORTING':
+        useUiStore.getState().setImporting(action.payload)
+        break
+
+      case 'UPDATE_SETTINGS':
+        useSettingsStore.getState().updateSettings(action.payload)
+        useUiStore.getState().invalidateCalculation()
+        break
+
+      case 'UPDATE_INVENTORY':
+        useDataStore.getState().updateInventory(action.payload.storeId, action.payload.config)
+        useUiStore.getState().invalidateCalculation()
+        break
+
+      case 'SET_PREV_YEAR_AUTO_DATA':
+        useDataStore.getState().setPrevYearAutoData(action.payload)
+        useUiStore.getState().invalidateCalculation()
+        break
+
+      case 'RESET':
+        useDataStore.getState().reset()
+        useUiStore.getState().reset()
+        useSettingsStore.getState().reset()
+        break
+    }
+  }, [])
 }
