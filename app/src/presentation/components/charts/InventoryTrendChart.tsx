@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ComposedChart,
   Line,
@@ -98,6 +98,11 @@ export function InventoryTrendChart({
   const [viewMode, setViewMode] = useState<ViewMode>('aggregate')
   const effectiveMode = canCompare ? viewMode : 'aggregate'
 
+  // 1店舗に切り替わったとき比較モードをリセット
+  useEffect(() => {
+    if (!canCompare) setViewMode('aggregate')
+  }, [canCompare])
+
   const hasInventory = openingInventory != null
 
   // --- 合計モード用データ（売上・仕入 + 推定在庫） ---
@@ -153,12 +158,16 @@ export function InventoryTrendChart({
     <Wrapper>
       <Header>
         <Title>売上・仕入・推定在庫</Title>
-        <TabGroup>
-          <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
-          {canCompare && (
-            <Tab $active={viewMode === 'compare'} onClick={() => setViewMode('compare')}>比較</Tab>
-          )}
-        </TabGroup>
+        {canCompare ? (
+          <TabGroup>
+            <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
+            <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>比較</Tab>
+          </TabGroup>
+        ) : (
+          <TabGroup>
+            <Tab $active>合計</Tab>
+          </TabGroup>
+        )}
       </Header>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={canCompare ? 300 : '84%'}>
         <ComposedChart data={aggregateData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
