@@ -259,20 +259,20 @@ export function InventoryTrendChart({
             />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
-              formatter={(value: number | null, name: string) => {
-                if (name.endsWith('_actual')) return [null, null] as unknown as [string, string]
-                return [value != null ? toComma(value) : '-', name]
+              formatter={(value: number | undefined, name: string | undefined) => {
+                if (name?.endsWith('_actual')) return [null, null] as unknown as [string, string]
+                return [value != null ? toComma(value) : '-', name ?? '']
               }}
               labelFormatter={(label) => `${label}日`}
               itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              payload={comparableStores.map((s, i) => ({
-                value: s.name,
-                type: 'line',
-                color: STORE_COLORS[i % STORE_COLORS.length],
-              }))}
+              formatter={(value) => {
+                // _actual 系は凡例から除外（legendType="none"で非表示だが念のため）
+                if (typeof value === 'string' && value.endsWith('_actual')) return ''
+                return value
+              }}
             />
             {comparableStores.map((s, i) => (
               <Line
