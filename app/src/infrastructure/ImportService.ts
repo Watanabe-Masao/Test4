@@ -253,8 +253,8 @@ export function processFileData(
     }
 
     case 'prevYearCategoryTimeSales': {
-      // 前年分類別時間帯売上: categoryTimeSales と同じ構造だが前年データとして格納
-      const newData = processCategoryTimeSales(rows, effectiveMonth)
+      // 前年分類別時間帯売上: 翌月先頭6日分も取り込み（同曜日オフセットで月末がはみ出す場合に備える）
+      const newData = processCategoryTimeSales(rows, effectiveMonth, 6)
       return {
         data: {
           ...current,

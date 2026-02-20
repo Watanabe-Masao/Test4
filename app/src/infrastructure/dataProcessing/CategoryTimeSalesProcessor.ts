@@ -42,10 +42,16 @@ function parseStoreId(value: unknown): string {
  *   Col3: ライン "000601:柑橘"
  *   Col4: クラス "601010:温州みかん"
  *   Col5+: 時間帯別 (数量, 金額) ペア
+ *
+ * @param overflowDays 翌月から追加で取り込む日数（前年データ用）。
+ *   同曜日オフセットにより月末付近の対応日が翌月にはみ出す場合に備え、
+ *   翌月先頭の数日を拡張day番号（例: 2月28日の翌日→day 29）として保持する。
+ *   最大オフセット=6 なので 6 を渡せば十分。
  */
 export function processCategoryTimeSales(
   rows: readonly unknown[][],
   targetMonth?: number,
+  overflowDays: number = 0,
 ): CategoryTimeSalesData {
   if (rows.length < 4) return { records: [] }
 
@@ -73,6 +79,19 @@ export function processCategoryTimeSales(
   // 安全に: col5から (数量, 金額) ペアとして処理
   const dataStartCol = 5
 
+  // overflowDays > 0 の場合、対象月の日数を特定する（翌月データの拡張day算出用）
+  let daysInTargetMonth = 0
+  if (targetMonth != null && overflowDays > 0) {
+    for (let i = 3; i < rows.length; i++) {
+      const d = parseDate((rows[i] as unknown[])[0])
+      if (d && d.getMonth() + 1 === targetMonth) {
+        daysInTargetMonth = new Date(d.getFullYear(), targetMonth, 0).getDate()
+        break
+      }
+    }
+  }
+  const nextMonth = targetMonth != null ? (targetMonth % 12) + 1 : 0
+
   const records: CategoryTimeSalesRecord[] = []
 
   for (let row = 3; row < rows.length; row++) {
@@ -82,8 +101,26 @@ export function processCategoryTimeSales(
     // 日付パース
     const date = parseDate(r[0])
     if (date == null) continue
-    if (targetMonth != null && date.getMonth() + 1 !== targetMonth) continue
-    const day = date.getDate()
+
+    let day: number
+    if (targetMonth == null) {
+      day = date.getDate()
+    } else {
+      const dateMonth = date.getMonth() + 1
+      if (dateMonth === targetMonth) {
+        day = date.getDate()
+      } else if (
+        overflowDays > 0 &&
+        daysInTargetMonth > 0 &&
+        dateMonth === nextMonth &&
+        date.getDate() <= overflowDays
+      ) {
+        // 翌月先頭を拡張day番号として取り込む（例: 3/1 → day 29）
+        day = daysInTargetMonth + date.getDate()
+      } else {
+        continue
+      }
+    }
 
     // 店舗
     const storeId = parseStoreId(r[1])
