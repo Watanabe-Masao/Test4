@@ -118,6 +118,7 @@ const YoYBadge = styled.span<{ $positive: boolean }>`
 `
 
 type ViewMode = 'chart' | 'kpi'
+type MetricMode = 'amount' | 'quantity'
 
 interface Props {
   categoryTimeSales: CategoryTimeSalesData
@@ -172,6 +173,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const [showPrevYear, setShowPrevYear] = useState(true)
+  const [metricMode, setMetricMode] = useState<MetricMode>('amount')
   const pf = usePeriodFilter(daysInMonth, year, month)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const prevPeriodRecords = useMemo(
@@ -237,6 +239,19 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     const yoyRatio = prevTotalAmount > 0 ? comparableTotalAmount / prevTotalAmount : null
     const yoyDiff = prevTotalAmount > 0 ? comparableTotalAmount - prevTotalAmount : null
 
+    // 数量ベースの前年比 KPI
+    const comparableTotalQuantity = comparable?.totalQuantity ?? 0
+    const prevTotalQuantity = prev?.totalQuantity ?? 0
+    const yoyQuantityRatio = prevTotalQuantity > 0 ? comparableTotalQuantity / prevTotalQuantity : null
+    const yoyQuantityDiff = prevTotalQuantity > 0 ? comparableTotalQuantity - prevTotalQuantity : null
+
+    // 数量ベースのピーク
+    let peakHourQty = 0, peakHourQuantity = 0
+    for (const [h, v] of current.hourly) {
+      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * div }
+    }
+    const peakHourQtyPct = current.totalQuantity > 0 ? (peakHourQuantity / current.totalQuantity * 100).toFixed(1) : '0'
+
     return {
       chartData,
       kpi: current.recordCount > 0 ? {
@@ -244,12 +259,18 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         totalQuantity: current.totalQuantity,
         peakHour,
         peakHourPct,
+        peakHourQty,
+        peakHourQtyPct,
         recordCount: current.recordCount,
         prevTotalAmount,
+        prevTotalQuantity,
         yoyRatio,
         yoyDiff,
+        yoyQuantityRatio,
+        yoyQuantityDiff,
         activeHours: current.hourly.size,
         avgPerHour: current.hourly.size > 0 ? Math.round(totalAmount / current.hourly.size) : 0,
+        avgQtyPerHour: current.hourly.size > 0 ? Math.round(current.totalQuantity / current.hourly.size) : 0,
       } : null,
     }
   }, [current, comparable, prev, div])
@@ -262,18 +283,23 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     <Wrapper>
       <HeaderRow>
         <Title>
-          時間帯別売上{viewMode === 'kpi' ? ' サマリー' : ''}
+          時間帯別{metricMode === 'amount' ? '売上' : '数量'}{viewMode === 'kpi' ? ' サマリー' : ''}
           {pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''}
         </Title>
         <Controls>
+          <TabGroup>
+            <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>金額</Tab>
+            <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>点数</Tab>
+          </TabGroup>
           {hasPrevYear && (
             <>
+              <Separator />
               <TabGroup>
                 <Tab $active={showPrevYear} onClick={() => setShowPrevYear(!showPrevYear)}>前年比較</Tab>
               </TabGroup>
-              <Separator />
             </>
           )}
+          <Separator />
           <TabGroup>
             <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>チャート</Tab>
             <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
@@ -306,23 +332,27 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={toManYen}
+                tickFormatter={metricMode === 'amount' ? toManYen : (v: number) => toComma(v)}
                 width={50}
               />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false}
-                tickLine={false}
-                width={45}
-              />
+              {/* 右軸: 前年比較なしの場合のみ、もう一方の指標用に表示 */}
+              {!showPrev && (
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={metricMode === 'amount' ? (v: number) => toComma(v) : toManYen}
+                  width={45}
+                />
+              )}
               <Tooltip
                 contentStyle={tooltipStyle(ct)}
                 formatter={(value, name) => {
                   const labels: Record<string, string> = {
-                    amount: '当年売上',
-                    quantity: '当年数量',
+                    amount: showPrev ? '当年売上' : '売上金額',
+                    quantity: showPrev ? '当年数量' : '数量',
                     prevAmount: '前年売上',
                     prevQuantity: '前年数量',
                   }
@@ -338,19 +368,35 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                     amount: showPrev ? '当年売上' : '売上金額',
                     quantity: showPrev ? '当年数量' : '数量',
                     prevAmount: '前年売上',
+                    prevQuantity: '前年数量',
                   }
                   return labels[value] ?? value
                 }}
               />
-              <Bar yAxisId="left" dataKey="amount" fill="url(#timeAmtGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
+              {/* メインバー: 選択指標 */}
+              <Bar
+                yAxisId="left"
+                dataKey={metricMode}
+                fill={metricMode === 'amount' ? 'url(#timeAmtGrad)' : 'url(#timeQtyGrad)'}
+                radius={[3, 3, 0, 0]}
+                maxBarSize={20}
+              />
+              {/* 前年比較なし: もう一方の指標をサブバーで表示 */}
               {!showPrev && (
-                <Bar yAxisId="right" dataKey="quantity" fill="url(#timeQtyGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
+                <Bar
+                  yAxisId="right"
+                  dataKey={metricMode === 'amount' ? 'quantity' : 'amount'}
+                  fill={metricMode === 'amount' ? 'url(#timeQtyGrad)' : 'url(#timeAmtGrad)'}
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={20}
+                />
               )}
+              {/* 前年比較: 前年の同指標をラインで表示 */}
               {showPrev && (
                 <Line
                   yAxisId="left"
                   type="monotone"
-                  dataKey="prevAmount"
+                  dataKey={metricMode === 'amount' ? 'prevAmount' : 'prevQuantity'}
                   stroke={ct.colors.slate}
                   strokeWidth={2.5}
                   strokeDasharray="5 3"
@@ -363,51 +409,98 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         </div>
       ) : kpi ? (
         <Grid>
-          <Card $accent="#6366f1">
-            <CardLabel>当年 総売上金額</CardLabel>
-            <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
-            <CardSub>
-              {kpi.totalAmount.toLocaleString()}円
-              {kpi.yoyRatio != null && (
-                <YoYBadge $positive={kpi.yoyRatio >= 1}>
-                  {kpi.yoyRatio >= 1 ? '+' : ''}{((kpi.yoyRatio - 1) * 100).toFixed(1)}%
-                </YoYBadge>
+          {metricMode === 'amount' ? (
+            <>
+              <Card $accent="#6366f1">
+                <CardLabel>当年 総売上金額</CardLabel>
+                <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
+                <CardSub>
+                  {kpi.totalAmount.toLocaleString()}円
+                  {kpi.yoyRatio != null && (
+                    <YoYBadge $positive={kpi.yoyRatio >= 1}>
+                      {kpi.yoyRatio >= 1 ? '+' : ''}{((kpi.yoyRatio - 1) * 100).toFixed(1)}%
+                    </YoYBadge>
+                  )}
+                </CardSub>
+              </Card>
+              {kpi.prevTotalAmount > 0 && (
+                <Card $accent={ct.colors.slate}>
+                  <CardLabel>前年 総売上金額</CardLabel>
+                  <CardValue>{Math.round(kpi.prevTotalAmount / 10000).toLocaleString()}万円</CardValue>
+                  <CardSub>{kpi.prevTotalAmount.toLocaleString()}円</CardSub>
+                </Card>
               )}
-            </CardSub>
-          </Card>
-          {kpi.prevTotalAmount > 0 && (
-            <Card $accent={ct.colors.slate}>
-              <CardLabel>前年 総売上金額</CardLabel>
-              <CardValue>{Math.round(kpi.prevTotalAmount / 10000).toLocaleString()}万円</CardValue>
-              <CardSub>
-                {kpi.prevTotalAmount.toLocaleString()}円
-              </CardSub>
-            </Card>
+              {kpi.yoyDiff != null && (
+                <Card $accent={kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                  <CardLabel>前年差（金額）</CardLabel>
+                  <CardValue style={{ color: kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                    {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
+                  </CardValue>
+                  <CardSub>前年比 {((kpi.yoyRatio ?? 0) * 100).toFixed(1)}%</CardSub>
+                </Card>
+              )}
+              <Card $accent="#06b6d4">
+                <CardLabel>総数量</CardLabel>
+                <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
+                <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
+              </Card>
+              <Card $accent="#f59e0b">
+                <CardLabel>ピーク時間帯</CardLabel>
+                <CardValue>{kpi.peakHour}時台</CardValue>
+                <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
+              </Card>
+              <Card $accent="#8b5cf6">
+                <CardLabel>時間帯平均</CardLabel>
+                <CardValue>{Math.round(kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
+                <CardSub>{kpi.activeHours}時間帯</CardSub>
+              </Card>
+            </>
+          ) : (
+            <>
+              <Card $accent="#06b6d4">
+                <CardLabel>当年 総数量</CardLabel>
+                <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
+                <CardSub>
+                  {kpi.recordCount.toLocaleString()}レコード
+                  {kpi.yoyQuantityRatio != null && (
+                    <YoYBadge $positive={kpi.yoyQuantityRatio >= 1}>
+                      {kpi.yoyQuantityRatio >= 1 ? '+' : ''}{((kpi.yoyQuantityRatio - 1) * 100).toFixed(1)}%
+                    </YoYBadge>
+                  )}
+                </CardSub>
+              </Card>
+              {kpi.prevTotalQuantity > 0 && (
+                <Card $accent={ct.colors.slate}>
+                  <CardLabel>前年 総数量</CardLabel>
+                  <CardValue>{kpi.prevTotalQuantity.toLocaleString()}点</CardValue>
+                </Card>
+              )}
+              {kpi.yoyQuantityDiff != null && (
+                <Card $accent={kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                  <CardLabel>前年差（数量）</CardLabel>
+                  <CardValue style={{ color: kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                    {kpi.yoyQuantityDiff >= 0 ? '+' : ''}{kpi.yoyQuantityDiff.toLocaleString()}点
+                  </CardValue>
+                  <CardSub>前年比 {((kpi.yoyQuantityRatio ?? 0) * 100).toFixed(1)}%</CardSub>
+                </Card>
+              )}
+              <Card $accent="#6366f1">
+                <CardLabel>総売上金額</CardLabel>
+                <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
+                <CardSub>{kpi.totalAmount.toLocaleString()}円</CardSub>
+              </Card>
+              <Card $accent="#f59e0b">
+                <CardLabel>ピーク時間帯</CardLabel>
+                <CardValue>{kpi.peakHourQty}時台</CardValue>
+                <CardSub>構成比 {kpi.peakHourQtyPct}%</CardSub>
+              </Card>
+              <Card $accent="#8b5cf6">
+                <CardLabel>時間帯平均</CardLabel>
+                <CardValue>{kpi.avgQtyPerHour.toLocaleString()}点</CardValue>
+                <CardSub>{kpi.activeHours}時間帯</CardSub>
+              </Card>
+            </>
           )}
-          {kpi.yoyDiff != null && (
-            <Card $accent={kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
-              <CardLabel>前年差</CardLabel>
-              <CardValue style={{ color: kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
-                {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
-              </CardValue>
-              <CardSub>前年比 {((kpi.yoyRatio ?? 0) * 100).toFixed(1)}%</CardSub>
-            </Card>
-          )}
-          <Card $accent="#06b6d4">
-            <CardLabel>総数量</CardLabel>
-            <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
-            <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
-          </Card>
-          <Card $accent="#f59e0b">
-            <CardLabel>ピーク時間帯</CardLabel>
-            <CardValue>{kpi.peakHour}時台</CardValue>
-            <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
-          </Card>
-          <Card $accent="#8b5cf6">
-            <CardLabel>時間帯平均</CardLabel>
-            <CardValue>{Math.round(kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
-            <CardSub>{kpi.activeHours}時間帯</CardSub>
-          </Card>
         </Grid>
       ) : null}
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />

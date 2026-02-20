@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
-import type { CategoryTimeSalesData } from '@/domain/models'
+import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from './chartTheme'
 import {
   useCategoryHierarchy,
@@ -11,7 +11,7 @@ import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdo
 
 /* ── Types ─────────────────────────────────── */
 
-type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'name'
+type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'name' | 'yoyRatio' | 'yoyDiff'
 type SortDir = 'asc' | 'desc'
 
 interface HierarchyItem {
@@ -23,6 +23,12 @@ interface HierarchyItem {
   peakHour: number
   hourlyPattern: number[]
   childCount: number
+  // YoY fields (only populated when prev year data is available)
+  prevAmount?: number
+  prevQuantity?: number
+  yoyRatio?: number   // 前年比 (e.g. 1.05 = +5%)
+  yoyDiff?: number    // 前年差 (amount - prevAmount)
+  yoyQuantityRatio?: number
 }
 
 const COLORS = [
@@ -154,6 +160,34 @@ const DrillCount = styled.span`
   font-size: 0.5rem; color: ${({ theme }) => theme.colors.text4};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
+const YoYBadge = styled.span<{ $positive: boolean }>`
+  font-size: 0.55rem; font-weight: 600;
+  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+`
+const TabGroup = styled.div`
+  display: flex; gap: 2px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md}; padding: 2px;
+`
+const Tab = styled.button<{ $active: boolean }>`
+  all: unset; cursor: pointer; font-size: 0.6rem; padding: 2px 8px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  transition: all 0.15s; white-space: nowrap;
+  &:hover { opacity: 0.85; }
+`
+const HeaderRow = styled.div`
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[3]}; flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+const YoYBar = styled.div<{ $pct: number; $positive: boolean }>`
+  display: inline-block; height: 4px; border-radius: 2px;
+  width: ${({ $pct }) => Math.min(Math.abs($pct), 100)}%;
+  background: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  opacity: 0.6;
+`
 
 /* ── Sparkline SVG ────────────────────────── */
 
@@ -180,6 +214,36 @@ function Sparkline({ data, color = '#6366f1' }: { data: number[]; color?: string
   )
 }
 
+/* ── Aggregation helper ──────────────────── */
+
+type RawAgg = Map<string, {
+  code: string; name: string; amount: number; quantity: number
+  hours: Map<number, number>; children: Set<string>
+}>
+
+function aggregateByLevel(
+  records: readonly CategoryTimeSalesRecord[],
+  level: 'department' | 'line' | 'klass',
+): RawAgg {
+  const map: RawAgg = new Map()
+  for (const rec of records) {
+    let key: string, name: string, childKey: string
+    if (level === 'department') {
+      key = rec.department.code; name = rec.department.name || key; childKey = rec.line.code
+    } else if (level === 'line') {
+      key = rec.line.code; name = rec.line.name || key; childKey = rec.klass.code
+    } else {
+      key = rec.klass.code; name = rec.klass.name || key; childKey = ''
+    }
+    const ex = map.get(key) ?? { code: key, name, amount: 0, quantity: 0, hours: new Map(), children: new Set() }
+    ex.amount += rec.totalAmount; ex.quantity += rec.totalQuantity
+    if (childKey) ex.children.add(childKey)
+    for (const s of rec.timeSlots) ex.hours.set(s.hour, (ex.hours.get(s.hour) ?? 0) + s.amount)
+    map.set(key, ex)
+  }
+  return map
+}
+
 /* ── Main Component ──────────────────────── */
 
 interface Props {
@@ -188,16 +252,25 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 前年同曜日対応済みレコード */
+  prevYearRecords?: readonly CategoryTimeSalesRecord[]
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
+export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords }: Props) {
   const { filter, setFilter } = useCategoryHierarchy()
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [showYoY, setShowYoY] = useState(true)
   const pf = usePeriodFilter(daysInMonth, year, month)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const prevPeriodRecords = useMemo(
+    () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],
+    [prevYearRecords, pf],
+  )
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
+
+  const hasPrevYear = prevPeriodRecords.length > 0
 
   const currentLevel = filter.lineCode ? 'klass' : filter.departmentCode ? 'line' : 'department'
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
@@ -220,26 +293,19 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
     return filterByHierarchy(recs, filter)
   }, [periodRecords, selectedStoreIds, filter, hf])
 
+  const filteredPrevRecords = useMemo(() => {
+    if (!hasPrevYear) return []
+    let recs = hf.applyFilter(prevPeriodRecords)
+    if (selectedStoreIds.size > 0) recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
+    return filterByHierarchy(recs, filter)
+  }, [prevPeriodRecords, selectedStoreIds, filter, hf, hasPrevYear])
+
   const items = useMemo(() => {
-    const map = new Map<string, {
-      code: string; name: string; amount: number; quantity: number
-      hours: Map<number, number>; children: Set<string>
-    }>()
-    for (const rec of filteredRecords) {
-      let key: string, name: string, childKey: string
-      if (currentLevel === 'department') {
-        key = rec.department.code; name = rec.department.name || key; childKey = rec.line.code
-      } else if (currentLevel === 'line') {
-        key = rec.line.code; name = rec.line.name || key; childKey = rec.klass.code
-      } else {
-        key = rec.klass.code; name = rec.klass.name || key; childKey = ''
-      }
-      const ex = map.get(key) ?? { code: key, name, amount: 0, quantity: 0, hours: new Map(), children: new Set() }
-      ex.amount += rec.totalAmount; ex.quantity += rec.totalQuantity
-      if (childKey) ex.children.add(childKey)
-      for (const s of rec.timeSlots) ex.hours.set(s.hour, (ex.hours.get(s.hour) ?? 0) + s.amount)
-      map.set(key, ex)
-    }
+    const map = aggregateByLevel(filteredRecords, currentLevel)
+
+    // Prev year aggregation
+    const prevMap = hasPrevYear ? aggregateByLevel(filteredPrevRecords, currentLevel) : null
+
     const div = pf.mode !== 'total' ? pf.divisor : 1
     const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / div
     return [...map.values()].map((it): HierarchyItem => {
@@ -247,11 +313,23 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
       const mx = Math.max(...hp)
       const amt = Math.round(it.amount / div)
       const qty = Math.round(it.quantity / div)
-      return { code: it.code, name: it.name, amount: amt, quantity: qty,
+
+      const prev = prevMap?.get(it.code)
+      const prevAmt = prev ? Math.round(prev.amount / div) : undefined
+      const prevQty = prev ? Math.round(prev.quantity / div) : undefined
+
+      return {
+        code: it.code, name: it.name, amount: amt, quantity: qty,
         pct: total > 0 ? (amt / total) * 100 : 0,
-        peakHour: mx > 0 ? hp.indexOf(mx) : -1, hourlyPattern: hp, childCount: it.children.size }
+        peakHour: mx > 0 ? hp.indexOf(mx) : -1, hourlyPattern: hp, childCount: it.children.size,
+        prevAmount: prevAmt,
+        prevQuantity: prevQty,
+        yoyRatio: prevAmt && prevAmt > 0 ? amt / prevAmt : undefined,
+        yoyDiff: prevAmt != null ? amt - prevAmt : undefined,
+        yoyQuantityRatio: prevQty && prevQty > 0 ? qty / prevQty : undefined,
+      }
     })
-  }, [filteredRecords, currentLevel, pf])
+  }, [filteredRecords, filteredPrevRecords, currentLevel, pf, hasPrevYear])
 
   const sortedItems = useMemo(() => {
     const arr = [...items]
@@ -263,6 +341,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
         case 'pct': d = a.pct - b.pct; break
         case 'peakHour': d = a.peakHour - b.peakHour; break
         case 'name': d = a.name.localeCompare(b.name, 'ja'); break
+        case 'yoyRatio': d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0); break
+        case 'yoyDiff': d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0); break
       }
       return sortDir === 'desc' ? -d : d
     })
@@ -281,37 +361,70 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
 
   const totalAmt = items.reduce((s, i) => s + i.amount, 0)
   const totalQty = items.reduce((s, i) => s + i.quantity, 0)
+  const totalPrevAmt = items.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
+  const totalYoYRatio = totalPrevAmt > 0 ? totalAmt / totalPrevAmt : null
   const maxAmt = items.length > 0 ? Math.max(...items.map((i) => i.amount)) : 1
   const canDrill = currentLevel !== 'klass'
   const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
+  const showYoYCols = hasPrevYear && showYoY
 
   if (sortedItems.length === 0) return null
 
   return (
     <Wrapper>
-      <BreadcrumbBar>
-        {breadcrumb.map((bc, i) => (
-          <Fragment key={i}>
-            {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
-            <BreadcrumbItem $active={i === breadcrumb.length - 1}
-              onClick={() => setFilter(bc.filter)}>{bc.label}</BreadcrumbItem>
-          </Fragment>
-        ))}
-        {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
-      </BreadcrumbBar>
+      <HeaderRow>
+        <BreadcrumbBar style={{ marginBottom: 0 }}>
+          {breadcrumb.map((bc, i) => (
+            <Fragment key={i}>
+              {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
+              <BreadcrumbItem $active={i === breadcrumb.length - 1}
+                onClick={() => setFilter(bc.filter)}>{bc.label}</BreadcrumbItem>
+            </Fragment>
+          ))}
+          {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
+        </BreadcrumbBar>
+        {hasPrevYear && (
+          <TabGroup>
+            <Tab $active={showYoY} onClick={() => setShowYoY(!showYoY)}>前年比較</Tab>
+          </TabGroup>
+        )}
+      </HeaderRow>
       <SummaryBar>
         <SummaryItem><SummaryLabel>{levelLabels[currentLevel]}数</SummaryLabel><SummaryValue>{items.length}</SummaryValue></SummaryItem>
         <SummaryItem><SummaryLabel>合計金額</SummaryLabel><SummaryValue>{Math.round(totalAmt / 10000).toLocaleString()}万円</SummaryValue></SummaryItem>
         <SummaryItem><SummaryLabel>合計数量</SummaryLabel><SummaryValue>{totalQty.toLocaleString()}点</SummaryValue></SummaryItem>
+        {showYoYCols && totalYoYRatio != null && (
+          <SummaryItem>
+            <SummaryLabel>前年比</SummaryLabel>
+            <SummaryValue>
+              <YoYBadge $positive={totalYoYRatio >= 1}>
+                {totalYoYRatio >= 1 ? '+' : ''}{((totalYoYRatio - 1) * 100).toFixed(1)}%
+              </YoYBadge>
+            </SummaryValue>
+          </SummaryItem>
+        )}
+        {showYoYCols && totalPrevAmt > 0 && (
+          <SummaryItem>
+            <SummaryLabel>前年合計</SummaryLabel>
+            <SummaryValue style={{ opacity: 0.7 }}>{Math.round(totalPrevAmt / 10000).toLocaleString()}万円</SummaryValue>
+          </SummaryItem>
+        )}
       </SummaryBar>
 
       <TreemapWrap>
         {items.slice().sort((a, b) => b.amount - a.amount).slice(0, 15).map((it, i) => (
           <TreemapBlock key={it.code} $flex={it.amount} $color={COLORS[i % COLORS.length]}
             $canDrill={canDrill} onClick={() => canDrill && handleDrill(it)}
-            title={`${it.name}: ${toComma(it.amount)}円 (${it.pct.toFixed(1)}%)`}>
+            title={`${it.name}: ${toComma(it.amount)}円 (${it.pct.toFixed(1)}%)${it.yoyRatio != null ? ` 前年比${(it.yoyRatio * 100).toFixed(1)}%` : ''}`}>
             <TreemapLabel>{it.name}</TreemapLabel>
-            <TreemapPct>{it.pct.toFixed(1)}%</TreemapPct>
+            <TreemapPct>
+              {it.pct.toFixed(1)}%
+              {showYoYCols && it.yoyRatio != null && (
+                <span style={{ marginLeft: 3, color: it.yoyRatio >= 1 ? '#bbf7d0' : '#fecaca' }}>
+                  {it.yoyRatio >= 1 ? '↑' : '↓'}
+                </span>
+              )}
+            </TreemapPct>
           </TreemapBlock>
         ))}
       </TreemapWrap>
@@ -324,6 +437,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
             <Th $sortable onClick={() => handleSort('amount')}>売上金額{arrow('amount')}</Th>
             <Th $sortable onClick={() => handleSort('pct')}>構成比{arrow('pct')}</Th>
             <Th $sortable onClick={() => handleSort('quantity')}>数量{arrow('quantity')}</Th>
+            {showYoYCols && <Th $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</Th>}
+            {showYoYCols && <Th $sortable onClick={() => handleSort('yoyDiff')}>前年差{arrow('yoyDiff')}</Th>}
             <Th $sortable onClick={() => handleSort('peakHour')}>ピーク{arrow('peakHour')}</Th>
             <Th>時間帯パターン</Th>
             {canDrill && <Th />}
@@ -341,6 +456,27 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
                 </TdAmount>
                 <Td $mono>{it.pct.toFixed(1)}%</Td>
                 <Td $mono>{it.quantity.toLocaleString()}</Td>
+                {showYoYCols && (
+                  <Td $mono>
+                    {it.yoyRatio != null ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <YoYBadge $positive={it.yoyRatio >= 1}>
+                          {(it.yoyRatio * 100).toFixed(1)}%
+                        </YoYBadge>
+                        <YoYBar $pct={Math.abs((it.yoyRatio - 1) * 100) * 2} $positive={it.yoyRatio >= 1} />
+                      </div>
+                    ) : '-'}
+                  </Td>
+                )}
+                {showYoYCols && (
+                  <Td $mono>
+                    {it.yoyDiff != null ? (
+                      <span style={{ color: it.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                        {it.yoyDiff >= 0 ? '+' : ''}{toComma(it.yoyDiff)}円
+                      </span>
+                    ) : '-'}
+                  </Td>
+                )}
                 <Td $mono>{it.peakHour >= 0 ? <PeakBadge>{it.peakHour}時</PeakBadge> : '-'}</Td>
                 <TdSpark><Sparkline data={it.hourlyPattern} color={COLORS[i % COLORS.length]} /></TdSpark>
                 {canDrill && <Td><DrillBtn>▸{it.childCount > 0 && <DrillCount>{it.childCount}</DrillCount>}</DrillBtn></Td>}

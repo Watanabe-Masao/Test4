@@ -179,16 +179,19 @@ export function PrevYearMappingTab() {
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 
-  // 現在のオーバーライド設定
-  const sourceYear = settings.prevYearSourceYear
-  const sourceMonth = settings.prevYearSourceMonth
-  const dowOffset = settings.prevYearDowOffset
+  // 現在のオーバーライド設定 — null/undefined/NaN を安全に処理
+  const sourceYear = typeof settings.prevYearSourceYear === 'number' && !isNaN(settings.prevYearSourceYear)
+    ? settings.prevYearSourceYear : null
+  const sourceMonth = typeof settings.prevYearSourceMonth === 'number' && !isNaN(settings.prevYearSourceMonth)
+    ? settings.prevYearSourceMonth : null
+  const dowOffset = typeof settings.prevYearDowOffset === 'number' && !isNaN(settings.prevYearDowOffset)
+    ? settings.prevYearDowOffset : null
 
   // 実効値
   const effectiveSourceYear = sourceYear ?? (targetYear - 1)
   const effectiveSourceMonth = sourceMonth ?? targetMonth
   const autoOffset = calcSameDowOffset(targetYear, targetMonth, effectiveSourceYear, effectiveSourceMonth)
-  const effectiveOffset = dowOffset ?? autoOffset
+  const effectiveOffset = Math.max(0, Math.min(6, dowOffset ?? autoOffset))
 
   // IndexedDB の利用可能月をロード
   useEffect(() => {
@@ -367,8 +370,8 @@ export function PrevYearMappingTab() {
         <SectionTitle>曜日対応プレビュー</SectionTitle>
         <HelpText>
           当年の各日に対応する前年の日番号です。オフセット={effectiveOffset} の場合、
-          当年{targetMonth}/1({DOW_LABELS[new Date(targetYear, targetMonth - 1, 1).getDay()]}) →
-          前年{effectiveSourceMonth}/{1 + effectiveOffset}({DOW_LABELS[new Date(effectiveSourceYear, effectiveSourceMonth - 1, 1 + effectiveOffset).getDay()]})
+          当年{targetMonth}/1({DOW_LABELS[new Date(targetYear, targetMonth - 1, 1).getDay()] ?? '?'}) →
+          前年{effectiveSourceMonth}/{1 + effectiveOffset}({DOW_LABELS[new Date(effectiveSourceYear, effectiveSourceMonth - 1, 1 + effectiveOffset).getDay()] ?? '?'})
         </HelpText>
 
         <PreviewGrid>
