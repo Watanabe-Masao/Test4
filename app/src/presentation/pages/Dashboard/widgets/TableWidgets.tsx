@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
+import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/domain/calculations/forecast'
@@ -192,6 +193,170 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
           })}
         </tbody>
       </STable>
+    </STableWrapper>
+  )
+}
+
+/* ── 日別×店舗別 売上・売変・客数 テーブル ──────────────── */
+
+const ScrollWrapper = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+`
+
+const GroupTh = styled(STh)`
+  text-align: center;
+  font-size: 0.6rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+`
+
+const SubTh = styled(STh)`
+  text-align: center;
+  font-size: 0.55rem;
+  white-space: nowrap;
+`
+
+const SummaryRow = styled.tr`
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  font-weight: 600;
+`
+
+const StickyTd = styled(STd)`
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: inherit;
+`
+
+const DOW_LABELS_TABLE = ['日', '月', '火', '水', '木', '金', '土'] as const
+const DOW_COLORS: Record<number, string | undefined> = { 0: '#ef4444', 6: '#3b82f6' }
+
+export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
+  const { result: r, allStoreResults, stores, year, month, daysInMonth } = ctx
+
+  // Individual stores sorted by code
+  const storeEntries: { id: string; label: string; result: typeof r }[] = []
+  const sorted = [...allStoreResults.entries()]
+    .sort(([, a], [, b]) => {
+      const sa = stores.get(a.storeId)
+      const sb = stores.get(b.storeId)
+      return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
+    })
+  for (const [id, sr] of sorted) {
+    const store = stores.get(id)
+    const label = store ? `${store.code}:${store.name}` : id
+    storeEntries.push({ id, label, result: sr })
+  }
+
+  const hasMultiStore = storeEntries.length > 1
+  const hasCustomers = r.totalCustomers > 0
+  const colCount = hasCustomers ? 3 : 2
+
+  // Days
+  const days: number[] = []
+  for (let d = 1; d <= daysInMonth; d++) days.push(d)
+
+  // Period totals
+  const getStoreTotals = (sr: typeof r) => {
+    let sales = 0, discount = 0, customers = 0
+    for (const [, rec] of sr.daily) {
+      sales += rec.sales
+      discount += rec.discountAmount
+      customers += rec.customers ?? 0
+    }
+    return { sales, discount, customers }
+  }
+
+  const renderStoreCells = (sr: typeof r, day: number, borderStyle: string) => {
+    const rec = sr.daily.get(day)
+    return (
+      <>
+        <STd style={{ borderLeft: borderStyle }}>
+          {rec ? formatCurrency(rec.sales) : ''}
+        </STd>
+        <STd style={{ color: rec && rec.discountAmount !== 0 ? sc.negative : undefined }}>
+          {rec ? formatCurrency(rec.discountAmount) : ''}
+        </STd>
+        {hasCustomers && (
+          <STd>{rec?.customers ? rec.customers.toLocaleString('ja-JP') : ''}</STd>
+        )}
+      </>
+    )
+  }
+
+  const renderStoreTotalCells = (sr: typeof r, borderStyle: string) => {
+    const t = getStoreTotals(sr)
+    return (
+      <>
+        <STd style={{ borderLeft: borderStyle }}>{formatCurrency(t.sales)}</STd>
+        <STd style={{ color: sc.negative }}>{formatCurrency(t.discount)}</STd>
+        {hasCustomers && <STd>{t.customers.toLocaleString('ja-JP')}</STd>}
+      </>
+    )
+  }
+
+  const renderSubHeaders = (borderStyle: string) => (
+    <>
+      <SubTh style={{ borderLeft: borderStyle }}>販売金額</SubTh>
+      <SubTh>売変合計金額</SubTh>
+      {hasCustomers && <SubTh>来店客数</SubTh>}
+    </>
+  )
+
+  const aggBorder = '2px solid rgba(99,102,241,0.4)'
+  const storeBorder = '2px solid rgba(99,102,241,0.2)'
+
+  return (
+    <STableWrapper>
+      <STableTitle>売上・売変・客数（日別×店舗）</STableTitle>
+      <ScrollWrapper>
+        <STable>
+          <thead>
+            <tr>
+              <GroupTh rowSpan={2} style={{ position: 'sticky', left: 0, zIndex: 2, minWidth: 120 }}>日付</GroupTh>
+              {hasMultiStore && (
+                <GroupTh colSpan={colCount} style={{ borderLeft: aggBorder }}>【店舗】全店合計</GroupTh>
+              )}
+              {storeEntries.map((s) => (
+                <GroupTh key={s.id} colSpan={colCount} style={{ borderLeft: storeBorder }}>{s.label}</GroupTh>
+              ))}
+            </tr>
+            <tr>
+              {hasMultiStore && renderSubHeaders(aggBorder)}
+              {storeEntries.map((s) => (
+                <React.Fragment key={s.id}>{renderSubHeaders(storeBorder)}</React.Fragment>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <SummaryRow>
+              <StickyTd style={{ fontWeight: 600 }}>【期間別】</StickyTd>
+              {hasMultiStore && renderStoreTotalCells(r, aggBorder)}
+              {storeEntries.map((s) => (
+                <React.Fragment key={s.id}>{renderStoreTotalCells(s.result, storeBorder)}</React.Fragment>
+              ))}
+            </SummaryRow>
+            {days.map((d) => {
+              const dow = new Date(year, month - 1, d).getDay()
+              const dowLabel = DOW_LABELS_TABLE[dow]
+              const dowColor = DOW_COLORS[dow]
+              const dateStr = `${year}年${String(month).padStart(2, '0')}月${String(d).padStart(2, '0')}日(${dowLabel})`
+              return (
+                <tr key={d}>
+                  <StickyTd style={{ whiteSpace: 'nowrap', fontSize: '0.6rem', color: dowColor }}>
+                    {dateStr}
+                  </StickyTd>
+                  {hasMultiStore && renderStoreCells(r, d, aggBorder)}
+                  {storeEntries.map((s) => (
+                    <React.Fragment key={s.id}>{renderStoreCells(s.result, d, storeBorder)}</React.Fragment>
+                  ))}
+                </tr>
+              )
+            })}
+          </tbody>
+        </STable>
+      </ScrollWrapper>
     </STableWrapper>
   )
 }
