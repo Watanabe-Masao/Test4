@@ -55,16 +55,16 @@ export function useAutoLoadPrevYear(): void {
       try {
         // ソース年月の売変データをロード
         const prevDiscount = await loadMonthlySlice<DiscountData>(sourceYear, sourceMonth, 'discount')
-        if (!prevDiscount || Object.keys(prevDiscount).length === 0) return
-        if (cancelled) return
+        if (cancelled || !prevDiscount || Object.keys(prevDiscount).length === 0) return
 
         // ソース年月の分類別時間帯売上をロード
         const prevCTS = await loadMonthlySlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
+        if (cancelled) return
 
         // ソース翌月（overflow 用）
         const prevNextDiscount = await loadMonthlySlice<DiscountData>(nextMonthYear, nextMonth, 'discount')
+        if (cancelled) return
         const prevNextCTS = await loadMonthlySlice<CategoryTimeSalesData>(nextMonthYear, nextMonth, 'categoryTimeSales')
-
         if (cancelled) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)

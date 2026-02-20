@@ -92,7 +92,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       const rec = r.daily.get(i)
       if (rec && rec.sales > 0 && (rec.customers ?? 0) > 0) {
         totalSales += rec.sales
-        totalCust += rec.customers!
+        totalCust += rec.customers ?? 0
         count++
       }
     }

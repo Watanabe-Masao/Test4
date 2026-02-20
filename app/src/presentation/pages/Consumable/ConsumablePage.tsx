@@ -63,12 +63,13 @@ function aggregateByItem(days: [number, DailyRecord][]): ItemAggregate[] {
         })
         daySeen.set(key, new Set())
       }
-      daySeen.get(key)!.add(day)
+      const seen = daySeen.get(key)
+      if (seen) seen.add(day)
     }
   }
 
   for (const [key, entry] of map) {
-    map.set(key, { ...entry, dayCount: daySeen.get(key)!.size })
+    map.set(key, { ...entry, dayCount: daySeen.get(key)?.size ?? 0 })
   }
 
   return Array.from(map.values()).sort((a, b) => b.totalCost - a.totalCost)

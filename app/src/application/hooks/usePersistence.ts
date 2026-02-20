@@ -88,7 +88,9 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     if (!available || checkedRef.current) return
     checkedRef.current = true
 
+    let cancelled = false
     getPersistedMeta().then((meta) => {
+      if (cancelled) return
       if (meta) {
         setRestoreMeta(meta)
         setShowRestoreDialog(true)
@@ -96,6 +98,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     }).catch(() => {
       // IndexedDB アクセスエラーは無視
     })
+    return () => { cancelled = true }
   }, [available])
 
   const saveCurrentData = useCallback(async () => {

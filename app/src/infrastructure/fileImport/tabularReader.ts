@@ -47,18 +47,86 @@ export async function readTabularFile(file: File): Promise<unknown[][]> {
 }
 
 /**
- * CSV文字列を2次元配列としてパースする（テスト用）
+ * CSV文字列を2次元配列としてパースする（RFC 4180 準拠）
+ *
+ * - \r\n / \r を正規化
+ * - ダブルクォート囲みフィールドに対応（フィールド内カンマ・改行・エスケープ "" を処理）
  */
 export function parseCsvString(csv: string): unknown[][] {
-  return csv
-    .trim()
-    .split('\n')
-    .map((line) =>
-      line.split(',').map((cell) => {
-        const trimmed = cell.trim()
-        if (trimmed === '') return ''
-        const num = Number(trimmed)
-        return isNaN(num) ? trimmed : num
-      }),
-    )
+  // 改行を \n に正規化
+  const normalized = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim()
+  if (normalized === '') return []
+
+  const rows: unknown[][] = []
+  let row: unknown[] = []
+  let i = 0
+
+  while (i <= normalized.length) {
+    if (i === normalized.length) {
+      // 最終フィールド（空文字列の可能性あり）
+      row.push('')
+      rows.push(row)
+      break
+    }
+
+    if (normalized[i] === '"') {
+      // クォート付きフィールド
+      let field = ''
+      i++ // 開始 " をスキップ
+      while (i < normalized.length) {
+        if (normalized[i] === '"') {
+          if (i + 1 < normalized.length && normalized[i + 1] === '"') {
+            // エスケープされた "" → "
+            field += '"'
+            i += 2
+          } else {
+            // フィールド終了
+            i++ // 終了 " をスキップ
+            break
+          }
+        } else {
+          field += normalized[i]
+          i++
+        }
+      }
+      row.push(coerceCell(field))
+      // 次の区切り文字を消費
+      if (i < normalized.length && normalized[i] === ',') {
+        i++
+      } else if (i < normalized.length && normalized[i] === '\n') {
+        rows.push(row)
+        row = []
+        i++
+      } else {
+        // EOF or 末尾
+        rows.push(row)
+        break
+      }
+    } else {
+      // 非クォートフィールド: 次のカンマまたは改行まで読む
+      let end = i
+      while (end < normalized.length && normalized[end] !== ',' && normalized[end] !== '\n') {
+        end++
+      }
+      row.push(coerceCell(normalized.slice(i, end)))
+      i = end
+      if (i < normalized.length && normalized[i] === ',') {
+        i++
+      } else {
+        rows.push(row)
+        row = []
+        if (i < normalized.length) i++ // \n をスキップ
+      }
+    }
+  }
+
+  return rows
+}
+
+/** セル値を型変換する（空文字列 → '', 数値 → number, それ以外 → string） */
+function coerceCell(raw: string): unknown {
+  const trimmed = raw.trim()
+  if (trimmed === '') return ''
+  const num = Number(trimmed)
+  return isNaN(num) ? trimmed : num
 }

@@ -74,7 +74,7 @@ export function buildCategoryData(result: StoreResult) {
 /** カスタムカテゴリ集計データ生成 */
 export function buildCustomCategoryData(
   result: StoreResult,
-  supplierCategoryMap: Readonly<Record<string, CustomCategory>>,
+  supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
 ) {
   const aggregated = new Map<CustomCategory, { cost: number; price: number }>()
 

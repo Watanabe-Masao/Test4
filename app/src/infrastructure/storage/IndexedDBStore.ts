@@ -3,6 +3,13 @@
  *
  * データを「年月 × データ種別」単位で保存・取得する。
  * idb ライブラリ不使用（ネイティブ API のみ）。
+ *
+ * 改善点:
+ * - 単一トランザクションによる原子的な保存 (#8)
+ * - budgetToSerializable の安全な型変換 (#5)
+ * - clearMonthData 時の lastSession メタ更新 (#7)
+ * - loadImportedData の基本スキーマ検証 (#9)
+ * - DB 接続断時の自動再接続 (#14)
  */
 import type { ImportedData, DataType } from '@/domain/models'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models'
@@ -34,7 +41,16 @@ function openDB(): Promise<IDBDatabase> {
         db.createObjectStore(STORE_META)
       }
     }
-    request.onsuccess = () => resolve(request.result)
+    request.onsuccess = () => {
+      const db = request.result
+      // 接続断時に自動再接続できるよう dbPromise をクリア
+      db.onclose = () => { dbPromise = null }
+      db.onversionchange = () => {
+        db.close()
+        dbPromise = null
+      }
+      resolve(db)
+    }
     request.onerror = () => {
       dbPromise = null
       reject(request.error)
@@ -43,16 +59,44 @@ function openDB(): Promise<IDBDatabase> {
   return dbPromise
 }
 
+/**
+ * DB接続が切断されている場合にリセットして再接続する
+ */
+function resetDBConnection(): void {
+  dbPromise = null
+}
+
 // ─── 低レベルヘルパー ────────────────────────────────────
 
-async function dbPut(storeName: string, key: string, value: unknown): Promise<void> {
+/**
+ * 単一トランザクションで複数のキー/値を一括書き込みする。
+ * 全操作が成功するか、全て失敗（ロールバック）するかのいずれか。
+ */
+async function dbBatchPut(
+  entries: readonly { storeName: string; key: string; value: unknown }[],
+): Promise<void> {
   const db = await openDB()
+  // 使用するストア名を収集
+  const storeNames = [...new Set(entries.map((e) => e.storeName))]
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite')
-    tx.objectStore(storeName).put(value, key)
+    const tx = db.transaction(storeNames, 'readwrite')
+    for (const { storeName, key, value } of entries) {
+      tx.objectStore(storeName).put(value, key)
+    }
     tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    tx.onerror = () => {
+      // 接続断の可能性があるためリセット
+      if (tx.error?.name === 'InvalidStateError') resetDBConnection()
+      reject(tx.error)
+    }
+    tx.onabort = () => {
+      reject(tx.error ?? new Error('Transaction aborted'))
+    }
   })
+}
+
+async function dbPut(storeName: string, key: string, value: unknown): Promise<void> {
+  return dbBatchPut([{ storeName, key, value }])
 }
 
 async function dbGet<T>(storeName: string, key: string): Promise<T | undefined> {
@@ -75,6 +119,26 @@ async function dbDelete(storeName: string, key: string): Promise<void> {
   })
 }
 
+/**
+ * 単一トランザクションで複数キーを一括削除する。
+ */
+async function dbBatchDelete(
+  entries: readonly { storeName: string; key: string }[],
+): Promise<void> {
+  if (entries.length === 0) return
+  const db = await openDB()
+  const storeNames = [...new Set(entries.map((e) => e.storeName))]
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeNames, 'readwrite')
+    for (const { storeName, key } of entries) {
+      tx.objectStore(storeName).delete(key)
+    }
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'))
+  })
+}
+
 async function dbGetAllKeys(storeName: string): Promise<string[]> {
   const db = await openDB()
   return new Promise((resolve, reject) => {
@@ -94,12 +158,16 @@ function mapToObj<V>(map: ReadonlyMap<string, V>): Record<string, V> {
   return obj
 }
 
-/** BudgetData の Map<number,number> → plain object */
+/** BudgetData.daily (Map<number,number>) → plain object (Record<string,number>) */
 function budgetToSerializable(b: BudgetData): object {
+  const dailyObj: Record<string, number> = {}
+  for (const [day, amount] of b.daily) {
+    dailyObj[String(day)] = amount
+  }
   return {
     storeId: b.storeId,
     total: b.total,
-    daily: mapToObj(b.daily as unknown as ReadonlyMap<string, number>),
+    daily: dailyObj,
   }
 }
 
@@ -140,6 +208,27 @@ const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] =
   { field: 'consumables', type: 'consumables' },
 ]
 
+// ─── スキーマ検証 ────────────────────────────────────────
+
+/** ロードしたデータの基本構造を検証する */
+function validateLoadedData(result: Record<string, unknown>): boolean {
+  // StoreDayRecord 系: object であること
+  for (const { field } of STORE_DAY_FIELDS) {
+    if (result[field] != null && typeof result[field] !== 'object') return false
+  }
+  // Map 系: Map インスタンスであること
+  if (!(result.stores instanceof Map)) return false
+  if (!(result.suppliers instanceof Map)) return false
+  if (!(result.settings instanceof Map)) return false
+  if (!(result.budget instanceof Map)) return false
+  // categoryTimeSales: records 配列を持つこと
+  const cts = result.categoryTimeSales as { records?: unknown } | undefined
+  if (cts && (!Array.isArray(cts.records))) return false
+  const pcts = result.prevYearCategoryTimeSales as { records?: unknown } | undefined
+  if (pcts && (!Array.isArray(pcts.records))) return false
+  return true
+}
+
 // ─── 公開 API ────────────────────────────────────────────
 
 /** メタデータ */
@@ -151,52 +240,55 @@ export interface PersistedMeta {
 
 /**
  * ImportedData を年月単位で IndexedDB に保存する。
- * 各データ種別は独立したキーで全置換される。
+ * 単一トランザクションで原子的に全データを書き込む。
  */
 export async function saveImportedData(
   data: ImportedData,
   year: number,
   month: number,
 ): Promise<void> {
+  const entries: { storeName: string; key: string; value: unknown }[] = []
+
   // StoreDayRecord 系
   for (const { field, type } of STORE_DAY_FIELDS) {
-    const key = monthKey(year, month, type)
-    await dbPut(STORE_MONTHLY, key, data[field])
+    entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, type), value: data[field] })
   }
 
   // Map 系 → plain object に変換して保存
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'stores'), mapToObj(data.stores))
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'suppliers'), mapToObj(data.suppliers))
-  await dbPut(
-    STORE_MONTHLY,
-    monthKey(year, month, 'settings'),
-    mapToObj(data.settings),
-  )
-  await dbPut(
-    STORE_MONTHLY,
-    monthKey(year, month, 'budget'),
-    Object.fromEntries(
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: mapToObj(data.stores) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: mapToObj(data.suppliers) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: mapToObj(data.settings) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'budget'),
+    value: Object.fromEntries(
       Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
     ),
-  )
+  })
 
-  // categoryTimeSales（StoreDayRecord ではないが独立保存）
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
+  // categoryTimeSales
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
 
-  // prevYearCategoryTimeSales（前年分類別時間帯売上）
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'), data.prevYearCategoryTimeSales)
+  // prevYearCategoryTimeSales
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales'), value: data.prevYearCategoryTimeSales })
+
+  // departmentKpi
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: data.departmentKpi })
 
   // メタデータ
-  await dbPut(STORE_META, 'lastSession', {
-    year,
-    month,
-    savedAt: new Date().toISOString(),
-  } satisfies PersistedMeta)
+  entries.push({
+    storeName: STORE_META,
+    key: 'lastSession',
+    value: { year, month, savedAt: new Date().toISOString() } satisfies PersistedMeta,
+  })
+
+  await dbBatchPut(entries)
 }
 
 /**
  * 指定年月の ImportedData を IndexedDB から読み込む。
  * 保存されていない場合は null を返す。
+ * 基本的なスキーマ検証を行い、不整合があれば null を返す。
  */
 export async function loadImportedData(
   year: number,
@@ -211,7 +303,9 @@ export async function loadImportedData(
   const result: Record<string, unknown> = { ...base }
   for (const { field, type } of STORE_DAY_FIELDS) {
     const val = await dbGet<Record<string, unknown>>(STORE_MONTHLY, monthKey(year, month, type))
-    result[field] = val ?? base[field]
+    if (val != null && typeof val === 'object') {
+      result[field] = val
+    }
   }
 
   // stores
@@ -219,31 +313,33 @@ export async function loadImportedData(
     STORE_MONTHLY,
     monthKey(year, month, 'stores'),
   )
-  result.stores = rawStores ? new Map(Object.entries(rawStores)) : new Map()
+  result.stores = rawStores && typeof rawStores === 'object' ? new Map(Object.entries(rawStores)) : new Map()
 
   // suppliers
   const rawSuppliers = await dbGet<Record<string, { code: string; name: string }>>(
     STORE_MONTHLY,
     monthKey(year, month, 'suppliers'),
   )
-  result.suppliers = rawSuppliers ? new Map(Object.entries(rawSuppliers)) : new Map()
+  result.suppliers = rawSuppliers && typeof rawSuppliers === 'object' ? new Map(Object.entries(rawSuppliers)) : new Map()
 
   // settings (InventoryConfig)
   const rawSettings = await dbGet<Record<string, InventoryConfig>>(
     STORE_MONTHLY,
     monthKey(year, month, 'settings'),
   )
-  result.settings = rawSettings ? new Map(Object.entries(rawSettings)) : new Map()
+  result.settings = rawSettings && typeof rawSettings === 'object' ? new Map(Object.entries(rawSettings)) : new Map()
 
   // budget
   const rawBudget = await dbGet<Record<string, Record<string, unknown>>>(
     STORE_MONTHLY,
     monthKey(year, month, 'budget'),
   )
-  if (rawBudget) {
+  if (rawBudget && typeof rawBudget === 'object') {
     const budgetMap = new Map<string, BudgetData>()
     for (const [k, v] of Object.entries(rawBudget)) {
-      budgetMap.set(k, budgetFromSerializable(v))
+      if (v && typeof v === 'object') {
+        budgetMap.set(k, budgetFromSerializable(v as Record<string, unknown>))
+      }
     }
     result.budget = budgetMap
   } else {
@@ -255,14 +351,33 @@ export async function loadImportedData(
     STORE_MONTHLY,
     monthKey(year, month, 'categoryTimeSales'),
   )
-  result.categoryTimeSales = rawCategoryTimeSales ?? { records: [] }
+  result.categoryTimeSales = rawCategoryTimeSales && Array.isArray(rawCategoryTimeSales.records)
+    ? rawCategoryTimeSales
+    : { records: [] }
 
   // prevYearCategoryTimeSales
   const rawPrevYearCategoryTimeSales = await dbGet<{ records: unknown[] }>(
     STORE_MONTHLY,
     monthKey(year, month, 'prevYearCategoryTimeSales'),
   )
-  result.prevYearCategoryTimeSales = rawPrevYearCategoryTimeSales ?? { records: [] }
+  result.prevYearCategoryTimeSales = rawPrevYearCategoryTimeSales && Array.isArray(rawPrevYearCategoryTimeSales.records)
+    ? rawPrevYearCategoryTimeSales
+    : { records: [] }
+
+  // departmentKpi
+  const rawDeptKpi = await dbGet<{ records: unknown[] }>(
+    STORE_MONTHLY,
+    monthKey(year, month, 'departmentKpi'),
+  )
+  result.departmentKpi = rawDeptKpi && Array.isArray(rawDeptKpi.records)
+    ? rawDeptKpi
+    : { records: [] }
+
+  // スキーマ検証
+  if (!validateLoadedData(result)) {
+    console.warn('[IndexedDBStore] Loaded data failed schema validation, returning null')
+    return null
+  }
 
   return result as unknown as ImportedData
 }
@@ -276,18 +391,30 @@ export async function getPersistedMeta(): Promise<PersistedMeta | null> {
 }
 
 /**
- * 指定年月のデータを全て削除する
+ * 指定年月のデータを全て削除する。
+ * 削除対象が lastSession と一致する場合はメタデータもクリアする。
  */
 export async function clearMonthData(year: number, month: number): Promise<void> {
+  const deleteEntries: { storeName: string; key: string }[] = []
+
   for (const { type } of STORE_DAY_FIELDS) {
-    await dbDelete(STORE_MONTHLY, monthKey(year, month, type))
+    deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, type) })
   }
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'stores'))
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'suppliers'))
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'settings'))
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'budget'))
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
-  await dbDelete(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'))
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'budget') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi') })
+
+  // lastSession が当該年月の場合はメタデータも削除
+  const meta = await getPersistedMeta()
+  if (meta && meta.year === year && meta.month === month) {
+    deleteEntries.push({ storeName: STORE_META, key: 'lastSession' })
+  }
+
+  await dbBatchDelete(deleteEntries)
 }
 
 /**
@@ -295,10 +422,12 @@ export async function clearMonthData(year: number, month: number): Promise<void>
  */
 export async function clearAllData(): Promise<void> {
   const keys = await dbGetAllKeys(STORE_MONTHLY)
-  for (const key of keys) {
-    await dbDelete(STORE_MONTHLY, key as string)
-  }
-  await dbDelete(STORE_META, 'lastSession')
+  const deleteEntries: { storeName: string; key: string }[] = keys.map((key) => ({
+    storeName: STORE_MONTHLY,
+    key,
+  }))
+  deleteEntries.push({ storeName: STORE_META, key: 'lastSession' })
+  await dbBatchDelete(deleteEntries)
 }
 
 /**
@@ -346,6 +475,7 @@ export async function getMonthDataSummary(
     ...STORE_DAY_FIELDS.map((f) => ({ type: f.type, label: DATA_TYPE_LABELS[f.type] ?? f.type })),
     { type: 'categoryTimeSales', label: '分類別時間帯売上' },
     { type: 'prevYearCategoryTimeSales', label: '前年分類別時間帯売上' },
+    { type: 'departmentKpi', label: '部門KPI' },
     { type: 'stores', label: '店舗' },
     { type: 'suppliers', label: '取引先' },
     { type: 'settings', label: '在庫設定' },
@@ -360,7 +490,7 @@ export async function getMonthDataSummary(
       continue
     }
     let count = 0
-    if (type === 'categoryTimeSales' || type === 'prevYearCategoryTimeSales') {
+    if (type === 'categoryTimeSales' || type === 'prevYearCategoryTimeSales' || type === 'departmentKpi') {
       count = ((val as { records?: unknown[] }).records ?? []).length
     } else if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
       count = Object.keys(val as Record<string, unknown>).length
@@ -406,6 +536,7 @@ export function isIndexedDBAvailable(): boolean {
 /**
  * 指定データ種別のみを保存する（全置換）。
  * インポート後に差分承認されたデータを反映するために使用。
+ * 単一トランザクションで原子的に書き込む。
  */
 export async function saveDataSlice(
   data: ImportedData,
@@ -413,40 +544,48 @@ export async function saveDataSlice(
   month: number,
   dataTypes: readonly DataType[],
 ): Promise<void> {
+  const entries: { storeName: string; key: string; value: unknown }[] = []
+
   for (const dt of dataTypes) {
     if (dt === 'categoryTimeSales') {
-      await dbPut(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'), data.categoryTimeSales)
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
       continue
     }
     if (dt === 'prevYearCategoryTimeSales') {
-      await dbPut(STORE_MONTHLY, monthKey(year, month, 'prevYearCategoryTimeSales'), data.prevYearCategoryTimeSales)
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales'), value: data.prevYearCategoryTimeSales })
       continue
     }
+    if (dt === 'departmentKpi') {
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: data.departmentKpi })
+      continue
+    }
+    // salesDiscount / prevYearSalesDiscount / initialSettings / budget は
+    // DataType として存在するがストレージでは個別フィールドとして保存しない（composite type）
+    // → STORE_DAY_FIELDS で一致するもののみ保存
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)
     if (fieldDef) {
-      await dbPut(STORE_MONTHLY, monthKey(year, month, dt), data[fieldDef.field])
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, dt), value: data[fieldDef.field] })
     }
   }
-  // 常に stores / suppliers を更新
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'stores'), mapToObj(data.stores))
-  await dbPut(STORE_MONTHLY, monthKey(year, month, 'suppliers'), mapToObj(data.suppliers))
-  await dbPut(
-    STORE_MONTHLY,
-    monthKey(year, month, 'settings'),
-    mapToObj(data.settings),
-  )
-  await dbPut(
-    STORE_MONTHLY,
-    monthKey(year, month, 'budget'),
-    Object.fromEntries(
+
+  // 常に stores / suppliers / settings / budget を更新
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: mapToObj(data.stores) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: mapToObj(data.suppliers) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: mapToObj(data.settings) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'budget'),
+    value: Object.fromEntries(
       Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
     ),
-  )
+  })
 
   // メタ更新
-  await dbPut(STORE_META, 'lastSession', {
-    year,
-    month,
-    savedAt: new Date().toISOString(),
-  } satisfies PersistedMeta)
+  entries.push({
+    storeName: STORE_META,
+    key: 'lastSession',
+    value: { year, month, savedAt: new Date().toISOString() } satisfies PersistedMeta,
+  })
+
+  await dbBatchPut(entries)
 }
