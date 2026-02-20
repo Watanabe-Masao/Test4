@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesData } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
@@ -33,4 +33,6 @@ export interface WidgetContext {
   selectedStoreIds: ReadonlySet<string>
   /** 取込データ有効末日 (null = 月末) */
   dataEndDay: number | null
+  /** 部門別KPIデータ */
+  departmentKpi: DepartmentKpiData
 }

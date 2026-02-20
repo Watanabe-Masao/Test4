@@ -95,6 +95,12 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['消耗', 'consumable'],
     headerPatterns: [],
   },
+  {
+    type: 'departmentKpi',
+    name: '部門別KPI',
+    filenamePatterns: ['部門別', '部門KPI', 'dept_kpi', 'departmentKpi'],
+    headerPatterns: ['粗利率予算', '値入', '機首在庫'],
+  },
 ] as const
 
 /**
@@ -110,6 +116,7 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
   { prefix: '6_', type: 'interStoreOut' },
   { prefix: '7_', type: 'initialSettings' },
   { prefix: '8_', type: 'consumables' },
+  { prefix: '9_', type: 'departmentKpi' },
   { prefix: '998_', type: 'prevYearSalesDiscount' },
 ]
 

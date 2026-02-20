@@ -103,3 +103,27 @@ export type SpecialSalesData = StoreDayRecord<SpecialSalesDayEntry>
 
 /** 消耗品パース結果: storeId → day → ConsumableDailyRecord */
 export type ConsumableData = StoreDayRecord<ConsumableDailyRecord>
+
+/** 部門別KPIレコード */
+export interface DepartmentKpiRecord {
+  readonly deptCode: string
+  readonly deptName: string
+  readonly gpRateBudget: number // 粗利率予算
+  readonly gpRateActual: number // 粗利率実績
+  readonly gpRateVariance: number // 予算差異 (pt)
+  readonly markupRate: number // 値入率
+  readonly discountRate: number // 売変率
+  readonly salesBudget: number // 売上予算
+  readonly salesActual: number // 売上実績
+  readonly salesVariance: number // 差異
+  readonly salesAchievement: number // 達成率
+  readonly openingInventory: number // 機首在庫
+  readonly closingInventory: number // 期末在庫
+  readonly gpRateLanding: number // 最終粗利着地
+  readonly salesLanding: number // 最終売上着地
+}
+
+/** 部門別KPIパース結果 */
+export interface DepartmentKpiData {
+  readonly records: readonly DepartmentKpiRecord[]
+}

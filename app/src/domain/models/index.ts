@@ -29,6 +29,8 @@ export type {
   TimeSlotEntry,
   CategoryTimeSalesRecord,
   CategoryTimeSalesData,
+  DepartmentKpiRecord,
+  DepartmentKpiData,
 } from './DataTypes'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'

@@ -103,11 +103,18 @@ export function DashboardPage() {
   for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
   let cumActual = 0
   let cumBudget = 0
-  const budgetChartData: { day: number; actualCum: number; budgetCum: number }[] = []
+  let cumPrevYear = 0
+  const budgetChartData: { day: number; actualCum: number; budgetCum: number; prevYearCum: number | null }[] = []
   for (let d = 1; d <= daysInMonth; d++) {
     cumActual += salesDaily.get(d) ?? 0
     cumBudget += r.budgetDaily.get(d) ?? 0
-    budgetChartData.push({ day: d, actualCum: cumActual, budgetCum: cumBudget })
+    cumPrevYear += prevYear.daily.get(d)?.sales ?? 0
+    budgetChartData.push({
+      day: d,
+      actualCum: cumActual,
+      budgetCum: cumBudget,
+      prevYearCum: prevYear.hasPrevYear ? cumPrevYear : null,
+    })
   }
 
   const ctx: WidgetContext = {
@@ -125,6 +132,7 @@ export function DashboardPage() {
     categoryTimeSales: appState.data.categoryTimeSales,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
+    departmentKpi: appState.data.departmentKpi,
   }
 
   // Resolve active widgets
