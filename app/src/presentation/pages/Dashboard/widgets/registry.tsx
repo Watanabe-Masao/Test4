@@ -191,6 +191,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '階層ドリルダウン分析',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
     render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
       <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
@@ -200,6 +201,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別売上',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
     render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => (
       <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
     ),
@@ -209,6 +211,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '部門・クラス別売上',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
     render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
       <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
@@ -219,6 +222,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯×曜日ヒートマップ',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
     render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearCategoryTimeSales }) => (
       <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
     ),
@@ -228,6 +232,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '部門別時間帯パターン',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
     render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
       <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
     ),
@@ -237,6 +242,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '店舗別時間帯比較',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0 && ctx.stores.size > 1,
     render: ({ categoryTimeSales, stores, daysInMonth, year, month }) => (
       <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} />
     ),
@@ -246,6 +252,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別 前年同曜日比較',
     group: '分類別時間帯',
     size: 'full',
+    isVisible: (ctx) => ctx.prevYearCategoryTimeSales.hasPrevYear,
     render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => {
       if (!prevYearCategoryTimeSales.hasPrevYear) return null
       return (
@@ -421,4 +428,65 @@ export function saveLayout(ids: string[]): void {
   } catch {
     // ignore
   }
+}
+
+/**
+ * データ駆動ウィジェットの自動注入
+ *
+ * isVisible が設定されたウィジェットのうち、
+ * まだユーザーのレイアウトに含まれておらず、
+ * 過去に注入→除外された記録がないものを自動追加する。
+ */
+const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v1'
+
+function getAutoInjectedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(AUTO_INJECTED_KEY)
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+function saveAutoInjectedIds(ids: Set<string>): void {
+  try {
+    localStorage.setItem(AUTO_INJECTED_KEY, JSON.stringify([...ids]))
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * データ有無に応じてウィジェットを自動注入する。
+ * 初回のみ追加し、ユーザーが削除した場合は再注入しない。
+ *
+ * @returns 更新後の widgetIds（変更なしなら null）
+ */
+export function autoInjectDataWidgets(
+  currentIds: string[],
+  ctx: { categoryTimeSales: { records: readonly unknown[] }; prevYearCategoryTimeSales: { hasPrevYear: boolean }; stores: ReadonlyMap<string, unknown> },
+): string[] | null {
+  const seen = getAutoInjectedIds()
+  const candidates = WIDGET_REGISTRY.filter((w) => {
+    if (!w.isVisible) return false
+    // 既にレイアウトにある or 過去に注入済み → スキップ
+    if (currentIds.includes(w.id) || seen.has(w.id)) return false
+    // データチェック: isVisible は WidgetContext を要求するが、
+    // ここでは必要な最小フィールドで簡易チェック
+    if (w.id.startsWith('chart-timeslot-yoy')) {
+      return ctx.prevYearCategoryTimeSales.hasPrevYear
+    }
+    if (w.id === 'chart-store-timeslot-comparison') {
+      return ctx.categoryTimeSales.records.length > 0 && ctx.stores.size > 1
+    }
+    return ctx.categoryTimeSales.records.length > 0
+  })
+
+  if (candidates.length === 0) return null
+
+  const newSeen = new Set(seen)
+  for (const c of candidates) newSeen.add(c.id)
+  saveAutoInjectedIds(newSeen)
+
+  return [...currentIds, ...candidates.map((c) => c.id)]
 }
