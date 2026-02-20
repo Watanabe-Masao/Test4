@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   ComposedChart,
   Line,
@@ -244,9 +244,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
   const availableViews = VIEWS_BY_COMPARE[compareMode]
 
   // 比較モード変更時、現在のビューが利用不可なら line にフォールバック
-  useEffect(() => {
-    if (!availableViews.includes(view)) setView('line')
-  }, [compareMode]) // eslint-disable-line react-hooks/exhaustive-deps
+  const effectiveView = availableViews.includes(view) ? view : 'line'
 
   const showBudget = compareMode !== 'currentVsPrev'
   const showPrevYearSeries = compareMode !== 'budgetVsActual' && hasPrevYear
@@ -310,7 +308,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
     prevYearDiff: '前年差（累計）',
   }
 
-  const chartTitle = COMPARE_TITLES[compareMode]?.[view] ?? VIEW_TITLES[view]
+  const chartTitle = COMPARE_TITLES[compareMode]?.[effectiveView] ?? VIEW_TITLES[effectiveView]
 
   // 前年同曜日の累計最新値（サマリー表示用）
   const latestPrevYearCum = latestWithSales?.prevYearCum ?? null
@@ -335,7 +333,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           )}
           <ViewToggle>
             {availableViews.map((v) => (
-              <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
+              <ViewBtn key={v} $active={effectiveView === v} onClick={() => setView(v)}>
                 {VIEW_LABELS[v]}
               </ViewBtn>
             ))}
@@ -412,7 +410,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             />
 
             {/* ── 線グラフ / エリア / 前年差: 金額Y軸 ── */}
-            {(view === 'line' || view === 'area' || view === 'prevYearDiff') && (
+            {(effectiveView === 'line' || effectiveView === 'area' || effectiveView === 'prevYearDiff') && (
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -424,7 +422,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── 差分: 金額Y軸（マイナスあり） ── */}
-            {view === 'diff' && (
+            {effectiveView === 'diff' && (
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -436,7 +434,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── 達成率: %Y軸 ── */}
-            {view === 'rate' && (
+            {effectiveView === 'rate' && (
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -464,7 +462,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             />
 
             {/* ── 線グラフ: 塗りなし、太い線で明確に区別 ── */}
-            {view === 'line' && (
+            {effectiveView === 'line' && (
               <>
                 <Line
                   yAxisId="left" type="monotone" dataKey="actualCum"
@@ -503,7 +501,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── 差分: 予算差異を棒グラフ（+緑 / -赤）── */}
-            {view === 'diff' && (
+            {effectiveView === 'diff' && (
               <>
                 <Bar yAxisId="left" dataKey="diff" radius={[2, 2, 0, 0]} maxBarSize={16}>
                   {chartData.map((entry, i) => (
@@ -523,7 +521,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── 達成率: 折れ線 + 100%基準線 ── */}
-            {view === 'rate' && (
+            {effectiveView === 'rate' && (
               <>
                 <Line
                   yAxisId="left" type="monotone" dataKey="achieveRate"
@@ -547,7 +545,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── エリア: 従来のエリアチャート ── */}
-            {view === 'area' && (
+            {effectiveView === 'area' && (
               <>
                 {showBudget && (
                   <Area
@@ -586,7 +584,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             )}
 
             {/* ── 前年差: 予算差バー + 前年差ライン ── */}
-            {view === 'prevYearDiff' && (
+            {effectiveView === 'prevYearDiff' && (
               <>
                 <Bar yAxisId="left" dataKey="budgetDiff" radius={[3, 3, 0, 0]} maxBarSize={hasPrevYearDiff ? 12 : 18}>
                   {chartData.map((entry, i) => (
