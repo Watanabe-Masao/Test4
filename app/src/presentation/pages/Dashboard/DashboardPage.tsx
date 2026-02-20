@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef, type ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { CategoryHierarchyProvider } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
-import { WIDGET_MAP, loadLayout, saveLayout } from './widgets/registry'
+import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section, SectionTitle, EmptyState, EmptyIcon, EmptyTitle,
@@ -137,10 +137,25 @@ export function DashboardPage() {
     prevYearCategoryTimeSales: prevYearCTS,
   }
 
-  // Resolve active widgets
+  // データ駆動ウィジェットの自動注入
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const injected = autoInjectDataWidgets(widgetIds, {
+      categoryTimeSales: appState.data.categoryTimeSales,
+      prevYearCategoryTimeSales: prevYearCTS,
+      stores,
+    })
+    if (injected) {
+      setWidgetIds(injected)
+      saveLayout(injected)
+    }
+  }, [appState.data.categoryTimeSales.records.length, prevYearCTS.hasPrevYear, stores.size])
+
+  // Resolve active widgets (isVisible でデータ有無をフィルタ)
   const activeWidgets = widgetIds
     .map((id) => WIDGET_MAP.get(id))
     .filter((w): w is WidgetDef => w != null)
+    .filter((w) => w.isVisible ? w.isVisible(ctx) : true)
 
   // Split by type
   const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')

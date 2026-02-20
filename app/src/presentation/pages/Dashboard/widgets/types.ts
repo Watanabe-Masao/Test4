@@ -11,6 +11,8 @@ export interface WidgetDef {
   readonly group: string
   readonly size: WidgetSize
   readonly render: (ctx: WidgetContext) => ReactNode
+  /** データ有無による表示判定（未設定時は常に表示） */
+  readonly isVisible?: (ctx: WidgetContext) => boolean
 }
 
 export interface WidgetContext {
