@@ -3,7 +3,7 @@ import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import { loadMonthlySlice } from '@/infrastructure/storage/IndexedDBStore'
 import { discountToSalesData } from '@/infrastructure/ImportService'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import type { DiscountData, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { DiscountData, DiscountDayEntry, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 
 /**
  * 前年自動同期日数。
@@ -65,7 +65,7 @@ export function useAutoLoadPrevYear(): void {
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
 
         // 売変データ: 本月 + 翌月先頭を拡張day番号で結合
-        const mergedDiscount: Record<string, Record<number, { sales: number; discount: number; customers: number }>> = {}
+        const mergedDiscount: Record<string, Record<number, DiscountDayEntry>> = {}
         for (const [storeId, days] of Object.entries(prevDiscount)) {
           mergedDiscount[storeId] = { ...days }
         }
