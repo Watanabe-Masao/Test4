@@ -14,6 +14,7 @@ import {
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { computeEstimatedInventory } from './inventoryCalc'
 import type { Store, StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -99,23 +100,47 @@ export function SalesPurchaseComparisonChart({
       comparisonResults.map((r) => ({
         storeId: r.storeId,
         name: stores.get(r.storeId)?.name ?? r.storeId,
+        hasInventory: r.openingInventory != null,
         result: r,
       })),
     [comparisonResults, stores],
   )
 
+  // 推定在庫を表示可能な店舗が1つでもあるか
+  const anyHasInventory = storeEntries.some((s) => s.hasInventory)
+
   const chartData = useMemo(() => {
-    const data: Record<string, number>[] = []
+    // 店舗ごとに推定在庫を事前計算
+    const invByStore = new Map<string, ReturnType<typeof computeEstimatedInventory>>()
+    for (const s of storeEntries) {
+      if (s.hasInventory) {
+        invByStore.set(
+          s.storeId,
+          computeEstimatedInventory(
+            s.result.daily,
+            daysInMonth,
+            s.result.openingInventory!,
+            s.result.closingInventory,
+            s.result.coreMarkupRate,
+            s.result.discountRate,
+          ),
+        )
+      }
+    }
+
+    const data: Record<string, number | null>[] = []
     for (let d = 1; d <= daysInMonth; d++) {
-      const entry: Record<string, number> = { day: d }
+      const entry: Record<string, number | null> = { day: d }
       for (const s of storeEntries) {
         const rec = s.result.daily.get(d)
         entry[`${s.name}_売上`] = rec?.sales ?? 0
         entry[`${s.name}_仕入`] = rec?.purchase.cost ?? 0
+        const inv = invByStore.get(s.storeId)
+        entry[`${s.name}_推定在庫`] = inv?.[d - 1]?.estimated ?? null
       }
       data.push(entry)
     }
-    return data.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+    return data.filter((d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
   }, [storeEntries, daysInMonth, rangeStart, rangeEnd])
 
   if (storeEntries.length < 2) return null
@@ -123,7 +148,7 @@ export function SalesPurchaseComparisonChart({
   return (
     <Wrapper>
       <Header>
-        <Title>売上・仕入 店舗比較</Title>
+        <Title>売上・仕入・推定在庫 店舗比較</Title>
         {headerExtra}
       </Header>
 
@@ -136,7 +161,21 @@ export function SalesPurchaseComparisonChart({
             axisLine={{ stroke: ct.grid }}
             tickLine={false}
           />
+          {/* 左軸: 推定在庫（累計スケール） */}
+          {anyHasInventory && (
+            <YAxis
+              yAxisId="left"
+              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={toManYen}
+              width={55}
+            />
+          )}
+          {/* 右軸: 売上・仕入（日次スケール） */}
           <YAxis
+            yAxisId="right"
+            orientation={anyHasInventory ? 'right' : 'left'}
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
@@ -153,30 +192,46 @@ export function SalesPurchaseComparisonChart({
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
 
-          {/* 売上金額: Bar */}
+          {/* 棒グラフ: 売上金額（店舗色、高不透明度） */}
           {storeEntries.map((s, i) => (
             <Bar
               key={`${s.storeId}_sales`}
+              yAxisId="right"
               dataKey={`${s.name}_売上`}
               fill={STORE_COLORS[i % STORE_COLORS.length]}
-              fillOpacity={0.35}
+              fillOpacity={0.45}
               isAnimationActive={false}
             />
           ))}
 
-          {/* 仕入金額: Line */}
+          {/* 棒グラフ: 仕入金額（店舗色、低不透明度） */}
           {storeEntries.map((s, i) => (
-            <Line
+            <Bar
               key={`${s.storeId}_purchase`}
-              type="monotone"
+              yAxisId="right"
               dataKey={`${s.name}_仕入`}
-              stroke={STORE_COLORS[i % STORE_COLORS.length]}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: STORE_COLORS[i % STORE_COLORS.length], stroke: ct.bg2, strokeWidth: 2 }}
+              fill={STORE_COLORS[i % STORE_COLORS.length]}
+              fillOpacity={0.2}
               isAnimationActive={false}
             />
           ))}
+
+          {/* 折れ線: 推定在庫（期首在庫ありの店舗のみ） */}
+          {storeEntries.map((s, i) =>
+            s.hasInventory ? (
+              <Line
+                key={`${s.storeId}_inv`}
+                yAxisId="left"
+                type="monotone"
+                dataKey={`${s.name}_推定在庫`}
+                stroke={STORE_COLORS[i % STORE_COLORS.length]}
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 4, fill: STORE_COLORS[i % STORE_COLORS.length], stroke: ct.bg2, strokeWidth: 2 }}
+                isAnimationActive={false}
+              />
+            ) : null,
+          )}
         </ComposedChart>
       </ResponsiveContainer>
 
@@ -189,12 +244,14 @@ export function SalesPurchaseComparisonChart({
               <MiniTh>売上合計</MiniTh>
               <MiniTh>仕入原価合計</MiniTh>
               <MiniTh>差額</MiniTh>
+              <MiniTh>推定期末在庫</MiniTh>
               <MiniTh>値入率</MiniTh>
             </tr>
           </thead>
           <tbody>
             {storeEntries.map((s, i) => {
               const diff = s.result.totalSales - s.result.inventoryCost
+              const estClosing = s.result.estMethodClosingInventory
               return (
                 <tr key={s.storeId}>
                   <MiniTd>
@@ -204,6 +261,7 @@ export function SalesPurchaseComparisonChart({
                   <MiniTd>{toComma(s.result.totalSales)}</MiniTd>
                   <MiniTd>{toComma(s.result.inventoryCost)}</MiniTd>
                   <MiniTd>{toComma(diff)}</MiniTd>
+                  <MiniTd>{estClosing != null ? toComma(estClosing) : '-'}</MiniTd>
                   <MiniTd>{(s.result.coreMarkupRate * 100).toFixed(1)}%</MiniTd>
                 </tr>
               )

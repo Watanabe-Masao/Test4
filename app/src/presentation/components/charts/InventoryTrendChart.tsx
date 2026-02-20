@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import {
-  LineChart,
+  ComposedChart,
   Line,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -14,6 +15,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { SalesPurchaseComparisonChart } from './SalesPurchaseComparisonChart'
+import { computeEstimatedInventory } from './inventoryCalc'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -78,37 +80,6 @@ interface Props {
   stores?: ReadonlyMap<string, Store>
 }
 
-/** 1店舗分の推定在庫推移を計算 */
-function computeEstimatedInventory(
-  daily: ReadonlyMap<number, DailyRecord>,
-  daysInMonth: number,
-  openingInventory: number,
-  closingInventory: number | null,
-  markupRate: number,
-  discountRate: number,
-) {
-  const divisor = 1 - discountRate
-  const result: { day: number; estimated: number; actual: number | null }[] = []
-  let cumInvCost = 0
-  let cumEstCogs = 0
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const rec = daily.get(d)
-    if (rec) {
-      cumInvCost += rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
-      const dayGrossSales = divisor > 0 ? rec.coreSales / divisor : rec.coreSales
-      cumEstCogs += dayGrossSales * (1 - markupRate) + rec.consumable.cost
-    }
-    const actualInv = (d === daysInMonth && closingInventory != null) ? closingInventory : null
-    result.push({
-      day: d,
-      estimated: openingInventory + cumInvCost - cumEstCogs,
-      actual: actualInv,
-    })
-  }
-  return result
-}
-
 export function InventoryTrendChart({
   daily,
   daysInMonth,
@@ -127,14 +98,31 @@ export function InventoryTrendChart({
   const [viewMode, setViewMode] = useState<ViewMode>('aggregate')
   const effectiveMode = canCompare ? viewMode : 'aggregate'
 
-  // --- 合計モード用データ ---
-  const aggregateData = useMemo(() => {
-    if (openingInventory == null) return null
-    const all = computeEstimatedInventory(daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate)
-    return all.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
-  }, [daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate, rangeStart, rangeEnd])
+  const hasInventory = openingInventory != null
 
-  if (openingInventory == null && !canCompare) return null
+  // --- 合計モード用データ（売上・仕入 + 推定在庫） ---
+  const aggregateData = useMemo(() => {
+    const invData = hasInventory
+      ? computeEstimatedInventory(daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate)
+      : null
+
+    const result: { day: number; sales: number; purchase: number; estimated: number | null; actual: number | null }[] = []
+    for (let d = 1; d <= daysInMonth; d++) {
+      const rec = daily.get(d)
+      const invPt = invData?.[d - 1]
+      result.push({
+        day: d,
+        sales: rec?.sales ?? 0,
+        purchase: rec?.purchase.cost ?? 0,
+        estimated: invPt?.estimated ?? null,
+        actual: invPt?.actual ?? null,
+      })
+    }
+    return result.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+  }, [daily, daysInMonth, hasInventory, openingInventory, closingInventory, markupRate, discountRate, rangeStart, rangeEnd])
+
+  // daily データが空なら描画不要
+  if (daily.size === 0 && !canCompare) return null
 
   // --- 比較モード描画: 売上・仕入 複合グラフ ---
   if (effectiveMode === 'compare' && comparisonResults && stores) {
@@ -153,13 +141,18 @@ export function InventoryTrendChart({
     )
   }
 
-  // --- 合計モード描画（従来） ---
-  if (!aggregateData) return null
+  // --- 合計モード描画: 売上・仕入(Bar) + 推定在庫(Line) 複合グラフ ---
+  const LABELS: Record<string, string> = {
+    sales: '売上金額',
+    purchase: '仕入金額',
+    estimated: '推定在庫',
+    actual: '実在庫',
+  }
 
   return (
     <Wrapper>
       <Header>
-        <Title>推定在庫推移 vs 実在庫</Title>
+        <Title>売上・仕入・推定在庫</Title>
         {canCompare && (
           <TabGroup>
             <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
@@ -168,7 +161,7 @@ export function InventoryTrendChart({
         )}
       </Header>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={canCompare ? 300 : '84%'}>
-        <LineChart data={aggregateData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+        <ComposedChart data={aggregateData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
             dataKey="day"
@@ -176,7 +169,21 @@ export function InventoryTrendChart({
             axisLine={{ stroke: ct.grid }}
             tickLine={false}
           />
+          {/* 左軸: 推定在庫（大きいスケール） */}
+          {hasInventory && (
+            <YAxis
+              yAxisId="left"
+              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={toManYen}
+              width={55}
+            />
+          )}
+          {/* 右軸: 売上・仕入（日次スケール） */}
           <YAxis
+            yAxisId="right"
+            orientation={hasInventory ? 'right' : 'left'}
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
@@ -185,29 +192,48 @@ export function InventoryTrendChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              const labels: Record<string, string> = { estimated: '推定在庫', actual: '実在庫' }
-              return [value != null ? toComma(value as number) : '-', labels[name as string] ?? String(name)]
-            }}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              value != null ? toComma(value) : '-',
+              LABELS[name as string] ?? String(name),
+            ]}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => {
-              const labels: Record<string, string> = { estimated: '推定在庫', actual: '実在庫' }
-              return labels[value] ?? value
-            }}
+            formatter={(value) => LABELS[value] ?? value}
           />
-          <Line
-            type="monotone"
-            dataKey="estimated"
-            stroke={ct.colors.cyan}
-            strokeWidth={2.5}
-            dot={false}
-            activeDot={{ r: 4, fill: ct.colors.cyan, stroke: ct.bg2, strokeWidth: 2 }}
+
+          {/* 棒グラフ: 売上金額・仕入金額 */}
+          <Bar
+            yAxisId="right"
+            dataKey="sales"
+            fill={ct.colors.primary}
+            fillOpacity={0.55}
+            isAnimationActive={false}
           />
-          {closingInventory != null && (
+          <Bar
+            yAxisId="right"
+            dataKey="purchase"
+            fill={ct.colors.warning}
+            fillOpacity={0.55}
+            isAnimationActive={false}
+          />
+
+          {/* 折れ線グラフ: 推定在庫 */}
+          {hasInventory && (
             <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="estimated"
+              stroke={ct.colors.cyan}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 4, fill: ct.colors.cyan, stroke: ct.bg2, strokeWidth: 2 }}
+            />
+          )}
+          {hasInventory && closingInventory != null && (
+            <Line
+              yAxisId="left"
               type="monotone"
               dataKey="actual"
               stroke={ct.colors.success}
@@ -215,14 +241,17 @@ export function InventoryTrendChart({
               dot={{ r: 6, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
             />
           )}
-          {openingInventory != null && (
+
+          {/* 基準線 */}
+          {hasInventory && (
             <ReferenceLine
-              y={openingInventory}
+              yAxisId="left"
+              y={openingInventory!}
               stroke={ct.colors.info}
               strokeDasharray="6 3"
               strokeWidth={1}
               label={{
-                value: `期首 ${toManYen(openingInventory)}`,
+                value: `期首 ${toManYen(openingInventory!)}`,
                 position: 'left',
                 fill: ct.colors.info,
                 fontSize: ct.fontSize.xs,
@@ -230,8 +259,9 @@ export function InventoryTrendChart({
               }}
             />
           )}
-          {closingInventory != null && (
+          {hasInventory && closingInventory != null && (
             <ReferenceLine
+              yAxisId="left"
               y={closingInventory}
               stroke={ct.colors.success}
               strokeDasharray="4 4"
@@ -245,7 +275,7 @@ export function InventoryTrendChart({
               }}
             />
           )}
-        </LineChart>
+        </ComposedChart>
       </ResponsiveContainer>
       <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
     </Wrapper>
