@@ -199,7 +199,7 @@ export function processFileData(
           prevYearSales: discountToSalesData(prevDiscountData),
           prevYearDiscount: prevDiscountData,
         },
-        detectedYearMonth,
+        // 前年データの年月で当年の targetYear/Month を上書きしない
       }
     }
 
@@ -260,7 +260,7 @@ export function processFileData(
           ...current,
           prevYearCategoryTimeSales: mergeCategoryTimeSalesData(current.prevYearCategoryTimeSales, newData),
         },
-        detectedYearMonth,
+        // 前年データの年月で当年の targetYear/Month を上書きしない
       }
     }
 
