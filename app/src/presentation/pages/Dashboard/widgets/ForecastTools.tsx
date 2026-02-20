@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
@@ -61,13 +61,29 @@ const SliderInput = styled.input`
   }
 `
 
-const SliderValue = styled.span`
+const SliderValueInput = styled.input`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   min-width: 80px;
+  width: 130px;
   text-align: right;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 2px 4px;
+  outline: none;
+  cursor: text;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.border};
+  }
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)'};
+  }
 `
 
 const SliderTicks = styled.div`
@@ -98,6 +114,102 @@ const ResetButton = styled.button`
     color: ${({ theme }) => theme.colors.text};
   }
 `
+
+// ─── Editable Slider Value ───────────────────────────────
+
+interface EditableValueProps {
+  value: number
+  min: number
+  max: number
+  onChange: (v: number) => void
+  format: (v: number) => string
+  /** 入力文字列 → 数値。NaN を返すと無視 */
+  parse?: (s: string) => number
+}
+
+function EditableCurrencyValue({ value, min, max, onChange, format, parse }: EditableValueProps) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFocus = useCallback(() => {
+    setEditing(true)
+    setDraft(String(value))
+  }, [value])
+
+  const commit = useCallback(() => {
+    setEditing(false)
+    const stripped = draft.replace(/[,、，\s%％]/g, '')
+    const parsed = parse ? parse(stripped) : Number(stripped)
+    if (!isNaN(parsed) && isFinite(parsed)) {
+      onChange(Math.max(min, Math.min(max, Math.round(parsed))))
+    }
+  }, [draft, min, max, onChange, parse])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      inputRef.current?.blur()
+    } else if (e.key === 'Escape') {
+      setEditing(false)
+      setDraft('')
+      inputRef.current?.blur()
+    }
+  }, [])
+
+  return (
+    <SliderValueInput
+      ref={inputRef}
+      value={editing ? draft : format(value)}
+      onFocus={handleFocus}
+      onBlur={commit}
+      onChange={(e) => setDraft(e.target.value)}
+      onKeyDown={handleKeyDown}
+    />
+  )
+}
+
+function EditablePercentValue({ value, min, max, onChange }: Omit<EditableValueProps, 'format' | 'parse'>) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFocus = useCallback(() => {
+    setEditing(true)
+    setDraft(value.toFixed(1))
+  }, [value])
+
+  const commit = useCallback(() => {
+    setEditing(false)
+    const stripped = draft.replace(/[%％\s]/g, '')
+    const parsed = Number(stripped)
+    if (!isNaN(parsed) && isFinite(parsed)) {
+      onChange(Math.max(min, Math.min(max, Math.round(parsed * 10) / 10)))
+    }
+  }, [draft, min, max, onChange])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      inputRef.current?.blur()
+    } else if (e.key === 'Escape') {
+      setEditing(false)
+      setDraft('')
+      inputRef.current?.blur()
+    }
+  }, [])
+
+  return (
+    <SliderValueInput
+      ref={inputRef}
+      value={editing ? draft : `${value.toFixed(1)}%`}
+      onFocus={handleFocus}
+      onBlur={commit}
+      onChange={(e) => setDraft(e.target.value)}
+      onKeyDown={handleKeyDown}
+    />
+  )
+}
 
 // ─── Component ──────────────────────────────────────────
 
@@ -186,7 +298,13 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={salesLanding}
                 onChange={(e) => setSalesLanding(Number(e.target.value))}
               />
-              <SliderValue>{formatCurrency(salesLanding)}</SliderValue>
+              <EditableCurrencyValue
+                value={salesLanding}
+                min={salesMin}
+                max={salesMax}
+                onChange={setSalesLanding}
+                format={formatCurrency}
+              />
             </SliderRow>
             <SliderTicks>
               <span>{formatCurrency(salesMin)}</span>
@@ -214,7 +332,12 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={remainGPRate}
                 onChange={(e) => setRemainGPRate(Number(e.target.value))}
               />
-              <SliderValue>{remainGPRate.toFixed(1)}%</SliderValue>
+              <EditablePercentValue
+                value={remainGPRate}
+                min={10}
+                max={40}
+                onChange={setRemainGPRate}
+              />
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
@@ -287,7 +410,13 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetMonthlySales}
                 onChange={(e) => setTargetMonthlySales(Number(e.target.value))}
               />
-              <SliderValue>{formatCurrency(targetMonthlySales)}</SliderValue>
+              <EditableCurrencyValue
+                value={targetMonthlySales}
+                min={goalSalesMin}
+                max={goalSalesMax}
+                onChange={setTargetMonthlySales}
+                format={formatCurrency}
+              />
             </SliderRow>
             <SliderTicks>
               <span>{formatCurrency(goalSalesMin)}</span>
@@ -315,7 +444,12 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetGPRate}
                 onChange={(e) => setTargetGPRate(Number(e.target.value))}
               />
-              <SliderValue>{targetGPRate.toFixed(1)}%</SliderValue>
+              <EditablePercentValue
+                value={targetGPRate}
+                min={10}
+                max={40}
+                onChange={setTargetGPRate}
+              />
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
