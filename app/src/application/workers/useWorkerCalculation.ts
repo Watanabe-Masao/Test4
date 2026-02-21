@@ -4,9 +4,10 @@
  * 計算処理を Web Worker にオフロードし、メインスレッドの
  * ブロッキングを防止する。Worker 非対応環境では同期フォールバック。
  */
-import { useRef, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
 import type { WorkerResponse } from './calculationWorker'
+import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
 
 interface WorkerCalculationResult {
   /** Worker を使った非同期計算 */
@@ -24,29 +25,30 @@ interface WorkerCalculationResult {
 }
 
 export function useWorkerCalculation(): WorkerCalculationResult {
-  const workerRef = useRef<Worker | null>(null)
   const [isComputing, setIsComputing] = useState(false)
-  const [isWorkerAvailable, setIsWorkerAvailable] = useState(false)
 
-  // Worker 初期化
-  useEffect(() => {
+  // Worker インスタンスを useState で管理し、useEffect 内の同期的 setState と
+  // useRef のレンダー中アクセスを回避する
+  const [worker, setWorker] = useState<Worker | null>(() => {
     try {
-      const worker = new Worker(
+      return new Worker(
         new URL('./calculationWorker.ts', import.meta.url),
         { type: 'module' },
       )
-      workerRef.current = worker
-      setIsWorkerAvailable(true)
-
-      return () => {
-        worker.terminate()
-        workerRef.current = null
-      }
     } catch {
       // Worker 非対応環境 (テスト環境含む)
-      setIsWorkerAvailable(false)
+      return null
     }
-  }, [])
+  })
+
+  const isWorkerAvailable = worker !== null
+
+  // Worker クリーンアップ
+  useEffect(() => {
+    return () => {
+      worker?.terminate()
+    }
+  }, [worker])
 
   const calculateAsync = useCallback(
     (
@@ -54,13 +56,9 @@ export function useWorkerCalculation(): WorkerCalculationResult {
       settings: AppSettings,
       daysInMonth: number,
     ): Promise<ReadonlyMap<string, StoreResult>> => {
-      const worker = workerRef.current
-
       if (!worker) {
-        // フォールバック: 同期計算
-        return import('@/application/services/CalculationOrchestrator').then(
-          ({ calculateAllStores }) => calculateAllStores(data, settings, daysInMonth),
-        )
+        // フォールバック: 同期計算（静的 import で統一し、チャンク分割の重複を回避）
+        return Promise.resolve(calculateAllStores(data, settings, daysInMonth))
       }
 
       setIsComputing(true)
@@ -96,14 +94,13 @@ export function useWorkerCalculation(): WorkerCalculationResult {
         })
       })
     },
-    [],
+    [worker],
   )
 
   const terminate = useCallback(() => {
-    workerRef.current?.terminate()
-    workerRef.current = null
-    setIsWorkerAvailable(false)
-  }, [])
+    worker?.terminate()
+    setWorker(null)
+  }, [worker])
 
   return {
     calculateAsync,

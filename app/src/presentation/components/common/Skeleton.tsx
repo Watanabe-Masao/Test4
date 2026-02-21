@@ -13,7 +13,7 @@ type SkeletonVariant = 'text' | 'rectangular' | 'circular'
 interface SkeletonProps {
   width?: string
   height?: string
-  borderRadius?: string
+  $borderRadius?: string
   variant?: SkeletonVariant
 }
 
@@ -31,8 +31,8 @@ export const Skeleton = styled.div<SkeletonProps>`
       : 'rgba(0, 0, 0, 0.08)'};
   width: ${({ width }) => width ?? '100%'};
   height: ${({ height }) => height ?? '1em'};
-  border-radius: ${({ borderRadius, variant = 'text' }) =>
-    borderRadius ?? variantDefaults[variant].borderRadius};
+  border-radius: ${({ $borderRadius, variant = 'text' }) =>
+    $borderRadius ?? variantDefaults[variant].borderRadius};
   animation: ${shimmer} 1.8s ease-in-out infinite;
   display: block;
 `
@@ -81,7 +81,7 @@ export function ChartSkeleton({ height = '300px' }: { height?: string }) {
   return (
     <ChartWrapper>
       <SkeletonLine width="30%" height="12px" style={{ marginBottom: '12px' }} />
-      <Skeleton variant="rectangular" height={height} borderRadius="4px" />
+      <Skeleton variant="rectangular" height={height} $borderRadius="4px" />
     </ChartWrapper>
   )
 }

@@ -166,7 +166,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch],
+    [dispatch, autoSetDataEndDay],
   )
 
   /** 差分確認結果を適用する */
