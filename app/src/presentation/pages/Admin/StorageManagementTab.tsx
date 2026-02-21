@@ -327,7 +327,7 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
     } finally {
       setLoading(false)
     }
-  }, [year, month, selectedType])
+  }, [year, month, selectedType, loadSlice])
 
   if (typesWithData.length === 0) return null
 
@@ -444,7 +444,7 @@ function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; 
     } finally {
       setLoading(false)
     }
-  }, [year, month, dataType, expanded])
+  }, [year, month, dataType, expanded, loadSlice])
 
   return (
     <div style={{ marginTop: 8 }}>
