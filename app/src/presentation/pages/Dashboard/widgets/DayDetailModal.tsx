@@ -144,7 +144,7 @@ interface DrillItem {
 }
 
 type MetricKey = 'amount' | 'quantity'
-type CompareMode = 'actual' | 'prevYear'
+type CompareMode = 'daily' | 'cumulative'
 type SortKey = 'amount' | 'quantity' | 'pct' | 'name' | 'yoyRatio'
 type SortDir = 'asc' | 'desc'
 
@@ -467,6 +467,7 @@ function CategoryDrilldown({
   cumRecords, cumPrevRecords, cumBudget,
   actual, ach, pySales, hasPrevYearSales,
   cumSales, cumAch, cumPrevYear,
+  year, month, day,
 }: {
   records: readonly CategoryTimeSalesRecord[]
   prevRecords: readonly CategoryTimeSalesRecord[]
@@ -476,12 +477,13 @@ function CategoryDrilldown({
   cumBudget: number
   actual: number; ach: number; pySales: number; hasPrevYearSales: boolean
   cumSales: number; cumAch: number; cumPrevYear: number
+  year: number; month: number; day: number
 }) {
   const [filter, setFilter] = useState<HierarchyFilter>({})
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [metric, setMetric] = useState<MetricKey>('amount')
-  const [compare, setCompare] = useState<CompareMode>('actual')
+  const [compare, setCompare] = useState<CompareMode>('daily')
   const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
 
   const currentLevel = getHierarchyLevel(filter)
@@ -538,8 +540,8 @@ function CategoryDrilldown({
     [cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear],
   )
 
-  // Use day items for table/treemap/summary
-  const items = dayItems
+  // Use day or cumulative items for table/treemap/summary based on compare mode
+  const items = compare === 'daily' ? dayItems : cumItemsList
 
   const sorted = useMemo(() => {
     const arr = [...items]
@@ -590,7 +592,7 @@ function CategoryDrilldown({
     barItems: DrillItem[],
     budgetVal: number,
     actualVal: number,
-    achVal: number,
+    _achVal: number,
     pyVal: number,
     prefix: string,
   ) => {
@@ -604,11 +606,19 @@ function CategoryDrilldown({
       ? Math.max(budgetVal, bActualTotal, bPrevTotal, 1)
       : Math.max(bActualTotal, bPrevTotal, 1)
 
-    const tooltipFn = (name: string, val: number, total: number) => {
-      const pct = total > 0 ? (val / total * 100).toFixed(1) : '0'
-      return isAmountMode
-        ? `${name} ${fmtSen(val)} (${pct}%)`
-        : `${name} ${val.toLocaleString()}点 (${pct}%)`
+    const tooltipFn = (it: DrillItem, val: number, total: number, isPrev: boolean) => {
+      const pct = total > 0 ? (val / total * 100).toFixed(2) : '0.00'
+      const prevVal = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
+      const curVal = isAmountMode ? it.amount : it.quantity
+      const yoy = isPrev ? undefined : (prevVal > 0 ? (curVal / prevVal * 100).toFixed(2) : undefined)
+      const valStr = isAmountMode ? fmtSen(val) : `${val.toLocaleString()}点`
+      const lines = [`${it.name}`, `${valStr}（構成比 ${pct}%）`]
+      if (!isPrev && yoy) lines.push(`前年比 ${yoy}%`)
+      if (!isPrev && prevVal > 0) {
+        const prevStr = isAmountMode ? fmtSen(prevVal) : `${prevVal.toLocaleString()}点`
+        lines.push(`前年 ${prevStr}`)
+      }
+      return lines.join(' / ')
     }
 
     return (
@@ -619,10 +629,9 @@ function CategoryDrilldown({
           <StackRow>
             <StackLabel>予算</StackLabel>
             <StackTrack>
-              <StackSegment $flex={budgetVal / maxBar} $color="#6366f1" style={{ opacity: 0.6 }}>
-                <SegLabel>{fmtSen(budgetVal)}</SegLabel>
-              </StackSegment>
+              <StackSegment $flex={budgetVal / maxBar} $color="#94a3b8" style={{ opacity: 0.7 }} />
             </StackTrack>
+            <StackTotal>{fmtSen(budgetVal)}</StackTotal>
           </StackRow>
         )}
         {/* 実績 bar */}
@@ -638,10 +647,12 @@ function CategoryDrilldown({
                   key={it.code} $flex={val / maxBar} $color={it.color}
                   onMouseEnter={() => setHoveredSeg(`${prefix}a-${it.code}`)}
                   onMouseLeave={() => setHoveredSeg(null)}
+                  onDoubleClick={() => canDrill && handleDrill(it)}
+                  style={{ cursor: canDrill ? 'pointer' : 'default' }}
                 >
-                  {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
+                  {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
                   {hoveredSeg === `${prefix}a-${it.code}` && (
-                    <SegmentTooltip>{tooltipFn(it.name, val, bActualTotal)}</SegmentTooltip>
+                    <SegmentTooltip>{tooltipFn(it, val, bActualTotal, false)}</SegmentTooltip>
                   )}
                 </StackSegment>
               )
@@ -649,7 +660,6 @@ function CategoryDrilldown({
           </StackTrack>
           <StackTotal>
             {isAmountMode ? fmtSen(actualVal) : fmtVal(bActualTotal)}
-            {isAmountMode && achVal > 0 && `（${formatPercent(achVal)}）`}
           </StackTotal>
         </StackRow>
         {/* 前年 bar */}
@@ -664,13 +674,14 @@ function CategoryDrilldown({
                 return (
                   <StackSegment
                     key={it.code} $flex={val / maxBar} $color={it.color}
-                    style={{ opacity: 0.5 }}
+                    style={{ opacity: 0.5, cursor: canDrill ? 'pointer' : 'default' }}
                     onMouseEnter={() => setHoveredSeg(`${prefix}p-${it.code}`)}
                     onMouseLeave={() => setHoveredSeg(null)}
+                    onDoubleClick={() => canDrill && handleDrill(it)}
                   >
-                    {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
+                    {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
                     {hoveredSeg === `${prefix}p-${it.code}` && (
-                      <SegmentTooltip>{tooltipFn(it.name, val, bPrevTotal)}</SegmentTooltip>
+                      <SegmentTooltip>{tooltipFn(it, val, bPrevTotal, true)}</SegmentTooltip>
                     )}
                   </StackSegment>
                 )
@@ -699,22 +710,18 @@ function CategoryDrilldown({
     <DrillSection>
       <DetailSectionTitle>分類別売上ドリルダウン</DetailSectionTitle>
 
-      {/* Toggle controls (指標 & 比較 only, no 期間 toggle) */}
+      {/* Toggle controls (指標 & 比較) */}
       <ToggleBar>
         <ToggleLabel>指標</ToggleLabel>
         <ToggleGroup>
           <ToggleBtn $active={metric === 'amount'} onClick={() => setMetric('amount')}>販売金額</ToggleBtn>
           <ToggleBtn $active={metric === 'quantity'} onClick={() => setMetric('quantity')}>点数</ToggleBtn>
         </ToggleGroup>
-        {hasPrevYear && (
-          <>
-            <ToggleLabel>比較</ToggleLabel>
-            <ToggleGroup>
-              <ToggleBtn $active={compare === 'actual'} onClick={() => setCompare('actual')}>実績</ToggleBtn>
-              <ToggleBtn $active={compare === 'prevYear'} onClick={() => setCompare('prevYear')}>前年</ToggleBtn>
-            </ToggleGroup>
-          </>
-        )}
+        <ToggleLabel>比較</ToggleLabel>
+        <ToggleGroup>
+          <ToggleBtn $active={compare === 'daily'} onClick={() => setCompare('daily')}>単日</ToggleBtn>
+          <ToggleBtn $active={compare === 'cumulative'} onClick={() => setCompare('cumulative')}>累計</ToggleBtn>
+        </ToggleGroup>
       </ToggleBar>
 
       <DrillBreadcrumb>
@@ -731,38 +738,38 @@ function CategoryDrilldown({
 
       <SummaryRow>
         <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
-        <SumItem><SumLabel>合計（当日）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
+        <SumItem><SumLabel>合計（{compare === 'daily' ? '当日' : '累計'}）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
         {hasPrevYear && displayYoY != null && (
           <SumItem>
             <SumLabel>前年比</SumLabel>
-            <SumValue><YoYVal $positive={displayYoY >= 1}>{(displayYoY * 100).toFixed(1)}%</YoYVal></SumValue>
+            <SumValue><YoYVal $positive={displayYoY >= 1}>{(displayYoY * 100).toFixed(2)}%</YoYVal></SumValue>
           </SumItem>
         )}
       </SummaryRow>
 
       {/* ── 当日 bar chart ── */}
-      {renderBarSection('予算 vs 実績（当日）', dayItems, budget, actual, ach, pySales, 'day-')}
+      {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, pySales, 'day-')}
       {/* ── 累計 bar chart ── */}
-      {renderBarSection('予算 vs 実績（累計）', cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-')}
+      {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-')}
 
-      {/* Treemap (当日 data) */}
+      {/* Treemap */}
       <DrillTreemap>
         {items.slice(0, 12).map((it) => {
-          const val = compare === 'prevYear' && hasPrevYear
-            ? (isAmountMode ? it.prevAmount ?? 0 : it.prevQuantity ?? 0)
-            : (isAmountMode ? it.amount : it.quantity)
+          const val = isAmountMode ? it.amount : it.quantity
           return (
             <TreeBlock key={it.code} $flex={val} $color={it.color}
-              $canDrill={canDrill} onClick={() => canDrill && handleDrill(it)}
-              title={`${it.name}: ${fmtVal(val)} (${it.pct.toFixed(1)}%)`}>
+              $canDrill={canDrill}
+              onClick={() => canDrill && handleDrill(it)}
+              onDoubleClick={() => canDrill && handleDrill(it)}
+              title={`${it.name}: ${fmtVal(val)} (${it.pct.toFixed(2)}%)`}>
               <TreeLabel>{it.name}</TreeLabel>
-              <TreePct>{it.pct.toFixed(1)}%</TreePct>
+              <TreePct>{it.pct.toFixed(2)}%</TreePct>
             </TreeBlock>
           )
         })}
       </DrillTreemap>
 
-      {/* Data table (当日 data) */}
+      {/* Data table */}
       <div style={{ overflowX: 'auto' }}>
         <DrillTable>
           <thead><tr>
@@ -772,19 +779,14 @@ function CategoryDrilldown({
               {isAmountMode ? '売上金額' : '数量'}{arrow('amount')}
             </DTh>
             <DTh $sortable onClick={() => handleSort('pct')}>構成比{arrow('pct')}</DTh>
-            {compare === 'actual' && (
-              <DTh $sortable onClick={() => handleSort('quantity')}>
-                {isAmountMode ? '数量' : '売上金額'}{arrow('quantity')}
-              </DTh>
-            )}
-            {compare === 'prevYear' && hasPrevYear && (
+            <DTh $sortable onClick={() => handleSort('quantity')}>
+              {isAmountMode ? '数量' : '売上金額'}{arrow('quantity')}
+            </DTh>
+            {hasPrevYear && (
               <>
                 <DTh>前年</DTh>
                 <DTh $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</DTh>
               </>
-            )}
-            {compare === 'actual' && hasPrevYear && (
-              <DTh $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</DTh>
             )}
             {canDrill && <DTh />}
           </tr></thead>
@@ -795,7 +797,9 @@ function CategoryDrilldown({
               const prevMainVal = isAmountMode ? it.prevAmount : it.prevQuantity
               const yoy = isAmountMode ? it.yoyRatio : it.yoyQtyRatio
               return (
-                <DTr key={it.code} $clickable={canDrill} onClick={() => canDrill && handleDrill(it)}>
+                <DTr key={it.code} $clickable={canDrill}
+                  onClick={() => canDrill && handleDrill(it)}
+                  onDoubleClick={() => canDrill && handleDrill(it)}>
                   <DTd $mono>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                       <LegendDot $color={it.color} />
@@ -809,26 +813,17 @@ function CategoryDrilldown({
                       <AmtVal>{fmtVal(mainVal)}</AmtVal>
                     </AmtWrap>
                   </DTdAmt>
-                  <DTd $mono>{it.pct.toFixed(1)}%</DTd>
-                  {compare === 'actual' && (
-                    <DTd $mono>{isAmountMode ? `${subVal.toLocaleString()}点` : `${toComma(subVal)}円`}</DTd>
-                  )}
-                  {compare === 'prevYear' && hasPrevYear && (
+                  <DTd $mono>{it.pct.toFixed(2)}%</DTd>
+                  <DTd $mono>{isAmountMode ? `${subVal.toLocaleString()}点` : `${toComma(subVal)}円`}</DTd>
+                  {hasPrevYear && (
                     <>
                       <DTd $mono>{prevMainVal != null ? fmtVal(prevMainVal) : '-'}</DTd>
                       <DTd $mono>
                         {yoy != null ? (
-                          <YoYVal $positive={yoy >= 1}>{(yoy * 100).toFixed(1)}%</YoYVal>
+                          <YoYVal $positive={yoy >= 1}>{(yoy * 100).toFixed(2)}%</YoYVal>
                         ) : '-'}
                       </DTd>
                     </>
-                  )}
-                  {compare === 'actual' && hasPrevYear && (
-                    <DTd $mono>
-                      {yoy != null ? (
-                        <YoYVal $positive={yoy >= 1}>{(yoy * 100).toFixed(1)}%</YoYVal>
-                      ) : '-'}
-                    </DTd>
                   )}
                   {canDrill && <DTd><DrillArrow>▸</DrillArrow></DTd>}
                 </DTr>
@@ -1003,6 +998,9 @@ export function DayDetailModal({
                 cumSales={cumSales}
                 cumAch={cumAch}
                 cumPrevYear={cumPrevYear}
+                year={year}
+                month={month}
+                day={day}
               />
             )}
 
