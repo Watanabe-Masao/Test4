@@ -13,6 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
+import { safeDivide } from '@/domain/calculations'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
     cumDiscount += dayDiscount
     cumGrossSales += dayGross
 
-    const cumRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
+    const cumRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
     allData.push({
       day: d,

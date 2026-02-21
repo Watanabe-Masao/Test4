@@ -92,7 +92,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
       cumCost += getDailyTotalCost(rec)
     }
     const grossProfit = cumSales - cumCost
-    const rate = safeDivide(cumSales - cumCost, cumSales, 0)
+    const rate = safeDivide(grossProfit, cumSales, 0)
     allData.push({
       day: d,
       grossProfit,

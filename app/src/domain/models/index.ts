@@ -32,6 +32,8 @@ export type {
   DepartmentKpiRecord,
   DepartmentKpiData,
 } from './DataTypes'
+export { categoryTimeSalesRecordKey } from './DataTypes'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'
 export type { ValidationMessage } from './ValidationMessage'
+export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult } from './Persistence'

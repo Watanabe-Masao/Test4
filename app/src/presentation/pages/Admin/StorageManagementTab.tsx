@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
-import {
-  listStoredMonths,
-  getMonthDataSummary,
-  clearMonthData,
-  loadMonthlySlice,
-} from '@/infrastructure/storage/IndexedDBStore'
+import { useStorageAdmin } from '@/application/hooks'
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -310,7 +305,7 @@ const STORE_DAY_TYPES = [
 
 // ─── Raw Data Viewer ────────────────────────────────────
 
-function RawDataViewer({ year, month, summary }: { year: number; month: number; summary: MonthEntry['summary'] }) {
+function RawDataViewer({ year, month, summary, loadSlice }: { year: number; month: number; summary: MonthEntry['summary']; loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null> }) {
   const typesWithData = summary.filter((s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType))
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [rawData, setRawData] = useState<Record<string, Record<string, unknown>> | null>(null)
@@ -325,7 +320,7 @@ function RawDataViewer({ year, month, summary }: { year: number; month: number; 
     setSelectedType(dataType)
     setLoading(true)
     try {
-      const data = await loadMonthlySlice<Record<string, Record<string, unknown>>>(year, month, dataType)
+      const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
       setRawData(data)
     } catch {
       setRawData(null)
@@ -419,7 +414,7 @@ function RawDataViewer({ year, month, summary }: { year: number; month: number; 
 
 // ─── CTS Viewer ─────────────────────────────────────────
 
-function CTSViewer({ year, month, dataType, label }: { year: number; month: number; dataType: string; label: string }) {
+function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; month: number; dataType: string; label: string; loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null> }) {
   const [expanded, setExpanded] = useState(false)
   const [records, setRecords] = useState<{ day: number; storeId: string; dept: string; line: string; klass: string; amount: number; qty: number }[]>([])
   const [loading, setLoading] = useState(false)
@@ -432,7 +427,7 @@ function CTSViewer({ year, month, dataType, label }: { year: number; month: numb
     setExpanded(true)
     setLoading(true)
     try {
-      const data = await loadMonthlySlice<{ records: { day: number; storeId: string; department: { name: string }; line: { name: string }; klass: { name: string }; totalAmount: number; totalQuantity: number }[] }>(year, month, dataType)
+      const data = await loadSlice<{ records: { day: number; storeId: string; department: { name: string }; line: { name: string }; klass: { name: string }; totalAmount: number; totalQuantity: number }[] }>(year, month, dataType)
       if (data?.records) {
         setRecords(data.records.slice(0, 200).map((r) => ({
           day: r.day,
@@ -501,6 +496,7 @@ function CTSViewer({ year, month, dataType, label }: { year: number; month: numb
 // ─── Main Component ─────────────────────────────────────
 
 export function StorageManagementTab() {
+  const { listMonths, getDataSummary, deleteMonth, loadSlice } = useStorageAdmin()
   const [months, setMonths] = useState<MonthEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
@@ -510,10 +506,10 @@ export function StorageManagementTab() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const storedMonths = await listStoredMonths()
+      const storedMonths = await listMonths()
       const entries: MonthEntry[] = []
       for (const { year, month } of storedMonths) {
-        const summary = await getMonthDataSummary(year, month)
+        const summary = await getDataSummary(year, month)
         const totalRecords = summary.reduce((s, d) => s + d.recordCount, 0)
         const dataTypeCount = summary.filter((d) => d.recordCount > 0).length
         entries.push({ year, month, summary, totalRecords, dataTypeCount })
@@ -524,7 +520,7 @@ export function StorageManagementTab() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [listMonths, getDataSummary])
 
   useEffect(() => {
     loadData()
@@ -543,7 +539,7 @@ export function StorageManagementTab() {
     if (!deleteTarget) return
     setDeleting(true)
     try {
-      await clearMonthData(deleteTarget.year, deleteTarget.month)
+      await deleteMonth(deleteTarget.year, deleteTarget.month)
       setDeleteTarget(null)
       await loadData()
     } catch {
@@ -551,7 +547,7 @@ export function StorageManagementTab() {
     } finally {
       setDeleting(false)
     }
-  }, [deleteTarget, loadData])
+  }, [deleteTarget, loadData, deleteMonth])
 
   if (loading) {
     return (
@@ -615,13 +611,13 @@ export function StorageManagementTab() {
                         ))}
                       </DataTypeGrid>
 
-                      <RawDataViewer year={entry.year} month={entry.month} summary={entry.summary} />
+                      <RawDataViewer year={entry.year} month={entry.month} summary={entry.summary} loadSlice={loadSlice} />
 
                       {ctsSummary && ctsSummary.recordCount > 0 && (
-                        <CTSViewer year={entry.year} month={entry.month} dataType="categoryTimeSales" label="分類別時間帯売上" />
+                        <CTSViewer year={entry.year} month={entry.month} dataType="categoryTimeSales" label="分類別時間帯売上" loadSlice={loadSlice} />
                       )}
                       {prevCtsSummary && prevCtsSummary.recordCount > 0 && (
-                        <CTSViewer year={entry.year} month={entry.month} dataType="prevYearCategoryTimeSales" label="前年分類別時間帯売上" />
+                        <CTSViewer year={entry.year} month={entry.month} dataType="prevYearCategoryTimeSales" label="前年分類別時間帯売上" loadSlice={loadSlice} />
                       )}
                     </DetailPanel>
                   )}

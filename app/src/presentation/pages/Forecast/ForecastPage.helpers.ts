@@ -1,4 +1,5 @@
 import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
+import { calculateTransactionValue } from '@/domain/calculations'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
@@ -67,11 +68,11 @@ export function buildDailyCustomerData(
   for (const [d, rec] of daily) {
     if (rec.sales <= 0) continue
     const customers = rec.customers ?? 0
-    const txValue = customers > 0 ? Math.round(rec.sales / customers) : 0
+    const txValue = calculateTransactionValue(rec.sales, customers)
     const py = prevYear.daily.get(d)
     const prevCustomers = py?.customers ?? 0
     const prevSales = py?.sales ?? 0
-    const prevTxValue = prevCustomers > 0 ? Math.round(prevSales / prevCustomers) : 0
+    const prevTxValue = calculateTransactionValue(prevSales, prevCustomers)
     entries.push({ day: d, sales: rec.sales, customers, txValue, prevCustomers, prevSales, prevTxValue })
   }
   return entries.sort((a, b) => a.day - b.day)
@@ -114,9 +115,9 @@ export function buildDowCustomerAverages(
   return buckets.map((b) => ({
     dow: b.dow,
     avgCustomers: b.count > 0 ? Math.round(b.totalCustomers / b.count) : 0,
-    avgTxValue: b.totalCustomers > 0 ? Math.round(b.totalSales / b.totalCustomers) : 0,
+    avgTxValue: calculateTransactionValue(b.totalSales, b.totalCustomers),
     prevAvgCustomers: b.count > 0 ? Math.round(b.totalPrevCustomers / b.count) : 0,
-    prevAvgTxValue: b.totalPrevCustomers > 0 ? Math.round(b.totalPrevSales / b.totalPrevCustomers) : 0,
+    prevAvgTxValue: calculateTransactionValue(b.totalPrevSales, b.totalPrevCustomers),
     count: b.count,
   }))
 }

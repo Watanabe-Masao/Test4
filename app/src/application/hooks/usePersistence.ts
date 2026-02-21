@@ -13,10 +13,8 @@ import {
   clearAllData,
   isIndexedDBAvailable,
 } from '@/infrastructure/storage/IndexedDBStore'
-import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
-import type { DiffResult } from '@/infrastructure/storage/diffCalculator'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData, PersistedMeta, DiffResult } from '@/domain/models'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -138,7 +136,6 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     }
     try {
       await clearMonthData(restoreMeta.year, restoreMeta.month)
-      await clearAllData()
     } finally {
       setShowRestoreDialog(false)
     }

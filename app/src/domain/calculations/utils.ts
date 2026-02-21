@@ -47,3 +47,25 @@ export function formatPointDiff(n: number | null, decimals = 1): string {
   const pt = n * 100
   return `${pt > 0 ? '+' : ''}${pt.toFixed(decimals)}pt`
 }
+
+/**
+ * 客単価（1客あたり売上）を計算する
+ */
+export function calculateTransactionValue(sales: number, customers: number): number {
+  return customers > 0 ? Math.round(sales / customers) : 0
+}
+
+/**
+ * 移動平均を計算する
+ * @param values 値の配列
+ * @param window ウィンドウサイズ
+ * @returns 各位置の移動平均（先頭 window-1 個は NaN）
+ */
+export function calculateMovingAverage(values: readonly number[], window: number): number[] {
+  return values.map((_, i) => {
+    if (i < window - 1) return NaN
+    let sum = 0
+    for (let j = i - window + 1; j <= i; j++) sum += values[j]
+    return sum / window
+  })
+}

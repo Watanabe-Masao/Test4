@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
+import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { CategoryHierarchyProvider } from '@/presentation/components/charts'
@@ -229,15 +229,15 @@ export function DashboardPage() {
             const idx2 = flatIdx++
             elements.push(
               <ChartRow key={`half-${halfBuffer[0].id}`}>
-                {renderDraggable(halfBuffer[0], idx1, halfBuffer[0].render(ctx))}
-                {renderDraggable(halfBuffer[1], idx2, halfBuffer[1].render(ctx))}
+                {renderDraggable(halfBuffer[0], idx1, <ChartErrorBoundary>{halfBuffer[0].render(ctx)}</ChartErrorBoundary>)}
+                {renderDraggable(halfBuffer[1], idx2, <ChartErrorBoundary>{halfBuffer[1].render(ctx)}</ChartErrorBoundary>)}
               </ChartRow>,
             )
           } else {
             const idx1 = flatIdx++
             elements.push(
               <ChartRow key={`half-${halfBuffer[0].id}`}>
-                {renderDraggable(halfBuffer[0], idx1, halfBuffer[0].render(ctx))}
+                {renderDraggable(halfBuffer[0], idx1, <ChartErrorBoundary>{halfBuffer[0].render(ctx)}</ChartErrorBoundary>)}
               </ChartRow>,
             )
           }
@@ -250,7 +250,7 @@ export function DashboardPage() {
             const idx = flatIdx++
             elements.push(
               <FullChartRow key={w.id}>
-                {renderDraggable(w, idx, w.render(ctx))}
+                {renderDraggable(w, idx, <ChartErrorBoundary>{w.render(ctx)}</ChartErrorBoundary>)}
               </FullChartRow>,
             )
           } else {

@@ -17,6 +17,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
+import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -88,14 +89,9 @@ interface Props {
   mode?: DailyChartMode
 }
 
-/** N日移動平均を計算 */
+/** N日移動平均を計算（ドメイン層のユーティリティに委譲） */
 function movingAverage(values: number[], window: number): (number | null)[] {
-  return values.map((_, i) => {
-    if (i < window - 1) return null
-    let sum = 0
-    for (let j = i - window + 1; j <= i; j++) sum += values[j]
-    return sum / window
-  })
+  return calculateMovingAverage(values, window).map((v) => (isNaN(v) ? null : v))
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -170,18 +166,18 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
       const prevDiscount = prevEntry?.discount ?? null
       rawPrevDiscount.push(prevEntry?.discount ?? 0)
       const customers = rec?.customers ?? 0
-      const txValue = customers > 0 ? Math.round(sales / customers) : null
+      const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
       const prevCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
       const pySales = prevEntry?.sales ?? 0
       const pyCustomers = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
-      const prevTxValue = pyCustomers > 0 ? Math.round(pySales / pyCustomers) : null
+      const prevTxValue = pyCustomers > 0 ? calculateTransactionValue(pySales, pyCustomers) : null
 
       // 累計系
       cumSales += sales
       cumPrevSales += prevEntry?.sales ?? 0
       cumDiscount += discount
       cumGrossSales += grossSales
-      const cumDiscountRate = cumGrossSales > 0 ? cumDiscount / cumGrossSales : 0
+      const cumDiscountRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
       bd.push({
         day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount,

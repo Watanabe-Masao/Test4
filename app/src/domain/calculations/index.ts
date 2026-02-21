@@ -1,5 +1,5 @@
 // Utility
-export { safeNumber, safeDivide, formatCurrency, formatManYen, formatPercent, formatPointDiff } from './utils'
+export { safeNumber, safeDivide, formatCurrency, formatManYen, formatPercent, formatPointDiff, calculateTransactionValue, calculateMovingAverage } from './utils'
 
 // 在庫法
 export { calculateInvMethod } from './invMethod'
@@ -40,3 +40,36 @@ export { sumStoreValues, sumNullableValues, weightedAverageBySales } from './agg
 // ピン止め区間計算
 export { calculatePinIntervals } from './pinIntervals'
 export type { PinInterval } from './pinIntervals'
+
+// 高度な予測分析
+export {
+  calculateWMA,
+  linearRegression,
+  projectDowAdjusted,
+  calculateMonthEndProjection,
+} from './advancedForecast'
+export type {
+  WMAEntry,
+  MonthEndProjection,
+  LinearRegressionResult,
+} from './advancedForecast'
+
+// アラート・閾値システム
+export {
+  evaluateAlerts,
+  evaluateAllStoreAlerts,
+  DEFAULT_ALERT_RULES,
+} from './alertSystem'
+export type {
+  AlertRule,
+  Alert,
+  AlertSeverity,
+  AlertRuleType,
+} from './alertSystem'
+
+// トレンド分析
+export { analyzeTrend } from './trendAnalysis'
+export type {
+  MonthlyDataPoint,
+  TrendAnalysisResult,
+} from './trendAnalysis'

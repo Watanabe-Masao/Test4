@@ -91,7 +91,7 @@ export function Modal({
   }, [onClose])
 
   return (
-    <Backdrop onClick={handleBackdropClick}>
+    <Backdrop data-modal-backdrop onClick={handleBackdropClick}>
       <Container>
         <Header>
           <ModalTitle>{title}</ModalTitle>

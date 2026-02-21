@@ -6,7 +6,7 @@
 import styled from 'styled-components'
 import { Modal } from './Modal'
 import { Button } from './Button'
-import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
+import type { PersistedMeta } from '@/domain/models'
 
 const Content = styled.div`
   display: flex;

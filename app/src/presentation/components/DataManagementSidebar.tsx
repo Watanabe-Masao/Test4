@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
-import { useImport, useStoreSelection, useSettings } from '@/application/hooks'
+import { useImport, useStoreSelection, useSettings, usePersistence } from '@/application/hooks'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
@@ -13,12 +13,15 @@ import {
   SettingsModal,
   ValidationModal,
   ImportProgressBar,
+  ImportProgressSteps,
+  ImportSummaryCard,
 } from '@/presentation/components/common'
+import type { ImportStage } from '@/presentation/components/common'
+import type { ImportSummary } from '@/application/services/FileImportService'
 import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType, ImportedData, StoreDayRecord } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { clearAllData } from '@/infrastructure/storage/IndexedDBStore'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -276,8 +279,11 @@ export function DataManagementSidebar({
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
+  const { clearAll } = usePersistence()
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
+  const [importStage, setImportStage] = useState<ImportStage>('idle')
+  const [lastSummary, setLastSummary] = useState<ImportSummary | null>(null)
 
   const isSettingsOpen = showSettings || showSettingsExternal
   const closeSettings = useCallback(() => {
@@ -287,16 +293,34 @@ export function DataManagementSidebar({
 
   const handleFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType) => {
-      const summary = await importFiles(files, overrideType)
-      summary.results.forEach((r) => {
-        if (r.ok) {
-          showToast(`${r.typeName}: ${r.filename}`, 'success')
-        } else {
-          showToast(`${r.filename}: ${r.error}`, 'error')
+      setImportStage('reading')
+      setLastSummary(null)
+      try {
+        const summary = await importFiles(files, overrideType)
+        setImportStage('validating')
+
+        summary.results.forEach((r) => {
+          if (r.ok) {
+            showToast(`${r.typeName}: ${r.filename}`, 'success')
+          } else {
+            showToast(`${r.filename}: ${r.error}`, 'error')
+          }
+        })
+
+        setImportStage('saving')
+        // 保存は useImport 内で処理されるので少し待つ
+        await new Promise((r) => setTimeout(r, 300))
+        setImportStage('done')
+        setLastSummary(summary)
+
+        if (summary.successCount > 0) {
+          setShowValidation(true)
         }
-      })
-      if (summary.successCount > 0) {
-        setShowValidation(true)
+
+        // 完了ステージを3秒後にリセット
+        setTimeout(() => setImportStage('idle'), 3000)
+      } catch {
+        setImportStage('idle')
       }
     },
     [importFiles, showToast],
@@ -331,12 +355,12 @@ export function DataManagementSidebar({
   const handleClearData = useCallback(async () => {
     dispatch({ type: 'RESET' })
     try {
-      await clearAllData()
+      await clearAll()
       showToast('データをクリアしました', 'info')
     } catch {
       showToast('データクリアに失敗しました', 'error')
     }
-  }, [dispatch, showToast])
+  }, [dispatch, clearAll, showToast])
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
@@ -375,7 +399,13 @@ export function DataManagementSidebar({
       <Sidebar title="データ管理">
         <SidebarSection>
           <FileDropZone onFiles={handleFiles} />
-          {progress && <ImportProgressBar progress={progress} />}
+          {importStage !== 'idle' && (
+            <ImportProgressSteps progress={progress} stage={importStage} />
+          )}
+          {importStage === 'idle' && progress && <ImportProgressBar progress={progress} />}
+          {lastSummary && importStage === 'idle' && (
+            <ImportSummaryCard summary={lastSummary} onDismiss={() => setLastSummary(null)} />
+          )}
         </SidebarSection>
 
         <SidebarSection>
