@@ -4,7 +4,7 @@ import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'r
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { AppStateProvider, useAppUi, useAppDispatch } from '@/application/context'
-import { AppShell, NavBar } from '@/presentation/components/Layout'
+import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import { ToastProvider, useToast, PageErrorBoundary, PageSkeleton } from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
 import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
@@ -193,6 +193,12 @@ function AppContent() {
           <DataManagementSidebar
             showSettingsExternal={showSettingsFromShortcut}
             onSettingsExternalClose={() => setShowSettingsFromShortcut(false)}
+          />
+        }
+        bottomNav={
+          <BottomNav
+            currentView={ui.currentView}
+            onViewChange={handleViewChange}
           />
         }
       >
