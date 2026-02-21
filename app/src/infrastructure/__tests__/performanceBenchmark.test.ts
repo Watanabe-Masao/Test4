@@ -9,14 +9,7 @@ import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
 import { createEmptyImportedData } from '@/domain/models'
 import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
-import type { AppSettings } from '@/domain/models'
-
-const DEFAULT_SETTINGS: AppSettings = {
-  targetYear: 2026,
-  targetMonth: 2,
-  flowerCostRate: 0.80,
-  directProduceCostRate: 0.85,
-}
+import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 
 const DAYS_IN_MONTH = 28
 
@@ -47,10 +40,11 @@ function generateSalesDiscountRows(storeCount: number, days: number): unknown[][
     totalRow.push(1000000 * s, 50000 * s)
   }
 
-  // Data rows
+  // Data rows (days > 28 は循環して有効な日付を生成)
   const dataRows: unknown[][] = []
   for (let d = 1; d <= days; d++) {
-    const dayStr = `2026-02-${String(d).padStart(2, '0')}`
+    const dayInMonth = ((d - 1) % DAYS_IN_MONTH) + 1
+    const dayStr = `2026-02-${String(dayInMonth).padStart(2, '0')}`
     const row: unknown[] = [dayStr, '', '']
     for (let s = 1; s <= storeCount; s++) {
       const baseSales = 30000 + Math.floor(Math.random() * 20000) * s
@@ -184,7 +178,7 @@ describe('Performance Benchmark', () => {
       rows,
       '1_売上売変.xlsx',
       createEmptyImportedData(),
-      { ...DEFAULT_SETTINGS, targetMonth: undefined as unknown as number },
+      DEFAULT_SETTINGS,
     )
     const elapsed = performance.now() - start
 
