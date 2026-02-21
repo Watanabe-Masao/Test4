@@ -370,7 +370,7 @@ const HourlyChartWrap = styled.div`
   flex: 1; position: relative;
 `
 const HourlyCumOverlay = styled.svg`
-  position: absolute; top: 0; left: 0; right: 0; height: 100%;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; overflow: visible;
 `
 const HourlyRightAxis = styled.div`
