@@ -2,7 +2,7 @@ import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from './chartTheme'
-import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
+import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import {
   useCategoryHierarchy,
   filterByHierarchy,
