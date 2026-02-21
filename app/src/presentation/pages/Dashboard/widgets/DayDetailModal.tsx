@@ -9,6 +9,7 @@ import type { PrevYearData } from '@/application/hooks'
 import type { HierarchyFilter } from '@/presentation/components/charts/CategoryHierarchyContext'
 import { filterByHierarchy, getHierarchyLevel } from '@/presentation/components/charts/CategoryHierarchyContext'
 import { toComma } from '@/presentation/components/charts/chartTheme'
+import { findCoreTime, findTurnaroundHour, buildHourlyMap, formatCoreTime, formatTurnaroundHour } from '@/presentation/components/charts/timeSlotUtils'
 import {
   PinModalOverlay,
   DetailModalContent, DetailHeader, DetailTitle, DetailCloseBtn,
@@ -387,7 +388,7 @@ const HourlyBar = styled.div<{ $pct: number; $color: string }>`
   &:hover { opacity: 1; }
 `
 const HourlyAxis = styled.div`
-  display: flex; padding: 0 4px;
+  display: flex; padding: 0 40px 0 4px;
 `
 const HourlyTick = styled.div`
   flex: 1; margin: 0 1px; text-align: center; font-size: 0.5rem;
@@ -557,6 +558,11 @@ function HourlyChart({ dayRecords, prevDayRecords }: {
   const peakHour = paddedData.reduce((peak, d) => d.amount > peak.amount ? d : peak, paddedData[0])
   const selData = selectedHour != null ? paddedData.find((d) => d.hour === selectedHour) : null
 
+  // コアタイム（3連続時間帯の合計最大）& 折り返し時間帯（累積50%到達）
+  const hourlyMap = buildHourlyMap(paddedData)
+  const coreTime = findCoreTime(hourlyMap)
+  const turnaroundHour = findTurnaroundHour(hourlyMap)
+
   // Build SVG polyline using calculated bar center positions
   const cumLinePoints = cumData.map((d, i) => `${barCenterX(i)},${100 - d.cumPct}`).join(' ')
 
@@ -588,6 +594,14 @@ function HourlyChart({ dayRecords, prevDayRecords }: {
           <SumLabel>ピーク</SumLabel>
           <SumValue>{peakHour.hour}時（{toComma(peakHour.amount)}円）</SumValue>
         </HourlySumItem>
+        <HourlySumItem>
+          <SumLabel>コアタイム</SumLabel>
+          <SumValue>{formatCoreTime(coreTime)}</SumValue>
+        </HourlySumItem>
+        <HourlySumItem>
+          <SumLabel>折り返し</SumLabel>
+          <SumValue>{formatTurnaroundHour(turnaroundHour)}</SumValue>
+        </HourlySumItem>
       </HourlySummaryRow>
       <HourlyChartContainer>
         <HourlyChartWrap>
@@ -595,19 +609,25 @@ function HourlyChart({ dayRecords, prevDayRecords }: {
             const pct = (d.amount / maxAmt) * 100
             const isPeak = d.hour === peakHour.hour
             const isSelected = d.hour === selectedHour
+            const isCoreTime = coreTime != null && d.hour >= coreTime.startHour && d.hour <= coreTime.endHour
+            const isTurnaround = d.hour === turnaroundHour
             const cumEntry = cumData.find((c) => c.hour === d.hour)
             const refEntry = paddedRef[idx]
             const refPct = refEntry ? (refEntry.amount / maxAmt) * 100 : 0
+            const barColor = isSelected ? '#ec4899' : isPeak ? '#f59e0b' : isCoreTime ? '#8b5cf6' : '#6366f1'
             return (
               <HourlyBar
                 key={d.hour}
                 data-hourly-bar
                 $pct={pct}
-                $color={isSelected ? '#ec4899' : isPeak ? '#f59e0b' : '#6366f1'}
+                $color={barColor}
                 onMouseEnter={() => setHoveredHour(d.hour)}
                 onMouseLeave={() => setHoveredHour(null)}
                 onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
-                style={{ outline: isSelected ? '2px solid #ec4899' : undefined, outlineOffset: -1 }}
+                style={{
+                  outline: isSelected ? '2px solid #ec4899' : isTurnaround ? '2px solid #ef4444' : undefined,
+                  outlineOffset: -1,
+                }}
               >
                 {/* Reference line (prev or actual) */}
                 {hasPrevData && refPct > 0 && (

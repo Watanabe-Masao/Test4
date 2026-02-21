@@ -2,6 +2,7 @@ import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from './chartTheme'
+import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import {
   useCategoryHierarchy,
   filterByHierarchy,
@@ -11,7 +12,7 @@ import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdo
 
 /* ── Types ─────────────────────────────────── */
 
-type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'name' | 'yoyRatio' | 'yoyDiff'
+type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'coreTimeStart' | 'turnaroundHour' | 'name' | 'yoyRatio' | 'yoyDiff'
 type SortDir = 'asc' | 'desc'
 
 interface HierarchyItem {
@@ -21,6 +22,9 @@ interface HierarchyItem {
   quantity: number
   pct: number
   peakHour: number
+  coreTimeStart: number
+  coreTimeEnd: number
+  turnaroundHour: number
   hourlyPattern: number[]
   childCount: number
   // YoY fields (only populated when prev year data is available)
@@ -320,10 +324,20 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
       const prevAmt = prev ? Math.round(prev.amount / div) : undefined
       const prevQty = prev ? Math.round(prev.quantity / div) : undefined
 
+      // コアタイム & 折り返し時間帯
+      const hourMap = new Map<number, number>()
+      for (let h = 0; h < 24; h++) { if (hp[h] > 0) hourMap.set(h, hp[h]) }
+      const ct = findCoreTime(hourMap)
+      const th = findTurnaroundHour(hourMap)
+
       return {
         code: it.code, name: it.name, amount: amt, quantity: qty,
         pct: total > 0 ? (amt / total) * 100 : 0,
-        peakHour: mx > 0 ? hp.indexOf(mx) : -1, hourlyPattern: hp, childCount: it.children.size,
+        peakHour: mx > 0 ? hp.indexOf(mx) : -1,
+        coreTimeStart: ct?.startHour ?? -1,
+        coreTimeEnd: ct?.endHour ?? -1,
+        turnaroundHour: th ?? -1,
+        hourlyPattern: hp, childCount: it.children.size,
         prevAmount: prevAmt,
         prevQuantity: prevQty,
         yoyRatio: prevAmt && prevAmt > 0 ? amt / prevAmt : undefined,
@@ -342,6 +356,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
         case 'quantity': d = a.quantity - b.quantity; break
         case 'pct': d = a.pct - b.pct; break
         case 'peakHour': d = a.peakHour - b.peakHour; break
+        case 'coreTimeStart': d = a.coreTimeStart - b.coreTimeStart; break
+        case 'turnaroundHour': d = a.turnaroundHour - b.turnaroundHour; break
         case 'name': d = a.name.localeCompare(b.name, 'ja'); break
         case 'yoyRatio': d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0); break
         case 'yoyDiff': d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0); break
@@ -442,6 +458,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
             {showYoYCols && <Th $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</Th>}
             {showYoYCols && <Th $sortable onClick={() => handleSort('yoyDiff')}>前年差{arrow('yoyDiff')}</Th>}
             <Th $sortable onClick={() => handleSort('peakHour')}>ピーク{arrow('peakHour')}</Th>
+            <Th $sortable onClick={() => handleSort('coreTimeStart')}>コア{arrow('coreTimeStart')}</Th>
+            <Th $sortable onClick={() => handleSort('turnaroundHour')}>折返{arrow('turnaroundHour')}</Th>
             <Th>時間帯パターン</Th>
             {canDrill && <Th />}
           </tr></thead>
@@ -480,6 +498,8 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
                   </Td>
                 )}
                 <Td $mono>{it.peakHour >= 0 ? <PeakBadge>{it.peakHour}時</PeakBadge> : '-'}</Td>
+                <Td $mono>{it.coreTimeStart >= 0 ? <PeakBadge>{it.coreTimeStart}〜{it.coreTimeEnd}時</PeakBadge> : '-'}</Td>
+                <Td $mono>{it.turnaroundHour >= 0 ? <PeakBadge>{it.turnaroundHour}時</PeakBadge> : '-'}</Td>
                 <TdSpark><Sparkline data={it.hourlyPattern} color={COLORS[i % COLORS.length]} /></TdSpark>
                 {canDrill && <Td><DrillBtn>▸{it.childCount > 0 && <DrillCount>{it.childCount}</DrillCount>}</DrillBtn></Td>}
               </Tr>

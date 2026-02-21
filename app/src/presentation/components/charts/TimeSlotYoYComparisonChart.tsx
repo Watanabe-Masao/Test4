@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
@@ -230,6 +231,12 @@ export function TimeSlotYoYComparisonChart({
       if (d.diff < maxDecDiff) { maxDecDiff = d.diff; maxDecHour = parseInt(d.hour) }
     }
 
+    // コアタイム & 折り返し時間帯（当年・前年それぞれ）
+    const curCoreTime = findCoreTime(curHourly)
+    const curTurnaround = findTurnaroundHour(curHourly)
+    const prevCoreTime = findCoreTime(prevHourly)
+    const prevTurnaround = findTurnaroundHour(prevHourly)
+
     // テーブル行
     const tableRows = chartData.map((d) => ({
       hour: d.hour,
@@ -250,6 +257,10 @@ export function TimeSlotYoYComparisonChart({
         maxIncDiff,
         maxDecHour,
         maxDecDiff,
+        curCoreTime,
+        curTurnaround,
+        prevCoreTime,
+        prevTurnaround,
       },
       tableRows,
     }
@@ -299,6 +310,26 @@ export function TimeSlotYoYComparisonChart({
           <Metric>
             <MetricLabel>最大減少時間帯</MetricLabel>
             <MetricValue $color="#ef4444">{summary.maxDecHour}時 ({toManYen(summary.maxDecDiff)})</MetricValue>
+          </Metric>
+        )}
+        <Metric>
+          <MetricLabel>コアタイム（当年）</MetricLabel>
+          <MetricValue>{formatCoreTime(summary.curCoreTime)}</MetricValue>
+        </Metric>
+        <Metric>
+          <MetricLabel>折り返し（当年）</MetricLabel>
+          <MetricValue>{formatTurnaroundHour(summary.curTurnaround)}</MetricValue>
+        </Metric>
+        {summary.prevCoreTime && (
+          <Metric>
+            <MetricLabel>コアタイム（前年）</MetricLabel>
+            <MetricValue $color={ct.colors.slate}>{formatCoreTime(summary.prevCoreTime)}</MetricValue>
+          </Metric>
+        )}
+        {summary.prevTurnaround != null && (
+          <Metric>
+            <MetricLabel>折り返し（前年）</MetricLabel>
+            <MetricValue $color={ct.colors.slate}>{formatTurnaroundHour(summary.prevTurnaround)}</MetricValue>
           </Metric>
         )}
       </SummaryRow>
