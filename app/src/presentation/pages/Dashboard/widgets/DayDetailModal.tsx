@@ -13,7 +13,7 @@ import {
   DetailModalContent, DetailHeader, DetailTitle, DetailCloseBtn,
   DetailKpiGrid, DetailKpiCard, DetailKpiLabel, DetailKpiValue,
   DetailSection, DetailSectionTitle, DetailRow, DetailLabel, DetailValue,
-  DetailBarWrapper, DetailBarRow, DetailBarLabel, DetailBarTrack, DetailBarFill, DetailBarAmount,
+  DetailBarWrapper,
   DetailColumns,
 } from '../DashboardPage.styles'
 
@@ -212,7 +212,7 @@ const StackLabel = styled.span`
   min-width: 32px; text-align: right; white-space: nowrap;
 `
 const StackTrack = styled.div`
-  flex: 1; height: 24px; border-radius: ${({ theme }) => theme.radii.sm};
+  flex: 1; height: 32px; border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg4};
   overflow: hidden; display: flex; position: relative;
 `
@@ -220,8 +220,14 @@ const StackSegment = styled.div<{ $flex: number; $color: string }>`
   flex: ${({ $flex }) => Math.max($flex, 0)}; min-width: 0;
   background: ${({ $color }) => $color}; height: 100%;
   transition: flex 0.3s ease;
-  position: relative;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
   &:hover { opacity: 0.85; z-index: 1; }
+`
+const SegLabel = styled.span`
+  font-size: 0.5rem; color: #fff; font-weight: 600; white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4); pointer-events: none;
+  overflow: hidden; text-overflow: ellipsis; padding: 0 2px;
 `
 const StackTotal = styled.span`
   font-size: 0.6rem; margin-left: 6px; white-space: nowrap;
@@ -436,12 +442,23 @@ function CategoryDrilldown({
         {(() => {
           const actualTotal = isAmountMode ? totalAmt : totalQty
           const prevTotal = isAmountMode ? totalPrevAmt : totalPrevQty
-          const maxBar = Math.max(budget, actualTotal, prevTotal, 1)
+          // 点数モードではbudgetは金額なので比較対象から除外
+          const maxBar = isAmountMode
+            ? Math.max(budget, actualTotal, prevTotal, 1)
+            : Math.max(actualTotal, prevTotal, 1)
           const barItems = stackBarData
+
+          const segLabel = (it: DrillItem, total: number) => {
+            const val = isAmountMode ? it.amount : it.quantity
+            const pct = total > 0 ? (val / total * 100).toFixed(1) : '0'
+            return isAmountMode
+              ? `${it.name} ${fmtSen(val)} (${pct}%)`
+              : `${it.name} ${val.toLocaleString()}点 (${pct}%)`
+          }
 
           return (
             <>
-              {/* 予算 bar (solid color) */}
+              {/* 予算 bar (金額モードのみ) */}
               {budget > 0 && isAmountMode && (
                 <StackRow>
                   <StackLabel>予算</StackLabel>
@@ -450,19 +467,21 @@ function CategoryDrilldown({
                       $flex={budget / maxBar}
                       $color="#6366f1"
                       style={{ opacity: 0.6 }}
-                    />
+                    >
+                      <SegLabel>{fmtSen(budget)}</SegLabel>
+                    </StackSegment>
                   </StackTrack>
-                  <StackTotal>{fmtSen(budget)}</StackTotal>
                 </StackRow>
               )}
 
-              {/* 実績 bar (department colored segments) */}
+              {/* 実績 bar */}
               <StackRow>
                 <StackLabel>実績</StackLabel>
                 <StackTrack>
                   {barItems.map((it) => {
                     const val = isAmountMode ? it.amount : it.quantity
                     if (val <= 0) return null
+                    const pct = actualTotal > 0 ? (val / actualTotal * 100) : 0
                     return (
                       <StackSegment
                         key={it.code}
@@ -471,10 +490,9 @@ function CategoryDrilldown({
                         onMouseEnter={() => setHoveredSeg(`actual-${it.code}`)}
                         onMouseLeave={() => setHoveredSeg(null)}
                       >
+                        {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
                         {hoveredSeg === `actual-${it.code}` && (
-                          <SegmentTooltip>
-                            {it.name}: {fmtVal(val)}
-                          </SegmentTooltip>
+                          <SegmentTooltip>{segLabel(it, actualTotal)}</SegmentTooltip>
                         )}
                       </StackSegment>
                     )
@@ -483,7 +501,7 @@ function CategoryDrilldown({
                 <StackTotal>{isAmountMode ? fmtSen(actualTotal) : fmtVal(actualTotal)}</StackTotal>
               </StackRow>
 
-              {/* 前年 bar (department colored segments, muted) */}
+              {/* 前年 bar */}
               {hasPrevYear && prevTotal > 0 && (
                 <StackRow>
                   <StackLabel>前年</StackLabel>
@@ -491,6 +509,7 @@ function CategoryDrilldown({
                     {barItems.map((it) => {
                       const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
                       if (val <= 0) return null
+                      const pct = prevTotal > 0 ? (val / prevTotal * 100) : 0
                       return (
                         <StackSegment
                           key={it.code}
@@ -500,10 +519,9 @@ function CategoryDrilldown({
                           onMouseEnter={() => setHoveredSeg(`prev-${it.code}`)}
                           onMouseLeave={() => setHoveredSeg(null)}
                         >
+                          {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
                           {hoveredSeg === `prev-${it.code}` && (
-                            <SegmentTooltip>
-                              {it.name}: {fmtVal(val)}
-                            </SegmentTooltip>
+                            <SegmentTooltip>{segLabel(it, prevTotal)}</SegmentTooltip>
                           )}
                         </StackSegment>
                       )
@@ -705,107 +723,106 @@ function DayStackedBar({
     sectionTitle: string,
   ) => {
     const maxVal = Math.max(budgetVal, actualVal, pyVal, 1)
+    const actualSum = depts.reduce((s, d) => s + d.amount, 0)
+    const prevSum = prevDepts.reduce((s, d) => s + d.amount, 0)
     return (
       <DetailSection>
         <DetailSectionTitle>{sectionTitle}</DetailSectionTitle>
         <DetailBarWrapper>
           {/* 予算 */}
-          <DetailBarRow>
-            <DetailBarLabel>予算</DetailBarLabel>
-            <DetailBarTrack>
-              <DetailBarFill $width={(budgetVal / maxVal) * 100} $color="#6366f1">
-                <DetailBarAmount>{fmtSen(budgetVal)}</DetailBarAmount>
-              </DetailBarFill>
-            </DetailBarTrack>
-          </DetailBarRow>
+          <StackRow>
+            <StackLabel>予算</StackLabel>
+            <StackTrack>
+              <StackSegment $flex={(budgetVal / maxVal)} $color="#6366f1" style={{ opacity: 0.6 }}>
+                <SegLabel>{fmtSen(budgetVal)}</SegLabel>
+              </StackSegment>
+            </StackTrack>
+          </StackRow>
 
           {/* 実績 */}
-          <DetailBarRow>
-            <DetailBarLabel>実績</DetailBarLabel>
-            <DetailBarTrack>
+          <StackRow>
+            <StackLabel>実績</StackLabel>
+            <StackTrack>
               {hasCategory ? (
                 <>
                   {depts.map((dept) => {
-                    const pct = (dept.amount / maxVal) * 100
                     const c = colorMap.get(dept.code) ?? '#6366f1'
+                    const pctOfBar = actualSum > 0 ? (dept.amount / actualSum * 100) : 0
                     return (
                       <StackSegment
                         key={dept.code}
-                        $flex={pct}
+                        $flex={dept.amount / maxVal}
                         $color={c}
                         onMouseEnter={() => setHoverSeg(`${prefix}a-${dept.code}`)}
                         onMouseLeave={() => setHoverSeg(null)}
                       >
+                        {pctOfBar >= 12 && <SegLabel>{dept.name} {fmtSen(dept.amount)} ({pctOfBar.toFixed(0)}%)</SegLabel>}
                         {hoverSeg === `${prefix}a-${dept.code}` && (
-                          <SegmentTooltip>{dept.name}: {fmtSen(dept.amount)}</SegmentTooltip>
+                          <SegmentTooltip>{dept.name}: {fmtSen(dept.amount)} ({pctOfBar.toFixed(1)}%)</SegmentTooltip>
                         )}
                       </StackSegment>
                     )
                   })}
-                  <div style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)',
-                    pointerEvents: 'none', fontSize: '0.58rem', color: '#fff', fontWeight: 600,
-                    textShadow: '0 1px 2px rgba(0,0,0,0.5)', whiteSpace: 'nowrap' }}>
-                    {fmtSen(actualVal)}（{formatPercent(achVal)}）
-                  </div>
                 </>
               ) : (
-                <DetailBarFill $width={(actualVal / maxVal) * 100} $color={sc.positive}>
-                  <DetailBarAmount>{fmtSen(actualVal)}（{formatPercent(achVal)}）</DetailBarAmount>
-                </DetailBarFill>
+                <StackSegment $flex={actualVal / maxVal} $color={sc.positive}>
+                  <SegLabel>{fmtSen(actualVal)}（{formatPercent(achVal)}）</SegLabel>
+                </StackSegment>
               )}
-            </DetailBarTrack>
-          </DetailBarRow>
+            </StackTrack>
+            <StackTotal>{fmtSen(actualVal)}（{formatPercent(achVal)}）</StackTotal>
+          </StackRow>
 
           {/* 前年 */}
           {hasPrevYear && pyVal > 0 && (
-            <DetailBarRow>
-              <DetailBarLabel>前年</DetailBarLabel>
-              <DetailBarTrack>
+            <StackRow>
+              <StackLabel>前年</StackLabel>
+              <StackTrack>
                 {prevDepts.length > 0 ? (
                   <>
                     {prevDepts.map((dept) => {
-                      const pct = (dept.amount / maxVal) * 100
                       const c = colorMap.get(dept.code) ?? '#9ca3af'
+                      const pctOfBar = prevSum > 0 ? (dept.amount / prevSum * 100) : 0
                       return (
                         <StackSegment
                           key={dept.code}
-                          $flex={pct}
+                          $flex={dept.amount / maxVal}
                           $color={c}
                           style={{ opacity: 0.55 }}
                           onMouseEnter={() => setHoverSeg(`${prefix}p-${dept.code}`)}
                           onMouseLeave={() => setHoverSeg(null)}
                         >
+                          {pctOfBar >= 12 && <SegLabel>{dept.name} {fmtSen(dept.amount)} ({pctOfBar.toFixed(0)}%)</SegLabel>}
                           {hoverSeg === `${prefix}p-${dept.code}` && (
-                            <SegmentTooltip>{dept.name}: {fmtSen(dept.amount)}</SegmentTooltip>
+                            <SegmentTooltip>{dept.name}: {fmtSen(dept.amount)} ({pctOfBar.toFixed(1)}%)</SegmentTooltip>
                           )}
                         </StackSegment>
                       )
                     })}
-                    <div style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)',
-                      pointerEvents: 'none', fontSize: '0.58rem', color: '#fff', fontWeight: 600,
-                      textShadow: '0 1px 2px rgba(0,0,0,0.5)', whiteSpace: 'nowrap' }}>
-                      {fmtSen(pyVal)}（{formatPercent(pyRatioVal)}）
-                    </div>
                   </>
                 ) : (
-                  <DetailBarFill $width={(pyVal / maxVal) * 100} $color="#9ca3af">
-                    <DetailBarAmount>{fmtSen(pyVal)}（{formatPercent(pyRatioVal)}）</DetailBarAmount>
-                  </DetailBarFill>
+                  <StackSegment $flex={pyVal / maxVal} $color="#9ca3af" style={{ opacity: 0.55 }}>
+                    <SegLabel>{fmtSen(pyVal)}（{formatPercent(pyRatioVal)}）</SegLabel>
+                  </StackSegment>
                 )}
-              </DetailBarTrack>
-            </DetailBarRow>
+              </StackTrack>
+              <StackTotal>{fmtSen(pyVal)}（{formatPercent(pyRatioVal)}）</StackTotal>
+            </StackRow>
           )}
         </DetailBarWrapper>
 
         {/* Legend */}
         {hasCategory && (
           <LegendRow style={{ marginTop: 6 }}>
-            {depts.map((dept) => (
-              <LegendItem key={dept.code} $clickable={false}>
-                <LegendDot $color={colorMap.get(dept.code) ?? '#6366f1'} />
-                <span style={{ fontSize: '0.55rem' }}>{dept.name}</span>
-              </LegendItem>
-            ))}
+            {depts.map((dept) => {
+              const pctOfTotal = actualSum > 0 ? (dept.amount / actualSum * 100).toFixed(1) : '0'
+              return (
+                <LegendItem key={dept.code} $clickable={false}>
+                  <LegendDot $color={colorMap.get(dept.code) ?? '#6366f1'} />
+                  <span style={{ fontSize: '0.55rem' }}>{dept.name} ({pctOfTotal}%)</span>
+                </LegendItem>
+              )
+            })}
           </LegendRow>
         )}
       </DetailSection>
