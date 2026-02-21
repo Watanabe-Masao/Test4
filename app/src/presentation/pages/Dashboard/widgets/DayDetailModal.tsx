@@ -444,13 +444,18 @@ interface HourCategoryItem {
 
 /* ── Hourly Chart Sub-component ─────────── */
 
-function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRecord[] }) {
+type HourlyMode = 'actual' | 'prev'
+
+function HourlyChart({ dayRecords, prevDayRecords }: {
+  dayRecords: readonly CategoryTimeSalesRecord[]
+  prevDayRecords: readonly CategoryTimeSalesRecord[]
+}) {
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
   const [selectedHour, setSelectedHour] = useState<number | null>(null)
-
-  const hourlyData = useMemo(() => {
+  const [hourlyMode, setHourlyMode] = useState<HourlyMode>('actual')
+  const buildHourlyData = useCallback((recs: readonly CategoryTimeSalesRecord[]) => {
     const map = new Map<number, { amount: number; quantity: number }>()
-    for (const rec of dayRecords) {
+    for (const rec of recs) {
       for (const slot of rec.timeSlots) {
         const ex = map.get(slot.hour) ?? { amount: 0, quantity: 0 }
         ex.amount += slot.amount
@@ -458,7 +463,6 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
         map.set(slot.hour, ex)
       }
     }
-    // Build array for display hours (typically 6-22)
     const entries = [...map.entries()].sort(([a], [b]) => a - b)
     if (entries.length === 0) return []
     const minH = Math.min(...entries.map(([h]) => h))
@@ -469,13 +473,41 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
       result.push({ hour: h, amount: d?.amount ?? 0, quantity: d?.quantity ?? 0 })
     }
     return result
-  }, [dayRecords])
+  }, [])
+
+  const actualHourlyData = useMemo(() => buildHourlyData(dayRecords), [dayRecords, buildHourlyData])
+  const prevHourlyData = useMemo(() => buildHourlyData(prevDayRecords), [prevDayRecords, buildHourlyData])
+
+  const hasPrevData = prevHourlyData.length > 0
+  const hourlyData = hourlyMode === 'prev' && hasPrevData ? prevHourlyData : actualHourlyData
+  // For sub-bar overlay when viewing actual, show prev as reference
+  const refData = hourlyMode === 'actual' ? prevHourlyData : actualHourlyData
+
+  // Merge hour ranges so both datasets use the same hours
+  const allHours = useMemo(() => {
+    const hrs = new Set<number>()
+    for (const d of actualHourlyData) hrs.add(d.hour)
+    for (const d of prevHourlyData) hrs.add(d.hour)
+    return [...hrs].sort((a, b) => a - b)
+  }, [actualHourlyData, prevHourlyData])
+
+  // Pad hourly data to cover all hours
+  const paddedData = useMemo(() => {
+    const map = new Map(hourlyData.map((d) => [d.hour, d]))
+    return allHours.map((h) => map.get(h) ?? { hour: h, amount: 0, quantity: 0 })
+  }, [hourlyData, allHours])
+
+  const paddedRef = useMemo(() => {
+    const map = new Map(refData.map((d) => [d.hour, d]))
+    return allHours.map((h) => map.get(h) ?? { hour: h, amount: 0, quantity: 0 })
+  }, [refData, allHours])
 
   // Category breakdown for the selected hour
   const hourDetail = useMemo((): HourCategoryItem[] => {
     if (selectedHour == null) return []
+    const sourceRecs = hourlyMode === 'prev' ? prevDayRecords : dayRecords
     const map = new Map<string, { dept: string; line: string; klass: string; amount: number; quantity: number }>()
-    for (const rec of dayRecords) {
+    for (const rec of sourceRecs) {
       const slot = rec.timeSlots.find((s) => s.hour === selectedHour)
       if (!slot || (slot.amount === 0 && slot.quantity === 0)) continue
       const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
@@ -496,40 +528,56 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
       pct: totalAmt > 0 ? (it.amount / totalAmt) * 100 : 0,
       color: COLORS[i % COLORS.length],
     }))
-  }, [dayRecords, selectedHour])
+  }, [dayRecords, prevDayRecords, selectedHour, hourlyMode])
 
-  const totalAmt = hourlyData.reduce((s, d) => s + d.amount, 0)
+  const totalAmt = paddedData.reduce((s, d) => s + d.amount, 0)
 
   // Cumulative percentages for Pareto line (must be before early return)
   const cumData = useMemo(() => {
-    let cumAmt = 0
-    return hourlyData.map((d) => {
-      cumAmt += d.amount
-      return { hour: d.hour, cumPct: totalAmt > 0 ? (cumAmt / totalAmt) * 100 : 0 }
-    })
-  }, [hourlyData, totalAmt])
+    const result: { hour: number; cumPct: number }[] = []
+    paddedData.reduce((acc, d) => {
+      const running = acc + d.amount
+      result.push({ hour: d.hour, cumPct: totalAmt > 0 ? (running / totalAmt) * 100 : 0 })
+      return running
+    }, 0)
+    return result
+  }, [paddedData, totalAmt])
 
-  if (hourlyData.length === 0) return null
+  // Calculate bar center x positions as % (flex:1 + gap:2px)
+  // For n bars with gap g in a container, each bar center is at (i+0.5)/n of the total width
+  // This is an approximation that ignores the small gap pixels — accurate enough for the overlay
+  const n = paddedData.length
+  const barCenterX = useCallback((i: number) => n > 0 ? (i + 0.5) / n * 100 : 50, [n])
 
-  const maxAmt = Math.max(...hourlyData.map((d) => d.amount), 1)
-  const totalQty = hourlyData.reduce((s, d) => s + d.quantity, 0)
-  const peakHour = hourlyData.reduce((peak, d) => d.amount > peak.amount ? d : peak, hourlyData[0])
-  const selData = selectedHour != null ? hourlyData.find((d) => d.hour === selectedHour) : null
+  if (paddedData.length === 0 && prevHourlyData.length === 0) return null
+  if (paddedData.length === 0) return null
 
-  // Build SVG polyline points (computed in % of viewBox)
-  const n = hourlyData.length
-  const cumLinePoints = cumData.map((d, i) => {
-    const x = n > 1 ? (i / (n - 1)) * 100 : 50
-    const y = 100 - d.cumPct
-    return `${x},${y}`
-  }).join(' ')
+  const maxAmt = Math.max(...paddedData.map((d) => d.amount), 1)
+  const totalQty = paddedData.reduce((s, d) => s + d.quantity, 0)
+  const peakHour = paddedData.reduce((peak, d) => d.amount > peak.amount ? d : peak, paddedData[0])
+  const selData = selectedHour != null ? paddedData.find((d) => d.hour === selectedHour) : null
+
+  // Build SVG polyline using calculated bar center positions
+  const cumLinePoints = cumData.map((d, i) => `${barCenterX(i)},${100 - d.cumPct}`).join(' ')
+
+  const modeLabel = hourlyMode === 'prev' ? '前年' : '実績'
 
   return (
     <HourlySection>
       <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
+      {/* 実績/前年 切替 */}
+      {hasPrevData && (
+        <ToggleBar style={{ marginBottom: 8 }}>
+          <ToggleLabel>データ</ToggleLabel>
+          <ToggleGroup>
+            <ToggleBtn $active={hourlyMode === 'actual'} onClick={() => { setHourlyMode('actual'); setSelectedHour(null) }}>実績（当年）</ToggleBtn>
+            <ToggleBtn $active={hourlyMode === 'prev'} onClick={() => { setHourlyMode('prev'); setSelectedHour(null) }}>前年</ToggleBtn>
+          </ToggleGroup>
+        </ToggleBar>
+      )}
       <HourlySummaryRow>
         <HourlySumItem>
-          <SumLabel>合計</SumLabel>
+          <SumLabel>{modeLabel}合計</SumLabel>
           <SumValue>{toComma(totalAmt)}円</SumValue>
         </HourlySumItem>
         <HourlySumItem>
@@ -543,14 +591,17 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
       </HourlySummaryRow>
       <HourlyChartContainer>
         <HourlyChartWrap>
-          {hourlyData.map((d) => {
+          {paddedData.map((d, idx) => {
             const pct = (d.amount / maxAmt) * 100
             const isPeak = d.hour === peakHour.hour
             const isSelected = d.hour === selectedHour
             const cumEntry = cumData.find((c) => c.hour === d.hour)
+            const refEntry = paddedRef[idx]
+            const refPct = refEntry ? (refEntry.amount / maxAmt) * 100 : 0
             return (
               <HourlyBar
                 key={d.hour}
+                data-hourly-bar
                 $pct={pct}
                 $color={isSelected ? '#ec4899' : isPeak ? '#f59e0b' : '#6366f1'}
                 onMouseEnter={() => setHoveredHour(d.hour)}
@@ -558,11 +609,26 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
                 onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
                 style={{ outline: isSelected ? '2px solid #ec4899' : undefined, outlineOffset: -1 }}
               >
+                {/* Reference line (prev or actual) */}
+                {hasPrevData && refPct > 0 && (
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                    height: `${Math.max(refPct, 1)}%`,
+                    borderTop: '2px dashed rgba(255,255,255,0.6)',
+                    pointerEvents: 'none',
+                  }} />
+                )}
                 {hoveredHour === d.hour && !isSelected && (
                   <HourlyTooltipBox>
-                    {d.hour}時: {toComma(d.amount)}円 / {d.quantity.toLocaleString()}点
-                    <br />累積率 {cumEntry ? cumEntry.cumPct.toFixed(2) : '0.00'}%
-                    <br /><span style={{ fontSize: '0.45rem', opacity: 0.7 }}>クリックで詳細表示</span>
+                    <div style={{ fontWeight: 600, marginBottom: 2 }}>{d.hour}時 ({modeLabel})</div>
+                    <div>{toComma(d.amount)}円 / {d.quantity.toLocaleString()}点</div>
+                    {hasPrevData && refEntry && (
+                      <div style={{ opacity: 0.7 }}>
+                        {hourlyMode === 'actual' ? '前年' : '実績'}: {toComma(refEntry.amount)}円
+                      </div>
+                    )}
+                    <div>累積率 {cumEntry ? cumEntry.cumPct.toFixed(1) : '0.0'}%</div>
+                    <span style={{ fontSize: '0.42rem', opacity: 0.6 }}>クリックで詳細表示</span>
                   </HourlyTooltipBox>
                 )}
               </HourlyBar>
@@ -583,14 +649,10 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
               vectorEffect="non-scaling-stroke"
             />
             {/* Dots at each data point */}
-            {cumData.map((d, i) => {
-              const x = n > 1 ? (i / (n - 1)) * 100 : 50
-              const y = 100 - d.cumPct
-              return (
-                <circle key={d.hour} cx={x} cy={y} r="1.5"
-                  fill="#ef4444" vectorEffect="non-scaling-stroke" />
-              )
-            })}
+            {cumData.map((d, i) => (
+              <circle key={d.hour} cx={barCenterX(i)} cy={100 - d.cumPct} r="2"
+                fill="#ef4444" vectorEffect="non-scaling-stroke" />
+            ))}
           </HourlyCumOverlay>
         </HourlyChartWrap>
         {/* Right Y-axis for cumulative % */}
@@ -603,7 +665,7 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
         </HourlyRightAxis>
       </HourlyChartContainer>
       <HourlyAxis>
-        {hourlyData.map((d) => (
+        {paddedData.map((d) => (
           <HourlyTick key={d.hour} style={{
             fontWeight: d.hour === selectedHour ? 700 : 400,
             color: d.hour === selectedHour ? '#ec4899' : undefined,
@@ -1326,7 +1388,7 @@ export function DayDetailModal({
         {/* ── Tab: 時間帯分析 ── */}
         {tab === 'hourly' && (
           <>
-            <HourlyChart dayRecords={dayRecords} />
+            <HourlyChart dayRecords={dayRecords} prevDayRecords={prevDayRecords} />
             {dayRecords.length === 0 && (
               <DetailSection>
                 <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
