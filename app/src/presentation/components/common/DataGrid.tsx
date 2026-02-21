@@ -168,7 +168,7 @@ const FilterInput = styled.input`
   padding: 2px 6px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  background: ${({ theme }) => theme.colors.bg1};
+  background: ${({ theme }) => theme.colors.bg};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
@@ -223,7 +223,7 @@ const PageBtn = styled.button<{ $active?: boolean }>`
 const PageSizeSelect = styled.select`
   padding: 2px 4px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  background: ${({ theme }) => theme.colors.bg1};
+  background: ${({ theme }) => theme.colors.bg};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};

@@ -13,47 +13,51 @@ const meta: Meta<typeof Modal> = {
 
 export default meta
 
+function DefaultModalRender() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button $variant="primary" onClick={() => setOpen(true)}>
+        モーダルを開く
+      </Button>
+      {open && (
+        <Modal
+          title="設定"
+          onClose={() => setOpen(false)}
+          footer={
+            <>
+              <Button $variant="outline" onClick={() => setOpen(false)}>キャンセル</Button>
+              <Button $variant="primary" onClick={() => setOpen(false)}>保存</Button>
+            </>
+          }
+        >
+          <p style={{ fontSize: '0.78rem' }}>モーダル内のコンテンツです。</p>
+        </Modal>
+      )}
+    </>
+  )
+}
+
 export const Default: StoryObj = {
-  render: () => {
-    const [open, setOpen] = useState(false)
-    return (
-      <>
-        <Button $variant="primary" onClick={() => setOpen(true)}>
-          モーダルを開く
-        </Button>
-        {open && (
-          <Modal
-            title="設定"
-            onClose={() => setOpen(false)}
-            footer={
-              <>
-                <Button $variant="outline" onClick={() => setOpen(false)}>キャンセル</Button>
-                <Button $variant="primary" onClick={() => setOpen(false)}>保存</Button>
-              </>
-            }
-          >
-            <p style={{ fontSize: '0.78rem' }}>モーダル内のコンテンツです。</p>
-          </Modal>
-        )}
-      </>
-    )
-  },
+  render: () => <DefaultModalRender />,
+}
+
+function WithoutFooterRender() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button $variant="outline" onClick={() => setOpen(true)}>
+        情報表示
+      </Button>
+      {open && (
+        <Modal title="お知らせ" onClose={() => setOpen(false)}>
+          <p style={{ fontSize: '0.78rem' }}>フッターなしのシンプルモーダルです。</p>
+        </Modal>
+      )}
+    </>
+  )
 }
 
 export const WithoutFooter: StoryObj = {
-  render: () => {
-    const [open, setOpen] = useState(false)
-    return (
-      <>
-        <Button $variant="outline" onClick={() => setOpen(true)}>
-          情報表示
-        </Button>
-        {open && (
-          <Modal title="お知らせ" onClose={() => setOpen(false)}>
-            <p style={{ fontSize: '0.78rem' }}>フッターなしのシンプルモーダルです。</p>
-          </Modal>
-        )}
-      </>
-    )
-  },
+  render: () => <WithoutFooterRender />,
 }

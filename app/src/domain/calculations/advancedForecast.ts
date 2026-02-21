@@ -97,13 +97,12 @@ export function linearRegression(
   const n = entries.length
   if (n < 2) return { slope: 0, intercept: 0, rSquared: 0 }
 
-  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0
   for (const [x, y] of entries) {
     sumX += x
     sumY += y
     sumXY += x * y
     sumX2 += x * x
-    sumY2 += y * y
   }
 
   const denom = n * sumX2 - sumX * sumX

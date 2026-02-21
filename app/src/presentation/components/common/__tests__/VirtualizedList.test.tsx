@@ -10,30 +10,29 @@ const theme = {
 }
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  <ThemeProvider theme={theme as never}>{children}</ThemeProvider>
 )
 
-// react-window の FixedSizeList をモック
+// react-window v2 の List をモック
 vi.mock('react-window', () => ({
-  FixedSizeList: ({
-    children: Row,
-    itemCount,
-    height,
-    width,
-    itemSize,
+  List: ({
+    rowComponent: Row,
+    rowCount,
+    rowHeight,
+    style,
   }: {
-    children: React.ComponentType<{ index: number; style: React.CSSProperties }>
-    itemCount: number
-    height: number
-    width: number | string
-    itemSize: number
+    rowComponent: React.ComponentType<{ index: number; style: React.CSSProperties }>
+    rowCount: number
+    rowHeight: number
+    style: React.CSSProperties
   }) => (
-    <div data-testid="virtual-list" data-height={height} data-width={width} data-item-size={itemSize}>
-      {Array.from({ length: Math.min(itemCount, 10) }, (_, i) => (
-        <Row key={i} index={i} style={{ height: itemSize }} />
+    <div data-testid="virtual-list" data-height={style.height} data-width={style.width} data-item-size={rowHeight}>
+      {Array.from({ length: Math.min(rowCount, 10) }, (_, i) => (
+        <Row key={i} index={i} style={{ height: rowHeight }} />
       ))}
     </div>
   ),
+  useListRef: () => ({ current: null }),
 }))
 
 describe('VirtualizedList', () => {

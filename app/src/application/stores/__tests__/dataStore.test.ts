@@ -46,7 +46,7 @@ describe('dataStore', () => {
 
   it('setPrevYearAutoData で前年データを設定できる', () => {
     const prevYearSales = { s1: { 1: { sales: 100 } } }
-    const prevYearDiscount = { s1: { 1: { discount: 10 } } }
+    const prevYearDiscount = { s1: { 1: { sales: 100, discount: 10 } } }
     const prevYearCategoryTimeSales = { records: [] }
 
     useDataStore.getState().setPrevYearAutoData({

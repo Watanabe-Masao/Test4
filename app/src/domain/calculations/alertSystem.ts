@@ -6,7 +6,6 @@
  */
 import { safeDivide } from './utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
-import type { DailyRecord } from '@/domain/models/DailyRecord'
 
 // ─── Types ────────────────────────────────────────────
 

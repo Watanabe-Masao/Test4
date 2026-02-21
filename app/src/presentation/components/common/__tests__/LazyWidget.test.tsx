@@ -11,7 +11,7 @@ const theme = {
 }
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  <ThemeProvider theme={theme as never}>{children}</ThemeProvider>
 )
 
 // useIntersectionObserver モック

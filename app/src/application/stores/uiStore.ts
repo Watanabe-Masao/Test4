@@ -105,7 +105,7 @@ export const useUiStore = create<UiStore>()(
         },
         partialize: (state) => ({
           currentView: state.currentView,
-        }),
+        }) as UiStore,
       },
     ),
     { name: 'UiStore' },

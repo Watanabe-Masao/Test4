@@ -18,7 +18,7 @@ export function useCalculation() {
 
   // ref で最新の state を保持（Worker の非同期コールバックで stale にならない）
   const stateRef = useRef(state)
-  stateRef.current = state
+  useEffect(() => { stateRef.current = state })
 
   const canCalculate =
     Object.keys(state.data.purchase).length > 0 &&
