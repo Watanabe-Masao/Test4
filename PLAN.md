@@ -205,7 +205,7 @@
   4. レポート印刷プレビュー
 - CI パイプラインへの統合
 
-### 6.3 Visual Regression テスト
+### 6.3 Visual Regression テスト ✅
 **目的**: UI の意図しない変更を検出
 - Storybook 導入 (コンポーネントカタログ)
 - Chromatic or Percy による Visual Regression
@@ -281,7 +281,7 @@
 
 ## 完了状況
 
-全 7 フェーズ (22 サブフェーズ) のうち **21 サブフェーズ完了**。残り: 6.3 Visual Regression テスト (Storybook/Chromatic)。
+全 7 フェーズ (22 サブフェーズ) **全て完了** 🎉
 
 | Sprint | 実装内容 | テスト数 | ステータス |
 |--------|----------|----------|------------|
@@ -291,4 +291,5 @@
 | Sprint 4 | 予測分析, アラート, CSV Export, トレンド | 534→534 | ✅ |
 | Sprint 5 | 仮想スクロール, Web Worker, バンドル最適化 | 534→564 | ✅ |
 | Sprint 6 | PWA, クラウド準備, ダッシュボードプリセット, モバイル | 564→587 | ✅ |
-| Sprint 7 | 計算キャッシュ, E2Eテスト基盤, i18n | 587→608+ | ✅ |
+| Sprint 7 | 計算キャッシュ, E2Eテスト基盤, i18n | 587→609 | ✅ |
+| Sprint 8 | Storybook, Visual Regression テスト | 609→612 | ✅ |
