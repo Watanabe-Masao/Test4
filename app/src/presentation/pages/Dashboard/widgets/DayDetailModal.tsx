@@ -303,12 +303,11 @@ const LegendDot = styled.div<{ $color: string }>`
   width: 8px; height: 8px; border-radius: 2px; background: ${({ $color }) => $color};
 `
 const SegmentTooltip = styled.div`
-  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-  z-index: 100; padding: 4px 8px; border-radius: 4px;
-  font-size: 0.55rem; white-space: nowrap;
+  position: fixed; z-index: 9999; padding: 6px 10px; border-radius: 6px;
+  font-size: 0.55rem; white-space: nowrap; pointer-events: none;
   background: ${({ theme }) => theme.mode === 'dark' ? '#1e1e2e' : '#fff'};
   color: ${({ theme }) => theme.colors.text}; border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
 `
 
 /* ── Tab styled components ──────────────── */
@@ -769,6 +768,7 @@ function CategoryDrilldown({
   const [metric, setMetric] = useState<MetricKey>('amount')
   const [compare, setCompare] = useState<CompareMode>('daily')
   const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
+  const [segTooltip, setSegTooltip] = useState<{ x: number; y: number; content: React.ReactNode } | null>(null)
   const [drillSourceRow, setDrillSourceRow] = useState<'actual' | 'prev'>('actual')
 
   const currentLevel = getHierarchyLevel(filter)
@@ -960,18 +960,20 @@ function CategoryDrilldown({
               const val = isAmountMode ? it.amount : it.quantity
               if (val <= 0) return null
               const pct = bActualTotal > 0 ? (val / bActualTotal * 100) : 0
+              const segKey = `${prefix}a-${it.code}`
               return (
                 <StackSegment
                   key={it.code} $flex={val / maxBar} $color={it.color}
-                  onMouseEnter={() => setHoveredSeg(`${prefix}a-${it.code}`)}
-                  onMouseLeave={() => setHoveredSeg(null)}
+                  onMouseEnter={(e) => {
+                    setHoveredSeg(segKey)
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                    setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bActualTotal, false) })
+                  }}
+                  onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
                   onDoubleClick={() => canDrill && handleDrill(it)}
                   style={{ cursor: canDrill ? 'pointer' : 'default' }}
                 >
                   {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
-                  {hoveredSeg === `${prefix}a-${it.code}` && (
-                    <SegmentTooltip>{tooltipFn(it, val, bActualTotal, false)}</SegmentTooltip>
-                  )}
                 </StackSegment>
               )
             })}
@@ -990,18 +992,20 @@ function CategoryDrilldown({
                 const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
                 if (val <= 0) return null
                 const pct = bPrevTotal > 0 ? (val / bPrevTotal * 100) : 0
+                const segKey = `${prefix}p-${it.code}`
                 return (
                   <StackSegment
                     key={it.code} $flex={val / maxBar} $color={it.color}
                     style={{ opacity: 0.5, cursor: canDrill ? 'pointer' : 'default' }}
-                    onMouseEnter={() => setHoveredSeg(`${prefix}p-${it.code}`)}
-                    onMouseLeave={() => setHoveredSeg(null)}
+                    onMouseEnter={(e) => {
+                      setHoveredSeg(segKey)
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bPrevTotal, true) })
+                    }}
+                    onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
                     onDoubleClick={() => canDrill && handleDrill(it)}
                   >
                     {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
-                    {hoveredSeg === `${prefix}p-${it.code}` && (
-                      <SegmentTooltip>{tooltipFn(it, val, bPrevTotal, true)}</SegmentTooltip>
-                    )}
                   </StackSegment>
                 )
               })}
@@ -1076,6 +1080,15 @@ function CategoryDrilldown({
       {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, pySales, 'day-', 'daily')}
       {/* ── 累計 bar chart ── */}
       {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-', 'cumulative')}
+      {/* Floating segment tooltip (rendered outside overflow:hidden) */}
+      {hoveredSeg && segTooltip && (
+        <SegmentTooltip style={{
+          left: segTooltip.x, top: segTooltip.y,
+          transform: 'translate(-50%, calc(-100% - 8px))',
+        }}>
+          {segTooltip.content}
+        </SegmentTooltip>
+      )}
 
       {/* Treemap */}
       <DrillTreemap>
