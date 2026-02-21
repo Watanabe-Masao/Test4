@@ -102,17 +102,19 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 部門/ライン/クラス別 時間帯パターンチャート */
-export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
+export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [groupLevel, setGroupLevel] = useState<GroupLevel>('department')
   const [topN, setTopN] = useState(5)
   const [lineFilter, setLineFilter] = useState<string>('')
   const { filter } = useCategoryHierarchy()
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 

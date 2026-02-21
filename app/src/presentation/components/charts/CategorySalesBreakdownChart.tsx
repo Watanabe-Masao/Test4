@@ -90,15 +90,17 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 部門・ライン・クラス別売上チャート */
-export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }: Props) {
+export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const [level, setLevel] = useState<Level>('department')
   const [metric, setMetric] = useState<Metric>('amount')
   const { filter } = useCategoryHierarchy()
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 

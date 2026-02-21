@@ -254,15 +254,17 @@ interface Props {
   month: number
   /** 前年同曜日対応済みレコード */
   prevYearRecords?: readonly CategoryTimeSalesRecord[]
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords }: Props) {
+export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
   const { filter, setFilter } = useCategoryHierarchy()
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [showYoY, setShowYoY] = useState(true)
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const prevPeriodRecords = useMemo(
     () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],

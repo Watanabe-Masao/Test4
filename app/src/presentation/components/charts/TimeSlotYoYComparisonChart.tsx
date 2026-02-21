@@ -146,6 +146,8 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 時間帯別 前年同曜日比較チャート */
@@ -156,10 +158,11 @@ export function TimeSlotYoYComparisonChart({
   daysInMonth,
   year,
   month,
+  dataMaxDay,
 }: Props) {
   const ct = useChartTheme()
   const { filter } = useCategoryHierarchy()
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const prevPeriodRecords = useMemo(() => pf.filterRecords(prevYearRecords), [prevYearRecords, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)

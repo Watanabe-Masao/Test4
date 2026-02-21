@@ -35,6 +35,8 @@ export interface WidgetContext {
   selectedStoreIds: ReadonlySet<string>
   /** 取込データ有効末日 (null = 月末) */
   dataEndDay: number | null
+  /** 販売データが存在する最大日（0 = 未検出） */
+  dataMaxDay: number
   /** 部門別KPIデータ */
   departmentKpi: DepartmentKpiData
   /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */

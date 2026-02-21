@@ -128,6 +128,8 @@ interface Props {
   month: number
   /** 前年同曜日対応済みレコード */
   prevYearRecords?: readonly CategoryTimeSalesRecord[]
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 時間帯別の集計結果を計算する共通関数 */
@@ -168,13 +170,13 @@ function aggregateHourly(
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較対応） */
-export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords }: Props) {
+export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const [showPrevYear, setShowPrevYear] = useState(true)
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const prevPeriodRecords = useMemo(
     () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],

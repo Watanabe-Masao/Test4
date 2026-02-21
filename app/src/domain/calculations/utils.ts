@@ -69,3 +69,44 @@ export function calculateMovingAverage(values: readonly number[], window: number
     return sum / window
   })
 }
+
+/**
+ * StoreDayRecord から最大日を取得
+ */
+function maxDayOfRecord(record: { readonly [storeId: string]: { readonly [day: number]: unknown } }): number {
+  let max = 0
+  for (const storeId of Object.keys(record)) {
+    for (const dayStr of Object.keys(record[storeId])) {
+      const d = Number(dayStr)
+      if (d > max) max = d
+    }
+  }
+  return max
+}
+
+/**
+ * 予算以外の取込データ（販売金額データ）の最大日を検出する。
+ * スライダーのデフォルト値やリセット時のデータ末日として使用。
+ */
+export function detectDataMaxDay(data: {
+  readonly purchase: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly sales: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly discount: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly interStoreIn: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly interStoreOut: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly flowers: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly directProduce: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly consumables: { readonly [s: string]: { readonly [d: number]: unknown } }
+}): number {
+  return Math.max(
+    0,
+    maxDayOfRecord(data.purchase),
+    maxDayOfRecord(data.sales),
+    maxDayOfRecord(data.discount),
+    maxDayOfRecord(data.interStoreIn),
+    maxDayOfRecord(data.interStoreOut),
+    maxDayOfRecord(data.flowers),
+    maxDayOfRecord(data.directProduce),
+    maxDayOfRecord(data.consumables),
+  )
+}

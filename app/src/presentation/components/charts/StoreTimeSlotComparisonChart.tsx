@@ -128,15 +128,17 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 店舗別 時間帯売上パターン比較 */
-export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysInMonth, year, month }: Props) {
+export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('bar')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const hf = useHierarchyDropdown(periodRecords, new Set<string>())
 
