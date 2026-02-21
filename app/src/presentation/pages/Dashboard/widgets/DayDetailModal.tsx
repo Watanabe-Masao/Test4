@@ -363,14 +363,14 @@ const HourlySection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
 const HourlyChartContainer = styled.div`
-  display: flex; align-items: stretch; margin-bottom: 4px;
+  display: flex; align-items: stretch; margin-bottom: 4px; padding: 0 4px;
 `
 const HourlyChartWrap = styled.div`
   display: flex; align-items: flex-end; height: 180px;
-  padding: 0 4px; flex: 1; position: relative;
+  flex: 1; position: relative;
 `
 const HourlyCumOverlay = styled.svg`
-  position: absolute; top: 0; left: 4px; right: 4px; height: 100%;
+  position: absolute; top: 0; left: 0; right: 0; height: 100%;
   pointer-events: none; overflow: visible;
 `
 const HourlyRightAxis = styled.div`
