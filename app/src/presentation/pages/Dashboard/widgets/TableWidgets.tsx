@@ -1,9 +1,10 @@
-import React, { type ReactNode } from 'react'
+import React, { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/domain/calculations/forecast'
 import type { DepartmentKpiRecord } from '@/domain/models'
+import { useAppDispatch, useAppData } from '@/application/context'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
 
@@ -567,7 +568,153 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
 
 /* ── 店舗別KPI一覧テーブル ──────────────────────────────── */
 
-export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
+/* Editable cell styled components */
+const EditableCell = styled(STd)`
+  padding: 0;
+  position: relative;
+`
+const CellInput = styled.input`
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.6rem;
+  text-align: right;
+  padding: 4px 8px;
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  box-sizing: border-box;
+  &:focus {
+    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)'};
+    box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.colors.palette.primary};
+  }
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.text4};
+    font-size: 0.55rem;
+  }
+  /* hide spin buttons */
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  -moz-appearance: textfield;
+`
+const EditHint = styled.span`
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 0.4rem;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  opacity: 0.5;
+  pointer-events: none;
+`
+const KpiTooltip = styled.div`
+  position: absolute;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  line-height: 1.6;
+  white-space: nowrap;
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1e1e2e' : '#fff'};
+  color: ${({ theme }) => theme.colors.text};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  pointer-events: none;
+  bottom: calc(100% + 4px);
+  right: 0;
+`
+const TipLabel = styled.span`color: ${({ theme }) => theme.colors.text4}; margin-right: 6px;`
+const TipVal = styled.span<{ $color?: string }>`
+  font-weight: 600;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $color }) => $color ?? 'inherit'};
+`
+
+/* Editable number cell */
+function EditableNumberCell({
+  value,
+  placeholder,
+  onChange,
+  format = 'currency',
+  tooltip,
+  style,
+}: {
+  value: number | null
+  placeholder?: string
+  onChange: (v: number | null) => void
+  format?: 'currency' | 'percent'
+  tooltip?: ReactNode
+  style?: React.CSSProperties
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [hovered, setHovered] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = useCallback(() => {
+    setEditing(true)
+    setDraft(value != null ? String(value) : '')
+  }, [value])
+
+  const commit = useCallback(() => {
+    setEditing(false)
+    if (draft === '') { onChange(null); return }
+    const n = Number(draft)
+    if (!isNaN(n)) onChange(n)
+  }, [draft, onChange])
+
+  useEffect(() => {
+    if (editing && inputRef.current) inputRef.current.focus()
+  }, [editing])
+
+  const displayVal = value != null
+    ? (format === 'percent' ? fmtPct(value) : formatCurrency(value))
+    : '-'
+
+  return (
+    <EditableCell
+      style={style}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {editing ? (
+        <CellInput
+          ref={inputRef}
+          type="number"
+          value={draft}
+          placeholder={placeholder}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit()
+            if (e.key === 'Escape') setEditing(false)
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            padding: '4px 8px',
+            textAlign: 'right',
+            cursor: 'pointer',
+            minHeight: '1.2em',
+            fontFamily: 'var(--font-mono, monospace)',
+          }}
+          onClick={startEdit}
+          title="クリックで編集"
+        >
+          {displayVal}
+          <EditHint>✎</EditHint>
+        </div>
+      )}
+      {hovered && !editing && tooltip && <KpiTooltip>{tooltip}</KpiTooltip>}
+    </EditableCell>
+  )
+}
+
+/* Store KPI Table as a proper component (needs hooks for dispatch) */
+function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
+  const dispatch = useAppDispatch()
+  const appData = useAppData()
   const { result: agg, allStoreResults, stores } = ctx
 
   // 店舗をコード順でソート
@@ -582,6 +729,20 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
       return { id, label: store?.code ?? id, name: store?.name ?? id, result }
     })
 
+  const handleInventoryChange = useCallback(
+    (storeId: string, field: 'closingInventory' | 'openingInventory', val: number | null) => {
+      dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config: { [field]: val } } })
+    },
+    [dispatch],
+  )
+
+  const handleGPBudgetChange = useCallback(
+    (storeId: string, val: number | null) => {
+      dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config: { grossProfitBudget: val } } })
+    },
+    [dispatch],
+  )
+
   if (storeEntries.length === 0) {
     return (
       <STableWrapper>
@@ -595,7 +756,12 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
 
   const groupBorder = '2px solid rgba(99,102,241,0.25)'
 
-  const renderStoreRow = (r: typeof agg, label: string, isSummary?: boolean) => {
+  const renderStoreRow = (
+    r: typeof agg,
+    label: string,
+    storeId?: string,
+    isSummary?: boolean,
+  ) => {
     const gpRateBudget = r.grossProfitRateBudget
     const gpRateActual = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
     const gpRateVariance = gpRateActual - gpRateBudget
@@ -612,11 +778,82 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
       ? { fontWeight: 700 as const, borderTop: '2px solid rgba(99,102,241,0.3)' }
       : undefined
 
+    // Editable values read from settings (not from calculated StoreResult)
+    const invConfig = storeId ? appData.data.settings.get(storeId) : undefined
+
+    // Tooltip content builders
+    const closingInvTooltip = storeId && r.estMethodClosingInventory != null ? (
+      <div>
+        <div><TipLabel>推定期末在庫:</TipLabel><TipVal>{formatCurrency(r.estMethodClosingInventory)}</TipVal></div>
+        {r.closingInventory != null && r.estMethodClosingInventory != null && (
+          <div>
+            <TipLabel>推定との差:</TipLabel>
+            <TipVal $color={sc.cond(r.closingInventory - r.estMethodClosingInventory <= 0)}>
+              {formatCurrency(r.closingInventory - r.estMethodClosingInventory)}
+            </TipVal>
+          </div>
+        )}
+      </div>
+    ) : undefined
+
+    const gpBudgetTooltip = storeId && gpRateBudget > 0 ? (
+      <div>
+        <div><TipLabel>粗利率予算:</TipLabel><TipVal>{fmtPct(gpRateBudget)}</TipVal></div>
+        <div><TipLabel>粗利率実績:</TipLabel><TipVal>{fmtPct(gpRateActual)}</TipVal></div>
+        <div>
+          <TipLabel>予実差異:</TipLabel>
+          <TipVal $color={varColor}>{fmtPtDiff(gpRateVariance * 100)}</TipVal>
+        </div>
+        {r.budget > 0 && (
+          <div><TipLabel>粗利予算額:</TipLabel><TipVal>{formatCurrency(r.grossProfitBudget)}</TipVal></div>
+        )}
+      </div>
+    ) : undefined
+
+    const salesLandingTooltip = storeId ? (
+      <div>
+        <div><TipLabel>売上予算:</TipLabel><TipVal>{formatCurrency(r.budget)}</TipVal></div>
+        <div><TipLabel>売上実績:</TipLabel><TipVal>{formatCurrency(r.totalSales)}</TipVal></div>
+        <div><TipLabel>着地予測:</TipLabel><TipVal>{formatCurrency(r.projectedSales)}</TipVal></div>
+        <div>
+          <TipLabel>予算差異:</TipLabel>
+          <TipVal $color={salesLandingColor}>{formatCurrency(salesLanding)}</TipVal>
+        </div>
+        <div><TipLabel>達成率予測:</TipLabel><TipVal $color={sc.achievement(r.projectedAchievement)}>{formatPercent(r.projectedAchievement)}</TipVal></div>
+      </div>
+    ) : undefined
+
+    const gpLandingTooltip = storeId ? (
+      <div>
+        <div><TipLabel>推定マージン率:</TipLabel><TipVal>{fmtPct(r.estMethodMarginRate)}</TipVal></div>
+        {r.invMethodGrossProfitRate != null && (
+          <div><TipLabel>在庫法粗利率:</TipLabel><TipVal>{fmtPct(r.invMethodGrossProfitRate)}</TipVal></div>
+        )}
+        <div>
+          <TipLabel>予算差異:</TipLabel>
+          <TipVal $color={sc.cond(gpLanding - gpRateBudget >= 0)}>
+            {fmtPtDiff((gpLanding - gpRateBudget) * 100)}
+          </TipVal>
+        </div>
+      </div>
+    ) : undefined
+
     return (
       <tr key={label} style={rowStyle}>
         <STd style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{label}</STd>
         {/* 粗利 */}
-        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(gpRateBudget)}</BudgetTd>
+        {storeId && !isSummary ? (
+          <EditableNumberCell
+            value={invConfig?.grossProfitBudget ?? null}
+            placeholder="粗利予算"
+            format="currency"
+            onChange={(v) => handleGPBudgetChange(storeId, v)}
+            tooltip={gpBudgetTooltip}
+            style={{ borderLeft: groupBorder, background: 'rgba(234,179,8,0.08)' }}
+          />
+        ) : (
+          <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(gpRateBudget)}</BudgetTd>
+        )}
         <STd>{fmtPct(gpRateActual)}</STd>
         <STd style={{ color: varColor }}>{fmtPtDiff(gpRateVariance * 100)}</STd>
         {/* 値入/売変 */}
@@ -629,10 +866,24 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
         <STd style={{ color: achColor }}>{formatPercent(r.budgetAchievementRate)}</STd>
         {/* 在庫 */}
         <STd style={{ borderLeft: groupBorder }}>{r.openingInventory != null ? formatCurrency(r.openingInventory) : '-'}</STd>
-        <STd>{r.closingInventory != null ? formatCurrency(r.closingInventory) : '-'}</STd>
+        {storeId && !isSummary ? (
+          <EditableNumberCell
+            value={invConfig?.closingInventory ?? null}
+            placeholder="期末在庫"
+            format="currency"
+            onChange={(v) => handleInventoryChange(storeId, 'closingInventory', v)}
+            tooltip={closingInvTooltip}
+          />
+        ) : (
+          <STd>{r.closingInventory != null ? formatCurrency(r.closingInventory) : '-'}</STd>
+        )}
         {/* 着地 */}
-        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(gpLanding)}</BudgetTd>
-        <STd style={{ color: salesLandingColor }}>{formatCurrency(salesLanding)}</STd>
+        <EditableLandingCell
+          r={r}
+          groupBorder={groupBorder}
+          gpLandingTooltip={gpLandingTooltip}
+          salesLandingTooltip={salesLandingTooltip}
+        />
       </tr>
     )
   }
@@ -653,7 +904,7 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
             </tr>
             <tr>
               {/* 粗利 */}
-              <BudgetTh style={{ borderLeft: groupBorder }}>粗利率予算</BudgetTh>
+              <BudgetTh style={{ borderLeft: groupBorder }}>粗利予算額</BudgetTh>
               <KpiSubTh>粗利率実績</KpiSubTh>
               <KpiSubTh>予算差異</KpiSubTh>
               {/* 値入/売変 */}
@@ -666,20 +917,64 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
               <KpiSubTh>達成率</KpiSubTh>
               {/* 在庫 */}
               <KpiSubTh style={{ borderLeft: groupBorder }}>期首在庫</KpiSubTh>
-              <KpiSubTh>期末在庫</KpiSubTh>
+              <KpiSubTh>期末在庫 ✎</KpiSubTh>
               {/* 着地 */}
               <BudgetTh style={{ borderLeft: groupBorder }}>最終粗利着地</BudgetTh>
               <KpiSubTh>最終売上着地</KpiSubTh>
             </tr>
           </thead>
           <tbody>
-            {storeEntries.map((s) => renderStoreRow(s.result, s.label))}
-            {storeEntries.length > 1 && renderStoreRow(agg, '合計', true)}
+            {storeEntries.map((s) => renderStoreRow(s.result, s.label, s.id))}
+            {storeEntries.length > 1 && renderStoreRow(agg, '合計', undefined, true)}
           </tbody>
         </STable>
       </ScrollWrapper>
     </STableWrapper>
   )
+}
+
+/* Landing cells with hover tooltip */
+function EditableLandingCell({
+  r,
+  groupBorder,
+  gpLandingTooltip,
+  salesLandingTooltip,
+}: {
+  r: { estMethodMarginRate: number; grossProfitRateBudget: number; projectedSales: number; budget: number }
+  groupBorder: string
+  gpLandingTooltip?: ReactNode
+  salesLandingTooltip?: ReactNode
+}) {
+  const [gpHover, setGpHover] = useState(false)
+  const [slHover, setSlHover] = useState(false)
+  const gpLanding = r.estMethodMarginRate
+  const salesLanding = r.projectedSales - r.budget
+  const salesLandingColor = sc.cond(salesLanding >= 0)
+
+  return (
+    <>
+      <BudgetTd
+        style={{ borderLeft: groupBorder, position: 'relative' }}
+        onMouseEnter={() => setGpHover(true)}
+        onMouseLeave={() => setGpHover(false)}
+      >
+        {fmtPct(gpLanding)}
+        {gpHover && gpLandingTooltip && <KpiTooltip>{gpLandingTooltip}</KpiTooltip>}
+      </BudgetTd>
+      <STd
+        style={{ color: salesLandingColor, position: 'relative' }}
+        onMouseEnter={() => setSlHover(true)}
+        onMouseLeave={() => setSlHover(false)}
+      >
+        {formatCurrency(salesLanding)}
+        {slHover && salesLandingTooltip && <KpiTooltip>{salesLandingTooltip}</KpiTooltip>}
+      </STd>
+    </>
+  )
+}
+
+export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
+  return <StoreKpiTableInner ctx={ctx} />
 }
 
 export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
