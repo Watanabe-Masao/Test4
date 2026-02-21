@@ -396,6 +396,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumBudget={cumBudget.get(detailDay) ?? 0}
           cumSales={cumSales.get(detailDay) ?? 0}
           cumPrevYear={cumPrevYear.get(detailDay) ?? 0}
+          cumCustomers={cumCustomers.get(detailDay) ?? 0}
+          cumPrevCustomers={cumPrevCustomers.get(detailDay) ?? 0}
           prevYear={prevYear}
           categoryRecords={ctx.categoryTimeSales.records}
           prevYearCategoryRecords={ctx.prevYearCategoryTimeSales.hasPrevYear ? ctx.prevYearCategoryTimeSales.records : []}
