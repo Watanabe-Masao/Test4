@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
@@ -26,14 +26,45 @@ export interface PeriodFilterResult extends PeriodFilterState {
   /** year/month (曜日計算用) */
   year: number
   month: number
+  /** データ末日に基づくデフォルト終了日（リセット用） */
+  defaultEndDay: number
+  /** デフォルト範囲にリセット */
+  resetToDefault: () => void
 }
 
 /* ── Hook ───────────────────────────────────────────────── */
 
-export function usePeriodFilter(daysInMonth: number, year: number, month: number): PeriodFilterResult {
-  const [dayRange, setDayRange] = useState<[number, number]>([1, daysInMonth])
+/**
+ * @param daysInMonth 月の日数
+ * @param year 年
+ * @param month 月
+ * @param dataMaxDay データが存在する最大日（0 = 未検出）。変化時に自動リセット。
+ */
+export function usePeriodFilter(
+  daysInMonth: number,
+  year: number,
+  month: number,
+  dataMaxDay?: number,
+): PeriodFilterResult {
+  const effectiveEnd = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
+  const [dayRange, setDayRange] = useState<[number, number]>([1, effectiveEnd])
   const [mode, setMode] = useState<AggregateMode>('total')
   const [selectedDows, setSelectedDows] = useState<ReadonlySet<number>>(new Set<number>())
+
+  // dataMaxDay 変化時（ファイル取込など）に自動リセット。初回マウントはスキップ。
+  const prevMaxRef = useRef(dataMaxDay)
+  useEffect(() => {
+    if (prevMaxRef.current !== dataMaxDay) {
+      prevMaxRef.current = dataMaxDay
+      const newEnd = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
+      setDayRange([1, newEnd])
+    }
+  }, [dataMaxDay, daysInMonth])
+
+  const resetToDefault = useCallback(() => {
+    const end = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
+    setDayRange([1, end])
+  }, [dataMaxDay, daysInMonth])
 
   const toggleDow = useCallback((dow: number) => {
     setSelectedDows((prev) => {
@@ -68,7 +99,11 @@ export function usePeriodFilter(daysInMonth: number, year: number, month: number
     return 1
   }, [mode, dayRange])
 
-  return { dayRange, setDayRange, mode, setMode, selectedDows, toggleDow, filterRecords, divisor, year, month }
+  return {
+    dayRange, setDayRange, mode, setMode, selectedDows, toggleDow,
+    filterRecords, divisor, year, month,
+    defaultEndDay: effectiveEnd, resetToDefault,
+  }
 }
 
 /* ── Styled ─────────────────────────────────────────────── */
@@ -203,7 +238,7 @@ const MODE_LABELS: Record<AggregateMode, string> = {
 const DOW_LABELS_FILTER = ['日', '月', '火', '水', '木', '金', '土'] as const
 
 export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
-  const isFullRange = pf.dayRange[0] === 1 && pf.dayRange[1] === daysInMonth
+  const isDefault = pf.dayRange[0] === 1 && pf.dayRange[1] === pf.defaultEndDay
 
   return (
     <Bar>
@@ -229,13 +264,13 @@ export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
           pf.setDayRange([pf.dayRange[0], Math.max(v, pf.dayRange[0])])
         }}
       />
-      {!isFullRange && (
+      {!isDefault && (
         <Tab
           $active={false}
-          onClick={() => pf.setDayRange([1, daysInMonth])}
+          onClick={pf.resetToDefault}
           style={{ fontSize: '0.55rem' }}
         >
-          全期間
+          リセット
         </Tab>
       )}
       <Sep />

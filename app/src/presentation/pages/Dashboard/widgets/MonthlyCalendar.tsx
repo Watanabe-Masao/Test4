@@ -397,6 +397,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumSales={cumSales.get(detailDay) ?? 0}
           cumPrevYear={cumPrevYear.get(detailDay) ?? 0}
           prevYear={prevYear}
+          categoryRecords={ctx.categoryTimeSales.records}
+          prevYearCategoryRecords={ctx.prevYearCategoryTimeSales.hasPrevYear ? ctx.prevYearCategoryTimeSales.records : []}
           onClose={() => setDetailDay(null)}
         />
       )}

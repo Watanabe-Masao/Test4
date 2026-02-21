@@ -1,8 +1,9 @@
-import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear } from '@/application/hooks'
 import { useAppState } from '@/application/context'
+import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { CategoryHierarchyProvider } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
@@ -116,6 +117,10 @@ export function DashboardPage() {
 
   const r = currentResult
 
+  // 販売データ存在範囲の検出（スライダーデフォルト値用）
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
+
   // Build chart data
   const salesDaily = new Map<number, number>()
   for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
@@ -150,6 +155,7 @@ export function DashboardPage() {
     categoryTimeSales: appState.data.categoryTimeSales,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
+    dataMaxDay,
     departmentKpi: appState.data.departmentKpi,
     prevYearCategoryTimeSales: prevYearCTS,
   }

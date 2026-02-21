@@ -611,8 +611,9 @@ export const DetailModalContent = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
   padding: ${({ theme }) => theme.spacing[10]};
-  min-width: 640px;
-  max-width: 90vw;
+  min-width: 800px;
+  max-width: 95vw;
+  width: 960px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);

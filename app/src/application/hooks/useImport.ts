@@ -7,6 +7,8 @@ import {
 import type { ImportSummary } from '@/application/services/FileImportService'
 import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
 import { categoryTimeSalesRecordKey } from '@/domain/models'
+import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { getDaysInMonth } from '@/domain/constants/defaults'
 import {
   saveImportedData,
   loadImportedData,
@@ -47,6 +49,19 @@ export function useImport() {
 
   // 同時インポート防止ロック
   const importingRef = useRef(false)
+
+  /** インポート後にデータ末日スライダーを自動調整する */
+  const autoSetDataEndDay = useCallback(
+    (data: ImportedData) => {
+      const maxDay = detectDataMaxDay(data)
+      if (maxDay <= 0) return
+      const { targetYear, targetMonth } = settingsRef.current
+      const dim = getDaysInMonth(targetYear, targetMonth)
+      // データが月末まである場合は null（全日）、それ以外は検出末日を設定
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: maxDay >= dim ? null : maxDay } })
+    },
+    [dispatch],
+  )
 
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
@@ -126,6 +141,7 @@ export function useImport() {
           // 差分確認不要 → 通常通り state に反映 & 保存
           dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
           dataRef.current = data
+          autoSetDataEndDay(data)
 
           const messages = validateImportedData(data, summary)
           dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
@@ -175,6 +191,7 @@ export function useImport() {
 
       dispatch({ type: 'SET_IMPORTED_DATA', payload: finalData })
       dataRef.current = finalData
+      autoSetDataEndDay(finalData)
 
       const messages = validateImportedData(finalData, summary)
       dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
@@ -191,7 +208,7 @@ export function useImport() {
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch],
+    [pendingDiff, dispatch, autoSetDataEndDay],
   )
 
   return {

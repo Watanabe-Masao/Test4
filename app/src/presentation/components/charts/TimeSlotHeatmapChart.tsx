@@ -206,12 +206,14 @@ interface Props {
   daysInMonth: number
   /** 前年同曜日対応済みレコード */
   prevYearRecords?: readonly CategoryTimeSalesRecord[]
+  /** 販売データ存在最大日（スライダーデフォルト値用） */
+  dataMaxDay?: number
 }
 
 /** 時間帯×曜日 売上ヒートマップ（前年比較モード対応） */
-export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearRecords }: Props) {
+export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearRecords, dataMaxDay }: Props) {
   const { filter } = useCategoryHierarchy()
-  const pf = usePeriodFilter(daysInMonth, year, month)
+  const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const prevPeriodRecords = useMemo(
     () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],

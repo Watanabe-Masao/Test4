@@ -20,8 +20,9 @@ import type { ImportStage } from '@/presentation/components/common'
 import type { ImportSummary } from '@/application/services/FileImportService'
 import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
-import type { DataType, ImportedData, StoreDayRecord } from '@/domain/models'
+import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
+import { detectDataMaxDay } from '@/domain/calculations/utils'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -95,32 +96,7 @@ const StoreInventoryTitle = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
-/** StoreDayRecord から最大日を取得 */
-function maxDayOf(record: StoreDayRecord<unknown>): number {
-  let max = 0
-  for (const storeId of Object.keys(record)) {
-    for (const dayStr of Object.keys(record[storeId])) {
-      const d = Number(dayStr)
-      if (d > max) max = d
-    }
-  }
-  return max
-}
-
-/** 予算以外の取込データの最大日を検出 */
-function detectDataMaxDay(data: ImportedData): number {
-  return Math.max(
-    0,
-    maxDayOf(data.purchase),
-    maxDayOf(data.sales),
-    maxDayOf(data.discount),
-    maxDayOf(data.interStoreIn),
-    maxDayOf(data.interStoreOut),
-    maxDayOf(data.flowers),
-    maxDayOf(data.directProduce),
-    maxDayOf(data.consumables),
-  )
-}
+// detectDataMaxDay は @/domain/calculations/utils から import
 
 // ─── DataEndDay スライダー styled ──────────────────────
 const SliderSection = styled.div`
@@ -433,9 +409,9 @@ export function DataManagementSidebar({
                 {detectedMaxDay > 0 && (
                   <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>
                 )}
-                {settings.dataEndDay != null && (
-                  <SliderResetBtn onClick={() => updateSettings({ dataEndDay: null })}>
-                    月末まで
+                {currentEndDay !== detectedMaxDay && detectedMaxDay > 0 && (
+                  <SliderResetBtn onClick={() => updateSettings({ dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay })}>
+                    リセット
                   </SliderResetBtn>
                 )}
               </SliderHeader>

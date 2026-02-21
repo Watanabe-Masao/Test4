@@ -192,8 +192,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => (
-      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => (
+      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -202,8 +202,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => (
-      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => (
+      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -212,8 +212,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
-      <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
@@ -223,8 +223,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearCategoryTimeSales }) => (
-      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} />
+    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearCategoryTimeSales, dataMaxDay }) => (
+      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -233,8 +233,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month }) => (
-      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} />
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -243,8 +243,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0 && ctx.stores.size > 1,
-    render: ({ categoryTimeSales, stores, daysInMonth, year, month }) => (
-      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} />
+    render: ({ categoryTimeSales, stores, daysInMonth, year, month, dataMaxDay }) => (
+      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -253,7 +253,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.prevYearCategoryTimeSales.hasPrevYear,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales }) => {
+    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => {
       if (!prevYearCategoryTimeSales.hasPrevYear) return null
       return (
         <TimeSlotYoYComparisonChart
@@ -263,6 +263,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           daysInMonth={daysInMonth}
           year={year}
           month={month}
+          dataMaxDay={dataMaxDay}
         />
       )
     },

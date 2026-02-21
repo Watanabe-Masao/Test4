@@ -71,7 +71,7 @@ function useRouteSync() {
   // Zustand セレクターで currentView のみ購読（stale closure を回避）
   const currentView = useUiStore((s) => s.currentView)
 
-  // URL変更 → 状態更新
+  // URL変更 → 状態更新（ブラウザの戻る/進むボタン対応）
   useEffect(() => {
     const view = PATH_TO_VIEW[location.pathname]
     if (view && view !== currentView) {
@@ -79,21 +79,14 @@ function useRouteSync() {
     }
   }, [location.pathname, currentView, dispatch])
 
-  // 状態変更 → URL更新（currentView が変わったら URL を同期）
-  useEffect(() => {
-    const expectedPath = VIEW_TO_PATH[currentView]
-    if (location.pathname !== expectedPath) {
-      navigate(expectedPath, { replace: true })
-    }
-  }, [currentView, location.pathname, navigate])
-
-  // ビュー切替ハンドラ
+  // ビュー切替ハンドラ（state と URL を同時に更新）
   const handleViewChange = useCallback(
     (view: ViewType) => {
+      if (view === currentView) return
       dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
       navigate(VIEW_TO_PATH[view])
     },
-    [dispatch, navigate],
+    [dispatch, navigate, currentView],
   )
 
   return { handleViewChange }
