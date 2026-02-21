@@ -13,6 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
+import { calculateTransactionValue } from '@/domain/calculations'
 import type { PrevYearDailyEntry } from '@/application/hooks'
 
 const Wrapper = styled.div`
@@ -48,12 +49,12 @@ export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Pro
     const rec = daily.get(d)
     const sales = rec?.sales ?? 0
     const customers = rec?.customers ?? 0
-    const txValue = customers > 0 ? Math.round(sales / customers) : null
+    const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
 
     const py = prevYearDaily?.get(d)
     const pySales = py?.sales ?? 0
     const pyCustomers = py?.customers ?? 0
-    const prevTxValue = pyCustomers > 0 ? Math.round(pySales / pyCustomers) : null
+    const prevTxValue = pyCustomers > 0 ? calculateTransactionValue(pySales, pyCustomers) : null
 
     allData.push({ day: d, txValue, prevTxValue })
   }

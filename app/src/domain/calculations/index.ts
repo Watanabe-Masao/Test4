@@ -1,5 +1,5 @@
 // Utility
-export { safeNumber, safeDivide, formatCurrency, formatManYen, formatPercent, formatPointDiff } from './utils'
+export { safeNumber, safeDivide, formatCurrency, formatManYen, formatPercent, formatPointDiff, calculateTransactionValue, calculateMovingAverage } from './utils'
 
 // 在庫法
 export { calculateInvMethod } from './invMethod'

@@ -136,7 +136,6 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     }
     try {
       await clearMonthData(restoreMeta.year, restoreMeta.month)
-      await clearAllData()
     } finally {
       setShowRestoreDialog(false)
     }

@@ -5,7 +5,7 @@ import {
   validateImportedData,
 } from '@/application/services/FileImportService'
 import type { ImportSummary } from '@/application/services/FileImportService'
-import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
 import { categoryTimeSalesRecordKey } from '@/domain/models'
 import {
   saveImportedData,
@@ -248,6 +248,18 @@ function mergeCTSInserts(
   return { records: [...existing.records, ...newRecords] }
 }
 
+/** DepartmentKpiData の挿入のみマージ（既存deptCodeは上書きしない） */
+function mergeDepartmentKpiInserts(
+  existing: DepartmentKpiData,
+  incoming: DepartmentKpiData,
+): DepartmentKpiData {
+  if (existing.records.length === 0) return incoming
+  if (incoming.records.length === 0) return existing
+  const existingCodes = new Set(existing.records.map((r) => r.deptCode))
+  const newRecords = incoming.records.filter((r) => !existingCodes.has(r.deptCode))
+  return { records: [...existing.records, ...newRecords] }
+}
+
 /** ReadonlyMap の挿入のみマージ */
 function mergeMapInserts<K, V>(
   existing: ReadonlyMap<K, V>,
@@ -285,7 +297,10 @@ export function mergeInsertsOnly(
     consumables: has('consumables') ? mergeStoreDayRecords(existing.consumables, incoming.consumables) : existing.consumables,
     categoryTimeSales: has('categoryTimeSales') ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales) : existing.categoryTimeSales,
     prevYearCategoryTimeSales: has('prevYearCategoryTimeSales') ? mergeCTSInserts(existing.prevYearCategoryTimeSales, incoming.prevYearCategoryTimeSales) : existing.prevYearCategoryTimeSales,
+    departmentKpi: has('departmentKpi') ? mergeDepartmentKpiInserts(existing.departmentKpi, incoming.departmentKpi) : existing.departmentKpi,
     stores: mergeMapInserts(existing.stores, incoming.stores),
     suppliers: mergeMapInserts(existing.suppliers, incoming.suppliers),
+    settings: has('initialSettings') ? mergeMapInserts(existing.settings, incoming.settings) : existing.settings,
+    budget: has('budget') ? mergeMapInserts(existing.budget, incoming.budget) : existing.budget,
   }
 }
