@@ -365,7 +365,7 @@ const HourlyChartContainer = styled.div`
   display: flex; align-items: stretch; margin-bottom: 4px;
 `
 const HourlyChartWrap = styled.div`
-  display: flex; align-items: flex-end; gap: 2px; height: 120px;
+  display: flex; align-items: flex-end; height: 180px;
   padding: 0 4px; flex: 1; position: relative;
 `
 const HourlyCumOverlay = styled.svg`
@@ -379,7 +379,7 @@ const HourlyRightAxis = styled.div`
   color: ${({ theme }) => theme.colors.text4};
 `
 const HourlyBar = styled.div<{ $pct: number; $color: string }>`
-  flex: 1; min-width: 0; border-radius: 2px 2px 0 0;
+  flex: 1; min-width: 0; margin: 0 1px; border-radius: 2px 2px 0 0;
   background: ${({ $color }) => $color}; opacity: 0.8;
   height: ${({ $pct }) => Math.max($pct, 1)}%;
   transition: opacity 0.15s, height 0.3s ease;
@@ -387,10 +387,10 @@ const HourlyBar = styled.div<{ $pct: number; $color: string }>`
   &:hover { opacity: 1; }
 `
 const HourlyAxis = styled.div`
-  display: flex; gap: 2px; padding: 0 4px;
+  display: flex; padding: 0 4px;
 `
 const HourlyTick = styled.div`
-  flex: 1; text-align: center; font-size: 0.5rem;
+  flex: 1; margin: 0 1px; text-align: center; font-size: 0.5rem;
   color: ${({ theme }) => theme.colors.text4}; font-family: monospace;
 `
 const HourlyTooltipBox = styled.div`

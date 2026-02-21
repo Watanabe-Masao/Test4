@@ -613,8 +613,8 @@ export const DetailModalContent = styled.div`
   padding: ${({ theme }) => theme.spacing[10]};
   min-width: 800px;
   max-width: 95vw;
-  width: 960px;
-  max-height: 90vh;
+  width: 1100px;
+  max-height: 92vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 `
