@@ -4,8 +4,8 @@
  * react-window を利用して大量アイテムを効率的にレンダリングする。
  * 画面内に表示されている行のみ DOM に描画し、メモリと CPU を節約する。
  */
-import { useRef, useCallback, type ReactNode, type CSSProperties } from 'react'
-import { FixedSizeList, type ListChildComponentProps } from 'react-window'
+import { useCallback, type ReactNode, type CSSProperties } from 'react'
+import { List, useListRef, type RowComponentProps } from 'react-window'
 import styled from 'styled-components'
 
 // ─── Types ────────────────────────────────────────────
@@ -49,10 +49,10 @@ export function VirtualizedList<T>({
   overscanCount = 5,
   emptyMessage = 'データがありません',
 }: VirtualizedListProps<T>) {
-  const listRef = useRef<FixedSizeList>(null)
+  const listRef = useListRef(null)
 
   const Row = useCallback(
-    ({ index, style }: ListChildComponentProps) => {
+    ({ index, style }: RowComponentProps) => {
       const item = items[index]
       return <>{renderRow(item, index, style)}</>
     },
@@ -64,15 +64,14 @@ export function VirtualizedList<T>({
   }
 
   return (
-    <FixedSizeList
-      ref={listRef}
-      height={height}
-      width={width}
-      itemCount={items.length}
-      itemSize={rowHeight}
+    <List
+      listRef={listRef}
+      rowCount={items.length}
+      rowHeight={rowHeight}
+      rowComponent={Row}
+      rowProps={{}}
       overscanCount={overscanCount}
-    >
-      {Row}
-    </FixedSizeList>
+      style={{ height, width }}
+    />
   )
 }

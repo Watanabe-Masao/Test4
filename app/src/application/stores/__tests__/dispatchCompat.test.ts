@@ -78,7 +78,7 @@ describe('dispatch compatibility layer', () => {
   })
 
   it('SET_STORE_RESULTS: 結果設定 + 計算完了', () => {
-    const results = new Map() as ReadonlyMap<string, never>
+    const results = new Map() as unknown as ReadonlyMap<string, never>
     dispatch({ type: 'SET_STORE_RESULTS', payload: results })
 
     expect(useUiStore.getState().isCalculated).toBe(true)

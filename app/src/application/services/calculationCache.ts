@@ -84,7 +84,7 @@ export function computeGlobalFingerprint(
   const storeIds = Array.from(data.stores.keys()).sort()
   const parts = storeIds.map((id) => computeFingerprint(id, data, settings, daysInMonth))
   parts.push(`stores:${storeIds.length}`)
-  parts.push(`cats:${settings.customCategories.length}`)
+  parts.push(`cats:${Object.keys(settings.supplierCategoryMap).length}`)
   // 設定値をグローバルフィンガープリントに含める（店舗なしでも変更を検出）
   parts.push(`y:${settings.targetYear}`)
   parts.push(`m:${settings.targetMonth}`)

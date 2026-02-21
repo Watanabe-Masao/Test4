@@ -4,7 +4,6 @@
  * IndexedDB に保存された過去月データを横断的に分析する。
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
-import { safeDivide } from './utils'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -69,7 +68,7 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
   const momChanges: (number | null)[] = sorted.map((dp, i) => {
     if (i === 0) return null
     const prev = sorted[i - 1]
-    return prev.totalSales === 0 ? null : safeDivide(dp.totalSales, prev.totalSales, null)
+    return prev.totalSales === 0 ? null : dp.totalSales / prev.totalSales
   })
 
   // 前年同月比
@@ -78,7 +77,7 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
       (p) => p.year === dp.year - 1 && p.month === dp.month,
     )
     if (!sameMonthPrevYear || sameMonthPrevYear.totalSales === 0) return null
-    return safeDivide(dp.totalSales, sameMonthPrevYear.totalSales, null)
+    return dp.totalSales / sameMonthPrevYear.totalSales
   })
 
   // 移動平均

@@ -152,50 +152,50 @@ describe('mergeInsertsOnly', () => {
 
   it('settings（在庫設定）は既存を維持し新規店舗のみ追加', () => {
     const existing = makeData({
-      settings: new Map([['1', { openingCost: 100, openingPrice: 150 }]]),
+      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null }]]),
     })
     const incoming = makeData({
       settings: new Map([
-        ['1', { openingCost: 999, openingPrice: 999 }],
-        ['2', { openingCost: 200, openingPrice: 300 }],
+        ['1', { storeId: '1', openingInventory: 999, closingInventory: 999, grossProfitBudget: null }],
+        ['2', { storeId: '2', openingInventory: 200, closingInventory: 300, grossProfitBudget: null }],
       ]),
     })
 
     const result = mergeInsertsOnly(existing, incoming, new Set(['initialSettings']))
 
     expect(result.settings.size).toBe(2)
-    expect(result.settings.get('1')?.openingCost).toBe(100) // 既存維持
-    expect(result.settings.get('2')?.openingCost).toBe(200) // 新規追加
+    expect(result.settings.get('1')?.openingInventory).toBe(100) // 既存維持
+    expect(result.settings.get('2')?.openingInventory).toBe(200) // 新規追加
   })
 
   it('budget は既存を維持し新規店舗のみ追加', () => {
     const existing = makeData({
-      budget: new Map([['1', { monthlySales: 1000000, daily: new Map() }]]),
+      budget: new Map([['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }]]),
     })
     const incoming = makeData({
       budget: new Map([
-        ['1', { monthlySales: 9999999, daily: new Map() }],
-        ['2', { monthlySales: 2000000, daily: new Map() }],
+        ['1', { storeId: '1', total: 9999999, daily: new Map() as ReadonlyMap<number, number> }],
+        ['2', { storeId: '2', total: 2000000, daily: new Map() as ReadonlyMap<number, number> }],
       ]),
     })
 
     const result = mergeInsertsOnly(existing, incoming, new Set(['budget']))
 
     expect(result.budget.size).toBe(2)
-    expect(result.budget.get('1')?.monthlySales).toBe(1000000) // 既存維持
-    expect(result.budget.get('2')?.monthlySales).toBe(2000000) // 新規追加
+    expect(result.budget.get('1')?.total).toBe(1000000) // 既存維持
+    expect(result.budget.get('2')?.total).toBe(2000000) // 新規追加
   })
 
   it('importedTypesにない場合departmentKpi/settings/budgetは変更されない', () => {
     const existing = makeData({
       departmentKpi: { records: [{ deptCode: '01', deptName: '青果', gpRateBudget: 30, gpRateActual: 28, gpRateVariance: -2, markupRate: 35, discountRate: 5, salesBudget: 100000, salesActual: 90000, salesVariance: -10000, salesAchievement: 90, openingInventory: 50000, closingInventory: 45000, gpRateLanding: 29, salesLanding: 95000 }] },
-      settings: new Map([['1', { openingCost: 100, openingPrice: 150 }]]),
-      budget: new Map([['1', { monthlySales: 1000000, daily: new Map() }]]),
+      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null }]]),
+      budget: new Map([['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }]]),
     })
     const incoming = makeData({
       departmentKpi: { records: [{ deptCode: '99', deptName: '新規', gpRateBudget: 0, gpRateActual: 0, gpRateVariance: 0, markupRate: 0, discountRate: 0, salesBudget: 0, salesActual: 0, salesVariance: 0, salesAchievement: 0, openingInventory: 0, closingInventory: 0, gpRateLanding: 0, salesLanding: 0 }] },
-      settings: new Map([['9', { openingCost: 999, openingPrice: 999 }]]),
-      budget: new Map([['9', { monthlySales: 9999999, daily: new Map() }]]),
+      settings: new Map([['9', { storeId: '9', openingInventory: 999, closingInventory: 999, grossProfitBudget: null }]]),
+      budget: new Map([['9', { storeId: '9', total: 9999999, daily: new Map() as ReadonlyMap<number, number> }]]),
     })
 
     // sales のみインポート → departmentKpi/settings/budget は対象外

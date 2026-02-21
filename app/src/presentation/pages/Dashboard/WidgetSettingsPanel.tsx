@@ -36,7 +36,7 @@ const PresetCard = styled.button<{ $active?: boolean }>`
   border: 1px solid ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.border};
   background: ${({ $active, theme }) =>
-    $active ? `${theme.colors.palette.primary}15` : theme.colors.bg1};
+    $active ? `${theme.colors.palette.primary}15` : theme.colors.bg};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text};
   transition: all 0.15s;

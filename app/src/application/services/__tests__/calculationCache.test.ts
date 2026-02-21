@@ -13,11 +13,17 @@ import type { AppSettings, StoreResult } from '@/domain/models'
 const mockSettings: AppSettings = {
   targetYear: 2024,
   targetMonth: 1,
+  targetGrossProfitRate: 0.25,
+  warningThreshold: 0.23,
+  flowerCostRate: 0.80,
+  directProduceCostRate: 0.85,
   defaultMarkupRate: 0.3,
   defaultBudget: 1000000,
-  enablePrevYearComparison: false,
   dataEndDay: null,
-  customCategories: [],
+  supplierCategoryMap: {},
+  prevYearSourceYear: null,
+  prevYearSourceMonth: null,
+  prevYearDowOffset: null,
 }
 
 function makeStoreResult(storeId: string): StoreResult {

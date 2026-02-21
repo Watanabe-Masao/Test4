@@ -101,7 +101,6 @@ function useRouteSync() {
 
 function AppContent() {
   const ui = useAppUi()
-  const dispatch = useAppDispatch()
   const { mode, toggle } = useThemeToggle()
   const showToast = useToast()
   const { calculate } = useCalculation()

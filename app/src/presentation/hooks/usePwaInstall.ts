@@ -25,14 +25,12 @@ export interface UsePwaInstallResult {
 export function usePwaInstall(): UsePwaInstallResult {
   const deferredPrompt = useRef<BeforeInstallPromptEvent | null>(null)
   const [canInstall, setCanInstall] = useState(false)
-  const [isInstalled, setIsInstalled] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches,
+  )
 
   useEffect(() => {
-    // スタンドアロンモード（既にインストール済み）の検出
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true)
-      return
-    }
+    if (isInstalled) return
 
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault()
