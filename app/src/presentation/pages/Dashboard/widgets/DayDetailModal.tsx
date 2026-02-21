@@ -173,6 +173,41 @@ function aggregateForDrill(
   return map
 }
 
+function buildDrillItems(
+  filtered: readonly CategoryTimeSalesRecord[],
+  filteredPrev: readonly CategoryTimeSalesRecord[],
+  level: 'department' | 'line' | 'klass',
+  metric: MetricKey,
+  colorMap: Map<string, string>,
+  hasPrev: boolean,
+): DrillItem[] {
+  const map = aggregateForDrill(filtered, level)
+  const prevMap = hasPrev ? aggregateForDrill(filteredPrev, level) : null
+  const totalAmt = [...map.values()].reduce((s, v) => s + v.amount, 0)
+  const totalQty = [...map.values()].reduce((s, v) => s + v.quantity, 0)
+  const totalForPct = metric === 'amount' ? totalAmt : totalQty
+
+  return [...map.values()]
+    .sort((a, b) => b.amount - a.amount)
+    .map((it, i): DrillItem => {
+      const prev = prevMap?.get(it.code)
+      const prevAmt = prev ? prev.amount : undefined
+      const prevQty = prev ? prev.quantity : undefined
+      const val = metric === 'amount' ? it.amount : it.quantity
+      const color = colorMap.get(it.code) ?? COLORS[i % COLORS.length]
+      return {
+        code: it.code, name: it.name, amount: it.amount, quantity: it.quantity,
+        pct: totalForPct > 0 ? (val / totalForPct) * 100 : 0,
+        childCount: it.children.size, color,
+        prevAmount: prevAmt, prevQuantity: prevQty,
+        yoyRatio: prevAmt && prevAmt > 0 ? it.amount / prevAmt : undefined,
+        yoyDiff: prevAmt != null ? it.amount - prevAmt : undefined,
+        yoyQtyRatio: prevQty && prevQty > 0 ? it.quantity / prevQty : undefined,
+        yoyQtyDiff: prevQty != null ? it.quantity - prevQty : undefined,
+      }
+    })
+}
+
 /* ── Toggle styled components ──────────── */
 
 const ToggleBar = styled.div`
@@ -202,6 +237,11 @@ const ToggleLabel = styled.span`
 
 const StackedBarSection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+const StackBarTitle = styled.div`
+  font-size: 0.65rem; font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: 4px;
 `
 const StackRow = styled.div`
   display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
@@ -255,8 +295,6 @@ const SegmentTooltip = styled.div`
 
 /* ── Category Drilldown Sub-component ──── */
 
-type RangeMode = 'day' | 'cumulative'
-
 function CategoryDrilldown({
   records, prevRecords, budget,
   cumRecords, cumPrevRecords, cumBudget,
@@ -277,20 +315,11 @@ function CategoryDrilldown({
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [metric, setMetric] = useState<MetricKey>('amount')
   const [compare, setCompare] = useState<CompareMode>('actual')
-  const [rangeMode, setRangeMode] = useState<RangeMode>('day')
   const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
-
-  // Switch active data based on rangeMode
-  const activeRecords = rangeMode === 'day' ? records : cumRecords
-  const activePrevRecords = rangeMode === 'day' ? prevRecords : cumPrevRecords
-  const activeBudget = rangeMode === 'day' ? budget : cumBudget
-  const activeActual = rangeMode === 'day' ? actual : cumSales
-  const activeAch = rangeMode === 'day' ? ach : cumAch
-  const activePySales = rangeMode === 'day' ? pySales : cumPrevYear
 
   const currentLevel = getHierarchyLevel(filter)
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
-  const hasPrevYear = activePrevRecords.length > 0 || hasPrevYearSales
+  const hasPrevYear = prevRecords.length > 0 || cumPrevRecords.length > 0 || hasPrevYearSales
 
   const breadcrumb = useMemo(() => {
     const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
@@ -304,49 +333,46 @@ function CategoryDrilldown({
     return items
   }, [filter])
 
-  const filtered = useMemo(() => filterByHierarchy(activeRecords, filter), [activeRecords, filter])
-  const filteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(activePrevRecords, filter) : [], [activePrevRecords, filter, hasPrevYear])
+  // Day data
+  const dayFiltered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
+  const dayFilteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(prevRecords, filter) : [], [prevRecords, filter, hasPrevYear])
+  // Cumulative data
+  const cumFiltered = useMemo(() => filterByHierarchy(cumRecords, filter), [cumRecords, filter])
+  const cumFilteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(cumPrevRecords, filter) : [], [cumPrevRecords, filter, hasPrevYear])
 
-  // Build stable color mapping for departments (use cumulative for stability)
-  const deptColorMap = useMemo(() => {
+  // Stable color mapping for the current drill level
+  const levelColorMap = useMemo(() => {
     const map = new Map<string, string>()
-    // Prefer cumulative data for stable color ordering
-    const base = cumRecords.length > 0 ? cumRecords : records
-    const deptMap = aggregateForDrill(base, 'department')
-    const sorted = [...deptMap.values()].sort((a, b) => b.amount - a.amount)
-    sorted.forEach((d, i) => map.set(d.code, COLORS[i % COLORS.length]))
+    if (currentLevel === 'department') {
+      const base = cumRecords.length > 0 ? cumRecords : records
+      const deptMap = aggregateForDrill(base, 'department')
+      const sorted = [...deptMap.values()].sort((a, b) => b.amount - a.amount)
+      sorted.forEach((d, i) => map.set(d.code, COLORS[i % COLORS.length]))
+    } else {
+      // Sub-levels: build from cumulative (more complete), fallback to day
+      const cumMap = aggregateForDrill(cumFiltered, currentLevel)
+      const cumSorted = [...cumMap.values()].sort((a, b) => b.amount - a.amount)
+      cumSorted.forEach((it, i) => map.set(it.code, COLORS[i % COLORS.length]))
+      const dayMap = aggregateForDrill(dayFiltered, currentLevel)
+      for (const it of dayMap.values()) {
+        if (!map.has(it.code)) map.set(it.code, COLORS[map.size % COLORS.length])
+      }
+    }
     return map
-  }, [records, cumRecords])
+  }, [records, cumRecords, cumFiltered, dayFiltered, currentLevel])
 
-  const items = useMemo(() => {
-    const map = aggregateForDrill(filtered, currentLevel)
-    const prevMap = hasPrevYear ? aggregateForDrill(filteredPrev, currentLevel) : null
-    const totalAmt = [...map.values()].reduce((s, v) => s + v.amount, 0)
-    const totalQty = [...map.values()].reduce((s, v) => s + v.quantity, 0)
-    const totalForPct = metric === 'amount' ? totalAmt : totalQty
+  // Build items for day and cumulative (both at the current drill level)
+  const dayItems = useMemo(
+    () => buildDrillItems(dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear),
+    [dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear],
+  )
+  const cumItemsList = useMemo(
+    () => buildDrillItems(cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear),
+    [cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear],
+  )
 
-    return [...map.values()]
-      .sort((a, b) => b.amount - a.amount)
-      .map((it, i): DrillItem => {
-        const prev = prevMap?.get(it.code)
-        const prevAmt = prev ? prev.amount : undefined
-        const prevQty = prev ? prev.quantity : undefined
-        const val = metric === 'amount' ? it.amount : it.quantity
-        const color = currentLevel === 'department'
-          ? (deptColorMap.get(it.code) ?? COLORS[i % COLORS.length])
-          : COLORS[i % COLORS.length]
-        return {
-          code: it.code, name: it.name, amount: it.amount, quantity: it.quantity,
-          pct: totalForPct > 0 ? (val / totalForPct) * 100 : 0,
-          childCount: it.children.size, color,
-          prevAmount: prevAmt, prevQuantity: prevQty,
-          yoyRatio: prevAmt && prevAmt > 0 ? it.amount / prevAmt : undefined,
-          yoyDiff: prevAmt != null ? it.amount - prevAmt : undefined,
-          yoyQtyRatio: prevQty && prevQty > 0 ? it.quantity / prevQty : undefined,
-          yoyQtyDiff: prevQty != null ? it.quantity - prevQty : undefined,
-        }
-      })
-  }, [filtered, filteredPrev, currentLevel, hasPrevYear, metric, deptColorMap])
+  // Use day items for table/treemap/summary
+  const items = dayItems
 
   const sorted = useMemo(() => {
     const arr = [...items]
@@ -391,38 +417,123 @@ function CategoryDrilldown({
   const displayYoY = isAmountMode ? totalYoY : totalQtyYoY
   const fmtVal = isAmountMode ? (v: number) => `${toComma(v)}円` : (v: number) => `${v.toLocaleString()}点`
 
-  // ── Stacked bar data ──
-  const stackBarData = useMemo(() => {
-    // Build department-level breakdown for stacked bars
-    const deptItems = currentLevel === 'department'
-      ? items
-      : (() => {
-          const deptMap = aggregateForDrill(filtered, 'department')
-          const prevDeptMap = hasPrevYear ? aggregateForDrill(filteredPrev, 'department') : null
-          return [...deptMap.values()].sort((a, b) => b.amount - a.amount).map((d): DrillItem => ({
-            code: d.code, name: d.name, amount: d.amount, quantity: d.quantity,
-            pct: 0, childCount: 0,
-            color: deptColorMap.get(d.code) ?? '#6366f1',
-            prevAmount: prevDeptMap?.get(d.code)?.amount,
-            prevQuantity: prevDeptMap?.get(d.code)?.quantity,
-          }))
-        })()
-    return deptItems
-  }, [currentLevel, items, filtered, filteredPrev, hasPrevYear, deptColorMap])
+  // ── Bar section renderer (shared for 当日 and 累計) ──
+  const renderBarSection = (
+    title: string,
+    barItems: DrillItem[],
+    budgetVal: number,
+    actualVal: number,
+    achVal: number,
+    pyVal: number,
+    prefix: string,
+  ) => {
+    const bActualTotal = isAmountMode
+      ? barItems.reduce((s, it) => s + it.amount, 0)
+      : barItems.reduce((s, it) => s + it.quantity, 0)
+    const bPrevTotal = isAmountMode
+      ? barItems.reduce((s, it) => s + (it.prevAmount ?? 0), 0)
+      : barItems.reduce((s, it) => s + (it.prevQuantity ?? 0), 0)
+    const maxBar = isAmountMode
+      ? Math.max(budgetVal, bActualTotal, bPrevTotal, 1)
+      : Math.max(bActualTotal, bPrevTotal, 1)
 
-  if (sorted.length === 0) return null
+    const tooltipFn = (name: string, val: number, total: number) => {
+      const pct = total > 0 ? (val / total * 100).toFixed(1) : '0'
+      return isAmountMode
+        ? `${name} ${fmtSen(val)} (${pct}%)`
+        : `${name} ${val.toLocaleString()}点 (${pct}%)`
+    }
+
+    return (
+      <StackedBarSection>
+        <StackBarTitle>{title}</StackBarTitle>
+        {/* 予算 bar (金額モードのみ) */}
+        {budgetVal > 0 && isAmountMode && (
+          <StackRow>
+            <StackLabel>予算</StackLabel>
+            <StackTrack>
+              <StackSegment $flex={budgetVal / maxBar} $color="#6366f1" style={{ opacity: 0.6 }}>
+                <SegLabel>{fmtSen(budgetVal)}</SegLabel>
+              </StackSegment>
+            </StackTrack>
+          </StackRow>
+        )}
+        {/* 実績 bar */}
+        <StackRow>
+          <StackLabel>実績</StackLabel>
+          <StackTrack>
+            {barItems.map((it) => {
+              const val = isAmountMode ? it.amount : it.quantity
+              if (val <= 0) return null
+              const pct = bActualTotal > 0 ? (val / bActualTotal * 100) : 0
+              return (
+                <StackSegment
+                  key={it.code} $flex={val / maxBar} $color={it.color}
+                  onMouseEnter={() => setHoveredSeg(`${prefix}a-${it.code}`)}
+                  onMouseLeave={() => setHoveredSeg(null)}
+                >
+                  {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
+                  {hoveredSeg === `${prefix}a-${it.code}` && (
+                    <SegmentTooltip>{tooltipFn(it.name, val, bActualTotal)}</SegmentTooltip>
+                  )}
+                </StackSegment>
+              )
+            })}
+          </StackTrack>
+          <StackTotal>
+            {isAmountMode ? fmtSen(actualVal) : fmtVal(bActualTotal)}
+            {isAmountMode && achVal > 0 && `（${formatPercent(achVal)}）`}
+          </StackTotal>
+        </StackRow>
+        {/* 前年 bar */}
+        {hasPrevYear && pyVal > 0 && (
+          <StackRow>
+            <StackLabel>前年</StackLabel>
+            <StackTrack>
+              {barItems.map((it) => {
+                const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
+                if (val <= 0) return null
+                const pct = bPrevTotal > 0 ? (val / bPrevTotal * 100) : 0
+                return (
+                  <StackSegment
+                    key={it.code} $flex={val / maxBar} $color={it.color}
+                    style={{ opacity: 0.5 }}
+                    onMouseEnter={() => setHoveredSeg(`${prefix}p-${it.code}`)}
+                    onMouseLeave={() => setHoveredSeg(null)}
+                  >
+                    {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
+                    {hoveredSeg === `${prefix}p-${it.code}` && (
+                      <SegmentTooltip>{tooltipFn(it.name, val, bPrevTotal)}</SegmentTooltip>
+                    )}
+                  </StackSegment>
+                )
+              })}
+            </StackTrack>
+            <StackTotal>{isAmountMode ? fmtSen(bPrevTotal) : fmtVal(bPrevTotal)}</StackTotal>
+          </StackRow>
+        )}
+        {/* Legend */}
+        <LegendRow>
+          {barItems.filter((it) => it.amount > 0 || it.quantity > 0).map((it) => (
+            <LegendItem key={it.code} $clickable={canDrill}
+              onClick={() => canDrill && handleDrill(it)}>
+              <LegendDot $color={it.color} />
+              <span>{it.name}</span>
+            </LegendItem>
+          ))}
+        </LegendRow>
+      </StackedBarSection>
+    )
+  }
+
+  if (dayItems.length === 0 && cumItemsList.length === 0) return null
 
   return (
     <DrillSection>
       <DetailSectionTitle>分類別売上ドリルダウン</DetailSectionTitle>
 
-      {/* Toggle controls */}
+      {/* Toggle controls (指標 & 比較 only, no 期間 toggle) */}
       <ToggleBar>
-        <ToggleLabel>期間</ToggleLabel>
-        <ToggleGroup>
-          <ToggleBtn $active={rangeMode === 'day'} onClick={() => setRangeMode('day')}>当日</ToggleBtn>
-          <ToggleBtn $active={rangeMode === 'cumulative'} onClick={() => setRangeMode('cumulative')}>累計</ToggleBtn>
-        </ToggleGroup>
         <ToggleLabel>指標</ToggleLabel>
         <ToggleGroup>
           <ToggleBtn $active={metric === 'amount'} onClick={() => setMetric('amount')}>販売金額</ToggleBtn>
@@ -453,7 +564,7 @@ function CategoryDrilldown({
 
       <SummaryRow>
         <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
-        <SumItem><SumLabel>合計</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
+        <SumItem><SumLabel>合計（当日）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
         {hasPrevYear && displayYoY != null && (
           <SumItem>
             <SumLabel>前年比</SumLabel>
@@ -462,119 +573,12 @@ function CategoryDrilldown({
         )}
       </SummaryRow>
 
-      {/* ── Stacked bar chart: 予算 vs 実績 vs 前年 ── */}
-      <StackedBarSection>
-        {(() => {
-          const actualTotal = isAmountMode ? totalAmt : totalQty
-          const prevTotal = isAmountMode ? totalPrevAmt : totalPrevQty
-          // 点数モードではbudgetは金額なので比較対象から除外
-          const maxBar = isAmountMode
-            ? Math.max(activeBudget, actualTotal, prevTotal, 1)
-            : Math.max(actualTotal, prevTotal, 1)
-          const barItems = stackBarData
+      {/* ── 当日 bar chart ── */}
+      {renderBarSection('予算 vs 実績（当日）', dayItems, budget, actual, ach, pySales, 'day-')}
+      {/* ── 累計 bar chart ── */}
+      {renderBarSection('予算 vs 実績（累計）', cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-')}
 
-          const segLabelFn = (it: DrillItem, total: number) => {
-            const val = isAmountMode ? it.amount : it.quantity
-            const pct = total > 0 ? (val / total * 100).toFixed(1) : '0'
-            return isAmountMode
-              ? `${it.name} ${fmtSen(val)} (${pct}%)`
-              : `${it.name} ${val.toLocaleString()}点 (${pct}%)`
-          }
-
-          return (
-            <>
-              {/* 予算 bar (金額モードのみ) */}
-              {activeBudget > 0 && isAmountMode && (
-                <StackRow>
-                  <StackLabel>予算</StackLabel>
-                  <StackTrack>
-                    <StackSegment
-                      $flex={activeBudget / maxBar}
-                      $color="#6366f1"
-                      style={{ opacity: 0.6 }}
-                    >
-                      <SegLabel>{fmtSen(activeBudget)}</SegLabel>
-                    </StackSegment>
-                  </StackTrack>
-                </StackRow>
-              )}
-
-              {/* 実績 bar */}
-              <StackRow>
-                <StackLabel>実績</StackLabel>
-                <StackTrack>
-                  {barItems.map((it) => {
-                    const val = isAmountMode ? it.amount : it.quantity
-                    if (val <= 0) return null
-                    const pct = actualTotal > 0 ? (val / actualTotal * 100) : 0
-                    return (
-                      <StackSegment
-                        key={it.code}
-                        $flex={val / maxBar}
-                        $color={it.color}
-                        onMouseEnter={() => setHoveredSeg(`actual-${it.code}`)}
-                        onMouseLeave={() => setHoveredSeg(null)}
-                      >
-                        {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
-                        {hoveredSeg === `actual-${it.code}` && (
-                          <SegmentTooltip>{segLabelFn(it, actualTotal)}</SegmentTooltip>
-                        )}
-                      </StackSegment>
-                    )
-                  })}
-                </StackTrack>
-                <StackTotal>
-                  {isAmountMode ? fmtSen(activeActual) : fmtVal(actualTotal)}
-                  {isAmountMode && activeAch > 0 && `（${formatPercent(activeAch)}）`}
-                </StackTotal>
-              </StackRow>
-
-              {/* 前年 bar */}
-              {hasPrevYear && activePySales > 0 && (
-                <StackRow>
-                  <StackLabel>前年</StackLabel>
-                  <StackTrack>
-                    {barItems.map((it) => {
-                      const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
-                      if (val <= 0) return null
-                      const pct = prevTotal > 0 ? (val / prevTotal * 100) : 0
-                      return (
-                        <StackSegment
-                          key={it.code}
-                          $flex={val / maxBar}
-                          $color={it.color}
-                          style={{ opacity: 0.5 }}
-                          onMouseEnter={() => setHoveredSeg(`prev-${it.code}`)}
-                          onMouseLeave={() => setHoveredSeg(null)}
-                        >
-                          {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(0)}%</SegLabel>}
-                          {hoveredSeg === `prev-${it.code}` && (
-                            <SegmentTooltip>{segLabelFn(it, prevTotal)}</SegmentTooltip>
-                          )}
-                        </StackSegment>
-                      )
-                    })}
-                  </StackTrack>
-                  <StackTotal>{isAmountMode ? fmtSen(prevTotal) : fmtVal(prevTotal)}</StackTotal>
-                </StackRow>
-              )}
-
-              {/* Legend */}
-              <LegendRow>
-                {barItems.filter((it) => it.amount > 0 || it.quantity > 0).map((it) => (
-                  <LegendItem key={it.code} $clickable={canDrill && currentLevel === 'department'}
-                    onClick={() => canDrill && currentLevel === 'department' && handleDrill(it)}>
-                    <LegendDot $color={it.color} />
-                    <span>{it.name}</span>
-                  </LegendItem>
-                ))}
-              </LegendRow>
-            </>
-          )
-        })()}
-      </StackedBarSection>
-
-      {/* Treemap */}
+      {/* Treemap (当日 data) */}
       <DrillTreemap>
         {items.slice(0, 12).map((it) => {
           const val = compare === 'prevYear' && hasPrevYear
@@ -591,7 +595,7 @@ function CategoryDrilldown({
         })}
       </DrillTreemap>
 
-      {/* Data table */}
+      {/* Data table (当日 data) */}
       <div style={{ overflowX: 'auto' }}>
         <DrillTable>
           <thead><tr>
