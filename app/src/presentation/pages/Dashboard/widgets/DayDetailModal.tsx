@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, Fragment } from 'react'
+import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
@@ -1080,14 +1081,15 @@ function CategoryDrilldown({
       {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, pySales, 'day-', 'daily')}
       {/* ── 累計 bar chart ── */}
       {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-', 'cumulative')}
-      {/* Floating segment tooltip (rendered outside overflow:hidden) */}
-      {hoveredSeg && segTooltip && (
+      {/* Floating segment tooltip (portal to body to avoid all overflow/stacking issues) */}
+      {hoveredSeg && segTooltip && createPortal(
         <SegmentTooltip style={{
           left: segTooltip.x, top: segTooltip.y,
           transform: 'translate(-50%, calc(-100% - 8px))',
         }}>
           {segTooltip.content}
-        </SegmentTooltip>
+        </SegmentTooltip>,
+        document.body,
       )}
 
       {/* Treemap */}
