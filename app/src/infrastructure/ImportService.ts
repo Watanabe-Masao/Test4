@@ -4,6 +4,7 @@ import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { detectYearMonth } from './fileImport/dateParser'
 import { ImportError } from './fileImport/errors'
+import { validateRawRows, ImportSchemaError } from './fileImport/importSchemas'
 import {
   processPurchase,
   extractStoresFromPurchase,
@@ -118,6 +119,9 @@ export function processFileData(
   current: ImportedData,
   appSettings: AppSettings,
 ): ProcessFileResult {
+  // スキーマバリデーション: 行数・列数の構造チェック
+  validateRawRows(type, rows, filename)
+
   const mutableStores = new Map(current.stores)
   const mutableSuppliers = new Map(current.suppliers)
 
@@ -344,7 +348,9 @@ export async function processDroppedFiles(
       results.push({ ok: true, filename: file.name, type, typeName })
     } catch (err) {
       const message =
-        err instanceof ImportError ? err.message : 'ファイルの読み込みに失敗しました'
+        err instanceof ImportError || err instanceof ImportSchemaError
+          ? err.message
+          : 'ファイルの読み込みに失敗しました'
       results.push({
         ok: false,
         filename: file.name,
