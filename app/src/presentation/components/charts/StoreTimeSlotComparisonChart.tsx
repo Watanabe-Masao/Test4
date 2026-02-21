@@ -17,6 +17,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
+import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
@@ -203,14 +204,23 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     ? '店舗別 時間帯構成比パターン比較'
     : '店舗別 時間帯売上パターン比較'
 
-  // 構成比テーブル用: ピーク時間帯を取得
-  const peakHours = storeNames.map((s) => {
+  // 構成比テーブル用: ピーク・コアタイム・折り返し時間帯を取得
+  const storeMetrics = storeNames.map((s) => {
     let maxHour = -1, maxVal = 0
+    const hourMap = new Map<number, number>()
     for (const d of data) {
       const v = d[s.name] as number
-      if (v > maxVal) { maxVal = v; maxHour = hours[data.indexOf(d)] }
+      const h = hours[data.indexOf(d)]
+      hourMap.set(h, v)
+      if (v > maxVal) { maxVal = v; maxHour = h }
     }
-    return { name: s.name, peakHour: maxHour, total: storeTotals.get(s.name) ?? 0 }
+    return {
+      name: s.name,
+      peakHour: maxHour,
+      coreTime: findCoreTime(hourMap),
+      turnaroundHour: findTurnaroundHour(hourMap),
+      total: storeTotals.get(s.name) ?? 0,
+    }
   })
 
   return (
@@ -324,7 +334,9 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
             <tr>
               <MiniTh>店舗</MiniTh>
               <MiniTh>合計売上</MiniTh>
-              <MiniTh>ピーク時間</MiniTh>
+              <MiniTh>ピーク</MiniTh>
+              <MiniTh>コアタイム</MiniTh>
+              <MiniTh>折り返し</MiniTh>
               {hours.filter((_, i) => i % 2 === 0).map((h) => (
                 <MiniTh key={h}>{h}時</MiniTh>
               ))}
@@ -333,8 +345,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
           <tbody>
             {storeNames.map((s, si) => {
               const total = storeTotals.get(s.name) ?? 0
-              const peak = peakHours.find((p) => p.name === s.name)
-              // 各時間帯で最大の店舗にハイライト
+              const metrics = storeMetrics.find((p) => p.name === s.name)
               return (
                 <tr key={s.id}>
                   <MiniTd>
@@ -342,7 +353,9 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
                     {s.name}
                   </MiniTd>
                   <MiniTd>{toComma(total)}円</MiniTd>
-                  <MiniTd $highlight>{peak && peak.peakHour >= 0 ? `${peak.peakHour}時` : '-'}</MiniTd>
+                  <MiniTd $highlight>{metrics && metrics.peakHour >= 0 ? `${metrics.peakHour}時` : '-'}</MiniTd>
+                  <MiniTd>{formatCoreTime(metrics?.coreTime ?? null)}</MiniTd>
+                  <MiniTd>{formatTurnaroundHour(metrics?.turnaroundHour ?? null)}</MiniTd>
                   {hours.filter((_, i) => i % 2 === 0).map((h) => {
                     const amt = (data.find((d) => d.hour === `${h}時`)?.[s.name] as number) ?? 0
                     const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : '0.0'

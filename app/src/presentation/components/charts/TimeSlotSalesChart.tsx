@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
@@ -254,6 +255,20 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     }
     const peakHourQtyPct = current.totalQuantity > 0 ? (peakHourQuantity / current.totalQuantity * 100).toFixed(1) : '0'
 
+    // コアタイム & 折り返し時間帯（金額ベース）
+    const amountMap = new Map<number, number>()
+    for (const [h, v] of current.hourly) amountMap.set(h, v.amount * div)
+    const coreTimeAmt = findCoreTime(amountMap)
+    const turnaroundAmt = findTurnaroundHour(amountMap)
+    const coreTimePct = totalAmount > 0 && coreTimeAmt ? (coreTimeAmt.total / totalAmount * 100).toFixed(1) : '0'
+
+    // コアタイム & 折り返し時間帯（数量ベース）
+    const qtyMap = new Map<number, number>()
+    for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * div)
+    const coreTimeQty = findCoreTime(qtyMap)
+    const turnaroundQty = findTurnaroundHour(qtyMap)
+    const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? (coreTimeQty.total / current.totalQuantity * 100).toFixed(1) : '0'
+
     return {
       chartData,
       kpi: current.recordCount > 0 ? {
@@ -263,6 +278,12 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         peakHourPct,
         peakHourQty,
         peakHourQtyPct,
+        coreTimeAmt,
+        coreTimePct,
+        turnaroundAmt,
+        coreTimeQty,
+        coreTimeQtyPct,
+        turnaroundQty,
         recordCount: current.recordCount,
         prevTotalAmount,
         prevTotalQuantity,
@@ -452,6 +473,16 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
               </Card>
               <Card $accent="#8b5cf6">
+                <CardLabel>コアタイム</CardLabel>
+                <CardValue>{formatCoreTime(kpi.coreTimeAmt)}</CardValue>
+                <CardSub>構成比 {kpi.coreTimePct}%</CardSub>
+              </Card>
+              <Card $accent="#ef4444">
+                <CardLabel>折り返し時間帯</CardLabel>
+                <CardValue>{formatTurnaroundHour(kpi.turnaroundAmt)}</CardValue>
+                <CardSub>累積50%到達</CardSub>
+              </Card>
+              <Card $accent="#14b8a6">
                 <CardLabel>時間帯平均</CardLabel>
                 <CardValue>{Math.round(kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
                 <CardSub>{kpi.activeHours}時間帯</CardSub>
@@ -497,6 +528,16 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 <CardSub>構成比 {kpi.peakHourQtyPct}%</CardSub>
               </Card>
               <Card $accent="#8b5cf6">
+                <CardLabel>コアタイム</CardLabel>
+                <CardValue>{formatCoreTime(kpi.coreTimeQty)}</CardValue>
+                <CardSub>構成比 {kpi.coreTimeQtyPct}%</CardSub>
+              </Card>
+              <Card $accent="#ef4444">
+                <CardLabel>折り返し時間帯</CardLabel>
+                <CardValue>{formatTurnaroundHour(kpi.turnaroundQty)}</CardValue>
+                <CardSub>累積50%到達</CardSub>
+              </Card>
+              <Card $accent="#14b8a6">
                 <CardLabel>時間帯平均</CardLabel>
                 <CardValue>{kpi.avgQtyPerHour.toLocaleString()}点</CardValue>
                 <CardSub>{kpi.activeHours}時間帯</CardSub>

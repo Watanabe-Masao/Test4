@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -115,12 +116,20 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
     // Average per hour
     const avgPerHour = activeHours > 0 ? Math.round(totalAmount / activeHours) : 0
 
+    // コアタイム & 折り返し時間帯
+    const coreTime = findCoreTime(hourly)
+    const turnaroundHourVal = findTurnaroundHour(hourly)
+    const coreTimePct = totalAmount > 0 && coreTime ? (coreTime.total / totalAmount * 100).toFixed(1) : '0'
+
     return {
       totalAmount,
       totalQuantity,
       peakHour,
       peakHourAmount,
       peakHourPct,
+      coreTime,
+      coreTimePct,
+      turnaroundHour: turnaroundHourVal,
       topDeptName,
       topDeptAmount,
       topDeptPct,
@@ -153,6 +162,16 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
           <CardLabel>ピーク時間帯</CardLabel>
           <CardValue>{kpi.peakHour}時台</CardValue>
           <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
+        </Card>
+        <Card $accent="#8b5cf6">
+          <CardLabel>コアタイム</CardLabel>
+          <CardValue>{formatCoreTime(kpi.coreTime)}</CardValue>
+          <CardSub>構成比 {kpi.coreTimePct}%</CardSub>
+        </Card>
+        <Card $accent="#ef4444">
+          <CardLabel>折り返し時間帯</CardLabel>
+          <CardValue>{formatTurnaroundHour(kpi.turnaroundHour)}</CardValue>
+          <CardSub>累積50%到達</CardSub>
         </Card>
         <Card $accent="#22c55e">
           <CardLabel>売上1位部門</CardLabel>
