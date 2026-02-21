@@ -1,11 +1,16 @@
+import { useState, useMemo, useCallback, Fragment } from 'react'
+import styled from 'styled-components'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell as ReCell, CartesianGrid,
 } from 'recharts'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
-import type { DailyRecord } from '@/domain/models'
+import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
+import type { HierarchyFilter } from '@/presentation/components/charts/CategoryHierarchyContext'
+import { filterByHierarchy, getHierarchyLevel } from '@/presentation/components/charts/CategoryHierarchyContext'
+import { toComma } from '@/presentation/components/charts/chartTheme'
 import {
   PinModalOverlay,
   DetailModalContent, DetailHeader, DetailTitle, DetailCloseBtn,
@@ -21,6 +26,323 @@ function fmtSen(n: number): string {
   return `${sen.toLocaleString()}千`
 }
 
+/* ── Drilldown Styled Components ─────────── */
+
+const DrillSection = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[6]};
+`
+
+const DrillBreadcrumb = styled.div`
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: ${({ theme }) => theme.spacing[3]}; flex-wrap: wrap;
+`
+const BcItem = styled.button<{ $active: boolean }>`
+  all: unset; cursor: pointer; font-size: 0.72rem;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  color: ${({ $active, theme }) => $active ? theme.colors.text : theme.colors.palette.primary};
+  padding: 2px 6px; border-radius: ${({ theme }) => theme.radii.sm};
+  &:hover { background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}; }
+`
+const BcSep = styled.span`font-size: 0.6rem; color: ${({ theme }) => theme.colors.text4}; user-select: none;`
+const BcReset = styled.button`
+  all: unset; cursor: pointer; font-size: 0.6rem; margin-left: auto;
+  padding: 2px 8px; border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover { opacity: 0.7; }
+`
+
+const DrillTreemap = styled.div`
+  display: flex; gap: 2px; height: 52px;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md}; overflow: hidden;
+`
+const TreeBlock = styled.div<{ $flex: number; $color: string; $canDrill: boolean }>`
+  flex: ${({ $flex }) => Math.max($flex, 0.01)}; min-width: 0;
+  background: ${({ $color }) => $color}; opacity: 0.8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 2px 4px; cursor: ${({ $canDrill }) => ($canDrill ? 'pointer' : 'default')};
+  transition: opacity 0.15s; overflow: hidden;
+  &:hover { opacity: 1; }
+`
+const TreeLabel = styled.div`
+  font-size: 0.55rem; color: #fff; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+`
+const TreePct = styled.div`font-size: 0.5rem; color: rgba(255,255,255,0.85); font-family: monospace;`
+
+const DrillTable = styled.table`width: 100%; border-collapse: collapse; font-size: 0.65rem;`
+const DTh = styled.th<{ $sortable?: boolean }>`
+  text-align: left; padding: 5px 6px; font-size: 0.6rem; font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap; cursor: ${({ $sortable }) => ($sortable ? 'pointer' : 'default')};
+  user-select: none;
+  &:hover { color: ${({ $sortable, theme }) => ($sortable ? theme.colors.text : undefined)}; }
+`
+const DTr = styled.tr<{ $clickable: boolean }>`
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition: background 0.1s;
+  &:hover { background: ${({ $clickable, theme }) =>
+    $clickable ? (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)') : 'none'}; }
+`
+const DTd = styled.td<{ $mono?: boolean }>`
+  padding: 4px 6px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text2};
+  font-family: ${({ $mono, theme }) => $mono ? theme.typography.fontFamily.mono : theme.typography.fontFamily.primary};
+  white-space: nowrap;
+`
+const DTdName = styled(DTd)`
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis;
+  font-weight: 500; color: ${({ theme }) => theme.colors.text};
+`
+const DTdAmt = styled(DTd)`min-width: 120px;`
+const AmtWrap = styled.div`display: flex; align-items: center; gap: 4px;`
+const AmtTrack = styled.div`
+  flex: 1; height: 5px; border-radius: 3px; overflow: hidden;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+`
+const AmtFill = styled.div<{ $pct: number; $color: string }>`
+  width: ${({ $pct }) => Math.min($pct, 100)}%; height: 100%;
+  background: ${({ $color }) => $color}; border-radius: 3px; opacity: 0.75;
+`
+const AmtVal = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.62rem; color: ${({ theme }) => theme.colors.text2};
+  min-width: 60px; text-align: right;
+`
+const DrillArrow = styled.span`
+  color: ${({ theme }) => theme.colors.palette.primary}; font-size: 0.7rem; font-weight: 600;
+`
+const YoYVal = styled.span<{ $positive: boolean }>`
+  font-size: 0.58rem; font-weight: 600;
+  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+`
+const SummaryRow = styled.div`
+  display: flex; gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]}; flex-wrap: wrap;
+`
+const SumItem = styled.div`display: flex; align-items: baseline; gap: 4px;`
+const SumLabel = styled.span`font-size: 0.6rem; color: ${({ theme }) => theme.colors.text4};`
+const SumValue = styled.span`
+  font-size: 0.78rem; font-weight: 600; color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const COLORS = [
+  '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899',
+  '#8b5cf6', '#84cc16', '#f97316', '#14b8a6', '#e879f9', '#a3e635',
+  '#fb923c', '#38bdf8', '#c084fc',
+]
+
+/* ── Drilldown Aggregation ───────────────── */
+
+interface DrillItem {
+  code: string; name: string; amount: number; quantity: number; pct: number
+  childCount: number; hourlyPattern: number[]; peakHour: number
+  prevAmount?: number; yoyRatio?: number; yoyDiff?: number
+}
+
+type SortKey = 'amount' | 'quantity' | 'pct' | 'name' | 'yoyRatio'
+type SortDir = 'asc' | 'desc'
+
+function aggregateForDrill(
+  records: readonly CategoryTimeSalesRecord[],
+  level: 'department' | 'line' | 'klass',
+) {
+  const map = new Map<string, {
+    code: string; name: string; amount: number; quantity: number
+    hours: Map<number, number>; children: Set<string>
+  }>()
+  for (const rec of records) {
+    let key: string, name: string, childKey: string
+    if (level === 'department') {
+      key = rec.department.code; name = rec.department.name || key; childKey = rec.line.code
+    } else if (level === 'line') {
+      key = rec.line.code; name = rec.line.name || key; childKey = rec.klass.code
+    } else {
+      key = rec.klass.code; name = rec.klass.name || key; childKey = ''
+    }
+    const ex = map.get(key) ?? { code: key, name, amount: 0, quantity: 0, hours: new Map(), children: new Set() }
+    ex.amount += rec.totalAmount; ex.quantity += rec.totalQuantity
+    if (childKey) ex.children.add(childKey)
+    for (const s of rec.timeSlots) ex.hours.set(s.hour, (ex.hours.get(s.hour) ?? 0) + s.amount)
+    map.set(key, ex)
+  }
+  return map
+}
+
+/* ── Category Drilldown Sub-component ──── */
+
+function CategoryDrilldown({
+  records, prevRecords,
+}: {
+  records: readonly CategoryTimeSalesRecord[]
+  prevRecords: readonly CategoryTimeSalesRecord[]
+}) {
+  const [filter, setFilter] = useState<HierarchyFilter>({})
+  const [sortKey, setSortKey] = useState<SortKey>('amount')
+  const [sortDir, setSortDir] = useState<SortDir>('desc')
+
+  const currentLevel = getHierarchyLevel(filter)
+  const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
+  const hasPrevYear = prevRecords.length > 0
+
+  const breadcrumb = useMemo(() => {
+    const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
+    if (filter.departmentCode) {
+      items.push({ label: filter.departmentName || filter.departmentCode,
+        f: { departmentCode: filter.departmentCode, departmentName: filter.departmentName } })
+    }
+    if (filter.lineCode) {
+      items.push({ label: filter.lineName || filter.lineCode, f: { ...filter } })
+    }
+    return items
+  }, [filter])
+
+  const filtered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
+  const filteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(prevRecords, filter) : [], [prevRecords, filter, hasPrevYear])
+
+  const items = useMemo(() => {
+    const map = aggregateForDrill(filtered, currentLevel)
+    const prevMap = hasPrevYear ? aggregateForDrill(filteredPrev, currentLevel) : null
+    const total = [...map.values()].reduce((s, v) => s + v.amount, 0)
+    return [...map.values()].map((it): DrillItem => {
+      const hp = Array.from({ length: 24 }, (_, h) => Math.round(it.hours.get(h) ?? 0))
+      const mx = Math.max(...hp)
+      const prev = prevMap?.get(it.code)
+      const prevAmt = prev ? prev.amount : undefined
+      return {
+        code: it.code, name: it.name, amount: it.amount, quantity: it.quantity,
+        pct: total > 0 ? (it.amount / total) * 100 : 0,
+        childCount: it.children.size, hourlyPattern: hp, peakHour: mx > 0 ? hp.indexOf(mx) : -1,
+        prevAmount: prevAmt,
+        yoyRatio: prevAmt && prevAmt > 0 ? it.amount / prevAmt : undefined,
+        yoyDiff: prevAmt != null ? it.amount - prevAmt : undefined,
+      }
+    })
+  }, [filtered, filteredPrev, currentLevel, hasPrevYear])
+
+  const sorted = useMemo(() => {
+    const arr = [...items]
+    arr.sort((a, b) => {
+      let d = 0
+      switch (sortKey) {
+        case 'amount': d = a.amount - b.amount; break
+        case 'quantity': d = a.quantity - b.quantity; break
+        case 'pct': d = a.pct - b.pct; break
+        case 'name': d = a.name.localeCompare(b.name, 'ja'); break
+        case 'yoyRatio': d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0); break
+      }
+      return sortDir === 'desc' ? -d : d
+    })
+    return arr
+  }, [items, sortKey, sortDir])
+
+  const handleDrill = useCallback((it: DrillItem) => {
+    if (currentLevel === 'department') setFilter({ departmentCode: it.code, departmentName: it.name })
+    else if (currentLevel === 'line') setFilter((prev) => ({ ...prev, lineCode: it.code, lineName: it.name }))
+  }, [currentLevel])
+
+  const handleSort = useCallback((key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => d === 'desc' ? 'asc' : 'desc')
+    else { setSortKey(key); setSortDir('desc') }
+  }, [sortKey])
+
+  const totalAmt = items.reduce((s, i) => s + i.amount, 0)
+  const totalQty = items.reduce((s, i) => s + i.quantity, 0)
+  const totalPrevAmt = items.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
+  const totalYoY = totalPrevAmt > 0 ? totalAmt / totalPrevAmt : null
+  const maxAmt = items.length > 0 ? Math.max(...items.map((i) => i.amount)) : 1
+  const canDrill = currentLevel !== 'klass'
+  const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
+
+  if (sorted.length === 0) return null
+
+  return (
+    <DrillSection>
+      <DetailSectionTitle>分類別売上ドリルダウン</DetailSectionTitle>
+
+      <DrillBreadcrumb>
+        {breadcrumb.map((bc, i) => (
+          <Fragment key={i}>
+            {i > 0 && <BcSep>▸</BcSep>}
+            <BcItem $active={i === breadcrumb.length - 1} onClick={() => setFilter(bc.f)}>
+              {bc.label}
+            </BcItem>
+          </Fragment>
+        ))}
+        {filter.departmentCode && <BcReset onClick={() => setFilter({})}>リセット</BcReset>}
+      </DrillBreadcrumb>
+
+      <SummaryRow>
+        <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
+        <SumItem><SumLabel>合計</SumLabel><SumValue>{toComma(totalAmt)}円</SumValue></SumItem>
+        <SumItem><SumLabel>数量</SumLabel><SumValue>{totalQty.toLocaleString()}点</SumValue></SumItem>
+        {hasPrevYear && totalYoY != null && (
+          <SumItem>
+            <SumLabel>前年比</SumLabel>
+            <SumValue><YoYVal $positive={totalYoY >= 1}>{(totalYoY * 100).toFixed(1)}%</YoYVal></SumValue>
+          </SumItem>
+        )}
+      </SummaryRow>
+
+      <DrillTreemap>
+        {items.slice().sort((a, b) => b.amount - a.amount).slice(0, 12).map((it, i) => (
+          <TreeBlock key={it.code} $flex={it.amount} $color={COLORS[i % COLORS.length]}
+            $canDrill={canDrill} onClick={() => canDrill && handleDrill(it)}
+            title={`${it.name}: ${toComma(it.amount)}円 (${it.pct.toFixed(1)}%)`}>
+            <TreeLabel>{it.name}</TreeLabel>
+            <TreePct>{it.pct.toFixed(1)}%</TreePct>
+          </TreeBlock>
+        ))}
+      </DrillTreemap>
+
+      <div style={{ overflowX: 'auto' }}>
+        <DrillTable>
+          <thead><tr>
+            <DTh>#</DTh>
+            <DTh $sortable onClick={() => handleSort('name')}>{levelLabels[currentLevel]}名{arrow('name')}</DTh>
+            <DTh $sortable onClick={() => handleSort('amount')}>売上金額{arrow('amount')}</DTh>
+            <DTh $sortable onClick={() => handleSort('pct')}>構成比{arrow('pct')}</DTh>
+            <DTh $sortable onClick={() => handleSort('quantity')}>数量{arrow('quantity')}</DTh>
+            {hasPrevYear && <DTh $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</DTh>}
+            {canDrill && <DTh />}
+          </tr></thead>
+          <tbody>
+            {sorted.map((it, i) => (
+              <DTr key={it.code} $clickable={canDrill} onClick={() => canDrill && handleDrill(it)}>
+                <DTd $mono>{i + 1}</DTd>
+                <DTdName>{it.name}</DTdName>
+                <DTdAmt>
+                  <AmtWrap>
+                    <AmtTrack><AmtFill $pct={maxAmt > 0 ? (it.amount / maxAmt) * 100 : 0} $color={COLORS[i % COLORS.length]} /></AmtTrack>
+                    <AmtVal>{toComma(it.amount)}円</AmtVal>
+                  </AmtWrap>
+                </DTdAmt>
+                <DTd $mono>{it.pct.toFixed(1)}%</DTd>
+                <DTd $mono>{it.quantity.toLocaleString()}</DTd>
+                {hasPrevYear && (
+                  <DTd $mono>
+                    {it.yoyRatio != null ? (
+                      <YoYVal $positive={it.yoyRatio >= 1}>{(it.yoyRatio * 100).toFixed(1)}%</YoYVal>
+                    ) : '-'}
+                  </DTd>
+                )}
+                {canDrill && <DTd><DrillArrow>▸</DrillArrow></DTd>}
+              </DTr>
+            ))}
+          </tbody>
+        </DrillTable>
+      </div>
+    </DrillSection>
+  )
+}
+
+/* ── Main Modal ──────────────────────────── */
+
 interface DayDetailModalProps {
   day: number
   month: number
@@ -31,11 +353,14 @@ interface DayDetailModalProps {
   cumSales: number
   cumPrevYear: number
   prevYear: PrevYearData
+  categoryRecords: readonly CategoryTimeSalesRecord[]
+  prevYearCategoryRecords: readonly CategoryTimeSalesRecord[]
   onClose: () => void
 }
 
 export function DayDetailModal({
-  day, month, year, record, budget, cumBudget, cumSales, cumPrevYear, prevYear, onClose,
+  day, month, year, record, budget, cumBudget, cumSales, cumPrevYear, prevYear,
+  categoryRecords, prevYearCategoryRecords, onClose,
 }: DayDetailModalProps) {
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
 
@@ -49,18 +374,15 @@ export function DayDetailModal({
   const cumPyRatio = cumPrevYear > 0 ? cumSales / cumPrevYear : 0
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
-  // Cumulative chart data
-  const cumChartData = Array.from({ length: day }, (_, i) => {
-    const d = i + 1
-    // We need to recalculate from the props - the parent passes final cumulative values for this day
-    // For the chart we need all days up to this day, but we only have the final values
-    // So we accept them as-is and let the parent provide cumBudget/cumSales for this day
-    return { day: d }
-  })
-  // The parent should provide cumulative data arrays; for now use simplified approach
-  // Build from record data - but we don't have all days here.
-  // Better approach: accept chartData as a prop
-  void cumChartData // Will be replaced by prop-based approach below
+  // Filter category records for this specific day
+  const dayRecords = useMemo(
+    () => categoryRecords.filter((r) => r.day === day),
+    [categoryRecords, day],
+  )
+  const prevDayRecords = useMemo(
+    () => prevYearCategoryRecords.filter((r) => r.day === day),
+    [prevYearCategoryRecords, day],
+  )
 
   return (
     <PinModalOverlay onClick={onClose}>
@@ -284,6 +606,11 @@ export function DayDetailModal({
             )}
           </DetailSection>
         </DetailColumns>
+
+        {/* Category Drilldown */}
+        {dayRecords.length > 0 && (
+          <CategoryDrilldown records={dayRecords} prevRecords={prevDayRecords} />
+        )}
       </DetailModalContent>
     </PinModalOverlay>
   )
