@@ -378,10 +378,44 @@ const HourlySumItem = styled.div`
   display: flex; align-items: baseline; gap: 3px; font-size: 0.65rem;
 `
 
+/* ── Hourly Detail styled components ────── */
+
+const HourlyDetailPanel = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+`
+const HourlyDetailHeader = styled.div`
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+const HourlyDetailTitle = styled.span`
+  font-size: 0.72rem; font-weight: 600; color: ${({ theme }) => theme.colors.text};
+`
+const HourlyDetailClose = styled.button`
+  all: unset; cursor: pointer; font-size: 0.65rem;
+  padding: 2px 8px; border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover { opacity: 0.7; }
+`
+const HourlyDetailSummary = styled.div`
+  display: flex; gap: ${({ theme }) => theme.spacing[4]}; flex-wrap: wrap;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+interface HourCategoryItem {
+  dept: string; line: string; klass: string
+  amount: number; quantity: number; pct: number; color: string
+}
+
 /* ── Hourly Chart Sub-component ─────────── */
 
 function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRecord[] }) {
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
+  const [selectedHour, setSelectedHour] = useState<number | null>(null)
 
   const hourlyData = useMemo(() => {
     const map = new Map<number, { amount: number; quantity: number }>()
@@ -406,12 +440,40 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
     return result
   }, [dayRecords])
 
+  // Category breakdown for the selected hour
+  const hourDetail = useMemo((): HourCategoryItem[] => {
+    if (selectedHour == null) return []
+    const map = new Map<string, { dept: string; line: string; klass: string; amount: number; quantity: number }>()
+    for (const rec of dayRecords) {
+      const slot = rec.timeSlots.find((s) => s.hour === selectedHour)
+      if (!slot || (slot.amount === 0 && slot.quantity === 0)) continue
+      const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
+      const ex = map.get(key) ?? {
+        dept: rec.department.name || rec.department.code,
+        line: rec.line.name || rec.line.code,
+        klass: rec.klass.name || rec.klass.code,
+        amount: 0, quantity: 0,
+      }
+      ex.amount += slot.amount
+      ex.quantity += slot.quantity
+      map.set(key, ex)
+    }
+    const items = [...map.values()].sort((a, b) => b.amount - a.amount)
+    const totalAmt = items.reduce((s, it) => s + it.amount, 0)
+    return items.map((it, i) => ({
+      ...it,
+      pct: totalAmt > 0 ? (it.amount / totalAmt) * 100 : 0,
+      color: COLORS[i % COLORS.length],
+    }))
+  }, [dayRecords, selectedHour])
+
   if (hourlyData.length === 0) return null
 
   const maxAmt = Math.max(...hourlyData.map((d) => d.amount), 1)
   const totalAmt = hourlyData.reduce((s, d) => s + d.amount, 0)
   const totalQty = hourlyData.reduce((s, d) => s + d.quantity, 0)
   const peakHour = hourlyData.reduce((peak, d) => d.amount > peak.amount ? d : peak, hourlyData[0])
+  const selData = selectedHour != null ? hourlyData.find((d) => d.hour === selectedHour) : null
 
   return (
     <HourlySection>
@@ -434,17 +496,21 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
         {hourlyData.map((d) => {
           const pct = (d.amount / maxAmt) * 100
           const isPeak = d.hour === peakHour.hour
+          const isSelected = d.hour === selectedHour
           return (
             <HourlyBar
               key={d.hour}
               $pct={pct}
-              $color={isPeak ? '#f59e0b' : '#6366f1'}
+              $color={isSelected ? '#ec4899' : isPeak ? '#f59e0b' : '#6366f1'}
               onMouseEnter={() => setHoveredHour(d.hour)}
               onMouseLeave={() => setHoveredHour(null)}
+              onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
+              style={{ outline: isSelected ? '2px solid #ec4899' : undefined, outlineOffset: -1 }}
             >
-              {hoveredHour === d.hour && (
+              {hoveredHour === d.hour && !isSelected && (
                 <HourlyTooltipBox>
                   {d.hour}時: {toComma(d.amount)}円 / {d.quantity.toLocaleString()}点
+                  <br /><span style={{ fontSize: '0.45rem', opacity: 0.7 }}>クリックで詳細表示</span>
                 </HourlyTooltipBox>
               )}
             </HourlyBar>
@@ -453,9 +519,80 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
       </HourlyChartWrap>
       <HourlyAxis>
         {hourlyData.map((d) => (
-          <HourlyTick key={d.hour}>{d.hour}</HourlyTick>
+          <HourlyTick key={d.hour} style={{
+            fontWeight: d.hour === selectedHour ? 700 : 400,
+            color: d.hour === selectedHour ? '#ec4899' : undefined,
+          }}>{d.hour}</HourlyTick>
         ))}
       </HourlyAxis>
+
+      {/* ── Hour detail panel ── */}
+      {selectedHour != null && selData && (
+        <HourlyDetailPanel>
+          <HourlyDetailHeader>
+            <HourlyDetailTitle>{selectedHour}時台の分類別内訳</HourlyDetailTitle>
+            <HourlyDetailClose onClick={() => setSelectedHour(null)}>閉じる</HourlyDetailClose>
+          </HourlyDetailHeader>
+          <HourlyDetailSummary>
+            <HourlySumItem>
+              <SumLabel>時間合計</SumLabel>
+              <SumValue>{toComma(selData.amount)}円</SumValue>
+            </HourlySumItem>
+            <HourlySumItem>
+              <SumLabel>点数</SumLabel>
+              <SumValue>{selData.quantity.toLocaleString()}点</SumValue>
+            </HourlySumItem>
+            <HourlySumItem>
+              <SumLabel>全体比</SumLabel>
+              <SumValue>{totalAmt > 0 ? (selData.amount / totalAmt * 100).toFixed(2) : '0.00'}%</SumValue>
+            </HourlySumItem>
+            <HourlySumItem>
+              <SumLabel>分類数</SumLabel>
+              <SumValue>{hourDetail.length}</SumValue>
+            </HourlySumItem>
+          </HourlyDetailSummary>
+          {hourDetail.length > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <DrillTable>
+                <thead><tr>
+                  <DTh>#</DTh>
+                  <DTh>部門</DTh>
+                  <DTh>ライン</DTh>
+                  <DTh>クラス</DTh>
+                  <DTh>売上金額</DTh>
+                  <DTh>点数</DTh>
+                  <DTh>構成比</DTh>
+                </tr></thead>
+                <tbody>
+                  {hourDetail.map((it, i) => (
+                    <DTr key={`${it.dept}-${it.line}-${it.klass}`} $clickable={false}>
+                      <DTd $mono>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <LegendDot $color={it.color} />
+                          {i + 1}
+                        </span>
+                      </DTd>
+                      <DTdName>{it.dept}</DTdName>
+                      <DTd>{it.line}</DTd>
+                      <DTd>{it.klass}</DTd>
+                      <DTdAmt>
+                        <AmtWrap>
+                          <AmtTrack>
+                            <AmtFill $pct={it.pct} $color={it.color} />
+                          </AmtTrack>
+                          <AmtVal>{toComma(it.amount)}円</AmtVal>
+                        </AmtWrap>
+                      </DTdAmt>
+                      <DTd $mono>{it.quantity.toLocaleString()}点</DTd>
+                      <DTd $mono>{it.pct.toFixed(2)}%</DTd>
+                    </DTr>
+                  ))}
+                </tbody>
+              </DrillTable>
+            </div>
+          )}
+        </HourlyDetailPanel>
+      )}
     </HourlySection>
   )
 }
