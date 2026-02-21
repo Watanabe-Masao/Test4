@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
@@ -51,15 +51,14 @@ export function usePeriodFilter(
   const [mode, setMode] = useState<AggregateMode>('total')
   const [selectedDows, setSelectedDows] = useState<ReadonlySet<number>>(new Set<number>())
 
-  // dataMaxDay 変化時（ファイル取込など）に自動リセット。初回マウントはスキップ。
-  const prevMaxRef = useRef(dataMaxDay)
-  useEffect(() => {
-    if (prevMaxRef.current !== dataMaxDay) {
-      prevMaxRef.current = dataMaxDay
-      const newEnd = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
-      setDayRange([1, newEnd])
-    }
-  }, [dataMaxDay, daysInMonth])
+  // dataMaxDay 変化時（ファイル取込など）に自動リセット。
+  // state に前回値を保持し、レンダー中に比較→リセット（React推奨パターン）。
+  const [prevDataMaxDay, setPrevDataMaxDay] = useState(dataMaxDay)
+  if (prevDataMaxDay !== dataMaxDay) {
+    setPrevDataMaxDay(dataMaxDay)
+    const newEnd = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
+    setDayRange([1, newEnd])
+  }
 
   const resetToDefault = useCallback(() => {
     const end = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
