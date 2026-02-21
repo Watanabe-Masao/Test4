@@ -366,11 +366,14 @@ const HourlyChartContainer = styled.div`
   display: flex; align-items: stretch; margin-bottom: 4px; padding: 0 4px;
 `
 const HourlyChartWrap = styled.div`
-  display: flex; align-items: flex-end; height: 180px;
-  flex: 1; position: relative;
+  display: grid; height: 180px; flex: 1;
+`
+const HourlyBarArea = styled.div`
+  display: flex; align-items: flex-end;
+  grid-row: 1; grid-column: 1; min-width: 0;
 `
 const HourlyCumOverlay = styled.svg`
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  grid-row: 1; grid-column: 1;
   pointer-events: none; overflow: visible;
 `
 const HourlyRightAxis = styled.div`
@@ -605,6 +608,7 @@ function HourlyChart({ dayRecords, prevDayRecords }: {
       </HourlySummaryRow>
       <HourlyChartContainer>
         <HourlyChartWrap>
+          <HourlyBarArea>
           {paddedData.map((d, idx) => {
             const pct = (d.amount / maxAmt) * 100
             const isPeak = d.hour === peakHour.hour
@@ -654,6 +658,7 @@ function HourlyChart({ dayRecords, prevDayRecords }: {
               </HourlyBar>
             )
           })}
+          </HourlyBarArea>
           {/* Cumulative % line overlay */}
           <HourlyCumOverlay viewBox="0 0 100 100" preserveAspectRatio="none">
             {/* Horizontal gridlines at 25%, 50%, 75% */}
