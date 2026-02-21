@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
@@ -292,6 +292,173 @@ const SegmentTooltip = styled.div`
   color: ${({ theme }) => theme.colors.text}; border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: none;
 `
+
+/* ── Tab styled components ──────────────── */
+
+const TabBar = styled.div`
+  display: flex; gap: 0; border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+const Tab = styled.button<{ $active: boolean }>`
+  all: unset; cursor: pointer; font-size: 0.75rem; font-weight: 600;
+  padding: 8px 16px; white-space: nowrap; position: relative;
+  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text3};
+  transition: color 0.15s;
+  &::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+    background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+    transition: background 0.15s;
+  }
+  &:hover { color: ${({ theme }) => theme.colors.text}; }
+`
+
+/* ── KPI mini card (compact 2nd row) ───── */
+
+const KpiGrid2 = styled.div`
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+const KpiMini = styled.div<{ $accent?: string }>`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 3px solid ${({ $accent }) => $accent ?? '#6366f1'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
+`
+const KpiMiniLabel = styled.div`
+  font-size: 0.6rem; color: ${({ theme }) => theme.colors.text4}; margin-bottom: 2px;
+`
+const KpiMiniValue = styled.div<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.85rem; font-weight: 700;
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+const KpiMiniSub = styled.span`
+  font-size: 0.55rem; color: ${({ theme }) => theme.colors.text4}; margin-left: 4px;
+`
+
+/* ── Hourly Chart styled components ────── */
+
+const HourlySection = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+const HourlyChartWrap = styled.div`
+  display: flex; align-items: flex-end; gap: 2px; height: 120px;
+  padding: 0 4px; margin-bottom: 4px;
+`
+const HourlyBar = styled.div<{ $pct: number; $color: string }>`
+  flex: 1; min-width: 0; border-radius: 2px 2px 0 0;
+  background: ${({ $color }) => $color}; opacity: 0.8;
+  height: ${({ $pct }) => Math.max($pct, 1)}%;
+  transition: opacity 0.15s, height 0.3s ease;
+  position: relative; cursor: pointer;
+  &:hover { opacity: 1; }
+`
+const HourlyAxis = styled.div`
+  display: flex; gap: 2px; padding: 0 4px;
+`
+const HourlyTick = styled.div`
+  flex: 1; text-align: center; font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text4}; font-family: monospace;
+`
+const HourlyTooltipBox = styled.div`
+  position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  z-index: 100; padding: 4px 8px; border-radius: 4px;
+  font-size: 0.55rem; white-space: nowrap;
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1e1e2e' : '#fff'};
+  color: ${({ theme }) => theme.colors.text}; border: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: none;
+`
+const HourlySummaryRow = styled.div`
+  display: flex; gap: ${({ theme }) => theme.spacing[4]}; flex-wrap: wrap;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+const HourlySumItem = styled.div`
+  display: flex; align-items: baseline; gap: 3px; font-size: 0.65rem;
+`
+
+/* ── Hourly Chart Sub-component ─────────── */
+
+function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRecord[] }) {
+  const [hoveredHour, setHoveredHour] = useState<number | null>(null)
+
+  const hourlyData = useMemo(() => {
+    const map = new Map<number, { amount: number; quantity: number }>()
+    for (const rec of dayRecords) {
+      for (const slot of rec.timeSlots) {
+        const ex = map.get(slot.hour) ?? { amount: 0, quantity: 0 }
+        ex.amount += slot.amount
+        ex.quantity += slot.quantity
+        map.set(slot.hour, ex)
+      }
+    }
+    // Build array for display hours (typically 6-22)
+    const entries = [...map.entries()].sort(([a], [b]) => a - b)
+    if (entries.length === 0) return []
+    const minH = Math.min(...entries.map(([h]) => h))
+    const maxH = Math.max(...entries.map(([h]) => h))
+    const result: { hour: number; amount: number; quantity: number }[] = []
+    for (let h = minH; h <= maxH; h++) {
+      const d = map.get(h)
+      result.push({ hour: h, amount: d?.amount ?? 0, quantity: d?.quantity ?? 0 })
+    }
+    return result
+  }, [dayRecords])
+
+  if (hourlyData.length === 0) return null
+
+  const maxAmt = Math.max(...hourlyData.map((d) => d.amount), 1)
+  const totalAmt = hourlyData.reduce((s, d) => s + d.amount, 0)
+  const totalQty = hourlyData.reduce((s, d) => s + d.quantity, 0)
+  const peakHour = hourlyData.reduce((peak, d) => d.amount > peak.amount ? d : peak, hourlyData[0])
+
+  return (
+    <HourlySection>
+      <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
+      <HourlySummaryRow>
+        <HourlySumItem>
+          <SumLabel>合計</SumLabel>
+          <SumValue>{toComma(totalAmt)}円</SumValue>
+        </HourlySumItem>
+        <HourlySumItem>
+          <SumLabel>合計点数</SumLabel>
+          <SumValue>{totalQty.toLocaleString()}点</SumValue>
+        </HourlySumItem>
+        <HourlySumItem>
+          <SumLabel>ピーク</SumLabel>
+          <SumValue>{peakHour.hour}時（{toComma(peakHour.amount)}円）</SumValue>
+        </HourlySumItem>
+      </HourlySummaryRow>
+      <HourlyChartWrap>
+        {hourlyData.map((d) => {
+          const pct = (d.amount / maxAmt) * 100
+          const isPeak = d.hour === peakHour.hour
+          return (
+            <HourlyBar
+              key={d.hour}
+              $pct={pct}
+              $color={isPeak ? '#f59e0b' : '#6366f1'}
+              onMouseEnter={() => setHoveredHour(d.hour)}
+              onMouseLeave={() => setHoveredHour(null)}
+            >
+              {hoveredHour === d.hour && (
+                <HourlyTooltipBox>
+                  {d.hour}時: {toComma(d.amount)}円 / {d.quantity.toLocaleString()}点
+                </HourlyTooltipBox>
+              )}
+            </HourlyBar>
+          )
+        })}
+      </HourlyChartWrap>
+      <HourlyAxis>
+        {hourlyData.map((d) => (
+          <HourlyTick key={d.hour}>{d.hour}</HourlyTick>
+        ))}
+      </HourlyAxis>
+    </HourlySection>
+  )
+}
 
 /* ── Category Drilldown Sub-component ──── */
 
@@ -676,6 +843,8 @@ function CategoryDrilldown({
 
 /* ── Main Modal ──────────────────────────── */
 
+type ModalTab = 'sales' | 'hourly' | 'breakdown'
+
 interface DayDetailModalProps {
   day: number
   month: number
@@ -685,6 +854,8 @@ interface DayDetailModalProps {
   cumBudget: number
   cumSales: number
   cumPrevYear: number
+  cumCustomers: number
+  cumPrevCustomers: number
   prevYear: PrevYearData
   categoryRecords: readonly CategoryTimeSalesRecord[]
   prevYearCategoryRecords: readonly CategoryTimeSalesRecord[]
@@ -692,11 +863,14 @@ interface DayDetailModalProps {
 }
 
 export function DayDetailModal({
-  day, month, year, record, budget, cumBudget, cumSales, cumPrevYear, prevYear,
+  day, month, year, record, budget, cumBudget, cumSales, cumPrevYear,
+  cumCustomers, cumPrevCustomers, prevYear,
   categoryRecords, prevYearCategoryRecords, onClose,
 }: DayDetailModalProps) {
+  const [tab, setTab] = useState<ModalTab>('sales')
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
 
+  // ── Core metrics ──
   const actual = record?.sales ?? 0
   const diff = actual - budget
   const ach = budget > 0 ? actual / budget : 0
@@ -706,7 +880,17 @@ export function DayDetailModal({
   const pyRatio = pySales > 0 ? actual / pySales : 0
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
-  // Filter category records for this specific day
+  // ── Customer metrics ──
+  const dayCust = record?.customers ?? 0
+  const dayTxVal = calculateTransactionValue(actual, dayCust)
+  const pyCust = prevYear.daily.get(day)?.customers ?? 0
+  const pyTxVal = calculateTransactionValue(pySales, pyCust)
+  const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
+  const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
+  const custRatio = pyCust > 0 ? dayCust / pyCust : 0
+  const txValRatio = pyTxVal > 0 ? dayTxVal / pyTxVal : 0
+
+  // ── Category records ──
   const dayRecords = useMemo(
     () => categoryRecords.filter((r) => r.day === day),
     [categoryRecords, day],
@@ -715,7 +899,6 @@ export function DayDetailModal({
     () => prevYearCategoryRecords.filter((r) => r.day === day),
     [prevYearCategoryRecords, day],
   )
-  // Cumulative category records (1日〜day日)
   const cumCategoryRecords = useMemo(
     () => categoryRecords.filter((r) => r.day <= day),
     [categoryRecords, day],
@@ -733,7 +916,7 @@ export function DayDetailModal({
           <DetailCloseBtn onClick={onClose}>✕</DetailCloseBtn>
         </DetailHeader>
 
-        {/* KPI Cards */}
+        {/* ── KPI Row 1: Sales ── */}
         <DetailKpiGrid>
           <DetailKpiCard $accent="#6366f1">
             <DetailKpiLabel>予算</DetailKpiLabel>
@@ -757,65 +940,143 @@ export function DayDetailModal({
           </DetailKpiCard>
         </DetailKpiGrid>
 
-        {/* Category Drilldown (当日/累計 toggle) */}
-        {dayRecords.length > 0 && (
-          <CategoryDrilldown
-            records={dayRecords}
-            prevRecords={prevDayRecords}
-            budget={budget}
-            cumRecords={cumCategoryRecords}
-            cumPrevRecords={cumPrevCategoryRecords}
-            cumBudget={cumBudget}
-            actual={actual}
-            ach={ach}
-            pySales={pySales}
-            hasPrevYearSales={prevYear.hasPrevYear}
-            cumSales={cumSales}
-            cumAch={cumAch}
-            cumPrevYear={cumPrevYear}
-          />
+        {/* ── KPI Row 2: Customers & Comparison ── */}
+        <KpiGrid2>
+          <KpiMini $accent="#06b6d4">
+            <KpiMiniLabel>客数</KpiMiniLabel>
+            <KpiMiniValue>
+              {dayCust > 0 ? `${dayCust.toLocaleString()}人` : '-'}
+              {prevYear.hasPrevYear && pyCust > 0 && custRatio > 0 && (
+                <KpiMiniSub style={{ color: custRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+                  (前年比{formatPercent(custRatio)})
+                </KpiMiniSub>
+              )}
+            </KpiMiniValue>
+          </KpiMini>
+          <KpiMini $accent="#8b5cf6">
+            <KpiMiniLabel>客単価</KpiMiniLabel>
+            <KpiMiniValue>
+              {dayTxVal > 0 ? formatCurrency(dayTxVal) : '-'}
+              {prevYear.hasPrevYear && pyTxVal > 0 && txValRatio > 0 && (
+                <KpiMiniSub style={{ color: txValRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+                  (前年比{formatPercent(txValRatio)})
+                </KpiMiniSub>
+              )}
+            </KpiMiniValue>
+          </KpiMini>
+          <KpiMini $accent={sc.cond(pyRatio >= 1)}>
+            <KpiMiniLabel>前年売上</KpiMiniLabel>
+            <KpiMiniValue>
+              {prevYear.hasPrevYear && pySales > 0 ? formatCurrency(pySales) : '-'}
+            </KpiMiniValue>
+          </KpiMini>
+          <KpiMini $accent={sc.cond(pyRatio >= 1)}>
+            <KpiMiniLabel>前年比</KpiMiniLabel>
+            <KpiMiniValue $color={pyRatio > 0 ? sc.cond(pyRatio >= 1) : undefined}>
+              {prevYear.hasPrevYear && pyRatio > 0 ? formatPercent(pyRatio) : '-'}
+            </KpiMiniValue>
+          </KpiMini>
+        </KpiGrid2>
+
+        {/* ── Tab Navigation ── */}
+        <TabBar>
+          <Tab $active={tab === 'sales'} onClick={() => setTab('sales')}>売上分析</Tab>
+          <Tab $active={tab === 'hourly'} onClick={() => setTab('hourly')}>時間帯分析</Tab>
+          <Tab $active={tab === 'breakdown'} onClick={() => setTab('breakdown')}>仕入内訳</Tab>
+        </TabBar>
+
+        {/* ── Tab: 売上分析 ── */}
+        {tab === 'sales' && (
+          <>
+            {dayRecords.length > 0 && (
+              <CategoryDrilldown
+                records={dayRecords}
+                prevRecords={prevDayRecords}
+                budget={budget}
+                cumRecords={cumCategoryRecords}
+                cumPrevRecords={cumPrevCategoryRecords}
+                cumBudget={cumBudget}
+                actual={actual}
+                ach={ach}
+                pySales={pySales}
+                hasPrevYearSales={prevYear.hasPrevYear}
+                cumSales={cumSales}
+                cumAch={cumAch}
+                cumPrevYear={cumPrevYear}
+              />
+            )}
+
+            {/* Cumulative summary */}
+            <DetailSection>
+              <DetailSectionTitle>累計情報（1日〜{day}日）</DetailSectionTitle>
+              <DetailColumns>
+                <div>
+                  <DetailRow>
+                    <DetailLabel>予算累計</DetailLabel>
+                    <DetailValue>{formatCurrency(cumBudget)}</DetailValue>
+                  </DetailRow>
+                  <DetailRow>
+                    <DetailLabel>実績累計</DetailLabel>
+                    <DetailValue>{formatCurrency(cumSales)}</DetailValue>
+                  </DetailRow>
+                  <DetailRow>
+                    <DetailLabel>累計差異</DetailLabel>
+                    <DetailValue $color={sc.cond(cumDiff >= 0)}>{formatCurrency(cumDiff)}</DetailValue>
+                  </DetailRow>
+                  <DetailRow>
+                    <DetailLabel>累計達成率</DetailLabel>
+                    <DetailValue $color={sc.cond(cumAch >= 1)}>{formatPercent(cumAch)}</DetailValue>
+                  </DetailRow>
+                </div>
+                <div>
+                  <DetailRow>
+                    <DetailLabel>累計客数</DetailLabel>
+                    <DetailValue>
+                      {cumCustomers > 0 ? `${cumCustomers.toLocaleString()}人` : '-'}
+                    </DetailValue>
+                  </DetailRow>
+                  <DetailRow>
+                    <DetailLabel>累計客単価</DetailLabel>
+                    <DetailValue>{cumTxVal > 0 ? formatCurrency(cumTxVal) : '-'}</DetailValue>
+                  </DetailRow>
+                  {prevYear.hasPrevYear && cumPrevYear > 0 && (
+                    <>
+                      <DetailRow>
+                        <DetailLabel>前年累計</DetailLabel>
+                        <DetailValue>{formatCurrency(cumPrevYear)}</DetailValue>
+                      </DetailRow>
+                      <DetailRow>
+                        <DetailLabel>前年累計客単価</DetailLabel>
+                        <DetailValue>{cumPrevTxVal > 0 ? formatCurrency(cumPrevTxVal) : '-'}</DetailValue>
+                      </DetailRow>
+                    </>
+                  )}
+                </div>
+              </DetailColumns>
+            </DetailSection>
+          </>
         )}
 
-        <DetailColumns>
-          {/* Left: Cumulative */}
-          <DetailSection>
-            <DetailSectionTitle>累計情報（1日〜{day}日）</DetailSectionTitle>
-            <DetailRow>
-              <DetailLabel>予算累計</DetailLabel>
-              <DetailValue>{formatCurrency(cumBudget)}</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>実績累計</DetailLabel>
-              <DetailValue>{formatCurrency(cumSales)}</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>累計差異</DetailLabel>
-              <DetailValue $color={sc.cond(cumDiff >= 0)}>{formatCurrency(cumDiff)}</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>累計達成率</DetailLabel>
-              <DetailValue $color={sc.cond(cumAch >= 1)}>{formatPercent(cumAch)}</DetailValue>
-            </DetailRow>
-            {prevYear.hasPrevYear && pySales > 0 && (
-              <>
-                <DetailRow>
-                  <DetailLabel>前年同曜日</DetailLabel>
-                  <DetailValue>{formatCurrency(pySales)}</DetailValue>
-                </DetailRow>
-                <DetailRow>
-                  <DetailLabel>前年比</DetailLabel>
-                  <DetailValue $color={sc.cond(pyRatio >= 1)}>{formatPercent(pyRatio)}</DetailValue>
-                </DetailRow>
-              </>
+        {/* ── Tab: 時間帯分析 ── */}
+        {tab === 'hourly' && (
+          <>
+            <HourlyChart dayRecords={dayRecords} />
+            {dayRecords.length === 0 && (
+              <DetailSection>
+                <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
+                <DetailRow><DetailLabel>データなし</DetailLabel><DetailValue>-</DetailValue></DetailRow>
+              </DetailSection>
             )}
-          </DetailSection>
+          </>
+        )}
 
-          {/* Right: Breakdown */}
+        {/* ── Tab: 仕入内訳 ── */}
+        {tab === 'breakdown' && (
           <DetailSection>
-            <DetailSectionTitle>売上内訳</DetailSectionTitle>
+            <DetailSectionTitle>仕入・コスト内訳</DetailSectionTitle>
             {record ? (() => {
               const totalCost = getDailyTotalCost(record)
-              const items: { label: string; cost: number; price: number }[] = [
+              const costItems: { label: string; cost: number; price: number }[] = [
                 { label: '仕入（在庫）', cost: record.purchase.cost, price: record.purchase.price },
                 { label: '花', cost: record.flowers.cost, price: record.flowers.price },
                 { label: '産直', cost: record.directProduce.cost, price: record.directProduce.price },
@@ -824,11 +1085,11 @@ export function DayDetailModal({
                 { label: '部門間入', cost: record.interDepartmentIn.cost, price: record.interDepartmentIn.price },
                 { label: '部門間出', cost: record.interDepartmentOut.cost, price: record.interDepartmentOut.price },
               ].filter(item => item.cost !== 0 || item.price !== 0)
-              const totalPrice = items.reduce((sum, item) => sum + Math.abs(item.price), 0)
+              const totalPrice = costItems.reduce((sum, item) => sum + Math.abs(item.price), 0)
 
               return (
                 <>
-                  {items.map((item) => {
+                  {costItems.map((item) => {
                     const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
                     return (
                       <DetailRow key={item.label}>
@@ -844,6 +1105,12 @@ export function DayDetailModal({
                     <DetailLabel>総仕入原価</DetailLabel>
                     <DetailValue>{formatCurrency(totalCost)}</DetailValue>
                   </DetailRow>
+                  {actual > 0 && totalCost > 0 && (
+                    <DetailRow>
+                      <DetailLabel>原価率</DetailLabel>
+                      <DetailValue>{formatPercent(totalCost / actual)}</DetailValue>
+                    </DetailRow>
+                  )}
                   {record.consumable.cost > 0 && (
                     <DetailRow>
                       <DetailLabel>消耗品費</DetailLabel>
@@ -851,10 +1118,20 @@ export function DayDetailModal({
                     </DetailRow>
                   )}
                   {record.discountAmount !== 0 && (
-                    <DetailRow>
-                      <DetailLabel>売変額</DetailLabel>
-                      <DetailValue $color={sc.negative}>{formatCurrency(record.discountAmount)}</DetailValue>
-                    </DetailRow>
+                    <>
+                      <DetailRow>
+                        <DetailLabel>売変額</DetailLabel>
+                        <DetailValue $color={sc.negative}>{formatCurrency(record.discountAmount)}</DetailValue>
+                      </DetailRow>
+                      {record.grossSales > 0 && (
+                        <DetailRow>
+                          <DetailLabel>売変率</DetailLabel>
+                          <DetailValue $color={sc.negative}>
+                            {formatPercent(Math.abs(record.discountAmount) / record.grossSales)}
+                          </DetailValue>
+                        </DetailRow>
+                      )}
+                    </>
                   )}
                 </>
               )
@@ -865,7 +1142,7 @@ export function DayDetailModal({
               </DetailRow>
             )}
           </DetailSection>
-        </DetailColumns>
+        )}
 
       </DetailModalContent>
     </PinModalOverlay>
