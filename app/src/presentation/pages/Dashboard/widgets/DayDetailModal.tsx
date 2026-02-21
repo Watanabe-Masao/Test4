@@ -343,9 +343,22 @@ const KpiMiniSub = styled.span`
 const HourlySection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[6]};
 `
+const HourlyChartContainer = styled.div`
+  display: flex; align-items: stretch; margin-bottom: 4px;
+`
 const HourlyChartWrap = styled.div`
   display: flex; align-items: flex-end; gap: 2px; height: 120px;
-  padding: 0 4px; margin-bottom: 4px;
+  padding: 0 4px; flex: 1; position: relative;
+`
+const HourlyCumOverlay = styled.svg`
+  position: absolute; top: 0; left: 4px; right: 4px; height: 100%;
+  pointer-events: none; overflow: visible;
+`
+const HourlyRightAxis = styled.div`
+  display: flex; flex-direction: column; justify-content: space-between;
+  align-items: flex-end; width: 36px; padding: 0 2px 0 4px;
+  font-size: 0.45rem; font-family: monospace;
+  color: ${({ theme }) => theme.colors.text4};
 `
 const HourlyBar = styled.div<{ $pct: number; $color: string }>`
   flex: 1; min-width: 0; border-radius: 2px 2px 0 0;
@@ -467,13 +480,31 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
     }))
   }, [dayRecords, selectedHour])
 
+  const totalAmt = hourlyData.reduce((s, d) => s + d.amount, 0)
+
+  // Cumulative percentages for Pareto line (must be before early return)
+  const cumData = useMemo(() => {
+    let cumAmt = 0
+    return hourlyData.map((d) => {
+      cumAmt += d.amount
+      return { hour: d.hour, cumPct: totalAmt > 0 ? (cumAmt / totalAmt) * 100 : 0 }
+    })
+  }, [hourlyData, totalAmt])
+
   if (hourlyData.length === 0) return null
 
   const maxAmt = Math.max(...hourlyData.map((d) => d.amount), 1)
-  const totalAmt = hourlyData.reduce((s, d) => s + d.amount, 0)
   const totalQty = hourlyData.reduce((s, d) => s + d.quantity, 0)
   const peakHour = hourlyData.reduce((peak, d) => d.amount > peak.amount ? d : peak, hourlyData[0])
   const selData = selectedHour != null ? hourlyData.find((d) => d.hour === selectedHour) : null
+
+  // Build SVG polyline points (computed in % of viewBox)
+  const n = hourlyData.length
+  const cumLinePoints = cumData.map((d, i) => {
+    const x = n > 1 ? (i / (n - 1)) * 100 : 50
+    const y = 100 - d.cumPct
+    return `${x},${y}`
+  }).join(' ')
 
   return (
     <HourlySection>
@@ -492,31 +523,67 @@ function HourlyChart({ dayRecords }: { dayRecords: readonly CategoryTimeSalesRec
           <SumValue>{peakHour.hour}時（{toComma(peakHour.amount)}円）</SumValue>
         </HourlySumItem>
       </HourlySummaryRow>
-      <HourlyChartWrap>
-        {hourlyData.map((d) => {
-          const pct = (d.amount / maxAmt) * 100
-          const isPeak = d.hour === peakHour.hour
-          const isSelected = d.hour === selectedHour
-          return (
-            <HourlyBar
-              key={d.hour}
-              $pct={pct}
-              $color={isSelected ? '#ec4899' : isPeak ? '#f59e0b' : '#6366f1'}
-              onMouseEnter={() => setHoveredHour(d.hour)}
-              onMouseLeave={() => setHoveredHour(null)}
-              onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
-              style={{ outline: isSelected ? '2px solid #ec4899' : undefined, outlineOffset: -1 }}
-            >
-              {hoveredHour === d.hour && !isSelected && (
-                <HourlyTooltipBox>
-                  {d.hour}時: {toComma(d.amount)}円 / {d.quantity.toLocaleString()}点
-                  <br /><span style={{ fontSize: '0.45rem', opacity: 0.7 }}>クリックで詳細表示</span>
-                </HourlyTooltipBox>
-              )}
-            </HourlyBar>
-          )
-        })}
-      </HourlyChartWrap>
+      <HourlyChartContainer>
+        <HourlyChartWrap>
+          {hourlyData.map((d) => {
+            const pct = (d.amount / maxAmt) * 100
+            const isPeak = d.hour === peakHour.hour
+            const isSelected = d.hour === selectedHour
+            const cumEntry = cumData.find((c) => c.hour === d.hour)
+            return (
+              <HourlyBar
+                key={d.hour}
+                $pct={pct}
+                $color={isSelected ? '#ec4899' : isPeak ? '#f59e0b' : '#6366f1'}
+                onMouseEnter={() => setHoveredHour(d.hour)}
+                onMouseLeave={() => setHoveredHour(null)}
+                onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
+                style={{ outline: isSelected ? '2px solid #ec4899' : undefined, outlineOffset: -1 }}
+              >
+                {hoveredHour === d.hour && !isSelected && (
+                  <HourlyTooltipBox>
+                    {d.hour}時: {toComma(d.amount)}円 / {d.quantity.toLocaleString()}点
+                    <br />累積率 {cumEntry ? cumEntry.cumPct.toFixed(2) : '0.00'}%
+                    <br /><span style={{ fontSize: '0.45rem', opacity: 0.7 }}>クリックで詳細表示</span>
+                  </HourlyTooltipBox>
+                )}
+              </HourlyBar>
+            )
+          })}
+          {/* Cumulative % line overlay */}
+          <HourlyCumOverlay viewBox="0 0 100 100" preserveAspectRatio="none">
+            {/* Horizontal gridlines at 25%, 50%, 75% */}
+            {[25, 50, 75].map((g) => (
+              <line key={g} x1="0" y1={100 - g} x2="100" y2={100 - g}
+                stroke="currentColor" strokeWidth="0.3" strokeDasharray="2,2" opacity="0.3" />
+            ))}
+            {/* Cumulative line */}
+            <polyline
+              points={cumLinePoints}
+              fill="none" stroke="#ef4444" strokeWidth="1.5"
+              strokeLinejoin="round" strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            {/* Dots at each data point */}
+            {cumData.map((d, i) => {
+              const x = n > 1 ? (i / (n - 1)) * 100 : 50
+              const y = 100 - d.cumPct
+              return (
+                <circle key={d.hour} cx={x} cy={y} r="1.5"
+                  fill="#ef4444" vectorEffect="non-scaling-stroke" />
+              )
+            })}
+          </HourlyCumOverlay>
+        </HourlyChartWrap>
+        {/* Right Y-axis for cumulative % */}
+        <HourlyRightAxis>
+          <span>100%</span>
+          <span>75%</span>
+          <span>50%</span>
+          <span>25%</span>
+          <span>0%</span>
+        </HourlyRightAxis>
+      </HourlyChartContainer>
       <HourlyAxis>
         {hourlyData.map((d) => (
           <HourlyTick key={d.hour} style={{
