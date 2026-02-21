@@ -4,18 +4,14 @@ import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'r
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
 import { AppStateProvider, useAppUi, useAppDispatch } from '@/application/context'
+import { useUiStore } from '@/application/stores/uiStore'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import { ToastProvider, useToast, PageErrorBoundary, PageSkeleton } from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
 import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
-import { useKeyboardShortcuts, useUndoRedo, useCalculation } from '@/application/hooks'
-import {
-  getPersistedMeta,
-  loadImportedData,
-  clearAllData,
-  isIndexedDBAvailable,
-} from '@/infrastructure/storage/IndexedDBStore'
-import type { PersistedMeta } from '@/infrastructure/storage/IndexedDBStore'
+import { useKeyboardShortcuts, useUndoRedo, useCalculation, usePersistence } from '@/application/hooks'
+import { I18nProvider } from '@/infrastructure/i18n'
+import { AuthProvider } from '@/application/context/AuthContext'
 import type { ViewType } from '@/domain/models'
 
 // ─── 遅延ロード: ページコンポーネント ──────────────────────
@@ -72,17 +68,26 @@ function useRouteSync() {
   const location = useLocation()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const ui = useAppUi()
+  // Zustand セレクターで currentView のみ購読（stale closure を回避）
+  const currentView = useUiStore((s) => s.currentView)
 
   // URL変更 → 状態更新
   useEffect(() => {
     const view = PATH_TO_VIEW[location.pathname]
-    if (view && view !== ui.currentView) {
+    if (view && view !== currentView) {
       dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
     }
-  }, [location.pathname, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.pathname, currentView, dispatch])
 
-  // 状態変更 → URL更新
+  // 状態変更 → URL更新（currentView が変わったら URL を同期）
+  useEffect(() => {
+    const expectedPath = VIEW_TO_PATH[currentView]
+    if (location.pathname !== expectedPath) {
+      navigate(expectedPath, { replace: true })
+    }
+  }, [currentView, location.pathname, navigate])
+
+  // ビュー切替ハンドラ
   const handleViewChange = useCallback(
     (view: ViewType) => {
       dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
@@ -90,14 +95,6 @@ function useRouteSync() {
     },
     [dispatch, navigate],
   )
-
-  // 初回マウント時に状態の currentView と URL を同期
-  useEffect(() => {
-    const currentPath = VIEW_TO_PATH[ui.currentView]
-    if (location.pathname !== currentPath) {
-      navigate(currentPath, { replace: true })
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { handleViewChange }
 }
@@ -111,40 +108,18 @@ function AppContent() {
   const { undo, redo } = useUndoRedo()
   const { handleViewChange } = useRouteSync()
   const [showSettingsFromShortcut, setShowSettingsFromShortcut] = useState(false)
-  const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
 
-  // 初回: 保存データの有無をチェック
-  useEffect(() => {
-    if (!isIndexedDBAvailable()) return
-    getPersistedMeta().then((meta) => {
-      if (meta) setRestoreMeta(meta)
-    }).catch(() => {})
-  }, [])
+  // usePersistence 経由でデータ復元（infrastructure 直接依存を排除）
+  const persistence = usePersistence()
 
   const handleRestore = useCallback(async () => {
-    if (!restoreMeta) return
-    try {
-      const data = await loadImportedData(restoreMeta.year, restoreMeta.month)
-      if (data) {
-        dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
-        dispatch({
-          type: 'UPDATE_SETTINGS',
-          payload: { targetYear: restoreMeta.year, targetMonth: restoreMeta.month },
-        })
-        showToast(`${restoreMeta.year}年${restoreMeta.month}月のデータを復元しました`, 'success')
-      }
-    } catch {
-      showToast('データの復元に失敗しました', 'error')
-    }
-    setRestoreMeta(null)
-  }, [restoreMeta, dispatch, showToast])
+    await persistence.restoreData()
+    showToast('データを復元しました', 'success')
+  }, [persistence, showToast])
 
   const handleDiscardRestore = useCallback(async () => {
-    try {
-      await clearAllData()
-    } catch { /* ignore */ }
-    setRestoreMeta(null)
-  }, [])
+    await persistence.discardSavedData()
+  }, [persistence])
 
   const handleCalculate = useCallback(() => {
     calculate()
@@ -220,9 +195,9 @@ function AppContent() {
           </Suspense>
         </PageErrorBoundary>
       </AppShell>
-      {restoreMeta && (
+      {persistence.showRestoreDialog && persistence.restoreMeta && (
         <RestoreDataModal
-          meta={restoreMeta}
+          meta={persistence.restoreMeta}
           onRestore={handleRestore}
           onDiscard={handleDiscardRestore}
         />
@@ -248,13 +223,17 @@ function App() {
     <ThemeToggleContext.Provider value={{ mode: themeMode, toggle: toggleTheme }}>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <HashRouter>
-          <AppStateProvider>
-            <ToastProvider>
-              <AppContent />
-            </ToastProvider>
-          </AppStateProvider>
-        </HashRouter>
+        <I18nProvider>
+          <AuthProvider>
+            <HashRouter>
+              <AppStateProvider>
+                <ToastProvider>
+                  <AppContent />
+                </ToastProvider>
+              </AppStateProvider>
+            </HashRouter>
+          </AuthProvider>
+        </I18nProvider>
       </ThemeProvider>
     </ThemeToggleContext.Provider>
   )

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
-import { useImport, useStoreSelection, useSettings } from '@/application/hooks'
+import { useImport, useStoreSelection, useSettings, usePersistence } from '@/application/hooks'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
@@ -22,7 +22,6 @@ import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmMo
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType, ImportedData, StoreDayRecord } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { clearAllData } from '@/infrastructure/storage/IndexedDBStore'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -280,6 +279,7 @@ export function DataManagementSidebar({
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
+  const { clearAll } = usePersistence()
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [importStage, setImportStage] = useState<ImportStage>('idle')
@@ -355,12 +355,12 @@ export function DataManagementSidebar({
   const handleClearData = useCallback(async () => {
     dispatch({ type: 'RESET' })
     try {
-      await clearAllData()
+      await clearAll()
       showToast('データをクリアしました', 'info')
     } catch {
       showToast('データクリアに失敗しました', 'error')
     }
-  }, [dispatch, showToast])
+  }, [dispatch, clearAll, showToast])
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])

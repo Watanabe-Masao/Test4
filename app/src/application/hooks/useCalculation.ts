@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import { calculateAllStores } from '../services/CalculationOrchestrator'
 import { calculationCache } from '../services/calculationCache'
@@ -16,6 +16,10 @@ export function useCalculation() {
   const { calculateAsync, isComputing, isWorkerAvailable } = useWorkerCalculation()
   const [useWorker, setUseWorker] = useState(true)
 
+  // ref で最新の state を保持（Worker の非同期コールバックで stale にならない）
+  const stateRef = useRef(state)
+  stateRef.current = state
+
   const canCalculate =
     Object.keys(state.data.purchase).length > 0 &&
     Object.keys(state.data.sales).length > 0
@@ -24,7 +28,12 @@ export function useCalculation() {
 
   const calculate = useCallback(
     () => {
-      const messages = validateImportedData(state.data)
+      // 呼び出し時点の値をスナップショットとして取得
+      const currentData = stateRef.current.data
+      const currentSettings = stateRef.current.settings
+      const currentDays = getDaysInMonth(currentSettings.targetYear, currentSettings.targetMonth)
+
+      const messages = validateImportedData(currentData)
       dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
       if (hasValidationErrors(messages)) {
@@ -32,7 +41,7 @@ export function useCalculation() {
       }
 
       // キャッシュチェック: 同一入力なら再計算をスキップ
-      const cached = calculationCache.getGlobalResult(state.data, state.settings, daysInMonth)
+      const cached = calculationCache.getGlobalResult(currentData, currentSettings, currentDays)
       if (cached) {
         dispatch({ type: 'SET_STORE_RESULTS', payload: cached })
         return true
@@ -40,27 +49,27 @@ export function useCalculation() {
 
       if (useWorker && isWorkerAvailable) {
         // Web Worker 非同期計算
-        calculateAsync(state.data, state.settings, daysInMonth)
+        calculateAsync(currentData, currentSettings, currentDays)
           .then((results) => {
-            calculationCache.setGlobalResult(state.data, state.settings, daysInMonth, results)
+            calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
             dispatch({ type: 'SET_STORE_RESULTS', payload: results })
           })
           .catch(() => {
-            // Worker失敗時はフォールバック
-            const results = calculateAllStores(state.data, state.settings, daysInMonth)
-            calculationCache.setGlobalResult(state.data, state.settings, daysInMonth, results)
+            // Worker失敗時はフォールバック（スナップショット値を使用）
+            const results = calculateAllStores(currentData, currentSettings, currentDays)
+            calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
             dispatch({ type: 'SET_STORE_RESULTS', payload: results })
           })
         return true
       }
 
       // 同期フォールバック
-      const results = calculateAllStores(state.data, state.settings, daysInMonth)
-      calculationCache.setGlobalResult(state.data, state.settings, daysInMonth, results)
+      const results = calculateAllStores(currentData, currentSettings, currentDays)
+      calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
       dispatch({ type: 'SET_STORE_RESULTS', payload: results })
       return true
     },
-    [state.data, state.settings, daysInMonth, dispatch, useWorker, isWorkerAvailable, calculateAsync],
+    [dispatch, useWorker, isWorkerAvailable, calculateAsync],
   )
 
   // データ変更時に自動計算

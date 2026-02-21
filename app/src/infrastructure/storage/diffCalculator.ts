@@ -6,41 +6,14 @@
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
-import type { ImportedData, StoreDayRecord, CategoryTimeSalesData } from '@/domain/models'
+import type { ImportedData, StoreDayRecord, CategoryTimeSalesData, FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
 import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
 
-// ─── 差分の型定義 ────────────────────────────────────────
-
-/** 単一フィールドの変更 */
-export interface FieldChange {
-  readonly storeId: string
-  readonly storeName: string
-  readonly day: number
-  readonly fieldPath: string
-  readonly oldValue: number | string | null
-  readonly newValue: number | string | null
-}
+// ドメイン層で定義された型を再エクスポート
+export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
 
 /** 変更種別 */
 export type ChangeType = 'insert' | 'modify' | 'remove'
-
-/** データ種別ごとの差分 */
-export interface DataTypeDiff {
-  readonly dataType: string
-  readonly dataTypeName: string
-  readonly inserts: readonly FieldChange[]
-  readonly modifications: readonly FieldChange[]
-  readonly removals: readonly FieldChange[]
-}
-
-/** 全体の差分結果 */
-export interface DiffResult {
-  readonly diffs: readonly DataTypeDiff[]
-  /** ユーザー確認が必要か */
-  readonly needsConfirmation: boolean
-  /** 挿入のみで確認不要のデータ種別 */
-  readonly autoApproved: readonly string[]
-}
 
 // ─── データ種別名マッピング ──────────────────────────────
 

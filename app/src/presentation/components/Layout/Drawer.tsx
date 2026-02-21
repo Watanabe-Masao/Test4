@@ -112,13 +112,12 @@ export function Drawer({
   }, [open, onClose])
 
   // ドロワーが開いている間、body スクロールを防止
+  // 元の overflow 値を保持し、閉じた際に復元する
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => { document.body.style.overflow = '' }
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
   }, [open])
 
   return (

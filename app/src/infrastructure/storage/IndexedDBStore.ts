@@ -217,12 +217,9 @@ function validateLoadedData(result: Record<string, unknown>): boolean {
 
 // ─── 公開 API ────────────────────────────────────────────
 
-/** メタデータ */
-export interface PersistedMeta {
-  readonly year: number
-  readonly month: number
-  readonly savedAt: string // ISO 8601
-}
+// ドメイン層で定義された型を再エクスポート
+export type { PersistedMeta } from '@/domain/models'
+import type { PersistedMeta } from '@/domain/models'
 
 /**
  * ImportedData を年月単位で IndexedDB に保存する。

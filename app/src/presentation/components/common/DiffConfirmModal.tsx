@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
-import type { DiffResult, DataTypeDiff, FieldChange } from '@/infrastructure/storage/diffCalculator'
+import type { DiffResult, DataTypeDiff, FieldChange } from '@/domain/models'
 
 // ─── Styled ──────────────────────────────────────────────
 

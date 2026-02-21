@@ -5,14 +5,13 @@ import {
   validateImportedData,
 } from '@/application/services/FileImportService'
 import type { ImportSummary } from '@/application/services/FileImportService'
-import type { AppSettings, DataType, ImportedData } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData, DiffResult } from '@/domain/models'
 import {
   saveImportedData,
   loadImportedData,
   isIndexedDBAvailable,
 } from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
-import type { DiffResult } from '@/infrastructure/storage/diffCalculator'
 import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
 
 /** インポート進捗 */
