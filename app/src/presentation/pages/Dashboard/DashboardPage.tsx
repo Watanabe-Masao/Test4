@@ -26,6 +26,9 @@ export function DashboardPage() {
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
 
+  // 販売データ存在範囲の検出（スライダーデフォルト値用）
+  const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
+
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -116,10 +119,6 @@ export function DashboardPage() {
   }
 
   const r = currentResult
-
-  // 販売データ存在範囲の検出（スライダーデフォルト値用）
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
   // Build chart data
   const salesDaily = new Map<number, number>()
