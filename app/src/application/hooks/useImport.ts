@@ -5,14 +5,14 @@ import {
   validateImportedData,
 } from '@/application/services/FileImportService'
 import type { ImportSummary } from '@/application/services/FileImportService'
-import type { AppSettings, DataType, ImportedData, DiffResult } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 import {
   saveImportedData,
   loadImportedData,
   isIndexedDBAvailable,
 } from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
-import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
 
 /** インポート進捗 */
 export interface ImportProgress {
@@ -84,7 +84,9 @@ export function useImport() {
 
           // インポートされたデータ種別を特定
           const importedTypes = new Set<string>(
-            summary.results.filter((r) => r.ok && r.type).map((r) => r.type!),
+            summary.results
+              .filter((r): r is typeof r & { type: DataType } => r.ok && r.type !== null)
+              .map((r) => r.type),
           )
           // salesDiscount → sales + discount として扱う
           if (importedTypes.has('salesDiscount')) {
@@ -206,6 +208,58 @@ export function useImport() {
 
 // ─── 挿入のみマージ ─────────────────────────────────────
 
+/** StoreDayRecord の挿入のみマージ（既存キーは上書きしない） */
+function mergeStoreDayRecords<T>(
+  existing: { readonly [storeId: string]: { readonly [day: number]: T } },
+  incoming: { readonly [storeId: string]: { readonly [day: number]: T } },
+): { readonly [storeId: string]: { readonly [day: number]: T } } {
+  if (Object.keys(existing).length === 0) return incoming
+  if (Object.keys(incoming).length === 0) return existing
+
+  const merged: Record<string, Record<number, T>> = { ...existing }
+  for (const [storeId, incomingDays] of Object.entries(incoming)) {
+    if (!merged[storeId]) {
+      merged[storeId] = incomingDays
+    } else {
+      const mergedDays: Record<number, T> = { ...merged[storeId] }
+      for (const [dayStr, entry] of Object.entries(incomingDays)) {
+        const day = Number(dayStr)
+        if (!mergedDays[day]) {
+          mergedDays[day] = entry
+        }
+      }
+      merged[storeId] = mergedDays
+    }
+  }
+  return merged
+}
+
+/** CategoryTimeSalesData の挿入のみマージ */
+function mergeCTSInserts(
+  existing: CategoryTimeSalesData,
+  incoming: CategoryTimeSalesData,
+): CategoryTimeSalesData {
+  if (existing.records.length === 0) return incoming
+  if (incoming.records.length === 0) return existing
+  const existingKeys = new Set(existing.records.map(categoryTimeSalesRecordKey))
+  const newRecords = incoming.records.filter(
+    (r) => !existingKeys.has(categoryTimeSalesRecordKey(r)),
+  )
+  return { records: [...existing.records, ...newRecords] }
+}
+
+/** ReadonlyMap の挿入のみマージ */
+function mergeMapInserts<K, V>(
+  existing: ReadonlyMap<K, V>,
+  incoming: ReadonlyMap<K, V>,
+): ReadonlyMap<K, V> {
+  const merged = new Map(existing)
+  for (const [k, v] of incoming) {
+    if (!merged.has(k)) merged.set(k, v)
+  }
+  return merged
+}
+
 /**
  * 既存データに新規挿入分のみをマージして返す。
  * 既存に値がある場合は変更しない。
@@ -215,100 +269,23 @@ export function mergeInsertsOnly(
   incoming: ImportedData,
   importedTypes: ReadonlySet<string>,
 ): ImportedData {
-  const result = { ...existing }
-  const storeDayFields: readonly { field: keyof ImportedData; type: string }[] = [
-    { field: 'purchase', type: 'purchase' },
-    { field: 'sales', type: 'sales' },
-    { field: 'discount', type: 'discount' },
-    { field: 'prevYearSales', type: 'prevYearSales' },
-    { field: 'prevYearDiscount', type: 'prevYearDiscount' },
-    { field: 'interStoreIn', type: 'interStoreIn' },
-    { field: 'interStoreOut', type: 'interStoreOut' },
-    { field: 'flowers', type: 'flowers' },
-    { field: 'directProduce', type: 'directProduce' },
-    { field: 'consumables', type: 'consumables' },
-  ]
+  const has = (t: string) => importedTypes.has(t)
 
-  for (const { field, type } of storeDayFields) {
-    if (!importedTypes.has(type)) continue
-
-    const existingRecord = existing[field] as Record<string, Record<number, unknown>>
-    const incomingRecord = incoming[field] as Record<string, Record<number, unknown>>
-
-    if (Object.keys(existingRecord).length === 0) {
-      ;(result as Record<string, unknown>)[field] = incomingRecord
-      continue
-    }
-
-    if (Object.keys(incomingRecord).length === 0) continue
-
-    const merged: Record<string, Record<number, unknown>> = { ...existingRecord }
-    for (const [storeId, incomingDays] of Object.entries(incomingRecord)) {
-      if (!merged[storeId]) {
-        merged[storeId] = incomingDays
-      } else {
-        const mergedDays = { ...merged[storeId] }
-        for (const [dayStr, entry] of Object.entries(incomingDays)) {
-          const day = Number(dayStr)
-          if (!mergedDays[day]) {
-            mergedDays[day] = entry
-          }
-        }
-        merged[storeId] = mergedDays
-      }
-    }
-    ;(result as Record<string, unknown>)[field] = merged
+  return {
+    ...existing,
+    purchase: has('purchase') ? mergeStoreDayRecords(existing.purchase, incoming.purchase) : existing.purchase,
+    sales: has('sales') ? mergeStoreDayRecords(existing.sales, incoming.sales) : existing.sales,
+    discount: has('discount') ? mergeStoreDayRecords(existing.discount, incoming.discount) : existing.discount,
+    prevYearSales: has('prevYearSales') ? mergeStoreDayRecords(existing.prevYearSales, incoming.prevYearSales) : existing.prevYearSales,
+    prevYearDiscount: has('prevYearDiscount') ? mergeStoreDayRecords(existing.prevYearDiscount, incoming.prevYearDiscount) : existing.prevYearDiscount,
+    interStoreIn: has('interStoreIn') ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn) : existing.interStoreIn,
+    interStoreOut: has('interStoreOut') ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut) : existing.interStoreOut,
+    flowers: has('flowers') ? mergeStoreDayRecords(existing.flowers, incoming.flowers) : existing.flowers,
+    directProduce: has('directProduce') ? mergeStoreDayRecords(existing.directProduce, incoming.directProduce) : existing.directProduce,
+    consumables: has('consumables') ? mergeStoreDayRecords(existing.consumables, incoming.consumables) : existing.consumables,
+    categoryTimeSales: has('categoryTimeSales') ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales) : existing.categoryTimeSales,
+    prevYearCategoryTimeSales: has('prevYearCategoryTimeSales') ? mergeCTSInserts(existing.prevYearCategoryTimeSales, incoming.prevYearCategoryTimeSales) : existing.prevYearCategoryTimeSales,
+    stores: mergeMapInserts(existing.stores, incoming.stores),
+    suppliers: mergeMapInserts(existing.suppliers, incoming.suppliers),
   }
-
-  // categoryTimeSales: フラット配列形式のため個別処理
-  if (importedTypes.has('categoryTimeSales')) {
-    const existingCTS = existing.categoryTimeSales
-    const incomingCTS = incoming.categoryTimeSales
-
-    if (existingCTS.records.length === 0) {
-      ;(result as Record<string, unknown>).categoryTimeSales = incomingCTS
-    } else if (incomingCTS.records.length > 0) {
-      // 既存にないレコードのみ追加（keep-existing）
-      const existingKeys = new Set(existingCTS.records.map(categoryTimeSalesRecordKey))
-      const newRecords = incomingCTS.records.filter(
-        (r) => !existingKeys.has(categoryTimeSalesRecordKey(r)),
-      )
-      ;(result as Record<string, unknown>).categoryTimeSales = {
-        records: [...existingCTS.records, ...newRecords],
-      }
-    }
-  }
-
-  // prevYearCategoryTimeSales: 前年分類別時間帯売上
-  if (importedTypes.has('prevYearCategoryTimeSales')) {
-    const existingPCTS = existing.prevYearCategoryTimeSales
-    const incomingPCTS = incoming.prevYearCategoryTimeSales
-
-    if (existingPCTS.records.length === 0) {
-      ;(result as Record<string, unknown>).prevYearCategoryTimeSales = incomingPCTS
-    } else if (incomingPCTS.records.length > 0) {
-      const existingKeys = new Set(existingPCTS.records.map(categoryTimeSalesRecordKey))
-      const newRecords = incomingPCTS.records.filter(
-        (r) => !existingKeys.has(categoryTimeSalesRecordKey(r)),
-      )
-      ;(result as Record<string, unknown>).prevYearCategoryTimeSales = {
-        records: [...existingPCTS.records, ...newRecords],
-      }
-    }
-  }
-
-  // stores, suppliers は新規追加のみ
-  const mergedStores = new Map(existing.stores)
-  for (const [k, v] of incoming.stores) {
-    if (!mergedStores.has(k)) mergedStores.set(k, v)
-  }
-  ;(result as Record<string, unknown>).stores = mergedStores
-
-  const mergedSuppliers = new Map(existing.suppliers)
-  for (const [k, v] of incoming.suppliers) {
-    if (!mergedSuppliers.has(k)) mergedSuppliers.set(k, v)
-  }
-  ;(result as Record<string, unknown>).suppliers = mergedSuppliers
-
-  return result as ImportedData
 }

@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
-import { useSettings } from '@/application/hooks'
+import { useSettings, useStorageAdmin } from '@/application/hooks'
 import { useAppState, useAppDispatch } from '@/application/context'
 import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
-import { listStoredMonths } from '@/infrastructure/storage/IndexedDBStore'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 
 // ─── Styled Components ──────────────────────────────────
@@ -175,6 +174,7 @@ export function PrevYearMappingTab() {
   const { settings, updateSettings } = useSettings()
   const state = useAppState()
   const dispatch = useAppDispatch()
+  const { listMonths } = useStorageAdmin()
   const { targetYear, targetMonth } = settings
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
@@ -195,8 +195,8 @@ export function PrevYearMappingTab() {
 
   // IndexedDB の利用可能月をロード
   useEffect(() => {
-    listStoredMonths().then(setAvailableMonths).catch(() => setAvailableMonths([]))
-  }, [])
+    listMonths().then(setAvailableMonths).catch(() => setAvailableMonths([]))
+  }, [listMonths])
 
   // 前年データの有無
   const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0

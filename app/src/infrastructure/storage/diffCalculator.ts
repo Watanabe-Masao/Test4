@@ -7,7 +7,7 @@
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
 import type { ImportedData, StoreDayRecord, CategoryTimeSalesData, FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
-import { categoryTimeSalesRecordKey } from '@/infrastructure/dataProcessing/CategoryTimeSalesProcessor'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 
 // ドメイン層で定義された型を再エクスポート
 export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'

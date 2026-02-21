@@ -1,6 +1,7 @@
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 
 /**
  * コード:名称 のペアをパースする
@@ -160,11 +161,6 @@ export function processCategoryTimeSales(
   }
 
   return { records }
-}
-
-/** レコードの重複判定用キーを生成する */
-export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string {
-  return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
 }
 
 /**

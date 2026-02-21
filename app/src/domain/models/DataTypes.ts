@@ -68,6 +68,11 @@ export interface CategoryTimeSalesData {
   readonly records: readonly CategoryTimeSalesRecord[]
 }
 
+/** CategoryTimeSalesRecord の一意キーを生成する */
+export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string {
+  return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
+}
+
 /** 売変パース結果: storeId → day → DiscountDayEntry */
 export type DiscountData = StoreDayRecord<DiscountDayEntry>
 
