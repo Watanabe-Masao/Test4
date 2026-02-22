@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, countDowInRange } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -201,27 +201,17 @@ export function TimeSlotYoYComparisonChart({
       }
     }
 
-    // 除数: dowAvg は実際のデータ日数ベースで当年・前年を別々に計算
+    // ── 除数: 当年・前年それぞれの実データ日数から個別に算出 ──
+    //
+    // カレンダー上の曜日カウントではなく、実際にデータが存在する日数を数える。
+    // 例: 当年2月に月曜5回あっても、データが4日分しかなければ除数は4。
+    //     前年は月曜4回でデータも4日分なら除数は4。
+    // これにより欠損日・データカバレッジの差を正しく反映する。
     let curDiv = 1
     let prevDiv = 1
-    if (pf.mode === 'dowAvg') {
-      // 実データがある日のうち選択曜日にマッチする日数で除算
-      const dowCounts = countDowInRange(year, month, pf.dayRange[0], pf.dayRange[1])
-      if (pf.selectedDows.size > 0) {
-        let cnt = 0
-        for (const dow of pf.selectedDows) cnt += dowCounts.get(dow) ?? 0
-        curDiv = cnt > 0 ? cnt : 1
-        prevDiv = cnt > 0 ? cnt : 1
-      } else {
-        // 全曜日 → 実データ重複日数で除算
-        const overlapDays = new Set([...curDays].filter((d) => prevDays.has(d)))
-        const dayCount = overlapDays.size > 0 ? overlapDays.size : 1
-        curDiv = dayCount
-        prevDiv = dayCount
-      }
-    } else if (pf.mode === 'dailyAvg') {
-      curDiv = pf.divisor
-      prevDiv = pf.divisor
+    if (pf.mode === 'dowAvg' || pf.mode === 'dailyAvg') {
+      curDiv = curDays.size > 0 ? curDays.size : 1
+      prevDiv = prevDays.size > 0 ? prevDays.size : 1
     }
 
     // 時間帯一覧
@@ -289,7 +279,7 @@ export function TimeSlotYoYComparisonChart({
       },
       tableRows,
     }
-  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf, year, month])
+  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf])
 
   if (chartData.length === 0) return null
 

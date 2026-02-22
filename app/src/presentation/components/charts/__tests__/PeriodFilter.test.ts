@@ -221,3 +221,110 @@ describe('閏年・境界値テスト', () => {
     expect(janCounts.get(4)).toBe(5) // 1月: 木曜5回
   })
 })
+
+/* ── 前年比較チャートの個別除算検証 ─────────────────── */
+
+describe('前年比較: 当年・前年の実データ日数に基づく個別除算', () => {
+  /**
+   * TimeSlotYoYComparisonChart の除算ロジックをシミュレートする。
+   * 実データから日数をカウントし、当年・前年で独立した除数を使う。
+   */
+  function computeAverage(
+    totalAmount: number,
+    actualDataDays: Set<number>,
+  ): number {
+    const divisor = actualDataDays.size > 0 ? actualDataDays.size : 1
+    return Math.round(totalAmount / divisor)
+  }
+
+  it('当年5日/前年4日のデータで平均が個別に計算される', () => {
+    // 当年: 月曜5日分のデータ、売上合計 500,000
+    const curDays = new Set([2, 9, 16, 23, 30]) // 5 Mondays
+    const curTotal = 500_000
+    const curAvg = computeAverage(curTotal, curDays)
+
+    // 前年: 月曜4日分のデータ、売上合計 400,000
+    const prevDays = new Set([3, 10, 17, 24]) // 4 Mondays
+    const prevTotal = 400_000
+    const prevAvg = computeAverage(prevTotal, prevDays)
+
+    // 当年: 500,000 / 5 = 100,000
+    expect(curAvg).toBe(100_000)
+    // 前年: 400,000 / 4 = 100,000
+    expect(prevAvg).toBe(100_000)
+
+    // 合計だけ見ると当年が25%多いが、平均（1日あたり）は同額
+    // → 一律除算だと誤った比較になる
+    expect(curTotal).toBeGreaterThan(prevTotal)
+    expect(curAvg).toBe(prevAvg) // 平均は同じ
+  })
+
+  it('一律除算（同じ除数）だと誤った結果になるケースを検出', () => {
+    // 当年: 5日分、合計500,000
+    const curDays = new Set([2, 9, 16, 23, 30])
+    const curTotal = 500_000
+
+    // 前年: 4日分、合計400,000
+    const prevDays = new Set([3, 10, 17, 24])
+    const prevTotal = 400_000
+
+    // 【正しい】個別除算: 100,000 vs 100,000 → 前年比 100%
+    const curAvgCorrect = computeAverage(curTotal, curDays)
+    const prevAvgCorrect = computeAverage(prevTotal, prevDays)
+    const ratioCorrect = curAvgCorrect / prevAvgCorrect
+
+    // 【間違い】一律除算（当年の5で両方割る）: 100,000 vs 80,000 → 前年比 125%
+    const uniformDiv = curDays.size
+    const curAvgWrong = Math.round(curTotal / uniformDiv)
+    const prevAvgWrong = Math.round(prevTotal / uniformDiv)
+    const ratioWrong = curAvgWrong / prevAvgWrong
+
+    expect(ratioCorrect).toBeCloseTo(1.0, 2) // 正しい: 100%
+    expect(ratioWrong).toBeCloseTo(1.25, 2)  // 間違い: 125%
+
+    // 一律除算は実態を歪める
+    expect(ratioCorrect).not.toBeCloseTo(ratioWrong, 1)
+  })
+
+  it('片方にデータ欠損日がある場合でも安全に計算', () => {
+    // 当年: 3日分（1日欠損）
+    const curDays = new Set([2, 9, 23]) // 16日が欠損
+    const curTotal = 300_000
+
+    // 前年: 4日分（欠損なし）
+    const prevDays = new Set([3, 10, 17, 24])
+    const prevTotal = 400_000
+
+    const curAvg = computeAverage(curTotal, curDays)
+    const prevAvg = computeAverage(prevTotal, prevDays)
+
+    expect(curAvg).toBe(100_000)  // 300,000 / 3
+    expect(prevAvg).toBe(100_000) // 400,000 / 4
+  })
+
+  it('データが0日の場合は除数1（0除算防止）', () => {
+    const emptyDays = new Set<number>()
+    const avg = computeAverage(100_000, emptyDays)
+    expect(avg).toBe(100_000) // 0除算せず値がそのまま返る
+  })
+
+  it('当年・前年のデータ日数が大きく異なるケース', () => {
+    // 当年: 20日分、売上合計 2,000,000
+    const curDays = new Set(Array.from({ length: 20 }, (_, i) => i + 1))
+    const curTotal = 2_000_000
+
+    // 前年: 10日分（月の半分で閉店等）、売上合計 1_000,000
+    const prevDays = new Set(Array.from({ length: 10 }, (_, i) => i + 1))
+    const prevTotal = 1_000_000
+
+    const curAvg = computeAverage(curTotal, curDays)   // 2,000,000 / 20 = 100,000
+    const prevAvg = computeAverage(prevTotal, prevDays) // 1,000,000 / 10 = 100,000
+
+    expect(curAvg).toBe(100_000)
+    expect(prevAvg).toBe(100_000)
+
+    // 合計は2倍だが、日平均は同じ
+    expect(curTotal / prevTotal).toBe(2)
+    expect(curAvg / prevAvg).toBe(1)
+  })
+})
