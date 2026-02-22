@@ -198,7 +198,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     items.push({ name: '当年売上', value: curSales, base: 0, bar: curSales, isTotal: true })
     return items
-  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
+  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, ctx.categoryTimeSales?.records, ctx.prevYearCategoryTimeSales?.records])
 
   // Category-based decomposition data
   const categoryData = useMemo((): WaterfallItem[] => {
