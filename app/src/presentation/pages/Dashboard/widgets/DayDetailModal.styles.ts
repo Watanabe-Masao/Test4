@@ -266,16 +266,15 @@ export const HourlyChartContainer = styled.div`
   display: flex; align-items: stretch; margin-bottom: 2px; padding: 0 4px;
 `
 export const HourlyChartWrap = styled.div`
-  display: grid; height: 200px; flex: 1;
+  position: relative; height: 200px; flex: 1; overflow: hidden;
 `
 export const HourlyBarArea = styled.div`
-  display: flex; align-items: flex-end; height: 100%;
-  grid-row: 1; grid-column: 1; min-width: 0;
+  position: absolute; inset: 0;
+  display: flex; align-items: flex-end;
 `
 export const HourlyCumOverlay = styled.svg`
-  grid-row: 1; grid-column: 1;
-  width: 100%; height: 100%;
-  pointer-events: none; overflow: visible;
+  position: absolute; inset: 0;
+  pointer-events: none;
 `
 export const HourlyRightAxis = styled.div`
   display: flex; flex-direction: column; justify-content: space-between;
@@ -318,6 +317,7 @@ export const HourlySumItem = styled.div`
 /* ── Hourly Detail styled components ────── */
 
 export const HourlyDetailPanel = styled.div`
+  position: relative; z-index: 1;
   margin-top: ${({ theme }) => theme.spacing[4]};
   padding: ${({ theme }) => theme.spacing[3]};
   background: ${({ theme }) => theme.colors.bg3};
