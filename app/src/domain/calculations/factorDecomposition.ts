@@ -191,7 +191,7 @@ export function decomposePriceMix(
  * n=4 のシャープリー重み: k=0→¼, k=1→1/12, k=2→1/12, k=3→¼
  */
 export function decompose5(
-  prevSales: number, curSales: number,
+  _prevSales: number, _curSales: number,
   prevCust: number, curCust: number,
   prevTotalQty: number, curTotalQty: number,
   curCategories: readonly CategoryQtyAmt[],
