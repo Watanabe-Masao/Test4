@@ -1,5 +1,6 @@
 import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
+import { safeDivide } from './utils'
 
 export interface PinInterval {
   readonly startDay: number
@@ -41,7 +42,7 @@ export function calculatePinIntervals(
     }
     const cogs = prevInventory + totalPurchaseCost - closingInv
     const grossProfit = totalSales - cogs
-    const grossProfitRate = totalSales > 0 ? grossProfit / totalSales : 0
+    const grossProfitRate = safeDivide(grossProfit, totalSales, 0)
     intervals.push({
       startDay: prevDay + 1, endDay: day,
       openingInventory: prevInventory, closingInventory: closingInv,

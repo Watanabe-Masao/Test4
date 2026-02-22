@@ -47,9 +47,8 @@ export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
   } = input
 
   // 粗売上 = コア売上 / (1 - 売変率)
-  // 売変率が1の場合はコア売上をそのまま使用
-  const divisor = 1 - discountRate
-  const grossSales = divisor > 0 ? coreSales / divisor : coreSales
+  // 売変率が1の場合はコア売上をそのまま使用（safeDivide fallback）
+  const grossSales = safeDivide(coreSales, 1 - discountRate, coreSales)
 
   // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
   const cogs = grossSales * (1 - markupRate) + consumableCost

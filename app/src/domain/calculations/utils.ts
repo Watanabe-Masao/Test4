@@ -52,7 +52,7 @@ export function formatPointDiff(n: number | null, decimals = 1): string {
  * 客単価（1客あたり売上）を計算する
  */
 export function calculateTransactionValue(sales: number, customers: number): number {
-  return customers > 0 ? Math.round(sales / customers) : 0
+  return Math.round(safeDivide(sales, customers, 0))
 }
 
 /**

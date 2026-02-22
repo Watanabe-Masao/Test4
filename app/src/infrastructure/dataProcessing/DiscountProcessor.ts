@@ -1,5 +1,6 @@
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
+import { detectDaysInTargetMonth, resolveDay } from './overflowDay'
 import type { DiscountData } from '@/domain/models'
 
 export type { DiscountData } from '@/domain/models'
@@ -92,17 +93,10 @@ export function processDiscount(
   const columnMap = buildColumnMap(rows[0] as unknown[])
 
   // overflowDays > 0 の場合、対象月の日数を特定する（翌月データの拡張day算出用）
-  let daysInTargetMonth = 0
-  if (targetMonth != null && overflowDays > 0) {
-    for (let row = 2; row < rows.length; row++) {
-      const d = parseDate((rows[row] as unknown[])[0])
-      if (d && d.getMonth() + 1 === targetMonth) {
-        daysInTargetMonth = new Date(d.getFullYear(), targetMonth, 0).getDate()
-        break
-      }
-    }
-  }
-  const nextMonth = targetMonth != null ? (targetMonth % 12) + 1 : 0
+  const daysInTargetMonth =
+    targetMonth != null && overflowDays > 0
+      ? detectDaysInTargetMonth(rows, 0, 2, targetMonth)
+      : 0
 
   // データ行処理（行2以降）
   for (let row = 2; row < rows.length; row++) {
@@ -110,25 +104,8 @@ export function processDiscount(
     const date = parseDate(r[0])
     if (date == null) continue
 
-    let day: number
-    if (targetMonth == null) {
-      day = date.getDate()
-    } else {
-      const dateMonth = date.getMonth() + 1
-      if (dateMonth === targetMonth) {
-        day = date.getDate()
-      } else if (
-        overflowDays > 0 &&
-        daysInTargetMonth > 0 &&
-        dateMonth === nextMonth &&
-        date.getDate() <= overflowDays
-      ) {
-        // 翌月先頭を拡張day番号として取り込む（例: 3/1 → day 29）
-        day = daysInTargetMonth + date.getDate()
-      } else {
-        continue
-      }
-    }
+    const day = resolveDay(date, targetMonth, daysInTargetMonth, overflowDays)
+    if (day == null) continue
 
     for (const { storeId, salesCol, discountCol, customersCol } of columnMap) {
       const sales = safeNumber(r[salesCol])
