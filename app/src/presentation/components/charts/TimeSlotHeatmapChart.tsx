@@ -2,7 +2,7 @@ import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, countDowInRange, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -153,7 +153,18 @@ const LegendBar = styled.div<{ $type: 'amount' | 'diff' }>`
 
 type HeatmapMode = 'amount' | 'yoyDiff'
 
-/** hour → dow → amount の集計を行う共通関数 */
+/**
+ * hour → dow → amount の集計を行う共通関数。
+ *
+ * ## 除数の算出（重要）
+ *
+ * dowAvg モードでは曜日ごとに異なる除数が必要。
+ * カレンダーベースの `countDowInRange` ではなく、実際にデータが存在する
+ * 日の曜日をカウントして除数とする。これにより店休日やデータ欠損日が
+ * 除数に含まれず、正確な曜日別平均が算出される。
+ *
+ * dailyAvg モードでも同様に、実データの distinct day 数で除算する。
+ */
 function buildHourDowMatrix(
   records: readonly CategoryTimeSalesRecord[],
   selectedStoreIds: ReadonlySet<string>,
@@ -167,9 +178,13 @@ function buildHourDowMatrix(
   const hourSet = new Set<number>()
   const filtered = hf.applyFilter(filterByHierarchy(records, filter))
 
+  // 実データから曜日ごとの distinct day をカウント（データ駆動型除数）
+  const dowDaySet = new Map<number, Set<number>>() // dow -> Set<day>
   for (const rec of filtered) {
     if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
     const dow = new Date(year, month - 1, rec.day).getDay()
+    if (!dowDaySet.has(dow)) dowDaySet.set(dow, new Set())
+    dowDaySet.get(dow)!.add(rec.day)
     for (const slot of rec.timeSlots) {
       hourSet.add(slot.hour)
       if (!map.has(slot.hour)) map.set(slot.hour, new Map())
@@ -178,20 +193,20 @@ function buildHourDowMatrix(
     }
   }
 
-  const dowCounts = pf.mode === 'dowAvg'
-    ? countDowInRange(year, month, pf.dayRange[0], pf.dayRange[1])
-    : null
-  const dailyDiv = pf.mode === 'dailyAvg' ? pf.divisor : 1
+  // 全体の distinct day 数（dailyAvg 用）【TR-DIV-001】
+  const allDays = new Set<number>()
+  for (const days of dowDaySet.values()) for (const d of days) allDays.add(d)
 
   const hours = [...hourSet].sort((a, b) => a - b)
   const matrix: number[][] = hours.map((h) => {
     return DOW_LABELS.map((_, dow) => {
       const raw = map.get(h)?.get(dow) ?? 0
-      if (dowCounts) {
-        const cnt = dowCounts.get(dow) ?? 1
-        return Math.round(raw / cnt)
-      }
-      return Math.round(raw / dailyDiv)
+      // dowAvg: 曜日ごとの実データ日数を除数とする
+      // dailyAvg/total: 全体の distinct day 数を除数とする（computeDivisor が total→1 を保証）
+      const dayCount = pf.mode === 'dowAvg'
+        ? (dowDaySet.get(dow)?.size ?? 0)
+        : allDays.size
+      return Math.round(raw / computeDivisor(dayCount, pf.mode))
     })
   })
 

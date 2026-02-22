@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -175,8 +175,11 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
       filtered = filtered.filter((r) => r.department.code === deptFilter)
     }
 
+    // 実データの distinct day から除数を算出（カレンダーベースではなく実データベース）
+    const days = new Set<number>()
     for (const rec of filtered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+      days.add(rec.day)
 
       let deptKey: string, deptName: string
       if (groupLevel === 'department') {
@@ -197,6 +200,8 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
       }
     }
 
+    const dataDivisor = computeDivisor(days.size, pf.mode)
+
     const deptTotals = [...deptHourMap.entries()].map(([code, hourMap]) => ({
       code,
       name: deptNames.get(code) ?? code,
@@ -210,7 +215,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const dept of topDepts) {
-        entry[dept.name] = pf.divideByMode(dept.hourMap.get(h) ?? 0)
+        entry[dept.name] = Math.round((dept.hourMap.get(h) ?? 0) / dataDivisor)
       }
       return entry
     })

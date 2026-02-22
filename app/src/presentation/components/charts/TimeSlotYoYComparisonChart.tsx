@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, countDowInRange } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -201,28 +201,9 @@ export function TimeSlotYoYComparisonChart({
       }
     }
 
-    // 除数: dowAvg は実際のデータ日数ベースで当年・前年を別々に計算
-    let curDiv = 1
-    let prevDiv = 1
-    if (pf.mode === 'dowAvg') {
-      // 実データがある日のうち選択曜日にマッチする日数で除算
-      const dowCounts = countDowInRange(year, month, pf.dayRange[0], pf.dayRange[1])
-      if (pf.selectedDows.size > 0) {
-        let cnt = 0
-        for (const dow of pf.selectedDows) cnt += dowCounts.get(dow) ?? 0
-        curDiv = cnt > 0 ? cnt : 1
-        prevDiv = cnt > 0 ? cnt : 1
-      } else {
-        // 全曜日 → 実データ重複日数で除算
-        const overlapDays = new Set([...curDays].filter((d) => prevDays.has(d)))
-        const dayCount = overlapDays.size > 0 ? overlapDays.size : 1
-        curDiv = dayCount
-        prevDiv = dayCount
-      }
-    } else if (pf.mode === 'dailyAvg') {
-      curDiv = pf.divisor
-      prevDiv = pf.divisor
-    }
+    // 除数: 当年・前年それぞれの実データ日数から個別に算出【TR-DIV-001】
+    const curDiv = computeDivisor(curDays.size, pf.mode)
+    const prevDiv = computeDivisor(prevDays.size, pf.mode)
 
     // 時間帯一覧
     const allHours = new Set([...curHourly.keys(), ...prevHourly.keys()])
@@ -289,7 +270,7 @@ export function TimeSlotYoYComparisonChart({
       },
       tableRows,
     }
-  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf, year, month])
+  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf])
 
   if (chartData.length === 0) return null
 

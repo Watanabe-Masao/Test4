@@ -20,7 +20,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -148,7 +148,10 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     const hourSet = new Set<number>()
     const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
 
+    // 実データの distinct day から除数を算出
+    const days = new Set<number>()
     for (const rec of filtered) {
+      days.add(rec.day)
       if (!storeHourMap.has(rec.storeId)) storeHourMap.set(rec.storeId, new Map())
       const hourMap = storeHourMap.get(rec.storeId)!
       for (const slot of rec.timeSlots) {
@@ -156,6 +159,8 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
         hourMap.set(slot.hour, (hourMap.get(slot.hour) ?? 0) + slot.amount)
       }
     }
+
+    const dataDivisor = computeDivisor(days.size, pf.mode)
 
     const hours = [...hourSet].sort((a, b) => a - b)
     const storeIds = [...storeHourMap.keys()]
@@ -168,7 +173,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     const storeTotals = new Map<string, number>()
     for (const s of storeNames) {
       const hourMap = storeHourMap.get(s.id)!
-      const total = pf.divideByMode([...hourMap.values()].reduce((sum, v) => sum + v, 0))
+      const total = Math.round([...hourMap.values()].reduce((sum, v) => sum + v, 0) / dataDivisor)
       storeTotals.set(s.name, total)
     }
 
@@ -176,18 +181,18 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const s of storeNames) {
-        entry[s.name] = pf.divideByMode(storeHourMap.get(s.id)?.get(h) ?? 0)
+        entry[s.name] = Math.round((storeHourMap.get(s.id)?.get(h) ?? 0) / dataDivisor)
       }
       return entry
     })
 
-    // 構成比ベースデータ
+    // 構成比ベースデータ（構成比は除数の影響を受けない: 分子分母が同じ除数でキャンセルされるため）
     const dataPct = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const s of storeNames) {
         const amt = storeHourMap.get(s.id)?.get(h) ?? 0
-        const total = storeTotals.get(s.name) ?? 1
-        entry[s.name] = total > 0 ? Math.round((amt / total) * 1000) / 10 : 0
+        const rawTotal = [...(storeHourMap.get(s.id)?.values() ?? [])].reduce((sum, v) => sum + v, 0)
+        entry[s.name] = rawTotal > 0 ? Math.round((amt / rawTotal) * 1000) / 10 : 0
       }
       return entry
     })

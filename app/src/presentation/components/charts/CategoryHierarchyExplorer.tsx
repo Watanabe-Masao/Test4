@@ -8,7 +8,7 @@ import {
   filterByHierarchy,
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -312,16 +312,25 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
     // Prev year aggregation
     const prevMap = hasPrevYear ? aggregateByLevel(filteredPrevRecords, currentLevel) : null
 
-    const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / pf.divisor
+    // 実データの distinct day から除数を算出（当年・前年で個別にカウント）【TR-DIV-001】
+    const curDays = new Set<number>()
+    for (const rec of filteredRecords) curDays.add(rec.day)
+    const curDiv = computeDivisor(curDays.size, pf.mode)
+
+    const prevDays = new Set<number>()
+    for (const rec of filteredPrevRecords) prevDays.add(rec.day)
+    const prevDiv = computeDivisor(prevDays.size, pf.mode)
+
+    const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / curDiv
     return [...map.values()].map((it): HierarchyItem => {
-      const hp = Array.from({ length: 24 }, (_, h) => pf.divideByMode(it.hours.get(h) ?? 0))
+      const hp = Array.from({ length: 24 }, (_, h) => Math.round((it.hours.get(h) ?? 0) / curDiv))
       const mx = Math.max(...hp)
-      const amt = pf.divideByMode(it.amount)
-      const qty = pf.divideByMode(it.quantity)
+      const amt = Math.round(it.amount / curDiv)
+      const qty = Math.round(it.quantity / curDiv)
 
       const prev = prevMap?.get(it.code)
-      const prevAmt = prev ? pf.divideByMode(prev.amount) : undefined
-      const prevQty = prev ? pf.divideByMode(prev.quantity) : undefined
+      const prevAmt = prev ? Math.round(prev.amount / prevDiv) : undefined
+      const prevQty = prev ? Math.round(prev.quantity / prevDiv) : undefined
 
       // コアタイム & 折り返し時間帯
       const hourMap = new Map<number, number>()
