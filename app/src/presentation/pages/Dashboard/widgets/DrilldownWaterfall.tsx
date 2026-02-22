@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
 import { formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 
@@ -44,7 +45,7 @@ interface WaterfallItem {
   isTotal?: boolean
 }
 
-type ViewMode = 'factor' | 'category'
+type ViewMode = 'factor' | 'category' | 'categoryFactor'
 
 export function DrilldownWaterfall({
   actual, pySales, dayCust, pyCust,
@@ -210,6 +211,7 @@ export function DrilldownWaterfall({
   if (pySales <= 0 || factorData.length === 0) return null
 
   const hasCategoryView = categoryData.length > 0
+  const hasCategoryFactorView = hasQuantity && dayRecords.length > 0 && prevDayRecords.length > 0
   const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
 
   const colors = {
@@ -222,63 +224,78 @@ export function DrilldownWaterfall({
     <Section>
       <DetailSectionTitle>前年比較ウォーターフォール</DetailSectionTitle>
 
-      {hasCategoryView && (
+      {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
             {hasQuantity ? '客数・点数・単価' : '客数・客単価'}
           </TabBtn>
-          <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
-            部門別増減
-          </TabBtn>
+          {hasCategoryView && (
+            <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
+              部門別増減
+            </TabBtn>
+          )}
+          {hasCategoryFactorView && (
+            <TabBtn $active={viewMode === 'categoryFactor'} onClick={() => setViewMode('categoryFactor')}>
+              部門別要因
+            </TabBtn>
+          )}
         </TabRow>
       )}
 
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={240}>
-        <BarChart data={data} margin={{ top: 16, right: 12, left: 12, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-          <XAxis
-            dataKey="name"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.fontFamily }}
-            axisLine={{ stroke: ct.grid }}
-            tickLine={false}
-            interval={0}
-            angle={data.length > 5 ? -25 : 0}
-            textAnchor={data.length > 5 ? 'end' : 'middle'}
-            height={data.length > 5 ? 50 : 25}
-          />
-          <YAxis
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={toManYen}
-          />
-          <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(_value: unknown, _name: unknown, props: { payload?: WaterfallItem }) => {
-              const item = props.payload
-              if (!item) return ['-', '-']
-              return [formatCurrency(item.value), item.name]
-            }}
-          />
-          <ReferenceLine y={0} stroke={ct.grid} />
-          <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
-          <Bar dataKey="bar" stackId="waterfall" radius={[3, 3, 0, 0]}>
-            <LabelList
-              dataKey="value"
-              position="top"
-              formatter={(v: unknown) => toManYen(Number(v))}
-              style={{ fontSize: 9, fill: ct.text, fontFamily: ct.monoFamily }}
+      {viewMode === 'categoryFactor' ? (
+        <CategoryFactorBreakdown
+          curRecords={dayRecords}
+          prevRecords={prevDayRecords}
+          compact
+        />
+      ) : (
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={240}>
+          <BarChart data={data} margin={{ top: 16, right: 12, left: 12, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
+            <XAxis
+              dataKey="name"
+              tick={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.fontFamily }}
+              axisLine={{ stroke: ct.grid }}
+              tickLine={false}
+              interval={0}
+              angle={data.length > 5 ? -25 : 0}
+              textAnchor={data.length > 5 ? 'end' : 'middle'}
+              height={data.length > 5 ? 50 : 25}
             />
-            {data.map((item, idx) => (
-              <Cell
-                key={idx}
-                fill={item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative}
-                opacity={0.85}
+            <YAxis
+              tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={toManYen}
+            />
+            <Tooltip
+              contentStyle={tooltipStyle(ct)}
+              formatter={(_value: unknown, _name: unknown, props: { payload?: WaterfallItem }) => {
+                const item = props.payload
+                if (!item) return ['-', '-']
+                return [formatCurrency(item.value), item.name]
+              }}
+            />
+            <ReferenceLine y={0} stroke={ct.grid} />
+            <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
+            <Bar dataKey="bar" stackId="waterfall" radius={[3, 3, 0, 0]}>
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(v: unknown) => toManYen(Number(v))}
+                style={{ fontSize: 9, fill: ct.text, fontFamily: ct.monoFamily }}
               />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+              {data.map((item, idx) => (
+                <Cell
+                  key={idx}
+                  fill={item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative}
+                  opacity={0.85}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
     </Section>
   )
 }
