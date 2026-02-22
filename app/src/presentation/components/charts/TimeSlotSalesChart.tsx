@@ -341,7 +341,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         </Controls>
       </HeaderRow>
       {viewMode === 'chart' ? (
-        <div style={{ width: '100%', height: 340 }}>
+        <div style={{ width: '100%', height: 320, minHeight: 0 }}>
           <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <defs>
