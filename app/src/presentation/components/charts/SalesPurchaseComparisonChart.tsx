@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventory } from './inventoryCalc'
 import type { Store, StoreResult } from '@/domain/models'
@@ -262,7 +262,7 @@ export function SalesPurchaseComparisonChart({
                   <MiniTd>{toComma(s.result.inventoryCost)}</MiniTd>
                   <MiniTd>{toComma(diff)}</MiniTd>
                   <MiniTd>{estClosing != null ? toComma(estClosing) : '-'}</MiniTd>
-                  <MiniTd>{(s.result.coreMarkupRate * 100).toFixed(1)}%</MiniTd>
+                  <MiniTd>{toPct(s.result.coreMarkupRate)}</MiniTd>
                 </tr>
               )
             })}

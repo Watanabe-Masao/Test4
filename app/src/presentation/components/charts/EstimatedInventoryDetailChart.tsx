@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventoryDetails } from './inventoryCalc'
 import type { InventoryDetailRow } from './inventoryCalc'
@@ -359,8 +359,8 @@ export function EstimatedInventoryDetailChart({
                     <Td $right>{fmt(s.result.estMethodCogs)}</Td>
                     <Td $right $highlight>{estClosing != null ? fmt(estClosing) : '-'}</Td>
                     <Td $right>{s.result.closingInventory != null ? fmt(s.result.closingInventory) : '-'}</Td>
-                    <Td $right>{(s.result.coreMarkupRate * 100).toFixed(1)}%</Td>
-                    <Td $right>{(s.result.discountRate * 100).toFixed(1)}%</Td>
+                    <Td $right>{toPct(s.result.coreMarkupRate)}</Td>
+                    <Td $right>{toPct(s.result.discountRate)}</Td>
                   </tr>
                 )
               })}

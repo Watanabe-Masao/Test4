@@ -10,6 +10,7 @@ import type { CategoryTimeSalesRecord } from '@/domain/models'
 import type { HierarchyFilter } from '@/presentation/components/charts/CategoryHierarchyContext'
 import { filterByHierarchy, getHierarchyLevel } from '@/presentation/components/charts/CategoryHierarchyContext'
 import { toComma } from '@/presentation/components/charts/chartTheme'
+import { formatPercent } from '@/domain/calculations/utils'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import {
   aggregateForDrill, buildDrillItems, fmtSen, COLORS,
@@ -184,24 +185,24 @@ export function CategoryDrilldown({
       : Math.max(bActualTotal, bPrevTotal, 1)
 
     const tooltipFn = (it: DrillItem, val: number, total: number, isPrev: boolean) => {
-      const pct = total > 0 ? (val / total * 100).toFixed(2) : '0.00'
+      const pct = formatPercent(total > 0 ? val / total : 0, 2)
       const prevVal = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
       const curVal = isAmountMode ? it.amount : it.quantity
       const diff = isPrev ? undefined : (curVal - prevVal)
-      const yoy = isPrev ? undefined : (prevVal > 0 ? (curVal / prevVal * 100).toFixed(2) : undefined)
+      const yoy = isPrev ? undefined : (prevVal > 0 ? formatPercent(curVal / prevVal, 2) : undefined)
       const rowLabel = isPrev ? '前年' : '実績'
       return (
         <>
           <div style={{ fontWeight: 600, marginBottom: 2, borderBottom: '1px solid rgba(128,128,128,0.3)', paddingBottom: 2 }}>
             {rowLabel} - {it.name}
           </div>
-          <div>販売構成比: {pct}%</div>
+          <div>販売構成比: {pct}</div>
           <div>販売金額: {fmtSen(isAmountMode ? val : (isPrev ? (it.prevAmount ?? 0) : it.amount))}</div>
           {!isAmountMode && <div>数量: {val.toLocaleString()}点</div>}
           {!isPrev && diff != null && (
             <div>前年差: {diff >= 0 ? '+' : ''}{isAmountMode ? fmtSen(diff) : `${diff.toLocaleString()}点`}</div>
           )}
-          {!isPrev && yoy && <div>前年比: {yoy}%</div>}
+          {!isPrev && yoy && <div>前年比: {yoy}</div>}
           {isPrev && curVal > 0 && (
             <div>実績: {isAmountMode ? fmtSen(curVal) : `${curVal.toLocaleString()}点`}</div>
           )}
@@ -339,7 +340,7 @@ export function CategoryDrilldown({
         {hasPrevYear && !isPrevSource && displayYoY != null && (
           <SumItem>
             <SumLabel>前年比</SumLabel>
-            <SumValue><YoYVal $positive={displayYoY >= 1}>{(displayYoY * 100).toFixed(2)}%</YoYVal></SumValue>
+            <SumValue><YoYVal $positive={displayYoY >= 1}>{formatPercent(displayYoY, 2)}</YoYVal></SumValue>
           </SumItem>
         )}
       </SummaryRow>
@@ -427,7 +428,7 @@ export function CategoryDrilldown({
                       <DTd $mono>{counterpartVal > 0 ? fmtVal(counterpartVal) : '-'}</DTd>
                       <DTd $mono>
                         {yoy != null ? (
-                          <YoYVal $positive={yoy >= 1}>{(yoy * 100).toFixed(2)}%</YoYVal>
+                          <YoYVal $positive={yoy >= 1}>{formatPercent(yoy, 2)}</YoYVal>
                         ) : '-'}
                       </DTd>
                     </>

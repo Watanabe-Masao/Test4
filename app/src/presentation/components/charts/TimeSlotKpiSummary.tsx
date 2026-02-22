@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
+import { toPct } from './chartTheme'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -87,7 +88,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
     for (const [h, amt] of hourly) {
       if (amt > peakHourAmount) { peakHour = h; peakHourAmount = amt }
     }
-    const peakHourPct = totalAmount > 0 ? (peakHourAmount / totalAmount * 100).toFixed(1) : '0'
+    const peakHourPct = totalAmount > 0 ? toPct(peakHourAmount / totalAmount) : '0%'
 
     // Top department
     const deptMap = new Map<string, { name: string; amount: number }>()
@@ -101,7 +102,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
     for (const [, v] of deptMap) {
       if (v.amount > topDeptAmount) { topDeptName = v.name; topDeptAmount = v.amount }
     }
-    const topDeptPct = totalAmount > 0 ? (topDeptAmount / totalAmount * 100).toFixed(1) : '0'
+    const topDeptPct = totalAmount > 0 ? toPct(topDeptAmount / totalAmount) : '0%'
 
     // Store count
     const storeSet = new Set(records.map((r) => r.storeId))
@@ -119,7 +120,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
     // コアタイム & 折り返し時間帯
     const coreTime = findCoreTime(hourly)
     const turnaroundHourVal = findTurnaroundHour(hourly)
-    const coreTimePct = totalAmount > 0 && coreTime ? (coreTime.total / totalAmount * 100).toFixed(1) : '0'
+    const coreTimePct = totalAmount > 0 && coreTime ? toPct(coreTime.total / totalAmount) : '0%'
 
     return {
       totalAmount,
@@ -161,12 +162,12 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
         <Card $accent="#f59e0b">
           <CardLabel>ピーク時間帯</CardLabel>
           <CardValue>{kpi.peakHour}時台</CardValue>
-          <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
+          <CardSub>構成比 {kpi.peakHourPct}</CardSub>
         </Card>
         <Card $accent="#8b5cf6">
           <CardLabel>コアタイム</CardLabel>
           <CardValue>{formatCoreTime(kpi.coreTime)}</CardValue>
-          <CardSub>構成比 {kpi.coreTimePct}%</CardSub>
+          <CardSub>構成比 {kpi.coreTimePct}</CardSub>
         </Card>
         <Card $accent="#ef4444">
           <CardLabel>折り返し時間帯</CardLabel>
@@ -178,7 +179,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
           <CardValue style={{ fontSize: kpi.topDeptName.length > 5 ? '0.85rem' : undefined }}>
             {kpi.topDeptName}
           </CardValue>
-          <CardSub>構成比 {kpi.topDeptPct}%</CardSub>
+          <CardSub>構成比 {kpi.topDeptPct}</CardSub>
         </Card>
         <Card $accent="#ec4899">
           <CardLabel>対象店舗/日数</CardLabel>

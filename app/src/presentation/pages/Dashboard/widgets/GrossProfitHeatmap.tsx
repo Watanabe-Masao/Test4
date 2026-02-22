@@ -234,7 +234,7 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
                   const { bg, text } = rateToColor(rate, targetRate, warningRate)
                   return (
                     <HeatTd key={d} $bg={bg} $textColor={text} title={`${row.name} ${d}日: ${formatPercent(rate)}`}>
-                      {(rate * 100).toFixed(1)}
+                      {formatPercent(rate, 1).replace('%', '')}
                     </HeatTd>
                   )
                 }
@@ -244,8 +244,8 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
                 const { bg, text } = deviationToColor(dev)
                 const sign = dev >= 0 ? '+' : ''
                 return (
-                  <HeatTd key={d} $bg={bg} $textColor={text} title={`${row.name} ${d}日: ${sign}${(dev * 100).toFixed(1)}%`}>
-                    {sign}{(dev * 100).toFixed(1)}
+                  <HeatTd key={d} $bg={bg} $textColor={text} title={`${row.name} ${d}日: ${sign}${formatPercent(Math.abs(dev), 1)}`}>
+                    {sign}{formatPercent(Math.abs(dev), 1).replace('%', '')}
                   </HeatTd>
                 )
               })}
@@ -256,11 +256,11 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
       {mode === 'gpRate' ? (
         <Legend>
           <LegendSwatch $bg="rgba(239, 68, 68, 0.5)" />
-          <span>低 (&lt;{(warningRate * 100).toFixed(0)}%)</span>
+          <span>低 (&lt;{formatPercent(warningRate, 0)})</span>
           <LegendSwatch $bg="rgba(234, 179, 8, 0.4)" />
-          <span>注意 ({(warningRate * 100).toFixed(0)}〜{(targetRate * 100).toFixed(0)}%)</span>
+          <span>注意 ({formatPercent(warningRate, 0)}〜{formatPercent(targetRate, 0)})</span>
           <LegendSwatch $bg="rgba(34, 197, 94, 0.5)" />
-          <span>良好 (&ge;{(targetRate * 100).toFixed(0)}%)</span>
+          <span>良好 (&ge;{formatPercent(targetRate, 0)})</span>
         </Legend>
       ) : (
         <Legend>

@@ -1,6 +1,7 @@
 import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import { toPct } from './chartTheme'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
 
@@ -317,9 +318,9 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
                     key={`${h}-${di}`}
                     $ratio={cell.ratio}
                     $hasData={cell.hasData}
-                    title={`${DOW_LABELS[di]}曜 ${h}時: ${cell.diff >= 0 ? '+' : ''}${cell.diff.toLocaleString()}円 (${cell.ratio >= 0 ? '+' : ''}${(cell.ratio * 100).toFixed(1)}%)`}
+                    title={`${DOW_LABELS[di]}曜 ${h}時: ${cell.diff >= 0 ? '+' : ''}${cell.diff.toLocaleString()}円 (${cell.ratio >= 0 ? '+' : ''}${toPct(cell.ratio)})`}
                   >
-                    {cell.hasData ? `${cell.ratio >= 0 ? '+' : ''}${(cell.ratio * 100).toFixed(0)}%` : ''}
+                    {cell.hasData ? `${cell.ratio >= 0 ? '+' : ''}${toPct(cell.ratio, 0)}` : ''}
                   </DiffCell>
                 ))
               : curData.matrix[hi].map((val, di) => {

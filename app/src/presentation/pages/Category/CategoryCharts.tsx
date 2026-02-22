@@ -7,7 +7,7 @@ import {
   ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line,
   type PieLabelRenderProps,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toPct } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
@@ -32,7 +32,7 @@ function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
         fontSize={ct.fontSize.xs}
         fontFamily={ct.fontFamily}
       >
-        {String(name)} {(pct * 100).toFixed(1)}%
+        {String(name)} {toPct(pct)}
       </text>
     )
   }
@@ -84,7 +84,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
             </Pie>
             <Tooltip
               contentStyle={tooltipStyle(ct)}
-              formatter={(value) => [`${((value as number) * 100).toFixed(2)}%`, '相乗積']}
+              formatter={(value) => [toPct(value as number, 2), '相乗積']}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -106,7 +106,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               yAxisId="left"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false} tickLine={false}
-              tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+              tickFormatter={(v) => toPct(v, 0)}
               width={45}
             />
             <YAxis
@@ -115,15 +115,15 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false} tickLine={false}
               domain={[0, 1]}
-              tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+              tickFormatter={(v) => toPct(v, 0)}
               width={45}
             />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
               formatter={(value: unknown, name: string | undefined) => {
                 const v = Number(value)
-                if (name === 'cumPct') return [`${(v * 100).toFixed(1)}%`, '累計']
-                return [`${(v * 100).toFixed(2)}%`, '相乗積']
+                if (name === 'cumPct') return [toPct(v), '累計']
+                return [toPct(v, 2), '相乗積']
               }}
             />
             <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
@@ -225,14 +225,14 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false} tickLine={false}
               domain={[0, 1]}
-              tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+              tickFormatter={(v) => toPct(v, 0)}
               width={45}
             />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
               formatter={(value: unknown, name: string | undefined) => {
                 const v = Number(value)
-                if (name === 'cumPct') return [`${(v * 100).toFixed(1)}%`, '累計']
+                if (name === 'cumPct') return [toPct(v), '累計']
                 return [formatCurrency(v), mode === 'cost' ? '原価' : '売価']
               }}
             />

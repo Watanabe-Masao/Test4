@@ -1,7 +1,7 @@
 import { calculateForecast } from '@/domain/calculations/forecast'
 import type { DayOfWeekAverage } from '@/domain/calculations/forecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
 import {
   BarChart,
   Bar,
@@ -106,7 +106,7 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+            tickFormatter={(v) => toPct(v, 0)}
             width={45}
           />
           <Tooltip
@@ -121,7 +121,7 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
             fill: ct.textSecondary,
             fontSize: ct.fontSize.xs,
             fontFamily: ct.monoFamily,
-            formatter: (v: unknown) => `${(Number(v) * 100).toFixed(1)}%`,
+            formatter: (v: unknown) => toPct(Number(v)),
           }}>
             {data.map((entry, index) => (
               <Cell

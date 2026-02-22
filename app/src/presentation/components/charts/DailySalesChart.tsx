@@ -14,7 +14,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations'
@@ -337,7 +337,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => `${(v * 100).toFixed(1)}%` : toManYen}
+              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => toPct(v) : toManYen}
               width={view === 'customers' || view === 'discountImpact' ? 55 : 45}
             />
           )}
@@ -347,7 +347,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               const n = name as string
               if (n.includes('Base') || n === 'wfSalesCum' || n === 'wfDiscCum' || n === 'wfCustCum') return [null, null] as unknown as [string, string]
               if (value == null) return ['-', allLabels[n] ?? String(name)]
-              if (n === 'cumDiscountRate') return [`${((value as number) * 100).toFixed(1)}%`, allLabels[n] ?? n]
+              if (n === 'cumDiscountRate') return [toPct(value as number), allLabels[n] ?? n]
               const suffix = n === 'customers' || n === 'prevCustomers' || n.includes('Cust') ? '人' : (n === 'txValue' || n === 'prevTxValue') ? '円' : ''
               return [toComma(value as number) + suffix, allLabels[n] ?? n]
             }}

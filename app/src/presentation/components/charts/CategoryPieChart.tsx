@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
 import type { CostPricePair, CategoryType } from '@/domain/models'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 
@@ -108,7 +108,7 @@ export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }:
         fontSize={ct.fontSize.xs}
         fontFamily={ct.fontFamily}
       >
-        {String(name)} {(pct * 100).toFixed(0)}%
+        {String(name)} {toPct(pct, 0)}
       </text>
     )
   }

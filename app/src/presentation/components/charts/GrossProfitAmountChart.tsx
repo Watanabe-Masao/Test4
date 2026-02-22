@@ -157,7 +157,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+              tickFormatter={(v) => toPct(v, 0)}
               width={40}
             />
             <Tooltip
@@ -240,7 +240,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+              tickFormatter={(v) => toPct(v, 0)}
               width={40}
             />
             <Tooltip

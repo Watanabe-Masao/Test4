@@ -10,6 +10,8 @@
  *   RULE-I1: overflow day ロジックの重複（overflowDay.ts 未使用）
  *   RULE-P1: presentation 層でのインライン客単価計算（calculateTransactionValue 未使用）
  *   RULE-P2: fmtSen ヘルパーの重複定義（drilldownUtils.ts からの import を強制）
+ *   RULE-P3: Dashboard widgets 内のインラインパーセント書式（formatPercent 未使用）
+ *   RULE-C1: Chart files 内のインラインパーセント書式（toPct 未使用）
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -242,6 +244,142 @@ describe('RULE-P2: fmtSen は drilldownUtils.ts から import する', () => {
     if (!fs.existsSync(filePath)) return
     const content = fs.readFileSync(filePath, 'utf-8')
     expect(/export\s+function\s+fmtSen/.test(content)).toBe(true)
+  })
+})
+
+/* ── RULE-P3: Dashboard widgets インラインパーセント書式の禁止 ── */
+
+describe('RULE-P3: Dashboard widgets のパーセント書式は formatPercent を経由する', () => {
+  /**
+   * Dashboard widgets 内で `(x * 100).toFixed(N)` パターンを検出。
+   * formatPercent(value, decimals) を使用すべき。
+   *
+   * 検出パターン: `* 100).toFixed` — ratio → パーセント変換のインライン実装
+   */
+  const INLINE_PCT_FORMAT = /\*\s*100\s*\)\.toFixed/
+
+  it('Dashboard widgets にインラインパーセント書式が存在しないこと', () => {
+    const widgetsDir = path.resolve(PRESENTATION_DIR, 'pages', 'Dashboard', 'widgets')
+    if (!fs.existsSync(widgetsDir)) return
+
+    const files = walkFiles(widgetsDir, '.ts', '.tsx')
+
+    for (const filePath of files) {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      const codeLines = getCodeLines(content)
+      const violations = findViolations(codeLines, INLINE_PCT_FORMAT)
+      const relPath = path.relative(PRESENTATION_DIR, filePath)
+
+      expect(
+        violations,
+        `presentation/${relPath} にインラインパーセント書式を検出:\n` +
+        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+        '\n→ formatPercent(value, decimals) を使用してください（import from @/domain/calculations/utils）',
+      ).toHaveLength(0)
+    }
+  })
+
+  it('Forecast ページにインラインパーセント書式が存在しないこと', () => {
+    const forecastDir = path.resolve(PRESENTATION_DIR, 'pages', 'Forecast')
+    if (!fs.existsSync(forecastDir)) return
+
+    const files = walkFiles(forecastDir, '.ts', '.tsx')
+
+    for (const filePath of files) {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      const codeLines = getCodeLines(content)
+      const violations = findViolations(codeLines, INLINE_PCT_FORMAT)
+      const relPath = path.relative(PRESENTATION_DIR, filePath)
+
+      expect(
+        violations,
+        `presentation/${relPath} にインラインパーセント書式を検出:\n` +
+        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+        '\n→ formatPercent(value, decimals) または toPct(value, decimals) を使用してください',
+      ).toHaveLength(0)
+    }
+  })
+
+  it('Category ページにインラインパーセント書式が存在しないこと', () => {
+    const categoryDir = path.resolve(PRESENTATION_DIR, 'pages', 'Category')
+    if (!fs.existsSync(categoryDir)) return
+
+    const files = walkFiles(categoryDir, '.ts', '.tsx')
+
+    for (const filePath of files) {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      const codeLines = getCodeLines(content)
+      const violations = findViolations(codeLines, INLINE_PCT_FORMAT)
+      const relPath = path.relative(PRESENTATION_DIR, filePath)
+
+      expect(
+        violations,
+        `presentation/${relPath} にインラインパーセント書式を検出:\n` +
+        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+        '\n→ formatPercent(value, decimals) または toPct(value, decimals) を使用してください',
+      ).toHaveLength(0)
+    }
+  })
+})
+
+/* ── RULE-C1: Chart files インラインパーセント書式の禁止 ── */
+
+describe('RULE-C1: Chart files のパーセント書式は toPct を経由する', () => {
+  /**
+   * Chart files 内で `(x * 100).toFixed(N)` パターンを検出。
+   * toPct(value, decimals) を使用すべき。
+   *
+   * chartTheme.ts は toPct の定義元なので除外。
+   */
+  const CHART_DIR = path.resolve(PRESENTATION_DIR, 'components', 'charts')
+  const TOPCT_DEFINITION_FILE = 'chartTheme.ts'
+  const INLINE_PCT_FORMAT = /\*\s*100\s*\)\.toFixed/
+
+  it('Chart files にインラインパーセント書式が存在しないこと', () => {
+    if (!fs.existsSync(CHART_DIR)) return
+
+    const files = fs.readdirSync(CHART_DIR)
+      .filter((f) =>
+        (f.endsWith('.ts') || f.endsWith('.tsx')) &&
+        !f.endsWith('.test.ts') && !f.endsWith('.test.tsx') &&
+        f !== TOPCT_DEFINITION_FILE,
+      )
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(CHART_DIR, file), 'utf-8')
+      const codeLines = getCodeLines(content)
+      const violations = findViolations(codeLines, INLINE_PCT_FORMAT)
+
+      expect(
+        violations,
+        `charts/${file} にインラインパーセント書式を検出:\n` +
+        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+        '\n→ toPct(value, decimals) を使用してください（import from ./chartTheme）',
+      ).toHaveLength(0)
+    }
+  })
+
+  it('toPct を使用する chart ファイルが chartTheme から import していること', () => {
+    if (!fs.existsSync(CHART_DIR)) return
+
+    const files = fs.readdirSync(CHART_DIR)
+      .filter((f) =>
+        (f.endsWith('.ts') || f.endsWith('.tsx')) &&
+        !f.endsWith('.test.ts') && !f.endsWith('.test.tsx') &&
+        f !== TOPCT_DEFINITION_FILE,
+      )
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(CHART_DIR, file), 'utf-8')
+      const usesToPct = /toPct\s*\(/.test(content)
+      if (usesToPct) {
+        const hasImport = /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"]\.\/chartTheme['"]/.test(content)
+        expect(
+          hasImport,
+          `charts/${file} が toPct を使用していますが './chartTheme' から import していません`,
+        ).toBe(true)
+      }
+    }
   })
 })
 

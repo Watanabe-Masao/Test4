@@ -91,7 +91,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+            tickFormatter={(v) => toPct(v, 0)}
             width={40}
           />
           <Tooltip

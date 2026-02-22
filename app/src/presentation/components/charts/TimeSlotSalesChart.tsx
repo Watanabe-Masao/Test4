@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -245,7 +245,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
       if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * curDiv }
     }
     const totalAmount = current.totalAmount
-    const peakHourPct = totalAmount > 0 ? (peakHourAmount / totalAmount * 100).toFixed(1) : '0'
+    const peakHourPct = totalAmount > 0 ? toPct(peakHourAmount / totalAmount) : '0%'
 
     // 前年比 KPI（重複日のみで比較し、日数差バイアスを排除）
     const comparableTotalAmount = comparable?.totalAmount ?? 0
@@ -264,21 +264,21 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     for (const [h, v] of current.hourly) {
       if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * curDiv }
     }
-    const peakHourQtyPct = current.totalQuantity > 0 ? (peakHourQuantity / current.totalQuantity * 100).toFixed(1) : '0'
+    const peakHourQtyPct = current.totalQuantity > 0 ? toPct(peakHourQuantity / current.totalQuantity) : '0%'
 
     // コアタイム & 折り返し時間帯（金額ベース）— 生値で計算するため除数を掛け戻す
     const amountMap = new Map<number, number>()
     for (const [h, v] of current.hourly) amountMap.set(h, v.amount * curDiv)
     const coreTimeAmt = findCoreTime(amountMap)
     const turnaroundAmt = findTurnaroundHour(amountMap)
-    const coreTimePct = totalAmount > 0 && coreTimeAmt ? (coreTimeAmt.total / totalAmount * 100).toFixed(1) : '0'
+    const coreTimePct = totalAmount > 0 && coreTimeAmt ? toPct(coreTimeAmt.total / totalAmount) : '0%'
 
     // コアタイム & 折り返し時間帯（数量ベース）
     const qtyMap = new Map<number, number>()
     for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * curDiv)
     const coreTimeQty = findCoreTime(qtyMap)
     const turnaroundQty = findTurnaroundHour(qtyMap)
-    const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? (coreTimeQty.total / current.totalQuantity * 100).toFixed(1) : '0'
+    const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? toPct(coreTimeQty.total / current.totalQuantity) : '0%'
 
     return {
       chartData,
@@ -452,7 +452,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   {kpi.totalAmount.toLocaleString()}円
                   {kpi.yoyRatio != null && (
                     <YoYBadge $positive={kpi.yoyRatio >= 1}>
-                      {kpi.yoyRatio >= 1 ? '+' : ''}{((kpi.yoyRatio - 1) * 100).toFixed(1)}%
+                      {kpi.yoyRatio >= 1 ? '+' : ''}{toPct(kpi.yoyRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -470,7 +470,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   <CardValue style={{ color: kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
                     {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
                   </CardValue>
-                  <CardSub>前年比 {((kpi.yoyRatio ?? 0) * 100).toFixed(1)}%</CardSub>
+                  <CardSub>前年比 {toPct(kpi.yoyRatio ?? 0)}</CardSub>
                 </Card>
               )}
               <Card $accent="#06b6d4">
@@ -481,12 +481,12 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
               <Card $accent="#f59e0b">
                 <CardLabel>ピーク時間帯</CardLabel>
                 <CardValue>{kpi.peakHour}時台</CardValue>
-                <CardSub>構成比 {kpi.peakHourPct}%</CardSub>
+                <CardSub>構成比 {kpi.peakHourPct}</CardSub>
               </Card>
               <Card $accent="#8b5cf6">
                 <CardLabel>コアタイム</CardLabel>
                 <CardValue>{formatCoreTime(kpi.coreTimeAmt)}</CardValue>
-                <CardSub>構成比 {kpi.coreTimePct}%</CardSub>
+                <CardSub>構成比 {kpi.coreTimePct}</CardSub>
               </Card>
               <Card $accent="#ef4444">
                 <CardLabel>折り返し時間帯</CardLabel>
@@ -508,7 +508,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   {kpi.recordCount.toLocaleString()}レコード
                   {kpi.yoyQuantityRatio != null && (
                     <YoYBadge $positive={kpi.yoyQuantityRatio >= 1}>
-                      {kpi.yoyQuantityRatio >= 1 ? '+' : ''}{((kpi.yoyQuantityRatio - 1) * 100).toFixed(1)}%
+                      {kpi.yoyQuantityRatio >= 1 ? '+' : ''}{toPct(kpi.yoyQuantityRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -525,7 +525,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   <CardValue style={{ color: kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444' }}>
                     {kpi.yoyQuantityDiff >= 0 ? '+' : ''}{kpi.yoyQuantityDiff.toLocaleString()}点
                   </CardValue>
-                  <CardSub>前年比 {((kpi.yoyQuantityRatio ?? 0) * 100).toFixed(1)}%</CardSub>
+                  <CardSub>前年比 {toPct(kpi.yoyQuantityRatio ?? 0)}</CardSub>
                 </Card>
               )}
               <Card $accent="#6366f1">
@@ -536,12 +536,12 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
               <Card $accent="#f59e0b">
                 <CardLabel>ピーク時間帯</CardLabel>
                 <CardValue>{kpi.peakHourQty}時台</CardValue>
-                <CardSub>構成比 {kpi.peakHourQtyPct}%</CardSub>
+                <CardSub>構成比 {kpi.peakHourQtyPct}</CardSub>
               </Card>
               <Card $accent="#8b5cf6">
                 <CardLabel>コアタイム</CardLabel>
                 <CardValue>{formatCoreTime(kpi.coreTimeQty)}</CardValue>
-                <CardSub>構成比 {kpi.coreTimeQtyPct}%</CardSub>
+                <CardSub>構成比 {kpi.coreTimeQtyPct}</CardSub>
               </Card>
               <Card $accent="#ef4444">
                 <CardLabel>折り返し時間帯</CardLabel>

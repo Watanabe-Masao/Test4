@@ -14,7 +14,7 @@ import {
   Cell,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
@@ -349,7 +349,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </Metric>
           <ProgressBarWrap>
             <ProgressLabel>
-              <span>予算進捗 {(progressRate * 100).toFixed(1)}%</span>
+              <span>予算進捗 {toPct(progressRate)}</span>
               <span>{toManYen(currentBudgetCum)}円 / {toManYen(budget)}円</span>
             </ProgressLabel>
             <ProgressTrack>
@@ -358,7 +358,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </ProgressBarWrap>
           <Metric>
             <MetricLabel>着地見込</MetricLabel>
-            <MetricValue $color={projColor}>{toManYen(projected)}円 ({(projectedAchievement * 100).toFixed(1)}%)</MetricValue>
+            <MetricValue $color={projColor}>{toManYen(projected)}円 ({toPct(projectedAchievement)})</MetricValue>
           </Metric>
         </SummaryRow>
       )}
