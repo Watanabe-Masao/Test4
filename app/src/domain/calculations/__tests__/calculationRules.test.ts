@@ -19,18 +19,65 @@ import * as path from 'path'
 
 /* ── ヘルパー ──────────────────────────────── */
 
-/** コメント行を除外したコード行を返す */
-function getCodeLines(content: string) {
-  return content
-    .split('\n')
-    .filter((line) => !line.trimStart().startsWith('//') && !line.trimStart().startsWith('*'))
+type LineInfo = { line: string; num: number }
+
+/**
+ * コメント行を除外しつつ、元ファイルの行番号を保持する。
+ *
+ * NOTE:
+ * 単純に filter でコメントを除外すると行番号が詰まってしまい、
+ * エラーメッセージの Lxx が実ファイル行とずれる。
+ */
+function getCodeLines(content: string): LineInfo[] {
+  const lines = content.split('\n')
+  const results: LineInfo[] = []
+  let inBlockComment = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const trimmed = line.trimStart()
+
+    if (inBlockComment) {
+      if (trimmed.includes('*/')) inBlockComment = false
+      continue
+    }
+
+    if (trimmed.startsWith('//')) continue
+
+    if (trimmed.startsWith('/*')) {
+      if (!trimmed.includes('*/')) inBlockComment = true
+      continue
+    }
+
+    results.push({ line, num: i + 1 })
+  }
+
+  return results
 }
 
-function findViolations(codeLines: string[], pattern: RegExp) {
+function findViolations(codeLines: LineInfo[], pattern: RegExp) {
   return codeLines
-    .map((line, i) => ({ line: line.trim(), num: i + 1 }))
+    .map(({ line, num }) => ({ line: line.trim(), num }))
     .filter(({ line }) => pattern.test(line))
 }
+
+describe('helper: getCodeLines', () => {
+  it('ブロックコメント/行コメントを除外し、元の行番号を保持する', () => {
+    const source = [
+      'const a = 1',
+      '// const b = 2',
+      '/* block start',
+      'const c = 3',
+      'block end */',
+      'const d = 4',
+    ].join('\n')
+
+    expect(getCodeLines(source)).toEqual([
+      { line: 'const a = 1', num: 1 },
+      { line: 'const d = 4', num: 6 },
+    ])
+  })
+})
 
 /* ── テスト対象パス定義 ────────────────────── */
 
