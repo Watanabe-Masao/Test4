@@ -273,4 +273,38 @@ describe('decompose5（4変数シャープリー統合分解）', () => {
     // 1カテゴリ → mixEffect ≈ 0
     expect(Math.abs(result!.mixEffect)).toBeLessThan(1)
   })
+
+  it('売上合計とカテゴリ合計が異なっても正しく分解される', () => {
+    // totalSales(売上データ)とカテゴリ合計が乖離するケース
+    // カテゴリ合計: prev=240,000+80,000=320,000, cur=360,000+117,000=477,000
+    // 売上データ: prev=350,000, cur=500,000（カテゴリ合計と不一致）
+    const prevCust = 100, curCust = 110
+    const prevCats = [cat('A', 300, 240_000), cat('B', 200, 80_000)]
+    const curCats = [cat('A', 400, 360_000), cat('B', 260, 117_000)]
+    const prevSales = 350_000, curSales = 500_000
+
+    const result = decompose5(prevSales, curSales, prevCust, curCust, 500, 660, curCats, prevCats)
+    expect(result).not.toBeNull()
+
+    // 合計は売上データの差（500,000 - 350,000 = 150,000）に一致すること
+    const total = result!.custEffect + result!.qtyEffect + result!.priceEffect + result!.mixEffect
+    expect(Math.abs(total - (curSales - prevSales))).toBeLessThan(1)
+  })
+
+  it('3要素→5要素切替時に客数・点数効果が一貫する', () => {
+    const prevCust = 100, curCust = 110
+    const prevCats = [cat('A', 300, 240_000), cat('B', 200, 80_000)]
+    const curCats = [cat('A', 400, 360_000), cat('B', 260, 117_000)]
+    const prevSales = 320_000, curSales = 477_000
+
+    const d3 = decompose3(prevSales, curSales, prevCust, curCust, 500, 660)
+    const d5 = decompose5(prevSales, curSales, prevCust, curCust, 500, 660, curCats, prevCats)
+    expect(d5).not.toBeNull()
+
+    // 5要素の客数効果・点数効果は3要素と同じ値になること
+    expect(d5!.custEffect).toBeCloseTo(d3.custEffect, 2)
+    expect(d5!.qtyEffect).toBeCloseTo(d3.qtyEffect, 2)
+    // 5要素の価格+構成比 = 3要素の単価効果
+    expect(d5!.priceEffect + d5!.mixEffect).toBeCloseTo(d3.pricePerItemEffect, 2)
+  })
 })
