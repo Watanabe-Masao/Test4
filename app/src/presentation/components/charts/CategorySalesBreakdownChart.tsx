@@ -14,7 +14,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -106,14 +106,9 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
 
   const data = useMemo(() => {
     const map = new Map<string, { name: string; amount: number; quantity: number }>()
-    const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
+    const storeFiltered = filterByStore(hf.applyFilter(filterByHierarchy(periodRecords, filter)), selectedStoreIds)
 
-    // 実データの distinct day から除数を算出
-    const days = new Set<number>()
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
-      days.add(rec.day)
-
+    for (const rec of storeFiltered) {
       let key: string
       let name: string
       if (level === 'department') {
@@ -135,7 +130,8 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       })
     }
 
-    const dataDivisor = computeDivisor(days.size, pf.mode)
+    // 実データの distinct day から除数を算出【TR-DIV-001】【TR-DIV-002】
+    const dataDivisor = computeDivisor(countDistinctDays(storeFiltered), pf.mode)
 
     const sorted = Array.from(map.values())
       .map((d) => ({ ...d, amount: Math.round(d.amount / dataDivisor), quantity: Math.round(d.quantity / dataDivisor) }))

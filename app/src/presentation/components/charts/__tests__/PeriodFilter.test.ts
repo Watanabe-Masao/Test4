@@ -13,6 +13,7 @@
  *   6. 前年と当年で独立した除数が算出される
  *   7. スライダー動的変更に対する除数の追従検証
  *   8. 全チャートの除数算出が一元管理関数を経由していることの構造検証
+ *   9. 【TR-FIL-001】filterByStore の正確性テスト
  */
 import { describe, it, expect } from 'vitest'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
@@ -21,6 +22,7 @@ import {
   computeDivisor,
   countDistinctDays,
   computeDowDivisorMap,
+  filterByStore,
   type AggregateMode,
 } from '../PeriodFilter'
 
@@ -860,5 +862,82 @@ describe('構造テスト: computeDivisor の一元管理', () => {
       expect(dow).toBeGreaterThanOrEqual(0)
       expect(dow).toBeLessThanOrEqual(6)
     }
+  })
+})
+
+/* ── 【TR-FIL-001】filterByStore テスト ──────────── */
+
+describe('【TR-FIL-001】filterByStore', () => {
+  it('空の storeIds で全レコードを返す', () => {
+    const records = [makeRecord(1, 10000, 'S1'), makeRecord(2, 20000, 'S2')]
+    const result = filterByStore(records, new Set<string>())
+    expect(result).toBe(records) // 同一参照
+    expect(result.length).toBe(2)
+  })
+
+  it('指定された店舗のみフィルタする', () => {
+    const records = [
+      makeRecord(1, 10000, 'S1'),
+      makeRecord(2, 20000, 'S2'),
+      makeRecord(3, 30000, 'S3'),
+    ]
+    const result = filterByStore(records, new Set(['S1', 'S3']))
+    expect(result.length).toBe(2)
+    expect(result[0].storeId).toBe('S1')
+    expect(result[1].storeId).toBe('S3')
+  })
+
+  it('存在しない店舗IDで空配列を返す', () => {
+    const records = [makeRecord(1, 10000, 'S1')]
+    const result = filterByStore(records, new Set(['S99']))
+    expect(result.length).toBe(0)
+  })
+
+  it('空レコードで空配列を返す', () => {
+    const result = filterByStore([], new Set(['S1']))
+    expect(result.length).toBe(0)
+  })
+
+  it('filterByStore + countDistinctDays の組み合わせが正しく動作する', () => {
+    const records = [
+      makeRecord(1, 10000, 'S1'),
+      makeRecord(1, 20000, 'S2'), // 同日・別店舗
+      makeRecord(2, 30000, 'S1'),
+      makeRecord(3, 40000, 'S2'),
+    ]
+    // S1のみ: day 1, 2 → distinct 2日
+    const s1Only = filterByStore(records, new Set(['S1']))
+    expect(countDistinctDays(s1Only)).toBe(2)
+
+    // S2のみ: day 1, 3 → distinct 2日
+    const s2Only = filterByStore(records, new Set(['S2']))
+    expect(countDistinctDays(s2Only)).toBe(2)
+
+    // 全店舗: day 1, 2, 3 → distinct 3日
+    const all = filterByStore(records, new Set<string>())
+    expect(countDistinctDays(all)).toBe(3)
+  })
+
+  it('filterByStore → computeDivisor のパイプラインが正しい除数を返す', () => {
+    const records = [
+      makeRecord(1, 100_000, 'S1'),
+      makeRecord(2, 200_000, 'S1'),
+      makeRecord(1, 150_000, 'S2'),
+      makeRecord(3, 300_000, 'S2'),
+    ]
+
+    // S1: 2日分、合計 300,000 → 日平均 150,000
+    const s1Filtered = filterByStore(records, new Set(['S1']))
+    const s1Div = computeDivisor(countDistinctDays(s1Filtered), 'dailyAvg')
+    const s1Total = s1Filtered.reduce((s, r) => s + r.totalAmount, 0)
+    expect(s1Div).toBe(2)
+    expect(Math.round(s1Total / s1Div)).toBe(150_000)
+
+    // S2: 2日分、合計 450,000 → 日平均 225,000
+    const s2Filtered = filterByStore(records, new Set(['S2']))
+    const s2Div = computeDivisor(countDistinctDays(s2Filtered), 'dailyAvg')
+    const s2Total = s2Filtered.reduce((s, r) => s + r.totalAmount, 0)
+    expect(s2Div).toBe(2)
+    expect(Math.round(s2Total / s2Div)).toBe(225_000)
   })
 })

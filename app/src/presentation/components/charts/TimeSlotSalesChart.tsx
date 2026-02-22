@@ -15,7 +15,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, type AggregateMode } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore, type AggregateMode } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -156,17 +156,11 @@ function aggregateHourly(
   mode: AggregateMode,
 ) {
   const hourly = new Map<number, { amount: number; quantity: number }>()
-  const filtered = hf.applyFilter(filterByHierarchy(records, filter))
-  const storeFiltered = filtered.filter(
-    (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
-  )
+  const storeFiltered = filterByStore(hf.applyFilter(filterByHierarchy(records, filter)), selectedStoreIds)
 
-  // 実データの distinct day から除数を算出
-  const days = new Set<number>()
   let totalAmount = 0
   let totalQuantity = 0
   for (const rec of storeFiltered) {
-    days.add(rec.day)
     totalAmount += rec.totalAmount
     totalQuantity += rec.totalQuantity
     for (const slot of rec.timeSlots) {
@@ -178,7 +172,7 @@ function aggregateHourly(
     }
   }
 
-  const div = computeDivisor(days.size, mode)
+  const div = computeDivisor(countDistinctDays(storeFiltered), mode)
   const result = new Map<number, { amount: number; quantity: number }>()
   for (const [h, v] of hourly) {
     result.set(h, { amount: Math.round(v.amount / div), quantity: Math.round(v.quantity / div) })

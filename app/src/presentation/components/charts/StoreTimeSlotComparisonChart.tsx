@@ -20,7 +20,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -148,10 +148,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     const hourSet = new Set<number>()
     const filtered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
 
-    // 実データの distinct day から除数を算出
-    const days = new Set<number>()
     for (const rec of filtered) {
-      days.add(rec.day)
       if (!storeHourMap.has(rec.storeId)) storeHourMap.set(rec.storeId, new Map())
       const hourMap = storeHourMap.get(rec.storeId)!
       for (const slot of rec.timeSlots) {
@@ -160,7 +157,8 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
       }
     }
 
-    const dataDivisor = computeDivisor(days.size, pf.mode)
+    // 実データの distinct day から除数を算出【TR-DIV-001】【TR-DIV-002】
+    const dataDivisor = computeDivisor(countDistinctDays(filtered), pf.mode)
 
     const hours = [...hourSet].sort((a, b) => a - b)
     const storeIds = [...storeHourMap.keys()]

@@ -8,7 +8,7 @@ import {
   filterByHierarchy,
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -294,16 +294,12 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
   }, [filter])
 
   const filteredRecords = useMemo(() => {
-    let recs = hf.applyFilter(periodRecords)
-    if (selectedStoreIds.size > 0) recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
-    return filterByHierarchy(recs, filter)
+    return filterByHierarchy(filterByStore(hf.applyFilter(periodRecords), selectedStoreIds), filter)
   }, [periodRecords, selectedStoreIds, filter, hf])
 
   const filteredPrevRecords = useMemo(() => {
     if (!hasPrevYear) return []
-    let recs = hf.applyFilter(prevPeriodRecords)
-    if (selectedStoreIds.size > 0) recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
-    return filterByHierarchy(recs, filter)
+    return filterByHierarchy(filterByStore(hf.applyFilter(prevPeriodRecords), selectedStoreIds), filter)
   }, [prevPeriodRecords, selectedStoreIds, filter, hf, hasPrevYear])
 
   const items = useMemo(() => {
@@ -312,14 +308,9 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
     // Prev year aggregation
     const prevMap = hasPrevYear ? aggregateByLevel(filteredPrevRecords, currentLevel) : null
 
-    // 実データの distinct day から除数を算出（当年・前年で個別にカウント）【TR-DIV-001】
-    const curDays = new Set<number>()
-    for (const rec of filteredRecords) curDays.add(rec.day)
-    const curDiv = computeDivisor(curDays.size, pf.mode)
-
-    const prevDays = new Set<number>()
-    for (const rec of filteredPrevRecords) prevDays.add(rec.day)
-    const prevDiv = computeDivisor(prevDays.size, pf.mode)
+    // 実データの distinct day から除数を算出（当年・前年で個別にカウント）【TR-DIV-001】【TR-DIV-002】
+    const curDiv = computeDivisor(countDistinctDays(filteredRecords), pf.mode)
+    const prevDiv = computeDivisor(countDistinctDays(filteredPrevRecords), pf.mode)
 
     const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / curDiv
     return [...map.values()].map((it): HierarchyItem => {
