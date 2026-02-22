@@ -14,22 +14,13 @@
  *   φ_Q = ΔQ/6 × (2C₀P̄₀ + C₁P̄₀ + C₀P̄₁ + 2C₁P̄₁)
  *   φ_P̄ = ΔP̄/6 × (2C₀Q₀ + C₁Q₀ + C₀Q₁ + 2C₁Q₁)
  *
- * ── 完全4変数分解 (n=4: C, Q, p, s) ──
- *   P̄ = p·s = Σpᵢsᵢ の4つの状態単価:
- *     P₀₀=p₀·s₀, P₁₀=p₁·s₀, P₀₁=p₀·s₁, P₁₁=p₁·s₁
+ * ── 5要素分解 (decompose3 + price/mix ratio) ──
+ *   1. decompose3 で φ_C, φ_Q, φ_P̄ を実売上ベースで計算
+ *   2. decomposePriceMix でカテゴリ別 価格/構成比 比率を取得
+ *   3. φ_P̄ を比率で分割: φ_price + φ_mix = φ_P̄
  *
- *   重み: k=0→¼, k=1→1/12, k=2→1/12, k=3→¼
- *
- *   φ_C = ΔC × [¼Q₀P₀₀ + 1/12(Q₁P₀₀+Q₀P₁₀+Q₀P₀₁)
- *              + 1/12(Q₁P₁₀+Q₁P₀₁+Q₀P₁₁) + ¼Q₁P₁₁]
- *   φ_Q = ΔQ × [¼C₀P₀₀ + 1/12(C₁P₀₀+C₀P₁₀+C₀P₀₁)
- *              + 1/12(C₁P₁₀+C₁P₀₁+C₀P₁₁) + ¼C₁P₁₁]
- *   φ_p = Δp·(A₀s₀ + A₁s₁)
- *   φ_s = Δs·(A₀p₀ + A₁p₁)
- *     A₀ = ¼C₀Q₀ + 1/12(C₁Q₀+C₀Q₁+C₁Q₁)
- *     A₁ = 1/12(C₀Q₀+C₁Q₀+C₀Q₁) + ¼C₁Q₁
- *
- * 性質: φ_C + φ_Q + φ_p + φ_s = ΔS（完全一致・順序非依存・交互作用公平配分）
+ * 性質: φ_C + φ_Q + φ_price + φ_mix = ΔS（実売上差に完全一致）
+ * 利点: totalSales と categoryTimeSales の合計が異なっても正しく動作
  */
 import { safeDivide } from './utils'
 
@@ -181,104 +172,53 @@ export function decomposePriceMix(
   }
 }
 
-/* ── 完全4変数シャープリー分解 ──────────────────── */
+/* ── 5要素分解（3変数シャープリー + 価格/構成比分割）── */
 
 /**
- * S = C × Q × (p·s) の完全4変数シャープリー値。
+ * S = C × Q × P̄ を客数・点数・価格・構成比の4効果に分解。
  *
- * 4つの状態単価 P₀₀, P₁₀, P₀₁, P₁₁ を用いて
- * 24通り全順序の限界貢献の加重平均を閉形式で計算。
- * n=4 のシャープリー重み: k=0→¼, k=1→1/12, k=2→1/12, k=3→¼
+ * 手順:
+ *   1. decompose3 で実売上に基づく3変数シャープリー値を計算
+ *      → φ_C, φ_Q, φ_P̄  (合計 = curSales − prevSales を保証)
+ *   2. decomposePriceMix でカテゴリ別の価格/構成比変動比率を計算
+ *   3. φ_P̄ をその比率で価格効果と構成比変化効果に分割
+ *
+ * これにより φ_C + φ_Q + φ_price + φ_mix = curSales − prevSales が
+ * データソース間の差異に関係なく常に成立する。
  */
 export function decompose5(
-  _prevSales: number, _curSales: number,
+  prevSales: number, curSales: number,
   prevCust: number, curCust: number,
   prevTotalQty: number, curTotalQty: number,
   curCategories: readonly CategoryQtyAmt[],
   prevCategories: readonly CategoryQtyAmt[],
 ): FiveFactorResult | null {
-  const C0 = prevCust, C1 = curCust
-  const Q0 = safeDivide(prevTotalQty, prevCust, 0)
-  const Q1 = safeDivide(curTotalQty, curCust, 0)
+  // Step 1: 3変数シャープリー分解（実売上にアンカー → 合計保証）
+  const d3 = decompose3(prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty)
 
-  // Aggregate categories
-  const curMap = new Map<string, { qty: number; amt: number }>()
-  for (const c of curCategories) {
-    const ex = curMap.get(c.key) ?? { qty: 0, amt: 0 }
-    ex.qty += c.qty; ex.amt += c.amt
-    curMap.set(c.key, ex)
-  }
-  const prevMap = new Map<string, { qty: number; amt: number }>()
-  for (const c of prevCategories) {
-    const ex = prevMap.get(c.key) ?? { qty: 0, amt: 0 }
-    ex.qty += c.qty; ex.amt += c.amt
-    prevMap.set(c.key, ex)
-  }
+  // Step 2: カテゴリ別の価格/構成比シャープリー比率
+  const pm = decomposePriceMix(curCategories, prevCategories)
+  if (!pm) return null
 
-  const prevTQ = [...prevMap.values()].reduce((s, c) => s + c.qty, 0)
-  const curTQ = [...curMap.values()].reduce((s, c) => s + c.qty, 0)
-  if (prevTQ <= 0 || curTQ <= 0) return null
+  // Step 3: 単価効果を価格/構成比に分割
+  const pmTotal = pm.priceEffect + pm.mixEffect
+  let priceEffect: number
+  let mixEffect: number
 
-  // Compute 4 state unit prices: P₀₀, P₁₀, P₀₁, P₁₁
-  // and dot products for φ_p, φ_s
-  let P00 = 0, P10 = 0, P01 = 0, P11 = 0
-  let dpS0 = 0, dpS1 = 0  // Σ(p₁ᵢ-p₀ᵢ)s₀ᵢ, Σ(p₁ᵢ-p₀ᵢ)s₁ᵢ
-  let dsP0 = 0, dsP1 = 0  // Σp₀ᵢ(s₁ᵢ-s₀ᵢ), Σp₁ᵢ(s₁ᵢ-s₀ᵢ)
-
-  const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
-  for (const key of allKeys) {
-    const c = curMap.get(key)
-    const p = prevMap.get(key)
-    const cQty = c?.qty ?? 0, cAmt = c?.amt ?? 0
-    const pQty = p?.qty ?? 0, pAmt = p?.amt ?? 0
-
-    const p0 = pQty > 0 ? safeDivide(pAmt, pQty, 0) : safeDivide(cAmt, cQty, 0)
-    const p1 = cQty > 0 ? safeDivide(cAmt, cQty, 0) : safeDivide(pAmt, pQty, 0)
-    const s0 = safeDivide(pQty, prevTQ, 0)
-    const s1 = safeDivide(cQty, curTQ, 0)
-
-    P00 += p0 * s0
-    P10 += p1 * s0
-    P01 += p0 * s1
-    P11 += p1 * s1
-
-    dpS0 += (p1 - p0) * s0
-    dpS1 += (p1 - p0) * s1
-    dsP0 += p0 * (s1 - s0)
-    dsP1 += p1 * (s1 - s0)
+  if (Math.abs(pmTotal) < 1) {
+    // 単価変動が無視できるほど小さい場合は均等分割（両方とも≈0）
+    priceEffect = d3.pricePerItemEffect * 0.5
+    mixEffect = d3.pricePerItemEffect * 0.5
+  } else {
+    const priceFraction = pm.priceEffect / pmTotal
+    priceEffect = d3.pricePerItemEffect * priceFraction
+    mixEffect = d3.pricePerItemEffect * (1 - priceFraction)
   }
 
-  // Shapley weights for n=4
-  const w0 = 1 / 4    // |S|=0
-  const w1 = 1 / 12   // |S|=1
-  const w2 = 1 / 12   // |S|=2
-  const w3 = 1 / 4    // |S|=3
-
-  // φ_C
-  const custEffect = (C1 - C0) * (
-    w0 * Q0 * P00 +
-    w1 * (Q1 * P00 + Q0 * P10 + Q0 * P01) +
-    w2 * (Q1 * P10 + Q1 * P01 + Q0 * P11) +
-    w3 * Q1 * P11
-  )
-
-  // φ_Q
-  const qtyEffect = (Q1 - Q0) * (
-    w0 * C0 * P00 +
-    w1 * (C1 * P00 + C0 * P10 + C0 * P01) +
-    w2 * (C1 * P10 + C1 * P01 + C0 * P11) +
-    w3 * C1 * P11
-  )
-
-  // A₀, A₁ for φ_p and φ_s
-  const A0 = w0 * C0 * Q0 + w1 * (C1 * Q0 + C0 * Q1 + C1 * Q1)
-  const A1 = w1 * (C0 * Q0 + C1 * Q0 + C0 * Q1) + w3 * C1 * Q1
-
-  // φ_p = (p₁-p₀)·(A₀s₀ + A₁s₁)
-  const priceEffect = A0 * dpS0 + A1 * dpS1
-
-  // φ_s = (s₁-s₀)·(A₀p₀ + A₁p₁)
-  const mixEffect = A0 * dsP0 + A1 * dsP1
-
-  return { custEffect, qtyEffect, priceEffect, mixEffect }
+  return {
+    custEffect: d3.custEffect,
+    qtyEffect: d3.qtyEffect,
+    priceEffect,
+    mixEffect,
+  }
 }
