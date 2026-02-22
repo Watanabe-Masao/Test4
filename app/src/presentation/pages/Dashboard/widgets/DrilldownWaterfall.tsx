@@ -148,7 +148,7 @@ export function DrilldownWaterfall({
 
     items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
     return items
-  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
+  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, dayRecords, prevDayRecords])
 
   const categoryData = useMemo((): WaterfallItem[] => {
     if (dayRecords.length === 0 || prevDayRecords.length === 0) return []
