@@ -351,6 +351,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         <CategoryFactorBreakdown
           curRecords={ctx.categoryTimeSales?.records ?? []}
           prevRecords={ctx.prevYearCategoryTimeSales?.records ?? []}
+          curCustomers={r.totalCustomers}
+          prevCustomers={prevYear.totalCustomers}
         />
       ) : (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={360}>

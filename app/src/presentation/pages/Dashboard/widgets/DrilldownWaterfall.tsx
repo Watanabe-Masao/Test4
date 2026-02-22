@@ -246,6 +246,8 @@ export function DrilldownWaterfall({
         <CategoryFactorBreakdown
           curRecords={dayRecords}
           prevRecords={prevDayRecords}
+          curCustomers={dayCust}
+          prevCustomers={pyCust}
           compact
         />
       ) : (
