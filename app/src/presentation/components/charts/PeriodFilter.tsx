@@ -1,51 +1,57 @@
 /**
  * PeriodFilter — 期間・集計モード制御フック & UI
  *
- * ## 平均計算の設計方針（重要）
+ * ═══════════════════════════════════════════════════════════
+ * ## 設計ルール（破ってはいけない原則）
+ * ═══════════════════════════════════════════════════════════
  *
- * 平均値は「合計 ÷ COUNT」で算出する。
+ * 以下のルールは全チャートコンポーネントに適用される。
+ * 違反はアーキテクチャガードテスト（divisorRules.test.ts）で検出される。
  *
- * ### なぜ「実データ駆動型除数」を採用するのか
+ * ### RULE-1: 除数は必ず computeDivisor() を経由する
  *
- * カレンダーベースの除数（例: 2月=28日、月曜=4回）では以下の問題が発生する:
+ * 平均計算の除数は `computeDivisor(distinctDayCount, mode)` で算出する。
+ * インラインで `mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)`
+ * のような独自実装を書いてはいけない。
  *
- * 1. **データ欠損日の影響**: 店休日やデータ未投入日がある場合、
- *    カレンダー上の日数で割ると平均が過小評価される。
- *    例: 月曜5回のうちデータが3回分しかなければ、合計÷5 ではなく 合計÷3 が正しい。
+ * ✅ 正しい: `const div = computeDivisor(days.size, pf.mode)`
+ * ❌ 違反:  `const div = pf.mode === 'total' ? 1 : days.size || 1`
  *
- * 2. **当年・前年のカバレッジ差**: 前年比較時、当年と前年で
- *    データ日数が異なる場合（例: 当年5日分、前年4日分）、
- *    一律の除数では比較が不公平になる。
+ * ### RULE-2: 除数はカレンダーではなく実データから算出する
  *
- * 3. **期間フィルタとの整合性**: dayRange で 1〜7日を選択した場合と
- *    1〜30日を選択した場合で、出現する曜日回数が変わるため、
- *    カレンダー上の回数ではなく実データの回数でカウントする必要がある。
+ * カレンダー上の日数（28日、月曜4回等）ではなく、フィルタ適用後の
+ * レコードに実際に存在する distinct day 数を使う。
+ * `pf.divisor` / `pf.divideByMode` はレガシーAPI。新規使用禁止。
  *
- * ### 各チャートの除数算出パターン
+ * ✅ 正しい: `computeDivisor(countDistinctDays(filtered), mode)`
+ * ❌ 違反:  `pf.divisor` / `pf.divideByMode(value)`
  *
- * 全チャートで共通の原則: **フィルタ適用後のレコードから distinct day をカウント**
+ * ### RULE-3: 当年と前年の除数は独立して算出する
  *
- * | チャート                    | 除数算出方法                                      |
- * |---------------------------|------------------------------------------------|
- * | TimeSlotSalesChart        | aggregateHourly 内で storeFiltered の distinct day |
- * | TimeSlotYoYComparisonChart | curDays.size / prevDays.size を個別に算出          |
- * | TimeSlotHeatmapChart      | 曜日ごとに distinct day をカウント (per-DOW)        |
- * | DeptHourlyPatternChart    | filtered の distinct day                          |
- * | StoreTimeSlotComparisonChart | filtered の distinct day                        |
- * | CategorySalesBreakdownChart | filtered の distinct day                         |
- * | CategoryHierarchyExplorer | 当年/前年それぞれの distinct day を個別に算出       |
+ * 前年比較では当年・前年それぞれの実データ日数から個別に除数を算出する。
+ * 一方の除数を他方に流用してはいけない。
  *
- * ### レガシー: カレンダーベース除数 (divisor / divideByMode)
+ * ✅ 正しい: `curDiv = computeDivisor(curDays.size, mode)`
+ *            `prevDiv = computeDivisor(prevDays.size, mode)`
+ * ❌ 違反:  `div = computeDivisor(curDays.size, mode)` を前年にも適用
  *
- * `divisor` と `divideByMode` はカレンダーベースの除数を返す。
- * 現在は全チャートが実データ駆動型に移行済みだが、後方互換性のため残している。
- * 新規チャートでは `computeDataDivisor()` または各チャート内での
- * distinct day カウントを使用すること。
+ * ### RULE-4: 0除算は computeDivisor が防止する
  *
- * @see computeDataDivisor — 実データ駆動型除数算出
- * @see computeDataDowDivisors — 曜日ごとの実データ駆動型除数算出
- * @see countDowInRange — カレンダーベース曜日カウント（レガシー）
- * @see PeriodFilter.test.ts — 平均計算の正当性テスト
+ * 個別の `Math.max(x, 1)` や `x || 1` ガードは不要。
+ * computeDivisor は常に >= 1 を返す。二重ガードは設計違反の兆候。
+ *
+ * ═══════════════════════════════════════════════════════════
+ * ## 純粋関数一覧（一元管理ポイント）
+ * ═══════════════════════════════════════════════════════════
+ *
+ * | ID         | 関数名              | 役割                          |
+ * |------------|--------------------|-----------------------------|
+ * | TR-DIV-001 | computeDivisor     | mode + day数 → 除数（>= 1）   |
+ * | TR-DIV-002 | countDistinctDays  | records → distinct day 数     |
+ * | TR-DIV-003 | computeDowDivisorMap | records → 曜日別除数 Map    |
+ *
+ * @see divisorRules.test.ts — アーキテクチャガードテスト（構造違反の自動検出）
+ * @see PeriodFilter.test.ts — 技術ルール準拠テスト（不変条件・動的検証）
  */
 import { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
