@@ -19,6 +19,8 @@ import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
@@ -164,7 +166,8 @@ const ProgressLabel = styled.div`
 
 const ChartArea = styled.div`
   width: 100%;
-  height: 300px;
+  flex: 1;
+  min-height: 250px;
 `
 
 type BudgetViewType = 'line' | 'diff' | 'rate' | 'area' | 'prevYearDiff'

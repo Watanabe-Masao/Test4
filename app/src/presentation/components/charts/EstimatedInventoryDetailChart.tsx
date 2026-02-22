@@ -282,7 +282,7 @@ export function EstimatedInventoryDetailChart({
         {tabHeader}
 
         {/* チャート: 店舗ごとの推定在庫ライン */}
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={300}>
           <ComposedChart data={compChartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
             <XAxis
@@ -379,7 +379,7 @@ export function EstimatedInventoryDetailChart({
       {tabHeader}
 
       {/* ---- チャート ---- */}
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={280}>
         <ComposedChart data={aggChartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis

@@ -166,7 +166,7 @@ export function InventoryTrendChart({
           </TabGroup>
         )}
       </Header>
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={canCompare ? 300 : '84%'}>
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={canCompare ? 300 : 280}>
         <ComposedChart data={aggregateData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
