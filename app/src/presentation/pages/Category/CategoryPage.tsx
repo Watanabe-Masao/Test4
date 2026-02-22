@@ -20,7 +20,7 @@ import {
   StoreComparisonMarkupRadarChart,
 } from './CategoryComparisonCharts'
 import type { ComparisonMode, CategoryChartItem } from './categoryData'
-import { CATEGORY_COLORS, buildCategoryData, buildCustomCategoryData } from './categoryData'
+import { CATEGORY_COLORS, buildCategoryData, buildUnifiedCategoryData } from './categoryData'
 
 type SortKey = 'label' | 'cost' | 'price' | 'grossProfit' | 'markup' | 'costShare' | 'priceShare' | 'crossMult'
 type SortDir = 'asc' | 'desc'
@@ -90,8 +90,8 @@ export function CategoryPage() {
   const r = currentResult
   const hasMultipleStores = selectedResults.length > 1
 
-  // カテゴリ別データ（標準カテゴリ）
-  const categoryData = buildCategoryData(r)
+  // カテゴリ別データ（標準 + カスタムカテゴリ統合）
+  const categoryData = buildUnifiedCategoryData(r, appState.settings.supplierCategoryMap)
 
   // 取引先別データ
   const supplierData = Array.from(r.supplierTotals.values())
@@ -99,10 +99,7 @@ export function CategoryPage() {
   const totalSupplierAbsPrice = supplierData.reduce((sum, s) => sum + Math.abs(s.price), 0)
   const totalSupplierCost = supplierData.reduce((sum, s) => sum + s.cost, 0)
 
-  // カスタムカテゴリ集計データ
-  const customCategoryData = buildCustomCategoryData(r, appState.settings.supplierCategoryMap)
-
-  // --- KPIサマリー ---
+  // --- KPIサマリー（統合データで再計算） ---
   const totalCatCost = categoryData.reduce((s, c) => s + c.cost, 0)
   const totalCatPrice = categoryData.reduce((s, c) => s + c.price, 0)
   const totalGrossProfit = totalCatPrice - totalCatCost
@@ -161,7 +158,7 @@ export function CategoryPage() {
             <KpiCard label="売価合計" value={formatCurrency(totalCatPrice)} accent="#3b82f6" />
           </KpiRow>
 
-          {/* チャート（相乗積 + 構成比）— 標準カテゴリのみ */}
+          {/* チャート（相乗積 + 構成比）— 統合カテゴリ */}
           {(() => {
             const chartItems: CategoryChartItem[] = categoryData.map((d) => ({
               label: d.label, cost: d.cost, price: d.price, markup: d.markup, color: d.color,
@@ -179,7 +176,7 @@ export function CategoryPage() {
             <SectionHeader>
               <SectionTitle>カテゴリ別集計</SectionTitle>
               <span style={{ fontSize: '0.7rem', color: '#888' }}>
-                相乗積合計 = 全体値入率
+                標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率
               </span>
             </SectionHeader>
             <TableWrapper>
@@ -207,7 +204,7 @@ export function CategoryPage() {
                           const costShare = safeDivide(Math.abs(d.cost), totalAbsCost, 0)
                           const priceShare = safeDivide(Math.abs(d.price), totalAbsPrice, 0)
                           return (
-                            <Tr key={d.category}>
+                            <Tr key={`${d.isCustom ? 'cc-' : ''}${d.category}`}>
                               <Td><Badge $color={d.color} />{d.label}</Td>
                               <Td>{formatCurrency(d.cost)}</Td>
                               <Td>{formatCurrency(d.price)}</Td>
@@ -238,77 +235,6 @@ export function CategoryPage() {
               </Table>
             </TableWrapper>
           </Section>
-
-          {/* ── カスタムカテゴリ集計テーブル（独立） ── */}
-          {customCategoryData.length > 0 && (
-            <Section>
-              <SectionHeader>
-                <SectionTitle>カスタムカテゴリ集計</SectionTitle>
-                <span style={{ fontSize: '0.7rem', color: '#888' }}>
-                  取引先を独自グルーピングした集計
-                </span>
-              </SectionHeader>
-              <TableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>カテゴリ</Th>
-                      <Th>原価</Th>
-                      <Th>売価</Th>
-                      <Th>粗利額</Th>
-                      <Th>値入率</Th>
-                      <Th>構成比（原価）</Th>
-                      <Th>売価構成比</Th>
-                      <Th>相乗積</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const ccTotalCost = customCategoryData.reduce((s, c) => s + c.cost, 0)
-                      const ccTotalPrice = customCategoryData.reduce((s, c) => s + c.price, 0)
-                      const ccTotalAbsCost = customCategoryData.reduce((s, c) => s + Math.abs(c.cost), 0)
-                      const ccTotalAbsPrice = customCategoryData.reduce((s, c) => s + Math.abs(c.price), 0)
-                      const ccTotalGP = ccTotalPrice - ccTotalCost
-                      const ccOverallMarkup = safeDivide(ccTotalGP, ccTotalPrice, 0)
-                      return (
-                        <>
-                          {customCategoryData.map((d) => {
-                            const grossProfit = d.price - d.cost
-                            const costShare = safeDivide(Math.abs(d.cost), ccTotalAbsCost, 0)
-                            const priceShare = safeDivide(Math.abs(d.price), ccTotalAbsPrice, 0)
-                            return (
-                              <Tr key={`custom-${d.category}`}>
-                                <Td><Badge $color={d.color} />{d.label}</Td>
-                                <Td>{formatCurrency(d.cost)}</Td>
-                                <Td>{formatCurrency(d.price)}</Td>
-                                <GrossProfitCell $positive={grossProfit >= 0}>
-                                  {formatCurrency(grossProfit)}
-                                </GrossProfitCell>
-                                <MarkupCell $rate={d.markup}>{formatPercent(d.markup)}</MarkupCell>
-                                <Td>{formatPercent(costShare)}</Td>
-                                <Td>{formatPercent(priceShare)}</Td>
-                                <Td>{formatPercent(d.crossMultiplication)}</Td>
-                              </Tr>
-                            )
-                          })}
-                          <TrTotal>
-                            <Td>合計</Td>
-                            <Td>{formatCurrency(ccTotalCost)}</Td>
-                            <Td>{formatCurrency(ccTotalPrice)}</Td>
-                            <Td>{formatCurrency(ccTotalGP)}</Td>
-                            <Td>{formatPercent(ccOverallMarkup)}</Td>
-                            <Td>{formatPercent(1)}</Td>
-                            <Td>{formatPercent(1)}</Td>
-                            <Td>{formatPercent(customCategoryData.reduce((s, c) => s + c.crossMultiplication, 0))}</Td>
-                          </TrTotal>
-                        </>
-                      )
-                    })()}
-                  </tbody>
-                </Table>
-              </TableWrapper>
-            </Section>
-          )}
 
           {/* ── 取引先別集計テーブル ── */}
           {supplierData.length > 0 && (

@@ -1,6 +1,7 @@
 import type { StoreResult, CustomCategory } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
+import type { CategoryType } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 
 // ─── Types ───────────────────────────────────────────────
@@ -113,6 +114,85 @@ export function buildCustomCategoryData(
         color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
       }]
     })
+}
+
+/** 統合カテゴリデータ型（標準 + カスタムカテゴリ） */
+export interface UnifiedCategoryItem {
+  category: string
+  label: string
+  cost: number
+  price: number
+  markup: number
+  priceShare: number
+  crossMultiplication: number
+  color: string
+  isCustom: boolean
+}
+
+/**
+ * 標準カテゴリとカスタムカテゴリを統合し、構成比・相乗積を全体で再計算する。
+ * これらの合計が「仕入全体」を表す。
+ */
+export function buildUnifiedCategoryData(
+  result: StoreResult,
+  supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+): UnifiedCategoryItem[] {
+  // 1. 標準カテゴリ（categoryTotals から）
+  const items: { category: string; label: string; cost: number; price: number; color: string; isCustom: boolean }[] = []
+
+  for (const cat of CATEGORY_ORDER) {
+    const pair = result.categoryTotals.get(cat)
+    if (!pair) continue
+    items.push({
+      category: cat,
+      label: CATEGORY_LABELS[cat as CategoryType],
+      cost: pair.cost,
+      price: pair.price,
+      color: CATEGORY_COLORS[cat] ?? '#64748b',
+      isCustom: false,
+    })
+  }
+
+  // 2. カスタムカテゴリ（supplierTotals + supplierCategoryMap から）
+  const aggregated = new Map<CustomCategory, { cost: number; price: number }>()
+  for (const [, st] of result.supplierTotals) {
+    const customCat = supplierCategoryMap[st.supplierCode]
+    if (!customCat) continue
+    const existing = aggregated.get(customCat) ?? { cost: 0, price: 0 }
+    aggregated.set(customCat, {
+      cost: existing.cost + st.cost,
+      price: existing.price + st.price,
+    })
+  }
+
+  for (const cc of CUSTOM_CATEGORIES) {
+    const pair = aggregated.get(cc)
+    if (!pair) continue
+    items.push({
+      category: cc,
+      label: cc,
+      cost: pair.cost,
+      price: pair.price,
+      color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
+      isCustom: true,
+    })
+  }
+
+  // 3. 全体で構成比・相乗積を再計算
+  const totalPrice = items.reduce((sum, d) => sum + d.price, 0)
+  const totalAbsPrice = items.reduce((sum, d) => sum + Math.abs(d.price), 0)
+
+  return items.map((d) => ({
+    category: d.category,
+    label: d.label,
+    cost: d.cost,
+    price: d.price,
+    markup: safeDivide(d.price - d.cost, d.price, 0),
+    priceShare: safeDivide(Math.abs(d.price), totalAbsPrice, 0),
+    crossMultiplication: safeDivide(d.price - d.cost, totalPrice, 0),
+    color: d.color,
+    isCustom: d.isCustom,
+  }))
 }
 
 /** パレート図ヘルパー: 降順ソート + 累計%を計算 */
