@@ -365,7 +365,7 @@ export function CategoryFactorBreakdown({
             fill={COLORS.qty}
             barSize={compact ? 10 : 12}
             opacity={0.85}
-            onClick={(_data: FactorItem) => handleDrill(_data)}
+            onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
             cursor="pointer"
           />
           <Bar
@@ -374,7 +374,7 @@ export function CategoryFactorBreakdown({
             fill={COLORS.price}
             barSize={compact ? 10 : 12}
             opacity={0.85}
-            onClick={(_data: FactorItem) => handleDrill(_data)}
+            onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
             cursor="pointer"
           />
         </BarChart>
