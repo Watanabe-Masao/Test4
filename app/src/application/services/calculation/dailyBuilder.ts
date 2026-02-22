@@ -169,7 +169,8 @@ export function buildDailyRecords(
     }
 
     // 日別レコード生成（データがある日のみ）
-    const hasData =
+    // 経過日数判定: 消耗品のみの日は除外（消耗品は売上と異なる期間のデータが入る場合がある）
+    const hasSalesData =
       daySales > 0 ||
       purchase.cost !== 0 ||
       deliverySales.cost !== 0 ||
@@ -177,11 +178,11 @@ export function buildDailyRecords(
       interStoreOut.cost !== 0 ||
       interDepartmentIn.cost !== 0 ||
       interDepartmentOut.cost !== 0 ||
-      discountAbsolute !== 0 ||
-      consumable.cost !== 0
+      discountAbsolute !== 0
+    const hasData = hasSalesData || consumable.cost !== 0
 
     if (hasData) {
-      elapsedDays = day
+      if (hasSalesData) elapsedDays = day
       if (daySales > 0) salesDays++
 
       const rec: DailyRecord = {

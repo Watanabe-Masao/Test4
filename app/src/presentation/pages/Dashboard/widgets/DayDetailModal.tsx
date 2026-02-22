@@ -26,6 +26,7 @@ import {
 import { TabBar, Tab, KpiGrid2, KpiMini, KpiMiniLabel, KpiMiniValue, KpiMiniSub } from './DayDetailModal.styles'
 import { HourlyChart } from './HourlyChart'
 import { CategoryDrilldown } from './CategoryDrilldown'
+import { DrilldownWaterfall } from './DrilldownWaterfall'
 
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
 
@@ -172,6 +173,16 @@ export function DayDetailModal({
         {/* ── Tab: 売上分析 ── */}
         {tab === 'sales' && (
           <>
+            {prevYear.hasPrevYear && pySales > 0 && (
+              <DrilldownWaterfall
+                actual={actual}
+                pySales={pySales}
+                dayCust={dayCust}
+                pyCust={pyCust}
+                dayRecords={dayRecords}
+                prevDayRecords={prevDayRecords}
+              />
+            )}
             {dayRecords.length > 0 && (
               <CategoryDrilldown
                 records={dayRecords}

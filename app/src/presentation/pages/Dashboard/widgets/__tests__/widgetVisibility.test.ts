@@ -96,10 +96,29 @@ describe('ウィジェット isVisible', () => {
     })
   })
 
+  describe('前年比較ウォーターフォールウィジェット', () => {
+    it('前年データなしの場合は非表示', () => {
+      const ctx = makeWidgetContext({
+        prevYear: { hasPrevYear: false, daily: new Map(), totalSales: 0, totalDiscount: 0, totalCustomers: 0 },
+      })
+      const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
+      expect(widget?.isVisible).toBeDefined()
+      expect(widget!.isVisible!(ctx)).toBe(false)
+    })
+
+    it('前年データありの場合は表示', () => {
+      const ctx = makeWidgetContext({
+        prevYear: { hasPrevYear: true, daily: new Map(), totalSales: 100000, totalDiscount: 0, totalCustomers: 50 },
+      })
+      const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
+      expect(widget!.isVisible!(ctx)).toBe(true)
+    })
+  })
+
   describe('isVisible が未設定のウィジェットは常に表示', () => {
     it('通常ウィジェットには isVisible がない', () => {
       const nonDataWidgets = WIDGET_REGISTRY.filter(
-        (w) => !w.id.includes('category') && !w.id.includes('timeslot') && !w.id.includes('dept-hourly') && !w.id.includes('store-timeslot'),
+        (w) => !w.id.includes('category') && !w.id.includes('timeslot') && !w.id.includes('dept-hourly') && !w.id.includes('store-timeslot') && !w.id.includes('yoy'),
       )
       for (const w of nonDataWidgets) {
         expect(w.isVisible).toBeUndefined()

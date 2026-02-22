@@ -16,6 +16,7 @@ import { MonthlyCalendarWidget } from './MonthlyCalendar'
 import { ForecastToolsWidget } from './ForecastTools'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { WaterfallChartWidget } from './WaterfallChart'
+import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
 import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, renderDepartmentKpiTable, renderDailyInventoryTable, renderStoreKpiTable } from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
@@ -377,6 +378,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
+    id: 'analysis-yoy-waterfall',
+    label: '前年比較ウォーターフォール',
+    group: '分析・可視化',
+    size: 'full',
+    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
+    render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
+  },
+  {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
     group: '分析・可視化',
@@ -474,7 +483,7 @@ export function autoInjectDataWidgets(
     if (currentIds.includes(w.id) || seen.has(w.id)) return false
     // データチェック: isVisible は WidgetContext を要求するが、
     // ここでは必要な最小フィールドで簡易チェック
-    if (w.id.startsWith('chart-timeslot-yoy')) {
+    if (w.id.startsWith('chart-timeslot-yoy') || w.id === 'analysis-yoy-waterfall') {
       return ctx.prevYearCategoryTimeSales.hasPrevYear
     }
     if (w.id === 'chart-store-timeslot-comparison') {

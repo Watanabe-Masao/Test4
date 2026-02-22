@@ -3,6 +3,7 @@
  *
  * DayDetailModal の「時間帯分析」タブで表示する
  * 棒グラフ・累積線・時間帯別詳細パネルを提供する。
+ * 複数時間帯を選択して分類別内訳を表示可能。
  */
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
@@ -29,7 +30,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
   prevDayRecords: readonly CategoryTimeSalesRecord[]
 }) {
   const [hoveredHour, setHoveredHour] = useState<number | null>(null)
-  const [selectedHour, setSelectedHour] = useState<number | null>(null)
+  const [selectedHours, setSelectedHours] = useState<Set<number>>(new Set())
   const [hourlyMode, setHourlyMode] = useState<HourlyMode>('actual')
   const buildHourlyData = useCallback((recs: readonly CategoryTimeSalesRecord[]) => {
     const map = new Map<number, { amount: number; quantity: number }>()
@@ -77,23 +78,62 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
     return allHours.map((h) => map.get(h) ?? { hour: h, amount: 0, quantity: 0 })
   }, [refData, allHours])
 
+  // Toggle hour selection (multi-select)
+  const toggleHour = useCallback((hour: number) => {
+    setSelectedHours(prev => {
+      const next = new Set(prev)
+      if (next.has(hour)) {
+        next.delete(hour)
+      } else {
+        next.add(hour)
+      }
+      return next
+    })
+  }, [])
+
+  // Select all / clear all
+  const selectAllHours = useCallback(() => {
+    setSelectedHours(new Set(paddedData.map(d => d.hour)))
+  }, [paddedData])
+
+  const clearSelection = useCallback(() => {
+    setSelectedHours(new Set())
+  }, [])
+
+  // Aggregate selected hours data
+  const selectedData = useMemo(() => {
+    if (selectedHours.size === 0) return null
+    let amount = 0
+    let quantity = 0
+    for (const d of paddedData) {
+      if (selectedHours.has(d.hour)) {
+        amount += d.amount
+        quantity += d.quantity
+      }
+    }
+    return { amount, quantity }
+  }, [selectedHours, paddedData])
+
+  // Build category detail for selected hours (aggregated across all selected)
   const hourDetail = useMemo((): HourCategoryItem[] => {
-    if (selectedHour == null) return []
+    if (selectedHours.size === 0) return []
     const sourceRecs = hourlyMode === 'prev' ? prevDayRecords : dayRecords
     const map = new Map<string, { dept: string; line: string; klass: string; amount: number; quantity: number }>()
     for (const rec of sourceRecs) {
-      const slot = rec.timeSlots.find((s) => s.hour === selectedHour)
-      if (!slot || (slot.amount === 0 && slot.quantity === 0)) continue
-      const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
-      const ex = map.get(key) ?? {
-        dept: rec.department.name || rec.department.code,
-        line: rec.line.name || rec.line.code,
-        klass: rec.klass.name || rec.klass.code,
-        amount: 0, quantity: 0,
+      for (const slot of rec.timeSlots) {
+        if (!selectedHours.has(slot.hour)) continue
+        if (slot.amount === 0 && slot.quantity === 0) continue
+        const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
+        const ex = map.get(key) ?? {
+          dept: rec.department.name || rec.department.code,
+          line: rec.line.name || rec.line.code,
+          klass: rec.klass.name || rec.klass.code,
+          amount: 0, quantity: 0,
+        }
+        ex.amount += slot.amount
+        ex.quantity += slot.quantity
+        map.set(key, ex)
       }
-      ex.amount += slot.amount
-      ex.quantity += slot.quantity
-      map.set(key, ex)
     }
     const items = [...map.values()].sort((a, b) => b.amount - a.amount)
     const totalAmt = items.reduce((s, it) => s + it.amount, 0)
@@ -102,7 +142,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
       pct: totalAmt > 0 ? (it.amount / totalAmt) * 100 : 0,
       color: COLORS[i % COLORS.length],
     }))
-  }, [dayRecords, prevDayRecords, selectedHour, hourlyMode])
+  }, [dayRecords, prevDayRecords, selectedHours, hourlyMode])
 
   const totalAmt = paddedData.reduce((s, d) => s + d.amount, 0)
 
@@ -143,7 +183,6 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
   const maxAmt = Math.max(...paddedData.map((d) => d.amount), 1)
   const totalQty = paddedData.reduce((s, d) => s + d.quantity, 0)
   const peakHour = paddedData.reduce((peak, d) => d.amount > peak.amount ? d : peak, paddedData[0])
-  const selData = selectedHour != null ? paddedData.find((d) => d.hour === selectedHour) : null
 
   const hourlyMap = buildHourlyMap(paddedData)
   const coreTime = findCoreTime(hourlyMap)
@@ -153,6 +192,13 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
 
   const modeLabel = hourlyMode === 'prev' ? '前年' : '実績'
 
+  const selectedHoursSorted = [...selectedHours].sort((a, b) => a - b)
+  const selectedLabel = selectedHours.size === 0
+    ? ''
+    : selectedHours.size <= 3
+      ? selectedHoursSorted.map(h => `${h}時`).join('・')
+      : `${selectedHoursSorted[0]}時〜${selectedHoursSorted[selectedHoursSorted.length - 1]}時 (${selectedHours.size}時間)`
+
   return (
     <HourlySection>
       <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
@@ -160,8 +206,8 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
         <ToggleBar style={{ marginBottom: 8 }}>
           <ToggleLabel>データ</ToggleLabel>
           <ToggleGroup>
-            <ToggleBtn $active={hourlyMode === 'actual'} onClick={() => { setHourlyMode('actual'); setSelectedHour(null) }}>実績（当年）</ToggleBtn>
-            <ToggleBtn $active={hourlyMode === 'prev'} onClick={() => { setHourlyMode('prev'); setSelectedHour(null) }}>前年</ToggleBtn>
+            <ToggleBtn $active={hourlyMode === 'actual'} onClick={() => { setHourlyMode('actual'); setSelectedHours(new Set()) }}>実績（当年）</ToggleBtn>
+            <ToggleBtn $active={hourlyMode === 'prev'} onClick={() => { setHourlyMode('prev'); setSelectedHours(new Set()) }}>前年</ToggleBtn>
           </ToggleGroup>
         </ToggleBar>
       )}
@@ -187,13 +233,28 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
           <SumValue>{formatTurnaroundHour(turnaroundHour)}</SumValue>
         </HourlySumItem>
       </HourlySummaryRow>
+
+      {/* Multi-select hint & controls */}
+      <ToggleBar style={{ marginBottom: 4 }}>
+        <ToggleLabel>時間帯選択</ToggleLabel>
+        <ToggleGroup>
+          <ToggleBtn $active={false} onClick={selectAllHours}>全選択</ToggleBtn>
+          <ToggleBtn $active={false} onClick={clearSelection}>クリア</ToggleBtn>
+        </ToggleGroup>
+        {selectedHours.size > 0 && (
+          <span style={{ fontSize: '0.6rem', opacity: 0.7, marginLeft: 4 }}>
+            選択中: {selectedLabel}
+          </span>
+        )}
+      </ToggleBar>
+
       <HourlyChartContainer>
         <HourlyChartWrap ref={wrapRef}>
           <HourlyBarArea>
           {paddedData.map((d, idx) => {
             const pct = (d.amount / maxAmt) * 100
             const isPeak = d.hour === peakHour.hour
-            const isSelected = d.hour === selectedHour
+            const isSelected = selectedHours.has(d.hour)
             const isCoreTime = coreTime != null && d.hour >= coreTime.startHour && d.hour <= coreTime.endHour
             const isTurnaround = d.hour === turnaroundHour
             const cumEntry = cumData.find((c) => c.hour === d.hour)
@@ -208,7 +269,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
                 $color={barColor}
                 onMouseEnter={() => setHoveredHour(d.hour)}
                 onMouseLeave={() => setHoveredHour(null)}
-                onClick={() => setSelectedHour(d.hour === selectedHour ? null : d.hour)}
+                onClick={() => toggleHour(d.hour)}
                 style={{
                   outline: isSelected ? '2px solid #ec4899' : isTurnaround ? '2px solid #ef4444' : undefined,
                   outlineOffset: -1,
@@ -232,7 +293,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
                       </div>
                     )}
                     <div>累積率 {cumEntry ? cumEntry.cumPct.toFixed(1) : '0.0'}%</div>
-                    <span style={{ fontSize: '0.42rem', opacity: 0.6 }}>クリックで詳細表示</span>
+                    <span style={{ fontSize: '0.42rem', opacity: 0.6 }}>クリックで選択（複数可）</span>
                   </HourlyTooltipBox>
                 )}
               </HourlyBar>
@@ -268,30 +329,32 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
       <HourlyAxis>
         {paddedData.map((d) => (
           <HourlyTick key={d.hour} style={{
-            fontWeight: d.hour === selectedHour ? 700 : 400,
-            color: d.hour === selectedHour ? '#ec4899' : undefined,
+            fontWeight: selectedHours.has(d.hour) ? 700 : 400,
+            color: selectedHours.has(d.hour) ? '#ec4899' : undefined,
           }}>{d.hour}</HourlyTick>
         ))}
       </HourlyAxis>
 
-      {selectedHour != null && selData && (
+      {selectedHours.size > 0 && selectedData && (
         <HourlyDetailPanel>
           <HourlyDetailHeader>
-            <HourlyDetailTitle>{selectedHour}時台の分類別内訳</HourlyDetailTitle>
-            <HourlyDetailClose onClick={() => setSelectedHour(null)}>閉じる</HourlyDetailClose>
+            <HourlyDetailTitle>
+              {selectedLabel}の分類別内訳
+            </HourlyDetailTitle>
+            <HourlyDetailClose onClick={clearSelection}>閉じる</HourlyDetailClose>
           </HourlyDetailHeader>
           <HourlyDetailSummary>
             <HourlySumItem>
-              <SumLabel>時間合計</SumLabel>
-              <SumValue>{toComma(selData.amount)}円</SumValue>
+              <SumLabel>選択時間合計</SumLabel>
+              <SumValue>{toComma(selectedData.amount)}円</SumValue>
             </HourlySumItem>
             <HourlySumItem>
               <SumLabel>点数</SumLabel>
-              <SumValue>{selData.quantity.toLocaleString()}点</SumValue>
+              <SumValue>{selectedData.quantity.toLocaleString()}点</SumValue>
             </HourlySumItem>
             <HourlySumItem>
               <SumLabel>全体比</SumLabel>
-              <SumValue>{formatPercent(totalAmt > 0 ? selData.amount / totalAmt : 0, 2)}</SumValue>
+              <SumValue>{formatPercent(totalAmt > 0 ? selectedData.amount / totalAmt : 0, 2)}</SumValue>
             </HourlySumItem>
             <HourlySumItem>
               <SumLabel>分類数</SumLabel>
