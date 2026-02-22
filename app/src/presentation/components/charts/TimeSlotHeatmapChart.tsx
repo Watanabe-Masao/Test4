@@ -2,7 +2,7 @@ import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -176,12 +176,11 @@ function buildHourDowMatrix(
 ) {
   const map = new Map<number, Map<number, number>>()
   const hourSet = new Set<number>()
-  const filtered = hf.applyFilter(filterByHierarchy(records, filter))
+  const storeFiltered = filterByStore(hf.applyFilter(filterByHierarchy(records, filter)), selectedStoreIds)
 
   // 実データから曜日ごとの distinct day をカウント（データ駆動型除数）
   const dowDaySet = new Map<number, Set<number>>() // dow -> Set<day>
-  for (const rec of filtered) {
-    if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+  for (const rec of storeFiltered) {
     const dow = new Date(year, month - 1, rec.day).getDay()
     if (!dowDaySet.has(dow)) dowDaySet.set(dow, new Set())
     dowDaySet.get(dow)!.add(rec.day)

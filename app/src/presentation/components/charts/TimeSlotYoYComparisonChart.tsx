@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -172,38 +172,32 @@ export function TimeSlotYoYComparisonChart({
     // 前年データがカバーする日の範囲を特定し、当年も同じ日のみ比較する
     const prevDaySet = new Set(prevPeriodRecords.map((r) => r.day))
 
-    // 当年集計（前年とカバー日が重なるレコードのみ合計に含める）
+    // 当年集計（前年とカバー日が重なるレコードのみ合計に含める）【TR-FIL-001】
     const curHourly = new Map<number, number>()
     let curTotal = 0
-    const curDays = new Set<number>()
-    const curFiltered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
+    const curFiltered = filterByStore(hf.applyFilter(filterByHierarchy(periodRecords, filter)), selectedStoreIds)
+      .filter((r) => prevDaySet.has(r.day))
     for (const rec of curFiltered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
-      if (!prevDaySet.has(rec.day)) continue
       curTotal += rec.totalAmount
-      curDays.add(rec.day)
       for (const slot of rec.timeSlots) {
         curHourly.set(slot.hour, (curHourly.get(slot.hour) ?? 0) + slot.amount)
       }
     }
 
-    // 前年集計
+    // 前年集計【TR-FIL-001】
     const prevHourly = new Map<number, number>()
     let prevTotal = 0
-    const prevDays = new Set<number>()
-    const prevFiltered = hf.applyFilter(filterByHierarchy(prevPeriodRecords, filter))
+    const prevFiltered = filterByStore(hf.applyFilter(filterByHierarchy(prevPeriodRecords, filter)), selectedStoreIds)
     for (const rec of prevFiltered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       prevTotal += rec.totalAmount
-      prevDays.add(rec.day)
       for (const slot of rec.timeSlots) {
         prevHourly.set(slot.hour, (prevHourly.get(slot.hour) ?? 0) + slot.amount)
       }
     }
 
     // 除数: 当年・前年それぞれの実データ日数から個別に算出【TR-DIV-001】
-    const curDiv = computeDivisor(curDays.size, pf.mode)
-    const prevDiv = computeDivisor(prevDays.size, pf.mode)
+    const curDiv = computeDivisor(countDistinctDays(curFiltered), pf.mode)
+    const prevDiv = computeDivisor(countDistinctDays(prevFiltered), pf.mode)
 
     // 時間帯一覧
     const allHours = new Set([...curHourly.keys(), ...prevHourly.keys()])

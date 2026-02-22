@@ -1,51 +1,74 @@
 /**
  * PeriodFilter — 期間・集計モード制御フック & UI
  *
- * ## 平均計算の設計方針（重要）
+ * ═══════════════════════════════════════════════════════════
+ * ## 設計ルール（破ってはいけない原則）
+ * ═══════════════════════════════════════════════════════════
  *
- * 平均値は「合計 ÷ COUNT」で算出する。
+ * 以下のルールは全チャートコンポーネントに適用される。
+ * 違反はアーキテクチャガードテスト（divisorRules.test.ts）で検出される。
  *
- * ### なぜ「実データ駆動型除数」を採用するのか
+ * ### RULE-1: 除数は必ず computeDivisor() を経由する
  *
- * カレンダーベースの除数（例: 2月=28日、月曜=4回）では以下の問題が発生する:
+ * 平均計算の除数は `computeDivisor(distinctDayCount, mode)` で算出する。
+ * インラインで `mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)`
+ * のような独自実装を書いてはいけない。
  *
- * 1. **データ欠損日の影響**: 店休日やデータ未投入日がある場合、
- *    カレンダー上の日数で割ると平均が過小評価される。
- *    例: 月曜5回のうちデータが3回分しかなければ、合計÷5 ではなく 合計÷3 が正しい。
+ * ✅ 正しい: `const div = computeDivisor(days.size, pf.mode)`
+ * ❌ 違反:  `const div = pf.mode === 'total' ? 1 : days.size || 1`
  *
- * 2. **当年・前年のカバレッジ差**: 前年比較時、当年と前年で
- *    データ日数が異なる場合（例: 当年5日分、前年4日分）、
- *    一律の除数では比較が不公平になる。
+ * ### RULE-2: 除数はカレンダーではなく実データから算出する
  *
- * 3. **期間フィルタとの整合性**: dayRange で 1〜7日を選択した場合と
- *    1〜30日を選択した場合で、出現する曜日回数が変わるため、
- *    カレンダー上の回数ではなく実データの回数でカウントする必要がある。
+ * カレンダー上の日数（28日、月曜4回等）ではなく、フィルタ適用後の
+ * レコードに実際に存在する distinct day 数を使う。
  *
- * ### 各チャートの除数算出パターン
+ * ✅ 正しい: `computeDivisor(countDistinctDays(filtered), mode)`
+ * ❌ 違反:  カレンダー日数で除算
  *
- * 全チャートで共通の原則: **フィルタ適用後のレコードから distinct day をカウント**
+ * ### RULE-3: 当年と前年の除数は独立して算出する
  *
- * | チャート                    | 除数算出方法                                      |
- * |---------------------------|------------------------------------------------|
- * | TimeSlotSalesChart        | aggregateHourly 内で storeFiltered の distinct day |
- * | TimeSlotYoYComparisonChart | curDays.size / prevDays.size を個別に算出          |
- * | TimeSlotHeatmapChart      | 曜日ごとに distinct day をカウント (per-DOW)        |
- * | DeptHourlyPatternChart    | filtered の distinct day                          |
- * | StoreTimeSlotComparisonChart | filtered の distinct day                        |
- * | CategorySalesBreakdownChart | filtered の distinct day                         |
- * | CategoryHierarchyExplorer | 当年/前年それぞれの distinct day を個別に算出       |
+ * 前年比較では当年・前年それぞれの実データ日数から個別に除数を算出する。
+ * 一方の除数を他方に流用してはいけない。
  *
- * ### レガシー: カレンダーベース除数 (divisor / divideByMode)
+ * ✅ 正しい: `curDiv = computeDivisor(curDays.size, mode)`
+ *            `prevDiv = computeDivisor(prevDays.size, mode)`
+ * ❌ 違反:  `div = computeDivisor(curDays.size, mode)` を前年にも適用
  *
- * `divisor` と `divideByMode` はカレンダーベースの除数を返す。
- * 現在は全チャートが実データ駆動型に移行済みだが、後方互換性のため残している。
- * 新規チャートでは `computeDataDivisor()` または各チャート内での
- * distinct day カウントを使用すること。
+ * ### RULE-4: 0除算は computeDivisor が防止する
  *
- * @see computeDataDivisor — 実データ駆動型除数算出
- * @see computeDataDowDivisors — 曜日ごとの実データ駆動型除数算出
- * @see countDowInRange — カレンダーベース曜日カウント（レガシー）
- * @see PeriodFilter.test.ts — 平均計算の正当性テスト
+ * 個別の `Math.max(x, 1)` や `x || 1` ガードは不要。
+ * computeDivisor は常に >= 1 を返す。二重ガードは設計違反の兆候。
+ *
+ * ### RULE-5: 店舗フィルタは filterByStore() を経由する
+ *
+ * ストア絞り込みは `filterByStore(records, selectedStoreIds)` で行う。
+ * 各チャート内でインラインの `if (!selectedStoreIds.has(...)) continue` は禁止。
+ *
+ * ✅ 正しい: `const storeFiltered = filterByStore(records, selectedStoreIds)`
+ * ❌ 違反:  `if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue`
+ *
+ * ### RULE-6: 計算変数は一元管理された純粋関数を経由する
+ *
+ * 計算に使用する変数（日数カウント、除数、フィルタ済みレコード等）は
+ * このファイルで定義された純粋関数を経由して算出する。
+ * 各チャートでの独自実装（Set<number> での手動カウント等）は禁止。
+ *
+ * ✅ 正しい: `const days = countDistinctDays(filtered)`
+ * ❌ 違反:  `const days = new Set<number>(); for (...) days.add(rec.day); days.size`
+ *
+ * ═══════════════════════════════════════════════════════════
+ * ## 純粋関数一覧（一元管理ポイント）
+ * ═══════════════════════════════════════════════════════════
+ *
+ * | ID         | 関数名              | 役割                          |
+ * |------------|--------------------|-----------------------------|
+ * | TR-DIV-001 | computeDivisor     | mode + day数 → 除数（>= 1）   |
+ * | TR-DIV-002 | countDistinctDays  | records → distinct day 数     |
+ * | TR-DIV-003 | computeDowDivisorMap | records → 曜日別除数 Map    |
+ * | TR-FIL-001 | filterByStore      | records + storeIds → 店舗絞込 |
+ *
+ * @see divisorRules.test.ts — アーキテクチャガードテスト（構造違反の自動検出）
+ * @see PeriodFilter.test.ts — 技術ルール準拠テスト（不変条件・動的検証）
  */
 import { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
@@ -68,57 +91,8 @@ export interface PeriodFilterResult extends PeriodFilterState {
   setDayRange: (range: [number, number]) => void
   setMode: (mode: AggregateMode) => void
   toggleDow: (dow: number) => void
-  /** 期間でフィルタ済みレコード */
+  /** 期間 + 曜日でフィルタ済みレコードを返す */
   filterRecords: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
-  /**
-   * **レガシー**: カレンダーベースの集計除数。
-   *
-   * 全チャートは実データ駆動型除数に移行済み。
-   * 新規コードでは `computeDataDivisor()` を使用すること。
-   *
-   * @deprecated 実データ駆動型の `computeDataDivisor()` を使用してください
-   */
-  divisor: number
-  /**
-   * **レガシー**: カレンダーベースの安全な除算ヘルパー。
-   *
-   * 全チャートは実データ駆動型除数に移行済み。
-   * 新規コードでは各チャート内で distinct day をカウントし手動で除算すること。
-   *
-   * @deprecated 実データ駆動型の除算を使用してください
-   */
-  divideByMode: (value: number) => number
-  /**
-   * 実データのレコードから正確な除数を算出する。
-   *
-   * カレンダーベースの `divisor` と異なり、実際にデータが存在する
-   * 日だけをカウントして除数とする。データ欠損日は自動的に除外される。
-   *
-   * **平均計算の正しい手順:**
-   * 1. `filterRecords()` でレコードをフィルタ
-   * 2. フィルタ済みレコードを集計（合計）
-   * 3. `computeDataDivisor(filteredRecords)` で実データ日数を取得
-   * 4. 合計 ÷ 実データ日数 = 正しい平均
-   *
-   * @param records filterRecords() 適用済みのレコード配列
-   * @returns 実データに基づく除数（最小値 1 保証）
-   *
-   * @example
-   * const filtered = pf.filterRecords(records)
-   * const div = pf.computeDataDivisor(filtered)
-   * const avg = Math.round(total / div)
-   */
-  computeDataDivisor: (records: readonly CategoryTimeSalesRecord[]) => number
-  /**
-   * 実データから曜日ごとの除数を算出する。
-   *
-   * ヒートマップ等、曜日ごとに異なる除数が必要な場合に使用。
-   * 各曜日について実際にデータが存在する日数をカウントする。
-   *
-   * @param records filterRecords() 適用済みのレコード配列
-   * @returns Map<曜日(0-6), 実データ日数>
-   */
-  computeDataDowDivisors: (records: readonly CategoryTimeSalesRecord[]) => Map<number, number>
   /** year/month (曜日計算用) */
   year: number
   month: number
@@ -184,44 +158,9 @@ export function usePeriodFilter(
     [dayRange, mode, selectedDows, year, month],
   )
 
-  const divisor = useMemo(() => {
-    if (mode === 'total') return 1
-    if (mode === 'dailyAvg') {
-      const span = dayRange[1] - dayRange[0] + 1
-      return span > 0 ? span : 1
-    }
-    // dowAvg: 選択された曜日の出現回数合計で割る
-    const dowCounts = countDowInRange(year, month, dayRange[0], dayRange[1])
-    if (selectedDows.size > 0) {
-      let total = 0
-      for (const dow of selectedDows) total += dowCounts.get(dow) ?? 0
-      return total > 0 ? total : 1
-    }
-    // 曜日未選択 = 全曜日 → 期間内全日数
-    const span = dayRange[1] - dayRange[0] + 1
-    return span > 0 ? span : 1
-  }, [mode, dayRange, selectedDows, year, month])
-
-  const divideByMode = useCallback(
-    (value: number) => Math.round(value / divisor),
-    [divisor],
-  )
-
-  const computeDataDivisor = useCallback(
-    (records: readonly CategoryTimeSalesRecord[]) =>
-      computeDivisor(countDistinctDays(records), mode),
-    [mode],
-  )
-
-  const computeDataDowDivisors = useCallback(
-    (records: readonly CategoryTimeSalesRecord[]) =>
-      computeDowDivisorMap(records, year, month),
-    [year, month],
-  )
-
   return {
     dayRange, setDayRange, mode, setMode, selectedDows, toggleDow,
-    filterRecords, divisor, divideByMode, computeDataDivisor, computeDataDowDivisors, year, month,
+    filterRecords, year, month,
     defaultEndDay: effectiveEnd, resetToDefault,
   }
 }
@@ -494,13 +433,37 @@ export function computeDowDivisorMap(
   return result
 }
 
+/* ── フィルタリング純粋関数 ────────────────────────────── */
+
+/**
+ * 【TR-FIL-001】店舗フィルタ
+ *
+ * selectedStoreIds が空の場合は全レコードを返す（全店舗表示）。
+ * 空でない場合は指定店舗のレコードのみを返す。
+ *
+ * 全チャートはこの関数を通じて店舗絞り込みを一元的に行うこと。
+ * インラインの `if (selectedStoreIds.size > 0 && !selectedStoreIds.has(...)) continue`
+ * は設計違反。
+ *
+ * @param records フィルタ対象レコード配列
+ * @param selectedStoreIds 選択中の店舗ID集合（空 = 全店舗）
+ * @returns 店舗フィルタ適用済みレコード
+ */
+export function filterByStore(
+  records: readonly CategoryTimeSalesRecord[],
+  selectedStoreIds: ReadonlySet<string>,
+): readonly CategoryTimeSalesRecord[] {
+  if (selectedStoreIds.size === 0) return records
+  return records.filter((r) => selectedStoreIds.has(r.storeId))
+}
+
 /* ── Utility: 曜日カウント計算 ─────────────────────────── */
 
 /**
  * 指定月の dayRange 内で各曜日 (0=日〜6=土) が何日あるか返す。
  *
  * 閏年・月末日数の違いを正しく反映する。
- * dowAvg モードの除数計算に使用される中核ユーティリティ。
+ * テストでの比較検証用に export する。チャートコード内での除数用途には使用禁止。
  *
  * @param year  対象年（例: 2026）
  * @param month 対象月 1-12

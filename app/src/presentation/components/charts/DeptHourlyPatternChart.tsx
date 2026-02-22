@@ -11,9 +11,9 @@ import {
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
-import type { CategoryTimeSalesData } from '@/domain/models'
+import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -118,20 +118,18 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
-  // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）
+  // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）【TR-FIL-001】
   const availableLines = useMemo(() => {
     const lineMap = new Map<string, string>()
-    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+    const storeFiltered = filterByStore(filterByHierarchy(hf.applyFilter(periodRecords), filter), selectedStoreIds)
+    for (const rec of storeFiltered) {
       if (!lineMap.has(rec.line.code)) {
         lineMap.set(rec.line.code, rec.line.name || rec.line.code)
       }
     }
     // 金額順でソート
     const totals = new Map<string, number>()
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+    for (const rec of storeFiltered) {
       totals.set(rec.line.code, (totals.get(rec.line.code) ?? 0) + rec.totalAmount)
     }
     return Array.from(lineMap.entries())
@@ -139,19 +137,17 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
       .sort((a, b) => b.total - a.total)
   }, [periodRecords, selectedStoreIds, filter, hf])
 
-  // 利用可能な部門一覧（部門→ライン表示時のフィルタ用）
+  // 利用可能な部門一覧（部門→ライン表示時のフィルタ用）【TR-FIL-001】
   const availableDepartments = useMemo(() => {
     const deptMap = new Map<string, string>()
-    const filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+    const storeFiltered = filterByStore(filterByHierarchy(hf.applyFilter(periodRecords), filter), selectedStoreIds)
+    for (const rec of storeFiltered) {
       if (!deptMap.has(rec.department.code)) {
         deptMap.set(rec.department.code, rec.department.name || rec.department.code)
       }
     }
     const totals = new Map<string, number>()
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
+    for (const rec of storeFiltered) {
       totals.set(rec.department.code, (totals.get(rec.department.code) ?? 0) + rec.totalAmount)
     }
     return Array.from(deptMap.entries())
@@ -165,22 +161,19 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
-    let filtered = filterByHierarchy(hf.applyFilter(periodRecords), filter)
+    let storeFiltered: readonly CategoryTimeSalesRecord[] = filterByStore(
+      filterByHierarchy(hf.applyFilter(periodRecords), filter), selectedStoreIds,
+    )
 
     // 追加フィルタ：ラインでクラスを絞る、部門でラインを絞る
     if (groupLevel === 'klass' && lineFilter) {
-      filtered = filtered.filter((r) => r.line.code === lineFilter)
+      storeFiltered = storeFiltered.filter((r) => r.line.code === lineFilter)
     }
     if (groupLevel === 'line' && deptFilter) {
-      filtered = filtered.filter((r) => r.department.code === deptFilter)
+      storeFiltered = storeFiltered.filter((r) => r.department.code === deptFilter)
     }
 
-    // 実データの distinct day から除数を算出（カレンダーベースではなく実データベース）
-    const days = new Set<number>()
-    for (const rec of filtered) {
-      if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
-      days.add(rec.day)
-
+    for (const rec of storeFiltered) {
       let deptKey: string, deptName: string
       if (groupLevel === 'department') {
         deptKey = rec.department.code; deptName = rec.department.name || deptKey
@@ -200,7 +193,8 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
       }
     }
 
-    const dataDivisor = computeDivisor(days.size, pf.mode)
+    // 実データの distinct day から除数を算出【TR-DIV-001】【TR-DIV-002】
+    const dataDivisor = computeDivisor(countDistinctDays(storeFiltered), pf.mode)
 
     const deptTotals = [...deptHourMap.entries()].map(([code, hourMap]) => ({
       code,
