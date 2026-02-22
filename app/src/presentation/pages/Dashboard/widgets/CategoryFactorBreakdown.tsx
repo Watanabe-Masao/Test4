@@ -164,6 +164,68 @@ interface PathEntry {
   name: string
 }
 
+/* ── Price/Mix decomposition helper ─────────────────── */
+
+/**
+ * 平均単価変動を価格効果とミックス効果に分解。
+ *
+ * 価格効果 = TQ₁ × Σᵢ (p₁ᵢ − p₀ᵢ) × s₀ᵢ  (各カテゴリの値上げ/値下げ)
+ * ミックス効果 = TQ₁ × Σᵢ p₁ᵢ × (s₁ᵢ − s₀ᵢ)  (構成比変化)
+ *
+ * 消滅カテゴリは純粋なミックス効果、新規カテゴリも純粋なミックス効果として扱う。
+ */
+export function decomposePriceMix(
+  curRecords: readonly CategoryTimeSalesRecord[],
+  prevRecords: readonly CategoryTimeSalesRecord[],
+): { priceEffect: number; mixEffect: number } | null {
+  type CatData = { qty: number; amt: number }
+
+  const curCats = new Map<string, CatData>()
+  for (const r of curRecords) {
+    const key = `${r.department.code}|${r.line.code}|${r.klass.code}`
+    const ex = curCats.get(key) ?? { qty: 0, amt: 0 }
+    ex.qty += r.totalQuantity; ex.amt += r.totalAmount
+    curCats.set(key, ex)
+  }
+
+  const prevCats = new Map<string, CatData>()
+  for (const r of prevRecords) {
+    const key = `${r.department.code}|${r.line.code}|${r.klass.code}`
+    const ex = prevCats.get(key) ?? { qty: 0, amt: 0 }
+    ex.qty += r.totalQuantity; ex.amt += r.totalAmount
+    prevCats.set(key, ex)
+  }
+
+  const prevTQ = [...prevCats.values()].reduce((s, c) => s + c.qty, 0)
+  const curTQ = [...curCats.values()].reduce((s, c) => s + c.qty, 0)
+  if (prevTQ <= 0 || curTQ <= 0) return null
+
+  let deltaPPrice = 0
+  let deltaPMix = 0
+
+  const allKeys = new Set([...curCats.keys(), ...prevCats.keys()])
+  for (const key of allKeys) {
+    const c = curCats.get(key)
+    const p = prevCats.get(key)
+    const cQty = c?.qty ?? 0, cAmt = c?.amt ?? 0
+    const pQty = p?.qty ?? 0, pAmt = p?.amt ?? 0
+
+    // 消滅/新規カテゴリ: 相手期の単価を代用 → 価格差=0, ミックス差のみ残る
+    const p0 = pQty > 0 ? pAmt / pQty : (cQty > 0 ? cAmt / cQty : 0)
+    const p1 = cQty > 0 ? cAmt / cQty : (pQty > 0 ? pAmt / pQty : 0)
+    const s0 = pQty / prevTQ
+    const s1 = cQty / curTQ
+
+    deltaPPrice += (p1 - p0) * s0
+    deltaPMix += p1 * (s1 - s0)
+  }
+
+  return {
+    priceEffect: curTQ * deltaPPrice,
+    mixEffect: curTQ * deltaPMix,
+  }
+}
+
 const COLORS = { cust: '#8b5cf6', qty: '#3b82f6', price: '#f59e0b' } as const
 
 const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'

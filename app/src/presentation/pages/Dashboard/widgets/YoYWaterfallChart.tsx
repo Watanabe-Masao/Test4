@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
+import { CategoryFactorBreakdown, decomposePriceMix } from './CategoryFactorBreakdown'
 import type { WidgetContext } from './types'
 
 const Wrapper = styled.div`
@@ -108,6 +108,14 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 
+  // Price/Mix decomposition of unit price change
+  const priceMix = useMemo(() => {
+    const curRecs = ctx.categoryTimeSales?.records
+    const prevRecs = ctx.prevYearCategoryTimeSales?.records
+    if (!curRecs?.length || !prevRecs?.length) return null
+    return decomposePriceMix(curRecs, prevRecs)
+  }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales])
+
   // Factor decomposition data
   const factorData = useMemo((): WaterfallItem[] => {
     if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
@@ -144,11 +152,11 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     if (hasQuantity && prevCust > 0 && curCust > 0) {
       // Decompose ticket effect into items-per-customer and price-per-item
-      const prevQPC = prevTotalQty / prevCust  // 前年一人当点数
-      const curQPC = curTotalQty / curCust     // 当年一人当点数
-      const prevPPI = safeDivide(prevSales, prevTotalQty, 0)  // 前年平均単価
+      const prevQPC = prevTotalQty / prevCust
+      const curQPC = curTotalQty / curCust
+      const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
 
-      // 3. Items-per-customer effect: curCust * (curQPC - prevQPC) * prevPPI
+      // 3. Items-per-customer effect
       const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
       items.push({
         name: '点数効果',
@@ -158,16 +166,36 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       })
       running += qtyEffect
 
-      // 4. Price-per-item effect: curCust * curQPC * (curPPI - prevPPI)
-      const curPPI = safeDivide(curSales, curTotalQty, 0)
-      const priceEffect = curCust * curQPC * (curPPI - prevPPI)
-      items.push({
-        name: '単価効果',
-        value: priceEffect,
-        base: priceEffect >= 0 ? running : running + priceEffect,
-        bar: Math.abs(priceEffect),
-      })
-      running += priceEffect
+      if (priceMix) {
+        // 4a. Price effect (値上げ/値下げ)
+        items.push({
+          name: '価格効果',
+          value: priceMix.priceEffect,
+          base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
+          bar: Math.abs(priceMix.priceEffect),
+        })
+        running += priceMix.priceEffect
+
+        // 4b. Mix effect (構成比変化)
+        items.push({
+          name: 'ミックス効果',
+          value: priceMix.mixEffect,
+          base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
+          bar: Math.abs(priceMix.mixEffect),
+        })
+        running += priceMix.mixEffect
+      } else {
+        // Fallback: combined price-per-item effect
+        const curPPI = safeDivide(curSales, curTotalQty, 0)
+        const priceEffect = curCust * curQPC * (curPPI - prevPPI)
+        items.push({
+          name: '単価効果',
+          value: priceEffect,
+          base: priceEffect >= 0 ? running : running + priceEffect,
+          bar: Math.abs(priceEffect),
+        })
+        running += priceEffect
+      }
     } else {
       // Fallback: combined ticket effect
       const curAvgTicket = safeDivide(curSales, curCust, 0)
@@ -191,7 +219,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
 
     return items
-  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty])
+  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix])
 
   // Category-based decomposition data
   const categoryData = useMemo((): WaterfallItem[] => {
@@ -309,7 +337,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
-            {hasQuantity ? '客数・点数・単価分解' : '客数・客単価分解'}
+            {priceMix ? '5要素分解' : hasQuantity ? '客数・点数・単価分解' : '客数・客単価分解'}
           </TabBtn>
           {hasCategoryView && (
             <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
