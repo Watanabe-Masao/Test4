@@ -166,7 +166,7 @@ export function CategoryDrilldown({
     title: string,
     barItems: DrillItem[],
     budgetVal: number,
-    actualVal: number,
+    _actualVal: number,
     _achVal: number,
     pyVal: number,
     prefix: string,
@@ -251,7 +251,7 @@ export function CategoryDrilldown({
             })}
           </StackTrack>
           <StackTotal>
-            {isAmountMode ? fmtSen(actualVal) : fmtVal(bActualTotal)}
+            {isAmountMode ? fmtSen(bActualTotal) : fmtVal(bActualTotal)}
           </StackTotal>
           {isActualActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
