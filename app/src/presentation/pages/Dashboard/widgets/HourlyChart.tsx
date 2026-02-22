@@ -4,7 +4,7 @@
  * DayDetailModal の「時間帯分析」タブで表示する
  * 棒グラフ・累積線・時間帯別詳細パネルを提供する。
  */
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/calculations/utils'
@@ -117,7 +117,25 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
   }, [paddedData, totalAmt])
 
   const n = paddedData.length
-  const barCenterX = useCallback((i: number) => n > 0 ? (i + 0.5) / n * 100 : 50, [n])
+
+  // ── ResizeObserver で実ピクセルサイズを取得 ──
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [chartW, setChartW] = useState(0)
+  const [chartH, setChartH] = useState(0)
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => {
+      setChartW(e.contentRect.width)
+      setChartH(e.contentRect.height)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  // ピクセル座標ヘルパー
+  const pxX = useCallback((i: number) => n > 0 ? (i + 0.5) / n * chartW : chartW / 2, [n, chartW])
+  const pxY = useCallback((pct: number) => chartH * (1 - pct / 100), [chartH])
 
   if (paddedData.length === 0 && prevHourlyData.length === 0) return null
   if (paddedData.length === 0) return null
@@ -131,7 +149,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
   const coreTime = findCoreTime(hourlyMap)
   const turnaroundHour = findTurnaroundHour(hourlyMap)
 
-  const cumLinePoints = cumData.map((d, i) => `${barCenterX(i)},${100 - d.cumPct}`).join(' ')
+  const cumLinePoints = cumData.map((d, i) => `${pxX(i)},${pxY(d.cumPct)}`).join(' ')
 
   const modeLabel = hourlyMode === 'prev' ? '前年' : '実績'
 
@@ -170,7 +188,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
         </HourlySumItem>
       </HourlySummaryRow>
       <HourlyChartContainer>
-        <HourlyChartWrap>
+        <HourlyChartWrap ref={wrapRef}>
           <HourlyBarArea>
           {paddedData.map((d, idx) => {
             const pct = (d.amount / maxAmt) * 100
@@ -221,22 +239,23 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
             )
           })}
           </HourlyBarArea>
-          <HourlyCumOverlay viewBox="0 0 100 100" preserveAspectRatio="none">
-            {[25, 50, 75].map((g) => (
-              <line key={g} x1="0" y1={100 - g} x2="100" y2={100 - g}
-                stroke="currentColor" strokeWidth="0.3" strokeDasharray="2,2" opacity="0.3" />
-            ))}
-            <polyline
-              points={cumLinePoints}
-              fill="none" stroke="#ef4444" strokeWidth="1.5"
-              strokeLinejoin="round" strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-            />
-            {cumData.map((d, i) => (
-              <circle key={d.hour} cx={barCenterX(i)} cy={100 - d.cumPct} r="1.2"
-                fill="#ef4444" vectorEffect="non-scaling-stroke" />
-            ))}
-          </HourlyCumOverlay>
+          {chartW > 0 && chartH > 0 && (
+            <HourlyCumOverlay width={chartW} height={chartH}>
+              {[25, 50, 75].map((g) => (
+                <line key={g} x1="0" y1={pxY(g)} x2={chartW} y2={pxY(g)}
+                  stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" opacity="0.3" />
+              ))}
+              <polyline
+                points={cumLinePoints}
+                fill="none" stroke="#ef4444" strokeWidth="1.5"
+                strokeLinejoin="round" strokeLinecap="round"
+              />
+              {cumData.map((d, i) => (
+                <circle key={d.hour} cx={pxX(i)} cy={pxY(d.cumPct)} r="3.5"
+                  fill="#ef4444" />
+              ))}
+            </HourlyCumOverlay>
+          )}
         </HourlyChartWrap>
         <HourlyRightAxis>
           <span>100%</span>
