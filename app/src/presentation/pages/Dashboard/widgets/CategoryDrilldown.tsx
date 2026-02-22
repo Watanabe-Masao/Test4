@@ -166,7 +166,7 @@ export function CategoryDrilldown({
     title: string,
     barItems: DrillItem[],
     budgetVal: number,
-    _actualVal: number,
+    actualVal: number,
     _achVal: number,
     pyVal: number,
     prefix: string,
@@ -180,8 +180,11 @@ export function CategoryDrilldown({
     const bPrevTotal = isAmountMode
       ? barItems.reduce((s, it) => s + (it.prevAmount ?? 0), 0)
       : barItems.reduce((s, it) => s + (it.prevQuantity ?? 0), 0)
+    // 分類別データが無いが実績（DailyRecord）がある場合のフォールバック表示
+    const showActualFallback = bActualTotal === 0 && actualVal > 0 && isAmountMode
+    const effectiveActual = showActualFallback ? actualVal : bActualTotal
     const maxBar = isAmountMode
-      ? Math.max(budgetVal, bActualTotal, bPrevTotal, 1)
+      ? Math.max(budgetVal, effectiveActual, bPrevTotal, 1)
       : Math.max(bActualTotal, bPrevTotal, 1)
 
     const tooltipFn = (it: DrillItem, val: number, total: number, isPrev: boolean) => {
@@ -228,30 +231,38 @@ export function CategoryDrilldown({
         <StackRow $active={isActualActive} onClick={() => handleRowSelect(period, 'actual')}>
           <StackLabel>実績</StackLabel>
           <StackTrack>
-            {barItems.map((it) => {
-              const val = isAmountMode ? it.amount : it.quantity
-              if (val <= 0) return null
-              const pct = bActualTotal > 0 ? (val / bActualTotal * 100) : 0
-              const segKey = `${prefix}a-${it.code}`
-              return (
-                <StackSegment
-                  key={it.code} $flex={val / maxBar} $color={it.color}
-                  onMouseEnter={(e) => {
-                    setHoveredSeg(segKey)
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                    setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bActualTotal, false) })
-                  }}
-                  onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
-                  onDoubleClick={() => canDrill && handleDrill(it)}
-                  style={{ cursor: canDrill ? 'pointer' : 'default' }}
-                >
-                  {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
-                </StackSegment>
-              )
-            })}
+            {showActualFallback ? (
+              <StackSegment $flex={actualVal / maxBar} $color="#9ca3af" style={{ opacity: 0.6 }}>
+                <SegLabel>分類未取込</SegLabel>
+              </StackSegment>
+            ) : (
+              barItems.map((it) => {
+                const val = isAmountMode ? it.amount : it.quantity
+                if (val <= 0) return null
+                const pct = bActualTotal > 0 ? (val / bActualTotal * 100) : 0
+                const segKey = `${prefix}a-${it.code}`
+                return (
+                  <StackSegment
+                    key={it.code} $flex={val / maxBar} $color={it.color}
+                    onMouseEnter={(e) => {
+                      setHoveredSeg(segKey)
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bActualTotal, false) })
+                    }}
+                    onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
+                    onDoubleClick={() => canDrill && handleDrill(it)}
+                    style={{ cursor: canDrill ? 'pointer' : 'default' }}
+                  >
+                    {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
+                  </StackSegment>
+                )
+              })
+            )}
           </StackTrack>
           <StackTotal>
-            {isAmountMode ? fmtSen(bActualTotal) : fmtVal(bActualTotal)}
+            {showActualFallback
+              ? fmtSen(actualVal)
+              : (isAmountMode ? fmtSen(bActualTotal) : fmtVal(bActualTotal))}
           </StackTotal>
           {isActualActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
@@ -298,7 +309,7 @@ export function CategoryDrilldown({
     )
   }
 
-  if (dayItems.length === 0 && cumItemsList.length === 0) return null
+  if (dayItems.length === 0 && cumItemsList.length === 0 && actual <= 0 && cumSales <= 0) return null
 
   return (
     <DrillSection>

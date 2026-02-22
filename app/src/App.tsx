@@ -157,10 +157,12 @@ function AppContent() {
           />
         }
         sidebar={
-          <DataManagementSidebar
-            showSettingsExternal={showSettingsFromShortcut}
-            onSettingsExternalClose={() => setShowSettingsFromShortcut(false)}
-          />
+          <PageErrorBoundary>
+            <DataManagementSidebar
+              showSettingsExternal={showSettingsFromShortcut}
+              onSettingsExternalClose={() => setShowSettingsFromShortcut(false)}
+            />
+          </PageErrorBoundary>
         }
         bottomNav={
           <BottomNav

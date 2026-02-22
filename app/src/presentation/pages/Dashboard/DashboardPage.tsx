@@ -31,9 +31,11 @@ export function DashboardPage() {
 
   // 分類別時間帯売上を選択店舗でフィルタ
   const filteredCategoryTimeSales = useMemo(() => {
-    if (selectedStoreIds.size === 0) return appState.data.categoryTimeSales
+    const cts = appState.data.categoryTimeSales
+    if (!cts?.records) return { records: [] }
+    if (selectedStoreIds.size === 0) return cts
     return {
-      records: appState.data.categoryTimeSales.records.filter(
+      records: cts.records.filter(
         (r) => selectedStoreIds.has(r.storeId),
       ),
     }

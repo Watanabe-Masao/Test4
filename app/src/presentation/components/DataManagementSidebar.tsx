@@ -348,25 +348,29 @@ export function DataManagementSidebar({
 
   const loadedTypes = useMemo(() => {
     const types = new Set<DataType>()
-    if (Object.keys(data.purchase).length > 0) types.add('purchase')
-    if (Object.keys(data.sales).length > 0) {
-      types.add('sales')
-      types.add('salesDiscount')
+    try {
+      if (data.purchase && Object.keys(data.purchase).length > 0) types.add('purchase')
+      if (data.sales && Object.keys(data.sales).length > 0) {
+        types.add('sales')
+        types.add('salesDiscount')
+      }
+      if (data.discount && Object.keys(data.discount).length > 0) {
+        types.add('discount')
+        types.add('salesDiscount')
+      }
+      if (data.settings?.size > 0) types.add('initialSettings')
+      if (data.budget?.size > 0) types.add('budget')
+      if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')
+      if (data.categoryTimeSales?.records?.length > 0) types.add('categoryTimeSales')
+      if (data.prevYearCategoryTimeSales?.records?.length > 0) types.add('prevYearCategoryTimeSales')
+      if (data.flowers && Object.keys(data.flowers).length > 0) types.add('flowers')
+      if (data.directProduce && Object.keys(data.directProduce).length > 0) types.add('directProduce')
+      if (data.interStoreIn && Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')
+      if (data.interStoreOut && Object.keys(data.interStoreOut).length > 0) types.add('interStoreOut')
+      if (data.prevYearSales && Object.keys(data.prevYearSales).length > 0) types.add('prevYearSalesDiscount')
+    } catch {
+      // データ構造不整合時は空のセットを返す
     }
-    if (Object.keys(data.discount).length > 0) {
-      types.add('discount')
-      types.add('salesDiscount')
-    }
-    if (data.settings.size > 0) types.add('initialSettings')
-    if (data.budget.size > 0) types.add('budget')
-    if (Object.keys(data.consumables).length > 0) types.add('consumables')
-    if (data.categoryTimeSales.records.length > 0) types.add('categoryTimeSales')
-    if (data.prevYearCategoryTimeSales.records.length > 0) types.add('prevYearCategoryTimeSales')
-    if (Object.keys(data.flowers).length > 0) types.add('flowers')
-    if (Object.keys(data.directProduce).length > 0) types.add('directProduce')
-    if (Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')
-    if (Object.keys(data.interStoreOut).length > 0) types.add('interStoreOut')
-    if (Object.keys(data.prevYearSales).length > 0) types.add('prevYearSalesDiscount')
     return types
   }, [data])
 
