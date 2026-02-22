@@ -251,7 +251,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         running += scaledPrice
 
         items.push({
-          name: 'ミックス効果',
+          name: '構成比変化効果',
           value: scaledMix,
           base: scaledMix >= 0 ? running : running + scaledMix,
           bar: Math.abs(scaledMix),
@@ -412,7 +412,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
           </DecompBtn>
           {maxLevel === 5 && (
             <DecompBtn $active={activeLevel === 5} onClick={() => setDecompLevel(5)}>
-              5要素（価格+ミックス）
+              5要素（価格+構成比）
             </DecompBtn>
           )}
         </DecompRow>
