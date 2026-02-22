@@ -224,6 +224,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         const prevQPC = prevTotalQty / prevCust
         const curQPC = curTotalQty / curCust
         const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
+        const curPPI = safeDivide(curSales, curTotalQty, 0)
 
         const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
         items.push({
@@ -234,19 +235,26 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         })
         running += qtyEffect
 
+        // 3要素の単価効果を算出（恒等式を保証）し、price/mix比率で按分
+        const unitPriceEffect = curCust * curQPC * (curPPI - prevPPI)
+        const pmSum = priceMix.priceEffect + priceMix.mixEffect
+        const priceShare = pmSum !== 0 ? priceMix.priceEffect / pmSum : 0.5
+        const scaledPrice = unitPriceEffect * priceShare
+        const scaledMix = unitPriceEffect * (1 - priceShare)
+
         items.push({
           name: '価格効果',
-          value: priceMix.priceEffect,
-          base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
-          bar: Math.abs(priceMix.priceEffect),
+          value: scaledPrice,
+          base: scaledPrice >= 0 ? running : running + scaledPrice,
+          bar: Math.abs(scaledPrice),
         })
-        running += priceMix.priceEffect
+        running += scaledPrice
 
         items.push({
           name: 'ミックス効果',
-          value: priceMix.mixEffect,
-          base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
-          bar: Math.abs(priceMix.mixEffect),
+          value: scaledMix,
+          base: scaledMix >= 0 ? running : running + scaledMix,
+          bar: Math.abs(scaledMix),
         })
       }
     }
