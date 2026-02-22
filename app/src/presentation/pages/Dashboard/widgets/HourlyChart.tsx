@@ -7,6 +7,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
+import { formatPercent } from '@/domain/calculations/utils'
 import { findCoreTime, findTurnaroundHour, buildHourlyMap, formatCoreTime, formatTurnaroundHour } from '@/presentation/components/charts/timeSlotUtils'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { COLORS, type HourCategoryItem } from './drilldownUtils'
@@ -271,7 +272,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
             </HourlySumItem>
             <HourlySumItem>
               <SumLabel>全体比</SumLabel>
-              <SumValue>{totalAmt > 0 ? (selData.amount / totalAmt * 100).toFixed(2) : '0.00'}%</SumValue>
+              <SumValue>{formatPercent(totalAmt > 0 ? selData.amount / totalAmt : 0, 2)}</SumValue>
             </HourlySumItem>
             <HourlySumItem>
               <SumLabel>分類数</SumLabel>

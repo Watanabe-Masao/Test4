@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -359,9 +359,9 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
                   <MiniTd>{formatTurnaroundHour(metrics?.turnaroundHour ?? null)}</MiniTd>
                   {hours.filter((_, i) => i % 2 === 0).map((h) => {
                     const amt = (data.find((d) => d.hour === `${h}時`)?.[s.name] as number) ?? 0
-                    const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : '0.0'
+                    const pct = total > 0 ? toPct(amt / total) : '0.0%'
                     return (
-                      <MiniTd key={h}>{pct}%</MiniTd>
+                      <MiniTd key={h}>{pct}</MiniTd>
                     )
                   })}
                 </tr>

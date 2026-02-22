@@ -26,7 +26,7 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
-    ? (r.totalSales / prevYear.totalSales) * 100
+    ? r.totalSales / prevYear.totalSales
     : null
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
@@ -54,8 +54,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
                 売上予算達成率: {formatPercent(r.budgetProgressRate)}
               </ExecSummarySub>
               {pyRatio != null && (
-                <ExecSummarySub $color={sc.cond(pyRatio >= 100)}>
-                  前年同曜日比: {pyRatio.toFixed(1)}%
+                <ExecSummarySub $color={sc.cond(pyRatio >= 1)}>
+                  前年同曜日比: {formatPercent(pyRatio, 1)}
                 </ExecSummarySub>
               )}
             </ExecSummaryItem>

@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -215,7 +215,7 @@ export function TimeSlotYoYComparisonChart({
         prevYear: prev,
         diff,
         ratio,
-        ratioLabel: ratio != null ? `${(ratio * 100).toFixed(0)}%` : '-',
+        ratioLabel: ratio != null ? toPct(ratio, 0) : '-',
       }
     })
 
@@ -288,7 +288,7 @@ export function TimeSlotYoYComparisonChart({
         {summary.yoyRatio != null && (
           <ProgressBarWrap>
             <ProgressLabel>
-              <span>前年比 {(summary.yoyRatio * 100).toFixed(1)}%</span>
+              <span>前年比 {toPct(summary.yoyRatio)}</span>
               <span>{summary.yoyDiff >= 0 ? '+' : ''}{toManYen(summary.yoyDiff)}円</span>
             </ProgressLabel>
             <ProgressTrack>
@@ -431,7 +431,7 @@ export function TimeSlotYoYComparisonChart({
                     {isPositive ? '+' : ''}{toComma(row.diff)}円
                   </MiniTd>
                   <MiniTd $highlight $positive={isPositive}>
-                    {row.ratio != null ? `${(row.ratio * 100).toFixed(1)}%` : '-'}
+                    {row.ratio != null ? toPct(row.ratio) : '-'}
                   </MiniTd>
                 </tr>
               )

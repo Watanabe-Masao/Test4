@@ -10,7 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
@@ -152,7 +152,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           </Metric>
           <ProgressBarWrap>
             <ProgressLabel>
-              <span>前年比 {(yoyRatio * 100).toFixed(1)}%</span>
+              <span>前年比 {toPct(yoyRatio)}</span>
               <span>{yoyDiff >= 0 ? '+' : ''}{toManYen(yoyDiff)}円</span>
             </ProgressLabel>
             <ProgressTrack>

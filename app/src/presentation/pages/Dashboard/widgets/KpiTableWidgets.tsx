@@ -370,7 +370,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
         <STd style={{ color: varColor }}>{fmtPtDiff(gpRateVariance * 100)}</STd>
         {/* 値入/売変 */}
         <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(r.coreMarkupRate)}</BudgetTd>
-        <STd style={{ color: sc.negative }}>{`-${(r.discountRate * 100).toFixed(2)}%`}</STd>
+        <STd style={{ color: sc.negative }}>{formatPercent(-r.discountRate, 2)}</STd>
         {/* 売上 */}
         <BudgetTd style={{ borderLeft: groupBorder }}>{formatCurrency(r.budget)}</BudgetTd>
         <STd>{formatCurrency(r.totalSales)}</STd>

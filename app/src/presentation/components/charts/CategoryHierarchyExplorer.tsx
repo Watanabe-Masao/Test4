@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
-import { toComma } from './chartTheme'
+import { toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import {
   useCategoryHierarchy,
@@ -415,7 +415,7 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
             <SummaryLabel>前年比</SummaryLabel>
             <SummaryValue>
               <YoYBadge $positive={totalYoYRatio >= 1}>
-                {totalYoYRatio >= 1 ? '+' : ''}{((totalYoYRatio - 1) * 100).toFixed(1)}%
+                {totalYoYRatio >= 1 ? '+' : ''}{toPct(totalYoYRatio - 1)}
               </YoYBadge>
             </SummaryValue>
           </SummaryItem>
@@ -432,7 +432,7 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
         {items.slice().sort((a, b) => b.amount - a.amount).slice(0, 15).map((it, i) => (
           <TreemapBlock key={it.code} $flex={it.amount} $color={COLORS[i % COLORS.length]}
             $canDrill={canDrill} onClick={() => canDrill && handleDrill(it)}
-            title={`${it.name}: ${toComma(it.amount)}円 (${it.pct.toFixed(1)}%)${it.yoyRatio != null ? ` 前年比${(it.yoyRatio * 100).toFixed(1)}%` : ''}`}>
+            title={`${it.name}: ${toComma(it.amount)}円 (${it.pct.toFixed(1)}%)${it.yoyRatio != null ? ` 前年比${toPct(it.yoyRatio)}` : ''}`}>
             <TreemapLabel>{it.name}</TreemapLabel>
             <TreemapPct>
               {it.pct.toFixed(1)}%
@@ -480,7 +480,7 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
                     {it.yoyRatio != null ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         <YoYBadge $positive={it.yoyRatio >= 1}>
-                          {(it.yoyRatio * 100).toFixed(1)}%
+                          {toPct(it.yoyRatio)}
                         </YoYBadge>
                         <YoYBar $pct={Math.abs((it.yoyRatio - 1) * 100) * 2} $positive={it.yoyRatio >= 1} />
                       </div>

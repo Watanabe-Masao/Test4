@@ -101,7 +101,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `${(v * 100).toFixed(1)}%`}
+            tickFormatter={toPct}
             width={45}
           />
           <Tooltip
