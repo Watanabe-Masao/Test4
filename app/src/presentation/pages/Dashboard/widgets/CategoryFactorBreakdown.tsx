@@ -147,6 +147,7 @@ const TipHint = styled.div`
 interface FactorItem {
   name: string
   code: string
+  custEffect: number
   qtyEffect: number
   priceEffect: number
   totalChange: number
@@ -163,7 +164,7 @@ interface PathEntry {
   name: string
 }
 
-const COLORS = { qty: '#3b82f6', price: '#f59e0b' } as const
+const COLORS = { cust: '#8b5cf6', qty: '#3b82f6', price: '#f59e0b' } as const
 
 const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
 
@@ -179,6 +180,9 @@ function FactorTooltip({ active, payload }: any) {
       <TipRow>当年: {formatCurrency(item.curAmount)}</TipRow>
       <TipRow $color={valColor(item.totalChange)}>
         増減: {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
+      </TipRow>
+      <TipRow $color={COLORS.cust}>
+        客数効果: {item.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.custEffect))}
       </TipRow>
       <TipRow $color={COLORS.qty}>
         点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
@@ -197,12 +201,17 @@ function FactorTooltip({ active, payload }: any) {
 export function CategoryFactorBreakdown({
   curRecords,
   prevRecords,
+  curCustomers = 0,
+  prevCustomers = 0,
   compact = false,
 }: {
   curRecords: readonly CategoryTimeSalesRecord[]
   prevRecords: readonly CategoryTimeSalesRecord[]
+  curCustomers?: number
+  prevCustomers?: number
   compact?: boolean
 }) {
+  const hasCust = curCustomers > 0 && prevCustomers > 0
   const ct = useChartTheme()
   const [drillPath, setDrillPath] = useState<PathEntry[]>([])
 
@@ -277,14 +286,34 @@ export function CategoryFactorBreakdown({
       const pQty = p?.qty ?? 0, pAmt = p?.amt ?? 0
       const name = c?.name ?? p?.name ?? code
 
-      const prevPPI = safeDivide(pAmt, pQty, 0)
-      const curPPI = safeDivide(cAmt, cQty, 0)
+      let custEffect = 0
+      let qtyEffect: number
+      let priceEffect: number
 
-      const qtyEffect = (cQty - pQty) * prevPPI
-      const priceEffect = cQty * (curPPI - prevPPI)
+      if (hasCust && pQty > 0) {
+        // 3-factor: custEffect + qtyEffect + priceEffect
+        // prevDeptQtyPerCust = pQty / prevCustomers
+        // curDeptQtyPerCust  = cQty / curCustomers
+        // prevPPI = pAmt / pQty
+        // curPPI  = cAmt / cQty
+        const prevQPC = pQty / prevCustomers
+        const curQPC = safeDivide(cQty, curCustomers, 0)
+        const prevPPI = safeDivide(pAmt, pQty, 0)
+        const curPPI = safeDivide(cAmt, cQty, 0)
+
+        custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
+        qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
+        priceEffect = curCustomers * curQPC * (curPPI - prevPPI)
+      } else {
+        // 2-factor fallback (no customer data)
+        const prevPPI = safeDivide(pAmt, pQty, 0)
+        const curPPI = safeDivide(cAmt, cQty, 0)
+        qtyEffect = (cQty - pQty) * prevPPI
+        priceEffect = cQty * (curPPI - prevPPI)
+      }
 
       result.push({
-        name, code, qtyEffect, priceEffect,
+        name, code, custEffect, qtyEffect, priceEffect,
         totalChange: cAmt - pAmt,
         prevAmount: pAmt, curAmount: cAmt,
         hasChildren: childCheck(code),
@@ -293,7 +322,7 @@ export function CategoryFactorBreakdown({
 
     result.sort((a, b) => Math.abs(b.totalChange) - Math.abs(a.totalChange))
     return result.slice(0, compact ? 8 : 12)
-  }, [filtered, currentLevel, compact])
+  }, [filtered, currentLevel, compact, hasCust, curCustomers, prevCustomers])
 
   const handleDrill = useCallback((item: FactorItem) => {
     if (!item.hasChildren) return
@@ -331,6 +360,7 @@ export function CategoryFactorBreakdown({
 
       {/* Legend */}
       <LegendRow>
+        {hasCust && <LegendItem><LegendDot $color={COLORS.cust} />客数効果</LegendItem>}
         <LegendItem><LegendDot $color={COLORS.qty} />点数効果</LegendItem>
         <LegendItem><LegendDot $color={COLORS.price} />単価効果</LegendItem>
       </LegendRow>
@@ -360,6 +390,17 @@ export function CategoryFactorBreakdown({
           <Tooltip content={<FactorTooltip />} />
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
+          {hasCust && (
+            <Bar
+              dataKey="custEffect"
+              name="客数効果"
+              fill={COLORS.cust}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
+              cursor="pointer"
+            />
+          )}
           <Bar
             dataKey="qtyEffect"
             name="点数効果"
@@ -389,6 +430,7 @@ export function CategoryFactorBreakdown({
             <th>前年</th>
             <th>当年</th>
             <th>増減</th>
+            {hasCust && <th>客数効果</th>}
             <th>点数効果</th>
             <th>単価効果</th>
           </tr>
@@ -404,6 +446,11 @@ export function CategoryFactorBreakdown({
               <ValCell $color={valColor(item.totalChange)}>
                 {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
               </ValCell>
+              {hasCust && (
+                <ValCell $color={valColor(item.custEffect)}>
+                  {item.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.custEffect))}
+                </ValCell>
+              )}
               <ValCell $color={valColor(item.qtyEffect)}>
                 {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
               </ValCell>
