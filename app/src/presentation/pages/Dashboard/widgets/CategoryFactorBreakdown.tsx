@@ -1,8 +1,9 @@
 /**
  * カテゴリ別要因分解チャート
  *
- * 部門→ライン→クラスの各階層で点数効果・単価効果を横棒グラフ+テーブルで表示。
+ * 部門→ライン→クラスの各階層で要因分解を横棒グラフ+テーブルで表示。
  * クリックで下位階層にドリルダウン可能。
+ * 2要素(客数・客単価) / 3要素(客数・点数・単価) / 5要素(+価格・構成比変化) を切替可能。
  */
 import { useState, useMemo, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
@@ -66,6 +67,24 @@ const LegendDot = styled.span<{ $color: string }>`
   height: 10px;
   border-radius: 2px;
   background: ${({ $color }) => $color};
+`
+
+const DecompRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+`
+
+const DecompBtn = styled.button<{ $active: boolean }>`
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  font-size: 0.6rem;
+  cursor: pointer;
+  font-weight: ${({ $active }) => $active ? 600 : 400};
+  &:hover { opacity: 0.8; }
 `
 
 const Table = styled.table`
@@ -148,12 +167,22 @@ const TipHint = styled.div`
 
 /* ── Types ──────────────────────────────────────────── */
 
+type DecompLevel = 2 | 3 | 5
+
 interface FactorItem {
   name: string
   code: string
+  _level: DecompLevel
+  // Level 2
   custEffect: number
+  ticketEffect: number
+  // Level 3
   qtyEffect: number
   priceEffect: number
+  // Level 5
+  pricePureEffect: number
+  mixEffect: number
+  // Common
   totalChange: number
   prevAmount: number
   curAmount: number
@@ -193,7 +222,13 @@ export function decomposePriceMix(
   )
 }
 
-const COLORS = { cust: '#8b5cf6', qty: '#3b82f6', price: '#f59e0b' } as const
+const COLORS = {
+  cust: '#8b5cf6',
+  ticket: '#6366f1',
+  qty: '#3b82f6',
+  price: '#f59e0b',
+  mix: '#14b8a6',
+} as const
 
 const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
 
@@ -202,6 +237,7 @@ function FactorTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const item = payload[0]?.payload as FactorItem | undefined
   if (!item) return null
+  const lvl = item._level
   return (
     <TipBox>
       <TipTitle>{item.name}</TipTitle>
@@ -210,15 +246,39 @@ function FactorTooltip({ active, payload }: any) {
       <TipRow $color={valColor(item.totalChange)}>
         増減: {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
       </TipRow>
-      <TipRow $color={COLORS.cust}>
-        客数効果: {item.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.custEffect))}
-      </TipRow>
-      <TipRow $color={COLORS.qty}>
-        点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
-      </TipRow>
-      <TipRow $color={COLORS.price}>
-        単価効果: {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
-      </TipRow>
+      {item.custEffect !== 0 && (
+        <TipRow $color={COLORS.cust}>
+          客数効果: {item.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.custEffect))}
+        </TipRow>
+      )}
+      {lvl === 2 && (
+        <TipRow $color={COLORS.ticket}>
+          客単価効果: {item.ticketEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.ticketEffect))}
+        </TipRow>
+      )}
+      {lvl === 3 && (
+        <>
+          <TipRow $color={COLORS.qty}>
+            点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
+          </TipRow>
+          <TipRow $color={COLORS.price}>
+            単価効果: {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
+          </TipRow>
+        </>
+      )}
+      {lvl === 5 && (
+        <>
+          <TipRow $color={COLORS.qty}>
+            点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
+          </TipRow>
+          <TipRow $color={COLORS.price}>
+            価格効果: {item.pricePureEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.pricePureEffect))}
+          </TipRow>
+          <TipRow $color={COLORS.mix}>
+            構成比変化効果: {item.mixEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.mixEffect))}
+          </TipRow>
+        </>
+      )}
       {item.hasChildren && <TipHint>クリックでドリルダウン</TipHint>}
     </TipBox>
   )
@@ -243,6 +303,7 @@ export function CategoryFactorBreakdown({
   const hasCust = curCustomers > 0 && prevCustomers > 0
   const ct = useChartTheme()
   const [drillPath, setDrillPath] = useState<PathEntry[]>([])
+  const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
   const currentLevel: DrillLevel =
     drillPath.length === 0 ? 'dept' : drillPath.length === 1 ? 'line' : 'class'
@@ -262,6 +323,24 @@ export function CategoryFactorBreakdown({
     }
     return { cur: fc, prev: fp }
   }, [curRecords, prevRecords, drillPath])
+
+  // Check if level 5 is available (need sub-categories)
+  const hasSubCategories = useMemo(() => {
+    if (currentLevel === 'class') return false
+    const childKeys = new Set<string>()
+    for (const r of filtered.cur) {
+      if (currentLevel === 'dept') {
+        childKeys.add(`${r.department.code}|${r.line.code}`)
+      } else {
+        childKeys.add(`${r.line.code}|${r.klass.code}`)
+      }
+      if (childKeys.size > 1) return true
+    }
+    return false
+  }, [filtered.cur, currentLevel])
+
+  const maxLevel: DecompLevel = hasSubCategories ? 5 : 3
+  const activeLevel = decompLevel !== null && decompLevel <= maxLevel ? decompLevel : maxLevel
 
   // Compute factor items
   const items = useMemo((): FactorItem[] => {
@@ -305,6 +384,19 @@ export function CategoryFactorBreakdown({
       return false
     }
 
+    // Helper: get child-level key for sub-category decomposition
+    const childKeyOf = (r: CategoryTimeSalesRecord) => {
+      if (currentLevel === 'dept') return `${r.line.code}|${r.klass.code}`
+      return r.klass.code
+    }
+
+    // Helper: filter records by group code at current level
+    const filterByGroup = (recs: readonly CategoryTimeSalesRecord[], code: string) => {
+      if (currentLevel === 'dept') return recs.filter(r => r.department.code === code)
+      if (currentLevel === 'line') return recs.filter(r => r.line.code === code)
+      return recs.filter(r => r.klass.code === code)
+    }
+
     const allCodes = new Set([...curG.keys(), ...prevG.keys()])
     const result: FactorItem[] = []
 
@@ -316,33 +408,100 @@ export function CategoryFactorBreakdown({
       const name = c?.name ?? p?.name ?? code
 
       let custEffect = 0
-      let qtyEffect: number
-      let priceEffect: number
+      let ticketEffect = 0
+      let qtyEffect = 0
+      let priceEffect = 0
+      let pricePureEffect = 0
+      let mixEffect = 0
 
-      if (hasCust && pQty > 0) {
-        // 3-factor: custEffect + qtyEffect + priceEffect
-        // prevDeptQtyPerCust = pQty / prevCustomers
-        // curDeptQtyPerCust  = cQty / curCustomers
-        // prevPPI = pAmt / pQty
-        // curPPI  = cAmt / cQty
-        const prevQPC = pQty / prevCustomers
-        const curQPC = safeDivide(cQty, curCustomers, 0)
-        const prevPPI = safeDivide(pAmt, pQty, 0)
-        const curPPI = safeDivide(cAmt, cQty, 0)
+      if (activeLevel === 2) {
+        // 2-factor: 客数効果 + 客単価効果
+        if (hasCust && pAmt > 0) {
+          const prevAvgTicket = safeDivide(pAmt, prevCustomers, 0)
+          const curAvgTicket = safeDivide(cAmt, curCustomers, 0)
+          custEffect = (curCustomers - prevCustomers) * prevAvgTicket
+          ticketEffect = (curAvgTicket - prevAvgTicket) * curCustomers
+        } else {
+          ticketEffect = cAmt - pAmt
+        }
+      } else if (activeLevel === 3) {
+        // 3-factor: 客数効果 + 点数効果 + 単価効果
+        if (hasCust && pQty > 0) {
+          const prevQPC = pQty / prevCustomers
+          const curQPC = safeDivide(cQty, curCustomers, 0)
+          const prevPPI = safeDivide(pAmt, pQty, 0)
+          const curPPI = safeDivide(cAmt, cQty, 0)
 
-        custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
-        qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
-        priceEffect = curCustomers * curQPC * (curPPI - prevPPI)
+          custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
+          qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
+          priceEffect = curCustomers * curQPC * (curPPI - prevPPI)
+        } else {
+          const prevPPI = safeDivide(pAmt, pQty, 0)
+          const curPPI = safeDivide(cAmt, cQty, 0)
+          qtyEffect = (cQty - pQty) * prevPPI
+          priceEffect = cQty * (curPPI - prevPPI)
+        }
       } else {
-        // 2-factor fallback (no customer data)
-        const prevPPI = safeDivide(pAmt, pQty, 0)
-        const curPPI = safeDivide(cAmt, cQty, 0)
-        qtyEffect = (cQty - pQty) * prevPPI
-        priceEffect = cQty * (curPPI - prevPPI)
+        // 5-factor: 客数効果 + 点数効果 + 価格効果 + 構成比変化効果
+        if (hasCust && pQty > 0) {
+          const prevQPC = pQty / prevCustomers
+          const curQPC = safeDivide(cQty, curCustomers, 0)
+          const prevPPI = safeDivide(pAmt, pQty, 0)
+          const curPPI = safeDivide(cAmt, cQty, 0)
+
+          custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
+          qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
+          const unitPriceTotal = curCustomers * curQPC * (curPPI - prevPPI)
+
+          // Decompose unit price effect into price vs mix using sub-categories
+          const curSub = filterByGroup(filtered.cur, code)
+          const prevSub = filterByGroup(filtered.prev, code)
+          const curQA = curSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+          const prevQA = prevSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+          const pm = decomposePriceMixDomain(curQA, prevQA)
+
+          if (pm) {
+            const pmSum = pm.priceEffect + pm.mixEffect
+            if (Math.abs(pmSum) > 0.01) {
+              const scale = unitPriceTotal / pmSum
+              pricePureEffect = pm.priceEffect * scale
+              mixEffect = pm.mixEffect * scale
+            } else {
+              pricePureEffect = unitPriceTotal
+            }
+          } else {
+            pricePureEffect = unitPriceTotal
+          }
+        } else {
+          const prevPPI = safeDivide(pAmt, pQty, 0)
+          const curPPI = safeDivide(cAmt, cQty, 0)
+          qtyEffect = (cQty - pQty) * prevPPI
+          const unitPriceTotal = cQty * (curPPI - prevPPI)
+
+          const curSub = filterByGroup(filtered.cur, code)
+          const prevSub = filterByGroup(filtered.prev, code)
+          const curQA = curSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+          const prevQA = prevSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+          const pm = decomposePriceMixDomain(curQA, prevQA)
+
+          if (pm) {
+            const pmSum = pm.priceEffect + pm.mixEffect
+            if (Math.abs(pmSum) > 0.01) {
+              const scale = unitPriceTotal / pmSum
+              pricePureEffect = pm.priceEffect * scale
+              mixEffect = pm.mixEffect * scale
+            } else {
+              pricePureEffect = unitPriceTotal
+            }
+          } else {
+            pricePureEffect = unitPriceTotal
+          }
+        }
       }
 
       result.push({
-        name, code, custEffect, qtyEffect, priceEffect,
+        name, code, _level: activeLevel,
+        custEffect, ticketEffect, qtyEffect, priceEffect, pricePureEffect, mixEffect,
         totalChange: cAmt - pAmt,
         prevAmount: pAmt, curAmount: cAmt,
         hasChildren: childCheck(code),
@@ -351,7 +510,7 @@ export function CategoryFactorBreakdown({
 
     result.sort((a, b) => Math.abs(b.totalChange) - Math.abs(a.totalChange))
     return result.slice(0, compact ? 8 : 12)
-  }, [filtered, currentLevel, compact, hasCust, curCustomers, prevCustomers])
+  }, [filtered, currentLevel, compact, hasCust, curCustomers, prevCustomers, activeLevel])
 
   const handleDrill = useCallback((item: FactorItem) => {
     if (!item.hasChildren) return
@@ -366,6 +525,10 @@ export function CategoryFactorBreakdown({
 
   const levelLabel = currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
   const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 32 : 38) + 40)
+  const barClick = (data: unknown) => {
+    const item = (data as unknown as { payload?: FactorItem }).payload
+    if (item) handleDrill(item)
+  }
 
   return (
     <div>
@@ -387,11 +550,39 @@ export function CategoryFactorBreakdown({
         </Breadcrumb>
       )}
 
+      {/* Decomposition level toggle */}
+      <DecompRow>
+        <DecompBtn $active={activeLevel === 2} onClick={() => setDecompLevel(2)}>
+          客数・客単価
+        </DecompBtn>
+        <DecompBtn $active={activeLevel === 3} onClick={() => setDecompLevel(3)}>
+          客数・点数・単価
+        </DecompBtn>
+        {maxLevel === 5 && (
+          <DecompBtn $active={activeLevel === 5} onClick={() => setDecompLevel(5)}>
+            5要素（価格+構成比）
+          </DecompBtn>
+        )}
+      </DecompRow>
+
       {/* Legend */}
       <LegendRow>
         {hasCust && <LegendItem><LegendDot $color={COLORS.cust} />客数効果</LegendItem>}
-        <LegendItem><LegendDot $color={COLORS.qty} />点数効果</LegendItem>
-        <LegendItem><LegendDot $color={COLORS.price} />単価効果</LegendItem>
+        {activeLevel === 2 && (
+          <LegendItem><LegendDot $color={COLORS.ticket} />客単価効果</LegendItem>
+        )}
+        {activeLevel >= 3 && (
+          <LegendItem><LegendDot $color={COLORS.qty} />点数効果</LegendItem>
+        )}
+        {activeLevel === 3 && (
+          <LegendItem><LegendDot $color={COLORS.price} />単価効果</LegendItem>
+        )}
+        {activeLevel === 5 && (
+          <>
+            <LegendItem><LegendDot $color={COLORS.price} />価格効果</LegendItem>
+            <LegendItem><LegendDot $color={COLORS.mix} />構成比変化効果</LegendItem>
+          </>
+        )}
       </LegendRow>
 
       {/* Horizontal bar chart */}
@@ -419,6 +610,8 @@ export function CategoryFactorBreakdown({
           <Tooltip content={<FactorTooltip />} />
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
+
+          {/* Customer effect (all levels with customer data) */}
           {hasCust && (
             <Bar
               dataKey="custEffect"
@@ -426,28 +619,75 @@ export function CategoryFactorBreakdown({
               fill={COLORS.cust}
               barSize={compact ? 10 : 12}
               opacity={0.85}
-              onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
+              onClick={barClick}
               cursor="pointer"
             />
           )}
-          <Bar
-            dataKey="qtyEffect"
-            name="点数効果"
-            fill={COLORS.qty}
-            barSize={compact ? 10 : 12}
-            opacity={0.85}
-            onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
-            cursor="pointer"
-          />
-          <Bar
-            dataKey="priceEffect"
-            name="単価効果"
-            fill={COLORS.price}
-            barSize={compact ? 10 : 12}
-            opacity={0.85}
-            onClick={(data) => { const item = (data as unknown as { payload?: FactorItem }).payload; if (item) handleDrill(item) }}
-            cursor="pointer"
-          />
+
+          {/* Level 2: ticket effect */}
+          {activeLevel === 2 && (
+            <Bar
+              dataKey="ticketEffect"
+              name="客単価効果"
+              fill={COLORS.ticket}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={barClick}
+              cursor="pointer"
+            />
+          )}
+
+          {/* Level 3+: qty effect */}
+          {activeLevel >= 3 && (
+            <Bar
+              dataKey="qtyEffect"
+              name="点数効果"
+              fill={COLORS.qty}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={barClick}
+              cursor="pointer"
+            />
+          )}
+
+          {/* Level 3: combined price effect */}
+          {activeLevel === 3 && (
+            <Bar
+              dataKey="priceEffect"
+              name="単価効果"
+              fill={COLORS.price}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={barClick}
+              cursor="pointer"
+            />
+          )}
+
+          {/* Level 5: pure price effect */}
+          {activeLevel === 5 && (
+            <Bar
+              dataKey="pricePureEffect"
+              name="価格効果"
+              fill={COLORS.price}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={barClick}
+              cursor="pointer"
+            />
+          )}
+
+          {/* Level 5: mix effect */}
+          {activeLevel === 5 && (
+            <Bar
+              dataKey="mixEffect"
+              name="構成比変化効果"
+              fill={COLORS.mix}
+              barSize={compact ? 10 : 12}
+              opacity={0.85}
+              onClick={barClick}
+              cursor="pointer"
+            />
+          )}
         </BarChart>
       </ResponsiveContainer>
 
@@ -460,8 +700,11 @@ export function CategoryFactorBreakdown({
             <th>当年</th>
             <th>増減</th>
             {hasCust && <th>客数効果</th>}
-            <th>点数効果</th>
-            <th>単価効果</th>
+            {activeLevel === 2 && <th>客単価効果</th>}
+            {activeLevel >= 3 && <th>点数効果</th>}
+            {activeLevel === 3 && <th>単価効果</th>}
+            {activeLevel === 5 && <th>価格効果</th>}
+            {activeLevel === 5 && <th>構成比変化</th>}
           </tr>
         </thead>
         <tbody>
@@ -480,12 +723,31 @@ export function CategoryFactorBreakdown({
                   {item.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.custEffect))}
                 </ValCell>
               )}
-              <ValCell $color={valColor(item.qtyEffect)}>
-                {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
-              </ValCell>
-              <ValCell $color={valColor(item.priceEffect)}>
-                {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
-              </ValCell>
+              {activeLevel === 2 && (
+                <ValCell $color={valColor(item.ticketEffect)}>
+                  {item.ticketEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.ticketEffect))}
+                </ValCell>
+              )}
+              {activeLevel >= 3 && (
+                <ValCell $color={valColor(item.qtyEffect)}>
+                  {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
+                </ValCell>
+              )}
+              {activeLevel === 3 && (
+                <ValCell $color={valColor(item.priceEffect)}>
+                  {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
+                </ValCell>
+              )}
+              {activeLevel === 5 && (
+                <ValCell $color={valColor(item.pricePureEffect)}>
+                  {item.pricePureEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.pricePureEffect))}
+                </ValCell>
+              )}
+              {activeLevel === 5 && (
+                <ValCell $color={valColor(item.mixEffect)}>
+                  {item.mixEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.mixEffect))}
+                </ValCell>
+              )}
             </tr>
           ))}
         </tbody>

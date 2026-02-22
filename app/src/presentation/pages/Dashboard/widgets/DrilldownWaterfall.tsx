@@ -195,7 +195,7 @@ export function DrilldownWaterfall({
           running += scaledPrice
 
           items.push({
-            name: 'ミックス',
+            name: '構成比変化',
             value: scaledMix,
             base: scaledMix >= 0 ? running : running + scaledMix,
             bar: Math.abs(scaledMix),
