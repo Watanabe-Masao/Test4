@@ -131,7 +131,9 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
   const coreTime = findCoreTime(hourlyMap)
   const turnaroundHour = findTurnaroundHour(hourlyMap)
 
-  const cumLinePoints = cumData.map((d, i) => `${barCenterX(i)},${100 - d.cumPct}`).join(' ')
+  // Y座標変換: 0%→97, 100%→3 (上下にパディングを確保し丸印がはみ出さない)
+  const cumY = (pct: number) => 97 - (pct / 100) * 94
+  const cumLinePoints = cumData.map((d, i) => `${barCenterX(i)},${cumY(d.cumPct)}`).join(' ')
 
   const modeLabel = hourlyMode === 'prev' ? '前年' : '実績'
 
@@ -223,7 +225,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
           </HourlyBarArea>
           <HourlyCumOverlay viewBox="0 0 100 100" preserveAspectRatio="none">
             {[25, 50, 75].map((g) => (
-              <line key={g} x1="0" y1={100 - g} x2="100" y2={100 - g}
+              <line key={g} x1="0" y1={cumY(g)} x2="100" y2={cumY(g)}
                 stroke="currentColor" strokeWidth="0.3" strokeDasharray="2,2" opacity="0.3" />
             ))}
             <polyline
@@ -233,7 +235,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
               vectorEffect="non-scaling-stroke"
             />
             {cumData.map((d, i) => (
-              <circle key={d.hour} cx={barCenterX(i)} cy={100 - d.cumPct} r="2"
+              <circle key={d.hour} cx={barCenterX(i)} cy={cumY(d.cumPct)} r="1.2"
                 fill="#ef4444" vectorEffect="non-scaling-stroke" />
             ))}
           </HourlyCumOverlay>
