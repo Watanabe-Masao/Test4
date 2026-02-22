@@ -3,7 +3,7 @@ import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { calculateForecast } from '@/domain/calculations/forecast'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
   EmptyState,
   ChartGrid,
@@ -109,10 +109,10 @@ export function ForecastPage() {
   // 客数 KPI
   const totalCustomers = r.totalCustomers
   const avgDailyCustomers = r.averageCustomersPerDay
-  const avgTxValue = totalCustomers > 0 ? Math.round(r.totalSales / totalCustomers) : 0
+  const avgTxValue = calculateTransactionValue(r.totalSales, totalCustomers)
   const prevTotalCustomers = prevYear.totalCustomers
   const customerYoY = prevTotalCustomers > 0 ? safeDivide(totalCustomers, prevTotalCustomers) : 0
-  const prevAvgTxValue = prevTotalCustomers > 0 ? Math.round(prevYear.totalSales / prevTotalCustomers) : 0
+  const prevAvgTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
   const txValueYoY = prevAvgTxValue > 0 ? safeDivide(avgTxValue, prevAvgTxValue) : 0
 
   const handleDowColorChange = (index: number, color: string) => {
@@ -361,7 +361,7 @@ export function ForecastPage() {
                       weekSales += rec.sales
                     }
                   }
-                  const weekTxValue = weekCustomers > 0 ? Math.round(weekSales / weekCustomers) : 0
+                  const weekTxValue = calculateTransactionValue(weekSales, weekCustomers)
                   return (
                     <Tr key={w.weekNumber}>
                       <Td $highlight={w === bestWeek || w === worstWeek}>

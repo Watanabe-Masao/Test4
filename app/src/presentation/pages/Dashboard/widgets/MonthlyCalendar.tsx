@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Button } from '@/presentation/components/common'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
+import { fmtSen } from './drilldownUtils'
 import {
   CalWrapper, CalSectionTitle, CalTable, CalTh, CalTd, CalDayNum, CalGrid, CalCell, CalDivider,
   CalDayCell, CalDayHeader, CalActionBtn, CalDataArea,
@@ -16,12 +17,6 @@ import {
 } from '../DashboardPage.styles'
 
 const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
-
-/** 千円表記 (コンパクト) */
-function fmtSen(n: number): string {
-  const sen = Math.round(n / 1_000)
-  return `${sen.toLocaleString()}千`
-}
 
 /** 千円表記 (符号付き) */
 function fmtSenDiff(n: number): string {
@@ -97,7 +92,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       }
     }
     if (count > 0 && totalCust > 0) {
-      movingAvgTxVal.set(d, Math.round(totalSales / totalCust))
+      movingAvgTxVal.set(d, calculateTransactionValue(totalSales, totalCust))
     }
   }
 
@@ -278,7 +273,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             {(() => {
                               const dayCust = rec?.customers ?? 0
                               if (dayCust <= 0) return null
-                              const dayTxVal = Math.round(actual / dayCust)
+                              const dayTxVal = calculateTransactionValue(actual, dayCust)
                               const pyCust = prevYear.hasPrevYear ? (prevYear.daily.get(day)?.customers ?? 0) : 0
                               const custYoY = pyCust > 0 ? dayCust / pyCust : 0
                               const custYoYColor = custYoY >= 1 ? sc.positive : custYoY > 0 ? sc.negative : undefined

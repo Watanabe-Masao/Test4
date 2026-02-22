@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecGrid, ExecColumn, ExecColHeader, ExecColTag, ExecColTitle, ExecColSub,
@@ -106,10 +106,10 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             )
           })()}
           {r.totalCustomers > 0 && (() => {
-            const txValue = Math.round(r.totalSales / r.totalCustomers)
+            const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
             const pyCustomers = ctx.prevYear.totalCustomers
             const pyTxValue = pyCustomers > 0
-              ? Math.round(ctx.prevYear.totalSales / pyCustomers)
+              ? calculateTransactionValue(ctx.prevYear.totalSales, pyCustomers)
               : null
             const custRatio = pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
             return (
@@ -208,9 +208,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           {r.totalCustomers > 0 && r.salesDays > 0 && (() => {
             const avgDailyCustomers = r.totalCustomers / r.salesDays
             const projectedCustomers = Math.round(r.totalCustomers + avgDailyCustomers * remainingDays)
-            const projectedTxValue = projectedCustomers > 0
-              ? Math.round(r.projectedSales / projectedCustomers)
-              : 0
+            const projectedTxValue = calculateTransactionValue(r.projectedSales, projectedCustomers)
             return (
               <>
                 <ExecDividerLine />

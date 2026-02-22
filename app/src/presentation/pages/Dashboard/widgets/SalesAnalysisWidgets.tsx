@@ -5,7 +5,7 @@
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/domain/calculations/forecast'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
@@ -59,9 +59,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
     const avgBudget = b.budgetCount > 0 ? b.budgetTotal / b.budgetCount : 0
     const avgPrevYear = b.prevYearCount > 0 ? b.prevYearTotal / b.prevYearCount : 0
     const avgCustomers = b.customersCount > 0 ? Math.round(b.customersTotal / b.customersCount) : 0
-    const avgTxValue = b.customersCount > 0 && b.customersTotal > 0
-      ? Math.round(b.salesTotal / b.customersTotal)
-      : 0
+    const avgTxValue = calculateTransactionValue(b.salesTotal, b.customersTotal)
     return { label: DOW_LABELS[i], avgSales, avgBudget, diff: avgSales - avgBudget, salesCount: b.salesCount, budgetCount: b.budgetCount, avgPrevYear, avgCustomers, avgTxValue }
   })
 
@@ -142,7 +140,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
     const markupRate = totalPurchasePrice > 0
       ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice
       : 0
-    const weekTxValue = totalCustomers > 0 ? Math.round(totalSales / totalCustomers) : 0
+    const weekTxValue = calculateTransactionValue(totalSales, totalCustomers)
     return { weekNumber, startDay, endDay, totalSales, totalBudget, diff: totalSales - totalBudget, markupRate, days, prevYearWeekSales, totalCustomers, weekTxValue }
   })
   const hasWeeklyCustomers = summaries.some(w => w.totalCustomers > 0)
