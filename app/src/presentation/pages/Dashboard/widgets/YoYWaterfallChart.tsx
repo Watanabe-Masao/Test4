@@ -92,6 +92,21 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
 
+  // Aggregate total quantity from CTS records
+  const curTotalQty = useMemo(() => {
+    const recs = ctx.categoryTimeSales?.records
+    if (!recs?.length) return 0
+    return recs.reduce((s, r) => s + r.totalQuantity, 0)
+  }, [ctx.categoryTimeSales])
+
+  const prevTotalQty = useMemo(() => {
+    const recs = ctx.prevYearCategoryTimeSales?.records
+    if (!recs?.length) return 0
+    return recs.reduce((s, r) => s + r.totalQuantity, 0)
+  }, [ctx.prevYearCategoryTimeSales])
+
+  const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
+
   // Factor decomposition data
   const factorData = useMemo((): WaterfallItem[] => {
     if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
@@ -102,16 +117,6 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     const curCust = r.totalCustomers
 
     const prevAvgTicket = safeDivide(prevSales, prevCust, 0)
-    const curAvgTicket = safeDivide(curSales, curCust, 0)
-
-    // Customer effect: change in customers * previous avg ticket
-    const custEffect = (curCust - prevCust) * prevAvgTicket
-    // Ticket effect: change in avg ticket * current customers
-    const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
-    // Discount effect
-    const prevDiscount = prevYear.totalDiscount
-    const curDiscount = r.totalDiscount
-    const discountEffect = -(curDiscount - prevDiscount)
 
     const items: WaterfallItem[] = []
 
@@ -124,8 +129,10 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       isTotal: true,
     })
 
-    // 2. Customer effect
     let running = prevSales
+
+    // 2. Customer effect: (curCust - prevCust) * prevAvgTicket
+    const custEffect = (curCust - prevCust) * prevAvgTicket
     items.push({
       name: '客数効果',
       value: custEffect,
@@ -134,20 +141,43 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
     running += custEffect
 
-    // 3. Ticket effect
-    items.push({
-      name: '客単価効果',
-      value: ticketEffect,
-      base: ticketEffect >= 0 ? running : running + ticketEffect,
-      bar: Math.abs(ticketEffect),
-    })
-    running += ticketEffect
+    if (hasQuantity && prevCust > 0 && curCust > 0) {
+      // Decompose ticket effect into items-per-customer and price-per-item
+      const prevQPC = prevTotalQty / prevCust  // 前年一人当点数
+      const curQPC = curTotalQty / curCust     // 当年一人当点数
+      const prevPPI = safeDivide(prevSales, prevTotalQty, 0)  // 前年平均単価
 
-    // 4. Discount change effect (if meaningful)
-    if (Math.abs(discountEffect) > 0 && prevDiscount > 0) {
-      // Adjust running: the customer+ticket effects bridge prevSales to curSales
-      // Discount effect is separate
-      // Don't add discount as it's already embedded in the bridge
+      // 3. Items-per-customer effect: curCust * (curQPC - prevQPC) * prevPPI
+      const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
+      items.push({
+        name: '点数効果',
+        value: qtyEffect,
+        base: qtyEffect >= 0 ? running : running + qtyEffect,
+        bar: Math.abs(qtyEffect),
+      })
+      running += qtyEffect
+
+      // 4. Price-per-item effect: curCust * curQPC * (curPPI - prevPPI)
+      const curPPI = safeDivide(curSales, curTotalQty, 0)
+      const priceEffect = curCust * curQPC * (curPPI - prevPPI)
+      items.push({
+        name: '単価効果',
+        value: priceEffect,
+        base: priceEffect >= 0 ? running : running + priceEffect,
+        bar: Math.abs(priceEffect),
+      })
+      running += priceEffect
+    } else {
+      // Fallback: combined ticket effect
+      const curAvgTicket = safeDivide(curSales, curCust, 0)
+      const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
+      items.push({
+        name: '客単価効果',
+        value: ticketEffect,
+        base: ticketEffect >= 0 ? running : running + ticketEffect,
+        bar: Math.abs(ticketEffect),
+      })
+      running += ticketEffect
     }
 
     // 5. Current year sales (end)
@@ -160,7 +190,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
 
     return items
-  }, [r, prevYear])
+  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty])
 
   // Category-based decomposition data
   const categoryData = useMemo((): WaterfallItem[] => {
@@ -277,7 +307,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       {hasCategoryView && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
-            客数・客単価分解
+            {hasQuantity ? '客数・点数・単価分解' : '客数・客単価分解'}
           </TabBtn>
           <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
             部門別増減
