@@ -26,9 +26,9 @@ export interface DiscountImpactResult {
 export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImpactResult {
   const { coreSales, markupRate, discountRate } = input
 
-  const divisor = 1 - discountRate
+  // 売変率100%時 (divisor=0) は discountRate をそのまま使用（フォールバック）
   const discountLossCost =
-    (1 - markupRate) * coreSales * safeDivide(discountRate, divisor > 0 ? divisor : 1, 0)
+    (1 - markupRate) * coreSales * safeDivide(discountRate, 1 - discountRate, discountRate)
 
   return { discountLossCost }
 }

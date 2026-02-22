@@ -4,6 +4,7 @@
  * IndexedDB に保存された過去月データを横断的に分析する。
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
+import { safeDivide } from './utils'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -136,7 +137,7 @@ function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readon
     grandCount++
   }
 
-  const grandAvg = grandCount > 0 ? grandTotal / grandCount : 0
+  const grandAvg = safeDivide(grandTotal, grandCount, 0)
   if (grandAvg === 0) return Array(12).fill(1)
 
   return monthlyBuckets.map((b) => {
@@ -144,6 +145,9 @@ function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readon
     return (b.total / b.count) / grandAvg
   })
 }
+
+/** トレンド判定の変化率閾値（±3%以上で上昇/下降と判定） */
+const TREND_CHANGE_THRESHOLD = 0.03
 
 /**
  * 直近3ヶ月と、その前の3ヶ月の売上平均を比較して
@@ -165,7 +169,7 @@ function determineOverallTrend(
   if (previousAvg === 0) return 'flat'
 
   const changeRate = (recentAvg - previousAvg) / previousAvg
-  if (changeRate > 0.03) return 'up'
-  if (changeRate < -0.03) return 'down'
+  if (changeRate > TREND_CHANGE_THRESHOLD) return 'up'
+  if (changeRate < -TREND_CHANGE_THRESHOLD) return 'down'
   return 'flat'
 }
