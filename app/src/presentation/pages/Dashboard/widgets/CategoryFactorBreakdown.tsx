@@ -165,6 +165,33 @@ interface PathEntry {
 
 const COLORS = { qty: '#3b82f6', price: '#f59e0b' } as const
 
+const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function FactorTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null
+  const item = payload[0]?.payload as FactorItem | undefined
+  if (!item) return null
+  return (
+    <TipBox>
+      <TipTitle>{item.name}</TipTitle>
+      <TipRow>前年: {formatCurrency(item.prevAmount)}</TipRow>
+      <TipRow>当年: {formatCurrency(item.curAmount)}</TipRow>
+      <TipRow $color={valColor(item.totalChange)}>
+        増減: {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
+      </TipRow>
+      <TipRow $color={COLORS.qty}>
+        点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
+      </TipRow>
+      <TipRow $color={COLORS.price}>
+        単価効果: {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
+      </TipRow>
+      {item.hasChildren && <TipHint>クリックでドリルダウン</TipHint>}
+    </TipBox>
+  )
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 /* ── Component ──────────────────────────────────────── */
 
 export function CategoryFactorBreakdown({
@@ -281,32 +308,6 @@ export function CategoryFactorBreakdown({
 
   const levelLabel = currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
   const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 32 : 38) + 40)
-  const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.length) return null
-    const item = payload[0]?.payload as FactorItem | undefined
-    if (!item) return null
-    return (
-      <TipBox>
-        <TipTitle>{item.name}</TipTitle>
-        <TipRow>前年: {formatCurrency(item.prevAmount)}</TipRow>
-        <TipRow>当年: {formatCurrency(item.curAmount)}</TipRow>
-        <TipRow $color={valColor(item.totalChange)}>
-          増減: {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
-        </TipRow>
-        <TipRow $color={COLORS.qty}>
-          点数効果: {item.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.qtyEffect))}
-        </TipRow>
-        <TipRow $color={COLORS.price}>
-          単価効果: {item.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(item.priceEffect))}
-        </TipRow>
-        {item.hasChildren && <TipHint>クリックでドリルダウン</TipHint>}
-      </TipBox>
-    )
-  }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <div>
@@ -356,7 +357,7 @@ export function CategoryFactorBreakdown({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<FactorTooltip />} />
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
           <Bar
