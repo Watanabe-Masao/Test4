@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
+import { useChartTheme, toManYen } from '@/presentation/components/charts'
 import { formatCurrency, safeDivide } from '@/domain/calculations/utils'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
