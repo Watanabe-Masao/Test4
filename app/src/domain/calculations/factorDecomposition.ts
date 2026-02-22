@@ -1,12 +1,35 @@
 /**
- * 売上要因分解ロジック
+ * 売上要因分解ロジック（シャープリー値ベース）
  *
- * 売上前年差を最大5つの要因に分解する:
- * 1. 客数効果   = (C₁−C₀) × Q₀ × P̄₀
- * 2. 点数効果   = C₁ × (Q₁−Q₀) × P̄₀
- * 3. 単価効果   = C₁ × Q₁ × (P̄₁−P̄₀)
- *    ├ 価格効果  = C₁Q₁ × Σ(p₁ᵢ−p₀ᵢ)s₀ᵢ
- *    └ 構成比変化効果 = C₁Q₁ × Σp₁ᵢ(s₁ᵢ−s₀ᵢ)
+ * ── 2変数分解 (n=2) ──
+ *   S = C × T  (客数 × 客単価)
+ *   φ_C = ΔC × ½(T₀ + T₁)
+ *   φ_T = ΔT × ½(C₀ + C₁)
+ *
+ * ── 3変数分解 (n=3) ──
+ *   S = C × Q × P̄  (客数 × 一人当たり点数 × 点単価)
+ *   重み = |S|!(n-1-|S|)!/n! → (2/6, 1/6, 1/6, 2/6)
+ *
+ *   φ_C = ΔC/6 × (2Q₀P̄₀ + Q₁P̄₀ + Q₀P̄₁ + 2Q₁P̄₁)
+ *   φ_Q = ΔQ/6 × (2C₀P̄₀ + C₁P̄₀ + C₀P̄₁ + 2C₁P̄₁)
+ *   φ_P̄ = ΔP̄/6 × (2C₀Q₀ + C₁Q₀ + C₀Q₁ + 2C₁Q₁)
+ *
+ * ── 完全4変数分解 (n=4: C, Q, p, s) ──
+ *   P̄ = p·s = Σpᵢsᵢ の4つの状態単価:
+ *     P₀₀=p₀·s₀, P₁₀=p₁·s₀, P₀₁=p₀·s₁, P₁₁=p₁·s₁
+ *
+ *   重み: k=0→¼, k=1→1/12, k=2→1/12, k=3→¼
+ *
+ *   φ_C = ΔC × [¼Q₀P₀₀ + 1/12(Q₁P₀₀+Q₀P₁₀+Q₀P₀₁)
+ *              + 1/12(Q₁P₁₀+Q₁P₀₁+Q₀P₁₁) + ¼Q₁P₁₁]
+ *   φ_Q = ΔQ × [¼C₀P₀₀ + 1/12(C₁P₀₀+C₀P₁₀+C₀P₀₁)
+ *              + 1/12(C₁P₁₀+C₁P₀₁+C₀P₁₁) + ¼C₁P₁₁]
+ *   φ_p = Δp·(A₀s₀ + A₁s₁)
+ *   φ_s = Δs·(A₀p₀ + A₁p₁)
+ *     A₀ = ¼C₀Q₀ + 1/12(C₁Q₀+C₀Q₁+C₁Q₁)
+ *     A₁ = 1/12(C₀Q₀+C₁Q₀+C₀Q₁) + ¼C₁Q₁
+ *
+ * 性質: φ_C + φ_Q + φ_p + φ_s = ΔS（完全一致・順序非依存・交互作用公平配分）
  */
 import { safeDivide } from './utils'
 
@@ -41,55 +64,72 @@ export interface PriceMixResult {
   mixEffect: number
 }
 
-/* ── 2要素分解 ──────────────────────────────────────── */
+/* ── 2要素シャープリー分解 ─────────────────────────── */
 
 /**
- * 客数効果 + 客単価効果
+ * S = C × T（客数×客単価）の2変数シャープリー値
+ *
+ *   φ_C = (C₁−C₀) × ½(T₀+T₁)
+ *   φ_T = (T₁−T₀) × ½(C₀+C₁)
  */
 export function decompose2(
   prevSales: number, curSales: number,
   prevCust: number, curCust: number,
 ): TwoFactorResult {
-  const prevAvgTicket = safeDivide(prevSales, prevCust, 0)
-  const curAvgTicket = safeDivide(curSales, curCust, 0)
+  const T0 = safeDivide(prevSales, prevCust, 0)
+  const T1 = safeDivide(curSales, curCust, 0)
   return {
-    custEffect: (curCust - prevCust) * prevAvgTicket,
-    ticketEffect: (curAvgTicket - prevAvgTicket) * curCust,
+    custEffect: (curCust - prevCust) * 0.5 * (T0 + T1),
+    ticketEffect: (T1 - T0) * 0.5 * (prevCust + curCust),
   }
 }
 
-/* ── 3要素分解 ──────────────────────────────────────── */
+/* ── 3要素シャープリー分解 ─────────────────────────── */
 
 /**
- * 客数効果 + 点数効果 + 単価効果
+ * S = C × Q × P̄ の3変数シャープリー値
+ *
+ * 各変数のシャープリー値は、他の2変数の全組み合わせに対する限界貢献の
+ * 重み付き平均。重み = |S|!(n-1-|S|)!/n! で n=3:
+ *   |S|=0: 2/6, |S|=1: 1/6, |S|=2: 2/6
+ *
+ *   φ_C = ΔC/6 × (2Q₀P̄₀ + Q₁P̄₀ + Q₀P̄₁ + 2Q₁P̄₁)
+ *   φ_Q = ΔQ/6 × (2C₀P̄₀ + C₁P̄₀ + C₀P̄₁ + 2C₁P̄₁)
+ *   φ_P̄ = ΔP̄/6 × (2C₀Q₀ + C₁Q₀ + C₀Q₁ + 2C₁Q₁)
  */
 export function decompose3(
   prevSales: number, curSales: number,
   prevCust: number, curCust: number,
   prevTotalQty: number, curTotalQty: number,
 ): ThreeFactorResult {
-  const prevQPC = safeDivide(prevTotalQty, prevCust, 0)
-  const curQPC = safeDivide(curTotalQty, curCust, 0)
-  const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
-  const curPPI = safeDivide(curSales, curTotalQty, 0)
+  const C0 = prevCust, C1 = curCust
+  const Q0 = safeDivide(prevTotalQty, prevCust, 0)
+  const Q1 = safeDivide(curTotalQty, curCust, 0)
+  const P0 = safeDivide(prevSales, prevTotalQty, 0)
+  const P1 = safeDivide(curSales, curTotalQty, 0)
 
+  // Shapley weights for n=3: (2, 1, 1, 2) / 6
+  const sixth = 1 / 6
   return {
-    custEffect: (curCust - prevCust) * prevQPC * prevPPI,
-    qtyEffect: curCust * (curQPC - prevQPC) * prevPPI,
-    pricePerItemEffect: curCust * curQPC * (curPPI - prevPPI),
+    custEffect: (C1 - C0) * sixth * (2 * Q0 * P0 + Q1 * P0 + Q0 * P1 + 2 * Q1 * P1),
+    qtyEffect: (Q1 - Q0) * sixth * (2 * C0 * P0 + C1 * P0 + C0 * P1 + 2 * C1 * P1),
+    pricePerItemEffect: (P1 - P0) * sixth * (2 * C0 * Q0 + C1 * Q0 + C0 * Q1 + 2 * C1 * Q1),
   }
 }
 
-/* ── 価格/ミックス分解 ─────────────────────────────── */
+/* ── 価格/構成比シャープリー分解 ─────────────────── */
 
 /**
- * 平均単価変動を価格効果とミックス効果に分解。
+ * 平均単価変動を価格効果と構成比変化効果にシャープリー分解。
  *
- * 価格効果    = TQ₁ × Σᵢ (p₁ᵢ − p₀ᵢ) × s₀ᵢ  (各カテゴリの値上げ/値下げ)
- * 構成比変化効果 = TQ₁ × Σᵢ p₁ᵢ × (s₁ᵢ − s₀ᵢ)  (構成比変化)
+ *   φ_p^(P̄) = ½[Σ(p₁ᵢ−p₀ᵢ)s₀ᵢ + Σ(p₁ᵢ−p₀ᵢ)s₁ᵢ]
+ *   φ_s^(P̄) = ½[Σp₀ᵢ(s₁ᵢ−s₀ᵢ) + Σp₁ᵢ(s₁ᵢ−s₀ᵢ)]
  *
- * 消滅カテゴリ(p₁未定義)は p₁=p₀ と仮定 → 純粋なミックス効果
- * 新規カテゴリ(p₀未定義)は p₀=p₁ と仮定 → 純粋なミックス効果
+ * 消滅カテゴリ(p₁未定義)は p₁=p₀ と仮定 → 純粋な構成比変化効果
+ * 新規カテゴリ(p₀未定義)は p₀=p₁ と仮定 → 純粋な構成比変化効果
+ *
+ * 戻り値は単価レベルのシャープリー値 × curTQ。
+ * 比率 priceEffect/(priceEffect+mixEffect) が4変数シャープリーの比率と一致する。
  */
 export function decomposePriceMix(
   curCategories: readonly CategoryQtyAmt[],
@@ -113,8 +153,8 @@ export function decomposePriceMix(
   const curTQ = [...curMap.values()].reduce((s, c) => s + c.qty, 0)
   if (prevTQ <= 0 || curTQ <= 0) return null
 
-  let deltaPPrice = 0
-  let deltaPMix = 0
+  let phiPrice = 0
+  let phiMix = 0
 
   const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
   for (const key of allKeys) {
@@ -126,23 +166,29 @@ export function decomposePriceMix(
     // 消滅/新規カテゴリは相手期の単価を代用 → 価格差=0
     const p0 = pQty > 0 ? safeDivide(pAmt, pQty, 0) : safeDivide(cAmt, cQty, 0)
     const p1 = cQty > 0 ? safeDivide(cAmt, cQty, 0) : safeDivide(pAmt, pQty, 0)
-    const s0 = pQty / prevTQ
-    const s1 = cQty / curTQ
+    const s0 = safeDivide(pQty, prevTQ, 0)
+    const s1 = safeDivide(cQty, curTQ, 0)
 
-    deltaPPrice += (p1 - p0) * s0
-    deltaPMix += p1 * (s1 - s0)
+    // シャープリー: 前年・当年の構成比を平均
+    phiPrice += 0.5 * ((p1 - p0) * s0 + (p1 - p0) * s1)
+    // シャープリー: 前年・当年の単価を平均
+    phiMix += 0.5 * (p0 * (s1 - s0) + p1 * (s1 - s0))
   }
 
   return {
-    priceEffect: curTQ * deltaPPrice,
-    mixEffect: curTQ * deltaPMix,
+    priceEffect: curTQ * phiPrice,
+    mixEffect: curTQ * phiMix,
   }
 }
 
-/* ── 5要素分解（統合） ─────────────────────────────── */
+/* ── 完全4変数シャープリー分解 ──────────────────── */
 
 /**
- * 客数効果 + 点数効果 + 価格効果 + ミックス効果
+ * S = C × Q × (p·s) の完全4変数シャープリー値。
+ *
+ * 4つの状態単価 P₀₀, P₁₀, P₀₁, P₁₁ を用いて
+ * 24通り全順序の限界貢献の加重平均を閉形式で計算。
+ * n=4 のシャープリー重み: k=0→¼, k=1→1/12, k=2→1/12, k=3→¼
  */
 export function decompose5(
   prevSales: number, curSales: number,
@@ -151,14 +197,88 @@ export function decompose5(
   curCategories: readonly CategoryQtyAmt[],
   prevCategories: readonly CategoryQtyAmt[],
 ): FiveFactorResult | null {
-  const three = decompose3(prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty)
-  const pm = decomposePriceMix(curCategories, prevCategories)
-  if (!pm) return null
+  const C0 = prevCust, C1 = curCust
+  const Q0 = safeDivide(prevTotalQty, prevCust, 0)
+  const Q1 = safeDivide(curTotalQty, curCust, 0)
 
-  return {
-    custEffect: three.custEffect,
-    qtyEffect: three.qtyEffect,
-    priceEffect: pm.priceEffect,
-    mixEffect: pm.mixEffect,
+  // Aggregate categories
+  const curMap = new Map<string, { qty: number; amt: number }>()
+  for (const c of curCategories) {
+    const ex = curMap.get(c.key) ?? { qty: 0, amt: 0 }
+    ex.qty += c.qty; ex.amt += c.amt
+    curMap.set(c.key, ex)
   }
+  const prevMap = new Map<string, { qty: number; amt: number }>()
+  for (const c of prevCategories) {
+    const ex = prevMap.get(c.key) ?? { qty: 0, amt: 0 }
+    ex.qty += c.qty; ex.amt += c.amt
+    prevMap.set(c.key, ex)
+  }
+
+  const prevTQ = [...prevMap.values()].reduce((s, c) => s + c.qty, 0)
+  const curTQ = [...curMap.values()].reduce((s, c) => s + c.qty, 0)
+  if (prevTQ <= 0 || curTQ <= 0) return null
+
+  // Compute 4 state unit prices: P₀₀, P₁₀, P₀₁, P₁₁
+  // and dot products for φ_p, φ_s
+  let P00 = 0, P10 = 0, P01 = 0, P11 = 0
+  let dpS0 = 0, dpS1 = 0  // Σ(p₁ᵢ-p₀ᵢ)s₀ᵢ, Σ(p₁ᵢ-p₀ᵢ)s₁ᵢ
+  let dsP0 = 0, dsP1 = 0  // Σp₀ᵢ(s₁ᵢ-s₀ᵢ), Σp₁ᵢ(s₁ᵢ-s₀ᵢ)
+
+  const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
+  for (const key of allKeys) {
+    const c = curMap.get(key)
+    const p = prevMap.get(key)
+    const cQty = c?.qty ?? 0, cAmt = c?.amt ?? 0
+    const pQty = p?.qty ?? 0, pAmt = p?.amt ?? 0
+
+    const p0 = pQty > 0 ? safeDivide(pAmt, pQty, 0) : safeDivide(cAmt, cQty, 0)
+    const p1 = cQty > 0 ? safeDivide(cAmt, cQty, 0) : safeDivide(pAmt, pQty, 0)
+    const s0 = safeDivide(pQty, prevTQ, 0)
+    const s1 = safeDivide(cQty, curTQ, 0)
+
+    P00 += p0 * s0
+    P10 += p1 * s0
+    P01 += p0 * s1
+    P11 += p1 * s1
+
+    dpS0 += (p1 - p0) * s0
+    dpS1 += (p1 - p0) * s1
+    dsP0 += p0 * (s1 - s0)
+    dsP1 += p1 * (s1 - s0)
+  }
+
+  // Shapley weights for n=4
+  const w0 = 1 / 4    // |S|=0
+  const w1 = 1 / 12   // |S|=1
+  const w2 = 1 / 12   // |S|=2
+  const w3 = 1 / 4    // |S|=3
+
+  // φ_C
+  const custEffect = (C1 - C0) * (
+    w0 * Q0 * P00 +
+    w1 * (Q1 * P00 + Q0 * P10 + Q0 * P01) +
+    w2 * (Q1 * P10 + Q1 * P01 + Q0 * P11) +
+    w3 * Q1 * P11
+  )
+
+  // φ_Q
+  const qtyEffect = (Q1 - Q0) * (
+    w0 * C0 * P00 +
+    w1 * (C1 * P00 + C0 * P10 + C0 * P01) +
+    w2 * (C1 * P10 + C1 * P01 + C0 * P11) +
+    w3 * C1 * P11
+  )
+
+  // A₀, A₁ for φ_p and φ_s
+  const A0 = w0 * C0 * Q0 + w1 * (C1 * Q0 + C0 * Q1 + C1 * Q1)
+  const A1 = w1 * (C0 * Q0 + C1 * Q0 + C0 * Q1) + w3 * C1 * Q1
+
+  // φ_p = (p₁-p₀)·(A₀s₀ + A₁s₁)
+  const priceEffect = A0 * dpS0 + A1 * dpS1
+
+  // φ_s = (s₁-s₀)·(A₀p₀ + A₁p₁)
+  const mixEffect = A0 * dsP0 + A1 * dsP1
+
+  return { custEffect, qtyEffect, priceEffect, mixEffect }
 }
