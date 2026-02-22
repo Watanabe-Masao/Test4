@@ -22,7 +22,7 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: { day: number; actualCum: number; budgetCum: number }[]
+  budgetChartData: { day: number; actualCum: number; budgetCum: number; prevYearCum: number | null }[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */
