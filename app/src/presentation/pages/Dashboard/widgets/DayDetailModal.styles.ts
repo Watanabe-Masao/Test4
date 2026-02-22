@@ -274,11 +274,11 @@ export const HourlyBarArea = styled.div`
 `
 export const HourlyCumOverlay = styled.svg`
   position: absolute; inset: 0;
-  pointer-events: none;
+  pointer-events: none; overflow: hidden;
 `
 export const HourlyRightAxis = styled.div`
   display: flex; flex-direction: column; justify-content: space-between;
-  align-items: flex-end; width: 36px; padding: 0 2px 0 4px;
+  align-items: flex-end; width: 36px; padding: 3% 2px 3% 4px;
   font-size: 0.45rem; font-family: monospace;
   color: ${({ theme }) => theme.colors.text4};
 `
