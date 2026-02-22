@@ -29,7 +29,7 @@ const TabBtn = styled.button<{ $active: boolean }>`
   padding: 3px 10px;
   border-radius: 4px;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.bg2};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.bg2};
   color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text};
   font-size: 0.65rem;
   cursor: pointer;

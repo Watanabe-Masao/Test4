@@ -30,7 +30,7 @@ const Title = styled.h4`
 
 const Subtitle = styled.p`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.textSecondary};
+  color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
@@ -44,7 +44,7 @@ const TabBtn = styled.button<{ $active: boolean }>`
   padding: 4px 12px;
   border-radius: 4px;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.bg2};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.bg2};
   color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
@@ -66,7 +66,7 @@ const SummaryItem = styled.div`
 
 const SummaryLabel = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.textSecondary};
+  color: ${({ theme }) => theme.colors.text2};
 `
 
 const SummaryValue = styled.span<{ $color?: string }>`
