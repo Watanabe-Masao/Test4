@@ -11,7 +11,7 @@ import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section, SectionTitle, EmptyState, EmptyIcon, EmptyTitle,
   Toolbar, WidgetGridStyled, ChartRow, FullChartRow,
-  DragItem, DragHandle,
+  DragItem, DragHandle, DeleteBtn,
 } from './DashboardPage.styles'
 
 // ─── Main Dashboard ──────────────────────────────────────
@@ -89,6 +89,14 @@ export function DashboardPage() {
   const handleDragEnd = useCallback(() => {
     setDragIndex(null)
     setOverIndex(null)
+  }, [])
+
+  const handleRemoveWidget = useCallback((widgetId: string) => {
+    setWidgetIds((prev) => {
+      const next = prev.filter((id) => id !== widgetId)
+      saveLayout(next)
+      return next
+    })
   }, [])
 
   // ─── Empty / Loading states ──
@@ -185,6 +193,7 @@ export function DashboardPage() {
         onDrop={() => handleDrop(index)}
         onDragEnd={handleDragEnd}
       >
+        <DeleteBtn onClick={(e) => { e.stopPropagation(); handleRemoveWidget(widget.id) }} title="削除">×</DeleteBtn>
         <DragHandle>⠿</DragHandle>
         {content}
       </DragItem>

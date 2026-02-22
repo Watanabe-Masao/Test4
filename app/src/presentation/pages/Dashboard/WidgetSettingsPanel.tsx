@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Button } from '@/presentation/components/common'
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/registry'
-import { LAYOUT_PRESETS, saveActivePreset } from './widgets/layoutPresets'
+import {
+  getAllPresets, addCustomPreset, deleteCustomPreset,
+  saveActivePreset,
+} from './widgets/layoutPresets'
+import type { LayoutPreset } from './widgets/layoutPresets'
 import type { WidgetDef } from './widgets/types'
 import {
   PanelOverlay, Panel, PanelTitle, PanelGroup, PanelGroupTitle,
@@ -40,6 +44,7 @@ const PresetCard = styled.button<{ $active?: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text};
   transition: all 0.15s;
+  position: relative;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.palette.primary};
@@ -50,6 +55,87 @@ const PresetDesc = styled.div`
   font-size: 10px;
   color: ${({ theme }) => theme.colors.text4};
   margin-top: 2px;
+`
+
+const PresetDeleteBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.palette.danger};
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  ${PresetCard}:hover & {
+    opacity: 1;
+  }
+`
+
+const SaveSection = styled.div`
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+const SaveRow = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+`
+
+const SaveInput = styled.input`
+  flex: 1;
+  padding: 5px 8px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const SaveBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  padding: 4px 10px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: #fff;
+  background: ${({ theme }) => theme.colors.palette.primary};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.85; }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`
+
+const CustomTag = styled.span`
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.palette.warning}25;
+  color: ${({ theme }) => theme.colors.palette.warning};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  margin-left: 4px;
+  vertical-align: middle;
 `
 
 export function WidgetSettingsPanel({
@@ -63,6 +149,9 @@ export function WidgetSettingsPanel({
 }) {
   const [selected, setSelected] = useState(() => new Set(activeIds))
   const [activePreset, setActivePreset] = useState<string | null>(null)
+  const [allPresets, setAllPresets] = useState<LayoutPreset[]>(getAllPresets)
+  const [saveName, setSaveName] = useState('')
+  const [showSave, setShowSave] = useState(false)
 
   const toggle = (id: string) => {
     setActivePreset(null)
@@ -75,18 +164,37 @@ export function WidgetSettingsPanel({
   }
 
   const applyPreset = (presetId: string) => {
-    const preset = LAYOUT_PRESETS.find((p) => p.id === presetId)
+    const preset = allPresets.find((p) => p.id === presetId)
     if (!preset) return
     setActivePreset(presetId)
     setSelected(new Set(preset.widgetIds))
   }
 
+  const handleSaveCustom = useCallback(() => {
+    const name = saveName.trim()
+    if (!name) return
+    const ids = Array.from(selected)
+    if (ids.length === 0) return
+    const newPreset = addCustomPreset(name, `${ids.length}個のウィジェット`, ids)
+    setAllPresets(getAllPresets())
+    setActivePreset(newPreset.id)
+    setSaveName('')
+    setShowSave(false)
+  }, [saveName, selected])
+
+  const handleDeleteCustom = useCallback((presetId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    deleteCustomPreset(presetId)
+    setAllPresets(getAllPresets())
+    if (activePreset === presetId) setActivePreset(null)
+  }, [activePreset])
+
   const handleApply = () => {
-    // Preserve ordering: keep existing order, then append new ones
     const ordered = activeIds.filter((id) => selected.has(id))
     const newOnes = Array.from(selected).filter((id) => !activeIds.includes(id))
-    const result = activePreset
-      ? [...LAYOUT_PRESETS.find((p) => p.id === activePreset)!.widgetIds]
+    const preset = allPresets.find((p) => p.id === activePreset)
+    const result = activePreset && preset
+      ? [...preset.widgetIds]
       : [...ordered, ...newOnes]
     saveActivePreset(activePreset)
     onApply(result)
@@ -117,15 +225,19 @@ export function WidgetSettingsPanel({
     groups.set(w.group, list)
   })
 
+  const customPresets = allPresets.filter((p) => p.isCustom)
+  const builtinPresets = allPresets.filter((p) => !p.isCustom)
+
   return (
     <PanelOverlay onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <Panel onClick={(e) => e.stopPropagation()}>
         <PanelTitle>ダッシュボードのカスタマイズ</PanelTitle>
 
+        {/* 組み込みプリセット */}
         <PresetSection>
           <PresetLabel>プリセット</PresetLabel>
           <PresetGrid>
-            {LAYOUT_PRESETS.map((preset) => (
+            {builtinPresets.map((preset) => (
               <PresetCard
                 key={preset.id}
                 $active={activePreset === preset.id}
@@ -136,6 +248,58 @@ export function WidgetSettingsPanel({
               </PresetCard>
             ))}
           </PresetGrid>
+        </PresetSection>
+
+        {/* カスタムプリセット */}
+        <PresetSection>
+          <PresetLabel>カスタム</PresetLabel>
+          {customPresets.length > 0 && (
+            <PresetGrid>
+              {customPresets.map((preset) => (
+                <PresetCard
+                  key={preset.id}
+                  $active={activePreset === preset.id}
+                  onClick={() => applyPreset(preset.id)}
+                >
+                  {preset.label}
+                  <CustomTag>保存済み</CustomTag>
+                  <PresetDesc>{preset.description}</PresetDesc>
+                  <PresetDeleteBtn
+                    onClick={(e) => handleDeleteCustom(preset.id, e)}
+                    title="削除"
+                  >
+                    ×
+                  </PresetDeleteBtn>
+                </PresetCard>
+              ))}
+            </PresetGrid>
+          )}
+          <SaveSection>
+            {!showSave ? (
+              <SaveBtn onClick={() => setShowSave(true)}>
+                現在の選択を保存
+              </SaveBtn>
+            ) : (
+              <SaveRow>
+                <SaveInput
+                  placeholder="プリセット名を入力"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCustom() }}
+                  autoFocus
+                />
+                <SaveBtn onClick={handleSaveCustom} disabled={!saveName.trim() || selected.size === 0}>
+                  保存
+                </SaveBtn>
+                <SaveBtn
+                  onClick={() => { setShowSave(false); setSaveName('') }}
+                  style={{ background: 'transparent', color: 'inherit', opacity: 0.6 }}
+                >
+                  取消
+                </SaveBtn>
+              </SaveRow>
+            )}
+          </SaveSection>
         </PresetSection>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
