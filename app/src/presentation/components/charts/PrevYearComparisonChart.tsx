@@ -92,8 +92,7 @@ const ProgressLabel = styled.div`
 
 const ChartArea = styled.div`
   width: 100%;
-  flex: 1;
-  min-height: 250px;
+  height: 280px;
 `
 
 interface Props {
