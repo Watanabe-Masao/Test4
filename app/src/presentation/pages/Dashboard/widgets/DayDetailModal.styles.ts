@@ -269,11 +269,12 @@ export const HourlyChartWrap = styled.div`
   display: grid; height: 200px; flex: 1;
 `
 export const HourlyBarArea = styled.div`
-  display: flex; align-items: flex-end;
+  display: flex; align-items: flex-end; height: 100%;
   grid-row: 1; grid-column: 1; min-width: 0;
 `
 export const HourlyCumOverlay = styled.svg`
   grid-row: 1; grid-column: 1;
+  width: 100%; height: 100%;
   pointer-events: none; overflow: visible;
 `
 export const HourlyRightAxis = styled.div`
@@ -291,7 +292,7 @@ export const HourlyBar = styled.div<{ $pct: number; $color: string }>`
   &:hover { opacity: 1; }
 `
 export const HourlyAxis = styled.div`
-  display: flex; padding: 0 40px 0 4px;
+  display: flex; padding: 0 42px 0 4px;
 `
 export const HourlyTick = styled.div`
   flex: 1; margin: 0 1px; text-align: center; font-size: 0.5rem;
@@ -306,11 +307,12 @@ export const HourlyTooltipBox = styled.div`
   box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: none;
 `
 export const HourlySummaryRow = styled.div`
-  display: flex; gap: ${({ theme }) => theme.spacing[4]}; flex-wrap: wrap;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 export const HourlySumItem = styled.div`
-  display: flex; align-items: baseline; gap: 3px; font-size: 0.65rem;
+  display: flex; flex-direction: column; gap: 1px; font-size: 0.65rem;
 `
 
 /* ── Hourly Detail styled components ────── */
