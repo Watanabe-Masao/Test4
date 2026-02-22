@@ -86,12 +86,32 @@ interface WaterfallItem {
 }
 
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
+type DecompLevel = 2 | 3 | 5
+
+const DecompRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+const DecompBtn = styled.button<{ $active: boolean }>`
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  cursor: pointer;
+  font-weight: ${({ $active }) => $active ? 600 : 400};
+  &:hover { opacity: 0.8; }
+`
 
 export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const prevYear = ctx.prevYear
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
+  const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
   // Aggregate total quantity from CTS records
   const curTotalQty = useMemo(() => {
@@ -116,6 +136,10 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     return decomposePriceMix(curRecs, prevRecs)
   }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales])
 
+  // Available decomposition levels
+  const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
+  const activeLevel = decompLevel ?? maxLevel
+
   // Factor decomposition data
   const factorData = useMemo((): WaterfallItem[] => {
     if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
@@ -129,7 +153,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     const items: WaterfallItem[] = []
 
-    // 1. Previous year sales (start)
+    // Start: previous year sales
     items.push({
       name: '前年売上',
       value: prevSales,
@@ -140,7 +164,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     let running = prevSales
 
-    // 2. Customer effect: (curCust - prevCust) * prevAvgTicket
+    // Customer effect
     const custEffect = (curCust - prevCust) * prevAvgTicket
     items.push({
       name: '客数効果',
@@ -150,54 +174,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
     running += custEffect
 
-    if (hasQuantity && prevCust > 0 && curCust > 0) {
-      // Decompose ticket effect into items-per-customer and price-per-item
-      const prevQPC = prevTotalQty / prevCust
-      const curQPC = curTotalQty / curCust
-      const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
-
-      // 3. Items-per-customer effect
-      const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
-      items.push({
-        name: '点数効果',
-        value: qtyEffect,
-        base: qtyEffect >= 0 ? running : running + qtyEffect,
-        bar: Math.abs(qtyEffect),
-      })
-      running += qtyEffect
-
-      if (priceMix) {
-        // 4a. Price effect (値上げ/値下げ)
-        items.push({
-          name: '価格効果',
-          value: priceMix.priceEffect,
-          base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
-          bar: Math.abs(priceMix.priceEffect),
-        })
-        running += priceMix.priceEffect
-
-        // 4b. Mix effect (構成比変化)
-        items.push({
-          name: 'ミックス効果',
-          value: priceMix.mixEffect,
-          base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
-          bar: Math.abs(priceMix.mixEffect),
-        })
-        running += priceMix.mixEffect
-      } else {
-        // Fallback: combined price-per-item effect
-        const curPPI = safeDivide(curSales, curTotalQty, 0)
-        const priceEffect = curCust * curQPC * (curPPI - prevPPI)
-        items.push({
-          name: '単価効果',
-          value: priceEffect,
-          base: priceEffect >= 0 ? running : running + priceEffect,
-          bar: Math.abs(priceEffect),
-        })
-        running += priceEffect
-      }
-    } else {
-      // Fallback: combined ticket effect
+    if (activeLevel === 2) {
+      // 2-factor: 客単価効果
       const curAvgTicket = safeDivide(curSales, curCust, 0)
       const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
       items.push({
@@ -206,10 +184,74 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         base: ticketEffect >= 0 ? running : running + ticketEffect,
         bar: Math.abs(ticketEffect),
       })
-      running += ticketEffect
+    } else if (activeLevel === 3 || !priceMix) {
+      // 3-factor: 点数効果 + 単価効果
+      if (hasQuantity && prevCust > 0 && curCust > 0) {
+        const prevQPC = prevTotalQty / prevCust
+        const curQPC = curTotalQty / curCust
+        const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
+        const curPPI = safeDivide(curSales, curTotalQty, 0)
+
+        const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
+        items.push({
+          name: '点数効果',
+          value: qtyEffect,
+          base: qtyEffect >= 0 ? running : running + qtyEffect,
+          bar: Math.abs(qtyEffect),
+        })
+        running += qtyEffect
+
+        const priceEffect = curCust * curQPC * (curPPI - prevPPI)
+        items.push({
+          name: '単価効果',
+          value: priceEffect,
+          base: priceEffect >= 0 ? running : running + priceEffect,
+          bar: Math.abs(priceEffect),
+        })
+      } else {
+        const curAvgTicket = safeDivide(curSales, curCust, 0)
+        const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
+        items.push({
+          name: '客単価効果',
+          value: ticketEffect,
+          base: ticketEffect >= 0 ? running : running + ticketEffect,
+          bar: Math.abs(ticketEffect),
+        })
+      }
+    } else {
+      // 5-factor: 点数効果 + 価格効果 + ミックス効果
+      if (hasQuantity && prevCust > 0 && curCust > 0) {
+        const prevQPC = prevTotalQty / prevCust
+        const curQPC = curTotalQty / curCust
+        const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
+
+        const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
+        items.push({
+          name: '点数効果',
+          value: qtyEffect,
+          base: qtyEffect >= 0 ? running : running + qtyEffect,
+          bar: Math.abs(qtyEffect),
+        })
+        running += qtyEffect
+
+        items.push({
+          name: '価格効果',
+          value: priceMix.priceEffect,
+          base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
+          bar: Math.abs(priceMix.priceEffect),
+        })
+        running += priceMix.priceEffect
+
+        items.push({
+          name: 'ミックス効果',
+          value: priceMix.mixEffect,
+          base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
+          bar: Math.abs(priceMix.mixEffect),
+        })
+      }
     }
 
-    // 5. Current year sales (end)
+    // End: current year sales
     items.push({
       name: '当年売上',
       value: curSales,
@@ -219,7 +261,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
 
     return items
-  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix])
+  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
 
   // Category-based decomposition data
   const categoryData = useMemo((): WaterfallItem[] => {
@@ -337,7 +379,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
-            {priceMix ? '5要素分解' : hasQuantity ? '客数・点数・単価分解' : '客数・客単価分解'}
+            要因分解
           </TabBtn>
           {hasCategoryView && (
             <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
@@ -350,6 +392,22 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             </TabBtn>
           )}
         </TabRow>
+      )}
+
+      {viewMode === 'factor' && maxLevel >= 3 && (
+        <DecompRow>
+          <DecompBtn $active={activeLevel === 2} onClick={() => setDecompLevel(2)}>
+            客数・客単価
+          </DecompBtn>
+          <DecompBtn $active={activeLevel === 3} onClick={() => setDecompLevel(3)}>
+            客数・点数・単価
+          </DecompBtn>
+          {maxLevel === 5 && (
+            <DecompBtn $active={activeLevel === 5} onClick={() => setDecompLevel(5)}>
+              5要素（価格+ミックス）
+            </DecompBtn>
+          )}
+        </DecompRow>
       )}
 
       <SummaryRow>

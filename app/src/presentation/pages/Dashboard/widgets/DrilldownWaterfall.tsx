@@ -46,6 +46,25 @@ interface WaterfallItem {
 }
 
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
+type DecompLevel = 2 | 3 | 5
+
+const DecompRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+`
+
+const DecompBtn = styled.button<{ $active: boolean }>`
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  font-size: 0.6rem;
+  cursor: pointer;
+  font-weight: ${({ $active }) => $active ? 600 : 400};
+  &:hover { opacity: 0.8; }
+`
 
 export function DrilldownWaterfall({
   actual, pySales, dayCust, pyCust,
@@ -60,6 +79,7 @@ export function DrilldownWaterfall({
 }) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
+  const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
   // Aggregate total quantity from day records
   const curTotalQty = useMemo(() =>
@@ -74,13 +94,16 @@ export function DrilldownWaterfall({
     return decomposePriceMix(dayRecords, prevDayRecords)
   }, [dayRecords, prevDayRecords])
 
+  // Available decomposition levels
+  const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
+  const activeLevel = decompLevel ?? maxLevel
+
   const factorData = useMemo((): WaterfallItem[] => {
     if (pySales <= 0) return []
 
     const prevAvgTicket = safeDivide(pySales, pyCust, 0)
 
     const items: WaterfallItem[] = []
-
     items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
 
     let running = pySales
@@ -95,50 +118,8 @@ export function DrilldownWaterfall({
       })
       running += custEffect
 
-      if (hasQuantity) {
-        const prevQPC = prevTotalQty / pyCust
-        const curQPC = curTotalQty / dayCust
-        const prevPPI = safeDivide(pySales, prevTotalQty, 0)
-
-        const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
-        items.push({
-          name: '点数効果',
-          value: qtyEffect,
-          base: qtyEffect >= 0 ? running : running + qtyEffect,
-          bar: Math.abs(qtyEffect),
-        })
-        running += qtyEffect
-
-        if (priceMix) {
-          // Price effect (値上げ/値下げ)
-          items.push({
-            name: '価格効果',
-            value: priceMix.priceEffect,
-            base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
-            bar: Math.abs(priceMix.priceEffect),
-          })
-          running += priceMix.priceEffect
-
-          // Mix effect (構成比変化)
-          items.push({
-            name: 'ミックス',
-            value: priceMix.mixEffect,
-            base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
-            bar: Math.abs(priceMix.mixEffect),
-          })
-          running += priceMix.mixEffect
-        } else {
-          const curPPI = safeDivide(actual, curTotalQty, 0)
-          const priceEffect = dayCust * curQPC * (curPPI - prevPPI)
-          items.push({
-            name: '単価効果',
-            value: priceEffect,
-            base: priceEffect >= 0 ? running : running + priceEffect,
-            bar: Math.abs(priceEffect),
-          })
-          running += priceEffect
-        }
-      } else {
+      if (activeLevel === 2) {
+        // 2-factor: 客単価効果
         const curAvgTicket = safeDivide(actual, dayCust, 0)
         const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
         items.push({
@@ -147,6 +128,71 @@ export function DrilldownWaterfall({
           base: ticketEffect >= 0 ? running : running + ticketEffect,
           bar: Math.abs(ticketEffect),
         })
+      } else if (activeLevel === 3 || !priceMix) {
+        // 3-factor: 点数効果 + 単価効果
+        if (hasQuantity) {
+          const prevQPC = prevTotalQty / pyCust
+          const curQPC = curTotalQty / dayCust
+          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
+          const curPPI = safeDivide(actual, curTotalQty, 0)
+
+          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
+          items.push({
+            name: '点数効果',
+            value: qtyEffect,
+            base: qtyEffect >= 0 ? running : running + qtyEffect,
+            bar: Math.abs(qtyEffect),
+          })
+          running += qtyEffect
+
+          const priceEffect = dayCust * curQPC * (curPPI - prevPPI)
+          items.push({
+            name: '単価効果',
+            value: priceEffect,
+            base: priceEffect >= 0 ? running : running + priceEffect,
+            bar: Math.abs(priceEffect),
+          })
+        } else {
+          const curAvgTicket = safeDivide(actual, dayCust, 0)
+          const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
+          items.push({
+            name: '客単価効果',
+            value: ticketEffect,
+            base: ticketEffect >= 0 ? running : running + ticketEffect,
+            bar: Math.abs(ticketEffect),
+          })
+        }
+      } else {
+        // 5-factor: 点数効果 + 価格効果 + ミックス効果
+        if (hasQuantity) {
+          const prevQPC = prevTotalQty / pyCust
+          const curQPC = curTotalQty / dayCust
+          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
+
+          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
+          items.push({
+            name: '点数効果',
+            value: qtyEffect,
+            base: qtyEffect >= 0 ? running : running + qtyEffect,
+            bar: Math.abs(qtyEffect),
+          })
+          running += qtyEffect
+
+          items.push({
+            name: '価格効果',
+            value: priceMix.priceEffect,
+            base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
+            bar: Math.abs(priceMix.priceEffect),
+          })
+          running += priceMix.priceEffect
+
+          items.push({
+            name: 'ミックス',
+            value: priceMix.mixEffect,
+            base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
+            bar: Math.abs(priceMix.mixEffect),
+          })
+        }
       }
     } else {
       const diff = actual - pySales
@@ -161,7 +207,7 @@ export function DrilldownWaterfall({
     items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
 
     return items
-  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix])
+  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
 
   const categoryData = useMemo((): WaterfallItem[] => {
     if (dayRecords.length === 0 || prevDayRecords.length === 0) return []
@@ -250,7 +296,7 @@ export function DrilldownWaterfall({
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
-            {priceMix ? '5要素分解' : hasQuantity ? '客数・点数・単価' : '客数・客単価'}
+            要因分解
           </TabBtn>
           {hasCategoryView && (
             <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
@@ -263,6 +309,22 @@ export function DrilldownWaterfall({
             </TabBtn>
           )}
         </TabRow>
+      )}
+
+      {viewMode === 'factor' && maxLevel >= 3 && (
+        <DecompRow>
+          <DecompBtn $active={activeLevel === 2} onClick={() => setDecompLevel(2)}>
+            客数・客単価
+          </DecompBtn>
+          <DecompBtn $active={activeLevel === 3} onClick={() => setDecompLevel(3)}>
+            客数・点数・単価
+          </DecompBtn>
+          {maxLevel === 5 && (
+            <DecompBtn $active={activeLevel === 5} onClick={() => setDecompLevel(5)}>
+              5要素
+            </DecompBtn>
+          )}
+        </DecompRow>
       )}
 
       {viewMode === 'categoryFactor' ? (
