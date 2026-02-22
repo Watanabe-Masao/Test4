@@ -964,6 +964,30 @@ export const DragHandle = styled.div`
   ${DragItem}:hover & { opacity: 1; }
 `
 
+export const DeleteBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  top: 4px;
+  right: 26px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.palette.danger};
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 2;
+  ${DragItem}:hover & { opacity: 1; }
+  &:hover { opacity: 1 !important; filter: brightness(1.1); }
+`
+
 // ─── Settings Panel ──────────────────────────────────────
 
 export const PanelOverlay = styled.div`
