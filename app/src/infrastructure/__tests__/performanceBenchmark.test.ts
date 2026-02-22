@@ -9,9 +9,9 @@ import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
 import { createEmptyImportedData } from '@/domain/models'
 import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
-import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
+import { DEFAULT_SETTINGS, getDaysInMonth } from '@/domain/constants/defaults'
 
-const DAYS_IN_MONTH = 28
+const DAYS_IN_MONTH = getDaysInMonth(DEFAULT_SETTINGS.targetYear, DEFAULT_SETTINGS.targetMonth)
 
 /**
  * 売上売変データ生成（salesDiscount 形式）
@@ -40,11 +40,12 @@ function generateSalesDiscountRows(storeCount: number, days: number): unknown[][
     totalRow.push(1000000 * s, 50000 * s)
   }
 
-  // Data rows (days > 28 は循環して有効な日付を生成)
+  // Data rows (days > DAYS_IN_MONTH は循環して有効な日付を生成)
+  const { targetYear, targetMonth } = DEFAULT_SETTINGS
   const dataRows: unknown[][] = []
   for (let d = 1; d <= days; d++) {
     const dayInMonth = ((d - 1) % DAYS_IN_MONTH) + 1
-    const dayStr = `2026-02-${String(dayInMonth).padStart(2, '0')}`
+    const dayStr = `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(dayInMonth).padStart(2, '0')}`
     const row: unknown[] = [dayStr, '', '']
     for (let s = 1; s <= storeCount; s++) {
       const baseSales = 30000 + Math.floor(Math.random() * 20000) * s
@@ -88,10 +89,12 @@ function generatePurchaseRows(
   const metaRow1: unknown[] = ['', '', '']
   const metaRow2: unknown[] = ['', '', '']
 
-  // Data rows
+  // Data rows (days > DAYS_IN_MONTH は循環して有効な日付を生成)
+  const { targetYear, targetMonth } = DEFAULT_SETTINGS
   const dataRows: unknown[][] = []
   for (let d = 1; d <= days; d++) {
-    const dayStr = `2026-02-${String(d).padStart(2, '0')}`
+    const dayInMonth = ((d - 1) % DAYS_IN_MONTH) + 1
+    const dayStr = `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(dayInMonth).padStart(2, '0')}`
     const row: unknown[] = [dayStr, '', '']
     for (let sup = 1; sup <= supplierCount; sup++) {
       for (let s = 1; s <= storeCount; s++) {
