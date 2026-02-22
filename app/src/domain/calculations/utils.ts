@@ -88,8 +88,9 @@ function maxDayOfRecord(record: { readonly [storeId: string]: { readonly [day: n
 }
 
 /**
- * 予算以外の取込データ（販売金額データ）の最大日を検出する。
+ * 予算・消耗品以外の取込データ（販売金額データ）の最大日を検出する。
  * スライダーのデフォルト値やリセット時のデータ末日として使用。
+ * 消耗品は売上とは異なる期間のデータが入る場合があるため除外する。
  */
 export function detectDataMaxDay(data: {
   readonly purchase: { readonly [s: string]: { readonly [d: number]: unknown } }
@@ -99,7 +100,6 @@ export function detectDataMaxDay(data: {
   readonly interStoreOut: { readonly [s: string]: { readonly [d: number]: unknown } }
   readonly flowers: { readonly [s: string]: { readonly [d: number]: unknown } }
   readonly directProduce: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly consumables: { readonly [s: string]: { readonly [d: number]: unknown } }
 }): number {
   return Math.max(
     0,
@@ -110,6 +110,5 @@ export function detectDataMaxDay(data: {
     maxDayOfRecord(data.interStoreOut),
     maxDayOfRecord(data.flowers),
     maxDayOfRecord(data.directProduce),
-    maxDayOfRecord(data.consumables),
   )
 }
