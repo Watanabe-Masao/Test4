@@ -289,7 +289,7 @@ export function TimeSlotYoYComparisonChart({
       },
       tableRows,
     }
-  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf])
+  }, [periodRecords, prevPeriodRecords, selectedStoreIds, filter, pf, hf, year, month])
 
   if (chartData.length === 0) return null
 
