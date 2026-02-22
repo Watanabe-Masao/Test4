@@ -164,13 +164,11 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
       name: stores.get(id)?.name ?? `店舗${id}`,
     }))
 
-    const div = pf.mode !== 'total' ? pf.divisor : 1
-
     // 各店舗の合計金額
     const storeTotals = new Map<string, number>()
     for (const s of storeNames) {
       const hourMap = storeHourMap.get(s.id)!
-      const total = Math.round([...hourMap.values()].reduce((sum, v) => sum + v, 0) / div)
+      const total = pf.divideByMode([...hourMap.values()].reduce((sum, v) => sum + v, 0))
       storeTotals.set(s.name, total)
     }
 
@@ -178,7 +176,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const s of storeNames) {
-        entry[s.name] = Math.round((storeHourMap.get(s.id)?.get(h) ?? 0) / div)
+        entry[s.name] = pf.divideByMode(storeHourMap.get(s.id)?.get(h) ?? 0)
       }
       return entry
     })

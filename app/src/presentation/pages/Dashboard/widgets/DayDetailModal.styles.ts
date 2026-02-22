@@ -266,7 +266,7 @@ export const HourlyChartContainer = styled.div`
   display: flex; align-items: stretch; margin-bottom: 4px; padding: 0 4px;
 `
 export const HourlyChartWrap = styled.div`
-  display: grid; height: 180px; flex: 1;
+  display: grid; height: 120px; flex: 1;
 `
 export const HourlyBarArea = styled.div`
   display: flex; align-items: flex-end;

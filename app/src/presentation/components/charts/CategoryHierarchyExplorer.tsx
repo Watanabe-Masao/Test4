@@ -312,17 +312,16 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
     // Prev year aggregation
     const prevMap = hasPrevYear ? aggregateByLevel(filteredPrevRecords, currentLevel) : null
 
-    const div = pf.mode !== 'total' ? pf.divisor : 1
-    const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / div
+    const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / pf.divisor
     return [...map.values()].map((it): HierarchyItem => {
-      const hp = Array.from({ length: 24 }, (_, h) => Math.round((it.hours.get(h) ?? 0) / div))
+      const hp = Array.from({ length: 24 }, (_, h) => pf.divideByMode(it.hours.get(h) ?? 0))
       const mx = Math.max(...hp)
-      const amt = Math.round(it.amount / div)
-      const qty = Math.round(it.quantity / div)
+      const amt = pf.divideByMode(it.amount)
+      const qty = pf.divideByMode(it.quantity)
 
       const prev = prevMap?.get(it.code)
-      const prevAmt = prev ? Math.round(prev.amount / div) : undefined
-      const prevQty = prev ? Math.round(prev.quantity / div) : undefined
+      const prevAmt = prev ? pf.divideByMode(prev.amount) : undefined
+      const prevQty = prev ? pf.divideByMode(prev.quantity) : undefined
 
       // コアタイム & 折り返し時間帯
       const hourMap = new Map<number, number>()

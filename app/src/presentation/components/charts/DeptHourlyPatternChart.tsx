@@ -206,12 +206,11 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
     deptTotals.sort((a, b) => b.total - a.total)
     const topDepts = deptTotals.slice(0, topN)
 
-    const div = pf.mode !== 'total' ? pf.divisor : 1
     const hours = [...hourSet].sort((a, b) => a - b)
     const data = hours.map((h) => {
       const entry: Record<string, string | number> = { hour: `${h}時` }
       for (const dept of topDepts) {
-        entry[dept.name] = Math.round((dept.hourMap.get(h) ?? 0) / div)
+        entry[dept.name] = pf.divideByMode(dept.hourMap.get(h) ?? 0)
       }
       return entry
     })
