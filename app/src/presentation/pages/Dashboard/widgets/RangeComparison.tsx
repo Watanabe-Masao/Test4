@@ -1,5 +1,6 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
+import { fmtSen } from './drilldownUtils'
 import type { PrevYearData } from '@/application/hooks'
 import {
   RangeSummaryPanel, RangeSummaryTitle, RangeSummaryGrid,
@@ -22,12 +23,6 @@ export interface RangeData {
   pyRatio: number
   salesDaysCount: number
   avgDaily: number
-}
-
-/** 千円表記 (コンパクト) */
-function fmtSen(n: number): string {
-  const sen = Math.round(n / 1_000)
-  return `${sen.toLocaleString()}千`
 }
 
 interface RangeComparisonPanelProps {

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -157,9 +157,9 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
 
   // 8. Transaction Value
   if (r.totalCustomers > 0) {
-    const txValue = Math.round(r.totalSales / r.totalCustomers)
+    const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
     const prevTxValue = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-      ? Math.round(prevYear.totalSales / prevYear.totalCustomers)
+      ? calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
       : null
     const txYoY = prevTxValue != null && prevTxValue > 0 ? txValue / prevTxValue : null
     items.push({

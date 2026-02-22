@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent, formatPointDiff, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
   ExecSummaryWrapper,
   ExecSummaryTabBar,
@@ -134,13 +134,13 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
         )}
 
         {tab === 'customers' && r.totalCustomers > 0 && (() => {
-          const txValue = Math.round(r.totalSales / r.totalCustomers)
+          const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
           const pyCustomers = prevYear.totalCustomers
           const custRatio = prevYear.hasPrevYear && pyCustomers > 0
             ? r.totalCustomers / pyCustomers
             : null
           const pyTxValue = prevYear.hasPrevYear && pyCustomers > 0
-            ? Math.round(prevYear.totalSales / pyCustomers)
+            ? calculateTransactionValue(prevYear.totalSales, pyCustomers)
             : null
           return (
             <ExecSummaryBar>
