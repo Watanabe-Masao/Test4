@@ -29,6 +29,16 @@ export function DashboardPage() {
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
+  // 分類別時間帯売上を選択店舗でフィルタ
+  const filteredCategoryTimeSales = useMemo(() => {
+    if (selectedStoreIds.size === 0) return appState.data.categoryTimeSales
+    return {
+      records: appState.data.categoryTimeSales.records.filter(
+        (r) => selectedStoreIds.has(r.storeId),
+      ),
+    }
+  }, [appState.data.categoryTimeSales, selectedStoreIds])
+
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -159,7 +169,7 @@ export function DashboardPage() {
     prevYear,
     allStoreResults: appState.storeResults,
     stores: appState.data.stores,
-    categoryTimeSales: appState.data.categoryTimeSales,
+    categoryTimeSales: filteredCategoryTimeSales,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,

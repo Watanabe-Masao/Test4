@@ -143,7 +143,15 @@ export function assembleStoreResult(
 
   // 予算
   const budget = budgetData?.total ?? settings.defaultBudget
-  const budgetDaily = budgetData?.daily ?? new Map<number, number>()
+  // 日別予算が無い場合は均等日割りにフォールバック
+  const budgetDaily: ReadonlyMap<number, number> = (() => {
+    if (budgetData?.daily && budgetData.daily.size > 0) return budgetData.daily
+    if (budget <= 0 || daysInMonth <= 0) return new Map<number, number>()
+    const perDay = budget / daysInMonth
+    const m = new Map<number, number>()
+    for (let d = 1; d <= daysInMonth; d++) m.set(d, perDay)
+    return m
+  })()
   const gpBudget = invConfig?.grossProfitBudget ?? 0
 
   // 予算分析
