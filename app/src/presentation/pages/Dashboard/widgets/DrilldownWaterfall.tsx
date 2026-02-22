@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
 import { formatCurrency, safeDivide } from '@/domain/calculations/utils'
-import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
+import { CategoryFactorBreakdown, decomposePriceMix } from './CategoryFactorBreakdown'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 
@@ -46,6 +46,25 @@ interface WaterfallItem {
 }
 
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
+type DecompLevel = 2 | 3 | 5
+
+const DecompRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+`
+
+const DecompBtn = styled.button<{ $active: boolean }>`
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  font-size: 0.6rem;
+  cursor: pointer;
+  font-weight: ${({ $active }) => $active ? 600 : 400};
+  &:hover { opacity: 0.8; }
+`
 
 export function DrilldownWaterfall({
   actual, pySales, dayCust, pyCust,
@@ -60,6 +79,7 @@ export function DrilldownWaterfall({
 }) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
+  const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
   // Aggregate total quantity from day records
   const curTotalQty = useMemo(() =>
@@ -68,13 +88,22 @@ export function DrilldownWaterfall({
     prevDayRecords.reduce((s, r) => s + r.totalQuantity, 0), [prevDayRecords])
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 
+  // Price/Mix decomposition
+  const priceMix = useMemo(() => {
+    if (dayRecords.length === 0 || prevDayRecords.length === 0) return null
+    return decomposePriceMix(dayRecords, prevDayRecords)
+  }, [dayRecords, prevDayRecords])
+
+  // Available decomposition levels
+  const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
+  const activeLevel = decompLevel ?? maxLevel
+
   const factorData = useMemo((): WaterfallItem[] => {
     if (pySales <= 0) return []
 
     const prevAvgTicket = safeDivide(pySales, pyCust, 0)
 
     const items: WaterfallItem[] = []
-
     items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
 
     let running = pySales
@@ -89,32 +118,8 @@ export function DrilldownWaterfall({
       })
       running += custEffect
 
-      if (hasQuantity) {
-        // Decompose ticket effect into items-per-customer and price-per-item
-        const prevQPC = prevTotalQty / pyCust
-        const curQPC = curTotalQty / dayCust
-        const prevPPI = safeDivide(pySales, prevTotalQty, 0)
-
-        const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
-        items.push({
-          name: '点数効果',
-          value: qtyEffect,
-          base: qtyEffect >= 0 ? running : running + qtyEffect,
-          bar: Math.abs(qtyEffect),
-        })
-        running += qtyEffect
-
-        const curPPI = safeDivide(actual, curTotalQty, 0)
-        const priceEffect = dayCust * curQPC * (curPPI - prevPPI)
-        items.push({
-          name: '単価効果',
-          value: priceEffect,
-          base: priceEffect >= 0 ? running : running + priceEffect,
-          bar: Math.abs(priceEffect),
-        })
-        running += priceEffect
-      } else {
-        // Fallback: combined ticket effect
+      if (activeLevel === 2) {
+        // 2-factor: 客単価効果
         const curAvgTicket = safeDivide(actual, dayCust, 0)
         const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
         items.push({
@@ -123,9 +128,73 @@ export function DrilldownWaterfall({
           base: ticketEffect >= 0 ? running : running + ticketEffect,
           bar: Math.abs(ticketEffect),
         })
+      } else if (activeLevel === 3 || !priceMix) {
+        // 3-factor: 点数効果 + 単価効果
+        if (hasQuantity) {
+          const prevQPC = prevTotalQty / pyCust
+          const curQPC = curTotalQty / dayCust
+          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
+          const curPPI = safeDivide(actual, curTotalQty, 0)
+
+          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
+          items.push({
+            name: '点数効果',
+            value: qtyEffect,
+            base: qtyEffect >= 0 ? running : running + qtyEffect,
+            bar: Math.abs(qtyEffect),
+          })
+          running += qtyEffect
+
+          const priceEffect = dayCust * curQPC * (curPPI - prevPPI)
+          items.push({
+            name: '単価効果',
+            value: priceEffect,
+            base: priceEffect >= 0 ? running : running + priceEffect,
+            bar: Math.abs(priceEffect),
+          })
+        } else {
+          const curAvgTicket = safeDivide(actual, dayCust, 0)
+          const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
+          items.push({
+            name: '客単価効果',
+            value: ticketEffect,
+            base: ticketEffect >= 0 ? running : running + ticketEffect,
+            bar: Math.abs(ticketEffect),
+          })
+        }
+      } else {
+        // 5-factor: 点数効果 + 価格効果 + ミックス効果
+        if (hasQuantity) {
+          const prevQPC = prevTotalQty / pyCust
+          const curQPC = curTotalQty / dayCust
+          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
+
+          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
+          items.push({
+            name: '点数効果',
+            value: qtyEffect,
+            base: qtyEffect >= 0 ? running : running + qtyEffect,
+            bar: Math.abs(qtyEffect),
+          })
+          running += qtyEffect
+
+          items.push({
+            name: '価格効果',
+            value: priceMix.priceEffect,
+            base: priceMix.priceEffect >= 0 ? running : running + priceMix.priceEffect,
+            bar: Math.abs(priceMix.priceEffect),
+          })
+          running += priceMix.priceEffect
+
+          items.push({
+            name: 'ミックス',
+            value: priceMix.mixEffect,
+            base: priceMix.mixEffect >= 0 ? running : running + priceMix.mixEffect,
+            bar: Math.abs(priceMix.mixEffect),
+          })
+        }
       }
     } else {
-      // No customer data: show simple diff
       const diff = actual - pySales
       items.push({
         name: '増減',
@@ -138,7 +207,7 @@ export function DrilldownWaterfall({
     items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
 
     return items
-  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty])
+  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
 
   const categoryData = useMemo((): WaterfallItem[] => {
     if (dayRecords.length === 0 || prevDayRecords.length === 0) return []
@@ -227,7 +296,7 @@ export function DrilldownWaterfall({
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
           <TabBtn $active={viewMode === 'factor'} onClick={() => setViewMode('factor')}>
-            {hasQuantity ? '客数・点数・単価' : '客数・客単価'}
+            要因分解
           </TabBtn>
           {hasCategoryView && (
             <TabBtn $active={viewMode === 'category'} onClick={() => setViewMode('category')}>
@@ -240,6 +309,22 @@ export function DrilldownWaterfall({
             </TabBtn>
           )}
         </TabRow>
+      )}
+
+      {viewMode === 'factor' && maxLevel >= 3 && (
+        <DecompRow>
+          <DecompBtn $active={activeLevel === 2} onClick={() => setDecompLevel(2)}>
+            客数・客単価
+          </DecompBtn>
+          <DecompBtn $active={activeLevel === 3} onClick={() => setDecompLevel(3)}>
+            客数・点数・単価
+          </DecompBtn>
+          {maxLevel === 5 && (
+            <DecompBtn $active={activeLevel === 5} onClick={() => setDecompLevel(5)}>
+              5要素
+            </DecompBtn>
+          )}
+        </DecompRow>
       )}
 
       {viewMode === 'categoryFactor' ? (
