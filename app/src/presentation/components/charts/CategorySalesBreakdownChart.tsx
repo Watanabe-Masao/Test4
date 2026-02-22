@@ -132,9 +132,8 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       })
     }
 
-    const div = pf.mode !== 'total' ? pf.divisor : 1
     const sorted = Array.from(map.values())
-      .map((d) => ({ ...d, amount: Math.round(d.amount / div), quantity: Math.round(d.quantity / div) }))
+      .map((d) => ({ ...d, amount: pf.divideByMode(d.amount), quantity: pf.divideByMode(d.quantity) }))
       .sort((a, b) => metric === 'amount' ? b.amount - a.amount : b.quantity - a.quantity)
       .slice(0, 20)
 

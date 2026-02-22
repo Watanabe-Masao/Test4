@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, countDowInRange } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -169,19 +169,19 @@ export function TimeSlotYoYComparisonChart({
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const { chartData, summary, tableRows } = useMemo(() => {
-    const div = pf.mode !== 'total' ? pf.divisor : 1
-
     // 前年データがカバーする日の範囲を特定し、当年も同じ日のみ比較する
     const prevDaySet = new Set(prevPeriodRecords.map((r) => r.day))
 
     // 当年集計（前年とカバー日が重なるレコードのみ合計に含める）
     const curHourly = new Map<number, number>()
     let curTotal = 0
+    const curDays = new Set<number>()
     const curFiltered = hf.applyFilter(filterByHierarchy(periodRecords, filter))
     for (const rec of curFiltered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       if (!prevDaySet.has(rec.day)) continue
       curTotal += rec.totalAmount
+      curDays.add(rec.day)
       for (const slot of rec.timeSlots) {
         curHourly.set(slot.hour, (curHourly.get(slot.hour) ?? 0) + slot.amount)
       }
@@ -190,13 +190,38 @@ export function TimeSlotYoYComparisonChart({
     // 前年集計
     const prevHourly = new Map<number, number>()
     let prevTotal = 0
+    const prevDays = new Set<number>()
     const prevFiltered = hf.applyFilter(filterByHierarchy(prevPeriodRecords, filter))
     for (const rec of prevFiltered) {
       if (selectedStoreIds.size > 0 && !selectedStoreIds.has(rec.storeId)) continue
       prevTotal += rec.totalAmount
+      prevDays.add(rec.day)
       for (const slot of rec.timeSlots) {
         prevHourly.set(slot.hour, (prevHourly.get(slot.hour) ?? 0) + slot.amount)
       }
+    }
+
+    // 除数: dowAvg は実際のデータ日数ベースで当年・前年を別々に計算
+    let curDiv = 1
+    let prevDiv = 1
+    if (pf.mode === 'dowAvg') {
+      // 実データがある日のうち選択曜日にマッチする日数で除算
+      const dowCounts = countDowInRange(year, month, pf.dayRange[0], pf.dayRange[1])
+      if (pf.selectedDows.size > 0) {
+        let cnt = 0
+        for (const dow of pf.selectedDows) cnt += dowCounts.get(dow) ?? 0
+        curDiv = cnt > 0 ? cnt : 1
+        prevDiv = cnt > 0 ? cnt : 1
+      } else {
+        // 全曜日 → 実データ重複日数で除算
+        const overlapDays = new Set([...curDays].filter((d) => prevDays.has(d)))
+        const dayCount = overlapDays.size > 0 ? overlapDays.size : 1
+        curDiv = dayCount
+        prevDiv = dayCount
+      }
+    } else if (pf.mode === 'dailyAvg') {
+      curDiv = pf.divisor
+      prevDiv = pf.divisor
     }
 
     // 時間帯一覧
@@ -205,8 +230,8 @@ export function TimeSlotYoYComparisonChart({
 
     // チャートデータ
     const chartData = hours.map((h) => {
-      const cur = Math.round((curHourly.get(h) ?? 0) / div)
-      const prev = Math.round((prevHourly.get(h) ?? 0) / div)
+      const cur = Math.round((curHourly.get(h) ?? 0) / curDiv)
+      const prev = Math.round((prevHourly.get(h) ?? 0) / prevDiv)
       const diff = cur - prev
       const ratio = prev > 0 ? cur / prev : null
       return {
@@ -219,7 +244,7 @@ export function TimeSlotYoYComparisonChart({
       }
     })
 
-    // サマリー
+    // サマリー（除数適用前の生値で前年比を計算）
     const yoyRatio = prevTotal > 0 ? curTotal / prevTotal : null
     const yoyDiff = curTotal - prevTotal
 

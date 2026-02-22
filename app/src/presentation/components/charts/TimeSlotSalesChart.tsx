@@ -198,18 +198,17 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     [periodRecords, prevDaySet, hasPrevYear],
   )
 
-  const div = pf.mode !== 'total' ? pf.divisor : 1
   const current = useMemo(
-    () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, div),
-    [periodRecords, selectedStoreIds, filter, hf, div],
+    () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, pf.divisor),
+    [periodRecords, selectedStoreIds, filter, hf, pf.divisor],
   )
   const comparable = useMemo(
-    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, div) : null,
-    [comparablePeriodRecords, selectedStoreIds, filter, hf, div, hasPrevYear],
+    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, pf.divisor) : null,
+    [comparablePeriodRecords, selectedStoreIds, filter, hf, pf.divisor, hasPrevYear],
   )
   const prev = useMemo(
-    () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, div) : null,
-    [prevPeriodRecords, selectedStoreIds, filter, hf, div, hasPrevYear],
+    () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, pf.divisor) : null,
+    [prevPeriodRecords, selectedStoreIds, filter, hf, pf.divisor, hasPrevYear],
   )
 
   const { chartData, kpi } = useMemo(() => {
@@ -231,7 +230,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     // KPI
     let peakHour = 0, peakHourAmount = 0
     for (const [h, v] of current.hourly) {
-      if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * div }
+      if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * pf.divisor }
     }
     const totalAmount = current.totalAmount
     const peakHourPct = totalAmount > 0 ? (peakHourAmount / totalAmount * 100).toFixed(1) : '0'
@@ -251,20 +250,20 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     // 数量ベースのピーク
     let peakHourQty = 0, peakHourQuantity = 0
     for (const [h, v] of current.hourly) {
-      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * div }
+      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * pf.divisor }
     }
     const peakHourQtyPct = current.totalQuantity > 0 ? (peakHourQuantity / current.totalQuantity * 100).toFixed(1) : '0'
 
     // コアタイム & 折り返し時間帯（金額ベース）
     const amountMap = new Map<number, number>()
-    for (const [h, v] of current.hourly) amountMap.set(h, v.amount * div)
+    for (const [h, v] of current.hourly) amountMap.set(h, v.amount * pf.divisor)
     const coreTimeAmt = findCoreTime(amountMap)
     const turnaroundAmt = findTurnaroundHour(amountMap)
     const coreTimePct = totalAmount > 0 && coreTimeAmt ? (coreTimeAmt.total / totalAmount * 100).toFixed(1) : '0'
 
     // コアタイム & 折り返し時間帯（数量ベース）
     const qtyMap = new Map<number, number>()
-    for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * div)
+    for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * pf.divisor)
     const coreTimeQty = findCoreTime(qtyMap)
     const turnaroundQty = findTurnaroundHour(qtyMap)
     const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? (coreTimeQty.total / current.totalQuantity * 100).toFixed(1) : '0'
@@ -296,7 +295,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         avgQtyPerHour: current.hourly.size > 0 ? Math.round(current.totalQuantity / current.hourly.size) : 0,
       } : null,
     }
-  }, [current, comparable, prev, div])
+  }, [current, comparable, prev, pf.divisor])
 
   if (chartData.length === 0) return null
 

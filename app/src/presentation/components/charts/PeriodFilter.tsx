@@ -1,3 +1,32 @@
+/**
+ * PeriodFilter — 期間・集計モード制御フック & UI
+ *
+ * ## 平均計算の設計方針（重要）
+ *
+ * 平均値は「合計 ÷ COUNT」で算出する。COUNT の求め方はモードにより異なる:
+ *
+ * | モード     | COUNT (= divisor)                     |
+ * |-----------|---------------------------------------|
+ * | total     | 1（除算なし）                          |
+ * | dailyAvg  | dayRange 内の日数                      |
+ * | dowAvg    | dayRange 内で selectedDows に該当する日数 |
+ *
+ * ### dowAvg 除数の安全設計
+ *
+ * - `countDowInRange(year, month, from, to)` で実際のカレンダーから曜日出現回数を算出。
+ * - 閏年・月の日数差（28〜31日）により同じ曜日でも月ごとに出現回数が異なる。
+ *   例: 2026年3月は月曜5回、2026年2月は月曜4回。
+ * - 0 除算防止: divisor の最小値は常に 1 が保証される。
+ *
+ * ### 前年比較チャートでの注意事項
+ *
+ * 当年と前年でデータカバー日が異なる場合、各チャートは実際の
+ * データ重複日数に基づいた除数を独自に計算する必要がある。
+ * `TimeSlotYoYComparisonChart` は `curDays` / `prevDays` を個別に追跡する。
+ *
+ * @see countDowInRange — 曜日カウントユーティリティ
+ * @see PeriodFilter.test.ts — 平均計算の正当性テスト
+ */
 import { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
@@ -21,8 +50,27 @@ export interface PeriodFilterResult extends PeriodFilterState {
   toggleDow: (dow: number) => void
   /** 期間でフィルタ済みレコード */
   filterRecords: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
-  /** 集計係数（dailyAvg の場合 1/日数） */
+  /**
+   * 集計除数。
+   * - total  → 1（除算なし）
+   * - dailyAvg → 期間内日数
+   * - dowAvg → 選択曜日の出現回数合計（未選択時は期間内全日数）
+   *
+   * 0 除算防止のため最低値は 1 が保証される。
+   */
   divisor: number
+  /**
+   * モードに応じた安全な除算ヘルパー。
+   * `total` モードでは値をそのまま返し、`dailyAvg`/`dowAvg` では
+   * `divisor` で除算した結果を Math.round して返す。
+   *
+   * 各チャートで `const div = pf.mode !== 'total' ? pf.divisor : 1` と
+   * 書く代わりにこの関数を使うことで、0 除算防止とモード判定が一箇所に集約される。
+   *
+   * @example
+   * const avgAmount = pf.divideByMode(totalAmount)
+   */
+  divideByMode: (value: number) => number
   /** year/month (曜日計算用) */
   year: number
   month: number
@@ -94,13 +142,26 @@ export function usePeriodFilter(
       const span = dayRange[1] - dayRange[0] + 1
       return span > 0 ? span : 1
     }
-    // dowAvg: 曜日別に割る → 各曜日の出現回数で割る必要があるので widget 側で処理
-    return 1
-  }, [mode, dayRange])
+    // dowAvg: 選択された曜日の出現回数合計で割る
+    const dowCounts = countDowInRange(year, month, dayRange[0], dayRange[1])
+    if (selectedDows.size > 0) {
+      let total = 0
+      for (const dow of selectedDows) total += dowCounts.get(dow) ?? 0
+      return total > 0 ? total : 1
+    }
+    // 曜日未選択 = 全曜日 → 期間内全日数
+    const span = dayRange[1] - dayRange[0] + 1
+    return span > 0 ? span : 1
+  }, [mode, dayRange, selectedDows, year, month])
+
+  const divideByMode = useCallback(
+    (value: number) => Math.round(value / divisor),
+    [divisor],
+  )
 
   return {
     dayRange, setDayRange, mode, setMode, selectedDows, toggleDow,
-    filterRecords, divisor, year, month,
+    filterRecords, divisor, divideByMode, year, month,
     defaultEndDay: effectiveEnd, resetToDefault,
   }
 }
@@ -306,7 +367,28 @@ export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
 
 /* ── Utility: 曜日カウント計算 ─────────────────────────── */
 
-/** dayRange 内で各曜日(0=日〜6=土)が何日あるか返す */
+/**
+ * 指定月の dayRange 内で各曜日 (0=日〜6=土) が何日あるか返す。
+ *
+ * 閏年・月末日数の違いを正しく反映する。
+ * dowAvg モードの除数計算に使用される中核ユーティリティ。
+ *
+ * @param year  対象年（例: 2026）
+ * @param month 対象月 1-12
+ * @param from  開始日（1-based）
+ * @param to    終了日（1-based, inclusive）
+ * @returns Map<曜日(0-6), 出現回数>
+ *
+ * @example
+ * // 2026年2月（28日間）→ 各曜日4回ずつ
+ * countDowInRange(2026, 2, 1, 28)
+ * // => Map { 0=>4, 1=>4, 2=>4, 3=>4, 4=>4, 5=>4, 6=>4 }
+ *
+ * @example
+ * // 2024年2月（閏年29日間）→ 木曜だけ5回
+ * countDowInRange(2024, 2, 1, 29)
+ * // => Map { 4=>5, 0=>4, 1=>4, ... }
+ */
 export function countDowInRange(
   year: number,
   month: number,
