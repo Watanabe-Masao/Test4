@@ -278,7 +278,7 @@ export const HourlyCumOverlay = styled.svg`
 `
 export const HourlyRightAxis = styled.div`
   display: flex; flex-direction: column; justify-content: space-between;
-  align-items: flex-end; width: 36px; padding: 3% 2px 3% 4px;
+  align-items: flex-end; width: 36px; padding: 0 2px 0 4px;
   font-size: 0.45rem; font-family: monospace;
   color: ${({ theme }) => theme.colors.text4};
 `
