@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -201,18 +201,9 @@ export function TimeSlotYoYComparisonChart({
       }
     }
 
-    // ── 除数: 当年・前年それぞれの実データ日数から個別に算出 ──
-    //
-    // カレンダー上の曜日カウントではなく、実際にデータが存在する日数を数える。
-    // 例: 当年2月に月曜5回あっても、データが4日分しかなければ除数は4。
-    //     前年は月曜4回でデータも4日分なら除数は4。
-    // これにより欠損日・データカバレッジの差を正しく反映する。
-    let curDiv = 1
-    let prevDiv = 1
-    if (pf.mode === 'dowAvg' || pf.mode === 'dailyAvg') {
-      curDiv = curDays.size > 0 ? curDays.size : 1
-      prevDiv = prevDays.size > 0 ? prevDays.size : 1
-    }
+    // 除数: 当年・前年それぞれの実データ日数から個別に算出【TR-DIV-001】
+    const curDiv = computeDivisor(curDays.size, pf.mode)
+    const prevDiv = computeDivisor(prevDays.size, pf.mode)
 
     // 時間帯一覧
     const allHours = new Set([...curHourly.keys(), ...prevHourly.keys()])

@@ -8,7 +8,7 @@ import {
   filterByHierarchy,
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -312,14 +312,14 @@ export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds,
     // Prev year aggregation
     const prevMap = hasPrevYear ? aggregateByLevel(filteredPrevRecords, currentLevel) : null
 
-    // 実データの distinct day から除数を算出（当年・前年で個別にカウント）
+    // 実データの distinct day から除数を算出（当年・前年で個別にカウント）【TR-DIV-001】
     const curDays = new Set<number>()
     for (const rec of filteredRecords) curDays.add(rec.day)
-    const curDiv = pf.mode === 'total' ? 1 : (curDays.size > 0 ? curDays.size : 1)
+    const curDiv = computeDivisor(curDays.size, pf.mode)
 
     const prevDays = new Set<number>()
     for (const rec of filteredPrevRecords) prevDays.add(rec.day)
-    const prevDiv = pf.mode === 'total' ? 1 : (prevDays.size > 0 ? prevDays.size : 1)
+    const prevDiv = computeDivisor(prevDays.size, pf.mode)
 
     const total = [...map.values()].reduce((s, v) => s + v.amount, 0) / curDiv
     return [...map.values()].map((it): HierarchyItem => {

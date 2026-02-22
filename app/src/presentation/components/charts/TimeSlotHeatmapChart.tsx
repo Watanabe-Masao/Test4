@@ -2,7 +2,7 @@ import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -193,22 +193,20 @@ function buildHourDowMatrix(
     }
   }
 
-  // 曜日ごとの実データ除数
-  const dowCounts = pf.mode === 'dowAvg' ? dowDaySet : null
-  // 全体の実データ除数（dailyAvg用）
+  // 全体の distinct day 数（dailyAvg 用）【TR-DIV-001】
   const allDays = new Set<number>()
   for (const days of dowDaySet.values()) for (const d of days) allDays.add(d)
-  const dailyDiv = pf.mode === 'dailyAvg' ? (allDays.size > 0 ? allDays.size : 1) : 1
 
   const hours = [...hourSet].sort((a, b) => a - b)
   const matrix: number[][] = hours.map((h) => {
     return DOW_LABELS.map((_, dow) => {
       const raw = map.get(h)?.get(dow) ?? 0
-      if (dowCounts) {
-        const cnt = dowCounts.get(dow)?.size ?? 1
-        return Math.round(raw / (cnt > 0 ? cnt : 1))
-      }
-      return Math.round(raw / dailyDiv)
+      // dowAvg: 曜日ごとの実データ日数を除数とする
+      // dailyAvg/total: 全体の distinct day 数を除数とする（computeDivisor が total→1 を保証）
+      const dayCount = pf.mode === 'dowAvg'
+        ? (dowDaySet.get(dow)?.size ?? 0)
+        : allDays.size
+      return Math.round(raw / computeDivisor(dayCount, pf.mode))
     })
   })
 

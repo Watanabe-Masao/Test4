@@ -20,7 +20,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from './
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -160,7 +160,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
       }
     }
 
-    const dataDivisor = pf.mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)
+    const dataDivisor = computeDivisor(days.size, pf.mode)
 
     const hours = [...hourSet].sort((a, b) => a - b)
     const storeIds = [...storeHourMap.keys()]

@@ -15,7 +15,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, type AggregateMode } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, type AggregateMode } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -178,7 +178,7 @@ function aggregateHourly(
     }
   }
 
-  const div = mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)
+  const div = computeDivisor(days.size, mode)
   const result = new Map<number, { amount: number; quantity: number }>()
   for (const [h, v] of hourly) {
     result.set(h, { amount: Math.round(v.amount / div), quantity: Math.round(v.quantity / div) })

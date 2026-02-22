@@ -14,7 +14,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -135,7 +135,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
       })
     }
 
-    const dataDivisor = pf.mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)
+    const dataDivisor = computeDivisor(days.size, pf.mode)
 
     const sorted = Array.from(map.values())
       .map((d) => ({ ...d, amount: Math.round(d.amount / dataDivisor), quantity: Math.round(d.quantity / dataDivisor) }))

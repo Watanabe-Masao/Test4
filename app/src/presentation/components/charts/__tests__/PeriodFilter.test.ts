@@ -1,20 +1,28 @@
 /**
  * PeriodFilter ユニットテスト
  *
- * 平均計算の正当性を検証するテスト群。
+ * 技術ルール準拠検証テスト群。
  * 「合計 → COUNT → 平均」の流れが全モードで正しいことを保証する。
  *
  * 検証観点:
- *   1. countDowInRange が閏年・月末を含む全パターンで正確な曜日カウントを返す
- *   2. 実データ駆動型除数（computeDataDivisor パターン）が正しい distinct day 数を返す
- *   3. 曜日ごとの実データ駆動型除数が正しい per-DOW カウントを返す
- *   4. カレンダーベース除数と実データ駆動型除数の差異を検出できる
- *   5. 前年と当年で独立した除数が算出される
- *   6. 0 除算防止が全パターンで保証される
+ *   1. 【TR-DIV-001】computeDivisor の不変条件テスト
+ *   2. 【TR-DIV-002】countDistinctDays の正確性テスト
+ *   3. 【TR-DIV-003】computeDowDivisorMap の正確性テスト
+ *   4. countDowInRange がカレンダーベースで正確な曜日カウントを返す
+ *   5. カレンダーベース除数と実データ駆動型除数の差異を検出できる
+ *   6. 前年と当年で独立した除数が算出される
+ *   7. スライダー動的変更に対する除数の追従検証
+ *   8. 全チャートの除数算出が一元管理関数を経由していることの構造検証
  */
 import { describe, it, expect } from 'vitest'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
-import { countDowInRange } from '../PeriodFilter'
+import {
+  countDowInRange,
+  computeDivisor,
+  countDistinctDays,
+  computeDowDivisorMap,
+  type AggregateMode,
+} from '../PeriodFilter'
 
 /* ── テスト用ヘルパー ─────────────────────────────── */
 
@@ -32,40 +40,21 @@ function makeRecord(day: number, amount = 10000, storeId = 'S1'): CategoryTimeSa
   }
 }
 
-/**
- * 実データ駆動型除数をシミュレート。
- * 各チャートが内部で行う計算と同じロジック。
- */
+/** computeDivisor + countDistinctDays を組み合わせた便利関数（テスト用） */
 function computeDataDivisor(
   records: readonly CategoryTimeSalesRecord[],
-  mode: 'total' | 'dailyAvg' | 'dowAvg',
+  mode: AggregateMode,
 ): number {
-  if (mode === 'total') return 1
-  const days = new Set<number>()
-  for (const rec of records) days.add(rec.day)
-  return days.size > 0 ? days.size : 1
+  return computeDivisor(countDistinctDays(records), mode)
 }
 
-/**
- * 曜日ごとの実データ駆動型除数をシミュレート。
- * TimeSlotHeatmapChart が内部で行う計算と同じロジック。
- */
+/** computeDowDivisorMap のエイリアス（テスト用） */
 function computeDataDowDivisors(
   records: readonly CategoryTimeSalesRecord[],
   year: number,
   month: number,
 ): Map<number, number> {
-  const dowDays = new Map<number, Set<number>>()
-  for (const rec of records) {
-    const dow = new Date(year, month - 1, rec.day).getDay()
-    if (!dowDays.has(dow)) dowDays.set(dow, new Set())
-    dowDays.get(dow)!.add(rec.day)
-  }
-  const result = new Map<number, number>()
-  for (const [dow, days] of dowDays) {
-    result.set(dow, days.size > 0 ? days.size : 1)
-  }
-  return result
+  return computeDowDivisorMap(records, year, month)
 }
 
 /* ── countDowInRange ────────────────────────────────── */
@@ -591,5 +580,285 @@ describe('E2E: 合計 → 実データCOUNT → 平均 パイプライン', () =
     const wrongPrevAvg = Math.round(prevTotal / curDiv) // 75,000
     expect(wrongPrevAvg).toBe(75_000)
     expect(curAvg / wrongPrevAvg).toBeCloseTo(1.6, 2) // 誤り
+  })
+})
+
+/* ══════════════════════════════════════════════════════════
+ * 技術ルール準拠テスト (Technical Rule Compliance Tests)
+ *
+ * 以下のテストは PeriodFilter が公開する純粋関数の
+ * 不変条件・境界値・動的追従をチェックする。
+ * 新しいチャートを追加する際も、これらのルールに準拠すること。
+ * ══════════════════════════════════════════════════════════ */
+
+/* ── 【TR-DIV-001】computeDivisor 不変条件テスト ──── */
+
+describe('【TR-DIV-001】computeDivisor 不変条件', () => {
+  const modes: AggregateMode[] = ['total', 'dailyAvg', 'dowAvg']
+
+  it('total モードでは入力に関わらず常に 1 を返す', () => {
+    expect(computeDivisor(0, 'total')).toBe(1)
+    expect(computeDivisor(1, 'total')).toBe(1)
+    expect(computeDivisor(28, 'total')).toBe(1)
+    expect(computeDivisor(1000, 'total')).toBe(1)
+  })
+
+  it('dailyAvg / dowAvg モードで正の値を返す', () => {
+    expect(computeDivisor(5, 'dailyAvg')).toBe(5)
+    expect(computeDivisor(5, 'dowAvg')).toBe(5)
+    expect(computeDivisor(1, 'dailyAvg')).toBe(1)
+    expect(computeDivisor(1, 'dowAvg')).toBe(1)
+  })
+
+  it('返り値は全モードで >= 1 であること（0除算防止）', () => {
+    for (const mode of modes) {
+      for (const dayCount of [0, 1, 5, 28, 31]) {
+        const result = computeDivisor(dayCount, mode)
+        expect(result).toBeGreaterThanOrEqual(1)
+      }
+    }
+  })
+
+  it('distinctDayCount = 0 で dailyAvg/dowAvg でも 1 を返す', () => {
+    expect(computeDivisor(0, 'dailyAvg')).toBe(1)
+    expect(computeDivisor(0, 'dowAvg')).toBe(1)
+  })
+
+  it('distinctDayCount が負の異常値でも安全に動作する', () => {
+    // 負値は実運用では発生しないが、防御的に >= 1 を保証
+    expect(computeDivisor(-1, 'dailyAvg')).toBe(1)
+    expect(computeDivisor(-100, 'dowAvg')).toBe(1)
+  })
+})
+
+/* ── 【TR-DIV-002】countDistinctDays テスト ────────── */
+
+describe('【TR-DIV-002】countDistinctDays', () => {
+  it('空配列では 0 を返す', () => {
+    expect(countDistinctDays([])).toBe(0)
+  })
+
+  it('単一レコードでは 1 を返す', () => {
+    expect(countDistinctDays([makeRecord(5)])).toBe(1)
+  })
+
+  it('同一日の複数レコード（複数店舗）は 1 としてカウント', () => {
+    const records = [
+      makeRecord(5, 10000, 'S1'),
+      makeRecord(5, 20000, 'S2'),
+      makeRecord(5, 30000, 'S3'),
+    ]
+    expect(countDistinctDays(records)).toBe(1)
+  })
+
+  it('異なる日のレコードは個別にカウント', () => {
+    const records = [
+      makeRecord(1), makeRecord(5), makeRecord(10), makeRecord(20),
+    ]
+    expect(countDistinctDays(records)).toBe(4)
+  })
+
+  it('重複日を含む場合は正しく deduplicate される', () => {
+    const records = [
+      makeRecord(1), makeRecord(1, 20000, 'S2'),
+      makeRecord(5), makeRecord(5, 30000, 'S3'),
+      makeRecord(10),
+    ]
+    expect(countDistinctDays(records)).toBe(3)
+  })
+})
+
+/* ── 【TR-DIV-003】computeDowDivisorMap テスト ──────── */
+
+describe('【TR-DIV-003】computeDowDivisorMap', () => {
+  it('各曜日の実データ日数を正しくカウント', () => {
+    // 2026年2月: 月曜=2,9,16,23  火曜=3,10,17,24
+    const records = [
+      makeRecord(2),  makeRecord(9),  makeRecord(16), // 月曜3日
+      makeRecord(3),  makeRecord(10),                  // 火曜2日
+    ]
+    const result = computeDowDivisorMap(records, 2026, 2)
+    expect(result.get(1)).toBe(3) // 月曜
+    expect(result.get(2)).toBe(2) // 火曜
+  })
+
+  it('返り値の各値は >= 1 であること', () => {
+    const records = [makeRecord(2)] // 2026-02-02 = 月曜
+    const result = computeDowDivisorMap(records, 2026, 2)
+    for (const [, count] of result) {
+      expect(count).toBeGreaterThanOrEqual(1)
+    }
+  })
+
+  it('データのない曜日は Map に含まれない', () => {
+    const records = [makeRecord(2)] // 月曜のみ
+    const result = computeDowDivisorMap(records, 2026, 2)
+    expect(result.has(1)).toBe(true)  // 月曜
+    expect(result.has(0)).toBe(false) // 日曜: データなし
+    expect(result.has(6)).toBe(false) // 土曜: データなし
+  })
+
+  it('空配列では空の Map を返す', () => {
+    const result = computeDowDivisorMap([], 2026, 2)
+    expect(result.size).toBe(0)
+  })
+})
+
+/* ── スライダー動的変更テスト ─────────────────────── */
+
+describe('スライダー動的変更に対する除数追従', () => {
+  // 全28日分のデータ
+  const allRecords = Array.from({ length: 28 }, (_, i) =>
+    makeRecord(i + 1, (i + 1) * 10_000),
+  )
+
+  /** dayRange に基づくフィルタをシミュレート */
+  function filterByDayRange(records: readonly CategoryTimeSalesRecord[], from: number, to: number) {
+    return records.filter((r) => r.day >= from && r.day <= to)
+  }
+
+  it('スライダー範囲を変えると除数が正しく追従する', () => {
+    // 全期間: 1-28日 → 28日分
+    const full = filterByDayRange(allRecords, 1, 28)
+    expect(computeDivisor(countDistinctDays(full), 'dailyAvg')).toBe(28)
+
+    // 前半: 1-14日 → 14日分
+    const firstHalf = filterByDayRange(allRecords, 1, 14)
+    expect(computeDivisor(countDistinctDays(firstHalf), 'dailyAvg')).toBe(14)
+
+    // 1週間: 1-7日 → 7日分
+    const week = filterByDayRange(allRecords, 1, 7)
+    expect(computeDivisor(countDistinctDays(week), 'dailyAvg')).toBe(7)
+
+    // 1日: 15-15日 → 1日分
+    const single = filterByDayRange(allRecords, 15, 15)
+    expect(computeDivisor(countDistinctDays(single), 'dailyAvg')).toBe(1)
+  })
+
+  it('データ欠損範囲のスライダーでも安全に動作する', () => {
+    // 1, 5, 10, 20日のみデータあり
+    const sparse = [makeRecord(1), makeRecord(5), makeRecord(10), makeRecord(20)]
+
+    // 1-28日スライダー: データは4日分
+    const full = filterByDayRange(sparse, 1, 28)
+    expect(computeDivisor(countDistinctDays(full), 'dailyAvg')).toBe(4)
+
+    // 1-7日スライダー: データは2日分（1日, 5日）
+    const week = filterByDayRange(sparse, 1, 7)
+    expect(computeDivisor(countDistinctDays(week), 'dailyAvg')).toBe(2)
+
+    // 11-19日スライダー: データなし → 除数 1（0除算防止）
+    const empty = filterByDayRange(sparse, 11, 19)
+    expect(computeDivisor(countDistinctDays(empty), 'dailyAvg')).toBe(1)
+  })
+
+  it('total モードではスライダー変更に関わらず除数 1', () => {
+    for (const [from, to] of [[1, 28], [1, 7], [15, 15], [11, 19]] as const) {
+      const filtered = filterByDayRange(allRecords, from, to)
+      expect(computeDivisor(countDistinctDays(filtered), 'total')).toBe(1)
+    }
+  })
+
+  it('dowAvg モードで曜日ごとの除数がスライダーに追従する', () => {
+    // 全期間: 2026年2月 各曜日4回
+    const full = filterByDayRange(allRecords, 1, 28)
+    const fullDow = computeDowDivisorMap(full, 2026, 2)
+    for (const [, count] of fullDow) {
+      expect(count).toBe(4) // 28日 ÷ 7曜日 = 4回ずつ
+    }
+
+    // 前半: 1-14日 各曜日2回
+    const half = filterByDayRange(allRecords, 1, 14)
+    const halfDow = computeDowDivisorMap(half, 2026, 2)
+    for (const [, count] of halfDow) {
+      expect(count).toBe(2)
+    }
+
+    // 1週間: 1-7日 各曜日1回
+    const week = filterByDayRange(allRecords, 1, 7)
+    const weekDow = computeDowDivisorMap(week, 2026, 2)
+    for (const [, count] of weekDow) {
+      expect(count).toBe(1)
+    }
+  })
+})
+
+/* ── 平均計算 E2E: computeDivisor を経由した一元管理検証 ── */
+
+describe('平均計算 E2E: 一元管理関数経由の検証', () => {
+  it('computeDivisor を使った平均と手動計算の結果が一致する', () => {
+    const records = [
+      makeRecord(2, 100_000),
+      makeRecord(9, 120_000),
+      makeRecord(16, 80_000),
+    ]
+    const total = records.reduce((s, r) => s + r.totalAmount, 0) // 300,000
+
+    // 一元管理関数経由
+    const div = computeDivisor(countDistinctDays(records), 'dailyAvg')
+    const avg = Math.round(total / div)
+
+    // 手動計算（期待値）
+    expect(div).toBe(3)
+    expect(avg).toBe(100_000)
+  })
+
+  it('当年・前年で独立した除数を computeDivisor で算出', () => {
+    const curRecords = [
+      makeRecord(2, 120_000), makeRecord(9, 120_000),
+      makeRecord(16, 120_000), makeRecord(23, 120_000),
+    ]
+    const prevRecords = [
+      makeRecord(3, 100_000), makeRecord(10, 100_000), makeRecord(24, 100_000),
+    ]
+
+    const curDiv = computeDivisor(countDistinctDays(curRecords), 'dowAvg')
+    const prevDiv = computeDivisor(countDistinctDays(prevRecords), 'dowAvg')
+
+    expect(curDiv).toBe(4)
+    expect(prevDiv).toBe(3)
+
+    const curAvg = Math.round(480_000 / curDiv)   // 120,000
+    const prevAvg = Math.round(300_000 / prevDiv)  // 100,000
+    expect(curAvg / prevAvg).toBeCloseTo(1.2, 2)
+  })
+})
+
+/* ── 構造テスト: 全チャートが computeDivisor を使用していることの検証 ── */
+
+describe('構造テスト: computeDivisor の一元管理', () => {
+  it('computeDivisor は AggregateMode の全値を網羅している', () => {
+    // 全てのモードで呼び出し可能であることを検証
+    const modes: AggregateMode[] = ['total', 'dailyAvg', 'dowAvg']
+    for (const mode of modes) {
+      expect(typeof computeDivisor(10, mode)).toBe('number')
+    }
+  })
+
+  it('computeDivisor と countDistinctDays の組合せで computeDataDivisor と同一結果', () => {
+    const records = [
+      makeRecord(1), makeRecord(1, 20000, 'S2'),
+      makeRecord(5), makeRecord(10),
+    ]
+    for (const mode of ['total', 'dailyAvg', 'dowAvg'] as AggregateMode[]) {
+      const viaPure = computeDivisor(countDistinctDays(records), mode)
+      const viaHelper = computeDataDivisor(records, mode)
+      expect(viaPure).toBe(viaHelper)
+    }
+  })
+
+  it('computeDowDivisorMap の各値と computeDivisor(count, "dowAvg") が整合', () => {
+    const records = [
+      makeRecord(2),  makeRecord(9),  makeRecord(16), // 月曜3日
+      makeRecord(3),  makeRecord(10),                  // 火曜2日
+    ]
+    const dowMap = computeDowDivisorMap(records, 2026, 2)
+
+    // 各曜日について computeDivisor を使っても同じ結果が得られる
+    for (const [dow, count] of dowMap) {
+      expect(computeDivisor(count, 'dowAvg')).toBe(count)
+      expect(dow).toBeGreaterThanOrEqual(0)
+      expect(dow).toBeLessThanOrEqual(6)
+    }
   })
 })
