@@ -12,7 +12,8 @@ import {
 } from 'recharts'
 import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { CategoryFactorBreakdown, decomposePriceMix } from './CategoryFactorBreakdown'
+import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { WidgetContext } from './types'
 
 const Wrapper = styled.div`
@@ -140,7 +141,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
   const activeLevel = decompLevel ?? maxLevel
 
-  // Factor decomposition data
+  // Factor decomposition data (Shapley values)
   const factorData = useMemo((): WaterfallItem[] => {
     if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
 
@@ -149,125 +150,53 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     const prevCust = prevYear.totalCustomers
     const curCust = r.totalCustomers
 
-    const prevAvgTicket = safeDivide(prevSales, prevCust, 0)
-
     const items: WaterfallItem[] = []
-
-    // Start: previous year sales
-    items.push({
-      name: '前年売上',
-      value: prevSales,
-      base: 0,
-      bar: prevSales,
-      isTotal: true,
-    })
+    items.push({ name: '前年売上', value: prevSales, base: 0, bar: prevSales, isTotal: true })
 
     let running = prevSales
-
-    // Customer effect
-    const custEffect = (curCust - prevCust) * prevAvgTicket
-    items.push({
-      name: '客数効果',
-      value: custEffect,
-      base: custEffect >= 0 ? running : running + custEffect,
-      bar: Math.abs(custEffect),
-    })
-    running += custEffect
-
-    if (activeLevel === 2) {
-      // 2-factor: 客単価効果
-      const curAvgTicket = safeDivide(curSales, curCust, 0)
-      const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
-      items.push({
-        name: '客単価効果',
-        value: ticketEffect,
-        base: ticketEffect >= 0 ? running : running + ticketEffect,
-        bar: Math.abs(ticketEffect),
-      })
-    } else if (activeLevel === 3 || !priceMix) {
-      // 3-factor: 点数効果 + 単価効果
-      if (hasQuantity && prevCust > 0 && curCust > 0) {
-        const prevQPC = prevTotalQty / prevCust
-        const curQPC = curTotalQty / curCust
-        const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
-        const curPPI = safeDivide(curSales, curTotalQty, 0)
-
-        const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
-        items.push({
-          name: '点数効果',
-          value: qtyEffect,
-          base: qtyEffect >= 0 ? running : running + qtyEffect,
-          bar: Math.abs(qtyEffect),
-        })
-        running += qtyEffect
-
-        const priceEffect = curCust * curQPC * (curPPI - prevPPI)
-        items.push({
-          name: '単価効果',
-          value: priceEffect,
-          base: priceEffect >= 0 ? running : running + priceEffect,
-          bar: Math.abs(priceEffect),
-        })
-      } else {
-        const curAvgTicket = safeDivide(curSales, curCust, 0)
-        const ticketEffect = (curAvgTicket - prevAvgTicket) * curCust
-        items.push({
-          name: '客単価効果',
-          value: ticketEffect,
-          base: ticketEffect >= 0 ? running : running + ticketEffect,
-          bar: Math.abs(ticketEffect),
-        })
-      }
-    } else {
-      // 5-factor: 点数効果 + 価格効果 + ミックス効果
-      if (hasQuantity && prevCust > 0 && curCust > 0) {
-        const prevQPC = prevTotalQty / prevCust
-        const curQPC = curTotalQty / curCust
-        const prevPPI = safeDivide(prevSales, prevTotalQty, 0)
-        const curPPI = safeDivide(curSales, curTotalQty, 0)
-
-        const qtyEffect = curCust * (curQPC - prevQPC) * prevPPI
-        items.push({
-          name: '点数効果',
-          value: qtyEffect,
-          base: qtyEffect >= 0 ? running : running + qtyEffect,
-          bar: Math.abs(qtyEffect),
-        })
-        running += qtyEffect
-
-        // 3要素の単価効果を算出（恒等式を保証）し、price/mix比率で按分
-        const unitPriceEffect = curCust * curQPC * (curPPI - prevPPI)
-        const pmSum = priceMix.priceEffect + priceMix.mixEffect
-        const priceShare = pmSum !== 0 ? priceMix.priceEffect / pmSum : 0.5
-        const scaledPrice = unitPriceEffect * priceShare
-        const scaledMix = unitPriceEffect * (1 - priceShare)
-
-        items.push({
-          name: '価格効果',
-          value: scaledPrice,
-          base: scaledPrice >= 0 ? running : running + scaledPrice,
-          bar: Math.abs(scaledPrice),
-        })
-        running += scaledPrice
-
-        items.push({
-          name: '構成比変化効果',
-          value: scaledMix,
-          base: scaledMix >= 0 ? running : running + scaledMix,
-          bar: Math.abs(scaledMix),
-        })
-      }
+    const push = (name: string, value: number) => {
+      items.push({ name, value, base: value >= 0 ? running : running + value, bar: Math.abs(value) })
+      running += value
     }
 
-    // End: current year sales
-    items.push({
-      name: '当年売上',
-      value: curSales,
-      base: 0,
-      bar: curSales,
-      isTotal: true,
-    })
+    if (prevCust > 0 && curCust > 0) {
+      if (activeLevel === 2) {
+        const d = decompose2(prevSales, curSales, prevCust, curCust)
+        push('客数効果', d.custEffect)
+        push('客単価効果', d.ticketEffect)
+      } else if (activeLevel === 3 || !priceMix) {
+        if (hasQuantity) {
+          const d = decompose3(prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty)
+          push('客数効果', d.custEffect)
+          push('点数効果', d.qtyEffect)
+          push('単価効果', d.pricePerItemEffect)
+        } else {
+          const d = decompose2(prevSales, curSales, prevCust, curCust)
+          push('客数効果', d.custEffect)
+          push('客単価効果', d.ticketEffect)
+        }
+      } else {
+        // 5-factor: full 4-variable Shapley
+        if (hasQuantity) {
+          const curRecs = ctx.categoryTimeSales?.records ?? []
+          const prevRecs = ctx.prevYearCategoryTimeSales?.records ?? []
+          const d = decompose5(
+            prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty,
+            recordsToCategoryQtyAmt(curRecs), recordsToCategoryQtyAmt(prevRecs),
+          )
+          if (d) {
+            push('客数効果', d.custEffect)
+            push('点数効果', d.qtyEffect)
+            push('価格効果', d.priceEffect)
+            push('構成比変化効果', d.mixEffect)
+          }
+        }
+      }
+    } else {
+      push('増減', curSales - prevSales)
+    }
 
+    items.push({ name: '当年売上', value: curSales, base: 0, bar: curSales, isTotal: true })
     return items
   }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
 

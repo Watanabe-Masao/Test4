@@ -11,8 +11,9 @@ import {
   ResponsiveContainer, ReferenceLine, LabelList,
 } from 'recharts'
 import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
-import { formatCurrency, safeDivide } from '@/domain/calculations/utils'
-import { CategoryFactorBreakdown, decomposePriceMix } from './CategoryFactorBreakdown'
+import { formatCurrency } from '@/domain/calculations/utils'
+import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 
@@ -101,119 +102,51 @@ export function DrilldownWaterfall({
   const factorData = useMemo((): WaterfallItem[] => {
     if (pySales <= 0) return []
 
-    const prevAvgTicket = safeDivide(pySales, pyCust, 0)
-
     const items: WaterfallItem[] = []
     items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
 
     let running = pySales
+    const push = (name: string, value: number) => {
+      items.push({ name, value, base: value >= 0 ? running : running + value, bar: Math.abs(value) })
+      running += value
+    }
+
     if (pyCust > 0 && dayCust > 0) {
-      // Customer effect
-      const custEffect = (dayCust - pyCust) * prevAvgTicket
-      items.push({
-        name: '客数効果',
-        value: custEffect,
-        base: custEffect >= 0 ? running : running + custEffect,
-        bar: Math.abs(custEffect),
-      })
-      running += custEffect
-
       if (activeLevel === 2) {
-        // 2-factor: 客単価効果
-        const curAvgTicket = safeDivide(actual, dayCust, 0)
-        const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
-        items.push({
-          name: '客単価効果',
-          value: ticketEffect,
-          base: ticketEffect >= 0 ? running : running + ticketEffect,
-          bar: Math.abs(ticketEffect),
-        })
+        const d = decompose2(pySales, actual, pyCust, dayCust)
+        push('客数効果', d.custEffect)
+        push('客単価効果', d.ticketEffect)
       } else if (activeLevel === 3 || !priceMix) {
-        // 3-factor: 点数効果 + 単価効果
         if (hasQuantity) {
-          const prevQPC = prevTotalQty / pyCust
-          const curQPC = curTotalQty / dayCust
-          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
-          const curPPI = safeDivide(actual, curTotalQty, 0)
-
-          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
-          items.push({
-            name: '点数効果',
-            value: qtyEffect,
-            base: qtyEffect >= 0 ? running : running + qtyEffect,
-            bar: Math.abs(qtyEffect),
-          })
-          running += qtyEffect
-
-          const priceEffect = dayCust * curQPC * (curPPI - prevPPI)
-          items.push({
-            name: '単価効果',
-            value: priceEffect,
-            base: priceEffect >= 0 ? running : running + priceEffect,
-            bar: Math.abs(priceEffect),
-          })
+          const d = decompose3(pySales, actual, pyCust, dayCust, prevTotalQty, curTotalQty)
+          push('客数効果', d.custEffect)
+          push('点数効果', d.qtyEffect)
+          push('単価効果', d.pricePerItemEffect)
         } else {
-          const curAvgTicket = safeDivide(actual, dayCust, 0)
-          const ticketEffect = (curAvgTicket - prevAvgTicket) * dayCust
-          items.push({
-            name: '客単価効果',
-            value: ticketEffect,
-            base: ticketEffect >= 0 ? running : running + ticketEffect,
-            bar: Math.abs(ticketEffect),
-          })
+          const d = decompose2(pySales, actual, pyCust, dayCust)
+          push('客数効果', d.custEffect)
+          push('客単価効果', d.ticketEffect)
         }
       } else {
-        // 5-factor: 点数効果 + 価格効果 + ミックス効果
+        // 5-factor: full 4-variable Shapley
         if (hasQuantity) {
-          const prevQPC = prevTotalQty / pyCust
-          const curQPC = curTotalQty / dayCust
-          const prevPPI = safeDivide(pySales, prevTotalQty, 0)
-          const curPPI = safeDivide(actual, curTotalQty, 0)
-
-          const qtyEffect = dayCust * (curQPC - prevQPC) * prevPPI
-          items.push({
-            name: '点数効果',
-            value: qtyEffect,
-            base: qtyEffect >= 0 ? running : running + qtyEffect,
-            bar: Math.abs(qtyEffect),
-          })
-          running += qtyEffect
-
-          // 3要素の単価効果を算出（恒等式を保証）し、price/mix比率で按分
-          const unitPriceEffect = dayCust * curQPC * (curPPI - prevPPI)
-          const pmSum = priceMix.priceEffect + priceMix.mixEffect
-          const priceShare = pmSum !== 0 ? priceMix.priceEffect / pmSum : 0.5
-          const scaledPrice = unitPriceEffect * priceShare
-          const scaledMix = unitPriceEffect * (1 - priceShare)
-
-          items.push({
-            name: '価格効果',
-            value: scaledPrice,
-            base: scaledPrice >= 0 ? running : running + scaledPrice,
-            bar: Math.abs(scaledPrice),
-          })
-          running += scaledPrice
-
-          items.push({
-            name: '構成比変化',
-            value: scaledMix,
-            base: scaledMix >= 0 ? running : running + scaledMix,
-            bar: Math.abs(scaledMix),
-          })
+          const d = decompose5(
+            pySales, actual, pyCust, dayCust, prevTotalQty, curTotalQty,
+            recordsToCategoryQtyAmt(dayRecords), recordsToCategoryQtyAmt(prevDayRecords),
+          )
+          if (d) {
+            push('客数効果', d.custEffect)
+            push('点数効果', d.qtyEffect)
+            push('価格効果', d.priceEffect)
+            push('構成比変化', d.mixEffect)
+          }
         }
       }
     } else {
-      const diff = actual - pySales
-      items.push({
-        name: '増減',
-        value: diff,
-        base: diff >= 0 ? running : running + diff,
-        bar: Math.abs(diff),
-      })
+      push('増減', actual - pySales)
     }
 
     items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
-
     return items
   }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel])
 

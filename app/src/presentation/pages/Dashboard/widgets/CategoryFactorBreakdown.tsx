@@ -12,8 +12,11 @@ import {
   ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
 import { useChartTheme, toManYen } from '@/presentation/components/charts'
-import { formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/calculations/utils'
 import {
+  decompose2,
+  decompose3,
+  decompose5 as decompose5Domain,
   decomposePriceMix as decomposePriceMixDomain,
 } from '@/domain/calculations/factorDecomposition'
 import type { CategoryQtyAmt } from '@/domain/calculations/factorDecomposition'
@@ -199,7 +202,7 @@ interface PathEntry {
 
 /* ── Price/Mix decomposition helper ─────────────────── */
 
-function recordsToCategoryQtyAmt(
+export function recordsToCategoryQtyAmt(
   records: readonly CategoryTimeSalesRecord[],
 ): CategoryQtyAmt[] {
   return records.map(r => ({
@@ -415,87 +418,66 @@ export function CategoryFactorBreakdown({
       let mixEffect = 0
 
       if (activeLevel === 2) {
-        // 2-factor: 客数効果 + 客単価効果
+        // 2-factor Shapley: 客数効果 + 客単価効果
         if (hasCust && pAmt > 0) {
-          const prevAvgTicket = safeDivide(pAmt, prevCustomers, 0)
-          const curAvgTicket = safeDivide(cAmt, curCustomers, 0)
-          custEffect = (curCustomers - prevCustomers) * prevAvgTicket
-          ticketEffect = (curAvgTicket - prevAvgTicket) * curCustomers
+          const d = decompose2(pAmt, cAmt, prevCustomers, curCustomers)
+          custEffect = d.custEffect
+          ticketEffect = d.ticketEffect
         } else {
           ticketEffect = cAmt - pAmt
         }
       } else if (activeLevel === 3) {
-        // 3-factor: 客数効果 + 点数効果 + 単価効果
+        // 3-factor Shapley: 客数効果 + 点数効果 + 単価効果
         if (hasCust && pQty > 0) {
-          const prevQPC = pQty / prevCustomers
-          const curQPC = safeDivide(cQty, curCustomers, 0)
-          const prevPPI = safeDivide(pAmt, pQty, 0)
-          const curPPI = safeDivide(cAmt, cQty, 0)
-
-          custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
-          qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
-          priceEffect = curCustomers * curQPC * (curPPI - prevPPI)
+          const d = decompose3(pAmt, cAmt, prevCustomers, curCustomers, pQty, cQty)
+          custEffect = d.custEffect
+          qtyEffect = d.qtyEffect
+          priceEffect = d.pricePerItemEffect
+        } else if (pQty > 0 && cQty > 0) {
+          // No customer data: 2-factor Shapley on qty × price
+          const d = decompose2(pAmt, cAmt, pQty, cQty)
+          qtyEffect = d.custEffect   // qty dimension
+          priceEffect = d.ticketEffect // price dimension
         } else {
-          const prevPPI = safeDivide(pAmt, pQty, 0)
-          const curPPI = safeDivide(cAmt, cQty, 0)
-          qtyEffect = (cQty - pQty) * prevPPI
-          priceEffect = cQty * (curPPI - prevPPI)
+          priceEffect = cAmt - pAmt
         }
       } else {
-        // 5-factor: 客数効果 + 点数効果 + 価格効果 + 構成比変化効果
+        // 5-factor: full 4-variable Shapley (C, Q, p, s)
+        const curSub = filterByGroup(filtered.cur, code)
+        const prevSub = filterByGroup(filtered.prev, code)
+        const curQA = curSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+        const prevQA = prevSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+
         if (hasCust && pQty > 0) {
-          const prevQPC = pQty / prevCustomers
-          const curQPC = safeDivide(cQty, curCustomers, 0)
-          const prevPPI = safeDivide(pAmt, pQty, 0)
-          const curPPI = safeDivide(cAmt, cQty, 0)
-
-          custEffect = (curCustomers - prevCustomers) * prevQPC * prevPPI
-          qtyEffect = curCustomers * (curQPC - prevQPC) * prevPPI
-          const unitPriceTotal = curCustomers * curQPC * (curPPI - prevPPI)
-
-          // Decompose unit price effect into price vs mix using sub-categories
-          const curSub = filterByGroup(filtered.cur, code)
-          const prevSub = filterByGroup(filtered.prev, code)
-          const curQA = curSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
-          const prevQA = prevSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
+          const d = decompose5Domain(pAmt, cAmt, prevCustomers, curCustomers, pQty, cQty, curQA, prevQA)
+          if (d) {
+            custEffect = d.custEffect
+            qtyEffect = d.qtyEffect
+            pricePureEffect = d.priceEffect
+            mixEffect = d.mixEffect
+          } else {
+            const d3 = decompose3(pAmt, cAmt, prevCustomers, curCustomers, pQty, cQty)
+            custEffect = d3.custEffect
+            qtyEffect = d3.qtyEffect
+            pricePureEffect = d3.pricePerItemEffect
+          }
+        } else if (pQty > 0 && cQty > 0) {
+          // No customer data: treat Q as first dimension
           const pm = decomposePriceMixDomain(curQA, prevQA)
+          const d = decompose2(pAmt, cAmt, pQty, cQty)
+          qtyEffect = d.custEffect   // qty dimension
+          const unitPriceTotal = d.ticketEffect // price dimension
 
           if (pm) {
             const pmSum = pm.priceEffect + pm.mixEffect
-            if (Math.abs(pmSum) > 0.01) {
-              const scale = unitPriceTotal / pmSum
-              pricePureEffect = pm.priceEffect * scale
-              mixEffect = pm.mixEffect * scale
-            } else {
-              pricePureEffect = unitPriceTotal
-            }
+            const share = Math.abs(pmSum) > 0.01 ? pm.priceEffect / pmSum : 0.5
+            pricePureEffect = unitPriceTotal * share
+            mixEffect = unitPriceTotal * (1 - share)
           } else {
             pricePureEffect = unitPriceTotal
           }
         } else {
-          const prevPPI = safeDivide(pAmt, pQty, 0)
-          const curPPI = safeDivide(cAmt, cQty, 0)
-          qtyEffect = (cQty - pQty) * prevPPI
-          const unitPriceTotal = cQty * (curPPI - prevPPI)
-
-          const curSub = filterByGroup(filtered.cur, code)
-          const prevSub = filterByGroup(filtered.prev, code)
-          const curQA = curSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
-          const prevQA = prevSub.map(r => ({ key: childKeyOf(r), qty: r.totalQuantity, amt: r.totalAmount }))
-          const pm = decomposePriceMixDomain(curQA, prevQA)
-
-          if (pm) {
-            const pmSum = pm.priceEffect + pm.mixEffect
-            if (Math.abs(pmSum) > 0.01) {
-              const scale = unitPriceTotal / pmSum
-              pricePureEffect = pm.priceEffect * scale
-              mixEffect = pm.mixEffect * scale
-            } else {
-              pricePureEffect = unitPriceTotal
-            }
-          } else {
-            pricePureEffect = unitPriceTotal
-          }
+          pricePureEffect = cAmt - pAmt
         }
       }
 
