@@ -15,7 +15,7 @@ import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns } from './PeriodFilter'
+import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, type AggregateMode } from './PeriodFilter'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -133,13 +133,27 @@ interface Props {
   dataMaxDay?: number
 }
 
-/** 時間帯別の集計結果を計算する共通関数 */
+/**
+ * 時間帯別の集計結果を計算する共通関数。
+ *
+ * ## 除数の算出方法（重要）
+ *
+ * カレンダーベースの日数（例: 2月=28日）ではなく、実際にデータが存在する
+ * distinct day 数をカウントして除数とする。これにより以下のケースを正しく処理:
+ *
+ * - データ欠損日（店休日、データ未投入日）が除数に含まれない
+ * - 期間途中のデータ追加でも正確な平均が算出される
+ * - 当年/前年でデータカバレッジが異なる場合、各々の実データ日数で除算
+ *
+ * @returns hourly: 時間帯別集計（除算済み）, totalAmount/totalQuantity: 生合計,
+ *          recordCount: レコード数, divisor: 使用した除数
+ */
 function aggregateHourly(
   records: readonly CategoryTimeSalesRecord[],
   selectedStoreIds: ReadonlySet<string>,
   filter: ReturnType<typeof useCategoryHierarchy>['filter'],
   hf: ReturnType<typeof useHierarchyDropdown>,
-  divisor: number,
+  mode: AggregateMode,
 ) {
   const hourly = new Map<number, { amount: number; quantity: number }>()
   const filtered = hf.applyFilter(filterByHierarchy(records, filter))
@@ -147,9 +161,12 @@ function aggregateHourly(
     (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
   )
 
+  // 実データの distinct day から除数を算出
+  const days = new Set<number>()
   let totalAmount = 0
   let totalQuantity = 0
   for (const rec of storeFiltered) {
+    days.add(rec.day)
     totalAmount += rec.totalAmount
     totalQuantity += rec.totalQuantity
     for (const slot of rec.timeSlots) {
@@ -161,13 +178,13 @@ function aggregateHourly(
     }
   }
 
-  const div = divisor > 1 ? divisor : 1
+  const div = mode === 'total' ? 1 : (days.size > 0 ? days.size : 1)
   const result = new Map<number, { amount: number; quantity: number }>()
   for (const [h, v] of hourly) {
     result.set(h, { amount: Math.round(v.amount / div), quantity: Math.round(v.quantity / div) })
   }
 
-  return { hourly: result, totalAmount, totalQuantity, recordCount: storeFiltered.length }
+  return { hourly: result, totalAmount, totalQuantity, recordCount: storeFiltered.length, divisor: div }
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較対応） */
@@ -199,16 +216,16 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   )
 
   const current = useMemo(
-    () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, pf.divisor),
-    [periodRecords, selectedStoreIds, filter, hf, pf.divisor],
+    () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, pf.mode),
+    [periodRecords, selectedStoreIds, filter, hf, pf.mode],
   )
   const comparable = useMemo(
-    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, pf.divisor) : null,
-    [comparablePeriodRecords, selectedStoreIds, filter, hf, pf.divisor, hasPrevYear],
+    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, pf.mode) : null,
+    [comparablePeriodRecords, selectedStoreIds, filter, hf, pf.mode, hasPrevYear],
   )
   const prev = useMemo(
-    () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, pf.divisor) : null,
-    [prevPeriodRecords, selectedStoreIds, filter, hf, pf.divisor, hasPrevYear],
+    () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, pf.mode) : null,
+    [prevPeriodRecords, selectedStoreIds, filter, hf, pf.mode, hasPrevYear],
   )
 
   const { chartData, kpi } = useMemo(() => {
@@ -227,10 +244,11 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
       }
     }
 
-    // KPI
+    // KPI — current.divisor は実データの distinct day 数から算出された除数
+    const curDiv = current.divisor
     let peakHour = 0, peakHourAmount = 0
     for (const [h, v] of current.hourly) {
-      if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * pf.divisor }
+      if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * curDiv }
     }
     const totalAmount = current.totalAmount
     const peakHourPct = totalAmount > 0 ? (peakHourAmount / totalAmount * 100).toFixed(1) : '0'
@@ -250,20 +268,20 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     // 数量ベースのピーク
     let peakHourQty = 0, peakHourQuantity = 0
     for (const [h, v] of current.hourly) {
-      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * pf.divisor }
+      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * curDiv }
     }
     const peakHourQtyPct = current.totalQuantity > 0 ? (peakHourQuantity / current.totalQuantity * 100).toFixed(1) : '0'
 
-    // コアタイム & 折り返し時間帯（金額ベース）
+    // コアタイム & 折り返し時間帯（金額ベース）— 生値で計算するため除数を掛け戻す
     const amountMap = new Map<number, number>()
-    for (const [h, v] of current.hourly) amountMap.set(h, v.amount * pf.divisor)
+    for (const [h, v] of current.hourly) amountMap.set(h, v.amount * curDiv)
     const coreTimeAmt = findCoreTime(amountMap)
     const turnaroundAmt = findTurnaroundHour(amountMap)
     const coreTimePct = totalAmount > 0 && coreTimeAmt ? (coreTimeAmt.total / totalAmount * 100).toFixed(1) : '0'
 
     // コアタイム & 折り返し時間帯（数量ベース）
     const qtyMap = new Map<number, number>()
-    for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * pf.divisor)
+    for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * curDiv)
     const coreTimeQty = findCoreTime(qtyMap)
     const turnaroundQty = findTurnaroundHour(qtyMap)
     const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? (coreTimeQty.total / current.totalQuantity * 100).toFixed(1) : '0'
@@ -295,7 +313,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
         avgQtyPerHour: current.hourly.size > 0 ? Math.round(current.totalQuantity / current.hourly.size) : 0,
       } : null,
     }
-  }, [current, comparable, prev, pf.divisor])
+  }, [current, comparable, prev])
 
   if (chartData.length === 0) return null
 
