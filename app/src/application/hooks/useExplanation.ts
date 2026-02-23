@@ -9,7 +9,7 @@
 import { useMemo } from 'react'
 import { useAppState } from '../context/AppStateContext'
 import { useStoreSelection } from './useStoreSelection'
-import { generateExplanations } from '../services/ExplanationService'
+import { generateExplanations } from '@/application/usecases/explanation'
 import type { StoreExplanations, MetricId, Explanation } from '@/domain/models'
 
 /**

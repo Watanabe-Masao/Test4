@@ -4,8 +4,8 @@ import { useRepository } from '../context/RepositoryContext'
 import {
   processDroppedFiles,
   validateImportedData,
-} from '@/application/services/FileImportService'
-import type { ImportSummary } from '@/application/services/FileImportService'
+} from '@/application/usecases/import'
+import type { ImportSummary } from '@/application/usecases/import'
 import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
 import { categoryTimeSalesRecordKey } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'

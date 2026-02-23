@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components'
 import type { ImportProgress } from '@/application/hooks/useImport'
-import type { ImportSummary, FileImportResult } from '@/application/services/FileImportService'
+import type { ImportSummary, FileImportResult } from '@/application/usecases/import'
 
 // ─── Types ────────────────────────────────────────────
 export type ImportStage = 'idle' | 'reading' | 'validating' | 'saving' | 'done'
