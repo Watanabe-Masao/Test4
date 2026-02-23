@@ -57,16 +57,16 @@ describe('autoInjectDataWidgets', () => {
     expect(result![1]).toBe('chart-daily-sales')
   })
 
-  it('前年データがある場合に前年比較ウィジェットが注入される', () => {
+  it('前年データがある場合に前年比較ウォーターフォールが注入される', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_CTS_PREV)
     expect(result).not.toBeNull()
-    expect(result!).toContain('chart-timeslot-yoy-comparison')
+    expect(result!).toContain('analysis-yoy-waterfall')
   })
 
-  it('前年データがない場合は前年比較ウィジェットは注入されない', () => {
+  it('前年データがない場合は前年比較ウォーターフォールは注入されない', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_CTS)
     expect(result).not.toBeNull()
-    expect(result!).not.toContain('chart-timeslot-yoy-comparison')
+    expect(result!).not.toContain('analysis-yoy-waterfall')
   })
 
   it('複数店舗の場合に店舗別比較ウィジェットが注入される', () => {

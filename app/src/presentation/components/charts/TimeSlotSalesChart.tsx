@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
@@ -118,7 +119,104 @@ const YoYBadge = styled.span<{ $positive: boolean }>`
   margin-left: 4px;
 `
 
-type ViewMode = 'chart' | 'kpi'
+/* YoY comparison view */
+const SummaryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: 0 ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+`
+
+const Metric = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+`
+
+const MetricLabel = styled.span`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+const MetricValue = styled.span<{ $color?: string }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+const ProgressBarWrap = styled.div`
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`
+
+const ProgressTrack = styled.div`
+  height: 8px;
+  background: ${({ theme }) => theme.colors.bg4};
+  border-radius: 4px;
+  overflow: hidden;
+`
+
+const ProgressFill = styled.div<{ $pct: number; $color: string }>`
+  height: 100%;
+  width: ${({ $pct }) => Math.min($pct, 150)}%;
+  background: ${({ $color }) => $color};
+  border-radius: 4px;
+  transition: width 0.6s ease;
+`
+
+const ProgressLabelRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const TableWrapper = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[3]};
+  overflow-x: auto;
+  padding: 0 ${({ theme }) => theme.spacing[2]};
+`
+
+const MiniTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.6rem;
+`
+
+const MiniTh = styled.th`
+  text-align: center;
+  padding: 3px 6px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text3};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+  &:first-child { text-align: left; }
+`
+
+const MiniTd = styled.td<{ $highlight?: boolean; $positive?: boolean }>`
+  text-align: center;
+  padding: 2px 5px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  white-space: nowrap;
+  color: ${({ $highlight, $positive, theme }) =>
+    $highlight
+      ? $positive ? '#22c55e' : '#ef4444'
+      : theme.colors.text2};
+  &:first-child {
+    text-align: left;
+    font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+    color: ${({ theme }) => theme.colors.text2};
+  }
+`
+
+type ViewMode = 'chart' | 'kpi' | 'yoy'
 type MetricMode = 'amount' | 'quantity'
 
 interface Props {
@@ -310,23 +408,74 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
     }
   }, [current, comparable, prev])
 
+  // YoY comparison data (per-hour diff + summary + table rows)
+  const yoyData = useMemo(() => {
+    if (!comparable || !prev) return null
+
+    const allHours = new Set([...comparable.hourly.keys(), ...prev.hourly.keys()])
+    const hours = [...allHours].sort((a, b) => a - b)
+
+    const rows = hours.map((h) => {
+      const cur = comparable.hourly.get(h)?.amount ?? 0
+      const prv = prev.hourly.get(h)?.amount ?? 0
+      const diff = cur - prv
+      const ratio = prv > 0 ? cur / prv : null
+      return { hour: `${h}時`, current: cur, prevYear: prv, diff, ratio }
+    })
+
+    const curTotal = comparable.totalAmount
+    const prevTotal = prev.totalAmount
+    const yoyRatio = prevTotal > 0 ? curTotal / prevTotal : null
+    const yoyDiff = curTotal - prevTotal
+
+    let maxIncHour = -1, maxIncDiff = 0
+    let maxDecHour = -1, maxDecDiff = 0
+    for (const d of rows) {
+      if (d.diff > maxIncDiff) { maxIncDiff = d.diff; maxIncHour = parseInt(d.hour) }
+      if (d.diff < maxDecDiff) { maxDecDiff = d.diff; maxDecHour = parseInt(d.hour) }
+    }
+
+    // Raw hourly maps for coreTime calculation
+    const curHourlyRaw = new Map<number, number>()
+    const prevHourlyRaw = new Map<number, number>()
+    for (const [h, v] of comparable.hourly) curHourlyRaw.set(h, v.amount * comparable.divisor)
+    for (const [h, v] of prev.hourly) prevHourlyRaw.set(h, v.amount * prev.divisor)
+
+    return {
+      rows,
+      chartData: rows,
+      summary: {
+        curTotal, prevTotal, yoyRatio, yoyDiff,
+        maxIncHour, maxIncDiff, maxDecHour, maxDecDiff,
+        curCoreTime: findCoreTime(curHourlyRaw),
+        curTurnaround: findTurnaroundHour(curHourlyRaw),
+        prevCoreTime: findCoreTime(prevHourlyRaw),
+        prevTurnaround: findTurnaroundHour(prevHourlyRaw),
+      },
+    }
+  }, [comparable, prev])
+
   if (chartData.length === 0) return null
 
   const showPrev = hasPrevYear && showPrevYear
 
+  const titleText = viewMode === 'yoy'
+    ? `時間帯別 前年同曜日比較`
+    : `時間帯別${metricMode === 'amount' ? '売上' : '数量'}${viewMode === 'kpi' ? ' サマリー' : ''}`
+  const modeLabel = pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''
+
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>
-          時間帯別{metricMode === 'amount' ? '売上' : '数量'}{viewMode === 'kpi' ? ' サマリー' : ''}
-          {pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''}
-        </Title>
+        <Title>{titleText}{modeLabel}</Title>
         <Controls>
-          <TabGroup>
-            <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>金額</Tab>
-            <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>点数</Tab>
-          </TabGroup>
-          {hasPrevYear && (
+          {viewMode !== 'yoy' && (
+            <TabGroup>
+              <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>金額</Tab>
+              <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>点数</Tab>
+            </TabGroup>
+          )}
+          {hasPrevYear && viewMode === 'chart' && (
             <>
               <Separator />
               <TabGroup>
@@ -338,10 +487,15 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           <TabGroup>
             <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>チャート</Tab>
             <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
+            {hasPrevYear && (
+              <Tab $active={viewMode === 'yoy'} onClick={() => setViewMode('yoy')}>前年比較</Tab>
+            )}
           </TabGroup>
         </Controls>
       </HeaderRow>
-      {viewMode === 'chart' ? (
+
+      {/* ── Chart view ── */}
+      {viewMode === 'chart' && (
         <div style={{ width: '100%', height: 320, minHeight: 0 }}>
           <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
@@ -370,7 +524,6 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 tickFormatter={metricMode === 'amount' ? fmt : (v: number) => toComma(v)}
                 width={50}
               />
-              {/* 右軸: 前年比較なしの場合のみ、もう一方の指標用に表示 */}
               {!showPrev && (
                 <YAxis
                   yAxisId="right"
@@ -408,7 +561,6 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   return labels[value] ?? value
                 }}
               />
-              {/* メインバー: 選択指標 */}
               <Bar
                 yAxisId="left"
                 dataKey={metricMode}
@@ -416,7 +568,6 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 radius={[3, 3, 0, 0]}
                 maxBarSize={20}
               />
-              {/* 前年比較なし: もう一方の指標をサブバーで表示 */}
               {!showPrev && (
                 <Bar
                   yAxisId="right"
@@ -426,7 +577,6 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   maxBarSize={20}
                 />
               )}
-              {/* 前年比較: 前年の同指標をラインで表示 */}
               {showPrev && (
                 <Line
                   yAxisId="left"
@@ -442,7 +592,10 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-      ) : kpi ? (
+      )}
+
+      {/* ── KPI view ── */}
+      {viewMode === 'kpi' && kpi && (
         <Grid>
           {metricMode === 'amount' ? (
             <>
@@ -557,7 +710,151 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
             </>
           )}
         </Grid>
-      ) : null}
+      )}
+
+      {/* ── YoY comparison view ── */}
+      {viewMode === 'yoy' && yoyData && (() => {
+        const s = yoyData.summary
+        const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
+        return (
+          <>
+            <SummaryRow>
+              <Metric>
+                <MetricLabel>当年合計</MetricLabel>
+                <MetricValue>{fmt(s.curTotal)}円</MetricValue>
+              </Metric>
+              {s.yoyRatio != null && (
+                <ProgressBarWrap>
+                  <ProgressLabelRow>
+                    <span>前年比 {toPct(s.yoyRatio)}</span>
+                    <span>{s.yoyDiff >= 0 ? '+' : ''}{fmt(s.yoyDiff)}円</span>
+                  </ProgressLabelRow>
+                  <ProgressTrack>
+                    <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
+                  </ProgressTrack>
+                </ProgressBarWrap>
+              )}
+              <Metric>
+                <MetricLabel>前年合計</MetricLabel>
+                <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
+              </Metric>
+              {s.maxIncHour >= 0 && (
+                <Metric>
+                  <MetricLabel>最大増加時間帯</MetricLabel>
+                  <MetricValue $color="#22c55e">{s.maxIncHour}時 (+{fmt(s.maxIncDiff)})</MetricValue>
+                </Metric>
+              )}
+              {s.maxDecHour >= 0 && (
+                <Metric>
+                  <MetricLabel>最大減少時間帯</MetricLabel>
+                  <MetricValue $color="#ef4444">{s.maxDecHour}時 ({fmt(s.maxDecDiff)})</MetricValue>
+                </Metric>
+              )}
+              <Metric>
+                <MetricLabel>コアタイム（当年）</MetricLabel>
+                <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
+              </Metric>
+              <Metric>
+                <MetricLabel>折り返し（当年）</MetricLabel>
+                <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
+              </Metric>
+              {s.prevCoreTime && (
+                <Metric>
+                  <MetricLabel>コアタイム（前年）</MetricLabel>
+                  <MetricValue $color={ct.colors.slate}>{formatCoreTime(s.prevCoreTime)}</MetricValue>
+                </Metric>
+              )}
+              {s.prevTurnaround != null && (
+                <Metric>
+                  <MetricLabel>折り返し（前年）</MetricLabel>
+                  <MetricValue $color={ct.colors.slate}>{formatTurnaroundHour(s.prevTurnaround)}</MetricValue>
+                </Metric>
+              )}
+            </SummaryRow>
+
+            <div style={{ width: '100%', height: 300, minHeight: 0 }}>
+              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
+                <ComposedChart data={yoyData.chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="yoyCurGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
+                      <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
+                  <XAxis
+                    dataKey="hour"
+                    tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+                    axisLine={{ stroke: ct.grid }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={fmt}
+                    width={50}
+                  />
+                  <ReferenceLine y={0} stroke={ct.grid} />
+                  <Tooltip
+                    contentStyle={tooltipStyle(ct)}
+                    formatter={(value: number | undefined, name: string | undefined) => {
+                      const labels: Record<string, string> = { current: '当年', prevYear: '前年同曜日', diff: '差分' }
+                      const label = labels[name as string] ?? String(name)
+                      const v = value ?? 0
+                      if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
+                      return [`${toComma(v)}円`, label]
+                    }}
+                    itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
+                  />
+                  <Legend
+                    wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+                    formatter={(value) => {
+                      const labels: Record<string, string> = { current: '当年', prevYear: '前年同曜日', diff: '差分' }
+                      return labels[value] ?? value
+                    }}
+                  />
+                  <Bar dataKey="current" fill="url(#yoyCurGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
+                  <Line type="monotone" dataKey="prevYear" stroke={ct.colors.slate} strokeWidth={2.5} strokeDasharray="5 3" dot={false} connectNulls />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            <TableWrapper>
+              <MiniTable>
+                <thead>
+                  <tr>
+                    <MiniTh>時間帯</MiniTh>
+                    <MiniTh>当年</MiniTh>
+                    <MiniTh>前年</MiniTh>
+                    <MiniTh>差分</MiniTh>
+                    <MiniTh>前年比</MiniTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  {yoyData.rows.map((row) => {
+                    const isPositive = row.diff >= 0
+                    return (
+                      <tr key={row.hour}>
+                        <MiniTd>{row.hour}</MiniTd>
+                        <MiniTd>{toComma(row.current)}円</MiniTd>
+                        <MiniTd>{toComma(row.prevYear)}円</MiniTd>
+                        <MiniTd $highlight $positive={isPositive}>
+                          {isPositive ? '+' : ''}{toComma(row.diff)}円
+                        </MiniTd>
+                        <MiniTd $highlight $positive={isPositive}>
+                          {row.ratio != null ? toPct(row.ratio) : '-'}
+                        </MiniTd>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </MiniTable>
+            </TableWrapper>
+          </>
+        )
+      })()}
+
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
       <HierarchyDropdowns hf={hf} />
     </Wrapper>

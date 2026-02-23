@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid, Chip, ChipGroup } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { calculateForecast } from '@/domain/calculations/forecast'
 import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
@@ -125,6 +126,9 @@ export function ForecastPage() {
 
   return (
     <MainContent title="予測分析" storeName={storeName}>
+      <ModeToggleWrapper>
+        <CurrencyUnitToggle />
+      </ModeToggleWrapper>
       <KpiGrid>
         <KpiCard
           label="営業日数"

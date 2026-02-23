@@ -28,11 +28,9 @@ const CHARTS_DIR = path.resolve(__dirname, '..')
  */
 const CHART_FILES_USING_PERIOD_FILTER = [
   'TimeSlotSalesChart.tsx',
-  'TimeSlotYoYComparisonChart.tsx',
   'TimeSlotHeatmapChart.tsx',
   'DeptHourlyPatternChart.tsx',
   'StoreTimeSlotComparisonChart.tsx',
-  'CategorySalesBreakdownChart.tsx',
   'CategoryHierarchyExplorer.tsx',
 ] as const
 

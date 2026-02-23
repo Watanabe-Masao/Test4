@@ -6,7 +6,6 @@ describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
     'chart-category-hierarchy-explorer',
     'chart-timeslot-sales',
-    'chart-category-sales-breakdown',
     'chart-timeslot-heatmap',
     'chart-dept-hourly-pattern',
   ]
@@ -45,24 +44,7 @@ describe('ウィジェット isVisible', () => {
     })
   })
 
-  describe('前年比較ウィジェット', () => {
-    it('前年データなしの場合は非表示', () => {
-      const ctx = makeWidgetContext({
-        prevYearCategoryTimeSales: { hasPrevYear: false, records: [], offset: 0 },
-      })
-      const widget = WIDGET_REGISTRY.find((w) => w.id === 'chart-timeslot-yoy-comparison')
-      expect(widget?.isVisible).toBeDefined()
-      expect(widget!.isVisible!(ctx)).toBe(false)
-    })
-
-    it('前年データありの場合は表示', () => {
-      const ctx = makeWidgetContext({
-        prevYearCategoryTimeSales: { hasPrevYear: true, records: [], offset: 1 },
-      })
-      const widget = WIDGET_REGISTRY.find((w) => w.id === 'chart-timeslot-yoy-comparison')
-      expect(widget!.isVisible!(ctx)).toBe(true)
-    })
-  })
+  // 注: chart-timeslot-yoy-comparison → TimeSlotSalesChart「前年比較」タブに統合
 
   describe('店舗別時間帯比較ウィジェット', () => {
     it('単一店舗・データなしの場合は非表示', () => {
