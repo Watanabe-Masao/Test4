@@ -25,6 +25,7 @@ const ReportsPage = lazy(() => import('@/presentation/pages/Reports/ReportsPage'
 const TransferPage = lazy(() => import('@/presentation/pages/Transfer/TransferPage').then(m => ({ default: m.TransferPage })))
 const ConsumablePage = lazy(() => import('@/presentation/pages/Consumable/ConsumablePage').then(m => ({ default: m.ConsumablePage })))
 const AdminPage = lazy(() => import('@/presentation/pages/Admin/AdminPage').then(m => ({ default: m.AdminPage })))
+const MobileDashboardPage = lazy(() => import('@/presentation/pages/Mobile/MobileDashboardPage').then(m => ({ default: m.MobileDashboardPage })))
 
 // ─── ViewType ↔ URLパス マッピング ──────────────────────────
 const VIEW_TO_PATH: Record<ViewType, string> = {
@@ -92,7 +93,14 @@ function useRouteSync() {
   return { handleViewChange }
 }
 
+/** モバイル専用ルートかどうかを判定するフック */
+function useMobileRoute() {
+  const location = useLocation()
+  return location.pathname === '/mobile'
+}
+
 function AppContent() {
+  const isMobile = useMobileRoute()
   const ui = useAppUi()
   const { mode, toggle } = useThemeToggle()
   const showToast = useToast()
@@ -144,6 +152,15 @@ function AppContent() {
   )
 
   useKeyboardShortcuts(shortcutHandlers)
+
+  // モバイル専用ルート: AppShell を使わず独自レイアウト
+  if (isMobile) {
+    return (
+      <Suspense fallback={<PageSkeleton />}>
+        <MobileDashboardPage />
+      </Suspense>
+    )
+  }
 
   return (
     <SettingsModalContext.Provider value={{ open: handleOpenSettings }}>
