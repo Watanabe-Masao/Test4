@@ -1,16 +1,17 @@
 /**
- * Supabase → Firestore 同期サービス
+ * IndexedDB → Supabase 同期サービス
  *
- * Supabase（マスター DB）に書き込まれたデータを
- * Firestore（読み取りキャッシュ）へ伝播する。
+ * ローカル（IndexedDB）に保存されたデータを
+ * リモート（Supabase）へ非同期にバックアップする。
  *
  * 同期戦略:
  * 1. 書き込み後同期: saveMonthlyData / saveDataSlice 後に呼ばれる
- * 2. 全量同期: 初回ロード or 不整合検出時に全スライスを再同期
+ * 2. 全量プッシュ: ローカルの全データをリモートに反映
  * 3. ログ記録: 同期結果を Supabase の sync_log テーブルに記録
  */
+import type { ImportedData, DataType } from '@/domain/models'
+import type { IndexedDBRepository } from '../storage/IndexedDBRepository'
 import type { SupabaseRepository } from '../supabase/SupabaseRepository'
-import type { FirestoreReadCache } from '../firebase/FirestoreReadCache'
 
 /** 同期結果 */
 export interface SyncResult {
@@ -20,97 +21,84 @@ export interface SyncResult {
 }
 
 export class SyncService {
-  readonly supabase: SupabaseRepository
-  readonly firestore: FirestoreReadCache
+  readonly local: IndexedDBRepository
+  readonly remote: SupabaseRepository
 
-  constructor(supabase: SupabaseRepository, firestore: FirestoreReadCache) {
-    this.supabase = supabase
-    this.firestore = firestore
+  constructor(local: IndexedDBRepository, remote: SupabaseRepository) {
+    this.local = local
+    this.remote = remote
   }
 
   /**
-   * 指定年月の全データを Supabase → Firestore に同期する。
-   * 初回ロードや不整合検出時に使用。
+   * ローカルデータを Supabase にプッシュする（全量）。
+   * 書き込み直後に呼ばれるため、data を直接受け取る。
    */
-  async syncAll(year: number, month: number): Promise<SyncResult> {
-    const syncedTypes: string[] = []
-    const failedTypes: { dataType: string; error: string }[] = []
-
-    try {
-      const slices = await this.supabase.getAllSerializedSlices(year, month)
-
-      if (slices.size === 0) {
-        return { success: true, syncedTypes: [], failedTypes: [] }
-      }
-
-      await this.firestore.writeSlices(year, month, slices)
-
-      for (const dataType of slices.keys()) {
-        syncedTypes.push(dataType)
-        await this.logSync(year, month, dataType, 'success')
-      }
-
-      await this.firestore.writeSessionMeta(year, month)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error'
-      failedTypes.push({ dataType: '*', error: message })
-      await this.logSync(year, month, '*', 'failed', message)
-    }
-
-    return {
-      success: failedTypes.length === 0,
-      syncedTypes,
-      failedTypes,
-    }
-  }
-
-  /**
-   * 特定データ種別のみを Supabase → Firestore に同期する。
-   * 部分的なインポート後に使用。
-   */
-  async syncSlices(
+  async pushToRemote(
     year: number,
     month: number,
-    dataTypes: readonly string[],
+    data: ImportedData,
   ): Promise<SyncResult> {
-    const syncedTypes: string[] = []
-    const failedTypes: { dataType: string; error: string }[] = []
-
-    for (const dataType of dataTypes) {
-      try {
-        const payload = await this.supabase.getSerializedSlice(year, month, dataType)
-        if (payload !== null) {
-          await this.firestore.writeSlice(year, month, dataType, payload)
-          syncedTypes.push(dataType)
-          await this.logSync(year, month, dataType, 'success')
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error'
-        failedTypes.push({ dataType, error: message })
-        await this.logSync(year, month, dataType, 'failed', message)
+    try {
+      await this.remote.saveMonthlyData(data, year, month)
+      await this.logSync(year, month, '*', 'success')
+      return { success: true, syncedTypes: ['*'], failedTypes: [] }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      await this.logSync(year, month, '*', 'failed', message)
+      return {
+        success: false,
+        syncedTypes: [],
+        failedTypes: [{ dataType: '*', error: message }],
       }
-    }
-
-    if (syncedTypes.length > 0) {
-      try {
-        await this.firestore.writeSessionMeta(year, month)
-      } catch {
-        // メタ更新失敗はデータ同期の成功に影響しない
-      }
-    }
-
-    return {
-      success: failedTypes.length === 0,
-      syncedTypes,
-      failedTypes,
     }
   }
 
   /**
-   * 指定年月の Firestore キャッシュを削除する。
+   * 指定データ種別のみを Supabase にプッシュする。
+   * 部分インポート後に使用。
    */
-  async clearFirestoreCache(year: number, month: number): Promise<void> {
-    await this.firestore.clearMonth(year, month)
+  async pushSlicesToRemote(
+    year: number,
+    month: number,
+    data: ImportedData,
+    dataTypes: readonly DataType[],
+  ): Promise<SyncResult> {
+    try {
+      await this.remote.saveDataSlice(data, year, month, dataTypes)
+      const syncedTypes = [...dataTypes]
+      for (const dt of syncedTypes) {
+        await this.logSync(year, month, dt, 'success')
+      }
+      return { success: true, syncedTypes, failedTypes: [] }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      const failedTypes = dataTypes.map((dt) => ({ dataType: dt, error: message }))
+      for (const dt of dataTypes) {
+        await this.logSync(year, month, dt, 'failed', message)
+      }
+      return { success: false, syncedTypes: [], failedTypes }
+    }
+  }
+
+  /**
+   * ローカルにあるデータを Supabase にプッシュする（データ引数なし）。
+   * リモートとの再同期が必要な場合に使用。
+   */
+  async syncFromLocal(year: number, month: number): Promise<SyncResult> {
+    try {
+      const data = await this.local.loadMonthlyData(year, month)
+      if (!data) {
+        return { success: true, syncedTypes: [], failedTypes: [] }
+      }
+      return this.pushToRemote(year, month, data)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      return {
+        success: false,
+        syncedTypes: [],
+        failedTypes: [{ dataType: '*', error: message }],
+      }
+    }
   }
 
   protected async logSync(
@@ -121,7 +109,7 @@ export class SyncService {
     errorMessage?: string,
   ): Promise<void> {
     try {
-      await this.supabase.writeSyncLog(year, month, dataType, status, errorMessage)
+      await this.remote.writeSyncLog(year, month, dataType, status, errorMessage)
     } catch {
       // ログ記録失敗はサイレントに無視
     }
