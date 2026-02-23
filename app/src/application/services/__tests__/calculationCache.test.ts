@@ -58,6 +58,43 @@ describe('computeFingerprint', () => {
     const fp2 = computeFingerprint('s1', data, mockSettings, 28)
     expect(fp1).not.toBe(fp2)
   })
+
+  it('消耗品データ追加でフィンガープリントが変わる', () => {
+    const data1 = createEmptyImportedData()
+    const data2 = {
+      ...data1,
+      consumables: {
+        s1: {
+          1: { cost: 500, items: [{ accountCode: '81257', itemCode: 'A001', itemName: 'テスト品', quantity: 1, cost: 500 }] },
+        },
+      },
+    }
+    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('花・産直データ追加でフィンガープリントが変わる', () => {
+    const data1 = createEmptyImportedData()
+    const data2 = {
+      ...data1,
+      flowers: { s1: { 1: { cost: 1000, price: 1200 } } },
+    }
+    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('店間入出データ追加でフィンガープリントが変わる', () => {
+    const data1 = createEmptyImportedData()
+    const data2 = {
+      ...data1,
+      interStoreIn: { s1: { 1: { total: { cost: 100, price: 120 } } } },
+    }
+    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    expect(fp1).not.toBe(fp2)
+  })
 })
 
 describe('computeGlobalFingerprint', () => {

@@ -549,18 +549,17 @@ export function DataManagementSidebar({
           onClose={closeSettings}
         />
       )}
-      {showValidation && validationMessages.length > 0 && (
-        <ValidationModal
-          messages={validationMessages}
-          onClose={() => setShowValidation(false)}
-        />
-      )}
-      {pendingDiff && (
+      {pendingDiff ? (
         <DiffConfirmModal
           diffResult={pendingDiff.diffResult}
           onConfirm={handleDiffConfirm}
         />
-      )}
+      ) : showValidation && validationMessages.length > 0 ? (
+        <ValidationModal
+          messages={validationMessages}
+          onClose={() => setShowValidation(false)}
+        />
+      ) : null}
     </>
   )
 }
