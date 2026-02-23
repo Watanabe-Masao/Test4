@@ -6,7 +6,7 @@
  * 期間スライダーで分析対象期間を動的に変更可能。
  * 前週比モード: 選択期間の7日前と比較。
  */
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import styled from 'styled-components'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
@@ -146,16 +146,11 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   // Period slider state
   const [dayStart, dayEnd, setDayRange] = useDayRange(ctx.daysInMonth)
 
-  // WoW availability check
+  // WoW availability check — canWoW が false なら yoy にフォールバック（派生状態）
   const wowRange = wowPrevRange(dayStart, dayEnd)
   const canWoW = wowRange.isValid
-
-  // 日付範囲変更で canWoW が false になった場合、yoy にフォールバック
-  useEffect(() => {
-    if (compMode === 'wow' && !canWoW) setCompMode('yoy')
-  }, [compMode, canWoW])
-
-  const labels = comparisonLabels(compMode, ctx.year, dayStart, dayEnd)
+  const activeCompMode: ComparisonMode = compMode === 'wow' && !canWoW ? 'yoy' : compMode
+  const labels = comparisonLabels(activeCompMode, ctx.year, dayStart, dayEnd)
 
   // 期間指定に基づいて当年の売上・客数を日別データから再集計
   const periodCurSales = useMemo(() => {
@@ -174,7 +169,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const periodPrevSales = useMemo(() => {
     let sales = 0
     let customers = 0
-    if (compMode === 'wow') {
+    if (activeCompMode === 'wow') {
       // 前週比: 同月の dayStart-7 ~ dayEnd-7
       for (const [day, rec] of r.daily) {
         if (day >= wowRange.prevStart && day <= wowRange.prevEnd) {
@@ -192,7 +187,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       }
     }
     return { sales, customers }
-  }, [compMode, r.daily, prevYear.daily, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+  }, [activeCompMode, r.daily, prevYear.daily, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // 期間指定でCTSレコードをフィルタ
   const periodCTS = useMemo(() => {
@@ -203,7 +198,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
   // 比較期間のCTSレコード（前年比 or 前週比で切替）
   const periodPrevCTS = useMemo(() => {
-    if (compMode === 'wow') {
+    if (activeCompMode === 'wow') {
       const recs = ctx.categoryTimeSales?.records
       if (!recs?.length) return []
       return recs.filter((rec) => rec.day >= wowRange.prevStart && rec.day <= wowRange.prevEnd)
@@ -211,7 +206,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     const recs = ctx.prevYearCategoryTimeSales?.records
     if (!recs?.length) return []
     return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
-  }, [compMode, ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+  }, [activeCompMode, ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(() =>
@@ -239,7 +234,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const prevCust = periodPrevSales.customers
 
   // Comparison availability
-  const hasComparison = compMode === 'yoy' ? prevYear.hasPrevYear : canWoW
+  const hasComparison = activeCompMode === 'yoy' ? prevYear.hasPrevYear : canWoW
 
   // Factor decomposition data (Shapley values)
   const factorData = useMemo((): WaterfallItem[] => {
@@ -416,7 +411,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   return (
     <Wrapper>
       <Title>
-        {compMode === 'yoy' ? '前年比較' : '前週比較'}ウォーターフォール（要因分解）
+        {activeCompMode === 'yoy' ? '前年比較' : '前週比較'}ウォーターフォール（要因分解）
       </Title>
       <Subtitle>
         {labels.prevLabel}売上から{labels.curLabel}売上への変動要因を可視化

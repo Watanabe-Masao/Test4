@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, Fragment } from 'react'
+import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { toPct } from './chartTheme'
@@ -236,28 +236,25 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   const wowPrevStart = pf.dayRange[0] - 7
   const wowPrevEnd = pf.dayRange[1] - 7
   const canWoW = wowPrevStart >= 1
-
-  // 日付範囲変更で canWoW が false になった場合、yoy にフォールバック
-  useEffect(() => {
-    if (compMode === 'wow' && !canWoW) setCompMode('yoy')
-  }, [compMode, canWoW])
+  // canWoW が false なら yoy にフォールバック（派生状態）
+  const activeCompMode = compMode === 'wow' && !canWoW ? 'yoy' as const : compMode
 
   // 比較期間レコード（前年比 or 前週比で切替）
   const prevPeriodRecords = useMemo(() => {
-    if (compMode === 'wow' && canWoW) {
+    if (activeCompMode === 'wow') {
       return categoryTimeSales.records.filter(
         (rec) => rec.day >= wowPrevStart && rec.day <= wowPrevEnd,
       )
     }
     return prevYearRecords ? pf.filterRecords(prevYearRecords) : []
-  }, [compMode, canWoW, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
+  }, [activeCompMode, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('amount')
 
   // 動的ラベル
-  const prevLbl = compMode === 'wow' ? '前週' : '前年'
+  const prevLbl = activeCompMode === 'wow' ? '前週' : '前年'
 
   // 前年データがカバーする日の集合（前年比モード用）
   const prevDaySet = useMemo(
@@ -268,10 +265,10 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   const comparablePeriodRecords = useMemo(
     () => {
       if (!hasPrevYear) return periodRecords
-      if (compMode === 'wow') return periodRecords // WoW: both periods same coverage
+      if (activeCompMode === 'wow') return periodRecords // WoW: both periods same coverage
       return periodRecords.filter((r) => prevDaySet.has(r.day))
     },
-    [periodRecords, prevDaySet, hasPrevYear, compMode],
+    [periodRecords, prevDaySet, hasPrevYear, activeCompMode],
   )
 
   const curData = useMemo(
