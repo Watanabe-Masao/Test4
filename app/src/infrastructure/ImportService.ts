@@ -100,9 +100,7 @@ const DATE_START_ROW: Partial<Record<DataType, number>> = {
   sales: 3,
   discount: 2,
   salesDiscount: 2,
-  prevYearSalesDiscount: 2,
   categoryTimeSales: 3,
-  prevYearCategoryTimeSales: 3,
 }
 
 /**
@@ -193,21 +191,6 @@ export function processFileData(
       }
     }
 
-    case 'prevYearSalesDiscount': {
-      // 前年売上売変: salesDiscount と同じ構造。
-      // DB上は実際の年月に通常データとして保存するため overflowなしで処理。
-      // detectedYearMonth を返し、呼び出し元が実際の年月で別途保存する。
-      const prevDiscountData = processDiscount(rows, effectiveMonth)
-      return {
-        data: {
-          ...current,
-          prevYearSales: discountToSalesData(prevDiscountData),
-          prevYearDiscount: prevDiscountData,
-        },
-        detectedYearMonth,
-      }
-    }
-
     case 'initialSettings':
       return { data: { ...current, settings: processSettings(rows) } }
 
@@ -257,19 +240,6 @@ export function processFileData(
       }
     }
 
-    case 'prevYearCategoryTimeSales': {
-      // 前年分類別時間帯売上: 通常データとして処理（overflowなし）。
-      // DB上は実際の年月に categoryTimeSales として保存する。
-      const newData = processCategoryTimeSales(rows, effectiveMonth)
-      return {
-        data: {
-          ...current,
-          prevYearCategoryTimeSales: mergeCategoryTimeSalesData(current.prevYearCategoryTimeSales, newData),
-        },
-        detectedYearMonth,
-      }
-    }
-
     case 'departmentKpi': {
       const newData = processDepartmentKpi(rows)
       return {
@@ -302,20 +272,12 @@ export async function processDroppedFiles(
   summary: ImportSummary
   data: ImportedData
   detectedYearMonth?: { year: number; month: number }
-  /** 前年データから検出された年月（当年targetの更新には使わない） */
-  prevYearDetectedYearMonth?: { year: number; month: number }
 }> {
-  const PREV_YEAR_TYPES: ReadonlySet<DataType> = new Set([
-    'prevYearSalesDiscount',
-    'prevYearCategoryTimeSales',
-  ])
-
   const fileArray = Array.from(files)
   const results: FileImportResult[] = []
   let data = currentData
   let effectiveSettings = appSettings
   let detectedYearMonth: { year: number; month: number } | undefined
-  let prevYearDetectedYearMonth: { year: number; month: number } | undefined
 
   for (let i = 0; i < fileArray.length; i++) {
     const file = fileArray[i]
@@ -345,20 +307,13 @@ export async function processDroppedFiles(
       const result = processFileData(type, rows, file.name, data, effectiveSettings)
       data = result.data
 
-      if (PREV_YEAR_TYPES.has(type)) {
-        // 前年データ: detectedYearMonth は当年targetに反映せず別途保持
-        if (result.detectedYearMonth && !prevYearDetectedYearMonth) {
-          prevYearDetectedYearMonth = result.detectedYearMonth
-        }
-      } else {
-        // 当年データ: 年月が検出されたら後続ファイルの処理にも反映
-        if (result.detectedYearMonth && !detectedYearMonth) {
-          detectedYearMonth = result.detectedYearMonth
-          effectiveSettings = {
-            ...effectiveSettings,
-            targetYear: detectedYearMonth.year,
-            targetMonth: detectedYearMonth.month,
-          }
+      // 年月が検出されたら後続ファイルの処理にも反映
+      if (result.detectedYearMonth && !detectedYearMonth) {
+        detectedYearMonth = result.detectedYearMonth
+        effectiveSettings = {
+          ...effectiveSettings,
+          targetYear: detectedYearMonth.year,
+          targetMonth: detectedYearMonth.month,
         }
       }
 
@@ -385,7 +340,6 @@ export async function processDroppedFiles(
     summary: { results, successCount, failureCount },
     data,
     detectedYearMonth,
-    prevYearDetectedYearMonth,
   }
 }
 

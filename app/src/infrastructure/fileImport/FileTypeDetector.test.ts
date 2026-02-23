@@ -183,6 +183,6 @@ describe('getDataTypeName', () => {
   })
 
   it('花の表示名', () => {
-    expect(getDataTypeName('flowers')).toBe('花')
+    expect(getDataTypeName('flowers')).toBe('売上納品_花')
   })
 })

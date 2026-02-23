@@ -19,7 +19,6 @@ const STRUCTURAL_RULES: Record<DataType, { minRows: number; minCols: number; lab
   sales:                     { minRows: 4, minCols: 4,  label: '売上データ' },
   discount:                  { minRows: 3, minCols: 3,  label: '売変データ' },
   salesDiscount:             { minRows: 3, minCols: 3,  label: '売上売変データ' },
-  prevYearSalesDiscount:     { minRows: 3, minCols: 3,  label: '前年売上売変データ' },
   initialSettings:           { minRows: 2, minCols: 2,  label: '初期設定データ' },
   budget:                    { minRows: 2, minCols: 2,  label: '予算データ' },
   interStoreIn:              { minRows: 2, minCols: 3,  label: '店間入庫データ' },
@@ -28,7 +27,6 @@ const STRUCTURAL_RULES: Record<DataType, { minRows: number; minCols: number; lab
   directProduce:             { minRows: 2, minCols: 2,  label: '産直データ' },
   consumables:               { minRows: 2, minCols: 2,  label: '消耗品データ' },
   categoryTimeSales:         { minRows: 4, minCols: 5,  label: '分類別時間帯売上データ' },
-  prevYearCategoryTimeSales: { minRows: 4, minCols: 5,  label: '前年分類別時間帯売上データ' },
   departmentKpi:             { minRows: 2, minCols: 5,  label: '部門別KPIデータ' },
 }
 

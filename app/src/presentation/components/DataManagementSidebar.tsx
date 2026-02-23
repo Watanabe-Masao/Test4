@@ -230,15 +230,14 @@ const SliderNumUnit = styled.span`
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'salesDiscount', label: '1_売上売変客数' },
-  { type: 'purchase', label: '2_仕入' },
-  { type: 'flowers', label: '3_花' },
-  { type: 'directProduce', label: '4_産直' },
+  { type: 'flowers', label: '2_売上納品_花' },
+  { type: 'directProduce', label: '3_売上納品_産直' },
+  { type: 'interStoreOut', label: '4_店間出' },
   { type: 'interStoreIn', label: '5_店間入' },
-  { type: 'interStoreOut', label: '6_店間出' },
-  { type: 'initialSettings', label: '7_初期設定' },
-  { type: 'consumables', label: '8_消耗品', multi: true },
-  { type: 'categoryTimeSales', label: '8.分類別時間帯売上', multi: true },
-  // 前年データはドラッグ&ドロップで自動判定。実際の年月に通常データとして保存される。
+  { type: 'purchase', label: '6_仕入' },
+  { type: 'categoryTimeSales', label: '7.分類別時間帯売上', multi: true },
+  { type: 'consumables', label: '8.消耗品', multi: true },
+  { type: 'initialSettings', label: '999_初期設定' },
 ]
 
 export function DataManagementSidebar({
