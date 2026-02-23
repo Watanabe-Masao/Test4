@@ -198,24 +198,17 @@ export function CategoryDrilldown({
   const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${sourceLabel}`
   const fmtVal = isAmountMode ? (v: number) => `${toComma(v)}円` : (v: number) => `${v.toLocaleString()}点`
 
-  // サマリ用: YoY・WoW 両方の比率を常に算出
-  const yoySummaryRatio = useMemo(() => {
-    const src = compare === 'daily' ? dayItemsYoY : cumItemsYoY
-    const a = src.reduce((s, i) => s + i.amount, 0)
-    const pa = src.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
-    const q = src.reduce((s, i) => s + i.quantity, 0)
-    const pq = src.reduce((s, i) => s + (i.prevQuantity ?? 0), 0)
-    return isAmountMode ? (pa > 0 ? a / pa : null) : (pq > 0 ? q / pq : null)
-  }, [compare, dayItemsYoY, cumItemsYoY, isAmountMode])
-
-  const wowSummaryRatio = useMemo(() => {
-    if (!hasWoW || compare === 'cumulative') return null
-    const a = dayItemsWoW.reduce((s, i) => s + i.amount, 0)
-    const pa = dayItemsWoW.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
-    const q = dayItemsWoW.reduce((s, i) => s + i.quantity, 0)
-    const pq = dayItemsWoW.reduce((s, i) => s + (i.prevQuantity ?? 0), 0)
-    return isAmountMode ? (pa > 0 ? a / pa : null) : (pq > 0 ? q / pq : null)
-  }, [hasWoW, compare, dayItemsWoW, isAmountMode])
+  // サマリ用: 比較期間に応じた実績・予算・前年・前週の値
+  const summaryActual = compare === 'daily' ? actual : cumSales
+  const summaryBudget = compare === 'daily' ? budget : cumBudget
+  const summaryPrevYear = compare === 'daily' ? pySales : cumPrevYear
+  const summaryWow = compare === 'daily' ? (wowPrevSales ?? 0) : 0
+  const budgetDiff = summaryActual - summaryBudget
+  const budgetAch = summaryBudget > 0 ? summaryActual / summaryBudget : 0
+  const pyDiff = summaryActual - summaryPrevYear
+  const pyRatio = summaryPrevYear > 0 ? summaryActual / summaryPrevYear : 0
+  const wowDiff = summaryActual - summaryWow
+  const wowRatio = summaryWow > 0 ? summaryActual / summaryWow : 0
 
   const renderBarSection = (
     title: string,
@@ -444,17 +437,26 @@ export function CategoryDrilldown({
       <SummaryRow>
         <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
         <SumItem><SumLabel>合計（{drillSourceLabel}）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
-        {hasPrevYear && !isPrevSource && yoySummaryRatio != null && (
-          <SumItem>
-            <SumLabel>前年比</SumLabel>
-            <SumValue><YoYVal $positive={yoySummaryRatio >= 1}>{formatPercent(yoySummaryRatio, 2)}</YoYVal></SumValue>
-          </SumItem>
+        {summaryBudget > 0 && (
+          <>
+            <SumItem><SumLabel>予算額</SumLabel><SumValue>{fmtSen(summaryBudget)}</SumValue></SumItem>
+            <SumItem><SumLabel>予算差異</SumLabel><SumValue><YoYVal $positive={budgetDiff >= 0}>{fmtSen(budgetDiff)}</YoYVal></SumValue></SumItem>
+            <SumItem><SumLabel>予算達成率</SumLabel><SumValue><YoYVal $positive={budgetAch >= 1}>{formatPercent(budgetAch, 2)}</YoYVal></SumValue></SumItem>
+          </>
         )}
-        {hasWoW && compare === 'daily' && !isPrevSource && wowSummaryRatio != null && (
-          <SumItem>
-            <SumLabel>前週比</SumLabel>
-            <SumValue><YoYVal $positive={wowSummaryRatio >= 1}>{formatPercent(wowSummaryRatio, 2)}</YoYVal></SumValue>
-          </SumItem>
+        {hasPrevYear && summaryPrevYear > 0 && (
+          <>
+            <SumItem><SumLabel>前年金額</SumLabel><SumValue>{fmtSen(summaryPrevYear)}</SumValue></SumItem>
+            <SumItem><SumLabel>前年差異</SumLabel><SumValue><YoYVal $positive={pyDiff >= 0}>{fmtSen(pyDiff)}</YoYVal></SumValue></SumItem>
+            <SumItem><SumLabel>前年対比</SumLabel><SumValue><YoYVal $positive={pyRatio >= 1}>{formatPercent(pyRatio, 2)}</YoYVal></SumValue></SumItem>
+          </>
+        )}
+        {hasWoW && compare === 'daily' && summaryWow > 0 && (
+          <>
+            <SumItem><SumLabel>前週金額</SumLabel><SumValue>{fmtSen(summaryWow)}</SumValue></SumItem>
+            <SumItem><SumLabel>前週差異</SumLabel><SumValue><YoYVal $positive={wowDiff >= 0}>{fmtSen(wowDiff)}</YoYVal></SumValue></SumItem>
+            <SumItem><SumLabel>前週対比</SumLabel><SumValue><YoYVal $positive={wowRatio >= 1}>{formatPercent(wowRatio, 2)}</YoYVal></SumValue></SumItem>
+          </>
         )}
       </SummaryRow>
 
