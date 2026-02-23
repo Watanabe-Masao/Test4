@@ -100,7 +100,7 @@ function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
 }
 
 export function ConsumablePage() {
-  const { isCalculated } = useCalculation()
+  useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const [viewMode, setViewMode] = useState<ViewMode>('item')
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
@@ -138,7 +138,7 @@ export function ConsumablePage() {
     return details.sort((a, b) => a.day - b.day || a.storeId.localeCompare(b.storeId))
   }, [selectedItem, selectedResults, stores])
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="消耗品分析" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

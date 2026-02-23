@@ -15,16 +15,19 @@ export interface CalculateRequest {
   data: ImportedData
   settings: AppSettings
   daysInMonth: number
+  requestId?: number
 }
 
 export interface CalculateResponse {
   type: 'result'
   results: ReadonlyMap<string, StoreResult>
+  requestId?: number
 }
 
 export interface CalculateError {
   type: 'error'
   message: string
+  requestId?: number
 }
 
 export type WorkerRequest = CalculateRequest
@@ -37,15 +40,16 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
 
   if (type === 'calculate') {
     try {
-      const { data, settings, daysInMonth } = event.data
+      const { data, settings, daysInMonth, requestId } = event.data
       const results = calculateAllStores(data, settings, daysInMonth)
 
-      const response: CalculateResponse = { type: 'result', results }
+      const response: CalculateResponse = { type: 'result', results, requestId }
       self.postMessage(response)
     } catch (err) {
       const response: CalculateError = {
         type: 'error',
         message: err instanceof Error ? err.message : String(err),
+        requestId: event.data.requestId,
       }
       self.postMessage(response)
     }

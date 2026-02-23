@@ -47,14 +47,14 @@ import {
 import { sc } from '@/presentation/theme/semanticColors'
 
 export function ForecastPage() {
-  const { isCalculated } = useCalculation()
+  useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const prevYear = usePrevYearData()
   const [compareMode, setCompareMode] = useState(false)
   const [dowColors, setDowColors] = useState<string[]>([...DEFAULT_DOW_COLORS])
   const [relViewMode, setRelViewMode] = useState<'current' | 'prev' | 'compare'>('current')
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="予測分析" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

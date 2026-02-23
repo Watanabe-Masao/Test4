@@ -73,7 +73,7 @@ const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
 export function DailyPage() {
-  const { isCalculated, daysInMonth } = useCalculation()
+  const { daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const appState = useAppState()
   const { settings } = appState
@@ -124,7 +124,7 @@ export function DailyPage() {
     })
   }
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="日別トレンド" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

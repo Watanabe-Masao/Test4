@@ -64,7 +64,7 @@ function addEntry(
 }
 
 export function TransferPage() {
-  const { isCalculated } = useCalculation()
+  useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const [transferType, setTransferType] = useState<TransferType>('interStore')
   const [selectedPair, setSelectedPair] = useState<string | null>(null)
@@ -125,7 +125,7 @@ export function TransferPage() {
     setExpandedDay(expandedDay === day ? null : day)
   }
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="店間・部門間移動" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

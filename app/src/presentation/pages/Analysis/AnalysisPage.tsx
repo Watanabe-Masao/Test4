@@ -12,7 +12,7 @@ type ViewMode = 'total' | 'comparison'
 type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
 
 export function AnalysisPage() {
-  const { isCalculated, daysInMonth } = useCalculation()
+  const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName } = useStoreSelection()
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const [viewMode, setViewMode] = useState<ViewMode>('total')
@@ -47,7 +47,7 @@ export function AnalysisPage() {
     return data
   }, [currentResult, salesDaily, prevYear, daysInMonth])
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="予算分析" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

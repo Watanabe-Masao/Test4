@@ -127,11 +127,11 @@ const EmptyState = styled.div`
 `
 
 export function ReportsPage() {
-  const { isCalculated, daysInMonth } = useCalculation()
+  const { daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
   const settings = useAppSettings()
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="月次レポート" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>
