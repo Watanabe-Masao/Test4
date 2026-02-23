@@ -12,6 +12,7 @@ import {
   usePrevYearData,
   useStoreSelection,
   useAutoLoadPrevYear,
+  useMonthSwitcher,
 } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
@@ -59,6 +60,27 @@ const HeaderTitle = styled.div`
 const HeaderSub = styled.div`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.text4};
+`
+
+const MonthNav = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const MonthArrow = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  color: ${({ theme }) => theme.colors.text3};
+  font-size: 14px;
+  &:active:not(:disabled) { opacity: 0.5; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
 `
 
 const DesktopLink = styled.button`
@@ -253,6 +275,7 @@ export function MobileDashboardPage() {
 
   useAutoLoadPrevYear()
 
+  const { isSwitching, goToPrevMonth, goToNextMonth } = useMonthSwitcher()
   const { targetYear, targetMonth } = appState.settings
   const r = currentResult
 
@@ -307,10 +330,14 @@ export function MobileDashboardPage() {
     return (
       <MobileShell>
         <Header>
-          <div>
-            <HeaderTitle>{targetYear}年{targetMonth}月</HeaderTitle>
-            <HeaderSub>モバイルダッシュボード</HeaderSub>
-          </div>
+          <MonthNav>
+            <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>◀</MonthArrow>
+            <div>
+              <HeaderTitle>{targetYear}年{targetMonth}月</HeaderTitle>
+              <HeaderSub>{isSwitching ? '切替中...' : 'モバイルダッシュボード'}</HeaderSub>
+            </div>
+            <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>▶</MonthArrow>
+          </MonthNav>
           <DesktopLink onClick={handleGoDesktop}>PC版</DesktopLink>
         </Header>
         <EmptyMessage>
@@ -349,10 +376,14 @@ export function MobileDashboardPage() {
     <MobileShell>
       {/* ヘッダー */}
       <Header>
-        <div>
-          <HeaderTitle>{targetYear}年{targetMonth}月 {storeName}</HeaderTitle>
-          <HeaderSub>{r.elapsedDays}日経過 / {daysInMonth}日</HeaderSub>
-        </div>
+        <MonthNav>
+          <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>◀</MonthArrow>
+          <div>
+            <HeaderTitle>{targetYear}年{targetMonth}月 {storeName}</HeaderTitle>
+            <HeaderSub>{isSwitching ? '切替中...' : `${r.elapsedDays}日経過 / ${daysInMonth}日`}</HeaderSub>
+          </div>
+          <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>▶</MonthArrow>
+        </MonthNav>
         <DesktopLink onClick={handleGoDesktop}>PC版</DesktopLink>
       </Header>
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
-import { useImport, useStoreSelection, useSettings, usePersistence } from '@/application/hooks'
+import { useImport, useStoreSelection, useSettings, usePersistence, useStorageAdmin } from '@/application/hooks'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
@@ -15,6 +15,7 @@ import {
   ImportProgressBar,
   ImportProgressSteps,
   ImportSummaryCard,
+  MonthSelector,
 } from '@/presentation/components/common'
 import type { ImportStage } from '@/presentation/components/common'
 import type { ImportSummary } from '@/application/services/FileImportService'
@@ -254,10 +255,21 @@ export function DataManagementSidebar({
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
   const { clearAll } = usePersistence()
+  const { listMonths } = useStorageAdmin()
+  const [storedMonths, setStoredMonths] = useState<readonly { year: number; month: number }[]>([])
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [importStage, setImportStage] = useState<ImportStage>('idle')
   const [lastSummary, setLastSummary] = useState<ImportSummary | null>(null)
+
+  // 保存済み月リストを取得（MonthSelector のデータ有無表示用）
+  useEffect(() => {
+    let cancelled = false
+    listMonths().then((months) => {
+      if (!cancelled) setStoredMonths(months)
+    }).catch(() => { /* ignore */ })
+    return () => { cancelled = true }
+  }, [listMonths, data]) // data 変更時にも再取得（インポート後に反映）
 
   const isSettingsOpen = showSettings || showSettingsExternal
   const closeSettings = useCallback(() => {
@@ -389,6 +401,11 @@ export function DataManagementSidebar({
   return (
     <>
       <Sidebar title="データ管理">
+        <SidebarSection>
+          <SectionLabel>対象年月</SectionLabel>
+          <MonthSelector storedMonths={storedMonths} />
+        </SidebarSection>
+
         <SidebarSection>
           <FileDropZone onFiles={handleFiles} />
           {importStage !== 'idle' && (
