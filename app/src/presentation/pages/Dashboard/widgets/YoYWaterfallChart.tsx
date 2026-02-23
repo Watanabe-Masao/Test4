@@ -3,6 +3,7 @@
  *
  * 前年売上 → 客数効果 → 客単価効果 → 当年売上 の要因分解を表示。
  * 分類別時間帯データがある場合は部門別の増減も表示する。
+ * 期間スライダーで分析対象期間を動的に変更可能。
  */
 import { useState, useMemo } from 'react'
 import styled from 'styled-components'
@@ -10,7 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer, ReferenceLine, LabelList,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toSenYen } from '@/presentation/components/charts'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
@@ -111,44 +112,80 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const prevYear = ctx.prevYear
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
-  // Aggregate total quantity from CTS records
-  const curTotalQty = useMemo(() => {
-    const recs = ctx.categoryTimeSales?.records
-    if (!recs?.length) return 0
-    return recs.reduce((s, r) => s + r.totalQuantity, 0)
-  }, [ctx.categoryTimeSales])
+  // Period slider state
+  const [dayStart, dayEnd, setDayRange] = useDayRange(ctx.daysInMonth)
 
-  const prevTotalQty = useMemo(() => {
+  // 期間指定に基づいて当年の売上・客数を日別データから再集計
+  const periodCurSales = useMemo(() => {
+    let sales = 0
+    let customers = 0
+    for (const [day, rec] of r.daily) {
+      if (day >= dayStart && day <= dayEnd) {
+        sales += rec.sales
+        customers += rec.customers ?? 0
+      }
+    }
+    return { sales, customers }
+  }, [r.daily, dayStart, dayEnd])
+
+  // 期間指定に基づいて前年の売上・客数を日別データから再集計
+  const periodPrevSales = useMemo(() => {
+    let sales = 0
+    let customers = 0
+    for (const [day, entry] of prevYear.daily) {
+      if (day >= dayStart && day <= dayEnd) {
+        sales += entry.sales
+        customers += entry.customers
+      }
+    }
+    return { sales, customers }
+  }, [prevYear.daily, dayStart, dayEnd])
+
+  // 期間指定でCTSレコードをフィルタ
+  const periodCTS = useMemo(() => {
+    const recs = ctx.categoryTimeSales?.records
+    if (!recs?.length) return []
+    return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
+  }, [ctx.categoryTimeSales, dayStart, dayEnd])
+
+  const periodPrevCTS = useMemo(() => {
     const recs = ctx.prevYearCategoryTimeSales?.records
-    if (!recs?.length) return 0
-    return recs.reduce((s, r) => s + r.totalQuantity, 0)
-  }, [ctx.prevYearCategoryTimeSales])
+    if (!recs?.length) return []
+    return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
+  }, [ctx.prevYearCategoryTimeSales, dayStart, dayEnd])
+
+  // Aggregate total quantity from filtered CTS records
+  const curTotalQty = useMemo(() =>
+    periodCTS.reduce((s, rec) => s + rec.totalQuantity, 0), [periodCTS])
+
+  const prevTotalQty = useMemo(() =>
+    periodPrevCTS.reduce((s, rec) => s + rec.totalQuantity, 0), [periodPrevCTS])
 
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 
   // Price/Mix decomposition of unit price change
   const priceMix = useMemo(() => {
-    const curRecs = ctx.categoryTimeSales?.records
-    const prevRecs = ctx.prevYearCategoryTimeSales?.records
-    if (!curRecs?.length || !prevRecs?.length) return null
-    return decomposePriceMix(curRecs, prevRecs)
-  }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales])
+    if (periodCTS.length === 0 || periodPrevCTS.length === 0) return null
+    return decomposePriceMix(periodCTS, periodPrevCTS)
+  }, [periodCTS, periodPrevCTS])
 
   // Available decomposition levels
   const maxLevel: DecompLevel = priceMix ? 5 : hasQuantity ? 3 : 2
   const activeLevel = decompLevel ?? maxLevel
 
+  // Use period-specific aggregated values
+  const curSales = periodCurSales.sales
+  const curCust = periodCurSales.customers
+  const prevSales = periodPrevSales.sales
+  const prevCust = periodPrevSales.customers
+
   // Factor decomposition data (Shapley values)
   const factorData = useMemo((): WaterfallItem[] => {
-    if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
-
-    const prevSales = prevYear.totalSales
-    const curSales = r.totalSales
-    const prevCust = prevYear.totalCustomers
-    const curCust = r.totalCustomers
+    if (!prevYear.hasPrevYear || prevSales <= 0) return []
 
     const items: WaterfallItem[] = []
     items.push({ name: '前年売上', value: prevSales, base: 0, bar: prevSales, isTotal: true })
@@ -178,11 +215,9 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       } else {
         // 5-factor: full 4-variable Shapley
         if (hasQuantity) {
-          const curRecs = ctx.categoryTimeSales?.records ?? []
-          const prevRecs = ctx.prevYearCategoryTimeSales?.records ?? []
           const d = decompose5(
             prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty,
-            recordsToCategoryQtyAmt(curRecs), recordsToCategoryQtyAmt(prevRecs),
+            recordsToCategoryQtyAmt(periodCTS), recordsToCategoryQtyAmt(periodPrevCTS),
           )
           if (d) {
             push('客数効果', d.custEffect)
@@ -198,17 +233,22 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     items.push({ name: '当年売上', value: curSales, base: 0, bar: curSales, isTotal: true })
     return items
-  }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, ctx.categoryTimeSales?.records, ctx.prevYearCategoryTimeSales?.records])
+  }, [prevYear.hasPrevYear, prevSales, curSales, prevCust, curCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, periodCTS, periodPrevCTS])
 
   // Category-based decomposition data
+  // 売上データ（periodPrevSales / periodCurSales）にアンカーし、
+  // 部門差分はCTSから取得。データソース差異は端数調整バーで吸収。
   const categoryData = useMemo((): WaterfallItem[] => {
-    const cts = ctx.categoryTimeSales
-    const prevCTS = ctx.prevYearCategoryTimeSales
-    if (!cts?.records?.length || !prevCTS.hasPrevYear || !prevCTS.records.length) return []
+    if (periodCTS.length === 0 || periodPrevCTS.length === 0) return []
+    if (!prevYear.hasPrevYear || prevSales <= 0) return []
 
-    // Aggregate by department
+    // アンカー: 日別データ由来の合計
+    const anchorPrev = prevSales
+    const anchorCur = curSales
+
+    // Aggregate by department (CTS由来)
     const curDepts = new Map<string, { name: string; amount: number }>()
-    for (const rec of cts.records) {
+    for (const rec of periodCTS) {
       const code = rec.department.code
       const ex = curDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
       ex.amount += rec.totalAmount
@@ -216,15 +256,12 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     }
 
     const prevDepts = new Map<string, { name: string; amount: number }>()
-    for (const rec of prevCTS.records) {
+    for (const rec of periodPrevCTS) {
       const code = rec.department.code
       const ex = prevDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
       ex.amount += rec.totalAmount
       prevDepts.set(code, ex)
     }
-
-    const prevTotal = [...prevDepts.values()].reduce((s, d) => s + d.amount, 0)
-    if (prevTotal <= 0) return []
 
     // Build items sorted by absolute difference (largest impact first)
     const allCodes = new Set([...curDepts.keys(), ...prevDepts.keys()])
@@ -241,17 +278,17 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     const items: WaterfallItem[] = []
 
-    // Start: previous year total
+    // Start: 前年売上（売上データにアンカー）
     items.push({
-      name: '前年合計',
-      value: prevTotal,
+      name: '前年売上',
+      value: anchorPrev,
       base: 0,
-      bar: prevTotal,
+      bar: anchorPrev,
       isTotal: true,
     })
 
     // Department differences
-    let running = prevTotal
+    let running = anchorPrev
     for (const d of diffs.slice(0, 8)) {
       items.push({
         name: d.name,
@@ -277,28 +314,40 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       }
     }
 
-    // End: current year total
-    const curTotal = [...curDepts.values()].reduce((s, d) => s + d.amount, 0)
+    // データソース差異の端数調整
+    // CTS合計と売上データ合計は別ファイル由来のため完全一致しない場合がある
+    const residual = anchorCur - running
+    if (Math.abs(residual) >= 1) {
+      items.push({
+        name: '端数調整',
+        value: residual,
+        base: residual >= 0 ? running : running + residual,
+        bar: Math.abs(residual),
+      })
+      running += residual
+    }
+
+    // End: 当年売上（売上データにアンカー）
     items.push({
-      name: '当年合計',
-      value: curTotal,
+      name: '当年売上',
+      value: anchorCur,
       base: 0,
-      bar: curTotal,
+      bar: anchorCur,
       isTotal: true,
     })
 
     return items
-  }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales])
+  }, [periodCTS, periodPrevCTS, prevYear.hasPrevYear, prevSales, curSales])
 
-  if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return null
+  if (!prevYear.hasPrevYear || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.length > 0
   const hasCategoryFactorView = hasQuantity && hasCategoryView
   const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
   if (data.length === 0 && viewMode !== 'categoryFactor') return null
 
-  const yoyRatio = safeDivide(r.totalSales, prevYear.totalSales, 0)
-  const yoyDiff = r.totalSales - prevYear.totalSales
+  const yoyRatio = safeDivide(curSales, prevSales, 0)
+  const yoyDiff = curSales - prevSales
 
   const colors = {
     positive: '#22c55e',
@@ -312,6 +361,15 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       <Subtitle>
         前年売上から当年売上への変動要因を可視化
       </Subtitle>
+
+      <DayRangeSlider
+        min={1}
+        max={ctx.daysInMonth}
+        start={dayStart}
+        end={dayEnd}
+        onChange={setDayRange}
+        elapsedDays={ctx.elapsedDays}
+      />
 
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
@@ -350,11 +408,11 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       <SummaryRow>
         <SummaryItem>
           <SummaryLabel>前年売上</SummaryLabel>
-          <SummaryValue>{formatCurrency(prevYear.totalSales)}</SummaryValue>
+          <SummaryValue>{formatCurrency(prevSales)}</SummaryValue>
         </SummaryItem>
         <SummaryItem>
           <SummaryLabel>当年売上</SummaryLabel>
-          <SummaryValue>{formatCurrency(r.totalSales)}</SummaryValue>
+          <SummaryValue>{formatCurrency(curSales)}</SummaryValue>
         </SummaryItem>
         <SummaryItem>
           <SummaryLabel>前年差</SummaryLabel>
@@ -372,10 +430,10 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
       {viewMode === 'categoryFactor' ? (
         <CategoryFactorBreakdown
-          curRecords={ctx.categoryTimeSales?.records ?? []}
-          prevRecords={ctx.prevYearCategoryTimeSales?.records ?? []}
-          curCustomers={r.totalCustomers}
-          prevCustomers={prevYear.totalCustomers}
+          curRecords={periodCTS}
+          prevRecords={periodPrevCTS}
+          curCustomers={curCust}
+          prevCustomers={prevCust}
         />
       ) : (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={360}>
@@ -395,7 +453,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toSenYen}
+              tickFormatter={fmt}
             />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
@@ -411,7 +469,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
               <LabelList
                 dataKey="value"
                 position="top"
-                formatter={(v: unknown) => toSenYen(Number(v))}
+                formatter={(v: unknown) => fmt(Number(v))}
                 style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
               />
               {data.map((item, idx) => (

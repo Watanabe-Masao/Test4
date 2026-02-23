@@ -14,7 +14,7 @@ import {
   Cell,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
@@ -78,6 +78,7 @@ interface Props {
 /** 粗利推移チャート（額+率 / 率のみ 切替） */
 export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, targetRate, warningRate }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [gpView, setGpView] = useState<GpView>('amountRate')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
@@ -148,7 +149,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={55}
             />
             <YAxis
@@ -183,7 +184,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 label={{
-                  value: `粗利予算 ${toManYen(grossProfitBudget)}`,
+                  value: `粗利予算 ${fmt(grossProfitBudget)}`,
                   position: 'right',
                   fill: ct.colors.warning,
                   fontSize: ct.fontSize.xs,

@@ -4,7 +4,7 @@ import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary } from '@/present
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { CategoryHierarchyProvider } from '@/presentation/components/charts'
+import { CategoryHierarchyProvider, CurrencyUnitToggle } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -186,6 +186,7 @@ export function DashboardPage() {
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,
+    elapsedDays: r.elapsedDays,
     departmentKpi: appState.data.departmentKpi,
     prevYearCategoryTimeSales: filteredPrevYearCTS,
   }
@@ -227,6 +228,7 @@ export function DashboardPage() {
     <CategoryHierarchyProvider>
     <MainContent title="ダッシュボード" storeName={storeName}>
       <Toolbar>
+        <CurrencyUnitToggle />
         <ChipGroup>
           <Chip $active={editMode} onClick={() => setEditMode(!editMode)}>
             {editMode ? '編集完了' : '並べ替え'}

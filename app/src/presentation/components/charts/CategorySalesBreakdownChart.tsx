@@ -11,7 +11,7 @@ import {
   LabelList,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import type { CategoryTimeSalesData } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
@@ -97,6 +97,7 @@ interface Props {
 /** 部門・ライン・クラス別売上チャート */
 export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [level, setLevel] = useState<Level>('department')
   const [metric, setMetric] = useState<Metric>('amount')
   const { filter } = useCategoryHierarchy()
@@ -224,7 +225,7 @@ export function CategorySalesBreakdownChart({ categoryTimeSales, selectedStoreId
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={metric === 'amount' ? toManYen : (v: number) => `${toComma(v)}点`}
+            tickFormatter={metric === 'amount' ? fmt : (v: number) => `${toComma(v)}点`}
           />
           <YAxis
             type="category"

@@ -14,7 +14,7 @@ import {
   Cell,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
@@ -236,6 +236,7 @@ interface Props {
 
 export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [view, setView] = useState<BudgetViewType>('line')
   const totalDaysForSlider = daysInMonth ?? data.length
   const [rangeStart, rangeEnd, setRange] = useDayRange(totalDaysForSlider)
@@ -347,12 +348,12 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
         <SummaryRow>
           <Metric>
             <MetricLabel>実績累計</MetricLabel>
-            <MetricValue>{toManYen(currentActual)}円</MetricValue>
+            <MetricValue>{fmt(currentActual)}円</MetricValue>
           </Metric>
           <ProgressBarWrap>
             <ProgressLabel>
               <span>予算進捗 {toPct(progressRate)}</span>
-              <span>{toManYen(currentBudgetCum)}円 / {toManYen(budget)}円</span>
+              <span>{fmt(currentBudgetCum)}円 / {fmt(budget)}円</span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={progressRate * 100} $color={paceColor} />
@@ -360,7 +361,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </ProgressBarWrap>
           <Metric>
             <MetricLabel>着地見込</MetricLabel>
-            <MetricValue $color={projColor}>{toManYen(projected)}円 ({toPct(projectedAchievement)})</MetricValue>
+            <MetricValue $color={projColor}>{fmt(projected)}円 ({toPct(projectedAchievement)})</MetricValue>
           </Metric>
         </SummaryRow>
       )}
@@ -369,17 +370,17 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
         <SummaryRow>
           <Metric>
             <MetricLabel>当年累計</MetricLabel>
-            <MetricValue>{toManYen(currentActual)}円</MetricValue>
+            <MetricValue>{fmt(currentActual)}円</MetricValue>
           </Metric>
           <Metric>
             <MetricLabel>前年同曜日累計</MetricLabel>
-            <MetricValue>{toManYen(latestPrevYearCum)}円</MetricValue>
+            <MetricValue>{fmt(latestPrevYearCum)}円</MetricValue>
           </Metric>
           {prevYearDiffAmt != null && (
             <Metric>
               <MetricLabel>前年差</MetricLabel>
               <MetricValue $color={prevYearDiffAmt >= 0 ? ct.colors.success : ct.colors.danger}>
-                {prevYearDiffAmt >= 0 ? '+' : ''}{toManYen(prevYearDiffAmt)}円
+                {prevYearDiffAmt >= 0 ? '+' : ''}{fmt(prevYearDiffAmt)}円
                 {prevYearGrowth != null && ` (${prevYearGrowth >= 0 ? '+' : ''}${prevYearGrowth.toFixed(1)}%)`}
               </MetricValue>
             </Metric>
@@ -418,7 +419,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={toManYen}
+                tickFormatter={fmt}
                 width={55}
               />
             )}
@@ -430,7 +431,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={toManYen}
+                tickFormatter={fmt}
                 width={55}
               />
             )}
@@ -491,7 +492,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                     yAxisId="left" y={budget}
                     stroke={ct.colors.warning} strokeDasharray="4 4" strokeWidth={1.5}
                     label={{
-                      value: `月間予算 ${toManYen(budget)}`,
+                      value: `月間予算 ${fmt(budget)}`,
                       position: 'right',
                       fill: ct.colors.warning,
                       fontSize: ct.fontSize.xs,
@@ -574,7 +575,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                     yAxisId="left" y={budget}
                     stroke={ct.colors.warning} strokeDasharray="4 4" strokeWidth={1.5}
                     label={{
-                      value: `月間予算 ${toManYen(budget)}`,
+                      value: `月間予算 ${fmt(budget)}`,
                       position: 'right',
                       fill: ct.colors.warning,
                       fontSize: ct.fontSize.xs,

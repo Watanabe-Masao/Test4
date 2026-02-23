@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { SalesPurchaseComparisonChart } from './SalesPurchaseComparisonChart'
 import { computeEstimatedInventory } from './inventoryCalc'
@@ -91,6 +91,7 @@ export function InventoryTrendChart({
   stores,
 }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   // 比較可能な店舗（2店舗以上選択されている場合）
@@ -182,7 +183,7 @@ export function InventoryTrendChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={55}
             />
           )}
@@ -193,7 +194,7 @@ export function InventoryTrendChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={55}
           />
           <Tooltip
@@ -257,7 +258,7 @@ export function InventoryTrendChart({
               strokeDasharray="6 3"
               strokeWidth={1}
               label={{
-                value: `期首 ${toManYen(openingInventory!)}`,
+                value: `期首 ${fmt(openingInventory!)}`,
                 position: 'left',
                 fill: ct.colors.info,
                 fontSize: ct.fontSize.xs,
@@ -273,7 +274,7 @@ export function InventoryTrendChart({
               strokeDasharray="4 4"
               strokeWidth={1}
               label={{
-                value: `実在庫 ${toManYen(closingInventory)}`,
+                value: `実在庫 ${fmt(closingInventory)}`,
                 position: 'right',
                 fill: ct.colors.success,
                 fontSize: ct.fontSize.xs,

@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
@@ -109,6 +109,7 @@ interface Props {
 /** 部門/ライン/クラス別 時間帯パターンチャート */
 export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [groupLevel, setGroupLevel] = useState<GroupLevel>('department')
   const [topN, setTopN] = useState(5)
@@ -306,7 +307,7 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <Tooltip

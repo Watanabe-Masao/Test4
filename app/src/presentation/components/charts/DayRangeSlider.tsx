@@ -135,18 +135,28 @@ const ResetBtn = styled.button`
   }
 `
 
+const WarningLabel = styled.span`
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.palette.warning};
+  white-space: nowrap;
+  font-weight: 600;
+`
+
 interface Props {
   min: number
   max: number
   start: number
   end: number
   onChange: (start: number, end: number) => void
+  /** 取込データ有効期間（経過日数）。超過時に警告表示 */
+  elapsedDays?: number
 }
 
-export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
+export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: Props) {
   const leftPct = ((start - min) / (max - min)) * 100
   const rightPct = ((max - end) / (max - min)) * 100
   const isFullRange = start === min && end === max
+  const exceedsValidPeriod = elapsedDays != null && elapsedDays > 0 && end > elapsedDays
 
   const handleStartInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = Number(e.target.value)
@@ -206,6 +216,9 @@ export function DayRangeSlider({ min, max, start, end, onChange }: Props) {
       <UnitLabel>日</UnitLabel>
       {!isFullRange && (
         <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>
+      )}
+      {exceedsValidPeriod && (
+        <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>
       )}
     </SliderRow>
   )

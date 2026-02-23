@@ -11,7 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
-import { useChartTheme, toSenYen } from '@/presentation/components/charts'
+import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import {
   decompose2,
@@ -305,6 +305,7 @@ export function CategoryFactorBreakdown({
 }) {
   const hasCust = curCustomers > 0 && prevCustomers > 0
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [drillPath, setDrillPath] = useState<PathEntry[]>([])
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
@@ -577,7 +578,7 @@ export function CategoryFactorBreakdown({
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} horizontal={false} />
           <XAxis
             type="number"
-            tickFormatter={toSenYen}
+            tickFormatter={fmt}
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted, fontFamily: ct.monoFamily }}
             axisLine={{ stroke: ct.grid }}
           />

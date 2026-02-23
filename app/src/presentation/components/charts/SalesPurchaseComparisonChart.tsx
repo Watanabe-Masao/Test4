@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventory } from './inventoryCalc'
 import type { Store, StoreResult } from '@/domain/models'
@@ -93,6 +93,7 @@ export function SalesPurchaseComparisonChart({
   headerExtra,
 }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const storeEntries = useMemo(
@@ -168,7 +169,7 @@ export function SalesPurchaseComparisonChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={55}
             />
           )}
@@ -179,7 +180,7 @@ export function SalesPurchaseComparisonChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={55}
           />
           <Tooltip

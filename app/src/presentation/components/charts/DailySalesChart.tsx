@@ -14,7 +14,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations'
@@ -136,6 +136,7 @@ const WF_VIEWS: ViewType[] = ['standard', 'salesOnly', 'discountOnly', 'customer
 
 export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
   const [showSalesMa, setShowSalesMa] = useState(false)
   const [waterfall, setWaterfall] = useState(false)
@@ -327,7 +328,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : view === 'txValue' ? (v: number) => `${toComma(v)}円` : toManYen}
+            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : view === 'txValue' ? (v: number) => `${toComma(v)}円` : fmt}
             width={view === 'txValue' ? 60 : 50}
           />
           {needRightAxis && (
@@ -337,7 +338,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => toPct(v) : toManYen}
+              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => toPct(v) : fmt}
               width={view === 'customers' || view === 'discountImpact' ? 55 : 45}
             />
           )}

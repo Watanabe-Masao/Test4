@@ -12,7 +12,7 @@ import {
   Cell,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
@@ -48,6 +48,7 @@ interface Props {
 /** 予算差・前年差 累計推移チャート */
 export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const totalDays = daysInMonth ?? data.length
   const [rangeStart, rangeEnd, setRange] = useDayRange(totalDays)
 
@@ -98,7 +99,7 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={55}
           />
           <ReferenceLine y={0} stroke={ct.grid} strokeWidth={1.5} />

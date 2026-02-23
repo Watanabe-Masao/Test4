@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toManYen, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
@@ -17,6 +17,7 @@ export function StoreComparisonCategoryBarChart({
   storeNames: Map<string, string>
 }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   const data = CATEGORY_ORDER
     .filter((cat) => selectedResults.some((sr) => sr.categoryTotals.has(cat)))
@@ -46,7 +47,7 @@ export function StoreComparisonCategoryBarChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <Tooltip

@@ -7,7 +7,7 @@ import {
   ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line,
   type PieLabelRenderProps,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toManYen, toPct } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
@@ -149,6 +149,7 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
 /** 構成比チャート（円グラフ / パレート図 切替） */
 export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [mode, setMode] = useState<PieMode>('cost')
   const [view, setView] = useState<ChartView>('pie')
 
@@ -216,7 +217,7 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               yAxisId="left"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false} tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={50}
             />
             <YAxis
