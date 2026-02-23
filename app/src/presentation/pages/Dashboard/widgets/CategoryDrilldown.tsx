@@ -34,6 +34,7 @@ export function CategoryDrilldown({
   actual, ach, pySales, hasPrevYearSales,
   cumSales, cumAch, cumPrevYear,
   year, month, day,
+  wowRecords, wowCumRecords, wowPrevSales, wowCumPrevSales, canWoW,
 }: {
   records: readonly CategoryTimeSalesRecord[]
   prevRecords: readonly CategoryTimeSalesRecord[]
@@ -44,6 +45,11 @@ export function CategoryDrilldown({
   actual: number; ach: number; pySales: number; hasPrevYearSales: boolean
   cumSales: number; cumAch: number; cumPrevYear: number
   year: number; month: number; day: number
+  wowRecords?: readonly CategoryTimeSalesRecord[]
+  wowCumRecords?: readonly CategoryTimeSalesRecord[]
+  wowPrevSales?: number
+  wowCumPrevSales?: number
+  canWoW?: boolean
 }) {
   const [filter, setFilter] = useState<HierarchyFilter>({})
   const [sortKey, setSortKey] = useState<SortKey>('amount')
@@ -53,10 +59,18 @@ export function CategoryDrilldown({
   const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
   const [segTooltip, setSegTooltip] = useState<{ x: number; y: number; content: React.ReactNode } | null>(null)
   const [drillSourceRow, setDrillSourceRow] = useState<'actual' | 'prev'>('actual')
+  const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
 
   const currentLevel = getHierarchyLevel(filter)
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
   const hasPrevYear = prevRecords.length > 0 || cumPrevRecords.length > 0 || hasPrevYearSales
+  const activeCompMode = compMode === 'wow' && !canWoW ? 'yoy' as const : compMode
+  const compPrevLabel = activeCompMode === 'wow' ? '前週' : '前年'
+  const hasComp = activeCompMode === 'wow'
+    ? canWoW === true && ((wowRecords ?? []).length > 0 || (wowPrevSales ?? 0) > 0)
+    : hasPrevYear
+  const effectivePySales = activeCompMode === 'wow' ? (wowPrevSales ?? 0) : pySales
+  const effectiveCumPrevYear = activeCompMode === 'wow' ? (wowCumPrevSales ?? 0) : cumPrevYear
 
   const breadcrumb = useMemo(() => {
     const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
@@ -71,9 +85,17 @@ export function CategoryDrilldown({
   }, [filter])
 
   const dayFiltered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
-  const dayFilteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(prevRecords, filter) : [], [prevRecords, filter, hasPrevYear])
+  const dayFilteredPrev = useMemo(() => {
+    if (!hasComp) return []
+    const recs = activeCompMode === 'wow' ? (wowRecords ?? []) : prevRecords
+    return filterByHierarchy(recs, filter)
+  }, [hasComp, activeCompMode, wowRecords, prevRecords, filter])
   const cumFiltered = useMemo(() => filterByHierarchy(cumRecords, filter), [cumRecords, filter])
-  const cumFilteredPrev = useMemo(() => hasPrevYear ? filterByHierarchy(cumPrevRecords, filter) : [], [cumPrevRecords, filter, hasPrevYear])
+  const cumFilteredPrev = useMemo(() => {
+    if (!hasComp) return []
+    const recs = activeCompMode === 'wow' ? (wowCumRecords ?? []) : cumPrevRecords
+    return filterByHierarchy(recs, filter)
+  }, [hasComp, activeCompMode, wowCumRecords, cumPrevRecords, filter])
 
   const levelColorMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -95,12 +117,12 @@ export function CategoryDrilldown({
   }, [records, cumRecords, cumFiltered, dayFiltered, currentLevel])
 
   const dayItems = useMemo(
-    () => buildDrillItems(dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear),
-    [dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear],
+    () => buildDrillItems(dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasComp),
+    [dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasComp],
   )
   const cumItemsList = useMemo(
-    () => buildDrillItems(cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear),
-    [cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasPrevYear],
+    () => buildDrillItems(cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasComp),
+    [cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasComp],
   )
 
   const items = compare === 'daily' ? dayItems : cumItemsList
@@ -159,7 +181,7 @@ export function CategoryDrilldown({
   const isAmountMode = metric === 'amount'
   const displayTotal = isAmountMode ? displayPrimaryAmt : displayPrimaryQty
   const displayYoY = isAmountMode ? totalYoY : totalQtyYoY
-  const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${isPrevSource ? '前年' : '実績'}`
+  const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${isPrevSource ? compPrevLabel : '実績'}`
   const fmtVal = isAmountMode ? (v: number) => `${toComma(v)}円` : (v: number) => `${v.toLocaleString()}点`
 
   const renderBarSection = (
@@ -193,7 +215,7 @@ export function CategoryDrilldown({
       const curVal = isAmountMode ? it.amount : it.quantity
       const diff = isPrev ? undefined : (curVal - prevVal)
       const yoy = isPrev ? undefined : (prevVal > 0 ? formatPercent(curVal / prevVal, 2) : undefined)
-      const rowLabel = isPrev ? '前年' : '実績'
+      const rowLabel = isPrev ? compPrevLabel : '実績'
       return (
         <>
           <div style={{ fontWeight: 600, marginBottom: 2, borderBottom: '1px solid rgba(128,128,128,0.3)', paddingBottom: 2 }}>
@@ -203,9 +225,9 @@ export function CategoryDrilldown({
           <div>販売金額: {fmtSen(isAmountMode ? val : (isPrev ? (it.prevAmount ?? 0) : it.amount))}</div>
           {!isAmountMode && <div>数量: {val.toLocaleString()}点</div>}
           {!isPrev && diff != null && (
-            <div>前年差: {diff >= 0 ? '+' : ''}{isAmountMode ? fmtSen(diff) : `${diff.toLocaleString()}点`}</div>
+            <div>{compPrevLabel}差: {diff >= 0 ? '+' : ''}{isAmountMode ? fmtSen(diff) : `${diff.toLocaleString()}点`}</div>
           )}
-          {!isPrev && yoy && <div>前年比: {yoy}</div>}
+          {!isPrev && yoy && <div>{compPrevLabel}比: {yoy}</div>}
           {isPrev && curVal > 0 && (
             <div>実績: {isAmountMode ? fmtSen(curVal) : `${curVal.toLocaleString()}点`}</div>
           )}
@@ -266,9 +288,9 @@ export function CategoryDrilldown({
           </StackTotal>
           {isActualActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
-        {hasPrevYear && pyVal > 0 && (
+        {hasComp && pyVal > 0 && (
           <StackRow $active={isPrevActive} onClick={() => handleRowSelect(period, 'prev')}>
-            <StackLabel>前年</StackLabel>
+            <StackLabel>{compPrevLabel}</StackLabel>
             <StackTrack>
               {barItems.map((it) => {
                 const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
@@ -326,10 +348,19 @@ export function CategoryDrilldown({
           <ToggleBtn $active={compare === 'daily'} onClick={() => { setCompare('daily'); setDrillSourceRow('actual') }}>単日</ToggleBtn>
           <ToggleBtn $active={compare === 'cumulative'} onClick={() => { setCompare('cumulative'); setDrillSourceRow('actual') }}>累計</ToggleBtn>
         </ToggleGroup>
+        <ToggleLabel>比較期間</ToggleLabel>
+        <ToggleGroup>
+          <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年</ToggleBtn>
+          <ToggleBtn
+            $active={compMode === 'wow'}
+            onClick={() => { if (canWoW) setCompMode('wow') }}
+            style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+          >前週</ToggleBtn>
+        </ToggleGroup>
         <ToggleLabel>データソース</ToggleLabel>
         <ToggleGroup>
           <ToggleBtn $active={drillSourceRow === 'actual'} onClick={() => setDrillSourceRow('actual')}>実績</ToggleBtn>
-          <ToggleBtn $active={drillSourceRow === 'prev'} onClick={() => setDrillSourceRow('prev')}>前年</ToggleBtn>
+          <ToggleBtn $active={drillSourceRow === 'prev'} onClick={() => setDrillSourceRow('prev')}>{compPrevLabel}</ToggleBtn>
         </ToggleGroup>
       </ToggleBar>
 
@@ -348,16 +379,16 @@ export function CategoryDrilldown({
       <SummaryRow>
         <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
         <SumItem><SumLabel>合計（{drillSourceLabel}）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
-        {hasPrevYear && !isPrevSource && displayYoY != null && (
+        {hasComp && !isPrevSource && displayYoY != null && (
           <SumItem>
-            <SumLabel>前年比</SumLabel>
+            <SumLabel>{compPrevLabel}比</SumLabel>
             <SumValue><YoYVal $positive={displayYoY >= 1}>{formatPercent(displayYoY, 2)}</YoYVal></SumValue>
           </SumItem>
         )}
       </SummaryRow>
 
-      {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, pySales, 'day-', 'daily')}
-      {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-', 'cumulative')}
+      {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, effectivePySales, 'day-', 'daily')}
+      {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, effectiveCumPrevYear, 'cum-', 'cumulative')}
       {hoveredSeg && segTooltip && createPortal(
         <SegmentTooltip style={{
           left: segTooltip.x, top: segTooltip.y,
@@ -398,10 +429,10 @@ export function CategoryDrilldown({
             <DTh $sortable onClick={() => handleSort('quantity')}>
               {isAmountMode ? '数量' : '売上金額'}{arrow('quantity')}
             </DTh>
-            {hasPrevYear && (
+            {hasComp && (
               <>
-                <DTh>{isPrevSource ? '実績' : '前年'}</DTh>
-                <DTh $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</DTh>
+                <DTh>{isPrevSource ? '実績' : compPrevLabel}</DTh>
+                <DTh $sortable onClick={() => handleSort('yoyRatio')}>{compPrevLabel}比{arrow('yoyRatio')}</DTh>
               </>
             )}
             {canDrill && <DTh />}
@@ -434,7 +465,7 @@ export function CategoryDrilldown({
                   </DTdAmt>
                   <DTd $mono>{pctVal.toFixed(2)}%</DTd>
                   <DTd $mono>{isAmountMode ? `${subVal.toLocaleString()}点` : `${toComma(subVal)}円`}</DTd>
-                  {hasPrevYear && (
+                  {hasComp && (
                     <>
                       <DTd $mono>{counterpartVal > 0 ? fmtVal(counterpartVal) : '-'}</DTd>
                       <DTd $mono>

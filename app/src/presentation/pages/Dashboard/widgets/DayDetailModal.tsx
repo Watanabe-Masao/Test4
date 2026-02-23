@@ -92,6 +92,18 @@ export function DayDetailModal({
     () => canWoW ? categoryRecords.filter((r) => r.day === wowPrevDay) : [],
     [categoryRecords, wowPrevDay, canWoW],
   )
+  const wowCumRecords = useMemo(
+    () => canWoW ? categoryRecords.filter((r) => r.day <= wowPrevDay) : [],
+    [categoryRecords, wowPrevDay, canWoW],
+  )
+  const wowCumPrevSales = useMemo(() => {
+    if (!canWoW || !dailyMap) return 0
+    let sum = 0
+    for (let d = 1; d <= wowPrevDay; d++) {
+      sum += dailyMap.get(d)?.sales ?? 0
+    }
+    return sum
+  }, [canWoW, dailyMap, wowPrevDay])
 
   // ── 比較用メトリクス（モードに応じて切替） ──
   const compSales = activeCompMode === 'wow' ? wowPrevSales : pySales
@@ -243,6 +255,11 @@ export function DayDetailModal({
                 year={year}
                 month={month}
                 day={day}
+                wowRecords={wowPrevDayRecords}
+                wowCumRecords={wowCumRecords}
+                wowPrevSales={wowPrevSales}
+                wowCumPrevSales={wowCumPrevSales}
+                canWoW={canWoW}
               />
             )}
 
