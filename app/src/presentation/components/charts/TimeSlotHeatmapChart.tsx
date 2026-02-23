@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment } from 'react'
+import { useState, useMemo, useEffect, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { toPct } from './chartTheme'
@@ -228,16 +228,36 @@ interface Props {
 /** 時間帯×曜日 売上ヒートマップ（前年比較モード対応） */
 export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearRecords, dataMaxDay }: Props) {
   const { filter } = useCategoryHierarchy()
+  const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
-  const prevPeriodRecords = useMemo(
-    () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],
-    [prevYearRecords, pf],
-  )
+
+  // WoW: 前週期間 (dayRange を -7 日シフト)
+  const wowPrevStart = pf.dayRange[0] - 7
+  const wowPrevEnd = pf.dayRange[1] - 7
+  const canWoW = wowPrevStart >= 1
+
+  // 日付範囲変更で canWoW が false になった場合、yoy にフォールバック
+  useEffect(() => {
+    if (compMode === 'wow' && !canWoW) setCompMode('yoy')
+  }, [compMode, canWoW])
+
+  // 比較期間レコード（前年比 or 前週比で切替）
+  const prevPeriodRecords = useMemo(() => {
+    if (compMode === 'wow' && canWoW) {
+      return categoryTimeSales.records.filter(
+        (rec) => rec.day >= wowPrevStart && rec.day <= wowPrevEnd,
+      )
+    }
+    return prevYearRecords ? pf.filterRecords(prevYearRecords) : []
+  }, [compMode, canWoW, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('amount')
+
+  // 動的ラベル
+  const prevLbl = compMode === 'wow' ? '前週' : '前年'
 
   // 前年データがカバーする日の集合（前年比モード用）
   const prevDaySet = useMemo(
@@ -246,8 +266,12 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   )
   // 前年と重複する日のみの当年レコード（前年比の分母分子を揃える）
   const comparablePeriodRecords = useMemo(
-    () => hasPrevYear ? periodRecords.filter((r) => prevDaySet.has(r.day)) : periodRecords,
-    [periodRecords, prevDaySet, hasPrevYear],
+    () => {
+      if (!hasPrevYear) return periodRecords
+      if (compMode === 'wow') return periodRecords // WoW: both periods same coverage
+      return periodRecords.filter((r) => prevDaySet.has(r.day))
+    },
+    [periodRecords, prevDaySet, hasPrevYear, compMode],
   )
 
   const curData = useMemo(
@@ -293,14 +317,22 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
     <Wrapper>
       <HeaderRow>
         <Title>
-          時間帯×曜日 {showDiff ? '前年比増減' : '売上ヒートマップ'}{modeLabel}
+          時間帯×曜日 {showDiff ? `${prevLbl}比増減` : '売上ヒートマップ'}{modeLabel}
         </Title>
-        {hasPrevYear && (
-          <TabGroup>
-            <Tab $active={heatmapMode === 'amount'} onClick={() => setHeatmapMode('amount')}>売上</Tab>
-            <Tab $active={heatmapMode === 'yoyDiff'} onClick={() => setHeatmapMode('yoyDiff')}>前年比</Tab>
-          </TabGroup>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {hasPrevYear && (
+            <TabGroup>
+              <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</Tab>
+              <Tab $active={compMode === 'wow'} onClick={() => { if (canWoW) setCompMode('wow') }} style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}>前週比</Tab>
+            </TabGroup>
+          )}
+          {hasPrevYear && (
+            <TabGroup>
+              <Tab $active={heatmapMode === 'amount'} onClick={() => setHeatmapMode('amount')}>売上</Tab>
+              <Tab $active={heatmapMode === 'yoyDiff'} onClick={() => setHeatmapMode('yoyDiff')}>{prevLbl}比</Tab>
+            </TabGroup>
+          )}
+        </div>
       </HeaderRow>
 
       <HeatGrid style={{ gridTemplateColumns: `50px repeat(${DOW_LABELS.length}, 1fr)` }}>

@@ -5,6 +5,36 @@ import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
+/** 比較モード: 前年比 (yoy) / 前週比 (wow) */
+export type ComparisonMode = 'yoy' | 'wow'
+
+/** 前週比の比較期間を算出する。dayStart-7日 ～ dayEnd-7日。 */
+export function wowPrevRange(dayStart: number, dayEnd: number): {
+  prevStart: number
+  prevEnd: number
+  isValid: boolean
+} {
+  const prevStart = dayStart - 7
+  const prevEnd = dayEnd - 7
+  return { prevStart, prevEnd, isValid: prevStart >= 1 }
+}
+
+/** 比較モードに応じたラベルを返す */
+export function comparisonLabels(
+  mode: ComparisonMode,
+  year: number,
+  dayStart: number,
+  dayEnd: number,
+): { curLabel: string; prevLabel: string } {
+  if (mode === 'yoy') {
+    return { curLabel: `${year}年`, prevLabel: `${year - 1}年` }
+  }
+  const { prevStart, prevEnd } = wowPrevRange(dayStart, dayEnd)
+  const curRange = dayStart === dayEnd ? `${dayStart}日` : `${dayStart}-${dayEnd}日`
+  const prevRange = prevStart === prevEnd ? `${prevStart}日` : `${prevStart}-${prevEnd}日`
+  return { curLabel: curRange, prevLabel: prevRange }
+}
+
 export interface WidgetDef {
   readonly id: string
   readonly label: string

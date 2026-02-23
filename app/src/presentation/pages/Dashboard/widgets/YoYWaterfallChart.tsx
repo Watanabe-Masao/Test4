@@ -1,11 +1,12 @@
 /**
- * 前年比較ウォーターフォールチャート
+ * 比較ウォーターフォールチャート（前年比 / 前週比 対応）
  *
- * 前年売上 → 客数効果 → 客単価効果 → 当年売上 の要因分解を表示。
+ * 基準売上 → 客数効果 → 客単価効果 → 当期売上 の要因分解を表示。
  * 分類別時間帯データがある場合は部門別の増減も表示する。
  * 期間スライダーで分析対象期間を動的に変更可能。
+ * 前週比モード: 選択期間の7日前と比較。
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
@@ -15,7 +16,8 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useD
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
-import type { WidgetContext } from './types'
+import type { WidgetContext, ComparisonMode } from './types'
+import { wowPrevRange, comparisonLabels } from './types'
 
 const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
@@ -90,6 +92,30 @@ interface WaterfallItem {
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
 type DecompLevel = 2 | 3 | 5
 
+const ModeRow = styled.div`
+  display: flex;
+  gap: 2px;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: 8px;
+  padding: 2px;
+  width: fit-content;
+`
+
+const ModeBtn = styled.button<{ $active: boolean }>`
+  padding: 4px 14px;
+  border-radius: 6px;
+  border: none;
+  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  color: ${({ $active }) => $active ? '#fff' : 'inherit'};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  cursor: pointer;
+  font-weight: ${({ $active }) => $active ? 600 : 400};
+  white-space: nowrap;
+  transition: all 0.15s;
+  &:hover { opacity: 0.85; }
+`
+
 const DecompRow = styled.div`
   display: flex;
   gap: 4px;
@@ -115,9 +141,21 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
+  const [compMode, setCompMode] = useState<ComparisonMode>('yoy')
 
   // Period slider state
   const [dayStart, dayEnd, setDayRange] = useDayRange(ctx.daysInMonth)
+
+  // WoW availability check
+  const wowRange = wowPrevRange(dayStart, dayEnd)
+  const canWoW = wowRange.isValid
+
+  // 日付範囲変更で canWoW が false になった場合、yoy にフォールバック
+  useEffect(() => {
+    if (compMode === 'wow' && !canWoW) setCompMode('yoy')
+  }, [compMode, canWoW])
+
+  const labels = comparisonLabels(compMode, ctx.year, dayStart, dayEnd)
 
   // 期間指定に基づいて当年の売上・客数を日別データから再集計
   const periodCurSales = useMemo(() => {
@@ -132,18 +170,29 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     return { sales, customers }
   }, [r.daily, dayStart, dayEnd])
 
-  // 期間指定に基づいて前年の売上・客数を日別データから再集計
+  // 比較期間の売上・客数（前年比 or 前週比で切替）
   const periodPrevSales = useMemo(() => {
     let sales = 0
     let customers = 0
-    for (const [day, entry] of prevYear.daily) {
-      if (day >= dayStart && day <= dayEnd) {
-        sales += entry.sales
-        customers += entry.customers
+    if (compMode === 'wow') {
+      // 前週比: 同月の dayStart-7 ~ dayEnd-7
+      for (const [day, rec] of r.daily) {
+        if (day >= wowRange.prevStart && day <= wowRange.prevEnd) {
+          sales += rec.sales
+          customers += rec.customers ?? 0
+        }
+      }
+    } else {
+      // 前年比
+      for (const [day, entry] of prevYear.daily) {
+        if (day >= dayStart && day <= dayEnd) {
+          sales += entry.sales
+          customers += entry.customers
+        }
       }
     }
     return { sales, customers }
-  }, [prevYear.daily, dayStart, dayEnd])
+  }, [compMode, r.daily, prevYear.daily, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // 期間指定でCTSレコードをフィルタ
   const periodCTS = useMemo(() => {
@@ -152,11 +201,17 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
   }, [ctx.categoryTimeSales, dayStart, dayEnd])
 
+  // 比較期間のCTSレコード（前年比 or 前週比で切替）
   const periodPrevCTS = useMemo(() => {
+    if (compMode === 'wow') {
+      const recs = ctx.categoryTimeSales?.records
+      if (!recs?.length) return []
+      return recs.filter((rec) => rec.day >= wowRange.prevStart && rec.day <= wowRange.prevEnd)
+    }
     const recs = ctx.prevYearCategoryTimeSales?.records
     if (!recs?.length) return []
     return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
-  }, [ctx.prevYearCategoryTimeSales, dayStart, dayEnd])
+  }, [compMode, ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(() =>
@@ -183,12 +238,15 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const prevSales = periodPrevSales.sales
   const prevCust = periodPrevSales.customers
 
+  // Comparison availability
+  const hasComparison = compMode === 'yoy' ? prevYear.hasPrevYear : canWoW
+
   // Factor decomposition data (Shapley values)
   const factorData = useMemo((): WaterfallItem[] => {
-    if (!prevYear.hasPrevYear || prevSales <= 0) return []
+    if (!hasComparison || prevSales <= 0) return []
 
     const items: WaterfallItem[] = []
-    items.push({ name: '前年売上', value: prevSales, base: 0, bar: prevSales, isTotal: true })
+    items.push({ name: `${labels.prevLabel}売上`, value: prevSales, base: 0, bar: prevSales, isTotal: true })
 
     let running = prevSales
     const push = (name: string, value: number) => {
@@ -231,16 +289,16 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       push('増減', curSales - prevSales)
     }
 
-    items.push({ name: '当年売上', value: curSales, base: 0, bar: curSales, isTotal: true })
+    items.push({ name: `${labels.curLabel}売上`, value: curSales, base: 0, bar: curSales, isTotal: true })
     return items
-  }, [prevYear.hasPrevYear, prevSales, curSales, prevCust, curCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, periodCTS, periodPrevCTS])
+  }, [hasComparison, prevSales, curSales, prevCust, curCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, periodCTS, periodPrevCTS, labels.prevLabel, labels.curLabel])
 
   // Category-based decomposition data
   // 売上データ（periodPrevSales / periodCurSales）にアンカーし、
   // 部門差分はCTSから取得。データソース差異は端数調整バーで吸収。
   const categoryData = useMemo((): WaterfallItem[] => {
     if (periodCTS.length === 0 || periodPrevCTS.length === 0) return []
-    if (!prevYear.hasPrevYear || prevSales <= 0) return []
+    if (!hasComparison || prevSales <= 0) return []
 
     // アンカー: 日別データ由来の合計
     const anchorPrev = prevSales
@@ -278,9 +336,9 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     const items: WaterfallItem[] = []
 
-    // Start: 前年売上（売上データにアンカー）
+    // Start: 比較元売上（売上データにアンカー）
     items.push({
-      name: '前年売上',
+      name: `${labels.prevLabel}売上`,
       value: anchorPrev,
       base: 0,
       bar: anchorPrev,
@@ -327,9 +385,9 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       running += residual
     }
 
-    // End: 当年売上（売上データにアンカー）
+    // End: 当期売上（売上データにアンカー）
     items.push({
-      name: '当年売上',
+      name: `${labels.curLabel}売上`,
       value: anchorCur,
       base: 0,
       bar: anchorCur,
@@ -337,9 +395,9 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
 
     return items
-  }, [periodCTS, periodPrevCTS, prevYear.hasPrevYear, prevSales, curSales])
+  }, [periodCTS, periodPrevCTS, hasComparison, prevSales, curSales, labels.prevLabel, labels.curLabel])
 
-  if (!prevYear.hasPrevYear || prevSales <= 0) return null
+  if (!hasComparison || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.length > 0
   const hasCategoryFactorView = hasQuantity && hasCategoryView
@@ -357,10 +415,25 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
   return (
     <Wrapper>
-      <Title>前年比較ウォーターフォール（要因分解）</Title>
+      <Title>
+        {compMode === 'yoy' ? '前年比較' : '前週比較'}ウォーターフォール（要因分解）
+      </Title>
       <Subtitle>
-        前年売上から当年売上への変動要因を可視化
+        {labels.prevLabel}売上から{labels.curLabel}売上への変動要因を可視化
       </Subtitle>
+
+      <ModeRow>
+        <ModeBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
+          前年比
+        </ModeBtn>
+        <ModeBtn
+          $active={compMode === 'wow'}
+          onClick={() => canWoW && setCompMode('wow')}
+          style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+        >
+          前週比
+        </ModeBtn>
+      </ModeRow>
 
       <DayRangeSlider
         min={1}
@@ -407,21 +480,21 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
       <SummaryRow>
         <SummaryItem>
-          <SummaryLabel>前年売上</SummaryLabel>
+          <SummaryLabel>{labels.prevLabel}売上</SummaryLabel>
           <SummaryValue>{formatCurrency(prevSales)}</SummaryValue>
         </SummaryItem>
         <SummaryItem>
-          <SummaryLabel>当年売上</SummaryLabel>
+          <SummaryLabel>{labels.curLabel}売上</SummaryLabel>
           <SummaryValue>{formatCurrency(curSales)}</SummaryValue>
         </SummaryItem>
         <SummaryItem>
-          <SummaryLabel>前年差</SummaryLabel>
+          <SummaryLabel>差額</SummaryLabel>
           <SummaryValue $color={yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
             {yoyDiff >= 0 ? '+' : ''}{formatCurrency(yoyDiff)}
           </SummaryValue>
         </SummaryItem>
         <SummaryItem>
-          <SummaryLabel>前年比</SummaryLabel>
+          <SummaryLabel>比率</SummaryLabel>
           <SummaryValue $color={yoyRatio >= 1 ? '#22c55e' : '#ef4444'}>
             {formatPercent(yoyRatio)}
           </SummaryValue>
@@ -434,8 +507,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
           prevRecords={periodPrevCTS}
           curCustomers={curCust}
           prevCustomers={prevCust}
-          curLabel={`${ctx.year}年`}
-          prevLabel={`${ctx.year - 1}年`}
+          curLabel={labels.curLabel}
+          prevLabel={labels.prevLabel}
         />
       ) : (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={360}>
