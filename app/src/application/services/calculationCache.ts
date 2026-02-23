@@ -76,6 +76,51 @@ export function computeFingerprint(
     }
   }
 
+  // 売変データの値サマリー (合計売変額で変更を検出)
+  if (discountStore) {
+    let totalDiscount = 0
+    for (const dayData of Object.values(discountStore)) {
+      totalDiscount += (dayData as { discount: number }).discount
+    }
+    parts.push(`dt:${totalDiscount}`)
+  }
+
+  // 前年売上の値サマリー
+  if (prevYearSalesStore) {
+    let totalPrevSales = 0
+    for (const dayData of Object.values(prevYearSalesStore)) {
+      totalPrevSales += (dayData as { sales: number }).sales
+    }
+    parts.push(`pyst:${totalPrevSales}`)
+  }
+
+  // 前年売変の値サマリー
+  if (prevYearDiscountStore) {
+    let totalPrevDiscount = 0
+    for (const dayData of Object.values(prevYearDiscountStore)) {
+      totalPrevDiscount += (dayData as { discount: number }).discount
+    }
+    parts.push(`pydt:${totalPrevDiscount}`)
+  }
+
+  // 店間移動の値サマリー (各日のレコード数で変更を検出)
+  if (interStoreInStore) {
+    let totalRecords = 0
+    for (const dayData of Object.values(interStoreInStore)) {
+      const entry = dayData as { interStoreIn: readonly unknown[]; interDepartmentIn: readonly unknown[] }
+      totalRecords += (entry.interStoreIn?.length ?? 0) + (entry.interDepartmentIn?.length ?? 0)
+    }
+    parts.push(`isir:${totalRecords}`)
+  }
+  if (interStoreOutStore) {
+    let totalRecords = 0
+    for (const dayData of Object.values(interStoreOutStore)) {
+      const entry = dayData as { interStoreOut: readonly unknown[]; interDepartmentOut: readonly unknown[] }
+      totalRecords += (entry.interStoreOut?.length ?? 0) + (entry.interDepartmentOut?.length ?? 0)
+    }
+    parts.push(`isor:${totalRecords}`)
+  }
+
   // 消耗品の値サマリー (合計コストで変更を検出)
   if (consumablesStore) {
     let totalConsumableCost = 0

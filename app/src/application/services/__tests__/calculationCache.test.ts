@@ -89,7 +89,38 @@ describe('computeFingerprint', () => {
     const data1 = createEmptyImportedData()
     const data2 = {
       ...data1,
-      interStoreIn: { s1: { 1: { total: { cost: 100, price: 120 } } } },
+      interStoreIn: {
+        s1: {
+          1: {
+            interStoreIn: [{ day: 1, cost: 100, price: 120, fromStoreId: 's2', toStoreId: 's1', isDepartmentTransfer: false }],
+            interStoreOut: [],
+            interDepartmentIn: [],
+            interDepartmentOut: [],
+          },
+        },
+      },
+    }
+    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('売変データ追加でフィンガープリントが変わる', () => {
+    const data1 = createEmptyImportedData()
+    const data2 = {
+      ...data1,
+      discount: { s1: { 1: { sales: 10000, discount: -500, customers: 10 } } },
+    }
+    const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
+    const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
+    expect(fp1).not.toBe(fp2)
+  })
+
+  it('前年売上データ追加でフィンガープリントが変わる', () => {
+    const data1 = createEmptyImportedData()
+    const data2 = {
+      ...data1,
+      prevYearSales: { s1: { 1: { sales: 50000, customers: 100 } } },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
