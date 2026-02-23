@@ -22,7 +22,6 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
     "@tanstack/react-table": "^8.21.3",
-    "firebase": "^12.9.0",
     "immer": "^11.1.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

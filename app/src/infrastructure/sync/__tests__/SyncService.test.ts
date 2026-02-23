@@ -1,108 +1,123 @@
 /**
  * SyncService のユニットテスト
  *
- * SupabaseRepository と FirestoreReadCache をモックし、
- * Supabase → Firestore の同期ロジックを検証する。
+ * IndexedDBRepository と SupabaseRepository をモックし、
+ * IndexedDB → Supabase の同期ロジックを検証する。
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SyncService } from '../SyncService'
+import { createEmptyImportedData } from '@/domain/models'
 
 // ─── モック ──────────────────────────────────────────────
 
-function createMockSupabase() {
+function createMockLocal() {
   return {
-    getAllSerializedSlices: vi.fn(),
-    getSerializedSlice: vi.fn(),
+    loadMonthlyData: vi.fn(),
+  }
+}
+
+function createMockRemote() {
+  return {
+    saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+    saveDataSlice: vi.fn().mockResolvedValue(undefined),
     writeSyncLog: vi.fn().mockResolvedValue(undefined),
   }
 }
 
-function createMockFirestore() {
-  return {
-    writeSlices: vi.fn().mockResolvedValue(undefined),
-    writeSlice: vi.fn().mockResolvedValue(undefined),
-    writeSessionMeta: vi.fn().mockResolvedValue(undefined),
-    clearMonth: vi.fn().mockResolvedValue(undefined),
-  }
-}
-
 describe('SyncService', () => {
-  let supabase: ReturnType<typeof createMockSupabase>
-  let firestore: ReturnType<typeof createMockFirestore>
+  let local: ReturnType<typeof createMockLocal>
+  let remote: ReturnType<typeof createMockRemote>
   let service: SyncService
 
   beforeEach(() => {
-    supabase = createMockSupabase()
-    firestore = createMockFirestore()
+    local = createMockLocal()
+    remote = createMockRemote()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    service = new SyncService(supabase as any, firestore as any)
+    service = new SyncService(local as any, remote as any)
   })
 
-  describe('syncAll', () => {
-    it('Supabase の全スライスを Firestore に書き込む', async () => {
-      const slices = new Map<string, unknown>([
-        ['sales', { store1: { 1: { sales: 100 } } }],
-        ['purchase', { store1: { 1: { total: { cost: 80, price: 100 } } } }],
-      ])
-      supabase.getAllSerializedSlices.mockResolvedValue(slices)
+  describe('pushToRemote', () => {
+    it('データを Supabase に保存する', async () => {
+      const data = createEmptyImportedData()
 
-      const result = await service.syncAll(2026, 1)
+      const result = await service.pushToRemote(2026, 1, data)
 
       expect(result.success).toBe(true)
-      expect(result.syncedTypes).toEqual(['sales', 'purchase'])
+      expect(result.syncedTypes).toEqual(['*'])
       expect(result.failedTypes).toHaveLength(0)
-      expect(firestore.writeSlices).toHaveBeenCalledWith(2026, 1, slices)
-      expect(firestore.writeSessionMeta).toHaveBeenCalledWith(2026, 1)
-    })
-
-    it('スライスが空の場合は何もしない', async () => {
-      supabase.getAllSerializedSlices.mockResolvedValue(new Map())
-
-      const result = await service.syncAll(2026, 1)
-
-      expect(result.success).toBe(true)
-      expect(result.syncedTypes).toHaveLength(0)
-      expect(firestore.writeSlices).not.toHaveBeenCalled()
+      expect(remote.saveMonthlyData).toHaveBeenCalledWith(data, 2026, 1)
     })
 
     it('エラー時は失敗を記録する', async () => {
-      supabase.getAllSerializedSlices.mockRejectedValue(new Error('DB down'))
+      const data = createEmptyImportedData()
+      remote.saveMonthlyData.mockRejectedValue(new Error('DB down'))
 
-      const result = await service.syncAll(2026, 1)
+      const result = await service.pushToRemote(2026, 1, data)
 
       expect(result.success).toBe(false)
       expect(result.failedTypes).toHaveLength(1)
       expect(result.failedTypes[0].error).toBe('DB down')
     })
+
+    it('同期ログを記録する', async () => {
+      const data = createEmptyImportedData()
+
+      await service.pushToRemote(2026, 1, data)
+
+      expect(remote.writeSyncLog).toHaveBeenCalledWith(2026, 1, '*', 'success', undefined)
+    })
   })
 
-  describe('syncSlices', () => {
-    it('指定スライスのみを同期する', async () => {
-      supabase.getSerializedSlice
-        .mockResolvedValueOnce({ store1: { 1: { sales: 100 } } })
-        .mockResolvedValueOnce(null)
+  describe('pushSlicesToRemote', () => {
+    it('指定データ種別を Supabase に保存する', async () => {
+      const data = createEmptyImportedData()
 
-      const result = await service.syncSlices(2026, 1, ['sales', 'purchase'])
+      const result = await service.pushSlicesToRemote(2026, 1, data, ['sales', 'purchase'])
 
-      expect(result.syncedTypes).toEqual(['sales'])
-      expect(firestore.writeSlice).toHaveBeenCalledTimes(1)
-      expect(firestore.writeSessionMeta).toHaveBeenCalled()
+      expect(result.success).toBe(true)
+      expect(result.syncedTypes).toEqual(['sales', 'purchase'])
+      expect(remote.saveDataSlice).toHaveBeenCalledWith(data, 2026, 1, ['sales', 'purchase'])
     })
 
-    it('個別スライスのエラーを記録する', async () => {
-      supabase.getSerializedSlice.mockRejectedValue(new Error('timeout'))
+    it('エラー時は全種別を失敗として記録する', async () => {
+      const data = createEmptyImportedData()
+      remote.saveDataSlice.mockRejectedValue(new Error('timeout'))
 
-      const result = await service.syncSlices(2026, 1, ['sales'])
+      const result = await service.pushSlicesToRemote(2026, 1, data, ['sales'])
 
       expect(result.success).toBe(false)
       expect(result.failedTypes[0]).toEqual({ dataType: 'sales', error: 'timeout' })
     })
   })
 
-  describe('clearFirestoreCache', () => {
-    it('Firestore のキャッシュを削除する', async () => {
-      await service.clearFirestoreCache(2026, 1)
-      expect(firestore.clearMonth).toHaveBeenCalledWith(2026, 1)
+  describe('syncFromLocal', () => {
+    it('ローカルデータを読み込んでリモートにプッシュする', async () => {
+      const data = createEmptyImportedData()
+      local.loadMonthlyData.mockResolvedValue(data)
+
+      const result = await service.syncFromLocal(2026, 1)
+
+      expect(result.success).toBe(true)
+      expect(remote.saveMonthlyData).toHaveBeenCalledWith(data, 2026, 1)
+    })
+
+    it('ローカルにデータがない場合は何もしない', async () => {
+      local.loadMonthlyData.mockResolvedValue(null)
+
+      const result = await service.syncFromLocal(2026, 1)
+
+      expect(result.success).toBe(true)
+      expect(result.syncedTypes).toHaveLength(0)
+      expect(remote.saveMonthlyData).not.toHaveBeenCalled()
+    })
+
+    it('ローカル読み込みエラー時は失敗を返す', async () => {
+      local.loadMonthlyData.mockRejectedValue(new Error('IndexedDB error'))
+
+      const result = await service.syncFromLocal(2026, 1)
+
+      expect(result.success).toBe(false)
+      expect(result.failedTypes[0].error).toBe('IndexedDB error')
     })
   })
 })

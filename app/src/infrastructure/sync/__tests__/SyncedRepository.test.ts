@@ -1,7 +1,7 @@
 /**
  * SyncedRepository のユニットテスト
  *
- * Supabase マスター書き込み + Firestore 読み取りキャッシュの
+ * IndexedDB（プライマリ）+ Supabase（非同期バックアップ）の
  * オーケストレーションを検証する。
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -10,7 +10,22 @@ import { createEmptyImportedData } from '@/domain/models'
 
 // ─── モック ──────────────────────────────────────────────
 
-function createMockSupabase() {
+function createMockLocal() {
+  return {
+    isAvailable: vi.fn().mockReturnValue(true),
+    saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+    loadMonthlyData: vi.fn(),
+    saveDataSlice: vi.fn().mockResolvedValue(undefined),
+    loadDataSlice: vi.fn(),
+    getSessionMeta: vi.fn(),
+    clearMonth: vi.fn().mockResolvedValue(undefined),
+    clearAll: vi.fn().mockResolvedValue(undefined),
+    listStoredMonths: vi.fn().mockResolvedValue([]),
+    getDataSummary: vi.fn().mockResolvedValue([]),
+  }
+}
+
+function createMockRemote() {
   return {
     isAvailable: vi.fn().mockReturnValue(true),
     saveMonthlyData: vi.fn().mockResolvedValue(undefined),
@@ -28,122 +43,145 @@ function createMockSupabase() {
   }
 }
 
-function createMockFirestore() {
-  return {
-    readSlice: vi.fn(),
-    readAllSlices: vi.fn(),
-    writeSlice: vi.fn().mockResolvedValue(undefined),
-    writeSlices: vi.fn().mockResolvedValue(undefined),
-    writeSessionMeta: vi.fn().mockResolvedValue(undefined),
-    readSessionMeta: vi.fn(),
-    clearMonth: vi.fn().mockResolvedValue(undefined),
-    subscribeToSlice: vi.fn(),
-    subscribeToSessionMeta: vi.fn(),
-  }
-}
-
 describe('SyncedRepository', () => {
-  let supabase: ReturnType<typeof createMockSupabase>
-  let firestore: ReturnType<typeof createMockFirestore>
+  let local: ReturnType<typeof createMockLocal>
+  let remote: ReturnType<typeof createMockRemote>
   let repo: SyncedRepository
 
   beforeEach(() => {
     vi.clearAllMocks()
-    supabase = createMockSupabase()
-    firestore = createMockFirestore()
+    local = createMockLocal()
+    remote = createMockRemote()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    repo = new SyncedRepository(supabase as any, firestore as any)
+    repo = new SyncedRepository(local as any, remote as any)
   })
 
   describe('saveMonthlyData', () => {
-    it('Supabase に保存し、Firestore 同期をトリガーする', async () => {
+    it('IndexedDB に保存し、Supabase への非同期バックアップをトリガーする', async () => {
       const data = createEmptyImportedData()
 
       await repo.saveMonthlyData(data, 2026, 1)
 
-      expect(supabase.saveMonthlyData).toHaveBeenCalledWith(data, 2026, 1)
-      // 非同期同期はバックグラウンドで実行されるため、直接検証は困難
-      // ただし Supabase への保存は必ず完了している
+      expect(local.saveMonthlyData).toHaveBeenCalledWith(data, 2026, 1)
     })
   })
 
   describe('loadMonthlyData', () => {
-    it('Firestore キャッシュから読み込む（キャッシュヒット）', async () => {
-      const slices = new Map<string, unknown>([
-        ['stores', {}],
-        ['suppliers', {}],
-        ['settings', {}],
-        ['budget', {}],
-        ['categoryTimeSales', { records: [] }],
-        ['prevYearCategoryTimeSales', { records: [] }],
-        ['departmentKpi', { records: [] }],
-      ])
-      firestore.readSessionMeta.mockResolvedValue({ year: 2026, month: 1, savedAt: '2026-01-01' })
-      firestore.readAllSlices.mockResolvedValue(slices)
+    it('IndexedDB から読み込む（ローカルヒット）', async () => {
+      const data = createEmptyImportedData()
+      local.loadMonthlyData.mockResolvedValue(data)
 
       const result = await repo.loadMonthlyData(2026, 1)
 
-      expect(result).not.toBeNull()
+      expect(result).toBe(data)
       // Supabase には問い合わせない
-      expect(supabase.loadMonthlyData).not.toHaveBeenCalled()
+      expect(remote.loadMonthlyData).not.toHaveBeenCalled()
     })
 
-    it('Firestore キャッシュミス時は Supabase にフォールバック', async () => {
-      firestore.readSessionMeta.mockResolvedValue(null)
-      supabase.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
+    it('ローカルに無い場合は Supabase にフォールバック', async () => {
+      local.loadMonthlyData.mockResolvedValue(null)
+      remote.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
 
       const result = await repo.loadMonthlyData(2026, 1)
 
       expect(result).not.toBeNull()
-      expect(supabase.loadMonthlyData).toHaveBeenCalledWith(2026, 1)
+      expect(remote.loadMonthlyData).toHaveBeenCalledWith(2026, 1)
     })
 
-    it('Firestore エラー時は Supabase にフォールバック', async () => {
-      firestore.readSessionMeta.mockRejectedValue(new Error('Firestore down'))
-      supabase.loadMonthlyData.mockResolvedValue(createEmptyImportedData())
+    it('Supabase から取得したデータを IndexedDB にキャッシュする', async () => {
+      const data = createEmptyImportedData()
+      local.loadMonthlyData.mockResolvedValue(null)
+      remote.loadMonthlyData.mockResolvedValue(data)
+
+      await repo.loadMonthlyData(2026, 1)
+
+      // IndexedDB にキャッシュ書き込みが呼ばれる
+      expect(local.saveMonthlyData).toHaveBeenCalledWith(data, 2026, 1)
+    })
+
+    it('Supabase エラー時は null を返す', async () => {
+      local.loadMonthlyData.mockResolvedValue(null)
+      remote.loadMonthlyData.mockRejectedValue(new Error('Network error'))
 
       const result = await repo.loadMonthlyData(2026, 1)
 
-      expect(result).not.toBeNull()
-      expect(supabase.loadMonthlyData).toHaveBeenCalled()
+      expect(result).toBeNull()
+    })
+
+    it('Supabase が利用不可の場合は null を返す', async () => {
+      local.loadMonthlyData.mockResolvedValue(null)
+      remote.isAvailable.mockReturnValue(false)
+
+      const result = await repo.loadMonthlyData(2026, 1)
+
+      expect(result).toBeNull()
+      expect(remote.loadMonthlyData).not.toHaveBeenCalled()
     })
   })
 
   describe('loadDataSlice', () => {
-    it('Firestore から読み、見つからなければ Supabase にフォールバック', async () => {
-      firestore.readSlice.mockResolvedValue(null)
-      supabase.loadDataSlice.mockResolvedValue({ store1: { 1: { sales: 100 } } })
+    it('IndexedDB から読み、見つからなければ Supabase にフォールバック', async () => {
+      local.loadDataSlice.mockResolvedValue(null)
+      remote.loadDataSlice.mockResolvedValue({ store1: { 1: { sales: 100 } } })
 
       const result = await repo.loadDataSlice(2026, 1, 'sales')
 
       expect(result).toEqual({ store1: { 1: { sales: 100 } } })
-      expect(supabase.loadDataSlice).toHaveBeenCalled()
+      expect(remote.loadDataSlice).toHaveBeenCalled()
+    })
+
+    it('IndexedDB にデータがあれば Supabase に問い合わせない', async () => {
+      local.loadDataSlice.mockResolvedValue({ store1: { 1: { sales: 200 } } })
+
+      const result = await repo.loadDataSlice(2026, 1, 'sales')
+
+      expect(result).toEqual({ store1: { 1: { sales: 200 } } })
+      expect(remote.loadDataSlice).not.toHaveBeenCalled()
     })
   })
 
   describe('getSessionMeta', () => {
-    it('Firestore から取得する', async () => {
-      firestore.readSessionMeta.mockResolvedValue({ year: 2026, month: 1, savedAt: '2026-01-15' })
+    it('IndexedDB から取得する', async () => {
+      local.getSessionMeta.mockResolvedValue({ year: 2026, month: 1, savedAt: '2026-01-15' })
 
       const result = await repo.getSessionMeta()
 
       expect(result).toEqual({ year: 2026, month: 1, savedAt: '2026-01-15' })
-      expect(supabase.getSessionMeta).not.toHaveBeenCalled()
+      expect(remote.getSessionMeta).not.toHaveBeenCalled()
+    })
+
+    it('ローカルに無い場合は Supabase にフォールバック', async () => {
+      local.getSessionMeta.mockResolvedValue(null)
+      remote.getSessionMeta.mockResolvedValue({ year: 2026, month: 1, savedAt: '2026-01-15' })
+
+      const result = await repo.getSessionMeta()
+
+      expect(result).toEqual({ year: 2026, month: 1, savedAt: '2026-01-15' })
     })
   })
 
   describe('clearMonth', () => {
-    it('Supabase と Firestore の両方をクリアする', async () => {
+    it('IndexedDB をクリアし、Supabase にも非同期で削除を伝播する', async () => {
       await repo.clearMonth(2026, 1)
 
-      expect(supabase.clearMonth).toHaveBeenCalledWith(2026, 1)
-      // Firestore のクリアはバックグラウンドで実行
+      expect(local.clearMonth).toHaveBeenCalledWith(2026, 1)
+      // remote.clearMonth は非同期で呼ばれる（fire-and-forget）
     })
   })
 
   describe('isAvailable', () => {
-    it('Supabase の可用性を返す', () => {
+    it('IndexedDB の可用性を返す', () => {
       expect(repo.isAvailable()).toBe(true)
+    })
+  })
+
+  describe('listStoredMonths', () => {
+    it('IndexedDB のデータを返す', async () => {
+      local.listStoredMonths.mockResolvedValue([{ year: 2026, month: 1 }])
+
+      const result = await repo.listStoredMonths()
+
+      expect(result).toEqual([{ year: 2026, month: 1 }])
     })
   })
 })
