@@ -308,3 +308,75 @@ describe('decompose5（4変数シャープリー統合分解）', () => {
     expect(d5!.priceEffect + d5!.mixEffect).toBeCloseTo(d3.pricePerItemEffect, 2)
   })
 })
+
+/* ── 数学的不変条件テスト（CI 回帰防止） ──────────── */
+
+describe('数学的不変条件: 全分解関数の合計 = ΔS', () => {
+  // 多様なパラメータで不変条件を検証するパラメトリックテスト
+  const scenarios = [
+    { label: '増収・増客・増点数', ps: 200_000, cs: 350_000, pc: 80, cc: 120, ptq: 400, ctq: 720 },
+    { label: '減収・減客', ps: 500_000, cs: 300_000, pc: 200, cc: 120, ptq: 1000, ctq: 600 },
+    { label: '客数一定・単価変動', ps: 100_000, cs: 150_000, pc: 50, cc: 50, ptq: 200, ctq: 200 },
+    { label: '点数一定・客数増', ps: 300_000, cs: 360_000, pc: 100, cc: 120, ptq: 500, ctq: 600 },
+    { label: '大幅増収', ps: 100_000, cs: 1_000_000, pc: 50, cc: 500, ptq: 200, ctq: 5000 },
+    { label: '微小変動', ps: 100_000, cs: 100_100, pc: 100, cc: 101, ptq: 500, ctq: 505 },
+  ]
+
+  for (const s of scenarios) {
+    it(`decompose2: ${s.label}`, () => {
+      const r = decompose2(s.ps, s.cs, s.pc, s.cc)
+      expect(r.custEffect + r.ticketEffect).toBeCloseTo(s.cs - s.ps, 0)
+    })
+
+    it(`decompose3: ${s.label}`, () => {
+      const r = decompose3(s.ps, s.cs, s.pc, s.cc, s.ptq, s.ctq)
+      expect(r.custEffect + r.qtyEffect + r.pricePerItemEffect).toBeCloseTo(s.cs - s.ps, 0)
+    })
+  }
+
+  it('decompose5: 売上とカテゴリ合計が乖離するデータセット', () => {
+    // カテゴリ合計: prev=280,000, cur=420,000 (差=140,000)
+    // 売上合計:     prev=300,000, cur=450,000 (差=150,000) ← 異なる
+    const prevCats = [cat('X', 200, 160_000), cat('Y', 100, 80_000), cat('Z', 50, 40_000)]
+    const curCats = [cat('X', 300, 270_000), cat('Y', 80, 60_000), cat('Z', 120, 90_000)]
+    const result = decompose5(300_000, 450_000, 100, 130, 350, 500, curCats, prevCats)
+    expect(result).not.toBeNull()
+    const total = result!.custEffect + result!.qtyEffect + result!.priceEffect + result!.mixEffect
+    // 売上データの差（150,000）に一致しなければならない
+    expect(Math.abs(total - 150_000)).toBeLessThan(1)
+  })
+
+  it('decompose5: 全パラメータが大きく変動', () => {
+    const prevCats = [cat('A', 1000, 500_000), cat('B', 500, 300_000), cat('C', 200, 200_000)]
+    const curCats = [cat('A', 800, 480_000), cat('B', 900, 630_000), cat('D', 300, 240_000)]
+    const result = decompose5(1_200_000, 1_500_000, 500, 600, 1700, 2000, curCats, prevCats)
+    expect(result).not.toBeNull()
+    const total = result!.custEffect + result!.qtyEffect + result!.priceEffect + result!.mixEffect
+    expect(Math.abs(total - 300_000)).toBeLessThan(1)
+  })
+})
+
+describe('数学的不変条件: 2↔3↔5要素間の一貫性', () => {
+  it('decompose2の客単価効果 = decompose3の(点数効果+単価効果)', () => {
+    const ps = 200_000, cs = 350_000, pc = 80, cc = 120, ptq = 400, ctq = 720
+    const d2 = decompose2(ps, cs, pc, cc)
+    const d3 = decompose3(ps, cs, pc, cc, ptq, ctq)
+    // 客数効果は2要素と3要素で異なる（交互作用の配分が変わる）
+    // だが合計は同じ
+    expect(d2.custEffect + d2.ticketEffect).toBeCloseTo(
+      d3.custEffect + d3.qtyEffect + d3.pricePerItemEffect, 0)
+  })
+
+  it('decompose5の(価格+構成比) = decompose3の単価効果', () => {
+    const ps = 200_000, cs = 350_000, pc = 80, cc = 120
+    const prevCats = [cat('A', 250, 125_000), cat('B', 150, 75_000)]
+    const curCats = [cat('A', 420, 252_000), cat('B', 300, 168_000)]
+    const ptq = 400, ctq = 720
+    const d3 = decompose3(ps, cs, pc, cc, ptq, ctq)
+    const d5 = decompose5(ps, cs, pc, cc, ptq, ctq, curCats, prevCats)
+    expect(d5).not.toBeNull()
+    expect(d5!.priceEffect + d5!.mixEffect).toBeCloseTo(d3.pricePerItemEffect, 0)
+    expect(d5!.custEffect).toBeCloseTo(d3.custEffect, 0)
+    expect(d5!.qtyEffect).toBeCloseTo(d3.qtyEffect, 0)
+  })
+})
