@@ -507,7 +507,7 @@ export function CategoryFactorBreakdown({
   if (items.length === 0) return null
 
   const levelLabel = currentLevel === 'dept' ? '部門' : currentLevel === 'line' ? 'ライン' : 'クラス'
-  const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 32 : 38) + 40)
+  const chartH = Math.max(compact ? 180 : 240, items.length * (compact ? 28 : 34) + 40)
   const barClick = (data: unknown) => {
     const item = (data as unknown as { payload?: FactorItem }).payload
     if (item) handleDrill(item)
@@ -594,78 +594,80 @@ export function CategoryFactorBreakdown({
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
 
-          {/* Customer effect (all levels with customer data) */}
+          {/* Stacked diverging bars: effects stack on the same row */}
+          {/* Positive effects extend right, negative effects extend left from 0 */}
           {hasCust && (
             <Bar
               dataKey="custEffect"
               name="客数効果"
               fill={COLORS.cust}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
             />
           )}
 
-          {/* Level 2: ticket effect */}
           {activeLevel === 2 && (
             <Bar
               dataKey="ticketEffect"
               name="客単価効果"
               fill={COLORS.ticket}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
             />
           )}
 
-          {/* Level 3+: qty effect */}
           {activeLevel >= 3 && (
             <Bar
               dataKey="qtyEffect"
               name="点数効果"
               fill={COLORS.qty}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
             />
           )}
 
-          {/* Level 3: combined price effect */}
           {activeLevel === 3 && (
             <Bar
               dataKey="priceEffect"
               name="単価効果"
               fill={COLORS.price}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
             />
           )}
 
-          {/* Level 5: pure price effect */}
           {activeLevel === 5 && (
             <Bar
               dataKey="pricePureEffect"
               name="価格効果"
               fill={COLORS.price}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
             />
           )}
 
-          {/* Level 5: mix effect */}
           {activeLevel === 5 && (
             <Bar
               dataKey="mixEffect"
               name="構成比変化効果"
               fill={COLORS.mix}
-              barSize={compact ? 10 : 12}
+              stackId="stack"
+              barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
               cursor="pointer"
