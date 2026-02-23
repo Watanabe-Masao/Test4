@@ -271,6 +271,21 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               ) : null
                             })()}
                             {(() => {
+                              const wowPrevDay = day - 7
+                              if (wowPrevDay < 1) return null
+                              const wowDaySales = r.daily.get(wowPrevDay)?.sales ?? 0
+                              if (wowDaySales <= 0 && actual <= 0) return null
+                              const wowRatio = wowDaySales > 0 ? actual / wowDaySales : 0
+                              const wowColor = wowRatio >= 1 ? sc.positive : wowRatio > 0 ? sc.negative : undefined
+                              return wowDaySales > 0 ? (
+                                <>
+                                  <CalDivider />
+                                  <CalCell $color="#9ca3af">週同 {fmtSen(wowDaySales)}</CalCell>
+                                  <CalCell $color={wowColor}>週比 {wowDaySales > 0 ? formatPercent(wowRatio, 0) : '-'}</CalCell>
+                                </>
+                              ) : null
+                            })()}
+                            {(() => {
                               const dayCust = rec?.customers ?? 0
                               if (dayCust <= 0) return null
                               const dayTxVal = calculateTransactionValue(actual, dayCust)
