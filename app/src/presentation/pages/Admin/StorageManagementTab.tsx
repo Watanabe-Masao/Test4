@@ -327,7 +327,7 @@ interface MonthEntry {
 
 // StoreDayRecord 型のデータ種別
 const STORE_DAY_TYPES = [
-  'purchase', 'sales', 'discount', 'prevYearSales', 'prevYearDiscount',
+  'purchase', 'sales', 'discount',
   'interStoreIn', 'interStoreOut', 'flowers', 'directProduce', 'consumables',
 ]
 
@@ -628,7 +628,6 @@ export function StorageManagementTab() {
               const key = `${entry.year}-${entry.month}`
               const isExpanded = expandedMonths.has(key)
               const ctsSummary = entry.summary.find((s) => s.dataType === 'categoryTimeSales')
-              const prevCtsSummary = entry.summary.find((s) => s.dataType === 'prevYearCategoryTimeSales')
 
               return (
                 <MonthCard key={key}>
@@ -688,9 +687,6 @@ export function StorageManagementTab() {
 
                       {ctsSummary && ctsSummary.recordCount > 0 && (
                         <CTSViewer year={entry.year} month={entry.month} dataType="categoryTimeSales" label="分類別時間帯売上" loadSlice={loadSlice} />
-                      )}
-                      {prevCtsSummary && prevCtsSummary.recordCount > 0 && (
-                        <CTSViewer year={entry.year} month={entry.month} dataType="prevYearCategoryTimeSales" label="前年分類別時間帯売上" loadSlice={loadSlice} />
                       )}
                     </DetailPanel>
                   )}

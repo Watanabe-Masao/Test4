@@ -49,8 +49,6 @@ const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] =
   { field: 'purchase', type: 'purchase' },
   { field: 'sales', type: 'sales' },
   { field: 'discount', type: 'discount' },
-  { field: 'prevYearSales', type: 'prevYearSales' },
-  { field: 'prevYearDiscount', type: 'prevYearDiscount' },
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -66,7 +64,6 @@ const ALL_DATA_TYPES: readonly string[] = [
   'settings',
   'budget',
   'categoryTimeSales',
-  'prevYearCategoryTimeSales',
   'departmentKpi',
 ]
 
@@ -75,8 +72,6 @@ const DATA_TYPE_LABELS: Record<string, string> = {
   purchase: '仕入',
   sales: '売上',
   discount: '売変',
-  prevYearSales: '前年売上',
-  prevYearDiscount: '前年売変',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
@@ -87,7 +82,6 @@ const DATA_TYPE_LABELS: Record<string, string> = {
   settings: '在庫設定',
   budget: '予算',
   categoryTimeSales: '分類別時間帯売上',
-  prevYearCategoryTimeSales: '前年分類別時間帯売上',
   departmentKpi: '部門KPI',
 }
 
@@ -126,7 +120,6 @@ function serializeImportedData(
     ),
   })
   rows.push({ year, month, data_type: 'categoryTimeSales', payload: data.categoryTimeSales })
-  rows.push({ year, month, data_type: 'prevYearCategoryTimeSales', payload: data.prevYearCategoryTimeSales })
   rows.push({ year, month, data_type: 'departmentKpi', payload: data.departmentKpi })
 
   return rows
@@ -135,7 +128,6 @@ function serializeImportedData(
 /** 単一フィールドをシリアライズ */
 function serializeField(data: ImportedData, dataType: DataType): unknown | undefined {
   if (dataType === 'categoryTimeSales') return data.categoryTimeSales
-  if (dataType === 'prevYearCategoryTimeSales') return data.prevYearCategoryTimeSales
   if (dataType === 'departmentKpi') return data.departmentKpi
   const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dataType)
   if (fieldDef) return data[fieldDef.field]
@@ -190,10 +182,7 @@ function deserializeImportedData(
     ? rawCTS
     : { records: [] }
 
-  const rawPCTS = payloadMap.get('prevYearCategoryTimeSales') as { records?: unknown[] } | undefined
-  result.prevYearCategoryTimeSales = rawPCTS && Array.isArray(rawPCTS.records)
-    ? rawPCTS
-    : { records: [] }
+  // prevYearCategoryTimeSales は DB に保存しない
 
   const rawDKpi = payloadMap.get('departmentKpi') as { records?: unknown[] } | undefined
   result.departmentKpi = rawDKpi && Array.isArray(rawDKpi.records)
@@ -404,7 +393,7 @@ export class SupabaseRepository implements DataRepository {
 
       let count = 0
       const payload = row.payload as Record<string, unknown>
-      if (dt === 'categoryTimeSales' || dt === 'prevYearCategoryTimeSales' || dt === 'departmentKpi') {
+      if (dt === 'categoryTimeSales' || dt === 'departmentKpi') {
         count = ((payload as { records?: unknown[] }).records ?? []).length
       } else if (dt === 'stores' || dt === 'suppliers' || dt === 'settings' || dt === 'budget') {
         count = Object.keys(payload).length

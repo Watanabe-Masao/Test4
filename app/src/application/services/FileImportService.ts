@@ -255,6 +255,7 @@ export async function processDroppedFiles(
   summary: ImportSummary
   data: ImportedData
   detectedYearMonth?: { year: number; month: number }
+  prevYearDetectedYearMonth?: { year: number; month: number }
 }> {
   return processDroppedFilesImpl(files, appSettings, currentData, onProgress, overrideType)
 }
