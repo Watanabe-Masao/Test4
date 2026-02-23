@@ -396,6 +396,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           prevYear={prevYear}
           categoryRecords={ctx.categoryTimeSales.records}
           prevYearCategoryRecords={ctx.prevYearCategoryTimeSales.hasPrevYear ? ctx.prevYearCategoryTimeSales.records : []}
+          dailyMap={r.daily}
           onClose={() => setDetailDay(null)}
         />
       )}
