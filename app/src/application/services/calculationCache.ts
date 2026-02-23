@@ -31,14 +31,32 @@ export function computeFingerprint(
     String(daysInMonth),
   ]
 
-  // 店舗データの存在チェック (全フィールドのキー数をサマリーとして含む)
+  // ─── StoreDayRecord 系のキー数・値サマリー ─────────────
   const purchaseStore = data.purchase[storeId]
   const salesStore = data.sales[storeId]
   const discountStore = data.discount[storeId]
+  const prevYearSalesStore = data.prevYearSales[storeId]
+  const prevYearDiscountStore = data.prevYearDiscount[storeId]
+  const interStoreInStore = data.interStoreIn[storeId]
+  const interStoreOutStore = data.interStoreOut[storeId]
+  const flowersStore = data.flowers[storeId]
+  const directProduceStore = data.directProduce[storeId]
+  const consumablesStore = data.consumables[storeId]
 
-  parts.push(`p:${purchaseStore ? Object.keys(purchaseStore).length : 0}`)
-  parts.push(`s:${salesStore ? Object.keys(salesStore).length : 0}`)
-  parts.push(`d:${discountStore ? Object.keys(discountStore).length : 0}`)
+  /** StoreDayRecord のキー数を返す */
+  const dayCount = (store: Record<string, unknown> | undefined) =>
+    store ? Object.keys(store).length : 0
+
+  parts.push(`p:${dayCount(purchaseStore)}`)
+  parts.push(`s:${dayCount(salesStore)}`)
+  parts.push(`d:${dayCount(discountStore)}`)
+  parts.push(`pys:${dayCount(prevYearSalesStore)}`)
+  parts.push(`pyd:${dayCount(prevYearDiscountStore)}`)
+  parts.push(`isi:${dayCount(interStoreInStore)}`)
+  parts.push(`iso:${dayCount(interStoreOutStore)}`)
+  parts.push(`fl:${dayCount(flowersStore)}`)
+  parts.push(`dp:${dayCount(directProduceStore)}`)
+  parts.push(`cs:${dayCount(consumablesStore)}`)
 
   // 仕入データの値サマリー (最終日の合計額で変更を検出)
   if (purchaseStore) {
@@ -56,6 +74,31 @@ export function computeFingerprint(
       const lastDay = salesStore[days[0]]
       parts.push(`sl:${lastDay?.sales ?? 0}`)
     }
+  }
+
+  // 消耗品の値サマリー (合計コストで変更を検出)
+  if (consumablesStore) {
+    let totalConsumableCost = 0
+    for (const dayData of Object.values(consumablesStore)) {
+      totalConsumableCost += (dayData as { cost: number }).cost
+    }
+    parts.push(`cst:${totalConsumableCost}`)
+  }
+
+  // 花・産直の値サマリー
+  if (flowersStore) {
+    let totalFlowerCost = 0
+    for (const dayData of Object.values(flowersStore)) {
+      totalFlowerCost += (dayData as { cost: number }).cost
+    }
+    parts.push(`flt:${totalFlowerCost}`)
+  }
+  if (directProduceStore) {
+    let totalDPCost = 0
+    for (const dayData of Object.values(directProduceStore)) {
+      totalDPCost += (dayData as { cost: number }).cost
+    }
+    parts.push(`dpt:${totalDPCost}`)
   }
 
   // 在庫設定
@@ -91,6 +134,10 @@ export function computeGlobalFingerprint(
   parts.push(`mr:${settings.defaultMarkupRate}`)
   parts.push(`db:${settings.defaultBudget}`)
   parts.push(`dm:${daysInMonth}`)
+  // 分類別時間帯売上・部門別KPI のレコード数
+  parts.push(`cts:${data.categoryTimeSales?.records?.length ?? 0}`)
+  parts.push(`pycts:${data.prevYearCategoryTimeSales?.records?.length ?? 0}`)
+  parts.push(`dkpi:${data.departmentKpi?.records?.length ?? 0}`)
   return parts.join('||')
 }
 
