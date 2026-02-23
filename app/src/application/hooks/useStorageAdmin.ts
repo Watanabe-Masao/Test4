@@ -1,16 +1,11 @@
 /**
  * ストレージ管理フック（Admin用）
  *
- * IndexedDB のデータ閲覧・管理機能を提供する。
+ * DataRepository 経由でのデータ閲覧・管理機能を提供する。
  * presentation 層が infrastructure 層に直接依存しないためのファサード。
  */
 import { useCallback } from 'react'
-import {
-  listStoredMonths,
-  getMonthDataSummary,
-  clearMonthData,
-  loadMonthlySlice,
-} from '@/infrastructure/storage/IndexedDBStore'
+import { useRepository } from '../context/RepositoryContext'
 
 export interface StoredMonthEntry {
   readonly year: number
@@ -35,22 +30,24 @@ export interface StorageAdminActions {
 }
 
 export function useStorageAdmin(): StorageAdminActions {
-  const listMonths = useCallback(() => listStoredMonths(), [])
+  const repo = useRepository()
+
+  const listMonths = useCallback(() => repo.listStoredMonths(), [repo])
 
   const getDataSummary = useCallback(
-    (year: number, month: number) => getMonthDataSummary(year, month),
-    [],
+    (year: number, month: number) => repo.getDataSummary(year, month),
+    [repo],
   )
 
   const deleteMonth = useCallback(
-    (year: number, month: number) => clearMonthData(year, month),
-    [],
+    (year: number, month: number) => repo.clearMonth(year, month),
+    [repo],
   )
 
   const loadSlice = useCallback(
     <T>(year: number, month: number, dataType: string) =>
-      loadMonthlySlice<T>(year, month, dataType),
-    [],
+      repo.loadDataSlice<T>(year, month, dataType),
+    [repo],
   )
 
   return { listMonths, getDataSummary, deleteMonth, loadSlice }

@@ -3,7 +3,7 @@ import { lazy, Suspense, useState, useCallback, useEffect, useMemo, createContex
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
-import { AppStateProvider, useAppUi, useAppDispatch } from '@/application/context'
+import { AppStateProvider, useAppUi, useAppDispatch, RepositoryProvider } from '@/application/context'
 import { useUiStore } from '@/application/stores/uiStore'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import { ToastProvider, useToast, PageErrorBoundary, PageSkeleton } from '@/presentation/components/common'
@@ -219,13 +219,15 @@ function App() {
         <GlobalStyle />
         <I18nProvider>
           <AuthProvider>
-            <HashRouter>
-              <AppStateProvider>
-                <ToastProvider>
-                  <AppContent />
-                </ToastProvider>
-              </AppStateProvider>
-            </HashRouter>
+            <RepositoryProvider>
+              <HashRouter>
+                <AppStateProvider>
+                  <ToastProvider>
+                    <AppContent />
+                  </ToastProvider>
+                </AppStateProvider>
+              </HashRouter>
+            </RepositoryProvider>
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>

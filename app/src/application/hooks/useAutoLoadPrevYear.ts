@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { loadMonthlySlice } from '@/infrastructure/storage/IndexedDBStore'
+import { useRepository } from '../context/RepositoryContext'
 import { discountToSalesData } from '@/infrastructure/ImportService'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { DiscountData, DiscountDayEntry, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
@@ -30,6 +30,7 @@ const OVERFLOW_DAYS = 6
 export function useAutoLoadPrevYear(): void {
   const state = useAppState()
   const dispatch = useAppDispatch()
+  const repo = useRepository()
 
   const { targetYear, targetMonth } = state.settings
   const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0
@@ -54,17 +55,17 @@ export function useAutoLoadPrevYear(): void {
     ;(async () => {
       try {
         // ソース年月の売変データをロード
-        const prevDiscount = await loadMonthlySlice<DiscountData>(sourceYear, sourceMonth, 'discount')
+        const prevDiscount = await repo.loadDataSlice<DiscountData>(sourceYear, sourceMonth, 'discount')
         if (cancelled || !prevDiscount || Object.keys(prevDiscount).length === 0) return
 
         // ソース年月の分類別時間帯売上をロード
-        const prevCTS = await loadMonthlySlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
+        const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
         if (cancelled) return
 
         // ソース翌月（overflow 用）
-        const prevNextDiscount = await loadMonthlySlice<DiscountData>(nextMonthYear, nextMonth, 'discount')
+        const prevNextDiscount = await repo.loadDataSlice<DiscountData>(nextMonthYear, nextMonth, 'discount')
         if (cancelled) return
-        const prevNextCTS = await loadMonthlySlice<CategoryTimeSalesData>(nextMonthYear, nextMonth, 'categoryTimeSales')
+        const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(nextMonthYear, nextMonth, 'categoryTimeSales')
         if (cancelled) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
@@ -115,5 +116,5 @@ export function useAutoLoadPrevYear(): void {
     })()
 
     return () => { cancelled = true }
-  }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, dispatch])
+  }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, dispatch, repo])
 }
