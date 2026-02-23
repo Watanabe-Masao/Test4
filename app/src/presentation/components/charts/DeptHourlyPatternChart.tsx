@@ -1,14 +1,6 @@
 import { useMemo, useState } from 'react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'

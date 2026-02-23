@@ -2,11 +2,8 @@ import { useState } from 'react'
 import { Chip } from '@/presentation/components/common'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { safeDivide } from '@/domain/calculations/utils'
-import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
-  ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line,
-  type PieLabelRenderProps,
-} from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line, type PieLabelRenderProps } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
