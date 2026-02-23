@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, type PieLabelRenderProps } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
 import type { CostPricePair, CategoryType } from '@/domain/models'

@@ -241,6 +241,10 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       return { id, label: store?.code ?? id, name: store?.name ?? id, result }
     })
 
+  // 取込データ有効期間に合わせた予算計算
+  const effectiveEndDay = ctx.elapsedDays ?? (ctx.dataMaxDay > 0 ? ctx.dataMaxDay : ctx.daysInMonth)
+  const isPartialPeriod = effectiveEndDay < ctx.daysInMonth
+
   const handleInventoryChange = useCallback(
     (storeId: string, field: 'closingInventory' | 'openingInventory', val: number | null) => {
       dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config: { [field]: val } } })
@@ -277,13 +281,19 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     const gpRateBudget = r.grossProfitRateBudget
     const gpRateActual = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
     const gpRateVariance = gpRateActual - gpRateBudget
-    const salesVariance = r.totalSales - r.budget
+    // 有効期間の経過予算を算出
+    let periodBudgetSum = 0
+    for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
+    const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
+    const periodGPBudget = r.budget > 0 ? r.grossProfitBudget * (periodBudget / r.budget) : 0
+    const salesVariance = r.totalSales - periodBudget
+    const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
     const gpLanding = r.estMethodMarginRate
     const salesLanding = r.projectedSales - r.budget
 
     const varColor = sc.cond(gpRateVariance >= 0)
     const salesDiffColor = sc.cond(salesVariance >= 0)
-    const achColor = sc.achievement(r.budgetAchievementRate)
+    const achColor = sc.achievement(periodAchRate)
     const salesLandingColor = sc.cond(salesLanding >= 0)
 
     const rowStyle = isSummary
@@ -316,19 +326,25 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
           <TipLabel>予実差異:</TipLabel>
           <TipVal $color={varColor}>{fmtPtDiff(gpRateVariance * 100)}</TipVal>
         </div>
-        {r.budget > 0 && (
-          <div><TipLabel>粗利予算額:</TipLabel><TipVal>{formatCurrency(r.grossProfitBudget)}</TipVal></div>
+        {r.grossProfitBudget > 0 && (
+          <div><TipLabel>粗利予算額(月間):</TipLabel><TipVal>{formatCurrency(r.grossProfitBudget)}</TipVal></div>
+        )}
+        {isPartialPeriod && periodGPBudget > 0 && (
+          <div><TipLabel>経過粗利予算(〜{effectiveEndDay}日):</TipLabel><TipVal>{formatCurrency(periodGPBudget)}</TipVal></div>
         )}
       </div>
     ) : undefined
 
     const salesLandingTooltip = storeId ? (
       <div>
-        <div><TipLabel>売上予算:</TipLabel><TipVal>{formatCurrency(r.budget)}</TipVal></div>
+        <div><TipLabel>月間予算:</TipLabel><TipVal>{formatCurrency(r.budget)}</TipVal></div>
+        {isPartialPeriod && (
+          <div><TipLabel>経過予算(〜{effectiveEndDay}日):</TipLabel><TipVal>{formatCurrency(periodBudget)}</TipVal></div>
+        )}
         <div><TipLabel>売上実績:</TipLabel><TipVal>{formatCurrency(r.totalSales)}</TipVal></div>
         <div><TipLabel>着地予測:</TipLabel><TipVal>{formatCurrency(r.projectedSales)}</TipVal></div>
         <div>
-          <TipLabel>予算差異:</TipLabel>
+          <TipLabel>予算差異(着地):</TipLabel>
           <TipVal $color={salesLandingColor}>{formatCurrency(salesLanding)}</TipVal>
         </div>
         <div><TipLabel>達成率予測:</TipLabel><TipVal $color={sc.achievement(r.projectedAchievement)}>{formatPercent(r.projectedAchievement)}</TipVal></div>
@@ -372,10 +388,10 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
         <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(r.coreMarkupRate)}</BudgetTd>
         <STd style={{ color: sc.negative }}>{formatPercent(-r.discountRate, 2)}</STd>
         {/* 売上 */}
-        <BudgetTd style={{ borderLeft: groupBorder }}>{formatCurrency(r.budget)}</BudgetTd>
+        <BudgetTd style={{ borderLeft: groupBorder }}>{formatCurrency(periodBudget)}</BudgetTd>
         <STd>{formatCurrency(r.totalSales)}</STd>
         <STd style={{ color: salesDiffColor }}>{formatCurrency(salesVariance)}</STd>
-        <STd style={{ color: achColor }}>{formatPercent(r.budgetAchievementRate)}</STd>
+        <STd style={{ color: achColor }}>{formatPercent(periodAchRate)}</STd>
         {/* 在庫 */}
         <STd style={{ borderLeft: groupBorder }}>{r.openingInventory != null ? formatCurrency(r.openingInventory) : '-'}</STd>
         {storeId && !isSummary ? (
@@ -402,7 +418,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   return (
     <STableWrapper>
-      <STableTitle>店舗別KPI一覧</STableTitle>
+      <STableTitle>店舗別KPI一覧{isPartialPeriod ? `（〜${effectiveEndDay}日）` : ''}</STableTitle>
       <ScrollWrapper>
         <STable>
           <thead>
@@ -423,7 +439,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
               <BudgetTh style={{ borderLeft: groupBorder }}>値入</BudgetTh>
               <KpiSubTh>売変</KpiSubTh>
               {/* 売上 */}
-              <BudgetTh style={{ borderLeft: groupBorder }}>予算</BudgetTh>
+              <BudgetTh style={{ borderLeft: groupBorder }}>{isPartialPeriod ? '経過予算' : '予算'}</BudgetTh>
               <KpiSubTh>実績</KpiSubTh>
               <KpiSubTh>差異</KpiSubTh>
               <KpiSubTh>達成率</KpiSubTh>

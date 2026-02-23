@@ -124,7 +124,7 @@ export function DashboardPage() {
 
   // ─── Empty / Loading states ──
 
-  if (!isCalculated) {
+  if (!isCalculated && appState.storeResults.size === 0) {
     return (
       <MainContent title="ダッシュボード">
         <EmptyState>

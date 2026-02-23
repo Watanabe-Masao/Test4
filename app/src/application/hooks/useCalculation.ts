@@ -79,11 +79,13 @@ export function useCalculation() {
     [dispatch, useWorker, isWorkerAvailable, calculateAsync],
   )
 
-  // データ変更時に自動計算
+  // データ変更時・設定変更時に自動計算
+  // state.settings を依存に含め、Worker 計算中に設定が変更された場合も
+  // 新しい設定で再計算を起動する（エポック機構で古い結果は破棄される）
   useEffect(() => {
     if (!canCalculate || state.ui.isImporting || state.ui.isCalculated) return
     calculate()
-  }, [canCalculate, state.ui.isImporting, state.ui.isCalculated, calculate])
+  }, [canCalculate, state.ui.isImporting, state.ui.isCalculated, calculate, state.settings])
 
   return {
     calculate,

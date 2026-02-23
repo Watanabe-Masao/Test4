@@ -98,6 +98,7 @@ describe('useWorkerCalculation', () => {
       data,
       settings: mockSettings,
       daysInMonth: 31,
+      requestId: expect.any(Number),
     })
   })
 
@@ -114,11 +115,15 @@ describe('useWorkerCalculation', () => {
     await act(async () => {
       const promise = result.current.calculateAsync(data, mockSettings, 31)
 
+      // postMessage で送信された requestId を取得
+      const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]
+      const reqId = sentMsg.requestId
+
       // Worker から結果を返す
       const messageHandlers = mockWorkerInstance.listeners.get('message') ?? []
       for (const handler of messageHandlers) {
         handler({
-          data: { type: 'result', results: new Map([['s1', { storeId: 's1' }]]) },
+          data: { type: 'result', results: new Map([['s1', { storeId: 's1' }]]), requestId: reqId },
         })
       }
 
@@ -140,10 +145,14 @@ describe('useWorkerCalculation', () => {
     await act(async () => {
       const promise = result.current.calculateAsync(data, mockSettings, 31)
 
+      // postMessage で送信された requestId を取得
+      const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]
+      const reqId = sentMsg.requestId
+
       const messageHandlers = mockWorkerInstance.listeners.get('message') ?? []
       for (const handler of messageHandlers) {
         handler({
-          data: { type: 'error', message: '計算エラー' },
+          data: { type: 'error', message: '計算エラー', requestId: reqId },
         })
       }
 

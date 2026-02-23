@@ -12,3 +12,10 @@ vi.mock('recharts', async (importOriginal) => {
       createElement('div', { style: { width: 800, height: 600 } }, props.children),
   }
 })
+
+// SafeResponsiveContainer も jsdom では ResizeObserver が正のサイズを返さないため、
+// 固定サイズの div でラップして代替する。
+vi.mock('@/presentation/components/charts/SafeResponsiveContainer', () => ({
+  SafeResponsiveContainer: (props: { children: React.ReactNode }) =>
+    createElement('div', { style: { width: 800, height: 600 } }, props.children),
+}))

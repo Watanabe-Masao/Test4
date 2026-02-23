@@ -27,7 +27,7 @@ type SortKey = 'label' | 'cost' | 'price' | 'grossProfit' | 'markup' | 'costShar
 type SortDir = 'asc' | 'desc'
 
 export function CategoryPage() {
-  const { isCalculated } = useCalculation()
+  useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const appState = useAppState()
   const { updateSettings } = useSettings()
@@ -80,7 +80,7 @@ export function CategoryPage() {
     return sorted
   }, [currentResult, supplierSort, supplierFilter])
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="カテゴリ分析" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

@@ -4,7 +4,7 @@
  * 計算処理を Web Worker にオフロードし、メインスレッドの
  * ブロッキングを防止する。Worker 非対応環境では同期フォールバック。
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
 import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
@@ -26,6 +26,7 @@ interface WorkerCalculationResult {
 
 export function useWorkerCalculation(): WorkerCalculationResult {
   const [isComputing, setIsComputing] = useState(false)
+  const requestIdRef = useRef(0)
 
   // Worker インスタンスを useState で管理し、useEffect 内の同期的 setState と
   // useRef のレンダー中アクセスを回避する
@@ -61,10 +62,15 @@ export function useWorkerCalculation(): WorkerCalculationResult {
         return Promise.resolve(calculateAllStores(data, settings, daysInMonth))
       }
 
+      // リクエストIDで応答を識別し、並行計算時のクロスコンタミを防止
+      const thisRequestId = ++requestIdRef.current
       setIsComputing(true)
 
       return new Promise((resolve, reject) => {
         const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+          // 自分のリクエストの応答でなければ無視
+          if (event.data.requestId !== thisRequestId) return
+
           worker.removeEventListener('message', handleMessage)
           worker.removeEventListener('error', handleError)
           setIsComputing(false)
@@ -91,6 +97,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
           data,
           settings,
           daysInMonth,
+          requestId: thisRequestId,
         })
       })
     },

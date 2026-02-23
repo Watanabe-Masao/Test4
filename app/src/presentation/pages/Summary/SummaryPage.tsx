@@ -67,10 +67,10 @@ const EmptyState = styled.div`
 `
 
 export function SummaryPage() {
-  const { isCalculated, daysInMonth } = useCalculation()
+  const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, stores, storeName } = useStoreSelection()
 
-  if (!isCalculated || !currentResult) {
+  if (!currentResult) {
     return (
       <MainContent title="粗利計算" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>

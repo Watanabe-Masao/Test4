@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
 import { useImport, useStoreSelection, useSettings, usePersistence } from '@/application/hooks'
@@ -344,7 +344,23 @@ export function DataManagementSidebar({
   const currentEndDay = settings.dataEndDay != null
     ? Math.min(settings.dataEndDay, daysInMonth)
     : daysInMonth
-  const sliderPct = ((currentEndDay - 1) / (daysInMonth - 1)) * 100
+
+  // スライダー操作時にローカル状態で即座にUIを更新し、
+  // 実際の設定更新はデバウンスして高速操作時の計算連発を防止
+  const [localEndDay, setLocalEndDay] = useState(currentEndDay)
+  const sliderTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  useEffect(() => { setLocalEndDay(currentEndDay) }, [currentEndDay])
+  const debouncedUpdateEndDay = useCallback((v: number) => {
+    setLocalEndDay(v)
+    clearTimeout(sliderTimerRef.current)
+    sliderTimerRef.current = setTimeout(() => {
+      updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+    }, 150)
+  }, [updateSettings, daysInMonth])
+  // クリーンアップ
+  useEffect(() => () => clearTimeout(sliderTimerRef.current), [])
+
+  const sliderPct = ((localEndDay - 1) / (daysInMonth - 1)) * 100
 
   const loadedTypes = useMemo(() => {
     const types = new Set<DataType>()
@@ -409,12 +425,15 @@ export function DataManagementSidebar({
             <SectionLabel>取込データ有効期間</SectionLabel>
             <SliderSection>
               <SliderHeader>
-                <SliderLabel>{currentEndDay}日 / {daysInMonth}日</SliderLabel>
+                <SliderLabel>{localEndDay}日 / {daysInMonth}日</SliderLabel>
                 {detectedMaxDay > 0 && (
                   <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>
                 )}
-                {currentEndDay !== detectedMaxDay && detectedMaxDay > 0 && (
-                  <SliderResetBtn onClick={() => updateSettings({ dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay })}>
+                {localEndDay !== detectedMaxDay && detectedMaxDay > 0 && (
+                  <SliderResetBtn onClick={() => {
+                    clearTimeout(sliderTimerRef.current)
+                    updateSettings({ dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay })
+                  }}>
                     リセット
                   </SliderResetBtn>
                 )}
@@ -426,11 +445,8 @@ export function DataManagementSidebar({
                   type="range"
                   min={1}
                   max={daysInMonth}
-                  value={currentEndDay}
-                  onChange={(e) => {
-                    const v = Number(e.target.value)
-                    updateSettings({ dataEndDay: v === daysInMonth ? null : v })
-                  }}
+                  value={localEndDay}
+                  onChange={(e) => debouncedUpdateEndDay(Number(e.target.value))}
                 />
               </SliderTrackWrap>
               <SliderNumRow>
@@ -439,11 +455,11 @@ export function DataManagementSidebar({
                   type="number"
                   min={1}
                   max={daysInMonth}
-                  value={currentEndDay}
+                  value={localEndDay}
                   onChange={(e) => {
                     const v = Number(e.target.value)
                     if (!isNaN(v) && v >= 1 && v <= daysInMonth) {
-                      updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+                      debouncedUpdateEndDay(v)
                     }
                   }}
                 />

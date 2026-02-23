@@ -8,10 +8,8 @@
  */
 import { useState, useMemo } from 'react'
 import styled from 'styled-components'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
-  ResponsiveContainer, ReferenceLine, LabelList,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'

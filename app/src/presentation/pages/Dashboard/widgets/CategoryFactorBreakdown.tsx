@@ -7,10 +7,8 @@
  */
 import { useState, useMemo, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine, Legend,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Legend } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import {

@@ -2,26 +2,8 @@ import { calculateForecast } from '@/domain/calculations/forecast'
 import type { DayOfWeekAverage } from '@/domain/calculations/forecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ComposedChart,
-  Line,
-  Area,
-  LineChart,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart, Line, Area, LineChart } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import {
   DOW_LABELS,
