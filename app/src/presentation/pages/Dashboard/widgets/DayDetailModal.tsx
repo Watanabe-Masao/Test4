@@ -23,12 +23,13 @@ import {
   DetailSection, DetailSectionTitle, DetailRow, DetailLabel, DetailValue,
   DetailColumns,
 } from '../DashboardPage.styles'
-import { TabBar, Tab, KpiGrid2, KpiMini, KpiMiniLabel, KpiMiniValue, KpiMiniSub } from './DayDetailModal.styles'
+import { TabBar, Tab, KpiGrid2, KpiMini, KpiMiniLabel, KpiMiniValue, KpiMiniSub, ToggleGroup, ToggleBtn } from './DayDetailModal.styles'
 import { HourlyChart } from './HourlyChart'
 import { CategoryDrilldown } from './CategoryDrilldown'
 import { DrilldownWaterfall } from './DrilldownWaterfall'
 
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
+type CompMode = 'yoy' | 'wow'
 
 interface DayDetailModalProps {
   day: number
@@ -44,16 +45,24 @@ interface DayDetailModalProps {
   prevYear: PrevYearData
   categoryRecords: readonly CategoryTimeSalesRecord[]
   prevYearCategoryRecords: readonly CategoryTimeSalesRecord[]
+  /** 当年の全日別データ（前週比用） */
+  dailyMap?: ReadonlyMap<number, DailyRecord>
   onClose: () => void
 }
 
 export function DayDetailModal({
   day, month, year, record, budget, cumBudget, cumSales, cumPrevYear,
   cumCustomers, cumPrevCustomers, prevYear,
-  categoryRecords, prevYearCategoryRecords, onClose,
+  categoryRecords, prevYearCategoryRecords, dailyMap, onClose,
 }: DayDetailModalProps) {
   const [tab, setTab] = useState<ModalTab>('sales')
+  const [compMode, setCompMode] = useState<CompMode>('yoy')
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
+
+  // WoW: 7日前と比較
+  const wowPrevDay = day - 7
+  const canWoW = wowPrevDay >= 1
+  const activeCompMode: CompMode = compMode === 'wow' && !canWoW ? 'yoy' : compMode
 
   // ── Core metrics ──
   const actual = record?.sales ?? 0
@@ -75,6 +84,21 @@ export function DayDetailModal({
   const custRatio = pyCust > 0 ? dayCust / pyCust : 0
   const txValRatio = pyTxVal > 0 ? dayTxVal / pyTxVal : 0
 
+  // ── WoW metrics (前週比) ──
+  const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
+  const wowPrevSales = wowDailyRecord?.sales ?? 0
+  const wowPrevCust = wowDailyRecord?.customers ?? 0
+  const wowPrevDayRecords = useMemo(
+    () => canWoW ? categoryRecords.filter((r) => r.day === wowPrevDay) : [],
+    [categoryRecords, wowPrevDay, canWoW],
+  )
+
+  // ── 比較用メトリクス（モードに応じて切替） ──
+  const compSales = activeCompMode === 'wow' ? wowPrevSales : pySales
+  const compCust = activeCompMode === 'wow' ? wowPrevCust : pyCust
+  const compLabel = activeCompMode === 'wow' ? `${wowPrevDay}日` : '前年'
+  const curCompLabel = activeCompMode === 'wow' ? `${day}日` : '当年'
+
   // ── Category records ──
   const dayRecords = useMemo(
     () => categoryRecords.filter((r) => r.day === day),
@@ -83,6 +107,11 @@ export function DayDetailModal({
   const prevDayRecords = useMemo(
     () => prevYearCategoryRecords.filter((r) => r.day === day),
     [prevYearCategoryRecords, day],
+  )
+  // WoW用: 比較期間のカテゴリレコード
+  const compDayRecords = useMemo(
+    () => activeCompMode === 'wow' ? wowPrevDayRecords : prevDayRecords,
+    [activeCompMode, wowPrevDayRecords, prevDayRecords],
   )
   const cumCategoryRecords = useMemo(
     () => categoryRecords.filter((r) => r.day <= day),
@@ -173,14 +202,27 @@ export function DayDetailModal({
         {/* ── Tab: 売上分析 ── */}
         {tab === 'sales' && (
           <>
-            {prevYear.hasPrevYear && pySales > 0 && (
+            {/* 比較モード切替: 前年比 / 前週比 */}
+            {(prevYear.hasPrevYear || canWoW) && (
+              <ToggleGroup style={{ marginBottom: '12px' }}>
+                <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</ToggleBtn>
+                <ToggleBtn
+                  $active={compMode === 'wow'}
+                  onClick={() => { if (canWoW) setCompMode('wow') }}
+                  style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+                >前週比</ToggleBtn>
+              </ToggleGroup>
+            )}
+            {compSales > 0 && (
               <DrilldownWaterfall
                 actual={actual}
-                pySales={pySales}
+                pySales={compSales}
                 dayCust={dayCust}
-                pyCust={pyCust}
+                pyCust={compCust}
                 dayRecords={dayRecords}
-                prevDayRecords={prevDayRecords}
+                prevDayRecords={compDayRecords}
+                curLabel={curCompLabel}
+                prevLabel={compLabel}
               />
             )}
             {dayRecords.length > 0 && (

@@ -160,12 +160,12 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
 
   const handleStartInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = Number(e.target.value)
-    if (!isNaN(v) && v >= min && v < end) onChange(v, end)
+    if (!isNaN(v) && v >= min && v <= end) onChange(v, end)
   }, [min, end, onChange])
 
   const handleEndInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = Number(e.target.value)
-    if (!isNaN(v) && v <= max && v > start) onChange(start, v)
+    if (!isNaN(v) && v <= max && v >= start) onChange(start, v)
   }, [max, start, onChange])
 
   return (
@@ -174,11 +174,11 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
       <NumInput
         type="number"
         min={min}
-        max={end - 1}
+        max={end}
         value={start}
         onChange={handleStartInput}
       />
-      <StepBtn disabled={start >= end - 1} onClick={() => onChange(start + 1, end)} aria-label="開始日を1日後へ">▶</StepBtn>
+      <StepBtn disabled={start >= end} onClick={() => onChange(start + 1, end)} aria-label="開始日を1日後へ">▶</StepBtn>
       <UnitLabel>日</UnitLabel>
       <TrackWrap>
         <Track />
@@ -190,7 +190,7 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
           value={start}
           onChange={(e) => {
             const v = Number(e.target.value)
-            if (v < end) onChange(v, end)
+            if (v <= end) onChange(v, end)
           }}
         />
         <RangeInput
@@ -200,14 +200,14 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
           value={end}
           onChange={(e) => {
             const v = Number(e.target.value)
-            if (v > start) onChange(start, v)
+            if (v >= start) onChange(start, v)
           }}
         />
       </TrackWrap>
-      <StepBtn disabled={end <= start + 1} onClick={() => onChange(start, end - 1)} aria-label="終了日を1日前へ">◀</StepBtn>
+      <StepBtn disabled={end <= start} onClick={() => onChange(start, end - 1)} aria-label="終了日を1日前へ">◀</StepBtn>
       <NumInput
         type="number"
-        min={start + 1}
+        min={start}
         max={max}
         value={end}
         onChange={handleEndInput}
