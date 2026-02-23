@@ -3,11 +3,10 @@ import { KpiCard } from '@/presentation/components/common'
 import {
   DailySalesChart, BudgetVsActualChart, CategoryPieChart,
   GrossProfitAmountChart,
-  TimeSlotSalesChart, CategorySalesBreakdownChart,
+  TimeSlotSalesChart,
   TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
-  TimeSlotYoYComparisonChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -207,16 +206,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
     ),
   },
-  {
-    id: 'chart-category-sales-breakdown',
-    label: '部門・クラス別売上',
-    group: '分類別時間帯',
-    size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <CategorySalesBreakdownChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
-    ),
-  },
+  // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
   {
     id: 'chart-timeslot-heatmap',
@@ -248,27 +238,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
-  {
-    id: 'chart-timeslot-yoy-comparison',
-    label: '時間帯別 前年同曜日比較',
-    group: '分類別時間帯',
-    size: 'full',
-    isVisible: (ctx) => ctx.prevYearCategoryTimeSales.hasPrevYear,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => {
-      if (!prevYearCategoryTimeSales.hasPrevYear) return null
-      return (
-        <TimeSlotYoYComparisonChart
-          categoryTimeSales={categoryTimeSales}
-          prevYearRecords={prevYearCategoryTimeSales.records}
-          selectedStoreIds={selectedStoreIds}
-          daysInMonth={daysInMonth}
-          year={year}
-          month={month}
-          dataMaxDay={dataMaxDay}
-        />
-      )
-    },
-  },
+  // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 概要・ステータス ──
   {
     id: 'exec-summary-bar',
@@ -483,7 +453,7 @@ export function autoInjectDataWidgets(
     if (currentIds.includes(w.id) || seen.has(w.id)) return false
     // データチェック: isVisible は WidgetContext を要求するが、
     // ここでは必要な最小フィールドで簡易チェック
-    if (w.id.startsWith('chart-timeslot-yoy') || w.id === 'analysis-yoy-waterfall') {
+    if (w.id === 'analysis-yoy-waterfall') {
       return ctx.prevYearCategoryTimeSales.hasPrevYear
     }
     if (w.id === 'chart-store-timeslot-comparison') {

@@ -14,6 +14,7 @@ import {
   KpiRow, SortButton, MarkupCell, GrossProfitCell, SectionHeader,
   SupplierFilterInput, SupplierToolbar,
 } from './CategoryPage.styles'
+import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { CrossMultiplicationChart, CompositionChart } from './CategoryCharts'
 import {
   StoreComparisonCategoryBarChart,
@@ -126,6 +127,9 @@ export function CategoryPage() {
 
   return (
     <MainContent title="カテゴリ分析" storeName={storeName}>
+      <ToggleBar>
+        <CurrencyUnitToggle />
+      </ToggleBar>
       {/* 比較モード切替 */}
       {hasMultipleStores && (
         <ToggleBar>
