@@ -11,7 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
-import { useChartTheme, toManYen } from '@/presentation/components/charts'
+import { useChartTheme, toSenYen } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import {
   decompose2,
@@ -577,7 +577,7 @@ export function CategoryFactorBreakdown({
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} horizontal={false} />
           <XAxis
             type="number"
-            tickFormatter={toManYen}
+            tickFormatter={toSenYen}
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted, fontFamily: ct.monoFamily }}
             axisLine={{ stroke: ct.grid }}
           />

@@ -29,17 +29,28 @@ export function DashboardPage() {
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
-  // 分類別時間帯売上を選択店舗でフィルタ
+  // 分類別時間帯売上を選択店舗 + 有効期間でフィルタ
+  const elapsedDays = currentResult?.elapsedDays
   const filteredCategoryTimeSales = useMemo(() => {
     const cts = appState.data.categoryTimeSales
     if (!cts?.records) return { records: [] }
-    if (selectedStoreIds.size === 0) return cts
-    return {
-      records: cts.records.filter(
-        (r) => selectedStoreIds.has(r.storeId),
-      ),
+    let recs = cts.records
+    if (selectedStoreIds.size > 0) {
+      recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
     }
-  }, [appState.data.categoryTimeSales, selectedStoreIds])
+    if (elapsedDays != null && elapsedDays > 0) {
+      recs = recs.filter((r) => r.day <= elapsedDays)
+    }
+    return { records: recs }
+  }, [appState.data.categoryTimeSales, selectedStoreIds, elapsedDays])
+
+  // 前年分類別時間帯売上も有効期間でフィルタ
+  const filteredPrevYearCTS = useMemo(() => {
+    if (!prevYearCTS.hasPrevYear) return prevYearCTS
+    if (elapsedDays == null || elapsedDays <= 0) return prevYearCTS
+    const trimmed = prevYearCTS.records.filter((r) => r.day <= elapsedDays)
+    return { ...prevYearCTS, records: trimmed }
+  }, [prevYearCTS, elapsedDays])
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -176,7 +187,7 @@ export function DashboardPage() {
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,
     departmentKpi: appState.data.departmentKpi,
-    prevYearCategoryTimeSales: prevYearCTS,
+    prevYearCategoryTimeSales: filteredPrevYearCTS,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)

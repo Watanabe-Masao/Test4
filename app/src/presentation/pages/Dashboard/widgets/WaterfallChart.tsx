@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer, ReferenceLine, LabelList,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toManYen } from '@/presentation/components/charts'
+import { useChartTheme, tooltipStyle, toSenYen } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 
@@ -115,7 +115,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={toSenYen}
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
@@ -133,7 +133,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             <LabelList
               dataKey="value"
               position="top"
-              formatter={(v: unknown) => toManYen(Number(v))}
+              formatter={(v: unknown) => toSenYen(Number(v))}
               style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
             />
             {data.map((item, idx) => (
