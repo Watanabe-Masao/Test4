@@ -7,7 +7,7 @@ import {
 } from '@/application/services/FileImportService'
 import type { ImportSummary } from '@/application/services/FileImportService'
 import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, createEmptyImportedData } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -60,43 +60,6 @@ export function useImport() {
     [dispatch],
   )
 
-  /**
-   * 前年データを実際の年月に通常データタイプとして保存する。
-   * prevYearDiscount → discount, prevYearSales → sales,
-   * prevYearCategoryTimeSales → categoryTimeSales として保存。
-   */
-  const savePrevYearData = useCallback(
-    async (
-      data: ImportedData,
-      yearMonth: { year: number; month: number },
-      hasSalesDiscount: boolean,
-      hasCTS: boolean,
-    ): Promise<void> => {
-      const { year, month } = yearMonth
-      // 前年データを通常データとして一時的な ImportedData を構築
-      const prevData: ImportedData = {
-        ...createEmptyImportedData(),
-        sales: hasSalesDiscount ? data.prevYearSales : {},
-        discount: hasSalesDiscount ? data.prevYearDiscount : {},
-        categoryTimeSales: hasCTS ? data.prevYearCategoryTimeSales : { records: [] },
-        // stores/suppliers は現在のデータから引き継ぐ（店舗情報は共通）
-        stores: data.stores,
-        suppliers: data.suppliers,
-      }
-      const dataTypes: DataType[] = []
-      if (hasSalesDiscount) {
-        dataTypes.push('sales', 'discount')
-      }
-      if (hasCTS) {
-        dataTypes.push('categoryTimeSales')
-      }
-      if (dataTypes.length > 0) {
-        await repo.saveDataSlice(prevData, year, month, dataTypes)
-      }
-    },
-    [repo],
-  )
-
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       if (importingRef.current) {
@@ -108,7 +71,7 @@ export function useImport() {
       setSaveError(null)
 
       try {
-        const { summary, data, detectedYearMonth, prevYearDetectedYearMonth } = await processDroppedFiles(
+        const { summary, data, detectedYearMonth } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
@@ -141,13 +104,8 @@ export function useImport() {
             importedTypes.add('sales')
             importedTypes.add('discount')
           }
-          // 前年種別は当年保存対象から除外（実際の年月に別途保存する）
-          const hasPrevYearSalesDiscount = importedTypes.has('prevYearSalesDiscount')
-          const hasPrevYearCTS = importedTypes.has('prevYearCategoryTimeSales')
-          importedTypes.delete('prevYearSalesDiscount')
-          importedTypes.delete('prevYearCategoryTimeSales')
 
-          // 既存データがあれば差分チェック（当年データのみ）
+          // 既存データがあれば差分チェック
           if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
@@ -164,12 +122,6 @@ export function useImport() {
                     summary,
                   })
                   // state にはまだ反映しない
-                  // ただし前年データは実際の年月に別途保存する
-                  if (prevYearDetectedYearMonth && repo.isAvailable()) {
-                    savePrevYearData(data, prevYearDetectedYearMonth, hasPrevYearSalesDiscount, hasPrevYearCTS).catch((e) => {
-                      console.error('[useImport] prevYear save failed:', e)
-                    })
-                  }
                   return summary
                 }
               }
@@ -186,7 +138,7 @@ export function useImport() {
           const messages = validateImportedData(data, summary)
           dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-          // ストレージに保存（当年データ）
+          // ストレージに保存
           if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
@@ -197,13 +149,6 @@ export function useImport() {
               setSaveError(msg)
             }
           }
-
-          // 前年データを実際の年月に通常データタイプとして別途保存
-          if (prevYearDetectedYearMonth && repo.isAvailable()) {
-            savePrevYearData(data, prevYearDetectedYearMonth, hasPrevYearSalesDiscount, hasPrevYearCTS).catch((e) => {
-              console.error('[useImport] prevYear save failed:', e)
-            })
-          }
         }
 
         return summary
@@ -213,7 +158,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo, savePrevYearData],
+    [dispatch, autoSetDataEndDay, repo],
   )
 
   /** 差分確認結果を適用する */
@@ -352,15 +297,15 @@ export function mergeInsertsOnly(
     purchase: has('purchase') ? mergeStoreDayRecords(existing.purchase, incoming.purchase) : existing.purchase,
     sales: has('sales') ? mergeStoreDayRecords(existing.sales, incoming.sales) : existing.sales,
     discount: has('discount') ? mergeStoreDayRecords(existing.discount, incoming.discount) : existing.discount,
-    prevYearSales: has('prevYearSales') ? mergeStoreDayRecords(existing.prevYearSales, incoming.prevYearSales) : existing.prevYearSales,
-    prevYearDiscount: has('prevYearDiscount') ? mergeStoreDayRecords(existing.prevYearDiscount, incoming.prevYearDiscount) : existing.prevYearDiscount,
+    prevYearSales: existing.prevYearSales,
+    prevYearDiscount: existing.prevYearDiscount,
     interStoreIn: has('interStoreIn') ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn) : existing.interStoreIn,
     interStoreOut: has('interStoreOut') ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut) : existing.interStoreOut,
     flowers: has('flowers') ? mergeStoreDayRecords(existing.flowers, incoming.flowers) : existing.flowers,
     directProduce: has('directProduce') ? mergeStoreDayRecords(existing.directProduce, incoming.directProduce) : existing.directProduce,
     consumables: has('consumables') ? mergeStoreDayRecords(existing.consumables, incoming.consumables) : existing.consumables,
     categoryTimeSales: has('categoryTimeSales') ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales) : existing.categoryTimeSales,
-    prevYearCategoryTimeSales: has('prevYearCategoryTimeSales') ? mergeCTSInserts(existing.prevYearCategoryTimeSales, incoming.prevYearCategoryTimeSales) : existing.prevYearCategoryTimeSales,
+    prevYearCategoryTimeSales: existing.prevYearCategoryTimeSales,
     departmentKpi: has('departmentKpi') ? mergeDepartmentKpiInserts(existing.departmentKpi, incoming.departmentKpi) : existing.departmentKpi,
     stores: mergeMapInserts(existing.stores, incoming.stores),
     suppliers: mergeMapInserts(existing.suppliers, incoming.suppliers),

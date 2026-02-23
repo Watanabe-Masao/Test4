@@ -42,7 +42,6 @@ export type DataType =
   | 'sales'
   | 'discount'
   | 'salesDiscount'
-  | 'prevYearSalesDiscount'
   | 'initialSettings'
   | 'budget'
   | 'consumables'
@@ -51,5 +50,4 @@ export type DataType =
   | 'flowers'
   | 'directProduce'
   | 'categoryTimeSales'
-  | 'prevYearCategoryTimeSales'
   | 'departmentKpi'

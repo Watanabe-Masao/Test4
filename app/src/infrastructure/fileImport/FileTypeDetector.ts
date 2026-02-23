@@ -15,14 +15,14 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
   // 花・産直はヘッダーが同一のためファイル名で先に判定する
   {
     type: 'flowers',
-    name: '花',
-    filenamePatterns: ['花', 'hana'],
+    name: '売上納品_花',
+    filenamePatterns: ['売上納品_花', '花', 'hana'],
     headerPatterns: ['販売金額'],
   },
   {
     type: 'directProduce',
-    name: '産直',
-    filenamePatterns: ['産直', 'sanchoku'],
+    name: '売上納品_産直',
+    filenamePatterns: ['売上納品_産直', '産直', 'sanchoku'],
     headerPatterns: ['販売金額'],
   },
   {
@@ -34,32 +34,18 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
   // 予算は「売上予算」を含むため sales より先に判定する
   {
     type: 'budget',
-    name: '予算',
+    name: '売上予算',
     filenamePatterns: ['売上予算', '予算', 'budget'],
     headerPatterns: ['売上予算', '予算'],
-  },
-  // 前年売上売変を salesDiscount より先に判定する（「前年」キーワードで区別）
-  {
-    type: 'prevYearSalesDiscount',
-    name: '前年売上売変客数',
-    filenamePatterns: ['前年売上売変客数', '前年売上売変', '前年売上', 'prev_uriage'],
-    headerPatterns: [],
   },
   // 売上売変客数の複合ファイル（客数を含む新形式も同一タイプで処理）
   {
     type: 'salesDiscount',
-    name: '売上売変',
+    name: '売上売変客数',
     filenamePatterns: ['売上売変客数', '売上売変', 'uriage_baihen', 'uriageBaihen'],
     headerPatterns: [],
   },
-  // 前年分類別時間帯売上（categoryTimeSales より先に「前年」キーワードで区別）
-  {
-    type: 'prevYearCategoryTimeSales',
-    name: '前年分類別時間帯売上',
-    filenamePatterns: ['前年分類別時間帯売上', '前年時間帯売上'],
-    headerPatterns: [],
-  },
-  // 分類別時間帯売上（消耗品の前に配置 — 8. vs 8_ の競合防止）
+  // 分類別時間帯売上（消耗品の前に配置 — 7. vs 8. の競合防止）
   {
     type: 'categoryTimeSales',
     name: '分類別時間帯売上',
@@ -111,20 +97,17 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
 ] as const
 
 /**
- * 命名規則によるプレフィックス判定: 0_売上予算.xlsx, 1_売上売変.xlsx, ...
+ * 命名規則によるプレフィックス判定: 0_売上予算.xlsx, 1_売上売変客数.xlsx, ...
  */
 const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
   { prefix: '0_', type: 'budget' },
   { prefix: '1_', type: 'salesDiscount' },
-  { prefix: '2_', type: 'purchase' },
-  { prefix: '3_', type: 'flowers' },
-  { prefix: '4_', type: 'directProduce' },
+  { prefix: '2_', type: 'flowers' },
+  { prefix: '3_', type: 'directProduce' },
+  { prefix: '4_', type: 'interStoreOut' },
   { prefix: '5_', type: 'interStoreIn' },
-  { prefix: '6_', type: 'interStoreOut' },
-  { prefix: '7_', type: 'initialSettings' },
-  { prefix: '8_', type: 'consumables' },
-  { prefix: '9_', type: 'departmentKpi' },
-  { prefix: '998_', type: 'prevYearSalesDiscount' },
+  { prefix: '6_', type: 'purchase' },
+  { prefix: '999_', type: 'initialSettings' },
 ]
 
 /**
@@ -133,14 +116,11 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
 function matchByFilename(filename: string): DataType | null {
   const basename = filename.replace(/^.*[\\/]/, '')
 
-  // 前年分類別時間帯売上: "9.分類別時間帯売上" (例: 9.分類別時間帯売上250202.csv)
-  if (/^9\.分類別/.test(basename) || /^9\..*時間帯/.test(basename)) return 'prevYearCategoryTimeSales'
+  // 分類別時間帯売上: "7.分類別時間帯売上" or "8.分類別時間帯売上" (旧規則互換)
+  if (/^\d+\.分類別/.test(basename) || /^\d+\..*時間帯/.test(basename)) return 'categoryTimeSales'
 
-  // 分類別時間帯売上: "8.分類別時間帯売上" (例: 8.分類別時間帯売上260201.csv)
-  if (/^8\.分類別/.test(basename) || /^8\..*時間帯/.test(basename)) return 'categoryTimeSales'
-
-  // 消耗品: 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
-  if (/^\d{2}消耗/.test(basename)) return 'consumables'
+  // 消耗品: "8.消耗品" or 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
+  if (/^\d+\.消耗/.test(basename) || /^\d{2}消耗/.test(basename)) return 'consumables'
 
   // キーワードマッチ（優先: ファイル名に明示的なデータ種別名がある場合）
   // ※ プレフィックス番号がユーザー環境と異なる場合でも正しく判定できる
