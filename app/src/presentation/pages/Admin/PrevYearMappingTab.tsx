@@ -150,20 +150,53 @@ const DowHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `
 
-const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean }>`
+const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean; $hasData?: boolean }>`
   text-align: center;
-  padding: 3px 2px;
+  padding: 4px 2px;
   border-radius: 3px;
-  background: ${({ $mapped, theme }) =>
-    $mapped ? `${theme.colors.palette.primary}15` : 'transparent'};
+  background: ${({ $mapped, $hasData, theme }) =>
+    !$mapped ? 'transparent'
+    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}12`
+    : `${theme.colors.palette.danger ?? '#ef4444'}08`};
   color: ${({ $isWeekend, theme }) =>
     $isWeekend ? theme.colors.palette.danger ?? '#ef4444' : theme.colors.text};
+  border: 1px solid ${({ $mapped, $hasData, theme }) =>
+    !$mapped ? 'transparent'
+    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}30`
+    : `${theme.colors.border}`};
 `
 
 const MappingArrow = styled.div`
   font-size: 10px;
   color: ${({ theme }) => theme.colors.text4};
   line-height: 1;
+`
+
+const PrevDayLabel = styled.div<{ $isOverflow?: boolean }>`
+  font-size: 10px;
+  opacity: ${({ $isOverflow }) => ($isOverflow ? 0.8 : 0.6)};
+  color: ${({ $isOverflow }) => ($isOverflow ? '#f59e0b' : 'inherit')};
+`
+
+const DataStatus = styled.div<{ $hasData: boolean }>`
+  font-size: 10px;
+  line-height: 1.2;
+`
+
+const MappingSummary = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
+const SummaryItem = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
 `
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
@@ -250,19 +283,52 @@ export function PrevYearMappingTab() {
 
   const isOverridden = sourceYear !== null || sourceMonth !== null || dowOffset !== null
 
+  // prevYearDiscount から各 day のデータ有無を判定
+  const prevYearDiscount = state.data.prevYearDiscount
+  const prevDayHasData = useMemo(() => {
+    const daySet = new Set<number>()
+    for (const storeDays of Object.values(prevYearDiscount)) {
+      for (const dayStr of Object.keys(storeDays)) {
+        daySet.add(Number(dayStr))
+      }
+    }
+    return daySet
+  }, [prevYearDiscount])
+
   // 日付マッピングプレビュー
   const mappingPreview = useMemo(() => {
     const daysInTarget = getDaysInMonth(targetYear, targetMonth)
+    const daysInSource = getDaysInMonth(effectiveSourceYear, effectiveSourceMonth)
     const firstDow = new Date(targetYear, targetMonth - 1, 1).getDay()
+    const nextSourceMonth = (effectiveSourceMonth % 12) + 1
 
-    const rows: { currentDay: number; prevDay: number; dow: number }[] = []
-    for (let d = 1; d <= Math.min(daysInTarget, 28); d++) {
+    interface MappingRow {
+      currentDay: number
+      prevDay: number       // 拡張day番号（overflow含む）
+      dow: number
+      isOverflow: boolean   // 前年ソース月を超えている
+      prevDisplayMonth: number  // 表示用の月
+      prevDisplayDay: number    // 表示用の日
+      hasData: boolean
+    }
+
+    const rows: MappingRow[] = []
+    let matchedCount = 0
+    let unmatchedCount = 0
+
+    for (let d = 1; d <= daysInTarget; d++) {
       const dow = (firstDow + d - 1) % 7
       const prevDay = d + effectiveOffset
-      rows.push({ currentDay: d, prevDay, dow })
+      const isOverflow = prevDay > daysInSource
+      const prevDisplayMonth = isOverflow ? nextSourceMonth : effectiveSourceMonth
+      const prevDisplayDay = isOverflow ? prevDay - daysInSource : prevDay
+      const hasData = prevDayHasData.has(prevDay)
+      if (hasData) matchedCount++
+      else unmatchedCount++
+      rows.push({ currentDay: d, prevDay, dow, isOverflow, prevDisplayMonth, prevDisplayDay, hasData })
     }
-    return { rows, firstDow, daysInTarget }
-  }, [targetYear, targetMonth, effectiveOffset])
+    return { rows, firstDow, daysInTarget, daysInSource, matchedCount, unmatchedCount }
+  }, [targetYear, targetMonth, effectiveOffset, effectiveSourceYear, effectiveSourceMonth, prevDayHasData])
 
   // 選択用: auto + 利用可能月
   const sourceOptions = useMemo(() => {
@@ -369,10 +435,26 @@ export function PrevYearMappingTab() {
       <Section>
         <SectionTitle>曜日対応プレビュー</SectionTitle>
         <HelpText>
-          当年の各日に対応する前年の日番号です。オフセット={effectiveOffset} の場合、
+          当年の各日に対応する前年の実際の日付です。オフセット={effectiveOffset} の場合、
           当年{targetMonth}/1({DOW_LABELS[new Date(targetYear, targetMonth - 1, 1).getDay()] ?? '?'}) →
           前年{effectiveSourceMonth}/{1 + effectiveOffset}({DOW_LABELS[new Date(effectiveSourceYear, effectiveSourceMonth - 1, 1 + effectiveOffset).getDay()] ?? '?'})
         </HelpText>
+
+        {hasPrevYearData && (
+          <MappingSummary>
+            <SummaryItem>
+              {mappingPreview.matchedCount > 0 ? '✅' : ''} データあり: {mappingPreview.matchedCount}日
+            </SummaryItem>
+            <SummaryItem>
+              {mappingPreview.unmatchedCount > 0 ? '❌' : ''} データなし: {mappingPreview.unmatchedCount}日
+            </SummaryItem>
+            {mappingPreview.rows.some((r) => r.isOverflow) && (
+              <SummaryItem style={{ color: '#f59e0b' }}>
+                翌月参照: {mappingPreview.rows.filter((r) => r.isOverflow).length}日
+              </SummaryItem>
+            )}
+          </MappingSummary>
+        )}
 
         <PreviewGrid>
           {DOW_LABELS.map((d, i) => (
@@ -386,11 +468,23 @@ export function PrevYearMappingTab() {
             <DayCell key={`empty-${i}`} $mapped={false} $isWeekend={false} />
           ))}
 
-          {mappingPreview.rows.map(({ currentDay, prevDay, dow }) => (
-            <DayCell key={currentDay} $mapped={true} $isWeekend={dow === 0 || dow === 6}>
+          {mappingPreview.rows.map(({ currentDay, dow, isOverflow, prevDisplayMonth, prevDisplayDay, hasData }) => (
+            <DayCell
+              key={currentDay}
+              $mapped={true}
+              $isWeekend={dow === 0 || dow === 6}
+              $hasData={hasPrevYearData && hasData}
+            >
               <div>{currentDay}</div>
               <MappingArrow>↕</MappingArrow>
-              <div style={{ opacity: 0.6 }}>前年{prevDay}</div>
+              <PrevDayLabel $isOverflow={isOverflow}>
+                {prevDisplayMonth}/{prevDisplayDay}
+              </PrevDayLabel>
+              {hasPrevYearData && (
+                <DataStatus $hasData={hasData}>
+                  {hasData ? '✅' : '❌'}
+                </DataStatus>
+              )}
             </DayCell>
           ))}
         </PreviewGrid>
