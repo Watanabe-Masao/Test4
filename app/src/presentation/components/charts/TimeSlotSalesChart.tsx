@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -279,7 +279,7 @@ function aggregateHourly(
   return { hourly: result, totalAmount, totalQuantity, recordCount: storeFiltered.length, divisor: div }
 }
 
-/** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較対応） */
+/** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較・前週比較対応） */
 export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -287,25 +287,51 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const [showPrevYear, setShowPrevYear] = useState(true)
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
+  const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
-  const prevPeriodRecords = useMemo(
-    () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],
-    [prevYearRecords, pf],
-  )
+
+  // WoW: 前週期間 (dayRange を -7 日シフト)
+  const wowPrevStart = pf.dayRange[0] - 7
+  const wowPrevEnd = pf.dayRange[1] - 7
+  const canWoW = wowPrevStart >= 1
+
+  // 日付範囲変更で canWoW が false になった場合、yoy にフォールバック
+  useEffect(() => {
+    if (compMode === 'wow' && !canWoW) setCompMode('yoy')
+  }, [compMode, canWoW])
+
+  // 比較期間レコード（前年比 or 前週比で切替）
+  const prevPeriodRecords = useMemo(() => {
+    if (compMode === 'wow' && canWoW) {
+      return categoryTimeSales.records.filter(
+        (rec) => rec.day >= wowPrevStart && rec.day <= wowPrevEnd,
+      )
+    }
+    return prevYearRecords ? pf.filterRecords(prevYearRecords) : []
+  }, [compMode, canWoW, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
+
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
 
-  // 前年データがカバーする日の集合（日数一致比較用）
+  // 動的ラベル
+  const prevLbl = compMode === 'wow' ? '前週' : '前年'
+  const curLbl = compMode === 'wow' ? '当週' : '当年'
+
+  // 比較期間データがカバーする日の集合（日数一致比較用）
   const prevDaySet = useMemo(
     () => new Set(prevPeriodRecords.map((r) => r.day)),
     [prevPeriodRecords],
   )
-  // 前年と重複する日のみの当年レコード（前年比の分母分子を揃える）
+  // 比較期間と重複する日のみの当年レコード（分母分子を揃える）
   const comparablePeriodRecords = useMemo(
-    () => hasPrevYear ? periodRecords.filter((r) => prevDaySet.has(r.day)) : periodRecords,
-    [periodRecords, prevDaySet, hasPrevYear],
+    () => {
+      if (!hasPrevYear) return periodRecords
+      if (compMode === 'wow') return periodRecords // WoW: both periods same coverage
+      return periodRecords.filter((r) => prevDaySet.has(r.day))
+    },
+    [periodRecords, prevDaySet, hasPrevYear, compMode],
   )
 
   const current = useMemo(
@@ -460,7 +486,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   const showPrev = hasPrevYear && showPrevYear
 
   const titleText = viewMode === 'yoy'
-    ? `時間帯別 前年同曜日比較`
+    ? `時間帯別 ${prevLbl}同曜日比較`
     : `時間帯別${metricMode === 'amount' ? '売上' : '数量'}${viewMode === 'kpi' ? ' サマリー' : ''}`
   const modeLabel = pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''
 
@@ -475,11 +501,20 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
               <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>点数</Tab>
             </TabGroup>
           )}
+          {hasPrevYear && (
+            <>
+              <Separator />
+              <TabGroup>
+                <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</Tab>
+                <Tab $active={compMode === 'wow'} onClick={() => { if (canWoW) setCompMode('wow') }} style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}>前週比</Tab>
+              </TabGroup>
+            </>
+          )}
           {hasPrevYear && viewMode === 'chart' && (
             <>
               <Separator />
               <TabGroup>
-                <Tab $active={showPrevYear} onClick={() => setShowPrevYear(!showPrevYear)}>前年比較</Tab>
+                <Tab $active={showPrevYear} onClick={() => setShowPrevYear(!showPrevYear)}>{prevLbl}比較</Tab>
               </TabGroup>
             </>
           )}
@@ -488,7 +523,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
             <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>チャート</Tab>
             <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
             {hasPrevYear && (
-              <Tab $active={viewMode === 'yoy'} onClick={() => setViewMode('yoy')}>前年比較</Tab>
+              <Tab $active={viewMode === 'yoy'} onClick={() => setViewMode('yoy')}>{prevLbl}比較</Tab>
             )}
           </TabGroup>
         </Controls>
@@ -539,10 +574,10 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 contentStyle={tooltipStyle(ct)}
                 formatter={(value, name) => {
                   const labels: Record<string, string> = {
-                    amount: showPrev ? '当年売上' : '売上金額',
-                    quantity: showPrev ? '当年数量' : '数量',
-                    prevAmount: '前年売上',
-                    prevQuantity: '前年数量',
+                    amount: showPrev ? `${curLbl}売上` : '売上金額',
+                    quantity: showPrev ? `${curLbl}数量` : '数量',
+                    prevAmount: `${prevLbl}売上`,
+                    prevQuantity: `${prevLbl}数量`,
                   }
                   const label = labels[name as string] ?? String(name)
                   if (name === 'amount' || name === 'prevAmount') return [toComma(value as number) + '円', label]
@@ -553,10 +588,10 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
                 formatter={(value) => {
                   const labels: Record<string, string> = {
-                    amount: showPrev ? '当年売上' : '売上金額',
-                    quantity: showPrev ? '当年数量' : '数量',
-                    prevAmount: '前年売上',
-                    prevQuantity: '前年数量',
+                    amount: showPrev ? `${curLbl}売上` : '売上金額',
+                    quantity: showPrev ? `${curLbl}数量` : '数量',
+                    prevAmount: `${prevLbl}売上`,
+                    prevQuantity: `${prevLbl}数量`,
                   }
                   return labels[value] ?? value
                 }}
@@ -600,7 +635,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           {metricMode === 'amount' ? (
             <>
               <Card $accent="#6366f1">
-                <CardLabel>当年 総売上金額</CardLabel>
+                <CardLabel>{curLbl} 総売上金額</CardLabel>
                 <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
                 <CardSub>
                   {kpi.totalAmount.toLocaleString()}円
@@ -613,18 +648,18 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
               </Card>
               {kpi.prevTotalAmount > 0 && (
                 <Card $accent={ct.colors.slate}>
-                  <CardLabel>前年 総売上金額</CardLabel>
+                  <CardLabel>{prevLbl} 総売上金額</CardLabel>
                   <CardValue>{Math.round(kpi.prevTotalAmount / 10000).toLocaleString()}万円</CardValue>
                   <CardSub>{kpi.prevTotalAmount.toLocaleString()}円</CardSub>
                 </Card>
               )}
               {kpi.yoyDiff != null && (
                 <Card $accent={kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
-                  <CardLabel>前年差（金額）</CardLabel>
+                  <CardLabel>{prevLbl}差（金額）</CardLabel>
                   <CardValue style={{ color: kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
                     {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
                   </CardValue>
-                  <CardSub>前年比 {toPct(kpi.yoyRatio ?? 0)}</CardSub>
+                  <CardSub>{prevLbl}比 {toPct(kpi.yoyRatio ?? 0)}</CardSub>
                 </Card>
               )}
               <Card $accent="#06b6d4">
@@ -656,7 +691,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           ) : (
             <>
               <Card $accent="#06b6d4">
-                <CardLabel>当年 総数量</CardLabel>
+                <CardLabel>{curLbl} 総数量</CardLabel>
                 <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
                 <CardSub>
                   {kpi.recordCount.toLocaleString()}レコード
@@ -669,17 +704,17 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
               </Card>
               {kpi.prevTotalQuantity > 0 && (
                 <Card $accent={ct.colors.slate}>
-                  <CardLabel>前年 総数量</CardLabel>
+                  <CardLabel>{prevLbl} 総数量</CardLabel>
                   <CardValue>{kpi.prevTotalQuantity.toLocaleString()}点</CardValue>
                 </Card>
               )}
               {kpi.yoyQuantityDiff != null && (
                 <Card $accent={kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444'}>
-                  <CardLabel>前年差（数量）</CardLabel>
+                  <CardLabel>{prevLbl}差（数量）</CardLabel>
                   <CardValue style={{ color: kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444' }}>
                     {kpi.yoyQuantityDiff >= 0 ? '+' : ''}{kpi.yoyQuantityDiff.toLocaleString()}点
                   </CardValue>
-                  <CardSub>前年比 {toPct(kpi.yoyQuantityRatio ?? 0)}</CardSub>
+                  <CardSub>{prevLbl}比 {toPct(kpi.yoyQuantityRatio ?? 0)}</CardSub>
                 </Card>
               )}
               <Card $accent="#6366f1">
@@ -720,13 +755,13 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
           <>
             <SummaryRow>
               <Metric>
-                <MetricLabel>当年合計</MetricLabel>
+                <MetricLabel>{curLbl}合計</MetricLabel>
                 <MetricValue>{fmt(s.curTotal)}円</MetricValue>
               </Metric>
               {s.yoyRatio != null && (
                 <ProgressBarWrap>
                   <ProgressLabelRow>
-                    <span>前年比 {toPct(s.yoyRatio)}</span>
+                    <span>{prevLbl}比 {toPct(s.yoyRatio)}</span>
                     <span>{s.yoyDiff >= 0 ? '+' : ''}{fmt(s.yoyDiff)}円</span>
                   </ProgressLabelRow>
                   <ProgressTrack>
@@ -735,7 +770,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 </ProgressBarWrap>
               )}
               <Metric>
-                <MetricLabel>前年合計</MetricLabel>
+                <MetricLabel>{prevLbl}合計</MetricLabel>
                 <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
               </Metric>
               {s.maxIncHour >= 0 && (
@@ -751,22 +786,22 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 </Metric>
               )}
               <Metric>
-                <MetricLabel>コアタイム（当年）</MetricLabel>
+                <MetricLabel>コアタイム（{curLbl}）</MetricLabel>
                 <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
               </Metric>
               <Metric>
-                <MetricLabel>折り返し（当年）</MetricLabel>
+                <MetricLabel>折り返し（{curLbl}）</MetricLabel>
                 <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
               </Metric>
               {s.prevCoreTime && (
                 <Metric>
-                  <MetricLabel>コアタイム（前年）</MetricLabel>
+                  <MetricLabel>コアタイム（{prevLbl}）</MetricLabel>
                   <MetricValue $color={ct.colors.slate}>{formatCoreTime(s.prevCoreTime)}</MetricValue>
                 </Metric>
               )}
               {s.prevTurnaround != null && (
                 <Metric>
-                  <MetricLabel>折り返し（前年）</MetricLabel>
+                  <MetricLabel>折り返し（{prevLbl}）</MetricLabel>
                   <MetricValue $color={ct.colors.slate}>{formatTurnaroundHour(s.prevTurnaround)}</MetricValue>
                 </Metric>
               )}
@@ -799,7 +834,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   <Tooltip
                     contentStyle={tooltipStyle(ct)}
                     formatter={(value: number | undefined, name: string | undefined) => {
-                      const labels: Record<string, string> = { current: '当年', prevYear: '前年同曜日', diff: '差分' }
+                      const labels: Record<string, string> = { current: curLbl, prevYear: `${prevLbl}同曜日`, diff: '差分' }
                       const label = labels[name as string] ?? String(name)
                       const v = value ?? 0
                       if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
@@ -810,7 +845,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   <Legend
                     wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
                     formatter={(value) => {
-                      const labels: Record<string, string> = { current: '当年', prevYear: '前年同曜日', diff: '差分' }
+                      const labels: Record<string, string> = { current: curLbl, prevYear: `${prevLbl}同曜日`, diff: '差分' }
                       return labels[value] ?? value
                     }}
                   />
@@ -825,10 +860,10 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 <thead>
                   <tr>
                     <MiniTh>時間帯</MiniTh>
-                    <MiniTh>当年</MiniTh>
-                    <MiniTh>前年</MiniTh>
+                    <MiniTh>{curLbl}</MiniTh>
+                    <MiniTh>{prevLbl}</MiniTh>
                     <MiniTh>差分</MiniTh>
-                    <MiniTh>前年比</MiniTh>
+                    <MiniTh>{prevLbl}比</MiniTh>
                   </tr>
                 </thead>
                 <tbody>

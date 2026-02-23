@@ -70,6 +70,7 @@ const DecompBtn = styled.button<{ $active: boolean }>`
 export function DrilldownWaterfall({
   actual, pySales, dayCust, pyCust,
   dayRecords, prevDayRecords,
+  curLabel = '当年', prevLabel = '前年',
 }: {
   actual: number
   pySales: number
@@ -77,6 +78,8 @@ export function DrilldownWaterfall({
   pyCust: number
   dayRecords: readonly CategoryTimeSalesRecord[]
   prevDayRecords: readonly CategoryTimeSalesRecord[]
+  curLabel?: string
+  prevLabel?: string
 }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -104,7 +107,7 @@ export function DrilldownWaterfall({
     if (pySales <= 0) return []
 
     const items: WaterfallItem[] = []
-    items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
+    items.push({ name: prevLabel, value: pySales, base: 0, bar: pySales, isTotal: true })
 
     let running = pySales
     const push = (name: string, value: number) => {
@@ -147,9 +150,9 @@ export function DrilldownWaterfall({
       push('増減', actual - pySales)
     }
 
-    items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
+    items.push({ name: curLabel, value: actual, base: 0, bar: actual, isTotal: true })
     return items
-  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, dayRecords, prevDayRecords])
+  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, dayRecords, prevDayRecords, curLabel, prevLabel])
 
   // 部門別増減データ: actual/pySales にアンカーし、部門差分はCTSから取得
   const categoryData = useMemo((): WaterfallItem[] => {
@@ -185,7 +188,7 @@ export function DrilldownWaterfall({
     diffs.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
 
     const items: WaterfallItem[] = []
-    items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
+    items.push({ name: prevLabel, value: pySales, base: 0, bar: pySales, isTotal: true })
 
     let running = pySales
     for (const d of diffs.slice(0, 6)) {
@@ -224,10 +227,10 @@ export function DrilldownWaterfall({
       running += residual
     }
 
-    items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
+    items.push({ name: curLabel, value: actual, base: 0, bar: actual, isTotal: true })
 
     return items
-  }, [dayRecords, prevDayRecords, actual, pySales])
+  }, [dayRecords, prevDayRecords, actual, pySales, curLabel, prevLabel])
 
   if (pySales <= 0 || factorData.length === 0) return null
 
@@ -243,7 +246,7 @@ export function DrilldownWaterfall({
 
   return (
     <Section>
-      <DetailSectionTitle>前年比較ウォーターフォール</DetailSectionTitle>
+      <DetailSectionTitle>{prevLabel}比較ウォーターフォール</DetailSectionTitle>
 
       {(hasCategoryView || hasCategoryFactorView) && (
         <TabRow>
@@ -285,6 +288,8 @@ export function DrilldownWaterfall({
           prevRecords={prevDayRecords}
           curCustomers={dayCust}
           prevCustomers={pyCust}
+          curLabel={curLabel}
+          prevLabel={prevLabel}
           compact
         />
       ) : (
