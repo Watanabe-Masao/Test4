@@ -3,6 +3,9 @@
  *
  * DayDetailModal の「売上分析」タブで表示する
  * 分類別ドリルダウンテーブル・ツリーマップ・積み上げバーチャートを提供する。
+ *
+ * 前年・前週の比較データは切り替えではなく同時表示する。
+ * 累計セクションは前年のみ（前週比は特性が異なるため不要）。
  */
 import { useState, useMemo, useCallback, Fragment } from 'react'
 import { createPortal } from 'react-dom'
@@ -34,7 +37,7 @@ export function CategoryDrilldown({
   actual, ach, pySales, hasPrevYearSales,
   cumSales, cumAch, cumPrevYear,
   year, month, day,
-  wowRecords, wowCumRecords, wowPrevSales, wowCumPrevSales, canWoW,
+  wowRecords, wowPrevSales, canWoW,
 }: {
   records: readonly CategoryTimeSalesRecord[]
   prevRecords: readonly CategoryTimeSalesRecord[]
@@ -46,9 +49,7 @@ export function CategoryDrilldown({
   cumSales: number; cumAch: number; cumPrevYear: number
   year: number; month: number; day: number
   wowRecords?: readonly CategoryTimeSalesRecord[]
-  wowCumRecords?: readonly CategoryTimeSalesRecord[]
   wowPrevSales?: number
-  wowCumPrevSales?: number
   canWoW?: boolean
 }) {
   const [filter, setFilter] = useState<HierarchyFilter>({})
@@ -58,19 +59,16 @@ export function CategoryDrilldown({
   const [compare, setCompare] = useState<CompareMode>('daily')
   const [hoveredSeg, setHoveredSeg] = useState<string | null>(null)
   const [segTooltip, setSegTooltip] = useState<{ x: number; y: number; content: React.ReactNode } | null>(null)
-  const [drillSourceRow, setDrillSourceRow] = useState<'actual' | 'prev'>('actual')
-  const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
+  const [drillSourceRow, setDrillSourceRow] = useState<'actual' | 'prev' | 'wow'>('actual')
 
   const currentLevel = getHierarchyLevel(filter)
   const levelLabels: Record<string, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
   const hasPrevYear = prevRecords.length > 0 || cumPrevRecords.length > 0 || hasPrevYearSales
-  const activeCompMode = compMode === 'wow' && !canWoW ? 'yoy' as const : compMode
-  const compPrevLabel = activeCompMode === 'wow' ? '前週' : '前年'
-  const hasComp = activeCompMode === 'wow'
-    ? canWoW === true && ((wowRecords ?? []).length > 0 || (wowPrevSales ?? 0) > 0)
-    : hasPrevYear
-  const effectivePySales = activeCompMode === 'wow' ? (wowPrevSales ?? 0) : pySales
-  const effectiveCumPrevYear = activeCompMode === 'wow' ? (wowCumPrevSales ?? 0) : cumPrevYear
+  const hasWoW = canWoW === true && ((wowRecords ?? []).length > 0 || (wowPrevSales ?? 0) > 0)
+  // 累計モードでは WoW データソースを実績にフォールバック
+  const effectiveSource = (drillSourceRow === 'wow' && (compare === 'cumulative' || !hasWoW))
+    ? 'actual' as const
+    : drillSourceRow
 
   const breadcrumb = useMemo(() => {
     const items: { label: string; f: HierarchyFilter }[] = [{ label: '全カテゴリ', f: {} }]
@@ -85,17 +83,19 @@ export function CategoryDrilldown({
   }, [filter])
 
   const dayFiltered = useMemo(() => filterByHierarchy(records, filter), [records, filter])
-  const dayFilteredPrev = useMemo(() => {
-    if (!hasComp) return []
-    const recs = activeCompMode === 'wow' ? (wowRecords ?? []) : prevRecords
-    return filterByHierarchy(recs, filter)
-  }, [hasComp, activeCompMode, wowRecords, prevRecords, filter])
+  const dayFilteredYoYPrev = useMemo(
+    () => hasPrevYear ? filterByHierarchy(prevRecords, filter) : [],
+    [hasPrevYear, prevRecords, filter],
+  )
+  const dayFilteredWoWPrev = useMemo(
+    () => hasWoW ? filterByHierarchy(wowRecords ?? [], filter) : [],
+    [hasWoW, wowRecords, filter],
+  )
   const cumFiltered = useMemo(() => filterByHierarchy(cumRecords, filter), [cumRecords, filter])
-  const cumFilteredPrev = useMemo(() => {
-    if (!hasComp) return []
-    const recs = activeCompMode === 'wow' ? (wowCumRecords ?? []) : cumPrevRecords
-    return filterByHierarchy(recs, filter)
-  }, [hasComp, activeCompMode, wowCumRecords, cumPrevRecords, filter])
+  const cumFilteredYoYPrev = useMemo(
+    () => hasPrevYear ? filterByHierarchy(cumPrevRecords, filter) : [],
+    [hasPrevYear, cumPrevRecords, filter],
+  )
 
   const levelColorMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -116,18 +116,34 @@ export function CategoryDrilldown({
     return map
   }, [records, cumRecords, cumFiltered, dayFiltered, currentLevel])
 
-  const dayItems = useMemo(
-    () => buildDrillItems(dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasComp),
-    [dayFiltered, dayFilteredPrev, currentLevel, metric, levelColorMap, hasComp],
+  // YoY items
+  const dayItemsYoY = useMemo(
+    () => buildDrillItems(dayFiltered, dayFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear),
+    [dayFiltered, dayFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
   )
-  const cumItemsList = useMemo(
-    () => buildDrillItems(cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasComp),
-    [cumFiltered, cumFilteredPrev, currentLevel, metric, levelColorMap, hasComp],
+  const cumItemsYoY = useMemo(
+    () => buildDrillItems(cumFiltered, cumFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear),
+    [cumFiltered, cumFilteredYoYPrev, currentLevel, metric, levelColorMap, hasPrevYear],
   )
+  // WoW items（当日のみ、累計は対象外）
+  const dayItemsWoW = useMemo(
+    () => hasWoW ? buildDrillItems(dayFiltered, dayFilteredWoWPrev, currentLevel, metric, levelColorMap, true) : [],
+    [dayFiltered, dayFilteredWoWPrev, currentLevel, metric, levelColorMap, hasWoW],
+  )
+  const wowItemMap = useMemo(() => {
+    const map = new Map<string, DrillItem>()
+    for (const it of dayItemsWoW) map.set(it.code, it)
+    return map
+  }, [dayItemsWoW])
 
-  const items = compare === 'daily' ? dayItems : cumItemsList
+  // テーブル・ツリーマップ用のアクティブ items
+  const items = (() => {
+    if (compare === 'cumulative') return cumItemsYoY
+    if (effectiveSource === 'wow') return dayItemsWoW
+    return dayItemsYoY
+  })()
 
-  const isPrevSource = drillSourceRow === 'prev'
+  const isPrevSource = effectiveSource !== 'actual'
   const primaryAmt = useCallback((it: DrillItem) =>
     isPrevSource ? (it.prevAmount ?? 0) : it.amount, [isPrevSource])
   const primaryQty = useCallback((it: DrillItem) =>
@@ -159,7 +175,7 @@ export function CategoryDrilldown({
     else { setSortKey(key); setSortDir('desc') }
   }, [sortKey])
 
-  const handleRowSelect = useCallback((period: CompareMode, row: 'actual' | 'prev') => {
+  const handleRowSelect = useCallback((period: CompareMode, row: 'actual' | 'prev' | 'wow') => {
     setCompare(period)
     setDrillSourceRow(row)
   }, [])
@@ -168,8 +184,6 @@ export function CategoryDrilldown({
   const totalQty = items.reduce((s, i) => s + i.quantity, 0)
   const totalPrevAmt = items.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
   const totalPrevQty = items.reduce((s, i) => s + (i.prevQuantity ?? 0), 0)
-  const totalYoY = totalPrevAmt > 0 ? totalAmt / totalPrevAmt : null
-  const totalQtyYoY = totalPrevQty > 0 ? totalQty / totalPrevQty : null
   const displayPrimaryAmt = isPrevSource ? totalPrevAmt : totalAmt
   const displayPrimaryQty = isPrevSource ? totalPrevQty : totalQty
   const maxVal = items.length > 0
@@ -180,9 +194,28 @@ export function CategoryDrilldown({
 
   const isAmountMode = metric === 'amount'
   const displayTotal = isAmountMode ? displayPrimaryAmt : displayPrimaryQty
-  const displayYoY = isAmountMode ? totalYoY : totalQtyYoY
-  const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${isPrevSource ? compPrevLabel : '実績'}`
+  const sourceLabel = effectiveSource === 'wow' ? '前週' : effectiveSource === 'prev' ? '前年' : '実績'
+  const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${sourceLabel}`
   const fmtVal = isAmountMode ? (v: number) => `${toComma(v)}円` : (v: number) => `${v.toLocaleString()}点`
+
+  // サマリ用: YoY・WoW 両方の比率を常に算出
+  const yoySummaryRatio = useMemo(() => {
+    const src = compare === 'daily' ? dayItemsYoY : cumItemsYoY
+    const a = src.reduce((s, i) => s + i.amount, 0)
+    const pa = src.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
+    const q = src.reduce((s, i) => s + i.quantity, 0)
+    const pq = src.reduce((s, i) => s + (i.prevQuantity ?? 0), 0)
+    return isAmountMode ? (pa > 0 ? a / pa : null) : (pq > 0 ? q / pq : null)
+  }, [compare, dayItemsYoY, cumItemsYoY, isAmountMode])
+
+  const wowSummaryRatio = useMemo(() => {
+    if (!hasWoW || compare === 'cumulative') return null
+    const a = dayItemsWoW.reduce((s, i) => s + i.amount, 0)
+    const pa = dayItemsWoW.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
+    const q = dayItemsWoW.reduce((s, i) => s + i.quantity, 0)
+    const pq = dayItemsWoW.reduce((s, i) => s + (i.prevQuantity ?? 0), 0)
+    return isAmountMode ? (pa > 0 ? a / pa : null) : (pq > 0 ? q / pq : null)
+  }, [hasWoW, compare, dayItemsWoW, isAmountMode])
 
   const renderBarSection = (
     title: string,
@@ -193,29 +226,37 @@ export function CategoryDrilldown({
     pyVal: number,
     prefix: string,
     period: CompareMode,
+    wowBarItems?: DrillItem[],
+    wowPyVal?: number,
   ) => {
-    const isActualActive = compare === period && drillSourceRow === 'actual'
-    const isPrevActive = compare === period && drillSourceRow === 'prev'
+    const isActualActive = compare === period && effectiveSource === 'actual'
+    const isPrevActive = compare === period && effectiveSource === 'prev'
+    const isWoWActive = compare === period && effectiveSource === 'wow'
     const bActualTotal = isAmountMode
       ? barItems.reduce((s, it) => s + it.amount, 0)
       : barItems.reduce((s, it) => s + it.quantity, 0)
     const bPrevTotal = isAmountMode
       ? barItems.reduce((s, it) => s + (it.prevAmount ?? 0), 0)
       : barItems.reduce((s, it) => s + (it.prevQuantity ?? 0), 0)
+    const bWoWTotal = wowBarItems
+      ? (isAmountMode
+        ? wowBarItems.reduce((s, it) => s + (it.prevAmount ?? 0), 0)
+        : wowBarItems.reduce((s, it) => s + (it.prevQuantity ?? 0), 0))
+      : 0
     // 分類別データが無いが実績（DailyRecord）がある場合のフォールバック表示
     const showActualFallback = bActualTotal === 0 && actualVal > 0 && isAmountMode
     const effectiveActual = showActualFallback ? actualVal : bActualTotal
     const maxBar = isAmountMode
-      ? Math.max(budgetVal, effectiveActual, bPrevTotal, 1)
-      : Math.max(bActualTotal, bPrevTotal, 1)
+      ? Math.max(budgetVal, effectiveActual, bPrevTotal, bWoWTotal, 1)
+      : Math.max(bActualTotal, bPrevTotal, bWoWTotal, 1)
 
-    const tooltipFn = (it: DrillItem, val: number, total: number, isPrev: boolean) => {
+    const tooltipFn = (it: DrillItem, val: number, total: number, isPrev: boolean, compLabel: string) => {
       const pct = formatPercent(total > 0 ? val / total : 0, 2)
       const prevVal = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
       const curVal = isAmountMode ? it.amount : it.quantity
       const diff = isPrev ? undefined : (curVal - prevVal)
       const yoy = isPrev ? undefined : (prevVal > 0 ? formatPercent(curVal / prevVal, 2) : undefined)
-      const rowLabel = isPrev ? compPrevLabel : '実績'
+      const rowLabel = isPrev ? compLabel : '実績'
       return (
         <>
           <div style={{ fontWeight: 600, marginBottom: 2, borderBottom: '1px solid rgba(128,128,128,0.3)', paddingBottom: 2 }}>
@@ -225,9 +266,9 @@ export function CategoryDrilldown({
           <div>販売金額: {fmtSen(isAmountMode ? val : (isPrev ? (it.prevAmount ?? 0) : it.amount))}</div>
           {!isAmountMode && <div>数量: {val.toLocaleString()}点</div>}
           {!isPrev && diff != null && (
-            <div>{compPrevLabel}差: {diff >= 0 ? '+' : ''}{isAmountMode ? fmtSen(diff) : `${diff.toLocaleString()}点`}</div>
+            <div>{compLabel}差: {diff >= 0 ? '+' : ''}{isAmountMode ? fmtSen(diff) : `${diff.toLocaleString()}点`}</div>
           )}
-          {!isPrev && yoy && <div>{compPrevLabel}比: {yoy}</div>}
+          {!isPrev && yoy && <div>{compLabel}比: {yoy}</div>}
           {isPrev && curVal > 0 && (
             <div>実績: {isAmountMode ? fmtSen(curVal) : `${curVal.toLocaleString()}点`}</div>
           )}
@@ -269,7 +310,7 @@ export function CategoryDrilldown({
                     onMouseEnter={(e) => {
                       setHoveredSeg(segKey)
                       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bActualTotal, false) })
+                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bActualTotal, false, '前年') })
                     }}
                     onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
                     onDoubleClick={() => canDrill && handleDrill(it)}
@@ -288,9 +329,9 @@ export function CategoryDrilldown({
           </StackTotal>
           {isActualActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
         </StackRow>
-        {hasComp && pyVal > 0 && (
+        {hasPrevYear && pyVal > 0 && (
           <StackRow $active={isPrevActive} onClick={() => handleRowSelect(period, 'prev')}>
-            <StackLabel>{compPrevLabel}</StackLabel>
+            <StackLabel>前年</StackLabel>
             <StackTrack>
               {barItems.map((it) => {
                 const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
@@ -304,7 +345,7 @@ export function CategoryDrilldown({
                     onMouseEnter={(e) => {
                       setHoveredSeg(segKey)
                       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bPrevTotal, true) })
+                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bPrevTotal, true, '前年') })
                     }}
                     onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
                     onDoubleClick={() => canDrill && handleDrill(it)}
@@ -316,6 +357,36 @@ export function CategoryDrilldown({
             </StackTrack>
             <StackTotal>{isAmountMode ? fmtSen(bPrevTotal) : fmtVal(bPrevTotal)}</StackTotal>
             {isPrevActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
+          </StackRow>
+        )}
+        {wowBarItems && (wowPyVal ?? 0) > 0 && (
+          <StackRow $active={isWoWActive} onClick={() => handleRowSelect(period, 'wow')}>
+            <StackLabel>前週</StackLabel>
+            <StackTrack>
+              {wowBarItems.map((it) => {
+                const val = isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
+                if (val <= 0) return null
+                const pct = bWoWTotal > 0 ? (val / bWoWTotal * 100) : 0
+                const segKey = `${prefix}w-${it.code}`
+                return (
+                  <StackSegment
+                    key={it.code} $flex={val / maxBar} $color={it.color}
+                    style={{ opacity: 0.5, cursor: canDrill ? 'pointer' : 'default' }}
+                    onMouseEnter={(e) => {
+                      setHoveredSeg(segKey)
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      setSegTooltip({ x: rect.left + rect.width / 2, y: rect.top, content: tooltipFn(it, val, bWoWTotal, true, '前週') })
+                    }}
+                    onMouseLeave={() => { setHoveredSeg(null); setSegTooltip(null) }}
+                    onDoubleClick={() => canDrill && handleDrill(it)}
+                  >
+                    {pct >= 10 && <SegLabel>{it.name} {pct.toFixed(2)}%</SegLabel>}
+                  </StackSegment>
+                )
+              })}
+            </StackTrack>
+            <StackTotal>{isAmountMode ? fmtSen(bWoWTotal) : fmtVal(bWoWTotal)}</StackTotal>
+            {isWoWActive && <ActiveBadge>▼ 詳細</ActiveBadge>}
           </StackRow>
         )}
         <LegendRow>
@@ -331,7 +402,7 @@ export function CategoryDrilldown({
     )
   }
 
-  if (dayItems.length === 0 && cumItemsList.length === 0 && actual <= 0 && cumSales <= 0) return null
+  if (dayItemsYoY.length === 0 && cumItemsYoY.length === 0 && actual <= 0 && cumSales <= 0) return null
 
   return (
     <DrillSection>
@@ -348,19 +419,13 @@ export function CategoryDrilldown({
           <ToggleBtn $active={compare === 'daily'} onClick={() => { setCompare('daily'); setDrillSourceRow('actual') }}>単日</ToggleBtn>
           <ToggleBtn $active={compare === 'cumulative'} onClick={() => { setCompare('cumulative'); setDrillSourceRow('actual') }}>累計</ToggleBtn>
         </ToggleGroup>
-        <ToggleLabel>比較期間</ToggleLabel>
-        <ToggleGroup>
-          <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年</ToggleBtn>
-          <ToggleBtn
-            $active={compMode === 'wow'}
-            onClick={() => { if (canWoW) setCompMode('wow') }}
-            style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
-          >前週</ToggleBtn>
-        </ToggleGroup>
         <ToggleLabel>データソース</ToggleLabel>
         <ToggleGroup>
           <ToggleBtn $active={drillSourceRow === 'actual'} onClick={() => setDrillSourceRow('actual')}>実績</ToggleBtn>
-          <ToggleBtn $active={drillSourceRow === 'prev'} onClick={() => setDrillSourceRow('prev')}>{compPrevLabel}</ToggleBtn>
+          <ToggleBtn $active={drillSourceRow === 'prev'} onClick={() => setDrillSourceRow('prev')}>前年</ToggleBtn>
+          {hasWoW && compare === 'daily' && (
+            <ToggleBtn $active={drillSourceRow === 'wow'} onClick={() => setDrillSourceRow('wow')}>前週</ToggleBtn>
+          )}
         </ToggleGroup>
       </ToggleBar>
 
@@ -379,16 +444,30 @@ export function CategoryDrilldown({
       <SummaryRow>
         <SumItem><SumLabel>{levelLabels[currentLevel]}数</SumLabel><SumValue>{items.length}</SumValue></SumItem>
         <SumItem><SumLabel>合計（{drillSourceLabel}）</SumLabel><SumValue>{fmtVal(displayTotal)}</SumValue></SumItem>
-        {hasComp && !isPrevSource && displayYoY != null && (
+        {hasPrevYear && !isPrevSource && yoySummaryRatio != null && (
           <SumItem>
-            <SumLabel>{compPrevLabel}比</SumLabel>
-            <SumValue><YoYVal $positive={displayYoY >= 1}>{formatPercent(displayYoY, 2)}</YoYVal></SumValue>
+            <SumLabel>前年比</SumLabel>
+            <SumValue><YoYVal $positive={yoySummaryRatio >= 1}>{formatPercent(yoySummaryRatio, 2)}</YoYVal></SumValue>
+          </SumItem>
+        )}
+        {hasWoW && compare === 'daily' && !isPrevSource && wowSummaryRatio != null && (
+          <SumItem>
+            <SumLabel>前週比</SumLabel>
+            <SumValue><YoYVal $positive={wowSummaryRatio >= 1}>{formatPercent(wowSummaryRatio, 2)}</YoYVal></SumValue>
           </SumItem>
         )}
       </SummaryRow>
 
-      {renderBarSection(`予算 vs 実績（当日）${year}年${month}月${day}日`, dayItems, budget, actual, ach, effectivePySales, 'day-', 'daily')}
-      {renderBarSection(`予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`, cumItemsList, cumBudget, cumSales, cumAch, effectiveCumPrevYear, 'cum-', 'cumulative')}
+      {renderBarSection(
+        `予算 vs 実績（当日）${year}年${month}月${day}日`,
+        dayItemsYoY, budget, actual, ach, pySales, 'day-', 'daily',
+        hasWoW ? dayItemsWoW : undefined,
+        hasWoW ? (wowPrevSales ?? 0) : undefined,
+      )}
+      {renderBarSection(
+        `予算 vs 実績（累計）${year}年${month}月1日〜${year}年${month}月${day}日`,
+        cumItemsYoY, cumBudget, cumSales, cumAch, cumPrevYear, 'cum-', 'cumulative',
+      )}
       {hoveredSeg && segTooltip && createPortal(
         <SegmentTooltip style={{
           left: segTooltip.x, top: segTooltip.y,
@@ -429,10 +508,16 @@ export function CategoryDrilldown({
             <DTh $sortable onClick={() => handleSort('quantity')}>
               {isAmountMode ? '数量' : '売上金額'}{arrow('quantity')}
             </DTh>
-            {hasComp && (
+            {hasPrevYear && (
               <>
-                <DTh>{isPrevSource ? '実績' : compPrevLabel}</DTh>
-                <DTh $sortable onClick={() => handleSort('yoyRatio')}>{compPrevLabel}比{arrow('yoyRatio')}</DTh>
+                <DTh>{isPrevSource && effectiveSource === 'prev' ? '実績' : '前年'}</DTh>
+                <DTh $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</DTh>
+              </>
+            )}
+            {hasWoW && compare === 'daily' && (
+              <>
+                <DTh>{isPrevSource && effectiveSource === 'wow' ? '実績' : '前週'}</DTh>
+                <DTh>前週比</DTh>
               </>
             )}
             {canDrill && <DTh />}
@@ -441,10 +526,24 @@ export function CategoryDrilldown({
             {sorted.map((it, i) => {
               const mainVal = isAmountMode ? primaryAmt(it) : primaryQty(it)
               const subVal = isAmountMode ? primaryQty(it) : primaryAmt(it)
-              const counterpartVal = isPrevSource
+              // YoY comparison
+              const yoyItem = effectiveSource === 'wow'
+                ? dayItemsYoY.find((y) => y.code === it.code)
+                : it
+              const yoyCounterpart = isPrevSource && effectiveSource === 'prev'
                 ? (isAmountMode ? it.amount : it.quantity)
-                : (isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0))
-              const yoy = isAmountMode ? it.yoyRatio : it.yoyQtyRatio
+                : (isAmountMode ? (yoyItem?.prevAmount ?? 0) : (yoyItem?.prevQuantity ?? 0))
+              const yoy = isAmountMode ? yoyItem?.yoyRatio : yoyItem?.yoyQtyRatio
+              // WoW comparison
+              const wowItem = effectiveSource === 'wow'
+                ? it
+                : wowItemMap.get(it.code)
+              const wowCounterpart = isPrevSource && effectiveSource === 'wow'
+                ? (isAmountMode ? it.amount : it.quantity)
+                : (isAmountMode ? (wowItem?.prevAmount ?? 0) : (wowItem?.prevQuantity ?? 0))
+              const wowRatioVal = wowItem
+                ? (isAmountMode ? wowItem.yoyRatio : wowItem.yoyQtyRatio)
+                : undefined
               const totalForPct = isAmountMode ? displayPrimaryAmt : displayPrimaryQty
               const pctVal = totalForPct > 0 ? (mainVal / totalForPct) * 100 : 0
               return (
@@ -465,12 +564,22 @@ export function CategoryDrilldown({
                   </DTdAmt>
                   <DTd $mono>{pctVal.toFixed(2)}%</DTd>
                   <DTd $mono>{isAmountMode ? `${subVal.toLocaleString()}点` : `${toComma(subVal)}円`}</DTd>
-                  {hasComp && (
+                  {hasPrevYear && (
                     <>
-                      <DTd $mono>{counterpartVal > 0 ? fmtVal(counterpartVal) : '-'}</DTd>
+                      <DTd $mono>{yoyCounterpart > 0 ? fmtVal(yoyCounterpart) : '-'}</DTd>
                       <DTd $mono>
                         {yoy != null ? (
                           <YoYVal $positive={yoy >= 1}>{formatPercent(yoy, 2)}</YoYVal>
+                        ) : '-'}
+                      </DTd>
+                    </>
+                  )}
+                  {hasWoW && compare === 'daily' && (
+                    <>
+                      <DTd $mono>{wowCounterpart > 0 ? fmtVal(wowCounterpart) : '-'}</DTd>
+                      <DTd $mono>
+                        {wowRatioVal != null ? (
+                          <YoYVal $positive={wowRatioVal >= 1}>{formatPercent(wowRatioVal, 2)}</YoYVal>
                         ) : '-'}
                       </DTd>
                     </>
