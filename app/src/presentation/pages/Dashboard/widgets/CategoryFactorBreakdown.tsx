@@ -192,6 +192,16 @@ interface FactorItem {
   hasChildren: boolean
 }
 
+/** Waterfall range [start, end] per effect for horizontal sub-waterfall */
+interface WaterfallFactorItem extends FactorItem {
+  custRange: [number, number]
+  ticketRange: [number, number]
+  qtyRange: [number, number]
+  priceRange: [number, number]
+  pricePureRange: [number, number]
+  mixRange: [number, number]
+}
+
 type DrillLevel = 'dept' | 'line' | 'class'
 
 interface PathEntry {
@@ -495,6 +505,42 @@ export function CategoryFactorBreakdown({
     return result.slice(0, compact ? 8 : 12)
   }, [filtered, currentLevel, compact, hasCust, curCustomers, prevCustomers, activeLevel])
 
+  // Build waterfall ranges: each effect's [start, end] for sub-waterfall per row
+  const waterfallItems = useMemo((): WaterfallFactorItem[] => {
+    return items.map(item => {
+      type Step = { key: string; value: number }
+      const steps: Step[] = []
+
+      if (hasCust) steps.push({ key: 'cust', value: item.custEffect })
+      if (activeLevel === 2) steps.push({ key: 'ticket', value: item.ticketEffect })
+      if (activeLevel >= 3) steps.push({ key: 'qty', value: item.qtyEffect })
+      if (activeLevel === 3) steps.push({ key: 'price', value: item.priceEffect })
+      if (activeLevel === 5) {
+        steps.push({ key: 'pricePure', value: item.pricePureEffect })
+        steps.push({ key: 'mix', value: item.mixEffect })
+      }
+
+      let pos = 0
+      const ranges = new Map<string, [number, number]>()
+      for (const step of steps) {
+        const end = pos + step.value
+        ranges.set(step.key, [pos, end])
+        pos = end
+      }
+
+      const nil: [number, number] = [0, 0]
+      return {
+        ...item,
+        custRange: ranges.get('cust') ?? nil,
+        ticketRange: ranges.get('ticket') ?? nil,
+        qtyRange: ranges.get('qty') ?? nil,
+        priceRange: ranges.get('price') ?? nil,
+        pricePureRange: ranges.get('pricePure') ?? nil,
+        mixRange: ranges.get('mix') ?? nil,
+      }
+    })
+  }, [items, activeLevel, hasCust])
+
   const handleDrill = useCallback((item: FactorItem) => {
     if (!item.hasChildren) return
     setDrillPath(prev => [...prev, { level: currentLevel, code: item.code, name: item.name }])
@@ -568,11 +614,11 @@ export function CategoryFactorBreakdown({
         )}
       </LegendRow>
 
-      {/* Horizontal bar chart */}
+      {/* Horizontal waterfall × department hybrid chart */}
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartH}>
         <BarChart
           layout="vertical"
-          data={items}
+          data={waterfallItems}
           margin={{ top: 5, right: 20, left: 4, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} horizontal={false} />
@@ -594,14 +640,12 @@ export function CategoryFactorBreakdown({
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
 
-          {/* Stacked diverging bars: effects stack on the same row */}
-          {/* Positive effects extend right, negative effects extend left from 0 */}
+          {/* Range bars: each effect is [start, end], forming a sub-waterfall per row */}
           {hasCust && (
             <Bar
-              dataKey="custEffect"
+              dataKey="custRange"
               name="客数効果"
               fill={COLORS.cust}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
@@ -611,10 +655,9 @@ export function CategoryFactorBreakdown({
 
           {activeLevel === 2 && (
             <Bar
-              dataKey="ticketEffect"
+              dataKey="ticketRange"
               name="客単価効果"
               fill={COLORS.ticket}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
@@ -624,10 +667,9 @@ export function CategoryFactorBreakdown({
 
           {activeLevel >= 3 && (
             <Bar
-              dataKey="qtyEffect"
+              dataKey="qtyRange"
               name="点数効果"
               fill={COLORS.qty}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
@@ -637,10 +679,9 @@ export function CategoryFactorBreakdown({
 
           {activeLevel === 3 && (
             <Bar
-              dataKey="priceEffect"
+              dataKey="priceRange"
               name="単価効果"
               fill={COLORS.price}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
@@ -650,10 +691,9 @@ export function CategoryFactorBreakdown({
 
           {activeLevel === 5 && (
             <Bar
-              dataKey="pricePureEffect"
+              dataKey="pricePureRange"
               name="価格効果"
               fill={COLORS.price}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
@@ -663,10 +703,9 @@ export function CategoryFactorBreakdown({
 
           {activeLevel === 5 && (
             <Bar
-              dataKey="mixEffect"
+              dataKey="mixRange"
               name="構成比変化効果"
               fill={COLORS.mix}
-              stackId="stack"
               barSize={compact ? 16 : 20}
               opacity={0.85}
               onClick={barClick}
