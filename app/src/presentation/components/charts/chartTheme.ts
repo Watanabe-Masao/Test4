@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { useUiStore } from '@/application/stores/uiStore'
 
 /** recharts用のテーマカラーを取得するフック */
 export function useChartTheme() {
@@ -71,6 +73,11 @@ export function toSenYen(v: number): string {
   return `${Math.round(v / 1000).toLocaleString('ja-JP')}千`
 }
 
+/** 金額を円表示する（カンマ区切り＋円サフィックス） */
+export function toYen(v: number): string {
+  return `${Math.round(v).toLocaleString('ja-JP')}円`
+}
+
 /** 金額をカンマ区切りで表示する */
 export function toComma(v: number): string {
   return Math.round(v).toLocaleString('ja-JP')
@@ -79,4 +86,13 @@ export function toComma(v: number): string {
 /** パーセント表示する */
 export function toPct(v: number, decimals = 1): string {
   return `${(v * 100).toFixed(decimals)}%`
+}
+
+/** グローバル設定に基づく通貨フォーマッタを返すフック */
+export function useCurrencyFormatter(): (v: number) => string {
+  const currencyUnit = useUiStore((s) => s.currencyUnit)
+  return useMemo(
+    () => currencyUnit === 'yen' ? toYen : toSenYen,
+    [currencyUnit],
+  )
 }

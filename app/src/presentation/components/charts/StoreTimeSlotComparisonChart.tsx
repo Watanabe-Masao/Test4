@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -136,6 +136,7 @@ interface Props {
 /** 店舗別 時間帯売上パターン比較 */
 export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('bar')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
@@ -250,7 +251,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
             />
             <PolarRadiusAxis
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              tickFormatter={metricMode === 'pct' ? (v: number) => `${v}%` : toManYen}
+              tickFormatter={metricMode === 'pct' ? (v: number) => `${v}%` : fmt}
             />
             {storeNames.map((s, i) => (
               <Radar
@@ -288,7 +289,7 @@ export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysIn
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={metricMode === 'pct' ? (v: number) => `${v}%` : toManYen}
+              tickFormatter={metricMode === 'pct' ? (v: number) => `${v}%` : fmt}
               width={50}
             />
             <Tooltip

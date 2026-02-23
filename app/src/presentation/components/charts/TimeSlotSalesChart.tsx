@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -184,6 +184,7 @@ function aggregateHourly(
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較対応） */
 export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const [showPrevYear, setShowPrevYear] = useState(true)
@@ -366,7 +367,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={metricMode === 'amount' ? toManYen : (v: number) => toComma(v)}
+                tickFormatter={metricMode === 'amount' ? fmt : (v: number) => toComma(v)}
                 width={50}
               />
               {/* 右軸: 前年比較なしの場合のみ、もう一方の指標用に表示 */}
@@ -377,7 +378,7 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
                   tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={metricMode === 'amount' ? (v: number) => toComma(v) : toManYen}
+                  tickFormatter={metricMode === 'amount' ? (v: number) => toComma(v) : fmt}
                   width={45}
                 />
               )}

@@ -283,9 +283,18 @@ const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boo
 
 /* ── Component ──────────────────────────────────────────── */
 
+const WarningLabel = styled.span`
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.palette.warning};
+  white-space: nowrap;
+  font-weight: 600;
+`
+
 interface PeriodFilterBarProps {
   pf: PeriodFilterResult
   daysInMonth: number
+  /** 取込データ有効期間（経過日数）。超過時に警告表示 */
+  elapsedDays?: number
 }
 
 const MODE_LABELS: Record<AggregateMode, string> = {
@@ -296,8 +305,9 @@ const MODE_LABELS: Record<AggregateMode, string> = {
 
 const DOW_LABELS_FILTER = ['日', '月', '火', '水', '木', '金', '土'] as const
 
-export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
+export function PeriodFilterBar({ pf, daysInMonth, elapsedDays }: PeriodFilterBarProps) {
   const isDefault = pf.dayRange[0] === 1 && pf.dayRange[1] === pf.defaultEndDay
+  const exceedsValidPeriod = elapsedDays != null && elapsedDays > 0 && pf.dayRange[1] > elapsedDays
 
   return (
     <Bar>
@@ -331,6 +341,11 @@ export function PeriodFilterBar({ pf, daysInMonth }: PeriodFilterBarProps) {
         >
           リセット
         </Tab>
+      )}
+      {exceedsValidPeriod && (
+        <WarningLabel>
+          {elapsedDays}日以降はデータなし
+        </WarningLabel>
       )}
       <Sep />
       <TabGroup>

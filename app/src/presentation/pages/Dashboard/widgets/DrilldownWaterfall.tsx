@@ -10,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer, ReferenceLine, LabelList,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toSenYen } from '@/presentation/components/charts'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
@@ -79,6 +79,7 @@ export function DrilldownWaterfall({
   prevDayRecords: readonly CategoryTimeSalesRecord[]
 }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
@@ -304,7 +305,7 @@ export function DrilldownWaterfall({
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toSenYen}
+              tickFormatter={fmt}
             />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
@@ -320,7 +321,7 @@ export function DrilldownWaterfall({
               <LabelList
                 dataKey="value"
                 position="top"
-                formatter={(v: unknown) => toSenYen(Number(v))}
+                formatter={(v: unknown) => fmt(Number(v))}
                 style={{ fontSize: 9, fill: ct.text, fontFamily: ct.monoFamily }}
               />
               {data.map((item, idx) => (

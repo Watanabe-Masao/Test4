@@ -3,12 +3,15 @@ import { devtools, persist } from 'zustand/middleware'
 import type { ViewType } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
+export type CurrencyUnit = 'sen' | 'yen'
+
 export interface UiStore {
   // State
   selectedStoreIds: ReadonlySet<string>
   currentView: ViewType
   isCalculated: boolean
   isImporting: boolean
+  currencyUnit: CurrencyUnit
 
   // Actions
   toggleStore: (storeId: string) => void
@@ -17,6 +20,7 @@ export interface UiStore {
   setImporting: (isImporting: boolean) => void
   setCalculated: (isCalculated: boolean) => void
   invalidateCalculation: () => void
+  setCurrencyUnit: (unit: CurrencyUnit) => void
   reset: () => void
 }
 
@@ -30,6 +34,7 @@ export const useUiStore = create<UiStore>()(
         currentView: 'dashboard' as ViewType,
         isCalculated: false,
         isImporting: false,
+        currencyUnit: 'sen' as CurrencyUnit,
 
         // Actions
         toggleStore: (storeId) =>
@@ -58,6 +63,9 @@ export const useUiStore = create<UiStore>()(
 
         invalidateCalculation: () =>
           set({ isCalculated: false }, false, 'invalidateCalculation'),
+
+        setCurrencyUnit: (unit) =>
+          set({ currencyUnit: unit }, false, 'setCurrencyUnit'),
 
         reset: () =>
           set(
@@ -105,6 +113,7 @@ export const useUiStore = create<UiStore>()(
         },
         partialize: (state) => ({
           currentView: state.currentView,
+          currencyUnit: state.currencyUnit,
         }) as UiStore,
       },
     ),

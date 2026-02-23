@@ -1,7 +1,7 @@
 import { calculateForecast } from '@/domain/calculations/forecast'
 import type { DayOfWeekAverage } from '@/domain/calculations/forecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
 import {
   BarChart,
   Bar,
@@ -33,6 +33,7 @@ import {
 
 export function WeeklyChart({ data, dowColors }: { data: Record<string, string | number>[]; dowColors: string[] }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   return (
     <ChartWrapper>
@@ -50,7 +51,7 @@ export function WeeklyChart({ data, dowColors }: { data: Record<string, string |
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <Tooltip
@@ -144,6 +145,7 @@ export function StoreComparisonRadarChart({
   storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
 }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   // Build radar data from day-of-week averages
   const radarData = DOW_LABELS.map((label, i) => {
@@ -166,7 +168,7 @@ export function StoreComparisonRadarChart({
           />
           <PolarRadiusAxis
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
           />
           {storeForecasts.map((sf, i) => (
             <Radar
@@ -197,6 +199,7 @@ export function StoreComparisonBarChart({
   storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
 }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   // Build grouped bar data per week
   const data = storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
@@ -224,7 +227,7 @@ export function StoreComparisonBarChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <Tooltip
@@ -473,6 +476,7 @@ export function RelationshipChart({
 /** 日別客数・売上散布図的チャート */
 export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[] }) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   const withCust = data.filter((e) => e.customers > 0)
   const chartData = withCust.map((e) => ({
@@ -500,7 +504,7 @@ export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[]
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <YAxis

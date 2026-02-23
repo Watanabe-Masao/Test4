@@ -10,7 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 
 const Wrapper = styled.div`
@@ -103,6 +103,7 @@ interface Props {
 
 export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   // 累計データ構築
@@ -150,12 +151,12 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
         <SummaryRow>
           <Metric>
             <MetricLabel>当年累計</MetricLabel>
-            <MetricValue>{toManYen(latestCurrentCum)}円</MetricValue>
+            <MetricValue>{fmt(latestCurrentCum)}円</MetricValue>
           </Metric>
           <ProgressBarWrap>
             <ProgressLabel>
               <span>前年比 {toPct(yoyRatio)}</span>
-              <span>{yoyDiff >= 0 ? '+' : ''}{toManYen(yoyDiff)}円</span>
+              <span>{yoyDiff >= 0 ? '+' : ''}{fmt(yoyDiff)}円</span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={yoyRatio * 100} $color={yoyColor} />
@@ -163,7 +164,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           </ProgressBarWrap>
           <Metric>
             <MetricLabel>前年同時点</MetricLabel>
-            <MetricValue $color={ct.colors.slate}>{toManYen(prevCumAtLatest)}円</MetricValue>
+            <MetricValue $color={ct.colors.slate}>{fmt(prevCumAtLatest)}円</MetricValue>
           </Metric>
         </SummaryRow>
       )}
@@ -191,7 +192,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={55}
             />
             <Tooltip
@@ -238,7 +239,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 label={{
-                  value: `前年同曜日月間 ${toManYen(prevTotal)}`,
+                  value: `前年同曜日月間 ${fmt(prevTotal)}`,
                   position: 'right',
                   fill: ct.colors.slate,
                   fontSize: ct.fontSize.xs,

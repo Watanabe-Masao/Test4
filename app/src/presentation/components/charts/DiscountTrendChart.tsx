@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations'
@@ -40,6 +40,7 @@ interface Props {
 /** 売変インパクト分析チャート（バー: 日別売変額 / ライン: 累計売変率） */
 export function DiscountTrendChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   let cumDiscount = 0
@@ -92,7 +93,7 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={fmt}
             width={50}
           />
           <YAxis

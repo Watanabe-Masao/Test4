@@ -37,6 +37,8 @@ export interface WidgetContext {
   dataEndDay: number | null
   /** 販売データが存在する最大日（0 = 未検出） */
   dataMaxDay: number
+  /** 取込データ有効期間から算出された経過日数 */
+  elapsedDays: number | undefined
   /** 部門別KPIデータ */
   departmentKpi: DepartmentKpiData
   /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */

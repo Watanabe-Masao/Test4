@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -162,6 +162,7 @@ export function TimeSlotYoYComparisonChart({
   dataMaxDay,
 }: Props) {
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
   const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
@@ -283,13 +284,13 @@ export function TimeSlotYoYComparisonChart({
       <SummaryRow>
         <Metric>
           <MetricLabel>当年合計</MetricLabel>
-          <MetricValue>{toManYen(summary.curTotal)}円</MetricValue>
+          <MetricValue>{fmt(summary.curTotal)}円</MetricValue>
         </Metric>
         {summary.yoyRatio != null && (
           <ProgressBarWrap>
             <ProgressLabel>
               <span>前年比 {toPct(summary.yoyRatio)}</span>
-              <span>{summary.yoyDiff >= 0 ? '+' : ''}{toManYen(summary.yoyDiff)}円</span>
+              <span>{summary.yoyDiff >= 0 ? '+' : ''}{fmt(summary.yoyDiff)}円</span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={summary.yoyRatio * 100} $color={yoyColor} />
@@ -298,18 +299,18 @@ export function TimeSlotYoYComparisonChart({
         )}
         <Metric>
           <MetricLabel>前年合計</MetricLabel>
-          <MetricValue $color={ct.colors.slate}>{toManYen(summary.prevTotal)}円</MetricValue>
+          <MetricValue $color={ct.colors.slate}>{fmt(summary.prevTotal)}円</MetricValue>
         </Metric>
         {summary.maxIncHour >= 0 && (
           <Metric>
             <MetricLabel>最大増加時間帯</MetricLabel>
-            <MetricValue $color="#22c55e">{summary.maxIncHour}時 (+{toManYen(summary.maxIncDiff)})</MetricValue>
+            <MetricValue $color="#22c55e">{summary.maxIncHour}時 (+{fmt(summary.maxIncDiff)})</MetricValue>
           </Metric>
         )}
         {summary.maxDecHour >= 0 && (
           <Metric>
             <MetricLabel>最大減少時間帯</MetricLabel>
-            <MetricValue $color="#ef4444">{summary.maxDecHour}時 ({toManYen(summary.maxDecDiff)})</MetricValue>
+            <MetricValue $color="#ef4444">{summary.maxDecHour}時 ({fmt(summary.maxDecDiff)})</MetricValue>
           </Metric>
         )}
         <Metric>
@@ -355,7 +356,7 @@ export function TimeSlotYoYComparisonChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toManYen}
+              tickFormatter={fmt}
               width={50}
             />
             <ReferenceLine y={0} stroke={ct.grid} />

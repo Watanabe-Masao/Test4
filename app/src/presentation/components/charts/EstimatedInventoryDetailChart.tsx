@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toManYen, toComma, toPct, STORE_COLORS } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventoryDetails } from './inventoryCalc'
 import type { InventoryDetailRow } from './inventoryCalc'
@@ -166,6 +166,7 @@ export function EstimatedInventoryDetailChart({
   stores,
 }: Props) {
   const ct = useChartTheme()
+  const currFmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const canCompare = (comparisonResults?.length ?? 0) >= 2
@@ -297,7 +298,7 @@ export function EstimatedInventoryDetailChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={toManYen}
+                tickFormatter={currFmt}
                 width={55}
               />
             )}
@@ -393,7 +394,7 @@ export function EstimatedInventoryDetailChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={currFmt}
             width={55}
           />
           <YAxis
@@ -402,7 +403,7 @@ export function EstimatedInventoryDetailChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toManYen}
+            tickFormatter={currFmt}
             width={55}
           />
           <Tooltip
@@ -438,7 +439,7 @@ export function EstimatedInventoryDetailChart({
             strokeDasharray="6 3"
             strokeWidth={1}
             label={{
-              value: `期首 ${toManYen(openingInventory!)}`,
+              value: `期首 ${currFmt(openingInventory!)}`,
               position: 'left',
               fill: ct.colors.info,
               fontSize: ct.fontSize.xs,
@@ -453,7 +454,7 @@ export function EstimatedInventoryDetailChart({
               strokeDasharray="4 4"
               strokeWidth={1}
               label={{
-                value: `実在庫 ${toManYen(closingInventory)}`,
+                value: `実在庫 ${currFmt(closingInventory)}`,
                 position: 'right',
                 fill: ct.colors.success,
                 fontSize: ct.fontSize.xs,

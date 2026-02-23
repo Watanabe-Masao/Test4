@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer, ReferenceLine, LabelList,
 } from 'recharts'
-import { useChartTheme, tooltipStyle, toSenYen } from '@/presentation/components/charts'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 
@@ -34,6 +34,7 @@ interface WaterfallItem {
 export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
 
   const data = useMemo(() => {
     const totalSales = r.totalSales
@@ -115,7 +116,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={toSenYen}
+            tickFormatter={fmt}
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
@@ -133,7 +134,7 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             <LabelList
               dataKey="value"
               position="top"
-              formatter={(v: unknown) => toSenYen(Number(v))}
+              formatter={(v: unknown) => fmt(Number(v))}
               style={{ fontSize: ct.fontSize.xs, fill: ct.text, fontFamily: ct.monoFamily }}
             />
             {data.map((item, idx) => (
