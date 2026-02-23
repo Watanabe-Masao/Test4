@@ -434,6 +434,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
           prevRecords={periodPrevCTS}
           curCustomers={curCust}
           prevCustomers={prevCust}
+          curLabel={`${ctx.year}年`}
+          prevLabel={`${ctx.year - 1}年`}
         />
       ) : (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={360}>

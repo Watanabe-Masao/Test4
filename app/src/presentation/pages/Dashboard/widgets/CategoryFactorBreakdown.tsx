@@ -119,6 +119,14 @@ const Table = styled.table`
   tbody tr:hover {
     background: ${({ theme }) => theme.colors.bg2};
   }
+
+  tfoot tr {
+    border-top: 2px solid ${({ theme }) => theme.colors.border};
+  }
+
+  tfoot th {
+    font-weight: 600;
+  }
 `
 
 const DrillIcon = styled.span`
@@ -246,16 +254,18 @@ const COLORS = {
 const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function FactorTooltip({ active, payload }: any) {
+function FactorTooltip({ active, payload, prevLabel, curLabel }: any) {
   if (!active || !payload?.length) return null
   const item = payload[0]?.payload as FactorItem | undefined
   if (!item) return null
   const lvl = item._level
+  const pL = (prevLabel as string | undefined) ?? '前年'
+  const cL = (curLabel as string | undefined) ?? '当年'
   return (
     <TipBox>
       <TipTitle>{item.name}</TipTitle>
-      <TipRow>前年: {formatCurrency(item.prevAmount)}</TipRow>
-      <TipRow>当年: {formatCurrency(item.curAmount)}</TipRow>
+      <TipRow>{pL}: {formatCurrency(item.prevAmount)}</TipRow>
+      <TipRow>{cL}: {formatCurrency(item.curAmount)}</TipRow>
       <TipRow $color={valColor(item.totalChange)}>
         増減: {item.totalChange >= 0 ? '+' : ''}{formatCurrency(item.totalChange)}
       </TipRow>
@@ -306,12 +316,16 @@ export function CategoryFactorBreakdown({
   curCustomers = 0,
   prevCustomers = 0,
   compact = false,
+  curLabel = '当年',
+  prevLabel = '前年',
 }: {
   curRecords: readonly CategoryTimeSalesRecord[]
   prevRecords: readonly CategoryTimeSalesRecord[]
   curCustomers?: number
   prevCustomers?: number
   compact?: boolean
+  curLabel?: string
+  prevLabel?: string
 }) {
   const hasCust = curCustomers > 0 && prevCustomers > 0
   const ct = useChartTheme()
@@ -541,6 +555,23 @@ export function CategoryFactorBreakdown({
     })
   }, [items, activeLevel, hasCust])
 
+  // Compute totals for the footer row
+  const totals = useMemo(() => {
+    const t = { prevAmount: 0, curAmount: 0, totalChange: 0, custEffect: 0, ticketEffect: 0, qtyEffect: 0, priceEffect: 0, pricePureEffect: 0, mixEffect: 0 }
+    for (const item of items) {
+      t.prevAmount += item.prevAmount
+      t.curAmount += item.curAmount
+      t.totalChange += item.totalChange
+      t.custEffect += item.custEffect
+      t.ticketEffect += item.ticketEffect
+      t.qtyEffect += item.qtyEffect
+      t.priceEffect += item.priceEffect
+      t.pricePureEffect += item.pricePureEffect
+      t.mixEffect += item.mixEffect
+    }
+    return t
+  }, [items])
+
   const handleDrill = useCallback((item: FactorItem) => {
     if (!item.hasChildren) return
     setDrillPath(prev => [...prev, { level: currentLevel, code: item.code, name: item.name }])
@@ -636,7 +667,7 @@ export function CategoryFactorBreakdown({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<FactorTooltip />} />
+          <Tooltip content={<FactorTooltip prevLabel={prevLabel} curLabel={curLabel} />} />
           <ReferenceLine x={0} stroke={ct.grid} strokeWidth={1.5} />
           <Legend content={() => null} />
 
@@ -720,8 +751,8 @@ export function CategoryFactorBreakdown({
         <thead>
           <tr>
             <th>{levelLabel}</th>
-            <th>前年</th>
-            <th>当年</th>
+            <th>{prevLabel}</th>
+            <th>{curLabel}</th>
             <th>増減</th>
             {hasCust && <th>客数効果</th>}
             {activeLevel === 2 && <th>客単価効果</th>}
@@ -775,6 +806,46 @@ export function CategoryFactorBreakdown({
             </tr>
           ))}
         </tbody>
+        <tfoot>
+          <tr>
+            <th style={{ textAlign: 'left' }}>合計</th>
+            <ValCell as="th">{formatCurrency(totals.prevAmount)}</ValCell>
+            <ValCell as="th">{formatCurrency(totals.curAmount)}</ValCell>
+            <ValCell as="th" $color={valColor(totals.totalChange)}>
+              {totals.totalChange >= 0 ? '+' : ''}{formatCurrency(totals.totalChange)}
+            </ValCell>
+            {hasCust && (
+              <ValCell as="th" $color={valColor(totals.custEffect)}>
+                {totals.custEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.custEffect))}
+              </ValCell>
+            )}
+            {activeLevel === 2 && (
+              <ValCell as="th" $color={valColor(totals.ticketEffect)}>
+                {totals.ticketEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.ticketEffect))}
+              </ValCell>
+            )}
+            {activeLevel >= 3 && (
+              <ValCell as="th" $color={valColor(totals.qtyEffect)}>
+                {totals.qtyEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.qtyEffect))}
+              </ValCell>
+            )}
+            {activeLevel === 3 && (
+              <ValCell as="th" $color={valColor(totals.priceEffect)}>
+                {totals.priceEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.priceEffect))}
+              </ValCell>
+            )}
+            {activeLevel === 5 && (
+              <ValCell as="th" $color={valColor(totals.pricePureEffect)}>
+                {totals.pricePureEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.pricePureEffect))}
+              </ValCell>
+            )}
+            {activeLevel === 5 && (
+              <ValCell as="th" $color={valColor(totals.mixEffect)}>
+                {totals.mixEffect >= 0 ? '+' : ''}{formatCurrency(Math.round(totals.mixEffect))}
+              </ValCell>
+            )}
+          </tr>
+        </tfoot>
       </Table>
     </div>
   )
