@@ -8,6 +8,7 @@ import {
   ExecSummaryTabContent,
   ExecSummaryBar,
   ExecSummaryItem,
+  ExecSummaryHint,
   ExecSummaryLabel,
   ExecSummaryValue,
   ExecSummarySub,
@@ -22,7 +23,7 @@ const TABS: { key: SummaryTab; label: string }[] = [
   { key: 'customers', label: '客数・客単価' },
 ]
 
-export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
+export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetContext) {
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
@@ -43,7 +44,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
       <ExecSummaryTabContent>
         {tab === 'sales' && (
           <ExecSummaryBar>
-            <ExecSummaryItem $accent="#8b5cf6">
+            <ExecSummaryItem $accent="#8b5cf6" $clickable onClick={() => onExplain('salesTotal')}>
+              <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
               <ExecSummaryValue>{formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
@@ -59,7 +61,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
                 </ExecSummarySub>
               )}
             </ExecSummaryItem>
-            <ExecSummaryItem $accent="#6366f1">
+            <ExecSummaryItem $accent="#6366f1" $clickable onClick={() => onExplain('budget')}>
+              <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
               <ExecSummaryValue>{formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}</ExecSummaryValue>
@@ -78,7 +81,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
 
         {tab === 'costProfit' && (
           <ExecSummaryBar>
-            <ExecSummaryItem $accent="#f59e0b">
+            <ExecSummaryItem $accent="#f59e0b" $clickable onClick={() => onExplain('purchaseCost')}>
+              <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
               <ExecSummarySub>期首在庫: {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}</ExecSummarySub>
               <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
@@ -87,7 +91,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
                 <ExecSummarySub>推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}</ExecSummarySub>
               )}
             </ExecSummaryItem>
-            <ExecSummaryItem $accent="#3b82f6">
+            <ExecSummaryItem $accent="#3b82f6" $clickable onClick={() => onExplain('averageMarkupRate')}>
+              <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>値入率 / 値入額</ExecSummaryLabel>
               {(() => {
                 const markupAmount = r.grossSales - r.totalCost
@@ -103,7 +108,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
                 )
               })()}
             </ExecSummaryItem>
-            <ExecSummaryItem $accent={sc.positive}>
+            <ExecSummaryItem $accent={sc.positive} $clickable onClick={() => onExplain('invMethodGrossProfitRate')}>
+              <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>原算前粗利率/原算後粗利率</ExecSummaryLabel>
               {r.invMethodGrossProfitRate != null ? (() => {
                 const invAfterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
@@ -144,7 +150,8 @@ export function ExecSummaryBarWidget({ result: r, prevYear }: WidgetContext) {
             : null
           return (
             <ExecSummaryBar>
-              <ExecSummaryItem $accent="#06b6d4">
+              <ExecSummaryItem $accent="#06b6d4" $clickable onClick={() => onExplain('totalCustomers')}>
+                <ExecSummaryHint>根拠</ExecSummaryHint>
                 <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
                 <ExecSummarySub>客数: {r.totalCustomers.toLocaleString('ja-JP')}人 / 日平均: {Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人</ExecSummarySub>
                 <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>

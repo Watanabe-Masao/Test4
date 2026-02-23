@@ -5,6 +5,7 @@ const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
+  position: relative;
   ${({ $accent }) => $accent && `border-top: 2px solid ${$accent};`}
   ${({ $clickable, theme }) => $clickable && `
     cursor: pointer;
@@ -12,6 +13,9 @@ const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
     &:hover {
       border-color: ${theme.colors.palette.primary}40;
       box-shadow: 0 0 0 1px ${theme.colors.palette.primary}20;
+    }
+    &:hover [data-hint] {
+      opacity: 1;
     }
   `}
 `
@@ -38,6 +42,16 @@ const SubText = styled.div`
   margin-top: ${({ theme }) => theme.spacing[2]};
 `
 
+const ExplainHint = styled.span`
+  position: absolute;
+  top: ${({ theme }) => theme.spacing[2]};
+  right: ${({ theme }) => theme.spacing[2]};
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.palette.primary};
+  opacity: 0.5;
+  transition: opacity 0.15s;
+`
+
 export function KpiCard({
   label,
   value,
@@ -52,7 +66,8 @@ export function KpiCard({
   onClick?: () => void
 }) {
   return (
-    <Wrapper $accent={accent} $clickable={!!onClick} onClick={onClick}>
+    <Wrapper $accent={accent} $clickable={!!onClick} onClick={onClick} title={onClick ? '算出根拠を表示' : undefined}>
+      {onClick && <ExplainHint data-hint>根拠</ExplainHint>}
       <Label>{label}</Label>
       <Value>{value}</Value>
       {subText && <SubText>{subText}</SubText>}

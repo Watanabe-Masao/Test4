@@ -9,12 +9,34 @@ export const ExecSummaryBar = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
 `
 
-export const ExecSummaryItem = styled.div<{ $accent: string }>`
+export const ExecSummaryItem = styled.div<{ $accent: string; $clickable?: boolean }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-top: 2px solid ${({ $accent }) => $accent};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  ${({ $clickable }) => $clickable && `
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      transform: translateY(-1px);
+    }
+  `}
+  position: relative;
+`
+
+export const ExecSummaryHint = styled.span`
+  position: absolute;
+  top: ${({ theme }) => theme.spacing[2]};
+  right: ${({ theme }) => theme.spacing[2]};
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text3};
+  opacity: 0.5;
+  pointer-events: none;
+  ${ExecSummaryItem}:hover & {
+    opacity: 0.9;
+  }
 `
 
 export const ExecSummaryLabel = styled.div`
