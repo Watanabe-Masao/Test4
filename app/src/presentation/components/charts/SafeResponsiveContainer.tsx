@@ -1,12 +1,25 @@
 /**
- * Recharts ResponsiveContainer のラッパー。
- * 親コンテナが正のサイズを持つまでチャートのレンダーを遅延させ、
- * width(-1)/height(-1) の警告を防止する。
+ * Recharts ResponsiveContainer の代替。
+ * ResizeObserver で親コンテナのサイズを計測し、正のサイズが確定してから
+ * チャートに直接ピクセル寸法を渡す。ResponsiveContainer の初期状態
+ * width(-1)/height(-1) による警告を完全に回避する。
  */
-import { type ComponentProps, useEffect, useRef, useState } from 'react'
-import { ResponsiveContainer } from 'recharts'
+import {
+  type ReactElement,
+  Children,
+  cloneElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
-type Props = ComponentProps<typeof ResponsiveContainer>
+interface SafeResponsiveContainerProps {
+  readonly children: ReactElement
+  readonly width?: string | number
+  readonly height?: string | number
+  readonly minWidth?: number
+  readonly minHeight?: number
+}
 
 export function SafeResponsiveContainer({
   children,
@@ -14,10 +27,9 @@ export function SafeResponsiveContainer({
   height,
   minWidth,
   minHeight,
-  ...rest
-}: Props) {
+}: SafeResponsiveContainerProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const [ready, setReady] = useState(false)
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null)
 
   useEffect(() => {
     const el = ref.current
@@ -25,9 +37,12 @@ export function SafeResponsiveContainer({
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-          setReady(true)
-          observer.disconnect()
+        const w = Math.round(entry.contentRect.width)
+        const h = Math.round(entry.contentRect.height)
+        if (w > 0 && h > 0) {
+          setDims((prev) =>
+            prev && prev.w === w && prev.h === h ? prev : { w, h },
+          )
         }
       }
     })
@@ -39,17 +54,17 @@ export function SafeResponsiveContainer({
     <div
       ref={ref}
       style={{
-        width: typeof width === 'number' ? width : (width || '100%'),
-        height: typeof height === 'number' ? height : (height || '100%'),
+        width: typeof width === 'number' ? width : width || '100%',
+        height: typeof height === 'number' ? height : height || '100%',
         minWidth: minWidth ?? 0,
         minHeight: minHeight ?? 0,
       }}
     >
-      {ready && (
-        <ResponsiveContainer width="100%" height="100%" {...rest}>
-          {children}
-        </ResponsiveContainer>
-      )}
+      {dims &&
+        cloneElement(Children.only(children) as ReactElement<Record<string, unknown>>, {
+          width: dims.w,
+          height: dims.h,
+        })}
     </div>
   )
 }

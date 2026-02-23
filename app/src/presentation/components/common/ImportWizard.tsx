@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import type { ImportProgress } from '@/application/hooks/useImport'
 import type { ImportSummary, FileImportResult } from '@/application/services/FileImportService'
 
@@ -54,7 +54,7 @@ const StepDot = styled.div<{ $state: 'pending' | 'active' | 'done' }>`
         : theme.colors.bg4};
   ${({ $state }) =>
     $state === 'active' &&
-    `animation: ${pulse} 1.2s ease-in-out infinite;`}
+    css`animation: ${pulse} 1.2s ease-in-out infinite;`}
 `
 
 const StepLine = styled.div<{ $done: boolean }>`
