@@ -28,11 +28,13 @@ export function useRepository(): DataRepository {
 export function RepositoryProvider({ children }: { readonly children: ReactNode }) {
   const repository = useMemo<DataRepository>(() => {
     if (isSupabaseAvailable()) {
+      console.info('[RepositoryProvider] Supabase available — using SyncedRepository (IndexedDB + Supabase)')
       return new SyncedRepository(
         new IndexedDBRepository(),
         new SupabaseRepository(),
       )
     }
+    console.info('[RepositoryProvider] Supabase not available — using IndexedDB only')
     return indexedDBRepository
   }, [])
 

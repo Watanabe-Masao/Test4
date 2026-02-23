@@ -4,8 +4,9 @@
  * DataRepository 経由でのデータ閲覧・管理機能を提供する。
  * presentation 層が infrastructure 層に直接依存しないためのファサード。
  */
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRepository } from '../context/RepositoryContext'
+import type { SyncResult } from '@/infrastructure/sync/SyncService'
 
 export interface StoredMonthEntry {
   readonly year: number
@@ -18,6 +19,16 @@ export interface MonthDataSummaryEntry {
   readonly recordCount: number
 }
 
+/** SyncService を持つリポジトリかどうかの型ガード */
+function hasSyncService(repo: unknown): repo is { getSyncService(): { syncFromLocal(year: number, month: number): Promise<SyncResult> } } {
+  return (
+    typeof repo === 'object' &&
+    repo !== null &&
+    'getSyncService' in repo &&
+    typeof (repo as Record<string, unknown>).getSyncService === 'function'
+  )
+}
+
 export interface StorageAdminActions {
   /** 保存済み月の一覧を取得 */
   listMonths: () => Promise<StoredMonthEntry[]>
@@ -27,6 +38,10 @@ export interface StorageAdminActions {
   deleteMonth: (year: number, month: number) => Promise<void>
   /** 指定月・データ種別のスライスを取得 */
   loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null>
+  /** Supabase 同期が可能か */
+  isSyncAvailable: boolean
+  /** IndexedDB → Supabase に手動同期する */
+  syncToSupabase: (year: number, month: number) => Promise<SyncResult>
 }
 
 export function useStorageAdmin(): StorageAdminActions {
@@ -50,5 +65,18 @@ export function useStorageAdmin(): StorageAdminActions {
     [repo],
   )
 
-  return { listMonths, getDataSummary, deleteMonth, loadSlice }
+  const isSyncAvailable = useMemo(() => hasSyncService(repo), [repo])
+
+  const syncToSupabase = useCallback(
+    async (year: number, month: number): Promise<SyncResult> => {
+      if (!hasSyncService(repo)) {
+        return { success: false, syncedTypes: [], failedTypes: [{ dataType: '*', error: 'Supabase is not configured' }] }
+      }
+      const syncService = repo.getSyncService()
+      return syncService.syncFromLocal(year, month)
+    },
+    [repo],
+  )
+
+  return { listMonths, getDataSummary, deleteMonth, loadSlice, isSyncAvailable, syncToSupabase }
 }
