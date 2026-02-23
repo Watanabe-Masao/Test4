@@ -21,15 +21,12 @@ const DATA_TYPE_NAMES: Record<string, string> = {
   purchase: '仕入',
   sales: '売上',
   discount: '売変',
-  prevYearSales: '前年売上',
-  prevYearDiscount: '前年売変',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
   directProduce: '産直',
   consumables: '消耗品',
   categoryTimeSales: '分類別時間帯売上',
-  prevYearCategoryTimeSales: '前年分類別時間帯売上',
   settings: '在庫設定',
   budget: '予算',
 }
@@ -262,8 +259,6 @@ const DIFFABLE_FIELDS: readonly { field: keyof ImportedData; type: string }[] = 
   { field: 'purchase', type: 'purchase' },
   { field: 'sales', type: 'sales' },
   { field: 'discount', type: 'discount' },
-  { field: 'prevYearSales', type: 'prevYearSales' },
-  { field: 'prevYearDiscount', type: 'prevYearDiscount' },
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -334,29 +329,7 @@ export function calculateDiff(
     }
   }
 
-  // prevYearCategoryTimeSales: 前年分類別時間帯売上
-  if (importedTypes.has('prevYearCategoryTimeSales')) {
-    const existingPCTS = existing.prevYearCategoryTimeSales
-    const incomingPCTS = incoming.prevYearCategoryTimeSales
-
-    if (existingPCTS.records.length === 0) {
-      autoApproved.push('prevYearCategoryTimeSales')
-    } else if (incomingPCTS.records.length > 0) {
-      const diff = diffCategoryTimeSales(existingPCTS, incomingPCTS)
-      // dataType を上書き
-      const prevDiff: DataTypeDiff = {
-        ...diff,
-        dataType: 'prevYearCategoryTimeSales',
-        dataTypeName: DATA_TYPE_NAMES.prevYearCategoryTimeSales ?? '前年分類別時間帯売上',
-      }
-      if (prevDiff.inserts.length > 0 || prevDiff.modifications.length > 0 || prevDiff.removals.length > 0) {
-        diffs.push(prevDiff)
-      }
-      if (prevDiff.modifications.length === 0 && prevDiff.removals.length === 0) {
-        autoApproved.push('prevYearCategoryTimeSales')
-      }
-    }
-  }
+  // prevYearCategoryTimeSales は当年保存対象外（実際の年月に保存される）
 
   const needsConfirmation = diffs.some(
     (d) => d.modifications.length > 0 || d.removals.length > 0,

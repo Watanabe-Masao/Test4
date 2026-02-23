@@ -238,7 +238,7 @@ describe('saveImportedData / loadImportedData', () => {
     expect(loaded!.sales['1']?.[1]?.customers).toBeUndefined()
   })
 
-  it('前年売上データの customers が保持される', async () => {
+  it('前年売上データは DB に保存されない（実際の年月に通常データとして保存される）', async () => {
     const data = makeTestData({
       prevYearSales: {
         '1': {
@@ -251,11 +251,11 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.prevYearSales['1']?.[1]?.customers).toBe(90)
-    expect(loaded!.prevYearSales['1']?.[2]?.customers).toBe(110)
+    // prevYearSales は当月のDBエントリには含まれない
+    expect(loaded!.prevYearSales).toEqual({})
   })
 
-  it('前年売変データの customers が保持される', async () => {
+  it('前年売変データは DB に保存されない（実際の年月に通常データとして保存される）', async () => {
     const data = makeTestData({
       prevYearDiscount: {
         '1': {
@@ -267,7 +267,8 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    expect(loaded!.prevYearDiscount['1']?.[1]?.customers).toBe(88)
+    // prevYearDiscount は当月のDBエントリには含まれない
+    expect(loaded!.prevYearDiscount).toEqual({})
   })
 
   // ─── categoryTimeSales の保持テスト ─────────────────────

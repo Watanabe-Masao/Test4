@@ -185,8 +185,8 @@ const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] =
   { field: 'purchase', type: 'purchase' },
   { field: 'sales', type: 'sales' },
   { field: 'discount', type: 'discount' },
-  { field: 'prevYearSales', type: 'prevYearSales' },
-  { field: 'prevYearDiscount', type: 'prevYearDiscount' },
+  // prevYearSales / prevYearDiscount は DB 上は実際の年月に sales / discount として保存。
+  // ランタイムの prevYear* フィールドは useAutoLoadPrevYear が自動ロードする。
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -210,8 +210,7 @@ function validateLoadedData(result: Record<string, unknown>): boolean {
   // categoryTimeSales: records 配列を持つこと
   const cts = result.categoryTimeSales as { records?: unknown } | undefined
   if (cts && (!Array.isArray(cts.records))) return false
-  const pcts = result.prevYearCategoryTimeSales as { records?: unknown } | undefined
-  if (pcts && (!Array.isArray(pcts.records))) return false
+  // prevYearCategoryTimeSales は DB に保存しない（実際の年月に categoryTimeSales として保存）
   return true
 }
 
@@ -252,8 +251,7 @@ export async function saveImportedData(
   // categoryTimeSales
   entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
 
-  // prevYearCategoryTimeSales
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales'), value: data.prevYearCategoryTimeSales })
+  // prevYearCategoryTimeSales は DB に保存しない（実際の年月に categoryTimeSales として保存）
 
   // departmentKpi
   entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: data.departmentKpi })
@@ -338,14 +336,8 @@ export async function loadImportedData(
     ? rawCategoryTimeSales
     : { records: [] }
 
-  // prevYearCategoryTimeSales
-  const rawPrevYearCategoryTimeSales = await dbGet<{ records: unknown[] }>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'prevYearCategoryTimeSales'),
-  )
-  result.prevYearCategoryTimeSales = rawPrevYearCategoryTimeSales && Array.isArray(rawPrevYearCategoryTimeSales.records)
-    ? rawPrevYearCategoryTimeSales
-    : { records: [] }
+  // prevYearCategoryTimeSales は DB に保存しないため読み込まない
+  // (useAutoLoadPrevYear が実際の年月から categoryTimeSales を自動ロードする)
 
   // departmentKpi
   const rawDeptKpi = await dbGet<{ records: unknown[] }>(
@@ -388,7 +380,6 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'budget') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales') })
-  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi') })
 
   // lastSession が当該年月の場合はメタデータも削除
@@ -457,7 +448,6 @@ export async function getMonthDataSummary(
   const SUMMARY_TYPES: { type: string; label: string }[] = [
     ...STORE_DAY_FIELDS.map((f) => ({ type: f.type, label: DATA_TYPE_LABELS[f.type] ?? f.type })),
     { type: 'categoryTimeSales', label: '分類別時間帯売上' },
-    { type: 'prevYearCategoryTimeSales', label: '前年分類別時間帯売上' },
     { type: 'departmentKpi', label: '部門KPI' },
     { type: 'stores', label: '店舗' },
     { type: 'suppliers', label: '取引先' },
@@ -473,7 +463,7 @@ export async function getMonthDataSummary(
       continue
     }
     let count = 0
-    if (type === 'categoryTimeSales' || type === 'prevYearCategoryTimeSales' || type === 'departmentKpi') {
+    if (type === 'categoryTimeSales' || type === 'departmentKpi') {
       count = ((val as { records?: unknown[] }).records ?? []).length
     } else if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
       count = Object.keys(val as Record<string, unknown>).length
@@ -494,8 +484,6 @@ const DATA_TYPE_LABELS: Record<string, string> = {
   purchase: '仕入',
   sales: '売上',
   discount: '売変',
-  prevYearSales: '前年売上',
-  prevYearDiscount: '前年売変',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
@@ -532,10 +520,6 @@ export async function saveDataSlice(
   for (const dt of dataTypes) {
     if (dt === 'categoryTimeSales') {
       entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
-      continue
-    }
-    if (dt === 'prevYearCategoryTimeSales') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'prevYearCategoryTimeSales'), value: data.prevYearCategoryTimeSales })
       continue
     }
     if (dt === 'departmentKpi') {

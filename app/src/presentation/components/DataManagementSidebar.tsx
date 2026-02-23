@@ -238,8 +238,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'initialSettings', label: '7_初期設定' },
   { type: 'consumables', label: '8_消耗品', multi: true },
   { type: 'categoryTimeSales', label: '8.分類別時間帯売上', multi: true },
-  { type: 'prevYearCategoryTimeSales', label: '9.前年分類別時間帯売上', multi: true },
-  { type: 'prevYearSalesDiscount', label: '998_前年売上売変客数' },
+  // 前年データはドラッグ&ドロップで自動判定。実際の年月に通常データとして保存される。
 ]
 
 export function DataManagementSidebar({
@@ -378,12 +377,10 @@ export function DataManagementSidebar({
       if (data.budget?.size > 0) types.add('budget')
       if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')
       if (data.categoryTimeSales?.records?.length > 0) types.add('categoryTimeSales')
-      if (data.prevYearCategoryTimeSales?.records?.length > 0) types.add('prevYearCategoryTimeSales')
       if (data.flowers && Object.keys(data.flowers).length > 0) types.add('flowers')
       if (data.directProduce && Object.keys(data.directProduce).length > 0) types.add('directProduce')
       if (data.interStoreIn && Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')
       if (data.interStoreOut && Object.keys(data.interStoreOut).length > 0) types.add('interStoreOut')
-      if (data.prevYearSales && Object.keys(data.prevYearSales).length > 0) types.add('prevYearSalesDiscount')
     } catch {
       // データ構造不整合時は空のセットを返す
     }

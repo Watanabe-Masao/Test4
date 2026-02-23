@@ -7,7 +7,7 @@ import {
 } from '@/application/services/FileImportService'
 import type { ImportSummary } from '@/application/services/FileImportService'
 import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey } from '@/domain/models'
+import { categoryTimeSalesRecordKey, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -60,6 +60,43 @@ export function useImport() {
     [dispatch],
   )
 
+  /**
+   * 前年データを実際の年月に通常データタイプとして保存する。
+   * prevYearDiscount → discount, prevYearSales → sales,
+   * prevYearCategoryTimeSales → categoryTimeSales として保存。
+   */
+  const savePrevYearData = useCallback(
+    async (
+      data: ImportedData,
+      yearMonth: { year: number; month: number },
+      hasSalesDiscount: boolean,
+      hasCTS: boolean,
+    ): Promise<void> => {
+      const { year, month } = yearMonth
+      // 前年データを通常データとして一時的な ImportedData を構築
+      const prevData: ImportedData = {
+        ...createEmptyImportedData(),
+        sales: hasSalesDiscount ? data.prevYearSales : {},
+        discount: hasSalesDiscount ? data.prevYearDiscount : {},
+        categoryTimeSales: hasCTS ? data.prevYearCategoryTimeSales : { records: [] },
+        // stores/suppliers は現在のデータから引き継ぐ（店舗情報は共通）
+        stores: data.stores,
+        suppliers: data.suppliers,
+      }
+      const dataTypes: DataType[] = []
+      if (hasSalesDiscount) {
+        dataTypes.push('sales', 'discount')
+      }
+      if (hasCTS) {
+        dataTypes.push('categoryTimeSales')
+      }
+      if (dataTypes.length > 0) {
+        await repo.saveDataSlice(prevData, year, month, dataTypes)
+      }
+    },
+    [repo],
+  )
+
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       if (importingRef.current) {
@@ -71,7 +108,7 @@ export function useImport() {
       setSaveError(null)
 
       try {
-        const { summary, data, detectedYearMonth } = await processDroppedFiles(
+        const { summary, data, detectedYearMonth, prevYearDetectedYearMonth } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
@@ -83,8 +120,7 @@ export function useImport() {
 
         if (summary.successCount > 0) {
           // データの日付から対象年月が検出された場合、設定を更新
-          // ※ 前年データ種別のみの場合は検出された年月で上書きしない
-          //    （前年データの年は当年と異なるため）
+          // ※ 前年データは prevYearDetectedYearMonth に分離済みのため影響しない
           if (detectedYearMonth) {
             const updatedSettings = {
               targetYear: detectedYearMonth.year,
@@ -105,12 +141,13 @@ export function useImport() {
             importedTypes.add('sales')
             importedTypes.add('discount')
           }
-          if (importedTypes.has('prevYearSalesDiscount')) {
-            importedTypes.add('prevYearSales')
-            importedTypes.add('prevYearDiscount')
-          }
+          // 前年種別は当年保存対象から除外（実際の年月に別途保存する）
+          const hasPrevYearSalesDiscount = importedTypes.has('prevYearSalesDiscount')
+          const hasPrevYearCTS = importedTypes.has('prevYearCategoryTimeSales')
+          importedTypes.delete('prevYearSalesDiscount')
+          importedTypes.delete('prevYearCategoryTimeSales')
 
-          // 既存データがあれば差分チェック
+          // 既存データがあれば差分チェック（当年データのみ）
           if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
@@ -127,6 +164,12 @@ export function useImport() {
                     summary,
                   })
                   // state にはまだ反映しない
+                  // ただし前年データは実際の年月に別途保存する
+                  if (prevYearDetectedYearMonth && repo.isAvailable()) {
+                    savePrevYearData(data, prevYearDetectedYearMonth, hasPrevYearSalesDiscount, hasPrevYearCTS).catch((e) => {
+                      console.error('[useImport] prevYear save failed:', e)
+                    })
+                  }
                   return summary
                 }
               }
@@ -143,7 +186,7 @@ export function useImport() {
           const messages = validateImportedData(data, summary)
           dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-          // ストレージに保存
+          // ストレージに保存（当年データ）
           if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
@@ -154,6 +197,13 @@ export function useImport() {
               setSaveError(msg)
             }
           }
+
+          // 前年データを実際の年月に通常データタイプとして別途保存
+          if (prevYearDetectedYearMonth && repo.isAvailable()) {
+            savePrevYearData(data, prevYearDetectedYearMonth, hasPrevYearSalesDiscount, hasPrevYearCTS).catch((e) => {
+              console.error('[useImport] prevYear save failed:', e)
+            })
+          }
         }
 
         return summary
@@ -163,7 +213,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo],
+    [dispatch, autoSetDataEndDay, repo, savePrevYearData],
   )
 
   /** 差分確認結果を適用する */
