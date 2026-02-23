@@ -66,6 +66,11 @@ export function toManYen(v: number): string {
   return `${Math.round(v / 10000)}万`
 }
 
+/** 金額を千円表示する */
+export function toSenYen(v: number): string {
+  return `${Math.round(v / 1000).toLocaleString('ja-JP')}千`
+}
+
 /** 金額をカンマ区切りで表示する */
 export function toComma(v: number): string {
   return Math.round(v).toLocaleString('ja-JP')
