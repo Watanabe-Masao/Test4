@@ -201,12 +201,19 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   }, [r, prevYear, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, ctx.categoryTimeSales?.records, ctx.prevYearCategoryTimeSales?.records])
 
   // Category-based decomposition data
+  // 売上データ（prevYear.totalSales / r.totalSales）にアンカーし、
+  // 部門差分はCTSから取得。データソース差異は端数調整バーで吸収。
   const categoryData = useMemo((): WaterfallItem[] => {
     const cts = ctx.categoryTimeSales
     const prevCTS = ctx.prevYearCategoryTimeSales
     if (!cts?.records?.length || !prevCTS.hasPrevYear || !prevCTS.records.length) return []
+    if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return []
 
-    // Aggregate by department
+    // アンカー: 売上データ由来の合計
+    const anchorPrev = prevYear.totalSales
+    const anchorCur = r.totalSales
+
+    // Aggregate by department (CTS由来)
     const curDepts = new Map<string, { name: string; amount: number }>()
     for (const rec of cts.records) {
       const code = rec.department.code
@@ -223,9 +230,6 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       prevDepts.set(code, ex)
     }
 
-    const prevTotal = [...prevDepts.values()].reduce((s, d) => s + d.amount, 0)
-    if (prevTotal <= 0) return []
-
     // Build items sorted by absolute difference (largest impact first)
     const allCodes = new Set([...curDepts.keys(), ...prevDepts.keys()])
     const diffs: { code: string; name: string; diff: number }[] = []
@@ -241,17 +245,17 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
 
     const items: WaterfallItem[] = []
 
-    // Start: previous year total
+    // Start: 前年売上（売上データにアンカー）
     items.push({
-      name: '前年合計',
-      value: prevTotal,
+      name: '前年売上',
+      value: anchorPrev,
       base: 0,
-      bar: prevTotal,
+      bar: anchorPrev,
       isTotal: true,
     })
 
     // Department differences
-    let running = prevTotal
+    let running = anchorPrev
     for (const d of diffs.slice(0, 8)) {
       items.push({
         name: d.name,
@@ -277,18 +281,30 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       }
     }
 
-    // End: current year total
-    const curTotal = [...curDepts.values()].reduce((s, d) => s + d.amount, 0)
+    // データソース差異の端数調整
+    // CTS合計と売上データ合計は別ファイル由来のため完全一致しない場合がある
+    const residual = anchorCur - running
+    if (Math.abs(residual) >= 1) {
+      items.push({
+        name: '端数調整',
+        value: residual,
+        base: residual >= 0 ? running : running + residual,
+        bar: Math.abs(residual),
+      })
+      running += residual
+    }
+
+    // End: 当年売上（売上データにアンカー）
     items.push({
-      name: '当年合計',
-      value: curTotal,
+      name: '当年売上',
+      value: anchorCur,
       base: 0,
-      bar: curTotal,
+      bar: anchorCur,
       isTotal: true,
     })
 
     return items
-  }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales])
+  }, [ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales, prevYear, r])
 
   if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return null
 

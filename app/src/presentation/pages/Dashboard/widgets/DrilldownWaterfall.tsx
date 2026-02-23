@@ -150,8 +150,10 @@ export function DrilldownWaterfall({
     return items
   }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, dayRecords, prevDayRecords])
 
+  // 部門別増減データ: actual/pySales にアンカーし、部門差分はCTSから取得
   const categoryData = useMemo((): WaterfallItem[] => {
     if (dayRecords.length === 0 || prevDayRecords.length === 0) return []
+    if (pySales <= 0) return []
 
     const curDepts = new Map<string, { name: string; amount: number }>()
     for (const rec of dayRecords) {
@@ -169,9 +171,6 @@ export function DrilldownWaterfall({
       prevDepts.set(code, ex)
     }
 
-    const prevTotal = [...prevDepts.values()].reduce((s, d) => s + d.amount, 0)
-    if (prevTotal <= 0) return []
-
     const allCodes = new Set([...curDepts.keys(), ...prevDepts.keys()])
     const diffs: { name: string; diff: number }[] = []
     for (const code of allCodes) {
@@ -185,9 +184,9 @@ export function DrilldownWaterfall({
     diffs.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
 
     const items: WaterfallItem[] = []
-    items.push({ name: '前年', value: prevTotal, base: 0, bar: prevTotal, isTotal: true })
+    items.push({ name: '前年', value: pySales, base: 0, bar: pySales, isTotal: true })
 
-    let running = prevTotal
+    let running = pySales
     for (const d of diffs.slice(0, 6)) {
       items.push({
         name: d.name,
@@ -212,11 +211,22 @@ export function DrilldownWaterfall({
       }
     }
 
-    const curTotal = [...curDepts.values()].reduce((s, d) => s + d.amount, 0)
-    items.push({ name: '当年', value: curTotal, base: 0, bar: curTotal, isTotal: true })
+    // データソース差異の端数調整
+    const residual = actual - running
+    if (Math.abs(residual) >= 1) {
+      items.push({
+        name: '調整',
+        value: residual,
+        base: residual >= 0 ? running : running + residual,
+        bar: Math.abs(residual),
+      })
+      running += residual
+    }
+
+    items.push({ name: '当年', value: actual, base: 0, bar: actual, isTotal: true })
 
     return items
-  }, [dayRecords, prevDayRecords])
+  }, [dayRecords, prevDayRecords, actual, pySales])
 
   if (pySales <= 0 || factorData.length === 0) return null
 
