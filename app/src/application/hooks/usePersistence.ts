@@ -1,18 +1,11 @@
 /**
  * データ永続化フック
  *
- * IndexedDB への保存・読み込み・差分チェックを提供する。
+ * DataRepository 経由での保存・読み込み・差分チェックを提供する。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import {
-  saveImportedData,
-  loadImportedData,
-  getPersistedMeta,
-  clearMonthData,
-  clearAllData,
-  isIndexedDBAvailable,
-} from '@/infrastructure/storage/IndexedDBStore'
+import { useRepository } from '../context/RepositoryContext'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
 import type { ImportedData, PersistedMeta, DiffResult } from '@/domain/models'
 import { mergeInsertsOnly } from './useImport'
@@ -72,8 +65,9 @@ export interface PersistenceActions {
 export function usePersistence(): PersistenceState & PersistenceActions {
   const state = useAppState()
   const dispatch = useAppDispatch()
+  const repo = useRepository()
 
-  const [available] = useState(() => isIndexedDBAvailable())
+  const [available] = useState(() => repo.isAvailable())
   const [showRestoreDialog, setShowRestoreDialog] = useState(false)
   const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
   const [showDiffDialog, setShowDiffDialog] = useState(false)
@@ -87,23 +81,23 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     checkedRef.current = true
 
     let cancelled = false
-    getPersistedMeta().then((meta) => {
+    repo.getSessionMeta().then((meta) => {
       if (cancelled) return
       if (meta) {
         setRestoreMeta(meta)
         setShowRestoreDialog(true)
       }
     }).catch(() => {
-      // IndexedDB アクセスエラーは無視
+      // ストレージアクセスエラーは無視
     })
     return () => { cancelled = true }
-  }, [available])
+  }, [available, repo])
 
   const saveCurrentData = useCallback(async () => {
     if (!available) return
     setIsSaving(true)
     try {
-      await saveImportedData(
+      await repo.saveMonthlyData(
         state.data,
         state.settings.targetYear,
         state.settings.targetMonth,
@@ -111,12 +105,12 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     } finally {
       setIsSaving(false)
     }
-  }, [available, state.data, state.settings.targetYear, state.settings.targetMonth])
+  }, [available, repo, state.data, state.settings.targetYear, state.settings.targetMonth])
 
   const restoreData = useCallback(async () => {
     if (!available || !restoreMeta) return
     try {
-      const data = await loadImportedData(restoreMeta.year, restoreMeta.month)
+      const data = await repo.loadMonthlyData(restoreMeta.year, restoreMeta.month)
       if (data) {
         dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
         dispatch({
@@ -127,7 +121,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     } finally {
       setShowRestoreDialog(false)
     }
-  }, [available, restoreMeta, dispatch])
+  }, [available, repo, restoreMeta, dispatch])
 
   const discardSavedData = useCallback(async () => {
     if (!available || !restoreMeta) {
@@ -135,11 +129,11 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       return
     }
     try {
-      await clearMonthData(restoreMeta.year, restoreMeta.month)
+      await repo.clearMonth(restoreMeta.year, restoreMeta.month)
     } finally {
       setShowRestoreDialog(false)
     }
-  }, [available, restoreMeta])
+  }, [available, repo, restoreMeta])
 
   const dismissRestoreDialog = useCallback(() => {
     setShowRestoreDialog(false)
@@ -153,7 +147,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       if (!available) return null
 
       const { targetYear, targetMonth } = state.settings
-      const existing = await loadImportedData(targetYear, targetMonth)
+      const existing = await repo.loadMonthlyData(targetYear, targetMonth)
       if (!existing) return null
 
       const diff = calculateDiff(existing, incoming, importedTypes)
@@ -166,7 +160,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       // 確認不要 → 自動的に保存
       return null
     },
-    [available, state.settings],
+    [available, repo, state.settings],
   )
 
   const applyDiffDecision = useCallback(
@@ -192,13 +186,13 @@ export function usePersistence(): PersistenceState & PersistenceActions {
 
   const clearCurrentMonth = useCallback(async () => {
     if (!available) return
-    await clearMonthData(state.settings.targetYear, state.settings.targetMonth)
-  }, [available, state.settings.targetYear, state.settings.targetMonth])
+    await repo.clearMonth(state.settings.targetYear, state.settings.targetMonth)
+  }, [available, repo, state.settings.targetYear, state.settings.targetMonth])
 
   const clearAllFn = useCallback(async () => {
     if (!available) return
-    await clearAllData()
-  }, [available])
+    await repo.clearAll()
+  }, [available, repo])
 
   return {
     available,

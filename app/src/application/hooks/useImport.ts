@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useRepository } from '../context/RepositoryContext'
 import {
   processDroppedFiles,
   validateImportedData,
@@ -9,11 +10,6 @@ import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSales
 import { categoryTimeSalesRecordKey } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import {
-  saveImportedData,
-  loadImportedData,
-  isIndexedDBAvailable,
-} from '@/infrastructure/storage/IndexedDBStore'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
 
 /** インポート進捗 */
@@ -36,6 +32,7 @@ export interface PendingDiffCheck {
 export function useImport() {
   const state = useAppState()
   const dispatch = useAppDispatch()
+  const repo = useRepository()
   const [progress, setProgress] = useState<ImportProgress | null>(null)
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -113,11 +110,11 @@ export function useImport() {
             importedTypes.add('prevYearDiscount')
           }
 
-          // IndexedDB に既存データがあれば差分チェック
-          if (isIndexedDBAvailable()) {
+          // 既存データがあれば差分チェック
+          if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
-              const existing = await loadImportedData(targetYear, targetMonth)
+              const existing = await repo.loadMonthlyData(targetYear, targetMonth)
               if (existing) {
                 const diff = calculateDiff(existing, data, importedTypes)
                 if (diff.needsConfirmation) {
@@ -134,7 +131,7 @@ export function useImport() {
                 }
               }
             } catch {
-              // IndexedDB エラーは無視して通常フローへ
+              // ストレージエラーは無視して通常フローへ
             }
           }
 
@@ -146,14 +143,14 @@ export function useImport() {
           const messages = validateImportedData(data, summary)
           dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-          // IndexedDB に保存
-          if (isIndexedDBAvailable()) {
+          // ストレージに保存
+          if (repo.isAvailable()) {
             const { targetYear, targetMonth } = settingsRef.current
             try {
-              await saveImportedData(data, targetYear, targetMonth)
+              await repo.saveMonthlyData(data, targetYear, targetMonth)
             } catch (e) {
-              const msg = e instanceof Error ? e.message : 'IndexedDB 保存に失敗しました'
-              console.error('[useImport] IndexedDB save failed:', e)
+              const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+              console.error('[useImport] save failed:', e)
               setSaveError(msg)
             }
           }
@@ -166,7 +163,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay],
+    [dispatch, autoSetDataEndDay, repo],
   )
 
   /** 差分確認結果を適用する */
@@ -196,19 +193,19 @@ export function useImport() {
       const messages = validateImportedData(finalData, summary)
       dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-      // IndexedDB に保存
-      if (isIndexedDBAvailable()) {
+      // ストレージに保存
+      if (repo.isAvailable()) {
         const { targetYear, targetMonth } = settingsRef.current
-        saveImportedData(finalData, targetYear, targetMonth).catch((e) => {
-          const msg = e instanceof Error ? e.message : 'IndexedDB 保存に失敗しました'
-          console.error('[useImport] IndexedDB save failed:', e)
+        repo.saveMonthlyData(finalData, targetYear, targetMonth).catch((e) => {
+          const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+          console.error('[useImport] save failed:', e)
           setSaveError(msg)
         })
       }
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay],
+    [pendingDiff, dispatch, autoSetDataEndDay, repo],
   )
 
   return {
