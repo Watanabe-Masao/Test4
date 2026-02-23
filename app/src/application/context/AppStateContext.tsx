@@ -11,6 +11,7 @@ import { useCallback, type ReactNode } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import type {
   AppSettings,
   ViewType,
@@ -126,6 +127,7 @@ export function useAppDispatch(): (action: AppAction) => void {
     switch (action.type) {
       case 'SET_IMPORTED_DATA':
         useDataStore.getState().setImportedData(action.payload)
+        calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
         break
 
@@ -156,16 +158,19 @@ export function useAppDispatch(): (action: AppAction) => void {
 
       case 'UPDATE_SETTINGS':
         useSettingsStore.getState().updateSettings(action.payload)
+        calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
         break
 
       case 'UPDATE_INVENTORY':
         useDataStore.getState().updateInventory(action.payload.storeId, action.payload.config)
+        calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
         break
 
       case 'SET_PREV_YEAR_AUTO_DATA':
         useDataStore.getState().setPrevYearAutoData(action.payload)
+        calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
         break
 
@@ -173,6 +178,7 @@ export function useAppDispatch(): (action: AppAction) => void {
         useDataStore.getState().reset()
         useUiStore.getState().reset()
         useSettingsStore.getState().reset()
+        calculationCache.clear()
         break
     }
   }, [])

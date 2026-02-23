@@ -20,6 +20,9 @@ export function useCalculation() {
   const stateRef = useRef(state)
   useEffect(() => { stateRef.current = state })
 
+  // 計算エポック: 非同期結果の順序逆転を防止する
+  const epochRef = useRef(0)
+
   const canCalculate =
     Object.keys(state.data.purchase).length > 0 &&
     Object.keys(state.data.sales).length > 0
@@ -49,12 +52,16 @@ export function useCalculation() {
 
       if (useWorker && isWorkerAvailable) {
         // Web Worker 非同期計算
+        const thisEpoch = ++epochRef.current
         calculateAsync(currentData, currentSettings, currentDays)
           .then((results) => {
+            // エポックが一致しない場合は、より新しい計算が開始されているので結果を破棄
+            if (epochRef.current !== thisEpoch) return
             calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
             dispatch({ type: 'SET_STORE_RESULTS', payload: results })
           })
           .catch(() => {
+            if (epochRef.current !== thisEpoch) return
             // Worker失敗時はフォールバック（スナップショット値を使用）
             const results = calculateAllStores(currentData, currentSettings, currentDays)
             calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
