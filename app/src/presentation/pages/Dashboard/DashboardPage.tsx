@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary } from '@/presentation/components/common'
-import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear } from '@/application/hooks'
+import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary, MetricBreakdownPanel } from '@/presentation/components/common'
+import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations } from '@/application/hooks'
+import type { MetricId } from '@/domain/models'
 import { useAppState } from '@/application/context'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { CategoryHierarchyProvider, CurrencyUnitToggle } from '@/presentation/components/charts'
@@ -25,6 +26,13 @@ export function DashboardPage() {
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
+
+  // 指標説明
+  const explanations = useExplanations()
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
 
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
@@ -189,6 +197,8 @@ export function DashboardPage() {
     elapsedDays: r.elapsedDays,
     departmentKpi: appState.data.departmentKpi,
     prevYearCategoryTimeSales: filteredPrevYearCTS,
+    explanations,
+    onExplain: handleExplain,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
@@ -311,6 +321,15 @@ export function DashboardPage() {
         />
       )}
     </MainContent>
+
+    {/* 指標説明パネル */}
+    {explainMetric && explanations.has(explainMetric) && (
+      <MetricBreakdownPanel
+        explanation={explanations.get(explainMetric)!}
+        allExplanations={explanations}
+        onClose={() => setExplainMetric(null)}
+      />
+    )}
     </CategoryHierarchyProvider>
   )
 }

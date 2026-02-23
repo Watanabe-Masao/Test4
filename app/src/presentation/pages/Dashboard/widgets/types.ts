@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesData, DepartmentKpiData, StoreExplanations, MetricId } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/hooks'
 
@@ -73,4 +73,8 @@ export interface WidgetContext {
   departmentKpi: DepartmentKpiData
   /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */
   prevYearCategoryTimeSales: PrevYearCategoryTimeSalesData
+  /** 指標説明マップ（MetricBreakdownPanel 用） */
+  explanations: StoreExplanations
+  /** 指標の説明パネルを開く */
+  onExplain: (metricId: MetricId) => void
 }

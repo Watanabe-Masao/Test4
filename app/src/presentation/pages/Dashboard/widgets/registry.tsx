@@ -27,12 +27,13 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'コア売上',
     group: '売上・粗利',
     size: 'kpi',
-    render: ({ result: r }) => (
+    render: ({ result: r, onExplain }) => (
       <KpiCard
         label="コア売上"
         value={formatCurrency(r.totalCoreSales)}
         subText={`花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
         accent="#8b5cf6"
+        onClick={() => onExplain('coreSales')}
       />
     ),
   },
@@ -41,7 +42,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '【在庫法】粗利益',
     group: '売上・粗利',
     size: 'kpi',
-    render: ({ result: r }) => {
+    render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
         return <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent={sc.positive} />
       }
@@ -52,6 +53,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           value={formatCurrency(r.invMethodGrossProfit)}
           subText={`粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
           accent={sc.positive}
+          onClick={() => onExplain('invMethodGrossProfit')}
         />
       )
     },
@@ -61,7 +63,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '【推定法】マージン',
     group: '売上・粗利',
     size: 'kpi',
-    render: ({ result: r }) => {
+    render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
       return (
         <KpiCard
@@ -69,6 +71,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           value={formatCurrency(r.estMethodMargin)}
           subText={`マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
           accent="#0ea5e9"
+          onClick={() => onExplain('estMethodMargin')}
         />
       )
     },
@@ -80,8 +83,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '在庫仕入原価',
     group: '仕入・原価',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#ea580c" />
+    render: ({ result: r, onExplain }) => (
+      <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#ea580c" onClick={() => onExplain('inventoryCost')} />
     ),
   },
   {
@@ -89,12 +92,13 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '売上納品原価',
     group: '仕入・原価',
     size: 'kpi',
-    render: ({ result: r }) => (
+    render: ({ result: r, onExplain }) => (
       <KpiCard
         label="売上納品原価"
         value={formatCurrency(r.deliverySalesCost)}
         subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
         accent="#ec4899"
+        onClick={() => onExplain('deliverySalesCost')}
       />
     ),
   },
@@ -103,12 +107,13 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '消耗品費',
     group: '仕入・原価',
     size: 'kpi',
-    render: ({ result: r }) => (
+    render: ({ result: r, onExplain }) => (
       <KpiCard
         label="消耗品費"
         value={formatCurrency(r.totalConsumable)}
         subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
         accent="#f97316"
+        onClick={() => onExplain('totalConsumable')}
       />
     ),
   },
@@ -117,8 +122,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '売変ロス原価',
     group: '仕入・原価',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} accent="#dc2626" />
+    render: ({ result: r, onExplain }) => (
+      <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} accent="#dc2626" onClick={() => onExplain('discountLossCost')} />
     ),
   },
   {
@@ -126,8 +131,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'コア値入率',
     group: '仕入・原価',
     size: 'kpi',
-    render: ({ result: r }) => (
-      <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" />
+    render: ({ result: r, onExplain }) => (
+      <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" onClick={() => onExplain('coreMarkupRate')} />
     ),
   },
   // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合

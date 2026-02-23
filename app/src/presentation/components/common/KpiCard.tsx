@@ -1,11 +1,19 @@
 import styled from 'styled-components'
 
-const Wrapper = styled.div<{ $accent?: string }>`
+const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
   ${({ $accent }) => $accent && `border-top: 2px solid ${$accent};`}
+  ${({ $clickable, theme }) => $clickable && `
+    cursor: pointer;
+    transition: border-color ${theme.transitions.fast}, box-shadow ${theme.transitions.fast};
+    &:hover {
+      border-color: ${theme.colors.palette.primary}40;
+      box-shadow: 0 0 0 1px ${theme.colors.palette.primary}20;
+    }
+  `}
 `
 
 const Label = styled.div`
@@ -35,14 +43,16 @@ export function KpiCard({
   value,
   subText,
   accent,
+  onClick,
 }: {
   label: string
   value: string
   subText?: string
   accent?: string
+  onClick?: () => void
 }) {
   return (
-    <Wrapper $accent={accent}>
+    <Wrapper $accent={accent} $clickable={!!onClick} onClick={onClick}>
       <Label>{label}</Label>
       <Value>{value}</Value>
       {subText && <SubText>{subText}</SubText>}

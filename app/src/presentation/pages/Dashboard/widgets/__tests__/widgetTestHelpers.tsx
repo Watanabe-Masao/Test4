@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
 import type { WidgetContext } from '../types'
-import type { StoreResult, DailyRecord, CostPricePair } from '@/domain/models'
+import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 
 const ZERO: CostPricePair = { cost: 0, price: 0 }
@@ -155,6 +155,8 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     elapsedDays: undefined,
     departmentKpi: { records: [] },
     prevYearCategoryTimeSales: { hasPrevYear: false, records: [], offset: 0 },
+    explanations: new Map() as StoreExplanations,
+    onExplain: () => {},
     ...overrides,
   }
 }
