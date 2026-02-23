@@ -45,9 +45,18 @@ export class SyncedRepository implements DataRepository {
 
     // Supabase へ非同期バックアップ（失敗してもローカル保存は成功）
     if (this.remote.isAvailable()) {
-      this.syncService.pushToRemote(year, month, data).catch((err) => {
+      console.info(`[SyncedRepository] Supabase backup starting for ${year}/${month}`)
+      this.syncService.pushToRemote(year, month, data).then((result) => {
+        if (result.success) {
+          console.info(`[SyncedRepository] Supabase backup succeeded for ${year}/${month}`)
+        } else {
+          console.warn(`[SyncedRepository] Supabase backup failed for ${year}/${month}:`, result.failedTypes)
+        }
+      }).catch((err) => {
         console.warn('[SyncedRepository] Supabase backup failed after save:', err)
       })
+    } else {
+      console.info('[SyncedRepository] Supabase not available, skipping backup')
     }
   }
 
@@ -86,7 +95,14 @@ export class SyncedRepository implements DataRepository {
 
     // Supabase へ非同期バックアップ
     if (this.remote.isAvailable()) {
-      this.syncService.pushSlicesToRemote(year, month, data, dataTypes).catch((err) => {
+      console.info(`[SyncedRepository] Supabase slice backup starting for ${year}/${month}`, dataTypes)
+      this.syncService.pushSlicesToRemote(year, month, data, dataTypes).then((result) => {
+        if (result.success) {
+          console.info(`[SyncedRepository] Supabase slice backup succeeded for ${year}/${month}`)
+        } else {
+          console.warn(`[SyncedRepository] Supabase slice backup failed for ${year}/${month}:`, result.failedTypes)
+        }
+      }).catch((err) => {
         console.warn('[SyncedRepository] Supabase backup failed after saveDataSlice:', err)
       })
     }
