@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import type { ImportedData, StoreResult, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData, InventoryConfig } from '@/domain/models'
+import type { ImportedData, StoreResult, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData, InventoryConfig, StoreExplanations } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
@@ -8,11 +8,13 @@ export interface DataStore {
   // State
   data: ImportedData
   storeResults: ReadonlyMap<string, StoreResult>
+  storeExplanations: ReadonlyMap<string, StoreExplanations>
   validationMessages: readonly ValidationMessage[]
 
   // Actions
   setImportedData: (data: ImportedData) => void
   setStoreResults: (results: ReadonlyMap<string, StoreResult>) => void
+  setStoreExplanations: (explanations: ReadonlyMap<string, StoreExplanations>) => void
   setValidationMessages: (messages: readonly ValidationMessage[]) => void
   setPrevYearAutoData: (payload: {
     prevYearSales: SalesData
@@ -33,6 +35,7 @@ export const useDataStore = create<DataStore>()(
       // State
       data: initialData,
       storeResults: new Map(),
+      storeExplanations: new Map(),
       validationMessages: [],
 
       // Actions
@@ -41,6 +44,9 @@ export const useDataStore = create<DataStore>()(
 
       setStoreResults: (results) =>
         set({ storeResults: results }, false, 'setStoreResults'),
+
+      setStoreExplanations: (explanations) =>
+        set({ storeExplanations: explanations }, false, 'setStoreExplanations'),
 
       setValidationMessages: (messages) =>
         set({ validationMessages: messages }, false, 'setValidationMessages'),
@@ -78,7 +84,7 @@ export const useDataStore = create<DataStore>()(
 
       reset: () =>
         set(
-          { data: initialData, storeResults: new Map(), validationMessages: [] },
+          { data: initialData, storeResults: new Map(), storeExplanations: new Map(), validationMessages: [] },
           false,
           'reset',
         ),
