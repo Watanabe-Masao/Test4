@@ -14,10 +14,3 @@ export { processConsumables, mergeConsumableData } from './ConsumableProcessor'
 export type { ConsumableData } from './ConsumableProcessor'
 export { processCategoryTimeSales, mergeCategoryTimeSalesData } from './CategoryTimeSalesProcessor'
 export { processDepartmentKpi, mergeDepartmentKpiData } from './DepartmentKpiProcessor'
-export {
-  processClassifiedSales,
-  extractStoresFromClassifiedSales,
-  detectYearMonthFromClassifiedSales,
-  mergeClassifiedSalesData,
-} from './ClassifiedSalesProcessor'
-export type { ClassifiedSalesData } from './ClassifiedSalesProcessor'

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import type { ImportedData, StoreResult, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData, InventoryConfig, StoreExplanations, ClassifiedSalesData } from '@/domain/models'
+import type { ImportedData, StoreResult, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData, InventoryConfig, StoreExplanations } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
@@ -20,7 +20,6 @@ export interface DataStore {
     prevYearSales: SalesData
     prevYearDiscount: DiscountData
     prevYearCategoryTimeSales: CategoryTimeSalesData
-    prevYearClassifiedSales?: ClassifiedSalesData
   }) => void
   updateInventory: (storeId: string, config: Partial<InventoryConfig>) => void
   reset: () => void
@@ -52,7 +51,7 @@ export const useDataStore = create<DataStore>()(
       setValidationMessages: (messages) =>
         set({ validationMessages: messages }, false, 'setValidationMessages'),
 
-      setPrevYearAutoData: ({ prevYearSales, prevYearDiscount, prevYearCategoryTimeSales, prevYearClassifiedSales }) =>
+      setPrevYearAutoData: ({ prevYearSales, prevYearDiscount, prevYearCategoryTimeSales }) =>
         set(
           (state) => ({
             data: {
@@ -60,7 +59,6 @@ export const useDataStore = create<DataStore>()(
               prevYearSales,
               prevYearDiscount,
               prevYearCategoryTimeSales,
-              ...(prevYearClassifiedSales ? { prevYearClassifiedSales } : {}),
             },
           }),
           false,

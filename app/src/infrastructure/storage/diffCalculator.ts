@@ -6,8 +6,8 @@
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
-import type { ImportedData, StoreDayRecord, CategoryTimeSalesData, FieldChange, DataTypeDiff, DiffResult, ClassifiedSalesData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
+import type { ImportedData, StoreDayRecord, CategoryTimeSalesData, FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 
 // ドメイン層で定義された型を再エクスポート
 export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
@@ -21,7 +21,6 @@ const DATA_TYPE_NAMES: Record<string, string> = {
   purchase: '仕入',
   sales: '売上',
   discount: '売変',
-  classifiedSales: '分類別売上',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
@@ -253,69 +252,6 @@ function diffCategoryTimeSales(
   }
 }
 
-// ─── ClassifiedSales の差分計算 ──────────────────────────
-
-function diffClassifiedSales(
-  existing: ClassifiedSalesData,
-  incoming: ClassifiedSalesData,
-): DataTypeDiff {
-  const inserts: FieldChange[] = []
-  const modifications: FieldChange[] = []
-  const removals: FieldChange[] = []
-
-  const existingMap = new Map(existing.records.map((r) => [classifiedSalesRecordKey(r), r]))
-  const incomingMap = new Map(incoming.records.map((r) => [classifiedSalesRecordKey(r), r]))
-
-  for (const [key, incRec] of incomingMap) {
-    const exRec = existingMap.get(key)
-    const fieldPath = `${incRec.groupName}>${incRec.departmentName}>${incRec.lineName}>${incRec.className}`
-
-    if (!exRec) {
-      if (incRec.salesAmount !== 0) {
-        inserts.push({
-          storeId: incRec.storeId,
-          storeName: incRec.storeName,
-          day: incRec.day,
-          fieldPath,
-          oldValue: null,
-          newValue: incRec.salesAmount,
-        })
-      }
-    } else if (exRec.salesAmount !== incRec.salesAmount || exRec.discount71 !== incRec.discount71 || exRec.discount72 !== incRec.discount72 || exRec.discount73 !== incRec.discount73 || exRec.discount74 !== incRec.discount74) {
-      modifications.push({
-        storeId: incRec.storeId,
-        storeName: incRec.storeName,
-        day: incRec.day,
-        fieldPath,
-        oldValue: exRec.salesAmount,
-        newValue: incRec.salesAmount,
-      })
-    }
-  }
-
-  for (const [key, exRec] of existingMap) {
-    if (!incomingMap.has(key) && exRec.salesAmount !== 0) {
-      const fieldPath = `${exRec.groupName}>${exRec.departmentName}>${exRec.lineName}>${exRec.className}`
-      removals.push({
-        storeId: exRec.storeId,
-        storeName: exRec.storeName,
-        day: exRec.day,
-        fieldPath,
-        oldValue: exRec.salesAmount,
-        newValue: null,
-      })
-    }
-  }
-
-  return {
-    dataType: 'classifiedSales',
-    dataTypeName: DATA_TYPE_NAMES.classifiedSales ?? '分類別売上',
-    inserts,
-    modifications,
-    removals,
-  }
-}
-
 // ─── メイン差分計算 ──────────────────────────────────────
 
 /** StoreDayRecord 系フィールド一覧 */
@@ -393,25 +329,7 @@ export function calculateDiff(
     }
   }
 
-  // ClassifiedSales: フラット配列形式のため個別処理
-  if (importedTypes.has('classifiedSales')) {
-    const existingCS = existing.classifiedSales
-    const incomingCS = incoming.classifiedSales
-
-    if (existingCS.records.length === 0) {
-      autoApproved.push('classifiedSales')
-    } else if (incomingCS.records.length > 0) {
-      const diff = diffClassifiedSales(existingCS, incomingCS)
-      if (diff.inserts.length > 0 || diff.modifications.length > 0 || diff.removals.length > 0) {
-        diffs.push(diff)
-      }
-      if (diff.modifications.length === 0 && diff.removals.length === 0) {
-        autoApproved.push('classifiedSales')
-      }
-    }
-  }
-
-  // prevYear 系は当年保存対象外（実際の年月に保存される）
+  // prevYearCategoryTimeSales は当年保存対象外（実際の年月に保存される）
 
   const needsConfirmation = diffs.some(
     (d) => d.modifications.length > 0 || d.removals.length > 0,

@@ -230,8 +230,7 @@ const SliderNumUnit = styled.span`
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
-  { type: 'classifiedSales', label: '1_分類別売上', multi: true },
-  { type: 'salesDiscount', label: '1_売上売変客数（レガシー）' },
+  { type: 'salesDiscount', label: '1_売上売変客数' },
   { type: 'flowers', label: '2_売上納品_花' },
   { type: 'directProduce', label: '3_売上納品_産直' },
   { type: 'interStoreOut', label: '4_店間出' },
@@ -389,7 +388,6 @@ export function DataManagementSidebar({
       if (data.budget?.size > 0) types.add('budget')
       if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')
       if (data.categoryTimeSales?.records?.length > 0) types.add('categoryTimeSales')
-      if (data.classifiedSales?.records?.length > 0) types.add('classifiedSales')
       if (data.flowers && Object.keys(data.flowers).length > 0) types.add('flowers')
       if (data.directProduce && Object.keys(data.directProduce).length > 0) types.add('directProduce')
       if (data.interStoreIn && Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')

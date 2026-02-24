@@ -101,8 +101,6 @@ export type TransferData = StoreDayRecord<TransferDayEntry>
 export interface SpecialSalesDayEntry {
   readonly price: number
   readonly cost: number
-  /** 来店客数（花ファイルから取得、産直では未使用） */
-  readonly customers?: number
 }
 
 /** 花/産直パース結果: storeId → day → SpecialSalesDayEntry */
