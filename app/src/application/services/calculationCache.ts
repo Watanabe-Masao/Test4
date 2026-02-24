@@ -1,19 +1,26 @@
 /**
  * Phase 2.2: 計算結果のキャッシュ戦略
  *
- * 入力データのフィンガープリント（軽量ハッシュ）をキーにして
- * StoreResult をキャッシュし、不要な再計算を排除する。
+ * MurmurHash3 を使用して入力データの堅牢なフィンガープリントを生成し、
+ * StoreResult をキャッシュして不要な再計算を排除する。
+ *
+ * 従来の軽量サマリー（dayCount + 一部値）を MurmurHash に置き換え、
+ * 完全一致保証に近い検出精度を実現する。
  *
  * - 店舗単位のキャッシュ: 設定変更時は影響を受ける店舗のみ再計算
  * - LRU 的な制限: 最大エントリ数を超えると古いものから削除
+ * - Worker 対応: computeFingerprint / computeGlobalFingerprint は
+ *   Worker 内でも呼び出し可能（副作用なし）
  */
 import type { ImportedData, AppSettings, StoreResult } from '@/domain/models'
+import { hashData } from './murmurhash'
 
 // ─── フィンガープリント生成 ──────────────────────────────
 
 /**
- * 入力データと設定から軽量フィンガープリント文字列を生成する。
- * JSON.stringify は重いため、構造的なサマリーのみ使用。
+ * 店舗別フィンガープリントを MurmurHash で生成する。
+ * 入力データ全体をハッシュするため、従来の軽量サマリーと異なり
+ * 値の変更を確実に検出できる。
  */
 export function computeFingerprint(
   storeId: string,
@@ -21,144 +28,33 @@ export function computeFingerprint(
   settings: AppSettings,
   daysInMonth: number,
 ): string {
-  const parts: string[] = [
+  // ハッシュ対象: 店舗固有データ + 設定
+  const hashInput = {
     storeId,
-    String(settings.targetYear),
-    String(settings.targetMonth),
-    String(settings.defaultMarkupRate),
-    String(settings.defaultBudget),
-    String(settings.dataEndDay ?? 'null'),
-    String(daysInMonth),
-  ]
-
-  // ─── StoreDayRecord 系のキー数・値サマリー ─────────────
-  const purchaseStore = data.purchase[storeId]
-  const salesStore = data.sales[storeId]
-  const discountStore = data.discount[storeId]
-  const prevYearSalesStore = data.prevYearSales[storeId]
-  const prevYearDiscountStore = data.prevYearDiscount[storeId]
-  const interStoreInStore = data.interStoreIn[storeId]
-  const interStoreOutStore = data.interStoreOut[storeId]
-  const flowersStore = data.flowers[storeId]
-  const directProduceStore = data.directProduce[storeId]
-  const consumablesStore = data.consumables[storeId]
-
-  /** StoreDayRecord のキー数を返す */
-  const dayCount = (store: Record<string, unknown> | undefined) =>
-    store ? Object.keys(store).length : 0
-
-  parts.push(`p:${dayCount(purchaseStore)}`)
-  parts.push(`s:${dayCount(salesStore)}`)
-  parts.push(`d:${dayCount(discountStore)}`)
-  parts.push(`pys:${dayCount(prevYearSalesStore)}`)
-  parts.push(`pyd:${dayCount(prevYearDiscountStore)}`)
-  parts.push(`isi:${dayCount(interStoreInStore)}`)
-  parts.push(`iso:${dayCount(interStoreOutStore)}`)
-  parts.push(`fl:${dayCount(flowersStore)}`)
-  parts.push(`dp:${dayCount(directProduceStore)}`)
-  parts.push(`cs:${dayCount(consumablesStore)}`)
-
-  // 仕入データの値サマリー (最終日の合計額で変更を検出)
-  if (purchaseStore) {
-    const days = Object.keys(purchaseStore).map(Number).sort((a, b) => b - a)
-    if (days.length > 0) {
-      const lastDay = purchaseStore[days[0]]
-      parts.push(`pl:${lastDay?.total?.cost ?? 0}:${lastDay?.total?.price ?? 0}`)
-    }
+    settings: {
+      targetYear: settings.targetYear,
+      targetMonth: settings.targetMonth,
+      defaultMarkupRate: settings.defaultMarkupRate,
+      defaultBudget: settings.defaultBudget,
+      dataEndDay: settings.dataEndDay,
+    },
+    daysInMonth,
+    purchase: data.purchase[storeId],
+    sales: data.sales[storeId],
+    discount: data.discount[storeId],
+    prevYearSales: data.prevYearSales[storeId],
+    prevYearDiscount: data.prevYearDiscount[storeId],
+    interStoreIn: data.interStoreIn[storeId],
+    interStoreOut: data.interStoreOut[storeId],
+    flowers: data.flowers[storeId],
+    directProduce: data.directProduce[storeId],
+    consumables: data.consumables[storeId],
+    invConfig: data.settings.get(storeId),
+    budget: data.budget.get(storeId),
   }
 
-  // 売上データの値サマリー
-  if (salesStore) {
-    const days = Object.keys(salesStore).map(Number).sort((a, b) => b - a)
-    if (days.length > 0) {
-      const lastDay = salesStore[days[0]]
-      parts.push(`sl:${lastDay?.sales ?? 0}`)
-    }
-  }
-
-  // 売変データの値サマリー (合計売変額で変更を検出)
-  if (discountStore) {
-    let totalDiscount = 0
-    for (const dayData of Object.values(discountStore)) {
-      totalDiscount += (dayData as { discount: number }).discount
-    }
-    parts.push(`dt:${totalDiscount}`)
-  }
-
-  // 前年売上の値サマリー
-  if (prevYearSalesStore) {
-    let totalPrevSales = 0
-    for (const dayData of Object.values(prevYearSalesStore)) {
-      totalPrevSales += (dayData as { sales: number }).sales
-    }
-    parts.push(`pyst:${totalPrevSales}`)
-  }
-
-  // 前年売変の値サマリー
-  if (prevYearDiscountStore) {
-    let totalPrevDiscount = 0
-    for (const dayData of Object.values(prevYearDiscountStore)) {
-      totalPrevDiscount += (dayData as { discount: number }).discount
-    }
-    parts.push(`pydt:${totalPrevDiscount}`)
-  }
-
-  // 店間移動の値サマリー (各日のレコード数で変更を検出)
-  if (interStoreInStore) {
-    let totalRecords = 0
-    for (const dayData of Object.values(interStoreInStore)) {
-      const entry = dayData as { interStoreIn: readonly unknown[]; interDepartmentIn: readonly unknown[] }
-      totalRecords += (entry.interStoreIn?.length ?? 0) + (entry.interDepartmentIn?.length ?? 0)
-    }
-    parts.push(`isir:${totalRecords}`)
-  }
-  if (interStoreOutStore) {
-    let totalRecords = 0
-    for (const dayData of Object.values(interStoreOutStore)) {
-      const entry = dayData as { interStoreOut: readonly unknown[]; interDepartmentOut: readonly unknown[] }
-      totalRecords += (entry.interStoreOut?.length ?? 0) + (entry.interDepartmentOut?.length ?? 0)
-    }
-    parts.push(`isor:${totalRecords}`)
-  }
-
-  // 消耗品の値サマリー (合計コストで変更を検出)
-  if (consumablesStore) {
-    let totalConsumableCost = 0
-    for (const dayData of Object.values(consumablesStore)) {
-      totalConsumableCost += (dayData as { cost: number }).cost
-    }
-    parts.push(`cst:${totalConsumableCost}`)
-  }
-
-  // 花・産直の値サマリー
-  if (flowersStore) {
-    let totalFlowerCost = 0
-    for (const dayData of Object.values(flowersStore)) {
-      totalFlowerCost += (dayData as { cost: number }).cost
-    }
-    parts.push(`flt:${totalFlowerCost}`)
-  }
-  if (directProduceStore) {
-    let totalDPCost = 0
-    for (const dayData of Object.values(directProduceStore)) {
-      totalDPCost += (dayData as { cost: number }).cost
-    }
-    parts.push(`dpt:${totalDPCost}`)
-  }
-
-  // 在庫設定
-  const invConfig = data.settings.get(storeId)
-  if (invConfig) {
-    parts.push(`inv:${invConfig.openingInventory ?? 'n'}:${invConfig.closingInventory ?? 'n'}`)
-  }
-
-  // 予算
-  const budget = data.budget.get(storeId)
-  if (budget) {
-    parts.push(`bud:${budget.total}`)
-  }
-
-  return parts.join('|')
+  const hash = hashData(hashInput)
+  return `fp:${storeId}:${hash.toString(36)}`
 }
 
 /**
@@ -170,20 +66,27 @@ export function computeGlobalFingerprint(
   daysInMonth: number,
 ): string {
   const storeIds = Array.from(data.stores.keys()).sort()
-  const parts = storeIds.map((id) => computeFingerprint(id, data, settings, daysInMonth))
-  parts.push(`stores:${storeIds.length}`)
-  parts.push(`cats:${Object.keys(settings.supplierCategoryMap).length}`)
-  // 設定値をグローバルフィンガープリントに含める（店舗なしでも変更を検出）
-  parts.push(`y:${settings.targetYear}`)
-  parts.push(`m:${settings.targetMonth}`)
-  parts.push(`mr:${settings.defaultMarkupRate}`)
-  parts.push(`db:${settings.defaultBudget}`)
-  parts.push(`dm:${daysInMonth}`)
-  // 分類別時間帯売上・部門別KPI のレコード数
-  parts.push(`cts:${data.categoryTimeSales?.records?.length ?? 0}`)
-  parts.push(`pycts:${data.prevYearCategoryTimeSales?.records?.length ?? 0}`)
-  parts.push(`dkpi:${data.departmentKpi?.records?.length ?? 0}`)
-  return parts.join('||')
+
+  // 各店舗のフィンガープリントを結合
+  const storeFps = storeIds.map((id) => computeFingerprint(id, data, settings, daysInMonth))
+
+  // グローバル設定とデータもハッシュ対象
+  const globalInput = {
+    storeFps,
+    storeCount: storeIds.length,
+    supplierCategoryCount: Object.keys(settings.supplierCategoryMap).length,
+    targetYear: settings.targetYear,
+    targetMonth: settings.targetMonth,
+    defaultMarkupRate: settings.defaultMarkupRate,
+    defaultBudget: settings.defaultBudget,
+    daysInMonth,
+    ctsRecordCount: data.categoryTimeSales?.records?.length ?? 0,
+    pyctsRecordCount: data.prevYearCategoryTimeSales?.records?.length ?? 0,
+    dkpiRecordCount: data.departmentKpi?.records?.length ?? 0,
+  }
+
+  const hash = hashData(globalInput)
+  return `gfp:${hash.toString(36)}`
 }
 
 // ─── キャッシュストア ────────────────────────────────────
@@ -252,7 +155,7 @@ export class CalculationCache {
 
   /**
    * 全店舗の結果をまとめてキャッシュチェックする。
-   * 全体のフィンガープリントが一致する場合にキャッシュ済み結果を返す。
+   * フィンガープリントが一致する場合にキャッシュ済み結果を返す。
    */
   getGlobalResult(
     data: ImportedData,
@@ -261,6 +164,19 @@ export class CalculationCache {
   ): ReadonlyMap<string, StoreResult> | null {
     const fp = computeGlobalFingerprint(data, settings, daysInMonth)
     if (this.globalFingerprint === fp && this.globalResult) {
+      return this.globalResult
+    }
+    return null
+  }
+
+  /**
+   * フィンガープリント文字列でキャッシュチェックする。
+   * Worker から返されたフィンガープリントとの比較用。
+   */
+  getGlobalResultByFingerprint(
+    fingerprint: string,
+  ): ReadonlyMap<string, StoreResult> | null {
+    if (this.globalFingerprint === fingerprint && this.globalResult) {
       return this.globalResult
     }
     return null
@@ -284,6 +200,18 @@ export class CalculationCache {
     }
   }
 
+  /**
+   * フィンガープリント文字列付きで全店舗の結果をキャッシュする。
+   * Worker から返されたフィンガープリントを直接使用。
+   */
+  setGlobalResultWithFingerprint(
+    fingerprint: string,
+    results: ReadonlyMap<string, StoreResult>,
+  ): void {
+    this.globalFingerprint = fingerprint
+    this.globalResult = results
+  }
+
   /** キャッシュをクリアする */
   clear(): void {
     this.storeCache.clear()
@@ -299,6 +227,11 @@ export class CalculationCache {
   /** グローバルキャッシュが有効か */
   get hasGlobalCache(): boolean {
     return this.globalResult !== null
+  }
+
+  /** 現在のグローバルフィンガープリント */
+  get currentGlobalFingerprint(): string | null {
+    return this.globalFingerprint
   }
 }
 

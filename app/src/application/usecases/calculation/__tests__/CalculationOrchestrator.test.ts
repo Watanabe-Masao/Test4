@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from './CalculationOrchestrator'
+import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from '../CalculationOrchestrator'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'

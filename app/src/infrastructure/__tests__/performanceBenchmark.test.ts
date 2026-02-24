@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'
 import { createEmptyImportedData } from '@/domain/models'
-import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
+import { calculateAllStores } from '@/application/usecases/calculation'
 import { DEFAULT_SETTINGS, getDaysInMonth } from '@/domain/constants/defaults'
 
 const DAYS_IN_MONTH = getDaysInMonth(DEFAULT_SETTINGS.targetYear, DEFAULT_SETTINGS.targetMonth)

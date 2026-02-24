@@ -3,19 +3,29 @@
  *
  * 計算処理を Web Worker にオフロードし、メインスレッドの
  * ブロッキングを防止する。Worker 非対応環境では同期フォールバック。
+ *
+ * Worker 内でフィンガープリントも生成し、キャッシュヒット判定を
+ * メインスレッドから分離する。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
 import type { WorkerResponse } from './calculationWorker'
-import { calculateAllStores } from '@/application/services/CalculationOrchestrator'
+import { calculateAllStores } from '@/application/usecases/calculation'
+import { computeGlobalFingerprint } from '@/application/services/calculationCache'
+
+/** Worker 計算結果（新規計算 or キャッシュヒット） */
+export type WorkerCalculateResult =
+  | { results: ReadonlyMap<string, StoreResult>; fingerprint: string }
+  | { cacheHit: true; fingerprint: string }
 
 interface WorkerCalculationResult {
-  /** Worker を使った非同期計算 */
+  /** Worker を使った非同期計算（フィンガープリント付き結果を返す） */
   calculateAsync: (
     data: ImportedData,
     settings: AppSettings,
     daysInMonth: number,
-  ) => Promise<ReadonlyMap<string, StoreResult>>
+    lastFingerprint?: string,
+  ) => Promise<WorkerCalculateResult>
   /** 計算中フラグ */
   isComputing: boolean
   /** Worker が利用可能か */
@@ -56,10 +66,16 @@ export function useWorkerCalculation(): WorkerCalculationResult {
       data: ImportedData,
       settings: AppSettings,
       daysInMonth: number,
-    ): Promise<ReadonlyMap<string, StoreResult>> => {
+      lastFingerprint?: string,
+    ): Promise<WorkerCalculateResult> => {
       if (!worker) {
-        // フォールバック: 同期計算（静的 import で統一し、チャンク分割の重複を回避）
-        return Promise.resolve(calculateAllStores(data, settings, daysInMonth))
+        // フォールバック: 同期計算 + フィンガープリント生成
+        const fingerprint = computeGlobalFingerprint(data, settings, daysInMonth)
+        if (lastFingerprint && fingerprint === lastFingerprint) {
+          return Promise.resolve({ cacheHit: true as const, fingerprint })
+        }
+        const results = calculateAllStores(data, settings, daysInMonth)
+        return Promise.resolve({ results, fingerprint })
       }
 
       // リクエストIDで応答を識別し、並行計算時のクロスコンタミを防止
@@ -76,7 +92,9 @@ export function useWorkerCalculation(): WorkerCalculationResult {
           setIsComputing(false)
 
           if (event.data.type === 'result') {
-            resolve(event.data.results)
+            resolve({ results: event.data.results, fingerprint: event.data.fingerprint })
+          } else if (event.data.type === 'cache-hit') {
+            resolve({ cacheHit: true as const, fingerprint: event.data.fingerprint })
           } else {
             reject(new Error(event.data.message))
           }
@@ -98,6 +116,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
           settings,
           daysInMonth,
           requestId: thisRequestId,
+          lastFingerprint,
         })
       })
     },

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { calculateAllStores } from '../services/CalculationOrchestrator'
+import { calculateAllStores } from '@/application/usecases/calculation'
 import { calculationCache } from '../services/calculationCache'
 import {
   validateImportedData,
   hasValidationErrors,
-} from '@/application/services/FileImportService'
+} from '@/application/usecases/import'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { useWorkerCalculation } from '@/application/workers'
 
@@ -51,14 +51,26 @@ export function useCalculation() {
       }
 
       if (useWorker && isWorkerAvailable) {
-        // Web Worker 非同期計算
+        // Web Worker 非同期計算（フィンガープリントもWorker内で生成）
         const thisEpoch = ++epochRef.current
-        calculateAsync(currentData, currentSettings, currentDays)
-          .then((results) => {
+        const lastFp = calculationCache.currentGlobalFingerprint ?? undefined
+        calculateAsync(currentData, currentSettings, currentDays, lastFp)
+          .then((result) => {
             // エポックが一致しない場合は、より新しい計算が開始されているので結果を破棄
             if (epochRef.current !== thisEpoch) return
-            calculationCache.setGlobalResult(currentData, currentSettings, currentDays, results)
-            dispatch({ type: 'SET_STORE_RESULTS', payload: results })
+
+            if ('cacheHit' in result) {
+              // Worker がキャッシュヒットを検出: ローカルキャッシュから取得
+              const localCached = calculationCache.getGlobalResultByFingerprint(result.fingerprint)
+              if (localCached) {
+                dispatch({ type: 'SET_STORE_RESULTS', payload: localCached })
+              }
+              return
+            }
+
+            // 新規計算結果: フィンガープリント付きでキャッシュ
+            calculationCache.setGlobalResultWithFingerprint(result.fingerprint, result.results)
+            dispatch({ type: 'SET_STORE_RESULTS', payload: result.results })
           })
           .catch(() => {
             if (epochRef.current !== thisEpoch) return

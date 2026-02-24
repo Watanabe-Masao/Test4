@@ -1,5 +1,5 @@
 /**
- * 計算オーケストレータ
+ * 計算ユースケース
  *
  * 分割されたモジュールを統合し、公開APIを提供する:
  * - dailyBuilder: 日次レコード構築
@@ -7,9 +7,9 @@
  * - aggregateResults: 全店集約
  */
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
-import { buildDailyRecords } from './calculation/dailyBuilder'
-import { assembleStoreResult } from './calculation/storeAssembler'
-export { aggregateStoreResults } from './calculation/aggregateResults'
+import { buildDailyRecords } from './dailyBuilder'
+import { assembleStoreResult } from './storeAssembler'
+export { aggregateStoreResults } from './aggregateResults'
 
 /**
  * 店舗別の計算結果を生成する

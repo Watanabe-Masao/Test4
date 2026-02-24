@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { aggregateStoreResults } from '../services/CalculationOrchestrator'
+import { aggregateStoreResults } from '@/application/usecases/calculation'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { StoreResult } from '@/domain/models'
 
