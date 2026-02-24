@@ -13,19 +13,30 @@ app/                          # アプリケーション本体
 │   ├── domain/               # ドメイン層（フレームワーク非依存）
 │   │   ├── models/           # 型定義・データモデル
 │   │   ├── calculations/     # 計算ロジック（粗利・予測・分解）
+│   │   ├── repositories/     # リポジトリインターフェース
 │   │   └── constants/        # 定数
 │   ├── application/          # アプリケーション層
 │   │   ├── context/          # React Context（状態管理）
 │   │   ├── hooks/            # カスタムフック
-│   │   ├── services/         # オーケストレーション
-│   │   └── stores/           # Zustand ストア
+│   │   ├── services/         # 計算キャッシュ・ハッシュ
+│   │   ├── stores/           # Zustand ストア
+│   │   ├── usecases/         # ユースケース
+│   │   │   ├── calculation/  # 計算パイプライン（dailyBuilder, storeAssembler）
+│   │   │   ├── explanation/  # 説明責任（ExplanationService）
+│   │   │   └── import/       # ファイルインポート（FileImportService）
+│   │   └── workers/          # Web Worker（計算の非同期実行）
 │   ├── infrastructure/       # インフラ層
 │   │   ├── dataProcessing/   # ファイルパーサー・プロセッサ
+│   │   ├── fileImport/       # ファイル種別判定・スキーマ定義
 │   │   ├── storage/          # IndexedDB・localStorage
-│   │   └── export/           # CSV/Excel出力
+│   │   ├── sync/             # データ同期
+│   │   ├── export/           # CSV/Excel出力
+│   │   └── i18n/             # 国際化
 │   └── presentation/         # プレゼンテーション層
 │       ├── components/       # 共通コンポーネント・チャート
-│       └── pages/            # ページコンポーネント
+│       ├── hooks/            # プレゼンテーション層フック
+│       ├── pages/            # ページコンポーネント
+│       └── theme/            # テーマ定義
 .github/workflows/ci.yml     # CI パイプライン
 ```
 
@@ -82,6 +93,121 @@ cd app && npm run test:e2e      # Playwright E2Eテスト
 - テーマトークン経由でカラー・スペーシングを参照
 - ダーク/ライトテーマ対応
 
+## データフローアーキテクチャ
+
+### 設計思想: 4つの役割
+
+データは以下の4段階を経てUIに到達する。各段階の責務を混ぜてはならない。
+
+```
+  役割1              役割2              役割3             役割4
+  データソース        計算               データセット構築    動的フィルタ
+  の組み合わせ                          （インデックス化）   ＋表示用変換
+
+  infrastructure    domain/            application/       application/
+  + application     calculations       usecases           hooks
+```
+
+| 役割 | 責務 | やらないこと |
+|---|---|---|
+| **1. 組み合わせ** | 複数ファイル由来のデータを店舗×日で突き合わせる | 計算、UI表示 |
+| **2. 計算** | 導出値の算出（粗利、値入率、売変率、構成比等） | データ取得、UI表示 |
+| **3. データセット構築** | 計算済みの値をUIが使いやすい構造にまとめる | ユーザー操作への応答 |
+| **4. 動的フィルタ** | ユーザー操作（店舗選択、日付範囲、ドリルダウン）に応じてデータセットを絞り込み、表示用データを生成する | 生データの走査、ビジネスロジック計算 |
+
+### なぜ4段階か
+
+**役割3と4を分ける理由:**
+- 役割3（インデックス構築）はデータインポート時に1回だけ実行する重い処理
+- 役割4（動的フィルタ）はユーザー操作のたびに実行する軽い処理
+- 両者を混ぜると、ユーザーがスライダーを動かすたびにインデックス再構築が走るか、
+  またはUIが生レコード配列を毎回走査することになる
+
+### データフロー図
+
+```
+  ファイル群               計算パイプライン           インデックス
+ ┌──────────┐           ┌──────────────┐         ┌────────────────┐
+ │ 分類別売上 │─┐         │ dailyBuilder │         │ StoreResult    │
+ │ 仕入Excel │─┤ 役割1    │ storeAssemb. │ 役割2-3  │ TimeSlotIndex  │
+ │ 花Excel  │─┼────→    │ (計算+構築)  │────→    │ CategoryIndex  │
+ │ 産直Excel │─┤         └──────────────┘         └───────┬────────┘
+ │ 移動Excel │─┤                                          │
+ │ 時間帯CSV │─┤                                     役割4 │
+ │ 部門KPI  │─┘                                    (hooks) │
+ └──────────┘                                             ↓
+                                                 ┌────────────────┐
+                                                 │ 表示用データ    │
+                                                 │ (View Models)  │
+                                                 └───────┬────────┘
+                                                         │
+                                                         ↓
+                                                 ┌────────────────┐
+                                                 │ UI（描画のみ） │
+                                                 └────────────────┘
+```
+
+### UI の責務
+
+UIコンポーネントは**描画のみ**を行う。具体的には:
+
+- hooks が返した表示用データを受け取り、チャート・テーブル・KPIに描画する
+- ユーザー操作（スライダー、ドロップダウン、タブ切替）の**状態**を管理する
+- ユーザー操作の結果を hooks に渡して表示用データの再生成をトリガーする
+
+UIが**やってはならない**こと:
+
+- 生レコード配列（`records[]`）を直接走査してフィルタ・集約する
+- `computeDivisor` 等の計算ロジックをインラインで実装する
+- 複数のデータソースの値を突き合わせて独自に計算する
+
+### 純粋関数の一元管理
+
+フィルタリング・除数計算等の純粋関数は一箇所で定義し、全チャートが共有する。
+インラインでの独自実装は禁止。詳細は `PeriodFilter.tsx` の設計ルール
+（RULE-1〜RULE-6）を参照。
+
+| ID | 関数名 | 役割 |
+|---|---|---|
+| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） |
+| TR-DIV-002 | `countDistinctDays` | records → distinct day 数 |
+| TR-DIV-003 | `computeDowDivisorMap` | records → 曜日別除数 Map |
+| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 |
+
+### 既知の課題と移行方針
+
+現時点で `categoryTimeSales`（分類別時間帯売上）と `departmentKpi`（部門別KPI）は
+生データが `WidgetContext` 経由でUIに渡されている。
+これは `StoreResult` が時間帯別・分類階層別の集約データを持っていないため、
+UIが仕方なく生レコードを直接参照している状態である。
+
+**移行方針:**
+1. Application層にインデックス構築関数を作成し、生レコードを検索・集約しやすい
+   構造に変換する
+2. Application層の hooks がインデックス + ユーザー選択 → 表示用データを生成する
+3. UIコンポーネントは hooks が返した表示用データのみを参照する
+4. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData` を除去する
+
+**移行時の注意:**
+- 既存の `PeriodFilter.tsx` の純粋関数（computeDivisor 等）は活用する
+- `divisorRules.test.ts` のアーキテクチャガードテストを維持する
+- 段階的に1コンポーネントずつ移行し、各段階でテスト・ビルドを通す
+
+### データソースの分離
+
+本システムの売上データは複数ファイルに由来し、合計が一致する保証がない:
+
+| データ | 由来 | 用途 |
+|---|---|---|
+| `classifiedSales` | 分類別売上CSV | 総売上・売変・客数（`StoreResult` の基準値） |
+| `categoryTimeSales` | 分類別時間帯CSV | 時間帯分析・カテゴリドリルダウン |
+
+- 丸め誤差・集計タイミング差・対象範囲差により数%乖離する
+- 計算パイプラインは常に `classifiedSales` 由来の値（`StoreResult.totalSales`）に
+  アンカーする
+- `FileImportService.ts`（`application/usecases/import/`）の `validateImportedData`
+  で1%以上の乖離を警告表示
+
 ## 要因分解ロジックのルール
 
 ### 数学的不変条件（絶対に守ること）
@@ -100,14 +226,6 @@ cd app && npm run test:e2e      # Playwright E2Eテスト
 - `decompose5` の `custEffect` と `qtyEffect` は `decompose3` と同じ値になること
 - `decompose5` の `priceEffect + mixEffect` は `decompose3` の `pricePerItemEffect` と一致すること
 - UIで分解レベルを切り替えた際に客数・点数効果の値が変わらないこと
-
-### データソースの分離に注意
-
-- `totalSales` / `totalCustomers` は売上・売変Excelから計算
-- `categoryTimeSales` は分類別時間帯CSVから計算
-- **これらは別ファイル由来で合計が一致する保証がない**
-- 分解関数は常に `prevSales`/`curSales`（売上データ）にアンカーすること
-- `FileImportService.ts` の `validateImportedData` で1%以上の乖離を警告表示
 
 ## テストの方針
 
@@ -146,7 +264,7 @@ cd app && npm run test:e2e      # Playwright E2Eテスト
 
 ```
 Domain層    → Explanation / MetricId / EvidenceRef 型定義のみ（ロジックなし）
-Application層 → ExplanationService が StoreResult から Explanation を生成
+Application層 → ExplanationService（usecases/explanation/）が StoreResult から Explanation を生成
                useExplanation フックで遅延生成（useMemo）
 Presentation層 → MetricBreakdownPanel（モーダル）で表示
                KpiCard.onClick → onExplain(metricId) で起動
@@ -157,7 +275,7 @@ Presentation層 → MetricBreakdownPanel（モーダル）で表示
 1. **計算を再実行しない**: ExplanationService は StoreResult の値をそのまま使う。
    計算パイプライン（CalculationOrchestrator）は変更しない。
 2. **Domain層は純粋に保つ**: `domain/models/Explanation.ts` は型定義のみ。
-   生成ロジックは `application/services/ExplanationService.ts` に置く。
+   生成ロジックは `application/usecases/explanation/ExplanationService.ts` に置く。
 3. **遅延生成**: Explanation は useMemo で計算結果に連動して生成。
    全指標を事前計算せず、表示時に必要な分だけキャッシュする。
 4. **指標間ナビゲーション**: ExplanationInput.metric でリンク先を持ち、
@@ -234,13 +352,7 @@ Presentation層 → MetricBreakdownPanel（モーダル）で表示
 その値を使わず別のデータ（カテゴリデータ等）から合計を再計算してはならない。
 
 **これをやると何が壊れるか:**
-本システムの売上データは複数ファイルに由来する:
-- `totalSales`/`totalCustomers`: 売上・売変Excelから算出
-- `categoryTimeSales`: 分類別時間帯CSVから算出
-
-これらは**別ファイル由来で合計が一致する保証がない**。
-丸め誤差・集計タイミング差・対象範囲差により数%乖離する。
-
+本システムの売上データは複数ファイルに由来する（詳細は「データソースの分離」を参照）。
 `decompose5` がカテゴリデータから売上合計を独自再計算した結果、
 シャープリー恒等式（`Σ効果 = curSales - prevSales`）が崩れた。
 ウォーターフォールチャートの合計が売上差と一致しなくなった。
@@ -328,103 +440,3 @@ UIが生データを直接触ると:
   内部で `records.filter(...)` → `records.reduce(...)` する
 - `WidgetContext` に `CategoryTimeSalesData`（生データ）を入れてUIに渡す
 - 複数コンポーネントで同じフィルタ・集約ロジックをインラインで重複実装する
-
-## データフローアーキテクチャ
-
-### 設計思想: 4つの役割
-
-データは以下の4段階を経てUIに到達する。各段階の責務を混ぜてはならない。
-
-```
-  役割1              役割2              役割3             役割4
-  データソース        計算               データセット構築    動的フィルタ
-  の組み合わせ                          （インデックス化）   ＋表示用変換
-
-  infrastructure    domain/            application/       application/
-  + application     calculations       usecases           hooks
-```
-
-| 役割 | 責務 | やらないこと |
-|---|---|---|
-| **1. 組み合わせ** | 複数ファイル由来のデータを店舗×日で突き合わせる | 計算、UI表示 |
-| **2. 計算** | 導出値の算出（粗利、値入率、売変率、構成比等） | データ取得、UI表示 |
-| **3. データセット構築** | 計算済みの値をUIが使いやすい構造にまとめる | ユーザー操作への応答 |
-| **4. 動的フィルタ** | ユーザー操作（店舗選択、日付範囲、ドリルダウン）に応じてデータセットを絞り込み、表示用データを生成する | 生データの走査、ビジネスロジック計算 |
-
-### なぜ4段階か
-
-**役割3と4を分ける理由:**
-- 役割3（インデックス構築）はデータインポート時に1回だけ実行する重い処理
-- 役割4（動的フィルタ）はユーザー操作のたびに実行する軽い処理
-- 両者を混ぜると、ユーザーがスライダーを動かすたびにインデックス再構築が走るか、
-  またはUIが生レコード配列を毎回走査することになる
-
-### データフロー図
-
-```
-  ファイル群               計算パイプライン           インデックス
- ┌──────────┐           ┌──────────────┐         ┌────────────────┐
- │ 売上CSV   │─┐         │ dailyBuilder │         │ StoreResult    │
- │ 仕入Excel │─┤ 役割1    │ storeAssemb. │ 役割2-3  │ TimeSlotIndex  │
- │ 花Excel  │─┼────→    │ (計算+構築)  │────→    │ CategoryIndex  │
- │ 産直Excel │─┤         └──────────────┘         └───────┬────────┘
- │ 移動Excel │─┤                                          │
- │ 時間帯CSV │─┤                                     役割4 │
- │ 部門KPI  │─┘                                    (hooks) │
- └──────────┘                                             ↓
-                                                 ┌────────────────┐
-                                                 │ 表示用データ    │
-                                                 │ (View Models)  │
-                                                 └───────┬────────┘
-                                                         │
-                                                         ↓
-                                                 ┌────────────────┐
-                                                 │ UI（描画のみ） │
-                                                 └────────────────┘
-```
-
-### UI の責務
-
-UIコンポーネントは**描画のみ**を行う。具体的には:
-
-- hooks が返した表示用データを受け取り、チャート・テーブル・KPIに描画する
-- ユーザー操作（スライダー、ドロップダウン、タブ切替）の**状態**を管理する
-- ユーザー操作の結果を hooks に渡して表示用データの再生成をトリガーする
-
-UIが**やってはならない**こと:
-
-- 生レコード配列（`records[]`）を直接走査してフィルタ・集約する
-- `computeDivisor` 等の計算ロジックをインラインで実装する
-- 複数のデータソースの値を突き合わせて独自に計算する
-
-### 純粋関数の一元管理
-
-フィルタリング・除数計算等の純粋関数は一箇所で定義し、全チャートが共有する。
-インラインでの独自実装は禁止。詳細は `PeriodFilter.tsx` の設計ルール
-（RULE-1〜RULE-6）を参照。
-
-| ID | 関数名 | 役割 |
-|---|---|---|
-| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） |
-| TR-DIV-002 | `countDistinctDays` | records → distinct day 数 |
-| TR-DIV-003 | `computeDowDivisorMap` | records → 曜日別除数 Map |
-| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 |
-
-### 既知の課題と移行方針
-
-現時点で `categoryTimeSales`（分類別時間帯売上）と `departmentKpi`（部門別KPI）は
-生データが `WidgetContext` 経由でUIに渡されている。
-これは `StoreResult` が時間帯別・分類階層別の集約データを持っていないため、
-UIが仕方なく生レコードを直接参照している状態である。
-
-**移行方針:**
-1. Application層にインデックス構築関数を作成し、生レコードを検索・集約しやすい
-   構造に変換する
-2. Application層の hooks がインデックス + ユーザー選択 → 表示用データを生成する
-3. UIコンポーネントは hooks が返した表示用データのみを参照する
-4. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData` を除去する
-
-**移行時の注意:**
-- 既存の `PeriodFilter.tsx` の純粋関数（computeDivisor 等）は活用する
-- `divisorRules.test.ts` のアーキテクチャガードテストを維持する
-- 段階的に1コンポーネントずつ移行し、各段階でテスト・ビルドを通す
