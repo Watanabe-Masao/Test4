@@ -87,34 +87,6 @@ const ExpandIcon = styled.span<{ $expanded: boolean }>`
   transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
 `
 
-const SyncButton = styled.button<{ $syncing?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.palette.primary};
-  background: transparent;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  border-radius: ${({ theme }) => theme.radii.md};
-  cursor: ${({ $syncing }) => ($syncing ? 'wait' : 'pointer')};
-  transition: all 0.15s;
-  opacity: ${({ $syncing }) => ($syncing ? 0.6 : 1)};
-
-  &:hover:not(:disabled) {
-    background: ${({ theme }) => theme.colors.palette.primary};
-    color: #fff;
-  }
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-`
-
-const SyncStatusText = styled.span<{ $success: boolean }>`
-  font-size: 11px;
-  color: ${({ $success, theme }) =>
-    $success ? (theme.colors.palette.success ?? '#22c55e') : (theme.colors.palette.danger ?? '#ef4444')};
-`
-
 const DeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
@@ -524,14 +496,12 @@ function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; 
 // ─── Main Component ─────────────────────────────────────
 
 export function StorageManagementTab() {
-  const { listMonths, getDataSummary, deleteMonth, loadSlice, isSyncAvailable, syncToSupabase } = useStorageAdmin()
+  const { listMonths, getDataSummary, deleteMonth, loadSlice } = useStorageAdmin()
   const [months, setMonths] = useState<MonthEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
   const [deleteTarget, setDeleteTarget] = useState<{ year: number; month: number } | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [syncingMonth, setSyncingMonth] = useState<string | null>(null)
-  const [syncStatus, setSyncStatus] = useState<Record<string, { success: boolean; message: string }>>({})
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -579,30 +549,6 @@ export function StorageManagementTab() {
     }
   }, [deleteTarget, loadData, deleteMonth])
 
-  const handleSync = useCallback(async (year: number, month: number) => {
-    const key = `${year}-${month}`
-    setSyncingMonth(key)
-    setSyncStatus((prev) => {
-      const next = { ...prev }
-      delete next[key]
-      return next
-    })
-    try {
-      const result = await syncToSupabase(year, month)
-      if (result.success) {
-        setSyncStatus((prev) => ({ ...prev, [key]: { success: true, message: '同期完了' } }))
-      } else {
-        const errMsg = result.failedTypes.map((f) => f.error).join(', ')
-        setSyncStatus((prev) => ({ ...prev, [key]: { success: false, message: errMsg } }))
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '不明なエラー'
-      setSyncStatus((prev) => ({ ...prev, [key]: { success: false, message } }))
-    } finally {
-      setSyncingMonth(null)
-    }
-  }, [syncToSupabase])
-
   if (loading) {
     return (
       <Section>
@@ -640,25 +586,6 @@ export function StorageManagementTab() {
                       </MonthBadge>
                     </MonthLabel>
                     <HeaderActions>
-                      {isSyncAvailable && (
-                        <>
-                          <SyncButton
-                            $syncing={syncingMonth === key}
-                            disabled={syncingMonth !== null}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleSync(entry.year, entry.month)
-                            }}
-                          >
-                            {syncingMonth === key ? '同期中...' : 'Supabase に同期'}
-                          </SyncButton>
-                          {syncStatus[key] && (
-                            <SyncStatusText $success={syncStatus[key].success}>
-                              {syncStatus[key].success ? syncStatus[key].message : `失敗: ${syncStatus[key].message}`}
-                            </SyncStatusText>
-                          )}
-                        </>
-                      )}
                       <DeleteButton
                         onClick={(e) => {
                           e.stopPropagation()
