@@ -193,7 +193,16 @@ export function CategoryDrilldown({
   const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
 
   const isAmountMode = metric === 'amount'
-  const displayTotal = isAmountMode ? displayPrimaryAmt : displayPrimaryQty
+  // 売上金額モードかつ実績/前年データソースの場合、Excel由来の actual/cumSales にアンカーする。
+  // CSV(categoryTimeSales) 合計は Excel(sales) と一致する保証がないため、
+  // 禁止事項2「引数を無視して別ソースから再計算してはならない」に従う。
+  const anchoredActual = compare === 'daily' ? actual : cumSales
+  const anchoredPrev = compare === 'daily' ? pySales : cumPrevYear
+  const displayTotal = isAmountMode
+    ? (effectiveSource === 'actual' ? anchoredActual
+      : effectiveSource === 'prev' ? anchoredPrev
+      : displayPrimaryAmt)
+    : displayPrimaryQty
   const sourceLabel = effectiveSource === 'wow' ? '前週' : effectiveSource === 'prev' ? '前年' : '実績'
   const drillSourceLabel = `${compare === 'daily' ? '当日' : '累計'}・${sourceLabel}`
   const fmtVal = isAmountMode ? (v: number) => `${toComma(v)}円` : (v: number) => `${v.toLocaleString()}点`
