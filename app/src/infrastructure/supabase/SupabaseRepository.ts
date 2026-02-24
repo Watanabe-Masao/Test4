@@ -223,11 +223,20 @@ export class SupabaseRepository implements DataRepository {
 
     const rows = serializeImportedData(data, year, month)
 
-    const { error } = await client
-      .from('monthly_data')
-      .upsert(rows, { onConflict: 'year,month,data_type' })
+    // 1行ずつ upsert する（大きなペイロードで 500 エラーを回避）
+    const errors: string[] = []
+    for (const row of rows) {
+      const { error } = await client
+        .from('monthly_data')
+        .upsert([row], { onConflict: 'year,month,data_type' })
+      if (error) {
+        errors.push(`${row.data_type}: ${error.message}`)
+      }
+    }
 
-    if (error) throw new Error(`Supabase saveMonthlyData failed: ${error.message}`)
+    if (errors.length === rows.length) {
+      throw new Error(`Supabase saveMonthlyData failed: ${errors.join('; ')}`)
+    }
 
     await updateSessionMeta(year, month)
   }
@@ -283,11 +292,20 @@ export class SupabaseRepository implements DataRepository {
       ),
     })
 
-    const { error } = await client
-      .from('monthly_data')
-      .upsert(rows, { onConflict: 'year,month,data_type' })
+    // 1行ずつ upsert する（大きなペイロードで 500 エラーを回避）
+    const errors: string[] = []
+    for (const row of rows) {
+      const { error } = await client
+        .from('monthly_data')
+        .upsert([row], { onConflict: 'year,month,data_type' })
+      if (error) {
+        errors.push(`${row.data_type}: ${error.message}`)
+      }
+    }
 
-    if (error) throw new Error(`Supabase saveDataSlice failed: ${error.message}`)
+    if (errors.length === rows.length) {
+      throw new Error(`Supabase saveDataSlice failed: ${errors.join('; ')}`)
+    }
 
     await updateSessionMeta(year, month)
   }
