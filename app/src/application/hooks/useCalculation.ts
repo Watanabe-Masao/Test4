@@ -25,7 +25,7 @@ export function useCalculation() {
 
   const canCalculate =
     Object.keys(state.data.purchase).length > 0 &&
-    Object.keys(state.data.sales).length > 0
+    state.data.classifiedSales.records.length > 0
 
   const daysInMonth = getDaysInMonth(state.settings.targetYear, state.settings.targetMonth)
 

@@ -9,21 +9,16 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('filename')
   })
 
-  it('売上売変: ファイル名（salesDiscountとして判定）', () => {
+  it('売上売変: ファイル名（classifiedSalesとして判定）', () => {
     const result = detectFileType('1_売上売変.xlsx', [])
-    expect(result.type).toBe('salesDiscount')
+    expect(result.type).toBe('classifiedSales')
     expect(result.confidence).toBe('filename')
   })
 
-  it('売上: ファイル名（売変を含まない場合）', () => {
-    const result = detectFileType('売上データ.csv', [])
-    expect(result.type).toBe('sales')
+  it('分類別売上: ファイル名', () => {
+    const result = detectFileType('分類別売上データ.csv', [])
+    expect(result.type).toBe('classifiedSales')
     expect(result.confidence).toBe('filename')
-  })
-
-  it('売変: ファイル名（売上を含まない場合）', () => {
-    const result = detectFileType('売変.xlsx', [])
-    expect(result.type).toBe('discount')
   })
 
   it('初期設定: ファイル名', () => {
@@ -36,7 +31,7 @@ describe('detectFileType', () => {
     expect(result.type).toBe('budget')
   })
 
-  it('売上予算: salesではなくbudgetとして判定', () => {
+  it('売上予算: classifiedSalesではなくbudgetとして判定', () => {
     const result = detectFileType('0_売上予算.xlsx', [])
     expect(result.type).toBe('budget')
     expect(result.confidence).toBe('filename')
@@ -75,15 +70,10 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('header')
   })
 
-  it('売上: ヘッダーに「売上」がある場合', () => {
-    const result = detectFileType('data.xlsx', [['', '', '', '売上']])
-    expect(result.type).toBe('sales')
+  it('分類別売上: ヘッダーに「グループ名称」がある場合', () => {
+    const result = detectFileType('data.xlsx', [['', '', '', 'グループ名称']])
+    expect(result.type).toBe('classifiedSales')
     expect(result.confidence).toBe('header')
-  })
-
-  it('売変: ヘッダー', () => {
-    const result = detectFileType('data.xlsx', [['', '売変合計']])
-    expect(result.type).toBe('discount')
   })
 
   it('初期設定: ヘッダー', () => {
@@ -96,9 +86,9 @@ describe('detectFileType', () => {
     expect(result.type).toBe('budget')
   })
 
-  it('予算: ヘッダー（売上予算は budget であり sales ではない）', () => {
+  it('予算: ヘッダー（売上予算は budget であり classifiedSales ではない）', () => {
     const result = detectFileType('data.xlsx', [['', '', '', '0001:A'], ['月日', '', '', '売上予算']])
-    expect(result.type).not.toBe('sales')
+    expect(result.type).not.toBe('classifiedSales')
   })
 
   it('店間入: ヘッダー（店コードIN）', () => {
@@ -123,13 +113,13 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('filename')
   })
 
-  it('6_店間入: プレフィックス(6_=店間出)よりキーワード(店間入)を優先', () => {
+  it('6_店間入: プレフィックス(6_=仕入)よりキーワード(店間入)を優先', () => {
     const result = detectFileType('6_店間入.xlsx', [])
     expect(result.type).toBe('interStoreIn')
     expect(result.confidence).toBe('filename')
   })
 
-  it('7_仕入: プレフィックス(7_=初期設定)よりキーワード(仕入)を優先', () => {
+  it('7_仕入: プレフィックス(7_)よりキーワード(仕入)を優先', () => {
     const result = detectFileType('7_仕入.xlsx', [])
     expect(result.type).toBe('purchase')
     expect(result.confidence).toBe('filename')
@@ -167,9 +157,9 @@ describe('detectFileType', () => {
     expect(result.type).toBe('purchase')
   })
 
-  it('英語ファイル名: uriage', () => {
-    const result = detectFileType('uriage_data.csv', [])
-    expect(result.type).toBe('sales')
+  it('英語ファイル名: uriage_baihen', () => {
+    const result = detectFileType('uriage_baihen_data.csv', [])
+    expect(result.type).toBe('classifiedSales')
   })
 })
 
@@ -178,8 +168,8 @@ describe('getDataTypeName', () => {
     expect(getDataTypeName('purchase')).toBe('仕入')
   })
 
-  it('売上の表示名', () => {
-    expect(getDataTypeName('sales')).toBe('売上')
+  it('分類別売上の表示名', () => {
+    expect(getDataTypeName('classifiedSales')).toBe('分類別売上')
   })
 
   it('花の表示名', () => {

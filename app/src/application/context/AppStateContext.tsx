@@ -19,8 +19,7 @@ import type {
   InventoryConfig,
   ImportedData,
   ValidationMessage,
-  SalesData,
-  DiscountData,
+  ClassifiedSalesData,
   CategoryTimeSalesData,
 } from '@/domain/models'
 
@@ -62,7 +61,7 @@ export type AppAction =
   | { type: 'SET_IMPORTING'; payload: boolean }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
   | { type: 'UPDATE_INVENTORY'; payload: { storeId: string; config: Partial<InventoryConfig> } }
-  | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearSales: SalesData; prevYearDiscount: DiscountData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
+  | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearClassifiedSales: ClassifiedSalesData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
   | { type: 'RESET' }
 
 // ─── Legacy reducer (re-export for tests) ────────────

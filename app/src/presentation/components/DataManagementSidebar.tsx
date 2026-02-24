@@ -230,7 +230,7 @@ const SliderNumUnit = styled.span`
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
-  { type: 'salesDiscount', label: '1_売上売変客数' },
+  { type: 'classifiedSales', label: '1_分類別売上', multi: true },
   { type: 'flowers', label: '2_売上納品_花' },
   { type: 'directProduce', label: '3_売上納品_産直' },
   { type: 'interStoreOut', label: '4_店間出' },
@@ -376,14 +376,7 @@ export function DataManagementSidebar({
     const types = new Set<DataType>()
     try {
       if (data.purchase && Object.keys(data.purchase).length > 0) types.add('purchase')
-      if (data.sales && Object.keys(data.sales).length > 0) {
-        types.add('sales')
-        types.add('salesDiscount')
-      }
-      if (data.discount && Object.keys(data.discount).length > 0) {
-        types.add('discount')
-        types.add('salesDiscount')
-      }
+      if (data.classifiedSales?.records?.length > 0) types.add('classifiedSales')
       if (data.settings?.size > 0) types.add('initialSettings')
       if (data.budget?.size > 0) types.add('budget')
       if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')

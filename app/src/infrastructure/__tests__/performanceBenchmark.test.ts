@@ -14,48 +14,30 @@ import { DEFAULT_SETTINGS, getDaysInMonth } from '@/domain/constants/defaults'
 const DAYS_IN_MONTH = getDaysInMonth(DEFAULT_SETTINGS.targetYear, DEFAULT_SETTINGS.targetMonth)
 
 /**
- * 売上売変データ生成（salesDiscount 形式）
+ * 分類別売上データ生成（classifiedSales 形式）
  *
  * @param storeCount 店舗数
- * @param days 日数（1日あたり1行）
+ * @param days 日数（1日あたり1行×店舗数）
  * @returns unknown[][] 生データ行
  */
-function generateSalesDiscountRows(storeCount: number, days: number): unknown[][] {
-  // Row 0: store headers (col 3+ per store: 販売金額, 売変合計金額)
-  const headerRow: unknown[] = ['', '', '']
-  for (let s = 1; s <= storeCount; s++) {
-    const code = String(s).padStart(4, '0')
-    headerRow.push(`${code}:店舗${code}`, '')
-  }
+function generateClassifiedSalesRows(storeCount: number, days: number): unknown[][] {
+  // Row 0: Header
+  const headerRow = ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変']
 
-  // Row 1: sub-headers
-  const subHeaderRow: unknown[] = ['', '', '']
-  for (let s = 1; s <= storeCount; s++) {
-    subHeaderRow.push('販売金額', '売変合計金額')
-  }
-
-  // Row 2: period totals (期間合計)
-  const totalRow: unknown[] = ['期間合計', '', '']
-  for (let s = 1; s <= storeCount; s++) {
-    totalRow.push(1000000 * s, 50000 * s)
-  }
-
-  // Data rows (days > DAYS_IN_MONTH は循環して有効な日付を生成)
   const { targetYear, targetMonth } = DEFAULT_SETTINGS
   const dataRows: unknown[][] = []
   for (let d = 1; d <= days; d++) {
     const dayInMonth = ((d - 1) % DAYS_IN_MONTH) + 1
     const dayStr = `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(dayInMonth).padStart(2, '0')}`
-    const row: unknown[] = [dayStr, '', '']
     for (let s = 1; s <= storeCount; s++) {
+      const code = String(s).padStart(4, '0')
       const baseSales = 30000 + Math.floor(Math.random() * 20000) * s
       const baseDiscount = Math.floor(baseSales * 0.03)
-      row.push(baseSales, baseDiscount)
+      dataRows.push([dayStr, `${code}:店舗${code}`, 'G1', 'D1', 'L1', 'C1', baseSales, baseDiscount, 0, 0, 0])
     }
-    dataRows.push(row)
   }
 
-  return [headerRow, subHeaderRow, totalRow, ...dataRows]
+  return [headerRow, ...dataRows]
 }
 
 /**
@@ -110,13 +92,13 @@ function generatePurchaseRows(
 }
 
 describe('Performance Benchmark', () => {
-  it('salesDiscount: 5店舗 × 28日 を 500ms 以内に処理', () => {
-    const rows = generateSalesDiscountRows(5, DAYS_IN_MONTH)
+  it('classifiedSales: 5店舗 × 28日 を 500ms 以内に処理', () => {
+    const rows = generateClassifiedSalesRows(5, DAYS_IN_MONTH)
     const start = performance.now()
     const { data } = processFileData(
-      'salesDiscount',
+      'classifiedSales',
       rows,
-      '1_売上売変.xlsx',
+      '1_分類別売上.xlsx',
       createEmptyImportedData(),
       DEFAULT_SETTINGS,
     )
@@ -151,9 +133,9 @@ describe('Performance Benchmark', () => {
     const purchaseRows = generatePurchaseRows(storeCount, supplierCount, DAYS_IN_MONTH)
     ;({ data } = processFileData('purchase', purchaseRows, 'shiire.xlsx', data, DEFAULT_SETTINGS))
 
-    // Step 2: Import sales+discount data
-    const salesRows = generateSalesDiscountRows(storeCount, DAYS_IN_MONTH)
-    ;({ data } = processFileData('salesDiscount', salesRows, '1_売上売変.xlsx', data, DEFAULT_SETTINGS))
+    // Step 2: Import classifiedSales data
+    const csRows = generateClassifiedSalesRows(storeCount, DAYS_IN_MONTH)
+    ;({ data } = processFileData('classifiedSales', csRows, '1_分類別売上.xlsx', data, DEFAULT_SETTINGS))
 
     expect(data.stores.size).toBe(storeCount)
 
@@ -174,12 +156,12 @@ describe('Performance Benchmark', () => {
 
   it('大規模行数: 10店舗 × 3000行（100ヶ月分相当）を 3000ms 以内にインポート', () => {
     // 3000行 × 10店舗 = 30,000 セル分のデータ → 大規模テスト
-    const rows = generateSalesDiscountRows(10, 3000)
+    const rows = generateClassifiedSalesRows(10, 3000)
     const start = performance.now()
     const { data } = processFileData(
-      'salesDiscount',
+      'classifiedSales',
       rows,
-      '1_売上売変.xlsx',
+      '1_分類別売上.xlsx',
       createEmptyImportedData(),
       DEFAULT_SETTINGS,
     )

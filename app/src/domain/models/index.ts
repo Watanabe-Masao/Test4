@@ -16,10 +16,6 @@ export type {
   StoreDayRecord,
   PurchaseData,
   PurchaseDayEntry,
-  SalesData,
-  SalesDayEntry,
-  DiscountData,
-  DiscountDayEntry,
   TransferRecord,
   TransferData,
   TransferDayEntry,
@@ -33,6 +29,18 @@ export type {
   DepartmentKpiData,
 } from './DataTypes'
 export { categoryTimeSalesRecordKey } from './DataTypes'
+export type {
+  ClassifiedSalesRecord,
+  ClassifiedSalesData,
+  ClassifiedSalesDaySummary,
+} from './ClassifiedSales'
+export {
+  classifiedSalesRecordKey,
+  aggregateForStore,
+  aggregateAllStores,
+  classifiedSalesMaxDay,
+  mergeClassifiedSalesData,
+} from './ClassifiedSales'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'
 export type { ValidationMessage } from './ValidationMessage'

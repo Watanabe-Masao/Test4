@@ -31,19 +31,19 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['仕入', 'shiire'],
     headerPatterns: ['取引先コード', '原価金額', '売価金額'],
   },
-  // 予算は「売上予算」を含むため sales より先に判定する
+  // 予算は「売上予算」を含むため先に判定する
   {
     type: 'budget',
     name: '売上予算',
     filenamePatterns: ['売上予算', '予算', 'budget'],
     headerPatterns: ['売上予算', '予算'],
   },
-  // 売上売変客数の複合ファイル（客数を含む新形式も同一タイプで処理）
+  // 分類別売上（旧「売上売変客数」を置換）
   {
-    type: 'salesDiscount',
-    name: '売上売変客数',
-    filenamePatterns: ['売上売変客数', '売上売変', 'uriage_baihen', 'uriageBaihen'],
-    headerPatterns: [],
+    type: 'classifiedSales',
+    name: '分類別売上',
+    filenamePatterns: ['分類別売上', '売上売変客数', '売上売変', 'bunruibetsu', 'uriage_baihen', 'uriageBaihen'],
+    headerPatterns: ['グループ名称', '部門名称', 'ライン名称', 'クラス名称'],
   },
   // 分類別時間帯売上（消耗品の前に配置 — 7. vs 8. の競合防止）
   {
@@ -51,18 +51,6 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     name: '分類別時間帯売上',
     filenamePatterns: ['分類別時間帯売上', '時間帯売上'],
     headerPatterns: ['取引時間', '【ライン】', '【クラス】'],
-  },
-  {
-    type: 'sales',
-    name: '売上',
-    filenamePatterns: ['売上', 'uriage'],
-    headerPatterns: ['販売金額', '売上'],
-  },
-  {
-    type: 'discount',
-    name: '売変',
-    filenamePatterns: ['売変', 'baihen'],
-    headerPatterns: ['売変合計', '値引'],
   },
   {
     type: 'initialSettings',
@@ -97,11 +85,11 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
 ] as const
 
 /**
- * 命名規則によるプレフィックス判定: 0_売上予算.xlsx, 1_売上売変客数.xlsx, ...
+ * 命名規則によるプレフィックス判定
  */
 const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
   { prefix: '0_', type: 'budget' },
-  { prefix: '1_', type: 'salesDiscount' },
+  { prefix: '1_', type: 'classifiedSales' },
   { prefix: '2_', type: 'flowers' },
   { prefix: '3_', type: 'directProduce' },
   { prefix: '4_', type: 'interStoreOut' },
@@ -116,14 +104,13 @@ const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
 function matchByFilename(filename: string): DataType | null {
   const basename = filename.replace(/^.*[\\/]/, '')
 
-  // 分類別時間帯売上: "7.分類別時間帯売上" or "8.分類別時間帯売上" (旧規則互換)
+  // 分類別時間帯売上: "7.分類別時間帯売上" or "8.分類別時間帯売上"
   if (/^\d+\.分類別/.test(basename) || /^\d+\..*時間帯/.test(basename)) return 'categoryTimeSales'
 
-  // 消耗品: "8.消耗品" or 先頭2桁数字 + "消耗品" (例: 01消耗品_260130.xls)
+  // 消耗品: "8.消耗品" or 先頭2桁数字 + "消耗品"
   if (/^\d+\.消耗/.test(basename) || /^\d{2}消耗/.test(basename)) return 'consumables'
 
-  // キーワードマッチ（優先: ファイル名に明示的なデータ種別名がある場合）
-  // ※ プレフィックス番号がユーザー環境と異なる場合でも正しく判定できる
+  // キーワードマッチ
   const lower = filename.toLowerCase()
   for (const rule of FILE_TYPE_RULES) {
     if (rule.filenamePatterns.some((p) => lower.includes(p.toLowerCase()))) {
@@ -131,7 +118,7 @@ function matchByFilename(filename: string): DataType | null {
     }
   }
 
-  // 命名規則プレフィックス判定（フォールバック: キーワードで判定できない場合）
+  // プレフィックス判定（フォールバック）
   for (const rule of PREFIX_RULES) {
     if (basename.startsWith(rule.prefix)) return rule.type
   }
@@ -145,7 +132,6 @@ function matchByFilename(filename: string): DataType | null {
 function matchByHeader(rows: readonly unknown[][]): DataType | null {
   if (rows.length === 0) return null
 
-  // 先頭3行を検査対象にする
   const headerText = rows
     .slice(0, 3)
     .flat()
@@ -170,20 +156,14 @@ export interface DetectionResult {
 
 /**
  * ファイル種別を自動判定する
- *
- * 判定順序:
- * 1. ファイル名パターンマッチ（優先）
- * 2. ヘッダーパターンマッチ
  */
 export function detectFileType(filename: string, rows: readonly unknown[][]): DetectionResult {
-  // 1. ファイル名で判定（花・産直はヘッダーが同一のためこちらを優先）
   const byFilename = matchByFilename(filename)
   if (byFilename) {
     const rule = FILE_TYPE_RULES.find((r) => r.type === byFilename)
     return { type: byFilename, confidence: 'filename', ruleName: rule?.name ?? null }
   }
 
-  // 2. ヘッダーで判定
   const byHeader = matchByHeader(rows)
   if (byHeader) {
     const rule = FILE_TYPE_RULES.find((r) => r.type === byHeader)

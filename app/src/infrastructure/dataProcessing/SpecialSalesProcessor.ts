@@ -8,16 +8,19 @@ export type { SpecialSalesData } from '@/domain/models'
  * 花・産直データを処理する
  *
  * 行0: 店舗コード（"NNNN:店舗名" Col3〜、2列ペア）
- * 行3+: データ行（Col0: 日付, Col3+: 売価金額）
+ * 行3+: データ行（Col0: 日付, Col3+: 売価金額 [, 来店客数]）
  * 原価 = Math.round(売価 × 掛け率)
+ *
+ * @param readCustomers true の場合、ペアの2列目を来店客数として読み込む（花ファイル用）
  */
 export function processSpecialSales(
   rows: readonly unknown[][],
   costRate: number,
+  readCustomers: boolean = false,
 ): SpecialSalesData {
   if (rows.length < 4) return {}
 
-  const result: Record<string, Record<number, { price: number; cost: number }>> = {}
+  const result: Record<string, Record<number, { price: number; cost: number; customers?: number }>> = {}
 
   // ヘッダー解析
   const columnMap: { col: number; storeId: string }[] = []
@@ -38,16 +41,23 @@ export function processSpecialSales(
 
     for (const { col, storeId } of columnMap) {
       const price = safeNumber(r[col])
-      if (price === 0) continue
+      if (price === 0 && !readCustomers) continue
 
       const cost = Math.round(price * costRate)
+      const customers = readCustomers ? safeNumber(r[col + 1]) : undefined
+
+      // 客数のみの行（price=0 but customers>0）も記録する
+      if (price === 0 && (customers === undefined || customers === 0)) continue
 
       if (!result[storeId]) result[storeId] = {}
       if (!result[storeId][day]) result[storeId][day] = { price: 0, cost: 0 }
 
-      const dayData = result[storeId][day] as { price: number; cost: number }
+      const dayData = result[storeId][day] as { price: number; cost: number; customers?: number }
       dayData.price += price
       dayData.cost += cost
+      if (customers !== undefined) {
+        dayData.customers = (dayData.customers ?? 0) + customers
+      }
     }
   }
 

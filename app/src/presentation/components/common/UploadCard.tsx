@@ -37,9 +37,7 @@ const Status = styled.div`
 
 const fileTypeIcons: Record<string, string> = {
   purchase: '📦',
-  sales: '💰',
-  discount: '🏷️',
-  salesDiscount: '💰',
+  classifiedSales: '💰',
   initialSettings: '⚙️',
   budget: '📊',
   flowers: '🌸',

@@ -33,10 +33,6 @@ export function computeFingerprint(
 
   // ─── StoreDayRecord 系のキー数・値サマリー ─────────────
   const purchaseStore = data.purchase[storeId]
-  const salesStore = data.sales[storeId]
-  const discountStore = data.discount[storeId]
-  const prevYearSalesStore = data.prevYearSales[storeId]
-  const prevYearDiscountStore = data.prevYearDiscount[storeId]
   const interStoreInStore = data.interStoreIn[storeId]
   const interStoreOutStore = data.interStoreOut[storeId]
   const flowersStore = data.flowers[storeId]
@@ -48,15 +44,29 @@ export function computeFingerprint(
     store ? Object.keys(store).length : 0
 
   parts.push(`p:${dayCount(purchaseStore)}`)
-  parts.push(`s:${dayCount(salesStore)}`)
-  parts.push(`d:${dayCount(discountStore)}`)
-  parts.push(`pys:${dayCount(prevYearSalesStore)}`)
-  parts.push(`pyd:${dayCount(prevYearDiscountStore)}`)
   parts.push(`isi:${dayCount(interStoreInStore)}`)
   parts.push(`iso:${dayCount(interStoreOutStore)}`)
   parts.push(`fl:${dayCount(flowersStore)}`)
   parts.push(`dp:${dayCount(directProduceStore)}`)
   parts.push(`cs:${dayCount(consumablesStore)}`)
+
+  // 分類別売上のレコード数と売上サマリー（店舗フィルタ）
+  const csRecords = data.classifiedSales.records.filter((r) => r.storeId === storeId)
+  parts.push(`csr:${csRecords.length}`)
+  if (csRecords.length > 0) {
+    let totalCS = 0
+    for (const r of csRecords) totalCS += r.salesAmount
+    parts.push(`cst:${totalCS}`)
+  }
+
+  // 前年分類別売上
+  const prevCSRecords = data.prevYearClassifiedSales.records.filter((r) => r.storeId === storeId)
+  parts.push(`pcsr:${prevCSRecords.length}`)
+  if (prevCSRecords.length > 0) {
+    let totalPCS = 0
+    for (const r of prevCSRecords) totalPCS += r.salesAmount
+    parts.push(`pcst:${totalPCS}`)
+  }
 
   // 仕入データの値サマリー (最終日の合計額で変更を検出)
   if (purchaseStore) {
@@ -65,42 +75,6 @@ export function computeFingerprint(
       const lastDay = purchaseStore[days[0]]
       parts.push(`pl:${lastDay?.total?.cost ?? 0}:${lastDay?.total?.price ?? 0}`)
     }
-  }
-
-  // 売上データの値サマリー
-  if (salesStore) {
-    const days = Object.keys(salesStore).map(Number).sort((a, b) => b - a)
-    if (days.length > 0) {
-      const lastDay = salesStore[days[0]]
-      parts.push(`sl:${lastDay?.sales ?? 0}`)
-    }
-  }
-
-  // 売変データの値サマリー (合計売変額で変更を検出)
-  if (discountStore) {
-    let totalDiscount = 0
-    for (const dayData of Object.values(discountStore)) {
-      totalDiscount += (dayData as { discount: number }).discount
-    }
-    parts.push(`dt:${totalDiscount}`)
-  }
-
-  // 前年売上の値サマリー
-  if (prevYearSalesStore) {
-    let totalPrevSales = 0
-    for (const dayData of Object.values(prevYearSalesStore)) {
-      totalPrevSales += (dayData as { sales: number }).sales
-    }
-    parts.push(`pyst:${totalPrevSales}`)
-  }
-
-  // 前年売変の値サマリー
-  if (prevYearDiscountStore) {
-    let totalPrevDiscount = 0
-    for (const dayData of Object.values(prevYearDiscountStore)) {
-      totalPrevDiscount += (dayData as { discount: number }).discount
-    }
-    parts.push(`pydt:${totalPrevDiscount}`)
   }
 
   // 店間移動の値サマリー (各日のレコード数で変更を検出)
@@ -179,7 +153,9 @@ export function computeGlobalFingerprint(
   parts.push(`mr:${settings.defaultMarkupRate}`)
   parts.push(`db:${settings.defaultBudget}`)
   parts.push(`dm:${daysInMonth}`)
-  // 分類別時間帯売上・部門別KPI のレコード数
+  // 分類別売上・分類別時間帯売上・部門別KPI のレコード数
+  parts.push(`cs:${data.classifiedSales?.records?.length ?? 0}`)
+  parts.push(`pycs:${data.prevYearClassifiedSales?.records?.length ?? 0}`)
   parts.push(`cts:${data.categoryTimeSales?.records?.length ?? 0}`)
   parts.push(`pycts:${data.prevYearCategoryTimeSales?.records?.length ?? 0}`)
   parts.push(`dkpi:${data.departmentKpi?.records?.length ?? 0}`)

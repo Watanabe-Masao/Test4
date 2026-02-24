@@ -45,18 +45,23 @@ describe('dataStore', () => {
   })
 
   it('setPrevYearAutoData で前年データを設定できる', () => {
-    const prevYearSales = { s1: { 1: { sales: 100 } } }
-    const prevYearDiscount = { s1: { 1: { sales: 100, discount: 10 } } }
+    const prevYearClassifiedSales = {
+      records: [{
+        year: 2024, month: 1, day: 1, storeId: 's1', storeName: 'Store s1',
+        groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+        salesAmount: 100, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+      }],
+    }
     const prevYearCategoryTimeSales = { records: [] }
 
     useDataStore.getState().setPrevYearAutoData({
-      prevYearSales,
-      prevYearDiscount,
+      prevYearClassifiedSales,
       prevYearCategoryTimeSales,
     })
 
     const state = useDataStore.getState()
-    expect(Object.keys(state.data.prevYearSales)).toContain('s1')
+    expect(state.data.prevYearClassifiedSales.records).toHaveLength(1)
+    expect(state.data.prevYearClassifiedSales.records[0].storeId).toBe('s1')
   })
 
   it('updateInventory で在庫設定を更新できる', () => {

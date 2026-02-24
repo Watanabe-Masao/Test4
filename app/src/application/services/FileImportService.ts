@@ -94,8 +94,8 @@ export function validateImportedData(
   if (Object.keys(data.purchase).length === 0) {
     messages.push({ level: 'error', message: '仕入データがありません' })
   }
-  if (Object.keys(data.sales).length === 0) {
-    messages.push({ level: 'error', message: '売上データがありません' })
+  if (data.classifiedSales.records.length === 0) {
+    messages.push({ level: 'error', message: '分類別売上データがありません' })
   }
 
   // ── 店舗存在チェック ──
@@ -118,10 +118,6 @@ export function validateImportedData(
     }
 
     const unknownDetails: string[] = []
-    const d1 = checkStoreIds(data.sales, '売上データ')
-    if (d1) unknownDetails.push(d1)
-    const d2 = checkStoreIds(data.discount, '売変データ')
-    if (d2) unknownDetails.push(d2)
     const d3 = checkStoreIds(data.interStoreIn, '店間入データ')
     if (d3) unknownDetails.push(d3)
     const d4 = checkStoreIds(data.interStoreOut, '店間出データ')
@@ -175,36 +171,38 @@ export function validateImportedData(
     })
   }
 
-  // ── 売上データと分類別時間帯売上の整合性チェック ──
-  if (data.categoryTimeSales?.records?.length && Object.keys(data.sales).length > 0) {
-    // 店舗別・日別に売上合計とCTS合計を比較
+  // ── 分類別売上と分類別時間帯売上の整合性チェック ──
+  if (data.categoryTimeSales?.records?.length && data.classifiedSales.records.length > 0) {
+    // 店舗別・日別に分類別売上合計とCTS合計を比較
     const ctsByStoreDay = new Map<string, number>()
     for (const rec of data.categoryTimeSales.records) {
       const key = `${rec.storeId}|${rec.day}`
       ctsByStoreDay.set(key, (ctsByStoreDay.get(key) ?? 0) + rec.totalAmount)
     }
 
-    let totalSalesSum = 0
-    let totalCtsSum = 0
-    for (const [storeId, days] of Object.entries(data.sales)) {
-      for (const [dayStr, dayData] of Object.entries(days as Record<string, { sales: number }>)) {
-        const salesAmt = dayData.sales ?? 0
-        totalSalesSum += salesAmt
-        const ctsAmt = ctsByStoreDay.get(`${storeId}|${dayStr}`) ?? 0
-        totalCtsSum += ctsAmt
-      }
+    const csByStoreDay = new Map<string, number>()
+    for (const rec of data.classifiedSales.records) {
+      const key = `${rec.storeId}|${rec.day}`
+      csByStoreDay.set(key, (csByStoreDay.get(key) ?? 0) + rec.salesAmount)
     }
 
-    if (totalSalesSum > 0 && totalCtsSum > 0) {
-      const divergence = Math.abs(totalSalesSum - totalCtsSum)
-      const divergenceRate = divergence / totalSalesSum
+    let totalCSSum = 0
+    let totalCtsSum = 0
+    for (const [key, csAmt] of csByStoreDay) {
+      totalCSSum += csAmt
+      totalCtsSum += ctsByStoreDay.get(key) ?? 0
+    }
+
+    if (totalCSSum > 0 && totalCtsSum > 0) {
+      const divergence = Math.abs(totalCSSum - totalCtsSum)
+      const divergenceRate = divergence / totalCSSum
       if (divergenceRate > 0.01) {
         messages.push({
           level: 'warning',
-          message: `売上データと分類別時間帯売上の合計に乖離があります（${(divergenceRate * 100).toFixed(1)}%）`,
+          message: `分類別売上と分類別時間帯売上の合計に乖離があります（${(divergenceRate * 100).toFixed(1)}%）`,
           details: [
-            `売上合計: ${Math.round(totalSalesSum).toLocaleString()}円`,
-            `分類別合計: ${Math.round(totalCtsSum).toLocaleString()}円`,
+            `分類別売上合計: ${Math.round(totalCSSum).toLocaleString()}円`,
+            `時間帯売上合計: ${Math.round(totalCtsSum).toLocaleString()}円`,
             `差額: ${Math.round(divergence).toLocaleString()}円`,
             '要因分解チャートの精度に影響する可能性があります',
           ],
@@ -220,10 +218,14 @@ export function validateImportedData(
       message: '予算データがありません。予算ファイルを読み込むとより詳細な分析が可能です',
     })
   }
-  if (Object.keys(data.discount).length === 0) {
+  // 分類別売上に売変データが含まれているか確認
+  const hasDiscountData = data.classifiedSales.records.some(
+    (r) => r.discount71 !== 0 || r.discount72 !== 0 || r.discount73 !== 0 || r.discount74 !== 0,
+  )
+  if (!hasDiscountData && data.classifiedSales.records.length > 0) {
     messages.push({
       level: 'info',
-      message: '売変データがありません。売変ファイルを読み込むと推定粗利計算が可能です',
+      message: '分類別売上に売変データが含まれていません。売変列付きのファイルを読み込むと推定粗利計算の精度が向上します',
     })
   }
 

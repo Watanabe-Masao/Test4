@@ -100,7 +100,6 @@ const SAFE_DIVIDE_DEFINITION_FILE = 'utils.ts'
  * 新規プロセッサを追加する場合はここに追加し、overflowDay.ts を使用すること。
  */
 const OVERFLOW_DAY_PROCESSORS = [
-  'DiscountProcessor.ts',
   'CategoryTimeSalesProcessor.ts',
 ] as const
 
@@ -211,7 +210,7 @@ describe('RULE-D2: 客単価計算は calculateTransactionValue を経由する'
 
 describe('RULE-I1: overflow day ロジックは overflowDay.ts を経由する', () => {
   /**
-   * DiscountProcessor / CategoryTimeSalesProcessor 内で
+   * ClassifiedSalesProcessor / CategoryTimeSalesProcessor 内で
    * 手動の overflow day ロジック（daysInTargetMonth 算出やnextMonth算出）を検出。
    */
   const INLINE_OVERFLOW_PATTERNS = [

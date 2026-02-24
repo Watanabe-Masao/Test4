@@ -7,6 +7,7 @@ import type {
   ImportedData,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
+import { aggregateForStore } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import type { MonthlyAccumulator } from './types'
 
@@ -19,8 +20,8 @@ export function buildDailyRecords(
   daysInMonth: number,
 ): MonthlyAccumulator {
   const purchaseStore = data.purchase[storeId] ?? {}
-  const salesStore = data.sales[storeId] ?? {}
-  const discountStore = data.discount[storeId] ?? {}
+  // 分類別売上を店舗×日に集約
+  const classifiedSalesAgg = aggregateForStore(data.classifiedSales, storeId)
   const interStoreInStore = data.interStoreIn[storeId] ?? {}
   const interStoreOutStore = data.interStoreOut[storeId] ?? {}
   const flowersStore = data.flowers[storeId] ?? {}
@@ -54,8 +55,7 @@ export function buildDailyRecords(
 
   for (let day = 1; day <= daysInMonth; day++) {
     const purchaseDay = purchaseStore[day]
-    const salesDay = salesStore[day]
-    const discountDay = discountStore[day]
+    const csDay = classifiedSalesAgg[day]
     const interInDay = interStoreInStore[day]
     const interOutDay = interStoreOutStore[day]
     const flowerDay = flowersStore[day]
@@ -67,9 +67,9 @@ export function buildDailyRecords(
       ? { cost: purchaseDay.total.cost, price: purchaseDay.total.price }
       : ZERO_COST_PRICE_PAIR
 
-    // 売上・客数
-    const daySales = salesDay?.sales ?? 0
-    const dayCustomers = discountDay?.customers ?? salesDay?.customers ?? 0
+    // 売上（分類別売上の集約）・客数（花ファイル）
+    const daySales = csDay?.sales ?? 0
+    const dayCustomers = flowerDay?.customers ?? 0
 
     // 花・産直
     const flowers: CostPricePair = flowerDay
@@ -131,8 +131,8 @@ export function buildDailyRecords(
     // 消耗品
     const consumable = consumableDay ?? ZERO_CONSUMABLE_DAILY
 
-    // 売変
-    const discountAmount = discountDay?.discount ?? 0
+    // 売変（分類別売上の集約）
+    const discountAmount = csDay?.discount ?? 0
     const discountAbsolute = Math.abs(discountAmount)
 
     // コア売上
