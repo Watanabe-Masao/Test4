@@ -16,9 +16,7 @@ const rowsBase = z.array(z.array(z.unknown()))
  */
 const STRUCTURAL_RULES: Record<DataType, { minRows: number; minCols: number; label: string }> = {
   purchase:                  { minRows: 3, minCols: 4,  label: '仕入データ' },
-  sales:                     { minRows: 4, minCols: 4,  label: '売上データ' },
-  discount:                  { minRows: 3, minCols: 3,  label: '売変データ' },
-  salesDiscount:             { minRows: 3, minCols: 3,  label: '売上売変データ' },
+  classifiedSales:           { minRows: 2, minCols: 7,  label: '分類別売上データ' },
   initialSettings:           { minRows: 2, minCols: 2,  label: '初期設定データ' },
   budget:                    { minRows: 2, minCols: 2,  label: '予算データ' },
   interStoreIn:              { minRows: 2, minCols: 3,  label: '店間入庫データ' },
@@ -54,7 +52,6 @@ export function validateRawRows(
   }
 
   // 列数チェック: いずれかの行が最低列数を満たしていること
-  // （ヘッダ行がラベルのみで短い形式もあるため、全行の最大幅で判定）
   const maxCols = rows.reduce((max, row) => Math.max(max, row.length), 0)
   if (maxCols < rule.minCols) {
     throw new ImportSchemaError(

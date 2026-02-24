@@ -83,25 +83,27 @@ describe('appReducer', () => {
 
   it('SET_PREV_YEAR_AUTO_DATA: 前年データのみ更新 + isCalculated false', () => {
     const state = { ...initialState, ui: { ...initialState.ui, isCalculated: true } }
-    const prevDiscount = { '1': { 1: { sales: 100, discount: 10, customers: 5 } } }
-    const prevSales = { '1': { 1: { sales: 100, customers: 5 } } }
+    const prevYearClassifiedSales = {
+      records: [{
+        year: 2024, month: 1, day: 1, storeId: '1', storeName: 'Store 1',
+        groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+        salesAmount: 100, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+      }],
+    }
     const prevCTS = { records: [] }
     const next = appReducer(state, {
       type: 'SET_PREV_YEAR_AUTO_DATA',
       payload: {
-        prevYearSales: prevSales,
-        prevYearDiscount: prevDiscount,
+        prevYearClassifiedSales,
         prevYearCategoryTimeSales: prevCTS,
       },
     })
 
-    expect(next.data.prevYearDiscount).toBe(prevDiscount)
-    expect(next.data.prevYearSales).toBe(prevSales)
+    expect(next.data.prevYearClassifiedSales).toBe(prevYearClassifiedSales)
     expect(next.data.prevYearCategoryTimeSales).toBe(prevCTS)
     expect(next.ui.isCalculated).toBe(false)
     // 他のデータフィールドは変更なし
-    expect(next.data.discount).toBe(initialState.data.discount)
-    expect(next.data.sales).toBe(initialState.data.sales)
+    expect(next.data.classifiedSales).toBe(initialState.data.classifiedSales)
   })
 
   it('未知のアクションは状態を返す', () => {

@@ -7,89 +7,105 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
   return { ...createEmptyImportedData(), ...overrides }
 }
 
+function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
+  return {
+    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
+    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+  }
+}
+
 describe('mergeInsertsOnly', () => {
   it('既存が空の場合、新規データがそのまま使われる', () => {
     const existing = makeData()
     const incoming = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    expect(result.sales).toEqual({ '1': { 1: { sales: 50000 } } })
+    expect(result.classifiedSales.records).toHaveLength(1)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000)
   })
 
   it('新規が空の場合、既存データが維持される', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const incoming = makeData()
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    expect(result.sales).toEqual({ '1': { 1: { sales: 50000 } } })
+    expect(result.classifiedSales.records).toHaveLength(1)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000)
   })
 
-  it('既存にある日のデータは変更されない', () => {
+  it('既存にあるキーのデータは変更されない', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const incoming = makeData({
-      sales: { '1': { 1: { sales: 99999 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 99999)] },
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    // 既存の値が維持される
-    expect(result.sales['1']?.[1]?.sales).toBe(50000)
+    // 既存の値が維持される（同一キーは挿入しない）
+    expect(result.classifiedSales.records).toHaveLength(1)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000)
   })
 
-  it('既存にない日のデータは挿入される', () => {
+  it('既存にないキーのデータは挿入される', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const incoming = makeData({
-      sales: { '1': { 2: { sales: 60000 } } },
+      classifiedSales: { records: [makeCSRecord(2, '1', 60000)] },
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    expect(result.sales['1']?.[1]?.sales).toBe(50000) // 既存維持
-    expect(result.sales['1']?.[2]?.sales).toBe(60000) // 新規挿入
+    expect(result.classifiedSales.records).toHaveLength(2)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000) // 既存維持
+    expect(result.classifiedSales.records[1].salesAmount).toBe(60000) // 新規挿入
   })
 
   it('既存にない店舗は新規挿入される', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const incoming = makeData({
-      sales: { '2': { 1: { sales: 40000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '2', 40000)] },
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    expect(result.sales['1']?.[1]?.sales).toBe(50000)
-    expect(result.sales['2']?.[1]?.sales).toBe(40000)
+    expect(result.classifiedSales.records).toHaveLength(2)
   })
 
   it('インポートされていないデータ種別は変更されない', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
-      discount: { '1': { 1: { sales: 50000, discount: 3000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000, 3000)] },
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
     })
     const incoming = makeData({
-      sales: { '1': { 1: { sales: 99999 }, 2: { sales: 60000 } } },
-      discount: { '1': { 1: { sales: 99999, discount: 9999 } } },
+      classifiedSales: {
+        records: [
+          makeCSRecord(1, '1', 99999, 9999),
+          makeCSRecord(2, '1', 60000, 5000),
+        ],
+      },
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
     })
 
-    // sales のみインポート
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    // classifiedSales のみインポート
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
-    // sales は挿入のみマージ
-    expect(result.sales['1']?.[1]?.sales).toBe(50000) // 既存維持
-    expect(result.sales['1']?.[2]?.sales).toBe(60000) // 新規挿入
-    // discount は変更なし
-    expect(result.discount['1']?.[1]?.discount).toBe(3000)
+    // classifiedSales は挿入のみマージ
+    expect(result.classifiedSales.records).toHaveLength(2) // 既存1 + 新規1 (day=2)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000) // 既存維持
+    // purchase は変更なし
+    expect(result.purchase['1']?.[1]?.total.cost).toBe(100)
   })
 
   it('stores の新規店舗は追加されるが既存は維持', () => {
@@ -103,7 +119,7 @@ describe('mergeInsertsOnly', () => {
       ]),
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
     expect(result.stores.size).toBe(2)
     expect(result.stores.get('1')?.name).toBe('店舗A') // 既存維持
@@ -198,8 +214,8 @@ describe('mergeInsertsOnly', () => {
       budget: new Map([['9', { storeId: '9', total: 9999999, daily: new Map() as ReadonlyMap<number, number> }]]),
     })
 
-    // sales のみインポート → departmentKpi/settings/budget は対象外
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales']))
+    // classifiedSales のみインポート → departmentKpi/settings/budget は対象外
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
     expect(result.departmentKpi.records).toHaveLength(1) // 変更なし
     expect(result.settings.size).toBe(1)                  // 変更なし
@@ -208,31 +224,31 @@ describe('mergeInsertsOnly', () => {
 
   it('複数データ種別を同時にマージできる', () => {
     const existing = makeData({
-      sales: { '1': { 1: { sales: 50000 } } },
-      discount: { '1': { 1: { sales: 50000, discount: 3000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000, 3000)] },
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
     })
     const incoming = makeData({
-      sales: {
-        '1': {
-          1: { sales: 99999 },
-          2: { sales: 60000 },
-        },
+      classifiedSales: {
+        records: [
+          makeCSRecord(1, '1', 99999, 9999),
+          makeCSRecord(2, '1', 60000, 5000),
+        ],
       },
-      discount: {
+      purchase: {
         '1': {
-          1: { sales: 99999, discount: 9999 },
-          2: { sales: 60000, discount: 5000 },
+          1: { suppliers: {}, total: { cost: 200, price: 260 } },
+          2: { suppliers: {}, total: { cost: 300, price: 390 } },
         },
       },
     })
 
-    const result = mergeInsertsOnly(existing, incoming, new Set(['sales', 'discount']))
+    const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales', 'purchase']))
 
     // 既存維持
-    expect(result.sales['1']?.[1]?.sales).toBe(50000)
-    expect(result.discount['1']?.[1]?.discount).toBe(3000)
+    expect(result.classifiedSales.records[0].salesAmount).toBe(50000)
+    expect(result.purchase['1']?.[1]?.total.cost).toBe(100)
     // 新規挿入
-    expect(result.sales['1']?.[2]?.sales).toBe(60000)
-    expect(result.discount['1']?.[2]?.discount).toBe(5000)
+    expect(result.classifiedSales.records).toHaveLength(2)
+    expect(result.purchase['1']?.[2]?.total.cost).toBe(300)
   })
 })

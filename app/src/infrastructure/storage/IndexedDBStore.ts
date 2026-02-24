@@ -221,10 +221,7 @@ function monthKey(year: number, month: number, dataType: string): string {
 /** StoreDayRecord 系のフィールド名 → DataType マッピング */
 const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] = [
   { field: 'purchase', type: 'purchase' },
-  { field: 'sales', type: 'sales' },
-  { field: 'discount', type: 'discount' },
-  // prevYearSales / prevYearDiscount は DB 上は実際の年月に sales / discount として保存。
-  // ランタイムの prevYear* フィールドは useAutoLoadPrevYear が自動ロードする。
+  // classifiedSales は配列形式のため STORE_DAY_FIELDS には含めない（個別処理）
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -245,10 +242,12 @@ function validateLoadedData(result: Record<string, unknown>): boolean {
   if (!(result.suppliers instanceof Map)) return false
   if (!(result.settings instanceof Map)) return false
   if (!(result.budget instanceof Map)) return false
+  // classifiedSales: records 配列を持つこと
+  const cs = result.classifiedSales as { records?: unknown } | undefined
+  if (cs && (!Array.isArray(cs.records))) return false
   // categoryTimeSales: records 配列を持つこと
   const cts = result.categoryTimeSales as { records?: unknown } | undefined
   if (cts && (!Array.isArray(cts.records))) return false
-  // prevYearCategoryTimeSales は DB に保存しない（実際の年月に categoryTimeSales として保存）
   return true
 }
 
@@ -289,6 +288,11 @@ export async function saveImportedData(
       month,
     ),
   })
+
+  // classifiedSales — envelope 形式で保存
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: wrapEnvelope(data.classifiedSales, year, month) })
+
+  // prevYearClassifiedSales は DB に保存しない（実際の年月に classifiedSales として保存）
 
   // categoryTimeSales — envelope 形式で保存
   entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
@@ -373,6 +377,17 @@ export async function loadImportedData(
     result.budget = new Map()
   }
 
+  // classifiedSales — envelope unwrap
+  const rawCs = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'classifiedSales'))
+  const csUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCs, year, month)
+  const csObj = csUnwrapped?.value
+  result.classifiedSales = csObj && Array.isArray(csObj.records)
+    ? csObj
+    : { records: [] }
+
+  // prevYearClassifiedSales は DB に保存しないため読み込まない
+  // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
+
   // categoryTimeSales — envelope unwrap
   const rawCts = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
   const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCts, year, month)
@@ -382,7 +397,6 @@ export async function loadImportedData(
     : { records: [] }
 
   // prevYearCategoryTimeSales は DB に保存しないため読み込まない
-  // (useAutoLoadPrevYear が実際の年月から categoryTimeSales を自動ロードする)
 
   // departmentKpi — envelope unwrap
   const rawDeptKpi = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'departmentKpi'))
@@ -423,6 +437,7 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'budget') })
+  deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales') })
   deleteEntries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi') })
 
@@ -533,6 +548,7 @@ export async function getMonthDataSummary(
 ): Promise<{ dataType: string; label: string; recordCount: number }[]> {
   const SUMMARY_TYPES: { type: string; label: string }[] = [
     ...STORE_DAY_FIELDS.map((f) => ({ type: f.type, label: DATA_TYPE_LABELS[f.type] ?? f.type })),
+    { type: 'classifiedSales', label: '分類別売上' },
     { type: 'categoryTimeSales', label: '分類別時間帯売上' },
     { type: 'departmentKpi', label: '部門KPI' },
     { type: 'stores', label: '店舗' },
@@ -552,7 +568,7 @@ export async function getMonthDataSummary(
       continue
     }
     let count = 0
-    if (type === 'categoryTimeSales' || type === 'departmentKpi') {
+    if (type === 'classifiedSales' || type === 'categoryTimeSales' || type === 'departmentKpi') {
       count = ((val as { records?: unknown[] }).records ?? []).length
     } else if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
       count = Object.keys(val as Record<string, unknown>).length
@@ -571,8 +587,7 @@ export async function getMonthDataSummary(
 /** データ種別の日本語ラベル */
 const DATA_TYPE_LABELS: Record<string, string> = {
   purchase: '仕入',
-  sales: '売上',
-  discount: '売変',
+  classifiedSales: '分類別売上',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
@@ -607,6 +622,10 @@ export async function saveDataSlice(
   const entries: { storeName: string; key: string; value: unknown }[] = []
 
   for (const dt of dataTypes) {
+    if (dt === 'classifiedSales') {
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: data.classifiedSales })
+      continue
+    }
     if (dt === 'categoryTimeSales') {
       entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
       continue
@@ -615,7 +634,7 @@ export async function saveDataSlice(
       entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: wrapEnvelope(data.departmentKpi, year, month) })
       continue
     }
-    // salesDiscount / prevYearSalesDiscount / initialSettings / budget は
+    // initialSettings / budget は
     // DataType として存在するがストレージでは個別フィールドとして保存しない（composite type）
     // → STORE_DAY_FIELDS で一致するもののみ保存
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)

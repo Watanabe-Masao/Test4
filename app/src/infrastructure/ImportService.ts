@@ -1,5 +1,5 @@
 import type { DataType, AppSettings, ImportedData } from '@/domain/models'
-import type { DiscountData, SalesData } from '@/domain/models'
+import { mergeClassifiedSalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { detectYearMonth } from './fileImport/dateParser'
@@ -10,8 +10,11 @@ import {
   extractStoresFromPurchase,
   extractSuppliersFromPurchase,
 } from './dataProcessing/PurchaseProcessor'
-import { processSales, extractStoresFromSales } from './dataProcessing/SalesProcessor'
-import { processDiscount } from './dataProcessing/DiscountProcessor'
+import {
+  processClassifiedSales,
+  extractStoresFromClassifiedSales,
+  detectYearMonthFromClassifiedSales,
+} from './dataProcessing/ClassifiedSalesProcessor'
 import { processSettings } from './dataProcessing/SettingsProcessor'
 import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
@@ -20,18 +23,6 @@ import { processConsumables, mergeConsumableData } from './dataProcessing/Consum
 import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
 import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
 
-/** DiscountData から SalesData を構築する */
-export function discountToSalesData(discountData: DiscountData): SalesData {
-  const salesData: Record<string, Record<number, { sales: number; customers: number }>> = {}
-  for (const [storeId, days] of Object.entries(discountData)) {
-    salesData[storeId] = {}
-    for (const [day, d] of Object.entries(days)) {
-      salesData[storeId][Number(day)] = { sales: d.sales, customers: d.customers ?? 0 }
-    }
-  }
-  return salesData
-}
-
 /** 単一ファイルのインポート結果 */
 export interface FileImportResult {
   readonly ok: boolean
@@ -39,9 +30,7 @@ export interface FileImportResult {
   readonly type: DataType | null
   readonly typeName: string | null
   readonly error?: string
-  /** 処理された行数 */
   readonly rowCount?: number
-  /** スキップされた行の詳細 */
   readonly skippedRows?: readonly string[]
 }
 
@@ -50,7 +39,6 @@ export interface ImportSummary {
   readonly results: readonly FileImportResult[]
   readonly successCount: number
   readonly failureCount: number
-  /** スキップされたファイル（拡張子不一致等） */
   readonly skippedFiles?: readonly string[]
 }
 
@@ -91,24 +79,16 @@ export async function readAndDetect(
 /** processFileData の戻り値 */
 export interface ProcessFileResult {
   readonly data: ImportedData
-  /** データの日付から検出された年月（日付を含むファイルの場合のみ） */
   readonly detectedYearMonth?: { year: number; month: number }
 }
 
 /** データ種別ごとの日付検出開始行 */
 const DATE_START_ROW: Partial<Record<DataType, number>> = {
-  sales: 3,
-  discount: 2,
-  salesDiscount: 2,
   categoryTimeSales: 3,
 }
 
 /**
  * 単一ファイルのデータを処理し、既存のImportedDataにマージする
- *
- * 日付を含むファイル (sales, discount, salesDiscount) の場合、
- * データ内の日付から対象年月を自動検出して返す。
- * appSettings.targetMonth が設定されていれば、その月のデータのみ抽出する。
  */
 export function processFileData(
   type: DataType,
@@ -117,31 +97,26 @@ export function processFileData(
   current: ImportedData,
   appSettings: AppSettings,
 ): ProcessFileResult {
-  // スキーマバリデーション: 行数・列数の構造チェック
   validateRawRows(type, rows, filename)
 
   const mutableStores = new Map(current.stores)
   const mutableSuppliers = new Map(current.suppliers)
 
-  // 日付を含むファイルの場合、年月を自動検出
   const startRow = DATE_START_ROW[type]
   const detectedYearMonth = startRow != null
     ? detectYearMonth(rows, 0, startRow) ?? undefined
     : undefined
 
-  // 対象月: 検出された月 or appSettings の月
   const effectiveMonth = detectedYearMonth?.month ?? appSettings.targetMonth
 
   switch (type) {
     case 'purchase': {
-      // 仕入データから店舗・取引先を抽出
       const newStores = extractStoresFromPurchase(rows)
       for (const [id, s] of newStores) mutableStores.set(id, s)
 
       const newSuppliers = extractSuppliersFromPurchase(rows)
       for (const [code, s] of newSuppliers) mutableSuppliers.set(code, s)
 
-      // 更新された店舗セットで処理
       const allStores = new Set(mutableStores.keys())
       return {
         data: {
@@ -153,41 +128,21 @@ export function processFileData(
       }
     }
 
-    case 'sales': {
-      const newStores = extractStoresFromSales(rows)
+    case 'classifiedSales': {
+      const newStores = extractStoresFromClassifiedSales(rows)
       for (const [id, s] of newStores) mutableStores.set(id, s)
+
+      const csYearMonth = detectYearMonthFromClassifiedSales(rows)
+      const csEffectiveMonth = csYearMonth?.month ?? effectiveMonth
+      const newData = processClassifiedSales(rows, csEffectiveMonth)
 
       return {
         data: {
           ...current,
           stores: mutableStores,
-          sales: processSales(rows, effectiveMonth),
+          classifiedSales: mergeClassifiedSalesData(current.classifiedSales, newData),
         },
-        detectedYearMonth,
-      }
-    }
-
-    case 'discount':
-      return {
-        data: { ...current, discount: processDiscount(rows, effectiveMonth) },
-        detectedYearMonth,
-      }
-
-    case 'salesDiscount': {
-      // 売上売変の複合ファイル: DiscountProcessor で売上・売変両方を抽出
-      const newStores = extractStoresFromSales(rows)
-      for (const [id, s] of newStores) mutableStores.set(id, s)
-
-      const discountData = processDiscount(rows, effectiveMonth)
-
-      return {
-        data: {
-          ...current,
-          stores: mutableStores,
-          sales: discountToSalesData(discountData),
-          discount: discountData,
-        },
-        detectedYearMonth,
+        detectedYearMonth: csYearMonth ?? undefined,
       }
     }
 
@@ -207,7 +162,7 @@ export function processFileData(
       return {
         data: {
           ...current,
-          flowers: processSpecialSales(rows, appSettings.flowerCostRate),
+          flowers: processSpecialSales(rows, appSettings.flowerCostRate, true),
         },
       }
 
@@ -259,10 +214,6 @@ export function processFileData(
 
 /**
  * 複数ファイルをバッチインポートする
- * overrideType が指定された場合、自動判定をスキップしてそのタイプで処理する
- *
- * データ内の日付から対象年月を自動検出し、detectedYearMonth として返す。
- * 検出された年月は後続ファイルの処理にも即座に反映される。
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -291,7 +242,6 @@ export async function processDroppedFiles(
       let typeName: string
 
       if (overrideType) {
-        // UploadCardから種別指定された場合: 自動判定をスキップ
         rows = await readTabularFile(file)
         if (rows.length === 0) {
           throw new ImportError('ファイルが空です', 'INVALID_FORMAT', file.name)
@@ -299,7 +249,6 @@ export async function processDroppedFiles(
         type = overrideType
         typeName = getDataTypeName(overrideType)
       } else {
-        // ドラッグ＆ドロップの場合: 自動判定
         const detected = await readAndDetect(file)
         rows = detected.rows
         type = detected.type
@@ -309,7 +258,6 @@ export async function processDroppedFiles(
       const result = processFileData(type, rows, file.name, data, effectiveSettings)
       data = result.data
 
-      // 年月が検出されたら後続ファイルの処理にも反映
       if (result.detectedYearMonth && !detectedYearMonth) {
         detectedYearMonth = result.detectedYearMonth
         effectiveSettings = {
@@ -344,4 +292,3 @@ export async function processDroppedFiles(
     detectedYearMonth,
   }
 }
-

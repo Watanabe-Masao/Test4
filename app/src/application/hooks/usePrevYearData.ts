@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useAppState } from '../context/AppStateContext'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
+import { aggregateAllStores } from '@/domain/models'
 
 export interface PrevYearDailyEntry {
   readonly sales: number
@@ -72,7 +73,8 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const state = useAppState()
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
-  const prevYearDiscount = state.data.prevYearDiscount
+  const prevYearCS = state.data.prevYearClassifiedSales
+  const prevYearFlowers = state.data.flowers  // 客数は花ファイルから
   const { targetYear, targetMonth } = state.settings
   // null / undefined / NaN を安全に処理
   const prevYearSourceYear = validNum(state.settings.prevYearSourceYear)
@@ -80,7 +82,11 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const prevYearDowOffset = validNum(state.settings.prevYearDowOffset)
 
   return useMemo(() => {
-    const allStoreIds = Object.keys(prevYearDiscount)
+    if (prevYearCS.records.length === 0) return EMPTY
+
+    // 前年分類別売上を店舗×日で集計
+    const allAgg = aggregateAllStores(prevYearCS)
+    const allStoreIds = Object.keys(allAgg)
     if (allStoreIds.length === 0) return EMPTY
 
     // 対象店舗を決定
@@ -101,17 +107,19 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
     const daily = new Map<number, { sales: number; discount: number; customers: number }>()
     for (const storeId of targetIds) {
-      const days = prevYearDiscount[storeId]
-      if (!days) continue
-      for (const [dayStr, entry] of Object.entries(days)) {
+      const storeDays = allAgg[storeId]
+      if (!storeDays) continue
+      for (const [dayStr, summary] of Object.entries(storeDays)) {
         const origDay = Number(dayStr)
         if (isNaN(origDay)) continue
         const mappedDay = origDay - offset // 当年の日番号に対応付け
         if (mappedDay < 1 || mappedDay > daysInTargetMonth) continue // 当年月の範囲外はスキップ
 
-        const sales = entry.sales ?? 0
-        const discount = entry.discount ?? 0
-        const customers = entry.customers ?? 0
+        const sales = summary.sales ?? 0
+        const discount = summary.discount ?? 0
+        // 客数は花ファイルから取得
+        const flowerEntry = prevYearFlowers?.[storeId]?.[origDay] as { customers?: number } | undefined
+        const customers = flowerEntry?.customers ?? 0
         const existing = daily.get(mappedDay)
         if (existing) {
           daily.set(mappedDay, {
@@ -139,5 +147,5 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     }
 
     return { hasPrevYear: true, daily, totalSales, totalDiscount, totalCustomers }
-  }, [prevYearDiscount, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
+  }, [prevYearCS, prevYearFlowers, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
 }

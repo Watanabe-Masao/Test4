@@ -8,6 +8,14 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
   return { ...createEmptyImportedData(), ...overrides }
 }
 
+function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0) {
+  return {
+    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
+    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+    salesAmount, discount71: d71, discount72: 0, discount73: 0, discount74: 0,
+  }
+}
+
 function fullData(): ImportedData {
   return makeData({
     stores: new Map([
@@ -18,12 +26,11 @@ function fullData(): ImportedData {
       '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
       '2': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } },
     },
-    sales: {
-      '1': { 1: { sales: 50000 } },
-      '2': { 1: { sales: 40000 } },
-    },
-    discount: {
-      '1': { 1: { sales: 50000, discount: 3000 } },
+    classifiedSales: {
+      records: [
+        makeCSRecord(1, '1', 50000, 3000),
+        makeCSRecord(1, '2', 40000),
+      ],
     },
     settings: new Map([
       ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
@@ -41,7 +48,7 @@ describe('validateImportedData', () => {
     const errors = messages.filter((m) => m.level === 'error')
     expect(errors.length).toBe(2)
     expect(errors[0].message).toContain('仕入')
-    expect(errors[1].message).toContain('売上')
+    expect(errors[1].message).toContain('分類別売上')
   })
 
   it('完全なデータではエラーなし', () => {
@@ -53,33 +60,17 @@ describe('validateImportedData', () => {
   it('店舗0件は警告', () => {
     const data = makeData({
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const messages = validateImportedData(data)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('店舗'))).toBe(true)
-  })
-
-  it('未登録店舗IDがデータに含まれる場合は警告', () => {
-    const data = makeData({
-      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: {
-        '1': { 1: { sales: 50000 } },
-        '999': { 1: { sales: 30000 } }, // 未登録
-      },
-      settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
-      ]),
-    })
-    const messages = validateImportedData(data)
-    expect(messages.some((m) => m.level === 'warning' && m.message.includes('未登録店舗'))).toBe(true)
   })
 
   it('在庫設定なしは警告', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const messages = validateImportedData(data)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('在庫設定'))).toBe(true)
@@ -93,7 +84,7 @@ describe('validateImportedData', () => {
         ['3', { id: '3', code: '0003', name: '店舗C' }],
       ]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
       ]),
@@ -107,7 +98,7 @@ describe('validateImportedData', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
       ]),
@@ -120,7 +111,7 @@ describe('validateImportedData', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      sales: { '1': { 1: { sales: 50000 } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
       ]),
@@ -133,7 +124,7 @@ describe('validateImportedData', () => {
     const summary: ImportSummary = {
       results: [
         { ok: false, filename: 'bad.csv', type: null, typeName: null, error: '読み込みエラー' },
-        { ok: true, filename: 'good.xlsx', type: 'sales', typeName: '売上' },
+        { ok: true, filename: 'good.xlsx', type: 'classifiedSales', typeName: '分類別売上' },
       ],
       successCount: 1,
       failureCount: 1,
@@ -145,7 +136,7 @@ describe('validateImportedData', () => {
   it('ImportSummary 付きで成功サマリーが情報表示される', () => {
     const summary: ImportSummary = {
       results: [
-        { ok: true, filename: 'uriage.xlsx', type: 'sales', typeName: '売上', rowCount: 31 },
+        { ok: true, filename: 'uriage.xlsx', type: 'classifiedSales', typeName: '分類別売上', rowCount: 31 },
       ],
       successCount: 1,
       failureCount: 0,
@@ -160,8 +151,8 @@ describe('validateImportedData', () => {
         {
           ok: true,
           filename: 'uriage.xlsx',
-          type: 'sales',
-          typeName: '売上',
+          type: 'classifiedSales',
+          typeName: '分類別売上',
           skippedRows: ['行5: 日付不正', '行8: 値不正'],
         },
       ],

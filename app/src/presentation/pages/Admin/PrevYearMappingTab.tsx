@@ -232,7 +232,7 @@ export function PrevYearMappingTab() {
   }, [listMonths])
 
   // 前年データの有無
-  const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0
+  const hasPrevYearData = state.data.prevYearClassifiedSales.records.length > 0
 
   // ソース年月変更
   const handleSourceChange = useCallback((value: string) => {
@@ -265,8 +265,7 @@ export function PrevYearMappingTab() {
     dispatch({
       type: 'SET_PREV_YEAR_AUTO_DATA',
       payload: {
-        prevYearSales: {},
-        prevYearDiscount: {},
+        prevYearClassifiedSales: { records: [] },
         prevYearCategoryTimeSales: { records: [] },
       },
     })
@@ -283,17 +282,15 @@ export function PrevYearMappingTab() {
 
   const isOverridden = sourceYear !== null || sourceMonth !== null || dowOffset !== null
 
-  // prevYearDiscount から各 day のデータ有無を判定
-  const prevYearDiscount = state.data.prevYearDiscount
+  // prevYearClassifiedSales から各 day のデータ有無を判定
+  const prevYearCS = state.data.prevYearClassifiedSales
   const prevDayHasData = useMemo(() => {
     const daySet = new Set<number>()
-    for (const storeDays of Object.values(prevYearDiscount)) {
-      for (const dayStr of Object.keys(storeDays)) {
-        daySet.add(Number(dayStr))
-      }
+    for (const rec of prevYearCS.records) {
+      daySet.add(rec.day)
     }
     return daySet
-  }, [prevYearDiscount])
+  }, [prevYearCS])
 
   // 日付マッピングプレビュー
   const mappingPreview = useMemo(() => {

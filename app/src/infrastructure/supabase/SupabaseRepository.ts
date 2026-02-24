@@ -47,8 +47,6 @@ function budgetFromSerializable(obj: Record<string, unknown>): BudgetData {
 /** StoreDayRecord 系のフィールド名 → 種別名 */
 const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] = [
   { field: 'purchase', type: 'purchase' },
-  { field: 'sales', type: 'sales' },
-  { field: 'discount', type: 'discount' },
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -63,6 +61,7 @@ const ALL_DATA_TYPES: readonly string[] = [
   'suppliers',
   'settings',
   'budget',
+  'classifiedSales',
   'categoryTimeSales',
   'departmentKpi',
 ]
@@ -70,8 +69,7 @@ const ALL_DATA_TYPES: readonly string[] = [
 /** データ種別の日本語ラベル */
 const DATA_TYPE_LABELS: Record<string, string> = {
   purchase: '仕入',
-  sales: '売上',
-  discount: '売変',
+  classifiedSales: '分類別売上',
   interStoreIn: '店間入',
   interStoreOut: '店間出',
   flowers: '花',
@@ -119,6 +117,7 @@ function serializeImportedData(
       Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
     ),
   })
+  rows.push({ year, month, data_type: 'classifiedSales', payload: data.classifiedSales })
   rows.push({ year, month, data_type: 'categoryTimeSales', payload: data.categoryTimeSales })
   rows.push({ year, month, data_type: 'departmentKpi', payload: data.departmentKpi })
 
@@ -127,6 +126,7 @@ function serializeImportedData(
 
 /** 単一フィールドをシリアライズ */
 function serializeField(data: ImportedData, dataType: DataType): unknown | undefined {
+  if (dataType === 'classifiedSales') return data.classifiedSales
   if (dataType === 'categoryTimeSales') return data.categoryTimeSales
   if (dataType === 'departmentKpi') return data.departmentKpi
   const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dataType)
@@ -177,12 +177,17 @@ function deserializeImportedData(
     result.budget = new Map()
   }
 
+  const rawCS = payloadMap.get('classifiedSales') as { records?: unknown[] } | undefined
+  result.classifiedSales = rawCS && Array.isArray(rawCS.records)
+    ? rawCS
+    : { records: [] }
+
   const rawCTS = payloadMap.get('categoryTimeSales') as { records?: unknown[] } | undefined
   result.categoryTimeSales = rawCTS && Array.isArray(rawCTS.records)
     ? rawCTS
     : { records: [] }
 
-  // prevYearCategoryTimeSales は DB に保存しない
+  // prevYearClassifiedSales / prevYearCategoryTimeSales は DB に保存しない
 
   const rawDKpi = payloadMap.get('departmentKpi') as { records?: unknown[] } | undefined
   result.departmentKpi = rawDKpi && Array.isArray(rawDKpi.records)

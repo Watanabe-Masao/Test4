@@ -23,6 +23,7 @@ import type {
   StoreExplanations,
   DailyRecord,
 } from '@/domain/models'
+import { aggregateForStore } from '@/domain/models'
 
 // ─── ヘルパー ──────────────────────────────────────────────
 
@@ -117,7 +118,7 @@ export function generateExplanations(
       inp('営業日数', result.salesDays, 'count'),
     ],
     breakdown: dailyBreakdown(result.daily, (r) => r.sales, salesComponentDetails),
-    evidenceRefs: dailyEvidence('sales', storeId, result.daily),
+    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
   })
 
   map.set('coreSales', {
@@ -133,7 +134,7 @@ export function generateExplanations(
       inp('産直売価', result.directProduceSalesPrice, 'yen'),
     ],
     evidenceRefs: [
-      ...dailyEvidence('sales', storeId, result.daily),
+      ...dailyEvidence('classifiedSales', storeId, result.daily),
       ...dailyEvidence('flowers', storeId, result.daily),
       ...dailyEvidence('directProduce', storeId, result.daily),
     ],
@@ -150,7 +151,7 @@ export function generateExplanations(
       inp('総売上高', result.totalSales, 'yen', 'salesTotal'),
       inp('売変額', result.totalDiscount, 'yen', 'discountTotal'),
     ],
-    evidenceRefs: dailyEvidence('discount', storeId, result.daily),
+    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
   })
 
   // ─── 原価系 ──────────────────────────────────────────
@@ -222,15 +223,13 @@ export function generateExplanations(
     ],
     breakdown: (() => {
       const entries: BreakdownEntry[] = []
-      const discountData = data.discount[storeId]
-      if (discountData) {
-        for (const [dayStr, entry] of Object.entries(discountData)) {
-          entries.push({ day: Number(dayStr), value: entry.discount ?? 0 })
-        }
+      const csAgg = aggregateForStore(data.classifiedSales, storeId)
+      for (const [dayStr, summary] of Object.entries(csAgg)) {
+        entries.push({ day: Number(dayStr), value: summary.discount })
       }
       return entries.sort((a, b) => a.day - b.day)
     })(),
-    evidenceRefs: dailyEvidence('discount', storeId, result.daily),
+    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
   })
 
   map.set('discountRate', {
@@ -421,17 +420,8 @@ export function generateExplanations(
       inp('営業日数', result.salesDays, 'count'),
       inp('日平均客数', result.averageCustomersPerDay, 'count'),
     ],
-    breakdown: (() => {
-      const entries: BreakdownEntry[] = []
-      const discountData = data.discount[storeId]
-      if (discountData) {
-        for (const [dayStr, entry] of Object.entries(discountData)) {
-          entries.push({ day: Number(dayStr), value: entry.customers ?? 0 })
-        }
-      }
-      return entries.sort((a, b) => a.day - b.day)
-    })(),
-    evidenceRefs: dailyEvidence('discount', storeId, result.daily),
+    breakdown: dailyBreakdown(result.daily, (r) => r.customers ?? 0),
+    evidenceRefs: dailyEvidence('flowers', storeId, result.daily),
   })
 
   // ─── 消耗品 ──────────────────────────────────────────

@@ -30,6 +30,14 @@ function makeStoreResult(storeId: string): StoreResult {
   return { storeId } as unknown as StoreResult
 }
 
+function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
+  return {
+    year: 2024, month: 1, day, storeId, storeName: `Store ${storeId}`,
+    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+  }
+}
+
 describe('computeFingerprint', () => {
   it('同じ入力に対して同じフィンガープリントを返す', () => {
     const data = createEmptyImportedData()
@@ -105,22 +113,26 @@ describe('computeFingerprint', () => {
     expect(fp1).not.toBe(fp2)
   })
 
-  it('売変データ追加でフィンガープリントが変わる', () => {
+  it('分類別売上データ追加でフィンガープリントが変わる', () => {
     const data1 = createEmptyImportedData()
     const data2 = {
       ...data1,
-      discount: { s1: { 1: { sales: 10000, discount: -500, customers: 10 } } },
+      classifiedSales: {
+        records: [makeCSRecord(1, 's1', 10000, 500)],
+      },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
     expect(fp1).not.toBe(fp2)
   })
 
-  it('前年売上データ追加でフィンガープリントが変わる', () => {
+  it('前年分類別売上データ追加でフィンガープリントが変わる', () => {
     const data1 = createEmptyImportedData()
     const data2 = {
       ...data1,
-      prevYearSales: { s1: { 1: { sales: 50000, customers: 100 } } },
+      prevYearClassifiedSales: {
+        records: [makeCSRecord(1, 's1', 50000)],
+      },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data2, mockSettings, 31)

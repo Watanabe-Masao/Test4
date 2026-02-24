@@ -2,7 +2,7 @@
  * レガシー reducer — テストの後方互換性のために保持。
  * 新規コードでは application/stores を直接使用してください。
  */
-import type { AppSettings, ViewType, InventoryConfig, ImportedData, ValidationMessage, SalesData, DiscountData, CategoryTimeSalesData, StoreResult } from '@/domain/models'
+import type { AppSettings, ViewType, InventoryConfig, ImportedData, ValidationMessage, ClassifiedSalesData, CategoryTimeSalesData, StoreResult } from '@/domain/models'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 import { createEmptyImportedData } from '@/domain/models'
 
@@ -29,7 +29,7 @@ export type AppAction =
   | { type: 'SET_IMPORTING'; payload: boolean }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
   | { type: 'UPDATE_INVENTORY'; payload: { storeId: string; config: Partial<InventoryConfig> } }
-  | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearSales: SalesData; prevYearDiscount: DiscountData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
+  | { type: 'SET_PREV_YEAR_AUTO_DATA'; payload: { prevYearClassifiedSales: ClassifiedSalesData; prevYearCategoryTimeSales: CategoryTimeSalesData } }
   | { type: 'RESET' }
 
 export const initialState: AppState = {
@@ -112,8 +112,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         data: {
           ...state.data,
-          prevYearSales: action.payload.prevYearSales,
-          prevYearDiscount: action.payload.prevYearDiscount,
+          prevYearClassifiedSales: action.payload.prevYearClassifiedSales,
           prevYearCategoryTimeSales: action.payload.prevYearCategoryTimeSales,
         },
         ui: { ...state.ui, isCalculated: false },

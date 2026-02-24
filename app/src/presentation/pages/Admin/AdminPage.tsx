@@ -5,6 +5,7 @@ import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store, ImportedData } from '@/domain/models'
 import { formatCurrency } from '@/domain/calculations/utils'
+import { aggregateAllStores } from '@/domain/models'
 import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
 
@@ -418,19 +419,69 @@ function analyzeStoreDayRecord(
   }
 }
 
+/** ClassifiedSalesData から StoreDayStats を生成 */
+function analyzeClassifiedSales(
+  data: ImportedData,
+  label: string,
+  isPrevYear: boolean,
+): StoreDayStats {
+  const csData = isPrevYear ? data.prevYearClassifiedSales : data.classifiedSales
+  const records = csData.records
+  if (records.length === 0) {
+    return { label, storeCount: 0, totalRecords: 0, dayRange: null, perStore: [], hasCustomers: false }
+  }
+
+  // 店舗→日 の集計
+  const storeMap = new Map<string, Set<number>>()
+  for (const r of records) {
+    let s = storeMap.get(r.storeId)
+    if (!s) { s = new Set(); storeMap.set(r.storeId, s) }
+    s.add(r.day)
+  }
+
+  let globalMin = Infinity
+  let globalMax = -Infinity
+  let totalRecords = 0
+  const perStore: StoreDayStats['perStore'] = []
+
+  for (const [sid, daySet] of storeMap) {
+    const days = Array.from(daySet)
+    const min = Math.min(...days)
+    const max = Math.max(...days)
+    if (min < globalMin) globalMin = min
+    if (max > globalMax) globalMax = max
+    totalRecords += days.length
+    const store = data.stores.get(sid)
+    perStore.push({
+      storeId: sid,
+      storeName: store?.name ?? `店舗${sid}`,
+      days: days.length,
+      minDay: min,
+      maxDay: max,
+    })
+  }
+
+  return {
+    label,
+    storeCount: storeMap.size,
+    totalRecords,
+    dayRange: globalMin <= globalMax ? { min: globalMin, max: globalMax } : null,
+    perStore,
+    hasCustomers: false,
+  }
+}
+
 function buildDataOverview(data: ImportedData): StoreDayStats[] {
   const stores = data.stores
   return [
     analyzeStoreDayRecord(data.purchase, '仕入', stores),
-    analyzeStoreDayRecord(data.sales, '売上', stores, true),
-    analyzeStoreDayRecord(data.discount, '売変', stores, true),
-    analyzeStoreDayRecord(data.flowers, '花', stores),
+    analyzeClassifiedSales(data, '分類別売上', false),
+    analyzeStoreDayRecord(data.flowers, '花', stores, true),
     analyzeStoreDayRecord(data.directProduce, '産直', stores),
     analyzeStoreDayRecord(data.interStoreIn, '店間入', stores),
     analyzeStoreDayRecord(data.interStoreOut, '店間出', stores),
     analyzeStoreDayRecord(data.consumables, '消耗品', stores),
-    analyzeStoreDayRecord(data.prevYearSales, '前年売上', stores, true),
-    analyzeStoreDayRecord(data.prevYearDiscount, '前年売変', stores, true),
+    analyzeClassifiedSales(data, '前年分類別売上', true),
   ]
 }
 
@@ -580,7 +631,7 @@ function ImportHistoryTab() {
     : null
 
   // 全体の最大日数レンジ（品質スコア用）
-  const salesDayRange = overview.find((d) => d.label === '売上')?.dayRange
+  const salesDayRange = overview.find((d) => d.label === '分類別売上')?.dayRange
   const daysInMonth = salesDayRange ? salesDayRange.max : 28
 
   return (
@@ -887,20 +938,20 @@ const TotalRow = styled.tr`
 `
 
 type RawDataType =
-  | 'sales' | 'discount' | 'customers'
+  | 'classifiedSales' | 'classifiedDiscount' | 'customers'
   | 'purchase_price' | 'purchase_cost'
-  | 'prevYearSales' | 'prevYearDiscount'
+  | 'prevYearClassifiedSales' | 'prevYearClassifiedDiscount'
   | 'interStoreIn' | 'interStoreOut'
   | 'flowers' | 'directProduce' | 'consumables'
 
 const RAW_DATA_LABELS: Record<RawDataType, string> = {
-  sales: '売上',
-  discount: '売変',
+  classifiedSales: '売上（分類別）',
+  classifiedDiscount: '売変（分類別）',
   customers: '客数',
   purchase_price: '仕入（売価）',
   purchase_cost: '仕入（原価）',
-  prevYearSales: '前年売上',
-  prevYearDiscount: '前年売変',
+  prevYearClassifiedSales: '前年売上（分類別）',
+  prevYearClassifiedDiscount: '前年売変（分類別）',
   interStoreIn: '店間入（売価）',
   interStoreOut: '店間出（売価）',
   flowers: '花（売価）',
@@ -910,18 +961,21 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
 
 function RawDataTab() {
   const { data } = useAppData()
-  const [dataType, setDataType] = useState<RawDataType>('sales')
+  const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
   const stores = useMemo(() => Array.from(data.stores.values()).sort((a, b) => a.code.localeCompare(b.code)), [data.stores])
+
+  // classifiedSales の集計（store → day → {sales, discount}）
+  const csAgg = useMemo(() => aggregateAllStores(data.classifiedSales), [data.classifiedSales])
+  const prevCsAgg = useMemo(() => aggregateAllStores(data.prevYearClassifiedSales), [data.prevYearClassifiedSales])
 
   /** StoreDayRecord のソースを dataType に応じて返す */
   const getSource = useCallback((): Record<string, Record<number, unknown>> => {
     switch (dataType) {
-      case 'sales': case 'customers': return data.sales
-      case 'discount': return data.discount
+      case 'classifiedSales': case 'classifiedDiscount': return csAgg as Record<string, Record<number, unknown>>
+      case 'customers': return data.flowers
       case 'purchase_price': case 'purchase_cost': return data.purchase
-      case 'prevYearSales': return data.prevYearSales
-      case 'prevYearDiscount': return data.prevYearDiscount
+      case 'prevYearClassifiedSales': case 'prevYearClassifiedDiscount': return prevCsAgg as Record<string, Record<number, unknown>>
       case 'interStoreIn': return data.interStoreIn
       case 'interStoreOut': return data.interStoreOut
       case 'flowers': return data.flowers
@@ -929,18 +983,18 @@ function RawDataTab() {
       case 'consumables': return data.consumables
       default: return {}
     }
-  }, [data, dataType])
+  }, [data, dataType, csAgg, prevCsAgg])
 
   /** 各セルの数値を取得 */
   const extractValue = useCallback((storeId: string, day: number): number => {
     switch (dataType) {
-      case 'sales': return (data.sales[storeId]?.[day] as { sales?: number } | undefined)?.sales ?? 0
-      case 'customers': return (data.sales[storeId]?.[day] as { customers?: number } | undefined)?.customers ?? 0
-      case 'discount': return (data.discount[storeId]?.[day] as { discount?: number } | undefined)?.discount ?? 0
+      case 'classifiedSales': return csAgg[storeId]?.[day]?.sales ?? 0
+      case 'classifiedDiscount': return csAgg[storeId]?.[day]?.discount ?? 0
+      case 'customers': return (data.flowers[storeId]?.[day] as { customers?: number } | undefined)?.customers ?? 0
       case 'purchase_price': return (data.purchase[storeId]?.[day] as { total?: { price?: number } } | undefined)?.total?.price ?? 0
       case 'purchase_cost': return (data.purchase[storeId]?.[day] as { total?: { cost?: number } } | undefined)?.total?.cost ?? 0
-      case 'prevYearSales': return (data.prevYearSales[storeId]?.[day] as { sales?: number } | undefined)?.sales ?? 0
-      case 'prevYearDiscount': return (data.prevYearDiscount[storeId]?.[day] as { discount?: number } | undefined)?.discount ?? 0
+      case 'prevYearClassifiedSales': return prevCsAgg[storeId]?.[day]?.sales ?? 0
+      case 'prevYearClassifiedDiscount': return prevCsAgg[storeId]?.[day]?.discount ?? 0
       case 'interStoreIn': {
         const entry = data.interStoreIn[storeId]?.[day] as { interStoreIn?: readonly { price: number }[] } | undefined
         return entry?.interStoreIn?.reduce((s, r) => s + r.price, 0) ?? 0
@@ -954,7 +1008,7 @@ function RawDataTab() {
       case 'consumables': return (data.consumables[storeId]?.[day] as { cost?: number } | undefined)?.cost ?? 0
       default: return 0
     }
-  }, [data, dataType])
+  }, [data, dataType, csAgg, prevCsAgg])
 
   // 対象データの日付範囲を計算
   const { days, tableRows } = useMemo(() => {

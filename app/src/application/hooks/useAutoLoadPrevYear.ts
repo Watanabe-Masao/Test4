@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import { useRepository } from '../context/RepositoryContext'
-import { discountToSalesData } from '@/infrastructure/ImportService'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import type { DiscountData, DiscountDayEntry, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { ClassifiedSalesData, ClassifiedSalesRecord, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
 
 /**
  * 前年自動同期日数。
@@ -14,18 +13,12 @@ const OVERFLOW_DAYS = 6
 
 /**
  * IndexedDB に保存済みの前年同月データを自動的にロードし、
- * prevYearSales / prevYearDiscount / prevYearCategoryTimeSales として
+ * prevYearClassifiedSales / prevYearCategoryTimeSales として
  * ステートに反映するフック。
  *
  * 動作条件:
- * - 当年データ（discount）がロード済み
- * - 前年データ（prevYearDiscount）がまだ空（明示インポート優先）
- *
- * 翌月先頭 OVERFLOW_DAYS 日分のデータも結合し、
- * 同曜日オフセットによる月末はみ出しに対応する。
- *
- * prevYearSourceYear / prevYearSourceMonth 設定が指定されている場合、
- * そのソースから取得する（手動マッピング対応）。
+ * - 当年データ（classifiedSales）がロード済み
+ * - 前年データ（prevYearClassifiedSales）がまだ空（明示インポート優先）
  */
 export function useAutoLoadPrevYear(): void {
   const state = useAppState()
@@ -33,10 +26,10 @@ export function useAutoLoadPrevYear(): void {
   const repo = useRepository()
 
   const { targetYear, targetMonth } = state.settings
-  const hasPrevYearData = Object.keys(state.data.prevYearDiscount).length > 0
-  const hasCurrentData = Object.keys(state.data.discount).length > 0
+  const hasPrevYearData = state.data.prevYearClassifiedSales.records.length > 0
+  const hasCurrentData = state.data.classifiedSales.records.length > 0
 
-  // ソース年月（オーバーライドまたは自動）— NaN/undefined ガード
+  // ソース年月（オーバーライドまたは自動）
   const rawSourceYear = state.settings.prevYearSourceYear
   const rawSourceMonth = state.settings.prevYearSourceMonth
   const sourceYear = (typeof rawSourceYear === 'number' && !isNaN(rawSourceYear))
@@ -54,16 +47,16 @@ export function useAutoLoadPrevYear(): void {
 
     ;(async () => {
       try {
-        // ソース年月の売変データをロード
-        const prevDiscount = await repo.loadDataSlice<DiscountData>(sourceYear, sourceMonth, 'discount')
-        if (cancelled || !prevDiscount || Object.keys(prevDiscount).length === 0) return
+        // ソース年月の分類別売上データをロード
+        const prevCS = await repo.loadDataSlice<ClassifiedSalesData>(sourceYear, sourceMonth, 'classifiedSales')
+        if (cancelled || !prevCS || prevCS.records.length === 0) return
 
         // ソース年月の分類別時間帯売上をロード
         const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
         if (cancelled) return
 
         // ソース翌月（overflow 用）
-        const prevNextDiscount = await repo.loadDataSlice<DiscountData>(nextMonthYear, nextMonth, 'discount')
+        const prevNextCS = await repo.loadDataSlice<ClassifiedSalesData>(nextMonthYear, nextMonth, 'classifiedSales')
         if (cancelled) return
         const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(nextMonthYear, nextMonth, 'categoryTimeSales')
         if (cancelled) return
@@ -71,19 +64,12 @@ export function useAutoLoadPrevYear(): void {
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
         if (isNaN(daysInSourceMonth) || daysInSourceMonth <= 0) return
 
-        // 売変データ: 本月 + 翌月先頭を拡張day番号で結合
-        const mergedDiscount: Record<string, Record<number, DiscountDayEntry>> = {}
-        for (const [storeId, days] of Object.entries(prevDiscount)) {
-          mergedDiscount[storeId] = { ...days }
-        }
-        if (prevNextDiscount) {
-          for (const [storeId, days] of Object.entries(prevNextDiscount)) {
-            if (!mergedDiscount[storeId]) mergedDiscount[storeId] = {}
-            for (const [dayStr, entry] of Object.entries(days)) {
-              const day = Number(dayStr)
-              if (!isNaN(day) && day <= OVERFLOW_DAYS) {
-                mergedDiscount[storeId][daysInSourceMonth + day] = entry
-              }
+        // 分類別売上: 本月 + 翌月先頭を拡張day番号で結合
+        const mergedCSRecords: ClassifiedSalesRecord[] = [...prevCS.records]
+        if (prevNextCS?.records) {
+          for (const rec of prevNextCS.records) {
+            if (rec.day <= OVERFLOW_DAYS) {
+              mergedCSRecords.push({ ...rec, day: daysInSourceMonth + rec.day })
             }
           }
         }
@@ -105,13 +91,12 @@ export function useAutoLoadPrevYear(): void {
         dispatch({
           type: 'SET_PREV_YEAR_AUTO_DATA',
           payload: {
-            prevYearSales: discountToSalesData(mergedDiscount),
-            prevYearDiscount: mergedDiscount,
+            prevYearClassifiedSales: { records: mergedCSRecords },
             prevYearCategoryTimeSales: { records: mergedCTSRecords },
           },
         })
       } catch {
-        // IndexedDB エラー時は静かに無視（前年データなしで動作を継続）
+        // IndexedDB エラー時は静かに無視
       }
     })()
 

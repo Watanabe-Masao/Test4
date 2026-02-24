@@ -72,21 +72,21 @@ describe('SyncService', () => {
     it('指定データ種別を Supabase に保存する', async () => {
       const data = createEmptyImportedData()
 
-      const result = await service.pushSlicesToRemote(2026, 1, data, ['sales', 'purchase'])
+      const result = await service.pushSlicesToRemote(2026, 1, data, ['classifiedSales', 'purchase'])
 
       expect(result.success).toBe(true)
-      expect(result.syncedTypes).toEqual(['sales', 'purchase'])
-      expect(remote.saveDataSlice).toHaveBeenCalledWith(data, 2026, 1, ['sales', 'purchase'])
+      expect(result.syncedTypes).toEqual(['classifiedSales', 'purchase'])
+      expect(remote.saveDataSlice).toHaveBeenCalledWith(data, 2026, 1, ['classifiedSales', 'purchase'])
     })
 
     it('エラー時は全種別を失敗として記録する', async () => {
       const data = createEmptyImportedData()
       remote.saveDataSlice.mockRejectedValue(new Error('timeout'))
 
-      const result = await service.pushSlicesToRemote(2026, 1, data, ['sales'])
+      const result = await service.pushSlicesToRemote(2026, 1, data, ['classifiedSales'])
 
       expect(result.success).toBe(false)
-      expect(result.failedTypes[0]).toEqual({ dataType: 'sales', error: 'timeout' })
+      expect(result.failedTypes[0]).toEqual({ dataType: 'classifiedSales', error: 'timeout' })
     })
   })
 

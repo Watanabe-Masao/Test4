@@ -2,24 +2,21 @@ import type { Store } from './Store'
 import type { InventoryConfig, BudgetData } from './BudgetData'
 import type {
   PurchaseData,
-  SalesData,
-  DiscountData,
   TransferData,
   SpecialSalesData,
   ConsumableData,
   CategoryTimeSalesData,
   DepartmentKpiData,
 } from './DataTypes'
+import type { ClassifiedSalesData } from './ClassifiedSales'
 
 /** インポートされた全データの集約 */
 export interface ImportedData {
   readonly stores: ReadonlyMap<string, Store>
   readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
   readonly purchase: PurchaseData
-  readonly sales: SalesData
-  readonly discount: DiscountData
-  readonly prevYearSales: SalesData
-  readonly prevYearDiscount: DiscountData
+  readonly classifiedSales: ClassifiedSalesData
+  readonly prevYearClassifiedSales: ClassifiedSalesData
   readonly interStoreIn: TransferData
   readonly interStoreOut: TransferData
   readonly flowers: SpecialSalesData
@@ -38,10 +35,8 @@ export function createEmptyImportedData(): ImportedData {
     stores: new Map(),
     suppliers: new Map(),
     purchase: {},
-    sales: {},
-    discount: {},
-    prevYearSales: {},
-    prevYearDiscount: {},
+    classifiedSales: { records: [] },
+    prevYearClassifiedSales: { records: [] },
     interStoreIn: {},
     interStoreOut: {},
     flowers: {},

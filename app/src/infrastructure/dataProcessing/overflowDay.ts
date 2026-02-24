@@ -6,7 +6,7 @@ import { parseDate } from '../fileImport/dateParser'
  * 前年データ取込時、同曜日オフセットにより月末付近の対応日が翌月にはみ出す場合に
  * 翌月先頭の数日を拡張 day 番号（例: 2月28日の翌日 → day 29）として保持するロジック。
  *
- * DiscountProcessor / CategoryTimeSalesProcessor で共通利用される。
+ * ClassifiedSalesProcessor / CategoryTimeSalesProcessor で共通利用される。
  */
 
 /**

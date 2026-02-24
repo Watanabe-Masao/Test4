@@ -39,9 +39,7 @@ export type ViewType =
 /** データ種別 */
 export type DataType =
   | 'purchase'
-  | 'sales'
-  | 'discount'
-  | 'salesDiscount'
+  | 'classifiedSales'
   | 'initialSettings'
   | 'budget'
   | 'consumables'

@@ -94,18 +94,20 @@ function maxDayOfRecord(record: { readonly [storeId: string]: { readonly [day: n
  */
 export function detectDataMaxDay(data: {
   readonly purchase: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly sales: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly discount: { readonly [s: string]: { readonly [d: number]: unknown } }
+  readonly classifiedSales: { readonly records: readonly { readonly day: number }[] }
   readonly interStoreIn: { readonly [s: string]: { readonly [d: number]: unknown } }
   readonly interStoreOut: { readonly [s: string]: { readonly [d: number]: unknown } }
   readonly flowers: { readonly [s: string]: { readonly [d: number]: unknown } }
   readonly directProduce: { readonly [s: string]: { readonly [d: number]: unknown } }
 }): number {
+  let csMaxDay = 0
+  for (const rec of data.classifiedSales.records) {
+    if (rec.day > csMaxDay) csMaxDay = rec.day
+  }
   return Math.max(
     0,
     maxDayOfRecord(data.purchase),
-    maxDayOfRecord(data.sales),
-    maxDayOfRecord(data.discount),
+    csMaxDay,
     maxDayOfRecord(data.interStoreIn),
     maxDayOfRecord(data.interStoreOut),
     maxDayOfRecord(data.flowers),

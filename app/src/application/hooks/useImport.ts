@@ -6,8 +6,8 @@ import {
   validateImportedData,
 } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -99,11 +99,7 @@ export function useImport() {
               .filter((r): r is typeof r & { type: DataType } => r.ok && r.type !== null)
               .map((r) => r.type),
           )
-          // salesDiscount → sales + discount として扱う
-          if (importedTypes.has('salesDiscount')) {
-            importedTypes.add('sales')
-            importedTypes.add('discount')
-          }
+          // classifiedSales は単一タイプとして扱う（旧salesDiscount互換不要）
 
           // 既存データがあれば差分チェック
           if (repo.isAvailable()) {
@@ -243,6 +239,20 @@ function mergeStoreDayRecords<T>(
   return merged
 }
 
+/** ClassifiedSalesData の挿入のみマージ */
+function mergeCSInserts(
+  existing: ClassifiedSalesData,
+  incoming: ClassifiedSalesData,
+): ClassifiedSalesData {
+  if (existing.records.length === 0) return incoming
+  if (incoming.records.length === 0) return existing
+  const existingKeys = new Set(existing.records.map(classifiedSalesRecordKey))
+  const newRecords = incoming.records.filter(
+    (r) => !existingKeys.has(classifiedSalesRecordKey(r)),
+  )
+  return { records: [...existing.records, ...newRecords] }
+}
+
 /** CategoryTimeSalesData の挿入のみマージ */
 function mergeCTSInserts(
   existing: CategoryTimeSalesData,
@@ -295,10 +305,8 @@ export function mergeInsertsOnly(
   return {
     ...existing,
     purchase: has('purchase') ? mergeStoreDayRecords(existing.purchase, incoming.purchase) : existing.purchase,
-    sales: has('sales') ? mergeStoreDayRecords(existing.sales, incoming.sales) : existing.sales,
-    discount: has('discount') ? mergeStoreDayRecords(existing.discount, incoming.discount) : existing.discount,
-    prevYearSales: existing.prevYearSales,
-    prevYearDiscount: existing.prevYearDiscount,
+    classifiedSales: has('classifiedSales') ? mergeCSInserts(existing.classifiedSales, incoming.classifiedSales) : existing.classifiedSales,
+    prevYearClassifiedSales: existing.prevYearClassifiedSales,
     interStoreIn: has('interStoreIn') ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn) : existing.interStoreIn,
     interStoreOut: has('interStoreOut') ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut) : existing.interStoreOut,
     flowers: has('flowers') ? mergeStoreDayRecords(existing.flowers, incoming.flowers) : existing.flowers,

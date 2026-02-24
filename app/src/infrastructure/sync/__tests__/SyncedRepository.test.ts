@@ -122,20 +122,20 @@ describe('SyncedRepository', () => {
   describe('loadDataSlice', () => {
     it('IndexedDB から読み、見つからなければ Supabase にフォールバック', async () => {
       local.loadDataSlice.mockResolvedValue(null)
-      remote.loadDataSlice.mockResolvedValue({ store1: { 1: { sales: 100 } } })
+      remote.loadDataSlice.mockResolvedValue({ store1: { 1: { cost: 100, price: 130 } } })
 
-      const result = await repo.loadDataSlice(2026, 1, 'sales')
+      const result = await repo.loadDataSlice(2026, 1, 'purchase')
 
-      expect(result).toEqual({ store1: { 1: { sales: 100 } } })
+      expect(result).toEqual({ store1: { 1: { cost: 100, price: 130 } } })
       expect(remote.loadDataSlice).toHaveBeenCalled()
     })
 
     it('IndexedDB にデータがあれば Supabase に問い合わせない', async () => {
-      local.loadDataSlice.mockResolvedValue({ store1: { 1: { sales: 200 } } })
+      local.loadDataSlice.mockResolvedValue({ store1: { 1: { cost: 200, price: 260 } } })
 
-      const result = await repo.loadDataSlice(2026, 1, 'sales')
+      const result = await repo.loadDataSlice(2026, 1, 'purchase')
 
-      expect(result).toEqual({ store1: { 1: { sales: 200 } } })
+      expect(result).toEqual({ store1: { 1: { cost: 200, price: 260 } } })
       expect(remote.loadDataSlice).not.toHaveBeenCalled()
     })
   })
