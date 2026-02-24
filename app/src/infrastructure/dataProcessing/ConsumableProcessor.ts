@@ -1,4 +1,4 @@
-import { getDayOfMonth } from '../fileImport/dateParser'
+import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { ConsumableItem, ConsumableData } from '@/domain/models'
 
@@ -8,16 +8,18 @@ export type { ConsumableData } from '@/domain/models'
 const TARGET_ACCOUNT_CODE = '81257'
 
 /**
- * 消耗品データを処理する
+ * 消耗品データを処理する（年月パーティション対応）
  *
  * 行0: ヘッダー
  * 行1+: Col0: 勘定コード, Col1: 品目コード, Col2: 品目名, Col3: 数量, Col4: 原価, Col5: 日付
  * 店舗判定: ファイル名先頭2桁
+ *
+ * @returns 年月キー ("YYYY-M") をキーとする月別消耗品データ
  */
 export function processConsumables(
   rows: readonly unknown[][],
   filename: string,
-): ConsumableData {
+): Record<string, ConsumableData> {
   if (rows.length < 2) return {}
 
   // 店舗コード抽出: ファイル名先頭2桁
@@ -25,7 +27,7 @@ export function processConsumables(
   if (!storeMatch) return {}
   const storeId = String(parseInt(storeMatch[1]))
 
-  const result: Record<string, Record<number, { cost: number; items: ConsumableItem[] }>> = {}
+  const partitioned: Record<string, Record<string, Record<number, { cost: number; items: ConsumableItem[] }>>> = {}
 
   for (let row = 1; row < rows.length; row++) {
     const r = rows[row] as unknown[]
@@ -36,18 +38,20 @@ export function processConsumables(
     const itemName = String(r[2] ?? '')
     const quantity = safeNumber(r[3])
     const cost = safeNumber(r[4])
-    const day = getDayOfMonth(r[5])
-    if (day == null) continue
+    const dc = parseDateComponents(r[5])
+    if (dc == null) continue
 
-    if (!result[storeId]) result[storeId] = {}
-    if (!result[storeId][day]) result[storeId][day] = { cost: 0, items: [] }
+    const mk = monthKey(dc.year, dc.month)
+    if (!partitioned[mk]) partitioned[mk] = {}
+    if (!partitioned[mk][storeId]) partitioned[mk][storeId] = {}
+    if (!partitioned[mk][storeId][dc.day]) partitioned[mk][storeId][dc.day] = { cost: 0, items: [] }
 
-    const dayData = result[storeId][day] as { cost: number; items: ConsumableItem[] }
+    const dayData = partitioned[mk][storeId][dc.day] as { cost: number; items: ConsumableItem[] }
     dayData.cost += cost
     dayData.items.push({ accountCode, itemCode, itemName, quantity, cost })
   }
 
-  return result
+  return partitioned
 }
 
 /**
@@ -84,4 +88,22 @@ export function mergeConsumableData(
   }
 
   return merged
+}
+
+/**
+ * 月パーティション済み消耗品データをマージする
+ */
+export function mergePartitionedConsumables(
+  existing: Record<string, ConsumableData>,
+  incoming: Record<string, ConsumableData>,
+): Record<string, ConsumableData> {
+  const result = { ...existing }
+  for (const [mk, data] of Object.entries(incoming)) {
+    if (result[mk]) {
+      result[mk] = mergeConsumableData(result[mk], data)
+    } else {
+      result[mk] = data
+    }
+  }
+  return result
 }

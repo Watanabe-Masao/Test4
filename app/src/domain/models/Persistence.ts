@@ -39,3 +39,23 @@ export interface DiffResult {
   /** 挿入のみで確認不要のデータ種別 */
   readonly autoApproved: readonly string[]
 }
+
+/** インポート履歴のファイルエントリ */
+export interface ImportHistoryFile {
+  readonly filename: string
+  readonly type: string | null
+  readonly typeName: string | null
+  readonly rowCount?: number
+}
+
+/** インポート履歴の1回分の記録 */
+export interface ImportHistoryEntry {
+  /** ISO 8601 取込日時 */
+  readonly importedAt: string
+  /** 取り込まれたファイル */
+  readonly files: readonly ImportHistoryFile[]
+  /** 成功ファイル数 */
+  readonly successCount: number
+  /** 失敗ファイル数 */
+  readonly failureCount: number
+}

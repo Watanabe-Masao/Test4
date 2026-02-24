@@ -133,6 +133,46 @@ export function getDayOfMonth(value: unknown): number | null {
   return date ? date.getDate() : null
 }
 
+/** 日付コンポーネント（年月日） */
+export interface DateComponents {
+  readonly year: number
+  readonly month: number
+  readonly day: number
+}
+
+/**
+ * 日付値をパースし年月日コンポーネントを返す。
+ * 各種フォーマット（Excel シリアル値、和暦、ISO、スラッシュ等）を統一的に扱う。
+ */
+export function parseDateComponents(value: unknown, contextYear?: number): DateComponents | null {
+  const date = parseDate(value, contextYear)
+  if (!date) return null
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  }
+}
+
+/** 年月キーを生成する (例: "2025-1") */
+export function monthKey(year: number, month: number): string {
+  return `${year}-${month}`
+}
+
+/**
+ * 日付値を統一された ISO 形式 (YYYY-MM-DD) にクリーニングする。
+ * 各種フォーマット（和暦、スラッシュ、Excel シリアル値等）を正規化する。
+ * パース不能な場合は元の値をそのまま文字列で返す。
+ */
+export function cleanDateValue(value: unknown): string {
+  const date = parseDate(value)
+  if (!date) return String(value ?? '')
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 /**
  * データ行の日付列から対象年月を自動検出する
  *

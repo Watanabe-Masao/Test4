@@ -9,7 +9,7 @@ describe('processInterStoreIn', () => {
     ]
 
     const result = processInterStoreIn(rows)
-    const dayData = result['1']?.[1]
+    const dayData = result['2026-2']?.['1']?.[1]
     expect(dayData?.interStoreIn).toHaveLength(1)
     expect(dayData?.interStoreIn[0].cost).toBe(10000)
     expect(dayData?.interStoreIn[0].price).toBe(13000)
@@ -22,7 +22,7 @@ describe('processInterStoreIn', () => {
     ]
 
     const result = processInterStoreIn(rows)
-    const dayData = result['1']?.[1]
+    const dayData = result['2026-2']?.['1']?.[1]
     expect(dayData?.interDepartmentIn).toHaveLength(1)
     expect(dayData?.interStoreIn).toHaveLength(0)
   })
@@ -33,8 +33,8 @@ describe('processInterStoreIn', () => {
       ['0001', '2026-02-01', '0002', -10000, -13000],
     ]
     const result = processInterStoreIn(rows)
-    expect(result['1']?.[1]?.interStoreIn[0].cost).toBe(10000)
-    expect(result['1']?.[1]?.interStoreIn[0].price).toBe(13000)
+    expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].cost).toBe(10000)
+    expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].price).toBe(13000)
   })
 
   it('行数不足の場合は空', () => {
@@ -50,7 +50,7 @@ describe('processInterStoreOut', () => {
     ]
 
     const result = processInterStoreOut(rows)
-    const dayData = result['1']?.[1]
+    const dayData = result['2026-2']?.['1']?.[1]
     expect(dayData?.interStoreOut).toHaveLength(1)
     expect(dayData?.interStoreOut[0].cost).toBe(-10000) // 負の絶対値
     expect(dayData?.interStoreOut[0].price).toBe(-13000)
@@ -62,8 +62,8 @@ describe('processInterStoreOut', () => {
       ['2026-02-01', '0001', '0001', '001', 5000, 6500],
     ]
     const result = processInterStoreOut(rows)
-    expect(result['1']?.[1]?.interDepartmentOut).toHaveLength(1)
-    expect(result['1']?.[1]?.interStoreOut).toHaveLength(0)
+    expect(result['2026-2']?.['1']?.[1]?.interDepartmentOut).toHaveLength(1)
+    expect(result['2026-2']?.['1']?.[1]?.interStoreOut).toHaveLength(0)
   })
 
   it('行数不足の場合は空', () => {

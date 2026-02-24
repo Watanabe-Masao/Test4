@@ -7,8 +7,8 @@ import {
   extractRecordMonths,
   filterDataForMonth,
 } from '@/application/usecases/import'
-import type { ImportSummary } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
+import type { ImportSummary, MonthPartitions } from '@/application/usecases/import'
+import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, ImportHistoryEntry, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
 import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, mergeClassifiedSalesData, mergeCategoryTimeSalesData, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
@@ -28,6 +28,13 @@ export interface PendingDiffCheck {
   readonly existingData: ImportedData
   readonly importedTypes: ReadonlySet<string>
   readonly summary: ImportSummary
+  /** MonthPartitions（StoreDayRecord の年月分割情報） */
+  readonly monthPartitions: MonthPartitions
+  /** 複数月インポート時の追加情報 */
+  readonly multiMonth?: {
+    readonly months: readonly { year: number; month: number }[]
+    readonly existingByMonth: ReadonlyMap<string, ImportedData>
+  }
 }
 
 /** ファイルインポートフック */
@@ -62,6 +69,30 @@ export function useImport() {
     [dispatch],
   )
 
+  /** ImportSummary からインポート履歴エントリを生成して保存する */
+  const saveHistory = useCallback(
+    (summary: ImportSummary, year: number, month: number) => {
+      if (!repo.isAvailable()) return
+      const entry: ImportHistoryEntry = {
+        importedAt: new Date().toISOString(),
+        files: summary.results
+          .filter((r) => r.ok)
+          .map((r) => ({
+            filename: r.filename,
+            type: r.type,
+            typeName: r.typeName,
+            rowCount: r.rowCount,
+          })),
+        successCount: summary.successCount,
+        failureCount: summary.failureCount,
+      }
+      repo.saveImportHistory(year, month, entry).catch((e) => {
+        console.error('[useImport] saveImportHistory failed:', e)
+      })
+    },
+    [repo],
+  )
+
   const importFiles = useCallback(
     async (files: FileList | File[], overrideType?: DataType): Promise<ImportSummary> => {
       if (importingRef.current) {
@@ -73,7 +104,7 @@ export function useImport() {
       setSaveError(null)
 
       try {
-        const { summary, data, detectedYearMonth } = await processDroppedFiles(
+        const { summary, data, detectedYearMonth, monthPartitions } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
@@ -85,7 +116,6 @@ export function useImport() {
 
         if (summary.successCount > 0) {
           // データの日付から対象年月が検出された場合、設定を更新
-          // ※ 前年データは prevYearDetectedYearMonth に分離済みのため影響しない
           if (detectedYearMonth) {
             const updatedSettings = {
               targetYear: detectedYearMonth.year,
@@ -102,45 +132,80 @@ export function useImport() {
               .map((r) => r.type),
           )
 
-          // 複数月にまたがるデータかチェック
-          const recordMonths = extractRecordMonths(data)
+          // 複数月にまたがるデータかチェック（パーティション情報も考慮）
+          const recordMonths = extractRecordMonths(data, monthPartitions)
           const isMultiMonth = recordMonths.length > 1
 
           if (isMultiMonth) {
-            // ── 複数月インポート: 月ごとに分割して保存 ──
+            // ── 複数月インポート: 月ごとに差分チェック + 保存 ──
+
+            // 各月の既存データを読み込み
+            const existingByMonth = new Map<string, ImportedData>()
             if (repo.isAvailable()) {
               try {
                 for (const { year, month } of recordMonths) {
-                  const monthData = filterDataForMonth(data, year, month)
                   const existing = await repo.loadMonthlyData(year, month)
-
-                  let finalData: ImportedData
                   if (existing) {
-                    // 既存データに新しいレコードをマージ
-                    finalData = {
-                      ...existing,
-                      stores: new Map([...existing.stores, ...data.stores]),
-                      suppliers: new Map([...existing.suppliers, ...data.suppliers]),
-                      classifiedSales: mergeClassifiedSalesData(
-                        existing.classifiedSales,
-                        monthData.classifiedSales,
-                      ),
-                      categoryTimeSales: mergeCategoryTimeSalesData(
-                        existing.categoryTimeSales,
-                        monthData.categoryTimeSales,
-                      ),
-                    }
-                  } else {
-                    // 新規月: 空データにレコード + 共有データをセット
-                    finalData = {
-                      ...createEmptyImportedData(),
-                      stores: data.stores,
-                      suppliers: data.suppliers,
-                      classifiedSales: monthData.classifiedSales,
-                      categoryTimeSales: monthData.categoryTimeSales,
-                    }
+                    existingByMonth.set(`${year}-${month}`, existing)
                   }
+                }
+              } catch {
+                // ストレージエラーは無視
+              }
+            }
 
+            // 既存データがある月について差分チェック
+            if (existingByMonth.size > 0) {
+              const aggregatedDiffs: DataTypeDiff[] = []
+              const aggregatedAutoApproved: string[] = []
+
+              for (const { year, month } of recordMonths) {
+                const mk = `${year}-${month}`
+                const existing = existingByMonth.get(mk)
+                if (!existing) continue
+
+                const monthData = filterDataForMonth(data, year, month, monthPartitions)
+                const diff = calculateDiff(existing, monthData, importedTypes)
+
+                for (const d of diff.diffs) {
+                  aggregatedDiffs.push({
+                    ...d,
+                    dataType: `${mk}:${d.dataType}`,
+                    dataTypeName: `${year}年${month}月 ${d.dataTypeName}`,
+                  })
+                }
+                aggregatedAutoApproved.push(...diff.autoApproved.map((a) => `${mk}:${a}`))
+              }
+
+              const needsConfirmation = aggregatedDiffs.some(
+                (d) => d.modifications.length > 0 || d.removals.length > 0,
+              )
+
+              if (needsConfirmation) {
+                setPendingDiff({
+                  diffResult: { diffs: aggregatedDiffs, needsConfirmation, autoApproved: aggregatedAutoApproved },
+                  incomingData: data,
+                  existingData: createEmptyImportedData(),
+                  importedTypes,
+                  summary,
+                  monthPartitions,
+                  multiMonth: {
+                    months: recordMonths,
+                    existingByMonth,
+                  },
+                })
+                return summary
+              }
+            }
+
+            // 差分確認不要 → 保存
+            if (repo.isAvailable()) {
+              try {
+                for (const { year, month } of recordMonths) {
+                  const mk = `${year}-${month}`
+                  const monthData = filterDataForMonth(data, year, month, monthPartitions)
+                  const existing = existingByMonth.get(mk) ?? null
+                  const finalData = buildMonthData(existing, monthData, action)
                   await repo.saveMonthlyData(finalData, year, month)
                 }
               } catch (e) {
@@ -152,33 +217,40 @@ export function useImport() {
 
             // 主月のフィルタ済みデータを state に反映
             const { targetYear, targetMonth } = settingsRef.current
-            const primaryData = filterDataForMonth(data, targetYear, targetMonth)
+            const primaryData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
             dispatch({ type: 'SET_IMPORTED_DATA', payload: primaryData })
             dataRef.current = primaryData
             autoSetDataEndDay(primaryData)
 
             const messages = validateImportedData(primaryData, summary)
             dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+
+            // インポート履歴を保存（各月に記録）
+            for (const { year, month } of recordMonths) {
+              saveHistory(summary, year, month)
+            }
           } else {
             // ── 単月インポート: 既存の差分チェック + 保存 ──
+            const { targetYear, targetMonth } = settingsRef.current
+
+            // パーティション情報がある場合、対象月のデータだけに絞り込む
+            const targetData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
 
             // 既存データがあれば差分チェック
             if (repo.isAvailable()) {
-              const { targetYear, targetMonth } = settingsRef.current
               try {
                 const existing = await repo.loadMonthlyData(targetYear, targetMonth)
                 if (existing) {
-                  const diff = calculateDiff(existing, data, importedTypes)
+                  const diff = calculateDiff(existing, targetData, importedTypes)
                   if (diff.needsConfirmation) {
-                    // 差分確認が必要 → 保留状態にして一旦state更新は保留
                     setPendingDiff({
                       diffResult: diff,
-                      incomingData: data,
+                      incomingData: targetData,
                       existingData: existing,
                       importedTypes,
                       summary,
+                      monthPartitions,
                     })
-                    // state にはまだ反映しない
                     return summary
                   }
                 }
@@ -188,23 +260,23 @@ export function useImport() {
             }
 
             // 差分確認不要 → 通常通り state に反映 & 保存
-            dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
-            dataRef.current = data
-            autoSetDataEndDay(data)
+            dispatch({ type: 'SET_IMPORTED_DATA', payload: targetData })
+            dataRef.current = targetData
+            autoSetDataEndDay(targetData)
 
-            const messages = validateImportedData(data, summary)
+            const messages = validateImportedData(targetData, summary)
             dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
             // ストレージに保存
             if (repo.isAvailable()) {
-              const { targetYear, targetMonth } = settingsRef.current
               try {
-                await repo.saveMonthlyData(data, targetYear, targetMonth)
+                await repo.saveMonthlyData(targetData, targetYear, targetMonth)
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
                 console.error('[useImport] save failed:', e)
                 setSaveError(msg)
               }
+              saveHistory(summary, targetYear, targetMonth)
             }
           }
         }
@@ -216,7 +288,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo],
+    [dispatch, autoSetDataEndDay, repo, saveHistory],
   )
 
   /** 差分確認結果を適用する */
@@ -224,41 +296,85 @@ export function useImport() {
     (action: 'overwrite' | 'keep-existing' | 'cancel') => {
       if (!pendingDiff) return
 
-      const { incomingData, existingData, importedTypes, summary } = pendingDiff
+      const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } = pendingDiff
 
       if (action === 'cancel') {
         setPendingDiff(null)
         return
       }
 
-      let finalData: ImportedData
-      if (action === 'overwrite') {
-        finalData = incomingData
-      } else {
-        // keep-existing: 挿入のみマージ
-        finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
-      }
+      if (multiMonth) {
+        // ── 複数月: 月ごとに保存 ──
+        const { months, existingByMonth } = multiMonth
 
-      dispatch({ type: 'SET_IMPORTED_DATA', payload: finalData })
-      dataRef.current = finalData
-      autoSetDataEndDay(finalData)
-
-      const messages = validateImportedData(finalData, summary)
-      dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
-
-      // ストレージに保存
-      if (repo.isAvailable()) {
+        // 主月の最終データを state に反映
         const { targetYear, targetMonth } = settingsRef.current
-        repo.saveMonthlyData(finalData, targetYear, targetMonth).catch((e) => {
-          const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
-          console.error('[useImport] save failed:', e)
-          setSaveError(msg)
-        })
+        const primaryMonthData = filterDataForMonth(incomingData, targetYear, targetMonth, monthPartitions)
+        const primaryExisting = existingByMonth.get(`${targetYear}-${targetMonth}`) ?? null
+        const primaryFinalData = buildMonthData(primaryExisting, primaryMonthData, action)
+
+        dispatch({ type: 'SET_IMPORTED_DATA', payload: primaryFinalData })
+        dataRef.current = primaryFinalData
+        autoSetDataEndDay(primaryFinalData)
+
+        const messages = validateImportedData(primaryFinalData, summary)
+        dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+
+        // 全月を保存
+        if (repo.isAvailable()) {
+          const saveAll = async () => {
+            try {
+              for (const { year, month } of months) {
+                const mk = `${year}-${month}`
+                const monthData = filterDataForMonth(incomingData, year, month, monthPartitions)
+                const existing = existingByMonth.get(mk) ?? null
+                const finalData = buildMonthData(existing, monthData, action)
+                await repo.saveMonthlyData(finalData, year, month)
+              }
+            } catch (e) {
+              const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+              console.error('[useImport] multi-month save failed:', e)
+              setSaveError(msg)
+            }
+          }
+          saveAll()
+          // インポート履歴を保存（各月に記録）
+          for (const { year, month } of months) {
+            saveHistory(summary, year, month)
+          }
+        }
+      } else {
+        // ── 単月: 既存の処理 ──
+        let finalData: ImportedData
+        if (action === 'overwrite') {
+          finalData = incomingData
+        } else {
+          // keep-existing: 挿入のみマージ
+          finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
+        }
+
+        dispatch({ type: 'SET_IMPORTED_DATA', payload: finalData })
+        dataRef.current = finalData
+        autoSetDataEndDay(finalData)
+
+        const messages = validateImportedData(finalData, summary)
+        dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+
+        // ストレージに保存
+        if (repo.isAvailable()) {
+          const { targetYear, targetMonth } = settingsRef.current
+          repo.saveMonthlyData(finalData, targetYear, targetMonth).catch((e) => {
+            const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+            console.error('[useImport] save failed:', e)
+            setSaveError(msg)
+          })
+          saveHistory(summary, targetYear, targetMonth)
+        }
       }
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay, repo],
+    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory],
   )
 
   return {
@@ -270,6 +386,62 @@ export function useImport() {
     pendingDiff,
     resolveDiff,
     saveError,
+  }
+}
+
+// ─── 複数月データ構築 ───────────────────────────────────
+
+/** デフォルトアクション（差分確認不要時の保存） */
+const action = 'overwrite' as const
+
+/**
+ * 月別データの最終版を構築する。
+ * monthData は filterDataForMonth で年月フィルタ済み（StoreDayRecord 含む）。
+ * 既存データがない場合は monthData をそのまま使用。
+ * ある場合は action に応じてマージする。
+ */
+function buildMonthData(
+  existing: ImportedData | null,
+  monthData: ImportedData,
+  mergeAction: 'overwrite' | 'keep-existing' = 'overwrite',
+): ImportedData {
+  if (!existing) {
+    // 新規月: フィルタ済み monthData をそのまま使用
+    return monthData
+  }
+  if (mergeAction === 'overwrite') {
+    // 上書き: 既存データに新規データをマージ（新規が優先）
+    return {
+      ...existing,
+      stores: new Map([...existing.stores, ...monthData.stores]),
+      suppliers: new Map([...existing.suppliers, ...monthData.suppliers]),
+      purchase: { ...existing.purchase, ...monthData.purchase },
+      classifiedSales: mergeClassifiedSalesData(existing.classifiedSales, monthData.classifiedSales),
+      categoryTimeSales: mergeCategoryTimeSalesData(existing.categoryTimeSales, monthData.categoryTimeSales),
+      interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
+      interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
+      flowers: { ...existing.flowers, ...monthData.flowers },
+      directProduce: { ...existing.directProduce, ...monthData.directProduce },
+      consumables: { ...existing.consumables, ...monthData.consumables },
+      settings: new Map([...existing.settings, ...monthData.settings]),
+      budget: new Map([...existing.budget, ...monthData.budget]),
+    }
+  }
+  // keep-existing: 挿入のみマージ
+  return {
+    ...existing,
+    stores: mergeMapInserts(existing.stores, monthData.stores),
+    suppliers: mergeMapInserts(existing.suppliers, monthData.suppliers),
+    purchase: mergeStoreDayRecords(existing.purchase, monthData.purchase),
+    classifiedSales: mergeCSInserts(existing.classifiedSales, monthData.classifiedSales),
+    categoryTimeSales: mergeCTSInserts(existing.categoryTimeSales, monthData.categoryTimeSales),
+    interStoreIn: mergeStoreDayRecords(existing.interStoreIn, monthData.interStoreIn),
+    interStoreOut: mergeStoreDayRecords(existing.interStoreOut, monthData.interStoreOut),
+    flowers: mergeStoreDayRecords(existing.flowers, monthData.flowers),
+    directProduce: mergeStoreDayRecords(existing.directProduce, monthData.directProduce),
+    consumables: mergeStoreDayRecords(existing.consumables, monthData.consumables),
+    settings: mergeMapInserts(existing.settings, monthData.settings),
+    budget: mergeMapInserts(existing.budget, monthData.budget),
   }
 }
 

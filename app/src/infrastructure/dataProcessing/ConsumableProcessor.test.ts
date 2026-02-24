@@ -11,7 +11,7 @@ describe('processConsumables', () => {
     ]
 
     const result = processConsumables(rows, '01_消耗品.xlsx')
-    const dayData = result['1']?.[1]
+    const dayData = result['2026-2']?.['1']?.[1]
     expect(dayData?.cost).toBe(8000) // 5000 + 3000
     expect(dayData?.items).toHaveLength(2)
     expect(dayData?.items[0].itemName).toBe('洗剤')
@@ -32,10 +32,10 @@ describe('processConsumables', () => {
       ['81257', 'A', 'B', 1, 100, '2026-02-01'],
     ]
     const result1 = processConsumables(rows, '01_file.xlsx')
-    expect(result1['1']).toBeDefined()
+    expect(result1['2026-2']?.['1']).toBeDefined()
 
     const result2 = processConsumables(rows, '12_file.csv')
-    expect(result2['12']).toBeDefined()
+    expect(result2['2026-2']?.['12']).toBeDefined()
   })
 
   it('ファイル名に数字がない場合は空', () => {

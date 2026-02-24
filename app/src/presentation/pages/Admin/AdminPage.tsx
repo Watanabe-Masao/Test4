@@ -1,11 +1,13 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
 import { useSettings } from '@/application/hooks'
+import { useRepository } from '@/application/context/RepositoryContext'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
-import type { CustomCategory, Store, ImportedData } from '@/domain/models'
+import type { CustomCategory, Store, ImportedData, ImportHistoryEntry } from '@/domain/models'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { aggregateAllStores } from '@/domain/models'
+import { Modal } from '@/presentation/components/common/Modal'
 import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
 
@@ -582,10 +584,195 @@ const SummaryLabel = styled.div`
   margin-top: 2px;
 `
 
+// ─── クリック可能なバッジ ─────────────────────────────────
+
+const ClickableBadge = styled(Badge)<{ $clickable?: boolean }>`
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition: opacity 0.15s;
+  ${({ $clickable }) => $clickable && '&:hover { opacity: 0.7; }'}
+`
+
+// ─── インポート出所モーダル ──────────────────────────────
+
+const HistoryList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[4]};
+  max-height: 400px;
+  overflow-y: auto;
+`
+
+const HistoryCard = styled.div`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => theme.spacing[4]};
+`
+
+const HistoryTimestamp = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+const HistoryFileList = styled.ul`
+  margin: 0;
+  padding-left: ${({ theme }) => theme.spacing[5]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text2};
+  line-height: 1.8;
+`
+
+const HistoryFileBadge = styled.span`
+  display: inline-block;
+  padding: 0 ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  background: ${({ theme }) => `${theme.colors.palette.primary}15`};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  margin-left: ${({ theme }) => theme.spacing[2]};
+`
+
+const DataVerifySection = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+`
+
+const DataVerifyTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+const DataVerifyGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
+const DataVerifyLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const DataVerifyValue = styled.span`
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  text-align: right;
+`
+
+function formatTimestamp(iso: string): string {
+  try {
+    const d = new Date(iso)
+    const y = d.getFullYear()
+    const mo = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    const h = String(d.getHours()).padStart(2, '0')
+    const mi = String(d.getMinutes()).padStart(2, '0')
+    return `${y}/${mo}/${day} ${h}:${mi}`
+  } catch {
+    return iso
+  }
+}
+
+function ImportProvenanceModal({
+  history,
+  dataStats,
+  onClose,
+}: {
+  history: readonly ImportHistoryEntry[]
+  dataStats: StoreDayStats
+  onClose: () => void
+}) {
+  return (
+    <Modal title={`${dataStats.label} — 取込情報`} onClose={onClose}>
+      {/* データ内容サマリー */}
+      <DataVerifySection>
+        <DataVerifyTitle>データ内容</DataVerifyTitle>
+        <DataVerifyGrid>
+          <DataVerifyLabel>店舗数</DataVerifyLabel>
+          <DataVerifyValue>{dataStats.storeCount}</DataVerifyValue>
+          <DataVerifyLabel>レコード数</DataVerifyLabel>
+          <DataVerifyValue>{dataStats.totalRecords.toLocaleString()}</DataVerifyValue>
+          <DataVerifyLabel>日付範囲</DataVerifyLabel>
+          <DataVerifyValue>
+            {dataStats.dayRange ? `${dataStats.dayRange.min}日 〜 ${dataStats.dayRange.max}日` : '-'}
+          </DataVerifyValue>
+        </DataVerifyGrid>
+        {dataStats.perStore.length > 0 && (
+          <Table style={{ marginTop: 12 }}>
+            <thead>
+              <tr>
+                <Th>店舗</Th>
+                <Th>日数</Th>
+                <Th>範囲</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {dataStats.perStore.map((ps) => (
+                <tr key={ps.storeId}>
+                  <Td style={{ fontSize: '0.75rem' }}>{ps.storeName}</Td>
+                  <Td style={{ fontSize: '0.75rem' }}>{ps.days}日分</Td>
+                  <Td style={{ fontSize: '0.75rem' }}>{ps.minDay}日 〜 {ps.maxDay}日</Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </DataVerifySection>
+
+      {/* インポート履歴 */}
+      {history.length > 0 ? (
+        <HistoryList>
+          {history.map((entry, i) => (
+            <HistoryCard key={i}>
+              <HistoryTimestamp>
+                {formatTimestamp(entry.importedAt)}
+                <Badge $color="#22c55e" style={{ marginLeft: 8 }}>{entry.successCount}件成功</Badge>
+                {entry.failureCount > 0 && (
+                  <Badge $color="#ef4444" style={{ marginLeft: 4 }}>{entry.failureCount}件失敗</Badge>
+                )}
+              </HistoryTimestamp>
+              <HistoryFileList>
+                {entry.files.map((f, j) => (
+                  <li key={j}>
+                    {f.filename}
+                    {f.typeName && <HistoryFileBadge>{f.typeName}</HistoryFileBadge>}
+                    {f.rowCount != null && (
+                      <span style={{ opacity: 0.6, marginLeft: 6 }}>{f.rowCount}行</span>
+                    )}
+                  </li>
+                ))}
+              </HistoryFileList>
+            </HistoryCard>
+          ))}
+        </HistoryList>
+      ) : (
+        <EmptyState>インポート履歴がありません</EmptyState>
+      )}
+    </Modal>
+  )
+}
+
 // ─── インポート履歴タブ ────────────────────────────────
 function ImportHistoryTab() {
   const { data, validationMessages } = useAppData()
+  const { settings } = useSettings()
+  const repo = useRepository()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [importHistory, setImportHistory] = useState<ImportHistoryEntry[]>([])
+  const [provenanceTarget, setProvenanceTarget] = useState<StoreDayStats | null>(null)
+
+  // インポート履歴を読み込む
+  useEffect(() => {
+    if (!repo.isAvailable()) return
+    repo.loadImportHistory(settings.targetYear, settings.targetMonth).then(setImportHistory).catch(() => {})
+  }, [repo, settings.targetYear, settings.targetMonth, data])
 
   const toggleExpand = useCallback((label: string) => {
     setExpandedRows((prev) => {
@@ -594,6 +781,13 @@ function ImportHistoryTab() {
       else next.add(label)
       return next
     })
+  }, [])
+
+  const handleBadgeClick = useCallback((e: React.MouseEvent, stats: StoreDayStats) => {
+    e.stopPropagation()
+    if (stats.storeCount > 0) {
+      setProvenanceTarget(stats)
+    }
   }, [])
 
   const overview = useMemo(() => buildDataOverview(data), [data])
@@ -633,6 +827,25 @@ function ImportHistoryTab() {
   // 全体の最大日数レンジ（品質スコア用）
   const salesDayRange = overview.find((d) => d.label === '分類別売上')?.dayRange
   const daysInMonth = salesDayRange ? salesDayRange.max : 28
+
+  // 特殊データの StoreDayStats（モーダル用）
+  const ctsStats: StoreDayStats = useMemo(() => ({
+    label: '分類別時間帯売上',
+    storeCount: categoryTimeSalesStores,
+    totalRecords: categoryTimeSalesCount,
+    dayRange: categoryTimeSalesDays,
+    perStore: [],
+    hasCustomers: false,
+  }), [categoryTimeSalesStores, categoryTimeSalesCount, categoryTimeSalesDays])
+
+  const prevYearCTSStats: StoreDayStats = useMemo(() => ({
+    label: '前年分類別時間帯売上',
+    storeCount: prevYearCTSStores,
+    totalRecords: prevYearCTSCount,
+    dayRange: prevYearCTSDays,
+    perStore: [],
+    hasCustomers: false,
+  }), [prevYearCTSStores, prevYearCTSCount, prevYearCTSDays])
 
   return (
     <>
@@ -706,9 +919,14 @@ function ImportHistoryTab() {
                       {d.hasCustomers && <Badge $color="#22c55e" style={{ marginLeft: 6 }}>客数</Badge>}
                     </Td>
                     <Td>
-                      <Badge $color={loaded ? '#0ea5e9' : undefined}>
+                      <ClickableBadge
+                        $color={loaded ? '#0ea5e9' : undefined}
+                        $clickable={loaded}
+                        onClick={(e) => handleBadgeClick(e, d)}
+                        title={loaded ? 'クリックで取込情報を表示' : undefined}
+                      >
                         {loaded ? '取込済' : '未取込'}
-                      </Badge>
+                      </ClickableBadge>
                     </Td>
                     <Td>{loaded ? d.storeCount : '-'}</Td>
                     <Td>{loaded ? d.totalRecords.toLocaleString() : '-'}</Td>
@@ -789,9 +1007,14 @@ function ImportHistoryTab() {
                 分類別時間帯売上
               </Td>
               <Td>
-                <Badge $color={categoryTimeSalesCount > 0 ? '#0ea5e9' : undefined}>
+                <ClickableBadge
+                  $color={categoryTimeSalesCount > 0 ? '#0ea5e9' : undefined}
+                  $clickable={categoryTimeSalesCount > 0}
+                  onClick={(e) => { e.stopPropagation(); if (categoryTimeSalesCount > 0) setProvenanceTarget(ctsStats) }}
+                  title={categoryTimeSalesCount > 0 ? 'クリックで取込情報を表示' : undefined}
+                >
                   {categoryTimeSalesCount > 0 ? '取込済' : '未取込'}
-                </Badge>
+                </ClickableBadge>
               </Td>
               <Td>{categoryTimeSalesCount > 0 ? `${categoryTimeSalesCount.toLocaleString()}件` : '-'}</Td>
               <Td>
@@ -812,9 +1035,14 @@ function ImportHistoryTab() {
                 前年分類別時間帯売上
               </Td>
               <Td>
-                <Badge $color={prevYearCTSCount > 0 ? '#0ea5e9' : undefined}>
+                <ClickableBadge
+                  $color={prevYearCTSCount > 0 ? '#0ea5e9' : undefined}
+                  $clickable={prevYearCTSCount > 0}
+                  onClick={(e) => { e.stopPropagation(); if (prevYearCTSCount > 0) setProvenanceTarget(prevYearCTSStats) }}
+                  title={prevYearCTSCount > 0 ? 'クリックで取込情報を表示' : undefined}
+                >
                   {prevYearCTSCount > 0 ? '取込済' : '未取込'}
-                </Badge>
+                </ClickableBadge>
               </Td>
               <Td>{prevYearCTSCount > 0 ? `${prevYearCTSCount.toLocaleString()}件` : '-'}</Td>
               <Td>
@@ -863,6 +1091,15 @@ function ImportHistoryTab() {
             ))}
           </ValidationSection>
         </Section>
+      )}
+
+      {/* 取込出所モーダル */}
+      {provenanceTarget && (
+        <ImportProvenanceModal
+          history={importHistory}
+          dataStats={provenanceTarget}
+          onClose={() => setProvenanceTarget(null)}
+        />
       )}
     </>
   )

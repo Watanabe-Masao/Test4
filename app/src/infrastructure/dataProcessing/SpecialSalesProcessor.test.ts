@@ -11,10 +11,11 @@ describe('processSpecialSales', () => {
     ]
 
     const result = processSpecialSales(rows, 0.8)
-    expect(result['1']?.[1]?.price).toBe(10000)
-    expect(result['1']?.[1]?.cost).toBe(8000) // 10000 × 0.8
-    expect(result['1']?.[2]?.price).toBe(20000)
-    expect(result['1']?.[2]?.cost).toBe(16000) // 20000 × 0.8
+    const feb = result['2026-2']
+    expect(feb?.['1']?.[1]?.price).toBe(10000)
+    expect(feb?.['1']?.[1]?.cost).toBe(8000) // 10000 × 0.8
+    expect(feb?.['1']?.[2]?.price).toBe(20000)
+    expect(feb?.['1']?.[2]?.cost).toBe(16000) // 20000 × 0.8
   })
 
   it('産直データ処理（掛け率0.85）', () => {
@@ -25,7 +26,7 @@ describe('processSpecialSales', () => {
     ]
 
     const result = processSpecialSales(rows, 0.85)
-    expect(result['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
+    expect(result['2026-2']?.['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
   })
 
   it('売価0はスキップ', () => {
@@ -35,7 +36,7 @@ describe('processSpecialSales', () => {
       ['2026-02-01', '', '', 0, ''],
     ]
     const result = processSpecialSales(rows, 0.8)
-    expect(result['1']?.[1]).toBeUndefined()
+    expect(result['2026-2']?.['1']?.[1]).toBeUndefined()
   })
 
   it('原価は四捨五入', () => {
@@ -45,7 +46,7 @@ describe('processSpecialSales', () => {
       ['2026-02-01', '', '', 333, ''],
     ]
     const result = processSpecialSales(rows, 0.8)
-    expect(result['1']?.[1]?.cost).toBe(266) // Math.round(333 × 0.8) = Math.round(266.4)
+    expect(result['2026-2']?.['1']?.[1]?.cost).toBe(266) // Math.round(333 × 0.8) = Math.round(266.4)
   })
 
   it('行数不足の場合は空', () => {

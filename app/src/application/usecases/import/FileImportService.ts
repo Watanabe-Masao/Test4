@@ -1,5 +1,11 @@
-import type { DataType, AppSettings, ValidationMessage, ImportedData } from '@/domain/models'
+import type { DataType, AppSettings, ValidationMessage, ImportedData, PurchaseData, SpecialSalesData, TransferData, ConsumableData, BudgetData } from '@/domain/models'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
+import type { MonthPartitions } from '@/infrastructure/ImportService'
+import { monthKey } from '@/infrastructure/fileImport/dateParser'
+
+// Re-export partition types
+export type { MonthPartitions } from '@/infrastructure/ImportService'
+export { createEmptyMonthPartitions } from '@/infrastructure/ImportService'
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -173,7 +179,6 @@ export function validateImportedData(
 
   // ── 分類別売上と分類別時間帯売上の整合性チェック ──
   if (data.categoryTimeSales?.records?.length && data.classifiedSales.records.length > 0) {
-    // 店舗別・日別に分類別売上合計とCTS合計を比較
     const ctsByStoreDay = new Map<string, number>()
     for (const rec of data.categoryTimeSales.records) {
       const key = `${rec.storeId}|${rec.day}`
@@ -218,7 +223,6 @@ export function validateImportedData(
       message: '予算データがありません。予算ファイルを読み込むとより詳細な分析が可能です',
     })
   }
-  // 分類別売上に売変データが含まれているか確認
   const hasDiscountData = data.classifiedSales.records.some(
     (r) => r.discount71 !== 0 || r.discount72 !== 0 || r.discount73 !== 0 || r.discount74 !== 0,
   )
@@ -244,8 +248,6 @@ export function hasValidationErrors(messages: readonly ValidationMessage[]): boo
 /**
  * 複数ファイルをバッチインポートする
  * Infrastructure層の実装に委譲する
- *
- * detectedYearMonth: データの日付から検出された対象年月
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -257,6 +259,7 @@ export async function processDroppedFiles(
   summary: ImportSummary
   data: ImportedData
   detectedYearMonth?: { year: number; month: number }
+  monthPartitions: MonthPartitions
 }> {
   return processDroppedFilesImpl(files, appSettings, currentData, onProgress, overrideType)
 }
@@ -264,30 +267,50 @@ export async function processDroppedFiles(
 // ─── Multi-month utilities ──────────────────────────────────
 
 /**
- * ImportedData のレコードベースデータに含まれる年月の一覧を抽出する。
- * classifiedSales と categoryTimeSales の各レコードの year/month を収集し、
- * 年月昇順で返す。
+ * ImportedData のレコードベースデータおよび MonthPartitions に含まれる年月の一覧を抽出する。
+ * classifiedSales、categoryTimeSales の各レコードと StoreDayRecord パーティションの
+ * キーを収集し、年月昇順で返す。
  */
 export function extractRecordMonths(
   data: ImportedData,
+  partitions?: MonthPartitions,
 ): readonly { year: number; month: number }[] {
   const seen = new Set<string>()
   const result: { year: number; month: number }[] = []
 
-  for (const rec of data.classifiedSales.records) {
-    const key = `${rec.year}-${rec.month}`
+  const addMonth = (year: number, month: number) => {
+    const key = `${year}-${month}`
     if (!seen.has(key)) {
       seen.add(key)
-      result.push({ year: rec.year, month: rec.month })
+      result.push({ year, month })
     }
+  }
+
+  for (const rec of data.classifiedSales.records) {
+    addMonth(rec.year, rec.month)
   }
 
   for (const rec of data.categoryTimeSales.records) {
     if (rec.year != null && rec.month != null) {
-      const key = `${rec.year}-${rec.month}`
-      if (!seen.has(key)) {
-        seen.add(key)
-        result.push({ year: rec.year, month: rec.month })
+      addMonth(rec.year, rec.month)
+    }
+  }
+
+  // StoreDayRecord パーティションのキーからも年月を収集
+  if (partitions) {
+    const allPartitionKeys = new Set<string>()
+    for (const mk of Object.keys(partitions.purchase)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.flowers)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.directProduce)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.interStoreIn)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.interStoreOut)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.consumables)) allPartitionKeys.add(mk)
+    for (const mk of Object.keys(partitions.budget)) allPartitionKeys.add(mk)
+
+    for (const mk of allPartitionKeys) {
+      const parts = mk.split('-')
+      if (parts.length === 2) {
+        addMonth(Number(parts[0]), Number(parts[1]))
       }
     }
   }
@@ -298,15 +321,19 @@ export function extractRecordMonths(
 
 /**
  * ImportedData から指定年月のレコードのみを含む ImportedData を返す。
- * classifiedSales と categoryTimeSales を年月でフィルタし、
- * その他のフィールドはそのまま維持する。
+ * classifiedSales と categoryTimeSales を年月で厳密フィルタし、
+ * MonthPartitions が提供された場合は StoreDayRecord 系データも適切に分割する。
+ * partitions が無い場合はレコード系のみフィルタし、StoreDayRecord はそのまま維持する。
  */
 export function filterDataForMonth(
   data: ImportedData,
   year: number,
   month: number,
+  partitions?: MonthPartitions,
 ): ImportedData {
-  return {
+  const mk = monthKey(year, month)
+
+  const base: ImportedData = {
     ...data,
     classifiedSales: {
       records: data.classifiedSales.records.filter(
@@ -315,8 +342,22 @@ export function filterDataForMonth(
     },
     categoryTimeSales: {
       records: data.categoryTimeSales.records.filter(
-        (r) => (r.year ?? year) === year && (r.month ?? month) === month,
+        (r) => r.year === year && r.month === month,
       ),
     },
+  }
+
+  if (!partitions) return base
+
+  // パーティション情報を使って StoreDayRecord 系データを年月で分割
+  return {
+    ...base,
+    purchase: (partitions.purchase[mk] ?? {}) as PurchaseData,
+    flowers: (partitions.flowers[mk] ?? {}) as SpecialSalesData,
+    directProduce: (partitions.directProduce[mk] ?? {}) as SpecialSalesData,
+    interStoreIn: (partitions.interStoreIn[mk] ?? {}) as TransferData,
+    interStoreOut: (partitions.interStoreOut[mk] ?? {}) as TransferData,
+    consumables: (partitions.consumables[mk] ?? {}) as ConsumableData,
+    budget: partitions.budget[mk] ?? new Map<string, BudgetData>(),
   }
 }
