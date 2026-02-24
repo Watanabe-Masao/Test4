@@ -53,11 +53,14 @@ export const ZERO_DISCOUNT_ENTRIES: readonly DiscountEntry[] = DISCOUNT_TYPES.ma
  * Math.abs() による正規化はここで行う。
  */
 export function extractDiscountEntries(rec: ClassifiedSalesRecord): readonly DiscountEntry[] {
-  return DISCOUNT_TYPES.map((d) => ({
-    type: d.type,
-    label: d.label,
-    amount: Math.abs(rec[d.field]),
-  }))
+  return DISCOUNT_TYPES.map((d) => {
+    const raw = rec[d.field]
+    return {
+      type: d.type,
+      label: d.label,
+      amount: Math.abs(typeof raw === 'number' && !Number.isNaN(raw) ? raw : 0),
+    }
+  })
 }
 
 /**
@@ -120,7 +123,7 @@ export interface ClassifiedSalesData {
 
 /** ClassifiedSalesRecord の一意キーを生成する（差分比較用） */
 export function classifiedSalesRecordKey(rec: ClassifiedSalesRecord): string {
-  return `${rec.day}\t${rec.storeId}\t${rec.groupName}\t${rec.departmentName}\t${rec.lineName}\t${rec.className}`
+  return `${rec.year}\t${rec.month}\t${rec.day}\t${rec.storeId}\t${rec.groupName}\t${rec.departmentName}\t${rec.lineName}\t${rec.className}`
 }
 
 // ─── 店舗×日の集約 ──────────────────────────────────────────
