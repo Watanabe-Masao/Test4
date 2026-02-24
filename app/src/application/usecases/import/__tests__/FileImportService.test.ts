@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { validateImportedData, hasValidationErrors } from './FileImportService'
+import { validateImportedData, hasValidationErrors } from '../FileImportService'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
-import type { ImportSummary } from './FileImportService'
+import type { ImportSummary } from '../FileImportService'
 
 function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
   return { ...createEmptyImportedData(), ...overrides }

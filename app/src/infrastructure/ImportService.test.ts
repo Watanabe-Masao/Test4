@@ -6,7 +6,7 @@ import {
 import {
   validateImportedData,
   hasValidationErrors,
-} from '@/application/services/FileImportService'
+} from '@/application/usecases/import'
 import type { ImportedData } from './ImportService'
 import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
 

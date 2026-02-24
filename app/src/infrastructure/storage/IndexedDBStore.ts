@@ -11,9 +11,9 @@
  * - loadImportedData の基本スキーマ検証 (#9)
  * - DB 接続断時の自動再接続 (#14)
  */
-import type { ImportedData, DataType } from '@/domain/models'
+import type { ImportedData, DataType, DataOrigin, DataEnvelope } from '@/domain/models'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData, isEnvelope } from '@/domain/models'
 
 // ─── DB 定数 ──────────────────────────────────────────────
 
@@ -135,6 +135,44 @@ async function dbGetAllKeys(storeName: string): Promise<string[]> {
   })
 }
 
+// ─── Envelope ラッパー ────────────────────────────────────
+
+/** 値を DataEnvelope 形式でラップして保存用にする */
+function wrapEnvelope<T>(value: T, year: number, month: number, sourceFile?: string): DataEnvelope<T> {
+  return {
+    origin: {
+      year,
+      month,
+      importedAt: new Date().toISOString(),
+      sourceFile,
+    },
+    payload: value,
+  }
+}
+
+/**
+ * IndexedDB から読み出した値を unwrap する。
+ * - 新形式（DataEnvelope）: origin の整合性を検証し payload を返す
+ * - 旧形式（生データ）: そのまま返す（漸進的マイグレーション）
+ */
+function unwrapEnvelope<T>(raw: unknown, year: number, month: number): { value: T; origin: DataOrigin | null } | null {
+  if (raw === undefined || raw === null) return null
+
+  if (isEnvelope(raw)) {
+    // 整合性チェック: origin の年月がキーの年月と一致するか
+    if (raw.origin.year !== year || raw.origin.month !== month) {
+      console.warn(
+        `[IndexedDBStore] Integrity mismatch: origin ${raw.origin.year}-${raw.origin.month} !== key ${year}-${month}`,
+      )
+      return null
+    }
+    return { value: raw.payload as T, origin: raw.origin }
+  }
+
+  // 旧形式 — origin なしで返す
+  return { value: raw as T, origin: null }
+}
+
 // ─── シリアライズ / デシリアライズ ───────────────────────
 
 /** Map → plain object（JSON 互換にする） */
@@ -230,42 +268,50 @@ export async function saveImportedData(
 ): Promise<void> {
   const entries: { storeName: string; key: string; value: unknown }[] = []
 
-  // StoreDayRecord 系
+  // StoreDayRecord 系 — envelope 形式で保存
   for (const { field, type } of STORE_DAY_FIELDS) {
-    entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, type), value: data[field] })
+    entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, type), value: wrapEnvelope(data[field], year, month) })
   }
 
-  // Map 系 → plain object に変換して保存
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: mapToObj(data.stores) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: mapToObj(data.suppliers) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: mapToObj(data.settings) })
+  // Map 系 → plain object に変換して envelope で保存
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: wrapEnvelope(mapToObj(data.stores), year, month) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: wrapEnvelope(mapToObj(data.suppliers), year, month) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: wrapEnvelope(mapToObj(data.settings), year, month) })
   entries.push({
     storeName: STORE_MONTHLY,
     key: monthKey(year, month, 'budget'),
-    value: Object.fromEntries(
-      Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
+    value: wrapEnvelope(
+      Object.fromEntries(
+        Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
+      ),
+      year,
+      month,
     ),
   })
 
-  // classifiedSales（配列形式）
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: data.classifiedSales })
+  // classifiedSales — envelope 形式で保存
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: wrapEnvelope(data.classifiedSales, year, month) })
 
   // prevYearClassifiedSales は DB に保存しない（実際の年月に classifiedSales として保存）
 
-  // categoryTimeSales
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
+  // categoryTimeSales — envelope 形式で保存
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
 
   // prevYearCategoryTimeSales は DB に保存しない（実際の年月に categoryTimeSales として保存）
 
-  // departmentKpi
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: data.departmentKpi })
+  // departmentKpi — envelope 形式で保存
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: wrapEnvelope(data.departmentKpi, year, month) })
 
   // メタデータ
+  const savedAt = new Date().toISOString()
   entries.push({
     storeName: STORE_META,
     key: 'lastSession',
-    value: { year, month, savedAt: new Date().toISOString() } satisfies PersistedMeta,
+    value: { year, month, savedAt } satisfies PersistedMeta,
   })
+
+  // sessions 一覧を更新（listStoredMonths の最適化用）
+  await updateSessionsList(entries, year, month, savedAt)
 
   await dbBatchPut(entries)
 }
@@ -279,49 +325,49 @@ export async function loadImportedData(
   year: number,
   month: number,
 ): Promise<ImportedData | null> {
-  const meta = await getPersistedMeta()
-  if (!meta || meta.year !== year || meta.month !== month) return null
-
-  const base = createEmptyImportedData()
-
-  // StoreDayRecord 系
-  const result: Record<string, unknown> = { ...base }
-  for (const { field, type } of STORE_DAY_FIELDS) {
-    const val = await dbGet<Record<string, unknown>>(STORE_MONTHLY, monthKey(year, month, type))
-    if (val != null && typeof val === 'object') {
-      result[field] = val
-    }
-  }
-
-  // stores
-  const rawStores = await dbGet<Record<string, Store>>(
+  // stores キーの存在で当該年月にデータが保存されているかを判定する。
+  const rawStoresEntry = await dbGet<unknown>(
     STORE_MONTHLY,
     monthKey(year, month, 'stores'),
   )
-  result.stores = rawStores && typeof rawStores === 'object' ? new Map(Object.entries(rawStores)) : new Map()
+  if (rawStoresEntry === undefined) return null
 
-  // suppliers
-  const rawSuppliers = await dbGet<Record<string, { code: string; name: string }>>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'suppliers'),
-  )
-  result.suppliers = rawSuppliers && typeof rawSuppliers === 'object' ? new Map(Object.entries(rawSuppliers)) : new Map()
+  const base = createEmptyImportedData()
 
-  // settings (InventoryConfig)
-  const rawSettings = await dbGet<Record<string, InventoryConfig>>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'settings'),
-  )
-  result.settings = rawSettings && typeof rawSettings === 'object' ? new Map(Object.entries(rawSettings)) : new Map()
+  // StoreDayRecord 系 — envelope 対応（新旧どちらの形式も読める）
+  const result: Record<string, unknown> = { ...base }
+  for (const { field, type } of STORE_DAY_FIELDS) {
+    const raw = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, type))
+    const unwrapped = unwrapEnvelope<Record<string, unknown>>(raw, year, month)
+    if (unwrapped && typeof unwrapped.value === 'object') {
+      result[field] = unwrapped.value
+    }
+  }
 
-  // budget
-  const rawBudget = await dbGet<Record<string, Record<string, unknown>>>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'budget'),
-  )
-  if (rawBudget && typeof rawBudget === 'object') {
+  // stores — envelope unwrap
+  const storesUnwrapped = unwrapEnvelope<Record<string, Store>>(rawStoresEntry, year, month)
+  const storesObj = storesUnwrapped?.value
+  result.stores = storesObj && typeof storesObj === 'object' ? new Map(Object.entries(storesObj)) : new Map()
+
+  // suppliers — envelope unwrap
+  const rawSuppliers = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'suppliers'))
+  const suppliersUnwrapped = unwrapEnvelope<Record<string, { code: string; name: string }>>(rawSuppliers, year, month)
+  const suppliersObj = suppliersUnwrapped?.value
+  result.suppliers = suppliersObj && typeof suppliersObj === 'object' ? new Map(Object.entries(suppliersObj)) : new Map()
+
+  // settings — envelope unwrap
+  const rawSettings = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'settings'))
+  const settingsUnwrapped = unwrapEnvelope<Record<string, InventoryConfig>>(rawSettings, year, month)
+  const settingsObj = settingsUnwrapped?.value
+  result.settings = settingsObj && typeof settingsObj === 'object' ? new Map(Object.entries(settingsObj)) : new Map()
+
+  // budget — envelope unwrap
+  const rawBudget = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'budget'))
+  const budgetUnwrapped = unwrapEnvelope<Record<string, Record<string, unknown>>>(rawBudget, year, month)
+  const budgetObj = budgetUnwrapped?.value
+  if (budgetObj && typeof budgetObj === 'object') {
     const budgetMap = new Map<string, BudgetData>()
-    for (const [k, v] of Object.entries(rawBudget)) {
+    for (const [k, v] of Object.entries(budgetObj)) {
       if (v && typeof v === 'object') {
         budgetMap.set(k, budgetFromSerializable(v as Record<string, unknown>))
       }
@@ -331,36 +377,33 @@ export async function loadImportedData(
     result.budget = new Map()
   }
 
-  // classifiedSales
-  const rawClassifiedSales = await dbGet<{ records: unknown[] }>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'classifiedSales'),
-  )
-  result.classifiedSales = rawClassifiedSales && Array.isArray(rawClassifiedSales.records)
-    ? rawClassifiedSales
+  // classifiedSales — envelope unwrap
+  const rawCs = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'classifiedSales'))
+  const csUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCs, year, month)
+  const csObj = csUnwrapped?.value
+  result.classifiedSales = csObj && Array.isArray(csObj.records)
+    ? csObj
     : { records: [] }
 
   // prevYearClassifiedSales は DB に保存しないため読み込まない
   // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
 
-  // categoryTimeSales
-  const rawCategoryTimeSales = await dbGet<{ records: unknown[] }>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'categoryTimeSales'),
-  )
-  result.categoryTimeSales = rawCategoryTimeSales && Array.isArray(rawCategoryTimeSales.records)
-    ? rawCategoryTimeSales
+  // categoryTimeSales — envelope unwrap
+  const rawCts = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
+  const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCts, year, month)
+  const ctsObj = ctsUnwrapped?.value
+  result.categoryTimeSales = ctsObj && Array.isArray(ctsObj.records)
+    ? ctsObj
     : { records: [] }
 
   // prevYearCategoryTimeSales は DB に保存しないため読み込まない
 
-  // departmentKpi
-  const rawDeptKpi = await dbGet<{ records: unknown[] }>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'departmentKpi'),
-  )
-  result.departmentKpi = rawDeptKpi && Array.isArray(rawDeptKpi.records)
-    ? rawDeptKpi
+  // departmentKpi — envelope unwrap
+  const rawDeptKpi = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'departmentKpi'))
+  const deptKpiUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawDeptKpi, year, month)
+  const deptKpiObj = deptKpiUnwrapped?.value
+  result.departmentKpi = deptKpiObj && Array.isArray(deptKpiObj.records)
+    ? deptKpiObj
     : { records: [] }
 
   // スキーマ検証
@@ -405,6 +448,13 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   }
 
   await dbBatchDelete(deleteEntries)
+
+  // sessions 一覧から削除対象月を除去
+  const existing = await dbGet<SessionEntry[]>(STORE_META, 'sessions')
+  if (Array.isArray(existing)) {
+    const updated = existing.filter((s) => !(s.year === year && s.month === month))
+    await dbBatchPut([{ storeName: STORE_META, key: 'sessions', value: updated }])
+  }
 }
 
 /**
@@ -417,6 +467,7 @@ export async function clearAllData(): Promise<void> {
     key,
   }))
   deleteEntries.push({ storeName: STORE_META, key: 'lastSession' })
+  deleteEntries.push({ storeName: STORE_META, key: 'sessions' })
   await dbBatchDelete(deleteEntries)
 }
 
@@ -431,15 +482,49 @@ export async function loadMonthlySlice<T>(
   dataType: string,
 ): Promise<T | null> {
   const key = monthKey(year, month, dataType)
-  const val = await dbGet<T>(STORE_MONTHLY, key)
-  return val ?? null
+  const raw = await dbGet<unknown>(STORE_MONTHLY, key)
+  const unwrapped = unwrapEnvelope<T>(raw, year, month)
+  return unwrapped?.value ?? null
+}
+
+/** sessions メタデータエントリの型 */
+interface SessionEntry {
+  readonly year: number
+  readonly month: number
+  readonly savedAt: string
+}
+
+/**
+ * sessions 一覧メタデータを更新する。
+ * 保存トランザクションの entries に追加して原子的に更新する。
+ */
+async function updateSessionsList(
+  entries: { storeName: string; key: string; value: unknown }[],
+  year: number,
+  month: number,
+  savedAt: string,
+): Promise<void> {
+  const existing = await dbGet<SessionEntry[]>(STORE_META, 'sessions')
+  const sessions: SessionEntry[] = Array.isArray(existing) ? existing.filter(
+    (s) => !(s.year === year && s.month === month),
+  ) : []
+  sessions.push({ year, month, savedAt })
+  sessions.sort((a, b) => b.year - a.year || b.month - a.month)
+  entries.push({ storeName: STORE_META, key: 'sessions', value: sessions })
 }
 
 /**
  * IndexedDB に保存されている全ての年月を一覧取得する。
- * キー形式 `YYYY-MM_dataType` をパースし、ユニークな年月リストを返す。
+ * sessions メタデータがあれば高速に返し、なければキーをパースしてフォールバック。
  */
 export async function listStoredMonths(): Promise<{ year: number; month: number }[]> {
+  // 新形式: sessions メタデータから取得（高速）
+  const sessions = await dbGet<SessionEntry[]>(STORE_META, 'sessions')
+  if (Array.isArray(sessions) && sessions.length > 0) {
+    return sessions.map((s) => ({ year: s.year, month: s.month }))
+  }
+
+  // 旧形式フォールバック: キーをパース
   const keys = await dbGetAllKeys(STORE_MONTHLY)
   const monthSet = new Set<string>()
   for (const key of keys) {
@@ -474,7 +559,10 @@ export async function getMonthDataSummary(
 
   const results: { dataType: string; label: string; recordCount: number }[] = []
   for (const { type, label } of SUMMARY_TYPES) {
-    const val = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, type))
+    const raw = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, type))
+    // envelope 対応: unwrap してから中身をカウント
+    const unwrapped = unwrapEnvelope<unknown>(raw, year, month)
+    const val = unwrapped?.value
     if (!val) {
       results.push({ dataType: type, label, recordCount: 0 })
       continue
@@ -539,11 +627,11 @@ export async function saveDataSlice(
       continue
     }
     if (dt === 'categoryTimeSales') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: data.categoryTimeSales })
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
       continue
     }
     if (dt === 'departmentKpi') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: data.departmentKpi })
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: wrapEnvelope(data.departmentKpi, year, month) })
       continue
     }
     // initialSettings / budget は
@@ -551,28 +639,36 @@ export async function saveDataSlice(
     // → STORE_DAY_FIELDS で一致するもののみ保存
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)
     if (fieldDef) {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, dt), value: data[fieldDef.field] })
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, dt), value: wrapEnvelope(data[fieldDef.field], year, month) })
     }
   }
 
-  // 常に stores / suppliers / settings / budget を更新
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: mapToObj(data.stores) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: mapToObj(data.suppliers) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: mapToObj(data.settings) })
+  // 常に stores / suppliers / settings / budget を更新 — envelope 形式
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: wrapEnvelope(mapToObj(data.stores), year, month) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: wrapEnvelope(mapToObj(data.suppliers), year, month) })
+  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: wrapEnvelope(mapToObj(data.settings), year, month) })
   entries.push({
     storeName: STORE_MONTHLY,
     key: monthKey(year, month, 'budget'),
-    value: Object.fromEntries(
-      Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
+    value: wrapEnvelope(
+      Object.fromEntries(
+        Array.from(data.budget.entries()).map(([k, v]) => [k, budgetToSerializable(v)]),
+      ),
+      year,
+      month,
     ),
   })
 
   // メタ更新
+  const savedAt = new Date().toISOString()
   entries.push({
     storeName: STORE_META,
     key: 'lastSession',
-    value: { year, month, savedAt: new Date().toISOString() } satisfies PersistedMeta,
+    value: { year, month, savedAt } satisfies PersistedMeta,
   })
+
+  // sessions 一覧を更新
+  await updateSessionsList(entries, year, month, savedAt)
 
   await dbBatchPut(entries)
 }

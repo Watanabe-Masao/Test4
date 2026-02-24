@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { useWorkerCalculation } from '../useWorkerCalculation'
+import { useWorkerCalculation, type WorkerCalculateResult } from '../useWorkerCalculation'
 import { createEmptyImportedData } from '@/domain/models'
 import type { AppSettings } from '@/domain/models'
 
@@ -110,7 +110,7 @@ describe('useWorkerCalculation', () => {
       expect(result.current.isWorkerAvailable).toBe(true)
     })
 
-    let resolvedResults: ReadonlyMap<string, unknown> | undefined
+    let resolvedResult: WorkerCalculateResult | undefined
 
     await act(async () => {
       const promise = result.current.calculateAsync(data, mockSettings, 31)
@@ -123,15 +123,19 @@ describe('useWorkerCalculation', () => {
       const messageHandlers = mockWorkerInstance.listeners.get('message') ?? []
       for (const handler of messageHandlers) {
         handler({
-          data: { type: 'result', results: new Map([['s1', { storeId: 's1' }]]), requestId: reqId },
+          data: { type: 'result', results: new Map([['s1', { storeId: 's1' }]]), fingerprint: 'abc123', requestId: reqId },
         })
       }
 
-      resolvedResults = await promise
+      resolvedResult = await promise
     })
 
-    expect(resolvedResults?.size).toBe(1)
-    expect(resolvedResults?.get('s1')).toEqual({ storeId: 's1' })
+    expect(resolvedResult).toBeDefined()
+    expect('results' in resolvedResult!).toBe(true)
+    if ('results' in resolvedResult!) {
+      expect(resolvedResult.results.size).toBe(1)
+      expect(resolvedResult.results.get('s1')).toEqual({ storeId: 's1' })
+    }
   })
 
   it('Worker からのエラーメッセージで Promise が reject される', async () => {

@@ -18,7 +18,7 @@ import {
   MonthSelector,
 } from '@/presentation/components/common'
 import type { ImportStage } from '@/presentation/components/common'
-import type { ImportSummary } from '@/application/services/FileImportService'
+import type { ImportSummary } from '@/application/usecases/import'
 import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType } from '@/domain/models'

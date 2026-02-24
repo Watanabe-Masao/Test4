@@ -185,7 +185,9 @@ export function processFileData(
     }
 
     case 'categoryTimeSales': {
-      const newData = processCategoryTimeSales(rows, effectiveMonth)
+      // targetYear を渡して各レコードに year/month を埋め込む
+      const effectiveYear = detectedYearMonth?.year ?? appSettings.targetYear
+      const newData = processCategoryTimeSales(rows, effectiveMonth, 0, effectiveYear)
       return {
         data: {
           ...current,

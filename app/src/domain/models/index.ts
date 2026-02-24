@@ -43,6 +43,10 @@ export {
 } from './ClassifiedSales'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'
+export type { DataOrigin, DataEnvelope } from './DataOrigin'
+export { isEnvelope } from './DataOrigin'
+export type { MonthlyData, AppData } from './MonthlyData'
+export { createEmptyMonthlyData } from './MonthlyData'
 export type { ValidationMessage } from './ValidationMessage'
 export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult } from './Persistence'
 export type {
