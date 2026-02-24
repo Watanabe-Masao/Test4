@@ -224,13 +224,25 @@ export class SupabaseRepository implements DataRepository {
     const rows = serializeImportedData(data, year, month)
 
     // 1行ずつ upsert する（大きなペイロードで 500 エラーを回避）
+    // 初回失敗がネットワークエラーの場合、残りをスキップする（サーキットブレーカー）
     const errors: string[] = []
+    let networkDown = false
     for (const row of rows) {
-      const { error } = await client
-        .from('monthly_data')
-        .upsert([row], { onConflict: 'year,month,data_type' })
-      if (error) {
-        errors.push(`${row.data_type}: ${error.message}`)
+      if (networkDown) {
+        errors.push(`${row.data_type}: skipped (network unavailable)`)
+        continue
+      }
+      try {
+        const { error } = await client
+          .from('monthly_data')
+          .upsert([row], { onConflict: 'year,month,data_type' })
+        if (error) {
+          errors.push(`${row.data_type}: ${error.message}`)
+        }
+      } catch {
+        // fetch 自体が失敗 = ネットワーク/CORS エラー
+        errors.push(`${row.data_type}: network error`)
+        networkDown = true
       }
     }
 
@@ -238,7 +250,9 @@ export class SupabaseRepository implements DataRepository {
       throw new Error(`Supabase saveMonthlyData failed: ${errors.join('; ')}`)
     }
 
-    await updateSessionMeta(year, month)
+    if (!networkDown) {
+      await updateSessionMeta(year, month)
+    }
   }
 
   async loadMonthlyData(year: number, month: number): Promise<ImportedData | null> {
@@ -293,13 +307,24 @@ export class SupabaseRepository implements DataRepository {
     })
 
     // 1行ずつ upsert する（大きなペイロードで 500 エラーを回避）
+    // 初回失敗がネットワークエラーの場合、残りをスキップする（サーキットブレーカー）
     const errors: string[] = []
+    let networkDown = false
     for (const row of rows) {
-      const { error } = await client
-        .from('monthly_data')
-        .upsert([row], { onConflict: 'year,month,data_type' })
-      if (error) {
-        errors.push(`${row.data_type}: ${error.message}`)
+      if (networkDown) {
+        errors.push(`${row.data_type}: skipped (network unavailable)`)
+        continue
+      }
+      try {
+        const { error } = await client
+          .from('monthly_data')
+          .upsert([row], { onConflict: 'year,month,data_type' })
+        if (error) {
+          errors.push(`${row.data_type}: ${error.message}`)
+        }
+      } catch {
+        errors.push(`${row.data_type}: network error`)
+        networkDown = true
       }
     }
 
@@ -307,7 +332,9 @@ export class SupabaseRepository implements DataRepository {
       throw new Error(`Supabase saveDataSlice failed: ${errors.join('; ')}`)
     }
 
-    await updateSessionMeta(year, month)
+    if (!networkDown) {
+      await updateSessionMeta(year, month)
+    }
   }
 
   async loadDataSlice<T>(year: number, month: number, dataType: string): Promise<T | null> {
