@@ -11,14 +11,15 @@ describe('processBudget', () => {
     ]
 
     const result = processBudget(rows)
-    expect(result.size).toBe(2)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(2)
 
-    const store1 = result.get('1')!
+    const store1 = feb.get('1')!
     expect(store1.daily.get(1)).toBe(200000)
     expect(store1.daily.get(2)).toBe(250000)
     expect(store1.total).toBe(450000)
 
-    const store2 = result.get('2')!
+    const store2 = feb.get('2')!
     expect(store2.daily.get(1)).toBe(150000)
     expect(store2.total).toBe(150000)
   })
@@ -30,11 +31,11 @@ describe('processBudget', () => {
       ['0001', '2026-02-02', -100],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(0)
+    expect(Object.keys(result)).toHaveLength(0)
   })
 
   it('行数不足の場合は空', () => {
-    expect(processBudget([['店舗コード', '日付', '売上予算']])).toEqual(new Map())
+    expect(processBudget([['店舗コード', '日付', '売上予算']])).toEqual({})
   })
 
   it('店舗コードが空の行はスキップ', () => {
@@ -44,8 +45,9 @@ describe('processBudget', () => {
       ['0001', '2026-02-01', 200000],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(1)
-    expect(result.get('1')?.daily.get(1)).toBe(200000)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(1)
+    expect(feb.get('1')?.daily.get(1)).toBe(200000)
   })
 
   it('日付が無効な行はスキップ', () => {
@@ -55,9 +57,10 @@ describe('processBudget', () => {
       ['0001', '2026-02-01', 200000],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(1)
-    expect(result.get('1')?.daily.size).toBe(1)
-    expect(result.get('1')?.total).toBe(200000)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(1)
+    expect(feb.get('1')?.daily.size).toBe(1)
+    expect(feb.get('1')?.total).toBe(200000)
   })
 
   it('5桁店舗コードも処理可能', () => {
@@ -66,8 +69,9 @@ describe('processBudget', () => {
       ['81257', '2026-02-01', 300000],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(1)
-    expect(result.get('81257')?.daily.get(1)).toBe(300000)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(1)
+    expect(feb.get('81257')?.daily.get(1)).toBe(300000)
   })
 
   it('Excelシリアル値の日付に対応', () => {
@@ -77,8 +81,9 @@ describe('processBudget', () => {
       ['0001', 46054, 200000],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(1)
-    expect(result.get('1')?.daily.get(1)).toBe(200000)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(1)
+    expect(feb.get('1')?.daily.get(1)).toBe(200000)
   })
 
   it('複数店舗・複数日の集計', () => {
@@ -91,10 +96,11 @@ describe('processBudget', () => {
       ['0006', '2026-02-02', 90000],
     ]
     const result = processBudget(rows)
-    expect(result.size).toBe(2)
-    expect(result.get('1')?.total).toBe(370000)
-    expect(result.get('1')?.daily.size).toBe(3)
-    expect(result.get('6')?.total).toBe(170000)
-    expect(result.get('6')?.daily.size).toBe(2)
+    const feb = result['2026-2']!
+    expect(feb.size).toBe(2)
+    expect(feb.get('1')?.total).toBe(370000)
+    expect(feb.get('1')?.daily.size).toBe(3)
+    expect(feb.get('6')?.total).toBe(170000)
+    expect(feb.get('6')?.daily.size).toBe(2)
   })
 })

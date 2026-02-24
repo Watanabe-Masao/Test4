@@ -1,4 +1,4 @@
-import type { DataType, AppSettings, ImportedData } from '@/domain/models'
+import type { DataType, AppSettings, ImportedData, PurchaseData, SpecialSalesData, TransferData, ConsumableData, BudgetData } from '@/domain/models'
 import { mergeClassifiedSalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
@@ -19,7 +19,7 @@ import { processSettings } from './dataProcessing/SettingsProcessor'
 import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
-import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
+import { processConsumables, mergeConsumableData, mergePartitionedConsumables } from './dataProcessing/ConsumableProcessor'
 import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
 import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
 
@@ -48,6 +48,104 @@ export type ProgressCallback = (current: number, total: number, filename: string
 // Re-export from domain for backward compatibility
 export type { ImportedData } from '@/domain/models'
 export { createEmptyImportedData } from '@/domain/models'
+
+/**
+ * StoreDayRecord 系データの年月パーティション。
+ * キーは monthKey ("YYYY-M") 形式。
+ */
+export interface MonthPartitions {
+  readonly purchase: Record<string, PurchaseData>
+  readonly flowers: Record<string, SpecialSalesData>
+  readonly directProduce: Record<string, SpecialSalesData>
+  readonly interStoreIn: Record<string, TransferData>
+  readonly interStoreOut: Record<string, TransferData>
+  readonly consumables: Record<string, ConsumableData>
+  readonly budget: Record<string, ReadonlyMap<string, BudgetData>>
+}
+
+/** 空の MonthPartitions */
+export function createEmptyMonthPartitions(): MonthPartitions {
+  return {
+    purchase: {},
+    flowers: {},
+    directProduce: {},
+    interStoreIn: {},
+    interStoreOut: {},
+    consumables: {},
+    budget: {},
+  }
+}
+
+// ─── パーティション結合ヘルパー ──────────────────────────
+
+/** 月パーティション済み StoreDayRecord を1つに結合する（全月の union） */
+function combineStoreDayPartitions<T>(partitioned: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>): { readonly [storeId: string]: { readonly [day: number]: T } } {
+  const combined: Record<string, Record<number, T>> = {}
+  for (const monthData of Object.values(partitioned)) {
+    for (const [storeId, days] of Object.entries(monthData)) {
+      if (!combined[storeId]) combined[storeId] = {}
+      for (const [dayStr, entry] of Object.entries(days)) {
+        combined[storeId][Number(dayStr)] = entry
+      }
+    }
+  }
+  return combined
+}
+
+/** 月パーティション済み Map を1つに結合する */
+function combineMapPartitions<K, V>(partitioned: Record<string, ReadonlyMap<K, V>>): Map<K, V> {
+  const combined = new Map<K, V>()
+  for (const monthMap of Object.values(partitioned)) {
+    for (const [k, v] of monthMap) {
+      combined.set(k, v)
+    }
+  }
+  return combined
+}
+
+/** StoreDayRecord パーティションをマージ（同月の場合は上書き） */
+function mergeStoreDayPartitions<T>(
+  existing: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
+  incoming: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
+): Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }> {
+  const result = { ...existing }
+  for (const [mk, data] of Object.entries(incoming)) {
+    if (result[mk]) {
+      const merged: Record<string, Record<number, T>> = {}
+      for (const [storeId, days] of Object.entries(result[mk])) {
+        merged[storeId] = { ...days }
+      }
+      for (const [storeId, days] of Object.entries(data)) {
+        if (!merged[storeId]) merged[storeId] = {}
+        for (const [dayStr, entry] of Object.entries(days)) {
+          merged[storeId][Number(dayStr)] = entry
+        }
+      }
+      result[mk] = merged
+    } else {
+      result[mk] = data
+    }
+  }
+  return result
+}
+
+/** Map パーティションをマージ */
+function mergeMapPartitions<K, V>(
+  existing: Record<string, ReadonlyMap<K, V>>,
+  incoming: Record<string, ReadonlyMap<K, V>>,
+): Record<string, ReadonlyMap<K, V>> {
+  const result = { ...existing }
+  for (const [mk, data] of Object.entries(incoming)) {
+    if (result[mk]) {
+      const merged = new Map(result[mk])
+      for (const [k, v] of data) merged.set(k, v)
+      result[mk] = merged
+    } else {
+      result[mk] = data
+    }
+  }
+  return result
+}
 
 /**
  * ファイルを読み込みデータ種別を判定する
@@ -80,6 +178,7 @@ export async function readAndDetect(
 export interface ProcessFileResult {
   readonly data: ImportedData
   readonly detectedYearMonth?: { year: number; month: number }
+  readonly partitions?: Partial<MonthPartitions>
 }
 
 /** データ種別ごとの日付検出開始行 */
@@ -118,13 +217,17 @@ export function processFileData(
       for (const [code, s] of newSuppliers) mutableSuppliers.set(code, s)
 
       const allStores = new Set(mutableStores.keys())
+      const partitioned = processPurchase(rows, allStores)
+      const combined = combineStoreDayPartitions(partitioned) as PurchaseData
+
       return {
         data: {
           ...current,
           stores: mutableStores,
           suppliers: mutableSuppliers,
-          purchase: processPurchase(rows, allStores),
+          purchase: combined,
         },
+        partitions: { purchase: partitioned },
       }
     }
 
@@ -155,38 +258,60 @@ export function processFileData(
     case 'initialSettings':
       return { data: { ...current, settings: processSettings(rows) } }
 
-    case 'budget':
-      return { data: { ...current, budget: processBudget(rows) } }
-
-    case 'interStoreIn':
-      return { data: { ...current, interStoreIn: processInterStoreIn(rows) } }
-
-    case 'interStoreOut':
-      return { data: { ...current, interStoreOut: processInterStoreOut(rows) } }
-
-    case 'flowers':
+    case 'budget': {
+      const partitioned = processBudget(rows)
+      const combined = combineMapPartitions(partitioned)
       return {
-        data: {
-          ...current,
-          flowers: processSpecialSales(rows, appSettings.flowerCostRate, true),
-        },
+        data: { ...current, budget: combined },
+        partitions: { budget: partitioned },
       }
+    }
 
-    case 'directProduce':
+    case 'interStoreIn': {
+      const partitioned = processInterStoreIn(rows)
+      const combined = combineStoreDayPartitions(partitioned) as TransferData
       return {
-        data: {
-          ...current,
-          directProduce: processSpecialSales(rows, appSettings.directProduceCostRate),
-        },
+        data: { ...current, interStoreIn: combined },
+        partitions: { interStoreIn: partitioned },
       }
+    }
+
+    case 'interStoreOut': {
+      const partitioned = processInterStoreOut(rows)
+      const combined = combineStoreDayPartitions(partitioned) as TransferData
+      return {
+        data: { ...current, interStoreOut: combined },
+        partitions: { interStoreOut: partitioned },
+      }
+    }
+
+    case 'flowers': {
+      const partitioned = processSpecialSales(rows, appSettings.flowerCostRate, true)
+      const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
+      return {
+        data: { ...current, flowers: combined },
+        partitions: { flowers: partitioned },
+      }
+    }
+
+    case 'directProduce': {
+      const partitioned = processSpecialSales(rows, appSettings.directProduceCostRate)
+      const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
+      return {
+        data: { ...current, directProduce: combined },
+        partitions: { directProduce: partitioned },
+      }
+    }
 
     case 'consumables': {
-      const newData = processConsumables(rows, filename)
+      const partitioned = processConsumables(rows, filename)
+      const combined = combineStoreDayPartitions(partitioned) as ConsumableData
       return {
         data: {
           ...current,
-          consumables: mergeConsumableData(current.consumables, newData),
+          consumables: mergeConsumableData(current.consumables, combined),
         },
+        partitions: { consumables: partitioned },
       }
     }
 
@@ -231,12 +356,14 @@ export async function processDroppedFiles(
   summary: ImportSummary
   data: ImportedData
   detectedYearMonth?: { year: number; month: number }
+  monthPartitions: MonthPartitions
 }> {
   const fileArray = Array.from(files)
   const results: FileImportResult[] = []
   let data = currentData
   let effectiveSettings = appSettings
   let detectedYearMonth: { year: number; month: number } | undefined
+  let mp = createEmptyMonthPartitions()
 
   for (let i = 0; i < fileArray.length; i++) {
     const file = fileArray[i]
@@ -273,6 +400,18 @@ export async function processDroppedFiles(
         }
       }
 
+      // パーティション情報をマージ
+      if (result.partitions) {
+        const p = result.partitions
+        if (p.purchase) mp = { ...mp, purchase: mergeStoreDayPartitions(mp.purchase, p.purchase) }
+        if (p.flowers) mp = { ...mp, flowers: mergeStoreDayPartitions(mp.flowers, p.flowers) }
+        if (p.directProduce) mp = { ...mp, directProduce: mergeStoreDayPartitions(mp.directProduce, p.directProduce) }
+        if (p.interStoreIn) mp = { ...mp, interStoreIn: mergeStoreDayPartitions(mp.interStoreIn, p.interStoreIn) }
+        if (p.interStoreOut) mp = { ...mp, interStoreOut: mergeStoreDayPartitions(mp.interStoreOut, p.interStoreOut) }
+        if (p.consumables) mp = { ...mp, consumables: mergePartitionedConsumables(mp.consumables, p.consumables) }
+        if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
+      }
+
       results.push({ ok: true, filename: file.name, type, typeName })
     } catch (err) {
       const message =
@@ -296,5 +435,6 @@ export async function processDroppedFiles(
     summary: { results, successCount, failureCount },
     data,
     detectedYearMonth,
+    monthPartitions: mp,
   }
 }

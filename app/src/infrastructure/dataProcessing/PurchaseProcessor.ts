@@ -1,4 +1,4 @@
-import { getDayOfMonth } from '../fileImport/dateParser'
+import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { PurchaseData } from '@/domain/models'
 
@@ -8,16 +8,18 @@ export type { PurchaseData } from '@/domain/models'
 type StoreSet = ReadonlySet<string>
 
 /**
- * 仕入データを処理する
+ * 仕入データを処理する（年月パーティション対応）
  *
  * 行0: 取引先コード（"NNNNNNN:取引先名" Col3〜、2列ペア）
  * 行1: 店舗コード（"NNNN:店舗名" Col3〜）
  * 行4+: データ行（Col0: 日付, Col3+: 原価/売価ペア）
+ *
+ * @returns 年月キー ("YYYY-M") をキーとする月別仕入データ
  */
-export function processPurchase(rows: readonly unknown[][], stores: StoreSet): PurchaseData {
+export function processPurchase(rows: readonly unknown[][], stores: StoreSet): Record<string, PurchaseData> {
   if (rows.length < 5) return {}
 
-  const result: Record<string, Record<number, { suppliers: Record<string, { name: string; cost: number; price: number }>; total: { cost: number; price: number } }>> = {}
+  const partitioned: Record<string, Record<string, Record<number, { suppliers: Record<string, { name: string; cost: number; price: number }>; total: { cost: number; price: number } }>>> = {}
 
   // ヘッダー解析: 列→(取引先コード, 店舗ID)のマッピング
   const columnMap: { col: number; supplierCode: string; supplierName: string; storeId: string }[] = []
@@ -39,23 +41,28 @@ export function processPurchase(rows: readonly unknown[][], stores: StoreSet): P
     columnMap.push({ col, supplierCode, supplierName, storeId })
   }
 
+  if (columnMap.length === 0) return {}
+
   // データ行処理
   for (let row = 4; row < rows.length; row++) {
     const r = rows[row] as unknown[]
-    const day = getDayOfMonth(r[0])
-    if (day == null) continue
+    const dc = parseDateComponents(r[0])
+    if (dc == null) continue
+
+    const mk = monthKey(dc.year, dc.month)
+    if (!partitioned[mk]) partitioned[mk] = {}
 
     for (const { col, supplierCode, supplierName, storeId } of columnMap) {
       const cost = safeNumber(r[col])
       const price = safeNumber(r[col + 1])
       if (cost === 0 && price === 0) continue
 
-      if (!result[storeId]) result[storeId] = {}
-      if (!result[storeId][day]) {
-        result[storeId][day] = { suppliers: {}, total: { cost: 0, price: 0 } }
+      if (!partitioned[mk][storeId]) partitioned[mk][storeId] = {}
+      if (!partitioned[mk][storeId][dc.day]) {
+        partitioned[mk][storeId][dc.day] = { suppliers: {}, total: { cost: 0, price: 0 } }
       }
 
-      const dayData = result[storeId][day]
+      const dayData = partitioned[mk][storeId][dc.day]
       if (!dayData.suppliers[supplierCode]) {
         dayData.suppliers[supplierCode] = { name: supplierName, cost: 0, price: 0 }
       }
@@ -68,7 +75,7 @@ export function processPurchase(rows: readonly unknown[][], stores: StoreSet): P
     }
   }
 
-  return result
+  return partitioned
 }
 
 /**
