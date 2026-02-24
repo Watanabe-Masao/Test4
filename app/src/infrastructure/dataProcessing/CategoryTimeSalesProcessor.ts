@@ -2,7 +2,10 @@ import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import { detectDaysInTargetMonth, resolveDay } from './overflowDay'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models'
-import { categoryTimeSalesRecordKey } from '@/domain/models'
+import { mergeCategoryTimeSalesData } from '@/domain/models'
+
+// Re-export from domain for backward compatibility
+export { mergeCategoryTimeSalesData }
 
 /**
  * コード:名称 のペアをパースする
@@ -143,20 +146,3 @@ export function processCategoryTimeSales(
   return { records }
 }
 
-/**
- * 分類別時間帯売上データをマージする（複数日ファイル対応）
- * 同一キー（日・店舗・部門・ライン・クラス）のレコードは後から来たデータで上書き
- */
-export function mergeCategoryTimeSalesData(
-  existing: CategoryTimeSalesData,
-  incoming: CategoryTimeSalesData,
-): CategoryTimeSalesData {
-  const map = new Map<string, CategoryTimeSalesRecord>()
-  for (const rec of existing.records) {
-    map.set(categoryTimeSalesRecordKey(rec), rec)
-  }
-  for (const rec of incoming.records) {
-    map.set(categoryTimeSalesRecordKey(rec), rec)
-  }
-  return { records: [...map.values()] }
-}

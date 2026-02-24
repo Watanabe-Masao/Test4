@@ -4,10 +4,12 @@ import { useRepository } from '../context/RepositoryContext'
 import {
   processDroppedFiles,
   validateImportedData,
+  extractRecordMonths,
+  filterDataForMonth,
 } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
 import type { AppSettings, DataType, ImportedData, DiffResult, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, mergeClassifiedSalesData, mergeCategoryTimeSalesData, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -99,50 +101,110 @@ export function useImport() {
               .filter((r): r is typeof r & { type: DataType } => r.ok && r.type !== null)
               .map((r) => r.type),
           )
-          // classifiedSales は単一タイプとして扱う（旧salesDiscount互換不要）
 
-          // 既存データがあれば差分チェック
-          if (repo.isAvailable()) {
-            const { targetYear, targetMonth } = settingsRef.current
-            try {
-              const existing = await repo.loadMonthlyData(targetYear, targetMonth)
-              if (existing) {
-                const diff = calculateDiff(existing, data, importedTypes)
-                if (diff.needsConfirmation) {
-                  // 差分確認が必要 → 保留状態にして一旦state更新は保留
-                  setPendingDiff({
-                    diffResult: diff,
-                    incomingData: data,
-                    existingData: existing,
-                    importedTypes,
-                    summary,
-                  })
-                  // state にはまだ反映しない
-                  return summary
+          // 複数月にまたがるデータかチェック
+          const recordMonths = extractRecordMonths(data)
+          const isMultiMonth = recordMonths.length > 1
+
+          if (isMultiMonth) {
+            // ── 複数月インポート: 月ごとに分割して保存 ──
+            if (repo.isAvailable()) {
+              try {
+                for (const { year, month } of recordMonths) {
+                  const monthData = filterDataForMonth(data, year, month)
+                  const existing = await repo.loadMonthlyData(year, month)
+
+                  let finalData: ImportedData
+                  if (existing) {
+                    // 既存データに新しいレコードをマージ
+                    finalData = {
+                      ...existing,
+                      stores: new Map([...existing.stores, ...data.stores]),
+                      suppliers: new Map([...existing.suppliers, ...data.suppliers]),
+                      classifiedSales: mergeClassifiedSalesData(
+                        existing.classifiedSales,
+                        monthData.classifiedSales,
+                      ),
+                      categoryTimeSales: mergeCategoryTimeSalesData(
+                        existing.categoryTimeSales,
+                        monthData.categoryTimeSales,
+                      ),
+                    }
+                  } else {
+                    // 新規月: 空データにレコード + 共有データをセット
+                    finalData = {
+                      ...createEmptyImportedData(),
+                      stores: data.stores,
+                      suppliers: data.suppliers,
+                      classifiedSales: monthData.classifiedSales,
+                      categoryTimeSales: monthData.categoryTimeSales,
+                    }
+                  }
+
+                  await repo.saveMonthlyData(finalData, year, month)
                 }
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+                console.error('[useImport] multi-month save failed:', e)
+                setSaveError(msg)
               }
-            } catch {
-              // ストレージエラーは無視して通常フローへ
             }
-          }
 
-          // 差分確認不要 → 通常通り state に反映 & 保存
-          dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
-          dataRef.current = data
-          autoSetDataEndDay(data)
-
-          const messages = validateImportedData(data, summary)
-          dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
-
-          // ストレージに保存
-          if (repo.isAvailable()) {
+            // 主月のフィルタ済みデータを state に反映
             const { targetYear, targetMonth } = settingsRef.current
-            try {
-              await repo.saveMonthlyData(data, targetYear, targetMonth)
-            } catch (e) {
-              const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
-              console.error('[useImport] save failed:', e)
-              setSaveError(msg)
+            const primaryData = filterDataForMonth(data, targetYear, targetMonth)
+            dispatch({ type: 'SET_IMPORTED_DATA', payload: primaryData })
+            dataRef.current = primaryData
+            autoSetDataEndDay(primaryData)
+
+            const messages = validateImportedData(primaryData, summary)
+            dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+          } else {
+            // ── 単月インポート: 既存の差分チェック + 保存 ──
+
+            // 既存データがあれば差分チェック
+            if (repo.isAvailable()) {
+              const { targetYear, targetMonth } = settingsRef.current
+              try {
+                const existing = await repo.loadMonthlyData(targetYear, targetMonth)
+                if (existing) {
+                  const diff = calculateDiff(existing, data, importedTypes)
+                  if (diff.needsConfirmation) {
+                    // 差分確認が必要 → 保留状態にして一旦state更新は保留
+                    setPendingDiff({
+                      diffResult: diff,
+                      incomingData: data,
+                      existingData: existing,
+                      importedTypes,
+                      summary,
+                    })
+                    // state にはまだ反映しない
+                    return summary
+                  }
+                }
+              } catch {
+                // ストレージエラーは無視して通常フローへ
+              }
+            }
+
+            // 差分確認不要 → 通常通り state に反映 & 保存
+            dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
+            dataRef.current = data
+            autoSetDataEndDay(data)
+
+            const messages = validateImportedData(data, summary)
+            dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+
+            // ストレージに保存
+            if (repo.isAvailable()) {
+              const { targetYear, targetMonth } = settingsRef.current
+              try {
+                await repo.saveMonthlyData(data, targetYear, targetMonth)
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+                console.error('[useImport] save failed:', e)
+                setSaveError(msg)
+              }
             }
           }
         }
