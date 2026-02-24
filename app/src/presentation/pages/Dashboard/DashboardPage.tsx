@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary, MetricBreakdownPanel } from '@/presentation/components/common'
-import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations } from '@/application/hooks'
+import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations, useCategoryTimeSalesIndex, useCategoryTimeSalesIndexFromRecords } from '@/application/hooks'
 import type { MetricId } from '@/domain/models'
 import { useAppState } from '@/application/context'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
@@ -59,6 +59,10 @@ export function DashboardPage() {
     const trimmed = prevYearCTS.records.filter((r) => r.day <= elapsedDays)
     return { ...prevYearCTS, records: trimmed }
   }, [prevYearCTS, elapsedDays])
+
+  // インデックス構築（データ変更時のみ再構築）
+  const ctsIndex = useCategoryTimeSalesIndex(appState.data.categoryTimeSales)
+  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(filteredPrevYearCTS.records)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -191,6 +195,8 @@ export function DashboardPage() {
     allStoreResults: appState.storeResults,
     stores: appState.data.stores,
     categoryTimeSales: filteredCategoryTimeSales,
+    ctsIndex,
+    prevCtsIndex,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,
