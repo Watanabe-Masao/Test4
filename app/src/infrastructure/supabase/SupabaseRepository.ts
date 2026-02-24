@@ -302,7 +302,7 @@ export class SupabaseRepository implements DataRepository {
       .eq('year', year)
       .eq('month', month)
       .eq('data_type', dataType)
-      .single()
+      .maybeSingle()
 
     if (error || !data) return null
     return (data as unknown as { payload: T }).payload
@@ -398,7 +398,7 @@ export class SupabaseRepository implements DataRepository {
 
       let count = 0
       const payload = row.payload as Record<string, unknown>
-      if (dt === 'categoryTimeSales' || dt === 'departmentKpi') {
+      if (dt === 'classifiedSales' || dt === 'categoryTimeSales' || dt === 'departmentKpi') {
         count = ((payload as { records?: unknown[] }).records ?? []).length
       } else if (dt === 'stores' || dt === 'suppliers' || dt === 'settings' || dt === 'budget') {
         count = Object.keys(payload).length

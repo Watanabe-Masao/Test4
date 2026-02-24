@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesData, DepartmentKpiData, StoreExplanations, MetricId } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesData, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/hooks'
 
@@ -59,8 +59,12 @@ export interface WidgetContext {
   allStoreResults: ReadonlyMap<string, StoreResult>
   /** Store master data */
   stores: ReadonlyMap<string, Store>
-  /** 分類別時間帯売上データ */
+  /** 分類別時間帯売上データ（後方互換用、段階的に ctsIndex へ移行） */
   categoryTimeSales: CategoryTimeSalesData
+  /** 分類別時間帯売上インデックス（(storeId, day) で O(1) アクセス） */
+  ctsIndex: CategoryTimeSalesIndex
+  /** 前年分類別時間帯売上インデックス */
+  prevCtsIndex: CategoryTimeSalesIndex
   /** 選択中の店舗ID（空 = 全店） */
   selectedStoreIds: ReadonlySet<string>
   /** 取込データ有効末日 (null = 月末) */

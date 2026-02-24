@@ -194,6 +194,7 @@ export function assembleStoreResult(
     totalDiscount: acc.totalDiscount,
     discountRate,
     discountLossCost,
+    discountEntries: acc.totalDiscountEntries,
     averageMarkupRate,
     coreMarkupRate,
     totalConsumable: acc.totalConsumable,

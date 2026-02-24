@@ -1,4 +1,4 @@
-import type { CostPricePair, CategoryType, SupplierTotal, DailyRecord } from '@/domain/models'
+import type { CostPricePair, CategoryType, SupplierTotal, DailyRecord, DiscountEntry } from '@/domain/models'
 
 /** 日別ループで蓄積される月間集計 */
 export interface MonthlyAccumulator {
@@ -14,6 +14,8 @@ export interface MonthlyAccumulator {
   totalPurchaseCost: number
   totalPurchasePrice: number
   totalDiscount: number
+  /** 売変種別内訳の月間合計 */
+  totalDiscountEntries: DiscountEntry[]
   totalConsumable: number
   totalCustomers: number
   salesDays: number

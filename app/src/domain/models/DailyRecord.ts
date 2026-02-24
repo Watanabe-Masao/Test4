@@ -1,5 +1,6 @@
 import type { CostPricePair } from './CostPricePair'
 import type { ConsumableDailyRecord } from './ConsumableItem'
+import type { DiscountEntry } from './ClassifiedSales'
 
 /** 移動明細行（from → to のペア別集計） */
 export interface TransferBreakdownEntry {
@@ -27,6 +28,7 @@ export interface DailyRecord {
   readonly customers?: number // 来店客数
   readonly discountAmount: number // 売変額
   readonly discountAbsolute: number // 売変絶対値
+  readonly discountEntries: readonly DiscountEntry[] // 売変種別内訳
   readonly supplierBreakdown: ReadonlyMap<string, CostPricePair>
   readonly transferBreakdown: {
     readonly interStoreIn: readonly TransferBreakdownEntry[]

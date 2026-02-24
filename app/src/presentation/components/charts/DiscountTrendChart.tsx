@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations'
 
 const Wrapper = styled.div`
@@ -23,12 +24,15 @@ const Title = styled.div`
   padding-left: ${({ theme }) => theme.spacing[4]};
 `
 
+/** 売変種別ごとのカラーパレット（DISCOUNT_TYPES の順序に対応） */
+const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
+
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
 }
 
-/** 売変インパクト分析チャート（バー: 日別売変額 / ライン: 累計売変率） */
+/** 売変インパクト分析チャート（スタックバー: 種別内訳 / ライン: 累計売変率） */
 export function DiscountTrendChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -48,30 +52,42 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
 
     const cumRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
-    allData.push({
+    // 種別内訳をフラットに展開（Recharts のスタックバー用）
+    const entry: Record<string, number | boolean> = {
       day: d,
       discount: dayDiscount,
       cumRate,
       hasSales: rec ? rec.sales > 0 : false,
-    })
+    }
+    if (rec?.discountEntries) {
+      for (const de of rec.discountEntries) {
+        entry[`d${de.type}`] = de.amount
+      }
+    } else {
+      for (const dt of DISCOUNT_TYPES) {
+        entry[`d${dt.type}`] = 0
+      }
+    }
+
+    allData.push(entry)
   }
 
-  const hasData = allData.some(d => d.discount > 0)
+  const hasData = allData.some(d => (d.discount as number) > 0)
   if (!hasData) return null
 
-  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = allData.filter(d => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
+
+  // 種別ラベルマップ（Tooltip / Legend 用）
+  const labelMap: Record<string, string> = { cumRate: '累計売変率' }
+  for (const dt of DISCOUNT_TYPES) {
+    labelMap[`d${dt.type}`] = dt.label
+  }
 
   return (
     <Wrapper>
-      <Title>売変インパクト分析（バー: 日別売変額 / ライン: 累計売変率）</Title>
+      <Title>売変インパクト分析（スタックバー: 種別内訳 / ライン: 累計売変率）</Title>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="discGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={ct.colors.danger} stopOpacity={0.85} />
-              <stop offset="100%" stopColor={ct.colors.danger} stopOpacity={0.4} />
-            </linearGradient>
-          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
             dataKey="day"
@@ -99,25 +115,26 @@ export function DiscountTrendChart({ daily, daysInMonth }: Props) {
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
-              if (name === 'cumRate') return [toPct(value as number), '累計売変率']
-              return [toComma(value as number), '日別売変額']
+              if (name === 'cumRate') return [toPct(value as number), labelMap[name]]
+              return [toComma(value as number), labelMap[name as string] ?? name]
             }}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => {
-              const labels: Record<string, string> = { discount: '日別売変額', cumRate: '累計売変率' }
-              return labels[value] ?? value
-            }}
+            formatter={(value) => labelMap[value] ?? value}
           />
-          <Bar
-            yAxisId="left"
-            dataKey="discount"
-            fill="url(#discGrad)"
-            radius={[3, 3, 0, 0]}
-            maxBarSize={16}
-          />
+          {DISCOUNT_TYPES.map((dt, i) => (
+            <Bar
+              key={dt.type}
+              yAxisId="left"
+              dataKey={`d${dt.type}`}
+              stackId="discount"
+              fill={DISCOUNT_COLORS[i % DISCOUNT_COLORS.length]}
+              maxBarSize={16}
+              radius={i === DISCOUNT_TYPES.length - 1 ? [3, 3, 0, 0] : undefined}
+            />
+          ))}
           <Line
             yAxisId="right"
             type="monotone"

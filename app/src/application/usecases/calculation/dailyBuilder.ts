@@ -7,7 +7,7 @@ import type {
   ImportedData,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
-import { aggregateForStore } from '@/domain/models'
+import { aggregateForStore, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import type { MonthlyAccumulator } from './types'
 
@@ -41,6 +41,7 @@ export function buildDailyRecords(
   let totalPurchaseCost = 0
   let totalPurchasePrice = 0
   let totalDiscount = 0
+  let totalDiscountEntries = ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))
   let totalConsumable = 0
   let totalCustomers = 0
   let salesDays = 0
@@ -131,7 +132,8 @@ export function buildDailyRecords(
     // 消耗品
     const consumable = consumableDay ?? ZERO_CONSUMABLE_DAILY
 
-    // 売変（分類別売上の集約）
+    // 売変（分類別売上の集約 — 種別内訳つき）
+    const discountEntries = csDay?.discountEntries ?? ZERO_DISCOUNT_ENTRIES
     const discountAmount = csDay?.discount ?? 0
     const discountAbsolute = Math.abs(discountAmount)
 
@@ -202,6 +204,7 @@ export function buildDailyRecords(
         customers: dayCustomers,
         discountAmount,
         discountAbsolute,
+        discountEntries,
         supplierBreakdown,
         transferBreakdown: {
           interStoreIn: tbInterStoreIn,
@@ -223,6 +226,7 @@ export function buildDailyRecords(
     totalDirectProducePrice += directProduce.price
     totalDirectProduceCost += directProduce.cost
     totalDiscount += discountAbsolute
+    totalDiscountEntries = addDiscountEntries(totalDiscountEntries, discountEntries) as typeof totalDiscountEntries
     totalConsumable += consumable.cost
     totalCustomers += dayCustomers
 
@@ -246,6 +250,7 @@ export function buildDailyRecords(
     totalPurchaseCost,
     totalPurchasePrice,
     totalDiscount,
+    totalDiscountEntries,
     totalConsumable,
     totalCustomers,
     salesDays,

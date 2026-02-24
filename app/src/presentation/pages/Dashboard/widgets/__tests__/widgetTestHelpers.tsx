@@ -9,7 +9,8 @@ import { ThemeProvider } from 'styled-components'
 import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
 import type { WidgetContext } from '../types'
-import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
+import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations, CategoryTimeSalesIndex } from '@/domain/models'
+import { EMPTY_CTS_INDEX } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 
 const ZERO: CostPricePair = { cost: 0, price: 0 }
@@ -149,6 +150,8 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     allStoreResults: new Map(),
     stores: new Map(),
     categoryTimeSales: { records: [] },
+    ctsIndex: EMPTY_CTS_INDEX,
+    prevCtsIndex: EMPTY_CTS_INDEX,
     selectedStoreIds: new Set(),
     dataEndDay: null,
     dataMaxDay: 0,
