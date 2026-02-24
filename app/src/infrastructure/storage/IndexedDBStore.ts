@@ -275,8 +275,15 @@ export async function loadImportedData(
   year: number,
   month: number,
 ): Promise<ImportedData | null> {
-  const meta = await getPersistedMeta()
-  if (!meta || meta.year !== year || meta.month !== month) return null
+  // stores キーの存在で当該年月にデータが保存されているかを判定する。
+  // 旧実装では lastSession メタデータとの一致を要求していたが、
+  // lastSession は最後に保存した年月のみを記録するため、
+  // 複数月のデータがある場合に lastSession 以外の月をロードできなかった。
+  const rawStores = await dbGet<Record<string, Store>>(
+    STORE_MONTHLY,
+    monthKey(year, month, 'stores'),
+  )
+  if (rawStores === undefined) return null
 
   const base = createEmptyImportedData()
 
@@ -289,11 +296,7 @@ export async function loadImportedData(
     }
   }
 
-  // stores
-  const rawStores = await dbGet<Record<string, Store>>(
-    STORE_MONTHLY,
-    monthKey(year, month, 'stores'),
-  )
+  // stores (already loaded above)
   result.stores = rawStores && typeof rawStores === 'object' ? new Map(Object.entries(rawStores)) : new Map()
 
   // suppliers
