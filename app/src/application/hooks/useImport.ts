@@ -30,7 +30,22 @@ export interface PendingDiffCheck {
   readonly summary: ImportSummary
 }
 
-/** ファイルインポートフック */
+/**
+ * Provides import-related state and actions for processing and saving imported files.
+ *
+ * Exposes functions to start a file import, resolve pending diffs, and read import progress,
+ * validation messages, current imported data, pending diff details, and save errors.
+ *
+ * @returns An object containing:
+ *  - `importFiles(files, overrideType?)` - starts importing the provided files and returns an import summary,
+ *  - `isImporting` - whether an import operation is in progress,
+ *  - `progress` - current import progress or `null`,
+ *  - `data` - the current imported data held in state,
+ *  - `validationMessages` - validation results for the imported data,
+ *  - `pendingDiff` - a pending diff confirmation object if a conflict requires user resolution, or `null`,
+ *  - `resolveDiff(action)` - applies a pending diff decision (`'overwrite' | 'keep-existing' | 'cancel'`),
+ *  - `saveError` - last save error message or `null`.
+ */
 export function useImport() {
   const state = useAppState()
   const dispatch = useAppDispatch()

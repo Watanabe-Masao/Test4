@@ -32,27 +32,17 @@ function parseStoreId(value: unknown): string {
 }
 
 /**
- * 分類別時間帯売上CSVを処理する
+ * Parse CSV rows of category time-of-sales data into a structured CategoryTimeSalesData object.
  *
- * CSVレイアウト:
- *   行0: 空×5, 【取引時間】【取引時間】, 9:00, 9:00, 10:00, 10:00, ...
- *   行1: 空×5, 数量, 金額, 数量, 金額, ...
- *   行2: 【期間】, 【店舗】, 【部門】, 【ライン】, 【クラス】, 数量, 金額, ...
- *   行3+: データ行
+ * Processes a CSV layout where header rows define time slots and subsequent rows contain
+ * date, store, hierarchical category fields, totals, and repeated (quantity, amount) pairs
+ * for each time slot. Returns parsed records with optional year/month and per-slot entries.
  *
- * 各データ行:
- *   Col0: 期間 "2026年02月01日(日)"
- *   Col1: 店舗 "0001:毎日屋あさくらセンタ"
- *   Col2: 部門 "000061:果物"
- *   Col3: ライン "000601:柑橘"
- *   Col4: クラス "601010:温州みかん"
- *   Col5+: 時間帯別 (数量, 金額) ペア
- *
- * @param overflowDays 翌月から追加で取り込む日数（前年データ用）。
- *   同曜日オフセットにより月末付近の対応日が翌月にはみ出す場合に備え、
- *   翌月先頭の数日を拡張day番号（例: 2月28日の翌日→day 29）として保持する。
- *   最大オフセット=6 なので 6 を渡せば十分。
- */
+ * @param rows - CSV rows (each row is an array of cell values) following the described layout.
+ * @param targetMonth - Optional month number to attach to output records.
+ * @param overflowDays - Number of days to include from the following month when resolving day numbers (useful for week-based offsets near month boundaries). Maximum needed is 6.
+ * @param targetYear - Optional year number to attach to output records.
+ * @returns A CategoryTimeSalesData object containing parsed records; returns { records: [] } if input has fewer than four rows or no valid data rows.
 export function processCategoryTimeSales(
   rows: readonly unknown[][],
   targetMonth?: number,

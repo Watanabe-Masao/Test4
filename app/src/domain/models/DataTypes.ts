@@ -72,14 +72,24 @@ export interface CategoryTimeSalesData {
   readonly records: readonly CategoryTimeSalesRecord[]
 }
 
-/** CategoryTimeSalesRecord の一意キーを生成する */
+/**
+ * Create a stable composite key for a CategoryTimeSalesRecord.
+ *
+ * @param rec - The record whose key to generate; the key is derived from `day`, `storeId`, `department.code`, `line.code`, and `klass.code`.
+ * @returns A string key composed of the five fields joined by tab characters (`\t`)
+ */
 export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string {
   return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
 }
 
 /**
- * 2つの CategoryTimeSalesData をマージする。
- * 同一キー（日・店舗・部門・ライン・クラス）のレコードは後者（incoming）で上書き。
+ * Merge two CategoryTimeSalesData objects, using incoming records to replace existing records that share the same composite key.
+ *
+ * The composite key is determined by `day`, `storeId`, `department.code`, `line.code`, and `klass.code`.
+ *
+ * @param existing - The original CategoryTimeSalesData to merge into
+ * @param incoming - The CategoryTimeSalesData whose records take precedence when keys collide
+ * @returns A new CategoryTimeSalesData containing the merged records; for matching keys the `incoming` record is used
  */
 export function mergeCategoryTimeSalesData(
   existing: CategoryTimeSalesData,

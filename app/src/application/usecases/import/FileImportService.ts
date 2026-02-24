@@ -242,10 +242,14 @@ export function hasValidationErrors(messages: readonly ValidationMessage[]): boo
 // ─── File import (delegates to infrastructure) ───────────
 
 /**
- * 複数ファイルをバッチインポートする
- * Infrastructure層の実装に委譲する
+ * Import multiple dropped files and produce an import summary along with the resulting imported data.
  *
- * detectedYearMonth: データの日付から検出された対象年月
+ * @param files - The files to import (FileList or array of File).
+ * @param appSettings - Application settings that affect import behavior.
+ * @param currentData - Existing imported data used as the base or for incremental processing.
+ * @param onProgress - Optional callback invoked with progress updates: (current, total, filename).
+ * @param overrideType - Optional DataType to force for all imported files, overriding automatic detection.
+ * @returns An object with `summary` (per-file import results and counts), `data` (the merged ImportedData), and optionally `detectedYearMonth` `{ year, month }` inferred from the imported records.
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -264,9 +268,10 @@ export async function processDroppedFiles(
 // ─── Multi-month utilities ──────────────────────────────────
 
 /**
- * ImportedData のレコードベースデータに含まれる年月の一覧を抽出する。
- * classifiedSales と categoryTimeSales の各レコードの year/month を収集し、
- * 年月昇順で返す。
+ * Collects unique year/month pairs present in the imported records and returns them sorted in ascending order by year then month.
+ *
+ * @param data - The ImportedData whose classifiedSales and categoryTimeSales records are inspected for year/month values.
+ * @returns A readonly array of objects with `year` and `month` properties, each representing a unique year-month found in the data, sorted by year then month.
  */
 export function extractRecordMonths(
   data: ImportedData,
@@ -297,9 +302,12 @@ export function extractRecordMonths(
 }
 
 /**
- * ImportedData から指定年月のレコードのみを含む ImportedData を返す。
- * classifiedSales と categoryTimeSales を年月でフィルタし、
- * その他のフィールドはそのまま維持する。
+ * Create an ImportedData containing only records for the specified year and month.
+ *
+ * @param data - The source ImportedData to filter
+ * @param year - The target year to keep
+ * @param month - The target month to keep
+ * @returns An ImportedData where `classifiedSales` and `categoryTimeSales` contain only records matching the given year and month; other fields are preserved. For `categoryTimeSales`, records with `year` or `month` that are `null` or `undefined` are treated as matching the provided `year` and `month`.
  */
 export function filterDataForMonth(
   data: ImportedData,
