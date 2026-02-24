@@ -77,6 +77,24 @@ export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string
   return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
 }
 
+/**
+ * 2つの CategoryTimeSalesData をマージする。
+ * 同一キー（日・店舗・部門・ライン・クラス）のレコードは後者（incoming）で上書き。
+ */
+export function mergeCategoryTimeSalesData(
+  existing: CategoryTimeSalesData,
+  incoming: CategoryTimeSalesData,
+): CategoryTimeSalesData {
+  const map = new Map<string, CategoryTimeSalesRecord>()
+  for (const rec of existing.records) {
+    map.set(categoryTimeSalesRecordKey(rec), rec)
+  }
+  for (const rec of incoming.records) {
+    map.set(categoryTimeSalesRecordKey(rec), rec)
+  }
+  return { records: [...map.values()] }
+}
+
 /** 売変パース結果: storeId → day → DiscountDayEntry */
 export type DiscountData = StoreDayRecord<DiscountDayEntry>
 

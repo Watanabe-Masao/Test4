@@ -28,7 +28,7 @@ export type {
   DepartmentKpiRecord,
   DepartmentKpiData,
 } from './DataTypes'
-export { categoryTimeSalesRecordKey } from './DataTypes'
+export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
 export type { CategoryTimeSalesIndex } from './CategoryTimeSalesIndex'
 export { EMPTY_CTS_INDEX } from './CategoryTimeSalesIndex'
 export type {

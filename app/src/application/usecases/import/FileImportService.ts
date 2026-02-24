@@ -260,3 +260,63 @@ export async function processDroppedFiles(
 }> {
   return processDroppedFilesImpl(files, appSettings, currentData, onProgress, overrideType)
 }
+
+// ─── Multi-month utilities ──────────────────────────────────
+
+/**
+ * ImportedData のレコードベースデータに含まれる年月の一覧を抽出する。
+ * classifiedSales と categoryTimeSales の各レコードの year/month を収集し、
+ * 年月昇順で返す。
+ */
+export function extractRecordMonths(
+  data: ImportedData,
+): readonly { year: number; month: number }[] {
+  const seen = new Set<string>()
+  const result: { year: number; month: number }[] = []
+
+  for (const rec of data.classifiedSales.records) {
+    const key = `${rec.year}-${rec.month}`
+    if (!seen.has(key)) {
+      seen.add(key)
+      result.push({ year: rec.year, month: rec.month })
+    }
+  }
+
+  for (const rec of data.categoryTimeSales.records) {
+    if (rec.year != null && rec.month != null) {
+      const key = `${rec.year}-${rec.month}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        result.push({ year: rec.year, month: rec.month })
+      }
+    }
+  }
+
+  result.sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month))
+  return result
+}
+
+/**
+ * ImportedData から指定年月のレコードのみを含む ImportedData を返す。
+ * classifiedSales と categoryTimeSales を年月でフィルタし、
+ * その他のフィールドはそのまま維持する。
+ */
+export function filterDataForMonth(
+  data: ImportedData,
+  year: number,
+  month: number,
+): ImportedData {
+  return {
+    ...data,
+    classifiedSales: {
+      records: data.classifiedSales.records.filter(
+        (r) => r.year === year && r.month === month,
+      ),
+    },
+    categoryTimeSales: {
+      records: data.categoryTimeSales.records.filter(
+        (r) => (r.year ?? year) === year && (r.month ?? month) === month,
+      ),
+    },
+  }
+}

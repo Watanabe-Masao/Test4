@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateImportedData, hasValidationErrors } from '../FileImportService'
+import { validateImportedData, hasValidationErrors, extractRecordMonths, filterDataForMonth } from '../FileImportService'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
 import type { ImportSummary } from '../FileImportService'
@@ -192,5 +192,106 @@ describe('hasValidationErrors', () => {
 
   it('空配列は false', () => {
     expect(hasValidationErrors([])).toBe(false)
+  })
+})
+
+// ─── Multi-month utilities ──────────────────────────────────
+
+describe('extractRecordMonths', () => {
+  it('空データは空配列を返す', () => {
+    expect(extractRecordMonths(makeData())).toEqual([])
+  })
+
+  it('classifiedSales レコードから年月を抽出する', () => {
+    const data = makeData({
+      classifiedSales: {
+        records: [
+          makeCSRecord(1, '1', 10000),
+          makeCSRecord(2, '1', 20000),
+        ],
+      },
+    })
+    expect(extractRecordMonths(data)).toEqual([{ year: 2025, month: 1 }])
+  })
+
+  it('複数月のレコードを年月昇順で返す', () => {
+    const data = makeData({
+      classifiedSales: {
+        records: [
+          { ...makeCSRecord(1, '1', 50000), year: 2025, month: 2 },
+          { ...makeCSRecord(1, '1', 30000), year: 2025, month: 1 },
+          { ...makeCSRecord(2, '1', 40000), year: 2025, month: 2 },
+          { ...makeCSRecord(1, '1', 20000), year: 2026, month: 1 },
+        ],
+      },
+    })
+    const months = extractRecordMonths(data)
+    expect(months).toEqual([
+      { year: 2025, month: 1 },
+      { year: 2025, month: 2 },
+      { year: 2026, month: 1 },
+    ])
+  })
+
+  it('categoryTimeSales のレコードも年月として認識する', () => {
+    const data = makeData({
+      categoryTimeSales: {
+        records: [
+          {
+            year: 2025, month: 3, day: 1, storeId: '1',
+            department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
+            klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+          },
+        ],
+      },
+    })
+    expect(extractRecordMonths(data)).toEqual([{ year: 2025, month: 3 }])
+  })
+})
+
+describe('filterDataForMonth', () => {
+  it('指定月の classifiedSales レコードのみを返す', () => {
+    const data = makeData({
+      classifiedSales: {
+        records: [
+          { ...makeCSRecord(1, '1', 10000), year: 2025, month: 1 },
+          { ...makeCSRecord(1, '1', 20000), year: 2025, month: 2 },
+          { ...makeCSRecord(2, '1', 30000), year: 2025, month: 1 },
+        ],
+      },
+    })
+    const filtered = filterDataForMonth(data, 2025, 1)
+    expect(filtered.classifiedSales.records).toHaveLength(2)
+    expect(filtered.classifiedSales.records.every((r) => r.month === 1)).toBe(true)
+  })
+
+  it('非レコードデータはそのまま維持される', () => {
+    const stores = new Map([['1', { id: '1', code: '0001', name: 'A' }]])
+    const data = makeData({
+      stores,
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: {
+        records: [
+          { ...makeCSRecord(1, '1', 10000), year: 2025, month: 1 },
+          { ...makeCSRecord(1, '1', 20000), year: 2025, month: 2 },
+        ],
+      },
+    })
+    const filtered = filterDataForMonth(data, 2025, 2)
+    expect(filtered.classifiedSales.records).toHaveLength(1)
+    expect(filtered.classifiedSales.records[0].month).toBe(2)
+    // 非レコードデータは維持
+    expect(filtered.stores.size).toBe(1)
+    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(100)
+  })
+
+  it('該当月レコードがない場合は空配列を返す', () => {
+    const data = makeData({
+      classifiedSales: {
+        records: [{ ...makeCSRecord(1, '1', 10000), year: 2025, month: 1 }],
+      },
+    })
+    const filtered = filterDataForMonth(data, 2025, 3)
+    expect(filtered.classifiedSales.records).toHaveLength(0)
   })
 })

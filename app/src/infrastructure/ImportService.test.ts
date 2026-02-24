@@ -202,6 +202,40 @@ describe('processFileData', () => {
 
     expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
   })
+
+  it('複数月の分類別売上ファイルをマージしても各レコードの年月が保持される', () => {
+    const header = ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変']
+
+    // 1月ファイル
+    const janRows = [
+      header,
+      ['2025-01-15', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
+    ]
+    // 2月ファイル
+    const febRows = [
+      header,
+      ['2025-02-10', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 60000, 0, 0, 0, 0],
+    ]
+
+    // 1月を処理
+    let { data: result } = processFileData('classifiedSales', janRows, '202501.csv', emptyData(), DEFAULT_SETTINGS)
+    // 2月を処理（1月データに追加マージ）
+    ;({ data: result } = processFileData('classifiedSales', febRows, '202502.csv', result, DEFAULT_SETTINGS))
+
+    // 両月のレコードが保持されること
+    expect(result.classifiedSales.records).toHaveLength(2)
+
+    const janRecords = result.classifiedSales.records.filter((r) => r.year === 2025 && r.month === 1)
+    const febRecords = result.classifiedSales.records.filter((r) => r.year === 2025 && r.month === 2)
+
+    expect(janRecords).toHaveLength(1)
+    expect(janRecords[0].salesAmount).toBe(50000)
+    expect(janRecords[0].day).toBe(15)
+
+    expect(febRecords).toHaveLength(1)
+    expect(febRecords[0].salesAmount).toBe(60000)
+    expect(febRecords[0].day).toBe(10)
+  })
 })
 
 describe('validateImportedData', () => {
