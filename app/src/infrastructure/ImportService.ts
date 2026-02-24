@@ -132,9 +132,15 @@ export function processFileData(
       const newStores = extractStoresFromClassifiedSales(rows)
       for (const [id, s] of newStores) mutableStores.set(id, s)
 
+      // 店舗名→数値ID逆引きマップを構築（コード無しCSV対応）
+      const storeNameToId = new Map<string, string>()
+      for (const [id, store] of mutableStores) {
+        storeNameToId.set(store.name, id)
+      }
+
       const csYearMonth = detectYearMonthFromClassifiedSales(rows)
       const csEffectiveMonth = csYearMonth?.month ?? effectiveMonth
-      const newData = processClassifiedSales(rows, csEffectiveMonth)
+      const newData = processClassifiedSales(rows, csEffectiveMonth, storeNameToId)
 
       return {
         data: {
