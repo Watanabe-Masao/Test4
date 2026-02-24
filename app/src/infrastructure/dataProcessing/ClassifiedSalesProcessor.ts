@@ -79,15 +79,25 @@ function detectColumns(headerRow: readonly unknown[]): ColumnMap | null {
 /**
  * 店舗名から店舗IDを抽出する
  * "0001:毎日屋あさくらセンタ" → "1"
- * "毎日屋あさくらセンタ" → "毎日屋あさくらセンタ" (コード無し)
+ * "毎日屋あさくらセンタ" → 逆引きマップで名前→IDを解決、なければそのまま
  */
-function parseStoreId(value: unknown): { storeId: string; storeName: string } {
+function parseStoreId(
+  value: unknown,
+  nameToId?: ReadonlyMap<string, string>,
+): { storeId: string; storeName: string } {
   const str = String(value ?? '').trim()
   const match = str.match(/^(\d{4}):(.*)$/)
   if (match) {
     return {
       storeId: String(parseInt(match[1])),
       storeName: match[2].trim() || match[1],
+    }
+  }
+  // コード無しの場合、店舗名→ID逆引きマップで解決を試みる
+  if (nameToId) {
+    const resolvedId = nameToId.get(str)
+    if (resolvedId) {
+      return { storeId: resolvedId, storeName: str }
     }
   }
   return { storeId: str, storeName: str }
@@ -99,10 +109,12 @@ function parseStoreId(value: unknown): { storeId: string; storeName: string } {
  * 分類別売上CSVを処理する
  *
  * @param targetMonth 対象月（指定時はその月のデータのみ抽出）
+ * @param storeNameToId 店舗名→数値ID逆引きマップ（コード無しCSV対応）
  */
 export function processClassifiedSales(
   rows: readonly unknown[][],
   targetMonth?: number,
+  storeNameToId?: ReadonlyMap<string, string>,
 ): ClassifiedSalesData {
   if (rows.length < 2) return { records: [] }
 
@@ -125,7 +137,7 @@ export function processClassifiedSales(
     // 月フィルタ
     if (targetMonth != null && month !== targetMonth) continue
 
-    const { storeId, storeName } = parseStoreId(r[colMap.store])
+    const { storeId, storeName } = parseStoreId(r[colMap.store], storeNameToId)
     const salesAmount = safeNumber(r[colMap.salesAmount])
 
     records.push({
