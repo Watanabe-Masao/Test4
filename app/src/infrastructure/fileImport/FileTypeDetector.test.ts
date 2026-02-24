@@ -144,6 +144,33 @@ describe('detectFileType', () => {
     expect(result.confidence).toBe('filename')
   })
 
+  // ドット区切りプレフィックス: 分類別時間帯売上
+  it('7.分類別時間帯売上: categoryTimeSalesとして判定', () => {
+    const result = detectFileType('7.分類別時間帯売上.xlsx', [])
+    expect(result.type).toBe('categoryTimeSales')
+    expect(result.confidence).toBe('filename')
+  })
+
+  it('8.分類別時間帯売上: categoryTimeSalesとして判定', () => {
+    const result = detectFileType('8.分類別時間帯売上.csv', [])
+    expect(result.type).toBe('categoryTimeSales')
+    expect(result.confidence).toBe('filename')
+  })
+
+  // ドット区切りプレフィックス: 分類別売上はclassifiedSalesであること
+  it('1.分類別売上: classifiedSalesとして判定（categoryTimeSalesにならない）', () => {
+    const result = detectFileType('1.分類別売上.xlsx', [])
+    expect(result.type).toBe('classifiedSales')
+    expect(result.confidence).toBe('filename')
+  })
+
+  // 消耗品のドット区切りパターン
+  it('8.消耗品: consumablesとして判定', () => {
+    const result = detectFileType('8.消耗品データ.xlsx', [])
+    expect(result.type).toBe('consumables')
+    expect(result.confidence).toBe('filename')
+  })
+
   // 判定不能
   it('不明なファイル', () => {
     const result = detectFileType('unknown.txt', [['foo', 'bar']])

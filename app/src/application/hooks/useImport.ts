@@ -9,7 +9,7 @@ import {
 } from '@/application/usecases/import'
 import type { ImportSummary, MonthPartitions } from '@/application/usecases/import'
 import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, ImportHistoryEntry, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, mergeClassifiedSalesData, mergeCategoryTimeSalesData, createEmptyImportedData } from '@/domain/models'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -411,13 +411,22 @@ function buildMonthData(
   }
   if (mergeAction === 'overwrite') {
     // 上書き: 既存データに新規データをマージ（新規が優先）
+    // レコードベース型（classifiedSales, categoryTimeSales）は merge ではなく replace する。
+    // monthData は filterDataForMonth で年月フィルタ済みのため正しいレコードのみ含む。
+    // 既存 IndexedDB データに別月のレコードが混入している場合（旧保存ロジック由来）、
+    // merge するとそれらが残り続けて前年データが膨張するバグの原因になる。
+    // incoming にレコードが無い（当該型がインポートされなかった）場合のみ既存を維持する。
     return {
       ...existing,
       stores: new Map([...existing.stores, ...monthData.stores]),
       suppliers: new Map([...existing.suppliers, ...monthData.suppliers]),
       purchase: { ...existing.purchase, ...monthData.purchase },
-      classifiedSales: mergeClassifiedSalesData(existing.classifiedSales, monthData.classifiedSales),
-      categoryTimeSales: mergeCategoryTimeSalesData(existing.categoryTimeSales, monthData.categoryTimeSales),
+      classifiedSales: monthData.classifiedSales.records.length > 0
+        ? monthData.classifiedSales
+        : existing.classifiedSales,
+      categoryTimeSales: monthData.categoryTimeSales.records.length > 0
+        ? monthData.categoryTimeSales
+        : existing.categoryTimeSales,
       interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
       interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
       flowers: { ...existing.flowers, ...monthData.flowers },

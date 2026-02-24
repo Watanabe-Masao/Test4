@@ -105,7 +105,9 @@ function matchByFilename(filename: string): DataType | null {
   const basename = filename.replace(/^.*[\\/]/, '')
 
   // 分類別時間帯売上: "7.分類別時間帯売上" or "8.分類別時間帯売上"
-  if (/^\d+\.分類別/.test(basename) || /^\d+\..*時間帯/.test(basename)) return 'categoryTimeSales'
+  // 注: /^\d+\.分類別/ は "1.分類別売上" も誤って categoryTimeSales に分類するため、
+  // "時間帯" を含むパターンに限定する
+  if (/^\d+\.分類別時間帯/.test(basename) || /^\d+\..*時間帯/.test(basename)) return 'categoryTimeSales'
 
   // 消耗品: "8.消耗品" or 先頭2桁数字 + "消耗品"
   if (/^\d+\.消耗/.test(basename) || /^\d{2}消耗/.test(basename)) return 'consumables'
