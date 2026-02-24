@@ -623,7 +623,7 @@ export async function saveDataSlice(
 
   for (const dt of dataTypes) {
     if (dt === 'classifiedSales') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: data.classifiedSales })
+      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: wrapEnvelope(data.classifiedSales, year, month) })
       continue
     }
     if (dt === 'categoryTimeSales') {
