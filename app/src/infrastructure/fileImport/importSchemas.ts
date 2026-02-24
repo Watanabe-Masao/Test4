@@ -19,6 +19,7 @@ const STRUCTURAL_RULES: Record<DataType, { minRows: number; minCols: number; lab
   sales:                     { minRows: 4, minCols: 4,  label: '売上データ' },
   discount:                  { minRows: 3, minCols: 3,  label: '売変データ' },
   salesDiscount:             { minRows: 3, minCols: 3,  label: '売上売変データ' },
+  classifiedSales:           { minRows: 2, minCols: 11, label: '分類別売上データ' },
   initialSettings:           { minRows: 2, minCols: 2,  label: '初期設定データ' },
   budget:                    { minRows: 2, minCols: 2,  label: '予算データ' },
   interStoreIn:              { minRows: 2, minCols: 3,  label: '店間入庫データ' },

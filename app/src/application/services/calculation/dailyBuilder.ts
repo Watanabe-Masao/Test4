@@ -68,8 +68,9 @@ export function buildDailyRecords(
       : ZERO_COST_PRICE_PAIR
 
     // 売上・客数
+    // 客数ソース優先順位: 花ファイル > 売変ファイル > 売上ファイル
     const daySales = salesDay?.sales ?? 0
-    const dayCustomers = discountDay?.customers ?? salesDay?.customers ?? 0
+    const dayCustomers = flowerDay?.customers ?? discountDay?.customers ?? salesDay?.customers ?? 0
 
     // 花・産直
     const flowers: CostPricePair = flowerDay

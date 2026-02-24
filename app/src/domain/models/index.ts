@@ -35,6 +35,17 @@ export type {
 export { categoryTimeSalesRecordKey } from './DataTypes'
 export type { ImportedData } from './ImportedData'
 export { createEmptyImportedData } from './ImportedData'
+export type {
+  ClassifiedSalesRecord,
+  ClassifiedSalesData,
+  DailySalesSummary,
+} from './ClassifiedSales'
+export {
+  classifiedSalesRecordKey,
+  totalDiscount as classifiedSalesTotalDiscount,
+  mergeClassifiedSalesData,
+  aggregateToStoreDaySummary,
+} from './ClassifiedSales'
 export type { ValidationMessage } from './ValidationMessage'
 export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult } from './Persistence'
 export type {

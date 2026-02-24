@@ -19,6 +19,13 @@ import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
 import { processConsumables, mergeConsumableData } from './dataProcessing/ConsumableProcessor'
 import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
 import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
+import {
+  processClassifiedSales,
+  extractStoresFromClassifiedSales,
+  detectYearMonthFromClassifiedSales,
+  mergeClassifiedSalesData,
+} from './dataProcessing/ClassifiedSalesProcessor'
+import { aggregateToStoreDaySummary } from '@/domain/models/ClassifiedSales'
 
 /** DiscountData から SalesData を構築する */
 export function discountToSalesData(discountData: DiscountData): SalesData {
@@ -100,6 +107,7 @@ const DATE_START_ROW: Partial<Record<DataType, number>> = {
   sales: 3,
   discount: 2,
   salesDiscount: 2,
+  classifiedSales: 0,
   categoryTimeSales: 3,
 }
 
@@ -203,11 +211,53 @@ export function processFileData(
     case 'interStoreOut':
       return { data: { ...current, interStoreOut: processInterStoreOut(rows) } }
 
+    case 'classifiedSales': {
+      const csData = processClassifiedSales(rows)
+      const merged = mergeClassifiedSalesData(current.classifiedSales, csData)
+      const csYearMonth = detectYearMonthFromClassifiedSales(merged)
+
+      // 店舗抽出
+      const csStores = extractStoresFromClassifiedSales(merged)
+      for (const [id, s] of csStores) mutableStores.set(id, s)
+
+      // 互換性: 分類別売上から sales/discount を導出
+      const targetYear = csYearMonth?.year ?? appSettings.targetYear
+      const targetMonth = csYearMonth?.month ?? appSettings.targetMonth
+      const summary = aggregateToStoreDaySummary(merged.records, targetYear, targetMonth)
+
+      const derivedSales: Record<string, Record<number, { sales: number; customers: number }>> = {}
+      const derivedDiscount: Record<string, Record<number, { sales: number; discount: number; customers: number }>> = {}
+      for (const [storeId, days] of Object.entries(summary)) {
+        derivedSales[storeId] = {}
+        derivedDiscount[storeId] = {}
+        for (const [day, s] of Object.entries(days)) {
+          const d = Number(day)
+          derivedSales[storeId][d] = { sales: s.sales, customers: 0 }
+          derivedDiscount[storeId][d] = {
+            sales: s.sales,
+            discount: s.discountTotal,
+            customers: 0,
+          }
+        }
+      }
+
+      return {
+        data: {
+          ...current,
+          stores: mutableStores,
+          classifiedSales: merged,
+          sales: derivedSales,
+          discount: derivedDiscount,
+        },
+        detectedYearMonth: csYearMonth ?? undefined,
+      }
+    }
+
     case 'flowers':
       return {
         data: {
           ...current,
-          flowers: processSpecialSales(rows, appSettings.flowerCostRate),
+          flowers: processSpecialSales(rows, appSettings.flowerCostRate, true),
         },
       }
 

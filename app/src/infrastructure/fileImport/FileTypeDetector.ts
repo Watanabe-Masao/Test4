@@ -38,7 +38,14 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
     filenamePatterns: ['売上予算', '予算', 'budget'],
     headerPatterns: ['売上予算', '予算'],
   },
-  // 売上売変客数の複合ファイル（客数を含む新形式も同一タイプで処理）
+  // 分類別売上（新形式: 旧「売上売変客数」を置換）
+  {
+    type: 'classifiedSales',
+    name: '分類別売上',
+    filenamePatterns: ['分類別売上', '分類売上', 'classifiedSales', 'classified_sales'],
+    headerPatterns: ['グループ名称', 'ライン名称', 'クラス名称', '７１売変', '71売変'],
+  },
+  // 売上売変客数の複合ファイル（レガシー互換）
   {
     type: 'salesDiscount',
     name: '売上売変客数',
@@ -101,7 +108,7 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
  */
 const PREFIX_RULES: readonly { prefix: string; type: DataType }[] = [
   { prefix: '0_', type: 'budget' },
-  { prefix: '1_', type: 'salesDiscount' },
+  { prefix: '1_', type: 'classifiedSales' },
   { prefix: '2_', type: 'flowers' },
   { prefix: '3_', type: 'directProduce' },
   { prefix: '4_', type: 'interStoreOut' },
