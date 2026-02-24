@@ -54,6 +54,7 @@ export function processCategoryTimeSales(
   rows: readonly unknown[][],
   targetMonth?: number,
   overflowDays: number = 0,
+  targetYear?: number,
 ): CategoryTimeSalesData {
   if (rows.length < 4) return { records: [] }
 
@@ -126,6 +127,8 @@ export function processCategoryTimeSales(
     }
 
     records.push({
+      ...(targetYear != null ? { year: targetYear } : {}),
+      ...(targetMonth != null ? { month: targetMonth } : {}),
       day,
       storeId,
       department,
