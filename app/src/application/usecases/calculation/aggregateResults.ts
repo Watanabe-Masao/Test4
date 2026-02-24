@@ -6,7 +6,7 @@ import type {
   StoreResult,
   TransferDetails,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import { safeDivide } from '@/domain/calculations/utils'
 
@@ -47,6 +47,7 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
     customers: (existing.customers ?? 0) + (rec.customers ?? 0),
     discountAmount: existing.discountAmount + rec.discountAmount,
     discountAbsolute: existing.discountAbsolute + rec.discountAbsolute,
+    discountEntries: addDiscountEntries(existing.discountEntries, rec.discountEntries),
     supplierBreakdown: mergedSB,
     transferBreakdown: {
       interStoreIn: [...existing.transferBreakdown.interStoreIn, ...rec.transferBreakdown.interStoreIn],
@@ -75,6 +76,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
   let inventoryCost = 0
   let deliverySalesCost = 0
   let totalDiscount = 0
+  let aggDiscountEntries = ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))
   let totalConsumable = 0
   let totalCustomers = 0
   let budget = 0
@@ -109,6 +111,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     inventoryCost += r.inventoryCost
     deliverySalesCost += r.deliverySalesCost
     totalDiscount += r.totalDiscount
+    aggDiscountEntries = addDiscountEntries(aggDiscountEntries, r.discountEntries) as typeof aggDiscountEntries
     totalConsumable += r.totalConsumable
     totalCustomers += r.totalCustomers
     budget += r.budget
@@ -271,6 +274,7 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     totalDiscount,
     discountRate,
     discountLossCost,
+    discountEntries: aggDiscountEntries,
     averageMarkupRate,
     coreMarkupRate,
     totalConsumable,

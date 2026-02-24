@@ -30,11 +30,19 @@ export type {
 } from './DataTypes'
 export { categoryTimeSalesRecordKey } from './DataTypes'
 export type {
+  DiscountType,
+  DiscountTypeDef,
+  DiscountEntry,
   ClassifiedSalesRecord,
   ClassifiedSalesData,
   ClassifiedSalesDaySummary,
 } from './ClassifiedSales'
 export {
+  DISCOUNT_TYPES,
+  ZERO_DISCOUNT_ENTRIES,
+  extractDiscountEntries,
+  sumDiscountEntries,
+  addDiscountEntries,
   classifiedSalesRecordKey,
   aggregateForStore,
   aggregateAllStores,

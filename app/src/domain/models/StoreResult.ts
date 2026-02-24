@@ -3,6 +3,7 @@ import type { CategoryType } from './CategoryType'
 import type { SupplierTotal } from './Supplier'
 import type { DailyRecord } from './DailyRecord'
 import type { TransferDetails } from './TransferDetail'
+import type { DiscountEntry } from './ClassifiedSales'
 
 /** 店舗別計算結果 */
 export interface StoreResult {
@@ -45,6 +46,7 @@ export interface StoreResult {
   readonly totalDiscount: number // 売変額合計
   readonly discountRate: number // 売変率（売価ベース）
   readonly discountLossCost: number // 売変ロス原価
+  readonly discountEntries: readonly DiscountEntry[] // 売変種別内訳（月間合計）
 
   // ─── 値入率 ────────────────────────────────────────────
   readonly averageMarkupRate: number // 平均値入率（全体）
