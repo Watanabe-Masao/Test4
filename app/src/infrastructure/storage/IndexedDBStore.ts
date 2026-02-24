@@ -377,13 +377,23 @@ export async function loadImportedData(
     result.budget = new Map()
   }
 
-  // classifiedSales — envelope unwrap
+  // classifiedSales — envelope unwrap + マイグレーション
   const rawCs = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'classifiedSales'))
   const csUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCs, year, month)
   const csObj = csUnwrapped?.value
-  result.classifiedSales = csObj && Array.isArray(csObj.records)
-    ? csObj
-    : { records: [] }
+  if (csObj && Array.isArray(csObj.records)) {
+    // discount71-74 が欠けている古いデータを正規化
+    csObj.records = csObj.records.map((rec: unknown) => ({
+      discount71: 0,
+      discount72: 0,
+      discount73: 0,
+      discount74: 0,
+      ...(rec as Record<string, unknown>),
+    }))
+    result.classifiedSales = csObj
+  } else {
+    result.classifiedSales = { records: [] }
+  }
 
   // prevYearClassifiedSales は DB に保存しないため読み込まない
   // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
