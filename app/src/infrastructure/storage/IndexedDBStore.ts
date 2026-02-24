@@ -11,7 +11,7 @@
  * - loadImportedData の基本スキーマ検証 (#9)
  * - DB 接続断時の自動再接続 (#14)
  */
-import type { ImportedData, DataType, DataOrigin, DataEnvelope } from '@/domain/models'
+import type { ImportedData, DataType, DataOrigin, DataEnvelope, ImportHistoryEntry } from '@/domain/models'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models'
 import { createEmptyImportedData, isEnvelope } from '@/domain/models'
 
@@ -681,4 +681,42 @@ export async function saveDataSlice(
   await updateSessionsList(entries, year, month, savedAt)
 
   await dbBatchPut(entries)
+}
+
+// ─── インポート履歴 ─────────────────────────────────────
+
+/** インポート履歴のキー */
+function importHistoryKey(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, '0')}_importHistory`
+}
+
+/**
+ * インポート履歴を追加保存する（追記型）。
+ * 最新のエントリが先頭に来る。最大20件まで保持。
+ */
+export async function saveImportHistory(
+  year: number,
+  month: number,
+  entry: ImportHistoryEntry,
+): Promise<void> {
+  const key = importHistoryKey(year, month)
+  const existing = await dbGet<ImportHistoryEntry[]>(STORE_MONTHLY, key)
+  const history = Array.isArray(existing) ? existing : []
+  history.unshift(entry)
+  // 最大20件
+  if (history.length > 20) history.length = 20
+  await dbBatchPut([{ storeName: STORE_MONTHLY, key, value: history }])
+}
+
+/**
+ * 指定年月のインポート履歴を読み込む。
+ * 保存されていない場合は空配列を返す。
+ */
+export async function loadImportHistory(
+  year: number,
+  month: number,
+): Promise<ImportHistoryEntry[]> {
+  const key = importHistoryKey(year, month)
+  const raw = await dbGet<ImportHistoryEntry[]>(STORE_MONTHLY, key)
+  return Array.isArray(raw) ? raw : []
 }

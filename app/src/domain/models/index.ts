@@ -58,7 +58,7 @@ export { isEnvelope } from './DataOrigin'
 export type { MonthlyData, AppData } from './MonthlyData'
 export { createEmptyMonthlyData } from './MonthlyData'
 export type { ValidationMessage } from './ValidationMessage'
-export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult } from './Persistence'
+export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult, ImportHistoryEntry, ImportHistoryFile } from './Persistence'
 export type {
   MetricId,
   MetricUnit,

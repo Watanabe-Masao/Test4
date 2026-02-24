@@ -8,7 +8,7 @@ import {
   filterDataForMonth,
 } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
+import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, ImportHistoryEntry, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
 import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, mergeClassifiedSalesData, mergeCategoryTimeSalesData, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
@@ -65,6 +65,30 @@ export function useImport() {
       dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: maxDay >= dim ? null : maxDay } })
     },
     [dispatch],
+  )
+
+  /** ImportSummary からインポート履歴エントリを生成して保存する */
+  const saveHistory = useCallback(
+    (summary: ImportSummary, year: number, month: number) => {
+      if (!repo.isAvailable()) return
+      const entry: ImportHistoryEntry = {
+        importedAt: new Date().toISOString(),
+        files: summary.results
+          .filter((r) => r.ok)
+          .map((r) => ({
+            filename: r.filename,
+            type: r.type,
+            typeName: r.typeName,
+            rowCount: r.rowCount,
+          })),
+        successCount: summary.successCount,
+        failureCount: summary.failureCount,
+      }
+      repo.saveImportHistory(year, month, entry).catch((e) => {
+        console.error('[useImport] saveImportHistory failed:', e)
+      })
+    },
+    [repo],
   )
 
   const importFiles = useCallback(
@@ -198,6 +222,9 @@ export function useImport() {
 
             const messages = validateImportedData(primaryData, summary)
             dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+
+            // インポート履歴を保存（主月に記録）
+            saveHistory(summary, targetYear, targetMonth)
           } else {
             // ── 単月インポート: 既存の差分チェック + 保存 ──
 
@@ -244,6 +271,8 @@ export function useImport() {
                 console.error('[useImport] save failed:', e)
                 setSaveError(msg)
               }
+              // インポート履歴を保存
+              saveHistory(summary, targetYear, targetMonth)
             }
           }
         }
@@ -255,7 +284,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo],
+    [dispatch, autoSetDataEndDay, repo, saveHistory],
   )
 
   /** 差分確認結果を適用する */
@@ -305,6 +334,8 @@ export function useImport() {
             }
           }
           saveAll()
+          // インポート履歴を保存（主月に記録）
+          saveHistory(summary, targetYear, targetMonth)
         }
       } else {
         // ── 単月: 既存の処理 ──
@@ -331,12 +362,14 @@ export function useImport() {
             console.error('[useImport] save failed:', e)
             setSaveError(msg)
           })
+          // インポート履歴を保存
+          saveHistory(summary, targetYear, targetMonth)
         }
       }
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay, repo],
+    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory],
   )
 
   return {
