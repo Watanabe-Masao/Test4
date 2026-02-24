@@ -32,6 +32,7 @@ function makeDailyRecord(day: number, customers: number): DailyRecord {
     customers,
     discountAmount: 0,
     discountAbsolute: 0,
+    discountEntries: [],
     supplierBreakdown: new Map(),
     transferBreakdown: {
       interStoreIn: [],

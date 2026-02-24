@@ -29,6 +29,7 @@ function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {
     estMethodClosingInventory: null,
     totalDiscount: 0,
     discountRate: 0,
+    discountEntries: [],
     discountLossCost: 0,
     averageMarkupRate: 0,
     coreMarkupRate: 0,

@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
 import type { WidgetContext } from '../types'
-import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations, CategoryTimeSalesIndex } from '@/domain/models'
+import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
 import { EMPTY_CTS_INDEX } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 
@@ -17,29 +17,32 @@ const ZERO: CostPricePair = { cost: 0, price: 0 }
 
 /** 最小限の DailyRecord を作成 */
 export function makeDailyRecord(overrides: Partial<DailyRecord> & { day: number; sales: number }): DailyRecord {
-  return {
-    coreSales: overrides.coreSales ?? overrides.sales,
-    grossSales: overrides.grossSales ?? overrides.sales,
-    purchase: overrides.purchase ?? ZERO,
-    deliverySales: overrides.deliverySales ?? ZERO,
-    interStoreIn: overrides.interStoreIn ?? ZERO,
-    interStoreOut: overrides.interStoreOut ?? ZERO,
-    interDepartmentIn: overrides.interDepartmentIn ?? ZERO,
-    interDepartmentOut: overrides.interDepartmentOut ?? ZERO,
-    flowers: overrides.flowers ?? ZERO,
-    directProduce: overrides.directProduce ?? ZERO,
-    consumable: overrides.consumable ?? { cost: 0, items: [] },
-    discountAmount: overrides.discountAmount ?? 0,
-    discountAbsolute: overrides.discountAbsolute ?? 0,
-    supplierBreakdown: overrides.supplierBreakdown ?? new Map(),
-    transferBreakdown: overrides.transferBreakdown ?? {
+  const defaults: DailyRecord = {
+    day: overrides.day,
+    sales: overrides.sales,
+    coreSales: overrides.sales,
+    grossSales: overrides.sales,
+    purchase: ZERO,
+    deliverySales: ZERO,
+    interStoreIn: ZERO,
+    interStoreOut: ZERO,
+    interDepartmentIn: ZERO,
+    interDepartmentOut: ZERO,
+    flowers: ZERO,
+    directProduce: ZERO,
+    consumable: { cost: 0, items: [] },
+    discountAmount: 0,
+    discountAbsolute: 0,
+    discountEntries: [],
+    supplierBreakdown: new Map(),
+    transferBreakdown: {
       interStoreIn: [],
       interStoreOut: [],
       interDepartmentIn: [],
       interDepartmentOut: [],
     },
-    ...overrides,
   }
+  return { ...defaults, ...overrides }
 }
 
 /** 最小限の StoreResult を作成 */
@@ -68,6 +71,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     averageCustomersPerDay: 0,
     totalDiscount: 2000,
     discountRate: 0.02,
+    discountEntries: [],
     discountLossCost: 1500,
     averageMarkupRate: 0.25,
     coreMarkupRate: 0.26,

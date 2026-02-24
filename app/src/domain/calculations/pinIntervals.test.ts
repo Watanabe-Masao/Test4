@@ -19,6 +19,7 @@ function makeDailyRecord(day: number, sales: number, purchaseCost: number): Dail
     consumable: { cost: 0, items: [] },
     discountAmount: 0,
     discountAbsolute: 0,
+    discountEntries: [],
     supplierBreakdown: new Map(),
     transferBreakdown: {
       interStoreIn: [],
