@@ -49,3 +49,21 @@ export type DataType =
   | 'directProduce'
   | 'categoryTimeSales'
   | 'departmentKpi'
+
+/** IndexedDB ストレージで使用されるデータ種別キー */
+export type StorageDataType =
+  | 'purchase'
+  | 'interStoreIn'
+  | 'interStoreOut'
+  | 'flowers'
+  | 'directProduce'
+  | 'consumables'
+  | 'classifiedSales'
+  | 'categoryTimeSales'
+  | 'departmentKpi'
+  | 'stores'
+  | 'suppliers'
+  | 'settings'
+  | 'budget'
+  | 'summaryCache'
+  | 'importHistory'

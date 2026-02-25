@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   createEmptyImportedData,
   processFileData,
+  normalizeRecordStoreIds,
 } from './ImportService'
 import {
   validateImportedData,
@@ -340,5 +341,109 @@ describe('hasValidationErrors', () => {
 
   it('空の場合 false', () => {
     expect(hasValidationErrors([])).toBe(false)
+  })
+})
+
+describe('normalizeRecordStoreIds', () => {
+  it('店舗名のまま残っている storeId を数値IDに解決する', () => {
+    const data: ImportedData = {
+      ...emptyData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+        ['3', { id: '3', code: '0003', name: '毎日屋土佐道路店' }],
+      ]),
+      classifiedSales: {
+        records: [
+          {
+            year: 2026, month: 2, day: 1, storeId: '毎日屋土佐道路店', storeName: '毎日屋土佐道路店',
+            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+            salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+          },
+          {
+            year: 2026, month: 2, day: 1, storeId: '1', storeName: '店舗A',
+            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+            salesAmount: 30000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+          },
+        ],
+      },
+    }
+
+    const result = normalizeRecordStoreIds(data)
+
+    // 店舗名で残っていた storeId が数値IDに解決される
+    expect(result.classifiedSales.records[0].storeId).toBe('3')
+    // storeName は元の店舗名が保持される
+    expect(result.classifiedSales.records[0].storeName).toBe('毎日屋土佐道路店')
+    // 元から正しい storeId は変更されない
+    expect(result.classifiedSales.records[1].storeId).toBe('1')
+  })
+
+  it('categoryTimeSales の storeId も正規化する', () => {
+    const data: ImportedData = {
+      ...emptyData(),
+      stores: new Map([
+        ['3', { id: '3', code: '0003', name: '毎日屋土佐道路店' }],
+      ]),
+      categoryTimeSales: {
+        records: [
+          {
+            year: 2026, month: 2, day: 1, storeId: '毎日屋土佐道路店',
+            department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
+            klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+          },
+        ],
+      },
+    }
+
+    const result = normalizeRecordStoreIds(data)
+
+    expect(result.categoryTimeSales.records[0].storeId).toBe('3')
+  })
+
+  it('全 storeId が正しい場合はデータを変更しない', () => {
+    const data: ImportedData = {
+      ...emptyData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+      ]),
+      classifiedSales: {
+        records: [
+          {
+            year: 2026, month: 2, day: 1, storeId: '1', storeName: '店舗A',
+            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
+            salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+          },
+        ],
+      },
+    }
+
+    const result = normalizeRecordStoreIds(data)
+
+    // 同じ参照が返される（変更なし）
+    expect(result).toBe(data)
+  })
+
+  it('ファイル処理順序に関わらず storeId が正規化される（CS→Purchase 順序）', () => {
+    const csRows = [
+      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      ['2026-02-01', '毎日屋土佐道路店', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
+    ]
+    const purchaseRows = [
+      ['', '', '', '0000001:取引先A', ''],
+      ['', '', '', '0003:毎日屋土佐道路店', ''],
+      [''], [''],
+      ['2026-02-01', '', '', 10000, 13000],
+    ]
+
+    // CS を先に処理（店舗名が storeId になる）
+    let { data: result } = processFileData('classifiedSales', csRows, 'cs.csv', emptyData(), DEFAULT_SETTINGS)
+    ;({ data: result } = processFileData('purchase', purchaseRows, 'shiire.xlsx', result, DEFAULT_SETTINGS))
+
+    // この時点では storeId が店舗名のまま残っている
+    expect(result.classifiedSales.records[0].storeId).toBe('毎日屋土佐道路店')
+
+    // normalizeRecordStoreIds で正規化される
+    const normalized = normalizeRecordStoreIds(result)
+    expect(normalized.classifiedSales.records[0].storeId).toBe('3')
   })
 })

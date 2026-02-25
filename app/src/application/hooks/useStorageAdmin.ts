@@ -5,6 +5,7 @@
  * presentation 層が infrastructure 層に直接依存しないためのファサード。
  */
 import { useCallback } from 'react'
+import type { StorageDataType } from '@/domain/models'
 import { useRepository } from '../context/RepositoryContext'
 
 export interface StoredMonthEntry {
@@ -13,7 +14,7 @@ export interface StoredMonthEntry {
 }
 
 export interface MonthDataSummaryEntry {
-  readonly dataType: string
+  readonly dataType: StorageDataType
   readonly label: string
   readonly recordCount: number
 }
@@ -26,7 +27,7 @@ export interface StorageAdminActions {
   /** 指定月のデータを削除 */
   deleteMonth: (year: number, month: number) => Promise<void>
   /** 指定月・データ種別のスライスを取得 */
-  loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null>
+  loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
 }
 
 export function useStorageAdmin(): StorageAdminActions {
@@ -45,7 +46,7 @@ export function useStorageAdmin(): StorageAdminActions {
   )
 
   const loadSlice = useCallback(
-    <T>(year: number, month: number, dataType: string) =>
+    <T>(year: number, month: number, dataType: StorageDataType) =>
       repo.loadDataSlice<T>(year, month, dataType),
     [repo],
   )

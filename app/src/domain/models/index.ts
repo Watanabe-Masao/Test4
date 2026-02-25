@@ -10,7 +10,7 @@ export { getDailyTotalCost } from './DailyRecord'
 export type { TransferDetail, TransferDetails } from './TransferDetail'
 export type { StoreResult } from './StoreResult'
 export type { BudgetData, InventoryConfig } from './BudgetData'
-export type { AppSettings, ViewType, DataType, CustomCategory } from './Settings'
+export type { AppSettings, ViewType, DataType, StorageDataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'
 export type {
   StoreDayRecord,
