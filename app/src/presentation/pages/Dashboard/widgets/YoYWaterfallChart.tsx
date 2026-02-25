@@ -196,8 +196,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   }), [ctx.year, ctx.month, dayStart, dayEnd])
 
   const periodCTS = useMemo(
-    () => queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange }),
-    [ctx.ctsIndex, curDateRange],
+    () => queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange, storeIds: ctx.selectedStoreIds }),
+    [ctx.ctsIndex, curDateRange, ctx.selectedStoreIds],
   )
 
   // 比較期間のCTSレコード（前年比 or 前週比で切替）
@@ -208,15 +208,15 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         from: { year: ctx.year, month: ctx.month, day: wowRange.prevStart },
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
-      return queryByDateRange(ctx.ctsIndex, { dateRange: wowDateRange })
+      return queryByDateRange(ctx.ctsIndex, { dateRange: wowDateRange, storeIds: ctx.selectedStoreIds })
     }
     // 前年比: prevCtsIndex から同日範囲を取得
     const prevDateRange: DateRange = {
       from: { year: ctx.year - 1, month: ctx.month, day: dayStart },
       to: { year: ctx.year - 1, month: ctx.month, day: dayEnd },
     }
-    return queryByDateRange(ctx.prevCtsIndex, { dateRange: prevDateRange })
-  }, [activeCompMode, ctx.ctsIndex, ctx.prevCtsIndex, ctx.year, ctx.month, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+    return queryByDateRange(ctx.prevCtsIndex, { dateRange: prevDateRange, storeIds: ctx.selectedStoreIds })
+  }, [activeCompMode, ctx.ctsIndex, ctx.prevCtsIndex, ctx.selectedStoreIds, ctx.year, ctx.month, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(() =>

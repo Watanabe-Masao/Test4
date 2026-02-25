@@ -277,8 +277,8 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
   const prevPeriodRecords = useMemo(() => {
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
@@ -286,7 +286,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
       from: { year: year - 1, month, day: pf.dayRange[0] },
       to: { year: year - 1, month, day: pf.dayRange[1] },
     }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
     if (dowFilter) {
       recs = recs.filter((r) => {
         const dow = new Date(year, month - 1, r.day).getDay()
@@ -294,7 +294,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
       })
     }
     return recs
-  }, [prevCtsIndex, year, month, pf.dayRange, dowFilter])
+  }, [prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0

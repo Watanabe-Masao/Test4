@@ -115,8 +115,8 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
   }), [year, month, pf.dayRange])
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 

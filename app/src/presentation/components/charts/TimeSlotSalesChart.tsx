@@ -291,8 +291,8 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
 
   // WoW: 前週期間 (dayRange を -7 日シフト)
@@ -309,7 +309,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
         from: { year, month, day: wowPrevStart },
         to: { year, month, day: wowPrevEnd },
       }
-      return queryByDateRange(ctsIndex, { dateRange: wowRange })
+      return queryByDateRange(ctsIndex, { dateRange: wowRange, storeIds: selectedStoreIds })
     }
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
     // 前年インデックスのレコードは year=前年 のまま。dayRange のみ合わせる。
@@ -317,7 +317,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       from: { year: year - 1, month, day: pf.dayRange[0] },
       to: { year: year - 1, month, day: pf.dayRange[1] },
     }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
     // DOWフィルタ: 前年レコードの day は同曜日オフセット済みなので、
     // 当年の year/month で曜日を算出する（前年自身の year/month では不正確）
     if (dowFilter) {
@@ -327,7 +327,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       })
     }
     return recs
-  }, [activeCompMode, ctsIndex, prevCtsIndex, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
+  }, [activeCompMode, ctsIndex, prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
 
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 

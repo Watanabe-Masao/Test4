@@ -19,6 +19,8 @@ export interface FileImportResult {
   readonly error?: string
   readonly rowCount?: number
   readonly skippedRows?: readonly string[]
+  /** プロセッサの警告（ヘッダ形式不正、0件結果など） */
+  readonly warnings?: readonly string[]
 }
 
 /** バッチインポートの全体結果 */
@@ -62,6 +64,22 @@ export function validateImportedData(
         level: 'warning',
         message: `${importSummary.skippedFiles.length}件のファイルがスキップされました（非対応形式）`,
         details: importSummary.skippedFiles.map((f) => f),
+      })
+    }
+
+    // プロセッサの警告（0件結果、ヘッダ形式不正など）
+    const filesWithWarnings = importSummary.results.filter(
+      (r) => r.ok && r.warnings && r.warnings.length > 0,
+    )
+    if (filesWithWarnings.length > 0) {
+      const details: string[] = []
+      for (const f of filesWithWarnings) {
+        for (const w of f.warnings!) details.push(w)
+      }
+      messages.push({
+        level: 'warning',
+        message: 'データの読み取りに関する警告があります',
+        details,
       })
     }
 
