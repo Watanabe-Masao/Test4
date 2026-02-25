@@ -23,11 +23,20 @@ function parseCodeName(value: unknown): { code: string; name: string } {
 /**
  * 店舗コード:名称 から店舗IDを抽出する
  * "0001:毎日屋あさくらセンタ" → "1"
+ * コード無しの場合は nameToId 逆引きマップで解決を試みる
  */
-function parseStoreId(value: unknown): string {
-  const str = String(value ?? '')
+function parseStoreId(
+  value: unknown,
+  nameToId?: ReadonlyMap<string, string>,
+): string {
+  const str = String(value ?? '').trim()
   const match = str.match(/(\d{4}):/)
   if (match) return String(parseInt(match[1]))
+  // コード無しの場合、店舗名→ID逆引きマップで解決を試みる
+  if (nameToId) {
+    const resolvedId = nameToId.get(str)
+    if (resolvedId) return resolvedId
+  }
   return str
 }
 
@@ -58,6 +67,7 @@ export function processCategoryTimeSales(
   targetMonth?: number,
   overflowDays: number = 0,
   targetYear?: number,
+  storeNameToId?: ReadonlyMap<string, string>,
 ): CategoryTimeSalesData {
   if (rows.length < 4) return { records: [] }
 
@@ -105,7 +115,7 @@ export function processCategoryTimeSales(
     if (day == null) continue
 
     // 店舗
-    const storeId = parseStoreId(r[1])
+    const storeId = parseStoreId(r[1], storeNameToId)
 
     // 階層
     const department = parseCodeName(r[2])

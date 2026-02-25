@@ -333,4 +333,92 @@ describe('filterDataForMonth', () => {
     const filtered = filterDataForMonth(data, 2025, 3)
     expect(filtered.classifiedSales.records).toHaveLength(0)
   })
+
+  it('空パーティションではインポートしていない種別の既存データが維持される', () => {
+    // 既存データに仕入・花・消耗品・予算がある状態で
+    // classifiedSales のみインポート（他のパーティションは空）
+    const data = makeData({
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      flowers: { '1': { 1: { price: 5000, cost: 4000 } } },
+      consumables: { '1': { 1: { cost: 3000, items: [] } } },
+      budget: new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]]),
+      interStoreIn: { '1': { 1: { interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] } } },
+      classifiedSales: {
+        records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 1 }],
+      },
+    })
+
+    // パーティションがすべて空（インポートされていない）
+    const emptyPartitions = {
+      purchase: {},
+      flowers: {},
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {},
+    }
+
+    const filtered = filterDataForMonth(data, 2025, 1, emptyPartitions)
+
+    // classifiedSales はフィルタされる（レコードベース）
+    expect(filtered.classifiedSales.records).toHaveLength(1)
+
+    // StoreDayRecord 系データは既存データが維持されること（空で上書きされない）
+    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(100)
+    expect(filtered.flowers['1']?.[1]?.price).toBe(5000)
+    expect(filtered.consumables['1']?.[1]?.cost).toBe(3000)
+    expect(filtered.budget.get('1')?.total).toBe(200000)
+    expect(filtered.interStoreIn['1']?.[1]).toBeTruthy()
+  })
+
+  it('パーティションにデータがある種別は月フィルタが適用される', () => {
+    const data = makeData({
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 999, price: 999 } } } },
+      classifiedSales: {
+        records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 1 }],
+      },
+    })
+
+    // 仕入パーティションに1月データがある
+    const partitions = {
+      purchase: { '2025-1': { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } } },
+      flowers: {},
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {},
+    }
+
+    const filtered = filterDataForMonth(data, 2025, 1, partitions)
+
+    // パーティションから取得（元の data.purchase ではなくパーティションのデータ）
+    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(200)
+  })
+
+  it('パーティションにデータがあるが対象月が存在しない場合は空になる', () => {
+    const data = makeData({
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: {
+        records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 2 }],
+      },
+    })
+
+    // 仕入パーティションに1月データのみ（2月はない）
+    const partitions = {
+      purchase: { '2025-1': { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } } },
+      flowers: {},
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {},
+    }
+
+    const filtered = filterDataForMonth(data, 2025, 2, partitions)
+
+    // 仕入パーティションにはデータがあるが2月分はないので空
+    expect(Object.keys(filtered.purchase)).toHaveLength(0)
+  })
 })

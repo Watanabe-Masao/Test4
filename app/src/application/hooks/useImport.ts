@@ -450,6 +450,9 @@ function buildMonthData(
       categoryTimeSales: monthData.categoryTimeSales.records.length > 0
         ? monthData.categoryTimeSales
         : existing.categoryTimeSales,
+      departmentKpi: monthData.departmentKpi.records.length > 0
+        ? monthData.departmentKpi
+        : existing.departmentKpi,
       interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
       interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
       flowers: { ...existing.flowers, ...monthData.flowers },
@@ -467,6 +470,7 @@ function buildMonthData(
     purchase: mergeStoreDayRecords(existing.purchase, monthData.purchase),
     classifiedSales: mergeCSInserts(existing.classifiedSales, monthData.classifiedSales),
     categoryTimeSales: mergeCTSInserts(existing.categoryTimeSales, monthData.categoryTimeSales),
+    departmentKpi: mergeDepartmentKpiInserts(existing.departmentKpi, monthData.departmentKpi),
     interStoreIn: mergeStoreDayRecords(existing.interStoreIn, monthData.interStoreIn),
     interStoreOut: mergeStoreDayRecords(existing.interStoreOut, monthData.interStoreOut),
     flowers: mergeStoreDayRecords(existing.flowers, monthData.flowers),
