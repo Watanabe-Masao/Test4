@@ -3,7 +3,7 @@ export { buildCategoryTimeSalesIndex } from './indexBuilder'
 
 // ─── Filtering ──────────────────────────────────────────
 export type { HierarchyFilterParams } from './filters'
-export { queryByDateRange, filterByDow, getDateKeysForStores } from './filters'
+export { queryByDateRange, getDateKeysForStores } from './filters'
 
 // ─── Divisor ────────────────────────────────────────────
 export type { AggregateMode } from './divisor'

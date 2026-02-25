@@ -29,7 +29,7 @@ export interface HourlyAggregation {
 /**
  * フィルタ済みレコードを時間帯別に集約する。
  *
- * @param records queryByDateRange + filterByDow 適用済みレコード
+ * @param records queryByDateRange 適用済みレコード
  * @returns 生の合計値（除数未適用）
  */
 export function aggregateHourly(
@@ -75,7 +75,7 @@ export interface LevelAggregationEntry {
 /**
  * フィルタ済みレコードを階層レベル（部門/ライン/クラス）でグルーピング集約する。
  *
- * @param records queryByDateRange + filterByDow 適用済みレコード
+ * @param records queryByDateRange 適用済みレコード
  * @param level 集約対象の階層レベル
  * @returns code → LevelAggregationEntry のマップ（生の合計値）
  */

@@ -22,7 +22,6 @@ export type { HierarchyFilterParams, AggregateMode } from './categoryTimeSales'
 export {
   queryByDateRange,
   getDateKeysForStores,
-  filterByDow,
   computeDivisor,
   countDistinctDays,
   computeDowDivisorMap,

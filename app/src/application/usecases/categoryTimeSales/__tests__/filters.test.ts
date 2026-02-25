@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { queryByDateRange, filterByDow } from '../filters'
+import { queryByDateRange } from '../filters'
 import { buildCategoryTimeSalesIndex } from '../indexBuilder'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, DateRange } from '@/domain/models'
 
@@ -163,34 +163,36 @@ describe('queryByDateRange', () => {
   })
 })
 
-describe('filterByDow', () => {
-  // 2026年2月: 1日=日曜, 2日=月曜, ...
+describe('queryByDateRange (dow filter)', () => {
+  // 2026年2月: 1日=日曜, 2日=月曜, 3日=火曜, 8日=日曜
   const records = [
-    makeRecord({ day: 1 }),  // 日曜 (0)
-    makeRecord({ day: 2 }),  // 月曜 (1)
-    makeRecord({ day: 3 }),  // 火曜 (2)
-    makeRecord({ day: 8 }),  // 日曜 (0)
+    makeRecord({ year: 2026, month: 2, day: 1 }),  // 日曜 (0)
+    makeRecord({ year: 2026, month: 2, day: 2 }),  // 月曜 (1)
+    makeRecord({ year: 2026, month: 2, day: 3 }),  // 火曜 (2)
+    makeRecord({ year: 2026, month: 2, day: 8 }),  // 日曜 (0)
   ]
+  const index = buildIndex(records)
+  const fullRange: DateRange = { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } }
 
-  it('空の曜日セットで全レコード返す', () => {
-    const result = filterByDow(records, new Set(), 2026, 2)
+  it('dow 未指定で全レコード返す', () => {
+    const result = queryByDateRange(index, { dateRange: fullRange })
     expect(result.length).toBe(4)
   })
 
   it('日曜のみフィルタ', () => {
-    const result = filterByDow(records, new Set([0]), 2026, 2)
+    const result = queryByDateRange(index, { dateRange: fullRange, dow: new Set([0]) })
     expect(result.length).toBe(2)
     expect(result.every((r) => r.day === 1 || r.day === 8)).toBe(true)
   })
 
   it('月曜+火曜フィルタ', () => {
-    const result = filterByDow(records, new Set([1, 2]), 2026, 2)
+    const result = queryByDateRange(index, { dateRange: fullRange, dow: new Set([1, 2]) })
     expect(result.length).toBe(2)
     expect(result.map((r) => r.day).sort()).toEqual([2, 3])
   })
 
   it('該当なしで空配列', () => {
-    const result = filterByDow(records, new Set([6]), 2026, 2) // 土曜
+    const result = queryByDateRange(index, { dateRange: fullRange, dow: new Set([6]) }) // 土曜
     expect(result.length).toBe(0)
   })
 })

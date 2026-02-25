@@ -93,33 +93,6 @@ export function queryByDateRange(
 }
 
 /**
- * 曜日フィルタを適用する。dowAvg モードで特定曜日のみ対象にする場合に使用。
- *
- * レコード自身の year/month/day から曜日を算出する。
- * 外部から year/month を渡す必要がない（レコードが自分の日付を知っている）。
- *
- * @param records フィルタ済みレコード
- * @param selectedDows 対象曜日 (0=日〜6=土)。空 = 全曜日
- * @param year 年（後方互換用。レコードに year がある場合はレコード側を優先）
- * @param month 月（後方互換用。レコードに month がある場合はレコード側を優先）
- */
-export function filterByDow(
-  records: readonly CategoryTimeSalesRecord[],
-  selectedDows: ReadonlySet<number>,
-  year: number,
-  month: number,
-): readonly CategoryTimeSalesRecord[] {
-  if (selectedDows.size === 0) return records
-  return records.filter((r) => {
-    // レコードが year/month を持っている場合はそちらを使う（正確な曜日算出）
-    const y = r.year || year
-    const m = r.month || month
-    const dow = new Date(y, m - 1, r.day).getDay()
-    return selectedDows.has(dow)
-  })
-}
-
-/**
  * インデックスに含まれるユニークな dateKey を返すユーティリティ。
  * 指定店舗のデータのみを対象にする。
  */
