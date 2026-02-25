@@ -327,6 +327,7 @@ export function DashboardPage() {
       <MetricBreakdownPanel
         explanation={explanations.get(explainMetric)!}
         allExplanations={explanations}
+        stores={appState.data.stores}
         onClose={() => setExplainMetric(null)}
       />
     )}

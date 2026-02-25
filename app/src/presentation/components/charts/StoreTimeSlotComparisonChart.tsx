@@ -68,6 +68,11 @@ const Separator = styled.span`
   background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
 
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
+
 /* 構成比テーブル */
 const CompTable = styled.div`
   margin-top: ${({ theme }) => theme.spacing[3]};
@@ -194,7 +199,18 @@ export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, ye
     return { data, dataPct, storeNames, hours, storeTotals }
   }, [periodRecords, stores, filter, pf, hf])
 
-  if (data.length === 0 || storeNames.length <= 1) return null
+  if (data.length === 0 || storeNames.length <= 1) return (
+    <Wrapper>
+      <Header><Title>店舗別 時間帯売上パターン比較</Title></Header>
+      <EmptyFilterMsg>
+        {storeNames.length <= 1 && data.length > 0
+          ? '比較には2店舗以上のデータが必要です'
+          : '選択した絞り込み条件に該当するデータがありません'}
+      </EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const chartData = metricMode === 'pct' ? dataPct : data
   const titleText = metricMode === 'pct'

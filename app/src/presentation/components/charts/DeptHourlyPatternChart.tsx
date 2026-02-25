@@ -67,6 +67,10 @@ const Separator = styled.span`
   height: 16px;
   background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 
 const SelectWrap = styled.select`
   font-size: 0.65rem;
@@ -219,7 +223,14 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
     return { data, departments: topDepts.map((d) => d.name) }
   }, [periodRecords, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter, pf, hf])
 
-  if (data.length === 0 || departments.length === 0) return null
+  if (data.length === 0 || departments.length === 0) return (
+    <Wrapper>
+      <Header><Title>部門別 時間帯パターン</Title></Header>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const levelLabels: Record<GroupLevel, string> = { department: '部門', line: 'ライン', klass: 'クラス' }
   const filterLabel = groupLevel === 'klass' && lineFilter

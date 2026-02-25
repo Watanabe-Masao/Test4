@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import { useAppDispatch } from '@/application/context'
 import {
   ExecSummaryWrapper,
   ExecSummaryTabBar,
@@ -23,7 +25,31 @@ const TABS: { key: SummaryTab; label: string }[] = [
   { key: 'customers', label: '客数・客単価' },
 ]
 
-export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetContext) {
+/* ── Warning banner styled component ── */
+const WarningBanner = styled.div<{ $clickable?: boolean }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.warning};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.12)' : 'rgba(234,179,8,0.08)'};
+  border: 1px solid ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.3)' : 'rgba(234,179,8,0.25)'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  line-height: 1.4;
+  ${({ $clickable }) => $clickable && `
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    &:hover {
+      background: rgba(234,179,8,0.18);
+      border-color: rgba(234,179,8,0.5);
+    }
+  `}
+`
+
+export function ExecSummaryBarWidget(ctx: WidgetContext) {
+  const { result: r, prevYear, onExplain } = ctx
+  const dispatch = useAppDispatch()
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
@@ -31,6 +57,18 @@ export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetC
     : null
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
+
+  // 仕入データ不足の検出
+  const purchaseShort = r.purchaseMaxDay > 0 && r.purchaseMaxDay < r.elapsedDays
+  // 売変データ欠損の検出
+  const missingDiscount = !r.hasDiscountData && r.totalSales > 0
+
+  const handleFilterToPurchaseRange = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (r.purchaseMaxDay > 0) {
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: r.purchaseMaxDay } })
+    }
+  }, [dispatch, r.purchaseMaxDay])
 
   return (
     <ExecSummaryWrapper>
@@ -90,6 +128,12 @@ export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetC
               {r.estMethodClosingInventory != null && (
                 <ExecSummarySub>推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}</ExecSummarySub>
               )}
+              {purchaseShort && (
+                <WarningBanner $clickable onClick={handleFilterToPurchaseRange}>
+                  仕入データ: {r.purchaseMaxDay}日まで（売上: {r.elapsedDays}日まで）
+                  — クリックで仕入有効期間に絞り込み
+                </WarningBanner>
+              )}
             </ExecSummaryItem>
             <ExecSummaryItem $accent="#3b82f6" $clickable onClick={() => onExplain('averageMarkupRate')}>
               <ExecSummaryHint>根拠</ExecSummaryHint>
@@ -104,6 +148,11 @@ export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetC
                     <ExecSummarySub>
                       推定粗利額（売変還元法）: {formatCurrency(Math.round(r.grossSales * estGpRate))}
                     </ExecSummarySub>
+                    {missingDiscount && (
+                      <WarningBanner>
+                        売変データなし — 推定法の精度が低下しています
+                      </WarningBanner>
+                    )}
                   </>
                 )
               })()}
@@ -135,6 +184,16 @@ export function ExecSummaryBarWidget({ result: r, prevYear, onExplain }: WidgetC
                   </>
                 )
               })()}
+              {purchaseShort && (
+                <WarningBanner $clickable onClick={handleFilterToPurchaseRange}>
+                  {r.purchaseMaxDay + 1}日以降の粗利は仕入原価ゼロで算出 — クリックで有効期間に絞り込み
+                </WarningBanner>
+              )}
+              {missingDiscount && (
+                <WarningBanner>
+                  売変データなし — 推定在庫・推定粗利率の精度が低下しています
+                </WarningBanner>
+              )}
             </ExecSummaryItem>
           </ExecSummaryBar>
         )}

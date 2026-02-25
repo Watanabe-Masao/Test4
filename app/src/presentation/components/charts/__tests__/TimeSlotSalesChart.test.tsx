@@ -52,8 +52,8 @@ describe('TimeSlotSalesChart', () => {
     expect(screen.getByText('時間帯別売上')).toBeInTheDocument()
   })
 
-  it('空レコードの場合 null を返す', () => {
-    const { container } = wrap(
+  it('空レコードの場合 空状態メッセージを表示する', () => {
+    wrap(
       <TimeSlotSalesChart
         ctsIndex={EMPTY_CTS_INDEX}
         prevCtsIndex={EMPTY_CTS_INDEX}
@@ -64,7 +64,7 @@ describe('TimeSlotSalesChart', () => {
       />,
     )
 
-    expect(container.innerHTML).toBe('')
+    expect(screen.getByText('選択した絞り込み条件に該当するデータがありません')).toBeInTheDocument()
   })
 
   it('selectedStoreIds でフィルタリングされる', () => {

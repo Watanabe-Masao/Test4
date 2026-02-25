@@ -77,6 +77,29 @@ function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
   )
 }
 
+/* ── Warning banner for data completeness ────────────── */
+
+const KpiWarningBar = styled.div<{ $clickable?: boolean }>`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.palette.warning};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.12)' : 'rgba(234,179,8,0.08)'};
+  border: 1px solid ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(234,179,8,0.3)' : 'rgba(234,179,8,0.25)'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  ${({ $clickable }) => $clickable && `
+    cursor: pointer;
+    transition: background 0.15s;
+    &:hover {
+      background: rgba(234,179,8,0.18);
+      border-color: rgba(234,179,8,0.5);
+    }
+  `}
+`
+
 /* ── Editable cell styled components ────────────────── */
 
 const EditableCell = styled(STd)`
@@ -259,6 +282,16 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     [dispatch],
   )
 
+  // 仕入/売変データの完全性チェック（集約結果から判定）
+  const purchaseShort = agg.purchaseMaxDay > 0 && agg.purchaseMaxDay < agg.elapsedDays
+  const missingDiscount = !agg.hasDiscountData && agg.totalSales > 0
+
+  const handleFilterToPurchase = useCallback(() => {
+    if (agg.purchaseMaxDay > 0) {
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: agg.purchaseMaxDay } })
+    }
+  }, [dispatch, agg.purchaseMaxDay])
+
   if (storeEntries.length === 0) {
     return (
       <STableWrapper>
@@ -419,6 +452,16 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
   return (
     <STableWrapper>
       <STableTitle>店舗別KPI一覧{isPartialPeriod ? `（〜${effectiveEndDay}日）` : ''}</STableTitle>
+      {purchaseShort && (
+        <KpiWarningBar $clickable onClick={handleFilterToPurchase}>
+          仕入データ: {agg.purchaseMaxDay}日まで（売上: {agg.elapsedDays}日まで） — {agg.purchaseMaxDay + 1}日以降の粗利は仕入原価ゼロで算出されています。クリックで仕入有効期間に絞り込み
+        </KpiWarningBar>
+      )}
+      {missingDiscount && (
+        <KpiWarningBar>
+          売変データなし — 推定法（推定在庫・推定粗利率）の精度が低下しています
+        </KpiWarningBar>
+      )}
       <ScrollWrapper>
         <STable>
           <thead>

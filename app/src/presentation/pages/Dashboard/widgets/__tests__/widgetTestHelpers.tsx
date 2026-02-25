@@ -91,6 +91,8 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
       interDepartmentOut: ZERO,
       netTransfer: ZERO,
     },
+    purchaseMaxDay: 15,
+    hasDiscountData: true,
     elapsedDays: 15,
     salesDays: 10,
     averageDailySales: 10000,

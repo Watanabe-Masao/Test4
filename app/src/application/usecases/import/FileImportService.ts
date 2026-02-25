@@ -394,6 +394,32 @@ export function validateImportedData(
 
     checkSpecialSalesRange(data.flowers, '花データ')
     checkSpecialSalesRange(data.directProduce, '産直データ')
+
+    // 仕入データの日付範囲チェック
+    if (Object.keys(data.purchase).length > 0) {
+      let purchaseMaxDay = 0
+      for (const storeId of Object.keys(data.purchase)) {
+        const days = data.purchase[storeId]
+        if (!days || typeof days !== 'object') continue
+        for (const dayStr of Object.keys(days)) {
+          const d = Number(dayStr)
+          if (d > purchaseMaxDay) purchaseMaxDay = d
+        }
+      }
+
+      if (purchaseMaxDay > 0 && purchaseMaxDay < csMaxDay) {
+        messages.push({
+          level: 'warning',
+          message: `仕入データの最終取込日（${purchaseMaxDay}日）が売上データ（${csMaxDay}日）より短いです — ${purchaseMaxDay + 1}日以降の粗利計算は仕入原価ゼロで算出されています`,
+          details: [
+            `仕入データ: 1日〜${purchaseMaxDay}日`,
+            `売上データ: 1日〜${csMaxDay}日`,
+            `${purchaseMaxDay + 1}日〜${csMaxDay}日の期間は仕入データがないため、粗利が過大に表示されます`,
+            'KPI画面の警告をクリックすると仕入データが有効な期間に絞り込めます',
+          ],
+        })
+      }
+    }
   }
 
   // ── オプショナルデータ ──
@@ -408,8 +434,13 @@ export function validateImportedData(
   )
   if (!hasDiscountData && data.classifiedSales.records.length > 0) {
     messages.push({
-      level: 'info',
-      message: '分類別売上に売変データが含まれていません。売変列付きのファイルを読み込むと推定粗利計算の精度が向上します',
+      level: 'warning',
+      message: '売変データがありません — 推定法（推定在庫・推定粗利率）の精度が低下します',
+      details: [
+        '分類別売上ファイルに売変列（71〜74）が含まれていません',
+        '推定法では売変率を用いて推定原価を算出するため、売変データがないと推定精度が大幅に低下します',
+        '売変列付きの分類別売上ファイルを再インポートしてください',
+      ],
     })
   }
 

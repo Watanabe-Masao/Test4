@@ -46,6 +46,8 @@ export function buildDailyRecords(
   let totalCustomers = 0
   let salesDays = 0
   let elapsedDays = 0
+  let purchaseMaxDay = 0
+  let hasDiscountData = false
 
   const transferTotals = {
     interStoreIn: { ...ZERO_COST_PRICE_PAIR },
@@ -67,6 +69,7 @@ export function buildDailyRecords(
     const purchase: CostPricePair = purchaseDay
       ? { cost: purchaseDay.total.cost, price: purchaseDay.total.price }
       : ZERO_COST_PRICE_PAIR
+    if (purchaseDay) purchaseMaxDay = day
 
     // 売上（分類別売上の集約）・客数（花ファイル）
     const daySales = csDay?.sales ?? 0
@@ -136,6 +139,7 @@ export function buildDailyRecords(
     const discountEntries = csDay?.discountEntries ?? ZERO_DISCOUNT_ENTRIES
     const discountAmount = csDay?.discount ?? 0
     const discountAbsolute = Math.abs(discountAmount)
+    if (discountAbsolute > 0) hasDiscountData = true
 
     // コア売上
     const { coreSales } = calculateCoreSales(daySales, flowers.price, directProduce.price)
@@ -255,6 +259,8 @@ export function buildDailyRecords(
     totalCustomers,
     salesDays,
     elapsedDays,
+    purchaseMaxDay,
+    hasDiscountData,
     transferTotals,
   }
 }

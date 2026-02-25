@@ -304,7 +304,9 @@ describe('validateImportedData', () => {
     const messages = validateImportedData(data)
     const infos = messages.filter((m) => m.level === 'info')
     expect(infos.some((i) => i.message.includes('予算'))).toBe(true)
-    expect(infos.some((i) => i.message.includes('売変'))).toBe(true)
+    // 売変なしは warning に昇格
+    const warnings = messages.filter((m) => m.level === 'warning')
+    expect(warnings.some((w) => w.message.includes('売変'))).toBe(true)
   })
 
   it('一部店舗の在庫設定不足は警告', () => {

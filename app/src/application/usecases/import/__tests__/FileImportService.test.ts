@@ -107,7 +107,7 @@ describe('validateImportedData', () => {
     expect(messages.some((m) => m.level === 'info' && m.message.includes('予算'))).toBe(true)
   })
 
-  it('売変なしは情報メッセージ', () => {
+  it('売変なしは警告メッセージ', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
@@ -117,7 +117,7 @@ describe('validateImportedData', () => {
       ]),
     })
     const messages = validateImportedData(data)
-    expect(messages.some((m) => m.level === 'info' && m.message.includes('売変'))).toBe(true)
+    expect(messages.some((m) => m.level === 'warning' && m.message.includes('売変'))).toBe(true)
   })
 
   it('ImportSummary 付きで失敗ファイルがエラー表示される', () => {

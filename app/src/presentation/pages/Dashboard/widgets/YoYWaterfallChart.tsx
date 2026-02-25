@@ -134,6 +134,64 @@ const DecompBtn = styled.button<{ $active: boolean }>`
   &:hover { opacity: 0.8; }
 `
 
+/* ── 分解説明用コンポーネント ── */
+
+const HelpToggle = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  &:hover { text-decoration: underline; }
+`
+
+const HelpBox = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text2};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[5]}`};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  line-height: 1.8;
+`
+
+const HelpFormula = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text};
+  margin: 4px 0;
+`
+
+const DECOMP_HELP: Record<number, { title: string; items: { label: string; formula: string; desc: string }[] }> = {
+  2: {
+    title: '2要素分解（シャープリー値）',
+    items: [
+      { label: '客数効果', formula: '(C₁-C₀)×(T₀+T₁)/2', desc: '来店客数の変化による売上変動' },
+      { label: '客単価効果', formula: '(T₁-T₀)×(C₀+C₁)/2', desc: '1人あたり購入額の変化による売上変動' },
+    ],
+  },
+  3: {
+    title: '3要素分解（シャープリー値）',
+    items: [
+      { label: '客数効果', formula: '客数変化 × 平均(点数×単価)', desc: '来店客数の増減' },
+      { label: '点数効果', formula: '点数変化 × 平均(客数×単価)', desc: '1人あたり購入点数の増減' },
+      { label: '単価効果', formula: '単価変化 × 平均(客数×点数)', desc: '1点あたり平均単価の増減' },
+    ],
+  },
+  5: {
+    title: '5要素分解（4変数シャープリー値）',
+    items: [
+      { label: '客数効果', formula: '3要素と同一', desc: '来店客数の増減' },
+      { label: '点数効果', formula: '3要素と同一', desc: '1人あたり購入点数の増減' },
+      { label: '価格効果', formula: 'Σカテゴリ(単価変化×前年構成比)', desc: 'カテゴリ内での単価変動' },
+      { label: '構成比変化効果', formula: 'Σカテゴリ(構成比変化×加重平均単価)', desc: '高単価/低単価カテゴリへのシフト' },
+    ],
+  },
+}
+
 export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const prevYear = ctx.prevYear
@@ -142,6 +200,7 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
   const [compMode, setCompMode] = useState<ComparisonMode>('yoy')
+  const [showHelp, setShowHelp] = useState(false)
 
   // Period slider state
   const [dayStart, dayEnd, setDayRange] = useDayRange(ctx.daysInMonth)
@@ -481,6 +540,31 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             </DecompBtn>
           )}
         </DecompRow>
+      )}
+
+      {viewMode === 'factor' && (
+        <>
+          <HelpToggle onClick={() => setShowHelp(!showHelp)}>
+            {showHelp ? '▼' : '▶'} 計算式の説明
+          </HelpToggle>
+          {showHelp && (() => {
+            const help = DECOMP_HELP[activeLevel]
+            return help ? (
+              <HelpBox>
+                <strong>{help.title}</strong>
+                <div style={{ marginTop: 4 }}>
+                  不変条件: 全効果の合計 = 当期売上 - 前期売上（シャープリー効率性公理）
+                </div>
+                {help.items.map((item) => (
+                  <div key={item.label} style={{ marginTop: 8 }}>
+                    <strong>{item.label}</strong>: {item.desc}
+                    <HelpFormula>{item.formula}</HelpFormula>
+                  </div>
+                ))}
+              </HelpBox>
+            ) : null
+          })()}
+        </>
       )}
 
       <SummaryRow>

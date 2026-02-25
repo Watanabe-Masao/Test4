@@ -66,6 +66,10 @@ const Separator = styled.span`
   height: 16px;
   background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 
 /* KPI Grid */
 const Grid = styled.div`
@@ -499,7 +503,14 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     }
   }, [comparable, prev])
 
-  if (chartData.length === 0) return null
+  if (chartData.length === 0) return (
+    <Wrapper>
+      <HeaderRow><Title>時間帯別売上</Title></HeaderRow>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const showPrev = hasPrevYear && showPrevYear
 

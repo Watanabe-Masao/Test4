@@ -53,6 +53,10 @@ const Tab = styled.button<{ $active: boolean }>`
   &:hover { opacity: 0.85; }
 `
 
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 const HeatGrid = styled.div`
   display: grid;
   gap: 2px;
@@ -328,7 +332,14 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
 
   const maxVal = Math.max(0, ...curData.matrix.flat())
 
-  if (curData.hours.length === 0) return null
+  if (curData.hours.length === 0) return (
+    <Wrapper>
+      <HeaderRow><Title>時間帯×曜日 売上ヒートマップ</Title></HeaderRow>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const modeLabel = pf.mode === 'dowAvg' ? '（曜日別平均）' : pf.mode === 'dailyAvg' ? '（日平均）' : ''
   const showDiff = heatmapMode === 'yoyDiff' && diffMatrix
