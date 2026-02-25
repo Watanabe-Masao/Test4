@@ -5,7 +5,7 @@
  * 現在は IndexedDB 実装のみ。将来クラウド連携時にこのインターフェースに
  * REST/GraphQL 実装を追加することで、アプリケーション層の変更なしに移行できる。
  */
-import type { ImportedData, DataType, ImportHistoryEntry } from '@/domain/models'
+import type { ImportedData, DataType, ImportHistoryEntry, StoreDaySummaryCache } from '@/domain/models'
 
 /** 永続化されたセッションのメタデータ */
 export interface PersistedSessionMeta {
@@ -68,4 +68,10 @@ export interface DataRepository {
 
   /** インポート履歴を読み込む */
   loadImportHistory(year: number, month: number): Promise<ImportHistoryEntry[]>
+
+  /** StoreDaySummaryCache を保存する */
+  saveSummaryCache(cache: StoreDaySummaryCache, year: number, month: number): Promise<void>
+
+  /** StoreDaySummaryCache を読み込む（存在しない場合 null） */
+  loadSummaryCache(year: number, month: number): Promise<StoreDaySummaryCache | null>
 }

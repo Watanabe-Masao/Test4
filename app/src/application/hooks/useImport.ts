@@ -13,6 +13,7 @@ import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, createEmptyImport
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 
 /** インポート進捗 */
 export interface ImportProgress {
@@ -89,6 +90,23 @@ export function useImport() {
       repo.saveImportHistory(year, month, entry).catch((e) => {
         console.error('[useImport] saveImportHistory failed:', e)
       })
+    },
+    [repo],
+  )
+
+  /** データ保存後にサマリーキャッシュを非同期構築・保存する（fire-and-forget） */
+  const buildAndSaveSummaryCache = useCallback(
+    (data: ImportedData, year: number, month: number) => {
+      if (!repo.isAvailable()) return
+      try {
+        const daysInMonth = getDaysInMonth(year, month)
+        const cache = buildStoreDaySummaryCache(data, daysInMonth)
+        repo.saveSummaryCache(cache, year, month).catch((e) => {
+          console.warn('[useImport] saveSummaryCache failed:', e)
+        })
+      } catch (e) {
+        console.warn('[useImport] buildStoreDaySummaryCache failed:', e)
+      }
     },
     [repo],
   )
@@ -207,6 +225,7 @@ export function useImport() {
                   const existing = existingByMonth.get(mk) ?? null
                   const finalData = buildMonthData(existing, monthData, action)
                   await repo.saveMonthlyData(finalData, year, month)
+                  buildAndSaveSummaryCache(finalData, year, month)
                 }
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
@@ -271,6 +290,7 @@ export function useImport() {
             if (repo.isAvailable()) {
               try {
                 await repo.saveMonthlyData(targetData, targetYear, targetMonth)
+                buildAndSaveSummaryCache(targetData, targetYear, targetMonth)
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
                 console.error('[useImport] save failed:', e)
@@ -288,7 +308,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo, saveHistory],
+    [dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   /** 差分確認結果を適用する */
@@ -330,6 +350,7 @@ export function useImport() {
                 const existing = existingByMonth.get(mk) ?? null
                 const finalData = buildMonthData(existing, monthData, action)
                 await repo.saveMonthlyData(finalData, year, month)
+                buildAndSaveSummaryCache(finalData, year, month)
               }
               // 全月の保存が成功した後にのみ履歴を記録
               for (const { year, month } of months) {
@@ -365,6 +386,7 @@ export function useImport() {
           const { targetYear, targetMonth } = settingsRef.current
           repo.saveMonthlyData(finalData, targetYear, targetMonth).then(() => {
             saveHistory(summary, targetYear, targetMonth)
+            buildAndSaveSummaryCache(finalData, targetYear, targetMonth)
           }).catch((e) => {
             const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
             console.error('[useImport] save failed:', e)
@@ -375,7 +397,7 @@ export function useImport() {
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory],
+    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   return {
