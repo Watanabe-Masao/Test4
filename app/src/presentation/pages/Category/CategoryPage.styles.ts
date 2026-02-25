@@ -235,3 +235,35 @@ export const SupplierFilterInput = styled.input`
     color: ${({ theme }) => theme.colors.text4};
   }
 `
+
+/* ── ドリルダウン用 ── */
+export const DrillTr = styled.tr<{ $clickable?: boolean; $expanded?: boolean; $depth?: number }>`
+  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  ${({ $expanded, theme }) => $expanded && `
+    background: ${theme.colors.palette.primary}10;
+    &:hover { background: ${theme.colors.palette.primary}18; }
+  `}
+  ${({ $depth, theme }) => $depth && $depth > 0 && `
+    background: ${theme.colors.bg3};
+    td { font-size: ${theme.typography.fontSize.xs}; }
+  `}
+  ${({ $depth, theme }) => $depth && $depth > 1 && `
+    background: ${theme.colors.bg4};
+    td { font-size: ${theme.typography.fontSize.xs}; color: ${theme.colors.text3}; }
+  `}
+  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+`
+
+export const DrillToggle = styled.span<{ $expanded?: boolean }>`
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.55rem;
+  transition: transform 0.15s ease;
+  color: ${({ theme }) => theme.colors.text3};
+  ${({ $expanded }) => $expanded && `transform: rotate(90deg);`}
+`
+
+export const DrillLabel = styled.span<{ $depth?: number }>`
+  padding-left: ${({ $depth }) => ($depth ?? 0) * 16}px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+`

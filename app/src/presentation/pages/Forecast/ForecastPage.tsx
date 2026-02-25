@@ -20,6 +20,7 @@ import {
   Th,
   Td,
   Tr,
+  TrTotal,
   AnomalyBadge,
 } from './ForecastPage.styles'
 import {
@@ -32,6 +33,9 @@ import {
   buildMovingAverages,
   buildRelationshipData,
   buildRelationshipDataFromPrev,
+  buildDailyDecomposition,
+  buildDowDecomposition,
+  buildWeeklyDecomposition,
 } from './ForecastPage.helpers'
 import {
   WeeklyChart,
@@ -43,6 +47,9 @@ import {
   RelationshipChart,
   CustomerSalesScatterChart,
   SameDowComparisonChart,
+  DecompTrendChart,
+  DecompDailyBarChart,
+  DecompDowChart,
 } from './ForecastCharts'
 import { sc } from '@/presentation/theme/semanticColors'
 
@@ -106,6 +113,12 @@ export function ForecastPage() {
   const relationshipData = buildRelationshipData(customerEntries)
   const prevRelationshipData = buildRelationshipDataFromPrev(customerEntries)
   const hasPrevCustomers = customerEntries.some((e) => e.prevCustomers > 0)
+
+  // ─── 要因分解分析データ ────────────────────────────
+  const dailyDecomp = buildDailyDecomposition(customerEntries)
+  const hasDecompData = dailyDecomp.length > 0
+  const dowDecomp = hasDecompData ? buildDowDecomposition(dailyDecomp, year, month) : []
+  const weeklyDecomp = hasDecompData ? buildWeeklyDecomposition(dailyDecomp, forecast.weeklySummaries) : []
 
   // 客数 KPI
   const totalCustomers = r.totalCustomers
@@ -319,6 +332,80 @@ export function ForecastPage() {
                 </tbody>
               </Table>
             </TableWrapper>
+          </Section>
+        </>
+      )}
+
+      {/* ─── 売上要因分解分析 ────────────────────────── */}
+      {hasDecompData && (
+        <>
+          <Section>
+            <SectionTitle>売上要因分解（客数×客単価 / 前年比）</SectionTitle>
+
+            <ChartGrid>
+              <DecompTrendChart data={dailyDecomp} />
+              <DecompDailyBarChart data={dailyDecomp} />
+            </ChartGrid>
+
+            <ChartGrid>
+              <DecompDowChart data={dowDecomp} dowColors={dowColors} />
+            </ChartGrid>
+
+            {/* 週別要因分解テーブル */}
+            {weeklyDecomp.length > 0 && (
+              <TableWrapper>
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>週</Th>
+                      <Th>期間</Th>
+                      <Th>売上差</Th>
+                      <Th>客数効果</Th>
+                      <Th>客単価効果</Th>
+                      <Th>客数寄与率</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {weeklyDecomp.map((w) => {
+                      const total = Math.abs(w.custEffect) + Math.abs(w.ticketEffect)
+                      const custPct = total > 0 ? w.custEffect / (w.custEffect + w.ticketEffect) : 0
+                      return (
+                        <Tr key={w.weekNumber}>
+                          <Td>第{w.weekNumber}週</Td>
+                          <Td>{w.startDay}日〜{w.endDay}日</Td>
+                          <Td $highlight={w.salesDiff < 0}>{formatCurrency(w.salesDiff)}</Td>
+                          <Td $highlight={w.custEffect < 0}>{formatCurrency(w.custEffect)}</Td>
+                          <Td $highlight={w.ticketEffect < 0}>{formatCurrency(w.ticketEffect)}</Td>
+                          <Td>{formatPercent(custPct)}</Td>
+                        </Tr>
+                      )
+                    })}
+                    {(() => {
+                      const totals = weeklyDecomp.reduce(
+                        (acc, w) => ({
+                          salesDiff: acc.salesDiff + w.salesDiff,
+                          custEffect: acc.custEffect + w.custEffect,
+                          ticketEffect: acc.ticketEffect + w.ticketEffect,
+                        }),
+                        { salesDiff: 0, custEffect: 0, ticketEffect: 0 },
+                      )
+                      const totalAbs = Math.abs(totals.custEffect) + Math.abs(totals.ticketEffect)
+                      const totalCustPct = totalAbs > 0 ? totals.custEffect / (totals.custEffect + totals.ticketEffect) : 0
+                      return (
+                        <TrTotal>
+                          <Td>合計</Td>
+                          <Td></Td>
+                          <Td>{formatCurrency(totals.salesDiff)}</Td>
+                          <Td>{formatCurrency(totals.custEffect)}</Td>
+                          <Td>{formatCurrency(totals.ticketEffect)}</Td>
+                          <Td>{formatPercent(totalCustPct)}</Td>
+                        </TrTotal>
+                      )
+                    })()}
+                  </tbody>
+                </Table>
+              </TableWrapper>
+            )}
           </Section>
         </>
       )}
