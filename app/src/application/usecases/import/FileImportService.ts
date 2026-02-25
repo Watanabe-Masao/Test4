@@ -179,39 +179,76 @@ export function validateImportedData(
   }
 
   // ── 分類別売上と分類別時間帯売上の整合性チェック ──
+  // Phase 1: 月次合計で乖離を検出（軽量）
+  // Phase 2: 乖離がある場合のみ日別内訳を生成（詳細）
   if (data.categoryTimeSales?.records?.length && data.classifiedSales.records.length > 0) {
-    const ctsByStoreDay = new Map<string, number>()
-    for (const rec of data.categoryTimeSales.records) {
-      const key = `${rec.storeId}|${rec.day}`
-      ctsByStoreDay.set(key, (ctsByStoreDay.get(key) ?? 0) + rec.totalAmount)
-    }
-
-    const csByStoreDay = new Map<string, number>()
-    for (const rec of data.classifiedSales.records) {
-      const key = `${rec.storeId}|${rec.day}`
-      csByStoreDay.set(key, (csByStoreDay.get(key) ?? 0) + rec.salesAmount)
-    }
-
+    // Phase 1: 月次合計
     let totalCSSum = 0
     let totalCtsSum = 0
-    for (const [key, csAmt] of csByStoreDay) {
-      totalCSSum += csAmt
-      totalCtsSum += ctsByStoreDay.get(key) ?? 0
+    for (const rec of data.classifiedSales.records) {
+      totalCSSum += rec.salesAmount
+    }
+    for (const rec of data.categoryTimeSales.records) {
+      totalCtsSum += rec.totalAmount
     }
 
     if (totalCSSum > 0 && totalCtsSum > 0) {
       const divergence = Math.abs(totalCSSum - totalCtsSum)
       const divergenceRate = divergence / totalCSSum
       if (divergenceRate > 0.01) {
+        // Phase 2: 日別乖離の内訳を生成
+        const csByDay = new Map<number, number>()
+        const ctsByDay = new Map<number, number>()
+        for (const rec of data.classifiedSales.records) {
+          csByDay.set(rec.day, (csByDay.get(rec.day) ?? 0) + rec.salesAmount)
+        }
+        for (const rec of data.categoryTimeSales.records) {
+          ctsByDay.set(rec.day, (ctsByDay.get(rec.day) ?? 0) + rec.totalAmount)
+        }
+
+        const allDays = new Set<number>([...csByDay.keys(), ...ctsByDay.keys()])
+        const sortedDays = [...allDays].sort((a, b) => a - b)
+
+        const dailyDetails: string[] = []
+        for (const day of sortedDays) {
+          const csAmt = csByDay.get(day) ?? 0
+          const ctsAmt = ctsByDay.get(day) ?? 0
+          const dayDiv = Math.abs(csAmt - ctsAmt)
+          if (csAmt === 0 && ctsAmt === 0) continue
+          const dayRate = csAmt > 0 ? dayDiv / csAmt : (ctsAmt > 0 ? 1 : 0)
+          if (dayRate > 0.01 || dayDiv > 1000) {
+            const sign = ctsAmt >= csAmt ? '+' : '-'
+            dailyDetails.push(
+              `  ${day}日: 分類別 ${Math.round(csAmt).toLocaleString()}円 / 時間帯 ${Math.round(ctsAmt).toLocaleString()}円（差 ${sign}${Math.round(dayDiv).toLocaleString()}円, ${(dayRate * 100).toFixed(1)}%）`,
+            )
+          }
+        }
+
+        // 片方にしか存在しない日を検出
+        const csOnlyDays = sortedDays.filter((d) => (csByDay.get(d) ?? 0) > 0 && !ctsByDay.has(d))
+        const ctsOnlyDays = sortedDays.filter((d) => (ctsByDay.get(d) ?? 0) > 0 && !csByDay.has(d))
+        if (csOnlyDays.length > 0) {
+          dailyDetails.push(`  ※ 分類別売上のみ: ${csOnlyDays.join(', ')}日`)
+        }
+        if (ctsOnlyDays.length > 0) {
+          dailyDetails.push(`  ※ 時間帯売上のみ: ${ctsOnlyDays.join(', ')}日`)
+        }
+
+        const details = [
+          `月合計 — 分類別: ${Math.round(totalCSSum).toLocaleString()}円 / 時間帯: ${Math.round(totalCtsSum).toLocaleString()}円（差額 ${Math.round(divergence).toLocaleString()}円）`,
+          '',
+          '▼ 日別内訳（乖離 >1% または >1,000円）',
+          ...(dailyDetails.length > 0
+            ? dailyDetails
+            : ['  すべての日で1%以内です（日別相殺により月合計で乖離が発生）']),
+          '',
+          '要因分解チャートの精度に影響する可能性があります',
+        ]
+
         messages.push({
           level: 'warning',
           message: `分類別売上と分類別時間帯売上の合計に乖離があります（${(divergenceRate * 100).toFixed(1)}%）`,
-          details: [
-            `分類別売上合計: ${Math.round(totalCSSum).toLocaleString()}円`,
-            `時間帯売上合計: ${Math.round(totalCtsSum).toLocaleString()}円`,
-            `差額: ${Math.round(divergence).toLocaleString()}円`,
-            '要因分解チャートの精度に影響する可能性があります',
-          ],
+          details,
         })
       }
     }
