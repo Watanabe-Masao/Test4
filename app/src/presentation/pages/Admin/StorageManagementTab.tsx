@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
+import type { StorageDataType } from '@/domain/models'
 import { useStorageAdmin } from '@/application/hooks'
 
 // ─── Styled Components ──────────────────────────────────
@@ -292,7 +293,7 @@ const LoadingText = styled.div`
 interface MonthEntry {
   year: number
   month: number
-  summary: { dataType: string; label: string; recordCount: number }[]
+  summary: { dataType: StorageDataType; label: string; recordCount: number }[]
   totalRecords: number
   dataTypeCount: number
 }
@@ -305,13 +306,13 @@ const STORE_DAY_TYPES = [
 
 // ─── Raw Data Viewer ────────────────────────────────────
 
-function RawDataViewer({ year, month, summary, loadSlice }: { year: number; month: number; summary: MonthEntry['summary']; loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null> }) {
+function RawDataViewer({ year, month, summary, loadSlice }: { year: number; month: number; summary: MonthEntry['summary']; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
   const typesWithData = summary.filter((s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType))
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [selectedType, setSelectedType] = useState<StorageDataType | null>(null)
   const [rawData, setRawData] = useState<Record<string, Record<string, unknown>> | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSelectType = useCallback(async (dataType: string) => {
+  const handleSelectType = useCallback(async (dataType: StorageDataType) => {
     if (selectedType === dataType) {
       setSelectedType(null)
       setRawData(null)
@@ -414,7 +415,7 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
 
 // ─── CTS Viewer ─────────────────────────────────────────
 
-function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; month: number; dataType: string; label: string; loadSlice: <T>(year: number, month: number, dataType: string) => Promise<T | null> }) {
+function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; month: number; dataType: StorageDataType; label: string; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
   const [expanded, setExpanded] = useState(false)
   const [records, setRecords] = useState<{ day: number; storeId: string; dept: string; line: string; klass: string; amount: number; qty: number }[]>([])
   const [loading, setLoading] = useState(false)
