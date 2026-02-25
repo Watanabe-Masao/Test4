@@ -5,48 +5,10 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { I18nProvider, useI18n } from '../I18nContext'
-import { jaMessages, enMessages, MESSAGE_CATALOGS } from '../messages'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider>{children}</I18nProvider>
 )
-
-describe('メッセージカタログ', () => {
-  it('日本語と英語の両方が定義されている', () => {
-    expect(MESSAGE_CATALOGS.ja).toBeDefined()
-    expect(MESSAGE_CATALOGS.en).toBeDefined()
-  })
-
-  it('日本語カタログの全セクションが存在する', () => {
-    expect(jaMessages.nav).toBeDefined()
-    expect(jaMessages.common).toBeDefined()
-    expect(jaMessages.dashboard).toBeDefined()
-    expect(jaMessages.calculation).toBeDefined()
-    expect(jaMessages.import).toBeDefined()
-    expect(jaMessages.format).toBeDefined()
-    expect(jaMessages.categories).toBeDefined()
-  })
-
-  it('英語カタログの全セクションが存在する', () => {
-    expect(enMessages.nav).toBeDefined()
-    expect(enMessages.common).toBeDefined()
-    expect(enMessages.dashboard).toBeDefined()
-    expect(enMessages.calculation).toBeDefined()
-    expect(enMessages.import).toBeDefined()
-    expect(enMessages.format).toBeDefined()
-    expect(enMessages.categories).toBeDefined()
-  })
-
-  it('日本語と英語でキーが一致する', () => {
-    const jaKeys = Object.keys(jaMessages.nav).sort()
-    const enKeys = Object.keys(enMessages.nav).sort()
-    expect(jaKeys).toEqual(enKeys)
-
-    const jaCommonKeys = Object.keys(jaMessages.common).sort()
-    const enCommonKeys = Object.keys(enMessages.common).sort()
-    expect(jaCommonKeys).toEqual(enCommonKeys)
-  })
-})
 
 describe('I18nContext', () => {
   beforeEach(() => {

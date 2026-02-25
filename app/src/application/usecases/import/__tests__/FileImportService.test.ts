@@ -409,6 +409,21 @@ describe('花・産直の日付範囲チェック', () => {
   })
 })
 
+describe('validateImportedData: 境界値テスト', () => {
+  it('classifiedSalesのみインポート + categoryTimeSalesなし → 乖離チェックスキップ', () => {
+    const data = makeData({
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: {
+        records: [makeCSRecord(1, '1', 50000)],
+      },
+      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+    })
+    const messages = validateImportedData(data)
+    expect(messages.find((m) => m.message.includes('乖離'))).toBeUndefined()
+  })
+})
+
 describe('hasValidationErrors', () => {
   it('error レベルがあれば true', () => {
     expect(hasValidationErrors([

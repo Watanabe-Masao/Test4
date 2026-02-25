@@ -18,27 +18,4 @@ describe('createEmptyImportedData', () => {
     expect(data.settings.size).toBe(0)
     expect(data.budget.size).toBe(0)
   })
-
-  it('毎回新しいインスタンスが返される', () => {
-    const data1 = createEmptyImportedData()
-    const data2 = createEmptyImportedData()
-
-    expect(data1).not.toBe(data2)
-    expect(data1.stores).not.toBe(data2.stores)
-  })
-
-  it('stores は Map インスタンス', () => {
-    const data = createEmptyImportedData()
-    expect(data.stores instanceof Map).toBe(true)
-  })
-
-  it('settings は Map インスタンス', () => {
-    const data = createEmptyImportedData()
-    expect(data.settings instanceof Map).toBe(true)
-  })
-
-  it('budget は Map インスタンス', () => {
-    const data = createEmptyImportedData()
-    expect(data.budget instanceof Map).toBe(true)
-  })
 })

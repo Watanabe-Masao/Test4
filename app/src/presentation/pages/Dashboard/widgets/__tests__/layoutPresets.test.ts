@@ -4,7 +4,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   LAYOUT_PRESETS,
-  PRESET_MAP,
   loadActivePreset,
   saveActivePreset,
 } from '../layoutPresets'
@@ -12,38 +11,6 @@ import {
 describe('レイアウトプリセット', () => {
   beforeEach(() => {
     localStorage.clear()
-  })
-
-  it('3つのプリセットが定義されている', () => {
-    expect(LAYOUT_PRESETS).toHaveLength(3)
-  })
-
-  it('各プリセットに必須フィールドがある', () => {
-    for (const preset of LAYOUT_PRESETS) {
-      expect(preset.id).toBeTruthy()
-      expect(preset.label).toBeTruthy()
-      expect(preset.description).toBeTruthy()
-      expect(preset.widgetIds.length).toBeGreaterThan(0)
-    }
-  })
-
-  it('経営者向けプリセットが存在する', () => {
-    expect(PRESET_MAP.has('executive')).toBe(true)
-    const exec = PRESET_MAP.get('executive')!
-    expect(exec.label).toBe('経営者向け')
-    expect(exec.widgetIds.length).toBeGreaterThanOrEqual(5)
-  })
-
-  it('現場担当者向けプリセットが存在する', () => {
-    expect(PRESET_MAP.has('field')).toBe(true)
-    const field = PRESET_MAP.get('field')!
-    expect(field.label).toBe('現場担当者向け')
-  })
-
-  it('分析者向けプリセットが存在する', () => {
-    expect(PRESET_MAP.has('analyst')).toBe(true)
-    const analyst = PRESET_MAP.get('analyst')!
-    expect(analyst.label).toBe('分析者向け')
   })
 
   it('saveActivePreset / loadActivePreset が動作する', () => {

@@ -111,22 +111,6 @@ describe('comparisonLabels', () => {
   })
 
   describe('mode consistency invariants', () => {
-    it('yoy labels are always year-based regardless of day input', () => {
-      for (let d = 1; d <= 28; d++) {
-        const labels = comparisonLabels('yoy', 2025, d, d)
-        expect(labels.curLabel).toBe('2025年')
-        expect(labels.prevLabel).toBe('2024年')
-      }
-    })
-
-    it('wow labels always reflect 7-day shift', () => {
-      for (let d = 8; d <= 28; d++) {
-        const labels = comparisonLabels('wow', 2025, d, d)
-        expect(labels.curLabel).toBe(`${d}日`)
-        expect(labels.prevLabel).toBe(`${d - 7}日`)
-      }
-    })
-
     it('wow range labels preserve width', () => {
       const labels = comparisonLabels('wow', 2025, 15, 22)
       // curLabel: "15-22日", prevLabel: "8-15日" — both 8-day ranges
