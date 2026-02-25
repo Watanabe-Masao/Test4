@@ -51,6 +51,7 @@ export function DashboardPage() {
       ctsRecordCount: ctsIndex.recordCount,
       prevYearHasPrevYear: prevYearCTS.hasPrevYear,
       storeCount: stores.size,
+      hasDiscountData: currentResult?.hasDiscountData,
     })
     if (injected) {
       setWidgetIds(injected)

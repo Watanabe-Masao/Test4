@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { formatPercent, formatCurrency, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -161,6 +162,27 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       signal: r.discountRate <= 0.03 ? 'green' : r.discountRate <= 0.05 ? 'yellow' : 'red',
       metricId: 'discountRate',
     },
+  ]
+
+  // 5b. Discount Breakdown (71-74)
+  if (r.discountEntries.length > 0) {
+    const totalDiscount = r.discountEntries.reduce((s, e) => s + e.amount, 0)
+    for (const dt of DISCOUNT_TYPES) {
+      const entry = r.discountEntries.find(e => e.type === dt.type)
+      const amt = entry?.amount ?? 0
+      const rate = r.grossSales > 0 ? safeDivide(amt, r.grossSales, 0) : 0
+      const pct = totalDiscount > 0 ? amt / totalDiscount : 0
+      items.push({
+        label: `${dt.label}（${dt.type}）`,
+        value: formatCurrency(amt),
+        sub: `売変率: ${formatPercent(rate)} / 構成比: ${formatPercent(pct, 1)}`,
+        signal: rate <= 0.01 ? 'green' : rate <= 0.02 ? 'yellow' : 'red',
+        metricId: 'discountRate',
+      })
+    }
+  }
+
+  items.push(
     // 6. Consumable Rate
     {
       label: '消耗品率',
@@ -169,7 +191,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       signal: r.consumableRate <= 0.02 ? 'green' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
       metricId: 'totalConsumable',
     },
-  ]
+  )
 
   // 7. Customer YoY (if prev year data available)
   const prevYear = ctx.prevYear
@@ -177,24 +199,27 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
     const custYoY = r.totalCustomers / prevYear.totalCustomers
     items.push({
       label: '客数前年比',
-      value: formatPercent(custYoY, 0),
+      value: formatPercent(custYoY, 2),
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
       signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
       metricId: 'totalCustomers',
     })
   }
 
-  // 8. Transaction Value
+  // 8. Transaction Value (小数第2位まで表示)
   if (r.totalCustomers > 0) {
-    const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
+    const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
     const prevTxValue = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-      ? calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
+      ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
       : null
     const txYoY = prevTxValue != null && prevTxValue > 0 ? txValue / prevTxValue : null
+    const fmtTx = (v: number) => `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
     items.push({
       label: '客単価',
-      value: formatCurrency(txValue),
-      sub: prevTxValue != null ? `前年: ${formatCurrency(prevTxValue)}` : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
+      value: fmtTx(txValue),
+      sub: prevTxValue != null
+        ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
+        : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
       signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
     })

@@ -7,6 +7,7 @@ import {
   TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
+  DiscountTrendChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -186,7 +187,21 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
-  // 注: 売変インパクト分析 → DailySalesChart「売変分析」ビューに統合
+  {
+    id: 'chart-discount-breakdown',
+    label: '売変内訳分析（71-74）',
+    group: 'チャート',
+    size: 'full',
+    isVisible: (ctx) => ctx.result.hasDiscountData,
+    render: ({ result: r, daysInMonth }) => (
+      <DiscountTrendChart
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        discountEntries={r.discountEntries}
+        totalGrossSales={r.grossSales}
+      />
+    ),
+  },
   // 注: 予算差・前年差推移 → BudgetVsActualChart「前年差」ビューに統合
   // 注: 日別客数推移 → DailySalesChart「客数」ビューに統合
   // 注: 日別客単価推移 → DailySalesChart「客単価」ビューに統合
@@ -449,7 +464,7 @@ function saveAutoInjectedIds(ids: Set<string>): void {
  */
 export function autoInjectDataWidgets(
   currentIds: string[],
-  ctx: { ctsRecordCount: number; prevYearHasPrevYear: boolean; storeCount: number },
+  ctx: { ctsRecordCount: number; prevYearHasPrevYear: boolean; storeCount: number; hasDiscountData?: boolean },
 ): string[] | null {
   const seen = getAutoInjectedIds()
   const candidates = WIDGET_REGISTRY.filter((w) => {
@@ -463,6 +478,9 @@ export function autoInjectDataWidgets(
     }
     if (w.id === 'chart-store-timeslot-comparison') {
       return ctx.ctsRecordCount > 0 && ctx.storeCount > 1
+    }
+    if (w.id === 'chart-discount-breakdown') {
+      return ctx.hasDiscountData === true
     }
     return ctx.ctsRecordCount > 0
   })
