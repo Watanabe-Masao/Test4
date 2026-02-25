@@ -7,7 +7,7 @@
  * ## 設計原則
  *
  * - 全ての日付は year/month/day の3要素で表現する（Dateオブジェクトは使わない）
- * - DateKey (YYYYMMDD数値) はインデックスキーとして O(1) アクセスを提供する
+ * - DateKey ('YYYY-MM-DD' 文字列) はインデックスキーとして O(1) アクセスを提供する
  * - DateRange は inclusive（from/to 両端含む）
  * - 曜日計算は必要時に算出する（保存しない）
  */
@@ -28,22 +28,26 @@ export interface DateRange {
 }
 
 /**
- * 日付キー (YYYYMMDD 形式の数値)
+ * 日付キー ('YYYY-MM-DD' 形式の ISO 8601 文字列)
  *
  * インデックスの Map キーとして使用する。
- * 数値型なので比較演算子で範囲判定が可能:
- *   fromKey <= dateKey && dateKey <= toKey
+ * 文字列型なので Map の値比較で一致判定が可能。
+ * 辞書順ソートが日付順と一致する:
+ *   '2025-12-31' < '2026-01-01' < '2026-02-28'
  */
-export type DateKey = number
+export type DateKey = string
 
 /**
- * CalendarDate → DateKey (YYYYMMDD) に変換する。
+ * CalendarDate → DateKey ('YYYY-MM-DD') に変換する。
  *
  * @example
- * toDateKey({ year: 2026, month: 2, day: 3 }) // → 20260203
+ * toDateKey({ year: 2026, month: 2, day: 3 }) // → '2026-02-03'
  */
 export function toDateKey(date: CalendarDate): DateKey {
-  return date.year * 10000 + date.month * 100 + date.day
+  const y = date.year
+  const m = String(date.month).padStart(2, '0')
+  const d = String(date.day).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 /**
@@ -52,20 +56,20 @@ export function toDateKey(date: CalendarDate): DateKey {
  * CategoryTimeSalesRecord のフィールドから直接生成する場合に使用。
  */
 export function toDateKeyFromParts(year: number, month: number, day: number): DateKey {
-  return year * 10000 + month * 100 + day
+  const m = String(month).padStart(2, '0')
+  const d = String(day).padStart(2, '0')
+  return `${year}-${m}-${d}`
 }
 
 /**
  * DateKey → CalendarDate に逆変換する。
  *
  * @example
- * fromDateKey(20260203) // → { year: 2026, month: 2, day: 3 }
+ * fromDateKey('2026-02-03') // → { year: 2026, month: 2, day: 3 }
  */
 export function fromDateKey(key: DateKey): CalendarDate {
-  const day = key % 100
-  const month = Math.floor(key / 100) % 100
-  const year = Math.floor(key / 10000)
-  return { year, month, day }
+  const [y, m, d] = key.split('-')
+  return { year: Number(y), month: Number(m), day: Number(d) }
 }
 
 /**
@@ -77,12 +81,13 @@ export function getDow(date: CalendarDate): number {
 
 /**
  * CalendarDate を YYYY-MM-DD 形式の文字列に変換する（表示用）。
+ *
+ * toDateKey と同じ出力だが、意図が異なる:
+ * - toDateKey: インデックスキー生成（内部用）
+ * - formatCalendarDate: 表示ラベル生成（UI用）
  */
 export function formatCalendarDate(date: CalendarDate): string {
-  const y = date.year
-  const m = String(date.month).padStart(2, '0')
-  const d = String(date.day).padStart(2, '0')
-  return `${y}-${m}-${d}`
+  return toDateKey(date)
 }
 
 /**
@@ -104,6 +109,9 @@ export function dateRangeDays(range: DateRange): number {
 /**
  * DateRange の from/to を DateKey に変換したペアを返す。
  * range クエリの境界判定に使用。
+ *
+ * 'YYYY-MM-DD' は辞書順 === 日付順なので、
+ * fromKey <= dateKey && dateKey <= toKey で範囲判定が可能。
  */
 export function dateRangeToKeys(range: DateRange): { fromKey: DateKey; toKey: DateKey } {
   return {

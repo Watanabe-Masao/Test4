@@ -13,7 +13,7 @@
  *
  * ## 日付範囲クエリ
  *
- * queryByDateRange は DateRange を受け取り、dateKey (YYYYMMDD) の範囲比較で
+ * queryByDateRange は DateRange を受け取り、dateKey ('YYYY-MM-DD') の辞書順比較で
  * 月をまたぐクエリを正確に処理する。レコードの year/month/day から算出した
  * dateKey が範囲内かどうかで判定するため、データの年月日情報が失われない。
  */

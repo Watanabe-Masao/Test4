@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { queryIndex, filterByDow } from '../filters'
+import { queryIndex, queryByDateRange, filterByDow } from '../filters'
 import { buildCategoryTimeSalesIndex } from '../indexBuilder'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesData, CategoryTimeSalesRecord, DateRange } from '@/domain/models'
 
 function makeRecord(overrides: Partial<CategoryTimeSalesRecord> = {}): CategoryTimeSalesRecord {
   return {
@@ -92,6 +92,70 @@ describe('queryIndex', () => {
       const result = queryIndex(hIndex, new Set(), [1, 1], {})
       expect(result.length).toBe(3)
     })
+  })
+})
+
+describe('queryByDateRange', () => {
+  const records = [
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 1 }),
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 15 }),
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 28 }),
+    makeRecord({ storeId: 'S002', year: 2026, month: 2, day: 1 }),
+    makeRecord({ storeId: 'S002', year: 2026, month: 2, day: 10 }),
+  ]
+  const index = buildIndex(records)
+
+  it('全店舗・全日付範囲で全レコードを返す', () => {
+    const range: DateRange = {
+      from: { year: 2026, month: 2, day: 1 },
+      to: { year: 2026, month: 2, day: 28 },
+    }
+    const result = queryByDateRange(index, { dateRange: range })
+    expect(result.length).toBe(5)
+  })
+
+  it('店舗フィルタで絞り込める', () => {
+    const range: DateRange = {
+      from: { year: 2026, month: 2, day: 1 },
+      to: { year: 2026, month: 2, day: 28 },
+    }
+    const result = queryByDateRange(index, {
+      dateRange: range,
+      storeIds: new Set(['S001']),
+    })
+    expect(result.length).toBe(3)
+    expect(result.every((r) => r.storeId === 'S001')).toBe(true)
+  })
+
+  it('日付範囲フィルタで絞り込める', () => {
+    const range: DateRange = {
+      from: { year: 2026, month: 2, day: 10 },
+      to: { year: 2026, month: 2, day: 15 },
+    }
+    const result = queryByDateRange(index, { dateRange: range })
+    expect(result.length).toBe(2)
+    expect(result.map((r) => r.day).sort()).toEqual([10, 15])
+  })
+
+  it('dateKey は YYYY-MM-DD 辞書順で比較される', () => {
+    // day=1 → '2026-02-01', day=28 → '2026-02-28'
+    // 辞書順で '2026-02-01' < '2026-02-15' < '2026-02-28'
+    const range: DateRange = {
+      from: { year: 2026, month: 2, day: 2 },
+      to: { year: 2026, month: 2, day: 14 },
+    }
+    const result = queryByDateRange(index, { dateRange: range })
+    expect(result.length).toBe(1) // S002 の day=10 のみ
+    expect(result[0].day).toBe(10)
+  })
+
+  it('該当なしで空配列を返す', () => {
+    const range: DateRange = {
+      from: { year: 2025, month: 1, day: 1 },
+      to: { year: 2025, month: 1, day: 31 },
+    }
+    const result = queryByDateRange(index, { dateRange: range })
+    expect(result.length).toBe(0)
   })
 })
 

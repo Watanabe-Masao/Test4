@@ -4,10 +4,10 @@
  * 生の records[] 配列を (storeId, dateKey) の複合キーでインデックス化する。
  * データインポート時に1回だけ実行される。
  *
- * ## dateKey (YYYYMMDD)
+ * ## dateKey ('YYYY-MM-DD')
  *
- * 各レコードの year/month/day から YYYYMMDD 形式の数値キーを生成する。
- * これにより月をまたぐ日付範囲クエリが可能になる。
+ * 各レコードの year/month/day から 'YYYY-MM-DD' 形式の ISO 8601 文字列キーを生成する。
+ * 辞書順ソートが日付順と一致するため、月をまたぐ範囲クエリが可能。
  *
  * ## 後方互換
  *

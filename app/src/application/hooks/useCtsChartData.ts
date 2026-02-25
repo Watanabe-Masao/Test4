@@ -17,13 +17,14 @@
  * // チャートコンポーネント内
  * const data = useTimeSlotChartData({
  *   index: ctx.ctsIndex,
- *   dateRange: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+ *   dateRange: ctx.currentDateRange,  // { from: { year: 2026, month: 2, day: 1 }, to: ... }
  *   storeIds: ctx.selectedStoreIds,
  *   mode: 'dailyAvg',
- *   compareRange: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },
+ *   compareRange: ctx.prevYearDateRange,
  * })
  * // data.current.hourly → Map<hour, { amount, quantity }>
  * // data.compare?.hourly → 前年データ
+ * // DateKey は 'YYYY-MM-DD' 形式（例: '2026-02-03'）
  * ```
  */
 import { useMemo } from 'react'
