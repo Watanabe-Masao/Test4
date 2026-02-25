@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from '../CalculationOrchestrator'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
-import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
+import { createDefaultSettings } from '@/domain/constants/defaults'
+
+const DEFAULT_SETTINGS = createDefaultSettings()
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0, d72 = 0, d73 = 0, d74 = 0) {
   return {

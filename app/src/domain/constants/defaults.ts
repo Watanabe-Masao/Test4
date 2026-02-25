@@ -20,9 +20,6 @@ export function createDefaultSettings(): Readonly<AppSettings> {
   }
 }
 
-/** @deprecated createDefaultSettings() を使用してください */
-export const DEFAULT_SETTINGS: Readonly<AppSettings> = createDefaultSettings()
-
 /** 対象年月から月の日数を算出 */
 export function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate()

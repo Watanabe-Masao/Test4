@@ -8,7 +8,9 @@ import {
   hasValidationErrors,
 } from '@/application/usecases/import'
 import type { ImportedData } from './ImportService'
-import { DEFAULT_SETTINGS } from '@/domain/constants/defaults'
+import { createDefaultSettings } from '@/domain/constants/defaults'
+
+const DEFAULT_SETTINGS = createDefaultSettings()
 
 function emptyData(): ImportedData {
   return createEmptyImportedData()
