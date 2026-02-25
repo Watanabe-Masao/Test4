@@ -340,6 +340,44 @@ export function validateImportedData(
     }
   }
 
+  // ── 花・産直の日付範囲チェック（取り込み忘れ検出） ──
+  // 分類別売上の最終取込日と花・産直の最終取込日を比較し、
+  // 花・産直が短い場合は取り込み忘れの可能性を警告する
+  if (data.classifiedSales.records.length > 0) {
+    let csMaxDay = 0
+    for (const rec of data.classifiedSales.records) {
+      if (rec.day > csMaxDay) csMaxDay = rec.day
+    }
+
+    const checkSpecialSalesRange = (
+      specialData: { readonly [storeId: string]: { readonly [day: number]: unknown } },
+      label: string,
+    ) => {
+      if (!specialData || Object.keys(specialData).length === 0) return
+
+      // 全店舗横断で最終日を算出
+      let maxDay = 0
+      for (const storeId of Object.keys(specialData)) {
+        const days = specialData[storeId]
+        if (!days || typeof days !== 'object') continue
+        for (const dayStr of Object.keys(days)) {
+          const d = Number(dayStr)
+          if (d > maxDay) maxDay = d
+        }
+      }
+
+      if (maxDay > 0 && maxDay < csMaxDay) {
+        messages.push({
+          level: 'warning',
+          message: `${label}の最終取込日（${maxDay}日）が分類別売上（${csMaxDay}日）より短いです — 取り込み忘れの可能性があります`,
+        })
+      }
+    }
+
+    checkSpecialSalesRange(data.flowers, '花データ')
+    checkSpecialSalesRange(data.directProduce, '産直データ')
+  }
+
   // ── オプショナルデータ ──
   if (data.budget.size === 0) {
     messages.push({

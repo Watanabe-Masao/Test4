@@ -23,7 +23,7 @@ import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmMo
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { detectDataMaxDay, maxDayOfRecord } from '@/domain/calculations/utils'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -391,6 +391,44 @@ export function DataManagementSidebar({
     return types
   }, [data])
 
+  // 各データタイプ別の最終取込日
+  const maxDayByType = useMemo(() => {
+    const m = new Map<DataType, number>()
+    try {
+      // レコードベース（records[] 持ち）
+      if (data.classifiedSales?.records?.length > 0) {
+        let max = 0
+        for (const rec of data.classifiedSales.records) {
+          if (rec.day > max) max = rec.day
+        }
+        if (max > 0) m.set('classifiedSales', max)
+      }
+      if (data.categoryTimeSales?.records?.length > 0) {
+        let max = 0
+        for (const rec of data.categoryTimeSales.records) {
+          if (rec.day > max) max = rec.day
+        }
+        if (max > 0) m.set('categoryTimeSales', max)
+      }
+      // StoreDayRecord ベース
+      const sdrTypes: [DataType, { readonly [s: string]: { readonly [d: number]: unknown } }][] = [
+        ['purchase', data.purchase],
+        ['flowers', data.flowers],
+        ['directProduce', data.directProduce],
+        ['interStoreIn', data.interStoreIn],
+        ['interStoreOut', data.interStoreOut],
+        ['consumables', data.consumables],
+      ]
+      for (const [dt, rec] of sdrTypes) {
+        const max = maxDayOfRecord(rec)
+        if (max > 0) m.set(dt, max)
+      }
+    } catch {
+      // データ構造不整合時は空を返す
+    }
+    return m
+  }, [data])
+
   return (
     <>
       <Sidebar title="データ管理">
@@ -419,6 +457,7 @@ export function DataManagementSidebar({
                 dataType={type}
                 label={label}
                 loaded={loadedTypes.has(type)}
+                maxDay={maxDayByType.get(type)}
                 onFile={handleSingleFile}
                 multiple={multi}
               />

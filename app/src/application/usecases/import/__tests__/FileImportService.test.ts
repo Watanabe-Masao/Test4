@@ -335,6 +335,80 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
   })
 })
 
+// ─── 花・産直の日付範囲チェック ──────────────────────────
+
+describe('花・産直の日付範囲チェック', () => {
+  function baseData(): ImportedData {
+    return makeData({
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: {
+        records: [
+          makeCSRecord(1, '1', 50000),
+          makeCSRecord(15, '1', 50000),
+          makeCSRecord(28, '1', 50000), // 最終取込日 = 28日
+        ],
+      },
+      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+    })
+  }
+
+  it('花データの最終日 < 分類別売上の最終日 → 警告', () => {
+    const data = {
+      ...baseData(),
+      flowers: {
+        '1': {
+          1: { price: 5000, cost: 4000 },
+          15: { price: 5000, cost: 4000 },
+          // 20日止まり — 28日まであるべき
+          20: { price: 5000, cost: 4000 },
+        },
+      },
+    }
+    const messages = validateImportedData(data)
+    const warning = messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))
+    expect(warning).toBeTruthy()
+    expect(warning!.message).toContain('20日')
+    expect(warning!.message).toContain('28日')
+  })
+
+  it('産直データの最終日 < 分類別売上の最終日 → 警告', () => {
+    const data = {
+      ...baseData(),
+      directProduce: {
+        '1': {
+          1: { price: 3000, cost: 2500 },
+          10: { price: 3000, cost: 2500 },
+        },
+      },
+    }
+    const messages = validateImportedData(data)
+    const warning = messages.find((m) => m.message.includes('産直データ') && m.message.includes('取り込み忘れ'))
+    expect(warning).toBeTruthy()
+    expect(warning!.message).toContain('10日')
+    expect(warning!.message).toContain('28日')
+  })
+
+  it('花データの最終日 = 分類別売上の最終日 → 警告なし', () => {
+    const data = {
+      ...baseData(),
+      flowers: {
+        '1': {
+          1: { price: 5000, cost: 4000 },
+          28: { price: 5000, cost: 4000 },
+        },
+      },
+    }
+    const messages = validateImportedData(data)
+    expect(messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))).toBeUndefined()
+  })
+
+  it('花データが空の場合は警告なし', () => {
+    const messages = validateImportedData(baseData())
+    expect(messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))).toBeUndefined()
+  })
+})
+
 describe('hasValidationErrors', () => {
   it('error レベルがあれば true', () => {
     expect(hasValidationErrors([
