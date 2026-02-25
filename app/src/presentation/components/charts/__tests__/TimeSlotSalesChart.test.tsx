@@ -18,6 +18,8 @@ describe('TimeSlotSalesChart', () => {
     const categoryTimeSales: CategoryTimeSalesData = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '1',
           department: { code: '01', name: '食品' },
@@ -66,6 +68,8 @@ describe('TimeSlotSalesChart', () => {
     const categoryTimeSales: CategoryTimeSalesData = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '1',
           department: { code: '01', name: '食品' },
@@ -76,6 +80,8 @@ describe('TimeSlotSalesChart', () => {
           totalAmount: 50000,
         },
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '2',
           department: { code: '01', name: '食品' },

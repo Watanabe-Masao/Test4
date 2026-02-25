@@ -60,6 +60,8 @@ function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
 const TEST_CATEGORY_TIME_SALES: CategoryTimeSalesData = {
   records: [
     {
+      year: 2025,
+      month: 6,
       day: 1,
       storeId: '1',
       department: { code: '01', name: '食品' },
@@ -73,6 +75,8 @@ const TEST_CATEGORY_TIME_SALES: CategoryTimeSalesData = {
       totalAmount: 125000,
     },
     {
+      year: 2025,
+      month: 6,
       day: 2,
       storeId: '2',
       department: { code: '02', name: '日用品' },
@@ -260,6 +264,8 @@ describe('saveImportedData / loadImportedData', () => {
 
     const updated: CategoryTimeSalesData = {
       records: [{
+        year: 2026,
+        month: 2,
         day: 5,
         storeId: '3',
         department: { code: '03', name: '衣料' },

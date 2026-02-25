@@ -398,13 +398,25 @@ export async function loadImportedData(
   // prevYearClassifiedSales は DB に保存しないため読み込まない
   // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
 
-  // categoryTimeSales — envelope unwrap
+  // categoryTimeSales — envelope unwrap + year/month 補完
   const rawCts = await dbGet<unknown>(STORE_MONTHLY, monthKey(year, month, 'categoryTimeSales'))
   const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawCts, year, month)
   const ctsObj = ctsUnwrapped?.value
-  result.categoryTimeSales = ctsObj && Array.isArray(ctsObj.records)
-    ? ctsObj
-    : { records: [] }
+  if (ctsObj && Array.isArray(ctsObj.records)) {
+    // 旧データで year/month が未設定のレコードを補完する。
+    // DB キーの年月 = レコードの正しい年月なので安全に埋められる。
+    result.categoryTimeSales = {
+      records: ctsObj.records.map((rec) => {
+        const r = rec as Record<string, unknown>
+        if (r.year == null || r.month == null) {
+          return { ...r, year: r.year ?? year, month: r.month ?? month }
+        }
+        return r
+      }),
+    }
+  } else {
+    result.categoryTimeSales = { records: [] }
+  }
 
   // prevYearCategoryTimeSales は DB に保存しないため読み込まない
 

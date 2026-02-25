@@ -129,9 +129,15 @@ export function processCategoryTimeSales(
       pairIdx++
     }
 
+    // year/month は常にセットする。
+    // targetYear/targetMonth が指定されている場合はそちらを優先（overflow day の場合は
+    // 実際の月と targetMonth が異なりうるため）。未指定時はパースした日付から取得。
+    const recordYear = targetYear ?? date.getFullYear()
+    const recordMonth = targetMonth ?? (date.getMonth() + 1)
+
     records.push({
-      ...(targetYear != null ? { year: targetYear } : {}),
-      ...(targetMonth != null ? { month: targetMonth } : {}),
+      year: recordYear,
+      month: recordMonth,
       day,
       storeId,
       department,

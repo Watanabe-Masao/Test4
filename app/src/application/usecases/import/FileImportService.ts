@@ -353,9 +353,7 @@ export function extractRecordMonths(
   }
 
   for (const rec of data.categoryTimeSales.records) {
-    if (rec.year != null && rec.month != null) {
-      addMonth(rec.year, rec.month)
-    }
+    addMonth(rec.year, rec.month)
   }
 
   // StoreDayRecord パーティションのキーからも年月を収集

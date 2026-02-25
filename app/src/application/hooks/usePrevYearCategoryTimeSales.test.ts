@@ -31,6 +31,8 @@ function mapPrevYearRecords(
 
 function makeRecord(day: number, storeId = '1', amount = 10000): CategoryTimeSalesRecord {
   return {
+    year: 2025,
+    month: 2,
     day,
     storeId,
     department: { code: '01', name: '食品' },

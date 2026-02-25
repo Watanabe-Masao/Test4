@@ -31,6 +31,8 @@ import {
 /** 最小限の CategoryTimeSalesRecord を生成 */
 function makeRecord(day: number, amount = 10000, storeId = 'S1'): CategoryTimeSalesRecord {
   return {
+    year: 2026,
+    month: 2,
     day,
     storeId,
     department: { code: 'D01', name: '食品' },

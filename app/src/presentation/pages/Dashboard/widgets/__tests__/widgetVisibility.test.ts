@@ -25,6 +25,8 @@ describe('ウィジェット isVisible', () => {
       const ctx = makeWidgetContext({
         categoryTimeSales: {
           records: [{
+            year: 2026,
+            month: 2,
             day: 1,
             storeId: '1',
             department: { code: '01', name: '食品' },
@@ -60,6 +62,8 @@ describe('ウィジェット isVisible', () => {
       const ctx = makeWidgetContext({
         categoryTimeSales: {
           records: [{
+            year: 2026,
+            month: 2,
             day: 1, storeId: '1',
             department: { code: '01', name: '食品' },
             line: { code: '001', name: 'ライン' },

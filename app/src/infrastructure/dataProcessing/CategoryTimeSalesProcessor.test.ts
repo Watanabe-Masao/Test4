@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './CategoryTimeSalesProcessor'
+import { categoryTimeSalesRecordKey } from '@/domain/models'
 
 /** テスト用CSVデータ行の構築ヘルパー */
 function makeRows(dataRows: unknown[][]): unknown[][] {
@@ -88,6 +89,26 @@ describe('processCategoryTimeSales', () => {
     expect(result.records[0].day).toBe(1)
   })
 
+  it('targetYear/targetMonth 未指定でもパースした日付から year/month が設定される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 10, 5000, 10, 5000, 0, 0],
+    ])
+
+    const result = processCategoryTimeSales(rows)
+    expect(result.records[0].year).toBe(2026)
+    expect(result.records[0].month).toBe(2)
+  })
+
+  it('targetYear/targetMonth 指定時はそちらが優先される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 10, 5000, 10, 5000, 0, 0],
+    ])
+
+    const result = processCategoryTimeSales(rows, 2, 0, 2026)
+    expect(result.records[0].year).toBe(2026)
+    expect(result.records[0].month).toBe(2)
+  })
+
   it('行数が足りない場合は空配列を返す', () => {
     const result = processCategoryTimeSales([['a'], ['b'], ['c']])
     expect(result.records).toEqual([])
@@ -104,11 +125,35 @@ describe('processCategoryTimeSales', () => {
   })
 })
 
+describe('categoryTimeSalesRecordKey の年月識別', () => {
+  it('異なる年月のレコードは異なるキーを持つ', () => {
+    const base = {
+      day: 1, storeId: '1',
+      department: { code: '01', name: 'D' }, line: { code: '001', name: 'L' },
+      klass: { code: '0001', name: 'C' }, timeSlots: [] as const, totalQuantity: 10, totalAmount: 5000,
+    }
+    const jan = categoryTimeSalesRecordKey({ ...base, year: 2026, month: 1 })
+    const feb = categoryTimeSalesRecordKey({ ...base, year: 2026, month: 2 })
+    expect(jan).not.toBe(feb)
+  })
+
+  it('同一年月・同一キーのレコードは同じキーを持つ', () => {
+    const rec = {
+      year: 2026, month: 2, day: 1, storeId: '1',
+      department: { code: '01', name: 'D' }, line: { code: '001', name: 'L' },
+      klass: { code: '0001', name: 'C' }, timeSlots: [] as const, totalQuantity: 10, totalAmount: 5000,
+    }
+    expect(categoryTimeSalesRecordKey(rec)).toBe(categoryTimeSalesRecordKey(rec))
+  })
+})
+
 describe('mergeCategoryTimeSalesData', () => {
   it('同一キーのレコードは後から来たデータで上書きされる', () => {
     const existing = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '1',
           department: { code: '01', name: '果物' },
@@ -123,6 +168,8 @@ describe('mergeCategoryTimeSalesData', () => {
     const incoming = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '1',
           department: { code: '01', name: '果物' },
@@ -144,6 +191,8 @@ describe('mergeCategoryTimeSalesData', () => {
     const existing = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 1,
           storeId: '1',
           department: { code: '01', name: '果物' },
@@ -158,6 +207,8 @@ describe('mergeCategoryTimeSalesData', () => {
     const incoming = {
       records: [
         {
+          year: 2026,
+          month: 2,
           day: 2,
           storeId: '1',
           department: { code: '01', name: '果物' },
