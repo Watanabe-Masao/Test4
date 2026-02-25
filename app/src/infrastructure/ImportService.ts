@@ -4,7 +4,7 @@ import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
 import { detectYearMonth } from './fileImport/dateParser'
 import { ImportError } from './fileImport/errors'
-import { validateRawRows, ImportSchemaError } from './fileImport/importSchemas'
+import { validateRawRows, ImportSchemaError, STRUCTURAL_RULES } from './fileImport/importSchemas'
 import {
   processPurchase,
   extractStoresFromPurchase,
@@ -32,6 +32,8 @@ export interface FileImportResult {
   readonly error?: string
   readonly rowCount?: number
   readonly skippedRows?: readonly string[]
+  /** プロセッサの警告（ヘッダ形式不正、0件結果など） */
+  readonly warnings?: readonly string[]
 }
 
 /** バッチインポートの全体結果 */
@@ -208,11 +210,38 @@ export interface ProcessFileResult {
   readonly data: ImportedData
   readonly detectedYearMonth?: { year: number; month: number }
   readonly partitions?: Partial<MonthPartitions>
+  /** プロセッサの警告（ヘッダ不正、0件結果など） */
+  readonly warnings?: readonly string[]
 }
 
 /** データ種別ごとの日付検出開始行 */
 const DATE_START_ROW: Partial<Record<DataType, number>> = {
   categoryTimeSales: 3,
+}
+
+/**
+ * プロセッサの結果が0件の場合、ヘッダ形式に関する警告を生成する。
+ * ファイルは構造検査（行数・列数）を通過しているのにデータが読み取れなかった場合、
+ * ヘッダの形式が想定と異なっている可能性が高い。
+ */
+function checkProcessorResult(
+  type: DataType,
+  resultData: ImportedData,
+  rows: readonly unknown[][],
+  filename: string,
+): string[] {
+  const warnings: string[] = []
+  const recordCount = countDataRecords(resultData, type)
+  const rule = STRUCTURAL_RULES[type]
+
+  if (recordCount === 0 && rows.length > (rule?.minRows ?? 2)) {
+    const label = rule?.label ?? type
+    warnings.push(
+      `${label}のデータ行が1件も読み取れませんでした（${filename}）。ヘッダの形式が想定と異なる可能性があります。`,
+    )
+  }
+
+  return warnings
 }
 
 /**
@@ -227,6 +256,24 @@ export function processFileData(
 ): ProcessFileResult {
   validateRawRows(type, rows, filename)
 
+  const result = processFileDataInner(type, rows, filename, current, appSettings)
+
+  // 結果検査: プロセッサが0件を返した場合の警告生成
+  const warnings = checkProcessorResult(type, result.data, rows, filename)
+  if (warnings.length > 0) {
+    return { ...result, warnings }
+  }
+  return result
+}
+
+/** processFileData の内部実装（型ごとの処理） */
+function processFileDataInner(
+  type: DataType,
+  rows: readonly unknown[][],
+  filename: string,
+  current: ImportedData,
+  appSettings: AppSettings,
+): ProcessFileResult {
   const mutableStores = new Map(current.stores)
   const mutableSuppliers = new Map(current.suppliers)
 
@@ -503,7 +550,14 @@ export async function processDroppedFiles(
 
       // レコード数をサマリーに含める（バリデーション用途）
       const rowCount = countDataRecords(result.data, type)
-      results.push({ ok: true, filename: file.name, type, typeName, rowCount })
+      results.push({
+        ok: true,
+        filename: file.name,
+        type,
+        typeName,
+        rowCount,
+        warnings: result.warnings,
+      })
     } catch (err) {
       const message =
         err instanceof ImportError || err instanceof ImportSchemaError

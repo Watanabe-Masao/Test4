@@ -66,6 +66,10 @@ const Separator = styled.span`
   height: 16px;
   background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 
 /* KPI Grid */
 const Grid = styled.div`
@@ -291,8 +295,8 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
 
   // WoW: 前週期間 (dayRange を -7 日シフト)
@@ -309,7 +313,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
         from: { year, month, day: wowPrevStart },
         to: { year, month, day: wowPrevEnd },
       }
-      return queryByDateRange(ctsIndex, { dateRange: wowRange })
+      return queryByDateRange(ctsIndex, { dateRange: wowRange, storeIds: selectedStoreIds })
     }
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
     // 前年インデックスのレコードは year=前年 のまま。dayRange のみ合わせる。
@@ -317,7 +321,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       from: { year: year - 1, month, day: pf.dayRange[0] },
       to: { year: year - 1, month, day: pf.dayRange[1] },
     }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
     // DOWフィルタ: 前年レコードの day は同曜日オフセット済みなので、
     // 当年の year/month で曜日を算出する（前年自身の year/month では不正確）
     if (dowFilter) {
@@ -327,7 +331,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       })
     }
     return recs
-  }, [activeCompMode, ctsIndex, prevCtsIndex, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
+  }, [activeCompMode, ctsIndex, prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
 
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
@@ -499,7 +503,14 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     }
   }, [comparable, prev])
 
-  if (chartData.length === 0) return null
+  if (chartData.length === 0) return (
+    <Wrapper>
+      <HeaderRow><Title>時間帯別売上</Title></HeaderRow>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const showPrev = hasPrevYear && showPrevYear
 

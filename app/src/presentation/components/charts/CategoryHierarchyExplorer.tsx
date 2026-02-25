@@ -103,6 +103,10 @@ const TreemapLabel = styled.div`
 `
 const TreemapPct = styled.div`font-size: 0.5rem; color: rgba(255,255,255,0.85); font-family: monospace;`
 
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 const TableWrap = styled.div`overflow-x: auto;`
 const Table = styled.table`width: 100%; border-collapse: collapse; font-size: 0.65rem;`
 const Th = styled.th<{ $sortable?: boolean }>`
@@ -193,6 +197,30 @@ const YoYBar = styled.div<{ $pct: number; $positive: boolean }>`
   background: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
   opacity: 0.6;
 `
+const ThWithTip = styled(Th)`
+  position: relative;
+`
+const TipIcon = styled.span`
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 13px; height: 13px; border-radius: 50%;
+  font-size: 9px; font-weight: 700; line-height: 1;
+  margin-left: 3px; vertical-align: middle;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: help;
+`
+const TipBubble = styled.div`
+  display: none;
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  z-index: 20; width: 200px; padding: 8px 10px;
+  background: ${({ theme }) => theme.mode === 'dark' ? '#1e293b' : '#fff'};
+  color: ${({ theme }) => theme.colors.text2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 0.58rem; font-weight: 400; white-space: normal; line-height: 1.5;
+  ${ThWithTip}:hover & { display: block; }
+`
 
 /* ── Sparkline SVG ────────────────────────── */
 
@@ -277,8 +305,8 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
   const prevPeriodRecords = useMemo(() => {
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
@@ -286,7 +314,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
       from: { year: year - 1, month, day: pf.dayRange[0] },
       to: { year: year - 1, month, day: pf.dayRange[1] },
     }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
     if (dowFilter) {
       recs = recs.filter((r) => {
         const dow = new Date(year, month - 1, r.day).getDay()
@@ -294,7 +322,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
       })
     }
     return recs
-  }, [prevCtsIndex, year, month, pf.dayRange, dowFilter])
+  }, [prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
@@ -406,7 +434,13 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
   const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
   const showYoYCols = hasPrevYear && showYoY
 
-  if (sortedItems.length === 0) return null
+  if (sortedItems.length === 0) return (
+    <Wrapper>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   return (
     <Wrapper>
@@ -473,13 +507,25 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
             <Th>#</Th>
             <Th $sortable onClick={() => handleSort('name')}>{levelLabels[currentLevel]}名{arrow('name')}</Th>
             <Th $sortable onClick={() => handleSort('amount')}>売上金額{arrow('amount')}</Th>
-            <Th $sortable onClick={() => handleSort('pct')}>構成比{arrow('pct')}</Th>
+            <ThWithTip $sortable onClick={() => handleSort('pct')}>構成比{arrow('pct')}<TipIcon>?</TipIcon>
+              <TipBubble>当該カテゴリの売上 ÷ 全体売上 × 100。全体に占める割合を示します。</TipBubble>
+            </ThWithTip>
             <Th $sortable onClick={() => handleSort('quantity')}>数量{arrow('quantity')}</Th>
-            {showYoYCols && <Th $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}</Th>}
-            {showYoYCols && <Th $sortable onClick={() => handleSort('yoyDiff')}>前年差{arrow('yoyDiff')}</Th>}
-            <Th $sortable onClick={() => handleSort('peakHour')}>ピーク{arrow('peakHour')}</Th>
-            <Th $sortable onClick={() => handleSort('coreTimeStart')}>コア{arrow('coreTimeStart')}</Th>
-            <Th $sortable onClick={() => handleSort('turnaroundHour')}>折返{arrow('turnaroundHour')}</Th>
+            {showYoYCols && <ThWithTip $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}<TipIcon>?</TipIcon>
+              <TipBubble>当年売上 ÷ 前年売上 × 100。100%超で前年を上回っていることを示します。</TipBubble>
+            </ThWithTip>}
+            {showYoYCols && <ThWithTip $sortable onClick={() => handleSort('yoyDiff')}>前年差{arrow('yoyDiff')}<TipIcon>?</TipIcon>
+              <TipBubble>当年売上 − 前年売上。前年からの売上増減額を示します。</TipBubble>
+            </ThWithTip>}
+            <ThWithTip $sortable onClick={() => handleSort('peakHour')}>ピーク{arrow('peakHour')}<TipIcon>?</TipIcon>
+              <TipBubble>最も販売実績が多い単一時間帯（1時間単位）。売上のピークタイムを示します。</TipBubble>
+            </ThWithTip>
+            <ThWithTip $sortable onClick={() => handleSort('coreTimeStart')}>コア{arrow('coreTimeStart')}<TipIcon>?</TipIcon>
+              <TipBubble>連続する3時間の売上合計が最大となる時間帯。主要な販売時間帯を示します。</TipBubble>
+            </ThWithTip>
+            <ThWithTip $sortable onClick={() => handleSort('turnaroundHour')}>折返{arrow('turnaroundHour')}<TipIcon>?</TipIcon>
+              <TipBubble>累積売上が1日の50%に到達する時間帯。この時点で売上の半分が達成されています。</TipBubble>
+            </ThWithTip>
             <Th>時間帯パターン</Th>
             {canDrill && <Th />}
           </tr></thead>

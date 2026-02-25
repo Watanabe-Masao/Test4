@@ -93,6 +93,27 @@ function salesComponentDetails(rec: DailyRecord): BreakdownDetail[] {
 // ─── 本体 ──────────────────────────────────────────────────
 
 /**
+ * aggregate storeId の場合、全店舗分の dailyEvidence を展開する
+ */
+function expandDailyEvidence(
+  dataType: EvidenceRef & { kind: 'daily' } extends { dataType: infer T } ? T : never,
+  storeId: string,
+  daily: ReadonlyMap<number, unknown>,
+  storeIds: readonly string[],
+): EvidenceRef[] {
+  if (storeId !== 'aggregate' || storeIds.length === 0) {
+    return dailyEvidence(dataType, storeId, daily)
+  }
+  const refs: EvidenceRef[] = []
+  for (const sid of storeIds) {
+    for (const day of daily.keys()) {
+      refs.push({ kind: 'daily', dataType, storeId: sid, day })
+    }
+  }
+  return refs
+}
+
+/**
  * StoreResult から全指標の Explanation を生成する
  */
 export function generateExplanations(
@@ -102,6 +123,7 @@ export function generateExplanations(
 ): StoreExplanations {
   const { storeId } = result
   const scope = { storeId, year: settings.targetYear, month: settings.targetMonth }
+  const allStoreIds = [...data.stores.keys()]
   const map = new Map<MetricId, Explanation>()
 
   // ─── 売上系 ──────────────────────────────────────────
@@ -118,7 +140,7 @@ export function generateExplanations(
       inp('営業日数', result.salesDays, 'count'),
     ],
     breakdown: dailyBreakdown(result.daily, (r) => r.sales, salesComponentDetails),
-    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('classifiedSales', storeId, result.daily, allStoreIds),
   })
 
   map.set('coreSales', {
@@ -134,9 +156,9 @@ export function generateExplanations(
       inp('産直売価', result.directProduceSalesPrice, 'yen'),
     ],
     evidenceRefs: [
-      ...dailyEvidence('classifiedSales', storeId, result.daily),
-      ...dailyEvidence('flowers', storeId, result.daily),
-      ...dailyEvidence('directProduce', storeId, result.daily),
+      ...expandDailyEvidence('classifiedSales', storeId, result.daily, allStoreIds),
+      ...expandDailyEvidence('flowers', storeId, result.daily, allStoreIds),
+      ...expandDailyEvidence('directProduce', storeId, result.daily, allStoreIds),
     ],
   })
 
@@ -151,7 +173,7 @@ export function generateExplanations(
       inp('総売上高', result.totalSales, 'yen', 'salesTotal'),
       inp('売変額', result.totalDiscount, 'yen', 'discountTotal'),
     ],
-    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('classifiedSales', storeId, result.daily, allStoreIds),
   })
 
   // ─── 原価系 ──────────────────────────────────────────
@@ -168,7 +190,7 @@ export function generateExplanations(
       inp('売上納品原価', result.deliverySalesCost, 'yen', 'deliverySalesCost'),
     ],
     breakdown: dailyBreakdown(result.daily, (r) => r.purchase.cost + r.flowers.cost + r.directProduce.cost + r.interStoreIn.cost - r.interStoreOut.cost, costComponentDetails),
-    evidenceRefs: dailyEvidence('purchase', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
   map.set('inventoryCost', {
@@ -183,7 +205,7 @@ export function generateExplanations(
       inp('売上納品原価', result.deliverySalesCost, 'yen', 'deliverySalesCost'),
     ],
     breakdown: dailyBreakdown(result.daily, (r) => r.purchase.cost + r.interStoreIn.cost - r.interStoreOut.cost, supplierDetails),
-    evidenceRefs: dailyEvidence('purchase', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
   map.set('deliverySalesCost', {
@@ -204,8 +226,8 @@ export function generateExplanations(
       return d
     }),
     evidenceRefs: [
-      ...dailyEvidence('flowers', storeId, result.daily),
-      ...dailyEvidence('directProduce', storeId, result.daily),
+      ...expandDailyEvidence('flowers', storeId, result.daily, allStoreIds),
+      ...expandDailyEvidence('directProduce', storeId, result.daily, allStoreIds),
     ],
   })
 
@@ -229,7 +251,7 @@ export function generateExplanations(
       }
       return entries.sort((a, b) => a.day - b.day)
     })(),
-    evidenceRefs: dailyEvidence('classifiedSales', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('classifiedSales', storeId, result.daily, allStoreIds),
   })
 
   map.set('discountRate', {
@@ -273,7 +295,7 @@ export function generateExplanations(
     inputs: [
       inp('総仕入原価', result.totalCost, 'yen', 'purchaseCost'),
     ],
-    evidenceRefs: dailyEvidence('purchase', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
   map.set('coreMarkupRate', {
@@ -287,9 +309,9 @@ export function generateExplanations(
       inp('コア値入率', result.coreMarkupRate, 'rate'),
     ],
     evidenceRefs: [
-      ...dailyEvidence('purchase', storeId, result.daily),
-      ...dailyEvidence('interStoreIn', storeId, result.daily),
-      ...dailyEvidence('interStoreOut', storeId, result.daily),
+      ...expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
+      ...expandDailyEvidence('interStoreIn', storeId, result.daily, allStoreIds),
+      ...expandDailyEvidence('interStoreOut', storeId, result.daily, allStoreIds),
     ],
   })
 
@@ -310,7 +332,7 @@ export function generateExplanations(
       ],
       evidenceRefs: [
         { kind: 'aggregate', dataType: 'settings', storeId },
-        ...dailyEvidence('purchase', storeId, result.daily),
+        ...expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
       ],
     })
 
@@ -421,7 +443,7 @@ export function generateExplanations(
       inp('日平均客数', result.averageCustomersPerDay, 'count'),
     ],
     breakdown: dailyBreakdown(result.daily, (r) => r.customers ?? 0),
-    evidenceRefs: dailyEvidence('flowers', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('flowers', storeId, result.daily, allStoreIds),
   })
 
   // ─── 消耗品 ──────────────────────────────────────────
@@ -444,7 +466,7 @@ export function generateExplanations(
       }
       return d
     }),
-    evidenceRefs: dailyEvidence('consumables', storeId, result.daily),
+    evidenceRefs: expandDailyEvidence('consumables', storeId, result.daily, allStoreIds),
   })
 
   // ─── 予算系 ──────────────────────────────────────────

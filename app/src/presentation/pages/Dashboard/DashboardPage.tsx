@@ -51,6 +51,7 @@ export function DashboardPage() {
       ctsRecordCount: ctsIndex.recordCount,
       prevYearHasPrevYear: prevYearCTS.hasPrevYear,
       storeCount: stores.size,
+      hasDiscountData: currentResult?.hasDiscountData,
     })
     if (injected) {
       setWidgetIds(injected)
@@ -327,6 +328,7 @@ export function DashboardPage() {
       <MetricBreakdownPanel
         explanation={explanations.get(explainMetric)!}
         allExplanations={explanations}
+        stores={appState.data.stores}
         onClose={() => setExplainMetric(null)}
       />
     )}

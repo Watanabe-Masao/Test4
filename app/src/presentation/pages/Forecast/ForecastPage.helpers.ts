@@ -1,5 +1,6 @@
 import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
 import { calculateTransactionValue } from '@/domain/calculations'
+import { decompose2 } from '@/domain/calculations/factorDecomposition'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
@@ -206,4 +207,114 @@ export function buildRelationshipDataFromPrev(entries: DailyCustomerEntry[]): Re
     customersIndex: avgCust > 0 ? e.prevCustomers / avgCust : 0,
     txValueIndex: avgTxVal > 0 ? e.prevTxValue / avgTxVal : 0,
   }))
+}
+
+// ─── 要因分解分析用ヘルパー ──────────────────────────
+
+/** 日別要因分解エントリ */
+export interface DailyDecompEntry {
+  day: number
+  salesDiff: number
+  custEffect: number
+  ticketEffect: number
+  /** 累計 */
+  cumSalesDiff: number
+  cumCustEffect: number
+  cumTicketEffect: number
+}
+
+/** 日別2要素分解データ構築 */
+export function buildDailyDecomposition(
+  entries: DailyCustomerEntry[],
+): DailyDecompEntry[] {
+  const withBoth = entries.filter((e) => e.customers > 0 && e.prevCustomers > 0)
+  if (withBoth.length === 0) return []
+
+  let cumSalesDiff = 0
+  let cumCustEffect = 0
+  let cumTicketEffect = 0
+
+  return withBoth.map((e) => {
+    const result = decompose2(e.prevSales, e.sales, e.prevCustomers, e.customers)
+    const salesDiff = e.sales - e.prevSales
+    cumSalesDiff += salesDiff
+    cumCustEffect += result.custEffect
+    cumTicketEffect += result.ticketEffect
+    return {
+      day: e.day,
+      salesDiff,
+      custEffect: result.custEffect,
+      ticketEffect: result.ticketEffect,
+      cumSalesDiff,
+      cumCustEffect,
+      cumTicketEffect,
+    }
+  })
+}
+
+/** 曜日別要因分解集計 */
+export interface DowDecompAvg {
+  dow: string
+  avgSalesDiff: number
+  avgCustEffect: number
+  avgTicketEffect: number
+  count: number
+}
+
+export function buildDowDecomposition(
+  entries: DailyDecompEntry[],
+  year: number,
+  month: number,
+): DowDecompAvg[] {
+  const buckets = DOW_LABELS.map((dow) => ({
+    dow,
+    totalSalesDiff: 0,
+    totalCustEffect: 0,
+    totalTicketEffect: 0,
+    count: 0,
+  }))
+
+  for (const e of entries) {
+    const dow = new Date(year, month - 1, e.day).getDay()
+    const b = buckets[dow]
+    b.totalSalesDiff += e.salesDiff
+    b.totalCustEffect += e.custEffect
+    b.totalTicketEffect += e.ticketEffect
+    b.count++
+  }
+
+  return buckets.map((b) => ({
+    dow: b.dow,
+    avgSalesDiff: b.count > 0 ? Math.round(b.totalSalesDiff / b.count) : 0,
+    avgCustEffect: b.count > 0 ? Math.round(b.totalCustEffect / b.count) : 0,
+    avgTicketEffect: b.count > 0 ? Math.round(b.totalTicketEffect / b.count) : 0,
+    count: b.count,
+  }))
+}
+
+/** 週別要因分解集計 */
+export interface WeeklyDecompSummary {
+  weekNumber: number
+  startDay: number
+  endDay: number
+  salesDiff: number
+  custEffect: number
+  ticketEffect: number
+}
+
+export function buildWeeklyDecomposition(
+  entries: DailyDecompEntry[],
+  weeks: readonly WeeklySummary[],
+): WeeklyDecompSummary[] {
+  return weeks.map((w) => {
+    const weekEntries = entries.filter((e) => e.day >= w.startDay && e.day <= w.endDay)
+    return {
+      weekNumber: w.weekNumber,
+      startDay: w.startDay,
+      endDay: w.endDay,
+      salesDiff: weekEntries.reduce((s, e) => s + e.salesDiff, 0),
+      custEffect: weekEntries.reduce((s, e) => s + e.custEffect, 0),
+      ticketEffect: weekEntries.reduce((s, e) => s + e.ticketEffect, 0),
+    }
+  })
 }

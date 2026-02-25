@@ -9,7 +9,7 @@
  */
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import type { Explanation, MetricId, MetricUnit } from '@/domain/models'
+import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 
 // ─── Styled Components ─────────────────────────────────────
@@ -279,12 +279,22 @@ interface MetricBreakdownPanelProps {
   explanation: Explanation
   /** 全指標の説明マップ（指標間ジャンプ用） */
   allExplanations: ReadonlyMap<MetricId, Explanation>
+  /** 店舗マスタ（storeId→名前解決用） */
+  stores?: ReadonlyMap<string, Store>
   onClose: () => void
+}
+
+function resolveStoreName(storeId: string, stores?: ReadonlyMap<string, Store>): string {
+  if (storeId === 'aggregate') return '全店合計'
+  if (!stores) return storeId
+  const store = stores.get(storeId)
+  return store ? `${store.name}（${store.code}）` : storeId
 }
 
 export function MetricBreakdownPanel({
   explanation,
   allExplanations,
+  stores,
   onClose,
 }: MetricBreakdownPanelProps) {
   const [tab, setTab] = useState<TabType>('formula')
@@ -338,7 +348,7 @@ export function MetricBreakdownPanel({
             <Title>{current.title}</Title>
             <ValueDisplay>{formatValue(current.value, current.unit)}</ValueDisplay>
             <ScopeInfo>
-              {current.scope.year}年{current.scope.month}月 / {current.scope.storeId}
+              {current.scope.year}年{current.scope.month}月 / {resolveStoreName(current.scope.storeId, stores)}
             </ScopeInfo>
           </div>
           <CloseButton onClick={onClose}>✕</CloseButton>
@@ -498,7 +508,7 @@ export function MetricBreakdownPanel({
                         .map((ref, i) => (
                           <tr key={i}>
                             <Td>{ref.kind === 'daily' ? '日別' : '集計'}</Td>
-                            <Td>{ref.storeId}</Td>
+                            <Td>{resolveStoreName(ref.storeId, stores)}</Td>
                             <Td>{ref.kind === 'daily' ? `${ref.day}日` : ref.day ? `${ref.day}日` : '-'}</Td>
                           </tr>
                         ))}

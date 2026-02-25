@@ -83,6 +83,8 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
   let gpBudget = 0
   let elapsedDays = 0
   let salesDays = 0
+  let purchaseMaxDay = 0
+  let hasDiscountData = false
 
   let openInv = 0
   let closeInv = 0
@@ -118,6 +120,8 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     gpBudget += r.grossProfitBudget
     elapsedDays = Math.max(elapsedDays, r.elapsedDays)
     salesDays = Math.max(salesDays, r.salesDays)
+    purchaseMaxDay = Math.max(purchaseMaxDay, r.purchaseMaxDay)
+    if (r.hasDiscountData) hasDiscountData = true
 
     if (r.openingInventory != null) { openInv += r.openingInventory; hasOpening = true }
     if (r.closingInventory != null) { closeInv += r.closingInventory; hasClosing = true }
@@ -263,6 +267,8 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     storeId: 'aggregate',
     openingInventory,
     closingInventory,
+    purchaseMaxDay,
+    hasDiscountData,
     totalSales,
     totalCoreSales,
     deliverySalesPrice,

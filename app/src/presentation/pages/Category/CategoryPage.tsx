@@ -6,13 +6,14 @@ import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
-import type { CustomCategory } from '@/domain/models'
+import type { CustomCategory, CategoryType } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import {
   ChartGrid, Section, SectionTitle, TableWrapper, Table, Th, Td, Tr, TrTotal,
   Badge, EmptyState, ToggleBar, ToggleLabel, CategorySelect, CustomCategoryBadge,
   KpiRow, SortButton, MarkupCell, GrossProfitCell, SectionHeader,
   SupplierFilterInput, SupplierToolbar,
+  DrillTr, DrillToggle, DrillLabel,
 } from './CategoryPage.styles'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { CrossMultiplicationChart, CompositionChart } from './CategoryCharts'
@@ -34,6 +35,9 @@ export function CategoryPage() {
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
   const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'cost', dir: 'desc' })
   const [supplierFilter, setSupplierFilter] = useState('')
+  // ドリルダウン: カテゴリ→店舗→日別
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [expandedStore, setExpandedStore] = useState<string | null>(null) // "category:storeId"
 
   // Build store name map for comparison charts (must be before early return)
   const storeNames = useMemo(() => {
@@ -201,39 +205,151 @@ export function CategoryPage() {
                   {(() => {
                     const totalAbsCost = categoryData.reduce((s, c) => s + Math.abs(c.cost), 0)
                     const totalAbsPrice = categoryData.reduce((s, c) => s + Math.abs(c.price), 0)
-                    return (
-                      <>
-                        {categoryData.map((d) => {
-                          const grossProfit = d.price - d.cost
-                          const costShare = safeDivide(Math.abs(d.cost), totalAbsCost, 0)
-                          const priceShare = safeDivide(Math.abs(d.price), totalAbsPrice, 0)
-                          return (
-                            <Tr key={`${d.isCustom ? 'cc-' : ''}${d.category}`}>
-                              <Td><Badge $color={d.color} />{d.label}</Td>
-                              <Td>{formatCurrency(d.cost)}</Td>
-                              <Td>{formatCurrency(d.price)}</Td>
-                              <GrossProfitCell $positive={grossProfit >= 0}>
-                                {formatCurrency(grossProfit)}
-                              </GrossProfitCell>
-                              <MarkupCell $rate={d.markup}>{formatPercent(d.markup)}</MarkupCell>
-                              <Td>{formatPercent(costShare)}</Td>
-                              <Td>{formatPercent(priceShare)}</Td>
-                              <Td>{formatPercent(d.crossMultiplication)}</Td>
-                            </Tr>
+                    const rows: React.ReactNode[] = []
+
+                    for (const d of categoryData) {
+                      const catKey = `${d.isCustom ? 'cc-' : ''}${d.category}`
+                      const grossProfit = d.price - d.cost
+                      const costShare = safeDivide(Math.abs(d.cost), totalAbsCost, 0)
+                      const priceShare = safeDivide(Math.abs(d.price), totalAbsPrice, 0)
+                      const isExpanded = expandedCategory === catKey
+                      const hasStores = selectedResults.length > 0
+
+                      rows.push(
+                        <DrillTr
+                          key={catKey}
+                          $clickable={hasStores}
+                          $expanded={isExpanded}
+                          onClick={() => {
+                            if (!hasStores) return
+                            setExpandedCategory(isExpanded ? null : catKey)
+                            setExpandedStore(null)
+                          }}
+                        >
+                          <Td>
+                            {hasStores && <DrillToggle $expanded={isExpanded}>&#9654;</DrillToggle>}
+                            <Badge $color={d.color} />{d.label}
+                          </Td>
+                          <Td>{formatCurrency(d.cost)}</Td>
+                          <Td>{formatCurrency(d.price)}</Td>
+                          <GrossProfitCell $positive={grossProfit >= 0}>
+                            {formatCurrency(grossProfit)}
+                          </GrossProfitCell>
+                          <MarkupCell $rate={d.markup}>{formatPercent(d.markup)}</MarkupCell>
+                          <Td>{formatPercent(costShare)}</Td>
+                          <Td>{formatPercent(priceShare)}</Td>
+                          <Td>{formatPercent(d.crossMultiplication)}</Td>
+                        </DrillTr>,
+                      )
+
+                      // 店舗別ドリルダウン行
+                      if (isExpanded) {
+                        for (const sr of selectedResults) {
+                          const sName = stores.get(sr.storeId)?.name ?? sr.storeId
+                          const pair = d.isCustom
+                            ? (() => {
+                                let c = 0, p = 0
+                                for (const [, st] of sr.supplierTotals) {
+                                  if (appState.settings.supplierCategoryMap[st.supplierCode] === d.category) {
+                                    c += st.cost; p += st.price
+                                  }
+                                }
+                                return c !== 0 || p !== 0 ? { cost: c, price: p } : null
+                              })()
+                            : sr.categoryTotals.get(d.category as CategoryType) ?? null
+                          if (!pair) continue
+                          const sGP = pair.price - pair.cost
+                          const sMarkup = safeDivide(sGP, pair.price, 0)
+                          const storeKey = `${catKey}:${sr.storeId}`
+                          const isStoreExpanded = expandedStore === storeKey
+
+                          rows.push(
+                            <DrillTr
+                              key={storeKey}
+                              $depth={1}
+                              $clickable
+                              $expanded={isStoreExpanded}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setExpandedStore(isStoreExpanded ? null : storeKey)
+                              }}
+                            >
+                              <Td>
+                                <DrillLabel $depth={1}>
+                                  <DrillToggle $expanded={isStoreExpanded}>&#9654;</DrillToggle>
+                                  {sName}
+                                </DrillLabel>
+                              </Td>
+                              <Td>{formatCurrency(pair.cost)}</Td>
+                              <Td>{formatCurrency(pair.price)}</Td>
+                              <GrossProfitCell $positive={sGP >= 0}>{formatCurrency(sGP)}</GrossProfitCell>
+                              <MarkupCell $rate={sMarkup}>{formatPercent(sMarkup)}</MarkupCell>
+                              <Td></Td>
+                              <Td></Td>
+                              <Td></Td>
+                            </DrillTr>,
                           )
-                        })}
-                        <TrTotal>
-                          <Td>合計</Td>
-                          <Td>{formatCurrency(totalCatCost)}</Td>
-                          <Td>{formatCurrency(totalCatPrice)}</Td>
-                          <Td>{formatCurrency(totalGrossProfit)}</Td>
-                          <Td>{formatPercent(overallMarkupRate)}</Td>
-                          <Td>{formatPercent(1)}</Td>
-                          <Td>{formatPercent(1)}</Td>
-                          <Td>{formatPercent(categoryData.reduce((s, c) => s + c.crossMultiplication, 0))}</Td>
-                        </TrTotal>
-                      </>
+
+                          // 日別ドリルダウン行
+                          if (isStoreExpanded) {
+                            // カテゴリに属する取引先コードを特定
+                            const catSuppliers = new Set<string>()
+                            for (const [code, st] of sr.supplierTotals) {
+                              if (d.isCustom) {
+                                if (appState.settings.supplierCategoryMap[st.supplierCode] === d.category) catSuppliers.add(code)
+                              } else if (st.category === d.category) {
+                                catSuppliers.add(code)
+                              }
+                            }
+
+                            const dayEntries = Array.from(sr.daily.entries())
+                              .sort(([a], [b]) => a - b)
+                              .map(([day, rec]) => {
+                                let dayCost = 0, dayPrice = 0
+                                for (const [sup, sp] of rec.supplierBreakdown) {
+                                  if (catSuppliers.has(sup)) {
+                                    dayCost += sp.cost
+                                    dayPrice += sp.price
+                                  }
+                                }
+                                return { day, cost: dayCost, price: dayPrice }
+                              })
+                              .filter(e => e.cost !== 0 || e.price !== 0)
+
+                            for (const de of dayEntries) {
+                              const dayGP = de.price - de.cost
+                              const dayMarkup = safeDivide(dayGP, de.price, 0)
+                              rows.push(
+                                <DrillTr key={`${storeKey}:${de.day}`} $depth={2}>
+                                  <Td><DrillLabel $depth={2}>{de.day}日</DrillLabel></Td>
+                                  <Td>{formatCurrency(de.cost)}</Td>
+                                  <Td>{formatCurrency(de.price)}</Td>
+                                  <GrossProfitCell $positive={dayGP >= 0}>{formatCurrency(dayGP)}</GrossProfitCell>
+                                  <MarkupCell $rate={dayMarkup}>{formatPercent(dayMarkup)}</MarkupCell>
+                                  <Td></Td>
+                                  <Td></Td>
+                                  <Td></Td>
+                                </DrillTr>,
+                              )
+                            }
+                          }
+                        }
+                      }
+                    }
+
+                    rows.push(
+                      <TrTotal key="total">
+                        <Td>合計</Td>
+                        <Td>{formatCurrency(totalCatCost)}</Td>
+                        <Td>{formatCurrency(totalCatPrice)}</Td>
+                        <Td>{formatCurrency(totalGrossProfit)}</Td>
+                        <Td>{formatPercent(overallMarkupRate)}</Td>
+                        <Td>{formatPercent(1)}</Td>
+                        <Td>{formatPercent(1)}</Td>
+                        <Td>{formatPercent(categoryData.reduce((s, c) => s + c.crossMultiplication, 0))}</Td>
+                      </TrTotal>,
                     )
+                    return rows
                   })()}
                 </tbody>
               </Table>

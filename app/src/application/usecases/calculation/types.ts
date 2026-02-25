@@ -20,6 +20,8 @@ export interface MonthlyAccumulator {
   totalCustomers: number
   salesDays: number
   elapsedDays: number
+  purchaseMaxDay: number
+  hasDiscountData: boolean
   transferTotals: {
     interStoreIn: CostPricePair
     interStoreOut: CostPricePair

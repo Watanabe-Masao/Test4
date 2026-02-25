@@ -70,6 +70,10 @@ export interface StoreResult {
   readonly supplierTotals: ReadonlyMap<string, SupplierTotal>
   readonly transferDetails: TransferDetails
 
+  // ─── データ有効範囲 ────────────────────────────────────
+  readonly purchaseMaxDay: number // 仕入データの最終有効日（0=仕入なし）
+  readonly hasDiscountData: boolean // 売変データの有無（推定法の精度に影響）
+
   // ─── 予測・KPI ────────────────────────────────────────
   readonly elapsedDays: number // 経過日数
   readonly salesDays: number // 営業日数

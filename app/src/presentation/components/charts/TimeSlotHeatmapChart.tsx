@@ -53,6 +53,10 @@ const Tab = styled.button<{ $active: boolean }>`
   &:hover { opacity: 0.85; }
 `
 
+const EmptyFilterMsg = styled.div`
+  text-align: center; padding: 40px 16px;
+  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+`
 const HeatGrid = styled.div`
   display: grid;
   gap: 2px;
@@ -237,8 +241,8 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
   }), [year, month, pf.dayRange])
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
-    [ctsIndex, sliderDateRange, dowFilter],
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
 
   // WoW: 前週期間 (dayRange を -7 日シフト)
@@ -255,14 +259,14 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
         from: { year, month, day: wowPrevStart },
         to: { year, month, day: wowPrevEnd },
       }
-      return queryByDateRange(ctsIndex, { dateRange: wowRange })
+      return queryByDateRange(ctsIndex, { dateRange: wowRange, storeIds: selectedStoreIds })
     }
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
     const prevRange: DateRange = {
       from: { year: year - 1, month, day: pf.dayRange[0] },
       to: { year: year - 1, month, day: pf.dayRange[1] },
     }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
     if (dowFilter) {
       recs = recs.filter((r) => {
         const dow = new Date(year, month - 1, r.day).getDay()
@@ -270,7 +274,7 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
       })
     }
     return recs
-  }, [activeCompMode, ctsIndex, prevCtsIndex, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
+  }, [activeCompMode, ctsIndex, prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
@@ -328,7 +332,14 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
 
   const maxVal = Math.max(0, ...curData.matrix.flat())
 
-  if (curData.hours.length === 0) return null
+  if (curData.hours.length === 0) return (
+    <Wrapper>
+      <HeaderRow><Title>時間帯×曜日 売上ヒートマップ</Title></HeaderRow>
+      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+      <HierarchyDropdowns hf={hf} />
+    </Wrapper>
+  )
 
   const modeLabel = pf.mode === 'dowAvg' ? '（曜日別平均）' : pf.mode === 'dailyAvg' ? '（日平均）' : ''
   const showDiff = heatmapMode === 'yoyDiff' && diffMatrix

@@ -51,6 +51,8 @@ function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {
       interDepartmentOut: { cost: 0, price: 0 },
       netTransfer: { cost: 0, price: 0 },
     },
+    purchaseMaxDay: 0,
+    hasDiscountData: false,
     elapsedDays: 0,
     salesDays: 0,
     averageDailySales: 0,

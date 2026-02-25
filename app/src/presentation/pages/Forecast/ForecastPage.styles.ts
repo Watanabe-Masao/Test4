@@ -77,6 +77,12 @@ export const Tr = styled.tr`
   &:hover { background: ${({ theme }) => theme.colors.bg4}; }
 `
 
+export const TrTotal = styled.tr`
+  background: ${({ theme }) => theme.colors.bg2};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  td { font-weight: ${({ theme }) => theme.typography.fontWeight.bold}; }
+`
+
 export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
   display: inline-block;
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};

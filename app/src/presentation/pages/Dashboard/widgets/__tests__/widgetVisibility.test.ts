@@ -17,6 +17,8 @@ describe('ウィジェット isVisible', () => {
     'chart-dept-hourly-pattern',
   ]
 
+  const discountWidgetId = 'chart-discount-breakdown'
+
   describe('分類別時間帯ウィジェット（ctsIndex 依存）', () => {
     it('データなしの場合は非表示', () => {
       const ctx = makeWidgetContext({ ctsIndex: EMPTY_CTS_INDEX })
@@ -84,10 +86,27 @@ describe('ウィジェット isVisible', () => {
     })
   })
 
+  describe('売変内訳ウィジェット', () => {
+    it('売変データなしの場合は非表示', () => {
+      const ctx = makeWidgetContext({})
+      // デフォルトは hasDiscountData: true なので false に上書き
+      ;(ctx.result as { hasDiscountData: boolean }).hasDiscountData = false
+      const widget = WIDGET_REGISTRY.find((w) => w.id === discountWidgetId)
+      expect(widget?.isVisible).toBeDefined()
+      expect(widget!.isVisible!(ctx)).toBe(false)
+    })
+
+    it('売変データありの場合は表示', () => {
+      const ctx = makeWidgetContext({})
+      const widget = WIDGET_REGISTRY.find((w) => w.id === discountWidgetId)
+      expect(widget!.isVisible!(ctx)).toBe(true)
+    })
+  })
+
   describe('isVisible が未設定のウィジェットは常に表示', () => {
     it('通常ウィジェットには isVisible がない', () => {
       const nonDataWidgets = WIDGET_REGISTRY.filter(
-        (w) => !w.id.includes('category') && !w.id.includes('timeslot') && !w.id.includes('dept-hourly') && !w.id.includes('store-timeslot') && !w.id.includes('yoy'),
+        (w) => !w.id.includes('category') && !w.id.includes('timeslot') && !w.id.includes('dept-hourly') && !w.id.includes('store-timeslot') && !w.id.includes('yoy') && !w.id.includes('discount-breakdown'),
       )
       for (const w of nonDataWidgets) {
         expect(w.isVisible).toBeUndefined()

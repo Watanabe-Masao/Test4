@@ -6,6 +6,7 @@ import { formatCurrency } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import {
   Section, TableWrapper, Table, Th, Td, Tr, TrTotal, TrDetail, TrDetailLast, DetailLabel, ToggleIcon, EmptyState,
+  FlowTable, FlowTh, FlowTd, FlowTr, FlowGroupHeader, FlowBar,
 } from './TransferPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 
@@ -83,6 +84,28 @@ export function TransferPage() {
     () => days.length > 0 ? aggregateFlows(days, inField, outField, stores) : [],
     [days, inField, outField, stores],
   )
+
+  // ペアをfrom別にグループ化
+  const groupedFlows = useMemo(() => {
+    if (flows.length === 0) return []
+    const groups = new Map<string, { fromId: string; fromName: string; entries: FlowEntry[]; totalCost: number; totalPrice: number }>()
+    for (const f of flows) {
+      const existing = groups.get(f.from)
+      if (existing) {
+        existing.entries.push(f)
+        existing.totalCost += f.cost
+        existing.totalPrice += f.price
+      } else {
+        groups.set(f.from, { fromId: f.from, fromName: f.fromName, entries: [f], totalCost: f.cost, totalPrice: f.price })
+      }
+    }
+    return Array.from(groups.values()).sort((a, b) => Math.abs(b.totalCost) - Math.abs(a.totalCost))
+  }, [flows])
+
+  const maxFlowCost = useMemo(() => {
+    if (flows.length === 0) return 1
+    return Math.max(...flows.map(f => Math.abs(f.cost)), 1)
+  }, [flows])
 
   // ペア別日別データ（ペア選択時）
   const pairDailyData = useMemo(() => {
@@ -165,24 +188,58 @@ export function TransferPage() {
         />
       </KpiGrid>
 
-      {/* ペアチップ */}
-      {flows.length > 0 && (
+      {/* ペア一覧テーブル */}
+      {groupedFlows.length > 0 && (
         <Section>
-          <ChipGroup>
-            <Chip $active={selectedPair === null} onClick={() => setSelectedPair(null)}>全て</Chip>
-            {flows.map(f => {
-              const key = `${f.from}->${f.to}`
-              return (
-                <Chip
-                  key={key}
-                  $active={selectedPair === key}
-                  onClick={() => setSelectedPair(selectedPair === key ? null : key)}
-                >
-                  {f.from}→{f.to}
-                </Chip>
-              )
-            })}
-          </ChipGroup>
+          <Card>
+            <CardTitle>{typeLabel}移動 ペア一覧</CardTitle>
+            <TableWrapper>
+              <FlowTable>
+                <thead>
+                  <tr>
+                    <FlowTh>移動元</FlowTh>
+                    <FlowTh>移動先</FlowTh>
+                    <FlowTh>原価</FlowTh>
+                    <FlowTh>規模</FlowTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  <FlowTr $active={selectedPair === null} onClick={() => setSelectedPair(null)}>
+                    <FlowTd $label>全て表示</FlowTd>
+                    <FlowTd $label>-</FlowTd>
+                    <FlowTd>{formatCurrency(dailyTotals.inCost + dailyTotals.outCost)}</FlowTd>
+                    <FlowTd><FlowBar $pct={100} $dir="neutral" /></FlowTd>
+                  </FlowTr>
+                  {groupedFlows.map(group => (
+                    <>
+                      <FlowGroupHeader key={`grp-${group.fromId}`}>
+                        <FlowTd colSpan={4} $label>
+                          {group.fromName}（{group.fromId}）から — {group.entries.length}件 / {formatCurrency(group.totalCost)}
+                        </FlowTd>
+                      </FlowGroupHeader>
+                      {group.entries.map(f => {
+                        const key = `${f.from}->${f.to}`
+                        const pct = Math.round(Math.abs(f.cost) / maxFlowCost * 100)
+                        const dir = f.cost > 0 ? 'in' as const : f.cost < 0 ? 'out' as const : 'neutral' as const
+                        return (
+                          <FlowTr
+                            key={key}
+                            $active={selectedPair === key}
+                            onClick={() => setSelectedPair(selectedPair === key ? null : key)}
+                          >
+                            <FlowTd $label>{f.fromName}</FlowTd>
+                            <FlowTd $label>{f.toName}</FlowTd>
+                            <FlowTd $negative={f.cost < 0}>{formatCurrency(f.cost)}</FlowTd>
+                            <FlowTd><FlowBar $pct={pct} $dir={dir} /></FlowTd>
+                          </FlowTr>
+                        )
+                      })}
+                    </>
+                  ))}
+                </tbody>
+              </FlowTable>
+            </TableWrapper>
+          </Card>
         </Section>
       )}
 

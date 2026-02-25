@@ -173,6 +173,8 @@ export function assembleStoreResult(
     storeId,
     openingInventory: invConfig?.openingInventory ?? null,
     closingInventory: invConfig?.closingInventory ?? null,
+    purchaseMaxDay: acc.purchaseMaxDay,
+    hasDiscountData: acc.hasDiscountData,
     totalSales: acc.totalSales,
     totalCoreSales,
     deliverySalesPrice,
