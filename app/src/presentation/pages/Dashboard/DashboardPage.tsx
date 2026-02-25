@@ -37,18 +37,9 @@ export function DashboardPage() {
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
-  // 前年分類別時間帯売上を有効期間でフィルタ
-  const elapsedDays = currentResult?.elapsedDays
-  const filteredPrevYearCTS = useMemo(() => {
-    if (!prevYearCTS.hasPrevYear) return prevYearCTS
-    if (elapsedDays == null || elapsedDays <= 0) return prevYearCTS
-    const trimmed = prevYearCTS.records.filter((r) => r.day <= elapsedDays)
-    return { ...prevYearCTS, records: trimmed }
-  }, [prevYearCTS, elapsedDays])
-
   // インデックス構築（データ変更時のみ再構築）
   const ctsIndex = useCategoryTimeSalesIndex(appState.data.categoryTimeSales)
-  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(filteredPrevYearCTS.records)
+  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(prevYearCTS.records)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
