@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } fro
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary, MetricBreakdownPanel } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations, useCategoryTimeSalesIndex, useCategoryTimeSalesIndexFromRecords } from '@/application/hooks'
-import type { MetricId } from '@/domain/models'
+import type { MetricId, DateRange } from '@/domain/models'
 import { useAppState } from '@/application/context'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { CategoryHierarchyProvider, CurrencyUnitToggle } from '@/presentation/components/charts'
@@ -182,13 +182,30 @@ export function DashboardPage() {
     })
   }
 
+  // ── 日付範囲の算出（チャート用フックに渡す） ──
+  const targetYear = appState.settings.targetYear
+  const targetMonth = appState.settings.targetMonth
+  const effectiveEndDay = r.elapsedDays != null && r.elapsedDays > 0
+    ? Math.min(r.elapsedDays, daysInMonth)
+    : daysInMonth
+  const currentDateRange: DateRange = {
+    from: { year: targetYear, month: targetMonth, day: 1 },
+    to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
+  }
+  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
+    ? {
+        from: { year: targetYear - 1, month: targetMonth, day: 1 },
+        to: { year: targetYear - 1, month: targetMonth, day: effectiveEndDay },
+      }
+    : undefined
+
   const ctx: WidgetContext = {
     result: r,
     daysInMonth,
     targetRate: appState.settings.targetGrossProfitRate,
     warningRate: appState.settings.warningThreshold,
-    year: appState.settings.targetYear,
-    month: appState.settings.targetMonth,
+    year: targetYear,
+    month: targetMonth,
     budgetChartData,
     storeKey: storeName,
     prevYear,
@@ -197,6 +214,8 @@ export function DashboardPage() {
     categoryTimeSales: filteredCategoryTimeSales,
     ctsIndex,
     prevCtsIndex,
+    currentDateRange,
+    prevYearDateRange,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,

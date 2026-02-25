@@ -156,6 +156,8 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     categoryTimeSales: { records: [] },
     ctsIndex: EMPTY_CTS_INDEX,
     prevCtsIndex: EMPTY_CTS_INDEX,
+    currentDateRange: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+    prevYearDateRange: undefined,
     selectedStoreIds: new Set(),
     dataEndDay: null,
     dataMaxDay: 0,
