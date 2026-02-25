@@ -412,6 +412,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           ctsIndex={ctx.ctsIndex}
           prevCtsIndex={ctx.prevCtsIndex}
           dailyMap={r.daily}
+          selectedStoreIds={ctx.selectedStoreIds}
           onClose={() => setDetailDay(null)}
         />
       )}

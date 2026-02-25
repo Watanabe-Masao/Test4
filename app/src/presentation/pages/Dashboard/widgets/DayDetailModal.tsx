@@ -48,13 +48,15 @@ interface DayDetailModalProps {
   prevCtsIndex: CategoryTimeSalesIndex
   /** 当年の全日別データ（前週比用） */
   dailyMap?: ReadonlyMap<number, DailyRecord>
+  /** 選択中の店舗IDセット（空=全店舗） */
+  selectedStoreIds?: ReadonlySet<string>
   onClose: () => void
 }
 
 export function DayDetailModal({
   day, month, year, record, budget, cumBudget, cumSales, cumPrevYear,
   cumCustomers, cumPrevCustomers, prevYear,
-  ctsIndex, prevCtsIndex, dailyMap, onClose,
+  ctsIndex, prevCtsIndex, dailyMap, selectedStoreIds, onClose,
 }: DayDetailModalProps) {
   const [tab, setTab] = useState<ModalTab>('sales')
   const [compMode, setCompMode] = useState<CompMode>('yoy')
@@ -96,8 +98,8 @@ export function DayDetailModal({
   }), [year, month, day])
 
   const dayRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: singleDayRange }),
-    [ctsIndex, singleDayRange],
+    () => queryByDateRange(ctsIndex, { dateRange: singleDayRange, storeIds: selectedStoreIds }),
+    [ctsIndex, singleDayRange, selectedStoreIds],
   )
 
   const prevDayRange: DateRange = useMemo(() => ({
@@ -106,8 +108,8 @@ export function DayDetailModal({
   }), [year, month, day])
 
   const prevDayRecords = useMemo(
-    () => queryByDateRange(prevCtsIndex, { dateRange: prevDayRange }),
-    [prevCtsIndex, prevDayRange],
+    () => queryByDateRange(prevCtsIndex, { dateRange: prevDayRange, storeIds: selectedStoreIds }),
+    [prevCtsIndex, prevDayRange, selectedStoreIds],
   )
 
   // WoW用: 前週(day-7)のカテゴリレコード
@@ -117,8 +119,8 @@ export function DayDetailModal({
   }), [year, month, wowPrevDay])
 
   const wowPrevDayRecords = useMemo(
-    () => canWoW ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange }) : [],
-    [canWoW, ctsIndex, wowPrevDayRange],
+    () => canWoW ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange, storeIds: selectedStoreIds }) : [],
+    [canWoW, ctsIndex, wowPrevDayRange, selectedStoreIds],
   )
 
   // ── 比較用メトリクス（モードに応じて切替） ──
@@ -140,8 +142,8 @@ export function DayDetailModal({
   }), [year, month, day])
 
   const cumCategoryRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: cumDateRange }),
-    [ctsIndex, cumDateRange],
+    () => queryByDateRange(ctsIndex, { dateRange: cumDateRange, storeIds: selectedStoreIds }),
+    [ctsIndex, cumDateRange, selectedStoreIds],
   )
 
   const cumPrevDateRange: DateRange = useMemo(() => ({
@@ -150,8 +152,8 @@ export function DayDetailModal({
   }), [year, month, day])
 
   const cumPrevCategoryRecords = useMemo(
-    () => queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange }),
-    [prevCtsIndex, cumPrevDateRange],
+    () => queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange, storeIds: selectedStoreIds }),
+    [prevCtsIndex, cumPrevDateRange, selectedStoreIds],
   )
 
   return (
