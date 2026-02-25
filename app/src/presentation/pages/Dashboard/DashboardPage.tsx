@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } fro
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary, MetricBreakdownPanel } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations, useCategoryTimeSalesIndex, useCategoryTimeSalesIndexFromRecords } from '@/application/hooks'
-import type { MetricId } from '@/domain/models'
+import type { MetricId, DateRange } from '@/domain/models'
 import { useAppState } from '@/application/context'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { CategoryHierarchyProvider, CurrencyUnitToggle } from '@/presentation/components/charts'
@@ -37,32 +37,9 @@ export function DashboardPage() {
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
-  // 分類別時間帯売上を選択店舗 + 有効期間でフィルタ
-  const elapsedDays = currentResult?.elapsedDays
-  const filteredCategoryTimeSales = useMemo(() => {
-    const cts = appState.data.categoryTimeSales
-    if (!cts?.records) return { records: [] }
-    let recs = cts.records
-    if (selectedStoreIds.size > 0) {
-      recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
-    }
-    if (elapsedDays != null && elapsedDays > 0) {
-      recs = recs.filter((r) => r.day <= elapsedDays)
-    }
-    return { records: recs }
-  }, [appState.data.categoryTimeSales, selectedStoreIds, elapsedDays])
-
-  // 前年分類別時間帯売上も有効期間でフィルタ
-  const filteredPrevYearCTS = useMemo(() => {
-    if (!prevYearCTS.hasPrevYear) return prevYearCTS
-    if (elapsedDays == null || elapsedDays <= 0) return prevYearCTS
-    const trimmed = prevYearCTS.records.filter((r) => r.day <= elapsedDays)
-    return { ...prevYearCTS, records: trimmed }
-  }, [prevYearCTS, elapsedDays])
-
   // インデックス構築（データ変更時のみ再構築）
   const ctsIndex = useCategoryTimeSalesIndex(appState.data.categoryTimeSales)
-  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(filteredPrevYearCTS.records)
+  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(prevYearCTS.records)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -71,16 +48,16 @@ export function DashboardPage() {
   // データ駆動ウィジェットの自動注入
   useEffect(() => {
     const injected = autoInjectDataWidgets(widgetIds, {
-      categoryTimeSales: appState.data.categoryTimeSales,
-      prevYearCategoryTimeSales: prevYearCTS,
-      stores,
+      ctsRecordCount: ctsIndex.recordCount,
+      prevYearHasPrevYear: prevYearCTS.hasPrevYear,
+      storeCount: stores.size,
     })
     if (injected) {
       setWidgetIds(injected)
       saveLayout(injected)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appState.data.categoryTimeSales.records.length, prevYearCTS.hasPrevYear, stores.size])
+  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size])
 
   // D&D state
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -182,27 +159,44 @@ export function DashboardPage() {
     })
   }
 
+  // ── 日付範囲の算出（チャート用フックに渡す） ──
+  const targetYear = appState.settings.targetYear
+  const targetMonth = appState.settings.targetMonth
+  const effectiveEndDay = r.elapsedDays != null && r.elapsedDays > 0
+    ? Math.min(r.elapsedDays, daysInMonth)
+    : daysInMonth
+  const currentDateRange: DateRange = {
+    from: { year: targetYear, month: targetMonth, day: 1 },
+    to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
+  }
+  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
+    ? {
+        from: { year: targetYear - 1, month: targetMonth, day: 1 },
+        to: { year: targetYear - 1, month: targetMonth, day: effectiveEndDay },
+      }
+    : undefined
+
   const ctx: WidgetContext = {
     result: r,
     daysInMonth,
     targetRate: appState.settings.targetGrossProfitRate,
     warningRate: appState.settings.warningThreshold,
-    year: appState.settings.targetYear,
-    month: appState.settings.targetMonth,
+    year: targetYear,
+    month: targetMonth,
     budgetChartData,
     storeKey: storeName,
     prevYear,
     allStoreResults: appState.storeResults,
     stores: appState.data.stores,
-    categoryTimeSales: filteredCategoryTimeSales,
     ctsIndex,
     prevCtsIndex,
+    currentDateRange,
+    prevYearDateRange,
     selectedStoreIds,
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,
     departmentKpi: appState.data.departmentKpi,
-    prevYearCategoryTimeSales: filteredPrevYearCTS,
     explanations,
     onExplain: handleExplain,
   }

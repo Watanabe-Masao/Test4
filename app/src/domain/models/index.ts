@@ -29,6 +29,17 @@ export type {
   DepartmentKpiData,
 } from './DataTypes'
 export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
+export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
+export {
+  toDateKey,
+  toDateKeyFromParts,
+  fromDateKey,
+  getDow,
+  formatCalendarDate,
+  isSameDate,
+  dateRangeDays,
+  dateRangeToKeys,
+} from './CalendarDate'
 export type { CategoryTimeSalesIndex } from './CategoryTimeSalesIndex'
 export { EMPTY_CTS_INDEX } from './CategoryTimeSalesIndex'
 export type {
@@ -57,6 +68,7 @@ export type { DataOrigin, DataEnvelope } from './DataOrigin'
 export { isEnvelope } from './DataOrigin'
 export type { MonthlyData, AppData } from './MonthlyData'
 export { createEmptyMonthlyData } from './MonthlyData'
+export type { StoreDaySummary, StoreDaySummaryIndex, StoreDaySummaryCache } from './StoreDaySummary'
 export type { ValidationMessage } from './ValidationMessage'
 export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult, ImportHistoryEntry, ImportHistoryFile } from './Persistence'
 export type {

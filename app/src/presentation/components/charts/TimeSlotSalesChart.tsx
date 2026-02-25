@@ -4,9 +4,10 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore, type AggregateMode } from './PeriodFilter'
+import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -210,13 +211,14 @@ type ViewMode = 'chart' | 'kpi' | 'yoy'
 type MetricMode = 'amount' | 'quantity'
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  /** 分類別時間帯売上インデックス（当年） */
+  ctsIndex: CategoryTimeSalesIndex
+  /** 分類別時間帯売上インデックス（前年、同曜日オフセット適用済み） */
+  prevCtsIndex: CategoryTimeSalesIndex
   selectedStoreIds: ReadonlySet<string>
   daysInMonth: number
   year: number
   month: number
-  /** 前年同曜日対応済みレコード */
-  prevYearRecords?: readonly CategoryTimeSalesRecord[]
   /** 販売データ存在最大日（スライダーデフォルト値用） */
   dataMaxDay?: number
 }
@@ -270,7 +272,7 @@ function aggregateHourly(
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較・前週比較対応） */
-export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
+export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
@@ -279,7 +281,19 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
   const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
-  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+
+  // ── DateRange ベースのレコード取得 ──
+  const sliderDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: pf.dayRange[0] },
+    to: { year, month, day: pf.dayRange[1] },
+  }), [year, month, pf.dayRange])
+
+  const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+
+  const periodRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, dowFilter],
+  )
 
   // WoW: 前週期間 (dayRange を -7 日シフト)
   const wowPrevStart = pf.dayRange[0] - 7
@@ -291,12 +305,29 @@ export function TimeSlotSalesChart({ categoryTimeSales, selectedStoreIds, daysIn
   // 比較期間レコード（前年比 or 前週比で切替）
   const prevPeriodRecords = useMemo(() => {
     if (activeCompMode === 'wow') {
-      return categoryTimeSales.records.filter(
-        (rec) => rec.day >= wowPrevStart && rec.day <= wowPrevEnd,
-      )
+      const wowRange: DateRange = {
+        from: { year, month, day: wowPrevStart },
+        to: { year, month, day: wowPrevEnd },
+      }
+      return queryByDateRange(ctsIndex, { dateRange: wowRange })
     }
-    return prevYearRecords ? pf.filterRecords(prevYearRecords) : []
-  }, [activeCompMode, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
+    if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
+    // 前年インデックスのレコードは year=前年 のまま。dayRange のみ合わせる。
+    const prevRange: DateRange = {
+      from: { year: year - 1, month, day: pf.dayRange[0] },
+      to: { year: year - 1, month, day: pf.dayRange[1] },
+    }
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    // DOWフィルタ: 前年レコードの day は同曜日オフセット済みなので、
+    // 当年の year/month で曜日を算出する（前年自身の year/month では不正確）
+    if (dowFilter) {
+      recs = recs.filter((r) => {
+        const dow = new Date(year, month - 1, r.day).getDay()
+        return dowFilter.has(dow)
+      })
+    }
+    return recs
+  }, [activeCompMode, ctsIndex, prevCtsIndex, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
 
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 

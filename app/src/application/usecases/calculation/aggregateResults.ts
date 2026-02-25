@@ -175,19 +175,29 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
 
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
 
-  // 値入率
+  // 値入率（storeAssembler と同じ式: 店間・部門間移動も仕入として算入）
   let totalPurchaseCost = 0
   let totalPurchasePrice = 0
   for (const [, st] of aggSupplier) {
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
+  const transferPrice =
+    aggTransfer.interStoreIn.price + aggTransfer.interStoreOut.price +
+    aggTransfer.interDepartmentIn.price + aggTransfer.interDepartmentOut.price
+  const transferCost =
+    aggTransfer.interStoreIn.cost + aggTransfer.interStoreOut.cost +
+    aggTransfer.interDepartmentIn.cost + aggTransfer.interDepartmentOut.cost
   const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
   const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
-  const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price
-  const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost
+  const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price + transferPrice
+  const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost + transferCost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  const coreMarkupRate = safeDivide(totalPurchasePrice - totalPurchaseCost, totalPurchasePrice, 0)
+  const coreMarkupRate = safeDivide(
+    (totalPurchasePrice + transferPrice) - (totalPurchaseCost + transferCost),
+    totalPurchasePrice + transferPrice,
+    0,
+  )
 
   const consumableRate = safeDivide(totalConsumable, totalSales, 0)
   const averageDailySales = safeDivide(totalSales, salesDays, 0)

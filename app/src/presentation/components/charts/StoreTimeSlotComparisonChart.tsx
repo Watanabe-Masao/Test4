@@ -4,9 +4,10 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
-import type { CategoryTimeSalesData, Store } from '@/domain/models'
+import type { CategoryTimeSalesIndex, DateRange, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays } from './PeriodFilter'
+import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -110,7 +111,7 @@ type ViewMode = 'radar' | 'bar'
 type MetricMode = 'amount' | 'pct'
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  ctsIndex: CategoryTimeSalesIndex
   stores: ReadonlyMap<string, Store>
   daysInMonth: number
   year: number
@@ -120,14 +121,22 @@ interface Props {
 }
 
 /** 店舗別 時間帯売上パターン比較 */
-export function StoreTimeSlotComparisonChart({ categoryTimeSales, stores, daysInMonth, year, month, dataMaxDay }: Props) {
+export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
   const [viewMode, setViewMode] = useState<ViewMode>('bar')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
-  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const sliderDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: pf.dayRange[0] },
+    to: { year, month, day: pf.dayRange[1] },
+  }), [year, month, pf.dayRange])
+  const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+  const periodRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, dowFilter],
+  )
   const hf = useHierarchyDropdown(periodRecords, new Set<string>())
 
   const { data, dataPct, storeNames, hours, storeTotals } = useMemo(() => {

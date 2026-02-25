@@ -1,4 +1,5 @@
 import type { DataType, AppSettings, ValidationMessage, ImportedData, PurchaseData, SpecialSalesData, TransferData, ConsumableData, BudgetData } from '@/domain/models'
+import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
 import { monthKey } from '@/infrastructure/fileImport/dateParser'
@@ -216,6 +217,92 @@ export function validateImportedData(
     }
   }
 
+  // ── レコード件数の妥当性チェック ──
+  // 1店舗×1月で期待されるレコード密度を超えている場合、データ混入の兆候
+  if (data.classifiedSales.records.length > 0 && storeCount > 0) {
+    const avgPerStore = data.classifiedSales.records.length / storeCount
+    // 1日あたり最大100分類 × 31日 = 3100 が目安上限
+    if (avgPerStore > 3100) {
+      messages.push({
+        level: 'warning',
+        message: `分類別売上のレコード密度が異常に高い値です（1店舗あたり${Math.round(avgPerStore)}件）`,
+        details: [
+          `総レコード数: ${data.classifiedSales.records.length}`,
+          `店舗数: ${storeCount}`,
+          '別月のデータが混入している、または同一ファイルが重複取込された可能性があります',
+        ],
+      })
+    }
+  }
+
+  // ── 重複レコード検出 ──
+  // classifiedSales: 同一キーのレコードが複数存在 → マージ不備の兆候
+  if (data.classifiedSales.records.length > 0) {
+    const csKeys = new Map<string, number>()
+    for (const rec of data.classifiedSales.records) {
+      const key = classifiedSalesRecordKey(rec)
+      csKeys.set(key, (csKeys.get(key) ?? 0) + 1)
+    }
+    const csDuplicateCount = Array.from(csKeys.values()).filter((c) => c > 1).length
+    if (csDuplicateCount > 0) {
+      messages.push({
+        level: 'warning',
+        message: `分類別売上に${csDuplicateCount}件の重複レコードがあります（同一ファイルの再取込の可能性）`,
+        details: [
+          `総レコード数: ${data.classifiedSales.records.length}`,
+          `ユニークキー数: ${csKeys.size}`,
+          '重複レコードは計算値（売上合計等）が実際の2倍になる原因になります',
+        ],
+      })
+    }
+  }
+
+  // categoryTimeSales: 同一キーのレコードが複数存在
+  if (data.categoryTimeSales?.records?.length) {
+    const ctsKeys = new Map<string, number>()
+    for (const rec of data.categoryTimeSales.records) {
+      const key = categoryTimeSalesRecordKey(rec)
+      ctsKeys.set(key, (ctsKeys.get(key) ?? 0) + 1)
+    }
+    const ctsDuplicateCount = Array.from(ctsKeys.values()).filter((c) => c > 1).length
+    if (ctsDuplicateCount > 0) {
+      messages.push({
+        level: 'warning',
+        message: `分類別時間帯売上に${ctsDuplicateCount}件の重複レコードがあります（同一ファイルの再取込の可能性）`,
+        details: [
+          `総レコード数: ${data.categoryTimeSales.records.length}`,
+          `ユニークキー数: ${ctsKeys.size}`,
+          '重複レコードはチャートの表示値が実際の倍になる原因になります',
+        ],
+      })
+    }
+  }
+
+  // ── カテゴリ階層の整合性チェック ──
+  // 同一店舗×日に「合計」行と明細行が共存する場合、二重計上の兆候
+  if (data.classifiedSales.records.length > 0) {
+    const SUBTOTAL_MARKERS = ['合計', '小計', '計']
+    const subtotalRecords = data.classifiedSales.records.filter(
+      (r) => SUBTOTAL_MARKERS.some((m) =>
+        r.className === m || r.lineName === m || r.departmentName === m || r.groupName === m,
+      ),
+    )
+    if (subtotalRecords.length > 0) {
+      const subtotalSales = subtotalRecords.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
+      const totalSales = data.classifiedSales.records.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
+      messages.push({
+        level: 'warning',
+        message: `分類別売上に${subtotalRecords.length}件の小計/合計行が含まれています — 売上が二重計上されている可能性があります`,
+        details: [
+          `小計/合計行の売上合計: ${Math.round(subtotalSales).toLocaleString()}円`,
+          `全レコードの売上合計: ${Math.round(totalSales).toLocaleString()}円`,
+          '小計行と明細行が混在すると、集計値が実際の2倍以上になります',
+          'ファイルからクラス名称が「合計」等の行を除外して再インポートしてください',
+        ],
+      })
+    }
+  }
+
   // ── オプショナルデータ ──
   if (data.budget.size === 0) {
     messages.push({
@@ -291,9 +378,7 @@ export function extractRecordMonths(
   }
 
   for (const rec of data.categoryTimeSales.records) {
-    if (rec.year != null && rec.month != null) {
-      addMonth(rec.year, rec.month)
-    }
+    addMonth(rec.year, rec.month)
   }
 
   // StoreDayRecord パーティションのキーからも年月を収集

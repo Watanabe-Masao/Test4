@@ -1,9 +1,10 @@
 import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { toPct } from './chartTheme'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
+import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -214,23 +215,31 @@ function buildHourDowMatrix(
 }
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  ctsIndex: CategoryTimeSalesIndex
+  prevCtsIndex: CategoryTimeSalesIndex
   selectedStoreIds: ReadonlySet<string>
   year: number
   month: number
   daysInMonth: number
-  /** 前年同曜日対応済みレコード */
-  prevYearRecords?: readonly CategoryTimeSalesRecord[]
   /** 販売データ存在最大日（スライダーデフォルト値用） */
   dataMaxDay?: number
 }
 
 /** 時間帯×曜日 売上ヒートマップ（前年比較モード対応） */
-export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearRecords, dataMaxDay }: Props) {
+export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds, year, month, daysInMonth, dataMaxDay }: Props) {
   const { filter } = useCategoryHierarchy()
   const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
-  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+
+  const sliderDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: pf.dayRange[0] },
+    to: { year, month, day: pf.dayRange[1] },
+  }), [year, month, pf.dayRange])
+  const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+  const periodRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, dowFilter],
+  )
 
   // WoW: 前週期間 (dayRange を -7 日シフト)
   const wowPrevStart = pf.dayRange[0] - 7
@@ -242,12 +251,26 @@ export function TimeSlotHeatmapChart({ categoryTimeSales, selectedStoreIds, year
   // 比較期間レコード（前年比 or 前週比で切替）
   const prevPeriodRecords = useMemo(() => {
     if (activeCompMode === 'wow') {
-      return categoryTimeSales.records.filter(
-        (rec) => rec.day >= wowPrevStart && rec.day <= wowPrevEnd,
-      )
+      const wowRange: DateRange = {
+        from: { year, month, day: wowPrevStart },
+        to: { year, month, day: wowPrevEnd },
+      }
+      return queryByDateRange(ctsIndex, { dateRange: wowRange })
     }
-    return prevYearRecords ? pf.filterRecords(prevYearRecords) : []
-  }, [activeCompMode, categoryTimeSales.records, wowPrevStart, wowPrevEnd, prevYearRecords, pf])
+    if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
+    const prevRange: DateRange = {
+      from: { year: year - 1, month, day: pf.dayRange[0] },
+      to: { year: year - 1, month, day: pf.dayRange[1] },
+    }
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    if (dowFilter) {
+      recs = recs.filter((r) => {
+        const dow = new Date(year, month - 1, r.day).getDay()
+        return dowFilter.has(dow)
+      })
+    }
+    return recs
+  }, [activeCompMode, ctsIndex, prevCtsIndex, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0

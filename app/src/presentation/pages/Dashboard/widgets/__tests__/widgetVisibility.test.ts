@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { WIDGET_REGISTRY } from '../registry'
 import { makeWidgetContext } from './widgetTestHelpers'
+import { EMPTY_CTS_INDEX } from '@/domain/models'
+import type { CategoryTimeSalesIndex } from '@/domain/models'
+
+/** recordCount だけ設定した最小限の CTS インデックス */
+function makeCtsIndex(recordCount: number): CategoryTimeSalesIndex {
+  return { ...EMPTY_CTS_INDEX, recordCount }
+}
 
 describe('ウィジェット isVisible', () => {
   const dataWidgetIds = [
@@ -10,9 +17,9 @@ describe('ウィジェット isVisible', () => {
     'chart-dept-hourly-pattern',
   ]
 
-  describe('分類別時間帯ウィジェット（categoryTimeSales 依存）', () => {
+  describe('分類別時間帯ウィジェット（ctsIndex 依存）', () => {
     it('データなしの場合は非表示', () => {
-      const ctx = makeWidgetContext({ categoryTimeSales: { records: [] } })
+      const ctx = makeWidgetContext({ ctsIndex: EMPTY_CTS_INDEX })
 
       for (const id of dataWidgetIds) {
         const widget = WIDGET_REGISTRY.find((w) => w.id === id)
@@ -23,18 +30,7 @@ describe('ウィジェット isVisible', () => {
 
     it('データありの場合は表示', () => {
       const ctx = makeWidgetContext({
-        categoryTimeSales: {
-          records: [{
-            day: 1,
-            storeId: '1',
-            department: { code: '01', name: '食品' },
-            line: { code: '001', name: 'ライン' },
-            klass: { code: '0001', name: 'クラス' },
-            timeSlots: [{ hour: 10, quantity: 5, amount: 10000 }],
-            totalQuantity: 5,
-            totalAmount: 10000,
-          }],
-        },
+        ctsIndex: makeCtsIndex(1),
       })
 
       for (const id of dataWidgetIds) {
@@ -49,7 +45,7 @@ describe('ウィジェット isVisible', () => {
   describe('店舗別時間帯比較ウィジェット', () => {
     it('単一店舗・データなしの場合は非表示', () => {
       const ctx = makeWidgetContext({
-        categoryTimeSales: { records: [] },
+        ctsIndex: EMPTY_CTS_INDEX,
         stores: new Map([['1', { id: '1', name: '店舗A', code: '0001' }]]),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'chart-store-timeslot-comparison')
@@ -58,16 +54,7 @@ describe('ウィジェット isVisible', () => {
 
     it('複数店舗＋データありの場合は表示', () => {
       const ctx = makeWidgetContext({
-        categoryTimeSales: {
-          records: [{
-            day: 1, storeId: '1',
-            department: { code: '01', name: '食品' },
-            line: { code: '001', name: 'ライン' },
-            klass: { code: '0001', name: 'クラス' },
-            timeSlots: [{ hour: 10, quantity: 5, amount: 10000 }],
-            totalQuantity: 5, totalAmount: 10000,
-          }],
-        },
+        ctsIndex: makeCtsIndex(1),
         stores: new Map([
           ['1', { id: '1', name: '店舗A', code: '0001' }],
           ['2', { id: '2', name: '店舗B', code: '0002' }],

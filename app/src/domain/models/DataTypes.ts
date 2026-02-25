@@ -53,10 +53,10 @@ export interface TimeSlotEntry {
 
 /** 分類別時間帯売上 1行レコード */
 export interface CategoryTimeSalesRecord {
-  /** 対象年（段階的移行: 未設定の旧データも許容） */
-  readonly year?: number
-  /** 対象月 1-12（段階的移行: 未設定の旧データも許容） */
-  readonly month?: number
+  /** 対象年 */
+  readonly year: number
+  /** 対象月 1-12 */
+  readonly month: number
   readonly day: number
   readonly storeId: string
   readonly department: { readonly code: string; readonly name: string }
@@ -74,7 +74,7 @@ export interface CategoryTimeSalesData {
 
 /** CategoryTimeSalesRecord の一意キーを生成する */
 export function categoryTimeSalesRecordKey(rec: CategoryTimeSalesRecord): string {
-  return `${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
+  return `${rec.year}\t${rec.month}\t${rec.day}\t${rec.storeId}\t${rec.department.code}\t${rec.line.code}\t${rec.klass.code}`
 }
 
 /**

@@ -2,12 +2,12 @@
  * 分類別時間帯売上インデックス hook
  *
  * 生の CategoryTimeSalesData からインデックスを構築し、メモ化して返す。
- * インデックスは (storeId, day) の複合キーで O(1) アクセスを提供する。
+ * インデックスは (storeId, dateKey) の複合キーで O(1) アクセスを提供する。
  *
  * ## 使い方
  *
  * DashboardPage で1度だけ呼び出し、WidgetContext 経由でチャートに渡す。
- * チャート側では queryIndex() でフィルタ済みレコードを取得する。
+ * チャート側では queryByDateRange() でフィルタ済みレコードを取得する。
  *
  * ```tsx
  * // DashboardPage
@@ -18,14 +18,14 @@
  * { ctsIndex, prevCtsIndex, ... }
  *
  * // Chart component
- * const records = queryIndex(ctx.ctsIndex, selectedStoreIds, dayRange, hierarchy)
+ * const records = queryByDateRange(ctx.ctsIndex, { dateRange, storeIds, hierarchy })
  * const aggregated = aggregateHourly(records)
  * ```
  */
 import { useMemo } from 'react'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, CategoryTimeSalesIndex } from '@/domain/models'
 import { EMPTY_CTS_INDEX } from '@/domain/models'
-import { buildCategoryTimeSalesIndex } from '@/application/usecases/categoryTimeSales'
+import { buildCategoryTimeSalesIndex } from '@/application/usecases'
 
 /**
  * CategoryTimeSalesData からインデックスを構築・メモ化する。

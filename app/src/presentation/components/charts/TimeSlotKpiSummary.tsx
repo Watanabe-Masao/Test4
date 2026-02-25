@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import type { CategoryTimeSalesData } from '@/domain/models'
+import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
+import { queryByDateRange } from '@/application/usecases'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { toPct } from './chartTheme'
@@ -56,19 +57,19 @@ const CardSub = styled.div`
 `
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  ctsIndex: CategoryTimeSalesIndex
+  dateRange: DateRange
   selectedStoreIds: ReadonlySet<string>
 }
 
 /** 分類別時間帯 KPIサマリー */
-export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Props) {
+export function TimeSlotKpiSummary({ ctsIndex, dateRange, selectedStoreIds }: Props) {
   const { filter } = useCategoryHierarchy()
 
   const kpi = useMemo(() => {
-    const filtered = filterByHierarchy(categoryTimeSales.records, filter)
-    const records = filtered.filter(
-      (r) => selectedStoreIds.size === 0 || selectedStoreIds.has(r.storeId),
-    )
+    const storeIds = selectedStoreIds.size > 0 ? selectedStoreIds : undefined
+    const allRecords = queryByDateRange(ctsIndex, { dateRange, storeIds })
+    const records = filterByHierarchy(allRecords, filter)
 
     if (records.length === 0) return null
 
@@ -141,7 +142,7 @@ export function TimeSlotKpiSummary({ categoryTimeSales, selectedStoreIds }: Prop
       avgPerHour,
       recordCount: records.length,
     }
-  }, [categoryTimeSales, selectedStoreIds, filter])
+  }, [ctsIndex, dateRange, selectedStoreIds, filter])
 
   if (!kpi) return null
 

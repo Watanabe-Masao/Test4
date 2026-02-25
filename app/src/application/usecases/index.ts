@@ -20,8 +20,8 @@ export { generateExplanations } from './explanation'
 export { buildCategoryTimeSalesIndex } from './categoryTimeSales'
 export type { HierarchyFilterParams, AggregateMode } from './categoryTimeSales'
 export {
-  queryIndex,
-  filterByDow,
+  queryByDateRange,
+  getDateKeysForStores,
   computeDivisor,
   countDistinctDays,
   computeDowDivisorMap,

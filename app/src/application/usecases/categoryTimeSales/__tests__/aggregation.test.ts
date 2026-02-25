@@ -9,6 +9,8 @@ import type { CategoryTimeSalesRecord } from '@/domain/models'
 
 function makeRecord(overrides: Partial<CategoryTimeSalesRecord> = {}): CategoryTimeSalesRecord {
   return {
+    year: 2026,
+    month: 2,
     day: 1,
     storeId: 'S001',
     department: { code: 'D01', name: '食品' },

@@ -9,10 +9,11 @@ import {
 } from '@/application/usecases/import'
 import type { ImportSummary, MonthPartitions } from '@/application/usecases/import'
 import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, ImportHistoryEntry, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, mergeClassifiedSalesData, mergeCategoryTimeSalesData, createEmptyImportedData } from '@/domain/models'
+import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, createEmptyImportedData } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 
 /** インポート進捗 */
 export interface ImportProgress {
@@ -89,6 +90,23 @@ export function useImport() {
       repo.saveImportHistory(year, month, entry).catch((e) => {
         console.error('[useImport] saveImportHistory failed:', e)
       })
+    },
+    [repo],
+  )
+
+  /** データ保存後にサマリーキャッシュを非同期構築・保存する（fire-and-forget） */
+  const buildAndSaveSummaryCache = useCallback(
+    (data: ImportedData, year: number, month: number) => {
+      if (!repo.isAvailable()) return
+      try {
+        const daysInMonth = getDaysInMonth(year, month)
+        const cache = buildStoreDaySummaryCache(data, daysInMonth)
+        repo.saveSummaryCache(cache, year, month).catch((e) => {
+          console.warn('[useImport] saveSummaryCache failed:', e)
+        })
+      } catch (e) {
+        console.warn('[useImport] buildStoreDaySummaryCache failed:', e)
+      }
     },
     [repo],
   )
@@ -207,6 +225,7 @@ export function useImport() {
                   const existing = existingByMonth.get(mk) ?? null
                   const finalData = buildMonthData(existing, monthData, action)
                   await repo.saveMonthlyData(finalData, year, month)
+                  buildAndSaveSummaryCache(finalData, year, month)
                 }
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
@@ -271,6 +290,7 @@ export function useImport() {
             if (repo.isAvailable()) {
               try {
                 await repo.saveMonthlyData(targetData, targetYear, targetMonth)
+                buildAndSaveSummaryCache(targetData, targetYear, targetMonth)
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
                 console.error('[useImport] save failed:', e)
@@ -288,7 +308,7 @@ export function useImport() {
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo, saveHistory],
+    [dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   /** 差分確認結果を適用する */
@@ -320,7 +340,7 @@ export function useImport() {
         const messages = validateImportedData(primaryFinalData, summary)
         dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-        // 全月を保存
+        // 全月を保存（非同期・保存完了後に履歴を記録）
         if (repo.isAvailable()) {
           const saveAll = async () => {
             try {
@@ -330,6 +350,11 @@ export function useImport() {
                 const existing = existingByMonth.get(mk) ?? null
                 const finalData = buildMonthData(existing, monthData, action)
                 await repo.saveMonthlyData(finalData, year, month)
+                buildAndSaveSummaryCache(finalData, year, month)
+              }
+              // 全月の保存が成功した後にのみ履歴を記録
+              for (const { year, month } of months) {
+                saveHistory(summary, year, month)
               }
             } catch (e) {
               const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
@@ -338,10 +363,6 @@ export function useImport() {
             }
           }
           saveAll()
-          // インポート履歴を保存（各月に記録）
-          for (const { year, month } of months) {
-            saveHistory(summary, year, month)
-          }
         }
       } else {
         // ── 単月: 既存の処理 ──
@@ -360,21 +381,23 @@ export function useImport() {
         const messages = validateImportedData(finalData, summary)
         dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-        // ストレージに保存
+        // ストレージに保存（保存完了後に履歴を記録）
         if (repo.isAvailable()) {
           const { targetYear, targetMonth } = settingsRef.current
-          repo.saveMonthlyData(finalData, targetYear, targetMonth).catch((e) => {
+          repo.saveMonthlyData(finalData, targetYear, targetMonth).then(() => {
+            saveHistory(summary, targetYear, targetMonth)
+            buildAndSaveSummaryCache(finalData, targetYear, targetMonth)
+          }).catch((e) => {
             const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
             console.error('[useImport] save failed:', e)
             setSaveError(msg)
           })
-          saveHistory(summary, targetYear, targetMonth)
         }
       }
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory],
+    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   return {
@@ -411,13 +434,22 @@ function buildMonthData(
   }
   if (mergeAction === 'overwrite') {
     // 上書き: 既存データに新規データをマージ（新規が優先）
+    // レコードベース型（classifiedSales, categoryTimeSales）は merge ではなく replace する。
+    // monthData は filterDataForMonth で年月フィルタ済みのため正しいレコードのみ含む。
+    // 既存 IndexedDB データに別月のレコードが混入している場合（旧保存ロジック由来）、
+    // merge するとそれらが残り続けて前年データが膨張するバグの原因になる。
+    // incoming にレコードが無い（当該型がインポートされなかった）場合のみ既存を維持する。
     return {
       ...existing,
       stores: new Map([...existing.stores, ...monthData.stores]),
       suppliers: new Map([...existing.suppliers, ...monthData.suppliers]),
       purchase: { ...existing.purchase, ...monthData.purchase },
-      classifiedSales: mergeClassifiedSalesData(existing.classifiedSales, monthData.classifiedSales),
-      categoryTimeSales: mergeCategoryTimeSalesData(existing.categoryTimeSales, monthData.categoryTimeSales),
+      classifiedSales: monthData.classifiedSales.records.length > 0
+        ? monthData.classifiedSales
+        : existing.classifiedSales,
+      categoryTimeSales: monthData.categoryTimeSales.records.length > 0
+        ? monthData.categoryTimeSales
+        : existing.categoryTimeSales,
       interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
       interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
       flowers: { ...existing.flowers, ...monthData.flowers },

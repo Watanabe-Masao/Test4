@@ -23,10 +23,15 @@ export interface DataOrigin {
  *
  * 中身（payload）がどの年月に属するかを、データ自身が保持する。
  * これにより、メモリ上のどの時点でも年月を問い合わせ可能になる。
+ *
+ * checksum: 保存時に payload の内容からハッシュを算出して付与する。
+ * ロード時に再計算と照合することで、ストレージ破損を検出できる。
  */
 export interface DataEnvelope<T> {
   readonly origin: DataOrigin
   readonly payload: T
+  /** payload の MurmurHash3 チェックサム（保存時付与） */
+  readonly checksum?: number
 }
 
 /** DataEnvelope 形式かどうかを判定する型ガード */

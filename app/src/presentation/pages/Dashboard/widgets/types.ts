@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesData, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -59,12 +59,20 @@ export interface WidgetContext {
   allStoreResults: ReadonlyMap<string, StoreResult>
   /** Store master data */
   stores: ReadonlyMap<string, Store>
-  /** 分類別時間帯売上データ（後方互換用、段階的に ctsIndex へ移行） */
-  categoryTimeSales: CategoryTimeSalesData
-  /** 分類別時間帯売上インデックス（(storeId, day) で O(1) アクセス） */
+  /** 分類別時間帯売上インデックス（(storeId, dateKey) で O(1) アクセス） */
   ctsIndex: CategoryTimeSalesIndex
   /** 前年分類別時間帯売上インデックス */
   prevCtsIndex: CategoryTimeSalesIndex
+  /**
+   * 当月データの日付範囲。チャート用フックの dateRange パラメータに渡す。
+   * 例: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } }
+   */
+  currentDateRange: DateRange
+  /**
+   * 前年データの日付範囲（前年データがない場合は undefined）。
+   * チャート用フックの compareRange パラメータに渡す。
+   */
+  prevYearDateRange?: DateRange
   /** 選択中の店舗ID（空 = 全店） */
   selectedStoreIds: ReadonlySet<string>
   /** 取込データ有効末日 (null = 月末) */
@@ -75,8 +83,6 @@ export interface WidgetContext {
   elapsedDays: number | undefined
   /** 部門別KPIデータ */
   departmentKpi: DepartmentKpiData
-  /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */
-  prevYearCategoryTimeSales: PrevYearCategoryTimeSalesData
   /** 指標説明マップ（MetricBreakdownPanel 用） */
   explanations: StoreExplanations
   /** 指標の説明パネルを開く */

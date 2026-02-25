@@ -3,7 +3,9 @@ import { render, screen } from '@testing-library/react'
 import { ThemeProvider } from 'styled-components'
 import { darkTheme } from '@/presentation/theme'
 import { TimeSlotSalesChart } from '../TimeSlotSalesChart'
-import type { CategoryTimeSalesData } from '@/domain/models'
+import { EMPTY_CTS_INDEX } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models'
+import { buildCategoryTimeSalesIndex } from '@/application/usecases'
 
 function wrap(ui: React.ReactElement) {
   return render(ui, {
@@ -13,29 +15,33 @@ function wrap(ui: React.ReactElement) {
   })
 }
 
+function makeRecord(overrides: Partial<CategoryTimeSalesRecord> = {}): CategoryTimeSalesRecord {
+  return {
+    year: 2026,
+    month: 2,
+    day: 1,
+    storeId: '1',
+    department: { code: '01', name: '食品' },
+    line: { code: '001', name: 'ライン1' },
+    klass: { code: '0001', name: 'クラス1' },
+    timeSlots: [
+      { hour: 9, quantity: 10, amount: 50000 },
+      { hour: 10, quantity: 15, amount: 75000 },
+    ],
+    totalQuantity: 25,
+    totalAmount: 125000,
+    ...overrides,
+  }
+}
+
 describe('TimeSlotSalesChart', () => {
   it('時間帯データがある場合にタイトルが表示される', () => {
-    const categoryTimeSales: CategoryTimeSalesData = {
-      records: [
-        {
-          day: 1,
-          storeId: '1',
-          department: { code: '01', name: '食品' },
-          line: { code: '001', name: 'ライン1' },
-          klass: { code: '0001', name: 'クラス1' },
-          timeSlots: [
-            { hour: 9, quantity: 10, amount: 50000 },
-            { hour: 10, quantity: 15, amount: 75000 },
-          ],
-          totalQuantity: 25,
-          totalAmount: 125000,
-        },
-      ],
-    }
+    const index = buildCategoryTimeSalesIndex({ records: [makeRecord()] })
 
     wrap(
       <TimeSlotSalesChart
-        categoryTimeSales={categoryTimeSales}
+        ctsIndex={index}
+        prevCtsIndex={EMPTY_CTS_INDEX}
         selectedStoreIds={new Set()}
         daysInMonth={28}
         year={2026}
@@ -47,11 +53,10 @@ describe('TimeSlotSalesChart', () => {
   })
 
   it('空レコードの場合 null を返す', () => {
-    const categoryTimeSales: CategoryTimeSalesData = { records: [] }
-
     const { container } = wrap(
       <TimeSlotSalesChart
-        categoryTimeSales={categoryTimeSales}
+        ctsIndex={EMPTY_CTS_INDEX}
+        prevCtsIndex={EMPTY_CTS_INDEX}
         selectedStoreIds={new Set()}
         daysInMonth={28}
         year={2026}
@@ -63,35 +68,18 @@ describe('TimeSlotSalesChart', () => {
   })
 
   it('selectedStoreIds でフィルタリングされる', () => {
-    const categoryTimeSales: CategoryTimeSalesData = {
+    const index = buildCategoryTimeSalesIndex({
       records: [
-        {
-          day: 1,
-          storeId: '1',
-          department: { code: '01', name: '食品' },
-          line: { code: '001', name: 'ライン1' },
-          klass: { code: '0001', name: 'クラス1' },
-          timeSlots: [{ hour: 9, quantity: 10, amount: 50000 }],
-          totalQuantity: 10,
-          totalAmount: 50000,
-        },
-        {
-          day: 1,
-          storeId: '2',
-          department: { code: '01', name: '食品' },
-          line: { code: '001', name: 'ライン1' },
-          klass: { code: '0001', name: 'クラス1' },
-          timeSlots: [{ hour: 9, quantity: 20, amount: 100000 }],
-          totalQuantity: 20,
-          totalAmount: 100000,
-        },
+        makeRecord({ storeId: '1', timeSlots: [{ hour: 9, quantity: 10, amount: 50000 }], totalQuantity: 10, totalAmount: 50000 }),
+        makeRecord({ storeId: '2', timeSlots: [{ hour: 9, quantity: 20, amount: 100000 }], totalQuantity: 20, totalAmount: 100000 }),
       ],
-    }
+    })
 
     // 店舗2のみフィルタ
     wrap(
       <TimeSlotSalesChart
-        categoryTimeSales={categoryTimeSales}
+        ctsIndex={index}
+        prevCtsIndex={EMPTY_CTS_INDEX}
         selectedStoreIds={new Set(['2'])}
         daysInMonth={28}
         year={2026}

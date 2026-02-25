@@ -5,7 +5,7 @@
  * 既存の IndexedDBStore モジュールの公開 API をそのまま委譲する。
  */
 import type { DataRepository, PersistedSessionMeta, MonthDataSummaryItem } from '@/domain/repositories'
-import type { ImportedData, DataType, ImportHistoryEntry } from '@/domain/models'
+import type { ImportedData, DataType, ImportHistoryEntry, StoreDaySummaryCache } from '@/domain/models'
 import {
   saveImportedData,
   loadImportedData,
@@ -19,6 +19,8 @@ import {
   isIndexedDBAvailable,
   saveImportHistory,
   loadImportHistory,
+  saveStoreDaySummaryCache,
+  loadStoreDaySummaryCache,
 } from './IndexedDBStore'
 
 export class IndexedDBRepository implements DataRepository {
@@ -73,6 +75,14 @@ export class IndexedDBRepository implements DataRepository {
 
   async loadImportHistory(year: number, month: number): Promise<ImportHistoryEntry[]> {
     return loadImportHistory(year, month)
+  }
+
+  async saveSummaryCache(cache: StoreDaySummaryCache, year: number, month: number): Promise<void> {
+    return saveStoreDaySummaryCache(cache, year, month)
+  }
+
+  async loadSummaryCache(year: number, month: number): Promise<StoreDaySummaryCache | null> {
+    return loadStoreDaySummaryCache(year, month)
   }
 }
 

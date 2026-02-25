@@ -3,9 +3,10 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
+import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -89,7 +90,7 @@ type GroupLevel = 'department' | 'line' | 'klass'
 type ViewMode = 'stacked' | 'separate'
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  ctsIndex: CategoryTimeSalesIndex
   selectedStoreIds: ReadonlySet<string>
   daysInMonth: number
   year: number
@@ -99,7 +100,7 @@ interface Props {
 }
 
 /** 部門/ライン/クラス別 時間帯パターンチャート */
-export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
+export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
@@ -108,7 +109,15 @@ export function DeptHourlyPatternChart({ categoryTimeSales, selectedStoreIds, da
   const [lineFilter, setLineFilter] = useState<string>('')
   const { filter } = useCategoryHierarchy()
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
-  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
+  const sliderDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: pf.dayRange[0] },
+    to: { year, month, day: pf.dayRange[1] },
+  }), [year, month, pf.dayRange])
+  const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+  const periodRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, dowFilter],
+  )
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   // 利用可能なラインの一覧（ライン→クラス表示時のフィルタ用）【TR-FIL-001】

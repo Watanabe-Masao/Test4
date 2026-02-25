@@ -103,7 +103,30 @@ function parseStoreId(
   return { storeId: str, storeName: str }
 }
 
+// ─── 小計行フィルタ ─────────────────────────────────
+
+/**
+ * 小計・合計行の検出パターン。
+ * CSVファイルに含まれる集約行を除外し、二重計上を防ぐ。
+ */
+const SUBTOTAL_PATTERNS = ['合計', '小計', '計', 'total', 'subtotal']
+
+/** カテゴリ名が小計・合計行であるかを判定する */
+function isSubtotalRow(groupName: string, departmentName: string, lineName: string, className: string): boolean {
+  const fields = [groupName, departmentName, lineName, className]
+  return fields.some((f) => {
+    const lower = f.toLowerCase()
+    return SUBTOTAL_PATTERNS.some((p) => lower === p || lower.endsWith(p))
+  })
+}
+
 // ─── メイン処理 ──────────────────────────────────────
+
+/** スキップ行の理由 */
+export interface SkippedRow {
+  readonly row: number
+  readonly reason: string
+}
 
 /**
  * 分類別売上CSVを処理する
@@ -115,7 +138,7 @@ export function processClassifiedSales(
   rows: readonly unknown[][],
   targetMonth?: number,
   storeNameToId?: ReadonlyMap<string, string>,
-): ClassifiedSalesData {
+): ClassifiedSalesData & { skippedSubtotalRows?: readonly SkippedRow[] } {
   if (rows.length < 2) return { records: [] }
 
   // ヘッダー検出
@@ -123,6 +146,7 @@ export function processClassifiedSales(
   if (!colMap) return { records: [] }
 
   const records: ClassifiedSalesRecord[] = []
+  const skippedSubtotalRows: SkippedRow[] = []
 
   for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
     const r = rows[rowIdx] as unknown[]
@@ -138,6 +162,21 @@ export function processClassifiedSales(
     if (targetMonth != null && month !== targetMonth) continue
 
     const { storeId, storeName } = parseStoreId(r[colMap.store], storeNameToId)
+
+    const groupName = String(r[colMap.group] ?? '').trim()
+    const departmentName = String(r[colMap.department] ?? '').trim()
+    const lineName = String(r[colMap.line] ?? '').trim()
+    const className = String(r[colMap.klass] ?? '').trim()
+
+    // 小計・合計行を除外（二重計上防止）
+    if (isSubtotalRow(groupName, departmentName, lineName, className)) {
+      skippedSubtotalRows.push({
+        row: rowIdx + 1,
+        reason: `小計/合計行をスキップ: ${[groupName, departmentName, lineName, className].filter(Boolean).join(' > ')}`,
+      })
+      continue
+    }
+
     const salesAmount = safeNumber(r[colMap.salesAmount])
 
     records.push({
@@ -146,10 +185,10 @@ export function processClassifiedSales(
       day,
       storeId,
       storeName,
-      groupName: String(r[colMap.group] ?? '').trim(),
-      departmentName: String(r[colMap.department] ?? '').trim(),
-      lineName: String(r[colMap.line] ?? '').trim(),
-      className: String(r[colMap.klass] ?? '').trim(),
+      groupName,
+      departmentName,
+      lineName,
+      className,
       salesAmount,
       discount71: safeNumber(r[colMap.discount71]),
       discount72: safeNumber(r[colMap.discount72]),
@@ -158,7 +197,7 @@ export function processClassifiedSales(
     })
   }
 
-  return { records }
+  return { records, skippedSubtotalRows: skippedSubtotalRows.length > 0 ? skippedSubtotalRows : undefined }
 }
 
 /**

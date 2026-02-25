@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { toComma, toPct } from './chartTheme'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import {
@@ -9,6 +9,7 @@ import {
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
+import { queryByDateRange } from '@/application/usecases'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -251,29 +252,49 @@ function aggregateByLevel(
 /* ── Main Component ──────────────────────── */
 
 interface Props {
-  categoryTimeSales: CategoryTimeSalesData
+  ctsIndex: CategoryTimeSalesIndex
+  prevCtsIndex: CategoryTimeSalesIndex
   selectedStoreIds: ReadonlySet<string>
   daysInMonth: number
   year: number
   month: number
-  /** 前年同曜日対応済みレコード */
-  prevYearRecords?: readonly CategoryTimeSalesRecord[]
   /** 販売データ存在最大日（スライダーデフォルト値用） */
   dataMaxDay?: number
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearRecords, dataMaxDay }: Props) {
+export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const { filter, setFilter } = useCategoryHierarchy()
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [showYoY, setShowYoY] = useState(true)
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
-  const periodRecords = useMemo(() => pf.filterRecords(categoryTimeSales.records), [categoryTimeSales, pf])
-  const prevPeriodRecords = useMemo(
-    () => prevYearRecords ? pf.filterRecords(prevYearRecords) : [],
-    [prevYearRecords, pf],
+
+  const sliderDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: pf.dayRange[0] },
+    to: { year, month, day: pf.dayRange[1] },
+  }), [year, month, pf.dayRange])
+  const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+
+  const periodRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, dow: dowFilter }),
+    [ctsIndex, sliderDateRange, dowFilter],
   )
+  const prevPeriodRecords = useMemo(() => {
+    if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
+    const prevRange: DateRange = {
+      from: { year: year - 1, month, day: pf.dayRange[0] },
+      to: { year: year - 1, month, day: pf.dayRange[1] },
+    }
+    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange })
+    if (dowFilter) {
+      recs = recs.filter((r) => {
+        const dow = new Date(year, month - 1, r.day).getDay()
+        return dowFilter.has(dow)
+      })
+    }
+    return recs
+  }, [prevCtsIndex, year, month, pf.dayRange, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0

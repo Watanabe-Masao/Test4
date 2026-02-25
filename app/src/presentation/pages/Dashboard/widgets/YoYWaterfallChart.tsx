@@ -13,6 +13,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { queryByDateRange } from '@/application/usecases'
+import type { DateRange } from '@/domain/models'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
@@ -187,24 +189,34 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     return { sales, customers }
   }, [activeCompMode, r.daily, prevYear.daily, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
-  // 期間指定でCTSレコードをフィルタ
-  const periodCTS = useMemo(() => {
-    const recs = ctx.categoryTimeSales?.records
-    if (!recs?.length) return []
-    return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
-  }, [ctx.categoryTimeSales, dayStart, dayEnd])
+  // 期間指定でCTSレコードをインデックスから取得
+  const curDateRange: DateRange = useMemo(() => ({
+    from: { year: ctx.year, month: ctx.month, day: dayStart },
+    to: { year: ctx.year, month: ctx.month, day: dayEnd },
+  }), [ctx.year, ctx.month, dayStart, dayEnd])
+
+  const periodCTS = useMemo(
+    () => queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange }),
+    [ctx.ctsIndex, curDateRange],
+  )
 
   // 比較期間のCTSレコード（前年比 or 前週比で切替）
   const periodPrevCTS = useMemo(() => {
     if (activeCompMode === 'wow') {
-      const recs = ctx.categoryTimeSales?.records
-      if (!recs?.length) return []
-      return recs.filter((rec) => rec.day >= wowRange.prevStart && rec.day <= wowRange.prevEnd)
+      // 前週比: 同月の dayStart-7 ~ dayEnd-7
+      const wowDateRange: DateRange = {
+        from: { year: ctx.year, month: ctx.month, day: wowRange.prevStart },
+        to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
+      }
+      return queryByDateRange(ctx.ctsIndex, { dateRange: wowDateRange })
     }
-    const recs = ctx.prevYearCategoryTimeSales?.records
-    if (!recs?.length) return []
-    return recs.filter((rec) => rec.day >= dayStart && rec.day <= dayEnd)
-  }, [activeCompMode, ctx.categoryTimeSales, ctx.prevYearCategoryTimeSales, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+    // 前年比: prevCtsIndex から同日範囲を取得
+    const prevDateRange: DateRange = {
+      from: { year: ctx.year - 1, month: ctx.month, day: dayStart },
+      to: { year: ctx.year - 1, month: ctx.month, day: dayEnd },
+    }
+    return queryByDateRange(ctx.prevCtsIndex, { dateRange: prevDateRange })
+  }, [activeCompMode, ctx.ctsIndex, ctx.prevCtsIndex, ctx.year, ctx.month, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(() =>
