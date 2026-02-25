@@ -52,6 +52,7 @@ export function UploadCard({
   dataType,
   label,
   loaded,
+  maxDay,
   filename,
   onFile,
   multiple,
@@ -59,6 +60,8 @@ export function UploadCard({
   dataType: DataType
   label: string
   loaded: boolean
+  /** 取込データの最終日（存在する場合に表示） */
+  maxDay?: number
   filename?: string
   onFile: (files: File | File[], typeHint: DataType) => void
   multiple?: boolean
@@ -88,7 +91,12 @@ export function UploadCard({
     <CardWrapper $loaded={loaded} onClick={handleClick}>
       <Icon>{fileTypeIcons[dataType] ?? '📄'}</Icon>
       <Name>{label}</Name>
-      {loaded && <Status>{filename ? `✓ ${filename}` : '✓ 読込済'}</Status>}
+      {loaded && (
+        <Status>
+          {filename ? `✓ ${filename}` : '✓ 読込済'}
+          {maxDay != null && maxDay > 0 && ` ${maxDay}日`}
+        </Status>
+      )}
       <input
         ref={inputRef}
         type="file"
