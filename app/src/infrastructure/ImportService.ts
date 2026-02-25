@@ -148,6 +148,35 @@ function mergeMapPartitions<K, V>(
 }
 
 /**
+ * データ種別ごとのレコード数を返す（インポートサマリー用）
+ */
+function countDataRecords(data: ImportedData, type: DataType): number {
+  switch (type) {
+    case 'classifiedSales': return data.classifiedSales.records.length
+    case 'categoryTimeSales': return data.categoryTimeSales.records.length
+    case 'departmentKpi': return data.departmentKpi.records.length
+    case 'purchase': return countStoreDayEntries(data.purchase)
+    case 'flowers': return countStoreDayEntries(data.flowers)
+    case 'directProduce': return countStoreDayEntries(data.directProduce)
+    case 'interStoreIn': return countStoreDayEntries(data.interStoreIn)
+    case 'interStoreOut': return countStoreDayEntries(data.interStoreOut)
+    case 'consumables': return countStoreDayEntries(data.consumables)
+    case 'budget': return data.budget.size
+    case 'initialSettings': return data.settings.size
+    default: return 0
+  }
+}
+
+/** StoreDayRecord の日別エントリ数を数える */
+function countStoreDayEntries(record: { readonly [storeId: string]: { readonly [day: number]: unknown } }): number {
+  let count = 0
+  for (const days of Object.values(record)) {
+    count += Object.keys(days).length
+  }
+  return count
+}
+
+/**
  * ファイルを読み込みデータ種別を判定する
  */
 export async function readAndDetect(
@@ -412,7 +441,9 @@ export async function processDroppedFiles(
         if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
       }
 
-      results.push({ ok: true, filename: file.name, type, typeName })
+      // レコード数をサマリーに含める（バリデーション用途）
+      const rowCount = countDataRecords(result.data, type)
+      results.push({ ok: true, filename: file.name, type, typeName, rowCount })
     } catch (err) {
       const message =
         err instanceof ImportError || err instanceof ImportSchemaError

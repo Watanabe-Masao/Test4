@@ -54,8 +54,16 @@ export function processConsumables(
   return partitioned
 }
 
+/** 消耗品アイテムの重複排除キー（同一店舗・日・品目コード→同一アイテムと見なす） */
+function consumableItemKey(item: ConsumableItem): string {
+  return `${item.accountCode}|${item.itemCode}`
+}
+
 /**
- * 消耗品データをマージする（追加モード）
+ * 消耗品データをマージする（重複排除付き）
+ *
+ * 同一店舗・同一日の同一品目コードは上書きする（incoming 優先）。
+ * これにより同一ファイルの再取込でコストが倍増するバグを防ぐ。
  */
 export function mergeConsumableData(
   existing: ConsumableData,
@@ -74,7 +82,7 @@ export function mergeConsumableData(
     }
   }
 
-  // 新規データをマージ
+  // 新規データをマージ（品目コードで重複排除）
   for (const [storeId, days] of Object.entries(incoming)) {
     if (!merged[storeId]) merged[storeId] = {}
     for (const [day, data] of Object.entries(days)) {
@@ -82,8 +90,26 @@ export function mergeConsumableData(
       if (!merged[storeId][d]) {
         merged[storeId][d] = { cost: 0, items: [] }
       }
-      merged[storeId][d].cost += data.cost
-      merged[storeId][d].items.push(...data.items)
+      // 既存アイテムをキーでインデックス化し、incoming で上書き
+      const existingItems = merged[storeId][d].items
+      const incomingItems = data.items
+      if (existingItems.length === 0 && incomingItems.length === 0) {
+        // アイテム詳細なし（集計コストのみ）→ incoming 側のコストで上書き
+        merged[storeId][d] = { cost: data.cost, items: [] }
+      } else {
+        const itemMap = new Map<string, ConsumableItem>()
+        for (const item of existingItems) {
+          itemMap.set(consumableItemKey(item), item)
+        }
+        for (const item of incomingItems) {
+          itemMap.set(consumableItemKey(item), item)
+        }
+        const deduped = Array.from(itemMap.values())
+        merged[storeId][d] = {
+          cost: deduped.reduce((sum, item) => sum + item.cost, 0),
+          items: deduped,
+        }
+      }
     }
   }
 

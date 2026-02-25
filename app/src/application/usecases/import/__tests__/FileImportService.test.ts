@@ -173,6 +173,45 @@ describe('validateImportedData', () => {
     const messages = validateImportedData(fullData(), summary)
     expect(messages.some((m) => m.level === 'warning' && m.message.includes('2件'))).toBe(true)
   })
+
+  it('classifiedSales に重複レコードがあれば警告', () => {
+    const rec = makeCSRecord(1, '1', 50000)
+    const data = makeData({
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: { records: [rec, rec] }, // 同一キーが2件
+      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+    })
+    const messages = validateImportedData(data)
+    const dupWarning = messages.find((m) => m.level === 'warning' && m.message.includes('重複レコード'))
+    expect(dupWarning).toBeTruthy()
+    expect(dupWarning!.message).toContain('分類別売上')
+  })
+
+  it('categoryTimeSales に重複レコードがあれば警告', () => {
+    const ctsRec = {
+      year: 2025, month: 1, day: 1, storeId: '1',
+      department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
+      klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+    }
+    const data = makeData({
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
+      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
+      categoryTimeSales: { records: [ctsRec, ctsRec] }, // 同一キーが2件
+      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+    })
+    const messages = validateImportedData(data)
+    const dupWarning = messages.find((m) => m.level === 'warning' && m.message.includes('重複レコード'))
+    expect(dupWarning).toBeTruthy()
+    expect(dupWarning!.message).toContain('分類別時間帯売上')
+  })
+
+  it('重複なしの正常データでは重複警告が出ない', () => {
+    const messages = validateImportedData(fullData())
+    const dupWarning = messages.find((m) => m.message.includes('重複レコード'))
+    expect(dupWarning).toBeUndefined()
+  })
 })
 
 describe('hasValidationErrors', () => {

@@ -76,4 +76,51 @@ describe('mergeConsumableData', () => {
     expect(merged['1']?.[1]?.cost).toBe(100)
     expect(merged['2']?.[1]?.cost).toBe(200)
   })
+
+  it('同一品目コードの再取込で重複排除される（倍増しない）', () => {
+    const items = [
+      { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
+      { accountCode: '81257', itemCode: 'A002', itemName: 'ゴミ袋', quantity: 20, cost: 3000 },
+    ]
+    const data = {
+      '1': { 1: { cost: 8000, items: [...items] } },
+    }
+    // 同一データを再マージ
+    const merged = mergeConsumableData(data, data)
+    expect(merged['1']?.[1]?.items).toHaveLength(2)
+    expect(merged['1']?.[1]?.cost).toBe(8000) // 倍増しない
+  })
+
+  it('同一品目コードは incoming 側で上書きされる', () => {
+    const existing = {
+      '1': { 1: { cost: 5000, items: [
+        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
+      ] } },
+    }
+    const incoming = {
+      '1': { 1: { cost: 6000, items: [
+        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤（大）', quantity: 12, cost: 6000 },
+      ] } },
+    }
+    const merged = mergeConsumableData(existing, incoming)
+    expect(merged['1']?.[1]?.items).toHaveLength(1)
+    expect(merged['1']?.[1]?.items[0].itemName).toBe('洗剤（大）')
+    expect(merged['1']?.[1]?.cost).toBe(6000)
+  })
+
+  it('異なる品目コードは正常に追加される', () => {
+    const existing = {
+      '1': { 1: { cost: 5000, items: [
+        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
+      ] } },
+    }
+    const incoming = {
+      '1': { 1: { cost: 3000, items: [
+        { accountCode: '81257', itemCode: 'B001', itemName: 'ゴミ袋', quantity: 20, cost: 3000 },
+      ] } },
+    }
+    const merged = mergeConsumableData(existing, incoming)
+    expect(merged['1']?.[1]?.items).toHaveLength(2)
+    expect(merged['1']?.[1]?.cost).toBe(8000)
+  })
 })
