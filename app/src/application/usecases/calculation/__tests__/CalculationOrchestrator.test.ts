@@ -388,6 +388,41 @@ describe('aggregateStoreResults', () => {
   it('0件でエラーをスロー', () => {
     expect(() => aggregateStoreResults([], 28)).toThrow('Cannot aggregate 0 results')
   })
+
+  it('aggregate の coreMarkupRate は移動コストを含む（storeAssembler と同一式）', () => {
+    const data: ImportedData = {
+      ...createEmptyImportedData(),
+      stores: new Map([
+        ['1', { id: '1', code: '0001', name: '店舗A' }],
+      ]),
+      purchase: {
+        '1': { 1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } } },
+      },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
+      interStoreIn: {
+        '1': {
+          1: {
+            interStoreIn: [{ day: 1, cost: 5000, price: 6500, fromStoreId: '2', toStoreId: '1', isDepartmentTransfer: false }],
+            interStoreOut: [],
+            interDepartmentIn: [],
+            interDepartmentOut: [],
+          },
+        },
+      },
+    }
+
+    const allResults = calculateAllStores(data, DEFAULT_SETTINGS, 28)
+    const results = Array.from(allResults.values())
+    expect(results).toHaveLength(1)
+
+    const individual = results[0]
+    const aggregated = aggregateStoreResults(results, 28)
+
+    // 個別店舗と集計の coreMarkupRate が一致すること
+    expect(aggregated.coreMarkupRate).toBe(individual.coreMarkupRate)
+    // 移動を含む値入率: (13000 + 6500 - 10000 - 5000) / (13000 + 6500) = 4500/19500 ≈ 0.2308
+    expect(aggregated.coreMarkupRate).toBeCloseTo(4500 / 19500, 6)
+  })
 })
 
 describe('dataEndDay による日数トリミング', () => {

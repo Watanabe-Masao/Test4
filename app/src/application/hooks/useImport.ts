@@ -320,7 +320,7 @@ export function useImport() {
         const messages = validateImportedData(primaryFinalData, summary)
         dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-        // 全月を保存
+        // 全月を保存（非同期・保存完了後に履歴を記録）
         if (repo.isAvailable()) {
           const saveAll = async () => {
             try {
@@ -331,6 +331,10 @@ export function useImport() {
                 const finalData = buildMonthData(existing, monthData, action)
                 await repo.saveMonthlyData(finalData, year, month)
               }
+              // 全月の保存が成功した後にのみ履歴を記録
+              for (const { year, month } of months) {
+                saveHistory(summary, year, month)
+              }
             } catch (e) {
               const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
               console.error('[useImport] multi-month save failed:', e)
@@ -338,10 +342,6 @@ export function useImport() {
             }
           }
           saveAll()
-          // インポート履歴を保存（各月に記録）
-          for (const { year, month } of months) {
-            saveHistory(summary, year, month)
-          }
         }
       } else {
         // ── 単月: 既存の処理 ──
@@ -360,15 +360,16 @@ export function useImport() {
         const messages = validateImportedData(finalData, summary)
         dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
 
-        // ストレージに保存
+        // ストレージに保存（保存完了後に履歴を記録）
         if (repo.isAvailable()) {
           const { targetYear, targetMonth } = settingsRef.current
-          repo.saveMonthlyData(finalData, targetYear, targetMonth).catch((e) => {
+          repo.saveMonthlyData(finalData, targetYear, targetMonth).then(() => {
+            saveHistory(summary, targetYear, targetMonth)
+          }).catch((e) => {
             const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
             console.error('[useImport] save failed:', e)
             setSaveError(msg)
           })
-          saveHistory(summary, targetYear, targetMonth)
         }
       }
 
