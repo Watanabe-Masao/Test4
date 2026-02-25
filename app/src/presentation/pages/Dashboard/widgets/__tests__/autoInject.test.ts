@@ -13,27 +13,27 @@ beforeEach(() => {
 })
 
 const NO_DATA = {
-  categoryTimeSales: { records: [] as unknown[] },
-  prevYearCategoryTimeSales: { hasPrevYear: false },
-  stores: new Map() as ReadonlyMap<string, unknown>,
+  ctsRecordCount: 0,
+  prevYearHasPrevYear: false,
+  storeCount: 0,
 }
 
 const WITH_CTS = {
-  categoryTimeSales: { records: [{ day: 1 }] },
-  prevYearCategoryTimeSales: { hasPrevYear: false },
-  stores: new Map([['1', {}]]) as ReadonlyMap<string, unknown>,
+  ctsRecordCount: 1,
+  prevYearHasPrevYear: false,
+  storeCount: 1,
 }
 
 const WITH_CTS_PREV = {
-  categoryTimeSales: { records: [{ day: 1 }] },
-  prevYearCategoryTimeSales: { hasPrevYear: true },
-  stores: new Map([['1', {}]]) as ReadonlyMap<string, unknown>,
+  ctsRecordCount: 1,
+  prevYearHasPrevYear: true,
+  storeCount: 1,
 }
 
 const WITH_MULTI_STORE = {
-  categoryTimeSales: { records: [{ day: 1 }] },
-  prevYearCategoryTimeSales: { hasPrevYear: false },
-  stores: new Map([['1', {}], ['2', {}]]) as ReadonlyMap<string, unknown>,
+  ctsRecordCount: 1,
+  prevYearHasPrevYear: false,
+  storeCount: 2,
 }
 
 describe('autoInjectDataWidgets', () => {

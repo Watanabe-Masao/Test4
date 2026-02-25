@@ -196,9 +196,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '階層ドリルダウン分析',
     group: '分類別時間帯',
     size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => (
-      <CategoryHierarchyExplorer categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <CategoryHierarchyExplorer ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -206,9 +206,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別売上',
     group: '分類別時間帯',
     size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, prevYearCategoryTimeSales, dataMaxDay }) => (
-      <TimeSlotSalesChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <TimeSlotSalesChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
@@ -218,9 +218,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯×曜日ヒートマップ',
     group: '分類別時間帯',
     size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, year, month, daysInMonth, prevYearCategoryTimeSales, dataMaxDay }) => (
-      <TimeSlotHeatmapChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} prevYearRecords={prevYearCategoryTimeSales.hasPrevYear ? prevYearCategoryTimeSales.records : undefined} dataMaxDay={dataMaxDay} />
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, year, month, daysInMonth, dataMaxDay }) => (
+      <TimeSlotHeatmapChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -228,9 +228,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '部門別時間帯パターン',
     group: '分類別時間帯',
     size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0,
-    render: ({ categoryTimeSales, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <DeptHourlyPatternChart categoryTimeSales={categoryTimeSales} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
+    render: ({ ctsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <DeptHourlyPatternChart ctsIndex={ctsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   {
@@ -238,9 +238,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '店舗別時間帯比較',
     group: '分類別時間帯',
     size: 'full',
-    isVisible: (ctx) => ctx.categoryTimeSales.records.length > 0 && ctx.stores.size > 1,
-    render: ({ categoryTimeSales, stores, daysInMonth, year, month, dataMaxDay }) => (
-      <StoreTimeSlotComparisonChart categoryTimeSales={categoryTimeSales} stores={stores} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0 && ctx.stores.size > 1,
+    render: ({ ctsIndex, stores, daysInMonth, year, month, dataMaxDay }) => (
+      <StoreTimeSlotComparisonChart ctsIndex={ctsIndex} stores={stores} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
@@ -449,7 +449,7 @@ function saveAutoInjectedIds(ids: Set<string>): void {
  */
 export function autoInjectDataWidgets(
   currentIds: string[],
-  ctx: { categoryTimeSales: { records: readonly unknown[] }; prevYearCategoryTimeSales: { hasPrevYear: boolean }; stores: ReadonlyMap<string, unknown> },
+  ctx: { ctsRecordCount: number; prevYearHasPrevYear: boolean; storeCount: number },
 ): string[] | null {
   const seen = getAutoInjectedIds()
   const candidates = WIDGET_REGISTRY.filter((w) => {
@@ -459,12 +459,12 @@ export function autoInjectDataWidgets(
     // データチェック: isVisible は WidgetContext を要求するが、
     // ここでは必要な最小フィールドで簡易チェック
     if (w.id === 'analysis-yoy-waterfall') {
-      return ctx.prevYearCategoryTimeSales.hasPrevYear
+      return ctx.prevYearHasPrevYear
     }
     if (w.id === 'chart-store-timeslot-comparison') {
-      return ctx.categoryTimeSales.records.length > 0 && ctx.stores.size > 1
+      return ctx.ctsRecordCount > 0 && ctx.storeCount > 1
     }
-    return ctx.categoryTimeSales.records.length > 0
+    return ctx.ctsRecordCount > 0
   })
 
   if (candidates.length === 0) return null

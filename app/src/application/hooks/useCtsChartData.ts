@@ -287,11 +287,9 @@ export interface StoreComparisonResult {
  * 店舗間比較チャート用の集約データを返すフック。
  */
 export function useStoreComparisonData(
-  params: Omit<BaseCtsParams, 'storeIds'> & {
-    readonly mode: AggregateMode
-  },
+  params: Omit<BaseCtsParams, 'storeIds'>,
 ): StoreComparisonResult {
-  const { index, dateRange, hierarchy, dow, mode: _mode } = params
+  const { index, dateRange, hierarchy, dow } = params
 
   const records = useMemo(
     () => queryByDateRange(index, { dateRange, hierarchy, dow }),
