@@ -29,6 +29,17 @@ export type {
   DepartmentKpiData,
 } from './DataTypes'
 export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
+export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
+export {
+  toDateKey,
+  toDateKeyFromParts,
+  fromDateKey,
+  getDow,
+  formatCalendarDate,
+  isSameDate,
+  dateRangeDays,
+  dateRangeToKeys,
+} from './CalendarDate'
 export type { CategoryTimeSalesIndex } from './CategoryTimeSalesIndex'
 export { EMPTY_CTS_INDEX } from './CategoryTimeSalesIndex'
 export type {
