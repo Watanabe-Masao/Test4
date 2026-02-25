@@ -334,7 +334,7 @@ describe('filterDataForMonth', () => {
     expect(filtered.classifiedSales.records).toHaveLength(0)
   })
 
-  it('空パーティションではインポートしていない種別の既存データが維持される', () => {
+  it('空パーティションではインポートしていない種別は空になる（保全は buildMonthData で行う）', () => {
     // 既存データに仕入・花・消耗品・予算がある状態で
     // classifiedSales のみインポート（他のパーティションは空）
     const data = makeData({
@@ -364,12 +364,13 @@ describe('filterDataForMonth', () => {
     // classifiedSales はフィルタされる（レコードベース）
     expect(filtered.classifiedSales.records).toHaveLength(1)
 
-    // StoreDayRecord 系データは既存データが維持されること（空で上書きされない）
-    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(100)
-    expect(filtered.flowers['1']?.[1]?.price).toBe(5000)
-    expect(filtered.consumables['1']?.[1]?.cost).toBe(3000)
-    expect(filtered.budget.get('1')?.total).toBe(200000)
-    expect(filtered.interStoreIn['1']?.[1]).toBeTruthy()
+    // StoreDayRecord 系データはパーティションが空のため空 {} になる
+    // （非インポート種別の保全は useImport の buildMonthData で行う）
+    expect(Object.keys(filtered.purchase)).toHaveLength(0)
+    expect(Object.keys(filtered.flowers)).toHaveLength(0)
+    expect(Object.keys(filtered.consumables)).toHaveLength(0)
+    expect(filtered.budget.size).toBe(0)
+    expect(Object.keys(filtered.interStoreIn)).toHaveLength(0)
   })
 
   it('パーティションにデータがある種別は月フィルタが適用される', () => {

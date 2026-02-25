@@ -253,9 +253,9 @@ export function useImport() {
             const { targetYear, targetMonth } = settingsRef.current
 
             // パーティション情報がある場合、対象月のデータだけに絞り込む
-            const targetData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
+            let targetData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
 
-            // 既存データがあれば差分チェック
+            // 既存データがあれば差分チェック & マージ
             if (repo.isAvailable()) {
               try {
                 const existing = await repo.loadMonthlyData(targetYear, targetMonth)
@@ -272,13 +272,15 @@ export function useImport() {
                     })
                     return summary
                   }
+                  // 差分確認不要 → 既存データとマージ（インポートしていない種別を保全）
+                  targetData = buildMonthData(existing, targetData, 'overwrite')
                 }
               } catch {
                 // ストレージエラーは無視して通常フローへ
               }
             }
 
-            // 差分確認不要 → 通常通り state に反映 & 保存
+            // state に反映 & 保存
             dispatch({ type: 'SET_IMPORTED_DATA', payload: targetData })
             dataRef.current = targetData
             autoSetDataEndDay(targetData)
@@ -365,10 +367,12 @@ export function useImport() {
           saveAll()
         }
       } else {
-        // ── 単月: 既存の処理 ──
+        // ── 単月: 既存データとマージ ──
+        // incomingData は filterDataForMonth 済みのため、インポートしていない種別は空 {} になっている。
+        // buildMonthData で既存データとマージし、非インポート種別の既存データを保全する。
         let finalData: ImportedData
         if (action === 'overwrite') {
-          finalData = incomingData
+          finalData = buildMonthData(existingData, incomingData, 'overwrite')
         } else {
           // keep-existing: 挿入のみマージ
           finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
