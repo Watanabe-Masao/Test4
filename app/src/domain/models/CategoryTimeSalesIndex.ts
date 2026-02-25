@@ -43,21 +43,6 @@ export interface CategoryTimeSalesIndex {
   readonly allDateKeys: ReadonlySet<DateKey>
   /** 総レコード数 */
   readonly recordCount: number
-
-  // ── 後方互換 ──
-  // 移行期間中、既存コードが byStoreDay / allDays を参照する場合があるため維持。
-  // 新規コードは byStoreDate / allDateKeys を使うこと。
-
-  /**
-   * @deprecated byStoreDate を使用してください
-   * storeId → day → レコード群（単一月のデータのみ有効）
-   */
-  readonly byStoreDay: ReadonlyMap<string, ReadonlyMap<number, readonly CategoryTimeSalesRecord[]>>
-  /**
-   * @deprecated allDateKeys を使用してください
-   * データに含まれる全日付（day 番号のみ、月をまたぐ場合は不正確）
-   */
-  readonly allDays: ReadonlySet<number>
 }
 
 /** 空のインデックス */
@@ -66,7 +51,4 @@ export const EMPTY_CTS_INDEX: CategoryTimeSalesIndex = {
   storeIds: new Set(),
   allDateKeys: new Set(),
   recordCount: 0,
-  // 後方互換
-  byStoreDay: new Map(),
-  allDays: new Set(),
 }

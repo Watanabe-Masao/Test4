@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
-import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
+import { queryByDateRange } from '@/application/usecases'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { toPct } from './chartTheme'

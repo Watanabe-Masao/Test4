@@ -92,60 +92,6 @@ export function queryByDateRange(
   return result
 }
 
-// ── 後方互換: 既存コード向け ──────────────────────────────────
-
-/**
- * @deprecated queryByDateRange を使用してください。
- *
- * インデックスから、指定された店舗 + 日付範囲 + 階層条件に該当するレコードを抽出する。
- * 単一月のデータに対してのみ正確に動作する。
- *
- * @param index インデックス
- * @param selectedStoreIds 選択中の店舗ID（空 = 全店舗）
- * @param dayRange [開始日, 終了日]（inclusive）
- * @param hierarchy 階層フィルタ条件（省略可）
- * @returns フィルタ済みレコード配列
- */
-export function queryIndex(
-  index: CategoryTimeSalesIndex,
-  selectedStoreIds: ReadonlySet<string>,
-  dayRange: readonly [number, number],
-  hierarchy?: HierarchyFilterParams,
-): readonly CategoryTimeSalesRecord[] {
-  const result: CategoryTimeSalesRecord[] = []
-  const [dayStart, dayEnd] = dayRange
-
-  // 対象店舗の決定
-  const targetStores = selectedStoreIds.size > 0
-    ? selectedStoreIds
-    : index.storeIds
-
-  for (const storeId of targetStores) {
-    const dayMap = index.byStoreDay.get(storeId)
-    if (!dayMap) continue
-
-    for (let day = dayStart; day <= dayEnd; day++) {
-      const records = dayMap.get(day)
-      if (!records) continue
-
-      if (hierarchy && (hierarchy.departmentCode || hierarchy.lineCode || hierarchy.klassCode)) {
-        for (const rec of records) {
-          if (hierarchy.departmentCode && rec.department.code !== hierarchy.departmentCode) continue
-          if (hierarchy.lineCode && rec.line.code !== hierarchy.lineCode) continue
-          if (hierarchy.klassCode && rec.klass.code !== hierarchy.klassCode) continue
-          result.push(rec)
-        }
-      } else {
-        for (const rec of records) {
-          result.push(rec)
-        }
-      }
-    }
-  }
-
-  return result
-}
-
 /**
  * 曜日フィルタを適用する。dowAvg モードで特定曜日のみ対象にする場合に使用。
  *

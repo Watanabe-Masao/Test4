@@ -9,7 +9,7 @@ import {
   type HierarchyFilter,
 } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
-import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
+import { queryByDateRange } from '@/application/usecases'
 
 /* ── Types ─────────────────────────────────── */
 

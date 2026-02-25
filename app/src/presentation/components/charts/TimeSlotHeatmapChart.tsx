@@ -4,7 +4,7 @@ import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from 
 import { toPct } from './chartTheme'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
-import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
+import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
   width: 100%;

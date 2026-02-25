@@ -5,7 +5,7 @@ import { darkTheme } from '@/presentation/theme'
 import { TimeSlotSalesChart } from '../TimeSlotSalesChart'
 import { EMPTY_CTS_INDEX } from '@/domain/models'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
-import { buildCategoryTimeSalesIndex } from '@/application/usecases/categoryTimeSales'
+import { buildCategoryTimeSalesIndex } from '@/application/usecases'
 
 function wrap(ui: React.ReactElement) {
   return render(ui, {

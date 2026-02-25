@@ -15,7 +15,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { DailyRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
-import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
+import { queryByDateRange } from '@/application/usecases'
 import type { PrevYearData } from '@/application/hooks'
 import {
   PinModalOverlay,

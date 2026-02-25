@@ -13,7 +13,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
-import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
+import { queryByDateRange } from '@/application/usecases'
 import type { DateRange } from '@/domain/models'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { WidgetContext, ComparisonMode } from './types'

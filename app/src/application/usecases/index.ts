@@ -21,7 +21,7 @@ export { buildCategoryTimeSalesIndex } from './categoryTimeSales'
 export type { HierarchyFilterParams, AggregateMode } from './categoryTimeSales'
 export {
   queryByDateRange,
-  queryIndex,
+  getDateKeysForStores,
   filterByDow,
   computeDivisor,
   countDistinctDays,

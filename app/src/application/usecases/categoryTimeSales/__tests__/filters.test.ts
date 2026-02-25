@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { queryIndex, queryByDateRange, filterByDow } from '../filters'
+import { queryByDateRange, filterByDow } from '../filters'
 import { buildCategoryTimeSalesIndex } from '../indexBuilder'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, DateRange } from '@/domain/models'
 
@@ -24,42 +24,45 @@ function buildIndex(records: CategoryTimeSalesRecord[]) {
   return buildCategoryTimeSalesIndex(data)
 }
 
-describe('queryIndex', () => {
+describe('queryByDateRange (basic)', () => {
   const records = [
-    makeRecord({ storeId: 'S001', day: 1 }),
-    makeRecord({ storeId: 'S001', day: 2 }),
-    makeRecord({ storeId: 'S001', day: 5 }),
-    makeRecord({ storeId: 'S002', day: 1 }),
-    makeRecord({ storeId: 'S002', day: 3 }),
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 1 }),
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 2 }),
+    makeRecord({ storeId: 'S001', year: 2026, month: 2, day: 5 }),
+    makeRecord({ storeId: 'S002', year: 2026, month: 2, day: 1 }),
+    makeRecord({ storeId: 'S002', year: 2026, month: 2, day: 3 }),
   ]
   const index = buildIndex(records)
+  const fullRange: DateRange = { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } }
 
   it('全店舗・全日付範囲で全レコードを返す', () => {
-    const result = queryIndex(index, new Set(), [1, 5])
+    const result = queryByDateRange(index, { dateRange: fullRange })
     expect(result.length).toBe(5)
   })
 
   it('店舗フィルタで絞り込める', () => {
-    const result = queryIndex(index, new Set(['S001']), [1, 5])
+    const result = queryByDateRange(index, { dateRange: fullRange, storeIds: new Set(['S001']) })
     expect(result.length).toBe(3)
     expect(result.every((r) => r.storeId === 'S001')).toBe(true)
   })
 
   it('日付範囲フィルタで絞り込める', () => {
-    const result = queryIndex(index, new Set(), [2, 3])
+    const range: DateRange = { from: { year: 2026, month: 2, day: 2 }, to: { year: 2026, month: 2, day: 3 } }
+    const result = queryByDateRange(index, { dateRange: range })
     expect(result.length).toBe(2)
     expect(result.map((r) => r.day).sort()).toEqual([2, 3])
   })
 
   it('店舗 + 日付範囲の複合フィルタ', () => {
-    const result = queryIndex(index, new Set(['S002']), [1, 2])
+    const range: DateRange = { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 2 } }
+    const result = queryByDateRange(index, { dateRange: range, storeIds: new Set(['S002']) })
     expect(result.length).toBe(1)
     expect(result[0].storeId).toBe('S002')
     expect(result[0].day).toBe(1)
   })
 
   it('該当なしで空配列を返す', () => {
-    const result = queryIndex(index, new Set(['S999']), [1, 5])
+    const result = queryByDateRange(index, { dateRange: fullRange, storeIds: new Set(['S999']) })
     expect(result.length).toBe(0)
   })
 
@@ -70,26 +73,27 @@ describe('queryIndex', () => {
       makeRecord({ day: 1, department: { code: 'D02', name: '雑貨' }, line: { code: 'L03', name: '日用品' }, klass: { code: 'K03', name: '洗剤' } }),
     ]
     const hIndex = buildIndex(hierarchyRecords)
+    const dayRange: DateRange = { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 1 } }
 
     it('departmentCode でフィルタ', () => {
-      const result = queryIndex(hIndex, new Set(), [1, 1], { departmentCode: 'D01' })
+      const result = queryByDateRange(hIndex, { dateRange: dayRange, hierarchy: { departmentCode: 'D01' } })
       expect(result.length).toBe(2)
     })
 
     it('lineCode でフィルタ', () => {
-      const result = queryIndex(hIndex, new Set(), [1, 1], { lineCode: 'L02' })
+      const result = queryByDateRange(hIndex, { dateRange: dayRange, hierarchy: { lineCode: 'L02' } })
       expect(result.length).toBe(1)
       expect(result[0].line.code).toBe('L02')
     })
 
     it('klassCode でフィルタ', () => {
-      const result = queryIndex(hIndex, new Set(), [1, 1], { klassCode: 'K03' })
+      const result = queryByDateRange(hIndex, { dateRange: dayRange, hierarchy: { klassCode: 'K03' } })
       expect(result.length).toBe(1)
       expect(result[0].klass.code).toBe('K03')
     })
 
     it('階層条件なしで全レコード返す', () => {
-      const result = queryIndex(hIndex, new Set(), [1, 1], {})
+      const result = queryByDateRange(hIndex, { dateRange: dayRange, hierarchy: {} })
       expect(result.length).toBe(3)
     })
   })

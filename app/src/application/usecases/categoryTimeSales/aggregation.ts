@@ -29,7 +29,7 @@ export interface HourlyAggregation {
 /**
  * フィルタ済みレコードを時間帯別に集約する。
  *
- * @param records queryIndex + filterByDow 適用済みレコード
+ * @param records queryByDateRange + filterByDow 適用済みレコード
  * @returns 生の合計値（除数未適用）
  */
 export function aggregateHourly(
@@ -75,7 +75,7 @@ export interface LevelAggregationEntry {
 /**
  * フィルタ済みレコードを階層レベル（部門/ライン/クラス）でグルーピング集約する。
  *
- * @param records queryIndex + filterByDow 適用済みレコード
+ * @param records queryByDateRange + filterByDow 適用済みレコード
  * @param level 集約対象の階層レベル
  * @returns code → LevelAggregationEntry のマップ（生の合計値）
  */
@@ -164,7 +164,7 @@ export interface HourDowAggregation {
  * ヒートマップ表示用。dowAvg モードでは曜日ごとに異なる除数を適用する必要があるため、
  * dowDaySets も合わせて返す。
  *
- * @param records queryIndex 適用済みレコード
+ * @param records queryByDateRange 適用済みレコード
  * @param year 年（曜日計算用）
  * @param month 月（曜日計算用）
  * @returns 生の hour × dow 集約データ
@@ -214,7 +214,7 @@ export interface StoreHourlyEntry {
  *
  * 店舗間比較チャート用。
  *
- * @param records queryIndex 適用済みレコード
+ * @param records queryByDateRange 適用済みレコード
  * @returns storeId → StoreHourlyEntry のマップ
  */
 export function aggregateByStore(

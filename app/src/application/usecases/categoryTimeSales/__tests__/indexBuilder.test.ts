@@ -33,14 +33,7 @@ describe('buildCategoryTimeSalesIndex', () => {
 
     expect(result.recordCount).toBe(1)
     expect(result.storeIds).toEqual(new Set(['S001']))
-    expect(result.allDays).toEqual(new Set([1]))
 
-    // byStoreDay (後方互換)
-    const dayMap = result.byStoreDay.get('S001')
-    expect(dayMap).toBeDefined()
-    expect(dayMap!.get(1)).toEqual([rec])
-
-    // byStoreDate (dateKey = 'YYYY-MM-DD')
     expect(result.allDateKeys).toEqual(new Set(['2026-02-01']))
     const dateMap = result.byStoreDate.get('S001')
     expect(dateMap).toBeDefined()
@@ -59,18 +52,18 @@ describe('buildCategoryTimeSalesIndex', () => {
 
     expect(result.recordCount).toBe(4)
     expect(result.storeIds).toEqual(new Set(['S001', 'S002']))
-    expect(result.allDays).toEqual(new Set([1, 2, 3]))
+    expect(result.allDateKeys).toEqual(new Set(['2026-02-01', '2026-02-02', '2026-02-03']))
 
     // S001 は day=1, day=2 にレコードあり
-    const s001 = result.byStoreDay.get('S001')!
-    expect(s001.get(1)!.length).toBe(1)
-    expect(s001.get(2)!.length).toBe(1)
-    expect(s001.has(3)).toBe(false)
+    const s001 = result.byStoreDate.get('S001')!
+    expect(s001.get('2026-02-01')!.length).toBe(1)
+    expect(s001.get('2026-02-02')!.length).toBe(1)
+    expect(s001.has('2026-02-03')).toBe(false)
 
     // S002 は day=1, day=3 にレコードあり
-    const s002 = result.byStoreDay.get('S002')!
-    expect(s002.get(1)!.length).toBe(1)
-    expect(s002.get(3)!.length).toBe(1)
+    const s002 = result.byStoreDate.get('S002')!
+    expect(s002.get('2026-02-01')!.length).toBe(1)
+    expect(s002.get('2026-02-03')!.length).toBe(1)
   })
 
   it('同一 (storeId, day) の複数レコードが同じ配列にまとまる', () => {
@@ -82,7 +75,7 @@ describe('buildCategoryTimeSalesIndex', () => {
     const result = buildCategoryTimeSalesIndex(data)
 
     expect(result.recordCount).toBe(2)
-    const dayRecords = result.byStoreDay.get('S001')!.get(1)!
-    expect(dayRecords.length).toBe(2)
+    const dateRecords = result.byStoreDate.get('S001')!.get('2026-02-01')!
+    expect(dateRecords.length).toBe(2)
   })
 })

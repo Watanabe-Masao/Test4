@@ -37,14 +37,14 @@ import {
   aggregateByStore,
   computeDivisor,
   countDistinctDays,
-} from '@/application/usecases/categoryTimeSales'
+} from '@/application/usecases'
 import type {
   HierarchyFilterParams,
   AggregateMode,
   LevelAggregationEntry,
   HourDowAggregation,
   StoreHourlyEntry,
-} from '@/application/usecases/categoryTimeSales'
+} from '@/application/usecases'
 
 // ── 共通パラメータ ────────────────────────────────────────
 

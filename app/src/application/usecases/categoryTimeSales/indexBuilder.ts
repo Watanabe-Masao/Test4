@@ -8,11 +8,6 @@
  *
  * 各レコードの year/month/day から 'YYYY-MM-DD' 形式の ISO 8601 文字列キーを生成する。
  * 辞書順ソートが日付順と一致するため、月をまたぐ範囲クエリが可能。
- *
- * ## 後方互換
- *
- * 移行期間中、byStoreDay (day のみキー) も同時に構築する。
- * 既存コードが byStoreDay を参照している場合でも動作を維持する。
  */
 import type { CategoryTimeSalesRecord, CategoryTimeSalesData } from '@/domain/models'
 import type { CategoryTimeSalesIndex } from '@/domain/models'
@@ -33,18 +28,14 @@ export function buildCategoryTimeSalesIndex(
 
   const storeIds = new Set<string>()
   const allDateKeys = new Set<DateKey>()
-  const allDays = new Set<number>()
   const byStoreDate = new Map<string, Map<DateKey, CategoryTimeSalesRecord[]>>()
-  const byStoreDay = new Map<string, Map<number, CategoryTimeSalesRecord[]>>()
 
   for (const rec of records) {
     storeIds.add(rec.storeId)
 
     const dateKey = toDateKeyFromParts(rec.year, rec.month, rec.day)
     allDateKeys.add(dateKey)
-    allDays.add(rec.day)
 
-    // ── byStoreDate (dateKey ベース) ──
     let dateMap = byStoreDate.get(rec.storeId)
     if (!dateMap) {
       dateMap = new Map()
@@ -56,19 +47,6 @@ export function buildCategoryTimeSalesIndex(
       dateMap.set(dateKey, dateRecords)
     }
     dateRecords.push(rec)
-
-    // ── byStoreDay (後方互換) ──
-    let dayMap = byStoreDay.get(rec.storeId)
-    if (!dayMap) {
-      dayMap = new Map()
-      byStoreDay.set(rec.storeId, dayMap)
-    }
-    let dayRecords = dayMap.get(rec.day)
-    if (!dayRecords) {
-      dayRecords = []
-      dayMap.set(rec.day, dayRecords)
-    }
-    dayRecords.push(rec)
   }
 
   return {
@@ -76,8 +54,5 @@ export function buildCategoryTimeSalesIndex(
     storeIds,
     allDateKeys,
     recordCount: records.length,
-    // 後方互換
-    byStoreDay,
-    allDays,
   }
 }
