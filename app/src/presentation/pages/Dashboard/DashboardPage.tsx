@@ -37,22 +37,8 @@ export function DashboardPage() {
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
 
-  // 分類別時間帯売上を選択店舗 + 有効期間でフィルタ
+  // 前年分類別時間帯売上を有効期間でフィルタ
   const elapsedDays = currentResult?.elapsedDays
-  const filteredCategoryTimeSales = useMemo(() => {
-    const cts = appState.data.categoryTimeSales
-    if (!cts?.records) return { records: [] }
-    let recs = cts.records
-    if (selectedStoreIds.size > 0) {
-      recs = recs.filter((r) => selectedStoreIds.has(r.storeId))
-    }
-    if (elapsedDays != null && elapsedDays > 0) {
-      recs = recs.filter((r) => r.day <= elapsedDays)
-    }
-    return { records: recs }
-  }, [appState.data.categoryTimeSales, selectedStoreIds, elapsedDays])
-
-  // 前年分類別時間帯売上も有効期間でフィルタ
   const filteredPrevYearCTS = useMemo(() => {
     if (!prevYearCTS.hasPrevYear) return prevYearCTS
     if (elapsedDays == null || elapsedDays <= 0) return prevYearCTS
@@ -211,7 +197,6 @@ export function DashboardPage() {
     prevYear,
     allStoreResults: appState.storeResults,
     stores: appState.data.stores,
-    categoryTimeSales: filteredCategoryTimeSales,
     ctsIndex,
     prevCtsIndex,
     currentDateRange,
@@ -221,7 +206,6 @@ export function DashboardPage() {
     dataMaxDay,
     elapsedDays: r.elapsedDays,
     departmentKpi: appState.data.departmentKpi,
-    prevYearCategoryTimeSales: filteredPrevYearCTS,
     explanations,
     onExplain: handleExplain,
   }

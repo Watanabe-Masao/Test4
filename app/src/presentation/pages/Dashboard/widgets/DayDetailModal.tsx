@@ -14,7 +14,8 @@ import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
-import type { DailyRecord, CategoryTimeSalesRecord } from '@/domain/models'
+import type { DailyRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
+import { queryByDateRange } from '@/application/usecases/categoryTimeSales'
 import type { PrevYearData } from '@/application/hooks'
 import {
   PinModalOverlay,
@@ -43,8 +44,8 @@ interface DayDetailModalProps {
   cumCustomers: number
   cumPrevCustomers: number
   prevYear: PrevYearData
-  categoryRecords: readonly CategoryTimeSalesRecord[]
-  prevYearCategoryRecords: readonly CategoryTimeSalesRecord[]
+  ctsIndex: CategoryTimeSalesIndex
+  prevCtsIndex: CategoryTimeSalesIndex
   /** 当年の全日別データ（前週比用） */
   dailyMap?: ReadonlyMap<number, DailyRecord>
   onClose: () => void
@@ -53,7 +54,7 @@ interface DayDetailModalProps {
 export function DayDetailModal({
   day, month, year, record, budget, cumBudget, cumSales, cumPrevYear,
   cumCustomers, cumPrevCustomers, prevYear,
-  categoryRecords, prevYearCategoryRecords, dailyMap, onClose,
+  ctsIndex, prevCtsIndex, dailyMap, onClose,
 }: DayDetailModalProps) {
   const [tab, setTab] = useState<ModalTab>('sales')
   const [compMode, setCompMode] = useState<CompMode>('yoy')
@@ -88,9 +89,36 @@ export function DayDetailModal({
   const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
   const wowPrevSales = wowDailyRecord?.sales ?? 0
   const wowPrevCust = wowDailyRecord?.customers ?? 0
+  // ── Category records（インデックスから日指定で取得） ──
+  const singleDayRange: DateRange = useMemo(() => ({
+    from: { year, month, day },
+    to: { year, month, day },
+  }), [year, month, day])
+
+  const dayRecords = useMemo(
+    () => queryByDateRange(ctsIndex, { dateRange: singleDayRange }),
+    [ctsIndex, singleDayRange],
+  )
+
+  const prevDayRange: DateRange = useMemo(() => ({
+    from: { year: year - 1, month, day },
+    to: { year: year - 1, month, day },
+  }), [year, month, day])
+
+  const prevDayRecords = useMemo(
+    () => queryByDateRange(prevCtsIndex, { dateRange: prevDayRange }),
+    [prevCtsIndex, prevDayRange],
+  )
+
+  // WoW用: 前週(day-7)のカテゴリレコード
+  const wowPrevDayRange: DateRange = useMemo(() => ({
+    from: { year, month, day: Math.max(1, wowPrevDay) },
+    to: { year, month, day: Math.max(1, wowPrevDay) },
+  }), [year, month, wowPrevDay])
+
   const wowPrevDayRecords = useMemo(
-    () => canWoW ? categoryRecords.filter((r) => r.day === wowPrevDay) : [],
-    [categoryRecords, wowPrevDay, canWoW],
+    () => canWoW ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange }) : [],
+    [canWoW, ctsIndex, wowPrevDayRange],
   )
 
   // ── 比較用メトリクス（モードに応じて切替） ──
@@ -99,27 +127,31 @@ export function DayDetailModal({
   const compLabel = activeCompMode === 'wow' ? `${wowPrevDay}日` : '前年'
   const curCompLabel = activeCompMode === 'wow' ? `${day}日` : '当年'
 
-  // ── Category records ──
-  const dayRecords = useMemo(
-    () => categoryRecords.filter((r) => r.day === day),
-    [categoryRecords, day],
-  )
-  const prevDayRecords = useMemo(
-    () => prevYearCategoryRecords.filter((r) => r.day === day),
-    [prevYearCategoryRecords, day],
-  )
   // WoW用: 比較期間のカテゴリレコード
   const compDayRecords = useMemo(
     () => activeCompMode === 'wow' ? wowPrevDayRecords : prevDayRecords,
     [activeCompMode, wowPrevDayRecords, prevDayRecords],
   )
+
+  // 累計カテゴリレコード（1日〜当日）
+  const cumDateRange: DateRange = useMemo(() => ({
+    from: { year, month, day: 1 },
+    to: { year, month, day },
+  }), [year, month, day])
+
   const cumCategoryRecords = useMemo(
-    () => categoryRecords.filter((r) => r.day <= day),
-    [categoryRecords, day],
+    () => queryByDateRange(ctsIndex, { dateRange: cumDateRange }),
+    [ctsIndex, cumDateRange],
   )
+
+  const cumPrevDateRange: DateRange = useMemo(() => ({
+    from: { year: year - 1, month, day: 1 },
+    to: { year: year - 1, month, day },
+  }), [year, month, day])
+
   const cumPrevCategoryRecords = useMemo(
-    () => prevYearCategoryRecords.filter((r) => r.day <= day),
-    [prevYearCategoryRecords, day],
+    () => queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange }),
+    [prevCtsIndex, cumPrevDateRange],
   )
 
   return (

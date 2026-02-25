@@ -409,8 +409,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumCustomers={cumCustomers.get(detailDay) ?? 0}
           cumPrevCustomers={cumPrevCustomers.get(detailDay) ?? 0}
           prevYear={prevYear}
-          categoryRecords={ctx.categoryTimeSales.records}
-          prevYearCategoryRecords={ctx.prevYearCategoryTimeSales.hasPrevYear ? ctx.prevYearCategoryTimeSales.records : []}
+          ctsIndex={ctx.ctsIndex}
+          prevCtsIndex={ctx.prevCtsIndex}
           dailyMap={r.daily}
           onClose={() => setDetailDay(null)}
         />

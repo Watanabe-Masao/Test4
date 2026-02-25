@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesData, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData, PrevYearCategoryTimeSalesData } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -59,8 +59,6 @@ export interface WidgetContext {
   allStoreResults: ReadonlyMap<string, StoreResult>
   /** Store master data */
   stores: ReadonlyMap<string, Store>
-  /** 分類別時間帯売上データ（後方互換用、段階的に ctsIndex へ移行） */
-  categoryTimeSales: CategoryTimeSalesData
   /** 分類別時間帯売上インデックス（(storeId, dateKey) で O(1) アクセス） */
   ctsIndex: CategoryTimeSalesIndex
   /** 前年分類別時間帯売上インデックス */
@@ -85,8 +83,6 @@ export interface WidgetContext {
   elapsedDays: number | undefined
   /** 部門別KPIデータ */
   departmentKpi: DepartmentKpiData
-  /** 前年分類別時間帯売上データ（同曜日オフセット適用済み） */
-  prevYearCategoryTimeSales: PrevYearCategoryTimeSalesData
   /** 指標説明マップ（MetricBreakdownPanel 用） */
   explanations: StoreExplanations
   /** 指標の説明パネルを開く */
