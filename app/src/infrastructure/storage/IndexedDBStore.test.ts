@@ -10,7 +10,7 @@ import {
   saveDataSlice,
 } from './IndexedDBStore'
 import { createEmptyImportedData } from '@/domain/models'
-import type { ImportedData, CategoryTimeSalesData } from '@/domain/models'
+import type { ImportedData, CategoryTimeSalesData, BudgetData } from '@/domain/models'
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
@@ -474,5 +474,130 @@ describe('saveDataSlice', () => {
     expect(loaded!.stores.get('1')?.name).toBe('店舗A_更新')
     expect(loaded!.stores.get('3')?.name).toBe('店舗C')
     expect(loaded!.stores.has('2')).toBe(false) // 元の店舗Bは消える（全置換）
+  })
+})
+
+// ─── データ整合性テスト ────────────────────────────────────
+
+describe('data integrity', () => {
+  it('保存→復元のラウンドトリップでデータが完全一致する', async () => {
+    const data = makeTestData({
+      categoryTimeSales: TEST_CATEGORY_TIME_SALES,
+    })
+    await saveImportedData(data, 2026, 2)
+
+    const loaded = await loadImportedData(2026, 2)
+    expect(loaded).not.toBeNull()
+
+    // 店舗
+    expect(loaded!.stores.size).toBe(data.stores.size)
+    for (const [id, store] of data.stores) {
+      expect(loaded!.stores.get(id)?.name).toBe(store.name)
+      expect(loaded!.stores.get(id)?.code).toBe(store.code)
+    }
+
+    // 取引先
+    expect(loaded!.suppliers.size).toBe(data.suppliers.size)
+
+    // 分類別売上: レコード数一致 + 各フィールド一致
+    expect(loaded!.classifiedSales.records).toHaveLength(data.classifiedSales.records.length)
+    for (let i = 0; i < data.classifiedSales.records.length; i++) {
+      const orig = data.classifiedSales.records[i]
+      const load = loaded!.classifiedSales.records[i]
+      expect(load.year).toBe(orig.year)
+      expect(load.month).toBe(orig.month)
+      expect(load.day).toBe(orig.day)
+      expect(load.storeId).toBe(orig.storeId)
+      expect(load.salesAmount).toBe(orig.salesAmount)
+      expect(load.discount71).toBe(orig.discount71)
+    }
+
+    // 仕入
+    expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(data.purchase['1']?.[1]?.total.cost)
+    expect(loaded!.purchase['1']?.[1]?.total.price).toBe(data.purchase['1']?.[1]?.total.price)
+
+    // 在庫設定
+    expect(loaded!.settings.size).toBe(data.settings.size)
+    expect(loaded!.settings.get('1')?.openingInventory).toBe(data.settings.get('1')?.openingInventory)
+
+    // 予算
+    expect(loaded!.budget.size).toBe(data.budget.size)
+    const origBudget = data.budget.get('1')!
+    const loadBudget = loaded!.budget.get('1')!
+    expect(loadBudget.total).toBe(origBudget.total)
+    expect(loadBudget.daily.get(1)).toBe(origBudget.daily.get(1))
+    expect(loadBudget.daily.get(2)).toBe(origBudget.daily.get(2))
+
+    // categoryTimeSales
+    expect(loaded!.categoryTimeSales.records).toHaveLength(data.categoryTimeSales.records.length)
+  })
+
+  it('NaN/Infinity を含むデータが 0 に正規化されて保存される', async () => {
+    const data = makeTestData({
+      purchase: {
+        '1': {
+          1: {
+            suppliers: {
+              '0000001': { name: '取引先A', cost: NaN, price: Infinity },
+            },
+            total: { cost: NaN, price: -Infinity },
+          },
+        },
+      },
+      classifiedSales: {
+        records: [makeCSRecord(1, '1', 50000)],
+      },
+    })
+    await saveImportedData(data, 2026, 2)
+
+    const loaded = await loadImportedData(2026, 2)
+    expect(loaded).not.toBeNull()
+
+    // NaN と Infinity は 0 に正規化される
+    const entry = loaded!.purchase['1']?.[1]
+    expect(entry?.suppliers['0000001']?.cost).toBe(0)
+    expect(entry?.suppliers['0000001']?.price).toBe(0)
+    expect(entry?.total.cost).toBe(0)
+    expect(entry?.total.price).toBe(0)
+  })
+
+  it('予算データの不正な値は除外される', async () => {
+    const invalidBudget = new Map<string, BudgetData>([
+      ['1', {
+        storeId: '1',
+        total: 100000,
+        daily: new Map<number, number>([
+          [1, 50000],
+          [32, 99999],   // 無効な日（32日）→ 除外
+        ]),
+      }],
+    ])
+    const data = makeTestData({ budget: invalidBudget })
+    await saveImportedData(data, 2026, 2)
+
+    const loaded = await loadImportedData(2026, 2)
+    expect(loaded).not.toBeNull()
+
+    const budget = loaded!.budget.get('1')!
+    expect(budget.total).toBe(100000)
+    expect(budget.daily.get(1)).toBe(50000)
+    expect(budget.daily.has(32)).toBe(false)  // 32日は除外
+  })
+
+  it('prevYearClassifiedSales と prevYearCategoryTimeSales は空で復元される', async () => {
+    const data = makeTestData({
+      prevYearClassifiedSales: {
+        records: [makeCSRecord(1, '1', 30000)],
+      },
+      prevYearCategoryTimeSales: TEST_CATEGORY_TIME_SALES,
+    })
+    await saveImportedData(data, 2026, 2)
+
+    const loaded = await loadImportedData(2026, 2)
+    expect(loaded).not.toBeNull()
+
+    // prevYear 系は DB に保存されない
+    expect(loaded!.prevYearClassifiedSales.records).toHaveLength(0)
+    expect(loaded!.prevYearCategoryTimeSales.records).toHaveLength(0)
   })
 })

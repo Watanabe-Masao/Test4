@@ -272,13 +272,20 @@ export function processFileData(
 
       const csYearMonth = detectYearMonthFromClassifiedSales(rows)
       const csEffectiveMonth = csYearMonth?.month ?? effectiveMonth
-      const newData = processClassifiedSales(rows, csEffectiveMonth, storeNameToId)
+      const result = processClassifiedSales(rows, csEffectiveMonth, storeNameToId)
+
+      // 小計行スキップをログ出力（データ品質の可視化）
+      if (result.skippedSubtotalRows && result.skippedSubtotalRows.length > 0) {
+        console.info(
+          `[ClassifiedSales] ${result.skippedSubtotalRows.length}件の小計/合計行をスキップしました（二重計上防止）`,
+        )
+      }
 
       return {
         data: {
           ...current,
           stores: mutableStores,
-          classifiedSales: mergeClassifiedSalesData(current.classifiedSales, newData),
+          classifiedSales: mergeClassifiedSalesData(current.classifiedSales, result),
         },
         detectedYearMonth: csYearMonth ?? undefined,
       }

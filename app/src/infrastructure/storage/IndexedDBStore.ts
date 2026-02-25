@@ -14,6 +14,7 @@
 import type { ImportedData, DataType, DataOrigin, DataEnvelope, ImportHistoryEntry } from '@/domain/models'
 import type { BudgetData, InventoryConfig, Store } from '@/domain/models'
 import { createEmptyImportedData, isEnvelope } from '@/domain/models'
+import { hashData } from '@/application/services/murmurhash'
 
 // ─── DB 定数 ──────────────────────────────────────────────
 
@@ -137,8 +138,43 @@ async function dbGetAllKeys(storeName: string): Promise<string[]> {
 
 // ─── Envelope ラッパー ────────────────────────────────────
 
-/** 値を DataEnvelope 形式でラップして保存用にする */
+// ─── NaN / Infinity サニタイズ ────────────────────────────
+
+/**
+ * JSON シリアライズで失われる不正な数値（NaN, ±Infinity）を 0 に正規化する。
+ * IndexedDB は structured clone なので NaN を保持できるが、
+ * 下流の計算で予期せぬ結果を引き起こすため、保存前に除去する。
+ */
+function sanitizeNumericValues<T>(value: T): T {
+  if (value === null || value === undefined) return value
+  if (typeof value === 'number') {
+    return (Number.isFinite(value) ? value : 0) as T
+  }
+  if (typeof value !== 'object') return value
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizeNumericValues) as T
+  }
+
+  if (value instanceof Map) {
+    const result = new Map<unknown, unknown>()
+    for (const [k, v] of value) {
+      result.set(k, sanitizeNumericValues(v))
+    }
+    return result as T
+  }
+
+  const obj = value as Record<string, unknown>
+  const result: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(obj)) {
+    result[k] = sanitizeNumericValues(v)
+  }
+  return result as T
+}
+
+/** 値を DataEnvelope 形式でラップして保存用にする（チェックサム付き） */
 function wrapEnvelope<T>(value: T, year: number, month: number, sourceFile?: string): DataEnvelope<T> {
+  const sanitized = sanitizeNumericValues(value)
   return {
     origin: {
       year,
@@ -146,13 +182,14 @@ function wrapEnvelope<T>(value: T, year: number, month: number, sourceFile?: str
       importedAt: new Date().toISOString(),
       sourceFile,
     },
-    payload: value,
+    payload: sanitized,
+    checksum: hashData(sanitized),
   }
 }
 
 /**
  * IndexedDB から読み出した値を unwrap する。
- * - 新形式（DataEnvelope）: origin の整合性を検証し payload を返す
+ * - 新形式（DataEnvelope）: origin の整合性とチェックサムを検証し payload を返す
  * - 旧形式（生データ）: そのまま返す（漸進的マイグレーション）
  */
 function unwrapEnvelope<T>(raw: unknown, year: number, month: number): { value: T; origin: DataOrigin | null } | null {
@@ -166,6 +203,19 @@ function unwrapEnvelope<T>(raw: unknown, year: number, month: number): { value: 
       )
       return null
     }
+
+    // チェックサム検証: 保存時のハッシュとペイロードの現在ハッシュを照合
+    const envelope = raw as DataEnvelope<T>
+    if (typeof envelope.checksum === 'number') {
+      const currentHash = hashData(envelope.payload)
+      if (currentHash !== envelope.checksum) {
+        console.warn(
+          `[IndexedDBStore] Checksum mismatch for ${year}-${month}: stored=${envelope.checksum}, computed=${currentHash}. Data may be corrupted.`,
+        )
+        return null
+      }
+    }
+
     return { value: raw.payload as T, origin: raw.origin }
   }
 
@@ -195,17 +245,26 @@ function budgetToSerializable(b: BudgetData): object {
   }
 }
 
-function budgetFromSerializable(obj: Record<string, unknown>): BudgetData {
+function budgetFromSerializable(obj: Record<string, unknown>): BudgetData | null {
+  // storeId の型検証
+  if (typeof obj.storeId !== 'string' || obj.storeId === '') return null
+  // total の型・有限数検証
+  const total = obj.total
+  if (typeof total !== 'number' || !Number.isFinite(total)) return null
+
   const daily = new Map<number, number>()
-  const rawDaily = obj.daily as Record<string, number> | undefined
-  if (rawDaily) {
-    for (const [k, v] of Object.entries(rawDaily)) {
-      daily.set(Number(k), v)
+  const rawDaily = obj.daily
+  if (rawDaily != null && typeof rawDaily === 'object' && !Array.isArray(rawDaily)) {
+    for (const [k, v] of Object.entries(rawDaily as Record<string, unknown>)) {
+      const day = Number(k)
+      if (Number.isFinite(day) && day >= 1 && day <= 31 && typeof v === 'number' && Number.isFinite(v)) {
+        daily.set(day, v)
+      }
     }
   }
   return {
-    storeId: obj.storeId as string,
-    total: obj.total as number,
+    storeId: obj.storeId,
+    total,
     daily,
   }
 }
@@ -231,23 +290,92 @@ const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: string }[] =
 
 // ─── スキーマ検証 ────────────────────────────────────────
 
-/** ロードしたデータの基本構造を検証する */
+/** 数値フィールドが有限数であることを検証する */
+function isFiniteNumber(val: unknown): val is number {
+  return typeof val === 'number' && Number.isFinite(val)
+}
+
+/** StoreDayRecord の各エントリが object であることを検証する */
+function isValidStoreDayRecord(data: unknown): boolean {
+  if (data == null) return true
+  if (typeof data !== 'object') return false
+  for (const days of Object.values(data as Record<string, unknown>)) {
+    if (days != null && typeof days !== 'object') return false
+  }
+  return true
+}
+
+/** ClassifiedSalesRecord の必須フィールドが妥当かチェック */
+function isValidCSRecord(rec: unknown): boolean {
+  if (rec == null || typeof rec !== 'object') return false
+  const r = rec as Record<string, unknown>
+  // 必須フィールド存在チェック
+  if (!isFiniteNumber(r.year) || !isFiniteNumber(r.month) || !isFiniteNumber(r.day)) return false
+  // 範囲チェック
+  if (r.month < 1 || r.month > 12) return false
+  if (r.day < 1 || r.day > 31) return false
+  if (typeof r.storeId !== 'string' || r.storeId === '') return false
+  if (!isFiniteNumber(r.salesAmount)) return false
+  return true
+}
+
+/** CategoryTimeSalesRecord の必須フィールドが妥当かチェック */
+function isValidCTSRecord(rec: unknown): boolean {
+  if (rec == null || typeof rec !== 'object') return false
+  const r = rec as Record<string, unknown>
+  if (!isFiniteNumber(r.year) || !isFiniteNumber(r.month) || !isFiniteNumber(r.day)) return false
+  if (r.month < 1 || r.month > 12) return false
+  if (r.day < 1 || r.day > 31) return false
+  if (typeof r.storeId !== 'string' || r.storeId === '') return false
+  if (!isFiniteNumber(r.totalAmount)) return false
+  return true
+}
+
+/** ロードしたデータの構造と内容を検証する */
 function validateLoadedData(result: Record<string, unknown>): boolean {
-  // StoreDayRecord 系: object であること
+  // StoreDayRecord 系: object であり、各エントリも object であること
   for (const { field } of STORE_DAY_FIELDS) {
-    if (result[field] != null && typeof result[field] !== 'object') return false
+    if (!isValidStoreDayRecord(result[field])) return false
   }
   // Map 系: Map インスタンスであること
   if (!(result.stores instanceof Map)) return false
   if (!(result.suppliers instanceof Map)) return false
   if (!(result.settings instanceof Map)) return false
   if (!(result.budget instanceof Map)) return false
-  // classifiedSales: records 配列を持つこと
+  // classifiedSales: records 配列を持ち、各レコードが妥当であること
   const cs = result.classifiedSales as { records?: unknown } | undefined
   if (cs && (!Array.isArray(cs.records))) return false
-  // categoryTimeSales: records 配列を持つこと
+  if (cs && Array.isArray(cs.records) && cs.records.length > 0) {
+    // サンプリング検証: 先頭・末尾・中間のレコードをチェック
+    const records = cs.records
+    const indicesToCheck = [0, Math.floor(records.length / 2), records.length - 1]
+    for (const idx of new Set(indicesToCheck)) {
+      if (!isValidCSRecord(records[idx])) return false
+    }
+  }
+  // categoryTimeSales: records 配列を持ち、各レコードが妥当であること
   const cts = result.categoryTimeSales as { records?: unknown } | undefined
   if (cts && (!Array.isArray(cts.records))) return false
+  if (cts && Array.isArray(cts.records) && cts.records.length > 0) {
+    const records = cts.records
+    const indicesToCheck = [0, Math.floor(records.length / 2), records.length - 1]
+    for (const idx of new Set(indicesToCheck)) {
+      if (!isValidCTSRecord(records[idx])) return false
+    }
+  }
+  // departmentKpi: records 配列を持つこと
+  const dkpi = result.departmentKpi as { records?: unknown } | undefined
+  if (dkpi && (!Array.isArray(dkpi.records))) return false
+  // budget: 各エントリが妥当であること
+  const budgetMap = result.budget as Map<string, unknown>
+  for (const [key, val] of budgetMap) {
+    if (typeof key !== 'string') return false
+    if (val == null || typeof val !== 'object') return false
+    const b = val as Record<string, unknown>
+    if (typeof b.storeId !== 'string') return false
+    if (!isFiniteNumber(b.total)) return false
+    if (!(b.daily instanceof Map)) return false
+  }
   return true
 }
 
@@ -369,7 +497,12 @@ export async function loadImportedData(
     const budgetMap = new Map<string, BudgetData>()
     for (const [k, v] of Object.entries(budgetObj)) {
       if (v && typeof v === 'object') {
-        budgetMap.set(k, budgetFromSerializable(v as Record<string, unknown>))
+        const parsed = budgetFromSerializable(v as Record<string, unknown>)
+        if (parsed) {
+          budgetMap.set(k, parsed)
+        } else {
+          console.warn(`[IndexedDBStore] Invalid budget entry for store ${k}, skipping`)
+        }
       }
     }
     result.budget = budgetMap

@@ -278,6 +278,31 @@ export function validateImportedData(
     }
   }
 
+  // ── カテゴリ階層の整合性チェック ──
+  // 同一店舗×日に「合計」行と明細行が共存する場合、二重計上の兆候
+  if (data.classifiedSales.records.length > 0) {
+    const SUBTOTAL_MARKERS = ['合計', '小計', '計']
+    const subtotalRecords = data.classifiedSales.records.filter(
+      (r) => SUBTOTAL_MARKERS.some((m) =>
+        r.className === m || r.lineName === m || r.departmentName === m || r.groupName === m,
+      ),
+    )
+    if (subtotalRecords.length > 0) {
+      const subtotalSales = subtotalRecords.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
+      const totalSales = data.classifiedSales.records.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
+      messages.push({
+        level: 'warning',
+        message: `分類別売上に${subtotalRecords.length}件の小計/合計行が含まれています — 売上が二重計上されている可能性があります`,
+        details: [
+          `小計/合計行の売上合計: ${Math.round(subtotalSales).toLocaleString()}円`,
+          `全レコードの売上合計: ${Math.round(totalSales).toLocaleString()}円`,
+          '小計行と明細行が混在すると、集計値が実際の2倍以上になります',
+          'ファイルからクラス名称が「合計」等の行を除外して再インポートしてください',
+        ],
+      })
+    }
+  }
+
   // ── オプショナルデータ ──
   if (data.budget.size === 0) {
     messages.push({
