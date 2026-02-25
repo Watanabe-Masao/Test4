@@ -40,6 +40,25 @@ function parseStoreId(
   return str
 }
 
+// ─── 小計行フィルタ ─────────────────────────────────
+
+/**
+ * 小計・合計行の検出パターン。
+ * CSVファイルに含まれる集約行を除外し、二重計上を防ぐ。
+ * ClassifiedSalesProcessor と同じパターンを使用。
+ */
+const SUBTOTAL_PATTERNS = ['合計', '小計', '計', 'total', 'subtotal']
+
+/** 部門/ライン/クラスの値が小計・合計行であるかを判定する */
+export function isCTSSubtotalRow(deptRaw: string, lineRaw: string, klassRaw: string): boolean {
+  const fields = [deptRaw, lineRaw, klassRaw]
+  return fields.some((f) => {
+    const lower = f.toLowerCase().trim()
+    if (!lower) return false
+    return SUBTOTAL_PATTERNS.some((p) => lower === p || lower.endsWith(p))
+  })
+}
+
 /**
  * 分類別時間帯売上CSVを処理する
  *
@@ -113,6 +132,12 @@ export function processCategoryTimeSales(
 
     const day = resolveDay(date, targetMonth, daysInTargetMonth, overflowDays)
     if (day == null) continue
+
+    // 小計・合計行を除外（二重計上防止）
+    const deptRaw = String(r[2] ?? '')
+    const lineRaw = String(r[3] ?? '')
+    const klassRaw = String(r[4] ?? '')
+    if (isCTSSubtotalRow(deptRaw, lineRaw, klassRaw)) continue
 
     // 店舗
     const storeId = parseStoreId(r[1], storeNameToId)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './CategoryTimeSalesProcessor'
+import { processCategoryTimeSales, mergeCategoryTimeSalesData, isCTSSubtotalRow } from './CategoryTimeSalesProcessor'
 import { categoryTimeSalesRecordKey } from '@/domain/models'
 
 /** テスト用CSVデータ行の構築ヘルパー */
@@ -122,6 +122,76 @@ describe('processCategoryTimeSales', () => {
     const result = processCategoryTimeSales(rows)
     expect(result.records[0].timeSlots).toHaveLength(1)
     expect(result.records[0].timeSlots[0].hour).toBe(9)
+  })
+})
+
+describe('processCategoryTimeSales - 小計行フィルタ', () => {
+  it('部門が「合計」の行は除外される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 10, 5000, 10, 5000, 0, 0],
+      ['2026年02月01日(日)', '0001:店舗A', '合計', '', '', 10, 5000, 10, 5000, 0, 0],
+    ])
+    const result = processCategoryTimeSales(rows)
+    expect(result.records).toHaveLength(1)
+    expect(result.records[0].department.code).toBe('000061')
+  })
+
+  it('ラインが「小計」の行は除外される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 10, 5000, 10, 5000, 0, 0],
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '小計', '', 10, 5000, 10, 5000, 0, 0],
+    ])
+    const result = processCategoryTimeSales(rows)
+    expect(result.records).toHaveLength(1)
+  })
+
+  it('クラスが「計」で終わる行は除外される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 10, 5000, 10, 5000, 0, 0],
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '柑橘計', 10, 5000, 10, 5000, 0, 0],
+    ])
+    const result = processCategoryTimeSales(rows)
+    expect(result.records).toHaveLength(1)
+  })
+
+  it('複数階層の合計行がすべて除外される（二重計上防止）', () => {
+    const rows = makeRows([
+      // 明細行
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601010:みかん', 30, 15000, 30, 15000, 0, 0],
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '601020:いよかん', 20, 10000, 20, 10000, 0, 0],
+      // クラス合計
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '000601:柑橘', '合計', 50, 25000, 50, 25000, 0, 0],
+      // ライン合計
+      ['2026年02月01日(日)', '0001:店舗A', '000061:果物', '合計', '', 50, 25000, 50, 25000, 0, 0],
+      // 部門合計
+      ['2026年02月01日(日)', '0001:店舗A', '合計', '', '', 50, 25000, 50, 25000, 0, 0],
+    ])
+    const result = processCategoryTimeSales(rows)
+    expect(result.records).toHaveLength(2) // 明細行のみ
+    expect(result.records.reduce((s, r) => s + r.totalAmount, 0)).toBe(25000) // 15000+10000
+  })
+})
+
+describe('isCTSSubtotalRow', () => {
+  it('「合計」を検出する', () => {
+    expect(isCTSSubtotalRow('合計', '', '')).toBe(true)
+    expect(isCTSSubtotalRow('', '合計', '')).toBe(true)
+    expect(isCTSSubtotalRow('', '', '合計')).toBe(true)
+  })
+
+  it('「小計」「計」「total」「subtotal」を検出する', () => {
+    expect(isCTSSubtotalRow('小計', '', '')).toBe(true)
+    expect(isCTSSubtotalRow('', '', '果物計')).toBe(true)
+    expect(isCTSSubtotalRow('', 'Total', '')).toBe(true)
+    expect(isCTSSubtotalRow('', '', 'subtotal')).toBe(true)
+  })
+
+  it('通常のカテゴリ名は false', () => {
+    expect(isCTSSubtotalRow('000061:果物', '000601:柑橘', '601010:みかん')).toBe(false)
+  })
+
+  it('空文字列のみは false', () => {
+    expect(isCTSSubtotalRow('', '', '')).toBe(false)
   })
 })
 
