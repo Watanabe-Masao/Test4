@@ -354,7 +354,12 @@ export function processFileData(
     case 'categoryTimeSales': {
       // targetYear を渡して各レコードに year/month を埋め込む
       const effectiveYear = detectedYearMonth?.year ?? appSettings.targetYear
-      const newData = processCategoryTimeSales(rows, effectiveMonth, 0, effectiveYear)
+      // 店舗名→数値ID逆引きマップを構築（コード無しCSV対応）
+      const ctsNameToId = new Map<string, string>()
+      for (const [id, store] of mutableStores) {
+        ctsNameToId.set(store.name, id)
+      }
+      const newData = processCategoryTimeSales(rows, effectiveMonth, 0, effectiveYear, ctsNameToId)
       return {
         data: {
           ...current,

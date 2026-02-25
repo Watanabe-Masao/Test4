@@ -225,3 +225,38 @@ describe('mergeCategoryTimeSalesData', () => {
     expect(merged.records).toHaveLength(2)
   })
 })
+
+describe('processCategoryTimeSales - storeNameToId', () => {
+  it('コード無し店舗名は逆引きマップで数値IDに解決される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '毎日屋A店', '000061:果物', '000601:柑橘', '601010:温州みかん', 100, 50000, 30, 15000, 70, 35000],
+    ])
+    const nameToId = new Map([['毎日屋A店', '1']])
+
+    const result = processCategoryTimeSales(rows, undefined, 0, undefined, nameToId)
+    expect(result.records).toHaveLength(1)
+    expect(result.records[0].storeId).toBe('1')
+  })
+
+  it('逆引きマップにない店舗名はそのまま使用される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '未知店舗', '000061:果物', '000601:柑橘', '601010:温州みかん', 100, 50000, 30, 15000, 70, 35000],
+    ])
+    const nameToId = new Map([['毎日屋A店', '1']])
+
+    const result = processCategoryTimeSales(rows, undefined, 0, undefined, nameToId)
+    expect(result.records).toHaveLength(1)
+    expect(result.records[0].storeId).toBe('未知店舗')
+  })
+
+  it('コード付き店舗名は逆引きマップに関係なくコードから解決される', () => {
+    const rows = makeRows([
+      ['2026年02月01日(日)', '0001:毎日屋A店', '000061:果物', '000601:柑橘', '601010:温州みかん', 100, 50000, 30, 15000, 70, 35000],
+    ])
+    const nameToId = new Map([['毎日屋A店', '99']])
+
+    const result = processCategoryTimeSales(rows, undefined, 0, undefined, nameToId)
+    expect(result.records).toHaveLength(1)
+    expect(result.records[0].storeId).toBe('1') // コードから解決される、逆引きの99ではない
+  })
+})
