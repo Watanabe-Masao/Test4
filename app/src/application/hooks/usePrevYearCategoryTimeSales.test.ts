@@ -113,6 +113,22 @@ describe('前年分類別時間帯売上 同曜日マッピング', () => {
     })
   })
 
+  describe('境界値テスト', () => {
+    it('空のprevYearCategoryTimeSalesから空の結果を返す', () => {
+      const mapped = mapPrevYearRecords([], 2026, 2, new Set(), 28)
+      expect(mapped).toHaveLength(0)
+    })
+
+    it('オーバーフロー day (day > daysInMonth) のレコードがマッピングされる', () => {
+      // day=29は2月にはないが、mergeAdjacentMonthRecordsで作られたオーバーフローday
+      // offset=1の場合、mappedDay = 29 - 1 = 28 → 28日分として有効
+      const prevRecords = [makeRecord(29)]
+      const mapped = mapPrevYearRecords(prevRecords, 2026, 2, new Set(), 28)
+      expect(mapped).toHaveLength(1)
+      expect(mapped[0].day).toBe(28)
+    })
+  })
+
   describe('曜日アラインメント 複数年検証', () => {
     const testCases: [number, number][] = [
       [2025, 1], [2025, 6], [2025, 12],

@@ -25,6 +25,8 @@ describe('safeDivide', () => {
   it('カスタムフォールバック', () => expect(safeDivide(10, 0, -1)).toBe(-1))
   it('0 / 0', () => expect(safeDivide(0, 0)).toBe(0))
   it('負の除算', () => expect(safeDivide(-10, 2)).toBe(-5))
+  it('NaN 分子は NaN を返す（上流でガードすべき）', () => expect(safeDivide(NaN, 100)).toBeNaN())
+  it('Infinity 分母は 0 を返す', () => expect(safeDivide(100, Infinity)).toBe(0))
 })
 
 describe('formatCurrency', () => {
