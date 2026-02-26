@@ -29,11 +29,11 @@ import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, rend
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
-  // ── KPI: 売上・粗利 ──
+  // ── KPI: 収益構造 ──
   {
     id: 'kpi-core-sales',
     label: 'コア売上',
-    group: '売上・粗利',
+    group: '収益構造',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -48,7 +48,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-inv-gross-profit',
     label: '【在庫法】粗利益',
-    group: '売上・粗利',
+    group: '収益構造',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
@@ -69,7 +69,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-est-margin',
     label: '【推定法】マージン',
-    group: '売上・粗利',
+    group: '収益構造',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
@@ -85,11 +85,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     },
   },
   // 注: kpi-gross-profit-budget → ExecSummaryBar 粗利率カードに統合
-  // ── KPI: 仕入・原価 ──
+  // ── KPI: 仕入・売変 ──
   {
     id: 'kpi-inventory-cost',
     label: '在庫仕入原価',
-    group: '仕入・原価',
+    group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#ea580c" onClick={() => onExplain('inventoryCost')} />
@@ -98,7 +98,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-delivery-sales',
     label: '売上納品原価',
-    group: '仕入・原価',
+    group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -113,7 +113,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-consumable',
     label: '消耗品費',
-    group: '仕入・原価',
+    group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -128,7 +128,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-discount-loss',
     label: '売変ロス原価',
-    group: '仕入・原価',
+    group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} accent="#dc2626" onClick={() => onExplain('discountLossCost')} />
@@ -137,7 +137,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-core-markup',
     label: 'コア値入率',
-    group: '仕入・原価',
+    group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" onClick={() => onExplain('coreMarkupRate')} />
@@ -145,11 +145,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
   // 注: kpi-customers, kpi-transaction-value → ExecSummaryBar 客数・客単価カードに統合
-  // ── チャート ──
+  // ── 日次推移 ──
   {
     id: 'chart-daily-sales',
     label: '日別売上チャート',
-    group: 'チャート',
+    group: '日次推移',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
       <DailySalesChart daily={r.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} />
@@ -158,7 +158,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-budget-vs-actual',
     label: '予算vs実績チャート',
-    group: 'チャート',
+    group: '予実管理',
     size: 'full',
     render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
       <BudgetVsActualChart
@@ -173,7 +173,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-category-pie',
     label: 'カテゴリ別構成',
-    group: 'チャート',
+    group: '収益構造',
     size: 'half',
     render: ({ result: r }) => (
       <CategoryPieChart categoryTotals={r.categoryTotals} />
@@ -182,30 +182,50 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-gross-profit-amount',
     label: '粗利推移チャート',
-    group: 'チャート',
+    group: '収益構造',
     size: 'full',
-    render: ({ result: r, daysInMonth, targetRate, warningRate }) => (
-      <GrossProfitAmountChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        grossProfitBudget={r.grossProfitBudget}
-        targetRate={targetRate}
-        warningRate={warningRate}
-      />
-    ),
+    render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear }) => {
+      // 前年仕入コストマップの構築（前年粗利率ライン表示用）
+      // 注: prevYear.daily は classifiedSales 由来。仕入コストは個別に持っていないため
+      // 「前年売変データから近似」する。正確な前年粗利率は在庫データが必要。
+      // ここでは前年売変率で近似的に原価を推定する
+      let prevYearCostMap: ReadonlyMap<number, number> | undefined
+      if (prevYear.hasPrevYear && prevYear.totalSales > 0) {
+        const costMap = new Map<number, number>()
+        for (const [day, entry] of prevYear.daily) {
+          // 前年は日別仕入原価を持たないため、売上-売変で近似
+          // これは粗売上≈売上+売変として、原価≈売上×(1-値入率) の近似
+          // 正確な値ではないが傾向比較には有用
+          costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
+        }
+        prevYearCostMap = costMap
+      }
+      return (
+        <GrossProfitAmountChart
+          daily={r.daily}
+          daysInMonth={daysInMonth}
+          grossProfitBudget={r.grossProfitBudget}
+          targetRate={targetRate}
+          warningRate={warningRate}
+          prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+          prevYearCostMap={prevYearCostMap}
+        />
+      )
+    },
   },
   {
     id: 'chart-discount-breakdown',
     label: '売変内訳分析（71-74）',
-    group: 'チャート',
+    group: '仕入・売変',
     size: 'full',
     isVisible: (ctx) => ctx.result.hasDiscountData,
-    render: ({ result: r, daysInMonth }) => (
+    render: ({ result: r, daysInMonth, prevYear }) => (
       <DiscountTrendChart
         daily={r.daily}
         daysInMonth={daysInMonth}
         discountEntries={r.discountEntries}
         totalGrossSales={r.grossSales}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
       />
     ),
   },
@@ -216,7 +236,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-category-hierarchy-explorer',
     label: '階層ドリルダウン分析',
-    group: '分類別時間帯',
+    group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay, result }) => (
@@ -226,7 +246,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-timeslot-sales',
     label: '時間帯別売上',
-    group: '分類別時間帯',
+    group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
@@ -238,7 +258,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-timeslot-heatmap',
     label: '時間帯×曜日ヒートマップ',
-    group: '分類別時間帯',
+    group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, year, month, daysInMonth, dataMaxDay }) => (
@@ -248,7 +268,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-dept-hourly-pattern',
     label: '部門別時間帯パターン',
-    group: '分類別時間帯',
+    group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
@@ -258,7 +278,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-store-timeslot-comparison',
     label: '店舗別時間帯比較',
-    group: '分類別時間帯',
+    group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0 && ctx.stores.size > 1,
     render: ({ ctsIndex, stores, daysInMonth, year, month, dataMaxDay }) => (
@@ -270,21 +290,21 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-summary-bar',
     label: 'サマリーバー',
-    group: '概要・ステータス',
+    group: '日次監視',
     size: 'full',
     render: (ctx) => <ExecSummaryBarWidget key={ctx.storeKey} {...ctx} />,
   },
   {
     id: 'analysis-condition-summary',
     label: 'コンディションサマリー',
-    group: '概要・ステータス',
+    group: '日次監視',
     size: 'full',
     render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'analysis-alert-panel',
     label: 'アラート',
-    group: '概要・ステータス',
+    group: '日次監視',
     size: 'full',
     render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -307,28 +327,28 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-dow-average',
     label: '曜日平均',
-    group: 'パターン分析',
+    group: '月次パターン',
     size: 'full',
     render: (ctx) => renderDowAverage(ctx),
   },
   {
     id: 'exec-weekly-summary',
     label: '週別サマリー',
-    group: 'パターン分析',
+    group: '月次パターン',
     size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
   },
   {
     id: 'exec-daily-store-sales',
     label: '売上・売変・客数（日別×店舗）',
-    group: 'パターン分析',
+    group: '月次パターン',
     size: 'full',
     render: (ctx) => renderDailyStoreSalesTable(ctx),
   },
   {
     id: 'exec-daily-inventory',
     label: '日別推定在庫',
-    group: 'パターン分析',
+    group: '月次パターン',
     size: 'full',
     render: (ctx) => renderDailyInventoryTable(ctx),
   },
@@ -377,14 +397,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-waterfall',
     label: '粗利ウォーターフォール',
-    group: '分析・可視化',
+    group: '収益分析',
     size: 'full',
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'analysis-yoy-waterfall',
     label: '前年比較ウォーターフォール',
-    group: '分析・可視化',
+    group: '収益分析',
     size: 'full',
     isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
     render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
@@ -392,7 +412,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
-    group: '分析・可視化',
+    group: '収益分析',
     size: 'full',
     render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -400,7 +420,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-revenue-structure',
     label: '収益構造分析',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     render: ({ result: r, daysInMonth }) => (
       <RevenueStructureChart daily={r.daily} daysInMonth={daysInMonth} />
@@ -409,7 +429,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-yoy-variance',
     label: '前年差異分析',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
     render: ({ result: r, daysInMonth, prevYear }) => (
@@ -419,7 +439,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-customer-scatter',
     label: '客数×客単価 効率分析',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <CustomerScatterChart
@@ -434,7 +454,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-multi-kpi',
     label: 'マルチKPIダッシュボード',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
       <MultiKpiSparklines
@@ -447,7 +467,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-performance-index',
     label: 'PI値・偏差値・Zスコア',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
       <PerformanceIndexChart
@@ -460,7 +480,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-category-pi',
     label: 'カテゴリPI値・偏差値',
-    group: '多角的分析',
+    group: '統計・トレンド',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, currentDateRange, prevYearDateRange, result, prevYear }) => (
@@ -505,7 +525,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-dow-average', 'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v9'
+const STORAGE_KEY = 'dashboard_layout_v10'
 
 export function loadLayout(): string[] {
   try {

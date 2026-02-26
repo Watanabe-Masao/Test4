@@ -65,6 +65,14 @@ const Sep = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+const GroupLabel = styled.span`
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.text4};
+  padding: 3px 0 3px 4px;
+  cursor: default;
+  white-space: nowrap;
+`
+
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
 /** 表示形式 */
@@ -93,6 +101,13 @@ const VIEW_LABELS: Record<ViewType, string> = {
   movingAvg: '移動平均',
   area: 'エリア',
 }
+
+/** 指標グループ定義（2段トグルの1段目） */
+const INDICATOR_GROUPS: { label: string; views: ViewType[] }[] = [
+  { label: '売上系', views: ['standard', 'salesOnly', 'area', 'prevYearCum'] },
+  { label: '売変系', views: ['discountOnly', 'discountImpact', 'movingAvg'] },
+  { label: '客数系', views: ['customers', 'txValue'] },
+]
 
 const VIEW_TITLES: Record<ViewType, string> = {
   standard: '日別売上・売変推移',
@@ -261,10 +276,16 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
       <HeaderRow>
         <Title>{titleText}</Title>
         <ViewToggle>
-          {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
-            <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
-              {VIEW_LABELS[v]}
-            </ViewBtn>
+          {INDICATOR_GROUPS.map((grp, gi) => (
+            <span key={gi} style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {gi > 0 && <Sep>|</Sep>}
+              <GroupLabel>{grp.label}</GroupLabel>
+              {grp.views.map((v) => (
+                <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
+                  {VIEW_LABELS[v]}
+                </ViewBtn>
+              ))}
+            </span>
           ))}
           {view === 'movingAvg' && (
             <>

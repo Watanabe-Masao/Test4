@@ -93,10 +93,12 @@ interface Props {
   discountEntries?: readonly DiscountEntry[]
   /** 月間粗売上 */
   totalGrossSales?: number
+  /** 前年日次データ（売変額の前年比較ライン用） */
+  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number }>
 }
 
 /** 売変内訳分析チャート（71-74種別切替対応） */
-export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalGrossSales }: Props) {
+export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalGrossSales, prevYearDaily }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
@@ -106,6 +108,8 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
   const allData = useMemo(() => {
     let cumDiscount = 0
     let cumGrossSales = 0
+    let prevCumDiscount = 0
+    let prevCumGrossSales = 0
     const result = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
@@ -117,10 +121,20 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
 
       const cumRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
-      const entry: Record<string, number | boolean> = {
+      // 前年売変比較
+      const prevEntry = prevYearDaily?.get(d)
+      const prevDayDiscount = prevEntry?.discount ?? 0
+      prevCumDiscount += prevDayDiscount
+      // 前年粗売上は不明なので売上で近似（データソースの制約）
+      prevCumGrossSales += prevEntry?.sales ?? 0
+      const prevCumRate = prevCumGrossSales > 0 ? safeDivide(prevCumDiscount, prevCumGrossSales, 0) : null
+
+      const entry: Record<string, number | boolean | null> = {
         day: d,
         discount: dayDiscount,
         cumRate,
+        prevDiscount: prevYearDaily ? prevDayDiscount : null,
+        prevCumRate: prevYearDaily ? prevCumRate : null,
         hasSales: rec ? rec.sales > 0 : false,
       }
       if (rec?.discountEntries) {
@@ -136,7 +150,7 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
       result.push(entry)
     }
     return result
-  }, [daily, daysInMonth])
+  }, [daily, daysInMonth, prevYearDaily])
 
   const hasData = allData.some(d => (d.discount as number) > 0)
   if (!hasData) return null
@@ -144,10 +158,11 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
   const data = allData.filter(d => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
 
   // 種別ラベルマップ（Tooltip / Legend 用）
-  const labelMap: Record<string, string> = { cumRate: '累計売変率', discount: '売変合計' }
+  const labelMap: Record<string, string> = { cumRate: '累計売変率', discount: '売変合計', prevDiscount: '前年売変額', prevCumRate: '前年累計売変率' }
   for (const dt of DISCOUNT_TYPES) {
     labelMap[`d${dt.type}`] = dt.label
   }
+  const hasPrev = !!prevYearDaily
 
   // KPI: 月間内訳サマリ
   const kpiEntries = discountEntries ?? []
@@ -228,8 +243,9 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
             <Tooltip
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
-                if (name === 'cumRate') return [toPct(value as number), labelMap[name]]
-                return [toComma(value as number), labelMap[name as string] ?? name]
+                const n = name as string
+                if (n === 'cumRate' || n === 'prevCumRate') return [value != null ? toPct(value as number) : '-', labelMap[n] ?? n]
+                return [value != null ? toComma(value as number) : '-', labelMap[n] ?? n]
               }}
               labelFormatter={(label) => `${label}日`}
             />
@@ -269,6 +285,18 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
               dot={false}
               connectNulls
             />
+            {hasPrev && (
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="prevCumRate"
+                stroke={ct.colors.slate}
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                connectNulls
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
