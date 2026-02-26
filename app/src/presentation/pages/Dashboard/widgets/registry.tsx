@@ -14,6 +14,12 @@ import {
   MultiKpiSparklines,
   PerformanceIndexChart,
   CategoryPerformanceChart,
+  StructuralOverviewChart,
+  IntegratedTimeline,
+  CausalChainExplorer,
+  SensitivityDashboard,
+  RegressionInsightChart,
+  SeasonalBenchmarkChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -495,6 +501,64 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
+  // ── Phase 4: 統合ビュー + 研究者向け分析 ──
+  {
+    id: 'analysis-structural-overview',
+    label: '収益構造俯瞰図',
+    group: '収益構造',
+    size: 'full',
+    render: ({ result: r }) => (
+      <StructuralOverviewChart result={r} />
+    ),
+  },
+  {
+    id: 'analysis-integrated-timeline',
+    label: '統合タイムライン',
+    group: '統計・トレンド',
+    size: 'full',
+    render: ({ result: r, daysInMonth }) => (
+      <IntegratedTimeline result={r} daysInMonth={daysInMonth} />
+    ),
+  },
+  {
+    id: 'analysis-causal-chain',
+    label: '因果チェーン分析',
+    group: '収益分析',
+    size: 'full',
+    render: ({ result: r }) => (
+      <CausalChainExplorer result={r} />
+    ),
+  },
+  {
+    id: 'analysis-sensitivity',
+    label: '感度分析ダッシュボード',
+    group: 'シミュレーション',
+    size: 'full',
+    render: ({ result: r }) => (
+      <SensitivityDashboard result={r} />
+    ),
+  },
+  {
+    id: 'analysis-regression-insight',
+    label: '回帰分析インサイト',
+    group: '統計・トレンド',
+    size: 'full',
+    render: ({ result: r, year, month }) => (
+      <RegressionInsightChart result={r} year={year} month={month} />
+    ),
+  },
+  {
+    id: 'analysis-seasonal-benchmark',
+    label: '季節性ベンチマーク',
+    group: '統計・トレンド',
+    size: 'full',
+    render: ({ month }) => {
+      // SeasonalBenchmarkChart requires MonthlyDataPoint[] from IndexedDB historical data.
+      // Currently this data is not available in WidgetContext.
+      // Render with empty array for now — will be populated when multi-month data pipeline is connected.
+      return <SeasonalBenchmarkChart monthlyData={[]} currentMonth={month} />
+    },
+  },
 ]
 
 export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
@@ -525,7 +589,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-dow-average', 'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v10'
+const STORAGE_KEY = 'dashboard_layout_v11'
 
 export function loadLayout(): string[] {
   try {
