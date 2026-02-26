@@ -219,8 +219,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <CategoryHierarchyExplorer ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay, result }) => (
+      <CategoryHierarchyExplorer ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} totalCustomers={result.totalCustomers} />
     ),
   },
   {
@@ -251,8 +251,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '分類別時間帯',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <DeptHourlyPatternChart ctsIndex={ctsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
+      <DeptHourlyPatternChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
     ),
   },
   {

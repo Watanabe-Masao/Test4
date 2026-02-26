@@ -56,14 +56,29 @@ const CardSub = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const DiffBadge = styled.span<{ $positive: boolean }>`
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  background: ${({ $positive }) => $positive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+`
+
 interface Props {
   ctsIndex: CategoryTimeSalesIndex
+  /** 前年CTS（省略時は前年比非表示） */
+  prevCtsIndex?: CategoryTimeSalesIndex
   dateRange: DateRange
+  /** 前年のDateRange（省略時は前年比非表示） */
+  prevDateRange?: DateRange
   selectedStoreIds: ReadonlySet<string>
 }
 
 /** 分類別時間帯 KPIサマリー */
-export function TimeSlotKpiSummary({ ctsIndex, dateRange, selectedStoreIds }: Props) {
+export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDateRange, selectedStoreIds }: Props) {
   const { filter } = useCategoryHierarchy()
 
   const kpi = useMemo(() => {
@@ -144,6 +159,28 @@ export function TimeSlotKpiSummary({ ctsIndex, dateRange, selectedStoreIds }: Pr
     }
   }, [ctsIndex, dateRange, selectedStoreIds, filter])
 
+  // 前年KPI（前年比表示用）
+  const prevKpi = useMemo(() => {
+    if (!prevCtsIndex || !prevDateRange || prevCtsIndex.recordCount === 0) return null
+    const storeIds = selectedStoreIds.size > 0 ? selectedStoreIds : undefined
+    const allRecords = queryByDateRange(prevCtsIndex, { dateRange: prevDateRange, storeIds })
+    const records = filterByHierarchy(allRecords, filter)
+    if (records.length === 0) return null
+    const totalAmount = records.reduce((s, r) => s + r.totalAmount, 0)
+    const totalQuantity = records.reduce((s, r) => s + r.totalQuantity, 0)
+    const hourly = new Map<number, number>()
+    for (const rec of records) {
+      for (const slot of rec.timeSlots) {
+        hourly.set(slot.hour, (hourly.get(slot.hour) ?? 0) + slot.amount)
+      }
+    }
+    let peakHour = 0, peakHourAmount = 0
+    for (const [h, amt] of hourly) {
+      if (amt > peakHourAmount) { peakHour = h; peakHourAmount = amt }
+    }
+    return { totalAmount, totalQuantity, peakHour }
+  }, [prevCtsIndex, prevDateRange, selectedStoreIds, filter])
+
   if (!kpi) return null
 
   return (
@@ -152,17 +189,38 @@ export function TimeSlotKpiSummary({ ctsIndex, dateRange, selectedStoreIds }: Pr
       <Grid>
         <Card $accent="#6366f1">
           <CardLabel>総売上金額</CardLabel>
-          <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
+          <CardValue>
+            {Math.round(kpi.totalAmount / 10000).toLocaleString()}万円
+            {prevKpi && prevKpi.totalAmount > 0 && (
+              <DiffBadge $positive={kpi.totalAmount >= prevKpi.totalAmount}>
+                {toPct(kpi.totalAmount / prevKpi.totalAmount)}
+              </DiffBadge>
+            )}
+          </CardValue>
           <CardSub>{kpi.totalAmount.toLocaleString()}円</CardSub>
         </Card>
         <Card $accent="#06b6d4">
           <CardLabel>総数量</CardLabel>
-          <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
+          <CardValue>
+            {kpi.totalQuantity.toLocaleString()}点
+            {prevKpi && prevKpi.totalQuantity > 0 && (
+              <DiffBadge $positive={kpi.totalQuantity >= prevKpi.totalQuantity}>
+                {toPct(kpi.totalQuantity / prevKpi.totalQuantity)}
+              </DiffBadge>
+            )}
+          </CardValue>
           <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
         </Card>
         <Card $accent="#f59e0b">
           <CardLabel>ピーク時間帯</CardLabel>
-          <CardValue>{kpi.peakHour}時台</CardValue>
+          <CardValue>
+            {kpi.peakHour}時台
+            {prevKpi && prevKpi.peakHour !== kpi.peakHour && (
+              <DiffBadge $positive={false}>
+                前年{prevKpi.peakHour}時
+              </DiffBadge>
+            )}
+          </CardValue>
           <CardSub>構成比 {kpi.peakHourPct}</CardSub>
         </Card>
         <Card $accent="#8b5cf6">

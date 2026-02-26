@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
+import { pearsonCorrelation } from '@/domain/calculations'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
@@ -85,6 +86,20 @@ const SelectWrap = styled.select`
 
 const TopNSelect = styled(SelectWrap)``
 
+const InsightBar = styled.div`
+  margin: ${({ theme }) => theme.spacing[2]} 0 0;
+  padding: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
+  font-size: 0.62rem;
+  color: ${({ theme }) => theme.colors.text2};
+  line-height: 1.6;
+`
+const InsightItem = styled.div`
+  &::before { content: '▸ '; opacity: 0.5; }
+`
+
 const DEPT_COLORS = [
   '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899',
   '#8b5cf6', '#84cc16', '#f97316', '#14b8a6',
@@ -95,6 +110,8 @@ type ViewMode = 'stacked' | 'separate'
 
 interface Props {
   ctsIndex: CategoryTimeSalesIndex
+  /** 分類別時間帯売上インデックス（前年、同曜日オフセット適用済み） */
+  prevCtsIndex?: CategoryTimeSalesIndex
   selectedStoreIds: ReadonlySet<string>
   daysInMonth: number
   year: number
@@ -104,7 +121,7 @@ interface Props {
 }
 
 /** 部門/ライン/クラス別 時間帯パターンチャート */
-export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
+export function DeptHourlyPatternChart({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
@@ -163,7 +180,7 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
 
   const [deptFilter, setDeptFilter] = useState<string>('')
 
-  const { data, departments } = useMemo(() => {
+  const { data, departments, total } = useMemo(() => {
     const deptHourMap = new Map<string, Map<number, number>>()
     const deptNames = new Map<string, string>()
     const hourSet = new Set<number>()
@@ -220,8 +237,44 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
       return entry
     })
 
-    return { data, departments: topDepts.map((d) => d.name) }
+    const overallTotal = Math.round(deptTotals.reduce((s, d) => s + d.total, 0) / dataDivisor)
+    return { data, departments: topDepts.map((d) => d.name), total: overallTotal }
   }, [periodRecords, selectedStoreIds, filter, groupLevel, topN, lineFilter, deptFilter, pf, hf])
+
+  // 前年比較（CTS由来データ同士で比較。注: classifiedSalesとは別データソース）
+  const prevYearYoY = useMemo(() => {
+    if (!prevCtsIndex || prevCtsIndex.recordCount === 0) return null
+    const prevRange: DateRange = {
+      from: { year: year - 1, month, day: pf.dayRange[0] },
+      to: { year: year - 1, month, day: pf.dayRange[1] },
+    }
+    const prevRecs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
+    const filtered = filterByStore(filterByHierarchy(hf.applyFilter(prevRecs), filter), selectedStoreIds)
+    if (filtered.length === 0) return null
+    const prevDiv = computeDivisor(countDistinctDays(filtered), pf.mode)
+    const prevTotal = Math.round(filtered.reduce((s, r) => s + r.totalAmount, 0) / prevDiv)
+    if (prevTotal === 0) return null
+    return { prevTotal, yoyRatio: total / prevTotal }
+  }, [prevCtsIndex, selectedStoreIds, year, month, pf, filter, hf, total])
+
+  // カニバリゼーション分析: 部門間の時間帯パターン相関
+  // 負の相関 → 同時間帯で一方が増えると他方が減る傾向（顧客の奪い合いの可能性）
+  const cannibalization = useMemo(() => {
+    if (departments.length < 2 || data.length < 3) return []
+    const patterns = departments.map(dept =>
+      data.map(d => (d[dept] as number) ?? 0)
+    )
+    const results: { deptA: string; deptB: string; r: number }[] = []
+    for (let i = 0; i < departments.length; i++) {
+      for (let j = i + 1; j < departments.length; j++) {
+        const { r } = pearsonCorrelation(patterns[i], patterns[j])
+        if (r < -0.3) {
+          results.push({ deptA: departments[i], deptB: departments[j], r })
+        }
+      }
+    }
+    return results.sort((a, b) => a.r - b.r)
+  }, [data, departments])
 
   if (data.length === 0 || departments.length === 0) return (
     <Wrapper>
@@ -245,7 +298,14 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
   return (
     <Wrapper>
       <Header>
-        <Title>{titleText}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}</Title>
+        <Title>
+          {titleText}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}
+          {prevYearYoY && (
+            <span style={{ marginLeft: 8, fontSize: '0.65rem', fontWeight: 600, color: prevYearYoY.yoyRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+              前年比 {toPct(prevYearYoY.yoyRatio)}
+            </span>
+          )}
+        </Title>
         <Controls>
           {/* グループレベル切替 */}
           <TabGroup>
@@ -342,6 +402,16 @@ export function DeptHourlyPatternChart({ ctsIndex, selectedStoreIds, daysInMonth
           ))}
         </AreaChart>
       </ResponsiveContainer>
+      {cannibalization.length > 0 && (
+        <InsightBar>
+          <InsightItem>時間帯カニバリゼーション検出（相関分析）:</InsightItem>
+          {cannibalization.map((c, i) => (
+            <InsightItem key={i}>
+              {c.deptA} × {c.deptB}: 相関r={c.r.toFixed(2)}（負の相関 → 同時間帯で競合の可能性）
+            </InsightItem>
+          ))}
+        </InsightBar>
+      )}
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
       <HierarchyDropdowns hf={hf} />
     </Wrapper>

@@ -1,6 +1,7 @@
 import { useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
+import { calculateZScores } from '@/domain/calculations'
 import { toPct } from './chartTheme'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
@@ -83,7 +84,7 @@ const RowLabel = styled.div`
   white-space: nowrap;
 `
 
-const HeatCell = styled.div<{ $intensity: number; $hasData: boolean }>`
+const HeatCell = styled.div<{ $intensity: number; $hasData: boolean; $anomaly?: boolean }>`
   width: 100%;
   min-width: 32px;
   height: 28px;
@@ -102,6 +103,8 @@ const HeatCell = styled.div<{ $intensity: number; $hasData: boolean }>`
     const b = Math.round(241 - 241 * Math.pow($intensity, 1.5) + 68 * Math.pow($intensity, 1.5))
     return `rgba(${r},${g},${b},${0.3 + $intensity * 0.65})`
   }};
+  outline: ${({ $anomaly }) => $anomaly ? '2px solid rgba(239,68,68,0.85)' : 'none'};
+  outline-offset: -1px;
   cursor: default;
   transition: transform 0.1s;
   &:hover { transform: scale(1.1); z-index: 1; }
@@ -332,6 +335,18 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
 
   const maxVal = Math.max(0, ...curData.matrix.flat())
 
+  // Z-score異常検出: 全セルの値から統計的に突出したセルを検出
+  const zScoreMatrix = useMemo(() => {
+    const flat = curData.matrix.flat()
+    if (flat.length < 3) return [] as number[][]
+    const scores = [...calculateZScores(flat)]
+    const result: number[][] = []
+    for (let i = 0; i < curData.hours.length; i++) {
+      result.push(scores.slice(i * DOW_LABELS.length, (i + 1) * DOW_LABELS.length))
+    }
+    return result
+  }, [curData])
+
   if (curData.hours.length === 0) return (
     <Wrapper>
       <HeaderRow><Title>時間帯×曜日 売上ヒートマップ</Title></HeaderRow>
@@ -388,13 +403,16 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
                 ))
               : curData.matrix[hi].map((val, di) => {
                   const intensity = maxVal > 0 ? val / maxVal : 0
+                  const z = zScoreMatrix[hi]?.[di] ?? 0
+                  const isAnomaly = Math.abs(z) > 2
                   const label = val > 0 ? `${Math.round(val / 10000)}万` : ''
                   return (
                     <HeatCell
                       key={`${h}-${di}`}
                       $intensity={intensity}
                       $hasData={val > 0}
-                      title={`${DOW_LABELS[di]}曜 ${h}時: ${val.toLocaleString()}円`}
+                      $anomaly={isAnomaly}
+                      title={`${DOW_LABELS[di]}曜 ${h}時: ${val.toLocaleString()}円${isAnomaly ? ` (Z=${z.toFixed(1)}, 統計的異常値)` : ''}`}
                     >
                       {label}
                     </HeatCell>
