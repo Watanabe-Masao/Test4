@@ -8,6 +8,10 @@ import {
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
   DiscountTrendChart,
+  RevenueStructureChart,
+  YoYVarianceChart,
+  CustomerScatterChart,
+  MultiKpiSparklines,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -382,6 +386,54 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
   },
+  // ── 多角的分析 ──
+  {
+    id: 'analysis-revenue-structure',
+    label: '収益構造分析',
+    group: '多角的分析',
+    size: 'full',
+    render: ({ result: r, daysInMonth }) => (
+      <RevenueStructureChart daily={r.daily} daysInMonth={daysInMonth} />
+    ),
+  },
+  {
+    id: 'analysis-yoy-variance',
+    label: '前年差異分析',
+    group: '多角的分析',
+    size: 'full',
+    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
+    render: ({ result: r, daysInMonth, prevYear }) => (
+      <YoYVarianceChart daily={r.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.daily} />
+    ),
+  },
+  {
+    id: 'analysis-customer-scatter',
+    label: '客数×客単価 効率分析',
+    group: '多角的分析',
+    size: 'full',
+    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
+      <CustomerScatterChart
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+      />
+    ),
+  },
+  {
+    id: 'analysis-multi-kpi',
+    label: 'マルチKPIダッシュボード',
+    group: '多角的分析',
+    size: 'full',
+    render: ({ result: r, daysInMonth, prevYear }) => (
+      <MultiKpiSparklines
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+      />
+    ),
+  },
 ]
 
 export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
@@ -402,12 +454,15 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   // 補助: 分析ツール
   'analysis-waterfall',
   'analysis-gp-heatmap',
+  // 多角的分析
+  'analysis-revenue-structure',
+  'analysis-multi-kpi',
   // 補助: テーブル
   'exec-monthly-calendar',
   'exec-dow-average', 'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v7'
+const STORAGE_KEY = 'dashboard_layout_v8'
 
 export function loadLayout(): string[] {
   try {
@@ -473,7 +528,7 @@ export function autoInjectDataWidgets(
     if (currentIds.includes(w.id) || seen.has(w.id)) return false
     // データチェック: isVisible は WidgetContext を要求するが、
     // ここでは必要な最小フィールドで簡易チェック
-    if (w.id === 'analysis-yoy-waterfall') {
+    if (w.id === 'analysis-yoy-waterfall' || w.id === 'analysis-yoy-variance') {
       return ctx.prevYearHasPrevYear
     }
     if (w.id === 'chart-store-timeslot-comparison') {
