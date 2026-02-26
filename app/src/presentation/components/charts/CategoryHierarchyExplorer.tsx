@@ -13,7 +13,7 @@ import { queryByDateRange } from '@/application/usecases'
 
 /* ── Types ─────────────────────────────────── */
 
-type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'coreTimeStart' | 'turnaroundHour' | 'name' | 'yoyRatio' | 'yoyDiff'
+type SortKey = 'amount' | 'quantity' | 'pct' | 'peakHour' | 'coreTimeStart' | 'turnaroundHour' | 'name' | 'yoyRatio' | 'yoyDiff' | 'piValue'
 type SortDir = 'asc' | 'desc'
 
 interface HierarchyItem {
@@ -34,6 +34,12 @@ interface HierarchyItem {
   yoyRatio?: number   // 前年比 (e.g. 1.05 = +5%)
   yoyDiff?: number    // 前年差 (amount - prevAmount)
   yoyQuantityRatio?: number
+  // 異常検出: ピーク時間帯の前年比シフト
+  prevPeakHour?: number
+  peakHourShift?: number // 正=後ろにシフト、負=前にシフト
+  hasAnomalyShift?: boolean // |shift| >= 2h
+  // PI値: 金額PI = 売上 ÷ 客数 × 1000
+  piValue?: number
 }
 
 const COLORS = [
@@ -197,6 +203,21 @@ const YoYBar = styled.div<{ $pct: number; $positive: boolean }>`
   background: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
   opacity: 0.6;
 `
+const AnomalyBadge = styled.span`
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 1px 5px; border-radius: 4px;
+  font-size: 0.52rem; font-weight: 600;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+`
+const PiValueBadge = styled.span<{ $below: boolean }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: 0.58rem;
+  color: ${({ $below }) => $below ? '#ef4444' : 'inherit'};
+  background: ${({ $below }) => $below ? 'rgba(239,68,68,0.08)' : 'transparent'};
+  padding: ${({ $below }) => $below ? '0 3px' : '0'};
+  border-radius: 2px;
+`
 const ThWithTip = styled(Th)`
   position: relative;
 `
@@ -288,10 +309,12 @@ interface Props {
   month: number
   /** 販売データ存在最大日（スライダーデフォルト値用） */
   dataMaxDay?: number
+  /** 来店客数合計（PI値算出用、省略時はPI列非表示） */
+  totalCustomers?: number
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
+export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay, totalCustomers }: Props) {
   const { filter, setFilter } = useCategoryHierarchy()
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
@@ -378,10 +401,30 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
       const ct = findCoreTime(hourMap)
       const th = findTurnaroundHour(hourMap)
 
+      // 前年のピーク時間帯を計算（異常検出用）
+      const curPeakHour = mx > 0 ? hp.indexOf(mx) : -1
+      let prevPeakHour: number | undefined
+      let peakHourShift: number | undefined
+      let hasAnomalyShift = false
+      if (prev) {
+        const prevHp = Array.from({ length: 24 }, (_, h) => Math.round((prev.hours.get(h) ?? 0) / prevDiv))
+        const prevMx = Math.max(...prevHp)
+        prevPeakHour = prevMx > 0 ? prevHp.indexOf(prevMx) : undefined
+        if (prevPeakHour != null && prevPeakHour >= 0 && curPeakHour >= 0) {
+          peakHourShift = curPeakHour - prevPeakHour
+          hasAnomalyShift = Math.abs(peakHourShift) >= 2
+        }
+      }
+
+      // PI値 = カテゴリ売上 ÷ 総客数 × 1000（比率のため除数モードに非依存）
+      // 注: カテゴリ売上はCTS由来、客数はclassifiedSales由来（データソースが異なる）
+      // curDivで割る前の生集計値(it.amount)を使う。比率計算なので curDiv は分子分母で相殺される。
+      const piValue = totalCustomers && totalCustomers > 0 ? (it.amount / totalCustomers) * 1000 : undefined
+
       return {
         code: it.code, name: it.name, amount: amt, quantity: qty,
         pct: total > 0 ? (amt / total) * 100 : 0,
-        peakHour: mx > 0 ? hp.indexOf(mx) : -1,
+        peakHour: curPeakHour,
         coreTimeStart: ct?.startHour ?? -1,
         coreTimeEnd: ct?.endHour ?? -1,
         turnaroundHour: th ?? -1,
@@ -391,9 +434,13 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
         yoyRatio: prevAmt && prevAmt > 0 ? amt / prevAmt : undefined,
         yoyDiff: prevAmt != null ? amt - prevAmt : undefined,
         yoyQuantityRatio: prevQty && prevQty > 0 ? qty / prevQty : undefined,
+        prevPeakHour,
+        peakHourShift,
+        hasAnomalyShift,
+        piValue,
       }
     })
-  }, [filteredRecords, filteredPrevRecords, currentLevel, pf, hasPrevYear])
+  }, [filteredRecords, filteredPrevRecords, currentLevel, pf, hasPrevYear, totalCustomers])
 
   const sortedItems = useMemo(() => {
     const arr = [...items]
@@ -409,6 +456,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
         case 'name': d = a.name.localeCompare(b.name, 'ja'); break
         case 'yoyRatio': d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0); break
         case 'yoyDiff': d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0); break
+        case 'piValue': d = (a.piValue ?? 0) - (b.piValue ?? 0); break
       }
       return sortDir === 'desc' ? -d : d
     })
@@ -430,6 +478,9 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
   const totalPrevAmt = items.reduce((s, i) => s + (i.prevAmount ?? 0), 0)
   const totalYoYRatio = totalPrevAmt > 0 ? totalAmt / totalPrevAmt : null
   const maxAmt = items.length > 0 ? Math.max(...items.map((i) => i.amount)) : 1
+  const showPi = totalCustomers != null && totalCustomers > 0
+  const piItems = items.filter(i => i.piValue != null)
+  const avgPi = piItems.length > 0 ? piItems.reduce((s, i) => s + i.piValue!, 0) / piItems.length : 0
   const canDrill = currentLevel !== 'klass'
   const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
   const showYoYCols = hasPrevYear && showYoY
@@ -511,6 +562,9 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
               <TipBubble>当該カテゴリの売上 ÷ 全体売上 × 100。全体に占める割合を示します。</TipBubble>
             </ThWithTip>
             <Th $sortable onClick={() => handleSort('quantity')}>数量{arrow('quantity')}</Th>
+            {showPi && <ThWithTip $sortable onClick={() => handleSort('piValue')}>PI値{arrow('piValue')}<TipIcon>?</TipIcon>
+              <TipBubble>金額PI = カテゴリ売上 ÷ 総客数 × 1000。来店客1000人あたりのカテゴリ売上金額。客数はclassifiedSales由来の全期間合計。</TipBubble>
+            </ThWithTip>}
             {showYoYCols && <ThWithTip $sortable onClick={() => handleSort('yoyRatio')}>前年比{arrow('yoyRatio')}<TipIcon>?</TipIcon>
               <TipBubble>当年売上 ÷ 前年売上 × 100。100%超で前年を上回っていることを示します。</TipBubble>
             </ThWithTip>}
@@ -542,6 +596,15 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
                 </TdAmount>
                 <Td $mono>{it.pct.toFixed(1)}%</Td>
                 <Td $mono>{it.quantity.toLocaleString()}</Td>
+                {showPi && (
+                  <Td $mono>
+                    {it.piValue != null ? (
+                      <PiValueBadge $below={it.piValue < avgPi * 0.5}>
+                        {it.piValue.toFixed(0)}
+                      </PiValueBadge>
+                    ) : '-'}
+                  </Td>
+                )}
                 {showYoYCols && (
                   <Td $mono>
                     {it.yoyRatio != null ? (
@@ -563,7 +626,18 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
                     ) : '-'}
                   </Td>
                 )}
-                <Td $mono>{it.peakHour >= 0 ? <PeakBadge>{it.peakHour}時</PeakBadge> : '-'}</Td>
+                <Td $mono>
+                  {it.peakHour >= 0 ? (
+                    <>
+                      <PeakBadge>{it.peakHour}時</PeakBadge>
+                      {it.hasAnomalyShift && (
+                        <AnomalyBadge title={`ピーク時間が${it.prevPeakHour}時→${it.peakHour}時にシフト`}>
+                          ⚠{it.peakHourShift! > 0 ? '+' : ''}{it.peakHourShift}h
+                        </AnomalyBadge>
+                      )}
+                    </>
+                  ) : '-'}
+                </Td>
                 <Td $mono>{it.coreTimeStart >= 0 ? <PeakBadge>{it.coreTimeStart}〜{it.coreTimeEnd}時</PeakBadge> : '-'}</Td>
                 <Td $mono>{it.turnaroundHour >= 0 ? <PeakBadge>{it.turnaroundHour}時</PeakBadge> : '-'}</Td>
                 <TdSpark><Sparkline data={it.hourlyPattern} color={COLORS[i % COLORS.length]} /></TdSpark>

@@ -61,10 +61,14 @@ interface Props {
   grossProfitBudget: number
   targetRate: number
   warningRate?: number
+  /** 前年の日次データ（粗利率の前年比較用） */
+  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  /** 前年の仕入コストマップ（日→仕入原価）。省略時は前年粗利率ラインを表示しない */
+  prevYearCostMap?: ReadonlyMap<number, number>
 }
 
 /** 粗利推移チャート（額+率 / 率のみ 切替） */
-export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, targetRate, warningRate }: Props) {
+export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, targetRate, warningRate, prevYearDaily, prevYearCostMap }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [gpView, setGpView] = useState<GpView>('amountRate')
@@ -72,6 +76,11 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
 
   let cumSales = 0
   let cumCost = 0
+
+  // 前年粗利率ラインの計算（prevYearDaily + prevYearCostMap が両方ある場合のみ）
+  let prevCumSales = 0
+  let prevCumCost = 0
+  const hasPrevGp = !!prevYearDaily && !!prevYearCostMap
 
   const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
@@ -82,10 +91,21 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
     }
     const grossProfit = cumSales - cumCost
     const rate = safeDivide(grossProfit, cumSales, 0)
+
+    let prevRate: number | null = null
+    if (hasPrevGp) {
+      const prevSales = prevYearDaily!.get(d)?.sales ?? 0
+      const prevCostVal = prevYearCostMap!.get(d) ?? 0
+      prevCumSales += prevSales
+      prevCumCost += prevCostVal
+      prevRate = prevCumSales > 0 ? safeDivide(prevCumSales - prevCumCost, prevCumSales, 0) : null
+    }
+
     allData.push({
       day: d,
       grossProfit,
       rate,
+      prevRate,
       hasSales: rec ? rec.sales > 0 : false,
     })
   }
@@ -153,6 +173,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
                 if (name === 'rate') return [toPct(value as number), '粗利率']
+                if (name === 'prevRate') return [value != null ? toPct(value as number) : '-', '前年粗利率']
                 return [toComma(value as number), '粗利額累計']
               }}
               labelFormatter={(label) => `${label}日`}
@@ -160,7 +181,7 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
               formatter={(value) => {
-                const labels: Record<string, string> = { grossProfit: '粗利額累計', rate: '粗利率' }
+                const labels: Record<string, string> = { grossProfit: '粗利額累計', rate: '粗利率', prevRate: '前年粗利率' }
                 return labels[value] ?? value
               }}
             />
@@ -212,6 +233,18 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               dot={false}
               connectNulls
             />
+            {hasPrevGp && (
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="prevRate"
+                stroke={ct.colors.slate}
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                connectNulls
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       ) : (

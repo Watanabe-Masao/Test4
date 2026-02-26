@@ -73,3 +73,33 @@ export type {
   MonthlyDataPoint,
   TrendAnalysisResult,
 } from './trendAnalysis'
+
+// 感度分析
+export {
+  calculateSensitivity,
+  calculateElasticity,
+  extractSensitivityBase,
+} from './sensitivity'
+export type {
+  SensitivityBase,
+  SensitivityDeltas,
+  SensitivityResult,
+  ElasticityResult,
+} from './sensitivity'
+
+// 相関分析・統計
+export {
+  pearsonCorrelation,
+  correlationMatrix,
+  normalizeMinMax,
+  detectDivergence,
+  cosineSimilarity,
+  movingAverage as statisticalMovingAverage,
+  calculateZScores,
+} from './correlation'
+export type {
+  CorrelationResult,
+  NormalizedSeries,
+  DivergencePoint,
+  CorrelationMatrixCell,
+} from './correlation'

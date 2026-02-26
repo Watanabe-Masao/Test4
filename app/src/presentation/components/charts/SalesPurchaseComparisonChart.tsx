@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventory } from './inventoryCalc'
+import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -42,14 +43,17 @@ const MiniTable = styled.table`
   border-collapse: collapse;
   font-size: 0.6rem;
 `
-const MiniTh = styled.th`
+const MiniTh = styled.th<{ $sortable?: boolean }>`
   text-align: center;
   padding: 3px 6px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
+  cursor: ${({ $sortable }) => ($sortable ? 'pointer' : 'default')};
+  user-select: none;
   &:first-child { text-align: left; }
+  &:hover { color: ${({ $sortable, theme }) => ($sortable ? theme.colors.text : theme.colors.text3)}; }
 `
 const MiniTd = styled.td`
   text-align: center;
@@ -69,6 +73,22 @@ const StoreDot = styled.span<{ $color: string }>`
   vertical-align: middle;
 `
 
+const RankBadge = styled.span<{ $rank: number }>`
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  width: 14px; height: 14px;
+  line-height: 14px;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 3px;
+  color: #fff;
+  background: ${({ $rank }) =>
+    $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#b45309' : '#64748b'};
+`
+
+type SortKey = 'sales' | 'cost' | 'diff' | 'gpRate' | 'discountRate' | 'markupRate'
+
 interface Props {
   comparisonResults: readonly StoreResult[]
   stores: ReadonlyMap<string, Store>
@@ -86,6 +106,14 @@ export function SalesPurchaseComparisonChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const [sortKey, setSortKey] = useState<SortKey>('sales')
+  const [sortDesc, setSortDesc] = useState(true)
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDesc((d) => !d)
+    else { setSortKey(key); setSortDesc(true) }
+  }
+  const arrow = (key: SortKey) => sortKey === key ? (sortDesc ? ' ▼' : ' ▲') : ''
 
   const storeEntries = useMemo(
     () =>
@@ -227,37 +255,60 @@ export function SalesPurchaseComparisonChart({
         </ComposedChart>
       </ResponsiveContainer>
 
-      {/* 店舗サマリーテーブル */}
+      {/* 店舗サマリーテーブル（ソート可能 + 粗利率・売変率・消耗品率列追加） */}
       <CompTable>
         <MiniTable>
           <thead>
             <tr>
               <MiniTh>店舗</MiniTh>
-              <MiniTh>売上合計</MiniTh>
-              <MiniTh>仕入原価合計</MiniTh>
-              <MiniTh>差額</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('sales')}>売上合計{arrow('sales')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('cost')}>仕入原価{arrow('cost')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('diff')}>差額{arrow('diff')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('gpRate')}>粗利率{arrow('gpRate')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('discountRate')}>売変率{arrow('discountRate')}</MiniTh>
               <MiniTh>推定期末在庫</MiniTh>
-              <MiniTh>値入率</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('markupRate')}>値入率{arrow('markupRate')}</MiniTh>
             </tr>
           </thead>
           <tbody>
-            {storeEntries.map((s, i) => {
-              const diff = s.result.totalSales - s.result.inventoryCost
-              const estClosing = s.result.estMethodClosingInventory
-              return (
-                <tr key={s.storeId}>
-                  <MiniTd>
-                    <StoreDot $color={STORE_COLORS[i % STORE_COLORS.length]} />
-                    {s.name}
-                  </MiniTd>
-                  <MiniTd>{toComma(s.result.totalSales)}</MiniTd>
-                  <MiniTd>{toComma(s.result.inventoryCost)}</MiniTd>
-                  <MiniTd>{toComma(diff)}</MiniTd>
-                  <MiniTd>{estClosing != null ? toComma(estClosing) : '-'}</MiniTd>
-                  <MiniTd>{toPct(s.result.coreMarkupRate)}</MiniTd>
-                </tr>
-              )
-            })}
+            {(() => {
+              const rows = storeEntries.map((s, i) => {
+                const diff = s.result.totalSales - s.result.inventoryCost
+                const gpRate = s.result.invMethodGrossProfitRate ?? safeDivide(s.result.estMethodMargin, s.result.totalCoreSales, 0)
+                return { s, i, diff, gpRate, discountRate: s.result.discountRate }
+              })
+              // ソート用の値取得
+              const getVal = (row: typeof rows[0]): number => {
+                switch (sortKey) {
+                  case 'sales': return row.s.result.totalSales
+                  case 'cost': return row.s.result.inventoryCost
+                  case 'diff': return row.diff
+                  case 'gpRate': return row.gpRate
+                  case 'discountRate': return row.discountRate
+                  case 'markupRate': return row.s.result.coreMarkupRate
+                }
+              }
+              const sorted = [...rows].sort((a, b) => sortDesc ? getVal(b) - getVal(a) : getVal(a) - getVal(b))
+              return sorted.map((row, rank) => {
+                const estClosing = row.s.result.estMethodClosingInventory
+                return (
+                  <tr key={row.s.storeId}>
+                    <MiniTd>
+                      <RankBadge $rank={rank + 1}>{rank + 1}</RankBadge>
+                      <StoreDot $color={STORE_COLORS[row.i % STORE_COLORS.length]} />
+                      {row.s.name}
+                    </MiniTd>
+                    <MiniTd>{toComma(row.s.result.totalSales)}</MiniTd>
+                    <MiniTd>{toComma(row.s.result.inventoryCost)}</MiniTd>
+                    <MiniTd>{toComma(row.diff)}</MiniTd>
+                    <MiniTd>{toPct(row.gpRate)}</MiniTd>
+                    <MiniTd>{toPct(row.discountRate)}</MiniTd>
+                    <MiniTd>{estClosing != null ? toComma(estClosing) : '-'}</MiniTd>
+                    <MiniTd>{toPct(row.s.result.coreMarkupRate)}</MiniTd>
+                  </tr>
+                )
+              })
+            })()}
           </tbody>
         </MiniTable>
       </CompTable>

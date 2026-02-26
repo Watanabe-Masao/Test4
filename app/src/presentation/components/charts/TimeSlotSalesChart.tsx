@@ -172,6 +172,20 @@ const ProgressLabelRow = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const InsightBar = styled.div`
+  margin: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[2]} 0;
+  padding: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
+  font-size: 0.62rem;
+  color: ${({ theme }) => theme.colors.text2};
+  line-height: 1.6;
+`
+const InsightItem = styled.div`
+  &::before { content: '▸ '; opacity: 0.5; }
+`
+
 const TableWrapper = styled.div`
   margin-top: ${({ theme }) => theme.spacing[3]};
   overflow-x: auto;
@@ -502,6 +516,51 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       },
     }
   }, [comparable, prev])
+
+  // ── 自然言語インサイト ──
+  const insights = useMemo(() => {
+    if (!kpi) return []
+    const lines: string[] = []
+
+    // ピーク時間帯のシフト検出（前年/前週比較時）
+    if (prev) {
+      let prevPeakHour = 0, prevPeakAmt = 0
+      for (const [h, v] of prev.hourly) {
+        if (v.amount > prevPeakAmt) { prevPeakHour = h; prevPeakAmt = v.amount }
+      }
+      const shift = kpi.peakHour - prevPeakHour
+      if (Math.abs(shift) >= 2) {
+        lines.push(`ピーク時間帯が${prevLbl}${prevPeakHour}時台→${kpi.peakHour}時台に${Math.abs(shift)}時間${shift > 0 ? '後方' : '前方'}シフト`)
+      }
+    }
+
+    // コアタイム変化の検出
+    if (yoyData?.summary.curCoreTime && yoyData?.summary.prevCoreTime) {
+      const curCt = yoyData.summary.curCoreTime
+      const prevCt = yoyData.summary.prevCoreTime
+      if (curCt.startHour !== prevCt.startHour || curCt.endHour !== prevCt.endHour) {
+        lines.push(`コアタイムが${prevCt.startHour}〜${prevCt.endHour}時→${curCt.startHour}〜${curCt.endHour}時に変化`)
+      }
+    }
+
+    // 集中度分析
+    if (kpi.totalAmount > 0 && kpi.coreTimeAmt) {
+      const corePct = kpi.coreTimeAmt.total / kpi.totalAmount
+      if (corePct > 0.6) {
+        lines.push(`コアタイム3時間で全体の${toPct(corePct)}を占める高集中パターン`)
+      }
+    }
+
+    // 折り返し時間帯の変化
+    if (yoyData?.summary.curTurnaround != null && yoyData?.summary.prevTurnaround != null) {
+      const tShift = yoyData.summary.curTurnaround - yoyData.summary.prevTurnaround
+      if (tShift !== 0) {
+        lines.push(`売上50%到達が${yoyData.summary.prevTurnaround}時→${yoyData.summary.curTurnaround}時に${tShift > 0 ? '後方' : '前方'}シフト（需要の${tShift > 0 ? '後ろ倒し' : '前倒し'}傾向）`)
+      }
+    }
+
+    return lines
+  }, [kpi, prev, yoyData, prevLbl])
 
   if (chartData.length === 0) return (
     <Wrapper>
@@ -918,6 +977,12 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
           </>
         )
       })()}
+
+      {insights.length > 0 && (
+        <InsightBar>
+          {insights.map((line, i) => <InsightItem key={i}>{line}</InsightItem>)}
+        </InsightBar>
+      )}
 
       <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
       <HierarchyDropdowns hf={hf} />

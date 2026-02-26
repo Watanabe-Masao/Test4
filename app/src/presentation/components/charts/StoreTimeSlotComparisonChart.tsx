@@ -8,6 +8,7 @@ import type { CategoryTimeSalesIndex, DateRange, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays } from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
+import { cosineSimilarity } from '@/domain/calculations/correlation'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -112,6 +113,34 @@ const StoreDot = styled.span<{ $color: string }>`
   vertical-align: middle;
 `
 
+const InsightBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: 0 ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+const InsightItem = styled.div`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text3};
+  padding: 2px 8px;
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  border-left: 2px solid ${({ theme }) => theme.colors.palette.primary};
+`
+
+const SimBadge = styled.span<{ $high: boolean }>`
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 600;
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  color: ${({ $high }) => ($high ? '#22c55e' : '#f59e0b')};
+  background: ${({ $high }) => ($high ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)')};
+`
+
 type ViewMode = 'radar' | 'bar'
 type MetricMode = 'amount' | 'pct'
 
@@ -199,6 +228,23 @@ export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, ye
     return { data, dataPct, storeNames, hours, storeTotals }
   }, [periodRecords, stores, filter, pf, hf])
 
+  // パターン類似度: 店舗ペアごとのコサイン類似度（hookルール遵守のため早期returnの前に配置）
+  const patternInsights = useMemo(() => {
+    if (storeNames.length < 2 || data.length < 2) return []
+    // 各店舗の時間帯パターンベクトルを構築
+    const vectors = storeNames.map((s) =>
+      data.map((d) => (d[s.name] as number) ?? 0),
+    )
+    const results: { storeA: string; storeB: string; sim: number }[] = []
+    for (let i = 0; i < storeNames.length; i++) {
+      for (let j = i + 1; j < storeNames.length; j++) {
+        const sim = cosineSimilarity(vectors[i], vectors[j])
+        results.push({ storeA: storeNames[i].name, storeB: storeNames[j].name, sim })
+      }
+    }
+    return results.sort((a, b) => a.sim - b.sim)
+  }, [storeNames, data])
+
   if (data.length === 0 || storeNames.length <= 1) return (
     <Wrapper>
       <Header><Title>店舗別 時間帯売上パターン比較</Title></Header>
@@ -252,6 +298,16 @@ export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, ye
           </TabGroup>
         </Controls>
       </Header>
+      {patternInsights.length > 0 && (
+        <InsightBar>
+          {patternInsights.map((p) => (
+            <InsightItem key={`${p.storeA}-${p.storeB}`}>
+              {p.storeA} × {p.storeB}
+              <SimBadge $high={p.sim >= 0.95}>類似度 {toPct(p.sim, 1)}</SimBadge>
+            </InsightItem>
+          ))}
+        </InsightBar>
+      )}
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={340}>
         {viewMode === 'radar' ? (
           <RadarChart data={chartData} margin={{ top: 4, right: 30, left: 30, bottom: 4 }}>
@@ -350,6 +406,7 @@ export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, ye
               <MiniTh>ピーク</MiniTh>
               <MiniTh>コアタイム</MiniTh>
               <MiniTh>折り返し</MiniTh>
+              <MiniTh>偏差度</MiniTh>
               {hours.filter((_, i) => i % 2 === 0).map((h) => (
                 <MiniTh key={h}>{h}時</MiniTh>
               ))}
@@ -369,6 +426,15 @@ export function StoreTimeSlotComparisonChart({ ctsIndex, stores, daysInMonth, ye
                   <MiniTd $highlight>{metrics && metrics.peakHour >= 0 ? `${metrics.peakHour}時` : '-'}</MiniTd>
                   <MiniTd>{formatCoreTime(metrics?.coreTime ?? null)}</MiniTd>
                   <MiniTd>{formatTurnaroundHour(metrics?.turnaroundHour ?? null)}</MiniTd>
+                  <MiniTd>
+                    {(() => {
+                      // 偏差度: この店舗と他店舗の平均コサイン類似度（1に近いほど典型的）
+                      const pairs = patternInsights.filter((p) => p.storeA === s.name || p.storeB === s.name)
+                      if (pairs.length === 0) return '-'
+                      const avgSim = pairs.reduce((sum, p) => sum + p.sim, 0) / pairs.length
+                      return <SimBadge $high={avgSim >= 0.95}>{toPct(avgSim, 1)}</SimBadge>
+                    })()}
+                  </MiniTd>
                   {hours.filter((_, i) => i % 2 === 0).map((h) => {
                     const amt = (data.find((d) => d.hour === `${h}時`)?.[s.name] as number) ?? 0
                     const pct = total > 0 ? toPct(amt / total) : '0.0%'
