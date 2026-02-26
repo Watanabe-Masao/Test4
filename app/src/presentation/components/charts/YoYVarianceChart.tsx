@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
-import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations/utils'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -28,6 +28,12 @@ const Title = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
+`
+
+const ToggleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
 `
 
 const ViewToggle = styled.div`
@@ -57,6 +63,14 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   }
 `
 
+const Sep = styled.span`
+  opacity: 0.4;
+  padding: 3px 2px;
+  cursor: default;
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
 const SummaryRow = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[4]};
@@ -77,6 +91,7 @@ const SummaryLabel = styled.span`
 `
 
 type ViewType = 'salesGap' | 'multiGap' | 'growthRate'
+type GrowthSubMode = 'daily' | 'cumulative' | 'ma7'
 
 const VIEW_LABELS: Record<ViewType, string> = {
   salesGap: '売上差異',
@@ -84,10 +99,10 @@ const VIEW_LABELS: Record<ViewType, string> = {
   growthRate: '成長率',
 }
 
-const VIEW_TITLES: Record<ViewType, string> = {
-  salesGap: '前年売上差異分析（バー: 日別差異 / ライン: 累計差異）',
-  multiGap: '前年複合差異分析（売上・売変・客数の差異を重ね合わせ）',
-  growthRate: '前年成長率推移（日別: 売上・客数・客単価の前年比%）',
+const GROWTH_SUB_LABELS: Record<GrowthSubMode, string> = {
+  daily: '日別',
+  cumulative: '累計',
+  ma7: '7日移動平均',
 }
 
 interface Props {
@@ -96,19 +111,35 @@ interface Props {
   prevYearDaily: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
 }
 
+/** NaN → null */
+function maToNull(values: number[]): (number | null)[] {
+  return values.map(v => isNaN(v) ? null : v)
+}
+
 export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('salesGap')
+  const [growthSub, setGrowthSub] = useState<GrowthSubMode>('daily')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
-  const { chartData, totals } = useMemo(() => {
+  const { chartData, totals, salesGrowthMa7, customerGrowthMa7, txValueGrowthMa7 } = useMemo(() => {
     let cumSalesDiff = 0, cumDiscountDiff = 0, cumCustomerDiff = 0
     let totalSalesDiff = 0, totalDiscountDiff = 0, totalCustomerDiff = 0
+    let cumCurSales = 0, cumPrevSales = 0
+    let cumCurCustomers = 0, cumPrevCustomers = 0
+    let cumCurTxValueSum = 0, cumPrevTxValueSum = 0
+    let cumCurTxDays = 0, cumPrevTxDays = 0
+
+    const rawSalesGrowth: number[] = []
+    const rawCustomerGrowth: number[] = []
+    const rawTxValueGrowth: number[] = []
+
     const rows: {
       day: number
-      salesDiff: number; discountDiff: number; customerDiff: number; txValueDiff: number | null
+      salesDiff: number; discountDiff: number; customerDiff: number
       cumSalesDiff: number; cumDiscountDiff: number; cumCustomerDiff: number
       salesGrowth: number | null; customerGrowth: number | null; txValueGrowth: number | null
+      cumSalesGrowth: number | null; cumCustomerGrowth: number | null; cumTxValueGrowth: number | null
     }[] = []
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -127,7 +158,6 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
 
       const curTxValue = curCustomers > 0 ? calculateTransactionValue(curSales, curCustomers) : null
       const prevTxValue = prevCustomers > 0 ? calculateTransactionValue(prevSales, prevCustomers) : null
-      const txValueDiff = curTxValue != null && prevTxValue != null ? curTxValue - prevTxValue : null
 
       cumSalesDiff += salesDiff
       cumDiscountDiff += discountDiff
@@ -136,43 +166,111 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
       totalDiscountDiff += discountDiff
       totalCustomerDiff += customerDiff
 
+      // Daily growth rates
       const salesGrowth = prevSales > 0 ? safeDivide(curSales - prevSales, prevSales, 0) : null
       const customerGrowth = prevCustomers > 0 ? safeDivide(curCustomers - prevCustomers, prevCustomers, 0) : null
       const txValueGrowth = curTxValue != null && prevTxValue != null && prevTxValue > 0
         ? safeDivide(curTxValue - prevTxValue, prevTxValue, 0) : null
 
+      // Cumulative growth rates
+      cumCurSales += curSales
+      cumPrevSales += prevSales
+      cumCurCustomers += curCustomers
+      cumPrevCustomers += prevCustomers
+      if (curTxValue != null) { cumCurTxValueSum += curTxValue; cumCurTxDays++ }
+      if (prevTxValue != null) { cumPrevTxValueSum += prevTxValue; cumPrevTxDays++ }
+
+      const cumSalesGrowth = cumPrevSales > 0 ? safeDivide(cumCurSales - cumPrevSales, cumPrevSales, 0) : null
+      const cumCustomerGrowth = cumPrevCustomers > 0 ? safeDivide(cumCurCustomers - cumPrevCustomers, cumPrevCustomers, 0) : null
+      const avgCurTx = cumCurTxDays > 0 ? cumCurTxValueSum / cumCurTxDays : 0
+      const avgPrevTx = cumPrevTxDays > 0 ? cumPrevTxValueSum / cumPrevTxDays : 0
+      const cumTxValueGrowth = avgPrevTx > 0 ? safeDivide(avgCurTx - avgPrevTx, avgPrevTx, 0) : null
+
+      // For moving average (use 0 for null)
+      rawSalesGrowth.push(salesGrowth ?? 0)
+      rawCustomerGrowth.push(customerGrowth ?? 0)
+      rawTxValueGrowth.push(txValueGrowth ?? 0)
+
       rows.push({
         day: d,
-        salesDiff, discountDiff, customerDiff, txValueDiff,
+        salesDiff, discountDiff, customerDiff,
         cumSalesDiff, cumDiscountDiff, cumCustomerDiff,
         salesGrowth, customerGrowth, txValueGrowth,
+        cumSalesGrowth, cumCustomerGrowth, cumTxValueGrowth,
       })
     }
+
+    // 7-day moving averages
+    const sMa7 = maToNull(calculateMovingAverage(rawSalesGrowth, 7))
+    const cMa7 = maToNull(calculateMovingAverage(rawCustomerGrowth, 7))
+    const tMa7 = maToNull(calculateMovingAverage(rawTxValueGrowth, 7))
+
     return {
       chartData: rows,
       totals: { salesDiff: totalSalesDiff, discountDiff: totalDiscountDiff, customerDiff: totalCustomerDiff },
+      salesGrowthMa7: sMa7, customerGrowthMa7: cMa7, txValueGrowthMa7: tMa7,
     }
   }, [daily, daysInMonth, prevYearDaily])
 
-  const data = chartData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = chartData.map((d, i) => ({
+    ...d,
+    salesGrowthMa7: salesGrowthMa7[i],
+    customerGrowthMa7: customerGrowthMa7[i],
+    txValueGrowthMa7: txValueGrowthMa7[i],
+  })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+
+  // DataKeys based on growth sub-mode
+  const growthKeys = growthSub === 'cumulative'
+    ? { sales: 'cumSalesGrowth', customer: 'cumCustomerGrowth', txValue: 'cumTxValueGrowth' }
+    : growthSub === 'ma7'
+      ? { sales: 'salesGrowthMa7', customer: 'customerGrowthMa7', txValue: 'txValueGrowthMa7' }
+      : { sales: 'salesGrowth', customer: 'customerGrowth', txValue: 'txValueGrowth' }
 
   const allLabels: Record<string, string> = {
-    salesDiff: '売上差異', discountDiff: '売変差異', customerDiff: '客数差異', txValueDiff: '客単価差異',
+    salesDiff: '売上差異', discountDiff: '売変差異', customerDiff: '客数差異',
     cumSalesDiff: '累計売上差異', cumDiscountDiff: '累計売変差異', cumCustomerDiff: '累計客数差異',
     salesGrowth: '売上成長率', customerGrowth: '客数成長率', txValueGrowth: '客単価成長率',
+    cumSalesGrowth: '売上成長率(累計)', cumCustomerGrowth: '客数成長率(累計)', cumTxValueGrowth: '客単価成長率(累計)',
+    salesGrowthMa7: '売上成長率(7日MA)', customerGrowthMa7: '客数成長率(7日MA)', txValueGrowthMa7: '客単価成長率(7日MA)',
+  }
+
+  const growthTitle = growthSub === 'cumulative'
+    ? '前年成長率推移（累計: 月初〜当日までの累計ベース）'
+    : growthSub === 'ma7'
+      ? '前年成長率推移（7日移動平均: ノイズを平滑化）'
+      : '前年成長率推移（日別: 売上・客数・客単価の前年比%）'
+
+  const titleMap: Record<ViewType, string> = {
+    salesGap: '前年売上差異分析（バー: 日別差異 / ライン: 累計差異）',
+    multiGap: '前年複合差異分析（売上・売変・客数の差異を重ね合わせ）',
+    growthRate: growthTitle,
   }
 
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>{VIEW_TITLES[view]}</Title>
-        <ViewToggle>
-          {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
-            <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
-              {VIEW_LABELS[v]}
-            </ViewBtn>
-          ))}
-        </ViewToggle>
+        <Title>{titleMap[view]}</Title>
+        <ToggleRow>
+          <ViewToggle>
+            {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (
+              <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
+                {VIEW_LABELS[v]}
+              </ViewBtn>
+            ))}
+          </ViewToggle>
+          {view === 'growthRate' && (
+            <>
+              <Sep>|</Sep>
+              <ViewToggle>
+                {(Object.keys(GROWTH_SUB_LABELS) as GrowthSubMode[]).map((s) => (
+                  <ViewBtn key={s} $active={growthSub === s} onClick={() => setGrowthSub(s)}>
+                    {GROWTH_SUB_LABELS[s]}
+                  </ViewBtn>
+                ))}
+              </ViewToggle>
+            </>
+          )}
+        </ToggleRow>
       </HeaderRow>
       <SummaryRow>
         <SummaryItem $positive={totals.salesDiff >= 0}>
@@ -254,7 +352,7 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
             </>
           )}
 
-          {/* Growth rate view */}
+          {/* Growth rate view - sub-mode selects dataKeys */}
           {view === 'growthRate' && (
             <>
               <YAxis
@@ -264,9 +362,18 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
                 tickFormatter={(v: number) => toPct(v, 0)}
                 width={45}
               />
-              <Line yAxisId="left" type="monotone" dataKey="salesGrowth" stroke={ct.colors.primary} strokeWidth={2.5} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="customerGrowth" stroke={ct.colors.info} strokeWidth={2} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="txValueGrowth" stroke={ct.colors.purple} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />
+              <Line
+                yAxisId="left" type="monotone" dataKey={growthKeys.sales}
+                stroke={ct.colors.primary} strokeWidth={2.5} dot={false} connectNulls
+              />
+              <Line
+                yAxisId="left" type="monotone" dataKey={growthKeys.customer}
+                stroke={ct.colors.info} strokeWidth={2} dot={false} connectNulls
+              />
+              <Line
+                yAxisId="left" type="monotone" dataKey={growthKeys.txValue}
+                stroke={ct.colors.purple} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls
+              />
             </>
           )}
 
@@ -275,7 +382,9 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
             formatter={(value, name) => {
               if (value == null) return ['-', allLabels[name as string] ?? String(name)]
               const n = name as string
-              if (n.includes('Growth')) return [toPct(value as number), allLabels[n] ?? n]
+              if (n.includes('Growth') || n.includes('growth') || n.includes('Ma7')) {
+                return [toPct(value as number), allLabels[n] ?? n]
+              }
               if (n.includes('customer') || n.includes('Customer')) {
                 const v = value as number
                 return [`${v >= 0 ? '+' : ''}${toComma(v)}人`, allLabels[n] ?? n]

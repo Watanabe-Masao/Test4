@@ -454,6 +454,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   // 補助: 分析ツール
   'analysis-waterfall',
   'analysis-gp-heatmap',
+  'chart-discount-breakdown',
   // 多角的分析
   'analysis-revenue-structure',
   'analysis-multi-kpi',
@@ -492,7 +493,7 @@ export function saveLayout(ids: string[]): void {
  * まだユーザーのレイアウトに含まれておらず、
  * 過去に注入→除外された記録がないものを自動追加する。
  */
-const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v1'
+const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v2'
 
 function getAutoInjectedIds(): Set<string> {
   try {
