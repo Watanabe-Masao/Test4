@@ -24,6 +24,7 @@ import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
+import { AlertPanelWidget } from './AlertPanel'
 import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, renderDepartmentKpiTable, renderDailyInventoryTable, renderStoreKpiTable } from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
@@ -280,6 +281,13 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
   },
+  {
+    id: 'analysis-alert-panel',
+    label: 'アラート',
+    group: '概要・ステータス',
+    size: 'full',
+    render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
+  },
   // ── 予実管理 ──
   {
     id: 'exec-plan-actual-forecast',
@@ -474,6 +482,7 @@ export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
 export const DEFAULT_WIDGET_IDS: string[] = [
   // 1. 今の状況は？
   'analysis-condition-summary',
+  'analysis-alert-panel',
   // 2. 何が起きた？（トレンド視覚化）
   'chart-daily-sales',
   // 3. 数値で確認
@@ -496,7 +505,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-dow-average', 'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v8'
+const STORAGE_KEY = 'dashboard_layout_v9'
 
 export function loadLayout(): string[] {
   try {

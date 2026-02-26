@@ -92,6 +92,19 @@ const HintBadge = styled.span`
   ${Card}:hover & { opacity: 0.9; }
 `
 
+const ActionHint = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  padding-top: ${({ theme }) => theme.spacing[2]};
+  border-top: 1px dashed ${({ theme }) => theme.colors.border};
+  line-height: 1.3;
+  &::before {
+    content: '→ ';
+    opacity: 0.6;
+  }
+`
+
 // ─── Signal Logic ───────────────────────────────────────
 
 type SignalLevel = 'green' | 'yellow' | 'red'
@@ -108,6 +121,8 @@ interface ConditionItem {
   sub?: string
   signal: SignalLevel
   metricId?: MetricId
+  /** 黄・赤時に表示する推奨アクション（greenでは非表示） */
+  action?: string
 }
 
 // ─── Component ──────────────────────────────────────────
@@ -129,6 +144,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `目標: ${formatPercent(targetRate)}`,
       signal: gpRate >= targetRate ? 'green' : gpRate >= warningRate ? 'yellow' : 'red',
       metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      action: '売変種別の内訳と原価率の推移を確認',
     },
     // 2. GP Rate after consumables
     {
@@ -137,6 +153,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `消耗品費: ${formatCurrency(r.totalConsumable)}`,
       signal: gpAfterConsumable >= targetRate ? 'green' : gpAfterConsumable >= warningRate ? 'yellow' : 'red',
       metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      action: '消耗品の使用量と発注ルールを見直し',
     },
     // 3. Budget Achievement Rate (progress)
     {
@@ -145,6 +162,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `達成率: ${formatPercent(r.budgetAchievementRate)}`,
       signal: r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
       metricId: 'budgetProgressRate',
+      action: '残日数の日別売上計画を再検討',
     },
     // 4. Projected Achievement
     {
@@ -153,6 +171,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `予測売上: ${formatCurrency(r.projectedSales)}`,
       signal: r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
       metricId: 'projectedSales',
+      action: '曜日別・時間帯別の売上パターンを確認し、販促余地を特定',
     },
     // 5. Discount Rate
     {
@@ -161,6 +180,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `売変額: ${formatCurrency(r.totalDiscount)}`,
       signal: r.discountRate <= 0.03 ? 'green' : r.discountRate <= 0.05 ? 'yellow' : 'red',
       metricId: 'discountRate',
+      action: '見切り（71）の発生時間帯と対象カテゴリを特定',
     },
   ]
 
@@ -190,6 +210,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `消耗品費: ${formatCurrency(r.totalConsumable)}`,
       signal: r.consumableRate <= 0.02 ? 'green' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
       metricId: 'totalConsumable',
+      action: '日別消耗品費を確認し、異常日を特定',
     },
   )
 
@@ -203,6 +224,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
       signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
       metricId: 'totalCustomers',
+      action: '時間帯別客数を確認し、集客低下の時間帯を特定',
     })
   }
 
@@ -222,6 +244,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
         : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
       signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
+      action: 'カテゴリ別PI値を確認し、購買点数の変化を分析',
     })
   }
 
@@ -244,6 +267,9 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
                 <CardLabel>{item.label}</CardLabel>
                 <CardValue $color={color}>{item.value}</CardValue>
                 {item.sub && <CardSub>{item.sub}</CardSub>}
+                {item.action && item.signal !== 'green' && (
+                  <ActionHint>{item.action}</ActionHint>
+                )}
               </CardContent>
             </Card>
           )
