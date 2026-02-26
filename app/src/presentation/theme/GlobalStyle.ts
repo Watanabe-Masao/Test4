@@ -62,6 +62,17 @@ export const GlobalStyle = createGlobalStyle`
     outline-offset: 2px;
   }
 
+  /* Drill-through highlight animation */
+  @keyframes drill-pulse {
+    0% { box-shadow: 0 0 0 0 ${({ theme }) => theme.colors.palette.primary}60; }
+    50% { box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.palette.primary}30; }
+    100% { box-shadow: 0 0 0 0 ${({ theme }) => theme.colors.palette.primary}00; }
+  }
+
+  .drill-highlight > * {
+    animation: drill-pulse 0.75s ease-in-out 2;
+  }
+
   /* Print */
   @media print {
     body {

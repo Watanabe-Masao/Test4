@@ -525,8 +525,17 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '因果チェーン分析',
     group: '収益分析',
     size: 'full',
-    render: ({ result: r }) => (
-      <CausalChainExplorer result={r} />
+    render: ({ result: r, prevYear }) => (
+      <CausalChainExplorer
+        result={r}
+        prevYearData={prevYear.hasPrevYear ? {
+          grossProfitRate: null,
+          costRate: null,
+          discountRate: prevYear.totalSales > 0 ? prevYear.totalDiscount / prevYear.totalSales : 0,
+          consumableRate: null,
+          discountEntries: [],
+        } : undefined}
+      />
     ),
   },
   {
@@ -552,12 +561,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '季節性ベンチマーク',
     group: '統計・トレンド',
     size: 'full',
-    render: ({ month }) => {
-      // SeasonalBenchmarkChart requires MonthlyDataPoint[] from IndexedDB historical data.
-      // Currently this data is not available in WidgetContext.
-      // Render with empty array for now — will be populated when multi-month data pipeline is connected.
-      return <SeasonalBenchmarkChart monthlyData={[]} currentMonth={month} />
-    },
+    render: ({ month, monthlyHistory }) => (
+      <SeasonalBenchmarkChart monthlyData={monthlyHistory} currentMonth={month} />
+    ),
   },
 ]
 
