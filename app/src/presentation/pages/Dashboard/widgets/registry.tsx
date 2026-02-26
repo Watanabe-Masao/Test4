@@ -12,6 +12,8 @@ import {
   YoYVarianceChart,
   CustomerScatterChart,
   MultiKpiSparklines,
+  PerformanceIndexChart,
+  CategoryPerformanceChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -434,6 +436,37 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
+  {
+    id: 'analysis-performance-index',
+    label: 'PI値・偏差値・Zスコア',
+    group: '多角的分析',
+    size: 'full',
+    render: ({ result: r, daysInMonth, prevYear }) => (
+      <PerformanceIndexChart
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+      />
+    ),
+  },
+  {
+    id: 'analysis-category-pi',
+    label: 'カテゴリPI値・偏差値',
+    group: '多角的分析',
+    size: 'full',
+    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
+    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, currentDateRange, prevYearDateRange, result, prevYear }) => (
+      <CategoryPerformanceChart
+        ctsIndex={ctsIndex}
+        prevCtsIndex={prevCtsIndex}
+        selectedStoreIds={selectedStoreIds}
+        currentDateRange={currentDateRange}
+        prevYearDateRange={prevYearDateRange}
+        totalCustomers={result.totalCustomers}
+        prevTotalCustomers={prevYear.hasPrevYear ? prevYear.totalCustomers : 0}
+      />
+    ),
+  },
 ]
 
 export const WIDGET_MAP = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
@@ -454,6 +487,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   // 補助: 分析ツール
   'analysis-waterfall',
   'analysis-gp-heatmap',
+  'chart-discount-breakdown',
   // 多角的分析
   'analysis-revenue-structure',
   'analysis-multi-kpi',
@@ -492,7 +526,7 @@ export function saveLayout(ids: string[]): void {
  * まだユーザーのレイアウトに含まれておらず、
  * 過去に注入→除外された記録がないものを自動追加する。
  */
-const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v1'
+const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v2'
 
 function getAutoInjectedIds(): Set<string> {
   try {
