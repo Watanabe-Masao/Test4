@@ -7,7 +7,7 @@
  * - 日別内訳テーブル（ドリルダウン）
  * - データソース参照（EvidenceRef）
  */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
@@ -159,6 +159,33 @@ const BreadcrumbLink = styled.button`
   cursor: pointer;
   color: ${({ theme }) => theme.colors.palette.primary};
   &:hover { text-decoration: underline; }
+`
+
+const BreadcrumbSep = styled.span`
+  color: ${({ theme }) => theme.colors.text4};
+  margin: 0 2px;
+`
+
+const RelatedMetricRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg3};
+  cursor: pointer;
+  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+`
+
+const RelatedMetricName = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.palette.primary};
+`
+
+const RelatedMetricValue = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ─── DrilldownTable ─────────────────────────────────────
@@ -326,6 +353,19 @@ export function MetricBreakdownPanel({
     })
   }, [])
 
+  // 逆リンク: この指標を入力として参照している指標
+  const reverseLinks = useMemo(() => {
+    const links: { metric: MetricId; title: string; value: number; unit: MetricUnit }[] = []
+    for (const [metricId, exp] of allExplanations) {
+      if (metricId === currentMetric) continue
+      const usesThis = exp.inputs.some((inp) => inp.metric === currentMetric)
+      if (usesThis) {
+        links.push({ metric: metricId, title: exp.title, value: exp.value, unit: exp.unit })
+      }
+    }
+    return links
+  }, [allExplanations, currentMetric])
+
   const hasBreakdown = current.breakdown && current.breakdown.length > 0
   const hasEvidence = current.evidenceRefs.length > 0
 
@@ -362,7 +402,7 @@ export function MetricBreakdownPanel({
               const isLast = i === history.length - 1
               return (
                 <span key={`${id}-${i}`}>
-                  {i > 0 && <span> / </span>}
+                  {i > 0 && <BreadcrumbSep>&gt;</BreadcrumbSep>}
                   {isLast ? (
                     <span>{exp?.title ?? id}</span>
                   ) : (
@@ -419,6 +459,26 @@ export function MetricBreakdownPanel({
                 ))}
               </InputList>
             </Section>
+
+            {reverseLinks.length > 0 && (
+              <Section>
+                <SectionTitle>この指標を参照している指標</SectionTitle>
+                <InputList>
+                  {reverseLinks.map((link) => (
+                    <RelatedMetricRow
+                      key={link.metric}
+                      onClick={() => navigateTo(link.metric)}
+                    >
+                      <RelatedMetricName>
+                        {link.title}
+                        <LinkIcon>←</LinkIcon>
+                      </RelatedMetricName>
+                      <RelatedMetricValue>{formatValue(link.value, link.unit)}</RelatedMetricValue>
+                    </RelatedMetricRow>
+                  ))}
+                </InputList>
+              </Section>
+            )}
 
             {hasEvidence && (
               <Section>

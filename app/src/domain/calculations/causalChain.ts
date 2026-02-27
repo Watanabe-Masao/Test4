@@ -5,6 +5,7 @@
  * ドメイン層の型のみに依存し、React非依存でテスト可能。
  */
 import { safeDivide } from './utils'
+import { decompose2 } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 
 export interface CausalFactor {
@@ -33,6 +34,8 @@ export interface CausalChainPrevInput {
   readonly discountRate: number
   readonly consumableRate: number | null
   readonly discountEntries: readonly DiscountEntry[]
+  readonly totalSales: number | null
+  readonly totalCustomers: number | null
 }
 
 /** StoreResult → CausalChainPrevInput 変換 */
@@ -43,6 +46,8 @@ export function storeResultToCausalPrev(r: StoreResult): CausalChainPrevInput {
     discountRate: r.discountRate,
     consumableRate: r.consumableRate,
     discountEntries: r.discountEntries,
+    totalSales: r.totalSales,
+    totalCustomers: r.totalCustomers,
   }
 }
 
@@ -59,10 +64,13 @@ function fmtComma(v: number): string {
  * StoreResult（当年）+ 前年データから因果チェーンのステップ列を生成する。
  *
  * ステップ構造:
- * 1. 粗利率の状況 — メイン指標の把握
- * 2. 粗利率変動の要因分解 — 原価・売変・消耗品の寄与度
+ * 1. 粗利率の状況 — メイン指標の現在位置
+ * 2. 粗利率変動の要因分解 — 原価・売変・消耗品の成分変動
  * 3. 売変種別内訳 — 売変データがある場合のみ
- * 4. 推奨アクション — 分析結果に基づく提案
+ * 4. 成分サマリー — 売上差のShapley分解 + 全成分の現在値
+ *
+ * 設計原則: 各ステップは数値の成分を提示するのみ。
+ * 解釈（「なぜ」）や推奨（「どうすべき」）は含めない。
  */
 export function buildCausalSteps(
   result: StoreResult,
@@ -84,6 +92,10 @@ export function buildCausalSteps(
     ? `前年 ${fmtPct(prevGPRate)} → 今年 ${fmtPct(currentGPRate)}（${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}）`
     : `今年 ${fmtPct(currentGPRate)}`
 
+  const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
+  const discountRate = r.discountRate
+  const consumableRate = r.consumableRate
+
   steps.push({
     title: '粗利率の状況',
     description: deltaDesc,
@@ -93,18 +105,10 @@ export function buildCausalSteps(
       { label: '現在の粗利率', value: currentGPRate, formatted: fmtPct(currentGPRate), color: '#6366f1' },
     ],
     maxFactorIndex: 0,
-    insight: gpRateDelta < -0.01
-      ? '粗利率が前年比で1pt以上低下しています。要因をStep 2で深堀りします。'
-      : gpRateDelta > 0.01
-      ? '粗利率が前年比で改善しています。どの要因が寄与したかを確認します。'
-      : '粗利率は前年と同等水準です。構造的な変化がないか確認します。',
+    insight: `構成: 原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
   })
 
   // Step 2: 要因分解
-  const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
-  const discountRate = r.discountRate
-  const consumableRate = r.consumableRate
-
   const prevCostRate = prev?.costRate ?? null
   const prevDiscountRate = prev ? prev.discountRate : null
   const prevConsumableRate = prev?.consumableRate ?? null
@@ -120,16 +124,24 @@ export function buildCausalSteps(
   ]
 
   const maxIdx2 = factors2.reduce((max, f, i) => f.value > factors2[max].value ? i : max, 0)
-  const maxFactor = factors2[maxIdx2].label.replace('変動', '')
+
+  // Shapley分解（売上差 = 客数効果 + 客単価効果）
+  const prevSales = prev?.totalSales ?? null
+  const prevCust = prev?.totalCustomers ?? null
+  let shapleyInsight = ''
+  if (prevSales != null && prevCust != null && prevCust > 0) {
+    const { custEffect, ticketEffect } = decompose2(prevSales, r.totalSales, prevCust, r.totalCustomers)
+    const salesDelta = r.totalSales - prevSales
+    shapleyInsight = `売上差 ${fmtYen(salesDelta)} = 客数効果 ${fmtYen(custEffect)} + 客単価効果 ${fmtYen(ticketEffect)}`
+  }
 
   steps.push({
     title: '粗利率変動の要因分解',
     description: `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
     factors: factors2,
     maxFactorIndex: maxIdx2,
-    insight: prev
-      ? `最大の変動要因は「${maxFactor}」です（${factors2[maxIdx2].formatted}）。Step 3で詳細を確認します。`
-      : '前年データがないため差分分析は行えません。現在の構成比を表示しています。',
+    insight: shapleyInsight
+      || (prev ? `原価率差 ${fmtDelta(costDelta)} / 売変率差 ${fmtDelta(discountDelta)} / 消耗品率差 ${fmtDelta(consumableDelta)}` : '前年データなし'),
   })
 
   // Step 3: 売変種別内訳
@@ -157,27 +169,56 @@ export function buildCausalSteps(
       description: `売変合計: ${fmtComma(r.totalDiscount)}円（${fmtPct(r.discountRate)}）`,
       factors: entryFactors,
       maxFactorIndex: maxIdx3,
-      insight: entryFactors.length > 0 && prevEntries
-        ? `最も変動が大きい種別は「${entryFactors[maxIdx3].label}」です。`
-        : '売変の種別内訳を表示しています。',
+      insight: `売変率 ${fmtPct(r.discountRate)}（売変合計 ${fmtComma(r.totalDiscount)}円 / 粗売上 ${fmtComma(r.grossSales)}円）`,
     })
   }
 
-  // Step 4: 推奨アクション
-  const actions: string[] = []
-  if (discountDelta > 0.005) actions.push('売変率が上昇しています。見切りタイミングの見直しを検討してください。')
-  if (costDelta > 0.005) actions.push('原価率が上昇しています。仕入先や発注ロットの見直しを検討してください。')
-  if (consumableDelta > 0.003) actions.push('消耗品率が上昇しています。消耗品の管理を確認してください。')
-  if (gpRateDelta > 0.01) actions.push('粗利率が改善しています。成功要因を維持する施策を継続してください。')
-  if (actions.length === 0) actions.push('現時点で大きな変動は見られません。引き続きモニタリングを継続してください。')
+  // Step 4: 成分サマリー — 全成分の現在値とShapley分解
+  const summaryFactors: CausalFactor[] = []
+
+  if (prevSales != null && prevCust != null && prevCust > 0) {
+    const { custEffect, ticketEffect } = decompose2(prevSales, r.totalSales, prevCust, r.totalCustomers)
+    summaryFactors.push(
+      { label: '客数効果', value: Math.abs(custEffect), formatted: fmtYen(custEffect), color: '#6366f1' },
+      { label: '客単価効果', value: Math.abs(ticketEffect), formatted: fmtYen(ticketEffect), color: '#8b5cf6' },
+    )
+  }
+
+  const summaryLines: string[] = [
+    `売上 ${fmtComma(r.totalSales)}円 / 客数 ${fmtComma(r.totalCustomers)}人 / 客単価 ${fmtComma(safeDivide(r.totalSales, r.totalCustomers, 0))}円`,
+    `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
+  ]
+
+  if (prev) {
+    const lines: string[] = []
+    if (prevCostRate != null) lines.push(`原価率差 ${fmtDelta(costDelta)}`)
+    if (prevDiscountRate != null) lines.push(`売変率差 ${fmtDelta(discountDelta)}`)
+    if (prevConsumableRate != null) lines.push(`消耗品率差 ${fmtDelta(consumableDelta)}`)
+    if (lines.length > 0) summaryLines.push(lines.join(' / '))
+  }
+
+  const maxSummaryIdx = summaryFactors.length > 0
+    ? summaryFactors.reduce((max, f, i) => f.value > summaryFactors[max].value ? i : max, 0)
+    : 0
 
   steps.push({
-    title: '推奨アクション',
-    description: '分析結果に基づく次のステップ',
-    factors: [],
-    maxFactorIndex: 0,
-    insight: actions.join('\n'),
+    title: '成分サマリー',
+    description: '全成分の現在値と変動',
+    factors: summaryFactors,
+    maxFactorIndex: maxSummaryIdx,
+    insight: summaryLines.join('\n'),
   })
 
   return steps
+}
+
+/** 円表記（符号付き） */
+function fmtYen(v: number): string {
+  const sign = v >= 0 ? '+' : ''
+  return `${sign}${fmtComma(v)}円`
+}
+
+/** 差分のフォーマット（%表記、符号付き） */
+function fmtDelta(v: number): string {
+  return `${v >= 0 ? '+' : ''}${fmtPct(v)}`
 }

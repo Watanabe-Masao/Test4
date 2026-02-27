@@ -72,7 +72,7 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
 
 describe('causalChain', () => {
   describe('buildCausalSteps', () => {
-    it('前年データなしの場合、最低3ステップ（粗利率・要因分解・アクション）を返す', () => {
+    it('前年データなしの場合、最低3ステップ（粗利率・要因分解・成分サマリー）を返す', () => {
       const steps = buildCausalSteps(makeResult(), undefined)
 
       expect(steps.length).toBeGreaterThanOrEqual(3)
@@ -80,7 +80,7 @@ describe('causalChain', () => {
       expect(steps[1].title).toBe('粗利率変動の要因分解')
       // 売変データがあるので売変種別内訳もある
       expect(steps[2].title).toBe('売変種別内訳')
-      expect(steps[steps.length - 1].title).toBe('推奨アクション')
+      expect(steps[steps.length - 1].title).toBe('成分サマリー')
     })
 
     it('前年データなしでは前年比変動ファクターが含まれない', () => {
@@ -103,38 +103,46 @@ describe('causalChain', () => {
       expect(prevYearFactor!.formatted).toContain('-')
     })
 
-    it('粗利率1pt以上低下で「低下」インサイトが出る', () => {
+    it('Step 1 insightに粗利率の構成成分（原価率/売変率/消耗品率）が含まれる', () => {
+      const steps = buildCausalSteps(makeResult(), undefined)
+
+      expect(steps[0].insight).toContain('原価率')
+      expect(steps[0].insight).toContain('売変率')
+      expect(steps[0].insight).toContain('消耗品率')
+    })
+
+    it('Step 1 insightに推奨文言や解釈が含まれない', () => {
       const current = makeResult({ estMethodMarginRate: 0.20 })
       const prevYear = storeResultToCausalPrev(makeResult({ estMethodMarginRate: 0.22 }))
 
       const steps = buildCausalSteps(current, prevYear)
 
-      expect(steps[0].insight).toContain('低下')
+      // 推奨・解釈的な表現を含まない
+      expect(steps[0].insight).not.toContain('深堀り')
+      expect(steps[0].insight).not.toContain('確認します')
+      expect(steps[0].insight).not.toContain('検討')
     })
 
-    it('粗利率1pt以上改善で「改善」インサイトが出る', () => {
-      const current = makeResult({ estMethodMarginRate: 0.25 })
-      const prevYear = storeResultToCausalPrev(makeResult({ estMethodMarginRate: 0.22 }))
-
-      const steps = buildCausalSteps(current, prevYear)
-
-      expect(steps[0].insight).toContain('改善')
-    })
-
-    it('要因分解で最大変動要因が正しく特定される', () => {
-      const current = makeResult({
-        discountRate: 0.08,  // 売変率が大幅悪化
-        consumableRate: 0.01,
-      })
-      const prevYear = storeResultToCausalPrev(makeResult({
-        discountRate: 0.03,
-        consumableRate: 0.01,
-      }))
+    it('要因分解で3つの成分変動ファクターが表示される', () => {
+      const current = makeResult({ discountRate: 0.08 })
+      const prevYear = storeResultToCausalPrev(makeResult({ discountRate: 0.03 }))
 
       const steps = buildCausalSteps(current, prevYear)
 
       const step2 = steps[1]
-      expect(step2.insight).toContain('売変率')
+      expect(step2.factors).toHaveLength(3)
+      expect(step2.factors.map((f) => f.label)).toEqual(['原価率変動', '売変率変動', '消耗品率変動'])
+    })
+
+    it('前年データありでStep 2 insightにShapley分解が含まれる', () => {
+      const current = makeResult({ totalSales: 10_000_000, totalCustomers: 5_000 })
+      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }))
+
+      const steps = buildCausalSteps(current, prevYear)
+
+      expect(steps[1].insight).toContain('売上差')
+      expect(steps[1].insight).toContain('客数効果')
+      expect(steps[1].insight).toContain('客単価効果')
     })
 
     it('売変種別内訳で前年比の差分が計算される', () => {
@@ -168,44 +176,61 @@ describe('causalChain', () => {
       expect(discountStep).toBeUndefined()
     })
 
-    it('売変率上昇時に適切なアクション推奨が出る', () => {
-      const current = makeResult({ discountRate: 0.06 })
-      const prevYear = storeResultToCausalPrev(makeResult({ discountRate: 0.04 }))
+    it('成分サマリーに売上・客数・客単価が表示される', () => {
+      const steps = buildCausalSteps(makeResult(), undefined)
 
-      const steps = buildCausalSteps(current, prevYear)
-
-      const actionStep = steps[steps.length - 1]
-      expect(actionStep.insight).toContain('売変率')
-      expect(actionStep.insight).toContain('見切りタイミング')
+      const summaryStep = steps[steps.length - 1]
+      expect(summaryStep.title).toBe('成分サマリー')
+      expect(summaryStep.insight).toContain('売上')
+      expect(summaryStep.insight).toContain('客数')
+      expect(summaryStep.insight).toContain('客単価')
     })
 
-    it('原価率上昇時に適切なアクション推奨が出る', () => {
-      const current = makeResult({
-        inventoryCost: 7_500_000,  // 原価率上昇
-        deliverySalesCost: 500_000,
-        grossSales: 10_500_000,
-      })
-      const prevYear = storeResultToCausalPrev(makeResult({
-        inventoryCost: 6_500_000,
-        deliverySalesCost: 500_000,
-        grossSales: 10_500_000,
-      }))
+    it('前年データありで成分サマリーにShapleyファクター（客数効果・客単価効果）が含まれる', () => {
+      const current = makeResult({ totalSales: 10_000_000, totalCustomers: 5_000 })
+      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }))
 
       const steps = buildCausalSteps(current, prevYear)
 
-      const actionStep = steps[steps.length - 1]
-      expect(actionStep.insight).toContain('原価率')
-      expect(actionStep.insight).toContain('仕入先')
+      const summaryStep = steps[steps.length - 1]
+      expect(summaryStep.factors.length).toBeGreaterThanOrEqual(2)
+      expect(summaryStep.factors.map((f) => f.label)).toContain('客数効果')
+      expect(summaryStep.factors.map((f) => f.label)).toContain('客単価効果')
     })
 
-    it('変動なしで「大きな変動は見られません」メッセージが出る', () => {
-      const current = makeResult()
-      const prevYear = storeResultToCausalPrev(makeResult())
+    it('Shapley恒等式: 客数効果 + 客単価効果 = 売上差', () => {
+      const curSales = 10_000_000
+      const prevSales = 9_000_000
+      const current = makeResult({ totalSales: curSales, totalCustomers: 5_000 })
+      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: prevSales, totalCustomers: 4_500 }))
 
       const steps = buildCausalSteps(current, prevYear)
 
-      const actionStep = steps[steps.length - 1]
-      expect(actionStep.insight).toContain('大きな変動は見られません')
+      const summaryStep = steps[steps.length - 1]
+      const custFactor = summaryStep.factors.find((f) => f.label === '客数効果')!
+      const ticketFactor = summaryStep.factors.find((f) => f.label === '客単価効果')!
+
+      // 符号は value ではなく formatted に含まれる。value は absolute.
+      // formatted からパースして合計チェック
+      const custVal = parseYen(custFactor.formatted)
+      const ticketVal = parseYen(ticketFactor.formatted)
+
+      expect(custVal + ticketVal).toBeCloseTo(curSales - prevSales, 0)
+    })
+
+    it('成分サマリーに推奨文言が一切含まれない', () => {
+      const current = makeResult({ discountRate: 0.08 })
+      const prevYear = storeResultToCausalPrev(makeResult({ discountRate: 0.03 }))
+
+      const steps = buildCausalSteps(current, prevYear)
+
+      const summaryStep = steps[steps.length - 1]
+      // 推奨・解釈的な表現を含まない
+      expect(summaryStep.insight).not.toContain('検討')
+      expect(summaryStep.insight).not.toContain('確認')
+      expect(summaryStep.insight).not.toContain('してください')
+      expect(summaryStep.insight).not.toContain('モニタリング')
+      expect(summaryStep.insight).not.toContain('継続')
     })
 
     it('在庫法粗利率がある場合はそちらを優先する', () => {
@@ -237,6 +262,8 @@ describe('causalChain', () => {
         discountRate: 0.03,
         consumableRate: null,
         discountEntries: [],
+        totalSales: null,
+        totalCustomers: null,
       }
 
       const steps = buildCausalSteps(current, partialPrev)
@@ -252,6 +279,24 @@ describe('causalChain', () => {
       expect(discountFactor).toBeDefined()
       expect(discountFactor!.formatted).toContain('+')
     })
+
+    it('部分的な前年データでShapley分解が省略される（totalSales/totalCustomers null）', () => {
+      const partialPrev: CausalChainPrevInput = {
+        grossProfitRate: null,
+        costRate: null,
+        discountRate: 0.03,
+        consumableRate: null,
+        discountEntries: [],
+        totalSales: null,
+        totalCustomers: null,
+      }
+
+      const steps = buildCausalSteps(makeResult(), partialPrev)
+
+      const summaryStep = steps[steps.length - 1]
+      // Shapleyファクターが含まれない
+      expect(summaryStep.factors.find((f) => f.label === '客数効果')).toBeUndefined()
+    })
   })
 
   describe('storeResultToCausalPrev', () => {
@@ -264,6 +309,8 @@ describe('causalChain', () => {
         grossSales: 10_000_000,
         discountRate: 0.05,
         consumableRate: 0.01,
+        totalSales: 10_000_000,
+        totalCustomers: 5_000,
         discountEntries: [
           { type: '71', label: '見切', amount: 300_000 },
         ] as readonly DiscountEntry[],
@@ -276,6 +323,14 @@ describe('causalChain', () => {
       expect(prev.discountRate).toBe(0.05)
       expect(prev.consumableRate).toBe(0.01)
       expect(prev.discountEntries).toHaveLength(1)
+      expect(prev.totalSales).toBe(10_000_000)
+      expect(prev.totalCustomers).toBe(5_000)
     })
   })
 })
+
+/** テストヘルパー: "±X,XXX円" から数値を抽出 */
+function parseYen(s: string): number {
+  const cleaned = s.replace(/[円,]/g, '').replace('+', '')
+  return Number(cleaned)
+}
