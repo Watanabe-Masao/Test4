@@ -36,7 +36,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'exec-weekly-summary',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v11'
+const STORAGE_KEY = 'dashboard_layout_v12'
 
 export function loadLayout(): string[] {
   try {
@@ -66,7 +66,7 @@ export function saveLayout(ids: string[]): void {
  * まだユーザーのレイアウトに含まれておらず、
  * 過去に注入→除外された記録がないものを自動追加する。
  */
-const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v2'
+const AUTO_INJECTED_KEY = 'dashboard_auto_injected_v3'
 
 function getAutoInjectedIds(): Set<string> {
   try {
@@ -91,6 +91,11 @@ function saveAutoInjectedIds(ids: Set<string>): void {
  *
  * @returns 更新後の widgetIds（変更なしなら null）
  */
+/** DuckDB ウィジェットIDかどうか判定する */
+function isDuckDBWidget(id: string): boolean {
+  return id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-')
+}
+
 export function autoInjectDataWidgets(
   currentIds: string[],
   ctx: {
@@ -98,6 +103,7 @@ export function autoInjectDataWidgets(
     prevYearHasPrevYear: boolean
     storeCount: number
     hasDiscountData?: boolean
+    isDuckDBReady?: boolean
   },
 ): string[] | null {
   const seen = getAutoInjectedIds()
@@ -105,8 +111,20 @@ export function autoInjectDataWidgets(
     if (!w.isVisible) return false
     // 既にレイアウトにある or 過去に注入済み → スキップ
     if (currentIds.includes(w.id) || seen.has(w.id)) return false
-    // データチェック: isVisible は WidgetContext を要求するが、
-    // ここでは必要な最小フィールドで簡易チェック
+    // DuckDB ウィジェット: DuckDB 初期化完了を待って注入
+    if (isDuckDBWidget(w.id)) {
+      if (!ctx.isDuckDBReady) return false
+      // 店舗比較系は複数店舗が必要
+      if (w.id === 'duckdb-store-hourly' || w.id === 'duckdb-store-benchmark') {
+        return ctx.storeCount > 1
+      }
+      // 前年比較は前年データが必要
+      if (w.id === 'analysis-duckdb-yoy') {
+        return ctx.prevYearHasPrevYear
+      }
+      return true
+    }
+    // 従来ウィジェットの既存ロジック
     if (w.id === 'analysis-yoy-waterfall' || w.id === 'analysis-yoy-variance') {
       return ctx.prevYearHasPrevYear
     }
