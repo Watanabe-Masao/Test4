@@ -5,16 +5,10 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { pearsonCorrelation } from '@/domain/calculations'
-import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import {
-  usePeriodFilter,
-  PeriodFilterBar,
-  useHierarchyDropdown,
-  HierarchyDropdowns,
-  computeDivisor,
-  countDistinctDays,
-  filterByStore,
-} from './PeriodFilter'
+import { useCategoryHierarchy, filterByHierarchy } from './categoryHierarchyHooks'
+import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
+import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
+import { computeDivisor, countDistinctDays, filterByStore } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 import { sc } from '@/presentation/theme/semanticColors'
 

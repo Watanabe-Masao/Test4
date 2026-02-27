@@ -3,15 +3,10 @@ import styled from 'styled-components'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { calculateZScores } from '@/domain/calculations'
 import { toPct } from './chartTheme'
-import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import {
-  usePeriodFilter,
-  PeriodFilterBar,
-  useHierarchyDropdown,
-  HierarchyDropdowns,
-  computeDivisor,
-  filterByStore,
-} from './PeriodFilter'
+import { useCategoryHierarchy, filterByHierarchy } from './categoryHierarchyHooks'
+import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
+import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
+import { computeDivisor, filterByStore } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`

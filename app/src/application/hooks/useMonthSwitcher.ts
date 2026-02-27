@@ -7,7 +7,7 @@
  */
 import { useCallback, useState } from 'react'
 import { useAppDispatch } from '../context/AppStateContext'
-import { useRepository } from '../context/RepositoryContext'
+import { useRepository } from '../context/useRepository'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useDataStore } from '../stores/dataStore'
 import { useUiStore } from '../stores/uiStore'

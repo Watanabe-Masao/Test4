@@ -4,7 +4,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { I18nProvider, useI18n } from '../I18nContext'
+import { I18nProvider } from '../I18nContext'
+import { useI18n } from '../useI18n'
 
 const wrapper = ({ children }: { children: ReactNode }) => <I18nProvider>{children}</I18nProvider>
 

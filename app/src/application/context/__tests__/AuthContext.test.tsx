@@ -3,7 +3,8 @@
  */
 import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { AuthProvider, useAuth } from '../AuthContext'
+import { AuthProvider } from '../AuthContext'
+import { useAuth } from '../useAuth'
 import type { ReactNode } from 'react'
 
 const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>

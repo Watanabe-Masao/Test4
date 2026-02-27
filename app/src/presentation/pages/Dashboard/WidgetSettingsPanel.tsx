@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Button } from '@/presentation/components/common'
-import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/registry'
+import { WIDGET_REGISTRY } from './widgets/registry'
+import { DEFAULT_WIDGET_IDS } from './widgets/widgetLayout'
 import {
   getAllPresets,
   addCustomPreset,

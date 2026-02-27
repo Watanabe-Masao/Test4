@@ -164,7 +164,14 @@ export function useDuckDBHourlyAggregation(
       isPrevYear,
     }
     return (c: AsyncDuckDBConnection) => queryHourlyAggregation(c, params)
-  }, [dateRange, storeIds, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
+  }, [
+    dateRange,
+    storeIds,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    isPrevYear,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -193,7 +200,15 @@ export function useDuckDBLevelAggregation(
       level,
     }
     return (c: AsyncDuckDBConnection) => queryLevelAggregation(c, params)
-  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
+  }, [
+    dateRange,
+    storeIds,
+    level,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    isPrevYear,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -220,7 +235,14 @@ export function useDuckDBStoreAggregation(
       isPrevYear,
     }
     return (c: AsyncDuckDBConnection) => queryStoreAggregation(c, params)
-  }, [dateRange, storeIds, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
+  }, [
+    dateRange,
+    storeIds,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    isPrevYear,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -333,8 +355,7 @@ export function useDuckDBDeptKpiTrend(
 ): AsyncQueryResult<readonly DeptKpiMonthlyTrendRow[]> {
   const queryFn = useMemo(() => {
     if (yearMonths.length === 0) return null
-    return (c: AsyncDuckDBConnection) =>
-      queryDeptKpiMonthlyTrend(c, { yearMonths, deptCode })
+    return (c: AsyncDuckDBConnection) => queryDeptKpiMonthlyTrend(c, { yearMonths, deptCode })
   }, [yearMonths, deptCode])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
@@ -533,7 +554,15 @@ export function useDuckDBCategoryDailyTrend(
         level,
         topN,
       })
-  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, topN])
+  }, [
+    dateRange,
+    storeIds,
+    level,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    topN,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

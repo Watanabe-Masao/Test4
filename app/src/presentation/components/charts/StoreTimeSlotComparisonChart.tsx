@@ -32,15 +32,10 @@ import {
   formatTurnaroundHour,
 } from './timeSlotUtils'
 import type { CategoryTimeSalesIndex, DateRange, Store } from '@/domain/models'
-import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import {
-  usePeriodFilter,
-  PeriodFilterBar,
-  useHierarchyDropdown,
-  HierarchyDropdowns,
-  computeDivisor,
-  countDistinctDays,
-} from './PeriodFilter'
+import { useCategoryHierarchy, filterByHierarchy } from './categoryHierarchyHooks'
+import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
+import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
+import { computeDivisor, countDistinctDays } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 import { cosineSimilarity } from '@/domain/calculations/correlation'
 

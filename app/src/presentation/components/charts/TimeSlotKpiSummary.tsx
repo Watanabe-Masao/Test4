@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { queryByDateRange } from '@/application/usecases'
-import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
+import { useCategoryHierarchy, filterByHierarchy } from './categoryHierarchyHooks'
 import {
   findCoreTime,
   findTurnaroundHour,

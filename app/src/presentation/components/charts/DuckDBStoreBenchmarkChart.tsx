@@ -10,23 +10,12 @@
  * - サマリー: 最多1位店舗・最も改善した店舗
  */
 import { useMemo } from 'react'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBStoreBenchmark,
-  type StoreBenchmarkRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBStoreBenchmark, type StoreBenchmarkRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { STORE_COLORS } from './chartTheme'
 
@@ -212,15 +201,13 @@ function buildBenchmarkData(
 
   // Find best store (most weeks at rank 1)
   const bestStore = storeMetas.reduce<StoreMeta | null>(
-    (best, s) =>
-      !best || s.weeksAtRank1 > best.weeksAtRank1 ? s : best,
+    (best, s) => (!best || s.weeksAtRank1 > best.weeksAtRank1 ? s : best),
     null,
   )
 
   // Find most improved store
   const mostImproved = storeMetas.reduce<StoreMeta | null>(
-    (best, s) =>
-      !best || s.improvement > best.improvement ? s : best,
+    (best, s) => (!best || s.improvement > best.improvement ? s : best),
     null,
   )
 
@@ -285,10 +272,7 @@ function BenchmarkTooltip({
         const sales = weekPoint?.[`sales_${storeId}`]
 
         return (
-          <div
-            key={p.dataKey}
-            style={{ display: 'flex', gap: 6, alignItems: 'center' }}
-          >
+          <div key={p.dataKey} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span
               style={{
                 width: 8,
@@ -300,8 +284,7 @@ function BenchmarkTooltip({
               }}
             />
             <span>
-              {storeName}: {p.value}位
-              {typeof sales === 'number' ? ` (${fmt(sales)})` : ''}
+              {storeName}: {p.value}位{typeof sales === 'number' ? ` (${fmt(sales)})` : ''}
             </span>
           </div>
         )
@@ -350,9 +333,7 @@ export function DuckDBStoreBenchmarkChart({
   return (
     <Wrapper>
       <Title>店舗ベンチマーク（DuckDB）</Title>
-      <Subtitle>
-        週次の店舗ランキング推移 | マルチ店舗対応
-      </Subtitle>
+      <Subtitle>週次の店舗ランキング推移 | マルチ店舗対応</Subtitle>
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
@@ -372,12 +353,7 @@ export function DuckDBStoreBenchmarkChart({
           />
           <Tooltip
             content={
-              <BenchmarkTooltip
-                storeMetas={storeMetas}
-                chartData={chartData}
-                ct={ct}
-                fmt={fmt}
-              />
+              <BenchmarkTooltip storeMetas={storeMetas} chartData={chartData} ct={ct} fmt={fmt} />
             }
           />
           <Legend
@@ -421,7 +397,8 @@ export function DuckDBStoreBenchmarkChart({
           <SummaryCard $variant="improve">
             <SummaryLabel>最大改善: {mostImproved.storeName}</SummaryLabel>
             <SummaryValue>
-              {mostImproved.earliestRank}位 → {mostImproved.latestRank}位 (+{mostImproved.improvement}ランク)
+              {mostImproved.earliestRank}位 → {mostImproved.latestRank}位 (+
+              {mostImproved.improvement}ランク)
             </SummaryValue>
           </SummaryCard>
         )}

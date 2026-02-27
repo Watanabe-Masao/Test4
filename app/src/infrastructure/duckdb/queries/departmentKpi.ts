@@ -123,9 +123,7 @@ export async function queryDeptKpiMonthlyTrend(
   if (params.yearMonths.length === 0) return []
 
   const values = params.yearMonths.map((ym) => `(${ym.year}, ${ym.month})`).join(', ')
-  const deptFilter = params.deptCode
-    ? `AND dept_code = '${params.deptCode}'`
-    : ''
+  const deptFilter = params.deptCode ? `AND dept_code = '${params.deptCode}'` : ''
 
   const sql = `
     SELECT

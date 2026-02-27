@@ -27,7 +27,6 @@ import {
   decompose5 as decompose5Domain,
   decomposePriceMix as decomposePriceMixDomain,
 } from '@/domain/calculations/factorDecomposition'
-import type { CategoryQtyAmt } from '@/domain/calculations/factorDecomposition'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
 /* ── Styled ─────────────────────────────────────────── */
@@ -233,31 +232,6 @@ interface PathEntry {
   level: DrillLevel
   code: string
   name: string
-}
-
-/* ── Price/Mix decomposition helper ─────────────────── */
-
-export function recordsToCategoryQtyAmt(
-  records: readonly CategoryTimeSalesRecord[],
-): CategoryQtyAmt[] {
-  return records.map((r) => ({
-    key: `${r.department.code}|${r.line.code}|${r.klass.code}`,
-    qty: r.totalQuantity,
-    amt: r.totalAmount,
-  }))
-}
-
-/**
- * CategoryTimeSalesRecord[] を受け取り、ドメイン層の decomposePriceMix に委譲する。
- */
-export function decomposePriceMix(
-  curRecords: readonly CategoryTimeSalesRecord[],
-  prevRecords: readonly CategoryTimeSalesRecord[],
-): { priceEffect: number; mixEffect: number } | null {
-  return decomposePriceMixDomain(
-    recordsToCategoryQtyAmt(curRecords),
-    recordsToCategoryQtyAmt(prevRecords),
-  )
 }
 
 const COLORS = {

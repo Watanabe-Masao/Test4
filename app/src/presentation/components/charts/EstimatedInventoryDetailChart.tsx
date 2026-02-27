@@ -20,7 +20,8 @@ import {
   toPct,
   STORE_COLORS,
 } from './chartTheme'
-import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { DayRangeSlider } from './DayRangeSlider'
+import { useDayRange } from './useDayRange'
 import { computeEstimatedInventoryDetails } from '@/domain/calculations/inventoryCalc'
 import type { InventoryDetailRow } from '@/domain/calculations/inventoryCalc'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'

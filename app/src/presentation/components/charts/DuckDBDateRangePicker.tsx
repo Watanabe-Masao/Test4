@@ -10,7 +10,7 @@
  * - 過去6ヶ月: 当月含む直近6ヶ月
  * - 全期間: DuckDB にロードされた全データ範囲
  */
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import type { DateRange, CalendarDate } from '@/domain/models'
 import { toDateKey, fromDateKey, dateRangeDays } from '@/domain/models'
@@ -61,8 +61,8 @@ const Separator = styled.span`
 const PresetButton = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -70,8 +70,7 @@ const PresetButton = styled.button<{ $active: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;
@@ -195,17 +194,9 @@ export function DuckDBDateRangePicker({
   return (
     <Wrapper>
       <Label>DuckDB 分析期間:</Label>
-      <DateInput
-        type="date"
-        value={fromStr}
-        onChange={handleFromChange}
-      />
+      <DateInput type="date" value={fromStr} onChange={handleFromChange} />
       <Separator>〜</Separator>
-      <DateInput
-        type="date"
-        value={toStr}
-        onChange={handleToChange}
-      />
+      <DateInput type="date" value={toStr} onChange={handleToChange} />
       <DaysInfo>({days}日間)</DaysInfo>
 
       <PresetButton $active={activePreset === 'month'} onClick={() => handlePreset('month')}>
@@ -228,38 +219,4 @@ export function DuckDBDateRangePicker({
       )}
     </Wrapper>
   )
-}
-
-/**
- * DuckDB 分析用日付範囲を管理するフック。
- *
- * デフォルトは当月全日。ユーザーが自由に変更できる。
- * year/month が変わったら当月全日にリセットする。
- */
-export function useDuckDBDateRange(
-  year: number,
-  month: number,
-  daysInMonth: number,
-): [DateRange, (range: DateRange) => void] {
-  // year/month をキーとして追跡し、変更時にリセット
-  const [trackedKey, setTrackedKey] = useState(`${year}-${month}`)
-
-  const defaultRange = useMemo<DateRange>(
-    () => ({ from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }),
-    [year, month, daysInMonth],
-  )
-
-  const [range, setRange] = useState<DateRange>(defaultRange)
-
-  const yearMonthKey = `${year}-${month}`
-  if (yearMonthKey !== trackedKey) {
-    setTrackedKey(yearMonthKey)
-    setRange(defaultRange)
-  }
-
-  const handleChange = useCallback((newRange: DateRange) => {
-    setRange(newRange)
-  }, [])
-
-  return [range, handleChange]
 }

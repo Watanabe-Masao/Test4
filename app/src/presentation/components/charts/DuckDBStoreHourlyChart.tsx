@@ -10,15 +10,7 @@
  * - 各店舗のピーク時間帯サマリー
  */
 import { useState, useMemo } from 'react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -27,7 +19,13 @@ import {
   useDuckDBStoreAggregation,
   type StoreAggregationRow,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS, toPct } from './chartTheme'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  STORE_COLORS,
+  toPct,
+} from './chartTheme'
 
 // ── Styled Components ──
 
@@ -267,10 +265,7 @@ export function DuckDBStoreHourlyChart({
   )
 
   const { chartData, storeInfos } = useMemo(
-    () =>
-      storeRows
-        ? buildChartData(storeRows, stores, mode)
-        : { chartData: [], storeInfos: [] },
+    () => (storeRows ? buildChartData(storeRows, stores, mode) : { chartData: [], storeInfos: [] }),
     [storeRows, stores, mode],
   )
 
@@ -283,9 +278,7 @@ export function DuckDBStoreHourlyChart({
       <HeaderRow>
         <div>
           <Title>店舗×時間帯比較（DuckDB）</Title>
-          <Subtitle>
-            店舗別の時間帯売上パターン
-          </Subtitle>
+          <Subtitle>店舗別の時間帯売上パターン</Subtitle>
         </div>
         <ToggleGroup>
           <ToggleButton $active={mode === 'amount'} onClick={() => setMode('amount')}>
@@ -308,18 +301,12 @@ export function DuckDBStoreHourlyChart({
           <YAxis
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) =>
-              mode === 'ratio' ? toPct(v / 100) : fmt(v)
-            }
+            tickFormatter={(v: number) => (mode === 'ratio' ? toPct(v / 100) : fmt(v))}
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name?: string) => [
-              value != null
-                ? mode === 'ratio'
-                  ? toPct(value / 100)
-                  : fmt(value)
-                : '-',
+              value != null ? (mode === 'ratio' ? toPct(value / 100) : fmt(value)) : '-',
               name ?? '',
             ]}
           />

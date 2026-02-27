@@ -56,18 +56,53 @@ describe('ALL_TABLE_DDLS', () => {
 
 describe('テーブル DDL 構造', () => {
   const requiredColumnsMap: Record<string, string[]> = {
-    classified_sales: ['year', 'month', 'day', 'date_key', 'store_id', 'sales_amount', 'is_prev_year'],
-    category_time_sales: [
-      'year', 'month', 'day', 'date_key', 'store_id',
-      'dept_code', 'line_code', 'klass_code',
-      'total_quantity', 'total_amount', 'dow', 'is_prev_year',
+    classified_sales: [
+      'year',
+      'month',
+      'day',
+      'date_key',
+      'store_id',
+      'sales_amount',
+      'is_prev_year',
     ],
-    time_slots: ['year', 'month', 'day', 'date_key', 'store_id', 'hour', 'quantity', 'amount', 'is_prev_year'],
+    category_time_sales: [
+      'year',
+      'month',
+      'day',
+      'date_key',
+      'store_id',
+      'dept_code',
+      'line_code',
+      'klass_code',
+      'total_quantity',
+      'total_amount',
+      'dow',
+      'is_prev_year',
+    ],
+    time_slots: [
+      'year',
+      'month',
+      'day',
+      'date_key',
+      'store_id',
+      'hour',
+      'quantity',
+      'amount',
+      'is_prev_year',
+    ],
     purchase: ['year', 'month', 'store_id', 'day', 'date_key', 'cost', 'price'],
     special_sales: ['year', 'month', 'store_id', 'day', 'date_key', 'type', 'cost', 'price'],
     transfers: ['year', 'month', 'store_id', 'day', 'date_key', 'direction', 'cost', 'price'],
     consumables: ['year', 'month', 'store_id', 'day', 'date_key', 'cost'],
-    department_kpi: ['year', 'month', 'dept_code', 'gp_rate_budget', 'gp_rate_actual', 'sales_budget', 'sales_actual'],
+    department_kpi: [
+      'year',
+      'month',
+      'dept_code',
+      'gp_rate_budget',
+      'gp_rate_actual',
+      'sales_budget',
+      'sales_actual',
+    ],
   }
 
   const ddlMap: Record<string, string> = {

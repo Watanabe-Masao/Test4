@@ -37,6 +37,12 @@ const CHART_FILES_USING_PERIOD_FILTER = [
 /** PeriodFilter 本体（ルール定義元なので検査対象外） */
 const PERIOD_FILTER_FILE = 'PeriodFilter.tsx'
 
+/** フック定義ファイル（PeriodFilterResult interface 等） */
+const PERIOD_FILTER_HOOKS_FILE = 'periodFilterHooks.ts'
+
+/** 純粋関数の定義元ファイル */
+const PERIOD_FILTER_UTILS_FILE = 'periodFilterUtils.ts'
+
 /** コメント行を除外したコード行を返す */
 function getCodeLines(content: string) {
   return content
@@ -97,11 +103,11 @@ describe('RULE-1: computeDivisor 経由の強制', () => {
     for (const file of CHART_FILES_USING_PERIOD_FILTER) {
       const content = readChartFile(file)
       const hasImport =
-        /import\s+\{[^}]*computeDivisor[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+        /import\s+\{[^}]*computeDivisor[^}]*\}\s+from\s+['"]\.\/periodFilterUtils['"]/.test(content)
       expect(
         hasImport,
         `${file} が computeDivisor を import していません。\n` +
-          "→ import { ..., computeDivisor } from './PeriodFilter' を追加してください",
+          "→ import { ..., computeDivisor } from './periodFilterUtils' を追加してください",
       ).toBe(true)
     }
   })
@@ -245,11 +251,11 @@ describe('RULE-5: filterByStore 経由の強制', () => {
     for (const file of targetFiles) {
       const content = readChartFile(file)
       const hasImport =
-        /import\s+\{[^}]*filterByStore[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+        /import\s+\{[^}]*filterByStore[^}]*\}\s+from\s+['"]\.\/periodFilterUtils['"]/.test(content)
       expect(
         hasImport,
         `${file} が filterByStore を import していません。\n` +
-          "→ import { ..., filterByStore } from './PeriodFilter' を追加してください",
+          "→ import { ..., filterByStore } from './periodFilterUtils' を追加してください",
       ).toBe(true)
     }
   })
@@ -296,11 +302,13 @@ describe('RULE-6: 計算変数の一元管理', () => {
       const usesFunction = /countDistinctDays\s*\(/.test(content)
       if (usesFunction) {
         const hasImport =
-          /import\s+\{[^}]*countDistinctDays[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+          /import\s+\{[^}]*countDistinctDays[^}]*\}\s+from\s+['"]\.\/periodFilterUtils['"]/.test(
+            content,
+          )
         expect(
           hasImport,
           `${filename} が countDistinctDays を使用していますが import していません。\n` +
-            "→ import { ..., countDistinctDays } from './PeriodFilter' を追加してください",
+            "→ import { ..., countDistinctDays } from './periodFilterUtils' を追加してください",
         ).toBe(true)
       }
     }
@@ -352,30 +360,30 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
   })
 })
 
-/* ── PeriodFilter 本体のルール定義チェック ────────── */
+/* ── 純粋関数定義元のルール定義チェック ────────── */
 
-describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
-  const pfContent = readChartFile(PERIOD_FILTER_FILE)
+describe('periodFilterUtils.ts: ルール定義元の健全性', () => {
+  const utilsContent = readChartFile(PERIOD_FILTER_UTILS_FILE)
 
   it('computeDivisor が export されていること', () => {
-    expect(/export\s+function\s+computeDivisor/.test(pfContent)).toBe(true)
+    expect(/export\s+function\s+computeDivisor/.test(utilsContent)).toBe(true)
   })
 
   it('countDistinctDays が export されていること', () => {
-    expect(/export\s+function\s+countDistinctDays/.test(pfContent)).toBe(true)
+    expect(/export\s+function\s+countDistinctDays/.test(utilsContent)).toBe(true)
   })
 
   it('computeDowDivisorMap が export されていること', () => {
-    expect(/export\s+function\s+computeDowDivisorMap/.test(pfContent)).toBe(true)
+    expect(/export\s+function\s+computeDowDivisorMap/.test(utilsContent)).toBe(true)
   })
 
   it('filterByStore が export されていること', () => {
-    expect(/export\s+function\s+filterByStore/.test(pfContent)).toBe(true)
+    expect(/export\s+function\s+filterByStore/.test(utilsContent)).toBe(true)
   })
 
   it('computeDivisor が total モードで常に 1 を返す実装になっていること', () => {
     // computeDivisor 関数の本体を抽出して検証
-    const funcMatch = pfContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = utilsContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // "mode === 'total'" のチェックと "return 1" が含まれること
@@ -384,7 +392,7 @@ describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
   })
 
   it('computeDivisor が >= 1 保証の実装を持つこと', () => {
-    const funcMatch = pfContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = utilsContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // "distinctDayCount > 0" のチェックがあること
@@ -392,17 +400,21 @@ describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
   })
 
   it('filterByStore が空集合で全レコード返却する実装を持つこと', () => {
-    const funcMatch = pfContent.match(/export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = utilsContent.match(/export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // size === 0 チェックと return records が含まれること
     expect(body).toMatch(/\.size\s*===\s*0/)
     expect(body).toMatch(/return\s+records/)
   })
+})
+
+describe('PeriodFilter hooks: UI コンポーネントの健全性', () => {
+  const hooksContent = readChartFile(PERIOD_FILTER_HOOKS_FILE)
 
   it('レガシー API (divisor / divideByMode) が PeriodFilterResult に含まれないこと', () => {
-    // PeriodFilterResult interface を抽出
-    const ifaceMatch = pfContent.match(
+    // PeriodFilterResult interface を抽出（periodFilterHooks.ts に移動済み）
+    const ifaceMatch = hooksContent.match(
       /export\s+interface\s+PeriodFilterResult[^{]*\{([\s\S]*?)\n\}/,
     )
     expect(ifaceMatch).not.toBeNull()

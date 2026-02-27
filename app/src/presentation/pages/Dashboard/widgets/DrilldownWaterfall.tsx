@@ -21,11 +21,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
-import {
-  CategoryFactorBreakdown,
-  decomposePriceMix,
-  recordsToCategoryQtyAmt,
-} from './CategoryFactorBreakdown'
+import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
+import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'

@@ -7,7 +7,7 @@
  * 新規コードでは application/stores から直接 useDataStore / useUiStore / useSettingsStore
  * を使用することを推奨。
  */
-import { useCallback, type ReactNode } from 'react'
+import { useCallback } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -69,18 +69,6 @@ export type AppAction =
       }
     }
   | { type: 'RESET' }
-
-// ─── Legacy reducer (re-export for tests) ────────────
-
-export { initialState, appReducer } from './legacyReducer'
-
-// ─── Provider ────────────────────────────────────────
-// Zustand はグローバルストアのため Provider 不要だが、
-// 既存の <AppStateProvider> ラッパーとの互換性を維持する。
-
-export function AppStateProvider({ children }: { children: ReactNode }) {
-  return <>{children}</>
-}
 
 // ─── Hooks ───────────────────────────────────────────
 

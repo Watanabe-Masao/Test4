@@ -2,7 +2,8 @@ import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend 
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
-import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { DayRangeSlider } from './DayRangeSlider'
+import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearDailyEntry } from '@/application/hooks'
 

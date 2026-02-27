@@ -4,22 +4,11 @@
  * アプリケーション全体でロケールとメッセージカタログを提供する。
  * 将来的に react-intl や i18next に置き換え可能な薄いラッパー。
  */
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
-import type { Locale, MessageCatalog } from './messages'
+import { useState, useCallback, useMemo, type ReactNode } from 'react'
+import type { Locale } from './messages'
 import { MESSAGE_CATALOGS } from './messages'
-
-interface I18nContextValue {
-  /** 現在のロケール */
-  locale: Locale
-  /** メッセージカタログ */
-  messages: MessageCatalog
-  /** ロケールを変更する */
-  setLocale: (locale: Locale) => void
-  /** テンプレート文字列のプレースホルダーを置換する */
-  t: (template: string, params?: Record<string, string | number>) => string
-}
-
-const I18nContext = createContext<I18nContextValue | null>(null)
+import { I18nContext } from './i18nContextDef'
+import type { I18nContextValue } from './i18nContextDef'
 
 const LOCALE_STORAGE_KEY = 'shiire-arari-locale'
 
@@ -61,10 +50,4 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   )
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
-}
-
-export function useI18n(): I18nContextValue {
-  const ctx = useContext(I18nContext)
-  if (!ctx) throw new Error('useI18n must be used within I18nProvider')
-  return ctx
 }

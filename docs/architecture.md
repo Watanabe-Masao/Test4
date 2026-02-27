@@ -16,6 +16,7 @@
 | チャート | Recharts |
 | テスト | Vitest + React Testing Library |
 | ファイル解析 | SheetJS (xlsx) |
+| SQL エンジン | DuckDB-WASM (インメモリ分析) |
 | 永続化 | IndexedDB + localStorage |
 
 ### 1.2 レイヤー構成図
@@ -35,8 +36,8 @@
 │   38 ファイル  ★ フレームワーク非依存・純粋関数         │
 ├─────────────────────────────────────────────────────────┤
 │             Infrastructure 層                           │
-│   File I/O / DataProcessing / Storage / Export          │
-│   36 ファイル                                           │
+│   File I/O / DataProcessing / Storage / Export / DuckDB │
+│   50+ ファイル                                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -163,6 +164,8 @@ AppStateProvider
 | `useKeyboardShortcuts` | キーボードショートカット制御 |
 | `useUndoRedo` | 操作のUndo/Redo管理 |
 | `usePersistence` | IndexedDB永続化フロー |
+| `useDuckDB` | DuckDB-WASM エンジン初期化・データロード・マルチ月対応 |
+| `useDuckDBQuery*` (20個) | DuckDB クエリフック群（時間帯・階層・店舗・前年比較・特徴量等） |
 
 #### services/ --- アプリケーションサービス
 
@@ -239,6 +242,44 @@ shiire-arari-db (v1)
 | ファイル | 説明 |
 |----------|------|
 | `index.ts` | エクスポートユーティリティ |
+
+#### duckdb/ --- DuckDB-WASM SQL エンジン
+
+ブラウザ内で DuckDB-WASM を使用した高速 SQL 分析基盤。
+
+| ファイル | 説明 |
+|----------|------|
+| `engine.ts` | DuckDB-WASM エンジンの初期化・ライフサイクル管理 |
+| `schemas.ts` | 8 テーブル + 1 VIEW の DDL 定義 |
+| `dataLoader.ts` | ImportedData → DuckDB テーブルへのデータロード |
+| `queryRunner.ts` | クエリ実行ヘルパー（Arrow → JS 変換、snake_case → camelCase） |
+
+**クエリモジュール** (`queries/`):
+
+| ファイル | 関数数 | 説明 |
+|----------|:------:|------|
+| `categoryTimeSales.ts` | 8 | 時間帯集計、階層集計、店舗×時間帯マトリクス、曜日除数 |
+| `storeDaySummary.ts` | 4 | 日次サマリー、累積売上、期間集約率 |
+| `departmentKpi.ts` | 3 | 部門 KPI ランキング・トレンド |
+| `yoyComparison.ts` | 2 | 前年比較（日次・カテゴリ） |
+| `features.ts` | 4 | 特徴量（移動平均・CV・Z スコア・スパイク検出） |
+| `advancedAnalytics.ts` | 2 | カテゴリミックス週次・店舗ベンチマーク |
+
+**テーブルスキーマ（8 テーブル + 1 VIEW）**:
+
+| テーブル | 目的 |
+|----------|------|
+| `classified_sales` | 分類別売上（基準値） |
+| `category_time_sales` | 分類別時間帯売上 |
+| `time_slots` | 時間帯別内訳 |
+| `purchase` | 仕入 |
+| `special_sales` | 花・産直 |
+| `transfers` | 移動 |
+| `consumables` | 消耗品 |
+| `department_kpi` | 部門 KPI |
+| `store_day_summary` (VIEW) | 6 テーブル LEFT JOIN の日次サマリー |
+
+全テーブルに `year`, `month`, `day`, `date_key` カラムを持たせ、月跨ぎクエリを `date_key BETWEEN` で実現。
 
 ---
 

@@ -61,10 +61,7 @@ export type {
   DeptKpiMonthlyTrendRow,
 } from './queries/departmentKpi'
 
-export {
-  queryYoyDailyComparison,
-  queryYoyCategoryComparison,
-} from './queries/yoyComparison'
+export { queryYoyDailyComparison, queryYoyCategoryComparison } from './queries/yoyComparison'
 export type { YoyDailyRow, YoyCategoryRow } from './queries/yoyComparison'
 
 export {
@@ -80,10 +77,7 @@ export type {
   DeptDailyTrendRow,
 } from './queries/features'
 
-export {
-  queryCategoryMixWeekly,
-  queryStoreBenchmark,
-} from './queries/advancedAnalytics'
+export { queryCategoryMixWeekly, queryStoreBenchmark } from './queries/advancedAnalytics'
 export type {
   CategoryMixWeeklyRow,
   CategoryMixParams,

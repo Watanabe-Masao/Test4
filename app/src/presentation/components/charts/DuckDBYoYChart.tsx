@@ -82,10 +82,7 @@ interface ChartDataPoint {
 
 function buildChartData(rows: readonly YoyDailyRow[]): ChartDataPoint[] {
   // 日別に店舗合算
-  const dailyMap = new Map<
-    string,
-    { curSales: number; prevSales: number; hasPrev: boolean }
-  >()
+  const dailyMap = new Map<string, { curSales: number; prevSales: number; hasPrev: boolean }>()
 
   for (const row of rows) {
     const existing = dailyMap.get(row.curDateKey) ?? {
@@ -129,10 +126,7 @@ export function DuckDBYoYChart({
     selectedStoreIds,
   )
 
-  const chartData = useMemo(
-    () => (rows ? buildChartData(rows) : []),
-    [rows],
-  )
+  const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
 
   if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {
     return null
@@ -147,9 +141,7 @@ export function DuckDBYoYChart({
   return (
     <Wrapper>
       <Title>前年比較（DuckDB）</Title>
-      <Subtitle>
-        当年 vs 前年 日別売上 | 月跨ぎ対応 | 棒 = 前年差
-      </Subtitle>
+      <Subtitle>当年 vs 前年 日別売上 | 月跨ぎ対応 | 棒 = 前年差</Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
@@ -166,20 +158,12 @@ export function DuckDBYoYChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [
-              value != null ? fmt(value) : '-',
-            ]}
+            formatter={(value: number | undefined) => [value != null ? fmt(value) : '-']}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
           {/* 前年差（棒グラフ） */}
-          <Bar
-            dataKey="diff"
-            name="前年差"
-            fill={palette.success}
-            opacity={0.4}
-            barSize={6}
-          />
+          <Bar dataKey="diff" name="前年差" fill={palette.success} opacity={0.4} barSize={6} />
 
           {/* 前年売上（破線） */}
           <Line
@@ -209,7 +193,8 @@ export function DuckDBYoYChart({
         <SummaryItem>当年計: {fmt(totalCur)}</SummaryItem>
         <SummaryItem>前年計: {fmt(totalPrev)}</SummaryItem>
         <SummaryItem $accent={totalDiff >= 0 ? palette.success : palette.danger}>
-          差分: {totalDiff >= 0 ? '+' : ''}{fmt(totalDiff)} ({growthRate})
+          差分: {totalDiff >= 0 ? '+' : ''}
+          {fmt(totalDiff)} ({growthRate})
         </SummaryItem>
       </SummaryRow>
     </Wrapper>

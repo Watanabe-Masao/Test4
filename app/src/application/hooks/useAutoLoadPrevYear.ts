@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { useRepository } from '../context/RepositoryContext'
+import { useRepository } from '../context/useRepository'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type {
   ClassifiedSalesData,

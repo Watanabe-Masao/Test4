@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { useRepository } from '../context/RepositoryContext'
+import { useRepository } from '../context/useRepository'
 import {
   processDroppedFiles,
   validateImportedData,

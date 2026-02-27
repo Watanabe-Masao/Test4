@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
-import { useRepository } from '../context/RepositoryContext'
+import { useRepository } from '../context/useRepository'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
 import type { ImportedData, PersistedMeta, DiffResult } from '@/domain/models'
 import { mergeInsertsOnly } from './useImport'

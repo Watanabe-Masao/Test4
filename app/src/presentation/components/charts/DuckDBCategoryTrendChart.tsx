@@ -10,15 +10,7 @@
  * - TopN件数切替（5/8/10）
  */
 import { useMemo, useState, useCallback } from 'react'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -77,8 +69,7 @@ const Chip = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
   border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.colors.palette.primary : theme.colors.border};
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -86,8 +77,7 @@ const Chip = styled.button<{ $active: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   transition: all 0.15s;
 
@@ -244,19 +234,13 @@ export function DuckDBCategoryTrendChart({
   return (
     <Wrapper>
       <Title>カテゴリ別売上推移（DuckDB）</Title>
-      <Subtitle>
-        上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応
-      </Subtitle>
+      <Subtitle>上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応</Subtitle>
 
       <ControlRow>
         <ChipGroup>
           <ChipLabel>階層:</ChipLabel>
           {(Object.keys(LEVEL_LABELS) as HierarchyLevel[]).map((l) => (
-            <Chip
-              key={l}
-              $active={level === l}
-              onClick={() => handleLevelChange(l)}
-            >
+            <Chip key={l} $active={level === l} onClick={() => handleLevelChange(l)}>
               {LEVEL_LABELS[l]}
             </Chip>
           ))}
@@ -265,11 +249,7 @@ export function DuckDBCategoryTrendChart({
         <ChipGroup>
           <ChipLabel>上位:</ChipLabel>
           {TOP_N_OPTIONS.map((n) => (
-            <Chip
-              key={n}
-              $active={topN === n}
-              onClick={() => handleTopNChange(n)}
-            >
+            <Chip key={n} $active={topN === n} onClick={() => handleTopNChange(n)}>
               {n}件
             </Chip>
           ))}
@@ -294,7 +274,7 @@ export function DuckDBCategoryTrendChart({
             formatter={(value: number | undefined, name?: string) => {
               if (value == null) return ['-']
               const cat = categories.find((c) => c.code === name)
-              const label = cat ? cat.name : name ?? ''
+              const label = cat ? cat.name : (name ?? '')
               return [fmt(value), label]
             }}
             labelFormatter={(label: unknown) => `日付: ${String(label)}`}
@@ -327,12 +307,8 @@ export function DuckDBCategoryTrendChart({
             最大: {topCategory.name} ({fmt(topCategory.totalAmount)})
           </SummaryItem>
         )}
-        <SummaryItem>
-          対象日数: {chartData.length}日
-        </SummaryItem>
-        <SummaryItem>
-          カテゴリ数: {categories.length}
-        </SummaryItem>
+        <SummaryItem>対象日数: {chartData.length}日</SummaryItem>
+        <SummaryItem>カテゴリ数: {categories.length}</SummaryItem>
       </SummaryRow>
     </Wrapper>
   )

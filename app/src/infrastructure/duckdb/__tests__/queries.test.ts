@@ -121,18 +121,37 @@ describe('クエリ結果型の構造', () => {
 
   it('StoreDaySummaryRow の必須プロパティ', () => {
     const row: StoreDaySummaryRow = {
-      year: 2026, month: 2, day: 1, dateKey: '2026-02-01', storeId: '1',
-      sales: 100000, coreSales: 90000, grossSales: 110000,
-      discount71: -5000, discount72: -3000, discount73: -1000, discount74: -1000,
-      discountAmount: -10000, discountAbsolute: 10000,
-      purchaseCost: 70000, purchasePrice: 100000,
-      interStoreInCost: 0, interStoreInPrice: 0,
-      interStoreOutCost: 0, interStoreOutPrice: 0,
-      interDeptInCost: 0, interDeptInPrice: 0,
-      interDeptOutCost: 0, interDeptOutPrice: 0,
-      flowersCost: 0, flowersPrice: 0,
-      directProduceCost: 0, directProducePrice: 0,
-      consumableCost: 0, customers: 200, isPrevYear: false,
+      year: 2026,
+      month: 2,
+      day: 1,
+      dateKey: '2026-02-01',
+      storeId: '1',
+      sales: 100000,
+      coreSales: 90000,
+      grossSales: 110000,
+      discount71: -5000,
+      discount72: -3000,
+      discount73: -1000,
+      discount74: -1000,
+      discountAmount: -10000,
+      discountAbsolute: 10000,
+      purchaseCost: 70000,
+      purchasePrice: 100000,
+      interStoreInCost: 0,
+      interStoreInPrice: 0,
+      interStoreOutCost: 0,
+      interStoreOutPrice: 0,
+      interDeptInCost: 0,
+      interDeptInPrice: 0,
+      interDeptOutCost: 0,
+      interDeptOutPrice: 0,
+      flowersCost: 0,
+      flowersPrice: 0,
+      directProduceCost: 0,
+      directProducePrice: 0,
+      consumableCost: 0,
+      customers: 200,
+      isPrevYear: false,
     }
     expect(row.sales).toBe(100000)
     expect(row.isPrevYear).toBe(false)
@@ -149,68 +168,107 @@ describe('クエリ結果型の構造', () => {
 
   it('DeptKpiRankedRow の必須プロパティ', () => {
     const row: DeptKpiRankedRow = {
-      year: 2026, month: 2, deptCode: 'D01', deptName: '青果',
-      gpRateBudget: 0.25, gpRateActual: 0.28, gpRateVariance: 0.03,
-      markupRate: 0.30, discountRate: 0.02,
-      salesBudget: 1000000, salesActual: 1100000, salesVariance: 100000,
-      salesAchievement: 1.10, openingInventory: 500000, closingInventory: 480000,
-      gpRateLanding: 0.27, salesLanding: 3300000,
-      gpRateRank: 1, salesAchievementRank: 2,
+      year: 2026,
+      month: 2,
+      deptCode: 'D01',
+      deptName: '青果',
+      gpRateBudget: 0.25,
+      gpRateActual: 0.28,
+      gpRateVariance: 0.03,
+      markupRate: 0.3,
+      discountRate: 0.02,
+      salesBudget: 1000000,
+      salesActual: 1100000,
+      salesVariance: 100000,
+      salesAchievement: 1.1,
+      openingInventory: 500000,
+      closingInventory: 480000,
+      gpRateLanding: 0.27,
+      salesLanding: 3300000,
+      gpRateRank: 1,
+      salesAchievementRank: 2,
     }
     expect(row.gpRateRank).toBe(1)
   })
 
   it('DeptKpiSummaryRow の必須プロパティ', () => {
     const row: DeptKpiSummaryRow = {
-      deptCount: 5, totalSalesBudget: 5000000, totalSalesActual: 4800000,
+      deptCount: 5,
+      totalSalesBudget: 5000000,
+      totalSalesActual: 4800000,
       overallSalesAchievement: 0.96,
-      weightedGpRateBudget: 0.25, weightedGpRateActual: 0.24,
-      weightedDiscountRate: 0.02, weightedMarkupRate: 0.28,
+      weightedGpRateBudget: 0.25,
+      weightedGpRateActual: 0.24,
+      weightedDiscountRate: 0.02,
+      weightedMarkupRate: 0.28,
     }
     expect(row.deptCount).toBe(5)
   })
 
   it('YoyDailyRow の必須プロパティ', () => {
     const row: YoyDailyRow = {
-      curDateKey: '2026-02-01', prevDateKey: '2025-02-01',
-      storeId: '1', curSales: 100000, prevSales: 90000,
-      salesDiff: 10000, curCustomers: 200, prevCustomers: 180,
+      curDateKey: '2026-02-01',
+      prevDateKey: '2025-02-01',
+      storeId: '1',
+      curSales: 100000,
+      prevSales: 90000,
+      salesDiff: 10000,
+      curCustomers: 200,
+      prevCustomers: 180,
     }
     expect(row.salesDiff).toBe(10000)
   })
 
   it('YoyCategoryRow の必須プロパティ', () => {
     const row: YoyCategoryRow = {
-      code: 'D01', name: '青果',
-      curAmount: 100000, prevAmount: 90000, amountDiff: 10000,
-      curQuantity: 500, prevQuantity: 450,
+      code: 'D01',
+      name: '青果',
+      curAmount: 100000,
+      prevAmount: 90000,
+      amountDiff: 10000,
+      curQuantity: 500,
+      prevQuantity: 450,
     }
     expect(row.amountDiff).toBe(10000)
   })
 
   it('DailyFeatureRow の必須プロパティ', () => {
     const row: DailyFeatureRow = {
-      storeId: '1', dateKey: '2026-02-01', sales: 100000,
-      salesMa3: 98000, salesMa7: 97000, salesMa28: 96000,
-      salesDiff1d: 2000, salesDiff7d: 5000,
+      storeId: '1',
+      dateKey: '2026-02-01',
+      sales: 100000,
+      salesMa3: 98000,
+      salesMa7: 97000,
+      salesMa28: 96000,
+      salesDiff1d: 2000,
+      salesDiff7d: 5000,
       cumulativeSales: 500000,
-      cv7day: 0.05, cv28day: 0.08,
-      zScore: 1.2, spikeRatio: 1.03,
+      cv7day: 0.05,
+      cv28day: 0.08,
+      zScore: 1.2,
+      spikeRatio: 1.03,
     }
     expect(row.zScore).toBe(1.2)
   })
 
   it('HourlyProfileRow の必須プロパティ', () => {
     const row: HourlyProfileRow = {
-      storeId: '1', hour: 12,
-      totalAmount: 50000, hourShare: 0.15, hourRank: 1,
+      storeId: '1',
+      hour: 12,
+      totalAmount: 50000,
+      hourShare: 0.15,
+      hourRank: 1,
     }
     expect(row.hourShare).toBe(0.15)
   })
 
   it('DowPatternRow の必須プロパティ', () => {
     const row: DowPatternRow = {
-      storeId: '1', dow: 0, avgSales: 80000, dayCount: 4, salesStddev: 5000,
+      storeId: '1',
+      dow: 0,
+      avgSales: 80000,
+      dayCount: 4,
+      salesStddev: 5000,
     }
     expect(row.avgSales).toBe(80000)
   })
@@ -219,8 +277,11 @@ describe('クエリ結果型の構造', () => {
 
   it('CategoryDailyTrendRow の必須プロパティ', () => {
     const row: CategoryDailyTrendRow = {
-      code: 'D01', name: '青果', dateKey: '2026-02-01',
-      amount: 50000, quantity: 300,
+      code: 'D01',
+      name: '青果',
+      dateKey: '2026-02-01',
+      amount: 50000,
+      quantity: 300,
     }
     expect(row.code).toBe('D01')
     expect(row.dateKey).toBe('2026-02-01')
@@ -229,8 +290,11 @@ describe('クエリ結果型の構造', () => {
 
   it('CategoryHourlyRow の必須プロパティ', () => {
     const row: CategoryHourlyRow = {
-      code: 'D01', name: '青果', hour: 12,
-      amount: 30000, quantity: 150,
+      code: 'D01',
+      name: '青果',
+      hour: 12,
+      amount: 30000,
+      quantity: 150,
     }
     expect(row.code).toBe('D01')
     expect(row.hour).toBe(12)
@@ -239,9 +303,14 @@ describe('クエリ結果型の構造', () => {
 
   it('CategoryMixWeeklyRow の必須プロパティ', () => {
     const row: CategoryMixWeeklyRow = {
-      weekStart: '2026-02-02', code: 'D01', name: '青果',
-      weekSales: 500000, totalWeekSales: 2000000, sharePct: 25.0,
-      prevWeekShare: 23.5, shareShift: 1.5,
+      weekStart: '2026-02-02',
+      code: 'D01',
+      name: '青果',
+      weekSales: 500000,
+      totalWeekSales: 2000000,
+      sharePct: 25.0,
+      prevWeekShare: 23.5,
+      shareShift: 1.5,
     }
     expect(row.weekStart).toBe('2026-02-02')
     expect(row.sharePct).toBe(25.0)
@@ -250,9 +319,14 @@ describe('クエリ結果型の構造', () => {
 
   it('CategoryMixWeeklyRow で prevWeekShare が null（初週）', () => {
     const row: CategoryMixWeeklyRow = {
-      weekStart: '2026-02-02', code: 'D01', name: '青果',
-      weekSales: 500000, totalWeekSales: 2000000, sharePct: 25.0,
-      prevWeekShare: null, shareShift: null,
+      weekStart: '2026-02-02',
+      code: 'D01',
+      name: '青果',
+      weekSales: 500000,
+      totalWeekSales: 2000000,
+      sharePct: 25.0,
+      prevWeekShare: null,
+      shareShift: null,
     }
     expect(row.prevWeekShare).toBeNull()
     expect(row.shareShift).toBeNull()
@@ -260,9 +334,12 @@ describe('クエリ結果型の構造', () => {
 
   it('StoreBenchmarkRow の必須プロパティ', () => {
     const row: StoreBenchmarkRow = {
-      storeId: '1', weekStart: '2026-02-02',
-      weekSales: 700000, avgDailySales: 100000,
-      salesRank: 1, salesPercentile: 100,
+      storeId: '1',
+      weekStart: '2026-02-02',
+      weekSales: 700000,
+      avgDailySales: 100000,
+      salesRank: 1,
+      salesPercentile: 100,
     }
     expect(row.storeId).toBe('1')
     expect(row.salesRank).toBe(1)

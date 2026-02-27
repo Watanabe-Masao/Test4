@@ -9,21 +9,15 @@
  * - 累積売上（面グラフ）
  */
 import { useMemo } from 'react'
-import {
-  ComposedChart,
-  Area,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { useDuckDBDailyCumulative, type DailyCumulativeRow } from '@/application/hooks/useDuckDBQuery'
+import {
+  useDuckDBDailyCumulative,
+  type DailyCumulativeRow,
+} from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 
@@ -99,10 +93,7 @@ export function DuckDBCumulativeChart({
     selectedStoreIds,
   )
 
-  const chartData = useMemo(
-    () => (rows ? buildChartData(rows) : []),
-    [rows],
-  )
+  const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
@@ -114,9 +105,7 @@ export function DuckDBCumulativeChart({
   return (
     <Wrapper>
       <Title>累積売上推移（DuckDB）</Title>
-      <Subtitle>
-        日別売上（棒）と累積売上（面）| 月跨ぎ対応
-      </Subtitle>
+      <Subtitle>日別売上（棒）と累積売上（面）| 月跨ぎ対応</Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
@@ -141,9 +130,7 @@ export function DuckDBCumulativeChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [
-              value != null ? fmt(value) : '-',
-            ]}
+            formatter={(value: number | undefined) => [value != null ? fmt(value) : '-']}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

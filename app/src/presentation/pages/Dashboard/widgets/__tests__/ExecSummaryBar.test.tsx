@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { screen, fireEvent } from '@testing-library/react'
-import { WIDGET_MAP } from '../registry'
+import { WIDGET_MAP } from '../widgetLayout'
 import {
   makeWidgetContext,
   makeStoreResult,

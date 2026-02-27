@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import { useAppData } from '@/application/context'
 import { useSettings } from '@/application/hooks'
-import { useRepository } from '@/application/context/RepositoryContext'
+import { useRepository } from '@/application/context/useRepository'
 import type { Store, ImportedData, ImportHistoryEntry } from '@/domain/models'
 import { Modal } from '@/presentation/components/common/Modal'
 import {

@@ -17,15 +17,21 @@ export { DeptHourlyPatternChart } from './DeptHourlyPatternChart'
 export { TimeSlotKpiSummary } from './TimeSlotKpiSummary'
 export { StoreTimeSlotComparisonChart } from './StoreTimeSlotComparisonChart'
 export { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
-export { CategoryHierarchyProvider, useCategoryHierarchy } from './CategoryHierarchyContext'
-export type { HierarchyFilter } from './CategoryHierarchyContext'
+export { CategoryHierarchyProvider } from './CategoryHierarchyContext'
+export {
+  useCategoryHierarchy,
+  filterByHierarchy,
+  getHierarchyLevel,
+} from './categoryHierarchyHooks'
+export type { HierarchyFilter } from './categoryHierarchyHooks'
 export { RevenueStructureChart } from './RevenueStructureChart'
 export { YoYVarianceChart } from './YoYVarianceChart'
 export { CustomerScatterChart } from './CustomerScatterChart'
 export { MultiKpiSparklines } from './MultiKpiSparklines'
 export { PerformanceIndexChart } from './PerformanceIndexChart'
 export { CategoryPerformanceChart } from './CategoryPerformanceChart'
-export { DayRangeSlider, useDayRange } from './DayRangeSlider'
+export { DayRangeSlider } from './DayRangeSlider'
+export { useDayRange } from './useDayRange'
 export { CurrencyUnitToggle } from './CurrencyUnitToggle'
 export {
   useChartTheme,
@@ -51,16 +57,13 @@ export {
 } from './ChartHeader'
 export { CHART_GUIDES } from './chartGuides'
 export type { ChartGuide } from './chartGuides'
-export {
-  CrossChartSelectionProvider,
-  useCrossChartSelection,
-  useDrillThroughReceiver,
-} from './CrossChartSelectionContext'
+export { CrossChartSelectionProvider } from './CrossChartSelectionContext'
+export { useCrossChartSelection, useDrillThroughReceiver } from './crossChartSelectionHooks'
 export type {
   CategoryHighlight,
   TimeSlotHighlight,
   DrillThroughTarget,
-} from './CrossChartSelectionContext'
+} from './crossChartSelectionHooks'
 export { StructuralOverviewChart } from './StructuralOverviewChart'
 export { IntegratedTimeline } from './IntegratedTimeline'
 export { CausalChainExplorer } from './CausalChainExplorer'
@@ -71,7 +74,8 @@ export { DuckDBFeatureChart } from './DuckDBFeatureChart'
 export { DuckDBCumulativeChart } from './DuckDBCumulativeChart'
 export { DuckDBYoYChart } from './DuckDBYoYChart'
 export { DuckDBDeptTrendChart } from './DuckDBDeptTrendChart'
-export { DuckDBDateRangePicker, useDuckDBDateRange } from './DuckDBDateRangePicker'
+export { DuckDBDateRangePicker } from './DuckDBDateRangePicker'
+export { useDuckDBDateRange } from './useDuckDBDateRange'
 export { DuckDBDowPatternChart } from './DuckDBDowPatternChart'
 export { DuckDBHourlyProfileChart } from './DuckDBHourlyProfileChart'
 export { DuckDBTimeSlotChart } from './DuckDBTimeSlotChart'

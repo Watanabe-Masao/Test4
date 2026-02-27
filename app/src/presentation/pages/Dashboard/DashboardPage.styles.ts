@@ -911,6 +911,13 @@ export const ToolResultLabel = styled.span`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+// ─── Scroll Wrapper ─────────────────────────────────────
+
+export const ScrollWrapper = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+`
+
 // ─── Summary Table Styled Components ────────────────────
 // DataTable ベースに Dashboard 固有のスタイルを上書き
 
