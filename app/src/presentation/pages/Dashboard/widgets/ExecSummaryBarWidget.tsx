@@ -175,11 +175,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                       {formatCurrency(r.totalDiscount)}
                     </ExecSummarySub>
                     <ExecSummarySub>
-                      推定粗利額（売変還元法）:{' '}
+                      推定在庫差分額（売変還元法）:{' '}
                       {formatCurrency(Math.round(r.grossSales * estGpRate))}
                     </ExecSummarySub>
                     {missingDiscount && (
-                      <WarningBanner>売変データなし — 推定法の精度が低下しています</WarningBanner>
+                      <WarningBanner>売変データなし — 推定法（在庫差異検知）の精度が低下しています</WarningBanner>
                     )}
                   </>
                 )
@@ -217,7 +217,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                           {formatCurrency(r.totalConsumable)}円
                         </ExecSummarySub>
                         <ExecSummarySub $color="#64748b">
-                          参考（推定法）: {formatPercent(estBeforeRate)} /{' '}
+                          参考（推定法・在庫差分率）: {formatPercent(estBeforeRate)} /{' '}
                           {formatPercent(r.estMethodMarginRate)}（減算比 {formatPointDiff(estDiff)}
                           ）
                         </ExecSummarySub>
@@ -237,7 +237,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                           {formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}
                         </ExecSummaryValue>
                         <ExecSummarySub>
-                          推定法 減算比 {formatPointDiff(estDiff)} 消耗品費:{' '}
+                          推定法（在庫差分） 減算比 {formatPointDiff(estDiff)} 消耗品費:{' '}
                           {formatCurrency(r.totalConsumable)}円
                         </ExecSummarySub>
                       </>

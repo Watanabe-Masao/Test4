@@ -87,16 +87,16 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   {
     id: 'kpi-est-margin',
-    label: '【推定法】マージン',
+    label: '【推定法】在庫差分',
     group: '収益構造',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
       return (
         <KpiCard
-          label="【推定法】マージン"
+          label="【推定法】在庫差分"
           value={formatCurrency(r.estMethodMargin)}
-          subText={`マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          subText={`在庫差分率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
           accent="#0ea5e9"
           onClick={() => onExplain('estMethodMargin')}
         />

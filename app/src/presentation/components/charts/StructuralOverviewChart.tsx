@@ -307,12 +307,13 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             $clickable
             onClick={() => handleDrillThrough('gross-profit-rate')}
           >
-            <NodeLabel>マージン（推定法）</NodeLabel>
+            <NodeLabel>在庫差分（推定法）</NodeLabel>
             <NodeValue>
               {fmtMan(nodes.gpEst.value)}
               {renderYoy(nodes.gpEst.yoy)}
             </NodeValue>
-            <NodeSub>マージン率 {toPct(nodes.gpRateEst)}</NodeSub>
+            <NodeSub>在庫差分率 {toPct(nodes.gpRateEst)}</NodeSub>
+            <NodeSub>※損益ではありません</NodeSub>
           </FlowNode>
           {nodes.budget.value > 0 && (
             <FlowNode $color="#a855f7" $height={40}>
@@ -340,7 +341,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
           <SumValue>
             {nodes.gpRateInv != null
               ? `在庫法: ${toPct(nodes.gpRateInv)}`
-              : `推定法: ${toPct(nodes.gpRateEst)}`}
+              : `推定法（在庫差分率）: ${toPct(nodes.gpRateEst)}`}
             {prev && (prev.invMethodGrossProfitRate != null || prev.estMethodMarginRate > 0) && (
               <YoyBadge
                 $positive={

@@ -134,6 +134,12 @@ const CalcHighlight = styled(CalcValue)<{ $color?: string }>`
   font-size: ${({ theme }) => theme.typography.fontSize.base};
 `
 
+const DisclaimerNote = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
 const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[12]};
@@ -356,7 +362,8 @@ export function ReportsPage() {
         </Card>
 
         <Card $accent="#0ea5e9">
-          <CardTitle>【推定法】在庫推定指標</CardTitle>
+          <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
+          <DisclaimerNote>※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。</DisclaimerNote>
           <CalcRow>
             <CalcLabel>コア売上</CalcLabel>
             <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
@@ -374,11 +381,11 @@ export function ReportsPage() {
             <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
           </CalcRow>
           <CalcRow>
-            <CalcLabel>推定マージン</CalcLabel>
+            <CalcLabel>推定在庫差分</CalcLabel>
             <CalcHighlight $color="#0ea5e9">{formatCurrency(r.estMethodMargin)}</CalcHighlight>
           </CalcRow>
           <CalcRow>
-            <CalcLabel>推定マージン率</CalcLabel>
+            <CalcLabel>推定在庫差分率</CalcLabel>
             <CalcHighlight $color="#0ea5e9">{formatPercent(r.estMethodMarginRate)}</CalcHighlight>
           </CalcRow>
           <CalcRow>

@@ -13,6 +13,7 @@ import {
   useStoreSelection,
   useAutoLoadPrevYear,
   useMonthSwitcher,
+  useBudgetChartData,
 } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import {
@@ -303,27 +304,7 @@ export function MobileDashboardPage() {
   const r = currentResult
 
   // 予算 vs 実績 累計データ
-  const budgetChartData = useMemo(() => {
-    if (!r) return []
-    const salesDaily = new Map<number, number>()
-    for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
-    let cumActual = 0
-    let cumBudget = 0
-    let cumPrevYear = 0
-    const data: { day: number; actual: number; budget: number; prevYear: number | null }[] = []
-    for (let d = 1; d <= daysInMonth; d++) {
-      cumActual += salesDaily.get(d) ?? 0
-      cumBudget += r.budgetDaily.get(d) ?? 0
-      cumPrevYear += prevYear.daily.get(d)?.sales ?? 0
-      data.push({
-        day: d,
-        actual: cumActual,
-        budget: cumBudget,
-        prevYear: prevYear.hasPrevYear ? cumPrevYear : null,
-      })
-    }
-    return data
-  }, [r, daysInMonth, prevYear])
+  const budgetChartData = useBudgetChartData(r, daysInMonth, prevYear)
 
   // 日別売上データ
   const dailySalesData = useMemo(() => {
@@ -606,7 +587,7 @@ export function MobileDashboardPage() {
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Line
                     type="monotone"
-                    dataKey="actual"
+                    dataKey="actualCum"
                     name="実績"
                     stroke={theme.colors.palette.primary}
                     strokeWidth={2}
@@ -614,7 +595,7 @@ export function MobileDashboardPage() {
                   />
                   <Line
                     type="monotone"
-                    dataKey="budget"
+                    dataKey="budgetCum"
                     name="予算"
                     stroke={theme.colors.palette.slate}
                     strokeWidth={1.5}
@@ -624,7 +605,7 @@ export function MobileDashboardPage() {
                   {prevYear.hasPrevYear && (
                     <Line
                       type="monotone"
-                      dataKey="prevYear"
+                      dataKey="prevYearCum"
                       name="前年"
                       stroke={theme.colors.palette.warning}
                       strokeWidth={1}

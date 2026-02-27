@@ -75,7 +75,7 @@ export function BottomNav({
   onViewChange: (view: ViewType) => void
 }) {
   return (
-    <Nav>
+    <Nav aria-label="モバイルナビゲーション">
       {bottomItems.map((item) => (
         <NavItem
           key={item.view}

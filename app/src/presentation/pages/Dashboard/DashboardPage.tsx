@@ -17,6 +17,7 @@ import {
   useExplanations,
   useCategoryTimeSalesIndex,
   useCategoryTimeSalesIndexFromRecords,
+  useBudgetChartData,
 } from '@/application/hooks'
 import {
   useMonthlyHistory,
@@ -197,6 +198,9 @@ export function DashboardPage() {
     [appState.data.departmentKpi],
   )
 
+  // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
+  const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
+
   // ─── Empty / Loading states ──
 
   if (!isCalculated && appState.storeResults.size === 0) {
@@ -225,30 +229,6 @@ export function DashboardPage() {
   }
 
   const r = currentResult
-
-  // Build chart data
-  const salesDaily = new Map<number, number>()
-  for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
-  let cumActual = 0
-  let cumBudget = 0
-  let cumPrevYear = 0
-  const budgetChartData: {
-    day: number
-    actualCum: number
-    budgetCum: number
-    prevYearCum: number | null
-  }[] = []
-  for (let d = 1; d <= daysInMonth; d++) {
-    cumActual += salesDaily.get(d) ?? 0
-    cumBudget += r.budgetDaily.get(d) ?? 0
-    cumPrevYear += prevYear.daily.get(d)?.sales ?? 0
-    budgetChartData.push({
-      day: d,
-      actualCum: cumActual,
-      budgetCum: cumBudget,
-      prevYearCum: prevYear.hasPrevYear ? cumPrevYear : null,
-    })
-  }
 
   // ── 日付範囲の算出（チャート用フックに渡す） ──
   const effectiveEndDay =

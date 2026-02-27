@@ -19,3 +19,5 @@ export {
   useCategoryTimeSalesIndex,
   useCategoryTimeSalesIndexFromRecords,
 } from './useCategoryTimeSalesIndex'
+export { useBudgetChartData } from './useBudgetChartData'
+export type { BudgetChartDataPoint } from './useBudgetChartData'

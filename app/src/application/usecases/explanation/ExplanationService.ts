@@ -410,8 +410,8 @@ export function generateExplanations(
 
   map.set('estMethodMargin', {
     metric: 'estMethodMargin',
-    title: '推定マージン（推定法）',
-    formula: '推定マージン = コア売上 - 推定原価',
+    title: '推定在庫差分（推定法）',
+    formula: '推定在庫差分 = コア売上 - 推定原価',
     value: result.estMethodMargin,
     unit: 'yen',
     scope,
@@ -424,13 +424,13 @@ export function generateExplanations(
 
   map.set('estMethodMarginRate', {
     metric: 'estMethodMarginRate',
-    title: '推定マージン率（推定法）',
-    formula: '推定マージン率 = 推定マージン ÷ コア売上',
+    title: '推定在庫差分率（推定法）',
+    formula: '推定在庫差分率 = 推定在庫差分 ÷ コア売上',
     value: result.estMethodMarginRate,
     unit: 'rate',
     scope,
     inputs: [
-      inp('推定マージン', result.estMethodMargin, 'yen', 'estMethodMargin'),
+      inp('推定在庫差分', result.estMethodMargin, 'yen', 'estMethodMargin'),
       inp('コア売上', result.totalCoreSales, 'yen', 'coreSales'),
     ],
     evidenceRefs: [],

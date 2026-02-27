@@ -97,7 +97,7 @@ export function NavBar({
   onThemeToggle: () => void
 }) {
   return (
-    <Nav>
+    <Nav aria-label="メインナビゲーション">
       <Logo>荒</Logo>
       {navItems.map((item) => (
         <NavButton

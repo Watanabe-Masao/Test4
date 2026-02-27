@@ -7,7 +7,7 @@ import type {
   DateRange,
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 
@@ -63,12 +63,7 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: {
-    day: number
-    actualCum: number
-    budgetCum: number
-    prevYearCum: number | null
-  }[]
+  budgetChartData: readonly BudgetChartDataPoint[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */

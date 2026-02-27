@@ -330,12 +330,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={showToast}>
       {children}
-      <Container>
+      <Container role="status" aria-live="polite">
         {toasts.map((t) => (
-          <ToastCard key={t.id} $level={t.level} $dismissing={t.dismissed}>
-            <IconBadge $level={t.level}>{LEVEL_ICONS[t.level]}</IconBadge>
+          <ToastCard key={t.id} $level={t.level} $dismissing={t.dismissed} role="alert" aria-live="assertive">
+            <IconBadge $level={t.level} aria-hidden="true">{LEVEL_ICONS[t.level]}</IconBadge>
             <MessageText>{t.message}</MessageText>
-            <CloseBtn onClick={() => dismiss(t.id)} title="閉じる">
+            <CloseBtn onClick={() => dismiss(t.id)} aria-label="閉じる">
               ✕
             </CloseBtn>
           </ToastCard>

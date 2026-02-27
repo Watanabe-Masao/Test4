@@ -14,7 +14,12 @@ import {
   EstimatedInventoryDetailChart,
   CurrencyUnitToggle,
 } from '@/presentation/components/charts'
-import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import {
+  useCalculation,
+  useStoreSelection,
+  usePrevYearData,
+  useBudgetChartData,
+} from '@/application/hooks'
 import {
   formatCurrency,
   formatPercent,
@@ -110,25 +115,7 @@ export function InsightPage() {
     return m
   }, [currentResult])
 
-  const chartData = useMemo(() => {
-    if (!currentResult) return []
-    const data = []
-    let cumActual = 0
-    let cumBudget = 0
-    let cumPy = 0
-    for (let d = 1; d <= daysInMonth; d++) {
-      cumActual += salesDaily.get(d) ?? 0
-      cumBudget += currentResult.budgetDaily.get(d) ?? 0
-      cumPy += prevYear.daily.get(d)?.sales ?? 0
-      data.push({
-        day: d,
-        actualCum: cumActual,
-        budgetCum: cumBudget,
-        prevYearCum: prevYear.hasPrevYear ? cumPy : null,
-      })
-    }
-    return data
-  }, [currentResult, salesDaily, prevYear, daysInMonth])
+  const chartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
 
   // ─── 予測データ ─────────────────────────────────────────
   const forecastData = useMemo(() => {
@@ -524,7 +511,8 @@ export function InsightPage() {
             </Card>
 
             <Card $accent="#0ea5e9">
-              <CardTitle>【推定法】在庫推定指標</CardTitle>
+              <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
+              <Formula>※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。</Formula>
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
               <CalcRow>
                 <CalcLabel>コア売上</CalcLabel>
@@ -547,11 +535,11 @@ export function InsightPage() {
                 <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
               </CalcRow>
               <CalcRow>
-                <CalcLabel>推定マージン</CalcLabel>
+                <CalcLabel>推定在庫差分</CalcLabel>
                 <CalcHighlight $color="#0ea5e9">{formatCurrency(r.estMethodMargin)}</CalcHighlight>
               </CalcRow>
               <CalcRow>
-                <CalcLabel>推定マージン率</CalcLabel>
+                <CalcLabel>推定在庫差分率</CalcLabel>
                 <CalcHighlight $color="#0ea5e9">
                   {formatPercent(r.estMethodMarginRate)}
                 </CalcHighlight>
