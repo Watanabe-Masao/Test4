@@ -81,10 +81,11 @@ interface ChartDataPoint {
 }
 
 function buildChartData(rows: readonly YoyDailyRow[]): ChartDataPoint[] {
-  // 日別に店舗合算
+  // 日別に店舗合算（curDateKey が null の行はスキップ — FULL OUTER JOIN の前年のみ行）
   const dailyMap = new Map<string, { curSales: number; prevSales: number; hasPrev: boolean }>()
 
   for (const row of rows) {
+    if (row.curDateKey == null) continue
     const existing = dailyMap.get(row.curDateKey) ?? {
       curSales: 0,
       prevSales: 0,

@@ -12,7 +12,7 @@ import { queryToObjects, storeIdFilter } from '../queryRunner'
 // ── 結果型 ──
 
 export interface YoyDailyRow {
-  readonly curDateKey: string
+  readonly curDateKey: string | null
   readonly prevDateKey: string | null
   readonly storeId: string
   readonly curSales: number
