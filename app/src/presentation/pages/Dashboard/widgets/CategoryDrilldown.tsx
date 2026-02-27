@@ -16,6 +16,7 @@ import {
   getHierarchyLevel,
 } from '@/presentation/components/charts/CategoryHierarchyContext'
 import { toComma } from '@/presentation/components/charts/chartTheme'
+import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/calculations/utils'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import {
@@ -443,7 +444,11 @@ export function CategoryDrilldown({
           <StackRow $active={false} style={{ cursor: 'default' }}>
             <StackLabel>予算</StackLabel>
             <StackTrack>
-              <StackSegment $flex={budgetVal / maxBar} $color="#94a3b8" style={{ opacity: 0.7 }} />
+              <StackSegment
+                $flex={budgetVal / maxBar}
+                $color={palette.slate}
+                style={{ opacity: 0.7 }}
+              />
             </StackTrack>
             <StackTotal>{fmtSen(budgetVal)}</StackTotal>
           </StackRow>
@@ -452,7 +457,11 @@ export function CategoryDrilldown({
           <StackLabel>実績</StackLabel>
           <StackTrack>
             {showActualFallback ? (
-              <StackSegment $flex={actualVal / maxBar} $color="#9ca3af" style={{ opacity: 0.6 }}>
+              <StackSegment
+                $flex={actualVal / maxBar}
+                $color={palette.slate}
+                style={{ opacity: 0.6 }}
+              >
                 <SegLabel>分類未取込</SegLabel>
               </StackSegment>
             ) : (

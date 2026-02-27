@@ -14,6 +14,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { analyzeTrend } from '@/domain/calculations/trendAnalysis'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 import { ChartHelpButton } from './ChartHeader'
@@ -189,7 +190,7 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
           谷: {troughMonth}月（指数 {Math.round(trend.seasonalIndex[troughMonth - 1] * 100)}）
         </InfoBadge>
         <TrendBadge $trend={trend.overallTrend}>全体: {trendLabel}</TrendBadge>
-        <InfoBadge $color="#8b5cf6">データ: {monthlyData.length}ヶ月分</InfoBadge>
+        <InfoBadge $color={palette.purpleDark}>データ: {monthlyData.length}ヶ月分</InfoBadge>
       </InfoRow>
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">

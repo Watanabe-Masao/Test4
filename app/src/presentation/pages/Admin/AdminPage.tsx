@@ -256,7 +256,13 @@ function StoreManagementTab() {
                     <Badge>未設定</Badge>
                   )}
                 </Td>
-                <Td>{budget ? <Badge $color="#a855f7">設定済</Badge> : <Badge>未設定</Badge>}</Td>
+                <Td>
+                  {budget ? (
+                    <Badge $color={palette.purpleDeep}>設定済</Badge>
+                  ) : (
+                    <Badge>未設定</Badge>
+                  )}
+                </Td>
               </tr>
             )
           })}

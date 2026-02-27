@@ -15,6 +15,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toManYen, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import {
   linearRegression,
   calculateWMA,
@@ -236,8 +237,8 @@ export function RegressionInsightChart({ result, year, month }: Props) {
         <StatBadge $color={sc.cond(reg.slope >= 0)}>
           日次トレンド: {trendLabel} {toComma(Math.round(stats.dailyTrend))}円/日
         </StatBadge>
-        <StatBadge $color="#6366f1">日平均売上: {toManYen(stats.avgSales)}</StatBadge>
-        <StatBadge $color="#8b5cf6">標準偏差: {toManYen(stats.stdDev)}</StatBadge>
+        <StatBadge $color={palette.primary}>日平均売上: {toManYen(stats.avgSales)}</StatBadge>
+        <StatBadge $color={palette.purpleDark}>標準偏差: {toManYen(stats.stdDev)}</StatBadge>
       </StatRow>
 
       <ProjectionTable>

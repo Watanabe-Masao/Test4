@@ -542,7 +542,7 @@ function CTSViewer({
               ))}
               {records.length >= 200 && (
                 <tr>
-                  <RawTd colSpan={7} style={{ textAlign: 'center', color: '#94a3b8' }}>
+                  <RawTd colSpan={7} style={{ textAlign: 'center', color: palette.slate }}>
                     先頭200件のみ表示しています
                   </RawTd>
                 </tr>

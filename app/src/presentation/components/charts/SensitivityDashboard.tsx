@@ -2,6 +2,7 @@ import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import {
@@ -294,7 +295,7 @@ export function SensitivityDashboard({ result }: Props) {
             </ResultRow>
           </ResultCard>
 
-          <ResultCard $color="#6366f1">
+          <ResultCard $color={palette.primary}>
             <ResultLabel>粗利率</ResultLabel>
             <ResultRow>
               <ResultValue>{toPct(sensitivity.simulatedGrossProfitRate)}</ResultValue>
@@ -310,7 +311,7 @@ export function SensitivityDashboard({ result }: Props) {
             </ResultRow>
           </ResultCard>
 
-          <ResultCard $color="#3b82f6">
+          <ResultCard $color={palette.blueDark}>
             <ResultLabel>月間売上</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedSales)}</ResultValue>
@@ -323,7 +324,7 @@ export function SensitivityDashboard({ result }: Props) {
             </ResultRow>
           </ResultCard>
 
-          <ResultCard $color="#8b5cf6">
+          <ResultCard $color={palette.purpleDark}>
             <ResultLabel>着地予測</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedProjectedSales)}</ResultValue>
@@ -336,7 +337,7 @@ export function SensitivityDashboard({ result }: Props) {
             </ResultRow>
           </ResultCard>
 
-          <ResultCard $color="#f59e0b">
+          <ResultCard $color={palette.warningDark}>
             <ResultLabel>予算達成率変化</ResultLabel>
             <ResultRow>
               <ResultValue>

@@ -13,6 +13,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import {
   normalizeMinMax,
   pearsonCorrelation,
@@ -103,10 +104,10 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
 type ViewMode = 'normalized' | 'raw'
 
 const SERIES_CONFIG = [
-  { key: 'sales', label: '売上', color: '#6366f1' },
+  { key: 'sales', label: '売上', color: palette.primary },
   { key: 'cost', label: '仕入', color: sc.negative },
   { key: 'grossProfit', label: '粗利', color: sc.positive },
-  { key: 'discount', label: '売変', color: '#f59e0b' },
+  { key: 'discount', label: '売変', color: palette.warningDark },
 ] as const
 
 interface Props {

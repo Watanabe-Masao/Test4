@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { DiffResult, DataTypeDiff, FieldChange } from '@/domain/models'
+import { palette } from '@/presentation/theme/tokens'
 
 // ─── Styled ──────────────────────────────────────────────
 
@@ -185,7 +186,7 @@ function DataTypeDiffSection({ diff }: { diff: DataTypeDiff }) {
           <Badge $type="modify">{diff.modifications.length}変更</Badge>
         )}
         {diff.removals.length > 0 && <Badge $type="remove">-{diff.removals.length}</Badge>}
-        <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#71717a' }}>
+        <span style={{ marginLeft: 'auto', fontSize: '12px', color: palette.slateDark }}>
           {expanded ? '▲' : '▼'}
         </span>
       </DataTypeHeader>
@@ -201,7 +202,7 @@ function DataTypeDiffSection({ diff }: { diff: DataTypeDiff }) {
                 ))}
                 {diff.inserts.length > 50 && (
                   <ChangeRow>
-                    <span style={{ gridColumn: '1 / -1', color: '#71717a' }}>
+                    <span style={{ gridColumn: '1 / -1', color: palette.slateDark }}>
                       ...他 {diff.inserts.length - 50}件
                     </span>
                   </ChangeRow>
@@ -219,7 +220,7 @@ function DataTypeDiffSection({ diff }: { diff: DataTypeDiff }) {
                 ))}
                 {diff.modifications.length > 50 && (
                   <ChangeRow>
-                    <span style={{ gridColumn: '1 / -1', color: '#71717a' }}>
+                    <span style={{ gridColumn: '1 / -1', color: palette.slateDark }}>
                       ...他 {diff.modifications.length - 50}件
                     </span>
                   </ChangeRow>
@@ -237,7 +238,7 @@ function DataTypeDiffSection({ diff }: { diff: DataTypeDiff }) {
                 ))}
                 {diff.removals.length > 50 && (
                   <ChangeRow>
-                    <span style={{ gridColumn: '1 / -1', color: '#71717a' }}>
+                    <span style={{ gridColumn: '1 / -1', color: palette.slateDark }}>
                       ...他 {diff.removals.length - 50}件
                     </span>
                   </ChangeRow>

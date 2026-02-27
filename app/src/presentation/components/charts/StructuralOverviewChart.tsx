@@ -2,6 +2,7 @@ import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct, toComma } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
@@ -226,7 +227,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         {/* 左: 売上 */}
         <Column>
           <ColumnLabel>収入</ColumnLabel>
-          <FlowNode $color="#6366f1" $height={h(nodes.grossSales.value)}>
+          <FlowNode $color={palette.primary} $height={h(nodes.grossSales.value)}>
             <NodeLabel>粗売上</NodeLabel>
             <NodeValue>
               {fmtMan(nodes.grossSales.value)}
@@ -234,7 +235,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             </NodeValue>
             <NodeSub>{toComma(nodes.grossSales.value)}円</NodeSub>
           </FlowNode>
-          <FlowNode $color="#8b5cf6" $height={h(nodes.totalSales.value)}>
+          <FlowNode $color={palette.purpleDark} $height={h(nodes.totalSales.value)}>
             <NodeLabel>純売上</NodeLabel>
             <NodeValue>
               {fmtMan(nodes.totalSales.value)}
@@ -265,7 +266,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             <NodeSub>値入率 {toPct(nodes.markupRate)}</NodeSub>
           </FlowNode>
           <FlowNode
-            $color="#f59e0b"
+            $color={palette.warningDark}
             $height={h(nodes.discount.value)}
             $clickable
             onClick={() => handleDrillThrough('discount-trend')}
@@ -277,7 +278,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             </NodeValue>
             <NodeSub>売変率 {toPct(nodes.discountRate)}</NodeSub>
           </FlowNode>
-          <FlowNode $color="#f97316" $height={h(nodes.consumable.value)}>
+          <FlowNode $color={palette.orange} $height={h(nodes.consumable.value)}>
             <NodeLabel>消耗品費</NodeLabel>
             <NodeValue>
               {fmtMan(nodes.consumable.value)}
@@ -307,7 +308,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             </FlowNode>
           )}
           <FlowNode
-            $color="#06b6d4"
+            $color={palette.cyanDark}
             $height={h(nodes.gpEst.value)}
             $clickable
             onClick={() => handleDrillThrough('gross-profit-rate')}
@@ -321,7 +322,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
             <NodeSub>※損益ではありません</NodeSub>
           </FlowNode>
           {nodes.budget.value > 0 && (
-            <FlowNode $color="#a855f7" $height={40}>
+            <FlowNode $color={palette.purpleDeep} $height={40}>
               <NodeLabel>粗利予算</NodeLabel>
               <NodeValue>{fmtMan(nodes.budget.value)}</NodeValue>
               <NodeSub>
@@ -333,7 +334,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
       </FlowContainer>
 
       <SummaryRow>
-        <SumCard $color="#6366f1">
+        <SumCard $color={palette.primary}>
           <SumLabel>売上構成</SumLabel>
           <SumValue>
             原価 {toPct(safeDivide(nodes.cost.value, nodes.grossSales.value, 0))} / 売変{' '}
