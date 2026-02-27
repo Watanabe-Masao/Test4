@@ -26,11 +26,13 @@ import {
   PeriodFilterBar,
   useHierarchyDropdown,
   HierarchyDropdowns,
+} from './PeriodFilter'
+import {
   computeDivisor,
   countDistinctDays,
   filterByStore,
   type AggregateMode,
-} from './PeriodFilter'
+} from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'

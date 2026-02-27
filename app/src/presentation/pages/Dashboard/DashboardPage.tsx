@@ -40,7 +40,7 @@ import {
   useDuckDBDateRange,
 } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
-import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
+import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section,

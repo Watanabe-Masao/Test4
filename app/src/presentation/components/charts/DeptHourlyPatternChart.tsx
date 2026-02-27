@@ -11,10 +11,8 @@ import {
   PeriodFilterBar,
   useHierarchyDropdown,
   HierarchyDropdowns,
-  computeDivisor,
-  countDistinctDays,
-  filterByStore,
 } from './PeriodFilter'
+import { computeDivisor, countDistinctDays, filterByStore } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 import { sc } from '@/presentation/theme/semanticColors'
 

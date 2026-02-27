@@ -38,9 +38,8 @@ import {
   PeriodFilterBar,
   useHierarchyDropdown,
   HierarchyDropdowns,
-  computeDivisor,
-  countDistinctDays,
 } from './PeriodFilter'
+import { computeDivisor, countDistinctDays } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 import { cosineSimilarity } from '@/domain/calculations/correlation'
 

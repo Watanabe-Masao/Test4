@@ -9,9 +9,8 @@ import {
   PeriodFilterBar,
   useHierarchyDropdown,
   HierarchyDropdowns,
-  computeDivisor,
-  filterByStore,
 } from './PeriodFilter'
+import { computeDivisor, filterByStore } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`

@@ -24,7 +24,7 @@ import {
   computeDowDivisorMap,
   filterByStore,
   type AggregateMode,
-} from '../PeriodFilter'
+} from '../periodFilterUtils'
 
 /* ── テスト用ヘルパー ─────────────────────────────── */
 

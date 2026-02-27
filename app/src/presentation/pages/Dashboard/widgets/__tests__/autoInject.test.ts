@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { autoInjectDataWidgets, WIDGET_MAP } from '../registry'
+import { autoInjectDataWidgets, WIDGET_MAP } from '../widgetLayout'
 
 // localStorage モック
 const storage = new Map<string, string>()

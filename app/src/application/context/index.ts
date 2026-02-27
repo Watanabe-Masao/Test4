@@ -1,14 +1,13 @@
+export { AppStateProvider } from './AppStateProvider'
 export {
-  AppStateProvider,
   useAppState,
   useAppUi,
   useAppData,
   useAppSettings,
   useAppDispatch,
-  appReducer,
-  initialState,
 } from './AppStateContext'
 export type { AppState, AppAction, UiState, DataState } from './AppStateContext'
+export { appReducer, initialState } from './legacyReducer'
 
 export { RepositoryProvider, useRepository } from './RepositoryContext'
 
