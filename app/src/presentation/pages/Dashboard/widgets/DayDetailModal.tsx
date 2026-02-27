@@ -12,6 +12,7 @@
  */
 import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import {
   formatCurrency,
   formatPercent,
@@ -224,7 +225,7 @@ export function DayDetailModal({
 
         {/* ── KPI Row 1: Sales ── */}
         <DetailKpiGrid>
-          <DetailKpiCard $accent="#6366f1">
+          <DetailKpiCard $accent={palette.primary}>
             <DetailKpiLabel>予算</DetailKpiLabel>
             <DetailKpiValue>{formatCurrency(budget)}</DetailKpiValue>
           </DetailKpiCard>
@@ -244,7 +245,7 @@ export function DayDetailModal({
 
         {/* ── KPI Row 2: Customers & Comparison ── */}
         <KpiGrid2>
-          <KpiMini $accent="#06b6d4">
+          <KpiMini $accent={palette.cyanDark}>
             <KpiMiniLabel>客数</KpiMiniLabel>
             <KpiMiniValue>
               {dayCust > 0 ? `${dayCust.toLocaleString()}人` : '-'}
@@ -255,7 +256,7 @@ export function DayDetailModal({
               )}
             </KpiMiniValue>
           </KpiMini>
-          <KpiMini $accent="#8b5cf6">
+          <KpiMini $accent={palette.purpleDark}>
             <KpiMiniLabel>客単価</KpiMiniLabel>
             <KpiMiniValue>
               {dayTxVal > 0 ? formatCurrency(dayTxVal) : '-'}
@@ -471,11 +472,15 @@ export function DayDetailModal({
                           <DetailLabel>{item.label}</DetailLabel>
                           <DetailValue>
                             {formatCurrency(item.price)}{' '}
-                            <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>
+                            <span style={{ color: palette.slate, fontSize: '0.75rem' }}>
                               (原 {formatCurrency(item.cost)})
                             </span>
                             <span
-                              style={{ color: '#6366f1', fontSize: '0.75rem', marginLeft: '4px' }}
+                              style={{
+                                color: palette.primary,
+                                fontSize: '0.75rem',
+                                marginLeft: '4px',
+                              }}
                             >
                               ({formatPercent(ratio)})
                             </span>

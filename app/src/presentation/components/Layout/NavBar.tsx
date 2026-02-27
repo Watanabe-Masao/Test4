@@ -1,6 +1,9 @@
-import styled from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import type { ViewType } from '@/domain/models'
 import type { ThemeMode } from '@/presentation/theme'
+import { palette } from '@/presentation/theme/tokens'
+import { useCalculation } from '@/application/hooks'
+import { useAppState } from '@/application/context/AppStateContext'
 
 const Nav = styled.nav`
   display: flex;
@@ -76,6 +79,95 @@ const ThemeButton = styled.button`
   }
 `
 
+// ─── CalcStatusBadge Styled Components ───────────────
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`
+
+const StatusSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+const StatusDot = styled.div<{ $color: string; $pulse?: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  ${({ $pulse }) =>
+    $pulse &&
+    css`
+      animation: ${pulse} 1.2s ease-in-out infinite;
+    `}
+`
+
+const StatusText = styled.div<{ $color: string }>`
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: ${({ $color }) => $color};
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.2;
+`
+
+const StatusMeta = styled.div`
+  font-size: 0.45rem;
+  color: ${({ theme }) => theme.colors.text4};
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.2;
+`
+
+/** 計算状態インジケーター */
+function CalcStatusBadge() {
+  const { isCalculated, isComputing, storeResults } = useCalculation()
+  const state = useAppState()
+
+  const hasData =
+    Object.keys(state.data.purchase).length > 0 || state.data.classifiedSales.records.length > 0
+
+  if (!hasData) return null
+
+  const { targetYear, targetMonth } = state.settings
+  const monthLabel = `${targetYear}年${String(targetMonth).padStart(2, '0')}月`
+  const storeCount = storeResults.size
+
+  if (isComputing) {
+    return (
+      <StatusSection>
+        <StatusDot $color={palette.info} $pulse />
+        <StatusText $color={palette.info}>計算中...</StatusText>
+        <StatusMeta>{monthLabel}</StatusMeta>
+      </StatusSection>
+    )
+  }
+
+  if (isCalculated) {
+    return (
+      <StatusSection>
+        <StatusDot $color={palette.success} />
+        <StatusText $color={palette.success}>計算済み</StatusText>
+        <StatusMeta>{monthLabel}</StatusMeta>
+        {storeCount > 0 && <StatusMeta>{storeCount}店舗</StatusMeta>}
+      </StatusSection>
+    )
+  }
+
+  return (
+    <StatusSection>
+      <StatusDot $color={palette.warning} />
+      <StatusText $color={palette.warning}>未計算</StatusText>
+      <StatusMeta>{monthLabel}</StatusMeta>
+    </StatusSection>
+  )
+}
+
 const navItems: { view: ViewType; label: string; icon: string }[] = [
   { view: 'dashboard', label: 'ダッシュボード', icon: '📊' },
   { view: 'daily', label: '日別', icon: '📅' },
@@ -110,6 +202,7 @@ export function NavBar({
         </NavButton>
       ))}
       <Spacer />
+      <CalcStatusBadge />
       <NavButton
         $active={currentView === 'admin'}
         onClick={() => onViewChange('admin')}

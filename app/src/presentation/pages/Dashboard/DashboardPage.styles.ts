@@ -291,14 +291,14 @@ export const RangeColumnHeader = styled.div<{ $color?: string }>`
   gap: ${({ theme }) => theme.spacing[3]};
   margin-bottom: ${({ theme }) => theme.spacing[5]};
   padding-bottom: ${({ theme }) => theme.spacing[3]};
-  border-bottom: 2px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-bottom: 2px solid ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
 `
 
 export const RangeColumnDot = styled.div<{ $color?: string }>`
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: ${({ $color }) => $color ?? '#6366f1'};
+  background: ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
   flex-shrink: 0;
 `
 
@@ -368,7 +368,7 @@ export const CompareBarDiff = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ $color }) => $color ?? '#9ca3af'};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text4};
 `
 
 export const CompareBarTrack = styled.div`
@@ -412,7 +412,7 @@ export const CompareIndicatorValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ $color }) => $color ?? '#9ca3af'};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text4};
 `
 
 export const CompareIndicatorLabel = styled.span`
@@ -596,7 +596,7 @@ export const IntervalSummary = styled.div`
 export const IntervalCard = styled.div<{ $color?: string }>`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-left: 4px solid ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => `${theme.spacing[6]} ${theme.spacing[8]}`};
   display: grid;
@@ -723,7 +723,7 @@ export const DetailKpiGrid = styled.div`
 export const DetailKpiCard = styled.div<{ $accent?: string }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-top: 2px solid ${({ $accent }) => $accent ?? '#6366f1'};
+  border-top: 2px solid ${({ $accent, theme }) => $accent ?? theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[4]}`};
   text-align: center;

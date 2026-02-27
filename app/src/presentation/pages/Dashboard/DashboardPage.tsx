@@ -25,6 +25,7 @@ import {
   useMonthlyDataPoints,
 } from '@/application/hooks/useMonthlyHistory'
 import type { MetricId, DateRange } from '@/domain/models'
+import { palette } from '@/presentation/theme/tokens'
 import { useAppState } from '@/application/context'
 import { useRepository } from '@/application/context/RepositoryContext'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
@@ -221,7 +222,7 @@ export function DashboardPage() {
         <Section>
           <SectionTitle>全店舗概要</SectionTitle>
           <KpiGrid>
-            <KpiCard label="店舗数" value={`${stores.size}店舗`} accent="#6366f1" />
+            <KpiCard label="店舗数" value={`${stores.size}店舗`} accent={palette.primary} />
           </KpiGrid>
         </Section>
       </MainContent>

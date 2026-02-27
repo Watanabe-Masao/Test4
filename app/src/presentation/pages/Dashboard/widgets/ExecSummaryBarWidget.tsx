@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import {
   formatCurrency,
   formatPercent,
@@ -92,7 +93,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
       <ExecSummaryTabContent>
         {tab === 'sales' && (
           <ExecSummaryBar>
-            <ExecSummaryItem $accent="#8b5cf6" $clickable onClick={() => onExplain('salesTotal')}>
+            <ExecSummaryItem
+              $accent={palette.purpleDark}
+              $clickable
+              onClick={() => onExplain('salesTotal')}
+            >
               <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
@@ -111,7 +116,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                 </ExecSummarySub>
               )}
             </ExecSummaryItem>
-            <ExecSummaryItem $accent="#6366f1" $clickable onClick={() => onExplain('budget')}>
+            <ExecSummaryItem
+              $accent={palette.primary}
+              $clickable
+              onClick={() => onExplain('budget')}
+            >
               <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
@@ -131,7 +140,11 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
 
         {tab === 'costProfit' && (
           <ExecSummaryBar>
-            <ExecSummaryItem $accent="#f59e0b" $clickable onClick={() => onExplain('purchaseCost')}>
+            <ExecSummaryItem
+              $accent={palette.warningDark}
+              $clickable
+              onClick={() => onExplain('purchaseCost')}
+            >
               <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
               <ExecSummarySub>
@@ -156,7 +169,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               )}
             </ExecSummaryItem>
             <ExecSummaryItem
-              $accent="#3b82f6"
+              $accent={palette.blueDark}
               $clickable
               onClick={() => onExplain('averageMarkupRate')}
             >
@@ -179,7 +192,9 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                       {formatCurrency(Math.round(r.grossSales * estGpRate))}
                     </ExecSummarySub>
                     {missingDiscount && (
-                      <WarningBanner>売変データなし — 推定法（在庫差異検知）の精度が低下しています</WarningBanner>
+                      <WarningBanner>
+                        売変データなし — 推定法（在庫差異検知）の精度が低下しています
+                      </WarningBanner>
                     )}
                   </>
                 )
@@ -216,7 +231,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                           在庫法 減算比 {formatPointDiff(invDiff)} 消耗品費:{' '}
                           {formatCurrency(r.totalConsumable)}円
                         </ExecSummarySub>
-                        <ExecSummarySub $color="#64748b">
+                        <ExecSummarySub $color={palette.slateDark}>
                           参考（推定法・在庫差分率）: {formatPercent(estBeforeRate)} /{' '}
                           {formatPercent(r.estMethodMarginRate)}（減算比 {formatPointDiff(estDiff)}
                           ）
@@ -272,7 +287,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
             return (
               <ExecSummaryBar>
                 <ExecSummaryItem
-                  $accent="#06b6d4"
+                  $accent={palette.cyanDark}
                   $clickable
                   onClick={() => onExplain('totalCustomers')}
                 >

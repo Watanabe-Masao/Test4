@@ -1,7 +1,13 @@
 import { useState, useRef, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
+import { palette } from '@/presentation/theme/tokens'
+import {
+  formatCurrency,
+  formatPercent,
+  formatPointDiff,
+  getEffectiveGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecRow,
@@ -258,7 +264,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
 
   const actualSales = r.totalSales
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
-  const actualGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+  const actualGPRate = getEffectiveGrossProfitRate(r)
 
   // デフォルト値（自動計算）
   const defaultSalesLanding = Math.round(r.projectedSales)
@@ -317,7 +323,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
 
   return (
     <ForecastToolsGrid>
-      <ToolCard $accent="#6366f1">
+      <ToolCard $accent={palette.primary}>
         <ToolCardTitle>着地見込みシミュレーション</ToolCardTitle>
         <ToolInputGroup>
           <PinInputLabel>
@@ -444,7 +450,9 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>最終売上着地</ToolResultLabel>
-              <ToolResultValue $color="#6366f1">{formatCurrency(salesLanding)}</ToolResultValue>
+              <ToolResultValue $color={palette.primary}>
+                {formatCurrency(salesLanding)}
+              </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel>最終粗利額着地</ToolResultLabel>
@@ -466,7 +474,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
         )}
       </ToolCard>
 
-      <ToolCard $accent="#f59e0b">
+      <ToolCard $accent={palette.warningDark}>
         <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
         <ToolInputGroup>
           <PinInputLabel>

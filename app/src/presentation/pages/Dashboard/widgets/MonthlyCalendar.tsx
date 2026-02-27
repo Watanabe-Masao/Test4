@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
 import {
   formatCurrency,
@@ -319,14 +320,18 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
                       $rangeColor={
-                        isDayInRangeA(day) ? '#f59e0b' : isDayInRangeB(day) ? '#6366f1' : undefined
+                        isDayInRangeA(day)
+                          ? palette.warningDark
+                          : isDayInRangeB(day)
+                            ? palette.primary
+                            : undefined
                       }
                     >
                       <CalDayHeader>
                         <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
                         <span>
                           <CalActionBtn
-                            $color="#6366f1"
+                            $color={palette.primary}
                             title="在庫ピン止め"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -370,11 +375,13 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                                 return pyDaySales > 0 || cPy > 0 ? (
                                   <>
                                     <CalDivider />
-                                    <CalCell $color="#9ca3af">前同 {fmtSen(pyDaySales)}</CalCell>
+                                    <CalCell $color={palette.slate}>
+                                      前同 {fmtSen(pyDaySales)}
+                                    </CalCell>
                                     <CalCell $color={pyColor}>
                                       前比 {pyDaySales > 0 ? formatPercent(pyRatio, 0) : '-'}
                                     </CalCell>
-                                    <CalCell $color="#9ca3af">前累 {fmtSen(cPy)}</CalCell>
+                                    <CalCell $color={palette.slate}>前累 {fmtSen(cPy)}</CalCell>
                                     <CalCell $color={cPyColor}>
                                       累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}
                                     </CalCell>
@@ -392,7 +399,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               return wowDaySales > 0 ? (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color="#9ca3af">週同 {fmtSen(wowDaySales)}</CalCell>
+                                  <CalCell $color={palette.slate}>
+                                    週同 {fmtSen(wowDaySales)}
+                                  </CalCell>
                                   <CalCell $color={wowColor}>
                                     週比 {wowDaySales > 0 ? formatPercent(wowRatio, 0) : '-'}
                                   </CalCell>
@@ -418,19 +427,21 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               return (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color="#06b6d4">客 {dayCust}</CalCell>
-                                  <CalCell $color="#8b5cf6">単 {dayTxVal.toLocaleString()}</CalCell>
+                                  <CalCell $color={palette.cyanDark}>客 {dayCust}</CalCell>
+                                  <CalCell $color={palette.purpleDark}>
+                                    単 {dayTxVal.toLocaleString()}
+                                  </CalCell>
                                   {pyCust > 0 && (
                                     <CalCell $color={custYoYColor}>
                                       客前比 {formatPercent(custYoY, 0)}
                                     </CalCell>
                                   )}
                                   {maVal && (
-                                    <CalCell $color="#a78bfa">
+                                    <CalCell $color={palette.purple}>
                                       移平単 {maVal.toLocaleString()}
                                     </CalCell>
                                   )}
-                                  <CalCell $color="#06b6d4">累客 {cCust}</CalCell>
+                                  <CalCell $color={palette.cyanDark}>累客 {cCust}</CalCell>
                                   {cPyCust > 0 && (
                                     <CalCell $color={cCustYoYColor}>
                                       累客比 {formatPercent(cCustYoY, 0)}
@@ -478,7 +489,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               return (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color="#9ca3af">
+                                  <CalCell $color={palette.slate}>
                                     要日 {fmtSen(dailyTargetForRemaining)}
                                   </CalCell>
                                 </>

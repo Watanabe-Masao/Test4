@@ -4,7 +4,7 @@
  * UIコンポーネントから抽出した因果チェーンのステップ生成ロジック。
  * ドメイン層の型のみに依存し、React非依存でテスト可能。
  */
-import { safeDivide } from './utils'
+import { safeDivide, getEffectiveGrossProfitRate } from './utils'
 import { decompose2 } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 
@@ -51,7 +51,7 @@ export interface CausalChainPrevInput {
 /** StoreResult → CausalChainPrevInput 変換 */
 export function storeResultToCausalPrev(r: StoreResult): CausalChainPrevInput {
   return {
-    grossProfitRate: r.invMethodGrossProfitRate ?? r.estMethodMarginRate,
+    grossProfitRate: getEffectiveGrossProfitRate(r),
     costRate: safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0),
     discountRate: r.discountRate,
     consumableRate: r.consumableRate,
@@ -91,7 +91,7 @@ export function buildCausalSteps(
   const steps: CausalStep[] = []
 
   // Step 1: 粗利率の状況
-  const currentGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+  const currentGPRate = getEffectiveGrossProfitRate(r)
   const prevGPRate = prev?.grossProfitRate ?? null
   const gpRateDelta = prevGPRate != null ? currentGPRate - prevGPRate : 0
 

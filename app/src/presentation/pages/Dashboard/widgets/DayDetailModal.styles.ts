@@ -260,7 +260,8 @@ export const StackRow = styled.div<{ $active?: boolean }>`
   transition:
     background 0.15s,
     border-color 0.15s;
-  border-left: 3px solid ${({ $active }) => ($active ? '#6366f1' : 'transparent')};
+  border-left: 3px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   background: ${({ $active, theme }) =>
     $active
       ? theme.mode === 'dark'
@@ -280,7 +281,7 @@ export const StackRow = styled.div<{ $active?: boolean }>`
 `
 export const ActiveBadge = styled.span`
   font-size: 0.45rem;
-  color: #6366f1;
+  color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: 700;
   margin-left: 4px;
   white-space: nowrap;
@@ -417,7 +418,7 @@ export const KpiGrid2 = styled.div`
 export const KpiMini = styled.div<{ $accent?: string }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 3px solid ${({ $accent }) => $accent ?? '#6366f1'};
+  border-left: 3px solid ${({ $accent, theme }) => $accent ?? theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
 `

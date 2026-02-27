@@ -7,6 +7,7 @@ import {
   formatPointDiff,
   safeDivide,
   calculateTransactionValue,
+  getEffectiveGrossProfitRate,
 } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
@@ -56,7 +57,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   }
 
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
-  const actualGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+  const actualGPRate = getEffectiveGrossProfitRate(r)
 
   const elapsedGPBudget =
     r.grossProfitBudget > 0 ? r.grossProfitBudget * safeDivide(r.elapsedDays, daysInMonth) : 0
@@ -75,7 +76,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   return (
     <ExecGrid>
       <ExecColumn>
-        <ExecColHeader $color="#6366f1">
+        <ExecColHeader $color={palette.primary}>
           <ExecColTag>PLAN</ExecColTag>
           <ExecColTitle>前提</ExecColTitle>
           <ExecColSub>予算・在庫</ExecColSub>
@@ -203,7 +204,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
       </ExecColumn>
 
       <ExecColumn>
-        <ExecColHeader $color="#f59e0b">
+        <ExecColHeader $color={palette.warningDark}>
           <ExecColTag>FORECAST</ExecColTag>
           <ExecColTitle>着地</ExecColTitle>
           <ExecColSub>営業日ベース予測</ExecColSub>

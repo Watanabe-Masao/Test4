@@ -335,12 +335,12 @@ export function HourlyChart({
               const refEntry = paddedRef[idx]
               const refPct = refEntry ? (refEntry.amount / maxAmt) * 100 : 0
               const barColor = isSelected
-                ? '#ec4899'
+                ? palette.pinkDark
                 : isPeak
-                  ? '#f59e0b'
+                  ? palette.warningDark
                   : isCoreTime
-                    ? '#8b5cf6'
-                    : '#6366f1'
+                    ? palette.purpleDark
+                    : palette.primary
               return (
                 <HourlyBar
                   key={d.hour}
@@ -352,7 +352,7 @@ export function HourlyChart({
                   onClick={() => toggleHour(d.hour)}
                   style={{
                     outline: isSelected
-                      ? '2px solid #ec4899'
+                      ? `2px solid ${palette.pinkDark}`
                       : isTurnaround
                         ? `2px solid ${palette.dangerDark}`
                         : undefined,
@@ -438,7 +438,7 @@ export function HourlyChart({
             key={d.hour}
             style={{
               fontWeight: selectedHours.has(d.hour) ? 700 : 400,
-              color: selectedHours.has(d.hour) ? '#ec4899' : undefined,
+              color: selectedHours.has(d.hour) ? palette.pinkDark : undefined,
             }}
           >
             {d.hour}

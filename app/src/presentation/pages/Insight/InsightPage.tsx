@@ -25,6 +25,7 @@ import {
   formatPercent,
   safeDivide,
   calculateTransactionValue,
+  getEffectiveGrossProfitRate,
 } from '@/domain/calculations/utils'
 import { calculateForecast } from '@/domain/calculations/forecast'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -199,7 +200,7 @@ export function InsightPage() {
 
   const r = currentResult
   const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
-  const actualGrossProfitRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+  const actualGrossProfitRate = getEffectiveGrossProfitRate(r)
 
   // 客数 KPI
   const totalCustomers = r.totalCustomers
@@ -513,7 +514,9 @@ export function InsightPage() {
 
             <Card $accent={palette.infoDark}>
               <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
-              <Formula>※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。</Formula>
+              <Formula>
+                ※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。
+              </Formula>
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
               <CalcRow>
                 <CalcLabel>コア売上</CalcLabel>
@@ -537,7 +540,9 @@ export function InsightPage() {
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分</CalcLabel>
-                <CalcHighlight $color={palette.infoDark}>{formatCurrency(r.estMethodMargin)}</CalcHighlight>
+                <CalcHighlight $color={palette.infoDark}>
+                  {formatCurrency(r.estMethodMargin)}
+                </CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分率</CalcLabel>

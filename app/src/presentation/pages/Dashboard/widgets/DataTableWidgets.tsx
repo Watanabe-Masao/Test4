@@ -6,6 +6,7 @@
 import React, { type ReactNode } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
@@ -41,7 +42,10 @@ const StickyTd = styled(STd)`
 `
 
 const DOW_LABELS_TABLE = ['日', '月', '火', '水', '木', '金', '土'] as const
-const DOW_COLORS: Record<number, string | undefined> = { 0: '#ef4444', 6: '#3b82f6' }
+const DOW_COLORS: Record<number, string | undefined> = {
+  0: palette.dangerDark,
+  6: palette.blueDark,
+}
 
 export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
   const { result: r, allStoreResults, stores, year, month, daysInMonth } = ctx
@@ -196,7 +200,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
     return (
       <STableWrapper>
         <STableTitle>日別推定在庫</STableTitle>
-        <div style={{ padding: '16px', color: '#888', fontSize: '0.8rem' }}>
+        <div style={{ padding: '16px', color: palette.slate, fontSize: '0.8rem' }}>
           期首在庫が設定されていないため表示できません
         </div>
       </STableWrapper>

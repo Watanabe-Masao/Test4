@@ -1,4 +1,5 @@
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
 import { fmtSen } from './drilldownUtils'
 import type { PrevYearData } from '@/application/hooks'
@@ -178,8 +179,8 @@ export function RangeComparisonPanel({
       <RangeCompareContainer>
         {/* Left: Period A */}
         <RangeColumn>
-          <RangeColumnHeader $color="#f59e0b">
-            <RangeColumnDot $color="#f59e0b" />
+          <RangeColumnHeader $color={palette.warningDark}>
+            <RangeColumnDot $color={palette.warningDark} />
             <RangeColumnTitle>
               期間A: {rangeAData.start}～{rangeAData.end}日（{rangeAData.salesDaysCount}営業日）
             </RangeColumnTitle>
@@ -202,10 +203,10 @@ export function RangeComparisonPanel({
               </CompareBarDiff>
             </CompareBarLabel>
             <CompareBarTrack>
-              <CompareBarSegment $width={`${salesBar.a}%`} $color="#f59e0b">
+              <CompareBarSegment $width={`${salesBar.a}%`} $color={palette.warningDark}>
                 A {fmtSen(rangeAData.sales)}
               </CompareBarSegment>
-              <CompareBarSegment $width={`${salesBar.b}%`} $color="#6366f1">
+              <CompareBarSegment $width={`${salesBar.b}%`} $color={palette.primary}>
                 B {fmtSen(rangeBData.sales)}
               </CompareBarSegment>
             </CompareBarTrack>
@@ -244,10 +245,10 @@ export function RangeComparisonPanel({
               </CompareBarDiff>
             </CompareBarLabel>
             <CompareBarTrack>
-              <CompareBarSegment $width={`${avgBar.a}%`} $color="#f59e0b">
+              <CompareBarSegment $width={`${avgBar.a}%`} $color={palette.warningDark}>
                 A {fmtSen(rangeAData.avgDaily)}
               </CompareBarSegment>
-              <CompareBarSegment $width={`${avgBar.b}%`} $color="#6366f1">
+              <CompareBarSegment $width={`${avgBar.b}%`} $color={palette.primary}>
                 B {fmtSen(rangeBData.avgDaily)}
               </CompareBarSegment>
             </CompareBarTrack>
@@ -269,7 +270,7 @@ export function RangeComparisonPanel({
               </CompareBarSegment>
               <CompareBarSegment
                 $width={`${Math.min(rangeBData.ach * 50, 100)}%`}
-                $color={rangeBData.ach >= 1 ? sc.positive : '#6366f1'}
+                $color={rangeBData.ach >= 1 ? sc.positive : palette.primary}
               >
                 B {formatPercent(rangeBData.ach, 0)}
               </CompareBarSegment>
@@ -311,8 +312,8 @@ export function RangeComparisonPanel({
 
         {/* Right: Period B */}
         <RangeColumn>
-          <RangeColumnHeader $color="#6366f1">
-            <RangeColumnDot $color="#6366f1" />
+          <RangeColumnHeader $color={palette.primary}>
+            <RangeColumnDot $color={palette.primary} />
             <RangeColumnTitle>
               期間B: {rangeBData.start}～{rangeBData.end}日（{rangeBData.salesDaysCount}営業日）
             </RangeColumnTitle>

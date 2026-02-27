@@ -204,10 +204,22 @@ export function CategoryPage() {
         <>
           {/* KPIサマリーカード */}
           <KpiRow>
-            <KpiCard label="全体値入率" value={formatPercent(overallMarkupRate)} accent={palette.primary} />
+            <KpiCard
+              label="全体値入率"
+              value={formatPercent(overallMarkupRate)}
+              accent={palette.primary}
+            />
             <KpiCard label="粗利額" value={formatCurrency(totalGrossProfit)} accent={sc.positive} />
-            <KpiCard label="原価合計" value={formatCurrency(totalCatCost)} accent={palette.warningDark} />
-            <KpiCard label="売価合計" value={formatCurrency(totalCatPrice)} accent={palette.blueDark} />
+            <KpiCard
+              label="原価合計"
+              value={formatCurrency(totalCatCost)}
+              accent={palette.warningDark}
+            />
+            <KpiCard
+              label="売価合計"
+              value={formatCurrency(totalCatPrice)}
+              accent={palette.blueDark}
+            />
           </KpiRow>
 
           {/* チャート（相乗積 + 構成比）— 統合カテゴリ */}

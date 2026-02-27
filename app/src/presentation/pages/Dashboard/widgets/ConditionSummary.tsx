@@ -1,6 +1,11 @@
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
-import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import {
+  formatPercent,
+  formatCurrency,
+  safeDivide,
+  getEffectiveGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import type { WidgetContext } from './types'
@@ -121,7 +126,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const { targetRate, warningRate, onExplain } = ctx
 
-  const gpRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+  const gpRate = getEffectiveGrossProfitRate(r)
   const gpAfterConsumable =
     r.invMethodGrossProfitRate != null
       ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)

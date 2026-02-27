@@ -137,7 +137,9 @@ export function Modal({
       <Container ref={containerRef} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <Header>
           <ModalTitle id={titleId}>{title}</ModalTitle>
-          <CloseButton onClick={onClose} aria-label="閉じる">✕</CloseButton>
+          <CloseButton onClick={onClose} aria-label="閉じる">
+            ✕
+          </CloseButton>
         </Header>
         <Body>{children}</Body>
         {footer && <Footer>{footer}</Footer>}

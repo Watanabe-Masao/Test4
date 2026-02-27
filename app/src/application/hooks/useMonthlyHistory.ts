@@ -15,7 +15,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import type { StoreDaySummaryIndex } from '@/domain/models'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 
 /**
  * 過去月データを MonthlyDataPoint[] として返すフック。
@@ -164,7 +164,7 @@ export function currentResultToMonthlyPoint(
     totalSales: result.totalSales,
     totalCustomers: result.totalCustomers,
     grossProfit: result.invMethodGrossProfit ?? result.estMethodMargin,
-    grossProfitRate: result.invMethodGrossProfitRate ?? result.estMethodMarginRate,
+    grossProfitRate: getEffectiveGrossProfitRate(result),
     budget: result.budget > 0 ? result.budget : null,
     budgetAchievement: result.budgetAchievementRate,
     storeCount,

@@ -6,7 +6,12 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { palette } from '@/presentation/theme/tokens'
+import {
+  formatCurrency,
+  formatPercent,
+  getEffectiveGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { DepartmentKpiRecord } from '@/domain/models'
 import { useAppDispatch, useAppData } from '@/application/context'
 import type { WidgetContext } from './types'
@@ -312,7 +317,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     return (
       <STableWrapper>
         <STableTitle>店舗別KPI一覧</STableTitle>
-        <div style={{ padding: '16px', fontSize: '0.7rem', color: '#888' }}>
+        <div style={{ padding: '16px', fontSize: '0.7rem', color: palette.slate }}>
           店舗データがありません。
         </div>
       </STableWrapper>
@@ -323,7 +328,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   const renderStoreRow = (r: typeof agg, label: string, storeId?: string, isSummary?: boolean) => {
     const gpRateBudget = r.grossProfitRateBudget
-    const gpRateActual = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+    const gpRateActual = getEffectiveGrossProfitRate(r)
     const gpRateVariance = gpRateActual - gpRateBudget
     // 有効期間の経過予算を算出
     let periodBudgetSum = 0
@@ -626,7 +631,7 @@ export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
     return (
       <STableWrapper>
         <STableTitle>部門別KPI一覧</STableTitle>
-        <div style={{ padding: '16px', fontSize: '0.7rem', color: '#888' }}>
+        <div style={{ padding: '16px', fontSize: '0.7rem', color: palette.slate }}>
           部門別KPIデータが取り込まれていません。「部門別」を含むCSV/Excelファイルをドロップしてください。
         </div>
       </STableWrapper>

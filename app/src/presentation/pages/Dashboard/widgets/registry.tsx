@@ -1,4 +1,5 @@
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
 import {
   DailySalesChart,
@@ -57,7 +58,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="コア売上"
         value={formatCurrency(r.totalCoreSales)}
         subText={`花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
-        accent="#8b5cf6"
+        accent={palette.purpleDark}
         onClick={() => onExplain('coreSales')}
       />
     ),
@@ -97,7 +98,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           label="【推定法】在庫差分"
           value={formatCurrency(r.estMethodMargin)}
           subText={`在庫差分率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
-          accent="#0ea5e9"
+          accent={palette.infoDark}
           onClick={() => onExplain('estMethodMargin')}
         />
       )
@@ -114,7 +115,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <KpiCard
         label="在庫仕入原価"
         value={formatCurrency(r.inventoryCost)}
-        accent="#ea580c"
+        accent={palette.orangeDark}
         onClick={() => onExplain('inventoryCost')}
       />
     ),
@@ -129,7 +130,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="売上納品原価"
         value={formatCurrency(r.deliverySalesCost)}
         subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
-        accent="#ec4899"
+        accent={palette.pinkDark}
         onClick={() => onExplain('deliverySalesCost')}
       />
     ),
@@ -144,7 +145,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="消耗品費"
         value={formatCurrency(r.totalConsumable)}
         subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
-        accent="#f97316"
+        accent={palette.orange}
         onClick={() => onExplain('totalConsumable')}
       />
     ),
@@ -158,7 +159,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <KpiCard
         label="売変ロス原価"
         value={formatCurrency(r.discountLossCost)}
-        accent="#dc2626"
+        accent={palette.dangerDeep}
         onClick={() => onExplain('discountLossCost')}
       />
     ),
@@ -172,7 +173,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <KpiCard
         label="コア値入率"
         value={formatPercent(r.coreMarkupRate)}
-        accent="#06b6d4"
+        accent={palette.cyanDark}
         onClick={() => onExplain('coreMarkupRate')}
       />
     ),

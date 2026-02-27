@@ -54,9 +54,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '上位の指標ほど経営インパクトが大きい',
       '正負で改善方向と悪化方向を区別',
     ],
-    keyPoints: [
-      '最も感度の高い指標を優先的に管理することで効率的な改善が可能です',
-    ],
+    keyPoints: ['最も感度の高い指標を優先的に管理することで効率的な改善が可能です'],
   },
 
   'causal-chain': {
@@ -66,9 +64,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '各ノードの色: 前年比プラス/マイナスを表示',
       'ノードをクリックすると詳細な内訳に遷移',
     ],
-    keyPoints: [
-      '売変ロスと消耗品費が粗利に与える影響に注目してください',
-    ],
+    keyPoints: ['売変ロスと消耗品費が粗利に与える影響に注目してください'],
   },
 
   'regression-insight': {
@@ -91,9 +87,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '実線 = 当月の実績',
       'バンドの外に出た日は季節パターンからの逸脱',
     ],
-    keyPoints: [
-      '季節パターンを大きく下回る日は要因調査の対象です',
-    ],
+    keyPoints: ['季節パターンを大きく下回る日は要因調査の対象です'],
   },
 
   'structural-overview': {
@@ -104,9 +98,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '右列: 粗利（在庫法・推定法）',
       '前年比バッジで各項目の変動を確認',
     ],
-    keyPoints: [
-      '在庫法の粗利率が推定法と大きく乖離する場合、在庫異常の可能性があります',
-    ],
+    keyPoints: ['在庫法の粗利率が推定法と大きく乖離する場合、在庫異常の可能性があります'],
   },
 
   'estimated-inventory-detail': {
@@ -144,10 +136,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
 
   'category-pie': {
     purpose: 'カテゴリ別の売上構成比を表示します',
-    howToRead: [
-      '各セグメント = カテゴリの売上シェア',
-      'ホバーで詳細金額を表示',
-    ],
+    howToRead: ['各セグメント = カテゴリの売上シェア', 'ホバーで詳細金額を表示'],
   },
 
   'gross-profit-rate': {
@@ -179,26 +168,16 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
 
   'customer-trend': {
     purpose: '日別の来店客数推移を表示します',
-    howToRead: [
-      '棒 = 日別の来店客数',
-      '曜日パターンに注目（週末が多い傾向）',
-    ],
+    howToRead: ['棒 = 日別の来店客数', '曜日パターンに注目（週末が多い傾向）'],
   },
 
   'time-slot-sales': {
     purpose: '時間帯別の売上分布を表示します',
-    howToRead: [
-      '棒の高さ = その時間帯の売上額',
-      'ピーク時間帯の把握と人員配置の参考に',
-    ],
+    howToRead: ['棒の高さ = その時間帯の売上額', 'ピーク時間帯の把握と人員配置の参考に'],
   },
 
   'time-slot-heatmap': {
     purpose: '曜日×時間帯の売上をヒートマップで表示します',
-    howToRead: [
-      '色の濃さ = 売上の大きさ',
-      '行 = 曜日、列 = 時間帯',
-      '最も濃いセルが売上のピーク',
-    ],
+    howToRead: ['色の濃さ = 売上の大きさ', '行 = 曜日、列 = 時間帯', '最も濃いセルが売上のピーク'],
   },
 }

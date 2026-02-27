@@ -46,7 +46,11 @@ export {
   ChartViewBtn,
   ChartViewSep,
   ChartWrapper,
+  ChartHelpButton,
+  ChartGuidePanel,
 } from './ChartHeader'
+export { CHART_GUIDES } from './chartGuides'
+export type { ChartGuide } from './chartGuides'
 export {
   CrossChartSelectionProvider,
   useCrossChartSelection,

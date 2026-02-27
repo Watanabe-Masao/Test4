@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct, toComma } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { safeDivide } from '@/domain/calculations/utils'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
 import { ChartHelpButton } from './ChartHeader'
@@ -349,12 +349,9 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
               : `推定法（在庫差分率）: ${toPct(nodes.gpRateEst)}`}
             {prev && (prev.invMethodGrossProfitRate != null || prev.estMethodMarginRate > 0) && (
               <YoyBadge
-                $positive={
-                  (nodes.gpRateInv ?? nodes.gpRateEst) >=
-                  (prev.invMethodGrossProfitRate ?? prev.estMethodMarginRate)
-                }
+                $positive={getEffectiveGrossProfitRate(r) >= getEffectiveGrossProfitRate(prev)}
               >
-                前年 {toPct(prev.invMethodGrossProfitRate ?? prev.estMethodMarginRate)}
+                前年 {toPct(getEffectiveGrossProfitRate(prev))}
               </YoyBadge>
             )}
           </SumValue>

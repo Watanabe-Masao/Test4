@@ -404,7 +404,12 @@ export function MetricBreakdownPanel({
 
   return (
     <Overlay onClick={onClose}>
-      <Panel onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={`${current.title} の算出根拠`}>
+      <Panel
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${current.title} の算出根拠`}
+      >
         <Header>
           <div>
             <Title>{current.title}</Title>

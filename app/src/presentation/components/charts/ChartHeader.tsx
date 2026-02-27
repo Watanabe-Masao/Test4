@@ -84,11 +84,9 @@ const HelpBtn = styled.button<{ $active?: boolean }>`
   font-weight: 700;
   margin-left: ${({ theme }) => theme.spacing[2]};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text4)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.colors.palette.primary : theme.colors.text4};
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   transition: all 0.15s;
   flex-shrink: 0;
   &:hover {
@@ -103,8 +101,7 @@ const GuidePanel = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  margin: 0 ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[3]};
+  margin: 0 ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[3]};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text3};
   line-height: 1.6;
@@ -139,17 +136,10 @@ export function ChartHelpButton({ guide }: { guide: ChartGuide }) {
 
   return (
     <>
-      <HelpBtn
-        $active={open}
-        onClick={toggle}
-        aria-label="このグラフの読み方"
-        aria-expanded={open}
-      >
+      <HelpBtn $active={open} onClick={toggle} aria-label="このグラフの読み方" aria-expanded={open}>
         ?
       </HelpBtn>
-      {open && (
-        <ChartGuidePanel guide={guide} />
-      )}
+      {open && <ChartGuidePanel guide={guide} />}
     </>
   )
 }

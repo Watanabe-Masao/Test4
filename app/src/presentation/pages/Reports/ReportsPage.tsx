@@ -364,7 +364,9 @@ export function ReportsPage() {
 
         <Card $accent={palette.infoDark}>
           <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
-          <DisclaimerNote>※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。</DisclaimerNote>
+          <DisclaimerNote>
+            ※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。
+          </DisclaimerNote>
           <CalcRow>
             <CalcLabel>コア売上</CalcLabel>
             <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
@@ -383,11 +385,15 @@ export function ReportsPage() {
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定在庫差分</CalcLabel>
-            <CalcHighlight $color={palette.infoDark}>{formatCurrency(r.estMethodMargin)}</CalcHighlight>
+            <CalcHighlight $color={palette.infoDark}>
+              {formatCurrency(r.estMethodMargin)}
+            </CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定在庫差分率</CalcLabel>
-            <CalcHighlight $color={palette.infoDark}>{formatPercent(r.estMethodMarginRate)}</CalcHighlight>
+            <CalcHighlight $color={palette.infoDark}>
+              {formatPercent(r.estMethodMarginRate)}
+            </CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定期末在庫</CalcLabel>
@@ -404,7 +410,11 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>仕入・売変詳細</SectionTitle>
         <KpiGrid>
-          <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent={palette.warningDark} />
+          <KpiCard
+            label="在庫仕入原価"
+            value={formatCurrency(r.inventoryCost)}
+            accent={palette.warningDark}
+          />
           <KpiCard
             label="売上納品原価"
             value={formatCurrency(r.deliverySalesCost)}

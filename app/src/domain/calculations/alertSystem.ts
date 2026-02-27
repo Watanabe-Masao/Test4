@@ -4,7 +4,7 @@
  * カスタマイズ可能なアラートルールを定義し、
  * StoreResult から閾値超過を自動検出する。
  */
-import { safeDivide } from './utils'
+import { safeDivide, getEffectiveGrossProfitRate } from './utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 
 // ─── Types ────────────────────────────────────────────
@@ -118,7 +118,7 @@ export function evaluateAlerts(
 
     switch (rule.type) {
       case 'gp_rate_below_target': {
-        const gpRate = result.invMethodGrossProfitRate ?? result.estMethodMarginRate ?? 0
+        const gpRate = getEffectiveGrossProfitRate(result)
         const diff = options.targetGrossProfitRate - gpRate
         if (diff > rule.threshold) {
           alerts.push({
