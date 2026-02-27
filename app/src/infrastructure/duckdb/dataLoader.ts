@@ -332,8 +332,7 @@ async function insertTransfers(
       const dateKey = toDateKeyFromParts(year, month, day)
 
       const storeRecords = inOrOut === 'in' ? entry.interStoreIn : entry.interStoreOut
-      const deptRecords =
-        inOrOut === 'in' ? entry.interDepartmentIn : entry.interDepartmentOut
+      const deptRecords = inOrOut === 'in' ? entry.interDepartmentIn : entry.interDepartmentOut
 
       const storeDirection = inOrOut === 'in' ? 'interStoreIn' : 'interStoreOut'
       const deptDirection = inOrOut === 'in' ? 'interDeptIn' : 'interDeptOut'

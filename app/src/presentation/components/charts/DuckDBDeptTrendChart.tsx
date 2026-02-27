@@ -12,16 +12,7 @@
  * - 売上実績棒グラフ
  */
 import { useMemo, useState, useCallback } from 'react'
-import {
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -63,7 +54,8 @@ const DeptSelector = styled.div`
 const DeptChip = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
-  border: 1px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -157,14 +149,13 @@ export function DuckDBDeptTrendChart({
     return months
   }, [year, month])
 
-  const { data: trendData } = useDuckDBDeptKpiTrend(
-    duckConn,
-    duckDataVersion,
-    yearMonths,
-  )
+  const { data: trendData } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
 
   const { chartData, deptNames } = useMemo(
-    () => (trendData ? buildChartData(trendData, selectedDept) : { chartData: [], deptNames: new Map<string, string>() }),
+    () =>
+      trendData
+        ? buildChartData(trendData, selectedDept)
+        : { chartData: [], deptNames: new Map<string, string>() },
     [trendData, selectedDept],
   )
 

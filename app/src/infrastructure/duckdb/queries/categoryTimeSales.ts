@@ -38,9 +38,7 @@ function ctsWhereClause(params: CtsFilterParams, tableAlias: string): string {
     params.deptCode ? `${a}.dept_code = '${params.deptCode}'` : null,
     params.lineCode ? `${a}.line_code = '${params.lineCode}'` : null,
     params.klassCode ? `${a}.klass_code = '${params.klassCode}'` : null,
-    params.dow && params.dow.length > 0
-      ? `${a}.dow IN (${params.dow.join(', ')})`
-      : null,
+    params.dow && params.dow.length > 0 ? `${a}.dow IN (${params.dow.join(', ')})` : null,
   ]
   return buildWhereClause(conditions)
 }

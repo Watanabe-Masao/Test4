@@ -51,12 +51,8 @@ export async function queryYoyDailyComparison(
   },
 ): Promise<readonly YoyDailyRow[]> {
   const storeFilter = storeIdFilter(params.storeIds)
-  const curStoreWhere = storeFilter
-    ? `AND c.store_id ${storeFilter.replace('store_id ', '')}`
-    : ''
-  const prevStoreWhere = storeFilter
-    ? `AND p.store_id ${storeFilter.replace('store_id ', '')}`
-    : ''
+  const curStoreWhere = storeFilter ? `AND c.store_id ${storeFilter.replace('store_id ', '')}` : ''
+  const prevStoreWhere = storeFilter ? `AND p.store_id ${storeFilter.replace('store_id ', '')}` : ''
 
   const sql = `
     WITH current_data AS (

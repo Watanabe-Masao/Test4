@@ -43,10 +43,7 @@ export async function queryToObjects<T>(
 /**
  * スカラー値（1行1列）を取得する。結果がなければ null。
  */
-export async function queryScalar<T>(
-  conn: AsyncDuckDBConnection,
-  sql: string,
-): Promise<T | null> {
+export async function queryScalar<T>(conn: AsyncDuckDBConnection, sql: string): Promise<T | null> {
   const result = await conn.query(sql)
   const rows = result.toArray()
   if (rows.length === 0) return null

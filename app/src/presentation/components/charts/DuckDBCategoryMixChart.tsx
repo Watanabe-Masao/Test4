@@ -10,15 +10,7 @@
  * - 構成比シフトの大きいカテゴリのハイライト
  */
 import { useMemo, useState, useCallback } from 'react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -77,8 +69,7 @@ const Chip = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
   border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.colors.palette.primary : theme.colors.border};
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -86,8 +77,7 @@ const Chip = styled.button<{ $active: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   transition: all 0.15s;
 
@@ -300,14 +290,9 @@ function MixTooltip({ active, label, payload, categories, ct }: CustomTooltipPro
           const catName = cat ? cat.name : p.name
           const shift = cat?.latestShift
           const shiftLabel =
-            shift != null
-              ? ` (${shift >= 0 ? '+' : ''}${toPct(shift / 100, 1)})`
-              : ''
+            shift != null ? ` (${shift >= 0 ? '+' : ''}${toPct(shift / 100, 1)})` : ''
           return (
-            <div
-              key={p.name}
-              style={{ display: 'flex', gap: 6, alignItems: 'center' }}
-            >
+            <div key={p.name} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               <span
                 style={{
                   width: 8,
@@ -319,7 +304,8 @@ function MixTooltip({ active, label, payload, categories, ct }: CustomTooltipPro
                 }}
               />
               <span>
-                {catName}: {toPct(p.value / 100, 1)}{shiftLabel}
+                {catName}: {toPct(p.value / 100, 1)}
+                {shiftLabel}
               </span>
             </div>
           )
@@ -367,19 +353,13 @@ export function DuckDBCategoryMixChart({
   return (
     <Wrapper>
       <Title>カテゴリ構成比推移（DuckDB）</Title>
-      <Subtitle>
-        週次のカテゴリ別売上構成比 | マルチ月対応
-      </Subtitle>
+      <Subtitle>週次のカテゴリ別売上構成比 | マルチ月対応</Subtitle>
 
       <ControlRow>
         <ChipGroup>
           <ChipLabel>階層:</ChipLabel>
           {(Object.keys(LEVEL_LABELS) as HierarchyLevel[]).map((l) => (
-            <Chip
-              key={l}
-              $active={level === l}
-              onClick={() => handleLevelChange(l)}
-            >
+            <Chip key={l} $active={level === l} onClick={() => handleLevelChange(l)}>
               {LEVEL_LABELS[l]}
             </Chip>
           ))}
@@ -400,11 +380,7 @@ export function DuckDBCategoryMixChart({
             domain={[0, 100]}
             tickFormatter={(v: number) => toPct(v / 100, 0)}
           />
-          <Tooltip
-            content={
-              <MixTooltip categories={categories} ct={ct} />
-            }
-          />
+          <Tooltip content={<MixTooltip categories={categories} ct={ct} />} />
           <Legend
             wrapperStyle={{ fontSize: '0.6rem' }}
             formatter={(value: string) => {

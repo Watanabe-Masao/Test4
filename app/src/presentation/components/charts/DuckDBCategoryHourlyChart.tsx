@@ -13,10 +13,7 @@ import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBCategoryHourly,
-  type CategoryHourlyRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 
 // ── styled-components ──
@@ -66,8 +63,7 @@ const Chip = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
   border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.colors.palette.primary : theme.colors.border};
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -75,8 +71,7 @@ const Chip = styled.button<{ $active: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   transition: all 0.15s;
 
@@ -123,10 +118,7 @@ const HeatmapCell = styled.td<{ $intensity: number; $isPeak: boolean }>`
     const alpha = Math.min($intensity * 0.7 + 0.05, 0.75)
     return `rgba(${baseColor}, ${alpha})`
   }};
-  color: ${({ $intensity, theme }) =>
-    $intensity > 0.5
-      ? '#ffffff'
-      : theme.colors.text3};
+  color: ${({ $intensity, theme }) => ($intensity > 0.5 ? '#ffffff' : theme.colors.text3)};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   position: relative;
   font-weight: ${({ $isPeak }) => ($isPeak ? 700 : 400)};
@@ -316,19 +308,13 @@ export function DuckDBCategoryHourlyChart({
   return (
     <Wrapper>
       <Title>カテゴリ×時間帯分析（DuckDB）</Title>
-      <Subtitle>
-        カテゴリ別の時間帯売上分布 | ★ = ピーク
-      </Subtitle>
+      <Subtitle>カテゴリ別の時間帯売上分布 | ★ = ピーク</Subtitle>
 
       <ControlRow>
         <ChipGroup>
           <ChipLabel>階層:</ChipLabel>
           {(Object.keys(LEVEL_LABELS) as HierarchyLevel[]).map((l) => (
-            <Chip
-              key={l}
-              $active={level === l}
-              onClick={() => handleLevelChange(l)}
-            >
+            <Chip key={l} $active={level === l} onClick={() => handleLevelChange(l)}>
               {LEVEL_LABELS[l]}
             </Chip>
           ))}
@@ -381,12 +367,8 @@ export function DuckDBCategoryHourlyChart({
       </ScrollContainer>
 
       <SummaryRow>
-        <SummaryItem>
-          全体ピーク: {globalPeakHour}時
-        </SummaryItem>
-        <SummaryItem>
-          表示カテゴリ: {categories.length}件
-        </SummaryItem>
+        <SummaryItem>全体ピーク: {globalPeakHour}時</SummaryItem>
+        <SummaryItem>表示カテゴリ: {categories.length}件</SummaryItem>
         {categories[0] && (
           <SummaryItem>
             最大: {categories[0].name} (ピーク {categories[0].peakHour}時)

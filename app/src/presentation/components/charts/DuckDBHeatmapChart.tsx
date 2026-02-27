@@ -14,10 +14,7 @@ import styled, { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
-import {
-  useDuckDBHourDowMatrix,
-  type HourDowMatrixRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBHourDowMatrix, type HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 
 // ── Styled Components ──
@@ -195,8 +192,7 @@ function buildHeatmapData(rows: readonly HourDowMatrixRow[]): HeatmapData {
   // Z-score 計算: 全セルの平均・標準偏差を求める
   const values = dailyAvgs.map((d) => d.avg)
   const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance =
-    values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length
+  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length
   const stdDev = Math.sqrt(variance)
 
   const cells = new Map<string, CellData>()
@@ -238,11 +234,7 @@ function buildHeatmapData(rows: readonly HourDowMatrixRow[]): HeatmapData {
 }
 
 /** 0-1 の割合からヒートマップ色を生成 */
-function interpolateColor(
-  ratio: number,
-  bgColor: string,
-  primaryColor: string,
-): string {
+function interpolateColor(ratio: number, bgColor: string, primaryColor: string): string {
   // bgColor / primaryColor は hex 想定
   const parsedBg = hexToRgb(bgColor)
   const parsedPrimary = hexToRgb(primaryColor)
@@ -304,9 +296,7 @@ export function DuckDBHeatmapChart({
   return (
     <Wrapper>
       <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
-      <Subtitle>
-        セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z &gt; {Z_SCORE_THRESHOLD})
-      </Subtitle>
+      <Subtitle>セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z &gt; {Z_SCORE_THRESHOLD})</Subtitle>
 
       <GridContainer>
         <HeatmapTable>
@@ -314,9 +304,7 @@ export function DuckDBHeatmapChart({
             <tr>
               <HeaderCell />
               {DOW_ORDER.map((dow) => (
-                <HeaderCell key={dow}>
-                  {DOW_LABELS[dow]}
-                </HeaderCell>
+                <HeaderCell key={dow}>{DOW_LABELS[dow]}</HeaderCell>
               ))}
             </tr>
           </thead>
@@ -338,15 +326,12 @@ export function DuckDBHeatmapChart({
                       </DataCell>
                     )
                   }
-                  const ratio = heatmapData.maxValue > 0
-                    ? cell.dailyAvg / heatmapData.maxValue
-                    : 0
+                  const ratio = heatmapData.maxValue > 0 ? cell.dailyAvg / heatmapData.maxValue : 0
                   const bgColor = interpolateColor(ratio, bgBase, primaryHex)
 
                   // テキスト色: ratio が高い場合は白テキスト
-                  const textColor = ratio > 0.5
-                    ? (ct.isDark ? theme.colors.text : '#ffffff')
-                    : ct.textMuted
+                  const textColor =
+                    ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
 
                   return (
                     <DataCell

@@ -10,23 +10,12 @@
  * - 上位N件セレクタ
  */
 import { useState, useMemo, useCallback } from 'react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  useDuckDBCategoryHourly,
-  type CategoryHourlyRow,
-} from '@/application/hooks/useDuckDBQuery'
+import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 
@@ -92,13 +81,10 @@ const DeptChip = styled.button<{ $color: string; $active: boolean }>`
   gap: ${({ theme }) => theme.spacing[1]};
   padding: 2px 8px;
   font-size: 0.6rem;
-  border: 1px solid ${({ $active, $color, theme }) =>
-    $active ? $color : theme.colors.border};
+  border: 1px solid ${({ $active, $color, theme }) => ($active ? $color : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, $color }) =>
-    $active ? `${$color}18` : 'transparent'};
-  color: ${({ $active, $color, theme }) =>
-    $active ? $color : theme.colors.text3};
+  background: ${({ $active, $color }) => ($active ? `${$color}18` : 'transparent')};
+  color: ${({ $active, $color, theme }) => ($active ? $color : theme.colors.text3)};
   cursor: pointer;
   transition: all 0.15s;
   opacity: ${({ $active }) => ($active ? 1 : 0.6)};
@@ -197,9 +183,7 @@ function buildChartData(
   }
 
   // 合計額順にソートして上位N件を取得
-  const sorted = [...deptTotals.entries()]
-    .sort((a, b) => b[1].total - a[1].total)
-    .slice(0, topN)
+  const sorted = [...deptTotals.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, topN)
 
   const departments: DeptInfo[] = sorted.map(([code, info], i) => ({
     code,
@@ -277,13 +261,10 @@ export function DuckDBDeptHourlyChart({
     [categoryHourlyRows, topN, activeDepts],
   )
 
-  const handleTopNChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setTopN(Number(e.target.value))
-      setActiveDepts(new Set())
-    },
-    [],
-  )
+  const handleTopNChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTopN(Number(e.target.value))
+    setActiveDepts(new Set())
+  }, [])
 
   const handleChipClick = useCallback((code: string) => {
     setActiveDepts((prev) => {
@@ -306,15 +287,15 @@ export function DuckDBDeptHourlyChart({
       <HeaderRow>
         <div>
           <Title>部門別時間帯パターン（DuckDB）</Title>
-          <Subtitle>
-            上位{topN}部門の時間帯別売上 | 積み上げ面グラフ
-          </Subtitle>
+          <Subtitle>上位{topN}部門の時間帯別売上 | 積み上げ面グラフ</Subtitle>
         </div>
         <TopNSelector>
           <span>上位</span>
           <TopNSelect value={topN} onChange={handleTopNChange}>
             {TOP_N_OPTIONS.map((n) => (
-              <option key={n} value={n}>{n}部門</option>
+              <option key={n} value={n}>
+                {n}部門
+              </option>
             ))}
           </TopNSelect>
         </TopNSelector>

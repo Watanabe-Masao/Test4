@@ -11,16 +11,7 @@
  * - 前年比（ピーク時間帯）
  */
 import { useState, useMemo } from 'react'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -152,9 +143,7 @@ function buildPrevYearRange(range: DateRange): DateRange {
 }
 
 /** 時間帯別行データ → hour をキーとする Map に変換 */
-function toHourMap(
-  rows: readonly HourlyAggregationRow[],
-): Map<number, number> {
+function toHourMap(rows: readonly HourlyAggregationRow[]): Map<number, number> {
   const map = new Map<number, number>()
   for (const row of rows) {
     const prev = map.get(row.hour) ?? 0
@@ -200,8 +189,7 @@ function buildChartData(
     }
   }
 
-  const yoyRatio =
-    prevYearPeakAmount > 0 ? peakAmount / prevYearPeakAmount : null
+  const yoyRatio = prevYearPeakAmount > 0 ? peakAmount / prevYearPeakAmount : null
 
   return {
     chartData,
@@ -222,10 +210,7 @@ export function DuckDBTimeSlotChart({
   const [mode, setMode] = useState<Mode>('total')
 
   // 前年の日付範囲を構築
-  const prevYearRange = useMemo(
-    () => buildPrevYearRange(currentDateRange),
-    [currentDateRange],
-  )
+  const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
 
   // 当年 時間帯別集約
   const { data: currentHourly } = useDuckDBHourlyAggregation(
@@ -269,14 +254,11 @@ export function DuckDBTimeSlotChart({
   const { chartData, summary } = useMemo(
     () =>
       currentHourly && prevHourly
-        ? buildChartData(
-            currentHourly,
-            prevHourly,
-            mode,
-            currentDayCount ?? 1,
-            prevDayCount ?? 1,
-          )
-        : { chartData: [], summary: { peakHour: 0, peakAmount: 0, prevYearPeakAmount: 0, yoyRatio: null } },
+        ? buildChartData(currentHourly, prevHourly, mode, currentDayCount ?? 1, prevDayCount ?? 1)
+        : {
+            chartData: [],
+            summary: { peakHour: 0, peakAmount: 0, prevYearPeakAmount: 0, yoyRatio: null },
+          },
     [currentHourly, prevHourly, mode, currentDayCount, prevDayCount],
   )
 
@@ -289,9 +271,7 @@ export function DuckDBTimeSlotChart({
       <HeaderRow>
         <div>
           <Title>時間帯別売上（DuckDB）</Title>
-          <Subtitle>
-            当年（棒） vs 前年（線） | 日平均切替可能
-          </Subtitle>
+          <Subtitle>当年（棒） vs 前年（線） | 日平均切替可能</Subtitle>
         </div>
         <ToggleGroup>
           <ToggleButton $active={mode === 'total'} onClick={() => setMode('total')}>
@@ -326,13 +306,7 @@ export function DuckDBTimeSlotChart({
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
           {/* 当年売上（棒グラフ） */}
-          <Bar
-            dataKey="current"
-            name="当年"
-            fill={palette.primary}
-            opacity={0.8}
-            barSize={14}
-          />
+          <Bar dataKey="current" name="当年" fill={palette.primary} opacity={0.8} barSize={14} />
 
           {/* 前年売上（破線ライン） */}
           <Line

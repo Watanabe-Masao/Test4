@@ -61,8 +61,8 @@ const Separator = styled.span`
 const PresetButton = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   font-size: 0.6rem;
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $active, theme }) =>
     $active
@@ -70,8 +70,7 @@ const PresetButton = styled.button<{ $active: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;
@@ -195,17 +194,9 @@ export function DuckDBDateRangePicker({
   return (
     <Wrapper>
       <Label>DuckDB 分析期間:</Label>
-      <DateInput
-        type="date"
-        value={fromStr}
-        onChange={handleFromChange}
-      />
+      <DateInput type="date" value={fromStr} onChange={handleFromChange} />
       <Separator>〜</Separator>
-      <DateInput
-        type="date"
-        value={toStr}
-        onChange={handleToChange}
-      />
+      <DateInput type="date" value={toStr} onChange={handleToChange} />
       <DaysInfo>({days}日間)</DaysInfo>
 
       <PresetButton $active={activePreset === 'month'} onClick={() => handlePreset('month')}>

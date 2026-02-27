@@ -221,9 +221,7 @@ export function DuckDBFeatureChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [
-              value != null ? fmt(value) : '-',
-            ]}
+            formatter={(value: number | undefined) => [value != null ? fmt(value) : '-']}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

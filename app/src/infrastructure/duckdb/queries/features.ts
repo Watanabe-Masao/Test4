@@ -190,9 +190,7 @@ export async function queryDeptDailyTrend(
   conn: AsyncDuckDBConnection,
   params: FeatureFilterParams & { readonly deptCode?: string },
 ): Promise<readonly DeptDailyTrendRow[]> {
-  const deptFilter = params.deptCode
-    ? `AND dept_code = '${params.deptCode}'`
-    : ''
+  const deptFilter = params.deptCode ? `AND dept_code = '${params.deptCode}'` : ''
 
   const where = buildWhereClause([
     `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
