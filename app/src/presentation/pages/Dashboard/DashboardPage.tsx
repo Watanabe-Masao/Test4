@@ -213,7 +213,13 @@ export function DashboardPage() {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
+  }, [
+    ctsIndex.recordCount,
+    prevYearCTS.hasPrevYear,
+    stores.size,
+    currentResult?.hasDiscountData,
+    duck.isReady,
+  ])
 
   // ─── Empty / Loading states ──
 
