@@ -181,6 +181,8 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
     monthlyHistory: [],
+    duckConn: null,
+    duckDataVersion: 0,
     ...overrides,
   }
 }

@@ -19,6 +19,7 @@ import {
   useCategoryTimeSalesIndexFromRecords,
   useBudgetChartData,
 } from '@/application/hooks'
+import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
   currentResultToMonthlyPoint,
@@ -202,6 +203,9 @@ export function DashboardPage() {
   // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
 
+  // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
+  const duck = useDuckDB(appState.data, targetYear, targetMonth)
+
   // ─── Empty / Loading states ──
 
   if (!isCalculated && appState.storeResults.size === 0) {
@@ -270,6 +274,8 @@ export function DashboardPage() {
     explanations,
     onExplain: handleExplain,
     monthlyHistory,
+    duckConn: duck.conn,
+    duckDataVersion: duck.dataVersion,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)

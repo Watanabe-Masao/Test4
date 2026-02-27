@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
   StoreResult,
   CategoryTimeSalesIndex,
@@ -100,4 +101,8 @@ export interface WidgetContext {
   onExplain: (metricId: MetricId) => void
   /** 過去月データ（季節性分析用） */
   monthlyHistory: readonly MonthlyDataPoint[]
+  /** DuckDB コネクション（DuckDB 準備完了時のみ非 null） */
+  duckConn: AsyncDuckDBConnection | null
+  /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
+  duckDataVersion: number
 }

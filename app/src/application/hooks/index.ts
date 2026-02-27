@@ -21,3 +21,5 @@ export {
 } from './useCategoryTimeSalesIndex'
 export { useBudgetChartData } from './useBudgetChartData'
 export type { BudgetChartDataPoint } from './useBudgetChartData'
+export { useDuckDB } from './useDuckDB'
+export type { DuckDBHookResult } from './useDuckDB'
