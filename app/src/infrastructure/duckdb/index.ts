@@ -25,6 +25,8 @@ export {
   queryHourDowMatrix,
   queryDistinctDayCount,
   queryDowDivisorMap,
+  queryCategoryDailyTrend,
+  queryCategoryHourly,
 } from './queries/categoryTimeSales'
 export type {
   CtsFilterParams,
@@ -32,6 +34,8 @@ export type {
   LevelAggregationRow,
   StoreAggregationRow,
   HourDowMatrixRow,
+  CategoryDailyTrendRow,
+  CategoryHourlyRow,
 } from './queries/categoryTimeSales'
 
 export {
@@ -75,3 +79,14 @@ export type {
   DowPatternRow,
   DeptDailyTrendRow,
 } from './queries/features'
+
+export {
+  queryCategoryMixWeekly,
+  queryStoreBenchmark,
+} from './queries/advancedAnalytics'
+export type {
+  CategoryMixWeeklyRow,
+  CategoryMixParams,
+  StoreBenchmarkRow,
+  StoreBenchmarkParams,
+} from './queries/advancedAnalytics'

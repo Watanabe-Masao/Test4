@@ -52,6 +52,18 @@ import {
   type HourlyProfileRow,
   type DowPatternRow,
 } from '@/infrastructure/duckdb/queries/features'
+import {
+  queryCategoryDailyTrend,
+  queryCategoryHourly,
+  type CategoryDailyTrendRow,
+  type CategoryHourlyRow,
+} from '@/infrastructure/duckdb/queries/categoryTimeSales'
+import {
+  queryCategoryMixWeekly,
+  queryStoreBenchmark,
+  type CategoryMixWeeklyRow,
+  type StoreBenchmarkRow,
+} from '@/infrastructure/duckdb/queries/advancedAnalytics'
 
 // ── 汎用非同期クエリフック ──
 
@@ -497,6 +509,108 @@ export function useDuckDBDowPattern(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
+// ── カテゴリ分析クエリフック ──
+
+/** カテゴリ別日次トレンド */
+export function useDuckDBCategoryDailyTrend(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  level: 'department' | 'line' | 'klass',
+  hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
+  topN?: number,
+): AsyncQueryResult<readonly CategoryDailyTrendRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryCategoryDailyTrend(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        deptCode: hierarchy?.deptCode,
+        lineCode: hierarchy?.lineCode,
+        klassCode: hierarchy?.klassCode,
+        level,
+        topN,
+      })
+  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, topN])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/** カテゴリ別×時間帯集約 */
+export function useDuckDBCategoryHourly(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  level: 'department' | 'line' | 'klass',
+  hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
+): AsyncQueryResult<readonly CategoryHourlyRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryCategoryHourly(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        deptCode: hierarchy?.deptCode,
+        lineCode: hierarchy?.lineCode,
+        klassCode: hierarchy?.klassCode,
+        level,
+      })
+  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/** カテゴリ構成比 週次推移 */
+export function useDuckDBCategoryMixWeekly(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  level: 'department' | 'line' | 'klass',
+): AsyncQueryResult<readonly CategoryMixWeeklyRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryCategoryMixWeekly(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        level,
+      })
+  }, [dateRange, storeIds, level])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/** 店舗ベンチマーク（週次ランキング推移） */
+export function useDuckDBStoreBenchmark(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+): AsyncQueryResult<readonly StoreBenchmarkRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryStoreBenchmark(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+      })
+  }, [dateRange, storeIds])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
 // ── Re-export types for consumer convenience ──
 
 export type {
@@ -514,4 +628,8 @@ export type {
   DailyFeatureRow,
   HourlyProfileRow,
   DowPatternRow,
+  CategoryDailyTrendRow,
+  CategoryHourlyRow,
+  CategoryMixWeeklyRow,
+  StoreBenchmarkRow,
 }

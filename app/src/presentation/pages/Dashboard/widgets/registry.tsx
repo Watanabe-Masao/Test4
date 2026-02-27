@@ -29,6 +29,16 @@ import {
   DuckDBCumulativeChart,
   DuckDBYoYChart,
   DuckDBDeptTrendChart,
+  DuckDBDowPatternChart,
+  DuckDBHourlyProfileChart,
+  DuckDBTimeSlotChart,
+  DuckDBHeatmapChart,
+  DuckDBDeptHourlyChart,
+  DuckDBStoreHourlyChart,
+  DuckDBCategoryTrendChart,
+  DuckDBCategoryHourlyChart,
+  DuckDBCategoryMixChart,
+  DuckDBStoreBenchmarkChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -749,6 +759,161 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         loadedMonthCount={ctx.duckLoadedMonthCount}
         year={ctx.year}
         month={ctx.month}
+      />
+    ),
+  },
+  // ── DuckDB Phase 2: グループA — 既存ウィジェット DuckDB 移行版 ──
+  {
+    id: 'duckdb-timeslot',
+    label: '時間帯別売上（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBTimeSlotChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-heatmap',
+    label: '時間帯×曜日ヒートマップ（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBHeatmapChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-dept-hourly',
+    label: '部門別時間帯パターン（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBDeptHourlyChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-store-hourly',
+    label: '店舗×時間帯比較（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.stores.size > 1,
+    render: (ctx) => (
+      <DuckDBStoreHourlyChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
+      />
+    ),
+  },
+  // ── DuckDB Phase 2: グループB — 新規分析ウィジェット ──
+  {
+    id: 'duckdb-dow-pattern',
+    label: '曜日パターン分析（DuckDB）',
+    group: '統計・トレンド',
+    size: 'half',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBDowPatternChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-hourly-profile',
+    label: '時間帯プロファイル（DuckDB）',
+    group: '統計・トレンド',
+    size: 'half',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBHourlyProfileChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-category-trend',
+    label: 'カテゴリ別売上推移（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBCategoryTrendChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  // ── DuckDB Phase 2: グループC — 高度分析ウィジェット ──
+  {
+    id: 'duckdb-category-hourly',
+    label: 'カテゴリ×時間帯（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBCategoryHourlyChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-category-mix',
+    label: 'カテゴリ構成比推移（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
+    render: (ctx) => (
+      <DuckDBCategoryMixChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-store-benchmark',
+    label: '店舗ベンチマーク（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.stores.size > 1,
+    render: (ctx) => (
+      <DuckDBStoreBenchmarkChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.duckDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
       />
     ),
   },

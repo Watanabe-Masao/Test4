@@ -39,4 +39,8 @@ export {
   useDuckDBDailyFeatures,
   useDuckDBHourlyProfile,
   useDuckDBDowPattern,
+  useDuckDBCategoryDailyTrend,
+  useDuckDBCategoryHourly,
+  useDuckDBCategoryMixWeekly,
+  useDuckDBStoreBenchmark,
 } from './useDuckDBQuery'
