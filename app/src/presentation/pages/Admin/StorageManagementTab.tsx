@@ -292,6 +292,83 @@ const LoadingText = styled.div`
   text-align: center;
 `
 
+// ─── Data Governance サマリー ────────────────────────────
+
+const GovernanceSummary = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[5]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+`
+
+const GovernanceRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const GovernanceIcon = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ theme }) => theme.colors.palette.success};
+`
+
+const GovernanceText = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  line-height: 1.5;
+`
+
+const GovernanceStat = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const GovernanceStatValue = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const GovernanceStatLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+// ─── Delete Confirmation Enhancement ──────────────────
+
+const ConfirmDetail = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg3};
+  padding: ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+const ConfirmDetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+
+const ConfirmWarning = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
 // ─── Types ──────────────────────────────────────────────
 
 interface MonthEntry {
@@ -620,6 +697,8 @@ export function StorageManagementTab() {
     )
   }
 
+  const grandTotalRecords = months.reduce((sum, m) => sum + m.totalRecords, 0)
+
   return (
     <>
       <Section>
@@ -628,6 +707,29 @@ export function StorageManagementTab() {
           IndexedDB
           に保存されている月別データの一覧です。各月のデータ内容を確認したり、不要なデータを削除できます。
         </HelpText>
+
+        <GovernanceSummary>
+          <GovernanceStat>
+            <GovernanceStatValue>{grandTotalRecords.toLocaleString()}</GovernanceStatValue>
+            <GovernanceStatLabel>件（全 {months.length} 月分合計）</GovernanceStatLabel>
+          </GovernanceStat>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>
+              全データはブラウザ内ローカルストレージに保存されています。サーバーへの送信は行いません。
+            </GovernanceText>
+          </GovernanceRow>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>自動削除はありません。手動で管理してください。</GovernanceText>
+          </GovernanceRow>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>
+              個人を特定できるデータは含まれていません（売上集計データのみ）。
+            </GovernanceText>
+          </GovernanceRow>
+        </GovernanceSummary>
 
         {months.length === 0 ? (
           <EmptyState>保存されたデータはありません</EmptyState>
@@ -701,25 +803,43 @@ export function StorageManagementTab() {
       </Section>
 
       {/* 削除確認ダイアログ */}
-      {deleteTarget && (
-        <ConfirmOverlay onClick={() => !deleting && setDeleteTarget(null)}>
-          <ConfirmDialog onClick={(e) => e.stopPropagation()}>
-            <ConfirmTitle>データ削除の確認</ConfirmTitle>
-            <ConfirmMessage>
-              {deleteTarget.year}年{deleteTarget.month}月の保存データを全て削除します。
-              この操作は取り消せません。
-            </ConfirmMessage>
-            <ConfirmActions>
-              <CancelButton onClick={() => setDeleteTarget(null)} disabled={deleting}>
-                キャンセル
-              </CancelButton>
-              <ConfirmDeleteButton onClick={handleDelete} disabled={deleting}>
-                {deleting ? '削除中...' : '削除する'}
-              </ConfirmDeleteButton>
-            </ConfirmActions>
-          </ConfirmDialog>
-        </ConfirmOverlay>
-      )}
+      {deleteTarget &&
+        (() => {
+          const targetEntry = months.find(
+            (m) => m.year === deleteTarget.year && m.month === deleteTarget.month,
+          )
+          return (
+            <ConfirmOverlay onClick={() => !deleting && setDeleteTarget(null)}>
+              <ConfirmDialog onClick={(e) => e.stopPropagation()}>
+                <ConfirmTitle>データ削除の確認</ConfirmTitle>
+                <ConfirmMessage>
+                  {deleteTarget.year}年{deleteTarget.month}月の保存データを全て削除します。
+                </ConfirmMessage>
+                {targetEntry && (
+                  <ConfirmDetail>
+                    <ConfirmDetailRow>
+                      <span>データ種別数</span>
+                      <span>{targetEntry.dataTypeCount} 種別</span>
+                    </ConfirmDetailRow>
+                    <ConfirmDetailRow>
+                      <span>総レコード数</span>
+                      <span>{targetEntry.totalRecords.toLocaleString()} 件</span>
+                    </ConfirmDetailRow>
+                  </ConfirmDetail>
+                )}
+                <ConfirmWarning>この操作は取り消せません。</ConfirmWarning>
+                <ConfirmActions>
+                  <CancelButton onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                    キャンセル
+                  </CancelButton>
+                  <ConfirmDeleteButton onClick={handleDelete} disabled={deleting}>
+                    {deleting ? '削除中...' : '削除する'}
+                  </ConfirmDeleteButton>
+                </ConfirmActions>
+              </ConfirmDialog>
+            </ConfirmOverlay>
+          )
+        })()}
     </>
   )
 }

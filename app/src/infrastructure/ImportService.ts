@@ -215,11 +215,14 @@ function countStoreDayEntries(record: {
 
 /**
  * ファイルを読み込みデータ種別を判定する
+ *
+ * @param parseFile - Worker ベースのパース関数（省略時は readTabularFile を使用）
  */
 export async function readAndDetect(
   file: File,
+  parseFile?: (file: File) => Promise<unknown[][]>,
 ): Promise<{ rows: unknown[][]; type: DataType; typeName: string }> {
-  const rows = await readTabularFile(file)
+  const rows = parseFile ? await parseFile(file) : await readTabularFile(file)
   if (rows.length === 0) {
     throw new ImportError('ファイルが空です', 'INVALID_FORMAT', file.name)
   }
@@ -511,6 +514,8 @@ export function normalizeRecordStoreIds(data: ImportedData): ImportedData {
 
 /**
  * 複数ファイルをバッチインポートする
+ *
+ * @param parseFile - Worker ベースのパース関数（省略時は readTabularFile を使用）
  */
 export async function processDroppedFiles(
   files: FileList | File[],
@@ -518,6 +523,7 @@ export async function processDroppedFiles(
   currentData: ImportedData,
   onProgress?: ProgressCallback,
   overrideType?: DataType,
+  parseFile?: (file: File) => Promise<unknown[][]>,
 ): Promise<{
   summary: ImportSummary
   data: ImportedData
@@ -541,14 +547,14 @@ export async function processDroppedFiles(
       let typeName: string
 
       if (overrideType) {
-        rows = await readTabularFile(file)
+        rows = parseFile ? await parseFile(file) : await readTabularFile(file)
         if (rows.length === 0) {
           throw new ImportError('ファイルが空です', 'INVALID_FORMAT', file.name)
         }
         type = overrideType
         typeName = getDataTypeName(overrideType)
       } else {
-        const detected = await readAndDetect(file)
+        const detected = await readAndDetect(file, parseFile)
         rows = detected.rows
         type = detected.type
         typeName = detected.typeName

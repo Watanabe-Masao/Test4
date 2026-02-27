@@ -30,6 +30,7 @@ import type { DiffConfirmResult } from '@/presentation/components/common/DiffCon
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay, maxDayOfRecord } from '@/domain/calculations/utils'
+import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -238,6 +239,78 @@ const SliderNumUnit = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+// ─── テンプレートセクション ──────────────────────────
+const TemplateSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const TemplateToggle = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text4};
+  text-transform: uppercase;
+  &:hover {
+    color: ${({ theme }) => theme.colors.text3};
+  }
+`
+
+const TemplateToggleIcon = styled.span<{ $expanded: boolean }>`
+  font-size: 0.6rem;
+  transition: transform 0.2s;
+  transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
+`
+
+const TemplateGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+const TemplateLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  &:hover {
+    color: ${({ theme }) => theme.colors.palette.primary};
+    border-color: ${({ theme }) => theme.colors.palette.primary}40;
+    background: ${({ theme }) => theme.colors.palette.primary}08;
+  }
+`
+
+// ─── プライバシーインジケーター ──────────────────────
+const PrivacyInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+const PrivacyDot = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.palette.success};
+  flex-shrink: 0;
+`
+
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'classifiedSales', label: '1_分類別売上', multi: true },
@@ -250,6 +323,30 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'consumables', label: '8.消耗品', multi: true },
   { type: 'initialSettings', label: '999_初期設定' },
 ]
+
+function TemplateSectionCollapsible() {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <SidebarSection>
+      <TemplateToggle onClick={() => setExpanded((p) => !p)}>
+        <TemplateToggleIcon $expanded={expanded}>&#9654;</TemplateToggleIcon>
+        テンプレート
+      </TemplateToggle>
+      {expanded && (
+        <TemplateSection>
+          <TemplateGrid>
+            {TEMPLATE_TYPES.map((type) => (
+              <TemplateLink key={type} onClick={() => downloadTemplate(type)}>
+                {TEMPLATE_LABELS[type]}
+              </TemplateLink>
+            ))}
+          </TemplateGrid>
+        </TemplateSection>
+      )}
+    </SidebarSection>
+  )
+}
 
 export function DataManagementSidebar({
   showSettingsExternal,
@@ -485,7 +582,13 @@ export function DataManagementSidebar({
               />
             ))}
           </UploadGrid>
+          <PrivacyInfoBox>
+            <PrivacyDot />
+            ローカル保存 | サーバー送信なし
+          </PrivacyInfoBox>
         </SidebarSection>
+
+        <TemplateSectionCollapsible />
 
         {hasNonBudgetData && (
           <SidebarSection>

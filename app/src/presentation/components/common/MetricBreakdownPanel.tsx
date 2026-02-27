@@ -11,6 +11,8 @@ import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { exportExplanationReport } from '@/infrastructure/export'
+import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
 
 // ─── Styled Components ─────────────────────────────────────
 
@@ -306,6 +308,36 @@ const EvidenceBadge = styled.span`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const ActionButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`
+
+const CopiedFeedback = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`
+
 // ─── Component ──────────────────────────────────────────
 
 function formatValue(value: number, unit: MetricUnit): string {
@@ -346,6 +378,7 @@ export function MetricBreakdownPanel({
   const [tab, setTab] = useState<TabType>('formula')
   const [history, setHistory] = useState<MetricId[]>([explanation.metric])
   const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set())
+  const [copied, setCopied] = useState(false)
 
   const currentMetric = history[history.length - 1]
   const current = allExplanations.get(currentMetric) ?? explanation
@@ -374,6 +407,28 @@ export function MetricBreakdownPanel({
       return next
     })
   }, [])
+
+  const handleCsvExport = useCallback(() => {
+    const storeName = resolveStoreName(explanation.scope.storeId, stores)
+    exportExplanationReport(
+      allExplanations,
+      storeName,
+      explanation.scope.year,
+      explanation.scope.month,
+    )
+  }, [allExplanations, explanation.scope, stores])
+
+  const handleCopySummary = useCallback(() => {
+    const summaryLines: string[] = []
+    for (const [, exp] of allExplanations) {
+      summaryLines.push(generateMetricSummary(exp))
+    }
+    const text = summaryLines.join('\n')
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [allExplanations])
 
   // 逆リンク: この指標を入力として参照している指標
   const reverseLinks = useMemo(() => {
@@ -419,7 +474,13 @@ export function MetricBreakdownPanel({
               {resolveStoreName(current.scope.storeId, stores)}
             </ScopeInfo>
           </div>
-          <CloseButton onClick={onClose}>✕</CloseButton>
+          <HeaderActions>
+            <ActionButton onClick={handleCsvExport}>CSV出力</ActionButton>
+            <ActionButton onClick={handleCopySummary}>
+              {copied ? <CopiedFeedback>コピー済み</CopiedFeedback> : 'テキスト要約'}
+            </ActionButton>
+            <CloseButton onClick={onClose}>✕</CloseButton>
+          </HeaderActions>
         </Header>
 
         {/* Breadcrumb for navigation history */}

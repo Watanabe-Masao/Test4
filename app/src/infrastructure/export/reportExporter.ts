@@ -6,6 +6,7 @@
  */
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'
+import type { Explanation } from '@/domain/models/Explanation'
 import { exportToCsv } from './csvExporter'
 
 type Row = (string | number | null)[]
@@ -178,5 +179,76 @@ export function exportMonthlyPLReport(
 
   exportToCsv(rows, {
     filename: `月次PL_${storeName}_${year}年${month}月`,
+  })
+}
+
+/** 単位ラベルの変換 */
+function unitLabel(unit: Explanation['unit']): string {
+  switch (unit) {
+    case 'yen':
+      return '円'
+    case 'rate':
+      return '%'
+    case 'count':
+      return '件'
+  }
+}
+
+/** 入力値一覧を文字列に変換 */
+function formatInputsList(inputs: Explanation['inputs']): string {
+  return inputs
+    .map((inp) => {
+      const val =
+        inp.unit === 'yen'
+          ? Math.round(inp.value).toLocaleString('ja-JP')
+          : inp.unit === 'rate'
+            ? (inp.value * 100).toFixed(1) + '%'
+            : inp.value.toLocaleString('ja-JP')
+      return `${inp.name}=${val}`
+    })
+    .join('; ')
+}
+
+/**
+ * 指標説明データをCSVとしてエクスポートする
+ */
+export function exportExplanationReport(
+  explanations: ReadonlyMap<string, Explanation>,
+  storeName: string,
+  year: number,
+  month: number,
+): void {
+  const header: Row = ['指標名', '値', '単位', '計算式', '入力値一覧']
+  const rows: Row[] = [header]
+
+  for (const [, exp] of explanations) {
+    const value =
+      exp.unit === 'yen'
+        ? Math.round(exp.value)
+        : exp.unit === 'rate'
+          ? Number((exp.value * 100).toFixed(2))
+          : exp.value
+    rows.push([exp.title, value, unitLabel(exp.unit), exp.formula, formatInputsList(exp.inputs)])
+  }
+
+  exportToCsv(rows, {
+    filename: `指標説明_${storeName}_${year}年${month}月`,
+  })
+}
+
+/**
+ * テキスト要約をCSVとしてエクスポートする
+ */
+export function exportTextSummaryReport(
+  summaryText: string,
+  storeName: string,
+  year: number,
+  month: number,
+): void {
+  const header: Row = ['店舗', '年', '月', 'テキスト要約']
+  const rows: Row[] = [header, [storeName, year, month, summaryText]]
+
+  exportToCsv(rows, {
+    filename: `テキスト要約_${storeName}_${year}年${month}月`,
   })
 }

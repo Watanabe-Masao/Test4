@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -98,6 +98,14 @@ const StatChip = styled.div<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const AnomalyNote = styled.div`
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  padding: 0 ${({ theme }) => theme.spacing[4]};
+`
+
 type ViewType = 'pi' | 'deviation' | 'zScore'
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -115,9 +123,11 @@ interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
+  onDayClick?: (day: number) => void
 }
 
-export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Props) {
+export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDayClick }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('pi')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
@@ -232,6 +242,20 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
       prevPiMa7: prevPiMa7[i],
     }))
     .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+
+  const hasAnomalies = useMemo(
+    () => data.some((d) => d.salesZ != null && Math.abs(d.salesZ) >= 2),
+    [data],
+  )
+
+  const handleBarClick = useCallback(
+    (entry: (typeof data)[number]) => {
+      if (onDayClick && entry.salesZ != null && Math.abs(entry.salesZ) >= 2) {
+        onDayClick(entry.day)
+      }
+    },
+    [onDayClick],
+  )
 
   const allLabels: Record<string, string> = {
     pi: '金額PI値',
@@ -467,7 +491,16 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
                 strokeOpacity={0.4}
                 label={{ value: '-2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }}
               />
-              <Bar yAxisId="left" dataKey="salesZ" maxBarSize={10} radius={[2, 2, 0, 0]}>
+              <Bar
+                yAxisId="left"
+                dataKey="salesZ"
+                maxBarSize={10}
+                radius={[2, 2, 0, 0]}
+                onClick={(_barData: unknown, index: number) => {
+                  const entry = data[index]
+                  if (entry) handleBarClick(entry)
+                }}
+              >
                 {data.map((entry, i) => {
                   const z = entry.salesZ ?? 0
                   const isAnomaly = Math.abs(z) >= 2
@@ -482,6 +515,7 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
                             : ct.colors.slateDark
                       }
                       fillOpacity={isAnomaly ? 0.9 : 0.5}
+                      cursor={isAnomaly && onDayClick ? 'pointer' : 'default'}
                     />
                   )
                 })}
@@ -541,6 +575,9 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
         end={rangeEnd}
         onChange={setRange}
       />
+      {view === 'zScore' && hasAnomalies && onDayClick && (
+        <AnomalyNote>異常値をクリックすると詳細を表示</AnomalyNote>
+      )}
     </Wrapper>
   )
 }
