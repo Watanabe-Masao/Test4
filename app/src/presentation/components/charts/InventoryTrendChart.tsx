@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { SalesPurchaseComparisonChart } from './SalesPurchaseComparisonChart'
-import { computeEstimatedInventory } from './inventoryCalc'
+import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`

@@ -9,4 +9,4 @@ export type { ImportSummary, FileImportResult, ProgressCallback } from '@/applic
 
 // Cache (remains in services)
 export { calculationCache, computeFingerprint, computeGlobalFingerprint, CalculationCache } from './calculationCache'
-export { murmurhash3, hashData } from './murmurhash'
+export { murmurhash3, hashData } from '@/infrastructure/utilities/murmurhash'

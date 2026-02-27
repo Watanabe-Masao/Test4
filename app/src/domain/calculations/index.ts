@@ -87,6 +87,10 @@ export type {
   ElasticityResult,
 } from './sensitivity'
 
+// 在庫推定計算
+export { computeEstimatedInventory, computeEstimatedInventoryDetails } from './inventoryCalc'
+export type { InventoryPoint, InventoryDetailRow } from './inventoryCalc'
+
 // 相関分析・統計
 export {
   pearsonCorrelation,

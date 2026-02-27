@@ -1,5 +1,5 @@
 import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
-import { calculateTransactionValue } from '@/domain/calculations'
+import { calculateTransactionValue, safeDivide } from '@/domain/calculations'
 import { decompose2 } from '@/domain/calculations/factorDecomposition'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
@@ -115,9 +115,9 @@ export function buildDowCustomerAverages(
 
   return buckets.map((b) => ({
     dow: b.dow,
-    avgCustomers: b.count > 0 ? Math.round(b.totalCustomers / b.count) : 0,
+    avgCustomers: Math.round(safeDivide(b.totalCustomers, b.count)),
     avgTxValue: calculateTransactionValue(b.totalSales, b.totalCustomers),
-    prevAvgCustomers: b.count > 0 ? Math.round(b.totalPrevCustomers / b.count) : 0,
+    prevAvgCustomers: Math.round(safeDivide(b.totalPrevCustomers, b.count)),
     prevAvgTxValue: calculateTransactionValue(b.totalPrevSales, b.totalPrevCustomers),
     count: b.count,
   }))
@@ -145,10 +145,10 @@ export function buildMovingAverages(
     const n = slice.length
     const salesMA = slice.reduce((s, e) => s + e.sales, 0) / n
     const customersMA = slice.reduce((s, e) => s + e.customers, 0) / n
-    const txValueMA = customersMA > 0 ? salesMA / customersMA : 0
+    const txValueMA = safeDivide(salesMA, customersMA)
     const prevSalesMA = slice.reduce((s, e) => s + e.prevSales, 0) / n
     const prevCustomersMA = slice.reduce((s, e) => s + e.prevCustomers, 0) / n
-    const prevTxValueMA = prevCustomersMA > 0 ? prevSalesMA / prevCustomersMA : 0
+    const prevTxValueMA = safeDivide(prevSalesMA, prevCustomersMA)
     result.push({
       day: entries[i].day,
       salesMA: Math.round(salesMA),
@@ -178,16 +178,16 @@ export function buildRelationshipData(entries: DailyCustomerEntry[]): Relationsh
   if (withCust.length === 0) return []
   const avgSales = withCust.reduce((s, e) => s + e.sales, 0) / withCust.length
   const avgCust = withCust.reduce((s, e) => s + e.customers, 0) / withCust.length
-  const avgTxVal = avgCust > 0 ? avgSales / avgCust : 0
+  const avgTxVal = safeDivide(avgSales, avgCust)
 
   return withCust.map((e) => ({
     day: e.day,
     sales: e.sales,
     customers: e.customers,
     txValue: e.txValue,
-    salesIndex: avgSales > 0 ? e.sales / avgSales : 0,
-    customersIndex: avgCust > 0 ? e.customers / avgCust : 0,
-    txValueIndex: avgTxVal > 0 ? e.txValue / avgTxVal : 0,
+    salesIndex: safeDivide(e.sales, avgSales),
+    customersIndex: safeDivide(e.customers, avgCust),
+    txValueIndex: safeDivide(e.txValue, avgTxVal),
   }))
 }
 
@@ -196,16 +196,16 @@ export function buildRelationshipDataFromPrev(entries: DailyCustomerEntry[]): Re
   if (withCust.length === 0) return []
   const avgSales = withCust.reduce((s, e) => s + e.prevSales, 0) / withCust.length
   const avgCust = withCust.reduce((s, e) => s + e.prevCustomers, 0) / withCust.length
-  const avgTxVal = avgCust > 0 ? avgSales / avgCust : 0
+  const avgTxVal = safeDivide(avgSales, avgCust)
 
   return withCust.map((e) => ({
     day: e.day,
     sales: e.prevSales,
     customers: e.prevCustomers,
     txValue: e.prevTxValue,
-    salesIndex: avgSales > 0 ? e.prevSales / avgSales : 0,
-    customersIndex: avgCust > 0 ? e.prevCustomers / avgCust : 0,
-    txValueIndex: avgTxVal > 0 ? e.prevTxValue / avgTxVal : 0,
+    salesIndex: safeDivide(e.prevSales, avgSales),
+    customersIndex: safeDivide(e.prevCustomers, avgCust),
+    txValueIndex: safeDivide(e.prevTxValue, avgTxVal),
   }))
 }
 
@@ -285,9 +285,9 @@ export function buildDowDecomposition(
 
   return buckets.map((b) => ({
     dow: b.dow,
-    avgSalesDiff: b.count > 0 ? Math.round(b.totalSalesDiff / b.count) : 0,
-    avgCustEffect: b.count > 0 ? Math.round(b.totalCustEffect / b.count) : 0,
-    avgTicketEffect: b.count > 0 ? Math.round(b.totalTicketEffect / b.count) : 0,
+    avgSalesDiff: Math.round(safeDivide(b.totalSalesDiff, b.count)),
+    avgCustEffect: Math.round(safeDivide(b.totalCustEffect, b.count)),
+    avgTicketEffect: Math.round(safeDivide(b.totalTicketEffect, b.count)),
     count: b.count,
   }))
 }

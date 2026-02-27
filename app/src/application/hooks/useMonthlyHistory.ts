@@ -15,6 +15,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import type { StoreDaySummaryIndex } from '@/domain/models'
+import { safeDivide } from '@/domain/calculations/utils'
 
 /**
  * 過去月データを MonthlyDataPoint[] として返すフック。
@@ -239,13 +240,13 @@ function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   const allPrice = totalPurchasePrice
 
   const grossProfit = totalSales - allCost
-  const grossProfitRate = totalSales > 0 ? grossProfit / totalSales : 0
+  const grossProfitRate = safeDivide(grossProfit, totalSales)
 
   return {
-    discountRate: totalSales > 0 ? totalDiscount / totalSales : 0,
-    costRate: totalGrossSales > 0 ? allCost / totalGrossSales : 0,
-    consumableRate: totalSales > 0 ? totalConsumable / totalSales : 0,
-    averageMarkupRate: allPrice > 0 ? (allPrice - totalPurchaseCost) / allPrice : 0,
+    discountRate: safeDivide(totalDiscount, totalSales),
+    costRate: safeDivide(allCost, totalGrossSales),
+    consumableRate: safeDivide(totalConsumable, totalSales),
+    averageMarkupRate: safeDivide(allPrice - totalPurchaseCost, allPrice),
     totalCustomers,
     grossProfit,
     grossProfitRate,

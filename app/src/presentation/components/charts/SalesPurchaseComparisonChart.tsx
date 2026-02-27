@@ -5,7 +5,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
-import { computeEstimatedInventory } from './inventoryCalc'
+import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 

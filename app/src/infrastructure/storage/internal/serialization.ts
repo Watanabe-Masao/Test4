@@ -4,7 +4,7 @@
 import type { DataOrigin, DataEnvelope } from '@/domain/models'
 import type { BudgetData } from '@/domain/models'
 import { isEnvelope } from '@/domain/models'
-import { hashData } from '@/application/services/murmurhash'
+import { hashData } from '@/infrastructure/utilities/murmurhash'
 import { STORE_DAY_FIELDS } from './keys'
 
 // ─── NaN / Infinity サニタイズ ────────────────────────────

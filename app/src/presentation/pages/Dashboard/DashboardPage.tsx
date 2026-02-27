@@ -84,8 +84,10 @@ export function DashboardPage() {
   const [editMode, setEditMode] = useState(false)
 
   // データ駆動ウィジェットの自動注入
+  const widgetIdsRef = useRef(widgetIds)
+  widgetIdsRef.current = widgetIds
   useEffect(() => {
-    const injected = autoInjectDataWidgets(widgetIds, {
+    const injected = autoInjectDataWidgets(widgetIdsRef.current, {
       ctsRecordCount: ctsIndex.recordCount,
       prevYearHasPrevYear: prevYearCTS.hasPrevYear,
       storeCount: stores.size,
@@ -95,8 +97,7 @@ export function DashboardPage() {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size])
+  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData])
 
   // D&D state
   const [dragIndex, setDragIndex] = useState<number | null>(null)

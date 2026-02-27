@@ -85,6 +85,19 @@ interface Props {
   mode?: DailyChartMode
 }
 
+/** ウォーターフォール表示用の日別データ */
+interface WaterfallItem {
+  day: number; sales: number; discount: number
+  prevYearSales: number | null; prevYearDiscount: number | null
+  customers: number; txValue: number | null
+  prevCustomers: number | null; prevTxValue: number | null
+  currentCum: number; prevYearCum: number | null; cumDiscountRate: number
+  wfSalesBase: number; wfSalesUp: number; wfSalesDown: number; wfSalesCum: number
+  wfDiscBase: number; wfDiscUp: number; wfDiscDown: number; wfDiscCum: number
+  wfCustBase: number; wfCustUp: number; wfCustDown: number; wfCustCum: number
+  salesMa7: number | null; discountMa7: number | null; prevDiscountMa7: number | null
+}
+
 /** N日移動平均を計算（ドメイン層のユーティリティに委譲） */
 function movingAverage(values: number[], window: number): (number | null)[] {
   return calculateMovingAverage(values, window).map((v) => (isNaN(v) ? null : v))
@@ -197,8 +210,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const pdMa7 = movingAverage(rawPrevDiscount, 7)
 
     // ウォーターフォールデータ（前日比増減）
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let wf: any[] | null = null
+    let wf: WaterfallItem[] | null = null
     if (isWf) {
       let wfCumSales = 0, wfCumDiscount = 0, wfCumCustomers = 0
       wf = bd.map((d, i) => {

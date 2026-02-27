@@ -251,14 +251,20 @@ const COLORS = {
 
 const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function FactorTooltip({ active, payload, prevLabel, curLabel }: any) {
+interface FactorTooltipProps {
+  active?: boolean
+  payload?: { payload: FactorItem }[]
+  prevLabel?: string
+  curLabel?: string
+}
+
+function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTooltipProps) {
   if (!active || !payload?.length) return null
-  const item = payload[0]?.payload as FactorItem | undefined
+  const item = payload[0]?.payload
   if (!item) return null
   const lvl = item._level
-  const pL = (prevLabel as string | undefined) ?? '前年'
-  const cL = (curLabel as string | undefined) ?? '当年'
+  const pL = prevLabel ?? '前年'
+  const cL = curLabel ?? '当年'
   return (
     <TipBox>
       <TipTitle>{item.name}</TipTitle>

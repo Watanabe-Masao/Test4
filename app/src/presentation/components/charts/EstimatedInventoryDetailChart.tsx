@@ -4,8 +4,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
-import { computeEstimatedInventoryDetails } from './inventoryCalc'
-import type { InventoryDetailRow } from './inventoryCalc'
+import { computeEstimatedInventoryDetails } from '@/domain/calculations/inventoryCalc'
+import type { InventoryDetailRow } from '@/domain/calculations/inventoryCalc'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
 
 /* ------------------------------------------------------------------ */

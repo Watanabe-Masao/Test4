@@ -4,6 +4,7 @@ import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { aggregateAllStores, addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import type { DiscountEntry } from '@/domain/models'
+import { safeDivide } from '@/domain/calculations/utils'
 
 export interface PrevYearDailyEntry {
   readonly sales: number
@@ -167,7 +168,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     }
 
     const grossSales = totalSales + totalDiscount
-    const discountRate = totalSales > 0 ? totalDiscount / totalSales : 0
+    const discountRate = safeDivide(totalDiscount, totalSales)
 
     return { hasPrevYear: true, daily, totalSales, totalDiscount, totalCustomers, grossSales, discountRate, totalDiscountEntries }
   }, [prevYearCS, prevYearFlowers, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
