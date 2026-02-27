@@ -73,13 +73,10 @@ const ThemeButton = styled.button`
 
 const navItems: { view: ViewType; label: string; icon: string }[] = [
   { view: 'dashboard', label: 'ダッシュボード', icon: '📊' },
-  { view: 'category', label: 'カテゴリ', icon: '📁' },
-  { view: 'forecast', label: '予測', icon: '📈' },
-  { view: 'analysis', label: '分析', icon: '🔍' },
   { view: 'daily', label: '日別', icon: '📅' },
-  { view: 'transfer', label: '移動', icon: '🔀' },
-  { view: 'consumable', label: '消耗品', icon: '🧴' },
-  { view: 'summary', label: 'サマリ', icon: '📋' },
+  { view: 'insight', label: 'インサイト', icon: '📈' },
+  { view: 'category', label: 'カテゴリ', icon: '📁' },
+  { view: 'cost-detail', label: '原価明細', icon: '💰' },
   { view: 'reports', label: 'レポート', icon: '📄' },
 ]
 

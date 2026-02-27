@@ -1,16 +1,13 @@
 import { useEffect, useCallback } from 'react'
 import type { ViewType } from '@/domain/models'
 
-/** ビューの順序（数字キー 1-9 対応） */
+/** ビューの順序（数字キー 1-7 対応） */
 const VIEW_ORDER: ViewType[] = [
   'dashboard',
-  'category',
-  'forecast',
-  'analysis',
   'daily',
-  'transfer',
-  'consumable',
-  'summary',
+  'insight',
+  'category',
+  'cost-detail',
   'reports',
 ]
 

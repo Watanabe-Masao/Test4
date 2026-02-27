@@ -132,3 +132,15 @@ export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
   transition: transform ${({ theme }) => theme.transitions.fast};
   ${({ $expanded }) => $expanded && css`transform: rotate(90deg);`}
 `
+
+export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad' }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $status, theme }) =>
+    $status === 'good' ? theme.colors.palette.success
+    : $status === 'warn' ? theme.colors.palette.warning
+    : $status === 'bad' ? theme.colors.palette.danger
+    : theme.colors.text3};
+`

@@ -61,9 +61,9 @@ const NavLabel = styled.span`
 /** ボトムナビに表示する主要ビュー (5つまで) */
 const bottomItems: { view: ViewType; label: string; icon: string }[] = [
   { view: 'dashboard', label: 'ダッシュ', icon: '📊' },
-  { view: 'category', label: 'カテゴリ', icon: '📁' },
   { view: 'daily', label: '日別', icon: '📅' },
-  { view: 'forecast', label: '予測', icon: '📈' },
+  { view: 'insight', label: 'インサイト', icon: '📈' },
+  { view: 'category', label: 'カテゴリ', icon: '📁' },
   { view: 'admin', label: '管理', icon: '⚙' },
 ]
 
