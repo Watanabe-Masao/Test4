@@ -37,9 +37,11 @@
 
 ---
 
-## 2. チャートコンポーネント（27種）
+## 2. チャートコンポーネント（42種）
 
 全チャートは `presentation/components/charts/` に配置。Recharts ライブラリベースで実装。
+DuckDB チャート（15 種）は DuckDB-WASM による SQL クエリで高速集計を行い、
+DuckDB が利用不可の場合は既存の JavaScript パスにフォールバックします。
 
 ### 予算・売上系
 
@@ -106,6 +108,28 @@
 | コンポーネント | 説明 |
 |--------------|------|
 | `PrevYearComparisonChart` | 前年比較チャート |
+
+### DuckDB-WASM 分析チャート（15種）
+
+DuckDB-WASM による SQL クエリで集計を行うチャート群。全て `presentation/components/charts/` に配置。
+
+| コンポーネント | 説明 |
+|--------------|------|
+| `DuckDBCumulativeChart` | 累計売上折れ線チャート |
+| `DuckDBTimeSlotChart` | 時間帯別売上チャート（DuckDB クエリ版） |
+| `DuckDBHeatmapChart` | 時間帯×曜日ヒートマップ |
+| `DuckDBStoreHourlyChart` | 店舗別時間帯分析 |
+| `DuckDBDeptHourlyChart` | 部門別時間帯パターン |
+| `DuckDBCategoryTrendChart` | カテゴリ日次トレンド |
+| `DuckDBCategoryHourlyChart` | カテゴリ×時間帯集計 |
+| `DuckDBCategoryMixChart` | カテゴリ構成比推移（週次） |
+| `DuckDBDeptTrendChart` | 部門別トレンド |
+| `DuckDBYoYChart` | 前年比較チャート（DuckDB クエリ版） |
+| `DuckDBFeatureChart` | 異常値・特徴量可視化（移動平均・Z スコア・スパイク検出） |
+| `DuckDBHourlyProfileChart` | 時間帯別売上分布 |
+| `DuckDBDowPatternChart` | 曜日別季節パターンヒートマップ |
+| `DuckDBStoreBenchmarkChart` | 店舗ランキング週次推移 |
+| `DuckDBDateRangePicker` | 日付範囲セレクタ（共有 UI） |
 
 ### チャート共通機能
 

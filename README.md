@@ -11,7 +11,8 @@
 - **多店舗対応** -- 店舗別・部門別・カテゴリ別の分析
 - **時間帯分析** -- 時間帯別売上、ヒートマップ、前年比較
 - **要因分解** -- シャープリー値ベースの売上変動要因分解（客数・点数・価格・構成比の4変数）
-- **ダッシュボード** -- 10 種類のページ、27 種類のチャートコンポーネント
+- **DuckDB-WASM 分析** -- ブラウザ内 SQL エンジンによる高速集計（23 クエリ関数、15 チャート）
+- **ダッシュボード** -- 10 種類のページ、27+ 種類のチャートコンポーネント
 - **オフライン動作** -- IndexedDB / localStorage によるブラウザ完結型（サーバー不要）
 - **Undo/Redo** -- 操作の取り消し・やり直し対応
 - **データエクスポート** -- 計算結果の書き出し
@@ -28,6 +29,7 @@
 | Excel パーサ | SheetJS (xlsx) | 0.18.5 |
 | テスト | Vitest + React Testing Library | 4.0 / 16.3 |
 | リンター | ESLint | 9.39 |
+| SQL エンジン | DuckDB-WASM | 1.33 |
 | フォーマッタ | Prettier | 3.8 |
 
 ## ディレクトリ構成
@@ -35,8 +37,23 @@
 ```
 Test4/
 ├── README.md                 # このファイル
+├── CONTRIBUTING.md            # コントリビューションガイド
+├── CHANGELOG.md               # 変更履歴
+├── CLAUDE.md                  # AI 開発ルール
 ├── docs/                     # 詳細ドキュメント
-│   └── requirements.md       # 要件定義
+│   ├── architecture.md        #   アーキテクチャ設計書
+│   ├── api.md                 #   内部 API リファレンス
+│   ├── calculation-engine.md  #   計算エンジン仕様書
+│   ├── calculation-guide.md   #   計算式ユーザー解説
+│   ├── data-models.md         #   データモデル
+│   ├── ui-components.md       #   UI コンポーネント仕様書
+│   ├── development-guide.md   #   開発ガイド
+│   ├── file-import-guide.md   #   ファイルインポートガイド
+│   ├── operations.md          #   運用ガイド
+│   ├── security.md            #   セキュリティ
+│   ├── faq.md                 #   FAQ
+│   └── decisions/             #   ADR（意思決定記録）
+│       └── 001-duckdb-wasm-integration.md
 ├── app/                      # アプリケーション本体
 │   ├── README.md             # 開発者向け README
 │   ├── package.json
@@ -56,6 +73,7 @@ Test4/
 │       │   ├── hooks/        #   カスタムフック
 │       │   └── services/     #   計算オーケストレーション・ファイルインポート
 │       ├── infrastructure/   # インフラ層（外部 I/O）
+│       │   ├── duckdb/       #   DuckDB-WASM（SQL エンジン・クエリモジュール）
 │       │   ├── storage/      #   IndexedDB・差分計算
 │       │   ├── fileImport/   #   ファイル読み込み
 │       │   ├── dataProcessing/ # データ変換・加工
@@ -152,9 +170,15 @@ GitHub Pages にデプロイされます。
 
 詳細なドキュメントは [`docs/`](./docs/) ディレクトリを参照してください。
 
-- [要件定義](./docs/requirements.md)
+- [アーキテクチャ設計書](./docs/architecture.md)
+- [内部 API リファレンス](./docs/api.md)
 - [計算エンジン仕様書](./docs/calculation-engine.md)
 - [計算式ユーザー解説](./docs/calculation-guide.md)
+- [UI コンポーネント仕様書](./docs/ui-components.md)
+- [運用ガイド](./docs/operations.md)
+- [セキュリティ](./docs/security.md)
+- [FAQ](./docs/faq.md)
+- [DuckDB-WASM 採用 ADR](./docs/decisions/001-duckdb-wasm-integration.md)
 
 ## ライセンス
 
