@@ -1,5 +1,1 @@
-export type {
-  DataRepository,
-  PersistedSessionMeta,
-  MonthDataSummaryItem,
-} from './DataRepository'
+export type { DataRepository, PersistedSessionMeta, MonthDataSummaryItem } from './DataRepository'

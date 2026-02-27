@@ -23,12 +23,13 @@ const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
       : $level === 'warning'
         ? `${theme.colors.palette.warning}18`
         : `${theme.colors.palette.primary}18`};
-  border-left: 3px solid ${({ $level, theme }) =>
-    $level === 'error'
-      ? theme.colors.palette.danger
-      : $level === 'warning'
-        ? theme.colors.palette.warning
-        : theme.colors.palette.primary};
+  border-left: 3px solid
+    ${({ $level, theme }) =>
+      $level === 'error'
+        ? theme.colors.palette.danger
+        : $level === 'warning'
+          ? theme.colors.palette.warning
+          : theme.colors.palette.primary};
   color: ${({ theme }) => theme.colors.text};
 `
 

@@ -1,10 +1,27 @@
 import { useState, useMemo } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine, ComposedChart, Line } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+  ReferenceLine,
+  ComposedChart,
+  Line,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
 import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
-import { queryByDateRange, aggregateByLevel, countDistinctDays, computeDivisor } from '@/application/usecases/categoryTimeSales'
+import {
+  queryByDateRange,
+  aggregateByLevel,
+  countDistinctDays,
+  computeDivisor,
+} from '@/application/usecases/categoryTimeSales'
 import { calculateStdDev } from '@/domain/calculations/forecast'
 
 const Wrapper = styled.div`
@@ -13,7 +30,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -41,7 +59,8 @@ const ToggleRow = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -52,16 +71,17 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.primary
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.primary
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -124,8 +144,13 @@ interface CategoryRow {
 }
 
 export function CategoryPerformanceChart({
-  ctsIndex, prevCtsIndex, selectedStoreIds, currentDateRange, prevYearDateRange,
-  totalCustomers, prevTotalCustomers,
+  ctsIndex,
+  prevCtsIndex,
+  selectedStoreIds,
+  currentDateRange,
+  prevYearDateRange,
+  totalCustomers,
+  prevTotalCustomers,
 }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('piRank')
@@ -134,7 +159,10 @@ export function CategoryPerformanceChart({
   const categoryRows = useMemo(() => {
     if (ctsIndex.recordCount === 0 || totalCustomers <= 0) return []
 
-    const records = queryByDateRange(ctsIndex, { dateRange: currentDateRange, storeIds: selectedStoreIds })
+    const records = queryByDateRange(ctsIndex, {
+      dateRange: currentDateRange,
+      storeIds: selectedStoreIds,
+    })
     const dayCount = countDistinctDays(records)
     const divisor = computeDivisor(dayCount, 'total')
 
@@ -143,9 +171,17 @@ export function CategoryPerformanceChart({
     // Previous year aggregation
     let prevAgg: ReadonlyMap<string, { amount: number; quantity: number }> | null = null
     if (prevYearDateRange && prevCtsIndex.recordCount > 0 && prevTotalCustomers > 0) {
-      const prevRecords = queryByDateRange(prevCtsIndex, { dateRange: prevYearDateRange, storeIds: selectedStoreIds })
+      const prevRecords = queryByDateRange(prevCtsIndex, {
+        dateRange: prevYearDateRange,
+        storeIds: selectedStoreIds,
+      })
       const prevMap = aggregateByLevel(prevRecords, level)
-      prevAgg = new Map(Array.from(prevMap.entries()).map(([k, v]) => [k, { amount: v.amount, quantity: v.quantity }]))
+      prevAgg = new Map(
+        Array.from(prevMap.entries()).map(([k, v]) => [
+          k,
+          { amount: v.amount, quantity: v.quantity },
+        ]),
+      )
     }
 
     // Build rows
@@ -173,10 +209,16 @@ export function CategoryPerformanceChart({
       piQtys.push(piQty)
 
       rows.push({
-        code, name: entry.name || code,
-        amount, quantity, piAmount, piQty,
-        prevPiAmount, prevPiQty,
-        deviation: null, qtyDeviation: null,
+        code,
+        name: entry.name || code,
+        amount,
+        quantity,
+        piAmount,
+        piQty,
+        prevPiAmount,
+        prevPiQty,
+        deviation: null,
+        qtyDeviation: null,
       })
     }
 
@@ -198,12 +240,23 @@ export function CategoryPerformanceChart({
 
     // Limit to top 20 for readability
     return rows.slice(0, 20)
-  }, [ctsIndex, prevCtsIndex, selectedStoreIds, currentDateRange, prevYearDateRange, totalCustomers, prevTotalCustomers, level])
+  }, [
+    ctsIndex,
+    prevCtsIndex,
+    selectedStoreIds,
+    currentDateRange,
+    prevYearDateRange,
+    totalCustomers,
+    prevTotalCustomers,
+    level,
+  ])
 
   if (ctsIndex.recordCount === 0) {
     return (
       <Wrapper>
-        <HeaderRow><Title>カテゴリPI値・偏差値分析</Title></HeaderRow>
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
         <EmptyMsg>分類別時間帯売上データがありません</EmptyMsg>
       </Wrapper>
     )
@@ -212,16 +265,21 @@ export function CategoryPerformanceChart({
   if (totalCustomers <= 0) {
     return (
       <Wrapper>
-        <HeaderRow><Title>カテゴリPI値・偏差値分析</Title></HeaderRow>
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
         <EmptyMsg>客数データがありません（PI値の算出に客数が必要です）</EmptyMsg>
       </Wrapper>
     )
   }
 
   const allLabels: Record<string, string> = {
-    piAmount: '金額PI値', prevPiAmount: '前年金額PI値',
-    piQty: '点数PI値', prevPiQty: '前年点数PI値',
-    deviation: '金額PI偏差値', qtyDeviation: '点数PI偏差値',
+    piAmount: '金額PI値',
+    prevPiAmount: '前年金額PI値',
+    piQty: '点数PI値',
+    prevPiQty: '前年点数PI値',
+    deviation: '金額PI偏差値',
+    qtyDeviation: '点数PI偏差値',
   }
 
   const chartHeight = Math.max(300, categoryRows.length * 28 + 40)
@@ -257,26 +315,72 @@ export function CategoryPerformanceChart({
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={chartHeight}>
         {view === 'deviation' ? (
-          <ComposedChart data={categoryRows} layout="vertical" margin={{ top: 4, right: 20, left: 0, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} horizontal={false} />
-            <XAxis type="number" domain={[20, 80]}
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }} tickLine={false}
+          <ComposedChart
+            data={categoryRows}
+            layout="vertical"
+            margin={{ top: 4, right: 20, left: 0, bottom: 4 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={ct.grid}
+              strokeOpacity={0.3}
+              horizontal={false}
             />
-            <YAxis type="category" dataKey="name" width={80}
+            <XAxis
+              type="number"
+              domain={[20, 80]}
+              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+              axisLine={{ stroke: ct.grid }}
+              tickLine={false}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={80}
               tick={{ fill: ct.textMuted, fontSize: 8, fontFamily: ct.fontFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
             />
             <ReferenceLine x={50} stroke={ct.grid} strokeWidth={1.5} strokeOpacity={0.7} />
-            <ReferenceLine x={60} stroke={ct.colors.success} strokeDasharray="4 4" strokeOpacity={0.3} />
-            <ReferenceLine x={40} stroke={ct.colors.danger} strokeDasharray="4 4" strokeOpacity={0.3} />
+            <ReferenceLine
+              x={60}
+              stroke={ct.colors.success}
+              strokeDasharray="4 4"
+              strokeOpacity={0.3}
+            />
+            <ReferenceLine
+              x={40}
+              stroke={ct.colors.danger}
+              strokeDasharray="4 4"
+              strokeOpacity={0.3}
+            />
             <Bar dataKey="deviation" barSize={10} radius={[0, 3, 3, 0]}>
               {categoryRows.map((entry, i) => {
                 const d = entry.deviation ?? 50
-                return <Cell key={i} fill={d >= 60 ? ct.colors.success : d >= 50 ? ct.colors.primary : d >= 40 ? ct.colors.warning : ct.colors.danger} fillOpacity={0.7} />
+                return (
+                  <Cell
+                    key={i}
+                    fill={
+                      d >= 60
+                        ? ct.colors.success
+                        : d >= 50
+                          ? ct.colors.primary
+                          : d >= 40
+                            ? ct.colors.warning
+                            : ct.colors.danger
+                    }
+                    fillOpacity={0.7}
+                  />
+                )
               })}
             </Bar>
-            <Line type="monotone" dataKey="qtyDeviation" stroke={ct.colors.purple} strokeWidth={2} dot={{ fill: ct.colors.purple, r: 3 }} />
+            <Line
+              type="monotone"
+              dataKey="qtyDeviation"
+              stroke={ct.colors.purple}
+              strokeWidth={2}
+              dot={{ fill: ct.colors.purple, r: 3 }}
+            />
             <Tooltip
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
@@ -290,41 +394,87 @@ export function CategoryPerformanceChart({
             />
           </ComposedChart>
         ) : (
-          <BarChart data={categoryRows} layout="vertical" margin={{ top: 4, right: 20, left: 0, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} horizontal={false} />
-            <XAxis type="number"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={{ stroke: ct.grid }} tickLine={false}
+          <BarChart
+            data={categoryRows}
+            layout="vertical"
+            margin={{ top: 4, right: 20, left: 0, bottom: 4 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={ct.grid}
+              strokeOpacity={0.3}
+              horizontal={false}
             />
-            <YAxis type="category" dataKey="name" width={80}
+            <XAxis
+              type="number"
+              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
+              axisLine={{ stroke: ct.grid }}
+              tickLine={false}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={80}
               tick={{ fill: ct.textMuted, fontSize: 8, fontFamily: ct.fontFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
             />
             {view === 'piRank' && (
               <>
                 <Bar dataKey="piAmount" barSize={10} radius={[0, 3, 3, 0]}>
                   {categoryRows.map((entry, i) => (
-                    <Cell key={i} fill={entry.prevPiAmount != null && entry.piAmount >= entry.prevPiAmount ? ct.colors.primary : ct.colors.slateDark} fillOpacity={0.7} />
+                    <Cell
+                      key={i}
+                      fill={
+                        entry.prevPiAmount != null && entry.piAmount >= entry.prevPiAmount
+                          ? ct.colors.primary
+                          : ct.colors.slateDark
+                      }
+                      fillOpacity={0.7}
+                    />
                   ))}
                 </Bar>
-                <Bar dataKey="prevPiAmount" barSize={6} fill={ct.colors.slate} fillOpacity={0.35} radius={[0, 2, 2, 0]} />
+                <Bar
+                  dataKey="prevPiAmount"
+                  barSize={6}
+                  fill={ct.colors.slate}
+                  fillOpacity={0.35}
+                  radius={[0, 2, 2, 0]}
+                />
               </>
             )}
             {view === 'piQtyRank' && (
               <>
                 <Bar dataKey="piQty" barSize={10} radius={[0, 3, 3, 0]}>
                   {categoryRows.map((entry, i) => (
-                    <Cell key={i} fill={entry.prevPiQty != null && entry.piQty >= entry.prevPiQty ? ct.colors.info : ct.colors.slateDark} fillOpacity={0.7} />
+                    <Cell
+                      key={i}
+                      fill={
+                        entry.prevPiQty != null && entry.piQty >= entry.prevPiQty
+                          ? ct.colors.info
+                          : ct.colors.slateDark
+                      }
+                      fillOpacity={0.7}
+                    />
                   ))}
                 </Bar>
-                <Bar dataKey="prevPiQty" barSize={6} fill={ct.colors.slate} fillOpacity={0.35} radius={[0, 2, 2, 0]} />
+                <Bar
+                  dataKey="prevPiQty"
+                  barSize={6}
+                  fill={ct.colors.slate}
+                  fillOpacity={0.35}
+                  radius={[0, 2, 2, 0]}
+                />
               </>
             )}
             <Tooltip
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
                 if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-                return [toComma(Math.round(value as number)), allLabels[name as string] ?? String(name)]
+                return [
+                  toComma(Math.round(value as number)),
+                  allLabels[name as string] ?? String(name),
+                ]
               }}
             />
             <Legend

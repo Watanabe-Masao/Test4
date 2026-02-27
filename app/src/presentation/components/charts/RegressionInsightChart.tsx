@@ -15,7 +15,11 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toManYen, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { linearRegression, calculateWMA, calculateMonthEndProjection } from '@/domain/calculations/advancedForecast'
+import {
+  linearRegression,
+  calculateWMA,
+  calculateMonthEndProjection,
+} from '@/domain/calculations/advancedForecast'
 import { calculateStdDev } from '@/domain/calculations/forecast'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models'
@@ -26,7 +30,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -65,7 +70,8 @@ const StatBadge = styled.div<{ $color: string }>`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -76,11 +82,13 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const ProjectionTable = styled.div`
@@ -94,8 +102,9 @@ const ProjectionTable = styled.div`
 const ProjectionCard = styled.div<{ $highlight?: boolean }>`
   font-size: 0.6rem;
   padding: 4px 8px;
-  background: ${({ $highlight, theme }) => $highlight ? 'rgba(99,102,241,0.1)' : theme.colors.bg2};
-  border: 1px solid ${({ $highlight }) => $highlight ? 'rgba(99,102,241,0.3)' : 'transparent'};
+  background: ${({ $highlight, theme }) =>
+    $highlight ? 'rgba(99,102,241,0.1)' : theme.colors.bg2};
+  border: 1px solid ${({ $highlight }) => ($highlight ? 'rgba(99,102,241,0.3)' : 'transparent')};
   border-radius: ${({ theme }) => theme.radii.sm};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
@@ -165,7 +174,8 @@ export function RegressionInsightChart({ result, year, month }: Props) {
     // 統計情報
     const rSquaredPct = toPct(regResult.rSquared)
     const dailyTrend = regResult.slope
-    const avgSales = salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0
+    const avgSales =
+      salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0
 
     return {
       chartData: data,
@@ -179,8 +189,17 @@ export function RegressionInsightChart({ result, year, month }: Props) {
   if (chartData.length < 2) {
     return (
       <Wrapper>
-        <HeaderRow><Title>回帰分析インサイト</Title></HeaderRow>
-        <div style={{ padding: '40px', textAlign: 'center', color: ct.textMuted, fontSize: ct.fontSize.sm }}>
+        <HeaderRow>
+          <Title>回帰分析インサイト</Title>
+        </HeaderRow>
+        <div
+          style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: ct.textMuted,
+            fontSize: ct.fontSize.sm,
+          }}
+        >
           データが不足しています（最低2日分必要）
         </div>
       </Wrapper>
@@ -195,33 +214,34 @@ export function RegressionInsightChart({ result, year, month }: Props) {
       <HeaderRow>
         <Title>回帰分析インサイト — 予測の信頼性と手法比較</Title>
         <ViewToggle>
-          <ViewBtn $active={viewMode === 'regression'} onClick={() => setViewMode('regression')}>回帰+信頼区間</ViewBtn>
-          <ViewBtn $active={viewMode === 'residual'} onClick={() => setViewMode('residual')}>残差プロット</ViewBtn>
+          <ViewBtn $active={viewMode === 'regression'} onClick={() => setViewMode('regression')}>
+            回帰+信頼区間
+          </ViewBtn>
+          <ViewBtn $active={viewMode === 'residual'} onClick={() => setViewMode('residual')}>
+            残差プロット
+          </ViewBtn>
         </ViewToggle>
       </HeaderRow>
 
       <StatRow>
-        <StatBadge $color={rColor}>
-          R² = {stats.rSquaredPct}（予測の説明力）
-        </StatBadge>
+        <StatBadge $color={rColor}>R² = {stats.rSquaredPct}（予測の説明力）</StatBadge>
         <StatBadge $color={sc.cond(reg.slope >= 0)}>
           日次トレンド: {trendLabel} {toComma(Math.round(stats.dailyTrend))}円/日
         </StatBadge>
-        <StatBadge $color="#6366f1">
-          日平均売上: {toManYen(stats.avgSales)}
-        </StatBadge>
-        <StatBadge $color="#8b5cf6">
-          標準偏差: {toManYen(stats.stdDev)}
-        </StatBadge>
+        <StatBadge $color="#6366f1">日平均売上: {toManYen(stats.avgSales)}</StatBadge>
+        <StatBadge $color="#8b5cf6">標準偏差: {toManYen(stats.stdDev)}</StatBadge>
       </StatRow>
 
       <ProjectionTable>
         <ProjectionCard>単純平均: {toManYen(projection.linearProjection)}</ProjectionCard>
         <ProjectionCard>曜日調整: {toManYen(projection.dowAdjustedProjection)}</ProjectionCard>
         <ProjectionCard>WMA: {toManYen(projection.wmaProjection)}</ProjectionCard>
-        <ProjectionCard $highlight>回帰: {toManYen(projection.regressionProjection)}</ProjectionCard>
+        <ProjectionCard $highlight>
+          回帰: {toManYen(projection.regressionProjection)}
+        </ProjectionCard>
         <ProjectionCard>
-          95%CI: {toManYen(projection.confidenceInterval.lower)}〜{toManYen(projection.confidenceInterval.upper)}
+          95%CI: {toManYen(projection.confidenceInterval.lower)}〜
+          {toManYen(projection.confidenceInterval.upper)}
         </ProjectionCard>
       </ProjectionTable>
 
@@ -311,7 +331,14 @@ export function RegressionInsightChart({ result, year, month }: Props) {
                 tickLine={false}
                 width={55}
                 tickFormatter={(v: number) => toManYen(v)}
-                label={{ value: '残差（実績-回帰値）', angle: -90, position: 'insideLeft', offset: 10, fontSize: ct.fontSize.xs, fill: ct.textMuted }}
+                label={{
+                  value: '残差（実績-回帰値）',
+                  angle: -90,
+                  position: 'insideLeft',
+                  offset: 10,
+                  fontSize: ct.fontSize.xs,
+                  fill: ct.textMuted,
+                }}
               />
               <Tooltip
                 contentStyle={tooltipStyle(ct)}
@@ -320,10 +347,34 @@ export function RegressionInsightChart({ result, year, month }: Props) {
               />
 
               <ReferenceLine y={0} stroke={ct.colors.slate} strokeDasharray="6 4" />
-              <ReferenceLine y={stats.stdDev} stroke={ct.colors.warning} strokeDasharray="3 3" strokeOpacity={0.5} label={{ value: '+1σ', fontSize: 8, fill: ct.textMuted }} />
-              <ReferenceLine y={-stats.stdDev} stroke={ct.colors.warning} strokeDasharray="3 3" strokeOpacity={0.5} label={{ value: '-1σ', fontSize: 8, fill: ct.textMuted }} />
-              <ReferenceLine y={stats.stdDev * 2} stroke={ct.colors.danger} strokeDasharray="3 3" strokeOpacity={0.3} label={{ value: '+2σ', fontSize: 8, fill: ct.textMuted }} />
-              <ReferenceLine y={-stats.stdDev * 2} stroke={ct.colors.danger} strokeDasharray="3 3" strokeOpacity={0.3} label={{ value: '-2σ', fontSize: 8, fill: ct.textMuted }} />
+              <ReferenceLine
+                y={stats.stdDev}
+                stroke={ct.colors.warning}
+                strokeDasharray="3 3"
+                strokeOpacity={0.5}
+                label={{ value: '+1σ', fontSize: 8, fill: ct.textMuted }}
+              />
+              <ReferenceLine
+                y={-stats.stdDev}
+                stroke={ct.colors.warning}
+                strokeDasharray="3 3"
+                strokeOpacity={0.5}
+                label={{ value: '-1σ', fontSize: 8, fill: ct.textMuted }}
+              />
+              <ReferenceLine
+                y={stats.stdDev * 2}
+                stroke={ct.colors.danger}
+                strokeDasharray="3 3"
+                strokeOpacity={0.3}
+                label={{ value: '+2σ', fontSize: 8, fill: ct.textMuted }}
+              />
+              <ReferenceLine
+                y={-stats.stdDev * 2}
+                stroke={ct.colors.danger}
+                strokeDasharray="3 3"
+                strokeOpacity={0.3}
+                label={{ value: '-2σ', fontSize: 8, fill: ct.textMuted }}
+              />
 
               <Scatter
                 dataKey="residual"

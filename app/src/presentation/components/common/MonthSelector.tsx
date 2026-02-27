@@ -121,13 +121,12 @@ const MonthGrid = styled.div`
 
 const MonthCell = styled.button<{ $active?: boolean; $hasData?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]};
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text)};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
@@ -206,9 +205,7 @@ export function MonthSelector({ storedMonths }: MonthSelectorProps) {
   if (isSwitching) {
     return (
       <Container>
-        <SwitchingOverlay>
-          切替中...
-        </SwitchingOverlay>
+        <SwitchingOverlay>切替中...</SwitchingOverlay>
       </Container>
     )
   }

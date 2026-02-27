@@ -11,9 +11,20 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
 
 function csRecord(day: number, storeId: string, salesAmount: number, d71 = 0) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: d71, discount72: 0, discount73: 0, discount74: 0,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: d71,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -23,10 +34,7 @@ describe('buildDailyRecords', () => {
   it('売上データから日別レコードを構築する', () => {
     const data = makeData({
       classifiedSales: {
-        records: [
-          csRecord(1, 's1', 50000, 1000),
-          csRecord(2, 's1', 30000),
-        ],
+        records: [csRecord(1, 's1', 50000, 1000), csRecord(2, 's1', 30000)],
       },
     })
     const result = buildDailyRecords('s1', data, 31)
@@ -60,7 +68,16 @@ describe('buildDailyRecords', () => {
       interStoreIn: {
         s1: {
           1: {
-            interStoreIn: [{ day: 1, fromStoreId: 's2', toStoreId: 's1', cost: 3000, price: 4000, isDepartmentTransfer: false }],
+            interStoreIn: [
+              {
+                day: 1,
+                fromStoreId: 's2',
+                toStoreId: 's1',
+                cost: 3000,
+                price: 4000,
+                isDepartmentTransfer: false,
+              },
+            ],
             interStoreOut: [],
             interDepartmentIn: [],
             interDepartmentOut: [],

@@ -1,4 +1,14 @@
-import type { DataType, AppSettings, ValidationMessage, ImportedData, PurchaseData, SpecialSalesData, TransferData, ConsumableData, BudgetData } from '@/domain/models'
+import type {
+  DataType,
+  AppSettings,
+  ValidationMessage,
+  ImportedData,
+  PurchaseData,
+  SpecialSalesData,
+  TransferData,
+  ConsumableData,
+  BudgetData,
+} from '@/domain/models'
 import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models'
 import { processDroppedFiles as processDroppedFilesImpl } from '@/infrastructure/ImportService'
 import type { MonthPartitions } from '@/infrastructure/ImportService'
@@ -233,7 +243,7 @@ export function validateImportedData(
           const ctsAmt = ctsByDay.get(day) ?? 0
           const dayDiv = Math.abs(csAmt - ctsAmt)
           if (csAmt === 0 && ctsAmt === 0) continue
-          const dayRate = csAmt > 0 ? dayDiv / csAmt : (ctsAmt > 0 ? 1 : 0)
+          const dayRate = csAmt > 0 ? dayDiv / csAmt : ctsAmt > 0 ? 1 : 0
           if (dayRate > 0.01 || dayDiv > 1000) {
             const sign = ctsAmt >= csAmt ? '+' : '-'
             dailyDetails.push(
@@ -337,14 +347,17 @@ export function validateImportedData(
   // 同一店舗×日に「合計」行と明細行が共存する場合、二重計上の兆候
   if (data.classifiedSales.records.length > 0) {
     const SUBTOTAL_MARKERS = ['合計', '小計', '計']
-    const subtotalRecords = data.classifiedSales.records.filter(
-      (r) => SUBTOTAL_MARKERS.some((m) =>
-        r.className === m || r.lineName === m || r.departmentName === m || r.groupName === m,
+    const subtotalRecords = data.classifiedSales.records.filter((r) =>
+      SUBTOTAL_MARKERS.some(
+        (m) => r.className === m || r.lineName === m || r.departmentName === m || r.groupName === m,
       ),
     )
     if (subtotalRecords.length > 0) {
       const subtotalSales = subtotalRecords.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
-      const totalSales = data.classifiedSales.records.reduce((sum, r) => sum + Math.abs(r.salesAmount), 0)
+      const totalSales = data.classifiedSales.records.reduce(
+        (sum, r) => sum + Math.abs(r.salesAmount),
+        0,
+      )
       messages.push({
         level: 'warning',
         message: `分類別売上に${subtotalRecords.length}件の小計/合計行が含まれています — 売上が二重計上されている可能性があります`,
@@ -545,14 +558,10 @@ export function filterDataForMonth(
   const base: ImportedData = {
     ...data,
     classifiedSales: {
-      records: data.classifiedSales.records.filter(
-        (r) => r.year === year && r.month === month,
-      ),
+      records: data.classifiedSales.records.filter((r) => r.year === year && r.month === month),
     },
     categoryTimeSales: {
-      records: data.categoryTimeSales.records.filter(
-        (r) => r.year === year && r.month === month,
-      ),
+      records: data.categoryTimeSales.records.filter((r) => r.year === year && r.month === month),
     },
   }
 

@@ -129,7 +129,7 @@ export function useDrillThroughReceiver(widgetId: string) {
   const { drillThroughTarget, requestDrillThrough } = useCrossChartSelection()
 
   const isTargeted = drillThroughTarget?.widgetId === widgetId
-  const filter = isTargeted ? drillThroughTarget?.filter ?? null : null
+  const filter = isTargeted ? (drillThroughTarget?.filter ?? null) : null
 
   const dismiss = useCallback(() => {
     if (isTargeted) {

@@ -48,8 +48,12 @@ const DrawerPanel = styled.div<{ $open: boolean }>`
 
   ${({ $open }) =>
     $open
-      ? css`animation: ${slideIn} 0.2s ease-out forwards;`
-      : css`animation: ${slideOut} 0.2s ease-in forwards;`}
+      ? css`
+          animation: ${slideIn} 0.2s ease-out forwards;
+        `
+      : css`
+          animation: ${slideOut} 0.2s ease-in forwards;
+        `}
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: flex;
@@ -117,7 +121,9 @@ export function Drawer({
     if (!open) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
+    return () => {
+      document.body.style.overflow = prev
+    }
   }, [open])
 
   return (

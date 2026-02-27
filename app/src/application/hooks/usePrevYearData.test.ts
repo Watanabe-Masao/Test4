@@ -37,7 +37,7 @@ describe('calcSameDowOffset', () => {
         const offset = calcSameDowOffset(year, month)
         const curDow = new Date(year, month - 1, 1).getDay()
         const prevDow = new Date(year - 1, month - 1, 1).getDay()
-        const expected = ((curDow - prevDow) % 7 + 7) % 7
+        const expected = (((curDow - prevDow) % 7) + 7) % 7
         expect(offset).toBe(expected)
       }
     }

@@ -6,7 +6,11 @@ import { useAppState, useAppSettings } from '@/application/context'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
-import { exportDailySalesReport, exportMonthlyPLReport, exportStoreKpiReport } from '@/infrastructure/export'
+import {
+  exportDailySalesReport,
+  exportMonthlyPLReport,
+  exportStoreKpiReport,
+} from '@/infrastructure/export'
 import { sc } from '@/presentation/theme/semanticColors'
 import styled from 'styled-components'
 
@@ -79,16 +83,21 @@ const Th = styled.th`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: left; }
+  &:first-child {
+    text-align: left;
+  }
 `
 
 const Td = styled.td<{ $accent?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $accent, theme }) => $accent ? theme.colors.palette.primary : theme.colors.text};
-  font-weight: ${({ $accent, theme }) => $accent ? theme.typography.fontWeight.bold : 'normal'};
-  &:first-child { text-align: left; font-weight: ${({ theme }) => theme.typography.fontWeight.semibold}; }
+  color: ${({ $accent, theme }) => ($accent ? theme.colors.palette.primary : theme.colors.text)};
+  font-weight: ${({ $accent, theme }) => ($accent ? theme.typography.fontWeight.bold : 'normal')};
+  &:first-child {
+    text-align: left;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  }
 `
 
 const TotalRow = styled.tr`
@@ -97,7 +106,9 @@ const TotalRow = styled.tr`
 `
 
 const Tr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const CalcRow = styled.div`
@@ -156,7 +167,9 @@ const ExportButton = styled.button`
     color: ${({ theme }) => theme.colors.palette.primary};
   }
 
-  @media print { display: none; }
+  @media print {
+    display: none;
+  }
 `
 
 const DeptTd = styled.td<{ $warn?: boolean; $good?: boolean }>`
@@ -164,15 +177,17 @@ const DeptTd = styled.td<{ $warn?: boolean; $good?: boolean }>`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $warn, $good, theme }) =>
-    $good ? theme.colors.palette.success
-    : $warn ? theme.colors.palette.danger
-    : theme.colors.text};
-  &:first-child { text-align: left; font-weight: ${({ theme }) => theme.typography.fontWeight.semibold}; }
+    $good ? theme.colors.palette.success : $warn ? theme.colors.palette.danger : theme.colors.text};
+  &:first-child {
+    text-align: left;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  }
 `
 
 export function ReportsPage() {
   const { daysInMonth } = useCalculation()
-  const { currentResult, selectedResults, storeName, stores, isAllStores, selectedStoreIds } = useStoreSelection()
+  const { currentResult, selectedResults, storeName, stores, isAllStores, selectedStoreIds } =
+    useStoreSelection()
   const appState = useAppState()
   const settings = useAppSettings()
 
@@ -185,17 +200,33 @@ export function ReportsPage() {
   // CSV エクスポートハンドラ
   const handleExportDaily = useCallback(() => {
     if (!currentResult) return
-    const storeId = !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
-    const store = storeId ? stores.get(storeId) ?? null : null
+    const storeId =
+      !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
+    const store = storeId ? (stores.get(storeId) ?? null) : null
     exportDailySalesReport(currentResult, store, settings.targetYear, settings.targetMonth)
-  }, [currentResult, isAllStores, selectedStoreIds, stores, settings.targetYear, settings.targetMonth])
+  }, [
+    currentResult,
+    isAllStores,
+    selectedStoreIds,
+    stores,
+    settings.targetYear,
+    settings.targetMonth,
+  ])
 
   const handleExportPL = useCallback(() => {
     if (!currentResult) return
-    const storeId = !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
-    const store = storeId ? stores.get(storeId) ?? null : null
+    const storeId =
+      !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
+    const store = storeId ? (stores.get(storeId) ?? null) : null
     exportMonthlyPLReport(currentResult, store, settings.targetYear, settings.targetMonth)
-  }, [currentResult, isAllStores, selectedStoreIds, stores, settings.targetYear, settings.targetMonth])
+  }, [
+    currentResult,
+    isAllStores,
+    selectedStoreIds,
+    stores,
+    settings.targetYear,
+    settings.targetMonth,
+  ])
 
   const handleExportStoreKpi = useCallback(() => {
     const storeResults = new Map<string, (typeof selectedResults)[number]>()
@@ -218,18 +249,19 @@ export function ReportsPage() {
   const reportDate = `${settings.targetYear}年${settings.targetMonth}月${today.getDate()}日`
 
   // Category data
-  const categoryData = CATEGORY_ORDER
-    .flatMap((cat) => {
-      const pair = r.categoryTotals.get(cat)
-      if (!pair) return []
-      return [{
+  const categoryData = CATEGORY_ORDER.flatMap((cat) => {
+    const pair = r.categoryTotals.get(cat)
+    if (!pair) return []
+    return [
+      {
         category: cat,
         label: CATEGORY_LABELS[cat],
         cost: pair.cost,
         price: pair.price,
         markup: safeDivide(pair.price - pair.cost, pair.price, 0),
-      }]
-    })
+      },
+    ]
+  })
 
   const totalCategoryCost = categoryData.reduce((s, c) => s + Math.abs(c.cost), 0)
 
@@ -253,15 +285,15 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>概要</SectionTitle>
         <KpiGrid>
-          <KpiCard
-            label="総売上高"
-            value={formatCurrency(r.totalSales)}
-            accent="#6366f1"
-          />
+          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent="#6366f1" />
           <KpiCard
             label="【在庫法】粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
-            subText={r.invMethodGrossProfitRate != null ? `粗利率: ${formatPercent(r.invMethodGrossProfitRate)}` : '在庫設定なし'}
+            subText={
+              r.invMethodGrossProfitRate != null
+                ? `粗利率: ${formatPercent(r.invMethodGrossProfitRate)}`
+                : '在庫設定なし'
+            }
             accent={sc.positive}
           />
           <KpiCard
@@ -293,15 +325,21 @@ export function ReportsPage() {
           </CalcRow>
           <CalcRow>
             <CalcLabel>期首在庫</CalcLabel>
-            <CalcValue>{r.openingInventory != null ? formatCurrency(r.openingInventory) : '未設定'}</CalcValue>
+            <CalcValue>
+              {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未設定'}
+            </CalcValue>
           </CalcRow>
           <CalcRow>
             <CalcLabel>期末在庫</CalcLabel>
-            <CalcValue>{r.closingInventory != null ? formatCurrency(r.closingInventory) : '未設定'}</CalcValue>
+            <CalcValue>
+              {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未設定'}
+            </CalcValue>
           </CalcRow>
           <CalcRow>
             <CalcLabel>売上原価 (COGS)</CalcLabel>
-            <CalcHighlight>{r.invMethodCogs != null ? formatCurrency(r.invMethodCogs) : '-'}</CalcHighlight>
+            <CalcHighlight>
+              {r.invMethodCogs != null ? formatCurrency(r.invMethodCogs) : '-'}
+            </CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>粗利益</CalcLabel>
@@ -346,7 +384,9 @@ export function ReportsPage() {
           <CalcRow>
             <CalcLabel>推定期末在庫</CalcLabel>
             <CalcHighlight $color="#06b6d4">
-              {r.estMethodClosingInventory != null ? formatCurrency(r.estMethodClosingInventory) : '-'}
+              {r.estMethodClosingInventory != null
+                ? formatCurrency(r.estMethodClosingInventory)
+                : '-'}
             </CalcHighlight>
           </CalcRow>
         </Card>
@@ -357,9 +397,24 @@ export function ReportsPage() {
         <SectionTitle>仕入・売変詳細</SectionTitle>
         <KpiGrid>
           <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#f59e0b" />
-          <KpiCard label="売上納品原価" value={formatCurrency(r.deliverySalesCost)} subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`} accent="#ec4899" />
-          <KpiCard label="消耗品費" value={formatCurrency(r.totalConsumable)} subText={`消耗品率: ${formatPercent(r.consumableRate)}`} accent="#f97316" />
-          <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} subText={`売変額: ${formatCurrency(r.totalDiscount)}`} accent={sc.negative} />
+          <KpiCard
+            label="売上納品原価"
+            value={formatCurrency(r.deliverySalesCost)}
+            subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
+            accent="#ec4899"
+          />
+          <KpiCard
+            label="消耗品費"
+            value={formatCurrency(r.totalConsumable)}
+            subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
+            accent="#f97316"
+          />
+          <KpiCard
+            label="売変ロス原価"
+            value={formatCurrency(r.discountLossCost)}
+            subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
+            accent={sc.negative}
+          />
         </KpiGrid>
       </Section>
 
@@ -367,10 +422,26 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>移動集計</SectionTitle>
         <KpiGrid>
-          <KpiCard label="店間入" value={formatCurrency(r.transferDetails.interStoreIn.cost)} accent={sc.positive} />
-          <KpiCard label="店間出" value={formatCurrency(r.transferDetails.interStoreOut.cost)} accent={sc.negative} />
-          <KpiCard label="部門間入" value={formatCurrency(r.transferDetails.interDepartmentIn.cost)} accent="#3b82f6" />
-          <KpiCard label="部門間出" value={formatCurrency(r.transferDetails.interDepartmentOut.cost)} accent="#a855f7" />
+          <KpiCard
+            label="店間入"
+            value={formatCurrency(r.transferDetails.interStoreIn.cost)}
+            accent={sc.positive}
+          />
+          <KpiCard
+            label="店間出"
+            value={formatCurrency(r.transferDetails.interStoreOut.cost)}
+            accent={sc.negative}
+          />
+          <KpiCard
+            label="部門間入"
+            value={formatCurrency(r.transferDetails.interDepartmentIn.cost)}
+            accent="#3b82f6"
+          />
+          <KpiCard
+            label="部門間出"
+            value={formatCurrency(r.transferDetails.interDepartmentOut.cost)}
+            accent="#a855f7"
+          />
         </KpiGrid>
       </Section>
 
@@ -407,11 +478,14 @@ export function ReportsPage() {
                   <Td $accent>{formatCurrency(categoryData.reduce((s, d) => s + d.cost, 0))}</Td>
                   <Td $accent>{formatCurrency(categoryData.reduce((s, d) => s + d.price, 0))}</Td>
                   <Td $accent>
-                    {formatPercent(safeDivide(
-                      categoryData.reduce((s, d) => s + d.price, 0) - categoryData.reduce((s, d) => s + d.cost, 0),
-                      categoryData.reduce((s, d) => s + d.price, 0),
-                      0,
-                    ))}
+                    {formatPercent(
+                      safeDivide(
+                        categoryData.reduce((s, d) => s + d.price, 0) -
+                          categoryData.reduce((s, d) => s + d.cost, 0),
+                        categoryData.reduce((s, d) => s + d.price, 0),
+                        0,
+                      ),
+                    )}
                   </Td>
                   <Td $accent>100.0%</Td>
                 </TotalRow>
@@ -426,9 +500,22 @@ export function ReportsPage() {
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
           <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
-          <KpiCard label="予算達成率" value={formatPercent(r.budgetAchievementRate)} accent={sc.positive} />
-          <KpiCard label="予算消化率" value={formatPercent(r.budgetProgressRate)} subText={`経過: ${r.elapsedDays}/${daysInMonth}日`} accent="#0ea5e9" />
-          <KpiCard label="残余予算" value={formatCurrency(r.remainingBudget)} accent={sc.cond(r.remainingBudget <= 0)} />
+          <KpiCard
+            label="予算達成率"
+            value={formatPercent(r.budgetAchievementRate)}
+            accent={sc.positive}
+          />
+          <KpiCard
+            label="予算消化率"
+            value={formatPercent(r.budgetProgressRate)}
+            subText={`経過: ${r.elapsedDays}/${daysInMonth}日`}
+            accent="#0ea5e9"
+          />
+          <KpiCard
+            label="残余予算"
+            value={formatCurrency(r.remainingBudget)}
+            accent={sc.cond(r.remainingBudget <= 0)}
+          />
         </KpiGrid>
       </Section>
 
@@ -450,15 +537,28 @@ export function ReportsPage() {
               <Tr>
                 <Td>粗利率</Td>
                 <Td>{formatPercent(settings.targetGrossProfitRate)}</Td>
-                <Td>{r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}</Td>
-                <Td $accent={r.invMethodGrossProfitRate != null && r.invMethodGrossProfitRate >= settings.targetGrossProfitRate}>
+                <Td>
+                  {r.invMethodGrossProfitRate != null
+                    ? formatPercent(r.invMethodGrossProfitRate)
+                    : '-'}
+                </Td>
+                <Td
+                  $accent={
+                    r.invMethodGrossProfitRate != null &&
+                    r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
+                  }
+                >
                   {r.invMethodGrossProfitRate != null
                     ? `${r.invMethodGrossProfitRate >= settings.targetGrossProfitRate ? '+' : ''}${formatPercent(r.invMethodGrossProfitRate - settings.targetGrossProfitRate)}`
                     : '-'}
                 </Td>
                 <Td>
                   {r.invMethodGrossProfitRate != null
-                    ? r.invMethodGrossProfitRate >= settings.targetGrossProfitRate ? '達成' : r.invMethodGrossProfitRate >= settings.warningThreshold ? '注意' : '未達'
+                    ? r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
+                      ? '達成'
+                      : r.invMethodGrossProfitRate >= settings.warningThreshold
+                        ? '注意'
+                        : '未達'
                     : '-'}
                 </Td>
               </Tr>
@@ -467,16 +567,24 @@ export function ReportsPage() {
                 <Td>{formatCurrency(r.budget)}</Td>
                 <Td>{formatCurrency(r.totalSales)}</Td>
                 <Td $accent={r.totalSales >= r.budget}>
-                  {r.totalSales >= r.budget ? '+' : ''}{formatCurrency(r.totalSales - r.budget)}
+                  {r.totalSales >= r.budget ? '+' : ''}
+                  {formatCurrency(r.totalSales - r.budget)}
                 </Td>
-                <Td>{r.budgetAchievementRate >= 1 ? '達成' : r.budgetAchievementRate >= 0.9 ? '進行中' : '要注意'}</Td>
+                <Td>
+                  {r.budgetAchievementRate >= 1
+                    ? '達成'
+                    : r.budgetAchievementRate >= 0.9
+                      ? '進行中'
+                      : '要注意'}
+                </Td>
               </Tr>
               <Tr>
                 <Td>値入率</Td>
                 <Td>{formatPercent(settings.defaultMarkupRate)}</Td>
                 <Td>{formatPercent(r.averageMarkupRate)}</Td>
                 <Td $accent={r.averageMarkupRate >= settings.defaultMarkupRate}>
-                  {r.averageMarkupRate >= settings.defaultMarkupRate ? '+' : ''}{formatPercent(r.averageMarkupRate - settings.defaultMarkupRate)}
+                  {r.averageMarkupRate >= settings.defaultMarkupRate ? '+' : ''}
+                  {formatPercent(r.averageMarkupRate - settings.defaultMarkupRate)}
                 </Td>
                 <Td>{r.averageMarkupRate >= settings.defaultMarkupRate ? '達成' : '未達'}</Td>
               </Tr>
@@ -530,7 +638,7 @@ export function ReportsPage() {
                 </tr>
               </thead>
               <tbody>
-                {deptKpiIndex.records.map(dept => (
+                {deptKpiIndex.records.map((dept) => (
                   <Tr key={dept.deptCode}>
                     <DeptTd>{dept.deptName || dept.deptCode}</DeptTd>
                     <DeptTd>{formatPercent(dept.gpRateBudget)}</DeptTd>
@@ -540,20 +648,15 @@ export function ReportsPage() {
                     >
                       {formatPercent(dept.gpRateActual)}
                     </DeptTd>
-                    <DeptTd
-                      $good={dept.gpRateVariance >= 0}
-                      $warn={dept.gpRateVariance < 0}
-                    >
-                      {dept.gpRateVariance >= 0 ? '+' : ''}{(dept.gpRateVariance * 100).toFixed(1)}
+                    <DeptTd $good={dept.gpRateVariance >= 0} $warn={dept.gpRateVariance < 0}>
+                      {dept.gpRateVariance >= 0 ? '+' : ''}
+                      {(dept.gpRateVariance * 100).toFixed(1)}
                     </DeptTd>
                     <DeptTd>{formatPercent(dept.markupRate)}</DeptTd>
                     <DeptTd>{formatPercent(dept.discountRate)}</DeptTd>
                     <DeptTd>{formatCurrency(dept.salesBudget)}</DeptTd>
                     <DeptTd>{formatCurrency(dept.salesActual)}</DeptTd>
-                    <DeptTd
-                      $good={dept.salesAchievement >= 1}
-                      $warn={dept.salesAchievement < 0.9}
-                    >
+                    <DeptTd $good={dept.salesAchievement >= 1} $warn={dept.salesAchievement < 0.9}>
                       {formatPercent(dept.salesAchievement)}
                     </DeptTd>
                   </Tr>
@@ -563,8 +666,16 @@ export function ReportsPage() {
                   <Td>{formatPercent(deptKpiIndex.summary.weightedGpRateBudget)}</Td>
                   <Td $accent>{formatPercent(deptKpiIndex.summary.weightedGpRateActual)}</Td>
                   <Td $accent>
-                    {(deptKpiIndex.summary.weightedGpRateActual - deptKpiIndex.summary.weightedGpRateBudget >= 0 ? '+' : '')}
-                    {((deptKpiIndex.summary.weightedGpRateActual - deptKpiIndex.summary.weightedGpRateBudget) * 100).toFixed(1)}
+                    {deptKpiIndex.summary.weightedGpRateActual -
+                      deptKpiIndex.summary.weightedGpRateBudget >=
+                    0
+                      ? '+'
+                      : ''}
+                    {(
+                      (deptKpiIndex.summary.weightedGpRateActual -
+                        deptKpiIndex.summary.weightedGpRateBudget) *
+                      100
+                    ).toFixed(1)}
                   </Td>
                   <Td $accent>{formatPercent(deptKpiIndex.summary.weightedMarkupRate)}</Td>
                   <Td $accent>{formatPercent(deptKpiIndex.summary.weightedDiscountRate)}</Td>

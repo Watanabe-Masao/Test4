@@ -12,7 +12,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -32,7 +33,8 @@ const Title = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -44,11 +46,12 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -74,20 +77,18 @@ export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }:
   const ct = useChartTheme()
   const [mode, setMode] = useState<'cost' | 'price'>(initialMode)
 
-  const data = CATEGORY_ORDER
-    .filter((cat) => {
-      const pair = categoryTotals.get(cat)
-      return pair && (mode === 'cost' ? pair.cost : pair.price) !== 0
-    })
-    .map((cat) => {
-      const pair = categoryTotals.get(cat) ?? { cost: 0, price: 0 }
-      const value = Math.abs(mode === 'cost' ? pair.cost : pair.price)
-      return {
-        name: CATEGORY_LABELS[cat],
-        value,
-        color: CATEGORY_COLORS[cat] ?? '#64748b',
-      }
-    })
+  const data = CATEGORY_ORDER.filter((cat) => {
+    const pair = categoryTotals.get(cat)
+    return pair && (mode === 'cost' ? pair.cost : pair.price) !== 0
+  }).map((cat) => {
+    const pair = categoryTotals.get(cat) ?? { cost: 0, price: 0 }
+    const value = Math.abs(mode === 'cost' ? pair.cost : pair.price)
+    return {
+      name: CATEGORY_LABELS[cat],
+      value,
+      color: CATEGORY_COLORS[cat] ?? '#64748b',
+    }
+  })
 
   if (data.length === 0) return null
 
@@ -119,8 +120,12 @@ export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }:
       <HeaderRow>
         <Title>カテゴリ別{mode === 'cost' ? '原価' : '売価'}構成</Title>
         <TabGroup>
-          <Tab $active={mode === 'cost'} onClick={() => setMode('cost')}>原価</Tab>
-          <Tab $active={mode === 'price'} onClick={() => setMode('price')}>売価</Tab>
+          <Tab $active={mode === 'cost'} onClick={() => setMode('cost')}>
+            原価
+          </Tab>
+          <Tab $active={mode === 'price'} onClick={() => setMode('price')}>
+            売価
+          </Tab>
         </TabGroup>
       </HeaderRow>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="90%">

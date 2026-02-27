@@ -61,7 +61,14 @@ export function tooltipStyle(ct: ChartTheme) {
 }
 
 /** 店舗間比較用の共通カラーパレット */
-export const STORE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'] as const
+export const STORE_COLORS = [
+  '#6366f1',
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+  '#06b6d4',
+  '#ec4899',
+] as const
 
 /** 金額を万円表示する */
 export function toManYen(v: number): string {
@@ -91,8 +98,5 @@ export function toPct(v: number, decimals = 1): string {
 /** グローバル設定に基づく通貨フォーマッタを返すフック */
 export function useCurrencyFormatter(): (v: number) => string {
   const currencyUnit = useUiStore((s) => s.currencyUnit)
-  return useMemo(
-    () => currencyUnit === 'yen' ? toYen : toSenYen,
-    [currencyUnit],
-  )
+  return useMemo(() => (currencyUnit === 'yen' ? toYen : toSenYen), [currencyUnit])
 }

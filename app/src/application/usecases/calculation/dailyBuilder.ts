@@ -6,7 +6,12 @@ import type {
   TransferBreakdownEntry,
   ImportedData,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_CONSUMABLE_DAILY, getDailyTotalCost } from '@/domain/models'
+import {
+  ZERO_COST_PRICE_PAIR,
+  addCostPricePairs,
+  ZERO_CONSUMABLE_DAILY,
+  getDailyTotalCost,
+} from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import type { MonthlyAccumulator } from './types'
@@ -108,10 +113,20 @@ export function buildDailyRecords(
         { ...ZERO_COST_PRICE_PAIR },
       )
       for (const r of interInDay.interStoreIn) {
-        tbInterStoreIn.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+        tbInterStoreIn.push({
+          fromStoreId: r.fromStoreId,
+          toStoreId: r.toStoreId,
+          cost: r.cost,
+          price: r.price,
+        })
       }
       for (const r of interInDay.interDepartmentIn) {
-        tbInterDepartmentIn.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+        tbInterDepartmentIn.push({
+          fromStoreId: r.fromStoreId,
+          toStoreId: r.toStoreId,
+          cost: r.cost,
+          price: r.price,
+        })
       }
     }
 
@@ -125,10 +140,20 @@ export function buildDailyRecords(
         { ...ZERO_COST_PRICE_PAIR },
       )
       for (const r of interOutDay.interStoreOut) {
-        tbInterStoreOut.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+        tbInterStoreOut.push({
+          fromStoreId: r.fromStoreId,
+          toStoreId: r.toStoreId,
+          cost: r.cost,
+          price: r.price,
+        })
       }
       for (const r of interOutDay.interDepartmentOut) {
-        tbInterDepartmentOut.push({ fromStoreId: r.fromStoreId, toStoreId: r.toStoreId, cost: r.cost, price: r.price })
+        tbInterDepartmentOut.push({
+          fromStoreId: r.fromStoreId,
+          toStoreId: r.toStoreId,
+          cost: r.cost,
+          price: r.price,
+        })
       }
     }
 
@@ -230,15 +255,24 @@ export function buildDailyRecords(
     totalDirectProducePrice += directProduce.price
     totalDirectProduceCost += directProduce.cost
     totalDiscount += discountAbsolute
-    totalDiscountEntries = addDiscountEntries(totalDiscountEntries, discountEntries) as typeof totalDiscountEntries
+    totalDiscountEntries = addDiscountEntries(
+      totalDiscountEntries,
+      discountEntries,
+    ) as typeof totalDiscountEntries
     totalConsumable += consumable.cost
     totalCustomers += dayCustomers
 
     // 移動集計
     transferTotals.interStoreIn = addCostPricePairs(transferTotals.interStoreIn, interStoreIn)
     transferTotals.interStoreOut = addCostPricePairs(transferTotals.interStoreOut, interStoreOut)
-    transferTotals.interDepartmentIn = addCostPricePairs(transferTotals.interDepartmentIn, interDepartmentIn)
-    transferTotals.interDepartmentOut = addCostPricePairs(transferTotals.interDepartmentOut, interDepartmentOut)
+    transferTotals.interDepartmentIn = addCostPricePairs(
+      transferTotals.interDepartmentIn,
+      interDepartmentIn,
+    )
+    transferTotals.interDepartmentOut = addCostPricePairs(
+      transferTotals.interDepartmentOut,
+      interDepartmentOut,
+    )
   }
 
   return {

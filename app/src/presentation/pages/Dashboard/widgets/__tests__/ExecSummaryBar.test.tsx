@@ -99,9 +99,7 @@ describe('ExecSummaryBar ウィジェット', () => {
   })
 
   it('前年客数データがある場合に前年比が表示される', () => {
-    const prevDaily = new Map([
-      [1, { sales: 90000, discount: 500, customers: 40 }],
-    ])
+    const prevDaily = new Map([[1, { sales: 90000, discount: 500, customers: 40 }]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
         totalCustomers: 500,

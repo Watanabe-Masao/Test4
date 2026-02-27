@@ -17,7 +17,11 @@ const Logo = styled.div`
   width: ${({ theme }) => theme.layout.logoSize};
   height: ${({ theme }) => theme.layout.logoSize};
   border-radius: ${({ theme }) => theme.radii.lg};
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.palette.primary}, ${({ theme }) => theme.colors.palette.purpleDark});
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.palette.primary},
+    ${({ theme }) => theme.colors.palette.purpleDark}
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,8 +36,9 @@ const NavButton = styled.button<{ $active?: boolean }>`
   height: ${({ theme }) => theme.layout.navIconSize};
   border-radius: ${({ theme }) => theme.radii.md};
   border: none;
-  background: ${({ $active, theme }) => $active ? `${theme.colors.palette.primary}20` : 'transparent'};
-  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text3};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}20` : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   font-size: ${({ theme }) => theme.typography.fontSize.lg};
   transition: all ${({ theme }) => theme.transitions.fast};

@@ -11,9 +11,7 @@ import type { DepartmentKpiData, DepartmentKpiRecord } from '@/domain/models'
  * ※ ヘッダーが2行ある場合（グループヘッダー＋サブヘッダー）にも対応
  *    先頭セルが数値（部門コード）でない行はスキップ
  */
-export function processDepartmentKpi(
-  rows: readonly unknown[][],
-): DepartmentKpiData {
+export function processDepartmentKpi(rows: readonly unknown[][]): DepartmentKpiData {
   if (rows.length < 2) return { records: [] }
 
   const records: DepartmentKpiRecord[] = []

@@ -12,7 +12,7 @@ describe('calculateDiscountImpact', () => {
     //             = 0.74 × 5,000,000 × 0.02 / 0.98
     //             = 74,000 / 0.98
     //             ≈ 75,510.20
-    expect(result.discountLossCost).toBeCloseTo(75_510.20, 0)
+    expect(result.discountLossCost).toBeCloseTo(75_510.2, 0)
   })
 
   it('売変率0の場合、ロスも0', () => {

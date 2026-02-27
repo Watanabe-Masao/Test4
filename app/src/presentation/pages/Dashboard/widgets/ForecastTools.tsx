@@ -4,9 +4,15 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
-  ExecRow, ExecDividerLine,
-  ForecastToolsGrid, ToolCard, ToolCardTitle, ToolInputGroup,
-  ToolResultSection, ToolResultValue, ToolResultLabel,
+  ExecRow,
+  ExecDividerLine,
+  ForecastToolsGrid,
+  ToolCard,
+  ToolCardTitle,
+  ToolInputGroup,
+  ToolResultSection,
+  ToolResultValue,
+  ToolResultLabel,
   PinInputLabel,
 } from '../DashboardPage.styles'
 
@@ -75,14 +81,17 @@ const SliderValueInput = styled.input`
   padding: 2px 4px;
   outline: none;
   cursor: text;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.border};
   }
   &:focus {
     border-color: ${({ theme }) => theme.colors.palette.primary};
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)'};
   }
 `
 
@@ -114,11 +123,13 @@ const StepBtn = styled.button`
   line-height: 1;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   flex-shrink: 0;
   &:hover {
     color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
   }
   &:disabled {
     opacity: 0.3;
@@ -193,7 +204,12 @@ function EditableCurrencyValue({ value, min, max, onChange, format, parse }: Edi
   )
 }
 
-function EditablePercentValue({ value, min, max, onChange }: Omit<EditableValueProps, 'format' | 'parse'>) {
+function EditablePercentValue({
+  value,
+  min,
+  max,
+  onChange,
+}: Omit<EditableValueProps, 'format' | 'parse'>) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -308,13 +324,20 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             売上着地見込み
             {salesDiff !== 0 && (
               <DiffBadge $color={sc.cond(salesDiff > 0)}>
-                {' '}({salesDiff > 0 ? '+' : ''}{formatCurrency(salesDiff)})
+                {' '}
+                ({salesDiff > 0 ? '+' : ''}
+                {formatCurrency(salesDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn disabled={salesLanding <= salesMin} onClick={() => setSalesLanding(Math.max(salesMin, salesLanding - salesStep))}>◀</StepBtn>
+              <StepBtn
+                disabled={salesLanding <= salesMin}
+                onClick={() => setSalesLanding(Math.max(salesMin, salesLanding - salesStep))}
+              >
+                ◀
+              </StepBtn>
               <SliderInput
                 type="range"
                 min={salesMin}
@@ -323,7 +346,12 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={salesLanding}
                 onChange={(e) => setSalesLanding(Number(e.target.value))}
               />
-              <StepBtn disabled={salesLanding >= salesMax} onClick={() => setSalesLanding(Math.min(salesMax, salesLanding + salesStep))}>▶</StepBtn>
+              <StepBtn
+                disabled={salesLanding >= salesMax}
+                onClick={() => setSalesLanding(Math.min(salesMax, salesLanding + salesStep))}
+              >
+                ▶
+              </StepBtn>
               <EditableCurrencyValue
                 value={salesLanding}
                 min={salesMin}
@@ -334,7 +362,9 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </SliderRow>
             <SliderTicks>
               <span>{formatCurrency(salesMin)}</span>
-              <ResetButton onClick={() => setSalesLanding(defaultSalesLanding)}>リセット</ResetButton>
+              <ResetButton onClick={() => setSalesLanding(defaultSalesLanding)}>
+                リセット
+              </ResetButton>
               <span>{formatCurrency(salesMax)}</span>
             </SliderTicks>
           </SliderWrapper>
@@ -344,13 +374,21 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             残期間の粗利率予測
             {gpRateDiff !== 0 && (
               <DiffBadge $color={sc.cond(gpRateDiff > 0)}>
-                {' '}({formatPointDiff(gpRateDiff)})
+                {' '}
+                ({formatPointDiff(gpRateDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn disabled={remainGPRate <= 10} onClick={() => setRemainGPRate(Math.max(10, Math.round((remainGPRate - 0.1) * 10) / 10))}>◀</StepBtn>
+              <StepBtn
+                disabled={remainGPRate <= 10}
+                onClick={() =>
+                  setRemainGPRate(Math.max(10, Math.round((remainGPRate - 0.1) * 10) / 10))
+                }
+              >
+                ◀
+              </StepBtn>
               <SliderInput
                 type="range"
                 min={10}
@@ -359,7 +397,14 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={remainGPRate}
                 onChange={(e) => setRemainGPRate(Number(e.target.value))}
               />
-              <StepBtn disabled={remainGPRate >= 40} onClick={() => setRemainGPRate(Math.min(40, Math.round((remainGPRate + 0.1) * 10) / 10))}>▶</StepBtn>
+              <StepBtn
+                disabled={remainGPRate >= 40}
+                onClick={() =>
+                  setRemainGPRate(Math.min(40, Math.round((remainGPRate + 0.1) * 10) / 10))
+                }
+              >
+                ▶
+              </StepBtn>
               <EditablePercentValue
                 value={remainGPRate}
                 min={10}
@@ -369,7 +414,11 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
-              <ResetButton onClick={() => setRemainGPRate(Math.round(defaultRemainGPRate * 1000) / 10)}>リセット</ResetButton>
+              <ResetButton
+                onClick={() => setRemainGPRate(Math.round(defaultRemainGPRate * 1000) / 10)}
+              >
+                リセット
+              </ResetButton>
               <span>40.0%</span>
             </SliderTicks>
           </SliderWrapper>
@@ -424,13 +473,22 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             目標着地月間売上
             {goalSalesDiff !== 0 && (
               <DiffBadge $color={sc.cond(goalSalesDiff > 0)}>
-                {' '}({goalSalesDiff > 0 ? '+' : ''}{formatCurrency(goalSalesDiff)})
+                {' '}
+                ({goalSalesDiff > 0 ? '+' : ''}
+                {formatCurrency(goalSalesDiff)})
               </DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn disabled={targetMonthlySales <= goalSalesMin} onClick={() => setTargetMonthlySales(Math.max(goalSalesMin, targetMonthlySales - goalSalesStep))}>◀</StepBtn>
+              <StepBtn
+                disabled={targetMonthlySales <= goalSalesMin}
+                onClick={() =>
+                  setTargetMonthlySales(Math.max(goalSalesMin, targetMonthlySales - goalSalesStep))
+                }
+              >
+                ◀
+              </StepBtn>
               <SliderInput
                 type="range"
                 min={goalSalesMin}
@@ -439,7 +497,14 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetMonthlySales}
                 onChange={(e) => setTargetMonthlySales(Number(e.target.value))}
               />
-              <StepBtn disabled={targetMonthlySales >= goalSalesMax} onClick={() => setTargetMonthlySales(Math.min(goalSalesMax, targetMonthlySales + goalSalesStep))}>▶</StepBtn>
+              <StepBtn
+                disabled={targetMonthlySales >= goalSalesMax}
+                onClick={() =>
+                  setTargetMonthlySales(Math.min(goalSalesMax, targetMonthlySales + goalSalesStep))
+                }
+              >
+                ▶
+              </StepBtn>
               <EditableCurrencyValue
                 value={targetMonthlySales}
                 min={goalSalesMin}
@@ -450,7 +515,9 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </SliderRow>
             <SliderTicks>
               <span>{formatCurrency(goalSalesMin)}</span>
-              <ResetButton onClick={() => setTargetMonthlySales(defaultTargetMonthlySales)}>リセット</ResetButton>
+              <ResetButton onClick={() => setTargetMonthlySales(defaultTargetMonthlySales)}>
+                リセット
+              </ResetButton>
               <span>{formatCurrency(goalSalesMax)}</span>
             </SliderTicks>
           </SliderWrapper>
@@ -459,14 +526,19 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
           <PinInputLabel>
             目標着地粗利率
             {goalDiff !== 0 && (
-              <DiffBadge $color={sc.cond(goalDiff > 0)}>
-                {' '}({formatPointDiff(goalDiff)})
-              </DiffBadge>
+              <DiffBadge $color={sc.cond(goalDiff > 0)}> ({formatPointDiff(goalDiff)})</DiffBadge>
             )}
           </PinInputLabel>
           <SliderWrapper>
             <SliderRow>
-              <StepBtn disabled={targetGPRate <= 10} onClick={() => setTargetGPRate(Math.max(10, Math.round((targetGPRate - 0.1) * 10) / 10))}>◀</StepBtn>
+              <StepBtn
+                disabled={targetGPRate <= 10}
+                onClick={() =>
+                  setTargetGPRate(Math.max(10, Math.round((targetGPRate - 0.1) * 10) / 10))
+                }
+              >
+                ◀
+              </StepBtn>
               <SliderInput
                 type="range"
                 min={10}
@@ -475,7 +547,14 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 value={targetGPRate}
                 onChange={(e) => setTargetGPRate(Number(e.target.value))}
               />
-              <StepBtn disabled={targetGPRate >= 40} onClick={() => setTargetGPRate(Math.min(40, Math.round((targetGPRate + 0.1) * 10) / 10))}>▶</StepBtn>
+              <StepBtn
+                disabled={targetGPRate >= 40}
+                onClick={() =>
+                  setTargetGPRate(Math.min(40, Math.round((targetGPRate + 0.1) * 10) / 10))
+                }
+              >
+                ▶
+              </StepBtn>
               <EditablePercentValue
                 value={targetGPRate}
                 min={10}
@@ -485,7 +564,11 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </SliderRow>
             <SliderTicks>
               <span>10.0%</span>
-              <ResetButton onClick={() => setTargetGPRate(Math.round(defaultTargetGPRate * 1000) / 10)}>リセット</ResetButton>
+              <ResetButton
+                onClick={() => setTargetGPRate(Math.round(defaultTargetGPRate * 1000) / 10)}
+              >
+                リセット
+              </ResetButton>
               <span>40.0%</span>
             </SliderTicks>
           </SliderWrapper>
@@ -499,13 +582,20 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             <ExecRow>
               <ToolResultLabel>予測月末売上</ToolResultLabel>
               <ToolResultValue>
-                {formatCurrency(projectedTotalSales2)}{' / '}{formatPercent(projectedSalesAchievement)}
+                {formatCurrency(projectedTotalSales2)}
+                {' / '}
+                {formatPercent(projectedSalesAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>目標月間売上</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(targetSalesAchievement >= 1)}>
-                {formatCurrency(targetTotalSales2)}{' / '}{formatPercent(targetSalesAchievement)}
+              <ToolResultValue
+                style={{ fontWeight: 700 }}
+                $color={sc.cond(targetSalesAchievement >= 1)}
+              >
+                {formatCurrency(targetTotalSales2)}
+                {' / '}
+                {formatPercent(targetSalesAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecDividerLine />
@@ -516,13 +606,20 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             <ExecRow>
               <ToolResultLabel>予測月間粗利額</ToolResultLabel>
               <ToolResultValue>
-                {formatCurrency(projectedTotalGP2)}{' / '}{formatPercent(projectedGPAchievement)}
+                {formatCurrency(projectedTotalGP2)}
+                {' / '}
+                {formatPercent(projectedGPAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>目標粗利総額</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(targetGPAchievement >= 1)}>
-                {formatCurrency(targetTotalGP2)}{' / '}{formatPercent(targetGPAchievement)}
+              <ToolResultValue
+                style={{ fontWeight: 700 }}
+                $color={sc.cond(targetGPAchievement >= 1)}
+              >
+                {formatCurrency(targetTotalGP2)}
+                {' / '}
+                {formatPercent(targetGPAchievement)}
               </ToolResultValue>
             </ExecRow>
             <ExecDividerLine />
@@ -536,17 +633,25 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>残期間売上目標</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }}>{formatCurrency(remainingSales2)}</ToolResultValue>
+              <ToolResultValue style={{ fontWeight: 700 }}>
+                {formatCurrency(remainingSales2)}
+              </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>残期間必要粗利率</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
+              <ToolResultValue
+                style={{ fontWeight: 700 }}
+                $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}
+              >
                 {formatPercent(requiredRemainingGPRate2)}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>現在粗利率との差</ToolResultLabel>
-              <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}>
+              <ToolResultValue
+                style={{ fontWeight: 700 }}
+                $color={sc.cond(requiredRemainingGPRate2 <= actualGPRate)}
+              >
                 {formatPointDiff(requiredRemainingGPRate2 - actualGPRate)}
               </ToolResultValue>
             </ExecRow>

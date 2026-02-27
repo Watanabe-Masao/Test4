@@ -9,7 +9,10 @@ import {
 describe('advancedForecast', () => {
   describe('calculateWMA', () => {
     it('データ数が窓サイズ未満の場合は実績値をそのまま返す', () => {
-      const sales = new Map([[1, 100], [2, 200]])
+      const sales = new Map([
+        [1, 100],
+        [2, 200],
+      ])
       const result = calculateWMA(sales, 5)
       expect(result).toHaveLength(2)
       expect(result[0].wma).toBe(100)
@@ -17,7 +20,12 @@ describe('advancedForecast', () => {
     })
 
     it('窓サイズ3での加重移動平均を正しく計算する', () => {
-      const sales = new Map([[1, 100], [2, 200], [3, 300], [4, 400]])
+      const sales = new Map([
+        [1, 100],
+        [2, 200],
+        [3, 300],
+        [4, 400],
+      ])
       const result = calculateWMA(sales, 3)
 
       expect(result).toHaveLength(4)
@@ -28,7 +36,11 @@ describe('advancedForecast', () => {
     })
 
     it('0のデータはスキップされる', () => {
-      const sales = new Map([[1, 100], [2, 0], [3, 300]])
+      const sales = new Map([
+        [1, 100],
+        [2, 0],
+        [3, 300],
+      ])
       const result = calculateWMA(sales)
       expect(result).toHaveLength(2) // 0 はフィルタされる
     })
@@ -37,7 +49,13 @@ describe('advancedForecast', () => {
   describe('linearRegression', () => {
     it('完全な線形データの回帰を正しく計算する', () => {
       // y = 100x + 500 → sales increases by 100 per day
-      const sales = new Map([[1, 600], [2, 700], [3, 800], [4, 900], [5, 1000]])
+      const sales = new Map([
+        [1, 600],
+        [2, 700],
+        [3, 800],
+        [4, 900],
+        [5, 1000],
+      ])
       const result = linearRegression(sales)
 
       expect(result.slope).toBeCloseTo(100, 0)
@@ -59,7 +77,13 @@ describe('advancedForecast', () => {
     })
 
     it('ノイズのあるデータで R² < 1 を返す', () => {
-      const sales = new Map([[1, 100], [2, 500], [3, 200], [4, 400], [5, 300]])
+      const sales = new Map([
+        [1, 100],
+        [2, 500],
+        [3, 200],
+        [4, 400],
+        [5, 300],
+      ])
       const result = linearRegression(sales)
       expect(result.rSquared).toBeLessThan(1)
       expect(result.rSquared).toBeGreaterThanOrEqual(0)

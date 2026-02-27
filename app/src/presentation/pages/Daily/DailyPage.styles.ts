@@ -59,9 +59,11 @@ export const Th = styled.th<{ $clickable?: boolean; $expanded?: boolean }>`
   }
 
   ${({ $clickable }) => $clickable && clickableHeaderCss}
-  ${({ $expanded, theme }) => $expanded && css`
-    color: ${theme.colors.palette.primary};
-  `}
+  ${({ $expanded, theme }) =>
+    $expanded &&
+    css`
+      color: ${theme.colors.palette.primary};
+    `}
 `
 
 export const SubTh = styled.th`
@@ -83,7 +85,7 @@ export const Td = styled.td<{ $negative?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $negative, theme }) => $negative ? theme.colors.palette.danger : theme.colors.text};
+  color: ${({ $negative, theme }) => ($negative ? theme.colors.palette.danger : theme.colors.text)};
 
   &:first-child {
     text-align: center;
@@ -100,7 +102,8 @@ export const SubTd = styled.td<{ $negative?: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $negative, theme }) => $negative ? theme.colors.palette.danger : theme.colors.text3};
+  color: ${({ $negative, theme }) =>
+    $negative ? theme.colors.palette.danger : theme.colors.text3};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
@@ -130,7 +133,11 @@ export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
   margin-left: 2px;
   font-size: 0.6rem;
   transition: transform ${({ theme }) => theme.transitions.fast};
-  ${({ $expanded }) => $expanded && css`transform: rotate(90deg);`}
+  ${({ $expanded }) =>
+    $expanded &&
+    css`
+      transform: rotate(90deg);
+    `}
 `
 
 export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad' }>`
@@ -139,8 +146,11 @@ export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad' }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $status, theme }) =>
-    $status === 'good' ? theme.colors.palette.success
-    : $status === 'warn' ? theme.colors.palette.warning
-    : $status === 'bad' ? theme.colors.palette.danger
-    : theme.colors.text3};
+    $status === 'good'
+      ? theme.colors.palette.success
+      : $status === 'warn'
+        ? theme.colors.palette.warning
+        : $status === 'bad'
+          ? theme.colors.palette.danger
+          : theme.colors.text3};
 `

@@ -24,8 +24,7 @@ export const sc = {
   neutral: palette.slate,
 
   /** positive / negative の2値判定 */
-  cond: (isPositive: boolean): string =>
-    isPositive ? palette.positive : palette.negative,
+  cond: (isPositive: boolean): string => (isPositive ? palette.positive : palette.negative),
 
   /** positive / caution / negative の3値判定 */
   cond3: (isPositive: boolean, isCaution: boolean): string =>

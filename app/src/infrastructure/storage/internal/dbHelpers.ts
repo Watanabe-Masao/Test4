@@ -33,7 +33,9 @@ export function openDB(): Promise<IDBDatabase> {
     request.onsuccess = () => {
       const db = request.result
       // 接続断時に自動再接続できるよう dbPromise をクリア
-      db.onclose = () => { dbPromise = null }
+      db.onclose = () => {
+        dbPromise = null
+      }
       db.onversionchange = () => {
         db.close()
         dbPromise = null
@@ -170,7 +172,11 @@ export async function dbBatchPutWithReadModify(
  */
 export async function dbAtomicDeleteWithReadModify(
   deleteEntries: readonly { storeName: string; key: string }[],
-  conditionalDeletes: readonly { storeName: string; key: string; shouldDelete: (existing: unknown) => boolean }[],
+  conditionalDeletes: readonly {
+    storeName: string
+    key: string
+    shouldDelete: (existing: unknown) => boolean
+  }[],
   readModifyOps: readonly ReadModifyWriteOp[],
 ): Promise<void> {
   const db = await openDB()

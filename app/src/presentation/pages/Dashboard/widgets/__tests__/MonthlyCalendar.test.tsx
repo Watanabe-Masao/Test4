@@ -10,9 +10,7 @@ import {
 
 describe('MonthlyCalendarWidget', () => {
   it('カレンダーがレンダリングされる', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000 })],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
     const budgetDaily = new Map([[1, 90000]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
@@ -28,9 +26,7 @@ describe('MonthlyCalendarWidget', () => {
   })
 
   it('客数データがある場合に「客」「単」セルが表示される', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000, customers: 50 })],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000, customers: 50 })]])
     const budgetDaily = new Map([[1, 90000]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
@@ -46,9 +42,7 @@ describe('MonthlyCalendarWidget', () => {
   })
 
   it('客数 = 0 では客数セルが非表示', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000 })],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
     const budgetDaily = new Map([[1, 90000]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
@@ -67,7 +61,10 @@ describe('MonthlyCalendarWidget', () => {
       [1, makeDailyRecord({ day: 1, sales: 100000, customers: 50 })],
       [2, makeDailyRecord({ day: 2, sales: 150000, customers: 75 })],
     ])
-    const budgetDaily = new Map([[1, 90000], [2, 120000]])
+    const budgetDaily = new Map([
+      [1, 90000],
+      [2, 120000],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
       year: 2026,

@@ -6,12 +6,26 @@
  */
 import { useState, useMemo } from 'react'
 import styled from 'styled-components'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  ReferenceLine,
+  LabelList,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
-import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
+import {
+  CategoryFactorBreakdown,
+  decomposePriceMix,
+  recordsToCategoryQtyAmt,
+} from './CategoryFactorBreakdown'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -30,11 +44,14 @@ const TabBtn = styled.button<{ $active: boolean }>`
   padding: 3px 10px;
   border-radius: 4px;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.bg2};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.primary : theme.colors.bg2};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text)};
   font-size: 0.65rem;
   cursor: pointer;
-  &:hover { opacity: 0.8; }
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 interface WaterfallItem {
@@ -57,19 +74,28 @@ const DecompRow = styled.div`
 const DecompBtn = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: 10px;
-  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
-  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
   font-size: 0.6rem;
   cursor: pointer;
-  font-weight: ${({ $active }) => $active ? 600 : 400};
-  &:hover { opacity: 0.8; }
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 export function DrilldownWaterfall({
-  actual, pySales, dayCust, pyCust,
-  dayRecords, prevDayRecords,
-  curLabel = '当年', prevLabel = '前年',
+  actual,
+  pySales,
+  dayCust,
+  pyCust,
+  dayRecords,
+  prevDayRecords,
+  curLabel = '当年',
+  prevLabel = '前年',
 }: {
   actual: number
   pySales: number
@@ -86,10 +112,14 @@ export function DrilldownWaterfall({
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
   // Aggregate total quantity from day records
-  const curTotalQty = useMemo(() =>
-    dayRecords.reduce((s, r) => s + r.totalQuantity, 0), [dayRecords])
-  const prevTotalQty = useMemo(() =>
-    prevDayRecords.reduce((s, r) => s + r.totalQuantity, 0), [prevDayRecords])
+  const curTotalQty = useMemo(
+    () => dayRecords.reduce((s, r) => s + r.totalQuantity, 0),
+    [dayRecords],
+  )
+  const prevTotalQty = useMemo(
+    () => prevDayRecords.reduce((s, r) => s + r.totalQuantity, 0),
+    [prevDayRecords],
+  )
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 
   // Price/Mix decomposition
@@ -110,7 +140,12 @@ export function DrilldownWaterfall({
 
     let running = pySales
     const push = (name: string, value: number) => {
-      items.push({ name, value, base: value >= 0 ? running : running + value, bar: Math.abs(value) })
+      items.push({
+        name,
+        value,
+        base: value >= 0 ? running : running + value,
+        bar: Math.abs(value),
+      })
       running += value
     }
 
@@ -134,8 +169,14 @@ export function DrilldownWaterfall({
         // 5-factor: full 4-variable Shapley
         if (hasQuantity) {
           const d = decompose5(
-            pySales, actual, pyCust, dayCust, prevTotalQty, curTotalQty,
-            recordsToCategoryQtyAmt(dayRecords), recordsToCategoryQtyAmt(prevDayRecords),
+            pySales,
+            actual,
+            pyCust,
+            dayCust,
+            prevTotalQty,
+            curTotalQty,
+            recordsToCategoryQtyAmt(dayRecords),
+            recordsToCategoryQtyAmt(prevDayRecords),
           )
           if (d) {
             push('客数効果', d.custEffect)
@@ -151,7 +192,21 @@ export function DrilldownWaterfall({
 
     items.push({ name: curLabel, value: actual, base: 0, bar: actual, isTotal: true })
     return items
-  }, [actual, pySales, dayCust, pyCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, dayRecords, prevDayRecords, curLabel, prevLabel])
+  }, [
+    actual,
+    pySales,
+    dayCust,
+    pyCust,
+    hasQuantity,
+    curTotalQty,
+    prevTotalQty,
+    priceMix,
+    activeLevel,
+    dayRecords,
+    prevDayRecords,
+    curLabel,
+    prevLabel,
+  ])
 
   // 部門別増減データ: actual/pySales にアンカーし、部門差分はCTSから取得
   const categoryData = useMemo((): WaterfallItem[] => {
@@ -258,7 +313,10 @@ export function DrilldownWaterfall({
             </TabBtn>
           )}
           {hasCategoryFactorView && (
-            <TabBtn $active={viewMode === 'categoryFactor'} onClick={() => setViewMode('categoryFactor')}>
+            <TabBtn
+              $active={viewMode === 'categoryFactor'}
+              onClick={() => setViewMode('categoryFactor')}
+            >
               部門別要因
             </TabBtn>
           )}
@@ -331,7 +389,13 @@ export function DrilldownWaterfall({
               {data.map((item, idx) => (
                 <Cell
                   key={idx}
-                  fill={item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative}
+                  fill={
+                    item.isTotal
+                      ? colors.total
+                      : item.value >= 0
+                        ? colors.positive
+                        : colors.negative
+                  }
                   opacity={0.85}
                 />
               ))}

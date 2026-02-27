@@ -41,10 +41,12 @@ const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.pill};
   background: ${({ $severity }) =>
-    $severity === 'critical' ? palette.dangerDark :
-    $severity === 'warning' ? palette.caution : palette.blueDark};
-  color: ${({ $severity }) =>
-    $severity === 'warning' ? '#000' : '#fff'};
+    $severity === 'critical'
+      ? palette.dangerDark
+      : $severity === 'warning'
+        ? palette.caution
+        : palette.blueDark};
+  color: ${({ $severity }) => ($severity === 'warning' ? '#000' : '#fff')};
 `
 
 const AlertList = styled.div`
@@ -61,9 +63,13 @@ const AlertCard = styled.div<{ $severity: AlertSeverity }>`
   padding: ${({ theme }) => theme.spacing[4]};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid ${({ $severity }) =>
-    $severity === 'critical' ? palette.dangerDark :
-    $severity === 'warning' ? palette.caution : palette.blueDark};
+  border-left: 4px solid
+    ${({ $severity }) =>
+      $severity === 'critical'
+        ? palette.dangerDark
+        : $severity === 'warning'
+          ? palette.caution
+          : palette.blueDark};
   border-radius: ${({ theme }) => theme.radii.md};
 `
 
@@ -78,11 +84,17 @@ const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
   font-size: 12px;
   font-weight: bold;
   background: ${({ $severity }) =>
-    $severity === 'critical' ? `${palette.dangerDark}20` :
-    $severity === 'warning' ? `${palette.caution}20` : `${palette.blueDark}20`};
+    $severity === 'critical'
+      ? `${palette.dangerDark}20`
+      : $severity === 'warning'
+        ? `${palette.caution}20`
+        : `${palette.blueDark}20`};
   color: ${({ $severity }) =>
-    $severity === 'critical' ? palette.dangerDark :
-    $severity === 'warning' ? palette.caution : palette.blueDark};
+    $severity === 'critical'
+      ? palette.dangerDark
+      : $severity === 'warning'
+        ? palette.caution
+        : palette.blueDark};
 `
 
 const AlertBody = styled.div`
@@ -120,7 +132,9 @@ const EmptyState = styled.div`
 
 /** アラートルールが比率ベースかどうかを判定 */
 function isRateAlert(alert: Alert): boolean {
-  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(alert.ruleId)
+  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(
+    alert.ruleId,
+  )
 }
 
 function formatAlertValue(alert: Alert): string {
@@ -165,22 +179,17 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
       prevYearDailySales = salesMap
     }
 
-    return evaluateAlerts(
-      ctx.storeKey,
-      ctx.storeKey,
-      r,
-      DEFAULT_ALERT_RULES,
-      {
-        targetGrossProfitRate: targetGpRate,
-        prevYearDailySales,
-      },
-    )
+    return evaluateAlerts(ctx.storeKey, ctx.storeKey, r, DEFAULT_ALERT_RULES, {
+      targetGrossProfitRate: targetGpRate,
+      prevYearDailySales,
+    })
   }, [r, ctx.storeKey, targetGpRate, ctx.prevYear])
 
-  const criticalCount = alerts.filter(a => a.severity === 'critical').length
-  const warningCount = alerts.filter(a => a.severity === 'warning').length
+  const criticalCount = alerts.filter((a) => a.severity === 'critical').length
+  const warningCount = alerts.filter((a) => a.severity === 'warning').length
 
-  const topSeverity: AlertSeverity = criticalCount > 0 ? 'critical' : warningCount > 0 ? 'warning' : 'info'
+  const topSeverity: AlertSeverity =
+    criticalCount > 0 ? 'critical' : warningCount > 0 ? 'warning' : 'info'
 
   return (
     <Wrapper>
@@ -188,26 +197,37 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
         <Title>
           アラート
           {alerts.length > 0 && (
-            <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.text3, marginLeft: 8 }}>
+            <span
+              style={{
+                fontSize: theme.typography.fontSize.xs,
+                color: theme.colors.text3,
+                marginLeft: 8,
+              }}
+            >
               {alerts.length}件
             </span>
           )}
         </Title>
         {alerts.length > 0 && (
           <BadgeCount $severity={topSeverity}>
-            {criticalCount > 0 ? `重大 ${criticalCount}` : warningCount > 0 ? `注意 ${warningCount}` : `情報 ${alerts.length}`}
+            {criticalCount > 0
+              ? `重大 ${criticalCount}`
+              : warningCount > 0
+                ? `注意 ${warningCount}`
+                : `情報 ${alerts.length}`}
           </BadgeCount>
         )}
       </Header>
 
       {alerts.length === 0 ? (
-        <EmptyState>
-          全指標が正常範囲内です
-        </EmptyState>
+        <EmptyState>全指標が正常範囲内です</EmptyState>
       ) : (
         <AlertList>
           {alerts.map((alert, i) => (
-            <AlertCard key={`${alert.ruleId}-${alert.day ?? 'all'}-${i}`} $severity={alert.severity}>
+            <AlertCard
+              key={`${alert.ruleId}-${alert.day ?? 'all'}-${i}`}
+              $severity={alert.severity}
+            >
               <SeverityIcon $severity={alert.severity}>
                 {SEVERITY_ICONS[alert.severity]}
               </SeverityIcon>

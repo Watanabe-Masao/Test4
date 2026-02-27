@@ -37,7 +37,9 @@ export const DataTh = styled.th`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
 
-  &:first-child { text-align: center; }
+  &:first-child {
+    text-align: center;
+  }
 `
 
 export const DataTd = styled.td<{ $positive?: boolean; $negative?: boolean }>`
@@ -45,11 +47,20 @@ export const DataTd = styled.td<{ $positive?: boolean; $negative?: boolean }>`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $positive, $negative, theme }) =>
-    $positive ? theme.colors.palette.success : $negative ? theme.colors.palette.danger : theme.colors.text};
+    $positive
+      ? theme.colors.palette.success
+      : $negative
+        ? theme.colors.palette.danger
+        : theme.colors.text};
 
-  &:first-child { text-align: center; color: ${({ theme }) => theme.colors.text2}; }
+  &:first-child {
+    text-align: center;
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 export const DataTr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `

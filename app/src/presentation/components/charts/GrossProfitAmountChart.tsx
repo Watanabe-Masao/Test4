@@ -1,5 +1,17 @@
 import { useState } from 'react'
-import { ComposedChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, Cell } from 'recharts'
+import {
+  ComposedChart,
+  BarChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+  Cell,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
@@ -14,7 +26,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -34,7 +47,8 @@ const Title = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -46,11 +60,12 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 type GpView = 'amountRate' | 'rateOnly'
@@ -68,7 +83,15 @@ interface Props {
 }
 
 /** 粗利推移チャート（額+率 / 率のみ 切替） */
-export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, targetRate, warningRate, prevYearDaily, prevYearCostMap }: Props) {
+export function GrossProfitAmountChart({
+  daily,
+  daysInMonth,
+  grossProfitBudget,
+  targetRate,
+  warningRate,
+  prevYearDaily,
+  prevYearCostMap,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [gpView, setGpView] = useState<GpView>('amountRate')
@@ -110,14 +133,15 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
     })
   }
 
-  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
-  const titleText = gpView === 'rateOnly'
-    ? '粗利率推移（累計ベース）'
-    : '粗利額累計推移（バー: 粗利額 / ライン: 粗利率）'
+  const titleText =
+    gpView === 'rateOnly'
+      ? '粗利率推移（累計ベース）'
+      : '粗利額累計推移（バー: 粗利額 / ライン: 粗利率）'
 
   // 率のみビュー用: Y軸上限
-  const maxRate = Math.max(...data.filter(d => d.hasSales).map(d => d.rate), 0)
+  const maxRate = Math.max(...data.filter((d) => d.hasSales).map((d) => d.rate), 0)
   const yMax = Math.max(0.5, Math.ceil(maxRate * 10) / 10)
 
   const getBarColor = (rate: number) => {
@@ -131,8 +155,12 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
       <HeaderRow>
         <Title>{titleText}</Title>
         <TabGroup>
-          <Tab $active={gpView === 'amountRate'} onClick={() => setGpView('amountRate')}>額+率</Tab>
-          <Tab $active={gpView === 'rateOnly'} onClick={() => setGpView('rateOnly')}>率のみ</Tab>
+          <Tab $active={gpView === 'amountRate'} onClick={() => setGpView('amountRate')}>
+            額+率
+          </Tab>
+          <Tab $active={gpView === 'rateOnly'} onClick={() => setGpView('rateOnly')}>
+            率のみ
+          </Tab>
         </TabGroup>
       </HeaderRow>
 
@@ -173,7 +201,8 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
                 if (name === 'rate') return [toPct(value as number), '粗利率']
-                if (name === 'prevRate') return [value != null ? toPct(value as number) : '-', '前年粗利率']
+                if (name === 'prevRate')
+                  return [value != null ? toPct(value as number) : '-', '前年粗利率']
                 return [toComma(value as number), '粗利額累計']
               }}
               labelFormatter={(label) => `${label}日`}
@@ -181,7 +210,11 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
               formatter={(value) => {
-                const labels: Record<string, string> = { grossProfit: '粗利額累計', rate: '粗利率', prevRate: '前年粗利率' }
+                const labels: Record<string, string> = {
+                  grossProfit: '粗利額累計',
+                  rate: '粗利率',
+                  prevRate: '前年粗利率',
+                }
                 return labels[value] ?? value
               }}
             />
@@ -310,7 +343,13 @@ export function GrossProfitAmountChart({ daily, daysInMonth, grossProfitBudget, 
           </BarChart>
         </ResponsiveContainer>
       )}
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

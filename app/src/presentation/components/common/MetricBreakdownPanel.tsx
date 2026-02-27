@@ -112,9 +112,11 @@ const InputRow = styled.div<{ $clickable?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
 
-  ${({ $clickable, theme }) => $clickable && `
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
     &:hover {
       background: ${theme.colors.bg4};
     }
@@ -158,7 +160,9 @@ const BreadcrumbLink = styled.button`
   all: unset;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.palette.primary};
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `
 
 const BreadcrumbSep = styled.span`
@@ -174,7 +178,9 @@ const RelatedMetricRow = styled.div`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const RelatedMetricName = styled.span`
@@ -213,14 +219,19 @@ const Th = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const Tr = styled.tr<{ $expandable?: boolean; $expanded?: boolean }>`
-  cursor: ${({ $expandable }) => $expandable ? 'pointer' : 'default'};
-  background: ${({ $expanded, theme }) => $expanded ? `${theme.colors.palette.primary}08` : 'transparent'};
+  cursor: ${({ $expandable }) => ($expandable ? 'pointer' : 'default')};
+  background: ${({ $expanded, theme }) =>
+    $expanded ? `${theme.colors.palette.primary}08` : 'transparent'};
 
-  ${({ $expandable, theme }) => $expandable && `
+  ${({ $expandable, theme }) =>
+    $expandable &&
+    `
     &:hover {
       background: ${theme.colors.bg4};
     }
@@ -233,7 +244,9 @@ const Td = styled.td`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border}08;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const ExpandIcon = styled.span`
@@ -254,7 +267,9 @@ const DetailTd = styled.td`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border}04;
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const TabBar = styled.div`
@@ -271,11 +286,12 @@ const TabButton = styled.button<{ $active: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.normal};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text4};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}15` : 'transparent'};
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const EvidenceBadge = styled.span`
@@ -294,9 +310,12 @@ const EvidenceBadge = styled.span`
 
 function formatValue(value: number, unit: MetricUnit): string {
   switch (unit) {
-    case 'yen': return formatCurrency(value)
-    case 'rate': return formatPercent(value)
-    case 'count': return value.toLocaleString()
+    case 'yen':
+      return formatCurrency(value)
+    case 'rate':
+      return formatPercent(value)
+    case 'count':
+      return value.toLocaleString()
   }
 }
 
@@ -331,13 +350,16 @@ export function MetricBreakdownPanel({
   const currentMetric = history[history.length - 1]
   const current = allExplanations.get(currentMetric) ?? explanation
 
-  const navigateTo = useCallback((metric: MetricId | undefined) => {
-    if (metric && allExplanations.has(metric)) {
-      setHistory((prev) => [...prev, metric])
-      setTab('formula')
-      setExpandedDays(new Set())
-    }
-  }, [allExplanations])
+  const navigateTo = useCallback(
+    (metric: MetricId | undefined) => {
+      if (metric && allExplanations.has(metric)) {
+        setHistory((prev) => [...prev, metric])
+        setTab('formula')
+        setExpandedDays(new Set())
+      }
+    },
+    [allExplanations],
+  )
 
   const navigateBack = useCallback((index: number) => {
     setHistory((prev) => prev.slice(0, index + 1))
@@ -388,7 +410,8 @@ export function MetricBreakdownPanel({
             <Title>{current.title}</Title>
             <ValueDisplay>{formatValue(current.value, current.unit)}</ValueDisplay>
             <ScopeInfo>
-              {current.scope.year}年{current.scope.month}月 / {resolveStoreName(current.scope.storeId, stores)}
+              {current.scope.year}年{current.scope.month}月 /{' '}
+              {resolveStoreName(current.scope.storeId, stores)}
             </ScopeInfo>
           </div>
           <CloseButton onClick={onClose}>✕</CloseButton>
@@ -450,9 +473,7 @@ export function MetricBreakdownPanel({
                   >
                     <InputName>
                       {input.name}
-                      {input.metric && allExplanations.has(input.metric) && (
-                        <LinkIcon>→</LinkIcon>
-                      )}
+                      {input.metric && allExplanations.has(input.metric) && <LinkIcon>→</LinkIcon>}
                     </InputName>
                     <InputValue>{formatValue(input.value, input.unit)}</InputValue>
                   </InputRow>
@@ -465,10 +486,7 @@ export function MetricBreakdownPanel({
                 <SectionTitle>この指標を参照している指標</SectionTitle>
                 <InputList>
                   {reverseLinks.map((link) => (
-                    <RelatedMetricRow
-                      key={link.metric}
-                      onClick={() => navigateTo(link.metric)}
-                    >
+                    <RelatedMetricRow key={link.metric} onClick={() => navigateTo(link.metric)}>
                       <RelatedMetricName>
                         {link.title}
                         <LinkIcon>←</LinkIcon>
@@ -528,12 +546,13 @@ export function MetricBreakdownPanel({
                           </Td>
                           <Td>{formatValue(entry.value, current.unit)}</Td>
                         </Tr>
-                        {isExpanded && entry.details!.map((detail, di) => (
-                          <DetailRow key={`${entry.day}-${di}`}>
-                            <DetailTd>{detail.label}</DetailTd>
-                            <DetailTd>{formatValue(detail.value, detail.unit)}</DetailTd>
-                          </DetailRow>
-                        ))}
+                        {isExpanded &&
+                          entry.details!.map((detail, di) => (
+                            <DetailRow key={`${entry.day}-${di}`}>
+                              <DetailTd>{detail.label}</DetailTd>
+                              <DetailTd>{formatValue(detail.value, detail.unit)}</DetailTd>
+                            </DetailRow>
+                          ))}
                       </>
                     )
                   })}
@@ -563,13 +582,21 @@ export function MetricBreakdownPanel({
                     </thead>
                     <tbody>
                       {current.evidenceRefs
-                        .filter((ref) => (ref.kind === 'daily' ? ref.dataType : ref.dataType) === dt)
+                        .filter(
+                          (ref) => (ref.kind === 'daily' ? ref.dataType : ref.dataType) === dt,
+                        )
                         .slice(0, 31)
                         .map((ref, i) => (
                           <tr key={i}>
                             <Td>{ref.kind === 'daily' ? '日別' : '集計'}</Td>
                             <Td>{resolveStoreName(ref.storeId, stores)}</Td>
-                            <Td>{ref.kind === 'daily' ? `${ref.day}日` : ref.day ? `${ref.day}日` : '-'}</Td>
+                            <Td>
+                              {ref.kind === 'daily'
+                                ? `${ref.day}日`
+                                : ref.day
+                                  ? `${ref.day}日`
+                                  : '-'}
+                            </Td>
                           </tr>
                         ))}
                     </tbody>

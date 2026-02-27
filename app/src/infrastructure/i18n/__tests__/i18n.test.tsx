@@ -6,9 +6,7 @@ import { renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { I18nProvider, useI18n } from '../I18nContext'
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <I18nProvider>{children}</I18nProvider>
-)
+const wrapper = ({ children }: { children: ReactNode }) => <I18nProvider>{children}</I18nProvider>
 
 describe('I18nContext', () => {
   beforeEach(() => {

@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  sumStoreValues,
-  sumNullableValues,
-  weightedAverageBySales,
-} from './aggregation'
+import { sumStoreValues, sumNullableValues, weightedAverageBySales } from './aggregation'
 import type { StoreResult } from '../models'
 
 function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {

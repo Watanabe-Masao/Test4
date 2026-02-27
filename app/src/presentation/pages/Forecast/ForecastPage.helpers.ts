@@ -5,7 +5,15 @@ import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
 export const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
-export const DEFAULT_DOW_COLORS = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#06b6d4', '#ec4899']
+export const DEFAULT_DOW_COLORS = [
+  '#ef4444',
+  '#f59e0b',
+  '#22c55e',
+  '#3b82f6',
+  '#a855f7',
+  '#06b6d4',
+  '#ec4899',
+]
 
 /** Build a ForecastInput from a StoreResult */
 export function buildForecastInput(
@@ -74,7 +82,15 @@ export function buildDailyCustomerData(
     const prevCustomers = py?.customers ?? 0
     const prevSales = py?.sales ?? 0
     const prevTxValue = calculateTransactionValue(prevSales, prevCustomers)
-    entries.push({ day: d, sales: rec.sales, customers, txValue, prevCustomers, prevSales, prevTxValue })
+    entries.push({
+      day: d,
+      sales: rec.sales,
+      customers,
+      txValue,
+      prevCustomers,
+      prevSales,
+      prevTxValue,
+    })
   }
   return entries.sort((a, b) => a.day - b.day)
 }
@@ -224,9 +240,7 @@ export interface DailyDecompEntry {
 }
 
 /** 日別2要素分解データ構築 */
-export function buildDailyDecomposition(
-  entries: DailyCustomerEntry[],
-): DailyDecompEntry[] {
+export function buildDailyDecomposition(entries: DailyCustomerEntry[]): DailyDecompEntry[] {
   const withBoth = entries.filter((e) => e.customers > 0 && e.prevCustomers > 0)
   if (withBoth.length === 0) return []
 

@@ -39,7 +39,9 @@ export function ImportProgressBar({ progress }: { progress: ImportProgress }) {
       </ProgressTrack>
       <ProgressText>
         <span>{progress.filename}</span>
-        <span>{progress.current}/{progress.total}</span>
+        <span>
+          {progress.current}/{progress.total}
+        </span>
       </ProgressText>
     </Container>
   )

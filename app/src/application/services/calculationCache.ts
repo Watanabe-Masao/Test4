@@ -41,7 +41,9 @@ export function computeFingerprint(
     daysInMonth,
     purchase: data.purchase[storeId],
     classifiedSales: data.classifiedSales.records.filter((r) => r.storeId === storeId),
-    prevYearClassifiedSales: data.prevYearClassifiedSales.records.filter((r) => r.storeId === storeId),
+    prevYearClassifiedSales: data.prevYearClassifiedSales.records.filter(
+      (r) => r.storeId === storeId,
+    ),
     interStoreIn: data.interStoreIn[storeId],
     interStoreOut: data.interStoreOut[storeId],
     flowers: data.flowers[storeId],
@@ -173,9 +175,7 @@ export class CalculationCache {
    * フィンガープリント文字列でキャッシュチェックする。
    * Worker から返されたフィンガープリントとの比較用。
    */
-  getGlobalResultByFingerprint(
-    fingerprint: string,
-  ): ReadonlyMap<string, StoreResult> | null {
+  getGlobalResultByFingerprint(fingerprint: string): ReadonlyMap<string, StoreResult> | null {
     if (this.globalFingerprint === fingerprint && this.globalResult) {
       return this.globalResult
     }

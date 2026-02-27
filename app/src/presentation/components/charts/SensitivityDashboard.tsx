@@ -65,7 +65,7 @@ const SliderValue = styled.div<{ $positive: boolean; $isZero: boolean }>`
   font-size: 0.7rem;
   font-weight: 700;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : sc.cond($positive)};
+  color: ${({ $isZero, $positive }) => ($isZero ? '#94a3b8' : sc.cond($positive))};
 `
 
 const StyledSlider = styled.input`
@@ -130,7 +130,7 @@ const ResultDelta = styled.div<{ $positive: boolean; $isZero: boolean }>`
   font-size: 0.65rem;
   font-weight: 600;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : sc.cond($positive)};
+  color: ${({ $isZero, $positive }) => ($isZero ? '#94a3b8' : sc.cond($positive))};
 `
 
 const ResetBtn = styled.button`
@@ -140,8 +140,11 @@ const ResetBtn = styled.button`
   padding: 4px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover { opacity: 0.8; }
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 interface Props {
@@ -159,10 +162,42 @@ interface SliderConfig {
 }
 
 const SLIDER_CONFIGS: SliderConfig[] = [
-  { key: 'discountRateDelta', label: '売変率', min: -0.05, max: 0.05, step: 0.001, format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`, elasticityLabel: '1pt改善→粗利' },
-  { key: 'customersDelta', label: '客数', min: -0.2, max: 0.2, step: 0.01, format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`, elasticityLabel: '1%増→粗利' },
-  { key: 'transactionValueDelta', label: '客単価', min: -0.2, max: 0.2, step: 0.01, format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`, elasticityLabel: '1%増→粗利' },
-  { key: 'costRateDelta', label: '原価率', min: -0.05, max: 0.05, step: 0.001, format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`, elasticityLabel: '1pt改善→粗利' },
+  {
+    key: 'discountRateDelta',
+    label: '売変率',
+    min: -0.05,
+    max: 0.05,
+    step: 0.001,
+    format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`,
+    elasticityLabel: '1pt改善→粗利',
+  },
+  {
+    key: 'customersDelta',
+    label: '客数',
+    min: -0.2,
+    max: 0.2,
+    step: 0.01,
+    format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`,
+    elasticityLabel: '1%増→粗利',
+  },
+  {
+    key: 'transactionValueDelta',
+    label: '客単価',
+    min: -0.2,
+    max: 0.2,
+    step: 0.01,
+    format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`,
+    elasticityLabel: '1%増→粗利',
+  },
+  {
+    key: 'costRateDelta',
+    label: '原価率',
+    min: -0.05,
+    max: 0.05,
+    step: 0.001,
+    format: (v) => `${v >= 0 ? '+' : ''}${toPct(v)}`,
+    elasticityLabel: '1pt改善→粗利',
+  },
 ]
 
 export function SensitivityDashboard({ result }: Props) {
@@ -203,7 +238,14 @@ export function SensitivityDashboard({ result }: Props) {
 
   return (
     <Wrapper>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '12px',
+        }}
+      >
         <Title style={{ marginBottom: 0 }}>感度分析ダッシュボード — What-if シミュレーション</Title>
         {!isAllZero && <ResetBtn onClick={handleReset}>リセット</ResetBtn>}
       </div>
@@ -238,7 +280,10 @@ export function SensitivityDashboard({ result }: Props) {
             <ResultLabel>粗利額</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedGrossProfit)}</ResultValue>
-              <ResultDelta $positive={sensitivity.grossProfitDelta >= 0} $isZero={sensitivity.grossProfitDelta === 0}>
+              <ResultDelta
+                $positive={sensitivity.grossProfitDelta >= 0}
+                $isZero={sensitivity.grossProfitDelta === 0}
+              >
                 {fmtDelta(sensitivity.grossProfitDelta)}
               </ResultDelta>
             </ResultRow>
@@ -252,7 +297,9 @@ export function SensitivityDashboard({ result }: Props) {
                 $positive={sensitivity.simulatedGrossProfitRate >= sensitivity.baseGrossProfitRate}
                 $isZero={sensitivity.simulatedGrossProfitRate === sensitivity.baseGrossProfitRate}
               >
-                {(sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate) >= 0 ? '+' : ''}
+                {sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate >= 0
+                  ? '+'
+                  : ''}
                 {toPct(sensitivity.simulatedGrossProfitRate - sensitivity.baseGrossProfitRate)}
               </ResultDelta>
             </ResultRow>
@@ -262,7 +309,10 @@ export function SensitivityDashboard({ result }: Props) {
             <ResultLabel>月間売上</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedSales)}</ResultValue>
-              <ResultDelta $positive={sensitivity.salesDelta >= 0} $isZero={sensitivity.salesDelta === 0}>
+              <ResultDelta
+                $positive={sensitivity.salesDelta >= 0}
+                $isZero={sensitivity.salesDelta === 0}
+              >
                 {fmtDelta(sensitivity.salesDelta)}
               </ResultDelta>
             </ResultRow>
@@ -272,7 +322,10 @@ export function SensitivityDashboard({ result }: Props) {
             <ResultLabel>着地予測</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedProjectedSales)}</ResultValue>
-              <ResultDelta $positive={sensitivity.projectedSalesDelta >= 0} $isZero={sensitivity.projectedSalesDelta === 0}>
+              <ResultDelta
+                $positive={sensitivity.projectedSalesDelta >= 0}
+                $isZero={sensitivity.projectedSalesDelta === 0}
+              >
                 {fmtDelta(sensitivity.projectedSalesDelta)}
               </ResultDelta>
             </ResultRow>
@@ -282,7 +335,8 @@ export function SensitivityDashboard({ result }: Props) {
             <ResultLabel>予算達成率変化</ResultLabel>
             <ResultRow>
               <ResultValue>
-                {sensitivity.budgetAchievementDelta >= 0 ? '+' : ''}{toPct(sensitivity.budgetAchievementDelta)}
+                {sensitivity.budgetAchievementDelta >= 0 ? '+' : ''}
+                {toPct(sensitivity.budgetAchievementDelta)}
               </ResultValue>
               <ResultDelta
                 $positive={sensitivity.budgetAchievementDelta >= 0}

@@ -16,12 +16,11 @@ export const Chip = styled.button<{ $active?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text2};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
 
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};

@@ -1,5 +1,17 @@
 import { useState } from 'react'
-import { ComposedChart, Line, Bar, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, Cell } from 'recharts'
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+  Cell,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
@@ -12,7 +24,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -41,7 +54,8 @@ const ToggleRow = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -52,23 +66,25 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.primary
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.primary
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
 const CompareChipGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -79,16 +95,17 @@ const CompareChip = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.info
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.info : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.info
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.info
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -96,7 +113,8 @@ const SummaryRow = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
   flex-wrap: wrap;
 `
 
@@ -222,13 +240,20 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number }>
 }
 
-export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, daysInMonth, prevYearDaily }: Props) {
+export function BudgetVsActualChart({
+  data,
+  budget,
+  showPrevYear,
+  salesDays,
+  daysInMonth,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<BudgetViewType>('line')
   const totalDaysForSlider = daysInMonth ?? data.length
   const [rangeStart, rangeEnd, setRange] = useDayRange(totalDaysForSlider)
-  const hasPrevYear = (showPrevYear || data.some(d => d.prevYearCum != null && d.prevYearCum > 0))
+  const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
   // ── 比較モード ──
   const [compareMode, setCompareMode] = useState<CompareMode>('budgetVsActual')
@@ -241,7 +266,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
   const showPrevYearSeries = compareMode !== 'budgetVsActual' && hasPrevYear
 
   // 最新の実績データを取得
-  const latestWithSales = [...data].reverse().find(d => d.actualCum > 0)
+  const latestWithSales = [...data].reverse().find((d) => d.actualCum > 0)
   const currentActual = latestWithSales?.actualCum ?? 0
   const currentBudgetCum = latestWithSales?.budgetCum ?? 0
   const currentDay = latestWithSales?.day ?? 0
@@ -276,18 +301,20 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
       prevYearCumMap.set(d, pCum)
     }
   }
-  const hasPrevYearDiff = prevYearCumMap.size > 0 && (prevYearCumMap.get(prevYearCumMap.size) ?? 0) > 0
+  const hasPrevYearDiff =
+    prevYearCumMap.size > 0 && (prevYearCumMap.get(prevYearCumMap.size) ?? 0) > 0
 
   // 差分・達成率を含む拡張データ
   const chartData = [...data]
-    .map(d => ({
+    .map((d) => ({
       ...d,
       diff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
       achieveRate: d.budgetCum > 0 && d.actualCum > 0 ? (d.actualCum / d.budgetCum) * 100 : null,
       budgetDiff: d.actualCum > 0 ? d.actualCum - d.budgetCum : null,
-      prevYearDiff: hasPrevYearDiff && d.actualCum > 0 ? d.actualCum - (prevYearCumMap.get(d.day) ?? 0) : null,
+      prevYearDiff:
+        hasPrevYearDiff && d.actualCum > 0 ? d.actualCum - (prevYearCumMap.get(d.day) ?? 0) : null,
     }))
-    .filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   const allLabels: Record<string, string> = {
     actualCum: '実績累計',
@@ -304,9 +331,10 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
   // 前年同曜日の累計最新値（サマリー表示用）
   const latestPrevYearCum = latestWithSales?.prevYearCum ?? null
   const prevYearDiffAmt = latestPrevYearCum != null ? currentActual - latestPrevYearCum : null
-  const prevYearGrowth = latestPrevYearCum != null && latestPrevYearCum > 0
-    ? ((currentActual - latestPrevYearCum) / latestPrevYearCum) * 100
-    : null
+  const prevYearGrowth =
+    latestPrevYearCum != null && latestPrevYearCum > 0
+      ? ((currentActual - latestPrevYearCum) / latestPrevYearCum) * 100
+      : null
 
   return (
     <Wrapper>
@@ -315,7 +343,7 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
         <ToggleRow>
           {hasPrevYear && (
             <CompareChipGroup>
-              {(Object.keys(COMPARE_LABELS) as CompareMode[]).map(m => (
+              {(Object.keys(COMPARE_LABELS) as CompareMode[]).map((m) => (
                 <CompareChip key={m} $active={compareMode === m} onClick={() => setCompareMode(m)}>
                   {COMPARE_LABELS[m]}
                 </CompareChip>
@@ -341,7 +369,9 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           <ProgressBarWrap>
             <ProgressLabel>
               <span>予算進捗 {toPct(progressRate)}</span>
-              <span>{fmt(currentBudgetCum)}円 / {fmt(budget)}円</span>
+              <span>
+                {fmt(currentBudgetCum)}円 / {fmt(budget)}円
+              </span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={progressRate * 100} $color={paceColor} />
@@ -349,7 +379,9 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </ProgressBarWrap>
           <Metric>
             <MetricLabel>着地見込</MetricLabel>
-            <MetricValue $color={projColor}>{fmt(projected)}円 ({toPct(projectedAchievement)})</MetricValue>
+            <MetricValue $color={projColor}>
+              {fmt(projected)}円 ({toPct(projectedAchievement)})
+            </MetricValue>
           </Metric>
         </SummaryRow>
       )}
@@ -368,8 +400,10 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             <Metric>
               <MetricLabel>前年差</MetricLabel>
               <MetricValue $color={prevYearDiffAmt >= 0 ? ct.colors.success : ct.colors.danger}>
-                {prevYearDiffAmt >= 0 ? '+' : ''}{fmt(prevYearDiffAmt)}円
-                {prevYearGrowth != null && ` (${prevYearGrowth >= 0 ? '+' : ''}${prevYearGrowth.toFixed(1)}%)`}
+                {prevYearDiffAmt >= 0 ? '+' : ''}
+                {fmt(prevYearDiffAmt)}円
+                {prevYearGrowth != null &&
+                  ` (${prevYearGrowth >= 0 ? '+' : ''}${prevYearGrowth.toFixed(1)}%)`}
               </MetricValue>
             </Metric>
           )}
@@ -401,7 +435,9 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             />
 
             {/* ── 線グラフ / エリア / 前年差: 金額Y軸 ── */}
-            {(effectiveView === 'line' || effectiveView === 'area' || effectiveView === 'prevYearDiff') && (
+            {(effectiveView === 'line' ||
+              effectiveView === 'area' ||
+              effectiveView === 'prevYearDiff') && (
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -443,7 +479,10 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                 if (name === 'achieveRate') {
                   return [value != null ? `${(value as number).toFixed(1)}%` : '-', allLabels[name]]
                 }
-                return [value != null ? toComma(value as number) : '-', allLabels[name as string] ?? String(name)]
+                return [
+                  value != null ? toComma(value as number) : '-',
+                  allLabels[name as string] ?? String(name),
+                ]
               }}
               labelFormatter={(label) => `${label}日`}
             />
@@ -456,29 +495,44 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             {effectiveView === 'line' && (
               <>
                 <Line
-                  yAxisId="left" type="monotone" dataKey="actualCum"
-                  stroke={ct.colors.success} strokeWidth={2.5}
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="actualCum"
+                  stroke={ct.colors.success}
+                  strokeWidth={2.5}
                   dot={false}
                   activeDot={{ r: 4, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
                 />
                 {showBudget && (
                   <Line
-                    yAxisId="left" type="monotone" dataKey="budgetCum"
-                    stroke={ct.colors.info} strokeWidth={2} strokeDasharray="8 4"
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="budgetCum"
+                    stroke={ct.colors.info}
+                    strokeWidth={2}
+                    strokeDasharray="8 4"
                     dot={false}
                   />
                 )}
                 {showPrevYearSeries && (
                   <Line
-                    yAxisId="left" type="monotone" dataKey="prevYearCum"
-                    stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="4 3"
-                    dot={false} connectNulls
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="prevYearCum"
+                    stroke={ct.colors.slate}
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                    dot={false}
+                    connectNulls
                   />
                 )}
                 {showBudget && budget > 0 && (
                   <ReferenceLine
-                    yAxisId="left" y={budget}
-                    stroke={ct.colors.warning} strokeDasharray="4 4" strokeWidth={1.5}
+                    yAxisId="left"
+                    y={budget}
+                    stroke={ct.colors.warning}
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
                     label={{
                       value: `月間予算 ${fmt(budget)}`,
                       position: 'right',
@@ -499,9 +553,11 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                     <Cell
                       key={i}
                       fill={
-                        entry.diff == null ? 'transparent'
-                        : entry.diff >= 0 ? ct.colors.success
-                        : ct.colors.danger
+                        entry.diff == null
+                          ? 'transparent'
+                          : entry.diff >= 0
+                            ? ct.colors.success
+                            : ct.colors.danger
                       }
                       fillOpacity={0.7}
                     />
@@ -515,15 +571,21 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             {effectiveView === 'rate' && (
               <>
                 <Line
-                  yAxisId="left" type="monotone" dataKey="achieveRate"
-                  stroke={ct.colors.primary} strokeWidth={2.5}
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="achieveRate"
+                  stroke={ct.colors.primary}
+                  strokeWidth={2.5}
                   dot={false}
                   activeDot={{ r: 4, fill: ct.colors.primary, stroke: ct.bg2, strokeWidth: 2 }}
                   connectNulls
                 />
                 <ReferenceLine
-                  yAxisId="left" y={100}
-                  stroke={ct.colors.success} strokeDasharray="6 3" strokeWidth={1.5}
+                  yAxisId="left"
+                  y={100}
+                  stroke={ct.colors.success}
+                  strokeDasharray="6 3"
+                  strokeWidth={1.5}
                   label={{
                     value: '100%',
                     position: 'right',
@@ -540,28 +602,46 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
               <>
                 {showBudget && (
                   <Area
-                    yAxisId="left" type="monotone" dataKey="budgetCum"
-                    stroke={ct.colors.info} strokeWidth={2} strokeDasharray="6 3"
-                    fill="url(#budgetAreaGrad)" dot={false}
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="budgetCum"
+                    stroke={ct.colors.info}
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    fill="url(#budgetAreaGrad)"
+                    dot={false}
                   />
                 )}
                 <Area
-                  yAxisId="left" type="monotone" dataKey="actualCum"
-                  stroke={ct.colors.success} strokeWidth={2.5}
-                  fill="url(#actualAreaGrad)" dot={false}
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="actualCum"
+                  stroke={ct.colors.success}
+                  strokeWidth={2.5}
+                  fill="url(#actualAreaGrad)"
+                  dot={false}
                   activeDot={{ r: 4, fill: ct.colors.success, stroke: ct.bg2, strokeWidth: 2 }}
                 />
                 {showPrevYearSeries && (
                   <Area
-                    yAxisId="left" type="monotone" dataKey="prevYearCum"
-                    stroke={ct.colors.slate} strokeWidth={2} strokeDasharray="4 3"
-                    fill="url(#prevYearAreaGrad)" dot={false} connectNulls
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="prevYearCum"
+                    stroke={ct.colors.slate}
+                    strokeWidth={2}
+                    strokeDasharray="4 3"
+                    fill="url(#prevYearAreaGrad)"
+                    dot={false}
+                    connectNulls
                   />
                 )}
                 {showBudget && budget > 0 && (
                   <ReferenceLine
-                    yAxisId="left" y={budget}
-                    stroke={ct.colors.warning} strokeDasharray="4 4" strokeWidth={1.5}
+                    yAxisId="left"
+                    y={budget}
+                    stroke={ct.colors.warning}
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
                     label={{
                       value: `月間予算 ${fmt(budget)}`,
                       position: 'right',
@@ -577,14 +657,21 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
             {/* ── 前年差: 予算差バー + 前年差ライン ── */}
             {effectiveView === 'prevYearDiff' && (
               <>
-                <Bar yAxisId="left" dataKey="budgetDiff" radius={[3, 3, 0, 0]} maxBarSize={hasPrevYearDiff ? 12 : 18}>
+                <Bar
+                  yAxisId="left"
+                  dataKey="budgetDiff"
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={hasPrevYearDiff ? 12 : 18}
+                >
                   {chartData.map((entry, i) => (
                     <Cell
                       key={i}
                       fill={
-                        entry.budgetDiff == null ? 'transparent'
-                        : entry.budgetDiff >= 0 ? ct.colors.success
-                        : ct.colors.danger
+                        entry.budgetDiff == null
+                          ? 'transparent'
+                          : entry.budgetDiff >= 0
+                            ? ct.colors.success
+                            : ct.colors.danger
                       }
                       fillOpacity={entry.budgetDiff != null ? 0.7 : 0}
                     />
@@ -592,9 +679,13 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
                 </Bar>
                 {hasPrevYearDiff && (
                   <Line
-                    yAxisId="left" type="monotone" dataKey="prevYearDiff"
-                    stroke={ct.colors.primary} strokeWidth={2.5}
-                    dot={false} connectNulls
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="prevYearDiff"
+                    stroke={ct.colors.primary}
+                    strokeWidth={2.5}
+                    dot={false}
+                    connectNulls
                   />
                 )}
                 <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeWidth={1.5} />
@@ -603,7 +694,13 @@ export function BudgetVsActualChart({ data, budget, showPrevYear, salesDays, day
           </ComposedChart>
         </ResponsiveContainer>
       </ChartArea>
-      <DayRangeSlider min={1} max={totalDaysForSlider} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={totalDaysForSlider}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

@@ -64,13 +64,13 @@ export function calcSameDowOffset(
   sourceYear?: number,
   sourceMonth?: number,
 ): number {
-  const sy = sourceYear ?? (year - 1)
+  const sy = sourceYear ?? year - 1
   const sm = sourceMonth ?? month
   // NaN ガード
   if (isNaN(year) || isNaN(month) || isNaN(sy) || isNaN(sm)) return 0
   const currentDow = new Date(year, month - 1, 1).getDay()
   const prevDow = new Date(sy, sm - 1, 1).getDay()
-  const result = ((currentDow - prevDow) % 7 + 7) % 7
+  const result = (((currentDow - prevDow) % 7) + 7) % 7
   return isNaN(result) ? 0 : result
 }
 
@@ -85,7 +85,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearCS = state.data.prevYearClassifiedSales
-  const prevYearFlowers = state.data.flowers  // 客数は花ファイルから
+  const prevYearFlowers = state.data.flowers // 客数は花ファイルから
   const { targetYear, targetMonth } = state.settings
   // null / undefined / NaN を安全に処理
   const prevYearSourceYear = validNum(state.settings.prevYearSourceYear)
@@ -108,7 +108,8 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     if (targetIds.length === 0) return EMPTY
 
     // 前年同曜日オフセット（手動指定 or 自動計算、0〜6 にクランプ）
-    const rawOffset = prevYearDowOffset ??
+    const rawOffset =
+      prevYearDowOffset ??
       calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth)
     const offset = Math.max(0, Math.min(6, Math.round(rawOffset)))
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
@@ -131,7 +132,9 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
         const sales = summary.sales ?? 0
         const discount = summary.discount ?? 0
         // 客数は花ファイルから取得
-        const flowerEntry = prevYearFlowers?.[storeId]?.[origDay] as { customers?: number } | undefined
+        const flowerEntry = prevYearFlowers?.[storeId]?.[origDay] as
+          | { customers?: number }
+          | undefined
         const customers = flowerEntry?.customers ?? 0
         const existing = daily.get(mappedDay)
         if (existing) {
@@ -144,8 +147,13 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
           daily.set(mappedDay, { sales, discount, customers })
         }
         // 売変種別内訳を蓄積
-        const existingEntries = dayDiscountEntries.get(mappedDay) ?? [...ZERO_DISCOUNT_ENTRIES.map(e => ({ ...e }))]
-        dayDiscountEntries.set(mappedDay, addDiscountEntries(existingEntries, summary.discountEntries) as DiscountEntry[])
+        const existingEntries = dayDiscountEntries.get(mappedDay) ?? [
+          ...ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })),
+        ]
+        dayDiscountEntries.set(
+          mappedDay,
+          addDiscountEntries(existingEntries, summary.discountEntries) as DiscountEntry[],
+        )
       }
     }
 
@@ -154,7 +162,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     let totalSales = 0
     let totalDiscount = 0
     let totalCustomers = 0
-    let totalDiscountEntries: DiscountEntry[] = [...ZERO_DISCOUNT_ENTRIES.map(e => ({ ...e }))]
+    let totalDiscountEntries: DiscountEntry[] = [...ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))]
     for (const [day, entry] of daily) {
       if (day <= upperDay) {
         totalSales += entry.sales
@@ -162,7 +170,10 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
         totalCustomers += entry.customers
         const dayEntries = dayDiscountEntries.get(day)
         if (dayEntries) {
-          totalDiscountEntries = addDiscountEntries(totalDiscountEntries, dayEntries) as DiscountEntry[]
+          totalDiscountEntries = addDiscountEntries(
+            totalDiscountEntries,
+            dayEntries,
+          ) as DiscountEntry[]
         }
       }
     }
@@ -170,6 +181,26 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     const grossSales = totalSales + totalDiscount
     const discountRate = safeDivide(totalDiscount, totalSales)
 
-    return { hasPrevYear: true, daily, totalSales, totalDiscount, totalCustomers, grossSales, discountRate, totalDiscountEntries }
-  }, [prevYearCS, prevYearFlowers, selectedStoreIds, isAllStores, targetYear, targetMonth, elapsedDays, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
+    return {
+      hasPrevYear: true,
+      daily,
+      totalSales,
+      totalDiscount,
+      totalCustomers,
+      grossSales,
+      discountRate,
+      totalDiscountEntries,
+    }
+  }, [
+    prevYearCS,
+    prevYearFlowers,
+    selectedStoreIds,
+    isAllStores,
+    targetYear,
+    targetMonth,
+    elapsedDays,
+    prevYearSourceYear,
+    prevYearSourceMonth,
+    prevYearDowOffset,
+  ])
 }

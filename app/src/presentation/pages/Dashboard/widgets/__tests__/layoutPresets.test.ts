@@ -2,11 +2,7 @@
  * Phase 3.3: レイアウトプリセット テスト
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  LAYOUT_PRESETS,
-  loadActivePreset,
-  saveActivePreset,
-} from '../layoutPresets'
+import { LAYOUT_PRESETS, loadActivePreset, saveActivePreset } from '../layoutPresets'
 
 describe('レイアウトプリセット', () => {
   beforeEach(() => {
@@ -31,7 +27,9 @@ describe('レイアウトプリセット', () => {
   })
 
   it('localStorage エラー時に例外を投げない', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('test') })
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('test')
+    })
     expect(loadActivePreset()).toBeNull()
     vi.restoreAllMocks()
   })

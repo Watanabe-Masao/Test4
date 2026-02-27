@@ -52,20 +52,15 @@ export const useUiStore = create<UiStore>()(
         selectAllStores: () =>
           set({ selectedStoreIds: new Set<string>() }, false, 'selectAllStores'),
 
-        setCurrentView: (view) =>
-          set({ currentView: view }, false, 'setCurrentView'),
+        setCurrentView: (view) => set({ currentView: view }, false, 'setCurrentView'),
 
-        setImporting: (isImporting) =>
-          set({ isImporting }, false, 'setImporting'),
+        setImporting: (isImporting) => set({ isImporting }, false, 'setImporting'),
 
-        setCalculated: (isCalculated) =>
-          set({ isCalculated }, false, 'setCalculated'),
+        setCalculated: (isCalculated) => set({ isCalculated }, false, 'setCalculated'),
 
-        invalidateCalculation: () =>
-          set({ isCalculated: false }, false, 'invalidateCalculation'),
+        invalidateCalculation: () => set({ isCalculated: false }, false, 'invalidateCalculation'),
 
-        setCurrencyUnit: (unit) =>
-          set({ currencyUnit: unit }, false, 'setCurrencyUnit'),
+        setCurrencyUnit: (unit) => set({ currencyUnit: unit }, false, 'setCurrencyUnit'),
 
         reset: () =>
           set(
@@ -111,10 +106,11 @@ export const useUiStore = create<UiStore>()(
           },
           removeItem: (name) => localStorage.removeItem(name),
         },
-        partialize: (state) => ({
-          currentView: state.currentView,
-          currencyUnit: state.currencyUnit,
-        }) as UiStore,
+        partialize: (state) =>
+          ({
+            currentView: state.currentView,
+            currencyUnit: state.currencyUnit,
+          }) as UiStore,
       },
     ),
     { name: 'UiStore' },

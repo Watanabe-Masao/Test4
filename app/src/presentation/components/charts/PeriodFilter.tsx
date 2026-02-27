@@ -116,7 +116,8 @@ export function usePeriodFilter(
   month: number,
   dataMaxDay?: number,
 ): PeriodFilterResult {
-  const effectiveEnd = dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
+  const effectiveEnd =
+    dataMaxDay && dataMaxDay > 0 ? Math.min(dataMaxDay, daysInMonth) : daysInMonth
   const [dayRange, setDayRange] = useState<[number, number]>([1, effectiveEnd])
   const [mode, setMode] = useState<AggregateMode>('total')
   const [selectedDows, setSelectedDows] = useState<ReadonlySet<number>>(new Set<number>())
@@ -159,9 +160,17 @@ export function usePeriodFilter(
   )
 
   return {
-    dayRange, setDayRange, mode, setMode, selectedDows, toggleDow,
-    filterRecords, year, month,
-    defaultEndDay: effectiveEnd, resetToDefault,
+    dayRange,
+    setDayRange,
+    mode,
+    setMode,
+    selectedDows,
+    toggleDow,
+    filterRecords,
+    year,
+    month,
+    defaultEndDay: effectiveEnd,
+    resetToDefault,
   }
 }
 
@@ -239,8 +248,7 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
@@ -266,19 +274,22 @@ const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boo
   justify-content: center;
   border-radius: 50%;
   color: ${({ $active, $isSun, $isSat, theme }) =>
-    $active
-      ? '#fff'
-      : $isSun ? '#ef4444' : $isSat ? '#3b82f6' : theme.colors.text3};
+    $active ? '#fff' : $isSun ? '#ef4444' : $isSat ? '#3b82f6' : theme.colors.text3};
   background: ${({ $active, $isSun, $isSat }) =>
-    $active
-      ? $isSun ? '#ef4444' : $isSat ? '#3b82f6' : '#6366f1'
-      : 'transparent'};
-  border: 1px solid ${({ $active, $isSun, $isSat, theme }) =>
-    $active
-      ? 'transparent'
-      : $isSun ? 'rgba(239,68,68,0.4)' : $isSat ? 'rgba(59,130,246,0.4)' : theme.colors.border};
+    $active ? ($isSun ? '#ef4444' : $isSat ? '#3b82f6' : '#6366f1') : 'transparent'};
+  border: 1px solid
+    ${({ $active, $isSun, $isSat, theme }) =>
+      $active
+        ? 'transparent'
+        : $isSun
+          ? 'rgba(239,68,68,0.4)'
+          : $isSat
+            ? 'rgba(59,130,246,0.4)'
+            : theme.colors.border};
   transition: all 0.15s;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 /* ── Component ──────────────────────────────────────────── */
@@ -322,7 +333,9 @@ export function PeriodFilterBar({ pf, daysInMonth, elapsedDays }: PeriodFilterBa
           pf.setDayRange([Math.min(v, pf.dayRange[1]), pf.dayRange[1]])
         }}
       />
-      <RangeValue>{pf.dayRange[0]}日 〜 {pf.dayRange[1]}日</RangeValue>
+      <RangeValue>
+        {pf.dayRange[0]}日 〜 {pf.dayRange[1]}日
+      </RangeValue>
       <SliderInput
         type="range"
         min={1}
@@ -334,19 +347,11 @@ export function PeriodFilterBar({ pf, daysInMonth, elapsedDays }: PeriodFilterBa
         }}
       />
       {!isDefault && (
-        <Tab
-          $active={false}
-          onClick={pf.resetToDefault}
-          style={{ fontSize: '0.55rem' }}
-        >
+        <Tab $active={false} onClick={pf.resetToDefault} style={{ fontSize: '0.55rem' }}>
           リセット
         </Tab>
       )}
-      {exceedsValidPeriod && (
-        <WarningLabel>
-          {elapsedDays}日以降はデータなし
-        </WarningLabel>
-      )}
+      {exceedsValidPeriod && <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>}
       <Sep />
       <TabGroup>
         {(['total', 'dailyAvg', 'dowAvg'] as AggregateMode[]).map((m) => (
@@ -544,7 +549,10 @@ export function useHierarchyDropdown(
   const [klassCode, setKlassCode] = useState('')
 
   const storeFiltered = useMemo(
-    () => selectedStoreIds.size === 0 ? records : records.filter((r) => selectedStoreIds.has(r.storeId)),
+    () =>
+      selectedStoreIds.size === 0
+        ? records
+        : records.filter((r) => selectedStoreIds.has(r.storeId)),
     [records, selectedStoreIds],
   )
 
@@ -552,8 +560,13 @@ export function useHierarchyDropdown(
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of storeFiltered) {
       const ex = map.get(rec.department.code)
-      if (ex) { ex.total += rec.totalAmount } else {
-        map.set(rec.department.code, { name: rec.department.name || rec.department.code, total: rec.totalAmount })
+      if (ex) {
+        ex.total += rec.totalAmount
+      } else {
+        map.set(rec.department.code, {
+          name: rec.department.name || rec.department.code,
+          total: rec.totalAmount,
+        })
       }
     }
     return Array.from(map.entries())
@@ -562,11 +575,15 @@ export function useHierarchyDropdown(
   }, [storeFiltered])
 
   const lines = useMemo(() => {
-    const filtered = deptCode ? storeFiltered.filter((r) => r.department.code === deptCode) : storeFiltered
+    const filtered = deptCode
+      ? storeFiltered.filter((r) => r.department.code === deptCode)
+      : storeFiltered
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of filtered) {
       const ex = map.get(rec.line.code)
-      if (ex) { ex.total += rec.totalAmount } else {
+      if (ex) {
+        ex.total += rec.totalAmount
+      } else {
         map.set(rec.line.code, { name: rec.line.name || rec.line.code, total: rec.totalAmount })
       }
     }
@@ -582,7 +599,9 @@ export function useHierarchyDropdown(
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of filtered) {
       const ex = map.get(rec.klass.code)
-      if (ex) { ex.total += rec.totalAmount } else {
+      if (ex) {
+        ex.total += rec.totalAmount
+      } else {
         map.set(rec.klass.code, { name: rec.klass.name || rec.klass.code, total: rec.totalAmount })
       }
     }
@@ -604,16 +623,26 @@ export function useHierarchyDropdown(
 
   // 親が変わったら子をリセット
   const wrappedSetDept = useCallback((code: string) => {
-    setDeptCode(code); setLineCode(''); setKlassCode('')
+    setDeptCode(code)
+    setLineCode('')
+    setKlassCode('')
   }, [])
   const wrappedSetLine = useCallback((code: string) => {
-    setLineCode(code); setKlassCode('')
+    setLineCode(code)
+    setKlassCode('')
   }, [])
 
   return {
-    deptCode, lineCode, klassCode,
-    setDeptCode: wrappedSetDept, setLineCode: wrappedSetLine, setKlassCode,
-    departments, lines, klasses, applyFilter,
+    deptCode,
+    lineCode,
+    klassCode,
+    setDeptCode: wrappedSetDept,
+    setLineCode: wrappedSetLine,
+    setKlassCode,
+    departments,
+    lines,
+    klasses,
+    applyFilter,
   }
 }
 
@@ -628,7 +657,10 @@ const FilterSelect = styled.select`
   color: ${({ theme }) => theme.colors.text2};
   cursor: pointer;
   max-width: 140px;
-  &:focus { outline: none; border-color: ${({ theme }) => theme.colors.palette.primary}; }
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
 `
 
 const DropdownRow = styled.div`
@@ -652,7 +684,10 @@ interface HierarchyDropdownsProps {
   levels?: ('dept' | 'line' | 'klass')[]
 }
 
-export function HierarchyDropdowns({ hf, levels = ['dept', 'line', 'klass'] }: HierarchyDropdownsProps) {
+export function HierarchyDropdowns({
+  hf,
+  levels = ['dept', 'line', 'klass'],
+}: HierarchyDropdownsProps) {
   const showDept = levels.includes('dept') && hf.departments.length > 1
   const showLine = levels.includes('line') && hf.lines.length > 1
   const showKlass = levels.includes('klass') && hf.klasses.length > 1
@@ -664,19 +699,31 @@ export function HierarchyDropdowns({ hf, levels = ['dept', 'line', 'klass'] }: H
       {showDept && (
         <FilterSelect value={hf.deptCode} onChange={(e) => hf.setDeptCode(e.target.value)}>
           <option value="">全部門</option>
-          {hf.departments.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
+          {hf.departments.map((d) => (
+            <option key={d.code} value={d.code}>
+              {d.name}
+            </option>
+          ))}
         </FilterSelect>
       )}
       {showLine && (
         <FilterSelect value={hf.lineCode} onChange={(e) => hf.setLineCode(e.target.value)}>
           <option value="">全ライン</option>
-          {hf.lines.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+          {hf.lines.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.name}
+            </option>
+          ))}
         </FilterSelect>
       )}
       {showKlass && (
         <FilterSelect value={hf.klassCode} onChange={(e) => hf.setKlassCode(e.target.value)}>
           <option value="">全クラス</option>
-          {hf.klasses.map((k) => <option key={k.code} value={k.code}>{k.name}</option>)}
+          {hf.klasses.map((k) => (
+            <option key={k.code} value={k.code}>
+              {k.name}
+            </option>
+          ))}
         </FilterSelect>
       )}
     </DropdownRow>

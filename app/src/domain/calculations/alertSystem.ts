@@ -64,7 +64,7 @@ export const DEFAULT_ALERT_RULES: readonly AlertRule[] = [
     description: '日次売上が前年同曜日の80%未満の場合',
     severity: 'warning',
     enabled: true,
-    threshold: 0.80, // 前年比 80%
+    threshold: 0.8, // 前年比 80%
   },
   {
     id: 'consumable-ratio',
@@ -82,7 +82,7 @@ export const DEFAULT_ALERT_RULES: readonly AlertRule[] = [
     description: '予算進捗率が時間経過率を下回る場合',
     severity: 'warning',
     enabled: true,
-    threshold: 0.90, // 90%
+    threshold: 0.9, // 90%
   },
   {
     id: 'discount-rate',

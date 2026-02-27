@@ -79,7 +79,11 @@ describe('ウィジェット isVisible', () => {
 
     it('前年データありの場合は表示', () => {
       const ctx = makeWidgetContext({
-        prevYear: makePrevYear(new Map(), { totalSales: 100000, totalDiscount: 0, totalCustomers: 50 }),
+        prevYear: makePrevYear(new Map(), {
+          totalSales: 100000,
+          totalDiscount: 0,
+          totalCustomers: 50,
+        }),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
       expect(widget!.isVisible!(ctx)).toBe(true)
@@ -106,7 +110,13 @@ describe('ウィジェット isVisible', () => {
   describe('isVisible が未設定のウィジェットは常に表示', () => {
     it('通常ウィジェットには isVisible がない', () => {
       const nonDataWidgets = WIDGET_REGISTRY.filter(
-        (w) => !w.id.includes('category') && !w.id.includes('timeslot') && !w.id.includes('dept-hourly') && !w.id.includes('store-timeslot') && !w.id.includes('yoy') && !w.id.includes('discount-breakdown'),
+        (w) =>
+          !w.id.includes('category') &&
+          !w.id.includes('timeslot') &&
+          !w.id.includes('dept-hourly') &&
+          !w.id.includes('store-timeslot') &&
+          !w.id.includes('yoy') &&
+          !w.id.includes('discount-breakdown'),
       )
       for (const w of nonDataWidgets) {
         expect(w.isVisible).toBeUndefined()

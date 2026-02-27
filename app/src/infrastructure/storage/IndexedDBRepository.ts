@@ -4,8 +4,18 @@
  * DataRepository インターフェースを IndexedDB で実装する。
  * 既存の IndexedDBStore モジュールの公開 API をそのまま委譲する。
  */
-import type { DataRepository, PersistedSessionMeta, MonthDataSummaryItem } from '@/domain/repositories'
-import type { ImportedData, DataType, StorageDataType, ImportHistoryEntry, StoreDaySummaryCache } from '@/domain/models'
+import type {
+  DataRepository,
+  PersistedSessionMeta,
+  MonthDataSummaryItem,
+} from '@/domain/repositories'
+import type {
+  ImportedData,
+  DataType,
+  StorageDataType,
+  ImportHistoryEntry,
+  StoreDaySummaryCache,
+} from '@/domain/models'
 import {
   saveImportedData,
   loadImportedData,
@@ -45,7 +55,11 @@ export class IndexedDBRepository implements DataRepository {
     return saveDataSlice(data, year, month, dataTypes)
   }
 
-  async loadDataSlice<T>(year: number, month: number, dataType: StorageDataType): Promise<T | null> {
+  async loadDataSlice<T>(
+    year: number,
+    month: number,
+    dataType: StorageDataType,
+  ): Promise<T | null> {
     return loadMonthlySlice<T>(year, month, dataType)
   }
 

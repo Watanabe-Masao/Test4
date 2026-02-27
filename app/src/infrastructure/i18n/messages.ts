@@ -82,10 +82,10 @@ export interface MessageCatalog {
 
   // ─── 数値フォーマット ──────────────────────────────
   format: {
-    currency: string      // '{value}' or '¥{value}'
-    manYen: string         // '{value}万円'
-    percent: string        // '{value}%'
-    pointDiff: string      // '{value}pt'
+    currency: string // '{value}' or '¥{value}'
+    manYen: string // '{value}万円'
+    percent: string // '{value}%'
+    pointDiff: string // '{value}pt'
   }
 
   // ─── カテゴリ ──────────────────────────────────────

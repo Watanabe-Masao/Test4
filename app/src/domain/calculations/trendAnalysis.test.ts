@@ -30,11 +30,7 @@ describe('trendAnalysis', () => {
     })
 
     it('時系列順にソートする', () => {
-      const data = [
-        makePoint(2025, 12, 300),
-        makePoint(2025, 1, 100),
-        makePoint(2025, 6, 200),
-      ]
+      const data = [makePoint(2025, 12, 300), makePoint(2025, 1, 100), makePoint(2025, 6, 200)]
       const result = analyzeTrend(data)
       expect(result.dataPoints[0].month).toBe(1)
       expect(result.dataPoints[1].month).toBe(6)
@@ -82,8 +78,10 @@ describe('trendAnalysis', () => {
 
     it('季節性インデックスを計算する', () => {
       const data = [
-        makePoint(2024, 1, 100), makePoint(2024, 7, 200),
-        makePoint(2025, 1, 100), makePoint(2025, 7, 200),
+        makePoint(2024, 1, 100),
+        makePoint(2024, 7, 200),
+        makePoint(2025, 1, 100),
+        makePoint(2025, 7, 200),
       ]
       const result = analyzeTrend(data)
 
@@ -93,11 +91,7 @@ describe('trendAnalysis', () => {
     })
 
     it('月平均売上を計算する', () => {
-      const data = [
-        makePoint(2025, 1, 100),
-        makePoint(2025, 2, 200),
-        makePoint(2025, 3, 300),
-      ]
+      const data = [makePoint(2025, 1, 100), makePoint(2025, 2, 200), makePoint(2025, 3, 300)]
       const result = analyzeTrend(data)
       expect(result.averageMonthlySales).toBe(200)
     })

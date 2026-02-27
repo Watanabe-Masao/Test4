@@ -10,20 +10,37 @@ import type { ImportedData } from '@/domain/models'
 
 // ─── テストヘルパー ──────────────────────────────────────
 
-function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0, d72 = 0, d73 = 0, d74 = 0) {
+function makeCSRecord(
+  day: number,
+  storeId: string,
+  salesAmount: number,
+  d71 = 0,
+  d72 = 0,
+  d73 = 0,
+  d74 = 0,
+) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-    salesAmount, discount71: d71, discount72: d72, discount73: d73, discount74: d74,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G',
+    departmentName: 'D',
+    lineName: 'L',
+    className: 'C',
+    salesAmount,
+    discount71: d71,
+    discount72: d72,
+    discount73: d73,
+    discount74: d74,
   }
 }
 
 function buildTestData(overrides: Partial<ImportedData> = {}): ImportedData {
   return {
     ...createEmptyImportedData(),
-    stores: new Map([
-      ['1', { id: '1', code: '0001', name: '店舗A' }],
-    ]),
+    stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
     ...overrides,
   }
 }
@@ -118,9 +135,27 @@ describe('buildStoreDaySummaryIndex', () => {
       interStoreIn: {
         '1': {
           1: {
-            interStoreIn: [{ day: 1, cost: 1000, price: 1300, fromStoreId: '2', toStoreId: '1', isDepartmentTransfer: false }],
+            interStoreIn: [
+              {
+                day: 1,
+                cost: 1000,
+                price: 1300,
+                fromStoreId: '2',
+                toStoreId: '1',
+                isDepartmentTransfer: false,
+              },
+            ],
             interStoreOut: [],
-            interDepartmentIn: [{ day: 1, cost: 500, price: 600, fromStoreId: '2', toStoreId: '1', isDepartmentTransfer: true }],
+            interDepartmentIn: [
+              {
+                day: 1,
+                cost: 500,
+                price: 600,
+                fromStoreId: '2',
+                toStoreId: '1',
+                isDepartmentTransfer: true,
+              },
+            ],
             interDepartmentOut: [],
           },
         },
@@ -129,9 +164,27 @@ describe('buildStoreDaySummaryIndex', () => {
         '1': {
           1: {
             interStoreIn: [],
-            interStoreOut: [{ day: 1, cost: 800, price: 1000, fromStoreId: '1', toStoreId: '3', isDepartmentTransfer: false }],
+            interStoreOut: [
+              {
+                day: 1,
+                cost: 800,
+                price: 1000,
+                fromStoreId: '1',
+                toStoreId: '3',
+                isDepartmentTransfer: false,
+              },
+            ],
             interDepartmentIn: [],
-            interDepartmentOut: [{ day: 1, cost: 400, price: 500, fromStoreId: '1', toStoreId: '3', isDepartmentTransfer: true }],
+            interDepartmentOut: [
+              {
+                day: 1,
+                cost: 400,
+                price: 500,
+                fromStoreId: '1',
+                toStoreId: '3',
+                isDepartmentTransfer: true,
+              },
+            ],
           },
         },
       },
@@ -166,10 +219,7 @@ describe('buildStoreDaySummaryIndex', () => {
   it('データのない日はスキップされる', () => {
     const data = buildTestData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 10000),
-          makeCSRecord(3, '1', 20000),
-        ],
+        records: [makeCSRecord(1, '1', 10000), makeCSRecord(3, '1', 20000)],
       },
     })
 
@@ -187,10 +237,7 @@ describe('buildStoreDaySummaryIndex', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 10000),
-          makeCSRecord(1, '2', 20000),
-        ],
+        records: [makeCSRecord(1, '1', 10000), makeCSRecord(1, '2', 20000)],
       },
     })
 

@@ -1,5 +1,11 @@
 import styled from 'styled-components'
-import { DataTableWrapper, DataTable, DataTh, DataTd, DataTr } from '@/presentation/components/common'
+import {
+  DataTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+  DataTr,
+} from '@/presentation/components/common'
 
 export const ChartSection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[8]};

@@ -1,5 +1,13 @@
 import styled, { keyframes, css } from 'styled-components'
-import { useState, useCallback, useRef, createContext, useContext, useEffect, type ReactNode } from 'react'
+import {
+  useState,
+  useCallback,
+  useRef,
+  createContext,
+  useContext,
+  useEffect,
+  type ReactNode,
+} from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 
 export type ToastLevel = 'success' | 'error' | 'warning' | 'info'
@@ -71,11 +79,15 @@ const ToastCard = styled.div<{ $level: ToastLevel; $dismissing: boolean }>`
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[3]};
   pointer-events: auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   ${({ $dismissing }) =>
     $dismissing
-      ? css`animation: ${slideOut} 0.25s ease forwards;`
-      : css`animation: ${slideIn} 0.3s ease;`}
+      ? css`
+          animation: ${slideOut} 0.25s ease forwards;
+        `
+      : css`
+          animation: ${slideIn} 0.3s ease;
+        `}
 `
 
 const IconBadge = styled.span<{ $level: ToastLevel }>`
@@ -135,7 +147,7 @@ const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   justify-content: center;
   font-size: 1rem;
   color: ${({ theme }) => theme.colors.text3};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   position: relative;
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
@@ -167,7 +179,7 @@ const HistoryPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -189,7 +201,9 @@ const HistoryClear = styled.button`
   cursor: pointer;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
-  &:hover { color: ${({ theme }) => theme.colors.text2}; }
+  &:hover {
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 const HistoryList = styled.div`
@@ -208,7 +222,9 @@ const HistoryEntry = styled.div<{ $level: ToastLevel }>`
   color: ${({ theme }) => theme.colors.text2};
   border-left: 2px solid ${({ $level }) => levelColors[$level]};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
-  &:hover { background: ${({ theme }) => theme.colors.bg3}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg3};
+  }
 `
 
 const HistoryTime = styled.span`
@@ -319,7 +335,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <ToastCard key={t.id} $level={t.level} $dismissing={t.dismissed}>
             <IconBadge $level={t.level}>{LEVEL_ICONS[t.level]}</IconBadge>
             <MessageText>{t.message}</MessageText>
-            <CloseBtn onClick={() => dismiss(t.id)} title="閉じる">✕</CloseBtn>
+            <CloseBtn onClick={() => dismiss(t.id)} title="閉じる">
+              ✕
+            </CloseBtn>
           </ToastCard>
         ))}
       </Container>

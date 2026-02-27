@@ -67,9 +67,7 @@ export const EMPTY_DEPT_KPI_INDEX: DepartmentKpiIndex = {
 /**
  * DepartmentKpiData からインデックスを構築する。
  */
-export function buildDepartmentKpiIndex(
-  data: DepartmentKpiData,
-): DepartmentKpiIndex {
+export function buildDepartmentKpiIndex(data: DepartmentKpiData): DepartmentKpiIndex {
   const { records } = data
   if (records.length === 0) return EMPTY_DEPT_KPI_INDEX
 

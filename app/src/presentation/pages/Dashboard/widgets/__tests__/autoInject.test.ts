@@ -82,10 +82,7 @@ describe('autoInjectDataWidgets', () => {
   })
 
   it('既にレイアウトに含まれるウィジェットは重複注入されない', () => {
-    const result = autoInjectDataWidgets(
-      ['kpi-core-sales', 'chart-timeslot-sales'],
-      WITH_CTS,
-    )
+    const result = autoInjectDataWidgets(['kpi-core-sales', 'chart-timeslot-sales'], WITH_CTS)
     expect(result).not.toBeNull()
     const salesCount = result!.filter((id) => id === 'chart-timeslot-sales').length
     expect(salesCount).toBe(1)

@@ -1,5 +1,15 @@
 import { useMemo, useState } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts'
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
@@ -14,7 +24,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Header = styled.div`
@@ -36,7 +47,8 @@ const Title = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -48,11 +60,12 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 type ViewMode = 'aggregate' | 'compare'
@@ -96,10 +109,23 @@ export function InventoryTrendChart({
   // --- 合計モード用データ（売上・仕入 + 推定在庫） ---
   const aggregateData = useMemo(() => {
     const invData = hasInventory
-      ? computeEstimatedInventory(daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate)
+      ? computeEstimatedInventory(
+          daily,
+          daysInMonth,
+          openingInventory,
+          closingInventory,
+          markupRate,
+          discountRate,
+        )
       : null
 
-    const result: { day: number; sales: number; purchase: number; estimated: number | null; actual: number | null }[] = []
+    const result: {
+      day: number
+      sales: number
+      purchase: number
+      estimated: number | null
+      actual: number | null
+    }[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
       const invPt = invData?.[d - 1]
@@ -112,7 +138,17 @@ export function InventoryTrendChart({
       })
     }
     return result.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
-  }, [daily, daysInMonth, hasInventory, openingInventory, closingInventory, markupRate, discountRate, rangeStart, rangeEnd])
+  }, [
+    daily,
+    daysInMonth,
+    hasInventory,
+    openingInventory,
+    closingInventory,
+    markupRate,
+    discountRate,
+    rangeStart,
+    rangeEnd,
+  ])
 
   // daily データが空なら描画不要
   if (daily.size === 0 && !canCompare) return null
@@ -126,8 +162,12 @@ export function InventoryTrendChart({
         daysInMonth={daysInMonth}
         headerExtra={
           <TabGroup>
-            <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
-            <Tab $active={viewMode === 'compare'} onClick={() => setViewMode('compare')}>比較</Tab>
+            <Tab $active={viewMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>
+              合計
+            </Tab>
+            <Tab $active={viewMode === 'compare'} onClick={() => setViewMode('compare')}>
+              比較
+            </Tab>
           </TabGroup>
         }
       />
@@ -148,8 +188,12 @@ export function InventoryTrendChart({
         <Title>売上・仕入・推定在庫</Title>
         {canCompare ? (
           <TabGroup>
-            <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>合計</Tab>
-            <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>比較</Tab>
+            <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>
+              合計
+            </Tab>
+            <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>
+              比較
+            </Tab>
           </TabGroup>
         ) : (
           <TabGroup>
@@ -274,7 +318,13 @@ export function InventoryTrendChart({
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

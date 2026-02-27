@@ -52,7 +52,12 @@ export function computeEstimatedInventory(
   discountRate: number,
 ): InventoryPoint[] {
   const details = computeEstimatedInventoryDetails(
-    daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate,
+    daily,
+    daysInMonth,
+    openingInventory,
+    closingInventory,
+    markupRate,
+    discountRate,
   )
   return details.map(({ day, estimated, actual }) => ({ day, estimated, actual }))
 }
@@ -110,7 +115,7 @@ export function computeEstimatedInventoryDetails(
 
     // 推定在庫 = 期首在庫 + 累計在庫仕入原価 − 累計推定原価
     const estimated = openingInventory + cumInventoryCost - cumEstCogs
-    const actual = (d === daysInMonth && closingInventory != null) ? closingInventory : null
+    const actual = d === daysInMonth && closingInventory != null ? closingInventory : null
 
     result.push({
       day: d,

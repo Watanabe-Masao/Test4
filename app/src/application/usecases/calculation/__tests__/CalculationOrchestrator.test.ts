@@ -1,16 +1,39 @@
 import { describe, it, expect } from 'vitest'
-import { calculateStoreResult, calculateAllStores, aggregateStoreResults } from '../CalculationOrchestrator'
+import {
+  calculateStoreResult,
+  calculateAllStores,
+  aggregateStoreResults,
+} from '../CalculationOrchestrator'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
 const DEFAULT_SETTINGS = createDefaultSettings()
 
-function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0, d72 = 0, d73 = 0, d74 = 0) {
+function makeCSRecord(
+  day: number,
+  storeId: string,
+  salesAmount: number,
+  d71 = 0,
+  d72 = 0,
+  d73 = 0,
+  d74 = 0,
+) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-    salesAmount, discount71: d71, discount72: d72, discount73: d73, discount74: d74,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G',
+    departmentName: 'D',
+    lineName: 'L',
+    className: 'C',
+    salesAmount,
+    discount71: d71,
+    discount72: d72,
+    discount73: d73,
+    discount74: d74,
   }
 }
 
@@ -61,7 +84,15 @@ describe('calculateStoreResult', () => {
         records: [makeCSRecord(1, '1', 80000)],
       },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     })
 
@@ -109,7 +140,10 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       purchase: {
         '1': {
-          1: { suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+          1: {
+            suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } },
+            total: { cost: 30000, price: 40000 },
+          },
         },
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
@@ -131,13 +165,24 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       purchase: {
         '1': {
-          1: { suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+          1: {
+            suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } },
+            total: { cost: 30000, price: 40000 },
+          },
         },
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
       flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 110000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 110000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     })
 
@@ -155,7 +200,10 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       purchase: {
         '1': {
-          1: { suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } }, total: { cost: 30000, price: 40000 } },
+          1: {
+            suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } },
+            total: { cost: 30000, price: 40000 },
+          },
         },
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
@@ -194,7 +242,12 @@ describe('calculateStoreResult', () => {
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       consumables: {
         '1': {
-          1: { cost: 3000, items: [{ accountCode: '81257', itemCode: 'A', itemName: 'X', quantity: 1, cost: 3000 }] },
+          1: {
+            cost: 3000,
+            items: [
+              { accountCode: '81257', itemCode: 'A', itemName: 'X', quantity: 1, cost: 3000 },
+            ],
+          },
         },
       },
     })
@@ -209,14 +262,26 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       purchase: {
         '1': {
-          1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } },
+          1: {
+            suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
+            total: { cost: 10000, price: 13000 },
+          },
         },
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       interStoreIn: {
         '1': {
           1: {
-            interStoreIn: [{ day: 1, cost: 5000, price: 6500, fromStoreId: '2', toStoreId: '1', isDepartmentTransfer: false }],
+            interStoreIn: [
+              {
+                day: 1,
+                cost: 5000,
+                price: 6500,
+                fromStoreId: '2',
+                toStoreId: '1',
+                isDepartmentTransfer: false,
+              },
+            ],
             interStoreOut: [],
             interDepartmentIn: [],
             interDepartmentOut: [],
@@ -227,7 +292,16 @@ describe('calculateStoreResult', () => {
         '1': {
           1: {
             interStoreIn: [],
-            interStoreOut: [{ day: 1, cost: -3000, price: -3900, fromStoreId: '1', toStoreId: '3', isDepartmentTransfer: false }],
+            interStoreOut: [
+              {
+                day: 1,
+                cost: -3000,
+                price: -3900,
+                fromStoreId: '1',
+                toStoreId: '3',
+                isDepartmentTransfer: false,
+              },
+            ],
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
@@ -248,13 +322,20 @@ describe('calculateStoreResult', () => {
   it('予算分析', () => {
     const data = buildTestData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 200000),
-          makeCSRecord(2, '1', 250000),
-        ],
+        records: [makeCSRecord(1, '1', 200000), makeCSRecord(2, '1', 250000)],
       },
       budget: new Map([
-        ['1', { storeId: '1', daily: new Map([[1, 200000], [2, 200000]]), total: 6000000 }],
+        [
+          '1',
+          {
+            storeId: '1',
+            daily: new Map([
+              [1, 200000],
+              [2, 200000],
+            ]),
+            total: 6000000,
+          },
+        ],
       ]),
     })
 
@@ -269,15 +350,18 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       purchase: {
         '1': {
-          1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } },
-          2: { suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } }, total: { cost: 20000, price: 26000 } },
+          1: {
+            suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
+            total: { cost: 10000, price: 13000 },
+          },
+          2: {
+            suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } },
+            total: { cost: 20000, price: 26000 },
+          },
         },
       },
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 15000),
-          makeCSRecord(2, '1', 30000),
-        ],
+        records: [makeCSRecord(1, '1', 15000), makeCSRecord(2, '1', 30000)],
       },
     })
 
@@ -300,10 +384,7 @@ describe('calculateAllStores', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 10000),
-          makeCSRecord(1, '2', 20000),
-        ],
+        records: [makeCSRecord(1, '1', 10000), makeCSRecord(1, '2', 20000)],
       },
     }
 
@@ -329,14 +410,21 @@ describe('aggregateStoreResults', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       purchase: {
-        '1': { 1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } } },
-        '2': { 1: { suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } }, total: { cost: 20000, price: 26000 } } },
+        '1': {
+          1: {
+            suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
+            total: { cost: 10000, price: 13000 },
+          },
+        },
+        '2': {
+          1: {
+            suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } },
+            total: { cost: 20000, price: 26000 },
+          },
+        },
       },
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 15000),
-          makeCSRecord(1, '2', 30000),
-        ],
+        records: [makeCSRecord(1, '1', 15000), makeCSRecord(1, '2', 30000)],
       },
     }
 
@@ -362,14 +450,27 @@ describe('aggregateStoreResults', () => {
         '2': { 1: { suppliers: {}, total: { cost: 20000, price: 26000 } } },
       },
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(1, '2', 80000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 80000)],
       },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 95000, grossProfitBudget: null }],
-        ['2', { storeId: '2', openingInventory: 200000, closingInventory: 190000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 95000,
+            grossProfitBudget: null,
+          },
+        ],
+        [
+          '2',
+          {
+            storeId: '2',
+            openingInventory: 200000,
+            closingInventory: 190000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     }
 
@@ -394,17 +495,29 @@ describe('aggregateStoreResults', () => {
   it('aggregate の coreMarkupRate は移動コストを含む（storeAssembler と同一式）', () => {
     const data: ImportedData = {
       ...createEmptyImportedData(),
-      stores: new Map([
-        ['1', { id: '1', code: '0001', name: '店舗A' }],
-      ]),
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: {
-        '1': { 1: { suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } }, total: { cost: 10000, price: 13000 } } },
+        '1': {
+          1: {
+            suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
+            total: { cost: 10000, price: 13000 },
+          },
+        },
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       interStoreIn: {
         '1': {
           1: {
-            interStoreIn: [{ day: 1, cost: 5000, price: 6500, fromStoreId: '2', toStoreId: '1', isDepartmentTransfer: false }],
+            interStoreIn: [
+              {
+                day: 1,
+                cost: 5000,
+                price: 6500,
+                fromStoreId: '2',
+                toStoreId: '1',
+                isDepartmentTransfer: false,
+              },
+            ],
             interStoreOut: [],
             interDepartmentIn: [],
             interDepartmentOut: [],
@@ -453,7 +566,7 @@ describe('dataEndDay による日数トリミング', () => {
 
     // day 15 のデータは除外される
     expect(result.totalSales).toBe(60000) // 10000 + 20000 + 30000
-    expect(result.totalCost).toBe(30000)  // 5000 + 10000 + 15000
+    expect(result.totalCost).toBe(30000) // 5000 + 10000 + 15000
     expect(result.daily.has(15)).toBe(false)
     expect(result.daily.size).toBe(3)
   })
@@ -479,10 +592,7 @@ describe('dataEndDay による日数トリミング', () => {
   it('dataEndDay が daysInMonth を超える場合は daysInMonth まで', () => {
     const data = buildTestData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 10000),
-          makeCSRecord(28, '1', 20000),
-        ],
+        records: [makeCSRecord(1, '1', 10000), makeCSRecord(28, '1', 20000)],
       },
     })
 
@@ -499,10 +609,7 @@ describe('客数集計', () => {
   it('花データの客数が集計される', () => {
     const data = buildTestData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(2, '1', 60000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 60000)],
       },
       flowers: {
         '1': {
@@ -541,10 +648,7 @@ describe('客数集計', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(1, '2', 80000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 80000)],
       },
       flowers: {
         '1': { 1: { price: 0, cost: 0, customers: 30 } },

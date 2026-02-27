@@ -48,12 +48,11 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 
   // Individual stores sorted by code
   const storeEntries: { id: string; label: string; result: typeof r }[] = []
-  const sorted = [...allStoreResults.entries()]
-    .sort(([, a], [, b]) => {
-      const sa = stores.get(a.storeId)
-      const sb = stores.get(b.storeId)
-      return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
-    })
+  const sorted = [...allStoreResults.entries()].sort(([, a], [, b]) => {
+    const sa = stores.get(a.storeId)
+    const sb = stores.get(b.storeId)
+    return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
+  })
   for (const [id, sr] of sorted) {
     const store = stores.get(id)
     const label = store ? `${store.code}:${store.name}` : id
@@ -70,7 +69,9 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 
   // Period totals
   const getStoreTotals = (sr: typeof r) => {
-    let sales = 0, discount = 0, customers = 0
+    let sales = 0,
+      discount = 0,
+      customers = 0
     for (const [, rec] of sr.daily) {
       sales += rec.sales
       discount += rec.discountAmount
@@ -83,15 +84,11 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
     const rec = sr.daily.get(day)
     return (
       <>
-        <STd style={{ borderLeft: borderStyle }}>
-          {rec ? formatCurrency(rec.sales) : ''}
-        </STd>
+        <STd style={{ borderLeft: borderStyle }}>{rec ? formatCurrency(rec.sales) : ''}</STd>
         <STd style={{ color: rec && rec.discountAmount !== 0 ? sc.negative : undefined }}>
           {rec ? formatCurrency(rec.discountAmount) : ''}
         </STd>
-        {hasCustomers && (
-          <STd>{rec?.customers ? rec.customers.toLocaleString('ja-JP') : ''}</STd>
-        )}
+        {hasCustomers && <STd>{rec?.customers ? rec.customers.toLocaleString('ja-JP') : ''}</STd>}
       </>
     )
   }
@@ -125,12 +122,21 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
         <STable>
           <thead>
             <tr>
-              <GroupTh rowSpan={2} style={{ position: 'sticky', left: 0, zIndex: 2, minWidth: 120 }}>日付</GroupTh>
+              <GroupTh
+                rowSpan={2}
+                style={{ position: 'sticky', left: 0, zIndex: 2, minWidth: 120 }}
+              >
+                日付
+              </GroupTh>
               {hasMultiStore && (
-                <GroupTh colSpan={colCount} style={{ borderLeft: aggBorder }}>【店舗】全店合計</GroupTh>
+                <GroupTh colSpan={colCount} style={{ borderLeft: aggBorder }}>
+                  【店舗】全店合計
+                </GroupTh>
               )}
               {storeEntries.map((s) => (
-                <GroupTh key={s.id} colSpan={colCount} style={{ borderLeft: storeBorder }}>{s.label}</GroupTh>
+                <GroupTh key={s.id} colSpan={colCount} style={{ borderLeft: storeBorder }}>
+                  {s.label}
+                </GroupTh>
               ))}
             </tr>
             <tr>
@@ -145,7 +151,9 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
               <StickyTd style={{ fontWeight: 600 }}>【期間別】</StickyTd>
               {hasMultiStore && renderStoreTotalCells(r, aggBorder)}
               {storeEntries.map((s) => (
-                <React.Fragment key={s.id}>{renderStoreTotalCells(s.result, storeBorder)}</React.Fragment>
+                <React.Fragment key={s.id}>
+                  {renderStoreTotalCells(s.result, storeBorder)}
+                </React.Fragment>
               ))}
             </SummaryRow>
             {days.map((d) => {
@@ -160,7 +168,9 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
                   </StickyTd>
                   {hasMultiStore && renderStoreCells(r, d, aggBorder)}
                   {storeEntries.map((s) => (
-                    <React.Fragment key={s.id}>{renderStoreCells(s.result, d, storeBorder)}</React.Fragment>
+                    <React.Fragment key={s.id}>
+                      {renderStoreCells(s.result, d, storeBorder)}
+                    </React.Fragment>
                   ))}
                 </tr>
               )
@@ -175,7 +185,7 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 /* ── 日別推定在庫テーブル ──────────────────────────────── */
 
 const InvTd = styled(STd)<{ $neg?: boolean }>`
-  color: ${({ $neg, theme }) => $neg ? theme.colors.palette.danger : theme.colors.text2};
+  color: ${({ $neg, theme }) => ($neg ? theme.colors.palette.danger : theme.colors.text2)};
 `
 
 export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
@@ -259,17 +269,31 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
           <thead>
             <tr>
               <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>日</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>在庫仕入原価</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>コア売上</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>消耗品</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>推定原価</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>仕入累計</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>原価累計</STh>
-              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>推定在庫</STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                在庫仕入原価
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                コア売上
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                消耗品
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                推定原価
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                仕入累計
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                原価累計
+              </STh>
+              <STh style={{ position: 'sticky', top: 0, background: 'inherit', zIndex: 2 }}>
+                推定在庫
+              </STh>
             </tr>
           </thead>
           <tbody>
-            {rows.map(row => {
+            {rows.map((row) => {
               const hasData = row.coreSales > 0 || row.inventoryCost > 0
               return (
                 <tr key={row.day} style={!hasData ? { opacity: 0.5 } : undefined}>

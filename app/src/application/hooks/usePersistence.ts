@@ -81,27 +81,28 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     checkedRef.current = true
 
     let cancelled = false
-    repo.getSessionMeta().then((meta) => {
-      if (cancelled) return
-      if (meta) {
-        setRestoreMeta(meta)
-        setShowRestoreDialog(true)
-      }
-    }).catch(() => {
-      // ストレージアクセスエラーは無視
-    })
-    return () => { cancelled = true }
+    repo
+      .getSessionMeta()
+      .then((meta) => {
+        if (cancelled) return
+        if (meta) {
+          setRestoreMeta(meta)
+          setShowRestoreDialog(true)
+        }
+      })
+      .catch(() => {
+        // ストレージアクセスエラーは無視
+      })
+    return () => {
+      cancelled = true
+    }
   }, [available, repo])
 
   const saveCurrentData = useCallback(async () => {
     if (!available) return
     setIsSaving(true)
     try {
-      await repo.saveMonthlyData(
-        state.data,
-        state.settings.targetYear,
-        state.settings.targetMonth,
-      )
+      await repo.saveMonthlyData(state.data, state.settings.targetYear, state.settings.targetMonth)
     } finally {
       setIsSaving(false)
     }

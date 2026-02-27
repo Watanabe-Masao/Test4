@@ -15,12 +15,21 @@ export type { TransferRecord, TransferData } from '@/domain/models'
 export function processInterStoreIn(rows: readonly unknown[][]): Record<string, TransferData> {
   if (rows.length < 2) return {}
 
-  const partitioned: Record<string, Record<string, Record<number, {
-    interStoreIn: TransferRecord[]
-    interStoreOut: TransferRecord[]
-    interDepartmentIn: TransferRecord[]
-    interDepartmentOut: TransferRecord[]
-  }>>> = {}
+  const partitioned: Record<
+    string,
+    Record<
+      string,
+      Record<
+        number,
+        {
+          interStoreIn: TransferRecord[]
+          interStoreOut: TransferRecord[]
+          interDepartmentIn: TransferRecord[]
+          interDepartmentOut: TransferRecord[]
+        }
+      >
+    >
+  > = {}
 
   for (let row = 1; row < rows.length; row++) {
     const r = rows[row] as unknown[]
@@ -49,7 +58,14 @@ export function processInterStoreIn(rows: readonly unknown[][]): Record<string, 
       }
     }
 
-    const record: TransferRecord = { day: dc.day, cost, price, fromStoreId, toStoreId, isDepartmentTransfer }
+    const record: TransferRecord = {
+      day: dc.day,
+      cost,
+      price,
+      fromStoreId,
+      toStoreId,
+      isDepartmentTransfer,
+    }
 
     if (isDepartmentTransfer) {
       ;(partitioned[mk][toStoreId][dc.day].interDepartmentIn as TransferRecord[]).push(record)
@@ -72,12 +88,21 @@ export function processInterStoreIn(rows: readonly unknown[][]): Record<string, 
 export function processInterStoreOut(rows: readonly unknown[][]): Record<string, TransferData> {
   if (rows.length < 2) return {}
 
-  const partitioned: Record<string, Record<string, Record<number, {
-    interStoreIn: TransferRecord[]
-    interStoreOut: TransferRecord[]
-    interDepartmentIn: TransferRecord[]
-    interDepartmentOut: TransferRecord[]
-  }>>> = {}
+  const partitioned: Record<
+    string,
+    Record<
+      string,
+      Record<
+        number,
+        {
+          interStoreIn: TransferRecord[]
+          interStoreOut: TransferRecord[]
+          interDepartmentIn: TransferRecord[]
+          interDepartmentOut: TransferRecord[]
+        }
+      >
+    >
+  > = {}
 
   for (let row = 1; row < rows.length; row++) {
     const r = rows[row] as unknown[]
@@ -107,7 +132,14 @@ export function processInterStoreOut(rows: readonly unknown[][]): Record<string,
       }
     }
 
-    const record: TransferRecord = { day: dc.day, cost, price, fromStoreId, toStoreId, isDepartmentTransfer }
+    const record: TransferRecord = {
+      day: dc.day,
+      cost,
+      price,
+      fromStoreId,
+      toStoreId,
+      isDepartmentTransfer,
+    }
 
     if (isDepartmentTransfer) {
       ;(partitioned[mk][fromStoreId][dc.day].interDepartmentOut as TransferRecord[]).push(record)

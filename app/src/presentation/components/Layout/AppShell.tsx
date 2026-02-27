@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 
 const Shell = styled.div`
   display: grid;
-  grid-template-columns: ${({ theme }) => theme.layout.navWidth} ${({ theme }) => theme.layout.sidebarWidth} 1fr;
+  grid-template-columns: ${({ theme }) => theme.layout.navWidth} ${({ theme }) =>
+      theme.layout.sidebarWidth} 1fr;
   height: 100vh;
   overflow: hidden;
 
@@ -23,7 +24,12 @@ const NavHide = styled.div`
   }
 `
 
-export function AppShell({ nav, sidebar, children, bottomNav }: {
+export function AppShell({
+  nav,
+  sidebar,
+  children,
+  bottomNav,
+}: {
   nav: ReactNode
   sidebar: ReactNode
   children: ReactNode

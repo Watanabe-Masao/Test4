@@ -14,9 +14,20 @@ import type { ImportedData, CategoryTimeSalesData, BudgetData } from '@/domain/m
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
-    year: 2026, month: 2, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+    year: 2026,
+    month: 2,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: discount,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -27,9 +38,7 @@ function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
       ['1', { id: '1', code: '0001', name: '店舗A' }],
       ['2', { id: '2', code: '0002', name: '店舗B' }],
     ]),
-    suppliers: new Map([
-      ['0000001', { code: '0000001', name: '取引先A' }],
-    ]),
+    suppliers: new Map([['0000001', { code: '0000001', name: '取引先A' }]]),
     purchase: {
       '1': {
         1: {
@@ -48,10 +57,28 @@ function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
       ],
     },
     settings: new Map([
-      ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
+      [
+        '1',
+        {
+          storeId: '1',
+          openingInventory: 100000,
+          closingInventory: 120000,
+          grossProfitBudget: null,
+        },
+      ],
     ]),
     budget: new Map([
-      ['1', { storeId: '1', daily: new Map([[1, 200000], [2, 210000]]), total: 410000 }],
+      [
+        '1',
+        {
+          storeId: '1',
+          daily: new Map([
+            [1, 200000],
+            [2, 210000],
+          ]),
+          total: 410000,
+        },
+      ],
     ]),
     ...overrides,
   }
@@ -82,9 +109,7 @@ const TEST_CATEGORY_TIME_SALES: CategoryTimeSalesData = {
       department: { code: '02', name: '日用品' },
       line: { code: '002', name: 'ライン2' },
       klass: { code: '0002', name: 'クラス2' },
-      timeSlots: [
-        { hour: 11, quantity: 5, amount: 30000 },
-      ],
+      timeSlots: [{ hour: 11, quantity: 5, amount: 30000 }],
       totalQuantity: 5,
       totalAmount: 30000,
     },
@@ -124,14 +149,10 @@ describe('saveImportedData / loadImportedData', () => {
     const loaded = await loadImportedData(2026, 2)
 
     expect(loaded!.classifiedSales.records).toHaveLength(3)
-    const store1Day1 = loaded!.classifiedSales.records.find(
-      (r) => r.storeId === '1' && r.day === 1,
-    )
+    const store1Day1 = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(store1Day1?.salesAmount).toBe(50000)
     expect(store1Day1?.discount71).toBe(3000)
-    const store2Day1 = loaded!.classifiedSales.records.find(
-      (r) => r.storeId === '2' && r.day === 1,
-    )
+    const store2Day1 = loaded!.classifiedSales.records.find((r) => r.storeId === '2' && r.day === 1)
     expect(store2Day1?.salesAmount).toBe(40000)
   })
 
@@ -190,9 +211,7 @@ describe('saveImportedData / loadImportedData', () => {
     await saveImportedData(data2, 2026, 2)
 
     const loaded = await loadImportedData(2026, 2)
-    const rec = loaded!.classifiedSales.records.find(
-      (r) => r.storeId === '1' && r.day === 1,
-    )
+    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
   })
 
@@ -211,10 +230,7 @@ describe('saveImportedData / loadImportedData', () => {
   it('前年分類別売上データは DB に保存されない（実際の年月に通常データとして保存される）', async () => {
     const data = makeTestData({
       prevYearClassifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 45000),
-          makeCSRecord(2, '1', 55000),
-        ],
+        records: [makeCSRecord(1, '1', 45000), makeCSRecord(2, '1', 55000)],
       },
     })
     await saveImportedData(data, 2026, 2)
@@ -263,18 +279,20 @@ describe('saveImportedData / loadImportedData', () => {
     await saveImportedData(data1, 2026, 2)
 
     const updated: CategoryTimeSalesData = {
-      records: [{
-        year: 2026,
-        month: 2,
-        day: 5,
-        storeId: '3',
-        department: { code: '03', name: '衣料' },
-        line: { code: '003', name: 'ライン3' },
-        klass: { code: '0003', name: 'クラス3' },
-        timeSlots: [{ hour: 14, quantity: 20, amount: 80000 }],
-        totalQuantity: 20,
-        totalAmount: 80000,
-      }],
+      records: [
+        {
+          year: 2026,
+          month: 2,
+          day: 5,
+          storeId: '3',
+          department: { code: '03', name: '衣料' },
+          line: { code: '003', name: 'ライン3' },
+          klass: { code: '0003', name: 'クラス3' },
+          timeSlots: [{ hour: 14, quantity: 20, amount: 80000 }],
+          totalQuantity: 20,
+          totalAmount: 80000,
+        },
+      ],
     }
     const data2 = makeTestData({ categoryTimeSales: updated })
     await saveImportedData(data2, 2026, 2)
@@ -389,9 +407,7 @@ describe('saveDataSlice', () => {
     const loaded = await loadImportedData(2026, 2)
 
     // classifiedSales は更新されている
-    const rec = loaded!.classifiedSales.records.find(
-      (r) => r.storeId === '1' && r.day === 1,
-    )
+    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
     // purchase は元のまま（saveDataSlice は指定種別のみ保存）
     expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(100)
@@ -430,9 +446,7 @@ describe('saveDataSlice', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    const rec = loaded!.classifiedSales.records.find(
-      (r) => r.storeId === '1' && r.day === 1,
-    )
+    const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(88888)
     expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(20000)
     expect(loaded!.categoryTimeSales.records).toHaveLength(2)
@@ -518,7 +532,9 @@ describe('data integrity', () => {
 
     // 在庫設定
     expect(loaded!.settings.size).toBe(data.settings.size)
-    expect(loaded!.settings.get('1')?.openingInventory).toBe(data.settings.get('1')?.openingInventory)
+    expect(loaded!.settings.get('1')?.openingInventory).toBe(
+      data.settings.get('1')?.openingInventory,
+    )
 
     // 予算
     expect(loaded!.budget.size).toBe(data.budget.size)
@@ -563,14 +579,17 @@ describe('data integrity', () => {
 
   it('予算データの不正な値は除外される', async () => {
     const invalidBudget = new Map<string, BudgetData>([
-      ['1', {
-        storeId: '1',
-        total: 100000,
-        daily: new Map<number, number>([
-          [1, 50000],
-          [32, 99999],   // 無効な日（32日）→ 除外
-        ]),
-      }],
+      [
+        '1',
+        {
+          storeId: '1',
+          total: 100000,
+          daily: new Map<number, number>([
+            [1, 50000],
+            [32, 99999], // 無効な日（32日）→ 除外
+          ]),
+        },
+      ],
     ])
     const data = makeTestData({ budget: invalidBudget })
     await saveImportedData(data, 2026, 2)
@@ -581,7 +600,7 @@ describe('data integrity', () => {
     const budget = loaded!.budget.get('1')!
     expect(budget.total).toBe(100000)
     expect(budget.daily.get(1)).toBe(50000)
-    expect(budget.daily.has(32)).toBe(false)  // 32日は除外
+    expect(budget.daily.has(32)).toBe(false) // 32日は除外
   })
 
   it('prevYearClassifiedSales と prevYearCategoryTimeSales は空で復元される', async () => {

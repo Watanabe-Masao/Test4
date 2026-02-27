@@ -1,6 +1,16 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  ReferenceLine,
+  LabelList,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
@@ -139,7 +149,9 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             {data.map((item, idx) => (
               <Cell
                 key={idx}
-                fill={item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative}
+                fill={
+                  item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative
+                }
                 opacity={0.85}
               />
             ))}

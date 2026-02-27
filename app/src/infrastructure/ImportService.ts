@@ -1,4 +1,13 @@
-import type { DataType, AppSettings, ImportedData, PurchaseData, SpecialSalesData, TransferData, ConsumableData, BudgetData } from '@/domain/models'
+import type {
+  DataType,
+  AppSettings,
+  ImportedData,
+  PurchaseData,
+  SpecialSalesData,
+  TransferData,
+  ConsumableData,
+  BudgetData,
+} from '@/domain/models'
 import { mergeClassifiedSalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
 import { detectFileType, getDataTypeName } from './fileImport/FileTypeDetector'
@@ -19,9 +28,19 @@ import { processSettings } from './dataProcessing/SettingsProcessor'
 import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
-import { processConsumables, mergeConsumableData, mergePartitionedConsumables } from './dataProcessing/ConsumableProcessor'
-import { processCategoryTimeSales, mergeCategoryTimeSalesData } from './dataProcessing/CategoryTimeSalesProcessor'
-import { processDepartmentKpi, mergeDepartmentKpiData } from './dataProcessing/DepartmentKpiProcessor'
+import {
+  processConsumables,
+  mergeConsumableData,
+  mergePartitionedConsumables,
+} from './dataProcessing/ConsumableProcessor'
+import {
+  processCategoryTimeSales,
+  mergeCategoryTimeSalesData,
+} from './dataProcessing/CategoryTimeSalesProcessor'
+import {
+  processDepartmentKpi,
+  mergeDepartmentKpiData,
+} from './dataProcessing/DepartmentKpiProcessor'
 
 /** 単一ファイルのインポート結果 */
 export interface FileImportResult {
@@ -81,7 +100,9 @@ export function createEmptyMonthPartitions(): MonthPartitions {
 // ─── パーティション結合ヘルパー ──────────────────────────
 
 /** 月パーティション済み StoreDayRecord を1つに結合する（全月の union） */
-function combineStoreDayPartitions<T>(partitioned: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>): { readonly [storeId: string]: { readonly [day: number]: T } } {
+function combineStoreDayPartitions<T>(
+  partitioned: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
+): { readonly [storeId: string]: { readonly [day: number]: T } } {
   const combined: Record<string, Record<number, T>> = {}
   for (const monthData of Object.values(partitioned)) {
     for (const [storeId, days] of Object.entries(monthData)) {
@@ -154,23 +175,37 @@ function mergeMapPartitions<K, V>(
  */
 function countDataRecords(data: ImportedData, type: DataType): number {
   switch (type) {
-    case 'classifiedSales': return data.classifiedSales.records.length
-    case 'categoryTimeSales': return data.categoryTimeSales.records.length
-    case 'departmentKpi': return data.departmentKpi.records.length
-    case 'purchase': return countStoreDayEntries(data.purchase)
-    case 'flowers': return countStoreDayEntries(data.flowers)
-    case 'directProduce': return countStoreDayEntries(data.directProduce)
-    case 'interStoreIn': return countStoreDayEntries(data.interStoreIn)
-    case 'interStoreOut': return countStoreDayEntries(data.interStoreOut)
-    case 'consumables': return countStoreDayEntries(data.consumables)
-    case 'budget': return data.budget.size
-    case 'initialSettings': return data.settings.size
-    default: return 0
+    case 'classifiedSales':
+      return data.classifiedSales.records.length
+    case 'categoryTimeSales':
+      return data.categoryTimeSales.records.length
+    case 'departmentKpi':
+      return data.departmentKpi.records.length
+    case 'purchase':
+      return countStoreDayEntries(data.purchase)
+    case 'flowers':
+      return countStoreDayEntries(data.flowers)
+    case 'directProduce':
+      return countStoreDayEntries(data.directProduce)
+    case 'interStoreIn':
+      return countStoreDayEntries(data.interStoreIn)
+    case 'interStoreOut':
+      return countStoreDayEntries(data.interStoreOut)
+    case 'consumables':
+      return countStoreDayEntries(data.consumables)
+    case 'budget':
+      return data.budget.size
+    case 'initialSettings':
+      return data.settings.size
+    default:
+      return 0
   }
 }
 
 /** StoreDayRecord の日別エントリ数を数える */
-function countStoreDayEntries(record: { readonly [storeId: string]: { readonly [day: number]: unknown } }): number {
+function countStoreDayEntries(record: {
+  readonly [storeId: string]: { readonly [day: number]: unknown }
+}): number {
   let count = 0
   for (const days of Object.values(record)) {
     count += Object.keys(days).length
@@ -191,11 +226,7 @@ export async function readAndDetect(
 
   const detection = detectFileType(file.name, rows)
   if (!detection.type) {
-    throw new ImportError(
-      'ファイルの種別を判定できませんでした',
-      'UNKNOWN_TYPE',
-      file.name,
-    )
+    throw new ImportError('ファイルの種別を判定できませんでした', 'UNKNOWN_TYPE', file.name)
   }
 
   return {
@@ -278,9 +309,8 @@ function processFileDataInner(
   const mutableSuppliers = new Map(current.suppliers)
 
   const startRow = DATE_START_ROW[type]
-  const detectedYearMonth = startRow != null
-    ? detectYearMonth(rows, 0, startRow) ?? undefined
-    : undefined
+  const detectedYearMonth =
+    startRow != null ? (detectYearMonth(rows, 0, startRow) ?? undefined) : undefined
 
   const effectiveMonth = detectedYearMonth?.month ?? appSettings.targetMonth
 
@@ -541,10 +571,14 @@ export async function processDroppedFiles(
         const p = result.partitions
         if (p.purchase) mp = { ...mp, purchase: mergeStoreDayPartitions(mp.purchase, p.purchase) }
         if (p.flowers) mp = { ...mp, flowers: mergeStoreDayPartitions(mp.flowers, p.flowers) }
-        if (p.directProduce) mp = { ...mp, directProduce: mergeStoreDayPartitions(mp.directProduce, p.directProduce) }
-        if (p.interStoreIn) mp = { ...mp, interStoreIn: mergeStoreDayPartitions(mp.interStoreIn, p.interStoreIn) }
-        if (p.interStoreOut) mp = { ...mp, interStoreOut: mergeStoreDayPartitions(mp.interStoreOut, p.interStoreOut) }
-        if (p.consumables) mp = { ...mp, consumables: mergePartitionedConsumables(mp.consumables, p.consumables) }
+        if (p.directProduce)
+          mp = { ...mp, directProduce: mergeStoreDayPartitions(mp.directProduce, p.directProduce) }
+        if (p.interStoreIn)
+          mp = { ...mp, interStoreIn: mergeStoreDayPartitions(mp.interStoreIn, p.interStoreIn) }
+        if (p.interStoreOut)
+          mp = { ...mp, interStoreOut: mergeStoreDayPartitions(mp.interStoreOut, p.interStoreOut) }
+        if (p.consumables)
+          mp = { ...mp, consumables: mergePartitionedConsumables(mp.consumables, p.consumables) }
         if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
       }
 

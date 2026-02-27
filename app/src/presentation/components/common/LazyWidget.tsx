@@ -46,7 +46,7 @@ export function LazyWidget({
     <div ref={ref}>
       {hasBeenVisible
         ? children
-        : placeholder ?? <Placeholder $minHeight={minHeight}>...</Placeholder>}
+        : (placeholder ?? <Placeholder $minHeight={minHeight}>...</Placeholder>)}
     </div>
   )
 }

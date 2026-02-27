@@ -1,12 +1,36 @@
 import { useState, useMemo } from 'react'
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts'
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
-import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
+import {
+  findCoreTime,
+  findTurnaroundHour,
+  formatCoreTime,
+  formatTurnaroundHour,
+} from './timeSlotUtils'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore, type AggregateMode } from './PeriodFilter'
+import {
+  usePeriodFilter,
+  PeriodFilterBar,
+  useHierarchyDropdown,
+  HierarchyDropdowns,
+  computeDivisor,
+  countDistinctDays,
+  filterByStore,
+  type AggregateMode,
+} from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
 import { sc } from '@/presentation/theme/semanticColors'
 
@@ -15,7 +39,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -43,7 +68,8 @@ const Controls = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -55,21 +81,25 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const Separator = styled.span`
   width: 1px;
   height: 16px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'};
 `
 const EmptyFilterMsg = styled.div`
-  text-align: center; padding: 40px 16px;
-  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+  text-align: center;
+  padding: 40px 16px;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 /* KPI Grid */
@@ -176,7 +206,8 @@ const ProgressLabelRow = styled.div`
 const InsightBar = styled.div`
   margin: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[2]} 0;
   padding: ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
   font-size: 0.62rem;
@@ -184,7 +215,10 @@ const InsightBar = styled.div`
   line-height: 1.6;
 `
 const InsightItem = styled.div`
-  &::before { content: '▸ '; opacity: 0.5; }
+  &::before {
+    content: '▸ ';
+    opacity: 0.5;
+  }
 `
 
 const TableWrapper = styled.div`
@@ -206,19 +240,20 @@ const MiniTh = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: left; }
+  &:first-child {
+    text-align: left;
+  }
 `
 
 const MiniTd = styled.td<{ $highlight?: boolean; $positive?: boolean }>`
   text-align: center;
   padding: 2px 5px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  border-bottom: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)')};
   white-space: nowrap;
   color: ${({ $highlight, $positive, theme }) =>
-    $highlight
-      ? sc.cond($positive ?? false)
-      : theme.colors.text2};
+    $highlight ? sc.cond($positive ?? false) : theme.colors.text2};
   &:first-child {
     text-align: left;
     font-family: ${({ theme }) => theme.typography.fontFamily.primary};
@@ -265,7 +300,10 @@ function aggregateHourly(
   mode: AggregateMode,
 ) {
   const hourly = new Map<number, { amount: number; quantity: number }>()
-  const storeFiltered = filterByStore(hf.applyFilter(filterByHierarchy(records, filter)), selectedStoreIds)
+  const storeFiltered = filterByStore(
+    hf.applyFilter(filterByHierarchy(records, filter)),
+    selectedStoreIds,
+  )
 
   let totalAmount = 0
   let totalQuantity = 0
@@ -287,11 +325,25 @@ function aggregateHourly(
     result.set(h, { amount: Math.round(v.amount / div), quantity: Math.round(v.quantity / div) })
   }
 
-  return { hourly: result, totalAmount, totalQuantity, recordCount: storeFiltered.length, divisor: div }
+  return {
+    hourly: result,
+    totalAmount,
+    totalQuantity,
+    recordCount: storeFiltered.length,
+    divisor: div,
+  }
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較・前週比較対応） */
-export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }: Props) {
+export function TimeSlotSalesChart({
+  ctsIndex,
+  prevCtsIndex,
+  selectedStoreIds,
+  daysInMonth,
+  year,
+  month,
+  dataMaxDay,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { filter } = useCategoryHierarchy()
@@ -302,15 +354,23 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
 
   // ── DateRange ベースのレコード取得 ──
-  const sliderDateRange: DateRange = useMemo(() => ({
-    from: { year, month, day: pf.dayRange[0] },
-    to: { year, month, day: pf.dayRange[1] },
-  }), [year, month, pf.dayRange])
+  const sliderDateRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day: pf.dayRange[0] },
+      to: { year, month, day: pf.dayRange[1] },
+    }),
+    [year, month, pf.dayRange],
+  )
 
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    () =>
+      queryByDateRange(ctsIndex, {
+        dateRange: sliderDateRange,
+        storeIds: selectedStoreIds,
+        dow: dowFilter,
+      }),
     [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
 
@@ -319,7 +379,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
   const wowPrevEnd = pf.dayRange[1] - 7
   const canWoW = wowPrevStart >= 1
   // canWoW が false なら yoy にフォールバック（派生状態）
-  const activeCompMode = compMode === 'wow' && !canWoW ? 'yoy' as const : compMode
+  const activeCompMode = compMode === 'wow' && !canWoW ? ('yoy' as const) : compMode
 
   // 比較期間レコード（前年比 or 前週比で切替）
   const prevPeriodRecords = useMemo(() => {
@@ -346,7 +406,18 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       })
     }
     return recs
-  }, [activeCompMode, ctsIndex, prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
+  }, [
+    activeCompMode,
+    ctsIndex,
+    prevCtsIndex,
+    selectedStoreIds,
+    year,
+    month,
+    pf.dayRange,
+    wowPrevStart,
+    wowPrevEnd,
+    dowFilter,
+  ])
 
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
@@ -362,25 +433,28 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     [prevPeriodRecords],
   )
   // 比較期間と重複する日のみの当年レコード（分母分子を揃える）
-  const comparablePeriodRecords = useMemo(
-    () => {
-      if (!hasPrevYear) return periodRecords
-      if (activeCompMode === 'wow') return periodRecords // WoW: both periods same coverage
-      return periodRecords.filter((r) => prevDaySet.has(r.day))
-    },
-    [periodRecords, prevDaySet, hasPrevYear, activeCompMode],
-  )
+  const comparablePeriodRecords = useMemo(() => {
+    if (!hasPrevYear) return periodRecords
+    if (activeCompMode === 'wow') return periodRecords // WoW: both periods same coverage
+    return periodRecords.filter((r) => prevDaySet.has(r.day))
+  }, [periodRecords, prevDaySet, hasPrevYear, activeCompMode])
 
   const current = useMemo(
     () => aggregateHourly(periodRecords, selectedStoreIds, filter, hf, pf.mode),
     [periodRecords, selectedStoreIds, filter, hf, pf.mode],
   )
   const comparable = useMemo(
-    () => hasPrevYear ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, pf.mode) : null,
+    () =>
+      hasPrevYear
+        ? aggregateHourly(comparablePeriodRecords, selectedStoreIds, filter, hf, pf.mode)
+        : null,
     [comparablePeriodRecords, selectedStoreIds, filter, hf, pf.mode, hasPrevYear],
   )
   const prev = useMemo(
-    () => hasPrevYear ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, pf.mode) : null,
+    () =>
+      hasPrevYear
+        ? aggregateHourly(prevPeriodRecords, selectedStoreIds, filter, hf, pf.mode)
+        : null,
     [prevPeriodRecords, selectedStoreIds, filter, hf, pf.mode, hasPrevYear],
   )
 
@@ -402,9 +476,13 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
 
     // KPI — current.divisor は実データの distinct day 数から算出された除数
     const curDiv = current.divisor
-    let peakHour = 0, peakHourAmount = 0
+    let peakHour = 0,
+      peakHourAmount = 0
     for (const [h, v] of current.hourly) {
-      if (v.amount > peakHourAmount) { peakHour = h; peakHourAmount = v.amount * curDiv }
+      if (v.amount > peakHourAmount) {
+        peakHour = h
+        peakHourAmount = v.amount * curDiv
+      }
     }
     const totalAmount = current.totalAmount
     const peakHourPct = totalAmount > 0 ? toPct(peakHourAmount / totalAmount) : '0%'
@@ -418,56 +496,74 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     // 数量ベースの前年比 KPI
     const comparableTotalQuantity = comparable?.totalQuantity ?? 0
     const prevTotalQuantity = prev?.totalQuantity ?? 0
-    const yoyQuantityRatio = prevTotalQuantity > 0 ? comparableTotalQuantity / prevTotalQuantity : null
-    const yoyQuantityDiff = prevTotalQuantity > 0 ? comparableTotalQuantity - prevTotalQuantity : null
+    const yoyQuantityRatio =
+      prevTotalQuantity > 0 ? comparableTotalQuantity / prevTotalQuantity : null
+    const yoyQuantityDiff =
+      prevTotalQuantity > 0 ? comparableTotalQuantity - prevTotalQuantity : null
 
     // 数量ベースのピーク
-    let peakHourQty = 0, peakHourQuantity = 0
+    let peakHourQty = 0,
+      peakHourQuantity = 0
     for (const [h, v] of current.hourly) {
-      if (v.quantity > peakHourQuantity) { peakHourQty = h; peakHourQuantity = v.quantity * curDiv }
+      if (v.quantity > peakHourQuantity) {
+        peakHourQty = h
+        peakHourQuantity = v.quantity * curDiv
+      }
     }
-    const peakHourQtyPct = current.totalQuantity > 0 ? toPct(peakHourQuantity / current.totalQuantity) : '0%'
+    const peakHourQtyPct =
+      current.totalQuantity > 0 ? toPct(peakHourQuantity / current.totalQuantity) : '0%'
 
     // コアタイム & 折り返し時間帯（金額ベース）— 生値で計算するため除数を掛け戻す
     const amountMap = new Map<number, number>()
     for (const [h, v] of current.hourly) amountMap.set(h, v.amount * curDiv)
     const coreTimeAmt = findCoreTime(amountMap)
     const turnaroundAmt = findTurnaroundHour(amountMap)
-    const coreTimePct = totalAmount > 0 && coreTimeAmt ? toPct(coreTimeAmt.total / totalAmount) : '0%'
+    const coreTimePct =
+      totalAmount > 0 && coreTimeAmt ? toPct(coreTimeAmt.total / totalAmount) : '0%'
 
     // コアタイム & 折り返し時間帯（数量ベース）
     const qtyMap = new Map<number, number>()
     for (const [h, v] of current.hourly) qtyMap.set(h, v.quantity * curDiv)
     const coreTimeQty = findCoreTime(qtyMap)
     const turnaroundQty = findTurnaroundHour(qtyMap)
-    const coreTimeQtyPct = current.totalQuantity > 0 && coreTimeQty ? toPct(coreTimeQty.total / current.totalQuantity) : '0%'
+    const coreTimeQtyPct =
+      current.totalQuantity > 0 && coreTimeQty
+        ? toPct(coreTimeQty.total / current.totalQuantity)
+        : '0%'
 
     return {
       chartData,
-      kpi: current.recordCount > 0 ? {
-        totalAmount,
-        totalQuantity: current.totalQuantity,
-        peakHour,
-        peakHourPct,
-        peakHourQty,
-        peakHourQtyPct,
-        coreTimeAmt,
-        coreTimePct,
-        turnaroundAmt,
-        coreTimeQty,
-        coreTimeQtyPct,
-        turnaroundQty,
-        recordCount: current.recordCount,
-        prevTotalAmount,
-        prevTotalQuantity,
-        yoyRatio,
-        yoyDiff,
-        yoyQuantityRatio,
-        yoyQuantityDiff,
-        activeHours: current.hourly.size,
-        avgPerHour: current.hourly.size > 0 ? Math.round(totalAmount / current.hourly.size) : 0,
-        avgQtyPerHour: current.hourly.size > 0 ? Math.round(current.totalQuantity / current.hourly.size) : 0,
-      } : null,
+      kpi:
+        current.recordCount > 0
+          ? {
+              totalAmount,
+              totalQuantity: current.totalQuantity,
+              peakHour,
+              peakHourPct,
+              peakHourQty,
+              peakHourQtyPct,
+              coreTimeAmt,
+              coreTimePct,
+              turnaroundAmt,
+              coreTimeQty,
+              coreTimeQtyPct,
+              turnaroundQty,
+              recordCount: current.recordCount,
+              prevTotalAmount,
+              prevTotalQuantity,
+              yoyRatio,
+              yoyDiff,
+              yoyQuantityRatio,
+              yoyQuantityDiff,
+              activeHours: current.hourly.size,
+              avgPerHour:
+                current.hourly.size > 0 ? Math.round(totalAmount / current.hourly.size) : 0,
+              avgQtyPerHour:
+                current.hourly.size > 0
+                  ? Math.round(current.totalQuantity / current.hourly.size)
+                  : 0,
+            }
+          : null,
     }
   }, [current, comparable, prev])
 
@@ -491,11 +587,19 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     const yoyRatio = prevTotal > 0 ? curTotal / prevTotal : null
     const yoyDiff = curTotal - prevTotal
 
-    let maxIncHour = -1, maxIncDiff = 0
-    let maxDecHour = -1, maxDecDiff = 0
+    let maxIncHour = -1,
+      maxIncDiff = 0
+    let maxDecHour = -1,
+      maxDecDiff = 0
     for (const d of rows) {
-      if (d.diff > maxIncDiff) { maxIncDiff = d.diff; maxIncHour = parseInt(d.hour) }
-      if (d.diff < maxDecDiff) { maxDecDiff = d.diff; maxDecHour = parseInt(d.hour) }
+      if (d.diff > maxIncDiff) {
+        maxIncDiff = d.diff
+        maxIncHour = parseInt(d.hour)
+      }
+      if (d.diff < maxDecDiff) {
+        maxDecDiff = d.diff
+        maxDecHour = parseInt(d.hour)
+      }
     }
 
     // Raw hourly maps for coreTime calculation
@@ -508,8 +612,14 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       rows,
       chartData: rows,
       summary: {
-        curTotal, prevTotal, yoyRatio, yoyDiff,
-        maxIncHour, maxIncDiff, maxDecHour, maxDecDiff,
+        curTotal,
+        prevTotal,
+        yoyRatio,
+        yoyDiff,
+        maxIncHour,
+        maxIncDiff,
+        maxDecHour,
+        maxDecDiff,
         curCoreTime: findCoreTime(curHourlyRaw),
         curTurnaround: findTurnaroundHour(curHourlyRaw),
         prevCoreTime: findCoreTime(prevHourlyRaw),
@@ -525,13 +635,19 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
 
     // ピーク時間帯のシフト検出（前年/前週比較時）
     if (prev) {
-      let prevPeakHour = 0, prevPeakAmt = 0
+      let prevPeakHour = 0,
+        prevPeakAmt = 0
       for (const [h, v] of prev.hourly) {
-        if (v.amount > prevPeakAmt) { prevPeakHour = h; prevPeakAmt = v.amount }
+        if (v.amount > prevPeakAmt) {
+          prevPeakHour = h
+          prevPeakAmt = v.amount
+        }
       }
       const shift = kpi.peakHour - prevPeakHour
       if (Math.abs(shift) >= 2) {
-        lines.push(`ピーク時間帯が${prevLbl}${prevPeakHour}時台→${kpi.peakHour}時台に${Math.abs(shift)}時間${shift > 0 ? '後方' : '前方'}シフト`)
+        lines.push(
+          `ピーク時間帯が${prevLbl}${prevPeakHour}時台→${kpi.peakHour}時台に${Math.abs(shift)}時間${shift > 0 ? '後方' : '前方'}シフト`,
+        )
       }
     }
 
@@ -540,7 +656,9 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       const curCt = yoyData.summary.curCoreTime
       const prevCt = yoyData.summary.prevCoreTime
       if (curCt.startHour !== prevCt.startHour || curCt.endHour !== prevCt.endHour) {
-        lines.push(`コアタイムが${prevCt.startHour}〜${prevCt.endHour}時→${curCt.startHour}〜${curCt.endHour}時に変化`)
+        lines.push(
+          `コアタイムが${prevCt.startHour}〜${prevCt.endHour}時→${curCt.startHour}〜${curCt.endHour}時に変化`,
+        )
       }
     }
 
@@ -556,46 +674,70 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
     if (yoyData?.summary.curTurnaround != null && yoyData?.summary.prevTurnaround != null) {
       const tShift = yoyData.summary.curTurnaround - yoyData.summary.prevTurnaround
       if (tShift !== 0) {
-        lines.push(`売上50%到達が${yoyData.summary.prevTurnaround}時→${yoyData.summary.curTurnaround}時に${tShift > 0 ? '後方' : '前方'}シフト（需要の${tShift > 0 ? '後ろ倒し' : '前倒し'}傾向）`)
+        lines.push(
+          `売上50%到達が${yoyData.summary.prevTurnaround}時→${yoyData.summary.curTurnaround}時に${tShift > 0 ? '後方' : '前方'}シフト（需要の${tShift > 0 ? '後ろ倒し' : '前倒し'}傾向）`,
+        )
       }
     }
 
     return lines
   }, [kpi, prev, yoyData, prevLbl])
 
-  if (chartData.length === 0) return (
-    <Wrapper>
-      <HeaderRow><Title>時間帯別売上</Title></HeaderRow>
-      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
-    </Wrapper>
-  )
+  if (chartData.length === 0)
+    return (
+      <Wrapper>
+        <HeaderRow>
+          <Title>時間帯別売上</Title>
+        </HeaderRow>
+        <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+        <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+        <HierarchyDropdowns hf={hf} />
+      </Wrapper>
+    )
 
   const showPrev = hasPrevYear && showPrevYear
 
-  const titleText = viewMode === 'yoy'
-    ? `時間帯別 ${prevLbl}同曜日比較`
-    : `時間帯別${metricMode === 'amount' ? '売上' : '数量'}${viewMode === 'kpi' ? ' サマリー' : ''}`
-  const modeLabel = pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''
+  const titleText =
+    viewMode === 'yoy'
+      ? `時間帯別 ${prevLbl}同曜日比較`
+      : `時間帯別${metricMode === 'amount' ? '売上' : '数量'}${viewMode === 'kpi' ? ' サマリー' : ''}`
+  const modeLabel =
+    pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''
 
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>{titleText}{modeLabel}</Title>
+        <Title>
+          {titleText}
+          {modeLabel}
+        </Title>
         <Controls>
           {viewMode !== 'yoy' && (
             <TabGroup>
-              <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>金額</Tab>
-              <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>点数</Tab>
+              <Tab $active={metricMode === 'amount'} onClick={() => setMetricMode('amount')}>
+                金額
+              </Tab>
+              <Tab $active={metricMode === 'quantity'} onClick={() => setMetricMode('quantity')}>
+                点数
+              </Tab>
             </TabGroup>
           )}
           {hasPrevYear && (
             <>
               <Separator />
               <TabGroup>
-                <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</Tab>
-                <Tab $active={compMode === 'wow'} onClick={() => { if (canWoW) setCompMode('wow') }} style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}>前週比</Tab>
+                <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
+                  前年比
+                </Tab>
+                <Tab
+                  $active={compMode === 'wow'}
+                  onClick={() => {
+                    if (canWoW) setCompMode('wow')
+                  }}
+                  style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+                >
+                  前週比
+                </Tab>
               </TabGroup>
             </>
           )}
@@ -603,16 +745,24 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
             <>
               <Separator />
               <TabGroup>
-                <Tab $active={showPrevYear} onClick={() => setShowPrevYear(!showPrevYear)}>{prevLbl}比較</Tab>
+                <Tab $active={showPrevYear} onClick={() => setShowPrevYear(!showPrevYear)}>
+                  {prevLbl}比較
+                </Tab>
               </TabGroup>
             </>
           )}
           <Separator />
           <TabGroup>
-            <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>チャート</Tab>
-            <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>KPI</Tab>
+            <Tab $active={viewMode === 'chart'} onClick={() => setViewMode('chart')}>
+              チャート
+            </Tab>
+            <Tab $active={viewMode === 'kpi'} onClick={() => setViewMode('kpi')}>
+              KPI
+            </Tab>
             {hasPrevYear && (
-              <Tab $active={viewMode === 'yoy'} onClick={() => setViewMode('yoy')}>{prevLbl}比較</Tab>
+              <Tab $active={viewMode === 'yoy'} onClick={() => setViewMode('yoy')}>
+                {prevLbl}比較
+              </Tab>
             )}
           </TabGroup>
         </Controls>
@@ -669,7 +819,8 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                     prevQuantity: `${prevLbl}数量`,
                   }
                   const label = labels[name as string] ?? String(name)
-                  if (name === 'amount' || name === 'prevAmount') return [toComma(value as number) + '円', label]
+                  if (name === 'amount' || name === 'prevAmount')
+                    return [toComma(value as number) + '円', label]
                   return [toComma(value as number) + '点', label]
                 }}
               />
@@ -730,7 +881,8 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                   {kpi.totalAmount.toLocaleString()}円
                   {kpi.yoyRatio != null && (
                     <YoYBadge $positive={kpi.yoyRatio >= 1}>
-                      {kpi.yoyRatio >= 1 ? '+' : ''}{toPct(kpi.yoyRatio - 1)}
+                      {kpi.yoyRatio >= 1 ? '+' : ''}
+                      {toPct(kpi.yoyRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -738,7 +890,9 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
               {kpi.prevTotalAmount > 0 && (
                 <Card $accent={ct.colors.slate}>
                   <CardLabel>{prevLbl} 総売上金額</CardLabel>
-                  <CardValue>{Math.round(kpi.prevTotalAmount / 10000).toLocaleString()}万円</CardValue>
+                  <CardValue>
+                    {Math.round(kpi.prevTotalAmount / 10000).toLocaleString()}万円
+                  </CardValue>
                   <CardSub>{kpi.prevTotalAmount.toLocaleString()}円</CardSub>
                 </Card>
               )}
@@ -746,9 +900,12 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 <Card $accent={sc.cond(kpi.yoyDiff >= 0)}>
                   <CardLabel>{prevLbl}差（金額）</CardLabel>
                   <CardValue style={{ color: sc.cond(kpi.yoyDiff >= 0) }}>
-                    {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
+                    {kpi.yoyDiff >= 0 ? '+' : ''}
+                    {Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
                   </CardValue>
-                  <CardSub>{prevLbl}比 {toPct(kpi.yoyRatio ?? 0)}</CardSub>
+                  <CardSub>
+                    {prevLbl}比 {toPct(kpi.yoyRatio ?? 0)}
+                  </CardSub>
                 </Card>
               )}
               <Card $accent="#06b6d4">
@@ -786,7 +943,8 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                   {kpi.recordCount.toLocaleString()}レコード
                   {kpi.yoyQuantityRatio != null && (
                     <YoYBadge $positive={kpi.yoyQuantityRatio >= 1}>
-                      {kpi.yoyQuantityRatio >= 1 ? '+' : ''}{toPct(kpi.yoyQuantityRatio - 1)}
+                      {kpi.yoyQuantityRatio >= 1 ? '+' : ''}
+                      {toPct(kpi.yoyQuantityRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -801,9 +959,12 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 <Card $accent={sc.cond(kpi.yoyQuantityDiff >= 0)}>
                   <CardLabel>{prevLbl}差（数量）</CardLabel>
                   <CardValue style={{ color: sc.cond(kpi.yoyQuantityDiff >= 0) }}>
-                    {kpi.yoyQuantityDiff >= 0 ? '+' : ''}{kpi.yoyQuantityDiff.toLocaleString()}点
+                    {kpi.yoyQuantityDiff >= 0 ? '+' : ''}
+                    {kpi.yoyQuantityDiff.toLocaleString()}点
                   </CardValue>
-                  <CardSub>{prevLbl}比 {toPct(kpi.yoyQuantityRatio ?? 0)}</CardSub>
+                  <CardSub>
+                    {prevLbl}比 {toPct(kpi.yoyQuantityRatio ?? 0)}
+                  </CardSub>
                 </Card>
               )}
               <Card $accent="#6366f1">
@@ -837,151 +998,201 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
       )}
 
       {/* ── YoY comparison view ── */}
-      {viewMode === 'yoy' && yoyData && (() => {
-        const s = yoyData.summary
-        const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
-        return (
-          <>
-            <SummaryRow>
-              <Metric>
-                <MetricLabel>{curLbl}合計</MetricLabel>
-                <MetricValue>{fmt(s.curTotal)}円</MetricValue>
-              </Metric>
-              {s.yoyRatio != null && (
-                <ProgressBarWrap>
-                  <ProgressLabelRow>
-                    <span>{prevLbl}比 {toPct(s.yoyRatio)}</span>
-                    <span>{s.yoyDiff >= 0 ? '+' : ''}{fmt(s.yoyDiff)}円</span>
-                  </ProgressLabelRow>
-                  <ProgressTrack>
-                    <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
-                  </ProgressTrack>
-                </ProgressBarWrap>
-              )}
-              <Metric>
-                <MetricLabel>{prevLbl}合計</MetricLabel>
-                <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
-              </Metric>
-              {s.maxIncHour >= 0 && (
+      {viewMode === 'yoy' &&
+        yoyData &&
+        (() => {
+          const s = yoyData.summary
+          const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
+          return (
+            <>
+              <SummaryRow>
                 <Metric>
-                  <MetricLabel>最大増加時間帯</MetricLabel>
-                  <MetricValue $color={sc.positive}>{s.maxIncHour}時 (+{fmt(s.maxIncDiff)})</MetricValue>
+                  <MetricLabel>{curLbl}合計</MetricLabel>
+                  <MetricValue>{fmt(s.curTotal)}円</MetricValue>
                 </Metric>
-              )}
-              {s.maxDecHour >= 0 && (
+                {s.yoyRatio != null && (
+                  <ProgressBarWrap>
+                    <ProgressLabelRow>
+                      <span>
+                        {prevLbl}比 {toPct(s.yoyRatio)}
+                      </span>
+                      <span>
+                        {s.yoyDiff >= 0 ? '+' : ''}
+                        {fmt(s.yoyDiff)}円
+                      </span>
+                    </ProgressLabelRow>
+                    <ProgressTrack>
+                      <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
+                    </ProgressTrack>
+                  </ProgressBarWrap>
+                )}
                 <Metric>
-                  <MetricLabel>最大減少時間帯</MetricLabel>
-                  <MetricValue $color={sc.negative}>{s.maxDecHour}時 ({fmt(s.maxDecDiff)})</MetricValue>
+                  <MetricLabel>{prevLbl}合計</MetricLabel>
+                  <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
                 </Metric>
-              )}
-              <Metric>
-                <MetricLabel>コアタイム（{curLbl}）</MetricLabel>
-                <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
-              </Metric>
-              <Metric>
-                <MetricLabel>折り返し（{curLbl}）</MetricLabel>
-                <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
-              </Metric>
-              {s.prevCoreTime && (
+                {s.maxIncHour >= 0 && (
+                  <Metric>
+                    <MetricLabel>最大増加時間帯</MetricLabel>
+                    <MetricValue $color={sc.positive}>
+                      {s.maxIncHour}時 (+{fmt(s.maxIncDiff)})
+                    </MetricValue>
+                  </Metric>
+                )}
+                {s.maxDecHour >= 0 && (
+                  <Metric>
+                    <MetricLabel>最大減少時間帯</MetricLabel>
+                    <MetricValue $color={sc.negative}>
+                      {s.maxDecHour}時 ({fmt(s.maxDecDiff)})
+                    </MetricValue>
+                  </Metric>
+                )}
                 <Metric>
-                  <MetricLabel>コアタイム（{prevLbl}）</MetricLabel>
-                  <MetricValue $color={ct.colors.slate}>{formatCoreTime(s.prevCoreTime)}</MetricValue>
+                  <MetricLabel>コアタイム（{curLbl}）</MetricLabel>
+                  <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
                 </Metric>
-              )}
-              {s.prevTurnaround != null && (
                 <Metric>
-                  <MetricLabel>折り返し（{prevLbl}）</MetricLabel>
-                  <MetricValue $color={ct.colors.slate}>{formatTurnaroundHour(s.prevTurnaround)}</MetricValue>
+                  <MetricLabel>折り返し（{curLbl}）</MetricLabel>
+                  <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
                 </Metric>
-              )}
-            </SummaryRow>
+                {s.prevCoreTime && (
+                  <Metric>
+                    <MetricLabel>コアタイム（{prevLbl}）</MetricLabel>
+                    <MetricValue $color={ct.colors.slate}>
+                      {formatCoreTime(s.prevCoreTime)}
+                    </MetricValue>
+                  </Metric>
+                )}
+                {s.prevTurnaround != null && (
+                  <Metric>
+                    <MetricLabel>折り返し（{prevLbl}）</MetricLabel>
+                    <MetricValue $color={ct.colors.slate}>
+                      {formatTurnaroundHour(s.prevTurnaround)}
+                    </MetricValue>
+                  </Metric>
+                )}
+              </SummaryRow>
 
-            <div style={{ width: '100%', height: 300, minHeight: 0 }}>
-              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-                <ComposedChart data={yoyData.chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="yoyCurGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
-                      <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-                  <XAxis
-                    dataKey="hour"
-                    tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                    axisLine={{ stroke: ct.grid }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={fmt}
-                    width={50}
-                  />
-                  <ReferenceLine y={0} stroke={ct.grid} />
-                  <Tooltip
-                    contentStyle={tooltipStyle(ct)}
-                    formatter={(value: number | undefined, name: string | undefined) => {
-                      const labels: Record<string, string> = { current: curLbl, prevYear: `${prevLbl}同曜日`, diff: '差分' }
-                      const label = labels[name as string] ?? String(name)
-                      const v = value ?? 0
-                      if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
-                      return [`${toComma(v)}円`, label]
-                    }}
-                    itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-                    formatter={(value) => {
-                      const labels: Record<string, string> = { current: curLbl, prevYear: `${prevLbl}同曜日`, diff: '差分' }
-                      return labels[value] ?? value
-                    }}
-                  />
-                  <Bar dataKey="current" fill="url(#yoyCurGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
-                  <Line type="monotone" dataKey="prevYear" stroke={ct.colors.slate} strokeWidth={2.5} strokeDasharray="5 3" dot={false} connectNulls />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
+              <div style={{ width: '100%', height: 300, minHeight: 0 }}>
+                <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
+                  <ComposedChart
+                    data={yoyData.chartData}
+                    margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="yoyCurGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
+                        <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
+                    <XAxis
+                      dataKey="hour"
+                      tick={{
+                        fill: ct.textMuted,
+                        fontSize: ct.fontSize.xs,
+                        fontFamily: ct.monoFamily,
+                      }}
+                      axisLine={{ stroke: ct.grid }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fill: ct.textMuted,
+                        fontSize: ct.fontSize.xs,
+                        fontFamily: ct.monoFamily,
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={fmt}
+                      width={50}
+                    />
+                    <ReferenceLine y={0} stroke={ct.grid} />
+                    <Tooltip
+                      contentStyle={tooltipStyle(ct)}
+                      formatter={(value: number | undefined, name: string | undefined) => {
+                        const labels: Record<string, string> = {
+                          current: curLbl,
+                          prevYear: `${prevLbl}同曜日`,
+                          diff: '差分',
+                        }
+                        const label = labels[name as string] ?? String(name)
+                        const v = value ?? 0
+                        if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
+                        return [`${toComma(v)}円`, label]
+                      }}
+                      itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+                      formatter={(value) => {
+                        const labels: Record<string, string> = {
+                          current: curLbl,
+                          prevYear: `${prevLbl}同曜日`,
+                          diff: '差分',
+                        }
+                        return labels[value] ?? value
+                      }}
+                    />
+                    <Bar
+                      dataKey="current"
+                      fill="url(#yoyCurGrad)"
+                      radius={[3, 3, 0, 0]}
+                      maxBarSize={20}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="prevYear"
+                      stroke={ct.colors.slate}
+                      strokeWidth={2.5}
+                      strokeDasharray="5 3"
+                      dot={false}
+                      connectNulls
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
 
-            <TableWrapper>
-              <MiniTable>
-                <thead>
-                  <tr>
-                    <MiniTh>時間帯</MiniTh>
-                    <MiniTh>{curLbl}</MiniTh>
-                    <MiniTh>{prevLbl}</MiniTh>
-                    <MiniTh>差分</MiniTh>
-                    <MiniTh>{prevLbl}比</MiniTh>
-                  </tr>
-                </thead>
-                <tbody>
-                  {yoyData.rows.map((row) => {
-                    const isPositive = row.diff >= 0
-                    return (
-                      <tr key={row.hour}>
-                        <MiniTd>{row.hour}</MiniTd>
-                        <MiniTd>{toComma(row.current)}円</MiniTd>
-                        <MiniTd>{toComma(row.prevYear)}円</MiniTd>
-                        <MiniTd $highlight $positive={isPositive}>
-                          {isPositive ? '+' : ''}{toComma(row.diff)}円
-                        </MiniTd>
-                        <MiniTd $highlight $positive={isPositive}>
-                          {row.ratio != null ? toPct(row.ratio) : '-'}
-                        </MiniTd>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </MiniTable>
-            </TableWrapper>
-          </>
-        )
-      })()}
+              <TableWrapper>
+                <MiniTable>
+                  <thead>
+                    <tr>
+                      <MiniTh>時間帯</MiniTh>
+                      <MiniTh>{curLbl}</MiniTh>
+                      <MiniTh>{prevLbl}</MiniTh>
+                      <MiniTh>差分</MiniTh>
+                      <MiniTh>{prevLbl}比</MiniTh>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {yoyData.rows.map((row) => {
+                      const isPositive = row.diff >= 0
+                      return (
+                        <tr key={row.hour}>
+                          <MiniTd>{row.hour}</MiniTd>
+                          <MiniTd>{toComma(row.current)}円</MiniTd>
+                          <MiniTd>{toComma(row.prevYear)}円</MiniTd>
+                          <MiniTd $highlight $positive={isPositive}>
+                            {isPositive ? '+' : ''}
+                            {toComma(row.diff)}円
+                          </MiniTd>
+                          <MiniTd $highlight $positive={isPositive}>
+                            {row.ratio != null ? toPct(row.ratio) : '-'}
+                          </MiniTd>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </MiniTable>
+              </TableWrapper>
+            </>
+          )
+        })()}
 
       {insights.length > 0 && (
         <InsightBar>
-          {insights.map((line, i) => <InsightItem key={i}>{line}</InsightItem>)}
+          {insights.map((line, i) => (
+            <InsightItem key={i}>{line}</InsightItem>
+          ))}
         </InsightBar>
       )}
 

@@ -177,11 +177,17 @@ export function aggregateAllStores(
   for (const rec of data.records) {
     if (!acc[rec.storeId]) acc[rec.storeId] = {}
     if (!acc[rec.storeId][rec.day]) {
-      acc[rec.storeId][rec.day] = { sales: 0, entries: ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })) }
+      acc[rec.storeId][rec.day] = {
+        sales: 0,
+        entries: ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })),
+      }
     }
     acc[rec.storeId][rec.day].sales += rec.salesAmount
     const recEntries = extractDiscountEntries(rec)
-    acc[rec.storeId][rec.day].entries = addDiscountEntries(acc[rec.storeId][rec.day].entries, recEntries) as DiscountEntry[]
+    acc[rec.storeId][rec.day].entries = addDiscountEntries(
+      acc[rec.storeId][rec.day].entries,
+      recEntries,
+    ) as DiscountEntry[]
   }
   const result: Record<string, Record<number, ClassifiedSalesDaySummary>> = {}
   for (const [storeId, days] of Object.entries(acc)) {

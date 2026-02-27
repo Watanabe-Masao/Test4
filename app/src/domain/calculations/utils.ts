@@ -73,7 +73,9 @@ export function calculateMovingAverage(values: readonly number[], window: number
 /**
  * StoreDayRecord から最大日を取得
  */
-export function maxDayOfRecord(record: { readonly [storeId: string]: { readonly [day: number]: unknown } } | null | undefined): number {
+export function maxDayOfRecord(
+  record: { readonly [storeId: string]: { readonly [day: number]: unknown } } | null | undefined,
+): number {
   if (!record || typeof record !== 'object') return 0
   let max = 0
   for (const storeId of Object.keys(record)) {

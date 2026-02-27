@@ -1,8 +1,25 @@
 import { useMemo, useState } from 'react'
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts'
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  toComma,
+  toPct,
+  STORE_COLORS,
+} from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventoryDetails } from '@/domain/calculations/inventoryCalc'
 import type { InventoryDetailRow } from '@/domain/calculations/inventoryCalc'
@@ -17,7 +34,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Header = styled.div`
@@ -39,7 +57,8 @@ const Title = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -51,11 +70,12 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const TableWrap = styled.div`
@@ -79,7 +99,9 @@ const Th = styled.th<{ $right?: boolean }>`
   background: ${({ theme }) => theme.colors.bg3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: center; }
+  &:first-child {
+    text-align: center;
+  }
 `
 
 const Td = styled.td<{ $right?: boolean; $highlight?: boolean; $muted?: boolean }>`
@@ -89,8 +111,8 @@ const Td = styled.td<{ $right?: boolean; $highlight?: boolean; $muted?: boolean 
     $highlight ? theme.colors.palette.cyan : $muted ? theme.colors.text4 : theme.colors.text2};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ $highlight }) => ($highlight ? 600 : 400)};
-  border-bottom: 1px solid ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  border-bottom: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)')};
   white-space: nowrap;
 `
 
@@ -105,7 +127,8 @@ const TotalRow = styled.tr`
 
 const StoreDot = styled.span<{ $color: string }>`
   display: inline-block;
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ $color }) => $color};
   margin-right: 4px;
@@ -169,9 +192,22 @@ export function EstimatedInventoryDetailChart({
   const details = useMemo<InventoryDetailRow[]>(() => {
     if (!hasInventory) return []
     return computeEstimatedInventoryDetails(
-      daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate,
+      daily,
+      daysInMonth,
+      openingInventory,
+      closingInventory,
+      markupRate,
+      discountRate,
     )
-  }, [daily, daysInMonth, hasInventory, openingInventory, closingInventory, markupRate, discountRate])
+  }, [
+    daily,
+    daysInMonth,
+    hasInventory,
+    openingInventory,
+    closingInventory,
+    markupRate,
+    discountRate,
+  ])
 
   const aggChartData = useMemo(
     () => details.filter((r) => r.day >= rangeStart && r.day <= rangeEnd),
@@ -184,7 +220,12 @@ export function EstimatedInventoryDetailChart({
   )
 
   const totals = useMemo(() => {
-    let sales = 0, coreSales = 0, grossSales = 0, invCost = 0, cogs = 0, cons = 0
+    let sales = 0,
+      coreSales = 0,
+      grossSales = 0,
+      invCost = 0,
+      cogs = 0,
+      cons = 0
     for (const r of tableRows) {
       sales += r.sales
       coreSales += r.coreSales
@@ -251,8 +292,12 @@ export function EstimatedInventoryDetailChart({
       <Title>日別推定在庫 計算明細</Title>
       {canCompare ? (
         <TabGroup>
-          <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>明細</Tab>
-          <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>店舗比較</Tab>
+          <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>
+            明細
+          </Tab>
+          <Tab $active={effectiveMode === 'compare'} onClick={() => setViewMode('compare')}>
+            店舗比較
+          </Tab>
         </TabGroup>
       ) : (
         <TabGroup>
@@ -294,9 +339,7 @@ export function EstimatedInventoryDetailChart({
             )}
             <Tooltip
               contentStyle={tooltipStyle(ct)}
-              formatter={(value: number | undefined) => [
-                value != null ? toComma(value) : '-',
-              ]}
+              formatter={(value: number | undefined) => [value != null ? toComma(value) : '-']}
               labelFormatter={(label) => `${label}日`}
             />
             <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
@@ -311,7 +354,12 @@ export function EstimatedInventoryDetailChart({
                   stroke={STORE_COLORS[i % STORE_COLORS.length]}
                   strokeWidth={2.5}
                   dot={false}
-                  activeDot={{ r: 4, fill: STORE_COLORS[i % STORE_COLORS.length], stroke: ct.bg2, strokeWidth: 2 }}
+                  activeDot={{
+                    r: 4,
+                    fill: STORE_COLORS[i % STORE_COLORS.length],
+                    stroke: ct.bg2,
+                    strokeWidth: 2,
+                  }}
                   isAnimationActive={false}
                 />
               ) : null,
@@ -319,7 +367,13 @@ export function EstimatedInventoryDetailChart({
           </ComposedChart>
         </ResponsiveContainer>
 
-        <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+        <DayRangeSlider
+          min={1}
+          max={daysInMonth}
+          start={rangeStart}
+          end={rangeEnd}
+          onChange={setRange}
+        />
 
         {/* 比較サマリーテーブル */}
         <TableWrap>
@@ -345,11 +399,17 @@ export function EstimatedInventoryDetailChart({
                       <StoreDot $color={STORE_COLORS[i % STORE_COLORS.length]} />
                       {s.name}
                     </Td>
-                    <Td $right>{s.result.openingInventory != null ? fmt(s.result.openingInventory) : '-'}</Td>
+                    <Td $right>
+                      {s.result.openingInventory != null ? fmt(s.result.openingInventory) : '-'}
+                    </Td>
                     <Td $right>{fmt(s.result.inventoryCost)}</Td>
                     <Td $right>{fmt(s.result.estMethodCogs)}</Td>
-                    <Td $right $highlight>{estClosing != null ? fmt(estClosing) : '-'}</Td>
-                    <Td $right>{s.result.closingInventory != null ? fmt(s.result.closingInventory) : '-'}</Td>
+                    <Td $right $highlight>
+                      {estClosing != null ? fmt(estClosing) : '-'}
+                    </Td>
+                    <Td $right>
+                      {s.result.closingInventory != null ? fmt(s.result.closingInventory) : '-'}
+                    </Td>
                     <Td $right>{toPct(s.result.coreMarkupRate)}</Td>
                     <Td $right>{toPct(s.result.discountRate)}</Td>
                   </tr>
@@ -409,8 +469,20 @@ export function EstimatedInventoryDetailChart({
             formatter={(value) => AGG_LABELS[value] ?? value}
           />
 
-          <Bar yAxisId="right" dataKey="inventoryCost" fill={ct.colors.info} fillOpacity={0.45} isAnimationActive={false} />
-          <Bar yAxisId="right" dataKey="estCogs" fill={ct.colors.warning} fillOpacity={0.45} isAnimationActive={false} />
+          <Bar
+            yAxisId="right"
+            dataKey="inventoryCost"
+            fill={ct.colors.info}
+            fillOpacity={0.45}
+            isAnimationActive={false}
+          />
+          <Bar
+            yAxisId="right"
+            dataKey="estCogs"
+            fill={ct.colors.warning}
+            fillOpacity={0.45}
+            isAnimationActive={false}
+          />
           <Line
             yAxisId="left"
             type="monotone"
@@ -455,7 +527,13 @@ export function EstimatedInventoryDetailChart({
         </ComposedChart>
       </ResponsiveContainer>
 
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
 
       {/* ---- テーブル ---- */}
       <TableWrap>
@@ -477,15 +555,29 @@ export function EstimatedInventoryDetailChart({
           <tbody>
             <tr>
               <Td>-</Td>
-              <Td $right $muted>-</Td>
-              <Td $right $muted>-</Td>
-              <Td $right $muted>-</Td>
-              <Td $right $muted>-</Td>
-              <Td $right $muted>-</Td>
-              <Td $right $muted>-</Td>
+              <Td $right $muted>
+                -
+              </Td>
+              <Td $right $muted>
+                -
+              </Td>
+              <Td $right $muted>
+                -
+              </Td>
+              <Td $right $muted>
+                -
+              </Td>
+              <Td $right $muted>
+                -
+              </Td>
+              <Td $right $muted>
+                -
+              </Td>
               <Td $right>0</Td>
               <Td $right>0</Td>
-              <Td $right $highlight>{fmt(openingInventory!)}</Td>
+              <Td $right $highlight>
+                {fmt(openingInventory!)}
+              </Td>
             </tr>
 
             {tableRows.map((r) => (
@@ -499,7 +591,9 @@ export function EstimatedInventoryDetailChart({
                 <Td $right>{fmt(r.estCogs)}</Td>
                 <Td $right>{fmt(r.cumInventoryCost)}</Td>
                 <Td $right>{fmt(r.cumEstCogs)}</Td>
-                <Td $right $highlight>{fmt(r.estimated)}</Td>
+                <Td $right $highlight>
+                  {fmt(r.estimated)}
+                </Td>
               </tr>
             ))}
 
@@ -513,7 +607,9 @@ export function EstimatedInventoryDetailChart({
               <Td $right>{fmt(totals.cogs)}</Td>
               <Td $right>{fmt(lastRow.cumInventoryCost)}</Td>
               <Td $right>{fmt(lastRow.cumEstCogs)}</Td>
-              <Td $right $highlight>{fmt(lastRow.estimated)}</Td>
+              <Td $right $highlight>
+                {fmt(lastRow.estimated)}
+              </Td>
             </TotalRow>
           </tbody>
         </Table>

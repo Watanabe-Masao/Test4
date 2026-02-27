@@ -28,10 +28,7 @@ describe('processInterStoreIn', () => {
   })
 
   it('金額は絶対値で格納', () => {
-    const rows = [
-      ['header'],
-      ['0001', '2026-02-01', '0002', -10000, -13000],
-    ]
+    const rows = [['header'], ['0001', '2026-02-01', '0002', -10000, -13000]]
     const result = processInterStoreIn(rows)
     expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].cost).toBe(10000)
     expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].price).toBe(13000)
@@ -57,10 +54,7 @@ describe('processInterStoreOut', () => {
   })
 
   it('部門間移動の判定', () => {
-    const rows = [
-      ['header'],
-      ['2026-02-01', '0001', '0001', '001', 5000, 6500],
-    ]
+    const rows = [['header'], ['2026-02-01', '0001', '0001', '001', 5000, 6500]]
     const result = processInterStoreOut(rows)
     expect(result['2026-2']?.['1']?.[1]?.interDepartmentOut).toHaveLength(1)
     expect(result['2026-2']?.['1']?.[1]?.interStoreOut).toHaveLength(0)

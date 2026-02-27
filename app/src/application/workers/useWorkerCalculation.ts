@@ -42,10 +42,7 @@ export function useWorkerCalculation(): WorkerCalculationResult {
   // useRef のレンダー中アクセスを回避する
   const [worker, setWorker] = useState<Worker | null>(() => {
     try {
-      return new Worker(
-        new URL('./calculationWorker.ts', import.meta.url),
-        { type: 'module' },
-      )
+      return new Worker(new URL('./calculationWorker.ts', import.meta.url), { type: 'module' })
     } catch {
       // Worker 非対応環境 (テスト環境含む)
       return null

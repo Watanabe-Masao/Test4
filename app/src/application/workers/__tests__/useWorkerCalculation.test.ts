@@ -54,7 +54,7 @@ const mockSettings: AppSettings = {
   targetMonth: 1,
   targetGrossProfitRate: 0.25,
   warningThreshold: 0.23,
-  flowerCostRate: 0.80,
+  flowerCostRate: 0.8,
   directProduceCostRate: 0.85,
   defaultMarkupRate: 0.3,
   defaultBudget: 0,
@@ -123,7 +123,12 @@ describe('useWorkerCalculation', () => {
       const messageHandlers = mockWorkerInstance.listeners.get('message') ?? []
       for (const handler of messageHandlers) {
         handler({
-          data: { type: 'result', results: new Map([['s1', { storeId: 's1' }]]), fingerprint: 'abc123', requestId: reqId },
+          data: {
+            type: 'result',
+            results: new Map([['s1', { storeId: 's1' }]]),
+            fingerprint: 'abc123',
+            requestId: reqId,
+          },
         })
       }
 

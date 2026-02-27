@@ -13,7 +13,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -33,28 +34,42 @@ const Title = styled.div`
 `
 
 const Controls = styled.div`
-  display: flex; align-items: center; gap: ${({ theme }) => theme.spacing[2]}; flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  flex-wrap: wrap;
 `
 
 const TabGroup = styled.div`
-  display: flex; gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  border-radius: ${({ theme }) => theme.radii.md}; padding: 2px;
+  display: flex;
+  gap: 2px;
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: 2px;
 `
 
 const Tab = styled.button<{ $active: boolean; $color?: string }>`
-  all: unset; cursor: pointer; font-size: 0.65rem; padding: 2px 8px;
+  all: unset;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
   background: ${({ $active, $color, theme }) =>
     $active ? ($color ?? theme.colors.palette.primary) : 'transparent'};
-  transition: all 0.15s; white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  transition: all 0.15s;
+  white-space: nowrap;
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const KpiGrid = styled.div`
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: ${({ theme }) => theme.spacing[3]}; margin-bottom: ${({ theme }) => theme.spacing[4]};
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
 const KpiCard = styled.div<{ $color: string }>`
@@ -66,17 +81,21 @@ const KpiCard = styled.div<{ $color: string }>`
 `
 
 const KpiLabel = styled.div`
-  font-size: 0.6rem; color: ${({ theme }) => theme.colors.text3};
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text3};
   margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 const KpiValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.85rem; font-weight: 600; color: ${({ theme }) => theme.colors.text};
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
 `
 
 const KpiSub = styled.div`
-  font-size: 0.55rem; color: ${({ theme }) => theme.colors.text3};
+  font-size: 0.55rem;
+  color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
@@ -98,7 +117,13 @@ interface Props {
 }
 
 /** 売変内訳分析チャート（71-74種別切替対応） */
-export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalGrossSales, prevYearDaily }: Props) {
+export function DiscountTrendChart({
+  daily,
+  daysInMonth,
+  discountEntries,
+  totalGrossSales,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
@@ -127,7 +152,8 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
       prevCumDiscount += prevDayDiscount
       // 前年粗売上は不明なので売上で近似（データソースの制約）
       prevCumGrossSales += prevEntry?.sales ?? 0
-      const prevCumRate = prevCumGrossSales > 0 ? safeDivide(prevCumDiscount, prevCumGrossSales, 0) : null
+      const prevCumRate =
+        prevCumGrossSales > 0 ? safeDivide(prevCumDiscount, prevCumGrossSales, 0) : null
 
       const entry: Record<string, number | boolean | null> = {
         day: d,
@@ -152,13 +178,20 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
     return result
   }, [daily, daysInMonth, prevYearDaily])
 
-  const hasData = allData.some(d => (d.discount as number) > 0)
+  const hasData = allData.some((d) => (d.discount as number) > 0)
   if (!hasData) return null
 
-  const data = allData.filter(d => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
+  const data = allData.filter(
+    (d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd,
+  )
 
   // 種別ラベルマップ（Tooltip / Legend 用）
-  const labelMap: Record<string, string> = { cumRate: '累計売変率', discount: '売変合計', prevDiscount: '前年売変額', prevCumRate: '前年累計売変率' }
+  const labelMap: Record<string, string> = {
+    cumRate: '累計売変率',
+    discount: '売変合計',
+    prevDiscount: '前年売変額',
+    prevCumRate: '前年累計売変率',
+  }
   for (const dt of DISCOUNT_TYPES) {
     labelMap[`d${dt.type}`] = dt.label
   }
@@ -168,7 +201,7 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
   const kpiEntries = discountEntries ?? []
   const totalDiscount = kpiEntries.reduce((s, e) => s + e.amount, 0)
 
-  const activeType = DISCOUNT_TYPES.find(dt => dt.type === activeCode)
+  const activeType = DISCOUNT_TYPES.find((dt) => dt.type === activeCode)
   const activeLbl = activeType?.label ?? ''
 
   return (
@@ -181,14 +214,21 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
         </Title>
         <Controls>
           <TabGroup>
-            <Tab $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>全種別</Tab>
+            <Tab $active={viewMode === 'stacked'} onClick={() => setViewMode('stacked')}>
+              全種別
+            </Tab>
             {DISCOUNT_TYPES.map((dt, i) => (
               <Tab
                 key={dt.type}
                 $active={viewMode === 'individual' && activeCode === dt.type}
                 $color={DISCOUNT_COLORS[i]}
-                onClick={() => { setViewMode('individual'); setActiveCode(dt.type) }}
-              >{dt.label}</Tab>
+                onClick={() => {
+                  setViewMode('individual')
+                  setActiveCode(dt.type)
+                }}
+              >
+                {dt.label}
+              </Tab>
             ))}
           </TabGroup>
         </Controls>
@@ -198,15 +238,20 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
       {kpiEntries.length > 0 && (
         <KpiGrid>
           {DISCOUNT_TYPES.map((dt, i) => {
-            const entry = kpiEntries.find(e => e.type === dt.type)
+            const entry = kpiEntries.find((e) => e.type === dt.type)
             const amt = entry?.amount ?? 0
             const pct = totalDiscount > 0 ? amt / totalDiscount : 0
-            const rate = totalGrossSales && totalGrossSales > 0 ? safeDivide(amt, totalGrossSales, 0) : 0
+            const rate =
+              totalGrossSales && totalGrossSales > 0 ? safeDivide(amt, totalGrossSales, 0) : 0
             return (
               <KpiCard key={dt.type} $color={DISCOUNT_COLORS[i]}>
-                <KpiLabel>{dt.label}（{dt.type}）</KpiLabel>
+                <KpiLabel>
+                  {dt.label}（{dt.type}）
+                </KpiLabel>
                 <KpiValue>{formatCurrency(amt)}</KpiValue>
-                <KpiSub>構成比: {formatPercent(pct, 1)} / 売変率: {formatPercent(rate)}</KpiSub>
+                <KpiSub>
+                  構成比: {formatPercent(pct, 1)} / 売変率: {formatPercent(rate)}
+                </KpiSub>
               </KpiCard>
             )
           })}
@@ -244,7 +289,8 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
               contentStyle={tooltipStyle(ct)}
               formatter={(value, name) => {
                 const n = name as string
-                if (n === 'cumRate' || n === 'prevCumRate') return [value != null ? toPct(value as number) : '-', labelMap[n] ?? n]
+                if (n === 'cumRate' || n === 'prevCumRate')
+                  return [value != null ? toPct(value as number) : '-', labelMap[n] ?? n]
                 return [value != null ? toComma(value as number) : '-', labelMap[n] ?? n]
               }}
               labelFormatter={(label) => `${label}日`}
@@ -254,28 +300,30 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
               formatter={(value) => labelMap[value] ?? value}
             />
 
-            {viewMode === 'stacked'
-              ? DISCOUNT_TYPES.map((dt, i) => (
-                  <Bar
-                    key={dt.type}
-                    yAxisId="left"
-                    dataKey={`d${dt.type}`}
-                    stackId="discount"
-                    fill={DISCOUNT_COLORS[i % DISCOUNT_COLORS.length]}
-                    maxBarSize={16}
-                    radius={i === DISCOUNT_TYPES.length - 1 ? [3, 3, 0, 0] : undefined}
-                  />
-                ))
-              : (
-                  <Bar
-                    yAxisId="left"
-                    dataKey={`d${activeCode}`}
-                    fill={DISCOUNT_COLORS[DISCOUNT_TYPES.findIndex(dt => dt.type === activeCode)] ?? '#ef4444'}
-                    maxBarSize={20}
-                    radius={[3, 3, 0, 0]}
-                  />
-                )
-            }
+            {viewMode === 'stacked' ? (
+              DISCOUNT_TYPES.map((dt, i) => (
+                <Bar
+                  key={dt.type}
+                  yAxisId="left"
+                  dataKey={`d${dt.type}`}
+                  stackId="discount"
+                  fill={DISCOUNT_COLORS[i % DISCOUNT_COLORS.length]}
+                  maxBarSize={16}
+                  radius={i === DISCOUNT_TYPES.length - 1 ? [3, 3, 0, 0] : undefined}
+                />
+              ))
+            ) : (
+              <Bar
+                yAxisId="left"
+                dataKey={`d${activeCode}`}
+                fill={
+                  DISCOUNT_COLORS[DISCOUNT_TYPES.findIndex((dt) => dt.type === activeCode)] ??
+                  '#ef4444'
+                }
+                maxBarSize={20}
+                radius={[3, 3, 0, 0]}
+              />
+            )}
             <Line
               yAxisId="right"
               type="monotone"
@@ -300,7 +348,13 @@ export function DiscountTrendChart({ daily, daysInMonth, discountEntries, totalG
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

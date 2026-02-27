@@ -1,19 +1,46 @@
 import { useState } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Button } from '@/presentation/components/common'
-import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  safeDivide,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
 import { fmtSen } from './drilldownUtils'
 import {
-  CalWrapper, CalSectionTitle, CalTable, CalTh, CalTd, CalDayNum, CalGrid, CalCell, CalDivider,
-  CalDayCell, CalDayHeader, CalActionBtn, CalDataArea,
-  PinIndicator, IntervalSummary, IntervalCard, IntervalMetricLabel, IntervalMetricValue,
-  PinModalOverlay, PinModalContent, PinModalTitle, PinInputField, PinButtonRow, PinInputLabel,
+  CalWrapper,
+  CalSectionTitle,
+  CalTable,
+  CalTh,
+  CalTd,
+  CalDayNum,
+  CalGrid,
+  CalCell,
+  CalDivider,
+  CalDayCell,
+  CalDayHeader,
+  CalActionBtn,
+  CalDataArea,
+  PinIndicator,
+  IntervalSummary,
+  IntervalCard,
+  IntervalMetricLabel,
+  IntervalMetricValue,
+  PinModalOverlay,
+  PinModalContent,
+  PinModalTitle,
+  PinInputField,
+  PinButtonRow,
+  PinInputLabel,
   ToolInputGroup,
-  RangeToolbar, RangeLabel, RangeInput,
+  RangeToolbar,
+  RangeLabel,
+  RangeInput,
 } from '../DashboardPage.styles'
 
 const DOW_LABELS = ['月', '火', '水', '木', '金', '土', '日']
@@ -65,7 +92,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   let runPrevCustomers = 0
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
-    runSales += (r.daily.get(d)?.sales ?? 0)
+    runSales += r.daily.get(d)?.sales ?? 0
     runPrevYear += prevYear.daily.get(d)?.sales ?? 0
     runCustomers += r.daily.get(d)?.customers ?? 0
     runPrevCustomers += prevYear.daily.get(d)?.customers ?? 0
@@ -116,13 +143,19 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const dailyTargetForRemaining = remainingSalesDays > 0 ? remainingBudget / remainingSalesDays : 0
 
   // Range selection
-  const parseDay = (v: string) => { const n = parseInt(v, 10); return n >= 1 && n <= daysInMonth ? n : null }
+  const parseDay = (v: string) => {
+    const n = parseInt(v, 10)
+    return n >= 1 && n <= daysInMonth ? n : null
+  }
   const rangeA = { start: parseDay(rangeAStart), end: parseDay(rangeAEnd) }
   const rangeB = { start: parseDay(rangeBStart), end: parseDay(rangeBEnd) }
 
   const calcRange = (start: number | null, end: number | null) => {
     if (start == null || end == null || start > end) return null
-    let budget = 0, sales = 0, pySales = 0, salesDaysCount = 0
+    let budget = 0,
+      sales = 0,
+      pySales = 0,
+      salesDaysCount = 0
     for (let d = start; d <= end; d++) {
       budget += r.budgetDaily.get(d) ?? 0
       const daySales = r.daily.get(d)?.sales ?? 0
@@ -140,25 +173,32 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const rangeBData = calcRange(rangeB.start, rangeB.end)
   const hasAnyRange = rangeAData != null || rangeBData != null
 
-  const isDayInRangeA = (day: number) => rangeA.start != null && rangeA.end != null && day >= rangeA.start && day <= rangeA.end
-  const isDayInRangeB = (day: number) => rangeB.start != null && rangeB.end != null && day >= rangeB.start && day <= rangeB.end
+  const isDayInRangeA = (day: number) =>
+    rangeA.start != null && rangeA.end != null && day >= rangeA.start && day <= rangeA.end
+  const isDayInRangeB = (day: number) =>
+    rangeB.start != null && rangeB.end != null && day >= rangeB.start && day <= rangeB.end
 
   const handleRangeClear = () => {
-    setRangeAStart(''); setRangeAEnd('')
-    setRangeBStart(''); setRangeBEnd('')
+    setRangeAStart('')
+    setRangeAEnd('')
+    setRangeBStart('')
+    setRangeBEnd('')
   }
 
   const handleRangeSwap = () => {
-    const tmpS = rangeAStart, tmpE = rangeAEnd
-    setRangeAStart(rangeBStart); setRangeAEnd(rangeBEnd)
-    setRangeBStart(tmpS); setRangeBEnd(tmpE)
+    const tmpS = rangeAStart,
+      tmpE = rangeAEnd
+    setRangeAStart(rangeBStart)
+    setRangeAEnd(rangeBEnd)
+    setRangeBStart(tmpS)
+    setRangeBEnd(tmpE)
   }
 
   // Pins & intervals
   const sortedPins = [...pins.entries()].sort((a, b) => a[0] - b[0])
   const intervals = calculatePinIntervals(r.daily, r.openingInventory, sortedPins)
   const getIntervalForDay = (day: number) =>
-    intervals.find(iv => day >= iv.startDay && day <= iv.endDay)
+    intervals.find((iv) => day >= iv.startDay && day <= iv.endDay)
 
   const handleOpenPin = (day: number) => {
     setPinDay(day)
@@ -169,43 +209,73 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     if (pinDay == null) return
     const val = Number(inputVal.replace(/,/g, ''))
     if (isNaN(val) || val < 0) return
-    setPins(prev => { const next = new Map(prev); next.set(pinDay, val); return next })
+    setPins((prev) => {
+      const next = new Map(prev)
+      next.set(pinDay, val)
+      return next
+    })
     setPinDay(null)
   }
 
   const handlePinRemove = () => {
     if (pinDay == null) return
-    setPins(prev => { const next = new Map(prev); next.delete(pinDay); return next })
+    setPins((prev) => {
+      const next = new Map(prev)
+      next.delete(pinDay)
+      return next
+    })
     setPinDay(null)
   }
 
   return (
     <CalWrapper>
-      <CalSectionTitle>月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め</CalSectionTitle>
+      <CalSectionTitle>
+        月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め
+      </CalSectionTitle>
 
       {/* Range Selection Toolbar */}
       <RangeToolbar>
         <RangeLabel>期間A:</RangeLabel>
-        <RangeInput type="text" value={rangeAStart} placeholder="開始" onChange={(e) => setRangeAStart(e.target.value)} />
+        <RangeInput
+          type="text"
+          value={rangeAStart}
+          placeholder="開始"
+          onChange={(e) => setRangeAStart(e.target.value)}
+        />
         <span>～</span>
-        <RangeInput type="text" value={rangeAEnd} placeholder="終了" onChange={(e) => setRangeAEnd(e.target.value)} />
-        <Button $variant="outline" onClick={handleRangeSwap} title="A⇄B 入替">⇄</Button>
+        <RangeInput
+          type="text"
+          value={rangeAEnd}
+          placeholder="終了"
+          onChange={(e) => setRangeAEnd(e.target.value)}
+        />
+        <Button $variant="outline" onClick={handleRangeSwap} title="A⇄B 入替">
+          ⇄
+        </Button>
         <RangeLabel>期間B:</RangeLabel>
-        <RangeInput type="text" value={rangeBStart} placeholder="開始" onChange={(e) => setRangeBStart(e.target.value)} />
+        <RangeInput
+          type="text"
+          value={rangeBStart}
+          placeholder="開始"
+          onChange={(e) => setRangeBStart(e.target.value)}
+        />
         <span>～</span>
-        <RangeInput type="text" value={rangeBEnd} placeholder="終了" onChange={(e) => setRangeBEnd(e.target.value)} />
+        <RangeInput
+          type="text"
+          value={rangeBEnd}
+          placeholder="終了"
+          onChange={(e) => setRangeBEnd(e.target.value)}
+        />
         {hasAnyRange && (
-          <Button $variant="outline" onClick={handleRangeClear}>クリア</Button>
+          <Button $variant="outline" onClick={handleRangeClear}>
+            クリア
+          </Button>
         )}
       </RangeToolbar>
 
       {/* Range Comparison Panel */}
       {hasAnyRange && (
-        <RangeComparisonPanel
-          rangeAData={rangeAData}
-          rangeBData={rangeBData}
-          prevYear={prevYear}
-        />
+        <RangeComparisonPanel rangeAData={rangeAData} rangeBData={rangeBData} prevYear={prevYear} />
       )}
 
       {/* Calendar Table */}
@@ -213,7 +283,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
         <thead>
           <tr>
             {DOW_LABELS.map((label, i) => (
-              <CalTh key={label} $weekend={i >= 5}>{label}</CalTh>
+              <CalTh key={label} $weekend={i >= 5}>
+                {label}
+              </CalTh>
             ))}
           </tr>
         </thead>
@@ -246,7 +318,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                     <CalDayCell
                       $pinned={isPinned}
                       $inInterval={!!getIntervalForDay(day)}
-                      $rangeColor={isDayInRangeA(day) ? '#f59e0b' : isDayInRangeB(day) ? '#6366f1' : undefined}
+                      $rangeColor={
+                        isDayInRangeA(day) ? '#f59e0b' : isDayInRangeB(day) ? '#6366f1' : undefined
+                      }
                     >
                       <CalDayHeader>
                         <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
@@ -254,7 +328,10 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                           <CalActionBtn
                             $color="#6366f1"
                             title="在庫ピン止め"
-                            onClick={(e) => { e.stopPropagation(); handleOpenPin(day) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenPin(day)
+                            }}
                           >
                             {isPinned ? '📌' : '📌'}
                           </CalActionBtn>
@@ -266,41 +343,59 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             <CalCell>予 {fmtSen(budget)}</CalCell>
                             <CalCell>実 {fmtSen(actual)}</CalCell>
                             <CalCell $color={diffColor}>差 {fmtSenDiff(dayDiff)}</CalCell>
-                            <CalCell $color={achColor}>達 {budget > 0 ? formatPercent(achievement, 0) : '-'}</CalCell>
+                            <CalCell $color={achColor}>
+                              達 {budget > 0 ? formatPercent(achievement, 0) : '-'}
+                            </CalCell>
                             <CalDivider />
                             <CalCell>予累 {fmtSen(cBudget)}</CalCell>
                             <CalCell>実累 {fmtSen(cSales)}</CalCell>
                             <CalCell $color={cDiffColor}>差累 {fmtSenDiff(cDiff)}</CalCell>
-                            <CalCell $color={cAchColor}>達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}</CalCell>
-                            {prevYear.hasPrevYear && (() => {
-                              const pyDaySales = prevYear.daily.get(day)?.sales ?? 0
-                              const pyRatio = pyDaySales > 0 ? actual / pyDaySales : 0
-                              const pyColor = pyRatio >= 1 ? sc.positive : pyRatio > 0 ? sc.negative : undefined
-                              const cPy = cumPrevYear.get(day) ?? 0
-                              const cPyRatio = cPy > 0 ? cSales / cPy : 0
-                              const cPyColor = cPyRatio >= 1 ? sc.positive : cPyRatio > 0 ? sc.negative : undefined
-                              return pyDaySales > 0 || cPy > 0 ? (
-                                <>
-                                  <CalDivider />
-                                  <CalCell $color="#9ca3af">前同 {fmtSen(pyDaySales)}</CalCell>
-                                  <CalCell $color={pyColor}>前比 {pyDaySales > 0 ? formatPercent(pyRatio, 0) : '-'}</CalCell>
-                                  <CalCell $color="#9ca3af">前累 {fmtSen(cPy)}</CalCell>
-                                  <CalCell $color={cPyColor}>累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}</CalCell>
-                                </>
-                              ) : null
-                            })()}
+                            <CalCell $color={cAchColor}>
+                              達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}
+                            </CalCell>
+                            {prevYear.hasPrevYear &&
+                              (() => {
+                                const pyDaySales = prevYear.daily.get(day)?.sales ?? 0
+                                const pyRatio = pyDaySales > 0 ? actual / pyDaySales : 0
+                                const pyColor =
+                                  pyRatio >= 1 ? sc.positive : pyRatio > 0 ? sc.negative : undefined
+                                const cPy = cumPrevYear.get(day) ?? 0
+                                const cPyRatio = cPy > 0 ? cSales / cPy : 0
+                                const cPyColor =
+                                  cPyRatio >= 1
+                                    ? sc.positive
+                                    : cPyRatio > 0
+                                      ? sc.negative
+                                      : undefined
+                                return pyDaySales > 0 || cPy > 0 ? (
+                                  <>
+                                    <CalDivider />
+                                    <CalCell $color="#9ca3af">前同 {fmtSen(pyDaySales)}</CalCell>
+                                    <CalCell $color={pyColor}>
+                                      前比 {pyDaySales > 0 ? formatPercent(pyRatio, 0) : '-'}
+                                    </CalCell>
+                                    <CalCell $color="#9ca3af">前累 {fmtSen(cPy)}</CalCell>
+                                    <CalCell $color={cPyColor}>
+                                      累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}
+                                    </CalCell>
+                                  </>
+                                ) : null
+                              })()}
                             {(() => {
                               const wowPrevDay = day - 7
                               if (wowPrevDay < 1) return null
                               const wowDaySales = r.daily.get(wowPrevDay)?.sales ?? 0
                               if (wowDaySales <= 0 && actual <= 0) return null
                               const wowRatio = wowDaySales > 0 ? actual / wowDaySales : 0
-                              const wowColor = wowRatio >= 1 ? sc.positive : wowRatio > 0 ? sc.negative : undefined
+                              const wowColor =
+                                wowRatio >= 1 ? sc.positive : wowRatio > 0 ? sc.negative : undefined
                               return wowDaySales > 0 ? (
                                 <>
                                   <CalDivider />
                                   <CalCell $color="#9ca3af">週同 {fmtSen(wowDaySales)}</CalCell>
-                                  <CalCell $color={wowColor}>週比 {wowDaySales > 0 ? formatPercent(wowRatio, 0) : '-'}</CalCell>
+                                  <CalCell $color={wowColor}>
+                                    週比 {wowDaySales > 0 ? formatPercent(wowRatio, 0) : '-'}
+                                  </CalCell>
                                 </>
                               ) : null
                             })()}
@@ -308,13 +403,17 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               const dayCust = rec?.customers ?? 0
                               if (dayCust <= 0) return null
                               const dayTxVal = calculateTransactionValue(actual, dayCust)
-                              const pyCust = prevYear.hasPrevYear ? (prevYear.daily.get(day)?.customers ?? 0) : 0
+                              const pyCust = prevYear.hasPrevYear
+                                ? (prevYear.daily.get(day)?.customers ?? 0)
+                                : 0
                               const custYoY = pyCust > 0 ? dayCust / pyCust : 0
-                              const custYoYColor = custYoY >= 1 ? sc.positive : custYoY > 0 ? sc.negative : undefined
+                              const custYoYColor =
+                                custYoY >= 1 ? sc.positive : custYoY > 0 ? sc.negative : undefined
                               const cCust = cumCustomers.get(day) ?? 0
                               const cPyCust = cumPrevCustomers.get(day) ?? 0
                               const cCustYoY = cPyCust > 0 ? cCust / cPyCust : 0
-                              const cCustYoYColor = cCustYoY >= 1 ? sc.positive : cCustYoY > 0 ? sc.negative : undefined
+                              const cCustYoYColor =
+                                cCustYoY >= 1 ? sc.positive : cCustYoY > 0 ? sc.negative : undefined
                               const maVal = movingAvgTxVal.get(day)
                               return (
                                 <>
@@ -322,14 +421,20 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                                   <CalCell $color="#06b6d4">客 {dayCust}</CalCell>
                                   <CalCell $color="#8b5cf6">単 {dayTxVal.toLocaleString()}</CalCell>
                                   {pyCust > 0 && (
-                                    <CalCell $color={custYoYColor}>客前比 {formatPercent(custYoY, 0)}</CalCell>
+                                    <CalCell $color={custYoYColor}>
+                                      客前比 {formatPercent(custYoY, 0)}
+                                    </CalCell>
                                   )}
                                   {maVal && (
-                                    <CalCell $color="#a78bfa">移平単 {maVal.toLocaleString()}</CalCell>
+                                    <CalCell $color="#a78bfa">
+                                      移平単 {maVal.toLocaleString()}
+                                    </CalCell>
                                   )}
                                   <CalCell $color="#06b6d4">累客 {cCust}</CalCell>
                                   {cPyCust > 0 && (
-                                    <CalCell $color={cCustYoYColor}>累客比 {formatPercent(cCustYoY, 0)}</CalCell>
+                                    <CalCell $color={cCustYoYColor}>
+                                      累客比 {formatPercent(cCustYoY, 0)}
+                                    </CalCell>
                                   )}
                                 </>
                               )
@@ -343,13 +448,27 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               const cDiscAmt = cumDiscount.get(day) ?? 0
                               const cTotalSales = cumSales.get(day) ?? 0
                               const cDiscountRate = cTotalSales > 0 ? cDiscAmt / cTotalSales : 0
-                              const discColor = dayDiscountRate > 0.05 ? sc.negative : dayDiscountRate > 0.03 ? '#eab308' : sc.positive
-                              const cDiscColor = cDiscountRate > 0.05 ? sc.negative : cDiscountRate > 0.03 ? '#eab308' : sc.positive
+                              const discColor =
+                                dayDiscountRate > 0.05
+                                  ? sc.negative
+                                  : dayDiscountRate > 0.03
+                                    ? '#eab308'
+                                    : sc.positive
+                              const cDiscColor =
+                                cDiscountRate > 0.05
+                                  ? sc.negative
+                                  : cDiscountRate > 0.03
+                                    ? '#eab308'
+                                    : sc.positive
                               return (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color={discColor}>売変 {formatPercent(dayDiscountRate, 1)}</CalCell>
-                                  <CalCell $color={cDiscColor}>累変 {formatPercent(cDiscountRate, 1)}</CalCell>
+                                  <CalCell $color={discColor}>
+                                    売変 {formatPercent(dayDiscountRate, 1)}
+                                  </CalCell>
+                                  <CalCell $color={cDiscColor}>
+                                    累変 {formatPercent(cDiscountRate, 1)}
+                                  </CalCell>
                                 </>
                               )
                             })()}
@@ -359,7 +478,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               return (
                                 <>
                                   <CalDivider />
-                                  <CalCell $color="#9ca3af">要日 {fmtSen(dailyTargetForRemaining)}</CalCell>
+                                  <CalCell $color="#9ca3af">
+                                    要日 {fmtSen(dailyTargetForRemaining)}
+                                  </CalCell>
                                 </>
                               )
                             })()}
@@ -388,7 +509,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
               $color={sc.gpRate(iv.grossProfitRate, ctx.targetRate, ctx.warningRate)}
             >
               <div>
-                <IntervalMetricLabel>{iv.startDay}日 ～ {iv.endDay}日</IntervalMetricLabel>
+                <IntervalMetricLabel>
+                  {iv.startDay}日 ～ {iv.endDay}日
+                </IntervalMetricLabel>
                 <IntervalMetricValue>{formatPercent(iv.grossProfitRate)}</IntervalMetricValue>
               </div>
               <div>
@@ -420,24 +543,34 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       {pinDay != null && (
         <PinModalOverlay onClick={() => setPinDay(null)}>
           <PinModalContent onClick={(e) => e.stopPropagation()}>
-            <PinModalTitle>{month}月{pinDay}日 - 期末在庫入力</PinModalTitle>
+            <PinModalTitle>
+              {month}月{pinDay}日 - 期末在庫入力
+            </PinModalTitle>
             <ToolInputGroup>
               <PinInputLabel>期末在庫（原価）</PinInputLabel>
               <PinInputField
                 type="text"
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handlePinConfirm() }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handlePinConfirm()
+                }}
                 placeholder="例: 2000000"
                 autoFocus
               />
             </ToolInputGroup>
             <PinButtonRow>
-              <Button $variant="primary" onClick={handlePinConfirm}>確定（ピン止め）</Button>
+              <Button $variant="primary" onClick={handlePinConfirm}>
+                確定（ピン止め）
+              </Button>
               {pins.has(pinDay) && (
-                <Button $variant="outline" onClick={handlePinRemove}>ピン解除</Button>
+                <Button $variant="outline" onClick={handlePinRemove}>
+                  ピン解除
+                </Button>
               )}
-              <Button $variant="outline" onClick={() => setPinDay(null)}>キャンセル</Button>
+              <Button $variant="outline" onClick={() => setPinDay(null)}>
+                キャンセル
+              </Button>
             </PinButtonRow>
           </PinModalContent>
         </PinModalOverlay>

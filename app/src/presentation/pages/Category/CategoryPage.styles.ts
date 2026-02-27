@@ -52,7 +52,9 @@ export const Th = styled.th`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: left; }
+  &:first-child {
+    text-align: left;
+  }
 `
 
 export const Td = styled.td`
@@ -60,11 +62,16 @@ export const Td = styled.td`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text};
-  &:first-child { text-align: left; font-weight: ${({ theme }) => theme.typography.fontWeight.semibold}; }
+  &:first-child {
+    text-align: left;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  }
 `
 
 export const Tr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const TrTotal = styled.tr`
@@ -106,7 +113,8 @@ export const PieWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 export const PieTitle = styled.div`
@@ -156,7 +164,8 @@ export const ChartWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 export const ChartTitle = styled.div`
@@ -185,10 +194,7 @@ export const MarkupCell = styled.td<{ $rate: number }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ $rate }) =>
-    $rate >= 0.30 ? '#16a34a'
-    : $rate >= 0.20 ? '#ca8a04'
-    : $rate > 0 ? '#dc2626'
-    : '#64748b'};
+    $rate >= 0.3 ? '#16a34a' : $rate >= 0.2 ? '#ca8a04' : $rate > 0 ? '#dc2626' : '#64748b'};
 `
 
 /* ── 新規: 粗利額セル ── */
@@ -208,7 +214,9 @@ export const SortButton = styled.button`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text3};
-  &:hover { color: ${({ theme }) => theme.colors.text}; }
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
 `
 
 /* ── 新規: 取引先フィルター ── */
@@ -238,20 +246,30 @@ export const SupplierFilterInput = styled.input`
 
 /* ── ドリルダウン用 ── */
 export const DrillTr = styled.tr<{ $clickable?: boolean; $expanded?: boolean; $depth?: number }>`
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
-  ${({ $expanded, theme }) => $expanded && `
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  ${({ $expanded, theme }) =>
+    $expanded &&
+    `
     background: ${theme.colors.palette.primary}10;
     &:hover { background: ${theme.colors.palette.primary}18; }
   `}
-  ${({ $depth, theme }) => $depth && $depth > 0 && `
+  ${({ $depth, theme }) =>
+    $depth &&
+    $depth > 0 &&
+    `
     background: ${theme.colors.bg3};
     td { font-size: ${theme.typography.fontSize.xs}; }
   `}
-  ${({ $depth, theme }) => $depth && $depth > 1 && `
+  ${({ $depth, theme }) =>
+    $depth &&
+    $depth > 1 &&
+    `
     background: ${theme.colors.bg4};
     td { font-size: ${theme.typography.fontSize.xs}; color: ${theme.colors.text3}; }
   `}
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const DrillToggle = styled.span<{ $expanded?: boolean }>`

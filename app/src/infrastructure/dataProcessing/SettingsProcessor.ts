@@ -15,9 +15,7 @@ function isNumericCell(value: unknown): boolean {
  * 行0: ヘッダー
  * 行1+: Col0: 店舗コード, Col1: 期首在庫, Col2: 期末在庫, Col3: 月間粗利額予算
  */
-export function processSettings(
-  rows: readonly unknown[][],
-): Map<string, InventoryConfig> {
+export function processSettings(rows: readonly unknown[][]): Map<string, InventoryConfig> {
   const result = new Map<string, InventoryConfig>()
   if (rows.length < 2) return result
 

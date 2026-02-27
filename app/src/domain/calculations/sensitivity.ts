@@ -116,7 +116,8 @@ export function calculateSensitivity(
   // 粗利 = 売上 - 原価 - 消耗品
   // 推定法ベース: margin = coreSales - estMethodCogs
   // 簡略化: grossProfit ≈ grossSales - cost - discount - consumable
-  const baseGrossProfit = base.grossSales - base.totalCost - base.totalDiscount - base.totalConsumable
+  const baseGrossProfit =
+    base.grossSales - base.totalCost - base.totalDiscount - base.totalConsumable
   const simGrossProfit = simGrossSales - simCost - simDiscount - simConsumable
 
   const baseGPRate = safeDivide(baseGrossProfit, base.totalSales, 0)

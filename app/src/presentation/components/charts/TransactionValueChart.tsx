@@ -13,7 +13,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Title = styled.div`
@@ -103,12 +104,7 @@ export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Pro
               return labels[value] ?? value
             }}
           />
-          <Bar
-            dataKey="txValue"
-            fill="url(#txValGrad)"
-            radius={[3, 3, 0, 0]}
-            maxBarSize={16}
-          />
+          <Bar dataKey="txValue" fill="url(#txValGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
           {hasPrev && (
             <Line
               type="monotone"
@@ -122,7 +118,13 @@ export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Pro
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

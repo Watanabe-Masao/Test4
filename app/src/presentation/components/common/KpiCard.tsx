@@ -7,7 +7,9 @@ const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
   padding: ${({ theme }) => theme.spacing[6]};
   position: relative;
   ${({ $accent }) => $accent && `border-top: 2px solid ${$accent};`}
-  ${({ $clickable, theme }) => $clickable && `
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
     cursor: pointer;
     transition: border-color ${theme.transitions.fast}, box-shadow ${theme.transitions.fast};
     &:hover {
@@ -66,7 +68,12 @@ export function KpiCard({
   onClick?: () => void
 }) {
   return (
-    <Wrapper $accent={accent} $clickable={!!onClick} onClick={onClick} title={onClick ? '算出根拠を表示' : undefined}>
+    <Wrapper
+      $accent={accent}
+      $clickable={!!onClick}
+      onClick={onClick}
+      title={onClick ? '算出根拠を表示' : undefined}
+    >
       {onClick && <ExplainHint data-hint>根拠</ExplainHint>}
       <Label>{label}</Label>
       <Value>{value}</Value>

@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx'
  */
 function decodeCSVBytes(bytes: Uint8Array): string {
   // UTF-8 BOM 検出
-  if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+  if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
     return new TextDecoder('utf-8').decode(bytes)
   }
 

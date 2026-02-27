@@ -12,7 +12,12 @@
  * - 詳細明細（supplierBreakdown, transferBreakdown）は含めない
  */
 
-import type { ImportedData, StoreDaySummary, StoreDaySummaryIndex, StoreDaySummaryCache } from '@/domain/models'
+import type {
+  ImportedData,
+  StoreDaySummary,
+  StoreDaySummaryIndex,
+  StoreDaySummaryCache,
+} from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, ZERO_CONSUMABLE_DAILY } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
@@ -129,7 +134,7 @@ function buildStoreDay(
     const hasSalesData =
       sales > 0 ||
       purchaseCost !== 0 ||
-      (flowersCost + directProduceCost) !== 0 ||
+      flowersCost + directProduceCost !== 0 ||
       interStoreInCost !== 0 ||
       interStoreOutCost !== 0 ||
       interDeptInCost !== 0 ||

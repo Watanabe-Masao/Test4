@@ -14,7 +14,8 @@ const NumInput = styled.input`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 1px 4px;
@@ -51,7 +52,8 @@ const Track = styled.div`
   right: 0;
   height: 4px;
   border-radius: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
 `
 
 const ActiveTrack = styled.div<{ $left: number; $right: number }>`
@@ -82,7 +84,7 @@ const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   &::-moz-range-thumb {
@@ -93,7 +95,7 @@ const RangeInput = styled.input`
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 `
 
@@ -109,10 +111,12 @@ const StepBtn = styled.button`
   line-height: 1;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text3};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
     color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
   }
   &:disabled {
     opacity: 0.3;
@@ -127,11 +131,13 @@ const ResetBtn = styled.button`
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   white-space: nowrap;
   &:hover {
     color: ${({ theme }) => theme.colors.text3};
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
   }
 `
 
@@ -158,27 +164,39 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
   const isFullRange = start === min && end === max
   const exceedsValidPeriod = elapsedDays != null && elapsedDays > 0 && end > elapsedDays
 
-  const handleStartInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value)
-    if (!isNaN(v) && v >= min && v <= end) onChange(v, end)
-  }, [min, end, onChange])
+  const handleStartInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = Number(e.target.value)
+      if (!isNaN(v) && v >= min && v <= end) onChange(v, end)
+    },
+    [min, end, onChange],
+  )
 
-  const handleEndInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value)
-    if (!isNaN(v) && v <= max && v >= start) onChange(start, v)
-  }, [max, start, onChange])
+  const handleEndInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = Number(e.target.value)
+      if (!isNaN(v) && v <= max && v >= start) onChange(start, v)
+    },
+    [max, start, onChange],
+  )
 
   return (
     <SliderRow>
-      <StepBtn disabled={start <= min} onClick={() => onChange(start - 1, end)} aria-label="開始日を1日前へ">◀</StepBtn>
-      <NumInput
-        type="number"
-        min={min}
-        max={end}
-        value={start}
-        onChange={handleStartInput}
-      />
-      <StepBtn disabled={start >= end} onClick={() => onChange(start + 1, end)} aria-label="開始日を1日後へ">▶</StepBtn>
+      <StepBtn
+        disabled={start <= min}
+        onClick={() => onChange(start - 1, end)}
+        aria-label="開始日を1日前へ"
+      >
+        ◀
+      </StepBtn>
+      <NumInput type="number" min={min} max={end} value={start} onChange={handleStartInput} />
+      <StepBtn
+        disabled={start >= end}
+        onClick={() => onChange(start + 1, end)}
+        aria-label="開始日を1日後へ"
+      >
+        ▶
+      </StepBtn>
       <UnitLabel>日</UnitLabel>
       <TrackWrap>
         <Track />
@@ -204,22 +222,24 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
           }}
         />
       </TrackWrap>
-      <StepBtn disabled={end <= start} onClick={() => onChange(start, end - 1)} aria-label="終了日を1日前へ">◀</StepBtn>
-      <NumInput
-        type="number"
-        min={start}
-        max={max}
-        value={end}
-        onChange={handleEndInput}
-      />
-      <StepBtn disabled={end >= max} onClick={() => onChange(start, end + 1)} aria-label="終了日を1日後へ">▶</StepBtn>
+      <StepBtn
+        disabled={end <= start}
+        onClick={() => onChange(start, end - 1)}
+        aria-label="終了日を1日前へ"
+      >
+        ◀
+      </StepBtn>
+      <NumInput type="number" min={start} max={max} value={end} onChange={handleEndInput} />
+      <StepBtn
+        disabled={end >= max}
+        onClick={() => onChange(start, end + 1)}
+        aria-label="終了日を1日後へ"
+      >
+        ▶
+      </StepBtn>
       <UnitLabel>日</UnitLabel>
-      {!isFullRange && (
-        <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>
-      )}
-      {exceedsValidPeriod && (
-        <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>
-      )}
+      {!isFullRange && <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>}
+      {exceedsValidPeriod && <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>}
     </SliderRow>
   )
 }

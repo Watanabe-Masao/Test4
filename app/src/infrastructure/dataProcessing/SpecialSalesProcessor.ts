@@ -21,7 +21,10 @@ export function processSpecialSales(
 ): Record<string, SpecialSalesData> {
   if (rows.length < 4) return {}
 
-  const partitioned: Record<string, Record<string, Record<number, { price: number; cost: number; customers?: number }>>> = {}
+  const partitioned: Record<
+    string,
+    Record<string, Record<number, { price: number; cost: number; customers?: number }>>
+  > = {}
 
   // ヘッダー解析
   const columnMap: { col: number; storeId: string }[] = []
@@ -54,9 +57,14 @@ export function processSpecialSales(
       if (price === 0 && (customers === undefined || customers === 0)) continue
 
       if (!partitioned[mk][storeId]) partitioned[mk][storeId] = {}
-      if (!partitioned[mk][storeId][dc.day]) partitioned[mk][storeId][dc.day] = { price: 0, cost: 0 }
+      if (!partitioned[mk][storeId][dc.day])
+        partitioned[mk][storeId][dc.day] = { price: 0, cost: 0 }
 
-      const dayData = partitioned[mk][storeId][dc.day] as { price: number; cost: number; customers?: number }
+      const dayData = partitioned[mk][storeId][dc.day] as {
+        price: number
+        cost: number
+        customers?: number
+      }
       dayData.price += price
       dayData.cost += cost
       if (customers !== undefined) {

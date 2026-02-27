@@ -54,11 +54,11 @@ export function queryByDateRange(
   const result: CategoryTimeSalesRecord[] = []
 
   // 対象店舗の決定
-  const targetStores = params.storeIds && params.storeIds.size > 0
-    ? params.storeIds
-    : index.storeIds
+  const targetStores =
+    params.storeIds && params.storeIds.size > 0 ? params.storeIds : index.storeIds
 
-  const hasHierarchy = params.hierarchy &&
+  const hasHierarchy =
+    params.hierarchy &&
     (params.hierarchy.departmentCode || params.hierarchy.lineCode || params.hierarchy.klassCode)
   const hasDow = params.dow && params.dow.size > 0
 
@@ -79,9 +79,14 @@ export function queryByDateRange(
 
         // 階層フィルタ
         if (hasHierarchy) {
-          if (params.hierarchy!.departmentCode && rec.department.code !== params.hierarchy!.departmentCode) continue
+          if (
+            params.hierarchy!.departmentCode &&
+            rec.department.code !== params.hierarchy!.departmentCode
+          )
+            continue
           if (params.hierarchy!.lineCode && rec.line.code !== params.hierarchy!.lineCode) continue
-          if (params.hierarchy!.klassCode && rec.klass.code !== params.hierarchy!.klassCode) continue
+          if (params.hierarchy!.klassCode && rec.klass.code !== params.hierarchy!.klassCode)
+            continue
         }
 
         result.push(rec)

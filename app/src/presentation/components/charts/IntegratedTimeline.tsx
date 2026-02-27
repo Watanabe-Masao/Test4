@@ -13,7 +13,12 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { normalizeMinMax, pearsonCorrelation, detectDivergence, movingAverage } from '@/domain/calculations/correlation'
+import {
+  normalizeMinMax,
+  pearsonCorrelation,
+  detectDivergence,
+  movingAverage,
+} from '@/domain/calculations/correlation'
 import type { StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -22,7 +27,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -53,24 +59,28 @@ const CorrBadge = styled.div<{ $strength: 'strong' | 'moderate' | 'weak' }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   background: ${({ $strength }) =>
-    $strength === 'strong' ? `${sc.positive}1f` :
-    $strength === 'moderate' ? `${sc.caution}1f` :
-    'rgba(148,163,184,0.12)'};
+    $strength === 'strong'
+      ? `${sc.positive}1f`
+      : $strength === 'moderate'
+        ? `${sc.caution}1f`
+        : 'rgba(148,163,184,0.12)'};
   color: ${({ $strength }) =>
-    $strength === 'strong' ? sc.positive :
-    $strength === 'moderate' ? sc.caution :
-    '#94a3b8'};
-  border: 1px solid ${({ $strength }) =>
-    $strength === 'strong' ? `${sc.positive}40` :
-    $strength === 'moderate' ? `${sc.caution}40` :
-    'rgba(148,163,184,0.25)'};
+    $strength === 'strong' ? sc.positive : $strength === 'moderate' ? sc.caution : '#94a3b8'};
+  border: 1px solid
+    ${({ $strength }) =>
+      $strength === 'strong'
+        ? `${sc.positive}40`
+        : $strength === 'moderate'
+          ? `${sc.caution}40`
+          : 'rgba(148,163,184,0.25)'};
   white-space: nowrap;
 `
 
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -81,11 +91,13 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 type ViewMode = 'normalized' | 'raw'
@@ -195,8 +207,17 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
   if (chartData.every((d) => d.sales === 0)) {
     return (
       <Wrapper>
-        <HeaderRow><Title>統合タイムライン</Title></HeaderRow>
-        <div style={{ padding: '40px', textAlign: 'center', color: ct.textMuted, fontSize: ct.fontSize.sm }}>
+        <HeaderRow>
+          <Title>統合タイムライン</Title>
+        </HeaderRow>
+        <div
+          style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: ct.textMuted,
+            fontSize: ct.fontSize.sm,
+          }}
+        >
           データがありません
         </div>
       </Wrapper>
@@ -215,8 +236,12 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
       <HeaderRow>
         <Title>統合タイムライン — 売上・仕入・粗利・売変の連動分析</Title>
         <ViewToggle>
-          <ViewBtn $active={viewMode === 'normalized'} onClick={() => setViewMode('normalized')}>正規化</ViewBtn>
-          <ViewBtn $active={viewMode === 'raw'} onClick={() => setViewMode('raw')}>実数</ViewBtn>
+          <ViewBtn $active={viewMode === 'normalized'} onClick={() => setViewMode('normalized')}>
+            正規化
+          </ViewBtn>
+          <ViewBtn $active={viewMode === 'raw'} onClick={() => setViewMode('raw')}>
+            実数
+          </ViewBtn>
         </ViewToggle>
       </HeaderRow>
       <CorrelationRow>
@@ -241,8 +266,19 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
             axisLine={false}
             tickLine={false}
             width={isNorm ? 35 : 60}
-            tickFormatter={(v: number) => isNorm ? `${Math.round(v)}` : toComma(v)}
-            label={isNorm ? { value: '正規化値(0-100)', angle: -90, position: 'insideLeft', offset: 10, fontSize: ct.fontSize.xs, fill: ct.textMuted } : undefined}
+            tickFormatter={(v: number) => (isNorm ? `${Math.round(v)}` : toComma(v))}
+            label={
+              isNorm
+                ? {
+                    value: '正規化値(0-100)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    offset: 10,
+                    fontSize: ct.fontSize.xs,
+                    fill: ct.textMuted,
+                  }
+                : undefined
+            }
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
@@ -283,8 +319,24 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
           {/* 移動平均（raw mode のみ） */}
           {!isNorm && (
             <>
-              <Line type="monotone" dataKey="maSales" name="売上 7日MA" stroke="#6366f1" strokeWidth={2} strokeDasharray="6 3" dot={false} />
-              <Line type="monotone" dataKey="maCost" name="仕入 7日MA" stroke={sc.negative} strokeWidth={2} strokeDasharray="6 3" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="maSales"
+                name="売上 7日MA"
+                stroke="#6366f1"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="maCost"
+                name="仕入 7日MA"
+                stroke={sc.negative}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                dot={false}
+              />
             </>
           )}
         </ComposedChart>

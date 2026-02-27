@@ -25,10 +25,7 @@ function parseCodeName(value: unknown): { code: string; name: string } {
  * "0001:毎日屋あさくらセンタ" → "1"
  * コード無しの場合は nameToId 逆引きマップで解決を試みる
  */
-function parseStoreId(
-  value: unknown,
-  nameToId?: ReadonlyMap<string, string>,
-): string {
+function parseStoreId(value: unknown, nameToId?: ReadonlyMap<string, string>): string {
   const str = String(value ?? '').trim()
   const match = str.match(/(\d{4}):/)
   if (match) return String(parseInt(match[1]))
@@ -116,9 +113,7 @@ export function processCategoryTimeSales(
 
   // overflowDays > 0 の場合、対象月の日数を特定する（翌月データの拡張day算出用）
   const daysInTargetMonth =
-    targetMonth != null && overflowDays > 0
-      ? detectDaysInTargetMonth(rows, 0, 3, targetMonth)
-      : 0
+    targetMonth != null && overflowDays > 0 ? detectDaysInTargetMonth(rows, 0, 3, targetMonth) : 0
 
   const records: CategoryTimeSalesRecord[] = []
 
@@ -158,7 +153,7 @@ export function processCategoryTimeSales(
       const quantity = safeNumber(r[col])
       const amount = safeNumber(r[col + 1])
       if (quantity !== 0 || amount !== 0) {
-        const hour = hours[pairIdx] ?? (9 + pairIdx) // フォールバック
+        const hour = hours[pairIdx] ?? 9 + pairIdx // フォールバック
         timeSlots.push({ hour, quantity, amount })
       }
       pairIdx++
@@ -168,7 +163,7 @@ export function processCategoryTimeSales(
     // targetYear/targetMonth が指定されている場合はそちらを優先（overflow day の場合は
     // 実際の月と targetMonth が異なりうるため）。未指定時はパースした日付から取得。
     const recordYear = targetYear ?? date.getFullYear()
-    const recordMonth = targetMonth ?? (date.getMonth() + 1)
+    const recordMonth = targetMonth ?? date.getMonth() + 1
 
     records.push({
       year: recordYear,
@@ -186,4 +181,3 @@ export function processCategoryTimeSales(
 
   return { records }
 }
-

@@ -125,8 +125,9 @@ const DataTypeRow = styled.div<{ $hasData: boolean }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $hasData, theme }) =>
     $hasData ? `${theme.colors.palette.primary}08` : 'transparent'};
-  border: 1px solid ${({ $hasData, theme }) =>
-    $hasData ? `${theme.colors.palette.primary}20` : theme.colors.border};
+  border: 1px solid
+    ${({ $hasData, theme }) =>
+      $hasData ? `${theme.colors.palette.primary}20` : theme.colors.border};
 `
 
 const DataTypeLabel = styled.span`
@@ -138,8 +139,7 @@ const DataTypeCount = styled.span<{ $hasData: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ $hasData, theme }) =>
-    $hasData ? theme.colors.palette.primary : theme.colors.text4};
+  color: ${({ $hasData, theme }) => ($hasData ? theme.colors.palette.primary : theme.colors.text4)};
 `
 
 const RawDataSection = styled.div`
@@ -164,12 +164,11 @@ const RawDataChipGroup = styled.div`
 
 const RawDataChip = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: 11px;
   border-radius: ${({ theme }) => theme.radii.pill};
   cursor: pointer;
@@ -267,7 +266,9 @@ const CancelButton = styled.button`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.colors.bg3}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg3};
+  }
 `
 
 const ConfirmDeleteButton = styled.button`
@@ -279,7 +280,9 @@ const ConfirmDeleteButton = styled.button`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  &:hover { opacity: 0.9; }
+  &:hover {
+    opacity: 0.9;
+  }
 `
 
 const LoadingText = styled.div`
@@ -301,35 +304,56 @@ interface MonthEntry {
 
 // StoreDayRecord 型のデータ種別
 const STORE_DAY_TYPES = [
-  'purchase', 'sales', 'discount',
-  'interStoreIn', 'interStoreOut', 'flowers', 'directProduce', 'consumables',
+  'purchase',
+  'sales',
+  'discount',
+  'interStoreIn',
+  'interStoreOut',
+  'flowers',
+  'directProduce',
+  'consumables',
 ]
 
 // ─── Raw Data Viewer ────────────────────────────────────
 
-function RawDataViewer({ year, month, summary, loadSlice }: { year: number; month: number; summary: MonthEntry['summary']; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
-  const typesWithData = summary.filter((s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType))
+function RawDataViewer({
+  year,
+  month,
+  summary,
+  loadSlice,
+}: {
+  year: number
+  month: number
+  summary: MonthEntry['summary']
+  loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
+}) {
+  const typesWithData = summary.filter(
+    (s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType),
+  )
   const [selectedType, setSelectedType] = useState<StorageDataType | null>(null)
   const [rawData, setRawData] = useState<Record<string, Record<string, unknown>> | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSelectType = useCallback(async (dataType: StorageDataType) => {
-    if (selectedType === dataType) {
-      setSelectedType(null)
-      setRawData(null)
-      return
-    }
-    setSelectedType(dataType)
-    setLoading(true)
-    try {
-      const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
-      setRawData(data)
-    } catch {
-      setRawData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [year, month, selectedType, loadSlice])
+  const handleSelectType = useCallback(
+    async (dataType: StorageDataType) => {
+      if (selectedType === dataType) {
+        setSelectedType(null)
+        setRawData(null)
+        return
+      }
+      setSelectedType(dataType)
+      setLoading(true)
+      try {
+        const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
+        setRawData(data)
+      } catch {
+        setRawData(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [year, month, selectedType, loadSlice],
+  )
 
   if (typesWithData.length === 0) return null
 
@@ -397,7 +421,9 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
                   {storeIds.map((sid) => {
                     const val = extractMainValue(rawData[sid]?.[day])
                     return (
-                      <RawTd key={sid} $zero={val === 0}>{fmt(val)}</RawTd>
+                      <RawTd key={sid} $zero={val === 0}>
+                        {fmt(val)}
+                      </RawTd>
                     )
                   })}
                 </tr>
@@ -416,9 +442,31 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
 
 // ─── CTS Viewer ─────────────────────────────────────────
 
-function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; month: number; dataType: StorageDataType; label: string; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
+function CTSViewer({
+  year,
+  month,
+  dataType,
+  label,
+  loadSlice,
+}: {
+  year: number
+  month: number
+  dataType: StorageDataType
+  label: string
+  loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
+}) {
   const [expanded, setExpanded] = useState(false)
-  const [records, setRecords] = useState<{ day: number; storeId: string; dept: string; line: string; klass: string; amount: number; qty: number }[]>([])
+  const [records, setRecords] = useState<
+    {
+      day: number
+      storeId: string
+      dept: string
+      line: string
+      klass: string
+      amount: number
+      qty: number
+    }[]
+  >([])
   const [loading, setLoading] = useState(false)
 
   const handleToggle = useCallback(async () => {
@@ -429,17 +477,29 @@ function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; 
     setExpanded(true)
     setLoading(true)
     try {
-      const data = await loadSlice<{ records: { day: number; storeId: string; department: { name: string }; line: { name: string }; klass: { name: string }; totalAmount: number; totalQuantity: number }[] }>(year, month, dataType)
+      const data = await loadSlice<{
+        records: {
+          day: number
+          storeId: string
+          department: { name: string }
+          line: { name: string }
+          klass: { name: string }
+          totalAmount: number
+          totalQuantity: number
+        }[]
+      }>(year, month, dataType)
       if (data?.records) {
-        setRecords(data.records.slice(0, 200).map((r) => ({
-          day: r.day,
-          storeId: r.storeId,
-          dept: r.department.name,
-          line: r.line.name,
-          klass: r.klass.name,
-          amount: r.totalAmount,
-          qty: r.totalQuantity,
-        })))
+        setRecords(
+          data.records.slice(0, 200).map((r) => ({
+            day: r.day,
+            storeId: r.storeId,
+            dept: r.department.name,
+            line: r.line.name,
+            klass: r.klass.name,
+            amount: r.totalAmount,
+            qty: r.totalQuantity,
+          })),
+        )
       }
     } catch {
       setRecords([])
@@ -565,7 +625,8 @@ export function StorageManagementTab() {
       <Section>
         <SectionTitle>保存データ管理</SectionTitle>
         <HelpText>
-          IndexedDB に保存されている月別データの一覧です。各月のデータ内容を確認したり、不要なデータを削除できます。
+          IndexedDB
+          に保存されている月別データの一覧です。各月のデータ内容を確認したり、不要なデータを削除できます。
         </HelpText>
 
         {months.length === 0 ? (
@@ -582,7 +643,9 @@ export function StorageManagementTab() {
                   <MonthCardHeader onClick={() => toggleExpand(key)}>
                     <MonthLabel>
                       <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                      <MonthTitle>{entry.year}年{entry.month}月</MonthTitle>
+                      <MonthTitle>
+                        {entry.year}年{entry.month}月
+                      </MonthTitle>
                       <MonthBadge>
                         {entry.dataTypeCount}種別 / {entry.totalRecords.toLocaleString()}件
                       </MonthBadge>
@@ -612,10 +675,21 @@ export function StorageManagementTab() {
                         ))}
                       </DataTypeGrid>
 
-                      <RawDataViewer year={entry.year} month={entry.month} summary={entry.summary} loadSlice={loadSlice} />
+                      <RawDataViewer
+                        year={entry.year}
+                        month={entry.month}
+                        summary={entry.summary}
+                        loadSlice={loadSlice}
+                      />
 
                       {ctsSummary && ctsSummary.recordCount > 0 && (
-                        <CTSViewer year={entry.year} month={entry.month} dataType="categoryTimeSales" label="分類別時間帯売上" loadSlice={loadSlice} />
+                        <CTSViewer
+                          year={entry.year}
+                          month={entry.month}
+                          dataType="categoryTimeSales"
+                          label="分類別時間帯売上"
+                          loadSlice={loadSlice}
+                        />
                       )}
                     </DetailPanel>
                   )}

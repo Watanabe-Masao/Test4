@@ -1,11 +1,26 @@
 import { useState, useMemo } from 'react'
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts'
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
-import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations/utils'
+import {
+  safeDivide,
+  calculateTransactionValue,
+  calculateMovingAverage,
+} from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/domain/calculations/forecast'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 
@@ -15,7 +30,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -35,7 +51,8 @@ const Title = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -46,16 +63,17 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.primary
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.primary
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -113,8 +131,14 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
     const prevPiRaw: number[] = []
 
     const rawRows: {
-      day: number; sales: number; customers: number; txValue: number | null
-      discountRate: number; gpRate: number; pi: number | null; prevPi: number | null
+      day: number
+      sales: number
+      customers: number
+      txValue: number | null
+      discountRate: number
+      gpRate: number
+      pi: number | null
+      prevPi: number | null
     }[] = []
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -134,7 +158,8 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
 
       const prev = prevYearDaily?.get(d)
       const prevCustomers = prev?.customers ?? 0
-      const prevPi = prevCustomers > 0 ? safeDivide(prev?.sales ?? 0, prevCustomers, 0) * 1000 : null
+      const prevPi =
+        prevCustomers > 0 ? safeDivide(prev?.sales ?? 0, prevCustomers, 0) * 1000 : null
 
       if (sales > 0) salesValues.push(sales)
       if (customers > 0) customerValues.push(customers)
@@ -156,16 +181,28 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
     const gpStat = calculateStdDev(gpRates)
 
     // Phase 3: Build chart rows with z-scores and deviation scores
-    const rows = rawRows.map(r => {
-      const salesZ = salesStat.stdDev > 0 && r.sales > 0 ? (r.sales - salesStat.mean) / salesStat.stdDev : null
-      const custZ = custStat.stdDev > 0 && r.customers > 0 ? (r.customers - custStat.mean) / custStat.stdDev : null
-      const txZ = txStat.stdDev > 0 && r.txValue != null ? (r.txValue - txStat.mean) / txStat.stdDev : null
-      const discZ = discStat.stdDev > 0 && r.sales > 0 ? (r.discountRate - discStat.mean) / discStat.stdDev : null
+    const rows = rawRows.map((r) => {
+      const salesZ =
+        salesStat.stdDev > 0 && r.sales > 0 ? (r.sales - salesStat.mean) / salesStat.stdDev : null
+      const custZ =
+        custStat.stdDev > 0 && r.customers > 0
+          ? (r.customers - custStat.mean) / custStat.stdDev
+          : null
+      const txZ =
+        txStat.stdDev > 0 && r.txValue != null ? (r.txValue - txStat.mean) / txStat.stdDev : null
+      const discZ =
+        discStat.stdDev > 0 && r.sales > 0
+          ? (r.discountRate - discStat.mean) / discStat.stdDev
+          : null
       const gpZ = gpStat.stdDev > 0 && r.sales > 0 ? (r.gpRate - gpStat.mean) / gpStat.stdDev : null
 
       return {
         ...r,
-        salesZ, custZ, txZ, discZ, gpZ,
+        salesZ,
+        custZ,
+        txZ,
+        discZ,
+        gpZ,
         salesDev: salesZ != null ? toDevScore(salesZ) : null,
         custDev: custZ != null ? toDevScore(custZ) : null,
         txDev: txZ != null ? toDevScore(txZ) : null,
@@ -175,8 +212,8 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
     })
 
     // Moving averages for PI values
-    const piMa = calculateMovingAverage(piRaw, 7).map(v => isNaN(v) ? null : v)
-    const prevPiMa = calculateMovingAverage(prevPiRaw, 7).map(v => isNaN(v) ? null : v)
+    const piMa = calculateMovingAverage(piRaw, 7).map((v) => (isNaN(v) ? null : v))
+    const prevPiMa = calculateMovingAverage(prevPiRaw, 7).map((v) => (isNaN(v) ? null : v))
 
     return {
       chartData: rows,
@@ -186,16 +223,29 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
     }
   }, [daily, daysInMonth, prevYearDaily])
 
-  const data = chartData.map((d, i) => ({
-    ...d,
-    piMa7: piMa7[i],
-    prevPiMa7: prevPiMa7[i],
-  })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = chartData
+    .map((d, i) => ({
+      ...d,
+      piMa7: piMa7[i],
+      prevPiMa7: prevPiMa7[i],
+    }))
+    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   const allLabels: Record<string, string> = {
-    pi: '金額PI値', prevPi: '前年PI値', piMa7: 'PI値(7日MA)', prevPiMa7: '前年PI値(7日MA)',
-    salesDev: '売上', custDev: '客数', txDev: '客単価', discDev: '売変率', gpDev: '粗利率',
-    salesZ: '売上', custZ: '客数', txZ: '客単価', discZ: '売変率', gpZ: '粗利率',
+    pi: '金額PI値',
+    prevPi: '前年PI値',
+    piMa7: 'PI値(7日MA)',
+    prevPiMa7: '前年PI値(7日MA)',
+    salesDev: '売上',
+    custDev: '客数',
+    txDev: '客単価',
+    discDev: '売変率',
+    gpDev: '粗利率',
+    salesZ: '売上',
+    custZ: '客数',
+    txZ: '客単価',
+    discZ: '売変率',
+    gpZ: '粗利率',
   }
 
   const titleMap: Record<ViewType, string> = {
@@ -219,15 +269,30 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
 
       {view === 'deviation' && (
         <StatsRow>
-          <StatChip $color={ct.colors.primary}>売上 平均:{toComma(stats.sales.mean)} σ:{toComma(stats.sales.stdDev)}</StatChip>
-          <StatChip $color={ct.colors.info}>客数 平均:{toComma(stats.cust.mean)} σ:{toComma(stats.cust.stdDev)}</StatChip>
-          <StatChip $color={ct.colors.purple}>客単価 平均:{toComma(stats.tx.mean)} σ:{toComma(stats.tx.stdDev)}</StatChip>
-          <StatChip $color={ct.colors.danger}>売変率 平均:{toPct(stats.disc.mean)} σ:{toPct(stats.disc.stdDev)}</StatChip>
-          <StatChip $color={ct.colors.success}>粗利率 平均:{toPct(stats.gp.mean)} σ:{toPct(stats.gp.stdDev)}</StatChip>
+          <StatChip $color={ct.colors.primary}>
+            売上 平均:{toComma(stats.sales.mean)} σ:{toComma(stats.sales.stdDev)}
+          </StatChip>
+          <StatChip $color={ct.colors.info}>
+            客数 平均:{toComma(stats.cust.mean)} σ:{toComma(stats.cust.stdDev)}
+          </StatChip>
+          <StatChip $color={ct.colors.purple}>
+            客単価 平均:{toComma(stats.tx.mean)} σ:{toComma(stats.tx.stdDev)}
+          </StatChip>
+          <StatChip $color={ct.colors.danger}>
+            売変率 平均:{toPct(stats.disc.mean)} σ:{toPct(stats.disc.stdDev)}
+          </StatChip>
+          <StatChip $color={ct.colors.success}>
+            粗利率 平均:{toPct(stats.gp.mean)} σ:{toPct(stats.gp.stdDev)}
+          </StatChip>
         </StatsRow>
       )}
 
-      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={view === 'deviation' ? '72%' : '80%'}>
+      <ResponsiveContainer
+        minWidth={0}
+        minHeight={0}
+        width="100%"
+        height={view === 'deviation' ? '72%' : '80%'}
+      >
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
@@ -243,17 +308,42 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={(v: number) => toComma(v)}
                 width={55}
               />
               <Bar yAxisId="left" dataKey="pi" maxBarSize={14} radius={[2, 2, 0, 0]} opacity={0.7}>
                 {data.map((entry, i) => (
-                  <Cell key={i} fill={entry.prevPi != null && entry.pi != null && entry.pi >= entry.prevPi ? ct.colors.primary : ct.colors.slateDark} />
+                  <Cell
+                    key={i}
+                    fill={
+                      entry.prevPi != null && entry.pi != null && entry.pi >= entry.prevPi
+                        ? ct.colors.primary
+                        : ct.colors.slateDark
+                    }
+                  />
                 ))}
               </Bar>
-              <Line yAxisId="left" type="monotone" dataKey="piMa7" stroke={ct.colors.primary} strokeWidth={2.5} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="prevPiMa7" stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="6 3" dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="piMa7"
+                stroke={ct.colors.primary}
+                strokeWidth={2.5}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="prevPiMa7"
+                stroke={ct.colors.slate}
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -263,18 +353,79 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 width={35}
                 domain={[20, 80]}
               />
-              <ReferenceLine yAxisId="left" y={50} stroke={ct.grid} strokeWidth={1.5} strokeOpacity={0.7} />
-              <ReferenceLine yAxisId="left" y={60} stroke={ct.colors.success} strokeDasharray="4 4" strokeOpacity={0.3} />
-              <ReferenceLine yAxisId="left" y={40} stroke={ct.colors.danger} strokeDasharray="4 4" strokeOpacity={0.3} />
-              <Line yAxisId="left" type="monotone" dataKey="salesDev" stroke={ct.colors.primary} strokeWidth={2} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="custDev" stroke={ct.colors.info} strokeWidth={2} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="txDev" stroke={ct.colors.purple} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="gpDev" stroke={ct.colors.success} strokeWidth={1.5} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="discDev" stroke={ct.colors.danger} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+              <ReferenceLine
+                yAxisId="left"
+                y={50}
+                stroke={ct.grid}
+                strokeWidth={1.5}
+                strokeOpacity={0.7}
+              />
+              <ReferenceLine
+                yAxisId="left"
+                y={60}
+                stroke={ct.colors.success}
+                strokeDasharray="4 4"
+                strokeOpacity={0.3}
+              />
+              <ReferenceLine
+                yAxisId="left"
+                y={40}
+                stroke={ct.colors.danger}
+                strokeDasharray="4 4"
+                strokeOpacity={0.3}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="salesDev"
+                stroke={ct.colors.primary}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="custDev"
+                stroke={ct.colors.info}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="txDev"
+                stroke={ct.colors.purple}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="gpDev"
+                stroke={ct.colors.success}
+                strokeWidth={1.5}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="discDev"
+                stroke={ct.colors.danger}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -284,21 +435,71 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 width={35}
               />
-              <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeWidth={1.5} strokeOpacity={0.7} />
-              <ReferenceLine yAxisId="left" y={2} stroke={ct.colors.danger} strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: '+2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }} />
-              <ReferenceLine yAxisId="left" y={-2} stroke={ct.colors.danger} strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: '-2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }} />
+              <ReferenceLine
+                yAxisId="left"
+                y={0}
+                stroke={ct.grid}
+                strokeWidth={1.5}
+                strokeOpacity={0.7}
+              />
+              <ReferenceLine
+                yAxisId="left"
+                y={2}
+                stroke={ct.colors.danger}
+                strokeDasharray="6 3"
+                strokeOpacity={0.4}
+                label={{ value: '+2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }}
+              />
+              <ReferenceLine
+                yAxisId="left"
+                y={-2}
+                stroke={ct.colors.danger}
+                strokeDasharray="6 3"
+                strokeOpacity={0.4}
+                label={{ value: '-2σ', fill: ct.colors.danger, fontSize: 8, position: 'right' }}
+              />
               <Bar yAxisId="left" dataKey="salesZ" maxBarSize={10} radius={[2, 2, 0, 0]}>
                 {data.map((entry, i) => {
                   const z = entry.salesZ ?? 0
                   const isAnomaly = Math.abs(z) >= 2
-                  return <Cell key={i} fill={isAnomaly ? ct.colors.danger : z >= 0 ? ct.colors.primary : ct.colors.slateDark} fillOpacity={isAnomaly ? 0.9 : 0.5} />
+                  return (
+                    <Cell
+                      key={i}
+                      fill={
+                        isAnomaly
+                          ? ct.colors.danger
+                          : z >= 0
+                            ? ct.colors.primary
+                            : ct.colors.slateDark
+                      }
+                      fillOpacity={isAnomaly ? 0.9 : 0.5}
+                    />
+                  )
                 })}
               </Bar>
-              <Line yAxisId="left" type="monotone" dataKey="custZ" stroke={ct.colors.info} strokeWidth={1.5} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="txZ" stroke={ct.colors.purple} strokeWidth={1.5} strokeDasharray="6 3" dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="custZ"
+                stroke={ct.colors.info}
+                strokeWidth={1.5}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="txZ"
+                stroke={ct.colors.purple}
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -308,7 +509,12 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
               if (value == null) return ['-', allLabels[name as string] ?? String(name)]
               const n = name as string
               const v = value as number
-              if (n.includes('pi') || n.includes('Pi') || n.includes('Ma7') || n.includes('prevPi')) {
+              if (
+                n.includes('pi') ||
+                n.includes('Pi') ||
+                n.includes('Ma7') ||
+                n.includes('prevPi')
+              ) {
                 return [toComma(v), allLabels[n] ?? n]
               }
               if (n.includes('Dev') || n.includes('dev')) return [v.toFixed(1), allLabels[n] ?? n]
@@ -323,7 +529,13 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily }: Pro
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

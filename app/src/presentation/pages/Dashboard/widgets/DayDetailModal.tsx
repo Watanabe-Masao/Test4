@@ -12,19 +12,43 @@
  */
 import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { DailyRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { queryByDateRange } from '@/application/usecases'
 import type { PrevYearData } from '@/application/hooks'
 import {
   PinModalOverlay,
-  DetailModalContent, DetailHeader, DetailTitle, DetailCloseBtn,
-  DetailKpiGrid, DetailKpiCard, DetailKpiLabel, DetailKpiValue,
-  DetailSection, DetailSectionTitle, DetailRow, DetailLabel, DetailValue,
+  DetailModalContent,
+  DetailHeader,
+  DetailTitle,
+  DetailCloseBtn,
+  DetailKpiGrid,
+  DetailKpiCard,
+  DetailKpiLabel,
+  DetailKpiValue,
+  DetailSection,
+  DetailSectionTitle,
+  DetailRow,
+  DetailLabel,
+  DetailValue,
   DetailColumns,
 } from '../DashboardPage.styles'
-import { TabBar, Tab, KpiGrid2, KpiMini, KpiMiniLabel, KpiMiniValue, KpiMiniSub, ToggleGroup, ToggleBtn } from './DayDetailModal.styles'
+import {
+  TabBar,
+  Tab,
+  KpiGrid2,
+  KpiMini,
+  KpiMiniLabel,
+  KpiMiniValue,
+  KpiMiniSub,
+  ToggleGroup,
+  ToggleBtn,
+} from './DayDetailModal.styles'
 import { HourlyChart } from './HourlyChart'
 import { CategoryDrilldown } from './CategoryDrilldown'
 import { DrilldownWaterfall } from './DrilldownWaterfall'
@@ -54,9 +78,22 @@ interface DayDetailModalProps {
 }
 
 export function DayDetailModal({
-  day, month, year, record, budget, cumBudget, cumSales, cumPrevYear,
-  cumCustomers, cumPrevCustomers, prevYear,
-  ctsIndex, prevCtsIndex, dailyMap, selectedStoreIds, onClose,
+  day,
+  month,
+  year,
+  record,
+  budget,
+  cumBudget,
+  cumSales,
+  cumPrevYear,
+  cumCustomers,
+  cumPrevCustomers,
+  prevYear,
+  ctsIndex,
+  prevCtsIndex,
+  dailyMap,
+  selectedStoreIds,
+  onClose,
 }: DayDetailModalProps) {
   const [tab, setTab] = useState<ModalTab>('sales')
   const [compMode, setCompMode] = useState<CompMode>('yoy')
@@ -92,20 +129,26 @@ export function DayDetailModal({
   const wowPrevSales = wowDailyRecord?.sales ?? 0
   const wowPrevCust = wowDailyRecord?.customers ?? 0
   // ── Category records（インデックスから日指定で取得） ──
-  const singleDayRange: DateRange = useMemo(() => ({
-    from: { year, month, day },
-    to: { year, month, day },
-  }), [year, month, day])
+  const singleDayRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day },
+      to: { year, month, day },
+    }),
+    [year, month, day],
+  )
 
   const dayRecords = useMemo(
     () => queryByDateRange(ctsIndex, { dateRange: singleDayRange, storeIds: selectedStoreIds }),
     [ctsIndex, singleDayRange, selectedStoreIds],
   )
 
-  const prevDayRange: DateRange = useMemo(() => ({
-    from: { year: year - 1, month, day },
-    to: { year: year - 1, month, day },
-  }), [year, month, day])
+  const prevDayRange: DateRange = useMemo(
+    () => ({
+      from: { year: year - 1, month, day },
+      to: { year: year - 1, month, day },
+    }),
+    [year, month, day],
+  )
 
   const prevDayRecords = useMemo(
     () => queryByDateRange(prevCtsIndex, { dateRange: prevDayRange, storeIds: selectedStoreIds }),
@@ -113,13 +156,19 @@ export function DayDetailModal({
   )
 
   // WoW用: 前週(day-7)のカテゴリレコード
-  const wowPrevDayRange: DateRange = useMemo(() => ({
-    from: { year, month, day: Math.max(1, wowPrevDay) },
-    to: { year, month, day: Math.max(1, wowPrevDay) },
-  }), [year, month, wowPrevDay])
+  const wowPrevDayRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day: Math.max(1, wowPrevDay) },
+      to: { year, month, day: Math.max(1, wowPrevDay) },
+    }),
+    [year, month, wowPrevDay],
+  )
 
   const wowPrevDayRecords = useMemo(
-    () => canWoW ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange, storeIds: selectedStoreIds }) : [],
+    () =>
+      canWoW
+        ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange, storeIds: selectedStoreIds })
+        : [],
     [canWoW, ctsIndex, wowPrevDayRange, selectedStoreIds],
   )
 
@@ -131,28 +180,35 @@ export function DayDetailModal({
 
   // WoW用: 比較期間のカテゴリレコード
   const compDayRecords = useMemo(
-    () => activeCompMode === 'wow' ? wowPrevDayRecords : prevDayRecords,
+    () => (activeCompMode === 'wow' ? wowPrevDayRecords : prevDayRecords),
     [activeCompMode, wowPrevDayRecords, prevDayRecords],
   )
 
   // 累計カテゴリレコード（1日〜当日）
-  const cumDateRange: DateRange = useMemo(() => ({
-    from: { year, month, day: 1 },
-    to: { year, month, day },
-  }), [year, month, day])
+  const cumDateRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day: 1 },
+      to: { year, month, day },
+    }),
+    [year, month, day],
+  )
 
   const cumCategoryRecords = useMemo(
     () => queryByDateRange(ctsIndex, { dateRange: cumDateRange, storeIds: selectedStoreIds }),
     [ctsIndex, cumDateRange, selectedStoreIds],
   )
 
-  const cumPrevDateRange: DateRange = useMemo(() => ({
-    from: { year: year - 1, month, day: 1 },
-    to: { year: year - 1, month, day },
-  }), [year, month, day])
+  const cumPrevDateRange: DateRange = useMemo(
+    () => ({
+      from: { year: year - 1, month, day: 1 },
+      to: { year: year - 1, month, day },
+    }),
+    [year, month, day],
+  )
 
   const cumPrevCategoryRecords = useMemo(
-    () => queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange, storeIds: selectedStoreIds }),
+    () =>
+      queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange, storeIds: selectedStoreIds }),
     [prevCtsIndex, cumPrevDateRange, selectedStoreIds],
   )
 
@@ -160,7 +216,9 @@ export function DayDetailModal({
     <PinModalOverlay onClick={onClose}>
       <DetailModalContent onClick={(e) => e.stopPropagation()}>
         <DetailHeader>
-          <DetailTitle>{month}月{day}日（{dayOfWeek}）の詳細</DetailTitle>
+          <DetailTitle>
+            {month}月{day}日（{dayOfWeek}）の詳細
+          </DetailTitle>
           <DetailCloseBtn onClick={onClose}>✕</DetailCloseBtn>
         </DetailHeader>
 
@@ -176,15 +234,11 @@ export function DayDetailModal({
           </DetailKpiCard>
           <DetailKpiCard $accent={sc.cond(diff >= 0)}>
             <DetailKpiLabel>予算差異</DetailKpiLabel>
-            <DetailKpiValue $color={sc.cond(diff >= 0)}>
-              {formatCurrency(diff)}
-            </DetailKpiValue>
+            <DetailKpiValue $color={sc.cond(diff >= 0)}>{formatCurrency(diff)}</DetailKpiValue>
           </DetailKpiCard>
           <DetailKpiCard $accent={sc.achievement(ach)}>
             <DetailKpiLabel>達成率</DetailKpiLabel>
-            <DetailKpiValue $color={sc.achievement(ach)}>
-              {formatPercent(ach)}
-            </DetailKpiValue>
+            <DetailKpiValue $color={sc.achievement(ach)}>{formatPercent(ach)}</DetailKpiValue>
           </DetailKpiCard>
         </DetailKpiGrid>
 
@@ -228,9 +282,15 @@ export function DayDetailModal({
 
         {/* ── Tab Navigation ── */}
         <TabBar>
-          <Tab $active={tab === 'sales'} onClick={() => setTab('sales')}>売上分析</Tab>
-          <Tab $active={tab === 'hourly'} onClick={() => setTab('hourly')}>時間帯分析</Tab>
-          <Tab $active={tab === 'breakdown'} onClick={() => setTab('breakdown')}>仕入内訳</Tab>
+          <Tab $active={tab === 'sales'} onClick={() => setTab('sales')}>
+            売上分析
+          </Tab>
+          <Tab $active={tab === 'hourly'} onClick={() => setTab('hourly')}>
+            時間帯分析
+          </Tab>
+          <Tab $active={tab === 'breakdown'} onClick={() => setTab('breakdown')}>
+            仕入内訳
+          </Tab>
         </TabBar>
 
         {/* ── Tab: 売上分析 ── */}
@@ -239,12 +299,18 @@ export function DayDetailModal({
             {/* 比較モード切替: 前年比 / 前週比 */}
             {(prevYear.hasPrevYear || canWoW) && (
               <ToggleGroup style={{ marginBottom: '12px' }}>
-                <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</ToggleBtn>
+                <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
+                  前年比
+                </ToggleBtn>
                 <ToggleBtn
                   $active={compMode === 'wow'}
-                  onClick={() => { if (canWoW) setCompMode('wow') }}
+                  onClick={() => {
+                    if (canWoW) setCompMode('wow')
+                  }}
                   style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
-                >前週比</ToggleBtn>
+                >
+                  前週比
+                </ToggleBtn>
               </ToggleGroup>
             )}
             {compSales > 0 && (
@@ -298,7 +364,9 @@ export function DayDetailModal({
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計差異</DetailLabel>
-                    <DetailValue $color={sc.cond(cumDiff >= 0)}>{formatCurrency(cumDiff)}</DetailValue>
+                    <DetailValue $color={sc.cond(cumDiff >= 0)}>
+                      {formatCurrency(cumDiff)}
+                    </DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計達成率</DetailLabel>
@@ -324,7 +392,9 @@ export function DayDetailModal({
                       </DetailRow>
                       <DetailRow>
                         <DetailLabel>前年累計客単価</DetailLabel>
-                        <DetailValue>{cumPrevTxVal > 0 ? formatCurrency(cumPrevTxVal) : '-'}</DetailValue>
+                        <DetailValue>
+                          {cumPrevTxVal > 0 ? formatCurrency(cumPrevTxVal) : '-'}
+                        </DetailValue>
                       </DetailRow>
                     </>
                   )}
@@ -341,7 +411,10 @@ export function DayDetailModal({
             {dayRecords.length === 0 && (
               <DetailSection>
                 <DetailSectionTitle>時間帯別売上</DetailSectionTitle>
-                <DetailRow><DetailLabel>データなし</DetailLabel><DetailValue>-</DetailValue></DetailRow>
+                <DetailRow>
+                  <DetailLabel>データなし</DetailLabel>
+                  <DetailValue>-</DetailValue>
+                </DetailRow>
               </DetailSection>
             )}
           </>
@@ -351,68 +424,103 @@ export function DayDetailModal({
         {tab === 'breakdown' && (
           <DetailSection>
             <DetailSectionTitle>仕入・コスト内訳</DetailSectionTitle>
-            {record ? (() => {
-              const totalCost = getDailyTotalCost(record)
-              const costItems: { label: string; cost: number; price: number }[] = [
-                { label: '仕入（在庫）', cost: record.purchase.cost, price: record.purchase.price },
-                { label: '花', cost: record.flowers.cost, price: record.flowers.price },
-                { label: '産直', cost: record.directProduce.cost, price: record.directProduce.price },
-                { label: '店間入', cost: record.interStoreIn.cost, price: record.interStoreIn.price },
-                { label: '店間出', cost: record.interStoreOut.cost, price: record.interStoreOut.price },
-                { label: '部門間入', cost: record.interDepartmentIn.cost, price: record.interDepartmentIn.price },
-                { label: '部門間出', cost: record.interDepartmentOut.cost, price: record.interDepartmentOut.price },
-              ].filter(item => item.cost !== 0 || item.price !== 0)
-              const totalPrice = costItems.reduce((sum, item) => sum + Math.abs(item.price), 0)
+            {record ? (
+              (() => {
+                const totalCost = getDailyTotalCost(record)
+                const costItems: { label: string; cost: number; price: number }[] = [
+                  {
+                    label: '仕入（在庫）',
+                    cost: record.purchase.cost,
+                    price: record.purchase.price,
+                  },
+                  { label: '花', cost: record.flowers.cost, price: record.flowers.price },
+                  {
+                    label: '産直',
+                    cost: record.directProduce.cost,
+                    price: record.directProduce.price,
+                  },
+                  {
+                    label: '店間入',
+                    cost: record.interStoreIn.cost,
+                    price: record.interStoreIn.price,
+                  },
+                  {
+                    label: '店間出',
+                    cost: record.interStoreOut.cost,
+                    price: record.interStoreOut.price,
+                  },
+                  {
+                    label: '部門間入',
+                    cost: record.interDepartmentIn.cost,
+                    price: record.interDepartmentIn.price,
+                  },
+                  {
+                    label: '部門間出',
+                    cost: record.interDepartmentOut.cost,
+                    price: record.interDepartmentOut.price,
+                  },
+                ].filter((item) => item.cost !== 0 || item.price !== 0)
+                const totalPrice = costItems.reduce((sum, item) => sum + Math.abs(item.price), 0)
 
-              return (
-                <>
-                  {costItems.map((item) => {
-                    const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
-                    return (
-                      <DetailRow key={item.label}>
-                        <DetailLabel>{item.label}</DetailLabel>
-                        <DetailValue>
-                          {formatCurrency(item.price)} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>(原 {formatCurrency(item.cost)})</span>
-                          <span style={{ color: '#6366f1', fontSize: '0.75rem', marginLeft: '4px' }}>({formatPercent(ratio)})</span>
-                        </DetailValue>
-                      </DetailRow>
-                    )
-                  })}
-                  <DetailRow>
-                    <DetailLabel>総仕入原価</DetailLabel>
-                    <DetailValue>{formatCurrency(totalCost)}</DetailValue>
-                  </DetailRow>
-                  {actual > 0 && totalCost > 0 && (
-                    <DetailRow>
-                      <DetailLabel>原価率</DetailLabel>
-                      <DetailValue>{formatPercent(totalCost / actual)}</DetailValue>
-                    </DetailRow>
-                  )}
-                  {record.consumable.cost > 0 && (
-                    <DetailRow>
-                      <DetailLabel>消耗品費</DetailLabel>
-                      <DetailValue>{formatCurrency(record.consumable.cost)}</DetailValue>
-                    </DetailRow>
-                  )}
-                  {record.discountAmount !== 0 && (
-                    <>
-                      <DetailRow>
-                        <DetailLabel>売変額</DetailLabel>
-                        <DetailValue $color={sc.negative}>{formatCurrency(record.discountAmount)}</DetailValue>
-                      </DetailRow>
-                      {record.grossSales > 0 && (
-                        <DetailRow>
-                          <DetailLabel>売変率</DetailLabel>
-                          <DetailValue $color={sc.negative}>
-                            {formatPercent(Math.abs(record.discountAmount) / record.grossSales)}
+                return (
+                  <>
+                    {costItems.map((item) => {
+                      const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
+                      return (
+                        <DetailRow key={item.label}>
+                          <DetailLabel>{item.label}</DetailLabel>
+                          <DetailValue>
+                            {formatCurrency(item.price)}{' '}
+                            <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>
+                              (原 {formatCurrency(item.cost)})
+                            </span>
+                            <span
+                              style={{ color: '#6366f1', fontSize: '0.75rem', marginLeft: '4px' }}
+                            >
+                              ({formatPercent(ratio)})
+                            </span>
                           </DetailValue>
                         </DetailRow>
-                      )}
-                    </>
-                  )}
-                </>
-              )
-            })() : (
+                      )
+                    })}
+                    <DetailRow>
+                      <DetailLabel>総仕入原価</DetailLabel>
+                      <DetailValue>{formatCurrency(totalCost)}</DetailValue>
+                    </DetailRow>
+                    {actual > 0 && totalCost > 0 && (
+                      <DetailRow>
+                        <DetailLabel>原価率</DetailLabel>
+                        <DetailValue>{formatPercent(totalCost / actual)}</DetailValue>
+                      </DetailRow>
+                    )}
+                    {record.consumable.cost > 0 && (
+                      <DetailRow>
+                        <DetailLabel>消耗品費</DetailLabel>
+                        <DetailValue>{formatCurrency(record.consumable.cost)}</DetailValue>
+                      </DetailRow>
+                    )}
+                    {record.discountAmount !== 0 && (
+                      <>
+                        <DetailRow>
+                          <DetailLabel>売変額</DetailLabel>
+                          <DetailValue $color={sc.negative}>
+                            {formatCurrency(record.discountAmount)}
+                          </DetailValue>
+                        </DetailRow>
+                        {record.grossSales > 0 && (
+                          <DetailRow>
+                            <DetailLabel>売変率</DetailLabel>
+                            <DetailValue $color={sc.negative}>
+                              {formatPercent(Math.abs(record.discountAmount) / record.grossSales)}
+                            </DetailValue>
+                          </DetailRow>
+                        )}
+                      </>
+                    )}
+                  </>
+                )
+              })()
+            ) : (
               <DetailRow>
                 <DetailLabel>データなし</DetailLabel>
                 <DetailValue>-</DetailValue>
@@ -420,7 +528,6 @@ export function DayDetailModal({
             )}
           </DetailSection>
         )}
-
       </DetailModalContent>
     </PinModalOverlay>
   )

@@ -46,11 +46,7 @@ describe('countDistinctDays', () => {
   })
 
   it('異なる日のレコードをカウント', () => {
-    const records = [
-      makeRecord({ day: 1 }),
-      makeRecord({ day: 2 }),
-      makeRecord({ day: 3 }),
-    ]
+    const records = [makeRecord({ day: 1 }), makeRecord({ day: 2 }), makeRecord({ day: 3 })]
     expect(countDistinctDays(records)).toBe(3)
   })
 
@@ -73,10 +69,10 @@ describe('computeDowDivisorMap', () => {
   it('曜日別の distinct day 数を返す', () => {
     // 2026年2月: 1日=日曜, 2日=月曜, 8日=日曜, 9日=月曜
     const records = [
-      makeRecord({ day: 1 }),  // 日曜
-      makeRecord({ day: 2 }),  // 月曜
-      makeRecord({ day: 8 }),  // 日曜
-      makeRecord({ day: 9 }),  // 月曜
+      makeRecord({ day: 1 }), // 日曜
+      makeRecord({ day: 2 }), // 月曜
+      makeRecord({ day: 8 }), // 日曜
+      makeRecord({ day: 9 }), // 月曜
     ]
     const result = computeDowDivisorMap(records, 2026, 2)
     expect(result.get(0)).toBe(2) // 日曜: 2日

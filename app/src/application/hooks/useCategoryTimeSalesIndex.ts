@@ -23,7 +23,11 @@
  * ```
  */
 import { useMemo } from 'react'
-import type { CategoryTimeSalesData, CategoryTimeSalesRecord, CategoryTimeSalesIndex } from '@/domain/models'
+import type {
+  CategoryTimeSalesData,
+  CategoryTimeSalesRecord,
+  CategoryTimeSalesIndex,
+} from '@/domain/models'
 import { EMPTY_CTS_INDEX } from '@/domain/models'
 import { buildCategoryTimeSalesIndex } from '@/application/usecases'
 

@@ -10,11 +10,31 @@ import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { CustomCategory, CategoryType } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import {
-  ChartGrid, Section, SectionTitle, TableWrapper, Table, Th, Td, Tr, TrTotal,
-  Badge, EmptyState, ToggleBar, ToggleLabel, CategorySelect, CustomCategoryBadge,
-  KpiRow, SortButton, MarkupCell, GrossProfitCell, SectionHeader,
-  SupplierFilterInput, SupplierToolbar,
-  DrillTr, DrillToggle, DrillLabel,
+  ChartGrid,
+  Section,
+  SectionTitle,
+  TableWrapper,
+  Table,
+  Th,
+  Td,
+  Tr,
+  TrTotal,
+  Badge,
+  EmptyState,
+  ToggleBar,
+  ToggleLabel,
+  CategorySelect,
+  CustomCategoryBadge,
+  KpiRow,
+  SortButton,
+  MarkupCell,
+  GrossProfitCell,
+  SectionHeader,
+  SupplierFilterInput,
+  SupplierToolbar,
+  DrillTr,
+  DrillToggle,
+  DrillLabel,
 } from './CategoryPage.styles'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { CrossMultiplicationChart, CompositionChart } from './CategoryCharts'
@@ -25,7 +45,15 @@ import {
 import type { ComparisonMode, CategoryChartItem } from './categoryData'
 import { CATEGORY_COLORS, buildCategoryData, buildUnifiedCategoryData } from './categoryData'
 
-type SortKey = 'label' | 'cost' | 'price' | 'grossProfit' | 'markup' | 'costShare' | 'priceShare' | 'crossMult'
+type SortKey =
+  | 'label'
+  | 'cost'
+  | 'price'
+  | 'grossProfit'
+  | 'markup'
+  | 'costShare'
+  | 'priceShare'
+  | 'crossMult'
 type SortDir = 'asc' | 'desc'
 
 export function CategoryPage() {
@@ -34,7 +62,10 @@ export function CategoryPage() {
   const appState = useAppState()
   const { updateSettings } = useSettings()
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
-  const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'cost', dir: 'desc' })
+  const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({
+    key: 'cost',
+    dir: 'desc',
+  })
   const [supplierFilter, setSupplierFilter] = useState('')
   // ドリルダウン: カテゴリ→店舗→日別
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
@@ -66,10 +97,22 @@ export function CategoryPage() {
     const sorted = [...list].sort((a, b) => {
       let va: number, vb: number
       switch (key) {
-        case 'cost': va = a.cost; vb = b.cost; break
-        case 'price': va = a.price; vb = b.price; break
-        case 'grossProfit': va = a.price - a.cost; vb = b.price - b.cost; break
-        case 'markup': va = a.markupRate; vb = b.markupRate; break
+        case 'cost':
+          va = a.cost
+          vb = b.cost
+          break
+        case 'price':
+          va = a.price
+          vb = b.price
+          break
+        case 'grossProfit':
+          va = a.price - a.cost
+          vb = b.price - b.cost
+          break
+        case 'markup':
+          va = a.markupRate
+          vb = b.markupRate
+          break
         case 'priceShare':
           va = safeDivide(Math.abs(a.price), tAbsPrice, 0)
           vb = safeDivide(Math.abs(b.price), tAbsPrice, 0)
@@ -78,7 +121,9 @@ export function CategoryPage() {
           va = safeDivide(a.price - a.cost, tPrice, 0)
           vb = safeDivide(b.price - b.cost, tPrice, 0)
           break
-        default: va = a.cost; vb = b.cost
+        default:
+          va = a.cost
+          vb = b.cost
       }
       return dir === 'asc' ? va - vb : vb - va
     })
@@ -140,10 +185,7 @@ export function CategoryPage() {
         <ToggleBar>
           <ToggleLabel>表示モード:</ToggleLabel>
           <ChipGroup>
-            <Chip
-              $active={comparisonMode === 'total'}
-              onClick={() => setComparisonMode('total')}
-            >
+            <Chip $active={comparisonMode === 'total'} onClick={() => setComparisonMode('total')}>
               合計モード
             </Chip>
             <Chip
@@ -170,7 +212,11 @@ export function CategoryPage() {
           {/* チャート（相乗積 + 構成比）— 統合カテゴリ */}
           {(() => {
             const chartItems: CategoryChartItem[] = categoryData.map((d) => ({
-              label: d.label, cost: d.cost, price: d.price, markup: d.markup, color: d.color,
+              label: d.label,
+              cost: d.cost,
+              price: d.price,
+              markup: d.markup,
+              color: d.color,
             }))
             return (
               <ChartGrid>
@@ -229,7 +275,8 @@ export function CategoryPage() {
                         >
                           <Td>
                             {hasStores && <DrillToggle $expanded={isExpanded}>&#9654;</DrillToggle>}
-                            <Badge $color={d.color} />{d.label}
+                            <Badge $color={d.color} />
+                            {d.label}
                           </Td>
                           <Td>{formatCurrency(d.cost)}</Td>
                           <Td>{formatCurrency(d.price)}</Td>
@@ -249,15 +296,20 @@ export function CategoryPage() {
                           const sName = stores.get(sr.storeId)?.name ?? sr.storeId
                           const pair = d.isCustom
                             ? (() => {
-                                let c = 0, p = 0
+                                let c = 0,
+                                  p = 0
                                 for (const [, st] of sr.supplierTotals) {
-                                  if (appState.settings.supplierCategoryMap[st.supplierCode] === d.category) {
-                                    c += st.cost; p += st.price
+                                  if (
+                                    appState.settings.supplierCategoryMap[st.supplierCode] ===
+                                    d.category
+                                  ) {
+                                    c += st.cost
+                                    p += st.price
                                   }
                                 }
                                 return c !== 0 || p !== 0 ? { cost: c, price: p } : null
                               })()
-                            : sr.categoryTotals.get(d.category as CategoryType) ?? null
+                            : (sr.categoryTotals.get(d.category as CategoryType) ?? null)
                           if (!pair) continue
                           const sGP = pair.price - pair.cost
                           const sMarkup = safeDivide(sGP, pair.price, 0)
@@ -283,7 +335,9 @@ export function CategoryPage() {
                               </Td>
                               <Td>{formatCurrency(pair.cost)}</Td>
                               <Td>{formatCurrency(pair.price)}</Td>
-                              <GrossProfitCell $positive={sGP >= 0}>{formatCurrency(sGP)}</GrossProfitCell>
+                              <GrossProfitCell $positive={sGP >= 0}>
+                                {formatCurrency(sGP)}
+                              </GrossProfitCell>
                               <MarkupCell $rate={sMarkup}>{formatPercent(sMarkup)}</MarkupCell>
                               <Td></Td>
                               <Td></Td>
@@ -297,7 +351,11 @@ export function CategoryPage() {
                             const catSuppliers = new Set<string>()
                             for (const [code, st] of sr.supplierTotals) {
                               if (d.isCustom) {
-                                if (appState.settings.supplierCategoryMap[st.supplierCode] === d.category) catSuppliers.add(code)
+                                if (
+                                  appState.settings.supplierCategoryMap[st.supplierCode] ===
+                                  d.category
+                                )
+                                  catSuppliers.add(code)
                               } else if (st.category === d.category) {
                                 catSuppliers.add(code)
                               }
@@ -306,7 +364,8 @@ export function CategoryPage() {
                             const dayEntries = Array.from(sr.daily.entries())
                               .sort(([a], [b]) => a - b)
                               .map(([day, rec]) => {
-                                let dayCost = 0, dayPrice = 0
+                                let dayCost = 0,
+                                  dayPrice = 0
                                 for (const [sup, sp] of rec.supplierBreakdown) {
                                   if (catSuppliers.has(sup)) {
                                     dayCost += sp.cost
@@ -315,18 +374,24 @@ export function CategoryPage() {
                                 }
                                 return { day, cost: dayCost, price: dayPrice }
                               })
-                              .filter(e => e.cost !== 0 || e.price !== 0)
+                              .filter((e) => e.cost !== 0 || e.price !== 0)
 
                             for (const de of dayEntries) {
                               const dayGP = de.price - de.cost
                               const dayMarkup = safeDivide(dayGP, de.price, 0)
                               rows.push(
                                 <DrillTr key={`${storeKey}:${de.day}`} $depth={2}>
-                                  <Td><DrillLabel $depth={2}>{de.day}日</DrillLabel></Td>
+                                  <Td>
+                                    <DrillLabel $depth={2}>{de.day}日</DrillLabel>
+                                  </Td>
                                   <Td>{formatCurrency(de.cost)}</Td>
                                   <Td>{formatCurrency(de.price)}</Td>
-                                  <GrossProfitCell $positive={dayGP >= 0}>{formatCurrency(dayGP)}</GrossProfitCell>
-                                  <MarkupCell $rate={dayMarkup}>{formatPercent(dayMarkup)}</MarkupCell>
+                                  <GrossProfitCell $positive={dayGP >= 0}>
+                                    {formatCurrency(dayGP)}
+                                  </GrossProfitCell>
+                                  <MarkupCell $rate={dayMarkup}>
+                                    {formatPercent(dayMarkup)}
+                                  </MarkupCell>
                                   <Td></Td>
                                   <Td></Td>
                                   <Td></Td>
@@ -347,7 +412,11 @@ export function CategoryPage() {
                         <Td>{formatPercent(overallMarkupRate)}</Td>
                         <Td>{formatPercent(1)}</Td>
                         <Td>{formatPercent(1)}</Td>
-                        <Td>{formatPercent(categoryData.reduce((s, c) => s + c.crossMultiplication, 0))}</Td>
+                        <Td>
+                          {formatPercent(
+                            categoryData.reduce((s, c) => s + c.crossMultiplication, 0),
+                          )}
+                        </Td>
                       </TrTotal>,
                     )
                     return rows
@@ -413,11 +482,15 @@ export function CategoryPage() {
                   <tbody>
                     {filteredSupplierData.map((s) => {
                       const supplierGP = s.price - s.cost
-                      const supplierPriceShare = safeDivide(Math.abs(s.price), totalSupplierAbsPrice, 0)
+                      const supplierPriceShare = safeDivide(
+                        Math.abs(s.price),
+                        totalSupplierAbsPrice,
+                        0,
+                      )
                       const supplierCrossMult = safeDivide(s.price - s.cost, totalSupplierPrice, 0)
-                      const assignedCategory = appState.settings.supplierCategoryMap[s.supplierCode] as
-                        | CustomCategory
-                        | undefined
+                      const assignedCategory = appState.settings.supplierCategoryMap[
+                        s.supplierCode
+                      ] as CustomCategory | undefined
                       return (
                         <Tr key={s.supplierCode}>
                           <Td>
@@ -450,7 +523,9 @@ export function CategoryPage() {
                           <GrossProfitCell $positive={supplierGP >= 0}>
                             {formatCurrency(supplierGP)}
                           </GrossProfitCell>
-                          <MarkupCell $rate={s.markupRate}>{formatPercent(s.markupRate)}</MarkupCell>
+                          <MarkupCell $rate={s.markupRate}>
+                            {formatPercent(s.markupRate)}
+                          </MarkupCell>
                           <Td>{formatPercent(supplierPriceShare)}</Td>
                           <Td>{formatPercent(supplierCrossMult)}</Td>
                         </Tr>
@@ -464,11 +539,15 @@ export function CategoryPage() {
                       <Td>{formatCurrency(totalSupplierPrice)}</Td>
                       <Td>{formatCurrency(totalSupplierPrice - totalSupplierCost)}</Td>
                       <Td>
-                        {formatPercent(safeDivide(totalSupplierPrice - totalSupplierCost, totalSupplierPrice, 0))}
+                        {formatPercent(
+                          safeDivide(totalSupplierPrice - totalSupplierCost, totalSupplierPrice, 0),
+                        )}
                       </Td>
                       <Td>{formatPercent(1)}</Td>
                       <Td>
-                        {formatPercent(safeDivide(totalSupplierPrice - totalSupplierCost, totalSupplierPrice, 0))}
+                        {formatPercent(
+                          safeDivide(totalSupplierPrice - totalSupplierCost, totalSupplierPrice, 0),
+                        )}
                       </Td>
                     </TrTotal>
                   </tbody>
@@ -502,16 +581,24 @@ export function CategoryPage() {
                   <tr>
                     <Th>カテゴリ</Th>
                     {selectedResults.map((sr) => (
-                      <Th key={`${sr.storeId}-cost`} colSpan={1}>{sr.storeId} 原価</Th>
+                      <Th key={`${sr.storeId}-cost`} colSpan={1}>
+                        {sr.storeId} 原価
+                      </Th>
                     ))}
                     {selectedResults.map((sr) => (
-                      <Th key={`${sr.storeId}-price`} colSpan={1}>{sr.storeId} 売価</Th>
+                      <Th key={`${sr.storeId}-price`} colSpan={1}>
+                        {sr.storeId} 売価
+                      </Th>
                     ))}
                     {selectedResults.map((sr) => (
-                      <Th key={`${sr.storeId}-markup`} colSpan={1}>{sr.storeId} 値入率</Th>
+                      <Th key={`${sr.storeId}-markup`} colSpan={1}>
+                        {sr.storeId} 値入率
+                      </Th>
                     ))}
                     {selectedResults.map((sr) => (
-                      <Th key={`${sr.storeId}-cross`} colSpan={1}>{sr.storeId} 相乗積</Th>
+                      <Th key={`${sr.storeId}-cross`} colSpan={1}>
+                        {sr.storeId} 相乗積
+                      </Th>
                     ))}
                   </tr>
                 </thead>
@@ -542,13 +629,9 @@ export function CategoryPage() {
                       })}
                       {selectedResults.map((sr) => {
                         const pair = sr.categoryTotals.get(cat)
-                        const markup = pair
-                          ? safeDivide(pair.price - pair.cost, pair.price, 0)
-                          : 0
+                        const markup = pair ? safeDivide(pair.price - pair.cost, pair.price, 0) : 0
                         return (
-                          <Td key={`${sr.storeId}-markup`}>
-                            {pair ? formatPercent(markup) : '-'}
-                          </Td>
+                          <Td key={`${sr.storeId}-markup`}>{pair ? formatPercent(markup) : '-'}</Td>
                         )
                       })}
                       {selectedResults.map((sr) => {
@@ -607,9 +690,7 @@ export function CategoryPage() {
                         {selectedResults.map((sr) => {
                           const st = sr.supplierTotals.get(code)
                           return (
-                            <Td key={`${sr.storeId}-cost`}>
-                              {st ? formatCurrency(st.cost) : '-'}
-                            </Td>
+                            <Td key={`${sr.storeId}-cost`}>{st ? formatCurrency(st.cost) : '-'}</Td>
                           )
                         })}
                         {selectedResults.map((sr) => {
@@ -633,14 +714,12 @@ export function CategoryPage() {
                           if (!st) {
                             return <Td key={`${sr.storeId}-cross`}>-</Td>
                           }
-                          const storeTotalPrice = Array.from(sr.supplierTotals.values())
-                            .reduce((sum, s) => sum + s.price, 0)
-                          const crossMult = safeDivide(st.price - st.cost, storeTotalPrice, 0)
-                          return (
-                            <Td key={`${sr.storeId}-cross`}>
-                              {formatPercent(crossMult)}
-                            </Td>
+                          const storeTotalPrice = Array.from(sr.supplierTotals.values()).reduce(
+                            (sum, s) => sum + s.price,
+                            0,
                           )
+                          const crossMult = safeDivide(st.price - st.cost, storeTotalPrice, 0)
+                          return <Td key={`${sr.storeId}-cross`}>{formatPercent(crossMult)}</Td>
                         })}
                       </Tr>
                     ))

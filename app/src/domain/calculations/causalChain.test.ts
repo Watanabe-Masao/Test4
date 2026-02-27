@@ -25,7 +25,7 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
     invMethodGrossProfitRate: null,
     estMethodCogs: 7_200_000,
     estMethodMargin: 1_800_000,
-    estMethodMarginRate: 0.20,
+    estMethodMarginRate: 0.2,
     estMethodClosingInventory: null,
     totalCustomers: 5_000,
     averageCustomersPerDay: 250,
@@ -37,7 +37,7 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
       { type: '72', label: '値引', amount: 150_000 },
       { type: '73', label: '廃棄', amount: 50_000 },
     ] as readonly DiscountEntry[],
-    averageMarkupRate: 0.30,
+    averageMarkupRate: 0.3,
     coreMarkupRate: 0.28,
     totalConsumable: 100_000,
     consumableRate: 0.01,
@@ -92,7 +92,7 @@ describe('causalChain', () => {
     })
 
     it('前年データありで前年比変動ファクターが含まれる', () => {
-      const current = makeResult({ estMethodMarginRate: 0.20 })
+      const current = makeResult({ estMethodMarginRate: 0.2 })
       const prevYear = storeResultToCausalPrev(makeResult({ estMethodMarginRate: 0.22 }))
 
       const steps = buildCausalSteps(current, prevYear)
@@ -112,7 +112,7 @@ describe('causalChain', () => {
     })
 
     it('Step 1 insightに推奨文言や解釈が含まれない', () => {
-      const current = makeResult({ estMethodMarginRate: 0.20 })
+      const current = makeResult({ estMethodMarginRate: 0.2 })
       const prevYear = storeResultToCausalPrev(makeResult({ estMethodMarginRate: 0.22 }))
 
       const steps = buildCausalSteps(current, prevYear)
@@ -131,12 +131,18 @@ describe('causalChain', () => {
 
       const step2 = steps[1]
       expect(step2.factors).toHaveLength(3)
-      expect(step2.factors.map((f) => f.label)).toEqual(['原価率変動', '売変率変動', '消耗品率変動'])
+      expect(step2.factors.map((f) => f.label)).toEqual([
+        '原価率変動',
+        '売変率変動',
+        '消耗品率変動',
+      ])
     })
 
     it('前年データありでStep 2 insightにShapley分解が含まれる', () => {
       const current = makeResult({ totalSales: 10_000_000, totalCustomers: 5_000 })
-      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }))
+      const prevYear = storeResultToCausalPrev(
+        makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }),
+      )
 
       const steps = buildCausalSteps(current, prevYear)
 
@@ -152,12 +158,14 @@ describe('causalChain', () => {
           { type: '72', label: '値引', amount: 100_000 },
         ] as readonly DiscountEntry[],
       })
-      const prevYear = storeResultToCausalPrev(makeResult({
-        discountEntries: [
-          { type: '71', label: '見切', amount: 300_000 },
-          { type: '72', label: '値引', amount: 150_000 },
-        ] as readonly DiscountEntry[],
-      }))
+      const prevYear = storeResultToCausalPrev(
+        makeResult({
+          discountEntries: [
+            { type: '71', label: '見切', amount: 300_000 },
+            { type: '72', label: '値引', amount: 150_000 },
+          ] as readonly DiscountEntry[],
+        }),
+      )
 
       const steps = buildCausalSteps(current, prevYear)
       const discountStep = steps.find((s) => s.title === '売変種別内訳')
@@ -188,7 +196,9 @@ describe('causalChain', () => {
 
     it('前年データありで成分サマリーにShapleyファクター（客数効果・客単価効果）が含まれる', () => {
       const current = makeResult({ totalSales: 10_000_000, totalCustomers: 5_000 })
-      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }))
+      const prevYear = storeResultToCausalPrev(
+        makeResult({ totalSales: 9_000_000, totalCustomers: 4_500 }),
+      )
 
       const steps = buildCausalSteps(current, prevYear)
 
@@ -202,7 +212,9 @@ describe('causalChain', () => {
       const curSales = 10_000_000
       const prevSales = 9_000_000
       const current = makeResult({ totalSales: curSales, totalCustomers: 5_000 })
-      const prevYear = storeResultToCausalPrev(makeResult({ totalSales: prevSales, totalCustomers: 4_500 }))
+      const prevYear = storeResultToCausalPrev(
+        makeResult({ totalSales: prevSales, totalCustomers: 4_500 }),
+      )
 
       const steps = buildCausalSteps(current, prevYear)
 
@@ -236,7 +248,7 @@ describe('causalChain', () => {
     it('在庫法粗利率がある場合はそちらを優先する', () => {
       const result = makeResult({
         invMethodGrossProfitRate: 0.25,
-        estMethodMarginRate: 0.20,
+        estMethodMarginRate: 0.2,
       })
 
       const steps = buildCausalSteps(result, undefined)
@@ -303,7 +315,7 @@ describe('causalChain', () => {
     it('StoreResult から CausalChainPrevInput を正しく変換する', () => {
       const result = makeResult({
         invMethodGrossProfitRate: 0.25,
-        estMethodMarginRate: 0.20,
+        estMethodMarginRate: 0.2,
         inventoryCost: 6_500_000,
         deliverySalesCost: 500_000,
         grossSales: 10_000_000,

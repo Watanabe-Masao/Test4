@@ -20,9 +20,7 @@ import type { DateKey } from '@/domain/models'
  * @param data パース済みの分類別時間帯売上データ（records に year/month/day を持つ）
  * @returns (storeId, dateKey) でインデックス化された構造
  */
-export function buildCategoryTimeSalesIndex(
-  data: CategoryTimeSalesData,
-): CategoryTimeSalesIndex {
+export function buildCategoryTimeSalesIndex(data: CategoryTimeSalesData): CategoryTimeSalesIndex {
   const records = data.records
   if (records.length === 0) return EMPTY_CTS_INDEX
 

@@ -6,7 +6,15 @@
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
  */
-import type { ImportedData, StoreDayRecord, CategoryTimeSalesData, ClassifiedSalesData, FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
+import type {
+  ImportedData,
+  StoreDayRecord,
+  CategoryTimeSalesData,
+  ClassifiedSalesData,
+  FieldChange,
+  DataTypeDiff,
+  DiffResult,
+} from '@/domain/models'
 import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
 
 // ドメイン層で定義された型を再エクスポート
@@ -63,14 +71,8 @@ function flattenDayEntry(entry: Record<string, unknown>, prefix = ''): Map<strin
 }
 
 /** 店名をルックアップ */
-function getStoreName(
-  storeId: string,
-  existing: ImportedData,
-  incoming: ImportedData,
-): string {
-  return existing.stores.get(storeId)?.name
-    ?? incoming.stores.get(storeId)?.name
-    ?? storeId
+function getStoreName(storeId: string, existing: ImportedData, incoming: ImportedData): string {
+  return existing.stores.get(storeId)?.name ?? incoming.stores.get(storeId)?.name ?? storeId
 }
 
 // ─── StoreDayRecord の差分計算 ───────────────────────────
@@ -100,7 +102,14 @@ function diffStoreDayRecord(
         const fields = flattenDayEntry(incomingEntry as Record<string, unknown>)
         for (const [fieldPath, newVal] of fields) {
           if (newVal !== 0 && newVal !== null && newVal !== undefined) {
-            inserts.push({ storeId, storeName, day, fieldPath, oldValue: null, newValue: formatValue(newVal) })
+            inserts.push({
+              storeId,
+              storeName,
+              day,
+              fieldPath,
+              oldValue: null,
+              newValue: formatValue(newVal),
+            })
           }
         }
       } else {
@@ -114,11 +123,25 @@ function diffStoreDayRecord(
           if (oldVal === undefined || oldVal === null || oldVal === 0) {
             // 既存に値がない → 挿入
             if (newVal !== 0 && newVal !== null && newVal !== undefined) {
-              inserts.push({ storeId, storeName, day, fieldPath, oldValue: null, newValue: formatValue(newVal) })
+              inserts.push({
+                storeId,
+                storeName,
+                day,
+                fieldPath,
+                oldValue: null,
+                newValue: formatValue(newVal),
+              })
             }
           } else if (!valuesEqual(oldVal, newVal)) {
             // 値が異なる → 変更
-            modifications.push({ storeId, storeName, day, fieldPath, oldValue: formatValue(oldVal), newValue: formatValue(newVal) })
+            modifications.push({
+              storeId,
+              storeName,
+              day,
+              fieldPath,
+              oldValue: formatValue(oldVal),
+              newValue: formatValue(newVal),
+            })
           }
         }
 
@@ -127,7 +150,14 @@ function diffStoreDayRecord(
           if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
             const newVal = newFields.get(fieldPath)
             if (newVal === undefined || newVal === null || newVal === 0) {
-              removals.push({ storeId, storeName, day, fieldPath, oldValue: formatValue(oldVal), newValue: null })
+              removals.push({
+                storeId,
+                storeName,
+                day,
+                fieldPath,
+                oldValue: formatValue(oldVal),
+                newValue: null,
+              })
             }
           }
         }
@@ -143,7 +173,14 @@ function diffStoreDayRecord(
           for (const [fieldPath, oldVal] of fields) {
             if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
               const storeName = getStoreName(storeId, existingData, incomingData)
-              removals.push({ storeId, storeName, day, fieldPath, oldValue: formatValue(oldVal), newValue: null })
+              removals.push({
+                storeId,
+                storeName,
+                day,
+                fieldPath,
+                oldValue: formatValue(oldVal),
+                newValue: null,
+              })
             }
           }
         }
@@ -160,7 +197,14 @@ function diffStoreDayRecord(
         const fields = flattenDayEntry(existingEntry as Record<string, unknown>)
         for (const [fieldPath, oldVal] of fields) {
           if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
-            removals.push({ storeId, storeName, day, fieldPath, oldValue: formatValue(oldVal), newValue: null })
+            removals.push({
+              storeId,
+              storeName,
+              day,
+              fieldPath,
+              oldValue: formatValue(oldVal),
+              newValue: null,
+            })
           }
         }
       }
@@ -214,7 +258,10 @@ function diffCategoryTimeSales(
           newValue: incRec.totalAmount,
         })
       }
-    } else if (exRec.totalAmount !== incRec.totalAmount || exRec.totalQuantity !== incRec.totalQuantity) {
+    } else if (
+      exRec.totalAmount !== incRec.totalAmount ||
+      exRec.totalQuantity !== incRec.totalQuantity
+    ) {
       // 値変更
       modifications.push({
         storeId: incRec.storeId,
@@ -410,9 +457,7 @@ export function calculateDiff(
 
   // prevYearCategoryTimeSales は当年保存対象外（実際の年月に保存される）
 
-  const needsConfirmation = diffs.some(
-    (d) => d.modifications.length > 0 || d.removals.length > 0,
-  )
+  const needsConfirmation = diffs.some((d) => d.modifications.length > 0 || d.removals.length > 0)
 
   return { diffs, needsConfirmation, autoApproved }
 }

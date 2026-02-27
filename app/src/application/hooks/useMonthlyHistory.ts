@@ -77,7 +77,9 @@ export function useMonthlyHistory(
           }
 
           // 予算データの読み込み（あれば）
-          const budgetData = await repo.loadDataSlice<ReadonlyMap<string, { monthlyBudget?: number }>>(year, month, 'budget')
+          const budgetData = await repo.loadDataSlice<
+            ReadonlyMap<string, { monthlyBudget?: number }>
+          >(year, month, 'budget')
           let totalBudget = 0
           if (budgetData && budgetData instanceof Map) {
             for (const [, b] of budgetData) {
@@ -109,7 +111,7 @@ export function useMonthlyHistory(
 
         if (!cancelled) {
           // 時系列順にソート
-          points.sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+          points.sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month))
           setData(points)
           loadedRef.current = true
         }
@@ -119,7 +121,9 @@ export function useMonthlyHistory(
     }
 
     loadHistory()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [repo, currentYear, currentMonth])
 
   return data
@@ -150,9 +154,10 @@ export function currentResultToMonthlyPoint(
   },
   storeCount: number,
 ): MonthlyDataPoint {
-  const costRate = result.grossSales > 0
-    ? (result.inventoryCost + result.deliverySalesCost) / result.grossSales
-    : null
+  const costRate =
+    result.grossSales > 0
+      ? (result.inventoryCost + result.deliverySalesCost) / result.grossSales
+      : null
   return {
     year,
     month,

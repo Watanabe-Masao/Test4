@@ -19,7 +19,14 @@ import {
   STORE_META,
 } from './dbHelpers'
 import { monthKey, summaryKey, importHistoryKey, STORE_DAY_FIELDS, DATA_TYPE_LABELS } from './keys'
-import { wrapEnvelope, unwrapEnvelope, mapToObj, budgetToSerializable, budgetFromSerializable, validateLoadedData } from './serialization'
+import {
+  wrapEnvelope,
+  unwrapEnvelope,
+  mapToObj,
+  budgetToSerializable,
+  budgetFromSerializable,
+  validateLoadedData,
+} from './serialization'
 import type { SessionEntry } from './metaOperations'
 import { sessionsReadModifyOp } from './metaOperations'
 
@@ -36,13 +43,29 @@ export async function saveImportedData(
 
   // StoreDayRecord 系 — envelope 形式で保存
   for (const { field, type } of STORE_DAY_FIELDS) {
-    entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, type), value: wrapEnvelope(data[field], year, month) })
+    entries.push({
+      storeName: STORE_MONTHLY,
+      key: monthKey(year, month, type),
+      value: wrapEnvelope(data[field], year, month),
+    })
   }
 
   // Map 系 → plain object に変換して envelope で保存
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: wrapEnvelope(mapToObj(data.stores), year, month) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: wrapEnvelope(mapToObj(data.suppliers), year, month) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: wrapEnvelope(mapToObj(data.settings), year, month) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'stores'),
+    value: wrapEnvelope(mapToObj(data.stores), year, month),
+  })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'suppliers'),
+    value: wrapEnvelope(mapToObj(data.suppliers), year, month),
+  })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'settings'),
+    value: wrapEnvelope(mapToObj(data.settings), year, month),
+  })
   entries.push({
     storeName: STORE_MONTHLY,
     key: monthKey(year, month, 'budget'),
@@ -56,17 +79,29 @@ export async function saveImportedData(
   })
 
   // classifiedSales — envelope 形式で保存
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: wrapEnvelope(data.classifiedSales, year, month) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'classifiedSales'),
+    value: wrapEnvelope(data.classifiedSales, year, month),
+  })
 
   // prevYearClassifiedSales は DB に保存しない（実際の年月に classifiedSales として保存）
 
   // categoryTimeSales — envelope 形式で保存
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'categoryTimeSales'),
+    value: wrapEnvelope(data.categoryTimeSales, year, month),
+  })
 
   // prevYearCategoryTimeSales は DB に保存しない（実際の年月に categoryTimeSales として保存）
 
   // departmentKpi — envelope 形式で保存
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: wrapEnvelope(data.departmentKpi, year, month) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'departmentKpi'),
+    value: wrapEnvelope(data.departmentKpi, year, month),
+  })
 
   // メタデータ
   const savedAt = new Date().toISOString()
@@ -77,9 +112,7 @@ export async function saveImportedData(
   })
 
   // sessions 一覧を原子的に read-modify-write で更新
-  await dbBatchPutWithReadModify(entries, [
-    sessionsReadModifyOp(year, month, savedAt),
-  ])
+  await dbBatchPutWithReadModify(entries, [sessionsReadModifyOp(year, month, savedAt)])
 }
 
 /**
@@ -88,10 +121,7 @@ export async function saveImportedData(
  * 保存されていない場合は null を返す。
  * 基本的なスキーマ検証を行い、不整合があれば null を返す。
  */
-export async function loadImportedData(
-  year: number,
-  month: number,
-): Promise<ImportedData | null> {
+export async function loadImportedData(year: number, month: number): Promise<ImportedData | null> {
   // 読み取り対象のキーとエイリアスを定義
   type KeyAlias = { key: string; alias: string }
   const keysToRead: KeyAlias[] = [
@@ -114,7 +144,9 @@ export async function loadImportedData(
       const results = new Map<string, unknown>()
       for (const { key, alias } of keysToRead) {
         const req = store.get(key)
-        req.onsuccess = () => { results.set(alias, req.result) }
+        req.onsuccess = () => {
+          results.set(alias, req.result)
+        }
       }
       tx.oncomplete = () => resolve(results)
       tx.onerror = () => reject(tx.error)
@@ -140,20 +172,39 @@ export async function loadImportedData(
   // stores — envelope unwrap
   const storesUnwrapped = unwrapEnvelope<Record<string, Store>>(rawStoresEntry, year, month)
   const storesObj = storesUnwrapped?.value
-  result.stores = storesObj && typeof storesObj === 'object' ? new Map(Object.entries(storesObj)) : new Map()
+  result.stores =
+    storesObj && typeof storesObj === 'object' ? new Map(Object.entries(storesObj)) : new Map()
 
   // suppliers — envelope unwrap
-  const suppliersUnwrapped = unwrapEnvelope<Record<string, { code: string; name: string }>>(rawData.get('suppliers'), year, month)
+  const suppliersUnwrapped = unwrapEnvelope<Record<string, { code: string; name: string }>>(
+    rawData.get('suppliers'),
+    year,
+    month,
+  )
   const suppliersObj = suppliersUnwrapped?.value
-  result.suppliers = suppliersObj && typeof suppliersObj === 'object' ? new Map(Object.entries(suppliersObj)) : new Map()
+  result.suppliers =
+    suppliersObj && typeof suppliersObj === 'object'
+      ? new Map(Object.entries(suppliersObj))
+      : new Map()
 
   // settings — envelope unwrap
-  const settingsUnwrapped = unwrapEnvelope<Record<string, InventoryConfig>>(rawData.get('settings'), year, month)
+  const settingsUnwrapped = unwrapEnvelope<Record<string, InventoryConfig>>(
+    rawData.get('settings'),
+    year,
+    month,
+  )
   const settingsObj = settingsUnwrapped?.value
-  result.settings = settingsObj && typeof settingsObj === 'object' ? new Map(Object.entries(settingsObj)) : new Map()
+  result.settings =
+    settingsObj && typeof settingsObj === 'object'
+      ? new Map(Object.entries(settingsObj))
+      : new Map()
 
   // budget — envelope unwrap
-  const budgetUnwrapped = unwrapEnvelope<Record<string, Record<string, unknown>>>(rawData.get('budget'), year, month)
+  const budgetUnwrapped = unwrapEnvelope<Record<string, Record<string, unknown>>>(
+    rawData.get('budget'),
+    year,
+    month,
+  )
   const budgetObj = budgetUnwrapped?.value
   if (budgetObj && typeof budgetObj === 'object') {
     const budgetMap = new Map<string, BudgetData>()
@@ -173,7 +224,11 @@ export async function loadImportedData(
   }
 
   // classifiedSales — envelope unwrap + マイグレーション
-  const csUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawData.get('classifiedSales'), year, month)
+  const csUnwrapped = unwrapEnvelope<{ records: unknown[] }>(
+    rawData.get('classifiedSales'),
+    year,
+    month,
+  )
   const csObj = csUnwrapped?.value
   if (csObj && Array.isArray(csObj.records)) {
     // discount71-74 が欠けている古いデータを正規化
@@ -193,7 +248,11 @@ export async function loadImportedData(
   // (useAutoLoadPrevYear が実際の年月から classifiedSales を自動ロードする)
 
   // categoryTimeSales — envelope unwrap + year/month 補完
-  const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawData.get('categoryTimeSales'), year, month)
+  const ctsUnwrapped = unwrapEnvelope<{ records: unknown[] }>(
+    rawData.get('categoryTimeSales'),
+    year,
+    month,
+  )
   const ctsObj = ctsUnwrapped?.value
   if (ctsObj && Array.isArray(ctsObj.records)) {
     // 旧データで year/month が未設定のレコードを補完する。
@@ -214,11 +273,14 @@ export async function loadImportedData(
   // prevYearCategoryTimeSales は DB に保存しないため読み込まない
 
   // departmentKpi — envelope unwrap
-  const deptKpiUnwrapped = unwrapEnvelope<{ records: unknown[] }>(rawData.get('departmentKpi'), year, month)
+  const deptKpiUnwrapped = unwrapEnvelope<{ records: unknown[] }>(
+    rawData.get('departmentKpi'),
+    year,
+    month,
+  )
   const deptKpiObj = deptKpiUnwrapped?.value
-  result.departmentKpi = deptKpiObj && Array.isArray(deptKpiObj.records)
-    ? deptKpiObj
-    : { records: [] }
+  result.departmentKpi =
+    deptKpiObj && Array.isArray(deptKpiObj.records) ? deptKpiObj : { records: [] }
 
   // スキーマ検証
   if (!validateLoadedData(result)) {
@@ -251,25 +313,29 @@ export async function clearMonthData(year: number, month: number): Promise<void>
   deleteEntries.push({ storeName: STORE_MONTHLY, key: importHistoryKey(year, month) })
 
   // lastSession が当該年月の場合のみ条件付き削除
-  const conditionalDeletes = [{
-    storeName: STORE_META,
-    key: 'lastSession',
-    shouldDelete: (existing: unknown) => {
-      if (!existing || typeof existing !== 'object') return false
-      const meta = existing as { year?: number; month?: number }
-      return meta.year === year && meta.month === month
+  const conditionalDeletes = [
+    {
+      storeName: STORE_META,
+      key: 'lastSession',
+      shouldDelete: (existing: unknown) => {
+        if (!existing || typeof existing !== 'object') return false
+        const meta = existing as { year?: number; month?: number }
+        return meta.year === year && meta.month === month
+      },
     },
-  }]
+  ]
 
   // sessions 一覧から削除対象月を除去（read-modify-write）
-  const readModifyOps: ReadModifyWriteOp[] = [{
-    storeName: STORE_META,
-    key: 'sessions',
-    modify: (existing) => {
-      if (!Array.isArray(existing)) return []
-      return (existing as SessionEntry[]).filter((s) => !(s.year === year && s.month === month))
+  const readModifyOps: ReadModifyWriteOp[] = [
+    {
+      storeName: STORE_META,
+      key: 'sessions',
+      modify: (existing) => {
+        if (!Array.isArray(existing)) return []
+        return (existing as SessionEntry[]).filter((s) => !(s.year === year && s.month === month))
+      },
     },
-  }]
+  ]
 
   await dbAtomicDeleteWithReadModify(deleteEntries, conditionalDeletes, readModifyOps)
 }
@@ -319,15 +385,27 @@ export async function saveDataSlice(
 
   for (const dt of dataTypes) {
     if (dt === 'classifiedSales') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'classifiedSales'), value: wrapEnvelope(data.classifiedSales, year, month) })
+      entries.push({
+        storeName: STORE_MONTHLY,
+        key: monthKey(year, month, 'classifiedSales'),
+        value: wrapEnvelope(data.classifiedSales, year, month),
+      })
       continue
     }
     if (dt === 'categoryTimeSales') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'categoryTimeSales'), value: wrapEnvelope(data.categoryTimeSales, year, month) })
+      entries.push({
+        storeName: STORE_MONTHLY,
+        key: monthKey(year, month, 'categoryTimeSales'),
+        value: wrapEnvelope(data.categoryTimeSales, year, month),
+      })
       continue
     }
     if (dt === 'departmentKpi') {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'departmentKpi'), value: wrapEnvelope(data.departmentKpi, year, month) })
+      entries.push({
+        storeName: STORE_MONTHLY,
+        key: monthKey(year, month, 'departmentKpi'),
+        value: wrapEnvelope(data.departmentKpi, year, month),
+      })
       continue
     }
     // initialSettings / budget は
@@ -335,14 +413,30 @@ export async function saveDataSlice(
     // → STORE_DAY_FIELDS で一致するもののみ保存
     const fieldDef = STORE_DAY_FIELDS.find((f) => f.type === dt)
     if (fieldDef) {
-      entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, fieldDef.type), value: wrapEnvelope(data[fieldDef.field], year, month) })
+      entries.push({
+        storeName: STORE_MONTHLY,
+        key: monthKey(year, month, fieldDef.type),
+        value: wrapEnvelope(data[fieldDef.field], year, month),
+      })
     }
   }
 
   // 常に stores / suppliers / settings / budget を更新 — envelope 形式
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'stores'), value: wrapEnvelope(mapToObj(data.stores), year, month) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'suppliers'), value: wrapEnvelope(mapToObj(data.suppliers), year, month) })
-  entries.push({ storeName: STORE_MONTHLY, key: monthKey(year, month, 'settings'), value: wrapEnvelope(mapToObj(data.settings), year, month) })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'stores'),
+    value: wrapEnvelope(mapToObj(data.stores), year, month),
+  })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'suppliers'),
+    value: wrapEnvelope(mapToObj(data.suppliers), year, month),
+  })
+  entries.push({
+    storeName: STORE_MONTHLY,
+    key: monthKey(year, month, 'settings'),
+    value: wrapEnvelope(mapToObj(data.settings), year, month),
+  })
   entries.push({
     storeName: STORE_MONTHLY,
     key: monthKey(year, month, 'budget'),
@@ -364,9 +458,7 @@ export async function saveDataSlice(
   })
 
   // sessions 一覧を原子的に read-modify-write で更新
-  await dbBatchPutWithReadModify(entries, [
-    sessionsReadModifyOp(year, month, savedAt),
-  ])
+  await dbBatchPutWithReadModify(entries, [sessionsReadModifyOp(year, month, savedAt)])
 }
 
 /** 特定年月のデータ種別ごとのレコード数サマリーを取得する */
@@ -398,7 +490,12 @@ export async function getMonthDataSummary(
     let count = 0
     if (type === 'classifiedSales' || type === 'categoryTimeSales' || type === 'departmentKpi') {
       count = ((val as { records?: unknown[] }).records ?? []).length
-    } else if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
+    } else if (
+      type === 'stores' ||
+      type === 'suppliers' ||
+      type === 'settings' ||
+      type === 'budget'
+    ) {
       count = Object.keys(val as Record<string, unknown>).length
     } else {
       // StoreDayRecord: storeId → day → entry

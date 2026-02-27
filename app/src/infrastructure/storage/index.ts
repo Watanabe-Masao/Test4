@@ -9,13 +9,5 @@ export {
   saveDataSlice,
 } from './IndexedDBStore'
 export type { PersistedMeta } from './IndexedDBStore'
-export {
-  calculateDiff,
-  summarizeDiff,
-} from './diffCalculator'
-export type {
-  FieldChange,
-  ChangeType,
-  DataTypeDiff,
-  DiffResult,
-} from './diffCalculator'
+export { calculateDiff, summarizeDiff } from './diffCalculator'
+export type { FieldChange, ChangeType, DataTypeDiff, DiffResult } from './diffCalculator'

@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  calculateSensitivity,
-  calculateElasticity,
-  extractSensitivityBase,
-} from './sensitivity'
+import { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './sensitivity'
 import type { SensitivityBase, SensitivityDeltas } from './sensitivity'
 
 const BASE: SensitivityBase = {
@@ -51,7 +47,7 @@ describe('sensitivity', () => {
     it('客数10%増で売上・粗利が増加する', () => {
       const result = calculateSensitivity(BASE, {
         ...ZERO_DELTAS,
-        customersDelta: 0.10, // 10%増
+        customersDelta: 0.1, // 10%増
       })
 
       expect(result.salesDelta).toBeGreaterThan(0)
@@ -85,21 +81,21 @@ describe('sensitivity', () => {
       // 客数+10%, 客単価+5% → 売上は約 +15.5%（乗算効果）
       const result = calculateSensitivity(BASE, {
         ...ZERO_DELTAS,
-        customersDelta: 0.10,
+        customersDelta: 0.1,
         transactionValueDelta: 0.05,
       })
 
-      const expectedSales = BASE.totalSales * 1.10 * 1.05
+      const expectedSales = BASE.totalSales * 1.1 * 1.05
       expect(result.simulatedSales).toBeCloseTo(expectedSales, -2)
     })
 
     it('着地予測が日平均×営業日数で算出される', () => {
       const result = calculateSensitivity(BASE, {
         ...ZERO_DELTAS,
-        customersDelta: 0.20, // 20%増
+        customersDelta: 0.2, // 20%増
       })
 
-      const simSales = BASE.totalSales * 1.20
+      const simSales = BASE.totalSales * 1.2
       const simDailyAvg = simSales / BASE.elapsedDays
       const expectedProjected = simDailyAvg * BASE.salesDays
       expect(result.simulatedProjectedSales).toBeCloseTo(expectedProjected, -2)
@@ -118,7 +114,7 @@ describe('sensitivity', () => {
       }
       const result = calculateSensitivity(zeroBase, {
         ...ZERO_DELTAS,
-        customersDelta: 0.10,
+        customersDelta: 0.1,
       })
 
       expect(isFinite(result.simulatedGrossProfit)).toBe(true)
@@ -130,7 +126,7 @@ describe('sensitivity', () => {
       const zeroBudget: SensitivityBase = { ...BASE, budget: 0 }
       const result = calculateSensitivity(zeroBudget, {
         ...ZERO_DELTAS,
-        customersDelta: 0.10,
+        customersDelta: 0.1,
       })
 
       expect(isFinite(result.budgetAchievementDelta)).toBe(true)

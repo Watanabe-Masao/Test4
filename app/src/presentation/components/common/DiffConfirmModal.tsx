@@ -140,7 +140,13 @@ const ButtonGroup = styled.div`
 
 // ─── サブコンポーネント ──────────────────────────────────
 
-function ChangeEntry({ change, type }: { change: FieldChange; type: 'insert' | 'modify' | 'remove' }) {
+function ChangeEntry({
+  change,
+  type,
+}: {
+  change: FieldChange
+  type: 'insert' | 'modify' | 'remove'
+}) {
   const formatNum = (v: number | string | null) => {
     if (v === null) return '-'
     if (typeof v === 'number') return v.toLocaleString()
@@ -152,9 +158,7 @@ function ChangeEntry({ change, type }: { change: FieldChange; type: 'insert' | '
       <StoreLabel title={change.storeName}>{change.storeName}</StoreLabel>
       <DayLabel>{change.day}日</DayLabel>
       <ValueChange>
-        {type === 'insert' && (
-          <NewValue>+ {formatNum(change.newValue)}</NewValue>
-        )}
+        {type === 'insert' && <NewValue>+ {formatNum(change.newValue)}</NewValue>}
         {type === 'modify' && (
           <>
             <OldValue>{formatNum(change.oldValue)}</OldValue>
@@ -162,9 +166,7 @@ function ChangeEntry({ change, type }: { change: FieldChange; type: 'insert' | '
             <NewValue>{formatNum(change.newValue)}</NewValue>
           </>
         )}
-        {type === 'remove' && (
-          <OldValue>- {formatNum(change.oldValue)}</OldValue>
-        )}
+        {type === 'remove' && <OldValue>- {formatNum(change.oldValue)}</OldValue>}
       </ValueChange>
     </ChangeRow>
   )
@@ -179,7 +181,9 @@ function DataTypeDiffSection({ diff }: { diff: DataTypeDiff }) {
       <DataTypeHeader onClick={() => setExpanded(!expanded)}>
         <DataTypeName>{diff.dataTypeName}</DataTypeName>
         {diff.inserts.length > 0 && <Badge $type="insert">+{diff.inserts.length}</Badge>}
-        {diff.modifications.length > 0 && <Badge $type="modify">{diff.modifications.length}変更</Badge>}
+        {diff.modifications.length > 0 && (
+          <Badge $type="modify">{diff.modifications.length}変更</Badge>
+        )}
         {diff.removals.length > 0 && <Badge $type="remove">-{diff.removals.length}</Badge>}
         <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#71717a' }}>
           {expanded ? '▲' : '▼'}
@@ -291,9 +295,24 @@ export function DiffConfirmModal({
     >
       <Summary>
         保存済みデータとインポートデータに差分があります。
-        {totalInsert > 0 && <><br />新規挿入: {totalInsert}件（自動反映）</>}
-        {totalModify > 0 && <><br />値変更: {totalModify}件（確認必要）</>}
-        {totalRemove > 0 && <><br />値削除: {totalRemove}件（確認必要）</>}
+        {totalInsert > 0 && (
+          <>
+            <br />
+            新規挿入: {totalInsert}件（自動反映）
+          </>
+        )}
+        {totalModify > 0 && (
+          <>
+            <br />
+            値変更: {totalModify}件（確認必要）
+          </>
+        )}
+        {totalRemove > 0 && (
+          <>
+            <br />
+            値削除: {totalRemove}件（確認必要）
+          </>
+        )}
       </Summary>
 
       {diffResult.diffs
@@ -303,8 +322,10 @@ export function DiffConfirmModal({
         ))}
 
       <HelpText>
-        <strong>新規データで上書き</strong>: インポートしたCSVの内容で全て置き換えます。<br />
-        <strong>既存を維持</strong>: 新規挿入のみ反映し、既存の値は変更しません。<br />
+        <strong>新規データで上書き</strong>: インポートしたCSVの内容で全て置き換えます。
+        <br />
+        <strong>既存を維持</strong>: 新規挿入のみ反映し、既存の値は変更しません。
+        <br />
         <strong>キャンセル</strong>: インポートを取り消し、何も変更しません。
       </HelpText>
     </Modal>

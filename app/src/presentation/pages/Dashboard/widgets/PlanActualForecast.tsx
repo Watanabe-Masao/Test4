@@ -1,14 +1,35 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  formatPointDiff,
+  safeDivide,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
-  ExecGrid, ExecColumn, ExecColHeader, ExecColTag, ExecColTitle, ExecColSub,
-  ExecBody, ExecRow, ExecLabel, ExecVal, ExecSub, ExecDividerLine,
+  ExecGrid,
+  ExecColumn,
+  ExecColHeader,
+  ExecColTag,
+  ExecColTitle,
+  ExecColSub,
+  ExecBody,
+  ExecRow,
+  ExecLabel,
+  ExecVal,
+  ExecSub,
+  ExecDividerLine,
 } from '../DashboardPage.styles'
 
-function ExecMetric({ label, value, sub, subColor }: {
+function ExecMetric({
+  label,
+  value,
+  sub,
+  subColor,
+}: {
   label: string
   value: string
   sub?: string
@@ -37,9 +58,8 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
   const actualGPRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
 
-  const elapsedGPBudget = r.grossProfitBudget > 0
-    ? r.grossProfitBudget * safeDivide(r.elapsedDays, daysInMonth)
-    : 0
+  const elapsedGPBudget =
+    r.grossProfitBudget > 0 ? r.grossProfitBudget * safeDivide(r.elapsedDays, daysInMonth) : 0
 
   const remainingDays = daysInMonth - r.elapsedDays
   const dailyAvgGP = r.salesDays > 0 ? actualGP / r.salesDays : 0
@@ -74,7 +94,9 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
         <ExecColHeader $color={palette.successDark}>
           <ExecColTag>ACTUAL</ExecColTag>
           <ExecColTitle>現在地</ExecColTitle>
-          <ExecColSub>期中実績（{r.elapsedDays}日経過 / {r.salesDays}営業日）</ExecColSub>
+          <ExecColSub>
+            期中実績（{r.elapsedDays}日経過 / {r.salesDays}営業日）
+          </ExecColSub>
         </ExecColHeader>
         <ExecBody>
           <ExecMetric label="期中売上予算" value={formatCurrency(elapsedBudget)} />
@@ -89,53 +111,57 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             value={formatPercent(salesAchievement)}
             sub={`進捗比: ${formatPercent(progressRatio)}`}
           />
-          {ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0 && (() => {
-            const pyRatio = r.totalSales / ctx.prevYear.totalSales
-            return (
-              <>
-                <ExecDividerLine />
-                <ExecMetric
-                  label="前年同曜日売上"
-                  value={formatCurrency(ctx.prevYear.totalSales)}
-                />
-                <ExecMetric
-                  label="前年同曜日比"
-                  value={formatPercent(pyRatio)}
-                  subColor={sc.cond(pyRatio >= 1)}
-                />
-              </>
-            )
-          })()}
-          {r.totalCustomers > 0 && (() => {
-            const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
-            const pyCustomers = ctx.prevYear.totalCustomers
-            const pyTxValue = pyCustomers > 0
-              ? calculateTransactionValue(ctx.prevYear.totalSales, pyCustomers)
-              : null
-            const custRatio = pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
-            return (
-              <>
-                <ExecDividerLine />
-                <ExecMetric
-                  label="期中客数"
-                  value={`${r.totalCustomers.toLocaleString('ja-JP')}人`}
-                  sub={`日平均: ${Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人`}
-                />
-                <ExecMetric
-                  label="客単価"
-                  value={formatCurrency(txValue) + '円'}
-                  sub={pyTxValue ? `前年: ${formatCurrency(pyTxValue)}円` : undefined}
-                />
-                {custRatio != null && (
+          {ctx.prevYear.hasPrevYear &&
+            ctx.prevYear.totalSales > 0 &&
+            (() => {
+              const pyRatio = r.totalSales / ctx.prevYear.totalSales
+              return (
+                <>
+                  <ExecDividerLine />
                   <ExecMetric
-                    label="客数前年比"
-                    value={formatPercent(custRatio)}
-                    subColor={sc.cond(custRatio >= 1)}
+                    label="前年同曜日売上"
+                    value={formatCurrency(ctx.prevYear.totalSales)}
                   />
-                )}
-              </>
-            )
-          })()}
+                  <ExecMetric
+                    label="前年同曜日比"
+                    value={formatPercent(pyRatio)}
+                    subColor={sc.cond(pyRatio >= 1)}
+                  />
+                </>
+              )
+            })()}
+          {r.totalCustomers > 0 &&
+            (() => {
+              const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
+              const pyCustomers = ctx.prevYear.totalCustomers
+              const pyTxValue =
+                pyCustomers > 0
+                  ? calculateTransactionValue(ctx.prevYear.totalSales, pyCustomers)
+                  : null
+              const custRatio = pyCustomers > 0 ? r.totalCustomers / pyCustomers : null
+              return (
+                <>
+                  <ExecDividerLine />
+                  <ExecMetric
+                    label="期中客数"
+                    value={`${r.totalCustomers.toLocaleString('ja-JP')}人`}
+                    sub={`日平均: ${Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人`}
+                  />
+                  <ExecMetric
+                    label="客単価"
+                    value={formatCurrency(txValue) + '円'}
+                    sub={pyTxValue ? `前年: ${formatCurrency(pyTxValue)}円` : undefined}
+                  />
+                  {custRatio != null && (
+                    <ExecMetric
+                      label="客数前年比"
+                      value={formatPercent(custRatio)}
+                      subColor={sc.cond(custRatio >= 1)}
+                    />
+                  )}
+                </>
+              )
+            })()}
           <ExecDividerLine />
           <ExecMetric
             label="期中粗利額実績"
@@ -149,32 +175,30 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             sub={`予算比: ${formatPointDiff(actualGPRate - r.grossProfitRateBudget)}`}
             subColor={sc.cond(actualGPRate >= r.grossProfitRateBudget)}
           />
-          {r.totalConsumable > 0 && (() => {
-            const isInvMethod = r.invMethodGrossProfitRate != null
-            const beforeRate = isInvMethod
-              ? r.invMethodGrossProfitRate!
-              : safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
-            const afterRate = isInvMethod
-              ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
-              : r.estMethodMarginRate
-            return (
-              <>
-                <ExecMetric
-                  label="原価算入比（消耗品費）"
-                  value={formatCurrency(r.totalConsumable)}
-                />
-                <ExecMetric
-                  label="粗利率（消耗品控除前）"
-                  value={formatPercent(beforeRate)}
-                />
-                <ExecMetric
-                  label="原算後粗利率"
-                  value={formatPercent(afterRate)}
-                  sub={`減算: ${formatPointDiff(beforeRate - afterRate)}`}
-                />
-              </>
-            )
-          })()}
+          {r.totalConsumable > 0 &&
+            (() => {
+              const isInvMethod = r.invMethodGrossProfitRate != null
+              const beforeRate = isInvMethod
+                ? r.invMethodGrossProfitRate!
+                : safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+              const afterRate = isInvMethod
+                ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+                : r.estMethodMarginRate
+              return (
+                <>
+                  <ExecMetric
+                    label="原価算入比（消耗品費）"
+                    value={formatCurrency(r.totalConsumable)}
+                  />
+                  <ExecMetric label="粗利率（消耗品控除前）" value={formatPercent(beforeRate)} />
+                  <ExecMetric
+                    label="原算後粗利率"
+                    value={formatPercent(afterRate)}
+                    sub={`減算: ${formatPointDiff(beforeRate - afterRate)}`}
+                  />
+                </>
+              )
+            })()}
         </ExecBody>
       </ExecColumn>
 
@@ -191,10 +215,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             sub={`予算差: ${formatCurrency(r.projectedSales - r.budget)}`}
             subColor={sc.cond(r.projectedSales >= r.budget)}
           />
-          <ExecMetric
-            label="着地売上達成率"
-            value={formatPercent(r.projectedAchievement)}
-          />
+          <ExecMetric label="着地売上達成率" value={formatPercent(r.projectedAchievement)} />
           <ExecDividerLine />
           <ExecMetric
             label="月末粗利着地"
@@ -202,28 +223,29 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             sub={`予算差: ${formatCurrency(projectedGP - r.grossProfitBudget)}`}
             subColor={sc.cond(projectedGP >= r.grossProfitBudget)}
           />
-          <ExecMetric
-            label="着地粗利達成率"
-            value={formatPercent(projectedGPAchievement)}
-          />
-          {r.totalCustomers > 0 && r.salesDays > 0 && (() => {
-            const avgDailyCustomers = r.totalCustomers / r.salesDays
-            const projectedCustomers = Math.round(r.totalCustomers + avgDailyCustomers * remainingDays)
-            const projectedTxValue = calculateTransactionValue(r.projectedSales, projectedCustomers)
-            return (
-              <>
-                <ExecDividerLine />
-                <ExecMetric
-                  label="月末客数着地"
-                  value={`${projectedCustomers.toLocaleString('ja-JP')}人`}
-                />
-                <ExecMetric
-                  label="着地客単価"
-                  value={formatCurrency(projectedTxValue) + '円'}
-                />
-              </>
-            )
-          })()}
+          <ExecMetric label="着地粗利達成率" value={formatPercent(projectedGPAchievement)} />
+          {r.totalCustomers > 0 &&
+            r.salesDays > 0 &&
+            (() => {
+              const avgDailyCustomers = r.totalCustomers / r.salesDays
+              const projectedCustomers = Math.round(
+                r.totalCustomers + avgDailyCustomers * remainingDays,
+              )
+              const projectedTxValue = calculateTransactionValue(
+                r.projectedSales,
+                projectedCustomers,
+              )
+              return (
+                <>
+                  <ExecDividerLine />
+                  <ExecMetric
+                    label="月末客数着地"
+                    value={`${projectedCustomers.toLocaleString('ja-JP')}人`}
+                  />
+                  <ExecMetric label="着地客単価" value={formatCurrency(projectedTxValue) + '円'} />
+                </>
+              )
+            })()}
         </ExecBody>
       </ExecColumn>
     </ExecGrid>

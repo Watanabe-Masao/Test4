@@ -49,9 +49,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         <DefaultFallback>
           <ErrorIcon>!</ErrorIcon>
           <ErrorHeading>エラーが発生しました</ErrorHeading>
-          {this.state.error.message && (
-            <ErrorMessage>{this.state.error.message}</ErrorMessage>
-          )}
+          {this.state.error.message && <ErrorMessage>{this.state.error.message}</ErrorMessage>}
           <RetryButton onClick={this.handleReset}>再試行</RetryButton>
         </DefaultFallback>
       )
@@ -76,9 +74,7 @@ export function ChartErrorBoundary({
         <ChartFallback>
           <ChartErrorIcon>!</ChartErrorIcon>
           <ChartErrorText>チャートの表示に失敗しました</ChartErrorText>
-          {error.message && (
-            <ChartErrorDetail>{error.message}</ChartErrorDetail>
-          )}
+          {error.message && <ChartErrorDetail>{error.message}</ChartErrorDetail>}
           <ChartRetryButton onClick={reset}>再試行</ChartRetryButton>
         </ChartFallback>
       )}
@@ -107,9 +103,7 @@ export function PageErrorBoundary({
           <PageErrorDescription>
             ページの表示中に予期しないエラーが発生しました。
           </PageErrorDescription>
-          {error.message && (
-            <PageErrorMessage>{error.message}</PageErrorMessage>
-          )}
+          {error.message && <PageErrorMessage>{error.message}</PageErrorMessage>}
           <PageRetryButton onClick={reset}>再試行</PageRetryButton>
         </PageFallback>
       )}
@@ -136,9 +130,7 @@ const ErrorIcon = styled.div`
   height: 40px;
   border-radius: 50%;
   background: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? 'rgba(248, 113, 113, 0.15)'
-      : 'rgba(239, 68, 68, 0.1)'};
+    theme.mode === 'dark' ? 'rgba(248, 113, 113, 0.15)' : 'rgba(239, 68, 68, 0.1)'};
   color: ${({ theme }) => theme.colors.palette.danger};
   display: flex;
   align-items: center;
@@ -205,9 +197,7 @@ const ChartErrorIcon = styled.div`
   height: 28px;
   border-radius: 50%;
   background: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? 'rgba(248, 113, 113, 0.15)'
-      : 'rgba(239, 68, 68, 0.1)'};
+    theme.mode === 'dark' ? 'rgba(248, 113, 113, 0.15)' : 'rgba(239, 68, 68, 0.1)'};
   color: ${({ theme }) => theme.colors.palette.danger};
   display: flex;
   align-items: center;
@@ -270,9 +260,7 @@ const PageErrorIcon = styled.div`
   height: 56px;
   border-radius: 50%;
   background: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? 'rgba(248, 113, 113, 0.15)'
-      : 'rgba(239, 68, 68, 0.1)'};
+    theme.mode === 'dark' ? 'rgba(248, 113, 113, 0.15)' : 'rgba(239, 68, 68, 0.1)'};
   color: ${({ theme }) => theme.colors.palette.danger};
   display: flex;
   align-items: center;

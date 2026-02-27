@@ -54,14 +54,15 @@ const StepDot = styled.div<{ $state: 'pending' | 'active' | 'done' }>`
         : theme.colors.bg4};
   ${({ $state }) =>
     $state === 'active' &&
-    css`animation: ${pulse} 1.2s ease-in-out infinite;`}
+    css`
+      animation: ${pulse} 1.2s ease-in-out infinite;
+    `}
 `
 
 const StepLine = styled.div<{ $done: boolean }>`
   flex: 1;
   height: 2px;
-  background: ${({ $done, theme }) =>
-    $done ? theme.colors.palette.success : theme.colors.bg4};
+  background: ${({ $done, theme }) => ($done ? theme.colors.palette.success : theme.colors.bg4)};
   transition: background 0.3s ease;
 `
 
@@ -204,17 +205,13 @@ function StepIndicator({ stage }: { stage: ImportStage }) {
       {STAGE_ORDER.map((s, i) => {
         const idx = STAGE_ORDER.indexOf(stage)
         const state: 'pending' | 'active' | 'done' =
-          STAGE_ORDER.indexOf(s) < idx ? 'done'
-            : s === stage ? 'active'
-              : 'pending'
+          STAGE_ORDER.indexOf(s) < idx ? 'done' : s === stage ? 'active' : 'pending'
 
         return (
           <StepItem key={s} style={{ flex: i < STAGE_ORDER.length - 1 ? 1 : undefined }}>
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <StepDot $state={state} />
-              {i < STAGE_ORDER.length - 1 && (
-                <StepLine $done={STAGE_ORDER.indexOf(s) < idx} />
-              )}
+              {i < STAGE_ORDER.length - 1 && <StepLine $done={STAGE_ORDER.indexOf(s) < idx} />}
             </div>
             <StepLabel $state={state}>{STAGE_LABELS[s]}</StepLabel>
           </StepItem>
@@ -246,7 +243,9 @@ export function ImportProgress({
           </ProgressTrack>
           <ProgressText>
             <FileInfo>{progress.filename}</FileInfo>
-            <span>{progress.current}/{progress.total}</span>
+            <span>
+              {progress.current}/{progress.total}
+            </span>
           </ProgressText>
         </ProgressSection>
       )}
@@ -273,9 +272,7 @@ export function ImportSummaryCard({
           {successes.length > 0 && (
             <StatBadge $variant="success">{successes.length} 成功</StatBadge>
           )}
-          {failures.length > 0 && (
-            <StatBadge $variant="error">{failures.length} 失敗</StatBadge>
-          )}
+          {failures.length > 0 && <StatBadge $variant="error">{failures.length} 失敗</StatBadge>}
         </SummaryStats>
       </SummaryTitle>
 
@@ -283,7 +280,14 @@ export function ImportSummaryCard({
         {summary.results.map((r: FileImportResult, i: number) => (
           <FileRow key={i} $ok={r.ok}>
             <FileIcon $ok={r.ok}>{r.ok ? '✓' : '✕'}</FileIcon>
-            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span
+              style={{
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {r.filename}
             </span>
             {r.typeName && <FileType>{r.typeName}</FileType>}
@@ -291,7 +295,15 @@ export function ImportSummaryCard({
               <span style={{ flexShrink: 0, opacity: 0.6 }}>{r.rowCount}行</span>
             )}
             {!r.ok && r.error && (
-              <span style={{ color: 'inherit', flexShrink: 0, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span
+                style={{
+                  color: 'inherit',
+                  flexShrink: 0,
+                  maxWidth: 120,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
                 {r.error}
               </span>
             )}

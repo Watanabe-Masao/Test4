@@ -8,14 +8,34 @@
  */
 import { useState, useMemo } from 'react'
 import styled from 'styled-components'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  ReferenceLine,
+  LabelList,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, DayRangeSlider, useDayRange } from '@/presentation/components/charts'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  DayRangeSlider,
+  useDayRange,
+} from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import { queryByDateRange } from '@/application/usecases'
 import type { DateRange } from '@/domain/models'
-import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
+import {
+  CategoryFactorBreakdown,
+  decomposePriceMix,
+  recordsToCategoryQtyAmt,
+} from './CategoryFactorBreakdown'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -50,11 +70,14 @@ const TabBtn = styled.button<{ $active: boolean }>`
   padding: 4px 12px;
   border-radius: 4px;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.bg2};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.primary : theme.colors.bg2};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text)};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
-  &:hover { opacity: 0.8; }
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 const SummaryRow = styled.div`
@@ -97,7 +120,8 @@ const ModeRow = styled.div`
   display: flex;
   gap: 2px;
   margin-bottom: ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: 8px;
   padding: 2px;
   width: fit-content;
@@ -107,14 +131,16 @@ const ModeBtn = styled.button<{ $active: boolean }>`
   padding: 4px 14px;
   border-radius: 6px;
   border: none;
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
-  color: ${({ $active }) => $active ? '#fff' : 'inherit'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  color: ${({ $active }) => ($active ? '#fff' : 'inherit')};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
-  font-weight: ${({ $active }) => $active ? 600 : 400};
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
   white-space: nowrap;
   transition: all 0.15s;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const DecompRow = styled.div`
@@ -126,13 +152,17 @@ const DecompRow = styled.div`
 const DecompBtn = styled.button<{ $active: boolean }>`
   padding: 3px 10px;
   border-radius: 12px;
-  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
-  background: ${({ $active, theme }) => $active ? theme.colors.palette.primary + '18' : 'transparent'};
-  color: ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.text2};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.primary + '18' : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
-  font-weight: ${({ $active }) => $active ? 600 : 400};
-  &:hover { opacity: 0.8; }
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 /* ── 分解説明用コンポーネント ── */
@@ -146,13 +176,16 @@ const HelpToggle = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `
 
 const HelpBox = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text2};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[5]}`};
@@ -166,12 +199,19 @@ const HelpFormula = styled.div`
   margin: 4px 0;
 `
 
-const DECOMP_HELP: Record<number, { title: string; items: { label: string; formula: string; desc: string }[] }> = {
+const DECOMP_HELP: Record<
+  number,
+  { title: string; items: { label: string; formula: string; desc: string }[] }
+> = {
   2: {
     title: '2要素分解（シャープリー値）',
     items: [
       { label: '客数効果', formula: '(C₁-C₀)×(T₀+T₁)/2', desc: '来店客数の変化による売上変動' },
-      { label: '客単価効果', formula: '(T₁-T₀)×(C₀+C₁)/2', desc: '1人あたり購入額の変化による売上変動' },
+      {
+        label: '客単価効果',
+        formula: '(T₁-T₀)×(C₀+C₁)/2',
+        desc: '1人あたり購入額の変化による売上変動',
+      },
     ],
   },
   3: {
@@ -187,8 +227,16 @@ const DECOMP_HELP: Record<number, { title: string; items: { label: string; formu
     items: [
       { label: '客数効果', formula: '3要素と同一', desc: '来店客数の増減' },
       { label: '点数効果', formula: '3要素と同一', desc: '1人あたり購入点数の増減' },
-      { label: '価格効果', formula: 'Σカテゴリ(単価変化×前年構成比)', desc: 'カテゴリ内での単価変動' },
-      { label: '構成比変化効果', formula: 'Σカテゴリ(構成比変化×加重平均単価)', desc: '高単価/低単価カテゴリへのシフト' },
+      {
+        label: '価格効果',
+        formula: 'Σカテゴリ(単価変化×前年構成比)',
+        desc: 'カテゴリ内での単価変動',
+      },
+      {
+        label: '構成比変化効果',
+        formula: 'Σカテゴリ(構成比変化×加重平均単価)',
+        desc: '高単価/低単価カテゴリへのシフト',
+      },
     ],
   },
 }
@@ -247,16 +295,28 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       }
     }
     return { sales, customers }
-  }, [activeCompMode, r.daily, prevYear.daily, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+  }, [
+    activeCompMode,
+    r.daily,
+    prevYear.daily,
+    dayStart,
+    dayEnd,
+    wowRange.prevStart,
+    wowRange.prevEnd,
+  ])
 
   // 期間指定でCTSレコードをインデックスから取得
-  const curDateRange: DateRange = useMemo(() => ({
-    from: { year: ctx.year, month: ctx.month, day: dayStart },
-    to: { year: ctx.year, month: ctx.month, day: dayEnd },
-  }), [ctx.year, ctx.month, dayStart, dayEnd])
+  const curDateRange: DateRange = useMemo(
+    () => ({
+      from: { year: ctx.year, month: ctx.month, day: dayStart },
+      to: { year: ctx.year, month: ctx.month, day: dayEnd },
+    }),
+    [ctx.year, ctx.month, dayStart, dayEnd],
+  )
 
   const periodCTS = useMemo(
-    () => queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange, storeIds: ctx.selectedStoreIds }),
+    () =>
+      queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange, storeIds: ctx.selectedStoreIds }),
     [ctx.ctsIndex, curDateRange, ctx.selectedStoreIds],
   )
 
@@ -268,22 +328,43 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         from: { year: ctx.year, month: ctx.month, day: wowRange.prevStart },
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
-      return queryByDateRange(ctx.ctsIndex, { dateRange: wowDateRange, storeIds: ctx.selectedStoreIds })
+      return queryByDateRange(ctx.ctsIndex, {
+        dateRange: wowDateRange,
+        storeIds: ctx.selectedStoreIds,
+      })
     }
     // 前年比: prevCtsIndex から同日範囲を取得
     const prevDateRange: DateRange = {
       from: { year: ctx.year - 1, month: ctx.month, day: dayStart },
       to: { year: ctx.year - 1, month: ctx.month, day: dayEnd },
     }
-    return queryByDateRange(ctx.prevCtsIndex, { dateRange: prevDateRange, storeIds: ctx.selectedStoreIds })
-  }, [activeCompMode, ctx.ctsIndex, ctx.prevCtsIndex, ctx.selectedStoreIds, ctx.year, ctx.month, dayStart, dayEnd, wowRange.prevStart, wowRange.prevEnd])
+    return queryByDateRange(ctx.prevCtsIndex, {
+      dateRange: prevDateRange,
+      storeIds: ctx.selectedStoreIds,
+    })
+  }, [
+    activeCompMode,
+    ctx.ctsIndex,
+    ctx.prevCtsIndex,
+    ctx.selectedStoreIds,
+    ctx.year,
+    ctx.month,
+    dayStart,
+    dayEnd,
+    wowRange.prevStart,
+    wowRange.prevEnd,
+  ])
 
   // Aggregate total quantity from filtered CTS records
-  const curTotalQty = useMemo(() =>
-    periodCTS.reduce((s, rec) => s + rec.totalQuantity, 0), [periodCTS])
+  const curTotalQty = useMemo(
+    () => periodCTS.reduce((s, rec) => s + rec.totalQuantity, 0),
+    [periodCTS],
+  )
 
-  const prevTotalQty = useMemo(() =>
-    periodPrevCTS.reduce((s, rec) => s + rec.totalQuantity, 0), [periodPrevCTS])
+  const prevTotalQty = useMemo(
+    () => periodPrevCTS.reduce((s, rec) => s + rec.totalQuantity, 0),
+    [periodPrevCTS],
+  )
 
   const hasQuantity = curTotalQty > 0 && prevTotalQty > 0
 
@@ -311,11 +392,22 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     if (!hasComparison || prevSales <= 0) return []
 
     const items: WaterfallItem[] = []
-    items.push({ name: `${labels.prevLabel}売上`, value: prevSales, base: 0, bar: prevSales, isTotal: true })
+    items.push({
+      name: `${labels.prevLabel}売上`,
+      value: prevSales,
+      base: 0,
+      bar: prevSales,
+      isTotal: true,
+    })
 
     let running = prevSales
     const push = (name: string, value: number) => {
-      items.push({ name, value, base: value >= 0 ? running : running + value, bar: Math.abs(value) })
+      items.push({
+        name,
+        value,
+        base: value >= 0 ? running : running + value,
+        bar: Math.abs(value),
+      })
       running += value
     }
 
@@ -339,8 +431,14 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         // 5-factor: full 4-variable Shapley
         if (hasQuantity) {
           const d = decompose5(
-            prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty,
-            recordsToCategoryQtyAmt(periodCTS), recordsToCategoryQtyAmt(periodPrevCTS),
+            prevSales,
+            curSales,
+            prevCust,
+            curCust,
+            prevTotalQty,
+            curTotalQty,
+            recordsToCategoryQtyAmt(periodCTS),
+            recordsToCategoryQtyAmt(periodPrevCTS),
           )
           if (d) {
             push('客数効果', d.custEffect)
@@ -354,9 +452,30 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       push('増減', curSales - prevSales)
     }
 
-    items.push({ name: `${labels.curLabel}売上`, value: curSales, base: 0, bar: curSales, isTotal: true })
+    items.push({
+      name: `${labels.curLabel}売上`,
+      value: curSales,
+      base: 0,
+      bar: curSales,
+      isTotal: true,
+    })
     return items
-  }, [hasComparison, prevSales, curSales, prevCust, curCust, hasQuantity, curTotalQty, prevTotalQty, priceMix, activeLevel, periodCTS, periodPrevCTS, labels.prevLabel, labels.curLabel])
+  }, [
+    hasComparison,
+    prevSales,
+    curSales,
+    prevCust,
+    curCust,
+    hasQuantity,
+    curTotalQty,
+    prevTotalQty,
+    priceMix,
+    activeLevel,
+    periodCTS,
+    periodPrevCTS,
+    labels.prevLabel,
+    labels.curLabel,
+  ])
 
   // Category-based decomposition data
   // 売上データ（periodPrevSales / periodCurSales）にアンカーし、
@@ -460,7 +579,15 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
     })
 
     return items
-  }, [periodCTS, periodPrevCTS, hasComparison, prevSales, curSales, labels.prevLabel, labels.curLabel])
+  }, [
+    periodCTS,
+    periodPrevCTS,
+    hasComparison,
+    prevSales,
+    curSales,
+    labels.prevLabel,
+    labels.curLabel,
+  ])
 
   if (!hasComparison || prevSales <= 0) return null
 
@@ -520,7 +647,10 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
             </TabBtn>
           )}
           {hasCategoryFactorView && (
-            <TabBtn $active={viewMode === 'categoryFactor'} onClick={() => setViewMode('categoryFactor')}>
+            <TabBtn
+              $active={viewMode === 'categoryFactor'}
+              onClick={() => setViewMode('categoryFactor')}
+            >
               部門別要因分解
             </TabBtn>
           )}
@@ -548,23 +678,24 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
           <HelpToggle onClick={() => setShowHelp(!showHelp)}>
             {showHelp ? '▼' : '▶'} 計算式の説明
           </HelpToggle>
-          {showHelp && (() => {
-            const help = DECOMP_HELP[activeLevel]
-            return help ? (
-              <HelpBox>
-                <strong>{help.title}</strong>
-                <div style={{ marginTop: 4 }}>
-                  不変条件: 全効果の合計 = 当期売上 - 前期売上（シャープリー効率性公理）
-                </div>
-                {help.items.map((item) => (
-                  <div key={item.label} style={{ marginTop: 8 }}>
-                    <strong>{item.label}</strong>: {item.desc}
-                    <HelpFormula>{item.formula}</HelpFormula>
+          {showHelp &&
+            (() => {
+              const help = DECOMP_HELP[activeLevel]
+              return help ? (
+                <HelpBox>
+                  <strong>{help.title}</strong>
+                  <div style={{ marginTop: 4 }}>
+                    不変条件: 全効果の合計 = 当期売上 - 前期売上（シャープリー効率性公理）
                   </div>
-                ))}
-              </HelpBox>
-            ) : null
-          })()}
+                  {help.items.map((item) => (
+                    <div key={item.label} style={{ marginTop: 8 }}>
+                      <strong>{item.label}</strong>: {item.desc}
+                      <HelpFormula>{item.formula}</HelpFormula>
+                    </div>
+                  ))}
+                </HelpBox>
+              ) : null
+            })()}
         </>
       )}
 
@@ -580,14 +711,13 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         <SummaryItem>
           <SummaryLabel>差額</SummaryLabel>
           <SummaryValue $color={sc.cond(yoyDiff >= 0)}>
-            {yoyDiff >= 0 ? '+' : ''}{formatCurrency(yoyDiff)}
+            {yoyDiff >= 0 ? '+' : ''}
+            {formatCurrency(yoyDiff)}
           </SummaryValue>
         </SummaryItem>
         <SummaryItem>
           <SummaryLabel>比率</SummaryLabel>
-          <SummaryValue $color={sc.cond(yoyRatio >= 1)}>
-            {formatPercent(yoyRatio)}
-          </SummaryValue>
+          <SummaryValue $color={sc.cond(yoyRatio >= 1)}>{formatPercent(yoyRatio)}</SummaryValue>
         </SummaryItem>
       </SummaryRow>
 
@@ -640,7 +770,13 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
               {data.map((item, idx) => (
                 <Cell
                   key={idx}
-                  fill={item.isTotal ? colors.total : item.value >= 0 ? colors.positive : colors.negative}
+                  fill={
+                    item.isTotal
+                      ? colors.total
+                      : item.value >= 0
+                        ? colors.positive
+                        : colors.negative
+                  }
                   opacity={0.85}
                 />
               ))}

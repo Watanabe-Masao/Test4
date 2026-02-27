@@ -8,7 +8,9 @@ export const Card = styled.div<{ $accent?: string }>`
   transition: all ${({ theme }) => theme.transitions.fast};
   position: relative;
 
-  ${({ $accent }) => $accent && `
+  ${({ $accent }) =>
+    $accent &&
+    `
     border-top: 2px solid ${$accent};
   `}
 `

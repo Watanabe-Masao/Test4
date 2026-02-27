@@ -9,9 +9,7 @@ import { buildCategoryTimeSalesIndex } from '@/application/usecases'
 
 function wrap(ui: React.ReactElement) {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>
-    ),
+    wrapper: ({ children }) => <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>,
   })
 }
 
@@ -70,8 +68,18 @@ describe('TimeSlotSalesChart', () => {
   it('selectedStoreIds でフィルタリングされる', () => {
     const index = buildCategoryTimeSalesIndex({
       records: [
-        makeRecord({ storeId: '1', timeSlots: [{ hour: 9, quantity: 10, amount: 50000 }], totalQuantity: 10, totalAmount: 50000 }),
-        makeRecord({ storeId: '2', timeSlots: [{ hour: 9, quantity: 20, amount: 100000 }], totalQuantity: 20, totalAmount: 100000 }),
+        makeRecord({
+          storeId: '1',
+          timeSlots: [{ hour: 9, quantity: 10, amount: 50000 }],
+          totalQuantity: 10,
+          totalAmount: 50000,
+        }),
+        makeRecord({
+          storeId: '2',
+          timeSlots: [{ hour: 9, quantity: 20, amount: 100000 }],
+          totalQuantity: 20,
+          totalAmount: 100000,
+        }),
       ],
     })
 

@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesIndex, StoreExplanations, MetricId, DateRange } from '@/domain/models'
+import type {
+  StoreResult,
+  CategoryTimeSalesIndex,
+  StoreExplanations,
+  MetricId,
+  DateRange,
+} from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
@@ -11,7 +17,10 @@ export type WidgetSize = 'kpi' | 'half' | 'full'
 export type ComparisonMode = 'yoy' | 'wow'
 
 /** 前週比の比較期間を算出する。dayStart-7日 ～ dayEnd-7日。 */
-export function wowPrevRange(dayStart: number, dayEnd: number): {
+export function wowPrevRange(
+  dayStart: number,
+  dayEnd: number,
+): {
   prevStart: number
   prevEnd: number
   isValid: boolean
@@ -54,7 +63,12 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: { day: number; actualCum: number; budgetCum: number; prevYearCum: number | null }[]
+  budgetChartData: {
+    day: number
+    actualCum: number
+    budgetCum: number
+    prevYearCum: number | null
+  }[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */

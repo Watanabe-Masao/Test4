@@ -1,4 +1,13 @@
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
@@ -11,7 +20,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Title = styled.div`
@@ -26,7 +36,8 @@ const SummaryRow = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
   flex-wrap: wrap;
 `
 
@@ -112,10 +123,13 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
     })
   }
 
-  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   // 前年の同時点累計（実績のある最終日まで）
-  const latestDay = [...currentDaily.keys()].filter(d => (currentDaily.get(d)?.sales ?? 0) > 0).sort((a, b) => b - a)[0] ?? 0
+  const latestDay =
+    [...currentDaily.keys()]
+      .filter((d) => (currentDaily.get(d)?.sales ?? 0) > 0)
+      .sort((a, b) => b - a)[0] ?? 0
   let prevCumAtLatest = 0
   for (let d = 1; d <= latestDay; d++) {
     prevCumAtLatest += prevYearDaily.get(d)?.sales ?? 0
@@ -123,9 +137,8 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
 
   // ループ後の prevCum が前年月間合計
   const prevTotal = prevCum
-  const latestCurrentCum = latestDay > 0
-    ? data.find(d => d.day === latestDay)?.currentCum ?? 0
-    : 0
+  const latestCurrentCum =
+    latestDay > 0 ? (data.find((d) => d.day === latestDay)?.currentCum ?? 0) : 0
 
   // 前年比（同時点比較）
   const yoyRatio = prevCumAtLatest > 0 ? latestCurrentCum / prevCumAtLatest : 0
@@ -147,7 +160,10 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           <ProgressBarWrap>
             <ProgressLabel>
               <span>前年比 {toPct(yoyRatio)}</span>
-              <span>{yoyDiff >= 0 ? '+' : ''}{fmt(yoyDiff)}円</span>
+              <span>
+                {yoyDiff >= 0 ? '+' : ''}
+                {fmt(yoyDiff)}円
+              </span>
             </ProgressLabel>
             <ProgressTrack>
               <ProgressFill $pct={yoyRatio * 100} $color={yoyColor} />
@@ -241,7 +257,13 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
           </AreaChart>
         </ResponsiveContainer>
       </ChartArea>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

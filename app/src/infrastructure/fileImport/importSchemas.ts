@@ -14,18 +14,21 @@ const rowsBase = z.array(z.array(z.unknown()))
  * データ種別ごとの最低行数・最低列数。
  * ヘッダ行 + 最低1データ行 を保証する。
  */
-export const STRUCTURAL_RULES: Record<DataType, { minRows: number; minCols: number; label: string }> = {
-  purchase:                  { minRows: 3, minCols: 4,  label: '仕入データ' },
-  classifiedSales:           { minRows: 2, minCols: 7,  label: '分類別売上データ' },
-  initialSettings:           { minRows: 2, minCols: 2,  label: '初期設定データ' },
-  budget:                    { minRows: 2, minCols: 2,  label: '予算データ' },
-  interStoreIn:              { minRows: 2, minCols: 3,  label: '店間入庫データ' },
-  interStoreOut:             { minRows: 2, minCols: 3,  label: '店間出庫データ' },
-  flowers:                   { minRows: 2, minCols: 2,  label: '花卉データ' },
-  directProduce:             { minRows: 2, minCols: 2,  label: '産直データ' },
-  consumables:               { minRows: 2, minCols: 2,  label: '消耗品データ' },
-  categoryTimeSales:         { minRows: 4, minCols: 5,  label: '分類別時間帯売上データ' },
-  departmentKpi:             { minRows: 2, minCols: 5,  label: '部門別KPIデータ' },
+export const STRUCTURAL_RULES: Record<
+  DataType,
+  { minRows: number; minCols: number; label: string }
+> = {
+  purchase: { minRows: 3, minCols: 4, label: '仕入データ' },
+  classifiedSales: { minRows: 2, minCols: 7, label: '分類別売上データ' },
+  initialSettings: { minRows: 2, minCols: 2, label: '初期設定データ' },
+  budget: { minRows: 2, minCols: 2, label: '予算データ' },
+  interStoreIn: { minRows: 2, minCols: 3, label: '店間入庫データ' },
+  interStoreOut: { minRows: 2, minCols: 3, label: '店間出庫データ' },
+  flowers: { minRows: 2, minCols: 2, label: '花卉データ' },
+  directProduce: { minRows: 2, minCols: 2, label: '産直データ' },
+  consumables: { minRows: 2, minCols: 2, label: '消耗品データ' },
+  categoryTimeSales: { minRows: 4, minCols: 5, label: '分類別時間帯売上データ' },
+  departmentKpi: { minRows: 2, minCols: 5, label: '部門別KPIデータ' },
 }
 
 /**
@@ -67,11 +70,7 @@ export function validateRawRows(
     (row) => row.length > 0 && row.some((cell) => cell != null && cell !== ''),
   )
   if (!hasNonEmpty) {
-    throw new ImportSchemaError(
-      `${rule.label}にデータ行が含まれていません`,
-      type,
-      filename,
-    )
+    throw new ImportSchemaError(`${rule.label}にデータ行が含まれていません`, type, filename)
   }
 }
 

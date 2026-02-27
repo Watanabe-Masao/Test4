@@ -44,8 +44,14 @@ const Toggle = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? theme.colors.bg : theme.colors.text3)};
   background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover { opacity: 0.85; }
+    $active
+      ? theme.colors.palette.primary
+      : theme.mode === 'dark'
+        ? 'rgba(255,255,255,0.06)'
+        : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const HeatTable = styled.table`
@@ -79,7 +85,8 @@ const HeatTd = styled.td<{ $bg: string; $textColor: string }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   background: ${({ $bg }) => $bg};
   color: ${({ $textColor }) => $textColor};
-  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'};
+  border: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)')};
   cursor: default;
   position: relative;
   &:hover {
@@ -103,7 +110,8 @@ const HeatTdStore = styled.td`
 const EmptyCell = styled.td`
   padding: ${({ theme }) => theme.spacing[1]};
   background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'};
+  border: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)')};
 `
 
 const Legend = styled.div`
@@ -120,7 +128,7 @@ const LegendSwatch = styled.div<{ $bg: string }>`
   height: 14px;
   border-radius: 2px;
   background: ${({ $bg }) => $bg};
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 `
 
 // ─── Color Logic ────────────────────────────────────────
@@ -210,8 +218,12 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
             : '店舗別 予算乖離ヒートマップ（累計）'}
         </Title>
         <ToggleGroup>
-          <Toggle $active={mode === 'gpRate'} onClick={() => setMode('gpRate')}>粗利率</Toggle>
-          <Toggle $active={mode === 'budgetDev'} onClick={() => setMode('budgetDev')}>予算乖離</Toggle>
+          <Toggle $active={mode === 'gpRate'} onClick={() => setMode('gpRate')}>
+            粗利率
+          </Toggle>
+          <Toggle $active={mode === 'budgetDev'} onClick={() => setMode('budgetDev')}>
+            予算乖離
+          </Toggle>
         </ToggleGroup>
       </TitleRow>
       <HeatTable>
@@ -233,7 +245,12 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
                   if (rate == null) return <EmptyCell key={d} />
                   const { bg, text } = rateToColor(rate, targetRate, warningRate)
                   return (
-                    <HeatTd key={d} $bg={bg} $textColor={text} title={`${row.name} ${d}日: ${formatPercent(rate)}`}>
+                    <HeatTd
+                      key={d}
+                      $bg={bg}
+                      $textColor={text}
+                      title={`${row.name} ${d}日: ${formatPercent(rate)}`}
+                    >
                       {formatPercent(rate, 1).replace('%', '')}
                     </HeatTd>
                   )
@@ -244,8 +261,14 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
                 const { bg, text } = deviationToColor(dev)
                 const sign = dev >= 0 ? '+' : ''
                 return (
-                  <HeatTd key={d} $bg={bg} $textColor={text} title={`${row.name} ${d}日: ${sign}${formatPercent(Math.abs(dev), 1)}`}>
-                    {sign}{formatPercent(Math.abs(dev), 1).replace('%', '')}
+                  <HeatTd
+                    key={d}
+                    $bg={bg}
+                    $textColor={text}
+                    title={`${row.name} ${d}日: ${sign}${formatPercent(Math.abs(dev), 1)}`}
+                  >
+                    {sign}
+                    {formatPercent(Math.abs(dev), 1).replace('%', '')}
                   </HeatTd>
                 )
               })}
@@ -258,7 +281,9 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
           <LegendSwatch $bg="rgba(239, 68, 68, 0.5)" />
           <span>低 (&lt;{formatPercent(warningRate, 0)})</span>
           <LegendSwatch $bg="rgba(234, 179, 8, 0.4)" />
-          <span>注意 ({formatPercent(warningRate, 0)}〜{formatPercent(targetRate, 0)})</span>
+          <span>
+            注意 ({formatPercent(warningRate, 0)}〜{formatPercent(targetRate, 0)})
+          </span>
           <LegendSwatch $bg="rgba(34, 197, 94, 0.5)" />
           <span>良好 (&ge;{formatPercent(targetRate, 0)})</span>
         </Legend>

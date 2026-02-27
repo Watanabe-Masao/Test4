@@ -9,11 +9,27 @@ import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
 import {
-  ChartToggle, ChartGrid, TableWrapper, Table, Th, SubTh, Td, SubTd, Tr,
-  PrevYearTd, EmptyState, ToggleIcon, RateTd,
+  ChartToggle,
+  ChartGrid,
+  TableWrapper,
+  Table,
+  Th,
+  SubTh,
+  Td,
+  SubTd,
+  Tr,
+  PrevYearTd,
+  EmptyState,
+  ToggleIcon,
+  RateTd,
 } from './DailyPage.styles'
 
-type ExpandableColumn = 'purchase' | 'interStoreIn' | 'interStoreOut' | 'interDepartmentIn' | 'interDepartmentOut'
+type ExpandableColumn =
+  | 'purchase'
+  | 'interStoreIn'
+  | 'interStoreOut'
+  | 'interDepartmentIn'
+  | 'interDepartmentOut'
 
 /** 取引先別の内訳キーを全日から収集 */
 function collectSupplierKeys(
@@ -90,29 +106,45 @@ export function DailyPage() {
   const isInterDeptOutExpanded = expanded.has('interDepartmentOut')
 
   const days = useMemo(
-    () => currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
+    () =>
+      currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
     [currentResult],
   )
 
   const supplierKeys = useMemo(
-    () => isPurchaseExpanded && days.length > 0 ? collectSupplierKeys(days, appState.data.suppliers) : EMPTY_SUPPLIER_KEYS,
+    () =>
+      isPurchaseExpanded && days.length > 0
+        ? collectSupplierKeys(days, appState.data.suppliers)
+        : EMPTY_SUPPLIER_KEYS,
     [isPurchaseExpanded, days, appState.data.suppliers],
   )
 
   const interStoreInKeys = useMemo(
-    () => isInterStoreInExpanded && days.length > 0 ? collectTransferKeys(days, 'interStoreIn', stores) : EMPTY_TRANSFER_KEYS,
+    () =>
+      isInterStoreInExpanded && days.length > 0
+        ? collectTransferKeys(days, 'interStoreIn', stores)
+        : EMPTY_TRANSFER_KEYS,
     [isInterStoreInExpanded, days, stores],
   )
   const interStoreOutKeys = useMemo(
-    () => isInterStoreOutExpanded && days.length > 0 ? collectTransferKeys(days, 'interStoreOut', stores) : EMPTY_TRANSFER_KEYS,
+    () =>
+      isInterStoreOutExpanded && days.length > 0
+        ? collectTransferKeys(days, 'interStoreOut', stores)
+        : EMPTY_TRANSFER_KEYS,
     [isInterStoreOutExpanded, days, stores],
   )
   const interDeptInKeys = useMemo(
-    () => isInterDeptInExpanded && days.length > 0 ? collectTransferKeys(days, 'interDepartmentIn', stores) : EMPTY_TRANSFER_KEYS,
+    () =>
+      isInterDeptInExpanded && days.length > 0
+        ? collectTransferKeys(days, 'interDepartmentIn', stores)
+        : EMPTY_TRANSFER_KEYS,
     [isInterDeptInExpanded, days, stores],
   )
   const interDeptOutKeys = useMemo(
-    () => isInterDeptOutExpanded && days.length > 0 ? collectTransferKeys(days, 'interDepartmentOut', stores) : EMPTY_TRANSFER_KEYS,
+    () =>
+      isInterDeptOutExpanded && days.length > 0
+        ? collectTransferKeys(days, 'interDepartmentOut', stores)
+        : EMPTY_TRANSFER_KEYS,
     [isInterDeptOutExpanded, days, stores],
   )
 
@@ -139,7 +171,7 @@ export function DailyPage() {
   }, [days])
 
   const toggleExpand = (col: ExpandableColumn) => {
-    setExpanded(prev => {
+    setExpanded((prev) => {
       const next = new Set(prev)
       if (next.has(col)) next.delete(col)
       else next.add(col)
@@ -159,20 +191,31 @@ export function DailyPage() {
     <ToggleIcon $expanded={expanded.has(col)}>&#9654;</ToggleIcon>
   )
 
-  const fmtOrDash = (val: number) => val !== 0 ? formatCurrency(val) : '-'
-  const fmtOrDashPositive = (val: number) => val > 0 ? formatCurrency(val) : '-'
+  const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
+  const fmtOrDashPositive = (val: number) => (val > 0 ? formatCurrency(val) : '-')
 
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
       <ChartToggle>
         <ChipGroup>
-          <Chip $active={chartMode === 'sales'} onClick={() => setChartMode('sales')}>売上</Chip>
-          <Chip $active={chartMode === 'discount'} onClick={() => setChartMode('discount')}>売変</Chip>
-          <Chip $active={chartMode === 'all'} onClick={() => setChartMode('all')}>全表示</Chip>
+          <Chip $active={chartMode === 'sales'} onClick={() => setChartMode('sales')}>
+            売上
+          </Chip>
+          <Chip $active={chartMode === 'discount'} onClick={() => setChartMode('discount')}>
+            売変
+          </Chip>
+          <Chip $active={chartMode === 'all'} onClick={() => setChartMode('all')}>
+            全表示
+          </Chip>
         </ChipGroup>
       </ChartToggle>
       <ChartGrid>
-        <DailySalesChart daily={currentResult.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} mode={chartMode} />
+        <DailySalesChart
+          daily={currentResult.daily}
+          daysInMonth={daysInMonth}
+          prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+          mode={chartMode}
+        />
         <GrossProfitRateChart
           daily={currentResult.daily}
           daysInMonth={daysInMonth}
@@ -198,9 +241,8 @@ export function DailyPage() {
                 >
                   仕入原価{renderExpandIcon('purchase')}
                 </Th>
-                {isPurchaseExpanded && supplierKeys.map(s => (
-                  <SubTh key={`sup-cost-${s.code}`}>{s.name}</SubTh>
-                ))}
+                {isPurchaseExpanded &&
+                  supplierKeys.map((s) => <SubTh key={`sup-cost-${s.code}`}>{s.name}</SubTh>)}
                 <Th
                   $clickable
                   $expanded={isPurchaseExpanded}
@@ -208,9 +250,8 @@ export function DailyPage() {
                 >
                   仕入売価{renderExpandIcon('purchase')}
                 </Th>
-                {isPurchaseExpanded && supplierKeys.map(s => (
-                  <SubTh key={`sup-price-${s.code}`}>{s.name}</SubTh>
-                ))}
+                {isPurchaseExpanded &&
+                  supplierKeys.map((s) => <SubTh key={`sup-price-${s.code}`}>{s.name}</SubTh>)}
                 <Th
                   $clickable
                   $expanded={isInterStoreInExpanded}
@@ -218,9 +259,8 @@ export function DailyPage() {
                 >
                   店間入{renderExpandIcon('interStoreIn')}
                 </Th>
-                {isInterStoreInExpanded && interStoreInKeys.map(k => (
-                  <SubTh key={`si-${k.key}`}>{k.label}</SubTh>
-                ))}
+                {isInterStoreInExpanded &&
+                  interStoreInKeys.map((k) => <SubTh key={`si-${k.key}`}>{k.label}</SubTh>)}
                 <Th
                   $clickable
                   $expanded={isInterStoreOutExpanded}
@@ -228,9 +268,8 @@ export function DailyPage() {
                 >
                   店間出{renderExpandIcon('interStoreOut')}
                 </Th>
-                {isInterStoreOutExpanded && interStoreOutKeys.map(k => (
-                  <SubTh key={`so-${k.key}`}>{k.label}</SubTh>
-                ))}
+                {isInterStoreOutExpanded &&
+                  interStoreOutKeys.map((k) => <SubTh key={`so-${k.key}`}>{k.label}</SubTh>)}
                 <Th
                   $clickable
                   $expanded={isInterDeptInExpanded}
@@ -238,9 +277,8 @@ export function DailyPage() {
                 >
                   部門間入{renderExpandIcon('interDepartmentIn')}
                 </Th>
-                {isInterDeptInExpanded && interDeptInKeys.map(k => (
-                  <SubTh key={`di-${k.key}`}>{k.label}</SubTh>
-                ))}
+                {isInterDeptInExpanded &&
+                  interDeptInKeys.map((k) => <SubTh key={`di-${k.key}`}>{k.label}</SubTh>)}
                 <Th
                   $clickable
                   $expanded={isInterDeptOutExpanded}
@@ -248,9 +286,8 @@ export function DailyPage() {
                 >
                   部門間出{renderExpandIcon('interDepartmentOut')}
                 </Th>
-                {isInterDeptOutExpanded && interDeptOutKeys.map(k => (
-                  <SubTh key={`do-${k.key}`}>{k.label}</SubTh>
-                ))}
+                {isInterDeptOutExpanded &&
+                  interDeptOutKeys.map((k) => <SubTh key={`do-${k.key}`}>{k.label}</SubTh>)}
                 <Th>花</Th>
                 <Th>産直</Th>
                 <Th>売変額</Th>
@@ -264,56 +301,96 @@ export function DailyPage() {
                 <Tr key={day}>
                   <Td>{day}</Td>
                   <Td>{formatCurrency(rec.sales)}</Td>
-                  {prevYear.hasPrevYear && (() => {
-                    const ps = prevYear.daily.get(day)?.sales ?? 0
-                    return <PrevYearTd>{ps > 0 ? formatCurrency(ps) : '-'}</PrevYearTd>
-                  })()}
-                  {prevYear.hasPrevYear && (() => {
-                    const ps = prevYear.daily.get(day)?.sales
-                    if (!ps || ps === 0) return <PrevYearTd>-</PrevYearTd>
-                    const ratio = (rec.sales / ps) * 100
-                    return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
-                  })()}
+                  {prevYear.hasPrevYear &&
+                    (() => {
+                      const ps = prevYear.daily.get(day)?.sales ?? 0
+                      return <PrevYearTd>{ps > 0 ? formatCurrency(ps) : '-'}</PrevYearTd>
+                    })()}
+                  {prevYear.hasPrevYear &&
+                    (() => {
+                      const ps = prevYear.daily.get(day)?.sales
+                      if (!ps || ps === 0) return <PrevYearTd>-</PrevYearTd>
+                      const ratio = (rec.sales / ps) * 100
+                      return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
+                    })()}
                   {/* 仕入原価 + 詳細 */}
                   <Td>{formatCurrency(rec.purchase.cost)}</Td>
-                  {isPurchaseExpanded && supplierKeys.map(s => {
-                    const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
-                    return <SubTd key={`sup-cost-${s.code}`}>{pair ? fmtOrDash(pair.cost) : '-'}</SubTd>
-                  })}
+                  {isPurchaseExpanded &&
+                    supplierKeys.map((s) => {
+                      const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                      return (
+                        <SubTd key={`sup-cost-${s.code}`}>
+                          {pair ? fmtOrDash(pair.cost) : '-'}
+                        </SubTd>
+                      )
+                    })}
                   {/* 仕入売価 + 詳細 */}
                   <Td>{formatCurrency(rec.purchase.price)}</Td>
-                  {isPurchaseExpanded && supplierKeys.map(s => {
-                    const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
-                    return <SubTd key={`sup-price-${s.code}`}>{pair ? fmtOrDash(pair.price) : '-'}</SubTd>
-                  })}
+                  {isPurchaseExpanded &&
+                    supplierKeys.map((s) => {
+                      const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                      return (
+                        <SubTd key={`sup-price-${s.code}`}>
+                          {pair ? fmtOrDash(pair.price) : '-'}
+                        </SubTd>
+                      )
+                    })}
                   {/* 店間入 + 詳細 */}
                   <Td>{fmtOrDash(rec.interStoreIn.cost)}</Td>
-                  {isInterStoreInExpanded && interStoreInKeys.map(k => {
-                    const amt = getTransferAmount(rec.transferBreakdown.interStoreIn, k.from, k.to)
-                    return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                  })}
+                  {isInterStoreInExpanded &&
+                    interStoreInKeys.map((k) => {
+                      const amt = getTransferAmount(
+                        rec.transferBreakdown.interStoreIn,
+                        k.from,
+                        k.to,
+                      )
+                      return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                    })}
                   {/* 店間出 + 詳細 */}
                   <Td $negative={rec.interStoreOut.cost < 0}>
                     {fmtOrDash(rec.interStoreOut.cost)}
                   </Td>
-                  {isInterStoreOutExpanded && interStoreOutKeys.map(k => {
-                    const amt = getTransferAmount(rec.transferBreakdown.interStoreOut, k.from, k.to)
-                    return <SubTd key={`so-${k.key}`} $negative={amt < 0}>{fmtOrDash(amt)}</SubTd>
-                  })}
+                  {isInterStoreOutExpanded &&
+                    interStoreOutKeys.map((k) => {
+                      const amt = getTransferAmount(
+                        rec.transferBreakdown.interStoreOut,
+                        k.from,
+                        k.to,
+                      )
+                      return (
+                        <SubTd key={`so-${k.key}`} $negative={amt < 0}>
+                          {fmtOrDash(amt)}
+                        </SubTd>
+                      )
+                    })}
                   {/* 部門間入 + 詳細 */}
                   <Td>{fmtOrDash(rec.interDepartmentIn.cost)}</Td>
-                  {isInterDeptInExpanded && interDeptInKeys.map(k => {
-                    const amt = getTransferAmount(rec.transferBreakdown.interDepartmentIn, k.from, k.to)
-                    return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                  })}
+                  {isInterDeptInExpanded &&
+                    interDeptInKeys.map((k) => {
+                      const amt = getTransferAmount(
+                        rec.transferBreakdown.interDepartmentIn,
+                        k.from,
+                        k.to,
+                      )
+                      return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                    })}
                   {/* 部門間出 + 詳細 */}
                   <Td $negative={rec.interDepartmentOut.cost < 0}>
                     {fmtOrDash(rec.interDepartmentOut.cost)}
                   </Td>
-                  {isInterDeptOutExpanded && interDeptOutKeys.map(k => {
-                    const amt = getTransferAmount(rec.transferBreakdown.interDepartmentOut, k.from, k.to)
-                    return <SubTd key={`do-${k.key}`} $negative={amt < 0}>{fmtOrDash(amt)}</SubTd>
-                  })}
+                  {isInterDeptOutExpanded &&
+                    interDeptOutKeys.map((k) => {
+                      const amt = getTransferAmount(
+                        rec.transferBreakdown.interDepartmentOut,
+                        k.from,
+                        k.to,
+                      )
+                      return (
+                        <SubTd key={`do-${k.key}`} $negative={amt < 0}>
+                          {fmtOrDash(amt)}
+                        </SubTd>
+                      )
+                    })}
                   <Td>{fmtOrDashPositive(rec.flowers.price)}</Td>
                   <Td>{fmtOrDashPositive(rec.directProduce.price)}</Td>
                   <Td $negative={rec.discountAbsolute > 0}>
@@ -323,8 +400,12 @@ export function DailyPage() {
                   {(() => {
                     const cum = cumulativeData.get(day)
                     const gpr = cum?.grossProfitRate ?? 0
-                    const gprStatus = gpr >= settings.targetGrossProfitRate ? 'good' as const
-                      : gpr >= settings.warningThreshold ? 'warn' as const : 'bad' as const
+                    const gprStatus =
+                      gpr >= settings.targetGrossProfitRate
+                        ? ('good' as const)
+                        : gpr >= settings.warningThreshold
+                          ? ('warn' as const)
+                          : ('bad' as const)
                     return (
                       <RateTd $status={rec.sales > 0 ? gprStatus : undefined}>
                         {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
@@ -335,7 +416,17 @@ export function DailyPage() {
                     const cum = cumulativeData.get(day)
                     const dr = cum?.discountRate ?? 0
                     return (
-                      <RateTd $status={dr > 0 ? (dr > 0.05 ? 'bad' as const : dr > 0.03 ? 'warn' as const : 'good' as const) : undefined}>
+                      <RateTd
+                        $status={
+                          dr > 0
+                            ? dr > 0.05
+                              ? ('bad' as const)
+                              : dr > 0.03
+                                ? ('warn' as const)
+                                : ('good' as const)
+                            : undefined
+                        }
+                      >
                         {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
                       </RateTd>
                     )

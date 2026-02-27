@@ -3,14 +3,23 @@ import styled from 'styled-components'
 import { Button } from '@/presentation/components/common'
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_IDS } from './widgets/registry'
 import {
-  getAllPresets, addCustomPreset, deleteCustomPreset,
+  getAllPresets,
+  addCustomPreset,
+  deleteCustomPreset,
   saveActivePreset,
 } from './widgets/layoutPresets'
 import type { LayoutPreset } from './widgets/layoutPresets'
 import type { WidgetDef } from './widgets/types'
 import {
-  PanelOverlay, Panel, PanelTitle, PanelGroup, PanelGroupTitle,
-  WidgetItem, Checkbox, SizeBadge, PanelFooter,
+  PanelOverlay,
+  Panel,
+  PanelTitle,
+  PanelGroup,
+  PanelGroupTitle,
+  WidgetItem,
+  Checkbox,
+  SizeBadge,
+  PanelFooter,
 } from './DashboardPage.styles'
 
 const PresetSection = styled.div`
@@ -37,8 +46,8 @@ const PresetCard = styled.button<{ $active?: boolean }>`
   cursor: pointer;
   padding: 8px 12px;
   border-radius: ${({ theme }) => theme.radii.md};
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}15` : theme.colors.bg};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
@@ -119,7 +128,9 @@ const SaveBtn = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   white-space: nowrap;
   transition: opacity 0.15s;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -182,20 +193,21 @@ export function WidgetSettingsPanel({
     setShowSave(false)
   }, [saveName, selected])
 
-  const handleDeleteCustom = useCallback((presetId: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    deleteCustomPreset(presetId)
-    setAllPresets(getAllPresets())
-    if (activePreset === presetId) setActivePreset(null)
-  }, [activePreset])
+  const handleDeleteCustom = useCallback(
+    (presetId: string, e: React.MouseEvent) => {
+      e.stopPropagation()
+      deleteCustomPreset(presetId)
+      setAllPresets(getAllPresets())
+      if (activePreset === presetId) setActivePreset(null)
+    },
+    [activePreset],
+  )
 
   const handleApply = () => {
     const ordered = activeIds.filter((id) => selected.has(id))
     const newOnes = Array.from(selected).filter((id) => !activeIds.includes(id))
     const preset = allPresets.find((p) => p.id === activePreset)
-    const result = activePreset && preset
-      ? [...preset.widgetIds]
-      : [...ordered, ...newOnes]
+    const result = activePreset && preset ? [...preset.widgetIds] : [...ordered, ...newOnes]
     saveActivePreset(activePreset)
     onApply(result)
     onClose()
@@ -229,7 +241,11 @@ export function WidgetSettingsPanel({
   const builtinPresets = allPresets.filter((p) => !p.isCustom)
 
   return (
-    <PanelOverlay onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+    <PanelOverlay
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
       <Panel onClick={(e) => e.stopPropagation()}>
         <PanelTitle>ダッシュボードのカスタマイズ</PanelTitle>
 
@@ -264,10 +280,7 @@ export function WidgetSettingsPanel({
                   {preset.label}
                   <CustomTag>保存済み</CustomTag>
                   <PresetDesc>{preset.description}</PresetDesc>
-                  <PresetDeleteBtn
-                    onClick={(e) => handleDeleteCustom(preset.id, e)}
-                    title="削除"
-                  >
+                  <PresetDeleteBtn onClick={(e) => handleDeleteCustom(preset.id, e)} title="削除">
                     ×
                   </PresetDeleteBtn>
                 </PresetCard>
@@ -276,23 +289,29 @@ export function WidgetSettingsPanel({
           )}
           <SaveSection>
             {!showSave ? (
-              <SaveBtn onClick={() => setShowSave(true)}>
-                現在の選択を保存
-              </SaveBtn>
+              <SaveBtn onClick={() => setShowSave(true)}>現在の選択を保存</SaveBtn>
             ) : (
               <SaveRow>
                 <SaveInput
                   placeholder="プリセット名を入力"
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCustom() }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveCustom()
+                  }}
                   autoFocus
                 />
-                <SaveBtn onClick={handleSaveCustom} disabled={!saveName.trim() || selected.size === 0}>
+                <SaveBtn
+                  onClick={handleSaveCustom}
+                  disabled={!saveName.trim() || selected.size === 0}
+                >
                   保存
                 </SaveBtn>
                 <SaveBtn
-                  onClick={() => { setShowSave(false); setSaveName('') }}
+                  onClick={() => {
+                    setShowSave(false)
+                    setSaveName('')
+                  }}
                   style={{ background: 'transparent', color: 'inherit', opacity: 0.6 }}
                 >
                   取消
@@ -303,8 +322,12 @@ export function WidgetSettingsPanel({
         </PresetSection>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <Button $variant="outline" onClick={handleSelectAll}>全選択</Button>
-          <Button $variant="outline" onClick={handleDeselectAll}>全解除</Button>
+          <Button $variant="outline" onClick={handleSelectAll}>
+            全選択
+          </Button>
+          <Button $variant="outline" onClick={handleDeselectAll}>
+            全解除
+          </Button>
         </div>
 
         {Array.from(groups.entries()).map(([group, widgets]) => (
@@ -327,9 +350,15 @@ export function WidgetSettingsPanel({
         ))}
 
         <PanelFooter>
-          <Button $variant="primary" onClick={handleApply}>適用</Button>
-          <Button $variant="outline" onClick={handleReset}>デフォルトに戻す</Button>
-          <Button $variant="outline" onClick={onClose}>キャンセル</Button>
+          <Button $variant="primary" onClick={handleApply}>
+            適用
+          </Button>
+          <Button $variant="outline" onClick={handleReset}>
+            デフォルトに戻す
+          </Button>
+          <Button $variant="outline" onClick={onClose}>
+            キャンセル
+          </Button>
         </PanelFooter>
       </Panel>
     </PanelOverlay>

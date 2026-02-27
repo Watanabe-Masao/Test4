@@ -31,7 +31,8 @@ describe('decompose2（シャープリー: 客数効果 + 客単価効果）', (
   })
 
   it('両方変化した場合、合計が売上差に一致（シャープリー恒等式）', () => {
-    const prevSales = 100_000, curSales = 132_000
+    const prevSales = 100_000,
+      curSales = 132_000
     const r = decompose2(prevSales, curSales, 100, 110)
     expect(r.custEffect + r.ticketEffect).toBeCloseTo(curSales - prevSales, 2)
   })
@@ -60,7 +61,8 @@ describe('decompose2（シャープリー: 客数効果 + 客単価効果）', (
 
 describe('decompose3（シャープリー: 客数 + 点数 + 単価）', () => {
   it('合計が売上差に一致する（シャープリー恒等式）', () => {
-    const prevSales = 250_000, curSales = 396_000
+    const prevSales = 250_000,
+      curSales = 396_000
     const r = decompose3(prevSales, curSales, 100, 110, 500, 660)
     expect(r.custEffect + r.qtyEffect + r.pricePerItemEffect).toBeCloseTo(curSales - prevSales, 2)
   })
@@ -92,7 +94,8 @@ describe('decompose3（シャープリー: 客数 + 点数 + 単価）', () => {
   it('交互作用を公平に配分する', () => {
     // C: 100→120, Q: 5→6 (QPC), P̄: 500→600
     // prev: 100×5×500 = 250,000, cur: 120×6×600 = 432,000
-    const prevSales = 250_000, curSales = 432_000
+    const prevSales = 250_000,
+      curSales = 432_000
     const r = decompose3(prevSales, curSales, 100, 120, 500, 720)
     // All factors change → sum must equal diff
     expect(r.custEffect + r.qtyEffect + r.pricePerItemEffect).toBeCloseTo(curSales - prevSales, 2)
@@ -155,7 +158,7 @@ describe('decomposePriceMix (シャープリー: 価格 + 構成比変化)', () 
     const result = decomposePriceMix(cur, prev)
     expect(result).not.toBeNull()
 
-    const curTotalAmt = 132_000 + 44_000  // 176,000
+    const curTotalAmt = 132_000 + 44_000 // 176,000
     const prevTotalAmt = 100_000 + 50_000 // 150,000
     const curTotalQty = 200
     const expectedTotal = curTotalAmt - curTotalQty * (prevTotalAmt / 200)
@@ -212,10 +215,12 @@ describe('decomposePriceMix (シャープリー: 価格 + 構成比変化)', () 
 
 describe('decompose5（4変数シャープリー統合分解）', () => {
   it('客数+点数+価格+構成比変化 = 売上差（シャープリー恒等式）', () => {
-    const prevCust = 100, curCust = 110
+    const prevCust = 100,
+      curCust = 110
     const prevCats = [cat('A', 300, 240_000), cat('B', 200, 80_000)]
     const curCats = [cat('A', 400, 360_000), cat('B', 260, 117_000)]
-    const prevSales = 320_000, curSales = 477_000
+    const prevSales = 320_000,
+      curSales = 477_000
 
     const result = decompose5(prevSales, curSales, prevCust, curCust, 500, 660, curCats, prevCats)
     expect(result).not.toBeNull()
@@ -278,10 +283,12 @@ describe('decompose5（4変数シャープリー統合分解）', () => {
     // totalSales(売上データ)とカテゴリ合計が乖離するケース
     // カテゴリ合計: prev=240,000+80,000=320,000, cur=360,000+117,000=477,000
     // 売上データ: prev=350,000, cur=500,000（カテゴリ合計と不一致）
-    const prevCust = 100, curCust = 110
+    const prevCust = 100,
+      curCust = 110
     const prevCats = [cat('A', 300, 240_000), cat('B', 200, 80_000)]
     const curCats = [cat('A', 400, 360_000), cat('B', 260, 117_000)]
-    const prevSales = 350_000, curSales = 500_000
+    const prevSales = 350_000,
+      curSales = 500_000
 
     const result = decompose5(prevSales, curSales, prevCust, curCust, 500, 660, curCats, prevCats)
     expect(result).not.toBeNull()
@@ -292,10 +299,12 @@ describe('decompose5（4変数シャープリー統合分解）', () => {
   })
 
   it('3要素→5要素切替時に客数・点数効果が一貫する', () => {
-    const prevCust = 100, curCust = 110
+    const prevCust = 100,
+      curCust = 110
     const prevCats = [cat('A', 300, 240_000), cat('B', 200, 80_000)]
     const curCats = [cat('A', 400, 360_000), cat('B', 260, 117_000)]
-    const prevSales = 320_000, curSales = 477_000
+    const prevSales = 320_000,
+      curSales = 477_000
 
     const d3 = decompose3(prevSales, curSales, prevCust, curCust, 500, 660)
     const d5 = decompose5(prevSales, curSales, prevCust, curCust, 500, 660, curCats, prevCats)
@@ -358,20 +367,31 @@ describe('数学的不変条件: 全分解関数の合計 = ΔS', () => {
 
 describe('数学的不変条件: 2↔3↔5要素間の一貫性', () => {
   it('decompose2の客単価効果 = decompose3の(点数効果+単価効果)', () => {
-    const ps = 200_000, cs = 350_000, pc = 80, cc = 120, ptq = 400, ctq = 720
+    const ps = 200_000,
+      cs = 350_000,
+      pc = 80,
+      cc = 120,
+      ptq = 400,
+      ctq = 720
     const d2 = decompose2(ps, cs, pc, cc)
     const d3 = decompose3(ps, cs, pc, cc, ptq, ctq)
     // 客数効果は2要素と3要素で異なる（交互作用の配分が変わる）
     // だが合計は同じ
     expect(d2.custEffect + d2.ticketEffect).toBeCloseTo(
-      d3.custEffect + d3.qtyEffect + d3.pricePerItemEffect, 0)
+      d3.custEffect + d3.qtyEffect + d3.pricePerItemEffect,
+      0,
+    )
   })
 
   it('decompose5の(価格+構成比) = decompose3の単価効果', () => {
-    const ps = 200_000, cs = 350_000, pc = 80, cc = 120
+    const ps = 200_000,
+      cs = 350_000,
+      pc = 80,
+      cc = 120
     const prevCats = [cat('A', 250, 125_000), cat('B', 150, 75_000)]
     const curCats = [cat('A', 420, 252_000), cat('B', 300, 168_000)]
-    const ptq = 400, ctq = 720
+    const ptq = 400,
+      ctq = 720
     const d3 = decompose3(ps, cs, pc, cc, ptq, ctq)
     const d5 = decompose5(ps, cs, pc, cc, ptq, ctq, curCats, prevCats)
     expect(d5).not.toBeNull()

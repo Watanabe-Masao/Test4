@@ -38,8 +38,10 @@ const Tabs = styled.div`
 const Tab = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
   border: none;
-  border-bottom: 2px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) => ($active ? `${theme.colors.palette.primary}10` : 'transparent')};
+  border-bottom: 2px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -149,13 +151,13 @@ const HelpText = styled.p`
 
 // ─── Category Colors ────────────────────────────────────
 const CATEGORY_COLORS: Record<CustomCategory, string> = {
-  '市場仕入': '#f59e0b',
-  'LFC': '#3b82f6',
-  'サラダ': '#22c55e',
-  '加工品': '#a855f7',
-  '消耗品': '#f97316',
-  '直伝': '#06b6d4',
-  'その他': '#94a3b8',
+  市場仕入: '#f59e0b',
+  LFC: '#3b82f6',
+  サラダ: '#22c55e',
+  加工品: '#a855f7',
+  消耗品: '#f97316',
+  直伝: '#06b6d4',
+  その他: '#94a3b8',
 }
 
 type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
@@ -214,9 +216,7 @@ function CategoryManagementTab() {
                 <Td>
                   <Select
                     value={current ?? ''}
-                    onChange={(e) =>
-                      handleCategoryChange(s.code, e.target.value as CustomCategory)
-                    }
+                    onChange={(e) => handleCategoryChange(s.code, e.target.value as CustomCategory)}
                   >
                     <option value="">未分類</option>
                     {CUSTOM_CATEGORIES.map((cat) => (
@@ -332,20 +332,14 @@ function StoreManagementTab() {
                 <Td>
                   {inv ? (
                     <Badge $color="#0ea5e9">
-                      期首: {inv.openingInventory?.toLocaleString() ?? '-'} /
-                      期末: {inv.closingInventory?.toLocaleString() ?? '-'}
+                      期首: {inv.openingInventory?.toLocaleString() ?? '-'} / 期末:{' '}
+                      {inv.closingInventory?.toLocaleString() ?? '-'}
                     </Badge>
                   ) : (
                     <Badge>未設定</Badge>
                   )}
                 </Td>
-                <Td>
-                  {budget ? (
-                    <Badge $color="#a855f7">設定済</Badge>
-                  ) : (
-                    <Badge>未設定</Badge>
-                  )}
-                </Td>
+                <Td>{budget ? <Badge $color="#a855f7">設定済</Badge> : <Badge>未設定</Badge>}</Td>
               </tr>
             )
           })}
@@ -375,7 +369,14 @@ function analyzeStoreDayRecord(
 ): StoreDayStats {
   const storeIds = Object.keys(record)
   if (storeIds.length === 0) {
-    return { label, storeCount: 0, totalRecords: 0, dayRange: null, perStore: [], hasCustomers: false }
+    return {
+      label,
+      storeCount: 0,
+      totalRecords: 0,
+      dayRange: null,
+      perStore: [],
+      hasCustomers: false,
+    }
   }
 
   let globalMin = Infinity
@@ -385,7 +386,9 @@ function analyzeStoreDayRecord(
   const perStore: StoreDayStats['perStore'] = []
 
   for (const sid of storeIds) {
-    const days = Object.keys(record[sid]).map(Number).filter((d) => !isNaN(d))
+    const days = Object.keys(record[sid])
+      .map(Number)
+      .filter((d) => !isNaN(d))
     if (days.length === 0) continue
     const min = Math.min(...days)
     const max = Math.max(...days)
@@ -431,14 +434,24 @@ function analyzeClassifiedSales(
   const csData = isPrevYear ? data.prevYearClassifiedSales : data.classifiedSales
   const records = csData.records
   if (records.length === 0) {
-    return { label, storeCount: 0, totalRecords: 0, dayRange: null, perStore: [], hasCustomers: false }
+    return {
+      label,
+      storeCount: 0,
+      totalRecords: 0,
+      dayRange: null,
+      perStore: [],
+      hasCustomers: false,
+    }
   }
 
   // 店舗→日 の集計
   const storeMap = new Map<string, Set<number>>()
   for (const r of records) {
     let s = storeMap.get(r.storeId)
-    if (!s) { s = new Set(); storeMap.set(r.storeId, s) }
+    if (!s) {
+      s = new Set()
+      storeMap.set(r.storeId, s)
+    }
     s.add(r.day)
   }
 
@@ -509,7 +522,9 @@ const ExpandButton = styled.button`
   cursor: pointer;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   padding: 0 ${({ theme }) => theme.spacing[1]};
-  &:hover { color: ${({ theme }) => theme.colors.text}; }
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
 `
 
 const ProgressBarContainer = styled.div`
@@ -544,13 +559,17 @@ const ValidationItem = styled.div<{ $level: string }>`
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   background: ${({ $level }) =>
-    $level === 'error' ? 'rgba(239,68,68,0.1)' :
-    $level === 'warning' ? 'rgba(245,158,11,0.1)' :
-    'rgba(59,130,246,0.1)'};
+    $level === 'error'
+      ? 'rgba(239,68,68,0.1)'
+      : $level === 'warning'
+        ? 'rgba(245,158,11,0.1)'
+        : 'rgba(59,130,246,0.1)'};
   color: ${({ $level }) =>
-    $level === 'error' ? palette.dangerDark :
-    $level === 'warning' ? palette.warningDark :
-    palette.blueDark};
+    $level === 'error'
+      ? palette.dangerDark
+      : $level === 'warning'
+        ? palette.warningDark
+        : palette.blueDark};
 `
 
 const ValidationIcon = styled.span`
@@ -702,7 +721,9 @@ function ImportProvenanceModal({
           <DataVerifyValue>{dataStats.totalRecords.toLocaleString()}</DataVerifyValue>
           <DataVerifyLabel>日付範囲</DataVerifyLabel>
           <DataVerifyValue>
-            {dataStats.dayRange ? `${dataStats.dayRange.min}日 〜 ${dataStats.dayRange.max}日` : '-'}
+            {dataStats.dayRange
+              ? `${dataStats.dayRange.min}日 〜 ${dataStats.dayRange.max}日`
+              : '-'}
           </DataVerifyValue>
         </DataVerifyGrid>
         {dataStats.perStore.length > 0 && (
@@ -719,7 +740,9 @@ function ImportProvenanceModal({
                 <tr key={ps.storeId}>
                   <Td style={{ fontSize: '0.75rem' }}>{ps.storeName}</Td>
                   <Td style={{ fontSize: '0.75rem' }}>{ps.days}日分</Td>
-                  <Td style={{ fontSize: '0.75rem' }}>{ps.minDay}日 〜 {ps.maxDay}日</Td>
+                  <Td style={{ fontSize: '0.75rem' }}>
+                    {ps.minDay}日 〜 {ps.maxDay}日
+                  </Td>
                 </tr>
               ))}
             </tbody>
@@ -734,9 +757,13 @@ function ImportProvenanceModal({
             <HistoryCard key={i}>
               <HistoryTimestamp>
                 {formatTimestamp(entry.importedAt)}
-                <Badge $color={palette.successDark} style={{ marginLeft: 8 }}>{entry.successCount}件成功</Badge>
+                <Badge $color={palette.successDark} style={{ marginLeft: 8 }}>
+                  {entry.successCount}件成功
+                </Badge>
                 {entry.failureCount > 0 && (
-                  <Badge $color={palette.dangerDark} style={{ marginLeft: 4 }}>{entry.failureCount}件失敗</Badge>
+                  <Badge $color={palette.dangerDark} style={{ marginLeft: 4 }}>
+                    {entry.failureCount}件失敗
+                  </Badge>
                 )}
               </HistoryTimestamp>
               <HistoryFileList>
@@ -772,7 +799,10 @@ function ImportHistoryTab() {
   // インポート履歴を読み込む
   useEffect(() => {
     if (!repo.isAvailable()) return
-    repo.loadImportHistory(settings.targetYear, settings.targetMonth).then(setImportHistory).catch(() => {})
+    repo
+      .loadImportHistory(settings.targetYear, settings.targetMonth)
+      .then(setImportHistory)
+      .catch(() => {})
   }, [repo, settings.targetYear, settings.targetMonth, data])
 
   const toggleExpand = useCallback((label: string) => {
@@ -808,45 +838,54 @@ function ImportHistoryTab() {
   // 時間帯売上
   const categoryTimeSalesCount = data.categoryTimeSales.records.length
   const categoryTimeSalesStores = new Set(data.categoryTimeSales.records.map((r) => r.storeId)).size
-  const categoryTimeSalesDays = data.categoryTimeSales.records.length > 0
-    ? (() => {
-        const days = data.categoryTimeSales.records.map((r) => r.day)
-        return { min: Math.min(...days), max: Math.max(...days) }
-      })()
-    : null
+  const categoryTimeSalesDays =
+    data.categoryTimeSales.records.length > 0
+      ? (() => {
+          const days = data.categoryTimeSales.records.map((r) => r.day)
+          return { min: Math.min(...days), max: Math.max(...days) }
+        })()
+      : null
 
   // 前年時間帯売上
   const prevYearCTSCount = data.prevYearCategoryTimeSales.records.length
-  const prevYearCTSStores = new Set(data.prevYearCategoryTimeSales.records.map((r) => r.storeId)).size
-  const prevYearCTSDays = data.prevYearCategoryTimeSales.records.length > 0
-    ? (() => {
-        const days = data.prevYearCategoryTimeSales.records.map((r) => r.day)
-        return { min: Math.min(...days), max: Math.max(...days) }
-      })()
-    : null
+  const prevYearCTSStores = new Set(data.prevYearCategoryTimeSales.records.map((r) => r.storeId))
+    .size
+  const prevYearCTSDays =
+    data.prevYearCategoryTimeSales.records.length > 0
+      ? (() => {
+          const days = data.prevYearCategoryTimeSales.records.map((r) => r.day)
+          return { min: Math.min(...days), max: Math.max(...days) }
+        })()
+      : null
 
   // 全体の最大日数レンジ（品質スコア用）
   const salesDayRange = overview.find((d) => d.label === '分類別売上')?.dayRange
   const daysInMonth = salesDayRange ? salesDayRange.max : 28
 
   // 特殊データの StoreDayStats（モーダル用）
-  const ctsStats: StoreDayStats = useMemo(() => ({
-    label: '分類別時間帯売上',
-    storeCount: categoryTimeSalesStores,
-    totalRecords: categoryTimeSalesCount,
-    dayRange: categoryTimeSalesDays,
-    perStore: [],
-    hasCustomers: false,
-  }), [categoryTimeSalesStores, categoryTimeSalesCount, categoryTimeSalesDays])
+  const ctsStats: StoreDayStats = useMemo(
+    () => ({
+      label: '分類別時間帯売上',
+      storeCount: categoryTimeSalesStores,
+      totalRecords: categoryTimeSalesCount,
+      dayRange: categoryTimeSalesDays,
+      perStore: [],
+      hasCustomers: false,
+    }),
+    [categoryTimeSalesStores, categoryTimeSalesCount, categoryTimeSalesDays],
+  )
 
-  const prevYearCTSStats: StoreDayStats = useMemo(() => ({
-    label: '前年分類別時間帯売上',
-    storeCount: prevYearCTSStores,
-    totalRecords: prevYearCTSCount,
-    dayRange: prevYearCTSDays,
-    perStore: [],
-    hasCustomers: false,
-  }), [prevYearCTSStores, prevYearCTSCount, prevYearCTSDays])
+  const prevYearCTSStats: StoreDayStats = useMemo(
+    () => ({
+      label: '前年分類別時間帯売上',
+      storeCount: prevYearCTSStores,
+      totalRecords: prevYearCTSCount,
+      dayRange: prevYearCTSDays,
+      perStore: [],
+      hasCustomers: false,
+    }),
+    [prevYearCTSStores, prevYearCTSCount, prevYearCTSDays],
+  )
 
   return (
     <>
@@ -859,7 +898,10 @@ function ImportHistoryTab() {
             <SummaryLabel>登録店舗数</SummaryLabel>
           </SummaryCard>
           <SummaryCard>
-            <SummaryValue>{loadedCount}<span style={{ fontSize: '0.6em', opacity: 0.6 }}> / {overview.length + 2 + 2}</span></SummaryValue>
+            <SummaryValue>
+              {loadedCount}
+              <span style={{ fontSize: '0.6em', opacity: 0.6 }}> / {overview.length + 2 + 2}</span>
+            </SummaryValue>
             <SummaryLabel>取込済データ種別</SummaryLabel>
           </SummaryCard>
           <SummaryCard>
@@ -880,9 +922,7 @@ function ImportHistoryTab() {
       {/* 詳細テーブル */}
       <Section>
         <SectionTitle>日別データ取込状況</SectionTitle>
-        <HelpText>
-          店舗×日単位のデータです。行をクリックで店舗別の詳細を展開できます。
-        </HelpText>
+        <HelpText>店舗×日単位のデータです。行をクリックで店舗別の詳細を展開できます。</HelpText>
         <Table>
           <thead>
             <tr>
@@ -900,24 +940,46 @@ function ImportHistoryTab() {
               const isExpanded = expandedRows.has(d.label)
               const loaded = d.storeCount > 0
               // 品質: 各店舗のカバー率（日数 / daysInMonth）の平均
-              const quality = loaded && daysInMonth > 0
-                ? Math.round(d.perStore.reduce((s, p) => s + (p.days / daysInMonth) * 100, 0) / d.perStore.length)
-                : 0
-              const qualityColor = quality >= 80 ? palette.successDark : quality >= 50 ? palette.warningDark : palette.dangerDark
+              const quality =
+                loaded && daysInMonth > 0
+                  ? Math.round(
+                      d.perStore.reduce((s, p) => s + (p.days / daysInMonth) * 100, 0) /
+                        d.perStore.length,
+                    )
+                  : 0
+              const qualityColor =
+                quality >= 80
+                  ? palette.successDark
+                  : quality >= 50
+                    ? palette.warningDark
+                    : palette.dangerDark
 
               return (
                 <>
-                  <tr key={d.label} style={{ cursor: loaded ? 'pointer' : 'default' }} onClick={() => loaded && toggleExpand(d.label)}>
+                  <tr
+                    key={d.label}
+                    style={{ cursor: loaded ? 'pointer' : 'default' }}
+                    onClick={() => loaded && toggleExpand(d.label)}
+                  >
                     <Td>
                       {loaded && (
-                        <ExpandButton onClick={(e) => { e.stopPropagation(); toggleExpand(d.label) }}>
+                        <ExpandButton
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleExpand(d.label)
+                          }}
+                        >
                           {isExpanded ? '▼' : '▶'}
                         </ExpandButton>
                       )}
                     </Td>
                     <Td>
                       {d.label}
-                      {d.hasCustomers && <Badge $color={palette.successDark} style={{ marginLeft: 6 }}>客数</Badge>}
+                      {d.hasCustomers && (
+                        <Badge $color={palette.successDark} style={{ marginLeft: 6 }}>
+                          客数
+                        </Badge>
+                      )}
                     </Td>
                     <Td>
                       <ClickableBadge
@@ -931,9 +993,7 @@ function ImportHistoryTab() {
                     </Td>
                     <Td>{loaded ? d.storeCount : '-'}</Td>
                     <Td>{loaded ? d.totalRecords.toLocaleString() : '-'}</Td>
-                    <Td>
-                      {d.dayRange ? `${d.dayRange.min}日 〜 ${d.dayRange.max}日` : '-'}
-                    </Td>
+                    <Td>{d.dayRange ? `${d.dayRange.min}日 〜 ${d.dayRange.max}日` : '-'}</Td>
                     <Td>
                       {loaded ? (
                         <>
@@ -942,35 +1002,45 @@ function ImportHistoryTab() {
                             <ProgressBarFill $pct={quality} $color={qualityColor} />
                           </ProgressBarContainer>
                         </>
-                      ) : '-'}
+                      ) : (
+                        '-'
+                      )}
                     </Td>
                   </tr>
-                  {isExpanded && d.perStore.map((ps) => (
-                    <DetailRow key={`${d.label}-${ps.storeId}`}>
-                      <DetailCell></DetailCell>
-                      <DetailCell colSpan={2}>
-                        <StoreIdBadge>{ps.storeId}</StoreIdBadge>{' '}
-                        {ps.storeName}
-                      </DetailCell>
-                      <DetailCell>{ps.days}日分</DetailCell>
-                      <DetailCell>{ps.minDay}日 〜 {ps.maxDay}日</DetailCell>
-                      <DetailCell>
-                        {(() => {
-                          const pct = daysInMonth > 0 ? Math.round((ps.days / daysInMonth) * 100) : 0
-                          const c = pct >= 80 ? palette.successDark : pct >= 50 ? palette.warningDark : palette.dangerDark
-                          return (
-                            <>
-                              <StoreIdBadge>{pct}%</StoreIdBadge>
-                              <ProgressBarContainer>
-                                <ProgressBarFill $pct={pct} $color={c} />
-                              </ProgressBarContainer>
-                            </>
-                          )
-                        })()}
-                      </DetailCell>
-                      <DetailCell></DetailCell>
-                    </DetailRow>
-                  ))}
+                  {isExpanded &&
+                    d.perStore.map((ps) => (
+                      <DetailRow key={`${d.label}-${ps.storeId}`}>
+                        <DetailCell></DetailCell>
+                        <DetailCell colSpan={2}>
+                          <StoreIdBadge>{ps.storeId}</StoreIdBadge> {ps.storeName}
+                        </DetailCell>
+                        <DetailCell>{ps.days}日分</DetailCell>
+                        <DetailCell>
+                          {ps.minDay}日 〜 {ps.maxDay}日
+                        </DetailCell>
+                        <DetailCell>
+                          {(() => {
+                            const pct =
+                              daysInMonth > 0 ? Math.round((ps.days / daysInMonth) * 100) : 0
+                            const c =
+                              pct >= 80
+                                ? palette.successDark
+                                : pct >= 50
+                                  ? palette.warningDark
+                                  : palette.dangerDark
+                            return (
+                              <>
+                                <StoreIdBadge>{pct}%</StoreIdBadge>
+                                <ProgressBarContainer>
+                                  <ProgressBarFill $pct={pct} $color={c} />
+                                </ProgressBarContainer>
+                              </>
+                            )
+                          })()}
+                        </DetailCell>
+                        <DetailCell></DetailCell>
+                      </DetailRow>
+                    ))}
                 </>
               )
             })}
@@ -1004,20 +1074,23 @@ function ImportHistoryTab() {
               </tr>
             ))}
             <tr>
-              <Td>
-                分類別時間帯売上
-              </Td>
+              <Td>分類別時間帯売上</Td>
               <Td>
                 <ClickableBadge
                   $color={categoryTimeSalesCount > 0 ? '#0ea5e9' : undefined}
                   $clickable={categoryTimeSalesCount > 0}
-                  onClick={(e) => { e.stopPropagation(); if (categoryTimeSalesCount > 0) setProvenanceTarget(ctsStats) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (categoryTimeSalesCount > 0) setProvenanceTarget(ctsStats)
+                  }}
                   title={categoryTimeSalesCount > 0 ? 'クリックで取込情報を表示' : undefined}
                 >
                   {categoryTimeSalesCount > 0 ? '取込済' : '未取込'}
                 </ClickableBadge>
               </Td>
-              <Td>{categoryTimeSalesCount > 0 ? `${categoryTimeSalesCount.toLocaleString()}件` : '-'}</Td>
+              <Td>
+                {categoryTimeSalesCount > 0 ? `${categoryTimeSalesCount.toLocaleString()}件` : '-'}
+              </Td>
               <Td>
                 {categoryTimeSalesCount > 0 ? (
                   <>
@@ -1028,18 +1101,21 @@ function ImportHistoryTab() {
                       </span>
                     )}
                   </>
-                ) : '-'}
+                ) : (
+                  '-'
+                )}
               </Td>
             </tr>
             <tr>
-              <Td>
-                前年分類別時間帯売上
-              </Td>
+              <Td>前年分類別時間帯売上</Td>
               <Td>
                 <ClickableBadge
                   $color={prevYearCTSCount > 0 ? '#0ea5e9' : undefined}
                   $clickable={prevYearCTSCount > 0}
-                  onClick={(e) => { e.stopPropagation(); if (prevYearCTSCount > 0) setProvenanceTarget(prevYearCTSStats) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (prevYearCTSCount > 0) setProvenanceTarget(prevYearCTSStats)
+                  }}
                   title={prevYearCTSCount > 0 ? 'クリックで取込情報を表示' : undefined}
                 >
                   {prevYearCTSCount > 0 ? '取込済' : '未取込'}
@@ -1056,7 +1132,9 @@ function ImportHistoryTab() {
                       </span>
                     )}
                   </>
-                ) : '-'}
+                ) : (
+                  '-'
+                )}
               </Td>
             </tr>
           </tbody>
@@ -1068,7 +1146,14 @@ function ImportHistoryTab() {
         <Section>
           <SectionTitle>
             バリデーション結果
-            <Badge $color={validationMessages.some((m) => m.level === 'error') ? palette.dangerDark : palette.warningDark} style={{ marginLeft: 8 }}>
+            <Badge
+              $color={
+                validationMessages.some((m) => m.level === 'error')
+                  ? palette.dangerDark
+                  : palette.warningDark
+              }
+              style={{ marginLeft: 8 }}
+            >
               {validationMessages.length}件
             </Badge>
           </SectionTitle>
@@ -1159,28 +1244,40 @@ const DataTypeSelect = styled.div`
 
 const DataChip = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  border: 1px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
-  background: ${({ $active, theme }) => ($active ? `${theme.colors.palette.primary}20` : 'transparent')};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}20` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.pill};
   cursor: pointer;
   transition: all 0.15s;
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const TotalRow = styled.tr`
   font-weight: 700;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
 `
 
 type RawDataType =
-  | 'classifiedSales' | 'classifiedDiscount' | 'customers'
-  | 'purchase_price' | 'purchase_cost'
-  | 'prevYearClassifiedSales' | 'prevYearClassifiedDiscount'
-  | 'interStoreIn' | 'interStoreOut'
-  | 'flowers' | 'directProduce' | 'consumables'
+  | 'classifiedSales'
+  | 'classifiedDiscount'
+  | 'customers'
+  | 'purchase_price'
+  | 'purchase_cost'
+  | 'prevYearClassifiedSales'
+  | 'prevYearClassifiedDiscount'
+  | 'interStoreIn'
+  | 'interStoreOut'
+  | 'flowers'
+  | 'directProduce'
+  | 'consumables'
 
 const RAW_DATA_LABELS: Record<RawDataType, string> = {
   classifiedSales: '売上（分類別）',
@@ -1201,52 +1298,97 @@ function RawDataTab() {
   const { data } = useAppData()
   const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
-  const stores = useMemo(() => Array.from(data.stores.values()).sort((a, b) => a.code.localeCompare(b.code)), [data.stores])
+  const stores = useMemo(
+    () => Array.from(data.stores.values()).sort((a, b) => a.code.localeCompare(b.code)),
+    [data.stores],
+  )
 
   // classifiedSales の集計（store → day → {sales, discount}）
   const csAgg = useMemo(() => aggregateAllStores(data.classifiedSales), [data.classifiedSales])
-  const prevCsAgg = useMemo(() => aggregateAllStores(data.prevYearClassifiedSales), [data.prevYearClassifiedSales])
+  const prevCsAgg = useMemo(
+    () => aggregateAllStores(data.prevYearClassifiedSales),
+    [data.prevYearClassifiedSales],
+  )
 
   /** StoreDayRecord のソースを dataType に応じて返す */
   const getSource = useCallback((): Record<string, Record<number, unknown>> => {
     switch (dataType) {
-      case 'classifiedSales': case 'classifiedDiscount': return csAgg as Record<string, Record<number, unknown>>
-      case 'customers': return data.flowers
-      case 'purchase_price': case 'purchase_cost': return data.purchase
-      case 'prevYearClassifiedSales': case 'prevYearClassifiedDiscount': return prevCsAgg as Record<string, Record<number, unknown>>
-      case 'interStoreIn': return data.interStoreIn
-      case 'interStoreOut': return data.interStoreOut
-      case 'flowers': return data.flowers
-      case 'directProduce': return data.directProduce
-      case 'consumables': return data.consumables
-      default: return {}
+      case 'classifiedSales':
+      case 'classifiedDiscount':
+        return csAgg as Record<string, Record<number, unknown>>
+      case 'customers':
+        return data.flowers
+      case 'purchase_price':
+      case 'purchase_cost':
+        return data.purchase
+      case 'prevYearClassifiedSales':
+      case 'prevYearClassifiedDiscount':
+        return prevCsAgg as Record<string, Record<number, unknown>>
+      case 'interStoreIn':
+        return data.interStoreIn
+      case 'interStoreOut':
+        return data.interStoreOut
+      case 'flowers':
+        return data.flowers
+      case 'directProduce':
+        return data.directProduce
+      case 'consumables':
+        return data.consumables
+      default:
+        return {}
     }
   }, [data, dataType, csAgg, prevCsAgg])
 
   /** 各セルの数値を取得 */
-  const extractValue = useCallback((storeId: string, day: number): number => {
-    switch (dataType) {
-      case 'classifiedSales': return csAgg[storeId]?.[day]?.sales ?? 0
-      case 'classifiedDiscount': return csAgg[storeId]?.[day]?.discount ?? 0
-      case 'customers': return (data.flowers[storeId]?.[day] as { customers?: number } | undefined)?.customers ?? 0
-      case 'purchase_price': return (data.purchase[storeId]?.[day] as { total?: { price?: number } } | undefined)?.total?.price ?? 0
-      case 'purchase_cost': return (data.purchase[storeId]?.[day] as { total?: { cost?: number } } | undefined)?.total?.cost ?? 0
-      case 'prevYearClassifiedSales': return prevCsAgg[storeId]?.[day]?.sales ?? 0
-      case 'prevYearClassifiedDiscount': return prevCsAgg[storeId]?.[day]?.discount ?? 0
-      case 'interStoreIn': {
-        const entry = data.interStoreIn[storeId]?.[day] as { interStoreIn?: readonly { price: number }[] } | undefined
-        return entry?.interStoreIn?.reduce((s, r) => s + r.price, 0) ?? 0
+  const extractValue = useCallback(
+    (storeId: string, day: number): number => {
+      switch (dataType) {
+        case 'classifiedSales':
+          return csAgg[storeId]?.[day]?.sales ?? 0
+        case 'classifiedDiscount':
+          return csAgg[storeId]?.[day]?.discount ?? 0
+        case 'customers':
+          return (
+            (data.flowers[storeId]?.[day] as { customers?: number } | undefined)?.customers ?? 0
+          )
+        case 'purchase_price':
+          return (
+            (data.purchase[storeId]?.[day] as { total?: { price?: number } } | undefined)?.total
+              ?.price ?? 0
+          )
+        case 'purchase_cost':
+          return (
+            (data.purchase[storeId]?.[day] as { total?: { cost?: number } } | undefined)?.total
+              ?.cost ?? 0
+          )
+        case 'prevYearClassifiedSales':
+          return prevCsAgg[storeId]?.[day]?.sales ?? 0
+        case 'prevYearClassifiedDiscount':
+          return prevCsAgg[storeId]?.[day]?.discount ?? 0
+        case 'interStoreIn': {
+          const entry = data.interStoreIn[storeId]?.[day] as
+            | { interStoreIn?: readonly { price: number }[] }
+            | undefined
+          return entry?.interStoreIn?.reduce((s, r) => s + r.price, 0) ?? 0
+        }
+        case 'interStoreOut': {
+          const entry = data.interStoreOut[storeId]?.[day] as
+            | { interStoreOut?: readonly { price: number }[] }
+            | undefined
+          return entry?.interStoreOut?.reduce((s, r) => s + r.price, 0) ?? 0
+        }
+        case 'flowers':
+          return (data.flowers[storeId]?.[day] as { price?: number } | undefined)?.price ?? 0
+        case 'directProduce':
+          return (data.directProduce[storeId]?.[day] as { price?: number } | undefined)?.price ?? 0
+        case 'consumables':
+          return (data.consumables[storeId]?.[day] as { cost?: number } | undefined)?.cost ?? 0
+        default:
+          return 0
       }
-      case 'interStoreOut': {
-        const entry = data.interStoreOut[storeId]?.[day] as { interStoreOut?: readonly { price: number }[] } | undefined
-        return entry?.interStoreOut?.reduce((s, r) => s + r.price, 0) ?? 0
-      }
-      case 'flowers': return (data.flowers[storeId]?.[day] as { price?: number } | undefined)?.price ?? 0
-      case 'directProduce': return (data.directProduce[storeId]?.[day] as { price?: number } | undefined)?.price ?? 0
-      case 'consumables': return (data.consumables[storeId]?.[day] as { cost?: number } | undefined)?.cost ?? 0
-      default: return 0
-    }
-  }, [data, dataType, csAgg, prevCsAgg])
+    },
+    [data, dataType, csAgg, prevCsAgg],
+  )
 
   // 対象データの日付範囲を計算
   const { days, tableRows } = useMemo(() => {
@@ -1264,8 +1406,8 @@ function RawDataTab() {
 
     const dayList = Array.from({ length: maxDay }, (_, i) => i + 1)
 
-    const rows = dayList.map(day => {
-      const cells: { storeId: string; value: number }[] = stores.map(store => ({
+    const rows = dayList.map((day) => {
+      const cells: { storeId: string; value: number }[] = stores.map((store) => ({
         storeId: store.id,
         value: extractValue(store.id, day),
       }))
@@ -1304,7 +1446,7 @@ function RawDataTab() {
       </HelpText>
 
       <DataTypeSelect>
-        {(Object.keys(RAW_DATA_LABELS) as RawDataType[]).map(dt => (
+        {(Object.keys(RAW_DATA_LABELS) as RawDataType[]).map((dt) => (
           <DataChip key={dt} $active={dataType === dt} onClick={() => setDataType(dt)}>
             {RAW_DATA_LABELS[dt]}
           </DataChip>
@@ -1313,7 +1455,9 @@ function RawDataTab() {
 
       {!hasData ? (
         <EmptyState>
-          {stores.length === 0 ? 'データをインポートすると表示されます' : `${RAW_DATA_LABELS[dataType]}のデータがありません`}
+          {stores.length === 0
+            ? 'データをインポートすると表示されます'
+            : `${RAW_DATA_LABELS[dataType]}のデータがありません`}
         </EmptyState>
       ) : (
         <RawTableWrapper>
@@ -1321,20 +1465,22 @@ function RawDataTab() {
             <thead>
               <tr>
                 <RawTh $sticky>日</RawTh>
-                {stores.map(s => (
+                {stores.map((s) => (
                   <RawTh key={s.id}>{s.name || s.code}</RawTh>
                 ))}
                 <RawTh>合計</RawTh>
               </tr>
             </thead>
             <tbody>
-              {tableRows.map(row => {
+              {tableRows.map((row) => {
                 const rowTotal = row.cells.reduce((sum, c) => sum + c.value, 0)
                 return (
                   <tr key={row.day}>
                     <RawTd $sticky>{row.day}</RawTd>
-                    {row.cells.map(cell => (
-                      <RawTd key={cell.storeId} $zero={cell.value === 0}>{fmt(cell.value)}</RawTd>
+                    {row.cells.map((cell) => (
+                      <RawTd key={cell.storeId} $zero={cell.value === 0}>
+                        {fmt(cell.value)}
+                      </RawTd>
                     ))}
                     <RawTd $zero={rowTotal === 0}>{fmt(rowTotal)}</RawTd>
                   </tr>
@@ -1342,9 +1488,13 @@ function RawDataTab() {
               })}
               <TotalRow>
                 <RawTd $sticky>合計</RawTd>
-                {stores.map(s => {
+                {stores.map((s) => {
                   const total = storeTotals.get(s.id) ?? 0
-                  return <RawTd key={s.id} $zero={total === 0}>{fmt(total)}</RawTd>
+                  return (
+                    <RawTd key={s.id} $zero={total === 0}>
+                      {fmt(total)}
+                    </RawTd>
+                  )
                 })}
                 <RawTd $zero={false}>
                   {fmt(Array.from(storeTotals.values()).reduce((a, b) => a + b, 0))}

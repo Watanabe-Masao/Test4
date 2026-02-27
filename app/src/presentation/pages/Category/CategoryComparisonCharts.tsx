@@ -1,9 +1,28 @@
 import type { StoreResult } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  toComma,
+  STORE_COLORS,
+} from '@/presentation/components/charts/chartTheme'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
@@ -17,17 +36,17 @@ export function StoreComparisonCategoryBarChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const data = CATEGORY_ORDER
-    .filter((cat) => selectedResults.some((sr) => sr.categoryTotals.has(cat)))
-    .map((cat) => {
-      const entry: Record<string, string | number> = { name: CATEGORY_LABELS[cat] }
-      selectedResults.forEach((sr) => {
-        const name = storeNames.get(sr.storeId) ?? sr.storeId
-        const pair = sr.categoryTotals.get(cat)
-        entry[name] = pair ? Math.abs(pair.price) : 0
-      })
-      return entry
+  const data = CATEGORY_ORDER.filter((cat) =>
+    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+  ).map((cat) => {
+    const entry: Record<string, string | number> = { name: CATEGORY_LABELS[cat] }
+    selectedResults.forEach((sr) => {
+      const name = storeNames.get(sr.storeId) ?? sr.storeId
+      const pair = sr.categoryTotals.get(cat)
+      entry[name] = pair ? Math.abs(pair.price) : 0
     })
+    return entry
+  })
 
   return (
     <ChartWrapper>
@@ -50,7 +69,10 @@ export function StoreComparisonCategoryBarChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              toComma(value ?? 0),
+              name ?? '',
+            ]}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {selectedResults.map((sr, i) => {
@@ -82,18 +104,18 @@ export function StoreComparisonMarkupRadarChart({
 }) {
   const ct = useChartTheme()
 
-  const radarData = CATEGORY_ORDER
-    .filter((cat) => selectedResults.some((sr) => sr.categoryTotals.has(cat)))
-    .map((cat) => {
-      const entry: Record<string, string | number> = { subject: CATEGORY_LABELS[cat] }
-      selectedResults.forEach((sr) => {
-        const name = storeNames.get(sr.storeId) ?? sr.storeId
-        const pair = sr.categoryTotals.get(cat)
-        const markup = pair ? safeDivide(pair.price - pair.cost, pair.price, 0) * 100 : 0
-        entry[name] = markup
-      })
-      return entry
+  const radarData = CATEGORY_ORDER.filter((cat) =>
+    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+  ).map((cat) => {
+    const entry: Record<string, string | number> = { subject: CATEGORY_LABELS[cat] }
+    selectedResults.forEach((sr) => {
+      const name = storeNames.get(sr.storeId) ?? sr.storeId
+      const pair = sr.categoryTotals.get(cat)
+      const markup = pair ? safeDivide(pair.price - pair.cost, pair.price, 0) * 100 : 0
+      entry[name] = markup
     })
+    return entry
+  })
 
   return (
     <ChartWrapper>

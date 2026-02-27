@@ -70,7 +70,14 @@ export type { MonthlyData, AppData } from './MonthlyData'
 export { createEmptyMonthlyData } from './MonthlyData'
 export type { StoreDaySummary, StoreDaySummaryIndex, StoreDaySummaryCache } from './StoreDaySummary'
 export type { ValidationMessage } from './ValidationMessage'
-export type { PersistedMeta, FieldChange, DataTypeDiff, DiffResult, ImportHistoryEntry, ImportHistoryFile } from './Persistence'
+export type {
+  PersistedMeta,
+  FieldChange,
+  DataTypeDiff,
+  DiffResult,
+  ImportHistoryEntry,
+  ImportHistoryFile,
+} from './Persistence'
 export type {
   MetricId,
   MetricUnit,

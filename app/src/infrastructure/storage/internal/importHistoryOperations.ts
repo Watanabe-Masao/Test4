@@ -16,18 +16,23 @@ export async function saveImportHistory(
   entry: ImportHistoryEntry,
 ): Promise<void> {
   const key = importHistoryKey(year, month)
-  await dbBatchPutWithReadModify([], [{
-    storeName: STORE_MONTHLY,
-    key,
-    modify: (existing) => {
-      const history: ImportHistoryEntry[] = Array.isArray(existing)
-        ? [...(existing as ImportHistoryEntry[])]
-        : []
-      history.unshift(entry)
-      if (history.length > 20) history.length = 20
-      return history
-    },
-  }])
+  await dbBatchPutWithReadModify(
+    [],
+    [
+      {
+        storeName: STORE_MONTHLY,
+        key,
+        modify: (existing) => {
+          const history: ImportHistoryEntry[] = Array.isArray(existing)
+            ? [...(existing as ImportHistoryEntry[])]
+            : []
+          history.unshift(entry)
+          if (history.length > 20) history.length = 20
+          return history
+        },
+      },
+    ],
+  )
 }
 
 /**

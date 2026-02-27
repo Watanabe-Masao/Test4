@@ -79,8 +79,9 @@ function serializeForHash(value: unknown): string {
   if (typeof value === 'boolean') return value ? 'T' : 'F'
 
   if (value instanceof Map) {
-    const entries = Array.from(value.entries())
-      .sort(([a], [b]) => String(a) < String(b) ? -1 : String(a) > String(b) ? 1 : 0)
+    const entries = Array.from(value.entries()).sort(([a], [b]) =>
+      String(a) < String(b) ? -1 : String(a) > String(b) ? 1 : 0,
+    )
     return `M{${entries.map(([k, v]) => `${serializeForHash(k)}:${serializeForHash(v)}`).join(',')}}`
   }
 

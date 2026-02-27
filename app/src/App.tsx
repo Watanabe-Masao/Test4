@@ -1,28 +1,74 @@
 import { ThemeProvider } from 'styled-components'
-import { lazy, Suspense, useState, useCallback, useEffect, useMemo, createContext, useContext } from 'react'
+import {
+  lazy,
+  Suspense,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  createContext,
+  useContext,
+} from 'react'
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
-import { AppStateProvider, useAppUi, useAppDispatch, RepositoryProvider } from '@/application/context'
+import {
+  AppStateProvider,
+  useAppUi,
+  useAppDispatch,
+  RepositoryProvider,
+} from '@/application/context'
 import { useUiStore } from '@/application/stores/uiStore'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
-import { ToastProvider, useToast, PageErrorBoundary, PageSkeleton } from '@/presentation/components/common'
+import {
+  ToastProvider,
+  useToast,
+  PageErrorBoundary,
+  PageSkeleton,
+} from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
 import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
-import { useKeyboardShortcuts, useUndoRedo, useCalculation, usePersistence } from '@/application/hooks'
+import {
+  useKeyboardShortcuts,
+  useUndoRedo,
+  useCalculation,
+  usePersistence,
+} from '@/application/hooks'
 import { I18nProvider } from '@/infrastructure/i18n'
 import { AuthProvider } from '@/application/context/AuthContext'
 import type { ViewType } from '@/domain/models'
 
 // ─── 遅延ロード: ページコンポーネント ──────────────────────
-const DashboardPage = lazy(() => import('@/presentation/pages/Dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
-const DailyPage = lazy(() => import('@/presentation/pages/Daily/DailyPage').then(m => ({ default: m.DailyPage })))
-const InsightPage = lazy(() => import('@/presentation/pages/Insight/InsightPage').then(m => ({ default: m.InsightPage })))
-const CategoryPage = lazy(() => import('@/presentation/pages/Category/CategoryPage').then(m => ({ default: m.CategoryPage })))
-const CostDetailPage = lazy(() => import('@/presentation/pages/CostDetail/CostDetailPage').then(m => ({ default: m.CostDetailPage })))
-const ReportsPage = lazy(() => import('@/presentation/pages/Reports/ReportsPage').then(m => ({ default: m.ReportsPage })))
-const AdminPage = lazy(() => import('@/presentation/pages/Admin/AdminPage').then(m => ({ default: m.AdminPage })))
-const MobileDashboardPage = lazy(() => import('@/presentation/pages/Mobile/MobileDashboardPage').then(m => ({ default: m.MobileDashboardPage })))
+const DashboardPage = lazy(() =>
+  import('@/presentation/pages/Dashboard/DashboardPage').then((m) => ({
+    default: m.DashboardPage,
+  })),
+)
+const DailyPage = lazy(() =>
+  import('@/presentation/pages/Daily/DailyPage').then((m) => ({ default: m.DailyPage })),
+)
+const InsightPage = lazy(() =>
+  import('@/presentation/pages/Insight/InsightPage').then((m) => ({ default: m.InsightPage })),
+)
+const CategoryPage = lazy(() =>
+  import('@/presentation/pages/Category/CategoryPage').then((m) => ({ default: m.CategoryPage })),
+)
+const CostDetailPage = lazy(() =>
+  import('@/presentation/pages/CostDetail/CostDetailPage').then((m) => ({
+    default: m.CostDetailPage,
+  })),
+)
+const ReportsPage = lazy(() =>
+  import('@/presentation/pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
+)
+const AdminPage = lazy(() =>
+  import('@/presentation/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })),
+)
+const MobileDashboardPage = lazy(() =>
+  import('@/presentation/pages/Mobile/MobileDashboardPage').then((m) => ({
+    default: m.MobileDashboardPage,
+  })),
+)
 
 // ─── ViewType ↔ URLパス マッピング ──────────────────────────
 const VIEW_TO_PATH: Record<ViewType, string> = {
@@ -175,12 +221,7 @@ function AppContent() {
             />
           </PageErrorBoundary>
         }
-        bottomNav={
-          <BottomNav
-            currentView={ui.currentView}
-            onViewChange={handleViewChange}
-          />
-        }
+        bottomNav={<BottomNav currentView={ui.currentView} onViewChange={handleViewChange} />}
       >
         <PageErrorBoundary>
           <Suspense fallback={<PageSkeleton />}>
