@@ -8,6 +8,7 @@ import type { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
+import { EMPTY_DEPT_KPI_INDEX } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { WidgetContext } from '../types'
 import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
 import { EMPTY_CTS_INDEX, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
@@ -171,7 +172,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     dataEndDay: null,
     dataMaxDay: 0,
     elapsedDays: undefined,
-    departmentKpi: { records: [] },
+    departmentKpi: EMPTY_DEPT_KPI_INDEX,
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
     monthlyHistory: [],

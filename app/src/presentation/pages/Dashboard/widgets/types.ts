@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
+import type { StoreResult, CategoryTimeSalesIndex, StoreExplanations, MetricId, DateRange } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
+import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
@@ -82,8 +83,8 @@ export interface WidgetContext {
   dataMaxDay: number
   /** 取込データ有効期間から算出された経過日数 */
   elapsedDays: number | undefined
-  /** 部門別KPIデータ */
-  departmentKpi: DepartmentKpiData
+  /** 部門別KPIインデックス（buildDepartmentKpiIndex経由） */
+  departmentKpi: DepartmentKpiIndex
   /** 指標説明マップ（MetricBreakdownPanel 用） */
   explanations: StoreExplanations
   /** 指標の説明パネルを開く */

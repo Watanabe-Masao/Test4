@@ -7,6 +7,7 @@ import type { MetricId, DateRange } from '@/domain/models'
 import { useAppState } from '@/application/context'
 import { useRepository } from '@/application/context/RepositoryContext'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import { CategoryHierarchyProvider, CurrencyUnitToggle, CrossChartSelectionProvider, useCrossChartSelection } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
@@ -203,6 +204,11 @@ export function DashboardPage() {
   const effectiveEndDay = r.elapsedDays != null && r.elapsedDays > 0
     ? Math.min(r.elapsedDays, daysInMonth)
     : daysInMonth
+  const deptKpiIndex = useMemo(
+    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
+    [appState.data.departmentKpi],
+  )
+
   const currentDateRange: DateRange = {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
@@ -234,7 +240,7 @@ export function DashboardPage() {
     dataEndDay: appState.settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,
-    departmentKpi: appState.data.departmentKpi,
+    departmentKpi: deptKpiIndex,
     explanations,
     onExplain: handleExplain,
     monthlyHistory,

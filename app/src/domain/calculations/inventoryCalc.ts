@@ -1,5 +1,6 @@
 import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
+import { safeDivide } from './utils'
 
 export interface InventoryPoint {
   readonly day: number
@@ -92,7 +93,7 @@ export function computeEstimatedInventoryDetails(
       coreSales = rec.sales - rec.flowers.price - rec.directProduce.price
 
       // 粗売上 = コア売上 / (1 − 売変率)
-      grossSales = divisor > 0 ? coreSales / divisor : coreSales
+      grossSales = safeDivide(coreSales, divisor, coreSales)
 
       // 在庫仕入原価 = 総仕入原価 − 売上納品原価
       inventoryCost = getDailyTotalCost(rec) - rec.deliverySales.cost
