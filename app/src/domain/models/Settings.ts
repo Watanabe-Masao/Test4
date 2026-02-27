@@ -26,13 +26,10 @@ export interface AppSettings {
 /** ビュー種別 */
 export type ViewType =
   | 'dashboard'
-  | 'category'
-  | 'forecast'
-  | 'analysis'
   | 'daily'
-  | 'transfer'
-  | 'consumable'
-  | 'summary'
+  | 'insight'
+  | 'category'
+  | 'cost-detail'
   | 'reports'
   | 'admin'
 

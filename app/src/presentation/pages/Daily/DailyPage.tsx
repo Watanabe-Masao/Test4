@@ -5,11 +5,12 @@ import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components
 import type { DailyChartMode } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useAppState } from '@/application/context'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
+import { getDailyTotalCost } from '@/domain/models'
 import {
   ChartToggle, ChartGrid, TableWrapper, Table, Th, SubTh, Td, SubTd, Tr,
-  PrevYearTd, EmptyState, ToggleIcon,
+  PrevYearTd, EmptyState, ToggleIcon, RateTd,
 } from './DailyPage.styles'
 
 type ExpandableColumn = 'purchase' | 'interStoreIn' | 'interStoreOut' | 'interDepartmentIn' | 'interDepartmentOut'
@@ -114,6 +115,28 @@ export function DailyPage() {
     () => isInterDeptOutExpanded && days.length > 0 ? collectTransferKeys(days, 'interDepartmentOut', stores) : EMPTY_TRANSFER_KEYS,
     [isInterDeptOutExpanded, days, stores],
   )
+
+  // 累計粗利率 & 累計売変率の事前計算
+  const cumulativeData = useMemo(() => {
+    const map = new Map<number, { grossProfitRate: number; discountRate: number }>()
+    let cumSales = 0
+    let cumCost = 0
+    let cumDiscount = 0
+    let cumGrossSales = 0
+
+    for (const [day, rec] of days) {
+      cumSales += rec.sales
+      cumCost += getDailyTotalCost(rec)
+      cumDiscount += rec.discountAbsolute
+      cumGrossSales += rec.grossSales
+
+      map.set(day, {
+        grossProfitRate: safeDivide(cumSales - cumCost, cumSales, 0),
+        discountRate: safeDivide(cumDiscount, cumGrossSales, 0),
+      })
+    }
+    return map
+  }, [days])
 
   const toggleExpand = (col: ExpandableColumn) => {
     setExpanded(prev => {
@@ -232,6 +255,8 @@ export function DailyPage() {
                 <Th>産直</Th>
                 <Th>売変額</Th>
                 <Th>消耗品</Th>
+                <Th>累計粗利率</Th>
+                <Th>累計売変率</Th>
               </tr>
             </thead>
             <tbody>
@@ -295,6 +320,26 @@ export function DailyPage() {
                     {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
                   </Td>
                   <Td>{rec.consumable.cost > 0 ? formatCurrency(rec.consumable.cost) : '-'}</Td>
+                  {(() => {
+                    const cum = cumulativeData.get(day)
+                    const gpr = cum?.grossProfitRate ?? 0
+                    const gprStatus = gpr >= settings.targetGrossProfitRate ? 'good' as const
+                      : gpr >= settings.warningThreshold ? 'warn' as const : 'bad' as const
+                    return (
+                      <RateTd $status={rec.sales > 0 ? gprStatus : undefined}>
+                        {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
+                      </RateTd>
+                    )
+                  })()}
+                  {(() => {
+                    const cum = cumulativeData.get(day)
+                    const dr = cum?.discountRate ?? 0
+                    return (
+                      <RateTd $status={dr > 0 ? (dr > 0.05 ? 'bad' as const : dr > 0.03 ? 'warn' as const : 'good' as const) : undefined}>
+                        {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
+                      </RateTd>
+                    )
+                  })()}
                 </Tr>
               ))}
             </tbody>

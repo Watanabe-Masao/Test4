@@ -1,6 +1,36 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 
+/* ─── Tab Bar ───────────────────────────────────────── */
+
+export const TabBar = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[1]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
+export const Tab = styled.button<{ $active: boolean }>`
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
+  border: none;
+  border-bottom: 2px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  background: ${({ $active, theme }) => ($active ? `${theme.colors.palette.primary}10` : 'transparent')};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  cursor: pointer;
+  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  white-space: nowrap;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.colors.bg3};
+  }
+`
+
+/* ─── Common ────────────────────────────────────────── */
+
 export const Section = styled.section`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
 `
@@ -45,10 +75,23 @@ export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
   }
 `
 
-export const Tr = styled.tr<{ $clickable?: boolean; $expanded?: boolean }>`
+/** 消耗品タブ用 Td（$muted 対応） */
+export const ConsumTd = styled.td<{ $muted?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ $muted, theme }) => $muted ? theme.colors.text4 : theme.colors.text};
+  &:first-child {
+    text-align: left;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+    color: ${({ theme }) => theme.colors.text2};
+  }
+`
+
+export const Tr = styled.tr<{ $clickable?: boolean; $expanded?: boolean; $selected?: boolean }>`
   &:hover { background: ${({ theme }) => theme.colors.bg4}; }
   cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
-  ${({ $expanded, theme }) => $expanded && `
+  ${({ $expanded, $selected, theme }) => ($expanded || $selected) && `
     background: ${theme.colors.palette.primary}10;
     &:hover { background: ${theme.colors.palette.primary}18; }
   `}
@@ -71,17 +114,6 @@ export const TrDetailLast = styled(TrDetail)`
   }
 `
 
-export const DetailLabel = styled.span<{ $sub?: boolean }>`
-  display: inline-block;
-  min-width: 80px;
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  color: ${({ theme }) => theme.colors.text4};
-  ${({ $sub, theme }) => $sub && `
-    font-weight: ${theme.typography.fontWeight.semibold};
-    color: ${theme.colors.text3};
-  `}
-`
-
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
   display: inline-block;
   margin-right: 4px;
@@ -102,7 +134,7 @@ export const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
-// ── Flow Pair Table ──────────────────────────
+/* ─── Flow Pair Table ───────────────────────────────── */
 
 export const FlowTable = styled.table`
   width: 100%;
@@ -167,4 +199,44 @@ export const FlowBar = styled.div<{ $pct: number; $dir: 'in' | 'out' | 'neutral'
   background: ${({ $dir }) =>
     $dir === 'in' ? '#3b82f6' : $dir === 'out' ? '#f43f5e' : '#94a3b8'};
   opacity: 0.7;
+`
+
+/* ─── Consumable-specific ───────────────────────────── */
+
+export const Bar = styled.div<{ $width: number; $color: string }>`
+  display: inline-block;
+  width: ${({ $width }) => $width}%;
+  max-width: 120px;
+  height: 6px;
+  border-radius: 3px;
+  background: ${({ $color }) => $color};
+  margin-right: ${({ theme }) => theme.spacing[2]};
+  vertical-align: middle;
+`
+
+export const RankBadge = styled.span<{ $rank: number }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  background: ${({ $rank }) =>
+    $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#d97706' : 'transparent'};
+  color: ${({ $rank, theme }) => $rank <= 3 ? 'white' : theme.colors.text4};
+  margin-right: ${({ theme }) => theme.spacing[2]};
+`
+
+export const PairGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: 1fr;
+  }
 `

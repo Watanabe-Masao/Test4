@@ -17,13 +17,10 @@ import type { ViewType } from '@/domain/models'
 // ─── 遅延ロード: ページコンポーネント ──────────────────────
 const DashboardPage = lazy(() => import('@/presentation/pages/Dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const DailyPage = lazy(() => import('@/presentation/pages/Daily/DailyPage').then(m => ({ default: m.DailyPage })))
-const AnalysisPage = lazy(() => import('@/presentation/pages/Analysis/AnalysisPage').then(m => ({ default: m.AnalysisPage })))
+const InsightPage = lazy(() => import('@/presentation/pages/Insight/InsightPage').then(m => ({ default: m.InsightPage })))
 const CategoryPage = lazy(() => import('@/presentation/pages/Category/CategoryPage').then(m => ({ default: m.CategoryPage })))
-const SummaryPage = lazy(() => import('@/presentation/pages/Summary/SummaryPage').then(m => ({ default: m.SummaryPage })))
-const ForecastPage = lazy(() => import('@/presentation/pages/Forecast/ForecastPage').then(m => ({ default: m.ForecastPage })))
+const CostDetailPage = lazy(() => import('@/presentation/pages/CostDetail/CostDetailPage').then(m => ({ default: m.CostDetailPage })))
 const ReportsPage = lazy(() => import('@/presentation/pages/Reports/ReportsPage').then(m => ({ default: m.ReportsPage })))
-const TransferPage = lazy(() => import('@/presentation/pages/Transfer/TransferPage').then(m => ({ default: m.TransferPage })))
-const ConsumablePage = lazy(() => import('@/presentation/pages/Consumable/ConsumablePage').then(m => ({ default: m.ConsumablePage })))
 const AdminPage = lazy(() => import('@/presentation/pages/Admin/AdminPage').then(m => ({ default: m.AdminPage })))
 const MobileDashboardPage = lazy(() => import('@/presentation/pages/Mobile/MobileDashboardPage').then(m => ({ default: m.MobileDashboardPage })))
 
@@ -31,12 +28,9 @@ const MobileDashboardPage = lazy(() => import('@/presentation/pages/Mobile/Mobil
 const VIEW_TO_PATH: Record<ViewType, string> = {
   dashboard: '/dashboard',
   daily: '/daily',
-  analysis: '/analysis',
+  insight: '/insight',
   category: '/category',
-  summary: '/summary',
-  forecast: '/forecast',
-  transfer: '/transfer',
-  consumable: '/consumable',
+  'cost-detail': '/cost-detail',
   reports: '/reports',
   admin: '/admin',
 }
@@ -193,14 +187,17 @@ function AppContent() {
             <Routes>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/daily" element={<DailyPage />} />
-              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/insight" element={<InsightPage />} />
               <Route path="/category" element={<CategoryPage />} />
-              <Route path="/summary" element={<SummaryPage />} />
-              <Route path="/forecast" element={<ForecastPage />} />
-              <Route path="/transfer" element={<TransferPage />} />
-              <Route path="/consumable" element={<ConsumablePage />} />
+              <Route path="/cost-detail" element={<CostDetailPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              {/* 旧ルートからのリダイレクト */}
+              <Route path="/analysis" element={<Navigate to="/insight" replace />} />
+              <Route path="/forecast" element={<Navigate to="/insight" replace />} />
+              <Route path="/summary" element={<Navigate to="/insight" replace />} />
+              <Route path="/transfer" element={<Navigate to="/cost-detail" replace />} />
+              <Route path="/consumable" element={<Navigate to="/cost-detail" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Suspense>

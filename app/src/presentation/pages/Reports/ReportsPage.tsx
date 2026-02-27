@@ -1,9 +1,12 @@
+import { useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
-import { useAppSettings } from '@/application/context'
+import { useAppState, useAppSettings } from '@/application/context'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
+import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
+import { exportDailySalesReport, exportMonthlyPLReport, exportStoreKpiReport } from '@/infrastructure/export'
 import { sc } from '@/presentation/theme/semanticColors'
 import styled from 'styled-components'
 
@@ -126,10 +129,81 @@ const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ExportBar = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
+`
+
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  color: ${({ theme }) => theme.colors.text2};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+
+  @media print { display: none; }
+`
+
+const DeptTd = styled.td<{ $warn?: boolean; $good?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ $warn, $good, theme }) =>
+    $good ? theme.colors.palette.success
+    : $warn ? theme.colors.palette.danger
+    : theme.colors.text};
+  &:first-child { text-align: left; font-weight: ${({ theme }) => theme.typography.fontWeight.semibold}; }
+`
+
 export function ReportsPage() {
   const { daysInMonth } = useCalculation()
-  const { currentResult, storeName } = useStoreSelection()
+  const { currentResult, selectedResults, storeName, stores, isAllStores, selectedStoreIds } = useStoreSelection()
+  const appState = useAppState()
   const settings = useAppSettings()
+
+  // 部門KPIインデックス構築
+  const deptKpiIndex = useMemo(
+    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
+    [appState.data.departmentKpi],
+  )
+
+  // CSV エクスポートハンドラ
+  const handleExportDaily = useCallback(() => {
+    if (!currentResult) return
+    const storeId = !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
+    const store = storeId ? stores.get(storeId) ?? null : null
+    exportDailySalesReport(currentResult, store, settings.targetYear, settings.targetMonth)
+  }, [currentResult, isAllStores, selectedStoreIds, stores, settings.targetYear, settings.targetMonth])
+
+  const handleExportPL = useCallback(() => {
+    if (!currentResult) return
+    const storeId = !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
+    const store = storeId ? stores.get(storeId) ?? null : null
+    exportMonthlyPLReport(currentResult, store, settings.targetYear, settings.targetMonth)
+  }, [currentResult, isAllStores, selectedStoreIds, stores, settings.targetYear, settings.targetMonth])
+
+  const handleExportStoreKpi = useCallback(() => {
+    const storeResults = new Map<string, (typeof selectedResults)[number]>()
+    for (const r of selectedResults) {
+      storeResults.set(r.storeId, r)
+    }
+    exportStoreKpiReport(storeResults, stores, settings.targetYear, settings.targetMonth)
+  }, [selectedResults, stores, settings.targetYear, settings.targetMonth])
 
   if (!currentResult) {
     return (
@@ -165,6 +239,15 @@ export function ReportsPage() {
         <div />
         <ReportDate>{reportDate} 現在</ReportDate>
       </ReportHeader>
+
+      {/* CSVエクスポート */}
+      <ExportBar>
+        <ExportButton onClick={handleExportDaily}>&#128196; 日別売上CSV</ExportButton>
+        <ExportButton onClick={handleExportPL}>&#128200; 月次P&amp;L CSV</ExportButton>
+        {selectedResults.length > 1 && (
+          <ExportButton onClick={handleExportStoreKpi}>&#127970; 店舗別KPI CSV</ExportButton>
+        )}
+      </ExportBar>
 
       {/* 概要KPI */}
       <Section>
@@ -401,6 +484,99 @@ export function ReportsPage() {
           </Table>
         </TableWrapper>
       </Section>
+
+      {/* 部門別KPI */}
+      {deptKpiIndex.records.length > 0 && (
+        <Section>
+          <SectionTitle>部門別KPI</SectionTitle>
+          <KpiGrid>
+            <KpiCard
+              label="部門数"
+              value={`${deptKpiIndex.summary.deptCount}部門`}
+              accent="#6366f1"
+            />
+            <KpiCard
+              label="売上達成率（全体）"
+              value={formatPercent(deptKpiIndex.summary.overallSalesAchievement)}
+              subText={`予算: ${formatCurrency(deptKpiIndex.summary.totalSalesBudget)} / 実績: ${formatCurrency(deptKpiIndex.summary.totalSalesActual)}`}
+              accent={sc.achievement(deptKpiIndex.summary.overallSalesAchievement)}
+            />
+            <KpiCard
+              label="加重平均粗利率"
+              value={formatPercent(deptKpiIndex.summary.weightedGpRateActual)}
+              subText={`予算: ${formatPercent(deptKpiIndex.summary.weightedGpRateBudget)}`}
+              accent={sc.positive}
+            />
+            <KpiCard
+              label="加重平均値入率"
+              value={formatPercent(deptKpiIndex.summary.weightedMarkupRate)}
+              subText={`売変率: ${formatPercent(deptKpiIndex.summary.weightedDiscountRate)}`}
+              accent="#0ea5e9"
+            />
+          </KpiGrid>
+          <TableWrapper>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>部門</Th>
+                  <Th>粗利率(予算)</Th>
+                  <Th>粗利率(実績)</Th>
+                  <Th>差異(pt)</Th>
+                  <Th>値入率</Th>
+                  <Th>売変率</Th>
+                  <Th>売上予算</Th>
+                  <Th>売上実績</Th>
+                  <Th>達成率</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {deptKpiIndex.records.map(dept => (
+                  <Tr key={dept.deptCode}>
+                    <DeptTd>{dept.deptName || dept.deptCode}</DeptTd>
+                    <DeptTd>{formatPercent(dept.gpRateBudget)}</DeptTd>
+                    <DeptTd
+                      $good={dept.gpRateActual >= dept.gpRateBudget}
+                      $warn={dept.gpRateActual < dept.gpRateBudget}
+                    >
+                      {formatPercent(dept.gpRateActual)}
+                    </DeptTd>
+                    <DeptTd
+                      $good={dept.gpRateVariance >= 0}
+                      $warn={dept.gpRateVariance < 0}
+                    >
+                      {dept.gpRateVariance >= 0 ? '+' : ''}{(dept.gpRateVariance * 100).toFixed(1)}
+                    </DeptTd>
+                    <DeptTd>{formatPercent(dept.markupRate)}</DeptTd>
+                    <DeptTd>{formatPercent(dept.discountRate)}</DeptTd>
+                    <DeptTd>{formatCurrency(dept.salesBudget)}</DeptTd>
+                    <DeptTd>{formatCurrency(dept.salesActual)}</DeptTd>
+                    <DeptTd
+                      $good={dept.salesAchievement >= 1}
+                      $warn={dept.salesAchievement < 0.9}
+                    >
+                      {formatPercent(dept.salesAchievement)}
+                    </DeptTd>
+                  </Tr>
+                ))}
+                <TotalRow>
+                  <Td>全部門（加重平均）</Td>
+                  <Td>{formatPercent(deptKpiIndex.summary.weightedGpRateBudget)}</Td>
+                  <Td $accent>{formatPercent(deptKpiIndex.summary.weightedGpRateActual)}</Td>
+                  <Td $accent>
+                    {(deptKpiIndex.summary.weightedGpRateActual - deptKpiIndex.summary.weightedGpRateBudget >= 0 ? '+' : '')}
+                    {((deptKpiIndex.summary.weightedGpRateActual - deptKpiIndex.summary.weightedGpRateBudget) * 100).toFixed(1)}
+                  </Td>
+                  <Td $accent>{formatPercent(deptKpiIndex.summary.weightedMarkupRate)}</Td>
+                  <Td $accent>{formatPercent(deptKpiIndex.summary.weightedDiscountRate)}</Td>
+                  <Td $accent>{formatCurrency(deptKpiIndex.summary.totalSalesBudget)}</Td>
+                  <Td $accent>{formatCurrency(deptKpiIndex.summary.totalSalesActual)}</Td>
+                  <Td $accent>{formatPercent(deptKpiIndex.summary.overallSalesAchievement)}</Td>
+                </TotalRow>
+              </tbody>
+            </Table>
+          </TableWrapper>
+        </Section>
+      )}
     </MainContent>
   )
 }
