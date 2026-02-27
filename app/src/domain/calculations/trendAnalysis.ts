@@ -19,6 +19,14 @@ export interface MonthlyDataPoint {
   readonly budget: number | null
   readonly budgetAchievement: number | null
   readonly storeCount: number
+  /** 売変率（= 売変合計 / 売上） */
+  readonly discountRate: number | null
+  /** 原価率（= (在庫仕入原価 + 売上納品原価) / 粗売上） */
+  readonly costRate: number | null
+  /** 消耗品率（= 消耗品費 / 売上） */
+  readonly consumableRate: number | null
+  /** 平均値入率（= (売価合計 - 原価合計) / 売価合計） */
+  readonly averageMarkupRate: number | null
 }
 
 /** トレンド分析結果 */

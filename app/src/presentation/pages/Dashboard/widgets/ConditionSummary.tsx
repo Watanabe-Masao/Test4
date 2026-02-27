@@ -92,19 +92,6 @@ const HintBadge = styled.span`
   ${Card}:hover & { opacity: 0.9; }
 `
 
-const ActionHint = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  margin-top: ${({ theme }) => theme.spacing[2]};
-  padding-top: ${({ theme }) => theme.spacing[2]};
-  border-top: 1px dashed ${({ theme }) => theme.colors.border};
-  line-height: 1.3;
-  &::before {
-    content: '→ ';
-    opacity: 0.6;
-  }
-`
-
 // ─── Signal Logic ───────────────────────────────────────
 
 type SignalLevel = 'green' | 'yellow' | 'red'
@@ -121,8 +108,6 @@ interface ConditionItem {
   sub?: string
   signal: SignalLevel
   metricId?: MetricId
-  /** 黄・赤時に表示する推奨アクション（greenでは非表示） */
-  action?: string
 }
 
 // ─── Component ──────────────────────────────────────────
@@ -135,52 +120,48 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   const gpAfterConsumable = r.invMethodGrossProfitRate != null
     ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
     : r.estMethodMarginRate
+  const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
 
   const items: ConditionItem[] = [
-    // 1. Gross Profit Rate
+    // 1. Gross Profit Rate — sub に構成成分を表示
     {
       label: '粗利率',
       value: formatPercent(gpRate),
-      sub: `目標: ${formatPercent(targetRate)}`,
+      sub: `目標 ${formatPercent(targetRate)} / 原価率 ${formatPercent(costRate)} / 売変率 ${formatPercent(r.discountRate)} / 消耗品率 ${formatPercent(r.consumableRate)}`,
       signal: gpRate >= targetRate ? 'green' : gpRate >= warningRate ? 'yellow' : 'red',
       metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
-      action: '売変種別の内訳と原価率の推移を確認',
     },
     // 2. GP Rate after consumables
     {
       label: '原算後粗利率',
       value: formatPercent(gpAfterConsumable),
-      sub: `消耗品費: ${formatCurrency(r.totalConsumable)}`,
+      sub: `粗利率 ${formatPercent(gpRate)} - 消耗品率 ${formatPercent(r.consumableRate)}（${formatCurrency(r.totalConsumable)}）`,
       signal: gpAfterConsumable >= targetRate ? 'green' : gpAfterConsumable >= warningRate ? 'yellow' : 'red',
       metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
-      action: '消耗品の使用量と発注ルールを見直し',
     },
     // 3. Budget Achievement Rate (progress)
     {
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
-      sub: `達成率: ${formatPercent(r.budgetAchievementRate)}`,
+      sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
       signal: r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
       metricId: 'budgetProgressRate',
-      action: '残日数の日別売上計画を再検討',
     },
     // 4. Projected Achievement
     {
       label: '着地予測達成率',
       value: formatPercent(r.projectedAchievement),
-      sub: `予測売上: ${formatCurrency(r.projectedSales)}`,
+      sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
       signal: r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
       metricId: 'projectedSales',
-      action: '曜日別・時間帯別の売上パターンを確認し、販促余地を特定',
     },
-    // 5. Discount Rate
+    // 5. Discount Rate — sub に売変額と粗売上を表示
     {
       label: '売変率',
       value: formatPercent(r.discountRate),
-      sub: `売変額: ${formatCurrency(r.totalDiscount)}`,
+      sub: `売変額 ${formatCurrency(r.totalDiscount)} / 粗売上 ${formatCurrency(r.grossSales)}`,
       signal: r.discountRate <= 0.03 ? 'green' : r.discountRate <= 0.05 ? 'yellow' : 'red',
       metricId: 'discountRate',
-      action: '見切り（71）の発生時間帯と対象カテゴリを特定',
     },
   ]
 
@@ -207,10 +188,9 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
     {
       label: '消耗品率',
       value: formatPercent(r.consumableRate),
-      sub: `消耗品費: ${formatCurrency(r.totalConsumable)}`,
+      sub: `消耗品費 ${formatCurrency(r.totalConsumable)} / 売上 ${formatCurrency(r.totalSales)}`,
       signal: r.consumableRate <= 0.02 ? 'green' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
       metricId: 'totalConsumable',
-      action: '日別消耗品費を確認し、異常日を特定',
     },
   )
 
@@ -224,7 +204,6 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
       signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
       metricId: 'totalCustomers',
-      action: '時間帯別客数を確認し、集客低下の時間帯を特定',
     })
   }
 
@@ -244,7 +223,6 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
         : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
       signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
-      action: 'カテゴリ別PI値を確認し、購買点数の変化を分析',
     })
   }
 
@@ -267,9 +245,6 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
                 <CardLabel>{item.label}</CardLabel>
                 <CardValue $color={color}>{item.value}</CardValue>
                 {item.sub && <CardSub>{item.sub}</CardSub>}
-                {item.action && item.signal !== 'green' && (
-                  <ActionHint>{item.action}</ActionHint>
-                )}
               </CardContent>
             </Card>
           )

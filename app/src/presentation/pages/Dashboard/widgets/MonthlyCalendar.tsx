@@ -76,6 +76,19 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     cumPrevCustomers.set(d, runPrevCustomers)
   }
 
+  // Cumulative discount rate
+  const cumDiscount = new Map<number, number>()
+  const cumGrossSales = new Map<number, number>()
+  let runDiscount = 0
+  let runGrossSales = 0
+  for (let d = 1; d <= daysInMonth; d++) {
+    const rec = r.daily.get(d)
+    runDiscount += rec?.discountAmount ?? 0
+    runGrossSales += rec?.grossSales ?? 0
+    cumDiscount.set(d, runDiscount)
+    cumGrossSales.set(d, runGrossSales)
+  }
+
   // Moving average transaction value (5-day window)
   const movingAvgTxVal = new Map<number, number>()
   const WINDOW = 5
@@ -95,6 +108,12 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       movingAvgTxVal.set(d, calculateTransactionValue(totalSales, totalCust))
     }
   }
+
+  // Remaining budget target: how much per remaining sales day is needed
+  const elapsedDays = r.elapsedDays
+  const remainingSalesDays = r.salesDays - elapsedDays
+  const remainingBudget = r.remainingBudget
+  const dailyTargetForRemaining = remainingSalesDays > 0 ? remainingBudget / remainingSalesDays : 0
 
   // Range selection
   const parseDay = (v: string) => { const n = parseInt(v, 10); return n >= 1 && n <= daysInMonth ? n : null }
@@ -312,6 +331,35 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                                   {cPyCust > 0 && (
                                     <CalCell $color={cCustYoYColor}>累客比 {formatPercent(cCustYoY, 0)}</CalCell>
                                   )}
+                                </>
+                              )
+                            })()}
+                            {(() => {
+                              // 日別・累計売変率
+                              const dayDiscount = rec?.discountAmount ?? 0
+                              const dayGrossSales = rec?.grossSales ?? 0
+                              if (dayDiscount <= 0 && dayGrossSales <= 0) return null
+                              const dayDiscountRate = actual > 0 ? dayDiscount / actual : 0
+                              const cDiscAmt = cumDiscount.get(day) ?? 0
+                              const cTotalSales = cumSales.get(day) ?? 0
+                              const cDiscountRate = cTotalSales > 0 ? cDiscAmt / cTotalSales : 0
+                              const discColor = dayDiscountRate > 0.05 ? sc.negative : dayDiscountRate > 0.03 ? '#eab308' : sc.positive
+                              const cDiscColor = cDiscountRate > 0.05 ? sc.negative : cDiscountRate > 0.03 ? '#eab308' : sc.positive
+                              return (
+                                <>
+                                  <CalDivider />
+                                  <CalCell $color={discColor}>売変 {formatPercent(dayDiscountRate, 1)}</CalCell>
+                                  <CalCell $color={cDiscColor}>累変 {formatPercent(cDiscountRate, 1)}</CalCell>
+                                </>
+                              )
+                            })()}
+                            {(() => {
+                              // 残日数ペース（経過日以降の未来日のみ表示）
+                              if (day <= elapsedDays || dailyTargetForRemaining <= 0) return null
+                              return (
+                                <>
+                                  <CalDivider />
+                                  <CalCell $color="#9ca3af">要日 {fmtSen(dailyTargetForRemaining)}</CalCell>
                                 </>
                               )
                             })()}

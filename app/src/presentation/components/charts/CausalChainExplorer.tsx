@@ -138,7 +138,7 @@ const STEP_DRILL_TARGETS: Record<string, string> = {
   '粗利率の状況': 'gross-profit-rate',
   '粗利率変動の要因分解': 'analysis-causal-chain',
   '売変種別内訳': 'discount-trend',
-  '推奨アクション': '',
+  '成分サマリー': '',
 }
 
 export function CausalChainExplorer({ result, prevYearData }: Props) {

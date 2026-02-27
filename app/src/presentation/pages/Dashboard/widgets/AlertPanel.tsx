@@ -7,22 +7,9 @@
 import { useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/alertSystem'
+import { formatPercent } from '@/domain/calculations/utils'
 import type { Alert, AlertSeverity } from '@/domain/calculations/alertSystem'
 import type { WidgetContext } from './types'
-
-// ─── Recommended Actions ─────────────────────────────
-
-const ACTION_MAP: Record<string, string> = {
-  'gp-rate-target': '売変種別（71-74）の内訳を確認し、見切りタイミングの見直しを検討',
-  'daily-sales-prev-year': '前年同日の販促施策を確認し、客数低下の要因を特定',
-  'consumable-ratio': '消耗品の使用量をチェックし、発注ルールの見直しを検討',
-  'budget-achievement': '日別売上推移を確認し、残日数での着地予測を再計算',
-  'discount-rate': '売変種別の構成比を確認し、特に71（見切り）の発生時間帯を特定',
-}
-
-function getRecommendedAction(alert: Alert): string {
-  return ACTION_MAP[alert.ruleId] ?? '詳細データを確認してください'
-}
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -108,12 +95,17 @@ const AlertMessage = styled.div`
   line-height: 1.4;
 `
 
-const ActionText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
+const AlertDetail = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
   margin-top: ${({ theme }) => theme.spacing[2]};
-  padding-left: ${({ theme }) => theme.spacing[3]};
-  border-left: 2px solid ${({ theme }) => theme.colors.border};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const DetailItem = styled.span`
+  white-space: nowrap;
 `
 
 const EmptyState = styled.div`
@@ -122,6 +114,30 @@ const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
 `
+
+// ─── Alert Value Formatters (threshold/actual/delta) ────
+
+/** アラートルールが比率ベースかどうかを判定 */
+function isRateAlert(alert: Alert): boolean {
+  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(alert.ruleId)
+}
+
+function formatAlertValue(alert: Alert): string {
+  if (isRateAlert(alert)) return formatPercent(alert.value)
+  return Math.round(alert.value).toLocaleString('ja-JP')
+}
+
+function formatAlertThreshold(alert: Alert): string {
+  if (isRateAlert(alert)) return formatPercent(alert.threshold)
+  return Math.round(alert.threshold).toLocaleString('ja-JP')
+}
+
+function formatAlertDelta(alert: Alert): string {
+  const delta = alert.value - alert.threshold
+  const sign = delta >= 0 ? '+' : ''
+  if (isRateAlert(alert)) return `${sign}${formatPercent(delta, 1).replace('%', 'pt')}`
+  return `${sign}${Math.round(delta).toLocaleString('ja-JP')}`
+}
 
 const SEVERITY_ICONS: Record<AlertSeverity, string> = {
   critical: '!',
@@ -196,9 +212,11 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
               </SeverityIcon>
               <AlertBody>
                 <AlertMessage>{alert.message}</AlertMessage>
-                <ActionText>
-                  推奨: {getRecommendedAction(alert)}
-                </ActionText>
+                <AlertDetail>
+                  <DetailItem>実測: {formatAlertValue(alert)}</DetailItem>
+                  <DetailItem>閾値: {formatAlertThreshold(alert)}</DetailItem>
+                  <DetailItem>乖離: {formatAlertDelta(alert)}</DetailItem>
+                </AlertDetail>
               </AlertBody>
             </AlertCard>
           ))}

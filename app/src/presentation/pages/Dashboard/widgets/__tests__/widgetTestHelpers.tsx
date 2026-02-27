@@ -10,7 +10,7 @@ import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
 import type { WidgetContext } from '../types'
 import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
-import { EMPTY_CTS_INDEX } from '@/domain/models'
+import { EMPTY_CTS_INDEX, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 
 const ZERO: CostPricePair = { cost: 0, price: 0 }
@@ -115,6 +115,9 @@ export function makeEmptyPrevYear(): PrevYearData {
     totalSales: 0,
     totalDiscount: 0,
     totalCustomers: 0,
+    grossSales: 0,
+    discountRate: 0,
+    totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
   }
 }
 
@@ -131,12 +134,17 @@ export function makePrevYear(
     totalDiscount += entry.discount
     totalCustomers += entry.customers
   }
+  const grossSales = totalSales + totalDiscount
+  const discountRate = totalSales > 0 ? totalDiscount / totalSales : 0
   return {
     hasPrevYear: true,
     daily,
     totalSales,
     totalDiscount,
     totalCustomers,
+    grossSales,
+    discountRate,
+    totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
     ...overrides,
   }
 }

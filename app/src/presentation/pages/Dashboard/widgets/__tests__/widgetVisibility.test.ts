@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { WIDGET_REGISTRY } from '../registry'
-import { makeWidgetContext } from './widgetTestHelpers'
+import { makeWidgetContext, makeEmptyPrevYear, makePrevYear } from './widgetTestHelpers'
 import { EMPTY_CTS_INDEX } from '@/domain/models'
 import type { CategoryTimeSalesIndex } from '@/domain/models'
 
@@ -70,7 +70,7 @@ describe('ウィジェット isVisible', () => {
   describe('前年比較ウォーターフォールウィジェット', () => {
     it('前年データなしの場合は非表示', () => {
       const ctx = makeWidgetContext({
-        prevYear: { hasPrevYear: false, daily: new Map(), totalSales: 0, totalDiscount: 0, totalCustomers: 0 },
+        prevYear: makeEmptyPrevYear(),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
       expect(widget?.isVisible).toBeDefined()
@@ -79,7 +79,7 @@ describe('ウィジェット isVisible', () => {
 
     it('前年データありの場合は表示', () => {
       const ctx = makeWidgetContext({
-        prevYear: { hasPrevYear: true, daily: new Map(), totalSales: 100000, totalDiscount: 0, totalCustomers: 50 },
+        prevYear: makePrevYear(new Map(), { totalSales: 100000, totalDiscount: 0, totalCustomers: 50 }),
       })
       const widget = WIDGET_REGISTRY.find((w) => w.id === 'analysis-yoy-waterfall')
       expect(widget!.isVisible!(ctx)).toBe(true)

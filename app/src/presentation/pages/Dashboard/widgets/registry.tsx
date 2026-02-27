@@ -531,9 +531,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         prevYearData={prevYear.hasPrevYear ? {
           grossProfitRate: null,
           costRate: null,
-          discountRate: prevYear.totalSales > 0 ? prevYear.totalDiscount / prevYear.totalSales : 0,
+          discountRate: prevYear.discountRate,
           consumableRate: null,
-          discountEntries: [],
+          discountEntries: prevYear.totalDiscountEntries,
+          totalSales: prevYear.totalSales,
+          totalCustomers: prevYear.totalCustomers,
         } : undefined}
       />
     ),
