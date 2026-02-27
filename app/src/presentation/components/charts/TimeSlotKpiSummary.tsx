@@ -5,6 +5,7 @@ import { queryByDateRange } from '@/application/usecases'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { toPct } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -60,8 +61,8 @@ const DiffBadge = styled.span<{ $positive: boolean }>`
   display: inline-block;
   font-size: 0.5rem;
   font-weight: 600;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
-  background: ${({ $positive }) => $positive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};
+  color: ${({ $positive }) => sc.cond($positive)};
+  background: ${({ $positive }) => $positive ? 'rgba(14,165,233,0.1)' : 'rgba(249,115,22,0.1)'};
   padding: 0 4px;
   border-radius: 3px;
   margin-left: 4px;
@@ -228,12 +229,12 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
           <CardValue>{formatCoreTime(kpi.coreTime)}</CardValue>
           <CardSub>構成比 {kpi.coreTimePct}</CardSub>
         </Card>
-        <Card $accent="#ef4444">
+        <Card $accent={sc.negative}>
           <CardLabel>折り返し時間帯</CardLabel>
           <CardValue>{formatTurnaroundHour(kpi.turnaroundHour)}</CardValue>
           <CardSub>累積50%到達</CardSub>
         </Card>
-        <Card $accent="#22c55e">
+        <Card $accent={sc.positive}>
           <CardLabel>売上1位部門</CardLabel>
           <CardValue style={{ fontSize: kpi.topDeptName.length > 5 ? '0.85rem' : undefined }}>
             {kpi.topDeptName}

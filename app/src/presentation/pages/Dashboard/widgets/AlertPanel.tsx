@@ -6,6 +6,7 @@
  */
 import { useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/alertSystem'
 import { formatPercent } from '@/domain/calculations/utils'
 import type { Alert, AlertSeverity } from '@/domain/calculations/alertSystem'
@@ -40,8 +41,8 @@ const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.pill};
   background: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
+    $severity === 'critical' ? palette.dangerDark :
+    $severity === 'warning' ? palette.caution : palette.blueDark};
   color: ${({ $severity }) =>
     $severity === 'warning' ? '#000' : '#fff'};
 `
@@ -61,8 +62,8 @@ const AlertCard = styled.div<{ $severity: AlertSeverity }>`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-left: 4px solid ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
+    $severity === 'critical' ? palette.dangerDark :
+    $severity === 'warning' ? palette.caution : palette.blueDark};
   border-radius: ${({ theme }) => theme.radii.md};
 `
 
@@ -77,11 +78,11 @@ const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
   font-size: 12px;
   font-weight: bold;
   background: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef444420' :
-    $severity === 'warning' ? '#eab30820' : '#3b82f620'};
+    $severity === 'critical' ? `${palette.dangerDark}20` :
+    $severity === 'warning' ? `${palette.caution}20` : `${palette.blueDark}20`};
   color: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
+    $severity === 'critical' ? palette.dangerDark :
+    $severity === 'warning' ? palette.caution : palette.blueDark};
 `
 
 const AlertBody = styled.div`

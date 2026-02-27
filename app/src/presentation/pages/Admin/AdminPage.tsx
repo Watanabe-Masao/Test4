@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { useAppData, useAppDispatch } from '@/application/context'
 import { useSettings } from '@/application/hooks'
 import { useRepository } from '@/application/context/RepositoryContext'
@@ -547,9 +548,9 @@ const ValidationItem = styled.div<{ $level: string }>`
     $level === 'warning' ? 'rgba(245,158,11,0.1)' :
     'rgba(59,130,246,0.1)'};
   color: ${({ $level }) =>
-    $level === 'error' ? '#ef4444' :
-    $level === 'warning' ? '#f59e0b' :
-    '#3b82f6'};
+    $level === 'error' ? palette.dangerDark :
+    $level === 'warning' ? palette.warningDark :
+    palette.blueDark};
 `
 
 const ValidationIcon = styled.span`
@@ -733,9 +734,9 @@ function ImportProvenanceModal({
             <HistoryCard key={i}>
               <HistoryTimestamp>
                 {formatTimestamp(entry.importedAt)}
-                <Badge $color="#22c55e" style={{ marginLeft: 8 }}>{entry.successCount}件成功</Badge>
+                <Badge $color={palette.successDark} style={{ marginLeft: 8 }}>{entry.successCount}件成功</Badge>
                 {entry.failureCount > 0 && (
-                  <Badge $color="#ef4444" style={{ marginLeft: 4 }}>{entry.failureCount}件失敗</Badge>
+                  <Badge $color={palette.dangerDark} style={{ marginLeft: 4 }}>{entry.failureCount}件失敗</Badge>
                 )}
               </HistoryTimestamp>
               <HistoryFileList>
@@ -867,7 +868,7 @@ function ImportHistoryTab() {
           </SummaryCard>
           <SummaryCard>
             <SummaryValue>
-              <Badge $color={hasCustomerData ? '#22c55e' : undefined}>
+              <Badge $color={hasCustomerData ? palette.successDark : undefined}>
                 {hasCustomerData ? '有' : '無'}
               </Badge>
             </SummaryValue>
@@ -902,7 +903,7 @@ function ImportHistoryTab() {
               const quality = loaded && daysInMonth > 0
                 ? Math.round(d.perStore.reduce((s, p) => s + (p.days / daysInMonth) * 100, 0) / d.perStore.length)
                 : 0
-              const qualityColor = quality >= 80 ? '#22c55e' : quality >= 50 ? '#f59e0b' : '#ef4444'
+              const qualityColor = quality >= 80 ? palette.successDark : quality >= 50 ? palette.warningDark : palette.dangerDark
 
               return (
                 <>
@@ -916,7 +917,7 @@ function ImportHistoryTab() {
                     </Td>
                     <Td>
                       {d.label}
-                      {d.hasCustomers && <Badge $color="#22c55e" style={{ marginLeft: 6 }}>客数</Badge>}
+                      {d.hasCustomers && <Badge $color={palette.successDark} style={{ marginLeft: 6 }}>客数</Badge>}
                     </Td>
                     <Td>
                       <ClickableBadge
@@ -956,7 +957,7 @@ function ImportHistoryTab() {
                       <DetailCell>
                         {(() => {
                           const pct = daysInMonth > 0 ? Math.round((ps.days / daysInMonth) * 100) : 0
-                          const c = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'
+                          const c = pct >= 80 ? palette.successDark : pct >= 50 ? palette.warningDark : palette.dangerDark
                           return (
                             <>
                               <StoreIdBadge>{pct}%</StoreIdBadge>
@@ -1067,7 +1068,7 @@ function ImportHistoryTab() {
         <Section>
           <SectionTitle>
             バリデーション結果
-            <Badge $color={validationMessages.some((m) => m.level === 'error') ? '#ef4444' : '#f59e0b'} style={{ marginLeft: 8 }}>
+            <Badge $color={validationMessages.some((m) => m.level === 'error') ? palette.dangerDark : palette.warningDark} style={{ marginLeft: 8 }}>
               {validationMessages.length}件
             </Badge>
           </SectionTitle>

@@ -2,6 +2,7 @@ import { useMemo, useState, useCallback, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { toComma, toPct } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import {
   useCategoryHierarchy,
@@ -177,7 +178,7 @@ const DrillCount = styled.span`
 `
 const YoYBadge = styled.span<{ $positive: boolean }>`
   font-size: 0.55rem; font-weight: 600;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $positive }) => sc.cond($positive)};
 `
 const TabGroup = styled.div`
   display: flex; gap: 2px;
@@ -200,21 +201,21 @@ const HeaderRow = styled.div`
 const YoYBar = styled.div<{ $pct: number; $positive: boolean }>`
   display: inline-block; height: 4px; border-radius: 2px;
   width: ${({ $pct }) => Math.min(Math.abs($pct), 100)}%;
-  background: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  background: ${({ $positive }) => sc.cond($positive)};
   opacity: 0.6;
 `
 const AnomalyBadge = styled.span`
   display: inline-flex; align-items: center; gap: 2px;
   padding: 1px 5px; border-radius: 4px;
   font-size: 0.52rem; font-weight: 600;
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: ${sc.negative}1f;
+  color: ${sc.negative};
 `
 const PiValueBadge = styled.span<{ $below: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: 0.58rem;
-  color: ${({ $below }) => $below ? '#ef4444' : 'inherit'};
-  background: ${({ $below }) => $below ? 'rgba(239,68,68,0.08)' : 'transparent'};
+  color: ${({ $below }) => $below ? sc.negative : 'inherit'};
+  background: ${({ $below }) => $below ? `${sc.negative}14` : 'transparent'};
   padding: ${({ $below }) => $below ? '0 3px' : '0'};
   border-radius: 2px;
 `
@@ -620,7 +621,7 @@ export function CategoryHierarchyExplorer({ ctsIndex, prevCtsIndex, selectedStor
                 {showYoYCols && (
                   <Td $mono>
                     {it.yoyDiff != null ? (
-                      <span style={{ color: it.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                      <span style={{ color: sc.cond(it.yoyDiff >= 0) }}>
                         {it.yoyDiff >= 0 ? '+' : ''}{toComma(it.yoyDiff)}円
                       </span>
                     ) : '-'}

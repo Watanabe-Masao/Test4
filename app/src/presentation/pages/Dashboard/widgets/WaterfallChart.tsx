@@ -5,6 +5,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
@@ -93,8 +94,8 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   }, [r])
 
   const colors = {
-    positive: '#22c55e',
-    negative: '#ef4444',
+    positive: sc.positive,
+    negative: sc.negative,
     total: ct.colors.primary,
   }
 

@@ -3,6 +3,7 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Composed
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesIndex, DateRange, Store } from '@/domain/models'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
@@ -137,8 +138,8 @@ const SimBadge = styled.span<{ $high: boolean }>`
   padding: 0 4px;
   border-radius: 3px;
   margin-left: 4px;
-  color: ${({ $high }) => ($high ? '#22c55e' : '#f59e0b')};
-  background: ${({ $high }) => ($high ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)')};
+  color: ${({ $high }) => ($high ? sc.positive : sc.caution)};
+  background: ${({ $high }) => ($high ? `${sc.positive}1a` : `${sc.caution}1a`)};
 `
 
 type ViewMode = 'radar' | 'bar'

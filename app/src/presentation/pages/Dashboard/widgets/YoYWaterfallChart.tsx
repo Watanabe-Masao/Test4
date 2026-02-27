@@ -18,6 +18,7 @@ import type { DateRange } from '@/domain/models'
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
@@ -472,8 +473,8 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const yoyDiff = curSales - prevSales
 
   const colors = {
-    positive: '#22c55e',
-    negative: '#ef4444',
+    positive: sc.positive,
+    negative: sc.negative,
     total: ct.colors.primary,
   }
 
@@ -578,13 +579,13 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
         </SummaryItem>
         <SummaryItem>
           <SummaryLabel>差額</SummaryLabel>
-          <SummaryValue $color={yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
+          <SummaryValue $color={sc.cond(yoyDiff >= 0)}>
             {yoyDiff >= 0 ? '+' : ''}{formatCurrency(yoyDiff)}
           </SummaryValue>
         </SummaryItem>
         <SummaryItem>
           <SummaryLabel>比率</SummaryLabel>
-          <SummaryValue $color={yoyRatio >= 1 ? '#22c55e' : '#ef4444'}>
+          <SummaryValue $color={sc.cond(yoyRatio >= 1)}>
             {formatPercent(yoyRatio)}
           </SummaryValue>
         </SummaryItem>

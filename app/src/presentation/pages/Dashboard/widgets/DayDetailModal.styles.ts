@@ -4,6 +4,7 @@
  * DayDetailModal.tsx から分離し、スタイル定義を一元管理する。
  */
 import styled from 'styled-components'
+import { sc } from '@/presentation/theme/semanticColors'
 
 /* ── Drilldown Styled Components ─────────── */
 
@@ -97,7 +98,7 @@ export const DrillArrow = styled.span`
 `
 export const YoYVal = styled.span<{ $positive: boolean }>`
   font-size: 0.58rem; font-weight: 600;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $positive }) => sc.cond($positive)};
 `
 export const SummaryRow = styled.div`
   display: flex; gap: ${({ theme }) => theme.spacing[4]};

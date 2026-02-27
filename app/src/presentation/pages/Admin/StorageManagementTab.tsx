@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import type { StorageDataType } from '@/domain/models'
 import { useStorageAdmin } from '@/application/hooks'
 
@@ -90,9 +91,9 @@ const ExpandIcon = styled.span<{ $expanded: boolean }>`
 
 const DeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   background: transparent;
-  color: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -100,7 +101,7 @@ const DeleteButton = styled.button`
   transition: all 0.15s;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+    background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
     color: #fff;
   }
 `
@@ -272,7 +273,7 @@ const CancelButton = styled.button`
 const ConfirmDeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border: none;
-  background: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   color: #fff;
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};

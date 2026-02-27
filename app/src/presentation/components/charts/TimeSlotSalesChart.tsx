@@ -8,6 +8,7 @@ import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from 
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore, type AggregateMode } from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -110,7 +111,7 @@ const CardSub = styled.div`
 const YoYBadge = styled.span<{ $positive: boolean }>`
   font-size: 0.55rem;
   font-weight: 600;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $positive }) => sc.cond($positive)};
   margin-left: 4px;
 `
 
@@ -216,7 +217,7 @@ const MiniTd = styled.td<{ $highlight?: boolean; $positive?: boolean }>`
   white-space: nowrap;
   color: ${({ $highlight, $positive, theme }) =>
     $highlight
-      ? $positive ? '#22c55e' : '#ef4444'
+      ? sc.cond($positive ?? false)
       : theme.colors.text2};
   &:first-child {
     text-align: left;
@@ -742,9 +743,9 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 </Card>
               )}
               {kpi.yoyDiff != null && (
-                <Card $accent={kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                <Card $accent={sc.cond(kpi.yoyDiff >= 0)}>
                   <CardLabel>{prevLbl}差（金額）</CardLabel>
-                  <CardValue style={{ color: kpi.yoyDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                  <CardValue style={{ color: sc.cond(kpi.yoyDiff >= 0) }}>
                     {kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(kpi.yoyDiff / 10000).toLocaleString()}万円
                   </CardValue>
                   <CardSub>{prevLbl}比 {toPct(kpi.yoyRatio ?? 0)}</CardSub>
@@ -765,7 +766,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 <CardValue>{formatCoreTime(kpi.coreTimeAmt)}</CardValue>
                 <CardSub>構成比 {kpi.coreTimePct}</CardSub>
               </Card>
-              <Card $accent="#ef4444">
+              <Card $accent={sc.negative}>
                 <CardLabel>折り返し時間帯</CardLabel>
                 <CardValue>{formatTurnaroundHour(kpi.turnaroundAmt)}</CardValue>
                 <CardSub>累積50%到達</CardSub>
@@ -797,9 +798,9 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 </Card>
               )}
               {kpi.yoyQuantityDiff != null && (
-                <Card $accent={kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444'}>
+                <Card $accent={sc.cond(kpi.yoyQuantityDiff >= 0)}>
                   <CardLabel>{prevLbl}差（数量）</CardLabel>
-                  <CardValue style={{ color: kpi.yoyQuantityDiff >= 0 ? '#22c55e' : '#ef4444' }}>
+                  <CardValue style={{ color: sc.cond(kpi.yoyQuantityDiff >= 0) }}>
                     {kpi.yoyQuantityDiff >= 0 ? '+' : ''}{kpi.yoyQuantityDiff.toLocaleString()}点
                   </CardValue>
                   <CardSub>{prevLbl}比 {toPct(kpi.yoyQuantityRatio ?? 0)}</CardSub>
@@ -820,7 +821,7 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
                 <CardValue>{formatCoreTime(kpi.coreTimeQty)}</CardValue>
                 <CardSub>構成比 {kpi.coreTimeQtyPct}</CardSub>
               </Card>
-              <Card $accent="#ef4444">
+              <Card $accent={sc.negative}>
                 <CardLabel>折り返し時間帯</CardLabel>
                 <CardValue>{formatTurnaroundHour(kpi.turnaroundQty)}</CardValue>
                 <CardSub>累積50%到達</CardSub>
@@ -864,13 +865,13 @@ export function TimeSlotSalesChart({ ctsIndex, prevCtsIndex, selectedStoreIds, d
               {s.maxIncHour >= 0 && (
                 <Metric>
                   <MetricLabel>最大増加時間帯</MetricLabel>
-                  <MetricValue $color="#22c55e">{s.maxIncHour}時 (+{fmt(s.maxIncDiff)})</MetricValue>
+                  <MetricValue $color={sc.positive}>{s.maxIncHour}時 (+{fmt(s.maxIncDiff)})</MetricValue>
                 </Metric>
               )}
               {s.maxDecHour >= 0 && (
                 <Metric>
                   <MetricLabel>最大減少時間帯</MetricLabel>
-                  <MetricValue $color="#ef4444">{s.maxDecHour}時 ({fmt(s.maxDecDiff)})</MetricValue>
+                  <MetricValue $color={sc.negative}>{s.maxDecHour}時 ({fmt(s.maxDecDiff)})</MetricValue>
                 </Metric>
               )}
               <Metric>

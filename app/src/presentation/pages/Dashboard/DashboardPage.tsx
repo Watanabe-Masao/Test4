@@ -152,6 +152,12 @@ export function DashboardPage() {
     })
   }, [])
 
+  // 部門KPIインデックス（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
+  const deptKpiIndex = useMemo(
+    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
+    [appState.data.departmentKpi],
+  )
+
   // ─── Empty / Loading states ──
 
   if (!isCalculated && appState.storeResults.size === 0) {
@@ -204,10 +210,6 @@ export function DashboardPage() {
   const effectiveEndDay = r.elapsedDays != null && r.elapsedDays > 0
     ? Math.min(r.elapsedDays, daysInMonth)
     : daysInMonth
-  const deptKpiIndex = useMemo(
-    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
-    [appState.data.departmentKpi],
-  )
 
   const currentDateRange: DateRange = {
     from: { year: targetYear, month: targetMonth, day: 1 },

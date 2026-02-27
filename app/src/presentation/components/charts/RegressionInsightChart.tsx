@@ -14,6 +14,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toManYen, toPct } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { linearRegression, calculateWMA, calculateMonthEndProjection } from '@/domain/calculations/advancedForecast'
 import { calculateStdDev } from '@/domain/calculations/forecast'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -186,7 +187,7 @@ export function RegressionInsightChart({ result, year, month }: Props) {
     )
   }
 
-  const rColor = reg.rSquared >= 0.7 ? '#22c55e' : reg.rSquared >= 0.4 ? '#f59e0b' : '#ef4444'
+  const rColor = reg.rSquared >= 0.7 ? sc.positive : reg.rSquared >= 0.4 ? sc.caution : sc.negative
   const trendLabel = reg.slope > 0 ? '上昇' : reg.slope < 0 ? '下降' : '横ばい'
 
   return (
@@ -203,7 +204,7 @@ export function RegressionInsightChart({ result, year, month }: Props) {
         <StatBadge $color={rColor}>
           R² = {stats.rSquaredPct}（予測の説明力）
         </StatBadge>
-        <StatBadge $color={reg.slope >= 0 ? '#22c55e' : '#ef4444'}>
+        <StatBadge $color={sc.cond(reg.slope >= 0)}>
           日次トレンド: {trendLabel} {toComma(Math.round(stats.dailyTrend))}円/日
         </StatBadge>
         <StatBadge $color="#6366f1">

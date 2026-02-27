@@ -1,8 +1,23 @@
 import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import type { StoreResult } from '@/domain/models'
-import { buildCausalSteps, type CausalChainPrevInput } from '@/domain/calculations/causalChain'
+import { buildCausalSteps, type CausalChainPrevInput, type ColorHint } from '@/domain/calculations/causalChain'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
+
+/** ColorHint → 実際の CUD 安全色に変換 */
+function resolveColor(hint: ColorHint): string {
+  switch (hint) {
+    case 'positive': return sc.positive
+    case 'negative': return sc.negative
+    case 'caution': return sc.caution
+    case 'primary': return palette.primary
+    case 'secondary': return '#8b5cf6'
+    case 'info': return palette.blueDark
+    case 'warning': return palette.warningDark
+  }
+}
 
 const Wrapper = styled.div`
   width: 100%;
@@ -157,7 +172,7 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
     }
   }, [requestDrillThrough])
 
-  const stepColors = ['#6366f1', '#ef4444', '#f59e0b', '#22c55e']
+  const stepColors = [palette.primary, sc.negative, sc.caution, sc.positive]
 
   return (
     <Wrapper>
@@ -179,7 +194,7 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
                   {step.factors.length > 0 && (
                     <FactorBar>
                       {step.factors.map((f, fi) => (
-                        <Factor key={fi} $color={f.color} $isMax={fi === step.maxFactorIndex}>
+                        <Factor key={fi} $color={resolveColor(f.colorHint)} $isMax={fi === step.maxFactorIndex}>
                           <FactorLabel>{f.label}</FactorLabel>
                           <FactorValue>{f.formatted}</FactorValue>
                         </Factor>

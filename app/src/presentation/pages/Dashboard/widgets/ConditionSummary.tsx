@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
@@ -97,9 +98,9 @@ const HintBadge = styled.span`
 type SignalLevel = 'green' | 'yellow' | 'red'
 
 const SIGNAL_COLORS: Record<SignalLevel, string> = {
-  green: '#22c55e',
-  yellow: '#eab308',
-  red: '#ef4444',
+  green: palette.positive,
+  yellow: palette.caution,
+  red: palette.negative,
 }
 
 interface ConditionItem {

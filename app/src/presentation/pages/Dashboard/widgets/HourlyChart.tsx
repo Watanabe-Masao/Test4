@@ -11,6 +11,8 @@ import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/calculations/utils'
 import { findCoreTime, findTurnaroundHour, buildHourlyMap, formatCoreTime, formatTurnaroundHour } from '@/presentation/components/charts/timeSlotUtils'
 import { DetailSectionTitle } from '../DashboardPage.styles'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { COLORS, type HourCategoryItem } from './drilldownUtils'
 import {
   HourlySection, HourlyChartContainer, HourlyChartWrap, HourlyBarArea,
@@ -271,7 +273,7 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
                 onMouseLeave={() => setHoveredHour(null)}
                 onClick={() => toggleHour(d.hour)}
                 style={{
-                  outline: isSelected ? '2px solid #ec4899' : isTurnaround ? '2px solid #ef4444' : undefined,
+                  outline: isSelected ? '2px solid #ec4899' : isTurnaround ? `2px solid ${palette.dangerDark}` : undefined,
                   outlineOffset: -1,
                 }}
               >
@@ -308,12 +310,12 @@ export function HourlyChart({ dayRecords, prevDayRecords }: {
               ))}
               <polyline
                 points={cumLinePoints}
-                fill="none" stroke="#ef4444" strokeWidth="1.5"
+                fill="none" stroke={sc.negative} strokeWidth="1.5"
                 strokeLinejoin="round" strokeLinecap="round"
               />
               {cumData.map((d, i) => (
                 <circle key={d.hour} cx={pxX(i)} cy={pxY(d.cumPct)} r="3.5"
-                  fill="#ef4444" />
+                  fill={sc.negative} />
               ))}
             </HourlyCumOverlay>
           )}

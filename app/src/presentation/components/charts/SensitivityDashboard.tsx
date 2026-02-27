@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import {
   calculateSensitivity,
   calculateElasticity,
@@ -64,7 +65,7 @@ const SliderValue = styled.div<{ $positive: boolean; $isZero: boolean }>`
   font-size: 0.7rem;
   font-weight: 700;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : $positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : sc.cond($positive)};
 `
 
 const StyledSlider = styled.input`
@@ -129,7 +130,7 @@ const ResultDelta = styled.div<{ $positive: boolean; $isZero: boolean }>`
   font-size: 0.65rem;
   font-weight: 600;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : $positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $isZero, $positive }) => $isZero ? '#94a3b8' : sc.cond($positive)};
 `
 
 const ResetBtn = styled.button`
@@ -233,7 +234,7 @@ export function SensitivityDashboard({ result }: Props) {
         </SliderSection>
 
         <ResultSection>
-          <ResultCard $color="#22c55e">
+          <ResultCard $color={sc.positive}>
             <ResultLabel>粗利額</ResultLabel>
             <ResultRow>
               <ResultValue>{fmtMan(sensitivity.simulatedGrossProfit)}</ResultValue>

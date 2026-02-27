@@ -10,6 +10,7 @@ import styled from 'styled-components'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter } from '@/presentation/components/charts'
+import { sc } from '@/presentation/theme/semanticColors'
 import { formatCurrency } from '@/domain/calculations/utils'
 import {
   decompose2,
@@ -249,7 +250,7 @@ const COLORS = {
   mix: '#14b8a6',
 } as const
 
-const valColor = (v: number) => v >= 0 ? '#22c55e' : '#ef4444'
+const valColor = (v: number) => sc.cond(v >= 0)
 
 interface FactorTooltipProps {
   active?: boolean

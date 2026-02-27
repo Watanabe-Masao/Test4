@@ -4,6 +4,7 @@ import { Chip, ChipGroup, KpiCard } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { sc } from '@/presentation/theme/semanticColors'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { CustomCategory, CategoryType } from '@/domain/models'
@@ -161,7 +162,7 @@ export function CategoryPage() {
           {/* KPIサマリーカード */}
           <KpiRow>
             <KpiCard label="全体値入率" value={formatPercent(overallMarkupRate)} accent="#6366f1" />
-            <KpiCard label="粗利額" value={formatCurrency(totalGrossProfit)} accent="#22c55e" />
+            <KpiCard label="粗利額" value={formatCurrency(totalGrossProfit)} accent={sc.positive} />
             <KpiCard label="原価合計" value={formatCurrency(totalCatCost)} accent="#f59e0b" />
             <KpiCard label="売価合計" value={formatCurrency(totalCatPrice)} accent="#3b82f6" />
           </KpiRow>

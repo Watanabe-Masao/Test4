@@ -12,6 +12,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { normalizeMinMax, pearsonCorrelation, detectDivergence, movingAverage } from '@/domain/calculations/correlation'
 import type { StoreResult } from '@/domain/models'
 
@@ -52,16 +53,16 @@ const CorrBadge = styled.div<{ $strength: 'strong' | 'moderate' | 'weak' }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   background: ${({ $strength }) =>
-    $strength === 'strong' ? 'rgba(34,197,94,0.12)' :
-    $strength === 'moderate' ? 'rgba(245,158,11,0.12)' :
+    $strength === 'strong' ? `${sc.positive}1f` :
+    $strength === 'moderate' ? `${sc.caution}1f` :
     'rgba(148,163,184,0.12)'};
   color: ${({ $strength }) =>
-    $strength === 'strong' ? '#22c55e' :
-    $strength === 'moderate' ? '#f59e0b' :
+    $strength === 'strong' ? sc.positive :
+    $strength === 'moderate' ? sc.caution :
     '#94a3b8'};
   border: 1px solid ${({ $strength }) =>
-    $strength === 'strong' ? 'rgba(34,197,94,0.25)' :
-    $strength === 'moderate' ? 'rgba(245,158,11,0.25)' :
+    $strength === 'strong' ? `${sc.positive}40` :
+    $strength === 'moderate' ? `${sc.caution}40` :
     'rgba(148,163,184,0.25)'};
   white-space: nowrap;
 `
@@ -91,8 +92,8 @@ type ViewMode = 'normalized' | 'raw'
 
 const SERIES_CONFIG = [
   { key: 'sales', label: '売上', color: '#6366f1' },
-  { key: 'cost', label: '仕入', color: '#ef4444' },
-  { key: 'grossProfit', label: '粗利', color: '#22c55e' },
+  { key: 'cost', label: '仕入', color: sc.negative },
+  { key: 'grossProfit', label: '粗利', color: sc.positive },
   { key: 'discount', label: '売変', color: '#f59e0b' },
 ] as const
 
@@ -260,7 +261,7 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
               key={i}
               x1={range.start}
               x2={range.end}
-              fill="#ef4444"
+              fill={sc.negative}
               fillOpacity={0.06}
               strokeOpacity={0}
             />
@@ -283,7 +284,7 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
           {!isNorm && (
             <>
               <Line type="monotone" dataKey="maSales" name="売上 7日MA" stroke="#6366f1" strokeWidth={2} strokeDasharray="6 3" dot={false} />
-              <Line type="monotone" dataKey="maCost" name="仕入 7日MA" stroke="#ef4444" strokeWidth={2} strokeDasharray="6 3" dot={false} />
+              <Line type="monotone" dataKey="maCost" name="仕入 7日MA" stroke={sc.negative} strokeWidth={2} strokeDasharray="6 3" dot={false} />
             </>
           )}
         </ComposedChart>

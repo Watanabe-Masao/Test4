@@ -8,6 +8,7 @@ import { pearsonCorrelation } from '@/domain/calculations'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
 import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, countDistinctDays, filterByStore } from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -301,7 +302,7 @@ export function DeptHourlyPatternChart({ ctsIndex, prevCtsIndex, selectedStoreId
         <Title>
           {titleText}{pf.mode === 'dailyAvg' || pf.mode === 'dowAvg' ? '（日平均）' : ''}
           {prevYearYoY && (
-            <span style={{ marginLeft: 8, fontSize: '0.65rem', fontWeight: 600, color: prevYearYoY.yoyRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+            <span style={{ marginLeft: 8, fontSize: '0.65rem', fontWeight: 600, color: sc.cond(prevYearYoY.yoyRatio >= 1) }}>
               前年比 {toPct(prevYearYoY.yoyRatio)}
             </span>
           )}

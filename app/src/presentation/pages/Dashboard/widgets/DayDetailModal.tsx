@@ -195,7 +195,7 @@ export function DayDetailModal({
             <KpiMiniValue>
               {dayCust > 0 ? `${dayCust.toLocaleString()}人` : '-'}
               {prevYear.hasPrevYear && pyCust > 0 && custRatio > 0 && (
-                <KpiMiniSub style={{ color: custRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+                <KpiMiniSub style={{ color: sc.cond(custRatio >= 1) }}>
                   (前年比{formatPercent(custRatio)})
                 </KpiMiniSub>
               )}
@@ -206,7 +206,7 @@ export function DayDetailModal({
             <KpiMiniValue>
               {dayTxVal > 0 ? formatCurrency(dayTxVal) : '-'}
               {prevYear.hasPrevYear && pyTxVal > 0 && txValRatio > 0 && (
-                <KpiMiniSub style={{ color: txValRatio >= 1 ? '#22c55e' : '#ef4444' }}>
+                <KpiMiniSub style={{ color: sc.cond(txValRatio >= 1) }}>
                   (前年比{formatPercent(txValRatio)})
                 </KpiMiniSub>
               )}

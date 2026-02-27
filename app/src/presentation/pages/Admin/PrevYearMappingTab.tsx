@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { useSettings, useStorageAdmin } from '@/application/hooks'
 import { useAppState, useAppDispatch } from '@/application/context'
 import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
@@ -154,15 +155,15 @@ const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean; $hasData?: b
   text-align: center;
   padding: 4px 2px;
   border-radius: 3px;
-  background: ${({ $mapped, $hasData, theme }) =>
+  background: ${({ $mapped, $hasData }) =>
     !$mapped ? 'transparent'
-    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}12`
-    : `${theme.colors.palette.danger ?? '#ef4444'}08`};
+    : $hasData ? `${palette.successDark}12`
+    : `${palette.dangerDark}08`};
   color: ${({ $isWeekend, theme }) =>
-    $isWeekend ? theme.colors.palette.danger ?? '#ef4444' : theme.colors.text};
+    $isWeekend ? palette.dangerDark : theme.colors.text};
   border: 1px solid ${({ $mapped, $hasData, theme }) =>
     !$mapped ? 'transparent'
-    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}30`
+    : $hasData ? `${palette.successDark}30`
     : `${theme.colors.border}`};
 `
 
@@ -175,7 +176,7 @@ const MappingArrow = styled.div`
 const PrevDayLabel = styled.div<{ $isOverflow?: boolean }>`
   font-size: 10px;
   opacity: ${({ $isOverflow }) => ($isOverflow ? 0.8 : 0.6)};
-  color: ${({ $isOverflow }) => ($isOverflow ? '#f59e0b' : 'inherit')};
+  color: ${({ $isOverflow }) => ($isOverflow ? palette.warningDark : 'inherit')};
 `
 
 const DataStatus = styled.div<{ $hasData: boolean }>`
@@ -366,21 +367,21 @@ export function PrevYearMappingTab() {
             <StatusLabel>比較元</StatusLabel>
             <StatusValue>
               {effectiveSourceYear}年{effectiveSourceMonth}月
-              {isOverridden && <Badge $color="#f59e0b" style={{ marginLeft: 4 }}>手動</Badge>}
-              {!isOverridden && <Badge $color="#22c55e" style={{ marginLeft: 4 }}>自動</Badge>}
+              {isOverridden && <Badge $color={palette.warningDark} style={{ marginLeft: 4 }}>手動</Badge>}
+              {!isOverridden && <Badge $color={palette.successDark} style={{ marginLeft: 4 }}>自動</Badge>}
             </StatusValue>
           </StatusItem>
           <StatusItem>
             <StatusLabel>曜日オフセット</StatusLabel>
             <StatusValue>
               {effectiveOffset}日
-              {dowOffset !== null && <Badge $color="#f59e0b" style={{ marginLeft: 4 }}>手動</Badge>}
+              {dowOffset !== null && <Badge $color={palette.warningDark} style={{ marginLeft: 4 }}>手動</Badge>}
             </StatusValue>
           </StatusItem>
           <StatusItem>
             <StatusLabel>前年データ</StatusLabel>
             <StatusValue>
-              <Badge $color={hasPrevYearData ? '#22c55e' : undefined}>
+              <Badge $color={hasPrevYearData ? palette.successDark : undefined}>
                 {hasPrevYearData ? '読込済' : '未読込'}
               </Badge>
             </StatusValue>
@@ -446,7 +447,7 @@ export function PrevYearMappingTab() {
               {mappingPreview.unmatchedCount > 0 ? '❌' : ''} データなし: {mappingPreview.unmatchedCount}日
             </SummaryItem>
             {mappingPreview.rows.some((r) => r.isOverflow) && (
-              <SummaryItem style={{ color: '#f59e0b' }}>
+              <SummaryItem style={{ color: palette.warningDark }}>
                 翌月参照: {mappingPreview.rows.filter((r) => r.isOverflow).length}日
               </SummaryItem>
             )}
@@ -455,7 +456,7 @@ export function PrevYearMappingTab() {
 
         <PreviewGrid>
           {DOW_LABELS.map((d, i) => (
-            <DowHeader key={i} style={{ color: i === 0 || i === 6 ? '#ef4444' : undefined }}>
+            <DowHeader key={i} style={{ color: i === 0 || i === 6 ? palette.dangerDark : undefined }}>
               {d}
             </DowHeader>
           ))}

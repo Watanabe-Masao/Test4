@@ -14,6 +14,7 @@ import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factor
 import { CategoryFactorBreakdown, decomposePriceMix, recordsToCategoryQtyAmt } from './CategoryFactorBreakdown'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
+import { sc } from '@/presentation/theme/semanticColors'
 
 const Section = styled.div`
   margin-top: 8px;
@@ -237,8 +238,8 @@ export function DrilldownWaterfall({
   const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
 
   const colors = {
-    positive: '#22c55e',
-    negative: '#ef4444',
+    positive: sc.positive,
+    negative: sc.negative,
     total: '#6366f1',
   }
 

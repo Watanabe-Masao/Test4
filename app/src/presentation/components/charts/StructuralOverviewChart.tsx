@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct, toComma } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { safeDivide } from '@/domain/calculations/utils'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
@@ -91,8 +92,8 @@ const YoyBadge = styled.span<{ $positive: boolean }>`
   padding: 0 3px;
   border-radius: 2px;
   margin-left: 4px;
-  color: ${({ $positive }) => ($positive ? '#22c55e' : '#ef4444')};
-  background: ${({ $positive }) => ($positive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)')};
+  color: ${({ $positive }) => sc.cond($positive)};
+  background: ${({ $positive }) => ($positive ? 'rgba(14,165,233,0.1)' : 'rgba(249,115,22,0.1)')};
 `
 
 const Arrow = styled.div`
@@ -225,7 +226,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         {/* 中: コスト */}
         <Column>
           <ColumnLabel>コスト</ColumnLabel>
-          <FlowNode $color="#ef4444" $height={h(nodes.cost.value)} $clickable onClick={() => handleDrillThrough('daily-sales')}>
+          <FlowNode $color={sc.negative} $height={h(nodes.cost.value)} $clickable onClick={() => handleDrillThrough('daily-sales')}>
             <NodeLabel>仕入原価</NodeLabel>
             <NodeValue>{fmtMan(nodes.cost.value)}{renderYoy(nodes.cost.yoy)}</NodeValue>
             <NodeSub>値入率 {toPct(nodes.markupRate)}</NodeSub>
@@ -247,7 +248,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         <Column>
           <ColumnLabel>利益</ColumnLabel>
           {nodes.gpInv.value != null && (
-            <FlowNode $color="#22c55e" $height={h(nodes.gpInv.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
+            <FlowNode $color={sc.positive} $height={h(nodes.gpInv.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
               <NodeLabel>粗利（在庫法）</NodeLabel>
               <NodeValue>{fmtMan(nodes.gpInv.value)}{renderYoy(nodes.gpInv.yoy)}</NodeValue>
               <NodeSub>粗利率 {nodes.gpRateInv != null ? toPct(nodes.gpRateInv) : '-'}</NodeSub>
@@ -275,7 +276,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
           <SumLabel>売上構成</SumLabel>
           <SumValue>原価 {toPct(safeDivide(nodes.cost.value, nodes.grossSales.value, 0))} / 売変 {toPct(nodes.discountRate)} / 消耗品 {toPct(safeDivide(nodes.consumable.value, nodes.totalSales.value, 0))}</SumValue>
         </SumCard>
-        <SumCard $color="#22c55e">
+        <SumCard $color={sc.positive}>
           <SumLabel>粗利率トレンド</SumLabel>
           <SumValue>
             {nodes.gpRateInv != null ? `在庫法: ${toPct(nodes.gpRateInv)}` : `推定法: ${toPct(nodes.gpRateEst)}`}

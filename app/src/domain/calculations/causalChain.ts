@@ -8,11 +8,16 @@ import { safeDivide } from './utils'
 import { decompose2 } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 
+/** セマンティックなカラーヒント。実際の色は Presentation 層で解決する。 */
+export type ColorHint =
+  | 'positive' | 'negative' | 'caution'
+  | 'primary' | 'secondary' | 'info' | 'warning'
+
 export interface CausalFactor {
   readonly label: string
   readonly value: number
   readonly formatted: string
-  readonly color: string
+  readonly colorHint: ColorHint
 }
 
 export interface CausalStep {
@@ -100,9 +105,9 @@ export function buildCausalSteps(
     title: '粗利率の状況',
     description: deltaDesc,
     factors: [
-      ...(prevGPRate != null ? [{ label: '前年比変動', value: Math.abs(gpRateDelta), formatted: `${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}`, color: gpRateDelta >= 0 ? '#22c55e' : '#ef4444' }] : []),
-      ...(budgetGPRate > 0 ? [{ label: '予算比変動', value: Math.abs(budgetDelta), formatted: `${budgetDelta >= 0 ? '+' : ''}${fmtPct(budgetDelta)}`, color: budgetDelta >= 0 ? '#22c55e' : '#ef4444' }] : []),
-      { label: '現在の粗利率', value: currentGPRate, formatted: fmtPct(currentGPRate), color: '#6366f1' },
+      ...(prevGPRate != null ? [{ label: '前年比変動', value: Math.abs(gpRateDelta), formatted: `${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}`, colorHint: gpRateDelta >= 0 ? 'positive' as const : 'negative' as const }] : []),
+      ...(budgetGPRate > 0 ? [{ label: '予算比変動', value: Math.abs(budgetDelta), formatted: `${budgetDelta >= 0 ? '+' : ''}${fmtPct(budgetDelta)}`, colorHint: budgetDelta >= 0 ? 'positive' as const : 'negative' as const }] : []),
+      { label: '現在の粗利率', value: currentGPRate, formatted: fmtPct(currentGPRate), colorHint: 'primary' as const },
     ],
     maxFactorIndex: 0,
     insight: `構成: 原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
@@ -118,9 +123,9 @@ export function buildCausalSteps(
   const consumableDelta = prevConsumableRate != null ? consumableRate - prevConsumableRate : 0
 
   const factors2: CausalFactor[] = [
-    { label: '原価率変動', value: Math.abs(costDelta), formatted: `${costDelta >= 0 ? '+' : ''}${fmtPct(costDelta)}`, color: '#ef4444' },
-    { label: '売変率変動', value: Math.abs(discountDelta), formatted: `${discountDelta >= 0 ? '+' : ''}${fmtPct(discountDelta)}`, color: '#f59e0b' },
-    { label: '消耗品率変動', value: Math.abs(consumableDelta), formatted: `${consumableDelta >= 0 ? '+' : ''}${fmtPct(consumableDelta)}`, color: '#f97316' },
+    { label: '原価率変動', value: Math.abs(costDelta), formatted: `${costDelta >= 0 ? '+' : ''}${fmtPct(costDelta)}`, colorHint: 'negative' },
+    { label: '売変率変動', value: Math.abs(discountDelta), formatted: `${discountDelta >= 0 ? '+' : ''}${fmtPct(discountDelta)}`, colorHint: 'warning' },
+    { label: '消耗品率変動', value: Math.abs(consumableDelta), formatted: `${consumableDelta >= 0 ? '+' : ''}${fmtPct(consumableDelta)}`, colorHint: 'caution' },
   ]
 
   const maxIdx2 = factors2.reduce((max, f, i) => f.value > factors2[max].value ? i : max, 0)
@@ -156,7 +161,7 @@ export function buildCausalSteps(
         label: e.label,
         value: Math.abs(delta),
         formatted: `${fmtComma(e.amount)}円${prevEntry ? `（差: ${delta >= 0 ? '+' : ''}${fmtComma(delta)}円）` : ''}`,
-        color: e.type === '71' ? '#ef4444' : e.type === '72' ? '#f59e0b' : e.type === '73' ? '#3b82f6' : '#8b5cf6',
+        colorHint: e.type === '71' ? 'negative' as const : e.type === '72' ? 'warning' as const : e.type === '73' ? 'info' as const : 'secondary' as const,
       }
     })
 
@@ -179,8 +184,8 @@ export function buildCausalSteps(
   if (prevSales != null && prevCust != null && prevCust > 0) {
     const { custEffect, ticketEffect } = decompose2(prevSales, r.totalSales, prevCust, r.totalCustomers)
     summaryFactors.push(
-      { label: '客数効果', value: Math.abs(custEffect), formatted: fmtYen(custEffect), color: '#6366f1' },
-      { label: '客単価効果', value: Math.abs(ticketEffect), formatted: fmtYen(ticketEffect), color: '#8b5cf6' },
+      { label: '客数効果', value: Math.abs(custEffect), formatted: fmtYen(custEffect), colorHint: 'primary' },
+      { label: '客単価効果', value: Math.abs(ticketEffect), formatted: fmtYen(ticketEffect), colorHint: 'secondary' },
     )
   }
 

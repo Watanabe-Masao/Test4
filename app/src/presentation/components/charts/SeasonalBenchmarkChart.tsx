@@ -13,6 +13,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
 import { analyzeTrend } from '@/domain/calculations/trendAnalysis'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 
@@ -63,16 +64,16 @@ const TrendBadge = styled.div<{ $trend: 'up' | 'down' | 'flat' }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $trend }) =>
-    $trend === 'up' ? 'rgba(34,197,94,0.12)' :
-    $trend === 'down' ? 'rgba(239,68,68,0.12)' :
+    $trend === 'up' ? 'rgba(14,165,233,0.12)' :
+    $trend === 'down' ? 'rgba(249,115,22,0.12)' :
     'rgba(148,163,184,0.12)'};
   color: ${({ $trend }) =>
-    $trend === 'up' ? '#22c55e' :
-    $trend === 'down' ? '#ef4444' :
+    $trend === 'up' ? sc.positive :
+    $trend === 'down' ? sc.negative :
     '#94a3b8'};
   border: 1px solid ${({ $trend }) =>
-    $trend === 'up' ? 'rgba(34,197,94,0.25)' :
-    $trend === 'down' ? 'rgba(239,68,68,0.25)' :
+    $trend === 'up' ? 'rgba(14,165,233,0.25)' :
+    $trend === 'down' ? 'rgba(249,115,22,0.25)' :
     'rgba(148,163,184,0.25)'};
   white-space: nowrap;
 `
@@ -127,7 +128,7 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
   }
 
   const seasonLabel = currentSeasonality > 1.1 ? '繁忙期' : currentSeasonality < 0.9 ? '閑散期' : '平常期'
-  const seasonColor = currentSeasonality > 1.1 ? '#22c55e' : currentSeasonality < 0.9 ? '#ef4444' : '#6366f1'
+  const seasonColor = currentSeasonality > 1.1 ? sc.positive : currentSeasonality < 0.9 ? sc.negative : '#6366f1'
   const trendLabel = trend.overallTrend === 'up' ? '上昇トレンド' : trend.overallTrend === 'down' ? '下降トレンド' : '横ばい'
 
   return (
@@ -140,10 +141,10 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
         <InfoBadge $color={seasonColor}>
           {currentMonth}月: {seasonLabel}（指数 {Math.round(currentSeasonality * 100)}）
         </InfoBadge>
-        <InfoBadge $color="#22c55e">
+        <InfoBadge $color={sc.positive}>
           ピーク: {peakMonth}月（指数 {Math.round(trend.seasonalIndex[peakMonth - 1] * 100)}）
         </InfoBadge>
-        <InfoBadge $color="#ef4444">
+        <InfoBadge $color={sc.negative}>
           谷: {troughMonth}月（指数 {Math.round(trend.seasonalIndex[troughMonth - 1] * 100)}）
         </InfoBadge>
         <TrendBadge $trend={trend.overallTrend}>
@@ -194,7 +195,7 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
             {chartData.map((entry, i) => (
               <Cell
                 key={i}
-                fill={entry.isCurrent ? '#6366f1' : entry.seasonality > 1.1 ? '#22c55e' : entry.seasonality < 0.9 ? '#ef4444' : ct.colors.slate}
+                fill={entry.isCurrent ? '#6366f1' : entry.seasonality > 1.1 ? sc.positive : entry.seasonality < 0.9 ? sc.negative : ct.colors.slate}
                 fillOpacity={entry.isCurrent ? 0.9 : 0.6}
                 stroke={entry.isCurrent ? '#6366f1' : 'none'}
                 strokeWidth={entry.isCurrent ? 2 : 0}

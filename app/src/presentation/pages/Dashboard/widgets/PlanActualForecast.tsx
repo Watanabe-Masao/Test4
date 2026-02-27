@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent, formatPointDiff, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
@@ -70,7 +71,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
       </ExecColumn>
 
       <ExecColumn>
-        <ExecColHeader $color="#22c55e">
+        <ExecColHeader $color={palette.successDark}>
           <ExecColTag>ACTUAL</ExecColTag>
           <ExecColTitle>現在地</ExecColTitle>
           <ExecColSub>期中実績（{r.elapsedDays}日経過 / {r.salesDays}営業日）</ExecColSub>
