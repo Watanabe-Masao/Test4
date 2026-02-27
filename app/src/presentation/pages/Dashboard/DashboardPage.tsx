@@ -19,6 +19,7 @@ import {
   useCategoryTimeSalesIndexFromRecords,
   useBudgetChartData,
 } from '@/application/hooks'
+import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
   currentResultToMonthlyPoint,
@@ -35,6 +36,8 @@ import {
   CurrencyUnitToggle,
   CrossChartSelectionProvider,
   useCrossChartSelection,
+  DuckDBDateRangePicker,
+  useDuckDBDateRange,
 } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
@@ -202,6 +205,13 @@ export function DashboardPage() {
   // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
 
+  // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
+  // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
+  const duck = useDuckDB(appState.data, targetYear, targetMonth, repo)
+
+  // DuckDB 分析用日付範囲（ユーザー操作で自由に変更可能、月跨ぎ対応）
+  const [duckDateRange, setDuckDateRange] = useDuckDBDateRange(targetYear, targetMonth, daysInMonth)
+
   // ─── Empty / Loading states ──
 
   if (!isCalculated && appState.storeResults.size === 0) {
@@ -270,6 +280,10 @@ export function DashboardPage() {
     explanations,
     onExplain: handleExplain,
     monthlyHistory,
+    duckConn: duck.conn,
+    duckDataVersion: duck.dataVersion,
+    duckLoadedMonthCount: duck.loadedMonthCount,
+    duckDateRange,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
@@ -351,6 +365,18 @@ export function DashboardPage() {
                 return renderDraggable(w, idx, w.render(ctx))
               })}
             </WidgetGridStyled>
+          )}
+
+          {/* DuckDB 日付範囲ピッカー（DuckDB 準備完了時のみ表示） */}
+          {duck.dataVersion > 0 && (
+            <DuckDBDateRangePicker
+              value={duckDateRange}
+              onChange={setDuckDateRange}
+              year={targetYear}
+              month={targetMonth}
+              daysInMonth={daysInMonth}
+              loadedMonthCount={duck.loadedMonthCount}
+            />
           )}
 
           {/* Chart Widgets */}

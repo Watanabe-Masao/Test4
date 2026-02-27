@@ -11,6 +11,10 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  optimizeDeps: {
+    exclude: ['@duckdb/duckdb-wasm'],
+  },
+  assetsInclude: ['**/*.wasm'],
   build: {
     outDir: 'dist',
     sourcemap: true,
@@ -23,6 +27,7 @@ export default defineConfig({
           'vendor-table': ['@tanstack/react-table'],
           'vendor-router': ['react-router-dom'],
           'vendor-state': ['zustand', 'immer'],
+          'vendor-duckdb': ['@duckdb/duckdb-wasm'],
         },
       },
     },
