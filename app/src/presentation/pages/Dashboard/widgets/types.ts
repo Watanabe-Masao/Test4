@@ -107,4 +107,6 @@ export interface WidgetContext {
   duckDataVersion: number
   /** DuckDB にロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
   duckLoadedMonthCount: number
+  /** DuckDB 分析用の自由日付範囲（ユーザーが選択可能、月跨ぎ対応） */
+  duckDateRange: DateRange
 }
