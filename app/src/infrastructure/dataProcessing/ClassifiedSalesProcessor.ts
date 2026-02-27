@@ -10,6 +10,7 @@
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { ClassifiedSalesData, ClassifiedSalesRecord } from '@/domain/models/ClassifiedSales'
+import { validateRecordsSampled, ClassifiedSalesRecordSchema } from '@/infrastructure/validation'
 
 export type { ClassifiedSalesData } from '@/domain/models/ClassifiedSales'
 
@@ -200,6 +201,15 @@ export function processClassifiedSales(
       discount73: safeNumber(r[colMap.discount73]),
       discount74: safeNumber(r[colMap.discount74]),
     })
+  }
+
+  // サンプリング検証: データ品質の早期警告
+  const validation = validateRecordsSampled(ClassifiedSalesRecordSchema, records)
+  if (validation.invalidCount > 0) {
+    console.warn(
+      `[ClassifiedSalesProcessor] ${validation.invalidCount}件の不正レコードを検出`,
+      validation.errors.slice(0, 5),
+    )
   }
 
   return {

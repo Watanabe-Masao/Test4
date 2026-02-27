@@ -3,6 +3,7 @@ import { safeNumber } from '@/domain/calculations/utils'
 import { detectDaysInTargetMonth, resolveDay } from './overflowDay'
 import type { CategoryTimeSalesData, CategoryTimeSalesRecord, TimeSlotEntry } from '@/domain/models'
 import { mergeCategoryTimeSalesData } from '@/domain/models'
+import { validateRecordsSampled, CategoryTimeSalesRecordSchema } from '@/infrastructure/validation'
 
 // Re-export from domain for backward compatibility
 export { mergeCategoryTimeSalesData }
@@ -177,6 +178,15 @@ export function processCategoryTimeSales(
       totalQuantity,
       totalAmount,
     })
+  }
+
+  // サンプリング検証: データ品質の早期警告
+  const validation = validateRecordsSampled(CategoryTimeSalesRecordSchema, records)
+  if (validation.invalidCount > 0) {
+    console.warn(
+      `[CategoryTimeSalesProcessor] ${validation.invalidCount}件の不正レコードを検出`,
+      validation.errors.slice(0, 5),
+    )
   }
 
   return { records }

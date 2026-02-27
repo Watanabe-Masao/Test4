@@ -1,5 +1,6 @@
 import { safeNumber } from '@/domain/calculations/utils'
 import type { DepartmentKpiData, DepartmentKpiRecord } from '@/domain/models'
+import { validateRecordsSampled, DepartmentKpiRecordSchema } from '@/infrastructure/validation'
 
 /**
  * 部門別KPI CSVを処理する
@@ -58,6 +59,15 @@ export function processDepartmentKpi(rows: readonly unknown[][]): DepartmentKpiD
       gpRateLanding: pct(11),
       salesLanding: col(12),
     })
+  }
+
+  // サンプリング検証: データ品質の早期警告
+  const validation = validateRecordsSampled(DepartmentKpiRecordSchema, records)
+  if (validation.invalidCount > 0) {
+    console.warn(
+      `[DepartmentKpiProcessor] ${validation.invalidCount}件の不正レコードを検出`,
+      validation.errors.slice(0, 5),
+    )
   }
 
   return { records }

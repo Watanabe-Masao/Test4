@@ -5,6 +5,12 @@ import type { DataOrigin, DataEnvelope } from '@/domain/models'
 import type { BudgetData } from '@/domain/models'
 import { isEnvelope } from '@/domain/models'
 import { hashData } from '@/infrastructure/utilities/murmurhash'
+import {
+  ClassifiedSalesRecordSchema,
+  CategoryTimeSalesRecordSchema,
+  DepartmentKpiRecordSchema,
+  validateRecordsSampled,
+} from '@/infrastructure/validation'
 import { STORE_DAY_FIELDS } from './keys'
 
 // ─── NaN / Infinity サニタイズ ────────────────────────────
@@ -170,32 +176,6 @@ function isValidStoreDayRecord(data: unknown): boolean {
   return true
 }
 
-/** ClassifiedSalesRecord の必須フィールドが妥当かチェック */
-function isValidCSRecord(rec: unknown): boolean {
-  if (rec == null || typeof rec !== 'object') return false
-  const r = rec as Record<string, unknown>
-  // 必須フィールド存在チェック
-  if (!isFiniteNumber(r.year) || !isFiniteNumber(r.month) || !isFiniteNumber(r.day)) return false
-  // 範囲チェック
-  if (r.month < 1 || r.month > 12) return false
-  if (r.day < 1 || r.day > 31) return false
-  if (typeof r.storeId !== 'string' || r.storeId === '') return false
-  if (!isFiniteNumber(r.salesAmount)) return false
-  return true
-}
-
-/** CategoryTimeSalesRecord の必須フィールドが妥当かチェック */
-function isValidCTSRecord(rec: unknown): boolean {
-  if (rec == null || typeof rec !== 'object') return false
-  const r = rec as Record<string, unknown>
-  if (!isFiniteNumber(r.year) || !isFiniteNumber(r.month) || !isFiniteNumber(r.day)) return false
-  if (r.month < 1 || r.month > 12) return false
-  if (r.day < 1 || r.day > 31) return false
-  if (typeof r.storeId !== 'string' || r.storeId === '') return false
-  if (!isFiniteNumber(r.totalAmount)) return false
-  return true
-}
-
 /** ロードしたデータの構造と内容を検証する */
 export function validateLoadedData(result: Record<string, unknown>): boolean {
   // StoreDayRecord 系: object であり、各エントリも object であること
@@ -207,30 +187,27 @@ export function validateLoadedData(result: Record<string, unknown>): boolean {
   if (!(result.suppliers instanceof Map)) return false
   if (!(result.settings instanceof Map)) return false
   if (!(result.budget instanceof Map)) return false
-  // classifiedSales: records 配列を持ち、各レコードが妥当であること
+  // classifiedSales: Zodスキーマによるサンプリング検証
   const cs = result.classifiedSales as { records?: unknown } | undefined
   if (cs && !Array.isArray(cs.records)) return false
   if (cs && Array.isArray(cs.records) && cs.records.length > 0) {
-    // サンプリング検証: 先頭・末尾・中間のレコードをチェック
-    const records = cs.records
-    const indicesToCheck = [0, Math.floor(records.length / 2), records.length - 1]
-    for (const idx of new Set(indicesToCheck)) {
-      if (!isValidCSRecord(records[idx])) return false
-    }
+    const { invalidCount } = validateRecordsSampled(ClassifiedSalesRecordSchema, cs.records)
+    if (invalidCount > 0) return false
   }
-  // categoryTimeSales: records 配列を持ち、各レコードが妥当であること
+  // categoryTimeSales: Zodスキーマによるサンプリング検証
   const cts = result.categoryTimeSales as { records?: unknown } | undefined
   if (cts && !Array.isArray(cts.records)) return false
   if (cts && Array.isArray(cts.records) && cts.records.length > 0) {
-    const records = cts.records
-    const indicesToCheck = [0, Math.floor(records.length / 2), records.length - 1]
-    for (const idx of new Set(indicesToCheck)) {
-      if (!isValidCTSRecord(records[idx])) return false
-    }
+    const { invalidCount } = validateRecordsSampled(CategoryTimeSalesRecordSchema, cts.records)
+    if (invalidCount > 0) return false
   }
-  // departmentKpi: records 配列を持つこと
+  // departmentKpi: Zodスキーマによるサンプリング検証
   const dkpi = result.departmentKpi as { records?: unknown } | undefined
   if (dkpi && !Array.isArray(dkpi.records)) return false
+  if (dkpi && Array.isArray(dkpi.records) && dkpi.records.length > 0) {
+    const { invalidCount } = validateRecordsSampled(DepartmentKpiRecordSchema, dkpi.records)
+    if (invalidCount > 0) return false
+  }
   // budget: 各エントリが妥当であること
   const budgetMap = result.budget as Map<string, unknown>
   for (const [key, val] of budgetMap) {
