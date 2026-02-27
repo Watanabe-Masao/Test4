@@ -25,6 +25,7 @@ import {
   SensitivityDashboard,
   RegressionInsightChart,
   SeasonalBenchmarkChart,
+  DuckDBFeatureChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -677,6 +678,21 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     render: ({ month, monthlyHistory }) => (
       <SeasonalBenchmarkChart monthlyData={monthlyHistory} currentMonth={month} />
+    ),
+  },
+  {
+    id: 'analysis-duckdb-features',
+    label: '売上トレンド分析（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBFeatureChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
     ),
   },
 ]
