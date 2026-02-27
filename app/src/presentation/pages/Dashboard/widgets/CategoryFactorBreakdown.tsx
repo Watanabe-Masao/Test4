@@ -341,7 +341,6 @@ function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTooltipPr
     </TipBox>
   )
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /* ── Component ──────────────────────────────────────── */
 

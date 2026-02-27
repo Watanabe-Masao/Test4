@@ -12,11 +12,14 @@ import type {
   LevelAggregationRow,
   StoreAggregationRow,
   HourDowMatrixRow,
+  CategoryDailyTrendRow,
+  CategoryHourlyRow,
 } from '../queries/categoryTimeSales'
 import type { StoreDaySummaryRow, DailyCumulativeRow } from '../queries/storeDaySummary'
 import type { DeptKpiRankedRow, DeptKpiSummaryRow } from '../queries/departmentKpi'
 import type { YoyDailyRow, YoyCategoryRow } from '../queries/yoyComparison'
 import type { DailyFeatureRow, HourlyProfileRow, DowPatternRow } from '../queries/features'
+import type { CategoryMixWeeklyRow, StoreBenchmarkRow } from '../queries/advancedAnalytics'
 
 // ── CtsFilterParams → WHERE 生成のテスト ──
 
@@ -210,5 +213,59 @@ describe('クエリ結果型の構造', () => {
       storeId: '1', dow: 0, avgSales: 80000, dayCount: 4, salesStddev: 5000,
     }
     expect(row.avgSales).toBe(80000)
+  })
+
+  // ── Phase 2 追加型 ──
+
+  it('CategoryDailyTrendRow の必須プロパティ', () => {
+    const row: CategoryDailyTrendRow = {
+      code: 'D01', name: '青果', dateKey: '2026-02-01',
+      amount: 50000, quantity: 300,
+    }
+    expect(row.code).toBe('D01')
+    expect(row.dateKey).toBe('2026-02-01')
+    expect(row.amount).toBe(50000)
+  })
+
+  it('CategoryHourlyRow の必須プロパティ', () => {
+    const row: CategoryHourlyRow = {
+      code: 'D01', name: '青果', hour: 12,
+      amount: 30000, quantity: 150,
+    }
+    expect(row.code).toBe('D01')
+    expect(row.hour).toBe(12)
+    expect(row.amount).toBe(30000)
+  })
+
+  it('CategoryMixWeeklyRow の必須プロパティ', () => {
+    const row: CategoryMixWeeklyRow = {
+      weekStart: '2026-02-02', code: 'D01', name: '青果',
+      weekSales: 500000, totalWeekSales: 2000000, sharePct: 25.0,
+      prevWeekShare: 23.5, shareShift: 1.5,
+    }
+    expect(row.weekStart).toBe('2026-02-02')
+    expect(row.sharePct).toBe(25.0)
+    expect(row.shareShift).toBe(1.5)
+  })
+
+  it('CategoryMixWeeklyRow で prevWeekShare が null（初週）', () => {
+    const row: CategoryMixWeeklyRow = {
+      weekStart: '2026-02-02', code: 'D01', name: '青果',
+      weekSales: 500000, totalWeekSales: 2000000, sharePct: 25.0,
+      prevWeekShare: null, shareShift: null,
+    }
+    expect(row.prevWeekShare).toBeNull()
+    expect(row.shareShift).toBeNull()
+  })
+
+  it('StoreBenchmarkRow の必須プロパティ', () => {
+    const row: StoreBenchmarkRow = {
+      storeId: '1', weekStart: '2026-02-02',
+      weekSales: 700000, avgDailySales: 100000,
+      salesRank: 1, salesPercentile: 100,
+    }
+    expect(row.storeId).toBe('1')
+    expect(row.salesRank).toBe(1)
+    expect(row.salesPercentile).toBe(100)
   })
 })

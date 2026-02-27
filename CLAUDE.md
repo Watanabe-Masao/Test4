@@ -17,7 +17,7 @@ app/                          # アプリケーション本体
 │   │   └── constants/        # 定数
 │   ├── application/          # アプリケーション層
 │   │   ├── context/          # React Context（状態管理）
-│   │   ├── hooks/            # カスタムフック
+│   │   ├── hooks/            # カスタムフック（useDuckDBQuery 含む）
 │   │   ├── services/         # 計算キャッシュ・ハッシュ
 │   │   ├── stores/           # Zustand ストア
 │   │   ├── usecases/         # ユースケース
@@ -27,13 +27,19 @@ app/                          # アプリケーション本体
 │   │   └── workers/          # Web Worker（計算の非同期実行）
 │   ├── infrastructure/       # インフラ層
 │   │   ├── dataProcessing/   # ファイルパーサー・プロセッサ
+│   │   ├── duckdb/           # DuckDB-WASM（インブラウザ分析エンジン）
+│   │   │   ├── engine.ts     # DB初期化・接続管理
+│   │   │   ├── schemas.ts    # CREATE TABLE DDL
+│   │   │   ├── dataLoader.ts # IndexedDB → DuckDB テーブルへのデータ投入
+│   │   │   ├── queryRunner.ts # 汎用クエリ実行ユーティリティ
+│   │   │   └── queries/      # SQL クエリモジュール群
 │   │   ├── fileImport/       # ファイル種別判定・スキーマ定義
 │   │   ├── storage/          # IndexedDB・localStorage
 │   │   ├── sync/             # データ同期
 │   │   ├── export/           # CSV/Excel出力
 │   │   └── i18n/             # 国際化
 │   └── presentation/         # プレゼンテーション層
-│       ├── components/       # 共通コンポーネント・チャート
+│       ├── components/       # 共通コンポーネント・チャート（DuckDB ウィジェット含む）
 │       ├── hooks/            # プレゼンテーション層フック
 │       ├── pages/            # ページコンポーネント
 │       └── theme/            # テーマ定義
@@ -176,12 +182,12 @@ UIが**やってはならない**こと:
 
 ### 既知の課題と移行方針
 
-現時点で `categoryTimeSales`（分類別時間帯売上）と `departmentKpi`（部門別KPI）は
-生データが `WidgetContext` 経由でUIに渡されている。
-これは `StoreResult` が時間帯別・分類階層別の集約データを持っていないため、
-UIが仕方なく生レコードを直接参照している状態である。
+既存の時間帯・カテゴリ系ウィジェットでは `categoryTimeSales`（分類別時間帯売上）と
+`departmentKpi`（部門別KPI）の生データが `WidgetContext` 経由でUIに渡されている。
+DuckDB ウィジェット群はこの問題を SQL 集約で解決しているが、
+既存ウィジェットでは引き続きこの状態が残っている。
 
-**移行方針:**
+**移行方針（既存ウィジェット向け）:**
 1. Application層にインデックス構築関数を作成し、生レコードを検索・集約しやすい
    構造に変換する
 2. Application層の hooks がインデックス + ユーザー選択 → 表示用データを生成する
@@ -192,6 +198,7 @@ UIが仕方なく生レコードを直接参照している状態である。
 - 既存の `PeriodFilter.tsx` の純粋関数（computeDivisor 等）は活用する
 - `divisorRules.test.ts` のアーキテクチャガードテストを維持する
 - 段階的に1コンポーネントずつ移行し、各段階でテスト・ビルドを通す
+- DuckDB ウィジェットでは上記の問題は既に解消済み（SQL 集約 → hooks → UI の流れ）
 
 ### データソースの分離
 
@@ -207,6 +214,91 @@ UIが仕方なく生レコードを直接参照している状態である。
   アンカーする
 - `FileImportService.ts`（`application/usecases/import/`）の `validateImportedData`
   で1%以上の乖離を警告表示
+
+## DuckDB-WASM インブラウザ分析
+
+### 概要
+
+DuckDB-WASM をインブラウザ SQL エンジンとして統合し、月制約を超えた自由日付範囲での
+分析を可能にした。既存の JS 集約パス（`WidgetContext` + `PeriodFilter`）と並行して
+動作し、ユーザーはウィジェット設定パネルから DuckDB 版と従来版を選択できる。
+
+### アーキテクチャ
+
+```
+  IndexedDB           DuckDB-WASM             React hooks         UI
+ ┌──────────┐       ┌──────────────┐        ┌──────────────┐    ┌──────────┐
+ │ 保存済み  │       │ engine.ts    │        │ useDuckDB    │    │ DuckDB   │
+ │ インポート│ load  │ schemas.ts   │ query  │ useDuckDB-   │    │ ウィジェ │
+ │ データ   │──→   │ dataLoader.ts│──→    │ Query.ts     │──→│ ット群   │
+ └──────────┘       │ queries/*.ts │        │ (18 hooks)   │    │ (15個)   │
+                    └──────────────┘        └──────────────┘    └──────────┘
+```
+
+**データフロー:**
+1. ユーザーがファイルインポート → IndexedDB に保存（既存フロー）
+2. `useDuckDB` フックが IndexedDB → DuckDB テーブルにデータ投入（`dataLoader.ts`）
+3. DuckDB に SQL クエリを発行し、集約済み結果を取得（`queries/*.ts`）
+4. `useDuckDBQuery.ts` の各フックが SQL 結果を React ステートとして返す
+5. DuckDB ウィジェットはフックの戻り値のみを参照して描画
+
+### レイヤー配置
+
+| レイヤー | ファイル | 責務 |
+|---|---|---|
+| **Infrastructure** | `duckdb/engine.ts` | DB 初期化、接続プール管理 |
+| | `duckdb/schemas.ts` | テーブル DDL（`store_day_summary`, `time_slots`, `category_time_sales`） |
+| | `duckdb/dataLoader.ts` | IndexedDB → DuckDB バルクロード |
+| | `duckdb/queryRunner.ts` | 汎用 `runQuery<T>()` ユーティリティ |
+| | `duckdb/queries/*.ts` | SQL クエリ関数（6 モジュール） |
+| **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
+| | `hooks/useDuckDBQuery.ts` | 18 個のクエリフック（`useAsyncQuery` ベース） |
+| **Presentation** | `charts/DuckDB*.tsx` | 15 個の DuckDB ウィジェット |
+| | `charts/DuckDBDateRangePicker.tsx` | 自由日付範囲セレクタ |
+
+### クエリモジュール一覧
+
+| モジュール | 主要クエリ関数 | 用途 |
+|---|---|---|
+| `categoryTimeSales.ts` | `queryHourlyAggregation`, `queryLevelAggregation`, `queryStoreAggregation`, `queryHourDowMatrix`, `queryCategoryDailyTrend`, `queryCategoryHourly` | 時間帯集約、カテゴリ分析 |
+| `departmentKpi.ts` | `queryDeptKpiRanked`, `queryDeptKpiSummary`, `queryDeptKpiMonthlyTrend` | 部門 KPI |
+| `storeDaySummary.ts` | `queryDailyCumulative`, `queryAggregatedRates` | 累積売上、指標推移 |
+| `yoyComparison.ts` | `queryYoyDailyComparison`, `queryYoyCategoryComparison` | 前年比較 |
+| `features.ts` | `queryDailyFeatures`, `queryHourlyProfile`, `queryDowPattern` | 特徴量、時間帯プロファイル、曜日パターン |
+| `advancedAnalytics.ts` | `queryCategoryMixWeekly`, `queryStoreBenchmark` | 構成比推移、店舗ベンチマーク |
+
+### DuckDB ウィジェット一覧（15個）
+
+| ウィジェット | 分析内容 | サイズ |
+|---|---|---|
+| `DuckDBFeatureChart` | 日次特徴量分析 | full |
+| `DuckDBCumulativeChart` | 累積売上推移 | full |
+| `DuckDBYoYChart` | 前年同期比較 | full |
+| `DuckDBDeptTrendChart` | 部門 KPI トレンド | full |
+| `DuckDBTimeSlotChart` | 時間帯別売上（前年比較付き） | full |
+| `DuckDBHeatmapChart` | 時間帯×曜日ヒートマップ | full |
+| `DuckDBDeptHourlyChart` | 部門別時間帯パターン | full |
+| `DuckDBStoreHourlyChart` | 店舗×時間帯比較 | full |
+| `DuckDBDowPatternChart` | 曜日パターン分析 | half |
+| `DuckDBHourlyProfileChart` | 時間帯プロファイル | half |
+| `DuckDBCategoryTrendChart` | カテゴリ別日次売上推移 | full |
+| `DuckDBCategoryHourlyChart` | カテゴリ×時間帯ヒートマップ | full |
+| `DuckDBCategoryMixChart` | カテゴリ構成比の週次推移 | full |
+| `DuckDBStoreBenchmarkChart` | 店舗ベンチマーク（ランキング推移） | full |
+| `DuckDBDateRangePicker` | 自由日付範囲セレクタ（ウィジェットではなくコントロール） | — |
+
+### 設計原則
+
+1. **既存パスとの並行運用**: DuckDB ウィジェットは新規追加であり、既存ウィジェットは
+   そのまま残す。ユーザーがウィジェット設定で選択する。
+2. **SQL 集約の徹底**: DuckDB ウィジェットは SQL で集約済みデータを取得し、
+   UI での生レコード走査を排除する（禁止事項6の DuckDB 版での解消）。
+3. **月跨ぎ対応**: `duckDateRange`（自由日付範囲）を使い、月単位制約を超えた分析が可能。
+   `useDuckDB` フックが複数月のデータを DuckDB にロードする。
+4. **非同期安全**: `useAsyncQuery` フックがシーケンス番号によるキャンセル制御を内蔵し、
+   古いクエリ結果が新しい結果を上書きしない。
+5. **可視性制御**: 各ウィジェットの `isVisible` で DuckDB 未準備時（`duckDataVersion === 0`）
+   やデータ不足時に非表示。店舗比較系は `stores.size > 1` をガード。
 
 ## 要因分解ロジックのルール
 

@@ -18,11 +18,15 @@ import {
   queryHourDowMatrix,
   queryDistinctDayCount,
   queryDowDivisorMap,
+  queryCategoryDailyTrend,
+  queryCategoryHourly,
   type CtsFilterParams,
   type HourlyAggregationRow,
   type LevelAggregationRow,
   type StoreAggregationRow,
   type HourDowMatrixRow,
+  type CategoryDailyTrendRow,
+  type CategoryHourlyRow,
 } from '@/infrastructure/duckdb/queries/categoryTimeSales'
 import {
   queryDeptKpiRanked,
@@ -52,12 +56,6 @@ import {
   type HourlyProfileRow,
   type DowPatternRow,
 } from '@/infrastructure/duckdb/queries/features'
-import {
-  queryCategoryDailyTrend,
-  queryCategoryHourly,
-  type CategoryDailyTrendRow,
-  type CategoryHourlyRow,
-} from '@/infrastructure/duckdb/queries/categoryTimeSales'
 import {
   queryCategoryMixWeekly,
   queryStoreBenchmark,
