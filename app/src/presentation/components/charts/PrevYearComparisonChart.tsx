@@ -11,7 +11,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
-import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { DayRangeSlider } from './DayRangeSlider'
+import { useDayRange } from './useDayRange'
 
 const Wrapper = styled.div`
   width: 100%;

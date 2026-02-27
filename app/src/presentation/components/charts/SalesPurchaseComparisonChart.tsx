@@ -11,7 +11,8 @@ import {
   toPct,
   STORE_COLORS,
 } from './chartTheme'
-import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { DayRangeSlider } from './DayRangeSlider'
+import { useDayRange } from './useDayRange'
 import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'

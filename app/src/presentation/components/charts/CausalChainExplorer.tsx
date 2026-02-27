@@ -8,7 +8,7 @@ import {
 } from '@/domain/calculations/causalChain'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { useCrossChartSelection } from './CrossChartSelectionContext'
+import { useCrossChartSelection } from './crossChartSelectionHooks'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 

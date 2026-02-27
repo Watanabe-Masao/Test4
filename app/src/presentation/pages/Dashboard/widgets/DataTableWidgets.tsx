@@ -9,12 +9,14 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
-import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
-
-export const ScrollWrapper = styled.div`
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-`
+import {
+  STableWrapper,
+  STableTitle,
+  STable,
+  STh,
+  STd,
+  ScrollWrapper,
+} from '../DashboardPage.styles'
 
 const GroupTh = styled(STh)`
   text-align: center;

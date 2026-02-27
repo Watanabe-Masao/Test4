@@ -28,7 +28,7 @@ import {
 import type { MetricId, DateRange } from '@/domain/models'
 import { palette } from '@/presentation/theme/tokens'
 import { useAppState } from '@/application/context'
-import { useRepository } from '@/application/context/RepositoryContext'
+import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import {

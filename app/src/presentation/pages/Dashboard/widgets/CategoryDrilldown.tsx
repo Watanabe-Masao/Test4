@@ -10,11 +10,11 @@
 import { useState, useMemo, useCallback, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
-import type { HierarchyFilter } from '@/presentation/components/charts/CategoryHierarchyContext'
 import {
   filterByHierarchy,
   getHierarchyLevel,
-} from '@/presentation/components/charts/CategoryHierarchyContext'
+  type HierarchyFilter,
+} from '@/presentation/components/charts/categoryHierarchyHooks'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/calculations/utils'

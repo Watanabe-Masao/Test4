@@ -37,6 +37,9 @@ const CHART_FILES_USING_PERIOD_FILTER = [
 /** PeriodFilter 本体（ルール定義元なので検査対象外） */
 const PERIOD_FILTER_FILE = 'PeriodFilter.tsx'
 
+/** フック定義ファイル（PeriodFilterResult interface 等） */
+const PERIOD_FILTER_HOOKS_FILE = 'periodFilterHooks.ts'
+
 /** 純粋関数の定義元ファイル */
 const PERIOD_FILTER_UTILS_FILE = 'periodFilterUtils.ts'
 
@@ -406,12 +409,12 @@ describe('periodFilterUtils.ts: ルール定義元の健全性', () => {
   })
 })
 
-describe('PeriodFilter.tsx: UI コンポーネントの健全性', () => {
-  const pfContent = readChartFile(PERIOD_FILTER_FILE)
+describe('PeriodFilter hooks: UI コンポーネントの健全性', () => {
+  const hooksContent = readChartFile(PERIOD_FILTER_HOOKS_FILE)
 
   it('レガシー API (divisor / divideByMode) が PeriodFilterResult に含まれないこと', () => {
-    // PeriodFilterResult interface を抽出
-    const ifaceMatch = pfContent.match(
+    // PeriodFilterResult interface を抽出（periodFilterHooks.ts に移動済み）
+    const ifaceMatch = hooksContent.match(
       /export\s+interface\s+PeriodFilterResult[^{]*\{([\s\S]*?)\n\}/,
     )
     expect(ifaceMatch).not.toBeNull()

@@ -6,7 +6,7 @@
  */
 import { useCallback } from 'react'
 import type { StorageDataType } from '@/domain/models'
-import { useRepository } from '../context/RepositoryContext'
+import { useRepository } from '../context/useRepository'
 
 export interface StoredMonthEntry {
   readonly year: number

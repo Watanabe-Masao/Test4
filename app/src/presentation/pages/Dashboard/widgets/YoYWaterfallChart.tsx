@@ -31,11 +31,8 @@ import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import { queryByDateRange } from '@/application/usecases'
 import type { DateRange } from '@/domain/models'
-import {
-  CategoryFactorBreakdown,
-  decomposePriceMix,
-  recordsToCategoryQtyAmt,
-} from './CategoryFactorBreakdown'
+import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
+import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { WidgetContext, ComparisonMode } from './types'
 import { wowPrevRange, comparisonLabels } from './types'
 import { sc } from '@/presentation/theme/semanticColors'

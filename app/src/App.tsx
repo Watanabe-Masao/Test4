@@ -1,14 +1,5 @@
 import { ThemeProvider } from 'styled-components'
-import {
-  lazy,
-  Suspense,
-  useState,
-  useCallback,
-  useEffect,
-  useMemo,
-  createContext,
-  useContext,
-} from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo } from 'react'
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
@@ -37,6 +28,7 @@ import {
 import { I18nProvider } from '@/infrastructure/i18n'
 import { AuthProvider } from '@/application/context/AuthContext'
 import type { ViewType } from '@/domain/models'
+import { ThemeToggleContext, useThemeToggle, SettingsModalContext } from '@/appContextDefs'
 
 // ─── 遅延ロード: ページコンポーネント ──────────────────────
 const DashboardPage = lazy(() =>
@@ -85,13 +77,6 @@ const PATH_TO_VIEW: Record<string, ViewType> = Object.fromEntries(
   Object.entries(VIEW_TO_PATH).map(([view, path]) => [path, view as ViewType]),
 ) as Record<string, ViewType>
 
-// ─── テーマトグルコンテキスト ────────────────────────────────
-const ThemeToggleContext = createContext<{ mode: ThemeMode; toggle: () => void }>({
-  mode: 'dark',
-  toggle: () => {},
-})
-export const useThemeToggle = () => useContext(ThemeToggleContext)
-
 function getInitialTheme(): ThemeMode {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem('theme')
@@ -99,10 +84,6 @@ function getInitialTheme(): ThemeMode {
   }
   return 'dark'
 }
-
-// ─── 設定モーダル表示のコンテキスト ─────────────────────────
-const SettingsModalContext = createContext<{ open: () => void }>({ open: () => {} })
-export const useOpenSettings = () => useContext(SettingsModalContext)
 
 // ─── ルート↔状態 同期フック ──────────────────────────────────
 function useRouteSync() {

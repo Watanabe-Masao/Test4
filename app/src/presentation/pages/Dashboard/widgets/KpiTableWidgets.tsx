@@ -15,8 +15,14 @@ import {
 import type { DepartmentKpiRecord } from '@/domain/models'
 import { useAppDispatch, useAppData } from '@/application/context'
 import type { WidgetContext } from './types'
-import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
-import { ScrollWrapper } from './DataTableWidgets'
+import {
+  STableWrapper,
+  STableTitle,
+  STable,
+  STh,
+  STd,
+  ScrollWrapper,
+} from '../DashboardPage.styles'
 
 /* ── 部門別KPI styled components ────────────────────── */
 

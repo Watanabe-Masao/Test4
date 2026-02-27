@@ -7,38 +7,12 @@
  * 現時点ではローカル単一ユーザーのため、常に匿名ユーザーとして動作する。
  * クラウド連携時に OAuth / JWT 等の実装を差し込む。
  */
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { useState, useCallback, useMemo, type ReactNode } from 'react'
+import { AuthContext } from './authContextDef'
+import type { User, AuthState, AuthContextValue } from './authContextDef'
 
-// ─── Types ────────────────────────────────────────────
-
-export interface User {
-  readonly id: string
-  readonly name: string
-  readonly email?: string
-  readonly role: 'admin' | 'editor' | 'viewer'
-}
-
-export type AuthStatus = 'anonymous' | 'authenticated' | 'loading'
-
-export interface AuthState {
-  readonly status: AuthStatus
-  readonly user: User | null
-}
-
-export interface AuthActions {
-  /** ログイン (将来実装) */
-  login: (credentials: { email: string; password: string }) => Promise<boolean>
-  /** ログアウト (将来実装) */
-  logout: () => Promise<void>
-  /** 現在のユーザーを取得 */
-  getCurrentUser: () => User | null
-}
-
-interface AuthContextValue extends AuthState, AuthActions {}
-
-// ─── Context ──────────────────────────────────────────
-
-const AuthContext = createContext<AuthContextValue | null>(null)
+// 型の再エクスポート（type-only なので react-refresh 警告を回避）
+export type { User, AuthStatus, AuthState, AuthActions, AuthContextValue } from './authContextDef'
 
 const ANONYMOUS_USER: User = {
   id: 'local',
@@ -74,12 +48,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-// ─── Hook ─────────────────────────────────────────────
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
 }

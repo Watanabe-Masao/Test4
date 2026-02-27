@@ -1,17 +1,11 @@
 import styled, { keyframes, css } from 'styled-components'
-import {
-  useState,
-  useCallback,
-  useRef,
-  createContext,
-  useContext,
-  useEffect,
-  type ReactNode,
-} from 'react'
+import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { ToastContext } from './toastContextDef'
+import type { ToastLevel, ShowToast } from './toastContextDef'
 
-export type ToastLevel = 'success' | 'error' | 'warning' | 'info'
+export type { ToastLevel } from './toastContextDef'
 
 interface ToastItem {
   id: number
@@ -248,15 +242,6 @@ const EmptyHistory = styled.div`
   color: ${({ theme }) => theme.colors.text4};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
-
-// ─── コンテキスト ──────────────────────────────────────
-type ShowToast = (message: string, level?: ToastLevel) => void
-
-const ToastContext = createContext<ShowToast>(() => {})
-
-export function useToast(): ShowToast {
-  return useContext(ToastContext)
-}
 
 // ─── 時刻フォーマット ─────────────────────────────────
 function formatTime(ts: number): string {
