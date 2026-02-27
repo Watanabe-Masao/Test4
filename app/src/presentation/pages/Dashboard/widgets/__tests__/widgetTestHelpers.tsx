@@ -166,6 +166,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     departmentKpi: { records: [] },
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
+    monthlyHistory: [],
     ...overrides,
   }
 }

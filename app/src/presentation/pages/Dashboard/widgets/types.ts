@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { StoreResult, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
+import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -87,4 +88,6 @@ export interface WidgetContext {
   explanations: StoreExplanations
   /** 指標の説明パネルを開く */
   onExplain: (metricId: MetricId) => void
+  /** 過去月データ（季節性分析用） */
+  monthlyHistory: readonly MonthlyDataPoint[]
 }

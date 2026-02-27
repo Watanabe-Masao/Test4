@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct, toComma } from './chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
+import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -45,7 +46,7 @@ const ColumnLabel = styled.div`
   letter-spacing: 0.05em;
 `
 
-const FlowNode = styled.div<{ $color: string; $height: number }>`
+const FlowNode = styled.div<{ $color: string; $height: number; $clickable?: boolean }>`
   background: ${({ $color }) => $color}18;
   border: 1px solid ${({ $color }) => $color}40;
   border-left: 3px solid ${({ $color }) => $color};
@@ -55,6 +56,11 @@ const FlowNode = styled.div<{ $color: string; $height: number }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  transition: border-color 0.15s;
+  &:hover {
+    ${({ $clickable, $color }) => $clickable ? `border-color: ${$color};` : ''}
+  }
 `
 
 const NodeLabel = styled.div`
@@ -139,6 +145,11 @@ interface Props {
 export function StructuralOverviewChart({ result, prevYearResult }: Props) {
   const r = result
   const prev = prevYearResult
+  const { requestDrillThrough } = useCrossChartSelection()
+
+  const handleDrillThrough = useCallback((widgetId: string) => {
+    requestDrillThrough({ widgetId })
+  }, [requestDrillThrough])
 
   const nodes = useMemo(() => {
     const grossSales = r.grossSales
@@ -214,12 +225,12 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         {/* 中: コスト */}
         <Column>
           <ColumnLabel>コスト</ColumnLabel>
-          <FlowNode $color="#ef4444" $height={h(nodes.cost.value)}>
+          <FlowNode $color="#ef4444" $height={h(nodes.cost.value)} $clickable onClick={() => handleDrillThrough('daily-sales')}>
             <NodeLabel>仕入原価</NodeLabel>
             <NodeValue>{fmtMan(nodes.cost.value)}{renderYoy(nodes.cost.yoy)}</NodeValue>
             <NodeSub>値入率 {toPct(nodes.markupRate)}</NodeSub>
           </FlowNode>
-          <FlowNode $color="#f59e0b" $height={h(nodes.discount.value)}>
+          <FlowNode $color="#f59e0b" $height={h(nodes.discount.value)} $clickable onClick={() => handleDrillThrough('discount-trend')}>
             <NodeLabel>売変額</NodeLabel>
             <NodeValue>{fmtMan(nodes.discount.value)}{renderYoy(nodes.discount.yoy)}</NodeValue>
             <NodeSub>売変率 {toPct(nodes.discountRate)}</NodeSub>
@@ -236,13 +247,13 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         <Column>
           <ColumnLabel>利益</ColumnLabel>
           {nodes.gpInv.value != null && (
-            <FlowNode $color="#22c55e" $height={h(nodes.gpInv.value)}>
+            <FlowNode $color="#22c55e" $height={h(nodes.gpInv.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
               <NodeLabel>粗利（在庫法）</NodeLabel>
               <NodeValue>{fmtMan(nodes.gpInv.value)}{renderYoy(nodes.gpInv.yoy)}</NodeValue>
               <NodeSub>粗利率 {nodes.gpRateInv != null ? toPct(nodes.gpRateInv) : '-'}</NodeSub>
             </FlowNode>
           )}
-          <FlowNode $color="#06b6d4" $height={h(nodes.gpEst.value)}>
+          <FlowNode $color="#06b6d4" $height={h(nodes.gpEst.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
             <NodeLabel>マージン（推定法）</NodeLabel>
             <NodeValue>{fmtMan(nodes.gpEst.value)}{renderYoy(nodes.gpEst.yoy)}</NodeValue>
             <NodeSub>マージン率 {toPct(nodes.gpRateEst)}</NodeSub>

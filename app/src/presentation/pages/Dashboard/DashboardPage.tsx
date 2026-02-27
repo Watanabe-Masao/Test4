@@ -2,10 +2,12 @@ import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } fro
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, Chip, ChipGroup, ChartErrorBoundary, MetricBreakdownPanel } from '@/presentation/components/common'
 import { useCalculation, usePrevYearData, usePrevYearCategoryTimeSales, useStoreSelection, useAutoLoadPrevYear, useExplanations, useCategoryTimeSalesIndex, useCategoryTimeSalesIndexFromRecords } from '@/application/hooks'
+import { useMonthlyHistory, currentResultToMonthlyPoint, useMonthlyDataPoints } from '@/application/hooks/useMonthlyHistory'
 import type { MetricId, DateRange } from '@/domain/models'
 import { useAppState } from '@/application/context'
+import { useRepository } from '@/application/context/RepositoryContext'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { CategoryHierarchyProvider, CurrencyUnitToggle } from '@/presentation/components/charts'
+import { CategoryHierarchyProvider, CurrencyUnitToggle, CrossChartSelectionProvider, useCrossChartSelection } from '@/presentation/components/charts'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/registry'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -14,6 +16,31 @@ import {
   Toolbar, WidgetGridStyled, ChartRow, FullChartRow,
   DragItem, DragHandle, DeleteBtn,
 } from './DashboardPage.styles'
+
+// ─── Drill-through scroll handler ────────────────────────
+
+/** CrossChartSelectionContext のドリルスルーリクエストに応じて対象ウィジェットへスクロール */
+function DrillThroughScrollHandler() {
+  const { drillThroughTarget, requestDrillThrough } = useCrossChartSelection()
+
+  useEffect(() => {
+    if (!drillThroughTarget) return
+    const el = document.querySelector(`[data-widget-id="${drillThroughTarget.widgetId}"]`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // ハイライトアニメーション
+      el.classList.add('drill-highlight')
+      const timer = setTimeout(() => {
+        el.classList.remove('drill-highlight')
+        requestDrillThrough(null)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+    requestDrillThrough(null)
+  }, [drillThroughTarget, requestDrillThrough])
+
+  return null
+}
 
 // ─── Main Dashboard ──────────────────────────────────────
 
@@ -26,6 +53,17 @@ export function DashboardPage() {
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
+
+  // 過去月データ（季節性分析用）
+  const repo = useRepository()
+  const targetYear = appState.settings.targetYear
+  const targetMonth = appState.settings.targetMonth
+  const historicalMonths = useMonthlyHistory(repo, targetYear, targetMonth)
+  const currentMonthlyPoint = useMemo(() => {
+    if (!currentResult) return null
+    return currentResultToMonthlyPoint(targetYear, targetMonth, currentResult, stores.size)
+  }, [currentResult, targetYear, targetMonth, stores.size])
+  const monthlyHistory = useMonthlyDataPoints(historicalMonths, targetYear, targetMonth, currentMonthlyPoint)
 
   // 指標説明
   const explanations = useExplanations()
@@ -161,8 +199,6 @@ export function DashboardPage() {
   }
 
   // ── 日付範囲の算出（チャート用フックに渡す） ──
-  const targetYear = appState.settings.targetYear
-  const targetMonth = appState.settings.targetMonth
   const effectiveEndDay = r.elapsedDays != null && r.elapsedDays > 0
     ? Math.min(r.elapsedDays, daysInMonth)
     : daysInMonth
@@ -200,6 +236,7 @@ export function DashboardPage() {
     departmentKpi: appState.data.departmentKpi,
     explanations,
     onExplain: handleExplain,
+    monthlyHistory,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
@@ -216,10 +253,11 @@ export function DashboardPage() {
   let flatIdx = 0
 
   const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
-    if (!editMode) return <div key={widget.id}>{content}</div>
+    if (!editMode) return <div key={widget.id} data-widget-id={widget.id}>{content}</div>
     return (
       <DragItem
         key={widget.id}
+        data-widget-id={widget.id}
         draggable
         $isDragging={dragIndex === index}
         $isOver={overIndex === index}
@@ -236,6 +274,8 @@ export function DashboardPage() {
   }
 
   return (
+    <CrossChartSelectionProvider>
+    <DrillThroughScrollHandler />
     <CategoryHierarchyProvider>
     <MainContent title="ダッシュボード" storeName={storeName}>
       <Toolbar>
@@ -333,5 +373,6 @@ export function DashboardPage() {
       />
     )}
     </CategoryHierarchyProvider>
+    </CrossChartSelectionProvider>
   )
 }
