@@ -128,21 +128,8 @@ export function DashboardPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
 
-  // データ駆動ウィジェットの自動注入
   const widgetIdsRef = useRef(widgetIds)
   widgetIdsRef.current = widgetIds
-  useEffect(() => {
-    const injected = autoInjectDataWidgets(widgetIdsRef.current, {
-      ctsRecordCount: ctsIndex.recordCount,
-      prevYearHasPrevYear: prevYearCTS.hasPrevYear,
-      storeCount: stores.size,
-      hasDiscountData: currentResult?.hasDiscountData,
-    })
-    if (injected) {
-      setWidgetIds(injected)
-      saveLayout(injected)
-    }
-  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData])
 
   // D&D state
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -211,6 +198,22 @@ export function DashboardPage() {
 
   // DuckDB 分析用日付範囲（ユーザー操作で自由に変更可能、月跨ぎ対応）
   const [duckDateRange, setDuckDateRange] = useDuckDBDateRange(targetYear, targetMonth, daysInMonth)
+
+  // データ駆動ウィジェットの自動注入
+  // duck.isReady を依存配列に含め、DuckDB 初期化完了時にも再注入を試みる
+  useEffect(() => {
+    const injected = autoInjectDataWidgets(widgetIdsRef.current, {
+      ctsRecordCount: ctsIndex.recordCount,
+      prevYearHasPrevYear: prevYearCTS.hasPrevYear,
+      storeCount: stores.size,
+      hasDiscountData: currentResult?.hasDiscountData,
+      isDuckDBReady: duck.isReady,
+    })
+    if (injected) {
+      setWidgetIds(injected)
+      saveLayout(injected)
+    }
+  }, [ctsIndex.recordCount, prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
 
   // ─── Empty / Loading states ──
 

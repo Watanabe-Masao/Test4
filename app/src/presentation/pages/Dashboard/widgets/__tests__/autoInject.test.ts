@@ -36,6 +36,27 @@ const WITH_MULTI_STORE = {
   storeCount: 2,
 }
 
+const WITH_DUCKDB = {
+  ctsRecordCount: 0,
+  prevYearHasPrevYear: false,
+  storeCount: 1,
+  isDuckDBReady: true,
+}
+
+const WITH_DUCKDB_PREV = {
+  ctsRecordCount: 0,
+  prevYearHasPrevYear: true,
+  storeCount: 1,
+  isDuckDBReady: true,
+}
+
+const WITH_DUCKDB_MULTI_STORE = {
+  ctsRecordCount: 0,
+  prevYearHasPrevYear: false,
+  storeCount: 2,
+  isDuckDBReady: true,
+}
+
 describe('autoInjectDataWidgets', () => {
   it('データがない場合は null を返す', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], NO_DATA)
@@ -117,5 +138,64 @@ describe('autoInjectDataWidgets', () => {
     for (const id of result!) {
       expect(WIDGET_MAP.has(id)).toBe(true)
     }
+  })
+
+  // ── DuckDB ウィジェット注入テスト ──
+
+  it('DuckDB 未準備時は DuckDB ウィジェットが注入されない', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], {
+      ...WITH_CTS,
+      isDuckDBReady: false,
+    })
+    if (result) {
+      const duckWidgets = result.filter(
+        (id) => id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-'),
+      )
+      expect(duckWidgets).toHaveLength(0)
+    }
+  })
+
+  it('DuckDB 準備完了時に DuckDB ウィジェットが注入される', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    expect(result).not.toBeNull()
+    expect(result!).toContain('analysis-duckdb-features')
+    expect(result!).toContain('analysis-duckdb-cumulative')
+    expect(result!).toContain('duckdb-timeslot')
+    expect(result!).toContain('duckdb-heatmap')
+  })
+
+  it('DuckDB: ctsRecordCount が 0 でも DuckDB ウィジェットは注入される', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    expect(result).not.toBeNull()
+    const duckWidgets = result!.filter(
+      (id) => id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-'),
+    )
+    expect(duckWidgets.length).toBeGreaterThanOrEqual(8)
+  })
+
+  it('DuckDB: 前年データがないと analysis-duckdb-yoy は注入されない', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    expect(result).not.toBeNull()
+    expect(result!).not.toContain('analysis-duckdb-yoy')
+  })
+
+  it('DuckDB: 前年データがあると analysis-duckdb-yoy が注入される', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_PREV)
+    expect(result).not.toBeNull()
+    expect(result!).toContain('analysis-duckdb-yoy')
+  })
+
+  it('DuckDB: 店舗が1つの場合は店舗比較系が注入されない', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    expect(result).not.toBeNull()
+    expect(result!).not.toContain('duckdb-store-hourly')
+    expect(result!).not.toContain('duckdb-store-benchmark')
+  })
+
+  it('DuckDB: 複数店舗の場合は店舗比較系が注入される', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_MULTI_STORE)
+    expect(result).not.toBeNull()
+    expect(result!).toContain('duckdb-store-hourly')
+    expect(result!).toContain('duckdb-store-benchmark')
   })
 })
