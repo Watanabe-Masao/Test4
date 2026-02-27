@@ -1,5 +1,14 @@
 // Utility
-export { safeNumber, safeDivide, formatCurrency, formatManYen, formatPercent, formatPointDiff, calculateTransactionValue, calculateMovingAverage } from './utils'
+export {
+  safeNumber,
+  safeDivide,
+  formatCurrency,
+  formatManYen,
+  formatPercent,
+  formatPointDiff,
+  calculateTransactionValue,
+  calculateMovingAverage,
+} from './utils'
 
 // 在庫法
 export { calculateInvMethod } from './invMethod'
@@ -48,44 +57,28 @@ export {
   projectDowAdjusted,
   calculateMonthEndProjection,
 } from './advancedForecast'
-export type {
-  WMAEntry,
-  MonthEndProjection,
-  LinearRegressionResult,
-} from './advancedForecast'
+export type { WMAEntry, MonthEndProjection, LinearRegressionResult } from './advancedForecast'
 
 // アラート・閾値システム
-export {
-  evaluateAlerts,
-  evaluateAllStoreAlerts,
-  DEFAULT_ALERT_RULES,
-} from './alertSystem'
-export type {
-  AlertRule,
-  Alert,
-  AlertSeverity,
-  AlertRuleType,
-} from './alertSystem'
+export { evaluateAlerts, evaluateAllStoreAlerts, DEFAULT_ALERT_RULES } from './alertSystem'
+export type { AlertRule, Alert, AlertSeverity, AlertRuleType } from './alertSystem'
 
 // トレンド分析
 export { analyzeTrend } from './trendAnalysis'
-export type {
-  MonthlyDataPoint,
-  TrendAnalysisResult,
-} from './trendAnalysis'
+export type { MonthlyDataPoint, TrendAnalysisResult } from './trendAnalysis'
 
 // 感度分析
-export {
-  calculateSensitivity,
-  calculateElasticity,
-  extractSensitivityBase,
-} from './sensitivity'
+export { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './sensitivity'
 export type {
   SensitivityBase,
   SensitivityDeltas,
   SensitivityResult,
   ElasticityResult,
 } from './sensitivity'
+
+// 在庫推定計算
+export { computeEstimatedInventory, computeEstimatedInventoryDetails } from './inventoryCalc'
+export type { InventoryPoint, InventoryDetailRow } from './inventoryCalc'
 
 // 相関分析・統計
 export {

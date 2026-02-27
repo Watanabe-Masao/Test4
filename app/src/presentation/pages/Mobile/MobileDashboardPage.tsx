@@ -13,16 +13,30 @@ import {
   useStoreSelection,
   useAutoLoadPrevYear,
   useMonthSwitcher,
+  useBudgetChartData,
 } from '@/application/hooks'
 import { useAppState } from '@/application/context'
-import { formatCurrency, formatPercent, safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  safeDivide,
+  calculateTransactionValue,
+} from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { AppTheme } from '@/presentation/theme/theme'
 import {
-  BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, Cell,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Cell,
 } from 'recharts'
 
 // ─── Types ─────────────────────────────────────────────────
@@ -79,8 +93,13 @@ const MonthArrow = styled.button`
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text3};
   font-size: 14px;
-  &:active:not(:disabled) { opacity: 0.5; }
-  &:disabled { opacity: 0.3; cursor: not-allowed; }
+  &:active:not(:disabled) {
+    opacity: 0.5;
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 `
 
 const DesktopLink = styled.button`
@@ -90,7 +109,9 @@ const DesktopLink = styled.button`
   color: ${({ theme }) => theme.colors.palette.primary};
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  &:active { opacity: 0.7; }
+  &:active {
+    opacity: 0.7;
+  }
 `
 
 const TabBar = styled.div`
@@ -107,13 +128,16 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} 0;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text4};
-  border-bottom: 2px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
+  border-bottom: 2px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  &:active { opacity: 0.7; }
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+  &:active {
+    opacity: 0.7;
+  }
 `
 
 const ScrollContent = styled.main`
@@ -280,27 +304,7 @@ export function MobileDashboardPage() {
   const r = currentResult
 
   // 予算 vs 実績 累計データ
-  const budgetChartData = useMemo(() => {
-    if (!r) return []
-    const salesDaily = new Map<number, number>()
-    for (const [d, rec] of r.daily) salesDaily.set(d, rec.sales)
-    let cumActual = 0
-    let cumBudget = 0
-    let cumPrevYear = 0
-    const data: { day: number; actual: number; budget: number; prevYear: number | null }[] = []
-    for (let d = 1; d <= daysInMonth; d++) {
-      cumActual += salesDaily.get(d) ?? 0
-      cumBudget += r.budgetDaily.get(d) ?? 0
-      cumPrevYear += prevYear.daily.get(d)?.sales ?? 0
-      data.push({
-        day: d,
-        actual: cumActual,
-        budget: cumBudget,
-        prevYear: prevYear.hasPrevYear ? cumPrevYear : null,
-      })
-    }
-    return data
-  }, [r, daysInMonth, prevYear])
+  const budgetChartData = useBudgetChartData(r, daysInMonth, prevYear)
 
   // 日別売上データ
   const dailySalesData = useMemo(() => {
@@ -331,19 +335,26 @@ export function MobileDashboardPage() {
       <MobileShell>
         <Header>
           <MonthNav>
-            <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>◀</MonthArrow>
+            <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>
+              ◀
+            </MonthArrow>
             <div>
-              <HeaderTitle>{targetYear}年{targetMonth}月</HeaderTitle>
+              <HeaderTitle>
+                {targetYear}年{targetMonth}月
+              </HeaderTitle>
               <HeaderSub>{isSwitching ? '切替中...' : 'モバイルダッシュボード'}</HeaderSub>
             </div>
-            <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>▶</MonthArrow>
+            <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>
+              ▶
+            </MonthArrow>
           </MonthNav>
           <DesktopLink onClick={handleGoDesktop}>PC版</DesktopLink>
         </Header>
         <EmptyMessage>
           <EmptyIcon>📊</EmptyIcon>
           <div>
-            データを読み込んでください<br />
+            データを読み込んでください
+            <br />
             <span style={{ fontSize: '12px' }}>PC版からファイルをインポートしてください</span>
           </div>
           <DesktopLink onClick={handleGoDesktop}>PC版を開く</DesktopLink>
@@ -356,12 +367,12 @@ export function MobileDashboardPage() {
 
   const elapsedBudget = r.dailyCumulative.get(r.elapsedDays)?.budget ?? 0
   const elapsedDiff = r.totalSales - elapsedBudget
-  const pyRatio = prevYear.hasPrevYear && prevYear.totalSales > 0
-    ? r.totalSales / prevYear.totalSales
-    : null
-  const pyCustomerRatio = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-    ? r.totalCustomers / prevYear.totalCustomers
-    : null
+  const pyRatio =
+    prevYear.hasPrevYear && prevYear.totalSales > 0 ? r.totalSales / prevYear.totalSales : null
+  const pyCustomerRatio =
+    prevYear.hasPrevYear && prevYear.totalCustomers > 0
+      ? r.totalCustomers / prevYear.totalCustomers
+      : null
   const txValue = calculateTransactionValue(r.totalSales, r.totalCustomers)
   const prevTxValue = prevYear.hasPrevYear
     ? calculateTransactionValue(prevYear.totalSales, prevYear.totalCustomers)
@@ -377,21 +388,35 @@ export function MobileDashboardPage() {
       {/* ヘッダー */}
       <Header>
         <MonthNav>
-          <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>◀</MonthArrow>
+          <MonthArrow onClick={goToPrevMonth} disabled={isSwitching}>
+            ◀
+          </MonthArrow>
           <div>
-            <HeaderTitle>{targetYear}年{targetMonth}月 {storeName}</HeaderTitle>
-            <HeaderSub>{isSwitching ? '切替中...' : `${r.elapsedDays}日経過 / ${daysInMonth}日`}</HeaderSub>
+            <HeaderTitle>
+              {targetYear}年{targetMonth}月 {storeName}
+            </HeaderTitle>
+            <HeaderSub>
+              {isSwitching ? '切替中...' : `${r.elapsedDays}日経過 / ${daysInMonth}日`}
+            </HeaderSub>
           </div>
-          <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>▶</MonthArrow>
+          <MonthArrow onClick={goToNextMonth} disabled={isSwitching}>
+            ▶
+          </MonthArrow>
         </MonthNav>
         <DesktopLink onClick={handleGoDesktop}>PC版</DesktopLink>
       </Header>
 
       {/* タブバー */}
       <TabBar>
-        <Tab $active={tab === 'kpi'} onClick={() => setTab('kpi')}>概要</Tab>
-        <Tab $active={tab === 'chart'} onClick={() => setTab('chart')}>チャート</Tab>
-        <Tab $active={tab === 'daily'} onClick={() => setTab('daily')}>日別</Tab>
+        <Tab $active={tab === 'kpi'} onClick={() => setTab('kpi')}>
+          概要
+        </Tab>
+        <Tab $active={tab === 'chart'} onClick={() => setTab('chart')}>
+          チャート
+        </Tab>
+        <Tab $active={tab === 'daily'} onClick={() => setTab('daily')}>
+          日別
+        </Tab>
       </TabBar>
 
       {/* コンテンツ */}
@@ -406,7 +431,8 @@ export function MobileDashboardPage() {
               </KpiRow>
               <KpiSub>予算: {formatCurrency(elapsedBudget)}</KpiSub>
               <KpiSub $color={sc.cond(elapsedDiff >= 0)}>
-                差異: {elapsedDiff >= 0 ? '+' : ''}{formatCurrency(elapsedDiff)}
+                差異: {elapsedDiff >= 0 ? '+' : ''}
+                {formatCurrency(elapsedDiff)}
               </KpiSub>
               <KpiDivider />
               <KpiGrid>
@@ -441,7 +467,9 @@ export function MobileDashboardPage() {
                 <KpiLabel>値入率 / 売変率</KpiLabel>
                 <KpiValue>{formatPercent(r.averageMarkupRate)}</KpiValue>
               </KpiRow>
-              <KpiSub>売変率: {formatPercent(r.discountRate)} ({formatCurrency(r.totalDiscount)})</KpiSub>
+              <KpiSub>
+                売変率: {formatPercent(r.discountRate)} ({formatCurrency(r.totalDiscount)})
+              </KpiSub>
               <KpiDivider />
               <KpiGrid>
                 <KpiMiniCard>
@@ -455,11 +483,13 @@ export function MobileDashboardPage() {
                 {r.invMethodGrossProfitRate != null && (
                   <KpiMiniCard>
                     <KpiMiniLabel>粗利率</KpiMiniLabel>
-                    <KpiMiniValue $color={sc.gpRate(
-                      r.invMethodGrossProfitRate,
-                      appState.settings.targetGrossProfitRate,
-                      appState.settings.warningThreshold,
-                    )}>
+                    <KpiMiniValue
+                      $color={sc.gpRate(
+                        r.invMethodGrossProfitRate,
+                        appState.settings.targetGrossProfitRate,
+                        appState.settings.warningThreshold,
+                      )}
+                    >
                       {formatPercent(r.invMethodGrossProfitRate)}
                     </KpiMiniValue>
                   </KpiMiniCard>
@@ -480,7 +510,9 @@ export function MobileDashboardPage() {
                 <KpiValue>{formatCurrency(r.totalCustomers)}</KpiValue>
               </KpiRow>
               <KpiSub>客単価: {formatCurrency(txValue)}</KpiSub>
-              <KpiSub>日平均客数: {formatCurrency(safeDivide(r.totalCustomers, r.elapsedDays))}</KpiSub>
+              <KpiSub>
+                日平均客数: {formatCurrency(safeDivide(r.totalCustomers, r.elapsedDays))}
+              </KpiSub>
               {prevYear.hasPrevYear && (
                 <>
                   <KpiDivider />
@@ -493,13 +525,17 @@ export function MobileDashboardPage() {
                     </KpiMiniCard>
                     <KpiMiniCard>
                       <KpiMiniLabel>前年客数比</KpiMiniLabel>
-                      <KpiMiniValue $color={pyCustomerRatio != null ? sc.cond(pyCustomerRatio >= 1) : undefined}>
+                      <KpiMiniValue
+                        $color={pyCustomerRatio != null ? sc.cond(pyCustomerRatio >= 1) : undefined}
+                      >
                         {pyCustomerRatio != null ? formatPercent(pyCustomerRatio, 1) : '-'}
                       </KpiMiniValue>
                     </KpiMiniCard>
                     <KpiMiniCard>
                       <KpiMiniLabel>前年客単価</KpiMiniLabel>
-                      <KpiMiniValue>{prevTxValue != null ? formatCurrency(prevTxValue) : '-'}</KpiMiniValue>
+                      <KpiMiniValue>
+                        {prevTxValue != null ? formatCurrency(prevTxValue) : '-'}
+                      </KpiMiniValue>
                     </KpiMiniCard>
                     <KpiMiniCard>
                       <KpiMiniLabel>当年客単価</KpiMiniLabel>
@@ -518,7 +554,10 @@ export function MobileDashboardPage() {
             <ChartCard>
               <ChartTitle>予算 vs 実績（累計）</ChartTitle>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={budgetChartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                <LineChart
+                  data={budgetChartData}
+                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
                   <XAxis
                     dataKey="day"
@@ -539,13 +578,16 @@ export function MobileDashboardPage() {
                       borderRadius: 6,
                       fontSize: 11,
                     }}
-                    formatter={(v: number | undefined, name: string | undefined) => [formatCurrency(v ?? 0), name ?? '']}
+                    formatter={(v: number | undefined, name: string | undefined) => [
+                      formatCurrency(v ?? 0),
+                      name ?? '',
+                    ]}
                     labelFormatter={(label) => `${label}日`}
                   />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Line
                     type="monotone"
-                    dataKey="actual"
+                    dataKey="actualCum"
                     name="実績"
                     stroke={theme.colors.palette.primary}
                     strokeWidth={2}
@@ -553,7 +595,7 @@ export function MobileDashboardPage() {
                   />
                   <Line
                     type="monotone"
-                    dataKey="budget"
+                    dataKey="budgetCum"
                     name="予算"
                     stroke={theme.colors.palette.slate}
                     strokeWidth={1.5}
@@ -563,7 +605,7 @@ export function MobileDashboardPage() {
                   {prevYear.hasPrevYear && (
                     <Line
                       type="monotone"
-                      dataKey="prevYear"
+                      dataKey="prevYearCum"
                       name="前年"
                       stroke={theme.colors.palette.warning}
                       strokeWidth={1}
@@ -579,7 +621,10 @@ export function MobileDashboardPage() {
             <ChartCard>
               <ChartTitle>日別売上</ChartTitle>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={dailySalesData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                <BarChart
+                  data={dailySalesData}
+                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
                   <XAxis
                     dataKey="day"
@@ -600,7 +645,10 @@ export function MobileDashboardPage() {
                       borderRadius: 6,
                       fontSize: 11,
                     }}
-                    formatter={(v: number | undefined, name: string | undefined) => [formatCurrency(v ?? 0), name ?? '']}
+                    formatter={(v: number | undefined, name: string | undefined) => [
+                      formatCurrency(v ?? 0),
+                      name ?? '',
+                    ]}
                     labelFormatter={(label) => `${label}日`}
                   />
                   <Bar dataKey="sales" name="売上" radius={[2, 2, 0, 0]}>

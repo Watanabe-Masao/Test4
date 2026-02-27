@@ -199,10 +199,7 @@ export function detectDivergence(
  *
  * @returns 類似度（0 ～ 1）。ゼロベクトルの場合は0
  */
-export function cosineSimilarity(
-  a: readonly number[],
-  b: readonly number[],
-): number {
+export function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
   const n = Math.min(a.length, b.length)
   if (n === 0) return 0
 

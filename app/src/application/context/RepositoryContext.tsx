@@ -21,8 +21,6 @@ export function useRepository(): DataRepository {
  */
 export function RepositoryProvider({ children }: { readonly children: ReactNode }) {
   return (
-    <RepositoryContext.Provider value={indexedDBRepository}>
-      {children}
-    </RepositoryContext.Provider>
+    <RepositoryContext.Provider value={indexedDBRepository}>{children}</RepositoryContext.Provider>
   )
 }

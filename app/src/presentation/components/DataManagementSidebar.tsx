@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useAppData, useAppDispatch } from '@/application/context'
-import { useImport, useStoreSelection, useSettings, usePersistence, useStorageAdmin } from '@/application/hooks'
+import {
+  useImport,
+  useStoreSelection,
+  useSettings,
+  usePersistence,
+  useStorageAdmin,
+} from '@/application/hooks'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
@@ -24,6 +30,7 @@ import type { DiffConfirmResult } from '@/presentation/components/common/DiffCon
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay, maxDayOfRecord } from '@/domain/calculations/utils'
+import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -132,7 +139,8 @@ const SliderTrack = styled.div`
   right: 0;
   height: 4px;
   border-radius: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
 `
 
 const SliderActive = styled.div<{ $width: number }>`
@@ -161,7 +169,7 @@ const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   &::-moz-range-thumb {
@@ -171,7 +179,7 @@ const SliderInput = styled.input`
     background: ${({ theme }) => theme.colors.palette.primary};
     border: 2px solid ${({ theme }) => theme.colors.bg3};
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 `
 
@@ -182,10 +190,12 @@ const SliderResetBtn = styled.button`
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ theme }) => theme.colors.text4};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
     color: ${({ theme }) => theme.colors.text3};
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
   }
 `
 
@@ -206,7 +216,8 @@ const SliderNumInput = styled.input`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ theme }) => theme.colors.text2};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 2px 4px;
@@ -228,6 +239,78 @@ const SliderNumUnit = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+// ─── テンプレートセクション ──────────────────────────
+const TemplateSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const TemplateToggle = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text4};
+  text-transform: uppercase;
+  &:hover {
+    color: ${({ theme }) => theme.colors.text3};
+  }
+`
+
+const TemplateToggleIcon = styled.span<{ $expanded: boolean }>`
+  font-size: 0.6rem;
+  transition: transform 0.2s;
+  transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
+`
+
+const TemplateGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+const TemplateLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  &:hover {
+    color: ${({ theme }) => theme.colors.palette.primary};
+    border-color: ${({ theme }) => theme.colors.palette.primary}40;
+    background: ${({ theme }) => theme.colors.palette.primary}08;
+  }
+`
+
+// ─── プライバシーインジケーター ──────────────────────
+const PrivacyInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+const PrivacyDot = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.palette.success};
+  flex-shrink: 0;
+`
+
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'classifiedSales', label: '1_分類別売上', multi: true },
@@ -240,6 +323,30 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'consumables', label: '8.消耗品', multi: true },
   { type: 'initialSettings', label: '999_初期設定' },
 ]
+
+function TemplateSectionCollapsible() {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <SidebarSection>
+      <TemplateToggle onClick={() => setExpanded((p) => !p)}>
+        <TemplateToggleIcon $expanded={expanded}>&#9654;</TemplateToggleIcon>
+        テンプレート
+      </TemplateToggle>
+      {expanded && (
+        <TemplateSection>
+          <TemplateGrid>
+            {TEMPLATE_TYPES.map((type) => (
+              <TemplateLink key={type} onClick={() => downloadTemplate(type)}>
+                {TEMPLATE_LABELS[type]}
+              </TemplateLink>
+            ))}
+          </TemplateGrid>
+        </TemplateSection>
+      )}
+    </SidebarSection>
+  )
+}
 
 export function DataManagementSidebar({
   showSettingsExternal,
@@ -265,10 +372,16 @@ export function DataManagementSidebar({
   // 保存済み月リストを取得（MonthSelector のデータ有無表示用）
   useEffect(() => {
     let cancelled = false
-    listMonths().then((months) => {
-      if (!cancelled) setStoredMonths(months)
-    }).catch(() => { /* ignore */ })
-    return () => { cancelled = true }
+    listMonths()
+      .then((months) => {
+        if (!cancelled) setStoredMonths(months)
+      })
+      .catch(() => {
+        /* ignore */
+      })
+    return () => {
+      cancelled = true
+    }
   }, [listMonths, data]) // data 変更時にも再取得（インポート後に反映）
 
   const isSettingsOpen = showSettings || showSettingsExternal
@@ -351,22 +464,26 @@ export function DataManagementSidebar({
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
   const hasNonBudgetData = detectedMaxDay > 0
-  const currentEndDay = settings.dataEndDay != null
-    ? Math.min(settings.dataEndDay, daysInMonth)
-    : daysInMonth
+  const currentEndDay =
+    settings.dataEndDay != null ? Math.min(settings.dataEndDay, daysInMonth) : daysInMonth
 
   // スライダー操作時にローカル状態で即座にUIを更新し、
   // 実際の設定更新はデバウンスして高速操作時の計算連発を防止
   const [localEndDay, setLocalEndDay] = useState(currentEndDay)
   const sliderTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  useEffect(() => { setLocalEndDay(currentEndDay) }, [currentEndDay])
-  const debouncedUpdateEndDay = useCallback((v: number) => {
-    setLocalEndDay(v)
-    clearTimeout(sliderTimerRef.current)
-    sliderTimerRef.current = setTimeout(() => {
-      updateSettings({ dataEndDay: v === daysInMonth ? null : v })
-    }, 150)
-  }, [updateSettings, daysInMonth])
+  useEffect(() => {
+    setLocalEndDay(currentEndDay)
+  }, [currentEndDay])
+  const debouncedUpdateEndDay = useCallback(
+    (v: number) => {
+      setLocalEndDay(v)
+      clearTimeout(sliderTimerRef.current)
+      sliderTimerRef.current = setTimeout(() => {
+        updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+      }, 150)
+    },
+    [updateSettings, daysInMonth],
+  )
   // クリーンアップ
   useEffect(() => () => clearTimeout(sliderTimerRef.current), [])
 
@@ -382,9 +499,11 @@ export function DataManagementSidebar({
       if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')
       if (data.categoryTimeSales?.records?.length > 0) types.add('categoryTimeSales')
       if (data.flowers && Object.keys(data.flowers).length > 0) types.add('flowers')
-      if (data.directProduce && Object.keys(data.directProduce).length > 0) types.add('directProduce')
+      if (data.directProduce && Object.keys(data.directProduce).length > 0)
+        types.add('directProduce')
       if (data.interStoreIn && Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')
-      if (data.interStoreOut && Object.keys(data.interStoreOut).length > 0) types.add('interStoreOut')
+      if (data.interStoreOut && Object.keys(data.interStoreOut).length > 0)
+        types.add('interStoreOut')
     } catch {
       // データ構造不整合時は空のセットを返す
     }
@@ -463,22 +582,32 @@ export function DataManagementSidebar({
               />
             ))}
           </UploadGrid>
+          <PrivacyInfoBox>
+            <PrivacyDot />
+            ローカル保存 | サーバー送信なし
+          </PrivacyInfoBox>
         </SidebarSection>
+
+        <TemplateSectionCollapsible />
 
         {hasNonBudgetData && (
           <SidebarSection>
             <SectionLabel>取込データ有効期間</SectionLabel>
             <SliderSection>
               <SliderHeader>
-                <SliderLabel>{localEndDay}日 / {daysInMonth}日</SliderLabel>
-                {detectedMaxDay > 0 && (
-                  <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>
-                )}
+                <SliderLabel>
+                  {localEndDay}日 / {daysInMonth}日
+                </SliderLabel>
+                {detectedMaxDay > 0 && <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>}
                 {localEndDay !== detectedMaxDay && detectedMaxDay > 0 && (
-                  <SliderResetBtn onClick={() => {
-                    clearTimeout(sliderTimerRef.current)
-                    updateSettings({ dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay })
-                  }}>
+                  <SliderResetBtn
+                    onClick={() => {
+                      clearTimeout(sliderTimerRef.current)
+                      updateSettings({
+                        dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay,
+                      })
+                    }}
+                  >
                     リセット
                   </SliderResetBtn>
                 )}
@@ -518,10 +647,7 @@ export function DataManagementSidebar({
           <SidebarSection>
             <SectionLabel>店舗選択（複数可）</SectionLabel>
             <ChipGroup>
-              <Chip
-                $active={selectedStoreIds.size === 0}
-                onClick={selectAllStores}
-              >
+              <Chip $active={selectedStoreIds.size === 0} onClick={selectAllStores}>
                 全店
               </Chip>
               {Array.from(stores.values()).map((s) => (
@@ -604,22 +730,12 @@ export function DataManagementSidebar({
       </Sidebar>
 
       {isSettingsOpen && (
-        <SettingsModal
-          settings={settings}
-          onSave={updateSettings}
-          onClose={closeSettings}
-        />
+        <SettingsModal settings={settings} onSave={updateSettings} onClose={closeSettings} />
       )}
       {pendingDiff ? (
-        <DiffConfirmModal
-          diffResult={pendingDiff.diffResult}
-          onConfirm={handleDiffConfirm}
-        />
+        <DiffConfirmModal diffResult={pendingDiff.diffResult} onConfirm={handleDiffConfirm} />
       ) : showValidation && validationMessages.length > 0 ? (
-        <ValidationModal
-          messages={validationMessages}
-          onClose={() => setShowValidation(false)}
-        />
+        <ValidationModal messages={validationMessages} onClose={() => setShowValidation(false)} />
       ) : null}
     </>
   )

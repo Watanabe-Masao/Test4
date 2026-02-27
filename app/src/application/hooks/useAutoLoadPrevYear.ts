@@ -2,7 +2,12 @@ import { useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../context/AppStateContext'
 import { useRepository } from '../context/RepositoryContext'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import type { ClassifiedSalesData, ClassifiedSalesRecord, CategoryTimeSalesData, CategoryTimeSalesRecord } from '@/domain/models'
+import type {
+  ClassifiedSalesData,
+  ClassifiedSalesRecord,
+  CategoryTimeSalesData,
+  CategoryTimeSalesRecord,
+} from '@/domain/models'
 
 /**
  * 前年自動同期日数。
@@ -13,7 +18,11 @@ import type { ClassifiedSalesData, ClassifiedSalesRecord, CategoryTimeSalesData,
 export const OVERFLOW_DAYS = 6
 
 /** 隣接月の年月を算出する */
-export function adjacentMonth(year: number, month: number, delta: 1 | -1): { year: number; month: number } {
+export function adjacentMonth(
+  year: number,
+  month: number,
+  delta: 1 | -1,
+): { year: number; month: number } {
   if (delta === 1) {
     return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 }
   }
@@ -31,7 +40,9 @@ export function adjacentMonth(year: number, month: number, delta: 1 | -1): { yea
  *
  * @typeParam T ClassifiedSalesRecord | CategoryTimeSalesRecord
  */
-export function mergeAdjacentMonthRecords<T extends { readonly day: number; readonly year: number; readonly month: number }>(
+export function mergeAdjacentMonthRecords<
+  T extends { readonly day: number; readonly year: number; readonly month: number },
+>(
   sourceRecords: readonly T[],
   prevMonthRecords: readonly T[] | null | undefined,
   nextMonthRecords: readonly T[] | null | undefined,
@@ -103,10 +114,15 @@ export function useAutoLoadPrevYear(): void {
   // ソース年月（オーバーライドまたは自動）
   const rawSourceYear = state.settings.prevYearSourceYear
   const rawSourceMonth = state.settings.prevYearSourceMonth
-  const sourceYear = (typeof rawSourceYear === 'number' && !isNaN(rawSourceYear))
-    ? rawSourceYear : (targetYear - 1)
-  const sourceMonth = (typeof rawSourceMonth === 'number' && !isNaN(rawSourceMonth) && rawSourceMonth >= 1 && rawSourceMonth <= 12)
-    ? rawSourceMonth : targetMonth
+  const sourceYear =
+    typeof rawSourceYear === 'number' && !isNaN(rawSourceYear) ? rawSourceYear : targetYear - 1
+  const sourceMonth =
+    typeof rawSourceMonth === 'number' &&
+    !isNaN(rawSourceMonth) &&
+    rawSourceMonth >= 1 &&
+    rawSourceMonth <= 12
+      ? rawSourceMonth
+      : targetMonth
 
   useEffect(() => {
     if (hasPrevYearData || !hasCurrentData) return
@@ -119,23 +135,47 @@ export function useAutoLoadPrevYear(): void {
     ;(async () => {
       try {
         // ソース年月の分類別売上データをロード
-        const prevCS = await repo.loadDataSlice<ClassifiedSalesData>(sourceYear, sourceMonth, 'classifiedSales')
+        const prevCS = await repo.loadDataSlice<ClassifiedSalesData>(
+          sourceYear,
+          sourceMonth,
+          'classifiedSales',
+        )
         if (cancelled || !prevCS || prevCS.records.length === 0) return
 
         // ソース年月の分類別時間帯売上をロード
-        const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales')
+        const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
+          sourceYear,
+          sourceMonth,
+          'categoryTimeSales',
+        )
         if (cancelled) return
 
         // ソース前月（underflow 用）
-        const prevPrevCS = await repo.loadDataSlice<ClassifiedSalesData>(prev.year, prev.month, 'classifiedSales')
+        const prevPrevCS = await repo.loadDataSlice<ClassifiedSalesData>(
+          prev.year,
+          prev.month,
+          'classifiedSales',
+        )
         if (cancelled) return
-        const prevPrevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(prev.year, prev.month, 'categoryTimeSales')
+        const prevPrevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
+          prev.year,
+          prev.month,
+          'categoryTimeSales',
+        )
         if (cancelled) return
 
         // ソース翌月（overflow 用）
-        const prevNextCS = await repo.loadDataSlice<ClassifiedSalesData>(next.year, next.month, 'classifiedSales')
+        const prevNextCS = await repo.loadDataSlice<ClassifiedSalesData>(
+          next.year,
+          next.month,
+          'classifiedSales',
+        )
         if (cancelled) return
-        const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(next.year, next.month, 'categoryTimeSales')
+        const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
+          next.year,
+          next.month,
+          'categoryTimeSales',
+        )
         if (cancelled) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
@@ -177,6 +217,8 @@ export function useAutoLoadPrevYear(): void {
       }
     })()
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, dispatch, repo])
 }

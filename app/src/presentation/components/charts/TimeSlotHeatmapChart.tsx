@@ -4,7 +4,14 @@ import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from 
 import { calculateZScores } from '@/domain/calculations'
 import { toPct } from './chartTheme'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { usePeriodFilter, PeriodFilterBar, useHierarchyDropdown, HierarchyDropdowns, computeDivisor, filterByStore } from './PeriodFilter'
+import {
+  usePeriodFilter,
+  PeriodFilterBar,
+  useHierarchyDropdown,
+  HierarchyDropdowns,
+  computeDivisor,
+  filterByStore,
+} from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
 
 const Wrapper = styled.div`
@@ -13,7 +20,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -35,7 +43,8 @@ const Title = styled.div`
 const TabGroup = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -47,16 +56,19 @@ const Tab = styled.button<{ $active: boolean }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const EmptyFilterMsg = styled.div`
-  text-align: center; padding: 40px 16px;
-  font-size: 0.75rem; color: ${({ theme }) => theme.colors.text3};
+  text-align: center;
+  padding: 40px 16px;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 const HeatGrid = styled.div`
   display: grid;
@@ -94,7 +106,8 @@ const HeatCell = styled.div<{ $intensity: number; $hasData: boolean; $anomaly?: 
   justify-content: center;
   font-size: 0.55rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $intensity }) => $intensity > 0.6 ? '#fff' : $intensity > 0.3 ? '#e5e7eb' : '#9ca3af'};
+  color: ${({ $intensity }) =>
+    $intensity > 0.6 ? '#fff' : $intensity > 0.3 ? '#e5e7eb' : '#9ca3af'};
   background: ${({ $intensity, $hasData }) => {
     if (!$hasData) return 'transparent'
     if ($intensity <= 0) return 'rgba(100,100,100,0.1)'
@@ -103,11 +116,14 @@ const HeatCell = styled.div<{ $intensity: number; $hasData: boolean; $anomaly?: 
     const b = Math.round(241 - 241 * Math.pow($intensity, 1.5) + 68 * Math.pow($intensity, 1.5))
     return `rgba(${r},${g},${b},${0.3 + $intensity * 0.65})`
   }};
-  outline: ${({ $anomaly }) => $anomaly ? '2px solid rgba(239,68,68,0.85)' : 'none'};
+  outline: ${({ $anomaly }) => ($anomaly ? '2px solid rgba(239,68,68,0.85)' : 'none')};
   outline-offset: -1px;
   cursor: default;
   transition: transform 0.1s;
-  &:hover { transform: scale(1.1); z-index: 1; }
+  &:hover {
+    transform: scale(1.1);
+    z-index: 1;
+  }
 `
 
 /** 前年比用セル: 緑(+) / 赤(-) のグラデーション */
@@ -121,7 +137,7 @@ const DiffCell = styled.div<{ $ratio: number; $hasData: boolean }>`
   justify-content: center;
   font-size: 0.5rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $ratio }) => Math.abs($ratio) > 0.15 ? '#fff' : '#9ca3af'};
+  color: ${({ $ratio }) => (Math.abs($ratio) > 0.15 ? '#fff' : '#9ca3af')};
   background: ${({ $ratio, $hasData }) => {
     if (!$hasData) return 'transparent'
     if ($ratio === 0) return 'rgba(100,100,100,0.1)'
@@ -134,7 +150,10 @@ const DiffCell = styled.div<{ $ratio: number; $hasData: boolean }>`
   }};
   cursor: default;
   transition: transform 0.1s;
-  &:hover { transform: scale(1.1); z-index: 1; }
+  &:hover {
+    transform: scale(1.1);
+    z-index: 1;
+  }
 `
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
@@ -185,7 +204,10 @@ function buildHourDowMatrix(
 ) {
   const map = new Map<number, Map<number, number>>()
   const hourSet = new Set<number>()
-  const storeFiltered = filterByStore(hf.applyFilter(filterByHierarchy(records, filter)), selectedStoreIds)
+  const storeFiltered = filterByStore(
+    hf.applyFilter(filterByHierarchy(records, filter)),
+    selectedStoreIds,
+  )
 
   // 実データから曜日ごとの distinct day をカウント（データ駆動型除数）
   const dowDaySet = new Map<number, Set<number>>() // dow -> Set<day>
@@ -211,9 +233,7 @@ function buildHourDowMatrix(
       const raw = map.get(h)?.get(dow) ?? 0
       // dowAvg: 曜日ごとの実データ日数を除数とする
       // dailyAvg/total: 全体の distinct day 数を除数とする（computeDivisor が total→1 を保証）
-      const dayCount = pf.mode === 'dowAvg'
-        ? (dowDaySet.get(dow)?.size ?? 0)
-        : allDays.size
+      const dayCount = pf.mode === 'dowAvg' ? (dowDaySet.get(dow)?.size ?? 0) : allDays.size
       return Math.round(raw / computeDivisor(dayCount, pf.mode))
     })
   })
@@ -233,18 +253,34 @@ interface Props {
 }
 
 /** 時間帯×曜日 売上ヒートマップ（前年比較モード対応） */
-export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds, year, month, daysInMonth, dataMaxDay }: Props) {
+export function TimeSlotHeatmapChart({
+  ctsIndex,
+  prevCtsIndex,
+  selectedStoreIds,
+  year,
+  month,
+  daysInMonth,
+  dataMaxDay,
+}: Props) {
   const { filter } = useCategoryHierarchy()
   const [compMode, setCompMode] = useState<'yoy' | 'wow'>('yoy')
   const pf = usePeriodFilter(daysInMonth, year, month, dataMaxDay)
 
-  const sliderDateRange: DateRange = useMemo(() => ({
-    from: { year, month, day: pf.dayRange[0] },
-    to: { year, month, day: pf.dayRange[1] },
-  }), [year, month, pf.dayRange])
+  const sliderDateRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day: pf.dayRange[0] },
+      to: { year, month, day: pf.dayRange[1] },
+    }),
+    [year, month, pf.dayRange],
+  )
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
   const periodRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: sliderDateRange, storeIds: selectedStoreIds, dow: dowFilter }),
+    () =>
+      queryByDateRange(ctsIndex, {
+        dateRange: sliderDateRange,
+        storeIds: selectedStoreIds,
+        dow: dowFilter,
+      }),
     [ctsIndex, sliderDateRange, selectedStoreIds, dowFilter],
   )
 
@@ -253,7 +289,7 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
   const wowPrevEnd = pf.dayRange[1] - 7
   const canWoW = wowPrevStart >= 1
   // canWoW が false なら yoy にフォールバック（派生状態）
-  const activeCompMode = compMode === 'wow' && !canWoW ? 'yoy' as const : compMode
+  const activeCompMode = compMode === 'wow' && !canWoW ? ('yoy' as const) : compMode
 
   // 比較期間レコード（前年比 or 前週比で切替）
   const prevPeriodRecords = useMemo(() => {
@@ -277,7 +313,18 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
       })
     }
     return recs
-  }, [activeCompMode, ctsIndex, prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, wowPrevStart, wowPrevEnd, dowFilter])
+  }, [
+    activeCompMode,
+    ctsIndex,
+    prevCtsIndex,
+    selectedStoreIds,
+    year,
+    month,
+    pf.dayRange,
+    wowPrevStart,
+    wowPrevEnd,
+    dowFilter,
+  ])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
@@ -292,14 +339,11 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
     [prevPeriodRecords],
   )
   // 前年と重複する日のみの当年レコード（前年比の分母分子を揃える）
-  const comparablePeriodRecords = useMemo(
-    () => {
-      if (!hasPrevYear) return periodRecords
-      if (activeCompMode === 'wow') return periodRecords // WoW: both periods same coverage
-      return periodRecords.filter((r) => prevDaySet.has(r.day))
-    },
-    [periodRecords, prevDaySet, hasPrevYear, activeCompMode],
-  )
+  const comparablePeriodRecords = useMemo(() => {
+    if (!hasPrevYear) return periodRecords
+    if (activeCompMode === 'wow') return periodRecords // WoW: both periods same coverage
+    return periodRecords.filter((r) => prevDaySet.has(r.day))
+  }, [periodRecords, prevDaySet, hasPrevYear, activeCompMode])
 
   const curData = useMemo(
     () => buildHourDowMatrix(periodRecords, selectedStoreIds, filter, hf, year, month, pf),
@@ -308,12 +352,18 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
 
   // 前年比較用: 重複日のみで当年マトリックスを構築
   const comparableCurData = useMemo(
-    () => hasPrevYear ? buildHourDowMatrix(comparablePeriodRecords, selectedStoreIds, filter, hf, year, month, pf) : curData,
+    () =>
+      hasPrevYear
+        ? buildHourDowMatrix(comparablePeriodRecords, selectedStoreIds, filter, hf, year, month, pf)
+        : curData,
     [comparablePeriodRecords, selectedStoreIds, year, month, filter, pf, hf, hasPrevYear, curData],
   )
 
   const prevData = useMemo(
-    () => hasPrevYear ? buildHourDowMatrix(prevPeriodRecords, selectedStoreIds, filter, hf, year, month, pf) : null,
+    () =>
+      hasPrevYear
+        ? buildHourDowMatrix(prevPeriodRecords, selectedStoreIds, filter, hf, year, month, pf)
+        : null,
     [prevPeriodRecords, selectedStoreIds, year, month, filter, pf, hf, hasPrevYear],
   )
 
@@ -347,35 +397,54 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
     return result
   }, [curData])
 
-  if (curData.hours.length === 0) return (
-    <Wrapper>
-      <HeaderRow><Title>時間帯×曜日 売上ヒートマップ</Title></HeaderRow>
-      <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
-      <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
-      <HierarchyDropdowns hf={hf} />
-    </Wrapper>
-  )
+  if (curData.hours.length === 0)
+    return (
+      <Wrapper>
+        <HeaderRow>
+          <Title>時間帯×曜日 売上ヒートマップ</Title>
+        </HeaderRow>
+        <EmptyFilterMsg>選択した絞り込み条件に該当するデータがありません</EmptyFilterMsg>
+        <PeriodFilterBar pf={pf} daysInMonth={daysInMonth} />
+        <HierarchyDropdowns hf={hf} />
+      </Wrapper>
+    )
 
-  const modeLabel = pf.mode === 'dowAvg' ? '（曜日別平均）' : pf.mode === 'dailyAvg' ? '（日平均）' : ''
+  const modeLabel =
+    pf.mode === 'dowAvg' ? '（曜日別平均）' : pf.mode === 'dailyAvg' ? '（日平均）' : ''
   const showDiff = heatmapMode === 'yoyDiff' && diffMatrix
 
   return (
     <Wrapper>
       <HeaderRow>
         <Title>
-          時間帯×曜日 {showDiff ? `${prevLbl}比増減` : '売上ヒートマップ'}{modeLabel}
+          時間帯×曜日 {showDiff ? `${prevLbl}比増減` : '売上ヒートマップ'}
+          {modeLabel}
         </Title>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {hasPrevYear && (
             <TabGroup>
-              <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>前年比</Tab>
-              <Tab $active={compMode === 'wow'} onClick={() => { if (canWoW) setCompMode('wow') }} style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}>前週比</Tab>
+              <Tab $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
+                前年比
+              </Tab>
+              <Tab
+                $active={compMode === 'wow'}
+                onClick={() => {
+                  if (canWoW) setCompMode('wow')
+                }}
+                style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+              >
+                前週比
+              </Tab>
             </TabGroup>
           )}
           {hasPrevYear && (
             <TabGroup>
-              <Tab $active={heatmapMode === 'amount'} onClick={() => setHeatmapMode('amount')}>売上</Tab>
-              <Tab $active={heatmapMode === 'yoyDiff'} onClick={() => setHeatmapMode('yoyDiff')}>{prevLbl}比</Tab>
+              <Tab $active={heatmapMode === 'amount'} onClick={() => setHeatmapMode('amount')}>
+                売上
+              </Tab>
+              <Tab $active={heatmapMode === 'yoyDiff'} onClick={() => setHeatmapMode('yoyDiff')}>
+                {prevLbl}比
+              </Tab>
             </TabGroup>
           )}
         </div>
@@ -384,7 +453,9 @@ export function TimeSlotHeatmapChart({ ctsIndex, prevCtsIndex, selectedStoreIds,
       <HeatGrid style={{ gridTemplateColumns: `50px repeat(${DOW_LABELS.length}, 1fr)` }}>
         {/* Header row */}
         <HeaderCell />
-        {DOW_LABELS.map((d) => <HeaderCell key={d}>{d}</HeaderCell>)}
+        {DOW_LABELS.map((d) => (
+          <HeaderCell key={d}>{d}</HeaderCell>
+        ))}
 
         {/* Data rows */}
         {curData.hours.map((h, hi) => (

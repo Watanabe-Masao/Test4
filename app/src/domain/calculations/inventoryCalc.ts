@@ -1,5 +1,6 @@
 import type { DailyRecord } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
+import { safeDivide } from './utils'
 
 export interface InventoryPoint {
   readonly day: number
@@ -51,7 +52,12 @@ export function computeEstimatedInventory(
   discountRate: number,
 ): InventoryPoint[] {
   const details = computeEstimatedInventoryDetails(
-    daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate,
+    daily,
+    daysInMonth,
+    openingInventory,
+    closingInventory,
+    markupRate,
+    discountRate,
   )
   return details.map(({ day, estimated, actual }) => ({ day, estimated, actual }))
 }
@@ -92,7 +98,7 @@ export function computeEstimatedInventoryDetails(
       coreSales = rec.sales - rec.flowers.price - rec.directProduce.price
 
       // 粗売上 = コア売上 / (1 − 売変率)
-      grossSales = divisor > 0 ? coreSales / divisor : coreSales
+      grossSales = safeDivide(coreSales, divisor, coreSales)
 
       // 在庫仕入原価 = 総仕入原価 − 売上納品原価
       inventoryCost = getDailyTotalCost(rec) - rec.deliverySales.cost
@@ -109,7 +115,7 @@ export function computeEstimatedInventoryDetails(
 
     // 推定在庫 = 期首在庫 + 累計在庫仕入原価 − 累計推定原価
     const estimated = openingInventory + cumInventoryCost - cumEstCogs
-    const actual = (d === daysInMonth && closingInventory != null) ? closingInventory : null
+    const actual = d === daysInMonth && closingInventory != null ? closingInventory : null
 
     result.push({
       day: d,

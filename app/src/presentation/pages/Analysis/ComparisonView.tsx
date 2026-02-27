@@ -1,5 +1,9 @@
 import { Card, CardTitle } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  getEffectiveGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 
@@ -7,7 +11,7 @@ import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 export function ComparisonView({ results }: { results: StoreResult[] }) {
   const storeAnalyses = results.map((r) => {
     const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
-    const actualGrossProfitRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
+    const actualGrossProfitRate = getEffectiveGrossProfitRate(r)
     return { r, actualGrossProfit, actualGrossProfitRate }
   })
 

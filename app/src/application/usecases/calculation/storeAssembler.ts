@@ -72,11 +72,13 @@ export function assembleStoreResult(
     acc.transferTotals.interDepartmentIn.cost +
     acc.transferTotals.interDepartmentOut.cost
 
-  const allPurchasePrice = acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
-  const allPurchaseCost = acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
+  const allPurchasePrice =
+    acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
+  const allPurchaseCost =
+    acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
   const coreMarkupRate = safeDivide(
-    (acc.totalPurchasePrice + transferPrice) - (acc.totalPurchaseCost + transferCost),
+    acc.totalPurchasePrice + transferPrice - (acc.totalPurchaseCost + transferCost),
     acc.totalPurchasePrice + transferPrice,
     settings.defaultMarkupRate,
   )
@@ -110,11 +112,25 @@ export function assembleStoreResult(
   const consumableRate = safeDivide(acc.totalConsumable, acc.totalSales, 0)
 
   // カテゴリ集計
-  addToCategory(acc.categoryTotals, 'flowers', { cost: acc.totalFlowerCost, price: acc.totalFlowerPrice })
-  addToCategory(acc.categoryTotals, 'directProduce', { cost: acc.totalDirectProduceCost, price: acc.totalDirectProducePrice })
+  addToCategory(acc.categoryTotals, 'flowers', {
+    cost: acc.totalFlowerCost,
+    price: acc.totalFlowerPrice,
+  })
+  addToCategory(acc.categoryTotals, 'directProduce', {
+    cost: acc.totalDirectProduceCost,
+    price: acc.totalDirectProducePrice,
+  })
   addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalConsumable, price: 0 })
-  addToCategory(acc.categoryTotals, 'interStore', addCostPricePairs(acc.transferTotals.interStoreIn, acc.transferTotals.interStoreOut))
-  addToCategory(acc.categoryTotals, 'interDepartment', addCostPricePairs(acc.transferTotals.interDepartmentIn, acc.transferTotals.interDepartmentOut))
+  addToCategory(
+    acc.categoryTotals,
+    'interStore',
+    addCostPricePairs(acc.transferTotals.interStoreIn, acc.transferTotals.interStoreOut),
+  )
+  addToCategory(
+    acc.categoryTotals,
+    'interDepartment',
+    addCostPricePairs(acc.transferTotals.interDepartmentIn, acc.transferTotals.interDepartmentOut),
+  )
 
   // 移動詳細
   const transferDetails: TransferDetails = {

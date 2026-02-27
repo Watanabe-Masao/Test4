@@ -1,5 +1,11 @@
 import styled from 'styled-components'
-import { DataTableWrapper, DataTable, DataTh, DataTd, DataTr } from '@/presentation/components/common'
+import {
+  DataTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+  DataTr,
+} from '@/presentation/components/common'
 
 /* ─── Layout ────────────────────────────────────────── */
 
@@ -13,8 +19,10 @@ export const TabBar = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
   border: none;
-  border-bottom: 2px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) => ($active ? `${theme.colors.palette.primary}10` : 'transparent')};
+  border-bottom: 2px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -176,8 +184,13 @@ export const ColorInput = styled.input`
   padding: 1px;
   cursor: pointer;
   background: transparent;
-  &::-webkit-color-swatch-wrapper { padding: 0; }
-  &::-webkit-color-swatch { border: none; border-radius: 2px; }
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+  }
 `
 
 export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
@@ -195,18 +208,25 @@ export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
 /* ─── Forecast Table (週別サマリー) ─────────────────── */
 
 export const FcTr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const FcTd = styled.td<{ $highlight?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $highlight, theme }) => $highlight ? theme.colors.palette.warning : theme.colors.text};
-  font-weight: ${({ $highlight, theme }) => $highlight ? theme.typography.fontWeight.bold : 'normal'};
+  color: ${({ $highlight, theme }) =>
+    $highlight ? theme.colors.palette.warning : theme.colors.text};
+  font-weight: ${({ $highlight, theme }) =>
+    $highlight ? theme.typography.fontWeight.bold : 'normal'};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  &:first-child { text-align: center; color: ${({ theme }) => theme.colors.text2}; }
+  &:first-child {
+    text-align: center;
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 export const FcTh = styled.th`
@@ -219,7 +239,9 @@ export const FcTh = styled.th`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: center; }
+  &:first-child {
+    text-align: center;
+  }
 `
 
 export const FcTableWrapper = styled.div`
@@ -238,5 +260,7 @@ export const FcTable = styled.table`
 export const FcTrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  td { font-weight: ${({ theme }) => theme.typography.fontWeight.bold}; }
+  td {
+    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  }
 `

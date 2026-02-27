@@ -24,7 +24,19 @@ const DAYS_IN_MONTH = getDaysInMonth(DEFAULT_SETTINGS.targetYear, DEFAULT_SETTIN
  */
 function generateClassifiedSalesRows(storeCount: number, days: number): unknown[][] {
   // Row 0: Header
-  const headerRow = ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変']
+  const headerRow = [
+    '日付',
+    '店舗名称',
+    'グループ名称',
+    '部門名称',
+    'ライン名称',
+    'クラス名称',
+    '販売金額',
+    '71売変',
+    '72売変',
+    '73売変',
+    '74売変',
+  ]
 
   const { targetYear, targetMonth } = DEFAULT_SETTINGS
   const dataRows: unknown[][] = []
@@ -35,7 +47,19 @@ function generateClassifiedSalesRows(storeCount: number, days: number): unknown[
       const code = String(s).padStart(4, '0')
       const baseSales = 30000 + Math.floor(Math.random() * 20000) * s
       const baseDiscount = Math.floor(baseSales * 0.03)
-      dataRows.push([dayStr, `${code}:店舗${code}`, 'G1', 'D1', 'L1', 'C1', baseSales, baseDiscount, 0, 0, 0])
+      dataRows.push([
+        dayStr,
+        `${code}:店舗${code}`,
+        'G1',
+        'D1',
+        'L1',
+        'C1',
+        baseSales,
+        baseDiscount,
+        0,
+        0,
+        0,
+      ])
     }
   }
 
@@ -137,7 +161,13 @@ describe('Performance Benchmark', () => {
 
     // Step 2: Import classifiedSales data
     const csRows = generateClassifiedSalesRows(storeCount, DAYS_IN_MONTH)
-    ;({ data } = processFileData('classifiedSales', csRows, '1_分類別売上.xlsx', data, DEFAULT_SETTINGS))
+    ;({ data } = processFileData(
+      'classifiedSales',
+      csRows,
+      '1_分類別売上.xlsx',
+      data,
+      DEFAULT_SETTINGS,
+    ))
 
     expect(data.stores.size).toBe(storeCount)
 

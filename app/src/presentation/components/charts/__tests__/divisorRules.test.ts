@@ -86,8 +86,8 @@ describe('RULE-1: computeDivisor 経由の強制', () => {
         expect(
           violatingLines,
           `${file} にインライン除数パターンを検出:\n` +
-          violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
-          '\n→ computeDivisor() を使用してください',
+            violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+            '\n→ computeDivisor() を使用してください',
         ).toHaveLength(0)
       }
     })
@@ -96,11 +96,12 @@ describe('RULE-1: computeDivisor 経由の強制', () => {
   it('全チャートが computeDivisor を import していること', () => {
     for (const file of CHART_FILES_USING_PERIOD_FILTER) {
       const content = readChartFile(file)
-      const hasImport = /import\s+\{[^}]*computeDivisor[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+      const hasImport =
+        /import\s+\{[^}]*computeDivisor[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
       expect(
         hasImport,
         `${file} が computeDivisor を import していません。\n` +
-        '→ import { ..., computeDivisor } from \'./PeriodFilter\' を追加してください',
+          "→ import { ..., computeDivisor } from './PeriodFilter' を追加してください",
       ).toBe(true)
     }
   })
@@ -124,8 +125,8 @@ describe('RULE-2: レガシー API 使用禁止', () => {
       expect(
         violations,
         `${filename} に pf.divisor の使用を検出:\n` +
-        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
-        '\n→ computeDivisor(countDistinctDays(records), mode) を使用してください',
+          violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+          '\n→ computeDivisor(countDistinctDays(records), mode) を使用してください',
       ).toHaveLength(0)
     }
   })
@@ -141,8 +142,8 @@ describe('RULE-2: レガシー API 使用禁止', () => {
       expect(
         violations,
         `${filename} に divideByMode() の使用を検出:\n` +
-        violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
-        '\n→ Math.round(value / computeDivisor(...)) を使用してください',
+          violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+          '\n→ Math.round(value / computeDivisor(...)) を使用してください',
       ).toHaveLength(0)
     }
   })
@@ -157,8 +158,8 @@ describe('RULE-3: カレンダーベース除数の使用禁止', () => {
       expect(
         hasCountDowImport,
         `${filename} が countDowInRange を import しています。\n` +
-        '→ 除数算出には computeDivisor / computeDowDivisorMap を使用してください。\n' +
-        '   countDowInRange はカレンダーベースのレガシー関数です。',
+          '→ 除数算出には computeDivisor / computeDowDivisorMap を使用してください。\n' +
+          '   countDowInRange はカレンダーベースのレガシー関数です。',
       ).toBe(false)
     }
   })
@@ -186,8 +187,8 @@ describe('RULE-4: 二重 0除算ガード禁止', () => {
         expect(
           match,
           `${file} に computeDivisor への二重 0除算ガードを検出:\n` +
-          `  "${match?.[0]}"\n` +
-          '→ computeDivisor は常に >= 1 を返すため、追加ガードは不要です',
+            `  "${match?.[0]}"\n` +
+            '→ computeDivisor は常に >= 1 を返すため、追加ガードは不要です',
         ).toBeNull()
       }
     })
@@ -216,8 +217,9 @@ describe('RULE-5: filterByStore 経由の強制', () => {
   /** 店舗間比較チャートは店舗フィルタの対象外 */
   const STORE_FILTER_EXEMPT = ['StoreTimeSlotComparisonChart.tsx']
 
-  const targetFiles = CHART_FILES_USING_PERIOD_FILTER
-    .filter((f) => !STORE_FILTER_EXEMPT.includes(f))
+  const targetFiles = CHART_FILES_USING_PERIOD_FILTER.filter(
+    (f) => !STORE_FILTER_EXEMPT.includes(f),
+  )
 
   for (const file of targetFiles) {
     it(`${file}: インライン店舗フィルタパターンが存在しないこと`, () => {
@@ -232,8 +234,8 @@ describe('RULE-5: filterByStore 経由の強制', () => {
         expect(
           violatingLines,
           `${file} にインライン店舗フィルタパターンを検出:\n` +
-          violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
-          '\n→ filterByStore(records, selectedStoreIds) を使用してください',
+            violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+            '\n→ filterByStore(records, selectedStoreIds) を使用してください',
         ).toHaveLength(0)
       }
     })
@@ -242,11 +244,12 @@ describe('RULE-5: filterByStore 経由の強制', () => {
   it('店舗フィルタ対象チャートが filterByStore を import していること', () => {
     for (const file of targetFiles) {
       const content = readChartFile(file)
-      const hasImport = /import\s+\{[^}]*filterByStore[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+      const hasImport =
+        /import\s+\{[^}]*filterByStore[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
       expect(
         hasImport,
         `${file} が filterByStore を import していません。\n` +
-        '→ import { ..., filterByStore } from \'./PeriodFilter\' を追加してください',
+          "→ import { ..., filterByStore } from './PeriodFilter' を追加してください",
       ).toBe(true)
     }
   })
@@ -280,8 +283,8 @@ describe('RULE-6: 計算変数の一元管理', () => {
         expect(
           violatingLines,
           `${filename} に手動日数カウントパターンを検出:\n` +
-          violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
-          '\n→ countDistinctDays(records) を使用してください',
+            violatingLines.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+            '\n→ countDistinctDays(records) を使用してください',
         ).toHaveLength(0)
       }
     }
@@ -292,11 +295,12 @@ describe('RULE-6: 計算変数の一元管理', () => {
       // countDistinctDays を呼び出しているファイルは import しているはず
       const usesFunction = /countDistinctDays\s*\(/.test(content)
       if (usesFunction) {
-        const hasImport = /import\s+\{[^}]*countDistinctDays[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
+        const hasImport =
+          /import\s+\{[^}]*countDistinctDays[^}]*\}\s+from\s+['"]\.\/PeriodFilter['"]/.test(content)
         expect(
           hasImport,
           `${filename} が countDistinctDays を使用していますが import していません。\n` +
-          '→ import { ..., countDistinctDays } from \'./PeriodFilter\' を追加してください',
+            "→ import { ..., countDistinctDays } from './PeriodFilter' を追加してください",
         ).toBe(true)
       }
     }
@@ -308,14 +312,19 @@ describe('RULE-6: 計算変数の一元管理', () => {
 describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
   it('usePeriodFilter を使用する全ファイルが CHART_FILES_USING_PERIOD_FILTER に登録されている', () => {
     // charts ディレクトリの全 .tsx ファイルを走査
-    const allFiles = fs.readdirSync(CHARTS_DIR)
+    const allFiles = fs
+      .readdirSync(CHARTS_DIR)
       .filter((f) => f.endsWith('.tsx') && f !== PERIOD_FILTER_FILE)
 
     const unregistered: string[] = []
     for (const file of allFiles) {
       const content = fs.readFileSync(path.join(CHARTS_DIR, file), 'utf-8')
       if (/usePeriodFilter/.test(content)) {
-        if (!CHART_FILES_USING_PERIOD_FILTER.includes(file as typeof CHART_FILES_USING_PERIOD_FILTER[number])) {
+        if (
+          !CHART_FILES_USING_PERIOD_FILTER.includes(
+            file as (typeof CHART_FILES_USING_PERIOD_FILTER)[number],
+          )
+        ) {
           unregistered.push(file)
         }
       }
@@ -324,10 +333,10 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
     expect(
       unregistered,
       `以下のファイルが usePeriodFilter を使用していますが、\n` +
-      `CHART_FILES_USING_PERIOD_FILTER に登録されていません:\n` +
-      unregistered.map((f) => `  - ${f}`).join('\n') +
-      '\n→ divisorRules.test.ts の CHART_FILES_USING_PERIOD_FILTER に追加してください。\n' +
-      '   除数算出は computeDivisor() を使用し、設計ルールに従ってください。',
+        `CHART_FILES_USING_PERIOD_FILTER に登録されていません:\n` +
+        unregistered.map((f) => `  - ${f}`).join('\n') +
+        '\n→ divisorRules.test.ts の CHART_FILES_USING_PERIOD_FILTER に追加してください。\n' +
+        '   除数算出は computeDivisor() を使用し、設計ルールに従ってください。',
     ).toHaveLength(0)
   })
 
@@ -337,7 +346,7 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
       expect(
         exists,
         `${file} が存在しません。ファイル名の変更・削除があった場合は\n` +
-        'CHART_FILES_USING_PERIOD_FILTER を更新してください。',
+          'CHART_FILES_USING_PERIOD_FILTER を更新してください。',
       ).toBe(true)
     }
   })
@@ -366,9 +375,7 @@ describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
 
   it('computeDivisor が total モードで常に 1 を返す実装になっていること', () => {
     // computeDivisor 関数の本体を抽出して検証
-    const funcMatch = pfContent.match(
-      /export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/,
-    )
+    const funcMatch = pfContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // "mode === 'total'" のチェックと "return 1" が含まれること
@@ -377,9 +384,7 @@ describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
   })
 
   it('computeDivisor が >= 1 保証の実装を持つこと', () => {
-    const funcMatch = pfContent.match(
-      /export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/,
-    )
+    const funcMatch = pfContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // "distinctDayCount > 0" のチェックがあること
@@ -387,9 +392,7 @@ describe('PeriodFilter.tsx: ルール定義元の健全性', () => {
   })
 
   it('filterByStore が空集合で全レコード返却する実装を持つこと', () => {
-    const funcMatch = pfContent.match(
-      /export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/,
-    )
+    const funcMatch = pfContent.match(/export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/)
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
     // size === 0 チェックと return records が含まれること

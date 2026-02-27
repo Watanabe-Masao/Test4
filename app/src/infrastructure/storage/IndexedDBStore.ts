@@ -15,6 +15,9 @@ export {
 } from './internal/monthlyDataOperations'
 export { getPersistedMeta, listStoredMonths } from './internal/metaOperations'
 export { saveImportHistory, loadImportHistory } from './internal/importHistoryOperations'
-export { saveStoreDaySummaryCache, loadStoreDaySummaryCache } from './internal/summaryCacheOperations'
+export {
+  saveStoreDaySummaryCache,
+  loadStoreDaySummaryCache,
+} from './internal/summaryCacheOperations'
 export { isIndexedDBAvailable } from './internal/dbHelpers'
 export type { PersistedMeta } from '@/domain/models'

@@ -8,8 +8,22 @@ import {
   filterDataForMonth,
 } from '@/application/usecases/import'
 import type { ImportSummary, MonthPartitions } from '@/application/usecases/import'
-import type { AppSettings, DataType, ImportedData, DiffResult, DataTypeDiff, ImportHistoryEntry, CategoryTimeSalesData, ClassifiedSalesData, DepartmentKpiData } from '@/domain/models'
-import { categoryTimeSalesRecordKey, classifiedSalesRecordKey, createEmptyImportedData } from '@/domain/models'
+import type {
+  AppSettings,
+  DataType,
+  ImportedData,
+  DiffResult,
+  DataTypeDiff,
+  ImportHistoryEntry,
+  CategoryTimeSalesData,
+  ClassifiedSalesData,
+  DepartmentKpiData,
+} from '@/domain/models'
+import {
+  categoryTimeSalesRecordKey,
+  classifiedSalesRecordKey,
+  createEmptyImportedData,
+} from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
@@ -201,7 +215,11 @@ export function useImport() {
 
               if (needsConfirmation) {
                 setPendingDiff({
-                  diffResult: { diffs: aggregatedDiffs, needsConfirmation, autoApproved: aggregatedAutoApproved },
+                  diffResult: {
+                    diffs: aggregatedDiffs,
+                    needsConfirmation,
+                    autoApproved: aggregatedAutoApproved,
+                  },
                   incomingData: data,
                   existingData: createEmptyImportedData(),
                   importedTypes,
@@ -318,7 +336,8 @@ export function useImport() {
     (action: 'overwrite' | 'keep-existing' | 'cancel') => {
       if (!pendingDiff) return
 
-      const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } = pendingDiff
+      const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } =
+        pendingDiff
 
       if (action === 'cancel') {
         setPendingDiff(null)
@@ -331,7 +350,12 @@ export function useImport() {
 
         // 主月の最終データを state に反映
         const { targetYear, targetMonth } = settingsRef.current
-        const primaryMonthData = filterDataForMonth(incomingData, targetYear, targetMonth, monthPartitions)
+        const primaryMonthData = filterDataForMonth(
+          incomingData,
+          targetYear,
+          targetMonth,
+          monthPartitions,
+        )
         const primaryExisting = existingByMonth.get(`${targetYear}-${targetMonth}`) ?? null
         const primaryFinalData = buildMonthData(primaryExisting, primaryMonthData, action)
 
@@ -388,14 +412,17 @@ export function useImport() {
         // ストレージに保存（保存完了後に履歴を記録）
         if (repo.isAvailable()) {
           const { targetYear, targetMonth } = settingsRef.current
-          repo.saveMonthlyData(finalData, targetYear, targetMonth).then(() => {
-            saveHistory(summary, targetYear, targetMonth)
-            buildAndSaveSummaryCache(finalData, targetYear, targetMonth)
-          }).catch((e) => {
-            const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
-            console.error('[useImport] save failed:', e)
-            setSaveError(msg)
-          })
+          repo
+            .saveMonthlyData(finalData, targetYear, targetMonth)
+            .then(() => {
+              saveHistory(summary, targetYear, targetMonth)
+              buildAndSaveSummaryCache(finalData, targetYear, targetMonth)
+            })
+            .catch((e) => {
+              const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
+              console.error('[useImport] save failed:', e)
+              setSaveError(msg)
+            })
         }
       }
 
@@ -448,15 +475,18 @@ function buildMonthData(
       stores: new Map([...existing.stores, ...monthData.stores]),
       suppliers: new Map([...existing.suppliers, ...monthData.suppliers]),
       purchase: { ...existing.purchase, ...monthData.purchase },
-      classifiedSales: monthData.classifiedSales.records.length > 0
-        ? monthData.classifiedSales
-        : existing.classifiedSales,
-      categoryTimeSales: monthData.categoryTimeSales.records.length > 0
-        ? monthData.categoryTimeSales
-        : existing.categoryTimeSales,
-      departmentKpi: monthData.departmentKpi.records.length > 0
-        ? monthData.departmentKpi
-        : existing.departmentKpi,
+      classifiedSales:
+        monthData.classifiedSales.records.length > 0
+          ? monthData.classifiedSales
+          : existing.classifiedSales,
+      categoryTimeSales:
+        monthData.categoryTimeSales.records.length > 0
+          ? monthData.categoryTimeSales
+          : existing.categoryTimeSales,
+      departmentKpi:
+        monthData.departmentKpi.records.length > 0
+          ? monthData.departmentKpi
+          : existing.departmentKpi,
       interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
       interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
       flowers: { ...existing.flowers, ...monthData.flowers },
@@ -521,9 +551,7 @@ function mergeCSInserts(
   if (existing.records.length === 0) return incoming
   if (incoming.records.length === 0) return existing
   const existingKeys = new Set(existing.records.map(classifiedSalesRecordKey))
-  const newRecords = incoming.records.filter(
-    (r) => !existingKeys.has(classifiedSalesRecordKey(r)),
-  )
+  const newRecords = incoming.records.filter((r) => !existingKeys.has(classifiedSalesRecordKey(r)))
   return { records: [...existing.records, ...newRecords] }
 }
 
@@ -578,20 +606,40 @@ export function mergeInsertsOnly(
 
   return {
     ...existing,
-    purchase: has('purchase') ? mergeStoreDayRecords(existing.purchase, incoming.purchase) : existing.purchase,
-    classifiedSales: has('classifiedSales') ? mergeCSInserts(existing.classifiedSales, incoming.classifiedSales) : existing.classifiedSales,
+    purchase: has('purchase')
+      ? mergeStoreDayRecords(existing.purchase, incoming.purchase)
+      : existing.purchase,
+    classifiedSales: has('classifiedSales')
+      ? mergeCSInserts(existing.classifiedSales, incoming.classifiedSales)
+      : existing.classifiedSales,
     prevYearClassifiedSales: existing.prevYearClassifiedSales,
-    interStoreIn: has('interStoreIn') ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn) : existing.interStoreIn,
-    interStoreOut: has('interStoreOut') ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut) : existing.interStoreOut,
-    flowers: has('flowers') ? mergeStoreDayRecords(existing.flowers, incoming.flowers) : existing.flowers,
-    directProduce: has('directProduce') ? mergeStoreDayRecords(existing.directProduce, incoming.directProduce) : existing.directProduce,
-    consumables: has('consumables') ? mergeStoreDayRecords(existing.consumables, incoming.consumables) : existing.consumables,
-    categoryTimeSales: has('categoryTimeSales') ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales) : existing.categoryTimeSales,
+    interStoreIn: has('interStoreIn')
+      ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn)
+      : existing.interStoreIn,
+    interStoreOut: has('interStoreOut')
+      ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut)
+      : existing.interStoreOut,
+    flowers: has('flowers')
+      ? mergeStoreDayRecords(existing.flowers, incoming.flowers)
+      : existing.flowers,
+    directProduce: has('directProduce')
+      ? mergeStoreDayRecords(existing.directProduce, incoming.directProduce)
+      : existing.directProduce,
+    consumables: has('consumables')
+      ? mergeStoreDayRecords(existing.consumables, incoming.consumables)
+      : existing.consumables,
+    categoryTimeSales: has('categoryTimeSales')
+      ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales)
+      : existing.categoryTimeSales,
     prevYearCategoryTimeSales: existing.prevYearCategoryTimeSales,
-    departmentKpi: has('departmentKpi') ? mergeDepartmentKpiInserts(existing.departmentKpi, incoming.departmentKpi) : existing.departmentKpi,
+    departmentKpi: has('departmentKpi')
+      ? mergeDepartmentKpiInserts(existing.departmentKpi, incoming.departmentKpi)
+      : existing.departmentKpi,
     stores: mergeMapInserts(existing.stores, incoming.stores),
     suppliers: mergeMapInserts(existing.suppliers, incoming.suppliers),
-    settings: has('initialSettings') ? mergeMapInserts(existing.settings, incoming.settings) : existing.settings,
+    settings: has('initialSettings')
+      ? mergeMapInserts(existing.settings, incoming.settings)
+      : existing.settings,
     budget: has('budget') ? mergeMapInserts(existing.budget, incoming.budget) : existing.budget,
   }
 }

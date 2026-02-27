@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
@@ -7,7 +8,9 @@ const Wrapper = styled.div<{ $accent?: string; $clickable?: boolean }>`
   padding: ${({ theme }) => theme.spacing[6]};
   position: relative;
   ${({ $accent }) => $accent && `border-top: 2px solid ${$accent};`}
-  ${({ $clickable, theme }) => $clickable && `
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
     cursor: pointer;
     transition: border-color ${theme.transitions.fast}, box-shadow ${theme.transitions.fast};
     &:hover {
@@ -65,8 +68,27 @@ export function KpiCard({
   accent?: string
   onClick?: () => void
 }) {
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault()
+        onClick()
+      }
+    },
+    [onClick],
+  )
+
   return (
-    <Wrapper $accent={accent} $clickable={!!onClick} onClick={onClick} title={onClick ? '算出根拠を表示' : undefined}>
+    <Wrapper
+      $accent={accent}
+      $clickable={!!onClick}
+      onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${label}: ${value} - 算出根拠を表示` : undefined}
+      title={onClick ? '算出根拠を表示' : undefined}
+    >
       {onClick && <ExplainHint data-hint>根拠</ExplainHint>}
       <Label>{label}</Label>
       <Value>{value}</Value>

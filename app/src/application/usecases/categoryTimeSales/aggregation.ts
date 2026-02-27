@@ -32,9 +32,7 @@ export interface HourlyAggregation {
  * @param records queryByDateRange 適用済みレコード
  * @returns 生の合計値（除数未適用）
  */
-export function aggregateHourly(
-  records: readonly CategoryTimeSalesRecord[],
-): HourlyAggregation {
+export function aggregateHourly(records: readonly CategoryTimeSalesRecord[]): HourlyAggregation {
   const hourly = new Map<number, { amount: number; quantity: number }>()
   let totalAmount = 0
   let totalQuantity = 0
@@ -83,14 +81,17 @@ export function aggregateByLevel(
   records: readonly CategoryTimeSalesRecord[],
   level: 'department' | 'line' | 'klass',
 ): ReadonlyMap<string, LevelAggregationEntry> {
-  const map = new Map<string, {
-    code: string
-    name: string
-    amount: number
-    quantity: number
-    hours: Map<number, number>
-    children: Set<string>
-  }>()
+  const map = new Map<
+    string,
+    {
+      code: string
+      name: string
+      amount: number
+      quantity: number
+      hours: Map<number, number>
+      children: Set<string>
+    }
+  >()
 
   for (const rec of records) {
     let key: string
@@ -126,7 +127,14 @@ export function aggregateByLevel(
       }
       const children = new Set<string>()
       if (childKey) children.add(childKey)
-      map.set(key, { code: key, name, amount: rec.totalAmount, quantity: rec.totalQuantity, hours, children })
+      map.set(key, {
+        code: key,
+        name,
+        amount: rec.totalAmount,
+        quantity: rec.totalQuantity,
+        hours,
+        children,
+      })
     }
   }
 
@@ -220,7 +228,10 @@ export interface StoreHourlyEntry {
 export function aggregateByStore(
   records: readonly CategoryTimeSalesRecord[],
 ): ReadonlyMap<string, StoreHourlyEntry> {
-  const map = new Map<string, { storeId: string; hours: Map<number, number>; totalAmount: number }>()
+  const map = new Map<
+    string,
+    { storeId: string; hours: Map<number, number>; totalAmount: number }
+  >()
 
   for (const rec of records) {
     const existing = map.get(rec.storeId)

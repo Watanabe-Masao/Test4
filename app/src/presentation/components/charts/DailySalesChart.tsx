@@ -1,11 +1,27 @@
 import { useState, useMemo } from 'react'
-import { ComposedChart, Bar, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts'
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+  ReferenceLine,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import type { DailyRecord } from '@/domain/models'
-import { safeDivide, calculateTransactionValue, calculateMovingAverage } from '@/domain/calculations'
+import {
+  safeDivide,
+  calculateTransactionValue,
+  calculateMovingAverage,
+} from '@/domain/calculations'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,7 +29,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -33,7 +50,8 @@ const Title = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -44,16 +62,17 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.primary
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.primary
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -76,13 +95,53 @@ const GroupLabel = styled.span`
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 
 /** 表示形式 */
-type ViewType = 'standard' | 'salesOnly' | 'discountOnly' | 'movingAvg' | 'area' | 'customers' | 'txValue' | 'prevYearCum' | 'discountImpact'
+type ViewType =
+  | 'standard'
+  | 'salesOnly'
+  | 'discountOnly'
+  | 'movingAvg'
+  | 'area'
+  | 'customers'
+  | 'txValue'
+  | 'prevYearCum'
+  | 'discountImpact'
 
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
   mode?: DailyChartMode
+}
+
+/** ウォーターフォール表示用の日別データ */
+interface WaterfallItem {
+  day: number
+  sales: number
+  discount: number
+  prevYearSales: number | null
+  prevYearDiscount: number | null
+  customers: number
+  txValue: number | null
+  prevCustomers: number | null
+  prevTxValue: number | null
+  currentCum: number
+  prevYearCum: number | null
+  cumDiscountRate: number
+  wfSalesBase: number
+  wfSalesUp: number
+  wfSalesDown: number
+  wfSalesCum: number
+  wfDiscBase: number
+  wfDiscUp: number
+  wfDiscDown: number
+  wfDiscCum: number
+  wfCustBase: number
+  wfCustUp: number
+  wfCustDown: number
+  wfCustCum: number
+  salesMa7: number | null
+  discountMa7: number | null
+  prevDiscountMa7: number | null
 }
 
 /** N日移動平均を計算（ドメイン層のユーティリティに委譲） */
@@ -152,11 +211,23 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const rawSales: number[] = []
     const rawDiscount: number[] = []
     const rawPrevDiscount: number[] = []
-    let cumSales = 0, cumPrevSales = 0, cumDiscount = 0, cumGrossSales = 0
+    let cumSales = 0,
+      cumPrevSales = 0,
+      cumDiscount = 0,
+      cumGrossSales = 0
     const bd: {
-      day: number; sales: number; discount: number; prevYearSales: number | null; prevYearDiscount: number | null
-      customers: number; txValue: number | null; prevCustomers: number | null
-      prevTxValue: number | null; currentCum: number; prevYearCum: number | null; cumDiscountRate: number
+      day: number
+      sales: number
+      discount: number
+      prevYearSales: number | null
+      prevYearDiscount: number | null
+      customers: number
+      txValue: number | null
+      prevCustomers: number | null
+      prevTxValue: number | null
+      currentCum: number
+      prevYearCum: number | null
+      cumDiscountRate: number
     }[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
@@ -184,9 +255,17 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
       const cumDiscountRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
       bd.push({
-        day: d, sales, discount, prevYearSales: prevSales, prevYearDiscount: prevDiscount,
-        customers, txValue, prevCustomers: prevCustomers > 0 ? prevCustomers : null,
-        prevTxValue, currentCum: cumSales, prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
+        day: d,
+        sales,
+        discount,
+        prevYearSales: prevSales,
+        prevYearDiscount: prevDiscount,
+        customers,
+        txValue,
+        prevCustomers: prevCustomers > 0 ? prevCustomers : null,
+        prevTxValue,
+        currentCum: cumSales,
+        prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
         cumDiscountRate,
       })
     }
@@ -197,10 +276,11 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     const pdMa7 = movingAverage(rawPrevDiscount, 7)
 
     // ウォーターフォールデータ（前日比増減）
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let wf: any[] | null = null
+    let wf: WaterfallItem[] | null = null
     if (isWf) {
-      let wfCumSales = 0, wfCumDiscount = 0, wfCumCustomers = 0
+      let wfCumSales = 0,
+        wfCumDiscount = 0,
+        wfCumCustomers = 0
       wf = bd.map((d, i) => {
         const salesChange = i === 0 ? d.sales : d.sales - bd[i - 1].sales
         const discountChange = i === 0 ? d.discount : d.discount - bd[i - 1].discount
@@ -223,10 +303,21 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
 
         return {
           ...d,
-          wfSalesBase, wfSalesUp, wfSalesDown, wfSalesCum: wfCumSales,
-          wfDiscBase, wfDiscUp, wfDiscDown, wfDiscCum: wfCumDiscount,
-          wfCustBase, wfCustUp, wfCustDown, wfCustCum: wfCumCustomers,
-          salesMa7: sMa7[i], discountMa7: dMa7[i], prevDiscountMa7: pdMa7[i],
+          wfSalesBase,
+          wfSalesUp,
+          wfSalesDown,
+          wfSalesCum: wfCumSales,
+          wfDiscBase,
+          wfDiscUp,
+          wfDiscDown,
+          wfDiscCum: wfCumDiscount,
+          wfCustBase,
+          wfCustUp,
+          wfCustDown,
+          wfCustCum: wfCumCustomers,
+          salesMa7: sMa7[i],
+          discountMa7: dMa7[i],
+          prevDiscountMa7: pdMa7[i],
         }
       })
     }
@@ -234,42 +325,65 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
     return { baseData: bd, salesMa7: sMa7, discountMa7: dMa7, prevDiscountMa7: pdMa7, wfData: wf }
   }, [daily, daysInMonth, prevYearDaily, isWf])
 
-  const data = isWf && wfData
-    ? wfData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
-    : baseData.map((d, i) => ({
-        ...d,
-        salesMa7: salesMa7[i],
-        discountMa7: discountMa7[i],
-        prevDiscountMa7: prevDiscountMa7[i],
-      })).filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data =
+    isWf && wfData
+      ? wfData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+      : baseData
+          .map((d, i) => ({
+            ...d,
+            salesMa7: salesMa7[i],
+            discountMa7: discountMa7[i],
+            prevDiscountMa7: prevDiscountMa7[i],
+          }))
+          .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   const hasPrev = !!prevYearDaily
 
   const allLabels: Record<string, string> = {
-    sales: '売上', prevYearSales: '前年同曜日売上',
-    discount: '売変額', prevYearDiscount: '前年売変額',
-    salesMa7: '売上7日移動平均', discountMa7: '売変額7日移動平均', prevDiscountMa7: '前年売変7日移動平均',
-    customers: '客数', prevCustomers: '前年客数', txValue: '当年客単価', prevTxValue: '前年客単価',
-    currentCum: '当年累計', prevYearCum: '前年同曜日累計',
+    sales: '売上',
+    prevYearSales: '前年同曜日売上',
+    discount: '売変額',
+    prevYearDiscount: '前年売変額',
+    salesMa7: '売上7日移動平均',
+    discountMa7: '売変額7日移動平均',
+    prevDiscountMa7: '前年売変7日移動平均',
+    customers: '客数',
+    prevCustomers: '前年客数',
+    txValue: '当年客単価',
+    prevTxValue: '前年客単価',
+    currentCum: '当年累計',
+    prevYearCum: '前年同曜日累計',
     cumDiscountRate: '累計売変率',
-    wfSalesUp: '増加', wfSalesDown: '減少',
-    wfDiscUp: '増加', wfDiscDown: '減少',
-    wfCustUp: '増加', wfCustDown: '減少',
+    wfSalesUp: '増加',
+    wfSalesDown: '減少',
+    wfDiscUp: '増加',
+    wfDiscDown: '減少',
+    wfCustUp: '増加',
+    wfCustDown: '減少',
   }
 
   // 右Y軸が必要か
-  const needRightAxis = !isWf && (view === 'standard' || view === 'discountOnly' || view === 'customers' || view === 'discountImpact' || (view === 'movingAvg' && showSalesMa))
+  const needRightAxis =
+    !isWf &&
+    (view === 'standard' ||
+      view === 'discountOnly' ||
+      view === 'customers' ||
+      view === 'discountImpact' ||
+      (view === 'movingAvg' && showSalesMa))
 
   const titleText = isWf ? (WF_TITLES[view] ?? VIEW_TITLES[view]) : VIEW_TITLES[view]
 
   // ウォーターフォール凡例
-  const wfLegendPayload = isWf ? (() => {
-    const prefix = view === 'customers' ? 'wfCust' : view === 'discountOnly' ? 'wfDisc' : 'wfSales'
-    return [
-      { value: `${prefix}Up`, type: 'rect' as const, color: ct.colors.success },
-      { value: `${prefix}Down`, type: 'rect' as const, color: ct.colors.danger },
-    ]
-  })() : undefined
+  const wfLegendPayload = isWf
+    ? (() => {
+        const prefix =
+          view === 'customers' ? 'wfCust' : view === 'discountOnly' ? 'wfDisc' : 'wfSales'
+        return [
+          { value: `${prefix}Up`, type: 'rect' as const, color: ct.colors.success },
+          { value: `${prefix}Down`, type: 'rect' as const, color: ct.colors.danger },
+        ]
+      })()
+    : undefined
 
   return (
     <Wrapper>
@@ -290,7 +404,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {view === 'movingAvg' && (
             <>
               <Sep>|</Sep>
-              <ViewBtn $active={showSalesMa} onClick={() => setShowSalesMa(v => !v)}>
+              <ViewBtn $active={showSalesMa} onClick={() => setShowSalesMa((v) => !v)}>
                 売上MA
               </ViewBtn>
             </>
@@ -298,7 +412,7 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {WF_VIEWS.includes(view) && (
             <>
               <Sep>|</Sep>
-              <ViewBtn $active={waterfall} onClick={() => setWaterfall(v => !v)}>
+              <ViewBtn $active={waterfall} onClick={() => setWaterfall((v) => !v)}>
                 WF
               </ViewBtn>
             </>
@@ -337,7 +451,13 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={view === 'customers' ? (v: number) => `${v}人` : view === 'txValue' ? (v: number) => `${toComma(v)}円` : fmt}
+            tickFormatter={
+              view === 'customers'
+                ? (v: number) => `${v}人`
+                : view === 'txValue'
+                  ? (v: number) => `${toComma(v)}円`
+                  : fmt
+            }
             width={view === 'txValue' ? 60 : 50}
           />
           {needRightAxis && (
@@ -347,7 +467,13 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={view === 'customers' ? (v: number) => `${toComma(v)}円` : view === 'discountImpact' ? (v: number) => toPct(v) : fmt}
+              tickFormatter={
+                view === 'customers'
+                  ? (v: number) => `${toComma(v)}円`
+                  : view === 'discountImpact'
+                    ? (v: number) => toPct(v)
+                    : fmt
+              }
               width={view === 'customers' || view === 'discountImpact' ? 55 : 45}
             />
           )}
@@ -355,10 +481,21 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
             contentStyle={tooltipStyle(ct)}
             formatter={(value, name) => {
               const n = name as string
-              if (n.includes('Base') || n === 'wfSalesCum' || n === 'wfDiscCum' || n === 'wfCustCum') return [null, null] as unknown as [string, string]
+              if (
+                n.includes('Base') ||
+                n === 'wfSalesCum' ||
+                n === 'wfDiscCum' ||
+                n === 'wfCustCum'
+              )
+                return [null, null] as unknown as [string, string]
               if (value == null) return ['-', allLabels[n] ?? String(name)]
               if (n === 'cumDiscountRate') return [toPct(value as number), allLabels[n] ?? n]
-              const suffix = n === 'customers' || n === 'prevCustomers' || n.includes('Cust') ? '人' : (n === 'txValue' || n === 'prevTxValue') ? '円' : ''
+              const suffix =
+                n === 'customers' || n === 'prevCustomers' || n.includes('Cust')
+                  ? '人'
+                  : n === 'txValue' || n === 'prevTxValue'
+                    ? '円'
+                    : ''
               return [toComma(value as number) + suffix, allLabels[n] ?? n]
             }}
             labelFormatter={(label) => `${label}日`}
@@ -372,14 +509,47 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── ウォーターフォール: 売上系 ── */}
           {isWf && (view === 'standard' || view === 'salesOnly') && (
             <>
-              <Bar yAxisId="left" dataKey="wfSalesBase" stackId="wfS" fill="transparent" maxBarSize={16} legendType="none" />
-              <Bar yAxisId="left" dataKey="wfSalesUp" stackId="wfS" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfSalesBase"
+                stackId="wfS"
+                fill="transparent"
+                maxBarSize={16}
+                legendType="none"
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="wfSalesUp"
+                stackId="wfS"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Bar yAxisId="left" dataKey="wfSalesDown" stackId="wfS" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfSalesDown"
+                stackId="wfS"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Line yAxisId="left" type="monotone" dataKey="wfSalesCum" stroke={ct.colors.primary} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="wfSalesCum"
+                stroke={ct.colors.primary}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+                legendType="none"
+              />
               <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
             </>
           )}
@@ -387,14 +557,47 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── ウォーターフォール: 売変系 ── */}
           {isWf && view === 'discountOnly' && (
             <>
-              <Bar yAxisId="left" dataKey="wfDiscBase" stackId="wfD" fill="transparent" maxBarSize={16} legendType="none" />
-              <Bar yAxisId="left" dataKey="wfDiscUp" stackId="wfD" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfDiscBase"
+                stackId="wfD"
+                fill="transparent"
+                maxBarSize={16}
+                legendType="none"
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="wfDiscUp"
+                stackId="wfD"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Bar yAxisId="left" dataKey="wfDiscDown" stackId="wfD" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfDiscDown"
+                stackId="wfD"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Line yAxisId="left" type="monotone" dataKey="wfDiscCum" stroke={ct.colors.dangerDark} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="wfDiscCum"
+                stroke={ct.colors.dangerDark}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+                legendType="none"
+              />
               <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
             </>
           )}
@@ -402,14 +605,47 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── ウォーターフォール: 客数系 ── */}
           {isWf && view === 'customers' && (
             <>
-              <Bar yAxisId="left" dataKey="wfCustBase" stackId="wfC" fill="transparent" maxBarSize={16} legendType="none" />
-              <Bar yAxisId="left" dataKey="wfCustUp" stackId="wfC" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfCustBase"
+                stackId="wfC"
+                fill="transparent"
+                maxBarSize={16}
+                legendType="none"
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="wfCustUp"
+                stackId="wfC"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.success} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Bar yAxisId="left" dataKey="wfCustDown" stackId="wfC" maxBarSize={16} radius={[2, 2, 0, 0]}>
-                {data.map((_, i) => <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />)}
+              <Bar
+                yAxisId="left"
+                dataKey="wfCustDown"
+                stackId="wfC"
+                maxBarSize={16}
+                radius={[2, 2, 0, 0]}
+              >
+                {data.map((_, i) => (
+                  <Cell key={i} fill={ct.colors.danger} fillOpacity={0.75} />
+                ))}
               </Bar>
-              <Line yAxisId="left" type="monotone" dataKey="wfCustCum" stroke={ct.colors.info} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls legendType="none" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="wfCustCum"
+                stroke={ct.colors.info}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+                legendType="none"
+              />
               <ReferenceLine yAxisId="left" y={0} stroke={ct.grid} strokeOpacity={0.5} />
             </>
           )}
@@ -417,13 +653,43 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── Standard: 売上+前年売上=棒、売変+前年売変=点線 ── */}
           {!isWf && view === 'standard' && (
             <>
-              <Bar yAxisId="left" dataKey="sales" fill="url(#salesGrad)" radius={[3, 3, 0, 0]} maxBarSize={18} />
+              <Bar
+                yAxisId="left"
+                dataKey="sales"
+                fill="url(#salesGrad)"
+                radius={[3, 3, 0, 0]}
+                maxBarSize={18}
+              />
               {hasPrev && (
-                <Bar yAxisId="left" dataKey="prevYearSales" fill="url(#prevSalesGrad)" radius={[3, 3, 0, 0]} maxBarSize={14} />
+                <Bar
+                  yAxisId="left"
+                  dataKey="prevYearSales"
+                  fill="url(#prevSalesGrad)"
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={14}
+                />
               )}
-              <Line yAxisId="right" type="monotone" dataKey="discount" stroke={ct.colors.danger} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="discount"
+                stroke={ct.colors.danger}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                dot={false}
+                connectNulls
+              />
               {hasPrev && (
-                <Line yAxisId="right" type="monotone" dataKey="prevYearDiscount" stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="prevYearDiscount"
+                  stroke={ct.colors.orange}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 2"
+                  dot={false}
+                  connectNulls
+                />
               )}
             </>
           )}
@@ -431,24 +697,75 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── Sales Only ── */}
           {!isWf && view === 'salesOnly' && (
             <>
-              <Bar yAxisId="left" dataKey="sales" fill="url(#salesGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
+              <Bar
+                yAxisId="left"
+                dataKey="sales"
+                fill="url(#salesGrad)"
+                radius={[3, 3, 0, 0]}
+                maxBarSize={20}
+              />
               {hasPrev && (
-                <Bar yAxisId="left" dataKey="prevYearSales" fill="url(#prevSalesGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar
+                  yAxisId="left"
+                  dataKey="prevYearSales"
+                  fill="url(#prevSalesGrad)"
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={16}
+                />
               )}
-              <Line yAxisId="left" type="monotone" dataKey="salesMa7" stroke={ct.colors.cyanDark} strokeWidth={2} dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="salesMa7"
+                stroke={ct.colors.cyanDark}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
           {/* ── Discount Only ── */}
           {!isWf && view === 'discountOnly' && (
             <>
-              <Bar yAxisId="right" dataKey="discount" fill={ct.colors.danger} radius={[3, 3, 0, 0]} maxBarSize={20} opacity={0.7} />
+              <Bar
+                yAxisId="right"
+                dataKey="discount"
+                fill={ct.colors.danger}
+                radius={[3, 3, 0, 0]}
+                maxBarSize={20}
+                opacity={0.7}
+              />
               {hasPrev && (
-                <Bar yAxisId="right" dataKey="prevYearDiscount" fill={ct.colors.orange} radius={[3, 3, 0, 0]} maxBarSize={16} opacity={0.5} />
+                <Bar
+                  yAxisId="right"
+                  dataKey="prevYearDiscount"
+                  fill={ct.colors.orange}
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={16}
+                  opacity={0.5}
+                />
               )}
-              <Line yAxisId="right" type="monotone" dataKey="discountMa7" stroke={ct.colors.dangerDark} strokeWidth={2} dot={false} connectNulls />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="discountMa7"
+                stroke={ct.colors.dangerDark}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
               {hasPrev && (
-                <Line yAxisId="right" type="monotone" dataKey="prevDiscountMa7" stroke={ct.colors.warningDark} strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="prevDiscountMa7"
+                  stroke={ct.colors.warningDark}
+                  strokeWidth={1.5}
+                  strokeDasharray="5 3"
+                  dot={false}
+                  connectNulls
+                />
               )}
             </>
           )}
@@ -456,12 +773,37 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── Moving Average ── */}
           {view === 'movingAvg' && (
             <>
-              <Line yAxisId="left" type="monotone" dataKey="discountMa7" stroke={ct.colors.danger} strokeWidth={2} dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="discountMa7"
+                stroke={ct.colors.danger}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
               {hasPrev && (
-                <Line yAxisId="left" type="monotone" dataKey="prevDiscountMa7" stroke={ct.colors.orange} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="prevDiscountMa7"
+                  stroke={ct.colors.orange}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 2"
+                  dot={false}
+                  connectNulls
+                />
               )}
               {showSalesMa && (
-                <Line yAxisId="right" type="monotone" dataKey="salesMa7" stroke={ct.colors.primary} strokeWidth={2.5} dot={false} connectNulls />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="salesMa7"
+                  stroke={ct.colors.primary}
+                  strokeWidth={2.5}
+                  dot={false}
+                  connectNulls
+                />
               )}
             </>
           )}
@@ -469,22 +811,67 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
           {/* ── Area ── */}
           {view === 'area' && (
             <>
-              <Area yAxisId="left" type="monotone" dataKey="sales" fill="url(#salesAreaGrad)" stroke={ct.colors.primary} strokeWidth={2} />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="sales"
+                fill="url(#salesAreaGrad)"
+                stroke={ct.colors.primary}
+                strokeWidth={2}
+              />
               {hasPrev && (
-                <Area yAxisId="left" type="monotone" dataKey="prevYearSales" fill="url(#prevSalesAreaGrad)" stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="4 3" />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="prevYearSales"
+                  fill="url(#prevSalesAreaGrad)"
+                  stroke={ct.colors.slate}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 3"
+                />
               )}
-              <Line yAxisId="left" type="monotone" dataKey="salesMa7" stroke={ct.colors.cyanDark} strokeWidth={2} dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="salesMa7"
+                stroke={ct.colors.cyanDark}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
           {/* ── Customers ── */}
           {!isWf && view === 'customers' && (
             <>
-              <Bar yAxisId="left" dataKey="customers" fill={ct.colors.info} radius={[3, 3, 0, 0]} maxBarSize={18} opacity={0.75} />
+              <Bar
+                yAxisId="left"
+                dataKey="customers"
+                fill={ct.colors.info}
+                radius={[3, 3, 0, 0]}
+                maxBarSize={18}
+                opacity={0.75}
+              />
               {hasPrev && (
-                <Bar yAxisId="left" dataKey="prevCustomers" fill={ct.colors.slate} radius={[3, 3, 0, 0]} maxBarSize={14} opacity={0.5} />
+                <Bar
+                  yAxisId="left"
+                  dataKey="prevCustomers"
+                  fill={ct.colors.slate}
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={14}
+                  opacity={0.5}
+                />
               )}
-              <Line yAxisId="right" type="monotone" dataKey="txValue" stroke={ct.colors.purple} strokeWidth={2} dot={false} connectNulls />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="txValue"
+                stroke={ct.colors.purple}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -497,9 +884,24 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
                   <stop offset="100%" stopColor={ct.colors.purple} stopOpacity={0.4} />
                 </linearGradient>
               </defs>
-              <Bar yAxisId="left" dataKey="txValue" fill="url(#txValGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
+              <Bar
+                yAxisId="left"
+                dataKey="txValue"
+                fill="url(#txValGrad)"
+                radius={[3, 3, 0, 0]}
+                maxBarSize={16}
+              />
               {hasPrev && (
-                <Line yAxisId="left" type="monotone" dataKey="prevTxValue" stroke={ct.colors.slate} strokeWidth={1.5} strokeDasharray="4 3" dot={false} connectNulls />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="prevTxValue"
+                  stroke={ct.colors.slate}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 3"
+                  dot={false}
+                  connectNulls
+                />
               )}
             </>
           )}
@@ -517,8 +919,26 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
                   <stop offset="100%" stopColor={ct.colors.slate} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <Area yAxisId="left" type="monotone" dataKey="prevYearCum" stroke={ct.colors.slate} strokeWidth={2} strokeDasharray="4 3" fill="url(#prevCumArea)" dot={false} connectNulls />
-              <Area yAxisId="left" type="monotone" dataKey="currentCum" stroke={ct.colors.primary} strokeWidth={2.5} fill="url(#currentCumArea)" dot={false} />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="prevYearCum"
+                stroke={ct.colors.slate}
+                strokeWidth={2}
+                strokeDasharray="4 3"
+                fill="url(#prevCumArea)"
+                dot={false}
+                connectNulls
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="currentCum"
+                stroke={ct.colors.primary}
+                strokeWidth={2.5}
+                fill="url(#currentCumArea)"
+                dot={false}
+              />
             </>
           )}
 
@@ -531,13 +951,33 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
                   <stop offset="100%" stopColor={ct.colors.danger} stopOpacity={0.4} />
                 </linearGradient>
               </defs>
-              <Bar yAxisId="left" dataKey="discount" fill="url(#discImpactGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
-              <Line yAxisId="right" type="monotone" dataKey="cumDiscountRate" stroke={ct.colors.orange} strokeWidth={2} dot={false} connectNulls />
+              <Bar
+                yAxisId="left"
+                dataKey="discount"
+                fill="url(#discImpactGrad)"
+                radius={[3, 3, 0, 0]}
+                maxBarSize={16}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="cumDiscountRate"
+                stroke={ct.colors.orange}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
             </>
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

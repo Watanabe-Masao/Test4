@@ -1,4 +1,10 @@
-import type { CostPricePair, CategoryType, SupplierTotal, DailyRecord, DiscountEntry } from '@/domain/models'
+import type {
+  CostPricePair,
+  CategoryType,
+  SupplierTotal,
+  DailyRecord,
+  DiscountEntry,
+} from '@/domain/models'
 
 /** 日別ループで蓄積される月間集計 */
 export interface MonthlyAccumulator {

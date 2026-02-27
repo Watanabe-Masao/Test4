@@ -22,19 +22,27 @@ export interface CategoryChartItem {
 // ─── Constants ───────────────────────────────────────────
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  market: '#f59e0b', lfc: '#3b82f6', saladClub: '#22c55e', processed: '#a855f7',
-  directDelivery: '#06b6d4', flowers: '#ec4899', directProduce: '#84cc16',
-  consumables: '#ea580c', interStore: '#f43f5e', interDepartment: '#8b5cf6', other: '#64748b',
+  market: '#f59e0b',
+  lfc: '#3b82f6',
+  saladClub: '#22c55e',
+  processed: '#a855f7',
+  directDelivery: '#06b6d4',
+  flowers: '#ec4899',
+  directProduce: '#84cc16',
+  consumables: '#ea580c',
+  interStore: '#f43f5e',
+  interDepartment: '#8b5cf6',
+  other: '#64748b',
 }
 
 export const CUSTOM_CATEGORY_COLORS: Record<string, string> = {
-  '市場仕入': '#f59e0b',
-  'LFC': '#3b82f6',
-  'サラダ': '#22c55e',
-  '加工品': '#a855f7',
-  '消耗品': '#ea580c',
-  '直伝': '#06b6d4',
-  'その他': '#64748b',
+  市場仕入: '#f59e0b',
+  LFC: '#3b82f6',
+  サラダ: '#22c55e',
+  加工品: '#a855f7',
+  消耗品: '#ea580c',
+  直伝: '#06b6d4',
+  その他: '#64748b',
 }
 
 // ─── Data builders ───────────────────────────────────────
@@ -51,15 +59,15 @@ export function buildCategoryData(result: StoreResult) {
     return sum + (pair ? Math.abs(pair.price) : 0)
   }, 0)
 
-  return CATEGORY_ORDER
-    .flatMap((cat) => {
-      const pair = result.categoryTotals.get(cat)
-      if (!pair) return []
-      const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-      const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
-      // 相乗積 = (売価 - 原価) / 総売価 で直接計算（price=0の消耗品でも正確）
-      const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
-      return [{
+  return CATEGORY_ORDER.flatMap((cat) => {
+    const pair = result.categoryTotals.get(cat)
+    if (!pair) return []
+    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
+    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+    // 相乗積 = (売価 - 原価) / 総売価 で直接計算（price=0の消耗品でも正確）
+    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
+    return [
+      {
         category: cat,
         label: CATEGORY_LABELS[cat],
         cost: pair.cost,
@@ -68,8 +76,9 @@ export function buildCategoryData(result: StoreResult) {
         priceShare,
         crossMultiplication,
         color: CATEGORY_COLORS[cat] ?? '#64748b',
-      }]
-    })
+      },
+    ]
+  })
 }
 
 /** カスタムカテゴリ集計データ生成 */
@@ -89,21 +98,20 @@ export function buildCustomCategoryData(
     })
   }
 
-  const totalPrice = Array.from(aggregated.values()).reduce(
-    (sum, v) => sum + v.price, 0,
-  )
+  const totalPrice = Array.from(aggregated.values()).reduce((sum, v) => sum + v.price, 0)
   const totalAbsPrice = Array.from(aggregated.values()).reduce(
-    (sum, v) => sum + Math.abs(v.price), 0,
+    (sum, v) => sum + Math.abs(v.price),
+    0,
   )
 
-  return CUSTOM_CATEGORIES
-    .flatMap((cc) => {
-      const pair = aggregated.get(cc)
-      if (!pair) return []
-      const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-      const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
-      const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
-      return [{
+  return CUSTOM_CATEGORIES.flatMap((cc) => {
+    const pair = aggregated.get(cc)
+    if (!pair) return []
+    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
+    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
+    return [
+      {
         category: cc,
         label: cc,
         cost: pair.cost,
@@ -112,8 +120,9 @@ export function buildCustomCategoryData(
         priceShare,
         crossMultiplication,
         color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
-      }]
-    })
+      },
+    ]
+  })
 }
 
 /** 統合カテゴリデータ型（標準 + カスタムカテゴリ） */
@@ -138,7 +147,14 @@ export function buildUnifiedCategoryData(
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
 ): UnifiedCategoryItem[] {
   // 1. 標準カテゴリ（categoryTotals から）
-  const items: { category: string; label: string; cost: number; price: number; color: string; isCustom: boolean }[] = []
+  const items: {
+    category: string
+    label: string
+    cost: number
+    price: number
+    color: string
+    isCustom: boolean
+  }[] = []
 
   for (const cat of CATEGORY_ORDER) {
     const pair = result.categoryTotals.get(cat)
@@ -196,9 +212,7 @@ export function buildUnifiedCategoryData(
 }
 
 /** パレート図ヘルパー: 降順ソート + 累計%を計算 */
-export function buildParetoData(
-  items: { name: string; value: number; color: string }[],
-) {
+export function buildParetoData(items: { name: string; value: number; color: string }[]) {
   const sorted = [...items].sort((a, b) => b.value - a.value)
   const total = sorted.reduce((s, d) => s + d.value, 0)
   let cumulative = 0

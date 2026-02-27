@@ -39,9 +39,9 @@ export interface MonthEndProjection {
 
 /** 線形回帰の結果 */
 export interface LinearRegressionResult {
-  readonly slope: number      // 傾き (1日あたりの変化量)
-  readonly intercept: number  // 切片
-  readonly rSquared: number   // 決定係数
+  readonly slope: number // 傾き (1日あたりの変化量)
+  readonly intercept: number // 切片
+  readonly rSquared: number // 決定係数
 }
 
 // ─── Weighted Moving Average ──────────────────────────
@@ -90,14 +90,15 @@ export function calculateWMA(
  * 単純線形回帰: y = slope * x + intercept
  * x = day number, y = sales
  */
-export function linearRegression(
-  dailySales: ReadonlyMap<number, number>,
-): LinearRegressionResult {
+export function linearRegression(dailySales: ReadonlyMap<number, number>): LinearRegressionResult {
   const entries = Array.from(dailySales.entries()).filter(([, v]) => v > 0)
   const n = entries.length
   if (n < 2) return { slope: 0, intercept: 0, rSquared: 0 }
 
-  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumX2 = 0
   for (const [x, y] of entries) {
     sumX += x
     sumY += y
@@ -113,7 +114,8 @@ export function linearRegression(
 
   // 決定係数 R²
   const yMean = sumY / n
-  let ssTot = 0, ssRes = 0
+  let ssTot = 0,
+    ssRes = 0
   for (const [x, y] of entries) {
     ssTot += (y - yMean) ** 2
     ssRes += (y - (slope * x + intercept)) ** 2

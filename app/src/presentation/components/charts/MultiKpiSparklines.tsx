@@ -71,10 +71,16 @@ const Badge = styled.div<{ $positive: boolean }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   text-align: center;
   white-space: nowrap;
-  color: ${({ $positive, theme }) => $positive ? theme.colors.palette.success : theme.colors.palette.danger};
-  background: ${({ $positive, theme }) => $positive
-    ? theme.mode === 'dark' ? 'rgba(34,197,94,0.12)' : 'rgba(34,197,94,0.08)'
-    : theme.mode === 'dark' ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)'};
+  color: ${({ $positive, theme }) =>
+    $positive ? theme.colors.palette.success : theme.colors.palette.danger};
+  background: ${({ $positive, theme }) =>
+    $positive
+      ? theme.mode === 'dark'
+        ? 'rgba(34,197,94,0.12)'
+        : 'rgba(34,197,94,0.08)'
+      : theme.mode === 'dark'
+        ? 'rgba(239,68,68,0.12)'
+        : 'rgba(239,68,68,0.08)'};
 `
 
 interface MetricDef {
@@ -97,14 +103,47 @@ interface Props {
 export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
 
-  const metrics: MetricDef[] = useMemo(() => [
-    { key: 'sales', label: '売上', color: ct.colors.primary, format: (v: number) => toComma(v) },
-    { key: 'gpRate', label: '粗利率', color: ct.colors.success, format: (v: number) => toPct(v), isRate: true },
-    { key: 'discountRate', label: '売変率', color: ct.colors.danger, format: (v: number) => toPct(v), isRate: true, invertSign: true },
-    { key: 'customers', label: '客数', color: ct.colors.info, format: (v: number) => `${toComma(v)}人` },
-    { key: 'txValue', label: '客単価', color: ct.colors.purple, format: (v: number) => `${toComma(v)}円` },
-    { key: 'costRate', label: '原価率', color: ct.colors.orange, format: (v: number) => toPct(v), isRate: true, invertSign: true },
-  ], [ct])
+  const metrics: MetricDef[] = useMemo(
+    () => [
+      { key: 'sales', label: '売上', color: ct.colors.primary, format: (v: number) => toComma(v) },
+      {
+        key: 'gpRate',
+        label: '粗利率',
+        color: ct.colors.success,
+        format: (v: number) => toPct(v),
+        isRate: true,
+      },
+      {
+        key: 'discountRate',
+        label: '売変率',
+        color: ct.colors.danger,
+        format: (v: number) => toPct(v),
+        isRate: true,
+        invertSign: true,
+      },
+      {
+        key: 'customers',
+        label: '客数',
+        color: ct.colors.info,
+        format: (v: number) => `${toComma(v)}人`,
+      },
+      {
+        key: 'txValue',
+        label: '客単価',
+        color: ct.colors.purple,
+        format: (v: number) => `${toComma(v)}円`,
+      },
+      {
+        key: 'costRate',
+        label: '原価率',
+        color: ct.colors.orange,
+        format: (v: number) => toPct(v),
+        isRate: true,
+        invertSign: true,
+      },
+    ],
+    [ct],
+  )
 
   const { sparkData, summaries } = useMemo(() => {
     const rows: Record<string, number | null>[] = []
@@ -123,7 +162,15 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
       const discountRate = grossSales > 0 ? safeDivide(discount, grossSales, 0) : null
       const costRate = sales > 0 ? safeDivide(cost, sales, 0) : null
 
-      rows.push({ day: d, sales, gpRate, discountRate, customers: customers || null, txValue, costRate })
+      rows.push({
+        day: d,
+        sales,
+        gpRate,
+        discountRate,
+        customers: customers || null,
+        txValue,
+        costRate,
+      })
 
       const prev = prevYearDaily?.get(d)
       if (prev) {
@@ -137,20 +184,24 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
     // Compute summaries (latest non-null value, average, prev year aggregate)
     const sums: Record<string, { current: number; prev: number | null; change: number | null }> = {}
     for (const m of metrics) {
-      const vals = rows.map(r => r[m.key]).filter((v): v is number => v != null)
+      const vals = rows.map((r) => r[m.key]).filter((v): v is number => v != null)
       const currentAvg = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
 
       let prevAvg: number | null = null
-      if (prevRows.length > 0 && (m.key === 'sales' || m.key === 'customers' || m.key === 'txValue')) {
-        const pVals = prevRows.map(r => r[m.key]).filter((v): v is number => v != null)
+      if (
+        prevRows.length > 0 &&
+        (m.key === 'sales' || m.key === 'customers' || m.key === 'txValue')
+      ) {
+        const pVals = prevRows.map((r) => r[m.key]).filter((v): v is number => v != null)
         prevAvg = pVals.length > 0 ? pVals.reduce((a, b) => a + b, 0) / pVals.length : null
       }
 
-      const change = prevAvg != null && prevAvg > 0
-        ? m.isRate
-          ? currentAvg - prevAvg
-          : safeDivide(currentAvg - prevAvg, prevAvg, 0)
-        : null
+      const change =
+        prevAvg != null && prevAvg > 0
+          ? m.isRate
+            ? currentAvg - prevAvg
+            : safeDivide(currentAvg - prevAvg, prevAvg, 0)
+          : null
 
       sums[m.key] = { current: currentAvg, prev: prevAvg, change }
     }
@@ -165,7 +216,7 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
       </HeaderRow>
       {metrics.map((m) => {
         const summary = summaries[m.key]
-        const dataForSpark = sparkData.map(row => ({
+        const dataForSpark = sparkData.map((row) => ({
           day: row.day,
           value: row[m.key] ?? undefined,
         }))
@@ -184,7 +235,12 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
                   </defs>
                   <YAxis domain={['dataMin', 'dataMax']} hide />
                   {m.isRate && (
-                    <ReferenceLine y={summary?.current ?? 0} stroke={m.color} strokeDasharray="2 2" strokeOpacity={0.3} />
+                    <ReferenceLine
+                      y={summary?.current ?? 0}
+                      stroke={m.color}
+                      strokeDasharray="2 2"
+                      strokeOpacity={0.3}
+                    />
                   )}
                   <Area
                     type="monotone"
@@ -207,7 +263,9 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
                   : `${summary.change >= 0 ? '+' : ''}${toPct(summary.change)}`}
               </Badge>
             ) : (
-              <Badge $positive={true} style={{ opacity: 0.3 }}>-</Badge>
+              <Badge $positive={true} style={{ opacity: 0.3 }}>
+                -
+              </Badge>
             )}
           </SparkRow>
         )

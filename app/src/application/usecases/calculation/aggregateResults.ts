@@ -6,7 +6,12 @@ import type {
   StoreResult,
   TransferDetails,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, addCostPricePairs, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
+import {
+  ZERO_COST_PRICE_PAIR,
+  addCostPricePairs,
+  ZERO_DISCOUNT_ENTRIES,
+  addDiscountEntries,
+} from '@/domain/models'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import { safeDivide } from '@/domain/calculations/utils'
 
@@ -50,10 +55,22 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
     discountEntries: addDiscountEntries(existing.discountEntries, rec.discountEntries),
     supplierBreakdown: mergedSB,
     transferBreakdown: {
-      interStoreIn: [...existing.transferBreakdown.interStoreIn, ...rec.transferBreakdown.interStoreIn],
-      interStoreOut: [...existing.transferBreakdown.interStoreOut, ...rec.transferBreakdown.interStoreOut],
-      interDepartmentIn: [...existing.transferBreakdown.interDepartmentIn, ...rec.transferBreakdown.interDepartmentIn],
-      interDepartmentOut: [...existing.transferBreakdown.interDepartmentOut, ...rec.transferBreakdown.interDepartmentOut],
+      interStoreIn: [
+        ...existing.transferBreakdown.interStoreIn,
+        ...rec.transferBreakdown.interStoreIn,
+      ],
+      interStoreOut: [
+        ...existing.transferBreakdown.interStoreOut,
+        ...rec.transferBreakdown.interStoreOut,
+      ],
+      interDepartmentIn: [
+        ...existing.transferBreakdown.interDepartmentIn,
+        ...rec.transferBreakdown.interDepartmentIn,
+      ],
+      interDepartmentOut: [
+        ...existing.transferBreakdown.interDepartmentOut,
+        ...rec.transferBreakdown.interDepartmentOut,
+      ],
     },
   }
 }
@@ -61,7 +78,10 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
 /**
  * 複数店舗の StoreResult を合算する
  */
-export function aggregateStoreResults(results: readonly StoreResult[], daysInMonth: number): StoreResult {
+export function aggregateStoreResults(
+  results: readonly StoreResult[],
+  daysInMonth: number,
+): StoreResult {
   if (results.length === 0) {
     throw new Error('Cannot aggregate 0 results')
   }
@@ -113,7 +133,10 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     inventoryCost += r.inventoryCost
     deliverySalesCost += r.deliverySalesCost
     totalDiscount += r.totalDiscount
-    aggDiscountEntries = addDiscountEntries(aggDiscountEntries, r.discountEntries) as typeof aggDiscountEntries
+    aggDiscountEntries = addDiscountEntries(
+      aggDiscountEntries,
+      r.discountEntries,
+    ) as typeof aggDiscountEntries
     totalConsumable += r.totalConsumable
     totalCustomers += r.totalCustomers
     budget += r.budget
@@ -123,8 +146,14 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     purchaseMaxDay = Math.max(purchaseMaxDay, r.purchaseMaxDay)
     if (r.hasDiscountData) hasDiscountData = true
 
-    if (r.openingInventory != null) { openInv += r.openingInventory; hasOpening = true }
-    if (r.closingInventory != null) { closeInv += r.closingInventory; hasClosing = true }
+    if (r.openingInventory != null) {
+      openInv += r.openingInventory
+      hasOpening = true
+    }
+    if (r.closingInventory != null) {
+      closeInv += r.closingInventory
+      hasClosing = true
+    }
 
     // 日別集計
     for (const [day, rec] of r.daily) {
@@ -171,10 +200,22 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     }
 
     // 移動集計
-    aggTransfer.interStoreIn = addCostPricePairs(aggTransfer.interStoreIn, r.transferDetails.interStoreIn)
-    aggTransfer.interStoreOut = addCostPricePairs(aggTransfer.interStoreOut, r.transferDetails.interStoreOut)
-    aggTransfer.interDepartmentIn = addCostPricePairs(aggTransfer.interDepartmentIn, r.transferDetails.interDepartmentIn)
-    aggTransfer.interDepartmentOut = addCostPricePairs(aggTransfer.interDepartmentOut, r.transferDetails.interDepartmentOut)
+    aggTransfer.interStoreIn = addCostPricePairs(
+      aggTransfer.interStoreIn,
+      r.transferDetails.interStoreIn,
+    )
+    aggTransfer.interStoreOut = addCostPricePairs(
+      aggTransfer.interStoreOut,
+      r.transferDetails.interStoreOut,
+    )
+    aggTransfer.interDepartmentIn = addCostPricePairs(
+      aggTransfer.interDepartmentIn,
+      r.transferDetails.interDepartmentIn,
+    )
+    aggTransfer.interDepartmentOut = addCostPricePairs(
+      aggTransfer.interDepartmentOut,
+      r.transferDetails.interDepartmentOut,
+    )
   }
 
   const discountRate = calculateDiscountRate(totalSales, totalDiscount)
@@ -187,18 +228,23 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
     totalPurchasePrice += st.price
   }
   const transferPrice =
-    aggTransfer.interStoreIn.price + aggTransfer.interStoreOut.price +
-    aggTransfer.interDepartmentIn.price + aggTransfer.interDepartmentOut.price
+    aggTransfer.interStoreIn.price +
+    aggTransfer.interStoreOut.price +
+    aggTransfer.interDepartmentIn.price +
+    aggTransfer.interDepartmentOut.price
   const transferCost =
-    aggTransfer.interStoreIn.cost + aggTransfer.interStoreOut.cost +
-    aggTransfer.interDepartmentIn.cost + aggTransfer.interDepartmentOut.cost
+    aggTransfer.interStoreIn.cost +
+    aggTransfer.interStoreOut.cost +
+    aggTransfer.interDepartmentIn.cost +
+    aggTransfer.interDepartmentOut.cost
   const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
   const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
-  const allPurchasePrice = totalPurchasePrice + flowerCat.price + directProduceCat.price + transferPrice
+  const allPurchasePrice =
+    totalPurchasePrice + flowerCat.price + directProduceCat.price + transferPrice
   const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost + transferCost
   const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
   const coreMarkupRate = safeDivide(
-    (totalPurchasePrice + transferPrice) - (totalPurchaseCost + transferCost),
+    totalPurchasePrice + transferPrice - (totalPurchaseCost + transferCost),
     totalPurchasePrice + transferPrice,
     0,
   )
@@ -256,10 +302,16 @@ export function aggregateStoreResults(results: readonly StoreResult[], daysInMon
   const transferDetails: TransferDetails = {
     ...aggTransfer,
     netTransfer: {
-      cost: aggTransfer.interStoreIn.cost + aggTransfer.interStoreOut.cost +
-        aggTransfer.interDepartmentIn.cost + aggTransfer.interDepartmentOut.cost,
-      price: aggTransfer.interStoreIn.price + aggTransfer.interStoreOut.price +
-        aggTransfer.interDepartmentIn.price + aggTransfer.interDepartmentOut.price,
+      cost:
+        aggTransfer.interStoreIn.cost +
+        aggTransfer.interStoreOut.cost +
+        aggTransfer.interDepartmentIn.cost +
+        aggTransfer.interDepartmentOut.cost,
+      price:
+        aggTransfer.interStoreIn.price +
+        aggTransfer.interStoreOut.price +
+        aggTransfer.interDepartmentIn.price +
+        aggTransfer.interDepartmentOut.price,
     },
   }
 

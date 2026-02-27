@@ -13,8 +13,10 @@ export const TabBar = styled.div`
 export const Tab = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
   border: none;
-  border-bottom: 2px solid ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) => ($active ? `${theme.colors.palette.primary}10` : 'transparent')};
+  border-bottom: 2px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
   color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -57,7 +59,9 @@ export const Th = styled.th`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: left; }
+  &:first-child {
+    text-align: left;
+  }
 `
 
 export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
@@ -65,9 +69,7 @@ export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ $negative, $positive, theme }) =>
-    $negative ? theme.colors.palette.danger
-    : $positive ? sc.positive
-    : theme.colors.text};
+    $negative ? theme.colors.palette.danger : $positive ? sc.positive : theme.colors.text};
   &:first-child {
     text-align: left;
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -80,7 +82,7 @@ export const ConsumTd = styled.td<{ $muted?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $muted, theme }) => $muted ? theme.colors.text4 : theme.colors.text};
+  color: ${({ $muted, theme }) => ($muted ? theme.colors.text4 : theme.colors.text)};
   &:first-child {
     text-align: left;
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -89,9 +91,13 @@ export const ConsumTd = styled.td<{ $muted?: boolean }>`
 `
 
 export const Tr = styled.tr<{ $clickable?: boolean; $expanded?: boolean; $selected?: boolean }>`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
-  ${({ $expanded, $selected, theme }) => ($expanded || $selected) && `
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  ${({ $expanded, $selected, theme }) =>
+    ($expanded || $selected) &&
+    `
     background: ${theme.colors.palette.primary}10;
     &:hover { background: ${theme.colors.palette.primary}18; }
   `}
@@ -125,7 +131,9 @@ export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
 export const TrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  td { font-weight: ${({ theme }) => theme.typography.fontWeight.bold}; }
+  td {
+    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  }
 `
 
 export const EmptyState = styled.div`
@@ -152,9 +160,15 @@ export const FlowTh = styled.th`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: left; }
-  &:nth-child(2) { text-align: left; }
-  &:last-child { width: 100px; }
+  &:first-child {
+    text-align: left;
+  }
+  &:nth-child(2) {
+    text-align: left;
+  }
+  &:last-child {
+    width: 100px;
+  }
 `
 
 export const FlowTd = styled.td<{ $negative?: boolean; $label?: boolean }>`
@@ -162,23 +176,31 @@ export const FlowTd = styled.td<{ $negative?: boolean; $label?: boolean }>`
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $negative, theme }) => $negative ? theme.colors.palette.danger : theme.colors.text};
-  ${({ $label, theme }) => $label && `
+  color: ${({ $negative, theme }) => ($negative ? theme.colors.palette.danger : theme.colors.text)};
+  ${({ $label, theme }) =>
+    $label &&
+    `
     text-align: left;
     font-family: ${theme.typography.fontFamily.primary};
     color: ${theme.colors.text2};
   `}
-  &:last-child { width: 100px; }
+  &:last-child {
+    width: 100px;
+  }
 `
 
 export const FlowTr = styled.tr<{ $active?: boolean }>`
   cursor: pointer;
   transition: background 0.1s;
-  ${({ $active, theme }) => $active && `
+  ${({ $active, theme }) =>
+    $active &&
+    `
     background: ${theme.colors.palette.primary}14;
     td { font-weight: ${theme.typography.fontWeight.bold}; }
   `}
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const FlowGroupHeader = styled.tr`
@@ -196,8 +218,12 @@ export const FlowBar = styled.div<{ $pct: number; $dir: 'in' | 'out' | 'neutral'
   height: 8px;
   width: ${({ $pct }) => Math.max($pct, 2)}%;
   border-radius: 4px;
-  background: ${({ $dir }) =>
-    $dir === 'in' ? '#3b82f6' : $dir === 'out' ? '#f43f5e' : '#94a3b8'};
+  background: ${({ $dir, theme }) =>
+    $dir === 'in'
+      ? theme.colors.palette.blueDark
+      : $dir === 'out'
+        ? theme.colors.palette.dangerDark
+        : theme.colors.palette.slate};
   opacity: 0.7;
 `
 
@@ -224,9 +250,15 @@ export const RankBadge = styled.span<{ $rank: number }>`
   font-size: 0.65rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  background: ${({ $rank }) =>
-    $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#d97706' : 'transparent'};
-  color: ${({ $rank, theme }) => $rank <= 3 ? 'white' : theme.colors.text4};
+  background: ${({ $rank, theme }) =>
+    $rank === 1
+      ? theme.colors.palette.warningDark
+      : $rank === 2
+        ? theme.colors.palette.slate
+        : $rank === 3
+          ? theme.colors.palette.warningDeep
+          : 'transparent'};
+  color: ${({ $rank, theme }) => ($rank <= 3 ? 'white' : theme.colors.text4)};
   margin-right: ${({ theme }) => theme.spacing[2]};
 `
 

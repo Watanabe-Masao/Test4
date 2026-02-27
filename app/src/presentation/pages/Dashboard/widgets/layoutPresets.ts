@@ -142,7 +142,11 @@ export function saveCustomPresets(presets: LayoutPreset[]): void {
   }
 }
 
-export function addCustomPreset(label: string, description: string, widgetIds: string[]): LayoutPreset {
+export function addCustomPreset(
+  label: string,
+  description: string,
+  widgetIds: string[],
+): LayoutPreset {
   const presets = loadCustomPresets()
   const id = `custom-${Date.now()}`
   const newPreset: LayoutPreset = { id, label, description, widgetIds, isCustom: true }

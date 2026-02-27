@@ -4,12 +4,20 @@ type ButtonVariant = 'primary' | 'success' | 'outline' | 'ghost'
 
 const variantStyles = {
   primary: css`
-    background: linear-gradient(135deg, ${({ theme }) => theme.colors.palette.primary}, ${({ theme }) => theme.colors.palette.primaryDark});
+    background: linear-gradient(
+      135deg,
+      ${({ theme }) => theme.colors.palette.primary},
+      ${({ theme }) => theme.colors.palette.primaryDark}
+    );
     color: white;
     border: none;
   `,
   success: css`
-    background: linear-gradient(135deg, ${({ theme }) => theme.colors.palette.success}, ${({ theme }) => theme.colors.palette.successDark});
+    background: linear-gradient(
+      135deg,
+      ${({ theme }) => theme.colors.palette.success},
+      ${({ theme }) => theme.colors.palette.successDark}
+    );
     color: white;
     border: none;
   `,
@@ -37,7 +45,7 @@ export const Button = styled.button<{ $variant?: ButtonVariant; $fullWidth?: boo
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
-  width: ${({ $fullWidth }) => $fullWidth ? '100%' : 'auto'};
+  width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
 
   ${({ $variant = 'primary' }) => variantStyles[$variant]}
 

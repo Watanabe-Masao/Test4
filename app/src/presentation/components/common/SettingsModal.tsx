@@ -85,8 +85,12 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
       onClose={onClose}
       footer={
         <>
-          <Button $variant="outline" onClick={onClose}>キャンセル</Button>
-          <Button $variant="primary" onClick={handleSave}>保存</Button>
+          <Button $variant="outline" onClick={onClose}>
+            キャンセル
+          </Button>
+          <Button $variant="primary" onClick={handleSave}>
+            保存
+          </Button>
         </>
       }
     >

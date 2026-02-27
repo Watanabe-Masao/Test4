@@ -1,9 +1,13 @@
 import { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct, toComma } from './chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -56,10 +60,10 @@ const FlowNode = styled.div<{ $color: string; $height: number; $clickable?: bool
   display: flex;
   flex-direction: column;
   justify-content: center;
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
   transition: border-color 0.15s;
   &:hover {
-    ${({ $clickable, $color }) => $clickable ? `border-color: ${$color};` : ''}
+    ${({ $clickable, $color }) => ($clickable ? `border-color: ${$color};` : '')}
   }
 `
 
@@ -91,8 +95,8 @@ const YoyBadge = styled.span<{ $positive: boolean }>`
   padding: 0 3px;
   border-radius: 2px;
   margin-left: 4px;
-  color: ${({ $positive }) => ($positive ? '#22c55e' : '#ef4444')};
-  background: ${({ $positive }) => ($positive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)')};
+  color: ${({ $positive }) => sc.cond($positive)};
+  background: ${({ $positive }) => ($positive ? 'rgba(14,165,233,0.1)' : 'rgba(249,115,22,0.1)')};
 `
 
 const Arrow = styled.div`
@@ -147,9 +151,12 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
   const prev = prevYearResult
   const { requestDrillThrough } = useCrossChartSelection()
 
-  const handleDrillThrough = useCallback((widgetId: string) => {
-    requestDrillThrough({ widgetId })
-  }, [requestDrillThrough])
+  const handleDrillThrough = useCallback(
+    (widgetId: string) => {
+      requestDrillThrough({ widgetId })
+    },
+    [requestDrillThrough],
+  )
 
   const nodes = useMemo(() => {
     const grossSales = r.grossSales
@@ -172,11 +179,20 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
       grossSales: { value: grossSales, yoy: yoy(grossSales, prev?.grossSales) },
       totalSales: { value: totalSales, yoy: yoy(totalSales, prev?.totalSales) },
       // 中間列: コスト構造
-      cost: { value: totalCost, yoy: yoy(totalCost, prev ? prev.inventoryCost + prev.deliverySalesCost : undefined) },
+      cost: {
+        value: totalCost,
+        yoy: yoy(totalCost, prev ? prev.inventoryCost + prev.deliverySalesCost : undefined),
+      },
       discount: { value: discount, yoy: yoy(discount, prev?.totalDiscount) },
       consumable: { value: consumable, yoy: yoy(consumable, prev?.totalConsumable) },
       // 右列: 利益
-      gpInv: { value: gpInv, yoy: gpInv != null && prev?.invMethodGrossProfit != null ? yoy(gpInv, prev.invMethodGrossProfit) : null },
+      gpInv: {
+        value: gpInv,
+        yoy:
+          gpInv != null && prev?.invMethodGrossProfit != null
+            ? yoy(gpInv, prev.invMethodGrossProfit)
+            : null,
+      },
       gpEst: { value: gpEst, yoy: yoy(gpEst, prev?.estMethodMargin) },
       budget: { value: budget },
       // 率
@@ -203,20 +219,31 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
 
   return (
     <Wrapper>
-      <Title>収益構造俯瞰図（売上→原価→売変→粗利）</Title>
+      <Title>
+        収益構造俯瞰図（売上→原価→売変→粗利）
+        <ChartHelpButton guide={CHART_GUIDES['structural-overview']} />
+      </Title>
       <FlowContainer>
         {/* 左: 売上 */}
         <Column>
           <ColumnLabel>収入</ColumnLabel>
-          <FlowNode $color="#6366f1" $height={h(nodes.grossSales.value)}>
+          <FlowNode $color={palette.primary} $height={h(nodes.grossSales.value)}>
             <NodeLabel>粗売上</NodeLabel>
-            <NodeValue>{fmtMan(nodes.grossSales.value)}{renderYoy(nodes.grossSales.yoy)}</NodeValue>
+            <NodeValue>
+              {fmtMan(nodes.grossSales.value)}
+              {renderYoy(nodes.grossSales.yoy)}
+            </NodeValue>
             <NodeSub>{toComma(nodes.grossSales.value)}円</NodeSub>
           </FlowNode>
-          <FlowNode $color="#8b5cf6" $height={h(nodes.totalSales.value)}>
+          <FlowNode $color={palette.purpleDark} $height={h(nodes.totalSales.value)}>
             <NodeLabel>純売上</NodeLabel>
-            <NodeValue>{fmtMan(nodes.totalSales.value)}{renderYoy(nodes.totalSales.yoy)}</NodeValue>
-            <NodeSub>粗売上の{toPct(safeDivide(nodes.totalSales.value, nodes.grossSales.value, 0))}</NodeSub>
+            <NodeValue>
+              {fmtMan(nodes.totalSales.value)}
+              {renderYoy(nodes.totalSales.yoy)}
+            </NodeValue>
+            <NodeSub>
+              粗売上の{toPct(safeDivide(nodes.totalSales.value, nodes.grossSales.value, 0))}
+            </NodeSub>
           </FlowNode>
         </Column>
 
@@ -225,19 +252,38 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         {/* 中: コスト */}
         <Column>
           <ColumnLabel>コスト</ColumnLabel>
-          <FlowNode $color="#ef4444" $height={h(nodes.cost.value)} $clickable onClick={() => handleDrillThrough('daily-sales')}>
+          <FlowNode
+            $color={sc.negative}
+            $height={h(nodes.cost.value)}
+            $clickable
+            onClick={() => handleDrillThrough('daily-sales')}
+          >
             <NodeLabel>仕入原価</NodeLabel>
-            <NodeValue>{fmtMan(nodes.cost.value)}{renderYoy(nodes.cost.yoy)}</NodeValue>
+            <NodeValue>
+              {fmtMan(nodes.cost.value)}
+              {renderYoy(nodes.cost.yoy)}
+            </NodeValue>
             <NodeSub>値入率 {toPct(nodes.markupRate)}</NodeSub>
           </FlowNode>
-          <FlowNode $color="#f59e0b" $height={h(nodes.discount.value)} $clickable onClick={() => handleDrillThrough('discount-trend')}>
+          <FlowNode
+            $color={palette.warningDark}
+            $height={h(nodes.discount.value)}
+            $clickable
+            onClick={() => handleDrillThrough('discount-trend')}
+          >
             <NodeLabel>売変額</NodeLabel>
-            <NodeValue>{fmtMan(nodes.discount.value)}{renderYoy(nodes.discount.yoy)}</NodeValue>
+            <NodeValue>
+              {fmtMan(nodes.discount.value)}
+              {renderYoy(nodes.discount.yoy)}
+            </NodeValue>
             <NodeSub>売変率 {toPct(nodes.discountRate)}</NodeSub>
           </FlowNode>
-          <FlowNode $color="#f97316" $height={h(nodes.consumable.value)}>
+          <FlowNode $color={palette.orange} $height={h(nodes.consumable.value)}>
             <NodeLabel>消耗品費</NodeLabel>
-            <NodeValue>{fmtMan(nodes.consumable.value)}{renderYoy(nodes.consumable.yoy)}</NodeValue>
+            <NodeValue>
+              {fmtMan(nodes.consumable.value)}
+              {renderYoy(nodes.consumable.yoy)}
+            </NodeValue>
           </FlowNode>
         </Column>
 
@@ -247,19 +293,36 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
         <Column>
           <ColumnLabel>利益</ColumnLabel>
           {nodes.gpInv.value != null && (
-            <FlowNode $color="#22c55e" $height={h(nodes.gpInv.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
+            <FlowNode
+              $color={sc.positive}
+              $height={h(nodes.gpInv.value)}
+              $clickable
+              onClick={() => handleDrillThrough('gross-profit-rate')}
+            >
               <NodeLabel>粗利（在庫法）</NodeLabel>
-              <NodeValue>{fmtMan(nodes.gpInv.value)}{renderYoy(nodes.gpInv.yoy)}</NodeValue>
+              <NodeValue>
+                {fmtMan(nodes.gpInv.value)}
+                {renderYoy(nodes.gpInv.yoy)}
+              </NodeValue>
               <NodeSub>粗利率 {nodes.gpRateInv != null ? toPct(nodes.gpRateInv) : '-'}</NodeSub>
             </FlowNode>
           )}
-          <FlowNode $color="#06b6d4" $height={h(nodes.gpEst.value)} $clickable onClick={() => handleDrillThrough('gross-profit-rate')}>
-            <NodeLabel>マージン（推定法）</NodeLabel>
-            <NodeValue>{fmtMan(nodes.gpEst.value)}{renderYoy(nodes.gpEst.yoy)}</NodeValue>
-            <NodeSub>マージン率 {toPct(nodes.gpRateEst)}</NodeSub>
+          <FlowNode
+            $color={palette.cyanDark}
+            $height={h(nodes.gpEst.value)}
+            $clickable
+            onClick={() => handleDrillThrough('gross-profit-rate')}
+          >
+            <NodeLabel>在庫差分（推定法）</NodeLabel>
+            <NodeValue>
+              {fmtMan(nodes.gpEst.value)}
+              {renderYoy(nodes.gpEst.yoy)}
+            </NodeValue>
+            <NodeSub>在庫差分率 {toPct(nodes.gpRateEst)}</NodeSub>
+            <NodeSub>※損益ではありません</NodeSub>
           </FlowNode>
           {nodes.budget.value > 0 && (
-            <FlowNode $color="#a855f7" $height={40}>
+            <FlowNode $color={palette.purpleDeep} $height={40}>
               <NodeLabel>粗利予算</NodeLabel>
               <NodeValue>{fmtMan(nodes.budget.value)}</NodeValue>
               <NodeSub>
@@ -271,17 +334,25 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
       </FlowContainer>
 
       <SummaryRow>
-        <SumCard $color="#6366f1">
+        <SumCard $color={palette.primary}>
           <SumLabel>売上構成</SumLabel>
-          <SumValue>原価 {toPct(safeDivide(nodes.cost.value, nodes.grossSales.value, 0))} / 売変 {toPct(nodes.discountRate)} / 消耗品 {toPct(safeDivide(nodes.consumable.value, nodes.totalSales.value, 0))}</SumValue>
+          <SumValue>
+            原価 {toPct(safeDivide(nodes.cost.value, nodes.grossSales.value, 0))} / 売変{' '}
+            {toPct(nodes.discountRate)} / 消耗品{' '}
+            {toPct(safeDivide(nodes.consumable.value, nodes.totalSales.value, 0))}
+          </SumValue>
         </SumCard>
-        <SumCard $color="#22c55e">
+        <SumCard $color={sc.positive}>
           <SumLabel>粗利率トレンド</SumLabel>
           <SumValue>
-            {nodes.gpRateInv != null ? `在庫法: ${toPct(nodes.gpRateInv)}` : `推定法: ${toPct(nodes.gpRateEst)}`}
+            {nodes.gpRateInv != null
+              ? `在庫法: ${toPct(nodes.gpRateInv)}`
+              : `推定法（在庫差分率）: ${toPct(nodes.gpRateEst)}`}
             {prev && (prev.invMethodGrossProfitRate != null || prev.estMethodMarginRate > 0) && (
-              <YoyBadge $positive={(nodes.gpRateInv ?? nodes.gpRateEst) >= (prev.invMethodGrossProfitRate ?? prev.estMethodMarginRate)}>
-                前年 {toPct(prev.invMethodGrossProfitRate ?? prev.estMethodMarginRate)}
+              <YoyBadge
+                $positive={getEffectiveGrossProfitRate(r) >= getEffectiveGrossProfitRate(prev)}
+              >
+                前年 {toPct(getEffectiveGrossProfitRate(prev))}
               </YoyBadge>
             )}
           </SumValue>

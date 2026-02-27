@@ -5,10 +5,7 @@ import { detectDaysInTargetMonth, resolveDay } from './overflowDay'
 
 describe('detectDaysInTargetMonth', () => {
   it('通常月の日数を検出する（1月=31日, 4月=30日）', () => {
-    const rows = [
-      ['header'],
-      ['2025-01-15', 'data'],
-    ]
+    const rows = [['header'], ['2025-01-15', 'data']]
     expect(detectDaysInTargetMonth(rows, 0, 1, 1)).toBe(31)
 
     const rows2 = [['header'], ['2025-04-10', 'data']]

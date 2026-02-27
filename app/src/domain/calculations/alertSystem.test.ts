@@ -16,7 +16,7 @@ function mockResult(overrides: Partial<StoreResult> = {}): StoreResult {
     closingInventory: null,
     invMethodCogs: null,
     invMethodGrossProfit: null,
-    invMethodGrossProfitRate: 0.20,
+    invMethodGrossProfitRate: 0.2,
     estMethodCogs: null,
     estMethodMargin: null,
     estMethodMarginRate: 0.22,
@@ -38,7 +38,12 @@ function mockResult(overrides: Partial<StoreResult> = {}): StoreResult {
     dailyCumulative: new Map(),
     categoryTotals: new Map(),
     supplierTotals: new Map(),
-    transferDetails: { interStoreIn: { cost: 0, price: 0 }, interStoreOut: { cost: 0, price: 0 }, interDepartmentIn: { cost: 0, price: 0 }, interDepartmentOut: { cost: 0, price: 0 } },
+    transferDetails: {
+      interStoreIn: { cost: 0, price: 0 },
+      interStoreOut: { cost: 0, price: 0 },
+      interDepartmentIn: { cost: 0, price: 0 },
+      interDepartmentOut: { cost: 0, price: 0 },
+    },
     ...overrides,
   } as StoreResult
 }
@@ -56,17 +61,19 @@ describe('alertSystem', () => {
 
   describe('evaluateAlerts', () => {
     it('粗利率が目標を -2pt 以上下回った場合にアラートを発生させる', () => {
-      const rules: AlertRule[] = [{
-        id: 'test-gp',
-        type: 'gp_rate_below_target',
-        label: '粗利率低下',
-        description: '',
-        severity: 'critical',
-        enabled: true,
-        threshold: 0.02,
-      }]
+      const rules: AlertRule[] = [
+        {
+          id: 'test-gp',
+          type: 'gp_rate_below_target',
+          label: '粗利率低下',
+          description: '',
+          severity: 'critical',
+          enabled: true,
+          threshold: 0.02,
+        },
+      ]
 
-      const result = mockResult({ invMethodGrossProfitRate: 0.20 })
+      const result = mockResult({ invMethodGrossProfitRate: 0.2 })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
         targetGrossProfitRate: 0.25,
       })
@@ -74,19 +81,21 @@ describe('alertSystem', () => {
       // 25% - 20% = 5pt > 2pt threshold → alert
       expect(alerts).toHaveLength(1)
       expect(alerts[0].severity).toBe('critical')
-      expect(alerts[0].value).toBe(0.20)
+      expect(alerts[0].value).toBe(0.2)
     })
 
     it('粗利率が目標に近い場合はアラートを発生させない', () => {
-      const rules: AlertRule[] = [{
-        id: 'test-gp',
-        type: 'gp_rate_below_target',
-        label: '粗利率低下',
-        description: '',
-        severity: 'critical',
-        enabled: true,
-        threshold: 0.02,
-      }]
+      const rules: AlertRule[] = [
+        {
+          id: 'test-gp',
+          type: 'gp_rate_below_target',
+          label: '粗利率低下',
+          description: '',
+          severity: 'critical',
+          enabled: true,
+          threshold: 0.02,
+        },
+      ]
 
       const result = mockResult({ invMethodGrossProfitRate: 0.24 })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -98,15 +107,17 @@ describe('alertSystem', () => {
     })
 
     it('予算進捗率が閾値未満でアラートを発生させる', () => {
-      const rules: AlertRule[] = [{
-        id: 'test-budget',
-        type: 'budget_achievement_below',
-        label: '予算進捗不足',
-        description: '',
-        severity: 'warning',
-        enabled: true,
-        threshold: 0.90,
-      }]
+      const rules: AlertRule[] = [
+        {
+          id: 'test-budget',
+          type: 'budget_achievement_below',
+          label: '予算進捗不足',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.9,
+        },
+      ]
 
       const result = mockResult({ budgetProgressRate: 0.85 })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -118,17 +129,19 @@ describe('alertSystem', () => {
     })
 
     it('無効化されたルールはスキップする', () => {
-      const rules: AlertRule[] = [{
-        id: 'disabled',
-        type: 'gp_rate_below_target',
-        label: '無効ルール',
-        description: '',
-        severity: 'critical',
-        enabled: false,
-        threshold: 0.02,
-      }]
+      const rules: AlertRule[] = [
+        {
+          id: 'disabled',
+          type: 'gp_rate_below_target',
+          label: '無効ルール',
+          description: '',
+          severity: 'critical',
+          enabled: false,
+          threshold: 0.02,
+        },
+      ]
 
-      const result = mockResult({ invMethodGrossProfitRate: 0.10 })
+      const result = mockResult({ invMethodGrossProfitRate: 0.1 })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
         targetGrossProfitRate: 0.25,
       })
@@ -141,21 +154,34 @@ describe('alertSystem', () => {
     it('複数店舗のアラートをseverity順にソートする', () => {
       const rules: AlertRule[] = [
         {
-          id: 'gp', type: 'gp_rate_below_target', label: 'GP',
-          description: '', severity: 'critical', enabled: true, threshold: 0.02,
+          id: 'gp',
+          type: 'gp_rate_below_target',
+          label: 'GP',
+          description: '',
+          severity: 'critical',
+          enabled: true,
+          threshold: 0.02,
         },
         {
-          id: 'budget', type: 'budget_achievement_below', label: '予算',
-          description: '', severity: 'warning', enabled: true, threshold: 0.90,
+          id: 'budget',
+          type: 'budget_achievement_below',
+          label: '予算',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.9,
         },
       ]
 
       const results = new Map([
-        ['s1', mockResult({ invMethodGrossProfitRate: 0.20, budgetProgressRate: 0.95 })],
-        ['s2', mockResult({ invMethodGrossProfitRate: 0.30, budgetProgressRate: 0.85 })],
+        ['s1', mockResult({ invMethodGrossProfitRate: 0.2, budgetProgressRate: 0.95 })],
+        ['s2', mockResult({ invMethodGrossProfitRate: 0.3, budgetProgressRate: 0.85 })],
       ])
 
-      const storeNames = new Map([['s1', '店舗A'], ['s2', '店舗B']])
+      const storeNames = new Map([
+        ['s1', '店舗A'],
+        ['s2', '店舗B'],
+      ])
       const alerts = evaluateAllStoreAlerts(results, storeNames, rules, {
         targetGrossProfitRate: 0.25,
       })

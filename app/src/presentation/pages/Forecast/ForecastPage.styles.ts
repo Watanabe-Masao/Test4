@@ -17,7 +17,8 @@ export const ChartWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 export const ChartTitle = styled.div`
@@ -61,26 +62,37 @@ export const Th = styled.th`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  &:first-child { text-align: center; }
+  &:first-child {
+    text-align: center;
+  }
 `
 
 export const Td = styled.td<{ $highlight?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $highlight, theme }) => $highlight ? theme.colors.palette.warning : theme.colors.text};
-  font-weight: ${({ $highlight, theme }) => $highlight ? theme.typography.fontWeight.bold : 'normal'};
-  &:first-child { text-align: center; color: ${({ theme }) => theme.colors.text2}; }
+  color: ${({ $highlight, theme }) =>
+    $highlight ? theme.colors.palette.warning : theme.colors.text};
+  font-weight: ${({ $highlight, theme }) =>
+    $highlight ? theme.typography.fontWeight.bold : 'normal'};
+  &:first-child {
+    text-align: center;
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 export const Tr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const TrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  td { font-weight: ${({ theme }) => theme.typography.fontWeight.bold}; }
+  td {
+    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  }
 `
 
 export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
@@ -139,8 +151,13 @@ export const ColorInput = styled.input`
   padding: 1px;
   cursor: pointer;
   background: transparent;
-  &::-webkit-color-swatch-wrapper { padding: 0; }
-  &::-webkit-color-swatch { border: none; border-radius: 2px; }
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+  }
 `
 
 export const ColorPickerTitle = styled.span`

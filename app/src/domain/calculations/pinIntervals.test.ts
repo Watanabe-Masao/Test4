@@ -66,7 +66,10 @@ describe('calculatePinIntervals', () => {
     daily.set(3, makeDailyRecord(3, 70000, 40000))
 
     // 2日目と3日目にピン
-    const intervals = calculatePinIntervals(daily, 100000, [[2, 120000], [3, 130000]])
+    const intervals = calculatePinIntervals(daily, 100000, [
+      [2, 120000],
+      [3, 130000],
+    ])
 
     expect(intervals).toHaveLength(2)
 

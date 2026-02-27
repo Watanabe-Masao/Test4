@@ -2,11 +2,7 @@
  * Phase 2.2: CalculationCache テスト
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import {
-  CalculationCache,
-  computeFingerprint,
-  computeGlobalFingerprint,
-} from '../calculationCache'
+import { CalculationCache, computeFingerprint, computeGlobalFingerprint } from '../calculationCache'
 import { createEmptyImportedData } from '@/domain/models'
 import type { AppSettings, StoreResult } from '@/domain/models'
 
@@ -15,7 +11,7 @@ const mockSettings: AppSettings = {
   targetMonth: 1,
   targetGrossProfitRate: 0.25,
   warningThreshold: 0.23,
-  flowerCostRate: 0.80,
+  flowerCostRate: 0.8,
   directProduceCostRate: 0.85,
   defaultMarkupRate: 0.3,
   defaultBudget: 1000000,
@@ -32,9 +28,20 @@ function makeStoreResult(storeId: string): StoreResult {
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
-    year: 2024, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+    year: 2024,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: discount,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -73,7 +80,18 @@ describe('computeFingerprint', () => {
       ...data1,
       consumables: {
         s1: {
-          1: { cost: 500, items: [{ accountCode: '81257', itemCode: 'A001', itemName: 'テスト品', quantity: 1, cost: 500 }] },
+          1: {
+            cost: 500,
+            items: [
+              {
+                accountCode: '81257',
+                itemCode: 'A001',
+                itemName: 'テスト品',
+                quantity: 1,
+                cost: 500,
+              },
+            ],
+          },
         },
       },
     }
@@ -100,7 +118,16 @@ describe('computeFingerprint', () => {
       interStoreIn: {
         s1: {
           1: {
-            interStoreIn: [{ day: 1, cost: 100, price: 120, fromStoreId: 's2', toStoreId: 's1', isDepartmentTransfer: false }],
+            interStoreIn: [
+              {
+                day: 1,
+                cost: 100,
+                price: 120,
+                fromStoreId: 's2',
+                toStoreId: 's1',
+                isDepartmentTransfer: false,
+              },
+            ],
             interStoreOut: [],
             interDepartmentIn: [],
             interDepartmentOut: [],

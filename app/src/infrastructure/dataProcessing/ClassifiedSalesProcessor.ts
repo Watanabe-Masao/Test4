@@ -112,7 +112,12 @@ function parseStoreId(
 const SUBTOTAL_PATTERNS = ['合計', '小計', '計', 'total', 'subtotal']
 
 /** カテゴリ名が小計・合計行であるかを判定する */
-function isSubtotalRow(groupName: string, departmentName: string, lineName: string, className: string): boolean {
+function isSubtotalRow(
+  groupName: string,
+  departmentName: string,
+  lineName: string,
+  className: string,
+): boolean {
   const fields = [groupName, departmentName, lineName, className]
   return fields.some((f) => {
     const lower = f.toLowerCase()
@@ -197,7 +202,10 @@ export function processClassifiedSales(
     })
   }
 
-  return { records, skippedSubtotalRows: skippedSubtotalRows.length > 0 ? skippedSubtotalRows : undefined }
+  return {
+    records,
+    skippedSubtotalRows: skippedSubtotalRows.length > 0 ? skippedSubtotalRows : undefined,
+  }
 }
 
 /**

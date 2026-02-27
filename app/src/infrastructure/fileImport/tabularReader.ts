@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx'
  */
 function decodeCSVBytes(bytes: Uint8Array): string {
   // UTF-8 BOM 検出
-  if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+  if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
     return new TextDecoder('utf-8').decode(bytes)
   }
 
@@ -19,21 +19,8 @@ function decodeCSVBytes(bytes: Uint8Array): string {
   }
 }
 
-/**
- * ファイルを2次元配列として読み込む（CSV/Excel共通）
- */
-export async function readTabularFile(file: File): Promise<unknown[][]> {
-  const buffer = await file.arrayBuffer()
-
-  let workbook: XLSX.WorkBook
-  if (file.name.toLowerCase().endsWith('.csv')) {
-    // CSV: エンコーディングを手動検出してデコード後にパース
-    const text = decodeCSVBytes(new Uint8Array(buffer))
-    workbook = XLSX.read(text, { type: 'string' })
-  } else {
-    workbook = XLSX.read(buffer, { type: 'array' })
-  }
-
+/** ワークブックの最初のシートを2次元配列に変換する共通ヘルパー */
+function sheetToRows(workbook: XLSX.WorkBook): unknown[][] {
   const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
   if (!firstSheet) return []
 
@@ -44,6 +31,39 @@ export async function readTabularFile(file: File): Promise<unknown[][]> {
   })
 
   return rows
+}
+
+/**
+ * XLSX (Excel) の ArrayBuffer を2次元配列としてパースする。
+ * Worker からも直接呼び出せるよう File API に依存しない。
+ */
+export function parseXlsxBuffer(buffer: ArrayBuffer): unknown[][] {
+  const workbook = XLSX.read(buffer, { type: 'array' })
+  return sheetToRows(workbook)
+}
+
+/**
+ * CSV の ArrayBuffer を2次元配列としてパースする。
+ * エンコーディング自動検出（UTF-8 BOM → UTF-8 → Shift_JIS フォールバック）付き。
+ * Worker からも直接呼び出せるよう File API に依存しない。
+ */
+export function parseCsvBuffer(buffer: ArrayBuffer): unknown[][] {
+  const text = decodeCSVBytes(new Uint8Array(buffer))
+  const workbook = XLSX.read(text, { type: 'string' })
+  return sheetToRows(workbook)
+}
+
+/**
+ * ファイルを2次元配列として読み込む（CSV/Excel共通）
+ */
+export async function readTabularFile(file: File): Promise<unknown[][]> {
+  const buffer = await file.arrayBuffer()
+
+  if (file.name.toLowerCase().endsWith('.csv')) {
+    return parseCsvBuffer(buffer)
+  }
+
+  return parseXlsxBuffer(buffer)
 }
 
 /**

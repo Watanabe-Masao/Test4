@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import type { StorageDataType } from '@/domain/models'
 import { useStorageAdmin } from '@/application/hooks'
 
@@ -90,9 +91,9 @@ const ExpandIcon = styled.span<{ $expanded: boolean }>`
 
 const DeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  border: 1px solid ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   background: transparent;
-  color: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -100,7 +101,7 @@ const DeleteButton = styled.button`
   transition: all 0.15s;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+    background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
     color: #fff;
   }
 `
@@ -124,8 +125,9 @@ const DataTypeRow = styled.div<{ $hasData: boolean }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $hasData, theme }) =>
     $hasData ? `${theme.colors.palette.primary}08` : 'transparent'};
-  border: 1px solid ${({ $hasData, theme }) =>
-    $hasData ? `${theme.colors.palette.primary}20` : theme.colors.border};
+  border: 1px solid
+    ${({ $hasData, theme }) =>
+      $hasData ? `${theme.colors.palette.primary}20` : theme.colors.border};
 `
 
 const DataTypeLabel = styled.span`
@@ -137,8 +139,7 @@ const DataTypeCount = styled.span<{ $hasData: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ $hasData, theme }) =>
-    $hasData ? theme.colors.palette.primary : theme.colors.text4};
+  color: ${({ $hasData, theme }) => ($hasData ? theme.colors.palette.primary : theme.colors.text4)};
 `
 
 const RawDataSection = styled.div`
@@ -163,12 +164,11 @@ const RawDataChipGroup = styled.div`
 
 const RawDataChip = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}20` : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   font-size: 11px;
   border-radius: ${({ theme }) => theme.radii.pill};
   cursor: pointer;
@@ -266,19 +266,23 @@ const CancelButton = styled.button`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.colors.bg3}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg3};
+  }
 `
 
 const ConfirmDeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border: none;
-  background: ${({ theme }) => theme.colors.palette.danger ?? '#ef4444'};
+  background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
   color: #fff;
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  &:hover { opacity: 0.9; }
+  &:hover {
+    opacity: 0.9;
+  }
 `
 
 const LoadingText = styled.div`
@@ -286,6 +290,83 @@ const LoadingText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
+`
+
+// ─── Data Governance サマリー ────────────────────────────
+
+const GovernanceSummary = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[5]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+`
+
+const GovernanceRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const GovernanceIcon = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ theme }) => theme.colors.palette.success};
+`
+
+const GovernanceText = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  line-height: 1.5;
+`
+
+const GovernanceStat = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const GovernanceStatValue = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const GovernanceStatLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+// ─── Delete Confirmation Enhancement ──────────────────
+
+const ConfirmDetail = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg3};
+  padding: ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+const ConfirmDetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+
+const ConfirmWarning = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
 // ─── Types ──────────────────────────────────────────────
@@ -300,35 +381,56 @@ interface MonthEntry {
 
 // StoreDayRecord 型のデータ種別
 const STORE_DAY_TYPES = [
-  'purchase', 'sales', 'discount',
-  'interStoreIn', 'interStoreOut', 'flowers', 'directProduce', 'consumables',
+  'purchase',
+  'sales',
+  'discount',
+  'interStoreIn',
+  'interStoreOut',
+  'flowers',
+  'directProduce',
+  'consumables',
 ]
 
 // ─── Raw Data Viewer ────────────────────────────────────
 
-function RawDataViewer({ year, month, summary, loadSlice }: { year: number; month: number; summary: MonthEntry['summary']; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
-  const typesWithData = summary.filter((s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType))
+function RawDataViewer({
+  year,
+  month,
+  summary,
+  loadSlice,
+}: {
+  year: number
+  month: number
+  summary: MonthEntry['summary']
+  loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
+}) {
+  const typesWithData = summary.filter(
+    (s) => s.recordCount > 0 && STORE_DAY_TYPES.includes(s.dataType),
+  )
   const [selectedType, setSelectedType] = useState<StorageDataType | null>(null)
   const [rawData, setRawData] = useState<Record<string, Record<string, unknown>> | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSelectType = useCallback(async (dataType: StorageDataType) => {
-    if (selectedType === dataType) {
-      setSelectedType(null)
-      setRawData(null)
-      return
-    }
-    setSelectedType(dataType)
-    setLoading(true)
-    try {
-      const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
-      setRawData(data)
-    } catch {
-      setRawData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [year, month, selectedType, loadSlice])
+  const handleSelectType = useCallback(
+    async (dataType: StorageDataType) => {
+      if (selectedType === dataType) {
+        setSelectedType(null)
+        setRawData(null)
+        return
+      }
+      setSelectedType(dataType)
+      setLoading(true)
+      try {
+        const data = await loadSlice<Record<string, Record<string, unknown>>>(year, month, dataType)
+        setRawData(data)
+      } catch {
+        setRawData(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [year, month, selectedType, loadSlice],
+  )
 
   if (typesWithData.length === 0) return null
 
@@ -396,7 +498,9 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
                   {storeIds.map((sid) => {
                     const val = extractMainValue(rawData[sid]?.[day])
                     return (
-                      <RawTd key={sid} $zero={val === 0}>{fmt(val)}</RawTd>
+                      <RawTd key={sid} $zero={val === 0}>
+                        {fmt(val)}
+                      </RawTd>
                     )
                   })}
                 </tr>
@@ -415,9 +519,31 @@ function RawDataViewer({ year, month, summary, loadSlice }: { year: number; mont
 
 // ─── CTS Viewer ─────────────────────────────────────────
 
-function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; month: number; dataType: StorageDataType; label: string; loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null> }) {
+function CTSViewer({
+  year,
+  month,
+  dataType,
+  label,
+  loadSlice,
+}: {
+  year: number
+  month: number
+  dataType: StorageDataType
+  label: string
+  loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
+}) {
   const [expanded, setExpanded] = useState(false)
-  const [records, setRecords] = useState<{ day: number; storeId: string; dept: string; line: string; klass: string; amount: number; qty: number }[]>([])
+  const [records, setRecords] = useState<
+    {
+      day: number
+      storeId: string
+      dept: string
+      line: string
+      klass: string
+      amount: number
+      qty: number
+    }[]
+  >([])
   const [loading, setLoading] = useState(false)
 
   const handleToggle = useCallback(async () => {
@@ -428,17 +554,29 @@ function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; 
     setExpanded(true)
     setLoading(true)
     try {
-      const data = await loadSlice<{ records: { day: number; storeId: string; department: { name: string }; line: { name: string }; klass: { name: string }; totalAmount: number; totalQuantity: number }[] }>(year, month, dataType)
+      const data = await loadSlice<{
+        records: {
+          day: number
+          storeId: string
+          department: { name: string }
+          line: { name: string }
+          klass: { name: string }
+          totalAmount: number
+          totalQuantity: number
+        }[]
+      }>(year, month, dataType)
       if (data?.records) {
-        setRecords(data.records.slice(0, 200).map((r) => ({
-          day: r.day,
-          storeId: r.storeId,
-          dept: r.department.name,
-          line: r.line.name,
-          klass: r.klass.name,
-          amount: r.totalAmount,
-          qty: r.totalQuantity,
-        })))
+        setRecords(
+          data.records.slice(0, 200).map((r) => ({
+            day: r.day,
+            storeId: r.storeId,
+            dept: r.department.name,
+            line: r.line.name,
+            klass: r.klass.name,
+            amount: r.totalAmount,
+            qty: r.totalQuantity,
+          })),
+        )
       }
     } catch {
       setRecords([])
@@ -481,7 +619,7 @@ function CTSViewer({ year, month, dataType, label, loadSlice }: { year: number; 
               ))}
               {records.length >= 200 && (
                 <tr>
-                  <RawTd colSpan={7} style={{ textAlign: 'center', color: '#94a3b8' }}>
+                  <RawTd colSpan={7} style={{ textAlign: 'center', color: palette.slate }}>
                     先頭200件のみ表示しています
                   </RawTd>
                 </tr>
@@ -559,13 +697,39 @@ export function StorageManagementTab() {
     )
   }
 
+  const grandTotalRecords = months.reduce((sum, m) => sum + m.totalRecords, 0)
+
   return (
     <>
       <Section>
         <SectionTitle>保存データ管理</SectionTitle>
         <HelpText>
-          IndexedDB に保存されている月別データの一覧です。各月のデータ内容を確認したり、不要なデータを削除できます。
+          IndexedDB
+          に保存されている月別データの一覧です。各月のデータ内容を確認したり、不要なデータを削除できます。
         </HelpText>
+
+        <GovernanceSummary>
+          <GovernanceStat>
+            <GovernanceStatValue>{grandTotalRecords.toLocaleString()}</GovernanceStatValue>
+            <GovernanceStatLabel>件（全 {months.length} 月分合計）</GovernanceStatLabel>
+          </GovernanceStat>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>
+              全データはブラウザ内ローカルストレージに保存されています。サーバーへの送信は行いません。
+            </GovernanceText>
+          </GovernanceRow>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>自動削除はありません。手動で管理してください。</GovernanceText>
+          </GovernanceRow>
+          <GovernanceRow>
+            <GovernanceIcon />
+            <GovernanceText>
+              個人を特定できるデータは含まれていません（売上集計データのみ）。
+            </GovernanceText>
+          </GovernanceRow>
+        </GovernanceSummary>
 
         {months.length === 0 ? (
           <EmptyState>保存されたデータはありません</EmptyState>
@@ -581,7 +745,9 @@ export function StorageManagementTab() {
                   <MonthCardHeader onClick={() => toggleExpand(key)}>
                     <MonthLabel>
                       <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                      <MonthTitle>{entry.year}年{entry.month}月</MonthTitle>
+                      <MonthTitle>
+                        {entry.year}年{entry.month}月
+                      </MonthTitle>
                       <MonthBadge>
                         {entry.dataTypeCount}種別 / {entry.totalRecords.toLocaleString()}件
                       </MonthBadge>
@@ -611,10 +777,21 @@ export function StorageManagementTab() {
                         ))}
                       </DataTypeGrid>
 
-                      <RawDataViewer year={entry.year} month={entry.month} summary={entry.summary} loadSlice={loadSlice} />
+                      <RawDataViewer
+                        year={entry.year}
+                        month={entry.month}
+                        summary={entry.summary}
+                        loadSlice={loadSlice}
+                      />
 
                       {ctsSummary && ctsSummary.recordCount > 0 && (
-                        <CTSViewer year={entry.year} month={entry.month} dataType="categoryTimeSales" label="分類別時間帯売上" loadSlice={loadSlice} />
+                        <CTSViewer
+                          year={entry.year}
+                          month={entry.month}
+                          dataType="categoryTimeSales"
+                          label="分類別時間帯売上"
+                          loadSlice={loadSlice}
+                        />
                       )}
                     </DetailPanel>
                   )}
@@ -626,25 +803,43 @@ export function StorageManagementTab() {
       </Section>
 
       {/* 削除確認ダイアログ */}
-      {deleteTarget && (
-        <ConfirmOverlay onClick={() => !deleting && setDeleteTarget(null)}>
-          <ConfirmDialog onClick={(e) => e.stopPropagation()}>
-            <ConfirmTitle>データ削除の確認</ConfirmTitle>
-            <ConfirmMessage>
-              {deleteTarget.year}年{deleteTarget.month}月の保存データを全て削除します。
-              この操作は取り消せません。
-            </ConfirmMessage>
-            <ConfirmActions>
-              <CancelButton onClick={() => setDeleteTarget(null)} disabled={deleting}>
-                キャンセル
-              </CancelButton>
-              <ConfirmDeleteButton onClick={handleDelete} disabled={deleting}>
-                {deleting ? '削除中...' : '削除する'}
-              </ConfirmDeleteButton>
-            </ConfirmActions>
-          </ConfirmDialog>
-        </ConfirmOverlay>
-      )}
+      {deleteTarget &&
+        (() => {
+          const targetEntry = months.find(
+            (m) => m.year === deleteTarget.year && m.month === deleteTarget.month,
+          )
+          return (
+            <ConfirmOverlay onClick={() => !deleting && setDeleteTarget(null)}>
+              <ConfirmDialog onClick={(e) => e.stopPropagation()}>
+                <ConfirmTitle>データ削除の確認</ConfirmTitle>
+                <ConfirmMessage>
+                  {deleteTarget.year}年{deleteTarget.month}月の保存データを全て削除します。
+                </ConfirmMessage>
+                {targetEntry && (
+                  <ConfirmDetail>
+                    <ConfirmDetailRow>
+                      <span>データ種別数</span>
+                      <span>{targetEntry.dataTypeCount} 種別</span>
+                    </ConfirmDetailRow>
+                    <ConfirmDetailRow>
+                      <span>総レコード数</span>
+                      <span>{targetEntry.totalRecords.toLocaleString()} 件</span>
+                    </ConfirmDetailRow>
+                  </ConfirmDetail>
+                )}
+                <ConfirmWarning>この操作は取り消せません。</ConfirmWarning>
+                <ConfirmActions>
+                  <CancelButton onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                    キャンセル
+                  </CancelButton>
+                  <ConfirmDeleteButton onClick={handleDelete} disabled={deleting}>
+                    {deleting ? '削除中...' : '削除する'}
+                  </ConfirmDeleteButton>
+                </ConfirmActions>
+              </ConfirmDialog>
+            </ConfirmOverlay>
+          )
+        })()}
     </>
   )
 }

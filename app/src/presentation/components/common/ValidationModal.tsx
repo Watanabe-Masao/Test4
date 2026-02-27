@@ -1,8 +1,10 @@
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { ValidationMessage } from '@/domain/models'
+import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
+import type { TemplateDataType } from '@/infrastructure/export'
 
 const MessageList = styled.div`
   display: flex;
@@ -23,12 +25,13 @@ const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
       : $level === 'warning'
         ? `${theme.colors.palette.warning}18`
         : `${theme.colors.palette.primary}18`};
-  border-left: 3px solid ${({ $level, theme }) =>
-    $level === 'error'
-      ? theme.colors.palette.danger
-      : $level === 'warning'
-        ? theme.colors.palette.warning
-        : theme.colors.palette.primary};
+  border-left: 3px solid
+    ${({ $level, theme }) =>
+      $level === 'error'
+        ? theme.colors.palette.danger
+        : $level === 'warning'
+          ? theme.colors.palette.warning
+          : theme.colors.palette.primary};
   color: ${({ theme }) => theme.colors.text};
 `
 
@@ -82,6 +85,53 @@ const DetailLine = styled.div`
   line-height: 1.4;
 `
 
+// ─── 次のステップセクション ──────────────────────────
+const NextStepsBox = styled.div<{ $variant: 'success' | 'warning' | 'error' }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[4]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  background: ${({ $variant, theme }) =>
+    $variant === 'success'
+      ? `${theme.colors.palette.success}12`
+      : $variant === 'warning'
+        ? `${theme.colors.palette.warning}12`
+        : `${theme.colors.palette.danger}12`};
+  border: 1px solid
+    ${({ $variant, theme }) =>
+      $variant === 'success'
+        ? `${theme.colors.palette.success}30`
+        : $variant === 'warning'
+          ? `${theme.colors.palette.warning}30`
+          : `${theme.colors.palette.danger}30`};
+`
+
+const NextStepsTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const NextStepsText = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  line-height: 1.6;
+`
+
+const TemplateLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: inline;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  text-decoration: underline;
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
 const LEVEL_LABELS: Record<ValidationMessage['level'], string> = {
   error: 'ERROR',
   warning: 'WARN',
@@ -114,6 +164,96 @@ function MessageEntry({ msg }: { msg: ValidationMessage }) {
   )
 }
 
+/** メッセージテキストからデータ種別のヒントを検出する */
+function detectMissingTypes(messages: readonly ValidationMessage[]): TemplateDataType[] {
+  const missing: TemplateDataType[] = []
+  const messageText = messages.map((m) => m.message).join(' ')
+
+  // 予算が未設定の場合
+  if (messageText.includes('予算') && messageText.includes('未設定')) {
+    missing.push('budget')
+  }
+
+  return missing
+}
+
+function NextStepsSection({ messages }: { messages: readonly ValidationMessage[] }) {
+  const errors = messages.filter((m) => m.level === 'error')
+  const warnings = messages.filter((m) => m.level === 'warning')
+  const missingTypes = detectMissingTypes(messages)
+
+  const handleTemplateDownload = useCallback((type: TemplateDataType) => {
+    downloadTemplate(type)
+  }, [])
+
+  if (errors.length > 0) {
+    // エラーがある場合のガイダンス
+    return (
+      <NextStepsBox $variant="error">
+        <NextStepsTitle>次のステップ</NextStepsTitle>
+        <NextStepsText>エラーを修正してから再インポートしてください。</NextStepsText>
+        {TEMPLATE_TYPES.length > 0 && (
+          <NextStepsText>
+            テンプレートをダウンロード:{' '}
+            {TEMPLATE_TYPES.map((type, i) => (
+              <span key={type}>
+                {i > 0 && ' / '}
+                <TemplateLink onClick={() => handleTemplateDownload(type)}>
+                  {TEMPLATE_LABELS[type]}
+                </TemplateLink>
+              </span>
+            ))}
+          </NextStepsText>
+        )}
+      </NextStepsBox>
+    )
+  }
+
+  if (warnings.length > 0) {
+    // 警告のみの場合のガイダンス
+    return (
+      <NextStepsBox $variant="warning">
+        <NextStepsTitle>次のステップ</NextStepsTitle>
+        <NextStepsText>データは取り込まれましたが、以下を確認してください。</NextStepsText>
+        {missingTypes.length > 0 && (
+          <NextStepsText>
+            未取込データのテンプレート:{' '}
+            {missingTypes.map((type, i) => (
+              <span key={type}>
+                {i > 0 && ' / '}
+                <TemplateLink onClick={() => handleTemplateDownload(type)}>
+                  {TEMPLATE_LABELS[type]}
+                </TemplateLink>
+              </span>
+            ))}
+          </NextStepsText>
+        )}
+      </NextStepsBox>
+    )
+  }
+
+  // 全て成功の場合
+  return (
+    <NextStepsBox $variant="success">
+      <NextStepsTitle>次のステップ</NextStepsTitle>
+      <NextStepsText>取り込み完了！ KPI画面で結果を確認してください。</NextStepsText>
+      {missingTypes.length > 0 && (
+        <NextStepsText>
+          追加データ:{' '}
+          {missingTypes.map((type, i) => (
+            <span key={type}>
+              {i > 0 && ' / '}
+              <TemplateLink onClick={() => handleTemplateDownload(type)}>
+                {TEMPLATE_LABELS[type]}
+              </TemplateLink>
+            </span>
+          ))}
+        </NextStepsText>
+      )}
+    </NextStepsBox>
+  )
+}
+
 export function ValidationModal({
   messages,
   onClose,
@@ -137,6 +277,7 @@ export function ValidationModal({
           <MessageEntry key={i} msg={msg} />
         ))}
       </MessageList>
+      <NextStepsSection messages={messages} />
     </Modal>
   )
 }

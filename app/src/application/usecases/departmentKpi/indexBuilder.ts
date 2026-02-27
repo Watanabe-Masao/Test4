@@ -10,6 +10,7 @@
  * - フィルタ・集約ロジックをアプリケーション層に集約
  */
 import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models'
+import { safeDivide } from '@/domain/calculations/utils'
 
 /** 部門KPIサマリー（全部門の集約値） */
 export interface DepartmentKpiSummary {
@@ -66,9 +67,7 @@ export const EMPTY_DEPT_KPI_INDEX: DepartmentKpiIndex = {
 /**
  * DepartmentKpiData からインデックスを構築する。
  */
-export function buildDepartmentKpiIndex(
-  data: DepartmentKpiData,
-): DepartmentKpiIndex {
+export function buildDepartmentKpiIndex(data: DepartmentKpiData): DepartmentKpiIndex {
   const { records } = data
   if (records.length === 0) return EMPTY_DEPT_KPI_INDEX
 
@@ -101,11 +100,11 @@ export function buildDepartmentKpiIndex(
     deptCount: records.length,
     totalSalesBudget,
     totalSalesActual,
-    overallSalesAchievement: totalSalesBudget > 0 ? totalSalesActual / totalSalesBudget : 0,
-    weightedGpRateBudget: totalSalesActual > 0 ? gpBudgetWeightedSum / totalSalesActual : 0,
-    weightedGpRateActual: totalSalesActual > 0 ? gpActualWeightedSum / totalSalesActual : 0,
-    weightedDiscountRate: totalSalesActual > 0 ? discountWeightedSum / totalSalesActual : 0,
-    weightedMarkupRate: totalSalesActual > 0 ? markupWeightedSum / totalSalesActual : 0,
+    overallSalesAchievement: safeDivide(totalSalesActual, totalSalesBudget),
+    weightedGpRateBudget: safeDivide(gpBudgetWeightedSum, totalSalesActual),
+    weightedGpRateActual: safeDivide(gpActualWeightedSum, totalSalesActual),
+    weightedDiscountRate: safeDivide(discountWeightedSum, totalSalesActual),
+    weightedMarkupRate: safeDivide(markupWeightedSum, totalSalesActual),
   }
 
   // ランキング（降順）

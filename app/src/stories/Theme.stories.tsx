@@ -103,7 +103,9 @@ function TypographyDisplay() {
     <div>
       {sizes.map(([name, size]) => (
         <TypeRow key={name}>
-          <TypeLabel>{name} ({size})</TypeLabel>
+          <TypeLabel>
+            {name} ({size})
+          </TypeLabel>
           <span style={{ fontSize: size }}>仕入粗利管理ツール - 売上データ ABC 123</span>
         </TypeRow>
       ))}
@@ -146,7 +148,9 @@ function SpacingDisplay() {
     <div>
       {entries.map(([key, value]) => (
         <SpacingRow key={key}>
-          <SpacingLabel>spacing[{key}] = {value}</SpacingLabel>
+          <SpacingLabel>
+            spacing[{key}] = {value}
+          </SpacingLabel>
           <SpacingBox $w={value} />
         </SpacingRow>
       ))}

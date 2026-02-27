@@ -24,10 +24,16 @@ import type {
   DailyRecord,
 } from '@/domain/models'
 import { aggregateForStore } from '@/domain/models'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 
 // ─── ヘルパー ──────────────────────────────────────────────
 
-function inp(name: string, value: number, unit: Explanation['unit'], metric?: MetricId): ExplanationInput {
+function inp(
+  name: string,
+  value: number,
+  unit: Explanation['unit'],
+  metric?: MetricId,
+): ExplanationInput {
   return { name, value, unit, metric }
 }
 
@@ -72,11 +78,16 @@ function supplierDetails(rec: DailyRecord): BreakdownDetail[] {
 /** 原価日別の構成内訳を生成 */
 function costComponentDetails(rec: DailyRecord): BreakdownDetail[] {
   const details: BreakdownDetail[] = []
-  if (rec.purchase.cost !== 0) details.push({ label: '仕入原価', value: rec.purchase.cost, unit: 'yen' })
-  if (rec.flowers.cost !== 0) details.push({ label: '花原価', value: rec.flowers.cost, unit: 'yen' })
-  if (rec.directProduce.cost !== 0) details.push({ label: '産直原価', value: rec.directProduce.cost, unit: 'yen' })
-  if (rec.interStoreIn.cost !== 0) details.push({ label: '店間入', value: rec.interStoreIn.cost, unit: 'yen' })
-  if (rec.interStoreOut.cost !== 0) details.push({ label: '店間出', value: -rec.interStoreOut.cost, unit: 'yen' })
+  if (rec.purchase.cost !== 0)
+    details.push({ label: '仕入原価', value: rec.purchase.cost, unit: 'yen' })
+  if (rec.flowers.cost !== 0)
+    details.push({ label: '花原価', value: rec.flowers.cost, unit: 'yen' })
+  if (rec.directProduce.cost !== 0)
+    details.push({ label: '産直原価', value: rec.directProduce.cost, unit: 'yen' })
+  if (rec.interStoreIn.cost !== 0)
+    details.push({ label: '店間入', value: rec.interStoreIn.cost, unit: 'yen' })
+  if (rec.interStoreOut.cost !== 0)
+    details.push({ label: '店間出', value: -rec.interStoreOut.cost, unit: 'yen' })
   return details
 }
 
@@ -84,9 +95,12 @@ function costComponentDetails(rec: DailyRecord): BreakdownDetail[] {
 function salesComponentDetails(rec: DailyRecord): BreakdownDetail[] {
   const details: BreakdownDetail[] = []
   details.push({ label: 'コア売上', value: rec.coreSales, unit: 'yen' })
-  if (rec.flowers.price !== 0) details.push({ label: '花売価', value: rec.flowers.price, unit: 'yen' })
-  if (rec.directProduce.price !== 0) details.push({ label: '産直売価', value: rec.directProduce.price, unit: 'yen' })
-  if (rec.deliverySales.price !== 0) details.push({ label: '売上納品売価', value: rec.deliverySales.price, unit: 'yen' })
+  if (rec.flowers.price !== 0)
+    details.push({ label: '花売価', value: rec.flowers.price, unit: 'yen' })
+  if (rec.directProduce.price !== 0)
+    details.push({ label: '産直売価', value: rec.directProduce.price, unit: 'yen' })
+  if (rec.deliverySales.price !== 0)
+    details.push({ label: '売上納品売価', value: rec.deliverySales.price, unit: 'yen' })
   return details
 }
 
@@ -189,7 +203,16 @@ export function generateExplanations(
       inp('在庫仕入原価', result.inventoryCost, 'yen', 'inventoryCost'),
       inp('売上納品原価', result.deliverySalesCost, 'yen', 'deliverySalesCost'),
     ],
-    breakdown: dailyBreakdown(result.daily, (r) => r.purchase.cost + r.flowers.cost + r.directProduce.cost + r.interStoreIn.cost - r.interStoreOut.cost, costComponentDetails),
+    breakdown: dailyBreakdown(
+      result.daily,
+      (r) =>
+        r.purchase.cost +
+        r.flowers.cost +
+        r.directProduce.cost +
+        r.interStoreIn.cost -
+        r.interStoreOut.cost,
+      costComponentDetails,
+    ),
     evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
@@ -204,7 +227,11 @@ export function generateExplanations(
       inp('総仕入原価', result.totalCost, 'yen', 'purchaseCost'),
       inp('売上納品原価', result.deliverySalesCost, 'yen', 'deliverySalesCost'),
     ],
-    breakdown: dailyBreakdown(result.daily, (r) => r.purchase.cost + r.interStoreIn.cost - r.interStoreOut.cost, supplierDetails),
+    breakdown: dailyBreakdown(
+      result.daily,
+      (r) => r.purchase.cost + r.interStoreIn.cost - r.interStoreOut.cost,
+      supplierDetails,
+    ),
     evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
@@ -219,12 +246,17 @@ export function generateExplanations(
       inp('花原価', result.deliverySalesCost, 'yen'),
       inp('売上納品売価', result.deliverySalesPrice, 'yen'),
     ],
-    breakdown: dailyBreakdown(result.daily, (r) => r.deliverySales.cost, (r) => {
-      const d: BreakdownDetail[] = []
-      if (r.flowers.cost !== 0) d.push({ label: '花原価', value: r.flowers.cost, unit: 'yen' })
-      if (r.directProduce.cost !== 0) d.push({ label: '産直原価', value: r.directProduce.cost, unit: 'yen' })
-      return d
-    }),
+    breakdown: dailyBreakdown(
+      result.daily,
+      (r) => r.deliverySales.cost,
+      (r) => {
+        const d: BreakdownDetail[] = []
+        if (r.flowers.cost !== 0) d.push({ label: '花原価', value: r.flowers.cost, unit: 'yen' })
+        if (r.directProduce.cost !== 0)
+          d.push({ label: '産直原価', value: r.directProduce.cost, unit: 'yen' })
+        return d
+      },
+    ),
     evidenceRefs: [
       ...expandDailyEvidence('flowers', storeId, result.daily, allStoreIds),
       ...expandDailyEvidence('directProduce', storeId, result.daily, allStoreIds),
@@ -240,9 +272,7 @@ export function generateExplanations(
     value: result.totalDiscount,
     unit: 'yen',
     scope,
-    inputs: [
-      inp('売変額合計', result.totalDiscount, 'yen'),
-    ],
+    inputs: [inp('売変額合計', result.totalDiscount, 'yen')],
     breakdown: (() => {
       const entries: BreakdownEntry[] = []
       const csAgg = aggregateForStore(data.classifiedSales, storeId)
@@ -292,9 +322,7 @@ export function generateExplanations(
     value: result.averageMarkupRate,
     unit: 'rate',
     scope,
-    inputs: [
-      inp('総仕入原価', result.totalCost, 'yen', 'purchaseCost'),
-    ],
+    inputs: [inp('総仕入原価', result.totalCost, 'yen', 'purchaseCost')],
     evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
@@ -305,9 +333,7 @@ export function generateExplanations(
     value: result.coreMarkupRate,
     unit: 'rate',
     scope,
-    inputs: [
-      inp('コア値入率', result.coreMarkupRate, 'rate'),
-    ],
+    inputs: [inp('コア値入率', result.coreMarkupRate, 'rate')],
     evidenceRefs: [
       ...expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
       ...expandDailyEvidence('interStoreIn', storeId, result.daily, allStoreIds),
@@ -385,8 +411,8 @@ export function generateExplanations(
 
   map.set('estMethodMargin', {
     metric: 'estMethodMargin',
-    title: '推定マージン（推定法）',
-    formula: '推定マージン = コア売上 - 推定原価',
+    title: '推定在庫差分（推定法）',
+    formula: '推定在庫差分 = コア売上 - 推定原価',
     value: result.estMethodMargin,
     unit: 'yen',
     scope,
@@ -399,13 +425,13 @@ export function generateExplanations(
 
   map.set('estMethodMarginRate', {
     metric: 'estMethodMarginRate',
-    title: '推定マージン率（推定法）',
-    formula: '推定マージン率 = 推定マージン ÷ コア売上',
+    title: '推定在庫差分率（推定法）',
+    formula: '推定在庫差分率 = 推定在庫差分 ÷ コア売上',
     value: result.estMethodMarginRate,
     unit: 'rate',
     scope,
     inputs: [
-      inp('推定マージン', result.estMethodMargin, 'yen', 'estMethodMargin'),
+      inp('推定在庫差分', result.estMethodMargin, 'yen', 'estMethodMargin'),
       inp('コア売上', result.totalCoreSales, 'yen', 'coreSales'),
     ],
     evidenceRefs: [],
@@ -459,13 +485,17 @@ export function generateExplanations(
       inp('消耗品費合計', result.totalConsumable, 'yen'),
       inp('消耗品率', result.consumableRate, 'rate'),
     ],
-    breakdown: dailyBreakdown(result.daily, (r) => r.consumable.cost, (r) => {
-      const d: BreakdownDetail[] = []
-      for (const item of r.consumable.items) {
-        d.push({ label: item.itemName || item.itemCode, value: item.cost, unit: 'yen' })
-      }
-      return d
-    }),
+    breakdown: dailyBreakdown(
+      result.daily,
+      (r) => r.consumable.cost,
+      (r) => {
+        const d: BreakdownDetail[] = []
+        for (const item of r.consumable.items) {
+          d.push({ label: item.itemName || item.itemCode, value: item.cost, unit: 'yen' })
+        }
+        return d
+      },
+    ),
     evidenceRefs: expandDailyEvidence('consumables', storeId, result.daily, allStoreIds),
   })
 
@@ -478,9 +508,7 @@ export function generateExplanations(
     value: result.budget,
     unit: 'yen',
     scope,
-    inputs: [
-      inp('月間予算', result.budget, 'yen'),
-    ],
+    inputs: [inp('月間予算', result.budget, 'yen')],
     evidenceRefs: [{ kind: 'aggregate', dataType: 'budget', storeId }],
   })
 
@@ -542,4 +570,114 @@ export function generateExplanations(
   })
 
   return map
+}
+
+// ─── テキスト要約 ──────────────────────────────────────────────
+
+/** 金額を日本語ロケールのカンマ区切りで表示 */
+function fmtYen(n: number): string {
+  return Math.round(n).toLocaleString('ja-JP')
+}
+
+/** 率を百分率で表示 (小数1桁) */
+function fmtRate(n: number): string {
+  return (n * 100).toFixed(1)
+}
+
+/**
+ * StoreResult から主要指標の自然言語テキスト要約を生成する。
+ * 例: "当月売上 12,345,678円（前年比 +5.2%）。粗利率 28.3%（目標比 -1.7pt）。
+ *      主な要因: 客数 +3.1%、客単価 +2.0%。注意: 売変率 6.2%（前年 4.8%）。"
+ */
+export function generateTextSummary(
+  result: StoreResult,
+  options?: {
+    prevYearResult?: StoreResult
+    targetGrossProfitRate?: number
+  },
+): string {
+  const prev = options?.prevYearResult
+  const targetRate = options?.targetGrossProfitRate
+
+  const lines: string[] = []
+
+  // 1) 売上
+  let salesLine = `当月売上 ${fmtYen(result.totalSales)}円`
+  if (prev && prev.totalSales > 0) {
+    const yoyRatio = safeDivide(result.totalSales - prev.totalSales, prev.totalSales)
+    salesLine += `（前年比 ${yoyRatio >= 0 ? '+' : ''}${fmtRate(yoyRatio)}%）`
+  }
+  if (result.budget > 0) {
+    salesLine += `。予算達成率 ${fmtRate(result.budgetAchievementRate)}` + '%'
+  }
+  lines.push(salesLine)
+
+  // 2) 粗利率
+  const gpRate = getEffectiveGrossProfitRate(result)
+  let gpLine = `粗利率 ${fmtRate(gpRate)}%`
+  if (result.invMethodGrossProfitRate !== null) {
+    gpLine += '（在庫法）'
+  } else {
+    gpLine += '（推定法）'
+  }
+  if (targetRate !== undefined) {
+    const diff = gpRate - targetRate
+    gpLine += `（目標比 ${diff >= 0 ? '+' : ''}${(diff * 100).toFixed(1)}pt）`
+  }
+  if (prev) {
+    const prevGpRate = getEffectiveGrossProfitRate(prev)
+    const diff = gpRate - prevGpRate
+    gpLine += `（前年比 ${diff >= 0 ? '+' : ''}${(diff * 100).toFixed(1)}pt）`
+  }
+  lines.push(gpLine)
+
+  // 3) 客数・客単価（前年比がある場合）
+  if (prev && prev.totalCustomers > 0 && result.totalCustomers > 0) {
+    const custRatio = safeDivide(result.totalCustomers - prev.totalCustomers, prev.totalCustomers)
+    const curTx = safeDivide(result.totalSales, result.totalCustomers)
+    const prevTx = safeDivide(prev.totalSales, prev.totalCustomers)
+    const txRatio = safeDivide(curTx - prevTx, prevTx)
+    lines.push(
+      `主な要因: 客数 ${custRatio >= 0 ? '+' : ''}${fmtRate(custRatio)}%` +
+        `、客単価 ${txRatio >= 0 ? '+' : ''}${fmtRate(txRatio)}%`,
+    )
+  }
+
+  // 4) 注意事項
+  const warnings: string[] = []
+  if (result.discountRate > 0.05) {
+    let discountWarning = `売変率 ${fmtRate(result.discountRate)}%`
+    if (prev) {
+      discountWarning += `（前年 ${fmtRate(prev.discountRate)}%）`
+    }
+    warnings.push(discountWarning)
+  }
+  if (result.consumableRate > 0.03) {
+    warnings.push(`消耗品率 ${fmtRate(result.consumableRate)}%`)
+  }
+  if (warnings.length > 0) {
+    lines.push(`注意: ${warnings.join('、')}`)
+  }
+
+  return lines.join('。') + '。'
+}
+
+/**
+ * 指定されたExplanationのテキスト要約を生成する（個別指標用）
+ */
+export function generateMetricSummary(explanation: Explanation): string {
+  const { title, unit } = explanation
+  let valueStr: string
+  switch (unit) {
+    case 'yen':
+      valueStr = `${fmtYen(explanation.value)}円`
+      break
+    case 'rate':
+      valueStr = `${fmtRate(explanation.value)}%`
+      break
+    case 'count':
+      valueStr = explanation.value.toLocaleString('ja-JP')
+      break
+  }
+  return `${title}: ${valueStr} (計算式: ${explanation.formula})`
 }

@@ -15,7 +15,10 @@ describe('renderDowAverage', () => {
       [1, makeDailyRecord({ day: 1, sales: 100000 })],
       [2, makeDailyRecord({ day: 2, sales: 120000 })],
     ])
-    const budgetDaily = new Map([[1, 90000], [2, 110000]])
+    const budgetDaily = new Map([
+      [1, 90000],
+      [2, 110000],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
       year: 2026,
@@ -50,9 +53,7 @@ describe('renderDowAverage', () => {
   })
 
   it('客数データがない場合は客数列が非表示', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000 })],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily }),
     })
@@ -65,12 +66,8 @@ describe('renderDowAverage', () => {
   })
 
   it('前年データがある場合に前年列が表示される', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000 })],
-    ])
-    const prevDaily = new Map([
-      [1, { sales: 95000, discount: 1000, customers: 40 }],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
+    const prevDaily = new Map([[1, { sales: 95000, discount: 1000, customers: 40 }]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily }),
       prevYear: makePrevYear(prevDaily),
@@ -91,7 +88,10 @@ describe('renderWeeklySummary', () => {
       [1, makeDailyRecord({ day: 1, sales: 100000 })],
       [8, makeDailyRecord({ day: 8, sales: 120000 })],
     ])
-    const budgetDaily = new Map([[1, 90000], [8, 110000]])
+    const budgetDaily = new Map([
+      [1, 90000],
+      [8, 110000],
+    ])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily, budgetDaily }),
       year: 2026,
@@ -122,15 +122,13 @@ describe('renderWeeklySummary', () => {
 
     // ヘッダ: 客数・客単価列
     const headers = screen.getAllByRole('columnheader')
-    const headerTexts = headers.map(h => h.textContent)
+    const headerTexts = headers.map((h) => h.textContent)
     expect(headerTexts).toContain('客数')
     expect(headerTexts).toContain('客単価')
   })
 
   it('客数データがない場合は客数列が非表示', () => {
-    const daily = new Map([
-      [1, makeDailyRecord({ day: 1, sales: 100000 })],
-    ])
+    const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({ daily }),
     })
@@ -139,7 +137,7 @@ describe('renderWeeklySummary', () => {
     renderWithTheme(<>{el}</>)
 
     const headers = screen.getAllByRole('columnheader')
-    const headerTexts = headers.map(h => h.textContent)
+    const headerTexts = headers.map((h) => h.textContent)
     expect(headerTexts).not.toContain('客数')
     expect(headerTexts).not.toContain('客単価')
   })

@@ -47,9 +47,7 @@ describe('useIntersectionObserver', () => {
   })
 
   it('要素がビューポートに入ると isIntersecting=true になる', () => {
-    const { result } = renderHook(() =>
-      useIntersectionObserver({ freezeOnceVisible: false }),
-    )
+    const { result } = renderHook(() => useIntersectionObserver({ freezeOnceVisible: false }))
     const div = document.createElement('div')
 
     act(() => {
@@ -65,9 +63,7 @@ describe('useIntersectionObserver', () => {
   })
 
   it('要素がビューポートを離れると isIntersecting=false になる (freeze=false)', () => {
-    const { result } = renderHook(() =>
-      useIntersectionObserver({ freezeOnceVisible: false }),
-    )
+    const { result } = renderHook(() => useIntersectionObserver({ freezeOnceVisible: false }))
     const div = document.createElement('div')
 
     act(() => {
@@ -88,9 +84,7 @@ describe('useIntersectionObserver', () => {
   })
 
   it('freezeOnceVisible=true の場合、一度表示されたら監視を停止する', () => {
-    const { result } = renderHook(() =>
-      useIntersectionObserver({ freezeOnceVisible: true }),
-    )
+    const { result } = renderHook(() => useIntersectionObserver({ freezeOnceVisible: true }))
     const div = document.createElement('div')
 
     act(() => {

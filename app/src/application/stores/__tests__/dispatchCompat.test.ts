@@ -123,11 +123,24 @@ describe('dispatch compatibility layer', () => {
       type: 'SET_PREV_YEAR_AUTO_DATA',
       payload: {
         prevYearClassifiedSales: {
-          records: [{
-            year: 2024, month: 1, day: 1, storeId: 's1', storeName: 'Store s1',
-            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-            salesAmount: 100, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
-          }],
+          records: [
+            {
+              year: 2024,
+              month: 1,
+              day: 1,
+              storeId: 's1',
+              storeName: 'Store s1',
+              groupName: 'G1',
+              departmentName: 'D1',
+              lineName: 'L1',
+              className: 'C1',
+              salesAmount: 100,
+              discount71: 0,
+              discount72: 0,
+              discount73: 0,
+              discount74: 0,
+            },
+          ],
         },
         prevYearCategoryTimeSales: { records: [] },
       },

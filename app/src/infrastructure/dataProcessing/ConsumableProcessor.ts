@@ -27,7 +27,10 @@ export function processConsumables(
   if (!storeMatch) return {}
   const storeId = String(parseInt(storeMatch[1]))
 
-  const partitioned: Record<string, Record<string, Record<number, { cost: number; items: ConsumableItem[] }>>> = {}
+  const partitioned: Record<
+    string,
+    Record<string, Record<number, { cost: number; items: ConsumableItem[] }>>
+  > = {}
 
   for (let row = 1; row < rows.length; row++) {
     const r = rows[row] as unknown[]

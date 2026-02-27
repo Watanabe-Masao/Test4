@@ -1,6 +1,14 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import type { ImportedData, StoreResult, ValidationMessage, ClassifiedSalesData, CategoryTimeSalesData, InventoryConfig, StoreExplanations } from '@/domain/models'
+import type {
+  ImportedData,
+  StoreResult,
+  ValidationMessage,
+  ClassifiedSalesData,
+  CategoryTimeSalesData,
+  InventoryConfig,
+  StoreExplanations,
+} from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
@@ -38,11 +46,9 @@ export const useDataStore = create<DataStore>()(
       validationMessages: [],
 
       // Actions
-      setImportedData: (data) =>
-        set({ data }, false, 'setImportedData'),
+      setImportedData: (data) => set({ data }, false, 'setImportedData'),
 
-      setStoreResults: (results) =>
-        set({ storeResults: results }, false, 'setStoreResults'),
+      setStoreResults: (results) => set({ storeResults: results }, false, 'setStoreResults'),
 
       setStoreExplanations: (explanations) =>
         set({ storeExplanations: explanations }, false, 'setStoreExplanations'),
@@ -82,7 +88,12 @@ export const useDataStore = create<DataStore>()(
 
       reset: () =>
         set(
-          { data: initialData, storeResults: new Map(), storeExplanations: new Map(), validationMessages: [] },
+          {
+            data: initialData,
+            storeResults: new Map(),
+            storeExplanations: new Map(),
+            validationMessages: [],
+          },
           false,
           'reset',
         ),

@@ -8,6 +8,7 @@ import type { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { render } from '@testing-library/react'
 import { darkTheme } from '@/presentation/theme'
+import { EMPTY_DEPT_KPI_INDEX } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { WidgetContext } from '../types'
 import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
 import { EMPTY_CTS_INDEX, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
@@ -16,7 +17,9 @@ import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 const ZERO: CostPricePair = { cost: 0, price: 0 }
 
 /** 最小限の DailyRecord を作成 */
-export function makeDailyRecord(overrides: Partial<DailyRecord> & { day: number; sales: number }): DailyRecord {
+export function makeDailyRecord(
+  overrides: Partial<DailyRecord> & { day: number; sales: number },
+): DailyRecord {
   const defaults: DailyRecord = {
     day: overrides.day,
     sales: overrides.sales,
@@ -165,13 +168,16 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     stores: new Map(),
     ctsIndex: EMPTY_CTS_INDEX,
     prevCtsIndex: EMPTY_CTS_INDEX,
-    currentDateRange: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+    currentDateRange: {
+      from: { year: 2026, month: 2, day: 1 },
+      to: { year: 2026, month: 2, day: 28 },
+    },
     prevYearDateRange: undefined,
     selectedStoreIds: new Set(),
     dataEndDay: null,
     dataMaxDay: 0,
     elapsedDays: undefined,
-    departmentKpi: { records: [] },
+    departmentKpi: EMPTY_DEPT_KPI_INDEX,
     explanations: new Map() as StoreExplanations,
     onExplain: () => {},
     monthlyHistory: [],
@@ -182,8 +188,6 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
 /** ThemeProvider でラップしてレンダー */
 export function renderWithTheme(ui: ReactElement) {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>
-    ),
+    wrapper: ({ children }) => <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>,
   })
 }

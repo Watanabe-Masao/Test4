@@ -13,8 +13,12 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { analyzeTrend } from '@/domain/calculations/trendAnalysis'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -22,7 +26,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -63,21 +68,37 @@ const TrendBadge = styled.div<{ $trend: 'up' | 'down' | 'flat' }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $trend }) =>
-    $trend === 'up' ? 'rgba(34,197,94,0.12)' :
-    $trend === 'down' ? 'rgba(239,68,68,0.12)' :
-    'rgba(148,163,184,0.12)'};
+    $trend === 'up'
+      ? 'rgba(14,165,233,0.12)'
+      : $trend === 'down'
+        ? 'rgba(249,115,22,0.12)'
+        : 'rgba(148,163,184,0.12)'};
   color: ${({ $trend }) =>
-    $trend === 'up' ? '#22c55e' :
-    $trend === 'down' ? '#ef4444' :
-    '#94a3b8'};
-  border: 1px solid ${({ $trend }) =>
-    $trend === 'up' ? 'rgba(34,197,94,0.25)' :
-    $trend === 'down' ? 'rgba(239,68,68,0.25)' :
-    'rgba(148,163,184,0.25)'};
+    $trend === 'up' ? sc.positive : $trend === 'down' ? sc.negative : '#94a3b8'};
+  border: 1px solid
+    ${({ $trend }) =>
+      $trend === 'up'
+        ? 'rgba(14,165,233,0.25)'
+        : $trend === 'down'
+          ? 'rgba(249,115,22,0.25)'
+          : 'rgba(148,163,184,0.25)'};
   white-space: nowrap;
 `
 
-const MONTH_LABELS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'] as const
+const MONTH_LABELS = [
+  '1月',
+  '2月',
+  '3月',
+  '4月',
+  '5月',
+  '6月',
+  '7月',
+  '8月',
+  '9月',
+  '10月',
+  '11月',
+  '12月',
+] as const
 
 interface Props {
   monthlyData: readonly MonthlyDataPoint[]
@@ -118,40 +139,58 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
   if (monthlyData.length === 0) {
     return (
       <Wrapper>
-        <HeaderRow><Title>季節性ベンチマーク</Title></HeaderRow>
-        <div style={{ padding: '40px', textAlign: 'center', color: ct.textMuted, fontSize: ct.fontSize.sm }}>
+        <HeaderRow>
+          <Title>
+            季節性ベンチマーク
+            <ChartHelpButton guide={CHART_GUIDES['seasonal-benchmark']} />
+          </Title>
+        </HeaderRow>
+        <div
+          style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: ct.textMuted,
+            fontSize: ct.fontSize.sm,
+          }}
+        >
           過去月データがありません
         </div>
       </Wrapper>
     )
   }
 
-  const seasonLabel = currentSeasonality > 1.1 ? '繁忙期' : currentSeasonality < 0.9 ? '閑散期' : '平常期'
-  const seasonColor = currentSeasonality > 1.1 ? '#22c55e' : currentSeasonality < 0.9 ? '#ef4444' : '#6366f1'
-  const trendLabel = trend.overallTrend === 'up' ? '上昇トレンド' : trend.overallTrend === 'down' ? '下降トレンド' : '横ばい'
+  const seasonLabel =
+    currentSeasonality > 1.1 ? '繁忙期' : currentSeasonality < 0.9 ? '閑散期' : '平常期'
+  const seasonColor =
+    currentSeasonality > 1.1 ? sc.positive : currentSeasonality < 0.9 ? sc.negative : '#6366f1'
+  const trendLabel =
+    trend.overallTrend === 'up'
+      ? '上昇トレンド'
+      : trend.overallTrend === 'down'
+        ? '下降トレンド'
+        : '横ばい'
 
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>季節性ベンチマーク — 月別売上パターン</Title>
+        <Title>
+          季節性ベンチマーク — 月別売上パターン
+          <ChartHelpButton guide={CHART_GUIDES['seasonal-benchmark']} />
+        </Title>
       </HeaderRow>
 
       <InfoRow>
         <InfoBadge $color={seasonColor}>
           {currentMonth}月: {seasonLabel}（指数 {Math.round(currentSeasonality * 100)}）
         </InfoBadge>
-        <InfoBadge $color="#22c55e">
+        <InfoBadge $color={sc.positive}>
           ピーク: {peakMonth}月（指数 {Math.round(trend.seasonalIndex[peakMonth - 1] * 100)}）
         </InfoBadge>
-        <InfoBadge $color="#ef4444">
+        <InfoBadge $color={sc.negative}>
           谷: {troughMonth}月（指数 {Math.round(trend.seasonalIndex[troughMonth - 1] * 100)}）
         </InfoBadge>
-        <TrendBadge $trend={trend.overallTrend}>
-          全体: {trendLabel}
-        </TrendBadge>
-        <InfoBadge $color="#8b5cf6">
-          データ: {monthlyData.length}ヶ月分
-        </InfoBadge>
+        <TrendBadge $trend={trend.overallTrend}>全体: {trendLabel}</TrendBadge>
+        <InfoBadge $color={palette.purpleDark}>データ: {monthlyData.length}ヶ月分</InfoBadge>
       </InfoRow>
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
@@ -169,32 +208,61 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
             tickLine={false}
             width={40}
             tickFormatter={(v: number) => String(Math.round(v * 100))}
-            label={{ value: '季節性指数', angle: -90, position: 'insideLeft', offset: 10, fontSize: ct.fontSize.xs, fill: ct.textMuted }}
+            label={{
+              value: '季節性指数',
+              angle: -90,
+              position: 'insideLeft',
+              offset: 10,
+              fontSize: ct.fontSize.xs,
+              fill: ct.textMuted,
+            }}
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value) => {
               const v = value as number
-              return [`指数: ${Math.round(v * 100)}（${v > 1 ? '繁忙' : v < 1 ? '閑散' : '平常'}）`, '季節性']
+              return [
+                `指数: ${Math.round(v * 100)}（${v > 1 ? '繁忙' : v < 1 ? '閑散' : '平常'}）`,
+                '季節性',
+              ]
             }}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
 
           {/* 基準線（100 = 平均） */}
-          <ReferenceLine y={1} stroke={ct.colors.slate} strokeDasharray="6 4" strokeOpacity={0.8} label={{ value: '平均=100', fontSize: 8, fill: ct.textMuted }} />
-          <ReferenceLine y={1.1} stroke={ct.colors.success} strokeDasharray="3 3" strokeOpacity={0.3} />
-          <ReferenceLine y={0.9} stroke={ct.colors.danger} strokeDasharray="3 3" strokeOpacity={0.3} />
+          <ReferenceLine
+            y={1}
+            stroke={ct.colors.slate}
+            strokeDasharray="6 4"
+            strokeOpacity={0.8}
+            label={{ value: '平均=100', fontSize: 8, fill: ct.textMuted }}
+          />
+          <ReferenceLine
+            y={1.1}
+            stroke={ct.colors.success}
+            strokeDasharray="3 3"
+            strokeOpacity={0.3}
+          />
+          <ReferenceLine
+            y={0.9}
+            stroke={ct.colors.danger}
+            strokeDasharray="3 3"
+            strokeOpacity={0.3}
+          />
 
-          <Bar
-            dataKey="seasonality"
-            name="季節性指数"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={40}
-          >
+          <Bar dataKey="seasonality" name="季節性指数" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {chartData.map((entry, i) => (
               <Cell
                 key={i}
-                fill={entry.isCurrent ? '#6366f1' : entry.seasonality > 1.1 ? '#22c55e' : entry.seasonality < 0.9 ? '#ef4444' : ct.colors.slate}
+                fill={
+                  entry.isCurrent
+                    ? '#6366f1'
+                    : entry.seasonality > 1.1
+                      ? sc.positive
+                      : entry.seasonality < 0.9
+                        ? sc.negative
+                        : ct.colors.slate
+                }
                 fillOpacity={entry.isCurrent ? 0.9 : 0.6}
                 stroke={entry.isCurrent ? '#6366f1' : 'none'}
                 strokeWidth={entry.isCurrent ? 2 : 0}

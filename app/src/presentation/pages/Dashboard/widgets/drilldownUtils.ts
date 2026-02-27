@@ -5,13 +5,26 @@
  * 集計ロジック・型定義・定数を集約する。
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models'
+import { palette } from '@/presentation/theme/tokens'
 
 /* ── 色パレット ──────────────────────────── */
 
 export const COLORS = [
-  '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899',
-  '#8b5cf6', '#84cc16', '#f97316', '#14b8a6', '#e879f9', '#a3e635',
-  '#fb923c', '#38bdf8', '#c084fc',
+  palette.primary,
+  palette.successDark,
+  palette.warningDark,
+  palette.dangerDark,
+  palette.cyanDark,
+  palette.pinkDark,
+  palette.purpleDark,
+  palette.limeDark,
+  palette.orange,
+  '#14b8a6',
+  '#e879f9',
+  '#a3e635',
+  '#fb923c',
+  palette.info,
+  '#c084fc',
 ]
 
 /* ── 千円表記ヘルパー ────────────────────── */
@@ -24,11 +37,19 @@ export function fmtSen(n: number): string {
 /* ── 型定義 ──────────────────────────────── */
 
 export interface DrillItem {
-  code: string; name: string; amount: number; quantity: number; pct: number
-  childCount: number; color: string
-  prevAmount?: number; prevQuantity?: number
-  yoyRatio?: number; yoyDiff?: number
-  yoyQtyRatio?: number; yoyQtyDiff?: number
+  code: string
+  name: string
+  amount: number
+  quantity: number
+  pct: number
+  childCount: number
+  color: string
+  prevAmount?: number
+  prevQuantity?: number
+  yoyRatio?: number
+  yoyDiff?: number
+  yoyQtyRatio?: number
+  yoyQtyDiff?: number
 }
 
 export type MetricKey = 'amount' | 'quantity'
@@ -37,8 +58,13 @@ export type SortKey = 'amount' | 'quantity' | 'pct' | 'name' | 'yoyRatio'
 export type SortDir = 'asc' | 'desc'
 
 export interface HourCategoryItem {
-  dept: string; line: string; klass: string
-  amount: number; quantity: number; pct: number; color: string
+  dept: string
+  line: string
+  klass: string
+  amount: number
+  quantity: number
+  pct: number
+  color: string
 }
 
 /* ── 集計関数 ─────────────────────────────── */
@@ -47,21 +73,34 @@ export function aggregateForDrill(
   records: readonly CategoryTimeSalesRecord[],
   level: 'department' | 'line' | 'klass',
 ) {
-  const map = new Map<string, {
-    code: string; name: string; amount: number; quantity: number
-    children: Set<string>
-  }>()
+  const map = new Map<
+    string,
+    {
+      code: string
+      name: string
+      amount: number
+      quantity: number
+      children: Set<string>
+    }
+  >()
   for (const rec of records) {
     let key: string, name: string, childKey: string
     if (level === 'department') {
-      key = rec.department.code; name = rec.department.name || key; childKey = rec.line.code
+      key = rec.department.code
+      name = rec.department.name || key
+      childKey = rec.line.code
     } else if (level === 'line') {
-      key = rec.line.code; name = rec.line.name || key; childKey = rec.klass.code
+      key = rec.line.code
+      name = rec.line.name || key
+      childKey = rec.klass.code
     } else {
-      key = rec.klass.code; name = rec.klass.name || key; childKey = ''
+      key = rec.klass.code
+      name = rec.klass.name || key
+      childKey = ''
     }
     const ex = map.get(key) ?? { code: key, name, amount: 0, quantity: 0, children: new Set() }
-    ex.amount += rec.totalAmount; ex.quantity += rec.totalQuantity
+    ex.amount += rec.totalAmount
+    ex.quantity += rec.totalQuantity
     if (childKey) ex.children.add(childKey)
     map.set(key, ex)
   }
@@ -91,10 +130,15 @@ export function buildDrillItems(
       const val = metric === 'amount' ? it.amount : it.quantity
       const color = colorMap.get(it.code) ?? COLORS[i % COLORS.length]
       return {
-        code: it.code, name: it.name, amount: it.amount, quantity: it.quantity,
+        code: it.code,
+        name: it.name,
+        amount: it.amount,
+        quantity: it.quantity,
         pct: totalForPct > 0 ? (val / totalForPct) * 100 : 0,
-        childCount: it.children.size, color,
-        prevAmount: prevAmt, prevQuantity: prevQty,
+        childCount: it.children.size,
+        color,
+        prevAmount: prevAmt,
+        prevQuantity: prevQty,
         yoyRatio: prevAmt && prevAmt > 0 ? it.amount / prevAmt : undefined,
         yoyDiff: prevAmt != null ? it.amount - prevAmt : undefined,
         yoyQtyRatio: prevQty && prevQty > 0 ? it.quantity / prevQty : undefined,

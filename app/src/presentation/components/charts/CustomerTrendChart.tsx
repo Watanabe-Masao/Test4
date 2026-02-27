@@ -12,7 +12,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Title = styled.div`
@@ -46,7 +47,8 @@ export function CustomerTrendChart({ daily, daysInMonth, prevYearDaily }: Props)
   if (!hasData) return null
 
   const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
-  const hasPrev = prevYearDaily && allData.some((d) => d.prevCustomers != null && d.prevCustomers > 0)
+  const hasPrev =
+    prevYearDaily && allData.some((d) => d.prevCustomers != null && d.prevCustomers > 0)
 
   return (
     <Wrapper>
@@ -93,12 +95,7 @@ export function CustomerTrendChart({ daily, daysInMonth, prevYearDaily }: Props)
               return labels[value] ?? value
             }}
           />
-          <Bar
-            dataKey="customers"
-            fill="url(#custGrad)"
-            radius={[3, 3, 0, 0]}
-            maxBarSize={16}
-          />
+          <Bar dataKey="customers" fill="url(#custGrad)" radius={[3, 3, 0, 0]} maxBarSize={16} />
           {hasPrev && (
             <Line
               type="monotone"
@@ -112,7 +109,13 @@ export function CustomerTrendChart({ daily, daysInMonth, prevYearDaily }: Props)
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

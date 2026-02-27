@@ -26,8 +26,12 @@ function DefaultModalRender() {
           onClose={() => setOpen(false)}
           footer={
             <>
-              <Button $variant="outline" onClick={() => setOpen(false)}>キャンセル</Button>
-              <Button $variant="primary" onClick={() => setOpen(false)}>保存</Button>
+              <Button $variant="outline" onClick={() => setOpen(false)}>
+                キャンセル
+              </Button>
+              <Button $variant="primary" onClick={() => setOpen(false)}>
+                保存
+              </Button>
             </>
           }
         >

@@ -82,12 +82,18 @@ describe('detectFileType', () => {
   })
 
   it('予算: ヘッダー（予算パターン）', () => {
-    const result = detectFileType('data.xlsx', [['', '', '', '0001:A'], ['月日', '', '', '売上予算']])
+    const result = detectFileType('data.xlsx', [
+      ['', '', '', '0001:A'],
+      ['月日', '', '', '売上予算'],
+    ])
     expect(result.type).toBe('budget')
   })
 
   it('予算: ヘッダー（売上予算は budget であり classifiedSales ではない）', () => {
-    const result = detectFileType('data.xlsx', [['', '', '', '0001:A'], ['月日', '', '', '売上予算']])
+    const result = detectFileType('data.xlsx', [
+      ['', '', '', '0001:A'],
+      ['月日', '', '', '売上予算'],
+    ])
     expect(result.type).not.toBe('classifiedSales')
   })
 

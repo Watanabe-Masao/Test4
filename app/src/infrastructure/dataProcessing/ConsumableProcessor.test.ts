@@ -18,19 +18,13 @@ describe('processConsumables', () => {
   })
 
   it('勘定コード81257以外はスキップ', () => {
-    const rows = [
-      ['header'],
-      ['12345', 'A001', 'X', 1, 1000, '2026-02-01'],
-    ]
+    const rows = [['header'], ['12345', 'A001', 'X', 1, 1000, '2026-02-01']]
     const result = processConsumables(rows, '01_test.xlsx')
     expect(Object.keys(result)).toHaveLength(0)
   })
 
   it('ファイル名から店舗コード抽出', () => {
-    const rows = [
-      ['header'],
-      ['81257', 'A', 'B', 1, 100, '2026-02-01'],
-    ]
+    const rows = [['header'], ['81257', 'A', 'B', 1, 100, '2026-02-01']]
     const result1 = processConsumables(rows, '01_file.xlsx')
     expect(result1['2026-2']?.['1']).toBeDefined()
 
@@ -54,10 +48,20 @@ describe('processConsumables', () => {
 describe('mergeConsumableData', () => {
   it('追加モードでマージ', () => {
     const existing = {
-      '1': { 1: { cost: 5000, items: [{ accountCode: '81257', itemCode: 'A', itemName: 'X', quantity: 1, cost: 5000 }] } },
+      '1': {
+        1: {
+          cost: 5000,
+          items: [{ accountCode: '81257', itemCode: 'A', itemName: 'X', quantity: 1, cost: 5000 }],
+        },
+      },
     }
     const incoming = {
-      '1': { 1: { cost: 3000, items: [{ accountCode: '81257', itemCode: 'B', itemName: 'Y', quantity: 2, cost: 3000 }] } },
+      '1': {
+        1: {
+          cost: 3000,
+          items: [{ accountCode: '81257', itemCode: 'B', itemName: 'Y', quantity: 2, cost: 3000 }],
+        },
+      },
     }
 
     const merged = mergeConsumableData(existing, incoming)
@@ -93,14 +97,30 @@ describe('mergeConsumableData', () => {
 
   it('同一品目コードは incoming 側で上書きされる', () => {
     const existing = {
-      '1': { 1: { cost: 5000, items: [
-        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
-      ] } },
+      '1': {
+        1: {
+          cost: 5000,
+          items: [
+            { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
+          ],
+        },
+      },
     }
     const incoming = {
-      '1': { 1: { cost: 6000, items: [
-        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤（大）', quantity: 12, cost: 6000 },
-      ] } },
+      '1': {
+        1: {
+          cost: 6000,
+          items: [
+            {
+              accountCode: '81257',
+              itemCode: 'A001',
+              itemName: '洗剤（大）',
+              quantity: 12,
+              cost: 6000,
+            },
+          ],
+        },
+      },
     }
     const merged = mergeConsumableData(existing, incoming)
     expect(merged['1']?.[1]?.items).toHaveLength(1)
@@ -110,14 +130,30 @@ describe('mergeConsumableData', () => {
 
   it('異なる品目コードは正常に追加される', () => {
     const existing = {
-      '1': { 1: { cost: 5000, items: [
-        { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
-      ] } },
+      '1': {
+        1: {
+          cost: 5000,
+          items: [
+            { accountCode: '81257', itemCode: 'A001', itemName: '洗剤', quantity: 10, cost: 5000 },
+          ],
+        },
+      },
     }
     const incoming = {
-      '1': { 1: { cost: 3000, items: [
-        { accountCode: '81257', itemCode: 'B001', itemName: 'ゴミ袋', quantity: 20, cost: 3000 },
-      ] } },
+      '1': {
+        1: {
+          cost: 3000,
+          items: [
+            {
+              accountCode: '81257',
+              itemCode: 'B001',
+              itemName: 'ゴミ袋',
+              quantity: 20,
+              cost: 3000,
+            },
+          ],
+        },
+      },
     }
     const merged = mergeConsumableData(existing, incoming)
     expect(merged['1']?.[1]?.items).toHaveLength(2)

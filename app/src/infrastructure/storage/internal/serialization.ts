@@ -4,7 +4,7 @@
 import type { DataOrigin, DataEnvelope } from '@/domain/models'
 import type { BudgetData } from '@/domain/models'
 import { isEnvelope } from '@/domain/models'
-import { hashData } from '@/application/services/murmurhash'
+import { hashData } from '@/infrastructure/utilities/murmurhash'
 import { STORE_DAY_FIELDS } from './keys'
 
 // ─── NaN / Infinity サニタイズ ────────────────────────────
@@ -42,7 +42,12 @@ export function sanitizeNumericValues<T>(value: T): T {
 }
 
 /** 値を DataEnvelope 形式でラップして保存用にする（チェックサム付き） */
-export function wrapEnvelope<T>(value: T, year: number, month: number, sourceFile?: string): DataEnvelope<T> {
+export function wrapEnvelope<T>(
+  value: T,
+  year: number,
+  month: number,
+  sourceFile?: string,
+): DataEnvelope<T> {
   const sanitized = sanitizeNumericValues(value)
   return {
     origin: {
@@ -61,7 +66,11 @@ export function wrapEnvelope<T>(value: T, year: number, month: number, sourceFil
  * - 新形式（DataEnvelope）: origin の整合性とチェックサムを検証し payload を返す
  * - 旧形式（生データ）: そのまま返す（漸進的マイグレーション）
  */
-export function unwrapEnvelope<T>(raw: unknown, year: number, month: number): { value: T; origin: DataOrigin | null } | null {
+export function unwrapEnvelope<T>(
+  raw: unknown,
+  year: number,
+  month: number,
+): { value: T; origin: DataOrigin | null } | null {
   if (raw === undefined || raw === null) return null
 
   if (isEnvelope(raw)) {
@@ -126,7 +135,13 @@ export function budgetFromSerializable(obj: Record<string, unknown>): BudgetData
   if (rawDaily != null && typeof rawDaily === 'object' && !Array.isArray(rawDaily)) {
     for (const [k, v] of Object.entries(rawDaily as Record<string, unknown>)) {
       const day = Number(k)
-      if (Number.isFinite(day) && day >= 1 && day <= 31 && typeof v === 'number' && Number.isFinite(v)) {
+      if (
+        Number.isFinite(day) &&
+        day >= 1 &&
+        day <= 31 &&
+        typeof v === 'number' &&
+        Number.isFinite(v)
+      ) {
         daily.set(day, v)
       }
     }
@@ -194,7 +209,7 @@ export function validateLoadedData(result: Record<string, unknown>): boolean {
   if (!(result.budget instanceof Map)) return false
   // classifiedSales: records 配列を持ち、各レコードが妥当であること
   const cs = result.classifiedSales as { records?: unknown } | undefined
-  if (cs && (!Array.isArray(cs.records))) return false
+  if (cs && !Array.isArray(cs.records)) return false
   if (cs && Array.isArray(cs.records) && cs.records.length > 0) {
     // サンプリング検証: 先頭・末尾・中間のレコードをチェック
     const records = cs.records
@@ -205,7 +220,7 @@ export function validateLoadedData(result: Record<string, unknown>): boolean {
   }
   // categoryTimeSales: records 配列を持ち、各レコードが妥当であること
   const cts = result.categoryTimeSales as { records?: unknown } | undefined
-  if (cts && (!Array.isArray(cts.records))) return false
+  if (cts && !Array.isArray(cts.records)) return false
   if (cts && Array.isArray(cts.records) && cts.records.length > 0) {
     const records = cts.records
     const indicesToCheck = [0, Math.floor(records.length / 2), records.length - 1]
@@ -215,7 +230,7 @@ export function validateLoadedData(result: Record<string, unknown>): boolean {
   }
   // departmentKpi: records 配列を持つこと
   const dkpi = result.departmentKpi as { records?: unknown } | undefined
-  if (dkpi && (!Array.isArray(dkpi.records))) return false
+  if (dkpi && !Array.isArray(dkpi.records)) return false
   // budget: 各エントリが妥当であること
   const budgetMap = result.budget as Map<string, unknown>
   for (const [key, val] of budgetMap) {

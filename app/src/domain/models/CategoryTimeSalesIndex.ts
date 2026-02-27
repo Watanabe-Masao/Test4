@@ -36,7 +36,10 @@ import type { DateKey } from './CalendarDate'
  */
 export interface CategoryTimeSalesIndex {
   /** storeId → dateKey ('YYYY-MM-DD') → その店舗×日のレコード群 */
-  readonly byStoreDate: ReadonlyMap<string, ReadonlyMap<DateKey, readonly CategoryTimeSalesRecord[]>>
+  readonly byStoreDate: ReadonlyMap<
+    string,
+    ReadonlyMap<DateKey, readonly CategoryTimeSalesRecord[]>
+  >
   /** データに含まれる全店舗ID */
   readonly storeIds: ReadonlySet<string>
   /** データに含まれる全 dateKey ('YYYY-MM-DD') */

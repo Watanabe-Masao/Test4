@@ -8,9 +8,7 @@ import type { PrevYearDailyEntry } from '@/application/hooks'
 
 function wrap(ui: React.ReactElement) {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>
-    ),
+    wrapper: ({ children }) => <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>,
   })
 }
 
@@ -56,9 +54,7 @@ describe('CustomerTrendChart', () => {
   })
 
   it('前年データがある場合にタイトルに前年比較が付く', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeDailyRecord(1, 50)],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeDailyRecord(1, 50)]])
     const prevYearDaily = new Map<number, PrevYearDailyEntry>([
       [1, { sales: 90000, discount: 500, customers: 45 }],
     ])
@@ -69,9 +65,7 @@ describe('CustomerTrendChart', () => {
   })
 
   it('客数がすべて 0 なら null を返す', () => {
-    const daily = new Map<number, DailyRecord>([
-      [1, makeDailyRecord(1, 0)],
-    ])
+    const daily = new Map<number, DailyRecord>([[1, makeDailyRecord(1, 0)]])
 
     const { container } = wrap(<CustomerTrendChart daily={daily} daysInMonth={28} />)
 

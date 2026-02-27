@@ -1,10 +1,15 @@
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
 import {
-  DailySalesChart, BudgetVsActualChart, CategoryPieChart,
+  DailySalesChart,
+  BudgetVsActualChart,
+  CategoryPieChart,
   GrossProfitAmountChart,
   TimeSlotSalesChart,
-  TimeSlotHeatmapChart, DeptHourlyPatternChart, StoreTimeSlotComparisonChart,
+  TimeSlotHeatmapChart,
+  DeptHourlyPatternChart,
+  StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
   DiscountTrendChart,
@@ -31,7 +36,14 @@ import { WaterfallChartWidget } from './WaterfallChart'
 import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { ConditionSummaryWidget } from './ConditionSummary'
 import { AlertPanelWidget } from './AlertPanel'
-import { renderDowAverage, renderWeeklySummary, renderDailyStoreSalesTable, renderDepartmentKpiTable, renderDailyInventoryTable, renderStoreKpiTable } from './TableWidgets'
+import {
+  renderDowAverage,
+  renderWeeklySummary,
+  renderDailyStoreSalesTable,
+  renderDepartmentKpiTable,
+  renderDailyInventoryTable,
+  renderStoreKpiTable,
+} from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
@@ -46,7 +58,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="コア売上"
         value={formatCurrency(r.totalCoreSales)}
         subText={`花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
-        accent="#8b5cf6"
+        accent={palette.purpleDark}
         onClick={() => onExplain('coreSales')}
       />
     ),
@@ -58,7 +70,9 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
-        return <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent={sc.positive} />
+        return (
+          <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent={sc.positive} />
+        )
       }
       const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
       return (
@@ -74,17 +88,17 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   {
     id: 'kpi-est-margin',
-    label: '【推定法】マージン',
+    label: '【推定法】在庫差分',
     group: '収益構造',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
       return (
         <KpiCard
-          label="【推定法】マージン"
+          label="【推定法】在庫差分"
           value={formatCurrency(r.estMethodMargin)}
-          subText={`マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
-          accent="#0ea5e9"
+          subText={`在庫差分率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          accent={palette.infoDark}
           onClick={() => onExplain('estMethodMargin')}
         />
       )
@@ -98,7 +112,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
-      <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#ea580c" onClick={() => onExplain('inventoryCost')} />
+      <KpiCard
+        label="在庫仕入原価"
+        value={formatCurrency(r.inventoryCost)}
+        accent={palette.orangeDark}
+        onClick={() => onExplain('inventoryCost')}
+      />
     ),
   },
   {
@@ -111,7 +130,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="売上納品原価"
         value={formatCurrency(r.deliverySalesCost)}
         subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
-        accent="#ec4899"
+        accent={palette.pinkDark}
         onClick={() => onExplain('deliverySalesCost')}
       />
     ),
@@ -126,7 +145,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         label="消耗品費"
         value={formatCurrency(r.totalConsumable)}
         subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
-        accent="#f97316"
+        accent={palette.orange}
         onClick={() => onExplain('totalConsumable')}
       />
     ),
@@ -137,7 +156,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
-      <KpiCard label="売変ロス原価" value={formatCurrency(r.discountLossCost)} accent="#dc2626" onClick={() => onExplain('discountLossCost')} />
+      <KpiCard
+        label="売変ロス原価"
+        value={formatCurrency(r.discountLossCost)}
+        accent={palette.dangerDeep}
+        onClick={() => onExplain('discountLossCost')}
+      />
     ),
   },
   {
@@ -146,7 +170,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '仕入・売変',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
-      <KpiCard label="コア値入率" value={formatPercent(r.coreMarkupRate)} accent="#06b6d4" onClick={() => onExplain('coreMarkupRate')} />
+      <KpiCard
+        label="コア値入率"
+        value={formatPercent(r.coreMarkupRate)}
+        accent={palette.cyanDark}
+        onClick={() => onExplain('coreMarkupRate')}
+      />
     ),
   },
   // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
@@ -158,7 +187,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '日次推移',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
-      <DailySalesChart daily={r.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined} />
+      <DailySalesChart
+        daily={r.daily}
+        daysInMonth={daysInMonth}
+        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+      />
     ),
   },
   {
@@ -181,9 +214,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'カテゴリ別構成',
     group: '収益構造',
     size: 'half',
-    render: ({ result: r }) => (
-      <CategoryPieChart categoryTotals={r.categoryTotals} />
-    ),
+    render: ({ result: r }) => <CategoryPieChart categoryTotals={r.categoryTotals} />,
   },
   {
     id: 'chart-gross-profit-amount',
@@ -245,8 +276,26 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay, result }) => (
-      <CategoryHierarchyExplorer ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} totalCustomers={result.totalCustomers} />
+    render: ({
+      ctsIndex,
+      prevCtsIndex,
+      selectedStoreIds,
+      daysInMonth,
+      year,
+      month,
+      dataMaxDay,
+      result,
+    }) => (
+      <CategoryHierarchyExplorer
+        ctsIndex={ctsIndex}
+        prevCtsIndex={prevCtsIndex}
+        selectedStoreIds={selectedStoreIds}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        dataMaxDay={dataMaxDay}
+        totalCustomers={result.totalCustomers}
+      />
     ),
   },
   {
@@ -255,8 +304,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <TimeSlotSalesChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    render: ({
+      ctsIndex,
+      prevCtsIndex,
+      selectedStoreIds,
+      daysInMonth,
+      year,
+      month,
+      dataMaxDay,
+    }) => (
+      <TimeSlotSalesChart
+        ctsIndex={ctsIndex}
+        prevCtsIndex={prevCtsIndex}
+        selectedStoreIds={selectedStoreIds}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        dataMaxDay={dataMaxDay}
+      />
     ),
   },
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
@@ -267,8 +332,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, year, month, daysInMonth, dataMaxDay }) => (
-      <TimeSlotHeatmapChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} year={year} month={month} daysInMonth={daysInMonth} dataMaxDay={dataMaxDay} />
+    render: ({
+      ctsIndex,
+      prevCtsIndex,
+      selectedStoreIds,
+      year,
+      month,
+      daysInMonth,
+      dataMaxDay,
+    }) => (
+      <TimeSlotHeatmapChart
+        ctsIndex={ctsIndex}
+        prevCtsIndex={prevCtsIndex}
+        selectedStoreIds={selectedStoreIds}
+        year={year}
+        month={month}
+        daysInMonth={daysInMonth}
+        dataMaxDay={dataMaxDay}
+      />
     ),
   },
   {
@@ -277,8 +358,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '時間帯・カテゴリ',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, daysInMonth, year, month, dataMaxDay }) => (
-      <DeptHourlyPatternChart ctsIndex={ctsIndex} prevCtsIndex={prevCtsIndex} selectedStoreIds={selectedStoreIds} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+    render: ({
+      ctsIndex,
+      prevCtsIndex,
+      selectedStoreIds,
+      daysInMonth,
+      year,
+      month,
+      dataMaxDay,
+    }) => (
+      <DeptHourlyPatternChart
+        ctsIndex={ctsIndex}
+        prevCtsIndex={prevCtsIndex}
+        selectedStoreIds={selectedStoreIds}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        dataMaxDay={dataMaxDay}
+      />
     ),
   },
   {
@@ -288,7 +385,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0 && ctx.stores.size > 1,
     render: ({ ctsIndex, stores, daysInMonth, year, month, dataMaxDay }) => (
-      <StoreTimeSlotComparisonChart ctsIndex={ctsIndex} stores={stores} daysInMonth={daysInMonth} year={year} month={month} dataMaxDay={dataMaxDay} />
+      <StoreTimeSlotComparisonChart
+        ctsIndex={ctsIndex}
+        stores={stores}
+        daysInMonth={daysInMonth}
+        year={year}
+        month={month}
+        dataMaxDay={dataMaxDay}
+      />
     ),
   },
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
@@ -489,7 +593,15 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '統計・トレンド',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({ ctsIndex, prevCtsIndex, selectedStoreIds, currentDateRange, prevYearDateRange, result, prevYear }) => (
+    render: ({
+      ctsIndex,
+      prevCtsIndex,
+      selectedStoreIds,
+      currentDateRange,
+      prevYearDateRange,
+      result,
+      prevYear,
+    }) => (
       <CategoryPerformanceChart
         ctsIndex={ctsIndex}
         prevCtsIndex={prevCtsIndex}
@@ -507,9 +619,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '収益構造俯瞰図',
     group: '収益構造',
     size: 'full',
-    render: ({ result: r }) => (
-      <StructuralOverviewChart result={r} />
-    ),
+    render: ({ result: r }) => <StructuralOverviewChart result={r} />,
   },
   {
     id: 'analysis-integrated-timeline',
@@ -528,15 +638,19 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: ({ result: r, prevYear }) => (
       <CausalChainExplorer
         result={r}
-        prevYearData={prevYear.hasPrevYear ? {
-          grossProfitRate: null,
-          costRate: null,
-          discountRate: prevYear.discountRate,
-          consumableRate: null,
-          discountEntries: prevYear.totalDiscountEntries,
-          totalSales: prevYear.totalSales,
-          totalCustomers: prevYear.totalCustomers,
-        } : undefined}
+        prevYearData={
+          prevYear.hasPrevYear
+            ? {
+                grossProfitRate: null,
+                costRate: null,
+                discountRate: prevYear.discountRate,
+                consumableRate: null,
+                discountEntries: prevYear.totalDiscountEntries,
+                totalSales: prevYear.totalSales,
+                totalCustomers: prevYear.totalCustomers,
+              }
+            : undefined
+        }
       />
     ),
   },
@@ -545,9 +659,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '感度分析ダッシュボード',
     group: 'シミュレーション',
     size: 'full',
-    render: ({ result: r }) => (
-      <SensitivityDashboard result={r} />
-    ),
+    render: ({ result: r }) => <SensitivityDashboard result={r} />,
   },
   {
     id: 'analysis-regression-insight',
@@ -594,7 +706,8 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'analysis-multi-kpi',
   // 補助: テーブル
   'exec-monthly-calendar',
-  'exec-dow-average', 'exec-weekly-summary',
+  'exec-dow-average',
+  'exec-weekly-summary',
 ]
 
 const STORAGE_KEY = 'dashboard_layout_v11'
@@ -654,7 +767,12 @@ function saveAutoInjectedIds(ids: Set<string>): void {
  */
 export function autoInjectDataWidgets(
   currentIds: string[],
-  ctx: { ctsRecordCount: number; prevYearHasPrevYear: boolean; storeCount: number; hasDiscountData?: boolean },
+  ctx: {
+    ctsRecordCount: number
+    prevYearHasPrevYear: boolean
+    storeCount: number
+    hasDiscountData?: boolean
+  },
 ): string[] | null {
   const seen = getAutoInjectedIds()
   const candidates = WIDGET_REGISTRY.filter((w) => {

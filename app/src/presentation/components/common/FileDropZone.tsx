@@ -2,8 +2,9 @@ import styled from 'styled-components'
 import { useState, useCallback, useRef, type DragEvent } from 'react'
 
 const Zone = styled.div<{ $isDragOver: boolean }>`
-  border: 2px dashed ${({ $isDragOver, theme }) =>
-    $isDragOver ? theme.colors.palette.success : theme.colors.border};
+  border: 2px dashed
+    ${({ $isDragOver, theme }) =>
+      $isDragOver ? theme.colors.palette.success : theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
   padding: ${({ theme }) => theme.spacing[10]};
   text-align: center;

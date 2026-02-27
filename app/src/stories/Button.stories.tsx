@@ -55,7 +55,9 @@ export const AllVariants: Story = {
       <Button $variant="success">Success</Button>
       <Button $variant="outline">Outline</Button>
       <Button $variant="ghost">Ghost</Button>
-      <Button $variant="primary" disabled>Disabled</Button>
+      <Button $variant="primary" disabled>
+        Disabled
+      </Button>
     </div>
   ),
 }

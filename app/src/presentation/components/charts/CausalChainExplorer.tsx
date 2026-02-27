@@ -1,8 +1,36 @@
 import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import type { StoreResult } from '@/domain/models'
-import { buildCausalSteps, type CausalChainPrevInput } from '@/domain/calculations/causalChain'
+import {
+  buildCausalSteps,
+  type CausalChainPrevInput,
+  type ColorHint,
+} from '@/domain/calculations/causalChain'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
+
+/** ColorHint → 実際の CUD 安全色に変換 */
+function resolveColor(hint: ColorHint): string {
+  switch (hint) {
+    case 'positive':
+      return sc.positive
+    case 'negative':
+      return sc.negative
+    case 'caution':
+      return sc.caution
+    case 'primary':
+      return palette.primary
+    case 'secondary':
+      return '#8b5cf6'
+    case 'info':
+      return palette.blueDark
+    case 'warning':
+      return palette.warningDark
+  }
+}
 
 const Wrapper = styled.div`
   width: 100%;
@@ -26,11 +54,18 @@ const StepContainer = styled.div`
 `
 
 const StepCard = styled.div<{ $active: boolean }>`
-  border: 1px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
-  border-left: 4px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : theme.colors.border};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  border-left: 4px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  background: ${({ $active, theme }) => $active ? (theme.mode === 'dark' ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)') : theme.colors.bg2};
+  background: ${({ $active, theme }) =>
+    $active
+      ? theme.mode === 'dark'
+        ? 'rgba(99,102,241,0.08)'
+        : 'rgba(99,102,241,0.04)'
+      : theme.colors.bg2};
   cursor: pointer;
   transition: all 0.15s;
   &:hover {
@@ -81,8 +116,8 @@ const Factor = styled.div<{ $color: string; $isMax: boolean }>`
   flex: 1;
   min-width: 100px;
   padding: ${({ theme }) => theme.spacing[2]};
-  background: ${({ $color }) => $color}${({ $isMax }) => $isMax ? '18' : '08'};
-  border: 1px solid ${({ $color }) => $color}${({ $isMax }) => $isMax ? '50' : '20'};
+  background: ${({ $color }) => $color}${({ $isMax }) => ($isMax ? '18' : '08')};
+  border: 1px solid ${({ $color }) => $color}${({ $isMax }) => ($isMax ? '50' : '20')};
   border-radius: ${({ theme }) => theme.radii.sm};
   font-size: 0.6rem;
 `
@@ -125,7 +160,9 @@ const DrillLink = styled.button`
   margin-top: ${({ theme }) => theme.spacing[1]};
   font-size: 0.55rem;
   color: ${({ theme }) => theme.colors.palette.primary};
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `
 
 interface Props {
@@ -135,41 +172,42 @@ interface Props {
 
 // ステップ→関連ウィジェットID のマッピング
 const STEP_DRILL_TARGETS: Record<string, string> = {
-  '粗利率の状況': 'gross-profit-rate',
-  '粗利率変動の要因分解': 'analysis-causal-chain',
-  '売変種別内訳': 'discount-trend',
-  '成分サマリー': '',
+  粗利率の状況: 'gross-profit-rate',
+  粗利率変動の要因分解: 'analysis-causal-chain',
+  売変種別内訳: 'discount-trend',
+  成分サマリー: '',
 }
 
 export function CausalChainExplorer({ result, prevYearData }: Props) {
   const [activeStep, setActiveStep] = useState(0)
   const { requestDrillThrough } = useCrossChartSelection()
 
-  const steps = useMemo(
-    () => buildCausalSteps(result, prevYearData),
-    [result, prevYearData],
+  const steps = useMemo(() => buildCausalSteps(result, prevYearData), [result, prevYearData])
+
+  const handleStepDrill = useCallback(
+    (stepTitle: string) => {
+      const target = STEP_DRILL_TARGETS[stepTitle]
+      if (target) {
+        requestDrillThrough({ widgetId: target })
+      }
+    },
+    [requestDrillThrough],
   )
 
-  const handleStepDrill = useCallback((stepTitle: string) => {
-    const target = STEP_DRILL_TARGETS[stepTitle]
-    if (target) {
-      requestDrillThrough({ widgetId: target })
-    }
-  }, [requestDrillThrough])
-
-  const stepColors = ['#6366f1', '#ef4444', '#f59e0b', '#22c55e']
+  const stepColors = [palette.primary, sc.negative, sc.caution, sc.positive]
 
   return (
     <Wrapper>
-      <Title>因果チェーン分析 — 粗利率変動の要因ドリルダウン</Title>
+      <Title>
+        因果チェーン分析 — 粗利率変動の要因ドリルダウン
+        <ChartHelpButton guide={CHART_GUIDES['causal-chain']} />
+      </Title>
       <StepContainer>
         {steps.map((step, i) => (
           <div key={i}>
             <StepCard $active={activeStep === i} onClick={() => setActiveStep(i)}>
               <StepHeader>
-                <StepNum $color={stepColors[i % stepColors.length]}>
-                  {i + 1}
-                </StepNum>
+                <StepNum $color={stepColors[i % stepColors.length]}>{i + 1}</StepNum>
                 <StepTitle>{step.title}</StepTitle>
               </StepHeader>
               <StepBody>{step.description}</StepBody>
@@ -179,7 +217,11 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
                   {step.factors.length > 0 && (
                     <FactorBar>
                       {step.factors.map((f, fi) => (
-                        <Factor key={fi} $color={f.color} $isMax={fi === step.maxFactorIndex}>
+                        <Factor
+                          key={fi}
+                          $color={resolveColor(f.colorHint)}
+                          $isMax={fi === step.maxFactorIndex}
+                        >
                           <FactorLabel>{f.label}</FactorLabel>
                           <FactorValue>{f.formatted}</FactorValue>
                         </Factor>
@@ -191,7 +233,12 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
                       <div key={li}>{line}</div>
                     ))}
                     {STEP_DRILL_TARGETS[step.title] && (
-                      <DrillLink onClick={(e) => { e.stopPropagation(); handleStepDrill(step.title) }}>
+                      <DrillLink
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleStepDrill(step.title)
+                        }}
+                      >
                         関連チャートを表示 &rarr;
                       </DrillLink>
                     )}

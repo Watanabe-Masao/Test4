@@ -56,7 +56,11 @@ const Wrapper = styled.div<{ $maxHeight?: string }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   overflow: hidden;
-  ${({ $maxHeight }) => $maxHeight && css`max-height: ${$maxHeight};`}
+  ${({ $maxHeight }) =>
+    $maxHeight &&
+    css`
+      max-height: ${$maxHeight};
+    `}
 `
 
 const Title = styled.h3`
@@ -103,13 +107,17 @@ const Th = styled.th<{ $sortable?: boolean; $compact?: boolean }>`
   user-select: none;
   position: relative;
 
-  &:first-child { text-align: center; }
+  &:first-child {
+    text-align: center;
+  }
 
   ${({ $sortable }) =>
     $sortable &&
     css`
       cursor: pointer;
-      &:hover { background: ${({ theme }) => theme.colors.bg3}; }
+      &:hover {
+        background: ${({ theme }) => theme.colors.bg3};
+      }
     `}
 `
 
@@ -128,11 +136,16 @@ const Td = styled.td<{ $compact?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.text};
 
-  &:first-child { text-align: center; color: ${({ theme }) => theme.colors.text2}; }
+  &:first-child {
+    text-align: center;
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 const Tr = styled.tr`
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const ResizeHandle = styled.div<{ $isResizing: boolean }>`
@@ -154,7 +167,9 @@ const ResizeHandle = styled.div<{ $isResizing: boolean }>`
       opacity: 1;
     `}
 
-  th:hover > & { opacity: 0.5; }
+  th:hover > & {
+    opacity: 0.5;
+  }
 `
 
 // ─── フィルター ────────────────────────────────────────
@@ -212,7 +227,8 @@ const PageBtn = styled.button<{ $active?: boolean }>`
       color: white;
     `}
   &:hover:not(:disabled) {
-    background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.bg4)};
+    background: ${({ $active, theme }) =>
+      $active ? theme.colors.palette.primary : theme.colors.bg4};
   }
   &:disabled {
     opacity: 0.4;
@@ -296,17 +312,24 @@ export function DataGrid<T>({
         ...(showPagination && { pagination }),
       },
     }),
-    [data, columns, enableSorting, enableFiltering, showPagination, enableColumnResizing, sorting, columnFilters, pagination],
+    [
+      data,
+      columns,
+      enableSorting,
+      enableFiltering,
+      showPagination,
+      enableColumnResizing,
+      sorting,
+      columnFilters,
+      pagination,
+    ],
   )
 
   const table = useReactTable(tableOptions)
 
-  const handlePageSizeChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setPagination((prev) => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))
-    },
-    [],
-  )
+  const handlePageSizeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPagination((prev) => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))
+  }, [])
 
   const totalRows = enableFiltering ? table.getFilteredRowModel().rows.length : data.length
 
@@ -402,25 +425,16 @@ export function DataGrid<T>({
             {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalRows)} 件
           </PaginationInfo>
           <PaginationButtons>
-            <PageBtn
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
+            <PageBtn onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
               {'<<'}
             </PageBtn>
-            <PageBtn
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
+            <PageBtn onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
               {'<'}
             </PageBtn>
             <span>
               {pagination.pageIndex + 1} / {table.getPageCount()}
             </span>
-            <PageBtn
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
+            <PageBtn onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
               {'>'}
             </PageBtn>
             <PageBtn

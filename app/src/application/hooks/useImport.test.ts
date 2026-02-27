@@ -9,9 +9,20 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: discount,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -90,10 +101,7 @@ describe('mergeInsertsOnly', () => {
     })
     const incoming = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 99999, 9999),
-          makeCSRecord(2, '1', 60000, 5000),
-        ],
+        records: [makeCSRecord(1, '1', 99999, 9999), makeCSRecord(2, '1', 60000, 5000)],
       },
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
     })
@@ -147,14 +155,64 @@ describe('mergeInsertsOnly', () => {
   it('departmentKpi は既存deptCodeを維持し新規のみ追加', () => {
     const existing = makeData({
       departmentKpi: {
-        records: [{ deptCode: '01', deptName: '青果', gpRateBudget: 30, gpRateActual: 28, gpRateVariance: -2, markupRate: 35, discountRate: 5, salesBudget: 100000, salesActual: 90000, salesVariance: -10000, salesAchievement: 90, openingInventory: 50000, closingInventory: 45000, gpRateLanding: 29, salesLanding: 95000 }],
+        records: [
+          {
+            deptCode: '01',
+            deptName: '青果',
+            gpRateBudget: 30,
+            gpRateActual: 28,
+            gpRateVariance: -2,
+            markupRate: 35,
+            discountRate: 5,
+            salesBudget: 100000,
+            salesActual: 90000,
+            salesVariance: -10000,
+            salesAchievement: 90,
+            openingInventory: 50000,
+            closingInventory: 45000,
+            gpRateLanding: 29,
+            salesLanding: 95000,
+          },
+        ],
       },
     })
     const incoming = makeData({
       departmentKpi: {
         records: [
-          { deptCode: '01', deptName: '青果（変更）', gpRateBudget: 99, gpRateActual: 99, gpRateVariance: 0, markupRate: 99, discountRate: 0, salesBudget: 0, salesActual: 0, salesVariance: 0, salesAchievement: 0, openingInventory: 0, closingInventory: 0, gpRateLanding: 0, salesLanding: 0 },
-          { deptCode: '02', deptName: '鮮魚', gpRateBudget: 25, gpRateActual: 24, gpRateVariance: -1, markupRate: 30, discountRate: 4, salesBudget: 80000, salesActual: 75000, salesVariance: -5000, salesAchievement: 93.75, openingInventory: 30000, closingInventory: 28000, gpRateLanding: 25, salesLanding: 78000 },
+          {
+            deptCode: '01',
+            deptName: '青果（変更）',
+            gpRateBudget: 99,
+            gpRateActual: 99,
+            gpRateVariance: 0,
+            markupRate: 99,
+            discountRate: 0,
+            salesBudget: 0,
+            salesActual: 0,
+            salesVariance: 0,
+            salesAchievement: 0,
+            openingInventory: 0,
+            closingInventory: 0,
+            gpRateLanding: 0,
+            salesLanding: 0,
+          },
+          {
+            deptCode: '02',
+            deptName: '鮮魚',
+            gpRateBudget: 25,
+            gpRateActual: 24,
+            gpRateVariance: -1,
+            markupRate: 30,
+            discountRate: 4,
+            salesBudget: 80000,
+            salesActual: 75000,
+            salesVariance: -5000,
+            salesAchievement: 93.75,
+            openingInventory: 30000,
+            closingInventory: 28000,
+            gpRateLanding: 25,
+            salesLanding: 78000,
+          },
         ],
       },
     })
@@ -163,17 +221,28 @@ describe('mergeInsertsOnly', () => {
 
     expect(result.departmentKpi.records).toHaveLength(2)
     expect(result.departmentKpi.records[0].deptName).toBe('青果') // 既存維持
-    expect(result.departmentKpi.records[1].deptCode).toBe('02')   // 新規追加
+    expect(result.departmentKpi.records[1].deptCode).toBe('02') // 新規追加
   })
 
   it('settings（在庫設定）は既存を維持し新規店舗のみ追加', () => {
     const existing = makeData({
-      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null },
+        ],
+      ]),
     })
     const incoming = makeData({
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 999, closingInventory: 999, grossProfitBudget: null }],
-        ['2', { storeId: '2', openingInventory: 200, closingInventory: 300, grossProfitBudget: null }],
+        [
+          '1',
+          { storeId: '1', openingInventory: 999, closingInventory: 999, grossProfitBudget: null },
+        ],
+        [
+          '2',
+          { storeId: '2', openingInventory: 200, closingInventory: 300, grossProfitBudget: null },
+        ],
       ]),
     })
 
@@ -186,7 +255,9 @@ describe('mergeInsertsOnly', () => {
 
   it('budget は既存を維持し新規店舗のみ追加', () => {
     const existing = makeData({
-      budget: new Map([['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }]]),
+      budget: new Map([
+        ['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }],
+      ]),
     })
     const incoming = makeData({
       budget: new Map([
@@ -204,22 +275,76 @@ describe('mergeInsertsOnly', () => {
 
   it('importedTypesにない場合departmentKpi/settings/budgetは変更されない', () => {
     const existing = makeData({
-      departmentKpi: { records: [{ deptCode: '01', deptName: '青果', gpRateBudget: 30, gpRateActual: 28, gpRateVariance: -2, markupRate: 35, discountRate: 5, salesBudget: 100000, salesActual: 90000, salesVariance: -10000, salesAchievement: 90, openingInventory: 50000, closingInventory: 45000, gpRateLanding: 29, salesLanding: 95000 }] },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null }]]),
-      budget: new Map([['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }]]),
+      departmentKpi: {
+        records: [
+          {
+            deptCode: '01',
+            deptName: '青果',
+            gpRateBudget: 30,
+            gpRateActual: 28,
+            gpRateVariance: -2,
+            markupRate: 35,
+            discountRate: 5,
+            salesBudget: 100000,
+            salesActual: 90000,
+            salesVariance: -10000,
+            salesAchievement: 90,
+            openingInventory: 50000,
+            closingInventory: 45000,
+            gpRateLanding: 29,
+            salesLanding: 95000,
+          },
+        ],
+      },
+      settings: new Map([
+        [
+          '1',
+          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null },
+        ],
+      ]),
+      budget: new Map([
+        ['1', { storeId: '1', total: 1000000, daily: new Map() as ReadonlyMap<number, number> }],
+      ]),
     })
     const incoming = makeData({
-      departmentKpi: { records: [{ deptCode: '99', deptName: '新規', gpRateBudget: 0, gpRateActual: 0, gpRateVariance: 0, markupRate: 0, discountRate: 0, salesBudget: 0, salesActual: 0, salesVariance: 0, salesAchievement: 0, openingInventory: 0, closingInventory: 0, gpRateLanding: 0, salesLanding: 0 }] },
-      settings: new Map([['9', { storeId: '9', openingInventory: 999, closingInventory: 999, grossProfitBudget: null }]]),
-      budget: new Map([['9', { storeId: '9', total: 9999999, daily: new Map() as ReadonlyMap<number, number> }]]),
+      departmentKpi: {
+        records: [
+          {
+            deptCode: '99',
+            deptName: '新規',
+            gpRateBudget: 0,
+            gpRateActual: 0,
+            gpRateVariance: 0,
+            markupRate: 0,
+            discountRate: 0,
+            salesBudget: 0,
+            salesActual: 0,
+            salesVariance: 0,
+            salesAchievement: 0,
+            openingInventory: 0,
+            closingInventory: 0,
+            gpRateLanding: 0,
+            salesLanding: 0,
+          },
+        ],
+      },
+      settings: new Map([
+        [
+          '9',
+          { storeId: '9', openingInventory: 999, closingInventory: 999, grossProfitBudget: null },
+        ],
+      ]),
+      budget: new Map([
+        ['9', { storeId: '9', total: 9999999, daily: new Map() as ReadonlyMap<number, number> }],
+      ]),
     })
 
     // classifiedSales のみインポート → departmentKpi/settings/budget は対象外
     const result = mergeInsertsOnly(existing, incoming, new Set(['classifiedSales']))
 
     expect(result.departmentKpi.records).toHaveLength(1) // 変更なし
-    expect(result.settings.size).toBe(1)                  // 変更なし
-    expect(result.budget.size).toBe(1)                    // 変更なし
+    expect(result.settings.size).toBe(1) // 変更なし
+    expect(result.budget.size).toBe(1) // 変更なし
   })
 
   it('複数データ種別を同時にマージできる', () => {
@@ -229,10 +354,7 @@ describe('mergeInsertsOnly', () => {
     })
     const incoming = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 99999, 9999),
-          makeCSRecord(2, '1', 60000, 5000),
-        ],
+        records: [makeCSRecord(1, '1', 99999, 9999), makeCSRecord(2, '1', 60000, 5000)],
       },
       purchase: {
         '1': {

@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react'
-import type { StoreResult, CategoryTimeSalesIndex, DepartmentKpiData, StoreExplanations, MetricId, DateRange } from '@/domain/models'
+import type {
+  StoreResult,
+  CategoryTimeSalesIndex,
+  StoreExplanations,
+  MetricId,
+  DateRange,
+} from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
+import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
@@ -10,7 +17,10 @@ export type WidgetSize = 'kpi' | 'half' | 'full'
 export type ComparisonMode = 'yoy' | 'wow'
 
 /** 前週比の比較期間を算出する。dayStart-7日 ～ dayEnd-7日。 */
-export function wowPrevRange(dayStart: number, dayEnd: number): {
+export function wowPrevRange(
+  dayStart: number,
+  dayEnd: number,
+): {
   prevStart: number
   prevEnd: number
   isValid: boolean
@@ -53,7 +63,7 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: { day: number; actualCum: number; budgetCum: number; prevYearCum: number | null }[]
+  budgetChartData: readonly BudgetChartDataPoint[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */
@@ -82,8 +92,8 @@ export interface WidgetContext {
   dataMaxDay: number
   /** 取込データ有効期間から算出された経過日数 */
   elapsedDays: number | undefined
-  /** 部門別KPIデータ */
-  departmentKpi: DepartmentKpiData
+  /** 部門別KPIインデックス（buildDepartmentKpiIndex経由） */
+  departmentKpi: DepartmentKpiIndex
   /** 指標説明マップ（MetricBreakdownPanel 用） */
   explanations: StoreExplanations
   /** 指標の説明パネルを開く */

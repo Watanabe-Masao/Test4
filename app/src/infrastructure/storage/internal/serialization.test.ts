@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  sanitizeNumericValues,
-  validateLoadedData,
-  budgetFromSerializable,
-} from './serialization'
+import { sanitizeNumericValues, validateLoadedData, budgetFromSerializable } from './serialization'
 
 /* ── sanitizeNumericValues ───────────────────── */
 
@@ -87,7 +83,24 @@ describe('validateLoadedData', () => {
   it('classifiedSales の正常レコードは通過する', () => {
     const data = makeValidData()
     data.classifiedSales = {
-      records: [{ year: 2025, month: 1, day: 15, storeId: 's1', storeName: 'A', salesAmount: 100, groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C', discount71: 0, discount72: 0, discount73: 0, discount74: 0 }],
+      records: [
+        {
+          year: 2025,
+          month: 1,
+          day: 15,
+          storeId: 's1',
+          storeName: 'A',
+          salesAmount: 100,
+          groupName: 'G',
+          departmentName: 'D',
+          lineName: 'L',
+          className: 'C',
+          discount71: 0,
+          discount72: 0,
+          discount73: 0,
+          discount74: 0,
+        },
+      ],
     }
     expect(validateLoadedData(data)).toBe(true)
   })
@@ -131,7 +144,11 @@ describe('budgetFromSerializable', () => {
   })
 
   it('日付キーが不正な場合はスキップする', () => {
-    const result = budgetFromSerializable({ storeId: 's1', total: 100, daily: { 'abc': 50, '32': 60, '1': 70 } })
+    const result = budgetFromSerializable({
+      storeId: 's1',
+      total: 100,
+      daily: { abc: 50, '32': 60, '1': 70 },
+    })
     expect(result).not.toBeNull()
     // abc → スキップ, 32 → >31なのでスキップ, 1 → 有効
     expect(result!.daily.size).toBe(1)

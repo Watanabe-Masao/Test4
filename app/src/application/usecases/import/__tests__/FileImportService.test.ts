@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { validateImportedData, hasValidationErrors, extractRecordMonths, filterDataForMonth } from '../FileImportService'
+import {
+  validateImportedData,
+  hasValidationErrors,
+  extractRecordMonths,
+  filterDataForMonth,
+} from '../FileImportService'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
 import type { ImportSummary } from '../FileImportService'
@@ -10,9 +15,20 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, d71 = 0) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: d71, discount72: 0, discount73: 0, discount74: 0,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: d71,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -27,18 +43,24 @@ function fullData(): ImportedData {
       '2': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } },
     },
     classifiedSales: {
-      records: [
-        makeCSRecord(1, '1', 50000, 3000),
-        makeCSRecord(1, '2', 40000),
-      ],
+      records: [makeCSRecord(1, '1', 50000, 3000), makeCSRecord(1, '2', 40000)],
     },
     settings: new Map([
-      ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
-      ['2', { storeId: '2', openingInventory: 80000, closingInventory: 90000, grossProfitBudget: null }],
+      [
+        '1',
+        {
+          storeId: '1',
+          openingInventory: 100000,
+          closingInventory: 120000,
+          grossProfitBudget: null,
+        },
+      ],
+      [
+        '2',
+        { storeId: '2', openingInventory: 80000, closingInventory: 90000, grossProfitBudget: null },
+      ],
     ]),
-    budget: new Map([
-      ['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }],
-    ]),
+    budget: new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]]),
   })
 }
 
@@ -86,7 +108,15 @@ describe('validateImportedData', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     })
     const messages = validateImportedData(data)
@@ -100,7 +130,15 @@ describe('validateImportedData', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     })
     const messages = validateImportedData(data)
@@ -113,7 +151,15 @@ describe('validateImportedData', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
-        ['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }],
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
       ]),
     })
     const messages = validateImportedData(data)
@@ -136,7 +182,13 @@ describe('validateImportedData', () => {
   it('ImportSummary 付きで成功サマリーが情報表示される', () => {
     const summary: ImportSummary = {
       results: [
-        { ok: true, filename: 'uriage.xlsx', type: 'classifiedSales', typeName: '分類別売上', rowCount: 31 },
+        {
+          ok: true,
+          filename: 'uriage.xlsx',
+          type: 'classifiedSales',
+          typeName: '分類別売上',
+          rowCount: 31,
+        },
       ],
       successCount: 1,
       failureCount: 0,
@@ -180,29 +232,60 @@ describe('validateImportedData', () => {
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [rec, rec] }, // 同一キーが2件
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
-    const dupWarning = messages.find((m) => m.level === 'warning' && m.message.includes('重複レコード'))
+    const dupWarning = messages.find(
+      (m) => m.level === 'warning' && m.message.includes('重複レコード'),
+    )
     expect(dupWarning).toBeTruthy()
     expect(dupWarning!.message).toContain('分類別売上')
   })
 
   it('categoryTimeSales に重複レコードがあれば警告', () => {
     const ctsRec = {
-      year: 2025, month: 1, day: 1, storeId: '1',
-      department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
-      klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+      year: 2025,
+      month: 1,
+      day: 1,
+      storeId: '1',
+      department: { code: '001', name: 'D' },
+      line: { code: '01', name: 'L' },
+      klass: { code: '001', name: 'C' },
+      timeSlots: [],
+      totalQuantity: 10,
+      totalAmount: 5000,
     }
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       categoryTimeSales: { records: [ctsRec, ctsRec] }, // 同一キーが2件
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
-    const dupWarning = messages.find((m) => m.level === 'warning' && m.message.includes('重複レコード'))
+    const dupWarning = messages.find(
+      (m) => m.level === 'warning' && m.message.includes('重複レコード'),
+    )
     expect(dupWarning).toBeTruthy()
     expect(dupWarning!.message).toContain('分類別時間帯売上')
   })
@@ -218,9 +301,16 @@ describe('validateImportedData', () => {
 
 function makeCTSRecord(day: number, storeId: string, totalAmount: number) {
   return {
-    year: 2025, month: 1, day, storeId,
-    department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
-    klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    department: { code: '001', name: 'D' },
+    line: { code: '01', name: 'L' },
+    klass: { code: '001', name: 'C' },
+    timeSlots: [],
+    totalQuantity: 10,
+    totalAmount,
   }
 }
 
@@ -231,7 +321,17 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       categoryTimeSales: { records: [makeCTSRecord(1, '1', 100500)] }, // 0.5% 乖離
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     expect(messages.find((m) => m.message.includes('乖離'))).toBeUndefined()
@@ -243,7 +343,17 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       categoryTimeSales: { records: [makeCTSRecord(1, '1', 90000)] }, // 10% 乖離
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
@@ -264,12 +374,22 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
       },
       categoryTimeSales: {
         records: [
-          makeCTSRecord(1, '1', 50000),  // day 1: 一致
-          makeCTSRecord(2, '1', 40000),  // day 2: 20% 乖離
-          makeCTSRecord(3, '1', 30000),  // day 3: 40% 乖離
+          makeCTSRecord(1, '1', 50000), // day 1: 一致
+          makeCTSRecord(2, '1', 40000), // day 2: 20% 乖離
+          makeCTSRecord(3, '1', 30000), // day 3: 40% 乖離
         ],
       },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
@@ -293,19 +413,26 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(2, '1', 50000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 50000)],
       },
       categoryTimeSales: {
         records: [
           makeCTSRecord(1, '1', 50000),
           // day 2 は時間帯売上にない
-          makeCTSRecord(3, '1', 30000),  // day 3 は分類別売上にない
+          makeCTSRecord(3, '1', 30000), // day 3 は分類別売上にない
         ],
       },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
@@ -324,7 +451,17 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: { records: csRecords },
       categoryTimeSales: { records: ctsRecords },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     const warning = messages.find((m) => m.message.includes('乖離'))
@@ -349,7 +486,17 @@ describe('花・産直の日付範囲チェック', () => {
           makeCSRecord(28, '1', 50000), // 最終取込日 = 28日
         ],
       },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
   }
 
@@ -366,7 +513,9 @@ describe('花・産直の日付範囲チェック', () => {
       },
     }
     const messages = validateImportedData(data)
-    const warning = messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))
+    const warning = messages.find(
+      (m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'),
+    )
     expect(warning).toBeTruthy()
     expect(warning!.message).toContain('20日')
     expect(warning!.message).toContain('28日')
@@ -383,7 +532,9 @@ describe('花・産直の日付範囲チェック', () => {
       },
     }
     const messages = validateImportedData(data)
-    const warning = messages.find((m) => m.message.includes('産直データ') && m.message.includes('取り込み忘れ'))
+    const warning = messages.find(
+      (m) => m.message.includes('産直データ') && m.message.includes('取り込み忘れ'),
+    )
     expect(warning).toBeTruthy()
     expect(warning!.message).toContain('10日')
     expect(warning!.message).toContain('28日')
@@ -400,12 +551,16 @@ describe('花・産直の日付範囲チェック', () => {
       },
     }
     const messages = validateImportedData(data)
-    expect(messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))).toBeUndefined()
+    expect(
+      messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ')),
+    ).toBeUndefined()
   })
 
   it('花データが空の場合は警告なし', () => {
     const messages = validateImportedData(baseData())
-    expect(messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ'))).toBeUndefined()
+    expect(
+      messages.find((m) => m.message.includes('花データ') && m.message.includes('取り込み忘れ')),
+    ).toBeUndefined()
   })
 })
 
@@ -417,7 +572,17 @@ describe('validateImportedData: 境界値テスト', () => {
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000)],
       },
-      settings: new Map([['1', { storeId: '1', openingInventory: 100000, closingInventory: 120000, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          {
+            storeId: '1',
+            openingInventory: 100000,
+            closingInventory: 120000,
+            grossProfitBudget: null,
+          },
+        ],
+      ]),
     })
     const messages = validateImportedData(data)
     expect(messages.find((m) => m.message.includes('乖離'))).toBeUndefined()
@@ -426,17 +591,21 @@ describe('validateImportedData: 境界値テスト', () => {
 
 describe('hasValidationErrors', () => {
   it('error レベルがあれば true', () => {
-    expect(hasValidationErrors([
-      { level: 'info', message: 'ok' },
-      { level: 'error', message: 'ng' },
-    ])).toBe(true)
+    expect(
+      hasValidationErrors([
+        { level: 'info', message: 'ok' },
+        { level: 'error', message: 'ng' },
+      ]),
+    ).toBe(true)
   })
 
   it('warning のみは false', () => {
-    expect(hasValidationErrors([
-      { level: 'warning', message: 'warn' },
-      { level: 'info', message: 'info' },
-    ])).toBe(false)
+    expect(
+      hasValidationErrors([
+        { level: 'warning', message: 'warn' },
+        { level: 'info', message: 'info' },
+      ]),
+    ).toBe(false)
   })
 
   it('空配列は false', () => {
@@ -454,10 +623,7 @@ describe('extractRecordMonths', () => {
   it('classifiedSales レコードから年月を抽出する', () => {
     const data = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 10000),
-          makeCSRecord(2, '1', 20000),
-        ],
+        records: [makeCSRecord(1, '1', 10000), makeCSRecord(2, '1', 20000)],
       },
     })
     expect(extractRecordMonths(data)).toEqual([{ year: 2025, month: 1 }])
@@ -487,9 +653,16 @@ describe('extractRecordMonths', () => {
       categoryTimeSales: {
         records: [
           {
-            year: 2025, month: 3, day: 1, storeId: '1',
-            department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
-            klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+            year: 2025,
+            month: 3,
+            day: 1,
+            storeId: '1',
+            department: { code: '001', name: 'D' },
+            line: { code: '01', name: 'L' },
+            klass: { code: '001', name: 'C' },
+            timeSlots: [],
+            totalQuantity: 10,
+            totalAmount: 5000,
           },
         ],
       },
@@ -552,7 +725,11 @@ describe('filterDataForMonth', () => {
       flowers: { '1': { 1: { price: 5000, cost: 4000 } } },
       consumables: { '1': { 1: { cost: 3000, items: [] } } },
       budget: new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]]),
-      interStoreIn: { '1': { 1: { interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] } } },
+      interStoreIn: {
+        '1': {
+          1: { interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] },
+        },
+      },
       classifiedSales: {
         records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 1 }],
       },

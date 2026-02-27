@@ -14,7 +14,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const HeaderRow = styled.div`
@@ -34,7 +35,8 @@ const Title = styled.div`
 const ViewToggle = styled.div`
   display: flex;
   gap: 2px;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: 2px;
 `
@@ -45,16 +47,17 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => $active ? '#fff' : theme.colors.text3};
-  background: ${({ $active, theme }) => $active
-    ? theme.colors.palette.primary
-    : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    background: ${({ $active, theme }) => $active
-      ? theme.colors.palette.primary
-      : theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ $active, theme }) =>
+      $active
+        ? theme.colors.palette.primary
+        : theme.mode === 'dark'
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -84,12 +87,26 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
   const chartData = useMemo(() => {
-    let cumSales = 0, cumCost = 0, cumDiscount = 0, cumConsumable = 0
+    let cumSales = 0,
+      cumCost = 0,
+      cumDiscount = 0,
+      cumConsumable = 0
     const rows: {
       day: number
-      sales: number; cost: number; discount: number; consumable: number; margin: number
-      discountRate: number; costRate: number; gpRate: number; consumableRate: number
-      cumSales: number; cumCost: number; cumDiscount: number; cumConsumable: number; cumMargin: number
+      sales: number
+      cost: number
+      discount: number
+      consumable: number
+      margin: number
+      discountRate: number
+      costRate: number
+      gpRate: number
+      consumableRate: number
+      cumSales: number
+      cumCost: number
+      cumDiscount: number
+      cumConsumable: number
+      cumMargin: number
     }[] = []
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -109,23 +126,40 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
 
       rows.push({
         day: d,
-        sales, cost, discount, consumable, margin,
+        sales,
+        cost,
+        discount,
+        consumable,
+        margin,
         discountRate: safeDivide(discount, grossSales, 0),
         costRate: safeDivide(cost, sales, 0),
         gpRate: safeDivide(margin, sales, 0),
         consumableRate: safeDivide(consumable, sales, 0),
-        cumSales, cumCost, cumDiscount, cumConsumable, cumMargin,
+        cumSales,
+        cumCost,
+        cumDiscount,
+        cumConsumable,
+        cumMargin,
       })
     }
     return rows
   }, [daily, daysInMonth])
 
-  const data = chartData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = chartData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   const allLabels: Record<string, string> = {
-    margin: '粗利相当', cost: '原価', discount: '売変', consumable: '消耗品',
-    gpRate: '粗利率', discountRate: '売変率', costRate: '原価率', consumableRate: '消耗品率',
-    cumMargin: '累計粗利', cumCost: '累計原価', cumDiscount: '累計売変', cumConsumable: '累計消耗品',
+    margin: '粗利相当',
+    cost: '原価',
+    discount: '売変',
+    consumable: '消耗品',
+    gpRate: '粗利率',
+    discountRate: '売変率',
+    costRate: '原価率',
+    consumableRate: '消耗品率',
+    cumMargin: '累計粗利',
+    cumCost: '累計原価',
+    cumDiscount: '累計売変',
+    cumConsumable: '累計消耗品',
   }
 
   return (
@@ -174,7 +208,8 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={fmt}
                 width={55}
               />
@@ -182,15 +217,56 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
                 yAxisId="right"
                 orientation="right"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={(v: number) => toPct(v)}
                 width={45}
               />
-              <Area yAxisId="left" type="monotone" dataKey="margin" stackId="rev" fill="url(#revMarginGrad)" stroke={ct.colors.success} strokeWidth={0} />
-              <Area yAxisId="left" type="monotone" dataKey="cost" stackId="rev" fill="url(#revCostGrad)" stroke={ct.colors.orange} strokeWidth={0} />
-              <Area yAxisId="left" type="monotone" dataKey="consumable" stackId="rev" fill="url(#revConsumableGrad)" stroke={ct.colors.purple} strokeWidth={0} />
-              <Area yAxisId="left" type="monotone" dataKey="discount" stackId="rev" fill="url(#revDiscountGrad)" stroke={ct.colors.danger} strokeWidth={0} />
-              <Line yAxisId="right" type="monotone" dataKey="gpRate" stroke={ct.colors.successDark} strokeWidth={2} dot={false} connectNulls />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="margin"
+                stackId="rev"
+                fill="url(#revMarginGrad)"
+                stroke={ct.colors.success}
+                strokeWidth={0}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="cost"
+                stackId="rev"
+                fill="url(#revCostGrad)"
+                stroke={ct.colors.orange}
+                strokeWidth={0}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="consumable"
+                stackId="rev"
+                fill="url(#revConsumableGrad)"
+                stroke={ct.colors.purple}
+                strokeWidth={0}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="discount"
+                stackId="rev"
+                fill="url(#revDiscountGrad)"
+                stroke={ct.colors.danger}
+                strokeWidth={0}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="gpRate"
+                stroke={ct.colors.successDark}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -200,14 +276,48 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={(v: number) => toPct(v)}
                 width={50}
               />
-              <Line yAxisId="left" type="monotone" dataKey="gpRate" stroke={ct.colors.success} strokeWidth={2.5} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="costRate" stroke={ct.colors.orange} strokeWidth={2} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="discountRate" stroke={ct.colors.danger} strokeWidth={2} dot={false} connectNulls />
-              <Line yAxisId="left" type="monotone" dataKey="consumableRate" stroke={ct.colors.purple} strokeWidth={1.5} strokeDasharray="4 2" dot={false} connectNulls />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="gpRate"
+                stroke={ct.colors.success}
+                strokeWidth={2.5}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="costRate"
+                stroke={ct.colors.orange}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="discountRate"
+                stroke={ct.colors.danger}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="consumableRate"
+                stroke={ct.colors.purple}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+              />
             </>
           )}
 
@@ -217,14 +327,47 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={fmt}
                 width={55}
               />
-              <Area yAxisId="left" type="monotone" dataKey="cumMargin" stackId="cum" fill="url(#revMarginGrad)" stroke={ct.colors.success} strokeWidth={1} />
-              <Area yAxisId="left" type="monotone" dataKey="cumCost" stackId="cum" fill="url(#revCostGrad)" stroke={ct.colors.orange} strokeWidth={1} />
-              <Area yAxisId="left" type="monotone" dataKey="cumConsumable" stackId="cum" fill="url(#revConsumableGrad)" stroke={ct.colors.purple} strokeWidth={1} />
-              <Area yAxisId="left" type="monotone" dataKey="cumDiscount" stackId="cum" fill="url(#revDiscountGrad)" stroke={ct.colors.danger} strokeWidth={1} />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="cumMargin"
+                stackId="cum"
+                fill="url(#revMarginGrad)"
+                stroke={ct.colors.success}
+                strokeWidth={1}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="cumCost"
+                stackId="cum"
+                fill="url(#revCostGrad)"
+                stroke={ct.colors.orange}
+                strokeWidth={1}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="cumConsumable"
+                stackId="cum"
+                fill="url(#revConsumableGrad)"
+                stroke={ct.colors.purple}
+                strokeWidth={1}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="cumDiscount"
+                stackId="cum"
+                fill="url(#revDiscountGrad)"
+                stroke={ct.colors.danger}
+                strokeWidth={1}
+              />
             </>
           )}
 
@@ -244,7 +387,13 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

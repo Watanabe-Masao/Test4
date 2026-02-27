@@ -1,13 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createEmptyImportedData,
-  processFileData,
-  normalizeRecordStoreIds,
-} from './ImportService'
-import {
-  validateImportedData,
-  hasValidationErrors,
-} from '@/application/usecases/import'
+import { createEmptyImportedData, processFileData, normalizeRecordStoreIds } from './ImportService'
+import { validateImportedData, hasValidationErrors } from '@/application/usecases/import'
 import type { ImportedData } from './ImportService'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
@@ -26,7 +19,13 @@ describe('processFileData', () => {
       ['header3'],
       ['2026-02-01', '', '', 10000, 13000],
     ]
-    const { data: result } = processFileData('purchase', rows, 'shiire.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData(
+      'purchase',
+      rows,
+      'shiire.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.stores.size).toBe(1)
     expect(result.stores.get('1')?.name).toBe('店舗A')
@@ -37,10 +36,28 @@ describe('processFileData', () => {
 
   it('分類別売上データの処理 + 店舗抽出', () => {
     const rows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
     ]
-    const { data: result } = processFileData('classifiedSales', rows, 'bunruibetsu.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData(
+      'classifiedSales',
+      rows,
+      'bunruibetsu.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.stores.size).toBe(1)
     expect(result.classifiedSales.records).toHaveLength(1)
@@ -50,21 +67,42 @@ describe('processFileData', () => {
 
   it('分類別売上データの売変処理', () => {
     const rows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '0001:A', 'G1', 'D1', 'L1', 'C1', 50000, 5000, 0, 0, 0],
     ]
-    const { data: result } = processFileData('classifiedSales', rows, 'baihen.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData(
+      'classifiedSales',
+      rows,
+      'baihen.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.classifiedSales.records).toHaveLength(1)
     expect(result.classifiedSales.records[0].discount71).toBe(5000)
   })
 
   it('初期設定の処理', () => {
-    const rows = [
-      ['header'],
-      ['0001', 100000, 120000, 500000],
-    ]
-    const { data: result } = processFileData('initialSettings', rows, 'settings.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const rows = [['header'], ['0001', 100000, 120000, 500000]]
+    const { data: result } = processFileData(
+      'initialSettings',
+      rows,
+      'settings.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.settings.size).toBe(1)
     expect(result.settings.get('1')?.openingInventory).toBe(100000)
@@ -75,61 +113,95 @@ describe('processFileData', () => {
       ['店舗コード', '日付', '売上予算'],
       ['0001', '2026-02-01', 200000],
     ]
-    const { data: result } = processFileData('budget', rows, 'budget.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData(
+      'budget',
+      rows,
+      'budget.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.budget.size).toBe(1)
     expect(result.budget.get('1')?.total).toBe(200000)
   })
 
   it('店間入データの処理', () => {
-    const rows = [
-      ['header'],
-      ['0001', '2026-02-01', '0002', 10000, 13000],
-    ]
-    const { data: result } = processFileData('interStoreIn', rows, 'tenkaniri.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const rows = [['header'], ['0001', '2026-02-01', '0002', 10000, 13000]]
+    const { data: result } = processFileData(
+      'interStoreIn',
+      rows,
+      'tenkaniri.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.interStoreIn['1']?.[1]?.interStoreIn).toHaveLength(1)
   })
 
   it('店間出データの処理（Col0=日付, Col1=出庫元）', () => {
-    const rows = [
-      ['header'],
-      ['2026-02-01', '0001', '0002', '001', 10000, 13000],
-    ]
-    const { data: result } = processFileData('interStoreOut', rows, 'tenkandashi.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const rows = [['header'], ['2026-02-01', '0001', '0002', '001', 10000, 13000]]
+    const { data: result } = processFileData(
+      'interStoreOut',
+      rows,
+      'tenkandashi.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.interStoreOut['1']?.[1]?.interStoreOut).toHaveLength(1)
   })
 
   it('花データの処理（掛け率0.80）', () => {
-    const rows = [
-      ['', '', '', '0001:A', ''],
-      [''], [''],
-      ['2026-02-01', '', '', 10000, ''],
-    ]
-    const { data: result } = processFileData('flowers', rows, 'hana.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const rows = [['', '', '', '0001:A', ''], [''], [''], ['2026-02-01', '', '', 10000, '']]
+    const { data: result } = processFileData(
+      'flowers',
+      rows,
+      'hana.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.flowers['1']?.[1]?.cost).toBe(8000) // 10000 × 0.80
   })
 
   it('産直データの処理（掛け率0.85）', () => {
-    const rows = [
-      ['', '', '', '0001:A', ''],
-      [''], [''],
-      ['2026-02-01', '', '', 10000, ''],
-    ]
-    const { data: result } = processFileData('directProduce', rows, 'sanchoku.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const rows = [['', '', '', '0001:A', ''], [''], [''], ['2026-02-01', '', '', 10000, '']]
+    const { data: result } = processFileData(
+      'directProduce',
+      rows,
+      'sanchoku.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.directProduce['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
   })
 
   it('分類別売上データ複数レコードの処理', () => {
     const rows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 3000, 0, 0, 0],
       ['2026-02-01', '0001:店舗A', 'G2', 'D2', 'L2', 'C2', 30000, 1000, 0, 0, 0],
     ]
-    const { data: result } = processFileData('classifiedSales', rows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { data: result } = processFileData(
+      'classifiedSales',
+      rows,
+      '1_売上売変.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(result.stores.size).toBe(1)
     expect(result.classifiedSales.records).toHaveLength(2)
@@ -140,7 +212,19 @@ describe('processFileData', () => {
 
   it('分類別売上の後に予算を取り込んでもデータが維持される', () => {
     const csRows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 3000, 0, 0, 0],
     ]
     const budgetRows = [
@@ -148,8 +232,20 @@ describe('processFileData', () => {
       ['0001', '2026-02-01', 200000],
     ]
 
-    let { data: result } = processFileData('classifiedSales', csRows, '1_売上売変.xlsx', emptyData(), DEFAULT_SETTINGS)
-    ;({ data: result } = processFileData('budget', budgetRows, '0_売上予算.xlsx', result, DEFAULT_SETTINGS))
+    let { data: result } = processFileData(
+      'classifiedSales',
+      csRows,
+      '1_売上売変.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
+    ;({ data: result } = processFileData(
+      'budget',
+      budgetRows,
+      '0_売上予算.xlsx',
+      result,
+      DEFAULT_SETTINGS,
+    ))
 
     // 分類別売上データが維持されること
     expect(result.classifiedSales.records).toHaveLength(1)
@@ -160,16 +256,22 @@ describe('processFileData', () => {
   })
 
   it('消耗品データの処理（マージモード）', () => {
-    const rows1 = [
-      ['header'],
-      ['81257', 'A001', '洗剤', 10, 5000, '2026-02-01'],
-    ]
-    const rows2 = [
-      ['header'],
-      ['81257', 'A002', 'ゴミ袋', 5, 3000, '2026-02-01'],
-    ]
-    let { data: result } = processFileData('consumables', rows1, '01_file1.xlsx', emptyData(), DEFAULT_SETTINGS)
-    ;({ data: result } = processFileData('consumables', rows2, '01_file2.xlsx', result, DEFAULT_SETTINGS))
+    const rows1 = [['header'], ['81257', 'A001', '洗剤', 10, 5000, '2026-02-01']]
+    const rows2 = [['header'], ['81257', 'A002', 'ゴミ袋', 5, 3000, '2026-02-01']]
+    let { data: result } = processFileData(
+      'consumables',
+      rows1,
+      '01_file1.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
+    ;({ data: result } = processFileData(
+      'consumables',
+      rows2,
+      '01_file2.xlsx',
+      result,
+      DEFAULT_SETTINGS,
+    ))
 
     expect(result.consumables['1']?.[1]?.cost).toBe(8000)
     expect(result.consumables['1']?.[1]?.items).toHaveLength(2)
@@ -180,16 +282,41 @@ describe('processFileData', () => {
     const purchaseRows = [
       ['', '', '', '0000001:取引先A', ''],
       ['', '', '', '0001:店舗A', ''],
-      [''], [''],
+      [''],
+      [''],
       ['2026-02-01', '', '', 1000, 1300],
     ]
     const csRows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '0002:店舗B', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
     ]
 
-    let { data: result } = processFileData('purchase', purchaseRows, 'shiire.xlsx', base, DEFAULT_SETTINGS)
-    ;({ data: result } = processFileData('classifiedSales', csRows, 'bunruibetsu.xlsx', result, DEFAULT_SETTINGS))
+    let { data: result } = processFileData(
+      'purchase',
+      purchaseRows,
+      'shiire.xlsx',
+      base,
+      DEFAULT_SETTINGS,
+    )
+    ;({ data: result } = processFileData(
+      'classifiedSales',
+      csRows,
+      'bunruibetsu.xlsx',
+      result,
+      DEFAULT_SETTINGS,
+    ))
 
     expect(result.stores.size).toBe(2)
     expect(result.stores.has('1')).toBe(true)
@@ -198,16 +325,46 @@ describe('processFileData', () => {
 
   it('分類別売上データから年月を自動検出する', () => {
     const rows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026年01月15日', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
     ]
-    const { detectedYearMonth } = processFileData('classifiedSales', rows, 'bunruibetsu.xlsx', emptyData(), DEFAULT_SETTINGS)
+    const { detectedYearMonth } = processFileData(
+      'classifiedSales',
+      rows,
+      'bunruibetsu.xlsx',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
 
     expect(detectedYearMonth).toEqual({ year: 2026, month: 1 })
   })
 
   it('複数月の分類別売上ファイルをマージしても各レコードの年月が保持される', () => {
-    const header = ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変']
+    const header = [
+      '日付',
+      '店舗名称',
+      'グループ名称',
+      '部門名称',
+      'ライン名称',
+      'クラス名称',
+      '販売金額',
+      '71売変',
+      '72売変',
+      '73売変',
+      '74売変',
+    ]
 
     // 1月ファイル
     const janRows = [
@@ -221,15 +378,31 @@ describe('processFileData', () => {
     ]
 
     // 1月を処理
-    let { data: result } = processFileData('classifiedSales', janRows, '202501.csv', emptyData(), DEFAULT_SETTINGS)
+    let { data: result } = processFileData(
+      'classifiedSales',
+      janRows,
+      '202501.csv',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
     // 2月を処理（1月データに追加マージ）
-    ;({ data: result } = processFileData('classifiedSales', febRows, '202502.csv', result, DEFAULT_SETTINGS))
+    ;({ data: result } = processFileData(
+      'classifiedSales',
+      febRows,
+      '202502.csv',
+      result,
+      DEFAULT_SETTINGS,
+    ))
 
     // 両月のレコードが保持されること
     expect(result.classifiedSales.records).toHaveLength(2)
 
-    const janRecords = result.classifiedSales.records.filter((r) => r.year === 2025 && r.month === 1)
-    const febRecords = result.classifiedSales.records.filter((r) => r.year === 2025 && r.month === 2)
+    const janRecords = result.classifiedSales.records.filter(
+      (r) => r.year === 2025 && r.month === 1,
+    )
+    const febRecords = result.classifiedSales.records.filter(
+      (r) => r.year === 2025 && r.month === 2,
+    )
 
     expect(janRecords).toHaveLength(1)
     expect(janRecords[0].salesAmount).toBe(50000)
@@ -255,14 +428,32 @@ describe('validateImportedData', () => {
       ...emptyData(),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: {
-        records: [{
-          year: 2026, month: 2, day: 1, storeId: '1', storeName: 'Store 1',
-          groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-          salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
-        }],
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: 'Store 1',
+            groupName: 'G',
+            departmentName: 'D',
+            lineName: 'L',
+            className: 'C',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
+          },
+        ],
       },
       stores: new Map([['1', { id: '1', code: '0001', name: 'A' }]]),
-      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+        ],
+      ]),
     }
     const messages = validateImportedData(data)
     const errors = messages.filter((m) => m.level === 'error')
@@ -274,11 +465,24 @@ describe('validateImportedData', () => {
       ...emptyData(),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: {
-        records: [{
-          year: 2026, month: 2, day: 1, storeId: '1', storeName: 'Store 1',
-          groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-          salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
-        }],
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: 'Store 1',
+            groupName: 'G',
+            departmentName: 'D',
+            lineName: 'L',
+            className: 'C',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
+          },
+        ],
       },
       stores: new Map([['1', { id: '1', code: '0001', name: 'A' }]]),
     }
@@ -292,14 +496,32 @@ describe('validateImportedData', () => {
       ...emptyData(),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: {
-        records: [{
-          year: 2026, month: 2, day: 1, storeId: '1', storeName: 'Store 1',
-          groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-          salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
-        }],
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: 'Store 1',
+            groupName: 'G',
+            departmentName: 'D',
+            lineName: 'L',
+            className: 'C',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
+          },
+        ],
       },
       stores: new Map([['1', { id: '1', code: '0001', name: 'A' }]]),
-      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+        ],
+      ]),
     }
     const messages = validateImportedData(data)
     const infos = messages.filter((m) => m.level === 'info')
@@ -314,17 +536,35 @@ describe('validateImportedData', () => {
       ...emptyData(),
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
       classifiedSales: {
-        records: [{
-          year: 2026, month: 2, day: 1, storeId: '1', storeName: 'Store 1',
-          groupName: 'G', departmentName: 'D', lineName: 'L', className: 'C',
-          salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
-        }],
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: 'Store 1',
+            groupName: 'G',
+            departmentName: 'D',
+            lineName: 'L',
+            className: 'C',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
+          },
+        ],
       },
       stores: new Map([
         ['1', { id: '1', code: '0001', name: 'A' }],
         ['2', { id: '2', code: '0002', name: 'B' }],
       ]),
-      settings: new Map([['1', { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null }]]),
+      settings: new Map([
+        [
+          '1',
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+        ],
+      ]),
     }
     const messages = validateImportedData(data)
     const warnings = messages.filter((m) => m.level === 'warning')
@@ -357,14 +597,36 @@ describe('normalizeRecordStoreIds', () => {
       classifiedSales: {
         records: [
           {
-            year: 2026, month: 2, day: 1, storeId: '毎日屋土佐道路店', storeName: '毎日屋土佐道路店',
-            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-            salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '毎日屋土佐道路店',
+            storeName: '毎日屋土佐道路店',
+            groupName: 'G1',
+            departmentName: 'D1',
+            lineName: 'L1',
+            className: 'C1',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
           },
           {
-            year: 2026, month: 2, day: 1, storeId: '1', storeName: '店舗A',
-            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-            salesAmount: 30000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: '店舗A',
+            groupName: 'G1',
+            departmentName: 'D1',
+            lineName: 'L1',
+            className: 'C1',
+            salesAmount: 30000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
           },
         ],
       },
@@ -383,15 +645,20 @@ describe('normalizeRecordStoreIds', () => {
   it('categoryTimeSales の storeId も正規化する', () => {
     const data: ImportedData = {
       ...emptyData(),
-      stores: new Map([
-        ['3', { id: '3', code: '0003', name: '毎日屋土佐道路店' }],
-      ]),
+      stores: new Map([['3', { id: '3', code: '0003', name: '毎日屋土佐道路店' }]]),
       categoryTimeSales: {
         records: [
           {
-            year: 2026, month: 2, day: 1, storeId: '毎日屋土佐道路店',
-            department: { code: '001', name: 'D' }, line: { code: '01', name: 'L' },
-            klass: { code: '001', name: 'C' }, timeSlots: [], totalQuantity: 10, totalAmount: 5000,
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '毎日屋土佐道路店',
+            department: { code: '001', name: 'D' },
+            line: { code: '01', name: 'L' },
+            klass: { code: '001', name: 'C' },
+            timeSlots: [],
+            totalQuantity: 10,
+            totalAmount: 5000,
           },
         ],
       },
@@ -405,15 +672,24 @@ describe('normalizeRecordStoreIds', () => {
   it('全 storeId が正しい場合はデータを変更しない', () => {
     const data: ImportedData = {
       ...emptyData(),
-      stores: new Map([
-        ['1', { id: '1', code: '0001', name: '店舗A' }],
-      ]),
+      stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       classifiedSales: {
         records: [
           {
-            year: 2026, month: 2, day: 1, storeId: '1', storeName: '店舗A',
-            groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-            salesAmount: 50000, discount71: 0, discount72: 0, discount73: 0, discount74: 0,
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            storeName: '店舗A',
+            groupName: 'G1',
+            departmentName: 'D1',
+            lineName: 'L1',
+            className: 'C1',
+            salesAmount: 50000,
+            discount71: 0,
+            discount72: 0,
+            discount73: 0,
+            discount74: 0,
           },
         ],
       },
@@ -427,19 +703,44 @@ describe('normalizeRecordStoreIds', () => {
 
   it('ファイル処理順序に関わらず storeId が正規化される（CS→Purchase 順序）', () => {
     const csRows = [
-      ['日付', '店舗名称', 'グループ名称', '部門名称', 'ライン名称', 'クラス名称', '販売金額', '71売変', '72売変', '73売変', '74売変'],
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
       ['2026-02-01', '毎日屋土佐道路店', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
     ]
     const purchaseRows = [
       ['', '', '', '0000001:取引先A', ''],
       ['', '', '', '0003:毎日屋土佐道路店', ''],
-      [''], [''],
+      [''],
+      [''],
       ['2026-02-01', '', '', 10000, 13000],
     ]
 
     // CS を先に処理（店舗名が storeId になる）
-    let { data: result } = processFileData('classifiedSales', csRows, 'cs.csv', emptyData(), DEFAULT_SETTINGS)
-    ;({ data: result } = processFileData('purchase', purchaseRows, 'shiire.xlsx', result, DEFAULT_SETTINGS))
+    let { data: result } = processFileData(
+      'classifiedSales',
+      csRows,
+      'cs.csv',
+      emptyData(),
+      DEFAULT_SETTINGS,
+    )
+    ;({ data: result } = processFileData(
+      'purchase',
+      purchaseRows,
+      'shiire.xlsx',
+      result,
+      DEFAULT_SETTINGS,
+    ))
 
     // この時点では storeId が店舗名のまま残っている
     expect(result.classifiedSales.records[0].storeId).toBe('毎日屋土佐道路店')

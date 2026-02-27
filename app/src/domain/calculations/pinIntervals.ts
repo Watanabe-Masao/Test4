@@ -44,9 +44,15 @@ export function calculatePinIntervals(
     const grossProfit = totalSales - cogs
     const grossProfitRate = safeDivide(grossProfit, totalSales, 0)
     intervals.push({
-      startDay: prevDay + 1, endDay: day,
-      openingInventory: prevInventory, closingInventory: closingInv,
-      totalSales, totalPurchaseCost, cogs, grossProfit, grossProfitRate,
+      startDay: prevDay + 1,
+      endDay: day,
+      openingInventory: prevInventory,
+      closingInventory: closingInv,
+      totalSales,
+      totalPurchaseCost,
+      cogs,
+      grossProfit,
+      grossProfitRate,
     })
     prevDay = day
     prevInventory = closingInv

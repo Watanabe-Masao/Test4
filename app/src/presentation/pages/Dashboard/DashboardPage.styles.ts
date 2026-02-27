@@ -1,5 +1,11 @@
 import styled from 'styled-components'
-import { DataTableWrapper, DataTableTitle, DataTable, DataTh, DataTd } from '@/presentation/components/common'
+import {
+  DataTableWrapper,
+  DataTableTitle,
+  DataTable,
+  DataTh,
+  DataTd,
+} from '@/presentation/components/common'
 
 // ─── Executive Dashboard Styled Components ──────────────
 
@@ -15,7 +21,9 @@ export const ExecSummaryItem = styled.div<{ $accent: string; $clickable?: boolea
   border-top: 2px solid ${({ $accent }) => $accent};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
-  ${({ $clickable }) => $clickable && `
+  ${({ $clickable }) =>
+    $clickable &&
+    `
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.15s;
     &:hover {
@@ -71,20 +79,25 @@ export const ExecSummaryTabBar = styled.div`
   display: flex;
   gap: 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
 `
 
 export const ExecSummaryTab = styled.button<{ $active: boolean }>`
   all: unset;
   cursor: pointer;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ $active, theme }) => $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
   padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[6]}`};
-  color: ${({ $active, theme }) => $active ? theme.colors.text : theme.colors.text3};
-  border-bottom: 2px solid ${({ $active, theme }) => $active ? theme.colors.palette.primary : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.text3)};
+  border-bottom: 2px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { color: ${({ theme }) => theme.colors.text2}; }
+  &:hover {
+    color: ${({ theme }) => theme.colors.text2};
+  }
 `
 
 export const ExecSummaryTabContent = styled.div`
@@ -212,7 +225,9 @@ export const RangeInput = styled.input`
   color: ${({ theme }) => theme.colors.text};
   text-align: center;
   outline: none;
-  &:focus { border-color: ${({ theme }) => theme.colors.palette.warning}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.palette.warning};
+  }
 `
 
 export const RangeSummaryPanel = styled.div`
@@ -228,7 +243,8 @@ export const RangeSummaryTitle = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `
 
@@ -264,7 +280,9 @@ export const RangeCompareContainer = styled.div`
 export const RangeColumn = styled.div<{ $accent?: string }>`
   padding: ${({ theme }) => theme.spacing[6]};
   border-right: 1px solid ${({ theme }) => theme.colors.border};
-  &:last-child { border-right: none; }
+  &:last-child {
+    border-right: none;
+  }
 `
 
 export const RangeColumnHeader = styled.div<{ $color?: string }>`
@@ -273,14 +291,14 @@ export const RangeColumnHeader = styled.div<{ $color?: string }>`
   gap: ${({ theme }) => theme.spacing[3]};
   margin-bottom: ${({ theme }) => theme.spacing[5]};
   padding-bottom: ${({ theme }) => theme.spacing[3]};
-  border-bottom: 2px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-bottom: 2px solid ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
 `
 
 export const RangeColumnDot = styled.div<{ $color?: string }>`
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: ${({ $color }) => $color ?? '#6366f1'};
+  background: ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
   flex-shrink: 0;
 `
 
@@ -296,7 +314,8 @@ export const RangeMetricRow = styled.div`
   align-items: baseline;
   padding: ${({ theme }) => `${theme.spacing[2]} 0`};
   &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
+    border-bottom: 1px solid
+      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')};
   }
 `
 
@@ -316,7 +335,8 @@ export const RangeMetricValue = styled.span<{ $color?: string }>`
 
 export const RangeCenterCol = styled.div`
   padding: ${({ theme }) => theme.spacing[6]};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
   min-width: 280px;
   border-left: 1px solid ${({ theme }) => theme.colors.border};
   border-right: 1px solid ${({ theme }) => theme.colors.border};
@@ -348,7 +368,7 @@ export const CompareBarDiff = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ $color }) => $color ?? '#9ca3af'};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text4};
 `
 
 export const CompareBarTrack = styled.div`
@@ -356,7 +376,8 @@ export const CompareBarTrack = styled.div`
   height: 22px;
   border-radius: ${({ theme }) => theme.radii.sm};
   overflow: hidden;
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
 `
 
 export const CompareBarSegment = styled.div<{ $width: string; $color: string; $align?: string }>`
@@ -391,7 +412,7 @@ export const CompareIndicatorValue = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ $color }) => $color ?? '#9ca3af'};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text4};
 `
 
 export const CompareIndicatorLabel = styled.span`
@@ -428,7 +449,7 @@ export const CalTh = styled.th<{ $weekend?: boolean }>`
   text-align: center;
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text3};
+  color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text3)};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   width: calc(100% / 7);
 `
@@ -438,20 +459,26 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   vertical-align: top;
   height: 150px;
-  ${({ $empty, theme }) => $empty ? `background: ${theme.colors.bg2};` : ''}
-  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual === false ? `
+  ${({ $empty, theme }) => ($empty ? `background: ${theme.colors.bg2};` : '')}
+  ${({ $hasActual, $empty, theme }) =>
+    !$empty && $hasActual === false
+      ? `
     background: ${theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};
     opacity: 0.7;
-  ` : ''}
-  ${({ $hasActual, $empty, theme }) => !$empty && $hasActual ? `
+  `
+      : ''}
+  ${({ $hasActual, $empty, theme }) =>
+    !$empty && $hasActual
+      ? `
     background: ${theme.mode === 'dark' ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.03)'};
-  ` : ''}
+  `
+      : ''}
 `
 
 export const CalDayNum = styled.div<{ $weekend?: boolean }>`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  color: ${({ $weekend, theme }) => $weekend ? theme.colors.palette.danger : theme.colors.text};
+  color: ${({ $weekend, theme }) => ($weekend ? theme.colors.palette.danger : theme.colors.text)};
   margin-bottom: 2px;
 `
 
@@ -479,23 +506,36 @@ export const CalDivider = styled.div`
 
 // ─── Pin & Interval Styled Components ───────────────────
 
-export const CalDayCell = styled.div<{ $pinned?: boolean; $inInterval?: boolean; $rangeColor?: string }>`
+export const CalDayCell = styled.div<{
+  $pinned?: boolean
+  $inInterval?: boolean
+  $rangeColor?: string
+}>`
   position: relative;
   height: 100%;
   padding: 2px;
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: background 0.15s;
-  ${({ $rangeColor, theme }) => $rangeColor ? `
+  ${({ $rangeColor, theme }) =>
+    $rangeColor
+      ? `
     background: ${theme.mode === 'dark' ? `${$rangeColor}30` : `${$rangeColor}1a`};
     outline: 2px solid ${$rangeColor};
     outline-offset: -2px;
-  ` : ''}
-  ${({ $pinned, $rangeColor, theme }) => $pinned && !$rangeColor ? `
+  `
+      : ''}
+  ${({ $pinned, $rangeColor, theme }) =>
+    $pinned && !$rangeColor
+      ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
-  ` : ''}
-  ${({ $inInterval, $pinned, $rangeColor, theme }) => $inInterval && !$pinned && !$rangeColor ? `
+  `
+      : ''}
+  ${({ $inInterval, $pinned, $rangeColor, theme }) =>
+    $inInterval && !$pinned && !$rangeColor
+      ? `
     background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
-  ` : ''}
+  `
+      : ''}
 `
 
 export const CalDayHeader = styled.div`
@@ -513,10 +553,13 @@ export const CalActionBtn = styled.button<{ $color?: string }>`
   border-radius: ${({ theme }) => theme.radii.sm};
   color: ${({ $color, theme }) => $color ?? theme.colors.text3};
   opacity: 0.5;
-  transition: opacity 0.15s, background 0.15s;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
   &:hover {
     opacity: 1;
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
   }
 `
 
@@ -525,7 +568,8 @@ export const CalDataArea = styled.div`
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 1px;
   &:hover {
-    background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
 `
 
@@ -535,7 +579,8 @@ export const PinIndicator = styled.div`
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-top: ${({ theme }) => theme.spacing[1]};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.10)'};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.10)'};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 1px 3px;
   text-align: center;
@@ -551,7 +596,7 @@ export const IntervalSummary = styled.div`
 export const IntervalCard = styled.div<{ $color?: string }>`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid ${({ $color }) => $color ?? '#6366f1'};
+  border-left: 4px solid ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => `${theme.spacing[6]} ${theme.spacing[8]}`};
   display: grid;
@@ -609,7 +654,9 @@ export const PinInputField = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
-  &:focus { border-color: ${({ theme }) => theme.colors.palette.primary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
 `
 
 export const PinButtonRow = styled.div`
@@ -661,7 +708,9 @@ export const DetailCloseBtn = styled.button`
   color: ${({ theme }) => theme.colors.text3};
   padding: ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const DetailKpiGrid = styled.div`
@@ -674,7 +723,7 @@ export const DetailKpiGrid = styled.div`
 export const DetailKpiCard = styled.div<{ $accent?: string }>`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-top: 2px solid ${({ $accent }) => $accent ?? '#6366f1'};
+  border-top: 2px solid ${({ $accent, theme }) => $accent ?? theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.md};
   padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[4]}`};
   text-align: center;
@@ -711,7 +760,8 @@ export const DetailRow = styled.div`
   justify-content: space-between;
   align-items: baseline;
   padding: ${({ theme }) => `${theme.spacing[2]} 0`};
-  border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
+  border-bottom: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')};
 `
 
 export const DetailLabel = styled.span`
@@ -772,7 +822,7 @@ export const DetailBarAmount = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
 `
 
@@ -827,7 +877,9 @@ export const ToolInputField = styled.input`
   border-radius: ${({ theme }) => theme.radii.md};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
-  &:focus { border-color: ${({ theme }) => theme.colors.palette.primary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
 `
 
 export const ToolInputSub = styled.div<{ $color?: string }>`
@@ -877,7 +929,9 @@ export const STh = styled(DataTh)`
   padding: ${({ theme }) => theme.spacing[3]};
   background: transparent;
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
-  &:first-child { text-align: left; }
+  &:first-child {
+    text-align: left;
+  }
 `
 
 export const STd = styled(DataTd)`
@@ -951,8 +1005,10 @@ export const FullChartRow = styled.div`
 
 export const DragItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }>`
   position: relative;
-  opacity: ${({ $isDragging }) => $isDragging ? 0.4 : 1};
-  ${({ $isOver, theme }) => $isOver ? `
+  opacity: ${({ $isDragging }) => ($isDragging ? 0.4 : 1)};
+  ${({ $isOver, theme }) =>
+    $isOver
+      ? `
     &::before {
       content: '';
       position: absolute;
@@ -962,9 +1018,12 @@ export const DragItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }>
       pointer-events: none;
       z-index: 1;
     }
-  ` : ''}
+  `
+      : ''}
   cursor: grab;
-  &:active { cursor: grabbing; }
+  &:active {
+    cursor: grabbing;
+  }
 `
 
 export const DragHandle = styled.div`
@@ -983,7 +1042,9 @@ export const DragHandle = styled.div`
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 2;
-  ${DragItem}:hover & { opacity: 1; }
+  ${DragItem}:hover & {
+    opacity: 1;
+  }
 `
 
 export const DeleteBtn = styled.button`
@@ -1006,8 +1067,13 @@ export const DeleteBtn = styled.button`
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 2;
-  ${DragItem}:hover & { opacity: 1; }
-  &:hover { opacity: 1 !important; filter: brightness(1.1); }
+  ${DragItem}:hover & {
+    opacity: 1;
+  }
+  &:hover {
+    opacity: 1 !important;
+    filter: brightness(1.1);
+  }
 `
 
 // ─── Settings Panel ──────────────────────────────────────
@@ -1062,7 +1128,9 @@ export const WidgetItem = styled.label`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text};
   transition: background 0.15s;
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 export const Checkbox = styled.input`
@@ -1079,13 +1147,17 @@ export const SizeBadge = styled.span<{ $size: WidgetSize }>`
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ $size, theme }) =>
-    $size === 'kpi' ? `${theme.colors.palette.primary}20`
-    : $size === 'half' ? `${theme.colors.palette.success}20`
-    : `${theme.colors.palette.warning}20`};
+    $size === 'kpi'
+      ? `${theme.colors.palette.primary}20`
+      : $size === 'half'
+        ? `${theme.colors.palette.success}20`
+        : `${theme.colors.palette.warning}20`};
   color: ${({ $size, theme }) =>
-    $size === 'kpi' ? theme.colors.palette.primary
-    : $size === 'half' ? theme.colors.palette.success
-    : theme.colors.palette.warning};
+    $size === 'kpi'
+      ? theme.colors.palette.primary
+      : $size === 'half'
+        ? theme.colors.palette.success
+        : theme.colors.palette.warning};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 

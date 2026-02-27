@@ -3,9 +3,16 @@ import type { ReactNode } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from './chartTheme'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  toComma,
+  toPct,
+  STORE_COLORS,
+} from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
-import { computeEstimatedInventory } from './inventoryCalc'
+import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 
@@ -15,7 +22,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Header = styled.div`
@@ -52,21 +60,30 @@ const MiniTh = styled.th<{ $sortable?: boolean }>`
   white-space: nowrap;
   cursor: ${({ $sortable }) => ($sortable ? 'pointer' : 'default')};
   user-select: none;
-  &:first-child { text-align: left; }
-  &:hover { color: ${({ $sortable, theme }) => ($sortable ? theme.colors.text : theme.colors.text3)}; }
+  &:first-child {
+    text-align: left;
+  }
+  &:hover {
+    color: ${({ $sortable, theme }) => ($sortable ? theme.colors.text : theme.colors.text3)};
+  }
 `
 const MiniTd = styled.td`
   text-align: center;
   padding: 2px 5px;
   color: ${({ theme }) => theme.colors.text2};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  border-bottom: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  border-bottom: 1px solid
+    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)')};
   white-space: nowrap;
-  &:first-child { text-align: left; font-family: ${({ theme }) => theme.typography.fontFamily.primary}; }
+  &:first-child {
+    text-align: left;
+    font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  }
 `
 const StoreDot = styled.span<{ $color: string }>`
   display: inline-block;
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ $color }) => $color};
   margin-right: 4px;
@@ -77,7 +94,8 @@ const RankBadge = styled.span<{ $rank: number }>`
   display: inline-block;
   font-size: 0.5rem;
   font-weight: 700;
-  width: 14px; height: 14px;
+  width: 14px;
+  height: 14px;
   line-height: 14px;
   text-align: center;
   border-radius: 50%;
@@ -111,9 +129,12 @@ export function SalesPurchaseComparisonChart({
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDesc((d) => !d)
-    else { setSortKey(key); setSortDesc(true) }
+    else {
+      setSortKey(key)
+      setSortDesc(true)
+    }
   }
-  const arrow = (key: SortKey) => sortKey === key ? (sortDesc ? ' ▼' : ' ▲') : ''
+  const arrow = (key: SortKey) => (sortKey === key ? (sortDesc ? ' ▼' : ' ▲') : '')
 
   const storeEntries = useMemo(
     () =>
@@ -247,7 +268,12 @@ export function SalesPurchaseComparisonChart({
                 stroke={STORE_COLORS[i % STORE_COLORS.length]}
                 strokeWidth={2.5}
                 dot={false}
-                activeDot={{ r: 4, fill: STORE_COLORS[i % STORE_COLORS.length], stroke: ct.bg2, strokeWidth: 2 }}
+                activeDot={{
+                  r: 4,
+                  fill: STORE_COLORS[i % STORE_COLORS.length],
+                  stroke: ct.bg2,
+                  strokeWidth: 2,
+                }}
                 isAnimationActive={false}
               />
             ) : null,
@@ -261,34 +287,56 @@ export function SalesPurchaseComparisonChart({
           <thead>
             <tr>
               <MiniTh>店舗</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('sales')}>売上合計{arrow('sales')}</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('cost')}>仕入原価{arrow('cost')}</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('diff')}>差額{arrow('diff')}</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('gpRate')}>粗利率{arrow('gpRate')}</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('discountRate')}>売変率{arrow('discountRate')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('sales')}>
+                売上合計{arrow('sales')}
+              </MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('cost')}>
+                仕入原価{arrow('cost')}
+              </MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('diff')}>
+                差額{arrow('diff')}
+              </MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('gpRate')}>
+                粗利率{arrow('gpRate')}
+              </MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('discountRate')}>
+                売変率{arrow('discountRate')}
+              </MiniTh>
               <MiniTh>推定期末在庫</MiniTh>
-              <MiniTh $sortable onClick={() => handleSort('markupRate')}>値入率{arrow('markupRate')}</MiniTh>
+              <MiniTh $sortable onClick={() => handleSort('markupRate')}>
+                値入率{arrow('markupRate')}
+              </MiniTh>
             </tr>
           </thead>
           <tbody>
             {(() => {
               const rows = storeEntries.map((s, i) => {
                 const diff = s.result.totalSales - s.result.inventoryCost
-                const gpRate = s.result.invMethodGrossProfitRate ?? safeDivide(s.result.estMethodMargin, s.result.totalCoreSales, 0)
+                const gpRate =
+                  s.result.invMethodGrossProfitRate ??
+                  safeDivide(s.result.estMethodMargin, s.result.totalCoreSales, 0)
                 return { s, i, diff, gpRate, discountRate: s.result.discountRate }
               })
               // ソート用の値取得
-              const getVal = (row: typeof rows[0]): number => {
+              const getVal = (row: (typeof rows)[0]): number => {
                 switch (sortKey) {
-                  case 'sales': return row.s.result.totalSales
-                  case 'cost': return row.s.result.inventoryCost
-                  case 'diff': return row.diff
-                  case 'gpRate': return row.gpRate
-                  case 'discountRate': return row.discountRate
-                  case 'markupRate': return row.s.result.coreMarkupRate
+                  case 'sales':
+                    return row.s.result.totalSales
+                  case 'cost':
+                    return row.s.result.inventoryCost
+                  case 'diff':
+                    return row.diff
+                  case 'gpRate':
+                    return row.gpRate
+                  case 'discountRate':
+                    return row.discountRate
+                  case 'markupRate':
+                    return row.s.result.coreMarkupRate
                 }
               }
-              const sorted = [...rows].sort((a, b) => sortDesc ? getVal(b) - getVal(a) : getVal(a) - getVal(b))
+              const sorted = [...rows].sort((a, b) =>
+                sortDesc ? getVal(b) - getVal(a) : getVal(a) - getVal(b),
+              )
               return sorted.map((row, rank) => {
                 const estClosing = row.s.result.estMethodClosingInventory
                 return (
@@ -313,7 +361,13 @@ export function SalesPurchaseComparisonChart({
         </MiniTable>
       </CompTable>
 
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

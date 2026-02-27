@@ -11,6 +11,8 @@ import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { exportExplanationReport } from '@/infrastructure/export'
+import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
 
 // ─── Styled Components ─────────────────────────────────────
 
@@ -112,9 +114,11 @@ const InputRow = styled.div<{ $clickable?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
 
-  ${({ $clickable, theme }) => $clickable && `
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
     &:hover {
       background: ${theme.colors.bg4};
     }
@@ -158,7 +162,9 @@ const BreadcrumbLink = styled.button`
   all: unset;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.palette.primary};
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `
 
 const BreadcrumbSep = styled.span`
@@ -174,7 +180,9 @@ const RelatedMetricRow = styled.div`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.bg3};
   cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const RelatedMetricName = styled.span`
@@ -213,14 +221,19 @@ const Th = styled.th`
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const Tr = styled.tr<{ $expandable?: boolean; $expanded?: boolean }>`
-  cursor: ${({ $expandable }) => $expandable ? 'pointer' : 'default'};
-  background: ${({ $expanded, theme }) => $expanded ? `${theme.colors.palette.primary}08` : 'transparent'};
+  cursor: ${({ $expandable }) => ($expandable ? 'pointer' : 'default')};
+  background: ${({ $expanded, theme }) =>
+    $expanded ? `${theme.colors.palette.primary}08` : 'transparent'};
 
-  ${({ $expandable, theme }) => $expandable && `
+  ${({ $expandable, theme }) =>
+    $expandable &&
+    `
     &:hover {
       background: ${theme.colors.bg4};
     }
@@ -233,7 +246,9 @@ const Td = styled.td`
   border-bottom: 1px solid ${({ theme }) => theme.colors.border}08;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const ExpandIcon = styled.span`
@@ -254,7 +269,9 @@ const DetailTd = styled.td`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border}04;
 
-  &:last-child { text-align: right; }
+  &:last-child {
+    text-align: right;
+  }
 `
 
 const TabBar = styled.div`
@@ -271,11 +288,12 @@ const TabButton = styled.button<{ $active: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ $active, theme }) =>
     $active ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.normal};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text4};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   background: ${({ $active, theme }) =>
     $active ? `${theme.colors.palette.primary}15` : 'transparent'};
-  &:hover { background: ${({ theme }) => theme.colors.bg4}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
 `
 
 const EvidenceBadge = styled.span`
@@ -290,13 +308,46 @@ const EvidenceBadge = styled.span`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const ActionButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`
+
+const CopiedFeedback = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`
+
 // ─── Component ──────────────────────────────────────────
 
 function formatValue(value: number, unit: MetricUnit): string {
   switch (unit) {
-    case 'yen': return formatCurrency(value)
-    case 'rate': return formatPercent(value)
-    case 'count': return value.toLocaleString()
+    case 'yen':
+      return formatCurrency(value)
+    case 'rate':
+      return formatPercent(value)
+    case 'count':
+      return value.toLocaleString()
   }
 }
 
@@ -327,17 +378,21 @@ export function MetricBreakdownPanel({
   const [tab, setTab] = useState<TabType>('formula')
   const [history, setHistory] = useState<MetricId[]>([explanation.metric])
   const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set())
+  const [copied, setCopied] = useState(false)
 
   const currentMetric = history[history.length - 1]
   const current = allExplanations.get(currentMetric) ?? explanation
 
-  const navigateTo = useCallback((metric: MetricId | undefined) => {
-    if (metric && allExplanations.has(metric)) {
-      setHistory((prev) => [...prev, metric])
-      setTab('formula')
-      setExpandedDays(new Set())
-    }
-  }, [allExplanations])
+  const navigateTo = useCallback(
+    (metric: MetricId | undefined) => {
+      if (metric && allExplanations.has(metric)) {
+        setHistory((prev) => [...prev, metric])
+        setTab('formula')
+        setExpandedDays(new Set())
+      }
+    },
+    [allExplanations],
+  )
 
   const navigateBack = useCallback((index: number) => {
     setHistory((prev) => prev.slice(0, index + 1))
@@ -352,6 +407,28 @@ export function MetricBreakdownPanel({
       return next
     })
   }, [])
+
+  const handleCsvExport = useCallback(() => {
+    const storeName = resolveStoreName(explanation.scope.storeId, stores)
+    exportExplanationReport(
+      allExplanations,
+      storeName,
+      explanation.scope.year,
+      explanation.scope.month,
+    )
+  }, [allExplanations, explanation.scope, stores])
+
+  const handleCopySummary = useCallback(() => {
+    const summaryLines: string[] = []
+    for (const [, exp] of allExplanations) {
+      summaryLines.push(generateMetricSummary(exp))
+    }
+    const text = summaryLines.join('\n')
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [allExplanations])
 
   // 逆リンク: この指標を入力として参照している指標
   const reverseLinks = useMemo(() => {
@@ -382,16 +459,28 @@ export function MetricBreakdownPanel({
 
   return (
     <Overlay onClick={onClose}>
-      <Panel onClick={(e) => e.stopPropagation()}>
+      <Panel
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${current.title} の算出根拠`}
+      >
         <Header>
           <div>
             <Title>{current.title}</Title>
             <ValueDisplay>{formatValue(current.value, current.unit)}</ValueDisplay>
             <ScopeInfo>
-              {current.scope.year}年{current.scope.month}月 / {resolveStoreName(current.scope.storeId, stores)}
+              {current.scope.year}年{current.scope.month}月 /{' '}
+              {resolveStoreName(current.scope.storeId, stores)}
             </ScopeInfo>
           </div>
-          <CloseButton onClick={onClose}>✕</CloseButton>
+          <HeaderActions>
+            <ActionButton onClick={handleCsvExport}>CSV出力</ActionButton>
+            <ActionButton onClick={handleCopySummary}>
+              {copied ? <CopiedFeedback>コピー済み</CopiedFeedback> : 'テキスト要約'}
+            </ActionButton>
+            <CloseButton onClick={onClose}>✕</CloseButton>
+          </HeaderActions>
         </Header>
 
         {/* Breadcrumb for navigation history */}
@@ -450,9 +539,7 @@ export function MetricBreakdownPanel({
                   >
                     <InputName>
                       {input.name}
-                      {input.metric && allExplanations.has(input.metric) && (
-                        <LinkIcon>→</LinkIcon>
-                      )}
+                      {input.metric && allExplanations.has(input.metric) && <LinkIcon>→</LinkIcon>}
                     </InputName>
                     <InputValue>{formatValue(input.value, input.unit)}</InputValue>
                   </InputRow>
@@ -465,10 +552,7 @@ export function MetricBreakdownPanel({
                 <SectionTitle>この指標を参照している指標</SectionTitle>
                 <InputList>
                   {reverseLinks.map((link) => (
-                    <RelatedMetricRow
-                      key={link.metric}
-                      onClick={() => navigateTo(link.metric)}
-                    >
+                    <RelatedMetricRow key={link.metric} onClick={() => navigateTo(link.metric)}>
                       <RelatedMetricName>
                         {link.title}
                         <LinkIcon>←</LinkIcon>
@@ -528,12 +612,13 @@ export function MetricBreakdownPanel({
                           </Td>
                           <Td>{formatValue(entry.value, current.unit)}</Td>
                         </Tr>
-                        {isExpanded && entry.details!.map((detail, di) => (
-                          <DetailRow key={`${entry.day}-${di}`}>
-                            <DetailTd>{detail.label}</DetailTd>
-                            <DetailTd>{formatValue(detail.value, detail.unit)}</DetailTd>
-                          </DetailRow>
-                        ))}
+                        {isExpanded &&
+                          entry.details!.map((detail, di) => (
+                            <DetailRow key={`${entry.day}-${di}`}>
+                              <DetailTd>{detail.label}</DetailTd>
+                              <DetailTd>{formatValue(detail.value, detail.unit)}</DetailTd>
+                            </DetailRow>
+                          ))}
                       </>
                     )
                   })}
@@ -563,13 +648,21 @@ export function MetricBreakdownPanel({
                     </thead>
                     <tbody>
                       {current.evidenceRefs
-                        .filter((ref) => (ref.kind === 'daily' ? ref.dataType : ref.dataType) === dt)
+                        .filter(
+                          (ref) => (ref.kind === 'daily' ? ref.dataType : ref.dataType) === dt,
+                        )
                         .slice(0, 31)
                         .map((ref, i) => (
                           <tr key={i}>
                             <Td>{ref.kind === 'daily' ? '日別' : '集計'}</Td>
                             <Td>{resolveStoreName(ref.storeId, stores)}</Td>
-                            <Td>{ref.kind === 'daily' ? `${ref.day}日` : ref.day ? `${ref.day}日` : '-'}</Td>
+                            <Td>
+                              {ref.kind === 'daily'
+                                ? `${ref.day}日`
+                                : ref.day
+                                  ? `${ref.day}日`
+                                  : '-'}
+                            </Td>
                           </tr>
                         ))}
                     </tbody>

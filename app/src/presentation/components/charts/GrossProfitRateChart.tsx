@@ -13,7 +13,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Title = styled.div`
@@ -53,10 +54,10 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
     })
   }
 
-  const data = allData.filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+  const data = allData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   // Y軸上限をデータの最大値に基づいて動的に決定（最低0.5、0.1刻みで切り上げ）
-  const maxRate = Math.max(...data.filter(d => d.hasSales).map(d => d.rate), 0)
+  const maxRate = Math.max(...data.filter((d) => d.hasSales).map((d) => d.rate), 0)
   const yMax = Math.max(0.5, Math.ceil(maxRate * 10) / 10)
 
   const getBarColor = (rate: number) => {
@@ -127,7 +128,13 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={daysInMonth} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

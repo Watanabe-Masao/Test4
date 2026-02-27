@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  buildDepartmentKpiIndex,
-  EMPTY_DEPT_KPI_INDEX,
-} from './indexBuilder'
+import { buildDepartmentKpiIndex, EMPTY_DEPT_KPI_INDEX } from './indexBuilder'
 import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models'
 
 function makeRecord(overrides: Partial<DepartmentKpiRecord> = {}): DepartmentKpiRecord {
@@ -12,7 +9,7 @@ function makeRecord(overrides: Partial<DepartmentKpiRecord> = {}): DepartmentKpi
     gpRateBudget: 0.25,
     gpRateActual: 0.22,
     gpRateVariance: -0.03,
-    markupRate: 0.30,
+    markupRate: 0.3,
     discountRate: 0.05,
     salesBudget: 10_000_000,
     salesActual: 9_500_000,
@@ -86,9 +83,7 @@ describe('indexBuilder', () => {
     })
 
     it('予算合計が0の場合、達成率は0を返す', () => {
-      const records = [
-        makeRecord({ deptCode: '01', salesBudget: 0, salesActual: 5_000_000 }),
-      ]
+      const records = [makeRecord({ deptCode: '01', salesBudget: 0, salesActual: 5_000_000 })]
       const index = buildDepartmentKpiIndex(makeData(records))
 
       expect(index.summary.overallSalesAchievement).toBe(0)
@@ -99,8 +94,8 @@ describe('indexBuilder', () => {
       // dept02: gpRateActual=0.30, salesActual=4_000_000
       // 加重平均 = (0.20*6M + 0.30*4M) / (6M+4M) = (1.2M+1.2M)/10M = 0.24
       const records = [
-        makeRecord({ deptCode: '01', gpRateActual: 0.20, salesActual: 6_000_000 }),
-        makeRecord({ deptCode: '02', gpRateActual: 0.30, salesActual: 4_000_000 }),
+        makeRecord({ deptCode: '01', gpRateActual: 0.2, salesActual: 6_000_000 }),
+        makeRecord({ deptCode: '02', gpRateActual: 0.3, salesActual: 4_000_000 }),
       ]
       const index = buildDepartmentKpiIndex(makeData(records))
 
@@ -119,9 +114,7 @@ describe('indexBuilder', () => {
     })
 
     it('売上実績合計が0の場合、加重平均率は0を返す', () => {
-      const records = [
-        makeRecord({ deptCode: '01', salesActual: 0, gpRateActual: 0.25 }),
-      ]
+      const records = [makeRecord({ deptCode: '01', salesActual: 0, gpRateActual: 0.25 })]
       const index = buildDepartmentKpiIndex(makeData(records))
 
       expect(index.summary.weightedGpRateActual).toBe(0)
@@ -168,8 +161,8 @@ describe('indexBuilder', () => {
 
     it('粗利率実績の降順ランキングが正しい', () => {
       const records = [
-        makeRecord({ deptCode: '01', gpRateActual: 0.20 }),
-        makeRecord({ deptCode: '02', gpRateActual: 0.30 }),
+        makeRecord({ deptCode: '01', gpRateActual: 0.2 }),
+        makeRecord({ deptCode: '02', gpRateActual: 0.3 }),
         makeRecord({ deptCode: '03', gpRateActual: 0.25 }),
       ]
       const index = buildDepartmentKpiIndex(makeData(records))
@@ -180,7 +173,7 @@ describe('indexBuilder', () => {
     it('売上達成率の降順ランキングが正しい', () => {
       const records = [
         makeRecord({ deptCode: '01', salesAchievement: 0.95 }),
-        makeRecord({ deptCode: '02', salesAchievement: 1.10 }),
+        makeRecord({ deptCode: '02', salesAchievement: 1.1 }),
         makeRecord({ deptCode: '03', salesAchievement: 1.02 }),
       ]
       const index = buildDepartmentKpiIndex(makeData(records))
@@ -196,7 +189,7 @@ describe('indexBuilder', () => {
       ]
       const index = buildDepartmentKpiIndex(makeData(records))
 
-      expect(index.records.map(r => r.deptCode)).toEqual(['03', '01', '02'])
+      expect(index.records.map((r) => r.deptCode)).toEqual(['03', '01', '02'])
     })
 
     it('同一 deptCode が複数ある場合、後のレコードで上書きされる', () => {

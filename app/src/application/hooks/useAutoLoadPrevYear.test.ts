@@ -37,7 +37,12 @@ describe('adjacentMonth', () => {
 
 // ─── mergeAdjacentMonthRecords ──────────────────────────
 
-type TestRecord = { readonly year: number; readonly month: number; readonly day: number; readonly value: string }
+type TestRecord = {
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly value: string
+}
 
 function makeRec(year: number, month: number, day: number, value = 'test'): TestRecord {
   return { year, month, day, value }
@@ -51,19 +56,19 @@ describe('mergeAdjacentMonthRecords', () => {
 
       const merged = mergeAdjacentMonthRecords(
         sourceRecords,
-        null,           // prevMonth
+        null, // prevMonth
         nextMonthRecords,
-        2025,           // sourceYear
-        2,              // sourceMonth
-        28,             // daysInSourceMonth (Feb 2025)
-        31,             // daysInPrevMonth (Jan 2025)
+        2025, // sourceYear
+        2, // sourceMonth
+        28, // daysInSourceMonth (Feb 2025)
+        31, // daysInPrevMonth (Jan 2025)
       )
 
       // 翌月レコードの month が 2 に正規化されること
       const overflowRecords = merged.filter((r) => r.day > 28)
       expect(overflowRecords).toHaveLength(2)
       for (const rec of overflowRecords) {
-        expect(rec.month).toBe(2)  // 3ではなく2
+        expect(rec.month).toBe(2) // 3ではなく2
         expect(rec.year).toBe(2025)
       }
     })
@@ -75,11 +80,11 @@ describe('mergeAdjacentMonthRecords', () => {
       const merged = mergeAdjacentMonthRecords(
         sourceRecords,
         prevMonthRecords,
-        null,           // nextMonth
-        2025,           // sourceYear
-        2,              // sourceMonth
-        28,             // daysInSourceMonth
-        31,             // daysInPrevMonth (Jan)
+        null, // nextMonth
+        2025, // sourceYear
+        2, // sourceMonth
+        28, // daysInSourceMonth
+        31, // daysInPrevMonth (Jan)
       )
 
       const underflowRecords = merged.filter((r) => r.day <= 0)
@@ -99,7 +104,7 @@ describe('mergeAdjacentMonthRecords', () => {
         null,
         null,
         2025, // sourceYear
-        2,    // sourceMonth
+        2, // sourceMonth
         28,
         31,
       )
@@ -122,7 +127,10 @@ describe('mergeAdjacentMonthRecords', () => {
         sourceRecords,
         null,
         nextMonthRecords,
-        2025, 2, 28, 31,
+        2025,
+        2,
+        28,
+        31,
       )
 
       // ソース月1件 + OVERFLOW_DAYS件
@@ -139,12 +147,7 @@ describe('mergeAdjacentMonthRecords', () => {
     it('翌月 day > OVERFLOW_DAYS はマージされない', () => {
       const nextMonthRecords = [makeRec(2025, 3, 7, 'excluded')]
 
-      const merged = mergeAdjacentMonthRecords(
-        [],
-        null,
-        nextMonthRecords,
-        2025, 2, 28, 31,
-      )
+      const merged = mergeAdjacentMonthRecords([], null, nextMonthRecords, 2025, 2, 28, 31)
 
       expect(merged).toHaveLength(0)
     })
@@ -156,12 +159,7 @@ describe('mergeAdjacentMonthRecords', () => {
         makeRec(2025, 1, i + 1, `jan${i + 1}`),
       )
 
-      const merged = mergeAdjacentMonthRecords(
-        [],
-        prevMonthRecords,
-        null,
-        2025, 2, 28, 31,
-      )
+      const merged = mergeAdjacentMonthRecords([], prevMonthRecords, null, 2025, 2, 28, 31)
 
       // 31日の月でOVERFLOW_DAYS=6 → day 26〜31 がマージ対象
       expect(merged).toHaveLength(OVERFLOW_DAYS)
@@ -174,12 +172,7 @@ describe('mergeAdjacentMonthRecords', () => {
     it('前月の初日〜中旬はマージされない', () => {
       const prevMonthRecords = [makeRec(2025, 1, 15, 'excluded')]
 
-      const merged = mergeAdjacentMonthRecords(
-        [],
-        prevMonthRecords,
-        null,
-        2025, 2, 28, 31,
-      )
+      const merged = mergeAdjacentMonthRecords([], prevMonthRecords, null, 2025, 2, 28, 31)
 
       expect(merged).toHaveLength(0)
     })
@@ -194,7 +187,10 @@ describe('mergeAdjacentMonthRecords', () => {
         sourceRecords,
         null,
         nextMonthRecords,
-        2025, 12, 31, 30, // Dec has 31 days, Nov has 30
+        2025,
+        12,
+        31,
+        30, // Dec has 31 days, Nov has 30
       )
 
       // 翌月の1月1日 → day = 31 + 1 = 32, month=12, year=2025 に正規化
@@ -213,7 +209,10 @@ describe('mergeAdjacentMonthRecords', () => {
         [],
         prevMonthRecords,
         null,
-        2025, 1, 31, 31, // Jan has 31 days, Dec has 31
+        2025,
+        1,
+        31,
+        31, // Jan has 31 days, Dec has 31
       )
 
       // 12月31日 → day = 31 - 31 = 0, month=1, year=2025 に正規化
@@ -241,7 +240,10 @@ describe('mergeAdjacentMonthRecords', () => {
         sourceRecords,
         null,
         nextMonthRecords,
-        2025, 2, 28, 31,
+        2025,
+        2,
+        28,
+        31,
       )
 
       // 28(本月) + 6(overflow) = 34
@@ -260,12 +262,7 @@ describe('mergeAdjacentMonthRecords', () => {
     it('前月・翌月データが null の場合はソースのみ', () => {
       const sourceRecords = [makeRec(2025, 2, 15)]
 
-      const merged = mergeAdjacentMonthRecords(
-        sourceRecords,
-        null,
-        null,
-        2025, 2, 28, 31,
-      )
+      const merged = mergeAdjacentMonthRecords(sourceRecords, null, null, 2025, 2, 28, 31)
 
       expect(merged).toHaveLength(1)
       expect(merged[0].day).toBe(15)
@@ -274,12 +271,7 @@ describe('mergeAdjacentMonthRecords', () => {
     it('前月・翌月データが空配列の場合はソースのみ', () => {
       const sourceRecords = [makeRec(2025, 2, 15)]
 
-      const merged = mergeAdjacentMonthRecords(
-        sourceRecords,
-        [],
-        [],
-        2025, 2, 28, 31,
-      )
+      const merged = mergeAdjacentMonthRecords(sourceRecords, [], [], 2025, 2, 28, 31)
 
       expect(merged).toHaveLength(1)
     })
@@ -292,7 +284,10 @@ describe('mergeAdjacentMonthRecords', () => {
         [],
         prevMonthRecords,
         nextMonthRecords,
-        2025, 2, 28, 31,
+        2025,
+        2,
+        28,
+        31,
       )
 
       expect(merged).toHaveLength(2)
@@ -301,27 +296,23 @@ describe('mergeAdjacentMonthRecords', () => {
     it('daysInPrevMonth=0 の場合、前月マージはスキップされる', () => {
       const prevMonthRecords = [makeRec(2025, 1, 31)]
 
-      const merged = mergeAdjacentMonthRecords(
-        [],
-        prevMonthRecords,
-        null,
-        2025, 2, 28, 0,
-      )
+      const merged = mergeAdjacentMonthRecords([], prevMonthRecords, null, 2025, 2, 28, 0)
 
       expect(merged).toHaveLength(0)
     })
 
     it('うるう年2月（29日）のオーバーフロー', () => {
-      const sourceRecords = Array.from({ length: 29 }, (_, i) =>
-        makeRec(2024, 2, i + 1),
-      )
+      const sourceRecords = Array.from({ length: 29 }, (_, i) => makeRec(2024, 2, i + 1))
       const nextMonthRecords = [makeRec(2024, 3, 1, 'mar1')]
 
       const merged = mergeAdjacentMonthRecords(
         sourceRecords,
         null,
         nextMonthRecords,
-        2024, 2, 29, 31,
+        2024,
+        2,
+        29,
+        31,
       )
 
       const overflow = merged.find((r) => r.day === 30)

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { processPurchase, extractStoresFromPurchase, extractSuppliersFromPurchase } from './PurchaseProcessor'
+import {
+  processPurchase,
+  extractStoresFromPurchase,
+  extractSuppliersFromPurchase,
+} from './PurchaseProcessor'
 
 describe('processPurchase', () => {
   const stores = new Set(['1', '2'])
@@ -7,10 +11,10 @@ describe('processPurchase', () => {
   it('基本的な仕入データ処理', () => {
     const rows = [
       ['', '', '', '1234567:テスト取引先', '', '7654321:別取引先'], // 行0: 取引先コード
-      ['', '', '', '0001:店舗A', '', '0002:店舗B'],               // 行1: 店舗コード
-      ['', '', '', '', '', ''],                                     // 行2
-      ['', '', '', '', '', ''],                                     // 行3
-      ['2026-02-01', '', '', 100000, 130000, 50000, 65000],        // 行4+: データ
+      ['', '', '', '0001:店舗A', '', '0002:店舗B'], // 行1: 店舗コード
+      ['', '', '', '', '', ''], // 行2
+      ['', '', '', '', '', ''], // 行3
+      ['2026-02-01', '', '', 100000, 130000, 50000, 65000], // 行4+: データ
       ['2026-02-02', '', '', 200000, 260000, 0, 0],
     ]
 
@@ -80,9 +84,7 @@ describe('extractStoresFromPurchase', () => {
 
 describe('extractSuppliersFromPurchase', () => {
   it('行0から取引先を抽出', () => {
-    const rows = [
-      ['', '', '', '1234567:テスト取引先', '', '7654321:別取引先'],
-    ]
+    const rows = [['', '', '', '1234567:テスト取引先', '', '7654321:別取引先']]
     const suppliers = extractSuppliersFromPurchase(rows)
     expect(suppliers.size).toBe(2)
     expect(suppliers.get('1234567')?.name).toBe('テスト取引先')

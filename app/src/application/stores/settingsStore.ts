@@ -31,12 +31,7 @@ export const useSettingsStore = create<SettingsStore>()(
             'updateSettings',
           ),
 
-        reset: () =>
-          set(
-            { settings: createDefaultSettings() },
-            false,
-            'reset',
-          ),
+        reset: () => set({ settings: createDefaultSettings() }, false, 'reset'),
       }),
       {
         name: 'shiire-arari-settings',

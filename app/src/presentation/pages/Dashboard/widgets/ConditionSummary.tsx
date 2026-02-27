@@ -1,5 +1,11 @@
 import styled from 'styled-components'
-import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { palette } from '@/presentation/theme/tokens'
+import {
+  formatPercent,
+  formatCurrency,
+  safeDivide,
+  getEffectiveGrossProfitRate,
+} from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import type { WidgetContext } from './types'
@@ -36,7 +42,9 @@ const Card = styled.div<{ $borderColor: string; $clickable?: boolean }>`
   border-left: 4px solid ${({ $borderColor }) => $borderColor};
   border-radius: ${({ theme }) => theme.radii.md};
   position: relative;
-  ${({ $clickable }) => $clickable && `
+  ${({ $clickable }) =>
+    $clickable &&
+    `
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.15s;
     &:hover {
@@ -89,7 +97,9 @@ const HintBadge = styled.span`
   color: ${({ theme }) => theme.colors.text3};
   opacity: 0.5;
   pointer-events: none;
-  ${Card}:hover & { opacity: 0.9; }
+  ${Card}:hover & {
+    opacity: 0.9;
+  }
 `
 
 // ─── Signal Logic ───────────────────────────────────────
@@ -97,9 +107,9 @@ const HintBadge = styled.span`
 type SignalLevel = 'green' | 'yellow' | 'red'
 
 const SIGNAL_COLORS: Record<SignalLevel, string> = {
-  green: '#22c55e',
-  yellow: '#eab308',
-  red: '#ef4444',
+  green: palette.positive,
+  yellow: palette.caution,
+  red: palette.negative,
 }
 
 interface ConditionItem {
@@ -116,10 +126,11 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const { targetRate, warningRate, onExplain } = ctx
 
-  const gpRate = r.invMethodGrossProfitRate ?? r.estMethodMarginRate
-  const gpAfterConsumable = r.invMethodGrossProfitRate != null
-    ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
-    : r.estMethodMarginRate
+  const gpRate = getEffectiveGrossProfitRate(r)
+  const gpAfterConsumable =
+    r.invMethodGrossProfitRate != null
+      ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+      : r.estMethodMarginRate
   const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
 
   const items: ConditionItem[] = [
@@ -129,15 +140,22 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       value: formatPercent(gpRate),
       sub: `目標 ${formatPercent(targetRate)} / 原価率 ${formatPercent(costRate)} / 売変率 ${formatPercent(r.discountRate)} / 消耗品率 ${formatPercent(r.consumableRate)}`,
       signal: gpRate >= targetRate ? 'green' : gpRate >= warningRate ? 'yellow' : 'red',
-      metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      metricId:
+        r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
     },
     // 2. GP Rate after consumables
     {
       label: '原算後粗利率',
       value: formatPercent(gpAfterConsumable),
       sub: `粗利率 ${formatPercent(gpRate)} - 消耗品率 ${formatPercent(r.consumableRate)}（${formatCurrency(r.totalConsumable)}）`,
-      signal: gpAfterConsumable >= targetRate ? 'green' : gpAfterConsumable >= warningRate ? 'yellow' : 'red',
-      metricId: r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      signal:
+        gpAfterConsumable >= targetRate
+          ? 'green'
+          : gpAfterConsumable >= warningRate
+            ? 'yellow'
+            : 'red',
+      metricId:
+        r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
     },
     // 3. Budget Achievement Rate (progress)
     {
@@ -152,7 +170,8 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       label: '着地予測達成率',
       value: formatPercent(r.projectedAchievement),
       sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
-      signal: r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
+      signal:
+        r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
       metricId: 'projectedSales',
     },
     // 5. Discount Rate — sub に売変額と粗売上を表示
@@ -169,7 +188,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   if (r.discountEntries.length > 0) {
     const totalDiscount = r.discountEntries.reduce((s, e) => s + e.amount, 0)
     for (const dt of DISCOUNT_TYPES) {
-      const entry = r.discountEntries.find(e => e.type === dt.type)
+      const entry = r.discountEntries.find((e) => e.type === dt.type)
       const amt = entry?.amount ?? 0
       const rate = r.grossSales > 0 ? safeDivide(amt, r.grossSales, 0) : 0
       const pct = totalDiscount > 0 ? amt / totalDiscount : 0
@@ -210,17 +229,20 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   // 8. Transaction Value (小数第2位まで表示)
   if (r.totalCustomers > 0) {
     const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
-    const prevTxValue = prevYear.hasPrevYear && prevYear.totalCustomers > 0
-      ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
-      : null
+    const prevTxValue =
+      prevYear.hasPrevYear && prevYear.totalCustomers > 0
+        ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
+        : null
     const txYoY = prevTxValue != null && prevTxValue > 0 ? txValue / prevTxValue : null
-    const fmtTx = (v: number) => `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
+    const fmtTx = (v: number) =>
+      `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
     items.push({
       label: '客単価',
       value: fmtTx(txValue),
-      sub: prevTxValue != null
-        ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
-        : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
+      sub:
+        prevTxValue != null
+          ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
+          : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
       signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
     })

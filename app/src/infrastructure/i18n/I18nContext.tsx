@@ -47,16 +47,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const messages = MESSAGE_CATALOGS[locale]
 
-  const t = useCallback(
-    (template: string, params?: Record<string, string | number>) => {
-      if (!params) return template
-      return Object.entries(params).reduce(
-        (result, [key, value]) => result.replace(`{${key}}`, String(value)),
-        template,
-      )
-    },
-    [],
-  )
+  const t = useCallback((template: string, params?: Record<string, string | number>) => {
+    if (!params) return template
+    return Object.entries(params).reduce(
+      (result, [key, value]) => result.replace(`{${key}}`, String(value)),
+      template,
+    )
+  }, [])
 
   const value = useMemo<I18nContextValue>(
     () => ({ locale, messages, setLocale, t }),

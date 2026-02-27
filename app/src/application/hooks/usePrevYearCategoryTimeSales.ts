@@ -51,7 +51,8 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
   return useMemo(() => {
     if (prevYearCTS.records.length === 0) return EMPTY
 
-    const rawOffset = prevYearDowOffset ??
+    const rawOffset =
+      prevYearDowOffset ??
       calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth)
     const offset = Math.max(0, Math.min(6, Math.round(rawOffset)))
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
@@ -85,5 +86,14 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
       records: mappedRecords,
       offset,
     }
-  }, [prevYearCTS, selectedStoreIds, isAllStores, targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth, prevYearDowOffset])
+  }, [
+    prevYearCTS,
+    selectedStoreIds,
+    isAllStores,
+    targetYear,
+    targetMonth,
+    prevYearSourceYear,
+    prevYearSourceMonth,
+    prevYearDowOffset,
+  ])
 }

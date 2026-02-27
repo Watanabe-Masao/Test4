@@ -62,12 +62,7 @@ export const Compact: StoryObj = {
 
 export const WithFiltering: StoryObj = {
   render: () => (
-    <DataGrid
-      data={sampleData}
-      columns={columns}
-      title="フィルター有効"
-      enableFiltering
-    />
+    <DataGrid data={sampleData} columns={columns} title="フィルター有効" enableFiltering />
   ),
 }
 

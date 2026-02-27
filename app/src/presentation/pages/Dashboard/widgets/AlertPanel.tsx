@@ -4,12 +4,24 @@
  * 既存の alertSystem.ts を UI に接続し、
  * 閾値超過を自動通知するウィジェット。
  */
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/alertSystem'
 import { formatPercent } from '@/domain/calculations/utils'
 import type { Alert, AlertSeverity } from '@/domain/calculations/alertSystem'
+import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
+
+// ─── Alert → MetricId Mapping ───────────────────────────
+
+const ALERT_METRIC_MAP: Record<string, MetricId> = {
+  'gp-rate-target': 'invMethodGrossProfitRate',
+  'daily-sales-prev-year': 'salesTotal',
+  'consumable-ratio': 'totalConsumable',
+  'budget-achievement': 'budgetAchievementRate',
+  'discount-rate': 'discountRate',
+}
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -40,10 +52,12 @@ const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.pill};
   background: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
-  color: ${({ $severity }) =>
-    $severity === 'warning' ? '#000' : '#fff'};
+    $severity === 'critical'
+      ? palette.dangerDark
+      : $severity === 'warning'
+        ? palette.caution
+        : palette.blueDark};
+  color: ${({ $severity }) => ($severity === 'warning' ? '#000' : '#fff')};
 `
 
 const AlertList = styled.div`
@@ -54,16 +68,37 @@ const AlertList = styled.div`
   overflow-y: auto;
 `
 
-const AlertCard = styled.div<{ $severity: AlertSeverity }>`
+const AlertCard = styled.div<{ $severity: AlertSeverity; $clickable: boolean }>`
   display: flex;
   gap: ${({ theme }) => theme.spacing[3]};
   padding: ${({ theme }) => theme.spacing[4]};
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
+  border-left: 4px solid
+    ${({ $severity }) =>
+      $severity === 'critical'
+        ? palette.dangerDark
+        : $severity === 'warning'
+          ? palette.caution
+          : palette.blueDark};
   border-radius: ${({ theme }) => theme.radii.md};
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
+    &:hover {
+      border-color: ${theme.colors.palette.primary};
+      box-shadow: 0 0 0 1px ${theme.colors.palette.primary}40;
+    }
+    &:focus-visible {
+      outline: 2px solid ${theme.colors.palette.primary};
+      outline-offset: 2px;
+    }
+  `}
 `
 
 const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
@@ -77,11 +112,17 @@ const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
   font-size: 12px;
   font-weight: bold;
   background: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef444420' :
-    $severity === 'warning' ? '#eab30820' : '#3b82f620'};
+    $severity === 'critical'
+      ? `${palette.dangerDark}20`
+      : $severity === 'warning'
+        ? `${palette.caution}20`
+        : `${palette.blueDark}20`};
   color: ${({ $severity }) =>
-    $severity === 'critical' ? '#ef4444' :
-    $severity === 'warning' ? '#eab308' : '#3b82f6'};
+    $severity === 'critical'
+      ? palette.dangerDark
+      : $severity === 'warning'
+        ? palette.caution
+        : palette.blueDark};
 `
 
 const AlertBody = styled.div`
@@ -108,6 +149,18 @@ const DetailItem = styled.span`
   white-space: nowrap;
 `
 
+const AlertFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: ${({ theme }) => theme.spacing[2]};
+`
+
+const ExplainLink = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  white-space: nowrap;
+`
+
 const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[8]};
@@ -119,7 +172,9 @@ const EmptyState = styled.div`
 
 /** アラートルールが比率ベースかどうかを判定 */
 function isRateAlert(alert: Alert): boolean {
-  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(alert.ruleId)
+  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(
+    alert.ruleId,
+  )
 }
 
 function formatAlertValue(alert: Alert): string {
@@ -164,22 +219,37 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
       prevYearDailySales = salesMap
     }
 
-    return evaluateAlerts(
-      ctx.storeKey,
-      ctx.storeKey,
-      r,
-      DEFAULT_ALERT_RULES,
-      {
-        targetGrossProfitRate: targetGpRate,
-        prevYearDailySales,
-      },
-    )
+    return evaluateAlerts(ctx.storeKey, ctx.storeKey, r, DEFAULT_ALERT_RULES, {
+      targetGrossProfitRate: targetGpRate,
+      prevYearDailySales,
+    })
   }, [r, ctx.storeKey, targetGpRate, ctx.prevYear])
 
-  const criticalCount = alerts.filter(a => a.severity === 'critical').length
-  const warningCount = alerts.filter(a => a.severity === 'warning').length
+  const criticalCount = alerts.filter((a) => a.severity === 'critical').length
+  const warningCount = alerts.filter((a) => a.severity === 'warning').length
 
-  const topSeverity: AlertSeverity = criticalCount > 0 ? 'critical' : warningCount > 0 ? 'warning' : 'info'
+  const topSeverity: AlertSeverity =
+    criticalCount > 0 ? 'critical' : warningCount > 0 ? 'warning' : 'info'
+
+  const handleAlertClick = useCallback(
+    (ruleId: string) => {
+      const metricId = ALERT_METRIC_MAP[ruleId]
+      if (metricId) {
+        ctx.onExplain(metricId)
+      }
+    },
+    [ctx],
+  )
+
+  const handleAlertKeyDown = useCallback(
+    (e: React.KeyboardEvent, ruleId: string) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleAlertClick(ruleId)
+      }
+    },
+    [handleAlertClick],
+  )
 
   return (
     <Wrapper>
@@ -187,39 +257,64 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
         <Title>
           アラート
           {alerts.length > 0 && (
-            <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.text3, marginLeft: 8 }}>
+            <span
+              style={{
+                fontSize: theme.typography.fontSize.xs,
+                color: theme.colors.text3,
+                marginLeft: 8,
+              }}
+            >
               {alerts.length}件
             </span>
           )}
         </Title>
         {alerts.length > 0 && (
           <BadgeCount $severity={topSeverity}>
-            {criticalCount > 0 ? `重大 ${criticalCount}` : warningCount > 0 ? `注意 ${warningCount}` : `情報 ${alerts.length}`}
+            {criticalCount > 0
+              ? `重大 ${criticalCount}`
+              : warningCount > 0
+                ? `注意 ${warningCount}`
+                : `情報 ${alerts.length}`}
           </BadgeCount>
         )}
       </Header>
 
       {alerts.length === 0 ? (
-        <EmptyState>
-          全指標が正常範囲内です
-        </EmptyState>
+        <EmptyState>全指標が正常範囲内です</EmptyState>
       ) : (
         <AlertList>
-          {alerts.map((alert, i) => (
-            <AlertCard key={`${alert.ruleId}-${alert.day ?? 'all'}-${i}`} $severity={alert.severity}>
-              <SeverityIcon $severity={alert.severity}>
-                {SEVERITY_ICONS[alert.severity]}
-              </SeverityIcon>
-              <AlertBody>
-                <AlertMessage>{alert.message}</AlertMessage>
-                <AlertDetail>
-                  <DetailItem>実測: {formatAlertValue(alert)}</DetailItem>
-                  <DetailItem>閾値: {formatAlertThreshold(alert)}</DetailItem>
-                  <DetailItem>乖離: {formatAlertDelta(alert)}</DetailItem>
-                </AlertDetail>
-              </AlertBody>
-            </AlertCard>
-          ))}
+          {alerts.map((alert, i) => {
+            const isClickable = alert.ruleId in ALERT_METRIC_MAP
+            return (
+              <AlertCard
+                key={`${alert.ruleId}-${alert.day ?? 'all'}-${i}`}
+                $severity={alert.severity}
+                $clickable={isClickable}
+                onClick={isClickable ? () => handleAlertClick(alert.ruleId) : undefined}
+                onKeyDown={isClickable ? (e) => handleAlertKeyDown(e, alert.ruleId) : undefined}
+                role={isClickable ? 'button' : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                aria-label={isClickable ? `${alert.message} — 算出根拠を表示` : undefined}
+              >
+                <SeverityIcon $severity={alert.severity}>
+                  {SEVERITY_ICONS[alert.severity]}
+                </SeverityIcon>
+                <AlertBody>
+                  <AlertMessage>{alert.message}</AlertMessage>
+                  <AlertDetail>
+                    <DetailItem>実測: {formatAlertValue(alert)}</DetailItem>
+                    <DetailItem>閾値: {formatAlertThreshold(alert)}</DetailItem>
+                    <DetailItem>乖離: {formatAlertDelta(alert)}</DetailItem>
+                  </AlertDetail>
+                  {isClickable && (
+                    <AlertFooter>
+                      <ExplainLink>→ 算出根拠</ExplainLink>
+                    </AlertFooter>
+                  )}
+                </AlertBody>
+              </AlertCard>
+            )
+          })}
         </AlertList>
       )}
     </Wrapper>

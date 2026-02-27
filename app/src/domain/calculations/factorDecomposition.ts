@@ -64,8 +64,10 @@ export interface PriceMixResult {
  *   φ_T = (T₁−T₀) × ½(C₀+C₁)
  */
 export function decompose2(
-  prevSales: number, curSales: number,
-  prevCust: number, curCust: number,
+  prevSales: number,
+  curSales: number,
+  prevCust: number,
+  curCust: number,
 ): TwoFactorResult {
   const T0 = safeDivide(prevSales, prevCust, 0)
   const T1 = safeDivide(curSales, curCust, 0)
@@ -89,11 +91,15 @@ export function decompose2(
  *   φ_P̄ = ΔP̄/6 × (2C₀Q₀ + C₁Q₀ + C₀Q₁ + 2C₁Q₁)
  */
 export function decompose3(
-  prevSales: number, curSales: number,
-  prevCust: number, curCust: number,
-  prevTotalQty: number, curTotalQty: number,
+  prevSales: number,
+  curSales: number,
+  prevCust: number,
+  curCust: number,
+  prevTotalQty: number,
+  curTotalQty: number,
 ): ThreeFactorResult {
-  const C0 = prevCust, C1 = curCust
+  const C0 = prevCust,
+    C1 = curCust
   const Q0 = safeDivide(prevTotalQty, prevCust, 0)
   const Q1 = safeDivide(curTotalQty, curCust, 0)
   const P0 = safeDivide(prevSales, prevTotalQty, 0)
@@ -129,14 +135,16 @@ export function decomposePriceMix(
   const curMap = new Map<string, { qty: number; amt: number }>()
   for (const c of curCategories) {
     const ex = curMap.get(c.key) ?? { qty: 0, amt: 0 }
-    ex.qty += c.qty; ex.amt += c.amt
+    ex.qty += c.qty
+    ex.amt += c.amt
     curMap.set(c.key, ex)
   }
 
   const prevMap = new Map<string, { qty: number; amt: number }>()
   for (const c of prevCategories) {
     const ex = prevMap.get(c.key) ?? { qty: 0, amt: 0 }
-    ex.qty += c.qty; ex.amt += c.amt
+    ex.qty += c.qty
+    ex.amt += c.amt
     prevMap.set(c.key, ex)
   }
 
@@ -151,8 +159,10 @@ export function decomposePriceMix(
   for (const key of allKeys) {
     const c = curMap.get(key)
     const p = prevMap.get(key)
-    const cQty = c?.qty ?? 0, cAmt = c?.amt ?? 0
-    const pQty = p?.qty ?? 0, pAmt = p?.amt ?? 0
+    const cQty = c?.qty ?? 0,
+      cAmt = c?.amt ?? 0
+    const pQty = p?.qty ?? 0,
+      pAmt = p?.amt ?? 0
 
     // 消滅/新規カテゴリは相手期の単価を代用 → 価格差=0
     const p0 = pQty > 0 ? safeDivide(pAmt, pQty, 0) : safeDivide(cAmt, cQty, 0)
@@ -187,9 +197,12 @@ export function decomposePriceMix(
  * データソース間の差異に関係なく常に成立する。
  */
 export function decompose5(
-  prevSales: number, curSales: number,
-  prevCust: number, curCust: number,
-  prevTotalQty: number, curTotalQty: number,
+  prevSales: number,
+  curSales: number,
+  prevCust: number,
+  curCust: number,
+  prevTotalQty: number,
+  curTotalQty: number,
   curCategories: readonly CategoryQtyAmt[],
   prevCategories: readonly CategoryQtyAmt[],
 ): FiveFactorResult | null {

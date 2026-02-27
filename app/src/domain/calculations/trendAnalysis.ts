@@ -82,16 +82,20 @@ export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnal
 
   // 前年同月比
   const yoyChanges: (number | null)[] = sorted.map((dp) => {
-    const sameMonthPrevYear = sorted.find(
-      (p) => p.year === dp.year - 1 && p.month === dp.month,
-    )
+    const sameMonthPrevYear = sorted.find((p) => p.year === dp.year - 1 && p.month === dp.month)
     if (!sameMonthPrevYear || sameMonthPrevYear.totalSales === 0) return null
     return dp.totalSales / sameMonthPrevYear.totalSales
   })
 
   // 移動平均
-  const movingAvg3 = calculateMovingAverage(sorted.map((d) => d.totalSales), 3)
-  const movingAvg6 = calculateMovingAverage(sorted.map((d) => d.totalSales), 6)
+  const movingAvg3 = calculateMovingAverage(
+    sorted.map((d) => d.totalSales),
+    3,
+  )
+  const movingAvg6 = calculateMovingAverage(
+    sorted.map((d) => d.totalSales),
+    6,
+  )
 
   // 季節性インデックス
   const seasonalIndex = calculateSeasonalIndex(sorted)
@@ -150,7 +154,7 @@ function calculateSeasonalIndex(dataPoints: readonly MonthlyDataPoint[]): readon
 
   return monthlyBuckets.map((b) => {
     if (b.count === 0) return 1
-    return (b.total / b.count) / grandAvg
+    return b.total / b.count / grandAvg
   })
 }
 
@@ -161,9 +165,7 @@ const TREND_CHANGE_THRESHOLD = 0.03
  * 直近3ヶ月と、その前の3ヶ月の売上平均を比較して
  * トレンドの方向を判定する。
  */
-function determineOverallTrend(
-  sorted: readonly MonthlyDataPoint[],
-): 'up' | 'down' | 'flat' {
+function determineOverallTrend(sorted: readonly MonthlyDataPoint[]): 'up' | 'down' | 'flat' {
   if (sorted.length < 4) return 'flat'
 
   const recent3 = sorted.slice(-3)

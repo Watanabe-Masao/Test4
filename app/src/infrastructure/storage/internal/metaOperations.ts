@@ -18,7 +18,11 @@ export interface SessionEntry {
  * sessions 一覧の read-modify-write 操作を生成する。
  * 単一トランザクション内で sessions を読み取り → 更新 → 書き戻しを行う。
  */
-export function sessionsReadModifyOp(year: number, month: number, savedAt: string): ReadModifyWriteOp {
+export function sessionsReadModifyOp(
+  year: number,
+  month: number,
+  savedAt: string,
+): ReadModifyWriteOp {
   return {
     storeName: STORE_META,
     key: 'sessions',

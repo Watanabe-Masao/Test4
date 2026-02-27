@@ -53,7 +53,14 @@ export type MetricUnit = 'yen' | 'rate' | 'count'
 export type EvidenceRef =
   | {
       readonly kind: 'daily'
-      readonly dataType: 'classifiedSales' | 'purchase' | 'flowers' | 'directProduce' | 'interStoreIn' | 'interStoreOut' | 'consumables'
+      readonly dataType:
+        | 'classifiedSales'
+        | 'purchase'
+        | 'flowers'
+        | 'directProduce'
+        | 'interStoreIn'
+        | 'interStoreOut'
+        | 'consumables'
       readonly storeId: string
       readonly day: number
     }

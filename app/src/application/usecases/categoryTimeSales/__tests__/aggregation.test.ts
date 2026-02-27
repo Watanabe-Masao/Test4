@@ -46,8 +46,16 @@ describe('aggregateHourly', () => {
 
   it('複数レコードの同一時間帯を合算', () => {
     const records = [
-      makeRecord({ timeSlots: [{ hour: 10, quantity: 5, amount: 1000 }], totalQuantity: 5, totalAmount: 1000 }),
-      makeRecord({ timeSlots: [{ hour: 10, quantity: 3, amount: 500 }], totalQuantity: 3, totalAmount: 500 }),
+      makeRecord({
+        timeSlots: [{ hour: 10, quantity: 5, amount: 1000 }],
+        totalQuantity: 5,
+        totalAmount: 1000,
+      }),
+      makeRecord({
+        timeSlots: [{ hour: 10, quantity: 3, amount: 500 }],
+        totalQuantity: 3,
+        totalAmount: 500,
+      }),
     ]
     const result = aggregateHourly(records)
     expect(result.totalAmount).toBe(1500)
@@ -57,8 +65,16 @@ describe('aggregateHourly', () => {
 
   it('異なる時間帯は別々に集約', () => {
     const records = [
-      makeRecord({ timeSlots: [{ hour: 10, quantity: 5, amount: 1000 }], totalQuantity: 5, totalAmount: 1000 }),
-      makeRecord({ timeSlots: [{ hour: 14, quantity: 2, amount: 400 }], totalQuantity: 2, totalAmount: 400 }),
+      makeRecord({
+        timeSlots: [{ hour: 10, quantity: 5, amount: 1000 }],
+        totalQuantity: 5,
+        totalAmount: 1000,
+      }),
+      makeRecord({
+        timeSlots: [{ hour: 14, quantity: 2, amount: 400 }],
+        totalQuantity: 2,
+        totalAmount: 400,
+      }),
     ]
     const result = aggregateHourly(records)
     expect(result.hourly.size).toBe(2)

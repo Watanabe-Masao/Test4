@@ -15,4 +15,9 @@ export { useExplanations, useMetricExplanation } from './useExplanation'
 export { useStorageAdmin } from './useStorageAdmin'
 export type { StoredMonthEntry, MonthDataSummaryEntry } from './useStorageAdmin'
 export { useWorkerCalculation } from '@/application/workers'
-export { useCategoryTimeSalesIndex, useCategoryTimeSalesIndexFromRecords } from './useCategoryTimeSalesIndex'
+export {
+  useCategoryTimeSalesIndex,
+  useCategoryTimeSalesIndexFromRecords,
+} from './useCategoryTimeSalesIndex'
+export { useBudgetChartData } from './useBudgetChartData'
+export type { BudgetChartDataPoint } from './useBudgetChartData'

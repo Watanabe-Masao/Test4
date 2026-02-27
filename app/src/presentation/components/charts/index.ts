@@ -27,11 +27,40 @@ export { PerformanceIndexChart } from './PerformanceIndexChart'
 export { CategoryPerformanceChart } from './CategoryPerformanceChart'
 export { DayRangeSlider, useDayRange } from './DayRangeSlider'
 export { CurrencyUnitToggle } from './CurrencyUnitToggle'
-export { useChartTheme, tooltipStyle, toManYen, toSenYen, toYen, toComma, toPct, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
+export {
+  useChartTheme,
+  tooltipStyle,
+  toManYen,
+  toSenYen,
+  toYen,
+  toComma,
+  toPct,
+  useCurrencyFormatter,
+  STORE_COLORS,
+} from './chartTheme'
 export type { ChartTheme } from './chartTheme'
-export { ChartHeaderRow, ChartTitle, ChartViewToggle, ChartViewBtn, ChartViewSep, ChartWrapper } from './ChartHeader'
-export { CrossChartSelectionProvider, useCrossChartSelection, useDrillThroughReceiver } from './CrossChartSelectionContext'
-export type { CategoryHighlight, TimeSlotHighlight, DrillThroughTarget } from './CrossChartSelectionContext'
+export {
+  ChartHeaderRow,
+  ChartTitle,
+  ChartViewToggle,
+  ChartViewBtn,
+  ChartViewSep,
+  ChartWrapper,
+  ChartHelpButton,
+  ChartGuidePanel,
+} from './ChartHeader'
+export { CHART_GUIDES } from './chartGuides'
+export type { ChartGuide } from './chartGuides'
+export {
+  CrossChartSelectionProvider,
+  useCrossChartSelection,
+  useDrillThroughReceiver,
+} from './CrossChartSelectionContext'
+export type {
+  CategoryHighlight,
+  TimeSlotHighlight,
+  DrillThroughTarget,
+} from './CrossChartSelectionContext'
 export { StructuralOverviewChart } from './StructuralOverviewChart'
 export { IntegratedTimeline } from './IntegratedTimeline'
 export { CausalChainExplorer } from './CausalChainExplorer'

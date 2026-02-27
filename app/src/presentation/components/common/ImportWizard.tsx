@@ -1,6 +1,9 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import type { ImportProgress } from '@/application/hooks/useImport'
 import type { ImportSummary, FileImportResult } from '@/application/usecases/import'
+import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
+import type { TemplateDataType } from '@/infrastructure/export'
 
 // ─── Types ────────────────────────────────────────────
 export type ImportStage = 'idle' | 'reading' | 'validating' | 'saving' | 'done'
@@ -54,14 +57,15 @@ const StepDot = styled.div<{ $state: 'pending' | 'active' | 'done' }>`
         : theme.colors.bg4};
   ${({ $state }) =>
     $state === 'active' &&
-    css`animation: ${pulse} 1.2s ease-in-out infinite;`}
+    css`
+      animation: ${pulse} 1.2s ease-in-out infinite;
+    `}
 `
 
 const StepLine = styled.div<{ $done: boolean }>`
   flex: 1;
   height: 2px;
-  background: ${({ $done, theme }) =>
-    $done ? theme.colors.palette.success : theme.colors.bg4};
+  background: ${({ $done, theme }) => ($done ? theme.colors.palette.success : theme.colors.bg4)};
   transition: background 0.3s ease;
 `
 
@@ -197,6 +201,75 @@ const FileType = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+// ─── テンプレートDLドロップダウン ──────────────────────
+const TemplateBtnWrap = styled.div`
+  position: relative;
+  display: inline-block;
+`
+
+const TemplateBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg4};
+  color: ${({ theme }) => theme.colors.text3};
+  &:hover {
+    background: ${({ theme }) => theme.colors.palette.primary}20;
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const TemplateDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 160px;
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: ${({ theme }) => theme.spacing[1]} 0;
+`
+
+const TemplateItem = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text2};
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
+`
+
+// ─── 拡張サマリー用スタイル ────────────────────────────
+const RecordCountBadge = styled.span`
+  font-size: 0.55rem;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  background: ${({ theme }) => theme.colors.palette.primary}12;
+  padding: 1px 5px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+`
+
+const SkippedInfo = styled.div`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.text4};
+  padding: 2px 0;
+`
+
+const WarningInfo = styled.div`
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.colors.palette.warning};
+  padding: 2px 0;
+`
+
 // ─── ステップインジケーター ───────────────────────────
 function StepIndicator({ stage }: { stage: ImportStage }) {
   return (
@@ -204,17 +277,13 @@ function StepIndicator({ stage }: { stage: ImportStage }) {
       {STAGE_ORDER.map((s, i) => {
         const idx = STAGE_ORDER.indexOf(stage)
         const state: 'pending' | 'active' | 'done' =
-          STAGE_ORDER.indexOf(s) < idx ? 'done'
-            : s === stage ? 'active'
-              : 'pending'
+          STAGE_ORDER.indexOf(s) < idx ? 'done' : s === stage ? 'active' : 'pending'
 
         return (
           <StepItem key={s} style={{ flex: i < STAGE_ORDER.length - 1 ? 1 : undefined }}>
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <StepDot $state={state} />
-              {i < STAGE_ORDER.length - 1 && (
-                <StepLine $done={STAGE_ORDER.indexOf(s) < idx} />
-              )}
+              {i < STAGE_ORDER.length - 1 && <StepLine $done={STAGE_ORDER.indexOf(s) < idx} />}
             </div>
             <StepLabel $state={state}>{STAGE_LABELS[s]}</StepLabel>
           </StepItem>
@@ -246,11 +315,54 @@ export function ImportProgress({
           </ProgressTrack>
           <ProgressText>
             <FileInfo>{progress.filename}</FileInfo>
-            <span>{progress.current}/{progress.total}</span>
+            <span>
+              {progress.current}/{progress.total}
+            </span>
           </ProgressText>
         </ProgressSection>
       )}
     </Container>
+  )
+}
+
+// ─── テンプレートDLドロップダウン内部コンポーネント ─────
+function TemplateDownloadButton() {
+  const [isOpen, setIsOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      setIsOpen(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen, handleClickOutside])
+
+  const handleDownload = useCallback((type: TemplateDataType) => {
+    downloadTemplate(type)
+    setIsOpen(false)
+  }, [])
+
+  return (
+    <TemplateBtnWrap ref={wrapRef}>
+      <TemplateBtn onClick={() => setIsOpen((p) => !p)}>
+        テンプレートDL {isOpen ? '▲' : '▼'}
+      </TemplateBtn>
+      {isOpen && (
+        <TemplateDropdown>
+          {TEMPLATE_TYPES.map((type) => (
+            <TemplateItem key={type} onClick={() => handleDownload(type)}>
+              {TEMPLATE_LABELS[type]}
+            </TemplateItem>
+          ))}
+        </TemplateDropdown>
+      )}
+    </TemplateBtnWrap>
   )
 }
 
@@ -264,6 +376,10 @@ export function ImportSummaryCard({
 }) {
   const successes = summary.results.filter((r) => r.ok)
   const failures = summary.results.filter((r) => !r.ok)
+  const totalRecords = summary.results.reduce(
+    (sum, r) => sum + (r.ok && r.rowCount ? r.rowCount : 0),
+    0,
+  )
 
   return (
     <SummaryCard>
@@ -273,17 +389,26 @@ export function ImportSummaryCard({
           {successes.length > 0 && (
             <StatBadge $variant="success">{successes.length} 成功</StatBadge>
           )}
-          {failures.length > 0 && (
-            <StatBadge $variant="error">{failures.length} 失敗</StatBadge>
+          {failures.length > 0 && <StatBadge $variant="error">{failures.length} 失敗</StatBadge>}
+          {totalRecords > 0 && (
+            <RecordCountBadge>{totalRecords.toLocaleString()}件</RecordCountBadge>
           )}
         </SummaryStats>
+        <TemplateDownloadButton />
       </SummaryTitle>
 
       <FileList>
         {summary.results.map((r: FileImportResult, i: number) => (
           <FileRow key={i} $ok={r.ok}>
             <FileIcon $ok={r.ok}>{r.ok ? '✓' : '✕'}</FileIcon>
-            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span
+              style={{
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {r.filename}
             </span>
             {r.typeName && <FileType>{r.typeName}</FileType>}
@@ -291,13 +416,43 @@ export function ImportSummaryCard({
               <span style={{ flexShrink: 0, opacity: 0.6 }}>{r.rowCount}行</span>
             )}
             {!r.ok && r.error && (
-              <span style={{ color: 'inherit', flexShrink: 0, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span
+                style={{
+                  color: 'inherit',
+                  flexShrink: 0,
+                  maxWidth: 120,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
                 {r.error}
               </span>
             )}
           </FileRow>
         ))}
       </FileList>
+
+      {/* スキップ行・警告の詳細表示 */}
+      {summary.results.map((r: FileImportResult, i: number) => {
+        const hasSkipped = r.skippedRows && r.skippedRows.length > 0
+        const hasWarnings = r.warnings && r.warnings.length > 0
+        if (!hasSkipped && !hasWarnings) return null
+        return (
+          <div key={`detail-${i}`}>
+            {hasSkipped && (
+              <SkippedInfo>
+                {r.typeName ?? r.filename}: {r.skippedRows!.length}行スキップ
+              </SkippedInfo>
+            )}
+            {hasWarnings &&
+              r.warnings!.map((w, wi) => (
+                <WarningInfo key={wi}>
+                  {r.typeName ?? r.filename}: {w}
+                </WarningInfo>
+              ))}
+          </div>
+        )
+      })}
 
       <button
         onClick={onDismiss}

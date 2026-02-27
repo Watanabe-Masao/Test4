@@ -15,11 +15,13 @@ export async function saveStoreDaySummaryCache(
   month: number,
 ): Promise<void> {
   const key = summaryKey(year, month)
-  await dbBatchPut([{
-    storeName: STORE_MONTHLY,
-    key,
-    value: cache,
-  }])
+  await dbBatchPut([
+    {
+      storeName: STORE_MONTHLY,
+      key,
+      value: cache,
+    },
+  ])
 }
 
 /**

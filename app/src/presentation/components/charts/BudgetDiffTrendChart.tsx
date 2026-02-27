@@ -1,4 +1,15 @@
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, Cell } from 'recharts'
+import {
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+  Cell,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
@@ -10,7 +21,8 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg3};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
+    ${({ theme }) => theme.spacing[4]};
 `
 
 const Title = styled.div`
@@ -65,15 +77,14 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
         hasActual: d.actualCum > 0,
       }
     })
-    .filter(d => d.day >= rangeStart && d.day <= rangeEnd)
+    .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   return (
     <Wrapper>
       <Title>
         {hasPrevYear
           ? '予算差・前年差 累計推移（実績 − 予算 / 実績 − 前年）'
-          : '予算差 累計推移（実績 − 予算）'
-        }
+          : '予算差 累計推移（実績 − 予算）'}
       </Title>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
@@ -119,9 +130,12 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
             {chartData.map((entry, index) => (
               <Cell
                 key={index}
-                fill={entry.hasActual
-                  ? (entry.budgetDiff >= 0 ? ct.colors.success : ct.colors.danger)
-                  : 'transparent'
+                fill={
+                  entry.hasActual
+                    ? entry.budgetDiff >= 0
+                      ? ct.colors.success
+                      : ct.colors.danger
+                    : 'transparent'
                 }
                 fillOpacity={entry.hasActual ? 0.7 : 0}
               />
@@ -139,7 +153,13 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
           )}
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider min={1} max={totalDays} start={rangeStart} end={rangeEnd} onChange={setRange} />
+      <DayRangeSlider
+        min={1}
+        max={totalDays}
+        start={rangeStart}
+        end={rangeEnd}
+        onChange={setRange}
+      />
     </Wrapper>
   )
 }

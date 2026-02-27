@@ -42,7 +42,14 @@ const FILE_TYPE_RULES: readonly FileTypeRule[] = [
   {
     type: 'classifiedSales',
     name: '分類別売上',
-    filenamePatterns: ['分類別売上', '売上売変客数', '売上売変', 'bunruibetsu', 'uriage_baihen', 'uriageBaihen'],
+    filenamePatterns: [
+      '分類別売上',
+      '売上売変客数',
+      '売上売変',
+      'bunruibetsu',
+      'uriage_baihen',
+      'uriageBaihen',
+    ],
     headerPatterns: ['グループ名称', '部門名称', 'ライン名称', 'クラス名称'],
   },
   // 分類別時間帯売上（消耗品の前に配置 — 7. vs 8. の競合防止）
@@ -107,7 +114,8 @@ function matchByFilename(filename: string): DataType | null {
   // 分類別時間帯売上: "7.分類別時間帯売上" or "8.分類別時間帯売上"
   // 注: /^\d+\.分類別/ は "1.分類別売上" も誤って categoryTimeSales に分類するため、
   // "時間帯" を含むパターンに限定する
-  if (/^\d+\.分類別時間帯/.test(basename) || /^\d+\..*時間帯/.test(basename)) return 'categoryTimeSales'
+  if (/^\d+\.分類別時間帯/.test(basename) || /^\d+\..*時間帯/.test(basename))
+    return 'categoryTimeSales'
 
   // 消耗品: "8.消耗品" or 先頭2桁数字 + "消耗品"
   if (/^\d+\.消耗/.test(basename) || /^\d{2}消耗/.test(basename)) return 'consumables'

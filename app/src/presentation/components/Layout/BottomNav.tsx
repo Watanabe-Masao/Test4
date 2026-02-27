@@ -38,11 +38,11 @@ const NavItem = styled.button<{ $active?: boolean }>`
   min-height: 48px;
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.md};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text4};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};
   transition: color 0.15s;
 
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: ${({ theme }) => theme.colors.palette.primary};
   }
 `
@@ -75,7 +75,7 @@ export function BottomNav({
   onViewChange: (view: ViewType) => void
 }) {
   return (
-    <Nav>
+    <Nav aria-label="モバイルナビゲーション">
       {bottomItems.map((item) => (
         <NavItem
           key={item.view}

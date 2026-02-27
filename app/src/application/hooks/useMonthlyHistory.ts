@@ -15,6 +15,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import type { StoreDaySummaryIndex } from '@/domain/models'
+import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 
 /**
  * 過去月データを MonthlyDataPoint[] として返すフック。
@@ -76,7 +77,9 @@ export function useMonthlyHistory(
           }
 
           // 予算データの読み込み（あれば）
-          const budgetData = await repo.loadDataSlice<ReadonlyMap<string, { monthlyBudget?: number }>>(year, month, 'budget')
+          const budgetData = await repo.loadDataSlice<
+            ReadonlyMap<string, { monthlyBudget?: number }>
+          >(year, month, 'budget')
           let totalBudget = 0
           if (budgetData && budgetData instanceof Map) {
             for (const [, b] of budgetData) {
@@ -108,7 +111,7 @@ export function useMonthlyHistory(
 
         if (!cancelled) {
           // 時系列順にソート
-          points.sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month)
+          points.sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month))
           setData(points)
           loadedRef.current = true
         }
@@ -118,7 +121,9 @@ export function useMonthlyHistory(
     }
 
     loadHistory()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [repo, currentYear, currentMonth])
 
   return data
@@ -149,16 +154,17 @@ export function currentResultToMonthlyPoint(
   },
   storeCount: number,
 ): MonthlyDataPoint {
-  const costRate = result.grossSales > 0
-    ? (result.inventoryCost + result.deliverySalesCost) / result.grossSales
-    : null
+  const costRate =
+    result.grossSales > 0
+      ? (result.inventoryCost + result.deliverySalesCost) / result.grossSales
+      : null
   return {
     year,
     month,
     totalSales: result.totalSales,
     totalCustomers: result.totalCustomers,
     grossProfit: result.invMethodGrossProfit ?? result.estMethodMargin,
-    grossProfitRate: result.invMethodGrossProfitRate ?? result.estMethodMarginRate,
+    grossProfitRate: getEffectiveGrossProfitRate(result),
     budget: result.budget > 0 ? result.budget : null,
     budgetAchievement: result.budgetAchievementRate,
     storeCount,
@@ -239,13 +245,13 @@ function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   const allPrice = totalPurchasePrice
 
   const grossProfit = totalSales - allCost
-  const grossProfitRate = totalSales > 0 ? grossProfit / totalSales : 0
+  const grossProfitRate = safeDivide(grossProfit, totalSales)
 
   return {
-    discountRate: totalSales > 0 ? totalDiscount / totalSales : 0,
-    costRate: totalGrossSales > 0 ? allCost / totalGrossSales : 0,
-    consumableRate: totalSales > 0 ? totalConsumable / totalSales : 0,
-    averageMarkupRate: allPrice > 0 ? (allPrice - totalPurchaseCost) / allPrice : 0,
+    discountRate: safeDivide(totalDiscount, totalSales),
+    costRate: safeDivide(allCost, totalGrossSales),
+    consumableRate: safeDivide(totalConsumable, totalSales),
+    averageMarkupRate: safeDivide(allPrice - totalPurchaseCost, allPrice),
     totalCustomers,
     grossProfit,
     grossProfitRate,

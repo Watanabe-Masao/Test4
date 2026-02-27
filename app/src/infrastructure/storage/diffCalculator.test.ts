@@ -10,9 +10,20 @@ function makeData(overrides: Partial<ImportedData> = {}): ImportedData {
 
 function makeCSRecord(day: number, storeId: string, salesAmount: number, discount = 0) {
   return {
-    year: 2025, month: 1, day, storeId, storeName: `Store ${storeId}`,
-    groupName: 'G1', departmentName: 'D1', lineName: 'L1', className: 'C1',
-    salesAmount, discount71: discount, discount72: 0, discount73: 0, discount74: 0,
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    storeName: `Store ${storeId}`,
+    groupName: 'G1',
+    departmentName: 'D1',
+    lineName: 'L1',
+    className: 'C1',
+    salesAmount,
+    discount71: discount,
+    discount72: 0,
+    discount73: 0,
+    discount74: 0,
   }
 }
 
@@ -48,10 +59,7 @@ describe('calculateDiff', () => {
     })
     const incoming = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(2, '1', 60000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 60000)],
       },
     })
 
@@ -84,10 +92,7 @@ describe('calculateDiff', () => {
   it('既存にあるレコードが新規にない場合は removal として検出', () => {
     const existing = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(2, '1', 60000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 60000)],
       },
     })
     const incoming = makeData({
@@ -104,10 +109,7 @@ describe('calculateDiff', () => {
   it('既存にある店舗が新規にない場合は removal として検出', () => {
     const existing = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(1, '2', 40000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 40000)],
       },
     })
     const incoming = makeData({
@@ -197,11 +199,7 @@ describe('calculateDiff', () => {
       purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
     })
 
-    const result = calculateDiff(
-      existing,
-      incoming,
-      new Set(['classifiedSales', 'purchase']),
-    )
+    const result = calculateDiff(existing, incoming, new Set(['classifiedSales', 'purchase']))
 
     expect(result.needsConfirmation).toBe(true)
     expect(result.diffs.length).toBe(2)
@@ -213,10 +211,7 @@ describe('calculateDiff', () => {
     })
     const incoming = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(1, '2', 40000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 40000)],
       },
     })
 
@@ -234,10 +229,7 @@ describe('calculateDiff', () => {
     })
     const incoming = makeData({
       classifiedSales: {
-        records: [
-          makeCSRecord(1, '1', 50000),
-          makeCSRecord(2, '1', 60000),
-        ],
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 60000)],
       },
     })
 
@@ -286,13 +278,24 @@ describe('summarizeDiff', () => {
 
   it('挿入のみの場合', () => {
     const result: DiffResult = {
-      diffs: [{
-        dataType: 'classifiedSales',
-        dataTypeName: '分類別売上',
-        inserts: [{ storeId: '1', storeName: 'A', day: 1, fieldPath: 'salesAmount', oldValue: null, newValue: 50000 }],
-        modifications: [],
-        removals: [],
-      }],
+      diffs: [
+        {
+          dataType: 'classifiedSales',
+          dataTypeName: '分類別売上',
+          inserts: [
+            {
+              storeId: '1',
+              storeName: 'A',
+              day: 1,
+              fieldPath: 'salesAmount',
+              oldValue: null,
+              newValue: 50000,
+            },
+          ],
+          modifications: [],
+          removals: [],
+        },
+      ],
       needsConfirmation: false,
       autoApproved: ['classifiedSales'],
     }
@@ -301,13 +304,42 @@ describe('summarizeDiff', () => {
 
   it('全種類の変更がある場合', () => {
     const result: DiffResult = {
-      diffs: [{
-        dataType: 'classifiedSales',
-        dataTypeName: '分類別売上',
-        inserts: [{ storeId: '1', storeName: 'A', day: 1, fieldPath: 'salesAmount', oldValue: null, newValue: 50000 }],
-        modifications: [{ storeId: '1', storeName: 'A', day: 2, fieldPath: 'salesAmount', oldValue: 50000, newValue: 60000 }],
-        removals: [{ storeId: '1', storeName: 'A', day: 3, fieldPath: 'salesAmount', oldValue: 70000, newValue: null }],
-      }],
+      diffs: [
+        {
+          dataType: 'classifiedSales',
+          dataTypeName: '分類別売上',
+          inserts: [
+            {
+              storeId: '1',
+              storeName: 'A',
+              day: 1,
+              fieldPath: 'salesAmount',
+              oldValue: null,
+              newValue: 50000,
+            },
+          ],
+          modifications: [
+            {
+              storeId: '1',
+              storeName: 'A',
+              day: 2,
+              fieldPath: 'salesAmount',
+              oldValue: 50000,
+              newValue: 60000,
+            },
+          ],
+          removals: [
+            {
+              storeId: '1',
+              storeName: 'A',
+              day: 3,
+              fieldPath: 'salesAmount',
+              oldValue: 70000,
+              newValue: null,
+            },
+          ],
+        },
+      ],
       needsConfirmation: true,
       autoApproved: [],
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
+import { palette } from '@/presentation/theme/tokens'
 import { useSettings, useStorageAdmin } from '@/application/hooks'
 import { useAppState, useAppDispatch } from '@/application/context'
 import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
@@ -119,8 +120,13 @@ const PrimaryButton = styled.button`
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
   transition: opacity 0.15s;
-  &:hover { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `
 
 const SecondaryButton = styled.button`
@@ -131,7 +137,9 @@ const SecondaryButton = styled.button`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   border-radius: ${({ theme }) => theme.radii.md};
   cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.colors.bg3}; }
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg3};
+  }
 `
 
 const PreviewGrid = styled.div`
@@ -154,16 +162,12 @@ const DayCell = styled.div<{ $mapped: boolean; $isWeekend: boolean; $hasData?: b
   text-align: center;
   padding: 4px 2px;
   border-radius: 3px;
-  background: ${({ $mapped, $hasData, theme }) =>
-    !$mapped ? 'transparent'
-    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}12`
-    : `${theme.colors.palette.danger ?? '#ef4444'}08`};
-  color: ${({ $isWeekend, theme }) =>
-    $isWeekend ? theme.colors.palette.danger ?? '#ef4444' : theme.colors.text};
-  border: 1px solid ${({ $mapped, $hasData, theme }) =>
-    !$mapped ? 'transparent'
-    : $hasData ? `${theme.colors.palette.success ?? '#22c55e'}30`
-    : `${theme.colors.border}`};
+  background: ${({ $mapped, $hasData }) =>
+    !$mapped ? 'transparent' : $hasData ? `${palette.successDark}12` : `${palette.dangerDark}08`};
+  color: ${({ $isWeekend, theme }) => ($isWeekend ? palette.dangerDark : theme.colors.text)};
+  border: 1px solid
+    ${({ $mapped, $hasData, theme }) =>
+      !$mapped ? 'transparent' : $hasData ? `${palette.successDark}30` : `${theme.colors.border}`};
 `
 
 const MappingArrow = styled.div`
@@ -175,7 +179,7 @@ const MappingArrow = styled.div`
 const PrevDayLabel = styled.div<{ $isOverflow?: boolean }>`
   font-size: 10px;
   opacity: ${({ $isOverflow }) => ($isOverflow ? 0.8 : 0.6)};
-  color: ${({ $isOverflow }) => ($isOverflow ? '#f59e0b' : 'inherit')};
+  color: ${({ $isOverflow }) => ($isOverflow ? palette.warningDark : 'inherit')};
 `
 
 const DataStatus = styled.div<{ $hasData: boolean }>`
@@ -213,52 +217,75 @@ export function PrevYearMappingTab() {
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 
   // 現在のオーバーライド設定 — null/undefined/NaN を安全に処理
-  const sourceYear = typeof settings.prevYearSourceYear === 'number' && !isNaN(settings.prevYearSourceYear)
-    ? settings.prevYearSourceYear : null
-  const sourceMonth = typeof settings.prevYearSourceMonth === 'number' && !isNaN(settings.prevYearSourceMonth)
-    ? settings.prevYearSourceMonth : null
-  const dowOffset = typeof settings.prevYearDowOffset === 'number' && !isNaN(settings.prevYearDowOffset)
-    ? settings.prevYearDowOffset : null
+  const sourceYear =
+    typeof settings.prevYearSourceYear === 'number' && !isNaN(settings.prevYearSourceYear)
+      ? settings.prevYearSourceYear
+      : null
+  const sourceMonth =
+    typeof settings.prevYearSourceMonth === 'number' && !isNaN(settings.prevYearSourceMonth)
+      ? settings.prevYearSourceMonth
+      : null
+  const dowOffset =
+    typeof settings.prevYearDowOffset === 'number' && !isNaN(settings.prevYearDowOffset)
+      ? settings.prevYearDowOffset
+      : null
 
   // 実効値
-  const effectiveSourceYear = sourceYear ?? (targetYear - 1)
+  const effectiveSourceYear = sourceYear ?? targetYear - 1
   const effectiveSourceMonth = sourceMonth ?? targetMonth
-  const autoOffset = calcSameDowOffset(targetYear, targetMonth, effectiveSourceYear, effectiveSourceMonth)
+  const autoOffset = calcSameDowOffset(
+    targetYear,
+    targetMonth,
+    effectiveSourceYear,
+    effectiveSourceMonth,
+  )
   const effectiveOffset = Math.max(0, Math.min(6, dowOffset ?? autoOffset))
 
   // IndexedDB の利用可能月をロード
   useEffect(() => {
-    listMonths().then(setAvailableMonths).catch(() => setAvailableMonths([]))
+    listMonths()
+      .then(setAvailableMonths)
+      .catch(() => setAvailableMonths([]))
   }, [listMonths])
 
   // 前年データの有無
   const hasPrevYearData = state.data.prevYearClassifiedSales.records.length > 0
 
   // ソース年月変更
-  const handleSourceChange = useCallback((value: string) => {
-    if (value === 'auto') {
-      updateSettings({ prevYearSourceYear: null, prevYearSourceMonth: null, prevYearDowOffset: null })
-    } else {
-      const [y, m] = value.split('-').map(Number)
-      const newAutoOffset = calcSameDowOffset(targetYear, targetMonth, y, m)
-      updateSettings({
-        prevYearSourceYear: y,
-        prevYearSourceMonth: m,
-        prevYearDowOffset: null, // ソース変更時はオフセットもリセットして自動に
-      })
-      // Force auto-offset recalculation display
-      void newAutoOffset
-    }
-  }, [targetYear, targetMonth, updateSettings])
+  const handleSourceChange = useCallback(
+    (value: string) => {
+      if (value === 'auto') {
+        updateSettings({
+          prevYearSourceYear: null,
+          prevYearSourceMonth: null,
+          prevYearDowOffset: null,
+        })
+      } else {
+        const [y, m] = value.split('-').map(Number)
+        const newAutoOffset = calcSameDowOffset(targetYear, targetMonth, y, m)
+        updateSettings({
+          prevYearSourceYear: y,
+          prevYearSourceMonth: m,
+          prevYearDowOffset: null, // ソース変更時はオフセットもリセットして自動に
+        })
+        // Force auto-offset recalculation display
+        void newAutoOffset
+      }
+    },
+    [targetYear, targetMonth, updateSettings],
+  )
 
   // オフセット変更
-  const handleOffsetChange = useCallback((value: string) => {
-    if (value === 'auto') {
-      updateSettings({ prevYearDowOffset: null })
-    } else {
-      updateSettings({ prevYearDowOffset: Number(value) })
-    }
-  }, [updateSettings])
+  const handleOffsetChange = useCallback(
+    (value: string) => {
+      if (value === 'auto') {
+        updateSettings({ prevYearDowOffset: null })
+      } else {
+        updateSettings({ prevYearDowOffset: Number(value) })
+      }
+    },
+    [updateSettings],
+  )
 
   // 前年データを再読込（既存データをクリアして auto-load をトリガー）
   const handleReload = useCallback(() => {
@@ -301,11 +328,11 @@ export function PrevYearMappingTab() {
 
     interface MappingRow {
       currentDay: number
-      prevDay: number       // 拡張day番号（overflow含む）
+      prevDay: number // 拡張day番号（overflow含む）
       dow: number
-      isOverflow: boolean   // 前年ソース月を超えている
-      prevDisplayMonth: number  // 表示用の月
-      prevDisplayDay: number    // 表示用の日
+      isOverflow: boolean // 前年ソース月を超えている
+      prevDisplayMonth: number // 表示用の月
+      prevDisplayDay: number // 表示用の日
       hasData: boolean
     }
 
@@ -322,10 +349,25 @@ export function PrevYearMappingTab() {
       const hasData = prevDayHasData.has(prevDay)
       if (hasData) matchedCount++
       else unmatchedCount++
-      rows.push({ currentDay: d, prevDay, dow, isOverflow, prevDisplayMonth, prevDisplayDay, hasData })
+      rows.push({
+        currentDay: d,
+        prevDay,
+        dow,
+        isOverflow,
+        prevDisplayMonth,
+        prevDisplayDay,
+        hasData,
+      })
     }
     return { rows, firstDow, daysInTarget, daysInSource, matchedCount, unmatchedCount }
-  }, [targetYear, targetMonth, effectiveOffset, effectiveSourceYear, effectiveSourceMonth, prevDayHasData])
+  }, [
+    targetYear,
+    targetMonth,
+    effectiveOffset,
+    effectiveSourceYear,
+    effectiveSourceMonth,
+    prevDayHasData,
+  ])
 
   // 選択用: auto + 利用可能月
   const sourceOptions = useMemo(() => {
@@ -343,9 +385,8 @@ export function PrevYearMappingTab() {
     return opts
   }, [availableMonths, targetYear, targetMonth])
 
-  const currentSourceValue = sourceYear !== null && sourceMonth !== null
-    ? `${sourceYear}-${sourceMonth}`
-    : 'auto'
+  const currentSourceValue =
+    sourceYear !== null && sourceMonth !== null ? `${sourceYear}-${sourceMonth}` : 'auto'
 
   return (
     <>
@@ -360,27 +401,41 @@ export function PrevYearMappingTab() {
         <CurrentStatus>
           <StatusItem>
             <StatusLabel>当年対象</StatusLabel>
-            <StatusValue>{targetYear}年{targetMonth}月</StatusValue>
+            <StatusValue>
+              {targetYear}年{targetMonth}月
+            </StatusValue>
           </StatusItem>
           <StatusItem>
             <StatusLabel>比較元</StatusLabel>
             <StatusValue>
               {effectiveSourceYear}年{effectiveSourceMonth}月
-              {isOverridden && <Badge $color="#f59e0b" style={{ marginLeft: 4 }}>手動</Badge>}
-              {!isOverridden && <Badge $color="#22c55e" style={{ marginLeft: 4 }}>自動</Badge>}
+              {isOverridden && (
+                <Badge $color={palette.warningDark} style={{ marginLeft: 4 }}>
+                  手動
+                </Badge>
+              )}
+              {!isOverridden && (
+                <Badge $color={palette.successDark} style={{ marginLeft: 4 }}>
+                  自動
+                </Badge>
+              )}
             </StatusValue>
           </StatusItem>
           <StatusItem>
             <StatusLabel>曜日オフセット</StatusLabel>
             <StatusValue>
               {effectiveOffset}日
-              {dowOffset !== null && <Badge $color="#f59e0b" style={{ marginLeft: 4 }}>手動</Badge>}
+              {dowOffset !== null && (
+                <Badge $color={palette.warningDark} style={{ marginLeft: 4 }}>
+                  手動
+                </Badge>
+              )}
             </StatusValue>
           </StatusItem>
           <StatusItem>
             <StatusLabel>前年データ</StatusLabel>
             <StatusValue>
-              <Badge $color={hasPrevYearData ? '#22c55e' : undefined}>
+              <Badge $color={hasPrevYearData ? palette.successDark : undefined}>
                 {hasPrevYearData ? '読込済' : '未読込'}
               </Badge>
             </StatusValue>
@@ -392,7 +447,9 @@ export function PrevYearMappingTab() {
             <FieldLabel>比較元（ソース年月）</FieldLabel>
             <Select value={currentSourceValue} onChange={(e) => handleSourceChange(e.target.value)}>
               {sourceOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </Select>
           </FieldRow>
@@ -417,13 +474,9 @@ export function PrevYearMappingTab() {
         </FieldGroup>
 
         <ActionRow>
-          <PrimaryButton onClick={handleReload}>
-            前年データを再読込
-          </PrimaryButton>
+          <PrimaryButton onClick={handleReload}>前年データを再読込</PrimaryButton>
           {isOverridden && (
-            <SecondaryButton onClick={handleResetToAuto}>
-              自動に戻す
-            </SecondaryButton>
+            <SecondaryButton onClick={handleResetToAuto}>自動に戻す</SecondaryButton>
           )}
         </ActionRow>
       </Section>
@@ -432,21 +485,27 @@ export function PrevYearMappingTab() {
       <Section>
         <SectionTitle>曜日対応プレビュー</SectionTitle>
         <HelpText>
-          当年の各日に対応する前年の実際の日付です。オフセット={effectiveOffset} の場合、
-          当年{targetMonth}/1({DOW_LABELS[new Date(targetYear, targetMonth - 1, 1).getDay()] ?? '?'}) →
-          前年{effectiveSourceMonth}/{1 + effectiveOffset}({DOW_LABELS[new Date(effectiveSourceYear, effectiveSourceMonth - 1, 1 + effectiveOffset).getDay()] ?? '?'})
+          当年の各日に対応する前年の実際の日付です。オフセット={effectiveOffset} の場合、 当年
+          {targetMonth}/1({DOW_LABELS[new Date(targetYear, targetMonth - 1, 1).getDay()] ?? '?'}) →
+          前年{effectiveSourceMonth}/{1 + effectiveOffset}(
+          {DOW_LABELS[
+            new Date(effectiveSourceYear, effectiveSourceMonth - 1, 1 + effectiveOffset).getDay()
+          ] ?? '?'}
+          )
         </HelpText>
 
         {hasPrevYearData && (
           <MappingSummary>
             <SummaryItem>
-              {mappingPreview.matchedCount > 0 ? '✅' : ''} データあり: {mappingPreview.matchedCount}日
+              {mappingPreview.matchedCount > 0 ? '✅' : ''} データあり:{' '}
+              {mappingPreview.matchedCount}日
             </SummaryItem>
             <SummaryItem>
-              {mappingPreview.unmatchedCount > 0 ? '❌' : ''} データなし: {mappingPreview.unmatchedCount}日
+              {mappingPreview.unmatchedCount > 0 ? '❌' : ''} データなし:{' '}
+              {mappingPreview.unmatchedCount}日
             </SummaryItem>
             {mappingPreview.rows.some((r) => r.isOverflow) && (
-              <SummaryItem style={{ color: '#f59e0b' }}>
+              <SummaryItem style={{ color: palette.warningDark }}>
                 翌月参照: {mappingPreview.rows.filter((r) => r.isOverflow).length}日
               </SummaryItem>
             )}
@@ -455,7 +514,10 @@ export function PrevYearMappingTab() {
 
         <PreviewGrid>
           {DOW_LABELS.map((d, i) => (
-            <DowHeader key={i} style={{ color: i === 0 || i === 6 ? '#ef4444' : undefined }}>
+            <DowHeader
+              key={i}
+              style={{ color: i === 0 || i === 6 ? palette.dangerDark : undefined }}
+            >
               {d}
             </DowHeader>
           ))}
@@ -465,25 +527,25 @@ export function PrevYearMappingTab() {
             <DayCell key={`empty-${i}`} $mapped={false} $isWeekend={false} />
           ))}
 
-          {mappingPreview.rows.map(({ currentDay, dow, isOverflow, prevDisplayMonth, prevDisplayDay, hasData }) => (
-            <DayCell
-              key={currentDay}
-              $mapped={true}
-              $isWeekend={dow === 0 || dow === 6}
-              $hasData={hasPrevYearData && hasData}
-            >
-              <div>{currentDay}</div>
-              <MappingArrow>↕</MappingArrow>
-              <PrevDayLabel $isOverflow={isOverflow}>
-                {prevDisplayMonth}/{prevDisplayDay}
-              </PrevDayLabel>
-              {hasPrevYearData && (
-                <DataStatus $hasData={hasData}>
-                  {hasData ? '✅' : '❌'}
-                </DataStatus>
-              )}
-            </DayCell>
-          ))}
+          {mappingPreview.rows.map(
+            ({ currentDay, dow, isOverflow, prevDisplayMonth, prevDisplayDay, hasData }) => (
+              <DayCell
+                key={currentDay}
+                $mapped={true}
+                $isWeekend={dow === 0 || dow === 6}
+                $hasData={hasPrevYearData && hasData}
+              >
+                <div>{currentDay}</div>
+                <MappingArrow>↕</MappingArrow>
+                <PrevDayLabel $isOverflow={isOverflow}>
+                  {prevDisplayMonth}/{prevDisplayDay}
+                </PrevDayLabel>
+                {hasPrevYearData && (
+                  <DataStatus $hasData={hasData}>{hasData ? '✅' : '❌'}</DataStatus>
+                )}
+              </DayCell>
+            ),
+          )}
         </PreviewGrid>
       </Section>
     </>

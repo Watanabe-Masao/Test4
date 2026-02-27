@@ -62,16 +62,12 @@ export function RestoreDataModal({
       }
     >
       <Content>
-        <Info>
-          前回のセッションで保存されたデータがあります。復元しますか？
-        </Info>
+        <Info>前回のセッションで保存されたデータがあります。復元しますか？</Info>
         <MetaInfo>
           対象期間: {meta.year}年{meta.month}月{'\n'}
           保存日時: {formattedDate}
         </MetaInfo>
-        <Info>
-          「新規で開始」を選択すると、保存データは破棄されます。
-        </Info>
+        <Info>「新規で開始」を選択すると、保存データは破棄されます。</Info>
       </Content>
     </Modal>
   )

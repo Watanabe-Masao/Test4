@@ -16,13 +16,29 @@ type StoreSet = ReadonlySet<string>
  *
  * @returns 年月キー ("YYYY-M") をキーとする月別仕入データ
  */
-export function processPurchase(rows: readonly unknown[][], stores: StoreSet): Record<string, PurchaseData> {
+export function processPurchase(
+  rows: readonly unknown[][],
+  stores: StoreSet,
+): Record<string, PurchaseData> {
   if (rows.length < 5) return {}
 
-  const partitioned: Record<string, Record<string, Record<number, { suppliers: Record<string, { name: string; cost: number; price: number }>; total: { cost: number; price: number } }>>> = {}
+  const partitioned: Record<
+    string,
+    Record<
+      string,
+      Record<
+        number,
+        {
+          suppliers: Record<string, { name: string; cost: number; price: number }>
+          total: { cost: number; price: number }
+        }
+      >
+    >
+  > = {}
 
   // ヘッダー解析: 列→(取引先コード, 店舗ID)のマッピング
-  const columnMap: { col: number; supplierCode: string; supplierName: string; storeId: string }[] = []
+  const columnMap: { col: number; supplierCode: string; supplierName: string; storeId: string }[] =
+    []
 
   for (let col = 3; col < (rows[0] as unknown[]).length; col += 2) {
     const supStr = String((rows[0] as unknown[])[col] ?? '')
@@ -81,7 +97,9 @@ export function processPurchase(rows: readonly unknown[][], stores: StoreSet): R
 /**
  * 仕入データから店舗一覧を抽出する
  */
-export function extractStoresFromPurchase(rows: readonly unknown[][]): Map<string, { id: string; code: string; name: string }> {
+export function extractStoresFromPurchase(
+  rows: readonly unknown[][],
+): Map<string, { id: string; code: string; name: string }> {
   const stores = new Map<string, { id: string; code: string; name: string }>()
   if (rows.length < 2) return stores
 
@@ -104,7 +122,9 @@ export function extractStoresFromPurchase(rows: readonly unknown[][]): Map<strin
 /**
  * 仕入データから取引先一覧を抽出する
  */
-export function extractSuppliersFromPurchase(rows: readonly unknown[][]): Map<string, { code: string; name: string }> {
+export function extractSuppliersFromPurchase(
+  rows: readonly unknown[][],
+): Map<string, { code: string; name: string }> {
   const suppliers = new Map<string, { code: string; name: string }>()
   if (rows.length < 1) return suppliers
 

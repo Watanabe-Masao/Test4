@@ -54,9 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user: ANONYMOUS_USER,
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const login = useCallback(async (_credentials: { email: string; password: string }) => {
-    // 将来: API 呼び出しを実装
+  const login = useCallback(async (credentials: { email: string; password: string }) => {
+    // 将来: API 呼び出しで credentials.email / credentials.password を使用
+    void credentials
     setState({ status: 'authenticated', user: ANONYMOUS_USER })
     return true
   }, [])

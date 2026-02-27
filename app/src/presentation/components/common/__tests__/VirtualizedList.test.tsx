@@ -26,7 +26,12 @@ vi.mock('react-window', () => ({
     rowHeight: number
     style: React.CSSProperties
   }) => (
-    <div data-testid="virtual-list" data-height={style.height} data-width={style.width} data-item-size={rowHeight}>
+    <div
+      data-testid="virtual-list"
+      data-height={style.height}
+      data-width={style.width}
+      data-item-size={rowHeight}
+    >
       {Array.from({ length: Math.min(rowCount, 10) }, (_, i) => (
         <Row key={i} index={i} style={{ height: rowHeight }} />
       ))}
@@ -99,12 +104,7 @@ describe('VirtualizedList', () => {
   it('デフォルトの空メッセージが表示される', () => {
     render(
       <Wrapper>
-        <VirtualizedList
-          items={[]}
-          rowHeight={40}
-          height={400}
-          renderRow={() => <div />}
-        />
+        <VirtualizedList items={[]} rowHeight={40} height={400} renderRow={() => <div />} />
       </Wrapper>,
     )
 

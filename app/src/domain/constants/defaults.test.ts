@@ -22,7 +22,7 @@ describe('createDefaultSettings', () => {
 
   it('花掛け率が0.80', () => {
     const settings = createDefaultSettings()
-    expect(settings.flowerCostRate).toBe(0.80)
+    expect(settings.flowerCostRate).toBe(0.8)
   })
 
   it('産直掛け率が0.85', () => {

@@ -20,11 +20,11 @@ describe('settingsStore', () => {
 
   it('updateSettings で部分更新できる', () => {
     useSettingsStore.getState().updateSettings({
-      targetGrossProfitRate: 0.30,
+      targetGrossProfitRate: 0.3,
     })
 
     const { settings } = useSettingsStore.getState()
-    expect(settings.targetGrossProfitRate).toBe(0.30)
+    expect(settings.targetGrossProfitRate).toBe(0.3)
     // 他の値は変更されない
     expect(settings.warningThreshold).toBe(0.23)
   })
@@ -67,7 +67,7 @@ describe('settingsStore', () => {
 
   it('reset でデフォルト設定に戻る', () => {
     useSettingsStore.getState().updateSettings({
-      targetGrossProfitRate: 0.50,
+      targetGrossProfitRate: 0.5,
       flowerCostRate: 0.99,
     })
 

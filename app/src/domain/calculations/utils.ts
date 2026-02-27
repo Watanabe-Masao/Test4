@@ -71,9 +71,23 @@ export function calculateMovingAverage(values: readonly number[], window: number
 }
 
 /**
+ * 在庫法粗利率（実績）が利用可能ならそれを、なければ推定法マージン率を返す。
+ * 在庫法は実際の在庫差から算出するため信頼度が高い。推定法は値入率から推定するため
+ * 在庫法が利用できない場合のフォールバックとして使う。
+ */
+export function getEffectiveGrossProfitRate(result: {
+  readonly invMethodGrossProfitRate: number | null
+  readonly estMethodMarginRate: number
+}): number {
+  return result.invMethodGrossProfitRate ?? result.estMethodMarginRate
+}
+
+/**
  * StoreDayRecord から最大日を取得
  */
-export function maxDayOfRecord(record: { readonly [storeId: string]: { readonly [day: number]: unknown } } | null | undefined): number {
+export function maxDayOfRecord(
+  record: { readonly [storeId: string]: { readonly [day: number]: unknown } } | null | undefined,
+): number {
   if (!record || typeof record !== 'object') return 0
   let max = 0
   for (const storeId of Object.keys(record)) {

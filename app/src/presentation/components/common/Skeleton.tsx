@@ -26,9 +26,7 @@ const variantDefaults: Record<SkeletonVariant, { borderRadius: string }> = {
 
 export const Skeleton = styled.div<SkeletonProps>`
   background: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? 'rgba(255, 255, 255, 0.06)'
-      : 'rgba(0, 0, 0, 0.08)'};
+    theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.08)'};
   width: ${({ width }) => width ?? '100%'};
   height: ${({ height }) => height ?? '1em'};
   border-radius: ${({ $borderRadius, variant = 'text' }) =>
@@ -116,13 +114,7 @@ const TableBodyRow = styled.div`
  * データテーブルのローディング状態を模倣するスケルトン。
  * ヘッダー行 + 指定行数のボディ行。
  */
-export function TableSkeleton({
-  columns = 5,
-  rows = 6,
-}: {
-  columns?: number
-  rows?: number
-}) {
+export function TableSkeleton({ columns = 5, rows = 6 }: { columns?: number; rows?: number }) {
   return (
     <TableWrapper>
       <TableHeaderRow>
@@ -133,11 +125,7 @@ export function TableSkeleton({
       {Array.from({ length: rows }, (_, rowIdx) => (
         <TableBodyRow key={rowIdx}>
           {Array.from({ length: columns }, (_, colIdx) => (
-            <SkeletonLine
-              key={colIdx}
-              height="10px"
-              width={colIdx === 0 ? '70%' : '90%'}
-            />
+            <SkeletonLine key={colIdx} height="10px" width={colIdx === 0 ? '70%' : '90%'} />
           ))}
         </TableBodyRow>
       ))}
@@ -162,11 +150,7 @@ const KpiRow = styled.div`
  * ページ全体のローディング状態を模倣するスケルトン。
  * KPI カード群 + チャート + テーブル。
  */
-export function PageSkeleton({
-  kpiCount = 4,
-}: {
-  kpiCount?: number
-}) {
+export function PageSkeleton({ kpiCount = 4 }: { kpiCount?: number }) {
   return (
     <PageWrapper>
       <KpiRow>

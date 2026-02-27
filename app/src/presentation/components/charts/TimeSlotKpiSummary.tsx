@@ -3,8 +3,15 @@ import styled from 'styled-components'
 import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { queryByDateRange } from '@/application/usecases'
 import { useCategoryHierarchy, filterByHierarchy } from './CategoryHierarchyContext'
-import { findCoreTime, findTurnaroundHour, formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
+import {
+  findCoreTime,
+  findTurnaroundHour,
+  formatCoreTime,
+  formatTurnaroundHour,
+} from './timeSlotUtils'
 import { toPct } from './chartTheme'
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -60,8 +67,8 @@ const DiffBadge = styled.span<{ $positive: boolean }>`
   display: inline-block;
   font-size: 0.5rem;
   font-weight: 600;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
-  background: ${({ $positive }) => $positive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};
+  color: ${({ $positive }) => sc.cond($positive)};
+  background: ${({ $positive }) => ($positive ? 'rgba(14,165,233,0.1)' : 'rgba(249,115,22,0.1)')};
   padding: 0 4px;
   border-radius: 3px;
   margin-left: 4px;
@@ -78,7 +85,13 @@ interface Props {
 }
 
 /** 分類別時間帯 KPIサマリー */
-export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDateRange, selectedStoreIds }: Props) {
+export function TimeSlotKpiSummary({
+  ctsIndex,
+  prevCtsIndex,
+  dateRange,
+  prevDateRange,
+  selectedStoreIds,
+}: Props) {
   const { filter } = useCategoryHierarchy()
 
   const kpi = useMemo(() => {
@@ -102,7 +115,10 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
     let peakHour = 0
     let peakHourAmount = 0
     for (const [h, amt] of hourly) {
-      if (amt > peakHourAmount) { peakHour = h; peakHourAmount = amt }
+      if (amt > peakHourAmount) {
+        peakHour = h
+        peakHourAmount = amt
+      }
     }
     const peakHourPct = totalAmount > 0 ? toPct(peakHourAmount / totalAmount) : '0%'
 
@@ -116,7 +132,10 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
     let topDeptName = '-'
     let topDeptAmount = 0
     for (const [, v] of deptMap) {
-      if (v.amount > topDeptAmount) { topDeptName = v.name; topDeptAmount = v.amount }
+      if (v.amount > topDeptAmount) {
+        topDeptName = v.name
+        topDeptAmount = v.amount
+      }
     }
     const topDeptPct = totalAmount > 0 ? toPct(topDeptAmount / totalAmount) : '0%'
 
@@ -125,7 +144,9 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
     const daySet = new Set(records.map((r) => r.day))
 
     // Unique categories
-    const categorySet = new Set(records.map((r) => `${r.department.code}-${r.line.code}-${r.klass.code}`))
+    const categorySet = new Set(
+      records.map((r) => `${r.department.code}-${r.line.code}-${r.klass.code}`),
+    )
 
     // Active hours
     const activeHours = hourly.size
@@ -174,9 +195,13 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
         hourly.set(slot.hour, (hourly.get(slot.hour) ?? 0) + slot.amount)
       }
     }
-    let peakHour = 0, peakHourAmount = 0
+    let peakHour = 0,
+      peakHourAmount = 0
     for (const [h, amt] of hourly) {
-      if (amt > peakHourAmount) { peakHour = h; peakHourAmount = amt }
+      if (amt > peakHourAmount) {
+        peakHour = h
+        peakHourAmount = amt
+      }
     }
     return { totalAmount, totalQuantity, peakHour }
   }, [prevCtsIndex, prevDateRange, selectedStoreIds, filter])
@@ -187,7 +212,7 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
     <Wrapper>
       <Title>分類別時間帯売上 サマリー</Title>
       <Grid>
-        <Card $accent="#6366f1">
+        <Card $accent={palette.primary}>
           <CardLabel>総売上金額</CardLabel>
           <CardValue>
             {Math.round(kpi.totalAmount / 10000).toLocaleString()}万円
@@ -199,7 +224,7 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
           </CardValue>
           <CardSub>{kpi.totalAmount.toLocaleString()}円</CardSub>
         </Card>
-        <Card $accent="#06b6d4">
+        <Card $accent={palette.cyanDark}>
           <CardLabel>総数量</CardLabel>
           <CardValue>
             {kpi.totalQuantity.toLocaleString()}点
@@ -211,41 +236,41 @@ export function TimeSlotKpiSummary({ ctsIndex, prevCtsIndex, dateRange, prevDate
           </CardValue>
           <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
         </Card>
-        <Card $accent="#f59e0b">
+        <Card $accent={palette.warningDark}>
           <CardLabel>ピーク時間帯</CardLabel>
           <CardValue>
             {kpi.peakHour}時台
             {prevKpi && prevKpi.peakHour !== kpi.peakHour && (
-              <DiffBadge $positive={false}>
-                前年{prevKpi.peakHour}時
-              </DiffBadge>
+              <DiffBadge $positive={false}>前年{prevKpi.peakHour}時</DiffBadge>
             )}
           </CardValue>
           <CardSub>構成比 {kpi.peakHourPct}</CardSub>
         </Card>
-        <Card $accent="#8b5cf6">
+        <Card $accent={palette.purpleDark}>
           <CardLabel>コアタイム</CardLabel>
           <CardValue>{formatCoreTime(kpi.coreTime)}</CardValue>
           <CardSub>構成比 {kpi.coreTimePct}</CardSub>
         </Card>
-        <Card $accent="#ef4444">
+        <Card $accent={sc.negative}>
           <CardLabel>折り返し時間帯</CardLabel>
           <CardValue>{formatTurnaroundHour(kpi.turnaroundHour)}</CardValue>
           <CardSub>累積50%到達</CardSub>
         </Card>
-        <Card $accent="#22c55e">
+        <Card $accent={sc.positive}>
           <CardLabel>売上1位部門</CardLabel>
           <CardValue style={{ fontSize: kpi.topDeptName.length > 5 ? '0.85rem' : undefined }}>
             {kpi.topDeptName}
           </CardValue>
           <CardSub>構成比 {kpi.topDeptPct}</CardSub>
         </Card>
-        <Card $accent="#ec4899">
+        <Card $accent={palette.pinkDark}>
           <CardLabel>対象店舗/日数</CardLabel>
-          <CardValue>{kpi.storeCount}店 / {kpi.dayCount}日</CardValue>
+          <CardValue>
+            {kpi.storeCount}店 / {kpi.dayCount}日
+          </CardValue>
           <CardSub>{kpi.categoryCount}分類</CardSub>
         </Card>
-        <Card $accent="#8b5cf6">
+        <Card $accent={palette.purpleDark}>
           <CardLabel>時間帯平均</CardLabel>
           <CardValue>{Math.round(kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
           <CardSub>{kpi.activeHours}時間帯</CardSub>

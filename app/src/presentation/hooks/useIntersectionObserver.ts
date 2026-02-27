@@ -29,12 +29,7 @@ export interface UseIntersectionObserverResult {
 export function useIntersectionObserver(
   options: UseIntersectionObserverOptions = {},
 ): UseIntersectionObserverResult {
-  const {
-    root = null,
-    rootMargin = '200px',
-    threshold = 0,
-    freezeOnceVisible = true,
-  } = options
+  const { root = null, rootMargin = '200px', threshold = 0, freezeOnceVisible = true } = options
 
   const [isIntersecting, setIsIntersecting] = useState(false)
   const [hasBeenVisible, setHasBeenVisible] = useState(false)

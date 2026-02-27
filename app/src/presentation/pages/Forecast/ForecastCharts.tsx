@@ -1,8 +1,33 @@
 import { calculateForecast } from '@/domain/calculations/forecast'
 import type { DayOfWeekAverage } from '@/domain/calculations/forecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct, STORE_COLORS } from '@/presentation/components/charts/chartTheme'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart, Line, Area, LineChart } from 'recharts'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  toComma,
+  toPct,
+  STORE_COLORS,
+} from '@/presentation/components/charts/chartTheme'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  Legend,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ComposedChart,
+  Line,
+  Area,
+  LineChart,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import {
@@ -15,7 +40,13 @@ import {
   type DowDecompAvg,
 } from './ForecastPage.helpers'
 
-export function WeeklyChart({ data, dowColors }: { data: Record<string, string | number>[]; dowColors: string[] }) {
+export function WeeklyChart({
+  data,
+  dowColors,
+}: {
+  data: Record<string, string | number>[]
+  dowColors: string[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -40,11 +71,12 @@ export function WeeklyChart({ data, dowColors }: { data: Record<string, string |
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              toComma(value ?? 0),
+              name ?? '',
+            ]}
           />
-          <Legend
-            wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-          />
+          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {DOW_LABELS.map((label, i) => (
             <Bar
               key={label}
@@ -62,7 +94,13 @@ export function WeeklyChart({ data, dowColors }: { data: Record<string, string |
   )
 }
 
-export function DayOfWeekChart({ averages, dowColors }: { averages: readonly DayOfWeekAverage[]; dowColors: string[] }) {
+export function DayOfWeekChart({
+  averages,
+  dowColors,
+}: {
+  averages: readonly DayOfWeekAverage[]
+  dowColors: string[]
+}) {
   const ct = useChartTheme()
 
   const totalAvg = averages.reduce((s, a) => s + a.averageSales, 0)
@@ -101,19 +139,20 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
               return [toComma(value ?? 0), '平均売上']
             }}
           />
-          <Bar dataKey="index" radius={[4, 4, 0, 0]} maxBarSize={40} label={{
-            position: 'top',
-            fill: ct.textSecondary,
-            fontSize: ct.fontSize.xs,
-            fontFamily: ct.monoFamily,
-            formatter: (v: unknown) => toPct(Number(v)),
-          }}>
+          <Bar
+            dataKey="index"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={40}
+            label={{
+              position: 'top',
+              fill: ct.textSecondary,
+              fontSize: ct.fontSize.xs,
+              fontFamily: ct.monoFamily,
+              formatter: (v: unknown) => toPct(Number(v)),
+            }}
+          >
             {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={entry.color}
-                fillOpacity={0.8}
-              />
+              <Cell key={index} fill={entry.color} fillOpacity={0.8} />
             ))}
           </Bar>
         </BarChart>
@@ -126,7 +165,11 @@ export function DayOfWeekChart({ averages, dowColors }: { averages: readonly Day
 export function StoreComparisonRadarChart({
   storeForecasts,
 }: {
-  storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
+  storeForecasts: {
+    storeId: string
+    storeName: string
+    forecast: ReturnType<typeof calculateForecast>
+  }[]
 }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -180,20 +223,25 @@ export function StoreComparisonRadarChart({
 export function StoreComparisonBarChart({
   storeForecasts,
 }: {
-  storeForecasts: { storeId: string; storeName: string; forecast: ReturnType<typeof calculateForecast> }[]
+  storeForecasts: {
+    storeId: string
+    storeName: string
+    forecast: ReturnType<typeof calculateForecast>
+  }[]
 }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
   // Build grouped bar data per week
-  const data = storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
-    const entry: Record<string, string | number> = { name: `第${w.weekNumber}週` }
-    storeForecasts.forEach((sf) => {
-      const sw = sf.forecast.weeklySummaries[wi]
-      entry[sf.storeName] = sw?.totalSales ?? 0
-    })
-    return entry
-  }) ?? []
+  const data =
+    storeForecasts[0]?.forecast.weeklySummaries.map((w, wi) => {
+      const entry: Record<string, string | number> = { name: `第${w.weekNumber}週` }
+      storeForecasts.forEach((sf) => {
+        const sw = sf.forecast.weeklySummaries[wi]
+        entry[sf.storeName] = sw?.totalSales ?? 0
+      })
+      return entry
+    }) ?? []
 
   return (
     <ChartWrapper>
@@ -216,7 +264,10 @@ export function StoreComparisonBarChart({
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), name ?? '']}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              toComma(value ?? 0),
+              name ?? '',
+            ]}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {storeForecasts.map((sf, i) => (
@@ -275,7 +326,12 @@ export function DowCustomerChart({
             axisLine={false}
             tickLine={false}
             width={45}
-            label={{ value: '客数', position: 'insideTopLeft', fill: ct.textMuted, fontSize: ct.fontSize.xs }}
+            label={{
+              value: '客数',
+              position: 'insideTopLeft',
+              fill: ct.textMuted,
+              fontSize: ct.fontSize.xs,
+            }}
           />
           <YAxis
             yAxisId="right"
@@ -285,19 +341,61 @@ export function DowCustomerChart({
             tickLine={false}
             width={50}
             tickFormatter={toComma}
-            label={{ value: '客単価', position: 'insideTopRight', fill: ct.textMuted, fontSize: ct.fontSize.xs }}
+            label={{
+              value: '客単価',
+              position: 'insideTopRight',
+              fill: ct.textMuted,
+              fontSize: ct.fontSize.xs,
+            }}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
+          <Tooltip
+            contentStyle={tooltipStyle(ct)}
+            formatter={(v: number | undefined, name: string | undefined) => [
+              toComma(v ?? 0),
+              name ?? '',
+            ]}
+          />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar yAxisId="left" dataKey="今年客数" fill="#06b6d4" fillOpacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={30}>
-            {data.map((_, i) => <Cell key={i} fill={dowColors[i]} fillOpacity={0.8} />)}
+          <Bar
+            yAxisId="left"
+            dataKey="今年客数"
+            fill="#06b6d4"
+            fillOpacity={0.8}
+            radius={[4, 4, 0, 0]}
+            maxBarSize={30}
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={dowColors[i]} fillOpacity={0.8} />
+            ))}
           </Bar>
           {hasPrev && (
-            <Bar yAxisId="left" dataKey="前年客数" fill="#94a3b8" fillOpacity={0.4} radius={[4, 4, 0, 0]} maxBarSize={30} />
+            <Bar
+              yAxisId="left"
+              dataKey="前年客数"
+              fill="#94a3b8"
+              fillOpacity={0.4}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={30}
+            />
           )}
-          <Line yAxisId="right" type="monotone" dataKey="今年客単価" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="今年客単価"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+          />
           {hasPrev && (
-            <Line yAxisId="right" type="monotone" dataKey="前年客単価" stroke="#8b5cf6" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 2 }} />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="前年客単価"
+              stroke="#8b5cf6"
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+              dot={{ r: 2 }}
+            />
           )}
         </ComposedChart>
       </ResponsiveContainer>
@@ -351,15 +449,53 @@ export function MovingAverageChart({
             width={50}
             tickFormatter={toComma}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
+          <Tooltip
+            contentStyle={tooltipStyle(ct)}
+            formatter={(v: number | undefined, name: string | undefined) => [
+              toComma(v ?? 0),
+              name ?? '',
+            ]}
+          />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Area yAxisId="left" type="monotone" dataKey="客数MA" fill="#06b6d4" fillOpacity={0.15} stroke="#06b6d4" strokeWidth={2} />
+          <Area
+            yAxisId="left"
+            type="monotone"
+            dataKey="客数MA"
+            fill="#06b6d4"
+            fillOpacity={0.15}
+            stroke="#06b6d4"
+            strokeWidth={2}
+          />
           {hasPrev && (
-            <Area yAxisId="left" type="monotone" dataKey="前年客数MA" fill="#94a3b8" fillOpacity={0.08} stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 4" />
+            <Area
+              yAxisId="left"
+              type="monotone"
+              dataKey="前年客数MA"
+              fill="#94a3b8"
+              fillOpacity={0.08}
+              stroke="#94a3b8"
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+            />
           )}
-          <Line yAxisId="right" type="monotone" dataKey="客単価MA" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="客単価MA"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            dot={false}
+          />
           {hasPrev && (
-            <Line yAxisId="right" type="monotone" dataKey="前年客単価MA" stroke="#a78bfa" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="前年客単価MA"
+              stroke="#a78bfa"
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+              dot={false}
+            />
           )}
         </ComposedChart>
       </ResponsiveContainer>
@@ -405,15 +541,14 @@ export function RelationshipChart({
       })
     }
   }
-  const chartData = [...dayMap.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([, v]) => v)
+  const chartData = [...dayMap.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v)
 
-  const title = viewMode === 'compare'
-    ? '売上・客数・客単価 関係性推移（今年 vs 前年）'
-    : viewMode === 'prev'
-    ? '売上・客数・客単価 関係性推移（前年）'
-    : '売上・客数・客単価 関係性推移（今年）'
+  const title =
+    viewMode === 'compare'
+      ? '売上・客数・客単価 関係性推移（今年 vs 前年）'
+      : viewMode === 'prev'
+        ? '売上・客数・客単価 関係性推移（前年）'
+        : '売上・客数・客単価 関係性推移（今年）'
 
   return (
     <ChartWrapper style={{ height: 360 }}>
@@ -435,20 +570,65 @@ export function RelationshipChart({
             width={40}
             domain={['auto', 'auto']}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [`${v ?? 0}%`, name ?? '']} />
+          <Tooltip
+            contentStyle={tooltipStyle(ct)}
+            formatter={(v: number | undefined, name: string | undefined) => [
+              `${v ?? 0}%`,
+              name ?? '',
+            ]}
+          />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {showCurrent && (
             <>
-              <Line type="monotone" dataKey="売上指数" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} />
-              <Line type="monotone" dataKey="客数指数" stroke="#06b6d4" strokeWidth={2} dot={{ r: 2 }} />
-              <Line type="monotone" dataKey="客単価指数" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} />
+              <Line
+                type="monotone"
+                dataKey="売上指数"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={{ r: 2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="客数指数"
+                stroke="#06b6d4"
+                strokeWidth={2}
+                dot={{ r: 2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="客単価指数"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+                dot={{ r: 2 }}
+              />
             </>
           )}
           {showPrev && (
             <>
-              <Line type="monotone" dataKey="前年売上指数" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-              <Line type="monotone" dataKey="前年客数指数" stroke="#06b6d4" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-              <Line type="monotone" dataKey="前年客単価指数" stroke="#8b5cf6" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="前年売上指数"
+                stroke="#3b82f6"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="前年客数指数"
+                stroke="#06b6d4"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="前年客単価指数"
+                stroke="#8b5cf6"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                dot={false}
+              />
             </>
           )}
         </LineChart>
@@ -499,13 +679,37 @@ export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[]
             tickLine={false}
             width={45}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) =>
-            name === '売上' ? [toComma(v ?? 0), name ?? ''] : [toComma(v ?? 0), name ?? '']
-          } />
+          <Tooltip
+            contentStyle={tooltipStyle(ct)}
+            formatter={(v: number | undefined, name: string | undefined) =>
+              name === '売上' ? [toComma(v ?? 0), name ?? ''] : [toComma(v ?? 0), name ?? '']
+            }
+          />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar yAxisId="sales" dataKey="売上" fill="#3b82f6" fillOpacity={0.6} radius={[4, 4, 0, 0]} maxBarSize={20} />
-          <Line yAxisId="cust" type="monotone" dataKey="客数" stroke="#06b6d4" strokeWidth={2} dot={{ r: 2.5 }} />
-          <Line yAxisId="cust" type="monotone" dataKey="客単価" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2.5 }} />
+          <Bar
+            yAxisId="sales"
+            dataKey="売上"
+            fill="#3b82f6"
+            fillOpacity={0.6}
+            radius={[4, 4, 0, 0]}
+            maxBarSize={20}
+          />
+          <Line
+            yAxisId="cust"
+            type="monotone"
+            dataKey="客数"
+            stroke="#06b6d4"
+            strokeWidth={2}
+            dot={{ r: 2.5 }}
+          />
+          <Line
+            yAxisId="cust"
+            type="monotone"
+            dataKey="客単価"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            dot={{ r: 2.5 }}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -584,14 +788,51 @@ export function SameDowComparisonChart({
             width={50}
             tickFormatter={toComma}
           />
-          <Tooltip contentStyle={tooltipStyle(ct)} formatter={(v: number | undefined, name: string | undefined) => [toComma(v ?? 0), name ?? '']} />
+          <Tooltip
+            contentStyle={tooltipStyle(ct)}
+            formatter={(v: number | undefined, name: string | undefined) => [
+              toComma(v ?? 0),
+              name ?? '',
+            ]}
+          />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-          <Bar yAxisId="left" dataKey="今年客数" fill="#06b6d4" fillOpacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={16}>
-            {chartData.map((e, i) => <Cell key={i} fill={e.color} fillOpacity={0.8} />)}
+          <Bar
+            yAxisId="left"
+            dataKey="今年客数"
+            fill="#06b6d4"
+            fillOpacity={0.8}
+            radius={[4, 4, 0, 0]}
+            maxBarSize={16}
+          >
+            {chartData.map((e, i) => (
+              <Cell key={i} fill={e.color} fillOpacity={0.8} />
+            ))}
           </Bar>
-          <Bar yAxisId="left" dataKey="前年客数" fill="#94a3b8" fillOpacity={0.4} radius={[4, 4, 0, 0]} maxBarSize={16} />
-          <Line yAxisId="right" type="monotone" dataKey="今年客単価" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} />
-          <Line yAxisId="right" type="monotone" dataKey="前年客単価" stroke="#a78bfa" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 2 }} />
+          <Bar
+            yAxisId="left"
+            dataKey="前年客数"
+            fill="#94a3b8"
+            fillOpacity={0.4}
+            radius={[4, 4, 0, 0]}
+            maxBarSize={16}
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="今年客単価"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            dot={{ r: 2 }}
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="前年客単価"
+            stroke="#a78bfa"
+            strokeWidth={1.5}
+            strokeDasharray="4 4"
+            dot={{ r: 2 }}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -641,16 +882,42 @@ export function DecompTrendChart({ data }: { data: DailyDecompEntry[] }) {
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), EFFECT_LABELS[name as string] ?? name ?? '']}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              toComma(value ?? 0),
+              EFFECT_LABELS[name as string] ?? name ?? '',
+            ]}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => EFFECT_LABELS[value] ?? value}
           />
-          <Area type="monotone" dataKey="cumCustEffect" fill={EFFECT_COLORS.custEffect} fillOpacity={0.15} stroke={EFFECT_COLORS.custEffect} strokeWidth={2} dot={false} />
-          <Area type="monotone" dataKey="cumTicketEffect" fill={EFFECT_COLORS.ticketEffect} fillOpacity={0.15} stroke={EFFECT_COLORS.ticketEffect} strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="cumSalesDiff" stroke={EFFECT_COLORS.salesDiff} strokeWidth={2.5} dot={false} strokeDasharray="6 3" />
+          <Area
+            type="monotone"
+            dataKey="cumCustEffect"
+            fill={EFFECT_COLORS.custEffect}
+            fillOpacity={0.15}
+            stroke={EFFECT_COLORS.custEffect}
+            strokeWidth={2}
+            dot={false}
+          />
+          <Area
+            type="monotone"
+            dataKey="cumTicketEffect"
+            fill={EFFECT_COLORS.ticketEffect}
+            fillOpacity={0.15}
+            stroke={EFFECT_COLORS.ticketEffect}
+            strokeWidth={2}
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="cumSalesDiff"
+            stroke={EFFECT_COLORS.salesDiff}
+            strokeWidth={2.5}
+            dot={false}
+            strokeDasharray="6 3"
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -683,15 +950,31 @@ export function DecompDailyBarChart({ data }: { data: DailyDecompEntry[] }) {
           />
           <Tooltip
             contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [toComma(value ?? 0), EFFECT_LABELS[name as string] ?? name ?? '']}
+            formatter={(value: number | undefined, name: string | undefined) => [
+              toComma(value ?? 0),
+              EFFECT_LABELS[name as string] ?? name ?? '',
+            ]}
             labelFormatter={(label) => `${label}日`}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
             formatter={(value) => EFFECT_LABELS[value] ?? value}
           />
-          <Bar dataKey="custEffect" stackId="effect" fill={EFFECT_COLORS.custEffect} fillOpacity={0.8} maxBarSize={16} />
-          <Bar dataKey="ticketEffect" stackId="effect" fill={EFFECT_COLORS.ticketEffect} fillOpacity={0.8} maxBarSize={16} radius={[3, 3, 0, 0]} />
+          <Bar
+            dataKey="custEffect"
+            stackId="effect"
+            fill={EFFECT_COLORS.custEffect}
+            fillOpacity={0.8}
+            maxBarSize={16}
+          />
+          <Bar
+            dataKey="ticketEffect"
+            stackId="effect"
+            fill={EFFECT_COLORS.ticketEffect}
+            fillOpacity={0.8}
+            maxBarSize={16}
+            radius={[3, 3, 0, 0]}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -725,19 +1008,50 @@ export function DecompDowChart({ data, dowColors }: { data: DowDecompAvg[]; dowC
           <Tooltip
             contentStyle={tooltipStyle(ct)}
             formatter={(value: number | undefined, name: string | undefined) => {
-              const label = name === 'avgCustEffect' ? '客数効果' : name === 'avgTicketEffect' ? '客単価効果' : name === 'avgSalesDiff' ? '売上差' : name ?? ''
+              const label =
+                name === 'avgCustEffect'
+                  ? '客数効果'
+                  : name === 'avgTicketEffect'
+                    ? '客単価効果'
+                    : name === 'avgSalesDiff'
+                      ? '売上差'
+                      : (name ?? '')
               return [toComma(value ?? 0), label]
             }}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-            formatter={(value) => value === 'avgCustEffect' ? '客数効果' : value === 'avgTicketEffect' ? '客単価効果' : value === 'avgSalesDiff' ? '売上差' : value}
+            formatter={(value) =>
+              value === 'avgCustEffect'
+                ? '客数効果'
+                : value === 'avgTicketEffect'
+                  ? '客単価効果'
+                  : value === 'avgSalesDiff'
+                    ? '売上差'
+                    : value
+            }
           />
-          <Bar dataKey="avgCustEffect" fill={EFFECT_COLORS.custEffect} fillOpacity={0.8} maxBarSize={28} radius={[0, 0, 0, 0]}>
-            {data.map((_, i) => <Cell key={i} fill={dowColors[i]} fillOpacity={0.7} />)}
+          <Bar
+            dataKey="avgCustEffect"
+            fill={EFFECT_COLORS.custEffect}
+            fillOpacity={0.8}
+            maxBarSize={28}
+            radius={[0, 0, 0, 0]}
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={dowColors[i]} fillOpacity={0.7} />
+            ))}
           </Bar>
-          <Bar dataKey="avgTicketEffect" fill={EFFECT_COLORS.ticketEffect} fillOpacity={0.8} maxBarSize={28} radius={[3, 3, 0, 0]}>
-            {data.map((_, i) => <Cell key={i} fill={dowColors[i]} fillOpacity={0.4} />)}
+          <Bar
+            dataKey="avgTicketEffect"
+            fill={EFFECT_COLORS.ticketEffect}
+            fillOpacity={0.8}
+            maxBarSize={28}
+            radius={[3, 3, 0, 0]}
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={dowColors[i]} fillOpacity={0.4} />
+            ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

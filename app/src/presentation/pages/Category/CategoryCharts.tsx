@@ -2,9 +2,26 @@ import { useState } from 'react'
 import { Chip } from '@/presentation/components/common'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { safeDivide } from '@/domain/calculations/utils'
-import { PieChart, Pie, Cell, Tooltip, ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Line, type PieLabelRenderProps } from 'recharts'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ComposedChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Line,
+  type PieLabelRenderProps,
+} from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from '@/presentation/components/charts/chartTheme'
+import {
+  useChartTheme,
+  tooltipStyle,
+  useCurrencyFormatter,
+  toPct,
+} from '@/presentation/components/charts/chartTheme'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
@@ -58,8 +75,12 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
     <PieWrapper>
       <PieTitle>カテゴリ別 相乗積構成</PieTitle>
       <PieToggle>
-        <Chip $active={view === 'pie'} onClick={() => setView('pie')}>円グラフ</Chip>
-        <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>パレート図</Chip>
+        <Chip $active={view === 'pie'} onClick={() => setView('pie')}>
+          円グラフ
+        </Chip>
+        <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>
+          パレート図
+        </Chip>
       </PieToggle>
       {view === 'pie' ? (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
@@ -102,7 +123,8 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
             <YAxis
               yAxisId="left"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
               tickFormatter={(v) => toPct(v, 0)}
               width={45}
             />
@@ -110,7 +132,8 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
               yAxisId="right"
               orientation="right"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
               domain={[0, 1]}
               tickFormatter={(v) => toPct(v, 0)}
               width={45}
@@ -166,11 +189,19 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
     <PieWrapper>
       <PieTitle>カテゴリ別 構成比</PieTitle>
       <PieToggle>
-        <Chip $active={mode === 'cost'} onClick={() => setMode('cost')}>原価</Chip>
-        <Chip $active={mode === 'price'} onClick={() => setMode('price')}>売価</Chip>
+        <Chip $active={mode === 'cost'} onClick={() => setMode('cost')}>
+          原価
+        </Chip>
+        <Chip $active={mode === 'price'} onClick={() => setMode('price')}>
+          売価
+        </Chip>
         <span style={{ width: 8 }} />
-        <Chip $active={view === 'pie'} onClick={() => setView('pie')}>円グラフ</Chip>
-        <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>パレート図</Chip>
+        <Chip $active={view === 'pie'} onClick={() => setView('pie')}>
+          円グラフ
+        </Chip>
+        <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>
+          パレート図
+        </Chip>
       </PieToggle>
       {view === 'pie' ? (
         <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="75%">
@@ -192,7 +223,10 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
             </Pie>
             <Tooltip
               contentStyle={tooltipStyle(ct)}
-              formatter={(value) => [formatCurrency(value as number), mode === 'cost' ? '原価' : '売価']}
+              formatter={(value) => [
+                formatCurrency(value as number),
+                mode === 'cost' ? '原価' : '売価',
+              ]}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -213,7 +247,8 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
             <YAxis
               yAxisId="left"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
               tickFormatter={fmt}
               width={50}
             />
@@ -221,7 +256,8 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
               yAxisId="right"
               orientation="right"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false} tickLine={false}
+              axisLine={false}
+              tickLine={false}
               domain={[0, 1]}
               tickFormatter={(v) => toPct(v, 0)}
               width={45}

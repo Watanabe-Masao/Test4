@@ -72,10 +72,12 @@ describe('comparisonLabels', () => {
 
     it('returns correct labels for different years', () => {
       expect(comparisonLabels('yoy', 2026, 1, 28)).toEqual({
-        curLabel: '2026年', prevLabel: '2025年',
+        curLabel: '2026年',
+        prevLabel: '2025年',
       })
       expect(comparisonLabels('yoy', 2024, 1, 31)).toEqual({
-        curLabel: '2024年', prevLabel: '2023年',
+        curLabel: '2024年',
+        prevLabel: '2023年',
       })
     })
   })

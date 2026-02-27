@@ -6,9 +6,7 @@ import { renderHook, act } from '@testing-library/react'
 import { AuthProvider, useAuth } from '../AuthContext'
 import type { ReactNode } from 'react'
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <AuthProvider>{children}</AuthProvider>
-)
+const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>
 
 describe('AuthContext', () => {
   it('初期状態は anonymous でローカルユーザー', () => {
