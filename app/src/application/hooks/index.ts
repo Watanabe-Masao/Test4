@@ -23,3 +23,19 @@ export { useBudgetChartData } from './useBudgetChartData'
 export type { BudgetChartDataPoint } from './useBudgetChartData'
 export { useDuckDB } from './useDuckDB'
 export type { DuckDBHookResult } from './useDuckDB'
+export {
+  useDuckDBHourlyAggregation,
+  useDuckDBLevelAggregation,
+  useDuckDBStoreAggregation,
+  useDuckDBHourDowMatrix,
+  useDuckDBDistinctDayCount,
+  useDuckDBDowDivisorMap,
+  useDuckDBDeptKpi,
+  useDuckDBDailyCumulative,
+  useDuckDBAggregatedRates,
+  useDuckDBYoyDaily,
+  useDuckDBYoyCategory,
+  useDuckDBDailyFeatures,
+  useDuckDBHourlyProfile,
+  useDuckDBDowPattern,
+} from './useDuckDBQuery'
