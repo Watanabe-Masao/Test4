@@ -28,6 +28,7 @@ import {
 } from '@/domain/calculations/utils'
 import { calculateForecast } from '@/domain/calculations/forecast'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { ComparisonView } from '@/presentation/pages/Analysis/ComparisonView'
 import {
   DOW_LABELS,
@@ -260,7 +261,7 @@ export function InsightPage() {
                   label="予算達成率"
                   value={formatPercent(r.budgetProgressRate)}
                   subText={`経過日予算累計比: ${r.elapsedDays}日分`}
-                  accent="#6366f1"
+                  accent={palette.primary}
                 />
                 <KpiCard
                   label="予算消化率"
@@ -271,7 +272,7 @@ export function InsightPage() {
                 <KpiCard
                   label="月末予測売上"
                   value={formatCurrency(r.projectedSales)}
-                  accent="#0ea5e9"
+                  accent={palette.infoDark}
                 />
                 <KpiCard
                   label="達成率予測"
@@ -283,20 +284,20 @@ export function InsightPage() {
                   label="粗利額予算"
                   value={formatCurrency(r.grossProfitBudget)}
                   subText={`実績: ${formatCurrency(actualGrossProfit)}`}
-                  accent="#8b5cf6"
+                  accent={palette.purpleDark}
                 />
                 <KpiCard
                   label="粗利率"
                   value={formatPercent(actualGrossProfitRate)}
                   subText={`予算: ${formatPercent(r.grossProfitRateBudget)}`}
-                  accent="#ec4899"
+                  accent={palette.pinkDark}
                 />
                 {prevYear.hasPrevYear && (
                   <KpiCard
                     label="前年同曜日売上"
                     value={formatCurrency(prevYear.totalSales)}
                     subText={`前年同曜日比: ${prevYear.totalSales > 0 ? formatPercent(r.totalSales / prevYear.totalSales) : '-'}`}
-                    accent="#9ca3af"
+                    accent={palette.slate}
                   />
                 )}
                 {prevYear.hasPrevYear && prevYear.totalSales > 0 && (
@@ -510,7 +511,7 @@ export function InsightPage() {
               </CalcRow>
             </Card>
 
-            <Card $accent="#0ea5e9">
+            <Card $accent={palette.infoDark}>
               <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
               <Formula>※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。</Formula>
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
@@ -536,17 +537,17 @@ export function InsightPage() {
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分</CalcLabel>
-                <CalcHighlight $color="#0ea5e9">{formatCurrency(r.estMethodMargin)}</CalcHighlight>
+                <CalcHighlight $color={palette.infoDark}>{formatCurrency(r.estMethodMargin)}</CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分率</CalcLabel>
-                <CalcHighlight $color="#0ea5e9">
+                <CalcHighlight $color={palette.infoDark}>
                   {formatPercent(r.estMethodMarginRate)}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定期末在庫</CalcLabel>
-                <CalcHighlight $color="#06b6d4">
+                <CalcHighlight $color={palette.cyanDark}>
                   {r.estMethodClosingInventory != null
                     ? formatCurrency(r.estMethodClosingInventory)
                     : '-'}
@@ -586,12 +587,12 @@ export function InsightPage() {
               <KpiCard
                 label="部門間入"
                 value={formatCurrency(r.transferDetails.interDepartmentIn.cost)}
-                accent="#3b82f6"
+                accent={palette.blueDark}
               />
               <KpiCard
                 label="部門間出"
                 value={formatCurrency(r.transferDetails.interDepartmentOut.cost)}
-                accent="#a855f7"
+                accent={palette.purpleDeep}
               />
             </KpiGrid>
           </Section>
@@ -609,7 +610,7 @@ export function InsightPage() {
               label="営業日数"
               value={`${r.salesDays}日`}
               subText={`経過: ${r.elapsedDays}日`}
-              accent="#6366f1"
+              accent={palette.primary}
             />
             <KpiCard
               label="日平均売上"
@@ -620,7 +621,7 @@ export function InsightPage() {
               label="月末予測売上"
               value={formatCurrency(r.projectedSales)}
               subText={`達成率予測: ${formatPercent(r.projectedAchievement)}`}
-              accent="#0ea5e9"
+              accent={palette.infoDark}
             />
             <KpiCard
               label="異常値検出"
@@ -637,7 +638,7 @@ export function InsightPage() {
                 label="累計客数"
                 value={`${totalCustomers.toLocaleString()}人`}
                 subText={`日平均: ${Math.round(avgDailyCustomers).toLocaleString()}人`}
-                accent="#06b6d4"
+                accent={palette.cyanDark}
               />
               <KpiCard
                 label="客単価"
@@ -645,7 +646,7 @@ export function InsightPage() {
                 subText={
                   prevAvgTxValue > 0 ? `前年: ${prevAvgTxValue.toLocaleString()}円` : undefined
                 }
-                accent="#8b5cf6"
+                accent={palette.purpleDark}
               />
               {prevTotalCustomers > 0 && (
                 <KpiCard

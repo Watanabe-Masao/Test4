@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
 
 /** recharts用のテーマカラーを取得するフック */
@@ -62,12 +63,12 @@ export function tooltipStyle(ct: ChartTheme) {
 
 /** 店舗間比較用の共通カラーパレット */
 export const STORE_COLORS = [
-  '#6366f1',
-  '#22c55e',
-  '#f59e0b',
-  '#ef4444',
-  '#06b6d4',
-  '#ec4899',
+  palette.primary,
+  palette.successDark,
+  palette.warningDark,
+  palette.dangerDark,
+  palette.cyanDark,
+  palette.pinkDark,
 ] as const
 
 /** 金額を万円表示する */

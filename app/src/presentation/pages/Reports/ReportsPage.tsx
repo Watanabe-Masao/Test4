@@ -12,6 +12,7 @@ import {
   exportStoreKpiReport,
 } from '@/infrastructure/export'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import styled from 'styled-components'
 
 const Section = styled.section`
@@ -291,7 +292,7 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>概要</SectionTitle>
         <KpiGrid>
-          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent="#6366f1" />
+          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent={palette.primary} />
           <KpiCard
             label="【在庫法】粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
@@ -306,7 +307,7 @@ export function ReportsPage() {
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}
             subText={`予算: ${formatCurrency(r.budget)}`}
-            accent="#0ea5e9"
+            accent={palette.infoDark}
           />
           <KpiCard
             label="月末予測達成率"
@@ -361,7 +362,7 @@ export function ReportsPage() {
           </CalcRow>
         </Card>
 
-        <Card $accent="#0ea5e9">
+        <Card $accent={palette.infoDark}>
           <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
           <DisclaimerNote>※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。</DisclaimerNote>
           <CalcRow>
@@ -382,15 +383,15 @@ export function ReportsPage() {
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定在庫差分</CalcLabel>
-            <CalcHighlight $color="#0ea5e9">{formatCurrency(r.estMethodMargin)}</CalcHighlight>
+            <CalcHighlight $color={palette.infoDark}>{formatCurrency(r.estMethodMargin)}</CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定在庫差分率</CalcLabel>
-            <CalcHighlight $color="#0ea5e9">{formatPercent(r.estMethodMarginRate)}</CalcHighlight>
+            <CalcHighlight $color={palette.infoDark}>{formatPercent(r.estMethodMarginRate)}</CalcHighlight>
           </CalcRow>
           <CalcRow>
             <CalcLabel>推定期末在庫</CalcLabel>
-            <CalcHighlight $color="#06b6d4">
+            <CalcHighlight $color={palette.cyanDark}>
               {r.estMethodClosingInventory != null
                 ? formatCurrency(r.estMethodClosingInventory)
                 : '-'}
@@ -403,18 +404,18 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>仕入・売変詳細</SectionTitle>
         <KpiGrid>
-          <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent="#f59e0b" />
+          <KpiCard label="在庫仕入原価" value={formatCurrency(r.inventoryCost)} accent={palette.warningDark} />
           <KpiCard
             label="売上納品原価"
             value={formatCurrency(r.deliverySalesCost)}
             subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
-            accent="#ec4899"
+            accent={palette.pinkDark}
           />
           <KpiCard
             label="消耗品費"
             value={formatCurrency(r.totalConsumable)}
             subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
-            accent="#f97316"
+            accent={palette.orange}
           />
           <KpiCard
             label="売変ロス原価"
@@ -442,12 +443,12 @@ export function ReportsPage() {
           <KpiCard
             label="部門間入"
             value={formatCurrency(r.transferDetails.interDepartmentIn.cost)}
-            accent="#3b82f6"
+            accent={palette.blueDark}
           />
           <KpiCard
             label="部門間出"
             value={formatCurrency(r.transferDetails.interDepartmentOut.cost)}
-            accent="#a855f7"
+            accent={palette.purpleDeep}
           />
         </KpiGrid>
       </Section>
@@ -506,7 +507,7 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
-          <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent="#6366f1" />
+          <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent={palette.primary} />
           <KpiCard
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}
@@ -516,7 +517,7 @@ export function ReportsPage() {
             label="予算消化率"
             value={formatPercent(r.budgetProgressRate)}
             subText={`経過: ${r.elapsedDays}/${daysInMonth}日`}
-            accent="#0ea5e9"
+            accent={palette.infoDark}
           />
           <KpiCard
             label="残余予算"
@@ -608,7 +609,7 @@ export function ReportsPage() {
             <KpiCard
               label="部門数"
               value={`${deptKpiIndex.summary.deptCount}部門`}
-              accent="#6366f1"
+              accent={palette.primary}
             />
             <KpiCard
               label="売上達成率（全体）"
@@ -626,7 +627,7 @@ export function ReportsPage() {
               label="加重平均値入率"
               value={formatPercent(deptKpiIndex.summary.weightedMarkupRate)}
               subText={`売変率: ${formatPercent(deptKpiIndex.summary.weightedDiscountRate)}`}
-              accent="#0ea5e9"
+              accent={palette.infoDark}
             />
           </KpiGrid>
           <TableWrapper>

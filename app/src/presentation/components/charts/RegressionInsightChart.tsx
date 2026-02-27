@@ -23,6 +23,8 @@ import {
 import { calculateStdDev } from '@/domain/calculations/forecast'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -190,7 +192,10 @@ export function RegressionInsightChart({ result, year, month }: Props) {
     return (
       <Wrapper>
         <HeaderRow>
-          <Title>回帰分析インサイト</Title>
+          <Title>
+            回帰分析インサイト
+            <ChartHelpButton guide={CHART_GUIDES['regression-insight']} />
+          </Title>
         </HeaderRow>
         <div
           style={{
@@ -212,7 +217,10 @@ export function RegressionInsightChart({ result, year, month }: Props) {
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>回帰分析インサイト — 予測の信頼性と手法比較</Title>
+        <Title>
+          回帰分析インサイト — 予測の信頼性と手法比較
+          <ChartHelpButton guide={CHART_GUIDES['regression-insight']} />
+        </Title>
         <ViewToggle>
           <ViewBtn $active={viewMode === 'regression'} onClick={() => setViewMode('regression')}>
             回帰+信頼区間

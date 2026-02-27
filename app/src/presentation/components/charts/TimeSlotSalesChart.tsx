@@ -33,6 +33,7 @@ import {
 } from './PeriodFilter'
 import { queryByDateRange } from '@/application/usecases'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -874,7 +875,7 @@ export function TimeSlotSalesChart({
         <Grid>
           {metricMode === 'amount' ? (
             <>
-              <Card $accent="#6366f1">
+              <Card $accent={palette.primary}>
                 <CardLabel>{curLbl} 総売上金額</CardLabel>
                 <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
                 <CardSub>
@@ -908,17 +909,17 @@ export function TimeSlotSalesChart({
                   </CardSub>
                 </Card>
               )}
-              <Card $accent="#06b6d4">
+              <Card $accent={palette.cyanDark}>
                 <CardLabel>総数量</CardLabel>
                 <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
                 <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
               </Card>
-              <Card $accent="#f59e0b">
+              <Card $accent={palette.warningDark}>
                 <CardLabel>ピーク時間帯</CardLabel>
                 <CardValue>{kpi.peakHour}時台</CardValue>
                 <CardSub>構成比 {kpi.peakHourPct}</CardSub>
               </Card>
-              <Card $accent="#8b5cf6">
+              <Card $accent={palette.purpleDark}>
                 <CardLabel>コアタイム</CardLabel>
                 <CardValue>{formatCoreTime(kpi.coreTimeAmt)}</CardValue>
                 <CardSub>構成比 {kpi.coreTimePct}</CardSub>
@@ -936,7 +937,7 @@ export function TimeSlotSalesChart({
             </>
           ) : (
             <>
-              <Card $accent="#06b6d4">
+              <Card $accent={palette.cyanDark}>
                 <CardLabel>{curLbl} 総数量</CardLabel>
                 <CardValue>{kpi.totalQuantity.toLocaleString()}点</CardValue>
                 <CardSub>
@@ -967,17 +968,17 @@ export function TimeSlotSalesChart({
                   </CardSub>
                 </Card>
               )}
-              <Card $accent="#6366f1">
+              <Card $accent={palette.primary}>
                 <CardLabel>総売上金額</CardLabel>
                 <CardValue>{Math.round(kpi.totalAmount / 10000).toLocaleString()}万円</CardValue>
                 <CardSub>{kpi.totalAmount.toLocaleString()}円</CardSub>
               </Card>
-              <Card $accent="#f59e0b">
+              <Card $accent={palette.warningDark}>
                 <CardLabel>ピーク時間帯</CardLabel>
                 <CardValue>{kpi.peakHourQty}時台</CardValue>
                 <CardSub>構成比 {kpi.peakHourQtyPct}</CardSub>
               </Card>
-              <Card $accent="#8b5cf6">
+              <Card $accent={palette.purpleDark}>
                 <CardLabel>コアタイム</CardLabel>
                 <CardValue>{formatCoreTime(kpi.coreTimeQty)}</CardValue>
                 <CardSub>構成比 {kpi.coreTimeQtyPct}</CardSub>

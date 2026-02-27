@@ -9,6 +9,8 @@ import {
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 /** ColorHint → 実際の CUD 安全色に変換 */
 function resolveColor(hint: ColorHint): string {
@@ -196,7 +198,10 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
 
   return (
     <Wrapper>
-      <Title>因果チェーン分析 — 粗利率変動の要因ドリルダウン</Title>
+      <Title>
+        因果チェーン分析 — 粗利率変動の要因ドリルダウン
+        <ChartHelpButton guide={CHART_GUIDES['causal-chain']} />
+      </Title>
       <StepContainer>
         {steps.map((step, i) => (
           <div key={i}>

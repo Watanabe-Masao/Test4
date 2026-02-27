@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 export type ToastLevel = 'success' | 'error' | 'warning' | 'info'
 
@@ -55,7 +56,7 @@ const levelColors: Record<ToastLevel, string> = {
   success: sc.positive,
   error: sc.negative,
   warning: sc.caution,
-  info: '#0ea5e9',
+  info: palette.infoDark,
 }
 
 const LEVEL_ICONS: Record<ToastLevel, string> = {

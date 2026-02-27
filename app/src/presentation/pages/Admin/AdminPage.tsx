@@ -4,6 +4,7 @@ import { useAppData, useAppDispatch } from '@/application/context'
 import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store } from '@/domain/models'
+import { palette } from '@/presentation/theme/tokens'
 import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
 import { ImportHistoryTab } from './ImportHistoryTab'
@@ -67,13 +68,13 @@ const Tab = styled.button<{ $active: boolean }>`
 
 // ─── Category Colors ────────────────────────────────────
 const CATEGORY_COLORS: Record<CustomCategory, string> = {
-  市場仕入: '#f59e0b',
-  LFC: '#3b82f6',
-  サラダ: '#22c55e',
-  加工品: '#a855f7',
-  消耗品: '#f97316',
-  直伝: '#06b6d4',
-  その他: '#94a3b8',
+  市場仕入: palette.warningDark,
+  LFC: palette.blueDark,
+  サラダ: palette.successDark,
+  加工品: palette.purpleDeep,
+  消耗品: palette.orange,
+  直伝: palette.cyanDark,
+  その他: palette.slate,
 }
 
 type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
@@ -247,7 +248,7 @@ function StoreManagementTab() {
                 </Td>
                 <Td>
                   {inv ? (
-                    <Badge $color="#0ea5e9">
+                    <Badge $color={palette.infoDark}>
                       期首: {inv.openingInventory?.toLocaleString() ?? '-'} / 期末:{' '}
                       {inv.closingInventory?.toLocaleString() ?? '-'}
                     </Badge>

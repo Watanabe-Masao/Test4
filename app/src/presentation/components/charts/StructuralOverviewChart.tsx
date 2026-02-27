@@ -5,6 +5,8 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { safeDivide } from '@/domain/calculations/utils'
 import { useCrossChartSelection } from './CrossChartSelectionContext'
 import type { StoreResult } from '@/domain/models'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -216,7 +218,10 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
 
   return (
     <Wrapper>
-      <Title>収益構造俯瞰図（売上→原価→売変→粗利）</Title>
+      <Title>
+        収益構造俯瞰図（売上→原価→売変→粗利）
+        <ChartHelpButton guide={CHART_GUIDES['structural-overview']} />
+      </Title>
       <FlowContainer>
         {/* 左: 売上 */}
         <Column>

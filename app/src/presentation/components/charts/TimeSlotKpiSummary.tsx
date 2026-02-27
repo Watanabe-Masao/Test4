@@ -11,6 +11,7 @@ import {
 } from './timeSlotUtils'
 import { toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -211,7 +212,7 @@ export function TimeSlotKpiSummary({
     <Wrapper>
       <Title>分類別時間帯売上 サマリー</Title>
       <Grid>
-        <Card $accent="#6366f1">
+        <Card $accent={palette.primary}>
           <CardLabel>総売上金額</CardLabel>
           <CardValue>
             {Math.round(kpi.totalAmount / 10000).toLocaleString()}万円
@@ -223,7 +224,7 @@ export function TimeSlotKpiSummary({
           </CardValue>
           <CardSub>{kpi.totalAmount.toLocaleString()}円</CardSub>
         </Card>
-        <Card $accent="#06b6d4">
+        <Card $accent={palette.cyanDark}>
           <CardLabel>総数量</CardLabel>
           <CardValue>
             {kpi.totalQuantity.toLocaleString()}点
@@ -235,7 +236,7 @@ export function TimeSlotKpiSummary({
           </CardValue>
           <CardSub>{kpi.recordCount.toLocaleString()}レコード</CardSub>
         </Card>
-        <Card $accent="#f59e0b">
+        <Card $accent={palette.warningDark}>
           <CardLabel>ピーク時間帯</CardLabel>
           <CardValue>
             {kpi.peakHour}時台
@@ -245,7 +246,7 @@ export function TimeSlotKpiSummary({
           </CardValue>
           <CardSub>構成比 {kpi.peakHourPct}</CardSub>
         </Card>
-        <Card $accent="#8b5cf6">
+        <Card $accent={palette.purpleDark}>
           <CardLabel>コアタイム</CardLabel>
           <CardValue>{formatCoreTime(kpi.coreTime)}</CardValue>
           <CardSub>構成比 {kpi.coreTimePct}</CardSub>
@@ -262,14 +263,14 @@ export function TimeSlotKpiSummary({
           </CardValue>
           <CardSub>構成比 {kpi.topDeptPct}</CardSub>
         </Card>
-        <Card $accent="#ec4899">
+        <Card $accent={palette.pinkDark}>
           <CardLabel>対象店舗/日数</CardLabel>
           <CardValue>
             {kpi.storeCount}店 / {kpi.dayCount}日
           </CardValue>
           <CardSub>{kpi.categoryCount}分類</CardSub>
         </Card>
-        <Card $accent="#8b5cf6">
+        <Card $accent={palette.purpleDark}>
           <CardLabel>時間帯平均</CardLabel>
           <CardValue>{Math.round(kpi.avgPerHour / 10000).toLocaleString()}万</CardValue>
           <CardSub>{kpi.activeHours}時間帯</CardSub>

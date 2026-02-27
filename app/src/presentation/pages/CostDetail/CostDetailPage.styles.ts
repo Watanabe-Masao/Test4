@@ -218,7 +218,7 @@ export const FlowBar = styled.div<{ $pct: number; $dir: 'in' | 'out' | 'neutral'
   height: 8px;
   width: ${({ $pct }) => Math.max($pct, 2)}%;
   border-radius: 4px;
-  background: ${({ $dir }) => ($dir === 'in' ? '#3b82f6' : $dir === 'out' ? '#f43f5e' : '#94a3b8')};
+  background: ${({ $dir, theme }) => ($dir === 'in' ? theme.colors.palette.blueDark : $dir === 'out' ? theme.colors.palette.dangerDark : theme.colors.palette.slate)};
   opacity: 0.7;
 `
 
@@ -245,8 +245,8 @@ export const RankBadge = styled.span<{ $rank: number }>`
   font-size: 0.65rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  background: ${({ $rank }) =>
-    $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#d97706' : 'transparent'};
+  background: ${({ $rank, theme }) =>
+    $rank === 1 ? theme.colors.palette.warningDark : $rank === 2 ? theme.colors.palette.slate : $rank === 3 ? theme.colors.palette.warningDeep : 'transparent'};
   color: ${({ $rank, theme }) => ($rank <= 3 ? 'white' : theme.colors.text4)};
   margin-right: ${({ theme }) => theme.spacing[2]};
 `

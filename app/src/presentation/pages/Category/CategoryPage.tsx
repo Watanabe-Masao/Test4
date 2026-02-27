@@ -5,6 +5,7 @@ import { useCalculation, useStoreSelection, useSettings } from '@/application/ho
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { CustomCategory, CategoryType } from '@/domain/models'
@@ -203,10 +204,10 @@ export function CategoryPage() {
         <>
           {/* KPIサマリーカード */}
           <KpiRow>
-            <KpiCard label="全体値入率" value={formatPercent(overallMarkupRate)} accent="#6366f1" />
+            <KpiCard label="全体値入率" value={formatPercent(overallMarkupRate)} accent={palette.primary} />
             <KpiCard label="粗利額" value={formatCurrency(totalGrossProfit)} accent={sc.positive} />
-            <KpiCard label="原価合計" value={formatCurrency(totalCatCost)} accent="#f59e0b" />
-            <KpiCard label="売価合計" value={formatCurrency(totalCatPrice)} accent="#3b82f6" />
+            <KpiCard label="原価合計" value={formatCurrency(totalCatCost)} accent={palette.warningDark} />
+            <KpiCard label="売価合計" value={formatCurrency(totalCatPrice)} accent={palette.blueDark} />
           </KpiRow>
 
           {/* チャート（相乗積 + 構成比）— 統合カテゴリ */}
@@ -230,7 +231,7 @@ export function CategoryPage() {
           <Section>
             <SectionHeader>
               <SectionTitle>カテゴリ別集計</SectionTitle>
-              <span style={{ fontSize: '0.7rem', color: '#888' }}>
+              <span style={{ fontSize: '0.7rem', color: palette.slate }}>
                 標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率
               </span>
             </SectionHeader>

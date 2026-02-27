@@ -24,6 +24,8 @@ import { DayRangeSlider, useDayRange } from './DayRangeSlider'
 import { computeEstimatedInventoryDetails } from '@/domain/calculations/inventoryCalc'
 import type { InventoryDetailRow } from '@/domain/calculations/inventoryCalc'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 /* ------------------------------------------------------------------ */
 /*  styled                                                             */
@@ -289,7 +291,10 @@ export function EstimatedInventoryDetailChart({
 
   const tabHeader = (
     <Header>
-      <Title>日別推定在庫 計算明細</Title>
+      <Title>
+        日別推定在庫 計算明細
+        <ChartHelpButton guide={CHART_GUIDES['estimated-inventory-detail']} />
+      </Title>
       {canCompare ? (
         <TabGroup>
           <Tab $active={effectiveMode === 'aggregate'} onClick={() => setViewMode('aggregate')}>

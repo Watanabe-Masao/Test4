@@ -2,6 +2,8 @@ import { useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 import {
   calculateSensitivity,
   calculateElasticity,
@@ -246,7 +248,10 @@ export function SensitivityDashboard({ result }: Props) {
           marginBottom: '12px',
         }}
       >
-        <Title style={{ marginBottom: 0 }}>感度分析ダッシュボード — What-if シミュレーション</Title>
+        <Title style={{ marginBottom: 0 }}>
+          感度分析ダッシュボード — What-if シミュレーション
+          <ChartHelpButton guide={CHART_GUIDES['sensitivity-dashboard']} />
+        </Title>
         {!isAllZero && <ResetBtn onClick={handleReset}>リセット</ResetBtn>}
       </div>
 

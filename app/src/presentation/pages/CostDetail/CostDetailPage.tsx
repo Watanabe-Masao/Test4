@@ -12,6 +12,7 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
 import {
   TabBar,
   Tab,
@@ -339,24 +340,24 @@ export function CostDetailPage() {
           label={`${typeLabel}入`}
           value={formatCurrency(typeIn.cost)}
           subText={`売価: ${formatCurrency(typeIn.price)}`}
-          accent="#3b82f6"
+          accent={palette.blueDark}
         />
         <KpiCard
           label={`${typeLabel}出`}
           value={formatCurrency(typeOut.cost)}
           subText={`売価: ${formatCurrency(typeOut.price)}`}
-          accent="#f43f5e"
+          accent={palette.dangerDark}
         />
         <KpiCard
           label="消耗品費合計"
           value={formatCurrency(totalConsumableCost)}
-          accent="#f97316"
+          accent={palette.orange}
         />
         <KpiCard
           label="消耗品率"
           value={formatPercent(r.consumableRate)}
           subText={`売上高: ${formatCurrency(r.totalSales)}`}
-          accent="#ea580c"
+          accent={palette.orangeDark}
         />
       </KpiGrid>
 
@@ -395,13 +396,13 @@ export function CostDetailPage() {
               label={`${typeLabel}入`}
               value={formatCurrency(typeIn.cost)}
               subText={`売価: ${formatCurrency(typeIn.price)}`}
-              accent="#3b82f6"
+              accent={palette.blueDark}
             />
             <KpiCard
               label={`${typeLabel}出`}
               value={formatCurrency(typeOut.cost)}
               subText={`売価: ${formatCurrency(typeOut.price)}`}
-              accent="#f43f5e"
+              accent={palette.dangerDark}
             />
             <KpiCard
               label="純増減"
@@ -669,25 +670,25 @@ export function CostDetailPage() {
             <KpiCard
               label="消耗品費合計"
               value={formatCurrency(totalConsumableCost)}
-              accent="#f97316"
+              accent={palette.orange}
             />
             <KpiCard
               label="消耗品率"
               value={formatPercent(r.consumableRate)}
               subText={`売上高: ${formatCurrency(r.totalSales)}`}
-              accent="#ea580c"
+              accent={palette.orangeDark}
             />
             <KpiCard
               label="品目数"
               value={`${itemAggregates.length}品目`}
               subText={`勘定科目: ${accountAggregates.length}科目`}
-              accent="#8b5cf6"
+              accent={palette.purpleDark}
             />
             <KpiCard
               label="計上日数"
               value={`${dailyConsumableData.length}日`}
               subText={`日平均: ${dailyConsumableData.length > 0 ? formatCurrency(totalConsumableCost / dailyConsumableData.length) : '-'}`}
-              accent="#3b82f6"
+              accent={palette.blueDark}
             />
           </KpiGrid>
 
@@ -770,7 +771,7 @@ export function CostDetailPage() {
                                 <ConsumTd>
                                   <Bar
                                     $width={(item.totalCost / maxItemCost) * 100}
-                                    $color="#f97316"
+                                    $color={palette.orange}
                                   />
                                   {formatCurrency(item.totalCost)}
                                 </ConsumTd>
@@ -846,7 +847,7 @@ export function CostDetailPage() {
                                 <ConsumTd>
                                   <Bar
                                     $width={(acc.totalCost / maxAccountCost) * 100}
-                                    $color="#8b5cf6"
+                                    $color={palette.purpleDark}
                                   />
                                   {formatCurrency(acc.totalCost)}
                                 </ConsumTd>

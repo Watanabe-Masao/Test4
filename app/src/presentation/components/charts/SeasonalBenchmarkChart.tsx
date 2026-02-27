@@ -16,6 +16,8 @@ import { useChartTheme, tooltipStyle } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { analyzeTrend } from '@/domain/calculations/trendAnalysis'
 import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -137,7 +139,10 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
     return (
       <Wrapper>
         <HeaderRow>
-          <Title>季節性ベンチマーク</Title>
+          <Title>
+            季節性ベンチマーク
+            <ChartHelpButton guide={CHART_GUIDES['seasonal-benchmark']} />
+          </Title>
         </HeaderRow>
         <div
           style={{
@@ -167,7 +172,10 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>季節性ベンチマーク — 月別売上パターン</Title>
+        <Title>
+          季節性ベンチマーク — 月別売上パターン
+          <ChartHelpButton guide={CHART_GUIDES['seasonal-benchmark']} />
+        </Title>
       </HeaderRow>
 
       <InfoRow>

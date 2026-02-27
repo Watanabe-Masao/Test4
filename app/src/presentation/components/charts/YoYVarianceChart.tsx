@@ -15,6 +15,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
 import { DayRangeSlider, useDayRange } from './DayRangeSlider'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'
 import {
   safeDivide,
@@ -326,7 +328,10 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
   return (
     <Wrapper>
       <HeaderRow>
-        <Title>{titleMap[view]}</Title>
+        <Title>
+          {titleMap[view]}
+          <ChartHelpButton guide={CHART_GUIDES['yoy-waterfall']} />
+        </Title>
         <ToggleRow>
           <ViewToggle>
             {(Object.keys(VIEW_LABELS) as ViewType[]).map((v) => (

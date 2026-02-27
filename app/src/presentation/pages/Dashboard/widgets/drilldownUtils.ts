@@ -5,24 +5,25 @@
  * 集計ロジック・型定義・定数を集約する。
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models'
+import { palette } from '@/presentation/theme/tokens'
 
 /* ── 色パレット ──────────────────────────── */
 
 export const COLORS = [
-  '#6366f1',
-  '#22c55e',
-  '#f59e0b',
-  '#ef4444',
-  '#06b6d4',
-  '#ec4899',
-  '#8b5cf6',
-  '#84cc16',
-  '#f97316',
+  palette.primary,
+  palette.successDark,
+  palette.warningDark,
+  palette.dangerDark,
+  palette.cyanDark,
+  palette.pinkDark,
+  palette.purpleDark,
+  palette.limeDark,
+  palette.orange,
   '#14b8a6',
   '#e879f9',
   '#a3e635',
   '#fb923c',
-  '#38bdf8',
+  palette.info,
   '#c084fc',
 ]
 
