@@ -26,6 +26,9 @@ import {
   RegressionInsightChart,
   SeasonalBenchmarkChart,
   DuckDBFeatureChart,
+  DuckDBCumulativeChart,
+  DuckDBYoYChart,
+  DuckDBDeptTrendChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
@@ -692,6 +695,53 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'analysis-duckdb-cumulative',
+    label: '累積売上推移（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBCumulativeChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'analysis-duckdb-yoy',
+    label: '前年比較（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.prevYearDateRange != null,
+    render: (ctx) => (
+      <DuckDBYoYChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        prevYearDateRange={ctx.prevYearDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'analysis-duckdb-dept-trend',
+    label: '部門別KPIトレンド（DuckDB）',
+    group: '統計・トレンド',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
+    render: (ctx) => (
+      <DuckDBDeptTrendChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        loadedMonthCount={ctx.duckLoadedMonthCount}
+        year={ctx.year}
+        month={ctx.month}
       />
     ),
   },

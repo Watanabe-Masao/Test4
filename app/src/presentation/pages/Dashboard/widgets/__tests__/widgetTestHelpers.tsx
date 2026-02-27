@@ -183,6 +183,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     monthlyHistory: [],
     duckConn: null,
     duckDataVersion: 0,
+    duckLoadedMonthCount: 0,
     ...overrides,
   }
 }

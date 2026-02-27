@@ -31,6 +31,7 @@ export {
   useDuckDBDistinctDayCount,
   useDuckDBDowDivisorMap,
   useDuckDBDeptKpi,
+  useDuckDBDeptKpiTrend,
   useDuckDBDailyCumulative,
   useDuckDBAggregatedRates,
   useDuckDBYoyDaily,

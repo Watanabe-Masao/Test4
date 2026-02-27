@@ -27,8 +27,10 @@ import {
 import {
   queryDeptKpiRanked,
   queryDeptKpiSummary,
+  queryDeptKpiMonthlyTrend,
   type DeptKpiRankedRow,
   type DeptKpiSummaryRow,
+  type DeptKpiMonthlyTrendRow,
 } from '@/infrastructure/duckdb/queries/departmentKpi'
 import {
   queryDailyCumulative,
@@ -312,6 +314,22 @@ export function useDuckDBDeptKpi(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
+/** 部門KPI月別トレンド */
+export function useDuckDBDeptKpiTrend(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  yearMonths: readonly { readonly year: number; readonly month: number }[],
+  deptCode?: string,
+): AsyncQueryResult<readonly DeptKpiMonthlyTrendRow[]> {
+  const queryFn = useMemo(() => {
+    if (yearMonths.length === 0) return null
+    return (c: AsyncDuckDBConnection) =>
+      queryDeptKpiMonthlyTrend(c, { yearMonths, deptCode })
+  }, [yearMonths, deptCode])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
 // ── StoreDaySummary クエリフック ──
 
 /** 日別累積売上 */
@@ -488,6 +506,7 @@ export type {
   HourDowMatrixRow,
   DeptKpiRankedRow,
   DeptKpiSummaryRow,
+  DeptKpiMonthlyTrendRow,
   DailyCumulativeRow,
   AggregatedRatesRow,
   YoyDailyRow,

@@ -204,7 +204,8 @@ export function DashboardPage() {
   const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
 
   // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
-  const duck = useDuckDB(appState.data, targetYear, targetMonth)
+  // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
+  const duck = useDuckDB(appState.data, targetYear, targetMonth, repo)
 
   // ─── Empty / Loading states ──
 
@@ -276,6 +277,7 @@ export function DashboardPage() {
     monthlyHistory,
     duckConn: duck.conn,
     duckDataVersion: duck.dataVersion,
+    duckLoadedMonthCount: duck.loadedMonthCount,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)

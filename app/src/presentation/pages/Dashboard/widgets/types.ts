@@ -105,4 +105,6 @@ export interface WidgetContext {
   duckConn: AsyncDuckDBConnection | null
   /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
   duckDataVersion: number
+  /** DuckDB にロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
+  duckLoadedMonthCount: number
 }
