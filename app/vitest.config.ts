@@ -18,6 +18,9 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/domain/**', 'src/infrastructure/**', 'src/application/**'],
       exclude: ['**/*.d.ts', '**/index.ts'],
+      thresholds: {
+        lines: 55,
+      },
     },
   },
 })
