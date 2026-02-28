@@ -312,7 +312,9 @@ export function DuckDBCategoryHourlyChart({
     return (
       <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
         <Title>カテゴリ×時間帯分析（DuckDB）</Title>
-        <ErrorMsg>{messages.errors.dataFetchFailed}: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }
