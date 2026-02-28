@@ -56,6 +56,13 @@ const SummaryItem = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -86,7 +93,7 @@ export function DuckDBCumulativeChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { data: rows } = useDuckDBDailyCumulative(
+  const { data: rows, error } = useDuckDBDailyCumulative(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -94,6 +101,15 @@ export function DuckDBCumulativeChart({
   )
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>累積売上推移（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

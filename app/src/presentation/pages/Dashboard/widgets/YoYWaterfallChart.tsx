@@ -6,7 +6,7 @@
  * 期間スライダーで分析対象期間を動的に変更可能。
  * 前週比モード: 選択期間の7日前と比較。
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import {
   BarChart,
   Bar,
@@ -107,7 +107,11 @@ const DECOMP_HELP: Record<
   },
 }
 
-export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
+export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
+  ctx,
+}: {
+  ctx: WidgetContext
+}) {
   const r = ctx.result
   const prevYear = ctx.prevYear
   const ct = useChartTheme()
@@ -652,4 +656,4 @@ export function YoYWaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       )}
     </Wrapper>
   )
-}
+})

@@ -76,6 +76,13 @@ const SummaryValue = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Types ──
 
 interface Props {
@@ -305,7 +312,7 @@ export function DuckDBStoreBenchmarkChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { data: benchmarkRows } = useDuckDBStoreBenchmark(
+  const { data: benchmarkRows, error } = useDuckDBStoreBenchmark(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -325,6 +332,15 @@ export function DuckDBStoreBenchmarkChart({
           },
     [benchmarkRows, stores],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>店舗ベンチマーク（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

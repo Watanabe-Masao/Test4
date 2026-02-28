@@ -66,6 +66,13 @@ const SummaryItem = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -155,7 +162,7 @@ export function DuckDBDowPatternChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { data: rows } = useDuckDBDowPattern(
+  const { data: rows, error } = useDuckDBDowPattern(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -169,6 +176,15 @@ export function DuckDBDowPatternChart({
         : { chartData: [], overallAvg: 0, strongestDow: '', weakestDow: '', cv: 0 },
     [rows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>曜日別売上パターン（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

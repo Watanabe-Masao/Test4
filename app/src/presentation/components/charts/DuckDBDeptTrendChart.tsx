@@ -72,6 +72,13 @@ const DeptChip = styled.button<{ $active: boolean }>`
   }
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -149,7 +156,7 @@ export function DuckDBDeptTrendChart({
     return months
   }, [year, month])
 
-  const { data: trendData } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
+  const { data: trendData, error } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
 
   const { chartData, deptNames } = useMemo(
     () =>
@@ -162,6 +169,15 @@ export function DuckDBDeptTrendChart({
   const handleDeptClick = useCallback((deptCode: string) => {
     setSelectedDept((prev) => (prev === deptCode ? null : deptCode))
   }, [])
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>部門別KPIトレンド（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   // DuckDB未準備、またはマルチ月データが2ヶ月未満の場合は非表示
   if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {

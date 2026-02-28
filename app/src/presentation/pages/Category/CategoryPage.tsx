@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Chip, ChipGroup, KpiCard } from '@/presentation/components/common'
+import { Chip, ChipGroup, KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
 import { useAppState } from '@/application/context'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
@@ -223,21 +223,23 @@ export function CategoryPage() {
           </KpiRow>
 
           {/* チャート（相乗積 + 構成比）— 統合カテゴリ */}
-          {(() => {
-            const chartItems: CategoryChartItem[] = categoryData.map((d) => ({
-              label: d.label,
-              cost: d.cost,
-              price: d.price,
-              markup: d.markup,
-              color: d.color,
-            }))
-            return (
-              <ChartGrid>
-                <CrossMultiplicationChart items={chartItems} />
-                <CompositionChart items={chartItems} />
-              </ChartGrid>
-            )
-          })()}
+          <ChartErrorBoundary>
+            {(() => {
+              const chartItems: CategoryChartItem[] = categoryData.map((d) => ({
+                label: d.label,
+                cost: d.cost,
+                price: d.price,
+                markup: d.markup,
+                color: d.color,
+              }))
+              return (
+                <ChartGrid>
+                  <CrossMultiplicationChart items={chartItems} />
+                  <CompositionChart items={chartItems} />
+                </ChartGrid>
+              )
+            })()}
+          </ChartErrorBoundary>
 
           {/* ── カテゴリ別集計テーブル ── */}
           <Section>
@@ -575,16 +577,18 @@ export function CategoryPage() {
       {showComparison && (
         <>
           {/* 比較チャート */}
-          <ChartGrid>
-            <StoreComparisonCategoryBarChart
-              selectedResults={selectedResults}
-              storeNames={storeNames}
-            />
-            <StoreComparisonMarkupRadarChart
-              selectedResults={selectedResults}
-              storeNames={storeNames}
-            />
-          </ChartGrid>
+          <ChartErrorBoundary>
+            <ChartGrid>
+              <StoreComparisonCategoryBarChart
+                selectedResults={selectedResults}
+                storeNames={storeNames}
+              />
+              <StoreComparisonMarkupRadarChart
+                selectedResults={selectedResults}
+                storeNames={storeNames}
+              />
+            </ChartGrid>
+          </ChartErrorBoundary>
 
           <Section>
             <SectionTitle>店舗間カテゴリ比較</SectionTitle>

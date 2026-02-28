@@ -85,6 +85,13 @@ const AnomalyValue = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -183,7 +190,7 @@ export function DuckDBFeatureChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { data: features } = useDuckDBDailyFeatures(
+  const { data: features, error } = useDuckDBDailyFeatures(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -194,6 +201,15 @@ export function DuckDBFeatureChart({
     () => (features ? buildChartData(features) : { chartData: [], anomalies: [] }),
     [features],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>売上トレンド分析（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

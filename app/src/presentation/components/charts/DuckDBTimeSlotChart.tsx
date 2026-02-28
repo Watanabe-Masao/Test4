@@ -94,6 +94,13 @@ const SummaryLabel = styled.span`
   margin-right: ${({ theme }) => theme.spacing[1]};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Types ──
 
 interface Props {
@@ -213,7 +220,7 @@ export function DuckDBTimeSlotChart({
   const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
 
   // 当年 時間帯別集約
-  const { data: currentHourly } = useDuckDBHourlyAggregation(
+  const { data: currentHourly, error } = useDuckDBHourlyAggregation(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -261,6 +268,15 @@ export function DuckDBTimeSlotChart({
           },
     [currentHourly, prevHourly, mode, currentDayCount, prevDayCount],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>時間帯別売上（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

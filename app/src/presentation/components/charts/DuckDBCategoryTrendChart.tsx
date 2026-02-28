@@ -100,6 +100,13 @@ const SummaryItem = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Constants ──
 
 /** カテゴリ区別用の色配列（最大10色） */
@@ -209,7 +216,7 @@ export function DuckDBCategoryTrendChart({
     setTopN(n)
   }, [])
 
-  const { data: trendRows } = useDuckDBCategoryDailyTrend(
+  const { data: trendRows, error } = useDuckDBCategoryDailyTrend(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -223,6 +230,15 @@ export function DuckDBCategoryTrendChart({
     () => (trendRows ? buildChartData(trendRows) : { chartData: [], categories: [] }),
     [trendRows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>カテゴリ別売上推移（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -136,7 +136,12 @@ const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
 /** ウォーターフォール対応ビュー */
 const WF_VIEWS: ViewType[] = ['standard', 'salesOnly', 'discountOnly', 'customers']
 
-export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all' }: Props) {
+export const DailySalesChart = memo(function DailySalesChart({
+  daily,
+  daysInMonth,
+  prevYearDaily,
+  mode = 'all',
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
@@ -920,4 +925,4 @@ export function DailySalesChart({ daily, daysInMonth, prevYearDaily, mode = 'all
       />
     </Wrapper>
   )
-}
+})

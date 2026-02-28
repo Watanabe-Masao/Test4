@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -61,7 +61,7 @@ interface Props {
 }
 
 /** 時間帯別売上チャート（チャート / KPIサマリー 切替、前年比較・前週比較対応） */
-export function TimeSlotSalesChart({
+export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
   ctsIndex,
   prevCtsIndex,
   selectedStoreIds,
@@ -606,4 +606,4 @@ export function TimeSlotSalesChart({
       <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
-}
+})

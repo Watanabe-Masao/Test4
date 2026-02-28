@@ -123,6 +123,13 @@ const GradientBar = styled.div<{ $from: string; $to: string }>`
   background: linear-gradient(to right, ${({ $from }) => $from}, ${({ $to }) => $to});
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Types ──
 
 interface Props {
@@ -269,7 +276,7 @@ export function DuckDBHeatmapChart({
   const theme = useTheme() as AppTheme
 
   // 時間帯×曜日マトリクス
-  const { data: matrixRows } = useDuckDBHourDowMatrix(
+  const { data: matrixRows, error } = useDuckDBHourDowMatrix(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -280,6 +287,15 @@ export function DuckDBHeatmapChart({
     () => (matrixRows ? buildHeatmapData(matrixRows) : null),
     [matrixRows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
     return null

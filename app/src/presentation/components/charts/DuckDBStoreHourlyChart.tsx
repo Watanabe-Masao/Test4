@@ -109,6 +109,13 @@ const PeakInfo = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Types ──
 
 interface Props {
@@ -257,7 +264,7 @@ export function DuckDBStoreHourlyChart({
   const [mode, setMode] = useState<Mode>('amount')
 
   // 店舗別×時間帯集約
-  const { data: storeRows } = useDuckDBStoreAggregation(
+  const { data: storeRows, error } = useDuckDBStoreAggregation(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -268,6 +275,15 @@ export function DuckDBStoreHourlyChart({
     () => (storeRows ? buildChartData(storeRows, stores, mode) : { chartData: [], storeInfos: [] }),
     [storeRows, stores, mode],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>店舗×時間帯比較（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, Fragment } from 'react'
+import { useMemo, useState, useCallback, Fragment, memo } from 'react'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { toComma, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -214,7 +214,7 @@ interface Props {
 }
 
 /** 部門→ライン→クラス 階層ドリルダウンエクスプローラー */
-export function CategoryHierarchyExplorer({
+export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer({
   ctsIndex,
   prevCtsIndex,
   selectedStoreIds,
@@ -728,4 +728,4 @@ export function CategoryHierarchyExplorer({
       <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
-}
+})

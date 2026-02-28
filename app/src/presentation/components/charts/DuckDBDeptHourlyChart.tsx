@@ -122,6 +122,13 @@ const SummaryLabel = styled.span`
   margin-right: ${({ theme }) => theme.spacing[1]};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Types ──
 
 interface Props {
@@ -245,7 +252,7 @@ export function DuckDBDeptHourlyChart({
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
 
   // 部門レベルで時間帯別集約
-  const { data: categoryHourlyRows } = useDuckDBCategoryHourly(
+  const { data: categoryHourlyRows, error } = useDuckDBCategoryHourly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -277,6 +284,15 @@ export function DuckDBDeptHourlyChart({
       return next
     })
   }, [])
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>部門別時間帯パターン（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

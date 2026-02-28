@@ -64,6 +64,13 @@ const SummaryItem = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -141,7 +148,7 @@ export function DuckDBHourlyProfileChart({
 }: Props) {
   const ct = useChartTheme()
 
-  const { data: rows } = useDuckDBHourlyProfile(
+  const { data: rows, error } = useDuckDBHourlyProfile(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -155,6 +162,15 @@ export function DuckDBHourlyProfileChart({
         : { chartData: [], peakHours: '', top3Concentration: 0, activeHoursCount: 0 },
     [rows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>時間帯別売上プロファイル（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null

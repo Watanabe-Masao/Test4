@@ -150,6 +150,13 @@ const ScrollContainer = styled.div`
   padding: 0 ${({ theme }) => theme.spacing[2]};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Constants ──
 
 /** 営業時間帯の範囲 */
@@ -283,7 +290,7 @@ export function DuckDBCategoryHourlyChart({
     setLevel(newLevel)
   }, [])
 
-  const { data: hourlyRows } = useDuckDBCategoryHourly(
+  const { data: hourlyRows, error } = useDuckDBCategoryHourly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -298,6 +305,15 @@ export function DuckDBCategoryHourlyChart({
         : { categories: [], maxAmount: 0, globalPeakHour: HOUR_START },
     [hourlyRows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>カテゴリ×時間帯分析（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {
     return null

@@ -5,7 +5,7 @@
  * クリックで下位階層にドリルダウン可能。
  * 2要素(客数・客単価) / 3要素(客数・点数・単価) / 5要素(+価格・構成比変化) を切替可能。
  */
-import { useState, useMemo, useCallback, Fragment } from 'react'
+import { useState, useMemo, useCallback, Fragment, memo } from 'react'
 import {
   BarChart,
   Bar,
@@ -170,7 +170,7 @@ function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTooltipPr
 
 /* ── Component ──────────────────────────────────────── */
 
-export function CategoryFactorBreakdown({
+export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
   curRecords,
   prevRecords,
   curCustomers = 0,
@@ -788,4 +788,4 @@ export function CategoryFactorBreakdown({
       </Table>
     </div>
   )
-}
+})

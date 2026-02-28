@@ -65,6 +65,13 @@ const SummaryItem = styled.div<{ $accent?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -120,7 +127,7 @@ export function DuckDBYoYChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
-  const { data: rows } = useDuckDBYoyDaily(
+  const { data: rows, error } = useDuckDBYoyDaily(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -129,6 +136,15 @@ export function DuckDBYoYChart({
   )
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>前年比較（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {
     return null

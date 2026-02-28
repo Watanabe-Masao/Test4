@@ -6,6 +6,7 @@ import {
   KpiGrid,
   Chip,
   ChipGroup,
+  ChartErrorBoundary,
 } from '@/presentation/components/common'
 import {
   BudgetVsActualChart,
@@ -201,28 +202,30 @@ export function InsightPage() {
                 </ToggleSection>
               )}
               <ChartSection>
-                {d.chartMode === 'budget-vs-actual' && (
-                  <BudgetVsActualChart data={d.chartData} budget={r.budget} />
-                )}
-                {d.chartMode === 'prev-year' &&
-                  d.prevYear.hasPrevYear &&
-                  (() => {
-                    const currentDaily = new Map<number, { sales: number }>()
-                    for (const [day, s] of d.salesDaily) currentDaily.set(day, { sales: s })
-                    return (
-                      <PrevYearComparisonChart
-                        currentDaily={currentDaily}
-                        prevYearDaily={d.prevYear.daily}
-                        daysInMonth={d.daysInMonth}
-                      />
-                    )
-                  })()}
-                {d.chartMode === 'all-three' && (
-                  <BudgetVsActualChart data={d.chartData} budget={r.budget} showPrevYear />
-                )}
-                {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
-                  <BudgetVsActualChart data={d.chartData} budget={r.budget} />
-                )}
+                <ChartErrorBoundary>
+                  {d.chartMode === 'budget-vs-actual' && (
+                    <BudgetVsActualChart data={d.chartData} budget={r.budget} />
+                  )}
+                  {d.chartMode === 'prev-year' &&
+                    d.prevYear.hasPrevYear &&
+                    (() => {
+                      const currentDaily = new Map<number, { sales: number }>()
+                      for (const [day, s] of d.salesDaily) currentDaily.set(day, { sales: s })
+                      return (
+                        <PrevYearComparisonChart
+                          currentDaily={currentDaily}
+                          prevYearDaily={d.prevYear.daily}
+                          daysInMonth={d.daysInMonth}
+                        />
+                      )
+                    })()}
+                  {d.chartMode === 'all-three' && (
+                    <BudgetVsActualChart data={d.chartData} budget={r.budget} showPrevYear />
+                  )}
+                  {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
+                    <BudgetVsActualChart data={d.chartData} budget={r.budget} />
+                  )}
+                </ChartErrorBoundary>
               </ChartSection>
 
               {/* 日別予算 vs 実績テーブル */}
@@ -427,16 +430,18 @@ export function InsightPage() {
           </CalcGrid>
 
           <Section>
-            <EstimatedInventoryDetailChart
-              daily={r.daily}
-              daysInMonth={d.daysInMonth}
-              openingInventory={r.openingInventory}
-              closingInventory={r.closingInventory}
-              markupRate={r.coreMarkupRate}
-              discountRate={r.discountRate}
-              comparisonResults={d.selectedResults}
-              stores={d.stores}
-            />
+            <ChartErrorBoundary>
+              <EstimatedInventoryDetailChart
+                daily={r.daily}
+                daysInMonth={d.daysInMonth}
+                openingInventory={r.openingInventory}
+                closingInventory={r.closingInventory}
+                markupRate={r.coreMarkupRate}
+                discountRate={r.discountRate}
+                comparisonResults={d.selectedResults}
+                stores={d.stores}
+              />
+            </ChartErrorBoundary>
           </Section>
 
           <Section>
@@ -552,87 +557,93 @@ export function InsightPage() {
             ))}
           </ColorPickerRow>
 
-          <ChartGrid>
-            <WeeklyChart data={d.forecastData.stackedData} dowColors={d.dowColors} />
-            <DayOfWeekChart
-              averages={d.forecastData.forecast.dayOfWeekAverages}
-              dowColors={d.dowColors}
-            />
-          </ChartGrid>
+          <ChartErrorBoundary>
+            <ChartGrid>
+              <WeeklyChart data={d.forecastData.stackedData} dowColors={d.dowColors} />
+              <DayOfWeekChart
+                averages={d.forecastData.forecast.dayOfWeekAverages}
+                dowColors={d.dowColors}
+              />
+            </ChartGrid>
+          </ChartErrorBoundary>
 
           {/* 店舗間比較 */}
           {d.selectedResults.length > 1 && d.compareMode && d.storeForecasts.length > 0 && (
-            <ChartGrid>
-              <StoreComparisonRadarChart storeForecasts={d.storeForecasts} />
-              <StoreComparisonBarChart storeForecasts={d.storeForecasts} />
-            </ChartGrid>
+            <ChartErrorBoundary>
+              <ChartGrid>
+                <StoreComparisonRadarChart storeForecasts={d.storeForecasts} />
+                <StoreComparisonBarChart storeForecasts={d.storeForecasts} />
+              </ChartGrid>
+            </ChartErrorBoundary>
           )}
 
           {/* 客数・客単価 多角分析 */}
           {d.customerData?.hasCustomerData && (
             <Section>
               <SectionTitle>客数・客単価 多角分析</SectionTitle>
-              <ChartGrid>
-                <CustomerSalesScatterChart data={d.customerData.customerEntries} />
-                <DowCustomerChart
-                  averages={d.customerData.dowCustomerAvg}
-                  dowColors={d.dowColors}
-                />
-              </ChartGrid>
-              {d.customerData.movingAvgData.length > 0 && (
+              <ChartErrorBoundary>
                 <ChartGrid>
-                  <MovingAverageChart
-                    data={d.customerData.movingAvgData}
-                    hasPrev={d.customerData.hasPrevCustomers}
+                  <CustomerSalesScatterChart data={d.customerData.customerEntries} />
+                  <DowCustomerChart
+                    averages={d.customerData.dowCustomerAvg}
+                    dowColors={d.dowColors}
                   />
-                  {d.customerData.hasPrevCustomers && d.forecastData && (
-                    <SameDowComparisonChart
-                      entries={d.customerData.customerEntries}
-                      year={d.forecastData.year}
-                      month={d.forecastData.month}
-                      dowColors={d.dowColors}
-                    />
-                  )}
                 </ChartGrid>
-              )}
-              {d.customerData.relationshipData.length > 0 && (
-                <>
-                  <ModeToggleWrapper>
-                    <SectionTitle style={{ marginBottom: 0 }}>
-                      売上・客数・客単価 関係性
-                    </SectionTitle>
-                    <ChipGroup>
-                      <Chip
-                        $active={d.relViewMode === 'current'}
-                        onClick={() => d.setRelViewMode('current')}
-                      >
-                        今年
-                      </Chip>
-                      {d.customerData.hasPrevCustomers && (
+                {d.customerData.movingAvgData.length > 0 && (
+                  <ChartGrid>
+                    <MovingAverageChart
+                      data={d.customerData.movingAvgData}
+                      hasPrev={d.customerData.hasPrevCustomers}
+                    />
+                    {d.customerData.hasPrevCustomers && d.forecastData && (
+                      <SameDowComparisonChart
+                        entries={d.customerData.customerEntries}
+                        year={d.forecastData.year}
+                        month={d.forecastData.month}
+                        dowColors={d.dowColors}
+                      />
+                    )}
+                  </ChartGrid>
+                )}
+                {d.customerData.relationshipData.length > 0 && (
+                  <>
+                    <ModeToggleWrapper>
+                      <SectionTitle style={{ marginBottom: 0 }}>
+                        売上・客数・客単価 関係性
+                      </SectionTitle>
+                      <ChipGroup>
                         <Chip
-                          $active={d.relViewMode === 'prev'}
-                          onClick={() => d.setRelViewMode('prev')}
+                          $active={d.relViewMode === 'current'}
+                          onClick={() => d.setRelViewMode('current')}
                         >
-                          前年
+                          今年
                         </Chip>
-                      )}
-                      {d.customerData.hasPrevCustomers && (
-                        <Chip
-                          $active={d.relViewMode === 'compare'}
-                          onClick={() => d.setRelViewMode('compare')}
-                        >
-                          比較
-                        </Chip>
-                      )}
-                    </ChipGroup>
-                  </ModeToggleWrapper>
-                  <RelationshipChart
-                    data={d.customerData.relationshipData}
-                    prevData={d.customerData.prevRelationshipData}
-                    viewMode={d.relViewMode}
-                  />
-                </>
-              )}
+                        {d.customerData.hasPrevCustomers && (
+                          <Chip
+                            $active={d.relViewMode === 'prev'}
+                            onClick={() => d.setRelViewMode('prev')}
+                          >
+                            前年
+                          </Chip>
+                        )}
+                        {d.customerData.hasPrevCustomers && (
+                          <Chip
+                            $active={d.relViewMode === 'compare'}
+                            onClick={() => d.setRelViewMode('compare')}
+                          >
+                            比較
+                          </Chip>
+                        )}
+                      </ChipGroup>
+                    </ModeToggleWrapper>
+                    <RelationshipChart
+                      data={d.customerData.relationshipData}
+                      prevData={d.customerData.prevRelationshipData}
+                      viewMode={d.relViewMode}
+                    />
+                  </>
+                )}
+              </ChartErrorBoundary>
             </Section>
           )}
 
@@ -803,13 +814,15 @@ export function InsightPage() {
             <>
               <Section>
                 <SectionTitle>売上要因分解（客数×客単価 / 前年比）</SectionTitle>
-                <ChartGrid>
-                  <DecompTrendChart data={d.customerData.dailyDecomp} />
-                  <DecompDailyBarChart data={d.customerData.dailyDecomp} />
-                </ChartGrid>
-                <ChartGrid>
-                  <DecompDowChart data={d.customerData.dowDecomp} dowColors={d.dowColors} />
-                </ChartGrid>
+                <ChartErrorBoundary>
+                  <ChartGrid>
+                    <DecompTrendChart data={d.customerData.dailyDecomp} />
+                    <DecompDailyBarChart data={d.customerData.dailyDecomp} />
+                  </ChartGrid>
+                  <ChartGrid>
+                    <DecompDowChart data={d.customerData.dowDecomp} dowColors={d.dowColors} />
+                  </ChartGrid>
+                </ChartErrorBoundary>
 
                 {/* 週別要因分解テーブル */}
                 {d.customerData.weeklyDecomp.length > 0 && (

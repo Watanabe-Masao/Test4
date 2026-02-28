@@ -119,6 +119,13 @@ const ShiftValue = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Constants ──
 
 /** カテゴリ区別用の色配列 */
@@ -330,7 +337,7 @@ export function DuckDBCategoryMixChart({
     setLevel(newLevel)
   }, [])
 
-  const { data: mixRows } = useDuckDBCategoryMixWeekly(
+  const { data: mixRows, error } = useDuckDBCategoryMixWeekly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -345,6 +352,15 @@ export function DuckDBCategoryMixChart({
         : { chartData: [], categories: [], topGainer: null, topLoser: null },
     [mixRows],
   )
+
+  if (error) {
+    return (
+      <Wrapper>
+        <Title>カテゴリ構成比推移（DuckDB）</Title>
+        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
