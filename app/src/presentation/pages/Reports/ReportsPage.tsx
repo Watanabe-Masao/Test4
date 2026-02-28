@@ -2,15 +2,12 @@ import { useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
-import { useAppState, useAppSettings } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
-import {
-  exportDailySalesReport,
-  exportMonthlyPLReport,
-  exportStoreKpiReport,
-} from '@/infrastructure/export'
+import { useExport } from '@/application/hooks/useExport'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import styled from 'styled-components'
@@ -195,14 +192,12 @@ export function ReportsPage() {
   const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores, isAllStores, selectedStoreIds } =
     useStoreSelection()
-  const appState = useAppState()
-  const settings = useAppSettings()
+  const departmentKpi = useDataStore((s) => s.data.departmentKpi)
+  const settings = useSettingsStore((s) => s.settings)
+  const { exportDailySalesReport, exportMonthlyPLReport, exportStoreKpiReport } = useExport()
 
   // 部門KPIインデックス構築
-  const deptKpiIndex = useMemo(
-    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
-    [appState.data.departmentKpi],
-  )
+  const deptKpiIndex = useMemo(() => buildDepartmentKpiIndex(departmentKpi), [departmentKpi])
 
   // CSV エクスポートハンドラ
   const handleExportDaily = useCallback(() => {
@@ -218,6 +213,7 @@ export function ReportsPage() {
     stores,
     settings.targetYear,
     settings.targetMonth,
+    exportDailySalesReport,
   ])
 
   const handleExportPL = useCallback(() => {
@@ -233,6 +229,7 @@ export function ReportsPage() {
     stores,
     settings.targetYear,
     settings.targetMonth,
+    exportMonthlyPLReport,
   ])
 
   const handleExportStoreKpi = useCallback(() => {
@@ -241,7 +238,7 @@ export function ReportsPage() {
       storeResults.set(r.storeId, r)
     }
     exportStoreKpiReport(storeResults, stores, settings.targetYear, settings.targetMonth)
-  }, [selectedResults, stores, settings.targetYear, settings.targetMonth])
+  }, [selectedResults, stores, settings.targetYear, settings.targetMonth, exportStoreKpiReport])
 
   if (!currentResult) {
     return (

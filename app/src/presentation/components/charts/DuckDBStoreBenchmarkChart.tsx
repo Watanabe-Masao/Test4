@@ -18,6 +18,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBStoreBenchmark, type StoreBenchmarkRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { STORE_COLORS } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -73,6 +74,13 @@ const SummaryLabel = styled.div`
 
 const SummaryValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -304,8 +312,9 @@ export function DuckDBStoreBenchmarkChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
-  const { data: benchmarkRows } = useDuckDBStoreBenchmark(
+  const { data: benchmarkRows, error } = useDuckDBStoreBenchmark(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -326,12 +335,23 @@ export function DuckDBStoreBenchmarkChart({
     [benchmarkRows, stores],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="店舗ベンチマーク（DuckDB）">
+        <Title>店舗ベンチマーク（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="店舗ベンチマーク（DuckDB）">
       <Title>店舗ベンチマーク（DuckDB）</Title>
       <Subtitle>週次の店舗ランキング推移 | マルチ店舗対応</Subtitle>
 

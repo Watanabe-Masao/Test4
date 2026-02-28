@@ -16,6 +16,7 @@ import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBHourDowMatrix, type HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -121,6 +122,13 @@ const GradientBar = styled.div<{ $from: string; $to: string }>`
   height: 8px;
   border-radius: 4px;
   background: linear-gradient(to right, ${({ $from }) => $from}, ${({ $to }) => $to});
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ── Types ──
@@ -266,10 +274,11 @@ export function DuckDBHeatmapChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const theme = useTheme() as AppTheme
 
   // 時間帯×曜日マトリクス
-  const { data: matrixRows } = useDuckDBHourDowMatrix(
+  const { data: matrixRows, error } = useDuckDBHourDowMatrix(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -280,6 +289,17 @@ export function DuckDBHeatmapChart({
     () => (matrixRows ? buildHeatmapData(matrixRows) : null),
     [matrixRows],
   )
+
+  if (error) {
+    return (
+      <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
+        <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
     return null
@@ -294,17 +314,19 @@ export function DuckDBHeatmapChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
       <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
       <Subtitle>セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z &gt; {Z_SCORE_THRESHOLD})</Subtitle>
 
       <GridContainer>
-        <HeatmapTable>
+        <HeatmapTable aria-label="時間帯×曜日ヒートマップ">
           <thead>
             <tr>
-              <HeaderCell />
+              <HeaderCell scope="col" />
               {DOW_ORDER.map((dow) => (
-                <HeaderCell key={dow}>{DOW_LABELS[dow]}</HeaderCell>
+                <HeaderCell key={dow} scope="col">
+                  {DOW_LABELS[dow]}
+                </HeaderCell>
               ))}
             </tr>
           </thead>

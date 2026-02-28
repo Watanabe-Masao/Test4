@@ -1,5 +1,8 @@
 import { useCallback, useRef, useState } from 'react'
-import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { useRepository } from '../context/useRepository'
 import {
   processDroppedFiles,
@@ -26,7 +29,7 @@ import {
 } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import { calculateDiff } from '@/application/services/diffCalculator'
 import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 
 /** インポート進捗 */
@@ -54,35 +57,37 @@ export interface PendingDiffCheck {
 
 /** ファイルインポートフック */
 export function useImport() {
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
+  const validationMessages = useDataStore((s) => s.validationMessages)
+  const isImporting = useUiStore((s) => s.isImporting)
+  const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
   const [progress, setProgress] = useState<ImportProgress | null>(null)
   const [pendingDiff, setPendingDiff] = useState<PendingDiffCheck | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
 
   // ref で最新の値を保持し、ステール・クロージャを回避
-  const dataRef = useRef<ImportedData>(state.data)
-  dataRef.current = state.data
+  const dataRef = useRef<ImportedData>(data)
+  dataRef.current = data
 
-  const settingsRef = useRef<AppSettings>(state.settings)
-  settingsRef.current = state.settings
+  const settingsRef = useRef<AppSettings>(settings)
+  settingsRef.current = settings
 
   // 同時インポート防止ロック
   const importingRef = useRef(false)
 
   /** インポート後にデータ末日スライダーを自動調整する */
-  const autoSetDataEndDay = useCallback(
-    (data: ImportedData) => {
-      const maxDay = detectDataMaxDay(data)
-      if (maxDay <= 0) return
-      const { targetYear, targetMonth } = settingsRef.current
-      const dim = getDaysInMonth(targetYear, targetMonth)
-      // データが月末まである場合は null（全日）、それ以外は検出末日を設定
-      dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: maxDay >= dim ? null : maxDay } })
-    },
-    [dispatch],
-  )
+  const autoSetDataEndDay = useCallback((importedData: ImportedData) => {
+    const maxDay = detectDataMaxDay(importedData)
+    if (maxDay <= 0) return
+    const { targetYear, targetMonth } = settingsRef.current
+    const dim = getDaysInMonth(targetYear, targetMonth)
+    // データが月末まである場合は null（全日）、それ以外は検出末日を設定
+    // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+    useSettingsStore.getState().updateSettings({ dataEndDay: maxDay >= dim ? null : maxDay })
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
+  }, [])
 
   /** ImportSummary からインポート履歴エントリを生成して保存する */
   const saveHistory = useCallback(
@@ -110,11 +115,11 @@ export function useImport() {
 
   /** データ保存後にサマリーキャッシュを非同期構築・保存する（fire-and-forget） */
   const buildAndSaveSummaryCache = useCallback(
-    (data: ImportedData, year: number, month: number) => {
+    (cacheData: ImportedData, year: number, month: number) => {
       if (!repo.isAvailable()) return
       try {
         const daysInMonth = getDaysInMonth(year, month)
-        const cache = buildStoreDaySummaryCache(data, daysInMonth)
+        const cache = buildStoreDaySummaryCache(cacheData, daysInMonth)
         repo.saveSummaryCache(cache, year, month).catch((e) => {
           console.warn('[useImport] saveSummaryCache failed:', e)
         })
@@ -131,12 +136,17 @@ export function useImport() {
         return { successCount: 0, failureCount: 0, results: [] }
       }
       importingRef.current = true
-      dispatch({ type: 'SET_IMPORTING', payload: true })
+      useUiStore.getState().setImporting(true)
       setProgress(null)
       setSaveError(null)
 
       try {
-        const { summary, data, detectedYearMonth, monthPartitions } = await processDroppedFiles(
+        const {
+          summary,
+          data: processedData,
+          detectedYearMonth,
+          monthPartitions,
+        } = await processDroppedFiles(
           files,
           settingsRef.current,
           dataRef.current,
@@ -153,7 +163,10 @@ export function useImport() {
               targetYear: detectedYearMonth.year,
               targetMonth: detectedYearMonth.month,
             }
-            dispatch({ type: 'UPDATE_SETTINGS', payload: updatedSettings })
+            // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+            useSettingsStore.getState().updateSettings(updatedSettings)
+            calculationCache.clear()
+            useUiStore.getState().invalidateCalculation()
             settingsRef.current = { ...settingsRef.current, ...updatedSettings }
           }
 
@@ -165,7 +178,7 @@ export function useImport() {
           )
 
           // 複数月にまたがるデータかチェック（パーティション情報も考慮）
-          const recordMonths = extractRecordMonths(data, monthPartitions)
+          const recordMonths = extractRecordMonths(processedData, monthPartitions)
           const isMultiMonth = recordMonths.length > 1
 
           if (isMultiMonth) {
@@ -196,7 +209,7 @@ export function useImport() {
                 const existing = existingByMonth.get(mk)
                 if (!existing) continue
 
-                const monthData = filterDataForMonth(data, year, month, monthPartitions)
+                const monthData = filterDataForMonth(processedData, year, month, monthPartitions)
                 const diff = calculateDiff(existing, monthData, importedTypes)
 
                 for (const d of diff.diffs) {
@@ -220,7 +233,7 @@ export function useImport() {
                     needsConfirmation,
                     autoApproved: aggregatedAutoApproved,
                   },
-                  incomingData: data,
+                  incomingData: processedData,
                   existingData: createEmptyImportedData(),
                   importedTypes,
                   summary,
@@ -239,7 +252,7 @@ export function useImport() {
               try {
                 for (const { year, month } of recordMonths) {
                   const mk = `${year}-${month}`
-                  const monthData = filterDataForMonth(data, year, month, monthPartitions)
+                  const monthData = filterDataForMonth(processedData, year, month, monthPartitions)
                   const existing = existingByMonth.get(mk) ?? null
                   const finalData = buildMonthData(existing, monthData, action)
                   await repo.saveMonthlyData(finalData, year, month)
@@ -254,13 +267,21 @@ export function useImport() {
 
             // 主月のフィルタ済みデータを state に反映
             const { targetYear, targetMonth } = settingsRef.current
-            const primaryData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
-            dispatch({ type: 'SET_IMPORTED_DATA', payload: primaryData })
+            const primaryData = filterDataForMonth(
+              processedData,
+              targetYear,
+              targetMonth,
+              monthPartitions,
+            )
+            // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+            useDataStore.getState().setImportedData(primaryData)
+            calculationCache.clear()
+            useUiStore.getState().invalidateCalculation()
             dataRef.current = primaryData
             autoSetDataEndDay(primaryData)
 
             const messages = validateImportedData(primaryData, summary)
-            dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+            useDataStore.getState().setValidationMessages(messages)
 
             // インポート履歴を保存（各月に記録）
             for (const { year, month } of recordMonths) {
@@ -271,7 +292,12 @@ export function useImport() {
             const { targetYear, targetMonth } = settingsRef.current
 
             // パーティション情報がある場合、対象月のデータだけに絞り込む
-            let targetData = filterDataForMonth(data, targetYear, targetMonth, monthPartitions)
+            let targetData = filterDataForMonth(
+              processedData,
+              targetYear,
+              targetMonth,
+              monthPartitions,
+            )
 
             // 既存データがあれば差分チェック & マージ
             if (repo.isAvailable()) {
@@ -299,12 +325,15 @@ export function useImport() {
             }
 
             // state に反映 & 保存
-            dispatch({ type: 'SET_IMPORTED_DATA', payload: targetData })
+            // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+            useDataStore.getState().setImportedData(targetData)
+            calculationCache.clear()
+            useUiStore.getState().invalidateCalculation()
             dataRef.current = targetData
             autoSetDataEndDay(targetData)
 
             const messages = validateImportedData(targetData, summary)
-            dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+            useDataStore.getState().setValidationMessages(messages)
 
             // ストレージに保存
             if (repo.isAvailable()) {
@@ -324,11 +353,11 @@ export function useImport() {
         return summary
       } finally {
         importingRef.current = false
-        dispatch({ type: 'SET_IMPORTING', payload: false })
+        useUiStore.getState().setImporting(false)
         setProgress(null)
       }
     },
-    [dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
+    [autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   /** 差分確認結果を適用する */
@@ -359,12 +388,15 @@ export function useImport() {
         const primaryExisting = existingByMonth.get(`${targetYear}-${targetMonth}`) ?? null
         const primaryFinalData = buildMonthData(primaryExisting, primaryMonthData, action)
 
-        dispatch({ type: 'SET_IMPORTED_DATA', payload: primaryFinalData })
+        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+        useDataStore.getState().setImportedData(primaryFinalData)
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
         dataRef.current = primaryFinalData
         autoSetDataEndDay(primaryFinalData)
 
         const messages = validateImportedData(primaryFinalData, summary)
-        dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+        useDataStore.getState().setValidationMessages(messages)
 
         // 全月を保存（非同期・保存完了後に履歴を記録）
         if (repo.isAvailable()) {
@@ -402,12 +434,15 @@ export function useImport() {
           finalData = mergeInsertsOnly(existingData, incomingData, importedTypes)
         }
 
-        dispatch({ type: 'SET_IMPORTED_DATA', payload: finalData })
+        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+        useDataStore.getState().setImportedData(finalData)
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
         dataRef.current = finalData
         autoSetDataEndDay(finalData)
 
         const messages = validateImportedData(finalData, summary)
-        dispatch({ type: 'SET_VALIDATION_MESSAGES', payload: messages })
+        useDataStore.getState().setValidationMessages(messages)
 
         // ストレージに保存（保存完了後に履歴を記録）
         if (repo.isAvailable()) {
@@ -428,15 +463,15 @@ export function useImport() {
 
       setPendingDiff(null)
     },
-    [pendingDiff, dispatch, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
+    [pendingDiff, autoSetDataEndDay, repo, saveHistory, buildAndSaveSummaryCache],
   )
 
   return {
     importFiles,
-    isImporting: state.ui.isImporting,
+    isImporting,
     progress,
-    data: state.data,
-    validationMessages: state.validationMessages,
+    data,
+    validationMessages,
     pendingDiff,
     resolveDiff,
     saveError,

@@ -21,6 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -116,6 +117,13 @@ const ShiftName = styled.div`
 
 const ShiftValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -323,6 +331,7 @@ export function DuckDBCategoryMixChart({
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
+  const { messages } = useI18n()
 
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
@@ -330,7 +339,7 @@ export function DuckDBCategoryMixChart({
     setLevel(newLevel)
   }, [])
 
-  const { data: mixRows } = useDuckDBCategoryMixWeekly(
+  const { data: mixRows, error } = useDuckDBCategoryMixWeekly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -346,12 +355,23 @@ export function DuckDBCategoryMixChart({
     [mixRows],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
+        <Title>カテゴリ構成比推移（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
       <Title>カテゴリ構成比推移（DuckDB）</Title>
       <Subtitle>週次のカテゴリ別売上構成比 | マルチ月対応</Subtitle>
 

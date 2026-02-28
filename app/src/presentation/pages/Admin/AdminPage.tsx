@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import { useAppData, useAppDispatch } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store } from '@/domain/models'
@@ -81,7 +83,7 @@ type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'pr
 
 // ─── カテゴリ管理タブ ─────────────────────────────────────
 function CategoryManagementTab() {
-  const { data } = useAppData()
+  const data = useDataStore((s) => s.data)
   const { settings, updateSettings } = useSettings()
 
   const handleCategoryChange = useCallback(
@@ -159,8 +161,7 @@ function CategoryManagementTab() {
 
 // ─── 店舗管理タブ ──────────────────────────────────────
 function StoreManagementTab() {
-  const { data } = useAppData()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
   const stores = Array.from(data.stores.values())
 
   const [editingStore, setEditingStore] = useState<string | null>(null)
@@ -177,14 +178,13 @@ function StoreManagementTab() {
       if (current) {
         const updated = new Map(data.stores)
         updated.set(editingStore, { ...current, name: editName.trim() })
-        dispatch({
-          type: 'SET_IMPORTED_DATA',
-          payload: { ...data, stores: updated },
-        })
+        useDataStore.getState().setImportedData({ ...data, stores: updated })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
       }
     }
     setEditingStore(null)
-  }, [editingStore, editName, data, dispatch])
+  }, [editingStore, editName, data])
 
   if (stores.length === 0) {
     return (

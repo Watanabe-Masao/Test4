@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
-import { useAppData } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { aggregateAllStores } from '@/domain/models'
 import { Section, SectionTitle, HelpText, EmptyState } from './AdminShared'
@@ -109,7 +109,7 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
 }
 
 export function RawDataTab() {
-  const { data } = useAppData()
+  const data = useDataStore((s) => s.data)
   const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
   const stores = useMemo(

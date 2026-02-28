@@ -50,8 +50,28 @@ function getCodeLines(content: string) {
     .filter((line) => !line.trimStart().startsWith('//') && !line.trimStart().startsWith('*'))
 }
 
+/**
+ * チャートファイルとその companion hook ファイルの内容を連結して返す。
+ * Phase 7 の責務分離でデータロジックが hook ファイルに抽出されたため、
+ * チャート本体 + hook の両方を検査対象にする。
+ */
 function readChartFile(filename: string): string {
-  return fs.readFileSync(path.join(CHARTS_DIR, filename), 'utf-8')
+  const mainContent = fs.readFileSync(path.join(CHARTS_DIR, filename), 'utf-8')
+  // Companion hook: TimeSlotSalesChart.tsx → useTimeSlotData.ts 等
+  const baseName = filename.replace(/Chart\.tsx$|\.tsx$/, '')
+  const hookCandidates = [
+    `use${baseName}Data.ts`,
+    `use${baseName}Data.tsx`,
+    `useTimeSlotData.ts`, // 特殊ケース
+  ]
+  let hookContent = ''
+  for (const hook of hookCandidates) {
+    const hookPath = path.join(CHARTS_DIR, hook)
+    if (fs.existsSync(hookPath)) {
+      hookContent += '\n' + fs.readFileSync(hookPath, 'utf-8')
+    }
+  }
+  return mainContent + hookContent
 }
 
 function readAllChartFiles(): { filename: string; content: string }[] {

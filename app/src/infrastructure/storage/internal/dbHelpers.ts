@@ -78,9 +78,17 @@ export async function dbBatchPut(
     tx.onerror = () => {
       // 接続断の可能性があるためリセット
       if (tx.error?.name === 'InvalidStateError') resetDBConnection()
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
       reject(tx.error)
     }
     tx.onabort = () => {
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
       reject(tx.error ?? new Error('Transaction aborted'))
     }
   })
@@ -111,8 +119,21 @@ export async function dbBatchDelete(
       tx.objectStore(storeName).delete(key)
     }
     tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
-    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'))
+    tx.onerror = () => {
+      if (tx.error?.name === 'InvalidStateError') resetDBConnection()
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
+      reject(tx.error)
+    }
+    tx.onabort = () => {
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
+      reject(tx.error ?? new Error('Transaction aborted'))
+    }
   })
 }
 
@@ -160,9 +181,19 @@ export async function dbBatchPutWithReadModify(
     tx.oncomplete = () => resolve()
     tx.onerror = () => {
       if (tx.error?.name === 'InvalidStateError') resetDBConnection()
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
       reject(tx.error)
     }
-    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'))
+    tx.onabort = () => {
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
+      reject(tx.error ?? new Error('Transaction aborted'))
+    }
   })
 }
 
@@ -213,9 +244,19 @@ export async function dbAtomicDeleteWithReadModify(
     tx.oncomplete = () => resolve()
     tx.onerror = () => {
       if (tx.error?.name === 'InvalidStateError') resetDBConnection()
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
       reject(tx.error)
     }
-    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'))
+    tx.onabort = () => {
+      if (tx.error?.name === 'QuotaExceededError') {
+        reject(new Error('Storage quota exceeded. Please free up browser storage.'))
+        return
+      }
+      reject(tx.error ?? new Error('Transaction aborted'))
+    }
   })
 }
 

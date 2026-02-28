@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { useAppData, useAppDispatch } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import {
   useImport,
   useStoreSelection,
@@ -29,8 +32,10 @@ import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmMo
 import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { detectDataMaxDay, maxDayOfRecord } from '@/domain/calculations/utils'
-import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
+import { detectDataMaxDay } from '@/domain/calculations/utils'
+import { useExport } from '@/application/hooks/useExport'
+import { useDataSummary } from '@/application/hooks/useDataSummary'
+import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -326,6 +331,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
 
 function TemplateSectionCollapsible() {
   const [expanded, setExpanded] = useState(false)
+  const { downloadTemplate } = useExport()
 
   return (
     <SidebarSection>
@@ -355,14 +361,14 @@ export function DataManagementSidebar({
   showSettingsExternal?: boolean
   onSettingsExternalClose?: () => void
 } = {}) {
-  const { data } = useAppData()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
   const { importFiles, progress, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
   const { clearAll } = usePersistence()
   const { listMonths } = useStorageAdmin()
+  const { loadedTypes, maxDayByType } = useDataSummary(data)
   const [storedMonths, setStoredMonths] = useState<readonly { year: number; month: number }[]>([])
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
@@ -452,14 +458,17 @@ export function DataManagementSidebar({
   )
 
   const handleClearData = useCallback(async () => {
-    dispatch({ type: 'RESET' })
+    useDataStore.getState().reset()
+    useUiStore.getState().reset()
+    useSettingsStore.getState().reset()
+    calculationCache.clear()
     try {
       await clearAll()
       showToast('データをクリアしました', 'info')
     } catch {
       showToast('データクリアに失敗しました', 'error')
     }
-  }, [dispatch, clearAll, showToast])
+  }, [clearAll, showToast])
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
@@ -489,64 +498,7 @@ export function DataManagementSidebar({
 
   const sliderPct = ((localEndDay - 1) / (daysInMonth - 1)) * 100
 
-  const loadedTypes = useMemo(() => {
-    const types = new Set<DataType>()
-    try {
-      if (data.purchase && Object.keys(data.purchase).length > 0) types.add('purchase')
-      if (data.classifiedSales?.records?.length > 0) types.add('classifiedSales')
-      if (data.settings?.size > 0) types.add('initialSettings')
-      if (data.budget?.size > 0) types.add('budget')
-      if (data.consumables && Object.keys(data.consumables).length > 0) types.add('consumables')
-      if (data.categoryTimeSales?.records?.length > 0) types.add('categoryTimeSales')
-      if (data.flowers && Object.keys(data.flowers).length > 0) types.add('flowers')
-      if (data.directProduce && Object.keys(data.directProduce).length > 0)
-        types.add('directProduce')
-      if (data.interStoreIn && Object.keys(data.interStoreIn).length > 0) types.add('interStoreIn')
-      if (data.interStoreOut && Object.keys(data.interStoreOut).length > 0)
-        types.add('interStoreOut')
-    } catch {
-      // データ構造不整合時は空のセットを返す
-    }
-    return types
-  }, [data])
-
-  // 各データタイプ別の最終取込日
-  const maxDayByType = useMemo(() => {
-    const m = new Map<DataType, number>()
-    try {
-      // レコードベース（records[] 持ち）
-      if (data.classifiedSales?.records?.length > 0) {
-        let max = 0
-        for (const rec of data.classifiedSales.records) {
-          if (rec.day > max) max = rec.day
-        }
-        if (max > 0) m.set('classifiedSales', max)
-      }
-      if (data.categoryTimeSales?.records?.length > 0) {
-        let max = 0
-        for (const rec of data.categoryTimeSales.records) {
-          if (rec.day > max) max = rec.day
-        }
-        if (max > 0) m.set('categoryTimeSales', max)
-      }
-      // StoreDayRecord ベース
-      const sdrTypes: [DataType, { readonly [s: string]: { readonly [d: number]: unknown } }][] = [
-        ['purchase', data.purchase],
-        ['flowers', data.flowers],
-        ['directProduce', data.directProduce],
-        ['interStoreIn', data.interStoreIn],
-        ['interStoreOut', data.interStoreOut],
-        ['consumables', data.consumables],
-      ]
-      for (const [dt, rec] of sdrTypes) {
-        const max = maxDayOfRecord(rec)
-        if (max > 0) m.set(dt, max)
-      }
-    } catch {
-      // データ構造不整合時は空を返す
-    }
-    return m
-  }, [data])
+  // loadedTypes, maxDayByType は useDataSummary から取得済み
 
   return (
     <>
@@ -680,13 +632,9 @@ export function DataManagementSidebar({
                         value={cfg?.openingInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          dispatch({
-                            type: 'UPDATE_INVENTORY',
-                            payload: {
-                              storeId: s.id,
-                              config: { openingInventory: val },
-                            },
-                          })
+                          useDataStore.getState().updateInventory(s.id, { openingInventory: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
                         }}
                       />
                     </InventoryRow>
@@ -698,13 +646,9 @@ export function DataManagementSidebar({
                         value={cfg?.closingInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          dispatch({
-                            type: 'UPDATE_INVENTORY',
-                            payload: {
-                              storeId: s.id,
-                              config: { closingInventory: val },
-                            },
-                          })
+                          useDataStore.getState().updateInventory(s.id, { closingInventory: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
                         }}
                       />
                     </InventoryRow>

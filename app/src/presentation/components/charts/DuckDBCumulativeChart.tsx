@@ -20,6 +20,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -56,6 +57,13 @@ const SummaryItem = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -85,8 +93,9 @@ export function DuckDBCumulativeChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
-  const { data: rows } = useDuckDBDailyCumulative(
+  const { data: rows, error } = useDuckDBDailyCumulative(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -94,6 +103,17 @@ export function DuckDBCumulativeChart({
   )
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+
+  if (error) {
+    return (
+      <Wrapper aria-label="累積売上推移（DuckDB）">
+        <Title>累積売上推移（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
@@ -103,7 +123,7 @@ export function DuckDBCumulativeChart({
   const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="累積売上推移（DuckDB）">
       <Title>累積売上推移（DuckDB）</Title>
       <Subtitle>日別売上（棒）と累積売上（面）| 月跨ぎ対応</Subtitle>
 

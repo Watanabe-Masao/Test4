@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import type { StorageDataType } from '@/domain/models'
 import { useStorageAdmin } from '@/application/hooks'
+import { transformCtsPreview, type PreviewRecord } from '@/application/hooks/useDataPreview'
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -533,17 +534,7 @@ function CTSViewer({
   loadSlice: <T>(year: number, month: number, dataType: StorageDataType) => Promise<T | null>
 }) {
   const [expanded, setExpanded] = useState(false)
-  const [records, setRecords] = useState<
-    {
-      day: number
-      storeId: string
-      dept: string
-      line: string
-      klass: string
-      amount: number
-      qty: number
-    }[]
-  >([])
+  const [records, setRecords] = useState<readonly PreviewRecord[]>([])
   const [loading, setLoading] = useState(false)
 
   const handleToggle = useCallback(async () => {
@@ -566,17 +557,7 @@ function CTSViewer({
         }[]
       }>(year, month, dataType)
       if (data?.records) {
-        setRecords(
-          data.records.slice(0, 200).map((r) => ({
-            day: r.day,
-            storeId: r.storeId,
-            dept: r.department.name,
-            line: r.line.name,
-            klass: r.klass.name,
-            amount: r.totalAmount,
-            qty: r.totalQuantity,
-          })),
-        )
+        setRecords(transformCtsPreview(data.records))
       }
     } catch {
       setRecords([])

@@ -29,6 +29,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBDailyFeatures, type DailyFeatureRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -82,6 +83,13 @@ const AnomalyDate = styled.div`
 
 const AnomalyValue = styled.div`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.text3};
 `
 
@@ -182,8 +190,9 @@ export function DuckDBFeatureChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
-  const { data: features } = useDuckDBDailyFeatures(
+  const { data: features, error } = useDuckDBDailyFeatures(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -195,12 +204,23 @@ export function DuckDBFeatureChart({
     [features],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="売上トレンド分析（DuckDB）">
+        <Title>売上トレンド分析（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="売上トレンド分析（DuckDB）">
       <Title>売上トレンド分析（DuckDB）</Title>
       <Subtitle>
         移動平均（3日/7日/28日）・Zスコア異常検出 | 赤棒 = Z &gt; {Z_SCORE_THRESHOLD} の異常日

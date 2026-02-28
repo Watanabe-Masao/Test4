@@ -15,6 +15,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -150,6 +151,13 @@ const ScrollContainer = styled.div`
   padding: 0 ${({ theme }) => theme.spacing[2]};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── Constants ──
 
 /** 営業時間帯の範囲 */
@@ -276,6 +284,7 @@ export function DuckDBCategoryHourlyChart({
   selectedStoreIds,
 }: Props) {
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
@@ -283,7 +292,7 @@ export function DuckDBCategoryHourlyChart({
     setLevel(newLevel)
   }, [])
 
-  const { data: hourlyRows } = useDuckDBCategoryHourly(
+  const { data: hourlyRows, error } = useDuckDBCategoryHourly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -299,6 +308,17 @@ export function DuckDBCategoryHourlyChart({
     [hourlyRows],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
+        <Title>カテゴリ×時間帯分析（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {
     return null
   }
@@ -306,7 +326,7 @@ export function DuckDBCategoryHourlyChart({
   const { categories, maxAmount, globalPeakHour } = heatmapData
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
       <Title>カテゴリ×時間帯分析（DuckDB）</Title>
       <Subtitle>カテゴリ別の時間帯売上分布 | ★ = ピーク</Subtitle>
 
@@ -322,15 +342,17 @@ export function DuckDBCategoryHourlyChart({
       </ControlRow>
 
       <ScrollContainer>
-        <HeatmapTable>
+        <HeatmapTable aria-label="カテゴリ×時間帯ヒートマップ">
           <thead>
             <tr>
-              <HeatmapCategoryTh>カテゴリ</HeatmapCategoryTh>
+              <HeatmapCategoryTh scope="col">カテゴリ</HeatmapCategoryTh>
               {HOURS.map((h) => (
-                <HeatmapTh key={h}>{h}</HeatmapTh>
+                <HeatmapTh key={h} scope="col">
+                  {h}
+                </HeatmapTh>
               ))}
-              <HeatmapTh>合計</HeatmapTh>
-              <HeatmapTh>構成比</HeatmapTh>
+              <HeatmapTh scope="col">合計</HeatmapTh>
+              <HeatmapTh scope="col">構成比</HeatmapTh>
             </tr>
           </thead>
           <tbody>

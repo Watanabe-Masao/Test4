@@ -7,7 +7,8 @@
  * 計算パイプラインは変更せず、結果の「解釈」のみを担う。
  */
 import { useMemo } from 'react'
-import { useAppState } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { generateExplanations } from '@/application/usecases/explanation'
 import type { StoreExplanations, MetricId, Explanation } from '@/domain/models'
@@ -16,13 +17,14 @@ import type { StoreExplanations, MetricId, Explanation } from '@/domain/models'
  * 選択中の店舗に対する全指標の Explanation を返す
  */
 export function useExplanations(): StoreExplanations {
-  const state = useAppState()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
   const { currentResult } = useStoreSelection()
 
   return useMemo(() => {
     if (!currentResult) return new Map()
-    return generateExplanations(currentResult, state.data, state.settings)
-  }, [currentResult, state.data, state.settings])
+    return generateExplanations(currentResult, data, settings)
+  }, [currentResult, data, settings])
 }
 
 /**

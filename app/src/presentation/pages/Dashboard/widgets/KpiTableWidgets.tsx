@@ -13,7 +13,10 @@ import {
   getEffectiveGrossProfitRate,
 } from '@/domain/calculations/utils'
 import type { DepartmentKpiRecord } from '@/domain/models'
-import { useAppDispatch, useAppData } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import type { WidgetContext } from './types'
 import {
   STableWrapper,
@@ -272,8 +275,7 @@ function EditableNumberCell({
 
 /* Store KPI Table as a proper component (needs hooks for dispatch) */
 function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
-  const dispatch = useAppDispatch()
-  const appData = useAppData()
+  const dataState = useDataStore((s) => s.data)
   const { result: agg, allStoreResults, stores } = ctx
 
   // 店舗をコード順でソート
@@ -294,20 +296,18 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   const handleInventoryChange = useCallback(
     (storeId: string, field: 'closingInventory' | 'openingInventory', val: number | null) => {
-      dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config: { [field]: val } } })
+      useDataStore.getState().updateInventory(storeId, { [field]: val })
+      calculationCache.clear()
+      useUiStore.getState().invalidateCalculation()
     },
-    [dispatch],
+    [],
   )
 
-  const handleGPBudgetChange = useCallback(
-    (storeId: string, val: number | null) => {
-      dispatch({
-        type: 'UPDATE_INVENTORY',
-        payload: { storeId, config: { grossProfitBudget: val } },
-      })
-    },
-    [dispatch],
-  )
+  const handleGPBudgetChange = useCallback((storeId: string, val: number | null) => {
+    useDataStore.getState().updateInventory(storeId, { grossProfitBudget: val })
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
+  }, [])
 
   // 仕入/売変データの完全性チェック（集約結果から判定）
   const purchaseShort = agg.purchaseMaxDay > 0 && agg.purchaseMaxDay < agg.elapsedDays
@@ -315,9 +315,11 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   const handleFilterToPurchase = useCallback(() => {
     if (agg.purchaseMaxDay > 0) {
-      dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: agg.purchaseMaxDay } })
+      useSettingsStore.getState().updateSettings({ dataEndDay: agg.purchaseMaxDay })
+      calculationCache.clear()
+      useUiStore.getState().invalidateCalculation()
     }
-  }, [dispatch, agg.purchaseMaxDay])
+  }, [agg.purchaseMaxDay])
 
   if (storeEntries.length === 0) {
     return (
@@ -356,7 +358,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       : undefined
 
     // Editable values read from settings (not from calculated StoreResult)
-    const invConfig = storeId ? appData.data.settings.get(storeId) : undefined
+    const invConfig = storeId ? dataState.settings.get(storeId) : undefined
 
     // Tooltip content builders
     const closingInvTooltip =

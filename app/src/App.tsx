@@ -3,12 +3,7 @@ import { lazy, Suspense, useState, useCallback, useEffect, useMemo } from 'react
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
-import {
-  AppStateProvider,
-  useAppUi,
-  useAppDispatch,
-  RepositoryProvider,
-} from '@/application/context'
+import { AppStateProvider, RepositoryProvider } from '@/application/context'
 import { useUiStore } from '@/application/stores/uiStore'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import {
@@ -26,6 +21,7 @@ import {
   usePersistence,
 } from '@/application/hooks'
 import { I18nProvider } from '@/infrastructure/i18n'
+import { indexedDBRepository } from '@/infrastructure/storage/IndexedDBRepository'
 import { AuthProvider } from '@/application/context/AuthContext'
 import type { ViewType } from '@/domain/models'
 import { ThemeToggleContext, useThemeToggle, SettingsModalContext } from '@/appContextDefs'
@@ -89,7 +85,6 @@ function getInitialTheme(): ThemeMode {
 function useRouteSync() {
   const location = useLocation()
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
   // Zustand セレクターで currentView のみ購読（stale closure を回避）
   const currentView = useUiStore((s) => s.currentView)
 
@@ -97,18 +92,18 @@ function useRouteSync() {
   useEffect(() => {
     const view = PATH_TO_VIEW[location.pathname]
     if (view && view !== currentView) {
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
+      useUiStore.getState().setCurrentView(view)
     }
-  }, [location.pathname, currentView, dispatch])
+  }, [location.pathname, currentView])
 
   // ビュー切替ハンドラ（state と URL を同時に更新）
   const handleViewChange = useCallback(
     (view: ViewType) => {
       if (view === currentView) return
-      dispatch({ type: 'SET_CURRENT_VIEW', payload: view })
+      useUiStore.getState().setCurrentView(view)
       navigate(VIEW_TO_PATH[view])
     },
-    [dispatch, navigate, currentView],
+    [navigate, currentView],
   )
 
   return { handleViewChange }
@@ -122,7 +117,7 @@ function useMobileRoute() {
 
 function AppContent() {
   const isMobile = useMobileRoute()
-  const ui = useAppUi()
+  const currentView = useUiStore((s) => s.currentView)
   const { mode, toggle } = useThemeToggle()
   const showToast = useToast()
   const { calculate } = useCalculation()
@@ -188,7 +183,7 @@ function AppContent() {
       <AppShell
         nav={
           <NavBar
-            currentView={ui.currentView}
+            currentView={currentView}
             onViewChange={handleViewChange}
             themeMode={mode}
             onThemeToggle={toggle}
@@ -202,7 +197,7 @@ function AppContent() {
             />
           </PageErrorBoundary>
         }
-        bottomNav={<BottomNav currentView={ui.currentView} onViewChange={handleViewChange} />}
+        bottomNav={<BottomNav currentView={currentView} onViewChange={handleViewChange} />}
       >
         <PageErrorBoundary>
           <Suspense fallback={<PageSkeleton />}>
@@ -255,7 +250,7 @@ function App() {
         <GlobalStyle />
         <I18nProvider>
           <AuthProvider>
-            <RepositoryProvider>
+            <RepositoryProvider repository={indexedDBRepository}>
               <HashRouter>
                 <AppStateProvider>
                   <ToastProvider>

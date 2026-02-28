@@ -74,7 +74,11 @@ class DuckDBEngineImpl {
     try {
       const bundle = await duckdb.selectBundle(MANUAL_BUNDLES)
 
-      const worker = new Worker(bundle.mainWorker!)
+      const worker_url = bundle.mainWorker
+      if (!worker_url) {
+        throw new Error('No compatible DuckDB-WASM worker bundle found for this browser')
+      }
+      const worker = new Worker(worker_url)
       const logger = new duckdb.ConsoleLogger()
       const db = new duckdb.AsyncDuckDB(logger, worker)
       await db.instantiate(bundle.mainModule, bundle.pthreadWorker)

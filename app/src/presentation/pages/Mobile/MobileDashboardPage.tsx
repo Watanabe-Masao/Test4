@@ -15,7 +15,7 @@ import {
   useMonthSwitcher,
   useBudgetChartData,
 } from '@/application/hooks'
-import { useAppState } from '@/application/context'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   formatCurrency,
   formatPercent,
@@ -294,13 +294,13 @@ export function MobileDashboardPage() {
 
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
-  const appState = useAppState()
+  const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
 
   useAutoLoadPrevYear()
 
   const { isSwitching, goToPrevMonth, goToNextMonth } = useMonthSwitcher()
-  const { targetYear, targetMonth } = appState.settings
+  const { targetYear, targetMonth } = settings
   const r = currentResult
 
   // 予算 vs 実績 累計データ
@@ -486,8 +486,8 @@ export function MobileDashboardPage() {
                     <KpiMiniValue
                       $color={sc.gpRate(
                         r.invMethodGrossProfitRate,
-                        appState.settings.targetGrossProfitRate,
-                        appState.settings.warningThreshold,
+                        settings.targetGrossProfitRate,
+                        settings.warningThreshold,
                       )}
                     >
                       {formatPercent(r.invMethodGrossProfitRate)}

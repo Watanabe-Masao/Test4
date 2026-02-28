@@ -18,6 +18,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -120,6 +121,13 @@ const SummaryItem = styled.div`
 const SummaryLabel = styled.span`
   color: ${({ theme }) => theme.colors.text4};
   margin-right: ${({ theme }) => theme.spacing[1]};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ── Types ──
@@ -241,11 +249,12 @@ export function DuckDBDeptHourlyChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [topN, setTopN] = useState(5)
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
 
   // 部門レベルで時間帯別集約
-  const { data: categoryHourlyRows } = useDuckDBCategoryHourly(
+  const { data: categoryHourlyRows, error } = useDuckDBCategoryHourly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -278,12 +287,23 @@ export function DuckDBDeptHourlyChart({
     })
   }, [])
 
+  if (error) {
+    return (
+      <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
+        <Title>部門別時間帯パターン（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
       <HeaderRow>
         <div>
           <Title>部門別時間帯パターン（DuckDB）</Title>

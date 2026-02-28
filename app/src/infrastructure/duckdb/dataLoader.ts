@@ -64,74 +64,85 @@ export async function loadMonth(
   const start = performance.now()
   const rowCounts = {} as Record<TableName, number>
 
-  // classified_sales (当年)
-  rowCounts.classified_sales = await insertClassifiedSales(
-    conn,
-    db,
-    data.classifiedSales.records,
-    false,
-  )
+  try {
+    // classified_sales (当年)
+    rowCounts.classified_sales = await insertClassifiedSales(
+      conn,
+      db,
+      data.classifiedSales.records,
+      false,
+    )
 
-  // classified_sales (前年) — 追記
-  const prevCsCount = await insertClassifiedSales(
-    conn,
-    db,
-    data.prevYearClassifiedSales.records,
-    true,
-  )
-  rowCounts.classified_sales += prevCsCount
+    // classified_sales (前年) — 追記
+    const prevCsCount = await insertClassifiedSales(
+      conn,
+      db,
+      data.prevYearClassifiedSales.records,
+      true,
+    )
+    rowCounts.classified_sales += prevCsCount
 
-  // category_time_sales + time_slots (当年)
-  const { ctsCount, tsCount } = await insertCategoryTimeSales(
-    conn,
-    db,
-    data.categoryTimeSales.records,
-    false,
-  )
-  rowCounts.category_time_sales = ctsCount
-  rowCounts.time_slots = tsCount
+    // category_time_sales + time_slots (当年)
+    const { ctsCount, tsCount } = await insertCategoryTimeSales(
+      conn,
+      db,
+      data.categoryTimeSales.records,
+      false,
+    )
+    rowCounts.category_time_sales = ctsCount
+    rowCounts.time_slots = tsCount
 
-  // category_time_sales + time_slots (前年) — 追記
-  const prevCts = await insertCategoryTimeSales(
-    conn,
-    db,
-    data.prevYearCategoryTimeSales.records,
-    true,
-  )
-  rowCounts.category_time_sales += prevCts.ctsCount
-  rowCounts.time_slots += prevCts.tsCount
+    // category_time_sales + time_slots (前年) — 追記
+    const prevCts = await insertCategoryTimeSales(
+      conn,
+      db,
+      data.prevYearCategoryTimeSales.records,
+      true,
+    )
+    rowCounts.category_time_sales += prevCts.ctsCount
+    rowCounts.time_slots += prevCts.tsCount
 
-  // purchase
-  rowCounts.purchase = await insertPurchase(conn, db, data.purchase, year, month)
+    // purchase
+    rowCounts.purchase = await insertPurchase(conn, db, data.purchase, year, month)
 
-  // special_sales (flowers + directProduce)
-  const flowersCount = await insertSpecialSales(conn, db, data.flowers, year, month, 'flowers')
-  const dpCount = await insertSpecialSales(
-    conn,
-    db,
-    data.directProduce,
-    year,
-    month,
-    'directProduce',
-  )
-  rowCounts.special_sales = flowersCount + dpCount
+    // special_sales (flowers + directProduce)
+    const flowersCount = await insertSpecialSales(conn, db, data.flowers, year, month, 'flowers')
+    const dpCount = await insertSpecialSales(
+      conn,
+      db,
+      data.directProduce,
+      year,
+      month,
+      'directProduce',
+    )
+    rowCounts.special_sales = flowersCount + dpCount
 
-  // transfers (interStoreIn + interStoreOut)
-  const inCount = await insertTransfers(conn, db, data.interStoreIn, year, month, 'in')
-  const outCount = await insertTransfers(conn, db, data.interStoreOut, year, month, 'out')
-  rowCounts.transfers = inCount + outCount
+    // transfers (interStoreIn + interStoreOut)
+    const inCount = await insertTransfers(conn, db, data.interStoreIn, year, month, 'in')
+    const outCount = await insertTransfers(conn, db, data.interStoreOut, year, month, 'out')
+    rowCounts.transfers = inCount + outCount
 
-  // consumables
-  rowCounts.consumables = await insertConsumables(conn, db, data.consumables, year, month)
+    // consumables
+    rowCounts.consumables = await insertConsumables(conn, db, data.consumables, year, month)
 
-  // department_kpi
-  rowCounts.department_kpi = await insertDepartmentKpi(
-    conn,
-    db,
-    data.departmentKpi.records,
-    year,
-    month,
-  )
+    // department_kpi
+    rowCounts.department_kpi = await insertDepartmentKpi(
+      conn,
+      db,
+      data.departmentKpi.records,
+      year,
+      month,
+    )
+  } catch (err) {
+    // INSERT失敗時はテーブルをリセットして部分データの残存を防ぐ
+    console.error(`DuckDB loadMonth failed for ${year}-${month}:`, err)
+    try {
+      await resetTables(conn)
+    } catch (resetErr) {
+      console.error('DuckDB resetTables after load failure also failed:', resetErr)
+    }
+    throw err
+  }
 
   return {
     rowCounts,

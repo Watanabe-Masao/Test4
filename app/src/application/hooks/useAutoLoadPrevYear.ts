@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
-import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { useRepository } from '../context/useRepository'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type {
@@ -103,17 +106,17 @@ export function mergeAdjacentMonthRecords<
  * 全マージレコードの year/month は sourceYear/sourceMonth に正規化される。
  */
 export function useAutoLoadPrevYear(): void {
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
 
-  const { targetYear, targetMonth } = state.settings
-  const hasPrevYearData = state.data.prevYearClassifiedSales.records.length > 0
-  const hasCurrentData = state.data.classifiedSales.records.length > 0
+  const { targetYear, targetMonth } = settings
+  const hasPrevYearData = data.prevYearClassifiedSales.records.length > 0
+  const hasCurrentData = data.classifiedSales.records.length > 0
 
   // ソース年月（オーバーライドまたは自動）
-  const rawSourceYear = state.settings.prevYearSourceYear
-  const rawSourceMonth = state.settings.prevYearSourceMonth
+  const rawSourceYear = settings.prevYearSourceYear
+  const rawSourceMonth = settings.prevYearSourceMonth
   const sourceYear =
     typeof rawSourceYear === 'number' && !isNaN(rawSourceYear) ? rawSourceYear : targetYear - 1
   const sourceMonth =
@@ -205,13 +208,12 @@ export function useAutoLoadPrevYear(): void {
 
         if (cancelled) return
 
-        dispatch({
-          type: 'SET_PREV_YEAR_AUTO_DATA',
-          payload: {
-            prevYearClassifiedSales: { records: mergedCSRecords },
-            prevYearCategoryTimeSales: { records: mergedCTSRecords },
-          },
+        useDataStore.getState().setPrevYearAutoData({
+          prevYearClassifiedSales: { records: mergedCSRecords },
+          prevYearCategoryTimeSales: { records: mergedCTSRecords },
         })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
       } catch {
         // IndexedDB エラー時は静かに無視
       }
@@ -220,5 +222,5 @@ export function useAutoLoadPrevYear(): void {
     return () => {
       cancelled = true
     }
-  }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, dispatch, repo])
+  }, [sourceYear, sourceMonth, hasPrevYearData, hasCurrentData, repo])
 }

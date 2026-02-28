@@ -21,6 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -98,6 +99,13 @@ const SummaryRow = styled.div`
 const SummaryItem = styled.div`
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ── Constants ──
@@ -197,6 +205,7 @@ export function DuckDBCategoryTrendChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const [level, setLevel] = useState<HierarchyLevel>('department')
   const [topN, setTopN] = useState<number>(8)
@@ -209,7 +218,7 @@ export function DuckDBCategoryTrendChart({
     setTopN(n)
   }, [])
 
-  const { data: trendRows } = useDuckDBCategoryDailyTrend(
+  const { data: trendRows, error } = useDuckDBCategoryDailyTrend(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -224,6 +233,17 @@ export function DuckDBCategoryTrendChart({
     [trendRows],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
+        <Title>カテゴリ別売上推移（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
@@ -232,7 +252,7 @@ export function DuckDBCategoryTrendChart({
   const topCategory = categories[0]
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
       <Title>カテゴリ別売上推移（DuckDB）</Title>
       <Subtitle>上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応</Subtitle>
 

@@ -21,6 +21,7 @@ import {
   type DeptKpiMonthlyTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -70,6 +71,13 @@ const DeptChip = styled.button<{ $active: boolean }>`
   &:hover {
     border-color: ${({ theme }) => theme.colors.palette.primary};
   }
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 interface Props {
@@ -132,6 +140,7 @@ export function DuckDBDeptTrendChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
 
   // 過去12ヶ月分の yearMonth を構築
@@ -149,7 +158,7 @@ export function DuckDBDeptTrendChart({
     return months
   }, [year, month])
 
-  const { data: trendData } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
+  const { data: trendData, error } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
 
   const { chartData, deptNames } = useMemo(
     () =>
@@ -163,6 +172,17 @@ export function DuckDBDeptTrendChart({
     setSelectedDept((prev) => (prev === deptCode ? null : deptCode))
   }, [])
 
+  if (error) {
+    return (
+      <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
+        <Title>部門別KPIトレンド（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   // DuckDB未準備、またはマルチ月データが2ヶ月未満の場合は非表示
   if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
     return null
@@ -174,7 +194,7 @@ export function DuckDBDeptTrendChart({
     : deptEntries
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
       <Title>部門別KPIトレンド（DuckDB）</Title>
       <Subtitle>
         粗利率（線）・売上実績（棒）の月次推移 | {loadedMonthCount}ヶ月分ロード済み

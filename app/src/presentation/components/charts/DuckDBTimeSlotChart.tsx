@@ -23,6 +23,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -92,6 +93,13 @@ const SummaryItem = styled.div`
 const SummaryLabel = styled.span`
   color: ${({ theme }) => theme.colors.text4};
   margin-right: ${({ theme }) => theme.spacing[1]};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ── Types ──
@@ -207,13 +215,14 @@ export function DuckDBTimeSlotChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('total')
 
   // 前年の日付範囲を構築
   const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
 
   // 当年 時間帯別集約
-  const { data: currentHourly } = useDuckDBHourlyAggregation(
+  const { data: currentHourly, error } = useDuckDBHourlyAggregation(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -262,22 +271,43 @@ export function DuckDBTimeSlotChart({
     [currentHourly, prevHourly, mode, currentDayCount, prevDayCount],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="時間帯別売上（DuckDB）">
+        <Title>時間帯別売上（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯別売上（DuckDB）">
       <HeaderRow>
         <div>
           <Title>時間帯別売上（DuckDB）</Title>
           <Subtitle>当年（棒） vs 前年（線） | 日平均切替可能</Subtitle>
         </div>
-        <ToggleGroup>
-          <ToggleButton $active={mode === 'total'} onClick={() => setMode('total')}>
+        <ToggleGroup role="tablist" aria-label="表示モード切替">
+          <ToggleButton
+            $active={mode === 'total'}
+            onClick={() => setMode('total')}
+            role="tab"
+            aria-selected={mode === 'total'}
+          >
             合計
           </ToggleButton>
-          <ToggleButton $active={mode === 'daily'} onClick={() => setMode('daily')}>
+          <ToggleButton
+            $active={mode === 'daily'}
+            onClick={() => setMode('daily')}
+            role="tab"
+            aria-selected={mode === 'daily'}
+          >
             日平均
           </ToggleButton>
         </ToggleGroup>

@@ -4,9 +4,12 @@
  * DataRepository 経由での保存・読み込み・差分チェックを提供する。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { useRepository } from '../context/useRepository'
-import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import { calculateDiff } from '@/application/services/diffCalculator'
 import type { ImportedData, PersistedMeta, DiffResult } from '@/domain/models'
 import { mergeInsertsOnly } from './useImport'
 
@@ -63,8 +66,8 @@ export interface PersistenceActions {
 // ─── フック本体 ──────────────────────────────────────────
 
 export function usePersistence(): PersistenceState & PersistenceActions {
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
 
   const [available] = useState(() => repo.isAvailable())
@@ -102,27 +105,33 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     if (!available) return
     setIsSaving(true)
     try {
-      await repo.saveMonthlyData(state.data, state.settings.targetYear, state.settings.targetMonth)
+      await repo.saveMonthlyData(data, settings.targetYear, settings.targetMonth)
     } finally {
       setIsSaving(false)
     }
-  }, [available, repo, state.data, state.settings.targetYear, state.settings.targetMonth])
+  }, [available, repo, data, settings.targetYear, settings.targetMonth])
 
   const restoreData = useCallback(async () => {
     if (!available || !restoreMeta) return
     try {
-      const data = await repo.loadMonthlyData(restoreMeta.year, restoreMeta.month)
-      if (data) {
-        dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
-        dispatch({
-          type: 'UPDATE_SETTINGS',
-          payload: { targetYear: restoreMeta.year, targetMonth: restoreMeta.month },
+      const restoredData = await repo.loadMonthlyData(restoreMeta.year, restoreMeta.month)
+      if (restoredData) {
+        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+        useDataStore.getState().setImportedData(restoredData)
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
+        // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+        useSettingsStore.getState().updateSettings({
+          targetYear: restoreMeta.year,
+          targetMonth: restoreMeta.month,
         })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
       }
     } finally {
       setShowRestoreDialog(false)
     }
-  }, [available, repo, restoreMeta, dispatch])
+  }, [available, repo, restoreMeta])
 
   const discardSavedData = useCallback(async () => {
     if (!available || !restoreMeta) {
@@ -147,7 +156,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     ): Promise<DiffResult | null> => {
       if (!available) return null
 
-      const { targetYear, targetMonth } = state.settings
+      const { targetYear, targetMonth } = settings
       const existing = await repo.loadMonthlyData(targetYear, targetMonth)
       if (!existing) return null
 
@@ -161,7 +170,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       // 確認不要 → 自動的に保存
       return null
     },
-    [available, repo, state.settings],
+    [available, repo, settings],
   )
 
   const applyDiffDecision = useCallback(
@@ -187,8 +196,8 @@ export function usePersistence(): PersistenceState & PersistenceActions {
 
   const clearCurrentMonth = useCallback(async () => {
     if (!available) return
-    await repo.clearMonth(state.settings.targetYear, state.settings.targetMonth)
-  }, [available, repo, state.settings.targetYear, state.settings.targetMonth])
+    await repo.clearMonth(settings.targetYear, settings.targetMonth)
+  }, [available, repo, settings.targetYear, settings.targetMonth])
 
   const clearAllFn = useCallback(async () => {
     if (!available) return

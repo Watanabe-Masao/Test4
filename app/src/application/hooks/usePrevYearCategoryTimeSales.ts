@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { useAppState } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { calcSameDowOffset } from './usePrevYearData'
 import { getDaysInMonth } from '@/domain/constants/defaults'
@@ -39,14 +40,15 @@ function validNum(v: number | null | undefined): number | undefined {
  * prevYearDowOffset 設定が指定されている場合、自動計算の代わりに使用する。
  */
 export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
-  const state = useAppState()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
-  const prevYearCTS = state.data.prevYearCategoryTimeSales
-  const { targetYear, targetMonth } = state.settings
-  const prevYearSourceYear = validNum(state.settings.prevYearSourceYear)
-  const prevYearSourceMonth = validNum(state.settings.prevYearSourceMonth)
-  const prevYearDowOffset = validNum(state.settings.prevYearDowOffset)
+  const prevYearCTS = data.prevYearCategoryTimeSales
+  const { targetYear, targetMonth } = settings
+  const prevYearSourceYear = validNum(settings.prevYearSourceYear)
+  const prevYearSourceMonth = validNum(settings.prevYearSourceMonth)
+  const prevYearDowOffset = validNum(settings.prevYearDowOffset)
 
   return useMemo(() => {
     if (prevYearCTS.records.length === 0) return EMPTY

@@ -28,6 +28,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -65,6 +66,13 @@ const SummaryItem = styled.div<{ $accent?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
@@ -82,9 +90,11 @@ interface ChartDataPoint {
 
 function buildChartData(rows: readonly YoyDailyRow[]): ChartDataPoint[] {
   // 日別に店舗合算
+  // FULL OUTER JOIN のため curDateKey が null になりうる（前年のみ存在する行）
   const dailyMap = new Map<string, { curSales: number; prevSales: number; hasPrev: boolean }>()
 
   for (const row of rows) {
+    if (!row.curDateKey) continue // 前年のみの行はスキップ（当年軸でプロット不可）
     const existing = dailyMap.get(row.curDateKey) ?? {
       curSales: 0,
       prevSales: 0,
@@ -117,8 +127,9 @@ export function DuckDBYoYChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
-  const { data: rows } = useDuckDBYoyDaily(
+  const { data: rows, error } = useDuckDBYoyDaily(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -127,6 +138,17 @@ export function DuckDBYoYChart({
   )
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
+
+  if (error) {
+    return (
+      <Wrapper aria-label="前年比較（DuckDB）">
+        <Title>前年比較（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
 
   if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {
     return null
@@ -139,7 +161,7 @@ export function DuckDBYoYChart({
   const growthRate = totalPrev > 0 ? toPct(totalDiff / totalPrev, 1) : '-'
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="前年比較（DuckDB）">
       <Title>前年比較（DuckDB）</Title>
       <Subtitle>当年 vs 前年 日別売上 | 月跨ぎ対応 | 棒 = 前年差</Subtitle>
 

@@ -1,5 +1,8 @@
 import { useCallback, useRef, useState } from 'react'
-import { useAppState, useAppDispatch } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import type { AppSettings, InventoryConfig } from '@/domain/models'
 
 /**
@@ -21,8 +24,8 @@ const MAX_HISTORY = 50
  * データインポートはスコープ外（破壊的操作のため）。
  */
 export function useUndoRedo() {
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const settings = useSettingsStore((s) => s.settings)
+  const dataSettings = useDataStore((s) => s.data.settings)
 
   const undoStack = useRef<UndoSnapshot[]>([])
   const redoStack = useRef<UndoSnapshot[]>([])
@@ -32,11 +35,11 @@ export function useUndoRedo() {
   /** 現在の状態のスナップショットを取得 */
   const snapshot = useCallback(
     (label: string): UndoSnapshot => ({
-      settings: state.settings,
-      inventorySettings: state.data.settings,
+      settings,
+      inventorySettings: dataSettings,
       label,
     }),
-    [state.settings, state.data.settings],
+    [settings, dataSettings],
   )
 
   /** 変更前にスナップショットを保存 */
@@ -57,37 +60,44 @@ export function useUndoRedo() {
 
     // 現在の状態をRedo用に保存
     redoStack.current.push({
-      settings: state.settings,
-      inventorySettings: state.data.settings,
+      settings,
+      inventorySettings: dataSettings,
       label: prev.label,
     })
 
     // 状態を復元
-    dispatch({ type: 'UPDATE_SETTINGS', payload: prev.settings })
+    // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+    useSettingsStore.getState().updateSettings(prev.settings)
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
 
     // インベントリ設定を復元（個別にdispatch）
-    const currentIds = new Set(state.data.settings.keys())
+    const currentIds = new Set(dataSettings.keys())
     const prevIds = new Set(prev.inventorySettings.keys())
 
     for (const [storeId, config] of prev.inventorySettings) {
-      dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config } })
+      // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
+      useDataStore.getState().updateInventory(storeId, config)
+      calculationCache.clear()
+      useUiStore.getState().invalidateCalculation()
     }
     // 削除された設定（prev に存在しない）は null にリセット
     for (const storeId of currentIds) {
       if (!prevIds.has(storeId)) {
-        dispatch({
-          type: 'UPDATE_INVENTORY',
-          payload: {
-            storeId,
-            config: { openingInventory: null, closingInventory: null, grossProfitBudget: null },
-          },
+        // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
+        useDataStore.getState().updateInventory(storeId, {
+          openingInventory: null,
+          closingInventory: null,
+          grossProfitBudget: null,
         })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
       }
     }
 
     setCanUndo(undoStack.current.length > 0)
     setCanRedo(true)
-  }, [state.settings, state.data.settings, dispatch])
+  }, [settings, dataSettings])
 
   /** Redo: Undoした操作をやり直す */
   const redo = useCallback(() => {
@@ -96,21 +106,27 @@ export function useUndoRedo() {
 
     // 現在の状態をUndo用に保存
     undoStack.current.push({
-      settings: state.settings,
-      inventorySettings: state.data.settings,
+      settings,
+      inventorySettings: dataSettings,
       label: next.label,
     })
 
     // 状態を復元
-    dispatch({ type: 'UPDATE_SETTINGS', payload: next.settings })
+    // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+    useSettingsStore.getState().updateSettings(next.settings)
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
 
     for (const [storeId, config] of next.inventorySettings) {
-      dispatch({ type: 'UPDATE_INVENTORY', payload: { storeId, config } })
+      // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
+      useDataStore.getState().updateInventory(storeId, config)
+      calculationCache.clear()
+      useUiStore.getState().invalidateCalculation()
     }
 
     setCanUndo(true)
     setCanRedo(redoStack.current.length > 0)
-  }, [state.settings, state.data.settings, dispatch])
+  }, [settings, dataSettings])
 
   return {
     undo,

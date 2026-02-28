@@ -6,7 +6,6 @@
  * アプリ全体に影響するため、切替処理を一箇所に集約する。
  */
 import { useCallback, useState } from 'react'
-import { useAppDispatch } from '../context/AppStateContext'
 import { useRepository } from '../context/useRepository'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useDataStore } from '../stores/dataStore'
@@ -29,7 +28,6 @@ export interface MonthSwitcherActions {
 }
 
 export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
-  const dispatch = useAppDispatch()
   const repo = useRepository()
   const [isSwitching, setIsSwitching] = useState(false)
 
@@ -51,6 +49,7 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         }
 
         // 2. ステートをリセット（空データ）
+        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
         useDataStore.getState().setImportedData(createEmptyImportedData())
         useDataStore.getState().setStoreResults(new Map())
         useDataStore.getState().setValidationMessages([])
@@ -58,13 +57,19 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         useUiStore.getState().invalidateCalculation()
 
         // 3. 設定を更新（targetYear / targetMonth）
-        dispatch({ type: 'UPDATE_SETTINGS', payload: { targetYear: year, targetMonth: month } })
+        // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+        useSettingsStore.getState().updateSettings({ targetYear: year, targetMonth: month })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
 
         // 4. 新しい年月のデータを IndexedDB からロード
         if (repo.isAvailable()) {
           const data = await repo.loadMonthlyData(year, month)
           if (data) {
-            dispatch({ type: 'SET_IMPORTED_DATA', payload: data })
+            // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+            useDataStore.getState().setImportedData(data)
+            calculationCache.clear()
+            useUiStore.getState().invalidateCalculation()
           }
         }
         // useAutoLoadPrevYear は targetYear/targetMonth の変更を検知して自動的に前年データをロードする
@@ -72,7 +77,7 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         setIsSwitching(false)
       }
     },
-    [dispatch, repo],
+    [repo],
   )
 
   const goToPrevMonth = useCallback(async () => {

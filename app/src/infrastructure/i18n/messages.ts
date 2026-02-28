@@ -23,6 +23,8 @@ export interface MessageCatalog {
     admin: string
     lightMode: string
     darkMode: string
+    costDetail: string
+    insight: string
   }
 
   // ─── 共通 ──────────────────────────────────────────
@@ -45,6 +47,7 @@ export interface MessageCatalog {
     sort: string
     export: string
     import: string
+    store: string
   }
 
   // ─── ダッシュボード ─────────────────────────────────
@@ -66,6 +69,7 @@ export interface MessageCatalog {
     calculated: string
     pleaseCalculate: string
     validationError: string
+    notCalculated: string
   }
 
   // ─── インポート ────────────────────────────────────
@@ -97,6 +101,15 @@ export interface MessageCatalog {
     interDepartment: string
     other: string
   }
+
+  // ─── エラー ──────────────────────────────────────────
+  errors: {
+    occurred: string
+    retry: string
+    chartDisplayFailed: string
+    pageUnexpectedError: string
+    dataFetchFailed: string
+  }
 }
 
 // ─── 日本語メッセージ ──────────────────────────────────
@@ -115,6 +128,8 @@ export const jaMessages: MessageCatalog = {
     admin: '管理',
     lightMode: 'ライトモード',
     darkMode: 'ダークモード',
+    costDetail: '原価明細',
+    insight: 'インサイト',
   },
   common: {
     loading: '読み込み中...',
@@ -135,6 +150,7 @@ export const jaMessages: MessageCatalog = {
     sort: 'ソート',
     export: 'エクスポート',
     import: 'インポート',
+    store: '店舗',
   },
   dashboard: {
     title: 'ダッシュボード',
@@ -152,6 +168,7 @@ export const jaMessages: MessageCatalog = {
     calculated: '計算済み',
     pleaseCalculate: '計算を実行してください',
     validationError: '検証エラーがあります',
+    notCalculated: '未計算',
   },
   import: {
     dropFiles: 'ファイルをドロップするか、クリックして選択',
@@ -177,6 +194,13 @@ export const jaMessages: MessageCatalog = {
     interDepartment: '部門間移動',
     other: 'その他',
   },
+  errors: {
+    occurred: 'エラーが発生しました',
+    retry: '再試行',
+    chartDisplayFailed: 'チャートの表示に失敗しました',
+    pageUnexpectedError: 'ページの表示中に予期しないエラーが発生しました。',
+    dataFetchFailed: 'データの取得に失敗しました',
+  },
 }
 
 // ─── 英語メッセージ (将来用) ──────────────────────────
@@ -195,6 +219,8 @@ export const enMessages: MessageCatalog = {
     admin: 'Admin',
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
+    costDetail: 'Cost Detail',
+    insight: 'Insight',
   },
   common: {
     loading: 'Loading...',
@@ -215,6 +241,7 @@ export const enMessages: MessageCatalog = {
     sort: 'Sort',
     export: 'Export',
     import: 'Import',
+    store: 'Store',
   },
   dashboard: {
     title: 'Dashboard',
@@ -232,6 +259,7 @@ export const enMessages: MessageCatalog = {
     calculated: 'Calculated',
     pleaseCalculate: 'Please run calculation',
     validationError: 'Validation errors found',
+    notCalculated: 'Not calculated',
   },
   import: {
     dropFiles: 'Drop files or click to select',
@@ -256,6 +284,13 @@ export const enMessages: MessageCatalog = {
     interStore: 'Inter-Store',
     interDepartment: 'Inter-Department',
     other: 'Other',
+  },
+  errors: {
+    occurred: 'An error occurred',
+    retry: 'Retry',
+    chartDisplayFailed: 'Failed to display chart',
+    pageUnexpectedError: 'An unexpected error occurred while displaying this page.',
+    dataFetchFailed: 'Failed to fetch data',
   },
 }
 

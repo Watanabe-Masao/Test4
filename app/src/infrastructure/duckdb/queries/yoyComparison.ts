@@ -8,11 +8,12 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, storeIdFilter } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 // ── 結果型 ──
 
 export interface YoyDailyRow {
-  readonly curDateKey: string
+  readonly curDateKey: string | null // FULL OUTER JOIN: 前年のみの行は null
   readonly prevDateKey: string | null
   readonly storeId: string
   readonly curSales: number
@@ -50,9 +51,14 @@ export async function queryYoyDailyComparison(
     readonly storeIds?: readonly string[]
   },
 ): Promise<readonly YoyDailyRow[]> {
-  const storeFilter = storeIdFilter(params.storeIds)
-  const curStoreWhere = storeFilter ? `AND c.store_id ${storeFilter.replace('store_id ', '')}` : ''
-  const prevStoreWhere = storeFilter ? `AND p.store_id ${storeFilter.replace('store_id ', '')}` : ''
+  const curDateFrom = validateDateKey(params.curDateFrom)
+  const curDateTo = validateDateKey(params.curDateTo)
+  const prevDateFrom = validateDateKey(params.prevDateFrom)
+  const prevDateTo = validateDateKey(params.prevDateTo)
+
+  // CTE 内では store_id にエイリアスなし
+  const storeWhere = storeIdFilter(params.storeIds)
+  const storeAndClause = storeWhere ? `AND ${storeWhere}` : ''
 
   const sql = `
     WITH current_data AS (
@@ -64,8 +70,8 @@ export async function queryYoyDailyComparison(
         ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY date_key) AS rn
       FROM store_day_summary
       WHERE is_prev_year = FALSE
-        AND date_key BETWEEN '${params.curDateFrom}' AND '${params.curDateTo}'
-        ${curStoreWhere.replace('c.', '')}
+        AND date_key BETWEEN '${curDateFrom}' AND '${curDateTo}'
+        ${storeAndClause}
       GROUP BY date_key, store_id
     ),
     prev_data AS (
@@ -77,8 +83,8 @@ export async function queryYoyDailyComparison(
         ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY date_key) AS rn
       FROM store_day_summary
       WHERE is_prev_year = TRUE
-        AND date_key BETWEEN '${params.prevDateFrom}' AND '${params.prevDateTo}'
-        ${prevStoreWhere.replace('p.', '')}
+        AND date_key BETWEEN '${prevDateFrom}' AND '${prevDateTo}'
+        ${storeAndClause}
       GROUP BY date_key, store_id
     )
     SELECT
@@ -113,6 +119,11 @@ export async function queryYoyCategoryComparison(
     readonly level: 'department' | 'line' | 'klass'
   },
 ): Promise<readonly YoyCategoryRow[]> {
+  const curDateFrom = validateDateKey(params.curDateFrom)
+  const curDateTo = validateDateKey(params.curDateTo)
+  const prevDateFrom = validateDateKey(params.prevDateFrom)
+  const prevDateTo = validateDateKey(params.prevDateTo)
+
   let codeCol: string
   let nameCol: string
 
@@ -142,7 +153,7 @@ export async function queryYoyCategoryComparison(
         SUM(total_quantity) AS quantity
       FROM category_time_sales
       WHERE is_prev_year = FALSE
-        AND date_key BETWEEN '${params.curDateFrom}' AND '${params.curDateTo}'
+        AND date_key BETWEEN '${curDateFrom}' AND '${curDateTo}'
         AND ${storeCondition}
       GROUP BY ${codeCol}, ${nameCol}
     ),
@@ -153,7 +164,7 @@ export async function queryYoyCategoryComparison(
         SUM(total_quantity) AS quantity
       FROM category_time_sales
       WHERE is_prev_year = TRUE
-        AND date_key BETWEEN '${params.prevDateFrom}' AND '${params.prevDateTo}'
+        AND date_key BETWEEN '${prevDateFrom}' AND '${prevDateTo}'
         AND ${storeCondition}
       GROUP BY ${codeCol}
     )

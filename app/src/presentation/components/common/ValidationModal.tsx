@@ -3,8 +3,9 @@ import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { ValidationMessage } from '@/domain/models'
-import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
-import type { TemplateDataType } from '@/infrastructure/export'
+import { useExport } from '@/application/hooks/useExport'
+import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
+import type { TemplateDataType } from '@/application/ports/ExportPort'
 
 const MessageList = styled.div`
   display: flex;
@@ -181,10 +182,14 @@ function NextStepsSection({ messages }: { messages: readonly ValidationMessage[]
   const errors = messages.filter((m) => m.level === 'error')
   const warnings = messages.filter((m) => m.level === 'warning')
   const missingTypes = detectMissingTypes(messages)
+  const { downloadTemplate } = useExport()
 
-  const handleTemplateDownload = useCallback((type: TemplateDataType) => {
-    downloadTemplate(type)
-  }, [])
+  const handleTemplateDownload = useCallback(
+    (type: TemplateDataType) => {
+      downloadTemplate(type)
+    },
+    [downloadTemplate],
+  )
 
   if (errors.length > 0) {
     // エラーがある場合のガイダンス

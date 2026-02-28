@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { useAppState } from '../context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { aggregateAllStores, addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
@@ -81,16 +82,17 @@ export function calcSameDowOffset(
  *                    1〜elapsedDays の範囲のみ合計する（予算と同じ比較基準）
  */
 export function usePrevYearData(elapsedDays?: number): PrevYearData {
-  const state = useAppState()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
-  const prevYearCS = state.data.prevYearClassifiedSales
-  const prevYearFlowers = state.data.flowers // 客数は花ファイルから
-  const { targetYear, targetMonth } = state.settings
+  const prevYearCS = data.prevYearClassifiedSales
+  const prevYearFlowers = data.flowers // 客数は花ファイルから
+  const { targetYear, targetMonth } = settings
   // null / undefined / NaN を安全に処理
-  const prevYearSourceYear = validNum(state.settings.prevYearSourceYear)
-  const prevYearSourceMonth = validNum(state.settings.prevYearSourceMonth)
-  const prevYearDowOffset = validNum(state.settings.prevYearDowOffset)
+  const prevYearSourceYear = validNum(settings.prevYearSourceYear)
+  const prevYearSourceMonth = validNum(settings.prevYearSourceMonth)
+  const prevYearDowOffset = validNum(settings.prevYearDowOffset)
 
   return useMemo(() => {
     if (prevYearCS.records.length === 0) return EMPTY

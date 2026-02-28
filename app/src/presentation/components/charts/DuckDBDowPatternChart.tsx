@@ -30,6 +30,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBDowPattern, type DowPatternRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -64,6 +65,13 @@ const SummaryRow = styled.div`
 const SummaryItem = styled.div`
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 interface Props {
@@ -154,8 +162,9 @@ export function DuckDBDowPatternChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
-  const { data: rows } = useDuckDBDowPattern(
+  const { data: rows, error } = useDuckDBDowPattern(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -170,12 +179,23 @@ export function DuckDBDowPatternChart({
     [rows],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="曜日別売上パターン（DuckDB）">
+        <Title>曜日別売上パターン（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="曜日別売上パターン（DuckDB）">
       <Title>曜日別売上パターン（DuckDB）</Title>
       <Subtitle>曜日別平均売上 | 赤線 = 全曜日平均</Subtitle>
 

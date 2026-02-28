@@ -28,6 +28,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBHourlyProfile, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -62,6 +63,13 @@ const SummaryRow = styled.div`
 const SummaryItem = styled.div`
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 interface Props {
@@ -140,8 +148,9 @@ export function DuckDBHourlyProfileChart({
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
+  const { messages } = useI18n()
 
-  const { data: rows } = useDuckDBHourlyProfile(
+  const { data: rows, error } = useDuckDBHourlyProfile(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -156,12 +165,23 @@ export function DuckDBHourlyProfileChart({
     [rows],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
+        <Title>時間帯別売上プロファイル（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
       <Title>時間帯別売上プロファイル（DuckDB）</Title>
       <Subtitle>時間帯別売上構成比 | &#9733; = ピーク時間帯</Subtitle>
 

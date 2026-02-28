@@ -1,11 +1,13 @@
 /**
+ * @deprecated Phase 9 により全呼び出し元が Zustand ストアに移行済み。
+ * テスト互換のために型定義とフック定義は残存するが、プロダクションコードからの
+ * 使用は禁止。新規コードでは application/stores の useDataStore / useUiStore /
+ * useSettingsStore を直接使用すること。
+ *
  * AppStateContext — Zustand ストアのバックワードコンパチビリティレイヤー
  *
  * 既存の useAppState / useAppDispatch / useAppData / useAppUi / useAppSettings
  * フックの API を維持しつつ、内部的には Zustand ストアを使用する。
- *
- * 新規コードでは application/stores から直接 useDataStore / useUiStore / useSettingsStore
- * を使用することを推奨。
  */
 import { useCallback } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

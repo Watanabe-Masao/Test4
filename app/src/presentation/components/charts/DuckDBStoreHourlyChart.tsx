@@ -26,6 +26,7 @@ import {
   STORE_COLORS,
   toPct,
 } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -107,6 +108,13 @@ const StoreName = styled.span`
 const PeakInfo = styled.span`
   color: ${({ theme }) => theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const ErrorMsg = styled.div`
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 // ── Types ──
@@ -254,10 +262,11 @@ export function DuckDBStoreHourlyChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('amount')
 
   // 店舗別×時間帯集約
-  const { data: storeRows } = useDuckDBStoreAggregation(
+  const { data: storeRows, error } = useDuckDBStoreAggregation(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -269,22 +278,43 @@ export function DuckDBStoreHourlyChart({
     [storeRows, stores, mode],
   )
 
+  if (error) {
+    return (
+      <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
+        <Title>店舗×時間帯比較（DuckDB）</Title>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
+      </Wrapper>
+    )
+  }
+
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
     return null
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
       <HeaderRow>
         <div>
           <Title>店舗×時間帯比較（DuckDB）</Title>
           <Subtitle>店舗別の時間帯売上パターン</Subtitle>
         </div>
-        <ToggleGroup>
-          <ToggleButton $active={mode === 'amount'} onClick={() => setMode('amount')}>
+        <ToggleGroup role="tablist" aria-label="表示モード切替">
+          <ToggleButton
+            $active={mode === 'amount'}
+            onClick={() => setMode('amount')}
+            role="tab"
+            aria-selected={mode === 'amount'}
+          >
             金額
           </ToggleButton>
-          <ToggleButton $active={mode === 'ratio'} onClick={() => setMode('ratio')}>
+          <ToggleButton
+            $active={mode === 'ratio'}
+            onClick={() => setMode('ratio')}
+            role="tab"
+            aria-selected={mode === 'ratio'}
+          >
             構成比
           </ToggleButton>
         </ToggleGroup>

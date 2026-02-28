@@ -2,8 +2,9 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import type { ImportProgress } from '@/application/hooks/useImport'
 import type { ImportSummary, FileImportResult } from '@/application/usecases/import'
-import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
-import type { TemplateDataType } from '@/infrastructure/export'
+import { useExport } from '@/application/hooks/useExport'
+import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
+import type { TemplateDataType } from '@/application/ports/ExportPort'
 
 // ─── Types ────────────────────────────────────────────
 export type ImportStage = 'idle' | 'reading' | 'validating' | 'saving' | 'done'
@@ -329,6 +330,7 @@ export function ImportProgress({
 function TemplateDownloadButton() {
   const [isOpen, setIsOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const { downloadTemplate } = useExport()
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
     if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
@@ -343,10 +345,13 @@ function TemplateDownloadButton() {
     }
   }, [isOpen, handleClickOutside])
 
-  const handleDownload = useCallback((type: TemplateDataType) => {
-    downloadTemplate(type)
-    setIsOpen(false)
-  }, [])
+  const handleDownload = useCallback(
+    (type: TemplateDataType) => {
+      downloadTemplate(type)
+      setIsOpen(false)
+    },
+    [downloadTemplate],
+  )
 
   return (
     <TemplateBtnWrap ref={wrapRef}>

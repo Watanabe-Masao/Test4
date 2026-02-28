@@ -7,11 +7,10 @@
  * コンポーネントとフックを別ファイルに分離。
  */
 import { useState, useCallback } from 'react'
-import { useAppState } from '@/application/context'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 
 export function useDayRange(daysInMonth: number): [number, number, (s: number, e: number) => void] {
-  const { settings } = useAppState()
-  const dataEndDay = settings.dataEndDay
+  const dataEndDay = useSettingsStore((s) => s.settings.dataEndDay)
 
   const defaultEnd = dataEndDay != null ? Math.min(dataEndDay, daysInMonth) : daysInMonth
   const [range, setRange] = useState<[number, number]>([1, defaultEnd])

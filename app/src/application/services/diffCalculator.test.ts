@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calculateDiff, summarizeDiff } from './diffCalculator'
-import type { DiffResult } from './diffCalculator'
+import type { DiffResult } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 import type { ImportedData } from '@/domain/models'
 
