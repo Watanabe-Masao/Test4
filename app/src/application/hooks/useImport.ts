@@ -26,7 +26,7 @@ import {
 } from '@/domain/models'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { calculateDiff } from '@/infrastructure/storage/diffCalculator'
+import { calculateDiff } from '@/application/services/diffCalculator'
 import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
 
 /** インポート進捗 */

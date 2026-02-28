@@ -26,6 +26,7 @@ import {
   usePersistence,
 } from '@/application/hooks'
 import { I18nProvider } from '@/infrastructure/i18n'
+import { indexedDBRepository } from '@/infrastructure/storage/IndexedDBRepository'
 import { AuthProvider } from '@/application/context/AuthContext'
 import type { ViewType } from '@/domain/models'
 import { ThemeToggleContext, useThemeToggle, SettingsModalContext } from '@/appContextDefs'
@@ -255,7 +256,7 @@ function App() {
         <GlobalStyle />
         <I18nProvider>
           <AuthProvider>
-            <RepositoryProvider>
+            <RepositoryProvider repository={indexedDBRepository}>
               <HashRouter>
                 <AppStateProvider>
                   <ToastProvider>

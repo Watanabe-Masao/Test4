@@ -9,5 +9,9 @@ import { RepositoryContext } from './repositoryContextDef'
 import type { DataRepository } from '@/domain/repositories'
 
 export function useRepository(): DataRepository {
-  return useContext(RepositoryContext)
+  const repo = useContext(RepositoryContext)
+  if (!repo) {
+    throw new Error('useRepository must be used within a RepositoryProvider')
+  }
+  return repo
 }

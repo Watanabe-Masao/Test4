@@ -2,19 +2,24 @@
  * リポジトリコンテキスト
  *
  * DataRepository インスタンスを React ツリーに提供する。
- * IndexedDBRepository（ローカルのみ）を使用する。
+ * 具体的な実装（IndexedDBRepository 等）は外部から注入する。
  */
 import type { ReactNode } from 'react'
+import type { DataRepository } from '@/domain/repositories'
 import { RepositoryContext } from './repositoryContextDef'
-import { indexedDBRepository } from '@/infrastructure/storage/IndexedDBRepository'
 
 /**
  * リポジトリプロバイダ
  *
- * IndexedDBRepository（ローカルのみ）を提供する。
+ * repository prop で具体的な DataRepository 実装を注入する。
+ * App.tsx（コンポジションルート）で indexedDBRepository を渡す。
  */
-export function RepositoryProvider({ children }: { readonly children: ReactNode }) {
-  return (
-    <RepositoryContext.Provider value={indexedDBRepository}>{children}</RepositoryContext.Provider>
-  )
+export function RepositoryProvider({
+  repository,
+  children,
+}: {
+  readonly repository: DataRepository
+  readonly children: ReactNode
+}) {
+  return <RepositoryContext.Provider value={repository}>{children}</RepositoryContext.Provider>
 }
