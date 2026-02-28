@@ -8,8 +8,8 @@
 
 ### 前提条件
 
-- **Node.js**: 18 以上
-- **npm**: Node.js に同梱のバージョン
+- **Node.js**: 22 以上
+- **npm**: 10 以上
 
 ### インストール
 
@@ -44,38 +44,40 @@ npm run build
 Test4/
 ├── app/                    # メインアプリケーション
 │   ├── src/
-│   │   ├── domain/         # ドメイン層 (型定義・計算ロジック)
+│   │   ├── domain/         # ドメイン層（フレームワーク非依存）
 │   │   │   ├── models/     # データモデル・型定義
-│   │   │   ├── calculations/ # 集計・粗利計算・予測ロジック
-│   │   │   └── constants/  # 定数定義 (カテゴリ・デフォルト値)
-│   │   ├── application/    # アプリケーション層 (フック・状態管理)
-│   │   ├── infrastructure/ # インフラ層 (ファイル解析・永続化)
+│   │   │   ├── calculations/ # 集計・粗利計算・予測・要因分解
+│   │   │   ├── repositories/ # リポジトリインターフェース
+│   │   │   └── constants/  # 定数定義
+│   │   ├── application/    # アプリケーション層
+│   │   │   ├── context/    # React Context（レガシー互換）
+│   │   │   ├── hooks/      # カスタムフック（useDuckDBQuery 含む）
+│   │   │   ├── stores/     # Zustand ストア（data, settings, ui）
+│   │   │   ├── usecases/   # ユースケース（計算・インポート・説明責任）
+│   │   │   ├── ports/      # ポートインターフェース
+│   │   │   ├── services/   # 計算キャッシュ・ハッシュ
+│   │   │   └── workers/    # Web Worker
+│   │   ├── infrastructure/ # インフラ層
+│   │   │   ├── duckdb/     # DuckDB-WASM SQL エンジン
 │   │   │   ├── fileImport/ # ファイル読込・種別判定・日付パーサー
 │   │   │   ├── dataProcessing/ # データ種別ごとのプロセッサ
-│   │   │   ├── storage/    # IndexedDB 永続化・差分計算
+│   │   │   ├── storage/    # IndexedDB 永続化
+│   │   │   ├── i18n/       # 国際化
+│   │   │   ├── pwa/        # PWA サービスワーカー
 │   │   │   └── export/     # データエクスポート
-│   │   └── presentation/   # プレゼンテーション層 (UI)
+│   │   └── presentation/   # プレゼンテーション層
 │   │       ├── components/ # 共通コンポーネント
 │   │       │   ├── common/ # ボタン・カード・モーダル等
-│   │       │   ├── charts/ # グラフコンポーネント (Recharts)
+│   │       │   ├── charts/ # チャート（従来 27 種 + DuckDB 15 種）
 │   │       │   └── Layout/ # AppShell・NavBar・Sidebar
-│   │       ├── pages/      # ページコンポーネント
-│   │       │   ├── Dashboard/  # ダッシュボード (ウィジェット構成)
-│   │       │   ├── Category/   # カテゴリ分析
-│   │       │   ├── Forecast/   # 予測・着地見込み
-│   │       │   ├── Analysis/   # 分析・比較
-│   │       │   ├── Daily/      # 日別詳細
-│   │       │   ├── Transfer/   # 店間移動
-│   │       │   ├── Consumable/ # 消耗品
-│   │       │   ├── Summary/    # サマリー
-│   │       │   ├── Reports/    # レポート
-│   │       │   └── Admin/      # 管理 (ストレージ管理・前年マッピング)
+│   │       ├── pages/      # ページコンポーネント（10 ページ）
+│   │       ├── hooks/      # プレゼンテーション層フック
 │   │       └── theme/      # テーマ定義 (Dark/Light)
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── tsconfig.*.json
 ├── docs/                   # ドキュメント
-└── PLAN.md                 # 改善計画
+└── CLAUDE.md               # AI 開発ルール・設計思想
 ```
 
 ### アーキテクチャ概要
@@ -84,10 +86,10 @@ Test4/
 
 | 層 | ディレクトリ | 責務 |
 |---|---|---|
-| **ドメイン層** | `domain/` | ビジネスロジックの中核。型定義、計算ロジック、定数。外部依存なし |
-| **アプリケーション層** | `application/` | React フック・状態管理。ドメイン層とインフラ層を橋渡し |
-| **インフラ層** | `infrastructure/` | 外部リソースとの接続。ファイル解析、IndexedDB 永続化 |
-| **プレゼンテーション層** | `presentation/` | UI コンポーネント。React + styled-components |
+| **ドメイン層** | `domain/` | ビジネスロジックの中核。型定義、計算ロジック、定数。フレームワーク非依存 |
+| **アプリケーション層** | `application/` | Zustand ストア、カスタムフック、ユースケース、Web Worker |
+| **インフラ層** | `infrastructure/` | 外部リソースとの接続。ファイル解析、IndexedDB、DuckDB-WASM、i18n |
+| **プレゼンテーション層** | `presentation/` | UI コンポーネント。React + styled-components。描画のみ担当 |
 
 依存方向: `presentation → application → domain ← infrastructure`
 
@@ -156,8 +158,8 @@ infrastructure/fileImport/FileTypeDetector.test.ts
 
 ### テスト規模
 
-- **テストファイル数**: 45
-- **テストケース数**: 467
+- **テストファイル数**: 90
+- **テストケース数**: 1,259
 
 ### カバレッジ対象
 
@@ -353,6 +355,8 @@ presentation/components/charts/
 | 言語 | TypeScript | 5.9 |
 | スタイリング | styled-components | 6.3 |
 | チャート | Recharts | 3.7 |
+| 状態管理 | Zustand | 5.x |
+| SQL エンジン | DuckDB-WASM | 1.33 |
 | Excel解析 | SheetJS (xlsx) | 0.18 |
 | テスト | Vitest | 4.0 |
 | テスト (UI) | React Testing Library | 16.3 |

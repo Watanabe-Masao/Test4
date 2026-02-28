@@ -139,18 +139,32 @@ Internet Explorer には対応していません。
 
 ```
 src/
-├── domain/               # ドメイン層
-│   ├── models/           #   データモデル（15 ファイル）
-│   ├── calculations/     #   計算ロジック（粗利、棚卸、予算、予測など）
+├── domain/               # ドメイン層（フレームワーク非依存）
+│   ├── models/           #   データモデル・型定義
+│   ├── calculations/     #   計算ロジック（粗利、棚卸、予算、予測、要因分解など）
+│   ├── repositories/     #   リポジトリインターフェース
 │   └── constants/        #   定数
 ├── application/          # アプリケーション層
-│   ├── context/          #   AppStateContext（React Context + useReducer、14 アクション）
-│   ├── hooks/            #   カスタムフック（13 フック）
-│   └── services/         #   CalculationOrchestrator, FileImportService
+│   ├── context/          #   React Context（レガシー互換）
+│   ├── hooks/            #   カスタムフック（useDuckDBQuery 含む 20+ フック）
+│   ├── stores/           #   Zustand ストア（dataStore, settingsStore, uiStore）
+│   ├── usecases/         #   ユースケース
+│   │   ├── calculation/  #     計算パイプライン（dailyBuilder, storeAssembler）
+│   │   ├── explanation/  #     説明責任（ExplanationService）
+│   │   ├── import/       #     ファイルインポート（FileImportService）
+│   │   ├── export/       #     データエクスポート
+│   │   ├── categoryTimeSales/ # カテゴリ時間帯集約
+│   │   └── departmentKpi/ #    部門 KPI インデックス
+│   ├── ports/            #   ポートインターフェース（ExportPort）
+│   ├── services/         #   計算キャッシュ・ハッシュ
+│   └── workers/          #   Web Worker（計算の非同期実行）
 ├── infrastructure/       # インフラ層
-│   ├── storage/          #   IndexedDBStore, diffCalculator
+│   ├── duckdb/           #   DuckDB-WASM（SQL エンジン・クエリモジュール）
+│   ├── storage/          #   IndexedDB 永続化・差分計算
 │   ├── fileImport/       #   ファイル読み込み処理
-│   ├── dataProcessing/   #   データ変換・加工
+│   ├── dataProcessing/   #   データ変換・加工（10 プロセッサ）
+│   ├── i18n/             #   国際化（メッセージカタログ）
+│   ├── pwa/              #   PWA サービスワーカー登録
 │   └── export/           #   エクスポート処理
 ├── presentation/         # プレゼンテーション層
 │   ├── pages/            #   ページコンポーネント（10 ページ）
@@ -165,11 +179,12 @@ src/
 │   │   ├── Consumable/   #     消耗品管理
 │   │   └── Admin/        #     管理設定
 │   ├── components/
-│   │   ├── charts/       #     チャートコンポーネント（27 種）
+│   │   ├── charts/       #     チャート（従来 27 種 + DuckDB 15 種）
 │   │   ├── common/       #     共通 UI 部品（Button, Card, Modal, Toast など）
 │   │   └── Layout/       #     レイアウト（AppShell, NavBar, Sidebar）
+│   ├── hooks/            #   プレゼンテーション層フック
 │   └── theme/            #   テーマ定義・デザイントークン
 ├── test/                 # テストセットアップ
-├── App.tsx               # ルートコンポーネント
+├── App.tsx               # ルートコンポーネント（コンポジションルート）
 └── main.tsx              # エントリポイント
 ```
