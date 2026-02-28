@@ -65,9 +65,15 @@ function relativePath(filePath: string): string {
  * Phase 2〜6 で段階的に解消する。
  */
 const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
-  // DuckDB 統合（Phase 6 で解消予定）
+  // DuckDB 統合 — ライフサイクル管理
   'application/hooks/useDuckDB.ts',
-  'application/hooks/useDuckDBQuery.ts',
+  // DuckDB 統合 — 責務別クエリフック（Phase 6 で useDuckDBQuery.ts から分割）
+  'application/hooks/duckdb/useCtsQueries.ts',
+  'application/hooks/duckdb/useDeptKpiQueries.ts',
+  'application/hooks/duckdb/useSummaryQueries.ts',
+  'application/hooks/duckdb/useYoyQueries.ts',
+  'application/hooks/duckdb/useFeatureQueries.ts',
+  'application/hooks/duckdb/useAdvancedQueries.ts',
   // ファイルインポート（infrastructure のパーサーを使用）
   'application/usecases/import/FileImportService.ts',
   'application/workers/fileParseWorker.ts',

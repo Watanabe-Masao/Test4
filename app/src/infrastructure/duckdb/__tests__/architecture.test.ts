@@ -77,16 +77,49 @@ describe('DuckDB クエリモジュールの barrel export', () => {
   })
 })
 
-describe('useDuckDBQuery.ts のフック数', () => {
-  const hookContent = readFile('application/hooks/useDuckDBQuery.ts')
+describe('DuckDB クエリフックの責務分割', () => {
+  const hookModules = [
+    'application/hooks/duckdb/useCtsQueries.ts',
+    'application/hooks/duckdb/useDeptKpiQueries.ts',
+    'application/hooks/duckdb/useSummaryQueries.ts',
+    'application/hooks/duckdb/useYoyQueries.ts',
+    'application/hooks/duckdb/useFeatureQueries.ts',
+    'application/hooks/duckdb/useAdvancedQueries.ts',
+  ]
 
-  it('useDuckDB で始まるフック関数が 14 個以上ある', () => {
-    const hookMatches = hookContent.match(/export function useDuckDB\w+/g) ?? []
-    expect(hookMatches.length).toBeGreaterThanOrEqual(14)
+  it('責務別モジュールが全て存在する', () => {
+    for (const mod of hookModules) {
+      const fullPath = path.join(SRC_ROOT, mod)
+      expect(fs.existsSync(fullPath), `Missing: ${mod}`).toBe(true)
+    }
+  })
+
+  it('useDuckDB で始まるフック関数が全モジュール合計で 14 個以上ある', () => {
+    let totalHooks = 0
+    for (const mod of hookModules) {
+      const content = readFile(mod)
+      const matches = content.match(/export function useDuckDB\w+/g) ?? []
+      totalHooks += matches.length
+    }
+    expect(totalHooks).toBeGreaterThanOrEqual(14)
   })
 
   it('useAsyncQuery 汎用フックが定義されている', () => {
-    expect(hookContent).toContain('function useAsyncQuery')
+    const asyncQueryContent = readFile('application/hooks/duckdb/useAsyncQuery.ts')
+    expect(asyncQueryContent).toContain('function useAsyncQuery')
+  })
+
+  it('barrel index が全モジュールを re-export している', () => {
+    const indexContent = readFile('application/hooks/duckdb/index.ts')
+    for (const mod of hookModules) {
+      const baseName = path.basename(mod, '.ts')
+      expect(indexContent).toContain(baseName)
+    }
+  })
+
+  it('後方互換バレル useDuckDBQuery.ts が duckdb/ を re-export している', () => {
+    const barrelContent = readFile('application/hooks/useDuckDBQuery.ts')
+    expect(barrelContent).toContain("from './duckdb'")
   })
 })
 
