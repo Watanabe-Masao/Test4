@@ -172,7 +172,7 @@ export function DuckDBDeptTrendChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
         <Title>部門別KPIトレンド（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -190,7 +190,7 @@ export function DuckDBDeptTrendChart({
     : deptEntries
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
       <Title>部門別KPIトレンド（DuckDB）</Title>
       <Subtitle>
         粗利率（線）・売上実績（棒）の月次推移 | {loadedMonthCount}ヶ月分ロード済み

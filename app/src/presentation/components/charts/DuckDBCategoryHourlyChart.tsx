@@ -308,7 +308,7 @@ export function DuckDBCategoryHourlyChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
         <Title>カテゴリ×時間帯分析（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -322,7 +322,7 @@ export function DuckDBCategoryHourlyChart({
   const { categories, maxAmount, globalPeakHour } = heatmapData
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
       <Title>カテゴリ×時間帯分析（DuckDB）</Title>
       <Subtitle>カテゴリ別の時間帯売上分布 | ★ = ピーク</Subtitle>
 
@@ -338,15 +338,17 @@ export function DuckDBCategoryHourlyChart({
       </ControlRow>
 
       <ScrollContainer>
-        <HeatmapTable>
+        <HeatmapTable aria-label="カテゴリ×時間帯ヒートマップ">
           <thead>
             <tr>
-              <HeatmapCategoryTh>カテゴリ</HeatmapCategoryTh>
+              <HeatmapCategoryTh scope="col">カテゴリ</HeatmapCategoryTh>
               {HOURS.map((h) => (
-                <HeatmapTh key={h}>{h}</HeatmapTh>
+                <HeatmapTh key={h} scope="col">
+                  {h}
+                </HeatmapTh>
               ))}
-              <HeatmapTh>合計</HeatmapTh>
-              <HeatmapTh>構成比</HeatmapTh>
+              <HeatmapTh scope="col">合計</HeatmapTh>
+              <HeatmapTh scope="col">構成比</HeatmapTh>
             </tr>
           </thead>
           <tbody>

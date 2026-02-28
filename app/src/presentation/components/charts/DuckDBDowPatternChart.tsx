@@ -179,7 +179,7 @@ export function DuckDBDowPatternChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="曜日別売上パターン（DuckDB）">
         <Title>曜日別売上パターン（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -191,7 +191,7 @@ export function DuckDBDowPatternChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="曜日別売上パターン（DuckDB）">
       <Title>曜日別売上パターン（DuckDB）</Title>
       <Subtitle>曜日別平均売上 | 赤線 = 全曜日平均</Subtitle>
 

@@ -33,7 +33,11 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run build
-      - run: npm test
+      - name: Test with coverage
+        run: npx vitest run --coverage --coverage.thresholds.lines=70
+
+      - name: E2E tests
+        run: npx playwright install --with-deps && npm run test:e2e
 
       - uses: actions/upload-pages-artifact@v3
         with:

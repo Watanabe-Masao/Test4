@@ -355,7 +355,7 @@ export function DuckDBCategoryMixChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
         <Title>カテゴリ構成比推移（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -367,7 +367,7 @@ export function DuckDBCategoryMixChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
       <Title>カテゴリ構成比推移（DuckDB）</Title>
       <Subtitle>週次のカテゴリ別売上構成比 | マルチ月対応</Subtitle>
 

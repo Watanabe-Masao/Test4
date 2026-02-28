@@ -104,7 +104,7 @@ export function DuckDBCumulativeChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="累積売上推移（DuckDB）">
         <Title>累積売上推移（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -119,7 +119,7 @@ export function DuckDBCumulativeChart({
   const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="累積売上推移（DuckDB）">
       <Title>累積売上推移（DuckDB）</Title>
       <Subtitle>日別売上（棒）と累積売上（面）| 月跨ぎ対応</Subtitle>
 

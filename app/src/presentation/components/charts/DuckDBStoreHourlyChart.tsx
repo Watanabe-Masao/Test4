@@ -278,7 +278,7 @@ export function DuckDBStoreHourlyChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
         <Title>店舗×時間帯比較（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -290,17 +290,27 @@ export function DuckDBStoreHourlyChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
       <HeaderRow>
         <div>
           <Title>店舗×時間帯比較（DuckDB）</Title>
           <Subtitle>店舗別の時間帯売上パターン</Subtitle>
         </div>
-        <ToggleGroup>
-          <ToggleButton $active={mode === 'amount'} onClick={() => setMode('amount')}>
+        <ToggleGroup role="tablist" aria-label="表示モード切替">
+          <ToggleButton
+            $active={mode === 'amount'}
+            onClick={() => setMode('amount')}
+            role="tab"
+            aria-selected={mode === 'amount'}
+          >
             金額
           </ToggleButton>
-          <ToggleButton $active={mode === 'ratio'} onClick={() => setMode('ratio')}>
+          <ToggleButton
+            $active={mode === 'ratio'}
+            onClick={() => setMode('ratio')}
+            role="tab"
+            aria-selected={mode === 'ratio'}
+          >
             構成比
           </ToggleButton>
         </ToggleGroup>

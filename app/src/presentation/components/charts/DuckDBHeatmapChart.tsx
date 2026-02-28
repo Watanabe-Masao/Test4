@@ -290,7 +290,7 @@ export function DuckDBHeatmapChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
         <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -310,17 +310,19 @@ export function DuckDBHeatmapChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
       <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
       <Subtitle>セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z &gt; {Z_SCORE_THRESHOLD})</Subtitle>
 
       <GridContainer>
-        <HeatmapTable>
+        <HeatmapTable aria-label="時間帯×曜日ヒートマップ">
           <thead>
             <tr>
-              <HeaderCell />
+              <HeaderCell scope="col" />
               {DOW_ORDER.map((dow) => (
-                <HeaderCell key={dow}>{DOW_LABELS[dow]}</HeaderCell>
+                <HeaderCell key={dow} scope="col">
+                  {DOW_LABELS[dow]}
+                </HeaderCell>
               ))}
             </tr>
           </thead>

@@ -233,7 +233,7 @@ export function DuckDBCategoryTrendChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
         <Title>カテゴリ別売上推移（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -248,7 +248,7 @@ export function DuckDBCategoryTrendChart({
   const topCategory = categories[0]
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
       <Title>カテゴリ別売上推移（DuckDB）</Title>
       <Subtitle>上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応</Subtitle>
 

@@ -139,7 +139,7 @@ export function DuckDBYoYChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="前年比較（DuckDB）">
         <Title>前年比較（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -157,7 +157,7 @@ export function DuckDBYoYChart({
   const growthRate = totalPrev > 0 ? toPct(totalDiff / totalPrev, 1) : '-'
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="前年比較（DuckDB）">
       <Title>前年比較（DuckDB）</Title>
       <Subtitle>当年 vs 前年 日別売上 | 月跨ぎ対応 | 棒 = 前年差</Subtitle>
 

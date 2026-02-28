@@ -188,7 +188,14 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
       >
         ◀
       </StepBtn>
-      <NumInput type="number" min={min} max={end} value={start} onChange={handleStartInput} />
+      <NumInput
+        type="number"
+        min={min}
+        max={end}
+        value={start}
+        onChange={handleStartInput}
+        aria-label="開始日"
+      />
       <StepBtn
         disabled={start >= end}
         onClick={() => onChange(start + 1, end)}
@@ -205,6 +212,10 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
           min={min}
           max={max}
           value={start}
+          aria-label="開始日スライダー"
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={start}
           onChange={(e) => {
             const v = Number(e.target.value)
             if (v <= end) onChange(v, end)
@@ -215,6 +226,10 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
           min={min}
           max={max}
           value={end}
+          aria-label="終了日スライダー"
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={end}
           onChange={(e) => {
             const v = Number(e.target.value)
             if (v >= start) onChange(start, v)
@@ -228,7 +243,14 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
       >
         ◀
       </StepBtn>
-      <NumInput type="number" min={start} max={max} value={end} onChange={handleEndInput} />
+      <NumInput
+        type="number"
+        min={start}
+        max={max}
+        value={end}
+        onChange={handleEndInput}
+        aria-label="終了日"
+      />
       <StepBtn
         disabled={end >= max}
         onClick={() => onChange(start, end + 1)}
@@ -237,7 +259,11 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
         ▶
       </StepBtn>
       <UnitLabel>日</UnitLabel>
-      {!isFullRange && <ResetBtn onClick={() => onChange(min, max)}>全期間</ResetBtn>}
+      {!isFullRange && (
+        <ResetBtn onClick={() => onChange(min, max)} aria-label="全期間にリセット">
+          全期間
+        </ResetBtn>
+      )}
       {exceedsValidPeriod && <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>}
     </SliderRow>
   )

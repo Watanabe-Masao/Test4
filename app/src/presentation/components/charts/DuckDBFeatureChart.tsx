@@ -204,7 +204,7 @@ export function DuckDBFeatureChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="売上トレンド分析（DuckDB）">
         <Title>売上トレンド分析（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -216,7 +216,7 @@ export function DuckDBFeatureChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="売上トレンド分析（DuckDB）">
       <Title>売上トレンド分析（DuckDB）</Title>
       <Subtitle>
         移動平均（3日/7日/28日）・Zスコア異常検出 | 赤棒 = Z &gt; {Z_SCORE_THRESHOLD} の異常日

@@ -165,7 +165,7 @@ export function DuckDBHourlyProfileChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
         <Title>時間帯別売上プロファイル（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -177,7 +177,7 @@ export function DuckDBHourlyProfileChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
       <Title>時間帯別売上プロファイル（DuckDB）</Title>
       <Subtitle>時間帯別売上構成比 | &#9733; = ピーク時間帯</Subtitle>
 

@@ -271,7 +271,7 @@ export function DuckDBTimeSlotChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="時間帯別売上（DuckDB）">
         <Title>時間帯別売上（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -283,17 +283,27 @@ export function DuckDBTimeSlotChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯別売上（DuckDB）">
       <HeaderRow>
         <div>
           <Title>時間帯別売上（DuckDB）</Title>
           <Subtitle>当年（棒） vs 前年（線） | 日平均切替可能</Subtitle>
         </div>
-        <ToggleGroup>
-          <ToggleButton $active={mode === 'total'} onClick={() => setMode('total')}>
+        <ToggleGroup role="tablist" aria-label="表示モード切替">
+          <ToggleButton
+            $active={mode === 'total'}
+            onClick={() => setMode('total')}
+            role="tab"
+            aria-selected={mode === 'total'}
+          >
             合計
           </ToggleButton>
-          <ToggleButton $active={mode === 'daily'} onClick={() => setMode('daily')}>
+          <ToggleButton
+            $active={mode === 'daily'}
+            onClick={() => setMode('daily')}
+            role="tab"
+            aria-selected={mode === 'daily'}
+          >
             日平均
           </ToggleButton>
         </ToggleGroup>

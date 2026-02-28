@@ -335,7 +335,7 @@ export function DuckDBStoreBenchmarkChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="店舗ベンチマーク（DuckDB）">
         <Title>店舗ベンチマーク（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -347,7 +347,7 @@ export function DuckDBStoreBenchmarkChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="店舗ベンチマーク（DuckDB）">
       <Title>店舗ベンチマーク（DuckDB）</Title>
       <Subtitle>週次の店舗ランキング推移 | マルチ店舗対応</Subtitle>
 

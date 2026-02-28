@@ -192,11 +192,16 @@ export function DuckDBDateRangePicker({
   )
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="DuckDB 分析期間セレクタ">
       <Label>DuckDB 分析期間:</Label>
-      <DateInput type="date" value={fromStr} onChange={handleFromChange} />
+      <DateInput
+        type="date"
+        value={fromStr}
+        onChange={handleFromChange}
+        aria-label="分析期間開始日"
+      />
       <Separator>〜</Separator>
-      <DateInput type="date" value={toStr} onChange={handleToChange} />
+      <DateInput type="date" value={toStr} onChange={handleToChange} aria-label="分析期間終了日" />
       <DaysInfo>({days}日間)</DaysInfo>
 
       <PresetButton $active={activePreset === 'month'} onClick={() => handlePreset('month')}>

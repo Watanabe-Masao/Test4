@@ -287,7 +287,7 @@ export function DuckDBDeptHourlyChart({
 
   if (error) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
         <Title>部門別時間帯パターン（DuckDB）</Title>
         <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
       </Wrapper>
@@ -299,7 +299,7 @@ export function DuckDBDeptHourlyChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
       <HeaderRow>
         <div>
           <Title>部門別時間帯パターン（DuckDB）</Title>

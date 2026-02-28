@@ -481,8 +481,13 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
           {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
         </BreadcrumbBar>
         {hasPrevYear && (
-          <TabGroup>
-            <Tab $active={showYoY} onClick={() => setShowYoY(!showYoY)}>
+          <TabGroup role="tablist" aria-label="表示切替">
+            <Tab
+              $active={showYoY}
+              onClick={() => setShowYoY(!showYoY)}
+              role="tab"
+              aria-selected={showYoY}
+            >
               前年比較
             </Tab>
           </TabGroup>
@@ -550,28 +555,39 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
       </TreemapWrap>
 
       <TableWrap>
-        <Table>
+        <Table aria-label="カテゴリ階層データ">
+          <caption
+            style={{
+              captionSide: 'top',
+              textAlign: 'left',
+              fontSize: '0.6rem',
+              color: 'inherit',
+              padding: '0 0 4px 0',
+            }}
+          >
+            {levelLabels[currentLevel]}別の売上・時間帯分析
+          </caption>
           <thead>
             <tr>
-              <Th>#</Th>
-              <Th $sortable onClick={() => handleSort('name')}>
+              <Th scope="col">#</Th>
+              <Th scope="col" $sortable onClick={() => handleSort('name')}>
                 {levelLabels[currentLevel]}名{arrow('name')}
               </Th>
-              <Th $sortable onClick={() => handleSort('amount')}>
+              <Th scope="col" $sortable onClick={() => handleSort('amount')}>
                 売上金額{arrow('amount')}
               </Th>
-              <ThWithTip $sortable onClick={() => handleSort('pct')}>
+              <ThWithTip scope="col" $sortable onClick={() => handleSort('pct')}>
                 構成比{arrow('pct')}
                 <TipIcon>?</TipIcon>
                 <TipBubble>
                   当該カテゴリの売上 ÷ 全体売上 × 100。全体に占める割合を示します。
                 </TipBubble>
               </ThWithTip>
-              <Th $sortable onClick={() => handleSort('quantity')}>
+              <Th scope="col" $sortable onClick={() => handleSort('quantity')}>
                 数量{arrow('quantity')}
               </Th>
               {showPi && (
-                <ThWithTip $sortable onClick={() => handleSort('piValue')}>
+                <ThWithTip scope="col" $sortable onClick={() => handleSort('piValue')}>
                   PI値{arrow('piValue')}
                   <TipIcon>?</TipIcon>
                   <TipBubble>
@@ -581,7 +597,7 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
                 </ThWithTip>
               )}
               {showYoYCols && (
-                <ThWithTip $sortable onClick={() => handleSort('yoyRatio')}>
+                <ThWithTip scope="col" $sortable onClick={() => handleSort('yoyRatio')}>
                   前年比{arrow('yoyRatio')}
                   <TipIcon>?</TipIcon>
                   <TipBubble>
@@ -590,35 +606,35 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
                 </ThWithTip>
               )}
               {showYoYCols && (
-                <ThWithTip $sortable onClick={() => handleSort('yoyDiff')}>
+                <ThWithTip scope="col" $sortable onClick={() => handleSort('yoyDiff')}>
                   前年差{arrow('yoyDiff')}
                   <TipIcon>?</TipIcon>
                   <TipBubble>当年売上 − 前年売上。前年からの売上増減額を示します。</TipBubble>
                 </ThWithTip>
               )}
-              <ThWithTip $sortable onClick={() => handleSort('peakHour')}>
+              <ThWithTip scope="col" $sortable onClick={() => handleSort('peakHour')}>
                 ピーク{arrow('peakHour')}
                 <TipIcon>?</TipIcon>
                 <TipBubble>
                   最も販売実績が多い単一時間帯（1時間単位）。売上のピークタイムを示します。
                 </TipBubble>
               </ThWithTip>
-              <ThWithTip $sortable onClick={() => handleSort('coreTimeStart')}>
+              <ThWithTip scope="col" $sortable onClick={() => handleSort('coreTimeStart')}>
                 コア{arrow('coreTimeStart')}
                 <TipIcon>?</TipIcon>
                 <TipBubble>
                   連続する3時間の売上合計が最大となる時間帯。主要な販売時間帯を示します。
                 </TipBubble>
               </ThWithTip>
-              <ThWithTip $sortable onClick={() => handleSort('turnaroundHour')}>
+              <ThWithTip scope="col" $sortable onClick={() => handleSort('turnaroundHour')}>
                 折返{arrow('turnaroundHour')}
                 <TipIcon>?</TipIcon>
                 <TipBubble>
                   累積売上が1日の50%に到達する時間帯。この時点で売上の半分が達成されています。
                 </TipBubble>
               </ThWithTip>
-              <Th>時間帯パターン</Th>
-              {canDrill && <Th />}
+              <Th scope="col">時間帯パターン</Th>
+              {canDrill && <Th scope="col" />}
             </tr>
           </thead>
           <tbody>
