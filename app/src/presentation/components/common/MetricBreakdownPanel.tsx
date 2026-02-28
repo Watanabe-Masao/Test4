@@ -11,7 +11,7 @@ import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import { exportExplanationReport } from '@/infrastructure/export'
+import { useExport } from '@/application/hooks/useExport'
 import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
 
 // ─── Styled Components ─────────────────────────────────────
@@ -379,6 +379,7 @@ export function MetricBreakdownPanel({
   const [history, setHistory] = useState<MetricId[]>([explanation.metric])
   const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set())
   const [copied, setCopied] = useState(false)
+  const { exportExplanationReport } = useExport()
 
   const currentMetric = history[history.length - 1]
   const current = allExplanations.get(currentMetric) ?? explanation
@@ -416,7 +417,7 @@ export function MetricBreakdownPanel({
       explanation.scope.year,
       explanation.scope.month,
     )
-  }, [allExplanations, explanation.scope, stores])
+  }, [allExplanations, explanation.scope, stores, exportExplanationReport])
 
   const handleCopySummary = useCallback(() => {
     const summaryLines: string[] = []

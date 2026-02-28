@@ -30,7 +30,8 @@ import type { DiffConfirmResult } from '@/presentation/components/common/DiffCon
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay, maxDayOfRecord } from '@/domain/calculations/utils'
-import { downloadTemplate, TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/infrastructure/export'
+import { useExport } from '@/application/hooks/useExport'
+import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -326,6 +327,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
 
 function TemplateSectionCollapsible() {
   const [expanded, setExpanded] = useState(false)
+  const { downloadTemplate } = useExport()
 
   return (
     <SidebarSection>

@@ -72,19 +72,16 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/usecases/import/FileImportService.ts',
   'application/workers/fileParseWorker.ts',
   'application/workers/useFileParseWorker.ts',
+  // エクスポート機能ブリッジ（Phase 3 で作成: ExportPort の実装）
+  'application/usecases/export/ExportService.ts',
 ])
 
 /**
  * Presentation → Infrastructure の許可リスト。
- * Phase 3 で解消予定。
+ * Phase 3 で全件解消済み。新たな違反の追加は禁止。
  */
-const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
-  // Export 機能（Phase 3 で ExportPort 経由に切り替え予定）
-  'presentation/components/DataManagementSidebar.tsx',
-  'presentation/components/common/ImportWizard.tsx',
-  'presentation/components/common/MetricBreakdownPanel.tsx',
-  'presentation/components/common/ValidationModal.tsx',
-  'presentation/pages/Reports/ReportsPage.tsx',
+const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
+  // Phase 3 で全て ExportPort 経由に切り替え完了
 ])
 
 /**

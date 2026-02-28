@@ -13,7 +13,7 @@ import { validateDateKey } from '../queryParams'
 // ── 結果型 ──
 
 export interface YoyDailyRow {
-  readonly curDateKey: string
+  readonly curDateKey: string | null // FULL OUTER JOIN: 前年のみの行は null
   readonly prevDateKey: string | null
   readonly storeId: string
   readonly curSales: number
