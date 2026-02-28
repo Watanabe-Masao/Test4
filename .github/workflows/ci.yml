@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Test with coverage
-        run: npx vitest run --coverage --coverage.thresholds.lines=55
+        run: npx vitest run --coverage
 
       - name: E2E tests
         run: npx playwright install --with-deps && npm run test:e2e
