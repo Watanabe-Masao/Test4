@@ -1,4 +1,3 @@
-import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
@@ -14,37 +13,9 @@ import {
   EstimatedInventoryDetailChart,
   CurrencyUnitToggle,
 } from '@/presentation/components/charts'
-import {
-  useCalculation,
-  useStoreSelection,
-  usePrevYearData,
-  useBudgetChartData,
-} from '@/application/hooks'
-import {
-  formatCurrency,
-  formatPercent,
-  safeDivide,
-  calculateTransactionValue,
-  getEffectiveGrossProfitRate,
-} from '@/domain/calculations/utils'
-import { calculateForecast } from '@/domain/calculations/forecast'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { ComparisonView } from '@/presentation/pages/Analysis/ComparisonView'
-import {
-  DOW_LABELS,
-  DEFAULT_DOW_COLORS,
-  buildForecastInput,
-  computeStackedWeekData,
-  buildDailyCustomerData,
-  buildDowCustomerAverages,
-  buildMovingAverages,
-  buildRelationshipData,
-  buildRelationshipDataFromPrev,
-  buildDailyDecomposition,
-  buildDowDecomposition,
-  buildWeeklyDecomposition,
-} from '@/presentation/pages/Forecast/ForecastPage.helpers'
 import {
   WeeklyChart,
   DayOfWeekChart,
@@ -92,243 +63,137 @@ import {
   FcTr,
   FcTrTotal,
 } from './InsightPage.styles'
-
-type InsightTab = 'budget' | 'grossProfit' | 'forecast' | 'decomposition'
-type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
-type ViewMode = 'total' | 'comparison'
+import { useInsightData } from './useInsightData'
 
 export function InsightPage() {
-  const { daysInMonth } = useCalculation()
-  const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
-  const prevYear = usePrevYearData(currentResult?.elapsedDays)
+  const d = useInsightData()
 
-  const [activeTab, setActiveTab] = useState<InsightTab>('budget')
-  const [viewMode, setViewMode] = useState<ViewMode>('total')
-  const [chartMode, setChartMode] = useState<ChartMode>('budget-vs-actual')
-  const [compareMode, setCompareMode] = useState(false)
-  const [dowColors, setDowColors] = useState<string[]>([...DEFAULT_DOW_COLORS])
-  const [relViewMode, setRelViewMode] = useState<'current' | 'prev' | 'compare'>('current')
-
-  // ─── 予算分析データ ─────────────────────────────────────
-  const salesDaily = useMemo(() => {
-    if (!currentResult) return new Map<number, number>()
-    const m = new Map<number, number>()
-    for (const [d, rec] of currentResult.daily) m.set(d, rec.sales)
-    return m
-  }, [currentResult])
-
-  const chartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
-
-  // ─── 予測データ ─────────────────────────────────────────
-  const forecastData = useMemo(() => {
-    if (!currentResult) return null
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = today.getMonth() + 1
-    const forecastInput = buildForecastInput(currentResult, year, month)
-    const forecast = calculateForecast(forecastInput)
-    const stackedData = computeStackedWeekData(
-      forecast.weeklySummaries,
-      forecastInput.dailySales,
-      year,
-      month,
-    )
-    const activeWeeks = forecast.weeklySummaries.filter((w) => w.totalSales > 0)
-    const bestWeek =
-      activeWeeks.length > 0
-        ? activeWeeks.reduce((a, b) => (a.totalSales > b.totalSales ? a : b))
-        : null
-    const worstWeek =
-      activeWeeks.length > 0
-        ? activeWeeks.reduce((a, b) => (a.totalSales < b.totalSales ? a : b))
-        : null
-    return { forecast, stackedData, bestWeek, worstWeek, year, month }
-  }, [currentResult])
-
-  // ─── 客数・要因分解データ ───────────────────────────────
-  const customerData = useMemo(() => {
-    if (!currentResult || !forecastData) return null
-    const customerEntries = buildDailyCustomerData(currentResult.daily, prevYear)
-    const hasCustomerData = customerEntries.some((e) => e.customers > 0)
-    const { year, month } = forecastData
-    const dowCustomerAvg = buildDowCustomerAverages(customerEntries, year, month)
-    const movingAvgData = buildMovingAverages(customerEntries, 5)
-    const relationshipData = buildRelationshipData(customerEntries)
-    const prevRelationshipData = buildRelationshipDataFromPrev(customerEntries)
-    const hasPrevCustomers = customerEntries.some((e) => e.prevCustomers > 0)
-
-    const dailyDecomp = buildDailyDecomposition(customerEntries)
-    const hasDecompData = dailyDecomp.length > 0
-    const dowDecomp = hasDecompData ? buildDowDecomposition(dailyDecomp, year, month) : []
-    const weeklyDecomp = hasDecompData
-      ? buildWeeklyDecomposition(dailyDecomp, forecastData.forecast.weeklySummaries)
-      : []
-
-    return {
-      customerEntries,
-      hasCustomerData,
-      dowCustomerAvg,
-      movingAvgData,
-      relationshipData,
-      prevRelationshipData,
-      hasPrevCustomers,
-      dailyDecomp,
-      hasDecompData,
-      dowDecomp,
-      weeklyDecomp,
-    }
-  }, [currentResult, prevYear, forecastData])
-
-  const storeForecasts = useMemo(() => {
-    if (!compareMode || !forecastData) return []
-    const { year, month } = forecastData
-    return selectedResults.map((sr) => {
-      const input = buildForecastInput(sr, year, month)
-      const fc = calculateForecast(input)
-      const name = stores.get(sr.storeId)?.name ?? sr.storeId
-      return { storeId: sr.storeId, storeName: name, forecast: fc }
-    })
-  }, [compareMode, forecastData, selectedResults, stores])
-
-  if (!currentResult) {
+  if (!d.currentResult) {
     return (
-      <MainContent title="インサイト" storeName={storeName}>
+      <MainContent title="インサイト" storeName={d.storeName}>
         <EmptyState>計算を実行してください</EmptyState>
       </MainContent>
     )
   }
 
-  const r = currentResult
-  const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
-  const actualGrossProfitRate = getEffectiveGrossProfitRate(r)
-
-  // 客数 KPI
-  const totalCustomers = r.totalCustomers
-  const avgDailyCustomers = r.averageCustomersPerDay
-  const avgTxValue = calculateTransactionValue(r.totalSales, totalCustomers)
-  const prevTotalCustomers = prevYear.totalCustomers
-  const customerYoY = prevTotalCustomers > 0 ? safeDivide(totalCustomers, prevTotalCustomers) : 0
-  const prevAvgTxValue = calculateTransactionValue(prevYear.totalSales, prevTotalCustomers)
-  const txValueYoY = prevAvgTxValue > 0 ? safeDivide(avgTxValue, prevAvgTxValue) : 0
-
-  const handleDowColorChange = (index: number, color: string) => {
-    setDowColors((prev) => {
-      const next = [...prev]
-      next[index] = color
-      return next
-    })
-  }
+  const r = d.currentResult
 
   return (
-    <MainContent title="インサイト" storeName={storeName}>
+    <MainContent title="インサイト" storeName={d.storeName}>
       {/* タブバー */}
       <TabBar>
-        <Tab $active={activeTab === 'budget'} onClick={() => setActiveTab('budget')}>
+        <Tab $active={d.activeTab === 'budget'} onClick={() => d.setActiveTab('budget')}>
           予算分析
         </Tab>
-        <Tab $active={activeTab === 'grossProfit'} onClick={() => setActiveTab('grossProfit')}>
+        <Tab $active={d.activeTab === 'grossProfit'} onClick={() => d.setActiveTab('grossProfit')}>
           粗利計算
         </Tab>
-        <Tab $active={activeTab === 'forecast'} onClick={() => setActiveTab('forecast')}>
+        <Tab $active={d.activeTab === 'forecast'} onClick={() => d.setActiveTab('forecast')}>
           予測パターン
         </Tab>
-        <Tab $active={activeTab === 'decomposition'} onClick={() => setActiveTab('decomposition')}>
+        <Tab
+          $active={d.activeTab === 'decomposition'}
+          onClick={() => d.setActiveTab('decomposition')}
+        >
           要因分解
         </Tab>
       </TabBar>
 
       {/* ═══ Tab 1: 予算分析 ═══ */}
-      {activeTab === 'budget' && (
+      {d.activeTab === 'budget' && (
         <>
-          {selectedResults.length > 1 && (
+          {d.selectedResults.length > 1 && (
             <ToggleSection>
               <ChipGroup>
-                <Chip $active={viewMode === 'total'} onClick={() => setViewMode('total')}>
+                <Chip $active={d.viewMode === 'total'} onClick={() => d.setViewMode('total')}>
                   合計モード
                 </Chip>
-                <Chip $active={viewMode === 'comparison'} onClick={() => setViewMode('comparison')}>
+                <Chip
+                  $active={d.viewMode === 'comparison'}
+                  onClick={() => d.setViewMode('comparison')}
+                >
                   比較モード
                 </Chip>
               </ChipGroup>
             </ToggleSection>
           )}
 
-          {viewMode === 'comparison' && selectedResults.length > 1 ? (
-            <ComparisonView results={selectedResults} />
+          {d.viewMode === 'comparison' && d.selectedResults.length > 1 ? (
+            <ComparisonView results={d.selectedResults} />
           ) : (
             <>
               <KpiGrid>
                 <KpiCard
                   label="予算達成率"
-                  value={formatPercent(r.budgetProgressRate)}
+                  value={d.formatPercent(r.budgetProgressRate)}
                   subText={`経過日予算累計比: ${r.elapsedDays}日分`}
                   accent={palette.primary}
                 />
                 <KpiCard
                   label="予算消化率"
-                  value={formatPercent(r.budgetAchievementRate)}
-                  subText={`予算: ${formatCurrency(r.budget)}`}
+                  value={d.formatPercent(r.budgetAchievementRate)}
+                  subText={`予算: ${d.formatCurrency(r.budget)}`}
                   accent={sc.positive}
                 />
                 <KpiCard
                   label="月末予測売上"
-                  value={formatCurrency(r.projectedSales)}
+                  value={d.formatCurrency(r.projectedSales)}
                   accent={palette.infoDark}
                 />
                 <KpiCard
                   label="達成率予測"
-                  value={formatPercent(r.projectedAchievement)}
-                  subText={`残余予算: ${formatCurrency(r.remainingBudget)}`}
+                  value={d.formatPercent(r.projectedAchievement)}
+                  subText={`残余予算: ${d.formatCurrency(r.remainingBudget)}`}
                   accent={sc.achievement(r.projectedAchievement)}
                 />
                 <KpiCard
                   label="粗利額予算"
-                  value={formatCurrency(r.grossProfitBudget)}
-                  subText={`実績: ${formatCurrency(actualGrossProfit)}`}
+                  value={d.formatCurrency(r.grossProfitBudget)}
+                  subText={`実績: ${d.formatCurrency(d.actualGrossProfit)}`}
                   accent={palette.purpleDark}
                 />
                 <KpiCard
                   label="粗利率"
-                  value={formatPercent(actualGrossProfitRate)}
-                  subText={`予算: ${formatPercent(r.grossProfitRateBudget)}`}
+                  value={d.formatPercent(d.actualGrossProfitRate)}
+                  subText={`予算: ${d.formatPercent(r.grossProfitRateBudget)}`}
                   accent={palette.pinkDark}
                 />
-                {prevYear.hasPrevYear && (
+                {d.prevYear.hasPrevYear && (
                   <KpiCard
                     label="前年同曜日売上"
-                    value={formatCurrency(prevYear.totalSales)}
-                    subText={`前年同曜日比: ${prevYear.totalSales > 0 ? formatPercent(r.totalSales / prevYear.totalSales) : '-'}`}
+                    value={d.formatCurrency(d.prevYear.totalSales)}
+                    subText={`前年同曜日比: ${d.prevYear.totalSales > 0 ? d.formatPercent(r.totalSales / d.prevYear.totalSales) : '-'}`}
                     accent={palette.slate}
                   />
                 )}
-                {prevYear.hasPrevYear && prevYear.totalSales > 0 && (
+                {d.prevYear.hasPrevYear && d.prevYear.totalSales > 0 && (
                   <KpiCard
                     label="前年同曜日比"
-                    value={formatPercent(r.totalSales / prevYear.totalSales)}
-                    subText={`差額: ${formatCurrency(r.totalSales - prevYear.totalSales)}`}
-                    accent={sc.cond(r.totalSales >= prevYear.totalSales)}
+                    value={d.formatPercent(r.totalSales / d.prevYear.totalSales)}
+                    subText={`差額: ${d.formatCurrency(r.totalSales - d.prevYear.totalSales)}`}
+                    accent={sc.cond(r.totalSales >= d.prevYear.totalSales)}
                   />
                 )}
               </KpiGrid>
 
-              {prevYear.hasPrevYear && (
+              {d.prevYear.hasPrevYear && (
                 <ToggleSection>
                   <ChipGroup>
                     <Chip
-                      $active={chartMode === 'budget-vs-actual'}
-                      onClick={() => setChartMode('budget-vs-actual')}
+                      $active={d.chartMode === 'budget-vs-actual'}
+                      onClick={() => d.setChartMode('budget-vs-actual')}
                     >
                       予算 vs 実績
                     </Chip>
                     <Chip
-                      $active={chartMode === 'prev-year'}
-                      onClick={() => setChartMode('prev-year')}
+                      $active={d.chartMode === 'prev-year'}
+                      onClick={() => d.setChartMode('prev-year')}
                     >
                       当年 vs 前年同曜日
                     </Chip>
                     <Chip
-                      $active={chartMode === 'all-three'}
-                      onClick={() => setChartMode('all-three')}
+                      $active={d.chartMode === 'all-three'}
+                      onClick={() => d.setChartMode('all-three')}
                     >
                       予算 vs 実績 vs 前年
                     </Chip>
@@ -336,27 +201,27 @@ export function InsightPage() {
                 </ToggleSection>
               )}
               <ChartSection>
-                {chartMode === 'budget-vs-actual' && (
-                  <BudgetVsActualChart data={chartData} budget={r.budget} />
+                {d.chartMode === 'budget-vs-actual' && (
+                  <BudgetVsActualChart data={d.chartData} budget={r.budget} />
                 )}
-                {chartMode === 'prev-year' &&
-                  prevYear.hasPrevYear &&
+                {d.chartMode === 'prev-year' &&
+                  d.prevYear.hasPrevYear &&
                   (() => {
                     const currentDaily = new Map<number, { sales: number }>()
-                    for (const [d, s] of salesDaily) currentDaily.set(d, { sales: s })
+                    for (const [day, s] of d.salesDaily) currentDaily.set(day, { sales: s })
                     return (
                       <PrevYearComparisonChart
                         currentDaily={currentDaily}
-                        prevYearDaily={prevYear.daily}
-                        daysInMonth={daysInMonth}
+                        prevYearDaily={d.prevYear.daily}
+                        daysInMonth={d.daysInMonth}
                       />
                     )
                   })()}
-                {chartMode === 'all-three' && (
-                  <BudgetVsActualChart data={chartData} budget={r.budget} showPrevYear />
+                {d.chartMode === 'all-three' && (
+                  <BudgetVsActualChart data={d.chartData} budget={r.budget} showPrevYear />
                 )}
-                {chartMode !== 'budget-vs-actual' && !prevYear.hasPrevYear && (
-                  <BudgetVsActualChart data={chartData} budget={r.budget} />
+                {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
+                  <BudgetVsActualChart data={d.chartData} budget={r.budget} />
                 )}
               </ChartSection>
 
@@ -378,10 +243,10 @@ export function InsightPage() {
                         <Th>達成率</Th>
                         <Th>売変率</Th>
                         <Th>累計売変率</Th>
-                        {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
-                        {prevYear.hasPrevYear && <Th>前年比</Th>}
-                        {prevYear.hasPrevYear && <Th>前年同曜日累計</Th>}
-                        {prevYear.hasPrevYear && <Th>累計前年比</Th>}
+                        {d.prevYear.hasPrevYear && <Th>前年同曜日</Th>}
+                        {d.prevYear.hasPrevYear && <Th>前年比</Th>}
+                        {d.prevYear.hasPrevYear && <Th>前年同曜日累計</Th>}
+                        {d.prevYear.hasPrevYear && <Th>累計前年比</Th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -389,65 +254,65 @@ export function InsightPage() {
                         let cumDiscount = 0
                         let cumGrossSales = 0
                         let cumPrevYear = 0
-                        return chartData
-                          .filter((d) => d.actualCum > 0 || d.budgetCum > 0)
-                          .map((d) => {
-                            const dailyRec = r.daily.get(d.day)
-                            const daySales = salesDaily.get(d.day) ?? 0
-                            const dayBudget = r.budgetDaily.get(d.day) ?? 0
+                        return d.chartData
+                          .filter((cd) => cd.actualCum > 0 || cd.budgetCum > 0)
+                          .map((cd) => {
+                            const dailyRec = r.daily.get(cd.day)
+                            const daySales = d.salesDaily.get(cd.day) ?? 0
+                            const dayBudget = r.budgetDaily.get(cd.day) ?? 0
                             const variance = daySales - dayBudget
-                            const achievement = d.budgetCum > 0 ? d.actualCum / d.budgetCum : 0
+                            const achievement = cd.budgetCum > 0 ? cd.actualCum / cd.budgetCum : 0
                             const dayDiscountAbsolute = dailyRec?.discountAbsolute ?? 0
                             cumDiscount += dayDiscountAbsolute
                             cumGrossSales += dailyRec?.grossSales ?? 0
-                            const discountRateCum = safeDivide(cumDiscount, cumGrossSales, 0)
+                            const discountRateCum = d.safeDivide(cumDiscount, cumGrossSales, 0)
                             const cumDiscountRate = discountRateCum
-                            const budgetVariance = d.actualCum - d.budgetCum
-                            const pyDaySales = prevYear.daily.get(d.day)?.sales ?? 0
+                            const budgetVariance = cd.actualCum - cd.budgetCum
+                            const pyDaySales = d.prevYear.daily.get(cd.day)?.sales ?? 0
                             cumPrevYear += pyDaySales
                             const pyDayRatio = pyDaySales > 0 ? daySales / pyDaySales : 0
-                            const pyCumRatio = cumPrevYear > 0 ? d.actualCum / cumPrevYear : 0
+                            const pyCumRatio = cumPrevYear > 0 ? cd.actualCum / cumPrevYear : 0
                             return (
-                              <Tr key={d.day}>
-                                <Td>{d.day}</Td>
-                                <Td>{formatCurrency(dayBudget)}</Td>
-                                <Td>{formatCurrency(daySales)}</Td>
+                              <Tr key={cd.day}>
+                                <Td>{cd.day}</Td>
+                                <Td>{d.formatCurrency(dayBudget)}</Td>
+                                <Td>{d.formatCurrency(daySales)}</Td>
                                 <Td $positive={variance > 0} $negative={variance < 0}>
                                   {variance > 0 ? '+' : ''}
-                                  {formatCurrency(variance)}
+                                  {d.formatCurrency(variance)}
                                 </Td>
-                                <Td>{formatCurrency(dayDiscountAbsolute)}</Td>
-                                <Td>{formatCurrency(d.budgetCum)}</Td>
-                                <Td>{formatCurrency(d.actualCum)}</Td>
+                                <Td>{d.formatCurrency(dayDiscountAbsolute)}</Td>
+                                <Td>{d.formatCurrency(cd.budgetCum)}</Td>
+                                <Td>{d.formatCurrency(cd.actualCum)}</Td>
                                 <Td $positive={budgetVariance > 0} $negative={budgetVariance < 0}>
                                   {budgetVariance > 0 ? '+' : ''}
-                                  {formatCurrency(budgetVariance)}
+                                  {d.formatCurrency(budgetVariance)}
                                 </Td>
                                 <Td $positive={achievement >= 1} $negative={achievement < 0.9}>
-                                  {formatPercent(achievement)}
+                                  {d.formatPercent(achievement)}
                                 </Td>
-                                <Td>{formatPercent(discountRateCum)}</Td>
-                                <Td>{formatPercent(cumDiscountRate)}</Td>
-                                {prevYear.hasPrevYear && (
-                                  <Td>{pyDaySales > 0 ? formatCurrency(pyDaySales) : '-'}</Td>
+                                <Td>{d.formatPercent(discountRateCum)}</Td>
+                                <Td>{d.formatPercent(cumDiscountRate)}</Td>
+                                {d.prevYear.hasPrevYear && (
+                                  <Td>{pyDaySales > 0 ? d.formatCurrency(pyDaySales) : '-'}</Td>
                                 )}
-                                {prevYear.hasPrevYear && (
+                                {d.prevYear.hasPrevYear && (
                                   <Td
                                     $positive={pyDayRatio >= 1}
                                     $negative={pyDayRatio > 0 && pyDayRatio < 1}
                                   >
-                                    {pyDaySales > 0 ? formatPercent(pyDayRatio) : '-'}
+                                    {pyDaySales > 0 ? d.formatPercent(pyDayRatio) : '-'}
                                   </Td>
                                 )}
-                                {prevYear.hasPrevYear && (
-                                  <Td>{cumPrevYear > 0 ? formatCurrency(cumPrevYear) : '-'}</Td>
+                                {d.prevYear.hasPrevYear && (
+                                  <Td>{cumPrevYear > 0 ? d.formatCurrency(cumPrevYear) : '-'}</Td>
                                 )}
-                                {prevYear.hasPrevYear && (
+                                {d.prevYear.hasPrevYear && (
                                   <Td
                                     $positive={pyCumRatio >= 1}
                                     $negative={pyCumRatio > 0 && pyCumRatio < 1}
                                   >
-                                    {cumPrevYear > 0 ? formatPercent(pyCumRatio) : '-'}
+                                    {cumPrevYear > 0 ? d.formatPercent(pyCumRatio) : '-'}
                                   </Td>
                                 )}
                               </Tr>
@@ -464,7 +329,7 @@ export function InsightPage() {
       )}
 
       {/* ═══ Tab 2: 粗利計算 ═══ */}
-      {activeTab === 'grossProfit' && (
+      {d.activeTab === 'grossProfit' && (
         <>
           <CalcGrid>
             <Card $accent={sc.positive}>
@@ -473,40 +338,40 @@ export function InsightPage() {
               <CalcRow>
                 <CalcLabel>期首在庫</CalcLabel>
                 <CalcValue>
-                  {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未設定'}
+                  {r.openingInventory != null ? d.formatCurrency(r.openingInventory) : '未設定'}
                 </CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>＋ 総仕入原価</CalcLabel>
-                <CalcValue>{formatCurrency(r.totalCost)}</CalcValue>
+                <CalcValue>{d.formatCurrency(r.totalCost)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>－ 期末在庫</CalcLabel>
                 <CalcValue>
-                  {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未設定'}
+                  {r.closingInventory != null ? d.formatCurrency(r.closingInventory) : '未設定'}
                 </CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>＝ 売上原価 (COGS)</CalcLabel>
                 <CalcHighlight>
-                  {r.invMethodCogs != null ? formatCurrency(r.invMethodCogs) : '-'}
+                  {r.invMethodCogs != null ? d.formatCurrency(r.invMethodCogs) : '-'}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow style={{ marginTop: 8 }}>
                 <CalcLabel>総売上高</CalcLabel>
-                <CalcValue>{formatCurrency(r.totalSales)}</CalcValue>
+                <CalcValue>{d.formatCurrency(r.totalSales)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>粗利益</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
-                  {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
+                  {r.invMethodGrossProfit != null ? d.formatCurrency(r.invMethodGrossProfit) : '-'}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>粗利率</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
                   {r.invMethodGrossProfitRate != null
-                    ? formatPercent(r.invMethodGrossProfitRate)
+                    ? d.formatPercent(r.invMethodGrossProfitRate)
                     : '-'}
                 </CalcHighlight>
               </CalcRow>
@@ -520,41 +385,41 @@ export function InsightPage() {
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
               <CalcRow>
                 <CalcLabel>コア売上</CalcLabel>
-                <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
+                <CalcValue>{d.formatCurrency(r.totalCoreSales)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>粗売上（売変前）</CalcLabel>
-                <CalcValue>{formatCurrency(r.grossSales)}</CalcValue>
+                <CalcValue>{d.formatCurrency(r.grossSales)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>売変率</CalcLabel>
-                <CalcValue>{formatPercent(r.discountRate)}</CalcValue>
+                <CalcValue>{d.formatPercent(r.discountRate)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>コア値入率</CalcLabel>
-                <CalcValue>{formatPercent(r.coreMarkupRate)}</CalcValue>
+                <CalcValue>{d.formatPercent(r.coreMarkupRate)}</CalcValue>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定原価</CalcLabel>
-                <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
+                <CalcHighlight>{d.formatCurrency(r.estMethodCogs)}</CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分</CalcLabel>
                 <CalcHighlight $color={palette.infoDark}>
-                  {formatCurrency(r.estMethodMargin)}
+                  {d.formatCurrency(r.estMethodMargin)}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定在庫差分率</CalcLabel>
                 <CalcHighlight $color={palette.infoDark}>
-                  {formatPercent(r.estMethodMarginRate)}
+                  {d.formatPercent(r.estMethodMarginRate)}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow>
                 <CalcLabel>推定期末在庫</CalcLabel>
                 <CalcHighlight $color={palette.cyanDark}>
                   {r.estMethodClosingInventory != null
-                    ? formatCurrency(r.estMethodClosingInventory)
+                    ? d.formatCurrency(r.estMethodClosingInventory)
                     : '-'}
                 </CalcHighlight>
               </CalcRow>
@@ -564,13 +429,13 @@ export function InsightPage() {
           <Section>
             <EstimatedInventoryDetailChart
               daily={r.daily}
-              daysInMonth={daysInMonth}
+              daysInMonth={d.daysInMonth}
               openingInventory={r.openingInventory}
               closingInventory={r.closingInventory}
               markupRate={r.coreMarkupRate}
               discountRate={r.discountRate}
-              comparisonResults={selectedResults}
-              stores={stores}
+              comparisonResults={d.selectedResults}
+              stores={d.stores}
             />
           </Section>
 
@@ -579,24 +444,24 @@ export function InsightPage() {
             <KpiGrid>
               <KpiCard
                 label="店間入"
-                value={formatCurrency(r.transferDetails.interStoreIn.cost)}
-                subText={`売価: ${formatCurrency(r.transferDetails.interStoreIn.price)}`}
+                value={d.formatCurrency(r.transferDetails.interStoreIn.cost)}
+                subText={`売価: ${d.formatCurrency(r.transferDetails.interStoreIn.price)}`}
                 accent={sc.positive}
               />
               <KpiCard
                 label="店間出"
-                value={formatCurrency(r.transferDetails.interStoreOut.cost)}
-                subText={`売価: ${formatCurrency(r.transferDetails.interStoreOut.price)}`}
+                value={d.formatCurrency(r.transferDetails.interStoreOut.cost)}
+                subText={`売価: ${d.formatCurrency(r.transferDetails.interStoreOut.price)}`}
                 accent={sc.negative}
               />
               <KpiCard
                 label="部門間入"
-                value={formatCurrency(r.transferDetails.interDepartmentIn.cost)}
+                value={d.formatCurrency(r.transferDetails.interDepartmentIn.cost)}
                 accent={palette.blueDark}
               />
               <KpiCard
                 label="部門間出"
-                value={formatCurrency(r.transferDetails.interDepartmentOut.cost)}
+                value={d.formatCurrency(r.transferDetails.interDepartmentOut.cost)}
                 accent={palette.purpleDeep}
               />
             </KpiGrid>
@@ -605,7 +470,7 @@ export function InsightPage() {
       )}
 
       {/* ═══ Tab 3: 予測パターン ═══ */}
-      {activeTab === 'forecast' && forecastData && (
+      {d.activeTab === 'forecast' && d.forecastData && (
         <>
           <ModeToggleWrapper>
             <CurrencyUnitToggle />
@@ -619,54 +484,54 @@ export function InsightPage() {
             />
             <KpiCard
               label="日平均売上"
-              value={formatCurrency(r.averageDailySales)}
+              value={d.formatCurrency(r.averageDailySales)}
               accent={sc.positive}
             />
             <KpiCard
               label="月末予測売上"
-              value={formatCurrency(r.projectedSales)}
-              subText={`達成率予測: ${formatPercent(r.projectedAchievement)}`}
+              value={d.formatCurrency(r.projectedSales)}
+              subText={`達成率予測: ${d.formatPercent(r.projectedAchievement)}`}
               accent={palette.infoDark}
             />
             <KpiCard
               label="異常値検出"
-              value={`${forecastData.forecast.anomalies.length}件`}
-              subText={forecastData.forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '異常なし'}
-              accent={forecastData.forecast.anomalies.length > 0 ? sc.caution : sc.positive}
+              value={`${d.forecastData.forecast.anomalies.length}件`}
+              subText={d.forecastData.forecast.anomalies.length > 0 ? `Z-Score > 2.0` : '異常なし'}
+              accent={d.forecastData.forecast.anomalies.length > 0 ? sc.caution : sc.positive}
             />
           </KpiGrid>
 
           {/* 客数 KPI */}
-          {customerData?.hasCustomerData && (
+          {d.customerData?.hasCustomerData && (
             <KpiGrid>
               <KpiCard
                 label="累計客数"
-                value={`${totalCustomers.toLocaleString()}人`}
-                subText={`日平均: ${Math.round(avgDailyCustomers).toLocaleString()}人`}
+                value={`${d.totalCustomers.toLocaleString()}人`}
+                subText={`日平均: ${Math.round(d.avgDailyCustomers).toLocaleString()}人`}
                 accent={palette.cyanDark}
               />
               <KpiCard
                 label="客単価"
-                value={`${avgTxValue.toLocaleString()}円`}
+                value={`${d.avgTxValue.toLocaleString()}円`}
                 subText={
-                  prevAvgTxValue > 0 ? `前年: ${prevAvgTxValue.toLocaleString()}円` : undefined
+                  d.prevAvgTxValue > 0 ? `前年: ${d.prevAvgTxValue.toLocaleString()}円` : undefined
                 }
                 accent={palette.purpleDark}
               />
-              {prevTotalCustomers > 0 && (
+              {d.prevTotalCustomers > 0 && (
                 <KpiCard
                   label="客数前年比"
-                  value={formatPercent(customerYoY)}
-                  subText={`前年: ${prevTotalCustomers.toLocaleString()}人`}
-                  accent={customerYoY >= 1 ? sc.positive : sc.negative}
+                  value={d.formatPercent(d.customerYoY)}
+                  subText={`前年: ${d.prevTotalCustomers.toLocaleString()}人`}
+                  accent={d.customerYoY >= 1 ? sc.positive : sc.negative}
                 />
               )}
-              {prevAvgTxValue > 0 && (
+              {d.prevAvgTxValue > 0 && (
                 <KpiCard
                   label="客単価前年比"
-                  value={formatPercent(txValueYoY)}
-                  subText={`差額: ${avgTxValue - prevAvgTxValue >= 0 ? '+' : ''}${(avgTxValue - prevAvgTxValue).toLocaleString()}円`}
-                  accent={txValueYoY >= 1 ? sc.positive : sc.negative}
+                  value={d.formatPercent(d.txValueYoY)}
+                  subText={`差額: ${d.avgTxValue - d.prevAvgTxValue >= 0 ? '+' : ''}${(d.avgTxValue - d.prevAvgTxValue).toLocaleString()}円`}
+                  accent={d.txValueYoY >= 1 ? sc.positive : sc.negative}
                 />
               )}
             </KpiGrid>
@@ -675,12 +540,12 @@ export function InsightPage() {
           {/* 曜日カラー設定 */}
           <ColorPickerRow>
             <ColorPickerTitle>曜日カラー設定:</ColorPickerTitle>
-            {DOW_LABELS.map((label, i) => (
+            {d.DOW_LABELS.map((label, i) => (
               <ColorPickerLabel key={label}>
                 <ColorInput
                   type="color"
-                  value={dowColors[i]}
-                  onChange={(e) => handleDowColorChange(i, e.target.value)}
+                  value={d.dowColors[i]}
+                  onChange={(e) => d.handleDowColorChange(i, e.target.value)}
                 />
                 {label}
               </ColorPickerLabel>
@@ -688,46 +553,49 @@ export function InsightPage() {
           </ColorPickerRow>
 
           <ChartGrid>
-            <WeeklyChart data={forecastData.stackedData} dowColors={dowColors} />
+            <WeeklyChart data={d.forecastData.stackedData} dowColors={d.dowColors} />
             <DayOfWeekChart
-              averages={forecastData.forecast.dayOfWeekAverages}
-              dowColors={dowColors}
+              averages={d.forecastData.forecast.dayOfWeekAverages}
+              dowColors={d.dowColors}
             />
           </ChartGrid>
 
           {/* 店舗間比較 */}
-          {selectedResults.length > 1 && compareMode && storeForecasts.length > 0 && (
+          {d.selectedResults.length > 1 && d.compareMode && d.storeForecasts.length > 0 && (
             <ChartGrid>
-              <StoreComparisonRadarChart storeForecasts={storeForecasts} />
-              <StoreComparisonBarChart storeForecasts={storeForecasts} />
+              <StoreComparisonRadarChart storeForecasts={d.storeForecasts} />
+              <StoreComparisonBarChart storeForecasts={d.storeForecasts} />
             </ChartGrid>
           )}
 
           {/* 客数・客単価 多角分析 */}
-          {customerData?.hasCustomerData && (
+          {d.customerData?.hasCustomerData && (
             <Section>
               <SectionTitle>客数・客単価 多角分析</SectionTitle>
               <ChartGrid>
-                <CustomerSalesScatterChart data={customerData.customerEntries} />
-                <DowCustomerChart averages={customerData.dowCustomerAvg} dowColors={dowColors} />
+                <CustomerSalesScatterChart data={d.customerData.customerEntries} />
+                <DowCustomerChart
+                  averages={d.customerData.dowCustomerAvg}
+                  dowColors={d.dowColors}
+                />
               </ChartGrid>
-              {customerData.movingAvgData.length > 0 && (
+              {d.customerData.movingAvgData.length > 0 && (
                 <ChartGrid>
                   <MovingAverageChart
-                    data={customerData.movingAvgData}
-                    hasPrev={customerData.hasPrevCustomers}
+                    data={d.customerData.movingAvgData}
+                    hasPrev={d.customerData.hasPrevCustomers}
                   />
-                  {customerData.hasPrevCustomers && forecastData && (
+                  {d.customerData.hasPrevCustomers && d.forecastData && (
                     <SameDowComparisonChart
-                      entries={customerData.customerEntries}
-                      year={forecastData.year}
-                      month={forecastData.month}
-                      dowColors={dowColors}
+                      entries={d.customerData.customerEntries}
+                      year={d.forecastData.year}
+                      month={d.forecastData.month}
+                      dowColors={d.dowColors}
                     />
                   )}
                 </ChartGrid>
               )}
-              {customerData.relationshipData.length > 0 && (
+              {d.customerData.relationshipData.length > 0 && (
                 <>
                   <ModeToggleWrapper>
                     <SectionTitle style={{ marginBottom: 0 }}>
@@ -735,23 +603,23 @@ export function InsightPage() {
                     </SectionTitle>
                     <ChipGroup>
                       <Chip
-                        $active={relViewMode === 'current'}
-                        onClick={() => setRelViewMode('current')}
+                        $active={d.relViewMode === 'current'}
+                        onClick={() => d.setRelViewMode('current')}
                       >
                         今年
                       </Chip>
-                      {customerData.hasPrevCustomers && (
+                      {d.customerData.hasPrevCustomers && (
                         <Chip
-                          $active={relViewMode === 'prev'}
-                          onClick={() => setRelViewMode('prev')}
+                          $active={d.relViewMode === 'prev'}
+                          onClick={() => d.setRelViewMode('prev')}
                         >
                           前年
                         </Chip>
                       )}
-                      {customerData.hasPrevCustomers && (
+                      {d.customerData.hasPrevCustomers && (
                         <Chip
-                          $active={relViewMode === 'compare'}
-                          onClick={() => setRelViewMode('compare')}
+                          $active={d.relViewMode === 'compare'}
+                          onClick={() => d.setRelViewMode('compare')}
                         >
                           比較
                         </Chip>
@@ -759,9 +627,9 @@ export function InsightPage() {
                     </ChipGroup>
                   </ModeToggleWrapper>
                   <RelationshipChart
-                    data={customerData.relationshipData}
-                    prevData={customerData.prevRelationshipData}
-                    viewMode={relViewMode}
+                    data={d.customerData.relationshipData}
+                    prevData={d.customerData.prevRelationshipData}
+                    viewMode={d.relViewMode}
                   />
                 </>
               )}
@@ -772,18 +640,18 @@ export function InsightPage() {
           <Section>
             <ModeToggleWrapper>
               <SectionTitle style={{ marginBottom: 0 }}>週別サマリー</SectionTitle>
-              {selectedResults.length > 1 && (
+              {d.selectedResults.length > 1 && (
                 <ChipGroup>
-                  <Chip $active={!compareMode} onClick={() => setCompareMode(false)}>
+                  <Chip $active={!d.compareMode} onClick={() => d.setCompareMode(false)}>
                     合計モード
                   </Chip>
-                  <Chip $active={compareMode} onClick={() => setCompareMode(true)}>
+                  <Chip $active={d.compareMode} onClick={() => d.setCompareMode(true)}>
                     比較モード
                   </Chip>
                 </ChipGroup>
               )}
             </ModeToggleWrapper>
-            {!compareMode ? (
+            {!d.compareMode ? (
               <FcTableWrapper>
                 <FcTable>
                   <thead>
@@ -792,28 +660,30 @@ export function InsightPage() {
                       <FcTh>期間</FcTh>
                       <FcTh>営業日数</FcTh>
                       <FcTh>売上合計</FcTh>
-                      {customerData?.hasCustomerData && <FcTh>客数</FcTh>}
-                      {customerData?.hasCustomerData && <FcTh>客単価</FcTh>}
+                      {d.customerData?.hasCustomerData && <FcTh>客数</FcTh>}
+                      {d.customerData?.hasCustomerData && <FcTh>客単価</FcTh>}
                       <FcTh>粗利合計</FcTh>
                       <FcTh>粗利率</FcTh>
                     </tr>
                   </thead>
                   <tbody>
-                    {forecastData.forecast.weeklySummaries.map((w) => {
+                    {d.forecastData.forecast.weeklySummaries.map((w) => {
                       let weekCustomers = 0
                       let weekSales = 0
-                      for (let d = w.startDay; d <= w.endDay; d++) {
-                        const rec = r.daily.get(d)
+                      for (let day = w.startDay; day <= w.endDay; day++) {
+                        const rec = r.daily.get(day)
                         if (rec) {
                           weekCustomers += rec.customers ?? 0
                           weekSales += rec.sales
                         }
                       }
-                      const weekTxValue = calculateTransactionValue(weekSales, weekCustomers)
+                      const weekTxValue = d.calculateTransactionValue(weekSales, weekCustomers)
                       return (
                         <FcTr key={w.weekNumber}>
                           <FcTd
-                            $highlight={w === forecastData.bestWeek || w === forecastData.worstWeek}
+                            $highlight={
+                              w === d.forecastData!.bestWeek || w === d.forecastData!.worstWeek
+                            }
                           >
                             第{w.weekNumber}週
                           </FcTd>
@@ -821,19 +691,19 @@ export function InsightPage() {
                             {w.startDay}日〜{w.endDay}日
                           </FcTd>
                           <FcTd>{w.days}日</FcTd>
-                          <FcTd>{formatCurrency(w.totalSales)}</FcTd>
-                          {customerData?.hasCustomerData && (
+                          <FcTd>{d.formatCurrency(w.totalSales)}</FcTd>
+                          {d.customerData?.hasCustomerData && (
                             <FcTd>
                               {weekCustomers > 0 ? `${weekCustomers.toLocaleString()}人` : '-'}
                             </FcTd>
                           )}
-                          {customerData?.hasCustomerData && (
+                          {d.customerData?.hasCustomerData && (
                             <FcTd>
                               {weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}
                             </FcTd>
                           )}
-                          <FcTd>{formatCurrency(w.totalGrossProfit)}</FcTd>
-                          <FcTd>{formatPercent(w.grossProfitRate)}</FcTd>
+                          <FcTd>{d.formatCurrency(w.totalGrossProfit)}</FcTd>
+                          <FcTd>{d.formatPercent(w.grossProfitRate)}</FcTd>
                         </FcTr>
                       )
                     })}
@@ -847,34 +717,34 @@ export function InsightPage() {
                     <tr>
                       <FcTh>週</FcTh>
                       <FcTh>期間</FcTh>
-                      {storeForecasts.map((sf) => (
+                      {d.storeForecasts.map((sf) => (
                         <FcTh key={`s-${sf.storeId}`}>{sf.storeName} 売上</FcTh>
                       ))}
-                      {storeForecasts.map((sf) => (
+                      {d.storeForecasts.map((sf) => (
                         <FcTh key={`g-${sf.storeId}`}>{sf.storeName} 粗利</FcTh>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {forecastData.forecast.weeklySummaries.map((w, wi) => (
+                    {d.forecastData.forecast.weeklySummaries.map((w, wi) => (
                       <FcTr key={w.weekNumber}>
                         <FcTd>第{w.weekNumber}週</FcTd>
                         <FcTd>
                           {w.startDay}日〜{w.endDay}日
                         </FcTd>
-                        {storeForecasts.map((sf) => {
+                        {d.storeForecasts.map((sf) => {
                           const sw = sf.forecast.weeklySummaries[wi]
                           return (
                             <FcTd key={`s-${sf.storeId}`}>
-                              {sw ? formatCurrency(sw.totalSales) : '-'}
+                              {sw ? d.formatCurrency(sw.totalSales) : '-'}
                             </FcTd>
                           )
                         })}
-                        {storeForecasts.map((sf) => {
+                        {d.storeForecasts.map((sf) => {
                           const sw = sf.forecast.weeklySummaries[wi]
                           return (
                             <FcTd key={`g-${sf.storeId}`}>
-                              {sw ? formatCurrency(sw.totalGrossProfit) : '-'}
+                              {sw ? d.formatCurrency(sw.totalGrossProfit) : '-'}
                             </FcTd>
                           )
                         })}
@@ -887,7 +757,7 @@ export function InsightPage() {
           </Section>
 
           {/* 異常値検出 */}
-          {forecastData.forecast.anomalies.length > 0 && (
+          {d.forecastData.forecast.anomalies.length > 0 && (
             <Section>
               <SectionTitle>異常値検出</SectionTitle>
               <Card>
@@ -904,11 +774,11 @@ export function InsightPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {forecastData.forecast.anomalies.map((a) => (
+                      {d.forecastData.forecast.anomalies.map((a) => (
                         <FcTr key={a.day}>
                           <FcTd>{a.day}日</FcTd>
-                          <FcTd>{formatCurrency(a.value)}</FcTd>
-                          <FcTd>{formatCurrency(a.mean)}</FcTd>
+                          <FcTd>{d.formatCurrency(a.value)}</FcTd>
+                          <FcTd>{d.formatCurrency(a.mean)}</FcTd>
                           <FcTd>{a.zScore.toFixed(2)}</FcTd>
                           <FcTd>
                             <AnomalyBadge $type={a.zScore > 0 ? 'high' : 'low'}>
@@ -927,22 +797,22 @@ export function InsightPage() {
       )}
 
       {/* ═══ Tab 4: 要因分解 ═══ */}
-      {activeTab === 'decomposition' && customerData && forecastData && (
+      {d.activeTab === 'decomposition' && d.customerData && d.forecastData && (
         <>
-          {customerData.hasDecompData ? (
+          {d.customerData.hasDecompData ? (
             <>
               <Section>
                 <SectionTitle>売上要因分解（客数×客単価 / 前年比）</SectionTitle>
                 <ChartGrid>
-                  <DecompTrendChart data={customerData.dailyDecomp} />
-                  <DecompDailyBarChart data={customerData.dailyDecomp} />
+                  <DecompTrendChart data={d.customerData.dailyDecomp} />
+                  <DecompDailyBarChart data={d.customerData.dailyDecomp} />
                 </ChartGrid>
                 <ChartGrid>
-                  <DecompDowChart data={customerData.dowDecomp} dowColors={dowColors} />
+                  <DecompDowChart data={d.customerData.dowDecomp} dowColors={d.dowColors} />
                 </ChartGrid>
 
                 {/* 週別要因分解テーブル */}
-                {customerData.weeklyDecomp.length > 0 && (
+                {d.customerData.weeklyDecomp.length > 0 && (
                   <FcTableWrapper>
                     <FcTable>
                       <thead>
@@ -956,7 +826,7 @@ export function InsightPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {customerData.weeklyDecomp.map((w) => {
+                        {d.customerData.weeklyDecomp.map((w) => {
                           const total = Math.abs(w.custEffect) + Math.abs(w.ticketEffect)
                           const custPct =
                             total > 0 ? w.custEffect / (w.custEffect + w.ticketEffect) : 0
@@ -967,20 +837,20 @@ export function InsightPage() {
                                 {w.startDay}日〜{w.endDay}日
                               </FcTd>
                               <FcTd $highlight={w.salesDiff < 0}>
-                                {formatCurrency(w.salesDiff)}
+                                {d.formatCurrency(w.salesDiff)}
                               </FcTd>
                               <FcTd $highlight={w.custEffect < 0}>
-                                {formatCurrency(w.custEffect)}
+                                {d.formatCurrency(w.custEffect)}
                               </FcTd>
                               <FcTd $highlight={w.ticketEffect < 0}>
-                                {formatCurrency(w.ticketEffect)}
+                                {d.formatCurrency(w.ticketEffect)}
                               </FcTd>
-                              <FcTd>{formatPercent(custPct)}</FcTd>
+                              <FcTd>{d.formatPercent(custPct)}</FcTd>
                             </FcTr>
                           )
                         })}
                         {(() => {
-                          const totals = customerData.weeklyDecomp.reduce(
+                          const totals = d.customerData!.weeklyDecomp.reduce(
                             (acc, w) => ({
                               salesDiff: acc.salesDiff + w.salesDiff,
                               custEffect: acc.custEffect + w.custEffect,
@@ -998,10 +868,10 @@ export function InsightPage() {
                             <FcTrTotal>
                               <FcTd>合計</FcTd>
                               <FcTd></FcTd>
-                              <FcTd>{formatCurrency(totals.salesDiff)}</FcTd>
-                              <FcTd>{formatCurrency(totals.custEffect)}</FcTd>
-                              <FcTd>{formatCurrency(totals.ticketEffect)}</FcTd>
-                              <FcTd>{formatPercent(totalCustPct)}</FcTd>
+                              <FcTd>{d.formatCurrency(totals.salesDiff)}</FcTd>
+                              <FcTd>{d.formatCurrency(totals.custEffect)}</FcTd>
+                              <FcTd>{d.formatCurrency(totals.ticketEffect)}</FcTd>
+                              <FcTd>{d.formatPercent(totalCustPct)}</FcTd>
                             </FcTrTotal>
                           )
                         })()}
@@ -1012,7 +882,7 @@ export function InsightPage() {
               </Section>
 
               {/* 曜日別客数・客単価テーブル */}
-              {customerData.hasCustomerData && (
+              {d.customerData.hasCustomerData && (
                 <Section>
                   <SectionTitle>曜日別 客数・客単価 詳細</SectionTitle>
                   <FcTableWrapper>
@@ -1023,14 +893,14 @@ export function InsightPage() {
                           <FcTh>日数</FcTh>
                           <FcTh>平均客数</FcTh>
                           <FcTh>平均客単価</FcTh>
-                          {customerData.hasPrevCustomers && <FcTh>前年客数</FcTh>}
-                          {customerData.hasPrevCustomers && <FcTh>前年客単価</FcTh>}
-                          {customerData.hasPrevCustomers && <FcTh>客数前年比</FcTh>}
-                          {customerData.hasPrevCustomers && <FcTh>客単価前年比</FcTh>}
+                          {d.customerData.hasPrevCustomers && <FcTh>前年客数</FcTh>}
+                          {d.customerData.hasPrevCustomers && <FcTh>前年客単価</FcTh>}
+                          {d.customerData.hasPrevCustomers && <FcTh>客数前年比</FcTh>}
+                          {d.customerData.hasPrevCustomers && <FcTh>客単価前年比</FcTh>}
                         </tr>
                       </thead>
                       <tbody>
-                        {customerData.dowCustomerAvg.map((a) => {
+                        {d.customerData.dowCustomerAvg.map((a) => {
                           const custRatio =
                             a.prevAvgCustomers > 0 ? a.avgCustomers / a.prevAvgCustomers : 0
                           const txRatio = a.prevAvgTxValue > 0 ? a.avgTxValue / a.prevAvgTxValue : 0
@@ -1042,26 +912,26 @@ export function InsightPage() {
                               <FcTd>
                                 {a.avgTxValue > 0 ? `${a.avgTxValue.toLocaleString()}円` : '-'}
                               </FcTd>
-                              {customerData.hasPrevCustomers && (
+                              {d.customerData!.hasPrevCustomers && (
                                 <FcTd>
                                   {a.prevAvgCustomers > 0 ? `${a.prevAvgCustomers}人` : '-'}
                                 </FcTd>
                               )}
-                              {customerData.hasPrevCustomers && (
+                              {d.customerData!.hasPrevCustomers && (
                                 <FcTd>
                                   {a.prevAvgTxValue > 0
                                     ? `${a.prevAvgTxValue.toLocaleString()}円`
                                     : '-'}
                                 </FcTd>
                               )}
-                              {customerData.hasPrevCustomers && (
+                              {d.customerData!.hasPrevCustomers && (
                                 <FcTd $highlight={custRatio > 0 && custRatio < 1}>
-                                  {custRatio > 0 ? formatPercent(custRatio) : '-'}
+                                  {custRatio > 0 ? d.formatPercent(custRatio) : '-'}
                                 </FcTd>
                               )}
-                              {customerData.hasPrevCustomers && (
+                              {d.customerData!.hasPrevCustomers && (
                                 <FcTd $highlight={txRatio > 0 && txRatio < 1}>
-                                  {txRatio > 0 ? formatPercent(txRatio) : '-'}
+                                  {txRatio > 0 ? d.formatPercent(txRatio) : '-'}
                                 </FcTd>
                               )}
                             </FcTr>

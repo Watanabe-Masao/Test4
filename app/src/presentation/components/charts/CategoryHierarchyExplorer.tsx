@@ -1,5 +1,4 @@
 import { useMemo, useState, useCallback, Fragment } from 'react'
-import styled from 'styled-components'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { toComma, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -13,6 +12,49 @@ import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
 import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
 import { computeDivisor, countDistinctDays, filterByStore } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
+import {
+  Wrapper,
+  BreadcrumbBar,
+  BreadcrumbItem,
+  BreadcrumbSep,
+  ResetBtn,
+  SummaryBar,
+  SummaryItem,
+  SummaryLabel,
+  SummaryValue,
+  TreemapWrap,
+  TreemapBlock,
+  TreemapLabel,
+  TreemapPct,
+  EmptyFilterMsg,
+  TableWrap,
+  Table,
+  Th,
+  Tr,
+  Td,
+  TdName,
+  NameMain,
+  NameCode,
+  TdAmount,
+  AmtWrap,
+  AmtTrack,
+  AmtFill,
+  AmtVal,
+  PeakBadge,
+  TdSpark,
+  DrillBtn,
+  DrillCount,
+  YoYBadge,
+  TabGroup,
+  Tab,
+  HeaderRow,
+  YoYBar,
+  AnomalyBadge,
+  PiValueBadge,
+  ThWithTip,
+  TipIcon,
+  TipBubble,
+} from './CategoryHierarchyExplorer.styles'
 
 /* ── Types ─────────────────────────────────── */
 
@@ -72,342 +114,6 @@ const COLORS = [
   '#38bdf8',
   '#c084fc',
 ]
-
-/* ── Styled ────────────────────────────────── */
-
-const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[5]};
-  overflow: hidden;
-`
-const BreadcrumbBar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-`
-const BreadcrumbItem = styled.button<{ $active: boolean }>`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.72rem;
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.palette.primary)};
-  padding: 2px 6px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  &:hover {
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  }
-`
-const BreadcrumbSep = styled.span`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  user-select: none;
-`
-const ResetBtn = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  margin-left: auto;
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ theme }) => theme.colors.text3};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover {
-    opacity: 0.7;
-  }
-`
-const SummaryBar = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[4]};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-`
-const SummaryItem = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-`
-const SummaryLabel = styled.span`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-const SummaryValue = styled.span`
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-const TreemapWrap = styled.div`
-  display: flex;
-  gap: 2px;
-  height: 64px;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.md};
-  overflow: hidden;
-`
-const TreemapBlock = styled.div<{ $flex: number; $color: string; $canDrill: boolean }>`
-  flex: ${({ $flex }) => Math.max($flex, 0.01)};
-  min-width: 0;
-  background: ${({ $color }) => $color};
-  opacity: 0.8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 4px;
-  cursor: ${({ $canDrill }) => ($canDrill ? 'pointer' : 'default')};
-  transition: opacity 0.15s;
-  overflow: hidden;
-  &:hover {
-    opacity: 1;
-  }
-`
-const TreemapLabel = styled.div`
-  font-size: 0.55rem;
-  color: #fff;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-`
-const TreemapPct = styled.div`
-  font-size: 0.5rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-family: monospace;
-`
-
-const EmptyFilterMsg = styled.div`
-  text-align: center;
-  padding: 40px 16px;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
-const TableWrap = styled.div`
-  overflow-x: auto;
-`
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.65rem;
-`
-const Th = styled.th<{ $sortable?: boolean }>`
-  text-align: left;
-  padding: 6px 8px;
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text3};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
-  cursor: ${({ $sortable }) => ($sortable ? 'pointer' : 'default')};
-  user-select: none;
-  &:hover {
-    color: ${({ $sortable, theme }) => ($sortable ? theme.colors.text : undefined)};
-  }
-`
-const Tr = styled.tr<{ $clickable: boolean }>`
-  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
-  transition: background 0.1s;
-  &:hover {
-    background: ${({ $clickable, theme }) =>
-      $clickable
-        ? theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.04)'
-          : 'rgba(0,0,0,0.02)'
-        : 'none'};
-  }
-`
-const Td = styled.td<{ $mono?: boolean }>`
-  padding: 5px 8px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ theme }) => theme.colors.text2};
-  font-family: ${({ $mono, theme }) =>
-    $mono ? theme.typography.fontFamily.mono : theme.typography.fontFamily.primary};
-  white-space: nowrap;
-`
-const TdName = styled(Td)`
-  max-width: 160px;
-`
-const NameMain = styled.div`
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.text};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-const NameCode = styled.div`
-  font-size: 0.52rem;
-  color: ${({ theme }) => theme.colors.text4};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-const TdAmount = styled(Td)`
-  min-width: 160px;
-`
-const AmtWrap = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
-const AmtTrack = styled.div`
-  flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  overflow: hidden;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-`
-const AmtFill = styled.div<{ $pct: number; $color: string }>`
-  width: ${({ $pct }) => Math.min($pct, 100)}%;
-  height: 100%;
-  background: ${({ $color }) => $color};
-  border-radius: 3px;
-  opacity: 0.75;
-`
-const AmtVal = styled.span`
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.62rem;
-  color: ${({ theme }) => theme.colors.text2};
-  min-width: 70px;
-  text-align: right;
-`
-const PeakBadge = styled.span`
-  display: inline-block;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 0.58rem;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)'};
-  color: ${({ theme }) => theme.colors.palette.primary};
-`
-const TdSpark = styled(Td)`
-  min-width: 130px;
-  padding: 3px 8px;
-`
-const DrillBtn = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  font-size: 0.7rem;
-  font-weight: 600;
-`
-const DrillCount = styled.span`
-  font-size: 0.5rem;
-  color: ${({ theme }) => theme.colors.text4};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-const YoYBadge = styled.span<{ $positive: boolean }>`
-  font-size: 0.55rem;
-  font-weight: 600;
-  color: ${({ $positive }) => sc.cond($positive)};
-`
-const TabGroup = styled.div`
-  display: flex;
-  gap: 2px;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: 2px;
-`
-const Tab = styled.button<{ $active: boolean }>`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition: all 0.15s;
-  white-space: nowrap;
-  &:hover {
-    opacity: 0.85;
-  }
-`
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-const YoYBar = styled.div<{ $pct: number; $positive: boolean }>`
-  display: inline-block;
-  height: 4px;
-  border-radius: 2px;
-  width: ${({ $pct }) => Math.min(Math.abs($pct), 100)}%;
-  background: ${({ $positive }) => sc.cond($positive)};
-  opacity: 0.6;
-`
-const AnomalyBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 0.52rem;
-  font-weight: 600;
-  background: ${sc.negative}1f;
-  color: ${sc.negative};
-`
-const PiValueBadge = styled.span<{ $below: boolean }>`
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.58rem;
-  color: ${({ $below }) => ($below ? sc.negative : 'inherit')};
-  background: ${({ $below }) => ($below ? `${sc.negative}14` : 'transparent')};
-  padding: ${({ $below }) => ($below ? '0 3px' : '0')};
-  border-radius: 2px;
-`
-const ThWithTip = styled(Th)`
-  position: relative;
-`
-const TipIcon = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  margin-left: 3px;
-  vertical-align: middle;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
-  color: ${({ theme }) => theme.colors.text3};
-  cursor: help;
-`
-const TipBubble = styled.div`
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  width: 200px;
-  padding: 8px 10px;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e293b' : '#fff')};
-  color: ${({ theme }) => theme.colors.text2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 0.58rem;
-  font-weight: 400;
-  white-space: normal;
-  line-height: 1.5;
-  ${ThWithTip}:hover & {
-    display: block;
-  }
-`
 
 /* ── Sparkline SVG ────────────────────────── */
 

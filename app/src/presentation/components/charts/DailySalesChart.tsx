@@ -13,7 +13,15 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import styled from 'styled-components'
+import {
+  Wrapper,
+  HeaderRow,
+  Title,
+  ViewToggle,
+  ViewBtn,
+  Sep,
+  GroupLabel,
+} from './DailySalesChart.styles'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
@@ -23,75 +31,6 @@ import {
   calculateTransactionValue,
   calculateMovingAverage,
 } from '@/domain/calculations'
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 400px;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  padding: 0 ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-const ViewToggle = styled.div`
-  display: flex;
-  gap: 2px;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: 2px;
-`
-
-const ViewBtn = styled.button<{ $active?: boolean }>`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.65rem;
-  padding: 3px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition: all 0.15s;
-  white-space: nowrap;
-  &:hover {
-    background: ${({ $active, theme }) =>
-      $active
-        ? theme.colors.palette.primary
-        : theme.mode === 'dark'
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(0,0,0,0.06)'};
-  }
-`
-
-const Sep = styled.span`
-  opacity: 0.4;
-  padding: 3px 2px;
-  cursor: default;
-  font-size: 0.65rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-
-const GroupLabel = styled.span`
-  font-size: 0.55rem;
-  color: ${({ theme }) => theme.colors.text4};
-  padding: 3px 0 3px 4px;
-  cursor: default;
-  white-space: nowrap;
-`
 
 export type DailyChartMode = 'sales' | 'discount' | 'all'
 

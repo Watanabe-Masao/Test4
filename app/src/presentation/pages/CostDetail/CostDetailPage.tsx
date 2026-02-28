@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment } from 'react'
+import { Fragment } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
@@ -8,9 +8,7 @@ import {
   KpiCard,
   KpiGrid,
 } from '@/presentation/components/common'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -38,269 +36,49 @@ import {
   PairGrid,
   ConsumTd,
 } from './CostDetailPage.styles'
-
-type ActiveTab = 'transfer' | 'consumable'
-type TransferType = 'interStore' | 'interDepartment'
-type ConsumableViewMode = 'item' | 'account' | 'daily'
-
-// ─── Transfer helpers ─────────────────────────────────
-
-interface FlowEntry {
-  from: string
-  to: string
-  fromName: string
-  toName: string
-  cost: number
-  price: number
-}
-
-function aggregateFlows(
-  days: [number, DailyRecord][],
-  inField: 'interStoreIn' | 'interDepartmentIn',
-  outField: 'interStoreOut' | 'interDepartmentOut',
-  stores: ReadonlyMap<string, { id: string; name: string }>,
-): FlowEntry[] {
-  const map = new Map<string, FlowEntry>()
-  for (const [, rec] of days) {
-    for (const e of rec.transferBreakdown[inField]) addEntry(map, e, stores)
-    for (const e of rec.transferBreakdown[outField]) addEntry(map, e, stores)
-  }
-  return Array.from(map.values()).sort((a, b) => Math.abs(b.cost) - Math.abs(a.cost))
-}
-
-function addEntry(
-  map: Map<string, FlowEntry>,
-  e: TransferBreakdownEntry,
-  stores: ReadonlyMap<string, { id: string; name: string }>,
-) {
-  const key = `${e.fromStoreId}->${e.toStoreId}`
-  const existing = map.get(key)
-  if (existing) {
-    map.set(key, { ...existing, cost: existing.cost + e.cost, price: existing.price + e.price })
-  } else {
-    map.set(key, {
-      from: e.fromStoreId,
-      to: e.toStoreId,
-      fromName: stores.get(e.fromStoreId)?.name ?? e.fromStoreId,
-      toName: stores.get(e.toStoreId)?.name ?? e.toStoreId,
-      cost: e.cost,
-      price: e.price,
-    })
-  }
-}
-
-// ─── Consumable helpers ───────────────────────────────
-
-interface ItemAggregate {
-  itemCode: string
-  itemName: string
-  accountCode: string
-  totalQuantity: number
-  totalCost: number
-  dayCount: number
-}
-interface AccountAggregate {
-  accountCode: string
-  totalCost: number
-  itemCount: number
-}
-interface ItemDetail {
-  day: number
-  storeId: string
-  storeName: string
-  quantity: number
-  cost: number
-}
-
-function aggregateByItem(days: [number, DailyRecord][]): ItemAggregate[] {
-  const map = new Map<string, ItemAggregate>()
-  const daySeen = new Map<string, Set<number>>()
-  for (const [day, rec] of days) {
-    for (const item of rec.consumable.items) {
-      const key = item.itemCode
-      const existing = map.get(key)
-      if (existing) {
-        map.set(key, {
-          ...existing,
-          totalQuantity: existing.totalQuantity + item.quantity,
-          totalCost: existing.totalCost + item.cost,
-        })
-      } else {
-        map.set(key, {
-          itemCode: item.itemCode,
-          itemName: item.itemName,
-          accountCode: item.accountCode,
-          totalQuantity: item.quantity,
-          totalCost: item.cost,
-          dayCount: 0,
-        })
-        daySeen.set(key, new Set())
-      }
-      daySeen.get(key)?.add(day)
-    }
-  }
-  for (const [key, entry] of map) map.set(key, { ...entry, dayCount: daySeen.get(key)?.size ?? 0 })
-  return Array.from(map.values()).sort((a, b) => b.totalCost - a.totalCost)
-}
-
-function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
-  const map = new Map<string, AccountAggregate>()
-  for (const item of items) {
-    const existing = map.get(item.accountCode)
-    if (existing) {
-      map.set(item.accountCode, {
-        ...existing,
-        totalCost: existing.totalCost + item.totalCost,
-        itemCount: existing.itemCount + 1,
-      })
-    } else {
-      map.set(item.accountCode, {
-        accountCode: item.accountCode,
-        totalCost: item.totalCost,
-        itemCount: 1,
-      })
-    }
-  }
-  return Array.from(map.values()).sort((a, b) => b.totalCost - a.totalCost)
-}
+import { useCostDetailData } from './useCostDetailData'
 
 // ─── Main Component ───────────────────────────────────
 
 export function CostDetailPage() {
-  useCalculation()
-  const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
-  const [activeTab, setActiveTab] = useState<ActiveTab>('transfer')
+  const {
+    currentResult,
+    storeName,
+    activeTab,
+    setActiveTab,
+    transferType,
+    selectedPair,
+    setSelectedPair,
+    flows,
+    groupedFlows,
+    maxFlowCost,
+    pairDailyData,
+    dailyTotals,
+    dailyTransferRows,
+    typeIn,
+    typeOut,
+    typeNet,
+    typeLabel,
+    selectedFlow,
+    consumableView,
+    selectedItem,
+    itemAggregates,
+    accountAggregates,
+    itemDetailData,
+    totalConsumableCost,
+    consumableRate,
+    totalSales,
+    maxItemCost,
+    maxAccountCost,
+    dailyConsumableData,
+    hasConsumableData,
+    handleTransferTypeChange,
+    handleDayClick,
+    handleItemClick,
+    handleConsumableViewChange,
+  } = useCostDetailData()
 
-  // Transfer state
-  const [transferType, setTransferType] = useState<TransferType>('interStore')
-  const [selectedPair, setSelectedPair] = useState<string | null>(null)
-  const [expandedDay, setExpandedDay] = useState<number | null>(null)
-
-  // Consumable state
-  const [consumableView, setConsumableView] = useState<ConsumableViewMode>('item')
-  const [selectedItem, setSelectedItem] = useState<string | null>(null)
-
-  const days = useMemo(
-    () =>
-      currentResult ? Array.from(currentResult.daily.entries()).sort(([a], [b]) => a - b) : [],
-    [currentResult],
-  )
-
-  // ─── Transfer data ────────────────────────────────
-  const isInterStore = transferType === 'interStore'
-  const inField = isInterStore ? ('interStoreIn' as const) : ('interDepartmentIn' as const)
-  const outField = isInterStore ? ('interStoreOut' as const) : ('interDepartmentOut' as const)
-
-  const flows = useMemo(
-    () => (days.length > 0 ? aggregateFlows(days, inField, outField, stores) : []),
-    [days, inField, outField, stores],
-  )
-
-  const groupedFlows = useMemo(() => {
-    if (flows.length === 0) return []
-    const groups = new Map<
-      string,
-      {
-        fromId: string
-        fromName: string
-        entries: FlowEntry[]
-        totalCost: number
-        totalPrice: number
-      }
-    >()
-    for (const f of flows) {
-      const existing = groups.get(f.from)
-      if (existing) {
-        existing.entries.push(f)
-        existing.totalCost += f.cost
-        existing.totalPrice += f.price
-      } else {
-        groups.set(f.from, {
-          fromId: f.from,
-          fromName: f.fromName,
-          entries: [f],
-          totalCost: f.cost,
-          totalPrice: f.price,
-        })
-      }
-    }
-    return Array.from(groups.values()).sort((a, b) => Math.abs(b.totalCost) - Math.abs(a.totalCost))
-  }, [flows])
-
-  const maxFlowCost = useMemo(
-    () => (flows.length === 0 ? 1 : Math.max(...flows.map((f) => Math.abs(f.cost)), 1)),
-    [flows],
-  )
-
-  const pairDailyData = useMemo(() => {
-    if (!selectedPair) return null
-    return days
-      .map(([day, rec]) => {
-        const entries = [
-          ...rec.transferBreakdown[inField],
-          ...rec.transferBreakdown[outField],
-        ].filter((e) => `${e.fromStoreId}->${e.toStoreId}` === selectedPair)
-        const cost = entries.reduce((s, e) => s + e.cost, 0)
-        const price = entries.reduce((s, e) => s + e.price, 0)
-        return { day, cost, price }
-      })
-      .filter((d) => d.cost !== 0 || d.price !== 0)
-  }, [selectedPair, days, inField, outField])
-
-  const dailyTotals = useMemo(
-    () =>
-      days.reduce(
-        (acc, [, rec]) => {
-          const inRec = rec[inField]
-          const outRec = rec[outField]
-          return {
-            inCost: acc.inCost + inRec.cost,
-            inPrice: acc.inPrice + inRec.price,
-            outCost: acc.outCost + outRec.cost,
-            outPrice: acc.outPrice + outRec.price,
-          }
-        },
-        { inCost: 0, inPrice: 0, outCost: 0, outPrice: 0 },
-      ),
-    [days, inField, outField],
-  )
-
-  // ─── Consumable data ──────────────────────────────
-  const itemAggregates = useMemo(() => aggregateByItem(days), [days])
-  const accountAggregates = useMemo(() => aggregateByAccount(itemAggregates), [itemAggregates])
-
-  const itemDetailData = useMemo(() => {
-    if (!selectedItem) return null
-    const details: ItemDetail[] = []
-    for (const result of selectedResults) {
-      const stName = stores.get(result.storeId)?.name ?? result.storeId
-      for (const [day, rec] of result.daily) {
-        for (const item of rec.consumable.items) {
-          if (item.itemCode === selectedItem)
-            details.push({
-              day,
-              storeId: result.storeId,
-              storeName: stName,
-              quantity: item.quantity,
-              cost: item.cost,
-            })
-        }
-      }
-    }
-    return details.sort((a, b) => a.day - b.day || a.storeId.localeCompare(b.storeId))
-  }, [selectedItem, selectedResults, stores])
-
-  // ─── Handlers ─────────────────────────────────────
-  const handleTransferTypeChange = (type: TransferType) => {
-    setTransferType(type)
-    setSelectedPair(null)
-    setExpandedDay(null)
-  }
-  const handleDayClick = (day: number) => setExpandedDay(expandedDay === day ? null : day)
-  const handleItemClick = (itemCode: string) =>
-    setSelectedItem(selectedItem === itemCode ? null : itemCode)
-
-  if (!currentResult) {
+  if (!currentResult || !typeIn || !typeOut || !typeNet) {
     return (
       <MainContent title="原価明細" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>
@@ -308,29 +86,7 @@ export function CostDetailPage() {
     )
   }
 
-  const r = currentResult
-  const td = r.transferDetails
-  const typeIn = isInterStore ? td.interStoreIn : td.interDepartmentIn
-  const typeOut = isInterStore ? td.interStoreOut : td.interDepartmentOut
-  const typeNet = { cost: typeIn.cost + typeOut.cost, price: typeIn.price + typeOut.price }
-  const typeLabel = isInterStore ? '店間' : '部門間'
-  const selectedFlow = selectedPair
-    ? flows.find((f) => `${f.from}->${f.to}` === selectedPair)
-    : null
   const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
-
-  const totalConsumableCost = r.totalConsumable
-  const maxItemCost = itemAggregates.length > 0 ? itemAggregates[0].totalCost : 1
-  const maxAccountCost = accountAggregates.length > 0 ? accountAggregates[0].totalCost : 1
-  const dailyConsumableData = days
-    .filter(([, rec]) => rec.consumable.cost > 0 || rec.consumable.items.length > 0)
-    .map(([day, rec]) => ({
-      day,
-      cost: rec.consumable.cost,
-      itemCount: rec.consumable.items.length,
-      items: rec.consumable.items,
-    }))
-  const hasConsumableData = totalConsumableCost > 0 || itemAggregates.length > 0
 
   return (
     <MainContent title="原価明細" storeName={storeName}>
@@ -355,8 +111,8 @@ export function CostDetailPage() {
         />
         <KpiCard
           label="消耗品率"
-          value={formatPercent(r.consumableRate)}
-          subText={`売上高: ${formatCurrency(r.totalSales)}`}
+          value={formatPercent(consumableRate)}
+          subText={`売上高: ${formatCurrency(totalSales)}`}
           accent={palette.orangeDark}
         />
       </KpiGrid>
@@ -525,119 +281,51 @@ export function CostDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {days.map(([day, rec]) => {
-                      const inRec = rec[inField]
-                      const outRec = rec[outField]
-                      const net = inRec.cost + outRec.cost
-                      const hasData = inRec.cost !== 0 || outRec.cost !== 0
-                      if (!hasData) return null
-                      const inEntries = rec.transferBreakdown[inField]
-                      const outEntries = rec.transferBreakdown[outField]
-                      const hasBreakdown = inEntries.length > 0 || outEntries.length > 0
-                      const isExpanded = expandedDay === day
-                      const detailRows: {
-                        key: string
-                        label: string
-                        isSub: boolean
-                        inCost: number
-                        inPrice: number
-                        outCost: number
-                        outPrice: number
-                      }[] = []
-                      if (isExpanded) {
-                        for (const e of inEntries) {
-                          const partner = stores.get(e.fromStoreId)?.name ?? e.fromStoreId
-                          detailRows.push({
-                            key: `in-${e.fromStoreId}-${e.toStoreId}`,
-                            label: `${e.toStoreId}←${e.fromStoreId}  ${partner}`,
-                            isSub: false,
-                            inCost: e.cost,
-                            inPrice: e.price,
-                            outCost: 0,
-                            outPrice: 0,
-                          })
-                        }
-                        if (inEntries.length > 1) {
-                          const toId = inEntries[0]?.toStoreId ?? ''
-                          detailRows.push({
-                            key: 'in-sub',
-                            label: `${toId}← 小計`,
-                            isSub: true,
-                            inCost: inRec.cost,
-                            inPrice: inRec.price,
-                            outCost: 0,
-                            outPrice: 0,
-                          })
-                        }
-                        for (const e of outEntries) {
-                          const partner = stores.get(e.toStoreId)?.name ?? e.toStoreId
-                          detailRows.push({
-                            key: `out-${e.fromStoreId}-${e.toStoreId}`,
-                            label: `${e.fromStoreId}→${e.toStoreId}  ${partner}`,
-                            isSub: false,
-                            inCost: 0,
-                            inPrice: 0,
-                            outCost: e.cost,
-                            outPrice: e.price,
-                          })
-                        }
-                        if (outEntries.length > 1) {
-                          const fromId = outEntries[0]?.fromStoreId ?? ''
-                          detailRows.push({
-                            key: 'out-sub',
-                            label: `${fromId}→ 小計`,
-                            isSub: true,
-                            inCost: 0,
-                            inPrice: 0,
-                            outCost: outRec.cost,
-                            outPrice: outRec.price,
-                          })
-                        }
-                      }
-                      return (
-                        <Fragment key={day}>
-                          <Tr
-                            $clickable={hasBreakdown}
-                            $expanded={isExpanded}
-                            onClick={() => hasBreakdown && handleDayClick(day)}
-                          >
-                            <Td>
-                              <ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>
-                              {day}日
-                            </Td>
-                            <Td>{fmtOrDash(inRec.cost)}</Td>
-                            <Td>{fmtOrDash(inRec.price)}</Td>
-                            <Td $negative={outRec.cost < 0}>{fmtOrDash(outRec.cost)}</Td>
-                            <Td $negative={outRec.price < 0}>{fmtOrDash(outRec.price)}</Td>
-                            <Td $negative={net < 0} $positive={net > 0}>
-                              {fmtOrDash(net)}
-                            </Td>
-                          </Tr>
-                          {isExpanded &&
-                            detailRows.map((row, idx) => {
-                              const isLast = idx === detailRows.length - 1
-                              const TrRow = isLast ? TrDetailLast : TrDetail
-                              const rowNet = row.inCost + row.outCost
-                              return (
-                                <TrRow key={`${day}-${row.key}`}>
-                                  <Td>{row.label}</Td>
-                                  <Td>{row.inCost !== 0 ? formatCurrency(row.inCost) : '-'}</Td>
-                                  <Td>{row.inPrice !== 0 ? formatCurrency(row.inPrice) : '-'}</Td>
-                                  <Td $negative={row.outCost < 0}>
-                                    {row.outCost !== 0 ? formatCurrency(row.outCost) : '-'}
-                                  </Td>
-                                  <Td $negative={row.outPrice < 0}>
-                                    {row.outPrice !== 0 ? formatCurrency(row.outPrice) : '-'}
-                                  </Td>
-                                  <Td $negative={rowNet < 0} $positive={rowNet > 0}>
-                                    {rowNet !== 0 ? formatCurrency(rowNet) : '-'}
-                                  </Td>
-                                </TrRow>
-                              )
-                            })}
-                        </Fragment>
-                      )
-                    })}
+                    {dailyTransferRows.map((row) => (
+                      <Fragment key={row.day}>
+                        <Tr
+                          $clickable={row.hasBreakdown}
+                          $expanded={row.isExpanded}
+                          onClick={() => row.hasBreakdown && handleDayClick(row.day)}
+                        >
+                          <Td>
+                            <ToggleIcon $expanded={row.isExpanded}>&#9654;</ToggleIcon>
+                            {row.day}日
+                          </Td>
+                          <Td>{fmtOrDash(row.inCost)}</Td>
+                          <Td>{fmtOrDash(row.inPrice)}</Td>
+                          <Td $negative={row.outCost < 0}>{fmtOrDash(row.outCost)}</Td>
+                          <Td $negative={row.outPrice < 0}>{fmtOrDash(row.outPrice)}</Td>
+                          <Td $negative={row.net < 0} $positive={row.net > 0}>
+                            {fmtOrDash(row.net)}
+                          </Td>
+                        </Tr>
+                        {row.isExpanded &&
+                          row.detailRows.map((detail, idx) => {
+                            const isLast = idx === row.detailRows.length - 1
+                            const TrRow = isLast ? TrDetailLast : TrDetail
+                            const detailNet = detail.inCost + detail.outCost
+                            return (
+                              <TrRow key={`${row.day}-${detail.key}`}>
+                                <Td>{detail.label}</Td>
+                                <Td>{detail.inCost !== 0 ? formatCurrency(detail.inCost) : '-'}</Td>
+                                <Td>
+                                  {detail.inPrice !== 0 ? formatCurrency(detail.inPrice) : '-'}
+                                </Td>
+                                <Td $negative={detail.outCost < 0}>
+                                  {detail.outCost !== 0 ? formatCurrency(detail.outCost) : '-'}
+                                </Td>
+                                <Td $negative={detail.outPrice < 0}>
+                                  {detail.outPrice !== 0 ? formatCurrency(detail.outPrice) : '-'}
+                                </Td>
+                                <Td $negative={detailNet < 0} $positive={detailNet > 0}>
+                                  {detailNet !== 0 ? formatCurrency(detailNet) : '-'}
+                                </Td>
+                              </TrRow>
+                            )
+                          })}
+                      </Fragment>
+                    ))}
                     <TrTotal>
                       <Td>合計</Td>
                       <Td>{formatCurrency(dailyTotals.inCost)}</Td>
@@ -674,8 +362,8 @@ export function CostDetailPage() {
             />
             <KpiCard
               label="消耗品率"
-              value={formatPercent(r.consumableRate)}
-              subText={`売上高: ${formatCurrency(r.totalSales)}`}
+              value={formatPercent(consumableRate)}
+              subText={`売上高: ${formatCurrency(totalSales)}`}
               accent={palette.orangeDark}
             />
             <KpiCard
@@ -700,28 +388,19 @@ export function CostDetailPage() {
                 <ChipGroup>
                   <Chip
                     $active={consumableView === 'item'}
-                    onClick={() => {
-                      setConsumableView('item')
-                      setSelectedItem(null)
-                    }}
+                    onClick={() => handleConsumableViewChange('item')}
                   >
                     品目別
                   </Chip>
                   <Chip
                     $active={consumableView === 'account'}
-                    onClick={() => {
-                      setConsumableView('account')
-                      setSelectedItem(null)
-                    }}
+                    onClick={() => handleConsumableViewChange('account')}
                   >
                     勘定科目別
                   </Chip>
                   <Chip
                     $active={consumableView === 'daily'}
-                    onClick={() => {
-                      setConsumableView('daily')
-                      setSelectedItem(null)
-                    }}
+                    onClick={() => handleConsumableViewChange('daily')}
                   >
                     日別明細
                   </Chip>
