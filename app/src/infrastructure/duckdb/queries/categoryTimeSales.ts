@@ -12,7 +12,13 @@
  * | computeDowDivisorMap (PeriodFilter)  | queryDowDivisorMap          |
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, queryScalar, buildWhereClause, storeIdFilter } from '../queryRunner'
+import {
+  queryToObjects,
+  queryScalar,
+  buildWhereClause,
+  storeIdFilterWithAlias,
+} from '../queryRunner'
+import { validateDateKey, validateCode } from '../queryParams'
 
 /** 共通フィルタ条件 */
 export interface CtsFilterParams {
@@ -29,15 +35,15 @@ export interface CtsFilterParams {
 /** date_key + is_prev_year + 階層フィルタの WHERE 条件を組み立てる */
 function ctsWhereClause(params: CtsFilterParams, tableAlias: string): string {
   const a = tableAlias
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const conditions: (string | null)[] = [
-    `${a}.date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `${a}.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     `${a}.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds)
-      ? storeIdFilter(params.storeIds)!.replace('store_id', `${a}.store_id`)
-      : null,
-    params.deptCode ? `${a}.dept_code = '${params.deptCode}'` : null,
-    params.lineCode ? `${a}.line_code = '${params.lineCode}'` : null,
-    params.klassCode ? `${a}.klass_code = '${params.klassCode}'` : null,
+    storeIdFilterWithAlias(params.storeIds, a),
+    params.deptCode ? `${a}.dept_code = '${validateCode(params.deptCode)}'` : null,
+    params.lineCode ? `${a}.line_code = '${validateCode(params.lineCode)}'` : null,
+    params.klassCode ? `${a}.klass_code = '${validateCode(params.klassCode)}'` : null,
     params.dow && params.dow.length > 0 ? `${a}.dow IN (${params.dow.join(', ')})` : null,
   ]
   return buildWhereClause(conditions)
@@ -45,15 +51,15 @@ function ctsWhereClause(params: CtsFilterParams, tableAlias: string): string {
 
 /** time_slots 用のフィルタ（dow は time_slots テーブルに無いため category_time_sales から） */
 function tsWhereClause(params: CtsFilterParams): string {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const conditions: (string | null)[] = [
-    `ts.date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `ts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     `ts.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds)
-      ? storeIdFilter(params.storeIds)!.replace('store_id', 'ts.store_id')
-      : null,
-    params.deptCode ? `ts.dept_code = '${params.deptCode}'` : null,
-    params.lineCode ? `ts.line_code = '${params.lineCode}'` : null,
-    params.klassCode ? `ts.klass_code = '${params.klassCode}'` : null,
+    storeIdFilterWithAlias(params.storeIds, 'ts'),
+    params.deptCode ? `ts.dept_code = '${validateCode(params.deptCode)}'` : null,
+    params.lineCode ? `ts.line_code = '${validateCode(params.lineCode)}'` : null,
+    params.klassCode ? `ts.klass_code = '${validateCode(params.klassCode)}'` : null,
   ]
   return buildWhereClause(conditions)
 }

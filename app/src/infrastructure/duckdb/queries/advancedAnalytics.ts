@@ -6,7 +6,8 @@
  * - 店舗ベンチマーク（週次ランキング推移）
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { queryToObjects, buildWhereClause, storeIdFilterWithAlias } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 
 // ── カテゴリ構成比 週次推移 ──
 
@@ -58,12 +59,12 @@ export async function queryCategoryMixWeekly(
       break
   }
 
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const where = buildWhereClause([
-    `cts.date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     `cts.is_prev_year = ${params.isPrevYear ?? false}`,
-    storeIdFilter(params.storeIds)
-      ? storeIdFilter(params.storeIds)!.replace('store_id', 'cts.store_id')
-      : null,
+    storeIdFilterWithAlias(params.storeIds, 'cts'),
   ])
 
   const sql = `
@@ -122,12 +123,12 @@ export async function queryStoreBenchmark(
   conn: AsyncDuckDBConnection,
   params: StoreBenchmarkParams,
 ): Promise<readonly StoreBenchmarkRow[]> {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const where = buildWhereClause([
-    `sds.date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `sds.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'sds.is_prev_year = FALSE',
-    storeIdFilter(params.storeIds)
-      ? storeIdFilter(params.storeIds)!.replace('store_id', 'sds.store_id')
-      : null,
+    storeIdFilterWithAlias(params.storeIds, 'sds'),
   ])
 
   const sql = `

@@ -8,6 +8,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { validateDateKey } from '../queryParams'
 import { MATERIALIZE_SUMMARY_DDL } from '../schemas'
 
 // ── 結果型 ──
@@ -73,8 +74,10 @@ interface SummaryFilterParams {
 }
 
 function summaryWhereClause(params: SummaryFilterParams): string {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   return buildWhereClause([
-    `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     `is_prev_year = ${params.isPrevYear ?? false}`,
     storeIdFilter(params.storeIds),
   ])

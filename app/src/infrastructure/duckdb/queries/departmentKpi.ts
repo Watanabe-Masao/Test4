@@ -6,6 +6,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects } from '../queryRunner'
+import { validateYearMonth, validateCode } from '../queryParams'
 
 // ── 結果型 ──
 
@@ -60,6 +61,7 @@ export async function queryDeptKpiRanked(
   conn: AsyncDuckDBConnection,
   params: { readonly year: number; readonly month: number },
 ): Promise<readonly DeptKpiRankedRow[]> {
+  validateYearMonth(params.year, params.month)
   const sql = `
     SELECT
       year, month,
@@ -84,6 +86,7 @@ export async function queryDeptKpiSummary(
   conn: AsyncDuckDBConnection,
   params: { readonly year: number; readonly month: number },
 ): Promise<DeptKpiSummaryRow | null> {
+  validateYearMonth(params.year, params.month)
   const sql = `
     SELECT
       COUNT(*) AS dept_count,
@@ -122,8 +125,11 @@ export async function queryDeptKpiMonthlyTrend(
 ): Promise<readonly DeptKpiMonthlyTrendRow[]> {
   if (params.yearMonths.length === 0) return []
 
+  for (const ym of params.yearMonths) {
+    validateYearMonth(ym.year, ym.month)
+  }
   const values = params.yearMonths.map((ym) => `(${ym.year}, ${ym.month})`).join(', ')
-  const deptFilter = params.deptCode ? `AND dept_code = '${params.deptCode}'` : ''
+  const deptFilter = params.deptCode ? `AND dept_code = '${validateCode(params.deptCode)}'` : ''
 
   const sql = `
     SELECT

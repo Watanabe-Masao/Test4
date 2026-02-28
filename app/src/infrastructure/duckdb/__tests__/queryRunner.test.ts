@@ -62,8 +62,7 @@ describe('storeIdFilter', () => {
     expect(storeIdFilter(['1', '2', '3'])).toBe("store_id IN ('1', '2', '3')")
   })
 
-  it('シングルクォートを含む storeId をエスケープする', () => {
-    const result = storeIdFilter(["O'Brien"])
-    expect(result).toBe("store_id IN ('O''Brien')")
+  it('シングルクォートを含む storeId はバリデーションで拒否される', () => {
+    expect(() => storeIdFilter(["O'Brien"])).toThrow('Invalid store ID')
   })
 })

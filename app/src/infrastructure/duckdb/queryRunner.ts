@@ -4,6 +4,7 @@
  * Arrow Table → JS Object[] 変換と snake_case → camelCase 変換を提供する。
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import { validateStoreId } from './queryParams'
 
 /**
  * snake_case 文字列を camelCase に変換する。
@@ -67,9 +68,25 @@ export function buildWhereClause(conditions: readonly (string | null)[]): string
 /**
  * store_id IN (...) 条件を生成する。
  * storeIds が空または未指定なら null（条件なし）を返す。
+ * 各 ID はバリデーション済みであることが保証される。
  */
 export function storeIdFilter(storeIds: readonly string[] | undefined): string | null {
   if (!storeIds || storeIds.length === 0) return null
-  const quoted = storeIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(', ')
+  const validated = storeIds.map(validateStoreId)
+  const quoted = validated.map((id) => `'${id.replace(/'/g, "''")}'`).join(', ')
   return `store_id IN (${quoted})`
+}
+
+/**
+ * テーブルエイリアス付き store_id IN (...) 条件を生成する。
+ * 従来の `.replace('store_id', ...)` パターンを安全に置き換える。
+ */
+export function storeIdFilterWithAlias(
+  storeIds: readonly string[] | undefined,
+  alias: string,
+): string | null {
+  if (!storeIds || storeIds.length === 0) return null
+  const validated = storeIds.map(validateStoreId)
+  const quoted = validated.map((id) => `'${id.replace(/'/g, "''")}'`).join(', ')
+  return `${alias}.store_id IN (${quoted})`
 }

@@ -14,6 +14,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
+import { validateDateKey, validateCode } from '../queryParams'
 
 // ── 結果型 ──
 
@@ -67,8 +68,10 @@ interface FeatureFilterParams {
 }
 
 function featureWhereClause(params: FeatureFilterParams): string {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   return buildWhereClause([
-    `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'is_prev_year = FALSE',
     storeIdFilter(params.storeIds),
   ])
@@ -131,8 +134,10 @@ export async function queryHourlyProfile(
   conn: AsyncDuckDBConnection,
   params: FeatureFilterParams,
 ): Promise<readonly HourlyProfileRow[]> {
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const where = buildWhereClause([
-    `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'is_prev_year = FALSE',
     storeIdFilter(params.storeIds),
   ])
@@ -190,10 +195,12 @@ export async function queryDeptDailyTrend(
   conn: AsyncDuckDBConnection,
   params: FeatureFilterParams & { readonly deptCode?: string },
 ): Promise<readonly DeptDailyTrendRow[]> {
-  const deptFilter = params.deptCode ? `AND dept_code = '${params.deptCode}'` : ''
+  const deptFilter = params.deptCode ? `AND dept_code = '${validateCode(params.deptCode)}'` : ''
 
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
   const where = buildWhereClause([
-    `date_key BETWEEN '${params.dateFrom}' AND '${params.dateTo}'`,
+    `date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'is_prev_year = FALSE',
     storeIdFilter(params.storeIds),
   ])
