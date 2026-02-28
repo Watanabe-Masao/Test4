@@ -3,6 +3,45 @@
 本プロジェクトの主要な変更を記録します。
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠します。
 
+## [v1.2.0] - 2026-02-28
+
+### アーキテクチャリファクタリング -- 設計思想の体系化と構造改善
+
+#### アーキテクチャ改善
+
+- **Zustand ストア移行**: `AppStateContext`（useReducer）から 3 つの Zustand ストア（`dataStore`, `settingsStore`, `uiStore`）へ移行。最小セレクタによる購読で不要な再レンダーを排除
+- **ユースケース層の導入**: `application/usecases/` に計算・インポート・説明責任・エクスポート・カテゴリ時間帯・部門 KPI のユースケースを分離
+- **ポートインターフェース**: `ExportPort` による依存性逆転。具体実装の差し替えをコンポジションルートのみで完結
+- **Web Worker**: 計算パイプラインの非同期実行（メインスレッド非ブロック）
+- **アーキテクチャガードテスト**: `architectureGuard.test.ts` がレイヤー間依存を機械的に検証
+
+#### コンポーネント改善
+
+- **フック抽出**: `useCostDetailData`, `useDrilldownData` 等のデータ変換フックを描画コンポーネントから分離
+- **スタイル分離**: styled-components 定義を `*.styles.ts` ファイルに分離
+- **React.memo**: 純粋描画コンポーネントをメモ化で保護
+- **バレル re-export**: ファイル分割時に既存の import パスを維持
+
+#### インフラストラクチャ
+
+- **i18n**: メッセージカタログ（`messages.ts`）による文字列の一元管理。`useI18n` フック経由で参照
+- **PWA**: サービスワーカー登録（`pwa/registerSW.ts`）
+- **DuckDB セキュリティ**: SQL インジェクション防止（`storeIdFilter`、Branded Type `ValidatedDateKey`）
+- **エラーハンドリング強化**: `QuotaExceededError` の構造化検出、`ChartErrorBoundary` によるチャート例外捕捉
+
+#### テスト
+
+- テストファイル数: 45 → **90**
+- テストケース数: 467 → **1,259**
+- アーキテクチャガードテスト（78 テスト）、DuckDB クエリテスト、ストアテスト、不変条件テストを追加
+
+#### ドキュメント
+
+- **設計思想 10 原則** を `CLAUDE.md` に体系化（機械的検証、境界バリデーション、エラー伝播、変更頻度分離、不変条件テスト、コンポジションルート、バレル re-export、i18n、描画純粋性、最小セレクタ）
+- 全ドキュメント（README, architecture.md, development-guide.md, CONTRIBUTING.md）をリファクタリング後の構成に同期
+
+---
+
 ## [v1.1.0] - 2026-02-27
 
 ### DuckDB-WASM Phase 2 -- 高度分析チャート 14 種追加

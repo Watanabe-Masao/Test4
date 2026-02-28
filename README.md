@@ -12,7 +12,8 @@
 - **時間帯分析** -- 時間帯別売上、ヒートマップ、前年比較
 - **要因分解** -- シャープリー値ベースの売上変動要因分解（客数・点数・価格・構成比の4変数）
 - **DuckDB-WASM 分析** -- ブラウザ内 SQL エンジンによる高速集計（23 クエリ関数、15 チャート）
-- **ダッシュボード** -- 10 種類のページ、27+ 種類のチャートコンポーネント
+- **説明責任** -- 全主要指標に計算式・入力値・ドリルダウンを付与（Explanation アーキテクチャ）
+- **ダッシュボード** -- 10 種類のページ、42+ 種類のチャートコンポーネント（従来 27 種 + DuckDB 15 種）
 - **オフライン動作** -- IndexedDB / localStorage によるブラウザ完結型（サーバー不要）
 - **Undo/Redo** -- 操作の取り消し・やり直し対応
 - **データエクスポート** -- 計算結果の書き出し
@@ -29,6 +30,7 @@
 | Excel パーサ | SheetJS (xlsx) | 0.18.5 |
 | テスト | Vitest + React Testing Library | 4.0 / 16.3 |
 | リンター | ESLint | 9.39 |
+| 状態管理 | Zustand | 5.x |
 | SQL エンジン | DuckDB-WASM | 1.33 |
 | フォーマッタ | Prettier | 3.8 |
 
@@ -66,41 +68,51 @@ Test4/
 │   └── src/
 │       ├── domain/           # ドメイン層（モデル・計算ロジック）
 │       │   ├── models/       #   エンティティ・値オブジェクト
-│       │   ├── calculations/ #   粗利計算・予算分析・予測
+│       │   ├── calculations/ #   粗利計算・予算分析・予測・要因分解
+│       │   ├── repositories/ #   リポジトリインターフェース
 │       │   └── constants/    #   定数定義
 │       ├── application/      # アプリケーション層（状態管理・ユースケース）
-│       │   ├── context/      #   React Context + useReducer（14 アクション）
-│       │   ├── hooks/        #   カスタムフック
-│       │   └── services/     #   計算オーケストレーション・ファイルインポート
+│       │   ├── context/      #   React Context（レガシー互換）
+│       │   ├── hooks/        #   カスタムフック（useDuckDBQuery 含む）
+│       │   ├── stores/       #   Zustand ストア（data, settings, ui）
+│       │   ├── usecases/     #   ユースケース（計算・インポート・説明責任・エクスポート）
+│       │   ├── ports/        #   ポートインターフェース（ExportPort）
+│       │   ├── services/     #   計算キャッシュ・ハッシュ
+│       │   └── workers/      #   Web Worker（計算の非同期実行）
 │       ├── infrastructure/   # インフラ層（外部 I/O）
 │       │   ├── duckdb/       #   DuckDB-WASM（SQL エンジン・クエリモジュール）
 │       │   ├── storage/      #   IndexedDB・差分計算
 │       │   ├── fileImport/   #   ファイル読み込み
 │       │   ├── dataProcessing/ # データ変換・加工
+│       │   ├── i18n/         #   国際化（メッセージカタログ）
+│       │   ├── pwa/          #   PWA サービスワーカー登録
 │       │   └── export/       #   データエクスポート
 │       └── presentation/     # プレゼンテーション層（UI）
 │           ├── pages/        #   ページコンポーネント（10 ページ）
 │           ├── components/   #   UI コンポーネント
-│           │   ├── charts/   #     チャートコンポーネント（27 種）
+│           │   ├── charts/   #     チャート（従来 27 種 + DuckDB 15 種）
 │           │   ├── common/   #     共通 UI 部品
 │           │   └── Layout/   #     レイアウト（AppShell, NavBar, Sidebar）
+│           ├── hooks/        #   プレゼンテーション層フック
 │           └── theme/        #   テーマ・スタイル定義
 ```
 
 ### アーキテクチャ（4 層構成）
 
 ```
-Domain（ドメイン） → Application（アプリケーション） → Infrastructure（インフラ） → Presentation（プレゼンテーション）
+Presentation → Application → Domain ← Infrastructure
 ```
 
-依存の方向は内側（Domain）から外側（Presentation）へ。各層の責務は以下の通りです。
+Domain 層はどの層にも依存しない（依存性逆転の原則）。各層の責務は以下の通りです。
 
 | 層 | 責務 |
 |---|---|
-| **Domain** | ビジネスモデル、計算ロジック（在庫法粗利、推計法棚卸、予算分析、予測） |
-| **Application** | 状態管理（Context + useReducer）、カスタムフック、サービスオーケストレーション |
-| **Infrastructure** | IndexedDB 永続化、ファイル読み込み/書き出し、データ変換 |
-| **Presentation** | React コンポーネント、ページ、チャート、テーマ |
+| **Domain** | ビジネスモデル、計算ロジック（在庫法粗利、推計法棚卸、予算分析、予測、要因分解）。フレームワーク非依存 |
+| **Application** | 状態管理（Zustand ストア）、カスタムフック、ユースケース、Web Worker |
+| **Infrastructure** | IndexedDB 永続化、ファイル読み込み/書き出し、データ変換、DuckDB-WASM、i18n |
+| **Presentation** | React コンポーネント、ページ、チャート、テーマ。描画のみを担当 |
+
+設計思想の詳細（10 原則）は [CLAUDE.md](./CLAUDE.md) の「設計思想」セクションを参照してください。
 
 ## クイックスタート
 
@@ -178,6 +190,9 @@ GitHub Pages にデプロイされます。
 - [運用ガイド](./docs/operations.md)
 - [セキュリティ](./docs/security.md)
 - [FAQ](./docs/faq.md)
+- [開発ガイド](./docs/development-guide.md)
+- [ファイルインポートガイド](./docs/file-import-guide.md)
+- [データモデル](./docs/data-models.md)
 - [DuckDB-WASM 採用 ADR](./docs/decisions/001-duckdb-wasm-integration.md)
 
 ## ライセンス

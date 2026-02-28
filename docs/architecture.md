@@ -128,27 +128,44 @@
 
 ### 2.2 Application層 (`app/src/application/`)
 
-**役割**: ドメインロジックとUI層を橋渡しする。React Context/Hooks によるアプリケーション状態管理、計算フロー制御。
+**役割**: ドメインロジックとUI層を橋渡しする。Zustand ストアによる状態管理、カスタムフック、ユースケース。
 
-#### context/AppStateContext.tsx --- Redux-like 状態管理
+#### stores/ --- Zustand ストア（状態管理）
 
-状態はuseReducerで管理し、パフォーマンス最適化のためContextを4つに分割している。
+状態は 3 つの Zustand ストアに分離されている。各ストアは最小セレクタで購読し、不要な再レンダーを防ぐ。
 
 ```
-AppStateProvider
-  ├── AppDispatchContext  → dispatch関数
-  ├── AppStateContext     → 全状態（後方互換）
-  ├── UiContext           → UI状態のみ
-  ├── DataContext         → データ＋計算結果のみ
-  └── SettingsContext     → 設定のみ
+stores/
+  ├── dataStore.ts      → data, storeResults, validationMessages
+  ├── settingsStore.ts  → AppSettings
+  └── uiStore.ts        → selectedStoreIds, currentView, isCalculated, isImporting
 ```
 
 対応するフック:
-- `useAppState()` --- 全状態を取得（既存互換用）
-- `useAppUi()` --- UI状態のみ（selectedStoreIds, currentView, isCalculated, isImporting）
-- `useAppData()` --- データ状態のみ（data, storeResults, validationMessages）
-- `useAppSettings()` --- 設定のみ
-- `useAppDispatch()` --- dispatch関数
+- `useDataStore((s) => s.data)` --- データのスライスを購読
+- `useSettingsStore((s) => s.settings)` --- 設定のスライスを購読
+- `useUiStore((s) => s.isCalculated)` --- UI状態のスライスを購読
+
+#### context/AppStateContext.tsx --- レガシー互換
+
+旧 useReducer ベースの状態管理。後方互換のために残置されているが、新規コードでは Zustand ストアを使用する。
+
+#### usecases/ --- ユースケース
+
+| ディレクトリ | 説明 |
+|----------|------|
+| `calculation/` | 計算パイプライン（dailyBuilder, storeAssembler, aggregateResults） |
+| `explanation/` | 説明責任（ExplanationService: 指標の計算式・入力値・ドリルダウン生成） |
+| `import/` | ファイルインポート（FileImportService: バリデーション・データソース乖離検出） |
+| `export/` | データエクスポート |
+| `categoryTimeSales/` | カテゴリ時間帯売上のインデックス構築・フィルタ・除数計算 |
+| `departmentKpi/` | 部門 KPI のインデックス構築 |
+
+#### ports/ --- ポートインターフェース
+
+| ファイル | 説明 |
+|----------|------|
+| `ExportPort.ts` | エクスポート機能の抽象インターフェース（依存性逆転） |
 
 #### hooks/ --- カスタムフック
 
@@ -171,11 +188,16 @@ AppStateProvider
 
 | ファイル | 説明 |
 |----------|------|
-| `CalculationOrchestrator.ts` | 計算フロー統合の公開API。`calculateStoreResult()`, `calculateAllStores()` |
-| `calculation/dailyBuilder.ts` | 日次レコード構築 |
-| `calculation/storeAssembler.ts` | StoreResult組み立て |
-| `calculation/aggregateResults.ts` | 全店集約 (aggregateStoreResults) |
-| `FileImportService.ts` | ファイルインポートの統合サービス |
+| `calculationCache.ts` | 計算結果のキャッシュ管理（ハッシュベース差分検出） |
+| `murmurhash.ts` | 高速ハッシュ関数 |
+| `diffCalculator.ts` | データ差分計算 |
+| `dataSummary.ts` | データサマリー生成 |
+
+#### workers/ --- Web Worker
+
+| ファイル | 説明 |
+|----------|------|
+| `calculationWorker.ts` | 計算パイプラインの非同期実行（メインスレッドをブロックしない） |
 
 ---
 
@@ -376,61 +398,40 @@ shiire-arari-db (v1)
 
 ## 3. 状態管理
 
-### 3.1 AppState構造
+### 3.1 Zustand ストア（現行）
 
+状態管理は 3 つの Zustand ストアに分離されている。
+コンポーネントは最小セレクタで必要なスライスのみを購読し、不要な再レンダーを防ぐ。
+
+```
+stores/
+  ├── dataStore.ts      → data, storeResults, validationMessages
+  ├── settingsStore.ts  → AppSettings
+  └── uiStore.ts        → selectedStoreIds, currentView, isCalculated, isImporting
+```
+
+**使用パターン:**
 ```typescript
-interface AppState {
-  // ─── データ ───────────────────────────
-  data: ImportedData              // 全インポートデータ
-  storeResults: ReadonlyMap<string, StoreResult>  // 計算結果
-  validationMessages: readonly ValidationMessage[]
-
-  // ─── UI状態 ───────────────────────────
-  ui: {
-    selectedStoreIds: ReadonlySet<string>  // 選択中店舗
-    currentView: ViewType                  // 表示中ビュー
-    isCalculated: boolean                  // 計算済みフラグ
-    isImporting: boolean                   // インポート中フラグ
-  }
-
-  // ─── 設定 ─────────────────────────────
-  settings: AppSettings
-}
+// スライスセレクタで最小購読
+const data = useDataStore((s) => s.data)
+const targetYear = useSettingsStore((s) => s.settings.targetYear)
+const isCalculated = useUiStore((s) => s.isCalculated)
 ```
 
-### 3.2 アクション一覧
+### 3.2 レガシー Context（後方互換）
 
-| アクション | ペイロード | 説明 |
-|-----------|-----------|------|
-| `SET_IMPORTED_DATA` | `ImportedData` | インポートデータの設定（isCalculated→false） |
-| `SET_STORE_RESULTS` | `ReadonlyMap<string, StoreResult>` | 計算結果の設定（isCalculated→true） |
-| `SET_VALIDATION_MESSAGES` | `readonly ValidationMessage[]` | バリデーション結果の設定 |
-| `TOGGLE_STORE` | `string` (storeId) | 店舗の選択/解除トグル |
-| `SELECT_ALL_STORES` | なし | 全店舗選択（selectedStoreIdsを空Setに） |
-| `SET_CURRENT_VIEW` | `ViewType` | 表示ビューの切替 |
-| `SET_IMPORTING` | `boolean` | インポート中フラグの切替 |
-| `UPDATE_SETTINGS` | `Partial<AppSettings>` | 設定の部分更新（isCalculated→false） |
-| `UPDATE_INVENTORY` | `{ storeId, config }` | 在庫設定の更新（isCalculated→false） |
-| `SET_PREV_YEAR_AUTO_DATA` | `{ prevYearSales, prevYearDiscount, prevYearCategoryTimeSales }` | 前年データの自動設定 |
-| `RESET` | なし | 全状態を初期状態にリセット |
+旧 useReducer ベースの `AppStateContext` は後方互換のために残置されている。
+新規コードでは Zustand ストアを使用し、既存コードは段階的に移行する。
 
-### 3.3 Context分割によるパフォーマンス最適化
+**レガシーフック（非推奨）:**
+- `useAppState()` --- 全状態を取得（3ストア全結合、パフォーマンス非推奨）
+- `useAppUi()` / `useAppData()` / `useAppSettings()` --- Context 分割版
 
-```
-AppStateProvider (useReducer)
-  │
-  ├── AppDispatchContext ──→ dispatch関数のみ
-  │     再レンダリング: なし（dispatch参照は不変）
-  │
-  ├── UiContext ──→ selectedStoreIds, currentView, isCalculated, isImporting
-  │     再レンダリング: UI操作時のみ
-  │
-  ├── DataContext ──→ data, storeResults, validationMessages
-  │     再レンダリング: データ変更/計算完了時のみ（useMemoで最適化）
-  │
-  └── SettingsContext ──→ AppSettings
-        再レンダリング: 設定変更時のみ
-```
+### 3.3 ストア設計原則
+
+- **「何を購読するか」は「何を描画するか」と一致させる**: 広すぎる購読は不要な再レンダーの温床
+- **dispatch 互換層**: 既存の `dispatch({ type: 'SET_IMPORTED_DATA', ... })` パターンは
+  `dispatchCompat` で Zustand アクションに変換される
 
 ### 3.4 永続化
 
@@ -635,24 +636,37 @@ DashboardPage
 ```
 app/src/
 ├── main.tsx                          # エントリーポイント
-├── App.tsx                           # ルートコンポーネント + ViewRouter
+├── App.tsx                           # ルートコンポーネント（コンポジションルート）
 ├── styled.d.ts                       # styled-components 型拡張
 │
-├── domain/                           # ★ ドメイン層
-│   ├── models/                       #   型定義 (14ファイル)
-│   ├── calculations/                 #   計算モジュール (8ファイル + テスト)
-│   └── constants/                    #   定数 (2ファイル)
+├── domain/                           # ★ ドメイン層（フレームワーク非依存）
+│   ├── models/                       #   型定義・データモデル
+│   ├── calculations/                 #   計算モジュール（粗利・予測・要因分解・相関分析等）
+│   ├── repositories/                 #   リポジトリインターフェース
+│   └── constants/                    #   定数
 │
 ├── application/                      # ★ アプリケーション層
-│   ├── context/                      #   AppStateContext (状態管理)
-│   ├── hooks/                        #   カスタムフック (10個)
-│   └── services/                     #   CalculationOrchestrator + FileImportService
-│       └── calculation/              #   計算サブモジュール
+│   ├── context/                      #   React Context（レガシー互換）
+│   ├── hooks/                        #   カスタムフック（useDuckDBQuery 含む 20+ 個）
+│   ├── stores/                       #   Zustand ストア（data, settings, ui）
+│   ├── usecases/                     #   ユースケース
+│   │   ├── calculation/              #     計算パイプライン
+│   │   ├── explanation/              #     説明責任（ExplanationService）
+│   │   ├── import/                   #     ファイルインポート
+│   │   ├── export/                   #     データエクスポート
+│   │   ├── categoryTimeSales/        #     カテゴリ時間帯集約
+│   │   └── departmentKpi/            #     部門 KPI インデックス
+│   ├── ports/                        #   ポートインターフェース（ExportPort）
+│   ├── services/                     #   計算キャッシュ・ハッシュ
+│   └── workers/                      #   Web Worker（計算の非同期実行）
 │
 ├── infrastructure/                   # ★ インフラ層
-│   ├── fileImport/                   #   ファイル読み込み (4ファイル)
-│   ├── dataProcessing/               #   データプロセッサ (10個)
-│   ├── storage/                      #   IndexedDB永続化
+│   ├── duckdb/                       #   DuckDB-WASM（SQL エンジン・クエリモジュール）
+│   ├── fileImport/                   #   ファイル読み込み・種別判定
+│   ├── dataProcessing/               #   データプロセッサ（10個）
+│   ├── storage/                      #   IndexedDB 永続化
+│   ├── i18n/                         #   国際化（メッセージカタログ）
+│   ├── pwa/                          #   PWA サービスワーカー登録
 │   └── export/                       #   エクスポート
 │
 ├── presentation/                     # ★ プレゼンテーション層
@@ -669,9 +683,10 @@ app/src/
 │   │   └── Admin/
 │   ├── components/
 │   │   ├── Layout/                   #     AppShell, NavBar, Sidebar, MainContent
-│   │   ├── charts/                   #     24チャートコンポーネント
+│   │   ├── charts/                   #     チャート（従来 27 種 + DuckDB 15 種）
 │   │   ├── common/                   #     共通UI (Button, Card, Modal, Toast, etc.)
 │   │   └── DataManagementSidebar.tsx
+│   ├── hooks/                        #   プレゼンテーション層フック
 │   └── theme/                        #     テーマ + GlobalStyle + トークン
 │
 └── test/
@@ -684,16 +699,21 @@ app/src/
 
 | 対象 | テストファイル数 | テスト数 | カバー範囲 |
 |------|:---------------:|:-------:|-----------|
-| domain/calculations | 8 | 約200 | 在庫法、推定法、予算、予測、集計、売変影響、ピン区間、ユーティリティ |
+| domain/calculations | 12 | 約300 | 在庫法、推定法、予算、予測、集計、売変影響、ピン区間、要因分解、相関分析、トレンド、感度分析、因果連鎖 |
 | domain/models | 2 | 約20 | CostPricePair, ImportedData |
-| domain/constants | 1 | 約10 | デフォルト設定 |
+| domain/constants | 1 | 約16 | デフォルト設定 |
 | infrastructure/dataProcessing | 8 | 約100 | 全プロセッサ |
-| infrastructure/fileImport | 2 | 約30 | FileTypeDetector, dateParser |
-| infrastructure/storage | 2 | 約20 | IndexedDBStore, diffCalculator |
-| application/context | 1 | 約15 | AppStateContext reducer |
-| application/hooks | 3 | 約20 | useImport, useSettings, usePrevYearData |
-| application/services | 2 | 約20 | CalculationOrchestrator, FileImportService |
-| presentation (widgets) | 8 | 約30 | ダッシュボードウィジェット、チャート |
-| **合計** | **約45** | **約467** | |
+| infrastructure/fileImport | 3 | 約50 | FileTypeDetector, dateParser, importSchemas |
+| infrastructure/storage | 2 | 約25 | IndexedDB, serialization |
+| infrastructure/duckdb | 6 | 約180 | アーキテクチャガード、スキーマ、クエリ、パラメータ、WHERE句ビルダー、queryRunner |
+| infrastructure/pwa | 1 | 約2 | Service Worker 登録 |
+| infrastructure/i18n | 1 | 約6 | 国際化 |
+| application/stores | 3 | 約25 | dataStore, settingsStore, uiStore, dispatchCompat |
+| application/hooks | 5 | 約55 | useImport, useSettings, usePrevYearData, usePrevYearCategoryTimeSales, useAutoLoadPrevYear |
+| application/usecases | 6 | 約110 | CalculationOrchestrator, FileImportService, dailyBuilder, storeAssembler, summaryBuilder, indexBuilder |
+| application/services | 2 | 約50 | calculationCache, dataSummary |
+| presentation (widgets) | 12 | 約120 | ダッシュボードウィジェット、チャート、レイアウトプリセット、ウィジェット可視性 |
+| presentation (hooks) | 2 | 約12 | useIntersectionObserver, usePwaInstall |
+| **合計** | **90** | **1,259** | |
 
-テストはドメイン層・インフラ層のビジネスロジックを中心に整備されている。
+テストはドメイン層・インフラ層のビジネスロジックに加え、アーキテクチャガードテスト（レイヤー依存の機械的検証）と不変条件テスト（シャープリー恒等式等）を整備している。
