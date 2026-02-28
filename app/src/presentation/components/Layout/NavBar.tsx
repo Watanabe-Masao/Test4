@@ -3,7 +3,8 @@ import type { ViewType } from '@/domain/models'
 import type { ThemeMode } from '@/presentation/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useCalculation } from '@/application/hooks'
-import { useAppState } from '@/application/context/AppStateContext'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 
 const Nav = styled.nav`
@@ -128,12 +129,13 @@ const StatusMeta = styled.div`
 /** 計算状態インジケーター */
 function CalcStatusBadge() {
   const { isCalculated, isComputing, storeResults } = useCalculation()
-  const state = useAppState()
-  const { hasAnyData: hasData } = useDataSummary(state.data)
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
+  const { hasAnyData: hasData } = useDataSummary(data)
 
   if (!hasData) return null
 
-  const { targetYear, targetMonth } = state.settings
+  const { targetYear, targetMonth } = settings
   const monthLabel = `${targetYear}年${String(targetMonth).padStart(2, '0')}月`
   const storeCount = storeResults.size
 

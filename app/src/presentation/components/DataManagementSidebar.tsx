@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { useAppData, useAppDispatch } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import {
   useImport,
   useStoreSelection,
@@ -358,8 +361,7 @@ export function DataManagementSidebar({
   showSettingsExternal?: boolean
   onSettingsExternalClose?: () => void
 } = {}) {
-  const { data } = useAppData()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
   const { importFiles, progress, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
@@ -456,14 +458,17 @@ export function DataManagementSidebar({
   )
 
   const handleClearData = useCallback(async () => {
-    dispatch({ type: 'RESET' })
+    useDataStore.getState().reset()
+    useUiStore.getState().reset()
+    useSettingsStore.getState().reset()
+    calculationCache.clear()
     try {
       await clearAll()
       showToast('データをクリアしました', 'info')
     } catch {
       showToast('データクリアに失敗しました', 'error')
     }
-  }, [dispatch, clearAll, showToast])
+  }, [clearAll, showToast])
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
@@ -627,13 +632,9 @@ export function DataManagementSidebar({
                         value={cfg?.openingInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          dispatch({
-                            type: 'UPDATE_INVENTORY',
-                            payload: {
-                              storeId: s.id,
-                              config: { openingInventory: val },
-                            },
-                          })
+                          useDataStore.getState().updateInventory(s.id, { openingInventory: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
                         }}
                       />
                     </InventoryRow>
@@ -645,13 +646,9 @@ export function DataManagementSidebar({
                         value={cfg?.closingInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          dispatch({
-                            type: 'UPDATE_INVENTORY',
-                            payload: {
-                              storeId: s.id,
-                              config: { closingInventory: val },
-                            },
-                          })
+                          useDataStore.getState().updateInventory(s.id, { closingInventory: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
                         }}
                       />
                     </InventoryRow>

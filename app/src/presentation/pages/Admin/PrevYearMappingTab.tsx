@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import { useSettings, useStorageAdmin } from '@/application/hooks'
-import { useAppState, useAppDispatch } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
@@ -210,11 +212,10 @@ const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 
 export function PrevYearMappingTab() {
   const { settings, updateSettings } = useSettings()
-  const state = useAppState()
-  const dispatch = useAppDispatch()
+  const data = useDataStore((s) => s.data)
   const { listMonths } = useStorageAdmin()
   const { targetYear, targetMonth } = settings
-  const { hasPrevYearData, prevYearDays } = useDataSummary(state.data)
+  const { hasPrevYearData, prevYearDays } = useDataSummary(data)
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 
@@ -290,14 +291,13 @@ export function PrevYearMappingTab() {
 
   // 前年データを再読込（既存データをクリアして auto-load をトリガー）
   const handleReload = useCallback(() => {
-    dispatch({
-      type: 'SET_PREV_YEAR_AUTO_DATA',
-      payload: {
-        prevYearClassifiedSales: { records: [] },
-        prevYearCategoryTimeSales: { records: [] },
-      },
+    useDataStore.getState().setPrevYearAutoData({
+      prevYearClassifiedSales: { records: [] },
+      prevYearCategoryTimeSales: { records: [] },
     })
-  }, [dispatch])
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
+  }, [])
 
   // 自動に戻す
   const handleResetToAuto = useCallback(() => {

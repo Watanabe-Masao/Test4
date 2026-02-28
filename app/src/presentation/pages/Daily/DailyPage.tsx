@@ -4,7 +4,8 @@ import { Card, CardTitle, Chip, ChipGroup } from '@/presentation/components/comm
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
 import type { DailyChartMode } from '@/presentation/components/charts'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
-import { useAppState } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
 import { getDailyTotalCost } from '@/domain/models'
@@ -92,8 +93,8 @@ const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: strin
 export function DailyPage() {
   const { daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
-  const appState = useAppState()
-  const { settings } = appState
+  const suppliers = useDataStore((s) => s.data.suppliers)
+  const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData()
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
@@ -114,9 +115,9 @@ export function DailyPage() {
   const supplierKeys = useMemo(
     () =>
       isPurchaseExpanded && days.length > 0
-        ? collectSupplierKeys(days, appState.data.suppliers)
+        ? collectSupplierKeys(days, suppliers)
         : EMPTY_SUPPLIER_KEYS,
-    [isPurchaseExpanded, days, appState.data.suppliers],
+    [isPurchaseExpanded, days, suppliers],
   )
 
   const interStoreInKeys = useMemo(

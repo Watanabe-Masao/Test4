@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
-import { useAppData } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
 import { useSettings } from '@/application/hooks'
 import { useRepository } from '@/application/context/useRepository'
 import type { ImportHistoryEntry } from '@/domain/models'
@@ -311,7 +311,8 @@ function ImportProvenanceModal({
 
 // ─── インポート履歴タブ ────────────────────────────────
 export function ImportHistoryTab() {
-  const { data, validationMessages } = useAppData()
+  const data = useDataStore((s) => s.data)
+  const validationMessages = useDataStore((s) => s.validationMessages)
   const { settings } = useSettings()
   const repo = useRepository()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())

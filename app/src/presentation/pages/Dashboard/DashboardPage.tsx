@@ -27,7 +27,8 @@ import {
 } from '@/application/hooks/useMonthlyHistory'
 import type { MetricId, DateRange } from '@/domain/models'
 import { palette } from '@/presentation/theme/tokens'
-import { useAppState } from '@/application/context'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
@@ -87,7 +88,9 @@ function DrillThroughScrollHandler() {
 export function DashboardPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
-  const appState = useAppState()
+  const data = useDataStore((s) => s.data)
+  const storeResults = useDataStore((s) => s.storeResults)
+  const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearCTS = usePrevYearCategoryTimeSales()
 
@@ -96,8 +99,8 @@ export function DashboardPage() {
 
   // 過去月データ（季節性分析用）
   const repo = useRepository()
-  const targetYear = appState.settings.targetYear
-  const targetMonth = appState.settings.targetMonth
+  const targetYear = settings.targetYear
+  const targetMonth = settings.targetMonth
   const historicalMonths = useMonthlyHistory(repo, targetYear, targetMonth)
   const currentMonthlyPoint = useMemo(() => {
     if (!currentResult) return null
@@ -118,10 +121,10 @@ export function DashboardPage() {
   }, [])
 
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
-  const dataMaxDay = useMemo(() => detectDataMaxDay(appState.data), [appState.data])
+  const dataMaxDay = useMemo(() => detectDataMaxDay(data), [data])
 
   // インデックス構築（データ変更時のみ再構築）
-  const ctsIndex = useCategoryTimeSalesIndex(appState.data.categoryTimeSales)
+  const ctsIndex = useCategoryTimeSalesIndex(data.categoryTimeSales)
   const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(prevYearCTS.records)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
@@ -185,8 +188,8 @@ export function DashboardPage() {
 
   // 部門KPIインデックス（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   const deptKpiIndex = useMemo(
-    () => buildDepartmentKpiIndex(appState.data.departmentKpi),
-    [appState.data.departmentKpi],
+    () => buildDepartmentKpiIndex(data.departmentKpi),
+    [data.departmentKpi],
   )
 
   // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
@@ -194,7 +197,7 @@ export function DashboardPage() {
 
   // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
-  const duck = useDuckDB(appState.data, targetYear, targetMonth, repo)
+  const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
   // DuckDB 分析用日付範囲（ユーザー操作で自由に変更可能、月跨ぎ対応）
   const [duckDateRange, setDuckDateRange] = useDuckDBDateRange(targetYear, targetMonth, daysInMonth)
@@ -223,7 +226,7 @@ export function DashboardPage() {
 
   // ─── Empty / Loading states ──
 
-  if (!isCalculated && appState.storeResults.size === 0) {
+  if (!isCalculated && storeResults.size === 0) {
     return (
       <MainContent title="ダッシュボード">
         <EmptyState>
@@ -268,21 +271,21 @@ export function DashboardPage() {
   const ctx: WidgetContext = {
     result: r,
     daysInMonth,
-    targetRate: appState.settings.targetGrossProfitRate,
-    warningRate: appState.settings.warningThreshold,
+    targetRate: settings.targetGrossProfitRate,
+    warningRate: settings.warningThreshold,
     year: targetYear,
     month: targetMonth,
     budgetChartData,
     storeKey: storeName,
     prevYear,
-    allStoreResults: appState.storeResults,
-    stores: appState.data.stores,
+    allStoreResults: storeResults,
+    stores: data.stores,
     ctsIndex,
     prevCtsIndex,
     currentDateRange,
     prevYearDateRange,
     selectedStoreIds,
-    dataEndDay: appState.settings.dataEndDay,
+    dataEndDay: settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,
     departmentKpi: deptKpiIndex,
@@ -466,7 +469,7 @@ export function DashboardPage() {
           <MetricBreakdownPanel
             explanation={explanations.get(explainMetric)!}
             allExplanations={explanations}
-            stores={appState.data.stores}
+            stores={data.stores}
             onClose={() => setExplainMetric(null)}
           />
         )}

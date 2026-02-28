@@ -9,7 +9,9 @@ import {
   safeDivide,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import { useAppDispatch } from '@/application/context'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useUiStore } from '@/application/stores/uiStore'
+import { calculationCache } from '@/application/services/calculationCache'
 import {
   ExecSummaryWrapper,
   ExecSummaryTabBar,
@@ -58,7 +60,6 @@ const WarningBanner = styled.div<{ $clickable?: boolean }>`
 
 export function ExecSummaryBarWidget(ctx: WidgetContext) {
   const { result: r, prevYear, onExplain } = ctx
-  const dispatch = useAppDispatch()
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio =
@@ -75,10 +76,12 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
     (e: React.MouseEvent) => {
       e.stopPropagation()
       if (r.purchaseMaxDay > 0) {
-        dispatch({ type: 'UPDATE_SETTINGS', payload: { dataEndDay: r.purchaseMaxDay } })
+        useSettingsStore.getState().updateSettings({ dataEndDay: r.purchaseMaxDay })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
       }
     },
-    [dispatch, r.purchaseMaxDay],
+    [r.purchaseMaxDay],
   )
 
   return (

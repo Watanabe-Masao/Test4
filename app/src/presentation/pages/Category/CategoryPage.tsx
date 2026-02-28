@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { Chip, ChipGroup, KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
-import { useAppState } from '@/application/context'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -60,7 +60,7 @@ type SortDir = 'asc' | 'desc'
 export function CategoryPage() {
   useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
-  const appState = useAppState()
+  const settings = useSettingsStore((s) => s.settings)
   const { updateSettings } = useSettings()
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
   const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({
@@ -143,7 +143,7 @@ export function CategoryPage() {
   const hasMultipleStores = selectedResults.length > 1
 
   // カテゴリ別データ（標準 + カスタムカテゴリ統合）
-  const categoryData = buildUnifiedCategoryData(r, appState.settings.supplierCategoryMap)
+  const categoryData = buildUnifiedCategoryData(r, settings.supplierCategoryMap)
 
   // 取引先別データ
   const supplierData = Array.from(r.supplierTotals.values())
@@ -158,7 +158,7 @@ export function CategoryPage() {
   const overallMarkupRate = safeDivide(totalGrossProfit, totalCatPrice, 0)
 
   const handleCustomCategoryChange = (supplierCode: string, newCategory: CustomCategory) => {
-    const currentMap = appState.settings.supplierCategoryMap
+    const currentMap = settings.supplierCategoryMap
     updateSettings({
       supplierCategoryMap: { ...currentMap, [supplierCode]: newCategory },
     })
@@ -315,8 +315,7 @@ export function CategoryPage() {
                                   p = 0
                                 for (const [, st] of sr.supplierTotals) {
                                   if (
-                                    appState.settings.supplierCategoryMap[st.supplierCode] ===
-                                    d.category
+                                    settings.supplierCategoryMap[st.supplierCode] === d.category
                                   ) {
                                     c += st.cost
                                     p += st.price
@@ -366,10 +365,7 @@ export function CategoryPage() {
                             const catSuppliers = new Set<string>()
                             for (const [code, st] of sr.supplierTotals) {
                               if (d.isCustom) {
-                                if (
-                                  appState.settings.supplierCategoryMap[st.supplierCode] ===
-                                  d.category
-                                )
+                                if (settings.supplierCategoryMap[st.supplierCode] === d.category)
                                   catSuppliers.add(code)
                               } else if (st.category === d.category) {
                                 catSuppliers.add(code)
@@ -503,9 +499,9 @@ export function CategoryPage() {
                         0,
                       )
                       const supplierCrossMult = safeDivide(s.price - s.cost, totalSupplierPrice, 0)
-                      const assignedCategory = appState.settings.supplierCategoryMap[
-                        s.supplierCode
-                      ] as CustomCategory | undefined
+                      const assignedCategory = settings.supplierCategoryMap[s.supplierCode] as
+                        | CustomCategory
+                        | undefined
                       return (
                         <Tr key={s.supplierCode}>
                           <Td>
