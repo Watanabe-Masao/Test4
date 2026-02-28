@@ -1,0 +1,68 @@
+/**
+ * データサマリーフック
+ *
+ * ImportedData から各 Presentation コンポーネントが必要とする
+ * サマリー情報を算出する。Presentation 層が .records を直接走査
+ * することを防ぎ、全てのレコード走査をこのフック経由に集約する。
+ */
+import { useMemo } from 'react'
+import type { ImportedData, DataType } from '@/domain/models'
+import {
+  computeHasAnyData,
+  computeLoadedTypes,
+  computeMaxDayByType,
+  computeCtsRecordStats,
+  computeRecordDays,
+  buildDataOverview,
+  type RecordSetStats,
+  type StoreDayStats,
+} from '@/application/services/dataSummary'
+
+export interface DataSummary {
+  /** データが存在するか（NavBar 用） */
+  readonly hasAnyData: boolean
+  /** ロード済みデータ種別一覧（DataManagementSidebar 用） */
+  readonly loadedTypes: ReadonlySet<DataType>
+  /** データ種別ごとの最大日（DataManagementSidebar 用） */
+  readonly maxDayByType: ReadonlyMap<DataType, number>
+  /** 前年データが存在するか（PrevYearMappingTab 用） */
+  readonly hasPrevYearData: boolean
+  /** 前年分類別売上のデータ存在日（PrevYearMappingTab 用） */
+  readonly prevYearDays: ReadonlySet<number>
+  /** 分類別時間帯売上の統計（ImportHistoryTab 用） */
+  readonly categoryTimeSalesStats: RecordSetStats
+  /** 前年分類別時間帯売上の統計（ImportHistoryTab 用） */
+  readonly prevYearCategoryTimeSalesStats: RecordSetStats
+  /** 全データタイプの概要（ImportHistoryTab 用） */
+  readonly dataOverview: readonly StoreDayStats[]
+}
+
+export type { RecordSetStats, StoreDayStats }
+
+/**
+ * ImportedData からサマリー情報を算出するフック。
+ * data 参照が変わった場合のみ再計算する。
+ */
+export function useDataSummary(data: ImportedData): DataSummary {
+  return useMemo(() => {
+    const hasAnyData = computeHasAnyData(data)
+    const loadedTypes = computeLoadedTypes(data)
+    const maxDayByType = computeMaxDayByType(data)
+    const hasPrevYearData = data.prevYearClassifiedSales.records.length > 0
+    const prevYearDays = computeRecordDays(data.prevYearClassifiedSales)
+    const categoryTimeSalesStats = computeCtsRecordStats(data.categoryTimeSales)
+    const prevYearCategoryTimeSalesStats = computeCtsRecordStats(data.prevYearCategoryTimeSales)
+    const dataOverview = buildDataOverview(data)
+
+    return {
+      hasAnyData,
+      loadedTypes,
+      maxDayByType,
+      hasPrevYearData,
+      prevYearDays,
+      categoryTimeSalesStats,
+      prevYearCategoryTimeSalesStats,
+      dataOverview,
+    }
+  }, [data])
+}

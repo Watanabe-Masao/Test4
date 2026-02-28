@@ -4,6 +4,7 @@ import type { ThemeMode } from '@/presentation/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useCalculation } from '@/application/hooks'
 import { useAppState } from '@/application/context/AppStateContext'
+import { useDataSummary } from '@/application/hooks/useDataSummary'
 
 const Nav = styled.nav`
   display: flex;
@@ -128,9 +129,7 @@ const StatusMeta = styled.div`
 function CalcStatusBadge() {
   const { isCalculated, isComputing, storeResults } = useCalculation()
   const state = useAppState()
-
-  const hasData =
-    Object.keys(state.data.purchase).length > 0 || state.data.classifiedSales.records.length > 0
+  const { hasAnyData: hasData } = useDataSummary(state.data)
 
   if (!hasData) return null
 

@@ -5,6 +5,7 @@ import { useSettings, useStorageAdmin } from '@/application/hooks'
 import { useAppState, useAppDispatch } from '@/application/context'
 import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
 import { getDaysInMonth } from '@/domain/constants/defaults'
+import { useDataSummary } from '@/application/hooks/useDataSummary'
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -213,6 +214,7 @@ export function PrevYearMappingTab() {
   const dispatch = useAppDispatch()
   const { listMonths } = useStorageAdmin()
   const { targetYear, targetMonth } = settings
+  const { hasPrevYearData, prevYearDays } = useDataSummary(state.data)
 
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number }[]>([])
 
@@ -248,8 +250,7 @@ export function PrevYearMappingTab() {
       .catch(() => setAvailableMonths([]))
   }, [listMonths])
 
-  // 前年データの有無
-  const hasPrevYearData = state.data.prevYearClassifiedSales.records.length > 0
+  // hasPrevYearData は useDataSummary から取得済み
 
   // ソース年月変更
   const handleSourceChange = useCallback(
@@ -309,15 +310,8 @@ export function PrevYearMappingTab() {
 
   const isOverridden = sourceYear !== null || sourceMonth !== null || dowOffset !== null
 
-  // prevYearClassifiedSales から各 day のデータ有無を判定
-  const prevYearCS = state.data.prevYearClassifiedSales
-  const prevDayHasData = useMemo(() => {
-    const daySet = new Set<number>()
-    for (const rec of prevYearCS.records) {
-      daySet.add(rec.day)
-    }
-    return daySet
-  }, [prevYearCS])
+  // prevYearDays は useDataSummary から取得済み
+  const prevDayHasData = prevYearDays
 
   // 日付マッピングプレビュー
   const mappingPreview = useMemo(() => {

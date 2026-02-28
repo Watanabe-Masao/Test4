@@ -4,7 +4,8 @@ import { palette } from '@/presentation/theme/tokens'
 import { useAppData } from '@/application/context'
 import { useSettings } from '@/application/hooks'
 import { useRepository } from '@/application/context/useRepository'
-import type { Store, ImportedData, ImportHistoryEntry } from '@/domain/models'
+import type { ImportHistoryEntry } from '@/domain/models'
+import { useDataSummary, type StoreDayStats } from '@/application/hooks/useDataSummary'
 import { Modal } from '@/presentation/components/common/Modal'
 import {
   Section,
@@ -19,156 +20,8 @@ import {
 } from './AdminShared'
 
 // ─── 取込状況ヘルパー ──────────────────────────────────
-
-interface StoreDayStats {
-  label: string
-  storeCount: number
-  totalRecords: number
-  dayRange: { min: number; max: number } | null
-  perStore: { storeId: string; storeName: string; days: number; minDay: number; maxDay: number }[]
-  hasCustomers: boolean
-}
-
-/** StoreDayRecord 型のデータから詳細統計を取得 */
-function analyzeStoreDayRecord(
-  record: Record<string, Record<number, unknown>>,
-  label: string,
-  storeNames: ReadonlyMap<string, Store>,
-  checkCustomers = false,
-): StoreDayStats {
-  const storeIds = Object.keys(record)
-  if (storeIds.length === 0) {
-    return {
-      label,
-      storeCount: 0,
-      totalRecords: 0,
-      dayRange: null,
-      perStore: [],
-      hasCustomers: false,
-    }
-  }
-
-  let globalMin = Infinity
-  let globalMax = -Infinity
-  let totalRecords = 0
-  let hasCustomers = false
-  const perStore: StoreDayStats['perStore'] = []
-
-  for (const sid of storeIds) {
-    const days = Object.keys(record[sid])
-      .map(Number)
-      .filter((d) => !isNaN(d))
-    if (days.length === 0) continue
-    const min = Math.min(...days)
-    const max = Math.max(...days)
-    if (min < globalMin) globalMin = min
-    if (max > globalMax) globalMax = max
-    totalRecords += days.length
-    const store = storeNames.get(sid)
-    perStore.push({
-      storeId: sid,
-      storeName: store?.name ?? `店舗${sid}`,
-      days: days.length,
-      minDay: min,
-      maxDay: max,
-    })
-
-    if (checkCustomers && !hasCustomers) {
-      for (const d of days) {
-        const entry = record[sid][d] as Record<string, unknown>
-        if (entry && typeof entry.customers === 'number' && entry.customers > 0) {
-          hasCustomers = true
-          break
-        }
-      }
-    }
-  }
-
-  return {
-    label,
-    storeCount: storeIds.length,
-    totalRecords,
-    dayRange: globalMin <= globalMax ? { min: globalMin, max: globalMax } : null,
-    perStore,
-    hasCustomers,
-  }
-}
-
-/** ClassifiedSalesData から StoreDayStats を生成 */
-function analyzeClassifiedSales(
-  data: ImportedData,
-  label: string,
-  isPrevYear: boolean,
-): StoreDayStats {
-  const csData = isPrevYear ? data.prevYearClassifiedSales : data.classifiedSales
-  const records = csData.records
-  if (records.length === 0) {
-    return {
-      label,
-      storeCount: 0,
-      totalRecords: 0,
-      dayRange: null,
-      perStore: [],
-      hasCustomers: false,
-    }
-  }
-
-  // 店舗→日 の集計
-  const storeMap = new Map<string, Set<number>>()
-  for (const r of records) {
-    let s = storeMap.get(r.storeId)
-    if (!s) {
-      s = new Set()
-      storeMap.set(r.storeId, s)
-    }
-    s.add(r.day)
-  }
-
-  let globalMin = Infinity
-  let globalMax = -Infinity
-  let totalRecords = 0
-  const perStore: StoreDayStats['perStore'] = []
-
-  for (const [sid, daySet] of storeMap) {
-    const days = Array.from(daySet)
-    const min = Math.min(...days)
-    const max = Math.max(...days)
-    if (min < globalMin) globalMin = min
-    if (max > globalMax) globalMax = max
-    totalRecords += days.length
-    const store = data.stores.get(sid)
-    perStore.push({
-      storeId: sid,
-      storeName: store?.name ?? `店舗${sid}`,
-      days: days.length,
-      minDay: min,
-      maxDay: max,
-    })
-  }
-
-  return {
-    label,
-    storeCount: storeMap.size,
-    totalRecords,
-    dayRange: globalMin <= globalMax ? { min: globalMin, max: globalMax } : null,
-    perStore,
-    hasCustomers: false,
-  }
-}
-
-function buildDataOverview(data: ImportedData): StoreDayStats[] {
-  const stores = data.stores
-  return [
-    analyzeStoreDayRecord(data.purchase, '仕入', stores),
-    analyzeClassifiedSales(data, '分類別売上', false),
-    analyzeStoreDayRecord(data.flowers, '花', stores, true),
-    analyzeStoreDayRecord(data.directProduce, '産直', stores),
-    analyzeStoreDayRecord(data.interStoreIn, '店間入', stores),
-    analyzeStoreDayRecord(data.interStoreOut, '店間出', stores),
-    analyzeStoreDayRecord(data.consumables, '消耗品', stores),
-    analyzeClassifiedSales(data, '前年分類別売上', true),
-  ]
-}
+// StoreDayStats, analyzeStoreDayRecord, analyzeClassifiedSales, buildDataOverview は
+// application/services/dataSummary.ts に移動済み。useDataSummary フック経由で利用する。
 
 // ─── Styled Components ───────────────────────────────────────
 
@@ -490,7 +343,11 @@ export function ImportHistoryTab() {
     }
   }, [])
 
-  const overview = useMemo(() => buildDataOverview(data), [data])
+  const {
+    dataOverview: overview,
+    categoryTimeSalesStats,
+    prevYearCategoryTimeSalesStats,
+  } = useDataSummary(data)
 
   // サマリー統計
   const loadedCount = overview.filter((d) => d.storeCount > 0).length
@@ -504,29 +361,6 @@ export function ImportHistoryTab() {
     { label: '予算', count: data.budget.size },
   ]
 
-  // 時間帯売上
-  const categoryTimeSalesCount = data.categoryTimeSales.records.length
-  const categoryTimeSalesStores = new Set(data.categoryTimeSales.records.map((r) => r.storeId)).size
-  const categoryTimeSalesDays =
-    data.categoryTimeSales.records.length > 0
-      ? (() => {
-          const days = data.categoryTimeSales.records.map((r) => r.day)
-          return { min: Math.min(...days), max: Math.max(...days) }
-        })()
-      : null
-
-  // 前年時間帯売上
-  const prevYearCTSCount = data.prevYearCategoryTimeSales.records.length
-  const prevYearCTSStores = new Set(data.prevYearCategoryTimeSales.records.map((r) => r.storeId))
-    .size
-  const prevYearCTSDays =
-    data.prevYearCategoryTimeSales.records.length > 0
-      ? (() => {
-          const days = data.prevYearCategoryTimeSales.records.map((r) => r.day)
-          return { min: Math.min(...days), max: Math.max(...days) }
-        })()
-      : null
-
   // 全体の最大日数レンジ（品質スコア用）
   const salesDayRange = overview.find((d) => d.label === '分類別売上')?.dayRange
   const daysInMonth = salesDayRange ? salesDayRange.max : 28
@@ -535,25 +369,25 @@ export function ImportHistoryTab() {
   const ctsStats: StoreDayStats = useMemo(
     () => ({
       label: '分類別時間帯売上',
-      storeCount: categoryTimeSalesStores,
-      totalRecords: categoryTimeSalesCount,
-      dayRange: categoryTimeSalesDays,
+      storeCount: categoryTimeSalesStats.storeCount,
+      totalRecords: categoryTimeSalesStats.recordCount,
+      dayRange: categoryTimeSalesStats.dayRange,
       perStore: [],
       hasCustomers: false,
     }),
-    [categoryTimeSalesStores, categoryTimeSalesCount, categoryTimeSalesDays],
+    [categoryTimeSalesStats],
   )
 
   const prevYearCTSStats: StoreDayStats = useMemo(
     () => ({
       label: '前年分類別時間帯売上',
-      storeCount: prevYearCTSStores,
-      totalRecords: prevYearCTSCount,
-      dayRange: prevYearCTSDays,
+      storeCount: prevYearCategoryTimeSalesStats.storeCount,
+      totalRecords: prevYearCategoryTimeSalesStats.recordCount,
+      dayRange: prevYearCategoryTimeSalesStats.dayRange,
       perStore: [],
       hasCustomers: false,
     }),
-    [prevYearCTSStores, prevYearCTSCount, prevYearCTSDays],
+    [prevYearCategoryTimeSalesStats],
   )
 
   return (
@@ -746,27 +580,32 @@ export function ImportHistoryTab() {
               <Td>分類別時間帯売上</Td>
               <Td>
                 <ClickableBadge
-                  $color={categoryTimeSalesCount > 0 ? palette.infoDark : undefined}
-                  $clickable={categoryTimeSalesCount > 0}
+                  $color={categoryTimeSalesStats.recordCount > 0 ? palette.infoDark : undefined}
+                  $clickable={categoryTimeSalesStats.recordCount > 0}
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (categoryTimeSalesCount > 0) setProvenanceTarget(ctsStats)
+                    if (categoryTimeSalesStats.recordCount > 0) setProvenanceTarget(ctsStats)
                   }}
-                  title={categoryTimeSalesCount > 0 ? 'クリックで取込情報を表示' : undefined}
+                  title={
+                    categoryTimeSalesStats.recordCount > 0 ? 'クリックで取込情報を表示' : undefined
+                  }
                 >
-                  {categoryTimeSalesCount > 0 ? '取込済' : '未取込'}
+                  {categoryTimeSalesStats.recordCount > 0 ? '取込済' : '未取込'}
                 </ClickableBadge>
               </Td>
               <Td>
-                {categoryTimeSalesCount > 0 ? `${categoryTimeSalesCount.toLocaleString()}件` : '-'}
+                {categoryTimeSalesStats.recordCount > 0
+                  ? `${categoryTimeSalesStats.recordCount.toLocaleString()}件`
+                  : '-'}
               </Td>
               <Td>
-                {categoryTimeSalesCount > 0 ? (
+                {categoryTimeSalesStats.recordCount > 0 ? (
                   <>
-                    <StoreIdBadge>{categoryTimeSalesStores}店舗</StoreIdBadge>
-                    {categoryTimeSalesDays && (
+                    <StoreIdBadge>{categoryTimeSalesStats.storeCount}店舗</StoreIdBadge>
+                    {categoryTimeSalesStats.dayRange && (
                       <span style={{ marginLeft: 8, fontSize: '0.8em', opacity: 0.7 }}>
-                        {categoryTimeSalesDays.min}日 〜 {categoryTimeSalesDays.max}日
+                        {categoryTimeSalesStats.dayRange.min}日 〜{' '}
+                        {categoryTimeSalesStats.dayRange.max}日
                       </span>
                     )}
                   </>
@@ -779,25 +618,37 @@ export function ImportHistoryTab() {
               <Td>前年分類別時間帯売上</Td>
               <Td>
                 <ClickableBadge
-                  $color={prevYearCTSCount > 0 ? palette.infoDark : undefined}
-                  $clickable={prevYearCTSCount > 0}
+                  $color={
+                    prevYearCategoryTimeSalesStats.recordCount > 0 ? palette.infoDark : undefined
+                  }
+                  $clickable={prevYearCategoryTimeSalesStats.recordCount > 0}
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (prevYearCTSCount > 0) setProvenanceTarget(prevYearCTSStats)
+                    if (prevYearCategoryTimeSalesStats.recordCount > 0)
+                      setProvenanceTarget(prevYearCTSStats)
                   }}
-                  title={prevYearCTSCount > 0 ? 'クリックで取込情報を表示' : undefined}
+                  title={
+                    prevYearCategoryTimeSalesStats.recordCount > 0
+                      ? 'クリックで取込情報を表示'
+                      : undefined
+                  }
                 >
-                  {prevYearCTSCount > 0 ? '取込済' : '未取込'}
+                  {prevYearCategoryTimeSalesStats.recordCount > 0 ? '取込済' : '未取込'}
                 </ClickableBadge>
               </Td>
-              <Td>{prevYearCTSCount > 0 ? `${prevYearCTSCount.toLocaleString()}件` : '-'}</Td>
               <Td>
-                {prevYearCTSCount > 0 ? (
+                {prevYearCategoryTimeSalesStats.recordCount > 0
+                  ? `${prevYearCategoryTimeSalesStats.recordCount.toLocaleString()}件`
+                  : '-'}
+              </Td>
+              <Td>
+                {prevYearCategoryTimeSalesStats.recordCount > 0 ? (
                   <>
-                    <StoreIdBadge>{prevYearCTSStores}店舗</StoreIdBadge>
-                    {prevYearCTSDays && (
+                    <StoreIdBadge>{prevYearCategoryTimeSalesStats.storeCount}店舗</StoreIdBadge>
+                    {prevYearCategoryTimeSalesStats.dayRange && (
                       <span style={{ marginLeft: 8, fontSize: '0.8em', opacity: 0.7 }}>
-                        {prevYearCTSDays.min}日 〜 {prevYearCTSDays.max}日
+                        {prevYearCategoryTimeSalesStats.dayRange.min}日 〜{' '}
+                        {prevYearCategoryTimeSalesStats.dayRange.max}日
                       </span>
                     )}
                   </>
