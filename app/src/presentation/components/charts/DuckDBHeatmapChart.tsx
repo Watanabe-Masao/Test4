@@ -16,6 +16,7 @@ import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useDuckDBHourDowMatrix, type HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -273,6 +274,7 @@ export function DuckDBHeatmapChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const theme = useTheme() as AppTheme
 
   // 時間帯×曜日マトリクス
@@ -292,7 +294,9 @@ export function DuckDBHeatmapChart({
     return (
       <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
         <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

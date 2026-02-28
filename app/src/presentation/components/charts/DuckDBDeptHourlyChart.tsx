@@ -18,6 +18,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -248,6 +249,7 @@ export function DuckDBDeptHourlyChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [topN, setTopN] = useState(5)
   const [activeDepts, setActiveDepts] = useState<ReadonlySet<string>>(new Set())
 
@@ -289,7 +291,9 @@ export function DuckDBDeptHourlyChart({
     return (
       <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
         <Title>部門別時間帯パターン（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

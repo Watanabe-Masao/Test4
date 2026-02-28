@@ -28,6 +28,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBHourlyProfile, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -147,6 +148,7 @@ export function DuckDBHourlyProfileChart({
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
+  const { messages } = useI18n()
 
   const { data: rows, error } = useDuckDBHourlyProfile(
     duckConn,
@@ -167,7 +169,9 @@ export function DuckDBHourlyProfileChart({
     return (
       <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
         <Title>時間帯別売上プロファイル（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

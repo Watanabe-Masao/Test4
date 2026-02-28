@@ -1,5 +1,6 @@
 import React, { type ReactNode, type ErrorInfo } from 'react'
 import styled from 'styled-components'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ─── 型定義 ──────────────────────────────────────────────
 
@@ -67,15 +68,17 @@ export function ChartErrorBoundary({
   children: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
 }) {
+  const { messages } = useI18n()
+
   return (
     <ErrorBoundary
       onError={onError}
       fallback={(error: Error, reset: () => void) => (
         <ChartFallback>
           <ChartErrorIcon>!</ChartErrorIcon>
-          <ChartErrorText>チャートの表示に失敗しました</ChartErrorText>
+          <ChartErrorText>{messages.errors.chartDisplayFailed}</ChartErrorText>
           {error.message && <ChartErrorDetail>{error.message}</ChartErrorDetail>}
-          <ChartRetryButton onClick={reset}>再試行</ChartRetryButton>
+          <ChartRetryButton onClick={reset}>{messages.errors.retry}</ChartRetryButton>
         </ChartFallback>
       )}
     >
@@ -93,18 +96,18 @@ export function PageErrorBoundary({
   children: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
 }) {
+  const { messages } = useI18n()
+
   return (
     <ErrorBoundary
       onError={onError}
       fallback={(error: Error, reset: () => void) => (
         <PageFallback>
           <PageErrorIcon>!</PageErrorIcon>
-          <PageErrorHeading>エラーが発生しました</PageErrorHeading>
-          <PageErrorDescription>
-            ページの表示中に予期しないエラーが発生しました。
-          </PageErrorDescription>
+          <PageErrorHeading>{messages.errors.occurred}</PageErrorHeading>
+          <PageErrorDescription>{messages.errors.pageUnexpectedError}</PageErrorDescription>
           {error.message && <PageErrorMessage>{error.message}</PageErrorMessage>}
-          <PageRetryButton onClick={reset}>再試行</PageRetryButton>
+          <PageRetryButton onClick={reset}>{messages.errors.retry}</PageRetryButton>
         </PageFallback>
       )}
     >

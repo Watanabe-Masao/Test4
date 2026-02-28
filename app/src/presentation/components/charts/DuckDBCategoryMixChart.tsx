@@ -21,6 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -330,6 +331,7 @@ export function DuckDBCategoryMixChart({
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
+  const { messages } = useI18n()
 
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
@@ -357,7 +359,9 @@ export function DuckDBCategoryMixChart({
     return (
       <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
         <Title>カテゴリ構成比推移（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

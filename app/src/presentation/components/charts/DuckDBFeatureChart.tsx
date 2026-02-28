@@ -29,6 +29,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBDailyFeatures, type DailyFeatureRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -189,6 +190,7 @@ export function DuckDBFeatureChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const { data: features, error } = useDuckDBDailyFeatures(
     duckConn,
@@ -206,7 +208,9 @@ export function DuckDBFeatureChart({
     return (
       <Wrapper aria-label="売上トレンド分析（DuckDB）">
         <Title>売上トレンド分析（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

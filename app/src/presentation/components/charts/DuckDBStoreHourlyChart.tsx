@@ -26,6 +26,7 @@ import {
   STORE_COLORS,
   toPct,
 } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -261,6 +262,7 @@ export function DuckDBStoreHourlyChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('amount')
 
   // 店舗別×時間帯集約
@@ -280,7 +282,9 @@ export function DuckDBStoreHourlyChart({
     return (
       <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
         <Title>店舗×時間帯比較（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

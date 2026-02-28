@@ -6,6 +6,7 @@ import { useCalculation } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Nav = styled.nav`
   display: flex;
@@ -132,6 +133,7 @@ function CalcStatusBadge() {
   const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
   const { hasAnyData: hasData } = useDataSummary(data)
+  const { messages } = useI18n()
 
   if (!hasData) return null
 
@@ -143,7 +145,7 @@ function CalcStatusBadge() {
     return (
       <StatusSection>
         <StatusDot $color={palette.info} $pulse />
-        <StatusText $color={palette.info}>計算中...</StatusText>
+        <StatusText $color={palette.info}>{messages.calculation.calculating}</StatusText>
         <StatusMeta>{monthLabel}</StatusMeta>
       </StatusSection>
     )
@@ -153,9 +155,14 @@ function CalcStatusBadge() {
     return (
       <StatusSection>
         <StatusDot $color={palette.success} />
-        <StatusText $color={palette.success}>計算済み</StatusText>
+        <StatusText $color={palette.success}>{messages.calculation.calculated}</StatusText>
         <StatusMeta>{monthLabel}</StatusMeta>
-        {storeCount > 0 && <StatusMeta>{storeCount}店舗</StatusMeta>}
+        {storeCount > 0 && (
+          <StatusMeta>
+            {storeCount}
+            {messages.common.store}
+          </StatusMeta>
+        )}
       </StatusSection>
     )
   }
@@ -163,19 +170,23 @@ function CalcStatusBadge() {
   return (
     <StatusSection>
       <StatusDot $color={palette.warning} />
-      <StatusText $color={palette.warning}>未計算</StatusText>
+      <StatusText $color={palette.warning}>{messages.calculation.notCalculated}</StatusText>
       <StatusMeta>{monthLabel}</StatusMeta>
     </StatusSection>
   )
 }
 
-const navItems: { view: ViewType; label: string; icon: string }[] = [
-  { view: 'dashboard', label: 'ダッシュボード', icon: '📊' },
-  { view: 'daily', label: '日別', icon: '📅' },
-  { view: 'insight', label: 'インサイト', icon: '📈' },
-  { view: 'category', label: 'カテゴリ', icon: '📁' },
-  { view: 'cost-detail', label: '原価明細', icon: '💰' },
-  { view: 'reports', label: 'レポート', icon: '📄' },
+const navItemDefs: {
+  view: ViewType
+  labelKey: 'dashboard' | 'daily' | 'insight' | 'category' | 'costDetail' | 'reports'
+  icon: string
+}[] = [
+  { view: 'dashboard', labelKey: 'dashboard', icon: '📊' },
+  { view: 'daily', labelKey: 'daily', icon: '📅' },
+  { view: 'insight', labelKey: 'insight', icon: '📈' },
+  { view: 'category', labelKey: 'category', icon: '📁' },
+  { view: 'cost-detail', labelKey: 'costDetail', icon: '💰' },
+  { view: 'reports', labelKey: 'reports', icon: '📄' },
 ]
 
 export function NavBar({
@@ -189,15 +200,17 @@ export function NavBar({
   themeMode: ThemeMode
   onThemeToggle: () => void
 }) {
+  const { messages } = useI18n()
+
   return (
     <Nav aria-label="メインナビゲーション">
       <Logo>荒</Logo>
-      {navItems.map((item) => (
+      {navItemDefs.map((item) => (
         <NavButton
           key={item.view}
           $active={currentView === item.view}
           onClick={() => onViewChange(item.view)}
-          title={item.label}
+          title={messages.nav[item.labelKey]}
         >
           {item.icon}
         </NavButton>
@@ -207,13 +220,13 @@ export function NavBar({
       <NavButton
         $active={currentView === 'admin'}
         onClick={() => onViewChange('admin')}
-        title="管理"
+        title={messages.nav.admin}
       >
         ⚙
       </NavButton>
       <ThemeButton
         onClick={onThemeToggle}
-        title={themeMode === 'dark' ? 'ライトモード' : 'ダークモード'}
+        title={themeMode === 'dark' ? messages.nav.lightMode : messages.nav.darkMode}
       >
         {themeMode === 'dark' ? '🌙' : '☀️'}
       </ThemeButton>

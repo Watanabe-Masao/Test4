@@ -15,6 +15,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -283,6 +284,7 @@ export function DuckDBCategoryHourlyChart({
   selectedStoreIds,
 }: Props) {
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const [level, setLevel] = useState<HierarchyLevel>('department')
 
@@ -310,7 +312,7 @@ export function DuckDBCategoryHourlyChart({
     return (
       <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
         <Title>カテゴリ×時間帯分析（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>{messages.errors.dataFetchFailed}: {error}</ErrorMsg>
       </Wrapper>
     )
   }

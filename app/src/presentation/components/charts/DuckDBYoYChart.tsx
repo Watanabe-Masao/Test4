@@ -28,6 +28,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -126,6 +127,7 @@ export function DuckDBYoYChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const { data: rows, error } = useDuckDBYoyDaily(
     duckConn,
@@ -141,7 +143,9 @@ export function DuckDBYoYChart({
     return (
       <Wrapper aria-label="前年比較（DuckDB）">
         <Title>前年比較（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

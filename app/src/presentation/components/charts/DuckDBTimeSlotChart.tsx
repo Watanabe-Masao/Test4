@@ -23,6 +23,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
 
@@ -214,6 +215,7 @@ export function DuckDBTimeSlotChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('total')
 
   // 前年の日付範囲を構築
@@ -273,7 +275,9 @@ export function DuckDBTimeSlotChart({
     return (
       <Wrapper aria-label="時間帯別売上（DuckDB）">
         <Title>時間帯別売上（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

@@ -21,6 +21,7 @@ import {
   type DeptKpiMonthlyTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -139,6 +140,7 @@ export function DuckDBDeptTrendChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
 
   // 過去12ヶ月分の yearMonth を構築
@@ -174,7 +176,9 @@ export function DuckDBDeptTrendChart({
     return (
       <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
         <Title>部門別KPIトレンド（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }

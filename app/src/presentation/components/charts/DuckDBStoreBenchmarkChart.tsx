@@ -18,6 +18,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBStoreBenchmark, type StoreBenchmarkRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { STORE_COLORS } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 
 // ── styled-components ──
 
@@ -311,6 +312,7 @@ export function DuckDBStoreBenchmarkChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
 
   const { data: benchmarkRows, error } = useDuckDBStoreBenchmark(
     duckConn,
@@ -337,7 +339,9 @@ export function DuckDBStoreBenchmarkChart({
     return (
       <Wrapper aria-label="店舗ベンチマーク（DuckDB）">
         <Title>店舗ベンチマーク（DuckDB）</Title>
-        <ErrorMsg>データの取得に失敗しました: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }
