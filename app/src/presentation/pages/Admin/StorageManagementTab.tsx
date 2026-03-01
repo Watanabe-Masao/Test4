@@ -755,6 +755,7 @@ export function StorageManagementTab() {
   const { isExporting, isImporting, exportBackup, importBackup, previewBackup } = useBackup(repo)
   const [backupPreview, setBackupPreview] = useState<BackupMeta | null>(null)
   const [backupFile, setBackupFile] = useState<File | null>(null)
+  const [backupOverwrite, setBackupOverwrite] = useState(true)
   const backupInputRef = useRef<HTMLInputElement>(null)
 
   // データ復旧
@@ -828,11 +829,15 @@ export function StorageManagementTab() {
 
   const handleBackupImport = useCallback(async () => {
     if (!backupFile) return
-    await importBackup(backupFile)
+    const result = await importBackup(backupFile, backupOverwrite)
     setBackupFile(null)
     setBackupPreview(null)
     await loadData()
-  }, [backupFile, importBackup, loadData])
+    // 復元成功時はページをリロードしてアプリ状態を反映する
+    if (result.monthsImported > 0) {
+      window.location.reload()
+    }
+  }, [backupFile, backupOverwrite, importBackup, loadData])
 
   if (loading) {
     return (
@@ -926,6 +931,18 @@ export function StorageManagementTab() {
                   対象: {backupPreview.months.map((m) => `${m.year}年${m.month}月`).join(', ')}
                 </div>
               </ImportResultBox>
+              <StatusRow>
+                <label
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={backupOverwrite}
+                    onChange={(e) => setBackupOverwrite(e.target.checked)}
+                  />
+                  既存データを上書きする
+                </label>
+              </StatusRow>
               <StatusRow>
                 <ActionButton
                   $variant="primary"

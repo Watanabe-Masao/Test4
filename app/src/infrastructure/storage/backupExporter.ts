@@ -20,7 +20,8 @@
  * ```
  */
 import type { DataRepository } from '@/domain/repositories'
-import type { ImportedData } from '@/domain/models'
+import type { ImportedData, BudgetData } from '@/domain/models'
+import { budgetFromSerializable } from './internal/serialization'
 
 /** バックアップファイルのフォーマットバージョン */
 const BACKUP_FORMAT_VERSION = 1
@@ -51,6 +52,57 @@ export interface BackupImportResult {
   readonly monthsImported: number
   readonly monthsSkipped: number
   readonly errors: readonly string[]
+}
+
+// ─── JSON → Map 復元ヘルパー ─────────────────────────────
+
+/**
+ * plain object → Map 変換。
+ * JSON.parse の結果は plain object であり Map ではないため、
+ * ImportedData の Map フィールドを復元する必要がある。
+ */
+function objectToMap<V>(obj: unknown): Map<string, V> {
+  if (obj instanceof Map) return obj as Map<string, V>
+  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+    return new Map(Object.entries(obj as Record<string, V>))
+  }
+  return new Map()
+}
+
+/**
+ * budget フィールドを復元する。
+ * BudgetData.daily は Map<number, number> であり、
+ * JSON.parse では plain object になるため budgetFromSerializable で復元する。
+ */
+function hydrateBudgetMap(obj: unknown): Map<string, BudgetData> {
+  const map = new Map<string, BudgetData>()
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return map
+  for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+    if (v && typeof v === 'object') {
+      const parsed = budgetFromSerializable(v as Record<string, unknown>)
+      if (parsed) map.set(k, parsed)
+    }
+  }
+  return map
+}
+
+/**
+ * JSON.parse の結果を正しい ImportedData に復元する。
+ * Map フィールド（stores, suppliers, settings, budget）を
+ * plain object から Map に変換する。
+ */
+function hydrateImportedData(raw: unknown): ImportedData {
+  const base = raw as Record<string, unknown>
+  return {
+    ...base,
+    stores: objectToMap(base.stores),
+    suppliers: objectToMap(base.suppliers),
+    settings: objectToMap(base.settings),
+    budget: hydrateBudgetMap(base.budget),
+    // prevYear系は空で初期化（useAutoLoadPrevYear が実際の年月から自動ロードする）
+    prevYearClassifiedSales: base.prevYearClassifiedSales ?? { records: [] },
+    prevYearCategoryTimeSales: base.prevYearCategoryTimeSales ?? { records: [] },
+  } as unknown as ImportedData
 }
 
 class BackupExporter {
@@ -118,7 +170,9 @@ class BackupExporter {
           }
         }
 
-        await repo.saveMonthlyData(monthData.data, monthData.year, monthData.month)
+        // JSON.parse で失われた Map を復元してから保存
+        const hydrated = hydrateImportedData(monthData.data)
+        await repo.saveMonthlyData(hydrated, monthData.year, monthData.month)
         monthsImported++
       } catch (err) {
         errors.push(
