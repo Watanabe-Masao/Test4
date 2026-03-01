@@ -178,11 +178,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 
 // ── 5. 前年比較 ──
 
-export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({
-  ctx,
-}: {
-  ctx: WidgetContext
-}) {
+export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: WidgetContext }) {
   const { source } = resolveYoYSource(toSourceCtx(ctx))
 
   if (source === 'duckdb') {

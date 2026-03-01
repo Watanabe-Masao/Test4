@@ -314,13 +314,7 @@ const WaterfallView = memo(function WaterfallView({ waterfallData, ct, fmt }: Wa
           {(waterfallData as WaterfallItem[]).map((item, idx) => (
             <Cell
               key={idx}
-              fill={
-                item.isTotal
-                  ? ct.colors.primary
-                  : item.value >= 0
-                    ? sc.positive
-                    : sc.negative
-              }
+              fill={item.isTotal ? ct.colors.primary : item.value >= 0 ? sc.positive : sc.negative}
               opacity={item.isTotal ? 0.7 : 0.85}
             />
           ))}

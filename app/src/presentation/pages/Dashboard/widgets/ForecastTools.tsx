@@ -346,8 +346,7 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   const targetTotalGP2 = targetGPRateDecimal * targetTotalSales2
   const requiredRemainingGP2 = targetTotalGP2 - actualGP
   const remainingSales2 = targetTotalSales2 - actualSales
-  const requiredRemainingGPRate2 =
-    remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
+  const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
   const goalDiff = targetGPRateDecimal - defaultTargetGPRate
   const goalSalesDiff = targetMonthlySales - defaultTargetMonthlySales
 
@@ -359,8 +358,7 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
 
   // Tool 2 粗利予算系
   const gpBudget = r.grossProfitBudget
-  const projectedTotalGP2 =
-    actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
+  const projectedTotalGP2 = actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
   const projectedGPAchievement = gpBudget > 0 ? projectedTotalGP2 / gpBudget : 0
   const targetGPAchievement = gpBudget > 0 ? targetTotalGP2 / gpBudget : 0
 
@@ -535,14 +533,9 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
             {hasPrevYear && (
               <ExecRow>
                 <ToolResultLabel style={{ fontWeight: 700 }}>前年比</ToolResultLabel>
-                <ToolResultValue
-                  style={{ fontWeight: 700 }}
-                  $color={sc.cond(tool1YoyRate >= 1)}
-                >
+                <ToolResultValue style={{ fontWeight: 700 }} $color={sc.cond(tool1YoyRate >= 1)}>
                   {formatPercent(tool1YoyRate)}
-                  <SubLabel>
-                    (前年 {formatCurrency(prevYearTotalSales)})
-                  </SubLabel>
+                  <SubLabel>(前年 {formatCurrency(prevYearTotalSales)})</SubLabel>
                 </ToolResultValue>
               </ExecRow>
             )}

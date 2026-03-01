@@ -163,7 +163,9 @@ const Tab = styled.button<{ $active: boolean }>`
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
 const HierarchyRow = styled.div`
@@ -198,7 +200,10 @@ const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $textColor: 
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: all 0.15s;
   min-width: 60px;
-  &:hover { opacity: 0.85; transform: scale(1.02); }
+  &:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
 `
 
 // ── Types ──
@@ -402,25 +407,50 @@ export function DuckDBHeatmapChart({
 
   // 当年 時間帯×曜日マトリクス
   const { data: matrixRows, error } = useDuckDBHourDowMatrix(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, hierarchy,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    hierarchy,
   )
 
   // 前年 時間帯×曜日マトリクス（前年比モード用）
   const { data: prevMatrixRows } = useDuckDBHourDowMatrix(
-    duckConn, duckDataVersion, prevYearRange, selectedStoreIds, hierarchy,
+    duckConn,
+    duckDataVersion,
+    prevYearRange,
+    selectedStoreIds,
+    hierarchy,
   )
 
   // 階層ドロップダウン
   const { data: departments } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'department', undefined, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'department',
+    undefined,
+    false,
   )
   const { data: lines } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'line',
-    deptCode ? { deptCode } : undefined, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'line',
+    deptCode ? { deptCode } : undefined,
+    false,
   )
   const { data: klasses } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'klass',
-    deptCode || lineCode ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined } : undefined,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'klass',
+    deptCode || lineCode
+      ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined }
+      : undefined,
     false,
   )
 
@@ -436,14 +466,23 @@ export function DuckDBHeatmapChart({
 
   const hasPrevData = (prevMatrixRows?.length ?? 0) > 0
 
-  const wrappedSetDept = (code: string) => { setDeptCode(code); setLineCode(''); setKlassCode('') }
-  const wrappedSetLine = (code: string) => { setLineCode(code); setKlassCode('') }
+  const wrappedSetDept = (code: string) => {
+    setDeptCode(code)
+    setLineCode('')
+    setKlassCode('')
+  }
+  const wrappedSetLine = (code: string) => {
+    setLineCode(code)
+    setKlassCode('')
+  }
 
   if (error) {
     return (
       <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
         <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
-        <ErrorMsg>{messages.errors.dataFetchFailed}: {error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {error}
+        </ErrorMsg>
       </Wrapper>
     )
   }
@@ -474,8 +513,12 @@ export function DuckDBHeatmapChart({
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {hasPrevData && (
             <TabGroup>
-              <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>売上金額</Tab>
-              <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>前年比増減</Tab>
+              <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>
+                売上金額
+              </Tab>
+              <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>
+                前年比増減
+              </Tab>
             </TabGroup>
           )}
         </div>
@@ -487,7 +530,9 @@ export function DuckDBHeatmapChart({
             <tr>
               <HeaderCell scope="col" />
               {DOW_ORDER.map((dow) => (
-                <HeaderCell key={dow} scope="col">{DOW_LABELS[dow]}</HeaderCell>
+                <HeaderCell key={dow} scope="col">
+                  {DOW_LABELS[dow]}
+                </HeaderCell>
               ))}
             </tr>
           </thead>
@@ -501,7 +546,16 @@ export function DuckDBHeatmapChart({
                   if (!isAmountMode && diffMap) {
                     const ratio = diffMap.get(key)
                     if (ratio == null) {
-                      return <DiffDataCell key={dow} $ratio={0} $hasData={false} $textColor={ct.textMuted}>-</DiffDataCell>
+                      return (
+                        <DiffDataCell
+                          key={dow}
+                          $ratio={0}
+                          $hasData={false}
+                          $textColor={ct.textMuted}
+                        >
+                          -
+                        </DiffDataCell>
+                      )
                     }
                     const textColor = Math.abs(ratio) > 0.15 ? '#fff' : ct.textMuted
                     return (
@@ -512,18 +566,29 @@ export function DuckDBHeatmapChart({
                         $textColor={textColor}
                         title={`${hour}時 ${DOW_LABELS[dow]} | ${ratio >= 0 ? '+' : ''}${toPct(ratio)}`}
                       >
-                        {ratio >= 0 ? '+' : ''}{toPct(ratio)}
+                        {ratio >= 0 ? '+' : ''}
+                        {toPct(ratio)}
                       </DiffDataCell>
                     )
                   }
 
                   const cell = heatmapData.cells.get(key)
                   if (!cell) {
-                    return <DataCell key={dow} $bgColor={bgBase} $isAnomaly={false} $textColor={ct.textMuted}>-</DataCell>
+                    return (
+                      <DataCell
+                        key={dow}
+                        $bgColor={bgBase}
+                        $isAnomaly={false}
+                        $textColor={ct.textMuted}
+                      >
+                        -
+                      </DataCell>
+                    )
                   }
                   const ratio = heatmapData.maxValue > 0 ? cell.dailyAvg / heatmapData.maxValue : 0
                   const bgColor = interpolateColor(ratio, bgBase, primaryHex)
-                  const textColor = ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
+                  const textColor =
+                    ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
                   return (
                     <DataCell
                       key={dow}
@@ -549,7 +614,9 @@ export function DuckDBHeatmapChart({
             <GradientBar $from={bgBase} $to={primaryHex} />
             <span>高</span>
             {heatmapData.anomalyCount > 0 && (
-              <span style={{ marginLeft: '12px', color: '#ef4444' }}>異常セル: {heatmapData.anomalyCount}件</span>
+              <span style={{ marginLeft: '12px', color: '#ef4444' }}>
+                異常セル: {heatmapData.anomalyCount}件
+              </span>
             )}
           </>
         ) : (
@@ -577,24 +644,38 @@ export function DuckDBHeatmapChart({
       </SummaryRow>
 
       {/* ── Hierarchy filter ── */}
-      {((departments?.length ?? 0) > 1 || (lines?.length ?? 0) > 1 || (klasses?.length ?? 0) > 1) && (
+      {((departments?.length ?? 0) > 1 ||
+        (lines?.length ?? 0) > 1 ||
+        (klasses?.length ?? 0) > 1) && (
         <HierarchyRow>
           {(departments?.length ?? 0) > 1 && (
             <HierarchySelect value={deptCode} onChange={(e) => wrappedSetDept(e.target.value)}>
               <option value="">全部門</option>
-              {departments?.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
+              {departments?.map((d) => (
+                <option key={d.code} value={d.code}>
+                  {d.name}
+                </option>
+              ))}
             </HierarchySelect>
           )}
           {deptCode && (lines?.length ?? 0) > 1 && (
             <HierarchySelect value={lineCode} onChange={(e) => wrappedSetLine(e.target.value)}>
               <option value="">全ライン</option>
-              {lines?.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+              {lines?.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
             </HierarchySelect>
           )}
           {lineCode && (klasses?.length ?? 0) > 1 && (
             <HierarchySelect value={klassCode} onChange={(e) => setKlassCode(e.target.value)}>
               <option value="">全クラス</option>
-              {klasses?.map((k) => <option key={k.code} value={k.code}>{k.name}</option>)}
+              {klasses?.map((k) => (
+                <option key={k.code} value={k.code}>
+                  {k.name}
+                </option>
+              ))}
             </HierarchySelect>
           )}
         </HierarchyRow>

@@ -252,7 +252,11 @@ function StoreManagementTab() {
                       機首: {inv.openingInventory?.toLocaleString() ?? '-'} / 期末:{' '}
                       {inv.closingInventory?.toLocaleString() ?? '-'}
                       {inv.productInventory != null && (
-                        <> (商品: {inv.productInventory.toLocaleString()} + 消耗品: {(inv.consumableInventory ?? 0).toLocaleString()})</>
+                        <>
+                          {' '}
+                          (商品: {inv.productInventory.toLocaleString()} + 消耗品:{' '}
+                          {(inv.consumableInventory ?? 0).toLocaleString()})
+                        </>
                       )}
                     </Badge>
                   ) : (

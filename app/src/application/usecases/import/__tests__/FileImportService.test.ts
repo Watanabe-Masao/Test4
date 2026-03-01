@@ -61,7 +61,16 @@ function fullData(): ImportedData {
       ],
       [
         '2',
-        { storeId: '2', openingInventory: 80000, closingInventory: 90000, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
+        {
+          storeId: '2',
+          openingInventory: 80000,
+          closingInventory: 90000,
+          grossProfitBudget: null,
+          productInventory: null,
+          consumableInventory: null,
+          inventoryDate: null,
+          closingInventoryDay: null,
+        },
       ],
     ]),
     budget: new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]]),

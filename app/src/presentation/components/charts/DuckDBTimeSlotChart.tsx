@@ -115,7 +115,9 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
     return (
       <Wrapper aria-label="時間帯別売上（DuckDB）">
         <Title>時間帯別売上（DuckDB）</Title>
-        <ErrorMsg>{messages.errors.dataFetchFailed}: {d.error}</ErrorMsg>
+        <ErrorMsg>
+          {messages.errors.dataFetchFailed}: {d.error}
+        </ErrorMsg>
       </Wrapper>
     )
   }
@@ -134,20 +136,34 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
   return (
     <Wrapper aria-label="時間帯別売上（DuckDB）">
       <HeaderRow>
-        <Title>{titleText}{modeLabel}</Title>
+        <Title>
+          {titleText}
+          {modeLabel}
+        </Title>
         <Controls>
           {d.viewMode !== 'yoy' && (
             <TabGroup>
-              <Tab $active={d.metricMode === 'amount'} onClick={() => d.setMetricMode('amount')}>金額</Tab>
-              <Tab $active={d.metricMode === 'quantity'} onClick={() => d.setMetricMode('quantity')}>点数</Tab>
+              <Tab $active={d.metricMode === 'amount'} onClick={() => d.setMetricMode('amount')}>
+                金額
+              </Tab>
+              <Tab
+                $active={d.metricMode === 'quantity'}
+                onClick={() => d.setMetricMode('quantity')}
+              >
+                点数
+              </Tab>
             </TabGroup>
           )}
           {d.hasPrev && (
             <>
               <Separator />
               <TabGroup>
-                <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>前年比</Tab>
-                <Tab $active={d.compMode === 'wow'} onClick={() => d.setCompMode('wow')}>前週比</Tab>
+                <Tab $active={d.compMode === 'yoy'} onClick={() => d.setCompMode('yoy')}>
+                  前年比
+                </Tab>
+                <Tab $active={d.compMode === 'wow'} onClick={() => d.setCompMode('wow')}>
+                  前週比
+                </Tab>
               </TabGroup>
             </>
           )}
@@ -155,21 +171,33 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
             <>
               <Separator />
               <TabGroup>
-                <Tab $active={d.showPrev} onClick={() => d.setShowPrev(!d.showPrev)}>{d.compLabel}比較</Tab>
+                <Tab $active={d.showPrev} onClick={() => d.setShowPrev(!d.showPrev)}>
+                  {d.compLabel}比較
+                </Tab>
               </TabGroup>
             </>
           )}
           <Separator />
           <TabGroup>
-            <Tab $active={d.mode === 'total'} onClick={() => d.setMode('total')}>合計</Tab>
-            <Tab $active={d.mode === 'daily'} onClick={() => d.setMode('daily')}>日平均</Tab>
+            <Tab $active={d.mode === 'total'} onClick={() => d.setMode('total')}>
+              合計
+            </Tab>
+            <Tab $active={d.mode === 'daily'} onClick={() => d.setMode('daily')}>
+              日平均
+            </Tab>
           </TabGroup>
           <Separator />
           <TabGroup>
-            <Tab $active={d.viewMode === 'chart'} onClick={() => d.setViewMode('chart')}>チャート</Tab>
-            <Tab $active={d.viewMode === 'kpi'} onClick={() => d.setViewMode('kpi')}>KPI</Tab>
+            <Tab $active={d.viewMode === 'chart'} onClick={() => d.setViewMode('chart')}>
+              チャート
+            </Tab>
+            <Tab $active={d.viewMode === 'kpi'} onClick={() => d.setViewMode('kpi')}>
+              KPI
+            </Tab>
             {d.hasPrev && (
-              <Tab $active={d.viewMode === 'yoy'} onClick={() => d.setViewMode('yoy')}>{d.compLabel}比較</Tab>
+              <Tab $active={d.viewMode === 'yoy'} onClick={() => d.setViewMode('yoy')}>
+                {d.compLabel}比較
+              </Tab>
             )}
           </TabGroup>
         </Controls>
@@ -200,7 +228,8 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
               <YAxis
                 yAxisId="left"
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-                axisLine={false} tickLine={false}
+                axisLine={false}
+                tickLine={false}
                 tickFormatter={d.metricMode === 'amount' ? fmt : (v: number) => toComma(v)}
                 width={50}
               />
@@ -267,7 +296,8 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
                   {d.kpi.totalAmount.toLocaleString()}円
                   {d.kpi.yoyRatio != null && (
                     <YoYBadge $positive={d.kpi.yoyRatio >= 1}>
-                      {d.kpi.yoyRatio >= 1 ? '+' : ''}{toPct(d.kpi.yoyRatio - 1)}
+                      {d.kpi.yoyRatio >= 1 ? '+' : ''}
+                      {toPct(d.kpi.yoyRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -275,7 +305,9 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
               {d.kpi.prevTotalAmount > 0 && (
                 <Card $accent={ct.colors.slate}>
                   <CardLabel>{d.compLabel} 総売上金額</CardLabel>
-                  <CardValue>{Math.round(d.kpi.prevTotalAmount / 10000).toLocaleString()}万円</CardValue>
+                  <CardValue>
+                    {Math.round(d.kpi.prevTotalAmount / 10000).toLocaleString()}万円
+                  </CardValue>
                   <CardSub>{d.kpi.prevTotalAmount.toLocaleString()}円</CardSub>
                 </Card>
               )}
@@ -283,9 +315,12 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
                 <Card $accent={sc.cond(d.kpi.yoyDiff >= 0)}>
                   <CardLabel>{d.compLabel}差（金額）</CardLabel>
                   <CardValue style={{ color: sc.cond(d.kpi.yoyDiff >= 0) }}>
-                    {d.kpi.yoyDiff >= 0 ? '+' : ''}{Math.round(d.kpi.yoyDiff / 10000).toLocaleString()}万円
+                    {d.kpi.yoyDiff >= 0 ? '+' : ''}
+                    {Math.round(d.kpi.yoyDiff / 10000).toLocaleString()}万円
                   </CardValue>
-                  <CardSub>{d.compLabel}比 {toPct(d.kpi.yoyRatio ?? 0)}</CardSub>
+                  <CardSub>
+                    {d.compLabel}比 {toPct(d.kpi.yoyRatio ?? 0)}
+                  </CardSub>
                 </Card>
               )}
               <Card $accent={palette.cyanDark}>
@@ -321,7 +356,8 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
                 <CardSub>
                   {d.kpi.yoyQuantityRatio != null && (
                     <YoYBadge $positive={d.kpi.yoyQuantityRatio >= 1}>
-                      {d.kpi.yoyQuantityRatio >= 1 ? '+' : ''}{toPct(d.kpi.yoyQuantityRatio - 1)}
+                      {d.kpi.yoyQuantityRatio >= 1 ? '+' : ''}
+                      {toPct(d.kpi.yoyQuantityRatio - 1)}
                     </YoYBadge>
                   )}
                 </CardSub>
@@ -336,9 +372,12 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
                 <Card $accent={sc.cond(d.kpi.yoyQuantityDiff >= 0)}>
                   <CardLabel>{d.compLabel}差（数量）</CardLabel>
                   <CardValue style={{ color: sc.cond(d.kpi.yoyQuantityDiff >= 0) }}>
-                    {d.kpi.yoyQuantityDiff >= 0 ? '+' : ''}{d.kpi.yoyQuantityDiff.toLocaleString()}点
+                    {d.kpi.yoyQuantityDiff >= 0 ? '+' : ''}
+                    {d.kpi.yoyQuantityDiff.toLocaleString()}点
                   </CardValue>
-                  <CardSub>{d.compLabel}比 {toPct(d.kpi.yoyQuantityRatio ?? 0)}</CardSub>
+                  <CardSub>
+                    {d.compLabel}比 {toPct(d.kpi.yoyQuantityRatio ?? 0)}
+                  </CardSub>
                 </Card>
               )}
               <Card $accent={palette.primary}>
@@ -372,130 +411,192 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
       )}
 
       {/* ── YoY comparison view ── */}
-      {d.viewMode === 'yoy' && d.yoyData && (() => {
-        const s = d.yoyData.summary
-        const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
-        return (
-          <>
-            <SummaryRow>
-              <Metric>
-                <MetricLabel>{d.curLabel}合計</MetricLabel>
-                <MetricValue>{fmt(s.curTotal)}円</MetricValue>
-              </Metric>
-              {s.yoyRatio != null && (
-                <ProgressBarWrap>
-                  <ProgressLabelRow>
-                    <span>{d.compLabel}比 {toPct(s.yoyRatio)}</span>
-                    <span>{s.yoyDiff >= 0 ? '+' : ''}{fmt(s.yoyDiff)}円</span>
-                  </ProgressLabelRow>
-                  <ProgressTrack>
-                    <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
-                  </ProgressTrack>
-                </ProgressBarWrap>
-              )}
-              <Metric>
-                <MetricLabel>{d.compLabel}合計</MetricLabel>
-                <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
-              </Metric>
-              {s.maxIncHour >= 0 && (
+      {d.viewMode === 'yoy' &&
+        d.yoyData &&
+        (() => {
+          const s = d.yoyData.summary
+          const yoyColor = (s.yoyRatio ?? 0) >= 1 ? ct.colors.success : ct.colors.danger
+          return (
+            <>
+              <SummaryRow>
                 <Metric>
-                  <MetricLabel>最大増加時間帯</MetricLabel>
-                  <MetricValue $color={sc.positive}>{s.maxIncHour}時 (+{fmt(s.maxIncDiff)})</MetricValue>
+                  <MetricLabel>{d.curLabel}合計</MetricLabel>
+                  <MetricValue>{fmt(s.curTotal)}円</MetricValue>
                 </Metric>
-              )}
-              {s.maxDecHour >= 0 && (
+                {s.yoyRatio != null && (
+                  <ProgressBarWrap>
+                    <ProgressLabelRow>
+                      <span>
+                        {d.compLabel}比 {toPct(s.yoyRatio)}
+                      </span>
+                      <span>
+                        {s.yoyDiff >= 0 ? '+' : ''}
+                        {fmt(s.yoyDiff)}円
+                      </span>
+                    </ProgressLabelRow>
+                    <ProgressTrack>
+                      <ProgressFill $pct={s.yoyRatio * 100} $color={yoyColor} />
+                    </ProgressTrack>
+                  </ProgressBarWrap>
+                )}
                 <Metric>
-                  <MetricLabel>最大減少時間帯</MetricLabel>
-                  <MetricValue $color={sc.negative}>{s.maxDecHour}時 ({fmt(s.maxDecDiff)})</MetricValue>
+                  <MetricLabel>{d.compLabel}合計</MetricLabel>
+                  <MetricValue $color={ct.colors.slate}>{fmt(s.prevTotal)}円</MetricValue>
                 </Metric>
-              )}
-              <Metric>
-                <MetricLabel>コアタイム（{d.curLabel}）</MetricLabel>
-                <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
-              </Metric>
-              <Metric>
-                <MetricLabel>折り返し（{d.curLabel}）</MetricLabel>
-                <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
-              </Metric>
-              {s.prevCoreTime && (
+                {s.maxIncHour >= 0 && (
+                  <Metric>
+                    <MetricLabel>最大増加時間帯</MetricLabel>
+                    <MetricValue $color={sc.positive}>
+                      {s.maxIncHour}時 (+{fmt(s.maxIncDiff)})
+                    </MetricValue>
+                  </Metric>
+                )}
+                {s.maxDecHour >= 0 && (
+                  <Metric>
+                    <MetricLabel>最大減少時間帯</MetricLabel>
+                    <MetricValue $color={sc.negative}>
+                      {s.maxDecHour}時 ({fmt(s.maxDecDiff)})
+                    </MetricValue>
+                  </Metric>
+                )}
                 <Metric>
-                  <MetricLabel>コアタイム（{d.compLabel}）</MetricLabel>
-                  <MetricValue $color={ct.colors.slate}>{formatCoreTime(s.prevCoreTime)}</MetricValue>
+                  <MetricLabel>コアタイム（{d.curLabel}）</MetricLabel>
+                  <MetricValue>{formatCoreTime(s.curCoreTime)}</MetricValue>
                 </Metric>
-              )}
-              {s.prevTurnaround != null && (
                 <Metric>
-                  <MetricLabel>折り返し（{d.compLabel}）</MetricLabel>
-                  <MetricValue $color={ct.colors.slate}>{formatTurnaroundHour(s.prevTurnaround)}</MetricValue>
+                  <MetricLabel>折り返し（{d.curLabel}）</MetricLabel>
+                  <MetricValue>{formatTurnaroundHour(s.curTurnaround)}</MetricValue>
                 </Metric>
-              )}
-            </SummaryRow>
+                {s.prevCoreTime && (
+                  <Metric>
+                    <MetricLabel>コアタイム（{d.compLabel}）</MetricLabel>
+                    <MetricValue $color={ct.colors.slate}>
+                      {formatCoreTime(s.prevCoreTime)}
+                    </MetricValue>
+                  </Metric>
+                )}
+                {s.prevTurnaround != null && (
+                  <Metric>
+                    <MetricLabel>折り返し（{d.compLabel}）</MetricLabel>
+                    <MetricValue $color={ct.colors.slate}>
+                      {formatTurnaroundHour(s.prevTurnaround)}
+                    </MetricValue>
+                  </Metric>
+                )}
+              </SummaryRow>
 
-            <div style={{ width: '100%', height: 300, minHeight: 0 }}>
-              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
-                <ComposedChart data={d.yoyData.chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="duckYoyCurGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
-                      <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-                  <XAxis dataKey="hour" tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }} axisLine={{ stroke: ct.grid }} tickLine={false} />
-                  <YAxis tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }} axisLine={false} tickLine={false} tickFormatter={fmt} width={50} />
-                  <ReferenceLine y={0} stroke={ct.grid} />
-                  <Tooltip
-                    contentStyle={tooltipStyle(ct)}
-                    formatter={(value: number | undefined, name: string | undefined) => {
-                      const labels: Record<string, string> = { current: d.curLabel, prevYear: d.compLabel, diff: '差分' }
-                      const label = labels[name as string] ?? String(name)
-                      const v = value ?? 0
-                      if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
-                      return [`${toComma(v)}円`, label]
-                    }}
-                    itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
-                  />
-                  <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} formatter={(value) => {
-                    const labels: Record<string, string> = { current: d.curLabel, prevYear: d.compLabel, diff: '差分' }
-                    return labels[value] ?? value
-                  }} />
-                  <Bar dataKey="current" fill="url(#duckYoyCurGrad)" radius={[3, 3, 0, 0]} maxBarSize={20} />
-                  <Line type="monotone" dataKey="prevYear" stroke={ct.colors.slate} strokeWidth={2.5} strokeDasharray="5 3" dot={false} connectNulls />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
+              <div style={{ width: '100%', height: 300, minHeight: 0 }}>
+                <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
+                  <ComposedChart
+                    data={d.yoyData.chartData}
+                    margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="duckYoyCurGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={ct.colors.primary} stopOpacity={0.85} />
+                        <stop offset="100%" stopColor={ct.colors.primary} stopOpacity={0.4} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
+                    <XAxis
+                      dataKey="hour"
+                      tick={{
+                        fill: ct.textMuted,
+                        fontSize: ct.fontSize.xs,
+                        fontFamily: ct.monoFamily,
+                      }}
+                      axisLine={{ stroke: ct.grid }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fill: ct.textMuted,
+                        fontSize: ct.fontSize.xs,
+                        fontFamily: ct.monoFamily,
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={fmt}
+                      width={50}
+                    />
+                    <ReferenceLine y={0} stroke={ct.grid} />
+                    <Tooltip
+                      contentStyle={tooltipStyle(ct)}
+                      formatter={(value: number | undefined, name: string | undefined) => {
+                        const labels: Record<string, string> = {
+                          current: d.curLabel,
+                          prevYear: d.compLabel,
+                          diff: '差分',
+                        }
+                        const label = labels[name as string] ?? String(name)
+                        const v = value ?? 0
+                        if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
+                        return [`${toComma(v)}円`, label]
+                      }}
+                      itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
+                      formatter={(value) => {
+                        const labels: Record<string, string> = {
+                          current: d.curLabel,
+                          prevYear: d.compLabel,
+                          diff: '差分',
+                        }
+                        return labels[value] ?? value
+                      }}
+                    />
+                    <Bar
+                      dataKey="current"
+                      fill="url(#duckYoyCurGrad)"
+                      radius={[3, 3, 0, 0]}
+                      maxBarSize={20}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="prevYear"
+                      stroke={ct.colors.slate}
+                      strokeWidth={2.5}
+                      strokeDasharray="5 3"
+                      dot={false}
+                      connectNulls
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
 
-            <TableWrapper>
-              <MiniTable>
-                <thead>
-                  <tr>
-                    <MiniTh>時間帯</MiniTh>
-                    <MiniTh>{d.curLabel}</MiniTh>
-                    <MiniTh>{d.compLabel}</MiniTh>
-                    <MiniTh>差分</MiniTh>
-                    <MiniTh>{d.compLabel}比</MiniTh>
-                  </tr>
-                </thead>
-                <tbody>
-                  {d.yoyData.rows.map((row) => (
-                    <tr key={row.hour}>
-                      <MiniTd>{row.hour}</MiniTd>
-                      <MiniTd>{toComma(row.current)}円</MiniTd>
-                      <MiniTd>{toComma(row.prevYear)}円</MiniTd>
-                      <MiniTd $highlight $positive={row.diff >= 0}>
-                        {row.diff >= 0 ? '+' : ''}{toComma(row.diff)}円
-                      </MiniTd>
-                      <MiniTd $highlight $positive={(row.ratio ?? 0) >= 1}>
-                        {row.ratio != null ? toPct(row.ratio) : '-'}
-                      </MiniTd>
+              <TableWrapper>
+                <MiniTable>
+                  <thead>
+                    <tr>
+                      <MiniTh>時間帯</MiniTh>
+                      <MiniTh>{d.curLabel}</MiniTh>
+                      <MiniTh>{d.compLabel}</MiniTh>
+                      <MiniTh>差分</MiniTh>
+                      <MiniTh>{d.compLabel}比</MiniTh>
                     </tr>
-                  ))}
-                </tbody>
-              </MiniTable>
-            </TableWrapper>
-          </>
-        )
-      })()}
+                  </thead>
+                  <tbody>
+                    {d.yoyData.rows.map((row) => (
+                      <tr key={row.hour}>
+                        <MiniTd>{row.hour}</MiniTd>
+                        <MiniTd>{toComma(row.current)}円</MiniTd>
+                        <MiniTd>{toComma(row.prevYear)}円</MiniTd>
+                        <MiniTd $highlight $positive={row.diff >= 0}>
+                          {row.diff >= 0 ? '+' : ''}
+                          {toComma(row.diff)}円
+                        </MiniTd>
+                        <MiniTd $highlight $positive={(row.ratio ?? 0) >= 1}>
+                          {row.ratio != null ? toPct(row.ratio) : '-'}
+                        </MiniTd>
+                      </tr>
+                    ))}
+                  </tbody>
+                </MiniTable>
+              </TableWrapper>
+            </>
+          )
+        })()}
 
       {d.insights.length > 0 && (
         <InsightBar>
@@ -512,7 +613,9 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
             <HierarchySelect value={d.deptCode} onChange={(e) => d.setDeptCode(e.target.value)}>
               <option value="">全部門</option>
               {d.deptOptions.map((o) => (
-                <option key={o.code} value={o.code}>{o.name}</option>
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
               ))}
             </HierarchySelect>
           )}
@@ -520,7 +623,9 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
             <HierarchySelect value={d.lineCode} onChange={(e) => d.setLineCode(e.target.value)}>
               <option value="">全ライン</option>
               {d.lineOptions.map((o) => (
-                <option key={o.code} value={o.code}>{o.name}</option>
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
               ))}
             </HierarchySelect>
           )}
@@ -528,7 +633,9 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
             <HierarchySelect value={d.klassCode} onChange={(e) => d.setKlassCode(e.target.value)}>
               <option value="">全クラス</option>
               {d.klassOptions.map((o) => (
-                <option key={o.code} value={o.code}>{o.name}</option>
+                <option key={o.code} value={o.code}>
+                  {o.name}
+                </option>
               ))}
             </HierarchySelect>
           )}
