@@ -74,26 +74,37 @@ export interface PairDailyEntry {
   price: number
 }
 
-export interface DetailRow {
-  key: string
-  label: string
-  isSub: boolean
-  inCost: number
-  inPrice: number
-  outCost: number
-  outPrice: number
+export interface TransferPivotStore {
+  storeId: string
+  storeName: string
 }
 
-export interface DailyTransferRow {
+export interface TransferPivotCell {
+  cost: number
+  price: number
+}
+
+export interface TransferPivotRow {
   day: number
+  cells: Record<string, TransferPivotCell>
   inCost: number
   inPrice: number
   outCost: number
   outPrice: number
   net: number
-  hasBreakdown: boolean
-  isExpanded: boolean
-  detailRows: DetailRow[]
+}
+
+export interface TransferPivotData {
+  stores: TransferPivotStore[]
+  rows: TransferPivotRow[]
+  totals: {
+    byStore: Record<string, TransferPivotCell>
+    inCost: number
+    inPrice: number
+    outCost: number
+    outPrice: number
+    net: number
+  }
 }
 
 // ─── Transfer helpers ─────────────────────────────────
@@ -133,69 +144,86 @@ function aggregateFlows(
   return Array.from(map.values()).sort((a, b) => Math.abs(b.cost) - Math.abs(a.cost))
 }
 
-// ─── Daily transfer detail row builder ────────────────
+// ─── Transfer pivot builder ──────────────────────────
 
-function buildDetailRows(
-  rec: DailyRecord,
+function buildTransferPivot(
+  days: [number, DailyRecord][],
   inField: 'interStoreIn' | 'interDepartmentIn',
   outField: 'interStoreOut' | 'interDepartmentOut',
-  stores: ReadonlyMap<string, { id: string; name: string }>,
-): DetailRow[] {
-  const inEntries = rec.transferBreakdown[inField]
-  const outEntries = rec.transferBreakdown[outField]
-  const inRec = rec[inField]
-  const outRec = rec[outField]
-  const rows: DetailRow[] = []
-
-  for (const e of inEntries) {
-    const partner = stores.get(e.fromStoreId)?.name ?? e.fromStoreId
-    rows.push({
-      key: `in-${e.fromStoreId}-${e.toStoreId}`,
-      label: `${e.toStoreId}←${e.fromStoreId}  ${partner}`,
-      isSub: false,
-      inCost: e.cost,
-      inPrice: e.price,
-      outCost: 0,
-      outPrice: 0,
-    })
+  storeMap: ReadonlyMap<string, { id: string; name: string }>,
+): TransferPivotData {
+  const partnerStoreIds = new Set<string>()
+  for (const [, rec] of days) {
+    for (const e of rec.transferBreakdown[inField]) partnerStoreIds.add(e.fromStoreId)
+    for (const e of rec.transferBreakdown[outField]) partnerStoreIds.add(e.toStoreId)
   }
-  if (inEntries.length > 1) {
-    const toId = inEntries[0]?.toStoreId ?? ''
+
+  const sortedIds = Array.from(partnerStoreIds).sort()
+  const pivotStores: TransferPivotStore[] = sortedIds.map((id) => ({
+    storeId: id,
+    storeName: storeMap.get(id)?.name ?? id,
+  }))
+
+  const totalsByStore: Record<string, TransferPivotCell> = {}
+  for (const id of sortedIds) totalsByStore[id] = { cost: 0, price: 0 }
+  let tInCost = 0
+  let tInPrice = 0
+  let tOutCost = 0
+  let tOutPrice = 0
+
+  const rows: TransferPivotRow[] = []
+  for (const [day, rec] of days) {
+    const inRec = rec[inField]
+    const outRec = rec[outField]
+    if (inRec.cost === 0 && outRec.cost === 0) continue
+
+    const cells: Record<string, TransferPivotCell> = {}
+    for (const id of sortedIds) cells[id] = { cost: 0, price: 0 }
+
+    for (const e of rec.transferBreakdown[inField]) {
+      const c = cells[e.fromStoreId]
+      cells[e.fromStoreId] = { cost: c.cost + e.cost, price: c.price + e.price }
+    }
+    for (const e of rec.transferBreakdown[outField]) {
+      const c = cells[e.toStoreId]
+      cells[e.toStoreId] = { cost: c.cost + e.cost, price: c.price + e.price }
+    }
+
+    for (const id of sortedIds) {
+      totalsByStore[id] = {
+        cost: totalsByStore[id].cost + cells[id].cost,
+        price: totalsByStore[id].price + cells[id].price,
+      }
+    }
+
+    tInCost += inRec.cost
+    tInPrice += inRec.price
+    tOutCost += outRec.cost
+    tOutPrice += outRec.price
+
     rows.push({
-      key: 'in-sub',
-      label: `${toId}← 小計`,
-      isSub: true,
+      day,
+      cells,
       inCost: inRec.cost,
       inPrice: inRec.price,
-      outCost: 0,
-      outPrice: 0,
-    })
-  }
-  for (const e of outEntries) {
-    const partner = stores.get(e.toStoreId)?.name ?? e.toStoreId
-    rows.push({
-      key: `out-${e.fromStoreId}-${e.toStoreId}`,
-      label: `${e.fromStoreId}→${e.toStoreId}  ${partner}`,
-      isSub: false,
-      inCost: 0,
-      inPrice: 0,
-      outCost: e.cost,
-      outPrice: e.price,
-    })
-  }
-  if (outEntries.length > 1) {
-    const fromId = outEntries[0]?.fromStoreId ?? ''
-    rows.push({
-      key: 'out-sub',
-      label: `${fromId}→ 小計`,
-      isSub: true,
-      inCost: 0,
-      inPrice: 0,
       outCost: outRec.cost,
       outPrice: outRec.price,
+      net: inRec.cost + outRec.cost,
     })
   }
-  return rows
+
+  return {
+    stores: pivotStores,
+    rows,
+    totals: {
+      byStore: totalsByStore,
+      inCost: tInCost,
+      inPrice: tInPrice,
+      outCost: tOutCost,
+      outPrice: tOutPrice,
+      net: tInCost + tOutCost,
+    },
+  }
 }
 
 // ─── Consumable helpers ───────────────────────────────
@@ -264,7 +292,6 @@ export function useCostDetailData() {
   // Transfer state
   const [transferType, setTransferType] = useState<TransferType>('interStore')
   const [selectedPair, setSelectedPair] = useState<string | null>(null)
-  const [expandedDay, setExpandedDay] = useState<number | null>(null)
 
   // Consumable state
   const [consumableView, setConsumableView] = useState<ConsumableViewMode>('item')
@@ -347,34 +374,10 @@ export function useCostDetailData() {
     [days, inField, outField],
   )
 
-  // ─── Daily transfer rows (pre-computed for rendering) ─
-  const dailyTransferRows = useMemo(
-    (): DailyTransferRow[] =>
-      days
-        .map(([day, rec]) => {
-          const inRec = rec[inField]
-          const outRec = rec[outField]
-          const net = inRec.cost + outRec.cost
-          const hasData = inRec.cost !== 0 || outRec.cost !== 0
-          if (!hasData) return null
-          const inEntries = rec.transferBreakdown[inField]
-          const outEntries = rec.transferBreakdown[outField]
-          const hasBreakdown = inEntries.length > 0 || outEntries.length > 0
-          const isExpanded = expandedDay === day
-          return {
-            day,
-            inCost: inRec.cost,
-            inPrice: inRec.price,
-            outCost: outRec.cost,
-            outPrice: outRec.price,
-            net,
-            hasBreakdown,
-            isExpanded,
-            detailRows: isExpanded ? buildDetailRows(rec, inField, outField, stores) : [],
-          }
-        })
-        .filter((row): row is DailyTransferRow => row !== null),
-    [days, inField, outField, expandedDay, stores],
+  // ─── Transfer pivot data (store × date matrix) ──────
+  const transferPivot = useMemo(
+    () => buildTransferPivot(days, inField, outField, stores),
+    [days, inField, outField, stores],
   )
 
   // ─── Consumable data ────────────────────────────────
@@ -447,10 +450,7 @@ export function useCostDetailData() {
   const handleTransferTypeChange = (type: TransferType) => {
     setTransferType(type)
     setSelectedPair(null)
-    setExpandedDay(null)
   }
-
-  const handleDayClick = (day: number) => setExpandedDay(expandedDay === day ? null : day)
 
   const handleItemClick = (itemCode: string) =>
     setSelectedItem(selectedItem === itemCode ? null : itemCode)
@@ -478,7 +478,7 @@ export function useCostDetailData() {
     maxFlowCost,
     pairDailyData,
     dailyTotals,
-    dailyTransferRows,
+    transferPivot,
     typeIn,
     typeOut,
     typeNet,
@@ -501,7 +501,6 @@ export function useCostDetailData() {
 
     // Handlers
     handleTransferTypeChange,
-    handleDayClick,
     handleItemClick,
     handleConsumableViewChange,
   } as const

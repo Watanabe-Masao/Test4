@@ -36,6 +36,9 @@ import {
   RankBadge,
   PairGrid,
   ConsumTd,
+  PivotGroupTh,
+  PivotSubTh,
+  PivotTd,
 } from './CostDetailPage.styles'
 import { useCostDetailData } from './useCostDetailData'
 
@@ -248,78 +251,85 @@ export function CostDetailPage() {
                   <Table>
                     <thead>
                       <tr>
-                        <Th>日</Th>
-                        <Th>入（原価）</Th>
-                        <Th>入（売価）</Th>
-                        <Th>出（原価）</Th>
-                        <Th>出（売価）</Th>
-                        <Th>差引</Th>
+                        <Th rowSpan={2}>日付</Th>
+                        {d.transferPivot.stores.map((store) => (
+                          <PivotGroupTh key={store.storeId} colSpan={2}>
+                            {store.storeName}（{store.storeId}）
+                          </PivotGroupTh>
+                        ))}
+                        <PivotGroupTh colSpan={3}>合計</PivotGroupTh>
+                      </tr>
+                      <tr>
+                        {d.transferPivot.stores.map((store) => (
+                          <Fragment key={store.storeId}>
+                            <PivotSubTh className="group-start">原価</PivotSubTh>
+                            <PivotSubTh>売価</PivotSubTh>
+                          </Fragment>
+                        ))}
+                        <PivotSubTh className="group-start">入原価</PivotSubTh>
+                        <PivotSubTh>出原価</PivotSubTh>
+                        <PivotSubTh>差引</PivotSubTh>
                       </tr>
                     </thead>
                     <tbody>
-                      {d.dailyTransferRows.map((row) => (
-                        <Fragment key={row.day}>
-                          <Tr
-                            $clickable={row.hasBreakdown}
-                            $expanded={row.isExpanded}
-                            onClick={() => row.hasBreakdown && d.handleDayClick(row.day)}
-                          >
-                            <Td>
-                              <ToggleIcon $expanded={row.isExpanded}>&#9654;</ToggleIcon>
-                              {row.day}日
-                            </Td>
-                            <Td>{fmtOrDash(row.inCost)}</Td>
-                            <Td>{fmtOrDash(row.inPrice)}</Td>
-                            <Td $negative={row.outCost < 0}>{fmtOrDash(row.outCost)}</Td>
-                            <Td $negative={row.outPrice < 0}>{fmtOrDash(row.outPrice)}</Td>
-                            <Td $negative={row.net < 0} $positive={row.net > 0}>
-                              {fmtOrDash(row.net)}
-                            </Td>
-                          </Tr>
-                          {row.isExpanded &&
-                            row.detailRows.map((detail, idx) => {
-                              const isLast = idx === row.detailRows.length - 1
-                              const TrRow = isLast ? TrDetailLast : TrDetail
-                              const detailNet = detail.inCost + detail.outCost
-                              return (
-                                <TrRow key={`${row.day}-${detail.key}`}>
-                                  <Td>{detail.label}</Td>
-                                  <Td>
-                                    {detail.inCost !== 0 ? formatCurrency(detail.inCost) : '-'}
-                                  </Td>
-                                  <Td>
-                                    {detail.inPrice !== 0 ? formatCurrency(detail.inPrice) : '-'}
-                                  </Td>
-                                  <Td $negative={detail.outCost < 0}>
-                                    {detail.outCost !== 0 ? formatCurrency(detail.outCost) : '-'}
-                                  </Td>
-                                  <Td $negative={detail.outPrice < 0}>
-                                    {detail.outPrice !== 0 ? formatCurrency(detail.outPrice) : '-'}
-                                  </Td>
-                                  <Td $negative={detailNet < 0} $positive={detailNet > 0}>
-                                    {detailNet !== 0 ? formatCurrency(detailNet) : '-'}
-                                  </Td>
-                                </TrRow>
-                              )
-                            })}
-                        </Fragment>
+                      {d.transferPivot.rows.map((row) => (
+                        <Tr key={row.day}>
+                          <Td>{row.day}日</Td>
+                          {d.transferPivot.stores.map((store) => {
+                            const cell = row.cells[store.storeId]
+                            return (
+                              <Fragment key={store.storeId}>
+                                <PivotTd
+                                  $groupStart
+                                  $negative={cell.cost < 0}
+                                  $positive={cell.cost > 0}
+                                >
+                                  {fmtOrDash(cell.cost)}
+                                </PivotTd>
+                                <PivotTd $negative={cell.price < 0} $positive={cell.price > 0}>
+                                  {fmtOrDash(cell.price)}
+                                </PivotTd>
+                              </Fragment>
+                            )
+                          })}
+                          <PivotTd $groupStart>{fmtOrDash(row.inCost)}</PivotTd>
+                          <PivotTd $negative={row.outCost < 0}>{fmtOrDash(row.outCost)}</PivotTd>
+                          <PivotTd $negative={row.net < 0} $positive={row.net > 0}>
+                            {fmtOrDash(row.net)}
+                          </PivotTd>
+                        </Tr>
                       ))}
                       <TrTotal>
                         <Td>合計</Td>
-                        <Td>{formatCurrency(d.dailyTotals.inCost)}</Td>
-                        <Td>{formatCurrency(d.dailyTotals.inPrice)}</Td>
-                        <Td $negative={d.dailyTotals.outCost < 0}>
-                          {formatCurrency(d.dailyTotals.outCost)}
-                        </Td>
-                        <Td $negative={d.dailyTotals.outPrice < 0}>
-                          {formatCurrency(d.dailyTotals.outPrice)}
-                        </Td>
-                        <Td
-                          $negative={d.dailyTotals.inCost + d.dailyTotals.outCost < 0}
-                          $positive={d.dailyTotals.inCost + d.dailyTotals.outCost > 0}
+                        {d.transferPivot.stores.map((store) => {
+                          const cell = d.transferPivot.totals.byStore[store.storeId]
+                          return (
+                            <Fragment key={store.storeId}>
+                              <PivotTd
+                                $groupStart
+                                $negative={cell.cost < 0}
+                                $positive={cell.cost > 0}
+                              >
+                                {formatCurrency(cell.cost)}
+                              </PivotTd>
+                              <PivotTd $negative={cell.price < 0} $positive={cell.price > 0}>
+                                {formatCurrency(cell.price)}
+                              </PivotTd>
+                            </Fragment>
+                          )
+                        })}
+                        <PivotTd $groupStart>
+                          {formatCurrency(d.transferPivot.totals.inCost)}
+                        </PivotTd>
+                        <PivotTd $negative={d.transferPivot.totals.outCost < 0}>
+                          {formatCurrency(d.transferPivot.totals.outCost)}
+                        </PivotTd>
+                        <PivotTd
+                          $negative={d.transferPivot.totals.net < 0}
+                          $positive={d.transferPivot.totals.net > 0}
                         >
-                          {formatCurrency(d.dailyTotals.inCost + d.dailyTotals.outCost)}
-                        </Td>
+                          {formatCurrency(d.transferPivot.totals.net)}
+                        </PivotTd>
                       </TrTotal>
                     </tbody>
                   </Table>

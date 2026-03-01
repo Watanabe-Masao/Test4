@@ -142,6 +142,42 @@ export const EmptyState = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+/* ─── Pivot Table (store × date matrix) ────────────── */
+
+export const PivotGroupTh = styled.th`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  text-align: center;
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text2};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 2px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+`
+
+export const PivotSubTh = styled.th`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text3};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+
+  &.group-start {
+    border-left: 2px solid ${({ theme }) => theme.colors.border};
+  }
+`
+
+export const PivotTd = styled(Td)<{ $groupStart?: boolean }>`
+  ${({ $groupStart, theme }) =>
+    $groupStart && `border-left: 2px solid ${theme.colors.border};`}
+`
+
 /* ─── Flow Pair Table ───────────────────────────────── */
 
 export const FlowTable = styled.table`
