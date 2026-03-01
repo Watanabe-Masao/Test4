@@ -31,7 +31,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { buildDepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
+import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import {
   CategoryHierarchyProvider,
   CurrencyUnitToggle,
@@ -186,11 +186,8 @@ export function DashboardPage() {
     })
   }, [])
 
-  // 部門KPIインデックス（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
-  const deptKpiIndex = useMemo(
-    () => buildDepartmentKpiIndex(data.departmentKpi),
-    [data.departmentKpi],
-  )
+  // 部門KPIインデックス（Application層フック経由。早期リターン前に呼ぶ: hooks の呼び出し順序維持）
+  const deptKpiIndex = useDeptKpiView()
 
   // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)

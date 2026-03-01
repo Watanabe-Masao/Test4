@@ -56,6 +56,8 @@ export { useDataRecovery } from './useDataRecovery'
 export type { RawFileGroup } from './useDataRecovery'
 export { useBackup } from './useBackup'
 export type { BackupMeta, BackupImportResult } from './useBackup'
+export { useDeptKpiView } from './useDeptKpiView'
+export type { DepartmentKpiIndex } from './useDeptKpiView'
 export {
   resolveTimeSeriesSource,
   resolveYoYSource,
