@@ -568,17 +568,32 @@ export function filterDataForMonth(
   if (!partitions) return base
 
   // パーティション情報を使って StoreDayRecord 系データを年月で分割。
-  // インポートされていない種別のパーティションは空になるため、
-  // ここでは空 {} を返す。非インポート種別の既存データ保全は
-  // useImport 側の buildMonthData マージで行う。
+  // パーティションにエントリが1つもない種別（= 今回インポートされなかった種別）は
+  // processedData の値をそのまま保全する。空の {} や new Map() で上書きすると
+  // 既存データ（予算、仕入など）が失われるバグの原因になる。
+  const has = (obj: Record<string, unknown>) => Object.keys(obj).length > 0
   return {
     ...base,
-    purchase: (partitions.purchase[mk] ?? {}) as PurchaseData,
-    flowers: (partitions.flowers[mk] ?? {}) as SpecialSalesData,
-    directProduce: (partitions.directProduce[mk] ?? {}) as SpecialSalesData,
-    interStoreIn: (partitions.interStoreIn[mk] ?? {}) as TransferData,
-    interStoreOut: (partitions.interStoreOut[mk] ?? {}) as TransferData,
-    consumables: (partitions.consumables[mk] ?? {}) as ConsumableData,
-    budget: partitions.budget[mk] ?? new Map<string, BudgetData>(),
+    purchase: has(partitions.purchase)
+      ? ((partitions.purchase[mk] ?? {}) as PurchaseData)
+      : data.purchase,
+    flowers: has(partitions.flowers)
+      ? ((partitions.flowers[mk] ?? {}) as SpecialSalesData)
+      : data.flowers,
+    directProduce: has(partitions.directProduce)
+      ? ((partitions.directProduce[mk] ?? {}) as SpecialSalesData)
+      : data.directProduce,
+    interStoreIn: has(partitions.interStoreIn)
+      ? ((partitions.interStoreIn[mk] ?? {}) as TransferData)
+      : data.interStoreIn,
+    interStoreOut: has(partitions.interStoreOut)
+      ? ((partitions.interStoreOut[mk] ?? {}) as TransferData)
+      : data.interStoreOut,
+    consumables: has(partitions.consumables)
+      ? ((partitions.consumables[mk] ?? {}) as ConsumableData)
+      : data.consumables,
+    budget: has(partitions.budget)
+      ? (partitions.budget[mk] ?? new Map<string, BudgetData>())
+      : data.budget,
   }
 }
