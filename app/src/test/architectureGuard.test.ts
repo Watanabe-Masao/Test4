@@ -74,6 +74,12 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useYoyQueries.ts',
   'application/hooks/duckdb/useFeatureQueries.ts',
   'application/hooks/duckdb/useAdvancedQueries.ts',
+  // DuckDB 統合 — 店舗期間メトリクス + 予算分析クエリフック
+  'application/hooks/duckdb/useMetricsQueries.ts',
+  // DuckDB 統合 — 日別明細クエリフック
+  'application/hooks/duckdb/useDailyRecordQueries.ts',
+  // DuckDB 統合 — 日別データアダプタ（DailyRecordRow → DailyRecord 変換）
+  'application/hooks/dailyRecordAdapter.ts',
   // ファイルインポート（infrastructure のパーサーを使用）
   'application/usecases/import/FileImportService.ts',
   'application/workers/fileParseWorker.ts',

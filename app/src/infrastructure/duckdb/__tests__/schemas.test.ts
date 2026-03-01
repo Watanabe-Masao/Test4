@@ -15,13 +15,16 @@ import {
   TRANSFERS_DDL,
   CONSUMABLES_DDL,
   DEPARTMENT_KPI_DDL,
+  BUDGET_DDL,
+  INVENTORY_CONFIG_DDL,
+  APP_SETTINGS_DDL,
   STORE_DAY_SUMMARY_VIEW_DDL,
   MATERIALIZE_SUMMARY_DDL,
 } from '../schemas'
 
 describe('TABLE_NAMES', () => {
-  it('8テーブルが定義されている', () => {
-    expect(TABLE_NAMES).toHaveLength(8)
+  it('11テーブルが定義されている', () => {
+    expect(TABLE_NAMES).toHaveLength(11)
   })
 
   it('全てのテーブル名が含まれる', () => {
@@ -33,6 +36,9 @@ describe('TABLE_NAMES', () => {
     expect(TABLE_NAMES).toContain('transfers')
     expect(TABLE_NAMES).toContain('consumables')
     expect(TABLE_NAMES).toContain('department_kpi')
+    expect(TABLE_NAMES).toContain('budget')
+    expect(TABLE_NAMES).toContain('inventory_config')
+    expect(TABLE_NAMES).toContain('app_settings')
   })
 })
 
@@ -103,6 +109,16 @@ describe('テーブル DDL 構造', () => {
       'sales_budget',
       'sales_actual',
     ],
+    budget: ['year', 'month', 'store_id', 'day', 'date_key', 'amount'],
+    inventory_config: [
+      'year',
+      'month',
+      'store_id',
+      'opening_inventory',
+      'closing_inventory',
+      'gross_profit_budget',
+    ],
+    app_settings: ['key', 'value'],
   }
 
   const ddlMap: Record<string, string> = {
@@ -114,6 +130,9 @@ describe('テーブル DDL 構造', () => {
     transfers: TRANSFERS_DDL,
     consumables: CONSUMABLES_DDL,
     department_kpi: DEPARTMENT_KPI_DDL,
+    budget: BUDGET_DDL,
+    inventory_config: INVENTORY_CONFIG_DDL,
+    app_settings: APP_SETTINGS_DDL,
   }
 
   for (const [table, requiredColumns] of Object.entries(requiredColumnsMap)) {
