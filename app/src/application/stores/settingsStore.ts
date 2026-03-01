@@ -36,6 +36,13 @@ export const useSettingsStore = create<SettingsStore>()(
       {
         name: 'shiire-arari-settings',
         partialize: (state) => ({ settings: state.settings }),
+        merge: (persisted, current) => {
+          const stored = persisted as { settings?: Partial<AppSettings> }
+          return {
+            ...current,
+            settings: { ...current.settings, ...(stored?.settings ?? {}) },
+          }
+        },
       },
     ),
     { name: 'SettingsStore' },
