@@ -32,11 +32,11 @@ export function useUndoRedo() {
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
 
-  /** 現在の状態のスナップショットを取得 */
+  /** 現在の状態のスナップショットを取得（Map は浅コピーで参照共有を防ぐ） */
   const snapshot = useCallback(
     (label: string): UndoSnapshot => ({
       settings,
-      inventorySettings: dataSettings,
+      inventorySettings: new Map(dataSettings),
       label,
     }),
     [settings, dataSettings],
@@ -58,42 +58,37 @@ export function useUndoRedo() {
     const prev = undoStack.current.pop()
     if (!prev) return
 
-    // 現在の状態をRedo用に保存
+    // 現在の状態をRedo用に保存（Map を浅コピー）
     redoStack.current.push({
       settings,
-      inventorySettings: dataSettings,
+      inventorySettings: new Map(dataSettings),
       label: prev.label,
     })
 
-    // 状態を復元
-    // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+    // 状態を復元（まとめて更新し、最後に1回だけ invalidate）
     useSettingsStore.getState().updateSettings(prev.settings)
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
 
-    // インベントリ設定を復元（個別にdispatch）
+    // インベントリ設定を復元
     const currentIds = new Set(dataSettings.keys())
     const prevIds = new Set(prev.inventorySettings.keys())
 
     for (const [storeId, config] of prev.inventorySettings) {
-      // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
       useDataStore.getState().updateInventory(storeId, config)
-      calculationCache.clear()
-      useUiStore.getState().invalidateCalculation()
     }
     // 削除された設定（prev に存在しない）は null にリセット
     for (const storeId of currentIds) {
       if (!prevIds.has(storeId)) {
-        // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
         useDataStore.getState().updateInventory(storeId, {
           openingInventory: null,
           closingInventory: null,
           grossProfitBudget: null,
         })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
       }
     }
+
+    // 全更新完了後に1回だけ cache clear + invalidate
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
 
     setCanUndo(undoStack.current.length > 0)
     setCanRedo(true)
@@ -104,25 +99,23 @@ export function useUndoRedo() {
     const next = redoStack.current.pop()
     if (!next) return
 
-    // 現在の状態をUndo用に保存
+    // 現在の状態をUndo用に保存（Map を浅コピー）
     undoStack.current.push({
       settings,
-      inventorySettings: dataSettings,
+      inventorySettings: new Map(dataSettings),
       label: next.label,
     })
 
-    // 状態を復元
-    // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+    // 状態を復元（まとめて更新し、最後に1回だけ invalidate）
     useSettingsStore.getState().updateSettings(next.settings)
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
 
     for (const [storeId, config] of next.inventorySettings) {
-      // UPDATE_INVENTORY side effects: calculationCache.clear() + invalidateCalculation()
       useDataStore.getState().updateInventory(storeId, config)
-      calculationCache.clear()
-      useUiStore.getState().invalidateCalculation()
     }
+
+    // 全更新完了後に1回だけ cache clear + invalidate
+    calculationCache.clear()
+    useUiStore.getState().invalidateCalculation()
 
     setCanUndo(true)
     setCanRedo(redoStack.current.length > 0)
