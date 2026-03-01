@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import {
   AreaChart,
   Area,
@@ -104,7 +105,7 @@ interface Props {
   daysInMonth: number
 }
 
-export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMonth }: Props) {
+export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
@@ -267,4 +268,4 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
       />
     </Wrapper>
   )
-}
+})

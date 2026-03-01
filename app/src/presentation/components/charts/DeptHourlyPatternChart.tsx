@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -145,7 +145,7 @@ interface Props {
 }
 
 /** 部門/ライン/クラス別 時間帯パターンチャート */
-export function DeptHourlyPatternChart({
+export const DeptHourlyPatternChart = memo(function DeptHourlyPatternChart({
   ctsIndex,
   prevCtsIndex,
   selectedStoreIds,
@@ -501,4 +501,4 @@ export function DeptHourlyPatternChart({
       <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
-}
+})

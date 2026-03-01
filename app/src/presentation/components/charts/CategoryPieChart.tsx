@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { PieChart, Pie, Cell, Tooltip, type PieLabelRenderProps } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -73,7 +73,7 @@ interface Props {
   mode?: 'cost' | 'price'
 }
 
-export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }: Props) {
+export const CategoryPieChart = memo(function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }: Props) {
   const ct = useChartTheme()
   const [mode, setMode] = useState<'cost' | 'price'>(initialMode)
 
@@ -153,4 +153,4 @@ export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }:
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

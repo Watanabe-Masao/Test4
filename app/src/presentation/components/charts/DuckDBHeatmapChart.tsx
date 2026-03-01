@@ -9,7 +9,7 @@
  * - 時間帯×曜日の売上日平均ヒートマップ
  * - Z-score 異常検出マーカー（|z| > 2）
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -379,7 +379,7 @@ function buildDiffMap(
 
 // ── Component ──
 
-export function DuckDBHeatmapChart({
+export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -682,4 +682,4 @@ export function DuckDBHeatmapChart({
       )}
     </Wrapper>
   )
-}
+})

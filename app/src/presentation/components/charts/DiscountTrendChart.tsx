@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -118,7 +118,7 @@ interface Props {
 }
 
 /** 売変内訳分析チャート（71-74種別切替対応） */
-export function DiscountTrendChart({
+export const DiscountTrendChart = memo(function DiscountTrendChart({
   daily,
   daysInMonth,
   discountEntries,
@@ -358,4 +358,4 @@ export function DiscountTrendChart({
       />
     </Wrapper>
   )
-}
+})

@@ -12,7 +12,7 @@
  * - 階層ドリルダウン（部門→ライン→クラス）
  * - カテゴリ除外/選択
  */
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -257,7 +257,7 @@ function buildChartData(
 
 // ── Component ──
 
-export function DuckDBCategoryTrendChart({
+export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -541,4 +541,4 @@ export function DuckDBCategoryTrendChart({
       </SummaryRow>
     </Wrapper>
   )
-}
+})

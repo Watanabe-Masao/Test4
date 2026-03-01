@@ -9,7 +9,7 @@
  * - ピーク時間帯（hourRank <= 3）のハイライト
  * - サマリー行: ピーク時間帯 / Top3集中度 / 営業時間帯数
  */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import {
   ComposedChart,
   Area,
@@ -141,7 +141,7 @@ function buildChartData(rows: readonly HourlyProfileRow[]): HourlySummary {
   return { chartData, peakHours, top3Concentration, activeHoursCount }
 }
 
-export function DuckDBHourlyProfileChart({
+export const DuckDBHourlyProfileChart = memo(function DuckDBHourlyProfileChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -246,4 +246,4 @@ export function DuckDBHourlyProfileChart({
       </SummaryRow>
     </Wrapper>
   )
-}
+})

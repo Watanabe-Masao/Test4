@@ -1,7 +1,9 @@
-import { useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
-import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { Card, CardTitle, KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common'
+import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
+import { useDataStore } from '@/application/stores/dataStore'
+import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
@@ -9,183 +11,28 @@ import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { useExport } from '@/application/hooks/useExport'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import styled from 'styled-components'
-
-const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-
-  @media print {
-    break-inside: avoid;
-    margin-bottom: 16px;
-  }
-`
-
-const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
-
-const ReportHeader = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-  padding-bottom: ${({ theme }) => theme.spacing[4]};
-  border-bottom: 2px solid ${({ theme }) => theme.colors.palette.primary};
-`
-
-const ReportDate = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const SummaryGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing[6]};
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
-  }
-
-  @media print {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-`
-
-const TableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const Th = styled.th`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text3};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
-  &:first-child {
-    text-align: left;
-  }
-`
-
-const Td = styled.td<{ $accent?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $accent, theme }) => ($accent ? theme.colors.palette.primary : theme.colors.text)};
-  font-weight: ${({ $accent, theme }) => ($accent ? theme.typography.fontWeight.bold : 'normal')};
-  &:first-child {
-    text-align: left;
-    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  }
-`
-
-const TotalRow = styled.tr`
-  background: ${({ theme }) => theme.colors.bg2};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-`
-
-const Tr = styled.tr`
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-  }
-`
-
-const CalcRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: ${({ theme }) => theme.spacing[3]} 0;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-`
-
-const CalcLabel = styled.span`
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-const CalcValue = styled.span`
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text};
-`
-
-const CalcHighlight = styled(CalcValue)<{ $color?: string }>`
-  color: ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-`
-
-const DisclaimerNote = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-`
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const ExportBar = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[3]};
-  flex-wrap: wrap;
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-`
-
-const ExportButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: ${({ theme }) => theme.colors.text2};
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  cursor: pointer;
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-    color: ${({ theme }) => theme.colors.palette.primary};
-  }
-
-  @media print {
-    display: none;
-  }
-`
-
-const DeptTd = styled.td<{ $warn?: boolean; $good?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ $warn, $good, theme }) =>
-    $good ? theme.colors.palette.success : $warn ? theme.colors.palette.danger : theme.colors.text};
-  &:first-child {
-    text-align: left;
-    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  }
-`
+import {
+  Section,
+  SectionTitle,
+  ReportHeader,
+  ReportDate,
+  SummaryGrid,
+  TableWrapper,
+  Table,
+  Th,
+  Td,
+  Tr,
+  TotalRow,
+  CalcRow,
+  CalcLabel,
+  CalcValue,
+  CalcHighlight,
+  DisclaimerNote,
+  EmptyState,
+  ExportBar,
+  ExportButton,
+  DeptTd,
+} from './ReportsPage.styles'
 
 export function ReportsPage() {
   const { daysInMonth } = useCalculation()
@@ -196,6 +43,14 @@ export function ReportsPage() {
 
   // 部門KPIインデックス（Application層フック経由）
   const deptKpiIndex = useDeptKpiView()
+
+  // 指標説明
+  const explanations = useExplanations()
+  const dataStores = useDataStore((s) => s.data.stores)
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
 
   // CSV エクスポートハンドラ
   const handleExportDaily = useCallback(() => {
@@ -287,7 +142,7 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>概要</SectionTitle>
         <KpiGrid>
-          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent={palette.primary} />
+          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent={palette.primary} onClick={() => handleExplain('salesTotal')} />
           <KpiCard
             label="【在庫法】粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
@@ -297,18 +152,21 @@ export function ReportsPage() {
                 : '在庫設定なし'
             }
             accent={sc.positive}
+            onClick={r.invMethodGrossProfit != null ? () => handleExplain('invMethodGrossProfit') : undefined}
           />
           <KpiCard
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}
             subText={`予算: ${formatCurrency(r.budget)}`}
             accent={palette.infoDark}
+            onClick={() => handleExplain('budgetAchievementRate')}
           />
           <KpiCard
             label="月末予測達成率"
             value={formatPercent(r.projectedAchievement)}
             subText={`予測売上: ${formatCurrency(r.projectedSales)}`}
             accent={sc.achievement(r.projectedAchievement)}
+            onClick={() => handleExplain('projectedSales')}
           />
         </KpiGrid>
       </Section>
@@ -409,24 +267,28 @@ export function ReportsPage() {
             label="在庫仕入原価"
             value={formatCurrency(r.inventoryCost)}
             accent={palette.warningDark}
+            onClick={() => handleExplain('inventoryCost')}
           />
           <KpiCard
             label="売上納品原価"
             value={formatCurrency(r.deliverySalesCost)}
             subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
             accent={palette.pinkDark}
+            onClick={() => handleExplain('deliverySalesCost')}
           />
           <KpiCard
             label="消耗品費"
             value={formatCurrency(r.totalConsumable)}
             subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
             accent={palette.orange}
+            onClick={() => handleExplain('totalConsumable')}
           />
           <KpiCard
             label="売変ロス原価"
             value={formatCurrency(r.discountLossCost)}
             subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
             accent={sc.negative}
+            onClick={() => handleExplain('discountLossCost')}
           />
         </KpiGrid>
       </Section>
@@ -512,22 +374,25 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
-          <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent={palette.primary} />
+          <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent={palette.primary} onClick={() => handleExplain('budget')} />
           <KpiCard
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}
             accent={sc.positive}
+            onClick={() => handleExplain('budgetAchievementRate')}
           />
           <KpiCard
             label="予算消化率"
             value={formatPercent(r.budgetProgressRate)}
             subText={`経過: ${r.elapsedDays}/${daysInMonth}日`}
             accent={palette.infoDark}
+            onClick={() => handleExplain('budgetProgressRate')}
           />
           <KpiCard
             label="残余予算"
             value={formatCurrency(r.remainingBudget)}
             accent={sc.cond(r.remainingBudget <= 0)}
+            onClick={() => handleExplain('remainingBudget')}
           />
         </KpiGrid>
       </Section>
@@ -700,6 +565,16 @@ export function ReportsPage() {
             </Table>
           </TableWrapper>
         </Section>
+      )}
+
+      {/* 指標説明パネル */}
+      {explainMetric && explanations.has(explainMetric) && (
+        <MetricBreakdownPanel
+          explanation={explanations.get(explainMetric)!}
+          allExplanations={explanations}
+          stores={dataStores}
+          onClose={() => setExplainMetric(null)}
+        />
       )}
     </MainContent>
   )

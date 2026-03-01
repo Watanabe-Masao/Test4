@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment } from 'react'
+import { memo, useState, useMemo, Fragment } from 'react'
 import styled from 'styled-components'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { calculateZScores } from '@/domain/calculations'
@@ -248,7 +248,7 @@ interface Props {
 }
 
 /** 時間帯×曜日 売上ヒートマップ（前年比較モード対応） */
-export function TimeSlotHeatmapChart({
+export const TimeSlotHeatmapChart = memo(function TimeSlotHeatmapChart({
   ctsIndex,
   prevCtsIndex,
   selectedStoreIds,
@@ -506,4 +506,4 @@ export function TimeSlotHeatmapChart({
       <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
-}
+})

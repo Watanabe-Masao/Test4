@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, memo } from 'react'
 import type { ReactNode } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
@@ -116,7 +116,7 @@ interface Props {
   headerExtra?: ReactNode
 }
 
-export function SalesPurchaseComparisonChart({
+export const SalesPurchaseComparisonChart = memo(function SalesPurchaseComparisonChart({
   comparisonResults,
   stores,
   daysInMonth,
@@ -371,4 +371,4 @@ export function SalesPurchaseComparisonChart({
       />
     </Wrapper>
   )
-}
+})

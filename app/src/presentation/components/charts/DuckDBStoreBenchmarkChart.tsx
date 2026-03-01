@@ -9,7 +9,7 @@
  * - Y軸反転（ランク1が最上部）
  * - サマリー: 最多1位店舗・最も改善した店舗
  */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -303,7 +303,7 @@ function BenchmarkTooltip({
 
 // ── Component ──
 
-export function DuckDBStoreBenchmarkChart({
+export const DuckDBStoreBenchmarkChart = memo(function DuckDBStoreBenchmarkChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -425,4 +425,4 @@ export function DuckDBStoreBenchmarkChart({
       </SummaryGrid>
     </Wrapper>
   )
-}
+})

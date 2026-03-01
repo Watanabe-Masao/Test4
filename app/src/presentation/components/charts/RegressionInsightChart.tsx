@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, memo } from 'react'
 import {
   ComposedChart,
   Scatter,
@@ -121,7 +121,7 @@ interface Props {
   month: number
 }
 
-export function RegressionInsightChart({ result, year, month }: Props) {
+export const RegressionInsightChart = memo(function RegressionInsightChart({ result, year, month }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('regression')
 
@@ -400,4 +400,4 @@ export function RegressionInsightChart({ result, year, month }: Props) {
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

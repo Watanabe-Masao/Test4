@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -32,7 +33,7 @@ interface Props {
   warningRate: number
 }
 
-export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRate }: Props) {
+export const GrossProfitRateChart = memo(function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRate }: Props) {
   const ct = useChartTheme()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
@@ -137,4 +138,4 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
       />
     </Wrapper>
   )
-}
+})

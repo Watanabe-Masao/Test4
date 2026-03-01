@@ -6,49 +6,8 @@ import {
   DataTd,
   DataTr,
 } from '@/presentation/components/common'
-
-/* ─── Layout ────────────────────────────────────────── */
-
-export const TabBar = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[1]};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
-
-export const Tab = styled.button<{ $active: boolean }>`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
-  border: none;
-  border-bottom: 2px solid
-    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) =>
-    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  cursor: pointer;
-  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
-  transition: all ${({ theme }) => theme.transitions.fast};
-  white-space: nowrap;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.colors.bg3};
-  }
-`
-
-/* ─── Common Section / Chart ────────────────────────── */
-
-export const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-`
-
-export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
+export { TabBar, Tab } from '@/presentation/components/common'
+export { Section, SectionTitle } from '@/presentation/components/common'
 
 export const ChartSection = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
@@ -90,13 +49,7 @@ export const Td = DataTd
 
 export const Tr = DataTr
 
-/* ─── Empty / Formula ───────────────────────────────── */
-
-export const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
-`
+export { EmptyState } from '@/presentation/components/common'
 
 /* ─── Summary (粗利計算) ────────────────────────────── */
 
@@ -244,18 +197,9 @@ export const FcTh = styled.th`
   }
 `
 
-export const FcTableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
+export const FcTableWrapper = DataTableWrapper
 
-export const FcTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
+export const FcTable = DataTable
 
 export const FcTrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};

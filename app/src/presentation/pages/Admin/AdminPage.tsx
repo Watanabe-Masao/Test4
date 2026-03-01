@@ -12,6 +12,7 @@ import { PrevYearMappingTab } from './PrevYearMappingTab'
 import { ImportHistoryTab } from './ImportHistoryTab'
 import { RawDataTab } from './RawDataTab'
 import { QueryProfilePanel } from '@/presentation/components/DevTools/QueryProfilePanel'
+import { Tab as CommonTab, TabBar as CommonTabBar } from '@/presentation/components/common'
 import {
   Section,
   SectionTitle,
@@ -42,32 +43,9 @@ const PageTitle = styled.h1`
   color: ${({ theme }) => theme.colors.text};
 `
 
-const Tabs = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  padding-bottom: ${({ theme }) => theme.spacing[2]};
-`
+const Tabs = CommonTabBar
 
-const Tab = styled.button<{ $active: boolean }>`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
-  border: none;
-  border-bottom: 2px solid
-    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) =>
-    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  cursor: pointer;
-  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.colors.bg3};
-  }
-`
+const Tab = CommonTab
 
 // ─── Category Colors ────────────────────────────────────
 const CATEGORY_COLORS: Record<CustomCategory, string> = {

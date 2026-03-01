@@ -1,73 +1,28 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-
-/* ─── Tab Bar ───────────────────────────────────────── */
-
-export const TabBar = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[1]};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
-
-export const Tab = styled.button<{ $active: boolean }>`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
-  border: none;
-  border-bottom: 2px solid
-    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  background: ${({ $active, theme }) =>
-    $active ? `${theme.colors.palette.primary}10` : 'transparent'};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  cursor: pointer;
-  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
-  transition: all ${({ theme }) => theme.transitions.fast};
-  white-space: nowrap;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.colors.bg3};
-  }
-`
+import {
+  DataTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+} from '@/presentation/components/common'
+export { TabBar, Tab } from '@/presentation/components/common'
+export { Section } from '@/presentation/components/common'
+export { EmptyState } from '@/presentation/components/common'
 
 /* ─── Common ────────────────────────────────────────── */
 
-export const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-`
+export const TableWrapper = DataTableWrapper
 
-export const TableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
+export const Table = DataTable
 
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-export const Th = styled.th`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text3};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
+export const Th = styled(DataTh)`
   &:first-child {
     text-align: left;
   }
 `
 
-export const Td = styled.td<{ $negative?: boolean; $positive?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+export const Td = styled(DataTd)<{ $negative?: boolean; $positive?: boolean }>`
   color: ${({ $negative, $positive, theme }) =>
     $negative ? theme.colors.palette.danger : $positive ? sc.positive : theme.colors.text};
   &:first-child {
@@ -134,12 +89,6 @@ export const TrTotal = styled.tr`
   td {
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   }
-`
-
-export const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
 `
 
 /* ─── Pivot Table (store × date matrix) ────────────── */

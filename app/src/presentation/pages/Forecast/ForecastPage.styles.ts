@@ -1,4 +1,13 @@
 import styled from 'styled-components'
+import {
+  DataTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+  DataTr,
+} from '@/presentation/components/common'
+export { Section, SectionTitle } from '@/presentation/components/common'
+export { EmptyState } from '@/presentation/components/common'
 
 export const ChartGrid = styled.div`
   display: grid;
@@ -29,63 +38,20 @@ export const ChartTitle = styled.div`
   padding-left: ${({ theme }) => theme.spacing[4]};
 `
 
-export const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-`
+export const TableWrapper = DataTableWrapper
 
-export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
+export const Table = DataTable
 
-export const TableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
+export const Th = DataTh
 
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-export const Th = styled.th`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text3};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
-  &:first-child {
-    text-align: center;
-  }
-`
-
-export const Td = styled.td<{ $highlight?: boolean }>`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+export const Td = styled(DataTd)<{ $highlight?: boolean }>`
   color: ${({ $highlight, theme }) =>
     $highlight ? theme.colors.palette.warning : theme.colors.text};
   font-weight: ${({ $highlight, theme }) =>
     $highlight ? theme.typography.fontWeight.bold : 'normal'};
-  &:first-child {
-    text-align: center;
-    color: ${({ theme }) => theme.colors.text2};
-  }
 `
 
-export const Tr = styled.tr`
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-  }
-`
+export const Tr = DataTr
 
 export const TrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
@@ -105,12 +71,6 @@ export const AnomalyBadge = styled.span<{ $type: 'high' | 'low' }>`
     $type === 'high' ? `${theme.colors.palette.success}20` : `${theme.colors.palette.danger}20`};
   color: ${({ $type, theme }) =>
     $type === 'high' ? theme.colors.palette.success : theme.colors.palette.danger};
-`
-
-export const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
 `
 
 export const ModeToggleWrapper = styled.div`

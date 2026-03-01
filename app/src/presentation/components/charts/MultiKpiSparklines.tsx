@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { AreaChart, Area, YAxis, ReferenceLine } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -99,7 +99,7 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
 }
 
-export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props) {
+export const MultiKpiSparklines = memo(function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
 
   const metrics: MetricDef[] = useMemo(
@@ -271,4 +271,4 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
       })}
     </Wrapper>
   )
-}
+})

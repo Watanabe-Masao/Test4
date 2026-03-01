@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useState, useMemo, memo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -127,7 +127,7 @@ interface Props {
   onDayClick?: (day: number) => void
 }
 
-export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDayClick }: Props) {
+export const PerformanceIndexChart = memo(function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDayClick }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('pi')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
@@ -580,4 +580,4 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDay
       )}
     </Wrapper>
   )
-}
+})

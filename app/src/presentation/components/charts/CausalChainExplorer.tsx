@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import type { StoreResult } from '@/domain/models'
 import {
@@ -178,7 +178,7 @@ const STEP_DRILL_TARGETS: Record<string, string> = {
   成分サマリー: '',
 }
 
-export function CausalChainExplorer({ result, prevYearData }: Props) {
+export const CausalChainExplorer = memo(function CausalChainExplorer({ result, prevYearData }: Props) {
   const [activeStep, setActiveStep] = useState(0)
   const { requestDrillThrough } = useCrossChartSelection()
 
@@ -252,4 +252,4 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
       </StepContainer>
     </Wrapper>
   )
-}
+})

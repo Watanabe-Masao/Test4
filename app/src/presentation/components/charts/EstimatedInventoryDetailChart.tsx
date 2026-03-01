@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, memo } from 'react'
 import {
   ComposedChart,
   Line,
@@ -171,7 +171,7 @@ const AGG_LABELS: Record<string, string> = {
 /*  component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function EstimatedInventoryDetailChart({
+export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDetailChart({
   daily,
   daysInMonth,
   openingInventory,
@@ -622,4 +622,4 @@ export function EstimatedInventoryDetailChart({
       </TableWrap>
     </Wrapper>
   )
-}
+})

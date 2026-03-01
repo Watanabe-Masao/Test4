@@ -1,6 +1,7 @@
 /**
  * 客数・客単価分析チャート群
  */
+import { memo } from 'react'
 import {
   useChartTheme,
   tooltipStyle,
@@ -31,7 +32,7 @@ import {
 } from './ForecastPage.helpers'
 
 /** 曜日別客数・客単価チャート（前年比較付き） */
-export function DowCustomerChart({
+export const DowCustomerChart = memo(function DowCustomerChart({
   averages,
   dowColors,
 }: {
@@ -143,10 +144,10 @@ export function DowCustomerChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 客数・客単価 移動平均チャート */
-export function MovingAverageChart({
+export const MovingAverageChart = memo(function MovingAverageChart({
   data: maData,
   hasPrev,
 }: {
@@ -243,10 +244,10 @@ export function MovingAverageChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 売上・客数・客単価 関係性チャート（指数化） */
-export function RelationshipChart({
+export const RelationshipChart = memo(function RelationshipChart({
   data: relData,
   prevData,
   viewMode,
@@ -377,10 +378,10 @@ export function RelationshipChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 日別客数・売上散布図的チャート */
-export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[] }) {
+export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[] }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -456,10 +457,10 @@ export function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[]
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 同曜日比較チャート（今年 vs 前年） */
-export function SameDowComparisonChart({
+export const SameDowComparisonChart = memo(function SameDowComparisonChart({
   entries,
   year,
   month,
@@ -570,4 +571,4 @@ export function SameDowComparisonChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})

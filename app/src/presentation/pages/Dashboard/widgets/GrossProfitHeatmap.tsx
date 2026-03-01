@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import styled from 'styled-components'
 import { formatPercent } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
@@ -164,7 +164,7 @@ function deviationToColor(dev: number): { bg: string; text: string } {
 
 // ─── Component ──────────────────────────────────────────
 
-export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
+export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
   const { allStoreResults, stores, daysInMonth, targetRate, warningRate } = ctx
   const [mode, setMode] = useState<HeatMode>('gpRate')
 
@@ -300,4 +300,4 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
       )}
     </Wrapper>
   )
-}
+})

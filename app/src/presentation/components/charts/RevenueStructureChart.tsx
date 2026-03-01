@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -80,7 +80,7 @@ interface Props {
   daysInMonth: number
 }
 
-export function RevenueStructureChart({ daily, daysInMonth }: Props) {
+export const RevenueStructureChart = memo(function RevenueStructureChart({ daily, daysInMonth }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<ViewType>('structure')
@@ -396,4 +396,4 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
       />
     </Wrapper>
   )
-}
+})

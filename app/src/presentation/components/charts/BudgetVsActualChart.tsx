@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   ComposedChart,
   Line,
@@ -241,7 +241,7 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number }>
 }
 
-export function BudgetVsActualChart({
+export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   data,
   budget,
   showPrevYear,
@@ -704,4 +704,4 @@ export function BudgetVsActualChart({
       />
     </Wrapper>
   )
-}
+})

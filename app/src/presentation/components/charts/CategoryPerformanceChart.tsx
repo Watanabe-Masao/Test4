@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import {
   BarChart,
   Bar,
@@ -143,7 +143,7 @@ interface CategoryRow {
   qtyDeviation: number | null
 }
 
-export function CategoryPerformanceChart({
+export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   ctsIndex,
   prevCtsIndex,
   selectedStoreIds,
@@ -486,4 +486,4 @@ export function CategoryPerformanceChart({
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

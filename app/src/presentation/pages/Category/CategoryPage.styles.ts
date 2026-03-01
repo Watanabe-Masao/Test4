@@ -1,4 +1,13 @@
 import styled from 'styled-components'
+import {
+  DataTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+  DataTr,
+} from '@/presentation/components/common'
+export { Section, SectionTitle } from '@/presentation/components/common'
+export { EmptyState } from '@/presentation/components/common'
 
 export const ChartGrid = styled.div`
   display: grid;
@@ -10,17 +19,6 @@ export const ChartGrid = styled.div`
   }
 `
 
-export const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-`
-
-export const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: 0;
-`
-
 export const SectionHeader = styled.div`
   display: flex;
   align-items: center;
@@ -30,49 +28,24 @@ export const SectionHeader = styled.div`
   gap: ${({ theme }) => theme.spacing[3]};
 `
 
-export const TableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
+export const TableWrapper = DataTableWrapper
 
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
+export const Table = DataTable
 
-export const Th = styled.th`
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text3};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
+export const Th = styled(DataTh)`
   &:first-child {
     text-align: left;
   }
 `
 
-export const Td = styled.td`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  text-align: right;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ theme }) => theme.colors.text};
+export const Td = styled(DataTd)`
   &:first-child {
     text-align: left;
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   }
 `
 
-export const Tr = styled.tr`
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-  }
-`
+export const Tr = DataTr
 
 export const TrTotal = styled.tr`
   background: ${({ theme }) => theme.colors.bg2};
@@ -86,12 +59,6 @@ export const Badge = styled.span<{ $color: string }>`
   border-radius: 50%;
   background: ${({ $color }) => $color};
   margin-right: ${({ theme }) => theme.spacing[3]};
-`
-
-export const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
 `
 
 export const ToggleBar = styled.div`

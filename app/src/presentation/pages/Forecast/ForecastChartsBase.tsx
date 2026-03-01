@@ -1,6 +1,7 @@
 /**
  * 基本チャート群 — 週別・曜日・店舗比較
  */
+import { memo } from 'react'
 import { calculateForecast } from '@/application/hooks/useForecast'
 import type { DayOfWeekAverage } from '@/application/hooks/useForecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
@@ -31,7 +32,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { ChartWrapper, ChartTitle } from './ForecastPage.styles'
 import { DOW_LABELS } from './ForecastPage.helpers'
 
-export function WeeklyChart({
+export const WeeklyChart = memo(function WeeklyChart({
   data,
   dowColors,
 }: {
@@ -83,9 +84,9 @@ export function WeeklyChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
-export function DayOfWeekChart({
+export const DayOfWeekChart = memo(function DayOfWeekChart({
   averages,
   dowColors,
 }: {
@@ -150,10 +151,10 @@ export function DayOfWeekChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 店舗間比較レーダーチャート */
-export function StoreComparisonRadarChart({
+export const StoreComparisonRadarChart = memo(function StoreComparisonRadarChart({
   storeForecasts,
 }: {
   storeForecasts: {
@@ -207,10 +208,10 @@ export function StoreComparisonRadarChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 店舗間比較バーチャート */
-export function StoreComparisonBarChart({
+export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
   storeForecasts,
 }: {
   storeForecasts: {
@@ -274,4 +275,4 @@ export function StoreComparisonBarChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})

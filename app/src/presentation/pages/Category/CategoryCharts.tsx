@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Chip } from '@/presentation/components/common'
 import { formatCurrency } from '@/domain/calculations/utils'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -53,7 +53,7 @@ function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
 }
 
 /** 相乗積チャート（円グラフ / パレート図 切替） */
-export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[] }) {
+export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({ items }: { items: CategoryChartItem[] }) {
   const ct = useChartTheme()
   const [view, setView] = useState<ChartView>('pie')
 
@@ -164,10 +164,10 @@ export function CrossMultiplicationChart({ items }: { items: CategoryChartItem[]
       )}
     </PieWrapper>
   )
-}
+})
 
 /** 構成比チャート（円グラフ / パレート図 切替） */
-export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
+export const CompositionChart = memo(function CompositionChart({ items }: { items: CategoryChartItem[] }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [mode, setMode] = useState<PieMode>('cost')
@@ -288,4 +288,4 @@ export function CompositionChart({ items }: { items: CategoryChartItem[] }) {
       )}
     </PieWrapper>
   )
-}
+})

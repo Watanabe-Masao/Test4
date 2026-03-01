@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle, Chip, ChipGroup } from '@/presentation/components/common'
+import { Card, CardTitle, Chip, ChipGroup, KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
 import type { DailyChartMode } from '@/presentation/components/charts'
-import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { useCalculation, useStoreSelection, usePrevYearData, useExplanations } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
+import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
@@ -93,8 +94,16 @@ export function DailyPage() {
   const { daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const suppliers = useDataStore((s) => s.data.suppliers)
+  const dataStores = useDataStore((s) => s.data.stores)
   const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData()
+
+  // 指標説明
+  const explanations = useExplanations()
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
   const [chartMode, setChartMode] = useState<DailyChartMode>('sales')
@@ -225,6 +234,29 @@ export function DailyPage() {
           warningRate={settings.warningThreshold}
         />
       </ChartGrid>
+
+      <KpiGrid>
+        <KpiCard
+          label="総売上高"
+          value={formatCurrency(currentResult.totalSales)}
+          onClick={() => handleExplain('salesTotal')}
+        />
+        <KpiCard
+          label="総仕入原価"
+          value={formatCurrency(currentResult.totalCost)}
+          onClick={() => handleExplain('purchaseCost')}
+        />
+        <KpiCard
+          label="売変額"
+          value={formatCurrency(currentResult.totalDiscount)}
+          onClick={() => handleExplain('discountTotal')}
+        />
+        <KpiCard
+          label="消耗品費"
+          value={formatCurrency(currentResult.totalConsumable)}
+          onClick={() => handleExplain('totalConsumable')}
+        />
+      </KpiGrid>
 
       <Card>
         <CardTitle>日別明細</CardTitle>
@@ -439,6 +471,16 @@ export function DailyPage() {
           </Table>
         </TableWrapper>
       </Card>
+
+      {/* 指標説明パネル */}
+      {explainMetric && explanations.has(explainMetric) && (
+        <MetricBreakdownPanel
+          explanation={explanations.get(explainMetric)!}
+          allExplanations={explanations}
+          stores={dataStores}
+          onClose={() => setExplainMetric(null)}
+        />
+      )}
     </MainContent>
   )
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import {
   BarChart,
   Bar,
@@ -105,7 +105,7 @@ interface Props {
   currentMonth: number
 }
 
-export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
+export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
   const ct = useChartTheme()
 
   const { chartData, trend, currentSeasonality, peakMonth, troughMonth } = useMemo(() => {
@@ -273,4 +273,4 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

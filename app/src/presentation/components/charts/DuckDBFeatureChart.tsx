@@ -10,7 +10,7 @@
  * - Zスコアによる異常検出マーカー
  * - スパイク比率のグラデーション背景
  */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import {
   ComposedChart,
   Line,
@@ -182,7 +182,7 @@ function buildChartData(features: readonly DailyFeatureRow[]): {
   return { chartData, anomalies }
 }
 
-export function DuckDBFeatureChart({
+export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -311,4 +311,4 @@ export function DuckDBFeatureChart({
       )}
     </Wrapper>
   )
-}
+})
