@@ -1,3 +1,4 @@
+import { useState, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -6,7 +7,7 @@ import {
   safeDivide,
   getEffectiveGrossProfitRate,
 } from '@/domain/calculations/utils'
-import type { MetricId } from '@/domain/models'
+import type { MetricId, StoreResult } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import type { WidgetContext } from './types'
 
@@ -89,16 +90,104 @@ const CardSub = styled.div`
   margin-top: ${({ theme }) => theme.spacing[1]};
 `
 
-const HintBadge = styled.span`
+const ChipRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[1]};
   position: absolute;
   top: ${({ theme }) => theme.spacing[2]};
   right: ${({ theme }) => theme.spacing[2]};
-  font-size: 10px;
+`
+
+const EvidenceChip = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};
+  color: ${({ theme }) => theme.colors.text4};
+  transition: all 0.15s;
+  &:hover {
+    background: ${({ theme }) => theme.colors.palette.primary};
+    color: #fff;
+  }
+`
+
+// ─── Store Breakdown Overlay ────────────────────────────
+
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+`
+
+const BreakdownPanel = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[6]};
+  min-width: 320px;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+`
+
+const BreakdownTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const BreakdownRow = styled.div<{ $bold?: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${({ theme }) => theme.spacing[2]} 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  ${({ $bold }) => $bold && 'font-weight: 700;'}
+`
+
+const BreakdownLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+const BreakdownValue = styled.span<{ $color?: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+const BreakdownSignal = styled.span<{ $color: string }>`
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  margin-right: ${({ theme }) => theme.spacing[2]};
+`
+
+const CloseBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text3};
-  opacity: 0.5;
-  pointer-events: none;
-  ${Card}:hover & {
-    opacity: 0.9;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  display: block;
+  width: 100%;
+  text-align: center;
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
   }
 `
 
@@ -118,13 +207,102 @@ interface ConditionItem {
   sub?: string
   signal: SignalLevel
   metricId?: MetricId
+  /** 店舗内訳を計算する関数（store breakdown用） */
+  storeValue?: (sr: StoreResult) => { value: string; signal: SignalLevel }
+}
+
+// ─── Store breakdown value extractors ───────────────────
+
+function gpRateBreakdown(
+  sr: StoreResult,
+  targetRate: number,
+  warningRate: number,
+): { value: string; signal: SignalLevel } {
+  const rate = getEffectiveGrossProfitRate(sr)
+  return {
+    value: formatPercent(rate),
+    signal: rate >= targetRate ? 'green' : rate >= warningRate ? 'yellow' : 'red',
+  }
+}
+
+function budgetProgressBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  return {
+    value: formatPercent(sr.budgetProgressRate),
+    signal:
+      sr.budgetProgressRate >= 1 ? 'green' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+  }
+}
+
+function projectedAchievementBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  return {
+    value: formatPercent(sr.projectedAchievement),
+    signal:
+      sr.projectedAchievement >= 1
+        ? 'green'
+        : sr.projectedAchievement >= 0.95
+          ? 'yellow'
+          : 'red',
+  }
+}
+
+function discountRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  return {
+    value: formatPercent(sr.discountRate),
+    signal: sr.discountRate <= 0.03 ? 'green' : sr.discountRate <= 0.05 ? 'yellow' : 'red',
+  }
+}
+
+function consumableRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  return {
+    value: formatPercent(sr.consumableRate),
+    signal: sr.consumableRate <= 0.02 ? 'green' : sr.consumableRate <= 0.03 ? 'yellow' : 'red',
+  }
+}
+
+function customersBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  return {
+    value: `${sr.totalCustomers.toLocaleString()}人`,
+    signal: 'green',
+  }
+}
+
+function txValueBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+  const tx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
+  return {
+    value: `${tx.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`,
+    signal: 'green',
+  }
 }
 
 // ─── Component ──────────────────────────────────────────
 
-export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
+export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
+  ctx,
+}: {
+  ctx: WidgetContext
+}) {
   const r = ctx.result
-  const { targetRate, warningRate, onExplain } = ctx
+  const { targetRate, warningRate, onExplain, allStoreResults, stores } = ctx
+  const [breakdownItem, setBreakdownItem] = useState<ConditionItem | null>(null)
+
+  const hasMultipleStores = allStoreResults.size > 1
+
+  const handleCardClick = useCallback(
+    (item: ConditionItem) => {
+      if (hasMultipleStores && item.storeValue) {
+        setBreakdownItem(item)
+      }
+    },
+    [hasMultipleStores],
+  )
+
+  const handleEvidenceClick = useCallback(
+    (e: React.MouseEvent, metricId: MetricId) => {
+      e.stopPropagation()
+      onExplain(metricId)
+    },
+    [onExplain],
+  )
 
   const gpRate = getEffectiveGrossProfitRate(r)
   const gpAfterConsumable =
@@ -134,7 +312,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
   const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
 
   const items: ConditionItem[] = [
-    // 1. Gross Profit Rate — sub に構成成分を表示
+    // 1. Gross Profit Rate
     {
       label: '粗利率',
       value: formatPercent(gpRate),
@@ -142,6 +320,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       signal: gpRate >= targetRate ? 'green' : gpRate >= warningRate ? 'yellow' : 'red',
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      storeValue: (sr) => gpRateBreakdown(sr, targetRate, warningRate),
     },
     // 2. GP Rate after consumables
     {
@@ -156,14 +335,27 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
             : 'red',
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
+      storeValue: (sr) => {
+        const afterCon =
+          sr.invMethodGrossProfitRate != null
+            ? safeDivide(sr.invMethodGrossProfit! - sr.totalConsumable, sr.totalSales, 0)
+            : sr.estMethodMarginRate
+        return {
+          value: formatPercent(afterCon),
+          signal:
+            afterCon >= targetRate ? 'green' : afterCon >= warningRate ? 'yellow' : 'red',
+        }
+      },
     },
-    // 3. Budget Achievement Rate (progress)
+    // 3. Budget Progress Rate
     {
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
       sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
-      signal: r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+      signal:
+        r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
       metricId: 'budgetProgressRate',
+      storeValue: budgetProgressBreakdown,
     },
     // 4. Projected Achievement
     {
@@ -171,16 +363,22 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       value: formatPercent(r.projectedAchievement),
       sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
       signal:
-        r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
+        r.projectedAchievement >= 1
+          ? 'green'
+          : r.projectedAchievement >= 0.95
+            ? 'yellow'
+            : 'red',
       metricId: 'projectedSales',
+      storeValue: projectedAchievementBreakdown,
     },
-    // 5. Discount Rate — sub に売変額と粗売上を表示
+    // 5. Discount Rate
     {
       label: '売変率',
       value: formatPercent(r.discountRate),
       sub: `売変額 ${formatCurrency(r.totalDiscount)} / 粗売上 ${formatCurrency(r.grossSales)}`,
       signal: r.discountRate <= 0.03 ? 'green' : r.discountRate <= 0.05 ? 'yellow' : 'red',
       metricId: 'discountRate',
+      storeValue: discountRateBreakdown,
     },
   ]
 
@@ -210,6 +408,7 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `消耗品費 ${formatCurrency(r.totalConsumable)} / 売上 ${formatCurrency(r.totalSales)}`,
       signal: r.consumableRate <= 0.02 ? 'green' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
       metricId: 'totalConsumable',
+      storeValue: consumableRateBreakdown,
     },
   )
 
@@ -223,10 +422,11 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
       signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
       metricId: 'totalCustomers',
+      storeValue: customersBreakdown,
     })
   }
 
-  // 8. Transaction Value (小数第2位まで表示)
+  // 8. Transaction Value
   if (r.totalCustomers > 0) {
     const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
     const prevTxValue =
@@ -243,10 +443,19 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
         prevTxValue != null
           ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
           : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
-      signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
+      signal:
+        txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
+      storeValue: txValueBreakdown,
     })
   }
+
+  // Sort store entries by code
+  const sortedStoreEntries = [...allStoreResults.entries()].sort(([, a], [, b]) => {
+    const sa = stores.get(a.storeId)
+    const sb = stores.get(b.storeId)
+    return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
+  })
 
   return (
     <Wrapper>
@@ -254,14 +463,24 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
       <Grid>
         {items.map((item) => {
           const color = SIGNAL_COLORS[item.signal]
+          const isClickable = hasMultipleStores && !!item.storeValue
           return (
             <Card
               key={item.label}
               $borderColor={color}
-              $clickable={!!item.metricId}
-              onClick={item.metricId ? () => onExplain(item.metricId!) : undefined}
+              $clickable={isClickable}
+              onClick={isClickable ? () => handleCardClick(item) : undefined}
             >
-              {item.metricId && <HintBadge>根拠</HintBadge>}
+              <ChipRow>
+                {item.metricId && (
+                  <EvidenceChip
+                    onClick={(e) => handleEvidenceClick(e, item.metricId!)}
+                    title="計算根拠を表示"
+                  >
+                    根拠
+                  </EvidenceChip>
+                )}
+              </ChipRow>
               <Signal $color={color} />
               <CardContent>
                 <CardLabel>{item.label}</CardLabel>
@@ -272,6 +491,37 @@ export function ConditionSummaryWidget({ ctx }: { ctx: WidgetContext }) {
           )
         })}
       </Grid>
+
+      {/* Store Breakdown Overlay */}
+      {breakdownItem && (
+        <Overlay onClick={() => setBreakdownItem(null)}>
+          <BreakdownPanel onClick={(e) => e.stopPropagation()}>
+            <BreakdownTitle>{breakdownItem.label} — 店舗内訳</BreakdownTitle>
+            {sortedStoreEntries.map(([storeId, sr]) => {
+              const store = stores.get(storeId)
+              const storeName = store?.name ?? storeId
+              const bv = breakdownItem.storeValue!(sr)
+              const signalColor = SIGNAL_COLORS[bv.signal]
+              return (
+                <BreakdownRow key={storeId}>
+                  <BreakdownLabel>
+                    <BreakdownSignal $color={signalColor} />
+                    {storeName}
+                  </BreakdownLabel>
+                  <BreakdownValue $color={signalColor}>{bv.value}</BreakdownValue>
+                </BreakdownRow>
+              )
+            })}
+            <BreakdownRow $bold>
+              <BreakdownLabel>合計</BreakdownLabel>
+              <BreakdownValue $color={SIGNAL_COLORS[breakdownItem.signal]}>
+                {breakdownItem.value}
+              </BreakdownValue>
+            </BreakdownRow>
+            <CloseBtn onClick={() => setBreakdownItem(null)}>閉じる</CloseBtn>
+          </BreakdownPanel>
+        </Overlay>
+      )}
     </Wrapper>
   )
-}
+})
