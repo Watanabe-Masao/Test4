@@ -700,9 +700,7 @@ export function DataManagementSidebar({
                         value={cfg?.productInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          useDataStore
-                            .getState()
-                            .updateInventory(s.id, { productInventory: val })
+                          useDataStore.getState().updateInventory(s.id, { productInventory: val })
                           calculationCache.clear()
                           useUiStore.getState().invalidateCalculation()
                         }}
@@ -729,7 +727,7 @@ export function DataManagementSidebar({
                       <InventoryAutoValue>
                         {autoClosing != null
                           ? autoClosing.toLocaleString()
-                          : cfg?.closingInventory?.toLocaleString() ?? '—'}
+                          : (cfg?.closingInventory?.toLocaleString() ?? '—')}
                       </InventoryAutoValue>
                     </InventoryRow>
                     <InventoryDayRow>

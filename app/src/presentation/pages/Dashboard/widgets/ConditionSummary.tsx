@@ -228,8 +228,7 @@ function gpRateBreakdown(
 function budgetProgressBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
     value: formatPercent(sr.budgetProgressRate),
-    signal:
-      sr.budgetProgressRate >= 1 ? 'green' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+    signal: sr.budgetProgressRate >= 1 ? 'green' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
   }
 }
 
@@ -237,11 +236,7 @@ function projectedAchievementBreakdown(sr: StoreResult): { value: string; signal
   return {
     value: formatPercent(sr.projectedAchievement),
     signal:
-      sr.projectedAchievement >= 1
-        ? 'green'
-        : sr.projectedAchievement >= 0.95
-          ? 'yellow'
-          : 'red',
+      sr.projectedAchievement >= 1 ? 'green' : sr.projectedAchievement >= 0.95 ? 'yellow' : 'red',
   }
 }
 
@@ -342,8 +337,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
             : sr.estMethodMarginRate
         return {
           value: formatPercent(afterCon),
-          signal:
-            afterCon >= targetRate ? 'green' : afterCon >= warningRate ? 'yellow' : 'red',
+          signal: afterCon >= targetRate ? 'green' : afterCon >= warningRate ? 'yellow' : 'red',
         }
       },
     },
@@ -352,8 +346,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
       sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
-      signal:
-        r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+      signal: r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
       metricId: 'budgetProgressRate',
       storeValue: budgetProgressBreakdown,
     },
@@ -363,11 +356,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       value: formatPercent(r.projectedAchievement),
       sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
       signal:
-        r.projectedAchievement >= 1
-          ? 'green'
-          : r.projectedAchievement >= 0.95
-            ? 'yellow'
-            : 'red',
+        r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
       metricId: 'projectedSales',
       storeValue: projectedAchievementBreakdown,
     },
@@ -443,8 +432,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
         prevTxValue != null
           ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
           : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
-      signal:
-        txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
+      signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
       metricId: 'totalCustomers',
       storeValue: txValueBreakdown,
     })

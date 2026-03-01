@@ -153,7 +153,14 @@ export function useSourceContext(ctx: {
       storeCount,
       hasPrevYear: prevYearDateRange != null,
     }),
-    [duckConn, duckDataVersion, duckLoadedMonthCount, ctsRecordCount, storeCount, prevYearDateRange],
+    [
+      duckConn,
+      duckDataVersion,
+      duckLoadedMonthCount,
+      ctsRecordCount,
+      storeCount,
+      prevYearDateRange,
+    ],
   )
 }
 

@@ -486,8 +486,7 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
               key={`${pair.storeA}-${pair.storeB}`}
               $high={pair.similarity >= SIMILARITY_HIGH}
             >
-              {pair.storeA} × {pair.storeB}:{' '}
-              {toPct(pair.similarity)}
+              {pair.storeA} × {pair.storeB}: {toPct(pair.similarity)}
               {pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
             </SimilarityBadge>
           ))}

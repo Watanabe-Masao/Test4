@@ -154,29 +154,64 @@ export function useDuckDBTimeSlotData({
   // ── DuckDB queries ──
 
   const { data: currentHourly, error } = useDuckDBHourlyAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, hierarchy, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    hierarchy,
+    false,
   )
   const { data: compHourly } = useDuckDBHourlyAggregation(
-    duckConn, duckDataVersion, compRange, selectedStoreIds, hierarchy, compIsPrevYear,
+    duckConn,
+    duckDataVersion,
+    compRange,
+    selectedStoreIds,
+    hierarchy,
+    compIsPrevYear,
   )
   const { data: currentDayCount } = useDuckDBDistinctDayCount(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    false,
   )
   const { data: compDayCount } = useDuckDBDistinctDayCount(
-    duckConn, duckDataVersion, compRange, selectedStoreIds, compIsPrevYear,
+    duckConn,
+    duckDataVersion,
+    compRange,
+    selectedStoreIds,
+    compIsPrevYear,
   )
 
   // Hierarchy dropdowns
   const { data: departments } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'department', undefined, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'department',
+    undefined,
+    false,
   )
   const { data: lines } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'line',
-    deptCode ? { deptCode } : undefined, false,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'line',
+    deptCode ? { deptCode } : undefined,
+    false,
   )
   const { data: klasses } = useDuckDBLevelAggregation(
-    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'klass',
-    deptCode || lineCode ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined } : undefined,
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'klass',
+    deptCode || lineCode
+      ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined }
+      : undefined,
     false,
   )
 
@@ -226,27 +261,36 @@ export function useDuckDBTimeSlotData({
     }
 
     // Peak hour (amount)
-    let peakHour = 0, peakHourRaw = 0
+    let peakHour = 0,
+      peakHourRaw = 0
     for (const [h, v] of curAmtMap) {
-      if (v > peakHourRaw) { peakHour = h; peakHourRaw = v }
+      if (v > peakHourRaw) {
+        peakHour = h
+        peakHourRaw = v
+      }
     }
     const peakHourPct = totalAmount > 0 ? toPct(peakHourRaw / totalAmount) : '0%'
 
     // Peak hour (quantity)
-    let peakHourQty = 0, peakHourQtyRaw = 0
+    let peakHourQty = 0,
+      peakHourQtyRaw = 0
     for (const [h, v] of curQtyMap) {
-      if (v > peakHourQtyRaw) { peakHourQty = h; peakHourQtyRaw = v }
+      if (v > peakHourQtyRaw) {
+        peakHourQty = h
+        peakHourQtyRaw = v
+      }
     }
     const peakHourQtyPct = totalQuantity > 0 ? toPct(peakHourQtyRaw / totalQuantity) : '0%'
 
     // Core time & turnaround
     const coreTimeAmt = findCoreTime(curAmtMap)
     const turnaroundAmt = findTurnaroundHour(curAmtMap)
-    const coreTimePct = totalAmount > 0 && coreTimeAmt ? toPct(coreTimeAmt.total / totalAmount) : '0%'
+    const coreTimePct =
+      totalAmount > 0 && coreTimeAmt ? toPct(coreTimeAmt.total / totalAmount) : '0%'
     const coreTimeQty = findCoreTime(curQtyMap)
     const turnaroundQty = findTurnaroundHour(curQtyMap)
-    const coreTimeQtyPct = totalQuantity > 0 && coreTimeQty
-      ? toPct(coreTimeQty.total / totalQuantity) : '0%'
+    const coreTimeQtyPct =
+      totalQuantity > 0 && coreTimeQty ? toPct(coreTimeQty.total / totalQuantity) : '0%'
 
     // YoY
     const yoyRatio = prevTotalAmount > 0 ? totalAmount / prevTotalAmount : null
@@ -257,12 +301,24 @@ export function useDuckDBTimeSlotData({
     return {
       chartData: data,
       kpi: {
-        totalAmount, totalQuantity,
-        peakHour, peakHourPct, peakHourQty, peakHourQtyPct,
-        coreTimeAmt, coreTimePct, turnaroundAmt,
-        coreTimeQty, coreTimeQtyPct, turnaroundQty,
-        prevTotalAmount, prevTotalQuantity,
-        yoyRatio, yoyDiff, yoyQuantityRatio, yoyQuantityDiff,
+        totalAmount,
+        totalQuantity,
+        peakHour,
+        peakHourPct,
+        peakHourQty,
+        peakHourQtyPct,
+        coreTimeAmt,
+        coreTimePct,
+        turnaroundAmt,
+        coreTimeQty,
+        coreTimeQtyPct,
+        turnaroundQty,
+        prevTotalAmount,
+        prevTotalQuantity,
+        yoyRatio,
+        yoyDiff,
+        yoyQuantityRatio,
+        yoyQuantityDiff,
         activeHours: curAmtMap.size,
         avgPerHour: curAmtMap.size > 0 ? Math.round(totalAmount / curAmtMap.size) : 0,
         avgQtyPerHour: curQtyMap.size > 0 ? Math.round(totalQuantity / curQtyMap.size) : 0,
@@ -282,25 +338,45 @@ export function useDuckDBTimeSlotData({
     const rows: YoYRow[] = hours.map((h) => {
       const cur = curMap.get(h) ?? 0
       const prv = compMap.get(h) ?? 0
-      return { hour: `${h}時`, current: cur, prevYear: prv, diff: cur - prv, ratio: prv > 0 ? cur / prv : null }
+      return {
+        hour: `${h}時`,
+        current: cur,
+        prevYear: prv,
+        diff: cur - prv,
+        ratio: prv > 0 ? cur / prv : null,
+      }
     })
 
     const curTotal = rows.reduce((s, r) => s + r.current, 0)
     const prevTotal = rows.reduce((s, r) => s + r.prevYear, 0)
 
-    let maxIncHour = -1, maxIncDiff = 0, maxDecHour = -1, maxDecDiff = 0
+    let maxIncHour = -1,
+      maxIncDiff = 0,
+      maxDecHour = -1,
+      maxDecDiff = 0
     for (const r of rows) {
-      if (r.diff > maxIncDiff) { maxIncDiff = r.diff; maxIncHour = parseInt(r.hour) }
-      if (r.diff < maxDecDiff) { maxDecDiff = r.diff; maxDecHour = parseInt(r.hour) }
+      if (r.diff > maxIncDiff) {
+        maxIncDiff = r.diff
+        maxIncHour = parseInt(r.hour)
+      }
+      if (r.diff < maxDecDiff) {
+        maxDecDiff = r.diff
+        maxDecHour = parseInt(r.hour)
+      }
     }
 
     return {
-      rows, chartData: rows,
+      rows,
+      chartData: rows,
       summary: {
-        curTotal, prevTotal,
+        curTotal,
+        prevTotal,
         yoyRatio: prevTotal > 0 ? curTotal / prevTotal : null,
         yoyDiff: curTotal - prevTotal,
-        maxIncHour, maxIncDiff, maxDecHour, maxDecDiff,
+        maxIncHour,
+        maxIncDiff,
+        maxDecHour,
+        maxDecDiff,
         curCoreTime: findCoreTime(curMap),
         curTurnaround: findTurnaroundHour(curMap),
         prevCoreTime: findCoreTime(compMap),
@@ -317,9 +393,13 @@ export function useDuckDBTimeSlotData({
 
     if (compHourly && compHourly.length > 0) {
       const prevMap = toAmountMap(compHourly)
-      let prevPeakHour = 0, prevPeakAmt = 0
+      let prevPeakHour = 0,
+        prevPeakAmt = 0
       for (const [h, v] of prevMap) {
-        if (v > prevPeakAmt) { prevPeakHour = h; prevPeakAmt = v }
+        if (v > prevPeakAmt) {
+          prevPeakHour = h
+          prevPeakAmt = v
+        }
       }
       const shift = kpi.peakHour - prevPeakHour
       if (Math.abs(shift) >= 2) {
@@ -333,7 +413,9 @@ export function useDuckDBTimeSlotData({
       const cur = yoyData.summary.curCoreTime
       const prev = yoyData.summary.prevCoreTime
       if (cur.startHour !== prev.startHour || cur.endHour !== prev.endHour) {
-        lines.push(`コアタイムが${prev.startHour}〜${prev.endHour}時→${cur.startHour}〜${cur.endHour}時に変化`)
+        lines.push(
+          `コアタイムが${prev.startHour}〜${prev.endHour}時→${cur.startHour}〜${cur.endHour}時に変化`,
+        )
       }
     }
 
@@ -371,17 +453,43 @@ export function useDuckDBTimeSlotData({
     [klasses],
   )
 
-  const wrappedSetDept = (code: string) => { setDeptCode(code); setLineCode(''); setKlassCode('') }
-  const wrappedSetLine = (code: string) => { setLineCode(code); setKlassCode('') }
+  const wrappedSetDept = (code: string) => {
+    setDeptCode(code)
+    setLineCode('')
+    setKlassCode('')
+  }
+  const wrappedSetLine = (code: string) => {
+    setLineCode(code)
+    setKlassCode('')
+  }
 
   return {
-    chartData, kpi, yoyData, insights, error,
-    viewMode, setViewMode, metricMode, setMetricMode,
-    compMode, setCompMode, showPrev, setShowPrev,
-    mode, setMode,
-    hasPrev, compLabel, curLabel,
-    deptCode, lineCode, klassCode,
-    setDeptCode: wrappedSetDept, setLineCode: wrappedSetLine, setKlassCode: setKlassCode,
-    deptOptions, lineOptions, klassOptions,
+    chartData,
+    kpi,
+    yoyData,
+    insights,
+    error,
+    viewMode,
+    setViewMode,
+    metricMode,
+    setMetricMode,
+    compMode,
+    setCompMode,
+    showPrev,
+    setShowPrev,
+    mode,
+    setMode,
+    hasPrev,
+    compLabel,
+    curLabel,
+    deptCode,
+    lineCode,
+    klassCode,
+    setDeptCode: wrappedSetDept,
+    setLineCode: wrappedSetLine,
+    setKlassCode: setKlassCode,
+    deptOptions,
+    lineOptions,
+    klassOptions,
   }
 }
