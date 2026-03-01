@@ -263,6 +263,11 @@ export function useImport() {
             }
 
             // 差分確認不要 → 保存
+            // 主月のマージ済みデータを保持して Zustand に反映する
+            const { targetYear, targetMonth } = settingsRef.current
+            const targetMk = `${targetYear}-${targetMonth}`
+            let primaryData: ImportedData | null = null
+
             if (repo.isAvailable()) {
               try {
                 for (const { year, month } of recordMonths) {
@@ -272,6 +277,10 @@ export function useImport() {
                   const finalData = buildMonthData(existing, monthData, action)
                   await repo.saveMonthlyData(finalData, year, month)
                   buildAndSaveSummaryCache(finalData, year, month)
+                  // 主月のマージ済みデータを保持
+                  if (mk === targetMk) {
+                    primaryData = finalData
+                  }
                 }
               } catch (e) {
                 const msg = e instanceof Error ? e.message : 'データ保存に失敗しました'
@@ -280,14 +289,16 @@ export function useImport() {
               }
             }
 
-            // 主月のフィルタ済みデータを state に反映
-            const { targetYear, targetMonth } = settingsRef.current
-            const primaryData = filterDataForMonth(
-              processedData,
-              targetYear,
-              targetMonth,
-              monthPartitions,
-            )
+            // 主月のマージ済みデータを state に反映
+            // マージ済みデータがない場合はフィルタ済みデータをフォールバック
+            if (!primaryData) {
+              primaryData = filterDataForMonth(
+                processedData,
+                targetYear,
+                targetMonth,
+                monthPartitions,
+              )
+            }
             // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
             useDataStore.getState().setImportedData(primaryData)
             calculationCache.clear()

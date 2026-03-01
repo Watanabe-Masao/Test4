@@ -357,6 +357,67 @@ const PrivacyDot = styled.span`
   flex-shrink: 0;
 `
 
+/**
+ * blur 時にのみ値を確定する数値入力コンポーネント。
+ * onChange の度に再計算が走る問題を防ぐ。
+ */
+function BlurCommitInput({
+  value,
+  onCommit,
+  placeholder,
+  step,
+  min,
+  max,
+  as: Component = InventoryInput,
+}: {
+  value: number | null | undefined
+  onCommit: (value: number | null) => void
+  placeholder?: string
+  step?: string
+  min?: number
+  max?: number
+  as?: React.ComponentType<React.ComponentPropsWithRef<'input'>>
+}) {
+  const [local, setLocal] = useState(value ?? '')
+  const [prevValue, setPrevValue] = useState(value)
+
+  // 外部（ストア）からの値変更を同期（React 推奨パターン: render 中の状態リセット）
+  if (prevValue !== value) {
+    setPrevValue(value)
+    setLocal(value ?? '')
+  }
+
+  const commit = useCallback(() => {
+    const str = String(local).trim()
+    let parsed: number | null = str === '' ? null : Number(str)
+    if (parsed != null && isNaN(parsed)) parsed = null
+    if (parsed != null && min != null) parsed = Math.max(min, parsed)
+    if (parsed != null && max != null) parsed = Math.min(max, parsed)
+    onCommit(parsed)
+    // clamp 後の値で表示を更新
+    setLocal(parsed ?? '')
+    setPrevValue(parsed)
+  }, [local, onCommit, min, max])
+
+  return (
+    <Component
+      type="number"
+      step={step}
+      min={min}
+      max={max}
+      placeholder={placeholder}
+      value={local}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+          e.currentTarget.blur()
+        }
+      }}
+    />
+  )
+}
+
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
   { type: 'classifiedSales', label: '1_分類別売上', multi: true },
@@ -680,12 +741,10 @@ export function DataManagementSidebar({
                     <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
                     <InventoryRow>
                       <InventoryLabel>機首在庫</InventoryLabel>
-                      <InventoryInput
-                        type="number"
+                      <BlurCommitInput
+                        value={cfg?.openingInventory}
                         placeholder="機首在庫"
-                        value={cfg?.openingInventory ?? ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? null : Number(e.target.value)
+                        onCommit={(val) => {
                           useDataStore.getState().updateInventory(s.id, { openingInventory: val })
                           calculationCache.clear()
                           useUiStore.getState().invalidateCalculation()
@@ -694,12 +753,10 @@ export function DataManagementSidebar({
                     </InventoryRow>
                     <InventoryRow>
                       <InventoryLabel>商品在庫</InventoryLabel>
-                      <InventoryInput
-                        type="number"
+                      <BlurCommitInput
+                        value={cfg?.productInventory}
                         placeholder="商品在庫"
-                        value={cfg?.productInventory ?? ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? null : Number(e.target.value)
+                        onCommit={(val) => {
                           useDataStore.getState().updateInventory(s.id, { productInventory: val })
                           calculationCache.clear()
                           useUiStore.getState().invalidateCalculation()
@@ -708,12 +765,10 @@ export function DataManagementSidebar({
                     </InventoryRow>
                     <InventoryRow>
                       <InventoryLabel>消耗品</InventoryLabel>
-                      <InventoryInput
-                        type="number"
+                      <BlurCommitInput
+                        value={cfg?.consumableInventory}
                         placeholder="消耗品在庫"
-                        value={cfg?.consumableInventory ?? ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? null : Number(e.target.value)
+                        onCommit={(val) => {
                           useDataStore
                             .getState()
                             .updateInventory(s.id, { consumableInventory: val })
@@ -732,16 +787,13 @@ export function DataManagementSidebar({
                     </InventoryRow>
                     <InventoryDayRow>
                       <InventoryLabel>期末日</InventoryLabel>
-                      <InventoryDayInput
-                        type="number"
+                      <BlurCommitInput
+                        as={InventoryDayInput}
+                        value={cfg?.closingInventoryDay}
+                        placeholder="末日"
                         min={1}
                         max={daysInMo}
-                        placeholder="末日"
-                        value={cfg?.closingInventoryDay ?? ''}
-                        onChange={(e) => {
-                          const raw = e.target.value
-                          const val =
-                            raw === '' ? null : Math.min(Math.max(1, Number(raw)), daysInMo)
+                        onCommit={(val) => {
                           useDataStore
                             .getState()
                             .updateInventory(s.id, { closingInventoryDay: val })
@@ -753,33 +805,31 @@ export function DataManagementSidebar({
                     </InventoryDayRow>
                     <InventoryRow>
                       <InventoryLabel>花掛率%</InventoryLabel>
-                      <InventoryInput
-                        type="number"
+                      <BlurCommitInput
+                        value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : null}
                         step="any"
                         placeholder={`${settings.flowerCostRate * 100}`}
-                        value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : ''}
-                        onChange={(e) => {
-                          const raw = e.target.value
-                          const val = raw === '' ? undefined : Number(raw) / 100
-                          useDataStore.getState().updateInventory(s.id, { flowerCostRate: val })
+                        onCommit={(val) => {
+                          const rate = val != null ? val / 100 : undefined
+                          useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
                         }}
                       />
                     </InventoryRow>
                     <InventoryRow>
                       <InventoryLabel>産直掛率%</InventoryLabel>
-                      <InventoryInput
-                        type="number"
+                      <BlurCommitInput
+                        value={
+                          cfg?.directProduceCostRate != null
+                            ? cfg.directProduceCostRate * 100
+                            : null
+                        }
                         step="any"
                         placeholder={`${settings.directProduceCostRate * 100}`}
-                        value={
-                          cfg?.directProduceCostRate != null ? cfg.directProduceCostRate * 100 : ''
-                        }
-                        onChange={(e) => {
-                          const raw = e.target.value
-                          const val = raw === '' ? undefined : Number(raw) / 100
+                        onCommit={(val) => {
+                          const rate = val != null ? val / 100 : undefined
                           useDataStore
                             .getState()
-                            .updateInventory(s.id, { directProduceCostRate: val })
+                            .updateInventory(s.id, { directProduceCostRate: rate })
                         }}
                       />
                     </InventoryRow>
