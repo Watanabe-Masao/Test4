@@ -116,11 +116,8 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     try {
       const restoredData = await repo.loadMonthlyData(restoreMeta.year, restoreMeta.month)
       if (restoredData) {
-        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+        // まとめて更新し、最後に1回だけ cache clear + invalidate
         useDataStore.getState().setImportedData(restoredData)
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
-        // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
         useSettingsStore.getState().updateSettings({
           targetYear: restoreMeta.year,
           targetMonth: restoreMeta.month,
