@@ -113,6 +113,10 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         openingInventory: null,
         closingInventory: null,
         grossProfitBudget: null,
+        productInventory: null,
+        consumableInventory: null,
+        inventoryDate: null,
+        closingInventoryDay: null,
       }
       newSettings.set(storeId, { ...existing, ...config })
       return {

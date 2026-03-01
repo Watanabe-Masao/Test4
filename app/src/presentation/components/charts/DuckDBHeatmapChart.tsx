@@ -9,13 +9,17 @@
  * - 時間帯×曜日の売上日平均ヒートマップ
  * - Z-score 異常検出マーカー（|z| > 2）
  */
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useDuckDBHourDowMatrix, type HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import {
+  useDuckDBHourDowMatrix,
+  useDuckDBLevelAggregation,
+  type HourDowMatrixRow,
+} from '@/application/hooks/useDuckDBQuery'
+import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 
 // ── Styled Components ──
@@ -131,7 +135,75 @@ const ErrorMsg = styled.div`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+const ControlRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const TabGroup = styled.div`
+  display: flex;
+  gap: 2px;
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: 2px;
+`
+
+const Tab = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  transition: all 0.15s;
+  white-space: nowrap;
+  &:hover { opacity: 0.85; }
+`
+
+const HierarchyRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[2]};
+  flex-wrap: wrap;
+`
+
+const HierarchySelect = styled.select`
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text2};
+  cursor: pointer;
+`
+
+/** 前年比用セル: 緑(+) / 赤(-) のグラデーション */
+const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $textColor: string }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  text-align: center;
+  font-size: 0.55rem;
+  color: ${({ $textColor }) => $textColor};
+  background: ${({ $ratio, $hasData }) => {
+    if (!$hasData) return 'transparent'
+    if ($ratio === 0) return 'rgba(100,100,100,0.1)'
+    const absR = Math.min(Math.abs($ratio), 0.5) / 0.5
+    if ($ratio > 0) return `rgba(34,197,94,${0.2 + absR * 0.7})`
+    return `rgba(239,68,68,${0.2 + absR * 0.7})`
+  }};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  transition: all 0.15s;
+  min-width: 60px;
+  &:hover { opacity: 0.85; transform: scale(1.02); }
+`
+
 // ── Types ──
+
+type HeatmapMode = 'amount' | 'yoyDiff'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -264,6 +336,42 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   }
 }
 
+/** 前年の同日付範囲を構築する */
+function buildPrevYearRange(range: DateRange): DateRange {
+  return {
+    from: { year: range.from.year - 1, month: range.from.month, day: range.from.day },
+    to: { year: range.to.year - 1, month: range.to.month, day: range.to.day },
+  }
+}
+
+/** 当年・前年のマトリクスから前年比差分率マップを構築 */
+function buildDiffMap(
+  currentRows: readonly HourDowMatrixRow[],
+  prevRows: readonly HourDowMatrixRow[],
+): Map<string, number> {
+  const curMap = new Map<string, number>()
+  const prevMap = new Map<string, number>()
+  for (const r of currentRows) {
+    if (r.hour < HOUR_MIN || r.hour > HOUR_MAX) continue
+    const avg = r.dayCount > 0 ? r.amount / r.dayCount : 0
+    curMap.set(cellKey(r.hour, r.dow), avg)
+  }
+  for (const r of prevRows) {
+    if (r.hour < HOUR_MIN || r.hour > HOUR_MAX) continue
+    const avg = r.dayCount > 0 ? r.amount / r.dayCount : 0
+    prevMap.set(cellKey(r.hour, r.dow), avg)
+  }
+  const diffMap = new Map<string, number>()
+  const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
+  for (const key of allKeys) {
+    const cur = curMap.get(key) ?? 0
+    const prev = prevMap.get(key) ?? 0
+    const ratio = prev > 0 ? (cur - prev) / prev : cur > 0 ? 1 : 0
+    diffMap.set(key, ratio)
+  }
+  return diffMap
+}
+
 // ── Component ──
 
 export function DuckDBHeatmapChart({
@@ -276,13 +384,44 @@ export function DuckDBHeatmapChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
   const theme = useTheme() as AppTheme
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('amount')
+  const [deptCode, setDeptCode] = useState('')
+  const [lineCode, setLineCode] = useState('')
+  const [klassCode, setKlassCode] = useState('')
 
-  // 時間帯×曜日マトリクス
+  const hierarchy = useMemo(
+    () => ({
+      deptCode: deptCode || undefined,
+      lineCode: lineCode || undefined,
+      klassCode: klassCode || undefined,
+    }),
+    [deptCode, lineCode, klassCode],
+  )
+
+  const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
+
+  // 当年 時間帯×曜日マトリクス
   const { data: matrixRows, error } = useDuckDBHourDowMatrix(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
+    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, hierarchy,
+  )
+
+  // 前年 時間帯×曜日マトリクス（前年比モード用）
+  const { data: prevMatrixRows } = useDuckDBHourDowMatrix(
+    duckConn, duckDataVersion, prevYearRange, selectedStoreIds, hierarchy,
+  )
+
+  // 階層ドロップダウン
+  const { data: departments } = useDuckDBLevelAggregation(
+    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'department', undefined, false,
+  )
+  const { data: lines } = useDuckDBLevelAggregation(
+    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'line',
+    deptCode ? { deptCode } : undefined, false,
+  )
+  const { data: klasses } = useDuckDBLevelAggregation(
+    duckConn, duckDataVersion, currentDateRange, selectedStoreIds, 'klass',
+    deptCode || lineCode ? { deptCode: deptCode || undefined, lineCode: lineCode || undefined } : undefined,
+    false,
   )
 
   const heatmapData = useMemo(
@@ -290,13 +429,21 @@ export function DuckDBHeatmapChart({
     [matrixRows],
   )
 
+  const diffMap = useMemo(
+    () => (matrixRows && prevMatrixRows ? buildDiffMap(matrixRows, prevMatrixRows) : null),
+    [matrixRows, prevMatrixRows],
+  )
+
+  const hasPrevData = (prevMatrixRows?.length ?? 0) > 0
+
+  const wrappedSetDept = (code: string) => { setDeptCode(code); setLineCode(''); setKlassCode('') }
+  const wrappedSetLine = (code: string) => { setLineCode(code); setKlassCode('') }
+
   if (error) {
     return (
       <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
         <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
-        <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
-        </ErrorMsg>
+        <ErrorMsg>{messages.errors.dataFetchFailed}: {error}</ErrorMsg>
       </Wrapper>
     )
   }
@@ -309,14 +456,30 @@ export function DuckDBHeatmapChart({
   const primaryHex = '#6366f1'
 
   const hours: number[] = []
-  for (let h = HOUR_MIN; h <= HOUR_MAX; h++) {
-    hours.push(h)
-  }
+  for (let h = HOUR_MIN; h <= HOUR_MAX; h++) hours.push(h)
+
+  const isAmountMode = heatmapMode === 'amount'
 
   return (
     <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
-      <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
-      <Subtitle>セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z &gt; {Z_SCORE_THRESHOLD})</Subtitle>
+      <ControlRow>
+        <div>
+          <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
+          <Subtitle>
+            {isAmountMode
+              ? `セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z > ${Z_SCORE_THRESHOLD})`
+              : 'セル色 = 前年比増減率（緑:増 / 赤:減）'}
+          </Subtitle>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {hasPrevData && (
+            <TabGroup>
+              <Tab $active={isAmountMode} onClick={() => setHeatmapMode('amount')}>売上金額</Tab>
+              <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>前年比増減</Tab>
+            </TabGroup>
+          )}
+        </div>
+      </ControlRow>
 
       <GridContainer>
         <HeatmapTable aria-label="時間帯×曜日ヒートマップ">
@@ -324,9 +487,7 @@ export function DuckDBHeatmapChart({
             <tr>
               <HeaderCell scope="col" />
               {DOW_ORDER.map((dow) => (
-                <HeaderCell key={dow} scope="col">
-                  {DOW_LABELS[dow]}
-                </HeaderCell>
+                <HeaderCell key={dow} scope="col">{DOW_LABELS[dow]}</HeaderCell>
               ))}
             </tr>
           </thead>
@@ -335,26 +496,34 @@ export function DuckDBHeatmapChart({
               <tr key={hour}>
                 <RowHeader>{hour}時</RowHeader>
                 {DOW_ORDER.map((dow) => {
-                  const cell = heatmapData.cells.get(cellKey(hour, dow))
-                  if (!cell) {
+                  const key = cellKey(hour, dow)
+
+                  if (!isAmountMode && diffMap) {
+                    const ratio = diffMap.get(key)
+                    if (ratio == null) {
+                      return <DiffDataCell key={dow} $ratio={0} $hasData={false} $textColor={ct.textMuted}>-</DiffDataCell>
+                    }
+                    const textColor = Math.abs(ratio) > 0.15 ? '#fff' : ct.textMuted
                     return (
-                      <DataCell
+                      <DiffDataCell
                         key={dow}
-                        $bgColor={bgBase}
-                        $isAnomaly={false}
-                        $textColor={ct.textMuted}
+                        $ratio={ratio}
+                        $hasData
+                        $textColor={textColor}
+                        title={`${hour}時 ${DOW_LABELS[dow]} | ${ratio >= 0 ? '+' : ''}${toPct(ratio)}`}
                       >
-                        -
-                      </DataCell>
+                        {ratio >= 0 ? '+' : ''}{toPct(ratio)}
+                      </DiffDataCell>
                     )
+                  }
+
+                  const cell = heatmapData.cells.get(key)
+                  if (!cell) {
+                    return <DataCell key={dow} $bgColor={bgBase} $isAnomaly={false} $textColor={ct.textMuted}>-</DataCell>
                   }
                   const ratio = heatmapData.maxValue > 0 ? cell.dailyAvg / heatmapData.maxValue : 0
                   const bgColor = interpolateColor(ratio, bgBase, primaryHex)
-
-                  // テキスト色: ratio が高い場合は白テキスト
-                  const textColor =
-                    ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
-
+                  const textColor = ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
                   return (
                     <DataCell
                       key={dow}
@@ -374,13 +543,21 @@ export function DuckDBHeatmapChart({
       </GridContainer>
 
       <LegendBar>
-        <span>低</span>
-        <GradientBar $from={bgBase} $to={primaryHex} />
-        <span>高</span>
-        {heatmapData.anomalyCount > 0 && (
-          <span style={{ marginLeft: '12px', color: '#ef4444' }}>
-            異常セル: {heatmapData.anomalyCount}件
-          </span>
+        {isAmountMode ? (
+          <>
+            <span>低</span>
+            <GradientBar $from={bgBase} $to={primaryHex} />
+            <span>高</span>
+            {heatmapData.anomalyCount > 0 && (
+              <span style={{ marginLeft: '12px', color: '#ef4444' }}>異常セル: {heatmapData.anomalyCount}件</span>
+            )}
+          </>
+        ) : (
+          <>
+            <span>減少</span>
+            <GradientBar $from="rgba(239,68,68,0.8)" $to="rgba(34,197,94,0.8)" />
+            <span>増加</span>
+          </>
         )}
       </LegendBar>
 
@@ -398,6 +575,30 @@ export function DuckDBHeatmapChart({
           {heatmapData.anomalyCount}件
         </SummaryItem>
       </SummaryRow>
+
+      {/* ── Hierarchy filter ── */}
+      {((departments?.length ?? 0) > 1 || (lines?.length ?? 0) > 1 || (klasses?.length ?? 0) > 1) && (
+        <HierarchyRow>
+          {(departments?.length ?? 0) > 1 && (
+            <HierarchySelect value={deptCode} onChange={(e) => wrappedSetDept(e.target.value)}>
+              <option value="">全部門</option>
+              {departments?.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
+            </HierarchySelect>
+          )}
+          {deptCode && (lines?.length ?? 0) > 1 && (
+            <HierarchySelect value={lineCode} onChange={(e) => wrappedSetLine(e.target.value)}>
+              <option value="">全ライン</option>
+              {lines?.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+            </HierarchySelect>
+          )}
+          {lineCode && (klasses?.length ?? 0) > 1 && (
+            <HierarchySelect value={klassCode} onChange={(e) => setKlassCode(e.target.value)}>
+              <option value="">全クラス</option>
+              {klasses?.map((k) => <option key={k.code} value={k.code}>{k.name}</option>)}
+            </HierarchySelect>
+          )}
+        </HierarchyRow>
+      )}
     </Wrapper>
   )
 }

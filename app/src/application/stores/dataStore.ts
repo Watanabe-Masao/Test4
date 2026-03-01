@@ -78,8 +78,21 @@ export const useDataStore = create<DataStore>()(
               openingInventory: null,
               closingInventory: null,
               grossProfitBudget: null,
+              productInventory: null,
+              consumableInventory: null,
+              inventoryDate: null,
+              closingInventoryDay: null,
             }
-            newSettings.set(storeId, { ...existing, ...config })
+            const merged = { ...existing, ...config }
+            // 期末在庫（消耗品込）= 商品在庫 + 消耗品在庫 （自動計算）
+            if (
+              ('productInventory' in config || 'consumableInventory' in config) &&
+              (merged.productInventory != null || merged.consumableInventory != null)
+            ) {
+              merged.closingInventory =
+                (merged.productInventory ?? 0) + (merged.consumableInventory ?? 0)
+            }
+            newSettings.set(storeId, merged)
             return { data: { ...state.data, settings: newSettings } }
           },
           false,

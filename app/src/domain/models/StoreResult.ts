@@ -10,8 +10,12 @@ export interface StoreResult {
   readonly storeId: string
 
   // ─── 在庫（実績） ──────────────────────────────────────
-  readonly openingInventory: number | null // 期首在庫
-  readonly closingInventory: number | null // 期末在庫（実績）
+  readonly openingInventory: number | null // 機首在庫
+  readonly closingInventory: number | null // 期末在庫（消耗品込）
+  readonly productInventory: number | null // 商品在庫
+  readonly consumableInventory: number | null // 消耗品在庫
+  readonly inventoryDate: string | null // 在庫基準日（YYYY/M/D）
+  readonly closingInventoryDay: number | null // 期末在庫日付（何日時点か、null=月末）
 
   // ─── 売上 ──────────────────────────────────────────────
   readonly totalSales: number // 総売上高（全体）

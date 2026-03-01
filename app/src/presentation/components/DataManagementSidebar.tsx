@@ -109,6 +109,47 @@ const StoreInventoryTitle = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
+const InventoryDateBadge = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
+  margin-left: ${({ theme }) => theme.spacing[2]};
+`
+
+const InventoryAutoValue = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text3};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  cursor: default;
+`
+
+const InventoryDayRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+`
+
+const InventoryDayInput = styled.input`
+  width: 56px;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  text-align: center;
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
 // detectDataMaxDay は @/domain/calculations/utils から import
 
 // ─── DataEndDay スライダー styled ──────────────────────
@@ -617,18 +658,31 @@ export function DataManagementSidebar({
 
         {stores.size > 0 && (
           <SidebarSection>
-            <SectionLabel>在庫設定</SectionLabel>
+            <SectionLabel>
+              在庫設定
+              {(() => {
+                const firstCfg = data.settings.values().next().value
+                return firstCfg?.inventoryDate ? (
+                  <InventoryDateBadge>{firstCfg.inventoryDate} 時点</InventoryDateBadge>
+                ) : null
+              })()}
+            </SectionLabel>
             <InventoryInputGroup>
               {Array.from(stores.values()).map((s) => {
                 const cfg = data.settings.get(s.id)
+                const autoClosing =
+                  cfg?.productInventory != null || cfg?.consumableInventory != null
+                    ? (cfg.productInventory ?? 0) + (cfg.consumableInventory ?? 0)
+                    : null
+                const daysInMo = getDaysInMonth(settings.targetYear, settings.targetMonth)
                 return (
                   <StoreInventoryBlock key={s.id}>
                     <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
                     <InventoryRow>
-                      <InventoryLabel>期首</InventoryLabel>
+                      <InventoryLabel>機首在庫</InventoryLabel>
                       <InventoryInput
                         type="number"
-                        placeholder="期首在庫"
+                        placeholder="機首在庫"
                         value={cfg?.openingInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
@@ -639,19 +693,66 @@ export function DataManagementSidebar({
                       />
                     </InventoryRow>
                     <InventoryRow>
-                      <InventoryLabel>期末</InventoryLabel>
+                      <InventoryLabel>商品在庫</InventoryLabel>
                       <InventoryInput
                         type="number"
-                        placeholder="期末在庫"
-                        value={cfg?.closingInventory ?? ''}
+                        placeholder="商品在庫"
+                        value={cfg?.productInventory ?? ''}
                         onChange={(e) => {
                           const val = e.target.value === '' ? null : Number(e.target.value)
-                          useDataStore.getState().updateInventory(s.id, { closingInventory: val })
+                          useDataStore
+                            .getState()
+                            .updateInventory(s.id, { productInventory: val })
                           calculationCache.clear()
                           useUiStore.getState().invalidateCalculation()
                         }}
                       />
                     </InventoryRow>
+                    <InventoryRow>
+                      <InventoryLabel>消耗品</InventoryLabel>
+                      <InventoryInput
+                        type="number"
+                        placeholder="消耗品在庫"
+                        value={cfg?.consumableInventory ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? null : Number(e.target.value)
+                          useDataStore
+                            .getState()
+                            .updateInventory(s.id, { consumableInventory: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
+                        }}
+                      />
+                    </InventoryRow>
+                    <InventoryRow>
+                      <InventoryLabel>期末在庫</InventoryLabel>
+                      <InventoryAutoValue>
+                        {autoClosing != null
+                          ? autoClosing.toLocaleString()
+                          : cfg?.closingInventory?.toLocaleString() ?? '—'}
+                      </InventoryAutoValue>
+                    </InventoryRow>
+                    <InventoryDayRow>
+                      <InventoryLabel>期末日</InventoryLabel>
+                      <InventoryDayInput
+                        type="number"
+                        min={1}
+                        max={daysInMo}
+                        placeholder="末日"
+                        value={cfg?.closingInventoryDay ?? ''}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          const val =
+                            raw === '' ? null : Math.min(Math.max(1, Number(raw)), daysInMo)
+                          useDataStore
+                            .getState()
+                            .updateInventory(s.id, { closingInventoryDay: val })
+                          calculationCache.clear()
+                          useUiStore.getState().invalidateCalculation()
+                        }}
+                      />
+                      <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
+                    </InventoryDayRow>
                   </StoreInventoryBlock>
                 )
               })}
