@@ -116,7 +116,7 @@ export function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }:
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ構成比チャート">
       <HeaderRow>
         <Title>カテゴリ別{mode === 'cost' ? '原価' : '売価'}構成</Title>
         <TabGroup>

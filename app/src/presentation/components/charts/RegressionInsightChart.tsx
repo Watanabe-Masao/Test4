@@ -191,7 +191,7 @@ export function RegressionInsightChart({ result, year, month }: Props) {
 
   if (chartData.length < 2) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="回帰分析チャート">
         <HeaderRow>
           <Title>
             回帰分析インサイト
@@ -216,7 +216,7 @@ export function RegressionInsightChart({ result, year, month }: Props) {
   const trendLabel = reg.slope > 0 ? '上昇' : reg.slope < 0 ? '下降' : '横ばい'
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="回帰分析チャート">
       <HeaderRow>
         <Title>
           回帰分析インサイト — 予測の信頼性と手法比較

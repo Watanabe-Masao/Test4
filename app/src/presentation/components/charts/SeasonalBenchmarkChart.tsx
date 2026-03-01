@@ -138,7 +138,7 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
 
   if (monthlyData.length === 0) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="季節ベンチマークチャート">
         <HeaderRow>
           <Title>
             季節性ベンチマーク
@@ -171,7 +171,7 @@ export function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
         : '横ばい'
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="季節ベンチマークチャート">
       <HeaderRow>
         <Title>
           季節性ベンチマーク — 月別売上パターン

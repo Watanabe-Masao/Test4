@@ -59,7 +59,7 @@ export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Pro
   const hasPrev = prevYearDaily && allData.some((d) => d.prevTxValue != null && d.prevTxValue > 0)
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="客単価推移チャート">
       <Title>日別客単価推移{hasPrev ? '（前年比較）' : ''}</Title>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>

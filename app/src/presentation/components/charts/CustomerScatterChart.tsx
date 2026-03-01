@@ -255,7 +255,7 @@ export function CustomerScatterChart({ daily, daysInMonth, year, month, prevYear
 
   if (scatterData.length === 0) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="客数散布図チャート">
         <HeaderRow>
           <Title>客数×客単価 効率分析</Title>
         </HeaderRow>
@@ -274,7 +274,7 @@ export function CustomerScatterChart({ daily, daysInMonth, year, month, prevYear
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="客数散布図チャート">
       <HeaderRow>
         <Title>
           {isYoy

@@ -184,7 +184,7 @@ export function InventoryTrendChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="在庫推移チャート">
       <Header>
         <Title>売上・仕入・推定在庫</Title>
         {canCompare ? (

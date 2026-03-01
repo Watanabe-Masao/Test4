@@ -206,7 +206,7 @@ export function DiscountTrendChart({
   const activeLbl = activeType?.label ?? ''
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="売変推移チャート">
       <HeaderRow>
         <Title>
           {viewMode === 'stacked'

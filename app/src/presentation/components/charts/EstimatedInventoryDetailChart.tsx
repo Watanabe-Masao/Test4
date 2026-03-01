@@ -320,7 +320,7 @@ export function EstimatedInventoryDetailChart({
     const anyHasInventory = storeEntries.some((s) => s.hasInventory)
 
     return (
-      <Wrapper>
+      <Wrapper aria-label="推定在庫詳細チャート">
         {tabHeader}
 
         {/* チャート: 店舗ごとの推定在庫ライン */}
@@ -432,7 +432,7 @@ export function EstimatedInventoryDetailChart({
   /*  明細モード (合計)                                                 */
   /* ================================================================ */
   return (
-    <Wrapper>
+    <Wrapper aria-label="推定在庫詳細チャート">
       {tabHeader}
 
       {/* ---- チャート ---- */}

@@ -50,9 +50,14 @@ export {
   useDuckDBPrevYearDailyRecords,
   useDuckDBAggregatedDailyRecords,
 } from './useDuckDBQuery'
-export { useStoreMetrics } from './useStoreMetrics'
-export type { StoreMetricsResult } from './useStoreMetrics'
-export { toDailyRecordMap, toPrevYearDailyMap, toBudgetChartData } from './dailyRecordAdapter'
+export { useStoragePersistence } from './useStoragePersistence'
+export type { StorageStatusInfo } from './useStoragePersistence'
+export { useDataRecovery } from './useDataRecovery'
+export type { RawFileGroup } from './useDataRecovery'
+export { useBackup } from './useBackup'
+export type { BackupMeta, BackupImportResult } from './useBackup'
+export { useDeptKpiView } from './useDeptKpiView'
+export type { DepartmentKpiIndex } from './useDeptKpiView'
 export {
   resolveTimeSeriesSource,
   resolveYoYSource,

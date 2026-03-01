@@ -253,7 +253,7 @@ export function CategoryPerformanceChart({
 
   if (ctsIndex.recordCount === 0) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="カテゴリ実績チャート">
         <HeaderRow>
           <Title>カテゴリPI値・偏差値分析</Title>
         </HeaderRow>
@@ -264,7 +264,7 @@ export function CategoryPerformanceChart({
 
   if (totalCustomers <= 0) {
     return (
-      <Wrapper>
+      <Wrapper aria-label="カテゴリ実績チャート">
         <HeaderRow>
           <Title>カテゴリPI値・偏差値分析</Title>
         </HeaderRow>
@@ -291,7 +291,7 @@ export function CategoryPerformanceChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="カテゴリ実績チャート">
       <HeaderRow>
         <Title>{titleMap[view]}</Title>
         <ToggleRow>
