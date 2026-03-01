@@ -247,6 +247,44 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  it('presentation/ は domain/calculations/ のビジネス計算関数を直接 import しない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // domain/calculations/utils からのフォーマット・ユーティリティ関数は許可
+    // それ以外のモジュール（factorDecomposition, forecast, inventoryCalc, etc.）は禁止
+    const PROHIBITED_MODULES = [
+      '@/domain/calculations/factorDecomposition',
+      '@/domain/calculations/forecast',
+      '@/domain/calculations/inventoryCalc',
+      '@/domain/calculations/alertSystem',
+      '@/domain/calculations/correlation',
+      '@/domain/calculations/trendAnalysis',
+      '@/domain/calculations/sensitivity',
+      '@/domain/calculations/causalChain',
+      '@/domain/calculations/pinIntervals',
+      '@/domain/calculations/advancedForecast',
+    ]
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const mod of PROHIBITED_MODULES) {
+        // import type は許可（型のみのインポートは実行時依存を生まない）
+        const regex = new RegExp(
+          `import\\s+(?!type\\s).*?from\\s+['"]${mod.replace('/', '\\/')}['"]`,
+        )
+        if (regex.test(content)) {
+          violations.push(
+            `${relativePath(file)}: ${mod} を直接 import。application/hooks 経由を使用してください`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,

@@ -27,7 +27,7 @@ import {
   useDayRange,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
-import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
 import { queryByDateRange } from '@/application/usecases'
 import type { DateRange } from '@/domain/models'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'

@@ -20,8 +20,8 @@ import {
   linearRegression,
   calculateWMA,
   calculateMonthEndProjection,
-} from '@/domain/calculations/advancedForecast'
-import { calculateStdDev } from '@/domain/calculations/forecast'
+  calculateStdDev,
+} from '@/application/hooks/useStatistics'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models'
 import { ChartHelpButton } from './ChartHeader'

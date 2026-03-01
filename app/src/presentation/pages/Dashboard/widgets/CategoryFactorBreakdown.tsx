@@ -24,7 +24,7 @@ import {
   decompose3,
   decompose5 as decompose5Domain,
   decomposePriceMix as decomposePriceMixDomain,
-} from '@/domain/calculations/factorDecomposition'
+} from '@/application/hooks/useFactorDecomposition'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import {
   Breadcrumb,

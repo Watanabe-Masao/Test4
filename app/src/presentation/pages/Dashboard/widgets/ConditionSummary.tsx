@@ -12,6 +12,7 @@ import type { MetricId, StoreResult } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
+import { ConditionMatrixTable } from './ConditionMatrixTable'
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -813,6 +814,9 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
           </DetailPanel>
         </Overlay>
       )}
+
+      {/* Condition Matrix (DuckDB) */}
+      <ConditionMatrixTable ctx={ctx} />
     </Wrapper>
   )
 })

@@ -20,7 +20,7 @@ import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/h
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { pearsonCorrelation } from '@/domain/calculations/correlation'
+import { pearsonCorrelation } from '@/application/hooks/useStatistics'
 
 // ── Styled Components ──
 

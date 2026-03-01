@@ -10,7 +10,7 @@ import type {
 import type { Store } from '@/domain/models'
 import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
-import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
+import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 

@@ -16,7 +16,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './ch
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { SalesPurchaseComparisonChart } from './SalesPurchaseComparisonChart'
-import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
+import { computeEstimatedInventory } from '@/application/hooks/useInventoryEstimation'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`

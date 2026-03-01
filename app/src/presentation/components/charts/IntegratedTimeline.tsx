@@ -19,7 +19,7 @@ import {
   pearsonCorrelation,
   detectDivergence,
   movingAverage,
-} from '@/domain/calculations/correlation'
+} from '@/application/hooks/useStatistics'
 import type { StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
