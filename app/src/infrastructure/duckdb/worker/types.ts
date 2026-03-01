@@ -77,10 +77,7 @@ export interface StateChangeNotification {
   readonly state: WorkerDBState
 }
 
-export type DuckDBWorkerResponse =
-  | SuccessResponse
-  | ErrorResponse
-  | StateChangeNotification
+export type DuckDBWorkerResponse = SuccessResponse | ErrorResponse | StateChangeNotification
 
 // ── Worker DB 状態 ──
 

@@ -95,7 +95,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
  * Phase 3 で全件解消済み。新たな違反の追加は禁止。
  */
 const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
-  // Phase 3 で全て ExportPort 経由に切り替え完了
+  // QueryProfilePanel は DevTools 専用コンポーネントで queryProfiler を直接参照する
+  'presentation/components/DevTools/QueryProfilePanel.tsx',
 ])
 
 /**

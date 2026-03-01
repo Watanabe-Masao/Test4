@@ -132,7 +132,7 @@ const testVectors: readonly TestVector[] = [
     salesDays: 10,
     openingInventory: 200_000,
     closingInventory: null,
-    defaultMarkupRate: 0.30,
+    defaultMarkupRate: 0.3,
   },
 ]
 
@@ -150,15 +150,9 @@ function computeJsMetrics(v: TestVector) {
     v.totalConsumable
   const inventoryCost = v.totalPurchaseCost + v.totalTransferCost + v.totalConsumable
   const allPurchasePrice =
-    v.totalPurchasePrice +
-    v.totalFlowersPrice +
-    v.totalDirectProducePrice +
-    v.totalTransferPrice
+    v.totalPurchasePrice + v.totalFlowersPrice + v.totalDirectProducePrice + v.totalTransferPrice
   const allPurchaseCost =
-    v.totalPurchaseCost +
-    v.totalFlowersCost +
-    v.totalDirectProduceCost +
-    v.totalTransferCost
+    v.totalPurchaseCost + v.totalFlowersCost + v.totalDirectProduceCost + v.totalTransferCost
 
   // rates CTE 相当: 売変率
   const discountRate = calculateDiscountRate(v.totalSales, v.totalDiscount)
@@ -340,9 +334,7 @@ describe('クロスバリデーション: SQL CTE と JS 計算の等価性', ()
 
       it('在庫法 粗利 = 売上 - COGS', () => {
         if (metrics.invMethodCogs != null) {
-          expect(metrics.invMethodGrossProfit).toBe(
-            vector.totalSales - metrics.invMethodCogs,
-          )
+          expect(metrics.invMethodGrossProfit).toBe(vector.totalSales - metrics.invMethodCogs)
         } else {
           expect(metrics.invMethodGrossProfit).toBeNull()
         }
@@ -368,8 +360,7 @@ describe('クロスバリデーション: SQL CTE と JS 計算の等価性', ()
             vector.totalCoreSales *
             (metrics.discountRate / (1 - metrics.discountRate))
         } else {
-          expected =
-            (1 - metrics.coreMarkupRate) * vector.totalCoreSales * metrics.discountRate
+          expected = (1 - metrics.coreMarkupRate) * vector.totalCoreSales * metrics.discountRate
         }
         expect(metrics.discountLossCost).toBeCloseTo(expected, 2)
       })
@@ -398,10 +389,7 @@ describe('計算式の数学的不変条件', () => {
 
       it('在庫仕入原価 + 売上納品原価 = 総仕入原価', () => {
         // inventoryCost = totalCost - deliverySalesCost
-        expect(metrics.inventoryCost + metrics.deliverySalesCost).toBeCloseTo(
-          metrics.totalCost,
-          2,
-        )
+        expect(metrics.inventoryCost + metrics.deliverySalesCost).toBeCloseTo(metrics.totalCost, 2)
       })
 
       it('在庫法: COGS が非null の場合、粗利 + COGS = 売上', () => {

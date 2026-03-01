@@ -114,11 +114,7 @@ class RawFileStore {
   /**
    * 元ファイルを取得する
    */
-  async getFile(
-    year: number,
-    month: number,
-    dataType: string,
-  ): Promise<RawFileMeta | null> {
+  async getFile(year: number, month: number, dataType: string): Promise<RawFileMeta | null> {
     const db = await openDB()
     const key = makeKey(year, month, dataType)
 

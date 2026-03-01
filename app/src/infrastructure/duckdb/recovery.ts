@@ -141,9 +141,7 @@ export async function rebuildFromIndexedDB(
   await conn.query(SCHEMA_META_DDL)
   const now = new Date().toISOString()
   await conn.query(`DELETE FROM schema_meta`)
-  await conn.query(
-    `INSERT INTO schema_meta VALUES (${SCHEMA_VERSION}, '${now}', '${now}')`,
-  )
+  await conn.query(`INSERT INTO schema_meta VALUES (${SCHEMA_VERSION}, '${now}', '${now}')`)
 
   return {
     monthCount,

@@ -6,10 +6,7 @@
  */
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
-import {
-  queryProfiler,
-  type QueryProfileEntry,
-} from '@/infrastructure/duckdb/queryProfiler'
+import { queryProfiler, type QueryProfileEntry } from '@/infrastructure/duckdb/queryProfiler'
 
 // DEV モードでのみレンダリング
 const isDev = import.meta.env.DEV
@@ -117,11 +114,7 @@ const StatusBadge = styled.span<{ $status: string }>`
         ? 'rgba(255, 107, 107, 0.2)'
         : 'rgba(255, 200, 50, 0.2)'};
   color: ${(p) =>
-    p.$status === 'success'
-      ? '#7bed9f'
-      : p.$status === 'error'
-        ? '#ff6b6b'
-        : '#ffc832'};
+    p.$status === 'success' ? '#7bed9f' : p.$status === 'error' ? '#ff6b6b' : '#ffc832'};
 `
 
 function formatDuration(ms: number | null): string {
@@ -144,8 +137,8 @@ export function QueryProfilePanel() {
 
 function QueryProfilePanelInner() {
   const [collapsed, setCollapsed] = useState(true)
-  const [entries, setEntries] = useState<readonly QueryProfileEntry[]>(
-    () => queryProfiler.getEntries(),
+  const [entries, setEntries] = useState<readonly QueryProfileEntry[]>(() =>
+    queryProfiler.getEntries(),
   )
 
   useEffect(() => {
@@ -161,7 +154,7 @@ function QueryProfilePanelInner() {
       avgDurationMs:
         entries.length > 0
           ? entries.reduce((sum, e) => sum + (e.durationMs ?? 0), 0) /
-            entries.filter((e) => e.status === 'success').length || 0
+              entries.filter((e) => e.status === 'success').length || 0
           : 0,
     }
   }, [entries])
@@ -199,9 +192,7 @@ function QueryProfilePanelInner() {
             </EntryRow>
           ))}
           {entries.length === 0 && (
-            <div style={{ padding: '16px', textAlign: 'center', opacity: 0.5 }}>
-              No queries yet
-            </div>
+            <div style={{ padding: '16px', textAlign: 'center', opacity: 0.5 }}>No queries yet</div>
           )}
         </EntryList>
       )}

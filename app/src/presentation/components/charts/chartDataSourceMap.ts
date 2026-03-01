@@ -36,21 +36,45 @@ export const CHART_DATA_SOURCE_MAP: readonly ChartDataSourceConfig[] = [
   { chartName: 'YoYChart', source: 'duckdb', duckdbComponent: 'DuckDBYoYChart' },
   { chartName: 'DeptTrendChart', source: 'duckdb', duckdbComponent: 'DuckDBDeptTrendChart' },
   { chartName: 'DowPatternChart', source: 'duckdb', duckdbComponent: 'DuckDBDowPatternChart' },
-  { chartName: 'HourlyProfileChart', source: 'duckdb', duckdbComponent: 'DuckDBHourlyProfileChart' },
+  {
+    chartName: 'HourlyProfileChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBHourlyProfileChart',
+  },
   { chartName: 'TimeSlotChart', source: 'duckdb', duckdbComponent: 'DuckDBTimeSlotChart' },
   { chartName: 'HeatmapChart', source: 'duckdb', duckdbComponent: 'DuckDBHeatmapChart' },
   { chartName: 'DeptHourlyChart', source: 'duckdb', duckdbComponent: 'DuckDBDeptHourlyChart' },
   { chartName: 'StoreHourlyChart', source: 'duckdb', duckdbComponent: 'DuckDBStoreHourlyChart' },
-  { chartName: 'CategoryTrendChart', source: 'duckdb', duckdbComponent: 'DuckDBCategoryTrendChart' },
-  { chartName: 'CategoryHourlyChart', source: 'duckdb', duckdbComponent: 'DuckDBCategoryHourlyChart' },
+  {
+    chartName: 'CategoryTrendChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBCategoryTrendChart',
+  },
+  {
+    chartName: 'CategoryHourlyChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBCategoryHourlyChart',
+  },
   { chartName: 'CategoryMixChart', source: 'duckdb', duckdbComponent: 'DuckDBCategoryMixChart' },
-  { chartName: 'StoreBenchmarkChart', source: 'duckdb', duckdbComponent: 'DuckDBStoreBenchmarkChart' },
+  {
+    chartName: 'StoreBenchmarkChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBStoreBenchmarkChart',
+  },
 
   // ── Phase 3.3: JS 版削除済み → DuckDB 専用 ──
   { chartName: 'TimeSlotSalesChart', source: 'duckdb', duckdbComponent: 'DuckDBTimeSlotChart' },
   { chartName: 'TimeSlotHeatmapChart', source: 'duckdb', duckdbComponent: 'DuckDBHeatmapChart' },
-  { chartName: 'StoreTimeSlotComparisonChart', source: 'duckdb', duckdbComponent: 'DuckDBStoreHourlyChart' },
-  { chartName: 'DeptHourlyPatternChart', source: 'duckdb', duckdbComponent: 'DuckDBDeptHourlyChart' },
+  {
+    chartName: 'StoreTimeSlotComparisonChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBStoreHourlyChart',
+  },
+  {
+    chartName: 'DeptHourlyPatternChart',
+    source: 'duckdb',
+    duckdbComponent: 'DuckDBDeptHourlyChart',
+  },
   { chartName: 'YoYVarianceChart', source: 'duckdb', duckdbComponent: 'DuckDBYoYChart' },
 
   // ── JS 専用チャート（StoreResult ベース）──
@@ -58,8 +82,16 @@ export const CHART_DATA_SOURCE_MAP: readonly ChartDataSourceConfig[] = [
   { chartName: 'BudgetVsActualChart', source: 'js', jsComponent: 'BudgetVsActualChart' },
   { chartName: 'GrossProfitRateChart', source: 'js', jsComponent: 'GrossProfitRateChart' },
   { chartName: 'CategoryPieChart', source: 'js', jsComponent: 'CategoryPieChart' },
-  { chartName: 'SalesPurchaseComparisonChart', source: 'js', jsComponent: 'SalesPurchaseComparisonChart' },
-  { chartName: 'EstimatedInventoryDetailChart', source: 'js', jsComponent: 'EstimatedInventoryDetailChart' },
+  {
+    chartName: 'SalesPurchaseComparisonChart',
+    source: 'js',
+    jsComponent: 'SalesPurchaseComparisonChart',
+  },
+  {
+    chartName: 'EstimatedInventoryDetailChart',
+    source: 'js',
+    jsComponent: 'EstimatedInventoryDetailChart',
+  },
   { chartName: 'PrevYearComparisonChart', source: 'js', jsComponent: 'PrevYearComparisonChart' },
   { chartName: 'GrossProfitAmountChart', source: 'js', jsComponent: 'GrossProfitAmountChart' },
   { chartName: 'DiscountTrendChart', source: 'js', jsComponent: 'DiscountTrendChart' },

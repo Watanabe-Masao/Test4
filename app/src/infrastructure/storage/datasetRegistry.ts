@@ -40,11 +40,7 @@ class DatasetRegistry {
   /**
    * データセットメタデータを登録・更新する
    */
-  async register(
-    year: number,
-    month: number,
-    meta: Omit<DatasetMeta, 'updatedAt'>,
-  ): Promise<void> {
+  async register(year: number, month: number, meta: Omit<DatasetMeta, 'updatedAt'>): Promise<void> {
     const db = await openDB()
     const key = makeKey(year, month)
     const entry: DatasetMeta = {
@@ -101,12 +97,7 @@ class DatasetRegistry {
   /**
    * ファイルハッシュを更新する（部分更新）
    */
-  async updateFileHash(
-    year: number,
-    month: number,
-    dataType: string,
-    hash: string,
-  ): Promise<void> {
+  async updateFileHash(year: number, month: number, dataType: string, hash: string): Promise<void> {
     const existing = await this.get(year, month)
     const fileHashes = { ...(existing?.fileHashes ?? {}), [dataType]: hash }
 

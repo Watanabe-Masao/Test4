@@ -21,11 +21,7 @@
  * ```
  */
 import type { Migration } from './types'
-import {
-  BUDGET_DDL,
-  INVENTORY_CONFIG_DDL,
-  APP_SETTINGS_DDL,
-} from '../schemas'
+import { BUDGET_DDL, INVENTORY_CONFIG_DDL, APP_SETTINGS_DDL } from '../schemas'
 
 /**
  * 全マイグレーションを version 昇順で登録する。

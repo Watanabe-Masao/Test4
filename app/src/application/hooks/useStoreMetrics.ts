@@ -110,12 +110,11 @@ export function useStoreMetrics(
   storeIds: ReadonlySet<string>,
   selectedStoreId?: string,
 ): StoreMetricsResult {
-  const { data: rows, isLoading, error } = useDuckDBStorePeriodMetrics(
-    conn,
-    dataVersion,
-    dateRange,
-    storeIds,
-  )
+  const {
+    data: rows,
+    isLoading,
+    error,
+  } = useDuckDBStorePeriodMetrics(conn, dataVersion, dateRange, storeIds)
 
   const result = useMemo(() => {
     if (!rows || rows.length === 0) {

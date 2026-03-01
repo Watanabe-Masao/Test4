@@ -155,11 +155,7 @@ async function handleLoadMonth(
   }
 }
 
-async function handleDeleteMonth(
-  requestId: number,
-  year: number,
-  month: number,
-): Promise<void> {
+async function handleDeleteMonth(requestId: number, year: number, month: number): Promise<void> {
   if (!conn) {
     sendError(requestId, 'Not initialized')
     return

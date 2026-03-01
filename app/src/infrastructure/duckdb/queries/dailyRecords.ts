@@ -204,9 +204,10 @@ export async function queryAggregatedDailyRecords(
   storeIds?: ReadonlySet<string>,
 ): Promise<readonly DailyRecordRow[]> {
   const { fromKey, toKey } = dateRangeToKeys(dateRange)
-  const storeFilter = storeIds && storeIds.size > 0
-    ? storeIdFilter([...storeIds])?.replace('store_id', 's.store_id') ?? null
-    : null
+  const storeFilter =
+    storeIds && storeIds.size > 0
+      ? (storeIdFilter([...storeIds])?.replace('store_id', 's.store_id') ?? null)
+      : null
   const conditions: (string | null)[] = [
     `s.date_key BETWEEN '${fromKey}' AND '${toKey}'`,
     `s.is_prev_year = FALSE`,

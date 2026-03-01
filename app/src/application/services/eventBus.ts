@@ -36,10 +36,7 @@ class EventBus {
    * 指定タイプのイベントを購読する。
    * @returns 購読解除関数
    */
-  on<T extends DomainEventType>(
-    type: T,
-    handler: EventHandler<EventByType<T>>,
-  ): () => void {
+  on<T extends DomainEventType>(type: T, handler: EventHandler<EventByType<T>>): () => void {
     if (!this._handlers.has(type)) {
       this._handlers.set(type, new Set())
     }

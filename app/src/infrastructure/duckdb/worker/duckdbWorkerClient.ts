@@ -14,11 +14,7 @@
  * const rows = await client.query<MyRow>('SELECT * FROM table')
  * ```
  */
-import type {
-  DuckDBWorkerRequest,
-  DuckDBWorkerResponse,
-  WorkerDBState,
-} from './types'
+import type { DuckDBWorkerRequest, DuckDBWorkerResponse, WorkerDBState } from './types'
 import type { ImportedData } from '@/domain/models'
 import type { LoadResult } from '../dataLoader'
 
@@ -105,20 +101,14 @@ export class DuckDBWorkerClient {
    * 指定年月のデータを削除する。
    */
   async deleteMonth(year: number, month: number): Promise<void> {
-    await this._sendRequest(
-      { type: 'deleteMonth', year, month, requestId: 0 },
-      this._queryTimeout,
-    )
+    await this._sendRequest({ type: 'deleteMonth', year, month, requestId: 0 }, this._queryTimeout)
   }
 
   /**
    * SQL クエリを実行し、camelCase 変換済みのオブジェクト配列を返す。
    */
   async query<T>(sql: string): Promise<readonly T[]> {
-    return this._sendRequest<readonly T[]>(
-      { type: 'query', sql, requestId: 0 },
-      this._queryTimeout,
-    )
+    return this._sendRequest<readonly T[]>({ type: 'query', sql, requestId: 0 }, this._queryTimeout)
   }
 
   /**
@@ -129,10 +119,7 @@ export class DuckDBWorkerClient {
     monthCount: number
     isOpfsPersisted: boolean
   }> {
-    return this._sendRequest(
-      { type: 'checkIntegrity', requestId: 0 },
-      this._queryTimeout,
-    )
+    return this._sendRequest({ type: 'checkIntegrity', requestId: 0 }, this._queryTimeout)
   }
 
   /**
@@ -162,10 +149,7 @@ export class DuckDBWorkerClient {
   private _startWorker(): void {
     if (this._worker) return
 
-    this._worker = new Worker(
-      new URL('./duckdbWorker.ts', import.meta.url),
-      { type: 'module' },
-    )
+    this._worker = new Worker(new URL('./duckdbWorker.ts', import.meta.url), { type: 'module' })
 
     this._worker.onmessage = (event: MessageEvent<DuckDBWorkerResponse>) => {
       const msg = event.data
@@ -199,10 +183,7 @@ export class DuckDBWorkerClient {
     }
   }
 
-  private _sendRequest<T>(
-    request: DuckDBWorkerRequest,
-    timeout = this._queryTimeout,
-  ): Promise<T> {
+  private _sendRequest<T>(request: DuckDBWorkerRequest, timeout = this._queryTimeout): Promise<T> {
     if (!this._worker) {
       return Promise.reject(new Error('Worker not started'))
     }

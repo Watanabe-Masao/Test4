@@ -1,8 +1,4 @@
-export type {
-  DuckDBWorkerRequest,
-  DuckDBWorkerResponse,
-  WorkerDBState,
-} from './types'
+export type { DuckDBWorkerRequest, DuckDBWorkerResponse, WorkerDBState } from './types'
 export {
   DuckDBWorkerClient,
   getDuckDBWorkerClient,

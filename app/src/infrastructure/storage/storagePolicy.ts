@@ -24,7 +24,7 @@ export interface StorageStatus {
 }
 
 /** しきい値 */
-const WARNING_THRESHOLD = 0.80
+const WARNING_THRESHOLD = 0.8
 const CRITICAL_THRESHOLD = 0.95
 
 /**
