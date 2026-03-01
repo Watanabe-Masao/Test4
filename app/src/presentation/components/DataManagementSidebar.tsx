@@ -751,6 +751,38 @@ export function DataManagementSidebar({
                       />
                       <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
                     </InventoryDayRow>
+                    <InventoryRow>
+                      <InventoryLabel>花掛率%</InventoryLabel>
+                      <InventoryInput
+                        type="number"
+                        step="any"
+                        placeholder={`${settings.flowerCostRate * 100}`}
+                        value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : ''}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          const val = raw === '' ? undefined : Number(raw) / 100
+                          useDataStore.getState().updateInventory(s.id, { flowerCostRate: val })
+                        }}
+                      />
+                    </InventoryRow>
+                    <InventoryRow>
+                      <InventoryLabel>産直掛率%</InventoryLabel>
+                      <InventoryInput
+                        type="number"
+                        step="any"
+                        placeholder={`${settings.directProduceCostRate * 100}`}
+                        value={
+                          cfg?.directProduceCostRate != null ? cfg.directProduceCostRate * 100 : ''
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          const val = raw === '' ? undefined : Number(raw) / 100
+                          useDataStore
+                            .getState()
+                            .updateInventory(s.id, { directProduceCostRate: val })
+                        }}
+                      />
+                    </InventoryRow>
                   </StoreInventoryBlock>
                 )
               })}

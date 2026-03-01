@@ -7,6 +7,7 @@ import type {
   TransferData,
   ConsumableData,
   BudgetData,
+  InventoryConfig,
 } from '@/domain/models'
 import { mergeClassifiedSalesData } from '@/domain/models'
 import { readTabularFile } from './fileImport/tabularReader'
@@ -214,6 +215,24 @@ function countStoreDayEntries(record: {
 }
 
 /**
+ * InventoryConfig から店別掛け率マップを構築する。
+ * 店別設定がある店舗のみ含まれ、未設定の店舗にはグローバル設定が適用される。
+ */
+function buildStoreCostRateMap(
+  settings: ReadonlyMap<string, InventoryConfig>,
+  field: 'flowerCostRate' | 'directProduceCostRate',
+): Map<string, number> | undefined {
+  const map = new Map<string, number>()
+  for (const [storeId, config] of settings) {
+    const rate = config[field]
+    if (rate != null && Number.isFinite(rate)) {
+      map.set(storeId, rate)
+    }
+  }
+  return map.size > 0 ? map : undefined
+}
+
+/**
  * ファイルを読み込みデータ種別を判定する
  *
  * @param parseFile - Worker ベースのパース関数（省略時は readTabularFile を使用）
@@ -402,7 +421,13 @@ function processFileDataInner(
     }
 
     case 'flowers': {
-      const partitioned = processSpecialSales(rows, appSettings.flowerCostRate, true)
+      const storeFlowerRates = buildStoreCostRateMap(current.settings, 'flowerCostRate')
+      const partitioned = processSpecialSales(
+        rows,
+        appSettings.flowerCostRate,
+        true,
+        storeFlowerRates,
+      )
       const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
       return {
         data: { ...current, flowers: combined },
@@ -411,7 +436,13 @@ function processFileDataInner(
     }
 
     case 'directProduce': {
-      const partitioned = processSpecialSales(rows, appSettings.directProduceCostRate)
+      const storeDirectRates = buildStoreCostRateMap(current.settings, 'directProduceCostRate')
+      const partitioned = processSpecialSales(
+        rows,
+        appSettings.directProduceCostRate,
+        false,
+        storeDirectRates,
+      )
       const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
       return {
         data: { ...current, directProduce: combined },

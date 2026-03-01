@@ -15,4 +15,6 @@ export interface InventoryConfig {
   readonly consumableInventory: number | null // 消耗品在庫
   readonly inventoryDate: string | null // 在庫基準日（YYYY/M/D 形式、ヘッダから取得）
   readonly closingInventoryDay: number | null // 期末在庫日付（何日時点か、null=月末）
+  readonly flowerCostRate?: number // 店別花掛け率（undefined = グローバル設定を使用）
+  readonly directProduceCostRate?: number // 店別産直掛け率（undefined = グローバル設定を使用）
 }

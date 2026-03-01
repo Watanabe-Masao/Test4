@@ -12,12 +12,14 @@ export type { SpecialSalesData } from '@/domain/models'
  * 原価 = Math.round(売価 × 掛け率)
  *
  * @param readCustomers true の場合、ペアの2列目を来店客数として読み込む（花ファイル用）
+ * @param storeCostRates 店別掛け率マップ（指定時は店舗ごとに異なる掛け率を適用）
  * @returns 年月キー ("YYYY-M") をキーとする月別データ
  */
 export function processSpecialSales(
   rows: readonly unknown[][],
   costRate: number,
   readCustomers: boolean = false,
+  storeCostRates?: ReadonlyMap<string, number>,
 ): Record<string, SpecialSalesData> {
   if (rows.length < 4) return {}
 
@@ -50,7 +52,8 @@ export function processSpecialSales(
       const price = safeNumber(r[col])
       if (price === 0 && !readCustomers) continue
 
-      const cost = Math.round(price * costRate)
+      const effectiveRate = storeCostRates?.get(storeId) ?? costRate
+      const cost = Math.round(price * effectiveRate)
       const customers = readCustomers ? safeNumber(r[col + 1]) : undefined
 
       // 客数のみの行（price=0 but customers>0）も記録する
