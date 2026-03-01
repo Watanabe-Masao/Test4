@@ -23,7 +23,7 @@ import type {
   StoreExplanations,
   DailyRecord,
 } from '@/domain/models'
-import { aggregateForStore } from '@/domain/models'
+import { aggregateForStore, getDailyTotalCost } from '@/domain/models'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 
 // ─── ヘルパー ──────────────────────────────────────────────
@@ -75,19 +75,27 @@ function supplierDetails(rec: DailyRecord): BreakdownDetail[] {
   return details
 }
 
-/** 原価日別の構成内訳を生成 */
+/**
+ * 原価日別の構成内訳を生成
+ *
+ * getDailyTotalCost と同じ構成要素を列挙する。
+ * getDailyTotalCost は全コンポーネントを加算するため、
+ * ここでも符号を変えずにそのまま表示する。
+ */
 function costComponentDetails(rec: DailyRecord): BreakdownDetail[] {
   const details: BreakdownDetail[] = []
   if (rec.purchase.cost !== 0)
     details.push({ label: '仕入原価', value: rec.purchase.cost, unit: 'yen' })
-  if (rec.flowers.cost !== 0)
-    details.push({ label: '花原価', value: rec.flowers.cost, unit: 'yen' })
-  if (rec.directProduce.cost !== 0)
-    details.push({ label: '産直原価', value: rec.directProduce.cost, unit: 'yen' })
   if (rec.interStoreIn.cost !== 0)
     details.push({ label: '店間入', value: rec.interStoreIn.cost, unit: 'yen' })
   if (rec.interStoreOut.cost !== 0)
-    details.push({ label: '店間出', value: -rec.interStoreOut.cost, unit: 'yen' })
+    details.push({ label: '店間出', value: rec.interStoreOut.cost, unit: 'yen' })
+  if (rec.interDepartmentIn.cost !== 0)
+    details.push({ label: '部門間入', value: rec.interDepartmentIn.cost, unit: 'yen' })
+  if (rec.interDepartmentOut.cost !== 0)
+    details.push({ label: '部門間出', value: rec.interDepartmentOut.cost, unit: 'yen' })
+  if (rec.deliverySales.cost !== 0)
+    details.push({ label: '売上納品原価', value: rec.deliverySales.cost, unit: 'yen' })
   return details
 }
 
@@ -203,16 +211,7 @@ export function generateExplanations(
       inp('在庫仕入原価', result.inventoryCost, 'yen', 'inventoryCost'),
       inp('売上納品原価', result.deliverySalesCost, 'yen', 'deliverySalesCost'),
     ],
-    breakdown: dailyBreakdown(
-      result.daily,
-      (r) =>
-        r.purchase.cost +
-        r.flowers.cost +
-        r.directProduce.cost +
-        r.interStoreIn.cost -
-        r.interStoreOut.cost,
-      costComponentDetails,
-    ),
+    breakdown: dailyBreakdown(result.daily, getDailyTotalCost, costComponentDetails),
     evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
   })
 
@@ -229,7 +228,7 @@ export function generateExplanations(
     ],
     breakdown: dailyBreakdown(
       result.daily,
-      (r) => r.purchase.cost + r.interStoreIn.cost - r.interStoreOut.cost,
+      (r) => getDailyTotalCost(r) - r.deliverySales.cost,
       supplierDetails,
     ),
     evidenceRefs: expandDailyEvidence('purchase', storeId, result.daily, allStoreIds),
@@ -242,10 +241,7 @@ export function generateExplanations(
     value: result.deliverySalesCost,
     unit: 'yen',
     scope,
-    inputs: [
-      inp('花原価', result.deliverySalesCost, 'yen'),
-      inp('売上納品売価', result.deliverySalesPrice, 'yen'),
-    ],
+    inputs: [inp('売上納品原価（花+産直）', result.deliverySalesCost, 'yen')],
     breakdown: dailyBreakdown(
       result.daily,
       (r) => r.deliverySales.cost,

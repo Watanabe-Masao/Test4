@@ -25,6 +25,7 @@ function makeDailyRecord(day: number, sales: number, cost = 0): DailyRecord {
     sales,
     coreSales: sales,
     grossSales: sales,
+    totalCost: cost,
     purchase: { cost, price: cost > 0 ? Math.round(cost * 1.3) : 0 },
     deliverySales: ZERO_COST_PRICE_PAIR,
     interStoreIn: ZERO_COST_PRICE_PAIR,

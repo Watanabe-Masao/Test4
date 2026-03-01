@@ -18,7 +18,6 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } fro
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
-import { getDailyTotalCost } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 
 const Wrapper = styled.div`
@@ -111,7 +110,7 @@ export function GrossProfitAmountChart({
     const rec = daily.get(d)
     if (rec) {
       cumSales += rec.sales
-      cumCost += getDailyTotalCost(rec)
+      cumCost += rec.totalCost
     }
     const grossProfit = cumSales - cumCost
     const rate = safeDivide(grossProfit, cumSales, 0)

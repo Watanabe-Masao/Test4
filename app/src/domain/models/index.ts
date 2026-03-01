@@ -5,10 +5,20 @@ export type { Supplier, SupplierTotal } from './Supplier'
 export type { CategoryType } from './CategoryType'
 export type { ConsumableItem, ConsumableDailyRecord } from './ConsumableItem'
 export { ZERO_CONSUMABLE_DAILY } from './ConsumableItem'
-export type { DailyRecord, TransferBreakdownEntry } from './DailyRecord'
+export type {
+  DailySourceData,
+  DailyDerivedData,
+  DailyRecord,
+  TransferBreakdownEntry,
+} from './DailyRecord'
 export { getDailyTotalCost } from './DailyRecord'
 export type { TransferDetail, TransferDetails } from './TransferDetail'
-export type { StoreResult } from './StoreResult'
+export type {
+  StoreConfigData,
+  StoreAggregatedData,
+  StoreDerivedData,
+  StoreResult,
+} from './StoreResult'
 export type { BudgetData, InventoryConfig } from './BudgetData'
 export type { AppSettings, ViewType, DataType, StorageDataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'

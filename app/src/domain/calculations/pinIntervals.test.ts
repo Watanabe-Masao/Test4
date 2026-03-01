@@ -8,6 +8,7 @@ function makeDailyRecord(day: number, sales: number, purchaseCost: number): Dail
     sales,
     coreSales: sales,
     grossSales: sales,
+    totalCost: purchaseCost,
     purchase: { cost: purchaseCost, price: purchaseCost * 1.3 },
     deliverySales: { cost: 0, price: 0 },
     interStoreIn: { cost: 0, price: 0 },

@@ -25,6 +25,7 @@ export function makeDailyRecord(
     sales: overrides.sales,
     coreSales: overrides.sales,
     grossSales: overrides.sales,
+    totalCost: 0,
     purchase: ZERO,
     deliverySales: ZERO,
     interStoreIn: ZERO,

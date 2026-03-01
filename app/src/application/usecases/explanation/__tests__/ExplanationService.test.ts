@@ -320,6 +320,71 @@ describe('generateExplanations', () => {
     expect(expl.scope.year).toBe(2025)
     expect(expl.scope.month).toBe(1)
   })
+
+  it('deliverySalesCost の inputs に正しい値が設定される', () => {
+    const data = buildTestData({
+      classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
+      flowers: { '1': { 1: { price: 10000, cost: 8000, customers: 30 } } },
+      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+    })
+    const result = makeStoreResult(data)
+    const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
+
+    const expl = explanations.get('deliverySalesCost')!
+    // inputs は1つだけ: 売上納品原価の合計値
+    expect(expl.inputs).toHaveLength(1)
+    expect(expl.inputs[0].value).toBe(result.deliverySalesCost)
+  })
+
+  it('purchaseCost の breakdown 日別合計が totalCost と一致する', () => {
+    const data = buildTestData({
+      purchase: {
+        '1': {
+          1: {
+            suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } },
+            total: { cost: 30000, price: 40000 },
+          },
+          5: {
+            suppliers: { '002': { name: 'B', cost: 20000, price: 25000 } },
+            total: { cost: 20000, price: 25000 },
+          },
+        },
+      },
+      classifiedSales: {
+        records: [makeCSRecord(1, '1', 50000), makeCSRecord(5, '1', 40000)],
+      },
+      flowers: { '1': { 1: { price: 5000, cost: 3000, customers: 20 } } },
+    })
+    const result = makeStoreResult(data)
+    const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
+
+    const purchaseExpl = explanations.get('purchaseCost')!
+    expect(purchaseExpl.breakdown).toBeDefined()
+    const breakdownTotal = purchaseExpl.breakdown!.reduce((sum, b) => sum + b.value, 0)
+    expect(breakdownTotal).toBe(result.totalCost)
+  })
+
+  it('inventoryCost の breakdown 日別合計が inventoryCost と一致する', () => {
+    const data = buildTestData({
+      purchase: {
+        '1': {
+          1: {
+            suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } },
+            total: { cost: 30000, price: 40000 },
+          },
+        },
+      },
+      classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
+      flowers: { '1': { 1: { price: 5000, cost: 3000, customers: 20 } } },
+    })
+    const result = makeStoreResult(data)
+    const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
+
+    const invCostExpl = explanations.get('inventoryCost')!
+    expect(invCostExpl.breakdown).toBeDefined()
+    const breakdownTotal = invCostExpl.breakdown!.reduce((sum, b) => sum + b.value, 0)
+    expect(breakdownTotal).toBe(result.inventoryCost)
+  })
 })
 
 // ─── generateTextSummary ──────────────────────────────────

@@ -37,6 +37,7 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
     sales: existing.sales + rec.sales,
     coreSales: existing.coreSales + rec.coreSales,
     grossSales: existing.grossSales + rec.grossSales,
+    totalCost: existing.totalCost + rec.totalCost,
     purchase: addCostPricePairs(existing.purchase, rec.purchase),
     deliverySales: addCostPricePairs(existing.deliverySales, rec.deliverySales),
     interStoreIn: addCostPricePairs(existing.interStoreIn, rec.interStoreIn),

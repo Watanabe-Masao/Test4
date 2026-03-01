@@ -18,7 +18,6 @@ import {
   formatPercent,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { DailyRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { queryByDateRange } from '@/application/usecases'
 import type { PrevYearData } from '@/application/hooks'
@@ -427,7 +426,7 @@ export function DayDetailModal({
             <DetailSectionTitle>仕入・コスト内訳</DetailSectionTitle>
             {record ? (
               (() => {
-                const totalCost = getDailyTotalCost(record)
+                const totalCost = record.totalCost
                 const costItems: { label: string; cost: number; price: number }[] = [
                   {
                     label: '仕入（在庫）',

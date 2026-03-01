@@ -176,16 +176,14 @@ export async function queryStorePeriodMetrics(
           + r.inter_dept_in_cost + r.inter_dept_out_cost AS total_transfer_cost,
         r.inter_store_in_price + r.inter_store_out_price
           + r.inter_dept_in_price + r.inter_dept_out_price AS total_transfer_price,
-        -- 総仕入原価 = 仕入原価 + 花原価 + 産直原価 + 移動原価 + 消耗品
+        -- 総仕入原価 = 仕入原価 + 売上納品原価 + 移動原価（消耗品除く: JS getDailyTotalCost と一致）
         r.total_purchase_cost + r.total_flowers_cost + r.total_direct_produce_cost
           + r.inter_store_in_cost + r.inter_store_out_cost
-          + r.inter_dept_in_cost + r.inter_dept_out_cost
-          + r.total_consumable AS total_cost,
-        -- 在庫仕入原価（売上納品分除外）= 総仕入原価 - 花原価 - 産直原価
+          + r.inter_dept_in_cost + r.inter_dept_out_cost AS total_cost,
+        -- 在庫仕入原価（売上納品分除外）= 総仕入原価 - 花原価 - 産直原価（消耗品除く）
         r.total_purchase_cost
           + r.inter_store_in_cost + r.inter_store_out_cost
-          + r.inter_dept_in_cost + r.inter_dept_out_cost
-          + r.total_consumable AS inventory_cost,
+          + r.inter_dept_in_cost + r.inter_dept_out_cost AS inventory_cost,
         -- 全仕入売価（値入率算出用）
         r.total_purchase_price + r.total_flowers_price + r.total_direct_produce_price
           + r.inter_store_in_price + r.inter_store_out_price

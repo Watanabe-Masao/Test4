@@ -139,16 +139,15 @@ const testVectors: readonly TestVector[] = [
 // ── JS 計算の再現（SQL CTE と同一の計算パス）──
 
 function computeJsMetrics(v: TestVector) {
-  // costs CTE 相当
+  // costs CTE 相当（消耗品は totalCost/inventoryCost に含めない — JS getDailyTotalCost と一致）
   const deliverySalesPrice = v.totalFlowersPrice + v.totalDirectProducePrice
   const deliverySalesCost = v.totalFlowersCost + v.totalDirectProduceCost
   const totalCost =
     v.totalPurchaseCost +
     v.totalFlowersCost +
     v.totalDirectProduceCost +
-    v.totalTransferCost +
-    v.totalConsumable
-  const inventoryCost = v.totalPurchaseCost + v.totalTransferCost + v.totalConsumable
+    v.totalTransferCost
+  const inventoryCost = v.totalPurchaseCost + v.totalTransferCost
   const allPurchasePrice =
     v.totalPurchasePrice + v.totalFlowersPrice + v.totalDirectProducePrice + v.totalTransferPrice
   const allPurchaseCost =
@@ -246,19 +245,18 @@ describe('クロスバリデーション: SQL CTE と JS 計算の等価性', ()
         )
       })
 
-      it('総仕入原価 = 仕入原価 + 花原価 + 産直原価 + 移動原価 + 消耗品', () => {
+      it('総仕入原価 = 仕入原価 + 花原価 + 産直原価 + 移動原価（消耗品除く）', () => {
         expect(metrics.totalCost).toBe(
           vector.totalPurchaseCost +
             vector.totalFlowersCost +
             vector.totalDirectProduceCost +
-            vector.totalTransferCost +
-            vector.totalConsumable,
+            vector.totalTransferCost,
         )
       })
 
-      it('在庫仕入原価 = 仕入原価 + 移動原価 + 消耗品（花・産直除外）', () => {
+      it('在庫仕入原価 = 仕入原価 + 移動原価（花・産直・消耗品除外）', () => {
         expect(metrics.inventoryCost).toBe(
-          vector.totalPurchaseCost + vector.totalTransferCost + vector.totalConsumable,
+          vector.totalPurchaseCost + vector.totalTransferCost,
         )
       })
 
@@ -380,6 +378,107 @@ describe('クロスバリデーション: SQL CTE と JS 計算の等価性', ()
       })
     })
   }
+})
+
+describe('SQL/JS 計算パス構造的等価性: total_cost の構成要素が一致する', () => {
+  /**
+   * getDailyTotalCost (JS) と storePeriodMetrics SQL CTE の total_cost が
+   * 同一の構成要素を使用していることをソースコード解析で検証する。
+   *
+   * バグの経緯: SQL の total_cost に consumable が含まれていたが JS には含まれず、
+   * 在庫法 COGS が消耗品分だけ乖離するバグがあった。
+   * クロスバリデーションテストでは検出できなかった（JS 側も同じ誤りを転記していた）。
+   *
+   * この構造的テストはソースコードを直接読んで構成要素を比較するため、
+   * 転記ミスでは回避できない。
+   */
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const fs = require('fs')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const path = require('path')
+
+  const JS_COST_COMPONENTS = [
+    'purchase.cost',
+    'interStoreIn.cost',
+    'interStoreOut.cost',
+    'interDepartmentIn.cost',
+    'interDepartmentOut.cost',
+    'deliverySales.cost',
+  ] as const
+
+  const SQL_COST_COLUMN_MAP: Record<string, string> = {
+    'purchase.cost': 'total_purchase_cost',
+    'interStoreIn.cost': 'inter_store_in_cost',
+    'interStoreOut.cost': 'inter_store_out_cost',
+    'interDepartmentIn.cost': 'inter_dept_in_cost',
+    'interDepartmentOut.cost': 'inter_dept_out_cost',
+    'deliverySales.cost': 'total_flowers_cost.*total_direct_produce_cost',
+  }
+
+  it('JS getDailyTotalCost の構成要素が全て SQL total_cost に含まれる', () => {
+    const sqlPath = path.resolve(
+      __dirname,
+      '../../duckdb/queries/storePeriodMetrics.ts',
+    )
+    const sqlSource = fs.readFileSync(sqlPath, 'utf-8')
+
+    // SQL の total_cost 定義行を抽出
+    const totalCostMatch = sqlSource.match(
+      /--.*総仕入原価[\s\S]*?AS total_cost/,
+    )
+    expect(totalCostMatch).not.toBeNull()
+    const totalCostExpr = totalCostMatch![0]
+
+    for (const jsComponent of JS_COST_COMPONENTS) {
+      const sqlColumns = SQL_COST_COLUMN_MAP[jsComponent]
+      const sqlParts = sqlColumns.split('.*')
+      for (const sqlCol of sqlParts) {
+        expect(
+          totalCostExpr.includes(sqlCol),
+          `JS の ${jsComponent} に対応する SQL カラム '${sqlCol}' が total_cost 式に含まれていない`,
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('SQL total_cost に consumable が含まれていない（JS getDailyTotalCost と一致）', () => {
+    const sqlPath = path.resolve(
+      __dirname,
+      '../../duckdb/queries/storePeriodMetrics.ts',
+    )
+    const sqlSource = fs.readFileSync(sqlPath, 'utf-8')
+
+    const totalCostMatch = sqlSource.match(
+      /--.*総仕入原価[\s\S]*?AS total_cost/,
+    )
+    expect(totalCostMatch).not.toBeNull()
+    const totalCostExpr = totalCostMatch![0]
+
+    expect(
+      totalCostExpr.includes('consumable'),
+      'SQL total_cost に consumable が含まれている（JS getDailyTotalCost には含まれないため不一致）',
+    ).toBe(false)
+  })
+
+  it('JS getDailyTotalCost のソースに consumable が含まれていない', () => {
+    const jsPath = path.resolve(
+      __dirname,
+      '../../../domain/models/DailyRecord.ts',
+    )
+    const jsSource = fs.readFileSync(jsPath, 'utf-8')
+
+    // getDailyTotalCost 関数の本体を抽出
+    const funcMatch = jsSource.match(
+      /function getDailyTotalCost[\s\S]*?^}/m,
+    )
+    expect(funcMatch).not.toBeNull()
+    const funcBody = funcMatch![0]
+
+    expect(
+      funcBody.includes('consumable'),
+      'JS getDailyTotalCost に consumable が含まれている',
+    ).toBe(false)
+  })
 })
 
 describe('計算式の数学的不変条件', () => {
