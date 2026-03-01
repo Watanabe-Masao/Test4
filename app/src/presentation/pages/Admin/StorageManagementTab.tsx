@@ -1,8 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import type { StorageDataType } from '@/domain/models'
 import { useStorageAdmin } from '@/application/hooks'
+import { useStoragePersistence } from '@/application/hooks/useStoragePersistence'
+import { useBackup, type BackupMeta } from '@/application/hooks/useBackup'
+import { useDataRecovery } from '@/application/hooks/useDataRecovery'
+import { useRepository } from '@/application/context/useRepository'
+import { useDuckDB } from '@/application/hooks/useDuckDB'
+import { useDataStore } from '@/application/stores/dataStore'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import { transformCtsPreview, type PreviewRecord } from '@/application/hooks/useDataPreview'
 
 // ─── Styled Components ──────────────────────────────────
@@ -344,6 +351,121 @@ const GovernanceStatLabel = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
+// ─── Storage Persistence / Backup ─────────────────────
+
+const ProgressBarOuter = styled.div`
+  width: 100%;
+  height: 8px;
+  background: ${({ theme }) => theme.colors.bg4};
+  border-radius: ${({ theme }) => theme.radii.pill};
+  overflow: hidden;
+`
+
+const ProgressBarInner = styled.div<{ $ratio: number; $level: 'normal' | 'warning' | 'critical' }>`
+  height: 100%;
+  width: ${({ $ratio }) => `${Math.min($ratio * 100, 100)}%`};
+  background: ${({ $level, theme }) =>
+    $level === 'critical'
+      ? (theme.colors.palette.danger ?? palette.dangerDark)
+      : $level === 'warning'
+        ? (theme.colors.palette.warning ?? '#e6a700')
+        : (theme.colors.palette.primary ?? '#3b82f6')};
+  border-radius: ${({ theme }) => theme.radii.pill};
+  transition: width 0.3s;
+`
+
+const ActionButton = styled.button<{ $variant?: 'primary' | 'danger' | 'default' }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  border: 1px solid
+    ${({ $variant, theme }) =>
+      $variant === 'danger'
+        ? (theme.colors.palette.danger ?? palette.dangerDark)
+        : $variant === 'primary'
+          ? (theme.colors.palette.primary ?? '#3b82f6')
+          : theme.colors.border};
+  background: ${({ $variant, theme }) =>
+    $variant === 'primary'
+      ? (theme.colors.palette.primary ?? '#3b82f6')
+      : $variant === 'danger'
+        ? 'transparent'
+        : 'transparent'};
+  color: ${({ $variant, theme }) =>
+    $variant === 'primary'
+      ? '#fff'
+      : $variant === 'danger'
+        ? (theme.colors.palette.danger ?? palette.dangerDark)
+        : theme.colors.text2};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  border-radius: ${({ theme }) => theme.radii.md};
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover {
+    opacity: 0.85;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`
+
+const StatusRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const StatusLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+`
+
+const StatusValue = styled.span<{ $highlight?: boolean }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $highlight, theme }) =>
+    $highlight ? theme.colors.palette.primary : theme.colors.text};
+`
+
+const SubSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
+const FileInputLabel = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text2};
+  cursor: pointer;
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg3};
+  }
+`
+
+const ImportResultBox = styled.div<{ $hasErrors: boolean }>`
+  padding: ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  background: ${({ $hasErrors, theme }) =>
+    $hasErrors
+      ? `${theme.colors.palette.danger ?? palette.dangerDark}10`
+      : `${theme.colors.palette.success ?? '#22c55e'}10`};
+  border: 1px solid
+    ${({ $hasErrors, theme }) =>
+      $hasErrors
+        ? `${theme.colors.palette.danger ?? palette.dangerDark}30`
+        : `${theme.colors.palette.success ?? '#22c55e'}30`};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
 // ─── Delete Confirmation Enhancement ──────────────────
 
 const ConfirmDetail = styled.div`
@@ -617,6 +739,28 @@ function CTSViewer({
 
 export function StorageManagementTab() {
   const { listMonths, getDataSummary, deleteMonth, loadSlice } = useStorageAdmin()
+  const repo = useRepository()
+  const data = useDataStore((s) => s.data)
+  const settings = useSettingsStore((s) => s.settings)
+  const { conn, db } = useDuckDB(data, settings.targetYear, settings.targetMonth, repo)
+
+  // 永続化ストレージ
+  const {
+    status: storageStatus,
+    isLoading: storageLoading,
+    requestPersistence,
+  } = useStoragePersistence()
+
+  // バックアップ
+  const { isExporting, isImporting, exportBackup, importBackup, previewBackup } = useBackup(repo)
+  const [backupPreview, setBackupPreview] = useState<BackupMeta | null>(null)
+  const [backupFile, setBackupFile] = useState<File | null>(null)
+  const backupInputRef = useRef<HTMLInputElement>(null)
+
+  // データ復旧
+  const { rawFileGroups, canRebuild, isRebuilding, lastRebuildResult, rebuildDuckDB } =
+    useDataRecovery(conn, db, repo)
+
   const [months, setMonths] = useState<MonthEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
@@ -669,6 +813,27 @@ export function StorageManagementTab() {
     }
   }, [deleteTarget, loadData, deleteMonth])
 
+  const handleBackupFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      setBackupFile(file)
+      const meta = await previewBackup(file)
+      setBackupPreview(meta)
+      // reset input
+      if (backupInputRef.current) backupInputRef.current.value = ''
+    },
+    [previewBackup],
+  )
+
+  const handleBackupImport = useCallback(async () => {
+    if (!backupFile) return
+    await importBackup(backupFile)
+    setBackupFile(null)
+    setBackupPreview(null)
+    await loadData()
+  }, [backupFile, importBackup, loadData])
+
   if (loading) {
     return (
       <Section>
@@ -682,6 +847,155 @@ export function StorageManagementTab() {
 
   return (
     <>
+      {/* ─── ストレージ永続化 ──────────────────────────── */}
+      <Section>
+        <SectionTitle>ストレージ状態</SectionTitle>
+        <HelpText>
+          ブラウザのストレージ使用状況と永続化設定です。永続化すると、ブラウザがストレージを自動削除するリスクを低減できます。
+        </HelpText>
+        {storageLoading ? (
+          <LoadingText>読み込み中...</LoadingText>
+        ) : (
+          <SubSection>
+            <StatusRow>
+              <StatusLabel>使用量</StatusLabel>
+              <StatusValue>
+                {storageStatus.usageFormatted} / {storageStatus.quotaFormatted}
+              </StatusValue>
+            </StatusRow>
+            <ProgressBarOuter>
+              <ProgressBarInner
+                $ratio={storageStatus.usageRatio}
+                $level={storageStatus.pressureLevel}
+              />
+            </ProgressBarOuter>
+            <StatusRow>
+              <StatusLabel>永続化</StatusLabel>
+              <StatusValue $highlight={storageStatus.isPersisted}>
+                {storageStatus.isPersisted ? '有効' : '無効'}
+              </StatusValue>
+            </StatusRow>
+            <StatusRow>
+              <StatusLabel>OPFS</StatusLabel>
+              <StatusValue $highlight={storageStatus.isOpfsAvailable}>
+                {storageStatus.isOpfsAvailable ? '利用可能' : '利用不可'}
+              </StatusValue>
+            </StatusRow>
+            {storageStatus.pressureLevel !== 'normal' && (
+              <ImportResultBox $hasErrors>
+                {storageStatus.pressureLevel === 'critical'
+                  ? 'ストレージ容量が危険水準です。不要なデータを削除してください。'
+                  : 'ストレージ容量が警告水準に達しています。'}
+              </ImportResultBox>
+            )}
+            {!storageStatus.isPersisted && (
+              <ActionButton $variant="primary" onClick={requestPersistence}>
+                ストレージを永続化する
+              </ActionButton>
+            )}
+          </SubSection>
+        )}
+      </Section>
+
+      {/* ─── バックアップ ──────────────────────────────── */}
+      <Section>
+        <SectionTitle>バックアップ</SectionTitle>
+        <HelpText>全月データを JSON ファイルとしてダウンロード、または復元できます。</HelpText>
+        <SubSection>
+          <StatusRow>
+            <ActionButton $variant="primary" onClick={exportBackup} disabled={isExporting}>
+              {isExporting ? 'エクスポート中...' : 'バックアップをダウンロード'}
+            </ActionButton>
+            <FileInputLabel>
+              バックアップから復元
+              <input
+                ref={backupInputRef}
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={handleBackupFileSelect}
+              />
+            </FileInputLabel>
+          </StatusRow>
+          {backupPreview && (
+            <SubSection>
+              <ImportResultBox $hasErrors={false}>
+                <div>作成日時: {new Date(backupPreview.createdAt).toLocaleString('ja-JP')}</div>
+                <div>月数: {backupPreview.months.length} 月分</div>
+                <div>
+                  対象: {backupPreview.months.map((m) => `${m.year}年${m.month}月`).join(', ')}
+                </div>
+              </ImportResultBox>
+              <StatusRow>
+                <ActionButton
+                  $variant="primary"
+                  onClick={handleBackupImport}
+                  disabled={isImporting}
+                >
+                  {isImporting ? 'インポート中...' : 'このバックアップを復元する'}
+                </ActionButton>
+                <ActionButton
+                  onClick={() => {
+                    setBackupPreview(null)
+                    setBackupFile(null)
+                  }}
+                >
+                  キャンセル
+                </ActionButton>
+              </StatusRow>
+            </SubSection>
+          )}
+        </SubSection>
+      </Section>
+
+      {/* ─── DuckDB 復旧 ─────────────────────────────── */}
+      <Section>
+        <SectionTitle>DuckDB キャッシュ管理</SectionTitle>
+        <HelpText>
+          DuckDB のインメモリ/OPFS
+          キャッシュを再構築します。データの不整合が疑われる場合に使用してください。
+        </HelpText>
+        <SubSection>
+          <StatusRow>
+            <ActionButton
+              $variant="primary"
+              onClick={rebuildDuckDB}
+              disabled={!canRebuild || isRebuilding}
+            >
+              {isRebuilding ? '再構築中...' : 'DuckDB を再構築'}
+            </ActionButton>
+          </StatusRow>
+          {lastRebuildResult && (
+            <ImportResultBox $hasErrors={lastRebuildResult.skippedMonths.length > 0}>
+              <div>
+                再構築完了: {lastRebuildResult.monthCount} 月分（
+                {lastRebuildResult.durationMs.toFixed(0)}ms）
+              </div>
+              {lastRebuildResult.skippedMonths.length > 0 && (
+                <div>
+                  スキップ:{' '}
+                  {lastRebuildResult.skippedMonths.map((s) => `${s.year}-${s.month}`).join(', ')}
+                </div>
+              )}
+            </ImportResultBox>
+          )}
+          {rawFileGroups.length > 0 && (
+            <SubSection>
+              <StatusLabel>保存済み原本ファイル</StatusLabel>
+              {rawFileGroups.map((g) => (
+                <StatusRow key={`${g.year}-${g.month}`}>
+                  <StatusLabel>
+                    {g.year}年{g.month}月
+                  </StatusLabel>
+                  <StatusValue>{g.files.map((f) => f.dataType).join(', ')}</StatusValue>
+                </StatusRow>
+              ))}
+            </SubSection>
+          )}
+        </SubSection>
+      </Section>
+
+      {/* ─── 保存データ管理（既存） ──────────────────── */}
       <Section>
         <SectionTitle>保存データ管理</SectionTitle>
         <HelpText>

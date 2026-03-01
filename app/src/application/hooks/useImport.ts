@@ -31,6 +31,7 @@ import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import { buildStoreDaySummaryCache } from '@/application/usecases/calculation'
+import { rawFileStore } from '@/infrastructure/storage/rawFileStore'
 
 /** インポート進捗 */
 export interface ImportProgress {
@@ -176,6 +177,20 @@ export function useImport() {
               .filter((r): r is typeof r & { type: DataType } => r.ok && r.type !== null)
               .map((r) => r.type),
           )
+
+          // 原本ファイルを IndexedDB に保存（fire-and-forget）
+          const { targetYear: saveYear, targetMonth: saveMonth } = settingsRef.current
+          const fileArray = Array.from(files)
+          for (let i = 0; i < summary.results.length; i++) {
+            const result = summary.results[i]
+            if (result.ok && result.type && fileArray[i]) {
+              rawFileStore
+                .saveFile(saveYear, saveMonth, result.type, fileArray[i], result.filename)
+                .catch((e) => {
+                  console.warn('[useImport] rawFileStore.saveFile failed:', e)
+                })
+            }
+          }
 
           // 複数月にまたがるデータかチェック（パーティション情報も考慮）
           const recordMonths = extractRecordMonths(processedData, monthPartitions)

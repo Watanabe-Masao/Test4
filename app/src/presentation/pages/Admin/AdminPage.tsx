@@ -11,6 +11,7 @@ import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
 import { ImportHistoryTab } from './ImportHistoryTab'
 import { RawDataTab } from './RawDataTab'
+import { QueryProfilePanel } from '@/presentation/components/DevTools/QueryProfilePanel'
 import {
   Section,
   SectionTitle,
@@ -313,6 +314,7 @@ export function AdminPage() {
       {activeTab === 'rawdata' && <RawDataTab />}
       {activeTab === 'storage' && <StorageManagementTab />}
       {activeTab === 'prevyear' && <PrevYearMappingTab />}
+      <QueryProfilePanel />
     </Page>
   )
 }

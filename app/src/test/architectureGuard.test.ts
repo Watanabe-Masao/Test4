@@ -78,9 +78,12 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useMetricsQueries.ts',
   // DuckDB 統合 — 日別明細クエリフック
   'application/hooks/duckdb/useDailyRecordQueries.ts',
-  // DuckDB 統合 — 日別データアダプタ（DailyRecordRow → DailyRecord 変換）
-  'application/hooks/dailyRecordAdapter.ts',
-  // ファイルインポート（infrastructure のパーサーを使用）
+  // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ
+  'application/hooks/useStoragePersistence.ts',
+  'application/hooks/useDataRecovery.ts',
+  'application/hooks/useBackup.ts',
+  // ファイルインポート（infrastructure のパーサー + rawFileStore を使用）
+  'application/hooks/useImport.ts',
   'application/usecases/import/FileImportService.ts',
   'application/workers/fileParseWorker.ts',
   'application/workers/useFileParseWorker.ts',

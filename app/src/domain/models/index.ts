@@ -89,11 +89,3 @@ export type {
   StoreExplanations,
 } from './Explanation'
 export type { StoreMetrics } from './StoreMetrics'
-export type {
-  DomainEvent,
-  DomainEventType,
-  DatasetImportedEvent,
-  SettingsUpdatedEvent,
-  DataClearedEvent,
-  DatabaseRebuiltEvent,
-} from './DomainEvent'
