@@ -8,7 +8,10 @@ export {
   formatPointDiff,
   calculateTransactionValue,
   calculateMovingAverage,
+  computeAverageDivisor,
+  computeActiveDowDivisorMap,
 } from './utils'
+export type { AverageMode, AveragingContext } from './utils'
 
 // 在庫法
 export { calculateInvMethod } from './invMethod'

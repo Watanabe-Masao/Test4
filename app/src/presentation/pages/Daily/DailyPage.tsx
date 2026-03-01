@@ -214,6 +214,8 @@ export function DailyPage() {
         <DailySalesChart
           daily={currentResult.daily}
           daysInMonth={daysInMonth}
+          year={settings.targetYear}
+          month={settings.targetMonth}
           prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
           mode={chartMode}
         />

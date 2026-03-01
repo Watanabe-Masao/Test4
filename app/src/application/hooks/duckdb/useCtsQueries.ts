@@ -208,6 +208,7 @@ export function useDuckDBCategoryDailyTrend(
   level: 'department' | 'line' | 'klass',
   hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
   topN?: number,
+  dow?: readonly number[],
 ): AsyncQueryResult<readonly CategoryDailyTrendRow[]> {
   const queryFn = useMemo(() => {
     if (!dateRange) return null
@@ -222,6 +223,7 @@ export function useDuckDBCategoryDailyTrend(
         klassCode: hierarchy?.klassCode,
         level,
         topN,
+        dow,
       })
   }, [
     dateRange,
@@ -231,6 +233,7 @@ export function useDuckDBCategoryDailyTrend(
     hierarchy?.lineCode,
     hierarchy?.klassCode,
     topN,
+    dow,
   ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
