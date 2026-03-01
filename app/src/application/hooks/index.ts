@@ -53,3 +53,17 @@ export {
 export { useStoreMetrics } from './useStoreMetrics'
 export type { StoreMetricsResult } from './useStoreMetrics'
 export { toDailyRecordMap, toPrevYearDailyMap, toBudgetChartData } from './dailyRecordAdapter'
+export {
+  resolveTimeSeriesSource,
+  resolveYoYSource,
+  resolveDuckDBOnlySource,
+  buildSourceContext,
+  useSourceContext,
+  useStaleFreshCache,
+} from './useAnalyticsResolver'
+export type {
+  AnalyticsSource,
+  SourceContext,
+  ResolvedSource,
+  CachedResult,
+} from './useAnalyticsResolver'

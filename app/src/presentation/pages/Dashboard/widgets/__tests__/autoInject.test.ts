@@ -155,47 +155,51 @@ describe('autoInjectDataWidgets', () => {
     }
   })
 
-  it('DuckDB 準備完了時に DuckDB ウィジェットが注入される', () => {
+  it('DuckDB 準備完了時に DuckDB 専用ウィジェットが注入される', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).toContain('analysis-duckdb-features')
     expect(result!).toContain('analysis-duckdb-cumulative')
-    expect(result!).toContain('duckdb-timeslot')
-    expect(result!).toContain('duckdb-heatmap')
+    // 統合ウィジェットも DuckDB 準備完了で注入される
+    expect(result!).toContain('chart-timeslot-sales')
+    expect(result!).toContain('chart-timeslot-heatmap')
   })
 
-  it('DuckDB: ctsRecordCount が 0 でも DuckDB ウィジェットは注入される', () => {
+  it('DuckDB: ctsRecordCount が 0 でも DuckDB/統合ウィジェットは注入される', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    const duckWidgets = result!.filter(
-      (id) => id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-'),
-    )
-    expect(duckWidgets.length).toBeGreaterThanOrEqual(8)
+    // DuckDB 専用 + 統合ウィジェット合わせて十分な数が注入される
+    const injectedCount = result!.length - 1 // kpi-core-sales を除く
+    expect(injectedCount).toBeGreaterThanOrEqual(8)
   })
 
-  it('DuckDB: 前年データがないと analysis-duckdb-yoy は注入されない', () => {
+  it('DuckDB: 前年データがないと前年比較は注入されない', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    expect(result!).not.toContain('analysis-duckdb-yoy')
+    expect(result!).not.toContain('analysis-yoy-variance')
   })
 
-  it('DuckDB: 前年データがあると analysis-duckdb-yoy が注入される', () => {
+  it('DuckDB: 前年データがあると前年比較が注入される', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_PREV)
     expect(result).not.toBeNull()
-    expect(result!).toContain('analysis-duckdb-yoy')
+    // 統合 YoY ウィジェット（analysis-yoy-variance）として注入
+    expect(result!).toContain('analysis-yoy-variance')
   })
 
   it('DuckDB: 店舗が1つの場合は店舗比較系が注入されない', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    expect(result!).not.toContain('duckdb-store-hourly')
+    // 統合店舗比較 + DuckDB 専用店舗ベンチマーク ともに非注入
+    expect(result!).not.toContain('chart-store-timeslot-comparison')
     expect(result!).not.toContain('duckdb-store-benchmark')
   })
 
   it('DuckDB: 複数店舗の場合は店舗比較系が注入される', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_MULTI_STORE)
     expect(result).not.toBeNull()
-    expect(result!).toContain('duckdb-store-hourly')
+    // 統合店舗比較ウィジェット
+    expect(result!).toContain('chart-store-timeslot-comparison')
+    // DuckDB 専用店舗ベンチマーク
     expect(result!).toContain('duckdb-store-benchmark')
   })
 })

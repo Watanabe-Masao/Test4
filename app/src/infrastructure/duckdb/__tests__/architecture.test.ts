@@ -126,15 +126,11 @@ describe('DuckDB クエリフックの責務分割', () => {
 describe('ウィジェットレジストリの DuckDB エントリ', () => {
   const registryContent = readFile('presentation/pages/Dashboard/widgets/registry.tsx')
 
-  const expectedWidgetIds = [
+  // DuckDB 専用ウィジェット（レジストリに直接登録）
+  const duckdbOnlyWidgetIds = [
     'analysis-duckdb-features',
     'analysis-duckdb-cumulative',
-    'analysis-duckdb-yoy',
     'analysis-duckdb-dept-trend',
-    'duckdb-timeslot',
-    'duckdb-heatmap',
-    'duckdb-dept-hourly',
-    'duckdb-store-hourly',
     'duckdb-dow-pattern',
     'duckdb-hourly-profile',
     'duckdb-category-trend',
@@ -143,16 +139,40 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
     'duckdb-store-benchmark',
   ]
 
-  for (const widgetId of expectedWidgetIds) {
-    it(`ウィジェット '${widgetId}' が登録されている`, () => {
+  // 統合ウィジェット（DuckDB/CTS 自動切替）
+  const unifiedWidgetIds = [
+    'chart-timeslot-sales',
+    'chart-timeslot-heatmap',
+    'chart-dept-hourly-pattern',
+    'chart-store-timeslot-comparison',
+    'analysis-yoy-variance',
+  ]
+
+  for (const widgetId of duckdbOnlyWidgetIds) {
+    it(`DuckDB専用ウィジェット '${widgetId}' が登録されている`, () => {
       expect(registryContent).toContain(`'${widgetId}'`)
     })
   }
 
-  it('DuckDB ウィジェットに isVisible ガードがある', () => {
-    // duckDataVersion > 0 の条件が含まれていること
+  for (const widgetId of unifiedWidgetIds) {
+    it(`統合ウィジェット '${widgetId}' が登録されている`, () => {
+      expect(registryContent).toContain(`'${widgetId}'`)
+    })
+  }
+
+  it('DuckDB 専用ウィジェットに isVisible ガードがある', () => {
+    // duckDataVersion > 0 の条件が DuckDB 専用ウィジェットに含まれていること
     const duckVisibilityCount = (registryContent.match(/duckDataVersion > 0/g) ?? []).length
-    expect(duckVisibilityCount).toBeGreaterThanOrEqual(10)
+    // 9 DuckDB専用エントリのうち少なくとも 5 個は直接ガード（残りは isVisible 関数経由）
+    expect(duckVisibilityCount).toBeGreaterThanOrEqual(5)
+  })
+
+  it('統合ウィジェットが UnifiedAnalyticsWidgets を使用している', () => {
+    expect(registryContent).toContain('UnifiedTimeSlotWidget')
+    expect(registryContent).toContain('UnifiedHeatmapWidget')
+    expect(registryContent).toContain('UnifiedDeptHourlyWidget')
+    expect(registryContent).toContain('UnifiedStoreHourlyWidget')
+    expect(registryContent).toContain('UnifiedYoYWidget')
   })
 })
 

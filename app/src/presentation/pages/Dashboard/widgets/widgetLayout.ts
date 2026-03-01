@@ -38,13 +38,40 @@ export const DEFAULT_WIDGET_IDS: string[] = [
 
 const STORAGE_KEY = 'dashboard_layout_v12'
 
+/**
+ * 旧 DuckDB 専用ウィジェット ID → 統合ウィジェット ID へのマイグレーションマップ。
+ * ユーザーの保存済みレイアウトに旧 ID が含まれている場合、自動的に統合 ID に変換する。
+ */
+const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
+  ['duckdb-timeslot', 'chart-timeslot-sales'],
+  ['duckdb-heatmap', 'chart-timeslot-heatmap'],
+  ['duckdb-dept-hourly', 'chart-dept-hourly-pattern'],
+  ['duckdb-store-hourly', 'chart-store-timeslot-comparison'],
+  ['analysis-duckdb-yoy', 'analysis-yoy-variance'],
+])
+
+/** 旧 ID を統合 ID に変換し、重複を除去する */
+function migrateWidgetIds(ids: string[]): string[] {
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const id of ids) {
+    const migrated = WIDGET_ID_MIGRATION.get(id) ?? id
+    if (!seen.has(migrated)) {
+      seen.add(migrated)
+      result.push(migrated)
+    }
+  }
+  return result
+}
+
 export function loadLayout(): string[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_WIDGET_IDS
     const parsed = JSON.parse(raw) as string[]
     if (!Array.isArray(parsed)) return DEFAULT_WIDGET_IDS
-    const valid = parsed.filter((id) => WIDGET_MAP.has(id))
+    const migrated = migrateWidgetIds(parsed)
+    const valid = migrated.filter((id) => WIDGET_MAP.has(id))
     return valid.length > 0 ? valid : DEFAULT_WIDGET_IDS
   } catch {
     return DEFAULT_WIDGET_IDS
@@ -91,10 +118,20 @@ function saveAutoInjectedIds(ids: Set<string>): void {
  *
  * @returns 更新後の widgetIds（変更なしなら null）
  */
-/** DuckDB ウィジェットIDかどうか判定する */
-function isDuckDBWidget(id: string): boolean {
+/** DuckDB 専用ウィジェットIDかどうか判定する（統合済みは除外） */
+function isDuckDBOnlyWidget(id: string): boolean {
+  // 統合済み ID はここには含まれない（chart-*, analysis-yoy-variance は統合ウィジェット）
   return id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-')
 }
+
+/** 統合ウィジェット（DuckDB/CTS 自動切替）のID */
+const UNIFIED_WIDGET_IDS = new Set([
+  'chart-timeslot-sales',
+  'chart-timeslot-heatmap',
+  'chart-dept-hourly-pattern',
+  'chart-store-timeslot-comparison',
+  'analysis-yoy-variance',
+])
 
 export function autoInjectDataWidgets(
   currentIds: string[],
@@ -107,29 +144,33 @@ export function autoInjectDataWidgets(
   },
 ): string[] | null {
   const seen = getAutoInjectedIds()
+  // 旧 DuckDB ID も注入済みとして扱う（重複注入防止）
+  for (const [oldId, newId] of WIDGET_ID_MIGRATION) {
+    if (seen.has(oldId)) seen.add(newId)
+  }
   const candidates = WIDGET_REGISTRY.filter((w) => {
     if (!w.isVisible) return false
     // 既にレイアウトにある or 過去に注入済み → スキップ
     if (currentIds.includes(w.id) || seen.has(w.id)) return false
-    // DuckDB ウィジェット: DuckDB 初期化完了を待って注入
-    if (isDuckDBWidget(w.id)) {
+    // DuckDB 専用ウィジェット: DuckDB 初期化完了を待って注入
+    if (isDuckDBOnlyWidget(w.id)) {
       if (!ctx.isDuckDBReady) return false
       // 店舗比較系は複数店舗が必要
-      if (w.id === 'duckdb-store-hourly' || w.id === 'duckdb-store-benchmark') {
+      if (w.id === 'duckdb-store-benchmark') {
         return ctx.storeCount > 1
-      }
-      // 前年比較は前年データが必要
-      if (w.id === 'analysis-duckdb-yoy') {
-        return ctx.prevYearHasPrevYear
       }
       return true
     }
-    // 従来ウィジェットの既存ロジック
-    if (w.id === 'analysis-yoy-waterfall' || w.id === 'analysis-yoy-variance') {
-      return ctx.prevYearHasPrevYear
+    // 統合ウィジェット: DuckDB または CTS のどちらかが利用可能なら注入候補
+    if (UNIFIED_WIDGET_IDS.has(w.id)) {
+      const hasData = ctx.isDuckDBReady || ctx.ctsRecordCount > 0
+      if (w.id === 'chart-store-timeslot-comparison') return hasData && ctx.storeCount > 1
+      if (w.id === 'analysis-yoy-variance') return ctx.prevYearHasPrevYear
+      return hasData
     }
-    if (w.id === 'chart-store-timeslot-comparison') {
-      return ctx.ctsRecordCount > 0 && ctx.storeCount > 1
+    // 従来ウィジェットの既存ロジック
+    if (w.id === 'analysis-yoy-waterfall') {
+      return ctx.prevYearHasPrevYear
     }
     if (w.id === 'chart-discount-breakdown') {
       return ctx.hasDiscountData === true

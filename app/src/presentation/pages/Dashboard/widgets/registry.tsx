@@ -6,15 +6,10 @@ import {
   BudgetVsActualChart,
   CategoryPieChart,
   GrossProfitAmountChart,
-  TimeSlotSalesChart,
-  TimeSlotHeatmapChart,
-  DeptHourlyPatternChart,
-  StoreTimeSlotComparisonChart,
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
   DiscountTrendChart,
   RevenueStructureChart,
-  YoYVarianceChart,
   CustomerScatterChart,
   MultiKpiSparklines,
   PerformanceIndexChart,
@@ -27,14 +22,9 @@ import {
   SeasonalBenchmarkChart,
   DuckDBFeatureChart,
   DuckDBCumulativeChart,
-  DuckDBYoYChart,
   DuckDBDeptTrendChart,
   DuckDBDowPatternChart,
   DuckDBHourlyProfileChart,
-  DuckDBTimeSlotChart,
-  DuckDBHeatmapChart,
-  DuckDBDeptHourlyChart,
-  DuckDBStoreHourlyChart,
   DuckDBCategoryTrendChart,
   DuckDBCategoryHourlyChart,
   DuckDBCategoryMixChart,
@@ -59,6 +49,16 @@ import {
   renderStoreKpiTable,
 } from './TableWidgets'
 import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
+import {
+  UnifiedTimeSlotWidget,
+  UnifiedHeatmapWidget,
+  UnifiedDeptHourlyWidget,
+  UnifiedStoreHourlyWidget,
+  UnifiedYoYWidget,
+  isTimeSeriesVisible,
+  isStoreComparisonVisible,
+  isYoYVisible,
+} from './UnifiedAnalyticsWidgets'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   // ── KPI: 収益構造 ──
@@ -317,26 +317,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯別売上',
     group: '時間帯・カテゴリ',
     size: 'full',
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      daysInMonth,
-      year,
-      month,
-      dataMaxDay,
-    }) => (
-      <TimeSlotSalesChart
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        dataMaxDay={dataMaxDay}
-      />
-    ),
+    isVisible: isTimeSeriesVisible,
+    render: (ctx) => <UnifiedTimeSlotWidget ctx={ctx} />,
   },
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
@@ -345,69 +327,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '時間帯×曜日ヒートマップ',
     group: '時間帯・カテゴリ',
     size: 'full',
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      year,
-      month,
-      daysInMonth,
-      dataMaxDay,
-    }) => (
-      <TimeSlotHeatmapChart
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        year={year}
-        month={month}
-        daysInMonth={daysInMonth}
-        dataMaxDay={dataMaxDay}
-      />
-    ),
+    isVisible: isTimeSeriesVisible,
+    render: (ctx) => <UnifiedHeatmapWidget ctx={ctx} />,
   },
   {
     id: 'chart-dept-hourly-pattern',
     label: '部門別時間帯パターン',
     group: '時間帯・カテゴリ',
     size: 'full',
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      daysInMonth,
-      year,
-      month,
-      dataMaxDay,
-    }) => (
-      <DeptHourlyPatternChart
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        dataMaxDay={dataMaxDay}
-      />
-    ),
+    isVisible: isTimeSeriesVisible,
+    render: (ctx) => <UnifiedDeptHourlyWidget ctx={ctx} />,
   },
   {
     id: 'chart-store-timeslot-comparison',
     label: '店舗別時間帯比較',
     group: '時間帯・カテゴリ',
     size: 'full',
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0 && ctx.stores.size > 1,
-    render: ({ ctsIndex, stores, daysInMonth, year, month, dataMaxDay }) => (
-      <StoreTimeSlotComparisonChart
-        ctsIndex={ctsIndex}
-        stores={stores}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        dataMaxDay={dataMaxDay}
-      />
-    ),
+    isVisible: isStoreComparisonVisible,
+    render: (ctx) => <UnifiedStoreHourlyWidget ctx={ctx} />,
   },
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 概要・ステータス ──
@@ -555,10 +492,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年差異分析',
     group: '統計・トレンド',
     size: 'full',
-    isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
-    render: ({ result: r, daysInMonth, prevYear }) => (
-      <YoYVarianceChart daily={r.daily} daysInMonth={daysInMonth} prevYearDaily={prevYear.daily} />
-    ),
+    isVisible: isYoYVisible,
+    render: (ctx) => <UnifiedYoYWidget ctx={ctx} />,
   },
   {
     id: 'analysis-customer-scatter',
@@ -723,29 +658,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'analysis-duckdb-yoy',
-    label: '前年比較（DuckDB）',
-    group: '統計・トレンド',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.prevYearDateRange != null,
-    render: (ctx) => (
-      <DuckDBYoYChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
-        prevYearDateRange={
-          ctx.prevYearDateRange
-            ? {
-                from: { ...ctx.duckDateRange.from, year: ctx.duckDateRange.from.year - 1 },
-                to: { ...ctx.duckDateRange.to, year: ctx.duckDateRange.to.year - 1 },
-              }
-            : undefined
-        }
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
+  // 注: analysis-duckdb-yoy → analysis-yoy-variance に統合（データソース自動解決）
   {
     id: 'analysis-duckdb-dept-trend',
     label: '部門別KPIトレンド（DuckDB）',
@@ -762,68 +675,10 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
-  // ── DuckDB Phase 2: グループA — 既存ウィジェット DuckDB 移行版 ──
-  {
-    id: 'duckdb-timeslot',
-    label: '時間帯別売上（DuckDB）',
-    group: '統計・トレンド',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
-    render: (ctx) => (
-      <DuckDBTimeSlotChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
-  {
-    id: 'duckdb-heatmap',
-    label: '時間帯×曜日ヒートマップ（DuckDB）',
-    group: '統計・トレンド',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
-    render: (ctx) => (
-      <DuckDBHeatmapChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
-  {
-    id: 'duckdb-dept-hourly',
-    label: '部門別時間帯パターン（DuckDB）',
-    group: '統計・トレンド',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
-    render: (ctx) => (
-      <DuckDBDeptHourlyChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
-  {
-    id: 'duckdb-store-hourly',
-    label: '店舗×時間帯比較（DuckDB）',
-    group: '統計・トレンド',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.stores.size > 1,
-    render: (ctx) => (
-      <DuckDBStoreHourlyChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-        stores={ctx.stores}
-      />
-    ),
-  },
+  // 注: duckdb-timeslot → chart-timeslot-sales に統合（データソース自動解決）
+  // 注: duckdb-heatmap → chart-timeslot-heatmap に統合
+  // 注: duckdb-dept-hourly → chart-dept-hourly-pattern に統合
+  // 注: duckdb-store-hourly → chart-store-timeslot-comparison に統合
   // ── DuckDB Phase 2: グループB — 新規分析ウィジェット ──
   {
     id: 'duckdb-dow-pattern',
