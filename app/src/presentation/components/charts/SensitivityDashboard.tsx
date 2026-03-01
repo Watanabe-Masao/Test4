@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -6,11 +6,11 @@ import { palette } from '@/presentation/theme/tokens'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import {
-  calculateSensitivity,
-  calculateElasticity,
-  extractSensitivityBase,
-} from '@/domain/calculations/sensitivity'
-import type { SensitivityDeltas } from '@/domain/calculations/sensitivity'
+  useSensitivityBase,
+  useSensitivityAnalysis,
+  useElasticity,
+} from '@/application/hooks/useSensitivity'
+import type { SensitivityDeltas } from '@/application/hooks/useSensitivity'
 import type { StoreResult } from '@/domain/models'
 
 const Wrapper = styled.div`
@@ -211,9 +211,9 @@ export function SensitivityDashboard({ result }: Props) {
     costRateDelta: 0,
   })
 
-  const base = useMemo(() => extractSensitivityBase(result), [result])
-  const sensitivity = useMemo(() => calculateSensitivity(base, deltas), [base, deltas])
-  const elasticity = useMemo(() => calculateElasticity(base), [base])
+  const base = useSensitivityBase(result)
+  const sensitivity = useSensitivityAnalysis(base, deltas)
+  const elasticity = useElasticity(base)
 
   const handleSliderChange = useCallback((key: keyof SensitivityDeltas, value: number) => {
     setDeltas((prev) => ({ ...prev, [key]: value }))

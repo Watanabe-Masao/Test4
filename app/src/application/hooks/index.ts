@@ -58,6 +58,68 @@ export { useBackup } from './useBackup'
 export type { BackupMeta, BackupImportResult } from './useBackup'
 export { useDeptKpiView } from './useDeptKpiView'
 export type { DepartmentKpiIndex } from './useDeptKpiView'
+// ── 計算ファサードフック ────────────────────────────────
+export {
+  useDecompose2,
+  useDecompose3,
+  useDecompose5,
+  useDecomposePriceMix,
+  decompose2,
+  decompose3,
+  decompose5,
+  decomposePriceMix,
+} from './useFactorDecomposition'
+export type {
+  TwoFactorResult,
+  ThreeFactorResult,
+  FiveFactorResult,
+  CategoryQtyAmt,
+  PriceMixResult,
+} from './useFactorDecomposition'
+export { useForecast, useWeekRanges, calculateForecast, getWeekRanges } from './useForecast'
+export type { ForecastInput, ForecastResult, WeeklySummary, DayOfWeekAverage } from './useForecast'
+export {
+  useEstimatedInventory,
+  useEstimatedInventoryDetails,
+  computeEstimatedInventory,
+  computeEstimatedInventoryDetails,
+} from './useInventoryEstimation'
+export type { InventoryPoint, InventoryDetailRow } from './useInventoryEstimation'
+export { useAlerts, DEFAULT_ALERT_RULES, evaluateAlerts } from './useAlerts'
+export type { Alert, AlertSeverity, AlertRule } from './useAlerts'
+export {
+  pearsonCorrelation,
+  normalizeMinMax,
+  detectDivergence,
+  cosineSimilarity,
+  movingAverage,
+  analyzeTrend,
+  linearRegression,
+  calculateWMA,
+  calculateMonthEndProjection,
+  calculateStdDev,
+} from './useStatistics'
+export type {
+  CorrelationResult,
+  NormalizedSeries,
+  DivergencePoint,
+  MonthlyDataPoint,
+  TrendAnalysisResult,
+  LinearRegressionResult,
+  WMAEntry,
+  MonthEndProjection,
+} from './useStatistics'
+export { useSensitivityBase, useSensitivityAnalysis, useElasticity } from './useSensitivity'
+export type {
+  SensitivityBase,
+  SensitivityDeltas,
+  SensitivityResult,
+  ElasticityResult,
+} from './useSensitivity'
+export { useCausalChain, storeResultToCausalPrev } from './useCausalChain'
+export type { CausalStep, CausalChainPrevInput, CausalFactor, ColorHint } from './useCausalChain'
+export { usePinIntervals, calculatePinIntervals } from './usePinIntervals'
+export type { PinInterval } from './usePinIntervals'
 export {
   resolveTimeSeriesSource,
   resolveYoYSource,

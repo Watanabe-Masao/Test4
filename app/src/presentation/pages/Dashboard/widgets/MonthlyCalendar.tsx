@@ -8,7 +8,7 @@ import {
   safeDivide,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'
+import { calculatePinIntervals } from '@/application/hooks/usePinIntervals'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'

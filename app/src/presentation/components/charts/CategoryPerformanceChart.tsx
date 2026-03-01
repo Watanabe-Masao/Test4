@@ -22,7 +22,7 @@ import {
   countDistinctDays,
   computeDivisor,
 } from '@/application/usecases/categoryTimeSales'
-import { calculateStdDev } from '@/domain/calculations/forecast'
+import { calculateStdDev } from '@/application/hooks/useStatistics'
 
 const Wrapper = styled.div`
   width: 100%;

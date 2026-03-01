@@ -37,7 +37,7 @@ import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
 import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
 import { computeDivisor, countDistinctDays } from './periodFilterUtils'
 import { queryByDateRange } from '@/application/usecases'
-import { cosineSimilarity } from '@/domain/calculations/correlation'
+import { cosineSimilarity } from '@/application/hooks/useStatistics'
 
 const Wrapper = styled.div`
   width: 100%;

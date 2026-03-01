@@ -24,7 +24,7 @@ import {
   calculateTransactionValue,
   calculateMovingAverage,
 } from '@/domain/calculations/utils'
-import { calculateStdDev } from '@/domain/calculations/forecast'
+import { calculateStdDev } from '@/application/hooks/useStatistics'
 
 const Wrapper = styled.div`
   width: 100%;

@@ -20,7 +20,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
 import { formatCurrency } from '@/domain/calculations/utils'
-import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models'

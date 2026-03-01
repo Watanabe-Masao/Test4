@@ -12,7 +12,7 @@ import {
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
 } from '@/domain/calculations/utils'
-import { calculateForecast } from '@/domain/calculations/forecast'
+import { calculateForecast } from '@/application/hooks/useForecast'
 import {
   DOW_LABELS,
   DEFAULT_DOW_COLORS,

@@ -13,7 +13,7 @@ import {
 } from './chartTheme'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
-import { computeEstimatedInventory } from '@/domain/calculations/inventoryCalc'
+import { computeEstimatedInventory } from '@/application/hooks/useInventoryEstimation'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 

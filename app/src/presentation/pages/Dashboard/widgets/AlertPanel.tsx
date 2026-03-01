@@ -7,9 +7,9 @@
 import { useCallback, useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
-import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/alertSystem'
+import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/useAlerts'
 import { formatPercent } from '@/domain/calculations/utils'
-import type { Alert, AlertSeverity } from '@/domain/calculations/alertSystem'
+import type { Alert, AlertSeverity } from '@/application/hooks/useAlerts'
 import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
 

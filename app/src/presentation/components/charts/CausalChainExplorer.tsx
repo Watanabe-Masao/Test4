@@ -1,11 +1,11 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import type { StoreResult } from '@/domain/models'
 import {
-  buildCausalSteps,
+  useCausalChain,
   type CausalChainPrevInput,
   type ColorHint,
-} from '@/domain/calculations/causalChain'
+} from '@/application/hooks/useCausalChain'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { useCrossChartSelection } from './crossChartSelectionHooks'
@@ -182,7 +182,7 @@ export function CausalChainExplorer({ result, prevYearData }: Props) {
   const [activeStep, setActiveStep] = useState(0)
   const { requestDrillThrough } = useCrossChartSelection()
 
-  const steps = useMemo(() => buildCausalSteps(result, prevYearData), [result, prevYearData])
+  const steps = useCausalChain(result, prevYearData)
 
   const handleStepDrill = useCallback(
     (stepTitle: string) => {

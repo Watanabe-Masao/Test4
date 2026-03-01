@@ -10,7 +10,7 @@ import {
   formatPercent,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import { getWeekRanges } from '@/domain/calculations/forecast'
+import { getWeekRanges } from '@/application/hooks/useForecast'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
 

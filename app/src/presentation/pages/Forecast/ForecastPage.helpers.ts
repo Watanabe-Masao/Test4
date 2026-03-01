@@ -1,6 +1,6 @@
-import type { ForecastInput, WeeklySummary } from '@/domain/calculations/forecast'
+import type { ForecastInput, WeeklySummary } from '@/application/hooks/useForecast'
 import { calculateTransactionValue, safeDivide } from '@/domain/calculations'
-import { decompose2 } from '@/domain/calculations/factorDecomposition'
+import { decompose2 } from '@/application/hooks/useFactorDecomposition'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 
