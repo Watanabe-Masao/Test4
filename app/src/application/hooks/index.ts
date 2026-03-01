@@ -43,4 +43,13 @@ export {
   useDuckDBCategoryHourly,
   useDuckDBCategoryMixWeekly,
   useDuckDBStoreBenchmark,
+  useDuckDBStorePeriodMetrics,
+  useDuckDBDailyCumulativeBudget,
+  useDuckDBBudgetAnalysisSummary,
+  useDuckDBDailyRecords,
+  useDuckDBPrevYearDailyRecords,
+  useDuckDBAggregatedDailyRecords,
 } from './useDuckDBQuery'
+export { useStoreMetrics } from './useStoreMetrics'
+export type { StoreMetricsResult } from './useStoreMetrics'
+export { toDailyRecordMap, toPrevYearDailyMap, toBudgetChartData } from './dailyRecordAdapter'

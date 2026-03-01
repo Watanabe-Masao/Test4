@@ -23,3 +23,6 @@ export {
   CalculationCache,
 } from './calculationCache'
 export { murmurhash3, hashData } from '@/application/services/hash'
+
+// Event bus
+export { eventBus } from './eventBus'

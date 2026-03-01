@@ -58,3 +58,23 @@ export type { DailyFeatureRow, HourlyProfileRow, DowPatternRow } from './useFeat
 // 高度分析
 export { useDuckDBCategoryMixWeekly, useDuckDBStoreBenchmark } from './useAdvancedQueries'
 export type { CategoryMixWeeklyRow, StoreBenchmarkRow } from './useAdvancedQueries'
+
+// 店舗期間メトリクス + 予算分析
+export {
+  useDuckDBStorePeriodMetrics,
+  useDuckDBDailyCumulativeBudget,
+  useDuckDBBudgetAnalysisSummary,
+} from './useMetricsQueries'
+export type {
+  StorePeriodMetricsRow,
+  DailyCumulativeBudgetRow,
+  BudgetAnalysisSummaryRow,
+} from './useMetricsQueries'
+
+// 日別明細
+export {
+  useDuckDBDailyRecords,
+  useDuckDBPrevYearDailyRecords,
+  useDuckDBAggregatedDailyRecords,
+} from './useDailyRecordQueries'
+export type { DailyRecordRow } from './useDailyRecordQueries'

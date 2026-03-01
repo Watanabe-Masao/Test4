@@ -17,6 +17,8 @@ import type {
   TransferData,
   ConsumableData,
   DepartmentKpiRecord,
+  BudgetData,
+  InventoryConfig,
 } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models'
 import { ALL_TABLE_DDLS, STORE_DAY_SUMMARY_VIEW_DDL, TABLE_NAMES } from './schemas'
@@ -47,6 +49,23 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
 
   // CREATE VIEW
   await conn.query(STORE_DAY_SUMMARY_VIEW_DDL)
+}
+
+/**
+ * 指定年月のデータを全テーブルから削除する。
+ * 増分ロード時に使用: deleteMonth → loadMonth で特定月のみ差し替え。
+ */
+/** app_settings は year/month を持たないため deleteMonth 対象外 */
+const TABLES_WITH_YEAR_MONTH = TABLE_NAMES.filter((n) => n !== 'app_settings')
+
+export async function deleteMonth(
+  conn: AsyncDuckDBConnection,
+  year: number,
+  month: number,
+): Promise<void> {
+  for (const name of TABLES_WITH_YEAR_MONTH) {
+    await conn.query(`DELETE FROM ${name} WHERE year = ${year} AND month = ${month}`)
+  }
 }
 
 /**
@@ -133,6 +152,15 @@ export async function loadMonth(
       year,
       month,
     )
+
+    // budget
+    rowCounts.budget = await insertBudget(conn, db, data.budget, year, month)
+
+    // inventory_config
+    rowCounts.inventory_config = await insertInventoryConfig(conn, db, data.settings, year, month)
+
+    // app_settings は loadMonth ではなく loadAppSettings() で別途投入
+    rowCounts.app_settings = 0
   } catch (err) {
     // INSERT失敗時はテーブルをリセットして部分データの残存を防ぐ
     console.error(`DuckDB loadMonth failed for ${year}-${month}:`, err)
@@ -266,6 +294,22 @@ const TABLE_COLUMNS: Record<string, Record<string, string>> = {
     closing_inventory: 'DOUBLE',
     gp_rate_landing: 'DOUBLE',
     sales_landing: 'DOUBLE',
+  },
+  budget: {
+    year: 'INTEGER',
+    month: 'INTEGER',
+    store_id: 'VARCHAR',
+    day: 'INTEGER',
+    date_key: 'VARCHAR',
+    amount: 'DOUBLE',
+  },
+  inventory_config: {
+    year: 'INTEGER',
+    month: 'INTEGER',
+    store_id: 'VARCHAR',
+    opening_inventory: 'DOUBLE',
+    closing_inventory: 'DOUBLE',
+    gross_profit_budget: 'DOUBLE',
   },
 }
 
@@ -580,4 +624,79 @@ async function insertDepartmentKpi(
   }))
 
   return bulkInsert(conn, db, 'department_kpi', rows)
+}
+
+/**
+ * アプリ設定を app_settings テーブルに投入する。
+ * INSERT OR REPLACE で冪等に動作する。
+ */
+export async function loadAppSettings(
+  conn: AsyncDuckDBConnection,
+  settings: {
+    readonly defaultMarkupRate: number
+    readonly defaultBudget: number
+    readonly targetGrossProfitRate: number
+    readonly warningThreshold: number
+  },
+): Promise<void> {
+  await conn.query('DELETE FROM app_settings')
+  const entries = [
+    { key: 'defaultMarkupRate', value: settings.defaultMarkupRate },
+    { key: 'defaultBudget', value: settings.defaultBudget },
+    { key: 'targetGrossProfitRate', value: settings.targetGrossProfitRate },
+    { key: 'warningThreshold', value: settings.warningThreshold },
+  ]
+  for (const { key, value } of entries) {
+    await conn.query(`INSERT INTO app_settings VALUES ('${key}', ${value})`)
+  }
+}
+
+/** BudgetData Map → budget テーブル */
+async function insertBudget(
+  conn: AsyncDuckDBConnection,
+  db: AsyncDuckDB,
+  budgetMap: ReadonlyMap<string, BudgetData>,
+  year: number,
+  month: number,
+): Promise<number> {
+  const rows: Record<string, unknown>[] = []
+
+  for (const [storeId, budgetData] of budgetMap) {
+    for (const [day, amount] of budgetData.daily) {
+      rows.push({
+        year,
+        month,
+        store_id: storeId,
+        day,
+        date_key: toDateKeyFromParts(year, month, day),
+        amount,
+      })
+    }
+  }
+
+  return bulkInsert(conn, db, 'budget', rows)
+}
+
+/** InventoryConfig Map → inventory_config テーブル */
+async function insertInventoryConfig(
+  conn: AsyncDuckDBConnection,
+  db: AsyncDuckDB,
+  configMap: ReadonlyMap<string, InventoryConfig>,
+  year: number,
+  month: number,
+): Promise<number> {
+  const rows: Record<string, unknown>[] = []
+
+  for (const [storeId, config] of configMap) {
+    rows.push({
+      year,
+      month,
+      store_id: storeId,
+      opening_inventory: config.openingInventory,
+      closing_inventory: config.closingInventory,
+      gross_profit_budget: config.grossProfitBudget ?? 0,
+    })
+  }
+
+  return bulkInsert(conn, db, 'inventory_config', rows)
 }

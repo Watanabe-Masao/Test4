@@ -8,6 +8,17 @@
  * dataLoader が year/month を外部付与してINSERTする。
  */
 
+/** スキーマバージョン（マイグレーション時にインクリメント） */
+export const SCHEMA_VERSION = 2
+
+/** スキーマメタテーブル DDL */
+export const SCHEMA_META_DDL = `
+CREATE TABLE IF NOT EXISTS schema_meta (
+  version    INTEGER NOT NULL,
+  created_at VARCHAR NOT NULL,
+  updated_at VARCHAR NOT NULL
+)`
+
 export const TABLE_NAMES = [
   'classified_sales',
   'category_time_sales',
@@ -17,6 +28,9 @@ export const TABLE_NAMES = [
   'transfers',
   'consumables',
   'department_kpi',
+  'budget',
+  'inventory_config',
+  'app_settings',
 ] as const
 
 export type TableName = (typeof TABLE_NAMES)[number]
@@ -164,6 +178,39 @@ CREATE TABLE IF NOT EXISTS department_kpi (
   sales_landing     DOUBLE
 )`
 
+// ── budget ──
+// ソース: BudgetData（日別予算）
+export const BUDGET_DDL = `
+CREATE TABLE IF NOT EXISTS budget (
+  year     INTEGER NOT NULL,
+  month    INTEGER NOT NULL,
+  store_id VARCHAR NOT NULL,
+  day      INTEGER NOT NULL,
+  date_key VARCHAR NOT NULL,
+  amount   DOUBLE NOT NULL
+)`
+
+// ── inventory_config ──
+// ソース: InventoryConfig（期首/期末在庫 + 粗利予算）
+export const INVENTORY_CONFIG_DDL = `
+CREATE TABLE IF NOT EXISTS inventory_config (
+  year                INTEGER NOT NULL,
+  month               INTEGER NOT NULL,
+  store_id            VARCHAR NOT NULL,
+  opening_inventory   DOUBLE,
+  closing_inventory   DOUBLE,
+  gross_profit_budget DOUBLE DEFAULT 0
+)`
+
+// ── app_settings ──
+// アプリケーション設定（defaultMarkupRate, defaultBudget 等）
+// SQL 計算 VIEW が参照する
+export const APP_SETTINGS_DDL = `
+CREATE TABLE IF NOT EXISTS app_settings (
+  key   VARCHAR PRIMARY KEY,
+  value DOUBLE NOT NULL
+)`
+
 /** 全テーブルの DDL 配列 */
 export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: string }[] = [
   { name: 'classified_sales', ddl: CLASSIFIED_SALES_DDL },
@@ -174,6 +221,9 @@ export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: 
   { name: 'transfers', ddl: TRANSFERS_DDL },
   { name: 'consumables', ddl: CONSUMABLES_DDL },
   { name: 'department_kpi', ddl: DEPARTMENT_KPI_DDL },
+  { name: 'budget', ddl: BUDGET_DDL },
+  { name: 'inventory_config', ddl: INVENTORY_CONFIG_DDL },
+  { name: 'app_settings', ddl: APP_SETTINGS_DDL },
 ]
 
 // ── VIEW: store_day_summary ──

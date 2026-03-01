@@ -8,6 +8,12 @@
  * repo を渡すと IndexedDB に保存された過去月データも自動でロードする。
  * 全月のデータが同一テーブルに格納されるため、月跨ぎクエリが可能になる。
  *
+ * 競合条件対策:
+ * useAutoLoadPrevYear が prevYear データを設定すると data が変化し loadData が
+ * 再生成される。先行の loadData がまだ実行中の場合、世代番号（loadSeqRef）で
+ * 古い呼び出しを無効化し、最新データのみがロードされることを保証する。
+ * これにより二重 INSERT（データ重複）を防ぐ。
+ *
  * 使い方:
  * ```
  * const repo = useRepository()
@@ -86,6 +92,12 @@ export function useDuckDB(
 
   const lastFingerprint = useRef<string>('')
   const isMounted = useRef(true)
+
+  // 世代番号: loadData 呼び出しごとにインクリメントし、
+  // 古い呼び出しは各 await 後にチェックして早期 return する。
+  // これにより useAutoLoadPrevYear の data 変更で再トリガーされた新しい loadData が
+  // 古い loadData の部分的 INSERT と競合しない。
+  const loadSeqRef = useRef(0)
 
   // マウント追跡
   useEffect(() => {
@@ -179,28 +191,36 @@ export function useDuckDB(
     const fingerprint = computeFingerprint(data, year, month, storedMonthsKey)
     if (fingerprint === lastFingerprint.current) return
 
+    // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
+    const seq = ++loadSeqRef.current
+
     setIsLoading(true)
     setError(null)
 
     try {
       await resetTables(conn)
+      if (loadSeqRef.current !== seq || !isMounted.current) return
 
       // 1. 当月のインメモリデータをロード
       await loadMonth(conn, db, data, year, month)
+      if (loadSeqRef.current !== seq || !isMounted.current) return
+
       let monthCount = 1
 
       // 2. IndexedDB から過去月データを追記ロード
       if (repo) {
         const storedMonths = await repo.listStoredMonths()
         for (const { year: y, month: m } of storedMonths) {
-          if (!isMounted.current) return
+          if (loadSeqRef.current !== seq || !isMounted.current) return
           // 当月はインメモリデータで既にロード済み — スキップ
           if (y === year && m === month) continue
 
           try {
             const historicalData = await repo.loadMonthlyData(y, m)
+            if (loadSeqRef.current !== seq || !isMounted.current) return
             if (historicalData) {
               await loadMonth(conn, db, historicalData, y, m)
+              if (loadSeqRef.current !== seq || !isMounted.current) return
               monthCount += 1
             }
           } catch {
@@ -210,17 +230,17 @@ export function useDuckDB(
         }
       }
 
-      if (isMounted.current) {
+      if (isMounted.current && loadSeqRef.current === seq) {
         lastFingerprint.current = fingerprint
         setLoadedMonthCount(monthCount)
         setDataVersion((v) => v + 1)
       }
     } catch (err) {
-      if (isMounted.current) {
+      if (isMounted.current && loadSeqRef.current === seq) {
         setError(err instanceof Error ? err.message : String(err))
       }
     } finally {
-      if (isMounted.current) {
+      if (isMounted.current && loadSeqRef.current === seq) {
         setIsLoading(false)
       }
     }
