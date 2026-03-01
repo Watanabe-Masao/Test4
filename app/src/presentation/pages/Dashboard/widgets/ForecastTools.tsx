@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -156,6 +156,26 @@ const ResetButton = styled.button`
   }
 `
 
+const ValidationBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.08)'};
+  border: 1px solid ${sc.negative};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${sc.negative};
+`
+
+const SubLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  margin-left: ${({ theme }) => theme.spacing[1]};
+`
+
 // ─── Editable Slider Value ───────────────────────────────
 
 interface EditableValueProps {
@@ -259,12 +279,26 @@ function EditablePercentValue({
 
 // ─── Component ──────────────────────────────────────────
 
-export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
+export const ForecastToolsWidget = memo(function ForecastToolsWidget({
+  ctx,
+}: {
+  ctx: WidgetContext
+}) {
   const r = ctx.result
+  const prevYear = ctx.prevYear
 
   const actualSales = r.totalSales
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
   const actualGPRate = getEffectiveGrossProfitRate(r)
+
+  // 残予算（売上）
+  const remainingBudget = r.remainingBudget
+  const hasBudget = r.budget > 0
+  const hasRemainingBudget = remainingBudget > 0
+
+  // 前年データ
+  const hasPrevYear = prevYear.hasPrevYear && prevYear.totalSales > 0
+  const prevYearTotalSales = prevYear.totalSales
 
   // デフォルト値（自動計算）
   const defaultSalesLanding = Math.round(r.projectedSales)
@@ -283,7 +317,7 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const remainGPRateDecimal = remainGPRate / 100
   const targetGPRateDecimal = targetGPRate / 100
 
-  // Tool 1: Landing Forecast
+  // ─── Tool 1: 着地見込みシミュレーション ──────────────
   const tool1Valid = salesLanding > 0 && remainGPRateDecimal > 0
   const remainingSales1 = salesLanding - actualSales
   const remainingGP1 = remainingSales1 * remainGPRateDecimal
@@ -293,7 +327,14 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const salesDiff = salesLanding - defaultSalesLanding
   const gpRateDiff = remainGPRateDecimal - defaultRemainGPRate
 
-  // Tool 2: Goal Seek
+  // Tool 1 新規: 残予算対比（残期間売上が残予算の何%か）
+  const tool1RemainingBudgetRate = hasRemainingBudget ? remainingSales1 / remainingBudget : 0
+  // Tool 1 新規: 売上着地予算達成率
+  const tool1BudgetAchievement = hasBudget ? salesLanding / r.budget : 0
+  // Tool 1 新規: 前年比
+  const tool1YoyRate = hasPrevYear ? salesLanding / prevYearTotalSales : 0
+
+  // ─── Tool 2: ゴールシーク ────────────────────────────
   const defaultTargetMonthlySales = Math.round(r.projectedSales)
   const goalSalesMin = Math.round(actualSales)
   const goalSalesMax = Math.round(defaultTargetMonthlySales * 1.5)
@@ -305,26 +346,43 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
   const targetTotalGP2 = targetGPRateDecimal * targetTotalSales2
   const requiredRemainingGP2 = targetTotalGP2 - actualGP
   const remainingSales2 = targetTotalSales2 - actualSales
-  const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
+  const requiredRemainingGPRate2 =
+    remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
   const goalDiff = targetGPRateDecimal - defaultTargetGPRate
   const goalSalesDiff = targetMonthlySales - defaultTargetMonthlySales
 
-  // Tool 2 追加指標: 売上予算系
+  // Tool 2 売上予算系
   const salesBudget = r.budget
   const projectedTotalSales2 = r.projectedSales
   const projectedSalesAchievement = salesBudget > 0 ? projectedTotalSales2 / salesBudget : 0
   const targetSalesAchievement = salesBudget > 0 ? targetTotalSales2 / salesBudget : 0
 
-  // Tool 2 追加指標: 粗利予算系
+  // Tool 2 粗利予算系
   const gpBudget = r.grossProfitBudget
-  const projectedTotalGP2 = actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
+  const projectedTotalGP2 =
+    actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
   const projectedGPAchievement = gpBudget > 0 ? projectedTotalGP2 / gpBudget : 0
   const targetGPAchievement = gpBudget > 0 ? targetTotalGP2 / gpBudget : 0
 
+  // Tool 2 新規: 残予算対比（残期間売上目標が残予算の何%か）
+  const tool2RemainingBudgetRate = hasRemainingBudget ? remainingSales2 / remainingBudget : 0
+  // Tool 2 新規: 前年比
+  const tool2YoyRate = hasPrevYear ? targetTotalSales2 / prevYearTotalSales : 0
+
   return (
     <ForecastToolsGrid>
+      {/* ═══ Tool 1: 着地見込みシミュレーション ═══ */}
       <ToolCard $accent={palette.primary}>
         <ToolCardTitle>着地見込みシミュレーション</ToolCardTitle>
+
+        {/* バリデーション: 残予算がない場合 */}
+        {hasBudget && !hasRemainingBudget && (
+          <ValidationBanner>
+            残予算がありません（予算 {formatCurrency(r.budget)} に対し実績{' '}
+            {formatCurrency(actualSales)}）。シミュレーション結果は参考値です。
+          </ValidationBanner>
+        )}
+
         <ToolInputGroup>
           <PinInputLabel>
             売上着地見込み
@@ -436,7 +494,12 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
               <ToolResultValue>{formatCurrency(actualSales)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
-              <ToolResultLabel>残期間売上</ToolResultLabel>
+              <ToolResultLabel>
+                残期間売上
+                {hasRemainingBudget && (
+                  <SubLabel>残予算比 {formatPercent(tool1RemainingBudgetRate)}</SubLabel>
+                )}
+              </ToolResultLabel>
               <ToolResultValue>{formatCurrency(remainingSales1)}</ToolResultValue>
             </ExecRow>
             <ExecRow>
@@ -454,6 +517,37 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 {formatCurrency(salesLanding)}
               </ToolResultValue>
             </ExecRow>
+
+            {/* 新規: 予算達成率 */}
+            {hasBudget && (
+              <ExecRow>
+                <ToolResultLabel style={{ fontWeight: 700 }}>予算達成率</ToolResultLabel>
+                <ToolResultValue
+                  style={{ fontWeight: 700 }}
+                  $color={sc.cond(tool1BudgetAchievement >= 1)}
+                >
+                  {formatPercent(tool1BudgetAchievement)}
+                </ToolResultValue>
+              </ExecRow>
+            )}
+
+            {/* 新規: 前年比 */}
+            {hasPrevYear && (
+              <ExecRow>
+                <ToolResultLabel style={{ fontWeight: 700 }}>前年比</ToolResultLabel>
+                <ToolResultValue
+                  style={{ fontWeight: 700 }}
+                  $color={sc.cond(tool1YoyRate >= 1)}
+                >
+                  {formatPercent(tool1YoyRate)}
+                  <SubLabel>
+                    (前年 {formatCurrency(prevYearTotalSales)})
+                  </SubLabel>
+                </ToolResultValue>
+              </ExecRow>
+            )}
+
+            <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel>最終粗利額着地</ToolResultLabel>
               <ToolResultValue $color={sc.positive}>{formatCurrency(totalGP1)}</ToolResultValue>
@@ -474,8 +568,17 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
         )}
       </ToolCard>
 
+      {/* ═══ Tool 2: ゴールシーク ═══ */}
       <ToolCard $accent={palette.warningDark}>
         <ToolCardTitle>ゴールシーク（必要粗利率逆算）</ToolCardTitle>
+
+        {/* バリデーション: 残予算がない場合 */}
+        {hasBudget && !hasRemainingBudget && (
+          <ValidationBanner>
+            残予算がありません。目標値の現実性を判断できないため、残予算対比は表示されません。
+          </ValidationBanner>
+        )}
+
         <ToolInputGroup>
           <PinInputLabel>
             目標着地月間売上
@@ -606,6 +709,18 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
                 {formatPercent(targetSalesAchievement)}
               </ToolResultValue>
             </ExecRow>
+
+            {/* 新規: 前年比 */}
+            {hasPrevYear && (
+              <ExecRow>
+                <ToolResultLabel>前年比</ToolResultLabel>
+                <ToolResultValue $color={sc.cond(tool2YoyRate >= 1)}>
+                  {formatPercent(tool2YoyRate)}
+                  <SubLabel>(前年 {formatCurrency(prevYearTotalSales)})</SubLabel>
+                </ToolResultValue>
+              </ExecRow>
+            )}
+
             <ExecDividerLine />
             <ExecRow>
               <ToolResultLabel style={{ fontWeight: 700 }}>月間粗利額予算</ToolResultLabel>
@@ -643,6 +758,15 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
               <ToolResultLabel style={{ fontWeight: 700 }}>残期間売上目標</ToolResultLabel>
               <ToolResultValue style={{ fontWeight: 700 }}>
                 {formatCurrency(remainingSales2)}
+                {/* 新規: 残予算達成率 */}
+                {hasRemainingBudget && (
+                  <SubLabel>
+                    残予算比{' '}
+                    <span style={{ color: sc.cond(tool2RemainingBudgetRate <= 1) }}>
+                      {formatPercent(tool2RemainingBudgetRate)}
+                    </span>
+                  </SubLabel>
+                )}
               </ToolResultValue>
             </ExecRow>
             <ExecRow>
@@ -668,4 +792,4 @@ export function ForecastToolsWidget({ ctx }: { ctx: WidgetContext }) {
       </ToolCard>
     </ForecastToolsGrid>
   )
-}
+})
