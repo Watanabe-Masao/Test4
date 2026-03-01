@@ -4,7 +4,7 @@
  * 状態管理（ビュー切替・ウォーターフォール・日範囲）と
  * データフック呼び出しを担い、描画は DailySalesChartBody に委譲する。
  */
-import { useState, memo } from 'react'
+import { useState, useCallback, memo } from 'react'
 import {
   Wrapper,
   HeaderRow,
@@ -16,6 +16,7 @@ import {
 } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DayRangeSlider } from './DayRangeSlider'
+import { DowPresetSelector } from './DowPresetSelector'
 import { useDayRange } from './useDayRange'
 import { useDailySalesData } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
@@ -26,6 +27,8 @@ export type DailyChartMode = 'sales' | 'discount' | 'all'
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
+  year: number
+  month: number
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
   mode?: DailyChartMode
 }
@@ -80,6 +83,8 @@ const WF_VIEWS: ViewType[] = ['standard', 'salesOnly', 'discountOnly', 'customer
 export const DailySalesChart = memo(function DailySalesChart({
   daily,
   daysInMonth,
+  year,
+  month,
   prevYearDaily,
   mode = 'all',
 }: Props) {
@@ -88,6 +93,8 @@ export const DailySalesChart = memo(function DailySalesChart({
   const [showSalesMa, setShowSalesMa] = useState(false)
   const [waterfall, setWaterfall] = useState(false)
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const [selectedDows, setSelectedDows] = useState<number[]>([])
+  const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
   const isWf = waterfall && WF_VIEWS.includes(view)
   const { data, hasPrev } = useDailySalesData(
@@ -97,6 +104,9 @@ export const DailySalesChart = memo(function DailySalesChart({
     isWf,
     rangeStart,
     rangeEnd,
+    year,
+    month,
+    selectedDows,
   )
 
   const needRightAxis =
@@ -154,6 +164,9 @@ export const DailySalesChart = memo(function DailySalesChart({
           )}
         </ViewToggle>
       </HeaderRow>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+      </div>
       <DailySalesChartBody
         data={data}
         view={view}

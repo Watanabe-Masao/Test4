@@ -65,27 +65,29 @@ export async function queryYoyDailyComparison(
       SELECT
         date_key,
         store_id,
+        month,
+        day,
         SUM(sales) AS sales,
-        SUM(customers) AS customers,
-        ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY date_key) AS rn
+        SUM(customers) AS customers
       FROM store_day_summary
       WHERE is_prev_year = FALSE
         AND date_key BETWEEN '${curDateFrom}' AND '${curDateTo}'
         ${storeAndClause}
-      GROUP BY date_key, store_id
+      GROUP BY date_key, store_id, month, day
     ),
     prev_data AS (
       SELECT
         date_key,
         store_id,
+        month,
+        day,
         SUM(sales) AS sales,
-        SUM(customers) AS customers,
-        ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY date_key) AS rn
+        SUM(customers) AS customers
       FROM store_day_summary
       WHERE is_prev_year = TRUE
         AND date_key BETWEEN '${prevDateFrom}' AND '${prevDateTo}'
         ${storeAndClause}
-      GROUP BY date_key, store_id
+      GROUP BY date_key, store_id, month, day
     )
     SELECT
       c.date_key AS cur_date_key,
@@ -98,7 +100,7 @@ export async function queryYoyDailyComparison(
       p.customers AS prev_customers
     FROM current_data c
     FULL OUTER JOIN prev_data p
-      ON c.store_id = p.store_id AND c.rn = p.rn
+      ON c.store_id = p.store_id AND c.month = p.month AND c.day = p.day
     ORDER BY COALESCE(c.store_id, p.store_id), COALESCE(c.date_key, p.date_key)`
   return queryToObjects<YoyDailyRow>(conn, sql)
 }

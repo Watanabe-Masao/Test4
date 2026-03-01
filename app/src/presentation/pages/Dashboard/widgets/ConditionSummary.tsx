@@ -6,9 +6,11 @@ import {
   formatCurrency,
   safeDivide,
   getEffectiveGrossProfitRate,
+  formatPointDiff,
 } from '@/domain/calculations/utils'
 import type { MetricId, StoreResult } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -114,7 +116,7 @@ const EvidenceChip = styled.button`
   }
 `
 
-// ─── Store Breakdown Overlay ────────────────────────────
+// ─── Overlay & Detail Panel ─────────────────────────────
 
 const Overlay = styled.div`
   position: fixed;
@@ -126,25 +128,103 @@ const Overlay = styled.div`
   background: rgba(0, 0, 0, 0.4);
 `
 
-const BreakdownPanel = styled.div`
+const DetailPanel = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
-  min-width: 320px;
-  max-width: 480px;
+  min-width: 400px;
+  max-width: 720px;
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 `
 
-const BreakdownTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
+const DetailHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
+const DetailTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const ToggleGroup = styled.div`
+  display: inline-flex;
+  border-radius: ${({ theme }) => theme.radii.md};
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`
+
+const ToggleBtn = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  transition: all 0.15s;
+  &:hover {
+    background: ${({ $active, theme }) =>
+      $active ? theme.colors.palette.primary : theme.colors.bg4};
+  }
+`
+
+const BTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+`
+
+const BTh = styled.th`
+  text-align: right;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+  &:first-child {
+    text-align: left;
+  }
+`
+
+const BTd = styled.td<{ $color?: string; $bold?: boolean }>`
+  text-align: right;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+  ${({ $bold }) => $bold && 'font-weight: 700;'}
+  &:first-child {
+    text-align: left;
+    font-family: inherit;
+  }
+`
+
+const BTr = styled.tr<{ $highlight?: boolean }>`
+  ${({ $highlight }) =>
+    $highlight &&
+    `
+    font-weight: 700;
+    border-top-width: 2px;
+  `}
+`
+
+const BSignalDot = styled.span<{ $color: string }>`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  margin-right: ${({ theme }) => theme.spacing[2]};
+`
+
+// Simple breakdown (existing pattern)
 const BreakdownRow = styled.div<{ $bold?: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -193,13 +273,42 @@ const CloseBtn = styled.button`
 
 // ─── Signal Logic ───────────────────────────────────────
 
-type SignalLevel = 'green' | 'yellow' | 'red'
+type SignalLevel = 'blue' | 'yellow' | 'red' | 'warning'
 
 const SIGNAL_COLORS: Record<SignalLevel, string> = {
-  green: palette.positive,
+  blue: palette.positive,
   yellow: palette.caution,
   red: palette.negative,
+  warning: palette.dangerDark,
 }
+
+interface GpThresholds {
+  readonly blue: number
+  readonly yellow: number
+  readonly red: number
+}
+
+interface DiscountThresholds {
+  readonly blue: number
+  readonly yellow: number
+  readonly red: number
+}
+
+function gpDiffSignal(diffPt: number, t: GpThresholds): SignalLevel {
+  if (diffPt >= t.blue) return 'blue'
+  if (diffPt >= t.yellow) return 'yellow'
+  if (diffPt >= t.red) return 'red'
+  return 'warning'
+}
+
+function discountRateSignal(rate: number, t: DiscountThresholds): SignalLevel {
+  if (rate <= t.blue) return 'blue'
+  if (rate <= t.yellow) return 'yellow'
+  if (rate <= t.red) return 'red'
+  return 'warning'
+}
+
+// ─── Condition Item Types ──────────────────────────────
 
 interface ConditionItem {
   label: string
@@ -207,28 +316,38 @@ interface ConditionItem {
   sub?: string
   signal: SignalLevel
   metricId?: MetricId
-  /** 店舗内訳を計算する関数（store breakdown用） */
   storeValue?: (sr: StoreResult) => { value: string; signal: SignalLevel }
+  detailBreakdown?: 'gpRate' | 'discountRate'
 }
 
-// ─── Store breakdown value extractors ───────────────────
+type DisplayMode = 'rate' | 'amount'
 
-function gpRateBreakdown(
-  sr: StoreResult,
-  targetRate: number,
-  warningRate: number,
-): { value: string; signal: SignalLevel } {
-  const rate = getEffectiveGrossProfitRate(sr)
-  return {
-    value: formatPercent(rate),
-    signal: rate >= targetRate ? 'green' : rate >= warningRate ? 'yellow' : 'red',
-  }
+// ─── Helper: Compute GP after consumables ──────────────
+
+function computeGpAfterConsumable(sr: StoreResult): number {
+  return sr.invMethodGrossProfitRate != null
+    ? safeDivide(sr.invMethodGrossProfit! - sr.totalConsumable, sr.totalSales, 0)
+    : sr.estMethodMarginRate
 }
+
+function computeGpBeforeConsumable(sr: StoreResult): number {
+  return getEffectiveGrossProfitRate(sr)
+}
+
+function computeGpAmount(sr: StoreResult): number {
+  return sr.invMethodGrossProfit ?? sr.estMethodMargin
+}
+
+function computeGpAfterConsumableAmount(sr: StoreResult): number {
+  return computeGpAmount(sr) - sr.totalConsumable
+}
+
+// ─── Store breakdown extractors (simple) ───────────────
 
 function budgetProgressBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
     value: formatPercent(sr.budgetProgressRate),
-    signal: sr.budgetProgressRate >= 1 ? 'green' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+    signal: sr.budgetProgressRate >= 1 ? 'blue' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
   }
 }
 
@@ -236,28 +355,21 @@ function projectedAchievementBreakdown(sr: StoreResult): { value: string; signal
   return {
     value: formatPercent(sr.projectedAchievement),
     signal:
-      sr.projectedAchievement >= 1 ? 'green' : sr.projectedAchievement >= 0.95 ? 'yellow' : 'red',
-  }
-}
-
-function discountRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  return {
-    value: formatPercent(sr.discountRate),
-    signal: sr.discountRate <= 0.03 ? 'green' : sr.discountRate <= 0.05 ? 'yellow' : 'red',
+      sr.projectedAchievement >= 1 ? 'blue' : sr.projectedAchievement >= 0.95 ? 'yellow' : 'red',
   }
 }
 
 function consumableRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
     value: formatPercent(sr.consumableRate),
-    signal: sr.consumableRate <= 0.02 ? 'green' : sr.consumableRate <= 0.03 ? 'yellow' : 'red',
+    signal: sr.consumableRate <= 0.02 ? 'blue' : sr.consumableRate <= 0.03 ? 'yellow' : 'red',
   }
 }
 
 function customersBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
     value: `${sr.totalCustomers.toLocaleString()}人`,
-    signal: 'green',
+    signal: 'blue',
   }
 }
 
@@ -265,7 +377,7 @@ function txValueBreakdown(sr: StoreResult): { value: string; signal: SignalLevel
   const tx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
   return {
     value: `${tx.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`,
-    signal: 'green',
+    signal: 'blue',
   }
 }
 
@@ -277,14 +389,29 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   ctx: WidgetContext
 }) {
   const r = ctx.result
-  const { targetRate, warningRate, onExplain, allStoreResults, stores } = ctx
+  const { onExplain, allStoreResults, stores } = ctx
+  const settings = useSettingsStore((s) => s.settings)
+
   const [breakdownItem, setBreakdownItem] = useState<ConditionItem | null>(null)
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
 
   const hasMultipleStores = allStoreResults.size > 1
 
+  const gpThresholds: GpThresholds = {
+    blue: settings.gpDiffBlueThreshold,
+    yellow: settings.gpDiffYellowThreshold,
+    red: settings.gpDiffRedThreshold,
+  }
+
+  const discountThresholds: DiscountThresholds = {
+    blue: settings.discountBlueThreshold,
+    yellow: settings.discountYellowThreshold,
+    red: settings.discountRedThreshold,
+  }
+
   const handleCardClick = useCallback(
     (item: ConditionItem) => {
-      if (hasMultipleStores && item.storeValue) {
+      if (hasMultipleStores && (item.storeValue || item.detailBreakdown)) {
         setBreakdownItem(item)
       }
     },
@@ -299,109 +426,62 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     [onExplain],
   )
 
-  const gpRate = getEffectiveGrossProfitRate(r)
-  const gpAfterConsumable =
-    r.invMethodGrossProfitRate != null
-      ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
-      : r.estMethodMarginRate
-  const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
+  // GP calculations
+  const gpBefore = computeGpBeforeConsumable(r)
+  const gpAfter = computeGpAfterConsumable(r)
+  const gpDiff = (gpAfter - r.grossProfitRateBudget) * 100 // pt
 
   const items: ConditionItem[] = [
-    // 1. Gross Profit Rate
+    // 1. Gross Profit Rate (統合: 原算前 + 原算後)
     {
       label: '粗利率',
-      value: formatPercent(gpRate),
-      sub: `目標 ${formatPercent(targetRate)} / 原価率 ${formatPercent(costRate)} / 売変率 ${formatPercent(r.discountRate)} / 消耗品率 ${formatPercent(r.consumableRate)}`,
-      signal: gpRate >= targetRate ? 'green' : gpRate >= warningRate ? 'yellow' : 'red',
+      value: formatPercent(gpAfter),
+      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 消耗品率 ${formatPercent(r.consumableRate)} / 差異 ${formatPointDiff(gpAfter - r.grossProfitRateBudget)}`,
+      signal: gpDiffSignal(gpDiff, gpThresholds),
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
-      storeValue: (sr) => gpRateBreakdown(sr, targetRate, warningRate),
+      detailBreakdown: 'gpRate',
     },
-    // 2. GP Rate after consumables
-    {
-      label: '原算後粗利率',
-      value: formatPercent(gpAfterConsumable),
-      sub: `粗利率 ${formatPercent(gpRate)} - 消耗品率 ${formatPercent(r.consumableRate)}（${formatCurrency(r.totalConsumable)}）`,
-      signal:
-        gpAfterConsumable >= targetRate
-          ? 'green'
-          : gpAfterConsumable >= warningRate
-            ? 'yellow'
-            : 'red',
-      metricId:
-        r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
-      storeValue: (sr) => {
-        const afterCon =
-          sr.invMethodGrossProfitRate != null
-            ? safeDivide(sr.invMethodGrossProfit! - sr.totalConsumable, sr.totalSales, 0)
-            : sr.estMethodMarginRate
-        return {
-          value: formatPercent(afterCon),
-          signal: afterCon >= targetRate ? 'green' : afterCon >= warningRate ? 'yellow' : 'red',
-        }
-      },
-    },
-    // 3. Budget Progress Rate
+    // 2. Budget Progress Rate
     {
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
       sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
-      signal: r.budgetProgressRate >= 1 ? 'green' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+      signal: r.budgetProgressRate >= 1 ? 'blue' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
       metricId: 'budgetProgressRate',
       storeValue: budgetProgressBreakdown,
     },
-    // 4. Projected Achievement
+    // 3. Projected Achievement
     {
       label: '着地予測達成率',
       value: formatPercent(r.projectedAchievement),
       sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
       signal:
-        r.projectedAchievement >= 1 ? 'green' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
+        r.projectedAchievement >= 1 ? 'blue' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
       metricId: 'projectedSales',
       storeValue: projectedAchievementBreakdown,
     },
-    // 5. Discount Rate
+    // 4. Discount Rate (統合: 全体 + 71-74)
     {
       label: '売変率',
       value: formatPercent(r.discountRate),
       sub: `売変額 ${formatCurrency(r.totalDiscount)} / 粗売上 ${formatCurrency(r.grossSales)}`,
-      signal: r.discountRate <= 0.03 ? 'green' : r.discountRate <= 0.05 ? 'yellow' : 'red',
+      signal: discountRateSignal(r.discountRate, discountThresholds),
       metricId: 'discountRate',
-      storeValue: discountRateBreakdown,
+      detailBreakdown: 'discountRate',
     },
-  ]
-
-  // 5b. Discount Breakdown (71-74)
-  if (r.discountEntries.length > 0) {
-    const totalDiscount = r.discountEntries.reduce((s, e) => s + e.amount, 0)
-    for (const dt of DISCOUNT_TYPES) {
-      const entry = r.discountEntries.find((e) => e.type === dt.type)
-      const amt = entry?.amount ?? 0
-      const rate = r.grossSales > 0 ? safeDivide(amt, r.grossSales, 0) : 0
-      const pct = totalDiscount > 0 ? amt / totalDiscount : 0
-      items.push({
-        label: `${dt.label}（${dt.type}）`,
-        value: formatCurrency(amt),
-        sub: `売変率: ${formatPercent(rate)} / 構成比: ${formatPercent(pct, 1)}`,
-        signal: rate <= 0.01 ? 'green' : rate <= 0.02 ? 'yellow' : 'red',
-        metricId: 'discountRate',
-      })
-    }
-  }
-
-  items.push(
-    // 6. Consumable Rate
+    // 5. Consumable Rate
     {
       label: '消耗品率',
       value: formatPercent(r.consumableRate),
       sub: `消耗品費 ${formatCurrency(r.totalConsumable)} / 売上 ${formatCurrency(r.totalSales)}`,
-      signal: r.consumableRate <= 0.02 ? 'green' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
+      signal: r.consumableRate <= 0.02 ? 'blue' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
       metricId: 'totalConsumable',
       storeValue: consumableRateBreakdown,
     },
-  )
+  ]
 
-  // 7. Customer YoY (if prev year data available)
+  // 6. Customer YoY (if prev year data available)
   const prevYear = ctx.prevYear
   if (prevYear.hasPrevYear && prevYear.totalCustomers > 0 && r.totalCustomers > 0) {
     const custYoY = r.totalCustomers / prevYear.totalCustomers
@@ -409,13 +489,13 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       label: '客数前年比',
       value: formatPercent(custYoY, 2),
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
-      signal: custYoY >= 1 ? 'green' : custYoY >= 0.95 ? 'yellow' : 'red',
+      signal: custYoY >= 1 ? 'blue' : custYoY >= 0.95 ? 'yellow' : 'red',
       metricId: 'totalCustomers',
       storeValue: customersBreakdown,
     })
   }
 
-  // 8. Transaction Value
+  // 7. Transaction Value
   if (r.totalCustomers > 0) {
     const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
     const prevTxValue =
@@ -432,7 +512,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
         prevTxValue != null
           ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
           : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
-      signal: txYoY != null ? (txYoY >= 1 ? 'green' : txYoY >= 0.97 ? 'yellow' : 'red') : 'green',
+      signal: txYoY != null ? (txYoY >= 1 ? 'blue' : txYoY >= 0.97 ? 'yellow' : 'red') : 'blue',
       metricId: 'totalCustomers',
       storeValue: txValueBreakdown,
     })
@@ -445,13 +525,253 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     return (sa?.code ?? a.storeId).localeCompare(sb?.code ?? b.storeId)
   })
 
+  // ─── Render detail panels ────────────────────────────
+
+  const renderGpDetailTable = () => (
+    <>
+      <DetailHeader>
+        <DetailTitle>粗利率 — 店舗内訳</DetailTitle>
+        <ToggleGroup>
+          <ToggleBtn $active={displayMode === 'rate'} onClick={() => setDisplayMode('rate')}>
+            率
+          </ToggleBtn>
+          <ToggleBtn $active={displayMode === 'amount'} onClick={() => setDisplayMode('amount')}>
+            金額
+          </ToggleBtn>
+        </ToggleGroup>
+      </DetailHeader>
+      <BTable>
+        <thead>
+          <tr>
+            <BTh>店舗名</BTh>
+            {displayMode === 'rate' ? (
+              <>
+                <BTh>粗利率予算</BTh>
+                <BTh>原算前粗利率</BTh>
+                <BTh>原価算後粗利率</BTh>
+                <BTh>差異</BTh>
+              </>
+            ) : (
+              <>
+                <BTh>粗利予算額</BTh>
+                <BTh>原算前粗利額</BTh>
+                <BTh>原価算後粗利額</BTh>
+                <BTh>差異</BTh>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {sortedStoreEntries.map(([storeId, sr]) => {
+            const store = stores.get(storeId)
+            const storeName = store?.name ?? storeId
+            const before = computeGpBeforeConsumable(sr)
+            const after = computeGpAfterConsumable(sr)
+            const diff = (after - sr.grossProfitRateBudget) * 100
+            const sig = gpDiffSignal(diff, gpThresholds)
+            const sigColor = SIGNAL_COLORS[sig]
+
+            if (displayMode === 'rate') {
+              return (
+                <BTr key={storeId}>
+                  <BTd>
+                    <BSignalDot $color={sigColor} />
+                    {storeName}
+                  </BTd>
+                  <BTd>{formatPercent(sr.grossProfitRateBudget)}</BTd>
+                  <BTd>{formatPercent(before)}</BTd>
+                  <BTd>
+                    {formatPercent(after)} ({formatPercent(sr.consumableRate)})
+                  </BTd>
+                  <BTd $color={sigColor}>{formatPointDiff(after - sr.grossProfitRateBudget)}</BTd>
+                </BTr>
+              )
+            }
+            // amount mode
+            const gpAmt = computeGpAmount(sr)
+            const gpAfterAmt = computeGpAfterConsumableAmount(sr)
+            const diffAmt = gpAfterAmt - sr.grossProfitBudget
+            return (
+              <BTr key={storeId}>
+                <BTd>
+                  <BSignalDot $color={sigColor} />
+                  {storeName}
+                </BTd>
+                <BTd>{formatCurrency(sr.grossProfitBudget)}</BTd>
+                <BTd>{formatCurrency(gpAmt)}</BTd>
+                <BTd>{formatCurrency(gpAfterAmt)}</BTd>
+                <BTd $color={sigColor}>
+                  {diffAmt >= 0 ? '+' : ''}
+                  {formatCurrency(diffAmt)}
+                </BTd>
+              </BTr>
+            )
+          })}
+          {/* Total row */}
+          {(() => {
+            const totalSig = gpDiffSignal(gpDiff, gpThresholds)
+            const totalColor = SIGNAL_COLORS[totalSig]
+            if (displayMode === 'rate') {
+              return (
+                <BTr $highlight>
+                  <BTd $bold>合計</BTd>
+                  <BTd $bold>{formatPercent(r.grossProfitRateBudget)}</BTd>
+                  <BTd $bold>{formatPercent(gpBefore)}</BTd>
+                  <BTd $bold>
+                    {formatPercent(gpAfter)} ({formatPercent(r.consumableRate)})
+                  </BTd>
+                  <BTd $bold $color={totalColor}>
+                    {formatPointDiff(gpAfter - r.grossProfitRateBudget)}
+                  </BTd>
+                </BTr>
+              )
+            }
+            const totalGpAmt = computeGpAmount(r)
+            const totalAfterAmt = computeGpAfterConsumableAmount(r)
+            const totalDiffAmt = totalAfterAmt - r.grossProfitBudget
+            return (
+              <BTr $highlight>
+                <BTd $bold>合計</BTd>
+                <BTd $bold>{formatCurrency(r.grossProfitBudget)}</BTd>
+                <BTd $bold>{formatCurrency(totalGpAmt)}</BTd>
+                <BTd $bold>{formatCurrency(totalAfterAmt)}</BTd>
+                <BTd $bold $color={totalColor}>
+                  {totalDiffAmt >= 0 ? '+' : ''}
+                  {formatCurrency(totalDiffAmt)}
+                </BTd>
+              </BTr>
+            )
+          })()}
+        </tbody>
+      </BTable>
+    </>
+  )
+
+  const renderDiscountDetailTable = () => {
+    return (
+      <>
+        <DetailHeader>
+          <DetailTitle>売変率 — 店舗内訳</DetailTitle>
+          <ToggleGroup>
+            <ToggleBtn $active={displayMode === 'rate'} onClick={() => setDisplayMode('rate')}>
+              率
+            </ToggleBtn>
+            <ToggleBtn $active={displayMode === 'amount'} onClick={() => setDisplayMode('amount')}>
+              金額
+            </ToggleBtn>
+          </ToggleGroup>
+        </DetailHeader>
+        <BTable>
+          <thead>
+            <tr>
+              <BTh>店舗名</BTh>
+              <BTh>売変率</BTh>
+              {DISCOUNT_TYPES.map((dt) => (
+                <BTh key={dt.type}>
+                  {dt.label}({dt.type})
+                </BTh>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedStoreEntries.map(([storeId, sr]) => {
+              const store = stores.get(storeId)
+              const storeName = store?.name ?? storeId
+              const sig = discountRateSignal(sr.discountRate, discountThresholds)
+              const sigColor = SIGNAL_COLORS[sig]
+
+              return (
+                <BTr key={storeId}>
+                  <BTd>
+                    <BSignalDot $color={sigColor} />
+                    {storeName}
+                  </BTd>
+                  <BTd $color={sigColor}>
+                    {displayMode === 'rate'
+                      ? formatPercent(sr.discountRate)
+                      : formatCurrency(sr.totalDiscount)}
+                  </BTd>
+                  {DISCOUNT_TYPES.map((dt) => {
+                    const entry = sr.discountEntries.find((e) => e.type === dt.type)
+                    const amt = entry?.amount ?? 0
+                    const rate = sr.grossSales > 0 ? safeDivide(amt, sr.grossSales, 0) : 0
+                    return (
+                      <BTd key={dt.type}>
+                        {displayMode === 'rate' ? formatPercent(rate) : formatCurrency(amt)}
+                      </BTd>
+                    )
+                  })}
+                </BTr>
+              )
+            })}
+            {/* Total row */}
+            {(() => {
+              const totalSig = discountRateSignal(r.discountRate, discountThresholds)
+              const totalColor = SIGNAL_COLORS[totalSig]
+              return (
+                <BTr $highlight>
+                  <BTd $bold>合計</BTd>
+                  <BTd $bold $color={totalColor}>
+                    {displayMode === 'rate'
+                      ? formatPercent(r.discountRate)
+                      : formatCurrency(r.totalDiscount)}
+                  </BTd>
+                  {DISCOUNT_TYPES.map((dt) => {
+                    const entry = r.discountEntries.find((e) => e.type === dt.type)
+                    const amt = entry?.amount ?? 0
+                    const rate = r.grossSales > 0 ? safeDivide(amt, r.grossSales, 0) : 0
+                    return (
+                      <BTd key={dt.type} $bold>
+                        {displayMode === 'rate' ? formatPercent(rate) : formatCurrency(amt)}
+                      </BTd>
+                    )
+                  })}
+                </BTr>
+              )
+            })()}
+          </tbody>
+        </BTable>
+      </>
+    )
+  }
+
+  const renderSimpleBreakdown = () => {
+    if (!breakdownItem || !breakdownItem.storeValue) return null
+    return (
+      <>
+        <DetailTitle style={{ marginBottom: '16px' }}>{breakdownItem.label} — 店舗内訳</DetailTitle>
+        {sortedStoreEntries.map(([storeId, sr]) => {
+          const store = stores.get(storeId)
+          const storeName = store?.name ?? storeId
+          const bv = breakdownItem.storeValue!(sr)
+          const signalColor = SIGNAL_COLORS[bv.signal]
+          return (
+            <BreakdownRow key={storeId}>
+              <BreakdownLabel>
+                <BreakdownSignal $color={signalColor} />
+                {storeName}
+              </BreakdownLabel>
+              <BreakdownValue $color={signalColor}>{bv.value}</BreakdownValue>
+            </BreakdownRow>
+          )
+        })}
+        <BreakdownRow $bold>
+          <BreakdownLabel>合計</BreakdownLabel>
+          <BreakdownValue $color={SIGNAL_COLORS[breakdownItem.signal]}>
+            {breakdownItem.value}
+          </BreakdownValue>
+        </BreakdownRow>
+      </>
+    )
+  }
+
   return (
-    <Wrapper>
+    <Wrapper aria-label="コンディションサマリー">
       <Title>コンディションサマリー</Title>
       <Grid>
         {items.map((item) => {
           const color = SIGNAL_COLORS[item.signal]
-          const isClickable = hasMultipleStores && !!item.storeValue
+          const isClickable = hasMultipleStores && !!(item.storeValue || item.detailBreakdown)
           return (
             <Card
               key={item.label}
@@ -480,34 +800,17 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
         })}
       </Grid>
 
-      {/* Store Breakdown Overlay */}
+      {/* Detail Overlay */}
       {breakdownItem && (
         <Overlay onClick={() => setBreakdownItem(null)}>
-          <BreakdownPanel onClick={(e) => e.stopPropagation()}>
-            <BreakdownTitle>{breakdownItem.label} — 店舗内訳</BreakdownTitle>
-            {sortedStoreEntries.map(([storeId, sr]) => {
-              const store = stores.get(storeId)
-              const storeName = store?.name ?? storeId
-              const bv = breakdownItem.storeValue!(sr)
-              const signalColor = SIGNAL_COLORS[bv.signal]
-              return (
-                <BreakdownRow key={storeId}>
-                  <BreakdownLabel>
-                    <BreakdownSignal $color={signalColor} />
-                    {storeName}
-                  </BreakdownLabel>
-                  <BreakdownValue $color={signalColor}>{bv.value}</BreakdownValue>
-                </BreakdownRow>
-              )
-            })}
-            <BreakdownRow $bold>
-              <BreakdownLabel>合計</BreakdownLabel>
-              <BreakdownValue $color={SIGNAL_COLORS[breakdownItem.signal]}>
-                {breakdownItem.value}
-              </BreakdownValue>
-            </BreakdownRow>
+          <DetailPanel onClick={(e) => e.stopPropagation()}>
+            {breakdownItem.detailBreakdown === 'gpRate'
+              ? renderGpDetailTable()
+              : breakdownItem.detailBreakdown === 'discountRate'
+                ? renderDiscountDetailTable()
+                : renderSimpleBreakdown()}
             <CloseBtn onClick={() => setBreakdownItem(null)}>閉じる</CloseBtn>
-          </BreakdownPanel>
+          </DetailPanel>
         </Overlay>
       )}
     </Wrapper>

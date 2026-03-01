@@ -200,10 +200,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '日別売上チャート',
     group: '日次推移',
     size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => (
+    render: ({ result: r, daysInMonth, prevYear, year, month }) => (
       <DailySalesChart
         daily={r.daily}
         daysInMonth={daysInMonth}
+        year={year}
+        month={month}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
       />
     ),

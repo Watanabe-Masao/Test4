@@ -20,6 +20,12 @@ const mockSettings: AppSettings = {
   prevYearSourceYear: null,
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
+  gpDiffBlueThreshold: 0.2,
+  gpDiffYellowThreshold: -0.2,
+  gpDiffRedThreshold: -0.5,
+  discountBlueThreshold: 0.02,
+  discountYellowThreshold: 0.025,
+  discountRedThreshold: 0.03,
 }
 
 function makeStoreResult(storeId: string): StoreResult {

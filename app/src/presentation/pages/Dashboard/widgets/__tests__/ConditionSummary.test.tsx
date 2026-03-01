@@ -16,11 +16,19 @@ describe('ConditionSummaryWidget', () => {
 
     expect(screen.getByText('コンディションサマリー')).toBeInTheDocument()
     expect(screen.getByText('粗利率')).toBeInTheDocument()
-    expect(screen.getByText('原算後粗利率')).toBeInTheDocument()
     expect(screen.getByText('予算消化率')).toBeInTheDocument()
     expect(screen.getByText('着地予測達成率')).toBeInTheDocument()
     expect(screen.getByText('売変率')).toBeInTheDocument()
     expect(screen.getByText('消耗品率')).toBeInTheDocument()
+  })
+
+  it('原算後粗利率は粗利率カードに統合されている（独立カードなし）', () => {
+    const ctx = makeWidgetContext()
+
+    renderWithTheme(<ConditionSummaryWidget ctx={ctx} />)
+
+    // 原算後粗利率は独立カードとして存在しない（粗利率カードの sub に統合）
+    expect(screen.queryByText('原算後粗利率')).not.toBeInTheDocument()
   })
 
   it('客数 > 0 で客単価カードが表示される', () => {
@@ -79,7 +87,7 @@ describe('ConditionSummaryWidget', () => {
     expect(screen.queryByText('客数前年比')).not.toBeInTheDocument()
   })
 
-  it('客単価の前年比シグナルが正しい（前年超え → green）', () => {
+  it('客単価の前年比シグナルが正しい（前年超え → blue）', () => {
     const prevDaily = new Map([[1, { sales: 90000, discount: 500, customers: 50 }]])
     const ctx = makeWidgetContext({
       result: makeStoreResult({
@@ -92,7 +100,7 @@ describe('ConditionSummaryWidget', () => {
 
     renderWithTheme(<ConditionSummaryWidget ctx={ctx} />)
 
-    // 客単価カードが存在すること（前年比 >= 1 → green）
+    // 客単価カードが存在すること（前年比 >= 1 → blue）
     expect(screen.getByText('客単価')).toBeInTheDocument()
   })
 })

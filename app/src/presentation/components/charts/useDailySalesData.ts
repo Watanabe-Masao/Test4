@@ -89,6 +89,9 @@ export function useDailySalesData(
   isWf: boolean,
   rangeStart: number,
   rangeEnd: number,
+  year?: number,
+  month?: number,
+  selectedDows?: readonly number[],
 ): DailySalesDataResult {
   const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
     const rawSales: number[] = []
@@ -205,9 +208,24 @@ export function useDailySalesData(
     return { baseData: bd, salesMa7: sMa7, discountMa7: dMa7, prevDiscountMa7: pdMa7, wfData: wf }
   }, [daily, daysInMonth, prevYearDaily, isWf])
 
+  /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
+  const dowFilter = useMemo(() => {
+    if (!selectedDows || selectedDows.length === 0 || year == null || month == null) {
+      return null // フィルタなし
+    }
+    const dowSet = new Set(selectedDows)
+    return (day: number): boolean => {
+      const dow = new Date(year, month - 1, day).getDay()
+      return dowSet.has(dow)
+    }
+  }, [selectedDows, year, month])
+
   const data = useMemo(() => {
+    const rangeFilter = (d: { day: number }) =>
+      d.day >= rangeStart && d.day <= rangeEnd && (dowFilter == null || dowFilter(d.day))
+
     if (isWf && wfData) {
-      return wfData.filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
+      return wfData.filter(rangeFilter)
     }
     return baseData
       .map((d, i) => ({
@@ -216,8 +234,18 @@ export function useDailySalesData(
         discountMa7: discountMa7[i],
         prevDiscountMa7: prevDiscountMa7[i],
       }))
-      .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
-  }, [isWf, wfData, baseData, salesMa7, discountMa7, prevDiscountMa7, rangeStart, rangeEnd])
+      .filter(rangeFilter)
+  }, [
+    isWf,
+    wfData,
+    baseData,
+    salesMa7,
+    discountMa7,
+    prevDiscountMa7,
+    rangeStart,
+    rangeEnd,
+    dowFilter,
+  ])
 
   return { data, hasPrev: !!prevYearDaily }
 }
