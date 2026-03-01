@@ -174,8 +174,7 @@ export const PivotSubTh = styled.th`
 `
 
 export const PivotTd = styled(Td)<{ $groupStart?: boolean }>`
-  ${({ $groupStart, theme }) =>
-    $groupStart && `border-left: 2px solid ${theme.colors.border};`}
+  ${({ $groupStart, theme }) => $groupStart && `border-left: 2px solid ${theme.colors.border};`}
 `
 
 /* ─── Flow Pair Table ───────────────────────────────── */
