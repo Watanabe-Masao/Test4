@@ -249,8 +249,11 @@ function StoreManagementTab() {
                 <Td>
                   {inv ? (
                     <Badge $color={palette.infoDark}>
-                      期首: {inv.openingInventory?.toLocaleString() ?? '-'} / 期末:{' '}
+                      機首: {inv.openingInventory?.toLocaleString() ?? '-'} / 期末:{' '}
                       {inv.closingInventory?.toLocaleString() ?? '-'}
+                      {inv.productInventory != null && (
+                        <> (商品: {inv.productInventory.toLocaleString()} + 消耗品: {(inv.consumableInventory ?? 0).toLocaleString()})</>
+                      )}
                     </Badge>
                   ) : (
                     <Badge>未設定</Badge>

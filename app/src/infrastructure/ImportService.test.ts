@@ -451,7 +451,7 @@ describe('validateImportedData', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
     }
@@ -519,7 +519,7 @@ describe('validateImportedData', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
     }
@@ -562,7 +562,7 @@ describe('validateImportedData', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 100, closingInventory: 100, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
     }

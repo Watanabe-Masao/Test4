@@ -229,7 +229,7 @@ describe('mergeInsertsOnly', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
     })
@@ -237,11 +237,11 @@ describe('mergeInsertsOnly', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 999, closingInventory: 999, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 999, closingInventory: 999, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
         [
           '2',
-          { storeId: '2', openingInventory: 200, closingInventory: 300, grossProfitBudget: null },
+          { storeId: '2', openingInventory: 200, closingInventory: 300, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
     })
@@ -299,7 +299,7 @@ describe('mergeInsertsOnly', () => {
       settings: new Map([
         [
           '1',
-          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null },
+          { storeId: '1', openingInventory: 100, closingInventory: 150, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
       budget: new Map([
@@ -331,7 +331,7 @@ describe('mergeInsertsOnly', () => {
       settings: new Map([
         [
           '9',
-          { storeId: '9', openingInventory: 999, closingInventory: 999, grossProfitBudget: null },
+          { storeId: '9', openingInventory: 999, closingInventory: 999, grossProfitBudget: null, productInventory: null, consumableInventory: null, inventoryDate: null, closingInventoryDay: null },
         ],
       ]),
       budget: new Map([

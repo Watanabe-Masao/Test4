@@ -89,6 +89,10 @@ export function useUndoRedo() {
           openingInventory: null,
           closingInventory: null,
           grossProfitBudget: null,
+          productInventory: null,
+          consumableInventory: null,
+          inventoryDate: null,
+          closingInventoryDay: null,
         })
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
