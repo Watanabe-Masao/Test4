@@ -216,11 +216,20 @@ export function buildDailyRecords(
       if (hasSalesData) elapsedDays = day
       if (daySales > 0) salesDays++
 
+      const dayTotalCost = getDailyTotalCost({
+        purchase,
+        interStoreIn,
+        interStoreOut,
+        interDepartmentIn,
+        interDepartmentOut,
+        deliverySales,
+      })
       const rec: DailyRecord = {
         day,
         sales: daySales,
         coreSales,
         grossSales,
+        totalCost: dayTotalCost,
         purchase,
         deliverySales,
         interStoreIn,
@@ -243,7 +252,7 @@ export function buildDailyRecords(
         },
       }
       daily.set(day, rec)
-      totalCost += getDailyTotalCost(rec)
+      totalCost += dayTotalCost
     }
 
     // 月間集計

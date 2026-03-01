@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { formatPercent } from '@/domain/calculations/utils'
-import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import type { WidgetContext } from './types'
 
 // ─── Types ──────────────────────────────────────────────
@@ -190,7 +189,7 @@ export function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
       const rec = result.daily.get(d)
       if (rec) {
         cumSales += rec.sales
-        cumCost += getDailyTotalCost(rec)
+        cumCost += rec.totalCost
         if (cumSales > 0) {
           dailyRates.set(d, (cumSales - cumCost) / cumSales)
         }

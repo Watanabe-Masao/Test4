@@ -18,6 +18,7 @@ function makeDailyRecord(day: number, sales: number, customers: number): DailyRe
     sales,
     coreSales: sales,
     grossSales: sales,
+    totalCost: 0,
     purchase: { cost: 0, price: 0 },
     deliverySales: { cost: 0, price: 0 },
     interStoreIn: { cost: 0, price: 0 },

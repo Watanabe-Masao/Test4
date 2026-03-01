@@ -6,7 +6,6 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } fro
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
-import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import { safeDivide } from '@/domain/calculations/utils'
 
 const Wrapper = styled.div`
@@ -114,7 +113,7 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
       const rec = daily.get(d)
       const sales = rec?.sales ?? 0
       const grossSales = rec?.grossSales ?? 0
-      const cost = rec ? getDailyTotalCost(rec) : 0
+      const cost = rec ? rec.totalCost : 0
       const discount = rec?.discountAbsolute ?? 0
       const consumable = rec?.consumable.cost ?? 0
       const margin = sales - cost - consumable

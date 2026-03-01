@@ -25,7 +25,6 @@ import {
   calculateMovingAverage,
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/domain/calculations/forecast'
-import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -160,7 +159,7 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDay
       const grossSales = rec?.grossSales ?? 0
       const customers = rec?.customers ?? 0
       const discount = rec?.discountAbsolute ?? 0
-      const cost = rec ? getDailyTotalCost(rec) : 0
+      const cost = rec ? rec.totalCost : 0
       const consumable = rec?.consumable.cost ?? 0
       const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
       const discountRate = grossSales > 0 ? safeDivide(discount, grossSales, 0) : 0

@@ -4,7 +4,6 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import type { DailyRecord } from '@/domain/models'
-import { getDailyTotalCost } from '@/domain/models/DailyRecord'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 
 const Wrapper = styled.div`
@@ -153,7 +152,7 @@ export function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props)
       const rec = daily.get(d)
       const sales = rec?.sales ?? 0
       const grossSales = rec?.grossSales ?? 0
-      const cost = rec ? getDailyTotalCost(rec) : 0
+      const cost = rec ? rec.totalCost : 0
       const consumable = rec?.consumable.cost ?? 0
       const discount = rec?.discountAbsolute ?? 0
       const customers = rec?.customers ?? 0

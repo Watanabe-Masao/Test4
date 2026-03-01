@@ -230,6 +230,23 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  it('presentation/ は getDailyTotalCost を直接使用しない（事前計算済み totalCost を参照すること）', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      if (content.includes('getDailyTotalCost')) {
+        violations.push(
+          `${relativePath(file)}: getDailyTotalCost を直接使用。rec.totalCost（事前計算済みフィールド）を使用してください`,
+        )
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,

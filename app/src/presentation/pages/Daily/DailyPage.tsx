@@ -8,7 +8,6 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
-import { getDailyTotalCost } from '@/domain/models'
 import {
   ChartToggle,
   ChartGrid,
@@ -159,7 +158,7 @@ export function DailyPage() {
 
     for (const [day, rec] of days) {
       cumSales += rec.sales
-      cumCost += getDailyTotalCost(rec)
+      cumCost += rec.totalCost
       cumDiscount += rec.discountAbsolute
       cumGrossSales += rec.grossSales
 
