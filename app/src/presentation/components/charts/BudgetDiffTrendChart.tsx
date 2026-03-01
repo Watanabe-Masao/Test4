@@ -81,7 +81,7 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
     .filter((d) => d.day >= rangeStart && d.day <= rangeEnd)
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="予算差異トレンドチャート">
       <Title>
         {hasPrevYear
           ? '予算差・前年差 累計推移（実績 − 予算 / 実績 − 前年）'

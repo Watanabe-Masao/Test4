@@ -188,7 +188,7 @@ export function SalesPurchaseComparisonChart({
   if (storeEntries.length < 2) return null
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="売仕比較チャート">
       <Header>
         <Title>売上・仕入・推定在庫 店舗比較</Title>
         {headerExtra}

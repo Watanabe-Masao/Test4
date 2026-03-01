@@ -282,7 +282,7 @@ export function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDay
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="業績指数チャート">
       <HeaderRow>
         <Title>
           {titleMap[view]}

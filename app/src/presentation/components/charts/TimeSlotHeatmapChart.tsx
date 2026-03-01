@@ -394,7 +394,7 @@ export function TimeSlotHeatmapChart({
 
   if (curData.hours.length === 0)
     return (
-      <Wrapper>
+      <Wrapper aria-label="時間帯ヒートマップチャート">
         <HeaderRow>
           <Title>時間帯×曜日 売上ヒートマップ</Title>
         </HeaderRow>
@@ -409,7 +409,7 @@ export function TimeSlotHeatmapChart({
   const showDiff = heatmapMode === 'yoyDiff' && diffMatrix
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯ヒートマップチャート">
       <HeaderRow>
         <Title>
           時間帯×曜日 {showDiff ? `${prevLbl}比増減` : '売上ヒートマップ'}

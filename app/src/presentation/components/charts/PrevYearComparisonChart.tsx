@@ -150,7 +150,7 @@ export function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMon
   const hasSummary = latestCurrentCum > 0 && prevCumAtLatest > 0
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="前年比較チャート">
       <Title>当年 vs 前年同曜日（累計売上推移）</Title>
       {hasSummary && (
         <SummaryRow>

@@ -68,7 +68,7 @@ export function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRa
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="粗利率チャート">
       <Title>粗利率推移（累計ベース）</Title>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="84%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>

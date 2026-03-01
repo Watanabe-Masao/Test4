@@ -327,7 +327,7 @@ export function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="前年差異チャート">
       <HeaderRow>
         <Title>
           {titleMap[view]}

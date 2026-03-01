@@ -152,7 +152,7 @@ export function GrossProfitAmountChart({
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="粗利額チャート">
       <HeaderRow>
         <Title>{titleText}</Title>
         <TabGroup>

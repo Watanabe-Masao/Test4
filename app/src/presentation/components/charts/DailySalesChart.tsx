@@ -121,7 +121,7 @@ export const DailySalesChart = memo(function DailySalesChart({
     : undefined
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="日別売上チャート">
       <HeaderRow>
         <Title>{titleText}</Title>
         <ViewToggle>

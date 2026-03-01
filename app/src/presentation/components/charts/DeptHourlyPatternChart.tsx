@@ -332,7 +332,7 @@ export function DeptHourlyPatternChart({
 
   if (data.length === 0 || departments.length === 0)
     return (
-      <Wrapper>
+      <Wrapper aria-label="部門別時間帯パターンチャート">
         <Header>
           <Title>部門別 時間帯パターン</Title>
         </Header>
@@ -358,7 +358,7 @@ export function DeptHourlyPatternChart({
     : `${levelLabels[groupLevel]}別 時間帯パターン（上位${departments.length}件）`
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="部門別時間帯パターンチャート">
       <Header>
         <Title>
           {titleText}

@@ -91,7 +91,7 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
 
   if (chartData.length === 0)
     return (
-      <Wrapper>
+      <Wrapper aria-label="時間帯売上チャート">
         <HeaderRow>
           <Title>時間帯別売上</Title>
         </HeaderRow>
@@ -111,7 +111,7 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
     pf.mode === 'dailyAvg' ? '（日平均）' : pf.mode === 'dowAvg' ? '（曜日別平均）' : ''
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="時間帯売上チャート">
       <HeaderRow>
         <Title>
           {titleText}

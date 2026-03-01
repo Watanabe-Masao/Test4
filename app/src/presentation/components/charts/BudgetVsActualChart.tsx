@@ -338,7 +338,7 @@ export function BudgetVsActualChart({
       : null
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="予算実績比較チャート">
       <HeaderRow>
         <Title>{chartTitle}</Title>
         <ToggleRow>

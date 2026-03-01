@@ -218,7 +218,7 @@ export function StructuralOverviewChart({ result, prevYearResult }: Props) {
   const h = (v: number | null | undefined) => Math.round(((v ?? 0) / base) * 160)
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="構造概要チャート">
       <Title>
         収益構造俯瞰図（売上→原価→売変→粗利）
         <ChartHelpButton guide={CHART_GUIDES['structural-overview']} />

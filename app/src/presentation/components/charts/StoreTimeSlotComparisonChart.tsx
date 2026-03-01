@@ -305,7 +305,7 @@ export function StoreTimeSlotComparisonChart({
 
   if (data.length === 0 || storeNames.length <= 1)
     return (
-      <Wrapper>
+      <Wrapper aria-label="店舗別時間帯比較チャート">
         <Header>
           <Title>店舗別 時間帯売上パターン比較</Title>
         </Header>
@@ -347,7 +347,7 @@ export function StoreTimeSlotComparisonChart({
   })
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="店舗別時間帯比較チャート">
       <Header>
         <Title>
           {titleText}

@@ -164,7 +164,7 @@ export function RevenueStructureChart({ daily, daysInMonth }: Props) {
   }
 
   return (
-    <Wrapper>
+    <Wrapper aria-label="売上構成チャート">
       <HeaderRow>
         <Title>{VIEW_TITLES[view]}</Title>
         <ViewToggle>
