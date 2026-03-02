@@ -201,7 +201,10 @@ export function ReportsPage() {
               </tr>
             </thead>
             <tbody>
-              <Tr>
+              <Tr
+                onClick={() => handleExplain('invMethodGrossProfitRate')}
+                style={{ cursor: 'pointer' }}
+              >
                 <Td>粗利率</Td>
                 <Td>{formatPercent(settings.targetGrossProfitRate)}</Td>
                 <Td>
@@ -229,7 +232,10 @@ export function ReportsPage() {
                     : '-'}
                 </Td>
               </Tr>
-              <Tr>
+              <Tr
+                onClick={() => handleExplain('budgetAchievementRate')}
+                style={{ cursor: 'pointer' }}
+              >
                 <Td>予算達成</Td>
                 <Td>{formatCurrency(r.budget)}</Td>
                 <Td>{formatCurrency(r.totalSales)}</Td>
@@ -245,7 +251,7 @@ export function ReportsPage() {
                       : '要注意'}
                 </Td>
               </Tr>
-              <Tr>
+              <Tr onClick={() => handleExplain('averageMarkupRate')} style={{ cursor: 'pointer' }}>
                 <Td>値入率</Td>
                 <Td>{formatPercent(settings.defaultMarkupRate)}</Td>
                 <Td>{formatPercent(r.averageMarkupRate)}</Td>

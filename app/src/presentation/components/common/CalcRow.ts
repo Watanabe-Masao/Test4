@@ -6,7 +6,9 @@ import styled from 'styled-components'
  * $clickable を指定すると MetricBreakdownPanel 連携用のホバーエフェクトが付く。
  */
 
-export const CalcRow = styled.div<{ $clickable?: boolean }>`
+export const CalcRow = styled.div.attrs<{ $clickable?: boolean }>((props) =>
+  props.$clickable ? { role: 'button', tabIndex: 0 } : {},
+)<{ $clickable?: boolean }>`
   display: flex;
   justify-content: space-between;
   padding: ${({ theme }) => theme.spacing[3]} 0;
@@ -26,6 +28,10 @@ export const CalcRow = styled.div<{ $clickable?: boolean }>`
     &:hover span:last-child {
       text-decoration: underline;
       text-decoration-style: dotted;
+    }
+    &:focus-visible {
+      outline: 2px solid ${theme.colors.palette.primary};
+      outline-offset: 2px;
     }
   `}
 `

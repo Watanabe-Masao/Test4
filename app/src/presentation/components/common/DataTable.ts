@@ -25,6 +25,11 @@ export const DataTable = styled.table`
   border-collapse: collapse;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  @media print {
+    thead {
+      display: table-header-group;
+    }
+  }
 `
 
 export const DataTh = styled.th`
@@ -60,6 +65,7 @@ export const DataTd = styled.td<{ $positive?: boolean; $negative?: boolean }>`
 `
 
 export const DataTr = styled.tr`
+  transition: background ${({ theme }) => theme.transitions.fast};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }

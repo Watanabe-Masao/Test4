@@ -458,7 +458,7 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   vertical-align: top;
-  height: 150px;
+  height: 96px;
   ${({ $empty, theme }) => ($empty ? `background: ${theme.colors.bg2};` : '')}
   ${({ $hasActual, $empty, theme }) =>
     !$empty && $hasActual === false
@@ -483,23 +483,67 @@ export const CalDayNum = styled.div<{ $weekend?: boolean }>`
 `
 
 export const CalGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 `
 
-export const CalCell = styled.div<{ $color?: string }>`
+export const CalCell = styled.div<{ $color?: string; $bold?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.58rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ $bold, theme }) => ($bold ? theme.typography.fontWeight.bold : 'normal')};
   color: ${({ $color, theme }) => $color ?? theme.colors.text2};
-  line-height: 1.5;
+  line-height: 1.4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `
 
+export const CalHeroValue = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  line-height: 1.3;
+  margin-bottom: 1px;
+`
+
+export const CalAchBar = styled.div<{ $pct: number }>`
+  height: 3px;
+  border-radius: 2px;
+  background: ${({ theme }) => theme.colors.bg4};
+  margin: 2px 0;
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: ${({ $pct }) => Math.min($pct * 100, 100)}%;
+    border-radius: 2px;
+    background: ${({ $pct, theme }) =>
+      $pct >= 1
+        ? theme.colors.palette.success
+        : $pct >= 0.9
+          ? theme.colors.palette.warning
+          : theme.colors.palette.danger};
+    ${({ $pct }) =>
+      $pct > 1
+        ? `background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px);`
+        : ''}
+  }
+`
+
+export const CalMetricRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+`
+
 export const CalDivider = styled.div`
-  grid-column: 1 / -1;
   border-top: 1px dashed ${({ theme }) => theme.colors.border};
   margin: 1px 0;
 `

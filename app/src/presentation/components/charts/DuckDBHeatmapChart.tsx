@@ -82,7 +82,8 @@ const DataCell = styled.td<{ $bgColor: string; $isAnomaly: boolean; $textColor: 
   font-size: 0.55rem;
   color: ${({ $textColor }) => $textColor};
   background: ${({ $bgColor }) => $bgColor};
-  border: ${({ $isAnomaly }) => ($isAnomaly ? '2px solid #ef4444' : '1px solid transparent')};
+  border: ${({ $isAnomaly, theme }) =>
+    $isAnomaly ? `2px solid ${theme.colors.palette.dangerDark}` : '1px solid transparent'};
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: all 0.15s;
   min-width: 60px;
@@ -614,7 +615,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
             <GradientBar $from={bgBase} $to={primaryHex} />
             <span>高</span>
             {heatmapData.anomalyCount > 0 && (
-              <span style={{ marginLeft: '12px', color: '#ef4444' }}>
+              <span style={{ marginLeft: '12px', color: theme.colors.palette.dangerDark }}>
                 異常セル: {heatmapData.anomalyCount}件
               </span>
             )}

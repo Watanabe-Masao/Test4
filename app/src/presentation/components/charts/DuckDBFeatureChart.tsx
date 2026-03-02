@@ -71,7 +71,9 @@ const AnomalyCard = styled.div<{ $type: 'spike' | 'dip' }>`
       : theme.mode === 'dark'
         ? 'rgba(59,130,246,0.12)'
         : 'rgba(59,130,246,0.06)'};
-  border-left: 3px solid ${({ $type }) => ($type === 'spike' ? '#ef4444' : '#3b82f6')};
+  border-left: 3px solid
+    ${({ $type, theme }) =>
+      $type === 'spike' ? theme.colors.palette.dangerDark : theme.colors.palette.blueDark};
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: 0.6rem;
 `
@@ -246,7 +248,13 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
           {/* 異常日マーカー（棒グラフ） */}
-          <Bar dataKey="anomaly" name="異常検出" fill="#ef4444" opacity={0.3} barSize={8} />
+          <Bar
+            dataKey="anomaly"
+            name="異常検出"
+            fill={palette.dangerDark}
+            opacity={0.3}
+            barSize={8}
+          />
 
           {/* 28日移動平均（太い背景線） */}
           <Line

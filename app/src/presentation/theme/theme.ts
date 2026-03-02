@@ -4,6 +4,7 @@ import {
   typography,
   spacing,
   radii,
+  shadows,
   transitions,
   layout,
   breakpoints,
@@ -59,6 +60,7 @@ export interface AppTheme {
   typography: typeof typography
   spacing: typeof spacing
   radii: typeof radii
+  shadows: typeof shadows
   transitions: typeof transitions
   layout: typeof layout
   breakpoints: typeof breakpoints
@@ -77,6 +79,7 @@ function createTheme(mode: ThemeMode): AppTheme {
     typography,
     spacing,
     radii,
+    shadows,
     transitions,
     layout,
     breakpoints,

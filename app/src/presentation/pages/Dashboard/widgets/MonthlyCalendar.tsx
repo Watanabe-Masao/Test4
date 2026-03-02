@@ -2,12 +2,7 @@ import { useState } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
-import {
-  formatCurrency,
-  formatPercent,
-  safeDivide,
-  calculateTransactionValue,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/usePinIntervals'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
@@ -22,6 +17,9 @@ import {
   CalDayNum,
   CalGrid,
   CalCell,
+  CalHeroValue,
+  CalAchBar,
+  CalMetricRow,
   CalDivider,
   CalDayCell,
   CalDayHeader,
@@ -104,44 +102,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     cumPrevCustomers.set(d, runPrevCustomers)
   }
 
-  // Cumulative discount rate
-  const cumDiscount = new Map<number, number>()
-  const cumGrossSales = new Map<number, number>()
-  let runDiscount = 0
-  let runGrossSales = 0
-  for (let d = 1; d <= daysInMonth; d++) {
-    const rec = r.daily.get(d)
-    runDiscount += rec?.discountAmount ?? 0
-    runGrossSales += rec?.grossSales ?? 0
-    cumDiscount.set(d, runDiscount)
-    cumGrossSales.set(d, runGrossSales)
-  }
-
-  // Moving average transaction value (5-day window)
-  const movingAvgTxVal = new Map<number, number>()
-  const WINDOW = 5
-  for (let d = 1; d <= daysInMonth; d++) {
-    let totalSales = 0
-    let totalCust = 0
-    let count = 0
-    for (let i = Math.max(1, d - WINDOW + 1); i <= d; i++) {
-      const rec = r.daily.get(i)
-      if (rec && rec.sales > 0 && (rec.customers ?? 0) > 0) {
-        totalSales += rec.sales
-        totalCust += rec.customers ?? 0
-        count++
-      }
-    }
-    if (count > 0 && totalCust > 0) {
-      movingAvgTxVal.set(d, calculateTransactionValue(totalSales, totalCust))
-    }
-  }
-
-  // Remaining budget target: how much per remaining sales day is needed
-  const elapsedDays = r.elapsedDays
-  const remainingSalesDays = r.salesDays - elapsedDays
-  const remainingBudget = r.remainingBudget
-  const dailyTargetForRemaining = remainingSalesDays > 0 ? remainingBudget / remainingSalesDays : 0
+  // (Detailed cumulative/customer/discount/WoW data is displayed in DayDetailModal)
 
   // Range selection
   const parseDay = (v: string) => {
@@ -302,7 +263,6 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const achievement = budget > 0 ? actual / budget : 0
                 const isWeekend = di >= 5
                 const diffColor = sc.cond(dayDiff >= 0)
-                const achColor = sc.achievement(achievement)
                 const hasActual = actual > 0
 
                 const cBudget = cumBudget.get(day) ?? 0
@@ -345,156 +305,44 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                       {(budget > 0 || actual > 0) && (
                         <CalDataArea onClick={() => setDetailDay(day)}>
                           <CalGrid>
-                            <CalCell>予 {fmtSen(budget)}</CalCell>
-                            <CalCell>実 {fmtSen(actual)}</CalCell>
-                            <CalCell $color={diffColor}>差 {fmtSenDiff(dayDiff)}</CalCell>
-                            <CalCell $color={achColor}>
-                              達 {budget > 0 ? formatPercent(achievement, 0) : '-'}
-                            </CalCell>
-                            <CalDivider />
-                            <CalCell>予累 {fmtSen(cBudget)}</CalCell>
-                            <CalCell>実累 {fmtSen(cSales)}</CalCell>
-                            <CalCell $color={cDiffColor}>差累 {fmtSenDiff(cDiff)}</CalCell>
-                            <CalCell $color={cAchColor}>
-                              達累 {cBudget > 0 ? formatPercent(cAch, 0) : '-'}
-                            </CalCell>
+                            {/* Hero: 実績売上 */}
+                            <CalHeroValue>{fmtSen(actual)}</CalHeroValue>
+                            {/* 予算差 (符号+色+アイコン) */}
+                            <CalMetricRow>
+                              <CalCell $color={diffColor} $bold>
+                                {dayDiff >= 0 ? '▲' : '▼'} {fmtSenDiff(dayDiff)}
+                              </CalCell>
+                            </CalMetricRow>
+                            {/* 達成率: ミニプログレスバー */}
+                            {budget > 0 && <CalAchBar $pct={achievement} />}
+                            {/* 前年比 (色+アイコン) */}
                             {prevYear.hasPrevYear &&
                               (() => {
                                 const pyDaySales = prevYear.daily.get(day)?.sales ?? 0
-                                const pyRatio = pyDaySales > 0 ? actual / pyDaySales : 0
-                                const pyColor =
-                                  pyRatio >= 1 ? sc.positive : pyRatio > 0 ? sc.negative : undefined
-                                const cPy = cumPrevYear.get(day) ?? 0
-                                const cPyRatio = cPy > 0 ? cSales / cPy : 0
-                                const cPyColor =
-                                  cPyRatio >= 1
-                                    ? sc.positive
-                                    : cPyRatio > 0
-                                      ? sc.negative
-                                      : undefined
-                                return pyDaySales > 0 || cPy > 0 ? (
-                                  <>
-                                    <CalDivider />
-                                    <CalCell $color={palette.slate}>
-                                      前同 {fmtSen(pyDaySales)}
-                                    </CalCell>
-                                    <CalCell $color={pyColor}>
-                                      前比 {pyDaySales > 0 ? formatPercent(pyRatio, 0) : '-'}
-                                    </CalCell>
-                                    <CalCell $color={palette.slate}>前累 {fmtSen(cPy)}</CalCell>
-                                    <CalCell $color={cPyColor}>
-                                      累比 {cPy > 0 ? formatPercent(cPyRatio, 0) : '-'}
-                                    </CalCell>
-                                  </>
-                                ) : null
+                                if (pyDaySales <= 0) return null
+                                const pyRatio = actual / pyDaySales
+                                const pyColor = pyRatio >= 1 ? sc.positive : sc.negative
+                                return (
+                                  <CalCell $color={pyColor}>
+                                    {pyRatio >= 1 ? '▲' : '▼'} 前年{formatPercent(pyRatio, 0)}
+                                  </CalCell>
+                                )
                               })()}
-                            {(() => {
-                              const wowPrevDay = day - 7
-                              if (wowPrevDay < 1) return null
-                              const wowDaySales = r.daily.get(wowPrevDay)?.sales ?? 0
-                              if (wowDaySales <= 0 && actual <= 0) return null
-                              const wowRatio = wowDaySales > 0 ? actual / wowDaySales : 0
-                              const wowColor =
-                                wowRatio >= 1 ? sc.positive : wowRatio > 0 ? sc.negative : undefined
-                              return wowDaySales > 0 ? (
-                                <>
-                                  <CalDivider />
-                                  <CalCell $color={palette.slate}>
-                                    週同 {fmtSen(wowDaySales)}
+                            {/* 累計達成率 (コンパクト) */}
+                            {cBudget > 0 && (
+                              <>
+                                <CalDivider />
+                                <CalMetricRow>
+                                  <CalCell $color={cAchColor}>
+                                    累計 {formatPercent(cAch, 0)}
                                   </CalCell>
-                                  <CalCell $color={wowColor}>
-                                    週比 {wowDaySales > 0 ? formatPercent(wowRatio, 0) : '-'}
+                                  <CalCell $color={cDiffColor}>
+                                    {cDiff >= 0 ? '+' : ''}
+                                    {fmtSen(cDiff)}
                                   </CalCell>
-                                </>
-                              ) : null
-                            })()}
-                            {(() => {
-                              const dayCust = rec?.customers ?? 0
-                              if (dayCust <= 0) return null
-                              const dayTxVal = calculateTransactionValue(actual, dayCust)
-                              const pyCust = prevYear.hasPrevYear
-                                ? (prevYear.daily.get(day)?.customers ?? 0)
-                                : 0
-                              const custYoY = pyCust > 0 ? dayCust / pyCust : 0
-                              const custYoYColor =
-                                custYoY >= 1 ? sc.positive : custYoY > 0 ? sc.negative : undefined
-                              const cCust = cumCustomers.get(day) ?? 0
-                              const cPyCust = cumPrevCustomers.get(day) ?? 0
-                              const cCustYoY = cPyCust > 0 ? cCust / cPyCust : 0
-                              const cCustYoYColor =
-                                cCustYoY >= 1 ? sc.positive : cCustYoY > 0 ? sc.negative : undefined
-                              const maVal = movingAvgTxVal.get(day)
-                              return (
-                                <>
-                                  <CalDivider />
-                                  <CalCell $color={palette.cyanDark}>客 {dayCust}</CalCell>
-                                  <CalCell $color={palette.purpleDark}>
-                                    単 {dayTxVal.toLocaleString()}
-                                  </CalCell>
-                                  {pyCust > 0 && (
-                                    <CalCell $color={custYoYColor}>
-                                      客前比 {formatPercent(custYoY, 0)}
-                                    </CalCell>
-                                  )}
-                                  {maVal && (
-                                    <CalCell $color={palette.purple}>
-                                      移平単 {maVal.toLocaleString()}
-                                    </CalCell>
-                                  )}
-                                  <CalCell $color={palette.cyanDark}>累客 {cCust}</CalCell>
-                                  {cPyCust > 0 && (
-                                    <CalCell $color={cCustYoYColor}>
-                                      累客比 {formatPercent(cCustYoY, 0)}
-                                    </CalCell>
-                                  )}
-                                </>
-                              )
-                            })()}
-                            {(() => {
-                              // 日別・累計売変率
-                              const dayDiscount = rec?.discountAmount ?? 0
-                              const dayGrossSales = rec?.grossSales ?? 0
-                              if (dayDiscount <= 0 && dayGrossSales <= 0) return null
-                              const dayDiscountRate = actual > 0 ? dayDiscount / actual : 0
-                              const cDiscAmt = cumDiscount.get(day) ?? 0
-                              const cTotalSales = cumSales.get(day) ?? 0
-                              const cDiscountRate = cTotalSales > 0 ? cDiscAmt / cTotalSales : 0
-                              const discColor =
-                                dayDiscountRate > 0.05
-                                  ? sc.negative
-                                  : dayDiscountRate > 0.03
-                                    ? '#eab308'
-                                    : sc.positive
-                              const cDiscColor =
-                                cDiscountRate > 0.05
-                                  ? sc.negative
-                                  : cDiscountRate > 0.03
-                                    ? '#eab308'
-                                    : sc.positive
-                              return (
-                                <>
-                                  <CalDivider />
-                                  <CalCell $color={discColor}>
-                                    売変 {formatPercent(dayDiscountRate, 1)}
-                                  </CalCell>
-                                  <CalCell $color={cDiscColor}>
-                                    累変 {formatPercent(cDiscountRate, 1)}
-                                  </CalCell>
-                                </>
-                              )
-                            })()}
-                            {(() => {
-                              // 残日数ペース（経過日以降の未来日のみ表示）
-                              if (day <= elapsedDays || dailyTargetForRemaining <= 0) return null
-                              return (
-                                <>
-                                  <CalDivider />
-                                  <CalCell $color={palette.slate}>
-                                    要日 {fmtSen(dailyTargetForRemaining)}
-                                  </CalCell>
-                                </>
-                              )
-                            })()}
+                                </CalMetricRow>
+                              </>
+                            )}
                           </CalGrid>
                         </CalDataArea>
                       )}

@@ -105,7 +105,9 @@ const ShiftCard = styled.div<{ $positive: boolean }>`
       : theme.mode === 'dark'
         ? 'rgba(239,68,68,0.12)'
         : 'rgba(239,68,68,0.06)'};
-  border-left: 3px solid ${({ $positive }) => ($positive ? '#22c55e' : '#ef4444')};
+  border-left: 3px solid
+    ${({ $positive, theme }) =>
+      $positive ? theme.colors.palette.successDark : theme.colors.palette.dangerDark};
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: 0.6rem;
 `
