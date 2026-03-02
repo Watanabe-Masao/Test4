@@ -6,6 +6,7 @@ import {
   KpiCard,
   KpiGrid,
   MetricBreakdownPanel,
+  PageSkeleton,
 } from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -41,7 +42,7 @@ import {
 } from './ReportsPage.styles'
 
 export function ReportsPage() {
-  const { daysInMonth } = useCalculation()
+  const { isComputing, daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores, isAllStores, selectedStoreIds } =
     useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
@@ -98,6 +99,14 @@ export function ReportsPage() {
     }
     exportStoreKpiReport(storeResults, stores, settings.targetYear, settings.targetMonth)
   }, [selectedResults, stores, settings.targetYear, settings.targetMonth, exportStoreKpiReport])
+
+  if (isComputing && !currentResult) {
+    return (
+      <MainContent title="月次レポート" storeName={storeName}>
+        <PageSkeleton />
+      </MainContent>
+    )
+  }
 
   if (!currentResult) {
     return (
