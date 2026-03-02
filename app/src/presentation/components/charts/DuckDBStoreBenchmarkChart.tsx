@@ -19,6 +19,7 @@ import { useDuckDBStoreBenchmark, type StoreBenchmarkRow } from '@/application/h
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { STORE_COLORS } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -347,7 +348,7 @@ export const DuckDBStoreBenchmarkChart = memo(function DuckDBStoreBenchmarkChart
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

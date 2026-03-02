@@ -21,6 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -489,7 +490,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const bgBase = ct.isDark ? '#1e1e2e' : '#f8fafc'

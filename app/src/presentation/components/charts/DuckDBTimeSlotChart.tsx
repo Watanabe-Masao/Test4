@@ -61,6 +61,7 @@ import {
   MiniTd,
 } from './TimeSlotSalesChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── Local Styled Components ──
 
@@ -123,7 +124,7 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || d.chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const showPrev = d.hasPrev && d.showPrev

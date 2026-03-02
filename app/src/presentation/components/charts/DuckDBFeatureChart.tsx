@@ -30,6 +30,7 @@ import { useDuckDBDailyFeatures, type DailyFeatureRow } from '@/application/hook
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -218,7 +219,7 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

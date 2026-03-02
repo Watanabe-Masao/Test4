@@ -22,6 +22,7 @@ import {
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -369,7 +370,7 @@ export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

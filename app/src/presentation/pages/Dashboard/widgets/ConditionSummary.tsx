@@ -8,8 +8,8 @@ import {
   getEffectiveGrossProfitRate,
   formatPointDiff,
 } from '@/domain/calculations/utils'
-import type { MetricId, StoreResult } from '@/domain/models'
-import { DISCOUNT_TYPES } from '@/domain/models'
+import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
+import { DISCOUNT_TYPES, CUSTOM_CATEGORIES } from '@/domain/models'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
@@ -446,34 +446,72 @@ const CROSS_COLORS: Record<string, string> = {
   other: '#64748b',
 }
 
-function buildCrossMult(sr: StoreResult): CategoryCrossRow[] {
-  const totalPrice = CATEGORY_ORDER.reduce((sum, cat) => {
-    const pair = sr.categoryTotals.get(cat)
-    return sum + (pair ? pair.price : 0)
-  }, 0)
-  const totalAbsPrice = CATEGORY_ORDER.reduce((sum, cat) => {
-    const pair = sr.categoryTotals.get(cat)
-    return sum + (pair ? Math.abs(pair.price) : 0)
-  }, 0)
+const CUSTOM_CROSS_COLORS: Record<string, string> = {
+  市場仕入: '#f59e0b',
+  LFC: '#3b82f6',
+  サラダ: '#22c55e',
+  加工品: '#a855f7',
+  消耗品: '#ea580c',
+  直伝: '#06b6d4',
+  その他: '#64748b',
+}
 
-  return CATEGORY_ORDER.flatMap((cat) => {
+/**
+ * 標準カテゴリ＋カスタムカテゴリの統合相乗積テーブルを構築する。
+ * 相乗積は全カテゴリの総合集計として値入率の内訳を表す。
+ */
+function buildCrossMult(
+  sr: StoreResult,
+  supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+): CategoryCrossRow[] {
+  // 1. 標準カテゴリ
+  const items: { label: string; cost: number; price: number; color: string }[] = []
+  for (const cat of CATEGORY_ORDER) {
     const pair = sr.categoryTotals.get(cat)
-    if (!pair || (pair.cost === 0 && pair.price === 0)) return []
-    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
-    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
-    return [
-      {
-        label: CATEGORY_LABELS[cat],
-        cost: pair.cost,
-        price: pair.price,
-        markupRate,
-        priceShare,
-        crossMultiplication,
-        color: CROSS_COLORS[cat] ?? '#64748b',
-      },
-    ]
-  })
+    if (!pair || (pair.cost === 0 && pair.price === 0)) continue
+    items.push({
+      label: CATEGORY_LABELS[cat],
+      cost: pair.cost,
+      price: pair.price,
+      color: CROSS_COLORS[cat] ?? '#64748b',
+    })
+  }
+
+  // 2. カスタムカテゴリ（supplierTotals を集約）
+  const customAgg = new Map<CustomCategory, { cost: number; price: number }>()
+  for (const [, st] of sr.supplierTotals) {
+    const customCat = supplierCategoryMap[st.supplierCode]
+    if (!customCat) continue
+    const existing = customAgg.get(customCat) ?? { cost: 0, price: 0 }
+    customAgg.set(customCat, {
+      cost: existing.cost + st.cost,
+      price: existing.price + st.price,
+    })
+  }
+  for (const cc of CUSTOM_CATEGORIES) {
+    const pair = customAgg.get(cc)
+    if (!pair || (pair.cost === 0 && pair.price === 0)) continue
+    items.push({
+      label: cc,
+      cost: pair.cost,
+      price: pair.price,
+      color: CUSTOM_CROSS_COLORS[cc] ?? '#64748b',
+    })
+  }
+
+  // 3. 全体で構成比・相乗積を計算
+  const totalPrice = items.reduce((sum, d) => sum + d.price, 0)
+  const totalAbsPrice = items.reduce((sum, d) => sum + Math.abs(d.price), 0)
+
+  return items.map((d) => ({
+    label: d.label,
+    cost: d.cost,
+    price: d.price,
+    markupRate: safeDivide(d.price - d.cost, d.price, 0),
+    priceShare: safeDivide(Math.abs(d.price), totalAbsPrice, 0),
+    crossMultiplication: safeDivide(d.price - d.cost, totalPrice, 0),
+    color: d.color,
+  }))
 }
 
 // ─── Component ──────────────────────────────────────────
@@ -882,7 +920,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
               const store = stores.get(storeId)
               const storeName = store?.name ?? storeId
               const isExpanded = expandedMarkupStore === storeId
-              const crossRows = buildCrossMult(sr)
+              const crossRows = buildCrossMult(sr, settings.supplierCategoryMap)
               const sig: SignalLevel =
                 sr.averageMarkupRate >= r.grossProfitRateBudget
                   ? 'blue'
@@ -906,22 +944,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                   <BTd>{formatPercent(sr.coreMarkupRate)}</BTd>
                   {displayMode === 'amount' && (
                     <>
-                      <BTd>
-                        {formatCurrency(
-                          CATEGORY_ORDER.reduce(
-                            (sum, cat) => sum + (sr.categoryTotals.get(cat)?.cost ?? 0),
-                            0,
-                          ),
-                        )}
-                      </BTd>
-                      <BTd>
-                        {formatCurrency(
-                          CATEGORY_ORDER.reduce(
-                            (sum, cat) => sum + (sr.categoryTotals.get(cat)?.price ?? 0),
-                            0,
-                          ),
-                        )}
-                      </BTd>
+                      <BTd>{formatCurrency(crossRows.reduce((sum, c) => sum + c.cost, 0))}</BTd>
+                      <BTd>{formatCurrency(crossRows.reduce((sum, c) => sum + c.price, 0))}</BTd>
                     </>
                   )}
                 </BTr>,

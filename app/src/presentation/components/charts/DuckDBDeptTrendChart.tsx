@@ -22,6 +22,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -185,7 +186,7 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
 
   // DuckDB未準備、またはマルチ月データが2ヶ月未満の場合は非表示
   if (!duckConn || duckDataVersion === 0 || loadedMonthCount < 2 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const deptEntries = [...deptNames.entries()]
