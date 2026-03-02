@@ -1,4 +1,11 @@
+/**
+ * カテゴリPI値・偏差値分析 — DuckDB 版
+ *
+ * DuckDB の queryLevelAggregation で階層別集約データを取得し、
+ * PI値（金額PI / 点数PI）と偏差値を算出して横棒チャートで表示する。
+ */
 import { useState, useMemo, memo } from 'react'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import {
   BarChart,
   Bar,
@@ -15,14 +22,10 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
-import type { CategoryTimeSalesIndex, DateRange } from '@/domain/models'
-import {
-  queryByDateRange,
-  aggregateByLevel,
-  countDistinctDays,
-  computeDivisor,
-} from '@/application/usecases/categoryTimeSales'
+import type { DateRange } from '@/domain/models'
+import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
+import { ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -126,11 +129,11 @@ function toDevScore(z: number): number {
 }
 
 interface Props {
-  ctsIndex: CategoryTimeSalesIndex
-  prevCtsIndex: CategoryTimeSalesIndex
-  selectedStoreIds: ReadonlySet<string>
+  duckConn: AsyncDuckDBConnection | null
+  duckDataVersion: number
   currentDateRange: DateRange
   prevYearDateRange?: DateRange
+  selectedStoreIds: ReadonlySet<string>
   totalCustomers: number
   prevTotalCustomers: number
 }
@@ -149,11 +152,11 @@ interface CategoryRow {
 }
 
 export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
-  ctsIndex,
-  prevCtsIndex,
-  selectedStoreIds,
+  duckConn,
+  duckDataVersion,
   currentDateRange,
   prevYearDateRange,
+  selectedStoreIds,
   totalCustomers,
   prevTotalCustomers,
 }: Props) {
@@ -161,49 +164,48 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   const [view, setView] = useState<ViewType>('piRank')
   const [level, setLevel] = useState<LevelType>('department')
 
+  // DuckDB: 当年レベル別集約
+  const curAgg = useDuckDBLevelAggregation(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+  )
+
+  // DuckDB: 前年レベル別集約
+  const prevAgg = useDuckDBLevelAggregation(
+    duckConn,
+    duckDataVersion,
+    prevYearDateRange,
+    selectedStoreIds,
+    level,
+    undefined,
+    true, // isPrevYear
+  )
+
   const categoryRows = useMemo(() => {
-    if (ctsIndex.recordCount === 0 || totalCustomers <= 0) return []
+    if (!curAgg.data || curAgg.data.length === 0 || totalCustomers <= 0) return []
 
-    const records = queryByDateRange(ctsIndex, {
-      dateRange: currentDateRange,
-      storeIds: selectedStoreIds,
-    })
-    const dayCount = countDistinctDays(records)
-    const divisor = computeDivisor(dayCount, 'total')
-
-    const agg = aggregateByLevel(records, level)
-
-    // Previous year aggregation
-    let prevAgg: ReadonlyMap<string, { amount: number; quantity: number }> | null = null
-    if (prevYearDateRange && prevCtsIndex.recordCount > 0 && prevTotalCustomers > 0) {
-      const prevRecords = queryByDateRange(prevCtsIndex, {
-        dateRange: prevYearDateRange,
-        storeIds: selectedStoreIds,
-      })
-      const prevMap = aggregateByLevel(prevRecords, level)
-      prevAgg = new Map(
-        Array.from(prevMap.entries()).map(([k, v]) => [
-          k,
-          { amount: v.amount, quantity: v.quantity },
-        ]),
-      )
+    const prevMap = new Map<string, { amount: number; quantity: number }>()
+    if (prevAgg.data && prevTotalCustomers > 0) {
+      for (const row of prevAgg.data) {
+        prevMap.set(row.code, { amount: row.amount, quantity: row.quantity })
+      }
     }
 
-    // Build rows
     const rows: CategoryRow[] = []
     const piAmounts: number[] = []
     const piQtys: number[] = []
 
-    for (const [code, entry] of agg) {
-      const amount = entry.amount / divisor
-      const quantity = entry.quantity / divisor
-      const piAmount = (amount / totalCustomers) * 1000
-      const piQty = (quantity / totalCustomers) * 1000
+    for (const entry of curAgg.data) {
+      const piAmount = (entry.amount / totalCustomers) * 1000
+      const piQty = (entry.quantity / totalCustomers) * 1000
 
       let prevPiAmount: number | null = null
       let prevPiQty: number | null = null
-      if (prevAgg && prevTotalCustomers > 0) {
-        const prev = prevAgg.get(code)
+      if (prevTotalCustomers > 0) {
+        const prev = prevMap.get(entry.code)
         if (prev) {
           prevPiAmount = (prev.amount / prevTotalCustomers) * 1000
           prevPiQty = (prev.quantity / prevTotalCustomers) * 1000
@@ -214,10 +216,10 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
       piQtys.push(piQty)
 
       rows.push({
-        code,
-        name: entry.name || code,
-        amount,
-        quantity,
+        code: entry.code,
+        name: entry.name || entry.code,
+        amount: entry.amount,
+        quantity: entry.quantity,
         piAmount,
         piQty,
         prevPiAmount,
@@ -240,23 +242,24 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
       }
     }
 
-    // Sort by piAmount descending
+    // Sort by piAmount descending, limit to top 20
     rows.sort((a, b) => b.piAmount - a.piAmount)
-
-    // Limit to top 20 for readability
     return rows.slice(0, 20)
-  }, [
-    ctsIndex,
-    prevCtsIndex,
-    selectedStoreIds,
-    currentDateRange,
-    prevYearDateRange,
-    totalCustomers,
-    prevTotalCustomers,
-    level,
-  ])
+  }, [curAgg.data, prevAgg.data, totalCustomers, prevTotalCustomers])
 
-  if (ctsIndex.recordCount === 0) {
+  // Loading state
+  if (curAgg.isLoading) {
+    return (
+      <Wrapper aria-label="カテゴリ実績チャート">
+        <HeaderRow>
+          <Title>カテゴリPI値・偏差値分析</Title>
+        </HeaderRow>
+        <ChartSkeleton height="360px" />
+      </Wrapper>
+    )
+  }
+
+  if (!curAgg.data || curAgg.data.length === 0) {
     return (
       <Wrapper aria-label="カテゴリ実績チャート">
         <HeaderRow>

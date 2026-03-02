@@ -210,7 +210,6 @@ export function DashboardPage() {
   // duck.isReady を依存配列に含め、DuckDB 初期化完了時にも再注入を試みる
   useEffect(() => {
     const injected = autoInjectDataWidgets(widgetIdsRef.current, {
-      ctsRecordCount: ctsIndex.recordCount,
       prevYearHasPrevYear: prevYearCTS.hasPrevYear,
       storeCount: stores.size,
       hasDiscountData: currentResult?.hasDiscountData,
@@ -220,13 +219,7 @@ export function DashboardPage() {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [
-    ctsIndex.recordCount,
-    prevYearCTS.hasPrevYear,
-    stores.size,
-    currentResult?.hasDiscountData,
-    duck.isReady,
-  ])
+  }, [prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {

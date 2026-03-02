@@ -311,26 +311,15 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '構造分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      daysInMonth,
-      year,
-      month,
-      dataMaxDay,
-      result,
-    }) => (
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
       <CategoryHierarchyExplorer
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        dataMaxDay={dataMaxDay}
-        totalCustomers={result.totalCustomers}
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        prevYearDateRange={ctx.prevYearDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        totalCustomers={ctx.result.totalCustomers}
       />
     ),
   },
@@ -570,24 +559,16 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: 'トレンド分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      currentDateRange,
-      prevYearDateRange,
-      result,
-      prevYear,
-    }) => (
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
       <CategoryPerformanceChart
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        currentDateRange={currentDateRange}
-        prevYearDateRange={prevYearDateRange}
-        totalCustomers={result.totalCustomers}
-        prevTotalCustomers={prevYear.hasPrevYear ? prevYear.totalCustomers : 0}
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        prevYearDateRange={ctx.prevYearDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        totalCustomers={ctx.result.totalCustomers}
+        prevTotalCustomers={ctx.prevYear.hasPrevYear ? ctx.prevYear.totalCustomers : 0}
       />
     ),
   },

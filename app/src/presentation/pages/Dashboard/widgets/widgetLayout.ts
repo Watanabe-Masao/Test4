@@ -124,19 +124,20 @@ function isDuckDBOnlyWidget(id: string): boolean {
   return id.startsWith('duckdb-') || id.startsWith('analysis-duckdb-')
 }
 
-/** 統合ウィジェット（DuckDB/CTS 自動切替）のID */
-const UNIFIED_WIDGET_IDS = new Set([
+/** DuckDB 時系列ウィジェット（旧: 統合ウィジェット、CTS フォールバック廃止済み）のID */
+const DUCKDB_TIMESERIES_WIDGET_IDS = new Set([
   'chart-timeslot-sales',
   'chart-timeslot-heatmap',
   'chart-dept-hourly-pattern',
   'chart-store-timeslot-comparison',
   'analysis-yoy-variance',
+  'chart-category-hierarchy-explorer',
+  'analysis-category-pi',
 ])
 
 export function autoInjectDataWidgets(
   currentIds: string[],
   ctx: {
-    ctsRecordCount: number
     prevYearHasPrevYear: boolean
     storeCount: number
     hasDiscountData?: boolean
@@ -161,12 +162,12 @@ export function autoInjectDataWidgets(
       }
       return true
     }
-    // 統合ウィジェット: DuckDB または CTS のどちらかが利用可能なら注入候補
-    if (UNIFIED_WIDGET_IDS.has(w.id)) {
-      const hasData = ctx.isDuckDBReady || ctx.ctsRecordCount > 0
-      if (w.id === 'chart-store-timeslot-comparison') return hasData && ctx.storeCount > 1
+    // DuckDB 時系列ウィジェット: DuckDB 初期化完了を待って注入
+    if (DUCKDB_TIMESERIES_WIDGET_IDS.has(w.id)) {
+      if (!ctx.isDuckDBReady) return false
+      if (w.id === 'chart-store-timeslot-comparison') return ctx.storeCount > 1
       if (w.id === 'analysis-yoy-variance') return ctx.prevYearHasPrevYear
-      return hasData
+      return true
     }
     // 従来ウィジェットの既存ロジック
     if (w.id === 'analysis-yoy-waterfall') {
@@ -175,7 +176,7 @@ export function autoInjectDataWidgets(
     if (w.id === 'chart-discount-breakdown') {
       return ctx.hasDiscountData === true
     }
-    return ctx.ctsRecordCount > 0
+    return true
   })
 
   if (candidates.length === 0) return null

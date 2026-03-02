@@ -4,17 +4,17 @@
  * UI コンポーネントが「どのデータソースを使うか」を意識せずにデータを取得できるよう、
  * Application 層でソース解決とキャッシュを一元管理する。
  *
- * ## ソース解決ルール
+ * ## ソース解決ルール（エンジン責務分離方針）
  *
- * | データ種別       | 優先ソース  | フォールバック | 理由                                                   |
- * |:---------------|:----------|:------------|:------------------------------------------------------|
- * | KPI/粗利/予算    | StoreResult | —           | 計算パイプラインの権威的出力。DuckDB は使わない               |
- * | 時間帯分析       | DuckDB    | CTS Index   | 月跨ぎ対応。DuckDB 未準備時は CTS フォールバック              |
- * | ヒートマップ     | DuckDB    | CTS Index   | 同上                                                   |
- * | 部門時間帯       | DuckDB    | CTS Index   | 同上                                                   |
- * | 店舗時間帯比較   | DuckDB    | CTS Index   | 同上（複数店舗必須）                                      |
- * | 前年比較         | DuckDB    | StoreResult | 月跨ぎ対応。フォールバックは daily ベースの前年差異             |
- * | 特徴量/累積等    | DuckDB    | —           | DuckDB 専用分析。フォールバックなし（非表示）                  |
+ * | データ種別       | ソース      | 理由                                                   |
+ * |:---------------|:----------|:------------------------------------------------------|
+ * | KPI/粗利/予算    | StoreResult | 計算パイプラインの権威的出力。DuckDB は使わない               |
+ * | 時間帯分析       | DuckDB    | 月跨ぎ対応。SQL 集約の排他的責務                             |
+ * | ヒートマップ     | DuckDB    | 同上                                                   |
+ * | 部門時間帯       | DuckDB    | 同上                                                   |
+ * | 店舗時間帯比較   | DuckDB    | 同上（複数店舗必須）                                      |
+ * | 前年比較         | DuckDB    | 月跨ぎ対応。フォールバックは StoreResult daily ベース         |
+ * | 特徴量/累積等    | DuckDB    | DuckDB 専用分析。フォールバックなし（非表示）                  |
  *
  * ## キャッシュ戦略
  *
@@ -25,19 +25,18 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { CategoryTimeSalesIndex, DateRange, Store } from '@/domain/models'
+import type { DateRange, Store } from '@/domain/models'
 
 // ── Data Source Resolution ──
 
 /** 分析データのソース種別 */
-export type AnalyticsSource = 'duckdb' | 'cts' | 'storeResult'
+export type AnalyticsSource = 'duckdb' | 'storeResult'
 
 /** ソース解決に必要なコンテキスト（WidgetContext から最小限を抽出） */
 export interface SourceContext {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
   readonly duckLoadedMonthCount: number
-  readonly ctsRecordCount: number
   readonly storeCount: number
   readonly hasPrevYear: boolean
 }
@@ -48,8 +47,6 @@ export interface ResolvedSource {
   readonly source: AnalyticsSource
   /** DuckDB が利用可能か */
   readonly duckReady: boolean
-  /** CTS インデックスが利用可能か */
-  readonly ctsAvailable: boolean
   /** 複数月データが利用可能か（DuckDB 2+月） */
   readonly multiMonthAvailable: boolean
   /** 複数店舗が利用可能か */
@@ -64,7 +61,6 @@ export function buildSourceContext(ctx: {
   duckConn: AsyncDuckDBConnection | null
   duckDataVersion: number
   duckLoadedMonthCount: number
-  ctsIndex: CategoryTimeSalesIndex
   stores: ReadonlyMap<string, Store>
   prevYearDateRange?: DateRange
 }): SourceContext {
@@ -72,7 +68,6 @@ export function buildSourceContext(ctx: {
     duckConn: ctx.duckConn,
     duckDataVersion: ctx.duckDataVersion,
     duckLoadedMonthCount: ctx.duckLoadedMonthCount,
-    ctsRecordCount: ctx.ctsIndex.recordCount,
     storeCount: ctx.stores.size,
     hasPrevYear: ctx.prevYearDateRange != null,
   }
@@ -80,16 +75,13 @@ export function buildSourceContext(ctx: {
 
 /**
  * 時系列分析（時間帯・ヒートマップ・部門・店舗比較）のソースを解決する。
- * DuckDB 優先、CTS フォールバック。
+ * DuckDB 専用。未準備時は source='duckdb' + duckReady=false を返す。
  */
 export function resolveTimeSeriesSource(ctx: SourceContext): ResolvedSource {
   const duckReady = ctx.duckDataVersion > 0 && ctx.duckConn != null
-  const ctsAvailable = ctx.ctsRecordCount > 0
-  const source: AnalyticsSource = duckReady ? 'duckdb' : ctsAvailable ? 'cts' : 'cts'
   return {
-    source,
+    source: 'duckdb',
     duckReady,
-    ctsAvailable,
     multiMonthAvailable: ctx.duckLoadedMonthCount >= 2,
     multiStoreAvailable: ctx.storeCount > 1,
   }
@@ -105,7 +97,6 @@ export function resolveYoYSource(ctx: SourceContext): ResolvedSource {
   return {
     source,
     duckReady,
-    ctsAvailable: ctx.ctsRecordCount > 0,
     multiMonthAvailable: ctx.duckLoadedMonthCount >= 2,
     multiStoreAvailable: ctx.storeCount > 1,
   }
@@ -121,7 +112,6 @@ export function resolveDuckDBOnlySource(ctx: SourceContext): ResolvedSource | nu
   return {
     source: 'duckdb',
     duckReady: true,
-    ctsAvailable: ctx.ctsRecordCount > 0,
     multiMonthAvailable: ctx.duckLoadedMonthCount >= 2,
     multiStoreAvailable: ctx.storeCount > 1,
   }
@@ -136,31 +126,20 @@ export function useSourceContext(ctx: {
   duckConn: AsyncDuckDBConnection | null
   duckDataVersion: number
   duckLoadedMonthCount: number
-  ctsIndex: CategoryTimeSalesIndex
   stores: ReadonlyMap<string, Store>
   prevYearDateRange?: DateRange
 }): SourceContext {
-  const { duckConn, duckDataVersion, duckLoadedMonthCount, ctsIndex, stores, prevYearDateRange } =
-    ctx
-  const ctsRecordCount = ctsIndex.recordCount
+  const { duckConn, duckDataVersion, duckLoadedMonthCount, stores, prevYearDateRange } = ctx
   const storeCount = stores.size
   return useMemo(
     () => ({
       duckConn,
       duckDataVersion,
       duckLoadedMonthCount,
-      ctsRecordCount,
       storeCount,
       hasPrevYear: prevYearDateRange != null,
     }),
-    [
-      duckConn,
-      duckDataVersion,
-      duckLoadedMonthCount,
-      ctsRecordCount,
-      storeCount,
-      prevYearDateRange,
-    ],
+    [duckConn, duckDataVersion, duckLoadedMonthCount, storeCount, prevYearDateRange],
   )
 }
 
