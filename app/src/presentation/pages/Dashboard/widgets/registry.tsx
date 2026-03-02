@@ -61,11 +61,11 @@ import {
 } from './UnifiedAnalyticsWidgets'
 
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
-  // ── KPI: 収益構造 ──
+  // ── KPI: 収益概況 ──
   {
     id: 'kpi-core-sales',
     label: 'コア売上',
-    group: '収益構造',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -80,7 +80,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-inv-gross-profit',
     label: '【在庫法】粗利益',
-    group: '収益構造',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
@@ -103,7 +103,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-est-margin',
     label: '【推定法】在庫差分',
-    group: '収益構造',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
@@ -119,11 +119,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     },
   },
   // 注: kpi-gross-profit-budget → ExecSummaryBar 粗利率カードに統合
-  // ── KPI: 仕入・売変 ──
+  // ── KPI: 収益概況（仕入・売変） ──
   {
     id: 'kpi-inventory-cost',
     label: '在庫仕入原価',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -137,7 +137,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-delivery-sales',
     label: '売上納品原価',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -152,7 +152,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-consumable',
     label: '消耗品費',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -167,7 +167,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-discount-loss',
     label: '売変ロス原価',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -181,7 +181,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'kpi-core-markup',
     label: 'コア値入率',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'kpi',
     render: ({ result: r, onExplain }) => (
       <KpiCard
@@ -194,11 +194,11 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
   // 注: kpi-customers, kpi-transaction-value → ExecSummaryBar 客数・客単価カードに統合
-  // ── 日次推移 ──
+  // ── トレンド分析: 日次 ──
   {
     id: 'chart-daily-sales',
     label: '日別売上チャート',
-    group: '日次推移',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear, year, month }) => (
       <DailySalesChart
@@ -213,7 +213,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-budget-vs-actual',
     label: '予算vs実績チャート',
-    group: '予実管理',
+    group: '収益概況',
     size: 'full',
     render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
       <BudgetVsActualChart
@@ -228,14 +228,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-category-pie',
     label: 'カテゴリ別構成',
-    group: '収益構造',
+    group: '収益概況',
     size: 'half',
     render: ({ result: r }) => <CategoryPieChart categoryTotals={r.categoryTotals} />,
   },
   {
     id: 'chart-gross-profit-amount',
     label: '粗利推移チャート',
-    group: '収益構造',
+    group: '収益概況',
     size: 'full',
     render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear }) => {
       // 前年仕入コストマップの構築（前年粗利率ライン表示用）
@@ -269,7 +269,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-discount-breakdown',
     label: '売変内訳分析（71-74）',
-    group: '仕入・売変',
+    group: '収益概況',
     size: 'full',
     isVisible: (ctx) => ctx.result.hasDiscountData,
     render: ({ result: r, daysInMonth, prevYear }) => (
@@ -289,7 +289,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-category-hierarchy-explorer',
     label: '階層ドリルダウン分析',
-    group: '時間帯・カテゴリ',
+    group: '構造分析',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({
@@ -317,7 +317,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-timeslot-sales',
     label: '時間帯別売上',
-    group: '時間帯・カテゴリ',
+    group: '構造分析',
     size: 'full',
     isVisible: isTimeSeriesVisible,
     render: (ctx) => <UnifiedTimeSlotWidget ctx={ctx} />,
@@ -327,7 +327,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-timeslot-heatmap',
     label: '時間帯×曜日ヒートマップ',
-    group: '時間帯・カテゴリ',
+    group: '構造分析',
     size: 'full',
     isVisible: isTimeSeriesVisible,
     render: (ctx) => <UnifiedHeatmapWidget ctx={ctx} />,
@@ -335,7 +335,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-dept-hourly-pattern',
     label: '部門別時間帯パターン',
-    group: '時間帯・カテゴリ',
+    group: '構造分析',
     size: 'full',
     isVisible: isTimeSeriesVisible,
     render: (ctx) => <UnifiedDeptHourlyWidget ctx={ctx} />,
@@ -343,7 +343,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-store-timeslot-comparison',
     label: '店舗別時間帯比較',
-    group: '時間帯・カテゴリ',
+    group: '構造分析',
     size: 'full',
     isVisible: isStoreComparisonVisible,
     render: (ctx) => <UnifiedStoreHourlyWidget ctx={ctx} />,
@@ -353,36 +353,36 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-summary-bar',
     label: 'サマリーバー',
-    group: '日次監視',
+    group: 'モニタリング',
     size: 'full',
     render: (ctx) => <ExecSummaryBarWidget key={ctx.storeKey} {...ctx} />,
   },
   {
     id: 'analysis-condition-summary',
     label: 'コンディションサマリー',
-    group: '日次監視',
+    group: 'モニタリング',
     size: 'full',
     render: (ctx) => <ConditionSummaryWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'analysis-alert-panel',
     label: 'アラート',
-    group: '日次監視',
+    group: 'モニタリング',
     size: 'full',
     render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
   },
-  // ── 予実管理 ──
+  // ── 収益概況: 予実管理 ──
   {
     id: 'exec-plan-actual-forecast',
     label: 'PLAN / ACTUAL / FORECAST',
-    group: '予実管理',
+    group: '収益概況',
     size: 'full',
     render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
     id: 'exec-monthly-calendar',
     label: '月間カレンダー',
-    group: '予実管理',
+    group: '収益概況',
     size: 'full',
     render: (ctx) => <MonthlyCalendarWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -390,28 +390,28 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-dow-average',
     label: '曜日平均',
-    group: '月次パターン',
+    group: 'トレンド分析',
     size: 'full',
     render: (ctx) => renderDowAverage(ctx),
   },
   {
     id: 'exec-weekly-summary',
     label: '週別サマリー',
-    group: '月次パターン',
+    group: 'トレンド分析',
     size: 'full',
     render: (ctx) => renderWeeklySummary(ctx),
   },
   {
     id: 'exec-daily-store-sales',
     label: '売上・売変・客数（日別×店舗）',
-    group: '月次パターン',
+    group: 'トレンド分析',
     size: 'full',
     render: (ctx) => renderDailyStoreSalesTable(ctx),
   },
   {
     id: 'exec-daily-inventory',
     label: '日別推定在庫',
-    group: '月次パターン',
+    group: 'トレンド分析',
     size: 'full',
     render: (ctx) => renderDailyInventoryTable(ctx),
   },
@@ -419,7 +419,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'chart-sales-purchase-comparison',
     label: '売上・仕入 店舗比較',
-    group: '店舗別',
+    group: '構造分析',
     size: 'full',
     render: ({ allStoreResults, stores, daysInMonth }) => {
       const results = Array.from(allStoreResults.values())
@@ -436,7 +436,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-store-kpi',
     label: '店舗別KPI一覧',
-    group: '店舗別',
+    group: '構造分析',
     size: 'full',
     render: (ctx) => renderStoreKpiTable(ctx),
   },
@@ -444,7 +444,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-department-kpi',
     label: '部門別KPI一覧',
-    group: '部門別',
+    group: '構造分析',
     size: 'full',
     render: (ctx) => renderDepartmentKpiTable(ctx),
   },
@@ -452,7 +452,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'exec-forecast-tools',
     label: '着地予測・ゴールシーク',
-    group: 'シミュレーション',
+    group: '予測・シミュレーション',
     size: 'full',
     render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -460,14 +460,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-waterfall',
     label: '粗利ウォーターフォール',
-    group: '収益分析',
+    group: '要因分析',
     size: 'full',
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
     id: 'analysis-yoy-waterfall',
     label: '前年比較ウォーターフォール',
-    group: '収益分析',
+    group: '要因分析',
     size: 'full',
     isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
     render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
@@ -475,7 +475,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
-    group: '収益分析',
+    group: '要因分析',
     size: 'full',
     render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -483,7 +483,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-revenue-structure',
     label: '収益構造分析',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth }) => (
       <RevenueStructureChart daily={r.daily} daysInMonth={daysInMonth} />
@@ -492,7 +492,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-yoy-variance',
     label: '前年差異分析',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: isYoYVisible,
     render: (ctx) => <UnifiedYoYWidget ctx={ctx} />,
@@ -500,7 +500,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-customer-scatter',
     label: '客数×客単価 効率分析',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <CustomerScatterChart
@@ -515,7 +515,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-multi-kpi',
     label: 'マルチKPIダッシュボード',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
       <MultiKpiSparklines
@@ -528,7 +528,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-performance-index',
     label: 'PI値・偏差値・Zスコア',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth, prevYear }) => (
       <PerformanceIndexChart
@@ -541,7 +541,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-category-pi',
     label: 'カテゴリPI値・偏差値',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({
@@ -568,14 +568,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-structural-overview',
     label: '収益構造俯瞰図',
-    group: '収益構造',
+    group: '収益概況',
     size: 'full',
     render: ({ result: r }) => <StructuralOverviewChart result={r} />,
   },
   {
     id: 'analysis-integrated-timeline',
     label: '統合タイムライン',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, daysInMonth }) => (
       <IntegratedTimeline result={r} daysInMonth={daysInMonth} />
@@ -584,7 +584,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-causal-chain',
     label: '因果チェーン分析',
-    group: '収益分析',
+    group: '要因分析',
     size: 'full',
     render: ({ result: r, prevYear }) => (
       <CausalChainExplorer
@@ -608,14 +608,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-sensitivity',
     label: '感度分析ダッシュボード',
-    group: 'シミュレーション',
+    group: '予測・シミュレーション',
     size: 'full',
     render: ({ result: r }) => <SensitivityDashboard result={r} />,
   },
   {
     id: 'analysis-regression-insight',
     label: '回帰分析インサイト',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ result: r, year, month }) => (
       <RegressionInsightChart result={r} year={year} month={month} />
@@ -624,7 +624,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-seasonal-benchmark',
     label: '季節性ベンチマーク',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     render: ({ month, monthlyHistory }) => (
       <SeasonalBenchmarkChart monthlyData={monthlyHistory} currentMonth={month} />
@@ -633,7 +633,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-duckdb-features',
     label: '売上トレンド分析（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -648,7 +648,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-duckdb-cumulative',
     label: '累積売上推移（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -664,7 +664,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'analysis-duckdb-dept-trend',
     label: '部門別KPIトレンド（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
@@ -685,7 +685,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-dow-pattern',
     label: '曜日パターン分析（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'half',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -700,7 +700,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-hourly-profile',
     label: '時間帯プロファイル（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'half',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -715,7 +715,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-category-trend',
     label: 'カテゴリ別売上推移（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -731,7 +731,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-category-hourly',
     label: 'カテゴリ×時間帯（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
@@ -746,7 +746,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-category-mix',
     label: 'カテゴリ構成比推移（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
@@ -761,7 +761,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   {
     id: 'duckdb-store-benchmark',
     label: '店舗ベンチマーク（DuckDB）',
-    group: '統計・トレンド',
+    group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.stores.size > 1,
     render: (ctx) => (

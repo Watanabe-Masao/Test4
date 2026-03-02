@@ -9,7 +9,7 @@
  * - 階層レベル切替（部門/ライン/クラス）
  * - 構成比シフトの大きいカテゴリのハイライト
  */
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, memo } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -324,7 +324,7 @@ function MixTooltip({ active, label, payload, categories, ct }: CustomTooltipPro
 
 // ── Component ──
 
-export function DuckDBCategoryMixChart({
+export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -446,4 +446,4 @@ export function DuckDBCategoryMixChart({
       )}
     </Wrapper>
   )
-}
+})

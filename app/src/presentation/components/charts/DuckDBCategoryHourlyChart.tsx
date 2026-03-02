@@ -9,7 +9,7 @@
  * - 階層レベル切替（部門/ライン/クラス）
  * - ピーク時間帯マーカー（★）
  */
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -277,7 +277,7 @@ function buildHeatmapData(rows: readonly CategoryHourlyRow[]): HeatmapData {
 
 // ── Component ──
 
-export function DuckDBCategoryHourlyChart({
+export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -399,4 +399,4 @@ export function DuckDBCategoryHourlyChart({
       </SummaryRow>
     </Wrapper>
   )
-}
+})

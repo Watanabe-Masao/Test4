@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, memo } from 'react'
 import {
   ComposedChart,
   Line,
@@ -115,7 +115,7 @@ interface Props {
   daysInMonth: number
 }
 
-export function IntegratedTimeline({ result, daysInMonth }: Props) {
+export const IntegratedTimeline = memo(function IntegratedTimeline({ result, daysInMonth }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('normalized')
 
@@ -344,4 +344,4 @@ export function IntegratedTimeline({ result, daysInMonth }: Props) {
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import {
   ComposedChart,
   Line,
@@ -84,7 +84,7 @@ interface Props {
   stores?: ReadonlyMap<string, Store>
 }
 
-export function InventoryTrendChart({
+export const InventoryTrendChart = memo(function InventoryTrendChart({
   daily,
   daysInMonth,
   openingInventory,
@@ -328,4 +328,4 @@ export function InventoryTrendChart({
       />
     </Wrapper>
   )
-}
+})

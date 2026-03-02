@@ -1,6 +1,7 @@
 /**
  * 要因分解分析チャート群
  */
+import { memo } from 'react'
 import {
   useChartTheme,
   tooltipStyle,
@@ -40,7 +41,7 @@ const EFFECT_LABELS: Record<string, string> = {
 }
 
 /** 日別要因分解推移（累計折れ線） */
-export function DecompTrendChart({ data }: { data: DailyDecompEntry[] }) {
+export const DecompTrendChart = memo(function DecompTrendChart({ data }: { data: DailyDecompEntry[] }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -105,10 +106,10 @@ export function DecompTrendChart({ data }: { data: DailyDecompEntry[] }) {
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 日別要因分解バー（1日ごとの内訳） */
-export function DecompDailyBarChart({ data }: { data: DailyDecompEntry[] }) {
+export const DecompDailyBarChart = memo(function DecompDailyBarChart({ data }: { data: DailyDecompEntry[] }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -162,10 +163,10 @@ export function DecompDailyBarChart({ data }: { data: DailyDecompEntry[] }) {
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 曜日別要因分解チャート */
-export function DecompDowChart({ data, dowColors }: { data: DowDecompAvg[]; dowColors: string[] }) {
+export const DecompDowChart = memo(function DecompDowChart({ data, dowColors }: { data: DowDecompAvg[]; dowColors: string[] }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -240,4 +241,4 @@ export function DecompDowChart({ data, dowColors }: { data: DowDecompAvg[]; dowC
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})

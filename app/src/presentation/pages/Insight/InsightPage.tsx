@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
@@ -7,7 +8,11 @@ import {
   Chip,
   ChipGroup,
   ChartErrorBoundary,
+  MetricBreakdownPanel,
 } from '@/presentation/components/common'
+import { useExplanations } from '@/application/hooks'
+import { useDataStore } from '@/application/stores/dataStore'
+import type { MetricId } from '@/domain/models'
 import {
   BudgetVsActualChart,
   PrevYearComparisonChart,
@@ -68,6 +73,12 @@ import { useInsightData } from './useInsightData'
 
 export function InsightPage() {
   const d = useInsightData()
+  const explanations = useExplanations()
+  const dataStores = useDataStore((s) => s.data.stores)
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
 
   if (!d.currentResult) {
     return (
@@ -81,22 +92,22 @@ export function InsightPage() {
 
   return (
     <MainContent title="インサイト" storeName={d.storeName}>
-      {/* タブバー */}
+      {/* タブバー — 問いの深さ順 */}
       <TabBar>
         <Tab $active={d.activeTab === 'budget'} onClick={() => d.setActiveTab('budget')}>
-          予算分析
+          予算と実績
         </Tab>
         <Tab $active={d.activeTab === 'grossProfit'} onClick={() => d.setActiveTab('grossProfit')}>
-          粗利計算
-        </Tab>
-        <Tab $active={d.activeTab === 'forecast'} onClick={() => d.setActiveTab('forecast')}>
-          予測パターン
+          損益構造
         </Tab>
         <Tab
           $active={d.activeTab === 'decomposition'}
           onClick={() => d.setActiveTab('decomposition')}
         >
-          要因分解
+          売上要因
+        </Tab>
+        <Tab $active={d.activeTab === 'forecast'} onClick={() => d.setActiveTab('forecast')}>
+          予測・パターン
         </Tab>
       </TabBar>
 
@@ -129,35 +140,41 @@ export function InsightPage() {
                   value={d.formatPercent(r.budgetProgressRate)}
                   subText={`経過日予算累計比: ${r.elapsedDays}日分`}
                   accent={palette.primary}
+                  onClick={() => handleExplain('budgetProgressRate')}
                 />
                 <KpiCard
                   label="予算消化率"
                   value={d.formatPercent(r.budgetAchievementRate)}
                   subText={`予算: ${d.formatCurrency(r.budget)}`}
                   accent={sc.positive}
+                  onClick={() => handleExplain('budgetAchievementRate')}
                 />
                 <KpiCard
                   label="月末予測売上"
                   value={d.formatCurrency(r.projectedSales)}
                   accent={palette.infoDark}
+                  onClick={() => handleExplain('projectedSales')}
                 />
                 <KpiCard
                   label="達成率予測"
                   value={d.formatPercent(r.projectedAchievement)}
                   subText={`残余予算: ${d.formatCurrency(r.remainingBudget)}`}
                   accent={sc.achievement(r.projectedAchievement)}
+                  onClick={() => handleExplain('remainingBudget')}
                 />
                 <KpiCard
                   label="粗利額予算"
                   value={d.formatCurrency(r.grossProfitBudget)}
                   subText={`実績: ${d.formatCurrency(d.actualGrossProfit)}`}
                   accent={palette.purpleDark}
+                  onClick={r.invMethodGrossProfit != null ? () => handleExplain('invMethodGrossProfit') : undefined}
                 />
                 <KpiCard
                   label="粗利率"
                   value={d.formatPercent(d.actualGrossProfitRate)}
                   subText={`予算: ${d.formatPercent(r.grossProfitRateBudget)}`}
                   accent={palette.pinkDark}
+                  onClick={r.invMethodGrossProfitRate != null ? () => handleExplain('invMethodGrossProfitRate') : () => handleExplain('estMethodMarginRate')}
                 />
                 {d.prevYear.hasPrevYear && (
                   <KpiCard
@@ -486,17 +503,20 @@ export function InsightPage() {
               value={`${r.salesDays}日`}
               subText={`経過: ${r.elapsedDays}日`}
               accent={palette.primary}
+              onClick={() => handleExplain('salesTotal')}
             />
             <KpiCard
               label="日平均売上"
               value={d.formatCurrency(r.averageDailySales)}
               accent={sc.positive}
+              onClick={() => handleExplain('salesTotal')}
             />
             <KpiCard
               label="月末予測売上"
               value={d.formatCurrency(r.projectedSales)}
               subText={`達成率予測: ${d.formatPercent(r.projectedAchievement)}`}
               accent={palette.infoDark}
+              onClick={() => handleExplain('projectedSales')}
             />
             <KpiCard
               label="異常値検出"
@@ -514,6 +534,7 @@ export function InsightPage() {
                 value={`${d.totalCustomers.toLocaleString()}人`}
                 subText={`日平均: ${Math.round(d.avgDailyCustomers).toLocaleString()}人`}
                 accent={palette.cyanDark}
+                onClick={() => handleExplain('totalCustomers')}
               />
               <KpiCard
                 label="客単価"
@@ -960,6 +981,15 @@ export function InsightPage() {
             <EmptyState>前年データがないため要因分解を表示できません</EmptyState>
           )}
         </>
+      )}
+      {/* 指標説明パネル */}
+      {explainMetric && explanations.has(explainMetric) && (
+        <MetricBreakdownPanel
+          explanation={explanations.get(explainMetric)!}
+          allExplanations={explanations}
+          stores={dataStores}
+          onClose={() => setExplainMetric(null)}
+        />
       )}
     </MainContent>
   )

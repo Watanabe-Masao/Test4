@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import styled from 'styled-components'
 import {
   BarChart,
@@ -40,7 +40,7 @@ interface WaterfallItem {
   isTotal?: boolean
 }
 
-export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
+export const WaterfallChartWidget = memo(function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
   const r = ctx.result
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -160,4 +160,4 @@ export function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

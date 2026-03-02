@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -33,7 +34,7 @@ interface Props {
 }
 
 /** 日別客単価推移チャート（バー: 当年客単価 / ライン: 前年客単価） */
-export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Props) {
+export const TransactionValueChart = memo(function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Props) {
   const ct = useChartTheme()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
@@ -128,4 +129,4 @@ export function TransactionValueChart({ daily, daysInMonth, prevYearDaily }: Pro
       />
     </Wrapper>
   )
-}
+})

@@ -10,7 +10,7 @@
  * - 平均比インデックス（折れ線、右軸、%表示）
  * - サマリー行: 最強曜日 / 最弱曜日 / 週内変動率(CV)
  */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -154,7 +154,7 @@ function buildChartData(rows: readonly DowPatternRow[]): DowSummary {
   return { chartData, overallAvg: Math.round(overallAvg), strongestDow, weakestDow, cv }
 }
 
-export function DuckDBDowPatternChart({
+export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -274,4 +274,4 @@ export function DuckDBDowPatternChart({
       </SummaryRow>
     </Wrapper>
   )
-}
+})

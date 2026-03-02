@@ -11,7 +11,7 @@
  * - 粗利率（実績）折れ線グラフ
  * - 売上実績棒グラフ
  */
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, memo } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -131,7 +131,7 @@ function buildChartData(
   return { chartData, deptNames }
 }
 
-export function DuckDBDeptTrendChart({
+export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
   duckConn,
   duckDataVersion,
   loadedMonthCount,
@@ -275,4 +275,4 @@ export function DuckDBDeptTrendChart({
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})

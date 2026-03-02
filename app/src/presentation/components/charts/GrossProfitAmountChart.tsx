@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   ComposedChart,
   BarChart,
@@ -83,7 +83,7 @@ interface Props {
 }
 
 /** 粗利推移チャート（額+率 / 率のみ 切替） */
-export function GrossProfitAmountChart({
+export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   daily,
   daysInMonth,
   grossProfitBudget,
@@ -352,4 +352,4 @@ export function GrossProfitAmountChart({
       />
     </Wrapper>
   )
-}
+})

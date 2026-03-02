@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import {
   ComposedChart,
   Bar,
@@ -48,7 +49,7 @@ interface Props {
 }
 
 /** 予算差・前年差 累計推移チャート */
-export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props) {
+export const BudgetDiffTrendChart = memo(function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const totalDays = daysInMonth ?? data.length
@@ -163,4 +164,4 @@ export function BudgetDiffTrendChart({ data, prevYearDaily, daysInMonth }: Props
       />
     </Wrapper>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import { toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -203,7 +203,7 @@ const SLIDER_CONFIGS: SliderConfig[] = [
   },
 ]
 
-export function SensitivityDashboard({ result }: Props) {
+export const SensitivityDashboard = memo(function SensitivityDashboard({ result }: Props) {
   const [deltas, setDeltas] = useState<SensitivityDeltas>({
     discountRateDelta: 0,
     customersDelta: 0,
@@ -356,4 +356,4 @@ export function SensitivityDashboard({ result }: Props) {
       </Grid>
     </Wrapper>
   )
-}
+})

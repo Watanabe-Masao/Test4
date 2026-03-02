@@ -45,14 +45,30 @@ const SubText = styled.div`
   margin-top: ${({ theme }) => theme.spacing[2]};
 `
 
+const TrendBadge = styled.span<{ $direction: 'up' | 'down' | 'flat' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  margin-left: ${({ theme }) => theme.spacing[2]};
+  color: ${({ $direction, theme }) =>
+    $direction === 'up'
+      ? theme.colors.palette.success
+      : $direction === 'down'
+        ? theme.colors.palette.danger
+        : theme.colors.text4};
+`
+
 const ExplainHint = styled.span`
   position: absolute;
   top: ${({ theme }) => theme.spacing[2]};
   right: ${({ theme }) => theme.spacing[2]};
-  font-size: 10px;
+  font-size: 11px;
   color: ${({ theme }) => theme.colors.palette.primary};
-  opacity: 0.5;
+  opacity: 0.7;
   transition: opacity 0.15s;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
 export function KpiCard({
@@ -61,12 +77,14 @@ export function KpiCard({
   subText,
   accent,
   onClick,
+  trend,
 }: {
   label: string
   value: string
   subText?: string
   accent?: string
   onClick?: () => void
+  trend?: { direction: 'up' | 'down' | 'flat'; label: string }
 }) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -91,7 +109,15 @@ export function KpiCard({
     >
       {onClick && <ExplainHint data-hint>根拠</ExplainHint>}
       <Label>{label}</Label>
-      <Value>{value}</Value>
+      <Value>
+        {value}
+        {trend && (
+          <TrendBadge $direction={trend.direction}>
+            {trend.direction === 'up' ? '↑' : trend.direction === 'down' ? '↓' : '→'}
+            {trend.label}
+          </TrendBadge>
+        )}
+      </Value>
       {subText && <SubText>{subText}</SubText>}
     </Wrapper>
   )

@@ -1,5 +1,10 @@
 import styled, { css } from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
+import {
+  DataTableWrapper,
+  DataTable,
+} from '@/presentation/components/common'
+export { EmptyState } from '@/presentation/components/common'
 
 export const ChartToggle = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
@@ -16,18 +21,9 @@ export const ChartGrid = styled.div`
   }
 `
 
-export const TableWrapper = styled.div`
-  overflow-x: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-`
+export const TableWrapper = DataTableWrapper
 
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
+export const Table = DataTable
 
 const clickableHeaderCss = css`
   cursor: pointer;
@@ -120,12 +116,6 @@ export const PrevYearTd = styled.td<{ $positive?: boolean }>`
   color: ${({ $positive, theme }) =>
     $positive === undefined ? theme.colors.text3 : $positive ? sc.positive : sc.negative};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-export const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[12]};
-  color: ${({ theme }) => theme.colors.text3};
 `
 
 export const ToggleIcon = styled.span<{ $expanded?: boolean }>`

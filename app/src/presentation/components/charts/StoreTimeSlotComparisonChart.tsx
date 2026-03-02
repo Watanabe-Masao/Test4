@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import {
   RadarChart,
   PolarGrid,
@@ -202,7 +202,7 @@ interface Props {
 }
 
 /** 店舗別 時間帯売上パターン比較 */
-export function StoreTimeSlotComparisonChart({
+export const StoreTimeSlotComparisonChart = memo(function StoreTimeSlotComparisonChart({
   ctsIndex,
   stores,
   daysInMonth,
@@ -533,4 +533,4 @@ export function StoreTimeSlotComparisonChart({
       <HierarchyDropdowns hf={hf} />
     </Wrapper>
   )
-}
+})

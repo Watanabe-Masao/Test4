@@ -8,7 +8,7 @@
  * - 日別売上（棒グラフ）
  * - 累積売上（面グラフ）
  */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
@@ -85,7 +85,7 @@ function buildChartData(rows: readonly DailyCumulativeRow[]): ChartDataPoint[] {
   }))
 }
 
-export function DuckDBCumulativeChart({
+export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -181,4 +181,4 @@ export function DuckDBCumulativeChart({
       </SummaryRow>
     </Wrapper>
   )
-}
+})

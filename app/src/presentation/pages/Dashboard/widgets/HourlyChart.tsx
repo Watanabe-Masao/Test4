@@ -5,7 +5,7 @@
  * 棒グラフ・累積線・時間帯別詳細パネルを提供する。
  * 複数時間帯を選択して分類別内訳を表示可能。
  */
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/calculations/utils'
@@ -59,7 +59,7 @@ import {
 
 type HourlyMode = 'actual' | 'prev'
 
-export function HourlyChart({
+export const HourlyChart = memo(function HourlyChart({
   dayRecords,
   prevDayRecords,
 }: {
@@ -518,4 +518,4 @@ export function HourlyChart({
       )}
     </HourlySection>
   )
-}
+})

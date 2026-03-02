@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { StoreResult } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
@@ -26,7 +27,7 @@ import {
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
-export function StoreComparisonCategoryBarChart({
+export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCategoryBarChart({
   selectedResults,
   storeNames,
 }: {
@@ -92,10 +93,10 @@ export function StoreComparisonCategoryBarChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})
 
 /** 店舗間値入率レーダーチャート */
-export function StoreComparisonMarkupRadarChart({
+export const StoreComparisonMarkupRadarChart = memo(function StoreComparisonMarkupRadarChart({
   selectedResults,
   storeNames,
 }: {
@@ -154,4 +155,4 @@ export function StoreComparisonMarkupRadarChart({
       </ResponsiveContainer>
     </ChartWrapper>
   )
-}
+})

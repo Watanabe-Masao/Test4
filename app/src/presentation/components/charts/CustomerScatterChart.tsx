@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, memo } from 'react'
 import {
   ScatterChart,
   Scatter,
@@ -103,7 +103,7 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
 }
 
-export function CustomerScatterChart({ daily, daysInMonth, year, month, prevYearDaily }: Props) {
+export const CustomerScatterChart = memo(function CustomerScatterChart({ daily, daysInMonth, year, month, prevYearDaily }: Props) {
   const ct = useChartTheme()
   const [axisMode, setAxisMode] = useState<AxisMode>('absolute')
   const hasPrev = !!prevYearDaily
@@ -495,4 +495,4 @@ export function CustomerScatterChart({ daily, daysInMonth, year, month, prevYear
       </ResponsiveContainer>
     </Wrapper>
   )
-}
+})
