@@ -168,6 +168,13 @@ export const MarkupCell = styled.td<{ $rate: number }>`
         : $rate > 0
           ? theme.colors.palette.danger
           : theme.colors.text3};
+  /* ユニバーサルデザイン: 色+テキストの二重コード */
+  &::after {
+    content: ${({ $rate }) =>
+      $rate >= 0.3 ? "' ●'" : $rate >= 0.2 ? "' ▲'" : $rate > 0 ? "' ▼'" : "''"};
+    font-size: 0.45rem;
+    vertical-align: middle;
+  }
 `
 
 /* ── 新規: 粗利額セル ── */

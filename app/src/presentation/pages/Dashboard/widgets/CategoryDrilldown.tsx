@@ -509,6 +509,16 @@ export function CategoryDrilldown(props: CategoryDrilldownProps) {
             </TreeBlock>
           )
         })}
+        {d.items.length > 12 && (
+          <TreeBlock
+            $flex={1}
+            $color={palette.slate}
+            $canDrill={false}
+            title={`他 ${d.items.length - 12}件`}
+          >
+            <TreeLabel>他 {d.items.length - 12}件</TreeLabel>
+          </TreeBlock>
+        )}
       </DrillTreemap>
 
       <div style={{ overflowX: 'auto' }}>
