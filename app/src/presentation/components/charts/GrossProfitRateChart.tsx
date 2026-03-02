@@ -33,7 +33,12 @@ interface Props {
   warningRate: number
 }
 
-export const GrossProfitRateChart = memo(function GrossProfitRateChart({ daily, daysInMonth, targetRate, warningRate }: Props) {
+export const GrossProfitRateChart = memo(function GrossProfitRateChart({
+  daily,
+  daysInMonth,
+  targetRate,
+  warningRate,
+}: Props) {
   const ct = useChartTheme()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 

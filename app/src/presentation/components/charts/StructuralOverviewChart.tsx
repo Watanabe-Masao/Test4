@@ -146,7 +146,10 @@ interface Props {
 }
 
 /** 収益構造俯瞰図: 売上→原価→売変→粗利のフロー可視化 */
-export const StructuralOverviewChart = memo(function StructuralOverviewChart({ result, prevYearResult }: Props) {
+export const StructuralOverviewChart = memo(function StructuralOverviewChart({
+  result,
+  prevYearResult,
+}: Props) {
   const r = result
   const prev = prevYearResult
   const { requestDrillThrough } = useCrossChartSelection()

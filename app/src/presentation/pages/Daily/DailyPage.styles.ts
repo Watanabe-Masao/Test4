@@ -1,9 +1,6 @@
 import styled, { css } from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import {
-  DataTableWrapper,
-  DataTable,
-} from '@/presentation/components/common'
+import { DataTableWrapper, DataTable } from '@/presentation/components/common'
 export { EmptyState } from '@/presentation/components/common'
 
 export const ChartToggle = styled.div`

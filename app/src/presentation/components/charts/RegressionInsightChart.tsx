@@ -121,7 +121,11 @@ interface Props {
   month: number
 }
 
-export const RegressionInsightChart = memo(function RegressionInsightChart({ result, year, month }: Props) {
+export const RegressionInsightChart = memo(function RegressionInsightChart({
+  result,
+  year,
+  month,
+}: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('regression')
 

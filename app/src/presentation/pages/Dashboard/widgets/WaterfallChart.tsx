@@ -40,7 +40,11 @@ interface WaterfallItem {
   isTotal?: boolean
 }
 
-export const WaterfallChartWidget = memo(function WaterfallChartWidget({ ctx }: { ctx: WidgetContext }) {
+export const WaterfallChartWidget = memo(function WaterfallChartWidget({
+  ctx,
+}: {
+  ctx: WidgetContext
+}) {
   const r = ctx.result
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()

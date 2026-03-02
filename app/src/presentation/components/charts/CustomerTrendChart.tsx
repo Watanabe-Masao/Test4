@@ -33,7 +33,11 @@ interface Props {
 }
 
 /** 日別客数推移チャート（バー: 当年客数 / ライン: 前年客数） */
-export const CustomerTrendChart = memo(function CustomerTrendChart({ daily, daysInMonth, prevYearDaily }: Props) {
+export const CustomerTrendChart = memo(function CustomerTrendChart({
+  daily,
+  daysInMonth,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 

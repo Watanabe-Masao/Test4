@@ -127,7 +127,12 @@ interface Props {
   onDayClick?: (day: number) => void
 }
 
-export const PerformanceIndexChart = memo(function PerformanceIndexChart({ daily, daysInMonth, prevYearDaily, onDayClick }: Props) {
+export const PerformanceIndexChart = memo(function PerformanceIndexChart({
+  daily,
+  daysInMonth,
+  prevYearDaily,
+  onDayClick,
+}: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('pi')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
