@@ -101,7 +101,7 @@ const RankBadge = styled.span<{ $rank: number }>`
   text-align: center;
   border-radius: 50%;
   margin-right: 3px;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ $rank }) =>
     $rank === 1 ? '#f59e0b' : $rank === 2 ? '#94a3b8' : $rank === 3 ? '#b45309' : '#64748b'};
 `
