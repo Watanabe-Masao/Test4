@@ -77,7 +77,7 @@ const PresetDeleteBtn = styled.button`
   height: 16px;
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.palette.danger};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: 10px;
   display: flex;
   align-items: center;
@@ -124,7 +124,7 @@ const SaveBtn = styled.button`
   padding: 4px 10px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ theme }) => theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.sm};
   white-space: nowrap;

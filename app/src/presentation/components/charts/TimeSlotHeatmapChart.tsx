@@ -50,7 +50,7 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
@@ -105,8 +105,8 @@ const HeatCell = styled.div<{ $intensity: number; $hasData: boolean; $anomaly?: 
   justify-content: center;
   font-size: 0.55rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $intensity }) =>
-    $intensity > 0.6 ? '#fff' : $intensity > 0.3 ? '#e5e7eb' : '#9ca3af'};
+  color: ${({ $intensity, theme }) =>
+    $intensity > 0.6 ? theme.colors.palette.white : $intensity > 0.3 ? '#e5e7eb' : '#9ca3af'};
   background: ${({ $intensity, $hasData }) => {
     if (!$hasData) return 'transparent'
     if ($intensity <= 0) return 'rgba(100,100,100,0.1)'
@@ -136,7 +136,7 @@ const DiffCell = styled.div<{ $ratio: number; $hasData: boolean }>`
   justify-content: center;
   font-size: 0.5rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $ratio }) => (Math.abs($ratio) > 0.15 ? '#fff' : '#9ca3af')};
+  color: ${({ $ratio, theme }) => (Math.abs($ratio) > 0.15 ? theme.colors.palette.white : '#9ca3af')};
   background: ${({ $ratio, $hasData }) => {
     if (!$hasData) return 'transparent'
     if ($ratio === 0) return 'rgba(100,100,100,0.1)'

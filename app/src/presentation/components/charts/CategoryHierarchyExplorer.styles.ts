@@ -96,7 +96,7 @@ export const TreemapBlock = styled.div<{ $flex: number; $color: string; $canDril
 `
 export const TreemapLabel = styled.div`
   font-size: 0.55rem;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -248,7 +248,7 @@ export const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.6rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
@@ -320,7 +320,7 @@ export const TipBubble = styled.div`
   z-index: 20;
   width: 200px;
   padding: 8px 10px;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e293b' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e293b' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};

@@ -37,7 +37,7 @@ export const ChartViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
@@ -83,7 +83,7 @@ const HelpBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.6rem;
   font-weight: 700;
   margin-left: ${({ theme }) => theme.spacing[2]};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text4)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text4)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text4)};

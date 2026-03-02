@@ -89,7 +89,7 @@ const StepNum = styled.span<{ $color: string }>`
   border-radius: 50%;
   font-size: 0.6rem;
   font-weight: 700;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ $color }) => $color};
 `
 
