@@ -286,6 +286,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             ? palette.primary
                             : undefined
                       }
+                      $rangeType={isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined}
                     >
                       <CalDayHeader>
                         <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>
@@ -449,8 +450,8 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           cumCustomers={cumCustomers.get(detailDay) ?? 0}
           cumPrevCustomers={cumPrevCustomers.get(detailDay) ?? 0}
           prevYear={prevYear}
-          ctsIndex={ctx.ctsIndex}
-          prevCtsIndex={ctx.prevCtsIndex}
+          duckConn={ctx.duckConn}
+          duckDataVersion={ctx.duckDataVersion}
           dailyMap={r.daily}
           selectedStoreIds={ctx.selectedStoreIds}
           onClose={() => setDetailDay(null)}

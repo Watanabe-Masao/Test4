@@ -43,7 +43,7 @@ const TabBtn = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.bg2};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text)};
   font-size: 0.65rem;
   cursor: pointer;
   &:hover {

@@ -117,7 +117,7 @@ const PrimaryButton = styled.button`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
   border: none;
   background: ${({ theme }) => theme.colors.palette.primary};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};

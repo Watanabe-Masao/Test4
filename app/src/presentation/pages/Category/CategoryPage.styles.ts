@@ -168,6 +168,13 @@ export const MarkupCell = styled.td<{ $rate: number }>`
         : $rate > 0
           ? theme.colors.palette.danger
           : theme.colors.text3};
+  /* ユニバーサルデザイン: 色+テキストの二重コード */
+  &::after {
+    content: ${({ $rate }) =>
+      $rate >= 0.3 ? "' ●'" : $rate >= 0.2 ? "' ▲'" : $rate > 0 ? "' ▼'" : "''"};
+    font-size: 0.45rem;
+    vertical-align: middle;
+  }
 `
 
 /* ── 新規: 粗利額セル ── */
@@ -246,6 +253,7 @@ export const DrillTr = styled.tr<{
     $depth > 0 &&
     `
     background: ${theme.colors.bg3};
+    animation: drillFadeIn 0.2s ease;
     td { font-size: ${theme.typography.fontSize.xs}; }
     td:first-child {
       border-left: 2px solid ${$catColor ?? theme.colors.palette.primary};
@@ -263,6 +271,16 @@ export const DrillTr = styled.tr<{
   `}
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
+  }
+  @keyframes drillFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 `
 

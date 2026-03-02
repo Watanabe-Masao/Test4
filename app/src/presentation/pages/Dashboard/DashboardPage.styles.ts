@@ -98,6 +98,10 @@ export const ExecSummaryTab = styled.button<{ $active: boolean }>`
   &:hover {
     color: ${({ theme }) => theme.colors.text2};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 
 export const ExecSummaryTabContent = styled.div`
@@ -389,7 +393,7 @@ export const CompareBarSegment = styled.div<{ $width: string; $color: string; $a
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: 0.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   padding: 0 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -470,7 +474,7 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
   ${({ $hasActual, $empty, theme }) =>
     !$empty && $hasActual
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.03)'};
+    background: ${`${theme.colors.palette.success}${theme.mode === 'dark' ? '0a' : '08'}`};
   `
       : ''}
 `
@@ -554,30 +558,32 @@ export const CalDayCell = styled.div<{
   $pinned?: boolean
   $inInterval?: boolean
   $rangeColor?: string
+  /** 'A' = dashed outline, 'B' = solid outline */
+  $rangeType?: 'A' | 'B'
 }>`
   position: relative;
   height: 100%;
   padding: 2px;
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: background 0.15s;
-  ${({ $rangeColor, theme }) =>
+  ${({ $rangeColor, $rangeType, theme }) =>
     $rangeColor
       ? `
     background: ${theme.mode === 'dark' ? `${$rangeColor}30` : `${$rangeColor}1a`};
-    outline: 2px solid ${$rangeColor};
+    outline: 2px ${$rangeType === 'A' ? 'dashed' : 'solid'} ${$rangeColor};
     outline-offset: -2px;
   `
       : ''}
   ${({ $pinned, $rangeColor, theme }) =>
     $pinned && !$rangeColor
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
+    background: ${`${theme.colors.palette.primary}${theme.mode === 'dark' ? '2e' : '1a'}`};
   `
       : ''}
   ${({ $inInterval, $pinned, $rangeColor, theme }) =>
     $inInterval && !$pinned && !$rangeColor
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
+    background: ${`${theme.colors.palette.primary}${theme.mode === 'dark' ? '0f' : '0a'}`};
   `
       : ''}
 `
@@ -605,6 +611,11 @@ export const CalActionBtn = styled.button<{ $color?: string }>`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
   }
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
+  }
 `
 
 export const CalDataArea = styled.div`
@@ -624,7 +635,7 @@ export const PinIndicator = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-top: ${({ theme }) => theme.spacing[1]};
   background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.10)'};
+    `${theme.colors.palette.primary}${theme.mode === 'dark' ? '26' : '1a'}`};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 1px 3px;
   text-align: center;
@@ -754,6 +765,10 @@ export const DetailCloseBtn = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -1111,7 +1126,7 @@ export const DeleteBtn = styled.button`
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.palette.danger};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: 11px;
   font-weight: bold;
   line-height: 1;
@@ -1124,6 +1139,10 @@ export const DeleteBtn = styled.button`
   &:hover {
     opacity: 1 !important;
     filter: brightness(1.1);
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -1145,6 +1164,10 @@ export const WidgetLinkBtn = styled.button`
   &:hover {
     color: ${({ theme }) => theme.colors.palette.primary};
     opacity: 1;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 

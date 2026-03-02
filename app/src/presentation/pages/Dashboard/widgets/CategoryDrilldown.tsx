@@ -392,7 +392,7 @@ export function CategoryDrilldown(props: CategoryDrilldownProps) {
       <DrillBreadcrumb>
         {d.breadcrumb.map((bc, i) => (
           <Fragment key={i}>
-            {i > 0 && <BcSep>▸</BcSep>}
+            {i > 0 && <BcSep>/</BcSep>}
             <BcItem $active={i === d.breadcrumb.length - 1} onClick={() => d.setFilter(bc.f)}>
               {bc.label}
             </BcItem>
@@ -509,6 +509,16 @@ export function CategoryDrilldown(props: CategoryDrilldownProps) {
             </TreeBlock>
           )
         })}
+        {d.items.length > 12 && (
+          <TreeBlock
+            $flex={1}
+            $color={palette.slate}
+            $canDrill={false}
+            title={`他 ${d.items.length - 12}件`}
+          >
+            <TreeLabel>他 {d.items.length - 12}件</TreeLabel>
+          </TreeBlock>
+        )}
       </DrillTreemap>
 
       <div style={{ overflowX: 'auto' }}>

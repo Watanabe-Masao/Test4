@@ -65,7 +65,7 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
   font-size: 0.65rem;
   padding: 3px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
@@ -76,6 +76,10 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
         : theme.mode === 'dark'
           ? 'rgba(255,255,255,0.08)'
           : 'rgba(0,0,0,0.06)'};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 

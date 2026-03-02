@@ -29,7 +29,7 @@ import {
 } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -74,7 +74,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.bg2};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   cursor: pointer;
   transition: all 0.2s;
 
@@ -372,12 +372,11 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
   const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('amount')
 
-  const { data: storeRows, error } = useDuckDBStoreAggregation(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: storeRows,
+    error,
+    isLoading,
+  } = useDuckDBStoreAggregation(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const { chartData, storeInfos, similarities } = useMemo(
     () =>
@@ -396,6 +395,10 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !storeRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

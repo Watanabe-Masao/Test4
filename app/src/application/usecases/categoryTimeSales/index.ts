@@ -7,7 +7,7 @@ export { queryByDateRange, getDateKeysForStores } from './filters'
 
 // ─── Divisor ────────────────────────────────────────────
 export type { AggregateMode } from './divisor'
-export { computeDivisor, countDistinctDays, computeDowDivisorMap } from './divisor'
+export { computeDivisor, countDistinctDays, computeDowDivisorMap, filterByStore } from './divisor'
 
 // ─── Aggregation ────────────────────────────────────────
 export type {

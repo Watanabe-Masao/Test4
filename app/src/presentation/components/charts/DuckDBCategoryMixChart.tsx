@@ -22,7 +22,7 @@ import {
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -342,7 +342,11 @@ export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
     setLevel(newLevel)
   }, [])
 
-  const { data: mixRows, error } = useDuckDBCategoryMixWeekly(
+  const {
+    data: mixRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryMixWeekly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -367,6 +371,10 @@ export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !mixRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

@@ -67,3 +67,21 @@ export function computeDowDivisorMap(
   }
   return result
 }
+
+/**
+ * 【TR-FIL-001】店舗フィルタ
+ *
+ * selectedStoreIds が空の場合は全レコードを返す（全店舗表示）。
+ * 空でない場合は指定店舗のレコードのみを返す。
+ *
+ * @param records フィルタ対象レコード配列
+ * @param selectedStoreIds 選択中の店舗ID集合（空 = 全店舗）
+ * @returns 店舗フィルタ適用済みレコード
+ */
+export function filterByStore(
+  records: readonly CategoryTimeSalesRecord[],
+  selectedStoreIds: ReadonlySet<string>,
+): readonly CategoryTimeSalesRecord[] {
+  if (selectedStoreIds.size === 0) return records
+  return records.filter((r) => selectedStoreIds.has(r.storeId))
+}

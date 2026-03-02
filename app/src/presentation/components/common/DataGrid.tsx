@@ -118,6 +118,10 @@ const Th = styled.th<{ $sortable?: boolean; $compact?: boolean }>`
       &:hover {
         background: ${({ theme }) => theme.colors.bg3};
       }
+      &:focus-visible {
+        outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+        outline-offset: -2px;
+      }
     `}
 `
 
@@ -234,6 +238,10 @@ const PageBtn = styled.button<{ $active?: boolean }>`
     opacity: 0.4;
     cursor: not-allowed;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
+  }
 `
 
 const PageSizeSelect = styled.select`
@@ -348,6 +356,25 @@ export function DataGrid<T>({
                     $sortable={header.column.getCanSort()}
                     $compact={compact}
                     onClick={header.column.getToggleSortingHandler()}
+                    onKeyDown={
+                      header.column.getCanSort()
+                        ? (e: React.KeyboardEvent) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              header.column.getToggleSortingHandler()?.(e)
+                            }
+                          }
+                        : undefined
+                    }
+                    tabIndex={header.column.getCanSort() ? 0 : undefined}
+                    role={header.column.getCanSort() ? 'button' : undefined}
+                    aria-sort={
+                      header.column.getIsSorted() === 'asc'
+                        ? 'ascending'
+                        : header.column.getIsSorted() === 'desc'
+                          ? 'descending'
+                          : undefined
+                    }
                     style={{
                       width: header.getSize(),
                       ...(enableColumnResizing ? { position: 'relative' } : {}),

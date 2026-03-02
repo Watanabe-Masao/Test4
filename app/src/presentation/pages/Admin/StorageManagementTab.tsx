@@ -110,7 +110,7 @@ const DeleteButton = styled.button`
 
   &:hover {
     background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
-    color: #fff;
+    color: ${({ theme }) => theme.colors.palette.white};
   }
 `
 
@@ -283,7 +283,7 @@ const ConfirmDeleteButton = styled.button`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   border: none;
   background: ${({ theme }) => theme.colors.palette.danger ?? palette.dangerDark};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: ${({ theme }) => theme.radii.md};
@@ -391,7 +391,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'danger' | 'default'
         : 'transparent'};
   color: ${({ $variant, theme }) =>
     $variant === 'primary'
-      ? '#fff'
+      ? theme.colors.palette.white
       : $variant === 'danger'
         ? (theme.colors.palette.danger ?? palette.dangerDark)
         : theme.colors.text2};

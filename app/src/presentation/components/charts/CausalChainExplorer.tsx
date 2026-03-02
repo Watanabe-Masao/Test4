@@ -89,7 +89,7 @@ const StepNum = styled.span<{ $color: string }>`
   border-radius: 50%;
   font-size: 0.6rem;
   font-weight: 700;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ $color }) => $color};
 `
 
@@ -162,6 +162,11 @@ const DrillLink = styled.button`
   color: ${({ theme }) => theme.colors.palette.primary};
   &:hover {
     text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

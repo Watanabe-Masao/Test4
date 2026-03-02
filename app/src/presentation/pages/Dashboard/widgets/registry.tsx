@@ -87,16 +87,24 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
         return (
-          <KpiCard label="【在庫法】粗利益" value="-" subText="在庫設定なし" accent={sc.positive} />
+          <KpiCard
+            label="【在庫法】実績粗利益"
+            value="-"
+            subText="在庫設定なし"
+            accent={sc.positive}
+            badge="actual"
+          />
         )
       }
       const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
       return (
         <KpiCard
-          label="【在庫法】粗利益"
+          label="【在庫法】実績粗利益"
           value={formatCurrency(r.invMethodGrossProfit)}
-          subText={`粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
           accent={sc.positive}
+          badge="actual"
+          formulaSummary="売上 − 売上原価（期首+仕入−期末）"
           onClick={() => onExplain('invMethodGrossProfit')}
         />
       )
@@ -104,7 +112,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   {
     id: 'kpi-est-margin',
-    label: '【推定法】在庫差分',
+    label: '【推定法】推定マージン',
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
@@ -112,10 +120,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
       return (
         <KpiCard
-          label="【推定法】在庫差分"
+          label="【推定法】推定マージン"
           value={formatCurrency(r.estMethodMargin)}
-          subText={`在庫差分率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
-          accent={palette.infoDark}
+          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          accent={palette.warningDark}
+          badge="estimated"
+          formulaSummary="コア売上 − 推定原価（理論値）"
           onClick={() => onExplain('estMethodMargin')}
         />
       )
@@ -301,26 +311,15 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: '構造分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      daysInMonth,
-      year,
-      month,
-      dataMaxDay,
-      result,
-    }) => (
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
       <CategoryHierarchyExplorer
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        dataMaxDay={dataMaxDay}
-        totalCustomers={result.totalCustomers}
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        prevYearDateRange={ctx.prevYearDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        totalCustomers={ctx.result.totalCustomers}
       />
     ),
   },
@@ -560,24 +559,16 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     group: 'トレンド分析',
     size: 'full',
     linkTo: { view: 'category' },
-    isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
-    render: ({
-      ctsIndex,
-      prevCtsIndex,
-      selectedStoreIds,
-      currentDateRange,
-      prevYearDateRange,
-      result,
-      prevYear,
-    }) => (
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
       <CategoryPerformanceChart
-        ctsIndex={ctsIndex}
-        prevCtsIndex={prevCtsIndex}
-        selectedStoreIds={selectedStoreIds}
-        currentDateRange={currentDateRange}
-        prevYearDateRange={prevYearDateRange}
-        totalCustomers={result.totalCustomers}
-        prevTotalCustomers={prevYear.hasPrevYear ? prevYear.totalCustomers : 0}
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        prevYearDateRange={ctx.prevYearDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        totalCustomers={ctx.result.totalCustomers}
+        prevTotalCustomers={ctx.prevYear.hasPrevYear ? ctx.prevYear.totalCustomers : 0}
       />
     ),
   },

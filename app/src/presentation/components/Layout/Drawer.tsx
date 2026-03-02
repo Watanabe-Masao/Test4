@@ -92,6 +92,12 @@ const CloseButton = styled.button`
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 export function Drawer({

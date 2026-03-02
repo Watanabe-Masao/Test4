@@ -170,7 +170,7 @@ const KpiTooltip = styled.div`
   font-size: 0.6rem;
   line-height: 1.6;
   white-space: nowrap;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -445,7 +445,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     const gpLandingTooltip = storeId ? (
       <div>
         <div>
-          <TipLabel>推定在庫差分率:</TipLabel>
+          <TipLabel>推定マージン率:</TipLabel>
           <TipVal>{fmtPct(r.estMethodMarginRate)}</TipVal>
         </div>
         {r.invMethodGrossProfitRate != null && (
@@ -527,7 +527,7 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       )}
       {missingDiscount && (
         <KpiWarningBar>
-          売変データなし — 推定法（推定在庫・推定在庫差分率）の精度が低下しています
+          売変データなし — 推定法（推定在庫・推定マージン率）の精度が低下しています
         </KpiWarningBar>
       )}
       <ScrollWrapper>

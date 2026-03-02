@@ -99,3 +99,17 @@ export type {
   DivergencePoint,
   CorrelationMatrixCell,
 } from './correlation'
+
+// 要因分解（シャープリー値ベース）
+export { decompose2, decompose3, decompose5, decomposePriceMix } from './factorDecomposition'
+export type {
+  CategoryQtyAmt,
+  TwoFactorResult,
+  ThreeFactorResult,
+  FiveFactorResult,
+  PriceMixResult,
+} from './factorDecomposition'
+
+// 因果チェーン分析
+export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
+export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'

@@ -243,6 +243,11 @@ const SliderResetBtn = styled.button`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const DetectedDayHint = styled.span`
@@ -305,6 +310,11 @@ const TemplateToggle = styled.button`
   &:hover {
     color: ${({ theme }) => theme.colors.text3};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const TemplateToggleIcon = styled.span<{ $expanded: boolean }>`
@@ -333,6 +343,11 @@ const TemplateLink = styled.button`
     color: ${({ theme }) => theme.colors.palette.primary};
     border-color: ${({ theme }) => theme.colors.palette.primary}40;
     background: ${({ theme }) => theme.colors.palette.primary}08;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

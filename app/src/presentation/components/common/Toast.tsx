@@ -122,6 +122,12 @@ const CloseBtn = styled.button`
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text2};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 // ─── 通知履歴パネル ──────────────────────────────────
@@ -148,6 +154,13 @@ const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
+
   ${({ $hasUnread }) =>
     $hasUnread &&
     css`
@@ -198,6 +211,12 @@ const HistoryClear = styled.button`
   color: ${({ theme }) => theme.colors.text4};
   &:hover {
     color: ${({ theme }) => theme.colors.text2};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

@@ -134,3 +134,4 @@ export type {
   ResolvedSource,
   CachedResult,
 } from './useAnalyticsResolver'
+export { useDrillAction } from './useDrillAction'

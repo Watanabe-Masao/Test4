@@ -16,6 +16,7 @@ const Container = styled.div`
   background: ${({ theme }) => theme.colors.bg2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
   max-width: 480px;
   width: 90%;
   max-height: 80vh;

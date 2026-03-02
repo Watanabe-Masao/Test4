@@ -211,6 +211,8 @@ export function NavBar({
           $active={currentView === item.view}
           onClick={() => onViewChange(item.view)}
           title={messages.nav[item.labelKey]}
+          aria-label={messages.nav[item.labelKey]}
+          aria-current={currentView === item.view ? 'page' : undefined}
         >
           {item.icon}
         </NavButton>
@@ -221,12 +223,15 @@ export function NavBar({
         $active={currentView === 'admin'}
         onClick={() => onViewChange('admin')}
         title={messages.nav.admin}
+        aria-label={messages.nav.admin}
+        aria-current={currentView === 'admin' ? 'page' : undefined}
       >
         ⚙
       </NavButton>
       <ThemeButton
         onClick={onThemeToggle}
         title={themeMode === 'dark' ? messages.nav.lightMode : messages.nav.darkMode}
+        aria-label={themeMode === 'dark' ? messages.nav.lightMode : messages.nav.darkMode}
       >
         {themeMode === 'dark' ? '🌙' : '☀️'}
       </ThemeButton>

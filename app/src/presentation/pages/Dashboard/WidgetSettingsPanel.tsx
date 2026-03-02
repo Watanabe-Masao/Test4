@@ -59,6 +59,12 @@ const PresetCard = styled.button<{ $active?: boolean }>`
   &:hover {
     border-color: ${({ theme }) => theme.colors.palette.primary};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const PresetDesc = styled.div`
@@ -77,7 +83,7 @@ const PresetDeleteBtn = styled.button`
   height: 16px;
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.palette.danger};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: 10px;
   display: flex;
   align-items: center;
@@ -88,6 +94,12 @@ const PresetDeleteBtn = styled.button`
 
   ${PresetCard}:hover & {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -124,7 +136,7 @@ const SaveBtn = styled.button`
   padding: 4px 10px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   background: ${({ theme }) => theme.colors.palette.primary};
   border-radius: ${({ theme }) => theme.radii.sm};
   white-space: nowrap;
@@ -135,6 +147,12 @@ const SaveBtn = styled.button`
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

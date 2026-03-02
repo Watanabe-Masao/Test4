@@ -11,7 +11,7 @@ import { darkTheme } from '@/presentation/theme'
 import { EMPTY_DEPT_KPI_INDEX } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { WidgetContext } from '../types'
 import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
-import { EMPTY_CTS_INDEX, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
 
 const ZERO: CostPricePair = { cost: 0, price: 0 }
@@ -171,8 +171,6 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     prevYear: makeEmptyPrevYear(),
     allStoreResults: new Map(),
     stores: new Map(),
-    ctsIndex: EMPTY_CTS_INDEX,
-    prevCtsIndex: EMPTY_CTS_INDEX,
     currentDateRange: {
       from: { year: 2026, month: 2, day: 1 },
       to: { year: 2026, month: 2, day: 28 },

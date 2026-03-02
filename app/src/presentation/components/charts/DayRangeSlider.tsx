@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import styled from 'styled-components'
 
 const SliderRow = styled.div`
@@ -121,6 +121,10 @@ const StepBtn = styled.button`
     opacity: 0.3;
     cursor: default;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
+  }
 `
 
 const ResetBtn = styled.button`
@@ -137,6 +141,10 @@ const ResetBtn = styled.button`
     color: ${({ theme }) => theme.colors.text3};
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
   }
 `
 
@@ -157,7 +165,14 @@ interface Props {
   elapsedDays?: number
 }
 
-export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: Props) {
+export const DayRangeSlider = memo(function DayRangeSlider({
+  min,
+  max,
+  start,
+  end,
+  onChange,
+  elapsedDays,
+}: Props) {
   const leftPct = ((start - min) / (max - min)) * 100
   const rightPct = ((max - end) / (max - min)) * 100
   const isFullRange = start === min && end === max
@@ -267,4 +282,4 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
       {exceedsValidPeriod && <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>}
     </SliderRow>
   )
-}
+})

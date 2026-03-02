@@ -114,7 +114,13 @@ const EvidenceChip = styled.button`
   transition: all 0.15s;
   &:hover {
     background: ${({ theme }) => theme.colors.palette.primary};
-    color: #fff;
+    color: ${({ theme }) => theme.colors.palette.white};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -168,11 +174,17 @@ const ToggleBtn = styled.button<{ $active: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   transition: all 0.15s;
   &:hover {
     background: ${({ $active, theme }) =>
       $active ? theme.colors.palette.primary : theme.colors.bg4};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -307,6 +319,12 @@ const CloseBtn = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

@@ -100,6 +100,12 @@ const MonthArrow = styled.button`
     opacity: 0.3;
     cursor: not-allowed;
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const DesktopLink = styled.button`
@@ -111,6 +117,12 @@ const DesktopLink = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   &:active {
     opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -137,6 +149,12 @@ const Tab = styled.button<{ $active: boolean }>`
     border-color 0.15s;
   &:active {
     opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

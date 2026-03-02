@@ -1,7 +1,8 @@
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import type { ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { AnalysisBar } from '@/presentation/components/common'
 
 const Main = styled.main`
   overflow-y: auto;
@@ -65,13 +66,18 @@ function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
   const prevYear = usePrevYearData()
+  const theme = useTheme()
 
   const storeLabel =
     selectedStoreIds.size === 0 || selectedStoreIds.size === stores.size
       ? `${stores.size}店舗`
       : `${selectedStoreIds.size}/${stores.size}店舗`
 
-  const statusColor = isComputing ? '#3b82f6' : isCalculated ? '#22c55e' : '#f59e0b'
+  const statusColor = isComputing
+    ? theme.colors.palette.blueDark
+    : isCalculated
+      ? theme.colors.palette.successDark
+      : theme.colors.palette.warningDark
 
   return (
     <ContextBar>
@@ -86,11 +92,14 @@ export function MainContent({
   title,
   storeName,
   actions,
+  showAnalysisBar = true,
   children,
 }: {
   title: string
   storeName?: string
   actions?: ReactNode
+  /** AnalysisBar を表示するか（デフォルト: true、Admin等では false） */
+  showAnalysisBar?: boolean
   children: ReactNode
 }) {
   const settings = useSettingsStore((s) => s.settings)
@@ -110,6 +119,7 @@ export function MainContent({
           {actions}
         </div>
       </Header>
+      {showAnalysisBar && <AnalysisBar />}
       {children}
     </Main>
   )

@@ -153,7 +153,11 @@ export function useDuckDBTimeSlotData({
 
   // ── DuckDB queries ──
 
-  const { data: currentHourly, error } = useDuckDBHourlyAggregation(
+  const {
+    data: currentHourly,
+    isLoading,
+    error,
+  } = useDuckDBHourlyAggregation(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -468,6 +472,7 @@ export function useDuckDBTimeSlotData({
     kpi,
     yoyData,
     insights,
+    isLoading,
     error,
     viewMode,
     setViewMode,

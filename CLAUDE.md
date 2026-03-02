@@ -21,7 +21,7 @@ app/                          # アプリケーション本体
 │   │   │   └── duckdb/       # DuckDB クエリフック群（責務別に分割、~28フック）
 │   │   ├── ports/            # ポートインターフェース（ExportPort 等）
 │   │   ├── services/         # 計算キャッシュ・ハッシュ
-│   │   ├── stores/           # Zustand ストア（dataStore, settingsStore, uiStore）
+│   │   ├── stores/           # Zustand ストア（dataStore, settingsStore, uiStore, analysisContextStore）
 │   │   ├── usecases/         # ユースケース
 │   │   │   ├── calculation/       # 計算パイプライン（dailyBuilder, storeAssembler）
 │   │   │   ├── categoryTimeSales/ # 時間帯売上インデックス構築
@@ -34,7 +34,7 @@ app/                          # アプリケーション本体
 │   │   ├── dataProcessing/   # ファイルパーサー・プロセッサ
 │   │   ├── duckdb/           # DuckDB-WASM（インブラウザ分析エンジン）
 │   │   │   ├── engine.ts     # DB初期化・接続管理
-│   │   │   ├── schemas.ts    # CREATE TABLE DDL（11テーブル + VIEW）
+│   │   │   ├── schemas.ts    # CREATE TABLE DDL（12テーブル + VIEW）
 │   │   │   ├── dataLoader.ts # IndexedDB → DuckDB テーブルへのデータ投入
 │   │   │   ├── queryRunner.ts # 汎用クエリ実行ユーティリティ
 │   │   │   ├── queryParams.ts # パラメータバリデーション
@@ -53,9 +53,9 @@ app/                          # アプリケーション本体
 │   │   └── i18n/             # 国際化
 │   ├── presentation/         # プレゼンテーション層
 │   │   ├── components/       # コンポーネント
-│   │   │   ├── charts/       # チャートライブラリ（DuckDB ウィジェット含む、76ファイル）
+│   │   │   ├── charts/       # チャートライブラリ（DuckDB ウィジェット含む、80ファイル）
 │   │   │   ├── common/       # 共通UIコンポーネント（Button, Card, Modal 等）
-│   │   │   ├── Layout/       # レイアウト（AppShell, NavBar 等）
+│   │   │   ├── Layout/       # レイアウト（AppShell, NavBar, BottomNav, Drawer, Sidebar 等）
 │   │   │   └── DevTools/     # 開発ツール（QueryProfilePanel）
 │   │   ├── hooks/            # プレゼンテーション層フック
 │   │   ├── pages/            # ページコンポーネント
@@ -70,7 +70,7 @@ app/                          # アプリケーション本体
 │   │   │   ├── Mobile/       # モバイル対応
 │   │   │   └── Reports/      # レポート
 │   │   └── theme/            # テーマ定義
-│   ├── stories/              # Storybook ストーリー
+│   ├── stories/              # Storybook ストーリー（co-located 設定、現在未作成）
 │   └── test/                 # テストユーティリティ・セットアップ
 .github/workflows/
 ├── ci.yml                    # CI パイプライン
@@ -100,6 +100,11 @@ cd app && npm run test:coverage # vitest + カバレッジレポート
 cd app && npm run test:watch    # vitest ウォッチモード
 cd app && npm run test:visual   # Playwright ビジュアルリグレッション
 cd app && npm run storybook     # Storybook 開発サーバー（port 6006）
+cd app && npm run dev             # Vite 開発サーバー
+cd app && npm run preview         # Vite プレビューサーバー（E2Eテストで使用）
+cd app && npm run format          # Prettier フォーマット修正
+cd app && npm run test:e2e:ui     # Playwright インタラクティブUI
+cd app && npm run build-storybook # Storybook プロダクションビルド
 ```
 
 ### CI パイプライン（PR・push to main で自動実行）
@@ -110,6 +115,17 @@ cd app && npm run storybook     # Storybook 開発サーバー（port 6006）
 4. `npx vitest run --coverage` — vitest + カバレッジ（**全テスト合格必須**）
 5. `npm run test:e2e` — Playwright E2E テスト（**全シナリオ合格必須**）
 
+**CI 環境:**
+- Node.js 20（`actions/setup-node@v4`）
+- concurrency 制御: 同一ブランチの重複実行を自動キャンセル
+- E2E テスト前に `npx playwright install --with-deps` が必要（ローカル実行時）
+- カバレッジ閾値: **lines 55%**（`domain/`, `infrastructure/`, `application/` が対象、`presentation/` は除外）
+
+**デプロイ（deploy.yml）:**
+- デプロイ先: **GitHub Pages**（OIDC トークン認証）
+- トリガー: push to `main` または手動 `workflow_dispatch`
+- CI と同一の品質ゲート（lint, format, build, test, E2E）を実行後にデプロイ
+
 ## コーディング規約
 
 ### 命名規則
@@ -118,7 +134,7 @@ cd app && npm run storybook     # Storybook 開発サーバー（port 6006）
 |---|---|---|
 | 型・インターフェース | PascalCase | `StoreResult`, `DailyRecord` |
 | 変数・関数 | camelCase | `totalSales`, `calculateGrossProfit` |
-| 定数 | UPPER_SNAKE_CASE | `MAX_DAYS`, `DEFAULT_RATE` |
+| 定数 | UPPER_SNAKE_CASE | `COST_RATE_MIN`, `ALL_STORES_ID` |
 | コンポーネント | PascalCase | `DashboardPage`, `KpiCard` |
 | テストファイル | `*.test.ts(x)` | `factorDecomposition.test.ts` |
 | Boolean | is/has/should/needs 接頭辞 | `isCalculated`, `hasPrevYear` |
@@ -129,12 +145,18 @@ cd app && npm run storybook     # Storybook 開発サーバー（port 6006）
 - `noUnusedLocals: true` / `noUnusedParameters: true` — ビルドで強制
 - パスエイリアス: `@/` → `src/`（import は `@/domain/...` の形式）
 - `readonly` を積極的に使用（イミュータブル設計）
+- `@typescript-eslint/no-explicit-any: 'error'` — `any` 型の使用は lint エラー
 
 ### スタイリング
 
 - styled-components 6 を使用
 - テーマトークン経由でカラー・スペーシングを参照
 - ダーク/ライトテーマ対応
+- テーマ定義: `presentation/theme/` 配下の5ファイル
+  - `tokens.ts` — デザイントークン（palette, spacing, radii, shadows, typography）
+  - `semanticColors.ts` — 色覚安全セマンティックカラー（`sc.positive`, `sc.negative` 等、Wong 2011 パレット準拠）
+  - `theme.ts` — ダーク/ライトテーマ定義
+- Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100` / `endOfLine: "lf"`
 
 ## 設計思想 — 構造で守り、機械で検証する
 
@@ -278,6 +300,75 @@ props が変わらない限り再描画しない。
 **原則:** 「何を購読するか」は「何を描画するか」と一致させる。
 広すぎる購読はパフォーマンス問題の温床。
 
+## UI/UX 設計原則
+
+既存の設計思想（純粋関数・4層構造・Explanation）を拡張する4つの原則。
+
+### 原則1: 実績と推定は「別世界」
+
+在庫法（実績P/L）と推定法（在庫差異検知）はUIで明確に視覚的分離する。
+
+**用語統一:**
+
+| 計算法 | 用語 | 使ってはいけない用語 |
+|---|---|---|
+| 在庫法 | 実績粗利益、実績粗利率、売上原価 | ー |
+| 推定法 | 推定マージン、推定マージン率、推定原価 | 「粗利」（推定法の文脈で） |
+| 推定法 | 推定期末在庫（理論値） | 「期末在庫」（バッジなし） |
+
+**UI表現:**
+- KpiCard に `badge` prop（`actual` / `estimated`）で視覚的分離
+- 在庫法カード: 緑系アクセント（`sc.positive`）
+- 推定法カード: オレンジ系アクセント（`palette.warningDark`）、青系は廃止
+- カードタイトル直下に `CalcPurpose`（目的の一行説明）を必ず表示
+- 混在表示禁止（原則）。並べる場合は「乖離」セクションを中央に置く
+
+**計算不可時:**
+- `invMethodCogs == null` の場合、`CalcNullGuide` で「期首在庫と期末在庫の設定が必要」と案内
+- 値を `-` で表示するだけでは不十分。ユーザーに次のアクションを示す
+
+### 原則2: 分析は「コンテキスト駆動」
+
+ページではなく「分析コンテキスト（Analysis Context）」が主役。
+
+**Analysis Context の構成要素:**
+
+| 要素 | 内容 |
+|---|---|
+| 期間 | 対象期間（主）+ 比較期間（YoY/前週/前月） |
+| 粒度 | 日/週/月（チャート側で勝手に違うものを禁止） |
+| 対象 | 店舗（単店/全店/比較）・部門・カテゴリ階層 |
+| データ系 | 実績/推定トグル（混同防止と連動） |
+
+**原則:** フィルタは「どのページでも同じ場所にある」「同じ意味で効く」。
+DuckDB チャートと非 DuckDB チャートで挙動が異なってはならない。
+
+### 原則3: ドリルは3種類に固定
+
+チャート・テーブルのクリック時の挙動を3タイプに標準化する。
+
+| タイプ | 操作 | 効果 | 例 |
+|---|---|---|---|
+| **A: 絞り込み** | クリック | フィルタ追加・同一ページで再描画 | カテゴリ円グラフのスライス |
+| **B: 明細遷移** | クリック | 詳細ページへパラメータ付き遷移 | 日次折れ線の点 → Daily ページ |
+| **C: 比較遷移** | クリック | 比較セクションへ遷移（差異・要因分解） | 異常値の日 → Insight 要因分解 |
+
+**原則:** 全チャートで同じ操作 → 同じタイプの結果。操作の一貫性が学習コストを下げる。
+
+### 原則4: 全指標は監査可能
+
+Explanation（説明責任）を3段階の UX で提供する。
+
+| Level | 表示タイミング | 内容 | 実装 |
+|---|---|---|---|
+| **L1: 一言** | 常時表示 | 計算式の要約（例: 売上−原価） | KpiCard の `formulaSummary` prop |
+| **L2: 式と入力** | クリック/ポップオーバー | 式 + 入力値 + データ出所 | MetricBreakdownPanel 「算出根拠」タブ |
+| **L3: ドリルダウン** | 明細遷移 | 日別内訳 + 元データ参照 | MetricBreakdownPanel 「日別内訳」「根拠を見る」タブ |
+
+**原則:** Explanation はモーダルで全部見せるのではなく、
+カード（L1）→ ポップオーバー/モーダル（L2）→ 明細テーブル（L3）に分けて
+思考の流れを壊さない。
+
 ## データフローアーキテクチャ
 
 ### 設計思想: 4つの役割
@@ -352,30 +443,39 @@ UIが**やってはならない**こと:
 インラインでの独自実装は禁止。詳細は `PeriodFilter.tsx` の設計ルール
 （RULE-1〜RULE-6）を参照。
 
-| ID | 関数名 | 役割 |
-|---|---|---|
-| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） |
-| TR-DIV-002 | `countDistinctDays` | records → distinct day 数 |
-| TR-DIV-003 | `computeDowDivisorMap` | records → 曜日別除数 Map |
-| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 |
+| ID | 関数名 | 役割 | 定義場所 |
+|---|---|---|---|
+| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） | `periodFilterUtils.ts` / `usecases/categoryTimeSales/divisor.ts` |
+| TR-DIV-002 | `countDistinctDays` | records → distinct day 数 | 同上 |
+| TR-DIV-003 | `computeDowDivisorMap` | records → 曜日別除数 Map | 同上 |
+| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 | `periodFilterUtils.ts` |
+
+**注意:** TR-DIV-001〜003 は現在 presentation 層（`periodFilterUtils.ts`）と
+application 層（`usecases/categoryTimeSales/divisor.ts`）の2箇所に重複定義されている。
+domain 層の `computeAverageDivisor`（`domain/calculations/utils.ts`）がより汎用的な
+上位実装であり、将来的に統一予定。
 
 ### 既知の課題と移行方針
 
-既存の時間帯・カテゴリ系ウィジェットでの生データ問題は **部分的に解消済み** である。
+時間帯・カテゴリ系ウィジェットの CTS インデックス依存は DuckDB への統一が目標。
 
 **完了済み:**
-1. `application/usecases/categoryTimeSales/` にインデックス構築関数を作成済み
-   （`indexBuilder.ts`, `aggregation.ts`, `divisor.ts`, `filters.ts`）
-2. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData`（生データ）を除去し、
-   `ctsIndex: CategoryTimeSalesIndex`（インデックス済み）に置換済み
-3. `application/usecases/departmentKpi/indexBuilder.ts` で部門KPIインデックス構築を実装済み
-4. `WidgetContext` に `departmentKpi: DepartmentKpiIndex` としてインデックス経由で提供済み
+1. DuckDB クエリに `queryLevelAggregation`, `queryCategoryHourly`,
+   `queryDistinctDayCount`, `queryDowDivisorMap` 等の集約関数を実装済み
+2. 5つの Unified ウィジェットで DuckDB 優先パスを確立済み
+3. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData`（生データ）を除去済み
 
-**移行時の注意（引き続き有効）:**
-- 既存の `PeriodFilter.tsx` の純粋関数（computeDivisor 等）は活用する
+**未完了（CTS → DuckDB 統一）:**
+- `CategoryHierarchyExplorer` と `CategoryPerformanceChart` を DuckDB 版に移行
+- Unified 5ウィジェットから CTS フォールバックパスを削除
+- `WidgetContext` から `ctsIndex` / `prevCtsIndex` を除去
+- `useAnalyticsResolver` から `'cts'` ソースを削除
+- 不要になった CTS 集約関数（`aggregation.ts`, `filters.ts`）と
+  レガシーチャート（`TimeSlotSalesChart` 等5つ）を削除
+
+**移行時の注意:**
 - `divisorRules.test.ts` のアーキテクチャガードテストを維持する
 - 段階的に1コンポーネントずつ移行し、各段階でテスト・ビルドを通す
-- DuckDB ウィジェットでは上記の問題は既に解消済み（SQL 集約 → hooks → UI の流れ）
 
 ### データソースの分離
 
@@ -397,8 +497,8 @@ UIが**やってはならない**こと:
 ### 概要
 
 DuckDB-WASM をインブラウザ SQL エンジンとして統合し、月制約を超えた自由日付範囲での
-分析を可能にした。既存の JS 集約パス（`WidgetContext` + `PeriodFilter`）と並行して
-動作し、ユーザーはウィジェット設定パネルから DuckDB 版と従来版を選択できる。
+分析を可能にした。時間帯・カテゴリ等の多次元集約は DuckDB が担い、
+KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreResult`）が担う。
 
 ### アーキテクチャ
 
@@ -424,7 +524,7 @@ DuckDB-WASM をインブラウザ SQL エンジンとして統合し、月制約
 | レイヤー | ファイル | 責務 |
 |---|---|---|
 | **Infrastructure** | `duckdb/engine.ts` | DB 初期化、接続ライフサイクル管理 |
-| | `duckdb/schemas.ts` | テーブル DDL（11テーブル + `store_day_summary` VIEW）、`SCHEMA_VERSION` 管理 |
+| | `duckdb/schemas.ts` | テーブル DDL（12テーブル + `store_day_summary` VIEW）、`SCHEMA_VERSION` 管理 |
 | | `duckdb/dataLoader.ts` | IndexedDB → DuckDB バルクロード |
 | | `duckdb/queryRunner.ts` | 汎用 `runQuery<T>()` ユーティリティ |
 | | `duckdb/queryParams.ts` | SQL パラメータのバリデーション（Branded Type 連携） |
@@ -455,10 +555,12 @@ DuckDB スキーマは以下の基本テーブルと VIEW で構成される:
 | `department_kpi` | `DEPARTMENT_KPI_DDL` | 部門別KPI |
 | `budget` | `BUDGET_DDL` | 予算データ |
 | `inventory_config` | `INVENTORY_CONFIG_DDL` | 在庫設定 |
+| `app_settings` | `APP_SETTINGS_DDL` | アプリケーション設定 |
 | `store_day_summary` | — (VIEW) | 上記テーブルの LEFT JOIN による日次サマリ **VIEW** |
 
 `SCHEMA_VERSION` によりテーブル定義のバージョンが管理され、
 `migrations/` 配下のマイグレーションスクリプトでスキーマ変更を適用する。
+`schema_meta` テーブルはマイグレーション追跡用のメタテーブルとして別途存在する。
 
 #### DuckDB フック構成
 
@@ -517,12 +619,72 @@ hooks/duckdb/
 | `DuckDBStoreBenchmarkChart` | 店舗ベンチマーク（ランキング推移） | full |
 | `DuckDBDateRangePicker` | 自由日付範囲セレクタ（ウィジェットではなくコントロール） | — |
 
+### 2つの計算エンジンの責務分離
+
+本システムには2つの計算エンジンがあり、それぞれ**異なる責務**を持つ。
+両方で同じことをやる「二重実装」は一貫性を欠き、保守コストを倍増させるため禁止する。
+
+```
+┌────────────────────────────────┐  ┌────────────────────────────────┐
+│  JS 計算エンジン               │  │  DuckDB 探索エンジン            │
+│  (domain/calculations)         │  │  (infrastructure/duckdb)       │
+│                                │  │                                │
+│  役割: 権威的な指標計算         │  │  役割: 自由範囲の探索・集約      │
+│                                │  │                                │
+│  ・シャープリー分解             │  │  ・月跨ぎ時系列分析             │
+│  ・在庫法/推定法 粗利計算       │  │  ・時間帯×曜日×カテゴリ集約     │
+│  ・予算達成率/消化率            │  │  ・異常検出 (Zスコア)           │
+│  ・感度分析/回帰               │  │  ・店舗ベンチマーク             │
+│  ・因果チェーン                │  │  ・カテゴリドリルダウン          │
+│                                │  │                                │
+│  出力: StoreResult             │  │  出力: SQL 集約結果             │
+│  スコープ: 単月確定値           │  │  スコープ: 任意日付範囲          │
+└────────────────────────────────┘  └────────────────────────────────┘
+```
+
+**JS 計算エンジンでなければならないもの:**
+- `StoreResult` を生成する計算パイプライン（dailyBuilder, storeAssembler）
+- シャープリー恒等式を満たす要因分解（不変条件テストが JS で検証）
+- 在庫法・推定法の粗利計算（数学的正確性の保証が JS テストに依存）
+- KPI カード、ウォーターフォール、感度分析等の `StoreResult` 消費ウィジェット
+
+**DuckDB でなければならないもの:**
+- 月跨ぎクエリ（JS の CTS インデックスは単月分のみ保持）
+- 時間帯×曜日×カテゴリの多次元集約（SQL の GROUP BY が適切）
+- 大量レコードの集約（10万件超の走査は SQL が JS より効率的）
+
+**やってはならないこと:**
+- 同じ集約ロジックを JS と SQL の両方に実装する（二重実装）
+- 一部のウィジェットだけ DuckDB 対応し、同種の他のウィジェットは CTS のまま放置する
+  （現状の Unified 5個 + CTS 専用 2個 は一貫性を欠いている）
+- CTS インデックスによる JS 集約を「DuckDB のフォールバック」として維持する
+  （フォールバックが必要なら全ウィジェットに適用すべきであり、
+  一部だけに適用するのは中途半端で保守コストだけが増える）
+
+### 現状の課題: CTS フォールバックの不完全な適用
+
+CTS（CategoryTimeSalesIndex）による JS 集約パスは、DuckDB 導入前の
+時間帯・カテゴリ分析の実装である。DuckDB 導入後、5つのウィジェットで
+「DuckDB 優先、CTS フォールバック」の Unified パターンが適用されたが、
+**同種の残り2つ（CategoryHierarchyExplorer, CategoryPerformanceChart）は
+CTS 専用のまま** であり、一貫性がない。
+
+「両方対応する」なら全てに同じことをやらなければならないが、
+現状は中途半端であり、コード全体の一貫性に欠ける。
+
+**目標状態:**
+- CTS インデックスによる集約パスを廃止し、DuckDB に統一する
+- `WidgetContext` から `ctsIndex` / `prevCtsIndex` を除去する
+- `useAnalyticsResolver` から `'cts'` ソースを削除する
+- CategoryHierarchyExplorer と CategoryPerformanceChart を DuckDB 版に移行する
+- 対応する DuckDB クエリ（`queryLevelAggregation`, `queryCategoryHourly` 等）は既に存在する
+
 ### 設計原則
 
-1. **既存パスとの並行運用**: DuckDB ウィジェットは新規追加であり、既存ウィジェットは
-   そのまま残す。ユーザーがウィジェット設定で選択する。
-2. **SQL 集約の徹底**: DuckDB ウィジェットは SQL で集約済みデータを取得し、
-   UI での生レコード走査を排除する（禁止事項6の DuckDB 版での解消）。
+1. **エンジンの責務は排他的**: 1つのデータ集約に対して、JS と DuckDB の両方で
+   実装してはならない。どちらが担うかを明確にし、一方だけに実装する。
+2. **SQL 集約の徹底**: 時系列・カテゴリ分析は DuckDB の SQL で集約済みデータを取得し、
+   UI での生レコード走査を排除する。
 3. **月跨ぎ対応**: `duckDateRange`（自由日付範囲）を使い、月単位制約を超えた分析が可能。
    `useDuckDB` フックが複数月のデータを DuckDB にロードする。
 4. **非同期安全**: `useAsyncQuery` フックがシーケンス番号によるキャンセル制御を内蔵し、
@@ -790,42 +952,71 @@ UIが生データを直接触ると:
 - `WidgetContext` に `CategoryTimeSalesData`（生データ）を入れてUIに渡す
 - 複数コンポーネントで同じフィルタ・集約ロジックをインラインで重複実装する
 
+---
+
+### 7. UIコンポーネントにデータ変換・副作用・状態管理を混在させてはならない
+
+Presentation層のコンポーネントが `useMemo`/`useCallback` でデータ変換を行い、
+`navigator.clipboard` 等の副作用を含み、複数の `useState` で状態管理し、
+かつ JSX の描画も行う「God Component」にしてはならない。
+
+**これをやると何が壊れるか:**
+MetricBreakdownPanel.tsx が 717 行の God Component に成長し:
+- 25 個の styled-component 定義、4 個の `useState`、5 個の `useMemo`/`useCallback`、
+  2 個の副作用（クリップボード書き込み、CSV エクスポート）、200 行以上の JSX が
+  1 ファイルに混在していた
+- Storybook ストーリーの作成が不可能（ドメイン型のモック構築が必要）
+- `allExplanations: ReadonlyMap<MetricId, Explanation>`（22 指標の全マップ）を
+  props で丸ごと受け取る God Object Prop パターンにより、
+  テストでのモック構築が困難かつ関心の境界が曖昧になっていた
+- ファイルが 300 行（設計思想4の閾値）を大幅に超過していたにもかかわらず放置されていた
+
+**壊れるパターン:**
+- 1 コンポーネントに styled-component 定義 + フック + JSX を全部入れる
+- `allXxx: ReadonlyMap<Id, DomainModel>` のような巨大マップを props で丸ごと渡す
+- 副作用（API 呼び出し、クリップボード、ファイル出力）を描画コンポーネント内に書く
+
+**正しい分割パターン:**
+```
+ComponentName.styles.ts   — styled-component 定義のみ
+useComponentName.ts       — データ変換・状態管理・副作用（ViewModel フック）
+ComponentName.tsx         — ViewModel を受け取り JSX を返す（描画のみ）
+```
+
 ## 残課題・今後の対応
 
 本セクションは CLAUDE.md と実際のコードベースの照合（2026-03 時点）で判明した
 未解決の課題・未文書化の領域をまとめたものである。
 
+### 解決済みの課題
+
+1. ~~**WidgetContext からの生データ除去が未完了**~~
+   - **解決済み**（2026-03）。`categoryTimeSales` / `prevYearCategoryTimeSales` を
+     WidgetContext から完全削除し、`ctsIndex: CategoryTimeSalesIndex` に置換完了。
+
 ### コードベースとドキュメントの乖離から判明した課題
 
-1. **WidgetContext からの生データ除去が未完了**
-   - 「既知の課題と移行方針」セクションに記載の `categoryTimeSales` 生データの
-     WidgetContext 経由配信は依然として残存している
-   - DuckDB ウィジェットでは解消済みだが、既存ウィジェットの移行は進行中
-   - `application/usecases/categoryTimeSales/` にインデックス構築関数が実装されており、
-     段階的な移行基盤は整っている
+1. **Storybook / ビジュアルテストの方針未文書化**
+   - Storybook 設定（`.storybook/`）と P1 ストーリー（Button, Card, Chip, DataGrid,
+     KpiCard, Modal, Skeleton, Theme, TabBar, EmptyState, CalcRow, ErrorBoundary）は整備済み
+   - 開発プロセスにおける位置づけ（CI 必須か任意か、カバー範囲等）が未定義
+   - P2 コンポーネント（DataTable, DayRangeSlider, StatusBadge, Tooltip, ContextBar）は未カバー
 
-2. **Storybook / ビジュアルテストの方針未文書化**
-   - `stories/` ディレクトリ、`npm run storybook`、`npm run test:visual` が存在するが、
-     開発プロセスにおける位置づけ（CI 必須か任意か、カバー範囲等）が未定義
-   - Storybook はコンポーネントカタログとして運用されているが、
-     ビジュアルリグレッションテストの閾値・対象範囲が未記載
-
-3. **PWA 対応の方針未文書化**
+2. **PWA 対応の方針未文書化**
    - `infrastructure/pwa/` に Service Worker 登録コードが存在するが、
      オフライン戦略・キャッシュ方針・更新通知の設計が未記載
    - インブラウザ分析（IndexedDB + DuckDB）との組み合わせにおける
      データ整合性の考慮が必要
 
-4. **DevTools の運用方針**
+3. **DevTools の運用方針**
    - `presentation/components/DevTools/QueryProfilePanel.tsx` 等の開発ツールが存在するが、
      本番ビルドでの除外方針（tree-shaking、条件付きレンダリング等）が未記載
 
-5. **deploy.yml の運用フロー**
-   - `.github/workflows/deploy.yml` が存在するが、
-     デプロイ先・トリガー条件・環境変数の管理方針が CLAUDE.md に未記載
+4. ~~**バレルエクスポート不整合**~~
+   - **解決済み**（2026-03）。`factorDecomposition`, `causalChain`, `useConditionMatrix`,
+     `analysisContextStore` をそれぞれのバレルからエクスポート追加
 
-6. **factorDecomposition のバレルエクスポート不整合**
-   - `domain/calculations/factorDecomposition.ts` は
-     `domain/calculations/index.ts` からエクスポートされていない
-   - 他の計算モジュールはバレルからエクスポートされており、一貫性がない
-   - 直接パス `@/domain/calculations/factorDecomposition` でインポートする必要がある
+5. ~~**純粋関数の重複定義**~~
+   - **解決済み**（2026-03）。`computeDivisor`, `countDistinctDays`, `computeDowDivisorMap`,
+     `filterByStore` の正規定義を `application/usecases/categoryTimeSales/divisor.ts` に統一。
+     `periodFilterUtils.ts` は re-export バレルに変換。`divisorRules.test.ts` でアーキテクチャガード追加

@@ -28,6 +28,11 @@ export const BreadcrumbItem = styled.button<{ $active: boolean }>`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 export const BreadcrumbSep = styled.span`
   font-size: 0.6rem;
@@ -46,6 +51,11 @@ export const ResetBtn = styled.button`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
     opacity: 0.7;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const SummaryBar = styled.div`
@@ -96,7 +106,7 @@ export const TreemapBlock = styled.div<{ $flex: number; $color: string; $canDril
 `
 export const TreemapLabel = styled.div`
   font-size: 0.55rem;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -248,12 +258,17 @@ export const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.6rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
     opacity: 0.85;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const HeaderRow = styled.div`
@@ -320,7 +335,7 @@ export const TipBubble = styled.div`
   z-index: 20;
   width: 200px;
   padding: 8px 10px;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e293b' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e293b' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text2};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};

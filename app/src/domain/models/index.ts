@@ -99,3 +99,11 @@ export type {
   StoreExplanations,
 } from './Explanation'
 export type { StoreMetrics } from './StoreMetrics'
+export type {
+  AnalysisGranularity,
+  DataLineage,
+  ComparisonType,
+  AnalysisContext,
+  DrillType,
+  DrillAction,
+} from './AnalysisContext'

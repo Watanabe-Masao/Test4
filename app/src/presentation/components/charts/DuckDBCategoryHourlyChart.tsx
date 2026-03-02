@@ -16,7 +16,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -120,7 +120,8 @@ const HeatmapCell = styled.td<{ $intensity: number; $isPeak: boolean }>`
     const alpha = Math.min($intensity * 0.7 + 0.05, 0.75)
     return `rgba(${baseColor}, ${alpha})`
   }};
-  color: ${({ $intensity, theme }) => ($intensity > 0.5 ? '#ffffff' : theme.colors.text3)};
+  color: ${({ $intensity, theme }) =>
+    $intensity > 0.5 ? theme.colors.palette.white : theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   position: relative;
   font-weight: ${({ $isPeak }) => ($isPeak ? 700 : 400)};
@@ -293,13 +294,11 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
     setLevel(newLevel)
   }, [])
 
-  const { data: hourlyRows, error } = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  const {
+    data: hourlyRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
 
   const heatmapData = useMemo(
     () =>
@@ -318,6 +317,10 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !hourlyRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {

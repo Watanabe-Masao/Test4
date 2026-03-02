@@ -30,7 +30,7 @@ import { useDuckDBDailyFeatures, type DailyFeatureRow } from '@/application/hook
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -67,11 +67,11 @@ const AnomalyCard = styled.div<{ $type: 'spike' | 'dip' }>`
   background: ${({ $type, theme }) =>
     $type === 'spike'
       ? theme.mode === 'dark'
-        ? 'rgba(239,68,68,0.12)'
-        : 'rgba(239,68,68,0.06)'
+        ? `${theme.colors.palette.dangerDark}1f`
+        : `${theme.colors.palette.dangerDark}0f`
       : theme.mode === 'dark'
-        ? 'rgba(59,130,246,0.12)'
-        : 'rgba(59,130,246,0.06)'};
+        ? `${theme.colors.palette.blueDark}1f`
+        : `${theme.colors.palette.blueDark}0f`};
   border-left: 3px solid
     ${({ $type, theme }) =>
       $type === 'spike' ? theme.colors.palette.dangerDark : theme.colors.palette.blueDark};
@@ -195,12 +195,11 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const { data: features, error } = useDuckDBDailyFeatures(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: features,
+    isLoading,
+    error,
+  } = useDuckDBDailyFeatures(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const { chartData, anomalies } = useMemo(
     () => (features ? buildChartData(features) : { chartData: [], anomalies: [] }),
@@ -216,6 +215,10 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !features) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

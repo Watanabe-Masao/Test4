@@ -29,7 +29,7 @@ import { useDuckDBHourlyProfile, type HourlyProfileRow } from '@/application/hoo
 import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -151,12 +151,11 @@ export const DuckDBHourlyProfileChart = memo(function DuckDBHourlyProfileChart({
   const ct = useChartTheme()
   const { messages } = useI18n()
 
-  const { data: rows, error } = useDuckDBHourlyProfile(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: rows,
+    error,
+    isLoading,
+  } = useDuckDBHourlyProfile(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const { chartData, peakHours, top3Concentration, activeHoursCount } = useMemo(
     () =>
@@ -175,6 +174,10 @@ export const DuckDBHourlyProfileChart = memo(function DuckDBHourlyProfileChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !rows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

@@ -191,7 +191,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                       {formatCurrency(r.totalDiscount)}
                     </ExecSummarySub>
                     <ExecSummarySub>
-                      推定在庫差分額（売変還元法）:{' '}
+                      推定マージン額（売変還元法）:{' '}
                       {formatCurrency(Math.round(r.grossSales * estGpRate))}
                     </ExecSummarySub>
                     {missingDiscount && (

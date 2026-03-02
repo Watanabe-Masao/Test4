@@ -4,6 +4,7 @@
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import type { CategoryTimeSalesRecord } from '@/domain/models'
 import {
   queryHourlyAggregation,
   queryLevelAggregation,
@@ -13,6 +14,7 @@ import {
   queryDowDivisorMap,
   queryCategoryDailyTrend,
   queryCategoryHourly,
+  queryCategoryTimeRecords,
   type CtsFilterParams,
   type HourlyAggregationRow,
   type LevelAggregationRow,
@@ -262,6 +264,35 @@ export function useDuckDBCategoryHourly(
         level,
       })
   }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/**
+ * CategoryTimeSalesRecord[] 互換データを DuckDB から取得。
+ *
+ * category_time_sales + time_slots を JOIN し、子コンポーネント
+ * （HourlyChart, CategoryDrilldown, DrilldownWaterfall 等）が
+ * そのまま使える CategoryTimeSalesRecord[] を返す。
+ */
+export function useDuckDBCategoryTimeRecords(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): AsyncQueryResult<readonly CategoryTimeSalesRecord[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    const params: CtsFilterParams = {
+      dateFrom,
+      dateTo,
+      storeIds: storeIdsToArray(storeIds),
+      isPrevYear,
+    }
+    return (c: AsyncDuckDBConnection) => queryCategoryTimeRecords(c, params)
+  }, [dateRange, storeIds, isPrevYear])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

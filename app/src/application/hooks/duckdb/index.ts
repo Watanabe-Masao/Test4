@@ -20,6 +20,7 @@ export {
   useDuckDBDowDivisorMap,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
+  useDuckDBCategoryTimeRecords,
 } from './useCtsQueries'
 export type {
   HourlyAggregationRow,
@@ -78,3 +79,12 @@ export {
   useDuckDBAggregatedDailyRecords,
 } from './useDailyRecordQueries'
 export type { DailyRecordRow } from './useDailyRecordQueries'
+
+// コンディションマトリクス
+export { useDuckDBConditionMatrix, buildConditionMatrix } from './useConditionMatrix'
+export type {
+  ConditionMatrixRow,
+  MatrixCell,
+  MatrixRowData,
+  ConditionMatrixResult,
+} from './useConditionMatrix'

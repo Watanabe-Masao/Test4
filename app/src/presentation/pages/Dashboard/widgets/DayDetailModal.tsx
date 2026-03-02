@@ -18,8 +18,9 @@ import {
   formatPercent,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
-import type { DailyRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
-import { queryByDateRange } from '@/application/usecases'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { DailyRecord, DateRange, CategoryTimeSalesRecord } from '@/domain/models'
+import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks'
 import {
   PinModalOverlay,
@@ -56,6 +57,9 @@ import { DrilldownWaterfall } from './DrilldownWaterfall'
 type ModalTab = 'sales' | 'hourly' | 'breakdown'
 type CompMode = 'yoy' | 'wow'
 
+const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
+const EMPTY_STORE_IDS: ReadonlySet<string> = new Set()
+
 interface DayDetailModalProps {
   day: number
   month: number
@@ -68,8 +72,10 @@ interface DayDetailModalProps {
   cumCustomers: number
   cumPrevCustomers: number
   prevYear: PrevYearData
-  ctsIndex: CategoryTimeSalesIndex
-  prevCtsIndex: CategoryTimeSalesIndex
+  /** DuckDB コネクション */
+  duckConn: AsyncDuckDBConnection | null
+  /** DuckDB データバージョン（0 = 未ロード） */
+  duckDataVersion: number
   /** 当年の全日別データ（前週比用） */
   dailyMap?: ReadonlyMap<number, DailyRecord>
   /** 選択中の店舗IDセット（空=全店舗） */
@@ -89,8 +95,8 @@ export function DayDetailModal({
   cumCustomers,
   cumPrevCustomers,
   prevYear,
-  ctsIndex,
-  prevCtsIndex,
+  duckConn,
+  duckDataVersion,
   dailyMap,
   selectedStoreIds,
   onClose,
@@ -128,7 +134,9 @@ export function DayDetailModal({
   const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
   const wowPrevSales = wowDailyRecord?.sales ?? 0
   const wowPrevCust = wowDailyRecord?.customers ?? 0
-  // ── Category records（インデックスから日指定で取得） ──
+  // ── Category records（DuckDB から取得） ──
+  const storeIdsSet = selectedStoreIds ?? EMPTY_STORE_IDS
+
   const singleDayRange: DateRange = useMemo(
     () => ({
       from: { year, month, day },
@@ -137,10 +145,13 @@ export function DayDetailModal({
     [year, month, day],
   )
 
-  const dayRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: singleDayRange, storeIds: selectedStoreIds }),
-    [ctsIndex, singleDayRange, selectedStoreIds],
+  const dayResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    singleDayRange,
+    storeIdsSet,
   )
+  const dayRecords = dayResult.data ?? EMPTY_RECORDS
 
   const prevDayRange: DateRange = useMemo(
     () => ({
@@ -150,27 +161,34 @@ export function DayDetailModal({
     [year, month, day],
   )
 
-  const prevDayRecords = useMemo(
-    () => queryByDateRange(prevCtsIndex, { dateRange: prevDayRange, storeIds: selectedStoreIds }),
-    [prevCtsIndex, prevDayRange, selectedStoreIds],
+  const prevDayResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    prevDayRange,
+    storeIdsSet,
+    true,
   )
+  const prevDayRecords = prevDayResult.data ?? EMPTY_RECORDS
 
   // WoW用: 前週(day-7)のカテゴリレコード
-  const wowPrevDayRange: DateRange = useMemo(
-    () => ({
-      from: { year, month, day: Math.max(1, wowPrevDay) },
-      to: { year, month, day: Math.max(1, wowPrevDay) },
-    }),
-    [year, month, wowPrevDay],
-  )
-
-  const wowPrevDayRecords = useMemo(
+  const wowPrevDayRange: DateRange | undefined = useMemo(
     () =>
       canWoW
-        ? queryByDateRange(ctsIndex, { dateRange: wowPrevDayRange, storeIds: selectedStoreIds })
-        : [],
-    [canWoW, ctsIndex, wowPrevDayRange, selectedStoreIds],
+        ? {
+            from: { year, month, day: wowPrevDay },
+            to: { year, month, day: wowPrevDay },
+          }
+        : undefined,
+    [canWoW, year, month, wowPrevDay],
   )
+
+  const wowResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    wowPrevDayRange,
+    storeIdsSet,
+  )
+  const wowPrevDayRecords = wowResult.data ?? EMPTY_RECORDS
 
   // ── 比較用メトリクス（モードに応じて切替） ──
   const compSales = activeCompMode === 'wow' ? wowPrevSales : pySales
@@ -193,10 +211,13 @@ export function DayDetailModal({
     [year, month, day],
   )
 
-  const cumCategoryRecords = useMemo(
-    () => queryByDateRange(ctsIndex, { dateRange: cumDateRange, storeIds: selectedStoreIds }),
-    [ctsIndex, cumDateRange, selectedStoreIds],
+  const cumResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    cumDateRange,
+    storeIdsSet,
   )
+  const cumCategoryRecords = cumResult.data ?? EMPTY_RECORDS
 
   const cumPrevDateRange: DateRange = useMemo(
     () => ({
@@ -206,11 +227,14 @@ export function DayDetailModal({
     [year, month, day],
   )
 
-  const cumPrevCategoryRecords = useMemo(
-    () =>
-      queryByDateRange(prevCtsIndex, { dateRange: cumPrevDateRange, storeIds: selectedStoreIds }),
-    [prevCtsIndex, cumPrevDateRange, selectedStoreIds],
+  const cumPrevResult = useDuckDBCategoryTimeRecords(
+    duckConn,
+    duckDataVersion,
+    cumPrevDateRange,
+    storeIdsSet,
+    true,
   )
+  const cumPrevCategoryRecords = cumPrevResult.data ?? EMPTY_RECORDS
 
   return (
     <PinModalOverlay onClick={onClose}>

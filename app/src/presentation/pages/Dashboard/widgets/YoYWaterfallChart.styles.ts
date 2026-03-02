@@ -32,7 +32,7 @@ export const TabBtn = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ $active, theme }) =>
     $active ? theme.colors.palette.primary : theme.colors.bg2};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text)};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
   &:hover {
@@ -81,7 +81,7 @@ export const ModeBtn = styled.button<{ $active: boolean }>`
   border-radius: 6px;
   border: none;
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  color: ${({ $active }) => ($active ? '#fff' : 'inherit')};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : 'inherit')};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
@@ -125,6 +125,12 @@ export const HelpToggle = styled.button`
   gap: 4px;
   &:hover {
     text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

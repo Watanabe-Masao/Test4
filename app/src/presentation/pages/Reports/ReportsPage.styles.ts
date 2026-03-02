@@ -92,7 +92,17 @@ export const TotalRow = styled.tr`
 
 /* ─── Calc Rows (P&L Card) ───────────────────────────── */
 
-export { CalcRow, CalcLabel, CalcValue, CalcHighlight } from '@/presentation/components/common'
+export {
+  CalcRow,
+  CalcLabel,
+  CalcValue,
+  CalcHighlight,
+  CalcPurpose,
+  CalcNullGuide,
+  VarianceRow,
+  VarianceLabel,
+  VarianceValue,
+} from '@/presentation/components/common'
 
 export const DisclaimerNote = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};

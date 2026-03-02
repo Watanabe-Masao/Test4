@@ -382,50 +382,98 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
 
 /* ── 純粋関数定義元のルール定義チェック ────────── */
 
-describe('periodFilterUtils.ts: ルール定義元の健全性', () => {
-  const utilsContent = readChartFile(PERIOD_FILTER_UTILS_FILE)
+/**
+ * 正規の定義元は application/usecases/categoryTimeSales/divisor.ts。
+ * periodFilterUtils.ts はバレル re-export として後方互換を維持する。
+ * このセクションでは:
+ *   1. 正規ロケーション（divisor.ts）に実装が存在すること
+ *   2. periodFilterUtils.ts が re-export していること
+ * の両方を検証する。
+ */
 
+const CANONICAL_DIVISOR_FILE = path.resolve(
+  __dirname,
+  '../../../../application/usecases/categoryTimeSales/divisor.ts',
+)
+const canonicalContent = fs.readFileSync(CANONICAL_DIVISOR_FILE, 'utf-8')
+
+describe('divisor.ts（正規ロケーション）: 実装の健全性', () => {
   it('computeDivisor が export されていること', () => {
-    expect(/export\s+function\s+computeDivisor/.test(utilsContent)).toBe(true)
+    expect(/export\s+function\s+computeDivisor/.test(canonicalContent)).toBe(true)
   })
 
   it('countDistinctDays が export されていること', () => {
-    expect(/export\s+function\s+countDistinctDays/.test(utilsContent)).toBe(true)
+    expect(/export\s+function\s+countDistinctDays/.test(canonicalContent)).toBe(true)
   })
 
   it('computeDowDivisorMap が export されていること', () => {
-    expect(/export\s+function\s+computeDowDivisorMap/.test(utilsContent)).toBe(true)
+    expect(/export\s+function\s+computeDowDivisorMap/.test(canonicalContent)).toBe(true)
   })
 
   it('filterByStore が export されていること', () => {
-    expect(/export\s+function\s+filterByStore/.test(utilsContent)).toBe(true)
+    expect(/export\s+function\s+filterByStore/.test(canonicalContent)).toBe(true)
   })
 
   it('computeDivisor が total モードで常に 1 を返す実装になっていること', () => {
-    // computeDivisor 関数の本体を抽出して検証
-    const funcMatch = utilsContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = canonicalContent.match(
+      /export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/,
+    )
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
-    // "mode === 'total'" のチェックと "return 1" が含まれること
     expect(body).toMatch(/mode\s*===\s*['"]total['"]/)
     expect(body).toMatch(/return\s+1/)
   })
 
   it('computeDivisor が >= 1 保証の実装を持つこと', () => {
-    const funcMatch = utilsContent.match(/export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = canonicalContent.match(
+      /export\s+function\s+computeDivisor[^{]*\{([\s\S]*?)\n\}/,
+    )
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
-    // "distinctDayCount > 0" のチェックがあること
     expect(body).toMatch(/>\s*0/)
   })
 
   it('filterByStore が空集合で全レコード返却する実装を持つこと', () => {
-    const funcMatch = utilsContent.match(/export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/)
+    const funcMatch = canonicalContent.match(
+      /export\s+function\s+filterByStore[^{]*\{([\s\S]*?)\n\}/,
+    )
     expect(funcMatch).not.toBeNull()
     const body = funcMatch![1]
-    // size === 0 チェックと return records が含まれること
     expect(body).toMatch(/\.size\s*===\s*0/)
     expect(body).toMatch(/return\s+records/)
+  })
+})
+
+describe('periodFilterUtils.ts: re-export バレルの健全性', () => {
+  const utilsContent = fs.readFileSync(path.join(CHARTS_DIR, PERIOD_FILTER_UTILS_FILE), 'utf-8')
+
+  it('computeDivisor を re-export していること', () => {
+    expect(/export\s+\{[^}]*\bcomputeDivisor\b[^}]*\}/.test(utilsContent)).toBe(true)
+  })
+
+  it('countDistinctDays を re-export していること', () => {
+    expect(/export\s+\{[^}]*\bcountDistinctDays\b[^}]*\}/.test(utilsContent)).toBe(true)
+  })
+
+  it('computeDowDivisorMap を re-export していること', () => {
+    expect(/export\s+\{[^}]*\bcomputeDowDivisorMap\b[^}]*\}/.test(utilsContent)).toBe(true)
+  })
+
+  it('filterByStore を re-export していること', () => {
+    expect(/export\s+\{[^}]*\bfilterByStore\b[^}]*\}/.test(utilsContent)).toBe(true)
+  })
+
+  it('独自の関数定義が存在しないこと（countDowInRange を除く）', () => {
+    // countDowInRange 以外の export function があれば重複定義の兆候
+    const funcDefs = utilsContent.match(/export\s+function\s+(\w+)/g) ?? []
+    const nonTestFuncs = funcDefs
+      .map((m) => m.replace(/export\s+function\s+/, ''))
+      .filter((name) => name !== 'countDowInRange')
+    expect(
+      nonTestFuncs,
+      `periodFilterUtils.ts に独自の関数定義を検出: ${nonTestFuncs.join(', ')}\n` +
+        '→ 正規ロケーション (divisor.ts) からの re-export に置換してください',
+    ).toHaveLength(0)
   })
 })
 

@@ -20,8 +20,9 @@ import {
   type HourDowMatrixRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
+import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -161,12 +162,17 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.65rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
     opacity: 0.85;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -408,7 +414,11 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
 
   // 当年 時間帯×曜日マトリクス
-  const { data: matrixRows, error } = useDuckDBHourDowMatrix(
+  const {
+    data: matrixRows,
+    isLoading,
+    error,
+  } = useDuckDBHourDowMatrix(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -489,12 +499,16 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
     )
   }
 
+  if (isLoading && !matrixRows) {
+    return <ChartSkeleton />
+  }
+
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const bgBase = ct.isDark ? '#1e1e2e' : '#f8fafc'
-  const primaryHex = '#6366f1'
+  const primaryHex = palette.primary
 
   const hours: number[] = []
   for (let h = HOUR_MIN; h <= HOUR_MAX; h++) hours.push(h)
@@ -559,7 +573,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
                         </DiffDataCell>
                       )
                     }
-                    const textColor = Math.abs(ratio) > 0.15 ? '#fff' : ct.textMuted
+                    const textColor = Math.abs(ratio) > 0.15 ? palette.white : ct.textMuted
                     return (
                       <DiffDataCell
                         key={dow}
@@ -590,7 +604,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
                   const ratio = heatmapData.maxValue > 0 ? cell.dailyAvg / heatmapData.maxValue : 0
                   const bgColor = interpolateColor(ratio, bgBase, primaryHex)
                   const textColor =
-                    ratio > 0.5 ? (ct.isDark ? theme.colors.text : '#ffffff') : ct.textMuted
+                    ratio > 0.5 ? (ct.isDark ? theme.colors.text : palette.white) : ct.textMuted
                   return (
                     <DataCell
                       key={dow}
@@ -624,7 +638,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
         ) : (
           <>
             <span>減少</span>
-            <GradientBar $from="rgba(239,68,68,0.8)" $to="rgba(34,197,94,0.8)" />
+            <GradientBar $from={`${palette.dangerDark}cc`} $to={`${palette.successDark}cc`} />
             <span>増加</span>
           </>
         )}

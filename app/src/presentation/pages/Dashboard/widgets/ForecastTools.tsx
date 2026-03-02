@@ -141,6 +141,12 @@ const StepBtn = styled.button`
     opacity: 0.3;
     cursor: default;
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const ResetButton = styled.button`
@@ -153,6 +159,12 @@ const ResetButton = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
