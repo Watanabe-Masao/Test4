@@ -374,6 +374,7 @@ export function CategoryPage() {
                             <DrillTr
                               key={storeKey}
                               $depth={1}
+                              $catColor={d.color}
                               $clickable
                               $expanded={isStoreExpanded}
                               onClick={(e) => {
@@ -431,7 +432,11 @@ export function CategoryPage() {
                               const dayGP = de.price - de.cost
                               const dayMarkup = safeDivide(dayGP, de.price, 0)
                               rows.push(
-                                <DrillTr key={`${storeKey}:${de.day}`} $depth={2}>
+                                <DrillTr
+                                  key={`${storeKey}:${de.day}`}
+                                  $depth={2}
+                                  $catColor={d.color}
+                                >
                                   <Td>
                                     <DrillLabel $depth={2}>{de.day}日</DrillLabel>
                                   </Td>

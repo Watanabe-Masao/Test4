@@ -21,6 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -82,7 +83,8 @@ const DataCell = styled.td<{ $bgColor: string; $isAnomaly: boolean; $textColor: 
   font-size: 0.55rem;
   color: ${({ $textColor }) => $textColor};
   background: ${({ $bgColor }) => $bgColor};
-  border: ${({ $isAnomaly }) => ($isAnomaly ? '2px solid #ef4444' : '1px solid transparent')};
+  border: ${({ $isAnomaly, theme }) =>
+    $isAnomaly ? `2px solid ${theme.colors.palette.dangerDark}` : '1px solid transparent'};
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: all 0.15s;
   min-width: 60px;
@@ -488,7 +490,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const bgBase = ct.isDark ? '#1e1e2e' : '#f8fafc'
@@ -614,7 +616,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
             <GradientBar $from={bgBase} $to={primaryHex} />
             <span>高</span>
             {heatmapData.anomalyCount > 0 && (
-              <span style={{ marginLeft: '12px', color: '#ef4444' }}>
+              <span style={{ marginLeft: '12px', color: theme.colors.palette.dangerDark }}>
                 異常セル: {heatmapData.anomalyCount}件
               </span>
             )}

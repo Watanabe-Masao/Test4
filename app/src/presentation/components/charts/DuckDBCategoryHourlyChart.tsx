@@ -16,6 +16,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -320,7 +321,7 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
   }
 
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const { categories, maxAmount, globalPeakHour } = heatmapData

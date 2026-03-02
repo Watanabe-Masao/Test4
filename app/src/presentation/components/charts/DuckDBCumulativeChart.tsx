@@ -21,6 +21,7 @@ import {
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -116,7 +117,7 @@ export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   const totalSales = chartData[chartData.length - 1]?.cumulative ?? 0

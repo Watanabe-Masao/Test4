@@ -32,6 +32,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './char
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ─── Styled ───────────────────────────────────────────
 
@@ -366,7 +367,7 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   // Summary

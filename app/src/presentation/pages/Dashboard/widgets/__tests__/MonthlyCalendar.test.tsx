@@ -25,7 +25,7 @@ describe('MonthlyCalendarWidget', () => {
     expect(screen.getByText('火')).toBeInTheDocument()
   })
 
-  it('客数データがある場合に「客」「単」セルが表示される', () => {
+  it('実績売上がセルに表示される', () => {
     const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000, customers: 50 })]])
     const budgetDaily = new Map([[1, 90000]])
     const ctx = makeWidgetContext({
@@ -36,12 +36,11 @@ describe('MonthlyCalendarWidget', () => {
 
     renderWithTheme(<MonthlyCalendarWidget ctx={ctx} />)
 
-    expect(screen.getByText('客 50')).toBeInTheDocument()
-    // 客単価 = 100000 / 50 = 2000
-    expect(screen.getByText('単 2,000')).toBeInTheDocument()
+    // Simplified cell shows hero sales value (千円表記)
+    expect(screen.getByText('100千')).toBeInTheDocument()
   })
 
-  it('客数 = 0 では客数セルが非表示', () => {
+  it('予算差がセルに表示される', () => {
     const daily = new Map([[1, makeDailyRecord({ day: 1, sales: 100000 })]])
     const budgetDaily = new Map([[1, 90000]])
     const ctx = makeWidgetContext({
@@ -52,11 +51,11 @@ describe('MonthlyCalendarWidget', () => {
 
     renderWithTheme(<MonthlyCalendarWidget ctx={ctx} />)
 
-    expect(screen.queryByText(/^客 /)).not.toBeInTheDocument()
-    expect(screen.queryByText(/^単 /)).not.toBeInTheDocument()
+    // Budget diff: 100000 - 90000 = +10000 → +10千
+    expect(screen.getByText(/▲.*\+10千/)).toBeInTheDocument()
   })
 
-  it('複数日の客数が各セルに表示される', () => {
+  it('複数日の売上が各セルに表示される', () => {
     const daily = new Map([
       [1, makeDailyRecord({ day: 1, sales: 100000, customers: 50 })],
       [2, makeDailyRecord({ day: 2, sales: 150000, customers: 75 })],
@@ -73,7 +72,7 @@ describe('MonthlyCalendarWidget', () => {
 
     renderWithTheme(<MonthlyCalendarWidget ctx={ctx} />)
 
-    expect(screen.getByText('客 50')).toBeInTheDocument()
-    expect(screen.getByText('客 75')).toBeInTheDocument()
+    expect(screen.getByText('100千')).toBeInTheDocument()
+    expect(screen.getByText('150千')).toBeInTheDocument()
   })
 })

@@ -21,6 +21,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from 
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -409,7 +410,7 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

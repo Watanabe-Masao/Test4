@@ -266,6 +266,19 @@ export function DailyPage() {
           label="総売上高"
           value={formatCurrency(currentResult.totalSales)}
           onClick={() => handleExplain('salesTotal')}
+          trend={
+            prevYear.hasPrevYear && prevYear.totalSales > 0
+              ? {
+                  direction:
+                    currentResult.totalSales > prevYear.totalSales
+                      ? 'up'
+                      : currentResult.totalSales < prevYear.totalSales
+                        ? 'down'
+                        : 'flat',
+                  label: `前年比 ${formatPercent(currentResult.totalSales / prevYear.totalSales)}`,
+                }
+              : undefined
+          }
         />
         <KpiCard
           label="総仕入原価"

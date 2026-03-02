@@ -101,6 +101,7 @@ export const SubTd = styled.td<{ $negative?: boolean }>`
 `
 
 export const Tr = styled.tr<{ $anomaly?: 'up' | 'down' }>`
+  transition: background ${({ theme }) => theme.transitions.fast};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }

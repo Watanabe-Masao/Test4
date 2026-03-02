@@ -29,6 +29,7 @@ import {
 } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -398,7 +399,7 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

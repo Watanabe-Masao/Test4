@@ -22,6 +22,7 @@ import {
 import { useChartTheme, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
+import { EmptyState } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -105,7 +106,9 @@ const ShiftCard = styled.div<{ $positive: boolean }>`
       : theme.mode === 'dark'
         ? 'rgba(239,68,68,0.12)'
         : 'rgba(239,68,68,0.06)'};
-  border-left: 3px solid ${({ $positive }) => ($positive ? '#22c55e' : '#ef4444')};
+  border-left: 3px solid
+    ${({ $positive, theme }) =>
+      $positive ? theme.colors.palette.successDark : theme.colors.palette.dangerDark};
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: 0.6rem;
 `
@@ -367,7 +370,7 @@ export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {
-    return null
+    return <EmptyState>データをインポートしてください</EmptyState>
   }
 
   return (

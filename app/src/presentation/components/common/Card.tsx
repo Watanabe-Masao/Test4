@@ -5,6 +5,7 @@ export const Card = styled.div<{ $accent?: string }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: ${({ theme }) => theme.spacing[6]};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   transition: all ${({ theme }) => theme.transitions.fast};
   position: relative;
 

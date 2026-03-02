@@ -12,7 +12,8 @@ export const Chip = styled.button<{ $active?: boolean }>`
   padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
   border-radius: ${({ theme }) => theme.radii.pill};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.semibold};
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -24,5 +25,9 @@ export const Chip = styled.button<{ $active?: boolean }>`
 
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
