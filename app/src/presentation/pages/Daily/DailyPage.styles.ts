@@ -100,10 +100,33 @@ export const SubTd = styled.td<{ $negative?: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
-export const Tr = styled.tr`
+export const Tr = styled.tr<{ $anomaly?: 'up' | 'down' }>`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }
+  ${({ $anomaly, theme }) =>
+    $anomaly === 'up' &&
+    css`
+      background: ${theme.colors.palette.success}08;
+    `}
+  ${({ $anomaly, theme }) =>
+    $anomaly === 'down' &&
+    css`
+      background: ${theme.colors.palette.danger}08;
+    `}
+`
+
+export const AnomalyBadge = styled.span<{ $direction: 'up' | 'down' }>`
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  padding: 0 ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.pill};
+  margin-left: ${({ theme }) => theme.spacing[1]};
+  color: ${({ $direction, theme }) =>
+    $direction === 'up' ? theme.colors.palette.success : theme.colors.palette.danger};
+  background: ${({ $direction, theme }) =>
+    $direction === 'up' ? `${theme.colors.palette.success}15` : `${theme.colors.palette.danger}15`};
 `
 
 export const PrevYearTd = styled.td<{ $positive?: boolean }>`

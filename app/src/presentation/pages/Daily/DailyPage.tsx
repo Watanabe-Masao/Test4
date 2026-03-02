@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
@@ -20,6 +21,7 @@ import {
 } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
+import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
@@ -37,6 +39,7 @@ import {
   EmptyState,
   ToggleIcon,
   RateTd,
+  AnomalyBadge,
 } from './DailyPage.styles'
 
 type ExpandableColumn =
@@ -105,6 +108,7 @@ const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
 export function DailyPage() {
+  const nav = useNavigate()
   const { isComputing, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const suppliers = useDataStore((s) => s.data.suppliers)
@@ -353,142 +357,166 @@ export function DailyPage() {
               </tr>
             </thead>
             <tbody>
-              {days.map(([day, rec]) => (
-                <Tr key={day}>
-                  <Td>{day}</Td>
-                  <Td>{formatCurrency(rec.sales)}</Td>
-                  {prevYear.hasPrevYear &&
-                    (() => {
-                      const ps = prevYear.daily.get(day)?.sales ?? 0
-                      return <PrevYearTd>{ps > 0 ? formatCurrency(ps) : '-'}</PrevYearTd>
+              {days.map(([day, rec]) => {
+                const prevSales = prevYear.hasPrevYear ? (prevYear.daily.get(day)?.sales ?? 0) : 0
+                const yoyRatio = prevSales > 0 ? rec.sales / prevSales : null
+                const anomaly: 'up' | 'down' | undefined =
+                  yoyRatio != null && yoyRatio >= 1.2
+                    ? 'up'
+                    : yoyRatio != null && yoyRatio <= 0.8
+                      ? 'down'
+                      : undefined
+                return (
+                  <Tr key={day} $anomaly={anomaly}>
+                    <Td>
+                      {day}
+                      {anomaly && (
+                        <AnomalyBadge
+                          $direction={anomaly}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            useUiStore.getState().setCurrentView('insight')
+                            nav('/insight?tab=decomposition')
+                          }}
+                          title="要因分析を見る"
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {anomaly === 'up' ? '↑' : '↓'}
+                          {yoyRatio != null ? `${((yoyRatio - 1) * 100).toFixed(0)}%` : ''}
+                        </AnomalyBadge>
+                      )}
+                    </Td>
+                    <Td>{formatCurrency(rec.sales)}</Td>
+                    {prevYear.hasPrevYear && (
+                      <PrevYearTd>{prevSales > 0 ? formatCurrency(prevSales) : '-'}</PrevYearTd>
+                    )}
+                    {prevYear.hasPrevYear &&
+                      (() => {
+                        if (!prevSales || prevSales === 0) return <PrevYearTd>-</PrevYearTd>
+                        const ratio = (rec.sales / prevSales) * 100
+                        return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
+                      })()}
+                    {/* 仕入原価 + 詳細 */}
+                    <Td>{formatCurrency(rec.purchase.cost)}</Td>
+                    {isPurchaseExpanded &&
+                      supplierKeys.map((s) => {
+                        const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                        return (
+                          <SubTd key={`sup-cost-${s.code}`}>
+                            {pair ? fmtOrDash(pair.cost) : '-'}
+                          </SubTd>
+                        )
+                      })}
+                    {/* 仕入売価 + 詳細 */}
+                    <Td>{formatCurrency(rec.purchase.price)}</Td>
+                    {isPurchaseExpanded &&
+                      supplierKeys.map((s) => {
+                        const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
+                        return (
+                          <SubTd key={`sup-price-${s.code}`}>
+                            {pair ? fmtOrDash(pair.price) : '-'}
+                          </SubTd>
+                        )
+                      })}
+                    {/* 店間入 + 詳細 */}
+                    <Td>{fmtOrDash(rec.interStoreIn.cost)}</Td>
+                    {isInterStoreInExpanded &&
+                      interStoreInKeys.map((k) => {
+                        const amt = getTransferAmount(
+                          rec.transferBreakdown.interStoreIn,
+                          k.from,
+                          k.to,
+                        )
+                        return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                      })}
+                    {/* 店間出 + 詳細 */}
+                    <Td $negative={rec.interStoreOut.cost < 0}>
+                      {fmtOrDash(rec.interStoreOut.cost)}
+                    </Td>
+                    {isInterStoreOutExpanded &&
+                      interStoreOutKeys.map((k) => {
+                        const amt = getTransferAmount(
+                          rec.transferBreakdown.interStoreOut,
+                          k.from,
+                          k.to,
+                        )
+                        return (
+                          <SubTd key={`so-${k.key}`} $negative={amt < 0}>
+                            {fmtOrDash(amt)}
+                          </SubTd>
+                        )
+                      })}
+                    {/* 部門間入 + 詳細 */}
+                    <Td>{fmtOrDash(rec.interDepartmentIn.cost)}</Td>
+                    {isInterDeptInExpanded &&
+                      interDeptInKeys.map((k) => {
+                        const amt = getTransferAmount(
+                          rec.transferBreakdown.interDepartmentIn,
+                          k.from,
+                          k.to,
+                        )
+                        return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
+                      })}
+                    {/* 部門間出 + 詳細 */}
+                    <Td $negative={rec.interDepartmentOut.cost < 0}>
+                      {fmtOrDash(rec.interDepartmentOut.cost)}
+                    </Td>
+                    {isInterDeptOutExpanded &&
+                      interDeptOutKeys.map((k) => {
+                        const amt = getTransferAmount(
+                          rec.transferBreakdown.interDepartmentOut,
+                          k.from,
+                          k.to,
+                        )
+                        return (
+                          <SubTd key={`do-${k.key}`} $negative={amt < 0}>
+                            {fmtOrDash(amt)}
+                          </SubTd>
+                        )
+                      })}
+                    <Td>{fmtOrDashPositive(rec.flowers.price)}</Td>
+                    <Td>{fmtOrDashPositive(rec.directProduce.price)}</Td>
+                    <Td $negative={rec.discountAbsolute > 0}>
+                      {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
+                    </Td>
+                    <Td>{rec.consumable.cost > 0 ? formatCurrency(rec.consumable.cost) : '-'}</Td>
+                    {(() => {
+                      const cum = cumulativeData.get(day)
+                      const gpr = cum?.grossProfitRate ?? 0
+                      const gprStatus =
+                        gpr >= settings.targetGrossProfitRate
+                          ? ('good' as const)
+                          : gpr >= settings.warningThreshold
+                            ? ('warn' as const)
+                            : ('bad' as const)
+                      return (
+                        <RateTd $status={rec.sales > 0 ? gprStatus : undefined}>
+                          {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
+                        </RateTd>
+                      )
                     })()}
-                  {prevYear.hasPrevYear &&
-                    (() => {
-                      const ps = prevYear.daily.get(day)?.sales
-                      if (!ps || ps === 0) return <PrevYearTd>-</PrevYearTd>
-                      const ratio = (rec.sales / ps) * 100
-                      return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
+                    {(() => {
+                      const cum = cumulativeData.get(day)
+                      const dr = cum?.discountRate ?? 0
+                      return (
+                        <RateTd
+                          $status={
+                            dr > 0
+                              ? dr > 0.05
+                                ? ('bad' as const)
+                                : dr > 0.03
+                                  ? ('warn' as const)
+                                  : ('good' as const)
+                              : undefined
+                          }
+                        >
+                          {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
+                        </RateTd>
+                      )
                     })()}
-                  {/* 仕入原価 + 詳細 */}
-                  <Td>{formatCurrency(rec.purchase.cost)}</Td>
-                  {isPurchaseExpanded &&
-                    supplierKeys.map((s) => {
-                      const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
-                      return (
-                        <SubTd key={`sup-cost-${s.code}`}>
-                          {pair ? fmtOrDash(pair.cost) : '-'}
-                        </SubTd>
-                      )
-                    })}
-                  {/* 仕入売価 + 詳細 */}
-                  <Td>{formatCurrency(rec.purchase.price)}</Td>
-                  {isPurchaseExpanded &&
-                    supplierKeys.map((s) => {
-                      const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
-                      return (
-                        <SubTd key={`sup-price-${s.code}`}>
-                          {pair ? fmtOrDash(pair.price) : '-'}
-                        </SubTd>
-                      )
-                    })}
-                  {/* 店間入 + 詳細 */}
-                  <Td>{fmtOrDash(rec.interStoreIn.cost)}</Td>
-                  {isInterStoreInExpanded &&
-                    interStoreInKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interStoreIn,
-                        k.from,
-                        k.to,
-                      )
-                      return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                    })}
-                  {/* 店間出 + 詳細 */}
-                  <Td $negative={rec.interStoreOut.cost < 0}>
-                    {fmtOrDash(rec.interStoreOut.cost)}
-                  </Td>
-                  {isInterStoreOutExpanded &&
-                    interStoreOutKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interStoreOut,
-                        k.from,
-                        k.to,
-                      )
-                      return (
-                        <SubTd key={`so-${k.key}`} $negative={amt < 0}>
-                          {fmtOrDash(amt)}
-                        </SubTd>
-                      )
-                    })}
-                  {/* 部門間入 + 詳細 */}
-                  <Td>{fmtOrDash(rec.interDepartmentIn.cost)}</Td>
-                  {isInterDeptInExpanded &&
-                    interDeptInKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interDepartmentIn,
-                        k.from,
-                        k.to,
-                      )
-                      return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                    })}
-                  {/* 部門間出 + 詳細 */}
-                  <Td $negative={rec.interDepartmentOut.cost < 0}>
-                    {fmtOrDash(rec.interDepartmentOut.cost)}
-                  </Td>
-                  {isInterDeptOutExpanded &&
-                    interDeptOutKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interDepartmentOut,
-                        k.from,
-                        k.to,
-                      )
-                      return (
-                        <SubTd key={`do-${k.key}`} $negative={amt < 0}>
-                          {fmtOrDash(amt)}
-                        </SubTd>
-                      )
-                    })}
-                  <Td>{fmtOrDashPositive(rec.flowers.price)}</Td>
-                  <Td>{fmtOrDashPositive(rec.directProduce.price)}</Td>
-                  <Td $negative={rec.discountAbsolute > 0}>
-                    {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
-                  </Td>
-                  <Td>{rec.consumable.cost > 0 ? formatCurrency(rec.consumable.cost) : '-'}</Td>
-                  {(() => {
-                    const cum = cumulativeData.get(day)
-                    const gpr = cum?.grossProfitRate ?? 0
-                    const gprStatus =
-                      gpr >= settings.targetGrossProfitRate
-                        ? ('good' as const)
-                        : gpr >= settings.warningThreshold
-                          ? ('warn' as const)
-                          : ('bad' as const)
-                    return (
-                      <RateTd $status={rec.sales > 0 ? gprStatus : undefined}>
-                        {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
-                      </RateTd>
-                    )
-                  })()}
-                  {(() => {
-                    const cum = cumulativeData.get(day)
-                    const dr = cum?.discountRate ?? 0
-                    return (
-                      <RateTd
-                        $status={
-                          dr > 0
-                            ? dr > 0.05
-                              ? ('bad' as const)
-                              : dr > 0.03
-                                ? ('warn' as const)
-                                : ('good' as const)
-                            : undefined
-                        }
-                      >
-                        {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
-                      </RateTd>
-                    )
-                  })()}
-                </Tr>
-              ))}
+                  </Tr>
+                )
+              })}
             </tbody>
           </Table>
         </TableWrapper>

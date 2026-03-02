@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   KpiCard,
@@ -26,10 +27,12 @@ import {
   currentResultToMonthlyPoint,
   useMonthlyDataPoints,
 } from '@/application/hooks/useMonthlyHistory'
-import type { MetricId, DateRange } from '@/domain/models'
+import type { MetricId, DateRange, ViewType } from '@/domain/models'
+import { VIEW_TO_PATH } from '@/presentation/routes'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useUiStore } from '@/application/stores/uiStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
@@ -57,6 +60,8 @@ import {
   DragItem,
   DragHandle,
   DeleteBtn,
+  WidgetLinkBtn,
+  WidgetWrapper,
 } from './DashboardPage.styles'
 
 // ─── Drill-through scroll handler ────────────────────────
@@ -87,6 +92,7 @@ function DrillThroughScrollHandler() {
 // ─── Main Dashboard ──────────────────────────────────────
 
 export function DashboardPage() {
+  const nav = useNavigate()
   const { isCalculated, isComputing, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
   const data = useDataStore((s) => s.data)
@@ -222,6 +228,15 @@ export function DashboardPage() {
     duck.isReady,
   ])
 
+  const handleWidgetLink = useCallback(
+    (view: ViewType, tab?: string) => {
+      const path = VIEW_TO_PATH[view] + (tab ? `?tab=${tab}` : '')
+      useUiStore.getState().setCurrentView(view)
+      nav(path)
+    },
+    [nav],
+  )
+
   // ─── Empty / Loading states ──
 
   if (isComputing && storeResults.size === 0) {
@@ -320,9 +335,17 @@ export function DashboardPage() {
   const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
     if (!editMode)
       return (
-        <div key={widget.id} data-widget-id={widget.id}>
+        <WidgetWrapper key={widget.id} data-widget-id={widget.id}>
           {content}
-        </div>
+          {widget.linkTo && (
+            <WidgetLinkBtn
+              onClick={() => handleWidgetLink(widget.linkTo!.view, widget.linkTo!.tab)}
+              title="詳細ページへ"
+            >
+              詳しく →
+            </WidgetLinkBtn>
+          )}
+        </WidgetWrapper>
       )
     return (
       <DragItem
