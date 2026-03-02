@@ -628,6 +628,33 @@ Presentation層 → MetricBreakdownPanel（モーダル）で表示
 2. 指標→日→元データ種別（出所）が辿れる
 3. 入力パラメータのクリックで関連指標へ遷移できる
 
+### ページ別の根拠表示対応状況
+
+全6ページで MetricBreakdownPanel による根拠表示が利用可能。
+「数字の根拠を示せること」がアプリケーションの最大の品質要件であり、
+ユーザーがどのページからでも「なぜこの数字なのか？」を追跡できる状態を実現している。
+
+| ページ | 対応状況 | 主な根拠表示対象 |
+|---|---|---|
+| **Dashboard** | `WidgetContext.onExplain` 経由で全ウィジェットから利用可能 | ExecSummaryBar, AlertPanel, ConditionSummary（値入率の相乗積ドリルダウン含む） |
+| **Daily** | KpiCard 6枚（売上, 仕入, 売変, 粗利率, 値入率, 消耗品）全てに接続 | 前年比 trend 表示付き |
+| **Insight** | Tab 1: KpiCard 6枚に接続 / Tab 2: 在庫法・推定法カード内の全計算値（13指標）をクリック可能 | CalcRow $clickable で損益構造の各値から直接根拠表示 |
+| **Reports** | 概況 KpiCard 4枚 + 目標対実績 KpiCard 4枚 + 仕入・売変 KpiCard 4枚 + 損益構造カード内の全計算値をクリック可能 | 在庫法・推定法カードの CalcRow $clickable |
+| **Category** | KpiCard 4枚（全体値入率, 粗利額, 原価合計, 売価合計）に接続 | カテゴリ→店舗→日別の3段ドリルダウンは既存テーブルで対応 |
+| **CostDetail** | KpiCard（消耗品費合計, 消耗品率）に接続 | 品目別→日別ドリルダウンは既存テーブルで対応 |
+
+#### 共通 CalcRow コンポーネント
+
+計算結果を「ラベル: 値」形式で表示する行コンポーネント群は
+`presentation/components/common/CalcRow.ts` に一元化されている:
+
+- `CalcRow` — `$clickable` prop で MetricBreakdownPanel 連携用ホバーエフェクト付与
+- `CalcLabel` — ラベル部分
+- `CalcValue` — 値部分（等幅フォント）
+- `CalcHighlight` — 強調値（カラー指定可能）
+
+Insight と Reports の .styles.ts からは re-export で参照している（設計思想7「後方互換はバレル re-export で保つ」に従う）。
+
 ### 今後の拡張（第2段階以降）
 
 - **差異の要因分解**: 前年比 / 予算比 / 先月比 での影響度（impact）表示

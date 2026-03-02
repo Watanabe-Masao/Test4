@@ -151,6 +151,13 @@ export function InsightPage() {
                   subText={`経過日予算累計比: ${r.elapsedDays}日分`}
                   accent={palette.primary}
                   onClick={() => handleExplain('budgetProgressRate')}
+                  trend={
+                    r.budgetAchievementRate >= 1
+                      ? { direction: 'up', label: '達成' }
+                      : r.budgetAchievementRate >= 0.9
+                        ? { direction: 'flat', label: '進行中' }
+                        : { direction: 'down', label: '要注意' }
+                  }
                 />
                 <KpiCard
                   label="予算消化率"
@@ -164,6 +171,13 @@ export function InsightPage() {
                   value={d.formatCurrency(r.projectedSales)}
                   accent={palette.infoDark}
                   onClick={() => handleExplain('projectedSales')}
+                  trend={
+                    r.projectedAchievement >= 1
+                      ? { direction: 'up', label: '達成見込' }
+                      : r.projectedAchievement >= 0.95
+                        ? { direction: 'flat', label: '微妙' }
+                        : { direction: 'down', label: '未達見込' }
+                  }
                 />
                 <KpiCard
                   label="達成率予測"
