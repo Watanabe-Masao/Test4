@@ -163,6 +163,11 @@ const DrillLink = styled.button`
   &:hover {
     text-decoration: underline;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 interface Props {

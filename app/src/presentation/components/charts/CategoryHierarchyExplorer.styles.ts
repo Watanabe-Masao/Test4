@@ -28,6 +28,11 @@ export const BreadcrumbItem = styled.button<{ $active: boolean }>`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 export const BreadcrumbSep = styled.span`
   font-size: 0.6rem;
@@ -46,6 +51,11 @@ export const ResetBtn = styled.button`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
     opacity: 0.7;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const SummaryBar = styled.div`
@@ -254,6 +264,11 @@ export const Tab = styled.button<{ $active: boolean }>`
   white-space: nowrap;
   &:hover {
     opacity: 0.85;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const HeaderRow = styled.div`

@@ -45,6 +45,12 @@ const NavItem = styled.button<{ $active?: boolean }>`
   &:active {
     color: ${({ theme }) => theme.colors.palette.primary};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const NavIcon = styled.span`

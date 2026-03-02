@@ -170,7 +170,7 @@ const KpiTooltip = styled.div`
   font-size: 0.6rem;
   line-height: 1.6;
   white-space: nowrap;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);

@@ -148,6 +148,11 @@ const ResetBtn = styled.button`
   &:hover {
     opacity: 0.8;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 interface Props {

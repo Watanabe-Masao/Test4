@@ -59,6 +59,11 @@ const ViewBtn = styled.button<{ $active?: boolean }>`
           ? 'rgba(255,255,255,0.08)'
           : 'rgba(0,0,0,0.06)'};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 type ViewType = 'structure' | 'rates' | 'cumulative'

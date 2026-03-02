@@ -393,7 +393,7 @@ export const CompareBarSegment = styled.div<{ $width: string; $color: string; $a
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-size: 0.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   padding: 0 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -1126,7 +1126,7 @@ export const DeleteBtn = styled.button`
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.palette.danger};
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-size: 11px;
   font-weight: bold;
   line-height: 1;

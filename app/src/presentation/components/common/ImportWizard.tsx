@@ -220,6 +220,12 @@ const TemplateBtn = styled.button`
     background: ${({ theme }) => theme.colors.palette.primary}20;
     color: ${({ theme }) => theme.colors.palette.primary};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const TemplateDropdown = styled.div`
@@ -246,6 +252,12 @@ const TemplateItem = styled.button`
   color: ${({ theme }) => theme.colors.text2};
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

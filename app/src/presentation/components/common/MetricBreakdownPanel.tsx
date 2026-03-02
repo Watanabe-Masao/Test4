@@ -76,6 +76,11 @@ const CloseButton = styled.button`
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const Section = styled.div`
@@ -164,6 +169,11 @@ const BreadcrumbLink = styled.button`
   color: ${({ theme }) => theme.colors.palette.primary};
   &:hover {
     text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -294,6 +304,11 @@ const TabButton = styled.button<{ $active: boolean }>`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 const EvidenceBadge = styled.span`
@@ -329,6 +344,11 @@ const ActionButton = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 

@@ -55,6 +55,11 @@ export const BcReset = styled.button`
   &:hover {
     opacity: 0.7;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
+  }
 `
 
 export const DrillTreemap = styled.div`
@@ -84,7 +89,7 @@ export const TreeBlock = styled.div<{ $flex: number; $color: string; $canDrill: 
 `
 export const TreeLabel = styled.div`
   font-size: 0.55rem;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -229,12 +234,17 @@ export const ToggleBtn = styled.button<{ $active: boolean }>`
   font-size: 0.6rem;
   padding: 2px 10px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active }) => ($active ? '#fff' : 'inherit')};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : 'inherit')};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   white-space: nowrap;
   transition: all 0.15s;
   &:hover {
     opacity: 0.85;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const ToggleLabel = styled.span`
@@ -326,7 +336,7 @@ export const StackSegment = styled.div<{ $flex: number; $color: string }>`
 `
 export const SegLabel = styled.span`
   font-size: 0.5rem;
-  color: #fff;
+  color: ${({ theme }) => theme.colors.palette.white};
   font-weight: 600;
   white-space: nowrap;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -373,7 +383,7 @@ export const SegmentTooltip = styled.div`
   font-size: 0.55rem;
   white-space: nowrap;
   pointer-events: none;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
@@ -409,6 +419,11 @@ export const Tab = styled.button<{ $active: boolean }>`
   }
   &:hover {
     color: ${({ theme }) => theme.colors.text};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 
@@ -523,7 +538,7 @@ export const HourlyTooltipBox = styled.div`
   border-radius: 4px;
   font-size: 0.55rem;
   white-space: nowrap;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : '#fff')};
+  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
   color: ${({ theme }) => theme.colors.text};
   border: 1px solid ${({ theme }) => theme.colors.border};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -575,6 +590,11 @@ export const HourlyDetailClose = styled.button`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
     opacity: 0.7;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radii.sm};
   }
 `
 export const HourlyDetailSummary = styled.div`
