@@ -105,7 +105,11 @@ interface Props {
   daysInMonth: number
 }
 
-export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({ currentDaily, prevYearDaily, daysInMonth }: Props) {
+export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
+  currentDaily,
+  prevYearDaily,
+  daysInMonth,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)

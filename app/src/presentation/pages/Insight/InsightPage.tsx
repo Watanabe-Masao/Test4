@@ -167,14 +167,22 @@ export function InsightPage() {
                   value={d.formatCurrency(r.grossProfitBudget)}
                   subText={`実績: ${d.formatCurrency(d.actualGrossProfit)}`}
                   accent={palette.purpleDark}
-                  onClick={r.invMethodGrossProfit != null ? () => handleExplain('invMethodGrossProfit') : undefined}
+                  onClick={
+                    r.invMethodGrossProfit != null
+                      ? () => handleExplain('invMethodGrossProfit')
+                      : undefined
+                  }
                 />
                 <KpiCard
                   label="粗利率"
                   value={d.formatPercent(d.actualGrossProfitRate)}
                   subText={`予算: ${d.formatPercent(r.grossProfitRateBudget)}`}
                   accent={palette.pinkDark}
-                  onClick={r.invMethodGrossProfitRate != null ? () => handleExplain('invMethodGrossProfitRate') : () => handleExplain('estMethodMarginRate')}
+                  onClick={
+                    r.invMethodGrossProfitRate != null
+                      ? () => handleExplain('invMethodGrossProfitRate')
+                      : () => handleExplain('estMethodMarginRate')
+                  }
                 />
                 {d.prevYear.hasPrevYear && (
                   <KpiCard

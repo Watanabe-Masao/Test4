@@ -99,7 +99,11 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
 }
 
-export const MultiKpiSparklines = memo(function MultiKpiSparklines({ daily, daysInMonth, prevYearDaily }: Props) {
+export const MultiKpiSparklines = memo(function MultiKpiSparklines({
+  daily,
+  daysInMonth,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
 
   const metrics: MetricDef[] = useMemo(

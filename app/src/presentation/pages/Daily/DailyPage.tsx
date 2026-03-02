@@ -1,9 +1,22 @@
 import { useState, useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle, Chip, ChipGroup, KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common'
+import {
+  Card,
+  CardTitle,
+  Chip,
+  ChipGroup,
+  KpiCard,
+  KpiGrid,
+  MetricBreakdownPanel,
+} from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
 import type { DailyChartMode } from '@/presentation/components/charts'
-import { useCalculation, useStoreSelection, usePrevYearData, useExplanations } from '@/application/hooks'
+import {
+  useCalculation,
+  useStoreSelection,
+  usePrevYearData,
+  useExplanations,
+} from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'

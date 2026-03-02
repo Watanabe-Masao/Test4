@@ -164,7 +164,11 @@ function deviationToColor(dev: number): { bg: string; text: string } {
 
 // ─── Component ──────────────────────────────────────────
 
-export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({ ctx }: { ctx: WidgetContext }) {
+export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
+  ctx,
+}: {
+  ctx: WidgetContext
+}) {
   const { allStoreResults, stores, daysInMonth, targetRate, warningRate } = ctx
   const [mode, setMode] = useState<HeatMode>('gpRate')
 

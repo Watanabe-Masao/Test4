@@ -381,7 +381,11 @@ export const RelationshipChart = memo(function RelationshipChart({
 })
 
 /** 日別客数・売上散布図的チャート */
-export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart({ data }: { data: DailyCustomerEntry[] }) {
+export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart({
+  data,
+}: {
+  data: DailyCustomerEntry[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 

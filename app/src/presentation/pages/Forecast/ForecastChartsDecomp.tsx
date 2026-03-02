@@ -41,7 +41,11 @@ const EFFECT_LABELS: Record<string, string> = {
 }
 
 /** 日別要因分解推移（累計折れ線） */
-export const DecompTrendChart = memo(function DecompTrendChart({ data }: { data: DailyDecompEntry[] }) {
+export const DecompTrendChart = memo(function DecompTrendChart({
+  data,
+}: {
+  data: DailyDecompEntry[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -109,7 +113,11 @@ export const DecompTrendChart = memo(function DecompTrendChart({ data }: { data:
 })
 
 /** 日別要因分解バー（1日ごとの内訳） */
-export const DecompDailyBarChart = memo(function DecompDailyBarChart({ data }: { data: DailyDecompEntry[] }) {
+export const DecompDailyBarChart = memo(function DecompDailyBarChart({
+  data,
+}: {
+  data: DailyDecompEntry[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -166,7 +174,13 @@ export const DecompDailyBarChart = memo(function DecompDailyBarChart({ data }: {
 })
 
 /** 曜日別要因分解チャート */
-export const DecompDowChart = memo(function DecompDowChart({ data, dowColors }: { data: DowDecompAvg[]; dowColors: string[] }) {
+export const DecompDowChart = memo(function DecompDowChart({
+  data,
+  dowColors,
+}: {
+  data: DowDecompAvg[]
+  dowColors: string[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 

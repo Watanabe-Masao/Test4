@@ -1,6 +1,12 @@
 import { useState, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Card, CardTitle, KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/components/common'
+import {
+  Card,
+  CardTitle,
+  KpiCard,
+  KpiGrid,
+  MetricBreakdownPanel,
+} from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
@@ -142,7 +148,12 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>概要</SectionTitle>
         <KpiGrid>
-          <KpiCard label="総売上高" value={formatCurrency(r.totalSales)} accent={palette.primary} onClick={() => handleExplain('salesTotal')} />
+          <KpiCard
+            label="総売上高"
+            value={formatCurrency(r.totalSales)}
+            accent={palette.primary}
+            onClick={() => handleExplain('salesTotal')}
+          />
           <KpiCard
             label="【在庫法】粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
@@ -152,7 +163,11 @@ export function ReportsPage() {
                 : '在庫設定なし'
             }
             accent={sc.positive}
-            onClick={r.invMethodGrossProfit != null ? () => handleExplain('invMethodGrossProfit') : undefined}
+            onClick={
+              r.invMethodGrossProfit != null
+                ? () => handleExplain('invMethodGrossProfit')
+                : undefined
+            }
           />
           <KpiCard
             label="予算達成率"
@@ -374,7 +389,12 @@ export function ReportsPage() {
       <Section>
         <SectionTitle>予算分析</SectionTitle>
         <KpiGrid>
-          <KpiCard label="月間予算" value={formatCurrency(r.budget)} accent={palette.primary} onClick={() => handleExplain('budget')} />
+          <KpiCard
+            label="月間予算"
+            value={formatCurrency(r.budget)}
+            accent={palette.primary}
+            onClick={() => handleExplain('budget')}
+          />
           <KpiCard
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}

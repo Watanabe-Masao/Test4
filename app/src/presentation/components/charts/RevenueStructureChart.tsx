@@ -80,7 +80,10 @@ interface Props {
   daysInMonth: number
 }
 
-export const RevenueStructureChart = memo(function RevenueStructureChart({ daily, daysInMonth }: Props) {
+export const RevenueStructureChart = memo(function RevenueStructureChart({
+  daily,
+  daysInMonth,
+}: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<ViewType>('structure')

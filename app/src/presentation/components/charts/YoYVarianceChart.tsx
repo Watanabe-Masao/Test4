@@ -138,7 +138,11 @@ function maToNull(values: number[]): (number | null)[] {
   return values.map((v) => (isNaN(v) ? null : v))
 }
 
-export const YoYVarianceChart = memo(function YoYVarianceChart({ daily, daysInMonth, prevYearDaily }: Props) {
+export const YoYVarianceChart = memo(function YoYVarianceChart({
+  daily,
+  daysInMonth,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('salesGap')
   const [growthSub, setGrowthSub] = useState<GrowthSubMode>('daily')

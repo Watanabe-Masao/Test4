@@ -73,7 +73,10 @@ interface Props {
   mode?: 'cost' | 'price'
 }
 
-export const CategoryPieChart = memo(function CategoryPieChart({ categoryTotals, mode: initialMode = 'cost' }: Props) {
+export const CategoryPieChart = memo(function CategoryPieChart({
+  categoryTotals,
+  mode: initialMode = 'cost',
+}: Props) {
   const ct = useChartTheme()
   const [mode, setMode] = useState<'cost' | 'price'>(initialMode)
 

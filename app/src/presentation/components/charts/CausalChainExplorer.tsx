@@ -178,7 +178,10 @@ const STEP_DRILL_TARGETS: Record<string, string> = {
   成分サマリー: '',
 }
 
-export const CausalChainExplorer = memo(function CausalChainExplorer({ result, prevYearData }: Props) {
+export const CausalChainExplorer = memo(function CausalChainExplorer({
+  result,
+  prevYearData,
+}: Props) {
   const [activeStep, setActiveStep] = useState(0)
   const { requestDrillThrough } = useCrossChartSelection()
 

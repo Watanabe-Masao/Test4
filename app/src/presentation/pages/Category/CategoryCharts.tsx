@@ -53,7 +53,11 @@ function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
 }
 
 /** 相乗積チャート（円グラフ / パレート図 切替） */
-export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({ items }: { items: CategoryChartItem[] }) {
+export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({
+  items,
+}: {
+  items: CategoryChartItem[]
+}) {
   const ct = useChartTheme()
   const [view, setView] = useState<ChartView>('pie')
 
@@ -167,7 +171,11 @@ export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({
 })
 
 /** 構成比チャート（円グラフ / パレート図 切替） */
-export const CompositionChart = memo(function CompositionChart({ items }: { items: CategoryChartItem[] }) {
+export const CompositionChart = memo(function CompositionChart({
+  items,
+}: {
+  items: CategoryChartItem[]
+}) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [mode, setMode] = useState<PieMode>('cost')

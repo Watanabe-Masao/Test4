@@ -105,7 +105,10 @@ interface Props {
   currentMonth: number
 }
 
-export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({ monthlyData, currentMonth }: Props) {
+export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
+  monthlyData,
+  currentMonth,
+}: Props) {
   const ct = useChartTheme()
 
   const { chartData, trend, currentSeasonality, peakMonth, troughMonth } = useMemo(() => {

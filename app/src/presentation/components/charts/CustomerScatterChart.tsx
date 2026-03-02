@@ -103,7 +103,13 @@ interface Props {
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
 }
 
-export const CustomerScatterChart = memo(function CustomerScatterChart({ daily, daysInMonth, year, month, prevYearDaily }: Props) {
+export const CustomerScatterChart = memo(function CustomerScatterChart({
+  daily,
+  daysInMonth,
+  year,
+  month,
+  prevYearDaily,
+}: Props) {
   const ct = useChartTheme()
   const [axisMode, setAxisMode] = useState<AxisMode>('absolute')
   const hasPrev = !!prevYearDaily
