@@ -128,6 +128,271 @@ describe('alertSystem', () => {
       expect(alerts[0].severity).toBe('warning')
     })
 
+    it('日次売上が前年比80%未満でアラートを発生させる', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-daily',
+          type: 'daily_sales_below_prev_year',
+          label: '前年比低下',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.8,
+        },
+      ]
+
+      const daily = new Map([
+        [
+          1,
+          {
+            sales: 70000,
+            consumable: { cost: 0 },
+            discountAmount: 0,
+          } as never,
+        ],
+      ])
+      const result = mockResult({ daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+        prevYearDailySales: new Map([[1, 100000]]),
+      })
+
+      // 70000/100000 = 70% < 80% → alert
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0].day).toBe(1)
+    })
+
+    it('日次売上が前年比80%以上ならアラートなし', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-daily',
+          type: 'daily_sales_below_prev_year',
+          label: '前年比低下',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.8,
+        },
+      ]
+
+      const daily = new Map([
+        [
+          1,
+          {
+            sales: 90000,
+            consumable: { cost: 0 },
+            discountAmount: 0,
+          } as never,
+        ],
+      ])
+      const result = mockResult({ daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+        prevYearDailySales: new Map([[1, 100000]]),
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('前年データがない場合はdaily_sales_below_prev_yearをスキップする', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-daily',
+          type: 'daily_sales_below_prev_year',
+          label: '前年比低下',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.8,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+      ])
+      const result = mockResult({ daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('前年売上がゼロの日はスキップする', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-daily',
+          type: 'daily_sales_below_prev_year',
+          label: '前年比低下',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.8,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+      ])
+      const result = mockResult({ daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+        prevYearDailySales: new Map([[1, 0]]),
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('消耗品比率が閾値超過でアラートを発生させる', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-cons',
+          type: 'consumable_ratio_above',
+          label: '消耗品超過',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.03,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 500000, consumable: { cost: 25000 }, discountAmount: 0 } as never],
+        [2, { sales: 500000, consumable: { cost: 25000 }, discountAmount: 0 } as never],
+      ])
+      const result = mockResult({ totalSales: 1000000, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      // 50000/1000000 = 5% > 3% → alert
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0].ruleId).toBe('test-cons')
+    })
+
+    it('消耗品比率が閾値以下ならアラートなし', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-cons',
+          type: 'consumable_ratio_above',
+          label: '消耗品超過',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.03,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 1000000, consumable: { cost: 10000 }, discountAmount: 0 } as never],
+      ])
+      const result = mockResult({ totalSales: 1000000, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('売上ゼロで消耗品ルールをスキップする', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-cons',
+          type: 'consumable_ratio_above',
+          label: '消耗品超過',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.03,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 0, consumable: { cost: 1000 }, discountAmount: 0 } as never],
+      ])
+      const result = mockResult({ totalSales: 0, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('売変率が閾値超過でアラートを発生させる', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-disc',
+          type: 'discount_rate_above',
+          label: '売変超過',
+          description: '',
+          severity: 'info',
+          enabled: true,
+          threshold: 0.05,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 500000, consumable: { cost: 0 }, discountAmount: 40000 } as never],
+        [2, { sales: 500000, consumable: { cost: 0 }, discountAmount: 40000 } as never],
+      ])
+      const result = mockResult({ totalSales: 1000000, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      // 80000/1000000 = 8% > 5% → alert
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0].severity).toBe('info')
+    })
+
+    it('売変率が閾値以下ならアラートなし', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-disc',
+          type: 'discount_rate_above',
+          label: '売変超過',
+          description: '',
+          severity: 'info',
+          enabled: true,
+          threshold: 0.05,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 1000000, consumable: { cost: 0 }, discountAmount: 30000 } as never],
+      ])
+      const result = mockResult({ totalSales: 1000000, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
+    it('売上ゼロで売変ルールをスキップする', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'test-disc',
+          type: 'discount_rate_above',
+          label: '売変超過',
+          description: '',
+          severity: 'info',
+          enabled: true,
+          threshold: 0.05,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 0, consumable: { cost: 0 }, discountAmount: 10000 } as never],
+      ])
+      const result = mockResult({ totalSales: 0, daily })
+      const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(0)
+    })
+
     it('無効化されたルールはスキップする', () => {
       const rules: AlertRule[] = [
         {
@@ -190,6 +455,58 @@ describe('alertSystem', () => {
       expect(alerts.length).toBeGreaterThanOrEqual(2)
       // critical が先に来る
       expect(alerts[0].severity).toBe('critical')
+    })
+
+    it('店舗名がない場合はstoreIdをフォールバックに使う', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'budget',
+          type: 'budget_achievement_below',
+          label: '予算',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.9,
+        },
+      ]
+
+      const results = new Map([['s99', mockResult({ budgetProgressRate: 0.5 })]])
+      const storeNames = new Map<string, string>()
+      const alerts = evaluateAllStoreAlerts(results, storeNames, rules, {
+        targetGrossProfitRate: 0.25,
+      })
+
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0].storeName).toBe('s99')
+    })
+
+    it('店舗ごとの前年売上データを渡す', () => {
+      const rules: AlertRule[] = [
+        {
+          id: 'daily',
+          type: 'daily_sales_below_prev_year',
+          label: '前年比',
+          description: '',
+          severity: 'warning',
+          enabled: true,
+          threshold: 0.8,
+        },
+      ]
+
+      const daily = new Map([
+        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+      ])
+      const results = new Map([['s1', mockResult({ daily })]])
+      const storeNames = new Map([['s1', '店舗A']])
+      const prevYearDailySales = new Map([['s1', new Map([[1, 100000]])]])
+
+      const alerts = evaluateAllStoreAlerts(results, storeNames, rules, {
+        targetGrossProfitRate: 0.25,
+        prevYearDailySales,
+      })
+
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0].day).toBe(1)
     })
   })
 })
