@@ -13,6 +13,20 @@ export const DataTableWrapper = styled.div`
   border-radius: ${({ theme }) => theme.radii.lg};
 `
 
+/** スティッキー第1列付きテーブルラッパー */
+export const StickyTableWrapper = styled(DataTableWrapper)`
+  th:first-child,
+  td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: ${({ theme }) => theme.colors.bg2};
+  }
+  thead th:first-child {
+    z-index: 2;
+  }
+`
+
 export const DataTableTitle = styled.h3`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};

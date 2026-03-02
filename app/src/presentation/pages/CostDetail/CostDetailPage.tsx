@@ -44,6 +44,7 @@ import {
   PivotGroupTh,
   PivotSubTh,
   PivotTd,
+  PivotTableWrapper,
 } from './CostDetailPage.styles'
 import { useCostDetailData } from './useCostDetailData'
 
@@ -269,7 +270,7 @@ export function CostDetailPage() {
             <ChartErrorBoundary>
               <Card>
                 <CardTitle>{d.typeLabel}移動 日別明細</CardTitle>
-                <TableWrapper>
+                <PivotTableWrapper>
                   <Table>
                     <thead>
                       <tr>
@@ -355,7 +356,7 @@ export function CostDetailPage() {
                       </TrTotal>
                     </tbody>
                   </Table>
-                </TableWrapper>
+                </PivotTableWrapper>
               </Card>
             </ChartErrorBoundary>
           )}

@@ -39,6 +39,7 @@ import {
   ExportBar,
   ExportButton,
   DeptTd,
+  DeptTableWrapper,
 } from './ReportsPage.styles'
 
 export function ReportsPage() {
@@ -530,21 +531,24 @@ export function ReportsPage() {
               value={formatPercent(deptKpiIndex.summary.overallSalesAchievement)}
               subText={`予算: ${formatCurrency(deptKpiIndex.summary.totalSalesBudget)} / 実績: ${formatCurrency(deptKpiIndex.summary.totalSalesActual)}`}
               accent={sc.achievement(deptKpiIndex.summary.overallSalesAchievement)}
+              onClick={() => handleExplain('budgetAchievementRate')}
             />
             <KpiCard
               label="加重平均粗利率"
               value={formatPercent(deptKpiIndex.summary.weightedGpRateActual)}
               subText={`予算: ${formatPercent(deptKpiIndex.summary.weightedGpRateBudget)}`}
               accent={sc.positive}
+              onClick={() => handleExplain('invMethodGrossProfitRate')}
             />
             <KpiCard
               label="加重平均値入率"
               value={formatPercent(deptKpiIndex.summary.weightedMarkupRate)}
               subText={`売変率: ${formatPercent(deptKpiIndex.summary.weightedDiscountRate)}`}
               accent={palette.infoDark}
+              onClick={() => handleExplain('averageMarkupRate')}
             />
           </KpiGrid>
-          <TableWrapper>
+          <DeptTableWrapper>
             <Table>
               <thead>
                 <tr>
@@ -607,7 +611,7 @@ export function ReportsPage() {
                 </TotalRow>
               </tbody>
             </Table>
-          </TableWrapper>
+          </DeptTableWrapper>
         </Section>
       )}
 

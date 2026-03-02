@@ -1,6 +1,12 @@
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
-import { DataTableWrapper, DataTable, DataTh, DataTd } from '@/presentation/components/common'
+import {
+  DataTableWrapper,
+  StickyTableWrapper,
+  DataTable,
+  DataTh,
+  DataTd,
+} from '@/presentation/components/common'
 export { TabBar, Tab } from '@/presentation/components/common'
 export { Section } from '@/presentation/components/common'
 export { EmptyState } from '@/presentation/components/common'
@@ -8,6 +14,9 @@ export { EmptyState } from '@/presentation/components/common'
 /* ─── Common ────────────────────────────────────────── */
 
 export const TableWrapper = DataTableWrapper
+
+/** ピボットテーブル用: 日付列を固定 */
+export const PivotTableWrapper = StickyTableWrapper
 
 export const Table = DataTable
 

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import {
   DataTableWrapper,
+  StickyTableWrapper,
   DataTable,
   DataTh,
   DataTd,
@@ -134,6 +135,8 @@ export const ExportButton = styled.button`
 `
 
 /* ─── Department KPI ─────────────────────────────────── */
+
+export const DeptTableWrapper = StickyTableWrapper
 
 export const DeptTd = styled.td<{ $warn?: boolean; $good?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
