@@ -1,13 +1,21 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Chip,
   ChipGroup,
   KpiCard,
   ChartErrorBoundary,
+  MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
-import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
+import {
+  useCalculation,
+  useStoreSelection,
+  useSettings,
+  useExplanations,
+} from '@/application/hooks'
+import { useDataStore } from '@/application/stores/dataStore'
+import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -68,6 +76,12 @@ export function CategoryPage() {
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
   const { updateSettings } = useSettings()
+  const explanations = useExplanations()
+  const dataStores = useDataStore((s) => s.data.stores)
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
   const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({
     key: 'cost',
@@ -222,17 +236,29 @@ export function CategoryPage() {
               label="全体値入率"
               value={formatPercent(overallMarkupRate)}
               accent={palette.primary}
+              onClick={() => handleExplain('averageMarkupRate')}
             />
-            <KpiCard label="粗利額" value={formatCurrency(totalGrossProfit)} accent={sc.positive} />
+            <KpiCard
+              label="粗利額"
+              value={formatCurrency(totalGrossProfit)}
+              accent={sc.positive}
+              onClick={
+                r.invMethodGrossProfit != null
+                  ? () => handleExplain('invMethodGrossProfit')
+                  : undefined
+              }
+            />
             <KpiCard
               label="原価合計"
               value={formatCurrency(totalCatCost)}
               accent={palette.warningDark}
+              onClick={() => handleExplain('purchaseCost')}
             />
             <KpiCard
               label="売価合計"
               value={formatCurrency(totalCatPrice)}
               accent={palette.blueDark}
+              onClick={() => handleExplain('salesTotal')}
             />
           </KpiRow>
 
@@ -756,6 +782,16 @@ export function CategoryPage() {
             </TableWrapper>
           </Section>
         </>
+      )}
+
+      {/* 指標説明パネル */}
+      {explainMetric && explanations.has(explainMetric) && (
+        <MetricBreakdownPanel
+          explanation={explanations.get(explainMetric)!}
+          allExplanations={explanations}
+          stores={dataStores}
+          onClose={() => setExplainMetric(null)}
+        />
       )}
     </MainContent>
   )

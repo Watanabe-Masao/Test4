@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
@@ -8,9 +8,12 @@ import {
   KpiCard,
   KpiGrid,
   ChartErrorBoundary,
+  MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
-import { useCalculation } from '@/application/hooks'
+import { useCalculation, useExplanations } from '@/application/hooks'
+import { useDataStore } from '@/application/stores/dataStore'
+import type { MetricId } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -49,6 +52,12 @@ const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
 export function CostDetailPage() {
   const { isComputing } = useCalculation()
   const d = useCostDetailData()
+  const explanations = useExplanations()
+  const dataStores = useDataStore((s) => s.data.stores)
+  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
+  const handleExplain = useCallback((metricId: MetricId) => {
+    setExplainMetric(metricId)
+  }, [])
 
   if (isComputing && !d.currentResult) {
     return (
@@ -86,12 +95,14 @@ export function CostDetailPage() {
           label="消耗品費合計"
           value={formatCurrency(d.totalConsumableCost)}
           accent={palette.orange}
+          onClick={() => handleExplain('totalConsumable')}
         />
         <KpiCard
           label="消耗品率"
           value={formatPercent(d.consumableRate)}
           subText={`売上高: ${formatCurrency(d.totalSales)}`}
           accent={palette.orangeDark}
+          onClick={() => handleExplain('totalConsumable')}
         />
       </KpiGrid>
 
@@ -359,12 +370,14 @@ export function CostDetailPage() {
               label="消耗品費合計"
               value={formatCurrency(d.totalConsumableCost)}
               accent={palette.orange}
+              onClick={() => handleExplain('totalConsumable')}
             />
             <KpiCard
               label="消耗品率"
               value={formatPercent(d.consumableRate)}
               subText={`売上高: ${formatCurrency(d.totalSales)}`}
               accent={palette.orangeDark}
+              onClick={() => handleExplain('totalConsumable')}
             />
             <KpiCard
               label="品目数"
@@ -638,6 +651,16 @@ export function CostDetailPage() {
             </>
           )}
         </>
+      )}
+
+      {/* 指標説明パネル */}
+      {explainMetric && explanations.has(explainMetric) && (
+        <MetricBreakdownPanel
+          explanation={explanations.get(explainMetric)!}
+          allExplanations={explanations}
+          stores={dataStores}
+          onClose={() => setExplainMetric(null)}
+        />
       )}
     </MainContent>
   )
