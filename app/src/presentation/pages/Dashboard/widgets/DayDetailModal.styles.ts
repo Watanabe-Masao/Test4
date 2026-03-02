@@ -31,11 +31,16 @@ export const BcItem = styled.button<{ $active: boolean }>`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 export const BcSep = styled.span`
-  font-size: 0.6rem;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
   user-select: none;
+  margin: 0 2px;
 `
 export const BcReset = styled.button`
   all: unset;
@@ -149,8 +154,8 @@ export const AmtWrap = styled.div`
 `
 export const AmtTrack = styled.div`
   flex: 1;
-  height: 5px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   overflow: hidden;
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};

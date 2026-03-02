@@ -98,6 +98,10 @@ export const ExecSummaryTab = styled.button<{ $active: boolean }>`
   &:hover {
     color: ${({ theme }) => theme.colors.text2};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 
 export const ExecSummaryTabContent = styled.div`
@@ -762,6 +766,10 @@ export const DetailCloseBtn = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 
 export const DetailKpiGrid = styled.div`
@@ -1132,6 +1140,10 @@ export const DeleteBtn = styled.button`
     opacity: 1 !important;
     filter: brightness(1.1);
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 
 export const WidgetLinkBtn = styled.button`
@@ -1152,6 +1164,10 @@ export const WidgetLinkBtn = styled.button`
   &:hover {
     color: ${({ theme }) => theme.colors.palette.primary};
     opacity: 1;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
   }
 `
 

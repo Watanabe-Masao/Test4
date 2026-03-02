@@ -392,7 +392,7 @@ export function CategoryDrilldown(props: CategoryDrilldownProps) {
       <DrillBreadcrumb>
         {d.breadcrumb.map((bc, i) => (
           <Fragment key={i}>
-            {i > 0 && <BcSep>▸</BcSep>}
+            {i > 0 && <BcSep>/</BcSep>}
             <BcItem $active={i === d.breadcrumb.length - 1} onClick={() => d.setFilter(bc.f)}>
               {bc.label}
             </BcItem>

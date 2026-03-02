@@ -53,6 +53,10 @@ export const Tab = styled.button<{ $active: boolean }>`
   &:hover {
     opacity: 0.85;
   }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `
 
 export const Separator = styled.span`
