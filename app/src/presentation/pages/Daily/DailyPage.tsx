@@ -278,6 +278,32 @@ export function DailyPage() {
           onClick={() => handleExplain('discountTotal')}
         />
         <KpiCard
+          label="粗利率"
+          value={
+            currentResult.invMethodGrossProfitRate != null
+              ? formatPercent(currentResult.invMethodGrossProfitRate)
+              : formatPercent(currentResult.estMethodMarginRate)
+          }
+          subText={
+            currentResult.invMethodGrossProfit != null
+              ? `粗利: ${formatCurrency(currentResult.invMethodGrossProfit)}`
+              : undefined
+          }
+          onClick={() =>
+            handleExplain(
+              currentResult.invMethodGrossProfitRate != null
+                ? 'invMethodGrossProfitRate'
+                : 'estMethodMarginRate',
+            )
+          }
+        />
+        <KpiCard
+          label="値入率"
+          value={formatPercent(currentResult.averageMarkupRate)}
+          subText={`コア値入率: ${formatPercent(currentResult.coreMarkupRate)}`}
+          onClick={() => handleExplain('averageMarkupRate')}
+        />
+        <KpiCard
           label="消耗品費"
           value={formatCurrency(currentResult.totalConsumable)}
           onClick={() => handleExplain('totalConsumable')}
