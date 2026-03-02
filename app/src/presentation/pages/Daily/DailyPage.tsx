@@ -291,7 +291,7 @@ export function DailyPage() {
           onClick={() => handleExplain('discountTotal')}
         />
         <KpiCard
-          label="粗利率"
+          label={currentResult.invMethodGrossProfitRate != null ? '実績粗利率' : '推定マージン率'}
           value={
             currentResult.invMethodGrossProfitRate != null
               ? formatPercent(currentResult.invMethodGrossProfitRate)
@@ -299,8 +299,14 @@ export function DailyPage() {
           }
           subText={
             currentResult.invMethodGrossProfit != null
-              ? `粗利: ${formatCurrency(currentResult.invMethodGrossProfit)}`
+              ? `実績粗利: ${formatCurrency(currentResult.invMethodGrossProfit)}`
               : undefined
+          }
+          badge={currentResult.invMethodGrossProfitRate != null ? 'actual' : 'estimated'}
+          formulaSummary={
+            currentResult.invMethodGrossProfitRate != null
+              ? '粗利益 ÷ 総売上'
+              : '推定マージン ÷ コア売上（理論値）'
           }
           onClick={() =>
             handleExplain(

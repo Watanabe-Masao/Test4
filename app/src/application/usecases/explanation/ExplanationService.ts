@@ -342,7 +342,7 @@ export function generateExplanations(
   if (result.invMethodCogs !== null) {
     map.set('invMethodCogs', {
       metric: 'invMethodCogs',
-      title: '売上原価（在庫法）',
+      title: '売上原価（在庫法・実績）',
       formula: '売上原価 = 期首在庫 + 総仕入原価 - 期末在庫',
       value: result.invMethodCogs,
       unit: 'yen',
@@ -360,8 +360,8 @@ export function generateExplanations(
 
     map.set('invMethodGrossProfit', {
       metric: 'invMethodGrossProfit',
-      title: '粗利益（在庫法）',
-      formula: '粗利益 = 総売上高 - 売上原価',
+      title: '実績粗利益（在庫法）',
+      formula: '実績粗利益 = 総売上高 - 売上原価',
       value: result.invMethodGrossProfit!,
       unit: 'yen',
       scope,
@@ -374,8 +374,8 @@ export function generateExplanations(
 
     map.set('invMethodGrossProfitRate', {
       metric: 'invMethodGrossProfitRate',
-      title: '粗利率（在庫法）',
-      formula: '粗利率 = 粗利益 ÷ 総売上高',
+      title: '実績粗利率（在庫法）',
+      formula: '実績粗利率 = 実績粗利益 ÷ 総売上高',
       value: result.invMethodGrossProfitRate!,
       unit: 'rate',
       scope,
@@ -391,7 +391,7 @@ export function generateExplanations(
 
   map.set('estMethodCogs', {
     metric: 'estMethodCogs',
-    title: '推定原価（推定法）',
+    title: '推定原価（推定法・理論値）',
     formula: '推定原価 = コア売上 ÷ (1 - 売変率) × (1 - 値入率) + 消耗品費',
     value: result.estMethodCogs,
     unit: 'yen',
@@ -407,8 +407,8 @@ export function generateExplanations(
 
   map.set('estMethodMargin', {
     metric: 'estMethodMargin',
-    title: '推定在庫差分（推定法）',
-    formula: '推定在庫差分 = コア売上 - 推定原価',
+    title: '推定マージン（推定法・理論値）',
+    formula: '推定マージン = コア売上 - 推定原価',
     value: result.estMethodMargin,
     unit: 'yen',
     scope,
@@ -421,13 +421,13 @@ export function generateExplanations(
 
   map.set('estMethodMarginRate', {
     metric: 'estMethodMarginRate',
-    title: '推定在庫差分率（推定法）',
-    formula: '推定在庫差分率 = 推定在庫差分 ÷ コア売上',
+    title: '推定マージン率（推定法・理論値）',
+    formula: '推定マージン率 = 推定マージン ÷ コア売上',
     value: result.estMethodMarginRate,
     unit: 'rate',
     scope,
     inputs: [
-      inp('推定在庫差分', result.estMethodMargin, 'yen', 'estMethodMargin'),
+      inp('推定マージン', result.estMethodMargin, 'yen', 'estMethodMargin'),
       inp('コア売上', result.totalCoreSales, 'yen', 'coreSales'),
     ],
     evidenceRefs: [],
@@ -436,7 +436,7 @@ export function generateExplanations(
   if (result.estMethodClosingInventory !== null) {
     map.set('estMethodClosingInventory', {
       metric: 'estMethodClosingInventory',
-      title: '推定期末在庫（推定法）',
+      title: '推定期末在庫（推定法・理論値）',
       formula: '推定期末在庫 = 期首在庫 + 在庫仕入原価 - 推定原価',
       value: result.estMethodClosingInventory,
       unit: 'yen',

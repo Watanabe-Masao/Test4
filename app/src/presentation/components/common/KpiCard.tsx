@@ -45,6 +45,17 @@ const SubText = styled.div`
   margin-top: ${({ theme }) => theme.spacing[2]};
 `
 
+/** Level 1: one-line formula always visible below the value */
+const FormulaSummary = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text4};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
 const TrendBadge = styled.span<{ $direction: 'up' | 'down' | 'flat' }>`
   display: inline-flex;
   align-items: center;
@@ -71,6 +82,28 @@ const ExplainHint = styled.span`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
+const MethodBadge = styled.span<{ $variant: 'actual' | 'estimated' }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  letter-spacing: 0.02em;
+  margin-left: ${({ theme }) => theme.spacing[2]};
+  background: ${({ $variant, theme }) =>
+    $variant === 'actual'
+      ? `${theme.colors.palette.success}18`
+      : `${theme.colors.palette.warningDark}18`};
+  color: ${({ $variant, theme }) =>
+    $variant === 'actual' ? theme.colors.palette.successDeep : theme.colors.palette.warningDeep};
+  border: 1px solid
+    ${({ $variant, theme }) =>
+      $variant === 'actual'
+        ? `${theme.colors.palette.success}30`
+        : `${theme.colors.palette.warningDark}30`};
+`
+
 export function KpiCard({
   label,
   value,
@@ -78,6 +111,8 @@ export function KpiCard({
   accent,
   onClick,
   trend,
+  badge,
+  formulaSummary,
 }: {
   label: string
   value: string
@@ -85,6 +120,9 @@ export function KpiCard({
   accent?: string
   onClick?: () => void
   trend?: { direction: 'up' | 'down' | 'flat'; label: string }
+  badge?: 'actual' | 'estimated'
+  /** Level 1: one-line formula hint shown below value (e.g. "売上 − 原価") */
+  formulaSummary?: string
 }) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -108,7 +146,12 @@ export function KpiCard({
       title={onClick ? '算出根拠を表示' : undefined}
     >
       {onClick && <ExplainHint data-hint>根拠</ExplainHint>}
-      <Label>{label}</Label>
+      <Label>
+        {label}
+        {badge && (
+          <MethodBadge $variant={badge}>{badge === 'actual' ? '実績' : '推定'}</MethodBadge>
+        )}
+      </Label>
       <Value>
         {value}
         {trend && (
@@ -119,6 +162,7 @@ export function KpiCard({
         )}
       </Value>
       {subText && <SubText>{subText}</SubText>}
+      {formulaSummary && <FormulaSummary>{formulaSummary}</FormulaSummary>}
     </Wrapper>
   )
 }

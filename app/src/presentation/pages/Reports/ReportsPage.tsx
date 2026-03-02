@@ -34,7 +34,11 @@ import {
   CalcLabel,
   CalcValue,
   CalcHighlight,
-  DisclaimerNote,
+  CalcPurpose,
+  CalcNullGuide,
+  VarianceRow,
+  VarianceLabel,
+  VarianceValue,
   EmptyState,
   ExportBar,
   ExportButton,
@@ -156,14 +160,16 @@ export function ReportsPage() {
             onClick={() => handleExplain('salesTotal')}
           />
           <KpiCard
-            label="【在庫法】粗利益"
+            label="【在庫法】実績粗利益"
             value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             subText={
               r.invMethodGrossProfitRate != null
-                ? `粗利率: ${formatPercent(r.invMethodGrossProfitRate)}`
+                ? `実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)}`
                 : '在庫設定なし'
             }
             accent={sc.positive}
+            badge="actual"
+            formulaSummary="売上 − 売上原価（期首+仕入−期末）"
             onClick={
               r.invMethodGrossProfit != null
                 ? () => handleExplain('invMethodGrossProfit')
@@ -296,8 +302,15 @@ export function ReportsPage() {
 
       {/* 3. 損益構造 ─「利益の構造は？」 */}
       <SummaryGrid>
+        {/* ── 左: 実績（P/L） ── */}
         <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
+          <CalcPurpose>目的：会計上の実績損益を確認する（確定値）</CalcPurpose>
+          {r.invMethodCogs == null && (
+            <CalcNullGuide>
+              在庫法の計算には期首在庫と期末在庫の設定が必要です。管理画面の在庫設定から入力してください。
+            </CalcNullGuide>
+          )}
           <CalcRow $clickable onClick={() => handleExplain('salesTotal')}>
             <CalcLabel>総売上高</CalcLabel>
             <CalcValue>{formatCurrency(r.totalSales)}</CalcValue>
@@ -335,7 +348,7 @@ export function ReportsPage() {
                 : undefined
             }
           >
-            <CalcLabel>粗利益</CalcLabel>
+            <CalcLabel>実績粗利益</CalcLabel>
             <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
@@ -348,18 +361,17 @@ export function ReportsPage() {
                 : undefined
             }
           >
-            <CalcLabel>粗利率</CalcLabel>
+            <CalcLabel>実績粗利率</CalcLabel>
             <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}
             </CalcHighlight>
           </CalcRow>
         </Card>
 
-        <Card $accent={palette.infoDark}>
-          <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
-          <DisclaimerNote>
-            ※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。
-          </DisclaimerNote>
+        {/* ── 右: 推定（在庫推定） ── */}
+        <Card $accent={palette.warningDark}>
+          <CardTitle>【推定法】在庫差異検知（理論値）</CardTitle>
+          <CalcPurpose>目的：在庫差異・異常検知（実績粗利ではありません）</CalcPurpose>
           <CalcRow $clickable onClick={() => handleExplain('coreSales')}>
             <CalcLabel>コア売上</CalcLabel>
             <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
@@ -377,14 +389,14 @@ export function ReportsPage() {
             <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => handleExplain('estMethodMargin')}>
-            <CalcLabel>推定在庫差分</CalcLabel>
-            <CalcHighlight $color={palette.infoDark}>
+            <CalcLabel>推定マージン</CalcLabel>
+            <CalcHighlight $color={palette.warningDark}>
               {formatCurrency(r.estMethodMargin)}
             </CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => handleExplain('estMethodMarginRate')}>
-            <CalcLabel>推定在庫差分率</CalcLabel>
-            <CalcHighlight $color={palette.infoDark}>
+            <CalcLabel>推定マージン率</CalcLabel>
+            <CalcHighlight $color={palette.warningDark}>
               {formatPercent(r.estMethodMarginRate)}
             </CalcHighlight>
           </CalcRow>
@@ -396,7 +408,7 @@ export function ReportsPage() {
                 : undefined
             }
           >
-            <CalcLabel>推定期末在庫</CalcLabel>
+            <CalcLabel>推定期末在庫（理論値）</CalcLabel>
             <CalcHighlight $color={palette.cyanDark}>
               {r.estMethodClosingInventory != null
                 ? formatCurrency(r.estMethodClosingInventory)
@@ -405,6 +417,34 @@ export function ReportsPage() {
           </CalcRow>
         </Card>
       </SummaryGrid>
+
+      {/* ── 乖離比較（実績 vs 推定） ── */}
+      {r.invMethodCogs != null &&
+        r.estMethodClosingInventory != null &&
+        r.closingInventory != null && (
+          <Section>
+            <SectionTitle>実績 vs 推定 乖離</SectionTitle>
+            {(() => {
+              const invDiff = r.closingInventory! - r.estMethodClosingInventory!
+              const invDiffRate = r.closingInventory !== 0 ? invDiff / r.closingInventory! : 0
+              const absDiffRate = Math.abs(invDiffRate)
+              const severity: 'low' | 'mid' | 'high' =
+                absDiffRate > 0.1 ? 'high' : absDiffRate > 0.03 ? 'mid' : 'low'
+              return (
+                <VarianceRow $severity={severity}>
+                  <VarianceLabel>
+                    期末在庫乖離（実績 − 推定）
+                    {severity === 'high' && ' — 要確認'}
+                    {severity === 'mid' && ' — 注意'}
+                  </VarianceLabel>
+                  <VarianceValue>
+                    {formatCurrency(invDiff)}（{formatPercent(invDiffRate)}）
+                  </VarianceValue>
+                </VarianceRow>
+              )
+            })()}
+          </Section>
+        )}
 
       {/* 4. 仕入・売変・移動 ─「コストの内訳は？」 */}
       <Section>

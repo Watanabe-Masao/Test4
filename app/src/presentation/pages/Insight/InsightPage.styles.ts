@@ -63,7 +63,17 @@ export const CalcGrid = styled.div`
   }
 `
 
-export { CalcRow, CalcLabel, CalcValue, CalcHighlight } from '@/presentation/components/common'
+export {
+  CalcRow,
+  CalcLabel,
+  CalcValue,
+  CalcHighlight,
+  CalcPurpose,
+  CalcNullGuide,
+  VarianceRow,
+  VarianceLabel,
+  VarianceValue,
+} from '@/presentation/components/common'
 
 export const Formula = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};

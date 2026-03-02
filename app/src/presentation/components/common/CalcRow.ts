@@ -50,3 +50,61 @@ export const CalcHighlight = styled(CalcValue)<{ $color?: string }>`
   color: ${({ $color, theme }) => $color ?? theme.colors.palette.primary};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
 `
+
+/** 在庫法/推定法のカードヘッダー下に表示する目的説明 */
+export const CalcPurpose = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  border-left: 2px solid ${({ theme }) => theme.colors.text4};
+`
+
+/** 計算不可時（在庫データ未設定等）のガイダンス表示 */
+export const CalcNullGuide = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => `${theme.colors.palette.warning}10`};
+  border: 1px dashed ${({ theme }) => `${theme.colors.palette.warningDark}40`};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text2};
+  margin: ${({ theme }) => theme.spacing[3]} 0;
+`
+
+/** 乖離セクション（実績 vs 推定の比較表示） */
+export const VarianceRow = styled.div<{ $severity?: 'low' | 'mid' | 'high' }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ $severity, theme }) =>
+    $severity === 'high'
+      ? `${theme.colors.palette.danger}12`
+      : $severity === 'mid'
+        ? `${theme.colors.palette.warning}12`
+        : `${theme.colors.palette.success}08`};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid
+    ${({ $severity, theme }) =>
+      $severity === 'high'
+        ? theme.colors.palette.danger
+        : $severity === 'mid'
+          ? theme.colors.palette.warningDark
+          : theme.colors.palette.success};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+`
+
+export const VarianceLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+export const VarianceValue = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`

@@ -34,4 +34,14 @@ export { MetricBreakdownPanel } from './MetricBreakdownPanel'
 export { TabBar, Tab } from './TabBar'
 export { EmptyState } from './EmptyState'
 export { Section, SectionTitle } from './Section'
-export { CalcRow, CalcLabel, CalcValue, CalcHighlight } from './CalcRow'
+export {
+  CalcRow,
+  CalcLabel,
+  CalcValue,
+  CalcHighlight,
+  CalcPurpose,
+  CalcNullGuide,
+  VarianceRow,
+  VarianceLabel,
+  VarianceValue,
+} from './CalcRow'

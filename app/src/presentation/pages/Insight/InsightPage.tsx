@@ -69,6 +69,11 @@ import {
   FcTd,
   FcTr,
   FcTrTotal,
+  CalcPurpose,
+  CalcNullGuide,
+  VarianceRow,
+  VarianceLabel,
+  VarianceValue,
 } from './InsightPage.styles'
 import { useInsightData } from './useInsightData'
 
@@ -191,6 +196,10 @@ export function InsightPage() {
                   value={d.formatCurrency(r.grossProfitBudget)}
                   subText={`実績: ${d.formatCurrency(d.actualGrossProfit)}`}
                   accent={palette.purpleDark}
+                  badge={r.invMethodGrossProfit != null ? 'actual' : 'estimated'}
+                  formulaSummary={
+                    r.invMethodGrossProfit != null ? '売上 − 売上原価' : 'コア売上 − 推定原価'
+                  }
                   onClick={
                     r.invMethodGrossProfit != null
                       ? () => handleExplain('invMethodGrossProfit')
@@ -202,6 +211,12 @@ export function InsightPage() {
                   value={d.formatPercent(d.actualGrossProfitRate)}
                   subText={`予算: ${d.formatPercent(r.grossProfitRateBudget)}`}
                   accent={palette.pinkDark}
+                  badge={r.invMethodGrossProfitRate != null ? 'actual' : 'estimated'}
+                  formulaSummary={
+                    r.invMethodGrossProfitRate != null
+                      ? '粗利益 ÷ 総売上'
+                      : '推定マージン ÷ コア売上'
+                  }
                   onClick={
                     r.invMethodGrossProfitRate != null
                       ? () => handleExplain('invMethodGrossProfitRate')
@@ -384,9 +399,16 @@ export function InsightPage() {
       {d.activeTab === 'grossProfit' && (
         <>
           <CalcGrid>
+            {/* ── 左: 実績（P/L） ── */}
             <Card $accent={sc.positive}>
               <CardTitle>【在庫法】実績粗利</CardTitle>
+              <CalcPurpose>目的：会計上の実績損益を確認する（確定値）</CalcPurpose>
               <Formula>売上原価 = 期首在庫 + 総仕入高 - 期末在庫</Formula>
+              {r.invMethodCogs == null && (
+                <CalcNullGuide>
+                  在庫法の計算には期首在庫と期末在庫の設定が必要です。管理画面の在庫設定から入力してください。
+                </CalcNullGuide>
+              )}
               <CalcRow>
                 <CalcLabel>期首在庫</CalcLabel>
                 <CalcValue>
@@ -428,7 +450,7 @@ export function InsightPage() {
                     : undefined
                 }
               >
-                <CalcLabel>粗利益</CalcLabel>
+                <CalcLabel>実績粗利益</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
                   {r.invMethodGrossProfit != null ? d.formatCurrency(r.invMethodGrossProfit) : '-'}
                 </CalcHighlight>
@@ -441,7 +463,7 @@ export function InsightPage() {
                     : undefined
                 }
               >
-                <CalcLabel>粗利率</CalcLabel>
+                <CalcLabel>実績粗利率</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
                   {r.invMethodGrossProfitRate != null
                     ? d.formatPercent(r.invMethodGrossProfitRate)
@@ -450,11 +472,10 @@ export function InsightPage() {
               </CalcRow>
             </Card>
 
-            <Card $accent={palette.infoDark}>
-              <CardTitle>【推定法】在庫差異検知指標（※損益ではありません）</CardTitle>
-              <Formula>
-                ※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。
-              </Formula>
+            {/* ── 右: 推定（在庫推定） ── */}
+            <Card $accent={palette.warningDark}>
+              <CardTitle>【推定法】在庫差異検知（理論値）</CardTitle>
+              <CalcPurpose>目的：在庫差異・異常検知（実績粗利ではありません）</CalcPurpose>
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
               <CalcRow $clickable onClick={() => handleExplain('coreSales')}>
                 <CalcLabel>コア売上</CalcLabel>
@@ -477,14 +498,14 @@ export function InsightPage() {
                 <CalcHighlight>{d.formatCurrency(r.estMethodCogs)}</CalcHighlight>
               </CalcRow>
               <CalcRow $clickable onClick={() => handleExplain('estMethodMargin')}>
-                <CalcLabel>推定在庫差分</CalcLabel>
-                <CalcHighlight $color={palette.infoDark}>
+                <CalcLabel>推定マージン</CalcLabel>
+                <CalcHighlight $color={palette.warningDark}>
                   {d.formatCurrency(r.estMethodMargin)}
                 </CalcHighlight>
               </CalcRow>
               <CalcRow $clickable onClick={() => handleExplain('estMethodMarginRate')}>
-                <CalcLabel>推定在庫差分率</CalcLabel>
-                <CalcHighlight $color={palette.infoDark}>
+                <CalcLabel>推定マージン率</CalcLabel>
+                <CalcHighlight $color={palette.warningDark}>
                   {d.formatPercent(r.estMethodMarginRate)}
                 </CalcHighlight>
               </CalcRow>
@@ -496,7 +517,7 @@ export function InsightPage() {
                     : undefined
                 }
               >
-                <CalcLabel>推定期末在庫</CalcLabel>
+                <CalcLabel>推定期末在庫（理論値）</CalcLabel>
                 <CalcHighlight $color={palette.cyanDark}>
                   {r.estMethodClosingInventory != null
                     ? d.formatCurrency(r.estMethodClosingInventory)
@@ -505,6 +526,36 @@ export function InsightPage() {
               </CalcRow>
             </Card>
           </CalcGrid>
+
+          {/* ── 乖離比較（実績 vs 推定） ── */}
+          {r.invMethodCogs != null &&
+            r.estMethodClosingInventory != null &&
+            r.closingInventory != null && (
+              <Section>
+                <SectionTitle>実績 vs 推定 乖離</SectionTitle>
+                {(() => {
+                  const invDiff = r.closingInventory! - r.estMethodClosingInventory!
+                  const invDiffRate = r.closingInventory !== 0 ? invDiff / r.closingInventory! : 0
+                  const absDiffRate = Math.abs(invDiffRate)
+                  const severity: 'low' | 'mid' | 'high' =
+                    absDiffRate > 0.1 ? 'high' : absDiffRate > 0.03 ? 'mid' : 'low'
+                  return (
+                    <>
+                      <VarianceRow $severity={severity}>
+                        <VarianceLabel>
+                          期末在庫乖離（実績 − 推定）
+                          {severity === 'high' && ' — 要確認'}
+                          {severity === 'mid' && ' — 注意'}
+                        </VarianceLabel>
+                        <VarianceValue>
+                          {d.formatCurrency(invDiff)}（{d.formatPercent(invDiffRate)}）
+                        </VarianceValue>
+                      </VarianceRow>
+                    </>
+                  )
+                })()}
+              </Section>
+            )}
 
           <Section>
             <ChartErrorBoundary>

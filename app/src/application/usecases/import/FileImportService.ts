@@ -448,7 +448,7 @@ export function validateImportedData(
   if (!hasDiscountData && data.classifiedSales.records.length > 0) {
     messages.push({
       level: 'warning',
-      message: '売変データがありません — 推定法（推定在庫・推定在庫差分率）の精度が低下します',
+      message: '売変データがありません — 推定法（推定在庫・推定マージン率）の精度が低下します',
       details: [
         '分類別売上ファイルに売変列（71〜74）が含まれていません',
         '推定法では売変率を用いて推定原価を算出するため、売変データがないと推定精度が大幅に低下します',
