@@ -13,12 +13,9 @@ import {
 import {
   useCalculation,
   usePrevYearData,
-  usePrevYearCategoryTimeSales,
   useStoreSelection,
   useAutoLoadPrevYear,
   useExplanations,
-  useCategoryTimeSalesIndex,
-  useCategoryTimeSalesIndexFromRecords,
   useBudgetChartData,
 } from '@/application/hooks'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
@@ -99,7 +96,6 @@ export function DashboardPage() {
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
-  const prevYearCTS = usePrevYearCategoryTimeSales()
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
@@ -129,10 +125,6 @@ export function DashboardPage() {
 
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
   const dataMaxDay = useMemo(() => detectDataMaxDay(data), [data])
-
-  // インデックス構築（データ変更時のみ再構築）
-  const ctsIndex = useCategoryTimeSalesIndex(data.categoryTimeSales)
-  const prevCtsIndex = useCategoryTimeSalesIndexFromRecords(prevYearCTS.records)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -210,7 +202,7 @@ export function DashboardPage() {
   // duck.isReady を依存配列に含め、DuckDB 初期化完了時にも再注入を試みる
   useEffect(() => {
     const injected = autoInjectDataWidgets(widgetIdsRef.current, {
-      prevYearHasPrevYear: prevYearCTS.hasPrevYear,
+      prevYearHasPrevYear: prevYear.hasPrevYear,
       storeCount: stores.size,
       hasDiscountData: currentResult?.hasDiscountData,
       isDuckDBReady: duck.isReady,
@@ -219,7 +211,7 @@ export function DashboardPage() {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [prevYearCTS.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
+  }, [prevYear.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {
@@ -294,8 +286,6 @@ export function DashboardPage() {
     prevYear,
     allStoreResults: storeResults,
     stores: data.stores,
-    ctsIndex,
-    prevCtsIndex,
     currentDateRange,
     prevYearDateRange,
     selectedStoreIds,

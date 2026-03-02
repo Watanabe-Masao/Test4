@@ -28,8 +28,8 @@ import {
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
-import { queryByDateRange } from '@/application/usecases'
-import type { DateRange } from '@/domain/models'
+import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
+import type { DateRange, CategoryTimeSalesRecord } from '@/domain/models'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { WidgetContext, ComparisonMode } from './types'
@@ -64,6 +64,8 @@ interface WaterfallItem {
 
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
 type DecompLevel = 2 | 3 | 5
+
+const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
 
 const DECOMP_HELP: Record<
   number,
@@ -175,7 +177,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     wowRange.prevEnd,
   ])
 
-  // 期間指定でCTSレコードをインデックスから取得
+  // 期間指定でCTSレコードをDuckDBから取得
   const curDateRange: DateRange = useMemo(
     () => ({
       from: { year: ctx.year, month: ctx.month, day: dayStart },
@@ -184,39 +186,30 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     [ctx.year, ctx.month, dayStart, dayEnd],
   )
 
-  const periodCTS = useMemo(
-    () =>
-      queryByDateRange(ctx.ctsIndex, { dateRange: curDateRange, storeIds: ctx.selectedStoreIds }),
-    [ctx.ctsIndex, curDateRange, ctx.selectedStoreIds],
+  const curCtsResult = useDuckDBCategoryTimeRecords(
+    ctx.duckConn,
+    ctx.duckDataVersion,
+    curDateRange,
+    ctx.selectedStoreIds,
   )
+  const periodCTS = curCtsResult.data ?? EMPTY_RECORDS
 
   // 比較期間のCTSレコード（前年比 or 前週比で切替）
-  const periodPrevCTS = useMemo(() => {
+  const prevCtsDateRange: DateRange | undefined = useMemo(() => {
     if (activeCompMode === 'wow') {
-      // 前週比: 同月の dayStart-7 ~ dayEnd-7
-      const wowDateRange: DateRange = {
+      if (!canWoW) return undefined
+      return {
         from: { year: ctx.year, month: ctx.month, day: wowRange.prevStart },
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
-      return queryByDateRange(ctx.ctsIndex, {
-        dateRange: wowDateRange,
-        storeIds: ctx.selectedStoreIds,
-      })
     }
-    // 前年比: prevCtsIndex から同日範囲を取得
-    const prevDateRange: DateRange = {
+    return {
       from: { year: ctx.year - 1, month: ctx.month, day: dayStart },
       to: { year: ctx.year - 1, month: ctx.month, day: dayEnd },
     }
-    return queryByDateRange(ctx.prevCtsIndex, {
-      dateRange: prevDateRange,
-      storeIds: ctx.selectedStoreIds,
-    })
   }, [
     activeCompMode,
-    ctx.ctsIndex,
-    ctx.prevCtsIndex,
-    ctx.selectedStoreIds,
+    canWoW,
     ctx.year,
     ctx.month,
     dayStart,
@@ -224,6 +217,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     wowRange.prevStart,
     wowRange.prevEnd,
   ])
+
+  const prevIsPrevYear = activeCompMode !== 'wow'
+  const prevCtsResult = useDuckDBCategoryTimeRecords(
+    ctx.duckConn,
+    ctx.duckDataVersion,
+    prevCtsDateRange,
+    ctx.selectedStoreIds,
+    prevIsPrevYear,
+  )
+  const periodPrevCTS = prevCtsResult.data ?? EMPTY_RECORDS
 
   // Aggregate total quantity from filtered CTS records
   const curTotalQty = useMemo(

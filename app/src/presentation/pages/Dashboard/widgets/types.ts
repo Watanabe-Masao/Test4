@@ -1,13 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type {
-  StoreResult,
-  CategoryTimeSalesIndex,
-  StoreExplanations,
-  MetricId,
-  DateRange,
-  ViewType,
-} from '@/domain/models'
+import type { StoreResult, StoreExplanations, MetricId, DateRange, ViewType } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
@@ -74,10 +67,6 @@ export interface WidgetContext {
   allStoreResults: ReadonlyMap<string, StoreResult>
   /** Store master data */
   stores: ReadonlyMap<string, Store>
-  /** 分類別時間帯売上インデックス（(storeId, dateKey) で O(1) アクセス） */
-  ctsIndex: CategoryTimeSalesIndex
-  /** 前年分類別時間帯売上インデックス */
-  prevCtsIndex: CategoryTimeSalesIndex
   /**
    * 当月データの日付範囲。チャート用フックの dateRange パラメータに渡す。
    * 例: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } }

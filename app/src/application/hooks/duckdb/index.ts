@@ -20,6 +20,7 @@ export {
   useDuckDBDowDivisorMap,
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
+  useDuckDBCategoryTimeRecords,
 } from './useCtsQueries'
 export type {
   HourlyAggregationRow,
