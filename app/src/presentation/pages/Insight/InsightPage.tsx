@@ -9,8 +9,9 @@ import {
   ChipGroup,
   ChartErrorBoundary,
   MetricBreakdownPanel,
+  PageSkeleton,
 } from '@/presentation/components/common'
-import { useExplanations } from '@/application/hooks'
+import { useCalculation, useExplanations } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
 import {
@@ -72,6 +73,7 @@ import {
 import { useInsightData } from './useInsightData'
 
 export function InsightPage() {
+  const { isComputing } = useCalculation()
   const d = useInsightData()
   const explanations = useExplanations()
   const dataStores = useDataStore((s) => s.data.stores)
@@ -79,6 +81,14 @@ export function InsightPage() {
   const handleExplain = useCallback((metricId: MetricId) => {
     setExplainMetric(metricId)
   }, [])
+
+  if (isComputing && !d.currentResult) {
+    return (
+      <MainContent title="インサイト" storeName={d.storeName}>
+        <PageSkeleton />
+      </MainContent>
+    )
+  }
 
   if (!d.currentResult) {
     return (

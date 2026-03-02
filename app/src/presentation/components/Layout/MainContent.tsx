@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 import type { ReactNode } from 'react'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 
 const Main = styled.main`
   overflow-y: auto;
@@ -14,21 +16,71 @@ const Header = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[8]};
 `
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+`
+
 const Title = styled.h1`
   font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
-const StoreBadge = styled.span`
+const Badge = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.pill};
+`
+
+const MonthBadge = styled(Badge)`
+  color: ${({ theme }) => theme.colors.text2};
+  background: ${({ theme }) => theme.colors.bg3};
+`
+
+const StoreBadge = styled(Badge)`
   color: ${({ theme }) => theme.colors.palette.primary};
   background: ${({ theme }) => theme.colors.palette.primary}15;
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.pill};
-  margin-left: ${({ theme }) => theme.spacing[4]};
 `
+
+const StatusDot = styled.span<{ $color: string }>`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  display: inline-block;
+`
+
+const ContextBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+function HeaderContext() {
+  const { isCalculated, isComputing } = useCalculation()
+  const { stores, selectedStoreIds } = useStoreSelection()
+  const prevYear = usePrevYearData()
+
+  const storeLabel =
+    selectedStoreIds.size === 0 || selectedStoreIds.size === stores.size
+      ? `${stores.size}店舗`
+      : `${selectedStoreIds.size}/${stores.size}店舗`
+
+  const statusColor = isComputing ? '#3b82f6' : isCalculated ? '#22c55e' : '#f59e0b'
+
+  return (
+    <ContextBar>
+      <StatusDot $color={statusColor} />
+      <span>{storeLabel}</span>
+      {prevYear.hasPrevYear && <span>| 前年有</span>}
+    </ContextBar>
+  )
+}
 
 export function MainContent({
   title,
@@ -41,14 +93,22 @@ export function MainContent({
   actions?: ReactNode
   children: ReactNode
 }) {
+  const settings = useSettingsStore((s) => s.settings)
+
   return (
     <Main>
       <Header>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <TitleRow>
           <Title>{title}</Title>
+          <MonthBadge>
+            {settings.targetYear}/{settings.targetMonth}月
+          </MonthBadge>
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
+        </TitleRow>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <HeaderContext />
+          {actions}
         </div>
-        {actions}
       </Header>
       {children}
     </Main>

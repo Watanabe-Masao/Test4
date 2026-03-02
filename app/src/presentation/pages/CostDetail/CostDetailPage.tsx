@@ -8,7 +8,9 @@ import {
   KpiCard,
   KpiGrid,
   ChartErrorBoundary,
+  PageSkeleton,
 } from '@/presentation/components/common'
+import { useCalculation } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -45,7 +47,16 @@ import { useCostDetailData } from './useCostDetailData'
 const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
 
 export function CostDetailPage() {
+  const { isComputing } = useCalculation()
   const d = useCostDetailData()
+
+  if (isComputing && !d.currentResult) {
+    return (
+      <MainContent title="原価明細" storeName={d.storeName}>
+        <PageSkeleton />
+      </MainContent>
+    )
+  }
 
   if (!d.currentResult || !d.typeIn || !d.typeOut || !d.typeNet) {
     return (

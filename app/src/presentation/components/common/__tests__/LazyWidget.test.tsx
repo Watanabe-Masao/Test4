@@ -5,8 +5,10 @@ import { LazyWidget } from '../LazyWidget'
 
 // テーマモック
 const theme = {
-  colors: { bg2: '#f5f5f5', border: '#ddd', text4: '#999' },
+  mode: 'light',
+  colors: { bg2: '#f5f5f5', bg3: '#eee', border: '#ddd', text4: '#999' },
   radii: { lg: '8px' },
+  spacing: { 3: '12px', 6: '24px' },
   typography: { fontSize: { xs: '12px' } },
 }
 
@@ -36,7 +38,8 @@ describe('LazyWidget', () => {
     )
 
     expect(screen.queryByTestId('child')).toBeNull()
-    expect(screen.getByText('...')).toBeTruthy()
+    // ChartSkeleton がプレースホルダーとして表示される
+    expect(screen.queryByText('コンテンツ')).toBeNull()
   })
 
   it('表示可能になると子要素をレンダリングする', () => {

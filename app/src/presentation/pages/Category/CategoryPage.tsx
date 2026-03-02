@@ -1,6 +1,12 @@
 import { useState, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import { Chip, ChipGroup, KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
+import {
+  Chip,
+  ChipGroup,
+  KpiCard,
+  ChartErrorBoundary,
+  PageSkeleton,
+} from '@/presentation/components/common'
 import { useCalculation, useStoreSelection, useSettings } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
@@ -58,7 +64,7 @@ type SortKey =
 type SortDir = 'asc' | 'desc'
 
 export function CategoryPage() {
-  useCalculation()
+  const { isComputing } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
   const { updateSettings } = useSettings()
@@ -130,6 +136,14 @@ export function CategoryPage() {
     })
     return sorted
   }, [currentResult, supplierSort, supplierFilter])
+
+  if (isComputing && !currentResult) {
+    return (
+      <MainContent title="カテゴリ分析" storeName={storeName}>
+        <PageSkeleton />
+      </MainContent>
+    )
+  }
 
   if (!currentResult) {
     return (

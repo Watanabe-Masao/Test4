@@ -8,6 +8,7 @@ import {
   KpiCard,
   KpiGrid,
   MetricBreakdownPanel,
+  PageSkeleton,
 } from '@/presentation/components/common'
 import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
 import type { DailyChartMode } from '@/presentation/components/charts'
@@ -104,7 +105,7 @@ const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
 export function DailyPage() {
-  const { daysInMonth } = useCalculation()
+  const { isComputing, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const suppliers = useDataStore((s) => s.data.suppliers)
   const dataStores = useDataStore((s) => s.data.stores)
@@ -199,6 +200,14 @@ export function DailyPage() {
       else next.add(col)
       return next
     })
+  }
+
+  if (isComputing && !currentResult) {
+    return (
+      <MainContent title="日別トレンド" storeName={storeName}>
+        <PageSkeleton />
+      </MainContent>
+    )
   }
 
   if (!currentResult) {

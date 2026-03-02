@@ -7,6 +7,7 @@ import {
   ChipGroup,
   ChartErrorBoundary,
   MetricBreakdownPanel,
+  PageSkeleton,
 } from '@/presentation/components/common'
 import {
   useCalculation,
@@ -86,7 +87,7 @@ function DrillThroughScrollHandler() {
 // ─── Main Dashboard ──────────────────────────────────────
 
 export function DashboardPage() {
-  const { isCalculated, daysInMonth } = useCalculation()
+  const { isCalculated, isComputing, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
   const data = useDataStore((s) => s.data)
   const storeResults = useDataStore((s) => s.storeResults)
@@ -222,6 +223,14 @@ export function DashboardPage() {
   ])
 
   // ─── Empty / Loading states ──
+
+  if (isComputing && storeResults.size === 0) {
+    return (
+      <MainContent title="ダッシュボード">
+        <PageSkeleton />
+      </MainContent>
+    )
+  }
 
   if (!isCalculated && storeResults.size === 0) {
     return (
