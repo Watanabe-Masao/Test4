@@ -144,18 +144,9 @@ export function ReportsPage() {
         <ReportDate>{reportDate} 現在</ReportDate>
       </ReportHeader>
 
-      {/* CSVエクスポート */}
-      <ExportBar>
-        <ExportButton onClick={handleExportDaily}>&#128196; 日別売上CSV</ExportButton>
-        <ExportButton onClick={handleExportPL}>&#128200; 月次P&amp;L CSV</ExportButton>
-        {selectedResults.length > 1 && (
-          <ExportButton onClick={handleExportStoreKpi}>&#127970; 店舗別KPI CSV</ExportButton>
-        )}
-      </ExportBar>
-
-      {/* 概要KPI */}
+      {/* 1. 概況サマリー ─「全体はどうなってる？」 */}
       <Section>
-        <SectionTitle>概要</SectionTitle>
+        <SectionTitle>概況サマリー</SectionTitle>
         <KpiGrid>
           <KpiCard
             label="総売上高"
@@ -195,7 +186,108 @@ export function ReportsPage() {
         </KpiGrid>
       </Section>
 
-      {/* 損益計算 */}
+      {/* 2. 目標対実績 ─「計画通りに進んでる？」 */}
+      <Section>
+        <SectionTitle>目標対実績</SectionTitle>
+        <TableWrapper>
+          <Table>
+            <thead>
+              <tr>
+                <Th>指標</Th>
+                <Th>目標</Th>
+                <Th>実績</Th>
+                <Th>差異</Th>
+                <Th>評価</Th>
+              </tr>
+            </thead>
+            <tbody>
+              <Tr>
+                <Td>粗利率</Td>
+                <Td>{formatPercent(settings.targetGrossProfitRate)}</Td>
+                <Td>
+                  {r.invMethodGrossProfitRate != null
+                    ? formatPercent(r.invMethodGrossProfitRate)
+                    : '-'}
+                </Td>
+                <Td
+                  $accent={
+                    r.invMethodGrossProfitRate != null &&
+                    r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
+                  }
+                >
+                  {r.invMethodGrossProfitRate != null
+                    ? `${r.invMethodGrossProfitRate >= settings.targetGrossProfitRate ? '+' : ''}${formatPercent(r.invMethodGrossProfitRate - settings.targetGrossProfitRate)}`
+                    : '-'}
+                </Td>
+                <Td>
+                  {r.invMethodGrossProfitRate != null
+                    ? r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
+                      ? '達成'
+                      : r.invMethodGrossProfitRate >= settings.warningThreshold
+                        ? '注意'
+                        : '未達'
+                    : '-'}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>予算達成</Td>
+                <Td>{formatCurrency(r.budget)}</Td>
+                <Td>{formatCurrency(r.totalSales)}</Td>
+                <Td $accent={r.totalSales >= r.budget}>
+                  {r.totalSales >= r.budget ? '+' : ''}
+                  {formatCurrency(r.totalSales - r.budget)}
+                </Td>
+                <Td>
+                  {r.budgetAchievementRate >= 1
+                    ? '達成'
+                    : r.budgetAchievementRate >= 0.9
+                      ? '進行中'
+                      : '要注意'}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>値入率</Td>
+                <Td>{formatPercent(settings.defaultMarkupRate)}</Td>
+                <Td>{formatPercent(r.averageMarkupRate)}</Td>
+                <Td $accent={r.averageMarkupRate >= settings.defaultMarkupRate}>
+                  {r.averageMarkupRate >= settings.defaultMarkupRate ? '+' : ''}
+                  {formatPercent(r.averageMarkupRate - settings.defaultMarkupRate)}
+                </Td>
+                <Td>{r.averageMarkupRate >= settings.defaultMarkupRate ? '達成' : '未達'}</Td>
+              </Tr>
+            </tbody>
+          </Table>
+        </TableWrapper>
+        <KpiGrid>
+          <KpiCard
+            label="月間予算"
+            value={formatCurrency(r.budget)}
+            accent={palette.primary}
+            onClick={() => handleExplain('budget')}
+          />
+          <KpiCard
+            label="予算達成率"
+            value={formatPercent(r.budgetAchievementRate)}
+            accent={sc.positive}
+            onClick={() => handleExplain('budgetAchievementRate')}
+          />
+          <KpiCard
+            label="予算消化率"
+            value={formatPercent(r.budgetProgressRate)}
+            subText={`経過: ${r.elapsedDays}/${daysInMonth}日`}
+            accent={palette.infoDark}
+            onClick={() => handleExplain('budgetProgressRate')}
+          />
+          <KpiCard
+            label="残余予算"
+            value={formatCurrency(r.remainingBudget)}
+            accent={sc.cond(r.remainingBudget <= 0)}
+            onClick={() => handleExplain('remainingBudget')}
+          />
+        </KpiGrid>
+      </Section>
+
+      {/* 3. 損益構造 ─「利益の構造は？」 */}
       <SummaryGrid>
         <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
@@ -283,7 +375,7 @@ export function ReportsPage() {
         </Card>
       </SummaryGrid>
 
-      {/* 仕入・売変 */}
+      {/* 4. 仕入・売変・移動 ─「コストの内訳は？」 */}
       <Section>
         <SectionTitle>仕入・売変詳細</SectionTitle>
         <KpiGrid>
@@ -317,7 +409,6 @@ export function ReportsPage() {
         </KpiGrid>
       </Section>
 
-      {/* 移動集計 */}
       <Section>
         <SectionTitle>移動集計</SectionTitle>
         <KpiGrid>
@@ -344,7 +435,7 @@ export function ReportsPage() {
         </KpiGrid>
       </Section>
 
-      {/* カテゴリ別 */}
+      {/* 5. カテゴリ構造 ─「内訳は？」 */}
       {categoryData.length > 0 && (
         <Section>
           <SectionTitle>カテゴリ別集計</SectionTitle>
@@ -394,113 +485,7 @@ export function ReportsPage() {
         </Section>
       )}
 
-      {/* 予算 */}
-      <Section>
-        <SectionTitle>予算分析</SectionTitle>
-        <KpiGrid>
-          <KpiCard
-            label="月間予算"
-            value={formatCurrency(r.budget)}
-            accent={palette.primary}
-            onClick={() => handleExplain('budget')}
-          />
-          <KpiCard
-            label="予算達成率"
-            value={formatPercent(r.budgetAchievementRate)}
-            accent={sc.positive}
-            onClick={() => handleExplain('budgetAchievementRate')}
-          />
-          <KpiCard
-            label="予算消化率"
-            value={formatPercent(r.budgetProgressRate)}
-            subText={`経過: ${r.elapsedDays}/${daysInMonth}日`}
-            accent={palette.infoDark}
-            onClick={() => handleExplain('budgetProgressRate')}
-          />
-          <KpiCard
-            label="残余予算"
-            value={formatCurrency(r.remainingBudget)}
-            accent={sc.cond(r.remainingBudget <= 0)}
-            onClick={() => handleExplain('remainingBudget')}
-          />
-        </KpiGrid>
-      </Section>
-
-      {/* 目標対比 */}
-      <Section>
-        <SectionTitle>目標対比</SectionTitle>
-        <TableWrapper>
-          <Table>
-            <thead>
-              <tr>
-                <Th>指標</Th>
-                <Th>目標</Th>
-                <Th>実績</Th>
-                <Th>差異</Th>
-                <Th>評価</Th>
-              </tr>
-            </thead>
-            <tbody>
-              <Tr>
-                <Td>粗利率</Td>
-                <Td>{formatPercent(settings.targetGrossProfitRate)}</Td>
-                <Td>
-                  {r.invMethodGrossProfitRate != null
-                    ? formatPercent(r.invMethodGrossProfitRate)
-                    : '-'}
-                </Td>
-                <Td
-                  $accent={
-                    r.invMethodGrossProfitRate != null &&
-                    r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
-                  }
-                >
-                  {r.invMethodGrossProfitRate != null
-                    ? `${r.invMethodGrossProfitRate >= settings.targetGrossProfitRate ? '+' : ''}${formatPercent(r.invMethodGrossProfitRate - settings.targetGrossProfitRate)}`
-                    : '-'}
-                </Td>
-                <Td>
-                  {r.invMethodGrossProfitRate != null
-                    ? r.invMethodGrossProfitRate >= settings.targetGrossProfitRate
-                      ? '達成'
-                      : r.invMethodGrossProfitRate >= settings.warningThreshold
-                        ? '注意'
-                        : '未達'
-                    : '-'}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>予算達成</Td>
-                <Td>{formatCurrency(r.budget)}</Td>
-                <Td>{formatCurrency(r.totalSales)}</Td>
-                <Td $accent={r.totalSales >= r.budget}>
-                  {r.totalSales >= r.budget ? '+' : ''}
-                  {formatCurrency(r.totalSales - r.budget)}
-                </Td>
-                <Td>
-                  {r.budgetAchievementRate >= 1
-                    ? '達成'
-                    : r.budgetAchievementRate >= 0.9
-                      ? '進行中'
-                      : '要注意'}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>値入率</Td>
-                <Td>{formatPercent(settings.defaultMarkupRate)}</Td>
-                <Td>{formatPercent(r.averageMarkupRate)}</Td>
-                <Td $accent={r.averageMarkupRate >= settings.defaultMarkupRate}>
-                  {r.averageMarkupRate >= settings.defaultMarkupRate ? '+' : ''}
-                  {formatPercent(r.averageMarkupRate - settings.defaultMarkupRate)}
-                </Td>
-                <Td>{r.averageMarkupRate >= settings.defaultMarkupRate ? '達成' : '未達'}</Td>
-              </Tr>
-            </tbody>
-          </Table>
-        </TableWrapper>
-      </Section>
-
-      {/* 部門別KPI */}
+      {/* 6. 部門別KPI ─「各部門は？」 */}
       {deptKpiIndex.records.length > 0 && (
         <Section>
           <SectionTitle>部門別KPI</SectionTitle>
@@ -595,6 +580,15 @@ export function ReportsPage() {
           </TableWrapper>
         </Section>
       )}
+
+      {/* 7. CSVエクスポート */}
+      <ExportBar>
+        <ExportButton onClick={handleExportDaily}>&#128196; 日別売上CSV</ExportButton>
+        <ExportButton onClick={handleExportPL}>&#128200; 月次P&amp;L CSV</ExportButton>
+        {selectedResults.length > 1 && (
+          <ExportButton onClick={handleExportStoreKpi}>&#127970; 店舗別KPI CSV</ExportButton>
+        )}
+      </ExportBar>
 
       {/* 指標説明パネル */}
       {explainMetric && explanations.has(explainMetric) && (

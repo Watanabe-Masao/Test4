@@ -6,6 +6,7 @@ import type {
   StoreExplanations,
   MetricId,
   DateRange,
+  ViewType,
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
@@ -55,6 +56,8 @@ export interface WidgetDef {
   readonly render: (ctx: WidgetContext) => ReactNode
   /** データ有無による表示判定（未設定時は常に表示） */
   readonly isVisible?: (ctx: WidgetContext) => boolean
+  /** 関連ページへのリンク（「もっと詳しく」動線） */
+  readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
 
 export interface WidgetContext {

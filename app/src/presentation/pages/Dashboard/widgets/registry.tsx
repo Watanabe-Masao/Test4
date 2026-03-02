@@ -67,6 +67,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'コア売上',
     group: '収益概況',
     size: 'kpi',
+    linkTo: { view: 'reports' },
     render: ({ result: r, onExplain }) => (
       <KpiCard
         label="コア売上"
@@ -82,6 +83,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '【在庫法】粗利益',
     group: '収益概況',
     size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
     render: ({ result: r, onExplain }) => {
       if (r.invMethodGrossProfitRate == null) {
         return (
@@ -105,6 +107,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '【推定法】在庫差分',
     group: '収益概況',
     size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
     render: ({ result: r, onExplain }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
       return (
@@ -154,6 +157,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '消耗品費',
     group: '収益概況',
     size: 'kpi',
+    linkTo: { view: 'cost-detail' },
     render: ({ result: r, onExplain }) => (
       <KpiCard
         label="消耗品費"
@@ -169,6 +173,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '売変ロス原価',
     group: '収益概況',
     size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
     render: ({ result: r, onExplain }) => (
       <KpiCard
         label="売変ロス原価"
@@ -200,6 +205,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '日別売上チャート',
     group: 'トレンド分析',
     size: 'full',
+    linkTo: { view: 'daily' },
     render: ({ result: r, daysInMonth, prevYear, year, month }) => (
       <DailySalesChart
         daily={r.daily}
@@ -215,6 +221,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '予算vs実績チャート',
     group: '収益概況',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'budget' },
     render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
       <BudgetVsActualChart
         data={budgetChartData}
@@ -230,6 +237,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'カテゴリ別構成',
     group: '収益概況',
     size: 'half',
+    linkTo: { view: 'category' },
     render: ({ result: r }) => <CategoryPieChart categoryTotals={r.categoryTotals} />,
   },
   {
@@ -237,6 +245,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '粗利推移チャート',
     group: '収益概況',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
     render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear }) => {
       // 前年仕入コストマップの構築（前年粗利率ライン表示用）
       // 注: prevYear.daily は classifiedSales 由来。仕入コストは個別に持っていないため
@@ -291,6 +300,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '階層ドリルダウン分析',
     group: '構造分析',
     size: 'full',
+    linkTo: { view: 'category' },
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({
       ctsIndex,
@@ -377,6 +387,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'PLAN / ACTUAL / FORECAST',
     group: '収益概況',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'budget' },
     render: (ctx) => renderPlanActualForecast(ctx),
   },
   {
@@ -406,6 +417,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '売上・売変・客数（日別×店舗）',
     group: 'トレンド分析',
     size: 'full',
+    linkTo: { view: 'daily' },
     render: (ctx) => renderDailyStoreSalesTable(ctx),
   },
   {
@@ -438,6 +450,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '店舗別KPI一覧',
     group: '構造分析',
     size: 'full',
+    linkTo: { view: 'reports' },
     render: (ctx) => renderStoreKpiTable(ctx),
   },
   // ── 部門別 ──
@@ -454,6 +467,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '着地予測・ゴールシーク',
     group: '予測・シミュレーション',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'budget' },
     render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
   },
   // ── 分析・可視化 ──
@@ -462,6 +476,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '粗利ウォーターフォール',
     group: '要因分析',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'decomposition' },
     render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
   {
@@ -469,6 +484,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年比較ウォーターフォール',
     group: '要因分析',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'decomposition' },
     isVisible: (ctx) => ctx.prevYear.hasPrevYear && ctx.prevYear.totalSales > 0,
     render: (ctx) => <YoYWaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
   },
@@ -543,6 +559,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: 'カテゴリPI値・偏差値',
     group: 'トレンド分析',
     size: 'full',
+    linkTo: { view: 'category' },
     isVisible: (ctx) => ctx.ctsIndex.recordCount > 0,
     render: ({
       ctsIndex,
@@ -586,6 +603,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '因果チェーン分析',
     group: '要因分析',
     size: 'full',
+    linkTo: { view: 'insight', tab: 'decomposition' },
     render: ({ result: r, prevYear }) => (
       <CausalChainExplorer
         result={r}

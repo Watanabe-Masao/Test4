@@ -1083,6 +1083,34 @@ export const DeleteBtn = styled.button`
   }
 `
 
+export const WidgetLinkBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text4};
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    color 0.15s;
+  z-index: 2;
+  &:hover {
+    color: ${({ theme }) => theme.colors.palette.primary};
+    opacity: 1;
+  }
+`
+
+export const WidgetWrapper = styled.div`
+  position: relative;
+  &:hover ${WidgetLinkBtn} {
+    opacity: 0.7;
+  }
+`
+
 // ─── Settings Panel ──────────────────────────────────────
 
 export const PanelOverlay = styled.div`
