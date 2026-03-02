@@ -126,7 +126,7 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.6rem;
   padding: 2px 8px;
   border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? '#fff' : theme.colors.text3)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
   background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
   transition: all 0.15s;
   white-space: nowrap;
@@ -157,17 +157,17 @@ const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boo
   justify-content: center;
   border-radius: 50%;
   color: ${({ $active, $isSun, $isSat, theme }) =>
-    $active ? '#fff' : $isSun ? '#ef4444' : $isSat ? '#3b82f6' : theme.colors.text3};
-  background: ${({ $active, $isSun, $isSat }) =>
-    $active ? ($isSun ? '#ef4444' : $isSat ? '#3b82f6' : '#6366f1') : 'transparent'};
+    $active ? theme.colors.palette.white : $isSun ? theme.colors.palette.danger : $isSat ? theme.colors.palette.info : theme.colors.text3};
+  background: ${({ $active, $isSun, $isSat, theme }) =>
+    $active ? ($isSun ? theme.colors.palette.danger : $isSat ? theme.colors.palette.info : theme.colors.palette.primary) : 'transparent'};
   border: 1px solid
     ${({ $active, $isSun, $isSat, theme }) =>
       $active
         ? 'transparent'
         : $isSun
-          ? 'rgba(239,68,68,0.4)'
+          ? `${theme.colors.palette.danger}66`
           : $isSat
-            ? 'rgba(59,130,246,0.4)'
+            ? `${theme.colors.palette.info}66`
             : theme.colors.border};
   transition: all 0.15s;
   &:hover {
