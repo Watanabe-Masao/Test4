@@ -61,7 +61,7 @@ import {
   MiniTd,
 } from './TimeSlotSalesChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── Local Styled Components ──
 
@@ -121,6 +121,10 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (d.isLoading && !d.chartData.length) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || d.chartData.length === 0) {

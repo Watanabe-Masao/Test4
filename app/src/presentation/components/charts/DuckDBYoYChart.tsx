@@ -32,7 +32,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './char
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ─── Styled ───────────────────────────────────────────
 
@@ -341,7 +341,11 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
   const { messages } = useI18n()
   const [viewMode, setViewMode] = useState<ViewMode>('line')
 
-  const { data: rows, error } = useDuckDBYoyDaily(
+  const {
+    data: rows,
+    isLoading,
+    error,
+  } = useDuckDBYoyDaily(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -364,6 +368,10 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !rows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {

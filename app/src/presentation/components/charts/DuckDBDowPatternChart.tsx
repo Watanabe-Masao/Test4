@@ -31,7 +31,7 @@ import { useDuckDBDowPattern, type DowPatternRow } from '@/application/hooks/use
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -165,12 +165,11 @@ export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const { data: rows, error } = useDuckDBDowPattern(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: rows,
+    error,
+    isLoading,
+  } = useDuckDBDowPattern(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const { chartData, overallAvg, strongestDow, weakestDow, cv } = useMemo(
     () =>
@@ -189,6 +188,10 @@ export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !rows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

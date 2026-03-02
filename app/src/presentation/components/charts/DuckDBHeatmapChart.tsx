@@ -21,7 +21,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -408,7 +408,11 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
 
   // 当年 時間帯×曜日マトリクス
-  const { data: matrixRows, error } = useDuckDBHourDowMatrix(
+  const {
+    data: matrixRows,
+    isLoading,
+    error,
+  } = useDuckDBHourDowMatrix(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -487,6 +491,10 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !matrixRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || !heatmapData || heatmapData.cells.size === 0) {

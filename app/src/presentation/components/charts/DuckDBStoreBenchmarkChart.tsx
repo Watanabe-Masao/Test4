@@ -19,7 +19,7 @@ import { useDuckDBStoreBenchmark, type StoreBenchmarkRow } from '@/application/h
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { STORE_COLORS } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -315,12 +315,11 @@ export const DuckDBStoreBenchmarkChart = memo(function DuckDBStoreBenchmarkChart
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const { data: benchmarkRows, error } = useDuckDBStoreBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: benchmarkRows,
+    error,
+    isLoading,
+  } = useDuckDBStoreBenchmark(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const { chartData, storeMetas, maxRank, bestStore, mostImproved } = useMemo(
     () =>
@@ -345,6 +344,10 @@ export const DuckDBStoreBenchmarkChart = memo(function DuckDBStoreBenchmarkChart
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !benchmarkRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

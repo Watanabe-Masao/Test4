@@ -16,7 +16,7 @@ import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -293,13 +293,11 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
     setLevel(newLevel)
   }, [])
 
-  const { data: hourlyRows, error } = useDuckDBCategoryHourly(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-  )
+  const {
+    data: hourlyRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryHourly(duckConn, duckDataVersion, currentDateRange, selectedStoreIds, level)
 
   const heatmapData = useMemo(
     () =>
@@ -318,6 +316,10 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !hourlyRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || heatmapData.categories.length === 0) {

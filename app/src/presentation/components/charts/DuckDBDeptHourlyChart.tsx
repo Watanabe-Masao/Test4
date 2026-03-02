@@ -21,7 +21,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from 
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -359,7 +359,11 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
 
   // 部門レベルで時間帯別集約
-  const { data: categoryHourlyRows, error } = useDuckDBCategoryHourly(
+  const {
+    data: categoryHourlyRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryHourly(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -407,6 +411,10 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !categoryHourlyRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

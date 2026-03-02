@@ -21,7 +21,7 @@ import {
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -96,12 +96,11 @@ export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const { data: rows, error } = useDuckDBDailyCumulative(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-  )
+  const {
+    data: rows,
+    error,
+    isLoading,
+  } = useDuckDBDailyCumulative(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
 
@@ -114,6 +113,10 @@ export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !rows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

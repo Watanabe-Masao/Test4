@@ -26,7 +26,7 @@ import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 // ── styled-components ──
 
@@ -344,7 +344,11 @@ export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
     [selectedDows],
   )
 
-  const { data: trendRows, error } = useDuckDBCategoryDailyTrend(
+  const {
+    data: trendRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryDailyTrend(
     duckConn,
     duckDataVersion,
     currentDateRange,
@@ -376,6 +380,10 @@ export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !trendRows) {
+    return <ChartSkeleton />
   }
 
   if (!duckConn || duckDataVersion === 0 || chartData.length === 0) {

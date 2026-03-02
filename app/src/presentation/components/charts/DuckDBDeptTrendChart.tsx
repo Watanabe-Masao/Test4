@@ -22,7 +22,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
-import { EmptyState } from '@/presentation/components/common'
+import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -159,7 +159,11 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
     return months
   }, [year, month])
 
-  const { data: trendData, error } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
+  const {
+    data: trendData,
+    isLoading,
+    error,
+  } = useDuckDBDeptKpiTrend(duckConn, duckDataVersion, yearMonths)
 
   const { chartData, deptNames } = useMemo(
     () =>
@@ -182,6 +186,10 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
         </ErrorMsg>
       </Wrapper>
     )
+  }
+
+  if (isLoading && !trendData) {
+    return <ChartSkeleton />
   }
 
   // DuckDB未準備、またはマルチ月データが2ヶ月未満の場合は非表示
