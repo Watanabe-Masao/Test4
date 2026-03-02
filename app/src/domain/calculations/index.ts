@@ -112,9 +112,4 @@ export type {
 
 // 因果チェーン分析
 export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
-export type {
-  ColorHint,
-  CausalFactor,
-  CausalStep,
-  CausalChainPrevInput,
-} from './causalChain'
+export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'

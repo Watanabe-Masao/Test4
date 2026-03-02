@@ -120,7 +120,8 @@ const HeatmapCell = styled.td<{ $intensity: number; $isPeak: boolean }>`
     const alpha = Math.min($intensity * 0.7 + 0.05, 0.75)
     return `rgba(${baseColor}, ${alpha})`
   }};
-  color: ${({ $intensity, theme }) => ($intensity > 0.5 ? theme.colors.palette.white : theme.colors.text3)};
+  color: ${({ $intensity, theme }) =>
+    $intensity > 0.5 ? theme.colors.palette.white : theme.colors.text3};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   position: relative;
   font-weight: ${({ $isPeak }) => ($isPeak ? 700 : 400)};

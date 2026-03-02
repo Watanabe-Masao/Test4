@@ -57,7 +57,8 @@ const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
       : $severity === 'warning'
         ? palette.caution
         : palette.blueDark};
-  color: ${({ $severity, theme }) => ($severity === 'warning' ? theme.colors.text : theme.colors.palette.white)};
+  color: ${({ $severity, theme }) =>
+    $severity === 'warning' ? theme.colors.text : theme.colors.palette.white};
 `
 
 const AlertList = styled.div`

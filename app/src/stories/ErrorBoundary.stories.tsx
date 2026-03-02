@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type React from 'react'
-import { ErrorBoundary, ChartErrorBoundary, PageErrorBoundary } from '@/presentation/components/common'
+import {
+  ErrorBoundary,
+  ChartErrorBoundary,
+  PageErrorBoundary,
+} from '@/presentation/components/common'
 import { I18nProvider } from '@/infrastructure/i18n/I18nContext'
 
 const meta: Meta<typeof ErrorBoundary> = {

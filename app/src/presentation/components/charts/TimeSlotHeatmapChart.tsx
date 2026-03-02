@@ -136,7 +136,8 @@ const DiffCell = styled.div<{ $ratio: number; $hasData: boolean }>`
   justify-content: center;
   font-size: 0.5rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $ratio, theme }) => (Math.abs($ratio) > 0.15 ? theme.colors.palette.white : '#9ca3af')};
+  color: ${({ $ratio, theme }) =>
+    Math.abs($ratio) > 0.15 ? theme.colors.palette.white : '#9ca3af'};
   background: ${({ $ratio, $hasData }) => {
     if (!$hasData) return 'transparent'
     if ($ratio === 0) return 'rgba(100,100,100,0.1)'

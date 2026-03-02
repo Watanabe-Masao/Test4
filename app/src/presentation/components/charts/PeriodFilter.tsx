@@ -157,9 +157,21 @@ const DowToggle = styled.button<{ $active: boolean; $isSun: boolean; $isSat: boo
   justify-content: center;
   border-radius: 50%;
   color: ${({ $active, $isSun, $isSat, theme }) =>
-    $active ? theme.colors.palette.white : $isSun ? theme.colors.palette.danger : $isSat ? theme.colors.palette.info : theme.colors.text3};
+    $active
+      ? theme.colors.palette.white
+      : $isSun
+        ? theme.colors.palette.danger
+        : $isSat
+          ? theme.colors.palette.info
+          : theme.colors.text3};
   background: ${({ $active, $isSun, $isSat, theme }) =>
-    $active ? ($isSun ? theme.colors.palette.danger : $isSat ? theme.colors.palette.info : theme.colors.palette.primary) : 'transparent'};
+    $active
+      ? $isSun
+        ? theme.colors.palette.danger
+        : $isSat
+          ? theme.colors.palette.info
+          : theme.colors.palette.primary
+      : 'transparent'};
   border: 1px solid
     ${({ $active, $isSun, $isSat, theme }) =>
       $active

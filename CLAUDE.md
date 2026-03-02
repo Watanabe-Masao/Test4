@@ -888,6 +888,37 @@ UIが生データを直接触ると:
 - `WidgetContext` に `CategoryTimeSalesData`（生データ）を入れてUIに渡す
 - 複数コンポーネントで同じフィルタ・集約ロジックをインラインで重複実装する
 
+---
+
+### 7. UIコンポーネントにデータ変換・副作用・状態管理を混在させてはならない
+
+Presentation層のコンポーネントが `useMemo`/`useCallback` でデータ変換を行い、
+`navigator.clipboard` 等の副作用を含み、複数の `useState` で状態管理し、
+かつ JSX の描画も行う「God Component」にしてはならない。
+
+**これをやると何が壊れるか:**
+MetricBreakdownPanel.tsx が 717 行の God Component に成長し:
+- 25 個の styled-component 定義、4 個の `useState`、5 個の `useMemo`/`useCallback`、
+  2 個の副作用（クリップボード書き込み、CSV エクスポート）、200 行以上の JSX が
+  1 ファイルに混在していた
+- Storybook ストーリーの作成が不可能（ドメイン型のモック構築が必要）
+- `allExplanations: ReadonlyMap<MetricId, Explanation>`（22 指標の全マップ）を
+  props で丸ごと受け取る God Object Prop パターンにより、
+  テストでのモック構築が困難かつ関心の境界が曖昧になっていた
+- ファイルが 300 行（設計思想4の閾値）を大幅に超過していたにもかかわらず放置されていた
+
+**壊れるパターン:**
+- 1 コンポーネントに styled-component 定義 + フック + JSX を全部入れる
+- `allXxx: ReadonlyMap<Id, DomainModel>` のような巨大マップを props で丸ごと渡す
+- 副作用（API 呼び出し、クリップボード、ファイル出力）を描画コンポーネント内に書く
+
+**正しい分割パターン:**
+```
+ComponentName.styles.ts   — styled-component 定義のみ
+useComponentName.ts       — データ変換・状態管理・副作用（ViewModel フック）
+ComponentName.tsx         — ViewModel を受け取り JSX を返す（描画のみ）
+```
+
 ## 残課題・今後の対応
 
 本セクションは CLAUDE.md と実際のコードベースの照合（2026-03 時点）で判明した
@@ -902,9 +933,10 @@ UIが生データを直接触ると:
 ### コードベースとドキュメントの乖離から判明した課題
 
 1. **Storybook / ビジュアルテストの方針未文書化**
-   - Storybook 設定（`.storybook/`）は存在するが、ストーリーファイル自体が未作成
-   - `npm run test:visual` の対象となるストーリーが存在しないため、実質未稼働
+   - Storybook 設定（`.storybook/`）と P1 ストーリー（Button, Card, Chip, DataGrid,
+     KpiCard, Modal, Skeleton, Theme, TabBar, EmptyState, CalcRow, ErrorBoundary）は整備済み
    - 開発プロセスにおける位置づけ（CI 必須か任意か、カバー範囲等）が未定義
+   - P2 コンポーネント（DataTable, DayRangeSlider, StatusBadge, Tooltip, ContextBar）は未カバー
 
 2. **PWA 対応の方針未文書化**
    - `infrastructure/pwa/` に Service Worker 登録コードが存在するが、
@@ -916,17 +948,11 @@ UIが生データを直接触ると:
    - `presentation/components/DevTools/QueryProfilePanel.tsx` 等の開発ツールが存在するが、
      本番ビルドでの除外方針（tree-shaking、条件付きレンダリング等）が未記載
 
-4. **バレルエクスポート不整合**
-   - `domain/calculations/factorDecomposition.ts` と `domain/calculations/causalChain.ts` は
-     `domain/calculations/index.ts` からエクスポートされていない
-   - `application/hooks/duckdb/useConditionMatrix.ts` は
-     `application/hooks/duckdb/index.ts` からエクスポートされていない
-   - `application/stores/analysisContextStore.ts` は
-     `application/stores/index.ts` からエクスポートされていない
-   - 直接パスでのインポートが必要な状態
+4. ~~**バレルエクスポート不整合**~~
+   - **解決済み**（2026-03）。`factorDecomposition`, `causalChain`, `useConditionMatrix`,
+     `analysisContextStore` をそれぞれのバレルからエクスポート追加
 
-5. **純粋関数の重複定義**
-   - `computeDivisor`, `countDistinctDays`, `computeDowDivisorMap` が
-     presentation 層（`periodFilterUtils.ts`）と application 層（`usecases/categoryTimeSales/divisor.ts`）
-     の2箇所に定義されている
-   - domain 層の `computeAverageDivisor`（`utils.ts`）への統一が将来課題
+5. ~~**純粋関数の重複定義**~~
+   - **解決済み**（2026-03）。`computeDivisor`, `countDistinctDays`, `computeDowDivisorMap`,
+     `filterByStore` の正規定義を `application/usecases/categoryTimeSales/divisor.ts` に統一。
+     `periodFilterUtils.ts` は re-export バレルに変換。`divisorRules.test.ts` でアーキテクチャガード追加

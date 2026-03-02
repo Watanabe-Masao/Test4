@@ -29,10 +29,7 @@ export const Default: StoryObj = {
 
 export const ManyTabs: StoryObj = {
   render: () => (
-    <TabBarDemo
-      tabs={['売上', '仕入', '粗利', '値入率', '売変', '予算', '前年比']}
-      initial={2}
-    />
+    <TabBarDemo tabs={['売上', '仕入', '粗利', '値入率', '売変', '予算', '前年比']} initial={2} />
   ),
 }
 
