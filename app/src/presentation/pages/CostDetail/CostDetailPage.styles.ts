@@ -130,6 +130,11 @@ export const PivotTd = styled(Td)<{ $groupStart?: boolean }>`
   ${({ $groupStart, theme }) => $groupStart && `border-left: 2px solid ${theme.colors.border};`}
 `
 
+/** 仕入ピボット: カテゴリ色付きグループヘッダー */
+export const PurchasePivotGroupTh = styled(PivotGroupTh)<{ $color?: string }>`
+  border-top: 3px solid ${({ $color }) => $color ?? 'transparent'};
+`
+
 /* ─── Flow Pair Table ───────────────────────────────── */
 
 export const FlowTable = styled.table`

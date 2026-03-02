@@ -1,10 +1,15 @@
 import { useState, useMemo } from 'react'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
-import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models'
+import { useSettingsStore } from '@/application/stores/settingsStore'
+import type { DailyRecord, TransferBreakdownEntry, CustomCategory } from '@/domain/models'
+import { CUSTOM_CATEGORIES } from '@/domain/models'
+import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
+import type { CategoryType } from '@/domain/models'
+import { CATEGORY_COLORS, CUSTOM_CATEGORY_COLORS } from '@/presentation/pages/Category/categoryData'
 
 // ─── Types ─────────────────────────────────────────────
 
-export type ActiveTab = 'transfer' | 'consumable'
+export type ActiveTab = 'transfer' | 'consumable' | 'purchase'
 export type TransferType = 'interStore' | 'interDepartment'
 export type ConsumableViewMode = 'item' | 'account' | 'daily'
 
@@ -104,6 +109,41 @@ export interface TransferPivotData {
     outCost: number
     outPrice: number
     net: number
+  }
+}
+
+// ─── Purchase pivot types ────────────────────────────
+
+/** 仕入ピボットの列定義 */
+export interface PurchasePivotColumn {
+  key: string
+  label: string
+  color: string
+  isCustom: boolean
+}
+
+/** 仕入ピボットのセル（原価/売価） */
+export interface PurchasePivotCell {
+  cost: number
+  price: number
+}
+
+/** 仕入ピボットの行（日付単位） */
+export interface PurchasePivotRow {
+  day: number
+  cells: Record<string, PurchasePivotCell>
+  totalCost: number
+  totalPrice: number
+}
+
+/** 仕入ピボットデータ全体 */
+export interface PurchasePivotData {
+  columns: PurchasePivotColumn[]
+  rows: PurchasePivotRow[]
+  totals: {
+    byColumn: Record<string, PurchasePivotCell>
+    grandCost: number
+    grandPrice: number
   }
 }
 
@@ -280,11 +320,168 @@ function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
   return Array.from(map.values()).sort((a, b) => b.totalCost - a.totalCost)
 }
 
+// ─── Purchase pivot builder ─────────────────────────
+
+/**
+ * 仕入ピボットテーブルを構築する。
+ *
+ * 列: 標準カテゴリ（market, lfc, ... , interDepartment）+
+ *     カスタムカテゴリ（市場仕入, LFC, ...）
+ * 行: 日付（1日〜31日）
+ * セル: 原価 / 売価
+ *
+ * 標準カテゴリの日別値は DailyRecord の各フィールドから直接取得。
+ * カスタムカテゴリの日別値は supplierBreakdown + supplierCategoryMap から集約。
+ */
+function buildPurchasePivot(
+  days: [number, DailyRecord][],
+  supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+): PurchasePivotData {
+  // --- 列定義 ---
+  // 標準カテゴリを取得するためのマッピング
+  const standardFieldMap: Partial<Record<CategoryType, (rec: DailyRecord) => PurchasePivotCell>> = {
+    market: (rec) => rec.purchase,
+    flowers: (rec) => rec.flowers,
+    directProduce: (rec) => rec.directProduce,
+    consumables: (rec) => ({ cost: rec.consumable.cost, price: 0 }),
+    interStore: (rec) => ({
+      cost: rec.interStoreIn.cost + rec.interStoreOut.cost,
+      price: rec.interStoreIn.price + rec.interStoreOut.price,
+    }),
+    interDepartment: (rec) => ({
+      cost: rec.interDepartmentIn.cost + rec.interDepartmentOut.cost,
+      price: rec.interDepartmentIn.price + rec.interDepartmentOut.price,
+    }),
+  }
+
+  // カスタムカテゴリが使われているか確認
+  const hasCustomCategories = Object.keys(supplierCategoryMap).length > 0
+
+  // 標準カテゴリの列: データがある列のみ表示
+  const standardColumns: PurchasePivotColumn[] = []
+  const standardKeys = new Set<string>()
+
+  // まず全日のデータをスキャンして、どのカテゴリにデータがあるか確認
+  for (const cat of CATEGORY_ORDER) {
+    const getter = standardFieldMap[cat]
+    if (!getter) continue
+    // カスタムカテゴリが有効な場合、market は個別カスタムに分解されるのでスキップ
+    if (hasCustomCategories && cat === 'market') continue
+
+    let hasData = false
+    for (const [, rec] of days) {
+      const cell = getter(rec)
+      if (cell.cost !== 0 || cell.price !== 0) {
+        hasData = true
+        break
+      }
+    }
+    if (hasData) {
+      standardColumns.push({
+        key: cat,
+        label: CATEGORY_LABELS[cat],
+        color: CATEGORY_COLORS[cat] ?? '#64748b',
+        isCustom: false,
+      })
+      standardKeys.add(cat)
+    }
+  }
+
+  // カスタムカテゴリの列
+  const customColumns: PurchasePivotColumn[] = []
+  const customKeys = new Set<string>()
+
+  if (hasCustomCategories) {
+    // どのカスタムカテゴリにデータがあるか確認
+    const customCatHasData = new Set<CustomCategory>()
+    for (const [, rec] of days) {
+      for (const [suppCode, pair] of rec.supplierBreakdown) {
+        if (pair.cost === 0 && pair.price === 0) continue
+        const cc = supplierCategoryMap[suppCode]
+        if (cc) customCatHasData.add(cc)
+      }
+    }
+
+    for (const cc of CUSTOM_CATEGORIES) {
+      if (!customCatHasData.has(cc)) continue
+      customColumns.push({
+        key: cc,
+        label: cc,
+        color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
+        isCustom: true,
+      })
+      customKeys.add(cc)
+    }
+  }
+
+  const columns = [...standardColumns, ...customColumns]
+  const allKeys = [...standardKeys, ...customKeys]
+
+  // --- 行構築 ---
+  const totalsByCol: Record<string, PurchasePivotCell> = {}
+  for (const k of allKeys) totalsByCol[k] = { cost: 0, price: 0 }
+  let grandCost = 0
+  let grandPrice = 0
+
+  const rows: PurchasePivotRow[] = []
+  for (const [day, rec] of days) {
+    const cells: Record<string, PurchasePivotCell> = {}
+    for (const k of allKeys) cells[k] = { cost: 0, price: 0 }
+
+    // 標準カテゴリ値の取得
+    for (const cat of standardKeys) {
+      const getter = standardFieldMap[cat as CategoryType]
+      if (!getter) continue
+      const val = getter(rec)
+      cells[cat] = { cost: val.cost, price: val.price }
+    }
+
+    // カスタムカテゴリ値の取得（supplierBreakdown から集約）
+    if (hasCustomCategories) {
+      for (const [suppCode, pair] of rec.supplierBreakdown) {
+        const cc = supplierCategoryMap[suppCode]
+        if (!cc || !customKeys.has(cc)) continue
+        cells[cc] = {
+          cost: cells[cc].cost + pair.cost,
+          price: cells[cc].price + pair.price,
+        }
+      }
+    }
+
+    // 行合計
+    let rowCost = 0
+    let rowPrice = 0
+    for (const k of allKeys) {
+      rowCost += cells[k].cost
+      rowPrice += cells[k].price
+      totalsByCol[k] = {
+        cost: totalsByCol[k].cost + cells[k].cost,
+        price: totalsByCol[k].price + cells[k].price,
+      }
+    }
+
+    // データがある行のみ追加
+    if (rowCost !== 0 || rowPrice !== 0) {
+      rows.push({ day, cells, totalCost: rowCost, totalPrice: rowPrice })
+    }
+
+    grandCost += rowCost
+    grandPrice += rowPrice
+  }
+
+  return {
+    columns,
+    rows,
+    totals: { byColumn: totalsByCol, grandCost, grandPrice },
+  }
+}
+
 // ─── Hook ─────────────────────────────────────────────
 
 export function useCostDetailData() {
   useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
+  const settings = useSettingsStore((s) => s.settings)
 
   // Tab state
   const [activeTab, setActiveTab] = useState<ActiveTab>('transfer')
@@ -378,6 +575,12 @@ export function useCostDetailData() {
   const transferPivot = useMemo(
     () => buildTransferPivot(days, inField, outField, stores),
     [days, inField, outField, stores],
+  )
+
+  // ─── Purchase pivot data (category × date matrix) ──
+  const purchasePivot = useMemo(
+    () => buildPurchasePivot(days, settings.supplierCategoryMap),
+    [days, settings.supplierCategoryMap],
   )
 
   // ─── Consumable data ────────────────────────────────
@@ -498,6 +701,9 @@ export function useCostDetailData() {
     maxAccountCost,
     dailyConsumableData,
     hasConsumableData,
+
+    // Purchase pivot data
+    purchasePivot,
 
     // Handlers
     handleTransferTypeChange,
