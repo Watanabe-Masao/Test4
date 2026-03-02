@@ -110,8 +110,10 @@ export const YoYBadge = styled.span<{ $positive: boolean }>`
   font-weight: 600;
   padding: 1px 4px;
   border-radius: 4px;
-  background: ${({ $positive }) => ($positive ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)')};
-  color: ${({ $positive }) => ($positive ? '#22c55e' : '#ef4444')};
+  background: ${({ $positive, theme }) =>
+    $positive ? `${theme.colors.palette.success}26` : `${theme.colors.palette.danger}26`};
+  color: ${({ $positive, theme }) =>
+    $positive ? theme.colors.palette.successDark : theme.colors.palette.dangerDark};
 `
 
 export const SummaryRow = styled.div`
@@ -224,7 +226,11 @@ export const MiniTd = styled.td<{ $highlight?: boolean; $positive?: boolean }>`
   padding: 3px 6px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $highlight, $positive, theme }) =>
-    $highlight ? ($positive ? '#22c55e' : '#ef4444') : theme.colors.text2};
+    $highlight
+      ? $positive
+        ? theme.colors.palette.successDark
+        : theme.colors.palette.dangerDark
+      : theme.colors.text2};
   border-bottom: 1px solid
     ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')};
   &:first-child {

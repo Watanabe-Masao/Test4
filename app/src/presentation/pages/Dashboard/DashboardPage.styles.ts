@@ -470,7 +470,7 @@ export const CalTd = styled.td<{ $empty?: boolean; $hasActual?: boolean }>`
   ${({ $hasActual, $empty, theme }) =>
     !$empty && $hasActual
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.03)'};
+    background: ${`${theme.colors.palette.success}${theme.mode === 'dark' ? '0a' : '08'}`};
   `
       : ''}
 `
@@ -571,13 +571,13 @@ export const CalDayCell = styled.div<{
   ${({ $pinned, $rangeColor, theme }) =>
     $pinned && !$rangeColor
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.10)'};
+    background: ${`${theme.colors.palette.primary}${theme.mode === 'dark' ? '2e' : '1a'}`};
   `
       : ''}
   ${({ $inInterval, $pinned, $rangeColor, theme }) =>
     $inInterval && !$pinned && !$rangeColor
       ? `
-    background: ${theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.06)' : 'rgba(99, 102, 241, 0.04)'};
+    background: ${`${theme.colors.palette.primary}${theme.mode === 'dark' ? '0f' : '0a'}`};
   `
       : ''}
 `
@@ -605,6 +605,11 @@ export const CalActionBtn = styled.button<{ $color?: string }>`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
   }
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
+  }
 `
 
 export const CalDataArea = styled.div`
@@ -624,7 +629,7 @@ export const PinIndicator = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-top: ${({ theme }) => theme.spacing[1]};
   background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.10)'};
+    `${theme.colors.palette.primary}${theme.mode === 'dark' ? '26' : '1a'}`};
   border-radius: ${({ theme }) => theme.radii.sm};
   padding: 1px 3px;
   text-align: center;
