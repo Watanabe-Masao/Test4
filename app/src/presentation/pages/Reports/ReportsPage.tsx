@@ -291,11 +291,11 @@ export function ReportsPage() {
       <SummaryGrid>
         <Card $accent={sc.positive}>
           <CardTitle>【在庫法】実績粗利</CardTitle>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('salesTotal')}>
             <CalcLabel>総売上高</CalcLabel>
             <CalcValue>{formatCurrency(r.totalSales)}</CalcValue>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('purchaseCost')}>
             <CalcLabel>総仕入原価</CalcLabel>
             <CalcValue>{formatCurrency(r.totalCost)}</CalcValue>
           </CalcRow>
@@ -311,19 +311,36 @@ export function ReportsPage() {
               {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未設定'}
             </CalcValue>
           </CalcRow>
-          <CalcRow>
+          <CalcRow
+            $clickable={r.invMethodCogs != null}
+            onClick={r.invMethodCogs != null ? () => handleExplain('invMethodCogs') : undefined}
+          >
             <CalcLabel>売上原価 (COGS)</CalcLabel>
             <CalcHighlight>
               {r.invMethodCogs != null ? formatCurrency(r.invMethodCogs) : '-'}
             </CalcHighlight>
           </CalcRow>
-          <CalcRow>
+          <CalcRow
+            $clickable={r.invMethodGrossProfit != null}
+            onClick={
+              r.invMethodGrossProfit != null
+                ? () => handleExplain('invMethodGrossProfit')
+                : undefined
+            }
+          >
             <CalcLabel>粗利益</CalcLabel>
             <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
           </CalcRow>
-          <CalcRow>
+          <CalcRow
+            $clickable={r.invMethodGrossProfitRate != null}
+            onClick={
+              r.invMethodGrossProfitRate != null
+                ? () => handleExplain('invMethodGrossProfitRate')
+                : undefined
+            }
+          >
             <CalcLabel>粗利率</CalcLabel>
             <CalcHighlight $color={sc.positive}>
               {r.invMethodGrossProfitRate != null ? formatPercent(r.invMethodGrossProfitRate) : '-'}
@@ -336,35 +353,42 @@ export function ReportsPage() {
           <DisclaimerNote>
             ※ この指標は在庫異常の検知用です。損益計算には在庫法をご利用ください。
           </DisclaimerNote>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('coreSales')}>
             <CalcLabel>コア売上</CalcLabel>
             <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('coreMarkupRate')}>
             <CalcLabel>コア値入率</CalcLabel>
             <CalcValue>{formatPercent(r.coreMarkupRate)}</CalcValue>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('discountRate')}>
             <CalcLabel>売変率</CalcLabel>
             <CalcValue>{formatPercent(r.discountRate)}</CalcValue>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('estMethodCogs')}>
             <CalcLabel>推定原価</CalcLabel>
             <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('estMethodMargin')}>
             <CalcLabel>推定在庫差分</CalcLabel>
             <CalcHighlight $color={palette.infoDark}>
               {formatCurrency(r.estMethodMargin)}
             </CalcHighlight>
           </CalcRow>
-          <CalcRow>
+          <CalcRow $clickable onClick={() => handleExplain('estMethodMarginRate')}>
             <CalcLabel>推定在庫差分率</CalcLabel>
             <CalcHighlight $color={palette.infoDark}>
               {formatPercent(r.estMethodMarginRate)}
             </CalcHighlight>
           </CalcRow>
-          <CalcRow>
+          <CalcRow
+            $clickable={r.estMethodClosingInventory != null}
+            onClick={
+              r.estMethodClosingInventory != null
+                ? () => handleExplain('estMethodClosingInventory')
+                : undefined
+            }
+          >
             <CalcLabel>推定期末在庫</CalcLabel>
             <CalcHighlight $color={palette.cyanDark}>
               {r.estMethodClosingInventory != null

@@ -379,7 +379,7 @@ export function InsightPage() {
                   {r.openingInventory != null ? d.formatCurrency(r.openingInventory) : '未設定'}
                 </CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('purchaseCost')}>
                 <CalcLabel>＋ 総仕入原価</CalcLabel>
                 <CalcValue>{d.formatCurrency(r.totalCost)}</CalcValue>
               </CalcRow>
@@ -389,23 +389,44 @@ export function InsightPage() {
                   {r.closingInventory != null ? d.formatCurrency(r.closingInventory) : '未設定'}
                 </CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow
+                $clickable={r.invMethodCogs != null}
+                onClick={r.invMethodCogs != null ? () => handleExplain('invMethodCogs') : undefined}
+              >
                 <CalcLabel>＝ 売上原価 (COGS)</CalcLabel>
                 <CalcHighlight>
                   {r.invMethodCogs != null ? d.formatCurrency(r.invMethodCogs) : '-'}
                 </CalcHighlight>
               </CalcRow>
-              <CalcRow style={{ marginTop: 8 }}>
+              <CalcRow
+                $clickable
+                onClick={() => handleExplain('salesTotal')}
+                style={{ marginTop: 8 }}
+              >
                 <CalcLabel>総売上高</CalcLabel>
                 <CalcValue>{d.formatCurrency(r.totalSales)}</CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow
+                $clickable={r.invMethodGrossProfit != null}
+                onClick={
+                  r.invMethodGrossProfit != null
+                    ? () => handleExplain('invMethodGrossProfit')
+                    : undefined
+                }
+              >
                 <CalcLabel>粗利益</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
                   {r.invMethodGrossProfit != null ? d.formatCurrency(r.invMethodGrossProfit) : '-'}
                 </CalcHighlight>
               </CalcRow>
-              <CalcRow>
+              <CalcRow
+                $clickable={r.invMethodGrossProfitRate != null}
+                onClick={
+                  r.invMethodGrossProfitRate != null
+                    ? () => handleExplain('invMethodGrossProfitRate')
+                    : undefined
+                }
+              >
                 <CalcLabel>粗利率</CalcLabel>
                 <CalcHighlight $color={sc.positive}>
                   {r.invMethodGrossProfitRate != null
@@ -421,39 +442,46 @@ export function InsightPage() {
                 ※ この指標は在庫異常の検知用です。損益計算には上記の在庫法をご利用ください。
               </Formula>
               <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('coreSales')}>
                 <CalcLabel>コア売上</CalcLabel>
                 <CalcValue>{d.formatCurrency(r.totalCoreSales)}</CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('grossSales')}>
                 <CalcLabel>粗売上（売変前）</CalcLabel>
                 <CalcValue>{d.formatCurrency(r.grossSales)}</CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('discountRate')}>
                 <CalcLabel>売変率</CalcLabel>
                 <CalcValue>{d.formatPercent(r.discountRate)}</CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('coreMarkupRate')}>
                 <CalcLabel>コア値入率</CalcLabel>
                 <CalcValue>{d.formatPercent(r.coreMarkupRate)}</CalcValue>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('estMethodCogs')}>
                 <CalcLabel>推定原価</CalcLabel>
                 <CalcHighlight>{d.formatCurrency(r.estMethodCogs)}</CalcHighlight>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('estMethodMargin')}>
                 <CalcLabel>推定在庫差分</CalcLabel>
                 <CalcHighlight $color={palette.infoDark}>
                   {d.formatCurrency(r.estMethodMargin)}
                 </CalcHighlight>
               </CalcRow>
-              <CalcRow>
+              <CalcRow $clickable onClick={() => handleExplain('estMethodMarginRate')}>
                 <CalcLabel>推定在庫差分率</CalcLabel>
                 <CalcHighlight $color={palette.infoDark}>
                   {d.formatPercent(r.estMethodMarginRate)}
                 </CalcHighlight>
               </CalcRow>
-              <CalcRow>
+              <CalcRow
+                $clickable={r.estMethodClosingInventory != null}
+                onClick={
+                  r.estMethodClosingInventory != null
+                    ? () => handleExplain('estMethodClosingInventory')
+                    : undefined
+                }
+              >
                 <CalcLabel>推定期末在庫</CalcLabel>
                 <CalcHighlight $color={palette.cyanDark}>
                   {r.estMethodClosingInventory != null

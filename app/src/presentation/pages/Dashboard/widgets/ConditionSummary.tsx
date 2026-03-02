@@ -10,6 +10,7 @@ import {
 } from '@/domain/calculations/utils'
 import type { MetricId, StoreResult } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
+import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
 import { ConditionMatrixTable } from './ConditionMatrixTable'
@@ -225,6 +226,43 @@ const BSignalDot = styled.span<{ $color: string }>`
   margin-right: ${({ theme }) => theme.spacing[2]};
 `
 
+const ExpandIcon = styled.span<{ $expanded: boolean }>`
+  display: inline-block;
+  font-size: 10px;
+  margin-right: 4px;
+  transition: transform 0.15s;
+  transform: rotate(${({ $expanded }) => ($expanded ? '90deg' : '0deg')});
+`
+
+const CategoryDot = styled.span<{ $color: string }>`
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  margin-right: 4px;
+`
+
+const SubRow = styled.tr`
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+`
+
+const BarCell = styled.div<{ $ratio: number; $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  &::after {
+    content: '';
+    display: inline-block;
+    height: 8px;
+    width: ${({ $ratio }) => Math.max(2, $ratio * 100)}%;
+    max-width: 80px;
+    background: ${({ $color }) => $color}40;
+    border-radius: 2px;
+  }
+`
+
 // Simple breakdown (existing pattern)
 const BreakdownRow = styled.div<{ $bold?: boolean }>`
   display: flex;
@@ -318,7 +356,7 @@ interface ConditionItem {
   signal: SignalLevel
   metricId?: MetricId
   storeValue?: (sr: StoreResult) => { value: string; signal: SignalLevel }
-  detailBreakdown?: 'gpRate' | 'discountRate'
+  detailBreakdown?: 'gpRate' | 'discountRate' | 'markupRate'
 }
 
 type DisplayMode = 'rate' | 'amount'
@@ -382,6 +420,62 @@ function txValueBreakdown(sr: StoreResult): { value: string; signal: SignalLevel
   }
 }
 
+// ─── Cross-Multiplication (相乗積) helpers ────────────
+
+interface CategoryCrossRow {
+  readonly label: string
+  readonly cost: number
+  readonly price: number
+  readonly markupRate: number
+  readonly priceShare: number
+  readonly crossMultiplication: number
+  readonly color: string
+}
+
+const CROSS_COLORS: Record<string, string> = {
+  market: '#f59e0b',
+  lfc: '#3b82f6',
+  saladClub: '#22c55e',
+  processed: '#a855f7',
+  directDelivery: '#06b6d4',
+  flowers: '#ec4899',
+  directProduce: '#84cc16',
+  consumables: '#ea580c',
+  interStore: '#f43f5e',
+  interDepartment: '#8b5cf6',
+  other: '#64748b',
+}
+
+function buildCrossMult(sr: StoreResult): CategoryCrossRow[] {
+  const totalPrice = CATEGORY_ORDER.reduce((sum, cat) => {
+    const pair = sr.categoryTotals.get(cat)
+    return sum + (pair ? pair.price : 0)
+  }, 0)
+  const totalAbsPrice = CATEGORY_ORDER.reduce((sum, cat) => {
+    const pair = sr.categoryTotals.get(cat)
+    return sum + (pair ? Math.abs(pair.price) : 0)
+  }, 0)
+
+  return CATEGORY_ORDER.flatMap((cat) => {
+    const pair = sr.categoryTotals.get(cat)
+    if (!pair || (pair.cost === 0 && pair.price === 0)) return []
+    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
+    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
+    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
+    return [
+      {
+        label: CATEGORY_LABELS[cat],
+        cost: pair.cost,
+        price: pair.price,
+        markupRate,
+        priceShare,
+        crossMultiplication,
+        color: CROSS_COLORS[cat] ?? '#64748b',
+      },
+    ]
+  })
+}
+
 // ─── Component ──────────────────────────────────────────
 
 export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
@@ -395,6 +489,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
   const [breakdownItem, setBreakdownItem] = useState<ConditionItem | null>(null)
   const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
+  const [expandedMarkupStore, setExpandedMarkupStore] = useState<string | null>(null)
 
   const hasMultipleStores = allStoreResults.size > 1
 
@@ -443,7 +538,21 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
       detailBreakdown: 'gpRate',
     },
-    // 2. Budget Progress Rate
+    // 2. Markup Rate (値入率)
+    {
+      label: '値入率',
+      value: formatPercent(r.averageMarkupRate),
+      sub: `コア値入率 ${formatPercent(r.coreMarkupRate)}`,
+      signal:
+        r.averageMarkupRate >= r.grossProfitRateBudget
+          ? 'blue'
+          : r.averageMarkupRate >= r.grossProfitRateBudget - 0.02
+            ? 'yellow'
+            : 'red',
+      metricId: 'averageMarkupRate',
+      detailBreakdown: 'markupRate',
+    },
+    // 3. Budget Progress Rate
     {
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
@@ -736,6 +845,185 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     )
   }
 
+  const renderMarkupDetailTable = () => {
+    const toggleStore = (storeId: string) => {
+      setExpandedMarkupStore((prev) => (prev === storeId ? null : storeId))
+    }
+
+    return (
+      <>
+        <DetailHeader>
+          <DetailTitle>値入率 — 店舗内訳</DetailTitle>
+          <ToggleGroup>
+            <ToggleBtn $active={displayMode === 'rate'} onClick={() => setDisplayMode('rate')}>
+              率
+            </ToggleBtn>
+            <ToggleBtn $active={displayMode === 'amount'} onClick={() => setDisplayMode('amount')}>
+              金額
+            </ToggleBtn>
+          </ToggleGroup>
+        </DetailHeader>
+        <BTable>
+          <thead>
+            <tr>
+              <BTh>店舗名</BTh>
+              <BTh>平均値入率</BTh>
+              <BTh>コア値入率</BTh>
+              {displayMode === 'amount' && (
+                <>
+                  <BTh>原価合計</BTh>
+                  <BTh>売価合計</BTh>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedStoreEntries.flatMap(([storeId, sr]) => {
+              const store = stores.get(storeId)
+              const storeName = store?.name ?? storeId
+              const isExpanded = expandedMarkupStore === storeId
+              const crossRows = buildCrossMult(sr)
+              const sig: SignalLevel =
+                sr.averageMarkupRate >= r.grossProfitRateBudget
+                  ? 'blue'
+                  : sr.averageMarkupRate >= r.grossProfitRateBudget - 0.02
+                    ? 'yellow'
+                    : 'red'
+              const sigColor = SIGNAL_COLORS[sig]
+
+              const rows: React.ReactNode[] = [
+                <BTr
+                  key={storeId}
+                  onClick={() => toggleStore(storeId)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <BTd>
+                    <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
+                    <BSignalDot $color={sigColor} />
+                    {storeName}
+                  </BTd>
+                  <BTd $color={sigColor}>{formatPercent(sr.averageMarkupRate)}</BTd>
+                  <BTd>{formatPercent(sr.coreMarkupRate)}</BTd>
+                  {displayMode === 'amount' && (
+                    <>
+                      <BTd>
+                        {formatCurrency(
+                          CATEGORY_ORDER.reduce(
+                            (sum, cat) => sum + (sr.categoryTotals.get(cat)?.cost ?? 0),
+                            0,
+                          ),
+                        )}
+                      </BTd>
+                      <BTd>
+                        {formatCurrency(
+                          CATEGORY_ORDER.reduce(
+                            (sum, cat) => sum + (sr.categoryTotals.get(cat)?.price ?? 0),
+                            0,
+                          ),
+                        )}
+                      </BTd>
+                    </>
+                  )}
+                </BTr>,
+              ]
+
+              // Drill-down: 相乗積テーブル
+              if (isExpanded) {
+                rows.push(
+                  <SubRow key={`${storeId}-header`}>
+                    <BTd
+                      colSpan={displayMode === 'amount' ? 5 : 3}
+                      style={{ padding: '4px 12px', fontSize: '0.7rem', fontWeight: 600 }}
+                    >
+                      相乗積内訳 （値入率 × 売価構成比 = 相乗積）
+                    </BTd>
+                  </SubRow>,
+                )
+
+                const maxCross = Math.max(
+                  ...crossRows.map((c) => Math.abs(c.crossMultiplication)),
+                  0.001,
+                )
+
+                crossRows.forEach((cr) => {
+                  rows.push(
+                    <SubRow key={`${storeId}-${cr.label}`}>
+                      <BTd style={{ paddingLeft: '28px' }}>
+                        <CategoryDot $color={cr.color} />
+                        {cr.label}
+                      </BTd>
+                      <BTd>
+                        <BarCell
+                          $ratio={Math.abs(cr.crossMultiplication) / maxCross}
+                          $color={cr.color}
+                        >
+                          {formatPercent(cr.crossMultiplication)}
+                        </BarCell>
+                      </BTd>
+                      <BTd>
+                        {formatPercent(cr.markupRate)} × {formatPercent(cr.priceShare)}
+                      </BTd>
+                      {displayMode === 'amount' && (
+                        <>
+                          <BTd>{formatCurrency(cr.cost)}</BTd>
+                          <BTd>{formatCurrency(cr.price)}</BTd>
+                        </>
+                      )}
+                    </SubRow>,
+                  )
+                })
+
+                // Sub total
+                const totalCross = crossRows.reduce((s, c) => s + c.crossMultiplication, 0)
+                rows.push(
+                  <SubRow key={`${storeId}-total`}>
+                    <BTd style={{ paddingLeft: '28px', fontWeight: 700 }}>合計</BTd>
+                    <BTd $bold>{formatPercent(totalCross)}</BTd>
+                    <BTd $bold>= 平均値入率</BTd>
+                    {displayMode === 'amount' && (
+                      <>
+                        <BTd />
+                        <BTd />
+                      </>
+                    )}
+                  </SubRow>,
+                )
+              }
+
+              return rows
+            })}
+            {/* Total row */}
+            <BTr $highlight>
+              <BTd $bold>合計</BTd>
+              <BTd $bold>{formatPercent(r.averageMarkupRate)}</BTd>
+              <BTd $bold>{formatPercent(r.coreMarkupRate)}</BTd>
+              {displayMode === 'amount' && (
+                <>
+                  <BTd $bold>
+                    {formatCurrency(
+                      CATEGORY_ORDER.reduce(
+                        (sum, cat) => sum + (r.categoryTotals.get(cat)?.cost ?? 0),
+                        0,
+                      ),
+                    )}
+                  </BTd>
+                  <BTd $bold>
+                    {formatCurrency(
+                      CATEGORY_ORDER.reduce(
+                        (sum, cat) => sum + (r.categoryTotals.get(cat)?.price ?? 0),
+                        0,
+                      ),
+                    )}
+                  </BTd>
+                </>
+              )}
+            </BTr>
+          </tbody>
+        </BTable>
+      </>
+    )
+  }
+
   const renderSimpleBreakdown = () => {
     if (!breakdownItem || !breakdownItem.storeValue) return null
     return (
@@ -803,14 +1091,28 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
       {/* Detail Overlay */}
       {breakdownItem && (
-        <Overlay onClick={() => setBreakdownItem(null)}>
+        <Overlay
+          onClick={() => {
+            setBreakdownItem(null)
+            setExpandedMarkupStore(null)
+          }}
+        >
           <DetailPanel onClick={(e) => e.stopPropagation()}>
             {breakdownItem.detailBreakdown === 'gpRate'
               ? renderGpDetailTable()
               : breakdownItem.detailBreakdown === 'discountRate'
                 ? renderDiscountDetailTable()
-                : renderSimpleBreakdown()}
-            <CloseBtn onClick={() => setBreakdownItem(null)}>閉じる</CloseBtn>
+                : breakdownItem.detailBreakdown === 'markupRate'
+                  ? renderMarkupDetailTable()
+                  : renderSimpleBreakdown()}
+            <CloseBtn
+              onClick={() => {
+                setBreakdownItem(null)
+                setExpandedMarkupStore(null)
+              }}
+            >
+              閉じる
+            </CloseBtn>
           </DetailPanel>
         </Overlay>
       )}
