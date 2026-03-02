@@ -7,7 +7,18 @@ import styled from 'styled-components'
  */
 
 export const CalcRow = styled.div.attrs<{ $clickable?: boolean }>((props) =>
-  props.$clickable ? { role: 'button', tabIndex: 0 } : {},
+  props.$clickable
+    ? {
+        role: 'button',
+        tabIndex: 0,
+        onKeyDown: (e: { key: string; preventDefault: () => void; currentTarget: EventTarget }) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            ;(e.currentTarget as HTMLElement).click()
+          }
+        },
+      }
+    : {},
 )<{ $clickable?: boolean }>`
   display: flex;
   justify-content: space-between;
