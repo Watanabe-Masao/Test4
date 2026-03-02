@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import type { ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { AnalysisBar } from '@/presentation/components/common'
 
 const Main = styled.main`
   overflow-y: auto;
@@ -86,11 +87,14 @@ export function MainContent({
   title,
   storeName,
   actions,
+  showAnalysisBar = true,
   children,
 }: {
   title: string
   storeName?: string
   actions?: ReactNode
+  /** AnalysisBar を表示するか（デフォルト: true、Admin等では false） */
+  showAnalysisBar?: boolean
   children: ReactNode
 }) {
   const settings = useSettingsStore((s) => s.settings)
@@ -110,6 +114,7 @@ export function MainContent({
           {actions}
         </div>
       </Header>
+      {showAnalysisBar && <AnalysisBar />}
       {children}
     </Main>
   )
