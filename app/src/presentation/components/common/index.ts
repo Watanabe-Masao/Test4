@@ -12,7 +12,15 @@ export { ValidationModal } from './ValidationModal'
 export { ImportProgressBar } from './ImportProgressBar'
 export { ImportProgress as ImportProgressSteps, ImportSummaryCard } from './ImportWizard'
 export type { ImportStage } from './ImportWizard'
-export { DataTableWrapper, DataTableTitle, DataTable, DataTh, DataTd, DataTr } from './DataTable'
+export {
+  DataTableWrapper,
+  StickyTableWrapper,
+  DataTableTitle,
+  DataTable,
+  DataTh,
+  DataTd,
+  DataTr,
+} from './DataTable'
 export { DataGrid } from './DataGrid'
 export type { DataGridProps, ColumnDef } from './DataGrid'
 export { Skeleton, KpiCardSkeleton, ChartSkeleton, TableSkeleton, PageSkeleton } from './Skeleton'

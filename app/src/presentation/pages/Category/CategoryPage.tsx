@@ -322,10 +322,21 @@ export function CategoryPage() {
                           key={catKey}
                           $clickable={hasStores}
                           $expanded={isExpanded}
+                          aria-expanded={hasStores ? isExpanded : undefined}
+                          role={hasStores ? 'button' : undefined}
+                          tabIndex={hasStores ? 0 : undefined}
                           onClick={() => {
                             if (!hasStores) return
                             setExpandedCategory(isExpanded ? null : catKey)
                             setExpandedStore(null)
+                          }}
+                          onKeyDown={(e: React.KeyboardEvent) => {
+                            if (!hasStores) return
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              setExpandedCategory(isExpanded ? null : catKey)
+                              setExpandedStore(null)
+                            }
                           }}
                         >
                           <Td>
@@ -377,9 +388,19 @@ export function CategoryPage() {
                               $catColor={d.color}
                               $clickable
                               $expanded={isStoreExpanded}
+                              aria-expanded={isStoreExpanded}
+                              role="button"
+                              tabIndex={0}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setExpandedStore(isStoreExpanded ? null : storeKey)
+                              }}
+                              onKeyDown={(e: React.KeyboardEvent) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setExpandedStore(isStoreExpanded ? null : storeKey)
+                                }
                               }}
                             >
                               <Td>
@@ -465,7 +486,13 @@ export function CategoryPage() {
                         <Td>{formatCurrency(totalCatCost)}</Td>
                         <Td>{formatCurrency(totalCatPrice)}</Td>
                         <Td>{formatCurrency(totalGrossProfit)}</Td>
-                        <Td>{formatPercent(overallMarkupRate)}</Td>
+                        <Td
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleExplain('averageMarkupRate')}
+                          title="算出根拠を表示"
+                        >
+                          {formatPercent(overallMarkupRate)}
+                        </Td>
                         <Td>{formatPercent(1)}</Td>
                         <Td>{formatPercent(1)}</Td>
                         <Td>
