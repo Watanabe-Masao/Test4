@@ -535,7 +535,21 @@ export function DailyPage() {
                             ? ('warn' as const)
                             : ('bad' as const)
                       return (
-                        <RateTd $status={rec.sales > 0 ? gprStatus : undefined}>
+                        <RateTd
+                          $status={rec.sales > 0 ? gprStatus : undefined}
+                          $clickable={rec.sales > 0}
+                          onClick={
+                            rec.sales > 0
+                              ? () =>
+                                  handleExplain(
+                                    currentResult.invMethodGrossProfitRate != null
+                                      ? 'invMethodGrossProfitRate'
+                                      : 'estMethodMarginRate',
+                                  )
+                              : undefined
+                          }
+                          title={rec.sales > 0 ? '算出根拠を表示' : undefined}
+                        >
                           {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
                         </RateTd>
                       )
@@ -554,6 +568,11 @@ export function DailyPage() {
                                   : ('good' as const)
                               : undefined
                           }
+                          $clickable={rec.grossSales > 0}
+                          onClick={
+                            rec.grossSales > 0 ? () => handleExplain('discountRate') : undefined
+                          }
+                          title={rec.grossSales > 0 ? '算出根拠を表示' : undefined}
                         >
                           {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
                         </RateTd>

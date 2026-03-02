@@ -39,6 +39,7 @@
  * @see divisorRules.test.ts — アーキテクチャガードテスト
  * @see PeriodFilter.test.ts — 技術ルール準拠テスト
  */
+import { memo } from 'react'
 import styled from 'styled-components'
 import type { AggregateMode } from './periodFilterUtils'
 import type { PeriodFilterResult, HierarchyFilterResult } from './periodFilterHooks'
@@ -194,7 +195,11 @@ const MODE_LABELS: Record<AggregateMode, string> = {
 
 const DOW_LABELS_FILTER = ['日', '月', '火', '水', '木', '金', '土'] as const
 
-export function PeriodFilterBar({ pf, daysInMonth, elapsedDays }: PeriodFilterBarProps) {
+export const PeriodFilterBar = memo(function PeriodFilterBar({
+  pf,
+  daysInMonth,
+  elapsedDays,
+}: PeriodFilterBarProps) {
   const isDefault = pf.dayRange[0] === 1 && pf.dayRange[1] === pf.defaultEndDay
   const exceedsValidPeriod = elapsedDays != null && elapsedDays > 0 && pf.dayRange[1] > elapsedDays
 
@@ -260,7 +265,7 @@ export function PeriodFilterBar({ pf, daysInMonth, elapsedDays }: PeriodFilterBa
       )}
     </Bar>
   )
-}
+})
 
 /* ── HierarchyDropdowns UI ─────────────────────────────── */
 

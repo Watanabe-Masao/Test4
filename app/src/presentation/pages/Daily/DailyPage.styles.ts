@@ -151,7 +151,7 @@ export const ToggleIcon = styled.span<{ $expanded?: boolean }>`
     `}
 `
 
-export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad' }>`
+export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad'; $clickable?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -164,4 +164,13 @@ export const RateTd = styled.td<{ $status?: 'good' | 'warn' | 'bad' }>`
         : $status === 'bad'
           ? theme.colors.palette.danger
           : theme.colors.text3};
+  ${({ $clickable, theme }) =>
+    $clickable &&
+    `
+    cursor: pointer;
+    transition: background ${theme.transitions.fast};
+    &:hover {
+      background: ${theme.colors.bg4};
+    }
+  `}
 `

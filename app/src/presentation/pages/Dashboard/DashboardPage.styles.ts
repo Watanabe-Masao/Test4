@@ -554,17 +554,19 @@ export const CalDayCell = styled.div<{
   $pinned?: boolean
   $inInterval?: boolean
   $rangeColor?: string
+  /** 'A' = dashed outline, 'B' = solid outline */
+  $rangeType?: 'A' | 'B'
 }>`
   position: relative;
   height: 100%;
   padding: 2px;
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: background 0.15s;
-  ${({ $rangeColor, theme }) =>
+  ${({ $rangeColor, $rangeType, theme }) =>
     $rangeColor
       ? `
     background: ${theme.mode === 'dark' ? `${$rangeColor}30` : `${$rangeColor}1a`};
-    outline: 2px solid ${$rangeColor};
+    outline: 2px ${$rangeType === 'A' ? 'dashed' : 'solid'} ${$rangeColor};
     outline-offset: -2px;
   `
       : ''}

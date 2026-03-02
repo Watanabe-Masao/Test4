@@ -286,6 +286,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             ? palette.primary
                             : undefined
                       }
+                      $rangeType={isDayInRangeA(day) ? 'A' : isDayInRangeB(day) ? 'B' : undefined}
                     >
                       <CalDayHeader>
                         <CalDayNum $weekend={isWeekend}>{day}</CalDayNum>

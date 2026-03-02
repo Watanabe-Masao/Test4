@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import styled from 'styled-components'
 
 const SliderRow = styled.div`
@@ -165,7 +165,14 @@ interface Props {
   elapsedDays?: number
 }
 
-export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: Props) {
+export const DayRangeSlider = memo(function DayRangeSlider({
+  min,
+  max,
+  start,
+  end,
+  onChange,
+  elapsedDays,
+}: Props) {
   const leftPct = ((start - min) / (max - min)) * 100
   const rightPct = ((max - end) / (max - min)) * 100
   const isFullRange = start === min && end === max
@@ -275,4 +282,4 @@ export function DayRangeSlider({ min, max, start, end, onChange, elapsedDays }: 
       {exceedsValidPeriod && <WarningLabel>{elapsedDays}日以降はデータなし</WarningLabel>}
     </SliderRow>
   )
-}
+})
