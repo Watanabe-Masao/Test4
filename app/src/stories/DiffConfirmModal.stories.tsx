@@ -98,9 +98,7 @@ function DiffModalRender({ diffResult }: { diffResult: DiffResult }) {
         <Button $variant="primary" onClick={() => setOpen(true)}>
           差分確認ダイアログを開く
         </Button>
-        {lastAction && (
-          <span style={{ fontSize: 12, color: '#666' }}>選択: {lastAction}</span>
-        )}
+        {lastAction && <span style={{ fontSize: 12, color: '#666' }}>選択: {lastAction}</span>}
       </div>
       {open && (
         <DiffConfirmModal

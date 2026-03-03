@@ -41,7 +41,13 @@ export const AllTypes: Story = {
       <UploadCard dataType="purchase" label="仕入" loaded={false} onFile={noop} />
       <UploadCard dataType="classifiedSales" label="分類別売上" loaded={true} onFile={noop} />
       <UploadCard dataType="budget" label="予算" loaded={false} onFile={noop} />
-      <UploadCard dataType="consumables" label="消耗品" loaded={true} filename="cons.csv" onFile={noop} />
+      <UploadCard
+        dataType="consumables"
+        label="消耗品"
+        loaded={true}
+        filename="cons.csv"
+        onFile={noop}
+      />
       <UploadCard dataType="categoryTimeSales" label="時間帯売上" loaded={false} onFile={noop} />
       <UploadCard dataType="flowers" label="花" loaded={true} maxDay={15} onFile={noop} />
     </div>

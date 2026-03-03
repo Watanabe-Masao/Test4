@@ -238,9 +238,7 @@ describe('Engine responsibility ↔ code consistency', () => {
 
     expect(modules.size).toBeGreaterThan(0)
 
-    const missing = [...modules].filter(
-      (mod) => !fileExists(`app/src/domain/calculations/${mod}`),
-    )
+    const missing = [...modules].filter((mod) => !fileExists(`app/src/domain/calculations/${mod}`))
     expect(missing).toEqual([])
   })
 
@@ -313,15 +311,9 @@ describe('Role protocol bidirectional consistency', () => {
       while ((match = protocolPattern.exec(section)) !== null) {
         const counterpart = match[1]
         // 汎用表現・グループ参照はスキップ
-        if (
-          counterpart === '全ロール' ||
-          counterpart === '人間' ||
-          counterpart.includes('*')
-        )
+        if (counterpart === '全ロール' || counterpart === '人間' || counterpart.includes('*'))
           continue
-        expect(
-          Object.keys(roleNameToPath),
-        ).toContain(counterpart)
+        expect(Object.keys(roleNameToPath)).toContain(counterpart)
       }
     }
   })

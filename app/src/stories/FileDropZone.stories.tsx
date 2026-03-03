@@ -16,5 +16,11 @@ export default meta
 
 export const Default: StoryObj<typeof FileDropZone> = {
   args: { onFiles: noop },
-  decorators: [(Story) => <div style={{ width: 400 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 400 }}>
+        <Story />
+      </div>
+    ),
+  ],
 }
