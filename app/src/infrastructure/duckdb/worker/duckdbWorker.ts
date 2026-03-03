@@ -218,15 +218,21 @@ async function handleCheckIntegrity(requestId: number): Promise<void> {
       // テーブルなし
     }
 
-    // データ存在チェック
+    // データ存在チェック（テーブル存在を先に確認してエラーログ抑止）
     let monthCount = 0
     try {
-      const countResult = await conn.query(
-        `SELECT COUNT(DISTINCT year || '-' || month) AS cnt FROM classified_sales`,
+      const tableCheck = await conn.query(
+        `SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_name = 'classified_sales'`,
       )
-      const countRows = countResult.toArray()
-      if (countRows.length > 0) {
-        monthCount = Number(countRows[0].cnt)
+      const tableExists = Number(tableCheck.toArray()[0].cnt) > 0
+      if (tableExists) {
+        const countResult = await conn.query(
+          `SELECT COUNT(DISTINCT year || '-' || month) AS cnt FROM classified_sales`,
+        )
+        const countRows = countResult.toArray()
+        if (countRows.length > 0) {
+          monthCount = Number(countRows[0].cnt)
+        }
       }
     } catch {
       // テーブルなし
@@ -429,43 +435,66 @@ async function handleDispose(requestId: number): Promise<void> {
   }
 }
 
+// ── メッセージキュー（直列化） ──
+// async ハンドラを await せずに並行起動すると、resetTables の DROP → CREATE 間に
+// 別のクエリが割り込み「Table does not exist」エラーを引き起こす。
+// 全メッセージを直列処理することでこの競合を防止する。
+
+let processing = false
+const messageQueue: DuckDBWorkerRequest[] = []
+
+async function processNext(): Promise<void> {
+  if (processing || messageQueue.length === 0) return
+  processing = true
+  const msg = messageQueue.shift()!
+  try {
+    await dispatch(msg)
+  } finally {
+    processing = false
+    void processNext()
+  }
+}
+
+async function dispatch(msg: DuckDBWorkerRequest): Promise<void> {
+  switch (msg.type) {
+    case 'initialize':
+      await handleInitialize(msg.requestId)
+      break
+    case 'resetTables':
+      await handleResetTables(msg.requestId)
+      break
+    case 'loadMonth':
+      await handleLoadMonth(msg.requestId, msg.data, msg.year, msg.month)
+      break
+    case 'deleteMonth':
+      await handleDeleteMonth(msg.requestId, msg.year, msg.month)
+      break
+    case 'query':
+      await handleQuery(msg.requestId, msg.sql)
+      break
+    case 'checkIntegrity':
+      await handleCheckIntegrity(msg.requestId)
+      break
+    case 'exportParquet':
+      await handleExportParquet(msg.requestId)
+      break
+    case 'importParquet':
+      await handleImportParquet(msg.requestId)
+      break
+    case 'generateReport':
+      await handleGenerateReport(msg.requestId, msg.sql)
+      break
+    case 'dispose':
+      await handleDispose(msg.requestId)
+      break
+  }
+}
+
 // ── Worker エントリポイント ──
 
 self.onmessage = (event: MessageEvent<DuckDBWorkerRequest>) => {
-  const msg = event.data
-
-  switch (msg.type) {
-    case 'initialize':
-      handleInitialize(msg.requestId)
-      break
-    case 'resetTables':
-      handleResetTables(msg.requestId)
-      break
-    case 'loadMonth':
-      handleLoadMonth(msg.requestId, msg.data, msg.year, msg.month)
-      break
-    case 'deleteMonth':
-      handleDeleteMonth(msg.requestId, msg.year, msg.month)
-      break
-    case 'query':
-      handleQuery(msg.requestId, msg.sql)
-      break
-    case 'checkIntegrity':
-      handleCheckIntegrity(msg.requestId)
-      break
-    case 'exportParquet':
-      handleExportParquet(msg.requestId)
-      break
-    case 'importParquet':
-      handleImportParquet(msg.requestId)
-      break
-    case 'generateReport':
-      handleGenerateReport(msg.requestId, msg.sql)
-      break
-    case 'dispose':
-      handleDispose(msg.requestId)
-      break
-  }
+  messageQueue.push(event.data)
+  void processNext()
 }
 
 // Worker がロードされたことを通知
