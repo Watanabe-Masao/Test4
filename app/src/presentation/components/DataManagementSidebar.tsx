@@ -508,7 +508,7 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'interStoreIn', label: '5_店間入' },
   { type: 'purchase', label: '6_仕入' },
   { type: 'categoryTimeSales', label: '7.分類別時間帯売上', multi: true },
-  { type: 'consumables', label: '8.消耗品', multi: true },
+  { type: 'consumables', label: '8.原価算入費', multi: true },
   { type: 'initialSettings', label: '999_初期設定' },
 ]
 
@@ -961,10 +961,10 @@ export function DataManagementSidebar({
                       />
                     </InventoryRow>
                     <InventoryRow>
-                      <InventoryLabel>消耗品</InventoryLabel>
+                      <InventoryLabel>原価算入費</InventoryLabel>
                       <BlurCommitInput
                         value={cfg?.consumableInventory}
-                        placeholder="消耗品在庫"
+                        placeholder="原価算入費在庫"
                         onCommit={(val) => {
                           useDataStore
                             .getState()
