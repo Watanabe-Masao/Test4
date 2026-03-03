@@ -27,7 +27,7 @@
 
 | ロール | 位置づけ | 渡し先 |
 |---|---|---|
-| pm-business | **マネージャー** 兼 要件の入口。タスク分解→連携指示→完了判定 | → architecture/implementation |
+| pm-business | **指示者** 兼 要件の入口。タスク分解→エージェント割り当て→完了判定 | → architecture/implementation |
 | review-gate | 品質の出口。pm-business の受入基準と照合 | → implementation or → documentation-steward |
 | documentation-steward | 全過程の記録 | → CLAUDE.md / references/ |
 
@@ -44,18 +44,20 @@
 ### タスク完遂フロー
 
 ```
-人間 → pm-business（★マネージャー: タスク分解・連携指示）
+人間 → pm-business（★指示者: タスク分解・エージェント割り当て）
           │
-          ├→ architecture（設計判断）
-          │      │  報告↑ ↓連携
-          │      ▼
-          └→ implementation ← → specialist/*
-                    │  相談↑↓連携     ↑報告
-                    ▼
-              review-gate（pm-business の受入基準と照合）
-                 報告→ pm-business
-                 PASS → documentation-steward → 完了
-                 FAIL → implementation（差し戻し）
+          │  タスクにエージェントを割り当て
+          │
+          ├→ [タスク] ← architecture（設計判断）
+          │                │  報告↑ ↓連携
+          │                ▼
+          └→ [タスク] ← implementation ← → specialist/*
+                              │  相談↑↓連携     ↑報告
+                              ▼
+                        review-gate（pm-business の受入基準と照合）
+                           報告→ pm-business
+                           PASS → documentation-steward → 完了
+                           FAIL → implementation（差し戻し）
 ```
 
 ### 連携プロトコル（報告・連携・相談）
@@ -71,13 +73,36 @@
 
 ### タスク規模別フロー
 
-全タスクが同じフローを通る必要はない。規模に応じてショートカットする。
+**全タスクは必ず pm-business（指示者）を経由する。** pm-business がタスクを分析し、
+規模に応じてタスクに適切なロールのエージェント（作業者）を割り当てる。
 
 | 規模 | 判定基準 | フロー |
 |---|---|---|
-| **Small** | 1ファイル変更、既存パターン踏襲 | implementation → review-gate セルフチェック |
-| **Medium** | 複数ファイル、既知パターン | implementation ← → specialist → review-gate |
+| **Small** | 1ファイル変更、既存パターン踏襲 | pm-business → implementation → review-gate セルフチェック |
+| **Medium** | 複数ファイル、既知パターン | pm-business → implementation ← → specialist → review-gate |
 | **Large** | 層跨ぎ、新パターン導入 | pm-business → architecture → implementation ← → specialist → review-gate |
+
+### エージェント実行モデル
+
+pm-business は**指示者**、各ロールは**作業者**である。
+タスクが主語であり、pm-business はタスクに必要なロールのエージェントを割り当てる。
+
+```
+人間 → pm-business（指示者: タスク分析・規模判定）
+          │
+          │  タスクにエージェントを割り当て（Agent ツール）
+          │
+          ├→ [タスク] ← architecture エージェント    （Large のみ）
+          ├→ [タスク] ← implementation エージェント  （全規模）
+          ├→ [タスク] ← specialist/* エージェント    （Medium/Large）
+          └→ [タスク] ← review-gate エージェント     （全規模）
+```
+
+**原則:**
+- pm-business をスキップしてはならない（規模が Small でも必ず経由する）
+- pm-business がタスク分解書を作成してからエージェントを割り当てる
+- タスクに割り当てられたエージェントは、自分の ROLE.md の Scope 内でのみ作業する
+- エージェントにタスクを割り当てるのではなく、タスクにエージェントを割り当てる
 
 ### ルーティング表
 
