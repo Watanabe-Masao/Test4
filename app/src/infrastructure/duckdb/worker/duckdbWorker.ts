@@ -15,9 +15,17 @@ import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'
 import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url'
 import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url'
 import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
-import type { DuckDBWorkerRequest, DuckDBWorkerResponse, WorkerDBState } from './types'
+import type {
+  DuckDBWorkerRequest,
+  DuckDBWorkerResponse,
+  WorkerDBState,
+  IntegrityCheckResult,
+  ParquetExportResult,
+  ParquetImportResult,
+  ReportGenerateResult,
+} from './types'
 import { resetTables, loadMonth, deleteMonth } from '../dataLoader'
-import { SCHEMA_VERSION } from '../schemas'
+import { SCHEMA_VERSION, TABLE_NAMES } from '../schemas'
 
 // ── Worker 内部状態 ──
 
@@ -27,6 +35,15 @@ let state: WorkerDBState = 'idle'
 let isOpfsPersisted = false
 
 const OPFS_DB_PATH = 'opfs://shiire-arari.duckdb'
+
+/**
+ * Parquet キャッシュ用 OPFS パス。
+ * テーブルごとに `opfs://parquet-cache/<table>.parquet` に保存する。
+ */
+const PARQUET_CACHE_DIR = 'parquet-cache'
+function parquetPath(tableName: string): string {
+  return `opfs://${PARQUET_CACHE_DIR}/${tableName}.parquet`
+}
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -215,7 +232,181 @@ async function handleCheckIntegrity(requestId: number): Promise<void> {
       // テーブルなし
     }
 
-    sendResult(requestId, { schemaValid, monthCount, isOpfsPersisted })
+    // Parquet キャッシュ存在チェック
+    const hasParquetCache = await checkParquetCacheExists()
+
+    const result: IntegrityCheckResult = {
+      schemaValid,
+      monthCount,
+      isOpfsPersisted,
+      hasParquetCache,
+    }
+    sendResult(requestId, result)
+  } catch (err) {
+    sendError(requestId, err instanceof Error ? err.message : String(err))
+  }
+}
+
+/**
+ * OPFS 上に Parquet キャッシュディレクトリが存在し、
+ * 少なくとも classified_sales.parquet があるか確認する。
+ */
+async function checkParquetCacheExists(): Promise<boolean> {
+  try {
+    const root = await navigator.storage.getDirectory()
+    const cacheDir = await root.getDirectoryHandle(PARQUET_CACHE_DIR)
+    // classified_sales が存在すればキャッシュありと判定
+    await cacheDir.getFileHandle('classified_sales.parquet')
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 全テーブルを Parquet 形式で OPFS にエクスポートする。
+ * データロード完了後に呼び出し、次回起動時の高速リロードに使用する。
+ */
+async function handleExportParquet(requestId: number): Promise<void> {
+  if (!conn || !db) {
+    sendError(requestId, 'Not initialized')
+    return
+  }
+  try {
+    const start = performance.now()
+    let tablesExported = 0
+    let totalRows = 0
+
+    // OPFS キャッシュディレクトリを確保
+    try {
+      const root = await navigator.storage.getDirectory()
+      await root.getDirectoryHandle(PARQUET_CACHE_DIR, { create: true })
+    } catch {
+      // OPFS 未対応の場合はスキップ
+      const result: ParquetExportResult = { tablesExported: 0, totalRows: 0, durationMs: 0 }
+      sendResult(requestId, result)
+      return
+    }
+
+    // app_settings 以外の全テーブルを Parquet にエクスポート
+    const exportTargets = TABLE_NAMES.filter((n) => n !== 'app_settings')
+    for (const tableName of exportTargets) {
+      try {
+        const countResult = await conn.query(`SELECT COUNT(*) AS cnt FROM ${tableName}`)
+        const countRows = countResult.toArray()
+        const rowCount = Number(countRows[0].cnt)
+        if (rowCount === 0) continue
+
+        const path = parquetPath(tableName)
+        await conn.query(`COPY ${tableName} TO '${path}' (FORMAT PARQUET, COMPRESSION ZSTD)`)
+        tablesExported += 1
+        totalRows += rowCount
+      } catch {
+        // 個別テーブルの失敗は無視して続行
+        console.warn(`Parquet export skipped: ${tableName}`)
+      }
+    }
+
+    const result: ParquetExportResult = {
+      tablesExported,
+      totalRows,
+      durationMs: performance.now() - start,
+    }
+    sendResult(requestId, result)
+  } catch (err) {
+    sendError(requestId, err instanceof Error ? err.message : String(err))
+  }
+}
+
+/**
+ * OPFS 上の Parquet ファイルからテーブルにデータをインポートする。
+ * OPFS 永続 DB のデータが空で Parquet キャッシュが存在する場合に使用する。
+ * JSON ロードより大幅に高速（列指向 + ZSTD 圧縮）。
+ */
+async function handleImportParquet(requestId: number): Promise<void> {
+  if (!conn) {
+    sendError(requestId, 'Not initialized')
+    return
+  }
+  try {
+    const start = performance.now()
+    let tablesImported = 0
+    let totalRows = 0
+
+    // テーブルをリセットしてからインポート
+    await resetTables(conn)
+
+    const importTargets = TABLE_NAMES.filter((n) => n !== 'app_settings')
+    for (const tableName of importTargets) {
+      try {
+        const path = parquetPath(tableName)
+        await conn.query(`INSERT INTO ${tableName} SELECT * FROM read_parquet('${path}')`)
+        const countResult = await conn.query(`SELECT COUNT(*) AS cnt FROM ${tableName}`)
+        const countRows = countResult.toArray()
+        const rowCount = Number(countRows[0].cnt)
+        if (rowCount > 0) {
+          tablesImported += 1
+          totalRows += rowCount
+        }
+      } catch {
+        // Parquet ファイルが存在しないテーブルはスキップ
+      }
+    }
+
+    const result: ParquetImportResult = {
+      tablesImported,
+      totalRows,
+      durationMs: performance.now() - start,
+    }
+    sendResult(requestId, result)
+  } catch (err) {
+    sendError(requestId, err instanceof Error ? err.message : String(err))
+  }
+}
+
+/**
+ * Worker 内で SQL クエリを実行し CSV 文字列を生成する。
+ * メインスレッドのブロックを回避してレポートエクスポートを行う。
+ */
+async function handleGenerateReport(requestId: number, sql: string): Promise<void> {
+  if (!conn) {
+    sendError(requestId, 'Not initialized')
+    return
+  }
+  try {
+    const queryResult = await conn.query(sql)
+    const rows = queryResult.toArray()
+    const objects = rows.map((row) => structRowToObject(row as Record<string, unknown>))
+
+    if (objects.length === 0) {
+      const result: ReportGenerateResult = { csvContent: '', rowCount: 0 }
+      sendResult(requestId, result)
+      return
+    }
+
+    // ヘッダー行を生成
+    const headers = Object.keys(objects[0])
+    const csvRows: string[] = [headers.join(',')]
+
+    // データ行を生成
+    for (const obj of objects) {
+      const values = headers.map((h) => {
+        const val = obj[h]
+        if (val == null) return ''
+        const s = String(val)
+        if (s.includes(',') || s.includes('\n') || s.includes('"')) {
+          return `"${s.replace(/"/g, '""')}"`
+        }
+        return s
+      })
+      csvRows.push(values.join(','))
+    }
+
+    const result: ReportGenerateResult = {
+      csvContent: csvRows.join('\r\n'),
+      rowCount: objects.length,
+    }
+    sendResult(requestId, result)
   } catch (err) {
     sendError(requestId, err instanceof Error ? err.message : String(err))
   }
@@ -261,6 +452,15 @@ self.onmessage = (event: MessageEvent<DuckDBWorkerRequest>) => {
       break
     case 'checkIntegrity':
       handleCheckIntegrity(msg.requestId)
+      break
+    case 'exportParquet':
+      handleExportParquet(msg.requestId)
+      break
+    case 'importParquet':
+      handleImportParquet(msg.requestId)
+      break
+    case 'generateReport':
+      handleGenerateReport(msg.requestId, msg.sql)
       break
     case 'dispose':
       handleDispose(msg.requestId)

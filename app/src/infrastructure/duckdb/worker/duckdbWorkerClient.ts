@@ -14,7 +14,15 @@
  * const rows = await client.query<MyRow>('SELECT * FROM table')
  * ```
  */
-import type { DuckDBWorkerRequest, DuckDBWorkerResponse, WorkerDBState } from './types'
+import type {
+  DuckDBWorkerRequest,
+  DuckDBWorkerResponse,
+  WorkerDBState,
+  IntegrityCheckResult,
+  ParquetExportResult,
+  ParquetImportResult,
+  ReportGenerateResult,
+} from './types'
 import type { ImportedData } from '@/domain/models'
 import type { LoadResult } from '../dataLoader'
 
@@ -113,13 +121,49 @@ export class DuckDBWorkerClient {
 
   /**
    * DB 整合性チェック。
+   * OPFS 永続化状態、スキーマバージョン、データ月数、Parquet キャッシュ有無を返す。
    */
-  async checkIntegrity(): Promise<{
-    schemaValid: boolean
-    monthCount: number
-    isOpfsPersisted: boolean
-  }> {
-    return this._sendRequest({ type: 'checkIntegrity', requestId: 0 }, this._queryTimeout)
+  async checkIntegrity(): Promise<IntegrityCheckResult> {
+    return this._sendRequest<IntegrityCheckResult>(
+      { type: 'checkIntegrity', requestId: 0 },
+      this._queryTimeout,
+    )
+  }
+
+  /**
+   * 全テーブルを Parquet 形式で OPFS にエクスポートする。
+   * データロード完了後に呼び出し、次回起動時の高速リロードに使用する。
+   */
+  async exportParquet(): Promise<ParquetExportResult> {
+    return this._sendRequest<ParquetExportResult>(
+      { type: 'exportParquet', requestId: 0 },
+      this._queryTimeout,
+    )
+  }
+
+  /**
+   * OPFS 上の Parquet キャッシュからテーブルにインポートする。
+   * JSON ロードより大幅に高速（列指向 + ZSTD 圧縮）。
+   */
+  async importParquet(): Promise<ParquetImportResult> {
+    return this._sendRequest<ParquetImportResult>(
+      { type: 'importParquet', requestId: 0 },
+      this._queryTimeout,
+    )
+  }
+
+  /**
+   * Worker 内で SQL クエリを実行し CSV レポートを生成する。
+   * メインスレッドのブロックを回避して重いレポートエクスポートを行う。
+   */
+  async generateReport(
+    reportType: 'dailySales' | 'storeKpi' | 'monthlyPL',
+    sql: string,
+  ): Promise<ReportGenerateResult> {
+    return this._sendRequest<ReportGenerateResult>(
+      { type: 'generateReport', reportType, sql, requestId: 0 },
+      this._queryTimeout,
+    )
   }
 
   /**

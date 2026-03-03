@@ -14,6 +14,14 @@ export type { TableName } from './schemas'
 export { resetTables, loadMonth } from './dataLoader'
 export type { LoadResult } from './dataLoader'
 
+// OPFS 永続化
+export {
+  determineReloadStrategy,
+  scheduleParquetExport,
+  clearParquetCache,
+} from './opfsPersistence'
+export type { OpfsReloadStrategy, OpfsCheckResult } from './opfsPersistence'
+
 // クエリランナー
 export { queryToObjects, queryScalar, buildWhereClause, storeIdFilter } from './queryRunner'
 
