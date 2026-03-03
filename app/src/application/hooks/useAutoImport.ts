@@ -18,9 +18,32 @@ import {
 /** インポート対象の拡張子 */
 const IMPORTABLE_EXTENSIONS = ['.xlsx', '.xls', '.csv'] as const
 
+/** localStorage キー（処理済みファイル指紋を永続化） */
+const PROCESSED_FILES_KEY = 'shiire-arari-import-processed'
+
 /** 処理済みファイルの識別子（名前 + サイズ + 最終更新日時） */
 function fileFingerprint(name: string, size: number, lastModified: number): string {
   return `${name}|${size}|${lastModified}`
+}
+
+/** 処理済みファイル指紋を localStorage から復元する */
+function loadProcessedFingerprints(): Set<string> {
+  try {
+    const raw = localStorage.getItem(PROCESSED_FILES_KEY)
+    if (!raw) return new Set()
+    return new Set(JSON.parse(raw) as string[])
+  } catch {
+    return new Set()
+  }
+}
+
+/** 処理済みファイル指紋を localStorage に保存する */
+function saveProcessedFingerprints(fingerprints: Set<string>): void {
+  try {
+    localStorage.setItem(PROCESSED_FILES_KEY, JSON.stringify([...fingerprints]))
+  } catch {
+    // ストレージ容量超過は無視（RAMのみで動作を継続）
+  }
 }
 
 export interface AutoImportState {
@@ -60,8 +83,8 @@ export function useAutoImport(
   const [lastImportCount, setLastImportCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  /** 処理済みファイルの指紋セット */
-  const processedRef = useRef(new Set<string>())
+  /** 処理済みファイルの指紋セット（localStorage から復元） */
+  const processedRef = useRef(loadProcessedFingerprints())
 
   // 起動時に保存済みハンドルを復元
   const initRef = useRef(false)
@@ -82,7 +105,8 @@ export function useAutoImport(
       setDirHandle(handle)
       setFolderName(handle.name)
       setError(null)
-      processedRef.current.clear()
+      processedRef.current = new Set()
+      saveProcessedFingerprints(processedRef.current)
       return true
     }
     return false
@@ -95,7 +119,8 @@ export function useAutoImport(
     setLastScanAt(null)
     setLastImportCount(0)
     setError(null)
-    processedRef.current.clear()
+    processedRef.current = new Set()
+    saveProcessedFingerprints(processedRef.current)
   }, [])
 
   const scanNow = useCallback(async (): Promise<File[]> => {
@@ -112,6 +137,11 @@ export function useAutoImport(
         if (processedRef.current.has(fp)) continue
         processedRef.current.add(fp)
         newFiles.push(file)
+      }
+
+      // 新しい指紋を永続化
+      if (newFiles.length > 0) {
+        saveProcessedFingerprints(processedRef.current)
       }
 
       setLastScanAt(new Date().toISOString())

@@ -22,7 +22,7 @@
  * ```
  */
 import type { DataRepository } from '@/domain/repositories'
-import type { ImportedData, BudgetData, AppSettings } from '@/domain/models'
+import type { ImportedData, BudgetData, AppSettings, ImportHistoryEntry } from '@/domain/models'
 import { budgetFromSerializable } from './internal/serialization'
 import { writeFile, pruneOldFiles } from './folderAccess'
 
@@ -44,6 +44,8 @@ interface BackupMonthData {
   readonly year: number
   readonly month: number
   readonly data: ImportedData
+  /** v2+: インポート履歴 */
+  readonly importHistory?: readonly ImportHistoryEntry[]
 }
 
 /** バックアップファイル全体の構造 (v2) */
@@ -61,6 +63,8 @@ export interface BackupImportResult {
   readonly errors: readonly string[]
   /** v2: 復元された AppSettings (呼び出し側で適用する) */
   readonly restoredAppSettings?: AppSettings
+  /** v2: 復元されたインポート履歴の月数 */
+  readonly importHistoryRestored: number
 }
 
 // ─── JSON → Map 復元ヘルパー ─────────────────────────────
@@ -162,7 +166,13 @@ class BackupExporter {
     for (const { year, month } of storedMonths) {
       const data = await repo.loadMonthlyData(year, month)
       if (data) {
-        months.push({ year, month, data })
+        const importHistory = await repo.loadImportHistory(year, month)
+        months.push({
+          year,
+          month,
+          data,
+          importHistory: importHistory.length > 0 ? importHistory : undefined,
+        })
       }
     }
 
@@ -222,6 +232,7 @@ class BackupExporter {
         monthsImported: 0,
         monthsSkipped: 0,
         errors: [`Unsupported backup format version: ${backup.meta?.formatVersion}`],
+        importHistoryRestored: 0,
       }
     }
 
@@ -240,12 +251,14 @@ class BackupExporter {
           errors: [
             `Checksum mismatch: backup may be corrupted (expected ${backup.meta.checksum.slice(0, 8)}..., got ${computed.slice(0, 8)}...)`,
           ],
+          importHistoryRestored: 0,
         }
       }
     }
 
     let monthsImported = 0
     let monthsSkipped = 0
+    let importHistoryRestored = 0
     const errors: string[] = []
     const overwrite = options?.overwriteExisting ?? false
 
@@ -264,6 +277,14 @@ class BackupExporter {
         const hydrated = hydrateImportedData(monthData.data)
         await repo.saveMonthlyData(hydrated, monthData.year, monthData.month)
         monthsImported++
+
+        // v2: インポート履歴を復元
+        if (monthData.importHistory && monthData.importHistory.length > 0) {
+          for (const entry of monthData.importHistory) {
+            await repo.saveImportHistory(monthData.year, monthData.month, entry)
+          }
+          importHistoryRestored++
+        }
       } catch (err) {
         errors.push(
           `${monthData.year}-${monthData.month}: ${err instanceof Error ? err.message : String(err)}`,
@@ -276,6 +297,7 @@ class BackupExporter {
       monthsSkipped,
       errors,
       restoredAppSettings: backup.appSettings ?? undefined,
+      importHistoryRestored,
     }
   }
 

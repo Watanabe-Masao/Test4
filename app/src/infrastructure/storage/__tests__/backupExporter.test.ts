@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { backupExporter } from '../backupExporter'
 import type { DataRepository } from '@/domain/repositories'
-import type { ImportedData, BudgetData, AppSettings } from '@/domain/models'
+import type { ImportedData, BudgetData, AppSettings, ImportHistoryEntry } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 import { createDefaultSettings } from '@/domain/constants/defaults'
 
@@ -72,7 +72,7 @@ function createMockRepo(data: ImportedData): DataRepository {
     clearAllData: vi.fn().mockResolvedValue(undefined),
     getDataSummary: vi.fn().mockResolvedValue([]),
     saveImportHistory: vi.fn().mockResolvedValue(undefined),
-    loadImportHistory: vi.fn().mockResolvedValue(null),
+    loadImportHistory: vi.fn().mockResolvedValue([]),
     saveSummaryCache: vi.fn().mockResolvedValue(undefined),
     loadSummaryCache: vi.fn().mockResolvedValue(null),
   } as unknown as DataRepository
@@ -425,6 +425,83 @@ describe('backupExporter', () => {
       expect(meta).not.toBeNull()
       expect(meta!.formatVersion).toBe(2)
       expect(meta!.checksum).toBeDefined()
+    })
+  })
+
+  describe('v2: ImportHistory', () => {
+    const testHistory: ImportHistoryEntry[] = [
+      {
+        importedAt: '2025-01-15T10:30:00.000Z',
+        files: [
+          {
+            filename: 'sales.xlsx',
+            type: 'classifiedSales',
+            typeName: '部門別売上',
+            rowCount: 100,
+          },
+          { filename: 'purchase.csv', type: 'purchase', typeName: '仕入', rowCount: 50 },
+        ],
+        successCount: 2,
+        failureCount: 0,
+      },
+    ]
+
+    it('インポート履歴がバックアップに含まれること', async () => {
+      const testData = createTestData()
+      const repo = {
+        ...createMockRepo(testData),
+        loadImportHistory: vi.fn().mockResolvedValue(testHistory),
+      } as unknown as DataRepository
+
+      const blob = await backupExporter.exportBackup(repo)
+      const text = await blob.text()
+      const parsed = JSON.parse(text)
+
+      expect(parsed.months[0].importHistory).toBeDefined()
+      expect(parsed.months[0].importHistory).toHaveLength(1)
+      expect(parsed.months[0].importHistory[0].files).toHaveLength(2)
+      expect(parsed.months[0].importHistory[0].files[0].filename).toBe('sales.xlsx')
+    })
+
+    it('import でインポート履歴が復元されること', async () => {
+      const testData = createTestData()
+      const exportRepo = {
+        ...createMockRepo(testData),
+        loadImportHistory: vi.fn().mockResolvedValue(testHistory),
+      } as unknown as DataRepository
+
+      const blob = await backupExporter.exportBackup(exportRepo)
+
+      const saveHistoryMock = vi.fn().mockResolvedValue(undefined)
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+        saveImportHistory: saveHistoryMock,
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.importHistoryRestored).toBe(1)
+      expect(saveHistoryMock).toHaveBeenCalledTimes(1)
+      expect(saveHistoryMock).toHaveBeenCalledWith(2025, 1, testHistory[0])
+    })
+
+    it('履歴なしの月は importHistoryRestored が 0', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData) // loadImportHistory returns []
+
+      const blob = await backupExporter.exportBackup(exportRepo)
+
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.importHistoryRestored).toBe(0)
     })
   })
 

@@ -53,7 +53,12 @@ export function useBackup(repo: DataRepository | null): {
   const importBackup = useCallback(
     async (file: File, overwrite = false): Promise<BackupImportResult> => {
       if (!repo) {
-        return { monthsImported: 0, monthsSkipped: 0, errors: ['Repository not available'] }
+        return {
+          monthsImported: 0,
+          monthsSkipped: 0,
+          errors: ['Repository not available'],
+          importHistoryRestored: 0,
+        }
       }
       setIsImporting(true)
       try {

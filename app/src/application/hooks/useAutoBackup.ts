@@ -85,23 +85,45 @@ export function useAutoBackup(
     setError(null)
   }, [])
 
+  /** 排他制御: 進行中の Promise を保持し、多重実行を防止する */
+  const runningRef = useRef<Promise<string | null> | null>(null)
+
   const backupNow = useCallback(async (): Promise<string | null> => {
     if (!repo || !dirHandle) return null
-    setIsBacking(true)
-    setError(null)
-    try {
-      const appSettings = useSettingsStore.getState().settings
-      const fileName = await backupExporter.exportToFolder(repo, dirHandle, 5, appSettings)
-      const now = new Date().toISOString()
-      setLastBackupAt(now)
-      return fileName
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      setError(msg)
-      return null
-    } finally {
-      setIsBacking(false)
-    }
+    // 多重実行防止: 前回のバックアップが進行中ならスキップ
+    if (runningRef.current) return null
+
+    const task = (async () => {
+      setIsBacking(true)
+      setError(null)
+      try {
+        // 権限を再確認（ユーザーが取り消している可能性がある）
+        const perm = await dirHandle.queryPermission({ mode: 'readwrite' })
+        if (perm !== 'granted') {
+          const req = await dirHandle.requestPermission({ mode: 'readwrite' })
+          if (req !== 'granted') {
+            setError('フォルダへの書き込み権限がありません')
+            return null
+          }
+        }
+
+        const appSettings = useSettingsStore.getState().settings
+        const fileName = await backupExporter.exportToFolder(repo, dirHandle, 5, appSettings)
+        const now = new Date().toISOString()
+        setLastBackupAt(now)
+        return fileName
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        setError(msg)
+        return null
+      } finally {
+        setIsBacking(false)
+        runningRef.current = null
+      }
+    })()
+
+    runningRef.current = task
+    return task
   }, [repo, dirHandle])
 
   // triggerKey が変わるたびにデバウンスで自動バックアップ
