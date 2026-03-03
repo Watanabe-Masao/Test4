@@ -13,7 +13,6 @@ import {
   PageSkeleton,
 } from '@/presentation/components/common'
 import { DataManagementSidebar } from '@/presentation/components/DataManagementSidebar'
-import { RestoreDataModal } from '@/presentation/components/common/RestoreDataModal'
 import {
   useKeyboardShortcuts,
   useUndoRedo,
@@ -125,17 +124,8 @@ function AppContent() {
   const { handleViewChange } = useRouteSync()
   const [showSettingsFromShortcut, setShowSettingsFromShortcut] = useState(false)
 
-  // usePersistence 経由でデータ復元（infrastructure 直接依存を排除）
-  const persistence = usePersistence()
-
-  const handleRestore = useCallback(async () => {
-    await persistence.restoreData()
-    showToast('データを復元しました', 'success')
-  }, [persistence, showToast])
-
-  const handleDiscardRestore = useCallback(async () => {
-    await persistence.discardSavedData()
-  }, [persistence])
+  // usePersistence を呼び出すことで起動時の自動復元が有効になる
+  usePersistence()
 
   const handleCalculate = useCallback(() => {
     calculate()
@@ -220,13 +210,6 @@ function AppContent() {
           </Suspense>
         </PageErrorBoundary>
       </AppShell>
-      {persistence.showRestoreDialog && persistence.restoreMeta && (
-        <RestoreDataModal
-          meta={persistence.restoreMeta}
-          onRestore={handleRestore}
-          onDiscard={handleDiscardRestore}
-        />
-      )}
     </SettingsModalContext.Provider>
   )
 }

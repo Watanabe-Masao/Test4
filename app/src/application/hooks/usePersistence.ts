@@ -10,7 +10,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import { useRepository } from '../context/useRepository'
 import { calculateDiff } from '@/application/services/diffCalculator'
-import type { ImportedData, PersistedMeta, DiffResult } from '@/domain/models'
+import type { ImportedData, DiffResult } from '@/domain/models'
 import { mergeInsertsOnly } from './useImport'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -18,27 +18,19 @@ import { mergeInsertsOnly } from './useImport'
 export interface PersistenceState {
   /** IndexedDB 利用可能か */
   readonly available: boolean
-  /** 復元ダイアログ表示中 */
-  readonly showRestoreDialog: boolean
-  /** 復元メタデータ */
-  readonly restoreMeta: PersistedMeta | null
   /** 差分確認ダイアログ表示中 */
   readonly showDiffDialog: boolean
   /** 差分結果 */
   readonly diffResult: DiffResult | null
   /** 保存中 */
   readonly isSaving: boolean
+  /** 自動復元済み */
+  readonly autoRestored: boolean
 }
 
 export interface PersistenceActions {
   /** データを IndexedDB に保存する */
   saveCurrentData: () => Promise<void>
-  /** 保存データを復元してstateに反映する */
-  restoreData: () => Promise<void>
-  /** 保存データを破棄する */
-  discardSavedData: () => Promise<void>
-  /** 復元ダイアログを閉じる（破棄扱い） */
-  dismissRestoreDialog: () => void
   /**
    * インポートデータと既存保存データの差分をチェックする。
    * 差分がある場合は diffResult を返す。
@@ -71,13 +63,12 @@ export function usePersistence(): PersistenceState & PersistenceActions {
   const repo = useRepository()
 
   const [available] = useState(() => repo.isAvailable())
-  const [showRestoreDialog, setShowRestoreDialog] = useState(false)
-  const [restoreMeta, setRestoreMeta] = useState<PersistedMeta | null>(null)
   const [showDiffDialog, setShowDiffDialog] = useState(false)
   const [diffResult, setDiffResult] = useState<DiffResult | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [autoRestored, setAutoRestored] = useState(false)
 
-  // 初回のみ実行: 保存データの有無をチェック
+  // 初回のみ実行: 保存データがあれば自動復元（ダイアログなし）
   const checkedRef = useRef(false)
   useEffect(() => {
     if (!available || checkedRef.current) return
@@ -86,12 +77,18 @@ export function usePersistence(): PersistenceState & PersistenceActions {
     let cancelled = false
     repo
       .getSessionMeta()
-      .then((meta) => {
-        if (cancelled) return
-        if (meta) {
-          setRestoreMeta(meta)
-          setShowRestoreDialog(true)
-        }
+      .then(async (meta) => {
+        if (cancelled || !meta) return
+        const restoredData = await repo.loadMonthlyData(meta.year, meta.month)
+        if (cancelled || !restoredData) return
+        useDataStore.getState().setImportedData(restoredData)
+        useSettingsStore.getState().updateSettings({
+          targetYear: meta.year,
+          targetMonth: meta.month,
+        })
+        calculationCache.clear()
+        useUiStore.getState().invalidateCalculation()
+        setAutoRestored(true)
       })
       .catch(() => {
         // ストレージアクセスエラーは無視
@@ -110,41 +107,6 @@ export function usePersistence(): PersistenceState & PersistenceActions {
       setIsSaving(false)
     }
   }, [available, repo, data, settings.targetYear, settings.targetMonth])
-
-  const restoreData = useCallback(async () => {
-    if (!available || !restoreMeta) return
-    try {
-      const restoredData = await repo.loadMonthlyData(restoreMeta.year, restoreMeta.month)
-      if (restoredData) {
-        // まとめて更新し、最後に1回だけ cache clear + invalidate
-        useDataStore.getState().setImportedData(restoredData)
-        useSettingsStore.getState().updateSettings({
-          targetYear: restoreMeta.year,
-          targetMonth: restoreMeta.month,
-        })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
-      }
-    } finally {
-      setShowRestoreDialog(false)
-    }
-  }, [available, repo, restoreMeta])
-
-  const discardSavedData = useCallback(async () => {
-    if (!available || !restoreMeta) {
-      setShowRestoreDialog(false)
-      return
-    }
-    try {
-      await repo.clearMonth(restoreMeta.year, restoreMeta.month)
-    } finally {
-      setShowRestoreDialog(false)
-    }
-  }, [available, repo, restoreMeta])
-
-  const dismissRestoreDialog = useCallback(() => {
-    setShowRestoreDialog(false)
-  }, [])
 
   const checkDiffBeforeImport = useCallback(
     async (
@@ -203,15 +165,11 @@ export function usePersistence(): PersistenceState & PersistenceActions {
 
   return {
     available,
-    showRestoreDialog,
-    restoreMeta,
     showDiffDialog,
     diffResult,
     isSaving,
+    autoRestored,
     saveCurrentData,
-    restoreData,
-    discardSavedData,
-    dismissRestoreDialog,
     checkDiffBeforeImport,
     applyDiffDecision,
     dismissDiffDialog,

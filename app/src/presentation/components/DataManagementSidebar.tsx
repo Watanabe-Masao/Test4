@@ -10,7 +10,10 @@ import {
   useSettings,
   usePersistence,
   useStorageAdmin,
+  useAutoBackup,
+  useAutoImport,
 } from '@/application/hooks'
+import { useRepository } from '@/application/context/useRepository'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
@@ -351,6 +354,48 @@ const TemplateLink = styled.button`
   }
 `
 
+// ─── フォルダ連携 ──────────────────────────────────────
+const FolderSyncRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const FolderName = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+`
+
+const FolderStatus = styled.span<{ $ok: boolean }>`
+  font-size: 0.6rem;
+  color: ${({ theme, $ok }) => ($ok ? theme.colors.palette.success : theme.colors.text4)};
+`
+
+const FolderSmallBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  color: ${({ theme }) => theme.colors.text4};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    color: ${({ theme }) => theme.colors.text3};
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`
+
 // ─── プライバシーインジケーター ──────────────────────
 const PrivacyInfoBox = styled.div`
   display: flex;
@@ -485,7 +530,25 @@ export function DataManagementSidebar({
   const showToast = useToast()
   const { clearAll } = usePersistence()
   const { listMonths } = useStorageAdmin()
+  const repo = useRepository()
   const { loadedTypes, maxDayByType } = useDataSummary(data)
+
+  // 自動バックアップ: データ変更のたびにフォルダへ書き出し
+  const backupTrigger = useMemo(
+    () =>
+      `${data.stores.size}:${data.budget.size}:${data.settings.size}:${data.classifiedSales.records.length}`,
+    [data.stores.size, data.budget.size, data.settings.size, data.classifiedSales.records.length],
+  )
+  const autoBackup = useAutoBackup(repo, backupTrigger)
+
+  // 自動インポート: フォルダ内のファイルを自動取込
+  const handleAutoImportFiles = useCallback(
+    async (files: File[]) => {
+      await importFiles(files)
+    },
+    [importFiles],
+  )
+  const autoImport = useAutoImport(handleAutoImportFiles)
   const [storedMonths, setStoredMonths] = useState<readonly { year: number; month: number }[]>([])
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
@@ -658,6 +721,86 @@ export function DataManagementSidebar({
         </SidebarSection>
 
         <TemplateSectionCollapsible />
+
+        {autoBackup.supported && (
+          <SidebarSection>
+            <SectionLabel>フォルダ連携</SectionLabel>
+            {/* 自動バックアップ */}
+            <FolderSyncRow>
+              <FolderStatus $ok={autoBackup.folderConfigured}>
+                {autoBackup.folderConfigured ? 'ON' : 'OFF'}
+              </FolderStatus>
+              {autoBackup.folderConfigured ? (
+                <>
+                  <FolderName title={autoBackup.folderName ?? undefined}>
+                    {autoBackup.folderName}
+                  </FolderName>
+                  <FolderSmallBtn
+                    onClick={() => {
+                      autoBackup.backupNow().then((f) => {
+                        if (f) showToast(`バックアップ: ${f}`, 'success')
+                      })
+                    }}
+                    disabled={autoBackup.isBacking}
+                  >
+                    {autoBackup.isBacking ? '...' : '保存'}
+                  </FolderSmallBtn>
+                  <FolderSmallBtn onClick={() => autoBackup.clearFolder()}>解除</FolderSmallBtn>
+                </>
+              ) : (
+                <FolderSmallBtn onClick={() => autoBackup.selectFolder()}>
+                  バックアップ先を選択
+                </FolderSmallBtn>
+              )}
+            </FolderSyncRow>
+            {autoBackup.lastBackupAt && (
+              <FolderStatus $ok>
+                最終: {new Date(autoBackup.lastBackupAt).toLocaleTimeString()}
+              </FolderStatus>
+            )}
+            {autoBackup.error && <FolderStatus $ok={false}>{autoBackup.error}</FolderStatus>}
+
+            {/* 自動インポート */}
+            <FolderSyncRow>
+              <FolderStatus $ok={autoImport.folderConfigured}>
+                {autoImport.folderConfigured ? 'ON' : 'OFF'}
+              </FolderStatus>
+              {autoImport.folderConfigured ? (
+                <>
+                  <FolderName title={autoImport.folderName ?? undefined}>
+                    {autoImport.folderName}
+                  </FolderName>
+                  <FolderSmallBtn
+                    onClick={() => {
+                      autoImport.scanNow().then((files) => {
+                        if (files.length > 0) {
+                          showToast(`${files.length}件取込`, 'success')
+                        } else {
+                          showToast('新規ファイルなし', 'info')
+                        }
+                      })
+                    }}
+                    disabled={autoImport.isScanning}
+                  >
+                    {autoImport.isScanning ? '...' : 'スキャン'}
+                  </FolderSmallBtn>
+                  <FolderSmallBtn onClick={() => autoImport.clearFolder()}>解除</FolderSmallBtn>
+                </>
+              ) : (
+                <FolderSmallBtn onClick={() => autoImport.selectFolder()}>
+                  取込元を選択
+                </FolderSmallBtn>
+              )}
+            </FolderSyncRow>
+            {autoImport.lastScanAt && (
+              <FolderStatus $ok={autoImport.lastImportCount > 0}>
+                最終スキャン: {new Date(autoImport.lastScanAt).toLocaleTimeString()} (
+                {autoImport.lastImportCount}件)
+              </FolderStatus>
+            )}
+            {autoImport.error && <FolderStatus $ok={false}>{autoImport.error}</FolderStatus>}
+          </SidebarSection>
+        )}
 
         {hasNonBudgetData && (
           <SidebarSection>

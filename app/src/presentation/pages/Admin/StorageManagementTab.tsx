@@ -905,7 +905,10 @@ export function StorageManagementTab() {
       {/* ─── バックアップ ──────────────────────────────── */}
       <Section>
         <SectionTitle>バックアップ</SectionTitle>
-        <HelpText>全月データを JSON ファイルとしてダウンロード、または復元できます。</HelpText>
+        <HelpText>
+          全月データ・設定・履歴を JSON ファイルとしてダウンロード、または復元できます（gzip
+          圧縮対応）。
+        </HelpText>
         <SubSection>
           <StatusRow>
             <ActionButton $variant="primary" onClick={exportBackup} disabled={isExporting}>
@@ -916,7 +919,7 @@ export function StorageManagementTab() {
               <input
                 ref={backupInputRef}
                 type="file"
-                accept=".json"
+                accept=".json,.json.gz,.gz"
                 style={{ display: 'none' }}
                 onChange={handleBackupFileSelect}
               />
@@ -929,6 +932,10 @@ export function StorageManagementTab() {
                 <div>月数: {backupPreview.months.length} 月分</div>
                 <div>
                   対象: {backupPreview.months.map((m) => `${m.year}年${m.month}月`).join(', ')}
+                </div>
+                <div>
+                  フォーマット: v{backupPreview.formatVersion}
+                  {backupPreview.checksum ? ' (チェックサム付き)' : ''}
                 </div>
               </ImportResultBox>
               <StatusRow>
