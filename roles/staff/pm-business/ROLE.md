@@ -31,12 +31,45 @@
 | **Medium** | 複数ファイル、既知パターン | pm → implementation ←→ specialist → review-gate |
 | **Large** | 層跨ぎ、新パターン導入 | pm → architecture → implementation ←→ specialist → review-gate |
 
+### 作業者の理解（各ロールの存在理由）
+
+pm-business は「誰に何を頼むか」を判断する。そのために各作業者が**何を守っているか**を理解する。
+
+| ロール | 守っているもの | いつ必要か |
+|---|---|---|
+| **architecture** | 4層の依存方向・エンジン責務分離・設計思想10原則の一貫性 | 層跨ぎ変更、新パターン導入、JS/DuckDB の責務選択 |
+| **implementation** | CI 通過する動作コード。既存パターンの踏襲 | 全タスク（コードを書く唯一のロール） |
+| **invariant-guardian** | シャープリー恒等式・計算ルールの数学的正確性 | 計算ロジックの変更・追加 |
+| **duckdb-specialist** | DuckDB クエリの正確性・スキーマ一貫性・JS との責務境界 | SQL クエリの追加・変更、スキーマ変更 |
+| **explanation-steward** | 24 MetricId の説明責任（L1→L2→L3 の3段階 UX） | 指標の追加・変更、Explanation カバレッジ |
+| **review-gate** | 7禁止事項・ガードテスト・CI 5段階ゲートの機械的検証 | 全タスク（品質の出口） |
+| **documentation-steward** | CLAUDE.md・roles/・references/ とコードベースの整合性 | 下記「ドキュメント更新の判断」参照 |
+
 ### タスクへの割り当て判断
 
 - 新パターン導入・層跨ぎ変更・エンジン選択が必要 → architecture に設計依頼
 - 既知パターンの適用 → implementation に直接指示
 - 計算変更を含む → invariant-guardian の事前確認を指示
 - DuckDB 変更を含む → duckdb-specialist の事前確認を指示
+- 指標の追加・Explanation 変更を含む → explanation-steward の事前確認を指示
+
+### ドキュメント更新の判断
+
+documentation-steward への指示は**タスク完了後**に pm-business が判断する。
+「全タスクで更新する」のではなく、以下の基準で**更新が必要かどうか**を判定する。
+
+**更新する（documentation-steward に指示）:**
+- 禁止事項が追加・変更された → CLAUDE.md + references/prohibition-quick-ref.md
+- 設計判断が行われた（architecture が設計判断書を出した）→ references/ に ADR 追加
+- ロールの判断基準に変更が生じた → 該当 ROLE.md / SKILL.md
+- ルーティング表に影響する変更（新しい作業種別、パス変更）→ CLAUDE.md §ルーティング表
+- 新しい MetricId が追加された → references/metric-id-registry.md
+- review-gate が構造的 FAIL を出し、再発防止策が決まった → フィードバックスパイラルに従い該当文書
+
+**更新しない（documentation-steward は不要）:**
+- 既存パターンに従った実装のみの変更（コードだけで完結する）
+- バグ修正で設計・ルール・判断基準に変更がない場合
+- テストの追加・修正のみ（ガードテストの追加は invariant-guardian の範囲）
 
 ### 受入基準の策定
 
