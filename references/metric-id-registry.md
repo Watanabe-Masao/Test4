@@ -22,9 +22,9 @@ MetricId は**安定した識別子**。構造的な意味は `MetricMeta.tokens
 /** トークン: 指標の分類構造 */
 export interface MetricTokens {
   /** 主体: 何の指標か */
-  readonly entity: 'sales' | 'cost' | 'discount' | 'markup' | 'gp' | 'inventory' | 'customer' | 'consumable'
-  /** 領域: どの文脈か */
-  readonly domain: 'actual' | 'budget' | 'forecast' | 'invMethod' | 'estMethod'
+  readonly entity: 'sales' | 'purchase' | 'cogs' | 'discount' | 'markup' | 'gp' | 'inventory' | 'customer' | 'consumable'
+  /** 領域: データの確度 */
+  readonly domain: 'actual' | 'budget' | 'estimated' | 'forecast'
   /** 測定: 何を測るか */
   readonly measure: 'value' | 'rate' | 'achievement' | 'progress' | 'gap' | 'variance' | 'required' | 'average'
 }
@@ -48,22 +48,24 @@ export interface MetricMeta {
 | `salesTotal` | sales | actual | value | 総売上 |
 | `coreSales` | sales | actual | value | コア売上 |
 | `grossSales` | sales | actual | value | 粗売上 |
-| `purchaseCost` | cost | actual | value | 総仕入原価 |
-| `inventoryCost` | cost | actual | value | 在庫仕入原価 |
-| `deliverySalesCost` | cost | actual | value | 売上納品原価 |
+| `purchaseCost` | purchase | actual | value | 総仕入原価 |
+| `inventoryCost` | purchase | actual | value | 在庫仕入原価 |
+| `deliverySalesCost` | purchase | actual | value | 売上納品原価 |
 | `discountTotal` | discount | actual | value | 売変額合計 |
 | `discountRate` | discount | actual | rate | 売変率 |
 | `discountLossCost` | discount | actual | value | 売変ロス原価 |
 | `averageMarkupRate` | markup | actual | average | 平均値入率 |
 | `coreMarkupRate` | markup | actual | rate | コア値入率 |
-| `invMethodCogs` | cost | invMethod | value | 売上原価 |
-| `invMethodGrossProfit` | gp | invMethod | value | 実績粗利益 |
-| `invMethodGrossProfitRate` | gp | invMethod | rate | 実績粗利率 |
-| `estMethodCogs` | cost | estMethod | value | 推定原価 |
-| `estMethodMargin` | gp | estMethod | value | 推定マージン |
-| `estMethodMarginRate` | gp | estMethod | rate | 推定マージン率 |
-| `estMethodClosingInventory` | inventory | estMethod | value | 推定期末在庫 |
+| `invMethodCogs` | cogs | actual | value | 売上原価（在庫法） |
+| `invMethodGrossProfit` | gp | actual | value | 実績粗利益（在庫法） |
+| `invMethodGrossProfitRate` | gp | actual | rate | 実績粗利率（在庫法） |
+| `estMethodCogs` | cogs | estimated | value | 推定原価（値入率ベース） |
+| `estMethodMargin` | gp | estimated | value | 推定粗利（値入率ベース） |
+| `estMethodMarginRate` | gp | estimated | rate | 推定粗利率（値入率ベース） |
+| `estMethodClosingInventory` | inventory | estimated | value | 推定期末在庫 |
+| `inventoryGap` | gp | actual | gap | 在庫差異（在庫法−推定法） |
 | `totalCustomers` | customer | actual | value | 来店客数 |
+| `averageSpendPerCustomer` | customer | actual | average | 客単価 |
 | `totalConsumable` | consumable | actual | value | 消耗品費 |
 | `budget` | sales | budget | value | 売上予算 |
 | `budgetAchievementRate` | sales | budget | achievement | 売上予算達成率 |
@@ -107,13 +109,40 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 | `coreSales` | コア売上 | yen | 総売上 − 特殊売上（花・産直） | `totalCoreSales` |
 | `grossSales` | 粗売上 | yen | 総売上 + 売変額（定価ベース売上） | `grossSales` |
 
-## 原価系
+## 仕入系
+
+仕入データは以下の経路に分かれる:
+
+```
+仕入（総額）
+├── 在庫仕入 ─── 在庫に計上 ─── 在庫法で原価算出
+├── 売上納品 ─── 花・産直 ─── 在庫を経由せず直接売上原価
+├── 原価算入費 ── 消耗品 ──── 推定原価に加算（値入率計算の外）
+├── 店間移動 ─── 店舗間の在庫移動（純増減）
+└── 部門間移動 ── 部門間の在庫移動
+```
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
 | `purchaseCost` | 総仕入原価 | yen | 仕入データの合計 | `totalCost` |
 | `inventoryCost` | 在庫仕入原価 | yen | 総仕入 − 売上納品原価 | `inventoryCost` |
 | `deliverySalesCost` | 売上納品原価 | yen | 花 + 産直の仕入原価 | `deliverySalesCost` |
+
+**売上納品の内訳:**
+花と産直は在庫を経由せず、仕入と同時に売上原価となる。
+掛け率（`flowerCostRate`, `directProduceCostRate`）は Settings で管理。
+
+- `flowerSalesPrice` / `directProduceSalesPrice` — 売価（StoreResult に計算済み）
+- 仕入原価 = 売価 × 掛け率（日別に `inventoryCalc.ts` で計算）
+
+**原価算入費（消耗品）:**
+消耗品は値入率の計算には含まれないが、推定原価には加算される。
+`estCogs = grossSales × (1 − markupRate) + consumableCost`
+→ MetricId は `totalConsumable` として別セクションで管理。
+
+**店間移動・部門間移動:**
+`TransferDetails` で集約（in/out/net）。現在 MetricId 未登録。
+`categoryTotals` の `interStore` / `interDepartment` カテゴリとして集計済み。
 
 ## 売変系
 
@@ -132,16 +161,26 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 | `discountRate` | 売変率 | rate | 売変額 ÷ 粗売上 | `discountRate` |
 | `discountLossCost` | 売変ロス原価 | yen | 売変額 × (1 − 値入率) | `discountLossCost` |
 
-## 値入率
+## 値入率（仕入時点の計画利幅）
+
+**値入 ≠ 粗利。** 値入は仕入時に設定する「予定利幅」、粗利は販売後の「実績利益」。
+
+```
+値入率 = (売価 − 原価) ÷ 売価     … 仕入時点の計画
+粗利率 = (売上 − 売上原価) ÷ 売上 … 販売後の実績
+```
+
+値入率 > 粗利率 となる主な原因: 売変（値引・廃棄）、在庫ロス、消耗品費。
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
 | `averageMarkupRate` | 平均値入率 | rate | (粗売上 − 仕入原価) ÷ 粗売上 | `averageMarkupRate` |
 | `coreMarkupRate` | コア値入率 | rate | (コア粗売上 − コア仕入原価) ÷ コア粗売上 | `coreMarkupRate` |
 
-## 在庫法（実績 P/L）
+## 粗利（在庫法 — 実績 P/L）
 
 在庫実績があるときのみ有効（`null` = 在庫未設定）。
+**実在庫データに基づく確定値。** 粗利の権威的ソース。
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
@@ -149,22 +188,95 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 | `invMethodGrossProfit` | 実績粗利益 | yen | 総売上 − 売上原価 | `invMethodGrossProfit` |
 | `invMethodGrossProfitRate` | 実績粗利率 | rate | 粗利益 ÷ 総売上 | `invMethodGrossProfitRate` |
 
-## 推定法（在庫差異検知）
+## 粗利（推定法 — 値入率ベースの推定）
 
-常に計算される（在庫法のフォールバック）。
+**値入率から粗利を推定する手法。** 在庫法が使えないときのフォールバック。
+常に計算される。在庫法との差異（GAP値）が在庫ロスの検知に使われる。
+
+```
+推定原価 = 粗売上 × (1 − 値入率) + 消耗品費
+推定粗利 = 総売上 − 推定原価
+```
+
+※ 消耗品費は値入率の外で加算される（原価算入費）。
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
-| `estMethodCogs` | 推定原価 | yen | 売上 × (1 − 推定マージン率) | `estMethodCogs` |
-| `estMethodMargin` | 推定マージン | yen | 総売上 − 推定原価 | `estMethodMargin` |
-| `estMethodMarginRate` | 推定マージン率 | rate | (粗売上 − 仕入原価) ÷ 粗売上 に基づく | `estMethodMarginRate` |
+| `estMethodCogs` | 推定原価 | yen | 粗売上 × (1 − 値入率) + 消耗品費 | `estMethodCogs` |
+| `estMethodMargin` | 推定粗利 | yen | 総売上 − 推定原価 | `estMethodMargin` |
+| `estMethodMarginRate` | 推定粗利率 | rate | 推定粗利 ÷ 総売上 | `estMethodMarginRate` |
 | `estMethodClosingInventory` | 推定期末在庫 | yen | 期首在庫 + 仕入 − 推定原価 | `estMethodClosingInventory` |
 
-## 客数・消耗品
+## GAP値（差異分析）
+
+GAP値は「2つの関連指標の差」を取る一般的な分析パターン。
+`measure: 'gap'` トークンで統一的に表現できる。
+
+| GAP 種別 | 計算式 | 検知対象 |
+|---|---|---|
+| **在庫差異GAP** | 在庫法粗利率 − 推定粗利率 | 在庫ロス・計上漏れ |
+| **客数GAP** | 客数前年比 − 売上前年比 | 客単価の変動方向 |
+| **予算進捗GAP** | 消化率 − 経過予算率 | ペースの前倒し/遅れ |
+| **粗利進捗GAP** | 粗利達成率 − 経過予算率 | 粗利ペースのズレ |
+
+### 在庫差異GAP
+
+2つの計算エンジンの差異。
+
+```
+在庫差異GAP = invMethodGrossProfitRate − estMethodMarginRate
+```
+
+- GAP ≈ 0: 在庫管理が正常
+- GAP < 0: 在庫ロス・廃棄が値入で想定した以上に発生
+- GAP > 0: 計上漏れまたは推定前提の誤り
+
+| MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
+|---|---|---|---|---|
+| `inventoryGap` | 在庫差異 | rate | 在庫法粗利率 − 推定粗利率 | **未計算 / 未登録** |
+
+### 客数GAP
+
+```
+客数GAP = 客数前年比 − 売上前年比
+```
+
+- GAP > 0: 客数は増えたが売上が追いつかない → 客単価低下
+- GAP < 0: 客数は減ったが売上は維持 → 客単価上昇
+- GAP ≈ 0: 客数と売上が同方向に変動
+
+**注:** 前年比を使うため、要因分解系（Shapley decomposition）の領域に近い。
+`decompose2` の `custEffect` / `ticketEffect` が構造的にこれを分解している。
+MetricId として個別登録するかは要因分解との役割分担で決定。
+
+### トークン的性質
+
+GAP値は全て `measure: 'gap'` で統一できる。各 GAP は:
+1. 同一 entity 内の2指標比較（予算進捗GAP: `sales.budget.progress` vs `sales.budget.rate`）
+2. domain をまたぐ比較（在庫差異GAP: `gp.actual` vs `gp.estimated`）
+3. 時系列比較（客数GAP: 前年比同士の差）
+
+実装方式は MetricId 個別登録 or トークンクエリによる動的算出のどちらも可能。
+
+## 客数
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
 | `totalCustomers` | 来店客数 | count | 分類別売上の客数合計 | `totalCustomers` |
+| `averageSpendPerCustomer` | 客単価 | yen | 総売上 ÷ 来店客数 | **未計算 / 未登録** |
+
+**PI値について:** 点数PI・金額PI 等の詳細な客数生産性指標は、
+要因分解系（Shapley decomposition: `decompose2`, `decompose3`, `decompose5`）で
+構造的に管理される。MetricId レジストリでは客単価のみ管理し、
+分解結果は `CausalChain` モデルが担う。
+
+## 原価算入費（消耗品）
+
+消耗品は値入率の計算には含まれないが、推定原価に加算される。
+→ 仕入系セクションの「原価算入費」も参照。
+
+| MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
+|---|---|---|---|---|
 | `totalConsumable` | 消耗品費 | yen | 消耗品データの合計 | `totalConsumable` |
 
 ---
@@ -220,9 +332,11 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 在庫設定ファイルから取得。StoreResult にフィールドは存在するが、MetricId 未登録。
 
 **粗利実績の2つの算出法:**
-- 在庫法: `invMethodGrossProfit`（在庫実績あり時のみ、より信頼性が高い）
-- 推定法: `estMethodMargin`（常時利用可能、フォールバック）
+- 在庫法: `invMethodGrossProfit`（実在庫データに基づく確定値。権威ソース）
+- 推定法: `estMethodMargin`（値入率ベースの推定値。在庫法が使えないときのフォールバック）
 - 有効粗利率: `getEffectiveGrossProfitRate()` で在庫法優先→推定法フォールバック
+- **注意:** `estMethodMargin` は「推定粗利」であり、値入率から計算されるが粗利の推定値。
+  値入率そのものではない。
 
 | MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
 |---|---|---|---|---|
@@ -250,17 +364,32 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | カテゴリ | MetricId 登録済み | 計算済み(未登録) | 未実装 |
 |---|---|---|---|
 | 売上系 | 3 | 0 | 0 |
-| 原価系 | 3 | 0 | 0 |
+| 仕入系 | 3 | 0 | 0 |
 | 売変系 | 3 | 0 | 0 |
 | 値入率 | 2 | 0 | 0 |
-| 在庫法 | 3 | 0 | 0 |
-| 推定法 | 4 | 0 | 0 |
-| 客数・消耗品 | 2 | 0 | 0 |
+| 粗利（在庫法） | 3 | 0 | 0 |
+| 粗利（推定法） | 4 | 0 | 0 |
+| 在庫差異 | 0 | 0 | 1 |
+| 客数 | 1 | 0 | 1 |
+| 原価算入費 | 1 | 0 | 0 |
 | 売上予算系 | 5 | 4 | 2 |
 | 粗利予算系 | 0 | 4 | 4 |
-| **合計** | **25** | **8** | **6** |
+| **合計** | **25** | **8** | **8** |
 
-→ 登録済み 25 + 計算済み(未登録) 8 + 未実装 6 = **39 指標**（目標）
+→ 登録済み 25 + 計算済み(未登録) 8 + 未実装 8 = **41 指標**（目標）
+
+### 概念の区別
+
+| 概念 | 定義 | タイミング | 例 |
+|---|---|---|---|
+| **仕入** | 商品を仕入先から購入すること | 購買時 | 総仕入原価、在庫仕入、売上納品 |
+| **値入** | 仕入時に設定する計画利幅 | 購買時（計画値） | 平均値入率、コア値入率 |
+| **原価** | 商品を販売するのにかかった費用 | 販売後（実績） | 在庫法売上原価、推定原価 |
+| **粗利** | 売上から原価を差し引いた利益 | 販売後（実績） | 在庫法粗利、推定粗利 |
+| **推定** | 間接データ（値入率）から現在値を推定 | 計算時 | 推定原価、推定期末在庫 |
+| **予測** | 現在のペースから将来値を予測 | 計算時 | 月末予測売上、着地予測達成率 |
+
+**鉄則:** 値入率を粗利率と呼ばない。推定粗利を実績粗利と混同しない。
 
 ---
 
