@@ -49,6 +49,26 @@ export interface CheckIntegrityRequest {
   readonly requestId: number
 }
 
+/** OPFS 上のテーブルを Parquet にエクスポートする */
+export interface ExportParquetRequest {
+  readonly type: 'exportParquet'
+  readonly requestId: number
+}
+
+/** OPFS 上の Parquet からテーブルにインポートする */
+export interface ImportParquetRequest {
+  readonly type: 'importParquet'
+  readonly requestId: number
+}
+
+/** CSV レポートを Worker 内で生成する */
+export interface GenerateReportRequest {
+  readonly type: 'generateReport'
+  readonly reportType: 'dailySales' | 'storeKpi' | 'monthlyPL'
+  readonly sql: string
+  readonly requestId: number
+}
+
 export type DuckDBWorkerRequest =
   | InitializeRequest
   | ResetTablesRequest
@@ -57,6 +77,9 @@ export type DuckDBWorkerRequest =
   | QueryRequest
   | DisposeRequest
   | CheckIntegrityRequest
+  | ExportParquetRequest
+  | ImportParquetRequest
+  | GenerateReportRequest
 
 // ── レスポンス ──
 
@@ -82,3 +105,30 @@ export type DuckDBWorkerResponse = SuccessResponse | ErrorResponse | StateChange
 // ── Worker DB 状態 ──
 
 export type WorkerDBState = 'idle' | 'initializing' | 'ready' | 'error' | 'disposed'
+
+// ── OPFS 永続化関連 ──
+
+export interface IntegrityCheckResult {
+  readonly schemaValid: boolean
+  readonly monthCount: number
+  readonly isOpfsPersisted: boolean
+  /** OPFS に Parquet ファイルが存在するか */
+  readonly hasParquetCache: boolean
+}
+
+export interface ParquetExportResult {
+  readonly tablesExported: number
+  readonly totalRows: number
+  readonly durationMs: number
+}
+
+export interface ParquetImportResult {
+  readonly tablesImported: number
+  readonly totalRows: number
+  readonly durationMs: number
+}
+
+export interface ReportGenerateResult {
+  readonly csvContent: string
+  readonly rowCount: number
+}

@@ -80,3 +80,28 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | 定義場所 | `domain/calculations/` | `infrastructure/duckdb/queries/` |
 | フック | `application/usecases/` | `application/hooks/duckdb/` |
 | テスト | ユニットテスト + 不変条件テスト | integration テスト |
+
+## 永続化とトランスポート（計算エンジンの外側）
+
+以下は「計算」ではなく「データの保存・転送」であり、エンジン責務の外側に位置する。
+
+| 機能 | 層 | 説明 |
+|---|---|---|
+| **Parquet キャッシュ** | infrastructure | DuckDB テーブルを OPFS に Parquet 形式で保存。列指向 + ZSTD 圧縮で次回起動時の高速リストアを実現。**計算は行わない**（データの保存形式変換のみ） |
+| **reportExportWorker** | application/workers | CSV レポートの文字列生成を Worker スレッドで実行。SQL クエリ結果 → CSV 変換のトランスポート層。**新しい集約は行わない** |
+| **OPFS 永続化** | infrastructure | `opfs://shiire-arari.duckdb` に DuckDB DB ファイルを永続保存。起動時の整合性チェックでリロード戦略を判定 |
+
+**注意:** Parquet は「ストレージフォーマット」であり「計算エンジン」ではない。
+Parquet 導入は二重実装禁止に抵触しない。
+
+## データ契約によるエンジン間整合性保証
+
+`dataContract.test.ts` がエンジン間のデータ構造整合性を機械的に検証する:
+
+- **Domain → DuckDB**: `ClassifiedSalesRecord` の全フィールドが `classified_sales` テーブルの
+  対応カラムに存在するか
+- **Import → Domain**: `FILE_TYPE_REGISTRY` の構造制約（minRows/minCols）が想定値と一致するか
+- **DuckDB → Parquet**: 全テーブルカラム型が Parquet 互換型であるか
+
+これにより、一方のエンジンのスキーマ変更が他方との不整合を引き起こした場合、
+テストが即座に失敗する（設計原則 #1「機械で守る」）。
