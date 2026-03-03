@@ -42,15 +42,24 @@ Test4/
 ├── CONTRIBUTING.md            # コントリビューションガイド
 ├── CHANGELOG.md               # 変更履歴
 ├── CLAUDE.md                  # AI 開発ルール
-├── docs/                     # 詳細ドキュメント
-│   ├── architecture.md        #   アーキテクチャ設計書
-│   ├── api.md                 #   内部 API リファレンス
-│   ├── calculation-engine.md  #   計算エンジン仕様書
-│   ├── calculation-guide.md   #   計算式ユーザー解説
+├── roles/                    # ロール定義（マルチロール開発体制）
+│   ├── staff/                 #   スタッフ部門（横断的支援）
+│   │   ├── pm-business/       #     マネージャー兼要件の入口
+│   │   ├── review-gate/       #     品質の出口
+│   │   └── documentation-steward/ # 全過程の記録係
+│   └── line/                  #   実務部門（直接的生産）
+│       ├── architecture/      #     設計判断
+│       ├── implementation/    #     コーディング
+│       └── specialist/        #     専門技術（invariant-guardian, duckdb, explanation）
+├── references/               # 共有参照資料
+│   ├── invariant-catalog.md   #   不変条件カタログ
+│   ├── guard-test-map.md      #   ガードテスト対応表
+│   ├── engine-responsibility.md # JS vs DuckDB 責務マトリクス
+│   ├── metric-id-registry.md  #   24 MetricId 一覧
 │   ├── data-models.md         #   データモデル
+│   ├── calculation-engine.md  #   計算エンジン仕様書
+│   ├── api.md                 #   内部 API リファレンス
 │   ├── ui-components.md       #   UI コンポーネント仕様書
-│   ├── development-guide.md   #   開発ガイド
-│   ├── file-import-guide.md   #   ファイルインポートガイド
 │   ├── operations.md          #   運用ガイド
 │   ├── security.md            #   セキュリティ
 │   ├── faq.md                 #   FAQ
@@ -180,20 +189,24 @@ GitHub Pages にデプロイされます。
 
 ## ドキュメント
 
-詳細なドキュメントは [`docs/`](./docs/) ディレクトリを参照してください。
+詳細なドキュメントは [`references/`](./references/) ディレクトリと [`roles/`](./roles/) ディレクトリを参照してください。
 
-- [アーキテクチャ設計書](./docs/architecture.md)
-- [内部 API リファレンス](./docs/api.md)
-- [計算エンジン仕様書](./docs/calculation-engine.md)
-- [計算式ユーザー解説](./docs/calculation-guide.md)
-- [UI コンポーネント仕様書](./docs/ui-components.md)
-- [運用ガイド](./docs/operations.md)
-- [セキュリティ](./docs/security.md)
-- [FAQ](./docs/faq.md)
-- [開発ガイド](./docs/development-guide.md)
-- [ファイルインポートガイド](./docs/file-import-guide.md)
-- [データモデル](./docs/data-models.md)
-- [DuckDB-WASM 採用 ADR](./docs/decisions/001-duckdb-wasm-integration.md)
+### 参照資料（references/）
+
+- [計算エンジン仕様書](./references/calculation-engine.md)
+- [データモデル](./references/data-models.md)
+- [内部 API リファレンス](./references/api.md)
+- [UI コンポーネント仕様書](./references/ui-components.md)
+- [ファイルインポートガイド](./references/file-import-guide.md)
+- [運用ガイド](./references/operations.md)
+- [セキュリティ](./references/security.md)
+- [FAQ](./references/faq.md)
+- [不変条件カタログ](./references/invariant-catalog.md)
+- [ガードテスト対応表](./references/guard-test-map.md)
+- [JS vs DuckDB 責務マトリクス](./references/engine-responsibility.md)
+- [24 MetricId 一覧](./references/metric-id-registry.md)
+- [7禁止事項クイックリファレンス](./references/prohibition-quick-ref.md)
+- [DuckDB-WASM 採用 ADR](./references/decisions/001-duckdb-wasm-integration.md)
 
 ## ライセンス
 

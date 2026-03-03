@@ -47,7 +47,7 @@ npm run test:e2e      # Playwright E2E テスト
   - `feature/duckdb-hourly-chart`
   - `fix/decompose5-invariant`
   - `refactor/calculation-pipeline`
-  - `docs/api-reference`
+  - `docs/update-references`
 
 ```bash
 git checkout main
@@ -189,6 +189,5 @@ npm run test:coverage
 ## 参考ドキュメント
 
 - **`CLAUDE.md`**: 設計思想 10 原則・コーディング規約・禁止事項・アーキテクチャルールの詳細
-- **`docs/architecture.md`**: アーキテクチャ設計書（レイヤー構成・状態管理・データフロー）
-- **`docs/development-guide.md`**: 開発ガイド（環境セットアップ・新機能追加手順）
-- **`docs/`**: その他技術ドキュメント（計算エンジン・データモデル・セキュリティ等）
+- **`roles/`**: ロール定義（マルチロール開発体制の責務・スキル・連携）
+- **`references/`**: 共有参照資料（計算エンジン・データモデル・セキュリティ等）

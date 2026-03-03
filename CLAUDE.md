@@ -5,6 +5,89 @@
 仕入荒利管理システム（shiire-arari）。小売業の仕入・売上・在庫データから粗利計算・
 予算分析・売上要因分解・需要予測を行うSPA。
 
+## ロール・スキルシステム
+
+本プロジェクトでは開発タスクの品質を構造的に保証するために
+ロールベースの作業システムを導入している。
+アプリの4層（Presentation → Application → Domain ← Infrastructure）と同様、
+開発体制も4層で構成する。
+
+### 4層モデル
+
+| 層 | 担い手 | 責務 |
+|---|---|---|
+| Authority | 人間 | 何をやるか・やらないか（最終意思決定） |
+| Orchestration | CLAUDE.md（本セクション） | タスク→ロール→連携の自動ルーティング |
+| Identity | roles/*/ROLE.md | 各ロールの境界と責務 |
+| Execution | roles/*/SKILL.md | 具体的な手順 |
+
+### 組織構造: スタッフ部門 + 実務部門
+
+スタッフ部門（横断的支援）と実務部門（直接的生産）の2階層で構成する。
+
+**スタッフ部門（staff/）** — マネージャー・品質ゲート・記録
+
+| ロール | 位置づけ | 渡し先 |
+|---|---|---|
+| pm-business | **マネージャー** 兼 要件の入口。タスク分解→連携指示→完了判定 | → architecture/implementation（タスク分解書） |
+| review-gate | 品質の出口。pm-business の受入基準と照合 | → implementation（差し戻し） or → documentation-steward（完了記録） |
+| documentation-steward | 全過程の記録 | → CLAUDE.md / references/ |
+
+**実務部門（line/）** — 設計→実装→専門検証
+
+| ロール | 位置づけ | 渡し先 |
+|---|---|---|
+| architecture | 設計判断 | → implementation（設計判断書） |
+| implementation | コーディング | → review-gate（成果物） |
+| specialist/invariant-guardian | 数学検証 | ← → implementation（双方向） |
+| specialist/duckdb-specialist | DuckDB専門 | ← → implementation（双方向） |
+| specialist/explanation-steward | 説明責任 | ← → implementation（双方向） |
+
+### タスク完遂フロー
+
+```
+人間 → pm-business（★マネージャー: タスク分解・連携指示）
+          │
+          ├→ architecture（設計判断）
+          │      │
+          │      ▼
+          └→ implementation ← → specialist/*
+                    │
+                    ▼
+              review-gate（pm-business の受入基準と照合）
+                 PASS → documentation-steward → 完了
+                 FAIL → implementation（差し戻し）
+```
+
+### ルーティング表
+
+| 作業内容 | 主ロール | 連携先 |
+|---|---|---|
+| 新機能の要件整理 | pm-business | → architecture |
+| 層跨ぎのリファクタリング | architecture | → implementation |
+| 計算ロジックの変更 | implementation | ← → invariant-guardian |
+| DuckDB クエリの追加・変更 | implementation | ← → duckdb-specialist, architecture |
+| Explanation 拡張 | implementation | ← → explanation-steward |
+| PR レビュー・品質確認 | review-gate | ← implementation |
+| ガードテスト追加・修正 | invariant-guardian | → implementation（テスト組込） |
+| ドキュメント更新 | documentation-steward | ← 全ロール |
+
+### 知識の3層分類
+
+| 層 | 配置先 | 読むタイミング |
+|---|---|---|
+| **全員必読** | CLAUDE.md（本ファイル） | 常に（セッション開始時） |
+| **ロール固有** | roles/*/ROLE.md + SKILL.md | タスク開始時（1-2ロール分） |
+| **必要時参照** | references/ | 実装中に必要な箇所だけ |
+
+### 越境検出
+
+作業完了時、以下を自己チェックする:
+- 自分の ROLE.md の You do に含まれる作業だけを行ったか？
+- You do NOT に該当する作業をしていないか？
+- Output の形式に従い、正しい渡し先に渡したか？
+- スコープ外のファイルを変更していないか？
+
 ## プロジェクト構成
 
 ```
