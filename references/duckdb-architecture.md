@@ -11,13 +11,13 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 ### アーキテクチャ
 
 ```
-  IndexedDB           DuckDB-WASM             React hooks         UI
- ┌──────────┐       ┌──────────────┐        ┌──────────────┐    ┌──────────┐
- │ 保存済み  │       │ engine.ts    │        │ useDuckDB    │    │ DuckDB   │
- │ インポート│ load  │ schemas.ts   │ query  │ hooks/duckdb/│    │ ウィジェ │
- │ データ   │──→   │ dataLoader.ts│──→    │ (~28 hooks)  │──→│ ット群   │
- └──────────┘       │ queries/*.ts │        │ (11ファイル) │    │ (15個)   │
-                    └──────────────┘        └──────────────┘    └──────────┘
+  IndexedDB           OPFS              DuckDB-WASM             React hooks         UI
+ ┌──────────┐      ┌──────────┐      ┌──────────────┐        ┌──────────────┐    ┌──────────┐
+ │ 保存済み  │      │ DB ファイル│      │ engine.ts    │        │ useDuckDB    │    │ DuckDB   │
+ │ インポート│ load │ Parquet   │ fast │ schemas.ts   │ query  │ hooks/duckdb/│    │ ウィジェ │
+ │ データ   │──→  │ キャッシュ │──→  │ dataLoader.ts│──→    │ (~28 hooks)  │──→│ ット群   │
+ └──────────┘      └──────────┘      │ queries/*.ts │        │ (11ファイル) │    │ (15個)   │
+                                     └──────────────┘        └──────────────┘    └──────────┘
 ```
 
 **データフロー:**
@@ -39,6 +39,7 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | | `duckdb/queryProfiler.ts` | クエリパフォーマンス計測 |
 | | `duckdb/arrowIO.ts` | Arrow フォーマット I/O |
 | | `duckdb/recovery.ts` | DuckDB エラーリカバリ・自動回復 |
+| | `duckdb/opfsPersistence.ts` | OPFS 永続化戦略判定、Parquet キャッシュ管理 |
 | | `duckdb/migrations/` | スキーママイグレーション（DDL バージョン管理） |
 | | `duckdb/queries/*.ts` | SQL クエリ関数（10 モジュール） |
 | **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
@@ -187,6 +188,83 @@ CTS 専用のまま** であり、一貫性がない。
 - CategoryHierarchyExplorer と CategoryPerformanceChart を DuckDB 版に移行する
 - 対応する DuckDB クエリ（`queryLevelAggregation`, `queryCategoryHourly` 等）は既に存在する
 
+### OPFS 永続化戦略
+
+DuckDB-WASM は OPFS（Origin Private File System）を永続ストレージとして使用する。
+起動時に `checkIntegrity` で OPFS DB の整合性を検証し、最適なリロード戦略を自動選択する。
+
+```
+起動 → checkIntegrity()
+  │
+  ├─ schemaValid && monthCount > 0 → 'opfs-valid'（再ロード不要）
+  │
+  ├─ hasParquetCache → 'parquet-restore'（Parquet から高速リストア）
+  │
+  └─ それ以外 → 'full-reload'（IndexedDB から通常ロード）
+```
+
+| 戦略 | 条件 | 処理 | 起動速度 |
+|---|---|---|---|
+| `opfs-valid` | OPFS DB にスキーマ整合 + データあり | 何もしない | 最速 |
+| `parquet-restore` | OPFS に Parquet キャッシュあり | `importParquet()` | 高速（列指向読込） |
+| `full-reload` | OPFS が空 or スキーマ不一致 | IndexedDB → JSON → `loadMonth()` | 通常 |
+
+**関連ファイル:**
+- `opfsPersistence.ts` — `determineReloadStrategy()`, `scheduleParquetExport()`, `clearParquetCache()`
+- `worker/duckdbWorker.ts` — `checkIntegrity`, `exportParquet`, `importParquet` ハンドラ
+- `worker/types.ts` — `IntegrityCheckResult`, `ParquetExportResult`, `ParquetImportResult`
+
+### Parquet 列指向キャッシュ
+
+データロード完了後、全テーブルを OPFS 上の Parquet ファイルに非同期エクスポートする
+（fire-and-forget パターン）。Parquet は列指向 + ZSTD 圧縮で、JSON ロードより大幅に
+高速なリストアを実現する。
+
+```
+データロード完了 → scheduleParquetExport()（非同期・非ブロック）
+                    ↓
+  COPY <table> TO 'opfs://parquet-cache/<table>.parquet' (FORMAT PARQUET, COMPRESSION ZSTD)
+                    ↓
+  次回起動時: read_parquet() で高速インポート
+```
+
+- エクスポート対象: `app_settings` 以外の全テーブル（10テーブル）
+- 保存先: `opfs://parquet-cache/<table_name>.parquet`
+- 圧縮: ZSTD（DuckDB ネイティブ対応、高圧縮率 + 高速展開）
+- 失敗時: キャッシュは best-effort。失敗しても `full-reload` で動作継続
+
+### Worker メッセージプロトコル
+
+DuckDB Worker は以下のメッセージタイプを処理する:
+
+| メッセージ | 用途 | 戻り値 |
+|---|---|---|
+| `initialize` | DuckDB-WASM 初期化 + OPFS 永続化試行 | `{ isOpfsPersisted }` |
+| `resetTables` | 全テーブル DROP + CREATE | — |
+| `loadMonth` | 1ヶ月分の ImportedData を投入 | `LoadResult` |
+| `deleteMonth` | 指定月のデータを削除 | — |
+| `query` | SQL クエリ実行 → camelCase オブジェクト配列 | `T[]` |
+| `checkIntegrity` | OPFS 整合性チェック | `IntegrityCheckResult` |
+| `exportParquet` | 全テーブルを Parquet にエクスポート | `ParquetExportResult` |
+| `importParquet` | Parquet からテーブルにインポート | `ParquetImportResult` |
+| `generateReport` | SQL → CSV 文字列生成（メインスレッド非ブロック） | `ReportGenerateResult` |
+| `dispose` | コネクション切断 + Worker 終了 | — |
+
+### データ契約テスト
+
+`dataContract.test.ts`（25テスト）が Domain ↔ DuckDB ↔ Import の構造的整合性を機械的に検証する:
+
+| 検証カテゴリ | テスト内容 |
+|---|---|
+| DuckDB テーブル定義 | 必須カラムの存在、TABLE_NAMES の網羅性 |
+| Domain → DuckDB マッピング | ClassifiedSalesRecord, CategoryTimeSalesRecord, DepartmentKpiRecord の全フィールドが対応 DDL カラムに存在 |
+| ファイルインポート構造 | FILE_TYPE_REGISTRY の minRows/minCols が契約値と一致 |
+| スキーマバージョン | SCHEMA_VERSION の正当性、マイグレーション連番 |
+| Parquet 互換性 | 全 DDL カラム型が Parquet 互換型（INTEGER, DOUBLE, VARCHAR, BOOLEAN） |
+
+入力フォーマット変更時にこのテストが即座に失敗し、層間のデータ契約違反を早期検出する
+（設計原則 #1「機械で守る」の実践）。
+
 ### 設計原則
 
 1. **エンジンの責務は排他的**: 1つのデータ集約に対して、JS と DuckDB の両方で
@@ -199,3 +277,5 @@ CTS 専用のまま** であり、一貫性がない。
    古いクエリ結果が新しい結果を上書きしない。
 5. **可視性制御**: 各ウィジェットの `isVisible` で DuckDB 未準備時（`duckDataVersion === 0`）
    やデータ不足時に非表示。店舗比較系は `stores.size > 1` をガード。
+6. **永続化は best-effort**: OPFS / Parquet キャッシュは起動高速化のための最適化であり、
+   失敗しても `full-reload` で正常動作する。データの権威は IndexedDB（原本）にある。
