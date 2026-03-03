@@ -69,6 +69,9 @@ function computeFingerprint(
     data.departmentKpi.records.length,
     Object.keys(data.purchase).length,
     Object.keys(data.flowers).length,
+    data.stores.size,
+    data.budget.size,
+    data.settings.size,
     storedMonthsKey,
   ].join(':')
 }

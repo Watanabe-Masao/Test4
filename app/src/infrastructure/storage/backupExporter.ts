@@ -130,7 +130,12 @@ class BackupExporter {
       months,
     }
 
-    const json = JSON.stringify(backup)
+    const json = JSON.stringify(backup, (_key, value) => {
+      if (value instanceof Map) {
+        return Object.fromEntries(value)
+      }
+      return value
+    })
     return new Blob([json], { type: 'application/json' })
   }
 

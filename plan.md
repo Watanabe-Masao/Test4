@@ -1,168 +1,127 @@
-# ウィジェット統合・整理計画
+# 修正プラン: インポート/エクスポート — 予算・初期設定・店舗情報の欠損問題
 
-## 現状分析
+## pm-business タスク分析
 
-### 重複しているウィジェット（6組）
+### 問題の整理
 
-| # | 分析領域 | レガシー | DuckDB | 統合方針 |
-|---|---|---|---|---|
-| 1 | **時間帯別売上** | `TimeSlotSalesChart` (610行) | `DuckDBTimeSlotChart` (371行) | **レガシーの機能をDuckDBに統合** |
-| 2 | **時間帯×曜日ヒートマップ** | `TimeSlotHeatmapChart` (510行) | `DuckDBHeatmapChart` (404行) | **レガシーの機能をDuckDBに統合** |
-| 3 | **部門×時間帯パターン** | `DeptHourlyPatternChart` | `DuckDBDeptHourlyChart` (388行) | **レガシーの機能をDuckDBに統合** |
-| 4 | **店舗×時間帯比較** | `StoreTimeSlotComparisonChart` | `DuckDBStoreHourlyChart` (370行) | **レガシーの機能をDuckDBに統合** |
-| 5 | **前年比較（日次）** | `PrevYearComparisonChart` + `YoYVarianceChart` | `DuckDBYoYChart` (225行) | **レガシーの機能をDuckDBに統合** |
-| 6 | **カテゴリ×時間帯** | `CategoryHierarchyExplorer` 内の時間帯部分 | `DuckDBCategoryHourlyChart` (403行) | **レガシーの機能をDuckDBに統合** |
+ユーザー報告:
+1. 予算ファイルが読み込まれていない又はエクスポートされていない
+2. 初期設定ファイルが保存されていない又は読み込んでいない
+3. 店舗情報が適切に保存・読み込みができていない → 店舗数0件
 
-### レガシーにしかない機能（重複ウィジェット内の差分）
+### 根本原因分析（3つの問題）
 
-| # | レガシーにある機能 | DuckDBに不足 |
-|---|---|---|
-| 1-a | KPIタブ（コアタイム、折り返し時間、ピーク時間帯等6指標） | なし |
-| 1-b | 自動インサイト生成（テキスト） | なし |
-| 1-c | 金額/点数メトリック切替 | なし |
-| 1-d | WoW（前週）比較モード | 前年比較のみ |
-| 1-e | 階層フィルタ（部門/ライン/クラス絞り込み） | なし |
-| 2-a | 前年比増減モード（緑/赤グラデーション） | 金額モードのみ |
-| 2-b | 階層フィルタ | なし |
-| 3-a | ピアソン相関スコア（ベンチマーク比較） | なし |
-| 5-a | 差異のウォーターフォール表示 | 差分バーのみ |
+#### ~~問題A: storeId フォーマット不一致~~ → **調査で否定済み**
 
-### レガシー固有ウィジェット（DuckDB化対象外 → そのまま残す）
+全プロセッサ（Purchase, ClassifiedSales, Budget, Settings）は同じ
+`String(parseInt(...))` パターンを使用。storeId フォーマットは一致している。
 
-以下はレガシー独自のもので、今回の統合対象外。
-- 要因分解系: `WaterfallChart`, `YoYWaterfallChart`, `DrilldownWaterfall`, `CategoryFactorBreakdown`
-- 予実管理系: `BudgetVsActualChart`, `PlanActualForecast`, `ForecastTools`
-- 粗利・原価系: `GrossProfitRateChart`, `GrossProfitAmountChart`, `DiscountTrendChart`, `InventoryTrendChart`
-- 統計系: `PerformanceIndexChart`, `CustomerScatterChart`, `MultiKpiSparklines`
-- 日次売上系: `DailySalesChart`（9ビューモードは独自価値が高い）
-- Forecastページ系: 全チャート
-- テーブル系: `exec-dow-average`, `exec-weekly-summary` 等
+#### 問題A: バックアップエクスポートでの Map 消失（最重要）
 
-### DuckDB固有ウィジェット（そのまま残す）
+- `backupExporter.ts:133` — `JSON.stringify(backup)` で **Map は `{}` に化ける**
+- stores, suppliers, settings, budget の全 Map フィールドが空オブジェクトになる
+- `hydrateImportedData()` が `objectToMap({})` で復元を試みるが、
+  元データが `{}` なので空 Map が返る
+- **結果**: バックアップ import 後に store count = 0、budget/settings 消失
 
-- `DuckDBCumulativeChart` (累積売上)
-- `DuckDBFeatureChart` (異常検知)
-- `DuckDBDeptTrendChart` (部門KPI月次トレンド)
-- `DuckDBDowPatternChart` (曜日パターン)
-- `DuckDBHourlyProfileChart` (時間帯プロファイル)
-- `DuckDBCategoryTrendChart` (カテゴリ日次トレンド)
-- `DuckDBCategoryMixChart` (カテゴリ構成比推移)
-- `DuckDBStoreBenchmarkChart` (店舗ベンチマーク)
-- `DuckDBDateRangePicker` (日付範囲コントロール)
+#### 問題B: budget/initialSettings 単体インポートで stores が空
+
+- `ImportService.ts:393` — `initialSettings` ケースは stores を更新しない
+- `ImportService.ts:396` — `budget` ケースも stores を更新しない
+- purchase/classifiedSales なしで budget/settings のみインポートすると
+  `stores = new Map()` のまま
+
+#### 問題C: DuckDB フィンガープリントが budget/settings/stores を含まない
+
+- `useDuckDB.ts:56-74` — `computeFingerprint()` に budget.size, settings.size,
+  stores.size が含まれていない
+- budget/settings のみ変更しても DuckDB テーブルが再ロードされない
+
+### タスク規模: **Medium**
+
+- 複数ファイル変更、既知パターン
+- infrastructure 層 + application 層の2層
+
+### フロー: pm-business → implementation → review-gate
 
 ---
 
-## 完了状況
+## 修正計画
 
-| Phase | 内容 | 状態 | 備考 |
-|---|---|---|---|
-| 1 | 時間帯別売上の統合 | **完了** | DuckDBTimeSlotChart に KPI・メトリック切替・階層フィルタ・WoW統合済み |
-| 2 | ヒートマップの統合 | **完了** | DuckDBHeatmapChart に前年比増減モード・階層フィルタ統合済み |
-| 3 | 部門×時間帯パターンの統合 | **完了** | DuckDBDeptHourlyChart に相関スコア表示統合済み |
-| 4 | 店舗×時間帯比較の統合 | **完了** | DuckDBStoreHourlyChart（機能的に上位）にID引き継ぎ |
-| 5 | 前年比較の統合 | **完了** | DuckDBYoYChart にウォーターフォール表示モード統合済み |
-| 6 | レジストリ整理 | **完了** | UnifiedAnalyticsWidgets ファサード経由に移行、レガシーは DuckDB-only |
-| 7 | テスト・検証 | **完了** | 1431テスト全通過、ビルド・lint・アーキテクチャガード全クリア |
+### Step 1: バックアップエクスポートの Map シリアライズ修正
 
-### 残存するレガシーウィジェット（統合対象外、設計上の残置）
+**変更:** `app/src/infrastructure/storage/backupExporter.ts`
 
-レガシーチャートファイルは以下の理由で残置:
-- バレルエクスポート（`charts/index.ts`）による後方互換性
-- InsightPage の `PrevYearComparisonChart`（ページ内埋め込み、ダッシュボードウィジェットとは別用途）
-- DuckDBTimeSlotChart からのスタイル参照（`TimeSlotSalesChart.styles`）
+`JSON.stringify` に Map → plain object の replacer を追加:
+```typescript
+const json = JSON.stringify(backup, (_key, value) => {
+  if (value instanceof Map) {
+    return Object.fromEntries(value)
+  }
+  return value
+})
+```
 
-統合対象外ウィジェット: 要因分解系、予実管理系、粗利・原価系、統計系、日次売上系、Forecast系、テーブル系（詳細は下記「レガシー固有ウィジェット」を参照）
+Map.fromEntries は再帰的に処理されるため、budget.daily (Map<number,number>) も
+自動的にシリアライズされる。`hydrateImportedData()` の既存ロジック
+（objectToMap + hydrateBudgetMap）で正しく復元される。
 
----
+### Step 2: budget/initialSettings の店舗抽出
 
-## 実装計画（参照用）
+**変更:** `app/src/infrastructure/ImportService.ts`
 
-### Phase 1: 時間帯別売上の統合（最大の重複・最優先）
+`processFileDataInner()` の `initialSettings` と `budget` ケースで
+storeId から最低限の Store オブジェクトを生成:
 
-**対象**: `TimeSlotSalesChart` (レガシー) → `DuckDBTimeSlotChart` に機能統合
+```typescript
+case 'initialSettings': {
+  const settings = processSettings(rows)
+  for (const [storeId] of settings) {
+    if (!mutableStores.has(storeId)) {
+      mutableStores.set(storeId, { id: storeId, code: storeId, name: `店舗${storeId}` })
+    }
+  }
+  return { data: { ...current, stores: mutableStores, settings } }
+}
+```
 
-レガシー版の以下の機能をDuckDB版に追加:
-1. **KPIタブ**: コアタイム、折り返し時間、ピーク時間帯、平均売上等をSQLで算出
-2. **メトリック切替**: 金額/点数の切替（新SQLクエリ `queryHourlyQuantityAggregation` を追加）
-3. **階層フィルタ**: 部門/ライン/クラスでの絞り込みパラメータをSQLに追加
-4. **前週比較モード**: 日付範囲を7日シフトしたクエリを追加
-5. **インサイト生成**: SQL結果からコアタイム・折り返し時間を算出するロジックを追加
+同様に `budget` ケースにも追加。
 
-**変更ファイル**:
-- `infrastructure/duckdb/queries/categoryTimeSales.ts` — クエリ拡張
-- `application/hooks/duckdb/useCategoryTimeSalesQueries.ts` — フック拡張
-- `presentation/components/charts/DuckDBTimeSlotChart.tsx` — UI統合
-- `presentation/pages/Dashboard/widgets/registry.tsx` — レガシー版をDuckDB版で置換
+### Step 3: DuckDB フィンガープリント修正
 
-### Phase 2: ヒートマップの統合
+**変更:** `app/src/application/hooks/useDuckDB.ts`
 
-**対象**: `TimeSlotHeatmapChart` → `DuckDBHeatmapChart` に機能統合
+`computeFingerprint()` に以下を追加:
+- `data.stores.size`
+- `data.budget.size`
+- `data.settings.size`
 
-1. **前年比増減モード**: 前年の hour×dow マトリクスを取得し、差分計算
-2. **階層フィルタ**: カテゴリ絞り込みパラメータ追加
+### Step 4: テスト
 
-**変更ファイル**:
-- `infrastructure/duckdb/queries/categoryTimeSales.ts` — 前年比マトリクスクエリ追加
-- `application/hooks/duckdb/useCategoryTimeSalesQueries.ts` — フック追加
-- `presentation/components/charts/DuckDBHeatmapChart.tsx` — モード切替UI追加
+1. `backupExporter.test.ts` — Map シリアライズ往復テスト
+   - export 時に Map が正しく plain object にシリアライズされること
+   - import 後に budget/settings/stores が復元されること
 
-### Phase 3: 部門×時間帯パターンの統合
+2. `ImportService` テスト拡充
+   - budget 単体インポートで stores > 0 を検証
+   - initialSettings 単体インポートで stores > 0 を検証
 
-**対象**: `DeptHourlyPatternChart` → `DuckDBDeptHourlyChart` に機能統合
+3. `useDuckDB` テスト拡充
+   - budget/settings/stores の変更でフィンガープリントが変わること
 
-1. **ピアソン相関**: 部門間の時間帯パターン相関をSQL or フック側で算出
-
-**変更ファイル**:
-- `presentation/components/charts/DuckDBDeptHourlyChart.tsx` — 相関スコア表示追加
-
-### Phase 4: 店舗×時間帯比較の統合
-
-**対象**: `StoreTimeSlotComparisonChart` → `DuckDBStoreHourlyChart` に機能統合
-
-DuckDB版は既に金額/構成比モードを持っており、機能的に上位。
-レガシーを削除し、レジストリのIDを引き継ぐ。
-
-**変更ファイル**:
-- `presentation/pages/Dashboard/widgets/registry.tsx` — ID統合
-
-### Phase 5: 前年比較の統合
-
-**対象**: `PrevYearComparisonChart` + `YoYVarianceChart` → `DuckDBYoYChart` に機能統合
-
-1. **差異ウォーターフォール表示**: 日次差異のウォーターフォール表示モード追加
-
-**変更ファイル**:
-- `presentation/components/charts/DuckDBYoYChart.tsx` — ビューモード追加
-
-### Phase 6: レジストリ整理・レガシーウィジェット削除
-
-各Phase完了後、統合済みレガシーウィジェットを:
-1. レジストリから削除（またはDuckDB版にIDマッピング）
-2. レイアウトプリセット更新
-3. `autoInjectDataWidgets` の更新
-4. 不要になったレガシーコンポーネントファイルを削除
-
-### Phase 7: テスト・検証
+### Step 5: CI 6段階ゲート通過確認
 
 1. `npm run lint` — エラー0
-2. `npm run build` — TypeScript strict mode パス
-3. `npm test` — 全テスト合格
-4. アーキテクチャガードテスト通過確認
-5. レジストリの整合性確認（存在しないウィジェットIDが残っていないか）
+2. `npm run format:check` — 準拠
+3. `npm run build` — tsc + vite build 成功
+4. `npx vitest run` — テスト通過
 
 ---
-
-## 実装順序の理由
-
-Phase 1（時間帯別売上）を最優先にする理由:
-- 最も重複が大きく、機能差も最も多い
-- ここで確立したパターン（SQLクエリ拡張→フック→UI統合）を後続Phaseで再利用
-- ユーザーが最も頻繁に使う分析ウィジェット
 
 ## リスクと対策
 
 | リスク | 対策 |
 |---|---|
-| レガシー削除でユーザーのレイアウト設定が壊れる | IDマッピング or localStorage マイグレーション |
-| SQL クエリの肥大化 | クエリ関数を責務別に分割（既存パターン踏襲） |
-| Phase途中でビルドが壊れる | 各Phase内でレガシーを残しつつDuckDB版を先に完成→確認→削除 |
+| 既存バックアップファイルの後方互換 | hydrateImportedData の既存ロジックは旧形式（空 Map）も読める。旧バックアップは壊れたまま |
+| Map replacer で予期せぬ型変換 | replacer は `instanceof Map` でのみ発動。他の型には影響しない |
+| 仮店舗名 `店舗{id}` の見た目 | purchase/classifiedSales がインポートされれば正式名で上書きされる |

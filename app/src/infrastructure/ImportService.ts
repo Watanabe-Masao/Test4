@@ -390,14 +390,29 @@ function processFileDataInner(
       }
     }
 
-    case 'initialSettings':
-      return { data: { ...current, settings: processSettings(rows) } }
+    case 'initialSettings': {
+      const settings = processSettings(rows)
+      // 初期設定ファイルから店舗IDを抽出し、未登録なら仮の Store を作成する。
+      // purchase/classifiedSales がインポートされれば正式な店舗名で上書きされる。
+      for (const [storeId] of settings) {
+        if (!mutableStores.has(storeId)) {
+          mutableStores.set(storeId, { id: storeId, code: storeId, name: `店舗${storeId}` })
+        }
+      }
+      return { data: { ...current, stores: mutableStores, settings } }
+    }
 
     case 'budget': {
       const partitioned = processBudget(rows)
       const combined = combineMapPartitions(partitioned)
+      // 予算ファイルから店舗IDを抽出し、未登録なら仮の Store を作成する。
+      for (const [storeId] of combined) {
+        if (!mutableStores.has(storeId)) {
+          mutableStores.set(storeId, { id: storeId, code: storeId, name: `店舗${storeId}` })
+        }
+      }
       return {
-        data: { ...current, budget: combined },
+        data: { ...current, stores: mutableStores, budget: combined },
         partitions: { budget: partitioned },
       }
     }
