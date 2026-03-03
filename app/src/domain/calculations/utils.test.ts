@@ -7,6 +7,8 @@ import {
   formatPercent,
   formatPointDiff,
   calculateMovingAverage,
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
   computeAverageDivisor,
   computeActiveDowDivisorMap,
   maxDayOfRecord,
@@ -86,6 +88,72 @@ describe('calculateMovingAverage', () => {
 
   it('空配列は空配列を返す', () => {
     expect(calculateMovingAverage([], 3)).toEqual([])
+  })
+})
+
+/* ── PI値・点単価（decompose3 の構成要素） ──────────── */
+
+describe('calculateItemsPerCustomer (PI値)', () => {
+  it('基本計算: totalQty ÷ customers', () => {
+    expect(calculateItemsPerCustomer(500, 100)).toBe(5)
+  })
+  it('客数0は0を返す（safeDivide）', () => {
+    expect(calculateItemsPerCustomer(500, 0)).toBe(0)
+  })
+  it('点数0は0を返す', () => {
+    expect(calculateItemsPerCustomer(0, 100)).toBe(0)
+  })
+  it('小数点を正しく計算', () => {
+    expect(calculateItemsPerCustomer(660, 110)).toBeCloseTo(6, 10)
+  })
+})
+
+describe('calculateAveragePricePerItem (点単価)', () => {
+  it('基本計算: sales ÷ totalQty', () => {
+    expect(calculateAveragePricePerItem(250_000, 500)).toBe(500)
+  })
+  it('点数0は0を返す（safeDivide）', () => {
+    expect(calculateAveragePricePerItem(250_000, 0)).toBe(0)
+  })
+  it('売上0は0を返す', () => {
+    expect(calculateAveragePricePerItem(0, 500)).toBe(0)
+  })
+  it('小数点を正しく計算', () => {
+    expect(calculateAveragePricePerItem(396_000, 660)).toBe(600)
+  })
+})
+
+describe('PI値・点単価の不変条件: C × Q × P̄ = S', () => {
+  // S = C × Q × P̄ は decompose3 の分解前提。
+  // calculateItemsPerCustomer(Q) × calculateAveragePricePerItem(P̄) × C = S が成立する。
+  const scenarios = [
+    { label: '標準ケース', sales: 250_000, cust: 100, qty: 500 },
+    { label: '高PI・低単価', sales: 180_000, cust: 60, qty: 900 },
+    { label: '低PI・高単価', sales: 500_000, cust: 200, qty: 400 },
+    { label: '1客1点', sales: 100_000, cust: 100, qty: 100 },
+    { label: '大規模', sales: 10_000_000, cust: 5000, qty: 50_000 },
+    { label: '微小', sales: 1_000, cust: 2, qty: 3 },
+  ]
+
+  for (const s of scenarios) {
+    it(`C × Q × P̄ = S: ${s.label}`, () => {
+      const Q = calculateItemsPerCustomer(s.qty, s.cust)
+      const P = calculateAveragePricePerItem(s.sales, s.qty)
+      const reconstructed = s.cust * Q * P
+      expect(reconstructed).toBeCloseTo(s.sales, 2)
+    })
+  }
+
+  it('客数0のとき再構成は0（ゼロ除算安全）', () => {
+    const Q = calculateItemsPerCustomer(500, 0)
+    const P = calculateAveragePricePerItem(250_000, 500)
+    expect(0 * Q * P).toBe(0) // C=0 なので再構成も0
+  })
+
+  it('点数0のとき再構成は0（ゼロ除算安全）', () => {
+    const Q = calculateItemsPerCustomer(0, 100)
+    const P = calculateAveragePricePerItem(250_000, 0)
+    expect(100 * Q * P).toBe(0) // Q=0 なので再構成も0
   })
 })
 

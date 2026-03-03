@@ -6,6 +6,10 @@ import {
   decomposePriceMix,
 } from '@/domain/calculations/factorDecomposition'
 import type { CategoryQtyAmt } from '@/domain/calculations/factorDecomposition'
+import {
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
+} from '@/domain/calculations/utils'
 
 /* ── Helper ─────────────────────────────────────────── */
 
@@ -362,6 +366,57 @@ describe('数学的不変条件: 全分解関数の合計 = ΔS', () => {
     expect(result).not.toBeNull()
     const total = result!.custEffect + result!.qtyEffect + result!.priceEffect + result!.mixEffect
     expect(Math.abs(total - 300_000)).toBeLessThan(1)
+  })
+})
+
+/* ── PI値・点単価 × decompose3 の整合性 ────────────── */
+
+describe('PI値・点単価と decompose3 の整合性', () => {
+  it('decompose3 の内部計算と同じ Q/P̄ を外部関数で再現できる', () => {
+    // decompose3 内部: Q0 = prevTotalQty/prevCust, P0 = prevSales/prevTotalQty
+    const prevSales = 250_000, curSales = 396_000
+    const prevCust = 100, curCust = 110
+    const prevTotalQty = 500, curTotalQty = 660
+
+    const prevPI = calculateItemsPerCustomer(prevTotalQty, prevCust)
+    const curPI = calculateItemsPerCustomer(curTotalQty, curCust)
+    const prevPPI = calculateAveragePricePerItem(prevSales, prevTotalQty)
+    const curPPI = calculateAveragePricePerItem(curSales, curTotalQty)
+
+    // Q0 = 500/100 = 5, Q1 = 660/110 = 6
+    expect(prevPI).toBeCloseTo(5, 10)
+    expect(curPI).toBeCloseTo(6, 10)
+    // P0 = 250000/500 = 500, P1 = 396000/660 = 600
+    expect(prevPPI).toBeCloseTo(500, 10)
+    expect(curPPI).toBeCloseTo(600, 10)
+
+    // C × Q × P̄ = S が前年・当年それぞれで成立
+    expect(prevCust * prevPI * prevPPI).toBeCloseTo(prevSales, 2)
+    expect(curCust * curPI * curPPI).toBeCloseTo(curSales, 2)
+
+    // decompose3 の合計 = ΔS も引き続き成立
+    const d = decompose3(prevSales, curSales, prevCust, curCust, prevTotalQty, curTotalQty)
+    expect(d.custEffect + d.qtyEffect + d.pricePerItemEffect).toBeCloseTo(curSales - prevSales, 2)
+  })
+
+  it('多様なシナリオで C × Q × P̄ 恒等式が成立する', () => {
+    const scenarios = [
+      { ps: 200_000, cs: 350_000, pc: 80, cc: 120, ptq: 400, ctq: 720 },
+      { ps: 500_000, cs: 300_000, pc: 200, cc: 120, ptq: 1000, ctq: 600 },
+      { ps: 100_000, cs: 150_000, pc: 50, cc: 50, ptq: 200, ctq: 200 },
+      { ps: 1_000_000, cs: 1_200_000, pc: 500, cc: 600, ptq: 5000, ctq: 7200 },
+    ]
+
+    for (const s of scenarios) {
+      const prevPI = calculateItemsPerCustomer(s.ptq, s.pc)
+      const curPI = calculateItemsPerCustomer(s.ctq, s.cc)
+      const prevPPI = calculateAveragePricePerItem(s.ps, s.ptq)
+      const curPPI = calculateAveragePricePerItem(s.cs, s.ctq)
+
+      // C × Q × P̄ = S（前年・当年）
+      expect(s.pc * prevPI * prevPPI).toBeCloseTo(s.ps, 2)
+      expect(s.cc * curPI * curPPI).toBeCloseTo(s.cs, 2)
+    }
   })
 })
 

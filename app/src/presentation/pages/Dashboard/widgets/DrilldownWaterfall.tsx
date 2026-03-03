@@ -19,7 +19,11 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
-import { formatCurrency } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
+} from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
@@ -61,6 +65,18 @@ interface WaterfallItem {
 
 type ViewMode = 'factor' | 'category' | 'categoryFactor'
 type DecompLevel = 2 | 3 | 5
+
+const PiRow = styled.div`
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 8px;
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+const PiItem = styled.span<{ $color?: string }>`
+  color: ${({ $color, theme }) => $color ?? theme.colors.text2};
+`
 
 const DecompRow = styled.div`
   display: flex;
@@ -283,6 +299,16 @@ export function DrilldownWaterfall({
     return items
   }, [dayRecords, prevDayRecords, actual, pySales, curLabel, prevLabel])
 
+  // PI値・点単価（3要素以上の分解時に表示）
+  const piSummary = useMemo(() => {
+    if (activeLevel < 3 || !hasQuantity || pyCust <= 0 || dayCust <= 0) return null
+    const prevPI = calculateItemsPerCustomer(prevTotalQty, pyCust)
+    const curPI = calculateItemsPerCustomer(curTotalQty, dayCust)
+    const prevPPI = calculateAveragePricePerItem(pySales, prevTotalQty)
+    const curPPI = calculateAveragePricePerItem(actual, curTotalQty)
+    return { prevPI, curPI, prevPPI, curPPI }
+  }, [activeLevel, hasQuantity, pyCust, dayCust, prevTotalQty, curTotalQty, pySales, actual])
+
   if (pySales <= 0 || factorData.length === 0) return null
 
   const hasCategoryView = categoryData.length > 0
@@ -334,6 +360,25 @@ export function DrilldownWaterfall({
             </DecompBtn>
           )}
         </DecompRow>
+      )}
+
+      {piSummary && viewMode === 'factor' && (
+        <PiRow>
+          <span>
+            PI値: {piSummary.prevPI.toFixed(1)}点
+            →{' '}
+            <PiItem $color={sc.cond(piSummary.curPI >= piSummary.prevPI)}>
+              {piSummary.curPI.toFixed(1)}点
+            </PiItem>
+          </span>
+          <span>
+            点単価: {formatCurrency(Math.round(piSummary.prevPPI))}
+            →{' '}
+            <PiItem $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}>
+              {formatCurrency(Math.round(piSummary.curPPI))}
+            </PiItem>
+          </span>
+        </PiRow>
       )}
 
       {viewMode === 'categoryFactor' ? (
