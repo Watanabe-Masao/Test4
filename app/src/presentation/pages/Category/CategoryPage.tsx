@@ -95,6 +95,9 @@ export function CategoryPage() {
   // ドリルダウン: カテゴリ→店舗→日別
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const [expandedStore, setExpandedStore] = useState<string | null>(null) // "category:storeId"
+  // 取引先ドリルダウン: 取引先→店舗→日別
+  const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null) // supplierCode
+  const [expandedSupplierStore, setExpandedSupplierStore] = useState<string | null>(null) // "code:storeId"
 
   // Build store name map for comparison charts (must be before early return)
   const storeNames = useMemo(() => {
@@ -567,7 +570,7 @@ export function CategoryPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSupplierData.map((s) => {
+                    {filteredSupplierData.flatMap((s) => {
                       const supplierGP = s.price - s.cost
                       const supplierPriceShare = safeDivide(
                         Math.abs(s.price),
@@ -578,9 +581,20 @@ export function CategoryPage() {
                       const assignedCategory = settings.supplierCategoryMap[s.supplierCode] as
                         | CustomCategory
                         | undefined
-                      return (
-                        <Tr key={s.supplierCode}>
-                          <Td style={{ textAlign: 'center' }}>
+                      const isSupExpanded = expandedSupplier === s.supplierCode
+                      const rows: React.ReactNode[] = []
+                      rows.push(
+                        <DrillTr
+                          key={s.supplierCode}
+                          $clickable={selectedResults.length > 0}
+                          $expanded={isSupExpanded}
+                          onClick={() => {
+                            if (selectedResults.length === 0) return
+                            setExpandedSupplier(isSupExpanded ? null : s.supplierCode)
+                            setExpandedSupplierStore(null)
+                          }}
+                        >
+                          <Td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                             <CategorySelect
                               value={assignedCategory ?? ''}
                               onChange={(e) =>
@@ -601,7 +615,12 @@ export function CategoryPage() {
                               ))}
                             </CategorySelect>
                           </Td>
-                          <Td>{s.supplierName}</Td>
+                          <Td>
+                            {selectedResults.length > 0 && (
+                              <DrillToggle>{isSupExpanded ? '▾' : '▸'}</DrillToggle>
+                            )}
+                            {s.supplierName}
+                          </Td>
                           <Td>{s.supplierCode}</Td>
                           <Td>{formatCurrency(s.cost)}</Td>
                           <Td>{formatCurrency(s.price)}</Td>
@@ -613,8 +632,88 @@ export function CategoryPage() {
                           </MarkupCell>
                           <Td>{formatPercent(supplierPriceShare)}</Td>
                           <Td>{formatPercent(supplierCrossMult)}</Td>
-                        </Tr>
+                        </DrillTr>,
                       )
+                      // 店舗ドリルダウン
+                      if (isSupExpanded) {
+                        const catColor = assignedCategory
+                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory] ?? '#94a3b8')
+                          : '#94a3b8'
+                        for (const sr of selectedResults) {
+                          const storeSupplier = sr.supplierTotals.get(s.supplierCode)
+                          if (!storeSupplier) continue
+                          const stGP = storeSupplier.price - storeSupplier.cost
+                          const stMR = safeDivide(stGP, storeSupplier.price, 0)
+                          const stKey = `${s.supplierCode}:${sr.storeId}`
+                          const isStoreExpanded = expandedSupplierStore === stKey
+                          const stName = stores.get(sr.storeId)?.name ?? sr.storeId
+                          rows.push(
+                            <DrillTr
+                              key={stKey}
+                              $depth={1}
+                              $catColor={catColor}
+                              $clickable
+                              $expanded={isStoreExpanded}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setExpandedSupplierStore(isStoreExpanded ? null : stKey)
+                              }}
+                            >
+                              <Td></Td>
+                              <Td>
+                                <DrillLabel $depth={1}>
+                                  <DrillToggle $expanded={isStoreExpanded}>&#9654;</DrillToggle>
+                                  {stName}
+                                </DrillLabel>
+                              </Td>
+                              <Td></Td>
+                              <Td>{formatCurrency(storeSupplier.cost)}</Td>
+                              <Td>{formatCurrency(storeSupplier.price)}</Td>
+                              <GrossProfitCell $positive={stGP >= 0}>
+                                {formatCurrency(stGP)}
+                              </GrossProfitCell>
+                              <MarkupCell $rate={stMR}>{formatPercent(stMR)}</MarkupCell>
+                              <Td></Td>
+                              <Td></Td>
+                            </DrillTr>,
+                          )
+                          // 日別ドリルダウン
+                          if (isStoreExpanded) {
+                            const dailyEntries = Array.from(sr.daily.entries())
+                              .filter(([, dr]) => {
+                                const sup = dr.supplierBreakdown.get(s.supplierCode)
+                                return sup && (sup.cost !== 0 || sup.price !== 0)
+                              })
+                              .sort(([a], [b]) => a - b)
+                            for (const [day, dr] of dailyEntries) {
+                              const sup = dr.supplierBreakdown.get(s.supplierCode)
+                              if (!sup) continue
+                              const dayGP = sup.price - sup.cost
+                              const dayMR = safeDivide(dayGP, sup.price, 0)
+                              rows.push(
+                                <DrillTr key={`${stKey}:${day}`} $depth={2} $catColor={catColor}>
+                                  <Td></Td>
+                                  <Td>
+                                    <DrillLabel $depth={2}>
+                                      {settings.targetMonth}/{day}日
+                                    </DrillLabel>
+                                  </Td>
+                                  <Td></Td>
+                                  <Td>{formatCurrency(sup.cost)}</Td>
+                                  <Td>{formatCurrency(sup.price)}</Td>
+                                  <GrossProfitCell $positive={dayGP >= 0}>
+                                    {formatCurrency(dayGP)}
+                                  </GrossProfitCell>
+                                  <MarkupCell $rate={dayMR}>{formatPercent(dayMR)}</MarkupCell>
+                                  <Td></Td>
+                                  <Td></Td>
+                                </DrillTr>,
+                              )
+                            }
+                          }
+                        }
+                      }
+                      return rows
                     })}
                     <TrTotal>
                       <Td>合計（{filteredSupplierData.length}件）</Td>
