@@ -18,7 +18,7 @@
 6. タスク分解書を作成する
 7. タスクに適切なロールのエージェントを割り当てる（SKILL-3 参照）
 
-### 出力テンプレート
+### 出力テンプレート（Medium / Large）
 
 ```
 ## タスク分解書
@@ -27,22 +27,31 @@
 （人間からの依頼内容）
 
 ### タスク規模
-Small / Medium / Large
+Medium / Large
 
 ### 受入基準
 - [ ] （測定可能な条件1）
 - [ ] （測定可能な条件2）
 - [ ] CI 5段階ゲート通過
 
-### 作業分解
+### 割り当てるエージェントと順序
 1. [architecture] （設計判断の内容）← Large の場合
 2. [implementation] （実装内容）
-3. [invariant-guardian] （不変条件の確認）← 計算変更の場合
+3. [specialist/*] （専門検証の内容）← 該当する場合
 4. [review-gate] 禁止事項チェック + CI 確認
 5. [documentation-steward] ドキュメント更新 ← 必要な場合
+```
 
-### 連携順序
-architecture → implementation → review-gate
+### 出力テンプレート（Small）
+
+Small タスクではタスク分解書を簡略化する。
+1行の概要 + 受入基準のみで十分。作業分解は不要。
+
+```
+## タスク: （1行の概要）
+- 規模: Small
+- 受入基準: CI 通過 + （具体条件）
+- 割り当て: implementation → review-gate
 ```
 
 ## SKILL-2: 完了判定
