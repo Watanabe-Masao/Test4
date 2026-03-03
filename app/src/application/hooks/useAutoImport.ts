@@ -46,6 +46,12 @@ function saveProcessedFingerprints(fingerprints: Set<string>): void {
   }
 }
 
+/** 定期スキャン間隔（5分） */
+const AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000
+
+/** localStorage キー（自動同期の有効/無効を永続化） */
+const AUTO_SYNC_ENABLED_KEY = 'shiire-arari-auto-sync-enabled'
+
 export interface AutoImportState {
   /** File System Access API 対応ブラウザか */
   readonly supported: boolean
@@ -61,6 +67,8 @@ export interface AutoImportState {
   readonly lastImportCount: number
   /** エラーメッセージ */
   readonly error: string | null
+  /** 定期自動同期が有効か */
+  readonly autoSyncEnabled: boolean
 }
 
 export interface AutoImportActions {
@@ -70,6 +78,8 @@ export interface AutoImportActions {
   clearFolder: () => Promise<void>
   /** 手動でフォルダをスキャンし、新規ファイルを取り込む */
   scanNow: () => Promise<File[]>
+  /** 定期自動同期の有効/無効を切り替える */
+  setAutoSync: (enabled: boolean) => void
 }
 
 export function useAutoImport(
@@ -82,6 +92,13 @@ export function useAutoImport(
   const [isScanning, setIsScanning] = useState(false)
   const [lastImportCount, setLastImportCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(AUTO_SYNC_ENABLED_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
 
   /** 処理済みファイルの指紋セット（localStorage から復元） */
   const processedRef = useRef(loadProcessedFingerprints())
@@ -169,6 +186,26 @@ export function useAutoImport(
     scanNow()
   }, [dirHandle, scanNow])
 
+  const setAutoSync = useCallback((enabled: boolean) => {
+    setAutoSyncEnabled(enabled)
+    try {
+      localStorage.setItem(AUTO_SYNC_ENABLED_KEY, String(enabled))
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  // 定期自動同期: フォルダ設定済み & 自動同期ON の場合、5分ごとにスキャン
+  const scanNowRef = useRef(scanNow)
+  scanNowRef.current = scanNow
+  useEffect(() => {
+    if (!dirHandle || !autoSyncEnabled) return
+    const id = setInterval(() => {
+      scanNowRef.current()
+    }, AUTO_SYNC_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [dirHandle, autoSyncEnabled])
+
   return {
     supported,
     folderConfigured: dirHandle !== null,
@@ -177,8 +214,10 @@ export function useAutoImport(
     isScanning,
     lastImportCount,
     error,
+    autoSyncEnabled,
     selectFolder,
     clearFolder,
     scanNow,
+    setAutoSync,
   }
 }

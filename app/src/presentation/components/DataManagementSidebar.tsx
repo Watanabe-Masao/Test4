@@ -814,6 +814,20 @@ export function DataManagementSidebar({
                   </FolderSmallBtn>
                 )}
               </FolderSyncRow>
+              {autoImport.folderConfigured && (
+                <FolderSyncRow>
+                  <FolderSmallBtn
+                    onClick={() => autoImport.setAutoSync(!autoImport.autoSyncEnabled)}
+                    style={{
+                      background: autoImport.autoSyncEnabled ? '#22c55e20' : undefined,
+                      borderColor: autoImport.autoSyncEnabled ? '#22c55e60' : undefined,
+                    }}
+                  >
+                    {autoImport.autoSyncEnabled ? '自動同期 ON' : '自動同期 OFF'}
+                  </FolderSmallBtn>
+                  {autoImport.autoSyncEnabled && <FolderStatus $ok>5分間隔</FolderStatus>}
+                </FolderSyncRow>
+              )}
               {autoImport.lastScanAt && (
                 <FolderStatus $ok={autoImport.lastImportCount > 0}>
                   最終スキャン: {new Date(autoImport.lastScanAt).toLocaleTimeString()} (

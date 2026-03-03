@@ -1,7 +1,8 @@
 import styled, { useTheme } from 'styled-components'
-import type { ReactNode } from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { AnalysisBar } from '@/presentation/components/common'
 
 const Main = styled.main`
@@ -36,9 +37,23 @@ const Badge = styled.span`
   border-radius: ${({ theme }) => theme.radii.pill};
 `
 
-const MonthBadge = styled(Badge)`
+const MonthBadgeButton = styled.button`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.pill};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  position: relative;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.palette.primary}60;
+    background: ${({ theme }) => theme.colors.palette.primary}10;
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
 `
 
 const StoreBadge = styled(Badge)`
@@ -61,6 +76,154 @@ const ContextBar = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
 `
+
+// ── Month Picker Popup ──
+
+const PickerOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+`
+
+const PickerDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  z-index: 201;
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: ${({ theme }) => theme.spacing[4]};
+  min-width: 220px;
+`
+
+const PickerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+const YearLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+const YearArrow = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: transparent;
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: pointer;
+  font-size: 12px;
+  touch-action: manipulation;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`
+
+const MonthGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+const MonthCell = styled.button<{ $active?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[2]};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}20` : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text)};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  touch-action: manipulation;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
+`
+
+const BadgeWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`
+
+// ── Components ──
+
+function InlineMonthPicker() {
+  const settings = useSettingsStore((s) => s.settings)
+  const { isSwitching, switchMonth } = useMonthSwitcher()
+  const [open, setOpen] = useState(false)
+  const [pickerYear, setPickerYear] = useState(settings.targetYear)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const handleOpen = useCallback(() => {
+    setPickerYear(settings.targetYear)
+    setOpen(true)
+  }, [settings.targetYear])
+
+  const handleSelect = useCallback(
+    async (month: number) => {
+      setOpen(false)
+      await switchMonth(pickerYear, month)
+    },
+    [pickerYear, switchMonth],
+  )
+
+  if (isSwitching) {
+    return (
+      <MonthBadgeButton disabled style={{ opacity: 0.6 }}>
+        切替中...
+      </MonthBadgeButton>
+    )
+  }
+
+  return (
+    <BadgeWrapper ref={wrapperRef}>
+      <MonthBadgeButton onClick={handleOpen}>
+        {settings.targetYear}/{settings.targetMonth}月
+      </MonthBadgeButton>
+      {open && (
+        <>
+          <PickerOverlay onClick={() => setOpen(false)} />
+          <PickerDropdown>
+            <PickerHeader>
+              <YearArrow onClick={() => setPickerYear((y) => y - 1)}>◀</YearArrow>
+              <YearLabel>{pickerYear}年</YearLabel>
+              <YearArrow onClick={() => setPickerYear((y) => y + 1)}>▶</YearArrow>
+            </PickerHeader>
+            <MonthGrid>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <MonthCell
+                  key={m}
+                  $active={pickerYear === settings.targetYear && m === settings.targetMonth}
+                  onClick={() => handleSelect(m)}
+                >
+                  {m}月
+                </MonthCell>
+              ))}
+            </MonthGrid>
+          </PickerDropdown>
+        </>
+      )}
+    </BadgeWrapper>
+  )
+}
 
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
@@ -102,16 +265,12 @@ export function MainContent({
   showAnalysisBar?: boolean
   children: ReactNode
 }) {
-  const settings = useSettingsStore((s) => s.settings)
-
   return (
     <Main>
       <Header>
         <TitleRow>
           <Title>{title}</Title>
-          <MonthBadge>
-            {settings.targetYear}/{settings.targetMonth}月
-          </MonthBadge>
+          <InlineMonthPicker />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
