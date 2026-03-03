@@ -64,6 +64,8 @@ architecture の設計判断に従い、invariant-guardian の不変条件を守
 |---|---|---|---|
 | **報告** | → review-gate | 成果物提出（コード + テスト + CI 結果） | 実装完了時 |
 | **報告** | → pm-business | ブロッカー発生・スコープ変更の通知 | 問題検知時 |
+| **連携** | ← pm-business | タスク分解書・実装指示の受け取り | タスク開始時 |
+| **連携** | ← architecture | 設計判断書の受け取り | Large タスク時 |
 | **連携** | ←→ specialist/* | 計算変更・DuckDB変更・指標追加の共同作業 | 実装中 |
 | **相談** | → architecture | 独自パターン導入・層跨ぎ変更の事前確認 | 実装前 |
 | **相談** | → invariant-guardian | 計算ロジック変更の不変条件影響確認 | 実装前 |

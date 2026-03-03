@@ -45,7 +45,7 @@ function buildNewMetric(sr: StoreResult, daily: ReadonlyMap<number, DailyRecord>
 
 ### 論理構造（なぜこの手順か）
 
-- カバレッジが24/24を下回ると → 一部の指標が説明不能になる → 「全指標は監査可能」の原則に違反する
+- カバレッジが25/25を下回ると → 一部の指標が説明不能になる → 「全指標は監査可能」の原則に違反する
 - L2 や L3 が欠けると → ドリルダウンチェーンが途切れる → ユーザーが元データまで辿れない
 - ページ別確認を怠ると → Explanation は存在するが KpiCard に接続されていない → UI から到達不能
 
@@ -66,7 +66,7 @@ function buildNewMetric(sr: StoreResult, daily: ReadonlyMap<number, DailyRecord>
 ## Explanation カバレッジ監査結果
 
 ### 対応状況
-- 対応済み: XX / 24 指標
+- 対応済み: XX / 25 指標
 - 未対応: XX 指標
 
 ### 未対応指標リスト

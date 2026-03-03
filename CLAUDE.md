@@ -28,7 +28,7 @@
 | ロール | 位置づけ | 品質責任 |
 |---|---|---|
 | pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | 要件の正確さ・受入基準の測定可能性 |
-| review-gate | 品質の出口。pm-business の報告を受けて自律的に判定 | 7禁止事項・ガードテスト・CI 5段階ゲート |
+| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 7禁止事項・ガードテスト・CI 5段階ゲート |
 | documentation-steward | 記録の出口。pm-business の報告を受けて更新要否を自律判断 | CLAUDE.md・roles/・references/ とコードの整合性 |
 
 **実務部門（line/）** — 設計→実装→専門検証
@@ -321,7 +321,7 @@ cd app && npm run dev           # Vite 開発サーバー
 
 ## Explanation（説明責任）
 
-24 MetricId に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
+25 MetricId に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
 詳細は `references/explanation-architecture.md` と `references/metric-id-registry.md` を参照。
 
 **鉄則:** 計算を再実行しない（StoreResult の値をそのまま使う）。Domain 層は型定義のみ。

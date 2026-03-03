@@ -22,6 +22,7 @@
 | R-1 | PWA オフライン戦略が未設計 | IndexedDB + DuckDB のデータ整合性が保証されない | architecture |
 | R-2 | DevTools の本番ビルド除外方針が未定義 | バンドルサイズ肥大化・ユーザーへの情報漏洩 | architecture |
 | R-3 | documentConsistency.test.ts のカバー範囲が限定的 | ドキュメント乖離が検出されない領域が存在する | invariant-guardian |
+| R-4 | engine-responsibility.md の責務マトリクスが不完全 | Zスコア計算が JS/DuckDB 両方に存在、alertSystem/inventoryCalc/correlation/discountImpact/pinIntervals が未記載 | architecture |
 
 ## 3. 解決済みの課題（アーカイブ）
 

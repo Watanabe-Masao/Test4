@@ -1,6 +1,6 @@
 # MetricId レジストリ
 
-24 個の MetricId の一覧。型定義は `domain/models/Explanation.ts` を参照。
+25 個の MetricId の一覧。型定義は `domain/models/Explanation.ts` を参照。
 
 ## 売上系
 
