@@ -23,13 +23,13 @@
 
 ### 組織構造: スタッフ部門 + 実務部門
 
-**スタッフ部門（staff/）** — 指示者・品質ゲート・記録
+**スタッフ部門（staff/）** — 報告を受けて自律的に品質責任を果たす
 
-| ロール | 位置づけ | 渡し先 |
+| ロール | 位置づけ | 品質責任 |
 |---|---|---|
-| pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | → architecture/implementation |
-| review-gate | 品質の出口。pm-business の受入基準と照合 | → implementation or → documentation-steward |
-| documentation-steward | 全過程の記録 | → CLAUDE.md / references/ |
+| pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | 要件の正確さ・受入基準の測定可能性 |
+| review-gate | 品質の出口。pm-business の報告を受けて自律的に判定 | 7禁止事項・ガードテスト・CI 5段階ゲート |
+| documentation-steward | 記録の出口。pm-business の報告を受けて更新要否を自律判断 | CLAUDE.md・roles/・references/ とコードの整合性 |
 
 **実務部門（line/）** — 設計→実装→専門検証
 
@@ -52,10 +52,12 @@
           └→ implementation ← → specialist/*  ← 全規模
                     │  相談↑↓連携     ↑報告
                     ▼
-              review-gate（pm-business の受入基準と照合）
+              review-gate（自律判断: PASS/FAIL）
                  報告→ pm-business
-                 PASS → documentation-steward → 完了
                  FAIL → implementation（差し戻し）
+                 PASS → pm-business が変更内容を報告
+                           ▼
+                    documentation-steward（自律判断: 更新要否）→ 完了
 ```
 
 ### 連携プロトコル（報告・連携・相談）
@@ -82,8 +84,17 @@
 
 ### 指示者と作業者
 
-pm-business は**指示者**、各ロールは**作業者**である。
+pm-business は**指示者**であり、実務部門の各ロールは**作業者**である。
 タスクが主語であり、pm-business はタスクに必要な作業者を決定する。
+
+スタッフ部門（review-gate / documentation-steward）は pm-business の下請けではない。
+pm-business からの**報告を受けて**、各自の品質領域で**自律的に判断する**。
+
+| 区分 | pm-business との関係 | 判断の主体 |
+|---|---|---|
+| 実務部門（line/） | pm-business が作業を指示する | pm-business |
+| review-gate | pm-business が受入基準を提供。PASS/FAIL は review-gate が判断する | review-gate |
+| documentation-steward | pm-business が変更内容を報告。更新要否は documentation-steward が判断する | documentation-steward |
 
 **原則:**
 - pm-business をスキップしてはならない（規模が Small でも必ず経由する）
