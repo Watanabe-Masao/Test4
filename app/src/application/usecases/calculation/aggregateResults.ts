@@ -288,6 +288,10 @@ export function aggregateStoreResults(
   }
   const budgetProgressRate = safeDivide(totalSales, aggCumulativeBudget, 0)
   const budgetElapsedRate = safeDivide(aggCumulativeBudget, budget, 0)
+  const budgetProgressGap = budgetProgressRate - budgetElapsedRate
+  const budgetVariance = totalSales - aggCumulativeBudget
+  const requiredDailySales =
+    remainingDays > 0 ? safeDivide(budget - totalSales, remainingDays, 0) : 0
   const remainingBudget = budget - totalSales
 
   const dailyCumulative = new Map<number, { sales: number; budget: number }>()
@@ -368,6 +372,9 @@ export function aggregateStoreResults(
     budgetAchievementRate,
     budgetProgressRate,
     budgetElapsedRate,
+    budgetProgressGap,
+    budgetVariance,
+    requiredDailySales,
     remainingBudget,
     dailyCumulative,
   }

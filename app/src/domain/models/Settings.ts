@@ -1,15 +1,7 @@
-/** カスタムカテゴリ */
-export type CustomCategory = '市場仕入' | 'LFC' | 'サラダ' | '加工品' | '消耗品' | '直伝' | 'その他'
-
-export const CUSTOM_CATEGORIES: readonly CustomCategory[] = [
-  '市場仕入',
-  'LFC',
-  'サラダ',
-  '加工品',
-  '消耗品',
-  '直伝',
-  'その他',
-] as const
+// CustomCategory は customCategories.ts に移行。互換性のため re-export
+import type { CustomCategoryId } from '../constants/customCategories'
+export type { CustomCategoryId as CustomCategory } from '../constants/customCategories'
+export { PRESET_CATEGORY_DEFS as CUSTOM_CATEGORIES } from '../constants/customCategories'
 
 /** アプリケーション設定 */
 export interface AppSettings {
@@ -30,7 +22,7 @@ export interface AppSettings {
   readonly discountBlueThreshold: number // N%以下で青 (default: 0.02)
   readonly discountYellowThreshold: number // N%以下で黄色 (default: 0.025)
   readonly discountRedThreshold: number // N%以下で赤 (default: 0.03)
-  readonly supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>> // 取引先→カテゴリ
+  readonly supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>> // 取引先→カテゴリ
   // 前年比マッピング手動オーバーライド (null = 自動)
   readonly prevYearSourceYear: number | null // 前年データ取得元の年 (null = targetYear - 1)
   readonly prevYearSourceMonth: number | null // 前年データ取得元の月 (null = targetMonth)

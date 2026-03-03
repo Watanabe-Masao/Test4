@@ -90,6 +90,8 @@ export type {
 } from './Persistence'
 export type {
   MetricId,
+  MetricTokens,
+  MetricMeta,
   MetricUnit,
   EvidenceRef,
   ExplanationInput,

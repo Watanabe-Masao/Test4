@@ -1,5 +1,6 @@
 import type { StoreResult, CustomCategory } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
+import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -35,14 +36,14 @@ export const CATEGORY_COLORS: Record<string, string> = {
   other: '#64748b',
 }
 
-export const CUSTOM_CATEGORY_COLORS: Record<string, string> = {
-  市場仕入: '#f59e0b',
-  LFC: '#3b82f6',
-  サラダ: '#22c55e',
-  加工品: '#a855f7',
-  消耗品: '#ea580c',
-  直伝: '#06b6d4',
-  その他: '#64748b',
+export const CUSTOM_CATEGORY_COLORS: Record<PresetCategoryId, string> = {
+  market_purchase: '#f59e0b',
+  lfc: '#3b82f6',
+  salad: '#22c55e',
+  processed: '#a855f7',
+  consumables: '#ea580c',
+  direct_delivery: '#06b6d4',
+  other: '#64748b',
 }
 
 // ─── Data builders ───────────────────────────────────────
@@ -105,21 +106,21 @@ export function buildCustomCategoryData(
   )
 
   return CUSTOM_CATEGORIES.flatMap((cc) => {
-    const pair = aggregated.get(cc)
+    const pair = aggregated.get(cc.id as CustomCategory)
     if (!pair) return []
     const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
     const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
     const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
     return [
       {
-        category: cc,
-        label: cc,
+        category: cc.id,
+        label: cc.label,
         cost: pair.cost,
         price: pair.price,
         markup: markupRate,
         priceShare,
         crossMultiplication,
-        color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
+        color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
       },
     ]
   })
@@ -182,14 +183,14 @@ export function buildUnifiedCategoryData(
   }
 
   for (const cc of CUSTOM_CATEGORIES) {
-    const pair = aggregated.get(cc)
+    const pair = aggregated.get(cc.id as CustomCategory)
     if (!pair) continue
     items.push({
-      category: cc,
-      label: cc,
+      category: cc.id,
+      label: cc.label,
       cost: pair.cost,
       price: pair.price,
-      color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
+      color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
       isCustom: true,
     })
   }

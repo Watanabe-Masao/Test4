@@ -24,6 +24,7 @@ import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { CustomCategory, CategoryType } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
+import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
   ChartGrid,
   Section,
@@ -604,13 +605,13 @@ export function CategoryPage() {
                                 )
                               }
                               style={{
-                                borderLeft: `3px solid ${assignedCategory ? (CUSTOM_CATEGORY_COLORS[assignedCategory] ?? '#94a3b8') : '#94a3b8'}`,
+                                borderLeft: `3px solid ${assignedCategory ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8') : '#94a3b8'}`,
                               }}
                             >
                               <option value="">未分類</option>
                               {CUSTOM_CATEGORIES.map((cc) => (
-                                <option key={cc} value={cc}>
-                                  {cc}
+                                <option key={cc.id} value={cc.id}>
+                                  {cc.label}
                                 </option>
                               ))}
                             </CategorySelect>
@@ -637,7 +638,7 @@ export function CategoryPage() {
                       // 店舗ドリルダウン
                       if (isSupExpanded) {
                         const catColor = assignedCategory
-                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory] ?? '#94a3b8')
+                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8')
                           : '#94a3b8'
                         for (const sr of selectedResults) {
                           const storeSupplier = sr.supplierTotals.get(s.supplierCode)

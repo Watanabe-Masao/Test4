@@ -326,7 +326,7 @@ function aggregateByAccount(items: ItemAggregate[]): AccountAggregate[] {
  * 仕入ピボットテーブルを構築する。
  *
  * 列: 標準カテゴリ（market, lfc, ... , interDepartment）+
- *     カスタムカテゴリ（市場仕入, LFC, ...）
+ *     カスタムカテゴリ（market_purchase, lfc, ...）
  * 行: 日付（1日〜31日）
  * セル: 原価 / 売価
  *
@@ -403,14 +403,14 @@ function buildPurchasePivot(
     }
 
     for (const cc of CUSTOM_CATEGORIES) {
-      if (!customCatHasData.has(cc)) continue
+      if (!customCatHasData.has(cc.id as CustomCategory)) continue
       customColumns.push({
-        key: cc,
-        label: cc,
-        color: CUSTOM_CATEGORY_COLORS[cc] ?? '#64748b',
+        key: cc.id,
+        label: cc.label,
+        color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
         isCustom: true,
       })
-      customKeys.add(cc)
+      customKeys.add(cc.id)
     }
   }
 

@@ -10,6 +10,7 @@ import {
 } from '@/domain/calculations/utils'
 import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
 import { DISCOUNT_TYPES, CUSTOM_CATEGORIES } from '@/domain/models'
+import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
@@ -464,14 +465,14 @@ const CROSS_COLORS: Record<string, string> = {
   other: '#64748b',
 }
 
-const CUSTOM_CROSS_COLORS: Record<string, string> = {
-  市場仕入: '#f59e0b',
-  LFC: '#3b82f6',
-  サラダ: '#22c55e',
-  加工品: '#a855f7',
-  消耗品: '#ea580c',
-  直伝: '#06b6d4',
-  その他: '#64748b',
+const CUSTOM_CROSS_COLORS: Record<PresetCategoryId, string> = {
+  market_purchase: '#f59e0b',
+  lfc: '#3b82f6',
+  salad: '#22c55e',
+  processed: '#a855f7',
+  consumables: '#ea580c',
+  direct_delivery: '#06b6d4',
+  other: '#64748b',
 }
 
 /**
@@ -507,13 +508,13 @@ function buildCrossMult(
     })
   }
   for (const cc of CUSTOM_CATEGORIES) {
-    const pair = customAgg.get(cc)
+    const pair = customAgg.get(cc.id as CustomCategory)
     if (!pair || (pair.cost === 0 && pair.price === 0)) continue
     items.push({
-      label: cc,
+      label: cc.label,
       cost: pair.cost,
       price: pair.price,
-      color: CUSTOM_CROSS_COLORS[cc] ?? '#64748b',
+      color: CUSTOM_CROSS_COLORS[cc.id] ?? '#64748b',
     })
   }
 
