@@ -417,6 +417,27 @@ const PrivacyDot = styled.span`
   flex-shrink: 0;
 `
 
+/** フォルダ連携 API 非対応時の診断メッセージ */
+function FolderSyncDiagnostic() {
+  const isSecure = typeof window !== 'undefined' && window.isSecureContext
+  const hasApi = typeof window !== 'undefined' && 'showDirectoryPicker' in window
+  const inIframe = typeof window !== 'undefined' && window.self !== window.top
+
+  return (
+    <PrivacyInfoBox style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+      <span>File System Access API を利用できません</span>
+      {!isSecure && <span>- HTTPS または localhost でアクセスしてください</span>}
+      {isSecure && !hasApi && (
+        <span>- Chrome / Edge 86 以上が必要です（Firefox / Safari は非対応）</span>
+      )}
+      {inIframe && <span>- iframe 内では利用できません</span>}
+      {isSecure && hasApi && !inIframe && (
+        <span>- ブラウザのセキュリティポリシーで制限されています</span>
+      )}
+    </PrivacyInfoBox>
+  )
+}
+
 /**
  * blur 時にのみ値を確定する数値入力コンポーネント。
  * onChange の度に再計算が走る問題を防ぐ。
@@ -722,85 +743,89 @@ export function DataManagementSidebar({
 
         <TemplateSectionCollapsible />
 
-        {autoBackup.supported && (
-          <SidebarSection>
-            <SectionLabel>フォルダ連携</SectionLabel>
-            {/* 自動バックアップ */}
-            <FolderSyncRow>
-              <FolderStatus $ok={autoBackup.folderConfigured}>
-                {autoBackup.folderConfigured ? 'ON' : 'OFF'}
-              </FolderStatus>
-              {autoBackup.folderConfigured ? (
-                <>
-                  <FolderName title={autoBackup.folderName ?? undefined}>
-                    {autoBackup.folderName}
-                  </FolderName>
-                  <FolderSmallBtn
-                    onClick={() => {
-                      autoBackup.backupNow().then((f) => {
-                        if (f) showToast(`バックアップ: ${f}`, 'success')
-                      })
-                    }}
-                    disabled={autoBackup.isBacking}
-                  >
-                    {autoBackup.isBacking ? '...' : '保存'}
+        <SidebarSection>
+          <SectionLabel>フォルダ連携</SectionLabel>
+          {autoBackup.supported ? (
+            <>
+              {/* 自動バックアップ */}
+              <FolderSyncRow>
+                <FolderStatus $ok={autoBackup.folderConfigured}>
+                  {autoBackup.folderConfigured ? 'ON' : 'OFF'}
+                </FolderStatus>
+                {autoBackup.folderConfigured ? (
+                  <>
+                    <FolderName title={autoBackup.folderName ?? undefined}>
+                      {autoBackup.folderName}
+                    </FolderName>
+                    <FolderSmallBtn
+                      onClick={() => {
+                        autoBackup.backupNow().then((f) => {
+                          if (f) showToast(`バックアップ: ${f}`, 'success')
+                        })
+                      }}
+                      disabled={autoBackup.isBacking}
+                    >
+                      {autoBackup.isBacking ? '...' : '保存'}
+                    </FolderSmallBtn>
+                    <FolderSmallBtn onClick={() => autoBackup.clearFolder()}>解除</FolderSmallBtn>
+                  </>
+                ) : (
+                  <FolderSmallBtn onClick={() => autoBackup.selectFolder()}>
+                    バックアップ先を選択
                   </FolderSmallBtn>
-                  <FolderSmallBtn onClick={() => autoBackup.clearFolder()}>解除</FolderSmallBtn>
-                </>
-              ) : (
-                <FolderSmallBtn onClick={() => autoBackup.selectFolder()}>
-                  バックアップ先を選択
-                </FolderSmallBtn>
+                )}
+              </FolderSyncRow>
+              {autoBackup.lastBackupAt && (
+                <FolderStatus $ok>
+                  最終: {new Date(autoBackup.lastBackupAt).toLocaleTimeString()}
+                </FolderStatus>
               )}
-            </FolderSyncRow>
-            {autoBackup.lastBackupAt && (
-              <FolderStatus $ok>
-                最終: {new Date(autoBackup.lastBackupAt).toLocaleTimeString()}
-              </FolderStatus>
-            )}
-            {autoBackup.error && <FolderStatus $ok={false}>{autoBackup.error}</FolderStatus>}
+              {autoBackup.error && <FolderStatus $ok={false}>{autoBackup.error}</FolderStatus>}
 
-            {/* 自動インポート */}
-            <FolderSyncRow>
-              <FolderStatus $ok={autoImport.folderConfigured}>
-                {autoImport.folderConfigured ? 'ON' : 'OFF'}
-              </FolderStatus>
-              {autoImport.folderConfigured ? (
-                <>
-                  <FolderName title={autoImport.folderName ?? undefined}>
-                    {autoImport.folderName}
-                  </FolderName>
-                  <FolderSmallBtn
-                    onClick={() => {
-                      autoImport.scanNow().then((files) => {
-                        if (files.length > 0) {
-                          showToast(`${files.length}件取込`, 'success')
-                        } else {
-                          showToast('新規ファイルなし', 'info')
-                        }
-                      })
-                    }}
-                    disabled={autoImport.isScanning}
-                  >
-                    {autoImport.isScanning ? '...' : 'スキャン'}
+              {/* 自動インポート */}
+              <FolderSyncRow>
+                <FolderStatus $ok={autoImport.folderConfigured}>
+                  {autoImport.folderConfigured ? 'ON' : 'OFF'}
+                </FolderStatus>
+                {autoImport.folderConfigured ? (
+                  <>
+                    <FolderName title={autoImport.folderName ?? undefined}>
+                      {autoImport.folderName}
+                    </FolderName>
+                    <FolderSmallBtn
+                      onClick={() => {
+                        autoImport.scanNow().then((files) => {
+                          if (files.length > 0) {
+                            showToast(`${files.length}件取込`, 'success')
+                          } else {
+                            showToast('新規ファイルなし', 'info')
+                          }
+                        })
+                      }}
+                      disabled={autoImport.isScanning}
+                    >
+                      {autoImport.isScanning ? '...' : 'スキャン'}
+                    </FolderSmallBtn>
+                    <FolderSmallBtn onClick={() => autoImport.clearFolder()}>解除</FolderSmallBtn>
+                  </>
+                ) : (
+                  <FolderSmallBtn onClick={() => autoImport.selectFolder()}>
+                    取込元を選択
                   </FolderSmallBtn>
-                  <FolderSmallBtn onClick={() => autoImport.clearFolder()}>解除</FolderSmallBtn>
-                </>
-              ) : (
-                <FolderSmallBtn onClick={() => autoImport.selectFolder()}>
-                  取込元を選択
-                </FolderSmallBtn>
+                )}
+              </FolderSyncRow>
+              {autoImport.lastScanAt && (
+                <FolderStatus $ok={autoImport.lastImportCount > 0}>
+                  最終スキャン: {new Date(autoImport.lastScanAt).toLocaleTimeString()} (
+                  {autoImport.lastImportCount}件)
+                </FolderStatus>
               )}
-            </FolderSyncRow>
-            {autoImport.lastScanAt && (
-              <FolderStatus $ok={autoImport.lastImportCount > 0}>
-                最終スキャン: {new Date(autoImport.lastScanAt).toLocaleTimeString()} (
-                {autoImport.lastImportCount}件)
-              </FolderStatus>
-            )}
-            {autoImport.error && <FolderStatus $ok={false}>{autoImport.error}</FolderStatus>}
-          </SidebarSection>
-        )}
+              {autoImport.error && <FolderStatus $ok={false}>{autoImport.error}</FolderStatus>}
+            </>
+          ) : (
+            <FolderSyncDiagnostic />
+          )}
+        </SidebarSection>
 
         {hasNonBudgetData && (
           <SidebarSection>
