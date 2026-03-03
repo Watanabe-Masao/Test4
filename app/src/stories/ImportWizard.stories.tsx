@@ -16,7 +16,13 @@ const progressMeta: Meta<typeof ImportProgressSteps> = {
   parameters: {
     layout: 'centered',
   },
-  decorators: [(Story) => <div style={{ width: 400 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 400 }}>
+        <Story />
+      </div>
+    ),
+  ],
 }
 
 export default progressMeta

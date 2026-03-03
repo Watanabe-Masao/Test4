@@ -8,7 +8,13 @@ const meta: Meta<typeof ImportProgressBar> = {
   parameters: {
     layout: 'centered',
   },
-  decorators: [(Story) => <div style={{ width: 400 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 400 }}>
+        <Story />
+      </div>
+    ),
+  ],
 }
 
 export default meta
