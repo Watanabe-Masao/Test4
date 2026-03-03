@@ -7,11 +7,47 @@
 // ─── DB 定数 ──────────────────────────────────────────────
 
 const DB_NAME = 'shiire-arari-db'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 /** オブジェクトストア名 */
 export const STORE_MONTHLY = 'monthlyData'
 export const STORE_META = 'metadata'
+/** v2: アプリケーション全体設定の冗長保存用 */
+export const STORE_APP_SETTINGS = 'appSettings'
+
+// ─── マイグレーション ───────────────────────────────────
+
+/**
+ * スキーママイグレーション定義。
+ * oldVersion → version の遷移時に migrate を実行する。
+ */
+interface Migration {
+  readonly version: number
+  readonly migrate: (db: IDBDatabase) => void
+}
+
+/** マイグレーション定義（順序付き）。新バージョンごとにここに追加する。 */
+const MIGRATIONS: readonly Migration[] = [
+  {
+    version: 1,
+    migrate: (db) => {
+      if (!db.objectStoreNames.contains(STORE_MONTHLY)) {
+        db.createObjectStore(STORE_MONTHLY)
+      }
+      if (!db.objectStoreNames.contains(STORE_META)) {
+        db.createObjectStore(STORE_META)
+      }
+    },
+  },
+  {
+    version: 2,
+    migrate: (db) => {
+      if (!db.objectStoreNames.contains(STORE_APP_SETTINGS)) {
+        db.createObjectStore(STORE_APP_SETTINGS)
+      }
+    },
+  },
+]
 
 // ─── DB 接続 ─────────────────────────────────────────────
 
@@ -21,13 +57,14 @@ export function openDB(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const db = request.result
-      if (!db.objectStoreNames.contains(STORE_MONTHLY)) {
-        db.createObjectStore(STORE_MONTHLY)
-      }
-      if (!db.objectStoreNames.contains(STORE_META)) {
-        db.createObjectStore(STORE_META)
+      const oldVersion = event.oldVersion
+      // 順番にマイグレーションを適用
+      for (const m of MIGRATIONS) {
+        if (m.version > oldVersion) {
+          m.migrate(db)
+        }
       }
     }
     request.onsuccess = () => {

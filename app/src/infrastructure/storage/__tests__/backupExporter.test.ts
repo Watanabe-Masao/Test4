@@ -7,8 +7,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { backupExporter } from '../backupExporter'
 import type { DataRepository } from '@/domain/repositories'
-import type { ImportedData, BudgetData } from '@/domain/models'
+import type { ImportedData, BudgetData, AppSettings } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
+import { createDefaultSettings } from '@/domain/constants/defaults'
 
 function createTestData(): ImportedData {
   return {
@@ -268,7 +269,7 @@ describe('backupExporter', () => {
 
       const meta = await backupExporter.readMeta(blob)
       expect(meta).not.toBeNull()
-      expect(meta!.formatVersion).toBe(1)
+      expect(meta!.formatVersion).toBe(2)
       expect(meta!.months).toHaveLength(1)
       expect(meta!.months[0]).toEqual({ year: 2025, month: 1 })
     })
@@ -277,6 +278,153 @@ describe('backupExporter', () => {
       const blob = new Blob(['not json'], { type: 'application/json' })
       const meta = await backupExporter.readMeta(blob)
       expect(meta).toBeNull()
+    })
+  })
+
+  describe('v2: AppSettings', () => {
+    it('AppSettings がバックアップに含まれること', async () => {
+      const testData = createTestData()
+      const repo = createMockRepo(testData)
+      const appSettings: AppSettings = {
+        ...createDefaultSettings(),
+        targetGrossProfitRate: 0.3,
+        flowerCostRate: 0.75,
+      }
+
+      const blob = await backupExporter.exportBackup(repo, appSettings)
+      const text = await blob.text()
+      const parsed = JSON.parse(text)
+
+      expect(parsed.appSettings).toBeDefined()
+      expect(parsed.appSettings.targetGrossProfitRate).toBe(0.3)
+      expect(parsed.appSettings.flowerCostRate).toBe(0.75)
+    })
+
+    it('import で AppSettings が復元されること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+      const appSettings: AppSettings = {
+        ...createDefaultSettings(),
+        directProduceCostRate: 0.9,
+      }
+
+      const blob = await backupExporter.exportBackup(exportRepo, appSettings)
+
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.restoredAppSettings).toBeDefined()
+      expect(result.restoredAppSettings!.directProduceCostRate).toBe(0.9)
+    })
+
+    it('AppSettings なしの v1 バックアップは restoredAppSettings が undefined', async () => {
+      // v1 形式: appSettings フィールドなし
+      const v1Backup = JSON.stringify({
+        meta: {
+          formatVersion: 1,
+          createdAt: new Date().toISOString(),
+          appVersion: '1.0.0',
+          months: [],
+        },
+        months: [],
+      })
+      const blob = new Blob([v1Backup], { type: 'application/json' })
+
+      const importRepo = createMockRepo(createEmptyImportedData())
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.restoredAppSettings).toBeUndefined()
+    })
+  })
+
+  describe('v2: SHA-256 チェックサム', () => {
+    it('v2 バックアップにチェックサムが含まれること', async () => {
+      const testData = createTestData()
+      const repo = createMockRepo(testData)
+
+      const blob = await backupExporter.exportBackup(repo)
+      const text = await blob.text()
+      const parsed = JSON.parse(text)
+
+      expect(parsed.meta.formatVersion).toBe(2)
+      expect(parsed.meta.checksum).toBeDefined()
+      expect(parsed.meta.checksum).toHaveLength(64) // SHA-256 hex = 64 chars
+    })
+
+    it('改ざんされたバックアップはチェックサムエラーになること', async () => {
+      const testData = createTestData()
+      const repo = createMockRepo(testData)
+
+      const blob = await backupExporter.exportBackup(repo)
+      const text = await blob.text()
+      const parsed = JSON.parse(text)
+
+      // months データを改ざん
+      parsed.months[0].data.stores['1'].name = 'TAMPERED'
+      const tampered = new Blob([JSON.stringify(parsed)], { type: 'application/json' })
+
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        saveMonthlyData: vi.fn(),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(tampered, importRepo)
+      expect(result.monthsImported).toBe(0)
+      expect(result.errors).toHaveLength(1)
+      expect(result.errors[0]).toContain('Checksum mismatch')
+    })
+
+    it('チェックサムなしの v1 バックアップは検証をスキップすること', async () => {
+      const v1Backup = JSON.stringify({
+        meta: {
+          formatVersion: 1,
+          createdAt: new Date().toISOString(),
+          appVersion: '1.0.0',
+          months: [{ year: 2025, month: 1 }],
+        },
+        months: [
+          {
+            year: 2025,
+            month: 1,
+            data: {
+              ...createEmptyImportedData(),
+              stores: {},
+              suppliers: {},
+              settings: {},
+              budget: {},
+            },
+          },
+        ],
+      })
+      const blob = new Blob([v1Backup], { type: 'application/json' })
+
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.monthsImported).toBe(1)
+      expect(result.errors).toHaveLength(0)
+    })
+  })
+
+  describe('v2: readMeta', () => {
+    it('v2 バックアップの meta にチェックサムが含まれること', async () => {
+      const testData = createTestData()
+      const repo = createMockRepo(testData)
+      const blob = await backupExporter.exportBackup(repo)
+
+      const meta = await backupExporter.readMeta(blob)
+      expect(meta).not.toBeNull()
+      expect(meta!.formatVersion).toBe(2)
+      expect(meta!.checksum).toBeDefined()
     })
   })
 

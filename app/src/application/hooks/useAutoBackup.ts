@@ -12,6 +12,7 @@ import {
   removeHandle,
 } from '@/infrastructure/storage/folderAccess'
 import { backupExporter } from '@/infrastructure/storage/backupExporter'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DataRepository } from '@/domain/repositories'
 
 export interface AutoBackupState {
@@ -89,7 +90,8 @@ export function useAutoBackup(
     setIsBacking(true)
     setError(null)
     try {
-      const fileName = await backupExporter.exportToFolder(repo, dirHandle)
+      const appSettings = useSettingsStore.getState().settings
+      const fileName = await backupExporter.exportToFolder(repo, dirHandle, 5, appSettings)
       const now = new Date().toISOString()
       setLastBackupAt(now)
       return fileName
