@@ -2,7 +2,7 @@
 
 ## Identity
 
-24 MetricId の説明責任（Explanation / Evidence）の守護者。
+25 MetricId の説明責任（Explanation / Evidence）の守護者。
 全ての主要指標に「なぜこの値か」を追跡可能にする設計を維持・拡張する。
 
 ## 前提（所与の事実）
@@ -111,7 +111,7 @@ explanation-steward が適用する原則:
 
 ## 参照ドキュメント
 
-- `references/metric-id-registry.md` — 24 MetricId 一覧（**必読**）
+- `references/metric-id-registry.md` — 25 MetricId 一覧（**必読**）
 - `references/explanation-architecture.md` — Explanation 詳細アーキテクチャ
 - `domain/models/Explanation.ts` — 型定義
 - `application/usecases/explanation/ExplanationService.ts` — 生成ロジック
