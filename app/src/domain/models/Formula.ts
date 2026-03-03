@@ -58,6 +58,28 @@ export type FormulaId =
   | 'salesWeightedAverage' // Σ(rateᵢ×salesᵢ) / Σsalesᵢ
   | 'seasonalIndex' // 月平均 / 全体平均
 
+// ─── FormulaInput ───────────────────────────────────────
+
+/**
+ * 公式の入力パラメータ定義
+ *
+ * 各公式が「何を入力として受け取るか」を明示する。
+ * source フィールドで権威的データソースを指定し、
+ * 「売上は必ず StoreResult.totalSales から取得する」
+ * というバインディングルールを定義する。
+ *
+ * 汎用公式（ratioCalculation 等）の場合は source を省略し、
+ * 個別の MetricMeta 側で具体的なバインディングを記述する。
+ */
+export interface FormulaInput {
+  /** パラメータ名（実装関数の引数名に対応） */
+  readonly name: string
+  /** パラメータの意味（日本語） */
+  readonly label: string
+  /** 権威的データソース（例: 'StoreResult.totalSales'）。汎用公式では省略可 */
+  readonly source?: string
+}
+
 // ─── FormulaMeta ────────────────────────────────────────
 
 /** 公式のメタデータ */
@@ -72,6 +94,8 @@ export interface FormulaMeta {
   readonly description: string
   /** どのような場面で使われるか（用途・適用先） */
   readonly usage: string
+  /** 入力パラメータ定義（接点ルール） */
+  readonly inputs: readonly FormulaInput[]
   /** 実装関数名（CI 検証用） */
   readonly implementedBy: string
   /** 実装モジュール（domain/calculations/ からの相対パス） */
