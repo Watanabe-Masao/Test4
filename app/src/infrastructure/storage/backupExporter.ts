@@ -22,6 +22,7 @@
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportedData, BudgetData } from '@/domain/models'
 import { budgetFromSerializable } from './internal/serialization'
+import { writeFile, pruneOldFiles } from './folderAccess'
 
 /** バックアップファイルのフォーマットバージョン */
 const BACKUP_FORMAT_VERSION = 1
@@ -187,6 +188,24 @@ class BackupExporter {
     }
 
     return { monthsImported, monthsSkipped, errors }
+  }
+
+  /**
+   * 指定フォルダにバックアップを書き出し、古い世代を削除する。
+   * ファイル名: backup-YYYY-MM-DD-HHmm.json
+   */
+  async exportToFolder(
+    repo: DataRepository,
+    dirHandle: FileSystemDirectoryHandle,
+    maxGenerations = 5,
+  ): Promise<string> {
+    const blob = await this.exportBackup(repo)
+    const now = new Date()
+    const pad2 = (n: number) => String(n).padStart(2, '0')
+    const fileName = `backup-${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}.json`
+    await writeFile(dirHandle, fileName, blob)
+    await pruneOldFiles(dirHandle, 'backup-', maxGenerations)
+    return fileName
   }
 
   /**

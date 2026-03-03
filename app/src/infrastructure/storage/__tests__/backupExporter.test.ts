@@ -132,14 +132,8 @@ describe('backupExporter', () => {
       savedData = null
     })
 
-    it('export → import でストアデータが復元されること', async () => {
-      const testData = createTestData()
-      const exportRepo = createMockRepo(testData)
-
-      const blob = await backupExporter.exportBackup(exportRepo)
-
-      // import 用 repo: 既存データなし、saveMonthlyData でキャプチャ
-      const importRepo = {
+    function createImportRepo() {
+      return {
         ...createMockRepo(createEmptyImportedData()),
         listStoredMonths: vi.fn().mockResolvedValue([]),
         loadMonthlyData: vi.fn().mockResolvedValue(null),
@@ -147,6 +141,14 @@ describe('backupExporter', () => {
           savedData = data
         }),
       } as unknown as DataRepository
+    }
+
+    it('export → import でストアデータが復元されること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+
+      const blob = await backupExporter.exportBackup(exportRepo)
+      const importRepo = createImportRepo()
 
       const result = await backupExporter.importBackup(blob, importRepo)
       expect(result.monthsImported).toBe(1)
@@ -164,15 +166,7 @@ describe('backupExporter', () => {
       const exportRepo = createMockRepo(testData)
 
       const blob = await backupExporter.exportBackup(exportRepo)
-
-      const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
-        listStoredMonths: vi.fn().mockResolvedValue([]),
-        loadMonthlyData: vi.fn().mockResolvedValue(null),
-        saveMonthlyData: vi.fn().mockImplementation(async (data: ImportedData) => {
-          savedData = data
-        }),
-      } as unknown as DataRepository
+      const importRepo = createImportRepo()
 
       await backupExporter.importBackup(blob, importRepo)
 
@@ -191,21 +185,150 @@ describe('backupExporter', () => {
       const exportRepo = createMockRepo(testData)
 
       const blob = await backupExporter.exportBackup(exportRepo)
-
-      const importRepo = {
-        ...createMockRepo(createEmptyImportedData()),
-        listStoredMonths: vi.fn().mockResolvedValue([]),
-        loadMonthlyData: vi.fn().mockResolvedValue(null),
-        saveMonthlyData: vi.fn().mockImplementation(async (data: ImportedData) => {
-          savedData = data
-        }),
-      } as unknown as DataRepository
+      const importRepo = createImportRepo()
 
       await backupExporter.importBackup(blob, importRepo)
 
       expect(savedData!.settings).toBeInstanceOf(Map)
       expect(savedData!.settings.size).toBe(1)
       expect(savedData!.settings.get('1')?.openingInventory).toBe(1000000)
+    })
+
+    it('export → import で suppliers が Map として復元されること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+
+      const blob = await backupExporter.exportBackup(exportRepo)
+      const importRepo = createImportRepo()
+
+      await backupExporter.importBackup(blob, importRepo)
+
+      expect(savedData!.suppliers).toBeInstanceOf(Map)
+      expect(savedData!.suppliers.size).toBe(1)
+      expect(savedData!.suppliers.get('S001')?.name).toBe('仕入先A')
+    })
+
+    it('既存データがある場合に overwrite=false でスキップされること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+      const blob = await backupExporter.exportBackup(exportRepo)
+
+      // import repo: 既存データあり
+      const existingRepo = {
+        ...createMockRepo(testData),
+        saveMonthlyData: vi.fn(),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, existingRepo, {
+        overwriteExisting: false,
+      })
+      expect(result.monthsImported).toBe(0)
+      expect(result.monthsSkipped).toBe(1)
+      expect(existingRepo.saveMonthlyData).not.toHaveBeenCalled()
+    })
+
+    it('overwrite=true で既存データを上書きすること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+      const blob = await backupExporter.exportBackup(exportRepo)
+
+      const overwriteRepo = {
+        ...createMockRepo(testData),
+        saveMonthlyData: vi.fn().mockResolvedValue(undefined),
+      } as unknown as DataRepository
+
+      const result = await backupExporter.importBackup(blob, overwriteRepo, {
+        overwriteExisting: true,
+      })
+      expect(result.monthsImported).toBe(1)
+      expect(result.monthsSkipped).toBe(0)
+      expect(overwriteRepo.saveMonthlyData).toHaveBeenCalled()
+    })
+
+    it('不正なバージョンのバックアップはエラーを返すこと', async () => {
+      const badBackup = JSON.stringify({
+        meta: { formatVersion: 999 },
+        months: [],
+      })
+      const blob = new Blob([badBackup], { type: 'application/json' })
+      const importRepo = createImportRepo()
+
+      const result = await backupExporter.importBackup(blob, importRepo)
+      expect(result.monthsImported).toBe(0)
+      expect(result.errors).toHaveLength(1)
+      expect(result.errors[0]).toContain('999')
+    })
+  })
+
+  describe('readMeta', () => {
+    it('バックアップファイルのメタデータを読み取れること', async () => {
+      const testData = createTestData()
+      const repo = createMockRepo(testData)
+      const blob = await backupExporter.exportBackup(repo)
+
+      const meta = await backupExporter.readMeta(blob)
+      expect(meta).not.toBeNull()
+      expect(meta!.formatVersion).toBe(1)
+      expect(meta!.months).toHaveLength(1)
+      expect(meta!.months[0]).toEqual({ year: 2025, month: 1 })
+    })
+
+    it('不正なJSONはnullを返すこと', async () => {
+      const blob = new Blob(['not json'], { type: 'application/json' })
+      const meta = await backupExporter.readMeta(blob)
+      expect(meta).toBeNull()
+    })
+  })
+
+  describe('往復テスト（全フィールド完全性）', () => {
+    it('全Map フィールドの内容が export → import で完全に保存されること', async () => {
+      const testData = createTestData()
+      const exportRepo = createMockRepo(testData)
+
+      const blob = await backupExporter.exportBackup(exportRepo)
+
+      let restoredData: ImportedData | null = null
+      const importRepo = {
+        ...createMockRepo(createEmptyImportedData()),
+        listStoredMonths: vi.fn().mockResolvedValue([]),
+        loadMonthlyData: vi.fn().mockResolvedValue(null),
+        saveMonthlyData: vi.fn().mockImplementation(async (data: ImportedData) => {
+          restoredData = data
+        }),
+      } as unknown as DataRepository
+
+      await backupExporter.importBackup(blob, importRepo)
+
+      // stores 完全一致
+      expect(restoredData!.stores.size).toBe(testData.stores.size)
+      for (const [k, v] of testData.stores) {
+        expect(restoredData!.stores.get(k)).toEqual(v)
+      }
+
+      // suppliers 完全一致
+      expect(restoredData!.suppliers.size).toBe(testData.suppliers.size)
+      for (const [k, v] of testData.suppliers) {
+        expect(restoredData!.suppliers.get(k)).toEqual(v)
+      }
+
+      // settings 完全一致
+      expect(restoredData!.settings.size).toBe(testData.settings.size)
+      for (const [k, v] of testData.settings) {
+        expect(restoredData!.settings.get(k)).toEqual(v)
+      }
+
+      // budget 完全一致（daily Map 含む）
+      expect(restoredData!.budget.size).toBe(testData.budget.size)
+      for (const [k, orig] of testData.budget) {
+        const restored = restoredData!.budget.get(k)
+        expect(restored).toBeDefined()
+        expect(restored!.storeId).toBe(orig.storeId)
+        expect(restored!.total).toBe(orig.total)
+        expect(restored!.daily.size).toBe(orig.daily.size)
+        for (const [day, amount] of orig.daily) {
+          expect(restored!.daily.get(day)).toBe(amount)
+        }
+      }
     })
   })
 })
