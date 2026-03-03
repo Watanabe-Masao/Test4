@@ -10,9 +10,33 @@ describe('buildDowCustomerAverages', () => {
   it('曜日は指定された year/month に基づいて正しく割り当てられる', () => {
     // 2026年1月: 1日=木曜日
     const entries: DailyCustomerEntry[] = [
-      { day: 1, sales: 1000, customers: 10, txValue: 100, prevCustomers: 8, prevSales: 800, prevTxValue: 100 },
-      { day: 2, sales: 1200, customers: 12, txValue: 100, prevCustomers: 9, prevSales: 900, prevTxValue: 100 },
-      { day: 3, sales: 1100, customers: 11, txValue: 100, prevCustomers: 10, prevSales: 1000, prevTxValue: 100 },
+      {
+        day: 1,
+        sales: 1000,
+        customers: 10,
+        txValue: 100,
+        prevCustomers: 8,
+        prevSales: 800,
+        prevTxValue: 100,
+      },
+      {
+        day: 2,
+        sales: 1200,
+        customers: 12,
+        txValue: 100,
+        prevCustomers: 9,
+        prevSales: 900,
+        prevTxValue: 100,
+      },
+      {
+        day: 3,
+        sales: 1100,
+        customers: 11,
+        txValue: 100,
+        prevCustomers: 10,
+        prevSales: 1000,
+        prevTxValue: 100,
+      },
     ]
 
     const result = buildDowCustomerAverages(entries, 2026, 1)
@@ -38,7 +62,15 @@ describe('buildDowCustomerAverages', () => {
   it('異なる月で同じ日は異なる曜日に割り当てられる', () => {
     // このテストは year/month の取り違えを検出する
     const entries: DailyCustomerEntry[] = [
-      { day: 1, sales: 1000, customers: 10, txValue: 100, prevCustomers: 8, prevSales: 800, prevTxValue: 100 },
+      {
+        day: 1,
+        sales: 1000,
+        customers: 10,
+        txValue: 100,
+        prevCustomers: 8,
+        prevSales: 800,
+        prevTxValue: 100,
+      },
     ]
 
     // 2026年1月1日 = 木曜(index 4)
@@ -59,10 +91,42 @@ describe('buildDowCustomerAverages', () => {
     // 2026年2月: 1日=日曜日、全4週
     // 日曜: 1, 8, 15, 22
     const entries: DailyCustomerEntry[] = [
-      { day: 1, sales: 1000, customers: 10, txValue: 100, prevCustomers: 8, prevSales: 800, prevTxValue: 100 },
-      { day: 8, sales: 1200, customers: 12, txValue: 100, prevCustomers: 10, prevSales: 1000, prevTxValue: 100 },
-      { day: 15, sales: 1100, customers: 11, txValue: 100, prevCustomers: 9, prevSales: 900, prevTxValue: 100 },
-      { day: 22, sales: 900, customers: 9, txValue: 100, prevCustomers: 7, prevSales: 700, prevTxValue: 100 },
+      {
+        day: 1,
+        sales: 1000,
+        customers: 10,
+        txValue: 100,
+        prevCustomers: 8,
+        prevSales: 800,
+        prevTxValue: 100,
+      },
+      {
+        day: 8,
+        sales: 1200,
+        customers: 12,
+        txValue: 100,
+        prevCustomers: 10,
+        prevSales: 1000,
+        prevTxValue: 100,
+      },
+      {
+        day: 15,
+        sales: 1100,
+        customers: 11,
+        txValue: 100,
+        prevCustomers: 9,
+        prevSales: 900,
+        prevTxValue: 100,
+      },
+      {
+        day: 22,
+        sales: 900,
+        customers: 9,
+        txValue: 100,
+        prevCustomers: 7,
+        prevSales: 700,
+        prevTxValue: 100,
+      },
     ]
 
     const result = buildDowCustomerAverages(entries, 2026, 2)
