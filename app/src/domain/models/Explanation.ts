@@ -42,9 +42,11 @@ export type MetricId =
   | 'estMethodClosingInventory'
   // 在庫差異
   | 'inventoryGap'
-  // 客数
+  // 客数・客生産性
   | 'totalCustomers'
   | 'averageSpendPerCustomer'
+  | 'itemsPerCustomer'
+  | 'averagePricePerItem'
   // 原価算入費
   | 'totalConsumable'
   // 売上予算系

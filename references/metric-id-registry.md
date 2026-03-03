@@ -66,6 +66,8 @@ export interface MetricMeta {
 | `inventoryGap` | gp | actual | gap | 在庫差異（在庫法−推定法） |
 | `totalCustomers` | customer | actual | value | 来店客数 |
 | `averageSpendPerCustomer` | customer | actual | average | 客単価 |
+| `itemsPerCustomer` | customer | actual | average | 一人当たり点数 |
+| `averagePricePerItem` | sales | actual | average | 点単価 |
 | `totalConsumable` | consumable | actual | value | 消耗品費 |
 | `budget` | sales | budget | value | 売上予算 |
 | `budgetAchievementRate` | sales | budget | achievement | 売上予算達成率 |
@@ -262,17 +264,24 @@ GAP値は全て `measure: 'gap'` で統一できる。各 GAP は:
 
 実装方式は MetricId 個別登録 or トークンクエリによる動的算出のどちらも可能。
 
-## 客数
+## 客数・客生産性
 
-| MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
+| MetricId | 指標名 | 単位 | 計算式 | データソース |
 |---|---|---|---|---|
-| `totalCustomers` | 来店客数 | count | 分類別売上の客数合計 | `totalCustomers` |
-| `averageSpendPerCustomer` | 客単価 | yen | 総売上 ÷ 来店客数 | **未計算 / 未登録** |
+| `totalCustomers` | 来店客数 | count | 分類別売上の客数合計 | StoreResult: `totalCustomers` |
+| `averageSpendPerCustomer` | 客単価 | yen | 総売上 ÷ 来店客数 | StoreResult から導出 |
+| `itemsPerCustomer` | 一人当たり点数 | count | 総点数 ÷ 来店客数 | CTS（CategoryTimeSalesRecord） |
+| `averagePricePerItem` | 点単価 | yen | 総売上 ÷ 総点数 | CTS（CategoryTimeSalesRecord） |
 
-**PI値について:** 点数PI・金額PI 等の詳細な客数生産性指標は、
-要因分解系（Shapley decomposition: `decompose2`, `decompose3`, `decompose5`）で
-構造的に管理される。MetricId レジストリでは客単価のみ管理し、
-分解結果は `CausalChain` モデルが担う。
+**PI値・点単価について:**
+`itemsPerCustomer`（PI値）と `averagePricePerItem`（点単価）は
+要因分解（`decompose3`: S = C × Q × P̄）の構成要素として使用される。
+
+- Q = totalQty ÷ customers（一人当たり点数 = PI値）
+- P̄ = sales ÷ totalQty（点単価 = カテゴリ平均単価）
+
+データソースは CTS（DuckDB 探索エンジン側）であり、StoreResult には含まれない。
+二重実装禁止の原則に従い、集約は CTS からのみ行う。
 
 ## 原価算入費（消耗品）
 
@@ -388,14 +397,14 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | 粗利（在庫法） | 3 | 3 | 0 |
 | 粗利（推定法） | 4 | 4 | 0 |
 | 在庫差異 | 1 | 0 | 1 |
-| 客数 | 2 | 1 | 1 |
+| 客数・客生産性 | 4 | 1 | 3 |
 | 原価算入費 | 1 | 1 | 0 |
 | 売上予算系 | 11 | 11 | 0 |
 | 粗利予算系 | 8 | 3 | 5 |
 | 仕入予算系 | 4 | 0 | 4 |
-| **合計** | **45** | **34** | **11** |
+| **合計** | **47** | **34** | **13** |
 
-→ 全 45 MetricId 登録済み。うち 34 指標は計算 + Explanation 実装完了。
+→ 全 47 MetricId 登録済み。うち 34 指標は計算 + Explanation 実装完了。
 
 ### 概念の区別
 

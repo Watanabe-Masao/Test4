@@ -134,7 +134,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'actual', measure: 'gap' },
   },
 
-  // ─── 客数 ───────────────────────────────────────────────
+  // ─── 客数・客生産性 ────────────────────────────────────────
   totalCustomers: {
     label: '来店客数',
     unit: 'count',
@@ -145,6 +145,16 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '客単価',
     unit: 'yen',
     tokens: { entity: 'customer', domain: 'actual', measure: 'average' },
+  },
+  itemsPerCustomer: {
+    label: '一人当たり点数',
+    unit: 'count',
+    tokens: { entity: 'customer', domain: 'actual', measure: 'average' },
+  },
+  averagePricePerItem: {
+    label: '点単価',
+    unit: 'yen',
+    tokens: { entity: 'sales', domain: 'actual', measure: 'average' },
   },
 
   // ─── 原価算入費（消耗品） ───────────────────────────────
