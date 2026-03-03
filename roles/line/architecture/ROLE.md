@@ -69,9 +69,10 @@
 | 種類 | 方向 | 相手 | 内容 |
 |---|---|---|---|
 | **報告** | → pm-business | 設計上のリスク・トレードオフの通知 |
-| **報告** | → implementation | 設計判断書（影響レイヤー、依存方向、エンジン選択） |
+| **報告** | → pm-business | 作業中に発見した課題・リスク（タスクの直接スコープ外） |
 | **連携** | ← pm-business | 要件定義書の受け取り |
 | **連携** | → implementation | 設計判断書の引き渡し |
+| **連携** | → documentation-steward | 設計判断書（ADR 作成用） |
 | **相談** | ←→ invariant-guardian | 計算影響の事前確認 |
 | **相談** | ←→ duckdb-specialist | スキーマ影響の事前確認 |
 

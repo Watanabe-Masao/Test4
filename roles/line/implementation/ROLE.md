@@ -11,7 +11,7 @@ architecture の設計判断に従い、invariant-guardian の不変条件を守
 - 4層レイヤードアーキテクチャに従う。import の方向は architectureGuard.test.ts が検証
 - 計算エンジンは JS と DuckDB の二重構造。責務は排他的（二重実装禁止）
 - UI コンポーネントは styles / hook / component の3分割が基本パターン
-- CI 5段階ゲート（lint → format → build → test → e2e）を通過しなければならない
+- CI 6段階ゲート（lint → format → build → test → e2e）を通過しなければならない
 
 ## 価値基準（最適化する対象）
 
@@ -47,7 +47,7 @@ architecture の設計判断に従い、invariant-guardian の不変条件を守
 
 - 全4層（domain / application / infrastructure / presentation）のコード変更
 - ユニットテスト・統合テストの追加
-- CI 5段階ゲート（lint → format → build → test → e2e）の通過
+- CI 6段階ゲート（lint → format → build → test → e2e）の通過
 - Storybook ストーリーの追加（P1 コンポーネント対象）
 
 ## Boundary（やらないこと）
@@ -64,6 +64,9 @@ architecture の設計判断に従い、invariant-guardian の不変条件を守
 |---|---|---|---|
 | **報告** | → review-gate | 成果物提出（コード + テスト + CI 結果） | 実装完了時 |
 | **報告** | → pm-business | ブロッカー発生・スコープ変更の通知 | 問題検知時 |
+| **報告** | → pm-business | 作業中に発見した課題・リスク（タスクの直接スコープ外） | 発見時 |
+| **連携** | ← pm-business | タスク分解書・実装指示の受け取り | タスク開始時 |
+| **連携** | ← architecture | 設計判断書の受け取り | Large タスク時 |
 | **連携** | ←→ specialist/* | 計算変更・DuckDB変更・指標追加の共同作業 | 実装中 |
 | **相談** | → architecture | 独自パターン導入・層跨ぎ変更の事前確認 | 実装前 |
 | **相談** | → invariant-guardian | 計算ロジック変更の不変条件影響確認 | 実装前 |
@@ -89,14 +92,15 @@ ComponentName.tsx         — ViewModel を受け取り JSX を返す（React.me
 - `useAsyncQuery` ベースでシーケンス番号によるキャンセル制御
 - `isVisible` ガードで DuckDB 未準備時に非表示
 
-## CI ゲート（5段階）
+## CI ゲート（6段階）
 
 ```bash
 cd app && npm run lint          # 1. ESLint（エラー0必須）
 cd app && npm run format:check  # 2. Prettier
 cd app && npm run build         # 3. tsc -b + vite build
-cd app && npm test              # 4. vitest（全テスト通過、カバレッジ lines 55%）
-cd app && npm run test:e2e      # 5. Playwright
+cd app && npm run build-storybook  # 4. Storybook ビルド（ストーリーの健全性）
+cd app && npm test              # 5. vitest（全テスト通過、カバレッジ lines 55%）
+cd app && npm run test:e2e      # 6. Playwright
 ```
 
 ## 自分ごとの設計原則

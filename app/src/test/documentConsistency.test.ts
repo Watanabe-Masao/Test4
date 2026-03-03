@@ -182,3 +182,147 @@ describe('Prohibition consistency', () => {
     }
   })
 })
+
+// ─── 不変条件カタログ ↔ ガードテスト対応表 ──────────────
+
+describe('Invariant catalog ↔ guard test map consistency', () => {
+  it('all INV-* IDs in invariant-catalog.md appear in guard-test-map.md', () => {
+    const catalog = readFile('references/invariant-catalog.md')
+    const guardMap = readFile('references/guard-test-map.md')
+
+    const invPattern = /### (INV-[A-Z]+-\d+)/g
+    const catalogIds: string[] = []
+    let match
+    while ((match = invPattern.exec(catalog)) !== null) {
+      catalogIds.push(match[1])
+    }
+
+    expect(catalogIds.length).toBeGreaterThan(0)
+
+    const missing = catalogIds.filter((id) => !guardMap.includes(id))
+    expect(missing).toEqual([])
+  })
+
+  it('all INV-* IDs in guard-test-map.md appear in invariant-catalog.md', () => {
+    const catalog = readFile('references/invariant-catalog.md')
+    const guardMap = readFile('references/guard-test-map.md')
+
+    const invPattern = /INV-[A-Z]+-\d+/g
+    const mapIds = new Set<string>()
+    let match
+    while ((match = invPattern.exec(guardMap)) !== null) {
+      mapIds.add(match[0])
+    }
+
+    expect(mapIds.size).toBeGreaterThan(0)
+
+    const missing = [...mapIds].filter((id) => !catalog.includes(id))
+    expect(missing).toEqual([])
+  })
+})
+
+// ─── エンジン責務マトリクス ↔ 実コード ──────────────────
+
+describe('Engine responsibility ↔ code consistency', () => {
+  it('JS modules listed in engine-responsibility.md exist in domain/calculations/', () => {
+    const doc = readFile('references/engine-responsibility.md')
+
+    // JS テーブルからモジュール名を抽出（`module.ts` パターン）
+    const jsSection = doc.split('### DuckDB')[0]
+    const modulePattern = /`(\w+\.ts)`/g
+    const modules = new Set<string>()
+    let match
+    while ((match = modulePattern.exec(jsSection)) !== null) {
+      modules.add(match[1])
+    }
+
+    expect(modules.size).toBeGreaterThan(0)
+
+    const missing = [...modules].filter(
+      (mod) => !fileExists(`app/src/domain/calculations/${mod}`),
+    )
+    expect(missing).toEqual([])
+  })
+
+  it('DuckDB modules listed in engine-responsibility.md exist in infrastructure/duckdb/queries/', () => {
+    const doc = readFile('references/engine-responsibility.md')
+
+    // DuckDB テーブルからモジュール名を抽出
+    const duckSection = doc.split('### DuckDB')[1]?.split('### 両エンジン')[0] ?? ''
+    const modulePattern = /`(\w+\.ts)`/g
+    const modules = new Set<string>()
+    let match
+    while ((match = modulePattern.exec(duckSection)) !== null) {
+      modules.add(match[1])
+    }
+
+    expect(modules.size).toBeGreaterThan(0)
+
+    const missing = [...modules].filter(
+      (mod) => !fileExists(`app/src/infrastructure/duckdb/queries/${mod}`),
+    )
+    expect(missing).toEqual([])
+  })
+})
+
+// ─── CLAUDE.md 内の references/ パス有効性 ──────────────
+
+describe('CLAUDE.md reference path validity', () => {
+  it('all references/ paths in CLAUDE.md exist on disk', () => {
+    const claudeMd = readFile('CLAUDE.md')
+
+    const refPattern = /`(references\/[^`]+\.md)`/g
+    const paths = new Set<string>()
+    let match
+    while ((match = refPattern.exec(claudeMd)) !== null) {
+      paths.add(match[1])
+    }
+
+    expect(paths.size).toBeGreaterThan(0)
+
+    const missing = [...paths].filter((p) => !fileExists(p))
+    expect(missing).toEqual([])
+  })
+})
+
+// ─── ROLE.md 連携プロトコル相互参照 ─────────────────────
+
+describe('Role protocol bidirectional consistency', () => {
+  const roleNameToPath: Record<string, string> = {
+    'pm-business': 'roles/staff/pm-business',
+    'review-gate': 'roles/staff/review-gate',
+    'documentation-steward': 'roles/staff/documentation-steward',
+    architecture: 'roles/line/architecture',
+    implementation: 'roles/line/implementation',
+    'invariant-guardian': 'roles/line/specialist/invariant-guardian',
+    'duckdb-specialist': 'roles/line/specialist/duckdb-specialist',
+    'explanation-steward': 'roles/line/specialist/explanation-steward',
+  }
+
+  it('every role mentioned in a protocol table has a corresponding ROLE.md', () => {
+    for (const [, dir] of Object.entries(roleNameToPath)) {
+      const roleMd = readFile(`${dir}/ROLE.md`)
+      // 連携プロトコルセクションのみを抽出
+      const sectionMatch = roleMd.match(/## 連携プロトコル[\s\S]*?(?=\n## |\n$|$)/)
+      if (!sectionMatch) continue
+      const section = sectionMatch[0]
+
+      // テーブルの「方向+相手」列からロール名を抽出
+      const protocolPattern = /\|\s*(?:←|→|←→)\s+(\S+)\s*\|/g
+      let match
+      while ((match = protocolPattern.exec(section)) !== null) {
+        const counterpart = match[1]
+        // 汎用表現・グループ参照はスキップ
+        if (
+          counterpart === '全ロール' ||
+          counterpart === '人間' ||
+          counterpart.includes('*')
+        )
+          continue
+        expect(
+          Object.keys(roleNameToPath),
+        ).toContain(counterpart)
+      }
+    }
+  })
+})

@@ -42,7 +42,7 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | | `duckdb/migrations/` | スキーママイグレーション（DDL バージョン管理） |
 | | `duckdb/queries/*.ts` | SQL クエリ関数（10 モジュール） |
 | **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
-| | `hooks/duckdb/*.ts` | クエリフック群（11ファイル、~28フック、`useAsyncQuery` ベース） |
+| | `hooks/duckdb/*.ts` | クエリフック群（11ファイル、~29フック、`useAsyncQuery` ベース） |
 | | `hooks/useDuckDBQuery.ts` | バレル re-export（後方互換） |
 | **Presentation** | `charts/DuckDB*.tsx` | 15 個の DuckDB ウィジェット |
 | | `charts/DuckDBDateRangePicker.tsx` | 自由日付範囲セレクタ |
@@ -79,7 +79,7 @@ DuckDB スキーマは以下の基本テーブルと VIEW で構成される:
 hooks/duckdb/
 ├── index.ts                  # バレル re-export
 ├── useAsyncQuery.ts          # 基盤フック（シーケンス番号によるキャンセル制御）
-├── useCtsQueries.ts          # 時間帯売上クエリ（8フック）
+├── useCtsQueries.ts          # 時間帯売上クエリ（9フック）
 ├── useDeptKpiQueries.ts      # 部門KPIクエリ（2フック）
 ├── useSummaryQueries.ts      # サマリクエリ（2フック）
 ├── useYoyQueries.ts          # 前年比較クエリ（2フック）
