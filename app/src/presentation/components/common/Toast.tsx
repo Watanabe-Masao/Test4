@@ -315,6 +315,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const clearHistory = useCallback(() => {
     setHistory([])
     setHasUnread(false)
+    setShowHistory(false)
   }, [])
 
   const toggleHistory = useCallback(() => {

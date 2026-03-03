@@ -122,7 +122,7 @@ export const jaMessages: MessageCatalog = {
     analysis: '分析',
     daily: '日別',
     transfer: '移動',
-    consumable: '消耗品',
+    consumable: '原価算入費',
     summary: 'サマリ',
     reports: 'レポート',
     admin: '管理',

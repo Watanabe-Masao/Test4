@@ -39,7 +39,6 @@ import {
   ToggleBar,
   ToggleLabel,
   CategorySelect,
-  CustomCategoryBadge,
   KpiRow,
   SortButton,
   MarkupCell,
@@ -58,7 +57,12 @@ import {
   StoreComparisonMarkupRadarChart,
 } from './CategoryComparisonCharts'
 import type { ComparisonMode, CategoryChartItem } from './categoryData'
-import { CATEGORY_COLORS, buildCategoryData, buildUnifiedCategoryData } from './categoryData'
+import {
+  CATEGORY_COLORS,
+  CUSTOM_CATEGORY_COLORS,
+  buildCategoryData,
+  buildUnifiedCategoryData,
+} from './categoryData'
 
 type SortKey =
   | 'label'
@@ -281,10 +285,10 @@ export function CategoryPage() {
             })()}
           </ChartErrorBoundary>
 
-          {/* ── カテゴリ別集計テーブル ── */}
+          {/* ── カテゴリ明細テーブル ── */}
           <Section>
             <SectionHeader>
-              <SectionTitle>カテゴリ別集計</SectionTitle>
+              <SectionTitle>カテゴリ明細</SectionTitle>
               <span style={{ fontSize: '0.7rem', color: palette.slate }}>
                 標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率
               </span>
@@ -296,7 +300,7 @@ export function CategoryPage() {
                     <Th>カテゴリ</Th>
                     <Th>原価</Th>
                     <Th>売価</Th>
-                    <Th>粗利額</Th>
+                    <Th>値入額</Th>
                     <Th>値入率</Th>
                     <Th>構成比（原価）</Th>
                     <Th>売価構成比</Th>
@@ -527,9 +531,9 @@ export function CategoryPage() {
                 <Table>
                   <thead>
                     <tr>
+                      <Th>カテゴリ</Th>
                       <Th>取引先</Th>
                       <Th>コード</Th>
-                      <Th>カスタムカテゴリ</Th>
                       <Th>
                         <SortButton onClick={() => toggleSort('cost')}>
                           原価{sortIcon('cost')}
@@ -542,7 +546,7 @@ export function CategoryPage() {
                       </Th>
                       <Th>
                         <SortButton onClick={() => toggleSort('grossProfit')}>
-                          粗利額{sortIcon('grossProfit')}
+                          値入額{sortIcon('grossProfit')}
                         </SortButton>
                       </Th>
                       <Th>
@@ -576,13 +580,6 @@ export function CategoryPage() {
                         | undefined
                       return (
                         <Tr key={s.supplierCode}>
-                          <Td>
-                            {s.supplierName}
-                            {assignedCategory && (
-                              <CustomCategoryBadge>{assignedCategory}</CustomCategoryBadge>
-                            )}
-                          </Td>
-                          <Td>{s.supplierCode}</Td>
                           <Td style={{ textAlign: 'center' }}>
                             <CategorySelect
                               value={assignedCategory ?? ''}
@@ -592,8 +589,11 @@ export function CategoryPage() {
                                   e.target.value as CustomCategory,
                                 )
                               }
+                              style={{
+                                borderLeft: `3px solid ${assignedCategory ? (CUSTOM_CATEGORY_COLORS[assignedCategory] ?? '#94a3b8') : '#94a3b8'}`,
+                              }}
                             >
-                              <option value="">--</option>
+                              <option value="">未分類</option>
                               {CUSTOM_CATEGORIES.map((cc) => (
                                 <option key={cc} value={cc}>
                                   {cc}
@@ -601,6 +601,8 @@ export function CategoryPage() {
                               ))}
                             </CategorySelect>
                           </Td>
+                          <Td>{s.supplierName}</Td>
+                          <Td>{s.supplierCode}</Td>
                           <Td>{formatCurrency(s.cost)}</Td>
                           <Td>{formatCurrency(s.price)}</Td>
                           <GrossProfitCell $positive={supplierGP >= 0}>
