@@ -33,6 +33,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 - 新しい MetricId が追加された → references/metric-id-registry.md
 - ガードテストが追加・変更された → references/guard-test-map.md + references/invariant-catalog.md
 - review-gate が構造的 FAIL を出し、再発防止策が決まった → フィードバックスパイラルに従い該当文書
+- 作業者から課題・リスクが報告された → references/open-issues.md（C-*/R-* に分類して記録）
 
 **更新しない:**
 - 既存パターンに従った実装のみの変更（コードだけで完結する）
@@ -82,6 +83,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 | 種類 | 方向 | 相手 | 内容 |
 |---|---|---|---|
 | **報告を受ける** | ← pm-business | タスク完了報告（変更内容・関与ロール・構造的FAILの有無） |
+| **報告を受ける** | ← pm-business | 作業者から集約された課題・リスク（open-issues.md 更新要否を自律判断） |
 | **連携** | ← architecture | 設計判断書（ADR として記録） |
 | **連携** | ← 全ロール | 決定事項・変更内容の受け取り |
 | **相談に応じる** | ←→ 全ロール | ドキュメントの所在・整合性の確認 |

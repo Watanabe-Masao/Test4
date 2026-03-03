@@ -66,6 +66,7 @@
 | 種類 | 方向 | 相手 | 内容 |
 |---|---|---|---|
 | **報告** | → implementation | MetricId カバレッジ確認結果・Explanation 生成ロジック |
+| **報告** | → pm-business | 作業中に発見した課題・リスク（タスクの直接スコープ外） |
 | **連携** | ←→ implementation | 指標追加の共同作業 |
 | **相談を受ける** | ← implementation | 新指標の Explanation 設計相談 |
 
