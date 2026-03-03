@@ -100,6 +100,7 @@ export type {
   Explanation,
   StoreExplanations,
 } from './Explanation'
+export type { FormulaId, FormulaCategory, FormulaMeta } from './Formula'
 export type { StoreMetrics } from './StoreMetrics'
 export type {
   AnalysisGranularity,

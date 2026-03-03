@@ -468,16 +468,6 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     labels.curLabel,
   ])
 
-  if (!hasComparison || prevSales <= 0) return null
-
-  const hasCategoryView = categoryData.length > 0
-  const hasCategoryFactorView = hasQuantity && hasCategoryView
-  const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
-  if (data.length === 0 && viewMode !== 'categoryFactor') return null
-
-  const yoyRatio = safeDivide(curSales, prevSales, 0)
-  const yoyDiff = curSales - prevSales
-
   // PI値・点単価（3要素以上の分解時に表示）
   const piSummary = useMemo(() => {
     if (activeLevel < 3 || !hasQuantity || prevCust <= 0 || curCust <= 0) return null
@@ -487,6 +477,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     const curPPI = calculateAveragePricePerItem(curSales, curTotalQty)
     return { prevPI, curPI, prevPPI, curPPI }
   }, [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales])
+
+  if (!hasComparison || prevSales <= 0) return null
+
+  const hasCategoryView = categoryData.length > 0
+  const hasCategoryFactorView = hasQuantity && hasCategoryView
+  const data = viewMode === 'category' && hasCategoryView ? categoryData : factorData
+  if (data.length === 0 && viewMode !== 'categoryFactor') return null
+
+  const yoyRatio = safeDivide(curSales, prevSales, 0)
+  const yoyDiff = curSales - prevSales
 
   const colors = {
     positive: sc.positive,
