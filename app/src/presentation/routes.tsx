@@ -3,34 +3,34 @@
  *
  * 遅延ロードされるページコンポーネントと、ViewType ↔ URLパスのマッピングを管理する。
  */
-import { lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import type { ViewType } from '@/domain/models'
+import { lazyWithRetry } from '@/presentation/lazyWithRetry'
 
-// ─── 遅延ロード: ページコンポーネント ──────────────────────
-const DashboardPage = lazy(() =>
+// ─── 遅延ロード: ページコンポーネント（チャンク読込リトライ付き） ──
+const DashboardPage = lazyWithRetry(() =>
   import('@/presentation/pages/Dashboard/DashboardPage').then((m) => ({
     default: m.DashboardPage,
   })),
 )
-const DailyPage = lazy(() =>
+const DailyPage = lazyWithRetry(() =>
   import('@/presentation/pages/Daily/DailyPage').then((m) => ({ default: m.DailyPage })),
 )
-const InsightPage = lazy(() =>
+const InsightPage = lazyWithRetry(() =>
   import('@/presentation/pages/Insight/InsightPage').then((m) => ({ default: m.InsightPage })),
 )
-const CategoryPage = lazy(() =>
+const CategoryPage = lazyWithRetry(() =>
   import('@/presentation/pages/Category/CategoryPage').then((m) => ({ default: m.CategoryPage })),
 )
-const CostDetailPage = lazy(() =>
+const CostDetailPage = lazyWithRetry(() =>
   import('@/presentation/pages/CostDetail/CostDetailPage').then((m) => ({
     default: m.CostDetailPage,
   })),
 )
-const ReportsPage = lazy(() =>
+const ReportsPage = lazyWithRetry(() =>
   import('@/presentation/pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
 )
-const AdminPage = lazy(() =>
+const AdminPage = lazyWithRetry(() =>
   import('@/presentation/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })),
 )
 
