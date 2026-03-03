@@ -5,6 +5,7 @@ import {
   usePrevYearData,
   useBudgetChartData,
 } from '@/application/hooks'
+import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
   formatCurrency,
   formatPercent,
@@ -36,6 +37,8 @@ export function useInsightData() {
   const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
+  const settings = useSettingsStore((s) => s.settings)
+  const { targetYear, targetMonth } = settings
 
   const [activeTab, setActiveTab] = useState<InsightTab>('budget')
   const [viewMode, setViewMode] = useState<ViewMode>('total')
@@ -57,9 +60,8 @@ export function useInsightData() {
   // ─── 予測データ ─────────────────────────────────────────
   const forecastData = useMemo(() => {
     if (!currentResult) return null
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = today.getMonth() + 1
+    const year = targetYear
+    const month = targetMonth
     const forecastInput = buildForecastInput(currentResult, year, month)
     const forecast = calculateForecast(forecastInput)
     const stackedData = computeStackedWeekData(
@@ -78,7 +80,7 @@ export function useInsightData() {
         ? activeWeeks.reduce((a, b) => (a.totalSales < b.totalSales ? a : b))
         : null
     return { forecast, stackedData, bestWeek, worstWeek, year, month }
-  }, [currentResult])
+  }, [currentResult, targetYear, targetMonth])
 
   // ─── 客数・要因分解データ ───────────────────────────────
   const customerData = useMemo(() => {
