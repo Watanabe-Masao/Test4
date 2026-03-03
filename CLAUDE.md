@@ -28,7 +28,7 @@
 | ロール | 位置づけ | 品質責任 |
 |---|---|---|
 | pm-business | **指示者** 兼 要件の入口。タスク分解→作業者決定→完了判定 | 要件の正確さ・受入基準の測定可能性 |
-| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 7禁止事項・ガードテスト・CI 5段階ゲート |
+| review-gate | 品質の出口。成果物を受けて PASS/FAIL を自律判定 | 7禁止事項・ガードテスト・CI 6段階ゲート |
 | documentation-steward | 記録の出口。pm-business の報告を受けて更新要否を自律判断 | CLAUDE.md・roles/・references/ とコードの整合性 |
 
 **実務部門（line/）** — 設計→実装→専門検証
@@ -211,13 +211,14 @@ cd app && npm run test:coverage # vitest + カバレッジレポート
 cd app && npm run dev           # Vite 開発サーバー
 ```
 
-### CI パイプライン（5段階ゲート）
+### CI パイプライン（6段階ゲート）
 
 1. `npm run lint` — ESLint（**エラー0必須**）
 2. `npm run format:check` — Prettier（**準拠必須**）
 3. `npm run build` — tsc -b + vite build（**strict mode**）
-4. `npx vitest run --coverage` — vitest + カバレッジ（**lines 55%**）
-5. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
+4. `npm run build-storybook` — Storybook ビルド（**ストーリーの型・import 健全性**）
+5. `npx vitest run --coverage` — vitest + カバレッジ（**lines 55%**）
+6. `npm run test:e2e` — Playwright E2E（**全シナリオ通過**）
 
 ## コーディング規約
 

@@ -9,10 +9,7 @@
 
 ## 1. 現在の課題（対応が必要）
 
-| # | 課題 | 影響範囲 | 対応ロール |
-|---|---|---|---|
-| C-1 | Storybook の CI 位置づけ未定義（`build-storybook` を CI に含めるか任意か） | presentation | architecture |
-| C-2 | Import 系4件 + Modal 系4件の Storybook 未カバー（FileDropZone, UploadCard, ImportProgressBar, ImportWizard, ValidationModal, DiffConfirmModal, RestoreDataModal, SettingsModal） | presentation | implementation |
+（現在なし）
 
 ## 2. 将来のリスク（いま壊れていないが放置すると問題になる）
 
@@ -32,3 +29,5 @@
 | S-6 | PWA オフライン戦略が未設計 | 2026-03 | sw.js（3層キャッシュ戦略）+ IndexedDB 永続化 + registerSW.ts で実装済み |
 | S-7 | DevTools の本番ビルド除外方針が未定義 | 2026-03 | QueryProfilePanel が `import.meta.env.DEV` ガードで本番除外済み。architectureGuard 許可リストに登録 |
 | S-8 | documentConsistency.test.ts のカバー範囲が限定的 | 2026-03 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス、連携プロトコル相互参照の4検証を追加（5→12テスト） |
+| S-9 | Storybook の CI 位置づけ未定義 | 2026-03 | `build-storybook` を CI 第4ステップに追加、5段階→6段階ゲートに更新 |
+| S-10 | Import/Modal 系8コンポーネントの Storybook 未カバー | 2026-03 | FileDropZone, UploadCard, ImportProgressBar, ImportWizard, ValidationModal, DiffConfirmModal, RestoreDataModal, SettingsModal の全8ストーリーを作成 |
