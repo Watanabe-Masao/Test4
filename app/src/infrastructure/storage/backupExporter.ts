@@ -303,7 +303,7 @@ class BackupExporter {
 
   /**
    * 指定フォルダにバックアップを書き出し、古い世代を削除する。
-   * ファイル名: backup-YYYY-MM-DD-HHmm.json
+   * ファイル名: backup-YYYY-MM-DD-HHmm.json（圧縮時は .json.gz）
    */
   async exportToFolder(
     repo: DataRepository,
@@ -314,9 +314,12 @@ class BackupExporter {
     const blob = await this.exportBackup(repo, appSettings)
     const now = new Date()
     const pad2 = (n: number) => String(n).padStart(2, '0')
-    const fileName = `backup-${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}.json`
+    const isGz = isCompressionSupported()
+    const ext = isGz ? '.json.gz' : '.json'
+    const fileName = `backup-${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}${ext}`
     await writeFile(dirHandle, fileName, blob)
-    await pruneOldFiles(dirHandle, 'backup-', maxGenerations)
+    // .json と .json.gz 両方を世代管理対象にする
+    await pruneOldFiles(dirHandle, 'backup-', maxGenerations, ['.json', '.json.gz', '.gz'])
     return fileName
   }
 

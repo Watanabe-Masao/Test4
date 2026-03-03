@@ -127,8 +127,10 @@ export async function listFiles(
   for await (const [name, entryHandle] of dirHandle.entries()) {
     if (entryHandle.kind !== 'file') continue
     if (extensions && extensions.length > 0) {
-      const ext = name.includes('.') ? name.slice(name.lastIndexOf('.')).toLowerCase() : ''
-      if (!extensions.includes(ext)) continue
+      const lower = name.toLowerCase()
+      // 複合拡張子（.json.gz）にも対応: どれか1つでもマッチすればOK
+      const matched = extensions.some((ext) => lower.endsWith(ext))
+      if (!matched) continue
     }
     files.push({ name, handle: entryHandle as FileSystemFileHandle })
   }
@@ -161,8 +163,9 @@ export async function pruneOldFiles(
   dirHandle: FileSystemDirectoryHandle,
   prefix: string,
   maxGenerations: number,
+  extensions: readonly string[] = ['.json'],
 ): Promise<number> {
-  const allFiles = await listFiles(dirHandle, ['.json'])
+  const allFiles = await listFiles(dirHandle, extensions)
   const matching = allFiles
     .filter((f) => f.name.startsWith(prefix))
     .sort((a, b) => b.name.localeCompare(a.name)) // 新しい順（ファイル名に日時含む前提）
