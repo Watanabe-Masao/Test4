@@ -20,9 +20,12 @@ export interface BudgetAnalysisResult {
   readonly budgetAchievementRate: number // 予算達成率
   readonly budgetProgressRate: number // 予算消化率
   readonly budgetElapsedRate: number // 予算経過率（経過予算/月間予算）
+  readonly budgetProgressGap: number // 進捗ギャップ（消化率 − 経過率）
+  readonly budgetVariance: number // 予算差異（累計実績 − 累計予算）
   readonly averageDailySales: number // 日平均売上
   readonly projectedSales: number // 月末予測売上
   readonly projectedAchievement: number // 予算達成率予測
+  readonly requiredDailySales: number // 必要日次売上（残余予算 / 残日数）
   readonly remainingBudget: number // 残余予算
   readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }> // 日別累計
 }
@@ -57,6 +60,16 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
   // 予算達成率予測
   const projectedAchievement = safeDivide(projectedSales, budget, 0)
 
+  // 進捗ギャップ = 消化率 − 経過率（正 = 前倒し、負 = 遅れ）
+  const budgetProgressGap = budgetProgressRate - budgetElapsedRate
+
+  // 予算差異 = 累計実績 − 累計予算（正 = 予算超過ペース）
+  const budgetVariance = totalSales - cumulativeBudget
+
+  // 必要日次売上 = 残余予算 / 残日数
+  const requiredDailySales =
+    remainingDays > 0 ? safeDivide(budget - totalSales, remainingDays, 0) : 0
+
   // 残余予算
   const remainingBudget = budget - totalSales
 
@@ -74,9 +87,12 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
     budgetAchievementRate,
     budgetProgressRate,
     budgetElapsedRate,
+    budgetProgressGap,
+    budgetVariance,
     averageDailySales,
     projectedSales,
     projectedAchievement,
+    requiredDailySales,
     remainingBudget,
     dailyCumulative,
   }

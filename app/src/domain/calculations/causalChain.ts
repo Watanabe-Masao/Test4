@@ -7,6 +7,15 @@
 import { safeDivide, getEffectiveGrossProfitRate } from './utils'
 import { decompose2 } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
+import type { DiscountType } from '@/domain/models/ClassifiedSales'
+
+/** 売変種別ごとのカラーヒント（DISCOUNT_TYPES に対応） */
+const DISCOUNT_COLOR_HINTS: Readonly<Record<DiscountType, ColorHint>> = {
+  '71': 'negative',
+  '72': 'warning',
+  '73': 'info',
+  '74': 'secondary',
+}
 
 /** セマンティックなカラーヒント。実際の色は Presentation 層で解決する。 */
 export type ColorHint =
@@ -213,14 +222,7 @@ export function buildCausalSteps(
         label: e.label,
         value: Math.abs(delta),
         formatted: `${fmtComma(e.amount)}円${prevEntry ? `（差: ${delta >= 0 ? '+' : ''}${fmtComma(delta)}円）` : ''}`,
-        colorHint:
-          e.type === '71'
-            ? ('negative' as const)
-            : e.type === '72'
-              ? ('warning' as const)
-              : e.type === '73'
-                ? ('info' as const)
-                : ('secondary' as const),
+        colorHint: DISCOUNT_COLOR_HINTS[e.type] ?? ('secondary' as const),
       }
     })
 

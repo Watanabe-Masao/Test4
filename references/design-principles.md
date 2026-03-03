@@ -147,3 +147,210 @@ props が変わらない限り再描画しない。
 
 **原則:** 「何を購読するか」は「何を描画するか」と一致させる。
 広すぎる購読はパフォーマンス問題の温床。
+
+---
+
+## 反例集（やりがちだがダメなパターン）
+
+以下は実際に起きた、または起きかけた問題パターンと、その構造的な解決策である。
+
+### 反例 1: ビジネス用語を文字列リテラルでハードコード
+
+**ダメな例:**
+
+```typescript
+// domain/models/Settings.ts
+type CustomCategory = '市場仕入' | 'LFC' | 'サラダ' | '加工品' | '消耗品' | '直伝' | 'その他'
+
+// presentation/pages/Category/categoryData.ts
+const COLORS: Record<string, string> = {
+  '市場仕入': '#f59e0b',
+  'LFC': '#3b82f6',
+}
+
+// presentation/pages/Admin/AdminPage.tsx
+{CUSTOM_CATEGORIES.map((cc) => <option key={cc} value={cc}>{cc}</option>)}
+```
+
+**何が壊れるか:** カテゴリ名の変更が 126 ファイルに波及する。色マップ・UI 選択・ストア・テストが
+全て同じ文字列に依存しており、1箇所の typo で実行時エラー。型チェックでは検出できない。
+
+**正しいパターン:**
+
+```typescript
+// domain/constants/customCategories.ts
+type PresetCategoryId = 'market_purchase' | 'lfc' | 'salad' | ...
+const PRESET_CATEGORY_DEFS = [
+  { id: 'market_purchase', label: '市場仕入', isPreset: true },
+  ...
+]
+const PRESET_CATEGORY_LABELS: Record<PresetCategoryId, string> = { ... }
+
+// presentation
+const COLORS: Record<PresetCategoryId, string> = {
+  market_purchase: '#f59e0b',  // ID で参照
+}
+{CATEGORIES.map((cc) => <option key={cc.id} value={cc.id}>{cc.label}</option>)}
+```
+
+**根拠:** ID（識別）とラベル（表示）を分離する。
+ラベルは UI の関心、ID はロジックの関心。混同すると変更が全レイヤーに波及する。
+
+### 反例 2: 売変タイプを条件分岐にハードコード
+
+**ダメな例:**
+
+```typescript
+colorHint:
+  e.type === '71' ? 'negative'
+  : e.type === '72' ? 'warning'
+  : e.type === '73' ? 'info'
+  : 'secondary'
+```
+
+**何が壊れるか:** 新しい売変タイプ（例: `'75'`）追加時に、分岐のどこかで漏れる。
+`DISCOUNT_TYPES` 定数は存在するのに参照されず、二重管理になる。
+
+**正しいパターン:**
+
+```typescript
+const DISCOUNT_COLOR_HINTS: Record<DiscountType, ColorHint> = {
+  '71': 'negative',
+  '72': 'warning',
+  '73': 'info',
+  '74': 'secondary',
+}
+colorHint: DISCOUNT_COLOR_HINTS[e.type] ?? 'secondary'
+```
+
+**根拠:** 定数を定義しても、全箇所で使わなければ意味がない。
+マップにすればキーの追加が1行で済み、漏れは型エラーで検出できる。
+
+### 反例 3: 指標 ID に意味を詰め込みすぎる
+
+**ダメな例:**
+
+```typescript
+type MetricId = 'salesBudgetAchievementRate' | 'gpBudgetAchievementRate'
+// → ID 自体がグルーピング情報を持つ。ID を変えると分類が壊れる。
+```
+
+**何が壊れるか:** ID の命名規則に暗黙の構造がエンコードされる。
+「sales で始まる指標」「Budget を含む指標」のようなパターンマッチに依存し、
+ID をリネームするとフィルタが壊れる。
+
+**正しいパターン:**
+
+```typescript
+// ID は安定した識別子（意味を持ちすぎない）
+type MetricId = 'budgetAchievementRate' | 'grossProfitBudgetAchievement'
+
+// 構造はメタデータ（tokens）で外付け
+const METRIC_DEFS = {
+  budgetAchievementRate: {
+    tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
+  },
+  grossProfitBudgetAchievement: {
+    tokens: { entity: 'gp', domain: 'budget', measure: 'achievement' },
+  },
+}
+
+// フィルタはトークンで
+const budgetMetrics = Object.entries(METRIC_DEFS)
+  .filter(([, m]) => m.tokens.domain === 'budget')
+```
+
+**根拠:** ID は変えにくい（永続化・URL パラメータに使われる）。
+分類は変わりうる（新しいグルーピングが追加される）。
+変わるもの（構造）と変えにくいもの（ID）を分離する。
+
+### 反例 4: 平均の種類を混同する
+
+**ダメな例:**
+
+```typescript
+// 月平均を日数で割る
+const monthlyAverage = yearTotal / 12  // 各月の営業日数が違う！
+
+// 曜日平均を一律で計算
+const sundayAverage = sundayTotal / 4  // その月の日曜日が4日とは限らない！
+```
+
+**何が壊れるか:** 2月は28日、3月は31日。祝日で営業日が異なる。
+一律の除数を使うと、営業日が少ない月の平均が過大評価され、
+逆に営業日が多い月は過小評価される。曜日別でも同様。
+
+**正しいパターン:**
+
+```typescript
+// 営業日をカウントして使う
+const mondayCount = actualMondaysInMonth  // 実際の月曜日数（祝日除外）
+const mondayAverage = mondayTotal / mondayCount
+
+// 月平均は営業日ベース
+const monthAverage = monthTotal / salesDaysInMonth
+
+// 加重平均が必要な場合は明示する
+const weightedAverage = Σ(value_i × weight_i) / Σ(weight_i)
+```
+
+**根拠:** 平均には「単純平均」「加重平均」「営業日ベース平均」の区別がある。
+売上データでは営業日数が月・曜日で異なるため、除数は実測値を使う。
+`averageDailySales = totalSales / salesDays`（営業日ベース）が基本。
+
+### 反例 5: 予算の経過按分を均等日割りで決め打つ
+
+**ダメな例:**
+
+```typescript
+const elapsedBudget = totalBudget * (elapsedDays / daysInMonth)
+```
+
+**何が壊れるか:** 日別予算が曜日で異なる場合（土日は売上が多い→予算も多い）、
+均等日割りでは経過予算を過小/過大評価する。
+消化率が実態と乖離し、進捗ギャップが誤った方向を示す。
+
+**正しいパターン:**
+
+```typescript
+// 日別予算の累計を使う
+let cumulativeBudget = 0
+for (let d = 1; d <= elapsedDays; d++) {
+  cumulativeBudget += budgetDaily.get(d) ?? 0
+}
+const budgetElapsedRate = cumulativeBudget / totalBudget
+```
+
+**根拠:** 予算は「いつ使う予定か」の情報を含む。
+日別予算（`budgetDaily`）が存在するなら、それを累計すべき。
+均等日割りはフォールバック（日別予算が無い場合のみ）として使う。
+
+### 反例 6: 計算ロジックを Presentation 層に書く
+
+**ダメな例:**
+
+```typescript
+// presentation/pages/Dashboard/PlanActualForecast.tsx
+const projectedGP = projectedSales * effectiveGPRate  // ← UI で計算している
+const gpAchievement = projectedGP / gpBudget           // ← UI で計算している
+```
+
+**何が壊れるか:**
+- 同じ計算が複数ページで重複する（DRY 違反）
+- テストが困難（React コンポーネントのレンダリングが必要）
+- Explanation（説明責任）の対象外になる（Domain/Application 層でしか追跡できない）
+- 禁止事項 #6（UI が生データソースを直接参照しない）に違反
+
+**正しいパターン:**
+
+```typescript
+// domain/calculations/budgetAnalysis.ts
+readonly projectedGrossProfit: number  // Domain で計算
+readonly projectedGPAchievement: number
+
+// presentation では結果を参照するだけ
+<KpiCard value={result.projectedGPAchievement} />
+```
+
+**根拠:** 計算は Domain 層、表示は Presentation 層。
+UIは「描画のみ」の原則（設計原則 #9）に従う。

@@ -565,6 +565,136 @@ export function generateExplanations(
     evidenceRefs: [],
   })
 
+  map.set('budgetElapsedRate', {
+    metric: 'budgetElapsedRate',
+    title: '経過予算率',
+    formula: '経過予算率 = 経過予算累計 ÷ 月間予算',
+    value: result.budgetElapsedRate,
+    unit: 'rate',
+    scope,
+    inputs: [
+      inp('経過日数', result.elapsedDays, 'count'),
+      inp('月間予算', result.budget, 'yen', 'budget'),
+    ],
+    evidenceRefs: [],
+  })
+
+  map.set('budgetProgressGap', {
+    metric: 'budgetProgressGap',
+    title: '予算進捗ギャップ',
+    formula: '進捗ギャップ = 消化率 − 経過率（正 = 前倒し、負 = 遅れ）',
+    value: result.budgetProgressGap,
+    unit: 'rate',
+    scope,
+    inputs: [
+      inp('予算消化率', result.budgetProgressRate, 'rate', 'budgetProgressRate'),
+      inp('経過予算率', result.budgetElapsedRate, 'rate', 'budgetElapsedRate'),
+    ],
+    evidenceRefs: [],
+  })
+
+  map.set('budgetVariance', {
+    metric: 'budgetVariance',
+    title: '予算差異',
+    formula: '予算差異 = 累計実績 − 経過予算累計（正 = 予算超過ペース）',
+    value: result.budgetVariance,
+    unit: 'yen',
+    scope,
+    inputs: [
+      inp('総売上高', result.totalSales, 'yen', 'salesTotal'),
+      inp('経過日数', result.elapsedDays, 'count'),
+    ],
+    evidenceRefs: [],
+  })
+
+  map.set('requiredDailySales', {
+    metric: 'requiredDailySales',
+    title: '必要日次売上',
+    formula: '必要日次売上 = 残余予算 ÷ 残日数',
+    value: result.requiredDailySales,
+    unit: 'yen',
+    scope,
+    inputs: [
+      inp('残余予算', result.remainingBudget, 'yen', 'remainingBudget'),
+      inp('経過日数', result.elapsedDays, 'count'),
+    ],
+    evidenceRefs: [],
+  })
+
+  map.set('averageDailySales', {
+    metric: 'averageDailySales',
+    title: '日平均売上',
+    formula: '日平均売上 = 総売上 ÷ 営業日数',
+    value: result.averageDailySales,
+    unit: 'yen',
+    scope,
+    inputs: [
+      inp('総売上高', result.totalSales, 'yen', 'salesTotal'),
+      inp('営業日数', result.salesDays, 'count'),
+    ],
+    evidenceRefs: [],
+  })
+
+  map.set('projectedAchievement', {
+    metric: 'projectedAchievement',
+    title: '着地予測達成率',
+    formula: '着地予測達成率 = 月末予測売上 ÷ 月間予算',
+    value: result.projectedAchievement,
+    unit: 'rate',
+    scope,
+    inputs: [
+      inp('月末予測売上', result.projectedSales, 'yen', 'projectedSales'),
+      inp('月間予算', result.budget, 'yen', 'budget'),
+    ],
+    evidenceRefs: [],
+  })
+
+  // ─── 粗利予算系 ────────────────────────────────────────
+
+  map.set('grossProfitBudget', {
+    metric: 'grossProfitBudget',
+    title: '粗利予算',
+    formula: '粗利予算 = 設定値',
+    value: result.grossProfitBudget,
+    unit: 'yen',
+    scope,
+    inputs: [inp('粗利予算', result.grossProfitBudget, 'yen')],
+    evidenceRefs: [{ kind: 'aggregate', dataType: 'budget', storeId }],
+  })
+
+  map.set('grossProfitRateBudget', {
+    metric: 'grossProfitRateBudget',
+    title: '粗利率予算',
+    formula: '粗利率予算 = 粗利予算 ÷ 売上予算',
+    value: result.grossProfitRateBudget,
+    unit: 'rate',
+    scope,
+    inputs: [
+      inp('粗利予算', result.grossProfitBudget, 'yen', 'grossProfitBudget'),
+      inp('売上予算', result.budget, 'yen', 'budget'),
+    ],
+    evidenceRefs: [],
+  })
+
+  if (result.grossProfitBudget > 0) {
+    const gpActual = result.invMethodGrossProfit ?? result.estMethodMargin
+    const gpBudgetAchievement = safeDivide(gpActual, result.grossProfitBudget, 0)
+
+    map.set('grossProfitBudgetAchievement', {
+      metric: 'grossProfitBudgetAchievement',
+      title: '粗利予算達成率',
+      formula: '粗利予算達成率 = 粗利実績 ÷ 粗利予算',
+      value: gpBudgetAchievement,
+      unit: 'rate',
+      scope,
+      inputs: [
+        inp('粗利実績', gpActual, 'yen'),
+        inp('粗利予算', result.grossProfitBudget, 'yen', 'grossProfitBudget'),
+      ],
+      evidenceRefs: [],
+    })
+  }
+
   return map
 }
 

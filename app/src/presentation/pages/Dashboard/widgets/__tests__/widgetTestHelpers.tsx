@@ -109,6 +109,9 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     budgetAchievementRate: 0.5,
     budgetProgressRate: 1.0,
     budgetElapsedRate: 0.5,
+    budgetProgressGap: 0.5,
+    budgetVariance: 0,
+    requiredDailySales: 0,
     remainingBudget: 1500000,
     dailyCumulative: new Map(),
   }

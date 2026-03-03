@@ -16,31 +16,103 @@
 
 /** 追跡対象の指標ID */
 export type MetricId =
+  // 売上系
   | 'salesTotal'
   | 'coreSales'
   | 'grossSales'
+  // 仕入系
   | 'purchaseCost'
   | 'inventoryCost'
   | 'deliverySalesCost'
+  // 売変系
   | 'discountTotal'
   | 'discountRate'
   | 'discountLossCost'
+  // 値入率
   | 'averageMarkupRate'
   | 'coreMarkupRate'
+  // 粗利（在庫法）
   | 'invMethodCogs'
   | 'invMethodGrossProfit'
   | 'invMethodGrossProfitRate'
+  // 粗利（推定法）
   | 'estMethodCogs'
   | 'estMethodMargin'
   | 'estMethodMarginRate'
   | 'estMethodClosingInventory'
+  // 在庫差異
+  | 'inventoryGap'
+  // 客数・客生産性
   | 'totalCustomers'
+  | 'averageSpendPerCustomer'
+  | 'itemsPerCustomer'
+  | 'averagePricePerItem'
+  // 原価算入費
   | 'totalConsumable'
+  // 売上予算系
   | 'budget'
   | 'budgetAchievementRate'
   | 'budgetProgressRate'
+  | 'budgetElapsedRate'
+  | 'budgetProgressGap'
+  | 'budgetVariance'
   | 'projectedSales'
+  | 'projectedAchievement'
+  | 'requiredDailySales'
+  | 'averageDailySales'
   | 'remainingBudget'
+  // 仕入予算系
+  | 'purchaseBudget'
+  | 'purchaseBudgetAchievement'
+  | 'purchaseBudgetVariance'
+  | 'requiredDailyPurchase'
+  // 粗利予算系
+  | 'grossProfitBudget'
+  | 'grossProfitRateBudget'
+  | 'grossProfitBudgetAchievement'
+  | 'grossProfitBudgetVariance'
+  | 'grossProfitProgressGap'
+  | 'projectedGrossProfit'
+  | 'projectedGPAchievement'
+  | 'requiredDailyGrossProfit'
+
+// ─── MetricTokens ────────────────────────────────────────
+
+/** トークン: 指標の分類構造 */
+export interface MetricTokens {
+  /** 主体: 何の指標か */
+  readonly entity:
+    | 'sales'
+    | 'purchase'
+    | 'cogs'
+    | 'discount'
+    | 'markup'
+    | 'gp'
+    | 'inventory'
+    | 'customer'
+    | 'consumable'
+  /** 領域: データの確度 */
+  readonly domain: 'actual' | 'budget' | 'estimated' | 'forecast'
+  /** 測定: 何を測るか */
+  readonly measure:
+    | 'value'
+    | 'rate'
+    | 'achievement'
+    | 'progress'
+    | 'gap'
+    | 'variance'
+    | 'required'
+    | 'average'
+}
+
+/** 指標メタデータ */
+export interface MetricMeta {
+  readonly label: string
+  readonly unit: MetricUnit
+  readonly tokens: MetricTokens
+  /** StoreResult の対応フィールド名（あれば） */
+  readonly storeResultField?: string
+}
 
 // ─── Unit ─────────────────────────────────────────────────
 

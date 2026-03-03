@@ -6,6 +6,8 @@ import { calculationCache } from '@/application/services/calculationCache'
 import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store } from '@/domain/models'
+import { PRESET_CATEGORY_LABELS } from '@/domain/constants/customCategories'
+import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { palette } from '@/presentation/theme/tokens'
 import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
@@ -48,14 +50,14 @@ const Tabs = CommonTabBar
 const Tab = CommonTab
 
 // ─── Category Colors ────────────────────────────────────
-const CATEGORY_COLORS: Record<CustomCategory, string> = {
-  市場仕入: palette.warningDark,
-  LFC: palette.blueDark,
-  サラダ: palette.successDark,
-  加工品: palette.purpleDeep,
-  消耗品: palette.orange,
-  直伝: palette.cyanDark,
-  その他: palette.slate,
+const CATEGORY_COLORS: Record<PresetCategoryId, string> = {
+  market_purchase: palette.warningDark,
+  lfc: palette.blueDark,
+  salad: palette.successDark,
+  processed: palette.purpleDeep,
+  consumables: palette.orange,
+  direct_delivery: palette.cyanDark,
+  other: palette.slate,
 }
 
 type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
@@ -118,14 +120,17 @@ function CategoryManagementTab() {
                   >
                     <option value="">未分類</option>
                     {CUSTOM_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
                       </option>
                     ))}
                   </Select>
                   {current && (
-                    <Badge $color={CATEGORY_COLORS[current]} style={{ marginLeft: 8 }}>
-                      {current}
+                    <Badge
+                      $color={CATEGORY_COLORS[current as PresetCategoryId]}
+                      style={{ marginLeft: 8 }}
+                    >
+                      {PRESET_CATEGORY_LABELS[current as PresetCategoryId] ?? current}
                     </Badge>
                   )}
                 </Td>

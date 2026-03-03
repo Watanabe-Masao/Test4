@@ -66,6 +66,8 @@ export interface MetricMeta {
 | `inventoryGap` | gp | actual | gap | 在庫差異（在庫法−推定法） |
 | `totalCustomers` | customer | actual | value | 来店客数 |
 | `averageSpendPerCustomer` | customer | actual | average | 客単価 |
+| `itemsPerCustomer` | customer | actual | average | 一人当たり点数 |
+| `averagePricePerItem` | sales | actual | average | 点単価 |
 | `totalConsumable` | consumable | actual | value | 消耗品費 |
 | `budget` | sales | budget | value | 売上予算 |
 | `budgetAchievementRate` | sales | budget | achievement | 売上予算達成率 |
@@ -86,6 +88,10 @@ export interface MetricMeta {
 | `projectedGrossProfit` | gp | forecast | value | 粗利着地予測 |
 | `projectedGPAchievement` | gp | forecast | achievement | 粗利着地予測達成率 |
 | `requiredDailyGrossProfit` | gp | budget | required | 必要日次粗利 |
+| `purchaseBudget` | purchase | budget | value | 仕入予算 |
+| `purchaseBudgetAchievement` | purchase | budget | achievement | 仕入予算達成率 |
+| `purchaseBudgetVariance` | purchase | budget | variance | 仕入予算差異 |
+| `requiredDailyPurchase` | purchase | budget | required | 必要日次仕入 |
 
 ### トークン活用例
 
@@ -258,17 +264,24 @@ GAP値は全て `measure: 'gap'` で統一できる。各 GAP は:
 
 実装方式は MetricId 個別登録 or トークンクエリによる動的算出のどちらも可能。
 
-## 客数
+## 客数・客生産性
 
-| MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
+| MetricId | 指標名 | 単位 | 計算式 | データソース |
 |---|---|---|---|---|
-| `totalCustomers` | 来店客数 | count | 分類別売上の客数合計 | `totalCustomers` |
-| `averageSpendPerCustomer` | 客単価 | yen | 総売上 ÷ 来店客数 | **未計算 / 未登録** |
+| `totalCustomers` | 来店客数 | count | 分類別売上の客数合計 | StoreResult: `totalCustomers` |
+| `averageSpendPerCustomer` | 客単価 | yen | 総売上 ÷ 来店客数 | StoreResult から導出 |
+| `itemsPerCustomer` | 一人当たり点数 | count | 総点数 ÷ 来店客数 | CTS（CategoryTimeSalesRecord） |
+| `averagePricePerItem` | 点単価 | yen | 総売上 ÷ 総点数 | CTS（CategoryTimeSalesRecord） |
 
-**PI値について:** 点数PI・金額PI 等の詳細な客数生産性指標は、
-要因分解系（Shapley decomposition: `decompose2`, `decompose3`, `decompose5`）で
-構造的に管理される。MetricId レジストリでは客単価のみ管理し、
-分解結果は `CausalChain` モデルが担う。
+**PI値・点単価について:**
+`itemsPerCustomer`（PI値）と `averagePricePerItem`（点単価）は
+要因分解（`decompose3`: S = C × Q × P̄）の構成要素として使用される。
+
+- Q = totalQty ÷ customers（一人当たり点数 = PI値）
+- P̄ = sales ÷ totalQty（点単価 = カテゴリ平均単価）
+
+データソースは CTS（DuckDB 探索エンジン側）であり、StoreResult には含まれない。
+二重実装禁止の原則に従い、集約は CTS からのみ行う。
 
 ## 原価算入費（消耗品）
 
@@ -304,17 +317,17 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 
 | MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
 |---|---|---|---|---|
-| `budget` | 売上予算（全体） | yen | 設定値 | **MetricId ✅ / Explanation ✅** |
-| `budgetAchievementRate` | 売上予算達成率 | rate | 累計実績 ÷ 全体予算 | **MetricId ✅ / Explanation ✅** |
-| `budgetProgressRate` | 売上予算消化率 | rate | 累計実績 ÷ 累計予算 | **MetricId ✅ / Explanation ✅** |
-| `budgetElapsedRate` | 経過予算率 | rate | 累計予算 ÷ 全体予算 | 計算済み / **MetricId 未登録** |
-| `budgetProgressGap` | 売上進捗ギャップ | rate | 消化率 − 経過予算率 | **未計算 / 未登録** |
-| `budgetVariance` | 売上予算差異 | yen | 累計実績 − 累計予算 | **未計算 / 未登録** |
-| `projectedSales` | 月末予測売上 | yen | 実績 + 日平均売上 × 残日数 | **MetricId ✅ / Explanation ✅** |
-| `projectedAchievement` | 着地予測達成率 | rate | 予測売上 ÷ 全体予算 | 計算済み / **MetricId 未登録** |
-| `requiredDailySales` | 必要日次売上 | yen | 残余予算 ÷ 残日数 | **未計算 / 未登録** |
-| `averageDailySales` | 日平均売上 | yen | 累計実績 ÷ 営業日数 | 計算済み / **MetricId 未登録** |
-| `remainingBudget` | 残余予算 | yen | 全体予算 − 累計実績 | **MetricId ✅ / Explanation ✅** |
+| `budget` | 売上予算（全体） | yen | 設定値 | **✅ 実装済み** |
+| `budgetAchievementRate` | 売上予算達成率 | rate | 累計実績 ÷ 全体予算 | **✅ 実装済み** |
+| `budgetProgressRate` | 売上予算消化率 | rate | 累計実績 ÷ 累計予算 | **✅ 実装済み** |
+| `budgetElapsedRate` | 経過予算率 | rate | 累計予算 ÷ 全体予算 | **✅ 実装済み** |
+| `budgetProgressGap` | 売上進捗ギャップ | rate | 消化率 − 経過予算率 | **✅ 実装済み** |
+| `budgetVariance` | 売上予算差異 | yen | 累計実績 − 累計予算 | **✅ 実装済み** |
+| `projectedSales` | 月末予測売上 | yen | 実績 + 日平均売上 × 残日数 | **✅ 実装済み** |
+| `projectedAchievement` | 着地予測達成率 | rate | 予測売上 ÷ 全体予算 | **✅ 実装済み** |
+| `requiredDailySales` | 必要日次売上 | yen | 残余予算 ÷ 残日数 | **✅ 実装済み** |
+| `averageDailySales` | 日平均売上 | yen | 累計実績 ÷ 営業日数 | **✅ 実装済み** |
+| `remainingBudget` | 残余予算 | yen | 全体予算 − 累計実績 | **✅ 実装済み** |
 
 **意味の補足:**
 
@@ -340,14 +353,14 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 
 | MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
 |---|---|---|---|---|
-| `grossProfitBudget` | 粗利予算（全体） | yen | 設定値 | StoreResult に値あり / **MetricId 未登録** |
-| `grossProfitRateBudget` | 粗利率予算 | rate | 粗利予算 ÷ 売上予算 | StoreResult に値あり / **MetricId 未登録** |
-| `grossProfitBudgetAchievement` | 粗利予算達成率 | rate | 粗利実績 ÷ 粗利予算 | **未計算 / 未登録** |
-| `grossProfitBudgetVariance` | 粗利予算差異 | yen | 粗利実績 − 経過粗利予算 | **未計算 / 未登録** |
-| `grossProfitProgressGap` | 粗利進捗ギャップ | rate | 粗利達成率 − 経過予算率 | **未計算 / 未登録** |
-| `projectedGrossProfit` | 粗利着地予測 | yen | 予測売上 × 有効粗利率 | Presentation で計算中 / **MetricId 未登録** |
-| `projectedGPAchievement` | 粗利着地予測達成率 | rate | 粗利着地予測 ÷ 粗利予算 | Presentation で計算中 / **MetricId 未登録** |
-| `requiredDailyGrossProfit` | 必要日次粗利 | yen | (粗利予算 − 粗利実績) ÷ 残日数 | **未計算 / 未登録** |
+| `grossProfitBudget` | 粗利予算（全体） | yen | 設定値 | **✅ MetricId + Explanation** |
+| `grossProfitRateBudget` | 粗利率予算 | rate | 粗利予算 ÷ 売上予算 | **✅ MetricId + Explanation** |
+| `grossProfitBudgetAchievement` | 粗利予算達成率 | rate | 粗利実績 ÷ 粗利予算 | **✅ MetricId + Explanation** |
+| `grossProfitBudgetVariance` | 粗利予算差異 | yen | 粗利実績 − 経過粗利予算 | **MetricId ✅ / 計算未実装** |
+| `grossProfitProgressGap` | 粗利進捗ギャップ | rate | 粗利達成率 − 経過予算率 | **MetricId ✅ / 計算未実装** |
+| `projectedGrossProfit` | 粗利着地予測 | yen | 予測売上 × 有効粗利率 | **MetricId ✅ / Presentation で計算中** |
+| `projectedGPAchievement` | 粗利着地予測達成率 | rate | 粗利着地予測 ÷ 粗利予算 | **MetricId ✅ / Presentation で計算中** |
+| `requiredDailyGrossProfit` | 必要日次粗利 | yen | (粗利予算 − 粗利実績) ÷ 残日数 | **MetricId ✅ / 計算未実装** |
 
 **注意:**
 - 粗利予算の経過按分は売上予算の `budgetElapsedRate` と同じ経過率を使う。
@@ -359,24 +372,39 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 
 ---
 
+## 仕入予算系
+
+**前提:** 仕入予算は現時点では未使用だが、MetricId として予約しておく。
+将来的に仕入予算設定が追加された際に、売上予算・粗利予算と対称的に扱える。
+
+| MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
+|---|---|---|---|---|
+| `purchaseBudget` | 仕入予算 | yen | 設定値 | **MetricId ✅ / 未使用** |
+| `purchaseBudgetAchievement` | 仕入予算達成率 | rate | 仕入実績 ÷ 仕入予算 | **MetricId ✅ / 未使用** |
+| `purchaseBudgetVariance` | 仕入予算差異 | yen | 仕入実績 − 経過仕入予算 | **MetricId ✅ / 未使用** |
+| `requiredDailyPurchase` | 必要日次仕入 | yen | 残余仕入予算 ÷ 残日数 | **MetricId ✅ / 未使用** |
+
+---
+
 ## 実装状況サマリ
 
-| カテゴリ | MetricId 登録済み | 計算済み(未登録) | 未実装 |
+| カテゴリ | MetricId 登録済み | 計算+Explanation済み | 計算未実装 |
 |---|---|---|---|
-| 売上系 | 3 | 0 | 0 |
-| 仕入系 | 3 | 0 | 0 |
-| 売変系 | 3 | 0 | 0 |
-| 値入率 | 2 | 0 | 0 |
-| 粗利（在庫法） | 3 | 0 | 0 |
-| 粗利（推定法） | 4 | 0 | 0 |
-| 在庫差異 | 0 | 0 | 1 |
-| 客数 | 1 | 0 | 1 |
-| 原価算入費 | 1 | 0 | 0 |
-| 売上予算系 | 5 | 4 | 2 |
-| 粗利予算系 | 0 | 4 | 4 |
-| **合計** | **25** | **8** | **8** |
+| 売上系 | 3 | 3 | 0 |
+| 仕入系 | 3 | 3 | 0 |
+| 売変系 | 3 | 3 | 0 |
+| 値入率 | 2 | 2 | 0 |
+| 粗利（在庫法） | 3 | 3 | 0 |
+| 粗利（推定法） | 4 | 4 | 0 |
+| 在庫差異 | 1 | 0 | 1 |
+| 客数・客生産性 | 4 | 1 | 3 |
+| 原価算入費 | 1 | 1 | 0 |
+| 売上予算系 | 11 | 11 | 0 |
+| 粗利予算系 | 8 | 3 | 5 |
+| 仕入予算系 | 4 | 0 | 4 |
+| **合計** | **47** | **34** | **13** |
 
-→ 登録済み 25 + 計算済み(未登録) 8 + 未実装 8 = **41 指標**（目標）
+→ 全 47 MetricId 登録済み。うち 34 指標は計算 + Explanation 実装完了。
 
 ### 概念の区別
 

@@ -237,6 +237,9 @@ export function assembleStoreResult(
     budgetAchievementRate: budgetAnalysis.budgetAchievementRate,
     budgetProgressRate: budgetAnalysis.budgetProgressRate,
     budgetElapsedRate: budgetAnalysis.budgetElapsedRate,
+    budgetProgressGap: budgetAnalysis.budgetProgressGap,
+    budgetVariance: budgetAnalysis.budgetVariance,
+    requiredDailySales: budgetAnalysis.requiredDailySales,
     remainingBudget: budgetAnalysis.remainingBudget,
     dailyCumulative: budgetAnalysis.dailyCumulative,
   }

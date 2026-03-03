@@ -164,4 +164,102 @@ describe('calculateBudgetAnalysis', () => {
     // 予測 = 1,000,000 + 1,000,000 × 15 = 16,000,000
     expect(result.projectedSales).toBe(16_000_000)
   })
+
+  // ── budgetProgressGap ─────────────────────────────
+  it('budgetProgressGap: 消化率 > 経過率のとき正値（前倒し）', () => {
+    const result = calculateBudgetAnalysis({
+      totalSales: 500_000,
+      budget: 600_000,
+      budgetDaily: new Map([
+        [1, 200_000],
+        [2, 200_000],
+        [3, 200_000],
+      ]),
+      salesDaily: new Map([
+        [1, 200_000],
+        [2, 300_000],
+      ]),
+      elapsedDays: 2,
+      salesDays: 2,
+      daysInMonth: 3,
+    })
+    // 消化率 = 500,000 / 400,000 = 1.25
+    // 経過率 = 400,000 / 600,000 ≈ 0.6667
+    // ギャップ = 1.25 - 0.6667 ≈ 0.5833
+    expect(result.budgetProgressGap).toBeCloseTo(1.25 - 400_000 / 600_000, 6)
+    expect(result.budgetProgressGap).toBeGreaterThan(0)
+  })
+
+  it('budgetProgressGap: 消化率 < 経過率のとき負値（遅れ）', () => {
+    const result = calculateBudgetAnalysis({
+      totalSales: 100_000,
+      budget: 600_000,
+      budgetDaily: new Map([
+        [1, 200_000],
+        [2, 200_000],
+        [3, 200_000],
+      ]),
+      salesDaily: new Map([[1, 100_000]]),
+      elapsedDays: 2,
+      salesDays: 1,
+      daysInMonth: 3,
+    })
+    // 消化率 = 100,000 / 400,000 = 0.25
+    // 経過率 = 400,000 / 600,000 ≈ 0.6667
+    // ギャップ = 0.25 - 0.6667 ≈ -0.4167
+    expect(result.budgetProgressGap).toBeLessThan(0)
+  })
+
+  // ── budgetVariance ────────────────────────────────
+  it('budgetVariance: 実績 − 累計予算に一致', () => {
+    const result = calculateBudgetAnalysis({
+      totalSales: 500_000,
+      budget: 600_000,
+      budgetDaily: new Map([
+        [1, 200_000],
+        [2, 200_000],
+        [3, 200_000],
+      ]),
+      salesDaily: new Map([
+        [1, 200_000],
+        [2, 300_000],
+      ]),
+      elapsedDays: 2,
+      salesDays: 2,
+      daysInMonth: 3,
+    })
+    // 累計予算 = 200,000 + 200,000 = 400,000
+    // 差異 = 500,000 - 400,000 = 100,000
+    expect(result.budgetVariance).toBe(100_000)
+  })
+
+  // ── requiredDailySales ────────────────────────────
+  it('requiredDailySales: 残余予算 / 残日数', () => {
+    const result = calculateBudgetAnalysis({
+      totalSales: 3_500_000,
+      budget: 6_000_000,
+      budgetDaily: makeUniformBudget(6_000_000, 28),
+      salesDaily: new Map(Array.from({ length: 14 }, (_, i) => [i + 1, 250_000])),
+      elapsedDays: 14,
+      salesDays: 14,
+      daysInMonth: 28,
+    })
+    // 残余予算 = 6,000,000 - 3,500,000 = 2,500,000
+    // 残日数 = 28 - 14 = 14
+    // 必要日次売上 ≈ 178,571
+    expect(result.requiredDailySales).toBeCloseTo(2_500_000 / 14, 0)
+  })
+
+  it('requiredDailySales: 残日数0の場合 → 0', () => {
+    const result = calculateBudgetAnalysis({
+      totalSales: 7_500_000,
+      budget: 6_000_000,
+      budgetDaily: makeUniformBudget(6_000_000, 31),
+      salesDaily: new Map(Array.from({ length: 31 }, (_, i) => [i + 1, 241_935])),
+      elapsedDays: 31,
+      salesDays: 31,
+      daysInMonth: 31,
+    })
+    expect(result.requiredDailySales).toBe(0)
+  })
 })

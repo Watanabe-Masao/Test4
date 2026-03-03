@@ -44,12 +44,12 @@ describe('settingsStore', () => {
 
   it('updateSettings で supplierCategoryMap を更新できる', () => {
     useSettingsStore.getState().updateSettings({
-      supplierCategoryMap: { '001': '市場仕入', '002': 'LFC' },
+      supplierCategoryMap: { '001': 'market_purchase', '002': 'lfc' },
     })
 
     const { settings } = useSettingsStore.getState()
-    expect(settings.supplierCategoryMap['001']).toBe('市場仕入')
-    expect(settings.supplierCategoryMap['002']).toBe('LFC')
+    expect(settings.supplierCategoryMap['001']).toBe('market_purchase')
+    expect(settings.supplierCategoryMap['002']).toBe('lfc')
   })
 
   it('updateSettings で前年比設定を更新できる', () => {
