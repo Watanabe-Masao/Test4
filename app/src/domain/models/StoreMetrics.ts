@@ -6,7 +6,7 @@
  *
  * StoreResult との主な違い:
  * - 日別データ（daily Map）を含まない（別クエリで取得）
- * - カテゴリ別集計（categoryTotals）を含まない（別クエリで取得）
+ * - カテゴリ別明細（categoryTotals）を含まない（別クエリで取得）
  * - 仕入先別集計（supplierTotals）を含まない
  * - 売変種別内訳（discountEntries）を含まない（別クエリで取得）
  * - 予算・予測の派生指標はフック側で算出

@@ -20,6 +20,7 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     discountYellowThreshold: 0.025,
     discountRedThreshold: 0.03,
     supplierCategoryMap: {},
+    userCategoryLabels: {},
     prevYearSourceYear: null,
     prevYearSourceMonth: null,
     prevYearDowOffset: null,

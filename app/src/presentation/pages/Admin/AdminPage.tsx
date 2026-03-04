@@ -6,8 +6,12 @@ import { calculationCache } from '@/application/services/calculationCache'
 import { useSettings } from '@/application/hooks'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { CustomCategory, Store } from '@/domain/models'
-import { PRESET_CATEGORY_LABELS } from '@/domain/constants/customCategories'
-import type { PresetCategoryId } from '@/domain/constants/customCategories'
+import {
+  PRESET_CATEGORY_LABELS,
+  isUserCategory,
+  createUserCategoryId,
+} from '@/domain/constants/customCategories'
+import type { PresetCategoryId, UserCategoryId } from '@/domain/constants/customCategories'
 import { palette } from '@/presentation/theme/tokens'
 import { StorageManagementTab } from './StorageManagementTab'
 import { PrevYearMappingTab } from './PrevYearMappingTab'
@@ -61,17 +65,81 @@ const CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   uncategorized: palette.slate,
 }
 
+const UserCategoryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[2]} 0;
+`
+
+const AddCategoryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-top: ${({ theme }) => theme.spacing[3]};
+`
+
+const SmallButton = styled.button<{ $variant?: 'danger' | 'primary' }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ $variant, theme }) =>
+    $variant === 'danger'
+      ? theme.colors.palette.danger + '20'
+      : $variant === 'primary'
+        ? theme.colors.palette.primary + '20'
+        : theme.colors.bg3};
+  color: ${({ $variant, theme }) =>
+    $variant === 'danger'
+      ? theme.colors.palette.danger
+      : $variant === 'primary'
+        ? theme.colors.palette.primary
+        : theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`
+
+/** ユーザーカテゴリのラベルを解決する（プリセット → PRESET_CATEGORY_LABELS、ユーザー → userCategoryLabels） */
+function resolveCategoryLabel(
+  id: string,
+  userCategoryLabels: Readonly<Record<string, string>>,
+): string {
+  if (isUserCategory(id)) return userCategoryLabels[id] ?? id.replace('user:', '')
+  return PRESET_CATEGORY_LABELS[id as PresetCategoryId] ?? id
+}
+
+/** カテゴリの色を解決する */
+function resolveCategoryColor(id: string): string {
+  if (isUserCategory(id)) return '#14b8a6'
+  return CATEGORY_COLORS[id as PresetCategoryId] ?? palette.slate
+}
+
 type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
 
 // ─── カテゴリ管理タブ ─────────────────────────────────────
 function CategoryManagementTab() {
   const data = useDataStore((s) => s.data)
   const { settings, updateSettings } = useSettings()
+  const [newCategoryName, setNewCategoryName] = useState('')
+
+  const userCategories: { id: UserCategoryId; label: string }[] = Object.entries(
+    settings.userCategoryLabels ?? {},
+  )
+    .filter(([id]) => isUserCategory(id))
+    .map(([id, label]) => ({ id: id as UserCategoryId, label }))
 
   const handleCategoryChange = useCallback(
     (supplierCode: string, value: string) => {
       if (!value || value === 'uncategorized') {
-        // 未分類選択 → マップからエントリを削除
         const next = Object.fromEntries(
           Object.entries(settings.supplierCategoryMap).filter(([k]) => k !== supplierCode),
         )
@@ -88,67 +156,138 @@ function CategoryManagementTab() {
     [settings.supplierCategoryMap, updateSettings],
   )
 
+  const handleAddCategory = useCallback(() => {
+    const name = newCategoryName.trim()
+    if (!name) return
+    const id = createUserCategoryId(name)
+    // 重複チェック
+    if (settings.userCategoryLabels?.[id]) return
+    updateSettings({
+      userCategoryLabels: { ...(settings.userCategoryLabels ?? {}), [id]: name },
+    })
+    setNewCategoryName('')
+  }, [newCategoryName, settings.userCategoryLabels, updateSettings])
+
+  const handleDeleteCategory = useCallback(
+    (id: UserCategoryId) => {
+      // ラベルから削除
+      const nextLabels = Object.fromEntries(
+        Object.entries(settings.userCategoryLabels ?? {}).filter(([k]) => k !== id),
+      )
+      // このカテゴリに割り当てられた取引先を未分類に戻す
+      const nextMap = Object.fromEntries(
+        Object.entries(settings.supplierCategoryMap).filter(([, v]) => v !== id),
+      )
+      updateSettings({ userCategoryLabels: nextLabels, supplierCategoryMap: nextMap })
+    },
+    [settings.userCategoryLabels, settings.supplierCategoryMap, updateSettings],
+  )
+
   const suppliers = Array.from(data.suppliers.values())
 
-  if (suppliers.length === 0) {
-    return (
+  return (
+    <>
+      {/* ユーザーカテゴリ管理セクション */}
+      <Section>
+        <SectionTitle>カテゴリ一覧</SectionTitle>
+        <HelpText>
+          プリセットカテゴリに加え、独自のカテゴリを作成できます。作成したカテゴリは取引先の分類に使用されます。
+        </HelpText>
+        {userCategories.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            {userCategories.map((uc) => (
+              <UserCategoryRow key={uc.id}>
+                <Badge $color={'#14b8a6'}>{uc.label}</Badge>
+                <SmallButton $variant="danger" onClick={() => handleDeleteCategory(uc.id)}>
+                  削除
+                </SmallButton>
+              </UserCategoryRow>
+            ))}
+          </div>
+        )}
+        <AddCategoryRow>
+          <Input
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleAddCategory()
+            }}
+            placeholder="新しいカテゴリ名"
+            style={{ width: 200 }}
+          />
+          <SmallButton
+            $variant="primary"
+            onClick={handleAddCategory}
+            disabled={!newCategoryName.trim()}
+          >
+            追加
+          </SmallButton>
+        </AddCategoryRow>
+      </Section>
+
+      {/* 取引先カテゴリ割当セクション */}
       <Section>
         <SectionTitle>取引先カテゴリ管理</SectionTitle>
-        <EmptyState>データをインポートすると取引先一覧が表示されます</EmptyState>
+        {suppliers.length === 0 ? (
+          <EmptyState>データをインポートすると取引先一覧が表示されます</EmptyState>
+        ) : (
+          <>
+            <HelpText>
+              取引先ごとのカテゴリ分類を設定します。カテゴリは粗利分析のグルーピングに使用されます。
+            </HelpText>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>コード</Th>
+                  <Th>取引先名</Th>
+                  <Th>カテゴリ</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {suppliers.map((s) => {
+                  const current = settings.supplierCategoryMap[s.code]
+                  return (
+                    <tr key={s.code}>
+                      <Td>
+                        <StoreIdBadge>{s.code}</StoreIdBadge>
+                      </Td>
+                      <Td>{s.name}</Td>
+                      <Td>
+                        <Select
+                          value={current ?? 'uncategorized'}
+                          onChange={(e) => handleCategoryChange(s.code, e.target.value)}
+                        >
+                          <option value="uncategorized">未分類</option>
+                          {CUSTOM_CATEGORIES.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.label}
+                            </option>
+                          ))}
+                          {userCategories.length > 0 && (
+                            <optgroup label="ユーザーカテゴリ">
+                              {userCategories.map((uc) => (
+                                <option key={uc.id} value={uc.id}>
+                                  {uc.label}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </Select>
+                        {current && (
+                          <Badge $color={resolveCategoryColor(current)} style={{ marginLeft: 8 }}>
+                            {resolveCategoryLabel(current, settings.userCategoryLabels ?? {})}
+                          </Badge>
+                        )}
+                      </Td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+          </>
+        )}
       </Section>
-    )
-  }
-
-  return (
-    <Section>
-      <SectionTitle>取引先カテゴリ管理</SectionTitle>
-      <HelpText>
-        取引先ごとのカテゴリ分類を設定します。カテゴリは粗利分析のグルーピングに使用されます。
-      </HelpText>
-      <Table>
-        <thead>
-          <tr>
-            <Th>コード</Th>
-            <Th>取引先名</Th>
-            <Th>カテゴリ</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {suppliers.map((s) => {
-            const current = settings.supplierCategoryMap[s.code]
-            return (
-              <tr key={s.code}>
-                <Td>
-                  <StoreIdBadge>{s.code}</StoreIdBadge>
-                </Td>
-                <Td>{s.name}</Td>
-                <Td>
-                  <Select
-                    value={current ?? 'uncategorized'}
-                    onChange={(e) => handleCategoryChange(s.code, e.target.value)}
-                  >
-                    <option value="uncategorized">未分類</option>
-                    {CUSTOM_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </Select>
-                  {current && (
-                    <Badge
-                      $color={CATEGORY_COLORS[current as PresetCategoryId]}
-                      style={{ marginLeft: 8 }}
-                    >
-                      {PRESET_CATEGORY_LABELS[current as PresetCategoryId] ?? current}
-                    </Badge>
-                  )}
-                </Td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </Table>
-    </Section>
+    </>
   )
 }
 

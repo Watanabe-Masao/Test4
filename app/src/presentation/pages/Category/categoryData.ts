@@ -4,6 +4,7 @@ import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
   UNCATEGORIZED_CATEGORY_ID,
   PRESET_CATEGORY_DEFS,
+  isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models'
@@ -87,10 +88,14 @@ export function buildCategoryData(result: StoreResult) {
   })
 }
 
+/** ユーザーカテゴリ用のデフォルトカラー */
+const USER_CATEGORY_DEFAULT_COLOR = '#14b8a6'
+
 /** カスタムカテゴリ集計データ生成 */
 export function buildCustomCategoryData(
   result: StoreResult,
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+  userCategoryLabels: Readonly<Record<string, string>> = {},
 ) {
   const aggregated = new Map<CustomCategory, { cost: number; price: number }>()
 
@@ -109,25 +114,49 @@ export function buildCustomCategoryData(
     0,
   )
 
-  return PRESET_CATEGORY_DEFS.flatMap((cc) => {
+  const rows: {
+    category: string
+    label: string
+    cost: number
+    price: number
+    markup: number
+    priceShare: number
+    crossMultiplication: number
+    color: string
+  }[] = []
+
+  // プリセットカテゴリ
+  for (const cc of PRESET_CATEGORY_DEFS) {
     const pair = aggregated.get(cc.id as CustomCategory)
-    if (!pair) return []
-    const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
-    const priceShare = safeDivide(Math.abs(pair.price), totalAbsPrice, 0)
-    const crossMultiplication = safeDivide(pair.price - pair.cost, totalPrice, 0)
-    return [
-      {
-        category: cc.id,
-        label: cc.label,
-        cost: pair.cost,
-        price: pair.price,
-        markup: markupRate,
-        priceShare,
-        crossMultiplication,
-        color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
-      },
-    ]
-  })
+    if (!pair) continue
+    rows.push({
+      category: cc.id,
+      label: cc.label,
+      cost: pair.cost,
+      price: pair.price,
+      markup: safeDivide(pair.price - pair.cost, pair.price, 0),
+      priceShare: safeDivide(Math.abs(pair.price), totalAbsPrice, 0),
+      crossMultiplication: safeDivide(pair.price - pair.cost, totalPrice, 0),
+      color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
+    })
+  }
+
+  // ユーザーカテゴリ
+  for (const [id, pair] of aggregated) {
+    if (!isUserCategory(id)) continue
+    rows.push({
+      category: id,
+      label: userCategoryLabels[id] ?? id.replace('user:', ''),
+      cost: pair.cost,
+      price: pair.price,
+      markup: safeDivide(pair.price - pair.cost, pair.price, 0),
+      priceShare: safeDivide(Math.abs(pair.price), totalAbsPrice, 0),
+      crossMultiplication: safeDivide(pair.price - pair.cost, totalPrice, 0),
+      color: USER_CATEGORY_DEFAULT_COLOR,
+    })
+  }
+
+  return rows
 }
 
 /** 統合カテゴリデータ型（標準 + カスタムカテゴリ） */
@@ -150,6 +179,7 @@ export interface UnifiedCategoryItem {
 export function buildUnifiedCategoryData(
   result: StoreResult,
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategory>>>,
+  userCategoryLabels: Readonly<Record<string, string>> = {},
 ): UnifiedCategoryItem[] {
   // 1. 標準カテゴリ（categoryTotals から）
   const items: {
@@ -185,6 +215,7 @@ export function buildUnifiedCategoryData(
     })
   }
 
+  // 2a. プリセットカテゴリ
   for (const cc of CUSTOM_CATEGORIES) {
     const pair = aggregated.get(cc.id as CustomCategory)
     if (!pair) continue
@@ -194,6 +225,19 @@ export function buildUnifiedCategoryData(
       cost: pair.cost,
       price: pair.price,
       color: CUSTOM_CATEGORY_COLORS[cc.id] ?? '#64748b',
+      isCustom: true,
+    })
+  }
+
+  // 2b. ユーザーカテゴリ
+  for (const [id, pair] of aggregated) {
+    if (!isUserCategory(id)) continue
+    items.push({
+      category: id,
+      label: userCategoryLabels[id] ?? id.replace('user:', ''),
+      cost: pair.cost,
+      price: pair.price,
+      color: USER_CATEGORY_DEFAULT_COLOR,
       isCustom: true,
     })
   }

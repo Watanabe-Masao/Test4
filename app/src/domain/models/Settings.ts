@@ -28,6 +28,7 @@ export interface AppSettings {
   readonly discountYellowThreshold: number // N%以下で黄色 (default: 0.025)
   readonly discountRedThreshold: number // N%以下で赤 (default: 0.03)
   readonly supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>> // 取引先→カテゴリ
+  readonly userCategoryLabels: Readonly<Record<string, string>> // ユーザー作成カテゴリ (user:xxx → 表示名)
   // 前年比マッピング手動オーバーライド (null = 自動)
   readonly prevYearSourceYear: number | null // 前年データ取得元の年 (null = targetYear - 1)
   readonly prevYearSourceMonth: number | null // 前年データ取得元の月 (null = targetMonth)

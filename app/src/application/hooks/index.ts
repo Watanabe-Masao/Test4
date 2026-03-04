@@ -139,3 +139,5 @@ export type {
   CachedResult,
 } from './useAnalyticsResolver'
 export { useDrillAction } from './useDrillAction'
+export { useDeviceSync } from './useDeviceSync'
+export type { SettingsCodeResult, SettingsImportResult } from './useDeviceSync'

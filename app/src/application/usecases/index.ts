@@ -28,3 +28,7 @@ export type {
   HourDowAggregation,
   StoreHourlyEntry,
 } from './categoryTimeSales'
+
+// ─── Clip Export use case ────────────────────────────────
+export { buildClipBundle, renderClipHtml, downloadClipHtml } from './clipExport'
+export type { ClipBundle, BuildClipBundleParams } from './clipExport'

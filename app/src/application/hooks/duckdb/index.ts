@@ -21,6 +21,7 @@ export {
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
   useDuckDBCategoryTimeRecords,
+  fetchCategoryTimeRecords,
 } from './useCtsQueries'
 export type {
   HourlyAggregationRow,

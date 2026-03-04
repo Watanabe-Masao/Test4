@@ -25,6 +25,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { CustomCategory, CategoryType } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
+import { isUserCategory } from '@/domain/constants/customCategories'
 import {
   ChartGrid,
   Section,
@@ -179,7 +180,11 @@ export function CategoryPage() {
   const hasMultipleStores = selectedResults.length > 1
 
   // カテゴリ別データ（標準 + カスタムカテゴリ統合）
-  const categoryData = buildUnifiedCategoryData(r, settings.supplierCategoryMap)
+  const categoryData = buildUnifiedCategoryData(
+    r,
+    settings.supplierCategoryMap,
+    settings.userCategoryLabels,
+  )
 
   // 取引先別データ
   const supplierData = Array.from(r.supplierTotals.values())
@@ -544,9 +549,8 @@ export function CategoryPage() {
                 <Table>
                   <thead>
                     <tr>
-                      <Th>カテゴリ</Th>
-                      <Th>取引先</Th>
                       <Th>コード</Th>
+                      <Th>取引先</Th>
                       <Th>
                         <SortButton onClick={() => toggleSort('cost')}>
                           原価{sortIcon('cost')}
@@ -577,6 +581,7 @@ export function CategoryPage() {
                           相乗積{sortIcon('crossMult')}
                         </SortButton>
                       </Th>
+                      <Th>カテゴリ</Th>
                     </tr>
                   </thead>
                   <tbody>
@@ -604,31 +609,13 @@ export function CategoryPage() {
                             setExpandedSupplierStore(null)
                           }}
                         >
-                          <Td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                            <CategorySelect
-                              value={assignedCategory ?? 'uncategorized'}
-                              onChange={(e) =>
-                                handleCustomCategoryChange(s.supplierCode, e.target.value)
-                              }
-                              style={{
-                                borderLeft: `3px solid ${assignedCategory ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8') : '#94a3b8'}`,
-                              }}
-                            >
-                              <option value="uncategorized">未分類</option>
-                              {CUSTOM_CATEGORIES.map((cc) => (
-                                <option key={cc.id} value={cc.id}>
-                                  {cc.label}
-                                </option>
-                              ))}
-                            </CategorySelect>
-                          </Td>
+                          <Td>{s.supplierCode}</Td>
                           <Td>
                             {selectedResults.length > 0 && (
                               <DrillToggle>{isSupExpanded ? '▾' : '▸'}</DrillToggle>
                             )}
                             {s.supplierName}
                           </Td>
-                          <Td>{s.supplierCode}</Td>
                           <Td>{formatCurrency(s.cost)}</Td>
                           <Td>{formatCurrency(s.price)}</Td>
                           <GrossProfitCell $positive={supplierGP >= 0}>
@@ -639,13 +626,40 @@ export function CategoryPage() {
                           </MarkupCell>
                           <Td>{formatPercent(supplierPriceShare)}</Td>
                           <Td>{formatPercent(supplierCrossMult)}</Td>
+                          <Td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                            <CategorySelect
+                              value={assignedCategory ?? 'uncategorized'}
+                              onChange={(e) =>
+                                handleCustomCategoryChange(s.supplierCode, e.target.value)
+                              }
+                              style={{
+                                borderLeft: `3px solid ${assignedCategory ? (isUserCategory(assignedCategory) ? '#14b8a6' : (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8')) : '#94a3b8'}`,
+                              }}
+                            >
+                              <option value="uncategorized">未分類</option>
+                              {CUSTOM_CATEGORIES.map((cc) => (
+                                <option key={cc.id} value={cc.id}>
+                                  {cc.label}
+                                </option>
+                              ))}
+                              {Object.entries(settings.userCategoryLabels ?? {}).map(
+                                ([id, label]) => (
+                                  <option key={id} value={id}>
+                                    {label}
+                                  </option>
+                                ),
+                              )}
+                            </CategorySelect>
+                          </Td>
                         </DrillTr>,
                       )
                       // 店舗ドリルダウン
                       if (isSupExpanded) {
                         const catColor = assignedCategory
-                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ??
-                            '#94a3b8')
+                          ? isUserCategory(assignedCategory)
+                            ? '#14b8a6'
+                            : (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ??
+                              '#94a3b8')
                           : '#94a3b8'
                         for (const sr of selectedResults) {
                           const storeSupplier = sr.supplierTotals.get(s.supplierCode)
@@ -674,13 +688,13 @@ export function CategoryPage() {
                                   {stName}
                                 </DrillLabel>
                               </Td>
-                              <Td></Td>
                               <Td>{formatCurrency(storeSupplier.cost)}</Td>
                               <Td>{formatCurrency(storeSupplier.price)}</Td>
                               <GrossProfitCell $positive={stGP >= 0}>
                                 {formatCurrency(stGP)}
                               </GrossProfitCell>
                               <MarkupCell $rate={stMR}>{formatPercent(stMR)}</MarkupCell>
+                              <Td></Td>
                               <Td></Td>
                               <Td></Td>
                             </DrillTr>,
@@ -706,13 +720,13 @@ export function CategoryPage() {
                                       {settings.targetMonth}/{day}日
                                     </DrillLabel>
                                   </Td>
-                                  <Td></Td>
                                   <Td>{formatCurrency(sup.cost)}</Td>
                                   <Td>{formatCurrency(sup.price)}</Td>
                                   <GrossProfitCell $positive={dayGP >= 0}>
                                     {formatCurrency(dayGP)}
                                   </GrossProfitCell>
                                   <MarkupCell $rate={dayMR}>{formatPercent(dayMR)}</MarkupCell>
+                                  <Td></Td>
                                   <Td></Td>
                                   <Td></Td>
                                 </DrillTr>,
@@ -725,7 +739,6 @@ export function CategoryPage() {
                     })}
                     <TrTotal>
                       <Td>合計（{filteredSupplierData.length}件）</Td>
-                      <Td></Td>
                       <Td></Td>
                       <Td>{formatCurrency(totalSupplierCost)}</Td>
                       <Td>{formatCurrency(totalSupplierPrice)}</Td>
@@ -741,6 +754,7 @@ export function CategoryPage() {
                           safeDivide(totalSupplierPrice - totalSupplierCost, totalSupplierPrice, 0),
                         )}
                       </Td>
+                      <Td></Td>
                     </TrTotal>
                   </tbody>
                 </Table>

@@ -14,6 +14,7 @@ import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
   UNCATEGORIZED_CATEGORY_ID,
   PRESET_CATEGORY_DEFS,
+  isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -511,6 +512,7 @@ function buildCrossMult(
       price: existing.price + st.price,
     })
   }
+  const userCategoryLabels = useSettingsStore.getState().settings.userCategoryLabels ?? {}
   for (const cc of PRESET_CATEGORY_DEFS) {
     const pair = customAgg.get(cc.id as CustomCategory)
     if (!pair || (pair.cost === 0 && pair.price === 0)) continue
@@ -519,6 +521,16 @@ function buildCrossMult(
       cost: pair.cost,
       price: pair.price,
       color: CUSTOM_CROSS_COLORS[cc.id] ?? '#64748b',
+    })
+  }
+  // ユーザーカテゴリ
+  for (const [id, pair] of customAgg) {
+    if (!isUserCategory(id) || (pair.cost === 0 && pair.price === 0)) continue
+    items.push({
+      label: userCategoryLabels[id] ?? id.replace('user:', ''),
+      cost: pair.cost,
+      price: pair.price,
+      color: '#14b8a6',
     })
   }
 
