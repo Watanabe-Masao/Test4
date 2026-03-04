@@ -9,7 +9,11 @@ import { decompose2 } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 import type { DiscountType } from '@/domain/models/ClassifiedSales'
 
-/** 売変種別ごとのカラーヒント（DISCOUNT_TYPES に対応） */
+/**
+ * 売変種別ごとのカラーヒント。
+ * キーは ClassifiedSales.DISCOUNT_TYPES と同一の DiscountType。
+ * Record<DiscountType, ColorHint> 型により、新タイプ追加時はコンパイルエラーで検出。
+ */
 const DISCOUNT_COLOR_HINTS: Readonly<Record<DiscountType, ColorHint>> = {
   '71': 'negative',
   '72': 'warning',

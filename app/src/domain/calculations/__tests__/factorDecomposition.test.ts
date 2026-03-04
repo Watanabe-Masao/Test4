@@ -4,12 +4,9 @@ import {
   decompose3,
   decompose5,
   decomposePriceMix,
-} from '@/domain/calculations/factorDecomposition'
-import type { CategoryQtyAmt } from '@/domain/calculations/factorDecomposition'
-import {
-  calculateItemsPerCustomer,
-  calculateAveragePricePerItem,
-} from '@/domain/calculations/utils'
+} from '../factorDecomposition'
+import type { CategoryQtyAmt } from '../factorDecomposition'
+import { calculateItemsPerCustomer, calculateAveragePricePerItem } from '../utils'
 
 /* ── Helper ─────────────────────────────────────────── */
 
