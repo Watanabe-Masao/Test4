@@ -297,5 +297,24 @@ export function useDuckDBCategoryTimeRecords(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
+/**
+ * CTS レコードを命令的に取得する（非フック）。
+ * クリップエクスポート等、イベントハンドラ内で使用する。
+ */
+export async function fetchCategoryTimeRecords(
+  conn: AsyncDuckDBConnection,
+  dateRange: DateRange,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): Promise<readonly CategoryTimeSalesRecord[]> {
+  const { dateFrom, dateTo } = toDateKeys(dateRange)
+  return queryCategoryTimeRecords(conn, {
+    dateFrom,
+    dateTo,
+    storeIds: storeIdsToArray(storeIds),
+    isPrevYear,
+  })
+}
+
 export type { HourlyAggregationRow, LevelAggregationRow, StoreAggregationRow, HourDowMatrixRow }
 export type { CategoryDailyTrendRow, CategoryHourlyRow }

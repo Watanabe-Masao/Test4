@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/usePinIntervals'
+import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
+import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
+import { fetchCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { WidgetContext } from './types'
 import { DayDetailModal } from './DayDetailModal'
 import { RangeComparisonPanel } from './RangeComparison'
@@ -60,6 +63,63 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   const [rangeAEnd, setRangeAEnd] = useState<string>('')
   const [rangeBStart, setRangeBStart] = useState<string>('')
   const [rangeBEnd, setRangeBEnd] = useState<string>('')
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleClipExport = useCallback(async () => {
+    setIsExporting(true)
+    try {
+      const storeName = ctx.stores.get(ctx.storeKey)?.name ?? ctx.storeKey
+      const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
+      const prevRange = {
+        from: { year: year - 1, month, day: 1 },
+        to: { year: year - 1, month, day: daysInMonth },
+      }
+
+      let curCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
+      let prevCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
+
+      if (ctx.duckConn) {
+        try {
+          curCts = await fetchCategoryTimeRecords(ctx.duckConn, curRange, ctx.selectedStoreIds)
+        } catch {
+          // CTS 取得失敗時は空で継続
+        }
+        try {
+          prevCts = await fetchCategoryTimeRecords(
+            ctx.duckConn,
+            prevRange,
+            ctx.selectedStoreIds,
+            true,
+          )
+        } catch {
+          // CTS 取得失敗時は空で継続
+        }
+      }
+
+      const bundle = buildClipBundle({
+        result: r,
+        prevYear,
+        year,
+        month,
+        storeName,
+        ctsRecords: curCts,
+        ctsPrevRecords: prevCts,
+      })
+      downloadClipHtml(bundle)
+    } finally {
+      setIsExporting(false)
+    }
+  }, [
+    r,
+    prevYear,
+    year,
+    month,
+    daysInMonth,
+    ctx.storeKey,
+    ctx.stores,
+    ctx.duckConn,
+    ctx.selectedStoreIds,
+  ])
 
   // Build calendar grid
   const weeks: (number | null)[][] = []
@@ -191,8 +251,15 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
 
   return (
     <CalWrapper>
-      <CalSectionTitle>
-        月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め
+      <CalSectionTitle
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        <span>
+          月間カレンダー（{year}年{month}月）- セルクリックで詳細表示 / 📌で在庫ピン止め
+        </span>
+        <Button $variant="outline" onClick={handleClipExport} disabled={isExporting}>
+          {isExporting ? 'エクスポート中...' : 'HTMLレポート出力'}
+        </Button>
       </CalSectionTitle>
 
       {/* Range Selection Toolbar */}
