@@ -21,10 +21,10 @@ export default defineConfig({
       thresholds: {
         lines: 55,
         'src/domain/calculations/**': {
-          lines: 70,
+          lines: 80,
         },
         'src/application/usecases/explanation/**': {
-          lines: 60,
+          lines: 70,
         },
       },
     },
