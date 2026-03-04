@@ -638,7 +638,8 @@ export function CategoryPage() {
                       // 店舗ドリルダウン
                       if (isSupExpanded) {
                         const catColor = assignedCategory
-                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8')
+                          ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ??
+                            '#94a3b8')
                           : '#94a3b8'
                         for (const sr of selectedResults) {
                           const storeSupplier = sr.supplierTotals.get(s.supplierCode)

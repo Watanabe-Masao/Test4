@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  decompose2,
-  decompose3,
-  decompose5,
-  decomposePriceMix,
-} from '../factorDecomposition'
+import { decompose2, decompose3, decompose5, decomposePriceMix } from '../factorDecomposition'
 import type { CategoryQtyAmt } from '../factorDecomposition'
 import { calculateItemsPerCustomer, calculateAveragePricePerItem } from '../utils'
 
@@ -371,9 +366,12 @@ describe('数学的不変条件: 全分解関数の合計 = ΔS', () => {
 describe('PI値・点単価と decompose3 の整合性', () => {
   it('decompose3 の内部計算と同じ Q/P̄ を外部関数で再現できる', () => {
     // decompose3 内部: Q0 = prevTotalQty/prevCust, P0 = prevSales/prevTotalQty
-    const prevSales = 250_000, curSales = 396_000
-    const prevCust = 100, curCust = 110
-    const prevTotalQty = 500, curTotalQty = 660
+    const prevSales = 250_000,
+      curSales = 396_000
+    const prevCust = 100,
+      curCust = 110
+    const prevTotalQty = 500,
+      curTotalQty = 660
 
     const prevPI = calculateItemsPerCustomer(prevTotalQty, prevCust)
     const curPI = calculateItemsPerCustomer(curTotalQty, curCust)

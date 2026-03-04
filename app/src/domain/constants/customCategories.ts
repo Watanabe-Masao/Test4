@@ -54,9 +54,7 @@ export const PRESET_CATEGORY_DEFS: readonly CustomCategoryDef[] = [
   { id: 'other', label: 'その他' },
 ] as const
 
-const PRESET_CATEGORY_IDS = new Set<PresetCategoryId>(
-  PRESET_CATEGORY_DEFS.map((d) => d.id),
-)
+const PRESET_CATEGORY_IDS = new Set<PresetCategoryId>(PRESET_CATEGORY_DEFS.map((d) => d.id))
 
 /** ID → 表示名マップ（プリセット用） */
 export const PRESET_CATEGORY_LABELS: Readonly<Record<PresetCategoryId, string>> =

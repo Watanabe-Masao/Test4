@@ -52,7 +52,11 @@ export interface ForecastResult {
  */
 export function calculateStdDev(values: readonly number[]): { mean: number; stdDev: number } {
   if (values.length === 0) return { mean: 0, stdDev: 0 }
-  const mean = safeDivide(values.reduce((s, v) => s + v, 0), values.length, 0)
+  const mean = safeDivide(
+    values.reduce((s, v) => s + v, 0),
+    values.length,
+    0,
+  )
   const variance = safeDivide(
     values.reduce((s, v) => s + (v - mean) ** 2, 0),
     values.length,

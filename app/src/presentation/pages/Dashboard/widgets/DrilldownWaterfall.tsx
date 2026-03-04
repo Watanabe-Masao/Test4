@@ -365,15 +365,13 @@ export function DrilldownWaterfall({
       {piSummary && viewMode === 'factor' && (
         <PiRow>
           <span>
-            PI値: {piSummary.prevPI.toFixed(1)}点
-            →{' '}
+            PI値: {piSummary.prevPI.toFixed(1)}点 →{' '}
             <PiItem $color={sc.cond(piSummary.curPI >= piSummary.prevPI)}>
               {piSummary.curPI.toFixed(1)}点
             </PiItem>
           </span>
           <span>
-            点単価: {formatCurrency(Math.round(piSummary.prevPPI))}
-            →{' '}
+            点単価: {formatCurrency(Math.round(piSummary.prevPPI))}→{' '}
             <PiItem $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}>
               {formatCurrency(Math.round(piSummary.curPPI))}
             </PiItem>
