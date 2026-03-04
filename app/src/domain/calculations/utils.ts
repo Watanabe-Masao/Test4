@@ -56,6 +56,22 @@ export function calculateTransactionValue(sales: number, customers: number): num
 }
 
 /**
+ * PI値（一人当たり点数）= 総点数 ÷ 来店客数
+ * decompose3 の Q に相当: S = C × Q × P̄
+ */
+export function calculateItemsPerCustomer(totalQty: number, customers: number): number {
+  return safeDivide(totalQty, customers, 0)
+}
+
+/**
+ * 点単価（1点あたり売上）= 総売上 ÷ 総点数
+ * decompose3 の P̄ に相当: S = C × Q × P̄
+ */
+export function calculateAveragePricePerItem(sales: number, totalQty: number): number {
+  return safeDivide(sales, totalQty, 0)
+}
+
+/**
  * 移動平均を計算する
  * @param values 値の配列
  * @param window ウィンドウサイズ

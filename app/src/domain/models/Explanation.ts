@@ -12,6 +12,8 @@
  * Explanation の生成はアプリケーション層（ExplanationService）が担う。
  */
 
+import type { FormulaId } from './Formula'
+
 // ─── MetricId ─────────────────────────────────────────────
 
 /** 追跡対象の指標ID */
@@ -112,6 +114,8 @@ export interface MetricMeta {
   readonly tokens: MetricTokens
   /** StoreResult の対応フィールド名（あれば） */
   readonly storeResultField?: string
+  /** 主要計算公式（FORMULA_REGISTRY 参照）。ソースデータ・単純加減算は省略 */
+  readonly formulaRef?: FormulaId
 }
 
 // ─── Unit ─────────────────────────────────────────────────

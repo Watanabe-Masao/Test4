@@ -7,6 +7,7 @@ export {
 } from './defaults'
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'
+export { FORMULA_REGISTRY } from './formulaRegistry'
 export type {
   PresetCategoryId,
   UserCategoryId,

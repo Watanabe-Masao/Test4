@@ -26,7 +26,13 @@ import {
   DayRangeSlider,
   useDayRange,
 } from '@/presentation/components/charts'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import {
+  formatCurrency,
+  formatPercent,
+  safeDivide,
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
+} from '@/domain/calculations/utils'
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { DateRange, CategoryTimeSalesRecord } from '@/domain/models'
@@ -462,6 +468,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     labels.curLabel,
   ])
 
+  // PI値・点単価（3要素以上の分解時に表示）
+  const piSummary = useMemo(() => {
+    if (activeLevel < 3 || !hasQuantity || prevCust <= 0 || curCust <= 0) return null
+    const prevPI = calculateItemsPerCustomer(prevTotalQty, prevCust)
+    const curPI = calculateItemsPerCustomer(curTotalQty, curCust)
+    const prevPPI = calculateAveragePricePerItem(prevSales, prevTotalQty)
+    const curPPI = calculateAveragePricePerItem(curSales, curTotalQty)
+    return { prevPI, curPI, prevPPI, curPPI }
+  }, [activeLevel, hasQuantity, prevCust, curCust, prevTotalQty, curTotalQty, prevSales, curSales])
+
   if (!hasComparison || prevSales <= 0) return null
 
   const hasCategoryView = categoryData.length > 0
@@ -593,6 +609,35 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           <SummaryValue $color={sc.cond(yoyRatio >= 1)}>{formatPercent(yoyRatio)}</SummaryValue>
         </SummaryItem>
       </SummaryRow>
+
+      {piSummary && (
+        <SummaryRow>
+          <SummaryItem>
+            <SummaryLabel>PI値({labels.prevLabel})</SummaryLabel>
+            <SummaryValue>{piSummary.prevPI.toFixed(1)}点</SummaryValue>
+          </SummaryItem>
+          <SummaryItem>
+            <SummaryLabel>PI値({labels.curLabel})</SummaryLabel>
+            <SummaryValue
+              $color={sc.cond(piSummary.curPI >= piSummary.prevPI)}
+            >
+              {piSummary.curPI.toFixed(1)}点
+            </SummaryValue>
+          </SummaryItem>
+          <SummaryItem>
+            <SummaryLabel>点単価({labels.prevLabel})</SummaryLabel>
+            <SummaryValue>{formatCurrency(Math.round(piSummary.prevPPI))}</SummaryValue>
+          </SummaryItem>
+          <SummaryItem>
+            <SummaryLabel>点単価({labels.curLabel})</SummaryLabel>
+            <SummaryValue
+              $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}
+            >
+              {formatCurrency(Math.round(piSummary.curPPI))}
+            </SummaryValue>
+          </SummaryItem>
+        </SummaryRow>
+      )}
 
       {viewMode === 'categoryFactor' ? (
         <CategoryFactorBreakdown

@@ -7,6 +7,8 @@ export {
   formatPercent,
   formatPointDiff,
   calculateTransactionValue,
+  calculateItemsPerCustomer,
+  calculateAveragePricePerItem,
   calculateMovingAverage,
   computeAverageDivisor,
   computeActiveDowDivisorMap,

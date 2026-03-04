@@ -66,8 +66,8 @@ export function pearsonCorrelation(
     sumX += xs[i]
     sumY += ys[i]
   }
-  const meanX = sumX / n
-  const meanY = sumY / n
+  const meanX = safeDivide(sumX, n, 0)
+  const meanY = safeDivide(sumY, n, 0)
 
   let covXY = 0
   let varX = 0
@@ -146,7 +146,7 @@ export function normalizeMinMax(values: readonly number[]): NormalizedSeries {
   }
 
   return {
-    values: values.map((v) => ((v - min) / range) * 100),
+    values: values.map((v) => safeDivide(v - min, range, 0) * 100),
     min,
     max,
     range,
@@ -235,7 +235,7 @@ export function movingAverage(values: readonly number[], window: number): readon
       for (let j = i - window + 1; j <= i; j++) {
         sum += values[j]
       }
-      result.push(sum / window)
+      result.push(safeDivide(sum, window, 0))
     }
   }
   return result
@@ -255,13 +255,13 @@ export function calculateZScores(values: readonly number[]): readonly number[] {
 
   let sum = 0
   for (const v of values) sum += v
-  const mean = sum / values.length
+  const mean = safeDivide(sum, values.length, 0)
 
   let variance = 0
   for (const v of values) variance += (v - mean) ** 2
-  const stdDev = Math.sqrt(variance / values.length)
+  const stdDev = Math.sqrt(safeDivide(variance, values.length, 0))
 
   if (stdDev === 0) return values.map(() => 0)
 
-  return values.map((v) => (v - mean) / stdDev)
+  return values.map((v) => safeDivide(v - mean, stdDev, 0))
 }

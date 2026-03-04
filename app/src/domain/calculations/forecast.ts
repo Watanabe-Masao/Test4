@@ -52,8 +52,12 @@ export interface ForecastResult {
  */
 export function calculateStdDev(values: readonly number[]): { mean: number; stdDev: number } {
   if (values.length === 0) return { mean: 0, stdDev: 0 }
-  const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length
+  const mean = safeDivide(values.reduce((s, v) => s + v, 0), values.length, 0)
+  const variance = safeDivide(
+    values.reduce((s, v) => s + (v - mean) ** 2, 0),
+    values.length,
+    0,
+  )
   return { mean, stdDev: Math.sqrt(variance) }
 }
 
@@ -162,7 +166,7 @@ export function detectAnomalies(
 
   return entries
     .map(([day, value]) => {
-      const zScore = (value - mean) / stdDev
+      const zScore = safeDivide(value - mean, stdDev, 0)
       return {
         day,
         value,

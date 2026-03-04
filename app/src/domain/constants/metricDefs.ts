@@ -5,6 +5,7 @@
  * 各指標に label / unit / tokens / storeResultField を定義する。
  */
 import type { MetricId, MetricMeta } from '../models/Explanation'
+// formulaRef は FORMULA_REGISTRY の FormulaId を参照する（型は MetricMeta 経由で解決）
 
 export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
   // ─── 売上系 ─────────────────────────────────────────────
@@ -25,6 +26,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'yen',
     tokens: { entity: 'sales', domain: 'actual', measure: 'value' },
     storeResultField: 'grossSales',
+    formulaRef: 'estimationMethodCogs',
   },
 
   // ─── 仕入系 ─────────────────────────────────────────────
@@ -59,12 +61,14 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'rate',
     tokens: { entity: 'discount', domain: 'actual', measure: 'rate' },
     storeResultField: 'discountRate',
+    formulaRef: 'ratioCalculation',
   },
   discountLossCost: {
     label: '売変ロス原価',
     unit: 'yen',
     tokens: { entity: 'discount', domain: 'actual', measure: 'value' },
     storeResultField: 'discountLossCost',
+    formulaRef: 'discountLossCost',
   },
 
   // ─── 値入率 ─────────────────────────────────────────────
@@ -73,12 +77,14 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'rate',
     tokens: { entity: 'markup', domain: 'actual', measure: 'average' },
     storeResultField: 'averageMarkupRate',
+    formulaRef: 'salesWeightedAverage',
   },
   coreMarkupRate: {
     label: 'コア値入率',
     unit: 'rate',
     tokens: { entity: 'markup', domain: 'actual', measure: 'rate' },
     storeResultField: 'coreMarkupRate',
+    formulaRef: 'salesWeightedAverage',
   },
 
   // ─── 粗利（在庫法 — 実績） ──────────────────────────────
@@ -87,18 +93,21 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'yen',
     tokens: { entity: 'cogs', domain: 'actual', measure: 'value' },
     storeResultField: 'invMethodCogs',
+    formulaRef: 'inventoryMethodCogs',
   },
   invMethodGrossProfit: {
     label: '実績粗利益（在庫法）',
     unit: 'yen',
     tokens: { entity: 'gp', domain: 'actual', measure: 'value' },
     storeResultField: 'invMethodGrossProfit',
+    formulaRef: 'inventoryMethodCogs',
   },
   invMethodGrossProfitRate: {
     label: '実績粗利率（在庫法）',
     unit: 'rate',
     tokens: { entity: 'gp', domain: 'actual', measure: 'rate' },
     storeResultField: 'invMethodGrossProfitRate',
+    formulaRef: 'ratioCalculation',
   },
 
   // ─── 粗利（推定法 — 値入率ベース） ──────────────────────
@@ -107,24 +116,28 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'yen',
     tokens: { entity: 'cogs', domain: 'estimated', measure: 'value' },
     storeResultField: 'estMethodCogs',
+    formulaRef: 'estimationMethodCogs',
   },
   estMethodMargin: {
     label: '推定粗利（値入率ベース）',
     unit: 'yen',
     tokens: { entity: 'gp', domain: 'estimated', measure: 'value' },
     storeResultField: 'estMethodMargin',
+    formulaRef: 'estimationMethodCogs',
   },
   estMethodMarginRate: {
     label: '推定粗利率（値入率ベース）',
     unit: 'rate',
     tokens: { entity: 'gp', domain: 'estimated', measure: 'rate' },
     storeResultField: 'estMethodMarginRate',
+    formulaRef: 'ratioCalculation',
   },
   estMethodClosingInventory: {
     label: '推定期末在庫',
     unit: 'yen',
     tokens: { entity: 'inventory', domain: 'estimated', measure: 'value' },
     storeResultField: 'estMethodClosingInventory',
+    formulaRef: 'estimationMethodCogs',
   },
 
   // ─── 在庫差異 ───────────────────────────────────────────
@@ -145,16 +158,19 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '客単価',
     unit: 'yen',
     tokens: { entity: 'customer', domain: 'actual', measure: 'average' },
+    formulaRef: 'ratioCalculation',
   },
   itemsPerCustomer: {
     label: '一人当たり点数',
     unit: 'count',
     tokens: { entity: 'customer', domain: 'actual', measure: 'average' },
+    formulaRef: 'ratioCalculation',
   },
   averagePricePerItem: {
     label: '点単価',
     unit: 'yen',
     tokens: { entity: 'sales', domain: 'actual', measure: 'average' },
+    formulaRef: 'ratioCalculation',
   },
 
   // ─── 原価算入費（消耗品） ───────────────────────────────
@@ -177,18 +193,21 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'rate',
     tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
     storeResultField: 'budgetAchievementRate',
+    formulaRef: 'ratioCalculation',
   },
   budgetProgressRate: {
     label: '売上予算消化率',
     unit: 'rate',
     tokens: { entity: 'sales', domain: 'budget', measure: 'progress' },
     storeResultField: 'budgetProgressRate',
+    formulaRef: 'ratioCalculation',
   },
   budgetElapsedRate: {
     label: '経過予算率',
     unit: 'rate',
     tokens: { entity: 'sales', domain: 'budget', measure: 'rate' },
     storeResultField: 'budgetElapsedRate',
+    formulaRef: 'ratioCalculation',
   },
   budgetProgressGap: {
     label: '売上進捗ギャップ',
@@ -207,24 +226,28 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     unit: 'yen',
     tokens: { entity: 'sales', domain: 'forecast', measure: 'value' },
     storeResultField: 'projectedSales',
+    formulaRef: 'monthEndProjection',
   },
   projectedAchievement: {
     label: '着地予測達成率',
     unit: 'rate',
     tokens: { entity: 'sales', domain: 'forecast', measure: 'achievement' },
     storeResultField: 'projectedAchievement',
+    formulaRef: 'ratioCalculation',
   },
   requiredDailySales: {
     label: '必要日次売上',
     unit: 'yen',
     tokens: { entity: 'sales', domain: 'budget', measure: 'required' },
     storeResultField: 'requiredDailySales',
+    formulaRef: 'ratioCalculation',
   },
   averageDailySales: {
     label: '日平均売上',
     unit: 'yen',
     tokens: { entity: 'sales', domain: 'actual', measure: 'average' },
     storeResultField: 'averageDailySales',
+    formulaRef: 'ratioCalculation',
   },
   remainingBudget: {
     label: '残余予算',
@@ -243,6 +266,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '仕入予算達成率',
     unit: 'rate',
     tokens: { entity: 'purchase', domain: 'budget', measure: 'achievement' },
+    formulaRef: 'ratioCalculation',
   },
   purchaseBudgetVariance: {
     label: '仕入予算差異',
@@ -253,6 +277,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '必要日次仕入',
     unit: 'yen',
     tokens: { entity: 'purchase', domain: 'budget', measure: 'required' },
+    formulaRef: 'ratioCalculation',
   },
 
   // ─── 粗利予算系 ─────────────────────────────────────────
@@ -272,6 +297,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '粗利予算達成率',
     unit: 'rate',
     tokens: { entity: 'gp', domain: 'budget', measure: 'achievement' },
+    formulaRef: 'ratioCalculation',
   },
   grossProfitBudgetVariance: {
     label: '粗利予算差異',
@@ -287,15 +313,18 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     label: '粗利着地予測',
     unit: 'yen',
     tokens: { entity: 'gp', domain: 'forecast', measure: 'value' },
+    formulaRef: 'monthEndProjection',
   },
   projectedGPAchievement: {
     label: '粗利着地予測達成率',
     unit: 'rate',
     tokens: { entity: 'gp', domain: 'forecast', measure: 'achievement' },
+    formulaRef: 'ratioCalculation',
   },
   requiredDailyGrossProfit: {
     label: '必要日次粗利',
     unit: 'yen',
     tokens: { entity: 'gp', domain: 'budget', measure: 'required' },
+    formulaRef: 'ratioCalculation',
   },
 } as const
