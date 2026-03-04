@@ -11,6 +11,7 @@ import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { transformCtsPreview, type PreviewRecord } from '@/application/hooks/useDataPreview'
+import { useDeviceSync } from '@/application/hooks/useDeviceSync'
 
 // ─── Styled Components ──────────────────────────────────
 
@@ -492,6 +493,38 @@ const ConfirmWarning = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
+// ─── Sync Styled Components ──────────────────────────────
+
+const SyncCodeTextArea = styled.textarea`
+  width: 100%;
+  min-height: 60px;
+  padding: ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  resize: vertical;
+  word-break: break-all;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.text4};
+  }
+`
+
+const SyncRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+`
+
 // ─── Types ──────────────────────────────────────────────
 
 interface MonthEntry {
@@ -758,6 +791,18 @@ export function StorageManagementTab() {
   const [backupOverwrite, setBackupOverwrite] = useState(true)
   const backupInputRef = useRef<HTMLInputElement>(null)
 
+  // デバイス間同期
+  const {
+    isCopied,
+    importResult: syncImportResult,
+    copySettingsCode,
+    importFromText: importSettingsFromText,
+    canShareFiles,
+    shareBackupFile,
+  } = useDeviceSync()
+  const [syncImportText, setSyncImportText] = useState('')
+  const [isShareExporting, setIsShareExporting] = useState(false)
+
   // データ復旧
   const { rawFileGroups, canRebuild, isRebuilding, lastRebuildResult, rebuildDuckDB } =
     useDataRecovery(conn, db, repo)
@@ -970,6 +1015,87 @@ export function StorageManagementTab() {
             </SubSection>
           )}
         </SubSection>
+      </Section>
+
+      {/* ─── デバイス間同期 ──────────────────────────── */}
+      <Section>
+        <SectionTitle>デバイス間同期</SectionTitle>
+        <HelpText>
+          PC とスマートフォン間で設定やデータを共有できます。Chrome
+          のブラウザ同期ではアプリのデータは同期されないため、手動で転送してください。
+        </HelpText>
+
+        {/* 設定コード同期 */}
+        <SubSection>
+          <StatusLabel>設定の転送（カテゴリ分類・閾値など）</StatusLabel>
+          <SyncRow>
+            <ActionButton $variant="primary" onClick={copySettingsCode}>
+              {isCopied ? 'コピーしました' : '設定コードをコピー'}
+            </ActionButton>
+          </SyncRow>
+          <HelpText style={{ marginBottom: 0, marginTop: 8 }}>
+            コピーしたコードを LINE
+            などで送り、別のデバイスで下のテキスト欄に貼り付けてください。
+          </HelpText>
+
+          <SyncCodeTextArea
+            value={syncImportText}
+            onChange={(e) => setSyncImportText(e.target.value)}
+            placeholder="SHIIRE_SETTINGS:... のコードを貼り付け"
+            rows={2}
+          />
+          <SyncRow>
+            <ActionButton
+              $variant="primary"
+              onClick={() => {
+                importSettingsFromText(syncImportText)
+                setSyncImportText('')
+              }}
+              disabled={!syncImportText.trim()}
+            >
+              設定を適用
+            </ActionButton>
+          </SyncRow>
+          {syncImportResult && (
+            <ImportResultBox $hasErrors={!syncImportResult.success}>
+              {syncImportResult.success
+                ? `設定を適用しました（${syncImportResult.keysUpdated ?? 0} 項目）`
+                : `エラー: ${syncImportResult.error}`}
+            </ImportResultBox>
+          )}
+        </SubSection>
+
+        {/* データファイル共有（Web Share API） */}
+        {canShareFiles && (
+          <SubSection style={{ marginTop: 16 }}>
+            <StatusLabel>データの転送（全月データ + 設定）</StatusLabel>
+            <SyncRow>
+              <ActionButton
+                $variant="primary"
+                disabled={isShareExporting || !repo}
+                onClick={async () => {
+                  if (!repo) return
+                  setIsShareExporting(true)
+                  try {
+                    const appSettings = useSettingsStore.getState().settings
+                    const { backupExporter } = await import(
+                      '@/infrastructure/storage/backupExporter'
+                    )
+                    const blob = await backupExporter.exportBackup(repo, appSettings)
+                    await shareBackupFile(blob)
+                  } finally {
+                    setIsShareExporting(false)
+                  }
+                }}
+              >
+                {isShareExporting ? 'エクスポート中...' : 'バックアップを共有'}
+              </ActionButton>
+            </SyncRow>
+            <HelpText style={{ marginBottom: 0, marginTop: 8 }}>
+              AirDrop・LINE などでバックアップファイルを直接送信できます。受け取り側は上のバックアップセクションから復元してください。
+            </HelpText>
+          </SubSection>
+        )}
       </Section>
 
       {/* ─── DuckDB 復旧 ─────────────────────────────── */}
