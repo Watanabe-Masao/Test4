@@ -30,6 +30,7 @@ const defaultSettings: AppSettings = {
   prevYearSourceYear: null,
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
+  userCategoryLabels: {},
 }
 
 describe('processFileData — 店舗抽出', () => {

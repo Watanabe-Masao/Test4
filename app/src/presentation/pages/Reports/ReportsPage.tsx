@@ -509,7 +509,7 @@ export function ReportsPage() {
       {/* 5. カテゴリ構造 ─「内訳は？」 */}
       {categoryData.length > 0 && (
         <Section>
-          <SectionTitle>カテゴリ別集計</SectionTitle>
+          <SectionTitle>カテゴリ別明細</SectionTitle>
           <TableWrapper>
             <Table>
               <thead>

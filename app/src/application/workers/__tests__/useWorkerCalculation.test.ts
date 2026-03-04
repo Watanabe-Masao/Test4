@@ -69,6 +69,7 @@ const mockSettings: AppSettings = {
   discountBlueThreshold: 0.02,
   discountYellowThreshold: 0.025,
   discountRedThreshold: 0.03,
+  userCategoryLabels: {},
 }
 
 describe('useWorkerCalculation', () => {

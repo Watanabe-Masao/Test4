@@ -7,6 +7,7 @@ import type { CategoryType } from '@/domain/models'
 import {
   UNCATEGORIZED_CATEGORY_ID,
   PRESET_CATEGORY_DEFS,
+  isUserCategory,
 } from '@/domain/constants/customCategories'
 import { CATEGORY_COLORS, CUSTOM_CATEGORY_COLORS } from '@/presentation/pages/Category/categoryData'
 
@@ -405,6 +406,7 @@ function buildPurchasePivot(
       }
     }
 
+    const userCategoryLabels = useSettingsStore.getState().settings.userCategoryLabels ?? {}
     for (const cc of PRESET_CATEGORY_DEFS) {
       if (!customCatHasData.has(cc.id as CustomCategory)) continue
       customColumns.push({
@@ -414,6 +416,17 @@ function buildPurchasePivot(
         isCustom: true,
       })
       customKeys.add(cc.id)
+    }
+    // ユーザーカテゴリ
+    for (const id of customCatHasData) {
+      if (!isUserCategory(id)) continue
+      customColumns.push({
+        key: id,
+        label: userCategoryLabels[id] ?? id.replace('user:', ''),
+        color: '#14b8a6',
+        isCustom: true,
+      })
+      customKeys.add(id)
     }
   }
 
