@@ -1,7 +1,12 @@
 // CustomCategory は customCategories.ts に移行。互換性のため re-export
 import type { CustomCategoryId } from '../constants/customCategories'
 export type { CustomCategoryId as CustomCategory } from '../constants/customCategories'
-export { PRESET_CATEGORY_DEFS as CUSTOM_CATEGORIES } from '../constants/customCategories'
+import { PRESET_CATEGORY_DEFS, UNCATEGORIZED_CATEGORY_ID } from '../constants/customCategories'
+
+/** 取引先に割り当て可能なカテゴリ一覧（未分類は自動割当のため除外） */
+export const CUSTOM_CATEGORIES = PRESET_CATEGORY_DEFS.filter(
+  (d) => d.id !== UNCATEGORIZED_CATEGORY_ID,
+)
 
 /** アプリケーション設定 */
 export interface AppSettings {

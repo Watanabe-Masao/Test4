@@ -9,7 +9,7 @@ function makeDailyRecord(overrides: {
   flowers?: { cost: number; price: number }
   directProduce?: { cost: number; price: number }
   purchase?: { cost: number; price: number }
-  consumable?: { cost: number }
+  costInclusion?: { cost: number }
   deliverySales?: { cost: number; price: number }
   interStoreIn?: { cost: number; price: number }
   interStoreOut?: { cost: number; price: number }
@@ -27,7 +27,7 @@ function makeDailyRecord(overrides: {
     interDepartmentOut: overrides.interDepartmentOut ?? zero,
     flowers: overrides.flowers ?? zero,
     directProduce: overrides.directProduce ?? zero,
-    consumable: { cost: overrides.consumable?.cost ?? 0, items: [] },
+    costInclusion: { cost: overrides.costInclusion?.cost ?? 0, items: [] },
     customers: 0,
     discountAmount: 0,
     discountEntries: [],
@@ -101,7 +101,7 @@ describe('inventoryCalc', () => {
       expect(row.coreSales).toBe(10000)
       // grossSales = coreSales / (1 - discountRate) = 10000 / 1 = 10000
       expect(row.grossSales).toBe(10000)
-      // estCogs = grossSales * (1 - markupRate) + consumable = 10000 * 0.75 = 7500
+      // estCogs = grossSales * (1 - markupRate) + costInclusion = 10000 * 0.75 = 7500
       expect(row.estCogs).toBe(7500)
       // estimated = opening + cumInventoryCost - cumEstCogs = 50000 + 7000 - 7500 = 49500
       expect(row.estimated).toBe(49500)
@@ -170,7 +170,7 @@ describe('inventoryCalc', () => {
       expect(row.estCogs).toBeCloseTo(7777.78, 1)
     })
 
-    it('should handle consumable costs', () => {
+    it('should handle cost inclusion costs', () => {
       const daily = new Map<number, DailyRecord>()
       daily.set(
         1,
@@ -179,15 +179,15 @@ describe('inventoryCalc', () => {
           sales: 10000,
           purchase: { cost: 8000, price: 10000 },
           deliverySales: { cost: 0, price: 0 },
-          consumable: { cost: 500 },
+          costInclusion: { cost: 500 },
         }),
       )
 
       const result = computeEstimatedInventoryDetails(daily, 1, 50000, null, 0.3, 0.0)
 
       const row = result[0]
-      expect(row.consumableCost).toBe(500)
-      // estCogs = grossSales * (1 - markupRate) + consumableCost = 10000 * 0.7 + 500 = 7500
+      expect(row.costInclusionCost).toBe(500)
+      // estCogs = grossSales * (1 - markupRate) + costInclusionCost = 10000 * 0.7 + 500 = 7500
       expect(row.estCogs).toBe(7500)
     })
 

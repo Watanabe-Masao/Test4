@@ -36,7 +36,7 @@ function makeDailyRow(overrides: Partial<DailyRecordRow> = {}): DailyRecordRow {
     flowersPrice: 9000,
     directProduceCost: 12000,
     directProducePrice: 13000,
-    consumableCost: 2000,
+    costInclusionCost: 2000,
     customers: 300,
     budgetAmount: 600000,
     ...overrides,
@@ -76,7 +76,7 @@ describe('dailyRecordTotalCost', () => {
     expect(dailyRecordTotalCost(row)).toBe(95000)
   })
 
-  it('consumableCost は含まれない', () => {
+  it('costInclusionCost は含まれない', () => {
     const row = makeDailyRow({
       purchaseCost: 100000,
       interStoreInCost: 0,
@@ -85,9 +85,9 @@ describe('dailyRecordTotalCost', () => {
       interDeptOutCost: 0,
       flowersCost: 0,
       directProduceCost: 0,
-      consumableCost: 99999,
+      costInclusionCost: 99999,
     })
-    // consumableCost は totalCost に含まれない
+    // costInclusionCost は totalCost に含まれない
     expect(dailyRecordTotalCost(row)).toBe(100000)
   })
 })

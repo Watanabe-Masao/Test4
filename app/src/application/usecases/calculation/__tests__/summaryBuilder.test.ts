@@ -213,7 +213,7 @@ describe('buildStoreDaySummaryIndex', () => {
     const index = buildStoreDaySummaryIndex(data, 31)
     const s = index['1'][1]
 
-    expect(s.consumableCost).toBe(750)
+    expect(s.costInclusionCost).toBe(750)
   })
 
   it('データのない日はスキップされる', () => {
@@ -305,7 +305,7 @@ describe('summaryBuilder と dailyBuilder の一貫性', () => {
     expect(s1.coreSales).toBe(d1.coreSales)
     expect(s1.grossSales).toBe(d1.grossSales)
     expect(s1.discountAbsolute).toBe(d1.discountAbsolute)
-    expect(s1.consumableCost).toBe(d1.consumable.cost)
+    expect(s1.costInclusionCost).toBe(d1.costInclusion.cost)
     expect(s1.interStoreInCost).toBe(d1.interStoreIn.cost)
     expect(s1.interStoreOutCost).toBe(d1.interStoreOut.cost)
 

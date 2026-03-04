@@ -47,6 +47,10 @@ import {
   HeaderActions,
   ActionButton,
   CopiedFeedback,
+  FormulaDetailBox,
+  FormulaExpression,
+  FormulaDescription,
+  SourceTag,
 } from './MetricBreakdownPanel.styles'
 
 interface MetricBreakdownPanelProps {
@@ -139,6 +143,24 @@ const FormulaTab = React.memo(function FormulaTab({ vm }: { vm: VM }) {
         <MbpSectionTitle>計算式</MbpSectionTitle>
         <FormulaBox>{vm.formula}</FormulaBox>
       </MbpSection>
+
+      {vm.formulaDetail && (
+        <MbpSection>
+          <MbpSectionTitle>数式詳細</MbpSectionTitle>
+          <FormulaDetailBox>
+            <FormulaExpression>{vm.formulaDetail.expression}</FormulaExpression>
+            <FormulaDescription>{vm.formulaDetail.description}</FormulaDescription>
+            <InputList>
+              {vm.formulaDetail.inputBindings.map((binding, i) => (
+                <InputRow key={i}>
+                  <InputName>{binding.label}</InputName>
+                  {binding.source && <SourceTag>{binding.source}</SourceTag>}
+                </InputRow>
+              ))}
+            </InputList>
+          </FormulaDetailBox>
+        </MbpSection>
+      )}
 
       <MbpSection>
         <MbpSectionTitle>入力パラメータ</MbpSectionTitle>

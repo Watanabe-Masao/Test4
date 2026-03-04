@@ -213,13 +213,13 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               {r.invMethodGrossProfitRate != null
                 ? (() => {
                     const invAfterRate = safeDivide(
-                      r.invMethodGrossProfit! - r.totalConsumable,
+                      r.invMethodGrossProfit! - r.totalCostInclusion,
                       r.totalSales,
                       0,
                     )
                     const invDiff = r.invMethodGrossProfitRate - invAfterRate
                     const estBeforeRate = safeDivide(
-                      r.estMethodMargin + r.totalConsumable,
+                      r.estMethodMargin + r.totalCostInclusion,
                       r.totalCoreSales,
                       0,
                     )
@@ -231,8 +231,8 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                           {formatPercent(invAfterRate)}
                         </ExecSummaryValue>
                         <ExecSummarySub>
-                          在庫法 減算比 {formatPointDiff(invDiff)} 消耗品費:{' '}
-                          {formatCurrency(r.totalConsumable)}円
+                          在庫法 減算比 {formatPointDiff(invDiff)} 原価算入費:{' '}
+                          {formatCurrency(r.totalCostInclusion)}円
                         </ExecSummarySub>
                         <ExecSummarySub $color={palette.slateDark}>
                           参考（推定法・在庫差分率）: {formatPercent(estBeforeRate)} /{' '}
@@ -244,7 +244,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   })()
                 : (() => {
                     const estBeforeRate = safeDivide(
-                      r.estMethodMargin + r.totalConsumable,
+                      r.estMethodMargin + r.totalCostInclusion,
                       r.totalCoreSales,
                       0,
                     )
@@ -255,8 +255,8 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                           {formatPercent(estBeforeRate)} / {formatPercent(r.estMethodMarginRate)}
                         </ExecSummaryValue>
                         <ExecSummarySub>
-                          推定法（在庫差分） 減算比 {formatPointDiff(estDiff)} 消耗品費:{' '}
-                          {formatCurrency(r.totalConsumable)}円
+                          推定法（在庫差分） 減算比 {formatPointDiff(estDiff)} 原価算入費:{' '}
+                          {formatCurrency(r.totalCostInclusion)}円
                         </ExecSummarySub>
                       </>
                     )

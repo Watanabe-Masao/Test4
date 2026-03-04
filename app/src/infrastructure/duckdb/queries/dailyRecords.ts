@@ -56,7 +56,7 @@ export interface DailyRecordRow {
   readonly directProducePrice: number
 
   // ── 消耗品 ──
-  readonly consumableCost: number
+  readonly costInclusionCost: number
 
   // ── 客数 ──
   readonly customers: number
@@ -126,7 +126,7 @@ export async function queryDailyRecords(
       s.flowers_price,
       s.direct_produce_cost,
       s.direct_produce_price,
-      s.consumable_cost,
+      s.cost_inclusion_cost,
       s.customers,
       COALESCE(b.amount, 0) AS budget_amount
     FROM store_day_summary s
@@ -182,7 +182,7 @@ export async function queryPrevYearDailyRecords(
       s.flowers_price,
       s.direct_produce_cost,
       s.direct_produce_price,
-      s.consumable_cost,
+      s.cost_inclusion_cost,
       s.customers,
       0 AS budget_amount
     FROM store_day_summary s
@@ -245,7 +245,7 @@ export async function queryAggregatedDailyRecords(
       SUM(s.flowers_price) AS flowers_price,
       SUM(s.direct_produce_cost) AS direct_produce_cost,
       SUM(s.direct_produce_price) AS direct_produce_price,
-      SUM(s.consumable_cost) AS consumable_cost,
+      SUM(s.cost_inclusion_cost) AS cost_inclusion_cost,
       SUM(s.customers) AS customers,
       SUM(COALESCE(b.amount, 0)) AS budget_amount
     FROM store_day_summary s

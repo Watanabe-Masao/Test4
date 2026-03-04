@@ -77,7 +77,7 @@ describe('ExecSummaryBar ウィジェット', () => {
         totalSales: 1000000,
         totalCost: 700000,
         grossSales: 1100000,
-        totalConsumable: 5000,
+        totalCostInclusion: 5000,
         estMethodMargin: 250000,
         estMethodMarginRate: 0.25,
         totalCoreSales: 1000000,

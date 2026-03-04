@@ -193,11 +193,20 @@ export function CategoryPage() {
   const totalGrossProfit = totalCatPrice - totalCatCost
   const overallMarkupRate = safeDivide(totalGrossProfit, totalCatPrice, 0)
 
-  const handleCustomCategoryChange = (supplierCode: string, newCategory: CustomCategory) => {
-    const currentMap = settings.supplierCategoryMap
-    updateSettings({
-      supplierCategoryMap: { ...currentMap, [supplierCode]: newCategory },
-    })
+  const handleCustomCategoryChange = (supplierCode: string, value: string) => {
+    if (!value || value === 'uncategorized') {
+      const next = Object.fromEntries(
+        Object.entries(settings.supplierCategoryMap).filter(([k]) => k !== supplierCode),
+      )
+      updateSettings({ supplierCategoryMap: next })
+    } else {
+      updateSettings({
+        supplierCategoryMap: {
+          ...settings.supplierCategoryMap,
+          [supplierCode]: value as CustomCategory,
+        },
+      })
+    }
   }
 
   // --- 取引先ソート ---
@@ -597,18 +606,15 @@ export function CategoryPage() {
                         >
                           <Td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                             <CategorySelect
-                              value={assignedCategory ?? ''}
+                              value={assignedCategory ?? 'uncategorized'}
                               onChange={(e) =>
-                                handleCustomCategoryChange(
-                                  s.supplierCode,
-                                  e.target.value as CustomCategory,
-                                )
+                                handleCustomCategoryChange(s.supplierCode, e.target.value)
                               }
                               style={{
                                 borderLeft: `3px solid ${assignedCategory ? (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8') : '#94a3b8'}`,
                               }}
                             >
-                              <option value="">未分類</option>
+                              <option value="uncategorized">未分類</option>
                               {CUSTOM_CATEGORIES.map((cc) => (
                                 <option key={cc.id} value={cc.id}>
                                   {cc.label}

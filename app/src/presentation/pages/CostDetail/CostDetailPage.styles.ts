@@ -37,7 +37,7 @@ export const Td = styled(DataTd)<{ $negative?: boolean; $positive?: boolean }>`
 `
 
 /** 消耗品タブ用 Td（$muted 対応） */
-export const ConsumTd = styled.td<{ $muted?: boolean }>`
+export const CostInclusionTd = styled.td<{ $muted?: boolean }>`
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
   text-align: right;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -220,7 +220,7 @@ export const FlowBar = styled.div<{ $pct: number; $dir: 'in' | 'out' | 'neutral'
   opacity: 0.7;
 `
 
-/* ─── Consumable-specific ───────────────────────────── */
+/* ─── CostInclusion-specific ───────────────────────────── */
 
 export const Bar = styled.div<{ $width: number; $color: string }>`
   display: inline-block;

@@ -16,7 +16,7 @@ export interface InventoryDetailRow {
   readonly grossSales: number // 粗売上(売変前)
   readonly inventoryCost: number // 在庫仕入原価(日)
   readonly estCogs: number // 推定原価(日)
-  readonly consumableCost: number // 消耗品費(日)
+  readonly costInclusionCost: number // 原価算入費(日)
   readonly cumInventoryCost: number // 累計在庫仕入原価
   readonly cumEstCogs: number // 累計推定原価
   readonly estimated: number // 推定在庫
@@ -33,7 +33,7 @@ export interface InventoryDetailRow {
  *
  *   コア売上(日)     = 売上 − 花売価 − 産直売価  ※クランプなし
  *   粗売上(日)       = コア売上 / (1 − 売変率)
- *   推定原価(日)     = 粗売上 × (1 − 値入率) + 消耗品費
+ *   推定原価(日)     = 粗売上 × (1 − 値入率) + 原価算入費
  *
  *   推定在庫[d]      = 期首在庫 + Σ在庫仕入原価[1..d] − Σ推定原価[1..d]
  *
@@ -88,7 +88,7 @@ export function computeEstimatedInventoryDetails(
     let grossSales = 0
     let inventoryCost = 0
     let estCogs = 0
-    let consumableCost = 0
+    let costInclusionCost = 0
 
     if (rec) {
       sales = rec.sales
@@ -103,11 +103,11 @@ export function computeEstimatedInventoryDetails(
       // 在庫仕入原価 = 総仕入原価 − 売上納品原価
       inventoryCost = getDailyTotalCost(rec) - rec.deliverySales.cost
 
-      // 消耗品費
-      consumableCost = rec.consumable.cost
+      // 原価算入費
+      costInclusionCost = rec.costInclusion.cost
 
-      // 推定原価 = 粗売上 × (1 − 値入率) + 消耗品費
-      estCogs = grossSales * (1 - markupRate) + consumableCost
+      // 推定原価 = 粗売上 × (1 − 値入率) + 原価算入費
+      estCogs = grossSales * (1 - markupRate) + costInclusionCost
     }
 
     cumInventoryCost += inventoryCost
@@ -124,7 +124,7 @@ export function computeEstimatedInventoryDetails(
       grossSales,
       inventoryCost,
       estCogs,
-      consumableCost,
+      costInclusionCost,
       cumInventoryCost,
       cumEstCogs,
       estimated,

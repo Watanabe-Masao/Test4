@@ -65,7 +65,7 @@ function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
           closingInventory: 120000,
           grossProfitBudget: null,
           productInventory: null,
-          consumableInventory: null,
+          costInclusionInventory: null,
           inventoryDate: null,
           closingInventoryDay: null,
         },

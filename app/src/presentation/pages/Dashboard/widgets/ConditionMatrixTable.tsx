@@ -133,7 +133,7 @@ const COLUMNS: readonly ColumnDef[] = [
   { key: 'sales', label: '売上' },
   { key: 'txValue', label: '客単価' },
   { key: 'discountRate', label: '売変率' },
-  { key: 'consumableRate', label: '消耗品率' },
+  { key: 'costInclusionRate', label: '原価算入率' },
 ]
 
 function renderMatrixRow(row: MatrixRowData, isSeparator = false) {

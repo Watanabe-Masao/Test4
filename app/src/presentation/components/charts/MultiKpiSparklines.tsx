@@ -157,11 +157,11 @@ export const MultiKpiSparklines = memo(function MultiKpiSparklines({
       const sales = rec?.sales ?? 0
       const grossSales = rec?.grossSales ?? 0
       const cost = rec ? rec.totalCost : 0
-      const consumable = rec?.consumable.cost ?? 0
+      const costInclusion = rec?.costInclusion.cost ?? 0
       const discount = rec?.discountAbsolute ?? 0
       const customers = rec?.customers ?? 0
       const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
-      const gpRate = sales > 0 ? safeDivide(sales - cost - consumable, sales, 0) : null
+      const gpRate = sales > 0 ? safeDivide(sales - cost - costInclusion, sales, 0) : null
       const discountRate = grossSales > 0 ? safeDivide(discount, grossSales, 0) : null
       const costRate = sales > 0 ? safeDivide(cost, sales, 0) : null
 

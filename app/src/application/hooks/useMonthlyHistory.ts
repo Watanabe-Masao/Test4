@@ -4,7 +4,7 @@
  * IndexedDB に保存された過去月の classifiedSales + StoreDaySummaryCache から
  * MonthlyDataPoint[] を構築し、季節性分析・トレンド分析に使用する。
  *
- * StoreDaySummaryCache が利用可能な月は、売変率・原価率・消耗品率・値入率など
+ * StoreDaySummaryCache が利用可能な月は、売変率・原価率・原価算入率・値入率など
  * 全成分の月次推移を提供できる。キャッシュがない月は classifiedSales のみで
  * 売上データを提供し、成分フィールドは null になる。
  *
@@ -102,7 +102,7 @@ export function useMonthlyHistory(
             storeCount: storeIds.size,
             discountRate: componentRates?.discountRate ?? null,
             costRate: componentRates?.costRate ?? null,
-            consumableRate: componentRates?.consumableRate ?? null,
+            costInclusionRate: componentRates?.costInclusionRate ?? null,
             averageMarkupRate: componentRates?.averageMarkupRate ?? null,
           }
 
@@ -149,7 +149,7 @@ export function currentResultToMonthlyPoint(
     readonly inventoryCost: number
     readonly deliverySalesCost: number
     readonly grossSales: number
-    readonly consumableRate: number
+    readonly costInclusionRate: number
     readonly averageMarkupRate: number
   },
   storeCount: number,
@@ -170,13 +170,13 @@ export function currentResultToMonthlyPoint(
     storeCount,
     discountRate: result.discountRate,
     costRate,
-    consumableRate: result.consumableRate,
+    costInclusionRate: result.costInclusionRate,
     averageMarkupRate: result.averageMarkupRate,
   }
 }
 
 /**
- * StoreDaySummaryCache から成分情報（売変率、原価率、消耗品率、値入率、客数、粗利）を算出。
+ * StoreDaySummaryCache から成分情報（売変率、原価率、原価算入率、値入率、客数、粗利）を算出。
  * キャッシュがない場合は null を返す。
  */
 async function loadComponentRates(
@@ -186,7 +186,7 @@ async function loadComponentRates(
 ): Promise<{
   discountRate: number
   costRate: number
-  consumableRate: number
+  costInclusionRate: number
   averageMarkupRate: number
   totalCustomers: number
   grossProfit: number
@@ -207,7 +207,7 @@ async function loadComponentRates(
 function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   discountRate: number
   costRate: number
-  consumableRate: number
+  costInclusionRate: number
   averageMarkupRate: number
   totalCustomers: number
   grossProfit: number
@@ -220,7 +220,7 @@ function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   let totalPurchasePrice = 0
   let totalFlowersCost = 0
   let totalDirectProduceCost = 0
-  let totalConsumable = 0
+  let totalCostInclusion = 0
   let totalCustomers = 0
 
   for (const days of Object.values(summaries)) {
@@ -232,7 +232,7 @@ function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
       totalPurchasePrice += day.purchasePrice
       totalFlowersCost += day.flowersCost
       totalDirectProduceCost += day.directProduceCost
-      totalConsumable += day.consumableCost
+      totalCostInclusion += day.costInclusionCost
       totalCustomers += day.customers
     }
   }
@@ -250,7 +250,7 @@ function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
   return {
     discountRate: safeDivide(totalDiscount, totalSales),
     costRate: safeDivide(allCost, totalGrossSales),
-    consumableRate: safeDivide(totalConsumable, totalSales),
+    costInclusionRate: safeDivide(totalCostInclusion, totalSales),
     averageMarkupRate: safeDivide(allPrice - totalPurchaseCost, allPrice),
     totalCustomers,
     grossProfit,

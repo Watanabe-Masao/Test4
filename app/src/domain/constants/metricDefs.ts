@@ -174,11 +174,11 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
   },
 
   // ─── 原価算入費（消耗品） ───────────────────────────────
-  totalConsumable: {
-    label: '消耗品費',
+  totalCostInclusion: {
+    label: '原価算入費',
     unit: 'yen',
-    tokens: { entity: 'consumable', domain: 'actual', measure: 'value' },
-    storeResultField: 'totalConsumable',
+    tokens: { entity: 'costInclusion', domain: 'actual', measure: 'value' },
+    storeResultField: 'totalCostInclusion',
   },
 
   // ─── 売上予算系 ─────────────────────────────────────────

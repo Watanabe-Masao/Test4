@@ -521,10 +521,10 @@ export function DayDetailModal({
                         <DetailValue>{formatPercent(totalCost / actual)}</DetailValue>
                       </DetailRow>
                     )}
-                    {record.consumable.cost > 0 && (
+                    {record.costInclusion.cost > 0 && (
                       <DetailRow>
-                        <DetailLabel>消耗品費</DetailLabel>
-                        <DetailValue>{formatCurrency(record.consumable.cost)}</DetailValue>
+                        <DetailLabel>原価算入費</DetailLabel>
+                        <DetailValue>{formatCurrency(record.costInclusion.cost)}</DetailValue>
                       </DetailRow>
                     )}
                     {record.discountAmount !== 0 && (

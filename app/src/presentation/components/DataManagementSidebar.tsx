@@ -929,8 +929,8 @@ export function DataManagementSidebar({
               {Array.from(stores.values()).map((s) => {
                 const cfg = data.settings.get(s.id)
                 const autoClosing =
-                  cfg?.productInventory != null || cfg?.consumableInventory != null
-                    ? (cfg.productInventory ?? 0) + (cfg.consumableInventory ?? 0)
+                  cfg?.productInventory != null || cfg?.costInclusionInventory != null
+                    ? (cfg.productInventory ?? 0) + (cfg.costInclusionInventory ?? 0)
                     : null
                 const daysInMo = getDaysInMonth(settings.targetYear, settings.targetMonth)
                 return (
@@ -963,12 +963,12 @@ export function DataManagementSidebar({
                     <InventoryRow>
                       <InventoryLabel>原価算入費</InventoryLabel>
                       <BlurCommitInput
-                        value={cfg?.consumableInventory}
+                        value={cfg?.costInclusionInventory}
                         placeholder="原価算入費在庫"
                         onCommit={(val) => {
                           useDataStore
                             .getState()
-                            .updateInventory(s.id, { consumableInventory: val })
+                            .updateInventory(s.id, { costInclusionInventory: val })
                           calculationCache.clear()
                           useUiStore.getState().invalidateCalculation()
                         }}

@@ -114,7 +114,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         closingInventory: null,
         grossProfitBudget: null,
         productInventory: null,
-        consumableInventory: null,
+        costInclusionInventory: null,
         inventoryDate: null,
         closingInventoryDay: null,
       }

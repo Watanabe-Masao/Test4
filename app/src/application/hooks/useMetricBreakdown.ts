@@ -8,7 +8,7 @@
  * @see MetricBreakdownPanel.styles.ts — スタイル定義
  */
 import { useState, useCallback, useMemo } from 'react'
-import type { Explanation, MetricId, MetricUnit, Store } from '@/domain/models'
+import type { Explanation, FormulaDetail, MetricId, MetricUnit, Store } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { useExport } from './useExport'
 import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
@@ -68,6 +68,7 @@ export interface MetricBreakdownViewModel {
 
   // ── Formula Tab ──
   readonly formula: string
+  readonly formulaDetail?: FormulaDetail
   readonly inputs: readonly FormattedInput[]
   readonly reverseLinks: readonly ReverseLink[]
   readonly evidenceSummary: readonly EvidenceSummaryEntry[]
@@ -294,6 +295,7 @@ export function useMetricBreakdown({
     hasDrilldown,
     hasEvidence,
     formula: current.formula,
+    formulaDetail: current.formulaDetail,
     inputs,
     reverseLinks,
     evidenceSummary,

@@ -464,11 +464,11 @@ export function ReportsPage() {
             onClick={() => handleExplain('deliverySalesCost')}
           />
           <KpiCard
-            label="消耗品費"
-            value={formatCurrency(r.totalConsumable)}
-            subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
+            label="原価算入費"
+            value={formatCurrency(r.totalCostInclusion)}
+            subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
             accent={palette.orange}
-            onClick={() => handleExplain('totalConsumable')}
+            onClick={() => handleExplain('totalCostInclusion')}
           />
           <KpiCard
             label="売変ロス原価"

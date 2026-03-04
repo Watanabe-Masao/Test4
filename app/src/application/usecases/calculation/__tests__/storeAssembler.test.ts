@@ -34,7 +34,7 @@ function makeDailyRecord(day: number, sales: number, cost = 0): DailyRecord {
     interDepartmentOut: ZERO_COST_PRICE_PAIR,
     flowers: ZERO_COST_PRICE_PAIR,
     directProduce: ZERO_COST_PRICE_PAIR,
-    consumable: { cost: 0, items: [] },
+    costInclusion: { cost: 0, items: [] },
     customers: 0,
     discountAmount: 0,
     discountAbsolute: 0,
@@ -65,7 +65,7 @@ function makeAccumulator(overrides: Partial<MonthlyAccumulator> = {}): MonthlyAc
     totalPurchasePrice: 0,
     totalDiscount: 0,
     totalDiscountEntries: [],
-    totalConsumable: 0,
+    totalCostInclusion: 0,
     totalCustomers: 0,
     salesDays: 0,
     elapsedDays: 0,
@@ -100,8 +100,8 @@ describe('assembleStoreResult', () => {
     expect(result.averageMarkupRate).toBe(0)
     expect(result.totalCustomers).toBe(0)
     expect(result.averageCustomersPerDay).toBe(0)
-    expect(result.totalConsumable).toBe(0)
-    expect(result.consumableRate).toBe(0)
+    expect(result.totalCostInclusion).toBe(0)
+    expect(result.costInclusionRate).toBe(0)
     expect(result.invMethodCogs).toBeNull()
     expect(result.invMethodGrossProfit).toBeNull()
     expect(result.invMethodGrossProfitRate).toBeNull()
@@ -268,10 +268,10 @@ describe('assembleStoreResult', () => {
     expect(result.supplierTotals.get('002')!.markupRate).toBeCloseTo(10000 / 30000, 6)
   })
 
-  it('消耗品率の計算', () => {
+  it('原価算入率の計算', () => {
     const acc = makeAccumulator({
       totalSales: 200000,
-      totalConsumable: 6000,
+      totalCostInclusion: 6000,
       salesDays: 1,
       elapsedDays: 1,
     })
@@ -279,21 +279,21 @@ describe('assembleStoreResult', () => {
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
-    expect(result.totalConsumable).toBe(6000)
-    // 消耗品率 = 6000 / 200000 = 0.03
-    expect(result.consumableRate).toBeCloseTo(0.03, 6)
+    expect(result.totalCostInclusion).toBe(6000)
+    // 原価算入率 = 6000 / 200000 = 0.03
+    expect(result.costInclusionRate).toBeCloseTo(0.03, 6)
   })
 
-  it('売上0の場合: 消耗品率が0（ゼロ除算回避）', () => {
+  it('売上0の場合: 原価算入率が0（ゼロ除算回避）', () => {
     const acc = makeAccumulator({
       totalSales: 0,
-      totalConsumable: 1000,
+      totalCostInclusion: 1000,
     })
     const data = createEmptyImportedData()
 
     const result = assembleStoreResult('1', acc, data, DEFAULT_SETTINGS, 28)
 
-    expect(result.consumableRate).toBe(0)
+    expect(result.costInclusionRate).toBe(0)
   })
 
   it('売変データ: 粗売上と売変率の計算', () => {
@@ -325,7 +325,7 @@ describe('assembleStoreResult', () => {
             closingInventory: null,
             grossProfitBudget: 500000,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },

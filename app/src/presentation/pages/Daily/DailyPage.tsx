@@ -323,9 +323,9 @@ export function DailyPage() {
           onClick={() => handleExplain('averageMarkupRate')}
         />
         <KpiCard
-          label="消耗品費"
-          value={formatCurrency(currentResult.totalConsumable)}
-          onClick={() => handleExplain('totalConsumable')}
+          label="原価算入費"
+          value={formatCurrency(currentResult.totalCostInclusion)}
+          onClick={() => handleExplain('totalCostInclusion')}
         />
       </KpiGrid>
 
@@ -524,7 +524,9 @@ export function DailyPage() {
                     <Td $negative={rec.discountAbsolute > 0}>
                       {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
                     </Td>
-                    <Td>{rec.consumable.cost > 0 ? formatCurrency(rec.consumable.cost) : '-'}</Td>
+                    <Td>
+                      {rec.costInclusion.cost > 0 ? formatCurrency(rec.costInclusion.cost) : '-'}
+                    </Td>
                     {(() => {
                       const cum = cumulativeData.get(day)
                       const gpr = cum?.grossProfitRate ?? 0

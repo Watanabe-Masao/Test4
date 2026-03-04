@@ -1,37 +1,46 @@
 /**
- * Phase 7.1: Service Worker 登録テスト
+ * Service Worker 登録テスト
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { registerServiceWorker } from '../registerSW'
 
+function createMockSWContainer(controller: unknown = null) {
+  return {
+    register: vi.fn().mockResolvedValue({ update: vi.fn() }),
+    controller,
+    addEventListener: vi.fn(),
+  }
+}
+
 describe('registerServiceWorker', () => {
+  const origDescriptor = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker')
+
   beforeEach(() => {
     vi.restoreAllMocks()
   })
 
+  afterEach(() => {
+    if (origDescriptor) {
+      Object.defineProperty(navigator, 'serviceWorker', origDescriptor)
+    }
+  })
+
   it('serviceWorker 非対応環境では何もしない', () => {
-    // navigator.serviceWorker が undefined
-    const orig = navigator.serviceWorker
     Object.defineProperty(navigator, 'serviceWorker', {
       value: undefined,
       writable: true,
       configurable: true,
     })
 
+    // navigator.serviceWorker が falsy なので何もせず return
     expect(() => registerServiceWorker()).not.toThrow()
-
-    Object.defineProperty(navigator, 'serviceWorker', {
-      value: orig,
-      writable: true,
-      configurable: true,
-    })
   })
 
   it('serviceWorker 対応環境で load イベントリスナーを登録する', () => {
     const addSpy = vi.spyOn(window, 'addEventListener')
 
     Object.defineProperty(navigator, 'serviceWorker', {
-      value: { register: vi.fn().mockResolvedValue({}) },
+      value: createMockSWContainer(),
       writable: true,
       configurable: true,
     })
@@ -39,5 +48,36 @@ describe('registerServiceWorker', () => {
     registerServiceWorker()
 
     expect(addSpy).toHaveBeenCalledWith('load', expect.any(Function))
+  })
+
+  it('controllerchange リスナーを登録する', () => {
+    const mockSW = createMockSWContainer()
+
+    Object.defineProperty(navigator, 'serviceWorker', {
+      value: mockSW,
+      writable: true,
+      configurable: true,
+    })
+
+    registerServiceWorker()
+
+    expect(mockSW.addEventListener).toHaveBeenCalledWith('controllerchange', expect.any(Function))
+  })
+
+  it('updateViaCache: none で SW を登録する', () => {
+    const mockSW = createMockSWContainer()
+    vi.spyOn(window, 'addEventListener').mockImplementation((event, handler) => {
+      if (event === 'load') (handler as EventListener)(new Event('load'))
+    })
+
+    Object.defineProperty(navigator, 'serviceWorker', {
+      value: mockSW,
+      writable: true,
+      configurable: true,
+    })
+
+    registerServiceWorker()
+
+    expect(mockSW.register).toHaveBeenCalledWith('/Test4/sw.js', { updateViaCache: 'none' })
   })
 })

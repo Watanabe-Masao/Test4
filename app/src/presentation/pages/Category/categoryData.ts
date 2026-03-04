@@ -1,6 +1,10 @@
 import type { StoreResult, CustomCategory } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  PRESET_CATEGORY_DEFS,
+} from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
@@ -44,6 +48,7 @@ export const CUSTOM_CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   consumables: '#ea580c',
   direct_delivery: '#06b6d4',
   other: '#64748b',
+  uncategorized: '#94a3b8',
 }
 
 // ─── Data builders ───────────────────────────────────────
@@ -90,8 +95,7 @@ export function buildCustomCategoryData(
   const aggregated = new Map<CustomCategory, { cost: number; price: number }>()
 
   for (const [, st] of result.supplierTotals) {
-    const customCat = supplierCategoryMap[st.supplierCode]
-    if (!customCat) continue
+    const customCat = supplierCategoryMap[st.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
     const existing = aggregated.get(customCat) ?? { cost: 0, price: 0 }
     aggregated.set(customCat, {
       cost: existing.cost + st.cost,
@@ -105,7 +109,7 @@ export function buildCustomCategoryData(
     0,
   )
 
-  return CUSTOM_CATEGORIES.flatMap((cc) => {
+  return PRESET_CATEGORY_DEFS.flatMap((cc) => {
     const pair = aggregated.get(cc.id as CustomCategory)
     if (!pair) return []
     const markupRate = safeDivide(pair.price - pair.cost, pair.price, 0)
@@ -173,8 +177,7 @@ export function buildUnifiedCategoryData(
   // 2. カスタムカテゴリ（supplierTotals + supplierCategoryMap から）
   const aggregated = new Map<CustomCategory, { cost: number; price: number }>()
   for (const [, st] of result.supplierTotals) {
-    const customCat = supplierCategoryMap[st.supplierCode]
-    if (!customCat) continue
+    const customCat = supplierCategoryMap[st.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
     const existing = aggregated.get(customCat) ?? { cost: 0, price: 0 }
     aggregated.set(customCat, {
       cost: existing.cost + st.cost,

@@ -96,7 +96,7 @@ export function assembleStoreResult(
     coreSales: totalCoreSales,
     discountRate,
     markupRate: coreMarkupRate,
-    consumableCost: acc.totalConsumable,
+    costInclusionCost: acc.totalCostInclusion,
     openingInventory: invConfig?.openingInventory ?? null,
     inventoryPurchaseCost: inventoryCost,
   })
@@ -108,8 +108,8 @@ export function assembleStoreResult(
     discountRate,
   })
 
-  // 消耗品率
-  const consumableRate = safeDivide(acc.totalConsumable, acc.totalSales, 0)
+  // 原価算入率
+  const costInclusionRate = safeDivide(acc.totalCostInclusion, acc.totalSales, 0)
 
   // カテゴリ集計
   addToCategory(acc.categoryTotals, 'flowers', {
@@ -120,7 +120,7 @@ export function assembleStoreResult(
     cost: acc.totalDirectProduceCost,
     price: acc.totalDirectProducePrice,
   })
-  addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalConsumable, price: 0 })
+  addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalCostInclusion, price: 0 })
   addToCategory(
     acc.categoryTotals,
     'interStore',
@@ -190,7 +190,7 @@ export function assembleStoreResult(
     openingInventory: invConfig?.openingInventory ?? null,
     closingInventory: invConfig?.closingInventory ?? null,
     productInventory: invConfig?.productInventory ?? null,
-    consumableInventory: invConfig?.consumableInventory ?? null,
+    costInclusionInventory: invConfig?.costInclusionInventory ?? null,
     inventoryDate: invConfig?.inventoryDate ?? null,
     closingInventoryDay: invConfig?.closingInventoryDay ?? null,
     purchaseMaxDay: acc.purchaseMaxDay,
@@ -219,8 +219,8 @@ export function assembleStoreResult(
     discountEntries: acc.totalDiscountEntries,
     averageMarkupRate,
     coreMarkupRate,
-    totalConsumable: acc.totalConsumable,
-    consumableRate,
+    totalCostInclusion: acc.totalCostInclusion,
+    costInclusionRate,
     budget,
     grossProfitBudget: gpBudget,
     grossProfitRateBudget: safeDivide(gpBudget, budget, 0),

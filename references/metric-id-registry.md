@@ -22,7 +22,7 @@ MetricId は**安定した識別子**。構造的な意味は `MetricMeta.tokens
 /** トークン: 指標の分類構造 */
 export interface MetricTokens {
   /** 主体: 何の指標か */
-  readonly entity: 'sales' | 'purchase' | 'cogs' | 'discount' | 'markup' | 'gp' | 'inventory' | 'customer' | 'consumable'
+  readonly entity: 'sales' | 'purchase' | 'cogs' | 'discount' | 'markup' | 'gp' | 'inventory' | 'customer' | 'costInclusion'
   /** 領域: データの確度 */
   readonly domain: 'actual' | 'budget' | 'estimated' | 'forecast'
   /** 測定: 何を測るか */
@@ -68,7 +68,7 @@ export interface MetricMeta {
 | `averageSpendPerCustomer` | customer | actual | average | 客単価 |
 | `itemsPerCustomer` | customer | actual | average | 一人当たり点数 |
 | `averagePricePerItem` | sales | actual | average | 点単価 |
-| `totalConsumable` | consumable | actual | value | 消耗品費 |
+| `totalCostInclusion` | consumable | actual | value | 原価算入費 |
 | `budget` | sales | budget | value | 売上予算 |
 | `budgetAchievementRate` | sales | budget | achievement | 売上予算達成率 |
 | `budgetProgressRate` | sales | budget | progress | 売上予算消化率 |
@@ -143,8 +143,8 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 
 **原価算入費（消耗品）:**
 消耗品は値入率の計算には含まれないが、推定原価には加算される。
-`estCogs = grossSales × (1 − markupRate) + consumableCost`
-→ MetricId は `totalConsumable` として別セクションで管理。
+`estCogs = grossSales × (1 − markupRate) + costInclusionCost`
+→ MetricId は `totalCostInclusion` として別セクションで管理。
 
 **店間移動・部門間移動:**
 `TransferDetails` で集約（in/out/net）。現在 MetricId 未登録。
@@ -176,7 +176,7 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 粗利率 = (売上 − 売上原価) ÷ 売上 … 販売後の実績
 ```
 
-値入率 > 粗利率 となる主な原因: 売変（値引・廃棄）、在庫ロス、消耗品費。
+値入率 > 粗利率 となる主な原因: 売変（値引・廃棄）、在庫ロス、原価算入費。
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
@@ -200,15 +200,15 @@ const gpBudget    = findByTokens({ entity: 'gp',    domain: 'budget', measure: '
 常に計算される。在庫法との差異（GAP値）が在庫ロスの検知に使われる。
 
 ```
-推定原価 = 粗売上 × (1 − 値入率) + 消耗品費
+推定原価 = 粗売上 × (1 − 値入率) + 原価算入費
 推定粗利 = 総売上 − 推定原価
 ```
 
-※ 消耗品費は値入率の外で加算される（原価算入費）。
+※ 原価算入費は値入率の外で加算される（原価算入費）。
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
-| `estMethodCogs` | 推定原価 | yen | 粗売上 × (1 − 値入率) + 消耗品費 | `estMethodCogs` |
+| `estMethodCogs` | 推定原価 | yen | 粗売上 × (1 − 値入率) + 原価算入費 | `estMethodCogs` |
 | `estMethodMargin` | 推定粗利 | yen | 総売上 − 推定原価 | `estMethodMargin` |
 | `estMethodMarginRate` | 推定粗利率 | rate | 推定粗利 ÷ 総売上 | `estMethodMarginRate` |
 | `estMethodClosingInventory` | 推定期末在庫 | yen | 期首在庫 + 仕入 − 推定原価 | `estMethodClosingInventory` |
@@ -290,7 +290,7 @@ GAP値は全て `measure: 'gap'` で統一できる。各 GAP は:
 
 | MetricId | 指標名 | 単位 | 計算式 | StoreResult フィールド |
 |---|---|---|---|---|
-| `totalConsumable` | 消耗品費 | yen | 消耗品データの合計 | `totalConsumable` |
+| `totalCostInclusion` | 原価算入費 | yen | 原価算入費データの合計 | `totalCostInclusion` |
 
 ---
 

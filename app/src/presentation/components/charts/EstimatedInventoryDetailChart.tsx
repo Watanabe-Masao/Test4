@@ -239,7 +239,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
       grossSales += r.grossSales
       invCost += r.inventoryCost
       cogs += r.estCogs
-      cons += r.consumableCost
+      cons += r.costInclusionCost
     }
     return { sales, coreSales, grossSales, invCost, cogs, cons }
   }, [tableRows])
@@ -555,7 +555,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
               <Th $right>コア売上</Th>
               <Th $right>粗売上</Th>
               <Th $right>在庫仕入原価</Th>
-              <Th $right>消耗品費</Th>
+              <Th $right>原価算入費</Th>
               <Th $right>推定原価</Th>
               <Th $right>累計仕入原価</Th>
               <Th $right>累計推定原価</Th>
@@ -597,7 +597,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
                 <Td $right>{fmt(r.coreSales)}</Td>
                 <Td $right>{fmt(r.grossSales)}</Td>
                 <Td $right>{fmt(r.inventoryCost)}</Td>
-                <Td $right>{fmt(r.consumableCost)}</Td>
+                <Td $right>{fmt(r.costInclusionCost)}</Td>
                 <Td $right>{fmt(r.estCogs)}</Td>
                 <Td $right>{fmt(r.cumInventoryCost)}</Td>
                 <Td $right>{fmt(r.cumEstCogs)}</Td>

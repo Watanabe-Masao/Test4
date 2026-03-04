@@ -476,7 +476,7 @@ export function InsightPage() {
             <Card $accent={palette.warningDark}>
               <CardTitle>【推定法】在庫差異検知（理論値）</CardTitle>
               <CalcPurpose>目的：在庫差異・異常検知（実績粗利ではありません）</CalcPurpose>
-              <Formula>推定原価 = 粗売上 × (1 - 値入率) + 消耗品費</Formula>
+              <Formula>推定原価 = 粗売上 × (1 - 値入率) + 原価算入費</Formula>
               <CalcRow $clickable onClick={() => handleExplain('coreSales')}>
                 <CalcLabel>コア売上</CalcLabel>
                 <CalcValue>{d.formatCurrency(r.totalCoreSales)}</CalcValue>

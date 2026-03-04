@@ -53,7 +53,7 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
     const totalSales = r.totalSales
     const totalCost = r.totalCost
     const discountLoss = -r.totalDiscount
-    const consumable = -r.totalConsumable
+    const costInclusion = -r.totalCostInclusion
 
     // Waterfall items: Start from sales, subtract factors
     const items: WaterfallItem[] = []
@@ -88,14 +88,14 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
     // 4. Consumables (negative impact)
     const afterDiscount = afterCost + discountLoss
     items.push({
-      name: '消耗品費',
-      value: consumable,
-      base: afterDiscount + consumable,
-      bar: Math.abs(consumable),
+      name: '原価算入費',
+      value: costInclusion,
+      base: afterDiscount + costInclusion,
+      bar: Math.abs(costInclusion),
     })
 
     // 5. Gross Profit (result)
-    const finalGP = afterDiscount + consumable
+    const finalGP = afterDiscount + costInclusion
     items.push({
       name: '粗利益',
       value: finalGP,

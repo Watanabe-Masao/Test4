@@ -7,7 +7,7 @@ describe('calculateEstMethod', () => {
       coreSales: 5_000_000,
       discountRate: 0.02,
       markupRate: 0.26,
-      consumableCost: 50_000,
+      costInclusionCost: 50_000,
       openingInventory: 1_000_000,
       inventoryPurchaseCost: 4_000_000,
     })
@@ -26,7 +26,7 @@ describe('calculateEstMethod', () => {
       coreSales: 1_000_000,
       discountRate: 0,
       markupRate: 0.25,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: null,
       inventoryPurchaseCost: 0,
     })
@@ -45,7 +45,7 @@ describe('calculateEstMethod', () => {
       coreSales: 1_000_000,
       discountRate: 0,
       markupRate: 0.25,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: 500_000,
       inventoryPurchaseCost: 800_000,
     })
@@ -59,7 +59,7 @@ describe('calculateEstMethod', () => {
       coreSales: 0,
       discountRate: 0,
       markupRate: 0.26,
-      consumableCost: 10_000,
+      costInclusionCost: 10_000,
       openingInventory: 100_000,
       inventoryPurchaseCost: 50_000,
     })
@@ -79,7 +79,7 @@ describe('calculateEstMethod', () => {
       coreSales: 1_000_000,
       discountRate: 1.0,
       markupRate: 0.25,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: null,
       inventoryPurchaseCost: 0,
     })
@@ -92,7 +92,7 @@ describe('calculateEstMethod', () => {
       coreSales: 1_000_000,
       discountRate: 0,
       markupRate: 0,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: null,
       inventoryPurchaseCost: 0,
     })
@@ -102,12 +102,12 @@ describe('calculateEstMethod', () => {
     expect(result.marginRate).toBe(0)
   })
 
-  it('値入率1の場合（原価=0+消耗品費）', () => {
+  it('値入率1の場合（原価=0+原価算入費）', () => {
     const result = calculateEstMethod({
       coreSales: 1_000_000,
       discountRate: 0,
       markupRate: 1.0,
-      consumableCost: 20_000,
+      costInclusionCost: 20_000,
       openingInventory: null,
       inventoryPurchaseCost: 0,
     })
@@ -116,16 +116,16 @@ describe('calculateEstMethod', () => {
     expect(result.margin).toBe(980_000)
   })
 
-  it('消耗品費のみのケース', () => {
+  it('原価算入費のみのケース', () => {
     const result = calculateEstMethod({
       coreSales: 2_000_000,
       discountRate: 0.03,
       markupRate: 0.26,
-      consumableCost: 100_000,
+      costInclusionCost: 100_000,
       openingInventory: 1_000_000,
       inventoryPurchaseCost: 1_500_000,
     })
-    // 消耗品費が推定原価に含まれることを確認
+    // 原価算入費が推定原価に含まれることを確認
     expect(result.cogs).toBeGreaterThan(100_000)
     // 推定期末在庫が計算されることを確認
     expect(result.closingInventory).not.toBeNull()
@@ -136,7 +136,7 @@ describe('calculateEstMethod', () => {
       coreSales: 3_000_000,
       discountRate: 0.1,
       markupRate: 0.26,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: null,
       inventoryPurchaseCost: 0,
     })
@@ -149,7 +149,7 @@ describe('calculateEstMethod', () => {
       coreSales: 1_000_000,
       discountRate: 0,
       markupRate: 0.25,
-      consumableCost: 0,
+      costInclusionCost: 0,
       openingInventory: null,
       inventoryPurchaseCost: 500_000,
     })

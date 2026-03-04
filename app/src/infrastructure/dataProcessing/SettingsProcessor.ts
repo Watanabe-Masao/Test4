@@ -77,16 +77,16 @@ export function processSettings(rows: readonly unknown[][]): Map<string, Invento
     const openingInventory = isNumericCell(r[1]) ? safeNumber(r[1]) : null
 
     let productInventory: number | null = null
-    let consumableInventory: number | null = null
+    let costInclusionInventory: number | null = null
     let closingInventory: number | null = null
 
     if (hasNewFormat) {
       // 新フォーマット: E=商品在庫, F=消耗品
       productInventory = isNumericCell(r[4]) ? safeNumber(r[4]) : null
-      consumableInventory = isNumericCell(r[5]) ? safeNumber(r[5]) : null
+      costInclusionInventory = isNumericCell(r[5]) ? safeNumber(r[5]) : null
       // 期末在庫（消耗品込）= 商品在庫 + 消耗品（自動計算）
-      if (productInventory != null || consumableInventory != null) {
-        closingInventory = (productInventory ?? 0) + (consumableInventory ?? 0)
+      if (productInventory != null || costInclusionInventory != null) {
+        closingInventory = (productInventory ?? 0) + (costInclusionInventory ?? 0)
       } else {
         // E/F列がないデータ行ではC列をフォールバック
         closingInventory = isNumericCell(r[2]) ? safeNumber(r[2]) : null
@@ -102,7 +102,7 @@ export function processSettings(rows: readonly unknown[][]): Map<string, Invento
       closingInventory,
       grossProfitBudget: gpBudget > 0 ? gpBudget : null,
       productInventory,
-      consumableInventory,
+      costInclusionInventory,
       inventoryDate,
       closingInventoryDay: null, // UIから設定される
     })

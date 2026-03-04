@@ -146,7 +146,7 @@ describe('alertSystem', () => {
           1,
           {
             sales: 70000,
-            consumable: { cost: 0 },
+            costInclusion: { cost: 0 },
             discountAmount: 0,
           } as never,
         ],
@@ -180,7 +180,7 @@ describe('alertSystem', () => {
           1,
           {
             sales: 90000,
-            consumable: { cost: 0 },
+            costInclusion: { cost: 0 },
             discountAmount: 0,
           } as never,
         ],
@@ -208,7 +208,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+        [1, { sales: 50000, costInclusion: { cost: 0 }, discountAmount: 0 } as never],
       ])
       const result = mockResult({ daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -232,7 +232,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+        [1, { sales: 50000, costInclusion: { cost: 0 }, discountAmount: 0 } as never],
       ])
       const result = mockResult({ daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -257,8 +257,8 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 500000, consumable: { cost: 25000 }, discountAmount: 0 } as never],
-        [2, { sales: 500000, consumable: { cost: 25000 }, discountAmount: 0 } as never],
+        [1, { sales: 500000, costInclusion: { cost: 25000 }, discountAmount: 0 } as never],
+        [2, { sales: 500000, costInclusion: { cost: 25000 }, discountAmount: 0 } as never],
       ])
       const result = mockResult({ totalSales: 1000000, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -284,7 +284,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 1000000, consumable: { cost: 10000 }, discountAmount: 0 } as never],
+        [1, { sales: 1000000, costInclusion: { cost: 10000 }, discountAmount: 0 } as never],
       ])
       const result = mockResult({ totalSales: 1000000, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -308,7 +308,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 0, consumable: { cost: 1000 }, discountAmount: 0 } as never],
+        [1, { sales: 0, costInclusion: { cost: 1000 }, discountAmount: 0 } as never],
       ])
       const result = mockResult({ totalSales: 0, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -332,8 +332,8 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 500000, consumable: { cost: 0 }, discountAmount: 40000 } as never],
-        [2, { sales: 500000, consumable: { cost: 0 }, discountAmount: 40000 } as never],
+        [1, { sales: 500000, costInclusion: { cost: 0 }, discountAmount: 40000 } as never],
+        [2, { sales: 500000, costInclusion: { cost: 0 }, discountAmount: 40000 } as never],
       ])
       const result = mockResult({ totalSales: 1000000, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -359,7 +359,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 1000000, consumable: { cost: 0 }, discountAmount: 30000 } as never],
+        [1, { sales: 1000000, costInclusion: { cost: 0 }, discountAmount: 30000 } as never],
       ])
       const result = mockResult({ totalSales: 1000000, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -383,7 +383,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 0, consumable: { cost: 0 }, discountAmount: 10000 } as never],
+        [1, { sales: 0, costInclusion: { cost: 0 }, discountAmount: 10000 } as never],
       ])
       const result = mockResult({ totalSales: 0, daily })
       const alerts = evaluateAlerts('s1', 'テスト店', result, rules, {
@@ -494,7 +494,7 @@ describe('alertSystem', () => {
       ]
 
       const daily = new Map([
-        [1, { sales: 50000, consumable: { cost: 0 }, discountAmount: 0 } as never],
+        [1, { sales: 50000, costInclusion: { cost: 0 }, discountAmount: 0 } as never],
       ])
       const results = new Map([['s1', mockResult({ daily })]])
       const storeNames = new Map([['s1', '店舗A']])

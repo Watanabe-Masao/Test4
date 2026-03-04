@@ -96,12 +96,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           />
         )
       }
-      const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+      const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
       return (
         <KpiCard
           label="【在庫法】実績粗利益"
           value={formatCurrency(r.invMethodGrossProfit)}
-          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
           accent={sc.positive}
           badge="actual"
           formulaSummary="売上 − 売上原価（期首+仕入−期末）"
@@ -117,12 +117,12 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
     render: ({ result: r, onExplain }) => {
-      const beforeRate = safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+      const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
       return (
         <KpiCard
           label="【推定法】推定マージン"
           value={formatCurrency(r.estMethodMargin)}
-          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalConsumable)})`}
+          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
           accent={palette.warningDark}
           badge="estimated"
           formulaSummary="コア売上 − 推定原価（理論値）"
@@ -163,18 +163,18 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     ),
   },
   {
-    id: 'kpi-consumable',
-    label: '消耗品費',
+    id: 'kpi-cost-inclusion',
+    label: '原価算入費',
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'cost-detail' },
     render: ({ result: r, onExplain }) => (
       <KpiCard
-        label="消耗品費"
-        value={formatCurrency(r.totalConsumable)}
-        subText={`消耗品率: ${formatPercent(r.consumableRate)}`}
+        label="原価算入費"
+        value={formatCurrency(r.totalCostInclusion)}
+        subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
         accent={palette.orange}
-        onClick={() => onExplain('totalConsumable')}
+        onClick={() => onExplain('totalCostInclusion')}
       />
     ),
   },
@@ -604,7 +604,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
                 grossProfitRate: null,
                 costRate: null,
                 discountRate: prevYear.discountRate,
-                consumableRate: null,
+                costInclusionRate: null,
                 discountEntries: prevYear.totalDiscountEntries,
                 totalSales: prevYear.totalSales,
                 totalCustomers: prevYear.totalCustomers,

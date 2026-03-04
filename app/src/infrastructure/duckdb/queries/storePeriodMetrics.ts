@@ -65,8 +65,8 @@ export interface StorePeriodMetricsRow {
   readonly coreMarkupRate: number
 
   // ── 消耗品 ──
-  readonly totalConsumable: number
-  readonly consumableRate: number
+  readonly totalCostInclusion: number
+  readonly costInclusionRate: number
 
   // ── 客数 ──
   readonly totalCustomers: number
@@ -155,7 +155,7 @@ export async function queryStorePeriodMetrics(
         COALESCE(SUM(s.inter_dept_in_price), 0) AS inter_dept_in_price,
         COALESCE(SUM(s.inter_dept_out_cost), 0) AS inter_dept_out_cost,
         COALESCE(SUM(s.inter_dept_out_price), 0) AS inter_dept_out_price,
-        COALESCE(SUM(s.consumable_cost), 0) AS total_consumable,
+        COALESCE(SUM(s.cost_inclusion_cost), 0) AS total_cost_inclusion,
         COALESCE(SUM(s.customers), 0) AS total_customers,
         COUNT(DISTINCT CASE WHEN s.sales > 0 THEN s.date_key END) AS sales_days,
         COUNT(DISTINCT s.date_key) AS total_days,
@@ -212,10 +212,10 @@ export async function queryStorePeriodMetrics(
           ELSE COALESCE(
             (SELECT value FROM app_settings WHERE key = 'defaultMarkupRate'), 0.25
           ) END AS core_markup_rate,
-        -- 消耗品率 = consumable / sales
+        -- 原価算入率 = consumable / sales
         CASE WHEN c.total_sales > 0
-          THEN c.total_consumable / c.total_sales
-          ELSE 0 END AS consumable_rate,
+          THEN c.total_cost_inclusion / c.total_sales
+          ELSE 0 END AS cost_inclusion_rate,
         -- 日平均客数 = customers / salesDays
         CASE WHEN c.sales_days > 0
           THEN c.total_customers * 1.0 / c.sales_days
@@ -235,7 +235,7 @@ export async function queryStorePeriodMetrics(
       SELECT
         e.*,
         -- 推定法: 推定原価 = 粗売上 × (1 - 値入率) + 消耗品
-        e.est_gross_sales * (1 - e.core_markup_rate) + e.total_consumable AS est_method_cogs,
+        e.est_gross_sales * (1 - e.core_markup_rate) + e.total_cost_inclusion AS est_method_cogs,
         -- 売変ロス原価 = (1 - 値入率) × コア売上 × (売変率 / (1 - 売変率))
         CASE WHEN e.discount_rate < 1
           THEN (1 - e.core_markup_rate) * e.total_core_sales
@@ -291,8 +291,8 @@ export async function queryStorePeriodMetrics(
       ef.average_markup_rate,
       ef.core_markup_rate,
       -- 消耗品
-      ef.total_consumable,
-      ef.consumable_rate,
+      ef.total_cost_inclusion,
+      ef.cost_inclusion_rate,
       -- 客数
       ef.total_customers,
       ef.avg_customers_per_day AS average_customers_per_day,

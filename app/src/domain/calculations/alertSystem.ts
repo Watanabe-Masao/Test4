@@ -67,7 +67,7 @@ export const DEFAULT_ALERT_RULES: readonly AlertRule[] = [
     threshold: 0.8, // 前年比 80%
   },
   {
-    id: 'consumable-ratio',
+    id: 'cost-inclusion-ratio',
     type: 'consumable_ratio_above',
     label: '消耗品比率超過',
     description: '消耗品コストの対売上比率が閾値を超過',
@@ -160,11 +160,11 @@ export function evaluateAlerts(
 
       case 'consumable_ratio_above': {
         if (result.totalSales === 0) break
-        let totalConsumable = 0
+        let totalCostInclusion = 0
         for (const [, record] of result.daily) {
-          totalConsumable += record.consumable.cost
+          totalCostInclusion += record.costInclusion.cost
         }
-        const ratio = safeDivide(totalConsumable, result.totalSales, 0)
+        const ratio = safeDivide(totalCostInclusion, result.totalSales, 0)
         if (ratio > rule.threshold) {
           alerts.push({
             ruleId: rule.id,

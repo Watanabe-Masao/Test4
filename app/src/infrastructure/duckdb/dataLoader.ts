@@ -15,7 +15,7 @@ import type {
   PurchaseData,
   SpecialSalesData,
   TransferData,
-  ConsumableData,
+  CostInclusionData,
   DepartmentKpiRecord,
   BudgetData,
   InventoryConfig,
@@ -142,7 +142,7 @@ export async function loadMonth(
     rowCounts.transfers = inCount + outCount
 
     // consumables
-    rowCounts.consumables = await insertConsumables(conn, db, data.consumables, year, month)
+    rowCounts.consumables = await insertCostInclusions(conn, db, data.consumables, year, month)
 
     // department_kpi
     rowCounts.department_kpi = await insertDepartmentKpi(
@@ -566,11 +566,11 @@ async function insertTransfers(
   return bulkInsert(conn, db, 'transfers', rows)
 }
 
-/** ConsumableData → consumables テーブル */
-async function insertConsumables(
+/** CostInclusionData → consumables テーブル */
+async function insertCostInclusions(
   conn: AsyncDuckDBConnection,
   db: AsyncDuckDB,
-  data: ConsumableData,
+  data: CostInclusionData,
   year: number,
   month: number,
 ): Promise<number> {

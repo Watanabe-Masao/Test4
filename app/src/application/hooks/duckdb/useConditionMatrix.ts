@@ -30,7 +30,7 @@ export interface MatrixRowData {
   readonly sales: MatrixCell
   readonly txValue: MatrixCell
   readonly discountRate: MatrixCell
-  readonly consumableRate: MatrixCell
+  readonly costInclusionRate: MatrixCell
 }
 
 /** 全体のマトリクス結果 */
@@ -69,8 +69,8 @@ function txValue(sales: number, customers: number): number {
 
 function buildRow(
   label: string,
-  cur: { sales: number; customers: number; discountRate: number; consumableRate: number },
-  prev: { sales: number; customers: number; discountRate: number; consumableRate: number },
+  cur: { sales: number; customers: number; discountRate: number; costInclusionRate: number },
+  prev: { sales: number; customers: number; discountRate: number; costInclusionRate: number },
 ): MatrixRowData {
   return {
     label,
@@ -78,39 +78,39 @@ function buildRow(
     sales: cell(cur.sales, prev.sales),
     txValue: cell(txValue(cur.sales, cur.customers), txValue(prev.sales, prev.customers)),
     discountRate: rateCell(cur.discountRate, prev.discountRate),
-    consumableRate: rateCell(cur.consumableRate, prev.consumableRate),
+    costInclusionRate: rateCell(cur.costInclusionRate, prev.costInclusionRate),
   }
 }
 
 function avgMetrics(
   rows: readonly ConditionMatrixRow[],
   period: 'cur' | 'py' | 'pw',
-): { sales: number; customers: number; discountRate: number; consumableRate: number } {
+): { sales: number; customers: number; discountRate: number; costInclusionRate: number } {
   if (rows.length === 0) {
-    return { sales: 0, customers: 0, discountRate: 0, consumableRate: 0 }
+    return { sales: 0, customers: 0, discountRate: 0, costInclusionRate: 0 }
   }
   const totalSales = rows.reduce((s, r) => s + r[`${period}Sales`], 0)
   const totalCustomers = rows.reduce((s, r) => s + r[`${period}Customers`], 0)
   const totalDiscount = rows.reduce((s, r) => s + r[`${period}Discount`], 0)
   const grossSales = totalSales + totalDiscount
-  const totalConsumable = rows.reduce((s, r) => s + r[`${period}Consumable`], 0)
+  const totalCostInclusion = rows.reduce((s, r) => s + r[`${period}Consumable`], 0)
   return {
     sales: totalSales,
     customers: totalCustomers,
     discountRate: grossSales > 0 ? totalDiscount / grossSales : 0,
-    consumableRate: totalSales > 0 ? totalConsumable / totalSales : 0,
+    costInclusionRate: totalSales > 0 ? totalCostInclusion / totalSales : 0,
   }
 }
 
 function storeMetrics(
   row: ConditionMatrixRow,
   period: 'cur' | 'py' | 'pw',
-): { sales: number; customers: number; discountRate: number; consumableRate: number } {
+): { sales: number; customers: number; discountRate: number; costInclusionRate: number } {
   return {
     sales: row[`${period}Sales`],
     customers: row[`${period}Customers`],
     discountRate: row[`${period}DiscountRate`],
-    consumableRate: row[`${period}ConsumableRate`],
+    costInclusionRate: row[`${period}ConsumableRate`],
   }
 }
 
@@ -179,7 +179,7 @@ export function buildConditionMatrix(
       sales: crossCell(ownYoY.sales, otherYoYRow.sales),
       txValue: crossCell(ownYoY.txValue, otherYoYRow.txValue),
       discountRate: crossCell(ownYoY.discountRate, otherYoYRow.discountRate),
-      consumableRate: crossCell(ownYoY.consumableRate, otherYoYRow.consumableRate),
+      costInclusionRate: crossCell(ownYoY.costInclusionRate, otherYoYRow.costInclusionRate),
     }
     crossWoW = {
       label: '他店比較前週比',
@@ -187,7 +187,7 @@ export function buildConditionMatrix(
       sales: crossCell(ownWoW.sales, otherWoWRow.sales),
       txValue: crossCell(ownWoW.txValue, otherWoWRow.txValue),
       discountRate: crossCell(ownWoW.discountRate, otherWoWRow.discountRate),
-      consumableRate: crossCell(ownWoW.consumableRate, otherWoWRow.consumableRate),
+      costInclusionRate: crossCell(ownWoW.costInclusionRate, otherWoWRow.costInclusionRate),
     }
 
     // 自店の販売構成比変化（全体売上に占めるシェアの変化）
@@ -211,7 +211,7 @@ export function buildConditionMatrix(
       },
       txValue: { ratio: null, current: 0, comparison: 0 },
       discountRate: { ratio: null, current: 0, comparison: 0 },
-      consumableRate: { ratio: null, current: 0, comparison: 0 },
+      costInclusionRate: { ratio: null, current: 0, comparison: 0 },
     }
   }
 

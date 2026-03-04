@@ -377,7 +377,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'coreSales', label: 'コア売上', source: 'StoreResult.totalCoreSales' },
       { name: 'discountRate', label: '売変率', source: 'StoreResult.discountRate' },
       { name: 'markupRate', label: '値入率', source: 'StoreResult.averageMarkupRate' },
-      { name: 'consumableCost', label: '消耗品費', source: 'StoreResult.totalConsumable' },
+      { name: 'costInclusionCost', label: '原価算入費', source: 'StoreResult.totalCostInclusion' },
       {
         name: 'openingInventory',
         label: '期首在庫原価',

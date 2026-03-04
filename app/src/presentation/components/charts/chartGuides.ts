@@ -64,7 +64,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '各ノードの色: 前年比プラス/マイナスを表示',
       'ノードをクリックすると詳細な内訳に遷移',
     ],
-    keyPoints: ['売変ロスと消耗品費が粗利に与える影響に注目してください'],
+    keyPoints: ['売変ロスと原価算入費が粗利に与える影響に注目してください'],
   },
 
   'regression-insight': {

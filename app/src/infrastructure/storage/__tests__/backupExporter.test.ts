@@ -28,7 +28,7 @@ function createTestData(): ImportedData {
           closingInventory: 900000,
           grossProfitBudget: 500000,
           productInventory: null,
-          consumableInventory: null,
+          costInclusionInventory: null,
           inventoryDate: null,
           closingInventoryDay: null,
         },

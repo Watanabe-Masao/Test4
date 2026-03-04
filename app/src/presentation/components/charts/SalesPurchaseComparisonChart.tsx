@@ -282,7 +282,7 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
         </ComposedChart>
       </ResponsiveContainer>
 
-      {/* 店舗サマリーテーブル（ソート可能 + 粗利率・売変率・消耗品率列追加） */}
+      {/* 店舗サマリーテーブル（ソート可能 + 粗利率・売変率・原価算入率列追加） */}
       <CompTable>
         <MiniTable>
           <thead>

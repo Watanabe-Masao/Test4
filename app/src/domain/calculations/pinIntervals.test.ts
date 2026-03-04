@@ -17,7 +17,7 @@ function makeDailyRecord(day: number, sales: number, purchaseCost: number): Dail
     interDepartmentOut: { cost: 0, price: 0 },
     flowers: { cost: 0, price: 0 },
     directProduce: { cost: 0, price: 0 },
-    consumable: { cost: 0, items: [] },
+    costInclusion: { cost: 0, items: [] },
     discountAmount: 0,
     discountAbsolute: 0,
     discountEntries: [],

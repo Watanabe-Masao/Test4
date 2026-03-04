@@ -9,8 +9,12 @@ import {
   formatPointDiff,
 } from '@/domain/calculations/utils'
 import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
-import { DISCOUNT_TYPES, CUSTOM_CATEGORIES } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  PRESET_CATEGORY_DEFS,
+} from '@/domain/constants/customCategories'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
@@ -384,7 +388,7 @@ type DisplayMode = 'rate' | 'amount'
 
 function computeGpAfterConsumable(sr: StoreResult): number {
   return sr.invMethodGrossProfitRate != null
-    ? safeDivide(sr.invMethodGrossProfit! - sr.totalConsumable, sr.totalSales, 0)
+    ? safeDivide(sr.invMethodGrossProfit! - sr.totalCostInclusion, sr.totalSales, 0)
     : sr.estMethodMarginRate
 }
 
@@ -397,7 +401,7 @@ function computeGpAmount(sr: StoreResult): number {
 }
 
 function computeGpAfterConsumableAmount(sr: StoreResult): number {
-  return computeGpAmount(sr) - sr.totalConsumable
+  return computeGpAmount(sr) - sr.totalCostInclusion
 }
 
 // ─── Store breakdown extractors (simple) ───────────────
@@ -417,10 +421,10 @@ function projectedAchievementBreakdown(sr: StoreResult): { value: string; signal
   }
 }
 
-function consumableRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
+function costInclusionRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
-    value: formatPercent(sr.consumableRate),
-    signal: sr.consumableRate <= 0.02 ? 'blue' : sr.consumableRate <= 0.03 ? 'yellow' : 'red',
+    value: formatPercent(sr.costInclusionRate),
+    signal: sr.costInclusionRate <= 0.02 ? 'blue' : sr.costInclusionRate <= 0.03 ? 'yellow' : 'red',
   }
 }
 
@@ -473,6 +477,7 @@ const CUSTOM_CROSS_COLORS: Record<PresetCategoryId, string> = {
   consumables: '#ea580c',
   direct_delivery: '#06b6d4',
   other: '#64748b',
+  uncategorized: '#94a3b8',
 }
 
 /**
@@ -499,15 +504,14 @@ function buildCrossMult(
   // 2. カスタムカテゴリ（supplierTotals を集約）
   const customAgg = new Map<CustomCategory, { cost: number; price: number }>()
   for (const [, st] of sr.supplierTotals) {
-    const customCat = supplierCategoryMap[st.supplierCode]
-    if (!customCat) continue
+    const customCat = supplierCategoryMap[st.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
     const existing = customAgg.get(customCat) ?? { cost: 0, price: 0 }
     customAgg.set(customCat, {
       cost: existing.cost + st.cost,
       price: existing.price + st.price,
     })
   }
-  for (const cc of CUSTOM_CATEGORIES) {
+  for (const cc of PRESET_CATEGORY_DEFS) {
     const pair = customAgg.get(cc.id as CustomCategory)
     if (!pair || (pair.cost === 0 && pair.price === 0)) continue
     items.push({
@@ -589,7 +593,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     {
       label: '粗利率',
       value: formatPercent(gpAfter),
-      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 消耗品率 ${formatPercent(r.consumableRate)} / 差異 ${formatPointDiff(gpAfter - r.grossProfitRateBudget)}`,
+      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 原価算入率 ${formatPercent(r.costInclusionRate)} / 差異 ${formatPointDiff(gpAfter - r.grossProfitRateBudget)}`,
       signal: gpDiffSignal(gpDiff, gpThresholds),
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
@@ -637,14 +641,14 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       metricId: 'discountRate',
       detailBreakdown: 'discountRate',
     },
-    // 5. Consumable Rate
+    // 5. Cost Inclusion Rate
     {
-      label: '消耗品率',
-      value: formatPercent(r.consumableRate),
-      sub: `消耗品費 ${formatCurrency(r.totalConsumable)} / 売上 ${formatCurrency(r.totalSales)}`,
-      signal: r.consumableRate <= 0.02 ? 'blue' : r.consumableRate <= 0.03 ? 'yellow' : 'red',
-      metricId: 'totalConsumable',
-      storeValue: consumableRateBreakdown,
+      label: '原価算入率',
+      value: formatPercent(r.costInclusionRate),
+      sub: `原価算入費 ${formatCurrency(r.totalCostInclusion)} / 売上 ${formatCurrency(r.totalSales)}`,
+      signal: r.costInclusionRate <= 0.02 ? 'blue' : r.costInclusionRate <= 0.03 ? 'yellow' : 'red',
+      metricId: 'totalCostInclusion',
+      storeValue: costInclusionRateBreakdown,
     },
   ]
 
@@ -748,7 +752,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                   <BTd>{formatPercent(sr.grossProfitRateBudget)}</BTd>
                   <BTd>{formatPercent(before)}</BTd>
                   <BTd>
-                    {formatPercent(after)} ({formatPercent(sr.consumableRate)})
+                    {formatPercent(after)} ({formatPercent(sr.costInclusionRate)})
                   </BTd>
                   <BTd $color={sigColor}>{formatPointDiff(after - sr.grossProfitRateBudget)}</BTd>
                 </BTr>
@@ -785,7 +789,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                   <BTd $bold>{formatPercent(r.grossProfitRateBudget)}</BTd>
                   <BTd $bold>{formatPercent(gpBefore)}</BTd>
                   <BTd $bold>
-                    {formatPercent(gpAfter)} ({formatPercent(r.consumableRate)})
+                    {formatPercent(gpAfter)} ({formatPercent(r.costInclusionRate)})
                   </BTd>
                   <BTd $bold $color={totalColor}>
                     {formatPointDiff(gpAfter - r.grossProfitRateBudget)}

@@ -1,5 +1,5 @@
 import type { CostPricePair } from './CostPricePair'
-import type { ConsumableDailyRecord } from './ConsumableItem'
+import type { CostInclusionDailyRecord } from './CostInclusionItem'
 import type { DiscountEntry } from './ClassifiedSales'
 
 /** 移動明細行（from → to のペア別集計） */
@@ -30,7 +30,7 @@ export interface TransferBreakdownEntry {
  * - 産直Excel → directProduce
  * - 移動Excel → interStoreIn/Out, interDepartmentIn/Out, transferBreakdown
  * - 分類別売上CSV → sales, discountAmount, discountEntries
- * - 消耗品 → consumable
+ * - 原価算入費 → costInclusion
  */
 export interface DailySourceData {
   readonly day: number // 1-31
@@ -42,7 +42,7 @@ export interface DailySourceData {
   readonly interDepartmentOut: CostPricePair // 部門間出
   readonly flowers: CostPricePair // 花
   readonly directProduce: CostPricePair // 産直
-  readonly consumable: ConsumableDailyRecord // 消耗品
+  readonly costInclusion: CostInclusionDailyRecord // 原価算入費
   readonly customers?: number // 来店客数（花ファイル由来）
   readonly discountAmount: number // 売変額（符号付き）
   readonly discountEntries: readonly DiscountEntry[] // 売変種別内訳

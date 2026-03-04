@@ -15,7 +15,7 @@ function makePoint(year: number, month: number, totalSales: number): MonthlyData
     storeCount: 1,
     discountRate: null,
     costRate: null,
-    consumableRate: null,
+    costInclusionRate: null,
     averageMarkupRate: null,
   }
 }
