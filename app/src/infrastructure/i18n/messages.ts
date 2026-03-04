@@ -17,7 +17,7 @@ export interface MessageCatalog {
     analysis: string
     daily: string
     transfer: string
-    consumable: string
+    costInclusion: string
     summary: string
     reports: string
     admin: string
@@ -122,7 +122,7 @@ export const jaMessages: MessageCatalog = {
     analysis: '分析',
     daily: '日別',
     transfer: '移動',
-    consumable: '原価算入費',
+    costInclusion: '原価算入費',
     summary: 'サマリ',
     reports: 'レポート',
     admin: '管理',
@@ -213,7 +213,7 @@ export const enMessages: MessageCatalog = {
     analysis: 'Analysis',
     daily: 'Daily',
     transfer: 'Transfer',
-    consumable: 'Consumable',
+    costInclusion: 'Cost Inclusion',
     summary: 'Summary',
     reports: 'Reports',
     admin: 'Admin',

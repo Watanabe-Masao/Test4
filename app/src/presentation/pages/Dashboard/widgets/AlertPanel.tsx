@@ -18,7 +18,7 @@ import type { WidgetContext } from './types'
 const ALERT_METRIC_MAP: Record<string, MetricId> = {
   'gp-rate-target': 'invMethodGrossProfitRate',
   'daily-sales-prev-year': 'salesTotal',
-  'consumable-ratio': 'totalConsumable',
+  'cost-inclusion-ratio': 'totalCostInclusion',
   'budget-achievement': 'budgetAchievementRate',
   'discount-rate': 'discountRate',
 }
@@ -173,7 +173,7 @@ const EmptyState = styled.div`
 
 /** アラートルールが比率ベースかどうかを判定 */
 function isRateAlert(alert: Alert): boolean {
-  return ['gp-rate-target', 'consumable-ratio', 'budget-achievement', 'discount-rate'].includes(
+  return ['gp-rate-target', 'cost-inclusion-ratio', 'budget-achievement', 'discount-rate'].includes(
     alert.ruleId,
   )
 }

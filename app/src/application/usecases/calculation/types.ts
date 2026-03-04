@@ -22,7 +22,7 @@ export interface MonthlyAccumulator {
   totalDiscount: number
   /** 売変種別内訳の月間合計 */
   totalDiscountEntries: DiscountEntry[]
-  totalConsumable: number
+  totalCostInclusion: number
   totalCustomers: number
   salesDays: number
   elapsedDays: number

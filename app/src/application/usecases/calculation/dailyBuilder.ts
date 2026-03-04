@@ -9,7 +9,7 @@ import type {
 import {
   ZERO_COST_PRICE_PAIR,
   addCostPricePairs,
-  ZERO_CONSUMABLE_DAILY,
+  ZERO_COST_INCLUSION_DAILY,
   getDailyTotalCost,
 } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
@@ -31,7 +31,7 @@ export function buildDailyRecords(
   const interStoreOutStore = data.interStoreOut[storeId] ?? {}
   const flowersStore = data.flowers[storeId] ?? {}
   const directProduceStore = data.directProduce[storeId] ?? {}
-  const consumablesStore = data.consumables[storeId] ?? {}
+  const costInclusionsStore = data.consumables[storeId] ?? {}
 
   const daily = new Map<number, DailyRecord>()
   const categoryTotals = new Map<CategoryType, CostPricePair>()
@@ -47,7 +47,7 @@ export function buildDailyRecords(
   let totalPurchasePrice = 0
   let totalDiscount = 0
   let totalDiscountEntries = ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))
-  let totalConsumable = 0
+  let totalCostInclusion = 0
   let totalCustomers = 0
   let salesDays = 0
   let elapsedDays = 0
@@ -68,7 +68,7 @@ export function buildDailyRecords(
     const interOutDay = interStoreOutStore[day]
     const flowerDay = flowersStore[day]
     const directProduceDay = directProduceStore[day]
-    const consumableDay = consumablesStore[day]
+    const costInclusionDay = costInclusionsStore[day]
 
     // 仕入
     const purchase: CostPricePair = purchaseDay
@@ -158,7 +158,7 @@ export function buildDailyRecords(
     }
 
     // 消耗品
-    const consumable = consumableDay ?? ZERO_CONSUMABLE_DAILY
+    const costInclusion = costInclusionDay ?? ZERO_COST_INCLUSION_DAILY
 
     // 売変（分類別売上の集約 — 種別内訳つき）
     const discountEntries = csDay?.discountEntries ?? ZERO_DISCOUNT_ENTRIES
@@ -210,7 +210,7 @@ export function buildDailyRecords(
       interDepartmentIn.cost !== 0 ||
       interDepartmentOut.cost !== 0 ||
       discountAbsolute !== 0
-    const hasData = hasSalesData || consumable.cost !== 0
+    const hasData = hasSalesData || costInclusion.cost !== 0
 
     if (hasData) {
       if (hasSalesData) elapsedDays = day
@@ -238,7 +238,7 @@ export function buildDailyRecords(
         interDepartmentOut,
         flowers,
         directProduce,
-        consumable,
+        costInclusion,
         customers: dayCustomers,
         discountAmount,
         discountAbsolute,
@@ -268,7 +268,7 @@ export function buildDailyRecords(
       totalDiscountEntries,
       discountEntries,
     ) as typeof totalDiscountEntries
-    totalConsumable += consumable.cost
+    totalCostInclusion += costInclusion.cost
     totalCustomers += dayCustomers
 
     // 移動集計
@@ -298,7 +298,7 @@ export function buildDailyRecords(
     totalPurchasePrice,
     totalDiscount,
     totalDiscountEntries,
-    totalConsumable,
+    totalCostInclusion,
     totalCustomers,
     salesDays,
     elapsedDays,

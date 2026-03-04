@@ -6,7 +6,7 @@ import type {
   PurchaseData,
   SpecialSalesData,
   TransferData,
-  ConsumableData,
+  CostInclusionData,
   BudgetData,
 } from '@/domain/models'
 import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models'
@@ -590,7 +590,7 @@ export function filterDataForMonth(
       ? ((partitions.interStoreOut[mk] ?? {}) as TransferData)
       : data.interStoreOut,
     consumables: has(partitions.consumables)
-      ? ((partitions.consumables[mk] ?? {}) as ConsumableData)
+      ? ((partitions.consumables[mk] ?? {}) as CostInclusionData)
       : data.consumables,
     budget: has(partitions.budget)
       ? (partitions.budget[mk] ?? new Map<string, BudgetData>())

@@ -18,7 +18,7 @@ import type {
   StoreDaySummaryIndex,
   StoreDaySummaryCache,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, ZERO_CONSUMABLE_DAILY } from '@/domain/models'
+import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import { hashData } from '@/application/services/hash'
@@ -64,7 +64,7 @@ function buildStoreDay(
   const interStoreOutStore = data.interStoreOut[storeId] ?? {}
   const flowersStore = data.flowers[storeId] ?? {}
   const directProduceStore = data.directProduce[storeId] ?? {}
-  const consumablesStore = data.consumables[storeId] ?? {}
+  const costInclusionsStore = data.consumables[storeId] ?? {}
 
   const result: Record<number, StoreDaySummary> = {}
 
@@ -75,7 +75,7 @@ function buildStoreDay(
     const interOutDay = interStoreOutStore[day]
     const flowerDay = flowersStore[day]
     const directProduceDay = directProduceStore[day]
-    const consumableDay = consumablesStore[day]
+    const costInclusionDay = costInclusionsStore[day]
 
     // 仕入
     const purchaseCost = purchaseDay ? purchaseDay.total.cost : 0
@@ -128,7 +128,7 @@ function buildStoreDay(
     }
 
     // 消耗品
-    const consumableCost = (consumableDay ?? ZERO_CONSUMABLE_DAILY).cost
+    const costInclusionCost = (costInclusionDay ?? ZERO_COST_INCLUSION_DAILY).cost
 
     // データがない日はスキップ
     const hasSalesData =
@@ -140,7 +140,7 @@ function buildStoreDay(
       interDeptInCost !== 0 ||
       interDeptOutCost !== 0 ||
       discountAbsolute !== 0
-    const hasData = hasSalesData || consumableCost !== 0
+    const hasData = hasSalesData || costInclusionCost !== 0
 
     if (!hasData) continue
 
@@ -171,7 +171,7 @@ function buildStoreDay(
       flowersPrice,
       directProduceCost,
       directProducePrice,
-      consumableCost,
+      costInclusionCost,
       customers,
     }
   }

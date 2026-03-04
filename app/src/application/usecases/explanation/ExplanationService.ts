@@ -395,7 +395,7 @@ export function generateExplanations(
   map.set('estMethodCogs', {
     metric: 'estMethodCogs',
     title: '推定原価（推定法・理論値）',
-    formula: '推定原価 = コア売上 ÷ (1 - 売変率) × (1 - 値入率) + 消耗品費',
+    formula: '推定原価 = コア売上 ÷ (1 - 売変率) × (1 - 値入率) + 原価算入費',
     value: result.estMethodCogs,
     unit: 'yen',
     scope,
@@ -403,7 +403,7 @@ export function generateExplanations(
       inp('コア売上', result.totalCoreSales, 'yen', 'coreSales'),
       inp('売変率', result.discountRate, 'rate', 'discountRate'),
       inp('コア値入率', result.coreMarkupRate, 'rate', 'coreMarkupRate'),
-      inp('消耗品費', result.totalConsumable, 'yen', 'totalConsumable'),
+      inp('原価算入費', result.totalCostInclusion, 'yen', 'totalCostInclusion'),
     ],
     evidenceRefs: [],
   })
@@ -473,23 +473,23 @@ export function generateExplanations(
 
   // ─── 消耗品 ──────────────────────────────────────────
 
-  map.set('totalConsumable', {
-    metric: 'totalConsumable',
-    title: '消耗品費',
-    formula: '消耗品費 = Σ 日別消耗品費',
-    value: result.totalConsumable,
+  map.set('totalCostInclusion', {
+    metric: 'totalCostInclusion',
+    title: '原価算入費',
+    formula: '原価算入費 = Σ 日別原価算入費',
+    value: result.totalCostInclusion,
     unit: 'yen',
     scope,
     inputs: [
-      inp('消耗品費合計', result.totalConsumable, 'yen'),
-      inp('消耗品率', result.consumableRate, 'rate'),
+      inp('原価算入費合計', result.totalCostInclusion, 'yen'),
+      inp('原価算入率', result.costInclusionRate, 'rate'),
     ],
     breakdown: dailyBreakdown(
       result.daily,
-      (r) => r.consumable.cost,
+      (r) => r.costInclusion.cost,
       (r) => {
         const d: BreakdownDetail[] = []
-        for (const item of r.consumable.items) {
+        for (const item of r.costInclusion.items) {
           d.push({ label: item.itemName || item.itemCode, value: item.cost, unit: 'yen' })
         }
         return d
@@ -811,8 +811,8 @@ export function generateTextSummary(
     }
     warnings.push(discountWarning)
   }
-  if (result.consumableRate > 0.03) {
-    warnings.push(`消耗品率 ${fmtRate(result.consumableRate)}%`)
+  if (result.costInclusionRate > 0.03) {
+    warnings.push(`原価算入率 ${fmtRate(result.costInclusionRate)}%`)
   }
   if (warnings.length > 0) {
     lines.push(`注意: ${warnings.join('、')}`)

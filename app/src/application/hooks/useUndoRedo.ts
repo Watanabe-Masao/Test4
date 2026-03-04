@@ -83,7 +83,7 @@ export function useUndoRedo() {
           closingInventory: null,
           grossProfitBudget: null,
           productInventory: null,
-          consumableInventory: null,
+          costInclusionInventory: null,
           inventoryDate: null,
           closingInventoryDay: null,
         })

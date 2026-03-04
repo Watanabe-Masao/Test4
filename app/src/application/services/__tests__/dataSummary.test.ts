@@ -140,7 +140,7 @@ describe('computeLoadedTypes', () => {
             closingInventory: 120000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },

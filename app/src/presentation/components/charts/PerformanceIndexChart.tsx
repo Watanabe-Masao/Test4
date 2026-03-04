@@ -169,10 +169,10 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       const customers = rec?.customers ?? 0
       const discount = rec?.discountAbsolute ?? 0
       const cost = rec ? rec.totalCost : 0
-      const consumable = rec?.consumable.cost ?? 0
+      const costInclusion = rec?.costInclusion.cost ?? 0
       const txValue = customers > 0 ? calculateTransactionValue(sales, customers) : null
       const discountRate = grossSales > 0 ? safeDivide(discount, grossSales, 0) : 0
-      const gpRate = sales > 0 ? safeDivide(sales - cost - consumable, sales, 0) : 0
+      const gpRate = sales > 0 ? safeDivide(sales - cost - costInclusion, sales, 0) : 0
 
       // PI値 = 売上 / 客数 × 1000
       const pi = customers > 0 ? safeDivide(sales, customers, 0) * 1000 : null

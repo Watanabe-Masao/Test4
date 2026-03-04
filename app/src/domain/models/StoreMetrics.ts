@@ -55,8 +55,8 @@ export interface StoreMetrics {
   readonly coreMarkupRate: number
 
   // ── 消耗品 ──
-  readonly totalConsumable: number
-  readonly consumableRate: number
+  readonly totalCostInclusion: number
+  readonly costInclusionRate: number
 
   // ── 客数 ──
   readonly totalCustomers: number

@@ -92,7 +92,7 @@ describe('calculateStoreResult', () => {
             closingInventory: 120000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -186,7 +186,7 @@ describe('calculateStoreResult', () => {
             closingInventory: 110000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -262,8 +262,8 @@ describe('calculateStoreResult', () => {
 
     const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
 
-    expect(result.totalConsumable).toBe(3000)
-    expect(result.consumableRate).toBeCloseTo(3000 / 50000, 6)
+    expect(result.totalCostInclusion).toBe(3000)
+    expect(result.costInclusionRate).toBeCloseTo(3000 / 50000, 6)
   })
 
   it('店間移動の集計', () => {
@@ -469,7 +469,7 @@ describe('aggregateStoreResults', () => {
             closingInventory: 95000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -482,7 +482,7 @@ describe('aggregateStoreResults', () => {
             closingInventory: 190000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },

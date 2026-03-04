@@ -166,7 +166,7 @@ export const StructuralOverviewChart = memo(function StructuralOverviewChart({
     const totalSales = r.totalSales
     const totalCost = r.inventoryCost + r.deliverySalesCost
     const discount = r.totalDiscount
-    const consumable = r.totalConsumable
+    const costInclusion = r.totalCostInclusion
     const gpInv = r.invMethodGrossProfit
     const gpEst = r.estMethodMargin
     const budget = r.grossProfitBudget
@@ -187,7 +187,7 @@ export const StructuralOverviewChart = memo(function StructuralOverviewChart({
         yoy: yoy(totalCost, prev ? prev.inventoryCost + prev.deliverySalesCost : undefined),
       },
       discount: { value: discount, yoy: yoy(discount, prev?.totalDiscount) },
-      consumable: { value: consumable, yoy: yoy(consumable, prev?.totalConsumable) },
+      costInclusion: { value: costInclusion, yoy: yoy(costInclusion, prev?.totalCostInclusion) },
       // 右列: 利益
       gpInv: {
         value: gpInv,
@@ -281,11 +281,11 @@ export const StructuralOverviewChart = memo(function StructuralOverviewChart({
             </NodeValue>
             <NodeSub>売変率 {toPct(nodes.discountRate)}</NodeSub>
           </FlowNode>
-          <FlowNode $color={palette.orange} $height={h(nodes.consumable.value)}>
-            <NodeLabel>消耗品費</NodeLabel>
+          <FlowNode $color={palette.orange} $height={h(nodes.costInclusion.value)}>
+            <NodeLabel>原価算入費</NodeLabel>
             <NodeValue>
-              {fmtMan(nodes.consumable.value)}
-              {renderYoy(nodes.consumable.yoy)}
+              {fmtMan(nodes.costInclusion.value)}
+              {renderYoy(nodes.costInclusion.yoy)}
             </NodeValue>
           </FlowNode>
         </Column>
@@ -342,7 +342,7 @@ export const StructuralOverviewChart = memo(function StructuralOverviewChart({
           <SumValue>
             原価 {toPct(safeDivide(nodes.cost.value, nodes.grossSales.value, 0))} / 売変{' '}
             {toPct(nodes.discountRate)} / 消耗品{' '}
-            {toPct(safeDivide(nodes.consumable.value, nodes.totalSales.value, 0))}
+            {toPct(safeDivide(nodes.costInclusion.value, nodes.totalSales.value, 0))}
           </SumValue>
         </SumCard>
         <SumCard $color={sc.positive}>

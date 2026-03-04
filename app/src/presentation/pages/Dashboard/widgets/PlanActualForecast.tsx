@@ -176,20 +176,20 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             sub={`予算比: ${formatPointDiff(actualGPRate - r.grossProfitRateBudget)}`}
             subColor={sc.cond(actualGPRate >= r.grossProfitRateBudget)}
           />
-          {r.totalConsumable > 0 &&
+          {r.totalCostInclusion > 0 &&
             (() => {
               const isInvMethod = r.invMethodGrossProfitRate != null
               const beforeRate = isInvMethod
                 ? r.invMethodGrossProfitRate!
-                : safeDivide(r.estMethodMargin + r.totalConsumable, r.totalCoreSales, 0)
+                : safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
               const afterRate = isInvMethod
-                ? safeDivide(r.invMethodGrossProfit! - r.totalConsumable, r.totalSales, 0)
+                ? safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
                 : r.estMethodMarginRate
               return (
                 <>
                   <ExecMetric
-                    label="原価算入比（消耗品費）"
-                    value={formatCurrency(r.totalConsumable)}
+                    label="原価算入比（原価算入費）"
+                    value={formatCurrency(r.totalCostInclusion)}
                   />
                   <ExecMetric label="粗利率（消耗品控除前）" value={formatPercent(beforeRate)} />
                   <ExecMetric

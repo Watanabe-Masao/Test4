@@ -20,8 +20,8 @@ export interface PeriodMetrics {
   readonly grossSales: number
   readonly discountRate: number
   readonly totalCost: number
-  readonly totalConsumable: number
-  readonly consumableRate: number
+  readonly totalCostInclusion: number
+  readonly costInclusionRate: number
   readonly salesDays: number
 }
 
@@ -88,10 +88,10 @@ function aggregateCte(alias: string, whereClause: string): string {
           + COALESCE(SUM(s.inter_store_in_cost), 0) + COALESCE(SUM(s.inter_store_out_cost), 0)
           + COALESCE(SUM(s.inter_dept_in_cost), 0) + COALESCE(SUM(s.inter_dept_out_cost), 0)
           AS total_cost,
-        COALESCE(SUM(s.consumable_cost), 0) AS total_consumable,
+        COALESCE(SUM(s.cost_inclusion_cost), 0) AS total_cost_inclusion,
         CASE WHEN COALESCE(SUM(s.sales), 0) > 0
-          THEN COALESCE(SUM(s.consumable_cost), 0) / COALESCE(SUM(s.sales), 0)
-          ELSE 0 END AS consumable_rate,
+          THEN COALESCE(SUM(s.cost_inclusion_cost), 0) / COALESCE(SUM(s.sales), 0)
+          ELSE 0 END AS cost_inclusion_rate,
         COUNT(DISTINCT CASE WHEN s.sales > 0 THEN s.date_key END) AS sales_days
       FROM store_day_summary s
       WHERE ${whereClause}
@@ -140,8 +140,8 @@ export async function queryConditionMatrix(
       c.gross_sales      AS cur_gross_sales,
       c.discount_rate    AS cur_discount_rate,
       c.total_cost       AS cur_total_cost,
-      c.total_consumable AS cur_consumable,
-      c.consumable_rate  AS cur_consumable_rate,
+      c.total_cost_inclusion AS cur_costInclusion,
+      c.cost_inclusion_rate  AS cur_cost_inclusion_rate,
       c.sales_days       AS cur_sales_days,
       -- 前年同期
       COALESCE(p.total_sales, 0)      AS py_sales,
@@ -150,8 +150,8 @@ export async function queryConditionMatrix(
       COALESCE(p.gross_sales, 0)       AS py_gross_sales,
       COALESCE(p.discount_rate, 0)     AS py_discount_rate,
       COALESCE(p.total_cost, 0)        AS py_total_cost,
-      COALESCE(p.total_consumable, 0)  AS py_consumable,
-      COALESCE(p.consumable_rate, 0)   AS py_consumable_rate,
+      COALESCE(p.total_cost_inclusion, 0)  AS py_costInclusion,
+      COALESCE(p.cost_inclusion_rate, 0)   AS py_cost_inclusion_rate,
       COALESCE(p.sales_days, 0)        AS py_sales_days,
       -- 前週同期
       COALESCE(w.total_sales, 0)      AS pw_sales,
@@ -160,8 +160,8 @@ export async function queryConditionMatrix(
       COALESCE(w.gross_sales, 0)       AS pw_gross_sales,
       COALESCE(w.discount_rate, 0)     AS pw_discount_rate,
       COALESCE(w.total_cost, 0)        AS pw_total_cost,
-      COALESCE(w.total_consumable, 0)  AS pw_consumable,
-      COALESCE(w.consumable_rate, 0)   AS pw_consumable_rate,
+      COALESCE(w.total_cost_inclusion, 0)  AS pw_costInclusion,
+      COALESCE(w.cost_inclusion_rate, 0)   AS pw_cost_inclusion_rate,
       COALESCE(w.sales_days, 0)        AS pw_sales_days
     FROM cur c
     LEFT JOIN py p ON c.store_id = p.store_id

@@ -132,12 +132,12 @@ const CloseBtn = styled.button`
 
 // ─── 通知履歴パネル ──────────────────────────────────
 const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
+  all: unset;
+  cursor: pointer;
   position: fixed;
   bottom: ${({ theme }) => theme.spacing[8]};
   right: calc(${({ theme }) => theme.spacing[8]} + 440px);
   z-index: 3001;
-  all: unset;
-  cursor: pointer;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -149,7 +149,6 @@ const HistoryToggle = styled.button<{ $hasUnread: boolean }>`
   font-size: 1rem;
   color: ${({ theme }) => theme.colors.text3};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  position: relative;
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
     color: ${({ theme }) => theme.colors.text};

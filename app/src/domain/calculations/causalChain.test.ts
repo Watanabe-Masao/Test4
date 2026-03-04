@@ -39,8 +39,8 @@ function makeResult(overrides: Partial<StoreResult> = {}): StoreResult {
     ] as readonly DiscountEntry[],
     averageMarkupRate: 0.3,
     coreMarkupRate: 0.28,
-    totalConsumable: 100_000,
-    consumableRate: 0.01,
+    totalCostInclusion: 100_000,
+    costInclusionRate: 0.01,
     budget: 12_000_000,
     grossProfitBudget: 3_000_000,
     grossProfitRateBudget: 0.25,
@@ -103,12 +103,12 @@ describe('causalChain', () => {
       expect(prevYearFactor!.formatted).toContain('-')
     })
 
-    it('Step 1 insightに粗利率の構成成分（原価率/売変率/消耗品率）が含まれる', () => {
+    it('Step 1 insightに粗利率の構成成分（原価率/売変率/原価算入率）が含まれる', () => {
       const steps = buildCausalSteps(makeResult(), undefined)
 
       expect(steps[0].insight).toContain('原価率')
       expect(steps[0].insight).toContain('売変率')
-      expect(steps[0].insight).toContain('消耗品率')
+      expect(steps[0].insight).toContain('原価算入率')
     })
 
     it('Step 1 insightに推奨文言や解釈が含まれない', () => {
@@ -134,7 +134,7 @@ describe('causalChain', () => {
       expect(step2.factors.map((f) => f.label)).toEqual([
         '原価率変動',
         '売変率変動',
-        '消耗品率変動',
+        '原価算入率変動',
       ])
     })
 
@@ -272,7 +272,7 @@ describe('causalChain', () => {
         grossProfitRate: null,
         costRate: null,
         discountRate: 0.03,
-        consumableRate: null,
+        costInclusionRate: null,
         discountEntries: [],
         totalSales: null,
         totalCustomers: null,
@@ -297,7 +297,7 @@ describe('causalChain', () => {
         grossProfitRate: null,
         costRate: null,
         discountRate: 0.03,
-        consumableRate: null,
+        costInclusionRate: null,
         discountEntries: [],
         totalSales: null,
         totalCustomers: null,
@@ -320,7 +320,7 @@ describe('causalChain', () => {
         deliverySalesCost: 500_000,
         grossSales: 10_000_000,
         discountRate: 0.05,
-        consumableRate: 0.01,
+        costInclusionRate: 0.01,
         totalSales: 10_000_000,
         totalCustomers: 5_000,
         discountEntries: [
@@ -333,7 +333,7 @@ describe('causalChain', () => {
       expect(prev.grossProfitRate).toBe(0.25) // invMethod優先
       expect(prev.costRate).toBeCloseTo(0.7, 2) // (6.5M + 0.5M) / 10M
       expect(prev.discountRate).toBe(0.05)
-      expect(prev.consumableRate).toBe(0.01)
+      expect(prev.costInclusionRate).toBe(0.01)
       expect(prev.discountEntries).toHaveLength(1)
       expect(prev.totalSales).toBe(10_000_000)
       expect(prev.totalCustomers).toBe(5_000)

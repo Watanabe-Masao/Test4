@@ -17,10 +17,10 @@ export type { TransferRecord, TransferData } from './TransferProcessor'
 export { processSpecialSales } from './SpecialSalesProcessor'
 export type { SpecialSalesData } from './SpecialSalesProcessor'
 export {
-  processConsumables,
-  mergeConsumableData,
-  mergePartitionedConsumables,
-} from './ConsumableProcessor'
-export type { ConsumableData } from './ConsumableProcessor'
+  processCostInclusions,
+  mergeCostInclusionData,
+  mergePartitionedCostInclusions,
+} from './CostInclusionProcessor'
+export type { CostInclusionData } from './CostInclusionProcessor'
 export { processCategoryTimeSales, mergeCategoryTimeSalesData } from './CategoryTimeSalesProcessor'
 export { processDepartmentKpi, mergeDepartmentKpiData } from './DepartmentKpiProcessor'

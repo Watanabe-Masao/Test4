@@ -55,7 +55,7 @@ export interface CausalChainPrevInput {
   readonly grossProfitRate: number | null
   readonly costRate: number | null
   readonly discountRate: number
-  readonly consumableRate: number | null
+  readonly costInclusionRate: number | null
   readonly discountEntries: readonly DiscountEntry[]
   readonly totalSales: number | null
   readonly totalCustomers: number | null
@@ -67,7 +67,7 @@ export function storeResultToCausalPrev(r: StoreResult): CausalChainPrevInput {
     grossProfitRate: getEffectiveGrossProfitRate(r),
     costRate: safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0),
     discountRate: r.discountRate,
-    consumableRate: r.consumableRate,
+    costInclusionRate: r.costInclusionRate,
     discountEntries: r.discountEntries,
     totalSales: r.totalSales,
     totalCustomers: r.totalCustomers,
@@ -118,7 +118,7 @@ export function buildCausalSteps(
 
   const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
   const discountRate = r.discountRate
-  const consumableRate = r.consumableRate
+  const costInclusionRate = r.costInclusionRate
 
   steps.push({
     title: '粗利率の状況',
@@ -152,17 +152,18 @@ export function buildCausalSteps(
       },
     ],
     maxFactorIndex: 0,
-    insight: `構成: 原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
+    insight: `構成: 原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
   })
 
   // Step 2: 要因分解
   const prevCostRate = prev?.costRate ?? null
   const prevDiscountRate = prev ? prev.discountRate : null
-  const prevConsumableRate = prev?.consumableRate ?? null
+  const prevCostInclusionRate = prev?.costInclusionRate ?? null
 
   const costDelta = prevCostRate != null ? costRate - prevCostRate : 0
   const discountDelta = prevDiscountRate != null ? discountRate - prevDiscountRate : 0
-  const consumableDelta = prevConsumableRate != null ? consumableRate - prevConsumableRate : 0
+  const costInclusionDelta =
+    prevCostInclusionRate != null ? costInclusionRate - prevCostInclusionRate : 0
 
   const factors2: CausalFactor[] = [
     {
@@ -178,9 +179,9 @@ export function buildCausalSteps(
       colorHint: 'warning',
     },
     {
-      label: '消耗品率変動',
-      value: Math.abs(consumableDelta),
-      formatted: `${consumableDelta >= 0 ? '+' : ''}${fmtPct(consumableDelta)}`,
+      label: '原価算入率変動',
+      value: Math.abs(costInclusionDelta),
+      formatted: `${costInclusionDelta >= 0 ? '+' : ''}${fmtPct(costInclusionDelta)}`,
       colorHint: 'caution',
     },
   ]
@@ -204,13 +205,13 @@ export function buildCausalSteps(
 
   steps.push({
     title: '粗利率変動の要因分解',
-    description: `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
+    description: `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
     factors: factors2,
     maxFactorIndex: maxIdx2,
     insight:
       shapleyInsight ||
       (prev
-        ? `原価率差 ${fmtDelta(costDelta)} / 売変率差 ${fmtDelta(discountDelta)} / 消耗品率差 ${fmtDelta(consumableDelta)}`
+        ? `原価率差 ${fmtDelta(costDelta)} / 売変率差 ${fmtDelta(discountDelta)} / 原価算入率差 ${fmtDelta(costInclusionDelta)}`
         : '前年データなし'),
   })
 
@@ -272,14 +273,14 @@ export function buildCausalSteps(
 
   const summaryLines: string[] = [
     `売上 ${fmtComma(r.totalSales)}円 / 客数 ${fmtComma(r.totalCustomers)}人 / 客単価 ${fmtComma(safeDivide(r.totalSales, r.totalCustomers, 0))}円`,
-    `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 消耗品率 ${fmtPct(consumableRate)}`,
+    `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
   ]
 
   if (prev) {
     const lines: string[] = []
     if (prevCostRate != null) lines.push(`原価率差 ${fmtDelta(costDelta)}`)
     if (prevDiscountRate != null) lines.push(`売変率差 ${fmtDelta(discountDelta)}`)
-    if (prevConsumableRate != null) lines.push(`消耗品率差 ${fmtDelta(consumableDelta)}`)
+    if (prevCostInclusionRate != null) lines.push(`原価算入率差 ${fmtDelta(costInclusionDelta)}`)
     if (lines.length > 0) summaryLines.push(lines.join(' / '))
   }
 

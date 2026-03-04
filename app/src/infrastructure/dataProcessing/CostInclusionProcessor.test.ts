@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { processConsumables, mergeConsumableData } from './ConsumableProcessor'
+import { processCostInclusions, mergeCostInclusionData } from './CostInclusionProcessor'
 
-describe('processConsumables', () => {
+describe('processCostInclusions', () => {
   it('基本的な消耗品データ処理', () => {
     const rows = [
       ['勘定コード', '品目コード', '品目名', '数量', '原価', '日付'],
@@ -10,7 +10,7 @@ describe('processConsumables', () => {
       ['99999', 'B001', '対象外', 5, 1000, '2026-02-01'], // フィルタ外
     ]
 
-    const result = processConsumables(rows, '01_消耗品.xlsx')
+    const result = processCostInclusions(rows, '01_消耗品.xlsx')
     const dayData = result['2026-2']?.['1']?.[1]
     expect(dayData?.cost).toBe(8000) // 5000 + 3000
     expect(dayData?.items).toHaveLength(2)
@@ -19,21 +19,21 @@ describe('processConsumables', () => {
 
   it('勘定コード81257以外はスキップ', () => {
     const rows = [['header'], ['12345', 'A001', 'X', 1, 1000, '2026-02-01']]
-    const result = processConsumables(rows, '01_test.xlsx')
+    const result = processCostInclusions(rows, '01_test.xlsx')
     expect(Object.keys(result)).toHaveLength(0)
   })
 
   it('ファイル名から店舗コード抽出', () => {
     const rows = [['header'], ['81257', 'A', 'B', 1, 100, '2026-02-01']]
-    const result1 = processConsumables(rows, '01_file.xlsx')
+    const result1 = processCostInclusions(rows, '01_file.xlsx')
     expect(result1['2026-2']?.['1']).toBeDefined()
 
-    const result2 = processConsumables(rows, '12_file.csv')
+    const result2 = processCostInclusions(rows, '12_file.csv')
     expect(result2['2026-2']?.['12']).toBeDefined()
   })
 
   it('ファイル名に数字がない場合は空', () => {
-    const result = processConsumables(
+    const result = processCostInclusions(
       [['h'], ['81257', 'A', 'B', 1, 100, '2026-02-01']],
       'no_digits.xlsx',
     )
@@ -41,11 +41,11 @@ describe('processConsumables', () => {
   })
 
   it('行数不足の場合は空', () => {
-    expect(processConsumables([['header']], '01_test.xlsx')).toEqual({})
+    expect(processCostInclusions([['header']], '01_test.xlsx')).toEqual({})
   })
 })
 
-describe('mergeConsumableData', () => {
+describe('mergeCostInclusionData', () => {
   it('追加モードでマージ', () => {
     const existing = {
       '1': {
@@ -64,7 +64,7 @@ describe('mergeConsumableData', () => {
       },
     }
 
-    const merged = mergeConsumableData(existing, incoming)
+    const merged = mergeCostInclusionData(existing, incoming)
     expect(merged['1']?.[1]?.cost).toBe(8000)
     expect(merged['1']?.[1]?.items).toHaveLength(2)
   })
@@ -76,7 +76,7 @@ describe('mergeConsumableData', () => {
     const incoming = {
       '2': { 1: { cost: 200, items: [] } },
     }
-    const merged = mergeConsumableData(existing, incoming)
+    const merged = mergeCostInclusionData(existing, incoming)
     expect(merged['1']?.[1]?.cost).toBe(100)
     expect(merged['2']?.[1]?.cost).toBe(200)
   })
@@ -90,7 +90,7 @@ describe('mergeConsumableData', () => {
       '1': { 1: { cost: 8000, items: [...items] } },
     }
     // 同一データを再マージ
-    const merged = mergeConsumableData(data, data)
+    const merged = mergeCostInclusionData(data, data)
     expect(merged['1']?.[1]?.items).toHaveLength(2)
     expect(merged['1']?.[1]?.cost).toBe(8000) // 倍増しない
   })
@@ -122,7 +122,7 @@ describe('mergeConsumableData', () => {
         },
       },
     }
-    const merged = mergeConsumableData(existing, incoming)
+    const merged = mergeCostInclusionData(existing, incoming)
     expect(merged['1']?.[1]?.items).toHaveLength(1)
     expect(merged['1']?.[1]?.items[0].itemName).toBe('洗剤（大）')
     expect(merged['1']?.[1]?.cost).toBe(6000)
@@ -155,7 +155,7 @@ describe('mergeConsumableData', () => {
         },
       },
     }
-    const merged = mergeConsumableData(existing, incoming)
+    const merged = mergeCostInclusionData(existing, incoming)
     expect(merged['1']?.[1]?.items).toHaveLength(2)
     expect(merged['1']?.[1]?.cost).toBe(8000)
   })

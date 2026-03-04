@@ -1,4 +1,4 @@
-import type { ConsumableDailyRecord } from './ConsumableItem'
+import type { CostInclusionDailyRecord } from './CostInclusionItem'
 
 /**
  * 店舗×日別の2次元インデックス付きレコード。
@@ -130,8 +130,8 @@ export interface SpecialSalesDayEntry {
 /** 花/産直パース結果: storeId → day → SpecialSalesDayEntry */
 export type SpecialSalesData = StoreDayRecord<SpecialSalesDayEntry>
 
-/** 消耗品パース結果: storeId → day → ConsumableDailyRecord */
-export type ConsumableData = StoreDayRecord<ConsumableDailyRecord>
+/** 消耗品パース結果: storeId → day → CostInclusionDailyRecord */
+export type CostInclusionData = StoreDayRecord<CostInclusionDailyRecord>
 
 /** 部門別KPIレコード */
 export interface DepartmentKpiRecord {

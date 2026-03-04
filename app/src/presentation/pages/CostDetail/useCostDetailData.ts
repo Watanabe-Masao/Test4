@@ -2,16 +2,19 @@ import { useState, useMemo } from 'react'
 import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { DailyRecord, TransferBreakdownEntry, CustomCategory } from '@/domain/models'
-import { CUSTOM_CATEGORIES } from '@/domain/models'
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/domain/constants/categories'
 import type { CategoryType } from '@/domain/models'
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  PRESET_CATEGORY_DEFS,
+} from '@/domain/constants/customCategories'
 import { CATEGORY_COLORS, CUSTOM_CATEGORY_COLORS } from '@/presentation/pages/Category/categoryData'
 
 // ─── Types ─────────────────────────────────────────────
 
-export type ActiveTab = 'transfer' | 'consumable' | 'purchase'
+export type ActiveTab = 'transfer' | 'costInclusion' | 'purchase'
 export type TransferType = 'interStore' | 'interDepartment'
-export type ConsumableViewMode = 'item' | 'account' | 'daily'
+export type CostInclusionViewMode = 'item' | 'account' | 'daily'
 
 export interface FlowEntry {
   from: string
@@ -53,7 +56,7 @@ export interface FlowGroup {
   totalPrice: number
 }
 
-export interface DailyConsumableEntry {
+export interface DailyCostInclusionEntry {
   day: number
   cost: number
   itemCount: number
@@ -266,13 +269,13 @@ function buildTransferPivot(
   }
 }
 
-// ─── Consumable helpers ───────────────────────────────
+// ─── CostInclusion helpers ───────────────────────────────
 
 function aggregateByItem(days: [number, DailyRecord][]): ItemAggregate[] {
   const map = new Map<string, ItemAggregate>()
   const daySeen = new Map<string, Set<number>>()
   for (const [day, rec] of days) {
-    for (const item of rec.consumable.items) {
+    for (const item of rec.costInclusion.items) {
       const key = item.itemCode
       const existing = map.get(key)
       if (existing) {
@@ -343,7 +346,7 @@ function buildPurchasePivot(
     market: (rec) => rec.purchase,
     flowers: (rec) => rec.flowers,
     directProduce: (rec) => rec.directProduce,
-    consumables: (rec) => ({ cost: rec.consumable.cost, price: 0 }),
+    consumables: (rec) => ({ cost: rec.costInclusion.cost, price: 0 }),
     interStore: (rec) => ({
       cost: rec.interStoreIn.cost + rec.interStoreOut.cost,
       price: rec.interStoreIn.price + rec.interStoreOut.price,
@@ -397,12 +400,12 @@ function buildPurchasePivot(
     for (const [, rec] of days) {
       for (const [suppCode, pair] of rec.supplierBreakdown) {
         if (pair.cost === 0 && pair.price === 0) continue
-        const cc = supplierCategoryMap[suppCode]
-        if (cc) customCatHasData.add(cc)
+        const cc = supplierCategoryMap[suppCode] ?? UNCATEGORIZED_CATEGORY_ID
+        customCatHasData.add(cc)
       }
     }
 
-    for (const cc of CUSTOM_CATEGORIES) {
+    for (const cc of PRESET_CATEGORY_DEFS) {
       if (!customCatHasData.has(cc.id as CustomCategory)) continue
       customColumns.push({
         key: cc.id,
@@ -439,8 +442,8 @@ function buildPurchasePivot(
     // カスタムカテゴリ値の取得（supplierBreakdown から集約）
     if (hasCustomCategories) {
       for (const [suppCode, pair] of rec.supplierBreakdown) {
-        const cc = supplierCategoryMap[suppCode]
-        if (!cc || !customKeys.has(cc)) continue
+        const cc = supplierCategoryMap[suppCode] ?? UNCATEGORIZED_CATEGORY_ID
+        if (!customKeys.has(cc)) continue
         cells[cc] = {
           cost: cells[cc].cost + pair.cost,
           price: cells[cc].price + pair.price,
@@ -490,8 +493,8 @@ export function useCostDetailData() {
   const [transferType, setTransferType] = useState<TransferType>('interStore')
   const [selectedPair, setSelectedPair] = useState<string | null>(null)
 
-  // Consumable state
-  const [consumableView, setConsumableView] = useState<ConsumableViewMode>('item')
+  // CostInclusion state
+  const [costInclusionView, setCostInclusionView] = useState<CostInclusionViewMode>('item')
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
 
   // ─── Sorted daily entries ───────────────────────────
@@ -583,7 +586,7 @@ export function useCostDetailData() {
     [days, settings.supplierCategoryMap],
   )
 
-  // ─── Consumable data ────────────────────────────────
+  // ─── CostInclusion data ────────────────────────────────
   const itemAggregates = useMemo(() => aggregateByItem(days), [days])
   const accountAggregates = useMemo(() => aggregateByAccount(itemAggregates), [itemAggregates])
 
@@ -593,7 +596,7 @@ export function useCostDetailData() {
     for (const result of selectedResults) {
       const stName = stores.get(result.storeId)?.name ?? result.storeId
       for (const [day, rec] of result.daily) {
-        for (const item of rec.consumable.items) {
+        for (const item of rec.costInclusion.items) {
           if (item.itemCode === selectedItem)
             details.push({
               day,
@@ -628,26 +631,26 @@ export function useCostDetailData() {
     ? (flows.find((f) => `${f.from}->${f.to}` === selectedPair) ?? null)
     : null
 
-  const totalConsumableCost = currentResult?.totalConsumable ?? 0
-  const consumableRate = currentResult?.consumableRate ?? 0
+  const totalCostInclusionAmount = currentResult?.totalCostInclusion ?? 0
+  const costInclusionRate = currentResult?.costInclusionRate ?? 0
   const totalSales = currentResult?.totalSales ?? 0
   const maxItemCost = itemAggregates.length > 0 ? itemAggregates[0].totalCost : 1
   const maxAccountCost = accountAggregates.length > 0 ? accountAggregates[0].totalCost : 1
 
-  const dailyConsumableData = useMemo(
-    (): DailyConsumableEntry[] =>
+  const dailyCostInclusionData = useMemo(
+    (): DailyCostInclusionEntry[] =>
       days
-        .filter(([, rec]) => rec.consumable.cost > 0 || rec.consumable.items.length > 0)
+        .filter(([, rec]) => rec.costInclusion.cost > 0 || rec.costInclusion.items.length > 0)
         .map(([day, rec]) => ({
           day,
-          cost: rec.consumable.cost,
-          itemCount: rec.consumable.items.length,
-          items: rec.consumable.items,
+          cost: rec.costInclusion.cost,
+          itemCount: rec.costInclusion.items.length,
+          items: rec.costInclusion.items,
         })),
     [days],
   )
 
-  const hasConsumableData = totalConsumableCost > 0 || itemAggregates.length > 0
+  const hasCostInclusionData = totalCostInclusionAmount > 0 || itemAggregates.length > 0
 
   // ─── Handlers ───────────────────────────────────────
   const handleTransferTypeChange = (type: TransferType) => {
@@ -658,8 +661,8 @@ export function useCostDetailData() {
   const handleItemClick = (itemCode: string) =>
     setSelectedItem(selectedItem === itemCode ? null : itemCode)
 
-  const handleConsumableViewChange = (view: ConsumableViewMode) => {
-    setConsumableView(view)
+  const handleCostInclusionViewChange = (view: CostInclusionViewMode) => {
+    setCostInclusionView(view)
     setSelectedItem(null)
   }
 
@@ -688,19 +691,19 @@ export function useCostDetailData() {
     typeLabel,
     selectedFlow,
 
-    // Consumable state & data
-    consumableView,
+    // CostInclusion state & data
+    costInclusionView,
     selectedItem,
     itemAggregates,
     accountAggregates,
     itemDetailData,
-    totalConsumableCost,
-    consumableRate,
+    totalCostInclusionAmount,
+    costInclusionRate,
     totalSales,
     maxItemCost,
     maxAccountCost,
-    dailyConsumableData,
-    hasConsumableData,
+    dailyCostInclusionData,
+    hasCostInclusionData,
 
     // Purchase pivot data
     purchasePivot,
@@ -708,6 +711,6 @@ export function useCostDetailData() {
     // Handlers
     handleTransferTypeChange,
     handleItemClick,
-    handleConsumableViewChange,
+    handleCostInclusionViewChange,
   } as const
 }

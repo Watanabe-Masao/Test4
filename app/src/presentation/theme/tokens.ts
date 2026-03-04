@@ -68,7 +68,7 @@ export const categoryGradients = {
   chokuden: `linear-gradient(135deg, #22d3ee, #06b6d4)`,
   hana: `linear-gradient(135deg, #f472b6, #ec4899)`,
   sanchoku: `linear-gradient(135deg, #a3e635, #84cc16)`,
-  consumable: `linear-gradient(135deg, #f97316, #ea580c)`,
+  costInclusion: `linear-gradient(135deg, #f97316, #ea580c)`,
   tenkan: `linear-gradient(135deg, #fb7185, #f43f5e)`,
   bumonkan: `linear-gradient(135deg, #a78bfa, #8b5cf6)`,
   other: `linear-gradient(135deg, #94a3b8, #64748b)`,

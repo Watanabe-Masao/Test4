@@ -5,7 +5,7 @@ import type {
   PurchaseData,
   SpecialSalesData,
   TransferData,
-  ConsumableData,
+  CostInclusionData,
   BudgetData,
   InventoryConfig,
 } from '@/domain/models'
@@ -30,10 +30,10 @@ import { processBudget } from './dataProcessing/BudgetProcessor'
 import { processInterStoreIn, processInterStoreOut } from './dataProcessing/TransferProcessor'
 import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
 import {
-  processConsumables,
-  mergeConsumableData,
-  mergePartitionedConsumables,
-} from './dataProcessing/ConsumableProcessor'
+  processCostInclusions,
+  mergeCostInclusionData,
+  mergePartitionedCostInclusions,
+} from './dataProcessing/CostInclusionProcessor'
 import {
   processCategoryTimeSales,
   mergeCategoryTimeSalesData,
@@ -81,7 +81,7 @@ export interface MonthPartitions {
   readonly directProduce: Record<string, SpecialSalesData>
   readonly interStoreIn: Record<string, TransferData>
   readonly interStoreOut: Record<string, TransferData>
-  readonly consumables: Record<string, ConsumableData>
+  readonly consumables: Record<string, CostInclusionData>
   readonly budget: Record<string, ReadonlyMap<string, BudgetData>>
 }
 
@@ -466,12 +466,12 @@ function processFileDataInner(
     }
 
     case 'consumables': {
-      const partitioned = processConsumables(rows, filename)
-      const combined = combineStoreDayPartitions(partitioned) as ConsumableData
+      const partitioned = processCostInclusions(rows, filename)
+      const combined = combineStoreDayPartitions(partitioned) as CostInclusionData
       return {
         data: {
           ...current,
-          consumables: mergeConsumableData(current.consumables, combined),
+          consumables: mergeCostInclusionData(current.consumables, combined),
         },
         partitions: { consumables: partitioned },
       }
@@ -630,7 +630,7 @@ export async function processDroppedFiles(
         if (p.interStoreOut)
           mp = { ...mp, interStoreOut: mergeStoreDayPartitions(mp.interStoreOut, p.interStoreOut) }
         if (p.consumables)
-          mp = { ...mp, consumables: mergePartitionedConsumables(mp.consumables, p.consumables) }
+          mp = { ...mp, consumables: mergePartitionedCostInclusions(mp.consumables, p.consumables) }
         if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
       }
 

@@ -19,7 +19,7 @@ describe('ConditionSummaryWidget', () => {
     expect(screen.getByText('予算消化率')).toBeInTheDocument()
     expect(screen.getByText('着地予測達成率')).toBeInTheDocument()
     expect(screen.getByText('売変率')).toBeInTheDocument()
-    expect(screen.getByText('消耗品率')).toBeInTheDocument()
+    expect(screen.getByText('原価算入率')).toBeInTheDocument()
   })
 
   it('原算後粗利率は粗利率カードに統合されている（独立カードなし）', () => {

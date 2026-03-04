@@ -144,8 +144,8 @@ CREATE TABLE IF NOT EXISTS transfers (
 )`
 
 // ── consumables ──
-// ソース: ConsumableData = StoreDayRecord<ConsumableDailyRecord>
-export const CONSUMABLES_DDL = `
+// ソース: CostInclusionData = StoreDayRecord<CostInclusionDailyRecord>
+export const COST_INCLUSIONS_DDL = `
 CREATE TABLE IF NOT EXISTS consumables (
   year     INTEGER NOT NULL,
   month    INTEGER NOT NULL,
@@ -219,7 +219,7 @@ export const ALL_TABLE_DDLS: readonly { readonly name: TableName; readonly ddl: 
   { name: 'purchase', ddl: PURCHASE_DDL },
   { name: 'special_sales', ddl: SPECIAL_SALES_DDL },
   { name: 'transfers', ddl: TRANSFERS_DDL },
-  { name: 'consumables', ddl: CONSUMABLES_DDL },
+  { name: 'consumables', ddl: COST_INCLUSIONS_DDL },
   { name: 'department_kpi', ddl: DEPARTMENT_KPI_DDL },
   { name: 'budget', ddl: BUDGET_DDL },
   { name: 'inventory_config', ddl: INVENTORY_CONFIG_DDL },
@@ -255,7 +255,7 @@ SELECT
   COALESCE(ss_f.price, 0) AS flowers_price,
   COALESCE(ss_d.cost, 0)  AS direct_produce_cost,
   COALESCE(ss_d.price, 0) AS direct_produce_price,
-  COALESCE(con.cost, 0)   AS consumable_cost,
+  COALESCE(con.cost, 0)   AS cost_inclusion_cost,
   COALESCE(ss_f.customers, 0) AS customers,
   cs.is_prev_year
 FROM (

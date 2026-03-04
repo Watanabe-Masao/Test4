@@ -18,7 +18,7 @@ describe('processSettings', () => {
     expect(store1?.grossProfitBudget).toBe(200000)
     // 旧フォーマットでは商品在庫・消耗品はnull
     expect(store1?.productInventory).toBeNull()
-    expect(store1?.consumableInventory).toBeNull()
+    expect(store1?.costInclusionInventory).toBeNull()
 
     const store2 = result.get('2')
     expect(store2?.openingInventory).toBe(500000)
@@ -58,7 +58,7 @@ describe('processSettings', () => {
     const store1 = result.get('1')
     expect(store1?.openingInventory).toBe(747854)
     expect(store1?.productInventory).toBe(467930)
-    expect(store1?.consumableInventory).toBe(10187)
+    expect(store1?.costInclusionInventory).toBe(10187)
     // 期末在庫（消耗品込）= 商品在庫 + 消耗品
     expect(store1?.closingInventory).toBe(467930 + 10187)
     expect(store1?.grossProfitBudget).toBe(1343000)
@@ -67,7 +67,7 @@ describe('processSettings', () => {
 
     const store6 = result.get('6')
     expect(store6?.productInventory).toBe(1227823)
-    expect(store6?.consumableInventory).toBe(29425)
+    expect(store6?.costInclusionInventory).toBe(29425)
     expect(store6?.closingInventory).toBe(1227823 + 29425)
   })
 
@@ -81,7 +81,7 @@ describe('processSettings', () => {
     const store1 = result.get('1')
     // E列に数値があるので新フォーマットと判定
     expect(store1?.productInventory).toBe(467930)
-    expect(store1?.consumableInventory).toBe(10187)
+    expect(store1?.costInclusionInventory).toBe(10187)
     expect(store1?.closingInventory).toBe(467930 + 10187)
   })
 

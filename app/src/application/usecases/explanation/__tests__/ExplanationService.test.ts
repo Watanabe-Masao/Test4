@@ -93,7 +93,7 @@ describe('generateExplanations', () => {
     expect(explanations.has('estMethodMarginRate')).toBe(true)
     // 客数・消耗品
     expect(explanations.has('totalCustomers')).toBe(true)
-    expect(explanations.has('totalConsumable')).toBe(true)
+    expect(explanations.has('totalCostInclusion')).toBe(true)
     // 予算系
     expect(explanations.has('budget')).toBe(true)
     expect(explanations.has('budgetAchievementRate')).toBe(true)
@@ -143,7 +143,7 @@ describe('generateExplanations', () => {
             closingInventory: 120000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -184,7 +184,7 @@ describe('generateExplanations', () => {
             closingInventory: null,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -216,7 +216,7 @@ describe('generateExplanations', () => {
             closingInventory: 120000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },
@@ -245,7 +245,7 @@ describe('generateExplanations', () => {
             closingInventory: 120000,
             grossProfitBudget: null,
             productInventory: null,
-            consumableInventory: null,
+            costInclusionInventory: null,
             inventoryDate: null,
             closingInventoryDay: null,
           },

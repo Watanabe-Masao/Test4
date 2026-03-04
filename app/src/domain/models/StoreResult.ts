@@ -31,7 +31,7 @@ export interface StoreConfigData {
   readonly openingInventory: number | null // 期首在庫
   readonly closingInventory: number | null // 期末在庫（消耗品込）
   readonly productInventory: number | null // 商品在庫
-  readonly consumableInventory: number | null // 消耗品在庫
+  readonly costInclusionInventory: number | null // 消耗品在庫
   readonly inventoryDate: string | null // 在庫基準日（YYYY/M/D）
   readonly closingInventoryDay: number | null // 期末在庫日付（何日時点か、null=月末）
 
@@ -53,7 +53,7 @@ export interface StoreAggregatedData {
   readonly totalCoreSales: number // コア売上
   readonly totalDiscount: number // 売変額合計
   readonly totalCustomers: number // 来店客数合計
-  readonly totalConsumable: number // 消耗品費合計
+  readonly totalCostInclusion: number // 原価算入費合計
   readonly discountEntries: readonly DiscountEntry[] // 売変種別内訳（月間合計）
 
   // ─── 日別・分類別集計 ────────────────────────────
@@ -103,7 +103,7 @@ export interface StoreDerivedData {
   readonly discountLossCost: number // 売変ロス原価
   readonly averageMarkupRate: number // 平均値入率
   readonly coreMarkupRate: number // コア値入率
-  readonly consumableRate: number // 消耗品率
+  readonly costInclusionRate: number // 原価算入率
   readonly averageCustomersPerDay: number // 日平均客数
 
   // ─── 予算・予測系導出 ────────────────────────────

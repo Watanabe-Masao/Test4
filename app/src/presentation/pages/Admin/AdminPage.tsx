@@ -58,6 +58,7 @@ const CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   consumables: palette.orange,
   direct_delivery: palette.cyanDark,
   other: palette.slate,
+  uncategorized: palette.slate,
 }
 
 type TabType = 'categories' | 'stores' | 'history' | 'rawdata' | 'storage' | 'prevyear'
@@ -68,13 +69,21 @@ function CategoryManagementTab() {
   const { settings, updateSettings } = useSettings()
 
   const handleCategoryChange = useCallback(
-    (supplierCode: string, category: CustomCategory) => {
-      updateSettings({
-        supplierCategoryMap: {
-          ...settings.supplierCategoryMap,
-          [supplierCode]: category,
-        },
-      })
+    (supplierCode: string, value: string) => {
+      if (!value || value === 'uncategorized') {
+        // 未分類選択 → マップからエントリを削除
+        const next = Object.fromEntries(
+          Object.entries(settings.supplierCategoryMap).filter(([k]) => k !== supplierCode),
+        )
+        updateSettings({ supplierCategoryMap: next })
+      } else {
+        updateSettings({
+          supplierCategoryMap: {
+            ...settings.supplierCategoryMap,
+            [supplierCode]: value as CustomCategory,
+          },
+        })
+      }
     },
     [settings.supplierCategoryMap, updateSettings],
   )
@@ -115,10 +124,10 @@ function CategoryManagementTab() {
                 <Td>{s.name}</Td>
                 <Td>
                   <Select
-                    value={current ?? ''}
-                    onChange={(e) => handleCategoryChange(s.code, e.target.value as CustomCategory)}
+                    value={current ?? 'uncategorized'}
+                    onChange={(e) => handleCategoryChange(s.code, e.target.value)}
                   >
-                    <option value="">未分類</option>
+                    <option value="uncategorized">未分類</option>
                     {CUSTOM_CATEGORIES.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.label}
@@ -239,7 +248,7 @@ function StoreManagementTab() {
                         <>
                           {' '}
                           (商品: {inv.productInventory.toLocaleString()} + 消耗品:{' '}
-                          {(inv.consumableInventory ?? 0).toLocaleString()})
+                          {(inv.costInclusionInventory ?? 0).toLocaleString()})
                         </>
                       )}
                     </Badge>

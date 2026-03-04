@@ -17,7 +17,7 @@ export interface SensitivityBase {
   readonly totalDiscount: number
   readonly grossSales: number
   readonly totalCustomers: number
-  readonly totalConsumable: number
+  readonly totalCostInclusion: number
   readonly averageMarkupRate: number
   readonly budget: number
   readonly elapsedDays: number
@@ -110,14 +110,14 @@ export function calculateSensitivity(
   const simDiscount = simGrossSales * Math.max(0, simDiscountRate)
 
   // 消耗品は売上比例で推定
-  const consumableRate = safeDivide(base.totalConsumable, base.totalSales, 0)
-  const simConsumable = simSales * consumableRate
+  const costInclusionRate = safeDivide(base.totalCostInclusion, base.totalSales, 0)
+  const simConsumable = simSales * costInclusionRate
 
   // 粗利 = 売上 - 原価 - 消耗品
   // 推定法ベース: margin = coreSales - estMethodCogs
-  // 簡略化: grossProfit ≈ grossSales - cost - discount - consumable
+  // 簡略化: grossProfit ≈ grossSales - cost - discount - costInclusion
   const baseGrossProfit =
-    base.grossSales - base.totalCost - base.totalDiscount - base.totalConsumable
+    base.grossSales - base.totalCost - base.totalDiscount - base.totalCostInclusion
   const simGrossProfit = simGrossSales - simCost - simDiscount - simConsumable
 
   const baseGPRate = safeDivide(baseGrossProfit, base.totalSales, 0)
@@ -202,7 +202,7 @@ export function extractSensitivityBase(result: {
   readonly totalDiscount: number
   readonly grossSales: number
   readonly totalCustomers: number
-  readonly totalConsumable: number
+  readonly totalCostInclusion: number
   readonly averageMarkupRate: number
   readonly budget: number
   readonly elapsedDays: number
@@ -214,7 +214,7 @@ export function extractSensitivityBase(result: {
     totalDiscount: result.totalDiscount,
     grossSales: result.grossSales,
     totalCustomers: result.totalCustomers,
-    totalConsumable: result.totalConsumable,
+    totalCostInclusion: result.totalCostInclusion,
     averageMarkupRate: result.averageMarkupRate,
     budget: result.budget,
     elapsedDays: result.elapsedDays,

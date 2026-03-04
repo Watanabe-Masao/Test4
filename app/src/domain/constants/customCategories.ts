@@ -16,6 +16,7 @@ export type PresetCategoryId =
   | 'consumables'
   | 'direct_delivery'
   | 'other'
+  | 'uncategorized'
 
 /** ユーザー作成カテゴリID（user:xxx 形式） */
 export type UserCategoryId = `user:${string}`
@@ -52,7 +53,11 @@ export const PRESET_CATEGORY_DEFS: readonly CustomCategoryDef[] = [
   { id: 'consumables', label: '消耗品' },
   { id: 'direct_delivery', label: '直伝' },
   { id: 'other', label: 'その他' },
+  { id: 'uncategorized', label: '未分類' },
 ] as const
+
+/** 未分類カテゴリID */
+export const UNCATEGORIZED_CATEGORY_ID: PresetCategoryId = 'uncategorized'
 
 const PRESET_CATEGORY_IDS = new Set<PresetCategoryId>(PRESET_CATEGORY_DEFS.map((d) => d.id))
 

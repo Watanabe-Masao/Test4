@@ -42,7 +42,7 @@ export interface StoreDaySummaryRow {
   readonly flowersPrice: number
   readonly directProduceCost: number
   readonly directProducePrice: number
-  readonly consumableCost: number
+  readonly costInclusionCost: number
   readonly customers: number
   readonly isPrevYear: boolean
 }
@@ -54,7 +54,7 @@ export interface AggregatedRatesRow {
   readonly discountRate: number
   readonly totalFlowersCost: number
   readonly totalDirectProduceCost: number
-  readonly totalConsumableCost: number
+  readonly totalCostInclusionAmount: number
   readonly totalCustomers: number
 }
 
@@ -118,7 +118,7 @@ export async function queryAggregatedRates(
         ELSE 0 END AS discount_rate,
       COALESCE(SUM(flowers_cost), 0) AS total_flowers_cost,
       COALESCE(SUM(direct_produce_cost), 0) AS total_direct_produce_cost,
-      COALESCE(SUM(consumable_cost), 0) AS total_consumable_cost,
+      COALESCE(SUM(cost_inclusion_cost), 0) AS total_cost_inclusion_cost,
       COALESCE(SUM(customers), 0) AS total_customers
     FROM store_day_summary
     ${where}`

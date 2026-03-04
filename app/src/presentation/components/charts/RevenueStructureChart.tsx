@@ -98,22 +98,22 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
     let cumSales = 0,
       cumCost = 0,
       cumDiscount = 0,
-      cumConsumable = 0
+      cumCostInclusion = 0
     const rows: {
       day: number
       sales: number
       cost: number
       discount: number
-      consumable: number
+      costInclusion: number
       margin: number
       discountRate: number
       costRate: number
       gpRate: number
-      consumableRate: number
+      costInclusionRate: number
       cumSales: number
       cumCost: number
       cumDiscount: number
-      cumConsumable: number
+      cumCostInclusion: number
       cumMargin: number
     }[] = []
 
@@ -123,30 +123,30 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
       const grossSales = rec?.grossSales ?? 0
       const cost = rec ? rec.totalCost : 0
       const discount = rec?.discountAbsolute ?? 0
-      const consumable = rec?.consumable.cost ?? 0
-      const margin = sales - cost - consumable
+      const costInclusion = rec?.costInclusion.cost ?? 0
+      const margin = sales - cost - costInclusion
 
       cumSales += sales
       cumCost += cost
       cumDiscount += discount
-      cumConsumable += consumable
-      const cumMargin = cumSales - cumCost - cumConsumable
+      cumCostInclusion += costInclusion
+      const cumMargin = cumSales - cumCost - cumCostInclusion
 
       rows.push({
         day: d,
         sales,
         cost,
         discount,
-        consumable,
+        costInclusion,
         margin,
         discountRate: safeDivide(discount, grossSales, 0),
         costRate: safeDivide(cost, sales, 0),
         gpRate: safeDivide(margin, sales, 0),
-        consumableRate: safeDivide(consumable, sales, 0),
+        costInclusionRate: safeDivide(costInclusion, sales, 0),
         cumSales,
         cumCost,
         cumDiscount,
-        cumConsumable,
+        cumCostInclusion,
         cumMargin,
       })
     }
@@ -159,15 +159,15 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
     margin: '粗利相当',
     cost: '原価',
     discount: '売変',
-    consumable: '消耗品',
+    costInclusion: '消耗品',
     gpRate: '粗利率',
     discountRate: '売変率',
     costRate: '原価率',
-    consumableRate: '消耗品率',
+    costInclusionRate: '原価算入率',
     cumMargin: '累計粗利',
     cumCost: '累計原価',
     cumDiscount: '累計売変',
-    cumConsumable: '累計消耗品',
+    cumCostInclusion: '累計消耗品',
   }
 
   return (
@@ -251,7 +251,7 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
               <Area
                 yAxisId="left"
                 type="monotone"
-                dataKey="consumable"
+                dataKey="costInclusion"
                 stackId="rev"
                 fill="url(#revConsumableGrad)"
                 stroke={ct.colors.purple}
@@ -319,7 +319,7 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
               <Line
                 yAxisId="left"
                 type="monotone"
-                dataKey="consumableRate"
+                dataKey="costInclusionRate"
                 stroke={ct.colors.purple}
                 strokeWidth={1.5}
                 strokeDasharray="4 2"
@@ -361,7 +361,7 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
               <Area
                 yAxisId="left"
                 type="monotone"
-                dataKey="cumConsumable"
+                dataKey="cumCostInclusion"
                 stackId="cum"
                 fill="url(#revConsumableGrad)"
                 stroke={ct.colors.purple}

@@ -3,8 +3,8 @@ export { ZERO_COST_PRICE_PAIR, addCostPricePairs } from './CostPricePair'
 export type { Store } from './Store'
 export type { Supplier, SupplierTotal } from './Supplier'
 export type { CategoryType } from './CategoryType'
-export type { ConsumableItem, ConsumableDailyRecord } from './ConsumableItem'
-export { ZERO_CONSUMABLE_DAILY } from './ConsumableItem'
+export type { CostInclusionItem, CostInclusionDailyRecord } from './CostInclusionItem'
+export { ZERO_COST_INCLUSION_DAILY } from './CostInclusionItem'
 export type {
   DailySourceData,
   DailyDerivedData,
@@ -31,7 +31,7 @@ export type {
   TransferDayEntry,
   SpecialSalesData,
   SpecialSalesDayEntry,
-  ConsumableData,
+  CostInclusionData,
   TimeSlotEntry,
   CategoryTimeSalesRecord,
   CategoryTimeSalesData,

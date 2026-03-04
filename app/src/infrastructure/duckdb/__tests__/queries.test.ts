@@ -149,7 +149,7 @@ describe('クエリ結果型の構造', () => {
       flowersPrice: 0,
       directProduceCost: 0,
       directProducePrice: 0,
-      consumableCost: 0,
+      costInclusionCost: 0,
       customers: 200,
       isPrevYear: false,
     }

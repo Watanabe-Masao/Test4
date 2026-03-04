@@ -495,8 +495,8 @@ export function MobileDashboardPage() {
                   <KpiMiniValue>{formatCurrency(r.totalCost)}</KpiMiniValue>
                 </KpiMiniCard>
                 <KpiMiniCard>
-                  <KpiMiniLabel>消耗品費</KpiMiniLabel>
-                  <KpiMiniValue>{formatCurrency(r.totalConsumable)}</KpiMiniValue>
+                  <KpiMiniLabel>原価算入費</KpiMiniLabel>
+                  <KpiMiniValue>{formatCurrency(r.totalCostInclusion)}</KpiMiniValue>
                 </KpiMiniCard>
                 {r.invMethodGrossProfitRate != null && (
                   <KpiMiniCard>

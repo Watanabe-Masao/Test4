@@ -40,7 +40,7 @@ import {
   Bar,
   RankBadge,
   PairGrid,
-  ConsumTd,
+  CostInclusionTd,
   PivotGroupTh,
   PivotSubTh,
   PivotTd,
@@ -94,17 +94,17 @@ export function CostDetailPage() {
           accent={palette.dangerDark}
         />
         <KpiCard
-          label="消耗品費合計"
-          value={formatCurrency(d.totalConsumableCost)}
+          label="原価算入費合計"
+          value={formatCurrency(d.totalCostInclusionAmount)}
           accent={palette.orange}
-          onClick={() => handleExplain('totalConsumable')}
+          onClick={() => handleExplain('totalCostInclusion')}
         />
         <KpiCard
-          label="消耗品率"
-          value={formatPercent(d.consumableRate)}
+          label="原価算入率"
+          value={formatPercent(d.costInclusionRate)}
           subText={`売上高: ${formatCurrency(d.totalSales)}`}
           accent={palette.orangeDark}
-          onClick={() => handleExplain('totalConsumable')}
+          onClick={() => handleExplain('totalCostInclusion')}
         />
       </KpiGrid>
 
@@ -116,7 +116,10 @@ export function CostDetailPage() {
         <Tab $active={d.activeTab === 'transfer'} onClick={() => d.setActiveTab('transfer')}>
           移動
         </Tab>
-        <Tab $active={d.activeTab === 'consumable'} onClick={() => d.setActiveTab('consumable')}>
+        <Tab
+          $active={d.activeTab === 'costInclusion'}
+          onClick={() => d.setActiveTab('costInclusion')}
+        >
           消耗品
         </Tab>
       </TabBar>
@@ -368,21 +371,21 @@ export function CostDetailPage() {
       )}
 
       {/* ═══ 消耗品タブ ═══ */}
-      {d.activeTab === 'consumable' && (
+      {d.activeTab === 'costInclusion' && (
         <>
           <KpiGrid>
             <KpiCard
-              label="消耗品費合計"
-              value={formatCurrency(d.totalConsumableCost)}
+              label="原価算入費合計"
+              value={formatCurrency(d.totalCostInclusionAmount)}
               accent={palette.orange}
-              onClick={() => handleExplain('totalConsumable')}
+              onClick={() => handleExplain('totalCostInclusion')}
             />
             <KpiCard
-              label="消耗品率"
-              value={formatPercent(d.consumableRate)}
+              label="原価算入率"
+              value={formatPercent(d.costInclusionRate)}
               subText={`売上高: ${formatCurrency(d.totalSales)}`}
               accent={palette.orangeDark}
-              onClick={() => handleExplain('totalConsumable')}
+              onClick={() => handleExplain('totalCostInclusion')}
             />
             <KpiCard
               label="品目数"
@@ -392,40 +395,40 @@ export function CostDetailPage() {
             />
             <KpiCard
               label="計上日数"
-              value={`${d.dailyConsumableData.length}日`}
-              subText={`日平均: ${d.dailyConsumableData.length > 0 ? formatCurrency(d.totalConsumableCost / d.dailyConsumableData.length) : '-'}`}
+              value={`${d.dailyCostInclusionData.length}日`}
+              subText={`日平均: ${d.dailyCostInclusionData.length > 0 ? formatCurrency(d.totalCostInclusionAmount / d.dailyCostInclusionData.length) : '-'}`}
               accent={palette.blueDark}
             />
           </KpiGrid>
 
-          {!d.hasConsumableData ? (
+          {!d.hasCostInclusionData ? (
             <EmptyState>消耗品データがありません</EmptyState>
           ) : (
             <>
               <Section>
                 <ChipGroup>
                   <Chip
-                    $active={d.consumableView === 'item'}
-                    onClick={() => d.handleConsumableViewChange('item')}
+                    $active={d.costInclusionView === 'item'}
+                    onClick={() => d.handleCostInclusionViewChange('item')}
                   >
                     品目別
                   </Chip>
                   <Chip
-                    $active={d.consumableView === 'account'}
-                    onClick={() => d.handleConsumableViewChange('account')}
+                    $active={d.costInclusionView === 'account'}
+                    onClick={() => d.handleCostInclusionViewChange('account')}
                   >
                     勘定科目別
                   </Chip>
                   <Chip
-                    $active={d.consumableView === 'daily'}
-                    onClick={() => d.handleConsumableViewChange('daily')}
+                    $active={d.costInclusionView === 'daily'}
+                    onClick={() => d.handleCostInclusionViewChange('daily')}
                   >
                     日別明細
                   </Chip>
                 </ChipGroup>
               </Section>
 
-              {d.consumableView === 'item' && (
+              {d.costInclusionView === 'item' && (
                 <ChartErrorBoundary>
                   <Card>
                     <CardTitle>品目別消耗品集計</CardTitle>
@@ -446,7 +449,9 @@ export function CostDetailPage() {
                         <tbody>
                           {d.itemAggregates.map((item, idx) => {
                             const ratio =
-                              d.totalConsumableCost > 0 ? item.totalCost / d.totalConsumableCost : 0
+                              d.totalCostInclusionAmount > 0
+                                ? item.totalCost / d.totalCostInclusionAmount
+                                : 0
                             const isExpanded = d.selectedItem === item.itemCode
                             const details = isExpanded ? d.itemDetailData : null
                             return (
@@ -456,25 +461,27 @@ export function CostDetailPage() {
                                   $selected={isExpanded}
                                   onClick={() => d.handleItemClick(item.itemCode)}
                                 >
-                                  <ConsumTd>
+                                  <CostInclusionTd>
                                     <RankBadge $rank={idx + 1}>{idx + 1}</RankBadge>
-                                  </ConsumTd>
-                                  <ConsumTd>
+                                  </CostInclusionTd>
+                                  <CostInclusionTd>
                                     <ToggleIcon $expanded={isExpanded}>&#9654;</ToggleIcon>
                                     {item.itemName}
-                                  </ConsumTd>
-                                  <ConsumTd $muted>{item.itemCode}</ConsumTd>
-                                  <ConsumTd $muted>{item.accountCode}</ConsumTd>
-                                  <ConsumTd>{item.totalQuantity.toLocaleString()}</ConsumTd>
-                                  <ConsumTd>
+                                  </CostInclusionTd>
+                                  <CostInclusionTd $muted>{item.itemCode}</CostInclusionTd>
+                                  <CostInclusionTd $muted>{item.accountCode}</CostInclusionTd>
+                                  <CostInclusionTd>
+                                    {item.totalQuantity.toLocaleString()}
+                                  </CostInclusionTd>
+                                  <CostInclusionTd>
                                     <Bar
                                       $width={(item.totalCost / d.maxItemCost) * 100}
                                       $color={palette.orange}
                                     />
                                     {formatCurrency(item.totalCost)}
-                                  </ConsumTd>
-                                  <ConsumTd>{formatPercent(ratio)}</ConsumTd>
-                                  <ConsumTd>{item.dayCount}日</ConsumTd>
+                                  </CostInclusionTd>
+                                  <CostInclusionTd>{formatPercent(ratio)}</CostInclusionTd>
+                                  <CostInclusionTd>{item.dayCount}日</CostInclusionTd>
                                 </Tr>
                                 {isExpanded &&
                                   details &&
@@ -484,16 +491,20 @@ export function CostDetailPage() {
                                     const TrRow = isLast ? TrDetailLast : TrDetail
                                     return (
                                       <TrRow key={`detail-${detail.day}-${detail.storeId}-${i}`}>
-                                        <ConsumTd />
-                                        <ConsumTd>
+                                        <CostInclusionTd />
+                                        <CostInclusionTd>
                                           {detail.day}日 {detail.storeName}
-                                        </ConsumTd>
-                                        <ConsumTd />
-                                        <ConsumTd />
-                                        <ConsumTd>{detail.quantity.toLocaleString()}</ConsumTd>
-                                        <ConsumTd>{formatCurrency(detail.cost)}</ConsumTd>
-                                        <ConsumTd />
-                                        <ConsumTd />
+                                        </CostInclusionTd>
+                                        <CostInclusionTd />
+                                        <CostInclusionTd />
+                                        <CostInclusionTd>
+                                          {detail.quantity.toLocaleString()}
+                                        </CostInclusionTd>
+                                        <CostInclusionTd>
+                                          {formatCurrency(detail.cost)}
+                                        </CostInclusionTd>
+                                        <CostInclusionTd />
+                                        <CostInclusionTd />
                                       </TrRow>
                                     )
                                   })}
@@ -501,18 +512,20 @@ export function CostDetailPage() {
                             )
                           })}
                           <TrTotal>
-                            <ConsumTd />
-                            <ConsumTd>合計</ConsumTd>
-                            <ConsumTd />
-                            <ConsumTd />
-                            <ConsumTd>
+                            <CostInclusionTd />
+                            <CostInclusionTd>合計</CostInclusionTd>
+                            <CostInclusionTd />
+                            <CostInclusionTd />
+                            <CostInclusionTd>
                               {d.itemAggregates
                                 .reduce((s, i) => s + i.totalQuantity, 0)
                                 .toLocaleString()}
-                            </ConsumTd>
-                            <ConsumTd>{formatCurrency(d.totalConsumableCost)}</ConsumTd>
-                            <ConsumTd>100.0%</ConsumTd>
-                            <ConsumTd />
+                            </CostInclusionTd>
+                            <CostInclusionTd>
+                              {formatCurrency(d.totalCostInclusionAmount)}
+                            </CostInclusionTd>
+                            <CostInclusionTd>100.0%</CostInclusionTd>
+                            <CostInclusionTd />
                           </TrTotal>
                         </tbody>
                       </Table>
@@ -521,7 +534,7 @@ export function CostDetailPage() {
                 </ChartErrorBoundary>
               )}
 
-              {d.consumableView === 'account' && (
+              {d.costInclusionView === 'account' && (
                 <ChartErrorBoundary>
                   <Card>
                     <CardTitle>勘定科目別集計</CardTitle>
@@ -539,31 +552,33 @@ export function CostDetailPage() {
                           <tbody>
                             {d.accountAggregates.map((acc) => {
                               const ratio =
-                                d.totalConsumableCost > 0
-                                  ? acc.totalCost / d.totalConsumableCost
+                                d.totalCostInclusionAmount > 0
+                                  ? acc.totalCost / d.totalCostInclusionAmount
                                   : 0
                               return (
                                 <Tr key={acc.accountCode}>
-                                  <ConsumTd>{acc.accountCode}</ConsumTd>
-                                  <ConsumTd>{acc.itemCount}品目</ConsumTd>
-                                  <ConsumTd>
+                                  <CostInclusionTd>{acc.accountCode}</CostInclusionTd>
+                                  <CostInclusionTd>{acc.itemCount}品目</CostInclusionTd>
+                                  <CostInclusionTd>
                                     <Bar
                                       $width={(acc.totalCost / d.maxAccountCost) * 100}
                                       $color={palette.purpleDark}
                                     />
                                     {formatCurrency(acc.totalCost)}
-                                  </ConsumTd>
-                                  <ConsumTd>{formatPercent(ratio)}</ConsumTd>
+                                  </CostInclusionTd>
+                                  <CostInclusionTd>{formatPercent(ratio)}</CostInclusionTd>
                                 </Tr>
                               )
                             })}
                             <TrTotal>
-                              <ConsumTd>合計</ConsumTd>
-                              <ConsumTd>
+                              <CostInclusionTd>合計</CostInclusionTd>
+                              <CostInclusionTd>
                                 {d.accountAggregates.reduce((s, a) => s + a.itemCount, 0)}品目
-                              </ConsumTd>
-                              <ConsumTd>{formatCurrency(d.totalConsumableCost)}</ConsumTd>
-                              <ConsumTd>100.0%</ConsumTd>
+                              </CostInclusionTd>
+                              <CostInclusionTd>
+                                {formatCurrency(d.totalCostInclusionAmount)}
+                              </CostInclusionTd>
+                              <CostInclusionTd>100.0%</CostInclusionTd>
                             </TrTotal>
                           </tbody>
                         </Table>
@@ -591,9 +606,13 @@ export function CostDetailPage() {
                                   <tbody>
                                     {items.map((item) => (
                                       <Tr key={item.itemCode}>
-                                        <ConsumTd>{item.itemName}</ConsumTd>
-                                        <ConsumTd>{item.totalQuantity.toLocaleString()}</ConsumTd>
-                                        <ConsumTd>{formatCurrency(item.totalCost)}</ConsumTd>
+                                        <CostInclusionTd>{item.itemName}</CostInclusionTd>
+                                        <CostInclusionTd>
+                                          {item.totalQuantity.toLocaleString()}
+                                        </CostInclusionTd>
+                                        <CostInclusionTd>
+                                          {formatCurrency(item.totalCost)}
+                                        </CostInclusionTd>
                                       </Tr>
                                     ))}
                                   </tbody>
@@ -608,7 +627,7 @@ export function CostDetailPage() {
                 </ChartErrorBoundary>
               )}
 
-              {d.consumableView === 'daily' && (
+              {d.costInclusionView === 'daily' && (
                 <ChartErrorBoundary>
                   <Card>
                     <CardTitle>消耗品 日別明細</CardTitle>
@@ -623,12 +642,12 @@ export function CostDetailPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {d.dailyConsumableData.map((entry) => (
+                          {d.dailyCostInclusionData.map((entry) => (
                             <Tr key={entry.day}>
-                              <ConsumTd>{entry.day}日</ConsumTd>
-                              <ConsumTd>{formatCurrency(entry.cost)}</ConsumTd>
-                              <ConsumTd>{entry.itemCount}品目</ConsumTd>
-                              <ConsumTd $muted>
+                              <CostInclusionTd>{entry.day}日</CostInclusionTd>
+                              <CostInclusionTd>{formatCurrency(entry.cost)}</CostInclusionTd>
+                              <CostInclusionTd>{entry.itemCount}品目</CostInclusionTd>
+                              <CostInclusionTd $muted>
                                 {entry.items.slice(0, 5).map((item, i) => (
                                   <span key={i}>
                                     {i > 0 && ' / '}
@@ -636,16 +655,22 @@ export function CostDetailPage() {
                                   </span>
                                 ))}
                                 {entry.items.length > 5 && ` 他${entry.items.length - 5}件`}
-                              </ConsumTd>
+                              </CostInclusionTd>
                             </Tr>
                           ))}
                           <TrTotal>
-                            <ConsumTd>合計</ConsumTd>
-                            <ConsumTd>{formatCurrency(d.totalConsumableCost)}</ConsumTd>
-                            <ConsumTd>
-                              {d.dailyConsumableData.reduce((s, entry) => s + entry.itemCount, 0)}件
-                            </ConsumTd>
-                            <ConsumTd />
+                            <CostInclusionTd>合計</CostInclusionTd>
+                            <CostInclusionTd>
+                              {formatCurrency(d.totalCostInclusionAmount)}
+                            </CostInclusionTd>
+                            <CostInclusionTd>
+                              {d.dailyCostInclusionData.reduce(
+                                (s, entry) => s + entry.itemCount,
+                                0,
+                              )}
+                              件
+                            </CostInclusionTd>
+                            <CostInclusionTd />
                           </TrTotal>
                         </tbody>
                       </Table>

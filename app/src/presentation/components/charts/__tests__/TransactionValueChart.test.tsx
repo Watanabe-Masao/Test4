@@ -27,7 +27,7 @@ function makeDailyRecord(day: number, sales: number, customers: number): DailyRe
     interDepartmentOut: { cost: 0, price: 0 },
     flowers: { cost: 0, price: 0 },
     directProduce: { cost: 0, price: 0 },
-    consumable: { cost: 0, items: [] },
+    costInclusion: { cost: 0, items: [] },
     customers,
     discountAmount: 0,
     discountAbsolute: 0,

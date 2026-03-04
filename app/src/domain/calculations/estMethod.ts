@@ -13,7 +13,7 @@ export interface EstMethodInput {
   readonly coreSales: number // コア売上（花・産直・売上納品除外）
   readonly discountRate: number // 売変率
   readonly markupRate: number // 値入率
-  readonly consumableCost: number // 消耗品費
+  readonly costInclusionCost: number // 原価算入費
   readonly openingInventory: number | null // 期首在庫（在庫販売分）
   readonly inventoryPurchaseCost: number // 期中仕入原価（在庫販売分、花・産直除外）
 }
@@ -31,7 +31,7 @@ export interface EstMethodResult {
  * 推定法による在庫推定指標を計算する
  *
  * 粗売上   = コア売上 / (1 - 売変率)
- * 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+ * 推定原価 = 粗売上 × (1 - 値入率) + 原価算入費
  * 推定マージン = コア売上 - 推定原価
  * 推定マージン率 = 推定マージン / コア売上
  * 推定期末在庫 = 期首在庫 + 期中仕入原価(在庫販売分) - 推定原価
@@ -41,7 +41,7 @@ export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
     coreSales,
     discountRate,
     markupRate,
-    consumableCost,
+    costInclusionCost,
     openingInventory,
     inventoryPurchaseCost,
   } = input
@@ -50,8 +50,8 @@ export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
   // 売変率が1の場合はコア売上をそのまま使用（safeDivide fallback）
   const grossSales = safeDivide(coreSales, 1 - discountRate, coreSales)
 
-  // 推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
-  const cogs = grossSales * (1 - markupRate) + consumableCost
+  // 推定原価 = 粗売上 × (1 - 値入率) + 原価算入費
+  const cogs = grossSales * (1 - markupRate) + costInclusionCost
 
   // 推定マージン = コア売上 - 推定原価
   const margin = coreSales - cogs

@@ -50,7 +50,7 @@ export type MetricId =
   | 'itemsPerCustomer'
   | 'averagePricePerItem'
   // 原価算入費
-  | 'totalConsumable'
+  | 'totalCostInclusion'
   // 売上予算系
   | 'budget'
   | 'budgetAchievementRate'
@@ -92,7 +92,7 @@ export interface MetricTokens {
     | 'gp'
     | 'inventory'
     | 'customer'
-    | 'consumable'
+    | 'costInclusion'
   /** 領域: データの確度 */
   readonly domain: 'actual' | 'budget' | 'estimated' | 'forecast'
   /** 測定: 何を測るか */

@@ -218,7 +218,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
     day: number
     inventoryCost: number
     coreSales: number
-    consumable: number
+    costInclusion: number
     estCogs: number
     cumInvCost: number
     cumEstCogs: number
@@ -235,10 +235,10 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
       ? rec.purchase.cost + rec.interStoreIn.cost + rec.interStoreOut.cost - rec.deliverySales.cost
       : 0
     const coreSales = rec?.coreSales ?? 0
-    const consumable = rec ? rec.consumable.cost : 0
+    const costInclusion = rec ? rec.costInclusion.cost : 0
 
     const dayGrossSales = divisor > 0 ? coreSales / divisor : coreSales
-    const estCogs = dayGrossSales * (1 - markupRate) + consumable
+    const estCogs = dayGrossSales * (1 - markupRate) + costInclusion
 
     cumInvCost += inventoryCost
     cumEstCogs += estCogs
@@ -247,7 +247,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
       day: d,
       inventoryCost,
       coreSales,
-      consumable,
+      costInclusion,
       estCogs,
       cumInvCost,
       cumEstCogs,
@@ -306,7 +306,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
                   <STd style={{ textAlign: 'left', fontWeight: 600 }}>{row.day}</STd>
                   <STd>{row.inventoryCost !== 0 ? formatCurrency(row.inventoryCost) : '-'}</STd>
                   <STd>{row.coreSales > 0 ? formatCurrency(row.coreSales) : '-'}</STd>
-                  <STd>{row.consumable > 0 ? formatCurrency(row.consumable) : '-'}</STd>
+                  <STd>{row.costInclusion > 0 ? formatCurrency(row.costInclusion) : '-'}</STd>
                   <STd>{row.estCogs > 0 ? formatCurrency(row.estCogs) : '-'}</STd>
                   <STd>{formatCurrency(row.cumInvCost)}</STd>
                   <STd>{formatCurrency(row.cumEstCogs)}</STd>
@@ -320,7 +320,7 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
               <STd style={{ textAlign: 'left' }}>合計</STd>
               <STd>{formatCurrency(totalInvCost)}</STd>
               <STd>{formatCurrency(totalCoreSales)}</STd>
-              <STd>{formatCurrency(rows.reduce((s, row) => s + row.consumable, 0))}</STd>
+              <STd>{formatCurrency(rows.reduce((s, row) => s + row.costInclusion, 0))}</STd>
               <STd>{formatCurrency(totalEstCogs)}</STd>
               <STd>{formatCurrency(totalInvCost)}</STd>
               <STd>{formatCurrency(totalEstCogs)}</STd>

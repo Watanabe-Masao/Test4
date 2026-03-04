@@ -50,8 +50,8 @@ export interface StoreDaySummary {
   readonly directProduceCost: number
   readonly directProducePrice: number
 
-  // ── 消耗品 (consumables 由来) ──
-  readonly consumableCost: number
+  // ── 消耗品 (costInclusions 由来) ──
+  readonly costInclusionCost: number
 
   // ── 客数 (flowers 由来) ──
   readonly customers: number

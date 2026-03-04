@@ -1,8 +1,8 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { ConsumableItem, ConsumableData } from '@/domain/models'
+import type { CostInclusionItem, CostInclusionData } from '@/domain/models'
 
-export type { ConsumableData } from '@/domain/models'
+export type { CostInclusionData } from '@/domain/models'
 
 /** 勘定コードフィルタ */
 const TARGET_ACCOUNT_CODE = '81257'
@@ -16,10 +16,10 @@ const TARGET_ACCOUNT_CODE = '81257'
  *
  * @returns 年月キー ("YYYY-M") をキーとする月別消耗品データ
  */
-export function processConsumables(
+export function processCostInclusions(
   rows: readonly unknown[][],
   filename: string,
-): Record<string, ConsumableData> {
+): Record<string, CostInclusionData> {
   if (rows.length < 2) return {}
 
   // 店舗コード抽出: ファイル名先頭2桁
@@ -29,7 +29,7 @@ export function processConsumables(
 
   const partitioned: Record<
     string,
-    Record<string, Record<number, { cost: number; items: ConsumableItem[] }>>
+    Record<string, Record<number, { cost: number; items: CostInclusionItem[] }>>
   > = {}
 
   for (let row = 1; row < rows.length; row++) {
@@ -49,7 +49,7 @@ export function processConsumables(
     if (!partitioned[mk][storeId]) partitioned[mk][storeId] = {}
     if (!partitioned[mk][storeId][dc.day]) partitioned[mk][storeId][dc.day] = { cost: 0, items: [] }
 
-    const dayData = partitioned[mk][storeId][dc.day] as { cost: number; items: ConsumableItem[] }
+    const dayData = partitioned[mk][storeId][dc.day] as { cost: number; items: CostInclusionItem[] }
     dayData.cost += cost
     dayData.items.push({ accountCode, itemCode, itemName, quantity, cost })
   }
@@ -58,7 +58,7 @@ export function processConsumables(
 }
 
 /** 消耗品アイテムの重複排除キー（同一店舗・日・品目コード→同一アイテムと見なす） */
-function consumableItemKey(item: ConsumableItem): string {
+function costInclusionItemKey(item: CostInclusionItem): string {
   return `${item.accountCode}|${item.itemCode}`
 }
 
@@ -68,11 +68,11 @@ function consumableItemKey(item: ConsumableItem): string {
  * 同一店舗・同一日の同一品目コードは上書きする（incoming 優先）。
  * これにより同一ファイルの再取込でコストが倍増するバグを防ぐ。
  */
-export function mergeConsumableData(
-  existing: ConsumableData,
-  incoming: ConsumableData,
-): ConsumableData {
-  const merged: Record<string, Record<number, { cost: number; items: ConsumableItem[] }>> = {}
+export function mergeCostInclusionData(
+  existing: CostInclusionData,
+  incoming: CostInclusionData,
+): CostInclusionData {
+  const merged: Record<string, Record<number, { cost: number; items: CostInclusionItem[] }>> = {}
 
   // 既存データをコピー
   for (const [storeId, days] of Object.entries(existing)) {
@@ -100,12 +100,12 @@ export function mergeConsumableData(
         // アイテム詳細なし（集計コストのみ）→ incoming 側のコストで上書き
         merged[storeId][d] = { cost: data.cost, items: [] }
       } else {
-        const itemMap = new Map<string, ConsumableItem>()
+        const itemMap = new Map<string, CostInclusionItem>()
         for (const item of existingItems) {
-          itemMap.set(consumableItemKey(item), item)
+          itemMap.set(costInclusionItemKey(item), item)
         }
         for (const item of incomingItems) {
-          itemMap.set(consumableItemKey(item), item)
+          itemMap.set(costInclusionItemKey(item), item)
         }
         const deduped = Array.from(itemMap.values())
         merged[storeId][d] = {
@@ -122,14 +122,14 @@ export function mergeConsumableData(
 /**
  * 月パーティション済み消耗品データをマージする
  */
-export function mergePartitionedConsumables(
-  existing: Record<string, ConsumableData>,
-  incoming: Record<string, ConsumableData>,
-): Record<string, ConsumableData> {
+export function mergePartitionedCostInclusions(
+  existing: Record<string, CostInclusionData>,
+  incoming: Record<string, CostInclusionData>,
+): Record<string, CostInclusionData> {
   const result = { ...existing }
   for (const [mk, data] of Object.entries(incoming)) {
     if (result[mk]) {
-      result[mk] = mergeConsumableData(result[mk], data)
+      result[mk] = mergeCostInclusionData(result[mk], data)
     } else {
       result[mk] = data
     }

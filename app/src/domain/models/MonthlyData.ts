@@ -16,7 +16,7 @@ import type {
   DiscountData,
   TransferData,
   SpecialSalesData,
-  ConsumableData,
+  CostInclusionData,
   CategoryTimeSalesData,
   DepartmentKpiData,
 } from './DataTypes'
@@ -34,7 +34,7 @@ export interface MonthlyData {
   readonly interStoreOut: TransferData
   readonly flowers: SpecialSalesData
   readonly directProduce: SpecialSalesData
-  readonly consumables: ConsumableData
+  readonly consumables: CostInclusionData
   readonly categoryTimeSales: CategoryTimeSalesData
   readonly departmentKpi: DepartmentKpiData
   readonly settings: ReadonlyMap<string, InventoryConfig>

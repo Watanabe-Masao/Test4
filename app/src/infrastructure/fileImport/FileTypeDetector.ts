@@ -122,7 +122,7 @@ export const FILE_TYPE_REGISTRY: readonly FileTypeEntry[] = [
   {
     type: 'consumables',
     name: '原価算入費',
-    filenamePatterns: ['消耗', 'consumable', '原価算入'],
+    filenamePatterns: ['消耗', 'costInclusion', '原価算入'],
     headerPatterns: [],
     filenameRegex: /^\d+\.消耗|^\d{2}消耗/,
     minRows: 2,

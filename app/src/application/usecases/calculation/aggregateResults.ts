@@ -46,9 +46,9 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
     interDepartmentOut: addCostPricePairs(existing.interDepartmentOut, rec.interDepartmentOut),
     flowers: addCostPricePairs(existing.flowers, rec.flowers),
     directProduce: addCostPricePairs(existing.directProduce, rec.directProduce),
-    consumable: {
-      cost: existing.consumable.cost + rec.consumable.cost,
-      items: [...existing.consumable.items, ...rec.consumable.items],
+    costInclusion: {
+      cost: existing.costInclusion.cost + rec.costInclusion.cost,
+      items: [...existing.costInclusion.items, ...rec.costInclusion.items],
     },
     customers: (existing.customers ?? 0) + (rec.customers ?? 0),
     discountAmount: existing.discountAmount + rec.discountAmount,
@@ -98,7 +98,7 @@ export function aggregateStoreResults(
   let deliverySalesCost = 0
   let totalDiscount = 0
   let aggDiscountEntries = ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))
-  let totalConsumable = 0
+  let totalCostInclusion = 0
   let totalCustomers = 0
   let budget = 0
   let gpBudget = 0
@@ -138,7 +138,7 @@ export function aggregateStoreResults(
       aggDiscountEntries,
       r.discountEntries,
     ) as typeof aggDiscountEntries
-    totalConsumable += r.totalConsumable
+    totalCostInclusion += r.totalCostInclusion
     totalCustomers += r.totalCustomers
     budget += r.budget
     gpBudget += r.grossProfitBudget
@@ -250,7 +250,7 @@ export function aggregateStoreResults(
     0,
   )
 
-  const consumableRate = safeDivide(totalConsumable, totalSales, 0)
+  const costInclusionRate = safeDivide(totalCostInclusion, totalSales, 0)
   const averageDailySales = safeDivide(totalSales, salesDays, 0)
 
   const openingInventory = hasOpening ? openInv : null
@@ -325,7 +325,7 @@ export function aggregateStoreResults(
     openingInventory,
     closingInventory,
     productInventory: null,
-    consumableInventory: null,
+    costInclusionInventory: null,
     inventoryDate: null,
     closingInventoryDay: null,
     purchaseMaxDay,
@@ -354,8 +354,8 @@ export function aggregateStoreResults(
     discountEntries: aggDiscountEntries,
     averageMarkupRate,
     coreMarkupRate,
-    totalConsumable,
-    consumableRate,
+    totalCostInclusion,
+    costInclusionRate,
     budget,
     grossProfitBudget: gpBudget,
     grossProfitRateBudget: safeDivide(gpBudget, budget, 0),

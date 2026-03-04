@@ -8,7 +8,7 @@ const BASE: SensitivityBase = {
   totalDiscount: 500_000, // 50万円（売変率約4.8%）
   grossSales: 10_500_000, // 1050万円（粗売上）
   totalCustomers: 5_000, // 5000人
-  totalConsumable: 100_000, // 10万円（消耗品）
+  totalCostInclusion: 100_000, // 10万円（消耗品）
   averageMarkupRate: 0.3, // 値入率30%
   budget: 12_000_000, // 1200万円予算
   elapsedDays: 20,
@@ -109,7 +109,7 @@ describe('sensitivity', () => {
         totalDiscount: 0,
         grossSales: 0,
         totalCustomers: 0,
-        totalConsumable: 0,
+        totalCostInclusion: 0,
         elapsedDays: 0,
       }
       const result = calculateSensitivity(zeroBase, {
@@ -172,7 +172,7 @@ describe('sensitivity', () => {
         totalDiscount: 0,
         grossSales: 0,
         totalCustomers: 0,
-        totalConsumable: 0,
+        totalCostInclusion: 0,
       }
       const e = calculateElasticity(zeroBase)
       expect(isFinite(e.discountRateElasticity)).toBe(true)
@@ -188,7 +188,7 @@ describe('sensitivity', () => {
         totalDiscount: 500_000,
         grossSales: 10_500_000,
         totalCustomers: 5_000,
-        totalConsumable: 100_000,
+        totalCostInclusion: 100_000,
         averageMarkupRate: 0.3,
         budget: 12_000_000,
         elapsedDays: 20,

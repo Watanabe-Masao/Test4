@@ -44,7 +44,7 @@ const FIELD_PRESET: LayoutPreset = {
     'chart-daily-sales',
     'exec-monthly-calendar',
     'kpi-inventory-cost',
-    'kpi-consumable',
+    'kpi-cost-inclusion',
     'kpi-delivery-sales',
     'kpi-core-markup',
     'exec-dow-average',
