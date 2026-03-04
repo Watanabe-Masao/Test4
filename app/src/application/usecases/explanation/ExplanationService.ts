@@ -20,11 +20,14 @@ import type {
   EvidenceRef,
   BreakdownEntry,
   BreakdownDetail,
+  FormulaDetail,
   StoreExplanations,
   DailyRecord,
 } from '@/domain/models'
 import { aggregateForStore, getDailyTotalCost } from '@/domain/models'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { METRIC_DEFS } from '@/domain/constants/metricDefs'
+import { FORMULA_REGISTRY } from '@/domain/constants/formulaRegistry'
 
 // ─── ヘルパー ──────────────────────────────────────────────
 
@@ -695,7 +698,37 @@ export function generateExplanations(
     })
   }
 
+  // ─── FORMULA_REGISTRY 解決 ─────────────────────────────
+  // formulaRef を持つ指標に FORMULA_REGISTRY の詳細を注入する
+  for (const [metricId, exp] of map) {
+    const detail = resolveFormulaDetail(metricId)
+    if (detail) {
+      map.set(metricId, { ...exp, formulaDetail: detail })
+    }
+  }
+
   return map
+}
+
+/**
+ * MetricId → formulaRef → FORMULA_REGISTRY の解決。
+ * formulaRef が未定義または未登録ならば undefined を返す。
+ */
+function resolveFormulaDetail(metricId: MetricId): FormulaDetail | undefined {
+  const meta = METRIC_DEFS[metricId]
+  if (!meta?.formulaRef) return undefined
+  const formula = FORMULA_REGISTRY[meta.formulaRef]
+  if (!formula) return undefined
+  return {
+    expression: formula.expression,
+    category: formula.category,
+    description: formula.description,
+    inputBindings: formula.inputs.map((inp) => ({
+      name: inp.name,
+      label: inp.label,
+      source: inp.source,
+    })),
+  }
 }
 
 // ─── テキスト要約 ──────────────────────────────────────────────

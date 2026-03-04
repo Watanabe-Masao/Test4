@@ -177,6 +177,25 @@ export interface BreakdownEntry {
   readonly details?: readonly BreakdownDetail[]
 }
 
+// ─── FormulaDetail ───────────────────────────────────────
+
+/** FORMULA_REGISTRY から解決された数式詳細 */
+export interface FormulaDetail {
+  /** 数式表現（例: 'safeDivide(totalDiscount, grossSales, 0)'） */
+  readonly expression: string
+  /** カテゴリ（例: 'ratio'） */
+  readonly category: string
+  /** 公式の説明 */
+  readonly description: string
+  /** 入力変数とデータソースの対応 */
+  readonly inputBindings: readonly {
+    readonly name: string
+    readonly label: string
+    /** 権威的データソース（例: 'StoreResult.totalSales'） */
+    readonly source?: string
+  }[]
+}
+
 // ─── Explanation ──────────────────────────────────────────
 
 /** 指標の説明 */
@@ -200,6 +219,8 @@ export interface Explanation {
   readonly breakdown?: readonly BreakdownEntry[]
   /** 根拠データへの参照 */
   readonly evidenceRefs: readonly EvidenceRef[]
+  /** FORMULA_REGISTRY から解決された数式詳細（formulaRef がある指標のみ） */
+  readonly formulaDetail?: FormulaDetail
 }
 
 // ─── StoreExplanations ────────────────────────────────────

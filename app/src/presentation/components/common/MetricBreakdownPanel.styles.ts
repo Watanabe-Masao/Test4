@@ -342,3 +342,32 @@ export const CopiedFeedback = styled.span`
   color: ${({ theme }) => theme.colors.palette.primary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
+
+export const FormulaDetailBox = styled.div`
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.bg3};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid ${({ theme }) => theme.colors.palette.info};
+`
+
+export const FormulaExpression = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+export const FormulaDescription = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`
+
+export const SourceTag = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.palette.info};
+  background: ${({ theme }) => theme.colors.palette.info}10;
+  padding: 1px ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+`

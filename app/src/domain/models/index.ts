@@ -97,6 +97,7 @@ export type {
   ExplanationInput,
   BreakdownDetail,
   BreakdownEntry,
+  FormulaDetail,
   Explanation,
   StoreExplanations,
 } from './Explanation'

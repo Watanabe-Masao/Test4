@@ -10,8 +10,12 @@
  *   REG-4: METRIC_DEFS の formulaRef が有効な FormulaId を参照すること
  *   REG-5: 全エントリに inputs が定義されていること（接点ルール）
  *   REG-6: accounting/decomposition 公式の inputs.source が具体的であること
+ *   REG-8: source 参照が有効なデータソースパターンに従うこと
+ *   REG-9: StoreResult.* 参照が実在フィールドであること
  */
 import { describe, it, expect } from 'vitest'
+import * as fs from 'fs'
+import * as path from 'path'
 import { FORMULA_REGISTRY } from '../../constants/formulaRegistry'
 import { METRIC_DEFS } from '../../constants/metricDefs'
 import type { FormulaId } from '../../models/Formula'
@@ -168,4 +172,75 @@ describe('REG-7: シャープリー分解公式の恒等式', () => {
       expect(d.custEffect + d.qtyEffect + d.pricePerItemEffect).toBeCloseTo(s.cur - s.prev, 2)
     }
   })
+})
+
+/* ── REG-8: 接点ルール — source パターンの一貫性 ── */
+
+describe('REG-8: source 参照が有効なデータソースパターンに従う', () => {
+  // 許可されたソースプレフィックス（SSOT）
+  const VALID_SOURCE_PREFIXES = [
+    'StoreResult.',
+    'StoreResult[',
+    'InventoryConfig.',
+    'BudgetData.',
+    'CTS.',
+    'CTS ',
+    'DailyRecord.',
+    'MonthlyDataPoint',
+    'CategoryQtyAmt',
+    '外部データ',
+  ] as const
+
+  for (const [id, meta] of Object.entries(FORMULA_REGISTRY)) {
+    for (const input of meta.inputs) {
+      if (input.source) {
+        it(`${id}.${input.name}: source '${input.source}' は有効なパターン`, () => {
+          const isValid = VALID_SOURCE_PREFIXES.some((p) => input.source!.startsWith(p))
+          expect(
+            isValid,
+            `'${input.source}' は未知のソースパターン。\n` +
+              `許可パターン: ${VALID_SOURCE_PREFIXES.join(', ')}`,
+          ).toBe(true)
+        })
+      }
+    }
+  }
+})
+
+/* ── REG-9: StoreResult フィールド参照の実在性 ──── */
+
+describe('REG-9: StoreResult.* 参照が実在フィールドである', () => {
+  // StoreResult.ts から readonly フィールド名を抽出
+  const storeResultPath = path.resolve(__dirname, '../../models/StoreResult.ts')
+  const source = fs.readFileSync(storeResultPath, 'utf-8')
+  const fieldPattern = /readonly\s+(\w+)\s*[?:]/g
+  const storeResultFields = new Set<string>()
+  let m
+  while ((m = fieldPattern.exec(source)) !== null) {
+    storeResultFields.add(m[1])
+  }
+
+  it('StoreResult のフィールドが正しく抽出されている（健全性チェック）', () => {
+    expect(storeResultFields.has('totalSales')).toBe(true)
+    expect(storeResultFields.has('totalCustomers')).toBe(true)
+    expect(storeResultFields.has('grossSales')).toBe(true)
+    expect(storeResultFields.size).toBeGreaterThan(20)
+  })
+
+  const SR_PATTERN = /^StoreResult\.(\w+)/
+  for (const [id, meta] of Object.entries(FORMULA_REGISTRY)) {
+    for (const input of meta.inputs) {
+      const match = input.source?.match(SR_PATTERN)
+      if (match) {
+        const fieldName = match[1]
+        it(`${id}.${input.name}: StoreResult.${fieldName} は実在フィールド`, () => {
+          expect(
+            storeResultFields.has(fieldName),
+            `StoreResult に '${fieldName}' フィールドが見つかりません。\n` +
+              `利用可能: ${[...storeResultFields].sort().join(', ')}`,
+          ).toBe(true)
+        })
+      }
+    }
+  }
 })
