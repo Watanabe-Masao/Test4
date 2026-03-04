@@ -618,9 +618,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           </SummaryItem>
           <SummaryItem>
             <SummaryLabel>PI値({labels.curLabel})</SummaryLabel>
-            <SummaryValue
-              $color={sc.cond(piSummary.curPI >= piSummary.prevPI)}
-            >
+            <SummaryValue $color={sc.cond(piSummary.curPI >= piSummary.prevPI)}>
               {piSummary.curPI.toFixed(1)}点
             </SummaryValue>
           </SummaryItem>
@@ -630,9 +628,7 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
           </SummaryItem>
           <SummaryItem>
             <SummaryLabel>点単価({labels.curLabel})</SummaryLabel>
-            <SummaryValue
-              $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}
-            >
+            <SummaryValue $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}>
               {formatCurrency(Math.round(piSummary.curPPI))}
             </SummaryValue>
           </SummaryItem>

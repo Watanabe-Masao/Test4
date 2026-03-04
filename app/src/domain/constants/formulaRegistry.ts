@@ -173,9 +173,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
     description:
       '直近のデータほど大きな重みを付与する移動平均。' +
       '単純移動平均より最近のトレンド変化に敏感に反応する。',
-    usage:
-      '月末予測の3手法の1つとして使用。' +
-      '直近の売上傾向を重視した短期予測値を算出する。',
+    usage: '月末予測の3手法の1つとして使用。' + '直近の売上傾向を重視した短期予測値を算出する。',
     inputs: [
       { name: 'dailySales', label: '日次売上配列', source: 'DailyRecord.totalSales（日次系列）' },
       { name: 'window', label: 'ウィンドウサイズ（デフォルト5）' },
