@@ -1,18 +1,16 @@
 /**
- * Phase 7.1: Service Worker
+ * Service Worker
  *
  * オフラインでも静的アセットをキャッシュし、アプリを利用可能にする。
- * - Cache-first: 静的アセット (JS, CSS, HTML, フォント, 画像)
- * - Network-first: API リクエスト (将来のクラウド対応)
- * - バージョン管理による古いキャッシュの自動削除
+ * - Cache-first: Vite ハッシュ付きアセット (/assets/ 配下 — ファイル名にコンテンツハッシュ含む)
+ * - Network-first: ナビゲーション・非ハッシュアセット・その他
+ * - ビルド時にバージョンが注入され、デプロイごとに古いキャッシュを自動削除
  */
 
-const CACHE_VERSION = 'v1'
+// __BUILD_VERSION__ はビルド時に Vite プラグインで置換される
+const CACHE_VERSION = '__BUILD_VERSION__'
 const STATIC_CACHE = `shiire-arari-static-${CACHE_VERSION}`
 const RUNTIME_CACHE = `shiire-arari-runtime-${CACHE_VERSION}`
-
-/** キャッシュ対象の静的アセット拡張子 */
-const STATIC_EXTENSIONS = ['.js', '.css', '.html', '.woff2', '.woff', '.ttf', '.png', '.svg', '.ico', '.json']
 
 /** キャッシュ対象外のパス */
 const CACHE_EXCLUDES = ['/api/', '/auth/']
@@ -76,9 +74,10 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 静的アセット → Cache-first
-  const isStaticAsset = STATIC_EXTENSIONS.some((ext) => url.pathname.endsWith(ext))
-  if (isStaticAsset) {
+  // Vite ハッシュ付きアセット (/assets/ 配下) → Cache-first
+  // Vite はファイル名にコンテンツハッシュを含めるため、内容が変われば URL も変わる。
+  // 同じ URL は常に同じ内容を返すので Cache-first で安全。
+  if (url.pathname.includes('/assets/')) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached
@@ -94,7 +93,9 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // その他 → Network-first with runtime cache
+  // その他（非ハッシュ静的アセット含む） → Network-first with cache fallback
+  // sw.js, manifest.json, favicon 等はデプロイで内容が変わる可能性があるため、
+  // 常にネットワークから最新を取得し、オフライン時のみキャッシュを使う。
   event.respondWith(
     fetch(request)
       .then((response) => {
