@@ -185,3 +185,40 @@ Presentation   -> DuckDB* チャートコンポーネント（15 個）
 - DuckDB チャートと既存 JavaScript チャートの統合・統一
 - Web Worker への DuckDB エンジン移行（メインスレッドのブロッキング軽減）
 - パーシステント DuckDB（IndexedDB 連携）によるリロード時のデータ再ロード省略
+
+---
+
+## DuckDB-WASM バージョン追従ポリシー
+
+**決定日**: 2026-03-04
+
+### 現状
+
+`@duckdb/duckdb-wasm` は `^1.33.1-dev18.0`（dev プレリリース）を使用している。
+DuckDB-WASM の stable リリースは不定期であり、dev ビルドが事実上の最新版となっている。
+
+### 方針: dev 追従（Dependabot 管理）
+
+| 項目 | 方針 |
+|---|---|
+| 追従対象 | `@duckdb/duckdb-wasm` の dev リリース |
+| 更新頻度 | Dependabot が週次で PR を作成 |
+| 受入基準 | CI 6段階ゲート（lint → format → build → storybook → test → e2e）が全て通過 |
+| stable 移行 | stable リリースが出た場合は優先的にピン留め |
+
+### 理由
+
+1. **dev ビルドが実質的な最新版**: DuckDB-WASM の stable リリースは infrequent であり、
+   バグ修正やパフォーマンス改善は dev ビルドにのみ含まれることが多い
+2. **CI ゲートが品質保証**: 6段階 CI パイプラインが通過すれば、アプリケーションへの
+   影響は限定的と判断できる
+3. **ブラウザ完結型のリスク低減**: サーバーサイドと異なり、DuckDB-WASM の不具合は
+   ユーザーのブラウザ内に閉じるため、影響範囲が限定的
+
+### stable リリース時の対応
+
+DuckDB-WASM が stable をリリースした場合:
+
+1. `package.json` のバージョン指定を `^X.Y.Z`（stable）に変更
+2. dev プレリリースの `^` 範囲指定を解除
+3. Dependabot は stable のパッチ・マイナー更新を監視

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeDivisor, countDistinctDays, computeDowDivisorMap } from '../divisor'
+import { computeDivisor, countDistinctDays, computeDowDivisorMap, filterByStore } from '../divisor'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
 function makeRecord(overrides: Partial<CategoryTimeSalesRecord> = {}): CategoryTimeSalesRecord {
@@ -87,5 +87,47 @@ describe('computeDowDivisorMap', () => {
     ]
     const result = computeDowDivisorMap(records, 2026, 2)
     expect(result.get(0)).toBe(1) // 日曜: 1日
+  })
+})
+
+describe('filterByStore', () => {
+  const records = [
+    makeRecord({ storeId: 'S001', day: 1 }),
+    makeRecord({ storeId: 'S002', day: 1 }),
+    makeRecord({ storeId: 'S001', day: 2 }),
+    makeRecord({ storeId: 'S003', day: 2 }),
+  ]
+
+  it('空の selectedStoreIds で全レコードを返す', () => {
+    const result = filterByStore(records, new Set())
+    expect(result).toBe(records) // 同一参照
+    expect(result).toHaveLength(4)
+  })
+
+  it('指定店舗のレコードのみ返す', () => {
+    const result = filterByStore(records, new Set(['S001']))
+    expect(result).toHaveLength(2)
+    for (const r of result) {
+      expect(r.storeId).toBe('S001')
+    }
+  })
+
+  it('複数店舗を指定できる', () => {
+    const result = filterByStore(records, new Set(['S001', 'S003']))
+    expect(result).toHaveLength(3)
+    const storeIds = result.map((r) => r.storeId)
+    expect(storeIds).toContain('S001')
+    expect(storeIds).toContain('S003')
+    expect(storeIds).not.toContain('S002')
+  })
+
+  it('存在しない店舗 ID を指定すると空配列', () => {
+    const result = filterByStore(records, new Set(['NONEXISTENT']))
+    expect(result).toHaveLength(0)
+  })
+
+  it('空のレコード配列に対しても安全に動作する', () => {
+    const result = filterByStore([], new Set(['S001']))
+    expect(result).toHaveLength(0)
   })
 })
