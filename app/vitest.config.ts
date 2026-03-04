@@ -19,7 +19,7 @@ export default defineConfig({
       include: ['src/domain/**', 'src/infrastructure/**', 'src/application/**'],
       exclude: ['**/*.d.ts', '**/index.ts'],
       thresholds: {
-        lines: 55,
+        lines: 70,
         'src/domain/calculations/**': {
           lines: 80,
         },

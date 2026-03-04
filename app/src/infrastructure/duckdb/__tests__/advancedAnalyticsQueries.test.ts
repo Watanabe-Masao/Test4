@@ -1,0 +1,239 @@
+/**
+ * advancedAnalytics クエリモジュールのテスト
+ *
+ * DuckDB 接続をモックして SQL 生成の内容を検証する。
+ */
+import { describe, it, expect, vi } from 'vitest'
+import {
+  queryCategoryMixWeekly,
+  queryStoreBenchmark,
+  type CategoryMixParams,
+  type StoreBenchmarkParams,
+} from '@/infrastructure/duckdb/queries/advancedAnalytics'
+
+function makeMockConn(returnRows: Record<string, unknown>[] = []) {
+  const capturedSql: string[] = []
+  const conn = {
+    query: vi.fn((sql: string) => {
+      capturedSql.push(sql)
+      return Promise.resolve({ toArray: () => returnRows })
+    }),
+    getCapturedSql: () => capturedSql,
+  }
+  return conn
+}
+
+const baseMixParams: CategoryMixParams = {
+  dateFrom: '2026-01-01',
+  dateTo: '2026-02-28',
+  level: 'department',
+}
+
+const baseBenchmarkParams: StoreBenchmarkParams = {
+  dateFrom: '2026-01-01',
+  dateTo: '2026-02-28',
+}
+
+describe('queryCategoryMixWeekly', () => {
+  it('category_time_sales に対して週次集約 SQL を生成する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('category_time_sales cts')
+    expect(sql).toContain("DATE_TRUNC('week'")
+    expect(sql).toContain('week_start')
+    expect(sql).toContain('SUM(cts.total_amount) AS week_sales')
+  })
+
+  it('department レベルの列を使用する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.dept_code AS code')
+    expect(sql).toContain('cts.dept_name AS name')
+  })
+
+  it('line レベルの列を使用する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, { ...baseMixParams, level: 'line' })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.line_code AS code')
+    expect(sql).toContain('cts.line_name AS name')
+  })
+
+  it('klass レベルの列を使用する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, { ...baseMixParams, level: 'klass' })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.klass_code AS code')
+    expect(sql).toContain('cts.klass_name AS name')
+  })
+
+  it('構成比（share_pct）と LAG によるシフト量を含む', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('share_pct')
+    expect(sql).toContain('LAG(share_pct)')
+    expect(sql).toContain('share_shift')
+    expect(sql).toContain('prev_week_share')
+  })
+
+  it('with_total CTE で週合計を算出する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('with_total AS')
+    expect(sql).toContain('total_week_sales')
+    expect(sql).toContain('SUM(week_sales) OVER (PARTITION BY week_start)')
+  })
+
+  it('日付範囲フィルタが含まれる', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain("cts.date_key BETWEEN '2026-01-01' AND '2026-02-28'")
+    expect(sql).toContain('cts.is_prev_year = false')
+  })
+
+  it('isPrevYear = true で前年データを取得する', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, { ...baseMixParams, isPrevYear: true })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('cts.is_prev_year = true')
+  })
+
+  it('storeIds フィルタが SQL に反映される（エイリアス付き）', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, { ...baseMixParams, storeIds: ['1', '2'] })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain("cts.store_id IN ('1', '2')")
+  })
+
+  it('ORDER BY week_start, week_sales DESC が含まれる', async () => {
+    const conn = makeMockConn()
+    await queryCategoryMixWeekly(conn as never, baseMixParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('ORDER BY week_start, week_sales DESC')
+  })
+
+  it('不正な日付形式は例外をスローする', async () => {
+    const conn = makeMockConn()
+    await expect(
+      queryCategoryMixWeekly(conn as never, { ...baseMixParams, dateFrom: '2026/01/01' }),
+    ).rejects.toThrow('Invalid date key')
+  })
+
+  it('空の場合は空配列を返す', async () => {
+    const conn = makeMockConn([])
+    const result = await queryCategoryMixWeekly(conn as never, baseMixParams)
+    expect(result).toHaveLength(0)
+  })
+
+  it('モックデータを正しく返す', async () => {
+    const rows = [
+      {
+        weekStart: '2026-01-26',
+        code: 'D01',
+        name: '青果',
+        weekSales: 500000,
+        totalWeekSales: 2000000,
+        sharePct: 25.0,
+        prevWeekShare: null,
+        shareShift: null,
+      },
+    ]
+    const conn = makeMockConn(rows)
+    const result = await queryCategoryMixWeekly(conn as never, baseMixParams)
+    expect(result).toHaveLength(1)
+    expect(result[0].code).toBe('D01')
+    expect(result[0].sharePct).toBe(25.0)
+    expect(result[0].prevWeekShare).toBeNull()
+  })
+})
+
+describe('queryStoreBenchmark', () => {
+  it('store_day_summary から週次ランキング SQL を生成する', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('store_day_summary sds')
+    expect(sql).toContain("DATE_TRUNC('week'")
+    expect(sql).toContain('week_start')
+    expect(sql).toContain('SUM(sds.sales) AS week_sales')
+  })
+
+  it('RANK() と PERCENT_RANK() ウィンドウ関数を含む', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('RANK() OVER')
+    expect(sql).toContain('PERCENT_RANK() OVER')
+    expect(sql).toContain('sales_rank')
+    expect(sql).toContain('sales_percentile')
+  })
+
+  it('日平均売上の算出を含む', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('avg_daily_sales')
+    expect(sql).toContain('NULLIF(days, 0)')
+  })
+
+  it('store_weekly CTE と集約を含む', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('store_weekly AS')
+    expect(sql).toContain('COUNT(DISTINCT sds.date_key) AS days')
+  })
+
+  it('日付範囲フィルタが含まれる', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain("sds.date_key BETWEEN '2026-01-01' AND '2026-02-28'")
+    expect(sql).toContain('sds.is_prev_year = FALSE')
+  })
+
+  it('storeIds フィルタが SQL に反映される（エイリアス付き）', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, { ...baseBenchmarkParams, storeIds: ['3', '4'] })
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain("sds.store_id IN ('3', '4')")
+  })
+
+  it('ORDER BY week_start, sales_rank が含まれる', async () => {
+    const conn = makeMockConn()
+    await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('ORDER BY week_start, sales_rank')
+  })
+
+  it('不正な日付形式は例外をスローする', async () => {
+    const conn = makeMockConn()
+    await expect(
+      queryStoreBenchmark(conn as never, { ...baseBenchmarkParams, dateTo: '20260228' }),
+    ).rejects.toThrow('Invalid date key')
+  })
+
+  it('モックデータを正しく返す', async () => {
+    const rows = [
+      {
+        storeId: '1',
+        weekStart: '2026-01-26',
+        weekSales: 700000,
+        avgDailySales: 100000,
+        salesRank: 1,
+        salesPercentile: 100.0,
+      },
+    ]
+    const conn = makeMockConn(rows)
+    const result = await queryStoreBenchmark(conn as never, baseBenchmarkParams)
+    expect(result).toHaveLength(1)
+    expect(result[0].storeId).toBe('1')
+    expect(result[0].salesRank).toBe(1)
+    expect(result[0].salesPercentile).toBe(100.0)
+  })
+})
