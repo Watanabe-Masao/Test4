@@ -1034,8 +1034,7 @@ export function StorageManagementTab() {
             </ActionButton>
           </SyncRow>
           <HelpText style={{ marginBottom: 0, marginTop: 8 }}>
-            コピーしたコードを LINE
-            などで送り、別のデバイスで下のテキスト欄に貼り付けてください。
+            コピーしたコードを LINE などで送り、別のデバイスで下のテキスト欄に貼り付けてください。
           </HelpText>
 
           <SyncCodeTextArea
@@ -1078,9 +1077,8 @@ export function StorageManagementTab() {
                   setIsShareExporting(true)
                   try {
                     const appSettings = useSettingsStore.getState().settings
-                    const { backupExporter } = await import(
-                      '@/infrastructure/storage/backupExporter'
-                    )
+                    const { backupExporter } =
+                      await import('@/infrastructure/storage/backupExporter')
                     const blob = await backupExporter.exportBackup(repo, appSettings)
                     await shareBackupFile(blob)
                   } finally {
@@ -1092,7 +1090,8 @@ export function StorageManagementTab() {
               </ActionButton>
             </SyncRow>
             <HelpText style={{ marginBottom: 0, marginTop: 8 }}>
-              AirDrop・LINE などでバックアップファイルを直接送信できます。受け取り側は上のバックアップセクションから復元してください。
+              AirDrop・LINE
+              などでバックアップファイルを直接送信できます。受け取り側は上のバックアップセクションから復元してください。
             </HelpText>
           </SubSection>
         )}
