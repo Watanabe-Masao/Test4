@@ -19,7 +19,12 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DailyRecord, DateRange, ComparisonFrame, CategoryTimeSalesRecord } from '@/domain/models'
+import type {
+  DailyRecord,
+  DateRange,
+  ComparisonFrame,
+  CategoryTimeSalesRecord,
+} from '@/domain/models'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks'
 import {

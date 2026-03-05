@@ -274,9 +274,7 @@ export function DashboardPage() {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
-    ? frame.previous
-    : undefined
+  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear ? frame.previous : undefined
 
   const ctx: WidgetContext = {
     result: r,

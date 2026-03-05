@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  resolveComparisonFrame,
-  calcSameDowOffset,
-} from '../resolveComparisonFrame'
+import { resolveComparisonFrame, calcSameDowOffset } from '../resolveComparisonFrame'
 import type { DateRange } from '@/domain/models'
 
 describe('calcSameDowOffset', () => {
@@ -66,12 +63,12 @@ describe('resolveComparisonFrame', () => {
   })
 
   it('dowOffset オーバーライドは 0-6 にクランプされる', () => {
-    expect(
-      resolveComparisonFrame(currentRange, 'sameDayOfWeek', { dowOffset: -1 }).dowOffset,
-    ).toBe(0)
-    expect(
-      resolveComparisonFrame(currentRange, 'sameDayOfWeek', { dowOffset: 10 }).dowOffset,
-    ).toBe(6)
+    expect(resolveComparisonFrame(currentRange, 'sameDayOfWeek', { dowOffset: -1 }).dowOffset).toBe(
+      0,
+    )
+    expect(resolveComparisonFrame(currentRange, 'sameDayOfWeek', { dowOffset: 10 }).dowOffset).toBe(
+      6,
+    )
   })
 
   it('sameDate モードでは dowOffset オーバーライドは無視される', () => {
