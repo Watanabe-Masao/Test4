@@ -68,7 +68,7 @@ export {
   useDuckDBBudgetAnalysisSummary,
 } from './useMetricsQueries'
 export type {
-  StorePeriodMetricsRow,
+  PeriodMetrics,
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,
 } from './useMetricsQueries'

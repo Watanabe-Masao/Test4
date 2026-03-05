@@ -43,7 +43,6 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | 特徴量・異常検出（Zスコア） | `features.ts` | 月跨ぎ（28日ウィンドウ関数） |
 | 予算累積推移・サマリー | `budgetAnalysis.ts` | 月跨ぎ（日別累積） |
 | 日次レコード詳細 | `dailyRecords.ts` | 自由日付範囲 |
-| 店舗期間メトリクス | `storePeriodMetrics.ts` | 自由日付範囲 |
 | 条件マトリクス集約 | `conditionMatrix.ts` | 自由日付範囲 |
 
 ### 両エンジンに存在する概念の区別

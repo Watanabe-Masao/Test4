@@ -8,3 +8,9 @@ export {
   buildStoreDaySummaryCache,
   computeSummaryFingerprint,
 } from './summaryBuilder'
+export { calculateAllPeriodMetrics, aggregateSummaryRows } from './periodMetricsCalculator'
+export type {
+  DaySummaryInput,
+  PeriodMetrics,
+  PeriodInventoryConfig,
+} from './periodMetricsCalculator'

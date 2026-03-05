@@ -65,7 +65,7 @@ export type {
   DowPatternRow,
   CategoryMixWeeklyRow,
   StoreBenchmarkRow,
-  StorePeriodMetricsRow,
+  PeriodMetrics,
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,
   DailyRecordRow,
