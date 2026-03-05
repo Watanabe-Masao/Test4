@@ -13,7 +13,6 @@ import {
   useStoreSelection,
   useAutoLoadPrevYear,
   useMonthSwitcher,
-  useBudgetChartData,
 } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import {
@@ -28,14 +27,11 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   Cell,
 } from 'recharts'
 
@@ -321,9 +317,6 @@ export function MobileDashboardPage() {
   const { targetYear, targetMonth } = settings
   const r = currentResult
 
-  // 予算 vs 実績 累計データ
-  const budgetChartData = useBudgetChartData(r, daysInMonth, prevYear)
-
   // 日別売上データ
   const dailySalesData = useMemo(() => {
     if (!r) return []
@@ -568,73 +561,6 @@ export function MobileDashboardPage() {
 
         {tab === 'chart' && (
           <>
-            {/* 予算 vs 実績 累計 */}
-            <ChartCard>
-              <ChartTitle>予算 vs 実績（累計）</ChartTitle>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={budgetChartData}
-                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
-                  <XAxis
-                    dataKey="day"
-                    tick={{ fill: chartText, fontSize: 10 }}
-                    tickLine={false}
-                    interval={6}
-                  />
-                  <YAxis
-                    tick={{ fill: chartText, fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v: number) => `${Math.round(v / 10000)}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: theme.colors.bg2,
-                      border: `1px solid ${theme.colors.border}`,
-                      borderRadius: 6,
-                      fontSize: 11,
-                    }}
-                    formatter={(v: number | undefined, name: string | undefined) => [
-                      formatCurrency(v ?? 0),
-                      name ?? '',
-                    ]}
-                    labelFormatter={(label) => `${label}日`}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Line
-                    type="monotone"
-                    dataKey="actualCum"
-                    name="実績"
-                    stroke={theme.colors.palette.primary}
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="budgetCum"
-                    name="予算"
-                    stroke={theme.colors.palette.slate}
-                    strokeWidth={1.5}
-                    strokeDasharray="4 4"
-                    dot={false}
-                  />
-                  {prevYear.hasPrevYear && (
-                    <Line
-                      type="monotone"
-                      dataKey="prevYearCum"
-                      name="前年"
-                      stroke={theme.colors.palette.warning}
-                      strokeWidth={1}
-                      strokeDasharray="2 2"
-                      dot={false}
-                    />
-                  )}
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
             {/* 日別売上 */}
             <ChartCard>
               <ChartTitle>日別売上</ChartTitle>

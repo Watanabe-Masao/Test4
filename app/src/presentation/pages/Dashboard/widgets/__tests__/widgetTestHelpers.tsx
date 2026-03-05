@@ -169,7 +169,6 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     warningRate: 0.23,
     year: 2026,
     month: 2,
-    budgetChartData: [],
     storeKey: '1',
     prevYear: makeEmptyPrevYear(),
     allStoreResults: new Map(),

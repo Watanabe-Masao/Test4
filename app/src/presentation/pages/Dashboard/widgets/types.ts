@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { StoreResult, StoreExplanations, MetricId, DateRange, ViewType } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 
@@ -60,7 +60,6 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: readonly BudgetChartDataPoint[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */
