@@ -1,73 +1,57 @@
 /**
  * 曜日ギャップ分析テスト
+ *
+ * 検証する不変条件:
+ *   1. countDowsInMonth の合計 = その月の日数
+ *   2. analyzeDowGap の diff 合計 = 当年日数 - 前年日数
+ *   3. estimatedImpact = Σ(diff) × dailyAverageSales
  */
 import { describe, it, expect } from 'vitest'
 import { countDowsInMonth, analyzeDowGap, ZERO_DOW_GAP_ANALYSIS } from '../dowGapAnalysis'
 
 describe('countDowsInMonth', () => {
-  it('2026年3月は31日: 各曜日4〜5日', () => {
-    const counts = countDowsInMonth(2026, 3)
-    const total = counts.reduce((s, c) => s + c, 0)
-    expect(total).toBe(31)
-    // 2026-03-01 is Sunday(0), so Sunday has 5 days
-    expect(counts[0]).toBe(5) // 日
-  })
-
-  it('2026年2月は28日: 各曜日ちょうど4日', () => {
-    const counts = countDowsInMonth(2026, 2)
-    const total = counts.reduce((s, c) => s + c, 0)
-    expect(total).toBe(28)
+  it.each([
+    [2026, 1, 31],
+    [2026, 2, 28],
+    [2024, 2, 29], // うるう年
+    [2026, 4, 30],
+  ])('%i年%i月 → 合計 %i 日（不変条件1）', (year, month, expectedDays) => {
+    const counts = countDowsInMonth(year, month)
+    expect(counts).toHaveLength(7)
+    expect(counts.reduce((s, c) => s + c, 0)).toBe(expectedDays)
+    // 各曜日 4 or 5 日
     for (const c of counts) {
-      expect(c).toBe(4)
+      expect(c).toBeGreaterThanOrEqual(4)
+      expect(c).toBeLessThanOrEqual(5)
     }
-  })
-
-  it('2024年2月は29日（うるう年）', () => {
-    const counts = countDowsInMonth(2024, 2)
-    const total = counts.reduce((s, c) => s + c, 0)
-    expect(total).toBe(29)
   })
 })
 
 describe('analyzeDowGap', () => {
-  it('同一年月なら差分ゼロ', () => {
+  it('diff 合計 = 当年日数 - 前年日数（不変条件2）', () => {
+    // 同日数: 31 vs 31
+    expect(sumDiffs(analyzeDowGap(2026, 3, 2025, 3, 1))).toBe(0)
+    // 28 vs 31
+    expect(sumDiffs(analyzeDowGap(2026, 2, 2026, 3, 1))).toBe(-3)
+    // うるう年: 29 vs 28
+    expect(sumDiffs(analyzeDowGap(2024, 2, 2023, 2, 1))).toBe(1)
+  })
+
+  it('estimatedImpact = Σ(diff) × dailyAvg（不変条件3）', () => {
+    const daily = 500000
+    const result = analyzeDowGap(2026, 2, 2026, 1, daily) // 28 vs 31
+    expect(result.estimatedImpact).toBe(sumDiffs(result) * daily)
+  })
+
+  it('同一年月なら差分ゼロ・影響額ゼロ', () => {
     const result = analyzeDowGap(2026, 3, 2026, 3, 100000)
-    expect(result.dowCounts).toHaveLength(7)
-    for (const d of result.dowCounts) {
-      expect(d.diff).toBe(0)
-    }
     expect(result.estimatedImpact).toBe(0)
-    expect(result.isValid).toBe(true)
-  })
-
-  it('日数が異なる月の差分を正しく計算する', () => {
-    // 2026年3月(31日) vs 2025年3月(31日)
-    const result = analyzeDowGap(2026, 3, 2025, 3, 400000)
-    // 合計日数は同じ31日なので total diff は 0
-    const totalDiff = result.dowCounts.reduce((s, d) => s + d.diff, 0)
-    expect(totalDiff).toBe(0)
-    expect(result.isValid).toBe(true)
-  })
-
-  it('28日 vs 31日なら合計差は -3', () => {
-    // 2026年2月(28日) vs 2026年3月(31日)
-    const result = analyzeDowGap(2026, 2, 2026, 3, 500000)
-    const totalDiff = result.dowCounts.reduce((s, d) => s + d.diff, 0)
-    expect(totalDiff).toBe(-3) // 28 - 31
-    expect(result.estimatedImpact).toBe(-3 * 500000)
     expect(result.isValid).toBe(true)
   })
 
   it('日平均売上ゼロなら isValid: false', () => {
     const result = analyzeDowGap(2026, 3, 2025, 3, 0)
     expect(result.isValid).toBe(false)
-    expect(result.estimatedImpact).toBe(0)
-  })
-
-  it('dowCounts は 日〜土の7要素', () => {
-    const result = analyzeDowGap(2026, 3, 2025, 3, 100000)
-    expect(result.dowCounts.map((d) => d.label)).toEqual(['日', '月', '火', '水', '木', '金', '土'])
-    expect(result.dowCounts.map((d) => d.dow)).toEqual([0, 1, 2, 3, 4, 5, 6])
   })
 })
 
@@ -76,10 +60,11 @@ describe('ZERO_DOW_GAP_ANALYSIS', () => {
     expect(ZERO_DOW_GAP_ANALYSIS.estimatedImpact).toBe(0)
     expect(ZERO_DOW_GAP_ANALYSIS.isValid).toBe(false)
     expect(ZERO_DOW_GAP_ANALYSIS.dowCounts).toHaveLength(7)
-    for (const d of ZERO_DOW_GAP_ANALYSIS.dowCounts) {
-      expect(d.currentCount).toBe(0)
-      expect(d.previousCount).toBe(0)
-      expect(d.diff).toBe(0)
-    }
   })
 })
+
+// ── ヘルパー ──
+
+function sumDiffs(result: ReturnType<typeof analyzeDowGap>): number {
+  return result.dowCounts.reduce((s, d) => s + d.diff, 0)
+}

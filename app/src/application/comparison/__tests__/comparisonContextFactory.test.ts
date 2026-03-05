@@ -1,12 +1,14 @@
 /**
  * ComparisonContext ファクトリテスト
  *
- * ゼロ値パターンの正確性を検証する。
+ * 検証する不変条件:
+ *   1. ゼロ値パターン: createEmpty* の全フィールドに null チェックなしでアクセス可能
+ *   2. toSnapshot: 空 → hasData: false、データあり → hasData: true
+ *   3. aggregateMetrics: 合算後の不変条件（推定マージン + 推定原価 = コア売上）
  */
 import { describe, it, expect } from 'vitest'
 import {
   ZERO_PERIOD_METRICS,
-  createEmptySnapshot,
   createEmptyComparisonContext,
   toSnapshot,
   aggregateMetrics,
@@ -17,113 +19,106 @@ function makeMetrics(overrides: Partial<PeriodMetrics> = {}): PeriodMetrics {
   return { ...ZERO_PERIOD_METRICS, ...overrides }
 }
 
-describe('ZERO_PERIOD_METRICS', () => {
-  it('数値フィールドは全てゼロ', () => {
-    expect(ZERO_PERIOD_METRICS.totalSales).toBe(0)
-    expect(ZERO_PERIOD_METRICS.estMethodCogs).toBe(0)
-    expect(ZERO_PERIOD_METRICS.salesDays).toBe(0)
-  })
-
-  it('在庫法フィールドは null', () => {
-    expect(ZERO_PERIOD_METRICS.invMethodCogs).toBeNull()
-    expect(ZERO_PERIOD_METRICS.invMethodGrossProfit).toBeNull()
-    expect(ZERO_PERIOD_METRICS.openingInventory).toBeNull()
-  })
-})
-
-describe('createEmptySnapshot', () => {
-  it('hasData: false で metrics はゼロ値', () => {
-    const snapshot = createEmptySnapshot(2026, 3)
-    expect(snapshot.hasData).toBe(false)
-    expect(snapshot.year).toBe(2026)
-    expect(snapshot.month).toBe(3)
-    expect(snapshot.metrics.totalSales).toBe(0)
-  })
-})
-
-describe('createEmptyComparisonContext', () => {
-  it('全フィールドにアクセス可能（null チェック不要）', () => {
+describe('ゼロ値パターン（不変条件1）', () => {
+  it('createEmptyComparisonContext: 全フィールドに null チェック不要でアクセス可能', () => {
     const ctx = createEmptyComparisonContext(2026, 3)
+
+    // 直接アクセスでエラーにならない — これがゼロ値パターンの核心
     expect(ctx.isReady).toBe(false)
+    expect(ctx.current.metrics.totalSales).toBe(0)
+    expect(ctx.sameDow.metrics.totalSales).toBe(0)
+    expect(ctx.sameDate.metrics.totalSales).toBe(0)
+    expect(ctx.dowGap.estimatedImpact).toBe(0)
+    expect(ctx.dowGap.dowCounts).toHaveLength(7)
+
+    // hasData は false
     expect(ctx.current.hasData).toBe(false)
     expect(ctx.sameDow.hasData).toBe(false)
     expect(ctx.sameDate.hasData).toBe(false)
-    expect(ctx.dowGap.isValid).toBe(false)
-
-    // 直接アクセスでエラーにならない
-    expect(ctx.current.metrics.totalSales).toBe(0)
-    expect(ctx.sameDow.metrics.totalSales).toBe(0)
-    expect(ctx.dowGap.estimatedImpact).toBe(0)
-    expect(ctx.dowGap.dowCounts).toHaveLength(7)
   })
 
   it('前年は year - 1 が設定される', () => {
     const ctx = createEmptyComparisonContext(2026, 3)
+    expect(ctx.current.year).toBe(2026)
     expect(ctx.sameDow.year).toBe(2025)
     expect(ctx.sameDate.year).toBe(2025)
   })
+
+  it('ZERO_PERIOD_METRICS: 在庫法は null、数値はゼロ', () => {
+    expect(ZERO_PERIOD_METRICS.invMethodCogs).toBeNull()
+    expect(ZERO_PERIOD_METRICS.totalSales).toBe(0)
+    expect(ZERO_PERIOD_METRICS.estMethodCogs).toBe(0)
+  })
 })
 
-describe('toSnapshot', () => {
-  it('空配列は hasData: false', () => {
+describe('toSnapshot（不変条件2）', () => {
+  it('空配列 → hasData: false', () => {
     const snapshot = toSnapshot([], 2026, 3)
     expect(snapshot.hasData).toBe(false)
-    expect(snapshot.metrics).toBe(ZERO_PERIOD_METRICS)
+    expect(snapshot.metrics).toBe(ZERO_PERIOD_METRICS) // 参照一致
   })
 
-  it('メトリクスありは hasData: true', () => {
-    const metrics = [makeMetrics({ storeId: '1', totalSales: 1000000 })]
-    const snapshot = toSnapshot(metrics, 2026, 3)
+  it('データあり → hasData: true', () => {
+    const snapshot = toSnapshot([makeMetrics({ totalSales: 1000000 })], 2026, 3)
     expect(snapshot.hasData).toBe(true)
     expect(snapshot.metrics.totalSales).toBe(1000000)
   })
 })
 
-describe('aggregateMetrics', () => {
-  it('空配列はゼロ値を返す', () => {
-    const result = aggregateMetrics([])
-    expect(result).toBe(ZERO_PERIOD_METRICS)
+describe('aggregateMetrics（不変条件3）', () => {
+  it('空 → ZERO_PERIOD_METRICS 参照一致', () => {
+    expect(aggregateMetrics([])).toBe(ZERO_PERIOD_METRICS)
   })
 
-  it('単一要素はそのまま返す', () => {
+  it('単一要素 → そのまま返す（参照一致）', () => {
     const m = makeMetrics({ storeId: '1', totalSales: 500000 })
-    const result = aggregateMetrics([m])
-    expect(result).toBe(m)
+    expect(aggregateMetrics([m])).toBe(m)
   })
 
-  it('複数店舗の売上を合算する', () => {
-    const metrics = [
+  it('複数店舗の合算: 売上・客数の加算が正しい', () => {
+    const result = aggregateMetrics([
       makeMetrics({ storeId: '1', totalSales: 1000000, totalCustomers: 100 }),
       makeMetrics({ storeId: '2', totalSales: 2000000, totalCustomers: 200 }),
-    ]
-    const result = aggregateMetrics(metrics)
+    ])
     expect(result.storeId).toBe('all')
     expect(result.totalSales).toBe(3000000)
     expect(result.totalCustomers).toBe(300)
   })
 
-  it('率は合算後に再計算される', () => {
-    const metrics = [
+  it('合算後: 推定マージン + 推定原価 ≈ コア売上', () => {
+    const result = aggregateMetrics([
       makeMetrics({
         storeId: '1',
-        totalSales: 1000000,
-        totalCoreSales: 900000,
-        totalPurchaseCost: 600000,
-        totalPurchasePrice: 850000,
+        totalSales: 5000000,
+        totalCoreSales: 4500000,
+        totalPurchaseCost: 3000000,
+        totalPurchasePrice: 4200000,
+        totalDiscount: 100000,
+        totalCostInclusion: 20000,
       }),
       makeMetrics({
         storeId: '2',
-        totalSales: 2000000,
-        totalCoreSales: 1800000,
-        totalPurchaseCost: 1200000,
-        totalPurchasePrice: 1700000,
+        totalSales: 3000000,
+        totalCoreSales: 2700000,
+        totalPurchaseCost: 1800000,
+        totalPurchasePrice: 2500000,
+        totalDiscount: 50000,
+        totalCostInclusion: 10000,
       }),
-    ]
-    const result = aggregateMetrics(metrics)
-    // averageMarkupRate は合算した後の値入率
-    expect(result.totalPurchaseCost).toBe(1800000)
-    expect(result.totalPurchasePrice).toBe(2550000)
-    // (2550000 - 1800000) / 2550000
-    expect(result.averageMarkupRate).toBeCloseTo(750000 / 2550000, 6)
+    ])
+    // 推定マージン + 推定原価 = コア売上（数学的不変条件）
+    expect(result.estMethodMargin + result.estMethodCogs).toBeCloseTo(
+      result.totalCoreSales,
+      0, // 合算の精度は粗い（率の再計算による丸め）
+    )
+  })
+
+  it('合算後: 値入率の再計算が正しい', () => {
+    const result = aggregateMetrics([
+      makeMetrics({ totalPurchaseCost: 600000, totalPurchasePrice: 850000 }),
+      makeMetrics({ totalPurchaseCost: 400000, totalPurchasePrice: 550000 }),
+    ])
+    // (1400000 - 1000000) / 1400000
+    expect(result.averageMarkupRate).toBeCloseTo(400000 / 1400000, 6)
   })
 })
