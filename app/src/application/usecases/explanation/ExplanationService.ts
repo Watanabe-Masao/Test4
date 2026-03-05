@@ -777,7 +777,7 @@ export function generateTextSummary(
   if (result.invMethodGrossProfitRate !== null) {
     gpLine += '（在庫法）'
   } else {
-    gpLine += '（推定法）'
+    gpLine += '（推定法・理論値 ※実績粗利ではありません）'
   }
   if (targetRate !== undefined) {
     const diff = gpRate - targetRate

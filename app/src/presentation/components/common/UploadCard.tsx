@@ -6,7 +6,7 @@ const CardWrapper = styled.div<{ $loaded: boolean }>`
   border: 1px ${({ $loaded }) => ($loaded ? 'solid' : 'dashed')}
     ${({ $loaded, theme }) => ($loaded ? theme.colors.palette.success : theme.colors.border)};
   border-radius: ${({ theme }) => theme.radii.md};
-  padding: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[2]};
   text-align: center;
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -19,8 +19,8 @@ const CardWrapper = styled.div<{ $loaded: boolean }>`
 `
 
 const Icon = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
 `
 
 const Name = styled.div`

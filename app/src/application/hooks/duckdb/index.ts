@@ -68,7 +68,7 @@ export {
   useDuckDBBudgetAnalysisSummary,
 } from './useMetricsQueries'
 export type {
-  StorePeriodMetricsRow,
+  PeriodMetrics,
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,
 } from './useMetricsQueries'
@@ -80,6 +80,9 @@ export {
   useDuckDBAggregatedDailyRecords,
 } from './useDailyRecordQueries'
 export type { DailyRecordRow } from './useDailyRecordQueries'
+
+// 比較コンテキスト
+export { useComparisonContextQuery } from './useComparisonContextQuery'
 
 // コンディションマトリクス
 export { useDuckDBConditionMatrix, buildConditionMatrix } from './useConditionMatrix'

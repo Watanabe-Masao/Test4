@@ -6,7 +6,7 @@ const Zone = styled.div<{ $isDragOver: boolean }>`
     ${({ $isDragOver, theme }) =>
       $isDragOver ? theme.colors.palette.success : theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
-  padding: ${({ theme }) => theme.spacing[10]};
+  padding: ${({ theme }) => theme.spacing[5]};
   text-align: center;
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -20,8 +20,8 @@ const Zone = styled.div<{ $isDragOver: boolean }>`
 `
 
 const Icon = styled.div`
-  font-size: 1.8rem;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  font-size: 1.2rem;
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
 `
 
 const MainText = styled.div`

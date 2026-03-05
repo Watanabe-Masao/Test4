@@ -22,7 +22,6 @@ const EXECUTIVE_PRESET: LayoutPreset = {
   widgetIds: [
     'analysis-condition-summary',
     'exec-summary-bar',
-    'chart-budget-vs-actual',
     'exec-plan-actual-forecast',
     'chart-daily-sales',
     'kpi-inv-gross-profit',
@@ -62,7 +61,6 @@ const ANALYST_PRESET: LayoutPreset = {
   widgetIds: [
     'analysis-condition-summary',
     'chart-daily-sales',
-    'chart-budget-vs-actual',
     'chart-gross-profit-amount',
     'chart-category-pie',
     'chart-sales-purchase-comparison',

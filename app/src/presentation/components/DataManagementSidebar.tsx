@@ -36,9 +36,7 @@ import type { DiffConfirmResult } from '@/presentation/components/common/DiffCon
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { useExport } from '@/application/hooks/useExport'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
-import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
 
 const UploadGrid = styled.div`
   display: grid;
@@ -293,109 +291,6 @@ const SliderNumUnit = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
-// ─── テンプレートセクション ──────────────────────────
-const TemplateSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const TemplateToggle = styled.button`
-  all: unset;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text4};
-  text-transform: uppercase;
-  &:hover {
-    color: ${({ theme }) => theme.colors.text3};
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
-const TemplateToggleIcon = styled.span<{ $expanded: boolean }>`
-  font-size: 0.6rem;
-  transition: transform 0.2s;
-  transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
-`
-
-const TemplateGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${({ theme }) => theme.spacing[1]};
-`
-
-const TemplateLink = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text3};
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  &:hover {
-    color: ${({ theme }) => theme.colors.palette.primary};
-    border-color: ${({ theme }) => theme.colors.palette.primary}40;
-    background: ${({ theme }) => theme.colors.palette.primary}08;
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
-// ─── フォルダ連携 ──────────────────────────────────────
-const FolderSyncRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const FolderName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text2};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-`
-
-const FolderStatus = styled.span<{ $ok: boolean }>`
-  font-size: 0.6rem;
-  color: ${({ theme, $ok }) => ($ok ? theme.colors.palette.success : theme.colors.text4)};
-`
-
-const FolderSmallBtn = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ theme }) => theme.colors.text4};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover {
-    color: ${({ theme }) => theme.colors.text3};
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-  }
-`
-
 // ─── プライバシーインジケーター ──────────────────────
 const PrivacyInfoBox = styled.div`
   display: flex;
@@ -416,27 +311,6 @@ const PrivacyDot = styled.span`
   background: ${({ theme }) => theme.colors.palette.success};
   flex-shrink: 0;
 `
-
-/** フォルダ連携 API 非対応時の診断メッセージ */
-function FolderSyncDiagnostic() {
-  const isSecure = typeof window !== 'undefined' && window.isSecureContext
-  const hasApi = typeof window !== 'undefined' && 'showDirectoryPicker' in window
-  const inIframe = typeof window !== 'undefined' && window.self !== window.top
-
-  return (
-    <PrivacyInfoBox style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
-      <span>File System Access API を利用できません</span>
-      {!isSecure && <span>- HTTPS または localhost でアクセスしてください</span>}
-      {isSecure && !hasApi && (
-        <span>- Chrome / Edge 86 以上が必要です（Firefox / Safari は非対応）</span>
-      )}
-      {inIframe && <span>- iframe 内では利用できません</span>}
-      {isSecure && hasApi && !inIframe && (
-        <span>- ブラウザのセキュリティポリシーで制限されています</span>
-      )}
-    </PrivacyInfoBox>
-  )
-}
 
 /**
  * blur 時にのみ値を確定する数値入力コンポーネント。
@@ -511,31 +385,6 @@ const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'consumables', label: '8.原価算入費', multi: true },
   { type: 'initialSettings', label: '999_初期設定' },
 ]
-
-function TemplateSectionCollapsible() {
-  const [expanded, setExpanded] = useState(false)
-  const { downloadTemplate } = useExport()
-
-  return (
-    <SidebarSection>
-      <TemplateToggle onClick={() => setExpanded((p) => !p)}>
-        <TemplateToggleIcon $expanded={expanded}>&#9654;</TemplateToggleIcon>
-        テンプレート
-      </TemplateToggle>
-      {expanded && (
-        <TemplateSection>
-          <TemplateGrid>
-            {TEMPLATE_TYPES.map((type) => (
-              <TemplateLink key={type} onClick={() => downloadTemplate(type)}>
-                {TEMPLATE_LABELS[type]}
-              </TemplateLink>
-            ))}
-          </TemplateGrid>
-        </TemplateSection>
-      )}
-    </SidebarSection>
-  )
-}
 
 export function DataManagementSidebar({
   showSettingsExternal,
@@ -739,106 +588,6 @@ export function DataManagementSidebar({
             <PrivacyDot />
             ローカル保存 | サーバー送信なし
           </PrivacyInfoBox>
-        </SidebarSection>
-
-        <TemplateSectionCollapsible />
-
-        <SidebarSection>
-          <SectionLabel>フォルダ連携</SectionLabel>
-          {autoBackup.supported ? (
-            <>
-              {/* 自動バックアップ */}
-              <FolderSyncRow>
-                <FolderStatus $ok={autoBackup.folderConfigured}>
-                  {autoBackup.folderConfigured ? 'ON' : 'OFF'}
-                </FolderStatus>
-                {autoBackup.folderConfigured ? (
-                  <>
-                    <FolderName title={autoBackup.folderName ?? undefined}>
-                      {autoBackup.folderName}
-                    </FolderName>
-                    <FolderSmallBtn
-                      onClick={() => {
-                        autoBackup.backupNow().then((f) => {
-                          if (f) showToast(`バックアップ: ${f}`, 'success')
-                        })
-                      }}
-                      disabled={autoBackup.isBacking}
-                    >
-                      {autoBackup.isBacking ? '...' : '保存'}
-                    </FolderSmallBtn>
-                    <FolderSmallBtn onClick={() => autoBackup.clearFolder()}>解除</FolderSmallBtn>
-                  </>
-                ) : (
-                  <FolderSmallBtn onClick={() => autoBackup.selectFolder()}>
-                    バックアップ先を選択
-                  </FolderSmallBtn>
-                )}
-              </FolderSyncRow>
-              {autoBackup.lastBackupAt && (
-                <FolderStatus $ok>
-                  最終: {new Date(autoBackup.lastBackupAt).toLocaleTimeString()}
-                </FolderStatus>
-              )}
-              {autoBackup.error && <FolderStatus $ok={false}>{autoBackup.error}</FolderStatus>}
-
-              {/* 自動インポート */}
-              <FolderSyncRow>
-                <FolderStatus $ok={autoImport.folderConfigured}>
-                  {autoImport.folderConfigured ? 'ON' : 'OFF'}
-                </FolderStatus>
-                {autoImport.folderConfigured ? (
-                  <>
-                    <FolderName title={autoImport.folderName ?? undefined}>
-                      {autoImport.folderName}
-                    </FolderName>
-                    <FolderSmallBtn
-                      onClick={() => {
-                        autoImport.scanNow().then((files) => {
-                          if (files.length > 0) {
-                            showToast(`${files.length}件取込`, 'success')
-                          } else {
-                            showToast('新規ファイルなし', 'info')
-                          }
-                        })
-                      }}
-                      disabled={autoImport.isScanning}
-                    >
-                      {autoImport.isScanning ? '...' : 'スキャン'}
-                    </FolderSmallBtn>
-                    <FolderSmallBtn onClick={() => autoImport.clearFolder()}>解除</FolderSmallBtn>
-                  </>
-                ) : (
-                  <FolderSmallBtn onClick={() => autoImport.selectFolder()}>
-                    取込元を選択
-                  </FolderSmallBtn>
-                )}
-              </FolderSyncRow>
-              {autoImport.folderConfigured && (
-                <FolderSyncRow>
-                  <FolderSmallBtn
-                    onClick={() => autoImport.setAutoSync(!autoImport.autoSyncEnabled)}
-                    style={{
-                      background: autoImport.autoSyncEnabled ? '#22c55e20' : undefined,
-                      borderColor: autoImport.autoSyncEnabled ? '#22c55e60' : undefined,
-                    }}
-                  >
-                    {autoImport.autoSyncEnabled ? '自動同期 ON' : '自動同期 OFF'}
-                  </FolderSmallBtn>
-                  {autoImport.autoSyncEnabled && <FolderStatus $ok>5分間隔</FolderStatus>}
-                </FolderSyncRow>
-              )}
-              {autoImport.lastScanAt && (
-                <FolderStatus $ok={autoImport.lastImportCount > 0}>
-                  最終スキャン: {new Date(autoImport.lastScanAt).toLocaleTimeString()} (
-                  {autoImport.lastImportCount}件)
-                </FolderStatus>
-              )}
-              {autoImport.error && <FolderStatus $ok={false}>{autoImport.error}</FolderStatus>}
-            </>
-          ) : (
-            <FolderSyncDiagnostic />
-          )}
         </SidebarSection>
 
         {hasNonBudgetData && (
@@ -1052,7 +801,14 @@ export function DataManagementSidebar({
       </Sidebar>
 
       {isSettingsOpen && (
-        <SettingsModal settings={settings} onSave={updateSettings} onClose={closeSettings} />
+        <SettingsModal
+          settings={settings}
+          onSave={updateSettings}
+          onClose={closeSettings}
+          autoBackup={autoBackup}
+          autoImport={autoImport}
+          showToast={showToast}
+        />
       )}
       {pendingDiff ? (
         <DiffConfirmModal diffResult={pendingDiff.diffResult} onConfirm={handleDiffConfirm} />

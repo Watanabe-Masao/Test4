@@ -12,6 +12,7 @@
 import { useState, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import {
   useDuckDBHourlyAggregation,
   useDuckDBDistinctDayCount,
@@ -85,13 +86,6 @@ export interface HierarchyOption {
 
 // ── Helpers ──
 
-function buildPrevYearRange(range: DateRange): DateRange {
-  return {
-    from: { year: range.from.year - 1, month: range.from.month, day: range.from.day },
-    to: { year: range.to.year - 1, month: range.to.month, day: range.to.day },
-  }
-}
-
 function buildWowRange(range: DateRange): DateRange {
   const fromDate = new Date(range.from.year, range.from.month - 1, range.from.day - 7)
   const toDate = new Date(range.to.year, range.to.month - 1, range.to.day - 7)
@@ -146,9 +140,9 @@ export function useDuckDBTimeSlotData({
     [deptCode, lineCode, klassCode],
   )
 
-  const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
+  const frame = useComparisonFrame(currentDateRange)
   const wowRange = useMemo(() => buildWowRange(currentDateRange), [currentDateRange])
-  const compRange = compMode === 'wow' ? wowRange : prevYearRange
+  const compRange = compMode === 'wow' ? wowRange : frame.previous
   const compIsPrevYear = compMode === 'yoy'
 
   // ── DuckDB queries ──

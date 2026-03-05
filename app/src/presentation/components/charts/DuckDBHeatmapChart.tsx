@@ -14,6 +14,7 @@ import styled, { useTheme } from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import type { AppTheme } from '@/presentation/theme/theme'
+import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import {
   useDuckDBHourDowMatrix,
   useDuckDBLevelAggregation,
@@ -349,14 +350,6 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   }
 }
 
-/** 前年の同日付範囲を構築する */
-function buildPrevYearRange(range: DateRange): DateRange {
-  return {
-    from: { year: range.from.year - 1, month: range.from.month, day: range.from.day },
-    to: { year: range.to.year - 1, month: range.to.month, day: range.to.day },
-  }
-}
-
 /** 当年・前年のマトリクスから前年比差分率マップを構築 */
 function buildDiffMap(
   currentRows: readonly HourDowMatrixRow[],
@@ -411,7 +404,8 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
     [deptCode, lineCode, klassCode],
   )
 
-  const prevYearRange = useMemo(() => buildPrevYearRange(currentDateRange), [currentDateRange])
+  const frame = useComparisonFrame(currentDateRange)
+  const prevYearRange = frame.previous
 
   // 当年 時間帯×曜日マトリクス
   const {

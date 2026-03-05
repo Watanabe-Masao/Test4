@@ -7,10 +7,3 @@ export {
   exportExplanationReport,
   exportTextSummaryReport,
 } from './reportExporter'
-export {
-  downloadTemplate,
-  TEMPLATE_DESCRIPTIONS,
-  TEMPLATE_TYPES,
-  TEMPLATE_LABELS,
-} from './templateGenerator'
-export type { TemplateDataType } from './templateGenerator'

@@ -78,6 +78,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useMetricsQueries.ts',
   // DuckDB 統合 — 日別明細クエリフック
   'application/hooks/duckdb/useDailyRecordQueries.ts',
+  // DuckDB 統合 — 比較コンテキストクエリフック
+  'application/hooks/duckdb/useComparisonContextQuery.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
   'application/hooks/useStoragePersistence.ts',
   'application/hooks/useDataRecovery.ts',
@@ -267,6 +269,7 @@ describe('Architecture Guard', () => {
       '@/domain/calculations/causalChain',
       '@/domain/calculations/pinIntervals',
       '@/domain/calculations/advancedForecast',
+      '@/domain/calculations/dowGapAnalysis',
     ]
 
     for (const file of files) {
@@ -279,6 +282,37 @@ describe('Architecture Guard', () => {
         if (regex.test(content)) {
           violations.push(
             `${relativePath(file)}: ${mod} を直接 import。application/hooks 経由を使用してください`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('presentation/ は比較コンテキストの内部モジュールを直接 import しない', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // useComparisonContext 経由のみ許可。内部実装への直接依存を禁止。
+    const PROHIBITED_COMPARISON_MODULES = [
+      '@/application/comparison/comparisonContextFactory',
+      '@/application/comparison/ComparisonContext',
+      '@/application/hooks/duckdb/useComparisonContextQuery',
+      '@/domain/calculations/dowGapAnalysis',
+    ]
+
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const mod of PROHIBITED_COMPARISON_MODULES) {
+        // import type は許可（型のみ）
+        const regex = new RegExp(
+          `import\\s+(?!type\\s).*?from\\s+['"]${mod.replace('/', '\\/')}['"]`,
+        )
+        if (regex.test(content)) {
+          violations.push(
+            `${relativePath(file)}: ${mod} を直接 import。useComparisonContext 経由を使用してください`,
           )
         }
       }

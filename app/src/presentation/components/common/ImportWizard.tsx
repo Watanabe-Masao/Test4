@@ -1,10 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import type { ImportProgress } from '@/application/hooks/useImport'
 import type { ImportSummary, FileImportResult } from '@/application/usecases/import'
-import { useExport } from '@/application/hooks/useExport'
-import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
-import type { TemplateDataType } from '@/application/ports/ExportPort'
 
 // ─── Types ────────────────────────────────────────────
 export type ImportStage = 'idle' | 'reading' | 'validating' | 'saving' | 'done'
@@ -202,65 +198,6 @@ const FileType = styled.span`
   color: ${({ theme }) => theme.colors.text4};
 `
 
-// ─── テンプレートDLドロップダウン ──────────────────────
-const TemplateBtnWrap = styled.div`
-  position: relative;
-  display: inline-block;
-`
-
-const TemplateBtn = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ theme }) => theme.colors.bg4};
-  color: ${({ theme }) => theme.colors.text3};
-  &:hover {
-    background: ${({ theme }) => theme.colors.palette.primary}20;
-    color: ${({ theme }) => theme.colors.palette.primary};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
-const TemplateDropdown = styled.div`
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  z-index: 20;
-  min-width: 160px;
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: ${({ theme }) => theme.spacing[1]} 0;
-`
-
-const TemplateItem = styled.button`
-  all: unset;
-  cursor: pointer;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text2};
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
 // ─── 拡張サマリー用スタイル ────────────────────────────
 const RecordCountBadge = styled.span`
   font-size: 0.55rem;
@@ -338,51 +275,6 @@ export function ImportProgress({
   )
 }
 
-// ─── テンプレートDLドロップダウン内部コンポーネント ─────
-function TemplateDownloadButton() {
-  const [isOpen, setIsOpen] = useState(false)
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const { downloadTemplate } = useExport()
-
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-      setIsOpen(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, handleClickOutside])
-
-  const handleDownload = useCallback(
-    (type: TemplateDataType) => {
-      downloadTemplate(type)
-      setIsOpen(false)
-    },
-    [downloadTemplate],
-  )
-
-  return (
-    <TemplateBtnWrap ref={wrapRef}>
-      <TemplateBtn onClick={() => setIsOpen((p) => !p)}>
-        テンプレートDL {isOpen ? '▲' : '▼'}
-      </TemplateBtn>
-      {isOpen && (
-        <TemplateDropdown>
-          {TEMPLATE_TYPES.map((type) => (
-            <TemplateItem key={type} onClick={() => handleDownload(type)}>
-              {TEMPLATE_LABELS[type]}
-            </TemplateItem>
-          ))}
-        </TemplateDropdown>
-      )}
-    </TemplateBtnWrap>
-  )
-}
-
 // ─── エクスポート: インポートサマリー ───────────────────
 export function ImportSummaryCard({
   summary,
@@ -411,7 +303,6 @@ export function ImportSummaryCard({
             <RecordCountBadge>{totalRecords.toLocaleString()}件</RecordCountBadge>
           )}
         </SummaryStats>
-        <TemplateDownloadButton />
       </SummaryTitle>
 
       <FileList>

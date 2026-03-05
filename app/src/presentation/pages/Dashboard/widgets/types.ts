@@ -1,8 +1,15 @@
 import type { ReactNode } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { StoreResult, StoreExplanations, MetricId, DateRange, ViewType } from '@/domain/models'
+import type {
+  StoreResult,
+  StoreExplanations,
+  MetricId,
+  DateRange,
+  ViewType,
+  ComparisonFrame,
+} from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData, BudgetChartDataPoint } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 
@@ -31,9 +38,10 @@ export function comparisonLabels(
   year: number,
   dayStart: number,
   dayEnd: number,
+  prevYear?: number,
 ): { curLabel: string; prevLabel: string } {
   if (mode === 'yoy') {
-    return { curLabel: `${year}年`, prevLabel: `${year - 1}年` }
+    return { curLabel: `${year}年`, prevLabel: `${prevYear ?? year - 1}年` }
   }
   const { prevStart, prevEnd } = wowPrevRange(dayStart, dayEnd)
   const curRange = dayStart === dayEnd ? `${dayStart}日` : `${dayStart}-${dayEnd}日`
@@ -60,7 +68,6 @@ export interface WidgetContext {
   warningRate: number
   year: number
   month: number
-  budgetChartData: readonly BudgetChartDataPoint[]
   storeKey: string
   prevYear: PrevYearData
   /** All individual store results for multi-store widgets */
@@ -101,4 +108,6 @@ export interface WidgetContext {
   duckLoadedMonthCount: number
   /** DuckDB 分析用の自由日付範囲（ユーザーが選択可能、月跨ぎ対応） */
   duckDateRange: DateRange
+  /** 比較フレーム（全チャート共通の前年期間決定） */
+  comparisonFrame: ComparisonFrame
 }

@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 
 // Mock the infrastructure layer
 vi.mock('@/infrastructure/export', () => ({
-  downloadTemplate: vi.fn(),
   exportDailySalesReport: vi.fn(),
   exportMonthlyPLReport: vi.fn(),
   exportStoreKpiReport: vi.fn(),
@@ -12,7 +11,6 @@ vi.mock('@/infrastructure/export', () => ({
 
 import { exportService } from '../ExportService'
 import {
-  downloadTemplate,
   exportDailySalesReport,
   exportMonthlyPLReport,
   exportStoreKpiReport,
@@ -23,11 +21,6 @@ import type { StoreResult, Store } from '@/domain/models'
 import type { StoreExplanations } from '@/domain/models/Explanation'
 
 describe('ExportService', () => {
-  it('delegates downloadTemplate to infrastructure', () => {
-    exportService.downloadTemplate('purchase')
-    expect(downloadTemplate).toHaveBeenCalledWith('purchase')
-  })
-
   it('delegates exportDailySalesReport', () => {
     const result = {} as StoreResult
     const store = { id: 'S1', name: 'Store1' } as Store

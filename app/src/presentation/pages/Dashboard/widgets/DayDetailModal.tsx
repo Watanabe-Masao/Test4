@@ -19,7 +19,7 @@ import {
   calculateTransactionValue,
 } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DailyRecord, DateRange, CategoryTimeSalesRecord } from '@/domain/models'
+import type { DailyRecord, DateRange, ComparisonFrame, CategoryTimeSalesRecord } from '@/domain/models'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks'
 import {
@@ -80,6 +80,8 @@ interface DayDetailModalProps {
   dailyMap?: ReadonlyMap<number, DailyRecord>
   /** 選択中の店舗IDセット（空=全店舗） */
   selectedStoreIds?: ReadonlySet<string>
+  /** 比較フレーム（前年期間を統一的に取得） */
+  comparisonFrame: ComparisonFrame
   onClose: () => void
 }
 
@@ -99,6 +101,7 @@ export function DayDetailModal({
   duckDataVersion,
   dailyMap,
   selectedStoreIds,
+  comparisonFrame,
   onClose,
 }: DayDetailModalProps) {
   const [tab, setTab] = useState<ModalTab>('sales')
@@ -155,10 +158,18 @@ export function DayDetailModal({
 
   const prevDayRange: DateRange = useMemo(
     () => ({
-      from: { year: year - 1, month, day },
-      to: { year: year - 1, month, day },
+      from: {
+        year: comparisonFrame.previous.from.year,
+        month: comparisonFrame.previous.from.month,
+        day,
+      },
+      to: {
+        year: comparisonFrame.previous.to.year,
+        month: comparisonFrame.previous.to.month,
+        day,
+      },
     }),
-    [year, month, day],
+    [comparisonFrame.previous, day],
   )
 
   const prevDayResult = useDuckDBCategoryTimeRecords(
@@ -221,10 +232,18 @@ export function DayDetailModal({
 
   const cumPrevDateRange: DateRange = useMemo(
     () => ({
-      from: { year: year - 1, month, day: 1 },
-      to: { year: year - 1, month, day },
+      from: {
+        year: comparisonFrame.previous.from.year,
+        month: comparisonFrame.previous.from.month,
+        day: 1,
+      },
+      to: {
+        year: comparisonFrame.previous.to.year,
+        month: comparisonFrame.previous.to.month,
+        day,
+      },
     }),
-    [year, month, day],
+    [comparisonFrame.previous, day],
   )
 
   const cumPrevResult = useDuckDBCategoryTimeRecords(

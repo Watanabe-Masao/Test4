@@ -20,6 +20,7 @@ const mockSettings: AppSettings = {
   prevYearSourceYear: null,
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
+  alignmentPolicy: 'sameDayOfWeek' as const,
   gpDiffBlueThreshold: 0.2,
   gpDiffYellowThreshold: -0.2,
   gpDiffRedThreshold: -0.5,

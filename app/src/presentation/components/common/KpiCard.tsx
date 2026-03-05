@@ -149,7 +149,16 @@ export function KpiCard({
       <Label>
         {label}
         {badge && (
-          <MethodBadge $variant={badge}>{badge === 'actual' ? '実績' : '推定'}</MethodBadge>
+          <MethodBadge
+            $variant={badge}
+            title={
+              badge === 'actual'
+                ? '在庫法による実績値'
+                : '推定法による理論値（実績粗利ではありません）'
+            }
+          >
+            {badge === 'actual' ? '実績' : '推定'}
+          </MethodBadge>
         )}
       </Label>
       <Value>

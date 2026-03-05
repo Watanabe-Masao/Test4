@@ -16,7 +16,7 @@ import {
   useStoreSelection,
   useAutoLoadPrevYear,
   useExplanations,
-  useBudgetChartData,
+  useComparisonFrame,
 } from '@/application/hooks'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
@@ -188,15 +188,22 @@ export function DashboardPage() {
   // 部門KPIインデックス（Application層フック経由。早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   const deptKpiIndex = useDeptKpiView()
 
-  // 予算 vs 実績 累計チャートデータ（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
-  const budgetChartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
-
   // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
   // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
   // DuckDB 分析用日付範囲（ユーザー操作で自由に変更可能、月跨ぎ対応）
   const [duckDateRange, setDuckDateRange] = useDuckDBDateRange(targetYear, targetMonth, daysInMonth)
+
+  // 比較フレーム（全チャート共通の前年期間決定）— hooks の呼び出し順序維持のため早期リターン前
+  const baseRange: DateRange = useMemo(
+    () => ({
+      from: { year: targetYear, month: targetMonth, day: 1 },
+      to: { year: targetYear, month: targetMonth, day: daysInMonth },
+    }),
+    [targetYear, targetMonth, daysInMonth],
+  )
+  const frame = useComparisonFrame(baseRange)
 
   // データ駆動ウィジェットの自動注入
   // duck.isReady を依存配列に含め、DuckDB 初期化完了時にも再注入を試みる
@@ -268,10 +275,7 @@ export function DashboardPage() {
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
   const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
-    ? {
-        from: { year: targetYear - 1, month: targetMonth, day: 1 },
-        to: { year: targetYear - 1, month: targetMonth, day: effectiveEndDay },
-      }
+    ? frame.previous
     : undefined
 
   const ctx: WidgetContext = {
@@ -281,7 +285,6 @@ export function DashboardPage() {
     warningRate: settings.warningThreshold,
     year: targetYear,
     month: targetMonth,
-    budgetChartData,
     storeKey: storeName,
     prevYear,
     allStoreResults: storeResults,
@@ -300,6 +303,7 @@ export function DashboardPage() {
     duckDataVersion: duck.dataVersion,
     duckLoadedMonthCount: duck.loadedMonthCount,
     duckDateRange,
+    comparisonFrame: frame,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)

@@ -27,7 +27,14 @@ export interface WaterfallItem {
   prevTxValue: number | null
   currentCum: number
   prevYearCum: number | null
+  budgetCum: number | null
   cumDiscountRate: number
+  /** 前年差（当年売上 - 前年売上） */
+  yoyDiff: number | null
+  /** 前年差累計 */
+  yoyDiffCum: number | null
+  /** 予算日割（単日） */
+  budgetDaily: number | null
   wfSalesBase: number
   wfSalesUp: number
   wfSalesDown: number
@@ -40,13 +47,18 @@ export interface WaterfallItem {
   wfCustUp: number
   wfCustDown: number
   wfCustCum: number
+  /** 前年差累計ウォーターフォール */
+  wfYoyBase: number
+  wfYoyUp: number
+  wfYoyDown: number
+  wfYoyCum: number
   salesMa7: number | null
   discountMa7: number | null
   prevDiscountMa7: number | null
 }
 
 /** 日別ベースデータ（ウォーターフォール前） */
-interface BaseDayItem {
+export interface BaseDayItem {
   day: number
   sales: number
   discount: number
@@ -58,7 +70,11 @@ interface BaseDayItem {
   prevTxValue: number | null
   currentCum: number
   prevYearCum: number | null
+  budgetCum: number | null
   cumDiscountRate: number
+  yoyDiff: number | null
+  yoyDiffCum: number | null
+  budgetDaily: number | null
   salesMa7: number | null
   discountMa7: number | null
   prevDiscountMa7: number | null
@@ -92,6 +108,7 @@ export function useDailySalesData(
   year?: number,
   month?: number,
   selectedDows?: readonly number[],
+  budgetDaily?: ReadonlyMap<number, number>,
 ): DailySalesDataResult {
   const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
     const rawSales: number[] = []
@@ -100,21 +117,10 @@ export function useDailySalesData(
     let cumSales = 0,
       cumPrevSales = 0,
       cumDiscount = 0,
-      cumGrossSales = 0
-    const bd: {
-      day: number
-      sales: number
-      discount: number
-      prevYearSales: number | null
-      prevYearDiscount: number | null
-      customers: number
-      txValue: number | null
-      prevCustomers: number | null
-      prevTxValue: number | null
-      currentCum: number
-      prevYearCum: number | null
-      cumDiscountRate: number
-    }[] = []
+      cumGrossSales = 0,
+      cumBudget = 0,
+      cumYoyDiff = 0
+    const bd: Omit<BaseDayItem, 'salesMa7' | 'discountMa7' | 'prevDiscountMa7'>[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
       const sales = rec?.sales ?? 0
@@ -139,6 +145,12 @@ export function useDailySalesData(
       cumGrossSales += grossSales
       const cumDiscountRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
+      const dayBudget = budgetDaily?.get(d) ?? null
+      if (dayBudget != null) cumBudget += dayBudget
+
+      const yoyDiff = prevSales != null ? sales - prevSales : null
+      if (yoyDiff != null) cumYoyDiff += yoyDiff
+
       bd.push({
         day: d,
         sales,
@@ -151,7 +163,11 @@ export function useDailySalesData(
         prevTxValue,
         currentCum: cumSales,
         prevYearCum: cumPrevSales > 0 ? cumPrevSales : null,
+        budgetCum: cumBudget > 0 ? cumBudget : null,
         cumDiscountRate,
+        yoyDiff,
+        yoyDiffCum: prevYearDaily ? cumYoyDiff : null,
+        budgetDaily: dayBudget,
       })
     }
 
@@ -163,11 +179,12 @@ export function useDailySalesData(
     if (isWf) {
       let wfCumSales = 0,
         wfCumDiscount = 0,
-        wfCumCustomers = 0
-      wf = bd.map((d, i) => {
-        const salesChange = i === 0 ? d.sales : d.sales - bd[i - 1].sales
-        const discountChange = i === 0 ? d.discount : d.discount - bd[i - 1].discount
-        const customersChange = i === 0 ? d.customers : d.customers - bd[i - 1].customers
+        wfCumCustomers = 0,
+        wfCumYoy = 0
+      wf = bd.map((item, i) => {
+        const salesChange = i === 0 ? item.sales : item.sales - bd[i - 1].sales
+        const discountChange = i === 0 ? item.discount : item.discount - bd[i - 1].discount
+        const customersChange = i === 0 ? item.customers : item.customers - bd[i - 1].customers
 
         const wfSalesBase = salesChange >= 0 ? wfCumSales : wfCumSales + salesChange
         const wfSalesUp = salesChange >= 0 ? salesChange : 0
@@ -184,8 +201,15 @@ export function useDailySalesData(
         const wfCustDown = customersChange < 0 ? Math.abs(customersChange) : 0
         wfCumCustomers += customersChange
 
+        // 前年差ウォーターフォール（日別の前年差を積み上げ）
+        const dayYoyDiff = item.yoyDiff ?? 0
+        const wfYoyBase = dayYoyDiff >= 0 ? wfCumYoy : wfCumYoy + dayYoyDiff
+        const wfYoyUp = dayYoyDiff >= 0 ? dayYoyDiff : 0
+        const wfYoyDown = dayYoyDiff < 0 ? Math.abs(dayYoyDiff) : 0
+        wfCumYoy += dayYoyDiff
+
         return {
-          ...d,
+          ...item,
           wfSalesBase,
           wfSalesUp,
           wfSalesDown,
@@ -198,6 +222,10 @@ export function useDailySalesData(
           wfCustUp,
           wfCustDown,
           wfCustCum: wfCumCustomers,
+          wfYoyBase,
+          wfYoyUp,
+          wfYoyDown,
+          wfYoyCum: wfCumYoy,
           salesMa7: sMa7[i],
           discountMa7: dMa7[i],
           prevDiscountMa7: pdMa7[i],
@@ -206,7 +234,7 @@ export function useDailySalesData(
     }
 
     return { baseData: bd, salesMa7: sMa7, discountMa7: dMa7, prevDiscountMa7: pdMa7, wfData: wf }
-  }, [daily, daysInMonth, prevYearDaily, isWf])
+  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily])
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
   const dowFilter = useMemo(() => {

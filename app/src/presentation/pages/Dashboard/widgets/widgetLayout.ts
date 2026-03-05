@@ -17,9 +17,7 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'chart-daily-sales',
   // 3. 数値で確認
   'exec-summary-bar',
-  // 4. 予算や前年との比較は？
-  'chart-budget-vs-actual',
-  // 5. 詳細分析
+  // 4. 詳細分析
   'exec-plan-actual-forecast',
   // 6. これからどうなる？
   'exec-forecast-tools',

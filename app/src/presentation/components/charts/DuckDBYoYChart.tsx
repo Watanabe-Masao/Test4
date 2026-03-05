@@ -26,7 +26,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { ComparisonFrame } from '@/domain/models'
 import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
@@ -113,8 +113,7 @@ type ViewMode = 'line' | 'waterfall'
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
   readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly prevYearDateRange: DateRange | undefined
+  readonly frame: ComparisonFrame | undefined
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
@@ -332,8 +331,7 @@ const WaterfallView = memo(function WaterfallView({ waterfallData, ct, fmt }: Wa
 export const DuckDBYoYChart = memo(function DuckDBYoYChart({
   duckConn,
   duckDataVersion,
-  currentDateRange,
-  prevYearDateRange,
+  frame,
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
@@ -345,13 +343,7 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
     data: rows,
     isLoading,
     error,
-  } = useDuckDBYoyDaily(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    prevYearDateRange,
-    selectedStoreIds,
-  )
+  } = useDuckDBYoyDaily(duckConn, duckDataVersion, frame, selectedStoreIds)
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
   const waterfallData = useMemo(
@@ -374,7 +366,7 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
     return <ChartSkeleton />
   }
 
-  if (!duckConn || duckDataVersion === 0 || !prevYearDateRange || chartData.length === 0) {
+  if (!duckConn || duckDataVersion === 0 || !frame || chartData.length === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 

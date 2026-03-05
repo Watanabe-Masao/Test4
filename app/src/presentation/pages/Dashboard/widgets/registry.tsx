@@ -3,7 +3,6 @@ import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
 import {
   DailySalesChart,
-  BudgetVsActualChart,
   CategoryPieChart,
   GrossProfitAmountChart,
   CategoryHierarchyExplorer,
@@ -226,22 +225,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'chart-budget-vs-actual',
-    label: '予算vs実績チャート',
-    group: '収益概況',
-    size: 'full',
-    linkTo: { view: 'insight', tab: 'budget' },
-    render: ({ result: r, budgetChartData, daysInMonth, prevYear }) => (
-      <BudgetVsActualChart
-        data={budgetChartData}
-        budget={r.budget}
-        salesDays={r.salesDays}
-        daysInMonth={daysInMonth}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-      />
-    ),
-  },
+  // 注: 予算vs実績チャート → DailySalesChart「累計推移」ビューに統合
   {
     id: 'chart-category-pie',
     label: 'カテゴリ別構成',
