@@ -208,6 +208,81 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   },
   // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
   // 注: kpi-customers, kpi-transaction-value → ExecSummaryBar 客数・客単価カードに統合
+  // ── KPI: 前年比較（月間フル集計、dataEndDay非依存） ──
+  {
+    id: 'kpi-py-same-dow',
+    label: '前年同曜日（月間）',
+    group: '前年比較',
+    size: 'kpi',
+    isVisible: ({ prevYearMonthlyKpi: pk }) => pk.hasPrevYear,
+    render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+      const py = pk.sameDow
+      const salesRatio = py.sales > 0 ? r.totalSales / py.sales : null
+      const custRatio =
+        py.customers > 0 && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const sub = [
+        `売上: ${formatCurrency(py.sales)}`,
+        `客数: ${py.customers.toLocaleString('ja-JP')}人`,
+        custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
+      ]
+        .filter(Boolean)
+        .join(' / ')
+      return (
+        <KpiCard
+          label="前年同曜日（月間）"
+          value={salesRatio != null ? formatPercent(salesRatio, 1) : '-'}
+          subText={sub}
+          accent={palette.blueDark}
+          trend={
+            salesRatio != null
+              ? {
+                  direction: salesRatio >= 1 ? 'up' : 'down',
+                  label: `売上比 ${formatPercent(salesRatio, 1)}`,
+                }
+              : undefined
+          }
+          formulaSummary="当年売上 ÷ 前年同曜日売上（月間フル）"
+        />
+      )
+    },
+  },
+  {
+    id: 'kpi-py-same-date',
+    label: '前年同日（月間）',
+    group: '前年比較',
+    size: 'kpi',
+    isVisible: ({ prevYearMonthlyKpi: pk }) => pk.hasPrevYear,
+    render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+      const py = pk.sameDate
+      const salesRatio = py.sales > 0 ? r.totalSales / py.sales : null
+      const custRatio =
+        py.customers > 0 && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const sub = [
+        `売上: ${formatCurrency(py.sales)}`,
+        `客数: ${py.customers.toLocaleString('ja-JP')}人`,
+        custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
+      ]
+        .filter(Boolean)
+        .join(' / ')
+      return (
+        <KpiCard
+          label="前年同日（月間）"
+          value={salesRatio != null ? formatPercent(salesRatio, 1) : '-'}
+          subText={sub}
+          accent={palette.cyanDark}
+          trend={
+            salesRatio != null
+              ? {
+                  direction: salesRatio >= 1 ? 'up' : 'down',
+                  label: `売上比 ${formatPercent(salesRatio, 1)}`,
+                }
+              : undefined
+          }
+          formulaSummary="当年売上 ÷ 前年同日売上（月間フル）"
+        />
+      )
+    },
+  },
   // ── トレンド分析: 日次 ──
   {
     id: 'chart-daily-sales',
