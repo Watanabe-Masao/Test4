@@ -6,6 +6,7 @@ import type {
   ValidationMessage,
   ClassifiedSalesData,
   CategoryTimeSalesData,
+  SpecialSalesData,
   InventoryConfig,
   StoreExplanations,
 } from '@/domain/models'
@@ -27,6 +28,7 @@ export interface DataStore {
   setPrevYearAutoData: (payload: {
     prevYearClassifiedSales: ClassifiedSalesData
     prevYearCategoryTimeSales: CategoryTimeSalesData
+    prevYearFlowers: SpecialSalesData
   }) => void
   updateInventory: (storeId: string, config: Partial<InventoryConfig>) => void
   reset: () => void
@@ -56,13 +58,18 @@ export const useDataStore = create<DataStore>()(
       setValidationMessages: (messages) =>
         set({ validationMessages: messages }, false, 'setValidationMessages'),
 
-      setPrevYearAutoData: ({ prevYearClassifiedSales, prevYearCategoryTimeSales }) =>
+      setPrevYearAutoData: ({
+        prevYearClassifiedSales,
+        prevYearCategoryTimeSales,
+        prevYearFlowers,
+      }) =>
         set(
           (state) => ({
             data: {
               ...state.data,
               prevYearClassifiedSales,
               prevYearCategoryTimeSales,
+              prevYearFlowers,
             },
           }),
           false,

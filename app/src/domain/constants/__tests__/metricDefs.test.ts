@@ -51,6 +51,8 @@ const ALL_METRIC_IDS: MetricId[] = [
   'projectedGrossProfit',
   'projectedGPAchievement',
   'requiredDailyGrossProfit',
+  'prevYearSameDowBudgetRatio',
+  'prevYearSameDateBudgetRatio',
 ]
 
 describe('METRIC_DEFS', () => {

@@ -18,6 +18,7 @@ import {
   useExplanations,
   useComparisonFrame,
   usePrevYearMonthlyKpi,
+  useDowGapAnalysis,
 } from '@/application/hooks'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
@@ -42,6 +43,7 @@ import {
   DuckDBDateRangePicker,
   useDuckDBDateRange,
 } from '@/presentation/components/charts'
+import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -99,6 +101,16 @@ export function DashboardPage() {
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
+  // 曜日ギャップ分析（前年予算比較パネル用）
+  const dowGap = useDowGapAnalysis(
+    settings.targetYear,
+    settings.targetMonth,
+    prevYearMonthlyKpi.sourceYear,
+    prevYearMonthlyKpi.sourceMonth,
+    currentResult?.averageDailySales ?? 0,
+    prevYearMonthlyKpi.hasPrevYear,
+  )
+
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
 
@@ -123,6 +135,12 @@ export function DashboardPage() {
   const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
   const handleExplain = useCallback((metricId: MetricId) => {
     setExplainMetric(metricId)
+  }, [])
+
+  // 前年予算比較詳細パネル
+  const [prevYearDetailType, setPrevYearDetailType] = useState<'sameDow' | 'sameDate' | null>(null)
+  const handlePrevYearDetail = useCallback((type: 'sameDow' | 'sameDate') => {
+    setPrevYearDetailType(type)
   }, [])
 
   // 販売データ存在範囲の検出（スライダーデフォルト値用）
@@ -305,6 +323,7 @@ export function DashboardPage() {
     duckLoadedMonthCount: duck.loadedMonthCount,
     duckDateRange,
     comparisonFrame: frame,
+    onPrevYearDetail: handlePrevYearDetail,
   }
 
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
@@ -488,6 +507,27 @@ export function DashboardPage() {
             allExplanations={explanations}
             stores={data.stores}
             onClose={() => setExplainMetric(null)}
+          />
+        )}
+
+        {/* 前年予算比較詳細パネル */}
+        {prevYearDetailType && prevYearMonthlyKpi.hasPrevYear && (
+          <PrevYearBudgetDetailPanel
+            type={prevYearDetailType}
+            entry={
+              prevYearDetailType === 'sameDow'
+                ? prevYearMonthlyKpi.sameDow
+                : prevYearMonthlyKpi.sameDate
+            }
+            budgetDaily={r.budgetDaily}
+            budgetTotal={r.budget}
+            targetYear={targetYear}
+            targetMonth={targetMonth}
+            sourceYear={prevYearMonthlyKpi.sourceYear}
+            sourceMonth={prevYearMonthlyKpi.sourceMonth}
+            dowOffset={prevYearMonthlyKpi.dowOffset}
+            dowGap={dowGap}
+            onClose={() => setPrevYearDetailType(null)}
           />
         )}
       </CategoryHierarchyProvider>

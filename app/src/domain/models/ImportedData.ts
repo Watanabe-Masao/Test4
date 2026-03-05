@@ -24,6 +24,7 @@ export interface ImportedData {
   readonly consumables: CostInclusionData
   readonly categoryTimeSales: CategoryTimeSalesData
   readonly prevYearCategoryTimeSales: CategoryTimeSalesData
+  readonly prevYearFlowers: SpecialSalesData
   readonly departmentKpi: DepartmentKpiData
   readonly settings: ReadonlyMap<string, InventoryConfig>
   readonly budget: ReadonlyMap<string, BudgetData>
@@ -44,6 +45,7 @@ export function createEmptyImportedData(): ImportedData {
     consumables: {},
     categoryTimeSales: { records: [] },
     prevYearCategoryTimeSales: { records: [] },
+    prevYearFlowers: {},
     departmentKpi: { records: [] },
     settings: new Map(),
     budget: new Map(),

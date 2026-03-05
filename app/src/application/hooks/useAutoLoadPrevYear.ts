@@ -10,6 +10,7 @@ import type {
   ClassifiedSalesRecord,
   CategoryTimeSalesData,
   CategoryTimeSalesRecord,
+  SpecialSalesData,
 } from '@/domain/models'
 
 /**
@@ -208,9 +209,18 @@ export function useAutoLoadPrevYear(): void {
 
         if (cancelled) return
 
+        // 前年花データ（客数）をロード
+        const prevFlowers = await repo.loadDataSlice<SpecialSalesData>(
+          sourceYear,
+          sourceMonth,
+          'flowers',
+        )
+        if (cancelled) return
+
         useDataStore.getState().setPrevYearAutoData({
           prevYearClassifiedSales: { records: mergedCSRecords },
           prevYearCategoryTimeSales: { records: mergedCTSRecords },
+          prevYearFlowers: prevFlowers ?? {},
         })
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()

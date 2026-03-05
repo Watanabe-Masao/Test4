@@ -295,6 +295,7 @@ export function PrevYearMappingTab() {
     useDataStore.getState().setPrevYearAutoData({
       prevYearClassifiedSales: { records: [] },
       prevYearCategoryTimeSales: { records: [] },
+      prevYearFlowers: {},
     })
     calculationCache.clear()
     useUiStore.getState().invalidateCalculation()

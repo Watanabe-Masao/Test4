@@ -63,7 +63,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearCS = data.prevYearClassifiedSales
-  const prevYearFlowers = data.flowers // 客数は花ファイルから
+  const prevYearFlowers = data.prevYearFlowers // 前年客数は前年花ファイルから
   const { targetYear, targetMonth } = settings
   // null / undefined / NaN を安全に処理
   const prevYearSourceYear = validNum(settings.prevYearSourceYear)

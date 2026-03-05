@@ -6,7 +6,11 @@ export { useSettings, loadSettingsFromStorage } from './useSettings'
 export { usePrevYearData } from './usePrevYearData'
 export type { PrevYearData, PrevYearDailyEntry } from './usePrevYearData'
 export { usePrevYearMonthlyKpi } from './usePrevYearMonthlyKpi'
-export type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './usePrevYearMonthlyKpi'
+export type {
+  PrevYearMonthlyKpi,
+  PrevYearMonthlyKpiEntry,
+  StoreContribution,
+} from './usePrevYearMonthlyKpi'
 export { usePrevYearCategoryTimeSales } from './usePrevYearCategoryTimeSales'
 export { useAutoLoadPrevYear } from './useAutoLoadPrevYear'
 export { useKeyboardShortcuts } from './useKeyboardShortcuts'
@@ -147,3 +151,5 @@ export type {
 export { useDrillAction } from './useDrillAction'
 export { useDeviceSync } from './useDeviceSync'
 export type { SettingsCodeResult, SettingsImportResult } from './useDeviceSync'
+export { useDowGapAnalysis } from './useDowGapAnalysis'
+export type { DowGapAnalysis } from './useDowGapAnalysis'

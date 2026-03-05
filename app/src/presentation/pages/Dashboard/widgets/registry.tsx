@@ -211,14 +211,14 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   // ── KPI: 前年比較（月間フル集計、dataEndDay非依存） ──
   {
     id: 'kpi-py-same-dow',
-    label: '前年同曜日（月間）',
+    label: '前年同曜日 vs 予算',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="前年同曜日（月間）"
+            label="前年同曜日 vs 予算"
             value="-"
             subText="前年データ未読込"
             accent={palette.blueDark}
@@ -226,50 +226,51 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         )
       }
       const py = pk.sameDow
-      const hasSales = py.sales > 0
-      const hasCust = py.customers > 0
-      const salesRatio = hasSales ? r.totalSales / py.sales : null
-      const custRatio = hasCust && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
-      const warnings: string[] = []
-      if (!hasSales) warnings.push('前年売上データなし')
-      if (!hasCust) warnings.push('前年客数データなし')
+      const hasBudget = r.budget > 0
+      const budgetRatio = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
-        hasSales ? `売上: ${formatCurrency(py.sales)}` : null,
-        hasCust ? `客数: ${py.customers.toLocaleString('ja-JP')}人` : null,
-        custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
-        ...warnings,
+        `前年: ${formatCurrency(py.sales)}`,
+        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        hasBudget
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          : null,
+        py.customers > 0
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          : null,
       ]
         .filter(Boolean)
         .join(' / ')
       return (
         <KpiCard
-          label="前年同曜日（月間）"
-          value={salesRatio != null ? formatPercent(salesRatio, 1) : '-'}
+          label="前年同曜日 vs 予算"
+          value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
           subText={sub}
           accent={palette.blueDark}
+          onClick={() => onExplain('prevYearSameDowBudgetRatio')}
           trend={
-            salesRatio != null
+            budgetRatio != null
               ? {
-                  direction: salesRatio >= 1 ? 'up' : 'down',
-                  label: `売上比 ${formatPercent(salesRatio, 1)}`,
+                  direction: budgetRatio >= 1 ? 'up' : 'down',
+                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0), 1)}`,
                 }
               : undefined
           }
-          formulaSummary="当年売上 ÷ 前年同曜日売上（月間フル）"
+          formulaSummary="前年同曜日売上 ÷ 当年月間予算"
         />
       )
     },
   },
   {
     id: 'kpi-py-same-date',
-    label: '前年同日（月間）',
+    label: '前年同日 vs 予算',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="前年同日（月間）"
+            label="前年同日 vs 予算"
             value="-"
             subText="前年データ未読込"
             accent={palette.cyanDark}
@@ -277,36 +278,37 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
         )
       }
       const py = pk.sameDate
-      const hasSales = py.sales > 0
-      const hasCust = py.customers > 0
-      const salesRatio = hasSales ? r.totalSales / py.sales : null
-      const custRatio = hasCust && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
-      const warnings: string[] = []
-      if (!hasSales) warnings.push('前年売上データなし')
-      if (!hasCust) warnings.push('前年客数データなし')
+      const hasBudget = r.budget > 0
+      const budgetRatio = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
-        hasSales ? `売上: ${formatCurrency(py.sales)}` : null,
-        hasCust ? `客数: ${py.customers.toLocaleString('ja-JP')}人` : null,
-        custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
-        ...warnings,
+        `前年: ${formatCurrency(py.sales)}`,
+        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        hasBudget
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          : null,
+        py.customers > 0
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          : null,
       ]
         .filter(Boolean)
         .join(' / ')
       return (
         <KpiCard
-          label="前年同日（月間）"
-          value={salesRatio != null ? formatPercent(salesRatio, 1) : '-'}
+          label="前年同日 vs 予算"
+          value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
           subText={sub}
           accent={palette.cyanDark}
+          onClick={() => onExplain('prevYearSameDateBudgetRatio')}
           trend={
-            salesRatio != null
+            budgetRatio != null
               ? {
-                  direction: salesRatio >= 1 ? 'up' : 'down',
-                  label: `売上比 ${formatPercent(salesRatio, 1)}`,
+                  direction: budgetRatio >= 1 ? 'up' : 'down',
+                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0), 1)}`,
                 }
               : undefined
           }
-          formulaSummary="当年売上 ÷ 前年同日売上（月間フル）"
+          formulaSummary="前年同日売上 ÷ 当年月間予算"
         />
       )
     },

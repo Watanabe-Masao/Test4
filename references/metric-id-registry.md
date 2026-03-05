@@ -92,6 +92,8 @@ export interface MetricMeta {
 | `purchaseBudgetAchievement` | purchase | budget | achievement | 仕入予算達成率 |
 | `purchaseBudgetVariance` | purchase | budget | variance | 仕入予算差異 |
 | `requiredDailyPurchase` | purchase | budget | required | 必要日次仕入 |
+| `prevYearSameDowBudgetRatio` | sales | budget | achievement | 前年同曜日予算比 |
+| `prevYearSameDateBudgetRatio` | sales | budget | achievement | 前年同日予算比 |
 
 ### トークン活用例
 
@@ -386,6 +388,18 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 
 ---
 
+## 前年予算比較系
+
+**前提:** ダッシュボードKPIカードで前年売上（同曜日/同日）÷ 当年月間予算を表示する。
+クリックすると日別対応テーブル・週間小計・曜日ギャップ分析を含む詳細パネルが開く。
+
+| MetricId | 指標名 | 単位 | 計算式 | 実装状況 |
+|---|---|---|---|---|
+| `prevYearSameDowBudgetRatio` | 前年同曜日予算比 | rate | 前年同曜日売上 ÷ 当年月間予算 | **✅ MetricId + KPIカード** |
+| `prevYearSameDateBudgetRatio` | 前年同日予算比 | rate | 前年同日売上 ÷ 当年月間予算 | **✅ MetricId + KPIカード** |
+
+---
+
 ## 実装状況サマリ
 
 | カテゴリ | MetricId 登録済み | 計算+Explanation済み | 計算未実装 |
@@ -402,9 +416,10 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | 売上予算系 | 11 | 11 | 0 |
 | 粗利予算系 | 8 | 3 | 5 |
 | 仕入予算系 | 4 | 0 | 4 |
-| **合計** | **47** | **34** | **13** |
+| 前年予算比較系 | 2 | 2 | 0 |
+| **合計** | **49** | **36** | **13** |
 
-→ 全 47 MetricId 登録済み。うち 34 指標は計算 + Explanation 実装完了。
+→ 全 49 MetricId 登録済み。うち 36 指標は計算 + Explanation 実装完了。
 
 ### 概念の区別
 
