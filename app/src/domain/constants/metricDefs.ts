@@ -327,4 +327,18 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'budget', measure: 'required' },
     formulaRef: 'ratioCalculation',
   },
+
+  // ─── 前年予算比較系 ─────────────────────────────────────
+  prevYearSameDowBudgetRatio: {
+    label: '前年同曜日予算比',
+    unit: 'rate',
+    tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
+    formulaRef: 'ratioCalculation',
+  },
+  prevYearSameDateBudgetRatio: {
+    label: '前年同日予算比',
+    unit: 'rate',
+    tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
+    formulaRef: 'ratioCalculation',
+  },
 } as const

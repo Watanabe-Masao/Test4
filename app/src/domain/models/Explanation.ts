@@ -77,6 +77,9 @@ export type MetricId =
   | 'projectedGrossProfit'
   | 'projectedGPAchievement'
   | 'requiredDailyGrossProfit'
+  // 前年予算比較系
+  | 'prevYearSameDowBudgetRatio'
+  | 'prevYearSameDateBudgetRatio'
 
 // ─── MetricTokens ────────────────────────────────────────
 

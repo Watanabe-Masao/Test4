@@ -112,4 +112,6 @@ export interface WidgetContext {
   prevYearMonthlyKpi: PrevYearMonthlyKpi
   /** 比較フレーム（全チャート共通の前年期間決定） */
   comparisonFrame: ComparisonFrame
+  /** 前年予算比較詳細パネルを開く */
+  onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
 }
