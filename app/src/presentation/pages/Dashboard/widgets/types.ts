@@ -1,6 +1,13 @@
 import type { ReactNode } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { StoreResult, StoreExplanations, MetricId, DateRange, ViewType } from '@/domain/models'
+import type {
+  StoreResult,
+  StoreExplanations,
+  MetricId,
+  DateRange,
+  ViewType,
+  ComparisonFrame,
+} from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
@@ -100,4 +107,6 @@ export interface WidgetContext {
   duckLoadedMonthCount: number
   /** DuckDB 分析用の自由日付範囲（ユーザーが選択可能、月跨ぎ対応） */
   duckDateRange: DateRange
+  /** 比較フレーム（全チャート共通の前年期間決定） */
+  comparisonFrame: ComparisonFrame
 }

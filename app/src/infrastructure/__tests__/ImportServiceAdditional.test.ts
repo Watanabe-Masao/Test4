@@ -40,6 +40,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   prevYearSourceYear: null,
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
+  alignmentPolicy: 'sameDayOfWeek' as const,
   userCategoryLabels: {},
 }
 

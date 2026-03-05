@@ -1,9 +1,13 @@
 /**
  * 前年比較（YoY）クエリフック群
+ *
+ * ComparisonFrame を受け取り、frame.current / frame.previous から日付範囲を取得する。
+ * 期間解釈は resolveComparisonFrame で一元管理されるため、
+ * このフックは ComparisonFrame をそのまま使う。
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { ComparisonFrame } from '@/domain/models'
 import {
   queryYoyDailyComparison,
   queryYoyCategoryComparison,
@@ -16,23 +20,26 @@ import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } fro
 export function useDuckDBYoyDaily(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
-  curRange: DateRange | undefined,
-  prevRange: DateRange | undefined,
+  frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
+  const curKeys = frame ? toDateKeys(frame.current) : null
+  const prevKeys = frame ? toDateKeys(frame.previous) : null
+  const storeArr = storeIdsToArray(storeIds)
+
   const queryFn = useMemo(() => {
-    if (!curRange || !prevRange) return null
-    const cur = toDateKeys(curRange)
-    const prev = toDateKeys(prevRange)
+    if (!curKeys || !prevKeys) return null
+    const { dateFrom: cdf, dateTo: cdt } = curKeys
+    const { dateFrom: pdf, dateTo: pdt } = prevKeys
     return (c: AsyncDuckDBConnection) =>
       queryYoyDailyComparison(c, {
-        curDateFrom: cur.dateFrom,
-        curDateTo: cur.dateTo,
-        prevDateFrom: prev.dateFrom,
-        prevDateTo: prev.dateTo,
-        storeIds: storeIdsToArray(storeIds),
+        curDateFrom: cdf,
+        curDateTo: cdt,
+        prevDateFrom: pdf,
+        prevDateTo: pdt,
+        storeIds: storeArr,
       })
-  }, [curRange, prevRange, storeIds])
+  }, [curKeys, prevKeys, storeArr])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -41,25 +48,28 @@ export function useDuckDBYoyDaily(
 export function useDuckDBYoyCategory(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
-  curRange: DateRange | undefined,
-  prevRange: DateRange | undefined,
+  frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
   level: 'department' | 'line' | 'klass',
 ): AsyncQueryResult<readonly YoyCategoryRow[]> {
+  const curKeys = frame ? toDateKeys(frame.current) : null
+  const prevKeys = frame ? toDateKeys(frame.previous) : null
+  const storeArr = storeIdsToArray(storeIds)
+
   const queryFn = useMemo(() => {
-    if (!curRange || !prevRange) return null
-    const cur = toDateKeys(curRange)
-    const prev = toDateKeys(prevRange)
+    if (!curKeys || !prevKeys) return null
+    const { dateFrom: cdf, dateTo: cdt } = curKeys
+    const { dateFrom: pdf, dateTo: pdt } = prevKeys
     return (c: AsyncDuckDBConnection) =>
       queryYoyCategoryComparison(c, {
-        curDateFrom: cur.dateFrom,
-        curDateTo: cur.dateTo,
-        prevDateFrom: prev.dateFrom,
-        prevDateTo: prev.dateTo,
-        storeIds: storeIdsToArray(storeIds),
+        curDateFrom: cdf,
+        curDateTo: cdt,
+        prevDateFrom: pdf,
+        prevDateTo: pdt,
+        storeIds: storeArr,
         level,
       })
-  }, [curRange, prevRange, storeIds, level])
+  }, [curKeys, prevKeys, storeArr, level])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

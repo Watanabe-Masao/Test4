@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
-import { calcSameDowOffset } from './usePrevYearData'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
+import { resolveComparisonFrame } from '@/application/comparison/resolveComparisonFrame'
 
 export interface PrevYearCategoryTimeSalesData {
   /** 前年データが存在するか */
@@ -49,15 +49,25 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
   const prevYearSourceYear = validNum(settings.prevYearSourceYear)
   const prevYearSourceMonth = validNum(settings.prevYearSourceMonth)
   const prevYearDowOffset = validNum(settings.prevYearDowOffset)
+  const alignmentPolicy = settings.alignmentPolicy ?? 'sameDayOfWeek'
 
   return useMemo(() => {
     if (prevYearCTS.records.length === 0) return EMPTY
 
-    const rawOffset =
-      prevYearDowOffset ??
-      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth)
-    const offset = Math.max(0, Math.min(6, Math.round(rawOffset)))
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
+    const frame = resolveComparisonFrame(
+      {
+        from: { year: targetYear, month: targetMonth, day: 1 },
+        to: { year: targetYear, month: targetMonth, day: Math.max(1, daysInTargetMonth) },
+      },
+      alignmentPolicy,
+      {
+        sourceYear: prevYearSourceYear,
+        sourceMonth: prevYearSourceMonth,
+        dowOffset: prevYearDowOffset,
+      },
+    )
+    const offset = frame.dowOffset
 
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
@@ -97,5 +107,6 @@ export function usePrevYearCategoryTimeSales(): PrevYearCategoryTimeSalesData {
     prevYearSourceYear,
     prevYearSourceMonth,
     prevYearDowOffset,
+    alignmentPolicy,
   ])
 }

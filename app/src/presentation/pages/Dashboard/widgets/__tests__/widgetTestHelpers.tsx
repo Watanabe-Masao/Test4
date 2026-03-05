@@ -193,6 +193,12 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       from: { year: 2026, month: 2, day: 1 },
       to: { year: 2026, month: 2, day: 28 },
     },
+    comparisonFrame: {
+      current: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+      previous: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },
+      dowOffset: 0,
+      policy: 'sameDayOfWeek' as const,
+    },
     ...overrides,
   }
 }

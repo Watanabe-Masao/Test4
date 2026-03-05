@@ -40,6 +40,7 @@ export type {
 } from './DataTypes'
 export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
 export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
+export type { AlignmentPolicy, ComparisonFrame } from './ComparisonFrame'
 export {
   toDateKey,
   toDateKeyFromParts,

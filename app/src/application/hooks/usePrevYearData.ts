@@ -6,6 +6,7 @@ import { getDaysInMonth } from '@/domain/constants/defaults'
 import { aggregateAllStores, addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import type { DiscountEntry } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
+import { resolveComparisonFrame } from '@/application/comparison/resolveComparisonFrame'
 
 export interface PrevYearDailyEntry {
   readonly sales: number
@@ -47,33 +48,8 @@ function validNum(v: number | null | undefined): number | undefined {
   return v
 }
 
-/**
- * 前年同曜日オフセットを算出する
- *
- * 当年 month/1 の曜日と前年 month/1 の曜日の差分を返す。
- * 例: 2026-02-01(日)=0, 2025-02-01(土)=6 → offset = (0-6+7)%7 = 1
- * → 当年 day d に対応する前年の日は d + offset
- * → Map 構築時に前年 day を day - offset のキーで格納する
- *
- * sourceYear / sourceMonth を指定すると、デフォルト (year-1, month) ではなく
- * 指定のソース年月との差分を算出する。
- * 入力が NaN の場合は 0 を返す。
- */
-export function calcSameDowOffset(
-  year: number,
-  month: number,
-  sourceYear?: number,
-  sourceMonth?: number,
-): number {
-  const sy = sourceYear ?? year - 1
-  const sm = sourceMonth ?? month
-  // NaN ガード
-  if (isNaN(year) || isNaN(month) || isNaN(sy) || isNaN(sm)) return 0
-  const currentDow = new Date(year, month - 1, 1).getDay()
-  const prevDow = new Date(sy, sm - 1, 1).getDay()
-  const result = (((currentDow - prevDow) % 7) + 7) % 7
-  return isNaN(result) ? 0 : result
-}
+// 後方互換: calcSameDowOffset は resolveComparisonFrame モジュールに移動済み
+export { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
 /**
  * 前年データ集計フック（店舗選択に連動、同曜日対応付け）
@@ -93,6 +69,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const prevYearSourceYear = validNum(settings.prevYearSourceYear)
   const prevYearSourceMonth = validNum(settings.prevYearSourceMonth)
   const prevYearDowOffset = validNum(settings.prevYearDowOffset)
+  const alignmentPolicy = settings.alignmentPolicy ?? 'sameDayOfWeek'
 
   return useMemo(() => {
     if (prevYearCS.records.length === 0) return EMPTY
@@ -109,12 +86,21 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
     if (targetIds.length === 0) return EMPTY
 
-    // 前年同曜日オフセット（手動指定 or 自動計算、0〜6 にクランプ）
-    const rawOffset =
-      prevYearDowOffset ??
-      calcSameDowOffset(targetYear, targetMonth, prevYearSourceYear, prevYearSourceMonth)
-    const offset = Math.max(0, Math.min(6, Math.round(rawOffset)))
+    // 前年同曜日オフセット — resolveComparisonFrame で一元管理
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
+    const frame = resolveComparisonFrame(
+      {
+        from: { year: targetYear, month: targetMonth, day: 1 },
+        to: { year: targetYear, month: targetMonth, day: Math.max(1, daysInTargetMonth) },
+      },
+      alignmentPolicy,
+      {
+        sourceYear: prevYearSourceYear,
+        sourceMonth: prevYearSourceMonth,
+        dowOffset: prevYearDowOffset,
+      },
+    )
+    const offset = frame.dowOffset
 
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
@@ -204,5 +190,6 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     prevYearSourceYear,
     prevYearSourceMonth,
     prevYearDowOffset,
+    alignmentPolicy,
   ])
 }

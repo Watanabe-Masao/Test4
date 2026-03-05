@@ -5,7 +5,8 @@ import { useSettings, useStorageAdmin } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
-import { calcSameDowOffset } from '@/application/hooks/usePrevYearData'
+import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
+import type { AlignmentPolicy } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
 
@@ -437,6 +438,22 @@ export function PrevYearMappingTab() {
         </CurrentStatus>
 
         <FieldGroup>
+          <FieldRow>
+            <FieldLabel>期間合わせ方</FieldLabel>
+            <Select
+              value={settings.alignmentPolicy ?? 'sameDayOfWeek'}
+              onChange={(e) =>
+                updateSettings({ alignmentPolicy: e.target.value as AlignmentPolicy })
+              }
+            >
+              <option value="sameDayOfWeek">同曜日寄せ（推奨）</option>
+              <option value="sameDate">同日付</option>
+            </Select>
+            <HelpText style={{ margin: 0, minWidth: 200 }}>
+              全チャート・全クエリの前年比較に適用
+            </HelpText>
+          </FieldRow>
+
           <FieldRow>
             <FieldLabel>比較元（ソース年月）</FieldLabel>
             <Select value={currentSourceValue} onChange={(e) => handleSourceChange(e.target.value)}>

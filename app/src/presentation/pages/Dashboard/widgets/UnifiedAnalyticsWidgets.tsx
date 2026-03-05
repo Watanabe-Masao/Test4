@@ -97,15 +97,7 @@ export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: W
     <DuckDBYoYChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
-      currentDateRange={ctx.duckDateRange}
-      prevYearDateRange={
-        ctx.prevYearDateRange
-          ? {
-              from: { ...ctx.duckDateRange.from, year: ctx.duckDateRange.from.year - 1 },
-              to: { ...ctx.duckDateRange.to, year: ctx.duckDateRange.to.year - 1 },
-            }
-          : undefined
-      }
+      frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}
       selectedStoreIds={ctx.selectedStoreIds}
     />
   )

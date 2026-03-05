@@ -24,6 +24,7 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     prevYearSourceYear: null,
     prevYearSourceMonth: null,
     prevYearDowOffset: null,
+    alignmentPolicy: 'sameDayOfWeek',
   }
 }
 
