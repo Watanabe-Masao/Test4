@@ -112,6 +112,9 @@ export type {
   PriceMixResult,
 } from './factorDecomposition'
 
+// 曜日ギャップ分析
+export { analyzeDowGap, countDowsInMonth, ZERO_DOW_GAP_ANALYSIS } from './dowGapAnalysis'
+
 // 因果チェーン分析
 export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
 export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'

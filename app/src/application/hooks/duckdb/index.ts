@@ -81,6 +81,9 @@ export {
 } from './useDailyRecordQueries'
 export type { DailyRecordRow } from './useDailyRecordQueries'
 
+// 比較コンテキスト
+export { useComparisonContextQuery } from './useComparisonContextQuery'
+
 // コンディションマトリクス
 export { useDuckDBConditionMatrix, buildConditionMatrix } from './useConditionMatrix'
 export type {

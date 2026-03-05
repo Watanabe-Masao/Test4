@@ -78,6 +78,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useMetricsQueries.ts',
   // DuckDB 統合 — 日別明細クエリフック
   'application/hooks/duckdb/useDailyRecordQueries.ts',
+  // DuckDB 統合 — 比較コンテキストクエリフック
+  'application/hooks/duckdb/useComparisonContextQuery.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
   'application/hooks/useStoragePersistence.ts',
   'application/hooks/useDataRecovery.ts',

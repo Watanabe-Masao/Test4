@@ -41,6 +41,7 @@ export type {
 export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
 export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
 export type { AlignmentPolicy, ComparisonFrame } from './ComparisonFrame'
+export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'
 export {
   toDateKey,
   toDateKeyFromParts,
