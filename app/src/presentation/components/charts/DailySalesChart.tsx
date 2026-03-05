@@ -5,15 +5,7 @@
  * データフック呼び出しを担い、描画は DailySalesChartBody に委譲する。
  */
 import { useState, useCallback, memo } from 'react'
-import {
-  Wrapper,
-  HeaderRow,
-  Title,
-  ViewToggle,
-  ViewBtn,
-  Sep,
-  GroupLabel,
-} from './DailySalesChart.styles'
+import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DayRangeSlider } from './DayRangeSlider'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -30,55 +22,31 @@ interface Props {
   year: number
   month: number
   prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  budgetDaily?: ReadonlyMap<number, number>
   mode?: DailyChartMode
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
   standard: '標準',
-  salesOnly: '売上',
-  discountOnly: '売変',
-  discountImpact: '売変分析',
-  customers: '客数',
-  txValue: '客単価',
-  prevYearCum: '前年比累計',
-  movingAvg: '移動平均',
-  area: 'エリア',
+  prevYearCum: '累計推移',
+  vsLastYear: '実績対前年',
 }
-
-/** 指標グループ定義（2段トグルの1段目） */
-const INDICATOR_GROUPS: { label: string; views: ViewType[] }[] = [
-  { label: '売上系', views: ['standard', 'salesOnly', 'area', 'prevYearCum'] },
-  { label: '売変系', views: ['discountOnly', 'discountImpact', 'movingAvg'] },
-  { label: '客数系', views: ['customers', 'txValue'] },
-]
 
 const VIEW_TITLES: Record<ViewType, string> = {
   standard: '日別売上・売変推移',
-  salesOnly: '日別売上推移（当年 vs 前年）',
-  discountOnly: '日別売変推移（当年 vs 前年）',
-  discountImpact: '売変インパクト分析（バー: 日別売変額 / ライン: 累計売変率）',
-  customers: '日別客数・客単価推移',
-  txValue: '日別客単価推移',
-  prevYearCum: '当年 vs 前年同曜日（累計売上推移）',
-  movingAvg: '7日移動平均推移',
-  area: '日別売上推移（エリア）',
+  prevYearCum: '累計推移（実績・前年・予算）',
+  vsLastYear: '実績対前年',
 }
 
 const WF_TITLES: Record<string, string> = {
   standard: '日別売上ウォーターフォール（前日比増減）',
-  salesOnly: '日別売上ウォーターフォール（前日比増減）',
-  discountOnly: '日別売変ウォーターフォール（前日比増減）',
-  customers: '日別客数ウォーターフォール（前日比増減）',
+  vsLastYear: '前年差累計ウォーターフォール',
 }
 
-const MODE_TO_VIEW: Record<DailyChartMode, ViewType> = {
-  all: 'standard',
-  sales: 'salesOnly',
-  discount: 'discountOnly',
-}
+const VIEWS: ViewType[] = ['standard', 'prevYearCum', 'vsLastYear']
 
 /** ウォーターフォール対応ビュー */
-const WF_VIEWS: ViewType[] = ['standard', 'salesOnly', 'discountOnly', 'customers']
+const WF_VIEWS: ViewType[] = ['standard', 'vsLastYear']
 
 export const DailySalesChart = memo(function DailySalesChart({
   daily,
@@ -86,12 +54,14 @@ export const DailySalesChart = memo(function DailySalesChart({
   year,
   month,
   prevYearDaily,
+  budgetDaily,
   mode = 'all',
 }: Props) {
   const ct = useChartTheme()
-  const [view, setView] = useState<ViewType>(() => MODE_TO_VIEW[mode])
-  const [showSalesMa, setShowSalesMa] = useState(false)
+  const [view, setView] = useState<ViewType>(mode === 'all' ? 'standard' : 'standard')
   const [waterfall, setWaterfall] = useState(false)
+  /** 累計/単日切替（prevYearCum, vsLastYear 用） */
+  const [cumMode, setCumMode] = useState<'cumulative' | 'daily'>('cumulative')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
@@ -107,50 +77,49 @@ export const DailySalesChart = memo(function DailySalesChart({
     year,
     month,
     selectedDows,
+    budgetDaily,
   )
 
-  const needRightAxis =
-    !isWf &&
-    (view === 'standard' ||
-      view === 'discountOnly' ||
-      view === 'customers' ||
-      view === 'discountImpact' ||
-      (view === 'movingAvg' && showSalesMa))
+  const needRightAxis = !isWf && view === 'standard'
 
   const titleText = isWf ? (WF_TITLES[view] ?? VIEW_TITLES[view]) : VIEW_TITLES[view]
 
   const wfLegendPayload = isWf
     ? (() => {
-        const prefix =
-          view === 'customers' ? 'wfCust' : view === 'discountOnly' ? 'wfDisc' : 'wfSales'
+        if (view === 'vsLastYear') {
+          return [
+            { value: 'wfYoyUp', type: 'rect' as const, color: ct.colors.success },
+            { value: 'wfYoyDown', type: 'rect' as const, color: ct.colors.danger },
+          ]
+        }
         return [
-          { value: `${prefix}Up`, type: 'rect' as const, color: ct.colors.success },
-          { value: `${prefix}Down`, type: 'rect' as const, color: ct.colors.danger },
+          { value: 'wfSalesUp', type: 'rect' as const, color: ct.colors.success },
+          { value: 'wfSalesDown', type: 'rect' as const, color: ct.colors.danger },
         ]
       })()
     : undefined
+
+  /** 累計/単日切替が有効なビュー */
+  const hasCumToggle = view === 'prevYearCum' || view === 'vsLastYear'
 
   return (
     <Wrapper aria-label="日別売上チャート">
       <HeaderRow>
         <Title>{titleText}</Title>
         <ViewToggle>
-          {INDICATOR_GROUPS.map((grp, gi) => (
-            <span key={gi} style={{ display: 'inline-flex', alignItems: 'center' }}>
-              {gi > 0 && <Sep>|</Sep>}
-              <GroupLabel>{grp.label}</GroupLabel>
-              {grp.views.map((v) => (
-                <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
-                  {VIEW_LABELS[v]}
-                </ViewBtn>
-              ))}
-            </span>
+          {VIEWS.map((v) => (
+            <ViewBtn key={v} $active={view === v} onClick={() => setView(v)}>
+              {VIEW_LABELS[v]}
+            </ViewBtn>
           ))}
-          {view === 'movingAvg' && (
+          {hasCumToggle && (
             <>
               <Sep>|</Sep>
-              <ViewBtn $active={showSalesMa} onClick={() => setShowSalesMa((v) => !v)}>
-                売上MA
+              <ViewBtn $active={cumMode === 'cumulative'} onClick={() => setCumMode('cumulative')}>
+                累計
+              </ViewBtn>
+              <ViewBtn $active={cumMode === 'daily'} onClick={() => setCumMode('daily')}>
+                単日
               </ViewBtn>
             </>
           )}
@@ -174,7 +143,7 @@ export const DailySalesChart = memo(function DailySalesChart({
         hasPrev={hasPrev}
         ct={ct}
         needRightAxis={needRightAxis}
-        showSalesMa={showSalesMa}
+        cumMode={cumMode}
         wfLegendPayload={wfLegendPayload}
       />
       <DayRangeSlider

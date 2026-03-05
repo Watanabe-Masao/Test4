@@ -4,15 +4,16 @@ import { MainContent } from '@/presentation/components/Layout'
 import {
   Card,
   CardTitle,
-  Chip,
-  ChipGroup,
   KpiCard,
   KpiGrid,
   MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
-import { DailySalesChart, GrossProfitRateChart } from '@/presentation/components/charts'
-import type { DailyChartMode } from '@/presentation/components/charts'
+import {
+  DailySalesChart,
+  GrossProfitRateChart,
+  ShapleyTimeSeriesChart,
+} from '@/presentation/components/charts'
 import {
   useCalculation,
   useStoreSelection,
@@ -26,7 +27,6 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
 import {
-  ChartToggle,
   ChartGrid,
   TableWrapper,
   Table,
@@ -124,7 +124,6 @@ export function DailyPage() {
   }, [])
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
-  const [chartMode, setChartMode] = useState<DailyChartMode>('sales')
 
   const isPurchaseExpanded = expanded.has('purchase')
   const isInterStoreInExpanded = expanded.has('interStoreIn')
@@ -231,19 +230,6 @@ export function DailyPage() {
 
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
-      <ChartToggle>
-        <ChipGroup>
-          <Chip $active={chartMode === 'sales'} onClick={() => setChartMode('sales')}>
-            売上
-          </Chip>
-          <Chip $active={chartMode === 'discount'} onClick={() => setChartMode('discount')}>
-            売変
-          </Chip>
-          <Chip $active={chartMode === 'all'} onClick={() => setChartMode('all')}>
-            全表示
-          </Chip>
-        </ChipGroup>
-      </ChartToggle>
       <ChartGrid>
         <DailySalesChart
           daily={currentResult.daily}
@@ -251,13 +237,20 @@ export function DailyPage() {
           year={settings.targetYear}
           month={settings.targetMonth}
           prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-          mode={chartMode}
+          budgetDaily={currentResult.budgetDaily}
         />
         <GrossProfitRateChart
           daily={currentResult.daily}
           daysInMonth={daysInMonth}
           targetRate={settings.targetGrossProfitRate}
           warningRate={settings.warningThreshold}
+        />
+        <ShapleyTimeSeriesChart
+          daily={currentResult.daily}
+          daysInMonth={daysInMonth}
+          year={settings.targetYear}
+          month={settings.targetMonth}
+          prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
         />
       </ChartGrid>
 

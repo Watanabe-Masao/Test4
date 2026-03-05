@@ -1,5 +1,5 @@
 export { DailySalesChart } from './DailySalesChart'
-export type { DailyChartMode } from './DailySalesChart'
+export { ShapleyTimeSeriesChart } from './ShapleyTimeSeriesChart'
 export { BudgetVsActualChart } from './BudgetVsActualChart'
 export { GrossProfitRateChart } from './GrossProfitRateChart'
 export { CategoryPieChart } from './CategoryPieChart'

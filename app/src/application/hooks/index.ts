@@ -60,6 +60,8 @@ export { useAutoBackup } from './useAutoBackup'
 export type { AutoBackupState, AutoBackupActions } from './useAutoBackup'
 export { useAutoImport } from './useAutoImport'
 export type { AutoImportState, AutoImportActions } from './useAutoImport'
+export { useShapleyTimeSeries } from './useShapleyTimeSeries'
+export type { ShapleyDayItem, ShapleyTimeSeriesResult } from './useShapleyTimeSeries'
 export { useDeptKpiView } from './useDeptKpiView'
 export type { DepartmentKpiIndex } from './useDeptKpiView'
 // ── 計算ファサードフック ────────────────────────────────
