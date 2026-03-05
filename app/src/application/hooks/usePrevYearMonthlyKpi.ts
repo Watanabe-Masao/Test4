@@ -28,12 +28,25 @@ export interface DayMappingRow {
   readonly prevCustomers: number
 }
 
+/** 店舗×日別の計算根拠（aggregateWithOffset が自然に得る情報を捨てずに返す） */
+export interface StoreContribution {
+  readonly storeId: string
+  /** 前年の実日付（日番号） */
+  readonly originalDay: number
+  /** 当年の対応日番号 */
+  readonly mappedDay: number
+  readonly sales: number
+  readonly customers: number
+}
+
 export interface PrevYearMonthlyKpiEntry {
   readonly sales: number
   readonly customers: number
   readonly transactionValue: number
   /** 日別マッピング（prevDay → currentDay + 前年売上・客数） */
   readonly dailyMapping: readonly DayMappingRow[]
+  /** 店舗×日別の計算根拠（Explanation の evidenceRefs 構築に使用） */
+  readonly storeContributions: readonly StoreContribution[]
 }
 
 export interface PrevYearMonthlyKpi {
@@ -55,6 +68,7 @@ const ZERO_ENTRY: PrevYearMonthlyKpiEntry = {
   customers: 0,
   transactionValue: 0,
   dailyMapping: [],
+  storeContributions: [],
 }
 const EMPTY: PrevYearMonthlyKpi = {
   hasPrevYear: false,
@@ -79,6 +93,8 @@ function aggregateWithOffset(
   let totalCustomers = 0
   // currentDay をキーに日別データを蓄積
   const dayMap = new Map<number, { prevDay: number; sales: number; customers: number }>()
+  // 店舗×日別の計算根拠（計算中に自然に得られる情報を捨てずに保持）
+  const storeContributions: StoreContribution[] = []
 
   for (const storeId of targetIds) {
     const storeDays = allAgg[storeId]
@@ -96,6 +112,8 @@ function aggregateWithOffset(
         | undefined
       const customers = flowerEntry?.customers ?? 0
       totalCustomers += customers
+
+      storeContributions.push({ storeId, originalDay: origDay, mappedDay, sales, customers })
 
       const existing = dayMap.get(mappedDay)
       if (existing) {
@@ -122,6 +140,7 @@ function aggregateWithOffset(
     customers: totalCustomers,
     transactionValue: calculateTransactionValue(totalSales, totalCustomers),
     dailyMapping,
+    storeContributions,
   }
 }
 

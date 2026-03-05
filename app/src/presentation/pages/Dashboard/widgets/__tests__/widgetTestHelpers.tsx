@@ -195,8 +195,8 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     },
     prevYearMonthlyKpi: {
       hasPrevYear: false,
-      sameDow: { sales: 0, customers: 0, transactionValue: 0, dailyMapping: [] },
-      sameDate: { sales: 0, customers: 0, transactionValue: 0, dailyMapping: [] },
+      sameDow: { sales: 0, customers: 0, transactionValue: 0, dailyMapping: [], storeContributions: [] },
+      sameDate: { sales: 0, customers: 0, transactionValue: 0, dailyMapping: [], storeContributions: [] },
       sourceYear: 0,
       sourceMonth: 0,
       dowOffset: 0,

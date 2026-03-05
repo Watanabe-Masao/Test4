@@ -9,6 +9,7 @@ import type {
   MetricId,
   Explanation,
   ExplanationInput,
+  EvidenceRef,
   BreakdownEntry,
 } from '@/domain/models'
 import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from '@/application/hooks/usePrevYearMonthlyKpi'
@@ -21,6 +22,24 @@ function inp(
   metric?: MetricId,
 ): ExplanationInput {
   return { name, value, unit, metric }
+}
+
+/**
+ * storeContributions → evidenceRefs（計算に寄与した前年データへの実参照）
+ */
+function buildEvidenceRefs(
+  entry: PrevYearMonthlyKpiEntry,
+  budgetStoreId: string,
+): EvidenceRef[] {
+  const refs: EvidenceRef[] = entry.storeContributions.map((c) => ({
+    kind: 'daily' as const,
+    dataType: 'classifiedSales' as const,
+    storeId: c.storeId,
+    day: c.originalDay,
+  }))
+  // 予算データへの参照
+  refs.push({ kind: 'aggregate' as const, dataType: 'budget' as const, storeId: budgetStoreId })
+  return refs
 }
 
 /**
@@ -100,9 +119,7 @@ export function generatePrevYearBudgetExplanations(
       ),
     ],
     breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily),
-    evidenceRefs: [
-      { kind: 'aggregate', dataType: 'budget', storeId },
-    ],
+    evidenceRefs: buildEvidenceRefs(pk.sameDow, storeId),
   })
 
   // ── 前年同日予算比 ──
@@ -130,9 +147,7 @@ export function generatePrevYearBudgetExplanations(
       ),
     ],
     breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily),
-    evidenceRefs: [
-      { kind: 'aggregate', dataType: 'budget', storeId },
-    ],
+    evidenceRefs: buildEvidenceRefs(pk.sameDate, storeId),
   })
 
   return map
