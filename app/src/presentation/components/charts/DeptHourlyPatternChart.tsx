@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
 import { pearsonCorrelation } from '@/domain/calculations'
+import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import { useCategoryHierarchy, filterByHierarchy } from './categoryHierarchyHooks'
 import { usePeriodFilter, useHierarchyDropdown } from './periodFilterHooks'
 import { PeriodFilterBar, HierarchyDropdowns } from './PeriodFilter'
@@ -175,6 +176,7 @@ export const DeptHourlyPatternChart = memo(function DeptHourlyPatternChart({
     [year, month, pf.dayRange],
   )
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
+  const frame = useComparisonFrame(sliderDateRange)
   const periodRecords = useMemo(
     () =>
       queryByDateRange(ctsIndex, {
@@ -299,12 +301,8 @@ export const DeptHourlyPatternChart = memo(function DeptHourlyPatternChart({
   // 前年比較（CTS由来データ同士で比較。注: classifiedSalesとは別データソース）
   const prevYearYoY = useMemo(() => {
     if (!prevCtsIndex || prevCtsIndex.recordCount === 0) return null
-    const prevRange: DateRange = {
-      from: { year: year - 1, month, day: pf.dayRange[0] },
-      to: { year: year - 1, month, day: pf.dayRange[1] },
-    }
     const prevRecs = queryByDateRange(prevCtsIndex, {
-      dateRange: prevRange,
+      dateRange: frame.previous,
       storeIds: selectedStoreIds,
     })
     const filtered = filterByStore(
@@ -316,7 +314,7 @@ export const DeptHourlyPatternChart = memo(function DeptHourlyPatternChart({
     const prevTotal = Math.round(filtered.reduce((s, r) => s + r.totalAmount, 0) / prevDiv)
     if (prevTotal === 0) return null
     return { prevTotal, yoyRatio: total / prevTotal }
-  }, [prevCtsIndex, selectedStoreIds, year, month, pf, filter, hf, total])
+  }, [prevCtsIndex, selectedStoreIds, frame.previous, pf, filter, hf, total])
 
   // カニバリゼーション分析: 部門間の時間帯パターン相関
   // 負の相関 → 同時間帯で一方が増えると他方が減る傾向（顧客の奪い合いの可能性）

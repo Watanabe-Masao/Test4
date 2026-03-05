@@ -38,9 +38,10 @@ export function comparisonLabels(
   year: number,
   dayStart: number,
   dayEnd: number,
+  prevYear?: number,
 ): { curLabel: string; prevLabel: string } {
   if (mode === 'yoy') {
-    return { curLabel: `${year}年`, prevLabel: `${year - 1}年` }
+    return { curLabel: `${year}年`, prevLabel: `${prevYear ?? year - 1}年` }
   }
   const { prevStart, prevEnd } = wowPrevRange(dayStart, dayEnd)
   const curRange = dayStart === dayEnd ? `${dayStart}日` : `${dayStart}-${dayEnd}日`

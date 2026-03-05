@@ -71,8 +71,16 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       const storeName = ctx.stores.get(ctx.storeKey)?.name ?? ctx.storeKey
       const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
       const prevRange = {
-        from: { year: year - 1, month, day: 1 },
-        to: { year: year - 1, month, day: daysInMonth },
+        from: {
+          year: ctx.comparisonFrame.previous.from.year,
+          month: ctx.comparisonFrame.previous.from.month,
+          day: 1,
+        },
+        to: {
+          year: ctx.comparisonFrame.previous.to.year,
+          month: ctx.comparisonFrame.previous.to.month,
+          day: daysInMonth,
+        },
       }
 
       let curCts: Awaited<ReturnType<typeof fetchCategoryTimeRecords>> = []
@@ -119,6 +127,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     ctx.stores,
     ctx.duckConn,
     ctx.selectedStoreIds,
+    ctx.comparisonFrame,
   ])
 
   // Build calendar grid
@@ -521,6 +530,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
           duckDataVersion={ctx.duckDataVersion}
           dailyMap={r.daily}
           selectedStoreIds={ctx.selectedStoreIds}
+          comparisonFrame={ctx.comparisonFrame}
           onClose={() => setDetailDay(null)}
         />
       )}

@@ -136,7 +136,13 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const wowRange = wowPrevRange(dayStart, dayEnd)
   const canWoW = wowRange.isValid
   const activeCompMode: ComparisonMode = compMode === 'wow' && !canWoW ? 'yoy' : compMode
-  const labels = comparisonLabels(activeCompMode, ctx.year, dayStart, dayEnd)
+  const labels = comparisonLabels(
+    activeCompMode,
+    ctx.year,
+    dayStart,
+    dayEnd,
+    ctx.comparisonFrame.previous.from.year,
+  )
 
   // 期間指定に基づいて当年の売上・客数を日別データから再集計
   const periodCurSales = useMemo(() => {
@@ -209,15 +215,17 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
     }
+    const prev = ctx.comparisonFrame.previous
     return {
-      from: { year: ctx.year - 1, month: ctx.month, day: dayStart },
-      to: { year: ctx.year - 1, month: ctx.month, day: dayEnd },
+      from: { year: prev.from.year, month: prev.from.month, day: dayStart },
+      to: { year: prev.to.year, month: prev.to.month, day: dayEnd },
     }
   }, [
     activeCompMode,
     canWoW,
     ctx.year,
     ctx.month,
+    ctx.comparisonFrame.previous,
     dayStart,
     dayEnd,
     wowRange.prevStart,

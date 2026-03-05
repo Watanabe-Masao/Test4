@@ -6,6 +6,7 @@
  */
 import { useMemo, useState, useCallback } from 'react'
 import type { CategoryTimeSalesRecord, CategoryTimeSalesIndex, DateRange } from '@/domain/models'
+import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import {
   useCategoryHierarchy,
@@ -160,6 +161,8 @@ export function useCategoryExplorerData(
   )
   const dowFilter = pf.mode === 'dowAvg' && pf.selectedDows.size > 0 ? pf.selectedDows : undefined
 
+  const frame = useComparisonFrame(sliderDateRange)
+
   const periodRecords = useMemo(
     () =>
       queryByDateRange(ctsIndex, {
@@ -171,11 +174,10 @@ export function useCategoryExplorerData(
   )
   const prevPeriodRecords = useMemo(() => {
     if (prevCtsIndex.recordCount === 0) return [] as readonly CategoryTimeSalesRecord[]
-    const prevRange: DateRange = {
-      from: { year: year - 1, month, day: pf.dayRange[0] },
-      to: { year: year - 1, month, day: pf.dayRange[1] },
-    }
-    let recs = queryByDateRange(prevCtsIndex, { dateRange: prevRange, storeIds: selectedStoreIds })
+    let recs = queryByDateRange(prevCtsIndex, {
+      dateRange: frame.previous,
+      storeIds: selectedStoreIds,
+    })
     if (dowFilter) {
       recs = recs.filter((r) => {
         const dow = new Date(year, month - 1, r.day).getDay()
@@ -183,7 +185,7 @@ export function useCategoryExplorerData(
       })
     }
     return recs
-  }, [prevCtsIndex, selectedStoreIds, year, month, pf.dayRange, dowFilter])
+  }, [prevCtsIndex, selectedStoreIds, year, month, frame.previous, dowFilter])
   const hf = useHierarchyDropdown(periodRecords, selectedStoreIds)
 
   const hasPrevYear = prevPeriodRecords.length > 0
