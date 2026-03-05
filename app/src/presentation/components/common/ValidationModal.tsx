@@ -1,11 +1,8 @@
 import styled from 'styled-components'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { ValidationMessage } from '@/domain/models'
-import { useExport } from '@/application/hooks/useExport'
-import { TEMPLATE_TYPES, TEMPLATE_LABELS } from '@/application/ports/ExportPort'
-import type { TemplateDataType } from '@/application/ports/ExportPort'
 
 const MessageList = styled.div`
   display: flex;
@@ -121,24 +118,6 @@ const NextStepsText = styled.div`
   line-height: 1.6;
 `
 
-const TemplateLink = styled.button`
-  all: unset;
-  cursor: pointer;
-  display: inline;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.palette.primary};
-  text-decoration: underline;
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
 const LEVEL_LABELS: Record<ValidationMessage['level'], string> = {
   error: 'ERROR',
   warning: 'WARN',
@@ -171,96 +150,32 @@ function MessageEntry({ msg }: { msg: ValidationMessage }) {
   )
 }
 
-/** メッセージテキストからデータ種別のヒントを検出する */
-function detectMissingTypes(messages: readonly ValidationMessage[]): TemplateDataType[] {
-  const missing: TemplateDataType[] = []
-  const messageText = messages.map((m) => m.message).join(' ')
-
-  // 予算が未設定の場合
-  if (messageText.includes('予算') && messageText.includes('未設定')) {
-    missing.push('budget')
-  }
-
-  return missing
-}
-
 function NextStepsSection({ messages }: { messages: readonly ValidationMessage[] }) {
   const errors = messages.filter((m) => m.level === 'error')
   const warnings = messages.filter((m) => m.level === 'warning')
-  const missingTypes = detectMissingTypes(messages)
-  const { downloadTemplate } = useExport()
-
-  const handleTemplateDownload = useCallback(
-    (type: TemplateDataType) => {
-      downloadTemplate(type)
-    },
-    [downloadTemplate],
-  )
 
   if (errors.length > 0) {
-    // エラーがある場合のガイダンス
     return (
       <NextStepsBox $variant="error">
         <NextStepsTitle>次のステップ</NextStepsTitle>
         <NextStepsText>エラーを修正してから再インポートしてください。</NextStepsText>
-        {TEMPLATE_TYPES.length > 0 && (
-          <NextStepsText>
-            テンプレートをダウンロード:{' '}
-            {TEMPLATE_TYPES.map((type, i) => (
-              <span key={type}>
-                {i > 0 && ' / '}
-                <TemplateLink onClick={() => handleTemplateDownload(type)}>
-                  {TEMPLATE_LABELS[type]}
-                </TemplateLink>
-              </span>
-            ))}
-          </NextStepsText>
-        )}
       </NextStepsBox>
     )
   }
 
   if (warnings.length > 0) {
-    // 警告のみの場合のガイダンス
     return (
       <NextStepsBox $variant="warning">
         <NextStepsTitle>次のステップ</NextStepsTitle>
         <NextStepsText>データは取り込まれましたが、以下を確認してください。</NextStepsText>
-        {missingTypes.length > 0 && (
-          <NextStepsText>
-            未取込データのテンプレート:{' '}
-            {missingTypes.map((type, i) => (
-              <span key={type}>
-                {i > 0 && ' / '}
-                <TemplateLink onClick={() => handleTemplateDownload(type)}>
-                  {TEMPLATE_LABELS[type]}
-                </TemplateLink>
-              </span>
-            ))}
-          </NextStepsText>
-        )}
       </NextStepsBox>
     )
   }
 
-  // 全て成功の場合
   return (
     <NextStepsBox $variant="success">
       <NextStepsTitle>次のステップ</NextStepsTitle>
       <NextStepsText>取り込み完了！ KPI画面で結果を確認してください。</NextStepsText>
-      {missingTypes.length > 0 && (
-        <NextStepsText>
-          追加データ:{' '}
-          {missingTypes.map((type, i) => (
-            <span key={type}>
-              {i > 0 && ' / '}
-              <TemplateLink onClick={() => handleTemplateDownload(type)}>
-                {TEMPLATE_LABELS[type]}
-              </TemplateLink>
-            </span>
-          ))}
-        </NextStepsText>
-      )}
     </NextStepsBox>
   )
 }

@@ -6,7 +6,6 @@
  * Presentation 層はこのサービスを経由してエクスポート機能を利用する。
  */
 import {
-  downloadTemplate as infraDownloadTemplate,
   exportDailySalesReport as infraExportDailySales,
   exportMonthlyPLReport as infraExportMonthlyPL,
   exportStoreKpiReport as infraExportStoreKpi,
@@ -17,10 +16,6 @@ import type { ExportPort } from '@/application/ports/ExportPort'
 
 /** ExportPort の実装インスタンス */
 export const exportService: ExportPort = {
-  downloadTemplate(dataType) {
-    infraDownloadTemplate(dataType)
-  },
-
   exportDailySalesReport(result, store, year, month) {
     infraExportDailySales(result, store, year, month)
   },
