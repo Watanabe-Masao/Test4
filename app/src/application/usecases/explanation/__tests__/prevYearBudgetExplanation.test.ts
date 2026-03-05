@@ -74,7 +74,7 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
       month: 3,
     })
     const explanation = result.get('prevYearSameDowBudgetRatio')!
-    const breakdownSum = explanation.breakdown.reduce((s, b) => s + b.value, 0)
+    const breakdownSum = explanation.breakdown!.reduce((s, b) => s + b.value, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
   })
 
@@ -88,7 +88,7 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
       month: 3,
     })
     const explanation = result.get('prevYearSameDateBudgetRatio')!
-    const breakdownSum = explanation.breakdown.reduce((s, b) => s + b.value, 0)
+    const breakdownSum = explanation.breakdown!.reduce((s, b) => s + b.value, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
   })
 
@@ -185,7 +185,7 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
       month: 3,
     })
     const explanation = result.get('prevYearSameDowBudgetRatio')!
-    for (const b of explanation.breakdown) {
+    for (const b of explanation.breakdown!) {
       expect(b.details).toBeDefined()
       const labels = b.details!.map((d) => d.label)
       expect(labels).toContain('前年売上')
