@@ -135,6 +135,21 @@ npm run test:coverage
 
 Internet Explorer には対応していません。
 
+> **DuckDB Worker に関する注意**: Chrome/Edge では DuckDB-WASM がネストされた Web Worker で動作しますが、
+> Firefox/Safari ではネストされた Worker がサポートされないため、メインスレッドにフォールバックします。
+> 大量データの集計・探索クエリを多用する場合は Chrome/Edge を推奨します。
+
+### 推奨データ量の目安
+
+| 規模 | 店舗数 × 月数 | 目安レコード数 | 備考 |
+|---|---|---|---|
+| 小規模 | 〜5 店舗 × 12 ヶ月 | 〜10 万行 | すべてのブラウザで快適 |
+| 中規模 | 〜20 店舗 × 12 ヶ月 | 〜50 万行 | Chrome/Edge 推奨 |
+| 大規模 | 50 店舗以上 | 100 万行〜 | Chrome/Edge 必須、メモリ 8GB 以上推奨 |
+
+- IndexedDB の容量上限はブラウザ設定に依存します（一般的に 50MB〜数 GB）
+- OPFS（Origin Private File System）対応ブラウザではパーケットキャッシュにより再起動が高速化されます
+
 ## ディレクトリ構成
 
 ```

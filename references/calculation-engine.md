@@ -79,7 +79,7 @@
 ```
 コア売上 = 総売上 - 花売価 - 産直売価
 粗売上   = コア売上 / (1 - 売変率)
-推定原価 = 粗売上 × (1 - 値入率) + 消耗品費
+推定原価 = 粗売上 × (1 - 値入率) + 原価算入費（costInclusionCost）
 推定粗利 = コア売上 - 推定原価
 推定粗利率 = 推定粗利 / コア売上
 推定期末在庫 = 期首在庫 + 期中仕入原価(在庫販売分) - 推定原価
@@ -92,7 +92,7 @@
 | `coreSales` | `number` | コア売上（花・産直・売上納品除外） |
 | `discountRate` | `number` | 売変率 |
 | `markupRate` | `number` | 値入率 |
-| `consumableCost` | `number` | 消耗品費 |
+| `costInclusionCost` | `number` | 原価算入費（消耗品費） |
 | `openingInventory` | `number \| null` | 期首在庫（在庫販売分） |
 | `inventoryPurchaseCost` | `number` | 期中仕入原価（在庫販売分、花・産直除外） |
 

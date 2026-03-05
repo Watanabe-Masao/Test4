@@ -39,7 +39,7 @@ export interface ImportedData {
   readonly directProduce: SpecialSalesData  // 産直
 
   // ─── その他 ────────────────────────────────────────────
-  readonly consumables: ConsumableData      // 消耗品
+  readonly consumables: CostInclusionData      // 消耗品
   readonly categoryTimeSales: CategoryTimeSalesData          // 分類別時間帯売上
   readonly prevYearCategoryTimeSales: CategoryTimeSalesData  // 前年分類別時間帯売上
   readonly departmentKpi: DepartmentKpiData                  // 部門別KPI
@@ -74,7 +74,7 @@ ImportedData
   ├── flowers ──────────── StoreDayRecord<SpecialSalesDayEntry>
   ├── directProduce ────── StoreDayRecord<SpecialSalesDayEntry>
   │
-  ├── consumables ──────── StoreDayRecord<ConsumableDailyRecord>
+  ├── consumables ──────── StoreDayRecord<CostInclusionDailyRecord>
   ├── categoryTimeSales ── { records: CategoryTimeSalesRecord[] }
   ├── prevYearCategoryTimeSales ── { records: CategoryTimeSalesRecord[] }
   ├── departmentKpi ────── { records: DepartmentKpiRecord[] }
@@ -164,7 +164,7 @@ export interface StoreResult {
   // ═══════════════════════════════════════════════════════
   // 消耗品
   // ═══════════════════════════════════════════════════════
-  readonly totalConsumable: number           // 消耗品費合計
+  readonly totalCostInclusion: number        // 原価算入費合計（消耗品費）
   readonly consumableRate: number            // 消耗品率
 
   // ═══════════════════════════════════════════════════════
@@ -248,7 +248,7 @@ export interface DailyRecord {
   readonly flowers: CostPricePair         // 花
   readonly directProduce: CostPricePair   // 産直
 
-  readonly consumable: ConsumableDailyRecord   // 消耗品
+  readonly costInclusion: CostInclusionDailyRecord   // 消耗品
 
   readonly customers?: number             // 来店客数
 
@@ -322,8 +322,8 @@ StoreDayRecord<T>
   ├── SpecialSalesData = StoreDayRecord<SpecialSalesDayEntry>
   │     └── SpecialSalesDayEntry: { price, cost }
   │
-  └── ConsumableData   = StoreDayRecord<ConsumableDailyRecord>
-        └── ConsumableDailyRecord: { cost, items: ConsumableItem[] }
+  └── CostInclusionData   = StoreDayRecord<CostInclusionDailyRecord>
+        └── CostInclusionDailyRecord: { cost, items: CostInclusionItem[] }
 ```
 
 ### 4.1 PurchaseDayEntry --- 仕入日別
@@ -622,13 +622,16 @@ export type DataType =
 
 ---
 
-## 13. ConsumableItem / ConsumableDailyRecord --- 消耗品
+## 13. CostInclusionItem / CostInclusionDailyRecord --- 消耗品（原価算入費）
 
-**ファイル**: `app/src/domain/models/ConsumableItem.ts`
+**ファイル**: `app/src/domain/models/CostInclusionItem.ts`
+
+> **用語の対応**: ドメイン型は `CostInclusion*`、ImportedData のフィールド名は `consumables`、
+> UI 上の表記は「原価算入費」（ナビ）/「消耗品」（カテゴリ）。いずれも同一概念を指す。
 
 ```typescript
 /** 消耗品明細 */
-export interface ConsumableItem {
+export interface CostInclusionItem {
   readonly accountCode: string   // 勘定コード（'81257' のみ対象）
   readonly itemCode: string      // 品目コード
   readonly itemName: string      // 品目名
@@ -637,13 +640,13 @@ export interface ConsumableItem {
 }
 
 /** 消耗品日別レコード */
-export interface ConsumableDailyRecord {
-  readonly cost: number                          // 日計コスト
-  readonly items: readonly ConsumableItem[]       // 明細リスト
+export interface CostInclusionDailyRecord {
+  readonly cost: number                              // 日計コスト
+  readonly items: readonly CostInclusionItem[]       // 明細リスト
 }
 
 /** ゼロ値の消耗品日別レコード */
-export const ZERO_CONSUMABLE_DAILY: ConsumableDailyRecord = {
+export const ZERO_COST_INCLUSION_DAILY: CostInclusionDailyRecord = {
   cost: 0,
   items: [],
 } as const
@@ -823,8 +826,8 @@ AppState (Application層)
   │     ├── interStoreOut ───────── StoreDayRecord<TransferDayEntry>
   │     ├── flowers ─────────────── StoreDayRecord<SpecialSalesDayEntry>
   │     ├── directProduce ───────── StoreDayRecord<SpecialSalesDayEntry>
-  │     ├── consumables ─────────── StoreDayRecord<ConsumableDailyRecord>
-  │     │                              └── ConsumableItem[]
+  │     ├── consumables ─────────── StoreDayRecord<CostInclusionDailyRecord>
+  │     │                              └── CostInclusionItem[]
   │     ├── categoryTimeSales ───── { records: CategoryTimeSalesRecord[] }
   │     │                              └── TimeSlotEntry[]
   │     ├── prevYearCategoryTimeSales
@@ -843,13 +846,13 @@ AppState (Application層)
   │           ├── 客数: totalCustomers, averageCustomersPerDay
   │           ├── 売変: totalDiscount, discountRate, discountLossCost
   │           ├── 値入率: averageMarkupRate, coreMarkupRate
-  │           ├── 消耗品: totalConsumable, consumableRate
+  │           ├── 原価算入費: totalCostInclusion, costInclusionRate
   │           ├── 予算: budget, budgetAchievementRate, ...
   │           ├── daily ─────────── Map<day, DailyRecord>
   │           │     ├── purchase, deliverySales: CostPricePair
   │           │     ├── interStore*/interDepartment*: CostPricePair
   │           │     ├── flowers, directProduce: CostPricePair
-  │           │     ├── consumable: ConsumableDailyRecord
+  │           │     ├── consumable: CostInclusionDailyRecord
   │           │     ├── supplierBreakdown: Map<code, CostPricePair>
   │           │     └── transferBreakdown: TransferBreakdownEntry[]
   │           ├── categoryTotals ── Map<CategoryType, CostPricePair>
