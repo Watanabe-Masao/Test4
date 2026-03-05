@@ -139,6 +139,107 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 - **テスト**: `calculationRules.test.ts` — `RULE-C1`
 - **ロール**: invariant-guardian
 
+## 集約不変条件
+
+### INV-AGG-01: storeContributions 売上合計 = entry.sales
+
+```
+Σ(storeContributions[*].sales) = entry.sales
+```
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件1`
+- **ロール**: invariant-guardian
+- **違反時の影響**: Explanation の evidenceRefs が示すデータと表示値が乖離する
+
+### INV-AGG-02: storeContributions 客数合計 = entry.customers
+
+```
+Σ(storeContributions[*].customers) = entry.customers
+```
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件2`
+- **ロール**: invariant-guardian
+
+### INV-AGG-03: dailyMapping 売上合計 = entry.sales
+
+```
+Σ(dailyMapping[*].prevSales) = entry.sales
+```
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件3`
+- **ロール**: invariant-guardian
+- **違反時の影響**: 日別ドリルダウンの合計が月間合計に一致しない
+
+### INV-AGG-04: dailyMapping 客数合計 = entry.customers
+
+```
+Σ(dailyMapping[*].prevCustomers) = entry.customers
+```
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件4`
+- **ロール**: invariant-guardian
+
+### INV-AGG-05: transactionValue = Math.round(sales / customers)
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件5`
+- **ロール**: invariant-guardian
+- **特記**: customers = 0 のとき transactionValue = 0
+
+### INV-AGG-06: マッピング範囲は 1〜daysInMonth
+
+```
+∀ d ∈ dailyMapping: 1 ≤ d.currentDay ≤ daysInMonth
+∀ c ∈ storeContributions: 1 ≤ c.mappedDay ≤ daysInMonth
+```
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件6`, `不変条件7`
+- **ロール**: invariant-guardian
+- **違反時の影響**: 月外の日付がドリルダウンに表示される
+
+### INV-AGG-07: offset=0 では originalDay = mappedDay
+
+- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件8`
+- **ロール**: invariant-guardian
+- **特記**: 同日アライメントではオフセットなし
+
+## Explanation 生成不変条件
+
+### INV-EXPL-01: breakdown 日別売上合計 = entry.sales
+
+```
+Σ(breakdown[*].value) = entry.sales
+```
+
+- **テスト**: `prevYearBudgetExplanation.test.ts` — `不変条件1`
+- **ロール**: invariant-guardian
+- **違反時の影響**: ドリルダウン日別合計が KPI カード表示値と乖離する
+
+### INV-EXPL-02: evidenceRefs に全 storeContribution が含まれる
+
+- **テスト**: `prevYearBudgetExplanation.test.ts` — `不変条件2`
+- **ロール**: invariant-guardian
+- **違反時の影響**: 根拠参照が計算に寄与したデータを網羅しない
+
+### INV-EXPL-03: evidenceRefs に budget 参照が含まれる
+
+- **テスト**: `prevYearBudgetExplanation.test.ts` — `不変条件3`
+- **ロール**: invariant-guardian
+
+### INV-EXPL-04: explanation.value = safeDivide(sales, budget)
+
+- **テスト**: `prevYearBudgetExplanation.test.ts` — `不変条件4`
+- **ロール**: invariant-guardian
+- **違反時の影響**: KPI カードの表示値と Explanation パネルの値が乖離する
+
+### INV-EXPL-05: 無効入力 → 空 Map
+
+```
+hasPrevYear = false ∨ budget ≤ 0 → |Map| = 0
+```
+
+- **テスト**: `prevYearBudgetExplanation.test.ts` — `不変条件5`
+- **ロール**: invariant-guardian
+
 ## 除数計算ルール不変条件
 
 ### INV-PF-01: 除数は computeDivisor() を経由（RULE-1）

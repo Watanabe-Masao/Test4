@@ -10,6 +10,8 @@
 | `app/src/domain/calculations/__tests__/calculationRules.test.ts` | invariant-guardian | 7件 | safeDivide, calculateTransactionValue, overflowDay, fmtSen, formatPercent, toPct |
 | `app/src/presentation/components/charts/__tests__/divisorRules.test.ts` | invariant-guardian | 8件 | computeDivisor, filterByStore, countDistinctDays, 正規ロケーション, 網羅性 |
 | `app/src/domain/calculations/__tests__/factorDecomposition.test.ts` | invariant-guardian | 30件 | シャープリー恒等式（2/3/5要素）、2↔3↔5 一貫性 |
+| `app/src/application/hooks/__tests__/usePrevYearMonthlyKpi.test.ts` | invariant-guardian | 34件 | aggregateWithOffset 集約不変条件（売上・客数合計一致、マッピング範囲、ソート順） |
+| `app/src/application/usecases/explanation/__tests__/prevYearBudgetExplanation.test.ts` | invariant-guardian | 9件 | 前年予算 Explanation 不変条件（breakdown 合計一致、evidenceRefs 網羅性、無効入力） |
 
 ## ルール → テスト対応
 
@@ -60,6 +62,28 @@
 | 2↔3↔5 要素間一貫性 | INV-SH-04 |
 | データソース乖離時の合計一致 | INV-SH-03（特殊ケース） |
 | 全パラメータ大変動時の合計一致 | INV-SH-03（ストレステスト） |
+
+### usePrevYearMonthlyKpi.test.ts（invariant-guardian ロール管理）
+
+| 検証内容 | 不変条件 ID |
+|---|---|
+| Σ(storeContributions.sales) = entry.sales | INV-AGG-01 |
+| Σ(storeContributions.customers) = entry.customers | INV-AGG-02 |
+| Σ(dailyMapping.prevSales) = entry.sales | INV-AGG-03 |
+| Σ(dailyMapping.prevCustomers) = entry.customers | INV-AGG-04 |
+| transactionValue = Math.round(sales / customers) | INV-AGG-05 |
+| マッピング範囲 1〜daysInMonth | INV-AGG-06 |
+| offset=0 → originalDay = mappedDay | INV-AGG-07 |
+
+### prevYearBudgetExplanation.test.ts（invariant-guardian ロール管理）
+
+| 検証内容 | 不変条件 ID |
+|---|---|
+| breakdown 日別売上合計 = entry.sales | INV-EXPL-01 |
+| evidenceRefs に全 storeContribution が含まれる | INV-EXPL-02 |
+| evidenceRefs に budget 参照が含まれる | INV-EXPL-03 |
+| explanation.value = safeDivide(sales, budget) | INV-EXPL-04 |
+| 無効入力 → 空 Map | INV-EXPL-05 |
 
 ## 許可リスト管理
 

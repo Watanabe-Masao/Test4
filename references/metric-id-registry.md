@@ -419,7 +419,7 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | 前年予算比較系 | 2 | 2 | 0 |
 | **合計** | **49** | **36** | **13** |
 
-→ 全 47 MetricId 登録済み。うち 34 指標は計算 + Explanation 実装完了。
+→ 全 49 MetricId 登録済み。うち 36 指標は計算 + Explanation 実装完了。
 
 ### 概念の区別
 

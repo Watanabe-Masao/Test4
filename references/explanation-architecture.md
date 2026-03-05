@@ -35,6 +35,21 @@ Presentation層 → MetricBreakdownPanel（モーダル）で表示
 4. **指標間ナビゲーション**: ExplanationInput.metric でリンク先を持ち、
    MetricBreakdownPanel 内でクリックして別指標の根拠に遷移できる。
 
+### Explanation 生成の2系統
+
+ExplanationService 本体とは別に、フックのデータを必要とする指標は
+専用の生成関数を持ち、`useExplanation` フックでマージして統合される。
+
+| 系統 | ファイル | データソース | 対象 MetricId |
+|---|---|---|---|
+| **ExplanationService** | `usecases/explanation/ExplanationService.ts` | StoreResult | 売上・仕入・粗利 等 34 指標 |
+| **前年予算比較** | `usecases/explanation/prevYearBudgetExplanation.ts` | usePrevYearMonthlyKpi | `prevYearSameDowBudgetRatio`, `prevYearSameDateBudgetRatio` |
+
+前年予算比較系は `aggregateWithOffset` が生成する `storeContributions`（店舗×日別の計算根拠）を
+`evidenceRefs` に変換し、`dailyMapping` を `breakdown` に変換する。
+不変条件テストにより、breakdown 合計 = entry.sales、evidenceRefs 網羅性が保証されている
+（INV-AGG-01〜07, INV-EXPL-01〜05）。
+
 ### 対象指標（MetricId）
 
 | グループ | MetricId | 指標名 |
