@@ -105,11 +105,4 @@ export type {
 } from './Explanation'
 export type { FormulaId, FormulaCategory, FormulaInput, FormulaMeta } from './Formula'
 export type { StoreMetrics } from './StoreMetrics'
-export type {
-  AnalysisGranularity,
-  DataLineage,
-  ComparisonType,
-  AnalysisContext,
-  DrillType,
-  DrillAction,
-} from './AnalysisContext'
+export type { DrillType, DrillAction } from './AnalysisContext'

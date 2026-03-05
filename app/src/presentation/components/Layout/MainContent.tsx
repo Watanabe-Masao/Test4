@@ -3,7 +3,6 @@ import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
-import { AnalysisBar } from '@/presentation/components/common'
 
 const Main = styled.main`
   overflow-y: auto;
@@ -255,14 +254,11 @@ export function MainContent({
   title,
   storeName,
   actions,
-  showAnalysisBar = true,
   children,
 }: {
   title: string
   storeName?: string
   actions?: ReactNode
-  /** AnalysisBar を表示するか（デフォルト: true、Admin等では false） */
-  showAnalysisBar?: boolean
   children: ReactNode
 }) {
   return (
@@ -278,7 +274,6 @@ export function MainContent({
           {actions}
         </div>
       </Header>
-      {showAnalysisBar && <AnalysisBar />}
       {children}
     </Main>
   )
