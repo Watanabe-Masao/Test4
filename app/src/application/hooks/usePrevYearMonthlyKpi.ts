@@ -75,7 +75,7 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
   const { selectedStoreIds, isAllStores } = useStoreSelection()
 
   const prevYearCS = data.prevYearClassifiedSales
-  const prevYearFlowers = data.flowers
+  const prevYearFlowers = data.prevYearFlowers
   const { targetYear, targetMonth } = settings
   const prevYearSourceYear = settings.prevYearSourceYear ?? undefined
   const prevYearSourceMonth = settings.prevYearSourceMonth ?? undefined

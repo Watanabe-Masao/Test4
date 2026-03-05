@@ -23,6 +23,7 @@ import type {
   ValidationMessage,
   ClassifiedSalesData,
   CategoryTimeSalesData,
+  SpecialSalesData,
 } from '@/domain/models'
 
 // ─── State types (re-export for backward compat) ──────
@@ -68,6 +69,7 @@ export type AppAction =
       payload: {
         prevYearClassifiedSales: ClassifiedSalesData
         prevYearCategoryTimeSales: CategoryTimeSalesData
+        prevYearFlowers: SpecialSalesData
       }
     }
   | { type: 'RESET' }
