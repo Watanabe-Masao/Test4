@@ -214,16 +214,30 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年同曜日（月間）',
     group: '前年比較',
     size: 'kpi',
-    isVisible: ({ prevYearMonthlyKpi: pk }) => pk.hasPrevYear,
     render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+      if (!pk.hasPrevYear) {
+        return (
+          <KpiCard
+            label="前年同曜日（月間）"
+            value="-"
+            subText="前年データ未読込"
+            accent={palette.blueDark}
+          />
+        )
+      }
       const py = pk.sameDow
-      const salesRatio = py.sales > 0 ? r.totalSales / py.sales : null
-      const custRatio =
-        py.customers > 0 && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const hasSales = py.sales > 0
+      const hasCust = py.customers > 0
+      const salesRatio = hasSales ? r.totalSales / py.sales : null
+      const custRatio = hasCust && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const warnings: string[] = []
+      if (!hasSales) warnings.push('前年売上データなし')
+      if (!hasCust) warnings.push('前年客数データなし')
       const sub = [
-        `売上: ${formatCurrency(py.sales)}`,
-        `客数: ${py.customers.toLocaleString('ja-JP')}人`,
+        hasSales ? `売上: ${formatCurrency(py.sales)}` : null,
+        hasCust ? `客数: ${py.customers.toLocaleString('ja-JP')}人` : null,
         custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
+        ...warnings,
       ]
         .filter(Boolean)
         .join(' / ')
@@ -251,16 +265,30 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年同日（月間）',
     group: '前年比較',
     size: 'kpi',
-    isVisible: ({ prevYearMonthlyKpi: pk }) => pk.hasPrevYear,
     render: ({ result: r, prevYearMonthlyKpi: pk }) => {
+      if (!pk.hasPrevYear) {
+        return (
+          <KpiCard
+            label="前年同日（月間）"
+            value="-"
+            subText="前年データ未読込"
+            accent={palette.cyanDark}
+          />
+        )
+      }
       const py = pk.sameDate
-      const salesRatio = py.sales > 0 ? r.totalSales / py.sales : null
-      const custRatio =
-        py.customers > 0 && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const hasSales = py.sales > 0
+      const hasCust = py.customers > 0
+      const salesRatio = hasSales ? r.totalSales / py.sales : null
+      const custRatio = hasCust && r.totalCustomers > 0 ? r.totalCustomers / py.customers : null
+      const warnings: string[] = []
+      if (!hasSales) warnings.push('前年売上データなし')
+      if (!hasCust) warnings.push('前年客数データなし')
       const sub = [
-        `売上: ${formatCurrency(py.sales)}`,
-        `客数: ${py.customers.toLocaleString('ja-JP')}人`,
+        hasSales ? `売上: ${formatCurrency(py.sales)}` : null,
+        hasCust ? `客数: ${py.customers.toLocaleString('ja-JP')}人` : null,
         custRatio != null ? `客数比: ${formatPercent(custRatio, 1)}` : null,
+        ...warnings,
       ]
         .filter(Boolean)
         .join(' / ')
