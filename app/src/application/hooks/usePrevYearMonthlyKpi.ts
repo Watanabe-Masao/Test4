@@ -82,7 +82,8 @@ const EMPTY: PrevYearMonthlyKpi = {
 /**
  * 指定オフセットで前年日別データを当年月にマッピングし、月間合計と日別マッピングを返す。
  */
-function aggregateWithOffset(
+/** @visibleForTesting */
+export function aggregateWithOffset(
   allAgg: Record<string, Record<string, { sales?: number; discount?: number }>>,
   prevYearFlowers: Record<string, Record<number, { customers?: number }>> | undefined,
   targetIds: readonly string[],
