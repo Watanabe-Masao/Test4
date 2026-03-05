@@ -10,21 +10,48 @@ import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
-import { generateExplanations } from '@/application/usecases/explanation'
+import { usePrevYearMonthlyKpi } from './usePrevYearMonthlyKpi'
+import {
+  generateExplanations,
+  generatePrevYearBudgetExplanations,
+} from '@/application/usecases/explanation'
 import type { StoreExplanations, MetricId, Explanation } from '@/domain/models'
 
 /**
  * 選択中の店舗に対する全指標の Explanation を返す
+ *
+ * StoreResult ベースの説明に加え、前年予算比較の説明もマージして返す。
  */
 export function useExplanations(): StoreExplanations {
   const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
   const { currentResult } = useStoreSelection()
+  const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
   return useMemo(() => {
     if (!currentResult) return new Map()
-    return generateExplanations(currentResult, data, settings)
-  }, [currentResult, data, settings])
+    const base = generateExplanations(currentResult, data, settings)
+
+    // 前年予算比較の Explanation をマージ
+    if (prevYearMonthlyKpi.hasPrevYear && currentResult.budget > 0) {
+      const prevYearExplanations = generatePrevYearBudgetExplanations({
+        prevYearMonthlyKpi,
+        budget: currentResult.budget,
+        budgetDaily: currentResult.budgetDaily,
+        storeId: currentResult.storeId,
+        year: settings.targetYear,
+        month: settings.targetMonth,
+      })
+      // base は内部的に Map なのでマージ可能
+      const merged = new Map(base)
+      for (const [id, exp] of prevYearExplanations) {
+        merged.set(id, exp)
+      }
+      return merged
+    }
+
+    return base
+  }, [currentResult, data, settings, prevYearMonthlyKpi])
 }
 
 /**

@@ -214,7 +214,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年同曜日 vs 予算',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk, onPrevYearDetail }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
@@ -247,7 +247,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
           subText={sub}
           accent={palette.blueDark}
-          onClick={() => onPrevYearDetail('sameDow')}
+          onClick={() => onExplain('prevYearSameDowBudgetRatio')}
           trend={
             budgetRatio != null
               ? {
@@ -266,7 +266,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
     label: '前年同日 vs 予算',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk, onPrevYearDetail }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
@@ -299,7 +299,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
           value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
           subText={sub}
           accent={palette.cyanDark}
-          onClick={() => onPrevYearDetail('sameDate')}
+          onClick={() => onExplain('prevYearSameDateBudgetRatio')}
           trend={
             budgetRatio != null
               ? {
