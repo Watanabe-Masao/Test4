@@ -3,7 +3,6 @@ import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
-import { AnalysisBar } from '@/presentation/components/common'
 
 const Main = styled.main`
   overflow-y: auto;
@@ -165,6 +164,20 @@ const BadgeWrapper = styled.div`
 
 // ── Components ──
 
+/**
+ * InlineMonthPicker — 対象年月切替コンポーネント
+ *
+ * 計算エンジンのデータパイプラインの起点。
+ * 表示されている対象年月に応じて以下を自動的にトリガーする:
+ *
+ * 1. 当月データを IndexedDB からロード → dataStore に格納
+ * 2. useAutoLoadPrevYear が targetYear/targetMonth の変更を検知し、
+ *    前年同月データを自動ロード
+ * 3. JS 計算エンジンが前年同曜日・同日の値をいつでも使用できる状態になる
+ *
+ * ユーザーが「分析期間を選ぶ」UI ではなく、
+ * 計算に必要な全データを揃えるための年月切替機構。
+ */
 function InlineMonthPicker() {
   const settings = useSettingsStore((s) => s.settings)
   const { isSwitching, switchMonth } = useMonthSwitcher()
@@ -255,14 +268,11 @@ export function MainContent({
   title,
   storeName,
   actions,
-  showAnalysisBar = true,
   children,
 }: {
   title: string
   storeName?: string
   actions?: ReactNode
-  /** AnalysisBar を表示するか（デフォルト: true、Admin等では false） */
-  showAnalysisBar?: boolean
   children: ReactNode
 }) {
   return (
@@ -278,7 +288,6 @@ export function MainContent({
           {actions}
         </div>
       </Header>
-      {showAnalysisBar && <AnalysisBar />}
       {children}
     </Main>
   )

@@ -45,4 +45,3 @@ export {
   VarianceLabel,
   VarianceValue,
 } from './CalcRow'
-export { AnalysisBar } from './AnalysisBar'

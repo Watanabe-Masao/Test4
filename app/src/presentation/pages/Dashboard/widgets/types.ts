@@ -9,7 +9,7 @@ import type {
   ComparisonFrame,
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 
@@ -108,6 +108,8 @@ export interface WidgetContext {
   duckLoadedMonthCount: number
   /** DuckDB 分析用の自由日付範囲（ユーザーが選択可能、月跨ぎ対応） */
   duckDateRange: DateRange
+  /** 前年月間KPI（同曜日/同日、dataEndDay非依存） */
+  prevYearMonthlyKpi: PrevYearMonthlyKpi
   /** 比較フレーム（全チャート共通の前年期間決定） */
   comparisonFrame: ComparisonFrame
 }

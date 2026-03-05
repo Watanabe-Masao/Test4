@@ -17,6 +17,7 @@ import {
   useAutoLoadPrevYear,
   useExplanations,
   useComparisonFrame,
+  usePrevYearMonthlyKpi,
 } from '@/application/hooks'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
@@ -96,6 +97,7 @@ export function DashboardPage() {
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
+  const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
   useAutoLoadPrevYear()
@@ -285,6 +287,7 @@ export function DashboardPage() {
     month: targetMonth,
     storeKey: storeName,
     prevYear,
+    prevYearMonthlyKpi,
     allStoreResults: storeResults,
     stores: data.stores,
     currentDateRange,
