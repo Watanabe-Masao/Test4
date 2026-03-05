@@ -173,22 +173,16 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
 
     // ソース年月の決定
     const srcYear =
-      prevYearSourceYear != null && !isNaN(prevYearSourceYear)
-        ? prevYearSourceYear
-        : targetYear - 1
+      prevYearSourceYear != null && !isNaN(prevYearSourceYear) ? prevYearSourceYear : targetYear - 1
     const srcMonth =
-      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth)
-        ? prevYearSourceMonth
-        : targetMonth
+      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth) ? prevYearSourceMonth : targetMonth
 
     // 同曜日オフセット
     const dowOffset = calcSameDowOffset(
       targetYear,
       targetMonth,
       prevYearSourceYear != null && !isNaN(prevYearSourceYear) ? prevYearSourceYear : undefined,
-      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth)
-        ? prevYearSourceMonth
-        : undefined,
+      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth) ? prevYearSourceMonth : undefined,
     )
 
     const sameDow = aggregateWithOffset(

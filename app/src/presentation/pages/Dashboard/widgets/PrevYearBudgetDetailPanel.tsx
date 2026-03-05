@@ -253,7 +253,10 @@ export function PrevYearBudgetDetailPanel({
 
   // 週別集計
   const weeklyTotals = useMemo(() => {
-    const map = new Map<number, { sales: number; customers: number; budget: number; days: number }>()
+    const map = new Map<
+      number,
+      { sales: number; customers: number; budget: number; days: number }
+    >()
     for (const row of baseRows) {
       const existing = map.get(row.week)
       if (existing) {

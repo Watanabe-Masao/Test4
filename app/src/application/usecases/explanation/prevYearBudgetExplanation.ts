@@ -12,7 +12,10 @@ import type {
   EvidenceRef,
   BreakdownEntry,
 } from '@/domain/models'
-import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type {
+  PrevYearMonthlyKpi,
+  PrevYearMonthlyKpiEntry,
+} from '@/application/hooks/usePrevYearMonthlyKpi'
 import { safeDivide } from '@/domain/calculations/utils'
 
 function inp(
@@ -27,10 +30,7 @@ function inp(
 /**
  * storeContributions → evidenceRefs（計算に寄与した前年データへの実参照）
  */
-function buildEvidenceRefs(
-  entry: PrevYearMonthlyKpiEntry,
-  budgetStoreId: string,
-): EvidenceRef[] {
+function buildEvidenceRefs(entry: PrevYearMonthlyKpiEntry, budgetStoreId: string): EvidenceRef[] {
   const refs: EvidenceRef[] = entry.storeContributions.map((c) => ({
     kind: 'daily' as const,
     dataType: 'classifiedSales' as const,
@@ -106,17 +106,9 @@ export function generatePrevYearBudgetExplanations(
     inputs: [
       inp('前年同曜日売上', pk.sameDow.sales, 'yen'),
       inp('前年同曜日客数', pk.sameDow.customers, 'count'),
-      inp(
-        '前年同曜日客単価',
-        safeDivide(pk.sameDow.sales, pk.sameDow.customers, 0),
-        'yen',
-      ),
+      inp('前年同曜日客単価', safeDivide(pk.sameDow.sales, pk.sameDow.customers, 0), 'yen'),
       inp('当年月間予算', budget, 'yen', 'budget'),
-      inp(
-        '予算 ÷ 前年',
-        safeDivide(budget, pk.sameDow.sales, 0),
-        'rate',
-      ),
+      inp('予算 ÷ 前年', safeDivide(budget, pk.sameDow.sales, 0), 'rate'),
     ],
     breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily),
     evidenceRefs: buildEvidenceRefs(pk.sameDow, storeId),
@@ -134,17 +126,9 @@ export function generatePrevYearBudgetExplanations(
     inputs: [
       inp('前年同日売上', pk.sameDate.sales, 'yen'),
       inp('前年同日客数', pk.sameDate.customers, 'count'),
-      inp(
-        '前年同日客単価',
-        safeDivide(pk.sameDate.sales, pk.sameDate.customers, 0),
-        'yen',
-      ),
+      inp('前年同日客単価', safeDivide(pk.sameDate.sales, pk.sameDate.customers, 0), 'yen'),
       inp('当年月間予算', budget, 'yen', 'budget'),
-      inp(
-        '予算 ÷ 前年',
-        safeDivide(budget, pk.sameDate.sales, 0),
-        'rate',
-      ),
+      inp('予算 ÷ 前年', safeDivide(budget, pk.sameDate.sales, 0), 'rate'),
     ],
     breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily),
     evidenceRefs: buildEvidenceRefs(pk.sameDate, storeId),
