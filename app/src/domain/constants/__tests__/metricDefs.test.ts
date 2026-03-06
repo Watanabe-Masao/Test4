@@ -53,6 +53,7 @@ const ALL_METRIC_IDS: MetricId[] = [
   'requiredDailyGrossProfit',
   'prevYearSameDowBudgetRatio',
   'prevYearSameDateBudgetRatio',
+  'dowGapImpact',
 ]
 
 describe('METRIC_DEFS', () => {

@@ -325,7 +325,7 @@ export function PrevYearBudgetDetailPanel({
           {wt.budget - wt.sales >= 0 ? '+' : ''}
           {formatCurrency(wt.budget - wt.sales)}
         </NumTd>
-        <NumTd>{wt.sales > 0 ? formatPercent(wRatio, 1) : '-'}</NumTd>
+        <NumTd>{wt.sales > 0 ? formatPercent(wRatio) : '-'}</NumTd>
       </WeekRow>
     )
   }
@@ -375,7 +375,7 @@ export function PrevYearBudgetDetailPanel({
             {diff >= 0 ? '+' : ''}
             {formatCurrency(diff)}
           </RatioCell>
-          <RatioCell $ratio={ratio}>{displaySales > 0 ? formatPercent(ratio, 1) : '-'}</RatioCell>
+          <RatioCell $ratio={ratio}>{displaySales > 0 ? formatPercent(ratio) : '-'}</RatioCell>
         </MbpTr>,
       )
     }
@@ -399,7 +399,7 @@ export function PrevYearBudgetDetailPanel({
           {budgetTotal - entry.sales >= 0 ? '+' : ''}
           {formatCurrency(budgetTotal - entry.sales)}
         </NumTd>
-        <NumTd>{entry.sales > 0 ? formatPercent(budgetVsPrevYear, 1) : '-'}</NumTd>
+        <NumTd>{entry.sales > 0 ? formatPercent(budgetVsPrevYear) : '-'}</NumTd>
       </TotalRow>,
     )
 
@@ -451,7 +451,7 @@ export function PrevYearBudgetDetailPanel({
             <SummaryLabel>当年月間予算</SummaryLabel>
             <SummaryValue>{formatCurrency(budgetTotal)}</SummaryValue>
             <SummarySub>
-              前年比: {formatPercent(budgetVsPrevYear, 1)}
+              前年比: {formatPercent(budgetVsPrevYear)}
               {budgetVsPrevYear !== 1 &&
                 ` (${budgetTotal - entry.sales >= 0 ? '+' : ''}${formatCurrency(budgetTotal - entry.sales)})`}
             </SummarySub>
@@ -464,7 +464,7 @@ export function PrevYearBudgetDetailPanel({
                   budgetRatio >= 1 ? theme.colors.palette.success : theme.colors.palette.danger,
               }}
             >
-              {formatPercent(budgetRatio, 1)}
+              {formatPercent(budgetRatio)}
             </SummaryValue>
             <SummarySub>
               {budgetVsPrevYear > 1

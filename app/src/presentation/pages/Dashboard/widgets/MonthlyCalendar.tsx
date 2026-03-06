@@ -424,7 +424,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                         </CalDataArea>
                       )}
                       {isPinned && interval && (
-                        <PinIndicator>GP {formatPercent(interval.grossProfitRate, 1)}</PinIndicator>
+                        <PinIndicator>GP {formatPercent(interval.grossProfitRate)}</PinIndicator>
                       )}
                     </CalDayCell>
                   </CalTd>

@@ -244,7 +244,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       return (
         <KpiCard
           label="前年同曜日 vs 予算"
-          value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
+          value={budgetRatio != null ? formatPercent(budgetRatio) : '-'}
           subText={sub}
           accent={palette.blueDark}
           onClick={() => onExplain('prevYearSameDowBudgetRatio')}
@@ -252,7 +252,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
             budgetRatio != null
               ? {
                   direction: budgetRatio >= 1 ? 'up' : 'down',
-                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0), 1)}`,
+                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0))}`,
                 }
               : undefined
           }
@@ -296,7 +296,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       return (
         <KpiCard
           label="前年同日 vs 予算"
-          value={budgetRatio != null ? formatPercent(budgetRatio, 1) : '-'}
+          value={budgetRatio != null ? formatPercent(budgetRatio) : '-'}
           subText={sub}
           accent={palette.cyanDark}
           onClick={() => onExplain('prevYearSameDateBudgetRatio')}
@@ -304,11 +304,38 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
             budgetRatio != null
               ? {
                   direction: budgetRatio >= 1 ? 'up' : 'down',
-                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0), 1)}`,
+                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0))}`,
                 }
               : undefined
           }
           formulaSummary="前年同日売上 ÷ 当年月間予算"
+        />
+      )
+    },
+  },
+  // ── KPI: 曜日ギャップ ──
+  {
+    id: 'kpi-dow-gap',
+    label: '曜日ギャップ',
+    group: '前年比較',
+    size: 'kpi',
+    isVisible: ({ dowGap }) => dowGap.isValid,
+    render: ({ dowGap, onExplain }) => {
+      const impact = dowGap.estimatedImpact
+      const totalDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
+      const DOW_SHORT = ['日', '月', '火', '水', '木', '金', '土'] as const
+      const gapSummary = dowGap.dowCounts
+        .filter((d) => d.diff !== 0)
+        .map((d) => `${DOW_SHORT[d.dow]}${d.diff > 0 ? '+' : ''}${d.diff}`)
+        .join(' ')
+      return (
+        <KpiCard
+          label="曜日ギャップ"
+          value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+          subText={`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`}
+          accent={impact >= 0 ? palette.positive : palette.negative}
+          onClick={() => onExplain('dowGapImpact')}
+          formulaSummary="合計日数差 × 日平均売上"
         />
       )
     },

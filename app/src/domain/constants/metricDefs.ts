@@ -341,4 +341,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
     formulaRef: 'ratioCalculation',
   },
+  // ─── 曜日ギャップ ──────────────────────────────────────
+  dowGapImpact: {
+    label: '曜日ギャップ影響額',
+    unit: 'yen',
+    tokens: { entity: 'sales', domain: 'estimated', measure: 'variance' },
+  },
 } as const

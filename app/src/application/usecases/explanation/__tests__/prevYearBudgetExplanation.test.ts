@@ -64,7 +64,7 @@ const BUDGET_DAILY = new Map<number, number>([
 ])
 
 describe('generatePrevYearBudgetExplanations 不変条件', () => {
-  it('不変条件1: breakdown 日別売上合計 === entry.sales（同曜日）', () => {
+  it('不変条件1: breakdown の details 内「前年売上実績」合計 === entry.sales（同曜日）', () => {
     const result = generatePrevYearBudgetExplanations({
       prevYearMonthlyKpi: makePk(),
       budget: BUDGET,
@@ -74,11 +74,14 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
       month: 3,
     })
     const explanation = result.get('prevYearSameDowBudgetRatio')!
-    const breakdownSum = explanation.breakdown!.reduce((s, b) => s + b.value, 0)
+    const breakdownSum = explanation.breakdown!.reduce((s, b) => {
+      const salesDetail = b.details?.find((d) => d.label === '前年売上実績')
+      return s + (salesDetail?.value ?? 0)
+    }, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
   })
 
-  it('不変条件1: breakdown 日別売上合計 === entry.sales（同日）', () => {
+  it('不変条件1: breakdown の details 内「前年売上実績」合計 === entry.sales（同日）', () => {
     const result = generatePrevYearBudgetExplanations({
       prevYearMonthlyKpi: makePk(),
       budget: BUDGET,
@@ -88,7 +91,10 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
       month: 3,
     })
     const explanation = result.get('prevYearSameDateBudgetRatio')!
-    const breakdownSum = explanation.breakdown!.reduce((s, b) => s + b.value, 0)
+    const breakdownSum = explanation.breakdown!.reduce((s, b) => {
+      const salesDetail = b.details?.find((d) => d.label === '前年売上実績')
+      return s + (salesDetail?.value ?? 0)
+    }, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
   })
 
@@ -188,10 +194,11 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
     for (const b of explanation.breakdown!) {
       expect(b.details).toBeDefined()
       const labels = b.details!.map((d) => d.label)
-      expect(labels).toContain('前年売上')
+      expect(labels).toContain('前年売上実績')
       expect(labels).toContain('前年客数')
       expect(labels).toContain('前年客単価')
-      expect(labels).toContain('当年予算')
+      expect(labels).toContain('対象日当年予算')
+      expect(labels).toContain('予算対比')
     }
   })
 

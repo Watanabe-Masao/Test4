@@ -256,7 +256,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
                 </KpiLabel>
                 <KpiValue>{formatCurrency(amt)}</KpiValue>
                 <KpiSub>
-                  構成比: {formatPercent(pct, 1)} / 売変率: {formatPercent(rate)}
+                  構成比: {formatPercent(pct)} / 売変率: {formatPercent(rate)}
                 </KpiSub>
               </KpiCard>
             )

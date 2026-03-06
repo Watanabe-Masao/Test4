@@ -323,6 +323,7 @@ export function DashboardPage() {
     duckLoadedMonthCount: duck.loadedMonthCount,
     duckDateRange,
     comparisonFrame: frame,
+    dowGap,
     onPrevYearDetail: handlePrevYearDetail,
   }
 

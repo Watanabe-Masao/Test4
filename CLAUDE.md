@@ -246,6 +246,13 @@ cd app && npm run dev           # Vite 開発サーバー
 - `readonly` を積極的に使用（イミュータブル設計）
 - `@typescript-eslint/no-explicit-any: 'error'` — `any` 型は lint エラー
 
+### 数値表示ルール
+
+- **パーセント表示は小数第2位まで**（`formatPercent(value)` — デフォルト `decimals=2`）
+- `formatPercent(value, 1)` のように小数点以下を減らしてはならない
+- 金額は `formatCurrency()` で整数表示（四捨五入 → カンマ区切り）
+- ポイント差は `formatPointDiff()` で `±N.Npt` 表示
+
 ### スタイリング
 
 - styled-components 6（テーマトークン経由、ダーク/ライト対応）

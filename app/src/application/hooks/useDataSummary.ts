@@ -48,11 +48,20 @@ export function useDataSummary(data: ImportedData): DataSummary {
     const hasAnyData = computeHasAnyData(data)
     const loadedTypes = computeLoadedTypes(data)
     const maxDayByType = computeMaxDayByType(data)
-    const hasPrevYearData = data.prevYearClassifiedSales.records.length > 0
-    const prevYearDays = computeRecordDays(data.prevYearClassifiedSales)
-    const categoryTimeSalesStats = computeCtsRecordStats(data.categoryTimeSales)
-    const prevYearCategoryTimeSalesStats = computeCtsRecordStats(data.prevYearCategoryTimeSales)
-    const dataOverview = buildDataOverview(data)
+    const hasPrevYearData = (data.prevYearClassifiedSales?.records?.length ?? 0) > 0
+    const prevYearDays = data.prevYearClassifiedSales?.records
+      ? computeRecordDays(data.prevYearClassifiedSales)
+      : new Set<number>()
+    const categoryTimeSalesStats =
+      data.categoryTimeSales?.records
+        ? computeCtsRecordStats(data.categoryTimeSales)
+        : { recordCount: 0, storeCount: 0, dayRange: null }
+    const prevYearCategoryTimeSalesStats =
+      data.prevYearCategoryTimeSales?.records
+        ? computeCtsRecordStats(data.prevYearCategoryTimeSales)
+        : { recordCount: 0, storeCount: 0, dayRange: null }
+    const dataOverview =
+      data.purchase?.records && data.classifiedSales?.records ? buildDataOverview(data) : []
 
     return {
       hasAnyData,

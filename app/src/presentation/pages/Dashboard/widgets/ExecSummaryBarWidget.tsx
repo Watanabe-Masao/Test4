@@ -115,7 +115,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               </ExecSummarySub>
               {pyRatio != null && (
                 <ExecSummarySub $color={sc.cond(pyRatio >= 1)}>
-                  前年同曜日比: {formatPercent(pyRatio, 1)}
+                  前年同曜日比: {formatPercent(pyRatio)}
                 </ExecSummarySub>
               )}
             </ExecSummaryItem>
@@ -303,7 +303,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>
                   {custRatio != null && (
                     <ExecSummarySub $color={sc.cond(custRatio >= 1)}>
-                      客数前年比: {formatPercent(custRatio, 1)}
+                      客数前年比: {formatPercent(custRatio)}
                     </ExecSummarySub>
                   )}
                   {pyTxValue != null && (

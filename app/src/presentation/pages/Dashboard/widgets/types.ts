@@ -10,6 +10,7 @@ import type {
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
+import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 
@@ -112,6 +113,8 @@ export interface WidgetContext {
   prevYearMonthlyKpi: PrevYearMonthlyKpi
   /** 比較フレーム（全チャート共通の前年期間決定） */
   comparisonFrame: ComparisonFrame
+  /** 曜日ギャップ分析結果 */
+  dowGap: DowGapAnalysis
   /** 前年予算比較詳細パネルを開く */
   onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
 }
