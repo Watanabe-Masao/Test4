@@ -484,6 +484,20 @@ export async function processDroppedFiles(
  * classifiedSales、categoryTimeSales の各レコードと StoreDayRecord パーティションの
  * キーを収集し、年月昇順で返す。
  */
+/**
+ * インポートデータに含まれる年月の一覧を返す。
+ *
+ * 月の検出ソース:
+ * - classifiedSales / categoryTimeSales のレコード（year/month フィールド）
+ * - パーティションキー（今回インポートされたデータの年月）
+ *
+ * 注意: フラットレコード系（purchase, flowers 等）の data.records からは
+ * 年月を収集しない。processedData には currentData から継承されたレコードが
+ * 含まれるため、実際にインポートされていない月まで検出してしまい、
+ * マルチ月パスで他月のデータが上書きされるバグの原因になる。
+ * パーティションキーは今回のインポートで実際に処理されたデータの年月のみを
+ * 反映するため、正確なソースとして使用する。
+ */
 export function extractRecordMonths(
   data: ImportedData,
   partitions?: MonthPartitions,
@@ -507,22 +521,7 @@ export function extractRecordMonths(
     addMonth(rec.year, rec.month)
   }
 
-  // フラットレコード系データからも年月を収集
-  const flatSources = [
-    data.purchase.records,
-    data.interStoreIn.records,
-    data.interStoreOut.records,
-    data.flowers.records,
-    data.directProduce.records,
-    data.consumables.records,
-  ] as const
-  for (const records of flatSources) {
-    for (const rec of records) {
-      addMonth(rec.year, rec.month)
-    }
-  }
-
-  // パーティションのキーからも年月を収集
+  // パーティションキーから年月を収集（今回インポートされたデータのみ）
   if (partitions) {
     const allPartitionKeys = new Set<string>()
     for (const mk of Object.keys(partitions.purchase)) allPartitionKeys.add(mk)
@@ -546,10 +545,35 @@ export function extractRecordMonths(
 }
 
 /**
+ * DatedRecord 系レコードを年月でフィルタする。
+ * パーティションが存在する場合はパーティションから取得し、
+ * 存在しない場合はレコードの year/month フィールドでフィルタする。
+ *
+ * 旧実装ではパーティション未設定の種別は data をそのまま通過させていたため、
+ * マルチ月インポート時に他月のレコードが漏れるバグがあった。
+ */
+function filterDatedRecords<T extends { readonly records: readonly { year: number; month: number }[] }>(
+  partition: Record<string, T> | undefined,
+  data: T,
+  mk: string,
+  year: number,
+  month: number,
+): T {
+  const emptyRecords = { records: [] } as unknown as T
+  if (partition && Object.keys(partition).length > 0) {
+    return partition[mk] ?? emptyRecords
+  }
+  // パーティションが無い場合でも year/month でフィルタして他月データの漏れを防ぐ
+  const filtered = data.records.filter((r) => r.year === year && r.month === month)
+  return filtered.length === data.records.length ? data : ({ records: filtered } as unknown as T)
+}
+
+/**
  * ImportedData から指定年月のレコードのみを含む ImportedData を返す。
- * classifiedSales と categoryTimeSales を年月で厳密フィルタし、
- * MonthPartitions が提供された場合は StoreDayRecord 系データも適切に分割する。
- * partitions が無い場合はレコード系のみフィルタし、StoreDayRecord はそのまま維持する。
+ * 全レコード系データを年月で厳密フィルタする。
+ * - classifiedSales / categoryTimeSales: レコードの year/month で常にフィルタ
+ * - DatedRecord 系 (purchase 等): パーティション優先、無ければ year/month フィルタ
+ * - budget: パーティション優先、無ければそのまま維持（year/month フィールドを持たないため）
  */
 export function filterDataForMonth(
   data: ImportedData,
@@ -569,31 +593,40 @@ export function filterDataForMonth(
     },
   }
 
-  if (!partitions) return base
+  if (!partitions) {
+    // パーティション情報なし: DatedRecord 系も year/month でフィルタ
+    return {
+      ...base,
+      purchase: filterDatedRecords(undefined, data.purchase, mk, year, month),
+      flowers: filterDatedRecords(undefined, data.flowers, mk, year, month),
+      directProduce: filterDatedRecords(undefined, data.directProduce, mk, year, month),
+      interStoreIn: filterDatedRecords(undefined, data.interStoreIn, mk, year, month),
+      interStoreOut: filterDatedRecords(undefined, data.interStoreOut, mk, year, month),
+      consumables: filterDatedRecords(undefined, data.consumables, mk, year, month),
+    }
+  }
 
-  // パーティション情報を使ってフラットレコード系データを年月で分割。
-  // パーティションにエントリが1つもない種別（= 今回インポートされなかった種別）は
-  // processedData の値をそのまま保全する。空の { records: [] } や new Map() で上書きすると
-  // 既存データ（予算、仕入など）が失われるバグの原因になる。
-  const emptyRecords = { records: [] } as const
-  const has = (obj: Record<string, unknown>) => Object.keys(obj).length > 0
   return {
     ...base,
-    purchase: has(partitions.purchase) ? (partitions.purchase[mk] ?? emptyRecords) : data.purchase,
-    flowers: has(partitions.flowers) ? (partitions.flowers[mk] ?? emptyRecords) : data.flowers,
-    directProduce: has(partitions.directProduce)
-      ? (partitions.directProduce[mk] ?? emptyRecords)
-      : data.directProduce,
-    interStoreIn: has(partitions.interStoreIn)
-      ? (partitions.interStoreIn[mk] ?? emptyRecords)
-      : data.interStoreIn,
-    interStoreOut: has(partitions.interStoreOut)
-      ? (partitions.interStoreOut[mk] ?? emptyRecords)
-      : data.interStoreOut,
-    consumables: has(partitions.consumables)
-      ? (partitions.consumables[mk] ?? emptyRecords)
-      : data.consumables,
-    budget: has(partitions.budget)
+    purchase: filterDatedRecords(partitions.purchase, data.purchase, mk, year, month),
+    flowers: filterDatedRecords(partitions.flowers, data.flowers, mk, year, month),
+    directProduce: filterDatedRecords(
+      partitions.directProduce,
+      data.directProduce,
+      mk,
+      year,
+      month,
+    ),
+    interStoreIn: filterDatedRecords(partitions.interStoreIn, data.interStoreIn, mk, year, month),
+    interStoreOut: filterDatedRecords(
+      partitions.interStoreOut,
+      data.interStoreOut,
+      mk,
+      year,
+      month,
+    ),
+    consumables: filterDatedRecords(partitions.consumables, data.consumables, mk, year, month),
+    budget: Object.keys(partitions.budget).length > 0
       ? (partitions.budget[mk] ?? new Map<string, BudgetData>())
       : data.budget,
   }
