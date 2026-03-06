@@ -1,4 +1,5 @@
 import type { AppSettings } from '../models'
+import { DEFAULT_CONDITION_CONFIG } from './conditionMetrics'
 
 /** デフォルトアプリケーション設定を生成する（呼び出し時の現在日時を使用） */
 export function createDefaultSettings(): Readonly<AppSettings> {
@@ -25,6 +26,7 @@ export function createDefaultSettings(): Readonly<AppSettings> {
     prevYearSourceMonth: null,
     prevYearDowOffset: null,
     alignmentPolicy: 'sameDayOfWeek',
+    conditionConfig: DEFAULT_CONDITION_CONFIG,
   }
 }
 

@@ -64,6 +64,7 @@ const mockSettings: AppSettings = {
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
   alignmentPolicy: 'sameDayOfWeek' as const,
+  conditionConfig: { global: {}, storeOverrides: {} },
   gpDiffBlueThreshold: 0.2,
   gpDiffYellowThreshold: -0.2,
   gpDiffRedThreshold: -0.5,
