@@ -194,3 +194,5 @@ export function useInsightData() {
     calculateTransactionValue,
   } as const
 }
+
+export type InsightData = ReturnType<typeof useInsightData>
