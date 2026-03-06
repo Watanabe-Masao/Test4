@@ -150,10 +150,10 @@ Test4/
         │   ├── components/   #   UI コンポーネント
         │   │   ├── charts/   #     50 チャート + 7 ヘルパー
         │   │   ├── common/   #     共通 UI 部品
-        │   │   └── Layout/   #     レイアウト（AppShell, NavBar, Sidebar）
+        │   │   ├── Layout/   #     レイアウト（AppShell, NavBar, Sidebar）
+        │   │   └── DevTools/  #     開発ツール（QueryProfilePanel）
         │   ├── hooks/        #   プレゼンテーション層フック
-        │   ├── theme/        #   テーマ・スタイル定義（ダーク/ライト）
-        │   └── DevTools/     #   開発ツール
+        │   └── theme/        #   テーマ・スタイル定義（ダーク/ライト）
         ├── stories/          # Storybook（22 ストーリー）
         └── test/             # テストユーティリティ
 ```
