@@ -52,14 +52,12 @@ export function useDataSummary(data: ImportedData): DataSummary {
     const prevYearDays = data.prevYearClassifiedSales?.records
       ? computeRecordDays(data.prevYearClassifiedSales)
       : new Set<number>()
-    const categoryTimeSalesStats =
-      data.categoryTimeSales?.records
-        ? computeCtsRecordStats(data.categoryTimeSales)
-        : { recordCount: 0, storeCount: 0, dayRange: null }
-    const prevYearCategoryTimeSalesStats =
-      data.prevYearCategoryTimeSales?.records
-        ? computeCtsRecordStats(data.prevYearCategoryTimeSales)
-        : { recordCount: 0, storeCount: 0, dayRange: null }
+    const categoryTimeSalesStats = data.categoryTimeSales?.records
+      ? computeCtsRecordStats(data.categoryTimeSales)
+      : { recordCount: 0, storeCount: 0, dayRange: null }
+    const prevYearCategoryTimeSalesStats = data.prevYearCategoryTimeSales?.records
+      ? computeCtsRecordStats(data.prevYearCategoryTimeSales)
+      : { recordCount: 0, storeCount: 0, dayRange: null }
     const dataOverview =
       data.purchase?.records && data.classifiedSales?.records ? buildDataOverview(data) : []
 
