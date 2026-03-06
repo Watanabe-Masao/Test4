@@ -29,5 +29,13 @@ export function useDowGapAnalysis(
       dailyAverageSales,
       prevDowSales,
     )
-  }, [currentYear, currentMonth, previousYear, previousMonth, dailyAverageSales, enabled, prevDowSales])
+  }, [
+    currentYear,
+    currentMonth,
+    previousYear,
+    previousMonth,
+    dailyAverageSales,
+    enabled,
+    prevDowSales,
+  ])
 }
