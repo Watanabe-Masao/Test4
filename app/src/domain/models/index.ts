@@ -25,7 +25,6 @@ export { CUSTOM_CATEGORIES } from './Settings'
 export type {
   DatedRecord,
   StoreDayIndex,
-  StoreDayRecord,
   PurchaseData,
   PurchaseDayEntry,
   TransferRecord,

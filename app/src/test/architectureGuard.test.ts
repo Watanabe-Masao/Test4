@@ -108,12 +108,11 @@ const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
 
 /**
  * Infrastructure → Application の許可リスト。
- * 後方互換 re-export のみ許可。
+ * 純粋ユーティリティ（hash等）の参照を許可。
  */
 const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set([
-  // 後方互換 re-export（Phase 1 で作成）
-  'infrastructure/utilities/murmurhash.ts',
-  'infrastructure/storage/diffCalculator.ts',
+  // serialization.ts は hashData（純粋関数）を使用
+  'infrastructure/storage/internal/serialization.ts',
 ])
 
 // ─── テスト ──────────────────────────────────────────────

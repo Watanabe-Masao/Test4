@@ -4,7 +4,7 @@
 import type { DataOrigin, DataEnvelope } from '@/domain/models'
 import type { BudgetData } from '@/domain/models'
 import { isEnvelope } from '@/domain/models'
-import { hashData } from '@/infrastructure/utilities/murmurhash'
+import { hashData } from '@/application/services/hash'
 import { STORE_DAY_FIELDS } from './keys'
 
 // ─── NaN / Infinity サニタイズ ────────────────────────────
@@ -161,7 +161,7 @@ function isFiniteNumber(val: unknown): val is number {
 }
 
 /** records 配列形式 { records: [...] } であることを検証する */
-function isValidStoreDayRecord(data: unknown): boolean {
+function isValidStoreDayIndex(data: unknown): boolean {
   if (data == null) return true
   if (typeof data !== 'object') return false
   const obj = data as Record<string, unknown>
@@ -204,9 +204,9 @@ function isValidCTSRecord(rec: unknown): boolean {
 
 /** ロードしたデータの構造と内容を検証する */
 export function validateLoadedData(result: Record<string, unknown>): boolean {
-  // StoreDayRecord 系: object であり、各エントリも object であること
+  // StoreDayIndex 系: object であり、各エントリも object であること
   for (const { field } of STORE_DAY_FIELDS) {
-    if (!isValidStoreDayRecord(result[field])) return false
+    if (!isValidStoreDayIndex(result[field])) return false
   }
   // Map 系: Map インスタンスであること
   if (!(result.stores instanceof Map)) return false

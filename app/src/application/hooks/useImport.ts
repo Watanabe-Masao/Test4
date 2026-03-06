@@ -41,7 +41,7 @@ export interface PendingDiffCheck {
   readonly existingData: ImportedData
   readonly importedTypes: ReadonlySet<string>
   readonly summary: ImportSummary
-  /** MonthPartitions（StoreDayRecord の年月分割情報） */
+  /** MonthPartitions（StoreDayIndex の年月分割情報） */
   readonly monthPartitions: MonthPartitions
   /** 複数月インポート時の追加情報 */
   readonly multiMonth?: {

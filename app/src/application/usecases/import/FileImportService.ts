@@ -483,7 +483,7 @@ export async function processDroppedFiles(
 
 /**
  * ImportedData のレコードベースデータおよび MonthPartitions に含まれる年月の一覧を抽出する。
- * classifiedSales、categoryTimeSales の各レコードと StoreDayRecord パーティションの
+ * classifiedSales、categoryTimeSales の各レコードと StoreDayIndex パーティションの
  * キーを収集し、年月昇順で返す。
  */
 /**

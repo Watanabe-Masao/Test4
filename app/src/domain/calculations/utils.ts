@@ -99,7 +99,7 @@ export function getEffectiveGrossProfitRate(result: {
 }
 
 /**
- * StoreDayRecord から最大日を取得
+ * StoreDayIndex から最大日を取得
  */
 export function maxDayOfRecord(
   record: { readonly [storeId: string]: { readonly [day: number]: unknown } } | null | undefined,

@@ -73,7 +73,7 @@ export type { ImportedData } from '@/domain/models'
 export { createEmptyImportedData } from '@/domain/models'
 
 /**
- * StoreDayRecord 系データの年月パーティション。
+ * StoreDayIndex 系データの年月パーティション。
  * キーは monthKey ("YYYY-M") 形式。
  */
 export interface MonthPartitions {

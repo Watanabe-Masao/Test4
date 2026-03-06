@@ -2,7 +2,7 @@
  * DuckDB データローダー
  *
  * ImportedData の各データソースを DuckDB テーブルに投入する。
- * StoreDayRecord系は year/month を外部パラメータで受け取り付与する。
+ * StoreDayIndex系は year/month を外部パラメータで受け取り付与する。
  *
  * INSERT戦略: db.registerFileText() + read_json_auto() によるバルクロード。
  * 数万行規模のデータで prepared statement より高速。
