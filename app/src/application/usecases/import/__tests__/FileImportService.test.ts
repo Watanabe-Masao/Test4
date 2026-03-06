@@ -900,6 +900,74 @@ describe('extractRecordMonths', () => {
     })
     expect(extractRecordMonths(data)).toEqual([{ year: 2025, month: 3 }])
   })
+
+  it('パーティションキーから年月を抽出する', () => {
+    const data = makeData()
+    const partitions = {
+      purchase: {},
+      flowers: {},
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {
+        '2025-1': new Map(),
+        '2025-2': new Map(),
+        '2025-3': new Map(),
+      },
+    }
+    const months = extractRecordMonths(data, partitions)
+    expect(months).toEqual([
+      { year: 2025, month: 1 },
+      { year: 2025, month: 2 },
+      { year: 2025, month: 3 },
+    ])
+  })
+
+  it('継承データの purchase レコードは月として検出しない', () => {
+    // currentData から継承された1月の仕入データがあっても、
+    // パーティションキーにない月は検出されるべきではない
+    const data = makeData({
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
+    })
+    // パーティションなし → フラットレコードからは月を検出しない
+    expect(extractRecordMonths(data)).toEqual([])
+    // パーティションに2月のみ → 1月は検出されない
+    const partitions = {
+      purchase: {
+        '2025-2': {
+          records: [
+            {
+              year: 2025,
+              month: 2,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 200, price: 260 },
+            },
+          ],
+        },
+      },
+      flowers: {},
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {},
+    }
+    expect(extractRecordMonths(data, partitions)).toEqual([{ year: 2025, month: 2 }])
+  })
 })
 
 describe('filterDataForMonth', () => {
@@ -918,10 +986,12 @@ describe('filterDataForMonth', () => {
     expect(filtered.classifiedSales.records.every((r) => r.month === 1)).toBe(true)
   })
 
-  it('非レコードデータはそのまま維持される', () => {
+  it('stores/settings/budget は月フィルタされずそのまま維持される', () => {
     const stores = new Map([['1', { id: '1', code: '0001', name: 'A' }]])
+    const budget = new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]])
     const data = makeData({
       stores,
+      budget,
       purchase: {
         records: [
           {
@@ -944,10 +1014,80 @@ describe('filterDataForMonth', () => {
     const filtered = filterDataForMonth(data, 2025, 2)
     expect(filtered.classifiedSales.records).toHaveLength(1)
     expect(filtered.classifiedSales.records[0].month).toBe(2)
-    // 非レコードデータは維持
+    // Map 系データ（stores, budget）は維持
     expect(filtered.stores.size).toBe(1)
-    const purchaseRec = filtered.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
-    expect(purchaseRec?.total.cost).toBe(100)
+    expect(filtered.budget.size).toBe(1)
+  })
+
+  it('DatedRecord 系データもパーティション無しで year/month フィルタされる', () => {
+    const data = makeData({
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+          {
+            year: 2025,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
+      },
+      classifiedSales: {
+        records: [
+          { ...makeCSRecord(1, '1', 10000), year: 2025, month: 1 },
+          { ...makeCSRecord(1, '1', 20000), year: 2025, month: 2 },
+        ],
+      },
+    })
+    // パーティション無しでも month=2 のレコードのみ返す
+    const filtered = filterDataForMonth(data, 2025, 2)
+    expect(filtered.purchase.records).toHaveLength(1)
+    expect(filtered.purchase.records[0].total.cost).toBe(200)
+    expect(filtered.classifiedSales.records).toHaveLength(1)
+  })
+
+  it('他月の DatedRecord が漏れない（マルチ月インポート防止）', () => {
+    // currentData から継承された1月の仕入データと、インポートされた2月の花データ
+    const data = makeData({
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
+      flowers: {
+        records: [{ year: 2025, month: 2, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
+    })
+    // 花のみパーティションあり（仕入はパーティション無し）
+    const partitions = {
+      purchase: {},
+      flowers: { '2025-2': { records: [{ year: 2025, month: 2, day: 1, storeId: '1', price: 5000, cost: 4000 }] } },
+      directProduce: {},
+      interStoreIn: {},
+      interStoreOut: {},
+      consumables: {},
+      budget: {},
+    }
+    // 2月でフィルタ: 1月の仕入データは漏れてはならない
+    const filtered = filterDataForMonth(data, 2025, 2, partitions)
+    expect(filtered.purchase.records).toHaveLength(0)
+    expect(filtered.flowers.records).toHaveLength(1)
   })
 
   it('該当月レコードがない場合は空配列を返す', () => {
