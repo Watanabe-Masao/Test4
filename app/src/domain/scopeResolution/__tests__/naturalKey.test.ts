@@ -38,9 +38,7 @@ describe('naturalKey', () => {
       lineName: 'L1',
       className: 'C1',
     } as ClassifiedSalesRecord
-    expect(naturalKey('classifiedSales', rec)).toBe(
-      'cs\t2025\t2\t15\t001\tG1\tD1\tL1\tC1',
-    )
+    expect(naturalKey('classifiedSales', rec)).toBe('cs\t2025\t2\t15\t001\tG1\tD1\tL1\tC1')
   })
 
   it('categoryTimeSales: cts prefix + dept/line/klass codes', () => {
@@ -53,9 +51,7 @@ describe('naturalKey', () => {
       totalQuantity: 0,
       totalAmount: 0,
     } as CategoryTimeSalesRecord
-    expect(naturalKey('categoryTimeSales', rec)).toBe(
-      'cts\t2025\t2\t15\t001\t01\t02\t03',
-    )
+    expect(naturalKey('categoryTimeSales', rec)).toBe('cts\t2025\t2\t15\t001\t01\t02\t03')
   })
 
   it('異なるデータ種別は衝突しない', () => {

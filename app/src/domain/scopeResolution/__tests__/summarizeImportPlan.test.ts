@@ -59,9 +59,7 @@ describe('summarizeImportPlan', () => {
         {
           scope,
           adds: [],
-          updates: [
-            { kind: 'update', naturalKey: 'k1', record: rec, previousRecord: rec },
-          ],
+          updates: [{ kind: 'update', naturalKey: 'k1', record: rec, previousRecord: rec }],
           deletes: [],
         },
       ],
@@ -100,9 +98,7 @@ describe('summarizeImportPlan', () => {
             { kind: 'add', naturalKey: 'k1', record: rec },
             { kind: 'add', naturalKey: 'k2', record: rec },
           ],
-          updates: [
-            { kind: 'update', naturalKey: 'k3', record: rec, previousRecord: rec },
-          ],
+          updates: [{ kind: 'update', naturalKey: 'k3', record: rec, previousRecord: rec }],
           deletes: [],
         },
       ],
