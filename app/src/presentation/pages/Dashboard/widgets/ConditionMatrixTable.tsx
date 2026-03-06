@@ -17,8 +17,6 @@ import {
   type MatrixRowData,
   type ConditionMatrixResult,
 } from '@/application/hooks/duckdb/useConditionMatrix'
-import { DuckDBDateRangePicker } from '@/presentation/components/charts/DuckDBDateRangePicker'
-import { useDuckDBDateRange } from '@/presentation/components/charts/useDuckDBDateRange'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -90,10 +88,6 @@ const MTr = styled.tr<{ $separator?: boolean }>`
   `}
 `
 
-const PickerWrapper = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[4]};
-`
-
 const LoadingMsg = styled.div`
   padding: ${({ theme }) => theme.spacing[4]};
   text-align: center;
@@ -119,7 +113,7 @@ function ratioColor(ratio: number | null): string | undefined {
 
 function formatRatio(cell: MatrixCell): string {
   if (cell.ratio == null) return '-'
-  return formatPercent(cell.ratio, 1)
+  return formatPercent(cell.ratio)
 }
 
 /** マトリクス列定義 */
@@ -159,25 +153,14 @@ interface Props {
 }
 
 export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
-  const {
-    duckConn,
-    duckDataVersion,
-    duckLoadedMonthCount,
-    selectedStoreIds,
-    year,
-    month,
-    daysInMonth,
-  } = ctx
+  const { duckConn, duckDataVersion, selectedStoreIds, duckDateRange } = ctx
 
-  // マトリクス専用の日付範囲（ウィジェット内で独立管理）
-  const [matrixDateRange, setMatrixDateRange] = useDuckDBDateRange(year, month, daysInMonth)
-
-  // DuckDB からデータ取得
+  // DuckDB からデータ取得（ダッシュボード共通の日付範囲を使用）
   const {
     data: rawRows,
     isLoading,
     error,
-  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, matrixDateRange, selectedStoreIds)
+  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, duckDateRange, selectedStoreIds)
 
   // 選択中の店舗ID（単一店舗選択時のみ自店/他店比較を有効化）
   const selectedStoreId = useMemo(() => {
@@ -231,17 +214,6 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
       )}
 
       {!isLoading && !error && !matrix && <LoadingMsg>データがありません</LoadingMsg>}
-
-      <PickerWrapper>
-        <DuckDBDateRangePicker
-          value={matrixDateRange}
-          onChange={setMatrixDateRange}
-          year={year}
-          month={month}
-          daysInMonth={daysInMonth}
-          loadedMonthCount={duckLoadedMonthCount}
-        />
-      </PickerWrapper>
     </Section>
   )
 })

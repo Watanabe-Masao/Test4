@@ -30,11 +30,97 @@ const Wrapper = styled.div`
   padding: ${({ theme }) => theme.spacing[6]};
 `
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`
+
 const Title = styled.h4`
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin: 0;
+`
+
+const SettingsChip = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text3};
+  background: ${({ theme }) => theme.colors.bg3};
+  transition: all 0.15s;
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+`
+
+const SettingsPanel = styled.div`
+  background: ${({ theme }) => theme.colors.bg3};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  padding: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const SettingsSectionTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  &:not(:first-child) {
+    margin-top: ${({ theme }) => theme.spacing[3]};
+  }
+`
+
+const SettingsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const SettingsField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+const SettingsLabel = styled.label`
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.text3};
+  white-space: nowrap;
+  min-width: 40px;
+`
+
+const SettingsInput = styled.input`
+  width: 60px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  &:focus {
+    outline: 1px solid ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const SettingsUnit = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text4};
 `
 
 const Grid = styled.div`
@@ -563,6 +649,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   const [breakdownItem, setBreakdownItem] = useState<ConditionItem | null>(null)
   const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
   const [expandedMarkupStore, setExpandedMarkupStore] = useState<string | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
 
   const hasMultipleStores = allStoreResults.size > 1
 
@@ -1113,9 +1201,107 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     )
   }
 
+  const handleThresholdChange = useCallback(
+    (key: keyof typeof settings, raw: string, divisor = 1) => {
+      const v = parseFloat(raw)
+      if (!isNaN(v)) {
+        updateSettings({ [key]: v / divisor })
+      }
+    },
+    [updateSettings],
+  )
+
+  /** 比率（0-1）→ 百分率表示値（<input> の value 用） */
+  const toDisplayPct = (ratio: number, decimals: number) => {
+    const scaled = ratio * 100
+    return scaled.toFixed(decimals)
+  }
+
   return (
     <Wrapper aria-label="コンディションサマリー">
-      <Title>コンディションサマリー</Title>
+      <TitleRow>
+        <Title>コンディションサマリー</Title>
+        <SettingsChip onClick={() => setShowSettings((p) => !p)}>⚙ 閾値設定</SettingsChip>
+      </TitleRow>
+
+      {showSettings && (
+        <SettingsPanel>
+          <SettingsSectionTitle>粗利率シグナル閾値（予算差 pt）</SettingsSectionTitle>
+          <SettingsGrid>
+            <SettingsField>
+              <SettingsLabel>🔵 青≧</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.01"
+                value={toDisplayPct(settings.gpDiffBlueThreshold, 2)}
+                onChange={(e) => handleThresholdChange('gpDiffBlueThreshold', e.target.value, 100)}
+              />
+              <SettingsUnit>pt</SettingsUnit>
+            </SettingsField>
+            <SettingsField>
+              <SettingsLabel>🟡 黄≧</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.01"
+                value={toDisplayPct(settings.gpDiffYellowThreshold, 2)}
+                onChange={(e) =>
+                  handleThresholdChange('gpDiffYellowThreshold', e.target.value, 100)
+                }
+              />
+              <SettingsUnit>pt</SettingsUnit>
+            </SettingsField>
+            <SettingsField>
+              <SettingsLabel>🔴 赤≧</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.01"
+                value={toDisplayPct(settings.gpDiffRedThreshold, 2)}
+                onChange={(e) => handleThresholdChange('gpDiffRedThreshold', e.target.value, 100)}
+              />
+              <SettingsUnit>pt</SettingsUnit>
+            </SettingsField>
+          </SettingsGrid>
+
+          <SettingsSectionTitle>売変率シグナル閾値</SettingsSectionTitle>
+          <SettingsGrid>
+            <SettingsField>
+              <SettingsLabel>🔵 青≦</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.1"
+                value={toDisplayPct(settings.discountBlueThreshold, 1)}
+                onChange={(e) =>
+                  handleThresholdChange('discountBlueThreshold', e.target.value, 100)
+                }
+              />
+              <SettingsUnit>%</SettingsUnit>
+            </SettingsField>
+            <SettingsField>
+              <SettingsLabel>🟡 黄≦</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.1"
+                value={toDisplayPct(settings.discountYellowThreshold, 1)}
+                onChange={(e) =>
+                  handleThresholdChange('discountYellowThreshold', e.target.value, 100)
+                }
+              />
+              <SettingsUnit>%</SettingsUnit>
+            </SettingsField>
+            <SettingsField>
+              <SettingsLabel>🔴 赤≦</SettingsLabel>
+              <SettingsInput
+                type="number"
+                step="0.1"
+                value={toDisplayPct(settings.discountRedThreshold, 1)}
+                onChange={(e) => handleThresholdChange('discountRedThreshold', e.target.value, 100)}
+              />
+              <SettingsUnit>%</SettingsUnit>
+            </SettingsField>
+          </SettingsGrid>
+        </SettingsPanel>
+      )}
+
       <Grid>
         {items.map((item) => {
           const color = SIGNAL_COLORS[item.signal]

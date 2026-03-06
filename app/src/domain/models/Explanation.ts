@@ -80,6 +80,8 @@ export type MetricId =
   // 前年予算比較系
   | 'prevYearSameDowBudgetRatio'
   | 'prevYearSameDateBudgetRatio'
+  // 曜日ギャップ
+  | 'dowGapImpact'
 
 // ─── MetricTokens ────────────────────────────────────────
 
@@ -175,6 +177,8 @@ export interface BreakdownDetail {
 export interface BreakdownEntry {
   readonly day: number
   readonly value: number
+  /** エントリ固有の単位（省略時は親 Explanation の unit を使用） */
+  readonly unit?: MetricUnit
   readonly label?: string
   /** 日クリック時に展開する詳細（取引先別・カテゴリ別等） */
   readonly details?: readonly BreakdownDetail[]

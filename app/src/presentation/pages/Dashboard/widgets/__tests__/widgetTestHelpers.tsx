@@ -213,6 +213,17 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       sourceMonth: 0,
       dowOffset: 0,
     },
+    dowGap: {
+      dowCounts: Array.from({ length: 7 }, (_, i) => ({
+        dow: i,
+        label: ['日', '月', '火', '水', '木', '金', '土'][i],
+        currentCount: 0,
+        previousCount: 0,
+        diff: 0,
+      })),
+      estimatedImpact: 0,
+      isValid: false,
+    },
     onPrevYearDetail: () => {},
     comparisonFrame: {
       current: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },

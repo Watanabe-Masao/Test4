@@ -168,7 +168,7 @@ export function autoInjectDataWidgets(
       return true
     }
     // 従来ウィジェットの既存ロジック
-    if (w.id === 'analysis-yoy-waterfall') {
+    if (w.id === 'analysis-yoy-waterfall' || w.id === 'kpi-dow-gap') {
       return ctx.prevYearHasPrevYear
     }
     if (w.id === 'chart-discount-breakdown') {

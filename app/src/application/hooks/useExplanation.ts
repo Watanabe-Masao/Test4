@@ -11,6 +11,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { usePrevYearMonthlyKpi } from './usePrevYearMonthlyKpi'
+import { useDowGapAnalysis } from './useDowGapAnalysis'
 import {
   generateExplanations,
   generatePrevYearBudgetExplanations,
@@ -27,6 +28,14 @@ export function useExplanations(): StoreExplanations {
   const settings = useSettingsStore((s) => s.settings)
   const { currentResult } = useStoreSelection()
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
+  const dowGap = useDowGapAnalysis(
+    settings.targetYear,
+    settings.targetMonth,
+    prevYearMonthlyKpi.sourceYear,
+    prevYearMonthlyKpi.sourceMonth,
+    currentResult?.averageDailySales ?? 0,
+    prevYearMonthlyKpi.hasPrevYear,
+  )
 
   return useMemo(() => {
     if (!currentResult) return new Map()
@@ -41,6 +50,9 @@ export function useExplanations(): StoreExplanations {
         storeId: currentResult.storeId,
         year: settings.targetYear,
         month: settings.targetMonth,
+        stores: data.stores,
+        dowGap,
+        averageDailySales: currentResult.averageDailySales,
       })
       // base は内部的に Map なのでマージ可能
       const merged = new Map(base)
@@ -51,7 +63,7 @@ export function useExplanations(): StoreExplanations {
     }
 
     return base
-  }, [currentResult, data, settings, prevYearMonthlyKpi])
+  }, [currentResult, data, settings, prevYearMonthlyKpi, dowGap])
 }
 
 /**

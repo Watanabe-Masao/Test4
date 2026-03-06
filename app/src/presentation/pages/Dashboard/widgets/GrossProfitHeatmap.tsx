@@ -260,7 +260,7 @@ export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
                       $textColor={text}
                       title={`${row.name} ${d}日: ${formatPercent(rate)}`}
                     >
-                      {formatPercent(rate, 1).replace('%', '')}
+                      {formatPercent(rate).replace('%', '')}
                     </HeatTd>
                   )
                 }

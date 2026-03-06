@@ -191,7 +191,7 @@ function formatAlertThreshold(alert: Alert): string {
 function formatAlertDelta(alert: Alert): string {
   const delta = alert.value - alert.threshold
   const sign = delta >= 0 ? '+' : ''
-  if (isRateAlert(alert)) return `${sign}${formatPercent(delta, 1).replace('%', 'pt')}`
+  if (isRateAlert(alert)) return `${sign}${formatPercent(delta).replace('%', 'pt')}`
   return `${sign}${Math.round(delta).toLocaleString('ja-JP')}`
 }
 

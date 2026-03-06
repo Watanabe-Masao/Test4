@@ -531,7 +531,7 @@ export function MobileDashboardPage() {
                     <KpiMiniCard>
                       <KpiMiniLabel>前年売上比</KpiMiniLabel>
                       <KpiMiniValue $color={pyRatio != null ? sc.cond(pyRatio >= 1) : undefined}>
-                        {pyRatio != null ? formatPercent(pyRatio, 1) : '-'}
+                        {pyRatio != null ? formatPercent(pyRatio) : '-'}
                       </KpiMiniValue>
                     </KpiMiniCard>
                     <KpiMiniCard>
@@ -539,7 +539,7 @@ export function MobileDashboardPage() {
                       <KpiMiniValue
                         $color={pyCustomerRatio != null ? sc.cond(pyCustomerRatio >= 1) : undefined}
                       >
-                        {pyCustomerRatio != null ? formatPercent(pyCustomerRatio, 1) : '-'}
+                        {pyCustomerRatio != null ? formatPercent(pyCustomerRatio) : '-'}
                       </KpiMiniValue>
                     </KpiMiniCard>
                     <KpiMiniCard>

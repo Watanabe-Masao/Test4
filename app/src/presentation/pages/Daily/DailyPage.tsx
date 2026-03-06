@@ -545,7 +545,7 @@ export function DailyPage() {
                           }
                           title={rec.sales > 0 ? '算出根拠を表示' : undefined}
                         >
-                          {rec.sales > 0 ? formatPercent(gpr, 1) : '-'}
+                          {rec.sales > 0 ? formatPercent(gpr) : '-'}
                         </RateTd>
                       )
                     })()}
@@ -569,7 +569,7 @@ export function DailyPage() {
                           }
                           title={rec.grossSales > 0 ? '算出根拠を表示' : undefined}
                         >
-                          {rec.grossSales > 0 ? formatPercent(dr, 1) : '-'}
+                          {rec.grossSales > 0 ? formatPercent(dr) : '-'}
                         </RateTd>
                       )
                     })()}

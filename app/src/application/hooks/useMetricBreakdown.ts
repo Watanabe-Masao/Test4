@@ -248,7 +248,7 @@ export function useMetricBreakdown({
     if (!current.breakdown) return []
     return current.breakdown.map((entry) => ({
       day: entry.day,
-      formattedValue: formatValue(entry.value, current.unit),
+      formattedValue: formatValue(entry.value, entry.unit ?? current.unit),
       hasDetails: !!(entry.details && entry.details.length > 0),
       details: entry.details?.map((d) => ({
         label: d.label,

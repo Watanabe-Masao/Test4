@@ -11,7 +11,10 @@ import type {
   ExplanationInput,
   EvidenceRef,
   BreakdownEntry,
+  BreakdownDetail,
+  Store,
 } from '@/domain/models'
+import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type {
   PrevYearMonthlyKpi,
   PrevYearMonthlyKpiEntry,
@@ -43,31 +46,72 @@ function buildEvidenceRefs(entry: PrevYearMonthlyKpiEntry, budgetStoreId: string
 }
 
 /**
- * PrevYearMonthlyKpiEntry → 日別 breakdown（前年売上の日別内訳）
+ * PrevYearMonthlyKpiEntry → 日別 breakdown（予算対比の日別内訳）
+ *
+ * メイン値: 前年売上 ÷ 当日予算 = 予算対比率
+ * 詳細: 対象日当年予算, 前年売上実績(→店舗内訳), 予算対比, 前年客数, 前年客単価
  */
 function buildDailyBreakdown(
   entry: PrevYearMonthlyKpiEntry,
   budgetDaily: ReadonlyMap<number, number>,
+  stores?: ReadonlyMap<string, Store>,
 ): BreakdownEntry[] {
-  return entry.dailyMapping.map((row) => ({
-    day: row.currentDay,
-    value: row.prevSales,
-    label: `前年${row.prevDay}日`,
-    details: [
-      { label: '前年売上', value: row.prevSales, unit: 'yen' as const },
-      { label: '前年客数', value: row.prevCustomers, unit: 'count' as const },
+  // 店舗別の日別データを mappedDay でグループ化
+  const storeByDay = new Map<number, { storeId: string; sales: number; customers: number }[]>()
+  for (const sc of entry.storeContributions) {
+    const list = storeByDay.get(sc.mappedDay)
+    if (list) {
+      const existing = list.find((e) => e.storeId === sc.storeId)
+      if (existing) {
+        existing.sales += sc.sales
+        existing.customers += sc.customers
+      } else {
+        list.push({ storeId: sc.storeId, sales: sc.sales, customers: sc.customers })
+      }
+    } else {
+      storeByDay.set(sc.mappedDay, [
+        { storeId: sc.storeId, sales: sc.sales, customers: sc.customers },
+      ])
+    }
+  }
+
+  return entry.dailyMapping.map((row) => {
+    const dayBudget = budgetDaily.get(row.currentDay) ?? 0
+    const dayRatio = safeDivide(row.prevSales, dayBudget, 0)
+
+    const details: BreakdownDetail[] = [
+      { label: '対象日当年予算', value: dayBudget, unit: 'yen' },
+      { label: '前年売上実績', value: row.prevSales, unit: 'yen' },
+    ]
+
+    // 店舗別内訳（複数店舗がある場合のみ）
+    const dayStores = storeByDay.get(row.currentDay)
+    if (dayStores && dayStores.length > 1) {
+      const sorted = [...dayStores].sort((a, b) => a.storeId.localeCompare(b.storeId))
+      for (const s of sorted) {
+        const name = stores?.get(s.storeId)?.name ?? s.storeId
+        details.push({ label: `  ${name}`, value: s.sales, unit: 'yen' })
+      }
+    }
+
+    details.push(
+      { label: '予算対比', value: dayRatio, unit: 'rate' },
+      { label: '前年客数', value: row.prevCustomers, unit: 'count' },
       {
         label: '前年客単価',
         value: safeDivide(row.prevSales, row.prevCustomers, 0),
-        unit: 'yen' as const,
+        unit: 'yen',
       },
-      {
-        label: '当年予算',
-        value: budgetDaily.get(row.currentDay) ?? 0,
-        unit: 'yen' as const,
-      },
-    ],
-  }))
+    )
+
+    return {
+      day: row.currentDay,
+      value: dayRatio,
+      unit: 'rate' as const,
+      label: `前年${row.prevDay}日`,
+      details,
+    }
+  })
 }
 
 interface PrevYearBudgetExplanationParams {
@@ -77,6 +121,12 @@ interface PrevYearBudgetExplanationParams {
   readonly storeId: string
   readonly year: number
   readonly month: number
+  /** 店舗マスタ（日別内訳の店舗名解決用） */
+  readonly stores?: ReadonlyMap<string, Store>
+  /** 曜日ギャップ分析結果 */
+  readonly dowGap?: DowGapAnalysis
+  /** 日平均売上（曜日ギャップ影響額計算に使用） */
+  readonly averageDailySales?: number
 }
 
 /**
@@ -88,7 +138,7 @@ export function generatePrevYearBudgetExplanations(
   params: PrevYearBudgetExplanationParams,
 ): ReadonlyMap<MetricId, Explanation> {
   const map = new Map<MetricId, Explanation>()
-  const { prevYearMonthlyKpi: pk, budget, budgetDaily, storeId, year, month } = params
+  const { prevYearMonthlyKpi: pk, budget, budgetDaily, storeId, year, month, stores } = params
 
   if (!pk.hasPrevYear || budget <= 0) return map
 
@@ -110,7 +160,7 @@ export function generatePrevYearBudgetExplanations(
       inp('当年月間予算', budget, 'yen', 'budget'),
       inp('予算 ÷ 前年', safeDivide(budget, pk.sameDow.sales, 0), 'rate'),
     ],
-    breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily),
+    breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDow, storeId),
   })
 
@@ -130,9 +180,43 @@ export function generatePrevYearBudgetExplanations(
       inp('当年月間予算', budget, 'yen', 'budget'),
       inp('予算 ÷ 前年', safeDivide(budget, pk.sameDate.sales, 0), 'rate'),
     ],
-    breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily),
+    breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDate, storeId),
   })
+
+  // ── 曜日ギャップ影響額 ──
+  const { dowGap, averageDailySales } = params
+  if (dowGap && dowGap.isValid) {
+    const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+    const totalDayDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
+    const dailyAvg = averageDailySales ?? 0
+
+    const dowInputs: ExplanationInput[] = [
+      inp('日平均売上', dailyAvg, 'yen'),
+      inp('合計日数差', totalDayDiff, 'count'),
+    ]
+    // 各曜日の日数差を入力パラメータに追加
+    for (const dc of dowGap.dowCounts) {
+      dowInputs.push(
+        inp(
+          `${DOW_LABELS[dc.dow]}曜: ${dc.previousCount}→${dc.currentCount} (${dc.diff >= 0 ? '+' : ''}${dc.diff})`,
+          dc.diff,
+          'count',
+        ),
+      )
+    }
+
+    map.set('dowGapImpact', {
+      metric: 'dowGapImpact',
+      title: '曜日ギャップ影響額',
+      formula: '曜日ギャップ影響額 = 合計日数差 × 日平均売上',
+      value: dowGap.estimatedImpact,
+      unit: 'yen',
+      scope,
+      inputs: dowInputs,
+      evidenceRefs: [{ kind: 'aggregate' as const, dataType: 'budget' as const, storeId }],
+    })
+  }
 
   return map
 }
