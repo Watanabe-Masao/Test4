@@ -4,7 +4,9 @@
  * 検証する不変条件:
  *   1. countDowsInMonth の合計 = その月の日数
  *   2. analyzeDowGap の diff 合計 = 当年日数 - 前年日数
- *   3. estimatedImpact = Σ(diff) × dailyAverageSales
+ *   3. estimatedImpact = Σ(diff × prevDowDailyAvg[dow])
+ *   3a. prevDowSales 未指定時: estimatedImpact = Σ(diff) × dailyAverageSales
+ *   3b. prevDowSales 指定時: 曜日別重み付けで影響額を算出
  */
 import { describe, it, expect } from 'vitest'
 import { countDowsInMonth, analyzeDowGap, ZERO_DOW_GAP_ANALYSIS } from '../dowGapAnalysis'
@@ -37,10 +39,24 @@ describe('analyzeDowGap', () => {
     expect(sumDiffs(analyzeDowGap(2024, 2, 2023, 2, 1))).toBe(1)
   })
 
-  it('estimatedImpact = Σ(diff) × dailyAvg（不変条件3）', () => {
+  it('prevDowSales未指定: estimatedImpact = Σ(diff) × dailyAvg（不変条件3a）', () => {
     const daily = 500000
     const result = analyzeDowGap(2026, 2, 2026, 1, daily) // 28 vs 31
     expect(result.estimatedImpact).toBe(sumDiffs(result) * daily)
+  })
+
+  it('prevDowSales指定: estimatedImpact = Σ(diff × 曜日別日平均)（不変条件3b）', () => {
+    // 2026年3月(31日) vs 2025年3月(31日): 同日数でも曜日構成が異なる
+    const prevDowSales = [800000, 500000, 500000, 500000, 500000, 600000, 1000000]
+    const result = analyzeDowGap(2026, 3, 2025, 3, 100000, prevDowSales)
+    // 影響額 = Σ(diff_i × prevDowDailyAvg_i) — 曜日ごとの重み付き
+    const expected = result.dowCounts.reduce(
+      (s, d) => s + d.diff * result.prevDowDailyAvg[d.dow],
+      0,
+    )
+    expect(result.estimatedImpact).toBe(expected)
+    // 同日数でも曜日構成が違うので影響額は0にならない可能性がある
+    expect(result.prevDowDailyAvg).toHaveLength(7)
   })
 
   it('同一年月なら差分ゼロ・影響額ゼロ', () => {

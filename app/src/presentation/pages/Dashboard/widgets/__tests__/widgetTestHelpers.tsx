@@ -223,6 +223,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       })),
       estimatedImpact: 0,
       isValid: false,
+      prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
     },
     onPrevYearDetail: () => {},
     comparisonFrame: {

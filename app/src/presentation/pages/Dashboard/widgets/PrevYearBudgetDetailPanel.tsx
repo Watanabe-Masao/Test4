@@ -507,7 +507,7 @@ export function PrevYearBudgetDetailPanel({
                   {dowGap.estimatedImpact >= 0 ? '+' : ''}
                   {formatCurrency(dowGap.estimatedImpact)}
                 </SummaryValue>
-                <SummarySub>日平均売上 × 日数差</SummarySub>
+                <SummarySub>Σ(前年曜日別日平均 × 日数差)</SummarySub>
               </SummaryCard>
               <SummaryCard>
                 <SummaryLabel>想定客数ギャップ</SummaryLabel>

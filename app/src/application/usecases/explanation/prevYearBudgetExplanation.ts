@@ -185,23 +185,20 @@ export function generatePrevYearBudgetExplanations(
   })
 
   // ── 曜日ギャップ影響額 ──
-  const { dowGap, averageDailySales } = params
+  const { dowGap } = params
   if (dowGap && dowGap.isValid) {
     const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
-    const totalDayDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
-    const dailyAvg = averageDailySales ?? 0
 
-    const dowInputs: ExplanationInput[] = [
-      inp('日平均売上', dailyAvg, 'yen'),
-      inp('合計日数差', totalDayDiff, 'count'),
-    ]
-    // 各曜日の日数差を入力パラメータに追加
+    const dowInputs: ExplanationInput[] = []
+    // 各曜日の日数差と前年曜日別日平均を入力パラメータに追加
     for (const dc of dowGap.dowCounts) {
+      const dowAvg = dowGap.prevDowDailyAvg[dc.dow]
+      const impact = dc.diff * dowAvg
       dowInputs.push(
         inp(
-          `${DOW_LABELS[dc.dow]}曜: ${dc.previousCount}→${dc.currentCount} (${dc.diff >= 0 ? '+' : ''}${dc.diff})`,
-          dc.diff,
-          'count',
+          `${DOW_LABELS[dc.dow]}曜: ${dc.previousCount}→${dc.currentCount} (${dc.diff >= 0 ? '+' : ''}${dc.diff}) × 日平均${Math.round(dowAvg).toLocaleString('ja-JP')}`,
+          impact,
+          'yen',
         ),
       )
     }
@@ -209,7 +206,7 @@ export function generatePrevYearBudgetExplanations(
     map.set('dowGapImpact', {
       metric: 'dowGapImpact',
       title: '曜日ギャップ影響額',
-      formula: '曜日ギャップ影響額 = 合計日数差 × 日平均売上',
+      formula: '曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)',
       value: dowGap.estimatedImpact,
       unit: 'yen',
       scope,

@@ -7,15 +7,13 @@
  *
  * 月ごとに曜日別の日数が異なる（例: 2026年3月は月曜5日、2025年3月は月曜4日）。
  * 前年同曜日比較と前年同日比較の差は、この曜日構成の違いに起因する。
- * 各曜日の日数差 × 当年の日平均売上 で影響額を概算する。
  *
  * ## 計算式
  *
- * estimatedImpact = Σ(曜日ごとの日数差) × 日平均売上
- *   = (当年の合計日数 - 前年の合計日数) × 日平均売上
+ * estimatedImpact = Σ(前年の曜日i日平均売上 × 曜日iの日数差)
  *
- * 曜日別の精緻な単価が無い段階では、全体の日平均を使用する。
- * 将来、曜日別売上が取れるようになれば曜日別単価に進化可能。
+ * 前年の曜日別日平均売上を使って重み付けすることで、
+ * 売上の高い曜日（土日）と低い曜日（平日）の入れ替わりを正確に反映する。
  */
 
 import type { DowDayCount, DowGapAnalysis } from '@/domain/models/ComparisonContext'
@@ -44,7 +42,8 @@ export function countDowsInMonth(year: number, month: number): readonly number[]
  * @param currentMonth 当月
  * @param previousYear 前年
  * @param previousMonth 前年月
- * @param dailyAverageSales 当年の日平均売上（曜日ギャップ影響額の見積もり用）
+ * @param dailyAverageSales 全体の日平均売上（曜日別データなし時のフォールバック）
+ * @param prevDowSales 前年の曜日別合計売上（長さ7: 日〜土）。undefinedなら全体平均で代替
  */
 export function analyzeDowGap(
   currentYear: number,
@@ -52,16 +51,27 @@ export function analyzeDowGap(
   previousYear: number,
   previousMonth: number,
   dailyAverageSales: number,
+  prevDowSales?: readonly number[],
 ): DowGapAnalysis {
   const currentCounts = countDowsInMonth(currentYear, currentMonth)
   const previousCounts = countDowsInMonth(previousYear, previousMonth)
 
+  // 前年の曜日別日平均売上を算出
+  const prevDowDailyAvg: number[] = []
+  for (let dow = 0; dow < 7; dow++) {
+    if (prevDowSales && previousCounts[dow] > 0) {
+      prevDowDailyAvg.push(prevDowSales[dow] / previousCounts[dow])
+    } else {
+      prevDowDailyAvg.push(dailyAverageSales)
+    }
+  }
+
   const dowCounts: DowDayCount[] = []
-  let totalDiff = 0
+  let estimatedImpact = 0
 
   for (let dow = 0; dow < 7; dow++) {
     const diff = currentCounts[dow] - previousCounts[dow]
-    totalDiff += diff
+    estimatedImpact += diff * prevDowDailyAvg[dow]
     dowCounts.push({
       dow,
       label: DOW_LABELS[dow],
@@ -71,13 +81,11 @@ export function analyzeDowGap(
     })
   }
 
-  // 影響額 = 合計日数差 × 日平均売上
-  const estimatedImpact = totalDiff * dailyAverageSales
-
   return {
     dowCounts,
     estimatedImpact,
     isValid: dailyAverageSales > 0,
+    prevDowDailyAvg,
   }
 }
 
@@ -92,4 +100,5 @@ export const ZERO_DOW_GAP_ANALYSIS: DowGapAnalysis = {
   })),
   estimatedImpact: 0,
   isValid: false,
+  prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
 }

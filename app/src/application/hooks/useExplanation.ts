@@ -28,6 +28,20 @@ export function useExplanations(): StoreExplanations {
   const settings = useSettingsStore((s) => s.settings)
   const { currentResult } = useStoreSelection()
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
+  // 前年の曜日別合計売上を算出（前年同日の dailyMapping から）
+  const prevDowSales = useMemo(() => {
+    if (!prevYearMonthlyKpi.hasPrevYear) return undefined
+    const srcYear = prevYearMonthlyKpi.sourceYear
+    const srcMonth = prevYearMonthlyKpi.sourceMonth
+    if (srcYear === 0) return undefined
+    const sales = [0, 0, 0, 0, 0, 0, 0]
+    for (const row of prevYearMonthlyKpi.sameDate.dailyMapping) {
+      const dow = new Date(srcYear, srcMonth - 1, row.prevDay).getDay()
+      sales[dow] += row.prevSales
+    }
+    return sales
+  }, [prevYearMonthlyKpi])
+
   const dowGap = useDowGapAnalysis(
     settings.targetYear,
     settings.targetMonth,
@@ -35,6 +49,7 @@ export function useExplanations(): StoreExplanations {
     prevYearMonthlyKpi.sourceMonth,
     currentResult?.averageDailySales ?? 0,
     prevYearMonthlyKpi.hasPrevYear,
+    prevDowSales,
   )
 
   return useMemo(() => {

@@ -227,7 +227,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       }
       const py = pk.sameDow
       const hasBudget = r.budget > 0
-      const budgetRatio = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const budgetVsPrev = hasBudget ? safeDivide(r.budget, py.sales, 0) : null
+      const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
       const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
         `前年: ${formatCurrency(py.sales)}`,
@@ -244,19 +245,19 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       return (
         <KpiCard
           label="前年同曜日 vs 予算"
-          value={budgetRatio != null ? formatPercent(budgetRatio) : '-'}
+          value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.blueDark}
           onClick={() => onExplain('prevYearSameDowBudgetRatio')}
           trend={
-            budgetRatio != null
+            prevVsBudget != null
               ? {
-                  direction: budgetRatio >= 1 ? 'up' : 'down',
-                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0))}`,
+                  direction: prevVsBudget >= 1 ? 'up' : 'down',
+                  label: `前年比 ${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
-          formulaSummary="前年同曜日売上 ÷ 当年月間予算"
+          formulaSummary="当年月間予算 ÷ 前年同曜日売上"
         />
       )
     },
@@ -279,7 +280,8 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       }
       const py = pk.sameDate
       const hasBudget = r.budget > 0
-      const budgetRatio = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const budgetVsPrev = hasBudget ? safeDivide(r.budget, py.sales, 0) : null
+      const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
       const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
         `前年: ${formatCurrency(py.sales)}`,
@@ -296,19 +298,19 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       return (
         <KpiCard
           label="前年同日 vs 予算"
-          value={budgetRatio != null ? formatPercent(budgetRatio) : '-'}
+          value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.cyanDark}
           onClick={() => onExplain('prevYearSameDateBudgetRatio')}
           trend={
-            budgetRatio != null
+            prevVsBudget != null
               ? {
-                  direction: budgetRatio >= 1 ? 'up' : 'down',
-                  label: `予算比 ${formatPercent(safeDivide(r.budget, py.sales, 0))}`,
+                  direction: prevVsBudget >= 1 ? 'up' : 'down',
+                  label: `前年比 ${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
-          formulaSummary="前年同日売上 ÷ 当年月間予算"
+          formulaSummary="当年月間予算 ÷ 前年同日売上"
         />
       )
     },

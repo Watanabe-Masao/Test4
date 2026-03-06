@@ -101,6 +101,20 @@ export function DashboardPage() {
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
+  // 前年の曜日別合計売上を算出（曜日ギャップ分析用）
+  const prevDowSales = useMemo(() => {
+    if (!prevYearMonthlyKpi.hasPrevYear) return undefined
+    const srcYear = prevYearMonthlyKpi.sourceYear
+    const srcMonth = prevYearMonthlyKpi.sourceMonth
+    if (srcYear === 0) return undefined
+    const sales = [0, 0, 0, 0, 0, 0, 0]
+    for (const row of prevYearMonthlyKpi.sameDate.dailyMapping) {
+      const dow = new Date(srcYear, srcMonth - 1, row.prevDay).getDay()
+      sales[dow] += row.prevSales
+    }
+    return sales
+  }, [prevYearMonthlyKpi])
+
   // 曜日ギャップ分析（前年予算比較パネル用）
   const dowGap = useDowGapAnalysis(
     settings.targetYear,
@@ -109,6 +123,7 @@ export function DashboardPage() {
     prevYearMonthlyKpi.sourceMonth,
     currentResult?.averageDailySales ?? 0,
     prevYearMonthlyKpi.hasPrevYear,
+    prevDowSales,
   )
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
