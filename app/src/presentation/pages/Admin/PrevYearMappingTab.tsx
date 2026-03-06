@@ -249,7 +249,10 @@ export function PrevYearMappingTab() {
   useEffect(() => {
     listMonths()
       .then(setAvailableMonths)
-      .catch(() => setAvailableMonths([]))
+      .catch((err: unknown) => {
+        console.error('Failed to load available months:', err)
+        setAvailableMonths([])
+      })
   }, [listMonths])
 
   // hasPrevYearData は useDataSummary から取得済み
