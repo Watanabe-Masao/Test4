@@ -274,9 +274,17 @@ describe('listFiles (エッジケース)', () => {
     expect(result).toHaveLength(3)
   })
 
-  it('ディレクトリエントリはスキップされる', async () => {
+  it('サブディレクトリ内のファイルも再帰的に取得される', async () => {
+    const subEntries = [['nested.txt', { kind: 'file', name: 'nested.txt' }]] as const
+    const subDirHandle = {
+      kind: 'directory' as const,
+      name: 'subdir',
+      entries: vi.fn().mockImplementation(async function* () {
+        for (const entry of subEntries) yield entry
+      }),
+    }
     const mockEntries = [
-      ['subdir', { kind: 'directory', name: 'subdir' }],
+      ['subdir', subDirHandle],
       ['file.txt', { kind: 'file', name: 'file.txt' }],
     ] as const
 
@@ -287,8 +295,9 @@ describe('listFiles (エッジケース)', () => {
     } as unknown as FileSystemDirectoryHandle
 
     const result = await listFiles(mockDirHandle)
-    expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('file.txt')
+    expect(result).toHaveLength(2)
+    expect(result.map((r) => r.name)).toContain('file.txt')
+    expect(result.map((r) => r.name)).toContain('subdir/nested.txt')
   })
 
   it('アルファベット順（localeCompare）でソートされる', async () => {

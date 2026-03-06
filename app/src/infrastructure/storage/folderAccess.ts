@@ -116,24 +116,34 @@ export async function removeHandle(slot: HandleSlot): Promise<void> {
 }
 
 /**
- * フォルダ内のファイル一覧を取得する。
- * glob パターンではなく拡張子フィルタで絞り込む。
+ * フォルダ内のファイル一覧を再帰的に取得する。
+ * サブディレクトリも自動的に走査し、拡張子フィルタで絞り込む。
+ * name にはルートからの相対パス（例: "子/孫/file.xlsx"）が入る。
  */
 export async function listFiles(
   dirHandle: FileSystemDirectoryHandle,
   extensions?: readonly string[],
 ): Promise<{ name: string; handle: FileSystemFileHandle }[]> {
   const files: { name: string; handle: FileSystemFileHandle }[] = []
-  for await (const [name, entryHandle] of dirHandle.entries()) {
-    if (entryHandle.kind !== 'file') continue
-    if (extensions && extensions.length > 0) {
-      const lower = name.toLowerCase()
-      // 複合拡張子（.json.gz）にも対応: どれか1つでもマッチすればOK
-      const matched = extensions.some((ext) => lower.endsWith(ext))
-      if (!matched) continue
+
+  async function traverse(dir: FileSystemDirectoryHandle, prefix: string): Promise<void> {
+    for await (const [name, entryHandle] of dir.entries()) {
+      if (entryHandle.kind === 'file') {
+        if (extensions && extensions.length > 0) {
+          const lower = name.toLowerCase()
+          const matched = extensions.some((ext) => lower.endsWith(ext))
+          if (!matched) continue
+        }
+        const relativeName = prefix ? `${prefix}/${name}` : name
+        files.push({ name: relativeName, handle: entryHandle as FileSystemFileHandle })
+      } else if (entryHandle.kind === 'directory') {
+        const childPrefix = prefix ? `${prefix}/${name}` : name
+        await traverse(entryHandle as FileSystemDirectoryHandle, childPrefix)
+      }
     }
-    files.push({ name, handle: entryHandle as FileSystemFileHandle })
   }
+
+  await traverse(dirHandle, '')
   return files.sort((a, b) => a.name.localeCompare(b.name))
 }
 
@@ -167,7 +177,8 @@ export async function pruneOldFiles(
 ): Promise<number> {
   const allFiles = await listFiles(dirHandle, extensions)
   const matching = allFiles
-    .filter((f) => f.name.startsWith(prefix))
+    // 直下のファイルのみ対象（サブディレクトリ内のファイルは除外）
+    .filter((f) => !f.name.includes('/') && f.name.startsWith(prefix))
     .sort((a, b) => b.name.localeCompare(a.name)) // 新しい順（ファイル名に日時含む前提）
 
   let removed = 0

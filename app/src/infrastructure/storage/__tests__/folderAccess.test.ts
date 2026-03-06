@@ -58,11 +58,18 @@ describe('folderAccess', () => {
     })
 
     it('拡張子フィルタでファイルを絞り込む', async () => {
+      const subDirHandle = {
+        kind: 'directory' as const,
+        name: 'subdir',
+        entries: vi.fn().mockImplementation(async function* () {
+          // 空のサブディレクトリ
+        }),
+      }
       const mockEntries = [
         ['data.xlsx', { kind: 'file', name: 'data.xlsx' }],
         ['readme.txt', { kind: 'file', name: 'readme.txt' }],
         ['budget.csv', { kind: 'file', name: 'budget.csv' }],
-        ['subdir', { kind: 'directory', name: 'subdir' }],
+        ['subdir', subDirHandle],
       ] as const
 
       const mockDirHandle = {
