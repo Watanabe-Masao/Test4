@@ -160,9 +160,11 @@ export function processCategoryTimeSales(
     }
 
     // year/month は常にセットする。
-    // targetYear/targetMonth が指定されている場合はそちらを優先（overflow day の場合は
-    // 実際の月と targetMonth が異なりうるため）。未指定時はパースした日付から取得。
-    const recordYear = targetYear ?? date.getFullYear()
+    // 通常レコード（dateMonth === targetMonth）: 日付の年をそのまま使う（ファイルの実データを尊重）。
+    // overflow レコード（翌月はみ出し）: targetYear を使用して対象月の年に揃える。
+    // targetMonth 未指定時はパースした日付からそのまま取得。
+    const isOverflow = targetMonth != null && date.getMonth() + 1 !== targetMonth
+    const recordYear = isOverflow ? (targetYear ?? date.getFullYear()) : date.getFullYear()
     const recordMonth = targetMonth ?? date.getMonth() + 1
 
     records.push({

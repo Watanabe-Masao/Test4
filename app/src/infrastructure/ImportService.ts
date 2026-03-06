@@ -98,6 +98,49 @@ export function createEmptyMonthPartitions(): MonthPartitions {
   }
 }
 
+// ─── 年月検出フォールバック ──────────────────────────
+
+/**
+ * パーティションキーやレコードの year/month から年月を検出する。
+ * classifiedSales/categoryTimeSales が含まれないインポートで
+ * detectedYearMonth が未設定のときに使用するフォールバック。
+ */
+function detectYearMonthFromPartitionsOrRecords(
+  data: ImportedData,
+  mp: MonthPartitions,
+): { year: number; month: number } | undefined {
+  // パーティションキー（"YYYY-M" 形式）から収集
+  const allKeys = new Set<string>()
+  for (const mk of Object.keys(mp.purchase)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.flowers)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.directProduce)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.interStoreIn)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.interStoreOut)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.consumables)) allKeys.add(mk)
+  for (const mk of Object.keys(mp.budget)) allKeys.add(mk)
+
+  // レコードの year/month からも収集
+  for (const rec of data.classifiedSales.records) {
+    allKeys.add(`${rec.year}-${rec.month}`)
+  }
+  for (const rec of data.categoryTimeSales.records) {
+    allKeys.add(`${rec.year}-${rec.month}`)
+  }
+
+  if (allKeys.size === 0) return undefined
+
+  // 最初のキーを使用（複数月の場合は最も早い月）
+  const sorted = [...allKeys].sort((a, b) => {
+    const [ay, am] = a.split('-').map(Number)
+    const [by, bm] = b.split('-').map(Number)
+    return ay !== by ? ay - by : am - bm
+  })
+
+  const [year, month] = sorted[0].split('-').map(Number)
+  if (isNaN(year) || isNaN(month)) return undefined
+  return { year, month }
+}
+
 // ─── パーティション結合ヘルパー ──────────────────────────
 
 /** 月パーティション済み StoreDayRecord を1つに結合する（全月の union） */
@@ -666,6 +709,13 @@ export async function processDroppedFiles(
   // classifiedSales/categoryTimeSales の storeId がファイル処理順序に依存して
   // 店舗名（未解決）のまま残っているケースを修正する。
   data = normalizeRecordStoreIds(data)
+
+  // classifiedSales/categoryTimeSales が含まれないインポート（purchase, flowers 等のみ）では
+  // detectedYearMonth が未設定のまま。パーティションキーやレコードから年月を検出し、
+  // ページの設定年と異なるデータが消失するのを防ぐ。
+  if (!detectedYearMonth) {
+    detectedYearMonth = detectYearMonthFromPartitionsOrRecords(data, mp)
+  }
 
   return {
     summary: { results, successCount, failureCount },

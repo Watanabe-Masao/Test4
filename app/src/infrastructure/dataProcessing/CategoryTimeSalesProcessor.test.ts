@@ -259,7 +259,7 @@ describe('processCategoryTimeSales', () => {
     expect(result.records[0].month).toBe(2)
   })
 
-  it('targetYear/targetMonth 指定時はそちらが優先される', () => {
+  it('targetYear/targetMonth 指定時、同月レコードはファイルの年を使う', () => {
     const rows = makeRows([
       [
         '2026年02月01日(日)',
@@ -279,6 +279,29 @@ describe('processCategoryTimeSales', () => {
     const result = processCategoryTimeSales(rows, 2, 0, 2026)
     expect(result.records[0].year).toBe(2026)
     expect(result.records[0].month).toBe(2)
+  })
+
+  it('targetYear がファイルの年と異なる場合、同月レコードはファイルの年を使う（バグ修正）', () => {
+    const rows = makeRows([
+      [
+        '2026年03月01日(日)',
+        '0001:店舗A',
+        '000061:果物',
+        '000601:柑橘',
+        '601010:みかん',
+        10,
+        5000,
+        10,
+        5000,
+        0,
+        0,
+      ],
+    ])
+
+    // targetYear=2025 でもファイルの日付 2026 が使われる
+    const result = processCategoryTimeSales(rows, 3, 0, 2025)
+    expect(result.records[0].year).toBe(2026)
+    expect(result.records[0].month).toBe(3)
   })
 
   it('行数が足りない場合は空配列を返す', () => {

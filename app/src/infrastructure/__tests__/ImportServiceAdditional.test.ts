@@ -519,3 +519,92 @@ describe('normalizeRecordStoreIds (additional)', () => {
     expect(result.categoryTimeSales).toBe(data.categoryTimeSales)
   })
 })
+
+// ── processDroppedFiles — 年検出フォールバック ─────────────────────
+
+describe('processDroppedFiles — 年月検出', () => {
+  it('classifiedSales/CTS なしでも購入パーティションから年月を検出する', async () => {
+    const purchaseRows = [
+      ['', '', '', '0000001:取引先A', ''],
+      ['', '', '', '0001:店舗A', ''],
+      ['header3'],
+      ['header4'],
+      ['2026-03-01', '', '', 10000, 13000],
+    ]
+    const mockParseFile = vi.fn().mockResolvedValue(purchaseRows)
+
+    // ページは 2025 年だがファイルは 2026 年
+    const settings: AppSettings = { ...DEFAULT_SETTINGS, targetYear: 2025, targetMonth: 3 }
+    const fakeFile = new File([''], '仕入データ.xlsx', {})
+    const result = await processDroppedFiles(
+      [fakeFile],
+      settings,
+      createEmptyImportedData(),
+      undefined,
+      undefined,
+      mockParseFile,
+    )
+
+    // パーティションキーから年月が検出されること
+    expect(result.detectedYearMonth).toBeDefined()
+    expect(result.detectedYearMonth?.year).toBe(2026)
+    expect(result.detectedYearMonth?.month).toBe(3)
+  })
+
+  it('予算ファイルのみでも年月を検出する', async () => {
+    const budgetRows = [
+      ['店舗コード', '日付', '売上予算'],
+      ['0001', '2026-03-01', 200000],
+      ['0001', '2026-03-02', 210000],
+    ]
+    const mockParseFile = vi.fn().mockResolvedValue(budgetRows)
+
+    const settings: AppSettings = { ...DEFAULT_SETTINGS, targetYear: 2025, targetMonth: 1 }
+    const fakeFile = new File([''], '0_予算.csv', { type: 'text/csv' })
+    const result = await processDroppedFiles(
+      [fakeFile],
+      settings,
+      createEmptyImportedData(),
+      undefined,
+      undefined,
+      mockParseFile,
+    )
+
+    expect(result.detectedYearMonth).toBeDefined()
+    expect(result.detectedYearMonth?.year).toBe(2026)
+    expect(result.detectedYearMonth?.month).toBe(3)
+  })
+
+  it('classifiedSales がある場合はそちらの検出が優先される', async () => {
+    const csRows = [
+      [
+        '日付',
+        '店舗名称',
+        'グループ名称',
+        '部門名称',
+        'ライン名称',
+        'クラス名称',
+        '販売金額',
+        '71売変',
+        '72売変',
+        '73売変',
+        '74売変',
+      ],
+      ['2025-01-15', '0001:店舗A', 'G1', 'D1', 'L1', 'C1', 50000, 0, 0, 0, 0],
+    ]
+    const mockParseFile = vi.fn().mockResolvedValue(csRows)
+
+    const fakeFile = new File([''], '1_売上売変.csv', { type: 'text/csv' })
+    const result = await processDroppedFiles(
+      [fakeFile],
+      DEFAULT_SETTINGS,
+      createEmptyImportedData(),
+      undefined,
+      undefined,
+      mockParseFile,
+    )
+
+    // classifiedSales からの検出が使われる（フォールバックではない）
+    expect(result.detectedYearMonth).toEqual({ year: 2025, month: 1 })
+  })
+})
