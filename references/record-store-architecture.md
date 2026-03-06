@@ -406,10 +406,96 @@ interface RecordStore {
   /** 全データを削除する */
   clearAll(): Promise<void>
 
+  // ─── ログ・ストレージ管理 ──────────────────────────────
+
+  /**
+   * 古い changeLog を圧縮する。
+   * 指定日数より古い ImportLogEntry の changeLog を削除し、
+   * サマリー（件数のみ）に置き換える。
+   * ロールバック不能になるが、ストレージを大幅に削減する。
+   */
+  compactChangeLogs(olderThanDays: number): Promise<CompactResult>
+
+  /**
+   * ロールバック済み・圧縮済みの ImportLogEntry を削除する。
+   * 完全に不要になったログエントリを物理削除する。
+   */
+  purgeCompactedLogs(): Promise<{ deletedCount: number }>
+
+  /**
+   * ストレージ使用量の概算を取得する。
+   * ユーザーに「データ量が多くなっています」等のフィードバックに使用。
+   */
+  getStorageStats(): Promise<StorageStats>
+
   /** 利用可能か */
   isAvailable(): boolean
 }
+
+/** ログ圧縮の結果 */
+interface CompactResult {
+  /** 圧縮されたログ数 */
+  readonly compactedCount: number
+  /** 解放された概算バイト数 */
+  readonly freedBytes: number
+}
+
+/** ストレージ使用量の統計 */
+interface StorageStats {
+  /** レコード総数 */
+  readonly totalRecords: number
+  /** ImportLog エントリ数 */
+  readonly importLogCount: number
+  /** changeLog 付きのエントリ数（ロールバック可能） */
+  readonly rollbackableCount: number
+  /** 概算使用バイト数 */
+  readonly estimatedBytes: number
+  /** 月別のレコード数 */
+  readonly byMonth: readonly {
+    year: number
+    month: number
+    recordCount: number
+  }[]
+}
 ```
+
+### 3.8 ログのライフサイクル管理
+
+changeLog はレコードの前後の値を全て保持するため、蓄積すると重くなる。
+以下のライフサイクルで管理する:
+
+```
+  インポート実行
+       │
+       ▼
+  ImportLogEntry（changeLog 付き）
+  状態: active（ロールバック可能）
+       │
+       │  ← ユーザーがロールバック実行
+       ▼
+  ImportLogEntry（rolledBack: true）
+  状態: rolled-back（もう使わない）
+       │
+       │  ← compactChangeLogs(30) 実行（30日以上古いログを圧縮）
+       ▼
+  ImportLogEntry（changeLog 削除、サマリーのみ）
+  状態: compacted（ロールバック不能、履歴参照のみ）
+       │
+       │  ← purgeCompactedLogs() 実行
+       ▼
+  物理削除
+```
+
+**自動圧縮ポリシー:**
+- アプリ起動時に `compactChangeLogs(30)` を非同期実行（30日超のログを圧縮）
+- ロールバック済みログは即時圧縮対象
+- `purgeCompactedLogs()` はユーザーの明示操作（設定画面の「ログ削除」ボタン）
+
+**ストレージ警告:**
+- `getStorageStats()` でストレージ量を監視
+- 閾値超過時にユーザーに通知:
+  - 50MB超: 「データ量が増えています。古いログを圧縮しますか？」
+  - 100MB超: 「ストレージが逼迫しています。不要なログを削除してください」
 
 ## 4. IndexedDB スキーマ（v3）
 
