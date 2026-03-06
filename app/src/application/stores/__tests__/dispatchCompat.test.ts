@@ -143,7 +143,7 @@ describe('dispatch compatibility layer', () => {
           ],
         },
         prevYearCategoryTimeSales: { records: [] },
-        prevYearFlowers: {},
+        prevYearFlowers: { records: [] },
       },
     })
 

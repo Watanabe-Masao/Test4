@@ -1,6 +1,6 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { CostInclusionItem, CostInclusionData } from '@/domain/models'
+import type { CostInclusionItem, CostInclusionData, CostInclusionRecord } from '@/domain/models'
 
 export type { CostInclusionData } from '@/domain/models'
 
@@ -27,9 +27,10 @@ export function processCostInclusions(
   if (!storeMatch) return {}
   const storeId = String(parseInt(storeMatch[1]))
 
+  // 中間構造: monthKey → day → { cost, items }
   const partitioned: Record<
     string,
-    Record<string, Record<number, { cost: number; items: CostInclusionItem[] }>>
+    Record<number, { cost: number; items: CostInclusionItem[] }>
   > = {}
 
   for (let row = 1; row < rows.length; row++) {
@@ -46,20 +47,44 @@ export function processCostInclusions(
 
     const mk = monthKey(dc.year, dc.month)
     if (!partitioned[mk]) partitioned[mk] = {}
-    if (!partitioned[mk][storeId]) partitioned[mk][storeId] = {}
-    if (!partitioned[mk][storeId][dc.day]) partitioned[mk][storeId][dc.day] = { cost: 0, items: [] }
+    if (!partitioned[mk][dc.day]) partitioned[mk][dc.day] = { cost: 0, items: [] }
 
-    const dayData = partitioned[mk][storeId][dc.day] as { cost: number; items: CostInclusionItem[] }
+    const dayData = partitioned[mk][dc.day]
     dayData.cost += cost
     dayData.items.push({ accountCode, itemCode, itemName, quantity, cost })
   }
 
-  return partitioned
+  // 中間構造をフラットレコード配列に変換
+  const result: Record<string, CostInclusionData> = {}
+  for (const [mk, dayMap] of Object.entries(partitioned)) {
+    const [yearStr, monthStr] = mk.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const records: CostInclusionRecord[] = []
+    for (const [dayStr, entry] of Object.entries(dayMap)) {
+      records.push({
+        year,
+        month,
+        day: Number(dayStr),
+        storeId,
+        cost: entry.cost,
+        items: entry.items,
+      })
+    }
+    result[mk] = { records }
+  }
+
+  return result
 }
 
 /** 消耗品アイテムの重複排除キー（同一店舗・日・品目コード→同一アイテムと見なす） */
 function costInclusionItemKey(item: CostInclusionItem): string {
   return `${item.accountCode}|${item.itemCode}`
+}
+
+/** CostInclusionRecord の一意キー（店舗+日） */
+function costInclusionRecordKey(rec: CostInclusionRecord): string {
+  return `${rec.storeId}\t${rec.day}`
 }
 
 /**
@@ -72,33 +97,31 @@ export function mergeCostInclusionData(
   existing: CostInclusionData,
   incoming: CostInclusionData,
 ): CostInclusionData {
-  const merged: Record<string, Record<number, { cost: number; items: CostInclusionItem[] }>> = {}
+  // 既存レコードをキーでインデックス化
+  const map = new Map<string, { cost: number; items: CostInclusionItem[]; year: number; month: number; day: number; storeId: string }>()
 
-  // 既存データをコピー
-  for (const [storeId, days] of Object.entries(existing)) {
-    merged[storeId] = {}
-    for (const [day, data] of Object.entries(days)) {
-      merged[storeId][Number(day)] = {
-        cost: data.cost,
-        items: [...data.items],
-      }
-    }
+  for (const rec of existing.records) {
+    const key = costInclusionRecordKey(rec)
+    map.set(key, {
+      year: rec.year, month: rec.month, day: rec.day, storeId: rec.storeId,
+      cost: rec.cost, items: [...rec.items],
+    })
   }
 
-  // 新規データをマージ（品目コードで重複排除）
-  for (const [storeId, days] of Object.entries(incoming)) {
-    if (!merged[storeId]) merged[storeId] = {}
-    for (const [day, data] of Object.entries(days)) {
-      const d = Number(day)
-      if (!merged[storeId][d]) {
-        merged[storeId][d] = { cost: 0, items: [] }
-      }
-      // 既存アイテムをキーでインデックス化し、incoming で上書き
-      const existingItems = merged[storeId][d].items
-      const incomingItems = data.items
+  // incoming をマージ
+  for (const rec of incoming.records) {
+    const key = costInclusionRecordKey(rec)
+    const ex = map.get(key)
+    if (!ex) {
+      map.set(key, {
+        year: rec.year, month: rec.month, day: rec.day, storeId: rec.storeId,
+        cost: rec.cost, items: [...rec.items],
+      })
+    } else {
+      const existingItems = ex.items
+      const incomingItems = rec.items
       if (existingItems.length === 0 && incomingItems.length === 0) {
-        // アイテム詳細なし（集計コストのみ）→ incoming 側のコストで上書き
-        merged[storeId][d] = { cost: data.cost, items: [] }
+        ex.cost = rec.cost
       } else {
         const itemMap = new Map<string, CostInclusionItem>()
         for (const item of existingItems) {
@@ -108,15 +131,18 @@ export function mergeCostInclusionData(
           itemMap.set(costInclusionItemKey(item), item)
         }
         const deduped = Array.from(itemMap.values())
-        merged[storeId][d] = {
-          cost: deduped.reduce((sum, item) => sum + item.cost, 0),
-          items: deduped,
-        }
+        ex.cost = deduped.reduce((sum, item) => sum + item.cost, 0)
+        ex.items = deduped
       }
     }
   }
 
-  return merged
+  const records: CostInclusionRecord[] = Array.from(map.values()).map((v) => ({
+    year: v.year, month: v.month, day: v.day, storeId: v.storeId,
+    cost: v.cost, items: v.items,
+  }))
+
+  return { records }
 }
 
 /**

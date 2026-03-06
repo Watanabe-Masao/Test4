@@ -23,6 +23,8 @@ export type { BudgetData, InventoryConfig } from './BudgetData'
 export type { AppSettings, ViewType, DataType, StorageDataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'
 export type {
+  DatedRecord,
+  StoreDayIndex,
   StoreDayRecord,
   PurchaseData,
   PurchaseDayEntry,
@@ -32,13 +34,18 @@ export type {
   SpecialSalesData,
   SpecialSalesDayEntry,
   CostInclusionData,
+  CostInclusionRecord,
   TimeSlotEntry,
   CategoryTimeSalesRecord,
   CategoryTimeSalesData,
   DepartmentKpiRecord,
   DepartmentKpiData,
 } from './DataTypes'
-export { categoryTimeSalesRecordKey, mergeCategoryTimeSalesData } from './DataTypes'
+export {
+  indexByStoreDay,
+  categoryTimeSalesRecordKey,
+  mergeCategoryTimeSalesData,
+} from './DataTypes'
 export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
 export type { AlignmentPolicy, ComparisonFrame } from './ComparisonFrame'
 export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'

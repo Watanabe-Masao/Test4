@@ -70,7 +70,7 @@ describe('dataStore', () => {
     useDataStore.getState().setPrevYearAutoData({
       prevYearClassifiedSales,
       prevYearCategoryTimeSales,
-      prevYearFlowers: {},
+      prevYearFlowers: { records: [] },
     })
 
     const state = useDataStore.getState()

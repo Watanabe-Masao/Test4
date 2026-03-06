@@ -1,6 +1,6 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { PurchaseData } from '@/domain/models'
+import type { PurchaseData, PurchaseDayEntry } from '@/domain/models'
 
 export type { PurchaseData } from '@/domain/models'
 
@@ -22,6 +22,7 @@ export function processPurchase(
 ): Record<string, PurchaseData> {
   if (rows.length < 5) return {}
 
+  // 集約用の中間構造: monthKey → storeId → day → entry
   const partitioned: Record<
     string,
     Record<
@@ -91,7 +92,29 @@ export function processPurchase(
     }
   }
 
-  return partitioned
+  // 中間構造をフラットレコード配列に変換
+  const result: Record<string, PurchaseData> = {}
+  for (const [mk, storeMap] of Object.entries(partitioned)) {
+    const [yearStr, monthStr] = mk.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const records: PurchaseDayEntry[] = []
+    for (const [storeId, dayMap] of Object.entries(storeMap)) {
+      for (const [dayStr, entry] of Object.entries(dayMap)) {
+        records.push({
+          year,
+          month,
+          day: Number(dayStr),
+          storeId,
+          suppliers: entry.suppliers,
+          total: entry.total,
+        })
+      }
+    }
+    result[mk] = { records }
+  }
+
+  return result
 }
 
 /**

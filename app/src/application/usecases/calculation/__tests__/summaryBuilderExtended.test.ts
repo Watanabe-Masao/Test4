@@ -99,12 +99,16 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('売上ゼロだが仕入のみある日はスキップされない', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          5: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '1',
             suppliers: { S1: { name: 'Sup', cost: 3000, price: 4000 } },
             total: { cost: 3000, price: 4000 },
           },
-        },
+        ],
       },
     })
 
@@ -132,7 +136,9 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('消耗品のみの日はスキップされない', () => {
     const data = buildTestData({
       consumables: {
-        '1': { 10: { cost: 200, items: [] } },
+        records: [
+          { year: 2025, month: 1, day: 10, storeId: '1', cost: 200, items: [] },
+        ],
       },
     })
 
@@ -146,8 +152,12 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('移動データのみの日（売上ゼロ）はスキップされない', () => {
     const data = buildTestData({
       interStoreIn: {
-        '1': {
-          7: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 7,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 7,
@@ -162,7 +172,7 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     })
 
@@ -175,7 +185,9 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('花データのみの日（売上ゼロ）はスキップされない', () => {
     const data = buildTestData({
       flowers: {
-        '1': { 3: { cost: 1000, price: 1500, customers: 50 } },
+        records: [
+          { year: 2025, month: 1, day: 3, storeId: '1', cost: 1000, price: 1500, customers: 50 },
+        ],
       },
     })
 
@@ -190,8 +202,12 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -223,7 +239,7 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
             ],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     })
 
@@ -240,10 +256,14 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 5000)] },
       flowers: {
-        '1': { 1: { cost: 2000, price: 3000, customers: 10 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 2000, price: 3000, customers: 10 },
+        ],
       },
       directProduce: {
-        '1': { 1: { cost: 1500, price: 3000 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 1500, price: 3000 },
+        ],
       },
     })
 
@@ -258,28 +278,42 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('全データ種別を持つ日は全フィールドが正しく設定される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { S1: { name: 'A', cost: 8000, price: 10000 } },
             total: { cost: 8000, price: 10000 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 25000, { discount71: -300, discount73: -200 })],
       },
       flowers: {
-        '1': { 1: { cost: 1000, price: 1500, customers: 120 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 1000, price: 1500, customers: 120 },
+        ],
       },
       directProduce: {
-        '1': { 1: { cost: 800, price: 1000 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 800, price: 1000 },
+        ],
       },
       consumables: {
-        '1': { 1: { cost: 450, items: [] } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 450, items: [] },
+        ],
       },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -294,11 +328,15 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       interStoreOut: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [
               {
@@ -313,7 +351,7 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     })
 
@@ -368,22 +406,30 @@ describe('computeSummaryFingerprint — edge cases', () => {
   it('仕入データの差異はフィンガープリントに影響する', () => {
     const data1 = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { S1: { name: 'A', cost: 1000, price: 1200 } },
             total: { cost: 1000, price: 1200 },
           },
-        },
+        ],
       },
     })
     const data2 = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { S1: { name: 'A', cost: 2000, price: 2400 } },
             total: { cost: 2000, price: 2400 },
           },
-        },
+        ],
       },
     })
 

@@ -235,7 +235,7 @@ describe('AppStateContext dispatch compatibility layer', () => {
         payload: {
           prevYearClassifiedSales: prevCS,
           prevYearCategoryTimeSales: prevCTS,
-          prevYearFlowers: {},
+          prevYearFlowers: { records: [] },
         },
       })
       expect(useDataStore.getState().data.prevYearClassifiedSales).toBe(prevCS)
@@ -248,7 +248,7 @@ describe('AppStateContext dispatch compatibility layer', () => {
         payload: {
           prevYearClassifiedSales: { records: [] },
           prevYearCategoryTimeSales: { records: [] },
-          prevYearFlowers: {},
+          prevYearFlowers: { records: [] },
         },
       })
       expect(useUiStore.getState().isCalculated).toBe(false)

@@ -32,7 +32,6 @@ import { processSpecialSales } from './dataProcessing/SpecialSalesProcessor'
 import {
   processCostInclusions,
   mergeCostInclusionData,
-  mergePartitionedCostInclusions,
 } from './dataProcessing/CostInclusionProcessor'
 import {
   processCategoryTimeSales,
@@ -143,20 +142,15 @@ function detectYearMonthFromPartitionsOrRecords(
 
 // ─── パーティション結合ヘルパー ──────────────────────────
 
-/** 月パーティション済み StoreDayRecord を1つに結合する（全月の union） */
-function combineStoreDayPartitions<T>(
-  partitioned: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
-): { readonly [storeId: string]: { readonly [day: number]: T } } {
-  const combined: Record<string, Record<number, T>> = {}
+/** 月パーティション済み flat record データを1つに結合する（全月の records を concat） */
+function combineRecordPartitions<T>(
+  partitioned: Record<string, { readonly records: readonly T[] }>,
+): { readonly records: readonly T[] } {
+  const all: T[] = []
   for (const monthData of Object.values(partitioned)) {
-    for (const [storeId, days] of Object.entries(monthData)) {
-      if (!combined[storeId]) combined[storeId] = {}
-      for (const [dayStr, entry] of Object.entries(days)) {
-        combined[storeId][Number(dayStr)] = entry
-      }
-    }
+    all.push(...monthData.records)
   }
-  return combined
+  return { records: all }
 }
 
 /** 月パーティション済み Map を1つに結合する */
@@ -170,25 +164,15 @@ function combineMapPartitions<K, V>(partitioned: Record<string, ReadonlyMap<K, V
   return combined
 }
 
-/** StoreDayRecord パーティションをマージ（同月の場合は上書き） */
-function mergeStoreDayPartitions<T>(
-  existing: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
-  incoming: Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }>,
-): Record<string, { readonly [storeId: string]: { readonly [day: number]: T } }> {
+/** flat record パーティションをマージ（同月の場合は concat） */
+function mergeRecordPartitions<T>(
+  existing: Record<string, { readonly records: readonly T[] }>,
+  incoming: Record<string, { readonly records: readonly T[] }>,
+): Record<string, { readonly records: readonly T[] }> {
   const result = { ...existing }
   for (const [mk, data] of Object.entries(incoming)) {
     if (result[mk]) {
-      const merged: Record<string, Record<number, T>> = {}
-      for (const [storeId, days] of Object.entries(result[mk])) {
-        merged[storeId] = { ...days }
-      }
-      for (const [storeId, days] of Object.entries(data)) {
-        if (!merged[storeId]) merged[storeId] = {}
-        for (const [dayStr, entry] of Object.entries(days)) {
-          merged[storeId][Number(dayStr)] = entry
-        }
-      }
-      result[mk] = merged
+      result[mk] = { records: [...result[mk].records, ...data.records] }
     } else {
       result[mk] = data
     }
@@ -226,17 +210,17 @@ function countDataRecords(data: ImportedData, type: DataType): number {
     case 'departmentKpi':
       return data.departmentKpi.records.length
     case 'purchase':
-      return countStoreDayEntries(data.purchase)
+      return data.purchase.records.length
     case 'flowers':
-      return countStoreDayEntries(data.flowers)
+      return data.flowers.records.length
     case 'directProduce':
-      return countStoreDayEntries(data.directProduce)
+      return data.directProduce.records.length
     case 'interStoreIn':
-      return countStoreDayEntries(data.interStoreIn)
+      return data.interStoreIn.records.length
     case 'interStoreOut':
-      return countStoreDayEntries(data.interStoreOut)
+      return data.interStoreOut.records.length
     case 'consumables':
-      return countStoreDayEntries(data.consumables)
+      return data.consumables.records.length
     case 'budget':
       return data.budget.size
     case 'initialSettings':
@@ -244,17 +228,6 @@ function countDataRecords(data: ImportedData, type: DataType): number {
     default:
       return 0
   }
-}
-
-/** StoreDayRecord の日別エントリ数を数える */
-function countStoreDayEntries(record: {
-  readonly [storeId: string]: { readonly [day: number]: unknown }
-}): number {
-  let count = 0
-  for (const days of Object.values(record)) {
-    count += Object.keys(days).length
-  }
-  return count
 }
 
 /**
@@ -389,7 +362,7 @@ function processFileDataInner(
 
       const allStores = new Set(mutableStores.keys())
       const partitioned = processPurchase(rows, allStores)
-      const combined = combineStoreDayPartitions(partitioned) as PurchaseData
+      const combined = combineRecordPartitions(partitioned) as PurchaseData
 
       return {
         data: {
@@ -462,7 +435,7 @@ function processFileDataInner(
 
     case 'interStoreIn': {
       const partitioned = processInterStoreIn(rows)
-      const combined = combineStoreDayPartitions(partitioned) as TransferData
+      const combined = combineRecordPartitions(partitioned) as TransferData
       return {
         data: { ...current, interStoreIn: combined },
         partitions: { interStoreIn: partitioned },
@@ -471,7 +444,7 @@ function processFileDataInner(
 
     case 'interStoreOut': {
       const partitioned = processInterStoreOut(rows)
-      const combined = combineStoreDayPartitions(partitioned) as TransferData
+      const combined = combineRecordPartitions(partitioned) as TransferData
       return {
         data: { ...current, interStoreOut: combined },
         partitions: { interStoreOut: partitioned },
@@ -486,7 +459,7 @@ function processFileDataInner(
         true,
         storeFlowerRates,
       )
-      const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
+      const combined = combineRecordPartitions(partitioned) as SpecialSalesData
       return {
         data: { ...current, flowers: combined },
         partitions: { flowers: partitioned },
@@ -501,7 +474,7 @@ function processFileDataInner(
         false,
         storeDirectRates,
       )
-      const combined = combineStoreDayPartitions(partitioned) as SpecialSalesData
+      const combined = combineRecordPartitions(partitioned) as SpecialSalesData
       return {
         data: { ...current, directProduce: combined },
         partitions: { directProduce: partitioned },
@@ -510,7 +483,7 @@ function processFileDataInner(
 
     case 'consumables': {
       const partitioned = processCostInclusions(rows, filename)
-      const combined = combineStoreDayPartitions(partitioned) as CostInclusionData
+      const combined = combineRecordPartitions(partitioned) as CostInclusionData
       return {
         data: {
           ...current,
@@ -664,16 +637,16 @@ export async function processDroppedFiles(
       // パーティション情報をマージ
       if (result.partitions) {
         const p = result.partitions
-        if (p.purchase) mp = { ...mp, purchase: mergeStoreDayPartitions(mp.purchase, p.purchase) }
-        if (p.flowers) mp = { ...mp, flowers: mergeStoreDayPartitions(mp.flowers, p.flowers) }
+        if (p.purchase) mp = { ...mp, purchase: mergeRecordPartitions(mp.purchase, p.purchase) }
+        if (p.flowers) mp = { ...mp, flowers: mergeRecordPartitions(mp.flowers, p.flowers) }
         if (p.directProduce)
-          mp = { ...mp, directProduce: mergeStoreDayPartitions(mp.directProduce, p.directProduce) }
+          mp = { ...mp, directProduce: mergeRecordPartitions(mp.directProduce, p.directProduce) }
         if (p.interStoreIn)
-          mp = { ...mp, interStoreIn: mergeStoreDayPartitions(mp.interStoreIn, p.interStoreIn) }
+          mp = { ...mp, interStoreIn: mergeRecordPartitions(mp.interStoreIn, p.interStoreIn) }
         if (p.interStoreOut)
-          mp = { ...mp, interStoreOut: mergeStoreDayPartitions(mp.interStoreOut, p.interStoreOut) }
+          mp = { ...mp, interStoreOut: mergeRecordPartitions(mp.interStoreOut, p.interStoreOut) }
         if (p.consumables)
-          mp = { ...mp, consumables: mergePartitionedCostInclusions(mp.consumables, p.consumables) }
+          mp = { ...mp, consumables: mergeRecordPartitions(mp.consumables, p.consumables) }
         if (p.budget) mp = { ...mp, budget: mergeMapPartitions(mp.budget, p.budget) }
       }
 

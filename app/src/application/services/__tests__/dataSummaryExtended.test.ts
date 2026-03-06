@@ -9,7 +9,7 @@ import type {
   ImportedData,
   Store,
   TransferDayEntry,
-  CostInclusionDailyRecord,
+  CostInclusionRecord,
 } from '@/domain/models'
 import {
   computeHasAnyData,
@@ -17,7 +17,7 @@ import {
   computeMaxDayByType,
   computeCtsRecordStats,
   computeRecordDays,
-  analyzeStoreDayRecord,
+  analyzeFlatRecords,
   analyzeClassifiedSales,
   buildDataOverview,
 } from '@/application/services/dataSummary'
@@ -77,12 +77,12 @@ const defaultStoreNames: ReadonlyMap<string, Store> = new Map([
   ['3', { id: '3', code: '0003', name: '店舗C' }],
 ])
 
-function makeTransferDayEntry(): TransferDayEntry {
-  return { interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] }
+function makeTransferDayEntry(day: number, storeId: string): TransferDayEntry {
+  return { year: 2025, month: 1, day, storeId, interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] }
 }
 
-function makeCostInclusionRecord(cost: number): CostInclusionDailyRecord {
-  return { cost, items: [] }
+function makeCostInclusionRecord(day: number, storeId: string, cost: number): CostInclusionRecord {
+  return { year: 2025, month: 1, day, storeId, cost, items: [] }
 }
 
 // ─── computeHasAnyData: 追加エッジケース ──────────────
@@ -90,7 +90,7 @@ function makeCostInclusionRecord(cost: number): CostInclusionDailyRecord {
 describe('computeHasAnyData extended', () => {
   it('両方あっても true', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
       classifiedSales: { records: [makeCSRecord(1, '1', 15000)] },
     })
     expect(computeHasAnyData(data)).toBe(true)
@@ -98,28 +98,28 @@ describe('computeHasAnyData extended', () => {
 
   it('consumables のみでは false（仕入・売上のみチェック）', () => {
     const data = buildTestData({
-      consumables: { '1': { 1: makeCostInclusionRecord(500) } },
+      consumables: { records: [makeCostInclusionRecord(1, '1', 500)] },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
 
   it('interStoreIn のみでは false', () => {
     const data = buildTestData({
-      interStoreIn: { '1': { 1: makeTransferDayEntry() } },
+      interStoreIn: { records: [makeTransferDayEntry(1, '1')] },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
 
   it('interStoreOut のみでは false', () => {
     const data = buildTestData({
-      interStoreOut: { '1': { 1: makeTransferDayEntry() } },
+      interStoreOut: { records: [makeTransferDayEntry(1, '1')] },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
 
   it('directProduce のみでは false', () => {
     const data = buildTestData({
-      directProduce: { '1': { 1: { price: 10000, cost: 8000 } } },
+      directProduce: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }] },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
@@ -136,8 +136,8 @@ describe('computeHasAnyData extended', () => {
     expect(computeHasAnyData(data)).toBe(false)
   })
 
-  it('空オブジェクトの purchase は false', () => {
-    const data = buildTestData({ purchase: {} })
+  it('空の purchase records は false', () => {
+    const data = buildTestData({ purchase: { records: [] } })
     expect(computeHasAnyData(data)).toBe(false)
   })
 })
@@ -180,7 +180,7 @@ describe('computeLoadedTypes extended', () => {
 
   it('全10種別を同時にロード', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
       settings: new Map([
         [

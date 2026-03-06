@@ -12,7 +12,8 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { aggregateAllStores } from '@/domain/models'
+import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
+import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
@@ -85,7 +86,7 @@ const EMPTY: PrevYearMonthlyKpi = {
 /** @visibleForTesting */
 export function aggregateWithOffset(
   allAgg: Record<string, Record<string, { sales?: number; discount?: number }>>,
-  prevYearFlowers: Record<string, Record<number, { customers?: number }>> | undefined,
+  prevYearFlowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
   targetIds: readonly string[],
   offset: number,
   daysInTargetMonth: number,
@@ -108,9 +109,7 @@ export function aggregateWithOffset(
 
       const sales = summary.sales ?? 0
       totalSales += sales
-      const flowerEntry = prevYearFlowers?.[storeId]?.[origDay] as
-        | { customers?: number }
-        | undefined
+      const flowerEntry = prevYearFlowersIndex?.[storeId]?.[origDay]
       const customers = flowerEntry?.customers ?? 0
       totalCustomers += customers
 
@@ -185,14 +184,19 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
       prevYearSourceMonth != null && !isNaN(prevYearSourceMonth) ? prevYearSourceMonth : undefined,
     )
 
+    // flat records → index 変換
+    const flowersIndex = prevYearFlowers.records.length > 0
+      ? indexByStoreDay(prevYearFlowers.records)
+      : undefined
+
     const sameDow = aggregateWithOffset(
       allAgg,
-      prevYearFlowers,
+      flowersIndex,
       targetIds,
       dowOffset,
       daysInTargetMonth,
     )
-    const sameDate = aggregateWithOffset(allAgg, prevYearFlowers, targetIds, 0, daysInTargetMonth)
+    const sameDate = aggregateWithOffset(allAgg, flowersIndex, targetIds, 0, daysInTargetMonth)
 
     return {
       hasPrevYear: true,

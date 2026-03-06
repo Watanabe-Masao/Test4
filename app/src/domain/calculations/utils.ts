@@ -216,25 +216,30 @@ export function computeActiveDowDivisorMap(
   return dowDays
 }
 
-export function detectDataMaxDay(data: {
-  readonly purchase: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly classifiedSales: { readonly records: readonly { readonly day: number }[] }
-  readonly interStoreIn: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly interStoreOut: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly flowers: { readonly [s: string]: { readonly [d: number]: unknown } }
-  readonly directProduce: { readonly [s: string]: { readonly [d: number]: unknown } }
-}): number {
-  let csMaxDay = 0
-  for (const rec of data.classifiedSales.records) {
-    if (rec.day > csMaxDay) csMaxDay = rec.day
+/** flat record 配列から最大日を取得 */
+function maxDayOfFlatRecords(records: readonly { readonly day: number }[]): number {
+  let max = 0
+  for (const r of records) {
+    if (r.day > max) max = r.day
   }
+  return max
+}
+
+export function detectDataMaxDay(data: {
+  readonly purchase: { readonly records: readonly { readonly day: number }[] }
+  readonly classifiedSales: { readonly records: readonly { readonly day: number }[] }
+  readonly interStoreIn: { readonly records: readonly { readonly day: number }[] }
+  readonly interStoreOut: { readonly records: readonly { readonly day: number }[] }
+  readonly flowers: { readonly records: readonly { readonly day: number }[] }
+  readonly directProduce: { readonly records: readonly { readonly day: number }[] }
+}): number {
   return Math.max(
     0,
-    maxDayOfRecord(data.purchase),
-    csMaxDay,
-    maxDayOfRecord(data.interStoreIn),
-    maxDayOfRecord(data.interStoreOut),
-    maxDayOfRecord(data.flowers),
-    maxDayOfRecord(data.directProduce),
+    maxDayOfFlatRecords(data.purchase.records),
+    maxDayOfFlatRecords(data.classifiedSales.records),
+    maxDayOfFlatRecords(data.interStoreIn.records),
+    maxDayOfFlatRecords(data.interStoreOut.records),
+    maxDayOfFlatRecords(data.flowers.records),
+    maxDayOfFlatRecords(data.directProduce.records),
   )
 }

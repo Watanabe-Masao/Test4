@@ -50,9 +50,9 @@ describe('buildDailyRecords', () => {
     const data = makeData({
       classifiedSales: { records: [csRecord(1, 's1', 100000)] },
       flowers: {
-        s1: {
-          1: { cost: 5000, price: 8000, customers: 50 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: 's1', cost: 5000, price: 8000, customers: 50 },
+        ],
       },
     })
     const result = buildDailyRecords('s1', data, 31)
@@ -66,8 +66,12 @@ describe('buildDailyRecords', () => {
     const data = makeData({
       classifiedSales: { records: [csRecord(1, 's1', 100000)] },
       interStoreIn: {
-        s1: {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: 's1',
             interStoreIn: [
               {
                 day: 1,
@@ -82,7 +86,7 @@ describe('buildDailyRecords', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     })
     const result = buildDailyRecords('s1', data, 31)
@@ -108,12 +112,16 @@ describe('buildDailyRecords', () => {
     const data = makeData({
       classifiedSales: { records: [csRecord(1, 's1', 100000)] },
       purchase: {
-        s1: {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: 's1',
             total: { cost: 40000, price: 60000 },
             suppliers: {},
           },
-        },
+        ],
       },
     })
     const result = buildDailyRecords('s1', data, 31)

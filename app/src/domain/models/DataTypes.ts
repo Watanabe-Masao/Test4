@@ -1,20 +1,48 @@
 import type { CostInclusionDailyRecord } from './CostInclusionItem'
 
+// ─── 共通の日付ヘッダー ──────────────────────────────────
+// 全データ型が年/月/日を自身で持つ。外部のパーティションキーに依存しない。
+
+/** 年/月/日を持つレコードの共通フィールド */
+export interface DatedRecord {
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly storeId: string
+}
+
+// ─── StoreDayIndex（計算パイプライン用ルックアップ） ──────────
+
 /**
- * 店舗×日別の2次元インデックス付きレコード。
- * Excelパース結果の共通パターン: storeId → day → T
- *
- * 参照系エンティティ（stores, budget, settings）は Map を使用。
- * 日別データは Record を使用（プロセッサが直接構築、bracket記法でアクセス）。
+ * flat array からの O(1) ルックアップ用インデックス。
+ * 計算パイプライン（dailyBuilder 等）で構築し、storeId → day → T のアクセスを維持する。
+ * データの保持・永続化には使わず、計算時のみ使用する。
  */
-export type StoreDayRecord<T> = {
+export type StoreDayIndex<T> = {
   readonly [storeId: string]: {
     readonly [day: number]: T
   }
 }
 
+/**
+ * flat record 配列から StoreDayIndex を構築する。
+ * 同一 storeId+day のレコードは後勝ちでマージされる。
+ */
+export function indexByStoreDay<T extends DatedRecord>(
+  records: readonly T[],
+): StoreDayIndex<T> {
+  const index: Record<string, Record<number, T>> = {}
+  for (const r of records) {
+    if (!index[r.storeId]) index[r.storeId] = {}
+    index[r.storeId][r.day] = r
+  }
+  return index
+}
+
+// ─── 仕入 ──────────────────────────────────────────────
+
 /** 仕入日別レコード */
-export interface PurchaseDayEntry {
+export interface PurchaseDayEntry extends DatedRecord {
   readonly suppliers: {
     readonly [supplierCode: string]: {
       readonly name: string
@@ -25,8 +53,12 @@ export interface PurchaseDayEntry {
   readonly total: { readonly cost: number; readonly price: number }
 }
 
-/** 仕入パース結果: storeId → day → PurchaseDayEntry */
-export type PurchaseData = StoreDayRecord<PurchaseDayEntry>
+/** 仕入パース結果 */
+export interface PurchaseData {
+  readonly records: readonly PurchaseDayEntry[]
+}
+
+// ─── 売上・売変 ────────────────────────────────────────
 
 /** 売上日別レコード */
 export interface SalesDayEntry {
@@ -34,15 +66,14 @@ export interface SalesDayEntry {
   readonly customers?: number
 }
 
-/** 売上パース結果: storeId → day → SalesDayEntry */
-export type SalesData = StoreDayRecord<SalesDayEntry>
-
 /** 売変日別レコード */
 export interface DiscountDayEntry {
   readonly sales: number
   readonly discount: number
   readonly customers?: number
 }
+
+// ─── 分類別時間帯売上 ──────────────────────────────────
 
 /** 分類別時間帯売上 時間帯レコード */
 export interface TimeSlotEntry {
@@ -95,8 +126,7 @@ export function mergeCategoryTimeSalesData(
   return { records: [...map.values()] }
 }
 
-/** 売変パース結果: storeId → day → DiscountDayEntry */
-export type DiscountData = StoreDayRecord<DiscountDayEntry>
+// ─── 移動 ──────────────────────────────────────────────
 
 /** 移動レコード */
 export interface TransferRecord {
@@ -109,29 +139,44 @@ export interface TransferRecord {
 }
 
 /** 移動日別レコード */
-export interface TransferDayEntry {
+export interface TransferDayEntry extends DatedRecord {
   readonly interStoreIn: readonly TransferRecord[]
   readonly interStoreOut: readonly TransferRecord[]
   readonly interDepartmentIn: readonly TransferRecord[]
   readonly interDepartmentOut: readonly TransferRecord[]
 }
 
-/** 店間移動パース結果: storeId → day → TransferDayEntry */
-export type TransferData = StoreDayRecord<TransferDayEntry>
+/** 店間移動パース結果 */
+export interface TransferData {
+  readonly records: readonly TransferDayEntry[]
+}
+
+// ─── 花・産直 ──────────────────────────────────────────
 
 /** 花/産直日別レコード */
-export interface SpecialSalesDayEntry {
+export interface SpecialSalesDayEntry extends DatedRecord {
   readonly price: number
   readonly cost: number
   /** 来店客数（花ファイルのみ） */
   readonly customers?: number
 }
 
-/** 花/産直パース結果: storeId → day → SpecialSalesDayEntry */
-export type SpecialSalesData = StoreDayRecord<SpecialSalesDayEntry>
+/** 花/産直パース結果 */
+export interface SpecialSalesData {
+  readonly records: readonly SpecialSalesDayEntry[]
+}
 
-/** 消耗品パース結果: storeId → day → CostInclusionDailyRecord */
-export type CostInclusionData = StoreDayRecord<CostInclusionDailyRecord>
+// ─── 消耗品 ──────────────────────────────────────────
+
+/** 消耗品日別レコード */
+export interface CostInclusionRecord extends DatedRecord, CostInclusionDailyRecord {}
+
+/** 消耗品パース結果 */
+export interface CostInclusionData {
+  readonly records: readonly CostInclusionRecord[]
+}
+
+// ─── 部門別KPI ──────────────────────────────────────────
 
 /** 部門別KPIレコード */
 export interface DepartmentKpiRecord {
@@ -156,3 +201,11 @@ export interface DepartmentKpiRecord {
 export interface DepartmentKpiData {
   readonly records: readonly DepartmentKpiRecord[]
 }
+
+// ─── 後方互換 ──────────────────────────────────────────
+
+/**
+ * @deprecated StoreDayRecord は StoreDayIndex に名前変更。
+ * 新規コードでは StoreDayIndex を使い、データ保持には flat array を使用すること。
+ */
+export type StoreDayRecord<T> = StoreDayIndex<T>

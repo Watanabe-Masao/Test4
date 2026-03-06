@@ -10,7 +10,7 @@ import {
   computeMaxDayByType,
   computeCtsRecordStats,
   computeRecordDays,
-  analyzeStoreDayRecord,
+  analyzeFlatRecords,
   analyzeClassifiedSales,
   buildDataOverview,
 } from '../dataSummary'
@@ -69,7 +69,7 @@ describe('computeHasAnyData', () => {
 
   it('仕入データありで true', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
     })
     expect(computeHasAnyData(data)).toBe(true)
   })
@@ -83,7 +83,7 @@ describe('computeHasAnyData', () => {
 
   it('花データのみでは false（仕入・売上チェックのみ）', () => {
     const data = buildTestData({
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      flowers: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }] },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
@@ -99,7 +99,7 @@ describe('computeLoadedTypes', () => {
 
   it('仕入のみ', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
     })
     const types = computeLoadedTypes(data)
     expect(types.has('purchase')).toBe(true)
@@ -108,9 +108,9 @@ describe('computeLoadedTypes', () => {
 
   it('複数種別のロード', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
       classifiedSales: { records: [makeCSRecord(1, '1', 15000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      flowers: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }] },
       budget: new Map([['1', { storeId: '1', total: 6000000, daily: new Map() }]]),
     })
     const types = computeLoadedTypes(data)
@@ -173,10 +173,10 @@ describe('computeMaxDayByType', () => {
   it('仕入の最大日を取得', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          5: { suppliers: {}, total: { cost: 100, price: 130 } },
-          20: { suppliers: {}, total: { cost: 200, price: 260 } },
-        },
+        records: [
+          { year: 2025, month: 1, day: 5, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } },
+          { year: 2025, month: 1, day: 20, storeId: '1', suppliers: {}, total: { cost: 200, price: 260 } },
+        ],
       },
     })
     const result = computeMaxDayByType(data)
@@ -186,7 +186,7 @@ describe('computeMaxDayByType', () => {
   it('複数種別の最大日', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(10, '1', 10000)] },
-      flowers: { '1': { 25: { price: 10000, cost: 8000 } } },
+      flowers: { records: [{ year: 2025, month: 1, day: 25, storeId: '1', price: 10000, cost: 8000 }] },
       categoryTimeSales: { records: [makeCtsRecord(18, '1')] },
     })
     const result = computeMaxDayByType(data)
@@ -248,16 +248,16 @@ describe('computeRecordDays', () => {
   })
 })
 
-// ─── analyzeStoreDayRecord ────────────────────────────────
+// ─── analyzeFlatRecords ────────────────────────────────
 
-describe('analyzeStoreDayRecord', () => {
+describe('analyzeFlatRecords', () => {
   const storeNames = new Map([
     ['1', { id: '1', code: '0001', name: '店舗A' }],
     ['2', { id: '2', code: '0002', name: '店舗B' }],
   ])
 
   it('空レコード', () => {
-    const result = analyzeStoreDayRecord({}, 'テスト', storeNames)
+    const result = analyzeFlatRecords([], 'テスト', storeNames)
     expect(result.storeCount).toBe(0)
     expect(result.totalRecords).toBe(0)
     expect(result.dayRange).toBeNull()
@@ -265,14 +265,12 @@ describe('analyzeStoreDayRecord', () => {
   })
 
   it('単一店舗', () => {
-    const record = {
-      '1': {
-        1: { cost: 100, price: 130 },
-        5: { cost: 200, price: 260 },
-        10: { cost: 300, price: 390 },
-      },
-    }
-    const result = analyzeStoreDayRecord(record, '仕入', storeNames)
+    const records = [
+      { year: 2025, month: 1, day: 1, storeId: '1', cost: 100, price: 130 },
+      { year: 2025, month: 1, day: 5, storeId: '1', cost: 200, price: 260 },
+      { year: 2025, month: 1, day: 10, storeId: '1', cost: 300, price: 390 },
+    ]
+    const result = analyzeFlatRecords(records, '仕入', storeNames)
     expect(result.storeCount).toBe(1)
     expect(result.totalRecords).toBe(3)
     expect(result.dayRange).toEqual({ min: 1, max: 10 })
@@ -281,37 +279,39 @@ describe('analyzeStoreDayRecord', () => {
   })
 
   it('複数店舗', () => {
-    const record = {
-      '1': { 1: { cost: 100, price: 130 }, 5: { cost: 200, price: 260 } },
-      '2': { 3: { cost: 300, price: 390 }, 15: { cost: 400, price: 520 } },
-    }
-    const result = analyzeStoreDayRecord(record, '仕入', storeNames)
+    const records = [
+      { year: 2025, month: 1, day: 1, storeId: '1', cost: 100, price: 130 },
+      { year: 2025, month: 1, day: 5, storeId: '1', cost: 200, price: 260 },
+      { year: 2025, month: 1, day: 3, storeId: '2', cost: 300, price: 390 },
+      { year: 2025, month: 1, day: 15, storeId: '2', cost: 400, price: 520 },
+    ]
+    const result = analyzeFlatRecords(records, '仕入', storeNames)
     expect(result.storeCount).toBe(2)
     expect(result.totalRecords).toBe(4)
     expect(result.dayRange).toEqual({ min: 1, max: 15 })
   })
 
   it('客数チェック', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000, customers: 30 } },
-    }
-    const result = analyzeStoreDayRecord(record, '花', storeNames, true)
+    const records = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 30 },
+    ]
+    const result = analyzeFlatRecords(records, '花', storeNames, true)
     expect(result.hasCustomers).toBe(true)
   })
 
   it('客数なしの場合', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000 } },
-    }
-    const result = analyzeStoreDayRecord(record, '花', storeNames, true)
+    const records = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
+    ]
+    const result = analyzeFlatRecords(records, '花', storeNames, true)
     expect(result.hasCustomers).toBe(false)
   })
 
   it('不明な店舗IDのフォールバック名', () => {
-    const record = {
-      '99': { 1: { cost: 100, price: 130 } },
-    }
-    const result = analyzeStoreDayRecord(record, 'テスト', storeNames)
+    const records = [
+      { year: 2025, month: 1, day: 1, storeId: '99', cost: 100, price: 130 },
+    ]
+    const result = analyzeFlatRecords(records, 'テスト', storeNames)
     expect(result.perStore[0].storeName).toBe('店舗99')
   })
 })
@@ -384,7 +384,7 @@ describe('buildDataOverview', () => {
 
   it('データありの場合に正しいラベルと統計', () => {
     const data = buildTestData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
     })
     const overview = buildDataOverview(data)

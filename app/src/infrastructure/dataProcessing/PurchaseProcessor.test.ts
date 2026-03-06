@@ -19,20 +19,24 @@ describe('processPurchase', () => {
     ]
 
     const result = processPurchase(rows, stores)
-    const feb = result['2026-2']
+    const febRecords = result['2026-2']?.records
 
     // 店舗1, day1
-    expect(feb?.['1']?.[1]?.total.cost).toBe(100000)
-    expect(feb?.['1']?.[1]?.total.price).toBe(130000)
-    expect(feb?.['1']?.[1]?.suppliers['1234567']?.cost).toBe(100000)
+    const s1d1 = febRecords?.find((r) => r.storeId === '1' && r.day === 1)
+    expect(s1d1?.total.cost).toBe(100000)
+    expect(s1d1?.total.price).toBe(130000)
+    expect(s1d1?.suppliers['1234567']?.cost).toBe(100000)
 
     // 店舗2, day1
-    expect(feb?.['2']?.[1]?.total.cost).toBe(50000)
-    expect(feb?.['2']?.[1]?.total.price).toBe(65000)
+    const s2d1 = febRecords?.find((r) => r.storeId === '2' && r.day === 1)
+    expect(s2d1?.total.cost).toBe(50000)
+    expect(s2d1?.total.price).toBe(65000)
 
     // 店舗1, day2 (cost=0, price=0の店舗2はスキップ)
-    expect(feb?.['1']?.[2]?.total.cost).toBe(200000)
-    expect(feb?.['2']?.[2]).toBeUndefined()
+    const s1d2 = febRecords?.find((r) => r.storeId === '1' && r.day === 2)
+    expect(s1d2?.total.cost).toBe(200000)
+    const s2d2 = febRecords?.find((r) => r.storeId === '2' && r.day === 2)
+    expect(s2d2).toBeUndefined()
   })
 
   it('行数不足の場合は空', () => {
@@ -60,12 +64,13 @@ describe('processPurchase', () => {
       ['2026-02-01', '', '', 100, 200, 300, 400],
     ]
     const result = processPurchase(rows, stores)
-    const feb = result['2026-2']
+    const febRecords = result['2026-2']?.records
 
-    expect(feb?.['1']?.[1]?.total.cost).toBe(400)
-    expect(feb?.['1']?.[1]?.total.price).toBe(600)
-    expect(feb?.['1']?.[1]?.suppliers['1111111']?.cost).toBe(100)
-    expect(feb?.['1']?.[1]?.suppliers['2222222']?.cost).toBe(300)
+    const s1d1 = febRecords?.find((r) => r.storeId === '1' && r.day === 1)
+    expect(s1d1?.total.cost).toBe(400)
+    expect(s1d1?.total.price).toBe(600)
+    expect(s1d1?.suppliers['1111111']?.cost).toBe(100)
+    expect(s1d1?.suppliers['2222222']?.cost).toBe(300)
   })
 })
 
