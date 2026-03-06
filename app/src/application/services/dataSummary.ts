@@ -44,8 +44,7 @@ export interface StoreDayStats {
 /** データが1つでも存在するか（NavBar 用） */
 export function computeHasAnyData(data: ImportedData): boolean {
   return (
-    (data.purchase?.records?.length ?? 0) > 0 ||
-    (data.classifiedSales?.records?.length ?? 0) > 0
+    (data.purchase?.records?.length ?? 0) > 0 || (data.classifiedSales?.records?.length ?? 0) > 0
   )
 }
 
