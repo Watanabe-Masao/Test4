@@ -118,6 +118,12 @@ describe('classifyChanges', () => {
     expect(result.updates[0].previousRecord).toBe(existingRecord)
   })
 
+  it('incoming に重複キーがある場合はエラー', () => {
+    expect(() =>
+      classifyChanges(scope(), [incoming(5, 10000), incoming(5, 12000)], []),
+    ).toThrow('重複キー')
+  })
+
   it('空の incoming + 空の existing = 空の結果', () => {
     const result = classifyChanges(scope(), [], [])
     expect(result.adds).toHaveLength(0)

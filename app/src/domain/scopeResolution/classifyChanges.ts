@@ -37,8 +37,19 @@ export function classifyChanges(
 ): ImportOperation {
   const dataType: RecordStorageDataType = scope.dataType
   const incomingByKey = new Map<string, DatedRecord>()
+  const duplicateKeys: string[] = []
   for (const r of incomingRecords) {
-    incomingByKey.set(naturalKey(dataType, r), r)
+    const key = naturalKey(dataType, r)
+    if (incomingByKey.has(key)) {
+      duplicateKeys.push(key)
+    }
+    incomingByKey.set(key, r)
+  }
+  if (duplicateKeys.length > 0) {
+    throw new Error(
+      `classifyChanges: incoming に重複キーが ${duplicateKeys.length} 件あります。` +
+        ` 先頭: ${duplicateKeys[0]}`,
+    )
   }
 
   const existingByKey = new Map<string, StoredRecord>()

@@ -19,15 +19,31 @@ describe('stableStringify', () => {
     expect(stableStringify([1, 2, 3])).not.toBe(stableStringify([3, 2, 1]))
   })
 
-  it('null/undefined を正しく処理', () => {
+  it('null/undefined は両方 "null" 文字列を返す', () => {
     expect(stableStringify(null)).toBe('null')
-    expect(stableStringify(undefined)).toBe(undefined) // JSON.stringify(undefined) = undefined
+    expect(stableStringify(undefined)).toBe('null')
+    // 両方 string 型であること
+    expect(typeof stableStringify(null)).toBe('string')
+    expect(typeof stableStringify(undefined)).toBe('string')
+  })
+
+  it('NaN/Infinity は "null" を返す', () => {
+    expect(stableStringify(NaN)).toBe('null')
+    expect(stableStringify(Infinity)).toBe('null')
+    expect(stableStringify(-Infinity)).toBe('null')
   })
 
   it('プリミティブ値', () => {
     expect(stableStringify(42)).toBe('42')
     expect(stableStringify('hello')).toBe('"hello"')
     expect(stableStringify(true)).toBe('true')
+  })
+
+  it('undefined フィールドを含むオブジェクトが壊れない', () => {
+    const obj = { a: 1, b: undefined, c: 3 }
+    const result = stableStringify(obj)
+    expect(typeof result).toBe('string')
+    expect(result).toBe('{"a":1,"b":null,"c":3}')
   })
 })
 

@@ -27,9 +27,18 @@ function stripMeta(record: DatedRecord): Record<string, unknown> {
 /**
  * キーをソートした JSON.stringify。
  * ネストしたオブジェクト・配列も再帰的にキーソートする。
+ *
+ * JSON.stringify との差異:
+ * - undefined → "null"（JSON.stringify は undefined を返すが、ここでは "null" に統一）
+ * - NaN → "null"（JSON.stringify と同じ。NaN と null は同値扱いになる）
  */
 export function stableStringify(value: unknown): string {
-  if (value === null || value === undefined) return JSON.stringify(value)
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'number') {
+    // NaN, Infinity → "null"（JSON.stringify 互換）
+    if (!Number.isFinite(value)) return 'null'
+    return JSON.stringify(value)
+  }
   if (typeof value !== 'object') return JSON.stringify(value)
   if (Array.isArray(value)) {
     return '[' + value.map((v) => stableStringify(v)).join(',') + ']'
