@@ -254,7 +254,7 @@ export function aggregateSummaryRows(
  * 計算ロジックは domain/calculations/* の関数を呼ぶだけ。
  * assembleStoreResult / crossValidation.test.ts の computeJsMetrics と同一の計算パス。
  */
-export function calculatePeriodMetrics(
+function calculatePeriodMetrics(
   storeId: string,
   agg: StoreAggregation,
   invConfig: PeriodInventoryConfig | undefined,

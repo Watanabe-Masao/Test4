@@ -6,46 +6,9 @@
 import type {
   ConditionMetricId,
   ConditionSummaryConfig,
-  ResolvedConditionMetric,
   ThresholdSet,
 } from '../models/ConditionConfig'
-import { CONDITION_METRIC_DEFS, CONDITION_METRIC_MAP } from '../constants/conditionMetrics'
-
-/**
- * 指定店舗の全メトリクスを解決する。
- *
- * @param config ユーザー設定（global + storeOverrides）
- * @param storeId 対象店舗ID（undefined = グローバルのみ）
- * @returns 解決済みメトリクス配列（表示順序順、enabled=true のみ）
- */
-export function resolveConditionMetrics(
-  config: ConditionSummaryConfig,
-  storeId?: string,
-): readonly ResolvedConditionMetric[] {
-  return CONDITION_METRIC_DEFS.map((def) => {
-    const globalCfg = config.global[def.id]
-    const storeCfg = storeId ? config.storeOverrides[storeId]?.[def.id] : undefined
-
-    // enabled: store > global > true（デフォルト有効）
-    const enabled = storeCfg?.enabled ?? globalCfg?.enabled ?? true
-
-    // thresholds: store > global > registry default（フィールドごとにマージ）
-    const thresholds: ThresholdSet = {
-      blue: storeCfg?.thresholds?.blue ?? globalCfg?.thresholds?.blue ?? def.defaults.blue,
-      yellow: storeCfg?.thresholds?.yellow ?? globalCfg?.thresholds?.yellow ?? def.defaults.yellow,
-      red: storeCfg?.thresholds?.red ?? globalCfg?.thresholds?.red ?? def.defaults.red,
-    }
-
-    return {
-      id: def.id,
-      label: def.label,
-      direction: def.direction,
-      unit: def.unit,
-      thresholds,
-      enabled,
-    }
-  }).filter((m) => m.enabled)
-}
+import { CONDITION_METRIC_MAP } from '../constants/conditionMetrics'
 
 /**
  * 単一メトリクスの閾値を解決する（ConditionSummary 内部のシグナル判定用）。

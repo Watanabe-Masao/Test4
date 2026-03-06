@@ -21,14 +21,8 @@ export {
   DataTd,
   DataTr,
 } from './DataTable'
-export { DataGrid } from './DataGrid'
-export type { DataGridProps, ColumnDef } from './DataGrid'
 export { Skeleton, KpiCardSkeleton, ChartSkeleton, TableSkeleton, PageSkeleton } from './Skeleton'
 export { ErrorBoundary, ChartErrorBoundary, PageErrorBoundary } from './ErrorBoundary'
-export { VirtualizedList } from './VirtualizedList'
-export type { VirtualizedListProps } from './VirtualizedList'
-export { LazyWidget } from './LazyWidget'
-export type { LazyWidgetProps } from './LazyWidget'
 export { MonthSelector } from './MonthSelector'
 export { MetricBreakdownPanel } from './MetricBreakdownPanel'
 export { TabBar, Tab } from './TabBar'

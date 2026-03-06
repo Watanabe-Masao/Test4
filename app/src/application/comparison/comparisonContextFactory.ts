@@ -60,7 +60,7 @@ export const ZERO_PERIOD_METRICS: PeriodMetrics = {
 }
 
 /** ゼロ値の PeriodSnapshot を生成する */
-export function createEmptySnapshot(year: number, month: number): PeriodSnapshot {
+function createEmptySnapshot(year: number, month: number): PeriodSnapshot {
   return {
     metrics: ZERO_PERIOD_METRICS,
     hasData: false,

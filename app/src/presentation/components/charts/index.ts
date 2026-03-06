@@ -8,13 +8,7 @@ export { EstimatedInventoryDetailChart } from './EstimatedInventoryDetailChart'
 export { PrevYearComparisonChart } from './PrevYearComparisonChart'
 export { GrossProfitAmountChart } from './GrossProfitAmountChart'
 export { DiscountTrendChart } from './DiscountTrendChart'
-export { CustomerTrendChart } from './CustomerTrendChart'
-export { TransactionValueChart } from './TransactionValueChart'
 export { TimeSlotSalesChart } from './TimeSlotSalesChart'
-export { TimeSlotHeatmapChart } from './TimeSlotHeatmapChart'
-export { DeptHourlyPatternChart } from './DeptHourlyPatternChart'
-export { TimeSlotKpiSummary } from './TimeSlotKpiSummary'
-export { StoreTimeSlotComparisonChart } from './StoreTimeSlotComparisonChart'
 export { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
 export { CategoryHierarchyProvider } from './CategoryHierarchyContext'
 export {
@@ -45,7 +39,6 @@ export {
 } from './chartTheme'
 export type { ChartTheme } from './chartTheme'
 export {
-  ChartHeaderRow,
   ChartTitle,
   ChartViewToggle,
   ChartViewBtn,

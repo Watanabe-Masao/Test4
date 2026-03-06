@@ -28,9 +28,6 @@ const CHARTS_DIR = path.resolve(__dirname, '..')
  */
 const CHART_FILES_USING_PERIOD_FILTER = [
   'TimeSlotSalesChart.tsx',
-  'TimeSlotHeatmapChart.tsx',
-  'DeptHourlyPatternChart.tsx',
-  'StoreTimeSlotComparisonChart.tsx',
   'CategoryHierarchyExplorer.tsx',
 ] as const
 
@@ -240,12 +237,7 @@ describe('RULE-5: filterByStore 経由の強制', () => {
     /selectedStoreIds\.size\s*===\s*0\s*\|\|\s*selectedStoreIds\.has\(/,
   ]
 
-  /** 店舗間比較チャートは店舗フィルタの対象外 */
-  const STORE_FILTER_EXEMPT = ['StoreTimeSlotComparisonChart.tsx']
-
-  const targetFiles = CHART_FILES_USING_PERIOD_FILTER.filter(
-    (f) => !STORE_FILTER_EXEMPT.includes(f),
-  )
+  const targetFiles = [...CHART_FILES_USING_PERIOD_FILTER]
 
   for (const file of targetFiles) {
     it(`${file}: インライン店舗フィルタパターンが存在しないこと`, () => {
