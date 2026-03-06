@@ -150,7 +150,8 @@ export function useAutoImport(
 
       for (const entry of entries) {
         const file = await entry.handle.getFile()
-        const fp = fileFingerprint(file.name, file.size, file.lastModified)
+        // entry.name は相対パス（サブディレクトリ含む）なので同名ファイルも区別できる
+        const fp = fileFingerprint(entry.name, file.size, file.lastModified)
         if (processedRef.current.has(fp)) continue
         processedRef.current.add(fp)
         newFiles.push(file)
