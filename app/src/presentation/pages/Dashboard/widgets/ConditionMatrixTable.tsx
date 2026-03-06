@@ -153,14 +153,14 @@ interface Props {
 }
 
 export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
-  const { duckConn, duckDataVersion, selectedStoreIds, duckDateRange } = ctx
+  const { duckConn, duckDataVersion, selectedStoreIds, currentDateRange } = ctx
 
-  // DuckDB からデータ取得（ダッシュボード共通の日付範囲を使用）
+  // DuckDB からデータ取得（取り込み有効期間の日付範囲を使用）
   const {
     data: rawRows,
     isLoading,
     error,
-  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, duckDateRange, selectedStoreIds)
+  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
 
   // 選択中の店舗ID（単一店舗選択時のみ自店/他店比較を有効化）
   const selectedStoreId = useMemo(() => {

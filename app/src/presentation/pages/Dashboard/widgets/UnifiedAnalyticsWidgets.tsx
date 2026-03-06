@@ -32,7 +32,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
     <DuckDBTimeSlotChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
-      currentDateRange={ctx.duckDateRange}
+      currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
     />
   )
@@ -49,7 +49,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
     <DuckDBHeatmapChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
-      currentDateRange={ctx.duckDateRange}
+      currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
     />
   )
@@ -66,7 +66,7 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
     <DuckDBDeptHourlyChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
-      currentDateRange={ctx.duckDateRange}
+      currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
     />
   )
@@ -83,7 +83,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
     <DuckDBStoreHourlyChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
-      currentDateRange={ctx.duckDateRange}
+      currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
       stores={ctx.stores}
     />

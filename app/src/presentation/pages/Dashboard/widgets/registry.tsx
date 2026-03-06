@@ -767,7 +767,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBFeatureChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -782,7 +782,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBCumulativeChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -819,7 +819,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBDowPatternChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -834,7 +834,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBHourlyProfileChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -849,7 +849,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBCategoryTrendChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -865,7 +865,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBCategoryHourlyChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -880,7 +880,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBCategoryMixChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
@@ -895,7 +895,7 @@ export const WIDGET_REGISTRY: readonly WidgetDef[] = [
       <DuckDBStoreBenchmarkChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.duckDateRange}
+        currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
         stores={ctx.stores}
       />

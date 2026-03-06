@@ -40,8 +40,6 @@ import {
   CurrencyUnitToggle,
   CrossChartSelectionProvider,
   useCrossChartSelection,
-  DuckDBDateRangePicker,
-  useDuckDBDateRange,
 } from '@/presentation/components/charts'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import type { WidgetDef, WidgetContext } from './widgets/types'
@@ -227,9 +225,6 @@ export function DashboardPage() {
   // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // DuckDB 分析用日付範囲（ユーザー操作で自由に変更可能、月跨ぎ対応）
-  const [duckDateRange, setDuckDateRange] = useDuckDBDateRange(targetYear, targetMonth, daysInMonth)
-
   // 比較フレーム（全チャート共通の前年期間決定）— hooks の呼び出し順序維持のため早期リターン前
   const baseRange: DateRange = useMemo(
     () => ({
@@ -336,7 +331,6 @@ export function DashboardPage() {
     duckConn: duck.conn,
     duckDataVersion: duck.dataVersion,
     duckLoadedMonthCount: duck.loadedMonthCount,
-    duckDateRange,
     comparisonFrame: frame,
     dowGap,
     onPrevYearDetail: handlePrevYearDetail,
@@ -429,18 +423,6 @@ export function DashboardPage() {
                 return renderDraggable(w, idx, w.render(ctx))
               })}
             </WidgetGridStyled>
-          )}
-
-          {/* DuckDB 日付範囲ピッカー（DuckDB 準備完了時のみ表示） */}
-          {duck.dataVersion > 0 && (
-            <DuckDBDateRangePicker
-              value={duckDateRange}
-              onChange={setDuckDateRange}
-              year={targetYear}
-              month={targetMonth}
-              daysInMonth={daysInMonth}
-              loadedMonthCount={duck.loadedMonthCount}
-            />
           )}
 
           {/* Chart Widgets */}
