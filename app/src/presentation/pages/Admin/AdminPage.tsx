@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
+import { usePwaInstall } from '@/presentation/hooks/usePwaInstall'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'
@@ -411,13 +412,56 @@ function StoreManagementTab() {
   )
 }
 
+// ─── PWA インストールバナー ──────────────────────────────
+
+const InstallBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)'};
+  border: 1px solid ${({ theme }) => theme.colors.palette.primary};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+const InstallButton = styled.button`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.palette.primary};
+  color: white;
+  border: none;
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`
+
 // ─── メインページ ──────────────────────────────────────
 export function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('categories')
+  const { canInstall, isInstalled, promptInstall } = usePwaInstall()
+
+  const handleInstall = useCallback(async () => {
+    await promptInstall()
+  }, [promptInstall])
 
   return (
     <Page>
       <PageTitle>管理</PageTitle>
+
+      {canInstall && !isInstalled && (
+        <InstallBanner>
+          <span>このアプリをデバイスにインストールすると、オフラインでも利用できます。</span>
+          <InstallButton onClick={handleInstall}>インストール</InstallButton>
+        </InstallBanner>
+      )}
+
       <Tabs>
         <Tab $active={activeTab === 'categories'} onClick={() => setActiveTab('categories')}>
           カテゴリ管理

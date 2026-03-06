@@ -41,6 +41,8 @@ import {
   processDepartmentKpi,
   mergeDepartmentKpiData,
 } from './dataProcessing/DepartmentKpiProcessor'
+import { datasetRegistry } from './storage/datasetRegistry'
+import { murmurhash3 } from '@/application/services/hash'
 
 /** 単一ファイルのインポート結果 */
 export interface FileImportResult {
@@ -624,8 +626,35 @@ export async function processDroppedFiles(
         typeName = detected.typeName
       }
 
+      // 重複インポート検知: ファイル内容のハッシュで同一ファイルの再インポートを検出
+      const fileHash = String(murmurhash3(JSON.stringify(rows)))
+      let duplicateWarning: string | undefined
+      if (detectedYearMonth) {
+        try {
+          const isDup = await datasetRegistry.isDuplicate(
+            detectedYearMonth.year,
+            detectedYearMonth.month,
+            type,
+            fileHash,
+          )
+          if (isDup) {
+            duplicateWarning = `${file.name} は既にインポート済みの同一データです（スキップされません）`
+          }
+        } catch {
+          // IndexedDB 未対応環境では無視
+        }
+      }
+
       const result = processFileData(type, rows, file.name, data, effectiveSettings)
       data = result.data
+
+      // ハッシュをレジストリに登録
+      const ym = result.detectedYearMonth ?? detectedYearMonth
+      if (ym) {
+        datasetRegistry
+          .updateFileHash(ym.year, ym.month, type, fileHash)
+          .catch(() => {}) // 非同期で登録、失敗は無視
+      }
 
       if (result.detectedYearMonth && !detectedYearMonth) {
         detectedYearMonth = result.detectedYearMonth
@@ -662,7 +691,9 @@ export async function processDroppedFiles(
         type,
         typeName,
         rowCount,
-        warnings: result.warnings,
+        warnings: duplicateWarning
+          ? [...(result.warnings ?? []), duplicateWarning]
+          : result.warnings,
       })
     } catch (err) {
       const message =

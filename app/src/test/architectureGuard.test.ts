@@ -112,6 +112,8 @@ const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
 const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set([
   // serialization.ts は hashData（純粋関数）を使用
   'infrastructure/storage/internal/serialization.ts',
+  // ImportService.ts は murmurhash3（純粋関数）を重複インポート検知に使用
+  'infrastructure/ImportService.ts',
 ])
 
 // ─── テスト ──────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo, memo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import {
@@ -41,6 +41,7 @@ import {
   CrossChartSelectionProvider,
   useCrossChartSelection,
 } from '@/presentation/components/charts'
+import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import type { WidgetDef, WidgetContext } from './widgets/types'
 import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
@@ -86,6 +87,18 @@ function DrillThroughScrollHandler() {
 
   return null
 }
+
+// ─── Lazy Widget (遅延レンダリング) ─────────────────────
+
+/** チャートウィジェットをビューポートに入るまでプレースホルダーで表示する */
+const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode }) {
+  const { ref, hasBeenVisible } = useIntersectionObserver({
+    rootMargin: '200px',
+    freezeOnceVisible: true,
+  })
+
+  return <div ref={ref}>{hasBeenVisible ? children : <div style={{ minHeight: 300 }} />}</div>
+})
 
 // ─── Main Dashboard ──────────────────────────────────────
 
@@ -441,12 +454,12 @@ export function DashboardPage() {
                       {renderDraggable(
                         halfBuffer[0],
                         idx1,
-                        <ChartErrorBoundary>{halfBuffer[0].render(ctx)}</ChartErrorBoundary>,
+                        <ChartErrorBoundary><LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget></ChartErrorBoundary>,
                       )}
                       {renderDraggable(
                         halfBuffer[1],
                         idx2,
-                        <ChartErrorBoundary>{halfBuffer[1].render(ctx)}</ChartErrorBoundary>,
+                        <ChartErrorBoundary><LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget></ChartErrorBoundary>,
                       )}
                     </ChartRow>,
                   )
@@ -457,7 +470,7 @@ export function DashboardPage() {
                       {renderDraggable(
                         halfBuffer[0],
                         idx1,
-                        <ChartErrorBoundary>{halfBuffer[0].render(ctx)}</ChartErrorBoundary>,
+                        <ChartErrorBoundary><LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget></ChartErrorBoundary>,
                       )}
                     </ChartRow>,
                   )
@@ -474,7 +487,7 @@ export function DashboardPage() {
                       {renderDraggable(
                         w,
                         idx,
-                        <ChartErrorBoundary>{w.render(ctx)}</ChartErrorBoundary>,
+                        <ChartErrorBoundary><LazyWidget>{w.render(ctx)}</LazyWidget></ChartErrorBoundary>,
                       )}
                     </FullChartRow>,
                   )

@@ -57,13 +57,76 @@ export function downloadCsv(csvContent: string, options: CsvExportOptions): void
   URL.revokeObjectURL(url)
 }
 
+/** Worker を使った非同期 CSV 生成のしきい値（行数） */
+const WORKER_THRESHOLD = 500
+
 /**
  * 2次元配列を CSV としてダウンロードする (ワンショット API)
+ *
+ * 行数が多い場合（>500行）は Web Worker にオフロードして
+ * メインスレッドのブロッキングを防ぐ。Worker 非対応環境ではメインスレッドで処理。
  */
 export function exportToCsv(
   rows: readonly (readonly (string | number | null | undefined)[])[],
   options: CsvExportOptions,
 ): void {
+  if (rows.length > WORKER_THRESHOLD && typeof Worker !== 'undefined') {
+    exportToCsvViaWorker(rows, options).catch(() => {
+      // Worker 失敗時はメインスレッドでフォールバック
+      const csv = toCsvString(rows, options.delimiter)
+      downloadCsv(csv, options)
+    })
+    return
+  }
   const csv = toCsvString(rows, options.delimiter)
   downloadCsv(csv, options)
+}
+
+/**
+ * Worker 経由で CSV を生成してダウンロードする
+ */
+async function exportToCsvViaWorker(
+  rows: readonly (readonly (string | number | null | undefined)[])[],
+  options: CsvExportOptions,
+): Promise<void> {
+  const worker = new Worker(
+    new URL('../../application/workers/reportExportWorker.ts', import.meta.url),
+    { type: 'module' },
+  )
+
+  try {
+    const csvContent = await new Promise<string>((resolve, reject) => {
+      const requestId = Date.now()
+      const timeout = setTimeout(() => {
+        worker.terminate()
+        reject(new Error('Worker timeout'))
+      }, 30_000)
+
+      worker.onmessage = (event: MessageEvent<{ type: string; csvContent?: string; requestId: number }>) => {
+        if (event.data.requestId !== requestId) return
+        clearTimeout(timeout)
+        if (event.data.type === 'result' && event.data.csvContent) {
+          resolve(event.data.csvContent)
+        } else {
+          reject(new Error('Worker export failed'))
+        }
+      }
+
+      worker.onerror = () => {
+        clearTimeout(timeout)
+        reject(new Error('Worker error'))
+      }
+
+      worker.postMessage({
+        type: 'export',
+        rows,
+        delimiter: options.delimiter,
+        requestId,
+      })
+    })
+
+    downloadCsv(csvContent, options)
+  } finally {
+    worker.terminate()
+  }
 }
