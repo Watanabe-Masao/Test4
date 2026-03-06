@@ -1077,7 +1077,11 @@ describe('filterDataForMonth', () => {
     // 花のみパーティションあり（仕入はパーティション無し）
     const partitions = {
       purchase: {},
-      flowers: { '2025-2': { records: [{ year: 2025, month: 2, day: 1, storeId: '1', price: 5000, cost: 4000 }] } },
+      flowers: {
+        '2025-2': {
+          records: [{ year: 2025, month: 2, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+        },
+      },
       directProduce: {},
       interStoreIn: {},
       interStoreOut: {},
