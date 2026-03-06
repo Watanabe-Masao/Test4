@@ -42,8 +42,7 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         // 1. 現在のデータを保存
         const currentData = useDataStore.getState().data
         const hasData =
-          currentData.classifiedSales.records.length > 0 ||
-          currentData.purchase.records.length > 0
+          currentData.classifiedSales.records.length > 0 || currentData.purchase.records.length > 0
         if (hasData && repo.isAvailable()) {
           await repo.saveMonthlyData(currentData, settings.targetYear, settings.targetMonth)
         }

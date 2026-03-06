@@ -552,13 +552,9 @@ export function extractRecordMonths(
  * 旧実装ではパーティション未設定の種別は data をそのまま通過させていたため、
  * マルチ月インポート時に他月のレコードが漏れるバグがあった。
  */
-function filterDatedRecords<T extends { readonly records: readonly { year: number; month: number }[] }>(
-  partition: Record<string, T> | undefined,
-  data: T,
-  mk: string,
-  year: number,
-  month: number,
-): T {
+function filterDatedRecords<
+  T extends { readonly records: readonly { year: number; month: number }[] },
+>(partition: Record<string, T> | undefined, data: T, mk: string, year: number, month: number): T {
   const emptyRecords = { records: [] } as unknown as T
   if (partition && Object.keys(partition).length > 0) {
     return partition[mk] ?? emptyRecords
@@ -626,8 +622,9 @@ export function filterDataForMonth(
       month,
     ),
     consumables: filterDatedRecords(partitions.consumables, data.consumables, mk, year, month),
-    budget: Object.keys(partitions.budget).length > 0
-      ? (partitions.budget[mk] ?? new Map<string, BudgetData>())
-      : data.budget,
+    budget:
+      Object.keys(partitions.budget).length > 0
+        ? (partitions.budget[mk] ?? new Map<string, BudgetData>())
+        : data.budget,
   }
 }
