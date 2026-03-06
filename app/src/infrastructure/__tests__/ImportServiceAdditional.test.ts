@@ -41,6 +41,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   prevYearSourceMonth: null,
   prevYearDowOffset: null,
   alignmentPolicy: 'sameDayOfWeek' as const,
+  conditionConfig: { global: {}, storeOverrides: {} },
   userCategoryLabels: {},
 }
 

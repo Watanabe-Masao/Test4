@@ -17,9 +17,25 @@ export function useDowGapAnalysis(
   previousMonth: number,
   dailyAverageSales: number,
   enabled = true,
+  prevDowSales?: readonly number[],
 ): DowGapAnalysis {
   return useMemo(() => {
     if (!enabled || previousYear === 0) return ZERO_DOW_GAP_ANALYSIS
-    return analyzeDowGap(currentYear, currentMonth, previousYear, previousMonth, dailyAverageSales)
-  }, [currentYear, currentMonth, previousYear, previousMonth, dailyAverageSales, enabled])
+    return analyzeDowGap(
+      currentYear,
+      currentMonth,
+      previousYear,
+      previousMonth,
+      dailyAverageSales,
+      prevDowSales,
+    )
+  }, [
+    currentYear,
+    currentMonth,
+    previousYear,
+    previousMonth,
+    dailyAverageSales,
+    enabled,
+    prevDowSales,
+  ])
 }

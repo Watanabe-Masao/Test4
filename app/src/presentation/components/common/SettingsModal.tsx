@@ -148,13 +148,10 @@ export function SettingsModal({
     warningThreshold: (settings.warningThreshold * 100).toString(),
     flowerCostRate: (settings.flowerCostRate * 100).toString(),
     directProduceCostRate: (settings.directProduceCostRate * 100).toString(),
-    // コンディションサマリー閾値
+    // コンディションサマリー閾値（粗利率のみ。売変率は閾値設定と共通）
     gpDiffBlueThreshold: settings.gpDiffBlueThreshold.toString(),
     gpDiffYellowThreshold: settings.gpDiffYellowThreshold.toString(),
     gpDiffRedThreshold: settings.gpDiffRedThreshold.toString(),
-    discountBlueThreshold: (settings.discountBlueThreshold * 100).toString(),
-    discountYellowThreshold: (settings.discountYellowThreshold * 100).toString(),
-    discountRedThreshold: (settings.discountRedThreshold * 100).toString(),
   })
 
   const handleChange = useCallback((key: string, value: string) => {
@@ -170,9 +167,6 @@ export function SettingsModal({
       gpDiffBlueThreshold: parseFloat(values.gpDiffBlueThreshold),
       gpDiffYellowThreshold: parseFloat(values.gpDiffYellowThreshold),
       gpDiffRedThreshold: parseFloat(values.gpDiffRedThreshold),
-      discountBlueThreshold: parseFloat(values.discountBlueThreshold) / 100,
-      discountYellowThreshold: parseFloat(values.discountYellowThreshold) / 100,
-      discountRedThreshold: parseFloat(values.discountRedThreshold) / 100,
     })
     onClose()
   }, [values, onSave, onClose])
@@ -200,12 +194,6 @@ export function SettingsModal({
       label: '警告 (pt)',
       hint: '予算比 -N pt 以上で赤。デフォルト: -0.50',
     },
-  ] as const
-
-  const discountThresholdFields = [
-    { key: 'discountBlueThreshold', label: '良好 (%)', hint: 'N% 以下で青。デフォルト: 2.0' },
-    { key: 'discountYellowThreshold', label: '注意 (%)', hint: 'N% 以下で黄色。デフォルト: 2.5' },
-    { key: 'discountRedThreshold', label: '警告 (%)', hint: 'N% 以下で赤。デフォルト: 3.0' },
   ] as const
 
   return (
@@ -238,20 +226,6 @@ export function SettingsModal({
 
       <SectionTitle>コンディションサマリー — 粗利率閾値</SectionTitle>
       {gpThresholdFields.map(({ key, label, hint }) => (
-        <Field key={key}>
-          <Label>{label}</Label>
-          <Input
-            type="number"
-            step="any"
-            value={values[key]}
-            onChange={(e) => handleChange(key, e.target.value)}
-          />
-          <Hint>{hint}</Hint>
-        </Field>
-      ))}
-
-      <SectionTitle>コンディションサマリー — 売変率閾値</SectionTitle>
-      {discountThresholdFields.map(({ key, label, hint }) => (
         <Field key={key}>
           <Label>{label}</Label>
           <Input

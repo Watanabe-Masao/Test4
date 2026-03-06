@@ -189,10 +189,6 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
     duckConn: null,
     duckDataVersion: 0,
     duckLoadedMonthCount: 0,
-    duckDateRange: {
-      from: { year: 2026, month: 2, day: 1 },
-      to: { year: 2026, month: 2, day: 28 },
-    },
     prevYearMonthlyKpi: {
       hasPrevYear: false,
       sameDow: {
@@ -223,6 +219,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       })),
       estimatedImpact: 0,
       isValid: false,
+      prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
     },
     onPrevYearDetail: () => {},
     comparisonFrame: {

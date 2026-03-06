@@ -22,13 +22,15 @@ export interface DowDayCount {
  * 曜日ギャップ分析
  *
  * 前年同曜日と前年同日の差は曜日構成の違いに起因する。
- * 各曜日の日数差 × 推定日単価 で影響額を見積もる。
+ * 各曜日の日数差 × 前年の曜日別日平均売上 で影響額を見積もる。
  */
 export interface DowGapAnalysis {
   /** 曜日別の日数比較 (7要素: 日〜土) */
   readonly dowCounts: readonly DowDayCount[]
-  /** 曜日ギャップによる推定影響額（当年の日平均売上ベース） */
+  /** 曜日ギャップによる推定影響額（前年の曜日別日平均売上ベース） */
   readonly estimatedImpact: number
   /** 分析が有効か（データ不足なら false、値は 0） */
   readonly isValid: boolean
+  /** 前年の曜日別日平均売上 (7要素: 日〜土)。曜日別データがない場合は全体平均で埋める */
+  readonly prevDowDailyAvg: readonly number[]
 }

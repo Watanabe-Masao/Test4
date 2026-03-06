@@ -128,3 +128,13 @@ export type {
   StoredRecord,
 } from './ScopeResolution'
 export { summarizeImportPlan } from './ScopeResolution'
+export type {
+  ThresholdSet,
+  ThresholdDirection,
+  ThresholdUnit,
+  ConditionMetricId,
+  ConditionMetricDef,
+  ConditionMetricUserConfig,
+  ConditionSummaryConfig,
+  ResolvedConditionMetric,
+} from './ConditionConfig'

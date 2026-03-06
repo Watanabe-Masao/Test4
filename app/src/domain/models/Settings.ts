@@ -1,5 +1,6 @@
 // CustomCategory は customCategories.ts に移行。互換性のため re-export
 import type { AlignmentPolicy } from './ComparisonFrame'
+import type { ConditionSummaryConfig } from './ConditionConfig'
 import type { CustomCategoryId } from '../constants/customCategories'
 export type { CustomCategoryId as CustomCategory } from '../constants/customCategories'
 import { PRESET_CATEGORY_DEFS, UNCATEGORIZED_CATEGORY_ID } from '../constants/customCategories'
@@ -35,6 +36,7 @@ export interface AppSettings {
   readonly prevYearSourceMonth: number | null // 前年データ取得元の月 (null = targetMonth)
   readonly prevYearDowOffset: number | null // 曜日オフセット手動指定 (null = 自動計算)
   readonly alignmentPolicy: AlignmentPolicy // 比較期間の合わせ方 (default: 'sameDayOfWeek')
+  readonly conditionConfig: ConditionSummaryConfig // コンディションサマリー閾値設定
 }
 
 /** ビュー種別 */

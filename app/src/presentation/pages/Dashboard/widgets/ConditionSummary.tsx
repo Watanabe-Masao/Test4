@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -8,8 +8,15 @@ import {
   getEffectiveGrossProfitRate,
   formatPointDiff,
 } from '@/domain/calculations/utils'
-import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
+import type { MetricId, StoreResult, CustomCategory, ConditionMetricId } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
+import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
+import {
+  resolveThresholds,
+  evaluateSignal,
+  isMetricEnabled,
+} from '@/domain/calculations/conditionResolver'
+import { CONDITION_METRIC_DEFS, CONDITION_METRIC_MAP } from '@/domain/constants/conditionMetrics'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
   UNCATEGORIZED_CATEGORY_ID,
@@ -347,6 +354,52 @@ const CategoryDot = styled.span<{ $color: string }>`
   margin-right: 4px;
 `
 
+const StoreSelect = styled.select`
+  width: 100%;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  &:focus {
+    outline: 1px solid ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const StoreOverrideNote = styled.div`
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text4};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
+  border-radius: ${({ theme }) => theme.radii.sm};
+`
+
+const MetricSettingRow = styled.div`
+  padding: ${({ theme }) => theme.spacing[2]} 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  &:last-child {
+    border-bottom: none;
+  }
+`
+
+const MetricSettingHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+const MetricToggle = styled.input`
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: ${({ theme }) => theme.colors.palette.primary};
+`
+
 const SubRow = styled.tr`
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
@@ -431,30 +484,17 @@ const SIGNAL_COLORS: Record<SignalLevel, string> = {
   warning: palette.dangerDark,
 }
 
-interface GpThresholds {
-  readonly blue: number
-  readonly yellow: number
-  readonly red: number
-}
-
-interface DiscountThresholds {
-  readonly blue: number
-  readonly yellow: number
-  readonly red: number
-}
-
-function gpDiffSignal(diffPt: number, t: GpThresholds): SignalLevel {
-  if (diffPt >= t.blue) return 'blue'
-  if (diffPt >= t.yellow) return 'yellow'
-  if (diffPt >= t.red) return 'red'
-  return 'warning'
-}
-
-function discountRateSignal(rate: number, t: DiscountThresholds): SignalLevel {
-  if (rate <= t.blue) return 'blue'
-  if (rate <= t.yellow) return 'yellow'
-  if (rate <= t.red) return 'red'
-  return 'warning'
+/** レジストリベースのシグナル判定ヘルパー */
+function metricSignal(
+  value: number,
+  metricId: ConditionMetricId,
+  config: ConditionSummaryConfig,
+  storeId?: string,
+): SignalLevel {
+  const def = CONDITION_METRIC_MAP.get(metricId)
+  if (!def) return 'blue'
+  const thresholds = resolveThresholds(config, metricId, storeId)
+  return evaluateSignal(value, thresholds, def.direction)
 }
 
 // ─── Condition Item Types ──────────────────────────────
@@ -492,28 +532,6 @@ function computeGpAfterConsumableAmount(sr: StoreResult): number {
 }
 
 // ─── Store breakdown extractors (simple) ───────────────
-
-function budgetProgressBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  return {
-    value: formatPercent(sr.budgetProgressRate),
-    signal: sr.budgetProgressRate >= 1 ? 'blue' : sr.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
-  }
-}
-
-function projectedAchievementBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  return {
-    value: formatPercent(sr.projectedAchievement),
-    signal:
-      sr.projectedAchievement >= 1 ? 'blue' : sr.projectedAchievement >= 0.95 ? 'yellow' : 'red',
-  }
-}
-
-function costInclusionRateBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  return {
-    value: formatPercent(sr.costInclusionRate),
-    signal: sr.costInclusionRate <= 0.02 ? 'blue' : sr.costInclusionRate <= 0.03 ? 'yellow' : 'red',
-  }
-}
 
 function customersBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
   return {
@@ -650,21 +668,57 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   const [displayMode, setDisplayMode] = useState<DisplayMode>('rate')
   const [expandedMarkupStore, setExpandedMarkupStore] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  /** 設定パネルで選択中の店舗（'__global__' = 全店共通） */
+  const [settingsStoreId, setSettingsStoreId] = useState<string>('__global__')
   const updateSettings = useSettingsStore((s) => s.updateSettings)
 
   const hasMultipleStores = allStoreResults.size > 1
 
-  const gpThresholds: GpThresholds = {
-    blue: settings.gpDiffBlueThreshold,
-    yellow: settings.gpDiffYellowThreshold,
-    red: settings.gpDiffRedThreshold,
-  }
+  // 旧設定との後方互換: gpDiff/discount の旧フィールドを conditionConfig にマッピング
+  const effectiveConfig = useMemo<ConditionSummaryConfig>(() => {
+    const base = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+    // conditionConfig が空なら旧設定値をマイグレーション
+    const hasLegacyGp = base.global.gpRate?.thresholds == null
+    const hasLegacyDiscount = base.global.discountRate?.thresholds == null
+    if (!hasLegacyGp && !hasLegacyDiscount) return base
 
-  const discountThresholds: DiscountThresholds = {
-    blue: settings.discountBlueThreshold,
-    yellow: settings.discountYellowThreshold,
-    red: settings.discountRedThreshold,
-  }
+    const migrated = { ...base, global: { ...base.global } }
+    if (hasLegacyGp) {
+      migrated.global = {
+        ...migrated.global,
+        gpRate: {
+          ...migrated.global.gpRate,
+          thresholds: {
+            blue: settings.gpDiffBlueThreshold,
+            yellow: settings.gpDiffYellowThreshold,
+            red: settings.gpDiffRedThreshold,
+          },
+        },
+      }
+    }
+    if (hasLegacyDiscount) {
+      migrated.global = {
+        ...migrated.global,
+        discountRate: {
+          ...migrated.global.discountRate,
+          thresholds: {
+            blue: settings.discountBlueThreshold,
+            yellow: settings.discountYellowThreshold,
+            red: settings.discountRedThreshold,
+          },
+        },
+      }
+    }
+    return migrated
+  }, [settings])
+
+  /** 店舗一覧（設定パネル用） */
+  const storeEntries = useMemo(() => {
+    const entries = [...stores.entries()].sort(([, a], [, b]) =>
+      (a.code ?? a.id).localeCompare(b.code ?? b.id),
+    )
+    return entries
+  }, [stores])
 
   const handleCardClick = useCallback(
     (item: ConditionItem) => {
@@ -688,86 +742,145 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   const gpAfter = computeGpAfterConsumable(r)
   const gpDiff = (gpAfter - r.grossProfitRateBudget) * 100 // pt
 
-  const items: ConditionItem[] = [
-    // 1. Gross Profit Rate (統合: 原算前 + 原算後)
-    {
+  /** 閾値ヘルパー: gpRate は差分(pt)で判定するため direction=higher_better で比較 */
+  const gpSignal = (diffPt: number, storeId?: string): SignalLevel => {
+    const t = resolveThresholds(effectiveConfig, 'gpRate', storeId)
+    return evaluateSignal(diffPt, t, 'higher_better')
+  }
+
+  /** markupRate は予算差分(pt)で判定 */
+  const markupSignal = (rate: number, storeId?: string): SignalLevel => {
+    const t = resolveThresholds(effectiveConfig, 'markupRate', storeId)
+    const diff = (rate - r.grossProfitRateBudget) * 100
+    return evaluateSignal(diff, t, 'higher_better')
+  }
+
+  const items: ConditionItem[] = []
+
+  // 1. Gross Profit Rate
+  if (isMetricEnabled(effectiveConfig, 'gpRate')) {
+    items.push({
       label: '粗利率',
       value: formatPercent(gpAfter),
       sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 原価算入率 ${formatPercent(r.costInclusionRate)} / 差異 ${formatPointDiff(gpAfter - r.grossProfitRateBudget)}`,
-      signal: gpDiffSignal(gpDiff, gpThresholds),
+      signal: gpSignal(gpDiff),
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
       detailBreakdown: 'gpRate',
-    },
-    // 2. Markup Rate (値入率)
-    {
+    })
+  }
+
+  // 2. Markup Rate
+  if (isMetricEnabled(effectiveConfig, 'markupRate')) {
+    items.push({
       label: '値入率',
       value: formatPercent(r.averageMarkupRate),
       sub: `コア値入率 ${formatPercent(r.coreMarkupRate)}`,
-      signal:
-        r.averageMarkupRate >= r.grossProfitRateBudget
-          ? 'blue'
-          : r.averageMarkupRate >= r.grossProfitRateBudget - 0.02
-            ? 'yellow'
-            : 'red',
+      signal: markupSignal(r.averageMarkupRate),
       metricId: 'averageMarkupRate',
       detailBreakdown: 'markupRate',
-    },
-    // 3. Budget Progress Rate
-    {
+    })
+  }
+
+  // 3. Budget Progress Rate
+  if (isMetricEnabled(effectiveConfig, 'budgetProgress')) {
+    items.push({
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
       sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
-      signal: r.budgetProgressRate >= 1 ? 'blue' : r.budgetProgressRate >= 0.9 ? 'yellow' : 'red',
+      signal: metricSignal(r.budgetProgressRate, 'budgetProgress', effectiveConfig),
       metricId: 'budgetProgressRate',
-      storeValue: budgetProgressBreakdown,
-    },
-    // 3. Projected Achievement
-    {
+      storeValue: (sr) => ({
+        value: formatPercent(sr.budgetProgressRate),
+        signal: metricSignal(sr.budgetProgressRate, 'budgetProgress', effectiveConfig, sr.storeId),
+      }),
+    })
+  }
+
+  // 4. Projected Achievement
+  if (isMetricEnabled(effectiveConfig, 'projectedAchievement')) {
+    items.push({
       label: '着地予測達成率',
       value: formatPercent(r.projectedAchievement),
       sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
-      signal:
-        r.projectedAchievement >= 1 ? 'blue' : r.projectedAchievement >= 0.95 ? 'yellow' : 'red',
+      signal: metricSignal(r.projectedAchievement, 'projectedAchievement', effectiveConfig),
       metricId: 'projectedSales',
-      storeValue: projectedAchievementBreakdown,
-    },
-    // 4. Discount Rate (統合: 全体 + 71-74)
-    {
+      storeValue: (sr) => ({
+        value: formatPercent(sr.projectedAchievement),
+        signal: metricSignal(
+          sr.projectedAchievement,
+          'projectedAchievement',
+          effectiveConfig,
+          sr.storeId,
+        ),
+      }),
+    })
+  }
+
+  // 5. Discount Rate
+  if (isMetricEnabled(effectiveConfig, 'discountRate')) {
+    items.push({
       label: '売変率',
       value: formatPercent(r.discountRate),
       sub: `売変額 ${formatCurrency(r.totalDiscount)} / 粗売上 ${formatCurrency(r.grossSales)}`,
-      signal: discountRateSignal(r.discountRate, discountThresholds),
+      signal: metricSignal(r.discountRate, 'discountRate', effectiveConfig),
       metricId: 'discountRate',
       detailBreakdown: 'discountRate',
-    },
-    // 5. Cost Inclusion Rate
-    {
+    })
+  }
+
+  // 6. Cost Inclusion Rate
+  if (isMetricEnabled(effectiveConfig, 'costInclusion')) {
+    items.push({
       label: '原価算入率',
       value: formatPercent(r.costInclusionRate),
       sub: `原価算入費 ${formatCurrency(r.totalCostInclusion)} / 売上 ${formatCurrency(r.totalSales)}`,
-      signal: r.costInclusionRate <= 0.02 ? 'blue' : r.costInclusionRate <= 0.03 ? 'yellow' : 'red',
+      signal: metricSignal(r.costInclusionRate, 'costInclusion', effectiveConfig),
       metricId: 'totalCostInclusion',
-      storeValue: costInclusionRateBreakdown,
-    },
-  ]
+      storeValue: (sr) => ({
+        value: formatPercent(sr.costInclusionRate),
+        signal: metricSignal(sr.costInclusionRate, 'costInclusion', effectiveConfig, sr.storeId),
+      }),
+    })
+  }
 
-  // 6. Customer YoY (if prev year data available)
+  // 7. Sales YoY (NEW)
   const prevYear = ctx.prevYear
-  if (prevYear.hasPrevYear && prevYear.totalCustomers > 0 && r.totalCustomers > 0) {
+  if (
+    isMetricEnabled(effectiveConfig, 'salesYoY') &&
+    prevYear.hasPrevYear &&
+    prevYear.totalSales > 0
+  ) {
+    const salesYoY = safeDivide(r.totalSales, prevYear.totalSales, 0)
+    items.push({
+      label: '売上前年比',
+      value: formatPercent(salesYoY, 2),
+      sub: `当年 ${formatCurrency(r.totalSales)} / 前年 ${formatCurrency(prevYear.totalSales)}`,
+      signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
+      metricId: 'salesTotal',
+    })
+  }
+
+  // 8. Customer YoY
+  if (
+    isMetricEnabled(effectiveConfig, 'customerYoY') &&
+    prevYear.hasPrevYear &&
+    prevYear.totalCustomers > 0 &&
+    r.totalCustomers > 0
+  ) {
     const custYoY = r.totalCustomers / prevYear.totalCustomers
     items.push({
       label: '客数前年比',
       value: formatPercent(custYoY, 2),
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
-      signal: custYoY >= 1 ? 'blue' : custYoY >= 0.95 ? 'yellow' : 'red',
+      signal: metricSignal(custYoY, 'customerYoY', effectiveConfig),
       metricId: 'totalCustomers',
       storeValue: customersBreakdown,
     })
   }
 
-  // 7. Transaction Value
-  if (r.totalCustomers > 0) {
+  // 9. Transaction Value
+  if (isMetricEnabled(effectiveConfig, 'txValue') && r.totalCustomers > 0) {
     const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
     const prevTxValue =
       prevYear.hasPrevYear && prevYear.totalCustomers > 0
@@ -783,9 +896,48 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
         prevTxValue != null
           ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
           : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
-      signal: txYoY != null ? (txYoY >= 1 ? 'blue' : txYoY >= 0.97 ? 'yellow' : 'red') : 'blue',
+      signal: txYoY != null ? metricSignal(txYoY, 'txValue', effectiveConfig) : 'blue',
       metricId: 'totalCustomers',
       storeValue: txValueBreakdown,
+    })
+  }
+
+  // 10. GP Amount Budget Ratio (NEW)
+  if (isMetricEnabled(effectiveConfig, 'gpAmount') && r.grossProfitBudget > 0) {
+    const gpAmt = computeGpAfterConsumableAmount(r)
+    const gpBudgetRatio = safeDivide(gpAmt, r.grossProfitBudget, 0)
+    items.push({
+      label: '粗利額予算比',
+      value: formatPercent(gpBudgetRatio, 2),
+      sub: `粗利額 ${formatCurrency(gpAmt)} / 予算 ${formatCurrency(r.grossProfitBudget)}`,
+      signal: metricSignal(gpBudgetRatio, 'gpAmount', effectiveConfig),
+    })
+  }
+
+  // 11. Daily Sales Achievement (NEW)
+  const budgetDailyAvg = ctx.daysInMonth > 0 ? r.budget / ctx.daysInMonth : 0
+  if (isMetricEnabled(effectiveConfig, 'dailySales') && budgetDailyAvg > 0) {
+    const dailyRatio = safeDivide(r.averageDailySales, budgetDailyAvg, 0)
+    items.push({
+      label: '日販達成率',
+      value: formatPercent(dailyRatio, 2),
+      sub: `日販 ${formatCurrency(r.averageDailySales)} / 予算日販 ${formatCurrency(budgetDailyAvg)}`,
+      signal: metricSignal(dailyRatio, 'dailySales', effectiveConfig),
+    })
+  }
+
+  // 12. Required Pace Ratio (NEW)
+  if (
+    isMetricEnabled(effectiveConfig, 'requiredPace') &&
+    r.averageDailySales > 0 &&
+    r.requiredDailySales > 0
+  ) {
+    const paceRatio = safeDivide(r.requiredDailySales, r.averageDailySales, 0)
+    items.push({
+      label: '必達ペース比',
+      value: formatPercent(paceRatio, 2),
+      sub: `必要日販 ${formatCurrency(r.requiredDailySales)} / 実績日販 ${formatCurrency(r.averageDailySales)}`,
+      signal: metricSignal(paceRatio, 'requiredPace', effectiveConfig),
     })
   }
 
@@ -839,7 +991,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
             const before = computeGpBeforeConsumable(sr)
             const after = computeGpAfterConsumable(sr)
             const diff = (after - sr.grossProfitRateBudget) * 100
-            const sig = gpDiffSignal(diff, gpThresholds)
+            const sig = gpSignal(diff, sr.storeId)
             const sigColor = SIGNAL_COLORS[sig]
 
             if (displayMode === 'rate') {
@@ -880,7 +1032,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
           })}
           {/* Total row */}
           {(() => {
-            const totalSig = gpDiffSignal(gpDiff, gpThresholds)
+            const totalSig = gpSignal(gpDiff)
             const totalColor = SIGNAL_COLORS[totalSig]
             if (displayMode === 'rate') {
               return (
@@ -948,7 +1100,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
             {sortedStoreEntries.map(([storeId, sr]) => {
               const store = stores.get(storeId)
               const storeName = store?.name ?? storeId
-              const sig = discountRateSignal(sr.discountRate, discountThresholds)
+              const sig = metricSignal(sr.discountRate, 'discountRate', effectiveConfig, sr.storeId)
               const sigColor = SIGNAL_COLORS[sig]
 
               return (
@@ -977,7 +1129,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
             })}
             {/* Total row */}
             {(() => {
-              const totalSig = discountRateSignal(r.discountRate, discountThresholds)
+              const totalSig = metricSignal(r.discountRate, 'discountRate', effectiveConfig)
               const totalColor = SIGNAL_COLORS[totalSig]
               return (
                 <BTr $highlight>
@@ -1044,12 +1196,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
               const storeName = store?.name ?? storeId
               const isExpanded = expandedMarkupStore === storeId
               const crossRows = buildCrossMult(sr, settings.supplierCategoryMap)
-              const sig: SignalLevel =
-                sr.averageMarkupRate >= r.grossProfitRateBudget
-                  ? 'blue'
-                  : sr.averageMarkupRate >= r.grossProfitRateBudget - 0.02
-                    ? 'yellow'
-                    : 'red'
+              const sig = markupSignal(sr.averageMarkupRate, sr.storeId)
               const sigColor = SIGNAL_COLORS[sig]
 
               const rows: React.ReactNode[] = [
@@ -1201,21 +1348,130 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     )
   }
 
-  const handleThresholdChange = useCallback(
-    (key: keyof typeof settings, raw: string, divisor = 1) => {
+  /** 閾値変更ハンドラ（新システム: conditionConfig 経由） */
+  const handleConditionThresholdChange = useCallback(
+    (
+      metricId: ConditionMetricId,
+      level: 'blue' | 'yellow' | 'red',
+      raw: string,
+      storeId: string,
+    ) => {
+      const def = CONDITION_METRIC_MAP.get(metricId)
+      if (!def) return
       const v = parseFloat(raw)
-      if (!isNaN(v)) {
-        updateSettings({ [key]: v / divisor })
+      if (isNaN(v)) return
+      const internalValue = v / def.displayMultiplier
+
+      const prev = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+
+      if (storeId === '__global__') {
+        const prevMetric = prev.global[metricId] ?? {}
+        const newConfig: ConditionSummaryConfig = {
+          ...prev,
+          global: {
+            ...prev.global,
+            [metricId]: {
+              ...prevMetric,
+              thresholds: { ...prevMetric.thresholds, [level]: internalValue },
+            },
+          },
+        }
+        updateSettings({ conditionConfig: newConfig })
+      } else {
+        const prevStore = prev.storeOverrides[storeId] ?? {}
+        const prevMetric = prevStore[metricId] ?? {}
+        const newConfig: ConditionSummaryConfig = {
+          ...prev,
+          storeOverrides: {
+            ...prev.storeOverrides,
+            [storeId]: {
+              ...prevStore,
+              [metricId]: {
+                ...prevMetric,
+                thresholds: { ...prevMetric.thresholds, [level]: internalValue },
+              },
+            },
+          },
+        }
+        updateSettings({ conditionConfig: newConfig })
       }
     },
-    [updateSettings],
+    [settings.conditionConfig, updateSettings],
   )
 
-  /** 比率（0-1）→ 百分率表示値（<input> の value 用） */
-  const toDisplayPct = (ratio: number, decimals: number) => {
-    const scaled = ratio * 100
-    return scaled.toFixed(decimals)
-  }
+  /** メトリクス有効/無効トグル */
+  const handleMetricToggle = useCallback(
+    (metricId: ConditionMetricId, enabled: boolean, storeId: string) => {
+      const prev = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+
+      if (storeId === '__global__') {
+        const prevMetric = prev.global[metricId] ?? {}
+        const newConfig: ConditionSummaryConfig = {
+          ...prev,
+          global: {
+            ...prev.global,
+            [metricId]: { ...prevMetric, enabled },
+          },
+        }
+        updateSettings({ conditionConfig: newConfig })
+      } else {
+        const prevStore = prev.storeOverrides[storeId] ?? {}
+        const prevMetric = prevStore[metricId] ?? {}
+        const newConfig: ConditionSummaryConfig = {
+          ...prev,
+          storeOverrides: {
+            ...prev.storeOverrides,
+            [storeId]: {
+              ...prevStore,
+              [metricId]: { ...prevMetric, enabled },
+            },
+          },
+        }
+        updateSettings({ conditionConfig: newConfig })
+      }
+    },
+    [settings.conditionConfig, updateSettings],
+  )
+
+  /** 設定パネルで表示する閾値（store override > global > registry default） */
+  const getDisplayThreshold = useCallback(
+    (metricId: ConditionMetricId, level: 'blue' | 'yellow' | 'red'): string => {
+      const def = CONDITION_METRIC_MAP.get(metricId)
+      if (!def) return '0'
+      const cfg = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+      const storeVal =
+        settingsStoreId !== '__global__'
+          ? cfg.storeOverrides[settingsStoreId]?.[metricId]?.thresholds?.[level]
+          : undefined
+      const globalVal = cfg.global[metricId]?.thresholds?.[level]
+      const val = storeVal ?? globalVal ?? def.defaults[level]
+      return (val * def.displayMultiplier).toFixed(def.inputStep < 1 ? 2 : 0)
+    },
+    [settings.conditionConfig, settingsStoreId],
+  )
+
+  /** メトリクスの有効状態を取得 */
+  const getMetricEnabled = useCallback(
+    (metricId: ConditionMetricId): boolean => {
+      const cfg = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+      if (settingsStoreId !== '__global__') {
+        const storeVal = cfg.storeOverrides[settingsStoreId]?.[metricId]?.enabled
+        if (storeVal != null) return storeVal
+      }
+      return cfg.global[metricId]?.enabled ?? true
+    },
+    [settings.conditionConfig, settingsStoreId],
+  )
+
+  /** 店舗オーバーライドか表示（値が global と異なる場合） */
+  const isStoreOverride = useCallback(
+    (metricId: ConditionMetricId, level: 'blue' | 'yellow' | 'red'): boolean => {
+      if (settingsStoreId === '__global__') return false
+      const cfg = settings.conditionConfig ?? { global: {}, storeOverrides: {} }
+      return cfg.storeOverrides[settingsStoreId]?.[metricId]?.thresholds?.[level] != null
+    },
+    [settings.conditionConfig, settingsStoreId],
+  )
 
   return (
     <Wrapper aria-label="コンディションサマリー">
@@ -1226,79 +1482,72 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
       {showSettings && (
         <SettingsPanel>
-          <SettingsSectionTitle>粗利率シグナル閾値（予算差 pt）</SettingsSectionTitle>
-          <SettingsGrid>
-            <SettingsField>
-              <SettingsLabel>🔵 青≧</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.01"
-                value={toDisplayPct(settings.gpDiffBlueThreshold, 2)}
-                onChange={(e) => handleThresholdChange('gpDiffBlueThreshold', e.target.value, 100)}
-              />
-              <SettingsUnit>pt</SettingsUnit>
-            </SettingsField>
-            <SettingsField>
-              <SettingsLabel>🟡 黄≧</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.01"
-                value={toDisplayPct(settings.gpDiffYellowThreshold, 2)}
-                onChange={(e) =>
-                  handleThresholdChange('gpDiffYellowThreshold', e.target.value, 100)
-                }
-              />
-              <SettingsUnit>pt</SettingsUnit>
-            </SettingsField>
-            <SettingsField>
-              <SettingsLabel>🔴 赤≧</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.01"
-                value={toDisplayPct(settings.gpDiffRedThreshold, 2)}
-                onChange={(e) => handleThresholdChange('gpDiffRedThreshold', e.target.value, 100)}
-              />
-              <SettingsUnit>pt</SettingsUnit>
-            </SettingsField>
-          </SettingsGrid>
+          {/* 店舗セレクター */}
+          <SettingsSectionTitle>対象店舗</SettingsSectionTitle>
+          <StoreSelect value={settingsStoreId} onChange={(e) => setSettingsStoreId(e.target.value)}>
+            <option value="__global__">全店共通（デフォルト）</option>
+            {storeEntries.map(([id, store]) => (
+              <option key={id} value={id}>
+                {store.name ?? id}
+                {settings.conditionConfig?.storeOverrides[id] &&
+                Object.keys(settings.conditionConfig.storeOverrides[id]!).length > 0
+                  ? ' *'
+                  : ''}
+              </option>
+            ))}
+          </StoreSelect>
 
-          <SettingsSectionTitle>売変率シグナル閾値</SettingsSectionTitle>
-          <SettingsGrid>
-            <SettingsField>
-              <SettingsLabel>🔵 青≦</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.1"
-                value={toDisplayPct(settings.discountBlueThreshold, 1)}
-                onChange={(e) =>
-                  handleThresholdChange('discountBlueThreshold', e.target.value, 100)
-                }
-              />
-              <SettingsUnit>%</SettingsUnit>
-            </SettingsField>
-            <SettingsField>
-              <SettingsLabel>🟡 黄≦</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.1"
-                value={toDisplayPct(settings.discountYellowThreshold, 1)}
-                onChange={(e) =>
-                  handleThresholdChange('discountYellowThreshold', e.target.value, 100)
-                }
-              />
-              <SettingsUnit>%</SettingsUnit>
-            </SettingsField>
-            <SettingsField>
-              <SettingsLabel>🔴 赤≦</SettingsLabel>
-              <SettingsInput
-                type="number"
-                step="0.1"
-                value={toDisplayPct(settings.discountRedThreshold, 1)}
-                onChange={(e) => handleThresholdChange('discountRedThreshold', e.target.value, 100)}
-              />
-              <SettingsUnit>%</SettingsUnit>
-            </SettingsField>
-          </SettingsGrid>
+          {settingsStoreId !== '__global__' && (
+            <StoreOverrideNote>未設定の項目は全店共通の値が適用されます</StoreOverrideNote>
+          )}
+
+          {/* メトリクスごとの閾値設定 */}
+          {CONDITION_METRIC_DEFS.map((def) => {
+            const enabled = getMetricEnabled(def.id)
+            const dirLabel = def.direction === 'higher_better' ? '≧' : '≦'
+            return (
+              <MetricSettingRow key={def.id}>
+                <MetricSettingHeader>
+                  <MetricToggle
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => handleMetricToggle(def.id, e.target.checked, settingsStoreId)}
+                  />
+                  <SettingsSectionTitle style={{ margin: 0 }}>{def.label}</SettingsSectionTitle>
+                </MetricSettingHeader>
+                {enabled && (
+                  <SettingsGrid>
+                    {(['blue', 'yellow', 'red'] as const).map((level) => {
+                      const emoji = level === 'blue' ? '🔵' : level === 'yellow' ? '🟡' : '🔴'
+                      const hasOverride = isStoreOverride(def.id, level)
+                      return (
+                        <SettingsField key={level}>
+                          <SettingsLabel>
+                            {emoji} {dirLabel}
+                          </SettingsLabel>
+                          <SettingsInput
+                            type="number"
+                            step={def.inputStep}
+                            value={getDisplayThreshold(def.id, level)}
+                            onChange={(e) =>
+                              handleConditionThresholdChange(
+                                def.id,
+                                level,
+                                e.target.value,
+                                settingsStoreId,
+                              )
+                            }
+                            style={hasOverride ? { borderColor: palette.primary } : undefined}
+                          />
+                          <SettingsUnit>{def.inputUnit}</SettingsUnit>
+                        </SettingsField>
+                      )
+                    })}
+                  </SettingsGrid>
+                )}
+              </MetricSettingRow>
+            )
+          })}
         </SettingsPanel>
       )}
 
