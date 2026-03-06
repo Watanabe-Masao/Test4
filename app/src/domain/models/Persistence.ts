@@ -43,6 +43,8 @@ export interface DiffResult {
 /** インポート履歴のファイルエントリ */
 export interface ImportHistoryFile {
   readonly filename: string
+  /** フォルダ選択時の相対パス（監査・重複判定用） */
+  readonly relativePath?: string
   readonly type: string | null
   readonly typeName: string | null
   readonly rowCount?: number

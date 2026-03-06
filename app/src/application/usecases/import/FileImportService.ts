@@ -20,6 +20,8 @@ export { createEmptyMonthPartitions } from '@/infrastructure/ImportService'
 export interface FileImportResult {
   readonly ok: boolean
   readonly filename: string
+  /** フォルダ選択時の相対パス（webkitRelativePath）。監査・重複判定に使用 */
+  readonly relativePath?: string
   readonly type: DataType | null
   readonly typeName: string | null
   readonly error?: string
