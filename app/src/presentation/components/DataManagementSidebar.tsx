@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -28,350 +27,24 @@ import {
   ImportProgressSteps,
   ImportSummaryCard,
   MonthSelector,
+  DiffConfirmModal,
 } from '@/presentation/components/common'
-import type { ImportStage } from '@/presentation/components/common'
+import type { ImportStage, DiffConfirmResult } from '@/presentation/components/common'
 import type { ImportSummary } from '@/application/usecases/import'
-import { DiffConfirmModal } from '@/presentation/components/common/DiffConfirmModal'
-import type { DiffConfirmResult } from '@/presentation/components/common/DiffConfirmModal'
 import type { DataType } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDataSummary } from '@/application/hooks/useDataSummary'
-
-const UploadGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const SidebarSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[4]};
-`
-
-const SectionLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text4};
-  text-transform: uppercase;
-`
-
-const SidebarActions = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const InventoryInputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const InventoryRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const InventoryLabel = styled.label`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  white-space: nowrap;
-  min-width: 48px;
-`
-
-const InventoryInput = styled.input`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-  }
-`
-
-const StoreInventoryBlock = styled.div`
-  padding: ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-`
-
-const StoreInventoryTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-`
-
-const InventoryDateBadge = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text4};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
-  margin-left: ${({ theme }) => theme.spacing[2]};
-`
-
-const InventoryAutoValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  cursor: default;
-`
-
-const InventoryDayRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  margin-top: ${({ theme }) => theme.spacing[1]};
-`
-
-const InventoryDayInput = styled.input`
-  width: 56px;
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  text-align: center;
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-  }
-`
-
-// detectDataMaxDay は @/domain/calculations/utils から import
-
-// ─── DataEndDay スライダー styled ──────────────────────
-const SliderSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const SliderHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const SliderLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-  white-space: nowrap;
-`
-
-const SliderTrackWrap = styled.div`
-  position: relative;
-  height: 24px;
-  display: flex;
-  align-items: center;
-`
-
-const SliderTrack = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: 2px;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
-`
-
-const SliderActive = styled.div<{ $width: number }>`
-  position: absolute;
-  left: 0;
-  width: ${({ $width }) => $width}%;
-  height: 4px;
-  border-radius: 2px;
-  background: ${({ theme }) => theme.colors.palette.primary};
-  opacity: 0.6;
-`
-
-const SliderInput = styled.input`
-  position: absolute;
-  width: 100%;
-  height: 24px;
-  appearance: none;
-  background: transparent;
-  margin: 0;
-
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: ${({ theme }) => theme.colors.palette.primary};
-    border: 2px solid ${({ theme }) => theme.colors.bg3};
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-
-  &::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: ${({ theme }) => theme.colors.palette.primary};
-    border: 2px solid ${({ theme }) => theme.colors.bg3};
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-`
-
-const SliderResetBtn = styled.button`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ theme }) => theme.colors.text4};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  &:hover {
-    color: ${({ theme }) => theme.colors.text3};
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'};
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
-const DetectedDayHint = styled.span`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-
-const SliderNumRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 2px;
-`
-
-const SliderNumInput = styled.input`
-  width: 42px;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text2};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  padding: 2px 4px;
-  text-align: center;
-  appearance: textfield;
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-  }
-`
-
-const SliderNumUnit = styled.span`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-
-// ─── プライバシーインジケーター ──────────────────────
-const PrivacyInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-
-const PrivacyDot = styled.span`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.colors.palette.success};
-  flex-shrink: 0;
-`
-
-/**
- * blur 時にのみ値を確定する数値入力コンポーネント。
- * onChange の度に再計算が走る問題を防ぐ。
- */
-function BlurCommitInput({
-  value,
-  onCommit,
-  placeholder,
-  step,
-  min,
-  max,
-  as: Component = InventoryInput,
-}: {
-  value: number | null | undefined
-  onCommit: (value: number | null) => void
-  placeholder?: string
-  step?: string
-  min?: number
-  max?: number
-  as?: React.ComponentType<React.ComponentPropsWithRef<'input'>>
-}) {
-  const [local, setLocal] = useState(value ?? '')
-  const [prevValue, setPrevValue] = useState(value)
-
-  // 外部（ストア）からの値変更を同期（React 推奨パターン: render 中の状態リセット）
-  if (prevValue !== value) {
-    setPrevValue(value)
-    setLocal(value ?? '')
-  }
-
-  const commit = useCallback(() => {
-    const str = String(local).trim()
-    let parsed: number | null = str === '' ? null : Number(str)
-    if (parsed != null && isNaN(parsed)) parsed = null
-    if (parsed != null && min != null) parsed = Math.max(min, parsed)
-    if (parsed != null && max != null) parsed = Math.min(max, parsed)
-    onCommit(parsed)
-    // clamp 後の値で表示を更新
-    setLocal(parsed ?? '')
-    setPrevValue(parsed)
-  }, [local, onCommit, min, max])
-
-  return (
-    <Component
-      type="number"
-      step={step}
-      min={min}
-      max={max}
-      placeholder={placeholder}
-      value={local}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocal(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-          e.currentTarget.blur()
-        }
-      }}
-    />
-  )
-}
+import {
+  UploadGrid,
+  SidebarSection,
+  SectionLabel,
+  SidebarActions,
+  PrivacyInfoBox,
+  PrivacyDot,
+} from '@/presentation/components/DataManagementSidebar.styles'
+import { DataEndDaySlider } from '@/presentation/components/DataEndDaySlider'
+import { InventorySettingsSection } from '@/presentation/components/InventorySettingsSection'
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
   { type: 'budget', label: '0_売上予算' },
@@ -523,32 +196,6 @@ export function DataManagementSidebar({
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
   const hasNonBudgetData = detectedMaxDay > 0
-  const currentEndDay =
-    settings.dataEndDay != null ? Math.min(settings.dataEndDay, daysInMonth) : daysInMonth
-
-  // スライダー操作時にローカル状態で即座にUIを更新し、
-  // 実際の設定更新はデバウンスして高速操作時の計算連発を防止
-  const [localEndDay, setLocalEndDay] = useState(currentEndDay)
-  const sliderTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  useEffect(() => {
-    setLocalEndDay(currentEndDay)
-  }, [currentEndDay])
-  const debouncedUpdateEndDay = useCallback(
-    (v: number) => {
-      setLocalEndDay(v)
-      clearTimeout(sliderTimerRef.current)
-      sliderTimerRef.current = setTimeout(() => {
-        updateSettings({ dataEndDay: v === daysInMonth ? null : v })
-      }, 150)
-    },
-    [updateSettings, daysInMonth],
-  )
-  // クリーンアップ
-  useEffect(() => () => clearTimeout(sliderTimerRef.current), [])
-
-  const sliderPct = ((localEndDay - 1) / (daysInMonth - 1)) * 100
-
-  // loadedTypes, maxDayByType は useDataSummary から取得済み
 
   return (
     <>
@@ -591,56 +238,12 @@ export function DataManagementSidebar({
         </SidebarSection>
 
         {hasNonBudgetData && (
-          <SidebarSection>
-            <SectionLabel>取込データ有効期間</SectionLabel>
-            <SliderSection>
-              <SliderHeader>
-                <SliderLabel>
-                  {localEndDay}日 / {daysInMonth}日
-                </SliderLabel>
-                {detectedMaxDay > 0 && <DetectedDayHint>検出: {detectedMaxDay}日</DetectedDayHint>}
-                {localEndDay !== detectedMaxDay && detectedMaxDay > 0 && (
-                  <SliderResetBtn
-                    onClick={() => {
-                      clearTimeout(sliderTimerRef.current)
-                      updateSettings({
-                        dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay,
-                      })
-                    }}
-                  >
-                    リセット
-                  </SliderResetBtn>
-                )}
-              </SliderHeader>
-              <SliderTrackWrap>
-                <SliderTrack />
-                <SliderActive $width={sliderPct} />
-                <SliderInput
-                  type="range"
-                  min={1}
-                  max={daysInMonth}
-                  value={localEndDay}
-                  onChange={(e) => debouncedUpdateEndDay(Number(e.target.value))}
-                />
-              </SliderTrackWrap>
-              <SliderNumRow>
-                <SliderNumUnit>有効末日:</SliderNumUnit>
-                <SliderNumInput
-                  type="number"
-                  min={1}
-                  max={daysInMonth}
-                  value={localEndDay}
-                  onChange={(e) => {
-                    const v = Number(e.target.value)
-                    if (!isNaN(v) && v >= 1 && v <= daysInMonth) {
-                      debouncedUpdateEndDay(v)
-                    }
-                  }}
-                />
-                <SliderNumUnit>日</SliderNumUnit>
-              </SliderNumRow>
-            </SliderSection>
-          </SidebarSection>
+          <DataEndDaySlider
+            daysInMonth={daysInMonth}
+            detectedMaxDay={detectedMaxDay}
+            settings={settings}
+            updateSettings={updateSettings}
+          />
         )}
 
         {stores.size > 0 && (
@@ -664,126 +267,11 @@ export function DataManagementSidebar({
         )}
 
         {stores.size > 0 && (
-          <SidebarSection>
-            <SectionLabel>
-              在庫設定
-              {(() => {
-                const firstCfg = data.settings.values().next().value
-                return firstCfg?.inventoryDate ? (
-                  <InventoryDateBadge>{firstCfg.inventoryDate} 時点</InventoryDateBadge>
-                ) : null
-              })()}
-            </SectionLabel>
-            <InventoryInputGroup>
-              {Array.from(stores.values()).map((s) => {
-                const cfg = data.settings.get(s.id)
-                const autoClosing =
-                  cfg?.productInventory != null || cfg?.costInclusionInventory != null
-                    ? (cfg.productInventory ?? 0) + (cfg.costInclusionInventory ?? 0)
-                    : null
-                const daysInMo = getDaysInMonth(settings.targetYear, settings.targetMonth)
-                return (
-                  <StoreInventoryBlock key={s.id}>
-                    <StoreInventoryTitle>{s.name}</StoreInventoryTitle>
-                    <InventoryRow>
-                      <InventoryLabel>機首在庫</InventoryLabel>
-                      <BlurCommitInput
-                        value={cfg?.openingInventory}
-                        placeholder="機首在庫"
-                        onCommit={(val) => {
-                          useDataStore.getState().updateInventory(s.id, { openingInventory: val })
-                          calculationCache.clear()
-                          useUiStore.getState().invalidateCalculation()
-                        }}
-                      />
-                    </InventoryRow>
-                    <InventoryRow>
-                      <InventoryLabel>商品在庫</InventoryLabel>
-                      <BlurCommitInput
-                        value={cfg?.productInventory}
-                        placeholder="商品在庫"
-                        onCommit={(val) => {
-                          useDataStore.getState().updateInventory(s.id, { productInventory: val })
-                          calculationCache.clear()
-                          useUiStore.getState().invalidateCalculation()
-                        }}
-                      />
-                    </InventoryRow>
-                    <InventoryRow>
-                      <InventoryLabel>原価算入費</InventoryLabel>
-                      <BlurCommitInput
-                        value={cfg?.costInclusionInventory}
-                        placeholder="原価算入費在庫"
-                        onCommit={(val) => {
-                          useDataStore
-                            .getState()
-                            .updateInventory(s.id, { costInclusionInventory: val })
-                          calculationCache.clear()
-                          useUiStore.getState().invalidateCalculation()
-                        }}
-                      />
-                    </InventoryRow>
-                    <InventoryRow>
-                      <InventoryLabel>期末在庫</InventoryLabel>
-                      <InventoryAutoValue>
-                        {autoClosing != null
-                          ? autoClosing.toLocaleString()
-                          : (cfg?.closingInventory?.toLocaleString() ?? '—')}
-                      </InventoryAutoValue>
-                    </InventoryRow>
-                    <InventoryDayRow>
-                      <InventoryLabel>期末日</InventoryLabel>
-                      <BlurCommitInput
-                        as={InventoryDayInput}
-                        value={cfg?.closingInventoryDay}
-                        placeholder="末日"
-                        min={1}
-                        max={daysInMo}
-                        onCommit={(val) => {
-                          useDataStore
-                            .getState()
-                            .updateInventory(s.id, { closingInventoryDay: val })
-                          calculationCache.clear()
-                          useUiStore.getState().invalidateCalculation()
-                        }}
-                      />
-                      <InventoryLabel style={{ minWidth: 'auto' }}>日</InventoryLabel>
-                    </InventoryDayRow>
-                    <InventoryRow>
-                      <InventoryLabel>花掛率%</InventoryLabel>
-                      <BlurCommitInput
-                        value={cfg?.flowerCostRate != null ? cfg.flowerCostRate * 100 : null}
-                        step="any"
-                        placeholder={`${settings.flowerCostRate * 100}`}
-                        onCommit={(val) => {
-                          const rate = val != null ? val / 100 : undefined
-                          useDataStore.getState().updateInventory(s.id, { flowerCostRate: rate })
-                        }}
-                      />
-                    </InventoryRow>
-                    <InventoryRow>
-                      <InventoryLabel>産直掛率%</InventoryLabel>
-                      <BlurCommitInput
-                        value={
-                          cfg?.directProduceCostRate != null
-                            ? cfg.directProduceCostRate * 100
-                            : null
-                        }
-                        step="any"
-                        placeholder={`${settings.directProduceCostRate * 100}`}
-                        onCommit={(val) => {
-                          const rate = val != null ? val / 100 : undefined
-                          useDataStore
-                            .getState()
-                            .updateInventory(s.id, { directProduceCostRate: rate })
-                        }}
-                      />
-                    </InventoryRow>
-                  </StoreInventoryBlock>
-                )
-              })}
-            </InventoryInputGroup>
-          </SidebarSection>
+          <InventorySettingsSection
+            stores={stores}
+            settings={settings}
+            settingsMap={data.settings}
+          />
         )}
 
         <SidebarSection>

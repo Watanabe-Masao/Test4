@@ -380,7 +380,10 @@ export const ProgressBarOuter = styled.div`
   overflow: hidden;
 `
 
-export const ProgressBarInner = styled.div<{ $ratio: number; $level: 'normal' | 'warning' | 'critical' }>`
+export const ProgressBarInner = styled.div<{
+  $ratio: number
+  $level: 'normal' | 'warning' | 'critical'
+}>`
   height: 100%;
   width: ${({ $ratio }) => `${Math.min($ratio * 100, 100)}%`};
   background: ${({ $level, theme }) =>

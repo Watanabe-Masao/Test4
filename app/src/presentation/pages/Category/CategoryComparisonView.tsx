@@ -85,17 +85,13 @@ export function CategoryComparisonView({
                   {selectedResults.map((sr) => {
                     const pair = sr.categoryTotals.get(cat)
                     return (
-                      <Td key={`${sr.storeId}-cost`}>
-                        {pair ? formatCurrency(pair.cost) : '-'}
-                      </Td>
+                      <Td key={`${sr.storeId}-cost`}>{pair ? formatCurrency(pair.cost) : '-'}</Td>
                     )
                   })}
                   {selectedResults.map((sr) => {
                     const pair = sr.categoryTotals.get(cat)
                     return (
-                      <Td key={`${sr.storeId}-price`}>
-                        {pair ? formatCurrency(pair.price) : '-'}
-                      </Td>
+                      <Td key={`${sr.storeId}-price`}>{pair ? formatCurrency(pair.price) : '-'}</Td>
                     )
                   })}
                   {selectedResults.map((sr) => {
@@ -167,9 +163,7 @@ export function CategoryComparisonView({
                     {selectedResults.map((sr) => {
                       const st = sr.supplierTotals.get(code)
                       return (
-                        <Td key={`${sr.storeId}-price`}>
-                          {st ? formatCurrency(st.price) : '-'}
-                        </Td>
+                        <Td key={`${sr.storeId}-price`}>{st ? formatCurrency(st.price) : '-'}</Td>
                       )
                     })}
                     {selectedResults.map((sr) => {

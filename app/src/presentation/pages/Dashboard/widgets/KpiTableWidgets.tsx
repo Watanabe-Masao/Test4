@@ -3,8 +3,7 @@
  *
  * TableWidgets.tsx から分割。
  */
-import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
-import styled from 'styled-components'
+import { useState, useCallback, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -18,51 +17,19 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import type { WidgetContext } from './types'
+import { STableWrapper, STableTitle, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import {
-  STableWrapper,
-  STableTitle,
-  STable,
-  STh,
-  STd,
-  ScrollWrapper,
-} from '../DashboardPage.styles'
-
-/* ── 部門別KPI styled components ────────────────────── */
-
-const KpiGroupTh = styled(STh)`
-  text-align: center;
-  font-size: 0.6rem;
-  white-space: nowrap;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const KpiSubTh = styled(STh)`
-  text-align: center;
-  font-size: 0.55rem;
-  white-space: nowrap;
-`
-
-const BudgetTh = styled(KpiSubTh)`
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(234,179,8,0.15)' : 'rgba(234,179,8,0.12)'};
-`
-
-const BudgetTd = styled(STd)`
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(234,179,8,0.08)' : 'rgba(234,179,8,0.06)'};
-`
-
-function fmtPct(v: number): string {
-  // 既に小数 (0.2220) なら %表示, 1超えなら既にパーセント値
-  const pct = Math.abs(v) <= 1 ? v * 100 : v
-  return `${pct.toFixed(2)}%`
-}
-
-function fmtPtDiff(v: number): string {
-  // ポイント差異（例: 0.31 → +0.31pt）
-  const sign = v > 0 ? '+' : ''
-  return `${sign}${v.toFixed(2)}`
-}
+  KpiGroupTh,
+  KpiSubTh,
+  BudgetTh,
+  BudgetTd,
+  KpiWarningBar,
+  KpiTooltip,
+  TipLabel,
+  TipVal,
+} from './KpiTableWidgets.styles'
+import { EditableNumberCell } from './EditableNumberCell'
+import { fmtPct, fmtPtDiff } from './kpiTableUtils'
 
 function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
   const varColor = sc.cond(rec.gpRateVariance >= 0)
@@ -90,184 +57,6 @@ function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
       <BudgetTd>{fmtPct(rec.gpRateLanding)}</BudgetTd>
       <STd>{rec.salesLanding ? formatCurrency(rec.salesLanding) : '-'}</STd>
     </tr>
-  )
-}
-
-/* ── Warning banner for data completeness ────────────── */
-
-const KpiWarningBar = styled.div<{ $clickable?: boolean }>`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.palette.warning};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(234,179,8,0.12)' : 'rgba(234,179,8,0.08)'};
-  border: 1px solid
-    ${({ theme }) => (theme.mode === 'dark' ? 'rgba(234,179,8,0.3)' : 'rgba(234,179,8,0.25)')};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  padding: 4px 8px;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  ${({ $clickable }) =>
-    $clickable &&
-    `
-    cursor: pointer;
-    transition: background 0.15s;
-    &:hover {
-      background: rgba(234,179,8,0.18);
-      border-color: rgba(234,179,8,0.5);
-    }
-  `}
-`
-
-/* ── Editable cell styled components ────────────────── */
-
-const EditableCell = styled(STd)`
-  padding: 0;
-  position: relative;
-`
-const CellInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: 0.6rem;
-  text-align: right;
-  padding: 4px 8px;
-  color: ${({ theme }) => theme.colors.text};
-  outline: none;
-  box-sizing: border-box;
-  &:focus {
-    background: ${({ theme }) =>
-      theme.mode === 'dark' ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)'};
-    box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.colors.palette.primary};
-  }
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.text4};
-    font-size: 0.55rem;
-  }
-  /* hide spin buttons */
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  -moz-appearance: textfield;
-`
-const EditHint = styled.span`
-  position: absolute;
-  top: 1px;
-  right: 2px;
-  font-size: 0.4rem;
-  color: ${({ theme }) => theme.colors.palette.primary};
-  opacity: 0.5;
-  pointer-events: none;
-`
-const KpiTooltip = styled.div`
-  position: absolute;
-  z-index: 100;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.6rem;
-  line-height: 1.6;
-  white-space: nowrap;
-  background: ${({ theme }) => (theme.mode === 'dark' ? '#1e1e2e' : theme.colors.palette.white)};
-  color: ${({ theme }) => theme.colors.text};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  bottom: calc(100% + 4px);
-  right: 0;
-`
-const TipLabel = styled.span`
-  color: ${({ theme }) => theme.colors.text4};
-  margin-right: 6px;
-`
-const TipVal = styled.span<{ $color?: string }>`
-  font-weight: 600;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $color }) => $color ?? 'inherit'};
-`
-
-/* Editable number cell */
-function EditableNumberCell({
-  value,
-  placeholder,
-  onChange,
-  format = 'currency',
-  tooltip,
-  style,
-}: {
-  value: number | null
-  placeholder?: string
-  onChange: (v: number | null) => void
-  format?: 'currency' | 'percent'
-  tooltip?: ReactNode
-  style?: React.CSSProperties
-}) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState('')
-  const [hovered, setHovered] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const startEdit = useCallback(() => {
-    setEditing(true)
-    setDraft(value != null ? String(value) : '')
-  }, [value])
-
-  const commit = useCallback(() => {
-    setEditing(false)
-    if (draft === '') {
-      onChange(null)
-      return
-    }
-    const n = Number(draft)
-    if (!isNaN(n)) onChange(n)
-  }, [draft, onChange])
-
-  useEffect(() => {
-    if (editing && inputRef.current) inputRef.current.focus()
-  }, [editing])
-
-  const displayVal =
-    value != null ? (format === 'percent' ? fmtPct(value) : formatCurrency(value)) : '-'
-
-  return (
-    <EditableCell
-      style={style}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {editing ? (
-        <CellInput
-          ref={inputRef}
-          type="number"
-          value={draft}
-          placeholder={placeholder}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') commit()
-            if (e.key === 'Escape') setEditing(false)
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            padding: '4px 8px',
-            textAlign: 'right',
-            cursor: 'pointer',
-            minHeight: '1.2em',
-            fontFamily: 'var(--font-mono, monospace)',
-          }}
-          onClick={startEdit}
-          title="クリックで編集"
-        >
-          {displayVal}
-          <EditHint>✎</EditHint>
-        </div>
-      )}
-      {hovered && !editing && tooltip && <KpiTooltip>{tooltip}</KpiTooltip>}
-    </EditableCell>
   )
 }
 

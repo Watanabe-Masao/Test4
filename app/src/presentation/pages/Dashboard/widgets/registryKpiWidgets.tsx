@@ -1,0 +1,290 @@
+import { sc } from '@/presentation/theme/semanticColors'
+import { palette } from '@/presentation/theme/tokens'
+import { KpiCard } from '@/presentation/components/common'
+import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import type { WidgetDef } from './types'
+
+// ── KPI: 収益概況 ──
+export const WIDGETS_KPI: readonly WidgetDef[] = [
+  {
+    id: 'kpi-core-sales',
+    label: 'コア売上',
+    group: '収益概況',
+    size: 'kpi',
+    linkTo: { view: 'reports' },
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="コア売上"
+        value={formatCurrency(r.totalCoreSales)}
+        subText={`花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
+        accent={palette.purpleDark}
+        onClick={() => onExplain('coreSales')}
+      />
+    ),
+  },
+  {
+    id: 'kpi-inv-gross-profit',
+    label: '【在庫法】粗利益',
+    group: '収益概況',
+    size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
+    render: ({ result: r, onExplain }) => {
+      if (r.invMethodGrossProfitRate == null) {
+        return (
+          <KpiCard
+            label="【在庫法】実績粗利益"
+            value="-"
+            subText="在庫設定なし"
+            accent={sc.positive}
+            badge="actual"
+          />
+        )
+      }
+      const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
+      return (
+        <KpiCard
+          label="【在庫法】実績粗利益"
+          value={formatCurrency(r.invMethodGrossProfit)}
+          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          accent={sc.positive}
+          badge="actual"
+          formulaSummary="売上 − 売上原価（期首+仕入−期末）"
+          onClick={() => onExplain('invMethodGrossProfit')}
+        />
+      )
+    },
+  },
+  {
+    id: 'kpi-est-margin',
+    label: '【推定法】推定マージン',
+    group: '収益概況',
+    size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
+    render: ({ result: r, onExplain }) => {
+      const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
+      return (
+        <KpiCard
+          label="【推定法】推定マージン"
+          value={formatCurrency(r.estMethodMargin)}
+          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          accent={palette.warningDark}
+          badge="estimated"
+          formulaSummary="コア売上 − 推定原価（理論値）"
+          onClick={() => onExplain('estMethodMargin')}
+        />
+      )
+    },
+  },
+  // 注: kpi-gross-profit-budget → ExecSummaryBar 粗利率カードに統合
+  // ── KPI: 収益概況（仕入・売変） ──
+  {
+    id: 'kpi-inventory-cost',
+    label: '在庫仕入原価',
+    group: '収益概況',
+    size: 'kpi',
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="在庫仕入原価"
+        value={formatCurrency(r.inventoryCost)}
+        accent={palette.orangeDark}
+        onClick={() => onExplain('inventoryCost')}
+      />
+    ),
+  },
+  {
+    id: 'kpi-delivery-sales',
+    label: '売上納品原価',
+    group: '収益概況',
+    size: 'kpi',
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="売上納品原価"
+        value={formatCurrency(r.deliverySalesCost)}
+        subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
+        accent={palette.pinkDark}
+        onClick={() => onExplain('deliverySalesCost')}
+      />
+    ),
+  },
+  {
+    id: 'kpi-cost-inclusion',
+    label: '原価算入費',
+    group: '収益概況',
+    size: 'kpi',
+    linkTo: { view: 'cost-detail' },
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="原価算入費"
+        value={formatCurrency(r.totalCostInclusion)}
+        subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
+        accent={palette.orange}
+        onClick={() => onExplain('totalCostInclusion')}
+      />
+    ),
+  },
+  {
+    id: 'kpi-discount-loss',
+    label: '売変ロス原価',
+    group: '収益概況',
+    size: 'kpi',
+    linkTo: { view: 'insight', tab: 'grossProfit' },
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="売変ロス原価"
+        value={formatCurrency(r.discountLossCost)}
+        accent={palette.dangerDeep}
+        onClick={() => onExplain('discountLossCost')}
+      />
+    ),
+  },
+  {
+    id: 'kpi-core-markup',
+    label: 'コア値入率',
+    group: '収益概況',
+    size: 'kpi',
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="コア値入率"
+        value={formatPercent(r.coreMarkupRate)}
+        accent={palette.cyanDark}
+        onClick={() => onExplain('coreMarkupRate')}
+      />
+    ),
+  },
+  // 注: kpi-avg-daily-sales, kpi-projected-sales, kpi-projected-achievement → PLAN/ACTUAL/FORECASTに統合
+  // 注: kpi-customers, kpi-transaction-value → ExecSummaryBar 客数・客単価カードに統合
+  // ── KPI: 前年比較（月間フル集計、dataEndDay非依存） ──
+  {
+    id: 'kpi-py-same-dow',
+    label: '前年同曜日 vs 予算',
+    group: '前年比較',
+    size: 'kpi',
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
+      if (!pk.hasPrevYear) {
+        return (
+          <KpiCard
+            label="前年同曜日 vs 予算"
+            value="-"
+            subText="前年データ未読込"
+            accent={palette.blueDark}
+          />
+        )
+      }
+      const py = pk.sameDow
+      const hasBudget = r.budget > 0
+      const budgetVsPrev = hasBudget ? safeDivide(r.budget, py.sales, 0) : null
+      const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const prevCustUnit = safeDivide(py.sales, py.customers, 0)
+      const sub = [
+        `前年: ${formatCurrency(py.sales)}`,
+        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        hasBudget
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          : null,
+        py.customers > 0
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' / ')
+      return (
+        <KpiCard
+          label="前年同曜日 vs 予算"
+          value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
+          subText={sub}
+          accent={palette.blueDark}
+          onClick={() => onExplain('prevYearSameDowBudgetRatio')}
+          trend={
+            prevVsBudget != null
+              ? {
+                  direction: prevVsBudget >= 1 ? 'up' : 'down',
+                  label: `前年比 ${formatPercent(prevVsBudget)}`,
+                }
+              : undefined
+          }
+          formulaSummary="当年月間予算 ÷ 前年同曜日売上"
+        />
+      )
+    },
+  },
+  {
+    id: 'kpi-py-same-date',
+    label: '前年同日 vs 予算',
+    group: '前年比較',
+    size: 'kpi',
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
+      if (!pk.hasPrevYear) {
+        return (
+          <KpiCard
+            label="前年同日 vs 予算"
+            value="-"
+            subText="前年データ未読込"
+            accent={palette.cyanDark}
+          />
+        )
+      }
+      const py = pk.sameDate
+      const hasBudget = r.budget > 0
+      const budgetVsPrev = hasBudget ? safeDivide(r.budget, py.sales, 0) : null
+      const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
+      const prevCustUnit = safeDivide(py.sales, py.customers, 0)
+      const sub = [
+        `前年: ${formatCurrency(py.sales)}`,
+        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        hasBudget
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          : null,
+        py.customers > 0
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' / ')
+      return (
+        <KpiCard
+          label="前年同日 vs 予算"
+          value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
+          subText={sub}
+          accent={palette.cyanDark}
+          onClick={() => onExplain('prevYearSameDateBudgetRatio')}
+          trend={
+            prevVsBudget != null
+              ? {
+                  direction: prevVsBudget >= 1 ? 'up' : 'down',
+                  label: `前年比 ${formatPercent(prevVsBudget)}`,
+                }
+              : undefined
+          }
+          formulaSummary="当年月間予算 ÷ 前年同日売上"
+        />
+      )
+    },
+  },
+  // ── KPI: 曜日ギャップ ──
+  {
+    id: 'kpi-dow-gap',
+    label: '曜日ギャップ',
+    group: '前年比較',
+    size: 'kpi',
+    isVisible: ({ dowGap }) => dowGap.isValid,
+    render: ({ dowGap, onExplain }) => {
+      const impact = dowGap.estimatedImpact
+      const totalDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
+      const DOW_SHORT = ['日', '月', '火', '水', '木', '金', '土'] as const
+      const gapSummary = dowGap.dowCounts
+        .filter((d) => d.diff !== 0)
+        .map((d) => `${DOW_SHORT[d.dow]}${d.diff > 0 ? '+' : ''}${d.diff}`)
+        .join(' ')
+      return (
+        <KpiCard
+          label="曜日ギャップ"
+          value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+          subText={`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`}
+          accent={impact >= 0 ? palette.positive : palette.negative}
+          onClick={() => onExplain('dowGapImpact')}
+          formulaSummary="合計日数差 × 日平均売上"
+        />
+      )
+    },
+  },
+]

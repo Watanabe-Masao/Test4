@@ -1,9 +1,5 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import {
-  formatPercent,
-  formatCurrency,
-  safeDivide,
-} from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
@@ -148,7 +144,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '粗利率',
       value: formatPercent(gpAfter),
-      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 原価算入率 ${formatPercent(r.costInclusionRate)} / 差異 ${(gpAfter - r.grossProfitRateBudget >= 0 ? '+' : '') + (gpDiff).toFixed(2)}pt`,
+      sub: `予算 ${formatPercent(r.grossProfitRateBudget)} / 原算前 ${formatPercent(gpBefore)} / 原価算入率 ${formatPercent(r.costInclusionRate)} / 差異 ${(gpAfter - r.grossProfitRateBudget >= 0 ? '+' : '') + gpDiff.toFixed(2)}pt`,
       signal: gpSignal(gpDiff),
       metricId:
         r.invMethodGrossProfitRate != null ? 'invMethodGrossProfitRate' : 'estMethodMarginRate',
@@ -420,9 +416,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 onDisplayModeChange={setDisplayMode}
                 settings={settings}
                 expandedMarkupStore={expandedMarkupStore}
-                onExpandToggle={(id) =>
-                  setExpandedMarkupStore((prev) => (prev === id ? null : id))
-                }
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
               />
             ) : (
               <SimpleBreakdown

@@ -118,9 +118,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                 r.invMethodGrossProfit != null ? '売上 − 売上原価' : 'コア売上 − 推定原価'
               }
               onClick={
-                r.invMethodGrossProfit != null
-                  ? () => onExplain('invMethodGrossProfit')
-                  : undefined
+                r.invMethodGrossProfit != null ? () => onExplain('invMethodGrossProfit') : undefined
               }
             />
             <KpiCard
@@ -130,9 +128,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
               accent={palette.pinkDark}
               badge={r.invMethodGrossProfitRate != null ? 'actual' : 'estimated'}
               formulaSummary={
-                r.invMethodGrossProfitRate != null
-                  ? '粗利益 ÷ 総売上'
-                  : '推定マージン ÷ コア売上'
+                r.invMethodGrossProfitRate != null ? '粗利益 ÷ 総売上' : '推定マージン ÷ コア売上'
               }
               onClick={
                 r.invMethodGrossProfitRate != null
@@ -352,20 +348,14 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
               {r.invMethodCogs != null ? d.formatCurrency(r.invMethodCogs) : '-'}
             </CalcHighlight>
           </CalcRow>
-          <CalcRow
-            $clickable
-            onClick={() => onExplain('salesTotal')}
-            style={{ marginTop: 8 }}
-          >
+          <CalcRow $clickable onClick={() => onExplain('salesTotal')} style={{ marginTop: 8 }}>
             <CalcLabel>総売上高</CalcLabel>
             <CalcValue>{d.formatCurrency(r.totalSales)}</CalcValue>
           </CalcRow>
           <CalcRow
             $clickable={r.invMethodGrossProfit != null}
             onClick={
-              r.invMethodGrossProfit != null
-                ? () => onExplain('invMethodGrossProfit')
-                : undefined
+              r.invMethodGrossProfit != null ? () => onExplain('invMethodGrossProfit') : undefined
             }
           >
             <CalcLabel>実績粗利益</CalcLabel>

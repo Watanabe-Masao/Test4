@@ -33,9 +33,7 @@ export const ConditionSettingsPanelWidget = memo(function ConditionSettingsPanel
 
   const storeEntries = useMemo(
     () =>
-      [...stores.entries()].sort(([, a], [, b]) =>
-        (a.code ?? a.id).localeCompare(b.code ?? b.id),
-      ),
+      [...stores.entries()].sort(([, a], [, b]) => (a.code ?? a.id).localeCompare(b.code ?? b.id)),
     [stores],
   )
 

@@ -45,3 +45,5 @@ export {
   VarianceLabel,
   VarianceValue,
 } from './CalcRow'
+export { DiffConfirmModal } from './DiffConfirmModal'
+export type { DiffConfirmResult } from './DiffConfirmModal'

@@ -1,9 +1,13 @@
 import { useState } from 'react'
-import {
-  KpiCard,
-  ChartErrorBoundary,
-} from '@/presentation/components/common'
-import type { MetricId, StoreResult, Store, CustomCategory, CategoryType, SupplierTotal } from '@/domain/models'
+import { KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
+import type {
+  MetricId,
+  StoreResult,
+  Store,
+  CustomCategory,
+  CategoryType,
+  SupplierTotal,
+} from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { AppSettings } from '@/domain/models'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
@@ -120,9 +124,7 @@ export function CategoryTotalView({
           value={formatCurrency(totalGrossProfit)}
           accent={sc.positive}
           onClick={
-            r.invMethodGrossProfit != null
-              ? () => onExplain('invMethodGrossProfit')
-              : undefined
+            r.invMethodGrossProfit != null ? () => onExplain('invMethodGrossProfit') : undefined
           }
         />
         <KpiCard
@@ -242,9 +244,7 @@ export function CategoryTotalView({
                             let c = 0,
                               p = 0
                             for (const [, st] of sr.supplierTotals) {
-                              if (
-                                settings.supplierCategoryMap[st.supplierCode] === d.category
-                              ) {
+                              if (settings.supplierCategoryMap[st.supplierCode] === d.category) {
                                 c += st.cost
                                 p += st.price
                               }
@@ -329,11 +329,7 @@ export function CategoryTotalView({
                           const dayGP = de.price - de.cost
                           const dayMarkup = safeDivide(dayGP, de.price, 0)
                           rows.push(
-                            <DrillTr
-                              key={`${storeKey}:${de.day}`}
-                              $depth={2}
-                              $catColor={d.color}
-                            >
+                            <DrillTr key={`${storeKey}:${de.day}`} $depth={2} $catColor={d.color}>
                               <Td>
                                 <DrillLabel $depth={2}>{de.day}日</DrillLabel>
                               </Td>
@@ -342,9 +338,7 @@ export function CategoryTotalView({
                               <GrossProfitCell $positive={dayGP >= 0}>
                                 {formatCurrency(dayGP)}
                               </GrossProfitCell>
-                              <MarkupCell $rate={dayMarkup}>
-                                {formatPercent(dayMarkup)}
-                              </MarkupCell>
+                              <MarkupCell $rate={dayMarkup}>{formatPercent(dayMarkup)}</MarkupCell>
                               <Td></Td>
                               <Td></Td>
                               <Td></Td>
@@ -372,9 +366,7 @@ export function CategoryTotalView({
                     <Td>{formatPercent(1)}</Td>
                     <Td>{formatPercent(1)}</Td>
                     <Td>
-                      {formatPercent(
-                        categoryData.reduce((s, c) => s + c.crossMultiplication, 0),
-                      )}
+                      {formatPercent(categoryData.reduce((s, c) => s + c.crossMultiplication, 0))}
                     </Td>
                   </TrTotal>,
                 )
@@ -441,11 +433,7 @@ export function CategoryTotalView({
               <tbody>
                 {filteredSupplierData.flatMap((s) => {
                   const supplierGP = s.price - s.cost
-                  const supplierPriceShare = safeDivide(
-                    Math.abs(s.price),
-                    totalSupplierAbsPrice,
-                    0,
-                  )
+                  const supplierPriceShare = safeDivide(Math.abs(s.price), totalSupplierAbsPrice, 0)
                   const supplierCrossMult = safeDivide(s.price - s.cost, totalSupplierPrice, 0)
                   const assignedCategory = settings.supplierCategoryMap[s.supplierCode] as
                     | CustomCategory
@@ -475,17 +463,13 @@ export function CategoryTotalView({
                       <GrossProfitCell $positive={supplierGP >= 0}>
                         {formatCurrency(supplierGP)}
                       </GrossProfitCell>
-                      <MarkupCell $rate={s.markupRate}>
-                        {formatPercent(s.markupRate)}
-                      </MarkupCell>
+                      <MarkupCell $rate={s.markupRate}>{formatPercent(s.markupRate)}</MarkupCell>
                       <Td>{formatPercent(supplierPriceShare)}</Td>
                       <Td>{formatPercent(supplierCrossMult)}</Td>
                       <Td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                         <CategorySelect
                           value={assignedCategory ?? 'uncategorized'}
-                          onChange={(e) =>
-                            onCustomCategoryChange(s.supplierCode, e.target.value)
-                          }
+                          onChange={(e) => onCustomCategoryChange(s.supplierCode, e.target.value)}
                           style={{
                             borderLeft: `3px solid ${assignedCategory ? (isUserCategory(assignedCategory) ? '#14b8a6' : (CUSTOM_CATEGORY_COLORS[assignedCategory as PresetCategoryId] ?? '#94a3b8')) : '#94a3b8'}`,
                           }}
@@ -496,13 +480,11 @@ export function CategoryTotalView({
                               {cc.label}
                             </option>
                           ))}
-                          {Object.entries(settings.userCategoryLabels ?? {}).map(
-                            ([id, label]) => (
-                              <option key={id} value={id}>
-                                {label}
-                              </option>
-                            ),
-                          )}
+                          {Object.entries(settings.userCategoryLabels ?? {}).map(([id, label]) => (
+                            <option key={id} value={id}>
+                              {label}
+                            </option>
+                          ))}
                         </CategorySelect>
                       </Td>
                     </DrillTr>,

@@ -124,7 +124,12 @@ describe('DuckDB クエリフックの責務分割', () => {
 })
 
 describe('ウィジェットレジストリの DuckDB エントリ', () => {
-  const registryContent = readFile('presentation/pages/Dashboard/widgets/registry.tsx')
+  const registryDir = path.join(SRC_ROOT, 'presentation/pages/Dashboard/widgets')
+  const registryContent = fs
+    .readdirSync(registryDir)
+    .filter((f) => f.startsWith('registry') && f.endsWith('.tsx'))
+    .map((f) => fs.readFileSync(path.join(registryDir, f), 'utf-8'))
+    .join('\n')
 
   // DuckDB 専用ウィジェット（レジストリに直接登録）
   const duckdbOnlyWidgetIds = [

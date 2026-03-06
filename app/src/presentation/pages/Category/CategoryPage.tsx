@@ -200,10 +200,7 @@ export function CategoryPage() {
       )}
 
       {showComparison && (
-        <CategoryComparisonView
-          selectedResults={selectedResults}
-          storeNames={storeNames}
-        />
+        <CategoryComparisonView selectedResults={selectedResults} storeNames={storeNames} />
       )}
 
       {explainMetric && explanations.has(explainMetric) && (

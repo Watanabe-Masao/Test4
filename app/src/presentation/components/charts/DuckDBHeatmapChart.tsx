@@ -10,373 +10,52 @@
  * - Z-score 異常検出マーカー（|z| > 2）
  */
 import { useState, useMemo, memo } from 'react'
-import styled, { useTheme } from 'styled-components'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import {
   useDuckDBHourDowMatrix,
   useDuckDBLevelAggregation,
-  type HourDowMatrixRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-
-// ── Styled Components ──
-
-const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
-`
-
-const Subtitle = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const GridContainer = styled.div`
-  overflow-x: auto;
-`
-
-const HeatmapTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.6rem;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const HeaderCell = styled.th`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  text-align: center;
-  font-size: 0.6rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text3};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const RowHeader = styled.td`
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  text-align: right;
-  font-size: 0.6rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: ${({ theme }) => theme.colors.text3};
-  white-space: nowrap;
-  border-right: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const DataCell = styled.td<{ $bgColor: string; $isAnomaly: boolean; $textColor: string }>`
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  text-align: center;
-  font-size: 0.55rem;
-  color: ${({ $textColor }) => $textColor};
-  background: ${({ $bgColor }) => $bgColor};
-  border: ${({ $isAnomaly, theme }) =>
-    $isAnomaly ? `2px solid ${theme.colors.palette.dangerDark}` : '1px solid transparent'};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  transition: all 0.15s;
-  min-width: 60px;
-
-  &:hover {
-    opacity: 0.85;
-    transform: scale(1.02);
-  }
-`
-
-const SummaryRow = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[4]};
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
-`
-
-const SummaryItem = styled.div`
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const SummaryLabel = styled.span`
-  color: ${({ theme }) => theme.colors.text4};
-  margin-right: ${({ theme }) => theme.spacing[1]};
-`
-
-const LegendBar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.55rem;
-  color: ${({ theme }) => theme.colors.text4};
-`
-
-const GradientBar = styled.div<{ $from: string; $to: string }>`
-  width: 100px;
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(to right, ${({ $from }) => $from}, ${({ $to }) => $to});
-`
-
-const ErrorMsg = styled.div`
-  padding: 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const ControlRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const TabGroup = styled.div`
-  display: flex;
-  gap: 2px;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  border-radius: ${({ theme }) => theme.radii.md};
-  padding: 2px;
-`
-
-const Tab = styled.button<{ $active: boolean }>`
-  all: unset;
-  cursor: pointer;
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.white : theme.colors.text3)};
-  background: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : 'transparent')};
-  transition: all 0.15s;
-  white-space: nowrap;
-  &:hover {
-    opacity: 0.85;
-  }
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radii.sm};
-  }
-`
-
-const HierarchyRow = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-  flex-wrap: wrap;
-`
-
-const HierarchySelect = styled.select`
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text2};
-  cursor: pointer;
-`
-
-/** 前年比用セル: 緑(+) / 赤(-) のグラデーション */
-const DiffDataCell = styled.td<{ $ratio: number; $hasData: boolean; $textColor: string }>`
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  text-align: center;
-  font-size: 0.55rem;
-  color: ${({ $textColor }) => $textColor};
-  background: ${({ $ratio, $hasData }) => {
-    if (!$hasData) return 'transparent'
-    if ($ratio === 0) return 'rgba(100,100,100,0.1)'
-    const absR = Math.min(Math.abs($ratio), 0.5) / 0.5
-    if ($ratio > 0) return `rgba(34,197,94,${0.2 + absR * 0.7})`
-    return `rgba(239,68,68,${0.2 + absR * 0.7})`
-  }};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  transition: all 0.15s;
-  min-width: 60px;
-  &:hover {
-    opacity: 0.85;
-    transform: scale(1.02);
-  }
-`
-
-// ── Types ──
-
-type HeatmapMode = 'amount' | 'yoyDiff'
-
-interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-}
-
-interface CellData {
-  readonly hour: number
-  readonly dow: number
-  readonly dailyAvg: number
-  readonly zScore: number
-  readonly isAnomaly: boolean
-}
-
-interface HeatmapData {
-  readonly cells: ReadonlyMap<string, CellData>
-  readonly maxValue: number
-  readonly anomalyCount: number
-  readonly peakHour: number
-  readonly peakDow: number
-  readonly peakValue: number
-}
-
-// ── Constants ──
-
-const HOUR_MIN = 6
-const HOUR_MAX = 22
-
-/** 曜日ラベル (JS Date.getDay(): 0=日, 1=月, ..., 6=土) */
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
-
-/** 表示順: 月(1)〜日(0) */
-const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0] as const
-
-const Z_SCORE_THRESHOLD = 2.0
-
-// ── Helpers ──
-
-function cellKey(hour: number, dow: number): string {
-  return `${hour}-${dow}`
-}
-
-/** 行データからヒートマップデータを構築する */
-function buildHeatmapData(rows: readonly HourDowMatrixRow[]): HeatmapData {
-  // 日平均値を算出
-  const dailyAvgs: { hour: number; dow: number; avg: number }[] = []
-  for (const row of rows) {
-    if (row.hour < HOUR_MIN || row.hour > HOUR_MAX) continue
-    const avg = row.dayCount > 0 ? row.amount / row.dayCount : 0
-    dailyAvgs.push({ hour: row.hour, dow: row.dow, avg })
-  }
-
-  if (dailyAvgs.length === 0) {
-    return {
-      cells: new Map(),
-      maxValue: 0,
-      anomalyCount: 0,
-      peakHour: HOUR_MIN,
-      peakDow: 1,
-      peakValue: 0,
-    }
-  }
-
-  // Z-score 計算: 全セルの平均・標準偏差を求める
-  const values = dailyAvgs.map((d) => d.avg)
-  const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length
-  const stdDev = Math.sqrt(variance)
-
-  const cells = new Map<string, CellData>()
-  let maxValue = 0
-  let anomalyCount = 0
-  let peakHour = HOUR_MIN
-  let peakDow = 1
-  let peakValue = 0
-
-  for (const { hour, dow, avg } of dailyAvgs) {
-    const zScore = stdDev > 0 ? (avg - mean) / stdDev : 0
-    const isAnomaly = Math.abs(zScore) >= Z_SCORE_THRESHOLD
-
-    cells.set(cellKey(hour, dow), {
-      hour,
-      dow,
-      dailyAvg: Math.round(avg),
-      zScore: Math.round(zScore * 100) / 100,
-      isAnomaly,
-    })
-
-    if (avg > maxValue) maxValue = avg
-    if (isAnomaly) anomalyCount++
-    if (avg > peakValue) {
-      peakHour = hour
-      peakDow = dow
-      peakValue = avg
-    }
-  }
-
-  return {
-    cells,
-    maxValue: Math.round(maxValue),
-    anomalyCount,
-    peakHour,
-    peakDow,
-    peakValue: Math.round(peakValue),
-  }
-}
-
-/** 0-1 の割合からヒートマップ色を生成 */
-function interpolateColor(ratio: number, bgColor: string, primaryColor: string): string {
-  // bgColor / primaryColor は hex 想定
-  const parsedBg = hexToRgb(bgColor)
-  const parsedPrimary = hexToRgb(primaryColor)
-  if (!parsedBg || !parsedPrimary) return bgColor
-
-  const r = Math.round(parsedBg.r + (parsedPrimary.r - parsedBg.r) * ratio)
-  const g = Math.round(parsedBg.g + (parsedPrimary.g - parsedBg.g) * ratio)
-  const b = Math.round(parsedBg.b + (parsedPrimary.b - parsedBg.b) * ratio)
-  return `rgb(${r}, ${g}, ${b})`
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex)
-  if (!match) return null
-  return {
-    r: parseInt(match[1], 16),
-    g: parseInt(match[2], 16),
-    b: parseInt(match[3], 16),
-  }
-}
-
-/** 当年・前年のマトリクスから前年比差分率マップを構築 */
-function buildDiffMap(
-  currentRows: readonly HourDowMatrixRow[],
-  prevRows: readonly HourDowMatrixRow[],
-): Map<string, number> {
-  const curMap = new Map<string, number>()
-  const prevMap = new Map<string, number>()
-  for (const r of currentRows) {
-    if (r.hour < HOUR_MIN || r.hour > HOUR_MAX) continue
-    const avg = r.dayCount > 0 ? r.amount / r.dayCount : 0
-    curMap.set(cellKey(r.hour, r.dow), avg)
-  }
-  for (const r of prevRows) {
-    if (r.hour < HOUR_MIN || r.hour > HOUR_MAX) continue
-    const avg = r.dayCount > 0 ? r.amount / r.dayCount : 0
-    prevMap.set(cellKey(r.hour, r.dow), avg)
-  }
-  const diffMap = new Map<string, number>()
-  const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
-  for (const key of allKeys) {
-    const cur = curMap.get(key) ?? 0
-    const prev = prevMap.get(key) ?? 0
-    const ratio = prev > 0 ? (cur - prev) / prev : cur > 0 ? 1 : 0
-    diffMap.set(key, ratio)
-  }
-  return diffMap
-}
+import {
+  Wrapper,
+  Title,
+  Subtitle,
+  GridContainer,
+  HeatmapTable,
+  HeaderCell,
+  RowHeader,
+  DataCell,
+  SummaryRow,
+  SummaryItem,
+  SummaryLabel,
+  LegendBar,
+  GradientBar,
+  ErrorMsg,
+  ControlRow,
+  TabGroup,
+  Tab,
+  HierarchyRow,
+  HierarchySelect,
+  DiffDataCell,
+} from './DuckDBHeatmapChart.styles'
+import {
+  type HeatmapMode,
+  type Props,
+  HOUR_MIN,
+  HOUR_MAX,
+  DOW_LABELS,
+  DOW_ORDER,
+  Z_SCORE_THRESHOLD,
+  cellKey,
+  buildHeatmapData,
+  interpolateColor,
+  buildDiffMap,
+} from './DuckDBHeatmapChart.helpers'
 
 // ── Component ──
 

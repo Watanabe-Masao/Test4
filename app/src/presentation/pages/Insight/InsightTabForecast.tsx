@@ -167,10 +167,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
           <ChartErrorBoundary>
             <ChartGrid>
               <CustomerSalesScatterChart data={d.customerData.customerEntries} />
-              <DowCustomerChart
-                averages={d.customerData.dowCustomerAvg}
-                dowColors={d.dowColors}
-              />
+              <DowCustomerChart averages={d.customerData.dowCustomerAvg} dowColors={d.dowColors} />
             </ChartGrid>
             {d.customerData.movingAvgData.length > 0 && (
               <ChartGrid>
@@ -191,9 +188,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
             {d.customerData.relationshipData.length > 0 && (
               <>
                 <ModeToggleWrapper>
-                  <SectionTitle style={{ marginBottom: 0 }}>
-                    売上・客数・客単価 関係性
-                  </SectionTitle>
+                  <SectionTitle style={{ marginBottom: 0 }}>売上・客数・客単価 関係性</SectionTitle>
                   <ChipGroup>
                     <Chip
                       $active={d.relViewMode === 'current'}
@@ -292,9 +287,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                         </FcTd>
                       )}
                       {d.customerData?.hasCustomerData && (
-                        <FcTd>
-                          {weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}
-                        </FcTd>
+                        <FcTd>{weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}</FcTd>
                       )}
                       <FcTd>{d.formatCurrency(w.totalGrossProfit)}</FcTd>
                       <FcTd>{d.formatPercent(w.grossProfitRate)}</FcTd>
@@ -427,17 +420,14 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                   <tbody>
                     {d.customerData.weeklyDecomp.map((w) => {
                       const total = Math.abs(w.custEffect) + Math.abs(w.ticketEffect)
-                      const custPct =
-                        total > 0 ? w.custEffect / (w.custEffect + w.ticketEffect) : 0
+                      const custPct = total > 0 ? w.custEffect / (w.custEffect + w.ticketEffect) : 0
                       return (
                         <FcTr key={w.weekNumber}>
                           <FcTd>第{w.weekNumber}週</FcTd>
                           <FcTd>
                             {w.startDay}日〜{w.endDay}日
                           </FcTd>
-                          <FcTd $highlight={w.salesDiff < 0}>
-                            {d.formatCurrency(w.salesDiff)}
-                          </FcTd>
+                          <FcTd $highlight={w.salesDiff < 0}>{d.formatCurrency(w.salesDiff)}</FcTd>
                           <FcTd $highlight={w.custEffect < 0}>
                             {d.formatCurrency(w.custEffect)}
                           </FcTd>
@@ -457,8 +447,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                         }),
                         { salesDiff: 0, custEffect: 0, ticketEffect: 0 },
                       )
-                      const totalAbs =
-                        Math.abs(totals.custEffect) + Math.abs(totals.ticketEffect)
+                      const totalAbs = Math.abs(totals.custEffect) + Math.abs(totals.ticketEffect)
                       const totalCustPct =
                         totalAbs > 0
                           ? totals.custEffect / (totals.custEffect + totals.ticketEffect)
@@ -512,9 +501,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                             {a.avgTxValue > 0 ? `${a.avgTxValue.toLocaleString()}円` : '-'}
                           </FcTd>
                           {d.customerData!.hasPrevCustomers && (
-                            <FcTd>
-                              {a.prevAvgCustomers > 0 ? `${a.prevAvgCustomers}人` : '-'}
-                            </FcTd>
+                            <FcTd>{a.prevAvgCustomers > 0 ? `${a.prevAvgCustomers}人` : '-'}</FcTd>
                           )}
                           {d.customerData!.hasPrevCustomers && (
                             <FcTd>

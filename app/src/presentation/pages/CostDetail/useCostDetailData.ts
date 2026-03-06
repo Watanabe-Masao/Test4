@@ -727,3 +727,6 @@ export function useCostDetailData() {
     handleCostInclusionViewChange,
   } as const
 }
+
+/** Return type of useCostDetailData — shared across tab components */
+export type CostDetailData = ReturnType<typeof useCostDetailData>
