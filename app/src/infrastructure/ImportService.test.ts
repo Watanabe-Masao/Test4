@@ -31,7 +31,9 @@ describe('processFileData', () => {
     expect(result.stores.get('1')?.name).toBe('店舗A')
     expect(result.suppliers.size).toBe(1)
     expect(result.suppliers.get('0000001')?.name).toBe('取引先A')
-    expect(result.purchase['1']?.[1]?.total.cost).toBe(10000)
+    expect(result.purchase.records.find((r) => r.storeId === '1' && r.day === 1)?.total.cost).toBe(
+      10000,
+    )
   })
 
   it('分類別売上データの処理 + 店舗抽出', () => {
@@ -135,7 +137,9 @@ describe('processFileData', () => {
       DEFAULT_SETTINGS,
     )
 
-    expect(result.interStoreIn['1']?.[1]?.interStoreIn).toHaveLength(1)
+    expect(
+      result.interStoreIn.records.find((r) => r.storeId === '1' && r.day === 1)?.interStoreIn,
+    ).toHaveLength(1)
   })
 
   it('店間出データの処理（Col0=日付, Col1=出庫元）', () => {
@@ -148,7 +152,9 @@ describe('processFileData', () => {
       DEFAULT_SETTINGS,
     )
 
-    expect(result.interStoreOut['1']?.[1]?.interStoreOut).toHaveLength(1)
+    expect(
+      result.interStoreOut.records.find((r) => r.storeId === '1' && r.day === 1)?.interStoreOut,
+    ).toHaveLength(1)
   })
 
   it('花データの処理（掛け率0.80）', () => {
@@ -161,7 +167,7 @@ describe('processFileData', () => {
       DEFAULT_SETTINGS,
     )
 
-    expect(result.flowers['1']?.[1]?.cost).toBe(8000) // 10000 × 0.80
+    expect(result.flowers.records.find((r) => r.storeId === '1' && r.day === 1)?.cost).toBe(8000) // 10000 × 0.80
   })
 
   it('産直データの処理（掛け率0.85）', () => {
@@ -174,7 +180,9 @@ describe('processFileData', () => {
       DEFAULT_SETTINGS,
     )
 
-    expect(result.directProduce['1']?.[1]?.cost).toBe(8500) // 10000 × 0.85
+    expect(result.directProduce.records.find((r) => r.storeId === '1' && r.day === 1)?.cost).toBe(
+      8500,
+    ) // 10000 × 0.85
   })
 
   it('分類別売上データ複数レコードの処理', () => {
@@ -273,8 +281,11 @@ describe('processFileData', () => {
       DEFAULT_SETTINGS,
     ))
 
-    expect(result.consumables['1']?.[1]?.cost).toBe(8000)
-    expect(result.consumables['1']?.[1]?.items).toHaveLength(2)
+    const consumableRecord = result.consumables.records.find(
+      (r) => r.storeId === '1' && r.day === 1,
+    )
+    expect(consumableRecord?.cost).toBe(8000)
+    expect(consumableRecord?.items).toHaveLength(2)
   })
 
   it('既存の店舗データを維持して追加', () => {
@@ -426,7 +437,18 @@ describe('validateImportedData', () => {
   it('仕入・分類別売上がある場合はエラーなし', () => {
     const data: ImportedData = {
       ...emptyData(),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           {
@@ -472,7 +494,18 @@ describe('validateImportedData', () => {
   it('在庫設定なしは警告', () => {
     const data: ImportedData = {
       ...emptyData(),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           {
@@ -503,7 +536,18 @@ describe('validateImportedData', () => {
   it('予算・売変なしは情報メッセージ', () => {
     const data: ImportedData = {
       ...emptyData(),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           {
@@ -552,7 +596,18 @@ describe('validateImportedData', () => {
   it('一部店舗の在庫設定不足は警告', () => {
     const data: ImportedData = {
       ...emptyData(),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           {

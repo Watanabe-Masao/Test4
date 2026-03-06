@@ -237,12 +237,17 @@ describe('getMonthDataSummary', () => {
     }
   })
 
-  it('counts StoreDayRecord entries correctly', async () => {
-    // For StoreDayRecord types (purchase, etc.), count is sum of day entries per store
+  it('counts records array entries correctly', async () => {
+    // For records array types (purchase, etc.), count is length of records array
     const purchaseData = {
       payload: {
-        S001: { 1: {}, 2: {}, 3: {} },
-        S002: { 1: {}, 2: {} },
+        records: [
+          { storeId: 'S001', day: 1 },
+          { storeId: 'S001', day: 2 },
+          { storeId: 'S001', day: 3 },
+          { storeId: 'S002', day: 1 },
+          { storeId: 'S002', day: 2 },
+        ],
       },
       origin: { year: 2025, month: 1 },
     }
@@ -259,7 +264,6 @@ describe('getMonthDataSummary', () => {
     const purchaseEntry = result.find((r) => r.dataType === 'purchase')
 
     expect(purchaseEntry).toBeDefined()
-    // S001 has 3 days + S002 has 2 days = 5
     expect(purchaseEntry!.recordCount).toBe(5)
   })
 

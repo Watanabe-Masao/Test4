@@ -1,6 +1,6 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { SpecialSalesData } from '@/domain/models'
+import type { SpecialSalesData, SpecialSalesDayEntry } from '@/domain/models'
 
 export type { SpecialSalesData } from '@/domain/models'
 
@@ -23,6 +23,7 @@ export function processSpecialSales(
 ): Record<string, SpecialSalesData> {
   if (rows.length < 4) return {}
 
+  // 集約用の中間構造: monthKey → storeId → day → entry
   const partitioned: Record<
     string,
     Record<string, Record<number, { price: number; cost: number; customers?: number }>>
@@ -76,5 +77,29 @@ export function processSpecialSales(
     }
   }
 
-  return partitioned
+  // 中間構造をフラットレコード配列に変換
+  const result: Record<string, SpecialSalesData> = {}
+  for (const [mk, storeMap] of Object.entries(partitioned)) {
+    const [yearStr, monthStr] = mk.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const records: SpecialSalesDayEntry[] = []
+    for (const [storeId, dayMap] of Object.entries(storeMap)) {
+      for (const [dayStr, entry] of Object.entries(dayMap)) {
+        const rec: SpecialSalesDayEntry = {
+          year,
+          month,
+          day: Number(dayStr),
+          storeId,
+          price: entry.price,
+          cost: entry.cost,
+          ...(entry.customers !== undefined ? { customers: entry.customers } : {}),
+        }
+        records.push(rec)
+      }
+    }
+    result[mk] = { records }
+  }
+
+  return result
 }

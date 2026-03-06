@@ -1,6 +1,6 @@
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
-import type { TransferRecord, TransferData } from '@/domain/models'
+import type { TransferRecord, TransferData, TransferDayEntry } from '@/domain/models'
 
 export type { TransferRecord, TransferData } from '@/domain/models'
 
@@ -15,6 +15,7 @@ export type { TransferRecord, TransferData } from '@/domain/models'
 export function processInterStoreIn(rows: readonly unknown[][]): Record<string, TransferData> {
   if (rows.length < 2) return {}
 
+  // 集約用の中間構造: monthKey → storeId → day → entry
   const partitioned: Record<
     string,
     Record<
@@ -74,7 +75,31 @@ export function processInterStoreIn(rows: readonly unknown[][]): Record<string, 
     }
   }
 
-  return partitioned
+  // 中間構造をフラットレコード配列に変換
+  const result: Record<string, TransferData> = {}
+  for (const [mk, storeMap] of Object.entries(partitioned)) {
+    const [yearStr, monthStr] = mk.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const records: TransferDayEntry[] = []
+    for (const [storeId, dayMap] of Object.entries(storeMap)) {
+      for (const [dayStr, entry] of Object.entries(dayMap)) {
+        records.push({
+          year,
+          month,
+          day: Number(dayStr),
+          storeId,
+          interStoreIn: entry.interStoreIn,
+          interStoreOut: entry.interStoreOut,
+          interDepartmentIn: entry.interDepartmentIn,
+          interDepartmentOut: entry.interDepartmentOut,
+        })
+      }
+    }
+    result[mk] = { records }
+  }
+
+  return result
 }
 
 /**
@@ -88,6 +113,7 @@ export function processInterStoreIn(rows: readonly unknown[][]): Record<string, 
 export function processInterStoreOut(rows: readonly unknown[][]): Record<string, TransferData> {
   if (rows.length < 2) return {}
 
+  // 集約用の中間構造: monthKey → storeId → day → entry
   const partitioned: Record<
     string,
     Record<
@@ -148,5 +174,29 @@ export function processInterStoreOut(rows: readonly unknown[][]): Record<string,
     }
   }
 
-  return partitioned
+  // 中間構造をフラットレコード配列に変換
+  const result: Record<string, TransferData> = {}
+  for (const [mk, storeMap] of Object.entries(partitioned)) {
+    const [yearStr, monthStr] = mk.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const records: TransferDayEntry[] = []
+    for (const [storeId, dayMap] of Object.entries(storeMap)) {
+      for (const [dayStr, entry] of Object.entries(dayMap)) {
+        records.push({
+          year,
+          month,
+          day: Number(dayStr),
+          storeId,
+          interStoreIn: entry.interStoreIn,
+          interStoreOut: entry.interStoreOut,
+          interDepartmentIn: entry.interDepartmentIn,
+          interDepartmentOut: entry.interDepartmentOut,
+        })
+      }
+    }
+    result[mk] = { records }
+  }
+
+  return result
 }

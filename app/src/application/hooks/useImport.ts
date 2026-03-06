@@ -511,7 +511,7 @@ const action = 'overwrite' as const
 
 /**
  * 月別データの最終版を構築する。
- * monthData は filterDataForMonth で年月フィルタ済み（StoreDayRecord 含む）。
+ * monthData は filterDataForMonth で年月フィルタ済み。
  * 既存データがない場合は monthData をそのまま使用。
  * ある場合は action に応じてマージする。
  */
@@ -525,34 +525,20 @@ function buildMonthData(
     return monthData
   }
   if (mergeAction === 'overwrite') {
-    // 上書き: 既存データに新規データをマージ（新規が優先）
-    // レコードベース型（classifiedSales, categoryTimeSales）は merge ではなく replace する。
-    // monthData は filterDataForMonth で年月フィルタ済みのため正しいレコードのみ含む。
-    // 既存 IndexedDB データに別月のレコードが混入している場合（旧保存ロジック由来）、
-    // merge するとそれらが残り続けて前年データが膨張するバグの原因になる。
-    // incoming にレコードが無い（当該型がインポートされなかった）場合のみ既存を維持する。
+    // 上書き: 新規データがあれば replace、なければ既存を維持
     return {
       ...existing,
       stores: new Map([...existing.stores, ...monthData.stores]),
       suppliers: new Map([...existing.suppliers, ...monthData.suppliers]),
-      purchase: { ...existing.purchase, ...monthData.purchase },
-      classifiedSales:
-        monthData.classifiedSales.records.length > 0
-          ? monthData.classifiedSales
-          : existing.classifiedSales,
-      categoryTimeSales:
-        monthData.categoryTimeSales.records.length > 0
-          ? monthData.categoryTimeSales
-          : existing.categoryTimeSales,
-      departmentKpi:
-        monthData.departmentKpi.records.length > 0
-          ? monthData.departmentKpi
-          : existing.departmentKpi,
-      interStoreIn: { ...existing.interStoreIn, ...monthData.interStoreIn },
-      interStoreOut: { ...existing.interStoreOut, ...monthData.interStoreOut },
-      flowers: { ...existing.flowers, ...monthData.flowers },
-      directProduce: { ...existing.directProduce, ...monthData.directProduce },
-      consumables: { ...existing.consumables, ...monthData.consumables },
+      purchase: replaceIfNonEmpty(existing.purchase, monthData.purchase),
+      classifiedSales: replaceIfNonEmpty(existing.classifiedSales, monthData.classifiedSales),
+      categoryTimeSales: replaceIfNonEmpty(existing.categoryTimeSales, monthData.categoryTimeSales),
+      departmentKpi: replaceIfNonEmpty(existing.departmentKpi, monthData.departmentKpi),
+      interStoreIn: replaceIfNonEmpty(existing.interStoreIn, monthData.interStoreIn),
+      interStoreOut: replaceIfNonEmpty(existing.interStoreOut, monthData.interStoreOut),
+      flowers: replaceIfNonEmpty(existing.flowers, monthData.flowers),
+      directProduce: replaceIfNonEmpty(existing.directProduce, monthData.directProduce),
+      consumables: replaceIfNonEmpty(existing.consumables, monthData.consumables),
       settings: new Map([...existing.settings, ...monthData.settings]),
       budget: new Map([...existing.budget, ...monthData.budget]),
     }
@@ -562,15 +548,23 @@ function buildMonthData(
     ...existing,
     stores: mergeMapInserts(existing.stores, monthData.stores),
     suppliers: mergeMapInserts(existing.suppliers, monthData.suppliers),
-    purchase: mergeStoreDayRecords(existing.purchase, monthData.purchase),
+    purchase: mergeRecordInserts(existing.purchase, monthData.purchase, purchaseRecordKey),
     classifiedSales: mergeCSInserts(existing.classifiedSales, monthData.classifiedSales),
     categoryTimeSales: mergeCTSInserts(existing.categoryTimeSales, monthData.categoryTimeSales),
     departmentKpi: mergeDepartmentKpiInserts(existing.departmentKpi, monthData.departmentKpi),
-    interStoreIn: mergeStoreDayRecords(existing.interStoreIn, monthData.interStoreIn),
-    interStoreOut: mergeStoreDayRecords(existing.interStoreOut, monthData.interStoreOut),
-    flowers: mergeStoreDayRecords(existing.flowers, monthData.flowers),
-    directProduce: mergeStoreDayRecords(existing.directProduce, monthData.directProduce),
-    consumables: mergeStoreDayRecords(existing.consumables, monthData.consumables),
+    interStoreIn: mergeRecordInserts(existing.interStoreIn, monthData.interStoreIn, datedRecordKey),
+    interStoreOut: mergeRecordInserts(
+      existing.interStoreOut,
+      monthData.interStoreOut,
+      datedRecordKey,
+    ),
+    flowers: mergeRecordInserts(existing.flowers, monthData.flowers, datedRecordKey),
+    directProduce: mergeRecordInserts(
+      existing.directProduce,
+      monthData.directProduce,
+      datedRecordKey,
+    ),
+    consumables: mergeRecordInserts(existing.consumables, monthData.consumables, datedRecordKey),
     settings: mergeMapInserts(existing.settings, monthData.settings),
     budget: mergeMapInserts(existing.budget, monthData.budget),
   }
@@ -578,30 +572,35 @@ function buildMonthData(
 
 // ─── 挿入のみマージ ─────────────────────────────────────
 
-/** StoreDayRecord の挿入のみマージ（既存キーは上書きしない） */
-function mergeStoreDayRecords<T>(
-  existing: { readonly [storeId: string]: { readonly [day: number]: T } },
-  incoming: { readonly [storeId: string]: { readonly [day: number]: T } },
-): { readonly [storeId: string]: { readonly [day: number]: T } } {
-  if (Object.keys(existing).length === 0) return incoming
-  if (Object.keys(incoming).length === 0) return existing
+/** DatedRecord のキー生成（storeId + day） */
+function datedRecordKey(rec: { storeId: string; day: number }): string {
+  return `${rec.storeId}\t${rec.day}`
+}
 
-  const merged: Record<string, Record<number, T>> = { ...existing }
-  for (const [storeId, incomingDays] of Object.entries(incoming)) {
-    if (!merged[storeId]) {
-      merged[storeId] = incomingDays
-    } else {
-      const mergedDays: Record<number, T> = { ...merged[storeId] }
-      for (const [dayStr, entry] of Object.entries(incomingDays)) {
-        const day = Number(dayStr)
-        if (!mergedDays[day]) {
-          mergedDays[day] = entry
-        }
-      }
-      merged[storeId] = mergedDays
-    }
-  }
-  return merged
+/** PurchaseDayEntry のキー生成 */
+function purchaseRecordKey(rec: { storeId: string; day: number }): string {
+  return `${rec.storeId}\t${rec.day}`
+}
+
+/** レコードが空でなければ incoming で置換、空なら既存を維持 */
+function replaceIfNonEmpty<T extends { readonly records: readonly unknown[] }>(
+  existing: T,
+  incoming: T,
+): T {
+  return incoming.records.length > 0 ? incoming : existing
+}
+
+/** flat record 配列の挿入のみマージ（既存キーは上書きしない） */
+function mergeRecordInserts<T, D extends { readonly records: readonly T[] }>(
+  existing: D,
+  incoming: D,
+  keyFn: (rec: T) => string,
+): D {
+  if (existing.records.length === 0) return incoming
+  if (incoming.records.length === 0) return existing
+  const existingKeys = new Set(existing.records.map(keyFn))
+  const newRecords = incoming.records.filter((r) => !existingKeys.has(keyFn(r)))
+  return { ...existing, records: [...existing.records, ...newRecords] } as D
 }
 
 /** ClassifiedSalesData の挿入のみマージ */
@@ -668,26 +667,26 @@ export function mergeInsertsOnly(
   return {
     ...existing,
     purchase: has('purchase')
-      ? mergeStoreDayRecords(existing.purchase, incoming.purchase)
+      ? mergeRecordInserts(existing.purchase, incoming.purchase, purchaseRecordKey)
       : existing.purchase,
     classifiedSales: has('classifiedSales')
       ? mergeCSInserts(existing.classifiedSales, incoming.classifiedSales)
       : existing.classifiedSales,
     prevYearClassifiedSales: existing.prevYearClassifiedSales,
     interStoreIn: has('interStoreIn')
-      ? mergeStoreDayRecords(existing.interStoreIn, incoming.interStoreIn)
+      ? mergeRecordInserts(existing.interStoreIn, incoming.interStoreIn, datedRecordKey)
       : existing.interStoreIn,
     interStoreOut: has('interStoreOut')
-      ? mergeStoreDayRecords(existing.interStoreOut, incoming.interStoreOut)
+      ? mergeRecordInserts(existing.interStoreOut, incoming.interStoreOut, datedRecordKey)
       : existing.interStoreOut,
     flowers: has('flowers')
-      ? mergeStoreDayRecords(existing.flowers, incoming.flowers)
+      ? mergeRecordInserts(existing.flowers, incoming.flowers, datedRecordKey)
       : existing.flowers,
     directProduce: has('directProduce')
-      ? mergeStoreDayRecords(existing.directProduce, incoming.directProduce)
+      ? mergeRecordInserts(existing.directProduce, incoming.directProduce, datedRecordKey)
       : existing.directProduce,
     consumables: has('consumables')
-      ? mergeStoreDayRecords(existing.consumables, incoming.consumables)
+      ? mergeRecordInserts(existing.consumables, incoming.consumables, datedRecordKey)
       : existing.consumables,
     categoryTimeSales: has('categoryTimeSales')
       ? mergeCTSInserts(existing.categoryTimeSales, incoming.categoryTimeSales)

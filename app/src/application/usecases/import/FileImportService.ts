@@ -3,10 +3,6 @@ import type {
   AppSettings,
   ValidationMessage,
   ImportedData,
-  PurchaseData,
-  SpecialSalesData,
-  TransferData,
-  CostInclusionData,
   BudgetData,
 } from '@/domain/models'
 import { classifiedSalesRecordKey, categoryTimeSalesRecordKey } from '@/domain/models'
@@ -126,7 +122,7 @@ export function validateImportedData(
   }
 
   // ── 必須データチェック ──
-  if (Object.keys(data.purchase).length === 0) {
+  if (data.purchase.records.length === 0) {
     messages.push({ level: 'error', message: '仕入データがありません' })
   }
   if (data.classifiedSales.records.length === 0) {
@@ -141,27 +137,34 @@ export function validateImportedData(
 
     // 各データ種別で参照されている店舗IDを収集し、未知の店舗を検出
     const unknownStoreIds = new Set<string>()
-    const checkStoreIds = (record: Record<string, unknown>, label: string) => {
+    const checkRecordStoreIds = (
+      records: readonly { readonly storeId: string }[],
+      label: string,
+    ) => {
       const unknown: string[] = []
-      for (const sid of Object.keys(record)) {
-        if (!storeIds.has(sid)) {
-          unknownStoreIds.add(sid)
-          unknown.push(sid)
+      const seen = new Set<string>()
+      for (const rec of records) {
+        if (!seen.has(rec.storeId)) {
+          seen.add(rec.storeId)
+          if (!storeIds.has(rec.storeId)) {
+            unknownStoreIds.add(rec.storeId)
+            unknown.push(rec.storeId)
+          }
         }
       }
       return unknown.length > 0 ? `${label}: 店舗ID ${unknown.join(', ')}` : null
     }
 
     const unknownDetails: string[] = []
-    const d3 = checkStoreIds(data.interStoreIn, '店間入データ')
+    const d3 = checkRecordStoreIds(data.interStoreIn.records, '店間入データ')
     if (d3) unknownDetails.push(d3)
-    const d4 = checkStoreIds(data.interStoreOut, '店間出データ')
+    const d4 = checkRecordStoreIds(data.interStoreOut.records, '店間出データ')
     if (d4) unknownDetails.push(d4)
-    const d5 = checkStoreIds(data.flowers, '花データ')
+    const d5 = checkRecordStoreIds(data.flowers.records, '花データ')
     if (d5) unknownDetails.push(d5)
-    const d6 = checkStoreIds(data.directProduce, '産直データ')
+    const d6 = checkRecordStoreIds(data.directProduce.records, '産直データ')
     if (d6) unknownDetails.push(d6)
-    const d7 = checkStoreIds(data.consumables, '消耗品データ')
+    const d7 = checkRecordStoreIds(data.consumables.records, '消耗品データ')
     if (d7) unknownDetails.push(d7)
 
     if (unknownStoreIds.size > 0) {
@@ -380,21 +383,12 @@ export function validateImportedData(
       if (rec.day > csMaxDay) csMaxDay = rec.day
     }
 
-    const checkSpecialSalesRange = (
-      specialData: { readonly [storeId: string]: { readonly [day: number]: unknown } },
-      label: string,
-    ) => {
-      if (!specialData || Object.keys(specialData).length === 0) return
+    const checkFlatRecordsRange = (records: readonly { readonly day: number }[], label: string) => {
+      if (!records || records.length === 0) return
 
-      // 全店舗横断で最終日を算出
       let maxDay = 0
-      for (const storeId of Object.keys(specialData)) {
-        const days = specialData[storeId]
-        if (!days || typeof days !== 'object') continue
-        for (const dayStr of Object.keys(days)) {
-          const d = Number(dayStr)
-          if (d > maxDay) maxDay = d
-        }
+      for (const rec of records) {
+        if (rec.day > maxDay) maxDay = rec.day
       }
 
       if (maxDay > 0 && maxDay < csMaxDay) {
@@ -405,19 +399,14 @@ export function validateImportedData(
       }
     }
 
-    checkSpecialSalesRange(data.flowers, '花データ')
-    checkSpecialSalesRange(data.directProduce, '産直データ')
+    checkFlatRecordsRange(data.flowers.records, '花データ')
+    checkFlatRecordsRange(data.directProduce.records, '産直データ')
 
     // 仕入データの日付範囲チェック
-    if (Object.keys(data.purchase).length > 0) {
+    if (data.purchase.records.length > 0) {
       let purchaseMaxDay = 0
-      for (const storeId of Object.keys(data.purchase)) {
-        const days = data.purchase[storeId]
-        if (!days || typeof days !== 'object') continue
-        for (const dayStr of Object.keys(days)) {
-          const d = Number(dayStr)
-          if (d > purchaseMaxDay) purchaseMaxDay = d
-        }
+      for (const rec of data.purchase.records) {
+        if (rec.day > purchaseMaxDay) purchaseMaxDay = rec.day
       }
 
       if (purchaseMaxDay > 0 && purchaseMaxDay < csMaxDay) {
@@ -518,7 +507,22 @@ export function extractRecordMonths(
     addMonth(rec.year, rec.month)
   }
 
-  // StoreDayRecord パーティションのキーからも年月を収集
+  // フラットレコード系データからも年月を収集
+  const flatSources = [
+    data.purchase.records,
+    data.interStoreIn.records,
+    data.interStoreOut.records,
+    data.flowers.records,
+    data.directProduce.records,
+    data.consumables.records,
+  ] as const
+  for (const records of flatSources) {
+    for (const rec of records) {
+      addMonth(rec.year, rec.month)
+    }
+  }
+
+  // パーティションのキーからも年月を収集
   if (partitions) {
     const allPartitionKeys = new Set<string>()
     for (const mk of Object.keys(partitions.purchase)) allPartitionKeys.add(mk)
@@ -567,30 +571,27 @@ export function filterDataForMonth(
 
   if (!partitions) return base
 
-  // パーティション情報を使って StoreDayRecord 系データを年月で分割。
+  // パーティション情報を使ってフラットレコード系データを年月で分割。
   // パーティションにエントリが1つもない種別（= 今回インポートされなかった種別）は
-  // processedData の値をそのまま保全する。空の {} や new Map() で上書きすると
+  // processedData の値をそのまま保全する。空の { records: [] } や new Map() で上書きすると
   // 既存データ（予算、仕入など）が失われるバグの原因になる。
+  const emptyRecords = { records: [] } as const
   const has = (obj: Record<string, unknown>) => Object.keys(obj).length > 0
   return {
     ...base,
-    purchase: has(partitions.purchase)
-      ? ((partitions.purchase[mk] ?? {}) as PurchaseData)
-      : data.purchase,
-    flowers: has(partitions.flowers)
-      ? ((partitions.flowers[mk] ?? {}) as SpecialSalesData)
-      : data.flowers,
+    purchase: has(partitions.purchase) ? (partitions.purchase[mk] ?? emptyRecords) : data.purchase,
+    flowers: has(partitions.flowers) ? (partitions.flowers[mk] ?? emptyRecords) : data.flowers,
     directProduce: has(partitions.directProduce)
-      ? ((partitions.directProduce[mk] ?? {}) as SpecialSalesData)
+      ? (partitions.directProduce[mk] ?? emptyRecords)
       : data.directProduce,
     interStoreIn: has(partitions.interStoreIn)
-      ? ((partitions.interStoreIn[mk] ?? {}) as TransferData)
+      ? (partitions.interStoreIn[mk] ?? emptyRecords)
       : data.interStoreIn,
     interStoreOut: has(partitions.interStoreOut)
-      ? ((partitions.interStoreOut[mk] ?? {}) as TransferData)
+      ? (partitions.interStoreOut[mk] ?? emptyRecords)
       : data.interStoreOut,
     consumables: has(partitions.consumables)
-      ? ((partitions.consumables[mk] ?? {}) as CostInclusionData)
+      ? (partitions.consumables[mk] ?? emptyRecords)
       : data.consumables,
     budget: has(partitions.budget)
       ? (partitions.budget[mk] ?? new Map<string, BudgetData>())

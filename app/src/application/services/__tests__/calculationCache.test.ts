@@ -87,8 +87,12 @@ describe('computeFingerprint', () => {
     const data2 = {
       ...data1,
       consumables: {
-        s1: {
-          1: {
+        records: [
+          {
+            year: 2024,
+            month: 1,
+            day: 1,
+            storeId: 's1',
             cost: 500,
             items: [
               {
@@ -100,7 +104,7 @@ describe('computeFingerprint', () => {
               },
             ],
           },
-        },
+        ],
       },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
@@ -112,7 +116,9 @@ describe('computeFingerprint', () => {
     const data1 = createEmptyImportedData()
     const data2 = {
       ...data1,
-      flowers: { s1: { 1: { cost: 1000, price: 1200 } } },
+      flowers: {
+        records: [{ year: 2024, month: 1, day: 1, storeId: 's1', cost: 1000, price: 1200 }],
+      },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)
     const fp2 = computeFingerprint('s1', data2, mockSettings, 31)
@@ -124,8 +130,12 @@ describe('computeFingerprint', () => {
     const data2 = {
       ...data1,
       interStoreIn: {
-        s1: {
-          1: {
+        records: [
+          {
+            year: 2024,
+            month: 1,
+            day: 1,
+            storeId: 's1',
             interStoreIn: [
               {
                 day: 1,
@@ -140,7 +150,7 @@ describe('computeFingerprint', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     }
     const fp1 = computeFingerprint('s1', data1, mockSettings, 31)

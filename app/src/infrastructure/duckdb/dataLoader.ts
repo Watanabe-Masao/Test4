@@ -460,23 +460,20 @@ async function insertPurchase(
 ): Promise<number> {
   const rows: Record<string, unknown>[] = []
 
-  for (const [storeId, days] of Object.entries(data)) {
-    for (const [dayStr, entry] of Object.entries(days)) {
-      const day = Number(dayStr)
-      const dateKey = toDateKeyFromParts(year, month, day)
-      for (const [supplierCode, supplier] of Object.entries(entry.suppliers)) {
-        rows.push({
-          year,
-          month,
-          store_id: storeId,
-          day,
-          date_key: dateKey,
-          supplier_code: supplierCode,
-          supplier_name: supplier.name,
-          cost: supplier.cost,
-          price: supplier.price,
-        })
-      }
+  for (const entry of data.records) {
+    const dateKey = toDateKeyFromParts(year, month, entry.day)
+    for (const [supplierCode, supplier] of Object.entries(entry.suppliers)) {
+      rows.push({
+        year,
+        month,
+        store_id: entry.storeId,
+        day: entry.day,
+        date_key: dateKey,
+        supplier_code: supplierCode,
+        supplier_name: supplier.name,
+        cost: supplier.cost,
+        price: supplier.price,
+      })
     }
   }
 
@@ -494,21 +491,18 @@ async function insertSpecialSales(
 ): Promise<number> {
   const rows: Record<string, unknown>[] = []
 
-  for (const [storeId, days] of Object.entries(data)) {
-    for (const [dayStr, entry] of Object.entries(days)) {
-      const day = Number(dayStr)
-      rows.push({
-        year,
-        month,
-        store_id: storeId,
-        day,
-        date_key: toDateKeyFromParts(year, month, day),
-        type,
-        cost: entry.cost,
-        price: entry.price,
-        customers: entry.customers ?? 0,
-      })
-    }
+  for (const entry of data.records) {
+    rows.push({
+      year,
+      month,
+      store_id: entry.storeId,
+      day: entry.day,
+      date_key: toDateKeyFromParts(year, month, entry.day),
+      type,
+      cost: entry.cost,
+      price: entry.price,
+      customers: entry.customers ?? 0,
+    })
   }
 
   return bulkInsert(conn, db, 'special_sales', rows)
@@ -525,41 +519,38 @@ async function insertTransfers(
 ): Promise<number> {
   const rows: Record<string, unknown>[] = []
 
-  for (const [storeId, days] of Object.entries(data)) {
-    for (const [dayStr, entry] of Object.entries(days)) {
-      const day = Number(dayStr)
-      const dateKey = toDateKeyFromParts(year, month, day)
+  for (const entry of data.records) {
+    const dateKey = toDateKeyFromParts(year, month, entry.day)
 
-      const storeRecords = inOrOut === 'in' ? entry.interStoreIn : entry.interStoreOut
-      const deptRecords = inOrOut === 'in' ? entry.interDepartmentIn : entry.interDepartmentOut
+    const storeRecords = inOrOut === 'in' ? entry.interStoreIn : entry.interStoreOut
+    const deptRecords = inOrOut === 'in' ? entry.interDepartmentIn : entry.interDepartmentOut
 
-      const storeDirection = inOrOut === 'in' ? 'interStoreIn' : 'interStoreOut'
-      const deptDirection = inOrOut === 'in' ? 'interDeptIn' : 'interDeptOut'
+    const storeDirection = inOrOut === 'in' ? 'interStoreIn' : 'interStoreOut'
+    const deptDirection = inOrOut === 'in' ? 'interDeptIn' : 'interDeptOut'
 
-      for (const r of storeRecords) {
-        rows.push({
-          year,
-          month,
-          store_id: storeId,
-          day,
-          date_key: dateKey,
-          direction: storeDirection,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
-      for (const r of deptRecords) {
-        rows.push({
-          year,
-          month,
-          store_id: storeId,
-          day,
-          date_key: dateKey,
-          direction: deptDirection,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
+    for (const r of storeRecords) {
+      rows.push({
+        year,
+        month,
+        store_id: entry.storeId,
+        day: entry.day,
+        date_key: dateKey,
+        direction: storeDirection,
+        cost: r.cost,
+        price: r.price,
+      })
+    }
+    for (const r of deptRecords) {
+      rows.push({
+        year,
+        month,
+        store_id: entry.storeId,
+        day: entry.day,
+        date_key: dateKey,
+        direction: deptDirection,
+        cost: r.cost,
+        price: r.price,
+      })
     }
   }
 
@@ -576,18 +567,15 @@ async function insertCostInclusions(
 ): Promise<number> {
   const rows: Record<string, unknown>[] = []
 
-  for (const [storeId, days] of Object.entries(data)) {
-    for (const [dayStr, entry] of Object.entries(days)) {
-      const day = Number(dayStr)
-      rows.push({
-        year,
-        month,
-        store_id: storeId,
-        day,
-        date_key: toDateKeyFromParts(year, month, day),
-        cost: entry.cost,
-      })
-    }
+  for (const entry of data.records) {
+    rows.push({
+      year,
+      month,
+      store_id: entry.storeId,
+      day: entry.day,
+      date_key: toDateKeyFromParts(year, month, entry.day),
+      cost: entry.cost,
+    })
   }
 
   return bulkInsert(conn, db, 'consumables', rows)

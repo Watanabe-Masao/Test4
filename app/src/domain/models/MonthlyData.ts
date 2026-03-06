@@ -12,8 +12,6 @@ import type { Store } from './Store'
 import type { InventoryConfig, BudgetData } from './BudgetData'
 import type {
   PurchaseData,
-  SalesData,
-  DiscountData,
   TransferData,
   SpecialSalesData,
   CostInclusionData,
@@ -28,8 +26,6 @@ export interface MonthlyData {
   readonly stores: ReadonlyMap<string, Store>
   readonly suppliers: ReadonlyMap<string, { code: string; name: string }>
   readonly purchase: PurchaseData
-  readonly sales: SalesData
-  readonly discount: DiscountData
   readonly interStoreIn: TransferData
   readonly interStoreOut: TransferData
   readonly flowers: SpecialSalesData
@@ -60,14 +56,12 @@ export function createEmptyMonthlyData(origin: DataOrigin): MonthlyData {
     origin,
     stores: new Map(),
     suppliers: new Map(),
-    purchase: {},
-    sales: {},
-    discount: {},
-    interStoreIn: {},
-    interStoreOut: {},
-    flowers: {},
-    directProduce: {},
-    consumables: {},
+    purchase: { records: [] },
+    interStoreIn: { records: [] },
+    interStoreOut: { records: [] },
+    flowers: { records: [] },
+    directProduce: { records: [] },
+    consumables: { records: [] },
     categoryTimeSales: { records: [] },
     departmentKpi: { records: [] },
     settings: new Map(),

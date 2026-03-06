@@ -73,7 +73,18 @@ function makeDataWithRecords() {
   const data = createEmptyImportedData()
   return {
     ...data,
-    purchase: { s1: {} as never },
+    purchase: {
+      records: [
+        {
+          year: 2025,
+          month: 1,
+          day: 1,
+          storeId: 's1',
+          suppliers: {},
+          total: { cost: 0, price: 0 },
+        },
+      ],
+    },
     classifiedSales: {
       records: [
         {
@@ -108,7 +119,21 @@ describe('useCalculation', () => {
 
     it('is false when classifiedSales is empty', () => {
       act(() => {
-        const data = { ...createEmptyImportedData(), purchase: { s1: {} as never } }
+        const data = {
+          ...createEmptyImportedData(),
+          purchase: {
+            records: [
+              {
+                year: 2025,
+                month: 1,
+                day: 1,
+                storeId: 's1',
+                suppliers: {},
+                total: { cost: 0, price: 0 },
+              },
+            ],
+          },
+        }
         useDataStore.getState().setImportedData(data)
       })
       const { result } = renderHook(() => useCalculation())

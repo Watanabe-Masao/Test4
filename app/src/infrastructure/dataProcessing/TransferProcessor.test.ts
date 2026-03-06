@@ -9,10 +9,10 @@ describe('processInterStoreIn', () => {
     ]
 
     const result = processInterStoreIn(rows)
-    const dayData = result['2026-2']?.['1']?.[1]
-    expect(dayData?.interStoreIn).toHaveLength(1)
-    expect(dayData?.interStoreIn[0].cost).toBe(10000)
-    expect(dayData?.interStoreIn[0].price).toBe(13000)
+    const rec = result['2026-2']?.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(rec?.interStoreIn).toHaveLength(1)
+    expect(rec?.interStoreIn[0].cost).toBe(10000)
+    expect(rec?.interStoreIn[0].price).toBe(13000)
   })
 
   it('部門間移動の判定（同一店舗コード）', () => {
@@ -22,16 +22,17 @@ describe('processInterStoreIn', () => {
     ]
 
     const result = processInterStoreIn(rows)
-    const dayData = result['2026-2']?.['1']?.[1]
-    expect(dayData?.interDepartmentIn).toHaveLength(1)
-    expect(dayData?.interStoreIn).toHaveLength(0)
+    const rec = result['2026-2']?.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(rec?.interDepartmentIn).toHaveLength(1)
+    expect(rec?.interStoreIn).toHaveLength(0)
   })
 
   it('金額は絶対値で格納', () => {
     const rows = [['header'], ['0001', '2026-02-01', '0002', -10000, -13000]]
     const result = processInterStoreIn(rows)
-    expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].cost).toBe(10000)
-    expect(result['2026-2']?.['1']?.[1]?.interStoreIn[0].price).toBe(13000)
+    const rec = result['2026-2']?.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(rec?.interStoreIn[0].cost).toBe(10000)
+    expect(rec?.interStoreIn[0].price).toBe(13000)
   })
 
   it('行数不足の場合は空', () => {
@@ -47,17 +48,18 @@ describe('processInterStoreOut', () => {
     ]
 
     const result = processInterStoreOut(rows)
-    const dayData = result['2026-2']?.['1']?.[1]
-    expect(dayData?.interStoreOut).toHaveLength(1)
-    expect(dayData?.interStoreOut[0].cost).toBe(-10000) // 負の絶対値
-    expect(dayData?.interStoreOut[0].price).toBe(-13000)
+    const rec = result['2026-2']?.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(rec?.interStoreOut).toHaveLength(1)
+    expect(rec?.interStoreOut[0].cost).toBe(-10000) // 負の絶対値
+    expect(rec?.interStoreOut[0].price).toBe(-13000)
   })
 
   it('部門間移動の判定', () => {
     const rows = [['header'], ['2026-02-01', '0001', '0001', '001', 5000, 6500]]
     const result = processInterStoreOut(rows)
-    expect(result['2026-2']?.['1']?.[1]?.interDepartmentOut).toHaveLength(1)
-    expect(result['2026-2']?.['1']?.[1]?.interStoreOut).toHaveLength(0)
+    const rec = result['2026-2']?.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(rec?.interDepartmentOut).toHaveLength(1)
+    expect(rec?.interStoreOut).toHaveLength(0)
   })
 
   it('行数不足の場合は空', () => {

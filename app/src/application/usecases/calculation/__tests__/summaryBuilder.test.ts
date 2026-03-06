@@ -59,12 +59,16 @@ describe('buildStoreDaySummaryIndex', () => {
   it('売上＋仕入の基本結合', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '0001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 15000)],
@@ -89,10 +93,12 @@ describe('buildStoreDaySummaryIndex', () => {
         records: [makeCSRecord(1, '1', 20000)],
       },
       flowers: {
-        '1': { 1: { cost: 3000, price: 4000, customers: 100 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 3000, price: 4000, customers: 100 },
+        ],
       },
       directProduce: {
-        '1': { 1: { cost: 2000, price: 2500 } },
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 2000, price: 2500 }],
       },
     })
 
@@ -133,8 +139,12 @@ describe('buildStoreDaySummaryIndex', () => {
         records: [makeCSRecord(1, '1', 10000)],
       },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -158,11 +168,15 @@ describe('buildStoreDaySummaryIndex', () => {
             ],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       interStoreOut: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [
               {
@@ -186,7 +200,7 @@ describe('buildStoreDaySummaryIndex', () => {
               },
             ],
           },
-        },
+        ],
       },
     })
 
@@ -206,7 +220,7 @@ describe('buildStoreDaySummaryIndex', () => {
   it('消耗品データの結合', () => {
     const data = buildTestData({
       consumables: {
-        '1': { 1: { cost: 750, items: [] } },
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 750, items: [] }],
       },
     })
 
@@ -253,16 +267,24 @@ describe('summaryBuilder と dailyBuilder の一貫性', () => {
   it('売上・仕入・花・産直・移動・消耗品の数値が dailyBuilder と一致する', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '0001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-          2: {
+          {
+            year: 2025,
+            month: 1,
+            day: 2,
+            storeId: '1',
             suppliers: { '0002': { name: 'B', cost: 5000, price: 6500 } },
             total: { cost: 5000, price: 6500 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [
@@ -271,18 +293,16 @@ describe('summaryBuilder と dailyBuilder の一貫性', () => {
         ],
       },
       flowers: {
-        '1': {
-          1: { cost: 2000, price: 2500, customers: 80 },
-          2: { cost: 1500, price: 2000, customers: 60 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', cost: 2000, price: 2500, customers: 80 },
+          { year: 2025, month: 1, day: 2, storeId: '1', cost: 1500, price: 2000, customers: 60 },
+        ],
       },
       directProduce: {
-        '1': {
-          1: { cost: 1000, price: 1200 },
-        },
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 1000, price: 1200 }],
       },
       consumables: {
-        '1': { 1: { cost: 500, items: [] } },
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 500, items: [] }],
       },
     })
 

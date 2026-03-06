@@ -8,7 +8,7 @@
  */
 import type {
   ImportedData,
-  StoreDayRecord,
+  DatedRecord,
   CategoryTimeSalesData,
   ClassifiedSalesData,
   FieldChange,
@@ -16,6 +16,11 @@ import type {
   DiffResult,
 } from '@/domain/models'
 import { categoryTimeSalesRecordKey, classifiedSalesRecordKey } from '@/domain/models'
+
+/** フラットレコードの一意キーを生成（storeId + day） */
+function flatRecordKey(rec: DatedRecord): string {
+  return `${rec.storeId}\t${rec.day}`
+}
 
 // ドメイン層で定義された型を再エクスポート
 export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
@@ -40,11 +45,6 @@ const DATA_TYPE_NAMES: Record<string, string> = {
 
 // ─── 値の比較ヘルパー ────────────────────────────────────
 
-/** オブジェクトが空か判定 */
-function isEmptyRecord(obj: Record<string, unknown>): boolean {
-  return Object.keys(obj).length === 0
-}
-
 /** 2つの値を数値として比較（浮動小数点対応） */
 function valuesEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true
@@ -54,10 +54,15 @@ function valuesEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
+/** DatedRecord のメタフィールド（差分比較から除外） */
+const DATED_RECORD_FIELDS = new Set(['year', 'month', 'day', 'storeId'])
+
 /** day エントリの全フィールドを flat に展開して比較する */
 function flattenDayEntry(entry: Record<string, unknown>, prefix = ''): Map<string, unknown> {
   const result = new Map<string, unknown>()
   for (const [key, val] of Object.entries(entry)) {
+    // トップレベルの DatedRecord フィールドはキー情報なので差分対象外
+    if (!prefix && DATED_RECORD_FIELDS.has(key)) continue
     const path = prefix ? `${prefix}.${key}` : key
     if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
       for (const [k2, v2] of flattenDayEntry(val as Record<string, unknown>, path)) {
@@ -75,11 +80,11 @@ function getStoreName(storeId: string, existing: ImportedData, incoming: Importe
   return existing.stores.get(storeId)?.name ?? incoming.stores.get(storeId)?.name ?? storeId
 }
 
-// ─── StoreDayRecord の差分計算 ───────────────────────────
+// ─── フラットレコード配列の差分計算 ───────────────────────────
 
-function diffStoreDayRecord(
-  existing: StoreDayRecord<Record<string, unknown>>,
-  incoming: StoreDayRecord<Record<string, unknown>>,
+function diffFlatRecords(
+  existingRecords: readonly DatedRecord[],
+  incomingRecords: readonly DatedRecord[],
   dataType: string,
   existingData: ImportedData,
   incomingData: ImportedData,
@@ -88,124 +93,103 @@ function diffStoreDayRecord(
   const modifications: FieldChange[] = []
   const removals: FieldChange[] = []
 
-  // 新規データのキーを走査
-  for (const [storeId, incomingDays] of Object.entries(incoming)) {
-    const existingDays = existing[storeId]
-    const storeName = getStoreName(storeId, existingData, incomingData)
+  // キーでインデックス化
+  const existingMap = new Map<string, DatedRecord>()
+  for (const r of existingRecords) {
+    existingMap.set(flatRecordKey(r), r)
+  }
+  const incomingMap = new Map<string, DatedRecord>()
+  for (const r of incomingRecords) {
+    incomingMap.set(flatRecordKey(r), r)
+  }
 
-    for (const [dayStr, incomingEntry] of Object.entries(incomingDays)) {
-      const day = Number(dayStr)
-      const existingEntry = existingDays?.[day]
+  // 新規・変更の検出
+  for (const [key, incRec] of incomingMap) {
+    const exRec = existingMap.get(key)
+    const storeName = getStoreName(incRec.storeId, existingData, incomingData)
 
-      if (!existingEntry) {
-        // 既存に当日データなし → 全て新規挿入
-        const fields = flattenDayEntry(incomingEntry as Record<string, unknown>)
-        for (const [fieldPath, newVal] of fields) {
+    if (!exRec) {
+      // 既存に当日データなし → 全て新規挿入
+      const fields = flattenDayEntry(incRec as unknown as Record<string, unknown>)
+      for (const [fieldPath, newVal] of fields) {
+        if (newVal !== 0 && newVal !== null && newVal !== undefined) {
+          inserts.push({
+            storeId: incRec.storeId,
+            storeName,
+            day: incRec.day,
+            fieldPath,
+            oldValue: null,
+            newValue: formatValue(newVal),
+          })
+        }
+      }
+    } else {
+      // 既存に当日データあり → フィールド単位で比較
+      const oldFields = flattenDayEntry(exRec as unknown as Record<string, unknown>)
+      const newFields = flattenDayEntry(incRec as unknown as Record<string, unknown>)
+
+      // 新規側のフィールドを走査
+      for (const [fieldPath, newVal] of newFields) {
+        const oldVal = oldFields.get(fieldPath)
+        if (oldVal === undefined || oldVal === null || oldVal === 0) {
+          // 既存に値がない → 挿入
           if (newVal !== 0 && newVal !== null && newVal !== undefined) {
             inserts.push({
-              storeId,
+              storeId: incRec.storeId,
               storeName,
-              day,
+              day: incRec.day,
               fieldPath,
               oldValue: null,
               newValue: formatValue(newVal),
             })
           }
-        }
-      } else {
-        // 既存に当日データあり → フィールド単位で比較
-        const oldFields = flattenDayEntry(existingEntry as Record<string, unknown>)
-        const newFields = flattenDayEntry(incomingEntry as Record<string, unknown>)
-
-        // 新規側のフィールドを走査
-        for (const [fieldPath, newVal] of newFields) {
-          const oldVal = oldFields.get(fieldPath)
-          if (oldVal === undefined || oldVal === null || oldVal === 0) {
-            // 既存に値がない → 挿入
-            if (newVal !== 0 && newVal !== null && newVal !== undefined) {
-              inserts.push({
-                storeId,
-                storeName,
-                day,
-                fieldPath,
-                oldValue: null,
-                newValue: formatValue(newVal),
-              })
-            }
-          } else if (!valuesEqual(oldVal, newVal)) {
-            // 値が異なる → 変更
-            modifications.push({
-              storeId,
-              storeName,
-              day,
-              fieldPath,
-              oldValue: formatValue(oldVal),
-              newValue: formatValue(newVal),
-            })
-          }
-        }
-
-        // 既存側にあって新規にないフィールド → 削除
-        for (const [fieldPath, oldVal] of oldFields) {
-          if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
-            const newVal = newFields.get(fieldPath)
-            if (newVal === undefined || newVal === null || newVal === 0) {
-              removals.push({
-                storeId,
-                storeName,
-                day,
-                fieldPath,
-                oldValue: formatValue(oldVal),
-                newValue: null,
-              })
-            }
-          }
+        } else if (!valuesEqual(oldVal, newVal)) {
+          // 値が異なる → 変更
+          modifications.push({
+            storeId: incRec.storeId,
+            storeName,
+            day: incRec.day,
+            fieldPath,
+            oldValue: formatValue(oldVal),
+            newValue: formatValue(newVal),
+          })
         }
       }
-    }
 
-    // 既存にあって新規にない日 → 削除
-    if (existingDays) {
-      for (const [dayStr, existingEntry] of Object.entries(existingDays)) {
-        const day = Number(dayStr)
-        if (!incomingDays[day]) {
-          const fields = flattenDayEntry(existingEntry as Record<string, unknown>)
-          for (const [fieldPath, oldVal] of fields) {
-            if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
-              const storeName = getStoreName(storeId, existingData, incomingData)
-              removals.push({
-                storeId,
-                storeName,
-                day,
-                fieldPath,
-                oldValue: formatValue(oldVal),
-                newValue: null,
-              })
-            }
+      // 既存側にあって新規にないフィールド → 削除
+      for (const [fieldPath, oldVal] of oldFields) {
+        if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
+          const newVal = newFields.get(fieldPath)
+          if (newVal === undefined || newVal === null || newVal === 0) {
+            removals.push({
+              storeId: exRec.storeId,
+              storeName,
+              day: exRec.day,
+              fieldPath,
+              oldValue: formatValue(oldVal),
+              newValue: null,
+            })
           }
         }
       }
     }
   }
 
-  // 既存にあって新規データに店舗ごと存在しない → 削除
-  for (const [storeId, existingDays] of Object.entries(existing)) {
-    if (!incoming[storeId]) {
-      const storeName = getStoreName(storeId, existingData, incomingData)
-      for (const [dayStr, existingEntry] of Object.entries(existingDays)) {
-        const day = Number(dayStr)
-        const fields = flattenDayEntry(existingEntry as Record<string, unknown>)
-        for (const [fieldPath, oldVal] of fields) {
-          if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
-            removals.push({
-              storeId,
-              storeName,
-              day,
-              fieldPath,
-              oldValue: formatValue(oldVal),
-              newValue: null,
-            })
-          }
+  // 既存にあって新規にないレコード → 削除
+  for (const [key, exRec] of existingMap) {
+    if (!incomingMap.has(key)) {
+      const storeName = getStoreName(exRec.storeId, existingData, incomingData)
+      const fields = flattenDayEntry(exRec as unknown as Record<string, unknown>)
+      for (const [fieldPath, oldVal] of fields) {
+        if (oldVal !== 0 && oldVal !== null && oldVal !== undefined) {
+          removals.push({
+            storeId: exRec.storeId,
+            storeName,
+            day: exRec.day,
+            fieldPath,
+            oldValue: formatValue(oldVal),
+            newValue: null,
+          })
         }
       }
     }
@@ -363,10 +347,10 @@ function diffClassifiedSales(
 
 // ─── メイン差分計算 ──────────────────────────────────────
 
-/** StoreDayRecord 系フィールド一覧 */
+/** フラットレコード系フィールド一覧 */
 const DIFFABLE_FIELDS: readonly { field: keyof ImportedData; type: string }[] = [
   { field: 'purchase', type: 'purchase' },
-  // classifiedSales は配列形式のため個別処理（下記 diffClassifiedSales）
+  // classifiedSales は個別処理（下記 diffClassifiedSales）
   { field: 'interStoreIn', type: 'interStoreIn' },
   { field: 'interStoreOut', type: 'interStoreOut' },
   { field: 'flowers', type: 'flowers' },
@@ -394,21 +378,27 @@ export function calculateDiff(
     // 今回インポートされなかった種別はスキップ
     if (!importedTypes.has(type)) continue
 
-    const existingRecord = existing[field] as unknown as StoreDayRecord<Record<string, unknown>>
-    const incomingRecord = incoming[field] as unknown as StoreDayRecord<Record<string, unknown>>
+    const existingData = existing[field] as { readonly records: readonly DatedRecord[] }
+    const incomingData = incoming[field] as { readonly records: readonly DatedRecord[] }
 
     // 既存が空 → 全て新規挿入なので差分チェック不要
-    if (isEmptyRecord(existingRecord as Record<string, unknown>)) {
+    if (existingData.records.length === 0) {
       autoApproved.push(type)
       continue
     }
 
     // 新規が空 → 今回そのデータ種別はインポートされていない
-    if (isEmptyRecord(incomingRecord as Record<string, unknown>)) {
+    if (incomingData.records.length === 0) {
       continue
     }
 
-    const diff = diffStoreDayRecord(existingRecord, incomingRecord, type, existing, incoming)
+    const diff = diffFlatRecords(
+      existingData.records,
+      incomingData.records,
+      type,
+      existing,
+      incoming,
+    )
     if (diff.inserts.length > 0 || diff.modifications.length > 0 || diff.removals.length > 0) {
       diffs.push(diff)
     }

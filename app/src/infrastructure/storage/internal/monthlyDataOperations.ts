@@ -488,21 +488,11 @@ export async function getMonthDataSummary(
       continue
     }
     let count = 0
-    if (type === 'classifiedSales' || type === 'categoryTimeSales' || type === 'departmentKpi') {
-      count = ((val as { records?: unknown[] }).records ?? []).length
-    } else if (
-      type === 'stores' ||
-      type === 'suppliers' ||
-      type === 'settings' ||
-      type === 'budget'
-    ) {
+    if (type === 'stores' || type === 'suppliers' || type === 'settings' || type === 'budget') {
       count = Object.keys(val as Record<string, unknown>).length
     } else {
-      // StoreDayRecord: storeId → day → entry
-      const rec = val as Record<string, Record<string, unknown>>
-      for (const days of Object.values(rec)) {
-        count += Object.keys(days).length
-      }
+      // records 配列形式: { records: [...] }
+      count = ((val as { records?: unknown[] }).records ?? []).length
     }
     results.push({ dataType: type, label, recordCount: count })
   }

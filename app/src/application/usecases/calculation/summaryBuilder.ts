@@ -18,7 +18,7 @@ import type {
   StoreDaySummaryIndex,
   StoreDaySummaryCache,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY } from '@/domain/models'
+import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY, indexByStoreDay } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import { hashData } from '@/application/services/hash'
@@ -57,14 +57,15 @@ function buildStoreDay(
   storeId: string,
   data: ImportedData,
   daysInMonth: number,
+  indices: ReturnType<typeof buildIndices>,
 ): { readonly [day: number]: StoreDaySummary } {
-  const purchaseStore = data.purchase[storeId] ?? {}
+  const purchaseStore = indices.purchase[storeId] ?? {}
   const classifiedSalesAgg = aggregateForStore(data.classifiedSales, storeId)
-  const interStoreInStore = data.interStoreIn[storeId] ?? {}
-  const interStoreOutStore = data.interStoreOut[storeId] ?? {}
-  const flowersStore = data.flowers[storeId] ?? {}
-  const directProduceStore = data.directProduce[storeId] ?? {}
-  const costInclusionsStore = data.consumables[storeId] ?? {}
+  const interStoreInStore = indices.interStoreIn[storeId] ?? {}
+  const interStoreOutStore = indices.interStoreOut[storeId] ?? {}
+  const flowersStore = indices.flowers[storeId] ?? {}
+  const directProduceStore = indices.directProduce[storeId] ?? {}
+  const costInclusionsStore = indices.consumables[storeId] ?? {}
 
   const result: Record<number, StoreDaySummary> = {}
 
@@ -179,6 +180,18 @@ function buildStoreDay(
   return result
 }
 
+/** flat record 配列から O(1) ルックアップ用インデックスを一括構築する */
+function buildIndices(data: ImportedData) {
+  return {
+    purchase: indexByStoreDay(data.purchase.records),
+    interStoreIn: indexByStoreDay(data.interStoreIn.records),
+    interStoreOut: indexByStoreDay(data.interStoreOut.records),
+    flowers: indexByStoreDay(data.flowers.records),
+    directProduce: indexByStoreDay(data.directProduce.records),
+    consumables: indexByStoreDay(data.consumables.records),
+  }
+}
+
 /**
  * ImportedData から StoreDaySummaryIndex を構築する。
  * 全店舗分のサマリーを生成する。
@@ -188,9 +201,10 @@ export function buildStoreDaySummaryIndex(
   daysInMonth: number,
 ): StoreDaySummaryIndex {
   const result: Record<string, { readonly [day: number]: StoreDaySummary }> = {}
+  const indices = buildIndices(data)
 
   for (const storeId of data.stores.keys()) {
-    const storeDays = buildStoreDay(storeId, data, daysInMonth)
+    const storeDays = buildStoreDay(storeId, data, daysInMonth, indices)
     // 空の店舗もキーとして含める（存在証明）
     result[storeId] = storeDays
   }

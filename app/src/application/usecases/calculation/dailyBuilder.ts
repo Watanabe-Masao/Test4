@@ -11,6 +11,7 @@ import {
   addCostPricePairs,
   ZERO_COST_INCLUSION_DAILY,
   getDailyTotalCost,
+  indexByStoreDay,
 } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
@@ -24,14 +25,22 @@ export function buildDailyRecords(
   data: ImportedData,
   daysInMonth: number,
 ): MonthlyAccumulator {
-  const purchaseStore = data.purchase[storeId] ?? {}
+  // flat record 配列から StoreDayIndex を構築して O(1) ルックアップ
+  const purchaseIndex = indexByStoreDay(data.purchase.records)
+  const interStoreInIndex = indexByStoreDay(data.interStoreIn.records)
+  const interStoreOutIndex = indexByStoreDay(data.interStoreOut.records)
+  const flowersIndex = indexByStoreDay(data.flowers.records)
+  const directProduceIndex = indexByStoreDay(data.directProduce.records)
+  const consumablesIndex = indexByStoreDay(data.consumables.records)
+
+  const purchaseStore = purchaseIndex[storeId] ?? {}
   // 分類別売上を店舗×日に集約
   const classifiedSalesAgg = aggregateForStore(data.classifiedSales, storeId)
-  const interStoreInStore = data.interStoreIn[storeId] ?? {}
-  const interStoreOutStore = data.interStoreOut[storeId] ?? {}
-  const flowersStore = data.flowers[storeId] ?? {}
-  const directProduceStore = data.directProduce[storeId] ?? {}
-  const costInclusionsStore = data.consumables[storeId] ?? {}
+  const interStoreInStore = interStoreInIndex[storeId] ?? {}
+  const interStoreOutStore = interStoreOutIndex[storeId] ?? {}
+  const flowersStore = flowersIndex[storeId] ?? {}
+  const directProduceStore = directProduceIndex[storeId] ?? {}
+  const costInclusionsStore = consumablesIndex[storeId] ?? {}
 
   const daily = new Map<number, DailyRecord>()
   const categoryTotals = new Map<CategoryType, CostPricePair>()

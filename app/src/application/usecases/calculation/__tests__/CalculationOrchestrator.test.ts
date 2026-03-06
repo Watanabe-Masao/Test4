@@ -49,14 +49,18 @@ describe('calculateStoreResult', () => {
   it('仕入＋売上の基本計算', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: {
               '0000001': { name: '取引先A', cost: 10000, price: 13000 },
             },
             total: { cost: 10000, price: 13000 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 15000)],
@@ -76,9 +80,16 @@ describe('calculateStoreResult', () => {
   it('在庫法: 期首・期末在庫ありで粗利計算', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: { suppliers: {}, total: { cost: 50000, price: 65000 } },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 80000)],
@@ -113,7 +124,16 @@ describe('calculateStoreResult', () => {
   it('在庫法: 在庫設定なしで null', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 10000, price: 13000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 13000 },
+          },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 15000)],
@@ -129,7 +149,9 @@ describe('calculateStoreResult', () => {
   it('花データの掛け率適用', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
     })
 
     const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
@@ -143,16 +165,24 @@ describe('calculateStoreResult', () => {
   it('総仕入原価に売上納品原価が反映される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } },
             total: { cost: 30000, price: 40000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4250 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 }],
+      },
     })
 
     const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
@@ -168,15 +198,21 @@ describe('calculateStoreResult', () => {
   it('在庫法: 売上納品原価が総仕入原価に含まれてCOGS計算される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '0000001': { name: '取引先A', cost: 30000, price: 40000 } },
             total: { cost: 30000, price: 40000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
       settings: new Map([
         [
           '1',
@@ -207,16 +243,24 @@ describe('calculateStoreResult', () => {
   it('平均値入率は花・産直を含み、コア値入率は仕入のみ', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 30000, price: 40000 } },
             total: { cost: 30000, price: 40000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4250 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 }],
+      },
     })
 
     const result = calculateStoreResult('1', data, DEFAULT_SETTINGS, 28)
@@ -249,14 +293,18 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 3000,
             items: [
               { accountCode: '81257', itemCode: 'A', itemName: 'X', quantity: 1, cost: 3000 },
             ],
           },
-        },
+        ],
       },
     })
 
@@ -269,17 +317,25 @@ describe('calculateStoreResult', () => {
   it('店間移動の集計', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -294,11 +350,15 @@ describe('calculateStoreResult', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       interStoreOut: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [
               {
@@ -313,7 +373,7 @@ describe('calculateStoreResult', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     })
 
@@ -357,16 +417,24 @@ describe('calculateStoreResult', () => {
   it('複数日の集計', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-          2: {
+          {
+            year: 2025,
+            month: 1,
+            day: 2,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } },
             total: { cost: 20000, price: 26000 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 15000), makeCSRecord(2, '1', 30000)],
@@ -418,18 +486,24 @@ describe('aggregateStoreResults', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-        },
-        '2': {
-          1: {
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '2',
             suppliers: { '001': { name: 'A', cost: 20000, price: 26000 } },
             total: { cost: 20000, price: 26000 },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 15000), makeCSRecord(1, '2', 30000)],
@@ -454,8 +528,24 @@ describe('aggregateStoreResults', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
       ]),
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 10000, price: 13000 } } },
-        '2': { 1: { suppliers: {}, total: { cost: 20000, price: 26000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 13000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 20000, price: 26000 },
+          },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 80000)],
@@ -513,17 +603,25 @@ describe('aggregateStoreResults', () => {
       ...createEmptyImportedData(),
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -538,7 +636,7 @@ describe('aggregateStoreResults', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     }
 
@@ -568,12 +666,40 @@ describe('dataEndDay による日数トリミング', () => {
         ],
       },
       purchase: {
-        '1': {
-          1: { suppliers: {}, total: { cost: 5000, price: 7000 } },
-          5: { suppliers: {}, total: { cost: 10000, price: 14000 } },
-          10: { suppliers: {}, total: { cost: 15000, price: 21000 } },
-          15: { suppliers: {}, total: { cost: 20000, price: 28000 } },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 5000, price: 7000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 14000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 10,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 15000, price: 21000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 15,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 20000, price: 28000 },
+          },
+        ],
       },
     })
 
@@ -628,10 +754,10 @@ describe('客数集計', () => {
         records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 60000)],
       },
       flowers: {
-        '1': {
-          1: { price: 0, cost: 0, customers: 30 },
-          2: { price: 0, cost: 0, customers: 40 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 30 },
+          { year: 2025, month: 1, day: 2, storeId: '1', price: 0, cost: 0, customers: 40 },
+        ],
       },
     })
 
@@ -667,8 +793,10 @@ describe('客数集計', () => {
         records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 80000)],
       },
       flowers: {
-        '1': { 1: { price: 0, cost: 0, customers: 30 } },
-        '2': { 1: { price: 0, cost: 0, customers: 50 } },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 30 },
+          { year: 2025, month: 1, day: 1, storeId: '2', price: 0, cost: 0, customers: 50 },
+        ],
       },
     }
 
@@ -690,11 +818,11 @@ describe('客数集計', () => {
         ],
       },
       flowers: {
-        '1': {
-          1: { price: 0, cost: 0, customers: 30 },
-          10: { price: 0, cost: 0, customers: 40 },
-          20: { price: 0, cost: 0, customers: 50 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 30 },
+          { year: 2025, month: 1, day: 10, storeId: '1', price: 0, cost: 0, customers: 40 },
+          { year: 2025, month: 1, day: 20, storeId: '1', price: 0, cost: 0, customers: 50 },
+        ],
       },
     })
 

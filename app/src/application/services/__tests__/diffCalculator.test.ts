@@ -196,7 +196,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('既存が空で新規にデータがある場合は autoApproved', () => {
       const incoming = makeData({
         purchase: {
-          '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 100, price: 130 },
+            },
+          ],
         },
       })
       const result = calculateDiff(makeData(), incoming, new Set(['purchase']))
@@ -208,7 +217,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('既存にデータがあり新規が空の場合はスキップ（差分なし）', () => {
       const existing = makeData({
         purchase: {
-          '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 100, price: 130 },
+            },
+          ],
         },
       })
       const result = calculateDiff(existing, makeData(), new Set(['purchase']))
@@ -218,7 +236,18 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('importedTypes が空の場合は全てスキップ', () => {
       const data = makeData({
-        purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+        purchase: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 100, price: 130 },
+            },
+          ],
+        },
         classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       })
       const result = calculateDiff(data, data, new Set())
@@ -233,14 +262,16 @@ describe('calculateDiff (additional coverage)', () => {
   describe('StoreDayRecord diffs', () => {
     it('新規日の挿入はゼロ・null 値を除外する', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 0, cost: 0 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 0, cost: 0 },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
@@ -252,14 +283,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('既存の日が新規に存在しない場合は removal として検出', () => {
       const existing = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 20000, cost: 10000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 20000, cost: 10000 },
+          ],
         },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -272,12 +305,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('既存の店舗が新規に丸ごと存在しない場合は removal として検出', () => {
       const existing = makeData({
         flowers: {
-          '1': { 1: { price: 10000, cost: 5000 } },
-          '2': { 1: { price: 20000, cost: 10000 } },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 1, storeId: '2', price: 20000, cost: 10000 },
+          ],
         },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -288,10 +325,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('フィールドが null/0 から非ゼロ値になった場合は insert として検出', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 0 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 0 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       const flowersDiff = result.diffs.find((d) => d.dataType === 'flowers')
@@ -303,10 +344,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('フィールドが非ゼロ値から 0 になった場合は removal として検出', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 0 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 0 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -319,22 +364,30 @@ describe('calculateDiff (additional coverage)', () => {
     it('ネストされた仕入データのフィールドパスが正しく展開される', () => {
       const existing = makeData({
         purchase: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               suppliers: { S001: { name: 'A', cost: 1000, price: 1500 } },
               total: { cost: 1000, price: 1500 },
             },
-          },
+          ],
         },
       })
       const incoming = makeData({
         purchase: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               suppliers: { S001: { name: 'A', cost: 2000, price: 2500 } },
               total: { cost: 2000, price: 2500 },
             },
-          },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['purchase']))
@@ -350,8 +403,12 @@ describe('calculateDiff (additional coverage)', () => {
     it('interStoreIn データ種別の差分を検出する', () => {
       const existing = makeData({
         interStoreIn: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               interStoreIn: [
                 {
                   day: 1,
@@ -366,13 +423,17 @@ describe('calculateDiff (additional coverage)', () => {
               interDepartmentIn: [],
               interDepartmentOut: [],
             },
-          },
+          ],
         },
       })
       const incoming = makeData({
         interStoreIn: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               interStoreIn: [
                 {
                   day: 1,
@@ -387,7 +448,7 @@ describe('calculateDiff (additional coverage)', () => {
               interDepartmentIn: [],
               interDepartmentOut: [],
             },
-          },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['interStoreIn']))
@@ -399,10 +460,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('consumables データ種別の差分を検出する', () => {
       const existing = makeData({
-        consumables: { '1': { 1: { cost: 500, items: [] } } },
+        consumables: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 500, items: [] }],
+        },
       })
       const incoming = makeData({
-        consumables: { '1': { 1: { cost: 800, items: [] } } },
+        consumables: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 800, items: [] }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['consumables']))
       expect(result.needsConfirmation).toBe(true)
@@ -412,10 +477,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('directProduce データ種別の差分を検出する', () => {
       const existing = makeData({
-        directProduce: { '1': { 1: { price: 3000, cost: 2000 } } },
+        directProduce: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 3000, cost: 2000 }],
+        },
       })
       const incoming = makeData({
-        directProduce: { '1': { 1: { price: 4000, cost: 2000 } } },
+        directProduce: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 4000, cost: 2000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['directProduce']))
       expect(result.needsConfirmation).toBe(true)
@@ -426,8 +495,12 @@ describe('calculateDiff (additional coverage)', () => {
     it('interStoreOut データ種別の差分を検出する', () => {
       const existing = makeData({
         interStoreOut: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               interStoreIn: [],
               interStoreOut: [
                 {
@@ -442,13 +515,17 @@ describe('calculateDiff (additional coverage)', () => {
               interDepartmentIn: [],
               interDepartmentOut: [],
             },
-          },
+          ],
         },
       })
       const incoming = makeData({
         interStoreOut: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               interStoreIn: [],
               interStoreOut: [
                 {
@@ -463,7 +540,7 @@ describe('calculateDiff (additional coverage)', () => {
               interDepartmentIn: [],
               interDepartmentOut: [],
             },
-          },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['interStoreOut']))
@@ -764,14 +841,16 @@ describe('calculateDiff (additional coverage)', () => {
   describe('needsConfirmation flag', () => {
     it('挿入のみの場合は false', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 20000, cost: 10000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 20000, cost: 10000 },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
@@ -780,10 +859,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('modification がある場合は true', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 15000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 15000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -792,14 +875,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('removal がある場合は true', () => {
       const existing = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 20000, cost: 10000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 20000, cost: 10000 },
+          ],
         },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -807,7 +892,9 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('差分なしの場合は false', () => {
       const data = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(data, data, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(false)
@@ -815,17 +902,23 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('複数データ種別のうち1つでも modification があれば true', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
-        directProduce: { '1': { 1: { price: 3000, cost: 2000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
+        directProduce: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 3000, cost: 2000 }],
+        },
       })
       const incoming = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 5000, cost: 3000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 5000, cost: 3000 },
+          ],
         },
-        directProduce: { '1': { 1: { price: 4000, cost: 2000 } } },
+        directProduce: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 4000, cost: 2000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers', 'directProduce']))
       expect(result.needsConfirmation).toBe(true)
@@ -860,8 +953,12 @@ describe('calculateDiff (additional coverage)', () => {
   describe('autoApproved behavior', () => {
     it('既存が空の StoreDayRecord 種別は autoApproved', () => {
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
-        directProduce: { '1': { 1: { price: 3000, cost: 2000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
+        directProduce: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 3000, cost: 2000 }],
+        },
       })
       const result = calculateDiff(makeData(), incoming, new Set(['flowers', 'directProduce']))
       expect(result.autoApproved).toContain('flowers')
@@ -870,14 +967,16 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('挿入のみの StoreDayRecord 種別は autoApproved', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 20000, cost: 10000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 20000, cost: 10000 },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
@@ -886,10 +985,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('modification がある種別は autoApproved に含まれない', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 15000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 15000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.autoApproved).not.toContain('flowers')
@@ -898,14 +1001,16 @@ describe('calculateDiff (additional coverage)', () => {
     it('removal がある種別は autoApproved に含まれない', () => {
       const existing = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 20000, cost: 10000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 20000, cost: 10000 },
+          ],
         },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.autoApproved).not.toContain('flowers')
@@ -939,7 +1044,9 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('変更なし（同一データ）の場合は autoApproved に含まれる', () => {
       const data = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(data, data, new Set(['flowers']))
       // No inserts, no modifications, no removals => modifications=0, removals=0 => autoApproved
@@ -952,10 +1059,14 @@ describe('calculateDiff (additional coverage)', () => {
   describe('edge cases', () => {
     it('浮動小数点の微小差（0.001未満）は同値とみなす', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000.0001, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000.0001, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10000.0005, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000.0005, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(false)
@@ -963,10 +1074,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('浮動小数点の差が0.001以上の場合は modification', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 10001, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10001, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       expect(result.needsConfirmation).toBe(true)
@@ -975,22 +1090,30 @@ describe('calculateDiff (additional coverage)', () => {
     it('文字列値の変更も modification として検出される', () => {
       const existing = makeData({
         purchase: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               suppliers: { S001: { name: 'Old Name', cost: 1000, price: 1500 } },
               total: { cost: 1000, price: 1500 },
             },
-          },
+          ],
         },
       })
       const incoming = makeData({
         purchase: {
-          '1': {
-            1: {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
               suppliers: { S001: { name: 'New Name', cost: 1000, price: 1500 } },
               total: { cost: 1000, price: 1500 },
             },
-          },
+          ],
         },
       })
       const result = calculateDiff(existing, incoming, new Set(['purchase']))
@@ -1005,10 +1128,14 @@ describe('calculateDiff (additional coverage)', () => {
     it('店名の解決: existing.stores から取得', () => {
       const existing = makeData({
         stores: new Map([['1', { id: '1', code: '0001', name: '既存店舗' }]]),
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '1': { 1: { price: 15000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 15000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       const mod = result.diffs[0]?.modifications[0]
@@ -1017,11 +1144,15 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('店名の解決: incoming.stores にフォールバック', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
         stores: new Map([['1', { id: '1', code: '0001', name: '新規店舗' }]]),
-        flowers: { '1': { 1: { price: 15000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 15000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       const mod = result.diffs[0]?.modifications[0]
@@ -1030,10 +1161,14 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('店名の解決: stores に未登録の場合は storeId がそのまま使われる', () => {
       const existing = makeData({
-        flowers: { '99': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '99', price: 10000, cost: 5000 }],
+        },
       })
       const incoming = makeData({
-        flowers: { '99': { 1: { price: 15000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '99', price: 15000, cost: 5000 }],
+        },
       })
       const result = calculateDiff(existing, incoming, new Set(['flowers']))
       const mod = result.diffs[0]?.modifications[0]
@@ -1042,15 +1177,17 @@ describe('calculateDiff (additional coverage)', () => {
 
     it('複数データ種別を同時にインポートした場合の autoApproved 管理', () => {
       const existing = makeData({
-        flowers: { '1': { 1: { price: 10000, cost: 5000 } } },
+        flowers: {
+          records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
+        },
         classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       })
       const incoming = makeData({
         flowers: {
-          '1': {
-            1: { price: 10000, cost: 5000 },
-            2: { price: 5000, cost: 3000 },
-          },
+          records: [
+            { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 },
+            { year: 2025, month: 1, day: 2, storeId: '1', price: 5000, cost: 3000 },
+          ],
         },
         classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
       })

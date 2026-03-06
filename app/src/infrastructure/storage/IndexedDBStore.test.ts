@@ -40,14 +40,18 @@ function makeTestData(overrides: Partial<ImportedData> = {}): ImportedData {
     ]),
     suppliers: new Map([['0000001', { code: '0000001', name: '取引先A' }]]),
     purchase: {
-      '1': {
-        1: {
+      records: [
+        {
+          year: 2026,
+          month: 2,
+          day: 1,
+          storeId: '1',
           suppliers: {
             '0000001': { name: '取引先A', cost: 10000, price: 13000 },
           },
           total: { cost: 10000, price: 13000 },
         },
-      },
+      ],
     },
     classifiedSales: {
       records: [
@@ -166,7 +170,7 @@ describe('saveImportedData / loadImportedData', () => {
 
     const loaded = await loadImportedData(2026, 2)
 
-    const entry = loaded!.purchase['1']?.[1]
+    const entry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(entry?.total.cost).toBe(10000)
     expect(entry?.suppliers['0000001']?.name).toBe('取引先A')
   })
@@ -397,14 +401,36 @@ describe('saveDataSlice', () => {
   it('指定した種別のみが更新される', async () => {
     const original = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000, 3000)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
     })
     await saveImportedData(original, 2026, 2)
 
     // classifiedSales のみ更新
     const updated = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 99999)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
+      },
     })
     await saveDataSlice(updated, 2026, 2, ['classifiedSales'])
 
@@ -414,7 +440,8 @@ describe('saveDataSlice', () => {
     const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(99999)
     // purchase は元のまま（saveDataSlice は指定種別のみ保存）
-    expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(100)
+    const pRec = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(pRec?.total.cost).toBe(100)
   })
 
   it('categoryTimeSales が saveDataSlice で保存される', async () => {
@@ -437,12 +464,16 @@ describe('saveDataSlice', () => {
     const updated = makeTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 88888)] },
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
             suppliers: { '0000001': { name: '取引先A', cost: 20000, price: 26000 } },
             total: { cost: 20000, price: 26000 },
           },
-        },
+        ],
       },
       categoryTimeSales: TEST_CATEGORY_TIME_SALES,
     })
@@ -452,7 +483,8 @@ describe('saveDataSlice', () => {
 
     const rec = loaded!.classifiedSales.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(rec?.salesAmount).toBe(88888)
-    expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(20000)
+    const pEntry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(pEntry?.total.cost).toBe(20000)
     expect(loaded!.categoryTimeSales.records).toHaveLength(2)
   })
 
@@ -531,8 +563,10 @@ describe('data integrity', () => {
     }
 
     // 仕入
-    expect(loaded!.purchase['1']?.[1]?.total.cost).toBe(data.purchase['1']?.[1]?.total.cost)
-    expect(loaded!.purchase['1']?.[1]?.total.price).toBe(data.purchase['1']?.[1]?.total.price)
+    const origPurchase = data.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    const loadPurchase = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(loadPurchase?.total.cost).toBe(origPurchase?.total.cost)
+    expect(loadPurchase?.total.price).toBe(origPurchase?.total.price)
 
     // 在庫設定
     expect(loaded!.settings.size).toBe(data.settings.size)
@@ -555,14 +589,18 @@ describe('data integrity', () => {
   it('NaN/Infinity を含むデータが 0 に正規化されて保存される', async () => {
     const data = makeTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2026,
+            month: 2,
+            day: 1,
+            storeId: '1',
             suppliers: {
               '0000001': { name: '取引先A', cost: NaN, price: Infinity },
             },
             total: { cost: NaN, price: -Infinity },
           },
-        },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000)],
@@ -574,7 +612,7 @@ describe('data integrity', () => {
     expect(loaded).not.toBeNull()
 
     // NaN と Infinity は 0 に正規化される
-    const entry = loaded!.purchase['1']?.[1]
+    const entry = loaded!.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
     expect(entry?.suppliers['0000001']?.cost).toBe(0)
     expect(entry?.suppliers['0000001']?.price).toBe(0)
     expect(entry?.total.cost).toBe(0)

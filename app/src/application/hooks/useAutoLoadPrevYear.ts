@@ -220,7 +220,7 @@ export function useAutoLoadPrevYear(): void {
         useDataStore.getState().setPrevYearAutoData({
           prevYearClassifiedSales: { records: mergedCSRecords },
           prevYearCategoryTimeSales: { records: mergedCTSRecords },
-          prevYearFlowers: prevFlowers ?? {},
+          prevYearFlowers: prevFlowers ?? { records: [] },
         })
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()

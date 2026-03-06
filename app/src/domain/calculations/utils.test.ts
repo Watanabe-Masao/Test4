@@ -269,24 +269,24 @@ describe('maxDayOfRecord', () => {
 describe('detectDataMaxDay', () => {
   it('全データソースの最大日を返す', () => {
     const data = {
-      purchase: { S001: { 15: {} } },
+      purchase: { records: [{ day: 15 }] },
       classifiedSales: { records: [{ day: 20 }, { day: 10 }] },
-      interStoreIn: { S001: { 5: {} } },
-      interStoreOut: {},
-      flowers: { S001: { 25: {} } },
-      directProduce: {},
+      interStoreIn: { records: [{ day: 5 }] },
+      interStoreOut: { records: [] },
+      flowers: { records: [{ day: 25 }] },
+      directProduce: { records: [] },
     }
     expect(detectDataMaxDay(data)).toBe(25)
   })
 
   it('全てのデータが空なら 0', () => {
     const data = {
-      purchase: {},
+      purchase: { records: [] },
       classifiedSales: { records: [] },
-      interStoreIn: {},
-      interStoreOut: {},
-      flowers: {},
-      directProduce: {},
+      interStoreIn: { records: [] },
+      interStoreOut: { records: [] },
+      flowers: { records: [] },
+      directProduce: { records: [] },
     }
     expect(detectDataMaxDay(data)).toBe(0)
   })

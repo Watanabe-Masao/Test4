@@ -41,22 +41,23 @@ function makeAllAgg() {
 }
 
 function makeFlowers() {
+  const base = { year: 2024, month: 1, price: 0, cost: 0 }
   return {
     S1: {
-      1: { customers: 50 },
-      2: { customers: 60 },
-      3: { customers: 40 },
-      15: { customers: 100 },
-      28: { customers: 75 },
+      1: { ...base, storeId: 'S1', day: 1, customers: 50 },
+      2: { ...base, storeId: 'S1', day: 2, customers: 60 },
+      3: { ...base, storeId: 'S1', day: 3, customers: 40 },
+      15: { ...base, storeId: 'S1', day: 15, customers: 100 },
+      28: { ...base, storeId: 'S1', day: 28, customers: 75 },
     },
     S2: {
-      1: { customers: 45 },
-      3: { customers: 55 },
-      10: { customers: 48 },
+      1: { ...base, storeId: 'S2', day: 1, customers: 45 },
+      3: { ...base, storeId: 'S2', day: 3, customers: 55 },
+      10: { ...base, storeId: 'S2', day: 10, customers: 48 },
     },
     S3: {
-      5: { customers: 35 },
-      20: { customers: 65 },
+      5: { ...base, storeId: 'S3', day: 5, customers: 35 },
+      20: { ...base, storeId: 'S3', day: 20, customers: 65 },
     },
   }
 }

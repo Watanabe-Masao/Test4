@@ -3,7 +3,12 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
-import { aggregateAllStores, addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import {
+  aggregateAllStores,
+  addDiscountEntries,
+  ZERO_DISCOUNT_ENTRIES,
+  indexByStoreDay,
+} from '@/domain/models'
 import type { DiscountEntry } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 import { resolveComparisonFrame } from '@/application/comparison/resolveComparisonFrame'
@@ -104,6 +109,10 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
+    // 前年花データを index 化（客数の O(1) ルックアップ用）
+    const prevYearFlowersIndex =
+      prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
+
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
     // 売変種別内訳も日別に蓄積する（日→DiscountEntry[] のマップ）
     const daily = new Map<number, { sales: number; discount: number; customers: number }>()
@@ -119,10 +128,8 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
         const sales = summary.sales ?? 0
         const discount = summary.discount ?? 0
-        // 客数は花ファイルから取得
-        const flowerEntry = prevYearFlowers?.[storeId]?.[origDay] as
-          | { customers?: number }
-          | undefined
+        // 客数は花ファイルから取得（flat records → index 経由）
+        const flowerEntry = prevYearFlowersIndex?.[storeId]?.[origDay]
         const customers = flowerEntry?.customers ?? 0
         const existing = daily.get(mappedDay)
         if (existing) {

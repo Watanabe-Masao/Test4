@@ -159,14 +159,18 @@ describe('loadMonth', () => {
     const dataWithPurchase: ImportedData = {
       ...data,
       purchase: {
-        S001: {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: 'S001',
             suppliers: {
               SUP1: { name: 'Supplier1', cost: 100, price: 150 },
             },
             total: { cost: 100, price: 150 },
           },
-        },
+        ],
       },
     }
 
@@ -182,14 +186,12 @@ describe('loadMonth', () => {
     const dataWithSpecial: ImportedData = {
       ...data,
       flowers: {
-        S001: {
-          1: { cost: 500, price: 700, customers: 10 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: 'S001', cost: 500, price: 700, customers: 10 },
+        ],
       },
       directProduce: {
-        S001: {
-          2: { cost: 300, price: 400 },
-        },
+        records: [{ year: 2025, month: 1, day: 2, storeId: 'S001', cost: 300, price: 400 }],
       },
     }
 
@@ -203,8 +205,12 @@ describe('loadMonth', () => {
     const dataWithTransfers: ImportedData = {
       ...data,
       interStoreIn: {
-        S001: {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: 'S001',
             interStoreIn: [
               {
                 day: 1,
@@ -228,11 +234,15 @@ describe('loadMonth', () => {
             ],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       interStoreOut: {
-        S001: {
-          2: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 2,
+            storeId: 'S001',
             interStoreIn: [],
             interStoreOut: [
               {
@@ -247,7 +257,7 @@ describe('loadMonth', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
     }
 
@@ -262,10 +272,10 @@ describe('loadMonth', () => {
     const dataWithConsumables: ImportedData = {
       ...data,
       consumables: {
-        S001: {
-          1: { cost: 500, items: [] },
-          2: { cost: 300, items: [] },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: 'S001', cost: 500, items: [] },
+          { year: 2025, month: 1, day: 2, storeId: 'S001', cost: 300, items: [] },
+        ],
       },
     }
 
