@@ -165,7 +165,13 @@ export async function loadImportedData(year: number, month: number): Promise<Imp
     const raw = rawData.get(field)
     const unwrapped = unwrapEnvelope<Record<string, unknown>>(raw, year, month)
     if (unwrapped && typeof unwrapped.value === 'object') {
-      result[field] = unwrapped.value
+      const val = unwrapped.value
+      // 旧形式（storeId → day → entry マップ）を新形式（{ records: [] }）に変換
+      if (!('records' in val) || !Array.isArray(val.records)) {
+        result[field] = { records: [] }
+      } else {
+        result[field] = val
+      }
     }
   }
 
