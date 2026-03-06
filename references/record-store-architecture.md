@@ -82,27 +82,80 @@ interface ImportScope {
 }
 ```
 
-### 3.2 ImportOperation（保存命令）
+### 3.2 RecordChange（レコード単位の変更分類）
+
+Scope Resolution は各レコードを「追加・更新・削除」に分類する。
+Record Store はこの分類を受け取り、判断せずに実行する。
+
+```typescript
+/** 既存レコードの参照キー */
+interface RecordKey {
+  readonly naturalKey: string
+  readonly dataType: StorageDataType
+}
+
+/** 追加: 既存DBに存在しないレコード */
+interface RecordAdd {
+  readonly kind: 'add'
+  readonly naturalKey: string
+  readonly record: DatedRecord
+}
+
+/** 更新: 既存DBに存在し、値が変わったレコード */
+interface RecordUpdate {
+  readonly kind: 'update'
+  readonly naturalKey: string
+  readonly record: DatedRecord
+  /** 更新前の値（差分表示・ロールバック用） */
+  readonly previousRecord: DatedRecord
+}
+
+/** 削除: 新データのスコープ内に存在するが、新データに含まれないレコード */
+interface RecordDelete {
+  readonly kind: 'delete'
+  readonly naturalKey: string
+  /** 削除前の値（ロールバック用） */
+  readonly previousRecord: DatedRecord
+}
+
+type RecordChange = RecordAdd | RecordUpdate | RecordDelete
+```
+
+### 3.3 ImportOperation（保存命令）
 
 ```typescript
 /**
  * 1つのスコープに対する保存命令。
- * Record Store はこの命令を受け取り、以下を実行する:
- * 1. scope 内の既存レコードを削除
- * 2. records を挿入
+ * Scope Resolution が追加・更新・削除を分類済み。
+ * Record Store は分類に従い1トランザクションで実行する。
+ *
+ * 判断は Scope Resolution が行う。Record Store は判断しない。
  */
 interface ImportOperation {
   readonly scope: ImportScope
-  readonly records: readonly DatedRecord[]
+  /** 新規追加するレコード */
+  readonly adds: readonly RecordAdd[]
+  /** 値を更新するレコード */
+  readonly updates: readonly RecordUpdate[]
+  /** 削除するレコード */
+  readonly deletes: readonly RecordDelete[]
 }
 ```
 
-### 3.3 ImportPlan（保存命令書）
+**なぜ実行係は1つで良いか:**
+- 追加・更新・削除は1つの IndexedDB トランザクション内で実行する
+- 分離すると「追加成功・削除失敗」のような不整合が起きる
+- **判断の分類は3つ、実行は1アトミック操作**
+
+### 3.4 ImportPlan（保存命令書）
 
 ```typescript
 /**
  * インポート1回分の完全な保存命令書。
  * Scope Resolution が生成し、Record Store が実行する。
+ *
+ * Scope Resolution の出力 = Record Store の入力。
+ * この型が両者の契約であり、判断と実行の境界線。
  */
 interface ImportPlan {
   /** 取込ID（UUID） */
@@ -122,6 +175,24 @@ interface ImportPlan {
   readonly settingsUpdates: ReadonlyMap<string, InventoryConfig>
 }
 
+/** ImportPlan のサマリー（UI表示・ユーザー確認用） */
+interface ImportPlanSummary {
+  readonly totalAdds: number
+  readonly totalUpdates: number
+  readonly totalDeletes: number
+  /** 変更がなく確認不要か */
+  readonly isEmpty: boolean
+  /** ユーザー確認が必要か（更新・削除がある場合） */
+  readonly needsConfirmation: boolean
+  /** データ種別ごとの内訳 */
+  readonly byDataType: readonly {
+    readonly dataType: StorageDataType
+    readonly adds: number
+    readonly updates: number
+    readonly deletes: number
+  }[]
+}
+
 interface SourceFileInfo {
   readonly filename: string
   readonly dataType: DataType
@@ -131,7 +202,7 @@ interface SourceFileInfo {
 }
 ```
 
-### 3.4 ImportLog（取込履歴）
+### 3.5 ImportLog（取込履歴）
 
 ```typescript
 /**
@@ -148,23 +219,33 @@ interface ImportLogEntry {
   readonly sourceFiles: readonly SourceFileInfo[]
   /** 各オペレーションの影響範囲サマリー */
   readonly scopes: readonly ImportScope[]
-  /** 置換されたレコード数 */
-  readonly replacedCount: number
-  /** 挿入されたレコード数 */
-  readonly insertedCount: number
+  /** 追加されたレコード数 */
+  readonly addedCount: number
+  /** 更新されたレコード数 */
+  readonly updatedCount: number
+  /** 削除されたレコード数 */
+  readonly deletedCount: number
 }
 ```
 
-### 3.5 RecordStore インターフェース
+### 3.6 RecordStore インターフェース
 
 ```typescript
 /**
  * レコード単位のデータストア。
- * ImportPlan を受け取り、スコープ内のレコードのみを安全に置換する。
+ * ImportPlan を受け取り、分類済みの追加・更新・削除を1トランザクションで実行する。
+ * Record Store は判断しない。Scope Resolution が分類した通りに実行するだけ。
  */
 interface RecordStore {
-  /** ImportPlan を実行する（アトミック） */
+  /** ImportPlan を実行する（1トランザクション、アトミック） */
   executePlan(plan: ImportPlan): Promise<ImportLogEntry>
+
+  /**
+   * 指定スコープ内の既存レコードを取得する。
+   * Scope Resolution が差分計算（add/update/delete 分類）に使用する。
+   * Record Store 自身は判断に使わない。
+   */
+  queryScope(scope: ImportScope): Promise<readonly StoredRecord[]>
 
   /** 指定年月のデータを ImportedData として組み立てる */
   queryMonth(year: number, month: number): Promise<ImportedData | null>
@@ -269,33 +350,122 @@ records.index('importLogId').getAll(42)
 
 ## 5. Scope Resolution のロジック
 
-### 5.1 日付範囲の検出
+### 5.1 全体フロー（2段階）
+
+Scope Resolution は2段階で ImportPlan を生成する:
+
+```
+Stage 1: スコープ検出（純粋関数、DB不要）
+  入力: ParsedFileResult[]
+  処理: レコードを分析し、各データ種別×年月の影響範囲を確定
+  出力: ImportScope[]
+
+Stage 2: 差分分類（純粋関数、既存レコード情報が必要）
+  入力: ImportScope[] + 新レコード[] + 既存レコード[]（RecordStore.queryScope 経由）
+  処理: 各レコードを add / update / delete に分類
+  出力: ImportPlan（= ImportOperation[] を含む完全な保存命令書）
+```
+
+Stage 2 で既存レコードが必要な理由:
+- 新レコードが「追加」か「更新」かは、既存データと突き合わせないと判断できない
+- スコープ内の既存レコードのうち、新データに含まれないものが「削除」対象
+
+### 5.2 Stage 1: スコープ検出
 
 ```typescript
-function detectScope(
-  dataType: StorageDataType,
-  records: readonly DatedRecord[],
+/**
+ * パース結果からインポートスコープを検出する（純粋関数）。
+ * ファイル内のレコードの year/month/day を分析し、
+ * データ種別×年月ごとの影響範囲を確定する。
+ */
+function detectScopes(
+  parsedResults: readonly ParsedFileResult[],
 ): readonly ImportScope[] {
-  // 1. レコードを (year, month) でグループ化
-  // 2. 各グループの dayFrom, dayTo を検出
+  // 1. 各ファイルのレコードを dataType × (year, month) でグループ化
+  // 2. 各グループの dayFrom = min(day), dayTo = max(day)
   // 3. storeIds を収集
   // 4. ImportScope[] を返す
 }
 ```
 
-### 5.2 差分取込の安全性
+### 5.3 Stage 2: 差分分類
+
+```typescript
+/**
+ * 新レコードと既存レコードを突き合わせ、add/update/delete に分類する（純粋関数）。
+ *
+ * 入力:
+ *   scope: このオペレーションの影響範囲
+ *   incomingRecords: 新しくインポートされるレコード
+ *   existingRecords: RecordStore.queryScope() で取得した既存レコード
+ *
+ * 分類ルール:
+ *   - incoming にあり existing にない → add
+ *   - incoming にも existing にもあり、値が異なる → update
+ *   - incoming にも existing にもあり、値が同じ → 変更なし（スキップ）
+ *   - existing にあり incoming にない（かつスコープ内）→ delete
+ */
+function classifyChanges(
+  scope: ImportScope,
+  incomingRecords: readonly DatedRecord[],
+  existingRecords: readonly StoredRecord[],
+): ImportOperation {
+  const incomingByKey = new Map(incomingRecords.map(r => [naturalKey(r), r]))
+  const existingByKey = new Map(existingRecords.map(r => [r._naturalKey, r]))
+
+  const adds: RecordAdd[] = []
+  const updates: RecordUpdate[] = []
+  const deletes: RecordDelete[] = []
+
+  // incoming を走査: add or update
+  for (const [key, record] of incomingByKey) {
+    const existing = existingByKey.get(key)
+    if (!existing) {
+      adds.push({ kind: 'add', naturalKey: key, record })
+    } else if (!recordsEqual(record, existing)) {
+      updates.push({ kind: 'update', naturalKey: key, record, previousRecord: existing })
+    }
+    // 値が同じならスキップ（無変更）
+  }
+
+  // existing を走査: delete（スコープ内で incoming に含まれない）
+  for (const [key, existing] of existingByKey) {
+    if (!incomingByKey.has(key)) {
+      deletes.push({ kind: 'delete', naturalKey: key, previousRecord: existing })
+    }
+  }
+
+  return { scope, adds, updates, deletes }
+}
+```
+
+### 5.4 差分取込の安全性
 
 例: 既存データに `1/4, 1/5, 2/5, 2/10` がある状態で `2月1-30日` を取り込む
 
 ```
-detectScope の結果:
-  scope = { dataType: 'purchase', year: 2025, month: 2, dayFrom: 1, dayTo: 30, storeIds: [] }
+Stage 1 — detectScopes:
+  scope = { dataType: 'purchase', year: 2025, month: 2, dayFrom: 1, dayTo: 30 }
 
-Record Store の実行:
-  1. DELETE WHERE _dataType='purchase' AND year=2025 AND month=2 AND day BETWEEN 1 AND 30
-     → 2/5, 2/10 が削除される
-     → 1/4, 1/5 は month=1 なのでスコープ外 → 影響なし
-  2. INSERT 新しい2月レコード
+RecordStore.queryScope(scope):
+  既存 = [2/5: 10000, 2/10: 10000]
+  ※ 1/4, 1/5 は month=1 なのでスコープ外 → クエリ対象にすらならない
+
+Stage 2 — classifyChanges:
+  incoming = [2/1: 8000, 2/5: 12000, 2/15: 9000]
+  existing = [2/5: 10000, 2/10: 10000]
+
+  分類結果:
+    add:    [2/1: 8000, 2/15: 9000]     ← 新規
+    update: [2/5: 10000 → 12000]         ← 値変更
+    delete: [2/10: 10000]                ← 新データに含まれない
+
+Record Store の実行（1トランザクション）:
+  PUT 2/1: 8000
+  PUT 2/5: 12000
+  PUT 2/15: 9000
+  DELETE 2/10
+  ※ 1/4, 1/5 は一切触れない（スコープ外）
 ```
 
 ### 5.3 Budget の特殊処理
@@ -328,25 +498,37 @@ function reassembleBudget(records): Map<string, BudgetData> {
   User drops files
        │
        ▼
-  Parse Layer (Infrastructure)
+  Parse Layer (Infrastructure) ← 変換のみ、判断しない
   processDroppedFiles() → ParsedFileResult[]
        │
        ▼
-  Scope Resolution (Domain/Application) ← 純粋関数
-  resolveImportPlan(parsedResults, existingMonths) → ImportPlan
-       │  ここで判断が完結する:
-       │  - 各ファイルのカバー範囲
-       │  - 既存データとの衝突検出
-       │  - 置換スコープの確定
-       │
-       ├─ needsConfirmation? → UI に差分表示 → ユーザー承認
+  Scope Resolution — Stage 1 (Domain) ← 純粋関数
+  detectScopes(parsedResults) → ImportScope[]
+       │  各ファイルの影響範囲を確定
        │
        ▼
-  Record Store (Infrastructure)
-  executePlan(plan) → ImportLogEntry
-       │  指示通りに実行するだけ:
-       │  - スコープ内レコード削除
-       │  - 新レコード挿入
+  Record Store — queryScope() (Infrastructure) ← 読み取りのみ
+  各スコープ内の既存レコードを取得
+       │
+       ▼
+  Scope Resolution — Stage 2 (Domain) ← 純粋関数
+  classifyChanges(scope, incoming, existing) → ImportOperation
+       │  各レコードを add / update / delete に分類
+       │  ここで判断が完結する
+       │
+       ▼
+  ImportPlan 組み立て → ImportPlanSummary 生成
+       │
+       ├─ needsConfirmation? → UI に差分表示
+       │   「追加 X件、更新 Y件、削除 Z件」
+       │   → ユーザー承認 / キャンセル
+       │
+       ▼
+  Record Store — executePlan() (Infrastructure) ← 実行のみ、判断しない
+  1トランザクションで:
+       │  - adds → PUT（新規挿入）
+       │  - updates → PUT（上書き）
+       │  - deletes → DELETE
        │  - Import Log 記録
        │
        ▼
@@ -442,8 +624,11 @@ DuckDB は引き続き「探索エンジン」として機能する。
 
 | ID | 不変条件 | テスト |
 |---|---|---|
-| INV-RS-01 | ImportScope.dayFrom <= ImportScope.dayTo | resolveImportPlan のガードテスト |
+| INV-RS-01 | ImportScope.dayFrom <= ImportScope.dayTo | detectScopes のガードテスト |
 | INV-RS-02 | スコープ外のレコードは executePlan で変更されない | RecordStore のガードテスト |
 | INV-RS-03 | executePlan 前後で、スコープ外月のレコード数は不変 | RecordStore のガードテスト |
 | INV-RS-04 | queryMonth の結果は saveMonthlyData の結果と等価 | 移行期の同値テスト |
-| INV-RS-05 | ImportLog.insertedCount = plan.operations の全レコード数合計 | executePlan の事後条件 |
+| INV-RS-05 | classifyChanges: add + update + delete はスコープ内レコードを網羅 | classifyChanges のガードテスト |
+| INV-RS-06 | classifyChanges: update の previousRecord は既存値と一致 | classifyChanges の事後条件 |
+| INV-RS-07 | ImportLog の addedCount/updatedCount/deletedCount は実行結果と一致 | executePlan の事後条件 |
+| INV-RS-08 | classifyChanges は純粋関数（同じ入力に同じ出力） | 決定性テスト |
