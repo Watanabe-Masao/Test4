@@ -100,6 +100,7 @@ export function useImport() {
           .filter((r) => r.ok)
           .map((r) => ({
             filename: r.filename,
+            ...(r.relativePath ? { relativePath: r.relativePath } : {}),
             type: r.type,
             typeName: r.typeName,
             rowCount: r.rowCount,
@@ -185,7 +186,14 @@ export function useImport() {
             const result = summary.results[i]
             if (result.ok && result.type && fileArray[i]) {
               rawFileStore
-                .saveFile(saveYear, saveMonth, result.type, fileArray[i], result.filename)
+                .saveFile(
+                  saveYear,
+                  saveMonth,
+                  result.type,
+                  fileArray[i],
+                  result.filename,
+                  result.relativePath,
+                )
                 .catch((e) => {
                   console.warn('[useImport] rawFileStore.saveFile failed:', e)
                 })

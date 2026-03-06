@@ -27,6 +27,8 @@ const RAW_FILES_PREFIX = 'rawFile:'
 export interface RawFileEntry {
   /** ファイル名 */
   readonly filename: string
+  /** フォルダ選択時の相対パス（監査・重複判定用） */
+  readonly relativePath?: string
   /** データ種別 */
   readonly dataType: string
   /** 保存日時 */
@@ -76,11 +78,13 @@ class RawFileStore {
     dataType: string,
     file: File | Blob,
     filename?: string,
+    relativePath?: string,
   ): Promise<RawFileEntry> {
     const db = await openDB()
     const hash = await computeFileHash(file)
     const entry: RawFileEntry = {
       filename: filename ?? (file instanceof File ? file.name : `${dataType}.dat`),
+      ...(relativePath ? { relativePath } : {}),
       dataType,
       savedAt: new Date().toISOString(),
       size: file.size,

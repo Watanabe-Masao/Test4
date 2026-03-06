@@ -46,6 +46,8 @@ import {
 export interface FileImportResult {
   readonly ok: boolean
   readonly filename: string
+  /** フォルダ選択時の相対パス（webkitRelativePath）。監査・重複判定に使用 */
+  readonly relativePath?: string
   readonly type: DataType | null
   readonly typeName: string | null
   readonly error?: string
@@ -652,9 +654,11 @@ export async function processDroppedFiles(
 
       // レコード数をサマリーに含める（バリデーション用途）
       const rowCount = countDataRecords(result.data, type)
+      const rp = file.webkitRelativePath || undefined
       results.push({
         ok: true,
         filename: file.name,
+        relativePath: rp,
         type,
         typeName,
         rowCount,
@@ -665,9 +669,11 @@ export async function processDroppedFiles(
         err instanceof ImportError || err instanceof ImportSchemaError
           ? err.message
           : 'ファイルの読み込みに失敗しました'
+      const rp = file.webkitRelativePath || undefined
       results.push({
         ok: false,
         filename: file.name,
+        relativePath: rp,
         type: null,
         typeName: null,
         error: message,
