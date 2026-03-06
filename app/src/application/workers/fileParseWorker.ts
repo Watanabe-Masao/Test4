@@ -31,7 +31,6 @@ export interface ParseFileError {
 }
 
 export type FileParseWorkerRequest = ParseFileRequest
-export type FileParseWorkerResponse = ParseFileResponse | ParseFileError
 
 // ─── Worker Handler ───────────────────────────────────
 

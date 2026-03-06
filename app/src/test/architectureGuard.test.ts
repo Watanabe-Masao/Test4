@@ -90,7 +90,6 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/useImport.ts',
   'application/usecases/import/FileImportService.ts',
   'application/workers/fileParseWorker.ts',
-  'application/workers/useFileParseWorker.ts',
   // エクスポート機能ブリッジ（Phase 3 で作成: ExportPort の実装）
   'application/usecases/export/ExportService.ts',
   // i18n ブリッジ（Phase 10-3a: presentation 層から infrastructure/i18n への直接依存を回避）
