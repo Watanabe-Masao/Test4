@@ -207,6 +207,7 @@ interface SourceFileInfo {
 ```typescript
 /**
  * 保存済みの取込履歴。Record Store が ImportPlan 実行時に自動記録する。
+ * ロールバックに必要な情報（previousRecord）も保持する。
  */
 interface ImportLogEntry {
   /** 自動採番ID */
@@ -225,20 +226,159 @@ interface ImportLogEntry {
   readonly updatedCount: number
   /** 削除されたレコード数 */
   readonly deletedCount: number
+  /** ロールバック済みか */
+  readonly rolledBack: boolean
+  /**
+   * 変更追跡ログ（audit trail + ロールバック用）。
+   *
+   * 全ての変更を完全に記録する:
+   * - 何を追加したか（追加後の値）
+   * - 何を削除したか（削除前の値）
+   * - 何を更新したか（更新前の値 + 更新後の値）
+   *
+   * 用途:
+   * 1. ユーザーへの変更レポート表示
+   * 2. ロールバック（逆操作の実行）
+   * 3. 監査証跡（いつ・どのファイルから・何が変わったか）
+   */
+  readonly changeLog: {
+    /** 追加されたレコード（ロールバック時: これらを削除） */
+    readonly adds: readonly ChangeLogAdd[]
+    /** 更新されたレコード（ロールバック時: before の値に復元） */
+    readonly updates: readonly ChangeLogUpdate[]
+    /** 削除されたレコード（ロールバック時: これらを再挿入） */
+    readonly deletes: readonly ChangeLogDelete[]
+  }
+}
+
+/** 追加の記録 */
+interface ChangeLogAdd {
+  readonly naturalKey: string
+  readonly dataType: StorageDataType
+  /** 追加された値 */
+  readonly record: DatedRecord
+}
+
+/** 更新の記録 */
+interface ChangeLogUpdate {
+  readonly naturalKey: string
+  readonly dataType: StorageDataType
+  /** 更新前の値 */
+  readonly before: DatedRecord
+  /** 更新後の値 */
+  readonly after: DatedRecord
+  /** 変更されたフィールド（UI表示用） */
+  readonly changedFields: readonly FieldDiff[]
+}
+
+/** 削除の記録 */
+interface ChangeLogDelete {
+  readonly naturalKey: string
+  readonly dataType: StorageDataType
+  /** 削除された値 */
+  readonly record: DatedRecord
+}
+
+/** フィールド単位の差分（更新の詳細表示用） */
+interface FieldDiff {
+  readonly fieldPath: string
+  readonly before: number | string | null
+  readonly after: number | string | null
 }
 ```
 
-### 3.6 RecordStore インターフェース
+### 3.6 エラーとトランザクション結果
+
+```typescript
+// ─── エラー型（構造化、UIフィードバック可能） ─────────────────
+
+/** エラーの発生フェーズ */
+type ImportErrorPhase = 'parse' | 'scope-resolution' | 'transaction' | 'rollback'
+
+/** 構造化されたインポートエラー */
+interface ImportError {
+  /** エラー発生フェーズ */
+  readonly phase: ImportErrorPhase
+  /** エラーコード（プログラム的判定用） */
+  readonly code: ImportErrorCode
+  /** ユーザー向けメッセージ */
+  readonly message: string
+  /** 影響を受けたデータ種別（特定できる場合） */
+  readonly dataType?: StorageDataType
+  /** 影響を受けた年月（特定できる場合） */
+  readonly yearMonth?: { year: number; month: number }
+  /** 技術的詳細（ログ・デバッグ用） */
+  readonly detail?: string
+}
+
+type ImportErrorCode =
+  // parse フェーズ
+  | 'PARSE_FAILED'           // ファイル読み込み失敗
+  | 'INVALID_FORMAT'         // フォーマット不正
+  // scope-resolution フェーズ
+  | 'SCOPE_CONFLICT'         // スコープ間の矛盾（同一キーが複数ファイルに存在）
+  | 'EMPTY_SCOPE'            // スコープが空（有効なレコードなし）
+  // transaction フェーズ
+  | 'TRANSACTION_ABORTED'    // IndexedDB トランザクション中断
+  | 'QUOTA_EXCEEDED'         // ストレージ容量超過
+  | 'CONSTRAINT_VIOLATION'   // 一意制約違反（natural key 重複）
+  | 'WRITE_FAILED'           // 書き込み失敗（その他）
+  // rollback フェーズ
+  | 'ROLLBACK_FAILED'        // ロールバック自体が失敗（重大）
+  | 'ROLLBACK_PARTIAL'       // ロールバックが部分的にしか完了しなかった（重大）
+  | 'IMPORT_NOT_FOUND'       // ロールバック対象のインポートが見つからない
+
+// ─── 実行結果（成功 or 失敗、常に構造化） ─────────────────────
+
+/** executePlan の実行結果 */
+type ExecutePlanResult =
+  | { readonly ok: true; readonly entry: ImportLogEntry }
+  | { readonly ok: false; readonly error: ImportError; readonly rolledBack: boolean }
+
+/** rollbackImport の実行結果 */
+type RollbackResult =
+  | { readonly ok: true; readonly restoredCount: number }
+  | { readonly ok: false; readonly error: ImportError }
+```
+
+### 3.7 RecordStore インターフェース
 
 ```typescript
 /**
  * レコード単位のデータストア。
  * ImportPlan を受け取り、分類済みの追加・更新・削除を1トランザクションで実行する。
  * Record Store は判断しない。Scope Resolution が分類した通りに実行するだけ。
+ *
+ * トランザクション保証:
+ * - executePlan は1つの IndexedDB トランザクション内で全操作を実行する
+ * - トランザクション中にエラーが発生した場合、IndexedDB が自動的に全操作を巻き戻す
+ * - Import Log はトランザクション成功後にのみ記録される
+ * - 結果は常に ExecutePlanResult として返され、呼び出し元がエラーをハンドリングできる
  */
 interface RecordStore {
-  /** ImportPlan を実行する（1トランザクション、アトミック） */
-  executePlan(plan: ImportPlan): Promise<ImportLogEntry>
+  /**
+   * ImportPlan を実行する（1トランザクション、アトミック）。
+   *
+   * 成功: { ok: true, entry: ImportLogEntry }
+   * 失敗: { ok: false, error: ImportError, rolledBack: true }
+   *
+   * IndexedDB トランザクションは失敗時に自動巻き戻しするため、
+   * 「途中まで書き込まれた」状態にはならない。
+   */
+  executePlan(plan: ImportPlan): Promise<ExecutePlanResult>
+
+  /**
+   * 過去のインポートをロールバックする。
+   *
+   * ImportLogEntry に記録された importId を指定し、
+   * そのインポートで行われた変更を逆転する:
+   * - adds → 該当レコードを削除
+   * - updates → previousRecord の値に復元
+   * - deletes → previousRecord を再挿入
+   *
+   * ロールバック自体も1トランザクションで実行する。
+   */
+  rollbackImport(importId: string): Promise<RollbackResult>
 
   /**
    * 指定スコープ内の既存レコードを取得する。
@@ -529,11 +669,47 @@ function reassembleBudget(records): Map<string, BudgetData> {
        │  - adds → PUT（新規挿入）
        │  - updates → PUT（上書き）
        │  - deletes → DELETE
-       │  - Import Log 記録
+       │  - Import Log + undoLog 記録
+       │
+       ├─ ok: true → 成功
+       │       ▼
+       │  State Update (Application)
+       │  queryMonth(year, month) → ImportedData → useDataStore.setData()
+       │
+       └─ ok: false → 失敗
+               ▼
+          エラーフィードバック (Application → UI)
+          ImportError をユーザーに構造化表示:
+            phase: どの段階で失敗したか
+            code: 何が起きたか
+            message: ユーザー向け説明
+            dataType/yearMonth: どのデータが影響を受けたか
+          ※ IndexedDB トランザクションは失敗時に自動巻き戻し
+          ※ データは変更前の状態を維持（中途半端な状態にならない）
+```
+
+### 6.3 ロールバックフロー
+
+```
+  User requests rollback (importId を指定)
        │
        ▼
-  State Update (Application)
-  queryMonth(year, month) → ImportedData → useDataStore.setData()
+  Record Store — rollbackImport(importId) (Infrastructure)
+  1. Import Log から changeLog を取得
+  2. 1トランザクションで逆操作:
+       │  - changeLog.adds → DELETE（追加されたレコードを削除）
+       │  - changeLog.updates → PUT before の値（更新前の値に復元）
+       │  - changeLog.deletes → PUT record の値（削除されたレコードを再挿入）
+       │  - Import Log に rolledBack: true を記録
+       │
+       ├─ ok: true → 成功
+       │       ▼
+       │  State Update → queryMonth() で最新状態を反映
+       │
+       └─ ok: false → 失敗（重大エラー）
+               ▼
+          エラーフィードバック: ROLLBACK_FAILED / ROLLBACK_PARTIAL
+          ※ ユーザーに「手動でのデータ再インポート」を促す
 ```
 
 ### 6.2 月切替フロー
@@ -632,3 +808,7 @@ DuckDB は引き続き「探索エンジン」として機能する。
 | INV-RS-06 | classifyChanges: update の previousRecord は既存値と一致 | classifyChanges の事後条件 |
 | INV-RS-07 | ImportLog の addedCount/updatedCount/deletedCount は実行結果と一致 | executePlan の事後条件 |
 | INV-RS-08 | classifyChanges は純粋関数（同じ入力に同じ出力） | 決定性テスト |
+| INV-RS-09 | changeLog.adds.length = addedCount, updates.length = updatedCount, deletes.length = deletedCount | changeLog 完全性 |
+| INV-RS-10 | changeLog.updates の before は実行前の実値と一致 | 更新追跡の正確性 |
+| INV-RS-11 | rollback 後の queryMonth 結果は executePlan 前の状態と一致 | ロールバック完全性 |
+| INV-RS-12 | executePlan 失敗時、DBの状態は実行前と同一（中途半端な変更なし） | トランザクション原子性 |
