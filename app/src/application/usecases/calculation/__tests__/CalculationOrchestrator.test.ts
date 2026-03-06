@@ -150,9 +150,7 @@ describe('calculateStoreResult', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       flowers: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
       },
     })
 
@@ -180,14 +178,10 @@ describe('calculateStoreResult', () => {
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
       flowers: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 }],
       },
     })
 
@@ -217,9 +211,7 @@ describe('calculateStoreResult', () => {
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
       flowers: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
       },
       settings: new Map([
         [
@@ -264,14 +256,10 @@ describe('calculateStoreResult', () => {
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
       flowers: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4250 }],
       },
     })
 
@@ -679,10 +667,38 @@ describe('dataEndDay による日数トリミング', () => {
       },
       purchase: {
         records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 5000, price: 7000 } },
-          { year: 2025, month: 1, day: 5, storeId: '1', suppliers: {}, total: { cost: 10000, price: 14000 } },
-          { year: 2025, month: 1, day: 10, storeId: '1', suppliers: {}, total: { cost: 15000, price: 21000 } },
-          { year: 2025, month: 1, day: 15, storeId: '1', suppliers: {}, total: { cost: 20000, price: 28000 } },
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 5000, price: 7000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 14000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 10,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 15000, price: 21000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 15,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 20000, price: 28000 },
+          },
         ],
       },
     })

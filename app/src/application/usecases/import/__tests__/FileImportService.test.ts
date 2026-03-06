@@ -39,8 +39,24 @@ function fullData(): ImportedData {
       ['2', { id: '2', code: '0002', name: '店舗B' }],
     ]),
     purchase: {
-      '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
-      '2': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } },
+      records: [
+        {
+          year: 2025,
+          month: 1,
+          day: 1,
+          storeId: '1',
+          suppliers: {},
+          total: { cost: 100, price: 130 },
+        },
+        {
+          year: 2025,
+          month: 1,
+          day: 1,
+          storeId: '2',
+          suppliers: {},
+          total: { cost: 200, price: 260 },
+        },
+      ],
     },
     classifiedSales: {
       records: [makeCSRecord(1, '1', 50000, 3000), makeCSRecord(1, '2', 40000)],
@@ -94,7 +110,18 @@ describe('validateImportedData', () => {
 
   it('店舗0件は警告', () => {
     const data = makeData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const messages = validateImportedData(data)
@@ -104,7 +131,18 @@ describe('validateImportedData', () => {
   it('在庫設定なしは警告', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
     const messages = validateImportedData(data)
@@ -118,7 +156,18 @@ describe('validateImportedData', () => {
         ['2', { id: '2', code: '0002', name: '店舗B' }],
         ['3', { id: '3', code: '0003', name: '店舗C' }],
       ]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         [
@@ -144,7 +193,18 @@ describe('validateImportedData', () => {
   it('予算なしは情報メッセージ', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         [
@@ -169,7 +229,18 @@ describe('validateImportedData', () => {
   it('売変なしは警告メッセージ', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       settings: new Map([
         [
@@ -255,7 +326,18 @@ describe('validateImportedData', () => {
     const rec = makeCSRecord(1, '1', 50000)
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [rec, rec] }, // 同一キーが2件
       settings: new Map([
         [
@@ -296,7 +378,18 @@ describe('validateImportedData', () => {
     }
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       categoryTimeSales: { records: [ctsRec, ctsRec] }, // 同一キーが2件
       settings: new Map([
@@ -351,7 +444,18 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
   it('乖離1%以内なら警告なし', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       categoryTimeSales: { records: [makeCTSRecord(1, '1', 100500)] }, // 0.5% 乖離
       settings: new Map([
@@ -377,7 +481,18 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
   it('乖離1%超で警告が出る', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       categoryTimeSales: { records: [makeCTSRecord(1, '1', 90000)] }, // 10% 乖離
       settings: new Map([
@@ -405,7 +520,18 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
   it('日別内訳が details に含まれる', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           makeCSRecord(1, '1', 50000),
@@ -456,7 +582,18 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
   it('片方にしか存在しない日が検出される', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000), makeCSRecord(2, '1', 50000)],
       },
@@ -497,7 +634,18 @@ describe('分類別売上 vs 時間帯売上 乖離チェック', () => {
     const ctsRecords = Array.from({ length: 28 }, (_, i) => makeCTSRecord(i + 1, '1', 100600)) // +0.6% per day
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: csRecords },
       categoryTimeSales: { records: ctsRecords },
       settings: new Map([
@@ -531,7 +679,18 @@ describe('花・産直の日付範囲チェック', () => {
   function baseData(): ImportedData {
     return makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           makeCSRecord(1, '1', 50000),
@@ -561,12 +720,12 @@ describe('花・産直の日付範囲チェック', () => {
     const data = {
       ...baseData(),
       flowers: {
-        '1': {
-          1: { price: 5000, cost: 4000 },
-          15: { price: 5000, cost: 4000 },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 },
+          { year: 2025, month: 1, day: 15, storeId: '1', price: 5000, cost: 4000 },
           // 20日止まり — 28日まであるべき
-          20: { price: 5000, cost: 4000 },
-        },
+          { year: 2025, month: 1, day: 20, storeId: '1', price: 5000, cost: 4000 },
+        ],
       },
     }
     const messages = validateImportedData(data)
@@ -582,10 +741,10 @@ describe('花・産直の日付範囲チェック', () => {
     const data = {
       ...baseData(),
       directProduce: {
-        '1': {
-          1: { price: 3000, cost: 2500 },
-          10: { price: 3000, cost: 2500 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 3000, cost: 2500 },
+          { year: 2025, month: 1, day: 10, storeId: '1', price: 3000, cost: 2500 },
+        ],
       },
     }
     const messages = validateImportedData(data)
@@ -601,10 +760,10 @@ describe('花・産直の日付範囲チェック', () => {
     const data = {
       ...baseData(),
       flowers: {
-        '1': {
-          1: { price: 5000, cost: 4000 },
-          28: { price: 5000, cost: 4000 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 },
+          { year: 2025, month: 1, day: 28, storeId: '1', price: 5000, cost: 4000 },
+        ],
       },
     }
     const messages = validateImportedData(data)
@@ -625,7 +784,18 @@ describe('validateImportedData: 境界値テスト', () => {
   it('classifiedSalesのみインポート + categoryTimeSalesなし → 乖離チェックスキップ', () => {
     const data = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000)],
       },
@@ -752,7 +922,18 @@ describe('filterDataForMonth', () => {
     const stores = new Map([['1', { id: '1', code: '0001', name: 'A' }]])
     const data = makeData({
       stores,
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [
           { ...makeCSRecord(1, '1', 10000), year: 2025, month: 1 },
@@ -765,7 +946,8 @@ describe('filterDataForMonth', () => {
     expect(filtered.classifiedSales.records[0].month).toBe(2)
     // 非レコードデータは維持
     expect(filtered.stores.size).toBe(1)
-    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(100)
+    const purchaseRec = filtered.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(purchaseRec?.total.cost).toBe(100)
   })
 
   it('該当月レコードがない場合は空配列を返す', () => {
@@ -782,14 +964,38 @@ describe('filterDataForMonth', () => {
     // 既存データに仕入・花・消耗品・予算がある状態で
     // classifiedSales のみインポート（他のパーティションは空）
     const data = makeData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      flowers: { '1': { 1: { price: 5000, cost: 4000 } } },
-      consumables: { '1': { 1: { cost: 3000, items: [] } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
+      consumables: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 3000, items: [] }],
+      },
       budget: new Map([['1', { storeId: '1', daily: new Map([[1, 200000]]), total: 200000 }]]),
       interStoreIn: {
-        '1': {
-          1: { interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            interStoreIn: [],
+            interStoreOut: [],
+            interDepartmentIn: [],
+            interDepartmentOut: [],
+          },
+        ],
       },
       classifiedSales: {
         records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 1 }],
@@ -813,17 +1019,29 @@ describe('filterDataForMonth', () => {
     expect(filtered.classifiedSales.records).toHaveLength(1)
 
     // パーティションが空の種別は既存データが保全される
-    expect(Object.keys(filtered.purchase)).toHaveLength(1)
-    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(100)
-    expect(Object.keys(filtered.flowers)).toHaveLength(1)
-    expect(Object.keys(filtered.consumables)).toHaveLength(1)
+    expect(filtered.purchase.records).toHaveLength(1)
+    const purchaseRec = filtered.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(purchaseRec?.total.cost).toBe(100)
+    expect(filtered.flowers.records).toHaveLength(1)
+    expect(filtered.consumables.records).toHaveLength(1)
     expect(filtered.budget.size).toBe(1)
-    expect(Object.keys(filtered.interStoreIn)).toHaveLength(1)
+    expect(filtered.interStoreIn.records).toHaveLength(1)
   })
 
   it('パーティションにデータがある種別は月フィルタが適用される', () => {
     const data = makeData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 999, price: 999 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 999, price: 999 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 1 }],
       },
@@ -831,7 +1049,20 @@ describe('filterDataForMonth', () => {
 
     // 仕入パーティションに1月データがある
     const partitions = {
-      purchase: { '2025-1': { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } } },
+      purchase: {
+        '2025-1': {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 200, price: 260 },
+            },
+          ],
+        },
+      },
       flowers: {},
       directProduce: {},
       interStoreIn: {},
@@ -843,12 +1074,24 @@ describe('filterDataForMonth', () => {
     const filtered = filterDataForMonth(data, 2025, 1, partitions)
 
     // パーティションから取得（元の data.purchase ではなくパーティションのデータ）
-    expect(filtered.purchase['1']?.[1]?.total.cost).toBe(200)
+    const purchaseRec = filtered.purchase.records.find((r) => r.storeId === '1' && r.day === 1)
+    expect(purchaseRec?.total.cost).toBe(200)
   })
 
   it('パーティションにデータがあるが対象月が存在しない場合は空になる', () => {
     const data = makeData({
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: {
         records: [{ ...makeCSRecord(1, '1', 50000), year: 2025, month: 2 }],
       },
@@ -856,7 +1099,20 @@ describe('filterDataForMonth', () => {
 
     // 仕入パーティションに1月データのみ（2月はない）
     const partitions = {
-      purchase: { '2025-1': { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } } },
+      purchase: {
+        '2025-1': {
+          records: [
+            {
+              year: 2025,
+              month: 1,
+              day: 1,
+              storeId: '1',
+              suppliers: {},
+              total: { cost: 200, price: 260 },
+            },
+          ],
+        },
+      },
       flowers: {},
       directProduce: {},
       interStoreIn: {},
@@ -868,6 +1124,6 @@ describe('filterDataForMonth', () => {
     const filtered = filterDataForMonth(data, 2025, 2, partitions)
 
     // 仕入パーティションにはデータがあるが2月分はないので空
-    expect(Object.keys(filtered.purchase)).toHaveLength(0)
+    expect(filtered.purchase.records).toHaveLength(0)
   })
 })

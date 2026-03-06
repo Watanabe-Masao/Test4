@@ -40,12 +40,12 @@ describe('sanitizeNumericValues', () => {
 describe('validateLoadedData', () => {
   function makeValidData(): Record<string, unknown> {
     return {
-      purchase: {},
-      interStoreIn: {},
-      interStoreOut: {},
-      flowers: {},
-      directProduce: {},
-      consumables: {},
+      purchase: { records: [] },
+      interStoreIn: { records: [] },
+      interStoreOut: { records: [] },
+      flowers: { records: [] },
+      directProduce: { records: [] },
+      consumables: { records: [] },
       stores: new Map(),
       suppliers: new Map(),
       settings: new Map(),

@@ -98,13 +98,27 @@ export function mergeCostInclusionData(
   incoming: CostInclusionData,
 ): CostInclusionData {
   // 既存レコードをキーでインデックス化
-  const map = new Map<string, { cost: number; items: CostInclusionItem[]; year: number; month: number; day: number; storeId: string }>()
+  const map = new Map<
+    string,
+    {
+      cost: number
+      items: CostInclusionItem[]
+      year: number
+      month: number
+      day: number
+      storeId: string
+    }
+  >()
 
   for (const rec of existing.records) {
     const key = costInclusionRecordKey(rec)
     map.set(key, {
-      year: rec.year, month: rec.month, day: rec.day, storeId: rec.storeId,
-      cost: rec.cost, items: [...rec.items],
+      year: rec.year,
+      month: rec.month,
+      day: rec.day,
+      storeId: rec.storeId,
+      cost: rec.cost,
+      items: [...rec.items],
     })
   }
 
@@ -114,8 +128,12 @@ export function mergeCostInclusionData(
     const ex = map.get(key)
     if (!ex) {
       map.set(key, {
-        year: rec.year, month: rec.month, day: rec.day, storeId: rec.storeId,
-        cost: rec.cost, items: [...rec.items],
+        year: rec.year,
+        month: rec.month,
+        day: rec.day,
+        storeId: rec.storeId,
+        cost: rec.cost,
+        items: [...rec.items],
       })
     } else {
       const existingItems = ex.items
@@ -138,8 +156,12 @@ export function mergeCostInclusionData(
   }
 
   const records: CostInclusionRecord[] = Array.from(map.values()).map((v) => ({
-    year: v.year, month: v.month, day: v.day, storeId: v.storeId,
-    cost: v.cost, items: v.items,
+    year: v.year,
+    month: v.month,
+    day: v.day,
+    storeId: v.storeId,
+    cost: v.cost,
+    items: v.items,
   }))
 
   return { records }

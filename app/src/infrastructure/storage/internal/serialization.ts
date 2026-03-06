@@ -160,11 +160,17 @@ function isFiniteNumber(val: unknown): val is number {
   return typeof val === 'number' && Number.isFinite(val)
 }
 
-/** StoreDayRecord の各エントリが object であることを検証する */
+/** records 配列形式 { records: [...] } であることを検証する */
 function isValidStoreDayRecord(data: unknown): boolean {
   if (data == null) return true
   if (typeof data !== 'object') return false
-  for (const days of Object.values(data as Record<string, unknown>)) {
+  const obj = data as Record<string, unknown>
+  // 新形式: { records: [...] }
+  if ('records' in obj) {
+    return Array.isArray(obj.records)
+  }
+  // 旧形式（マイグレーション前のデータ）: storeId → day → entry
+  for (const days of Object.values(obj)) {
     if (days != null && typeof days !== 'object') return false
   }
   return true

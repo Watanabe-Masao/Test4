@@ -28,9 +28,7 @@ export type StoreDayIndex<T> = {
  * flat record 配列から StoreDayIndex を構築する。
  * 同一 storeId+day のレコードは後勝ちでマージされる。
  */
-export function indexByStoreDay<T extends DatedRecord>(
-  records: readonly T[],
-): StoreDayIndex<T> {
+export function indexByStoreDay<T extends DatedRecord>(records: readonly T[]): StoreDayIndex<T> {
   const index: Record<string, Record<number, T>> = {}
   for (const r of records) {
     if (!index[r.storeId]) index[r.storeId] = {}

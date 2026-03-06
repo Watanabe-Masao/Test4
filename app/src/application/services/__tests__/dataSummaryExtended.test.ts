@@ -5,12 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { createEmptyImportedData } from '@/domain/models'
-import type {
-  ImportedData,
-  Store,
-  TransferDayEntry,
-  CostInclusionRecord,
-} from '@/domain/models'
+import type { ImportedData, Store, TransferDayEntry, CostInclusionRecord } from '@/domain/models'
 import {
   computeHasAnyData,
   computeLoadedTypes,
@@ -22,6 +17,7 @@ import {
   buildDataOverview,
 } from '@/application/services/dataSummary'
 import type { RecordSetStats } from '@/application/services/dataSummary'
+import type { SpecialSalesDayEntry, PurchaseDayEntry } from '@/domain/models'
 
 // ─── ヘルパー ──────────────────────────────────────────
 
@@ -78,7 +74,16 @@ const defaultStoreNames: ReadonlyMap<string, Store> = new Map([
 ])
 
 function makeTransferDayEntry(day: number, storeId: string): TransferDayEntry {
-  return { year: 2025, month: 1, day, storeId, interStoreIn: [], interStoreOut: [], interDepartmentIn: [], interDepartmentOut: [] }
+  return {
+    year: 2025,
+    month: 1,
+    day,
+    storeId,
+    interStoreIn: [],
+    interStoreOut: [],
+    interDepartmentIn: [],
+    interDepartmentOut: [],
+  }
 }
 
 function makeCostInclusionRecord(day: number, storeId: string, cost: number): CostInclusionRecord {
@@ -90,7 +95,18 @@ function makeCostInclusionRecord(day: number, storeId: string, cost: number): Co
 describe('computeHasAnyData extended', () => {
   it('両方あっても true', () => {
     const data = buildTestData({
-      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 15000)] },
     })
     expect(computeHasAnyData(data)).toBe(true)
@@ -119,7 +135,9 @@ describe('computeHasAnyData extended', () => {
 
   it('directProduce のみでは false', () => {
     const data = buildTestData({
-      directProduce: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }] },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
     })
     expect(computeHasAnyData(data)).toBe(false)
   })
@@ -147,7 +165,9 @@ describe('computeHasAnyData extended', () => {
 describe('computeLoadedTypes extended', () => {
   it('directProduce の検出', () => {
     const data = buildTestData({
-      directProduce: { '1': { 1: { price: 5000, cost: 3000 } } },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 3000 }],
+      },
     })
     const types = computeLoadedTypes(data)
     expect(types.has('directProduce')).toBe(true)
@@ -156,7 +176,7 @@ describe('computeLoadedTypes extended', () => {
 
   it('interStoreIn の検出', () => {
     const data = buildTestData({
-      interStoreIn: { '1': { 1: makeTransferDayEntry() } },
+      interStoreIn: { records: [makeTransferDayEntry(1, '1')] },
     })
     const types = computeLoadedTypes(data)
     expect(types.has('interStoreIn')).toBe(true)
@@ -164,7 +184,7 @@ describe('computeLoadedTypes extended', () => {
 
   it('interStoreOut の検出', () => {
     const data = buildTestData({
-      interStoreOut: { '1': { 1: makeTransferDayEntry() } },
+      interStoreOut: { records: [makeTransferDayEntry(1, '1')] },
     })
     const types = computeLoadedTypes(data)
     expect(types.has('interStoreOut')).toBe(true)
@@ -172,7 +192,7 @@ describe('computeLoadedTypes extended', () => {
 
   it('consumables の検出', () => {
     const data = buildTestData({
-      consumables: { '1': { 1: makeCostInclusionRecord(500) } },
+      consumables: { records: [makeCostInclusionRecord(1, '1', 500)] },
     })
     const types = computeLoadedTypes(data)
     expect(types.has('consumables')).toBe(true)
@@ -180,7 +200,18 @@ describe('computeLoadedTypes extended', () => {
 
   it('全10種別を同時にロード', () => {
     const data = buildTestData({
-      purchase: { records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }] },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
       classifiedSales: { records: [makeCSRecord(1, '1', 10000)] },
       settings: new Map([
         [
@@ -198,12 +229,16 @@ describe('computeLoadedTypes extended', () => {
         ],
       ]),
       budget: new Map([['1', { storeId: '1', total: 6000000, daily: new Map() }]]),
-      consumables: { '1': { 1: makeCostInclusionRecord(500) } },
+      consumables: { records: [makeCostInclusionRecord(1, '1', 500)] },
       categoryTimeSales: { records: [makeCtsRecord(1, '1')] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 3000 } } },
-      interStoreIn: { '1': { 1: makeTransferDayEntry() } },
-      interStoreOut: { '1': { 1: makeTransferDayEntry() } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 3000 }],
+      },
+      interStoreIn: { records: [makeTransferDayEntry(1, '1')] },
+      interStoreOut: { records: [makeTransferDayEntry(1, '1')] },
     })
     const types = computeLoadedTypes(data)
     expect(types.size).toBe(10)
@@ -239,14 +274,14 @@ describe('computeLoadedTypes extended', () => {
     expect(types.has('categoryTimeSales')).toBe(false)
   })
 
-  it('空オブジェクトの StoreDayRecord はロード済みとみなさない', () => {
+  it('空の records 配列はロード済みとみなさない（全種別）', () => {
     const data = buildTestData({
-      purchase: {},
-      flowers: {},
-      directProduce: {},
-      interStoreIn: {},
-      interStoreOut: {},
-      consumables: {},
+      purchase: { records: [] },
+      flowers: { records: [] },
+      directProduce: { records: [] },
+      interStoreIn: { records: [] },
+      interStoreOut: { records: [] },
+      consumables: { records: [] },
     })
     const types = computeLoadedTypes(data)
     expect(types.size).toBe(0)
@@ -259,14 +294,40 @@ describe('computeMaxDayByType extended', () => {
   it('複数店舗にまたがる仕入データの最大日', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          5: { suppliers: {}, total: { cost: 100, price: 130 } },
-          10: { suppliers: {}, total: { cost: 200, price: 260 } },
-        },
-        '2': {
-          3: { suppliers: {}, total: { cost: 300, price: 390 } },
-          25: { suppliers: {}, total: { cost: 400, price: 520 } },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 10,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 3,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 300, price: 390 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 25,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 400, price: 520 },
+          },
+        ],
       },
     })
     const result = computeMaxDayByType(data)
@@ -275,7 +336,9 @@ describe('computeMaxDayByType extended', () => {
 
   it('directProduce の最大日', () => {
     const data = buildTestData({
-      directProduce: { '1': { 12: { price: 5000, cost: 3000 } } },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 12, storeId: '1', price: 5000, cost: 3000 }],
+      },
     })
     const result = computeMaxDayByType(data)
     expect(result.get('directProduce')).toBe(12)
@@ -284,7 +347,7 @@ describe('computeMaxDayByType extended', () => {
   it('interStoreIn の最大日', () => {
     const data = buildTestData({
       interStoreIn: {
-        '1': { 7: makeTransferDayEntry(), 14: makeTransferDayEntry() },
+        records: [makeTransferDayEntry(7, '1'), makeTransferDayEntry(14, '1')],
       },
     })
     const result = computeMaxDayByType(data)
@@ -294,7 +357,7 @@ describe('computeMaxDayByType extended', () => {
   it('interStoreOut の最大日', () => {
     const data = buildTestData({
       interStoreOut: {
-        '2': { 8: makeTransferDayEntry(), 22: makeTransferDayEntry() },
+        records: [makeTransferDayEntry(8, '2'), makeTransferDayEntry(22, '2')],
       },
     })
     const result = computeMaxDayByType(data)
@@ -303,20 +366,37 @@ describe('computeMaxDayByType extended', () => {
 
   it('consumables の最大日', () => {
     const data = buildTestData({
-      consumables: { '1': { 3: makeCostInclusionRecord(500), 28: makeCostInclusionRecord(700) } },
+      consumables: {
+        records: [makeCostInclusionRecord(3, '1', 500), makeCostInclusionRecord(28, '1', 700)],
+      },
     })
     const result = computeMaxDayByType(data)
     expect(result.get('consumables')).toBe(28)
   })
 
-  it('全6種 StoreDayRecord の最大日を同時取得', () => {
+  it('全6種 flat records の最大日を同時取得', () => {
     const data = buildTestData({
-      purchase: { '1': { 20: { suppliers: {}, total: { cost: 100, price: 130 } } } },
-      flowers: { '1': { 15: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 10: { price: 5000, cost: 3000 } } },
-      interStoreIn: { '1': { 5: makeTransferDayEntry() } },
-      interStoreOut: { '1': { 25: makeTransferDayEntry() } },
-      consumables: { '1': { 18: makeCostInclusionRecord(500) } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 20,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 15, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 10, storeId: '1', price: 5000, cost: 3000 }],
+      },
+      interStoreIn: { records: [makeTransferDayEntry(5, '1')] },
+      interStoreOut: { records: [makeTransferDayEntry(25, '1')] },
+      consumables: { records: [makeCostInclusionRecord(18, '1', 500)] },
     })
     const result = computeMaxDayByType(data)
     expect(result.get('purchase')).toBe(20)
@@ -458,54 +538,75 @@ describe('computeRecordDays extended', () => {
   })
 })
 
-// ─── analyzeStoreDayRecord: 追加エッジケース ──────────
+// ─── analyzeFlatRecords: 追加エッジケース ──────────
 
-describe('analyzeStoreDayRecord extended', () => {
+describe('analyzeFlatRecords extended', () => {
   it('label がそのまま返る', () => {
-    const result = analyzeStoreDayRecord({}, '任意のラベル', defaultStoreNames)
+    const result = analyzeFlatRecords(
+      [] as SpecialSalesDayEntry[],
+      '任意のラベル',
+      defaultStoreNames,
+    )
     expect(result.label).toBe('任意のラベル')
   })
 
   it('checkCustomers=false のとき hasCustomers は常に false', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000, customers: 50 } },
-    }
-    const result = analyzeStoreDayRecord(record, 'テスト', defaultStoreNames, false)
+    const records: SpecialSalesDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 50 },
+    ]
+    const result = analyzeFlatRecords(records, 'テスト', defaultStoreNames, false)
     expect(result.hasCustomers).toBe(false)
   })
 
   it('checkCustomers 省略時（デフォルト）は hasCustomers = false', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000, customers: 50 } },
-    }
-    const result = analyzeStoreDayRecord(record, 'テスト', defaultStoreNames)
+    const records: SpecialSalesDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 50 },
+    ]
+    const result = analyzeFlatRecords(records, 'テスト', defaultStoreNames)
     expect(result.hasCustomers).toBe(false)
   })
 
   it('customers=0 のとき hasCustomers は false', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000, customers: 0 } },
-    }
-    const result = analyzeStoreDayRecord(record, '花', defaultStoreNames, true)
+    const records: SpecialSalesDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 0 },
+    ]
+    const result = analyzeFlatRecords(records, '花', defaultStoreNames, true)
     expect(result.hasCustomers).toBe(false)
   })
 
   it('複数店舗のうち1つだけ customers ありでも true', () => {
-    const record = {
-      '1': { 1: { price: 10000, cost: 8000 } },
-      '2': { 1: { price: 10000, cost: 8000, customers: 10 } },
-    }
-    const result = analyzeStoreDayRecord(record, '花', defaultStoreNames, true)
+    const records: SpecialSalesDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 },
+      { year: 2025, month: 1, day: 1, storeId: '2', price: 10000, cost: 8000, customers: 10 },
+    ]
+    const result = analyzeFlatRecords(records, '花', defaultStoreNames, true)
     expect(result.hasCustomers).toBe(true)
   })
 
   it('3店舗の perStore が全て正しい', () => {
-    const record = {
-      '1': { 1: { cost: 100 }, 5: { cost: 200 }, 10: { cost: 300 } },
-      '2': { 3: { cost: 400 }, 8: { cost: 500 } },
-      '3': { 15: { cost: 600 } },
-    }
-    const result = analyzeStoreDayRecord(record, '仕入', defaultStoreNames)
+    const records: PurchaseDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 0 } },
+      { year: 2025, month: 1, day: 5, storeId: '1', suppliers: {}, total: { cost: 200, price: 0 } },
+      {
+        year: 2025,
+        month: 1,
+        day: 10,
+        storeId: '1',
+        suppliers: {},
+        total: { cost: 300, price: 0 },
+      },
+      { year: 2025, month: 1, day: 3, storeId: '2', suppliers: {}, total: { cost: 400, price: 0 } },
+      { year: 2025, month: 1, day: 8, storeId: '2', suppliers: {}, total: { cost: 500, price: 0 } },
+      {
+        year: 2025,
+        month: 1,
+        day: 15,
+        storeId: '3',
+        suppliers: {},
+        total: { cost: 600, price: 0 },
+      },
+    ]
+    const result = analyzeFlatRecords(records, '仕入', defaultStoreNames)
     expect(result.storeCount).toBe(3)
     expect(result.totalRecords).toBe(6)
     expect(result.dayRange).toEqual({ min: 1, max: 15 })
@@ -530,38 +631,44 @@ describe('analyzeStoreDayRecord extended', () => {
     expect(store3?.maxDay).toBe(15)
   })
 
-  it('店舗のデータが空オブジェクト（日なし）の場合は perStore に含まれない', () => {
-    const record = {
-      '1': {},
-      '2': { 5: { cost: 200 } },
-    }
-    const result = analyzeStoreDayRecord(record, 'テスト', defaultStoreNames)
-    // storeCount は Object.keys で数えるので 2
-    expect(result.storeCount).toBe(2)
-    // perStore は days > 0 の店舗のみ
-    expect(result.perStore).toHaveLength(1)
-    expect(result.perStore[0].storeId).toBe('2')
-    // totalRecords は days.length の合計
-    expect(result.totalRecords).toBe(1)
+  it('空の records は perStore も空', () => {
+    const result = analyzeFlatRecords([] as PurchaseDayEntry[], 'テスト', defaultStoreNames)
+    expect(result.storeCount).toBe(0)
+    expect(result.perStore).toHaveLength(0)
+    expect(result.totalRecords).toBe(0)
   })
 
   it('複数の不明な店舗IDにフォールバック名が付く', () => {
-    const record = {
-      '88': { 1: { cost: 100 } },
-      '99': { 2: { cost: 200 } },
-    }
-    const result = analyzeStoreDayRecord(record, 'テスト', defaultStoreNames)
+    const records: PurchaseDayEntry[] = [
+      {
+        year: 2025,
+        month: 1,
+        day: 1,
+        storeId: '88',
+        suppliers: {},
+        total: { cost: 100, price: 0 },
+      },
+      {
+        year: 2025,
+        month: 1,
+        day: 2,
+        storeId: '99',
+        suppliers: {},
+        total: { cost: 200, price: 0 },
+      },
+    ]
+    const result = analyzeFlatRecords(records, 'テスト', defaultStoreNames)
     const names = result.perStore.map((s) => s.storeName)
     expect(names).toContain('店舗88')
     expect(names).toContain('店舗99')
   })
 
   it('空の storeNames マップでもフォールバック名を使用', () => {
-    const record = {
-      '1': { 1: { cost: 100 } },
-    }
+    const records: PurchaseDayEntry[] = [
+      { year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 0 } },
+    ]
     const emptyStoreNames = new Map<string, Store>()
-    const result = analyzeStoreDayRecord(record, 'テスト', emptyStoreNames)
+    const result = analyzeFlatRecords(records, 'テスト', emptyStoreNames)
     expect(result.perStore[0].storeName).toBe('店舗1')
   })
 })
@@ -701,7 +808,11 @@ describe('buildDataOverview extended', () => {
 
   it('花の checkCustomers が有効（hasCustomers が反映される）', () => {
     const data = buildTestData({
-      flowers: { '1': { 1: { price: 10000, cost: 8000, customers: 30 } } },
+      flowers: {
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 30 },
+        ],
+      },
     })
     const overview = buildDataOverview(data)
     const flowersEntry = overview.find((e) => e.label === '花')
@@ -711,7 +822,16 @@ describe('buildDataOverview extended', () => {
   it('仕入の checkCustomers はデフォルト（false）', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
       },
     })
     const overview = buildDataOverview(data)
@@ -722,8 +842,24 @@ describe('buildDataOverview extended', () => {
   it('全種別にデータがある場合の統計', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
-        '2': { 5: { suppliers: {}, total: { cost: 200, price: 260 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
       },
       classifiedSales: {
         records: [
@@ -732,11 +868,15 @@ describe('buildDataOverview extended', () => {
           makeCSRecord(10, '3', 30000),
         ],
       },
-      flowers: { '1': { 3: { price: 10000, cost: 8000 } } },
-      directProduce: { '2': { 7: { price: 5000, cost: 3000 } } },
-      interStoreIn: { '1': { 2: makeTransferDayEntry() } },
-      interStoreOut: { '2': { 4: makeTransferDayEntry() } },
-      consumables: { '1': { 6: makeCostInclusionRecord(500) } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 3, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 7, storeId: '2', price: 5000, cost: 3000 }],
+      },
+      interStoreIn: { records: [makeTransferDayEntry(2, '1')] },
+      interStoreOut: { records: [makeTransferDayEntry(4, '2')] },
+      consumables: { records: [makeCostInclusionRecord(6, '1', 500)] },
       prevYearClassifiedSales: {
         records: [makeCSRecord(1, '1', 8000)],
       },
@@ -774,8 +914,24 @@ describe('buildDataOverview extended', () => {
   it('stores マップの名前が perStore に反映される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } },
-        '2': { 5: { suppliers: {}, total: { cost: 200, price: 260 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 5,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
       },
     })
     const overview = buildDataOverview(data)
@@ -788,16 +944,30 @@ describe('buildDataOverview extended', () => {
   it('dayRange が各種別ごとに正しい', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          3: { suppliers: {}, total: { cost: 100, price: 130 } },
-          20: { suppliers: {}, total: { cost: 200, price: 260 } },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 3,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 20,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
       },
       flowers: {
-        '1': {
-          7: { price: 10000, cost: 8000 },
-          15: { price: 12000, cost: 9000 },
-        },
+        records: [
+          { year: 2025, month: 1, day: 7, storeId: '1', price: 10000, cost: 8000 },
+          { year: 2025, month: 1, day: 15, storeId: '1', price: 12000, cost: 9000 },
+        ],
       },
     })
     const overview = buildDataOverview(data)

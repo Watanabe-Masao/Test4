@@ -383,10 +383,7 @@ export function validateImportedData(
       if (rec.day > csMaxDay) csMaxDay = rec.day
     }
 
-    const checkFlatRecordsRange = (
-      records: readonly { readonly day: number }[],
-      label: string,
-    ) => {
+    const checkFlatRecordsRange = (records: readonly { readonly day: number }[], label: string) => {
       if (!records || records.length === 0) return
 
       let maxDay = 0
@@ -582,12 +579,8 @@ export function filterDataForMonth(
   const has = (obj: Record<string, unknown>) => Object.keys(obj).length > 0
   return {
     ...base,
-    purchase: has(partitions.purchase)
-      ? (partitions.purchase[mk] ?? emptyRecords)
-      : data.purchase,
-    flowers: has(partitions.flowers)
-      ? (partitions.flowers[mk] ?? emptyRecords)
-      : data.flowers,
+    purchase: has(partitions.purchase) ? (partitions.purchase[mk] ?? emptyRecords) : data.purchase,
+    flowers: has(partitions.flowers) ? (partitions.flowers[mk] ?? emptyRecords) : data.flowers,
     directProduce: has(partitions.directProduce)
       ? (partitions.directProduce[mk] ?? emptyRecords)
       : data.directProduce,

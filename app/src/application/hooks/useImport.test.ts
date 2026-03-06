@@ -98,7 +98,16 @@ describe('mergeInsertsOnly', () => {
     const existing = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000, 3000)] },
       purchase: {
-        records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }],
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
       },
     })
     const incoming = makeData({
@@ -106,7 +115,16 @@ describe('mergeInsertsOnly', () => {
         records: [makeCSRecord(1, '1', 99999, 9999), makeCSRecord(2, '1', 60000, 5000)],
       },
       purchase: {
-        records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 200, price: 260 } }],
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
       },
     })
 
@@ -117,7 +135,9 @@ describe('mergeInsertsOnly', () => {
     expect(result.classifiedSales.records).toHaveLength(2) // 既存1 + 新規1 (day=2)
     expect(result.classifiedSales.records[0].salesAmount).toBe(50000) // 既存維持
     // purchase は変更なし
-    expect(result.purchase.records.find(r => r.storeId === '1' && r.day === 1)?.total.cost).toBe(100)
+    expect(result.purchase.records.find((r) => r.storeId === '1' && r.day === 1)?.total.cost).toBe(
+      100,
+    )
   })
 
   it('stores の新規店舗は追加されるが既存は維持', () => {
@@ -400,7 +420,16 @@ describe('mergeInsertsOnly', () => {
     const existing = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000, 3000)] },
       purchase: {
-        records: [{ year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 100, price: 130 } }],
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
       },
     })
     const incoming = makeData({
@@ -409,8 +438,22 @@ describe('mergeInsertsOnly', () => {
       },
       purchase: {
         records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', suppliers: {}, total: { cost: 200, price: 260 } },
-          { year: 2025, month: 1, day: 2, storeId: '1', suppliers: {}, total: { cost: 300, price: 390 } },
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 2,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 300, price: 390 },
+          },
         ],
       },
     })
@@ -419,9 +462,13 @@ describe('mergeInsertsOnly', () => {
 
     // 既存維持
     expect(result.classifiedSales.records[0].salesAmount).toBe(50000)
-    expect(result.purchase.records.find(r => r.storeId === '1' && r.day === 1)?.total.cost).toBe(100)
+    expect(result.purchase.records.find((r) => r.storeId === '1' && r.day === 1)?.total.cost).toBe(
+      100,
+    )
     // 新規挿入
     expect(result.classifiedSales.records).toHaveLength(2)
-    expect(result.purchase.records.find(r => r.storeId === '1' && r.day === 2)?.total.cost).toBe(300)
+    expect(result.purchase.records.find((r) => r.storeId === '1' && r.day === 2)?.total.cost).toBe(
+      300,
+    )
   })
 })

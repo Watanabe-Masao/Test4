@@ -110,9 +110,8 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
     // 前年花データを index 化（客数の O(1) ルックアップ用）
-    const prevYearFlowersIndex = prevYearFlowers.records.length > 0
-      ? indexByStoreDay(prevYearFlowers.records)
-      : undefined
+    const prevYearFlowersIndex =
+      prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
 
     // 日別に合算（キーを offset 分ずらして当年日に対応付け）
     // 売変種別内訳も日別に蓄積する（日→DiscountEntry[] のマップ）

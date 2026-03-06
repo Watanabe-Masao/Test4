@@ -136,9 +136,7 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
   it('消耗品のみの日はスキップされない', () => {
     const data = buildTestData({
       consumables: {
-        records: [
-          { year: 2025, month: 1, day: 10, storeId: '1', cost: 200, items: [] },
-        ],
+        records: [{ year: 2025, month: 1, day: 10, storeId: '1', cost: 200, items: [] }],
       },
     })
 
@@ -261,9 +259,7 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
         ],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 1500, price: 3000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 1500, price: 3000 }],
       },
     })
 
@@ -298,14 +294,10 @@ describe('buildStoreDaySummaryIndex — edge cases', () => {
         ],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 800, price: 1000 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 800, price: 1000 }],
       },
       consumables: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 450, items: [] },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 450, items: [] }],
       },
       interStoreIn: {
         records: [

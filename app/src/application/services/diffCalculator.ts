@@ -54,10 +54,15 @@ function valuesEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
+/** DatedRecord のメタフィールド（差分比較から除外） */
+const DATED_RECORD_FIELDS = new Set(['year', 'month', 'day', 'storeId'])
+
 /** day エントリの全フィールドを flat に展開して比較する */
 function flattenDayEntry(entry: Record<string, unknown>, prefix = ''): Map<string, unknown> {
   const result = new Map<string, unknown>()
   for (const [key, val] of Object.entries(entry)) {
+    // トップレベルの DatedRecord フィールドはキー情報なので差分対象外
+    if (!prefix && DATED_RECORD_FIELDS.has(key)) continue
     const path = prefix ? `${prefix}.${key}` : key
     if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
       for (const [k2, v2] of flattenDayEntry(val as Record<string, unknown>, path)) {
@@ -387,7 +392,13 @@ export function calculateDiff(
       continue
     }
 
-    const diff = diffFlatRecords(existingData.records, incomingData.records, type, existing, incoming)
+    const diff = diffFlatRecords(
+      existingData.records,
+      incomingData.records,
+      type,
+      existing,
+      incoming,
+    )
     if (diff.inserts.length > 0 || diff.modifications.length > 0 || diff.removals.length > 0) {
       diffs.push(diff)
     }

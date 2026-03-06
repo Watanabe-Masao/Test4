@@ -127,11 +127,33 @@ describe('calculateDiff', () => {
   it('インポートされていないデータ種別はスキップされる', () => {
     const existing = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
     })
     const incoming = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
+      },
     })
 
     // classifiedSales のみインポートされた扱い
@@ -145,26 +167,30 @@ describe('calculateDiff', () => {
   it('仕入データの差分検出（ネスト構造）', () => {
     const existing = makeData({
       purchase: {
-        '1': {
-          1: {
-            suppliers: {
-              '0000001': { name: '取引先A', cost: 10000, price: 13000 },
-            },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: { '0000001': { name: '取引先A', cost: 10000, price: 13000 } },
             total: { cost: 10000, price: 13000 },
           },
-        },
+        ],
       },
     })
     const incoming = makeData({
       purchase: {
-        '1': {
-          1: {
-            suppliers: {
-              '0000001': { name: '取引先A', cost: 12000, price: 15000 },
-            },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: { '0000001': { name: '取引先A', cost: 12000, price: 15000 } },
             total: { cost: 12000, price: 15000 },
           },
-        },
+        ],
       },
     })
 
@@ -177,10 +203,14 @@ describe('calculateDiff', () => {
 
   it('浮動小数点の微小差は同値とみなす', () => {
     const existing = makeData({
-      flowers: { '1': { 1: { price: 10000, cost: 8000.0001 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000.0001 }],
+      },
     })
     const incoming = makeData({
-      flowers: { '1': { 1: { price: 10000, cost: 8000.0002 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000.0002 }],
+      },
     })
 
     const result = calculateDiff(existing, incoming, new Set(['flowers']))
@@ -192,11 +222,33 @@ describe('calculateDiff', () => {
   it('複数データ種別の同時チェック', () => {
     const existing = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
     })
     const incoming = makeData({
       classifiedSales: { records: [makeCSRecord(1, '1', 60000)] },
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
+      },
     })
 
     const result = calculateDiff(existing, incoming, new Set(['classifiedSales', 'purchase']))
@@ -254,11 +306,33 @@ describe('calculateDiff', () => {
   it('店名が既存・新規の stores から解決される', () => {
     const existing = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 100, price: 130 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 100, price: 130 },
+          },
+        ],
+      },
     })
     const incoming = makeData({
       stores: new Map([['1', { id: '1', code: '0001', name: '店舗A' }]]),
-      purchase: { '1': { 1: { suppliers: {}, total: { cost: 200, price: 260 } } } },
+      purchase: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 200, price: 260 },
+          },
+        ],
+      },
     })
 
     const result = calculateDiff(existing, incoming, new Set(['purchase']))

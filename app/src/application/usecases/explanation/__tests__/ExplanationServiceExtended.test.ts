@@ -97,8 +97,24 @@ describe('expandDailyEvidence: aggregate store path', () => {
   it('aggregate storeId で全店舗分の dailyEvidence が展開される', () => {
     const data = buildMultiStoreTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 10000, price: 13000 } } },
-        '2': { 1: { suppliers: {}, total: { cost: 20000, price: 26000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 13000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 20000, price: 26000 },
+          },
+        ],
       },
       classifiedSales: {
         records: [makeCSRecord(1, '1', 50000), makeCSRecord(1, '2', 60000)],
@@ -148,17 +164,25 @@ describe('costComponentDetails: breakdown details for purchaseCost', () => {
   it('店間入/出・部門間入/出・売上納品原価の内訳が表示される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 15000 } },
             total: { cost: 10000, price: 15000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [
               {
                 day: 1,
@@ -173,11 +197,15 @@ describe('costComponentDetails: breakdown details for purchaseCost', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       interStoreOut: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [
               {
@@ -192,10 +220,16 @@ describe('costComponentDetails: breakdown details for purchaseCost', () => {
             interDepartmentIn: [],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
-      flowers: { '1': { 1: { price: 8000, cost: 6000, customers: 20 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+      flowers: {
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 8000, cost: 6000, customers: 20 },
+        ],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -217,12 +251,16 @@ describe('costComponentDetails: breakdown details for purchaseCost', () => {
   it('ゼロ値のコスト要素は内訳から除外される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: { '001': { name: 'A', cost: 10000, price: 15000 } },
             total: { cost: 10000, price: 15000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })
@@ -249,8 +287,14 @@ describe('salesComponentDetails: breakdown details for salesTotal', () => {
   it('花売価・産直売価・売上納品売価が非ゼロの場合に内訳が表示される', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
-      flowers: { '1': { 1: { price: 8000, cost: 6000, customers: 20 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+      flowers: {
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 8000, cost: 6000, customers: 20 },
+        ],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -290,15 +334,19 @@ describe('supplierDetails: inventoryCost breakdown', () => {
   it('取引先内訳が日別に表示される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: {
               '001': { name: 'A', cost: 15000, price: 20000 },
               '002': { name: 'B', cost: 10000, price: 14000 },
             },
             total: { cost: 25000, price: 34000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
     })
@@ -324,7 +372,11 @@ describe('deliverySalesCost: breakdown details', () => {
   it('花原価のみ非ゼロの場合', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000, customers: 30 } } },
+      flowers: {
+        records: [
+          { year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000, customers: 30 },
+        ],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -341,7 +393,9 @@ describe('deliverySalesCost: breakdown details', () => {
   it('産直原価のみ非ゼロの場合', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
-      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -377,14 +431,18 @@ describe('totalCostInclusion: breakdown details', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 500,
             items: [
               { accountCode: 'AC1', itemCode: 'IC1', itemName: '洗剤', quantity: 1, cost: 500 },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -404,14 +462,18 @@ describe('totalCostInclusion: breakdown details', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 300,
             items: [
               { accountCode: 'AC1', itemCode: 'ITEM99', itemName: '', quantity: 2, cost: 300 },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -427,15 +489,19 @@ describe('totalCostInclusion: breakdown details', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 800,
             items: [
               { accountCode: 'AC1', itemCode: 'IC1', itemName: '洗剤', quantity: 1, cost: 500 },
               { accountCode: 'AC2', itemCode: 'IC2', itemName: 'ゴミ袋', quantity: 2, cost: 300 },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -455,7 +521,16 @@ describe('grossProfitBudgetAchievement', () => {
   it('grossProfitBudget > 0 かつ在庫法ありで粗利予算達成率が生成される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       settings: new Map([
@@ -488,7 +563,16 @@ describe('grossProfitBudgetAchievement', () => {
   it('grossProfitBudget > 0 かつ在庫法なしで推定マージンを使う', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       settings: new Map([
@@ -533,7 +617,16 @@ describe('resolveFormulaDetail: formulaDetail injection', () => {
   it('formulaRef を持つ指標に formulaDetail が注入される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
     })
@@ -564,7 +657,16 @@ describe('resolveFormulaDetail: formulaDetail injection', () => {
   it('複数の指標で異なる formulaDetail が正しく解決される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 80000, 5000)] },
       settings: new Map([
@@ -647,7 +749,16 @@ describe('generateTextSummary: extended branches', () => {
   it('targetGrossProfitRate が指定されている場合、目標比が表示される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
     })
@@ -661,7 +772,16 @@ describe('generateTextSummary: extended branches', () => {
   it('在庫法粗利率がある場合は（在庫法）と表示される', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       settings: new Map([
@@ -699,13 +819,31 @@ describe('generateTextSummary: extended branches', () => {
   it('前年比較ありで粗利率の前年比が表示される', () => {
     const dataThis = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
     })
     const dataPrev = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 40000, price: 50000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 40000, price: 50000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 90000)] },
     })
@@ -738,14 +876,18 @@ describe('generateTextSummary: extended branches', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 5000,
             items: [
               { accountCode: 'AC1', itemCode: 'IC1', itemName: '洗剤', quantity: 10, cost: 5000 },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -760,14 +902,18 @@ describe('generateTextSummary: extended branches', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000, 20000)] },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 3000,
             items: [
               { accountCode: 'AC1', itemCode: 'IC1', itemName: '洗剤', quantity: 5, cost: 3000 },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -828,19 +974,34 @@ describe('generateTextSummary: extended branches', () => {
   it('全オプション指定時の統合テスト', () => {
     const dataThis = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000, 20000)] },
-      flowers: { '1': { 1: { price: 0, cost: 0, customers: 50 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 50 }],
+      },
       consumables: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             cost: 5000,
             items: [
               { accountCode: 'AC1', itemCode: 'IC1', itemName: '洗剤', quantity: 10, cost: 5000 },
             ],
           },
-        },
+        ],
       },
       budget: new Map([['1', { storeId: '1', total: 5000000, daily: new Map() }]]),
       settings: new Map([
@@ -861,10 +1022,21 @@ describe('generateTextSummary: extended branches', () => {
     })
     const dataPrev = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 40000, price: 55000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 40000, price: 55000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 90000, 10000)] },
-      flowers: { '1': { 1: { price: 0, cost: 0, customers: 40 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 40 }],
+      },
     })
     const resultThis = makeStoreResult(dataThis)
     const resultPrev = makeStoreResult(dataPrev)
@@ -992,7 +1164,9 @@ describe('totalCustomers: breakdown with undefined customers', () => {
   it('customers がある日は正しい値が使われる', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
-      flowers: { '1': { 1: { price: 0, cost: 0, customers: 42 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 0, cost: 0, customers: 42 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -1032,8 +1206,12 @@ describe('coreSales: multiple data type evidence refs', () => {
   it('classifiedSales + flowers + directProduce の証拠参照が含まれる', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -1054,7 +1232,16 @@ describe('coreMarkupRate: evidence refs include transfers', () => {
   it('purchase + interStoreIn + interStoreOut の証拠参照が含まれる', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 80000)] },
     })
@@ -1111,13 +1298,32 @@ describe('expandDailyEvidence: multi-day multi-store aggregate', () => {
   it('複数日・複数店舗の場合、全組み合わせが展開される', () => {
     const data = buildMultiStoreTestData({
       purchase: {
-        '1': {
-          1: { suppliers: {}, total: { cost: 10000, price: 13000 } },
-          2: { suppliers: {}, total: { cost: 5000, price: 6500 } },
-        },
-        '2': {
-          1: { suppliers: {}, total: { cost: 20000, price: 26000 } },
-        },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 13000 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 2,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 5000, price: 6500 },
+          },
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '2',
+            suppliers: {},
+            total: { cost: 20000, price: 26000 },
+          },
+        ],
       },
       classifiedSales: {
         records: [
@@ -1147,7 +1353,16 @@ describe('invMethodCogs: evidence refs', () => {
   it('settings aggregate ref と purchase daily refs が含まれる', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       settings: new Map([
@@ -1187,7 +1402,16 @@ describe('estMethodClosingInventory: evidence refs', () => {
   it('settings aggregate ref が含まれる', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 50000, price: 65000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 50000, price: 65000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       settings: new Map([
@@ -1224,18 +1448,26 @@ describe('costComponentDetails: interDepartment branches', () => {
   it('部門間入・部門間出が非ゼロの場合に内訳が表示される', () => {
     const data = buildTestData({
       purchase: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             suppliers: {},
             total: { cost: 10000, price: 15000 },
           },
-        },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
       // interDepartmentIn は data.interStoreIn から読み込まれる
       interStoreIn: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [],
             interDepartmentIn: [
@@ -1250,12 +1482,16 @@ describe('costComponentDetails: interDepartment branches', () => {
             ],
             interDepartmentOut: [],
           },
-        },
+        ],
       },
       // interDepartmentOut は data.interStoreOut から読み込まれる
       interStoreOut: {
-        '1': {
-          1: {
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
             interStoreIn: [],
             interStoreOut: [],
             interDepartmentIn: [],
@@ -1270,7 +1506,7 @@ describe('costComponentDetails: interDepartment branches', () => {
               },
             ],
           },
-        },
+        ],
       },
     })
     const result = makeStoreResult(data)
@@ -1291,8 +1527,12 @@ describe('salesComponentDetails: deliverySales.price branch', () => {
   it('売上納品売価が表示される（花+産直の売価合算がdeliverySales.priceになる）', () => {
     const data = buildTestData({
       classifiedSales: { records: [makeCSRecord(1, '1', 100000)] },
-      flowers: { '1': { 1: { price: 10000, cost: 8000 } } },
-      directProduce: { '1': { 1: { price: 5000, cost: 4000 } } },
+      flowers: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 8000 }],
+      },
+      directProduce: {
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 5000, cost: 4000 }],
+      },
     })
     const result = makeStoreResult(data)
     const explanations = generateExplanations(result, data, DEFAULT_SETTINGS)
@@ -1317,7 +1557,16 @@ describe('all metrics: unit consistency', () => {
   it('rate 指標の value が妥当な範囲にある', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 30000, price: 40000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 30000, price: 40000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 80000, 2000)] },
     })
@@ -1335,7 +1584,16 @@ describe('all metrics: unit consistency', () => {
   it('全指標の title が非空文字列', () => {
     const data = buildTestData({
       purchase: {
-        '1': { 1: { suppliers: {}, total: { cost: 10000, price: 13000 } } },
+        records: [
+          {
+            year: 2025,
+            month: 1,
+            day: 1,
+            storeId: '1',
+            suppliers: {},
+            total: { cost: 10000, price: 13000 },
+          },
+        ],
       },
       classifiedSales: { records: [makeCSRecord(1, '1', 50000)] },
     })

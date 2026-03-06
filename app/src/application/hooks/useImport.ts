@@ -559,7 +559,11 @@ function buildMonthData(
       datedRecordKey,
     ),
     flowers: mergeRecordInserts(existing.flowers, monthData.flowers, datedRecordKey),
-    directProduce: mergeRecordInserts(existing.directProduce, monthData.directProduce, datedRecordKey),
+    directProduce: mergeRecordInserts(
+      existing.directProduce,
+      monthData.directProduce,
+      datedRecordKey,
+    ),
     consumables: mergeRecordInserts(existing.consumables, monthData.consumables, datedRecordKey),
     settings: mergeMapInserts(existing.settings, monthData.settings),
     budget: mergeMapInserts(existing.budget, monthData.budget),

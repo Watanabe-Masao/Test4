@@ -185,9 +185,8 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
     )
 
     // flat records → index 変換
-    const flowersIndex = prevYearFlowers.records.length > 0
-      ? indexByStoreDay(prevYearFlowers.records)
-      : undefined
+    const flowersIndex =
+      prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
 
     const sameDow = aggregateWithOffset(
       allAgg,

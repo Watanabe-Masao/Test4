@@ -132,10 +132,7 @@ export function RawDataTab() {
   )
 
   // flat records → StoreDayIndex に変換（RawDataTab 表示用）
-  const purchaseIdx = useMemo(
-    () => indexByStoreDay(data.purchase.records),
-    [data.purchase.records],
-  )
+  const purchaseIdx = useMemo(() => indexByStoreDay(data.purchase.records), [data.purchase.records])
   const interStoreInIdx = useMemo(
     () => indexByStoreDay(data.interStoreIn.records),
     [data.interStoreIn.records],
@@ -144,10 +141,7 @@ export function RawDataTab() {
     () => indexByStoreDay(data.interStoreOut.records),
     [data.interStoreOut.records],
   )
-  const flowersIdx = useMemo(
-    () => indexByStoreDay(data.flowers.records),
-    [data.flowers.records],
-  )
+  const flowersIdx = useMemo(() => indexByStoreDay(data.flowers.records), [data.flowers.records])
   const directProduceIdx = useMemo(
     () => indexByStoreDay(data.directProduce.records),
     [data.directProduce.records],

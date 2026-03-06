@@ -98,9 +98,7 @@ describe('buildStoreDaySummaryIndex', () => {
         ],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 2000, price: 2500 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 2000, price: 2500 }],
       },
     })
 
@@ -222,9 +220,7 @@ describe('buildStoreDaySummaryIndex', () => {
   it('消耗品データの結合', () => {
     const data = buildTestData({
       consumables: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 750, items: [] },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 750, items: [] }],
       },
     })
 
@@ -303,14 +299,10 @@ describe('summaryBuilder と dailyBuilder の一貫性', () => {
         ],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 1000, price: 1200 },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 1000, price: 1200 }],
       },
       consumables: {
-        records: [
-          { year: 2025, month: 1, day: 1, storeId: '1', cost: 500, items: [] },
-        ],
+        records: [{ year: 2025, month: 1, day: 1, storeId: '1', cost: 500, items: [] }],
       },
     })
 

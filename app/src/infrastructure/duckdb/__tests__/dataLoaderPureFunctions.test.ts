@@ -191,9 +191,7 @@ describe('loadMonth', () => {
         ],
       },
       directProduce: {
-        records: [
-          { year: 2025, month: 1, day: 2, storeId: 'S001', cost: 300, price: 400 },
-        ],
+        records: [{ year: 2025, month: 1, day: 2, storeId: 'S001', cost: 300, price: 400 }],
       },
     }
 
