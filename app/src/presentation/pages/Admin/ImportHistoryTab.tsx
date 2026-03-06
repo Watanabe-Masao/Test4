@@ -325,7 +325,9 @@ export function ImportHistoryTab() {
     repo
       .loadImportHistory(settings.targetYear, settings.targetMonth)
       .then(setImportHistory)
-      .catch(() => {})
+      .catch((err: unknown) => {
+        console.warn('インポート履歴の読み込みに失敗:', err)
+      })
   }, [repo, settings.targetYear, settings.targetMonth, data])
 
   const toggleExpand = useCallback((label: string) => {

@@ -432,8 +432,8 @@ export function DataManagementSidebar({
       .then((months) => {
         if (!cancelled) setStoredMonths(months)
       })
-      .catch(() => {
-        /* ignore */
+      .catch((err: unknown) => {
+        console.warn('保存済み月リストの取得に失敗:', err)
       })
     return () => {
       cancelled = true

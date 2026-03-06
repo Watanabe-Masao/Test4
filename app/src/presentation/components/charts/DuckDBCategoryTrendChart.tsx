@@ -14,6 +14,7 @@
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import type { LegendPayload } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -287,10 +288,9 @@ export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
   }, [])
 
   /** Legend クリックでカテゴリ除外/復帰 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleLegendClick = useCallback((e: any) => {
+  const handleLegendClick = useCallback((e: LegendPayload) => {
     if (e.dataKey == null) return
-    const key = String(e.dataKey as string)
+    const key = String(e.dataKey)
     setExcludedCodes((prev) => {
       const next = new Set(prev)
       if (next.has(key)) {
