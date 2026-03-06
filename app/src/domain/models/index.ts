@@ -113,3 +113,18 @@ export type {
 export type { FormulaId, FormulaCategory, FormulaInput, FormulaMeta } from './Formula'
 export type { StoreMetrics } from './StoreMetrics'
 export type { DrillType, DrillAction } from './AnalysisContext'
+export type {
+  RecordStorageDataType,
+  ImportScope,
+  RecordAdd,
+  RecordUpdate,
+  RecordDelete,
+  RecordChange,
+  ImportOperation,
+  MonthDataUpdate,
+  SourceFileInfo,
+  ImportPlan,
+  ImportPlanSummary,
+  StoredRecord,
+} from './ScopeResolution'
+export { summarizeImportPlan } from './ScopeResolution'
