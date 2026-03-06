@@ -35,9 +35,7 @@ describe('detectScopes', () => {
   })
 
   it('デフォルト deletePolicy は upsert-only', () => {
-    const groups: ParsedRecordGroup[] = [
-      { dataType: 'flowers', records: [rec(10)] },
-    ]
+    const groups: ParsedRecordGroup[] = [{ dataType: 'flowers', records: [rec(10)] }]
     const scopes = detectScopes(groups)
     expect(scopes[0].deletePolicy).toBe('upsert-only')
   })
@@ -70,17 +68,13 @@ describe('detectScopes', () => {
   })
 
   it('空レコードグループはスコープを生成しない', () => {
-    const groups: ParsedRecordGroup[] = [
-      { dataType: 'purchase', records: [] },
-    ]
+    const groups: ParsedRecordGroup[] = [{ dataType: 'purchase', records: [] }]
     const scopes = detectScopes(groups)
     expect(scopes).toHaveLength(0)
   })
 
   it('1レコードのみ: dayFrom === dayTo', () => {
-    const groups: ParsedRecordGroup[] = [
-      { dataType: 'consumables', records: [rec(15)] },
-    ]
+    const groups: ParsedRecordGroup[] = [{ dataType: 'consumables', records: [rec(15)] }]
     const scopes = detectScopes(groups)
     expect(scopes[0].dayFrom).toBe(15)
     expect(scopes[0].dayTo).toBe(15)

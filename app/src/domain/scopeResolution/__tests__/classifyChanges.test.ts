@@ -119,9 +119,9 @@ describe('classifyChanges', () => {
   })
 
   it('incoming に重複キーがある場合はエラー', () => {
-    expect(() =>
-      classifyChanges(scope(), [incoming(5, 10000), incoming(5, 12000)], []),
-    ).toThrow('重複キー')
+    expect(() => classifyChanges(scope(), [incoming(5, 10000), incoming(5, 12000)], [])).toThrow(
+      '重複キー',
+    )
   })
 
   it('空の incoming + 空の existing = 空の結果', () => {
