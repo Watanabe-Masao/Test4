@@ -92,7 +92,7 @@ export function toComma(v: number): string {
 }
 
 /** パーセント表示する */
-export function toPct(v: number, decimals = 1): string {
+export function toPct(v: number, decimals = 2): string {
   return `${(v * 100).toFixed(decimals)}%`
 }
 
