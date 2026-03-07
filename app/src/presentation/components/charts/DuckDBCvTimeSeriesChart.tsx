@@ -5,15 +5,7 @@
  * 平均PIを二軸で重ね、PI↑CV↓=定番化 / PI↑CV↑=プロモ / PI↓CV↑=需要崩れ を判定。
  */
 import { useState, useMemo, memo, useCallback } from 'react'
-import {
-  ComposedChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts'
+import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -136,8 +128,16 @@ const StatusBadge = styled.span<{ $color: string }>`
 // ── 定数 ──
 
 const CATEGORY_COLORS = [
-  '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6',
-  '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4',
+  '#6366f1',
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
+  '#14b8a6',
+  '#f97316',
+  '#06b6d4',
 ]
 
 type HierarchyLevel = 'department' | 'line' | 'klass'
@@ -461,11 +461,7 @@ export const DuckDBCvTimeSeriesChart = memo(function DuckDBCvTimeSeriesChart({
             />
           )}
           <Tooltip content={<ChartTooltipContent ct={ct} overlay={overlay} />} />
-          <Legend
-            verticalAlign="bottom"
-            iconSize={8}
-            wrapperStyle={{ fontSize: '0.6rem' }}
-          />
+          <Legend verticalAlign="bottom" iconSize={8} wrapperStyle={{ fontSize: '0.6rem' }} />
 
           {/* CV ライン（実線） */}
           {showCv &&

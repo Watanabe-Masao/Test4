@@ -292,11 +292,7 @@ export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
       x: s.avgShare,
       y: s.variance,
       bubbleValue:
-        bubbleSize === 'sales'
-          ? s.totalSales
-          : bubbleSize === 'quantity'
-            ? s.scoreSum
-            : 1,
+        bubbleSize === 'sales' ? s.totalSales : bubbleSize === 'quantity' ? s.scoreSum : 1,
     }))
   }, [scores, bubbleSize])
 
@@ -308,13 +304,9 @@ export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
     const mid = Math.floor(sortedPi.length / 2)
     return {
       piMedian:
-        sortedPi.length % 2 === 0
-          ? (sortedPi[mid - 1].x + sortedPi[mid].x) / 2
-          : sortedPi[mid].x,
+        sortedPi.length % 2 === 0 ? (sortedPi[mid - 1].x + sortedPi[mid].x) / 2 : sortedPi[mid].x,
       cvMedian:
-        sortedCv.length % 2 === 0
-          ? (sortedCv[mid - 1].y + sortedCv[mid].y) / 2
-          : sortedCv[mid].y,
+        sortedCv.length % 2 === 0 ? (sortedCv[mid - 1].y + sortedCv[mid].y) / 2 : sortedCv[mid].y,
     }
   }, [scatterData])
 
