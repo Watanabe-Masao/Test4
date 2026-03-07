@@ -1,22 +1,27 @@
 /**
  * コンディションマトリクステーブル
  *
- * DuckDB から取得した3期間（当期・前年・前週）のメトリクスを
- * 自店/他店比較のクロス集計マトリクスとして表示する。
+ * DuckDB から取得した5期間のメトリクスを
+ * 前年比 / 前週比 / トレンド比率 / トレンド方向 のマトリクスとして表示する。
  *
- * 表の下に DuckDBDateRangePicker を配置し、動的に期間を変更可能。
+ * 列: 売上 / 点数 / 客数 / 客単価 / 売変率 / 総仕入金額
+ * スライダーで分析期間を変更可能。
  */
-import { useMemo, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/calculations/utils'
+import { dateRangeDays } from '@/domain/models'
+import type { DateRange } from '@/domain/models'
 import {
   useDuckDBConditionMatrix,
   buildConditionMatrix,
   type MatrixCell,
   type MatrixRowData,
-  type ConditionMatrixResult,
+  type TrendDirectionRow,
+  type TrendDirection,
 } from '@/application/hooks/duckdb/useConditionMatrix'
+import { DuckDBDateRangePicker } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -44,20 +49,13 @@ const MTable = styled.table`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
-const MTh = styled.th<{ $group?: boolean }>`
+const MTh = styled.th`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   font-size: 10px;
   color: ${({ theme }) => theme.colors.text3};
   border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   white-space: nowrap;
-  ${({ $group, theme }) =>
-    $group &&
-    `
-    border-bottom: 1px solid ${theme.colors.border};
-    font-weight: 700;
-    font-size: 11px;
-  `}
   &:first-child {
     text-align: left;
   }
@@ -102,6 +100,28 @@ const ErrorMsg = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
 `
 
+const WarningMsg = styled.div`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.08)'};
+  border: 1px solid ${palette.caution};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: 0.65rem;
+  color: ${palette.caution};
+`
+
+const PickerWrapper = styled.div`
+  margin-top: ${({ theme }) => theme.spacing[3]};
+`
+
+const DirectionArrow = styled.span<{ $dir: TrendDirection }>`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${({ $dir }) =>
+    $dir === 'up' ? palette.positive : $dir === 'down' ? palette.negative : palette.slate};
+`
+
 // ─── Helpers ────────────────────────────────────────────
 
 function ratioColor(ratio: number | null): string | undefined {
@@ -111,9 +131,9 @@ function ratioColor(ratio: number | null): string | undefined {
   return palette.negative
 }
 
-function formatRatio(cell: MatrixCell): string {
-  if (cell.ratio == null) return '-'
-  return formatPercent(cell.ratio)
+function formatRatio(c: MatrixCell): string {
+  if (c.ratio == null) return '-'
+  return formatPercent(c.ratio)
 }
 
 /** マトリクス列定義 */
@@ -123,11 +143,12 @@ interface ColumnDef {
 }
 
 const COLUMNS: readonly ColumnDef[] = [
-  { key: 'customers', label: '客数' },
   { key: 'sales', label: '売上' },
+  { key: 'quantity', label: '点数' },
+  { key: 'customers', label: '客数' },
   { key: 'txValue', label: '客単価' },
   { key: 'discountRate', label: '売変率' },
-  { key: 'costInclusionRate', label: '原価算入率' },
+  { key: 'totalCost', label: '総仕入' },
 ]
 
 function renderMatrixRow(row: MatrixRowData, isSeparator = false) {
@@ -146,6 +167,28 @@ function renderMatrixRow(row: MatrixRowData, isSeparator = false) {
   )
 }
 
+function directionArrow(dir: TrendDirection): string {
+  if (dir === 'up') return '↑'
+  if (dir === 'down') return '↓'
+  return '→'
+}
+
+function renderDirectionRow(row: TrendDirectionRow) {
+  return (
+    <MTr key={row.label}>
+      <MTd>{row.label}</MTd>
+      {COLUMNS.map((col) => {
+        const c = row[col.key as keyof Omit<TrendDirectionRow, 'label'>]
+        return (
+          <MTd key={col.key}>
+            <DirectionArrow $dir={c.direction}>{directionArrow(c.direction)}</DirectionArrow>
+          </MTd>
+        )
+      })}
+    </MTr>
+  )
+}
+
 // ─── Component ──────────────────────────────────────────
 
 interface Props {
@@ -153,28 +196,37 @@ interface Props {
 }
 
 export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
-  const { duckConn, duckDataVersion, selectedStoreIds, currentDateRange } = ctx
+  const {
+    duckConn,
+    duckDataVersion,
+    selectedStoreIds,
+    currentDateRange,
+    year,
+    month,
+    daysInMonth,
+    duckLoadedMonthCount,
+  } = ctx
 
-  // DuckDB からデータ取得（取り込み有効期間の日付範囲を使用）
+  // ローカル期間状態（スライダーで変更可能）
+  const [localRange, setLocalRange] = useState<DateRange | null>(null)
+  const effectiveRange = localRange ?? currentDateRange
+
+  // DuckDB からデータ取得
   const {
     data: rawRows,
     isLoading,
     error,
-  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, currentDateRange, selectedStoreIds)
-
-  // 選択中の店舗ID（単一店舗選択時のみ自店/他店比較を有効化）
-  const selectedStoreId = useMemo(() => {
-    if (selectedStoreIds.size === 1) {
-      return [...selectedStoreIds][0]
-    }
-    return undefined
-  }, [selectedStoreIds])
+  } = useDuckDBConditionMatrix(duckConn, duckDataVersion, effectiveRange, selectedStoreIds)
 
   // マトリクス構築
-  const matrix: ConditionMatrixResult | null = useMemo(() => {
+  const totalDays = dateRangeDays(effectiveRange)
+  const matrix = useMemo(() => {
     if (!rawRows || rawRows.length === 0) return null
-    return buildConditionMatrix(rawRows, selectedStoreId)
-  }, [rawRows, selectedStoreId])
+    return buildConditionMatrix(rawRows, totalDays)
+  }, [rawRows, totalDays])
+
+  // 7日でない場合の警告判定
+  const showDowWarning = matrix != null && matrix.trendHalfDays !== 7
 
   // DuckDB 未準備
   if (duckDataVersion === 0) return null
@@ -198,22 +250,34 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
               </tr>
             </thead>
             <tbody>
-              {/* 自店比較 */}
-              {renderMatrixRow(matrix.ownYoY)}
-              {renderMatrixRow(matrix.ownWoW)}
-
-              {/* 他店比較（複数店舗 + 単一選択時のみ） */}
-              {matrix.crossYoY && renderMatrixRow(matrix.crossYoY, true)}
-              {matrix.crossWoW && renderMatrixRow(matrix.crossWoW)}
-
-              {/* 構成比変化 */}
-              {matrix.ownCompositionChange && renderMatrixRow(matrix.ownCompositionChange, true)}
+              {renderMatrixRow(matrix.yoy)}
+              {renderMatrixRow(matrix.wow)}
+              {renderMatrixRow(matrix.trendRatio, true)}
+              {renderDirectionRow(matrix.trendDirection)}
             </tbody>
           </MTable>
+
+          {showDowWarning && (
+            <WarningMsg>
+              トレンド比較: 各半期間 {matrix.trendHalfDays}
+              日間（7日でないため曜日バイアスの影響を受ける可能性があります）
+            </WarningMsg>
+          )}
         </TableWrapper>
       )}
 
       {!isLoading && !error && !matrix && <LoadingMsg>データがありません</LoadingMsg>}
+
+      <PickerWrapper>
+        <DuckDBDateRangePicker
+          value={effectiveRange}
+          onChange={setLocalRange}
+          year={year}
+          month={month}
+          daysInMonth={daysInMonth}
+          loadedMonthCount={duckLoadedMonthCount}
+        />
+      </PickerWrapper>
     </Section>
   )
 })

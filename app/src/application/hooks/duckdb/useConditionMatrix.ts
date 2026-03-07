@@ -1,8 +1,11 @@
 /**
  * コンディションマトリクスフック
  *
- * 当期・前年同期・前週同期の3期間分のメトリクスを DuckDB から取得し、
- * 自店/他店の比率マトリクスを構築する。
+ * 当期・前年同期・前週同期・トレンドの5期間分のメトリクスを DuckDB から取得し、
+ * マトリクスを構築する。
+ *
+ * 列: 売上 / 点数 / 客数 / 客単価 / 売変率 / 総仕入金額
+ * 行: 前年比 / 前週比 / トレンド比率 / トレンド方向
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -23,23 +26,42 @@ export interface MatrixCell {
 /** 1行分のマトリクスデータ（全指標列を持つ） */
 export interface MatrixRowData {
   readonly label: string
-  readonly customers: MatrixCell
   readonly sales: MatrixCell
+  readonly quantity: MatrixCell
+  readonly customers: MatrixCell
   readonly txValue: MatrixCell
   readonly discountRate: MatrixCell
-  readonly costInclusionRate: MatrixCell
+  readonly totalCost: MatrixCell
+}
+
+/** トレンド方向 */
+export type TrendDirection = 'up' | 'down' | 'flat'
+
+/** トレンド方向セル */
+export interface TrendDirectionCell {
+  readonly direction: TrendDirection
+  readonly ratio: number | null
+}
+
+/** トレンド方向行 */
+export interface TrendDirectionRow {
+  readonly label: string
+  readonly sales: TrendDirectionCell
+  readonly quantity: TrendDirectionCell
+  readonly customers: TrendDirectionCell
+  readonly txValue: TrendDirectionCell
+  readonly discountRate: TrendDirectionCell
+  readonly totalCost: TrendDirectionCell
 }
 
 /** 全体のマトリクス結果 */
 export interface ConditionMatrixResult {
-  /** 選択店舗の自店比較行 */
-  readonly ownYoY: MatrixRowData
-  readonly ownWoW: MatrixRowData
-  /** 他店平均との比較行（全店 > 1 の場合のみ有効） */
-  readonly crossYoY: MatrixRowData | null
-  readonly crossWoW: MatrixRowData | null
-  /** 自店の構成比変化（売上シェア変化率） */
-  readonly ownCompositionChange: MatrixRowData | null
+  readonly yoy: MatrixRowData
+  readonly wow: MatrixRowData
+  readonly trendRatio: MatrixRowData
+  readonly trendDirection: TrendDirectionRow
+  /** トレンドの各半期間の日数（曜日バイアス警告判定用） */
+  readonly trendHalfDays: number
 }
 
 // ── ヘルパー ──
@@ -64,51 +86,57 @@ function txValue(sales: number, customers: number): number {
   return customers > 0 ? sales / customers : 0
 }
 
-function buildRow(
-  label: string,
-  cur: { sales: number; customers: number; discountRate: number; costInclusionRate: number },
-  prev: { sales: number; customers: number; discountRate: number; costInclusionRate: number },
-): MatrixRowData {
+interface PeriodMetricsLocal {
+  readonly sales: number
+  readonly quantity: number
+  readonly customers: number
+  readonly discountRate: number
+  readonly totalCost: number
+}
+
+function buildRow(label: string, cur: PeriodMetricsLocal, prev: PeriodMetricsLocal): MatrixRowData {
   return {
     label,
-    customers: cell(cur.customers, prev.customers),
     sales: cell(cur.sales, prev.sales),
+    quantity: cell(cur.quantity, prev.quantity),
+    customers: cell(cur.customers, prev.customers),
     txValue: cell(txValue(cur.sales, cur.customers), txValue(prev.sales, prev.customers)),
     discountRate: rateCell(cur.discountRate, prev.discountRate),
-    costInclusionRate: rateCell(cur.costInclusionRate, prev.costInclusionRate),
+    totalCost: cell(cur.totalCost, prev.totalCost),
   }
 }
 
 function avgMetrics(
   rows: readonly ConditionMatrixRow[],
-  period: 'cur' | 'py' | 'pw',
-): { sales: number; customers: number; discountRate: number; costInclusionRate: number } {
+  period: 'cur' | 'py' | 'pw' | 'tr' | 'tp',
+): PeriodMetricsLocal {
   if (rows.length === 0) {
-    return { sales: 0, customers: 0, discountRate: 0, costInclusionRate: 0 }
+    return { sales: 0, quantity: 0, customers: 0, discountRate: 0, totalCost: 0 }
   }
   const totalSales = rows.reduce((s, r) => s + r[`${period}Sales`], 0)
   const totalCustomers = rows.reduce((s, r) => s + r[`${period}Customers`], 0)
   const totalDiscount = rows.reduce((s, r) => s + r[`${period}Discount`], 0)
   const grossSales = totalSales + totalDiscount
-  const totalCostInclusion = rows.reduce((s, r) => s + r[`${period}Consumable`], 0)
+  const totalQuantity = rows.reduce((s, r) => s + r[`${period}Quantity`], 0)
+  const totalCost = rows.reduce((s, r) => s + r[`${period}TotalCost`], 0)
   return {
     sales: totalSales,
+    quantity: totalQuantity,
     customers: totalCustomers,
     discountRate: grossSales > 0 ? totalDiscount / grossSales : 0,
-    costInclusionRate: totalSales > 0 ? totalCostInclusion / totalSales : 0,
+    totalCost,
   }
 }
 
-function storeMetrics(
-  row: ConditionMatrixRow,
-  period: 'cur' | 'py' | 'pw',
-): { sales: number; customers: number; discountRate: number; costInclusionRate: number } {
-  return {
-    sales: row[`${period}Sales`],
-    customers: row[`${period}Customers`],
-    discountRate: row[`${period}DiscountRate`],
-    costInclusionRate: row[`${period}ConsumableRate`],
-  }
+function directionFromRatio(ratio: number | null): TrendDirection {
+  if (ratio == null) return 'flat'
+  if (ratio >= 1.02) return 'up'
+  if (ratio < 0.98) return 'down'
+  return 'flat'
+}
+
+function toDirectionCell(c: MatrixCell): TrendDirectionCell {
+  return { direction: directionFromRatio(c.ratio), ratio: c.ratio }
 }
 
 /**
@@ -132,92 +160,33 @@ export function useDuckDBConditionMatrix(
  * ConditionMatrixRow[] から表示用マトリクスを構築する
  *
  * @param rows     全店舗分のクエリ結果
- * @param storeId  表示対象の店舗ID（全店合算表示の場合は undefined）
+ * @param totalDays 全体の期間日数（トレンド半期間の計算用）
  */
 export function buildConditionMatrix(
   rows: readonly ConditionMatrixRow[],
-  storeId: string | undefined,
+  totalDays: number,
 ): ConditionMatrixResult {
-  // 対象店舗のデータ
-  const targetRow = storeId ? rows.find((r) => r.storeId === storeId) : undefined
-  const hasTarget = !!targetRow
+  const cur = avgMetrics(rows, 'cur')
+  const py = avgMetrics(rows, 'py')
+  const pw = avgMetrics(rows, 'pw')
+  const tr = avgMetrics(rows, 'tr')
+  const tp = avgMetrics(rows, 'tp')
 
-  // 全店平均（対象店舗がある場合は除外して「他店」平均を出す）
-  const otherRows = storeId ? rows.filter((r) => r.storeId !== storeId) : rows
+  const yoy = buildRow('前年比', cur, py)
+  const wow = buildRow('前週比', cur, pw)
+  const trendRatio = buildRow('トレンド', tr, tp)
 
-  // 自店メトリクス（対象店舗がない場合は全店合算）
-  const ownCur = hasTarget ? storeMetrics(targetRow, 'cur') : avgMetrics(rows, 'cur')
-  const ownPy = hasTarget ? storeMetrics(targetRow, 'py') : avgMetrics(rows, 'py')
-  const ownPw = hasTarget ? storeMetrics(targetRow, 'pw') : avgMetrics(rows, 'pw')
-
-  // 自店の前年比・前週比
-  const ownYoY = buildRow('自店前年比', ownCur, ownPy)
-  const ownWoW = buildRow('自店前週比', ownCur, ownPw)
-
-  // 他店比較（他店が存在する場合のみ）
-  let crossYoY: MatrixRowData | null = null
-  let crossWoW: MatrixRowData | null = null
-  let ownCompositionChange: MatrixRowData | null = null
-
-  if (otherRows.length > 0 && hasTarget) {
-    const otherCur = avgMetrics(otherRows, 'cur')
-    const otherPy = avgMetrics(otherRows, 'py')
-    const otherPw = avgMetrics(otherRows, 'pw')
-
-    // 他店の前年比
-    const otherYoYRow = buildRow('他店平均前年比', otherCur, otherPy)
-    // 他店の前週比
-    const otherWoWRow = buildRow('他店平均前週比', otherCur, otherPw)
-
-    // 自店 vs 他店: 自店比率 / 他店比率
-    crossYoY = {
-      label: '他店比較前年比',
-      customers: crossCell(ownYoY.customers, otherYoYRow.customers),
-      sales: crossCell(ownYoY.sales, otherYoYRow.sales),
-      txValue: crossCell(ownYoY.txValue, otherYoYRow.txValue),
-      discountRate: crossCell(ownYoY.discountRate, otherYoYRow.discountRate),
-      costInclusionRate: crossCell(ownYoY.costInclusionRate, otherYoYRow.costInclusionRate),
-    }
-    crossWoW = {
-      label: '他店比較前週比',
-      customers: crossCell(ownWoW.customers, otherWoWRow.customers),
-      sales: crossCell(ownWoW.sales, otherWoWRow.sales),
-      txValue: crossCell(ownWoW.txValue, otherWoWRow.txValue),
-      discountRate: crossCell(ownWoW.discountRate, otherWoWRow.discountRate),
-      costInclusionRate: crossCell(ownWoW.costInclusionRate, otherWoWRow.costInclusionRate),
-    }
-
-    // 自店の販売構成比変化（全体売上に占めるシェアの変化）
-    const allCur = avgMetrics(rows, 'cur')
-    const allPy = avgMetrics(rows, 'py')
-    const curShare = allCur.sales > 0 ? ownCur.sales / allCur.sales : 0
-    const pyShare = allPy.sales > 0 ? ownPy.sales / allPy.sales : 0
-    const curCustShare = allCur.customers > 0 ? ownCur.customers / allCur.customers : 0
-    const pyCustShare = allPy.customers > 0 ? ownPy.customers / allPy.customers : 0
-    ownCompositionChange = {
-      label: '自店構成比変化',
-      customers: {
-        ratio: pyCustShare > 0 ? curCustShare / pyCustShare : null,
-        current: curCustShare,
-        comparison: pyCustShare,
-      },
-      sales: {
-        ratio: pyShare > 0 ? curShare / pyShare : null,
-        current: curShare,
-        comparison: pyShare,
-      },
-      txValue: { ratio: null, current: 0, comparison: 0 },
-      discountRate: { ratio: null, current: 0, comparison: 0 },
-      costInclusionRate: { ratio: null, current: 0, comparison: 0 },
-    }
+  const trendDirection: TrendDirectionRow = {
+    label: 'トレンド方向',
+    sales: toDirectionCell(trendRatio.sales),
+    quantity: toDirectionCell(trendRatio.quantity),
+    customers: toDirectionCell(trendRatio.customers),
+    txValue: toDirectionCell(trendRatio.txValue),
+    discountRate: toDirectionCell(trendRatio.discountRate),
+    totalCost: toDirectionCell(trendRatio.totalCost),
   }
 
-  return { ownYoY, ownWoW, crossYoY, crossWoW, ownCompositionChange }
-}
+  const trendHalfDays = Math.floor(totalDays / 2)
 
-/** 自店比率 / 他店比率 でクロス比較セルを作る */
-function crossCell(own: MatrixCell, other: MatrixCell): MatrixCell {
-  const ratio =
-    own.ratio != null && other.ratio != null && other.ratio > 0 ? own.ratio / other.ratio : null
-  return { ratio, current: own.ratio ?? 0, comparison: other.ratio ?? 0 }
+  return { yoy, wow, trendRatio, trendDirection, trendHalfDays }
 }

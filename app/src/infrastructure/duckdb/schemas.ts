@@ -9,7 +9,7 @@
  */
 
 /** スキーマバージョン（マイグレーション時にインクリメント） */
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 /** スキーマメタテーブル DDL */
 export const SCHEMA_META_DDL = `
@@ -257,6 +257,7 @@ SELECT
   COALESCE(ss_d.price, 0) AS direct_produce_price,
   COALESCE(con.cost, 0)   AS cost_inclusion_cost,
   COALESCE(ss_f.customers, 0) AS customers,
+  COALESCE(qty.total_quantity, 0) AS total_quantity,
   cs.is_prev_year
 FROM (
   SELECT year, month, day, date_key, store_id, is_prev_year,
@@ -318,7 +319,16 @@ LEFT JOIN special_sales ss_d
   AND ss_d.type = 'directProduce'
 LEFT JOIN consumables con
   ON cs.year = con.year AND cs.month = con.month
-  AND cs.store_id = con.store_id AND cs.day = con.day`
+  AND cs.store_id = con.store_id AND cs.day = con.day
+LEFT JOIN (
+  SELECT year, month, store_id, day, is_prev_year,
+    SUM(total_quantity) AS total_quantity
+  FROM category_time_sales
+  GROUP BY year, month, store_id, day, is_prev_year
+) qty
+  ON cs.year = qty.year AND cs.month = qty.month
+  AND cs.store_id = qty.store_id AND cs.day = qty.day
+  AND cs.is_prev_year = qty.is_prev_year`
 
 // ── マテリアライズ用 ──
 // パフォーマンス不足時に VIEW → TABLE に昇格

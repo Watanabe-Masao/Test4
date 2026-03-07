@@ -91,4 +91,7 @@ export type {
   MatrixCell,
   MatrixRowData,
   ConditionMatrixResult,
+  TrendDirection,
+  TrendDirectionCell,
+  TrendDirectionRow,
 } from './useConditionMatrix'
