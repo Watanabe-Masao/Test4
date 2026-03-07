@@ -37,9 +37,7 @@ const REPORTS_WIDGETS: readonly WidgetDef<ReportsWidgetContext>[] = [
     label: '部門別KPI',
     group: 'レポート',
     size: 'full',
-    render: (ctx) => (
-      <ReportDeptTable deptKpiIndex={ctx.deptKpiIndex} onExplain={ctx.onExplain} />
-    ),
+    render: (ctx) => <ReportDeptTable deptKpiIndex={ctx.deptKpiIndex} onExplain={ctx.onExplain} />,
   },
 ]
 

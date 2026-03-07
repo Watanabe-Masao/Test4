@@ -1,9 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
-import {
-  MetricBreakdownPanel,
-  PageSkeleton,
-} from '@/presentation/components/common'
+import { MetricBreakdownPanel, PageSkeleton } from '@/presentation/components/common'
 import {
   useCalculation,
   useStoreSelection,
