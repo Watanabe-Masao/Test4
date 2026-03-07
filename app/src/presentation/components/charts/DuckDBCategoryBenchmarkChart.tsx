@@ -98,10 +98,12 @@ const Controls = styled.div`
   flex-wrap: wrap;
 `
 
-const ControlGroup = styled.div`
+const ControlGroup = styled.div<{ $hidden?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 2px;
+  visibility: ${({ $hidden }) => ($hidden ? 'hidden' : 'visible')};
+  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
 `
 
 const ControlLabel = styled.span`
@@ -1655,22 +1657,20 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
               ))}
             </ButtonGroup>
           </ControlGroup>
-          {effectiveAxis === 'store' && (
-            <ControlGroup>
-              <ControlLabel>指標</ControlLabel>
-              <ButtonGroup>
-                {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
-                  <ToggleBtn
-                    key={m}
-                    $active={benchmarkMetric === m}
-                    onClick={() => setBenchmarkMetric(m)}
-                  >
-                    {BENCHMARK_METRIC_LABELS[m]}
-                  </ToggleBtn>
-                ))}
-              </ButtonGroup>
-            </ControlGroup>
-          )}
+          <ControlGroup $hidden={effectiveAxis !== 'store'}>
+            <ControlLabel>指標</ControlLabel>
+            <ButtonGroup>
+              {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
+                <ToggleBtn
+                  key={m}
+                  $active={benchmarkMetric === m}
+                  onClick={() => setBenchmarkMetric(m)}
+                >
+                  {BENCHMARK_METRIC_LABELS[m]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          </ControlGroup>
           <ControlGroup>
             <ControlLabel>表示</ControlLabel>
             <ButtonGroup>
@@ -1681,30 +1681,26 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
               ))}
             </ButtonGroup>
           </ControlGroup>
-          {effectiveAxis === 'store' && (
-            <ControlGroup>
-              <ControlLabel>最低店舗数</ControlLabel>
-              <ButtonGroup>
-                {[1, 2, 3].map((n) => (
-                  <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
-                    {n === 1 ? '全て' : `${n}店以上`}
-                  </ToggleBtn>
-                ))}
-              </ButtonGroup>
-            </ControlGroup>
-          )}
-          {view === 'boxplot' && effectiveAxis === 'store' && (
-            <ControlGroup>
-              <ControlLabel>箱ひげ指標</ControlLabel>
-              <ButtonGroup>
-                {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
-                  <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
-                    {BOX_METRIC_LABELS[m]}
-                  </ToggleBtn>
-                ))}
-              </ButtonGroup>
-            </ControlGroup>
-          )}
+          <ControlGroup $hidden={effectiveAxis !== 'store'}>
+            <ControlLabel>最低店舗数</ControlLabel>
+            <ButtonGroup>
+              {[1, 2, 3].map((n) => (
+                <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
+                  {n === 1 ? '全て' : `${n}店以上`}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          </ControlGroup>
+          <ControlGroup $hidden={!(view === 'boxplot' && effectiveAxis === 'store')}>
+            <ControlLabel>箱ひげ指標</ControlLabel>
+            <ButtonGroup>
+              {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
+                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                  {BOX_METRIC_LABELS[m]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          </ControlGroup>
         </Controls>
       </HeaderRow>
 
