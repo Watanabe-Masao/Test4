@@ -333,7 +333,7 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
       <div>バラツキ: {item.variance.toFixed(3)}</div>
       <div>1位率: {toPct(item.dominance, 0)}</div>
       <div>安定度: {toPct(item.stability, 0)}</div>
-      <div>取扱店舗: {item.storeCount}</div>
+      <div>取扱店舗: {item.activeStoreCount}/{item.storeCount}</div>
       <div>売上: {fmt(item.totalSales)}</div>
       <div>
         タイプ: <TypeBadge $type={item.productType}>{TYPE_LABELS[item.productType]}</TypeBadge>
@@ -457,7 +457,7 @@ function TableView({
               <Td>{s.variance.toFixed(3)}</Td>
               <Td>{toPct(s.dominance, 0)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
-              <Td>{s.storeCount}</Td>
+              <Td>{s.activeStoreCount}/{s.storeCount}</Td>
               <Td>{fmt(s.totalSales)}</Td>
               <Td>
                 <TypeBadge $type={s.productType}>{TYPE_LABELS[s.productType]}</TypeBadge>
@@ -576,9 +576,10 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     level,
   )
 
+  const totalStoreCount = selectedStoreIds.size
   const scores = useMemo(
-    () => (rawRows ? buildCategoryBenchmarkScores(rawRows, minStores) : []),
-    [rawRows, minStores],
+    () => (rawRows ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount) : []),
+    [rawRows, minStores, totalStoreCount],
   )
 
   // KPIサマリー
