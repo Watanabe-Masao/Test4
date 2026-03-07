@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { loadLayout, saveLayout, DEFAULT_WIDGET_IDS, WIDGET_MAP } from '../widgetLayout'
+import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 
 // localStorage モック
 const storage = new Map<string, string>()
@@ -98,11 +99,11 @@ describe('saveLayout', () => {
 })
 
 describe('DEFAULT_WIDGET_IDS', () => {
-  it('全て WIDGET_MAP に存在する', () => {
+  it('全て UNIFIED_WIDGET_MAP に存在する', () => {
     for (const id of DEFAULT_WIDGET_IDS) {
       expect(
-        WIDGET_MAP.has(id),
-        `DEFAULT_WIDGET_IDS に含まれる "${id}" が WIDGET_MAP に存在しない`,
+        UNIFIED_WIDGET_MAP.has(id),
+        `DEFAULT_WIDGET_IDS に含まれる "${id}" が UNIFIED_WIDGET_MAP に存在しない`,
       ).toBe(true)
     }
   })

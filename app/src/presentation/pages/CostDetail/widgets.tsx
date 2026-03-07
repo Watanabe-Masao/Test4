@@ -89,8 +89,16 @@ export const COST_DETAIL_WIDGETS: readonly WidgetDef[] = [
 ]
 
 export const DEFAULT_COST_DETAIL_WIDGET_IDS = [
+  // 原価 KPI
+  'kpi-inventory-cost',
+  'kpi-delivery-sales',
+  'kpi-cost-inclusion',
   'costdetail-kpi-summary',
+  // 仕入明細
   'costdetail-purchase',
   'costdetail-transfer',
   'costdetail-cost-inclusion',
+  // 店舗比較
+  'chart-sales-purchase-comparison',
+  'exec-daily-inventory',
 ]

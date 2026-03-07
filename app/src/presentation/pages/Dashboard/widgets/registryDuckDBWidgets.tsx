@@ -5,6 +5,7 @@ import {
   DuckDBCategoryHourlyChart,
   DuckDBCategoryMixChart,
   DuckDBCategoryBenchmarkChart,
+  DuckDBCategoryBoxPlotChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 
@@ -94,6 +95,21 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
       <DuckDBCategoryBenchmarkChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-category-boxplot',
+    label: 'カテゴリ箱ひげ図（DuckDB）',
+    group: 'トレンド分析',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBCategoryBoxPlotChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}

@@ -41,4 +41,17 @@ export const CATEGORY_WIDGETS: readonly WidgetDef[] = [
   },
 ]
 
-export const DEFAULT_CATEGORY_WIDGET_IDS = ['category-total-view', 'category-comparison-view']
+export const DEFAULT_CATEGORY_WIDGET_IDS = [
+  'category-total-view',
+  'category-comparison-view',
+  // カテゴリ構造分析
+  'chart-category-pie',
+  'chart-category-hierarchy-explorer',
+  'analysis-category-pi',
+  // DuckDB カテゴリ分析
+  'duckdb-category-trend',
+  'duckdb-category-hourly',
+  'duckdb-category-mix',
+  'duckdb-category-benchmark',
+  'duckdb-category-boxplot',
+]

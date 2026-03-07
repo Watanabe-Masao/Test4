@@ -2,9 +2,10 @@
  * ページ横断ウィジェット設定パネル
  *
  * 全ページ共通の「ウィジェット設定」UIを提供する。
- * 各ウィジェットの有効/無効をチェックボックスで切り替え可能。
+ * 各ウィジェットの有効/無効をチェックボックスで切り替え、
+ * ドラッグ&ドロップで並び替えが可能。
  */
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '@/presentation/components/common'
 import type { WidgetDef } from './types'
@@ -50,7 +51,7 @@ const PanelGroupTitle = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `
 
-const WidgetItem = styled.label`
+const WidgetItem = styled.label<{ $isDragging?: boolean; $isOver?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[3]};
@@ -61,6 +62,11 @@ const WidgetItem = styled.label`
   font-family: ${({ theme }) => theme.typography.fontFamily.primary};
   color: ${({ theme }) => theme.colors.text};
   transition: background 0.15s;
+  opacity: ${({ $isDragging }) => ($isDragging ? 0.4 : 1)};
+  ${({ $isOver, theme }) =>
+    $isOver
+      ? `border-top: 2px solid ${theme.colors.palette.primary};`
+      : 'border-top: 2px solid transparent;'}
   &:hover {
     background: ${({ theme }) => theme.colors.bg4};
   }
@@ -102,7 +108,70 @@ const PanelFooter = styled.div`
   border-top: 1px solid ${({ theme }) => theme.colors.border};
 `
 
+const DragHandleIcon = styled.span`
+  cursor: grab;
+  color: ${({ theme }) => theme.colors.text4};
+  font-size: 10px;
+  user-select: none;
+  &:active {
+    cursor: grabbing;
+  }
+`
+
+const ModeToggle = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const ModeBtn = styled.button<{ $active: boolean }>`
+  all: unset;
+  cursor: pointer;
+  padding: 4px 12px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  background: ${({ $active, theme }) =>
+    $active ? `${theme.colors.palette.primary}15` : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
+  transition: all 0.15s;
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const OrderItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  color: ${({ theme }) => theme.colors.text};
+  opacity: ${({ $isDragging }) => ($isDragging ? 0.4 : 1)};
+  ${({ $isOver, theme }) =>
+    $isOver
+      ? `border-top: 2px solid ${theme.colors.palette.primary};`
+      : 'border-top: 2px solid transparent;'}
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+  }
+`
+
+const OrderIndex = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  min-width: 20px;
+  text-align: right;
+`
+
 // ─── Component ──────────────────────────────────────────
+
+type PanelMode = 'select' | 'order'
 
 interface Props {
   readonly title: string
@@ -122,21 +191,67 @@ export function WidgetSettingsPanel({
   onClose,
 }: Props) {
   const [selected, setSelected] = useState(() => new Set(activeIds))
+  const [orderedIds, setOrderedIds] = useState<string[]>(() => [...activeIds])
+  const [mode, setMode] = useState<PanelMode>('select')
+
+  // D&D state for order mode
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
+  const dragItemRef = useRef<number | null>(null)
 
   const toggle = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      if (next.has(id)) {
+        next.delete(id)
+        setOrderedIds((o) => o.filter((oid) => oid !== id))
+      } else {
+        next.add(id)
+        setOrderedIds((o) => [...o, id])
+      }
       return next
     })
   }
 
+  // D&D handlers for order mode
+  const handleDragStart = useCallback((index: number) => {
+    dragItemRef.current = index
+    setDragIndex(index)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    setOverIndex(index)
+  }, [])
+
+  const handleDrop = useCallback((targetIndex: number) => {
+    const sourceIndex = dragItemRef.current
+    if (sourceIndex == null || sourceIndex === targetIndex) {
+      setDragIndex(null)
+      setOverIndex(null)
+      return
+    }
+    setOrderedIds((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(sourceIndex, 1)
+      next.splice(targetIndex, 0, moved)
+      return next
+    })
+    setDragIndex(null)
+    setOverIndex(null)
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    setDragIndex(null)
+    setOverIndex(null)
+  }, [])
+
   const handleApply = () => {
-    // 既存の順序を維持し、新しいものは末尾に追加
-    const ordered = activeIds.filter((id) => selected.has(id))
-    const newOnes = Array.from(selected).filter((id) => !activeIds.includes(id))
-    onApply([...ordered, ...newOnes])
+    // orderedIds contains the user's desired order, filtered to selected only
+    const result = orderedIds.filter((id) => selected.has(id))
+    // Add any newly selected items that aren't in orderedIds
+    const newOnes = Array.from(selected).filter((id) => !orderedIds.includes(id))
+    onApply([...result, ...newOnes])
     onClose()
   }
 
@@ -146,20 +261,32 @@ export function WidgetSettingsPanel({
   }
 
   const handleSelectAll = () => {
-    setSelected(new Set(registry.map((w) => w.id)))
+    const allIds = registry.map((w) => w.id)
+    setSelected(new Set(allIds))
+    // Preserve existing order, add new ones at end
+    const existing = orderedIds.filter((id) => allIds.includes(id))
+    const newOnes = allIds.filter((id) => !orderedIds.includes(id))
+    setOrderedIds([...existing, ...newOnes])
   }
 
   const handleDeselectAll = () => {
     setSelected(new Set())
   }
 
-  // Group widgets
+  // Group widgets for select mode
   const groups = new Map<string, WidgetDef[]>()
   registry.forEach((w) => {
     const list = groups.get(w.group) ?? []
     list.push(w)
     groups.set(w.group, list)
   })
+
+  // Build ordered list for order mode
+  const widgetMap = new Map(registry.map((w) => [w.id, w]))
+  const orderedWidgets = orderedIds
+    .filter((id) => selected.has(id))
+    .map((id) => widgetMap.get(id))
+    .filter((w): w is WidgetDef => w != null)
 
   return (
     <PanelOverlay
@@ -170,33 +297,78 @@ export function WidgetSettingsPanel({
       <Panel onClick={(e) => e.stopPropagation()}>
         <PanelTitle>{title}</PanelTitle>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <Button $variant="outline" onClick={handleSelectAll}>
-            全選択
-          </Button>
-          <Button $variant="outline" onClick={handleDeselectAll}>
-            全解除
-          </Button>
-        </div>
+        <ModeToggle>
+          <ModeBtn $active={mode === 'select'} onClick={() => setMode('select')}>
+            選択
+          </ModeBtn>
+          <ModeBtn $active={mode === 'order'} onClick={() => setMode('order')}>
+            並び替え
+          </ModeBtn>
+        </ModeToggle>
 
-        {Array.from(groups.entries()).map(([group, widgets]) => (
-          <PanelGroup key={group}>
-            <PanelGroupTitle>{group}</PanelGroupTitle>
-            {widgets.map((w) => (
-              <WidgetItem key={w.id}>
-                <Checkbox
-                  type="checkbox"
-                  checked={selected.has(w.id)}
-                  onChange={() => toggle(w.id)}
-                />
-                {w.label}
-                <SizeBadge $size={w.size}>
-                  {w.size === 'kpi' ? 'KPI' : w.size === 'half' ? '半幅' : '全幅'}
-                </SizeBadge>
-              </WidgetItem>
+        {mode === 'select' && (
+          <>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <Button $variant="outline" onClick={handleSelectAll}>
+                全選択
+              </Button>
+              <Button $variant="outline" onClick={handleDeselectAll}>
+                全解除
+              </Button>
+            </div>
+
+            {Array.from(groups.entries()).map(([group, widgets]) => (
+              <PanelGroup key={group}>
+                <PanelGroupTitle>{group}</PanelGroupTitle>
+                {widgets.map((w) => (
+                  <WidgetItem key={w.id}>
+                    <Checkbox
+                      type="checkbox"
+                      checked={selected.has(w.id)}
+                      onChange={() => toggle(w.id)}
+                    />
+                    {w.label}
+                    <SizeBadge $size={w.size}>
+                      {w.size === 'kpi' ? 'KPI' : w.size === 'half' ? '半幅' : '全幅'}
+                    </SizeBadge>
+                  </WidgetItem>
+                ))}
+              </PanelGroup>
             ))}
-          </PanelGroup>
-        ))}
+          </>
+        )}
+
+        {mode === 'order' && (
+          <>
+            {orderedWidgets.length === 0 ? (
+              <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text3, #888)' }}>
+                ウィジェットが選択されていません。「選択」タブでウィジェットを追加してください。
+              </div>
+            ) : (
+              <div>
+                {orderedWidgets.map((w, i) => (
+                  <OrderItem
+                    key={w.id}
+                    draggable
+                    $isDragging={dragIndex === i}
+                    $isOver={overIndex === i}
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDrop={() => handleDrop(i)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <DragHandleIcon>⠿</DragHandleIcon>
+                    <OrderIndex>{i + 1}</OrderIndex>
+                    {w.label}
+                    <SizeBadge $size={w.size}>
+                      {w.size === 'kpi' ? 'KPI' : w.size === 'half' ? '半幅' : '全幅'}
+                    </SizeBadge>
+                  </OrderItem>
+                ))}
+              </div>
+            )}
+          </>
+        )}
 
         <PanelFooter>
           <Button $variant="primary" onClick={handleApply}>

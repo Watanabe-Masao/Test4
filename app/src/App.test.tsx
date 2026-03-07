@@ -5,7 +5,7 @@ import App from './App'
 describe('App', () => {
   it('renders the dashboard navigation', () => {
     render(<App />)
-    expect(screen.getByTitle('ダッシュボード')).toBeInTheDocument()
+    expect(screen.getByTitle('概要')).toBeInTheDocument()
   })
 
   it('renders the data management sidebar', () => {

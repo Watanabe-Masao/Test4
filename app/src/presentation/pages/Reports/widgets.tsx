@@ -32,4 +32,16 @@ export const REPORTS_WIDGETS: readonly WidgetDef[] = [
   },
 ]
 
-export const DEFAULT_REPORTS_WIDGET_IDS = ['reports-summary-grid', 'reports-dept-table']
+export const DEFAULT_REPORTS_WIDGET_IDS = [
+  'reports-summary-grid',
+  'reports-dept-table',
+  // 店舗・部門KPI一覧
+  'exec-store-kpi',
+  'exec-department-kpi',
+  // 前年比較
+  'analysis-yoy-waterfall',
+  'analysis-yoy-variance',
+  // 予測・ベンチマーク
+  'insight-forecast',
+  'analysis-seasonal-benchmark',
+]

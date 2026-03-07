@@ -10,28 +10,22 @@ import type { WidgetDef } from './types'
 export const WIDGET_MAP = new Map<string, WidgetDef>(WIDGET_REGISTRY.map((w) => [w.id, w]))
 
 export const DEFAULT_WIDGET_IDS: string[] = [
-  // 1. 今の状況は？
+  // 概要: 今の状況は？
   'analysis-condition-summary',
   'analysis-alert-panel',
-  // 2. 何が起きた？（トレンド視覚化）
-  'chart-daily-sales',
-  // 3. 数値で確認
+  // KPI 概要
+  'kpi-core-sales',
+  'kpi-inv-gross-profit',
+  'kpi-est-margin',
+  // 予算・予実
   'exec-summary-bar',
-  // 4. 詳細分析
   'exec-plan-actual-forecast',
-  // 6. これからどうなる？
+  'insight-budget',
+  // 前年比較
+  'kpi-py-same-dow',
+  'kpi-py-same-date',
+  // 着地予測
   'exec-forecast-tools',
-  // 補助: 分析ツール
-  'analysis-waterfall',
-  'analysis-gp-heatmap',
-  'chart-discount-breakdown',
-  // 多角的分析
-  'analysis-revenue-structure',
-  'analysis-multi-kpi',
-  // 補助: テーブル
-  'exec-monthly-calendar',
-  'exec-dow-average',
-  'exec-weekly-summary',
 ]
 
 const STORAGE_KEY = 'dashboard_layout_v12'

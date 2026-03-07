@@ -116,11 +116,11 @@ export interface MessageCatalog {
 
 export const jaMessages: MessageCatalog = {
   nav: {
-    dashboard: 'ダッシュボード',
-    category: 'カテゴリ',
+    dashboard: '概要',
+    category: 'カテゴリ分析',
     forecast: '予測',
     analysis: '分析',
-    daily: '日別',
+    daily: '売上詳細',
     transfer: '移動',
     costInclusion: '原価算入費',
     summary: 'サマリ',
@@ -128,8 +128,8 @@ export const jaMessages: MessageCatalog = {
     admin: '管理',
     lightMode: 'ライトモード',
     darkMode: 'ダークモード',
-    costDetail: '原価明細',
-    insight: 'インサイト',
+    costDetail: '仕入・原価',
+    insight: '粗利分析',
   },
   common: {
     loading: '読み込み中...',
@@ -207,11 +207,11 @@ export const jaMessages: MessageCatalog = {
 
 export const enMessages: MessageCatalog = {
   nav: {
-    dashboard: 'Dashboard',
+    dashboard: 'Overview',
     category: 'Category',
     forecast: 'Forecast',
     analysis: 'Analysis',
-    daily: 'Daily',
+    daily: 'Sales Detail',
     transfer: 'Transfer',
     costInclusion: 'Cost Inclusion',
     summary: 'Summary',
@@ -220,7 +220,7 @@ export const enMessages: MessageCatalog = {
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
     costDetail: 'Cost Detail',
-    insight: 'Insight',
+    insight: 'Gross Profit',
   },
   common: {
     loading: 'Loading...',

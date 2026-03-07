@@ -149,13 +149,24 @@ export const DAILY_WIDGETS: readonly WidgetDef[] = [
 ]
 
 export const DEFAULT_DAILY_WIDGET_IDS = [
-  'daily-chart-sales',
-  'daily-chart-gp-rate',
-  'daily-chart-shapley',
+  // KPI
   'daily-kpi-sales',
   'daily-kpi-cost',
   'daily-kpi-discount',
   'daily-kpi-gp-rate',
   'daily-kpi-markup',
   'daily-kpi-cost-inclusion',
+  // チャート
+  'daily-chart-sales',
+  'daily-chart-gp-rate',
+  'daily-chart-shapley',
+  // テーブル・詳細
+  'exec-monthly-calendar',
+  'exec-dow-average',
+  'exec-weekly-summary',
+  'exec-daily-store-sales',
+  // 分析
+  'analysis-revenue-structure',
+  'analysis-multi-kpi',
+  'analysis-customer-scatter',
 ]

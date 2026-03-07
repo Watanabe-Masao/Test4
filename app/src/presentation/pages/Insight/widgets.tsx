@@ -57,8 +57,19 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
 ]
 
 export const DEFAULT_INSIGHT_WIDGET_IDS = [
-  'insight-budget',
+  // 粗利 KPI
+  'kpi-inv-gross-profit',
+  'kpi-est-margin',
+  'kpi-core-markup',
+  'kpi-discount-loss',
+  // 損益構造・粗利分析
   'insight-gross-profit',
-  'insight-forecast',
+  'analysis-waterfall',
+  'analysis-gp-heatmap',
+  'analysis-structural-overview',
+  // 売変分析
+  'chart-discount-breakdown',
+  // 要因分解
   'insight-decomposition',
+  'analysis-causal-chain',
 ]
