@@ -1,12 +1,12 @@
 /**
  * DuckDB カテゴリベンチマーク — 商品力分析ダッシュボード
  *
- * 指数加重ランキングによる総合カテゴリ評価:
- * 1. 総合人気指数: Index = (ΣS/N)×100
- * 2. 店舗バラツキ: スコアの標準偏差
- * 3. 1位支配力: 1位取得率
- * 4. 安定度: 1 - 順位分散/最大分散
- * 5. 商品力マップ: 指数×バラツキの4タイプ分類
+ * 構成比実数値ベースの総合カテゴリ評価:
+ * 1. 総合指数 (Index): 平均構成比を 0-100 に正規化
+ * 2. バラツキ: 構成比の変動係数 (CV)
+ * 3. カバー率: 実販売店舗数 / 全店舗数
+ * 4. 安定度: 1 - CV/2
+ * 5. 商品力マップ: Index × バラツキの4タイプ分類
  *
  * 表示ビュー:
  * - チャート: 横棒グラフ（Index順）
@@ -330,11 +330,10 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
       </div>
       <div>Index: {item.index.toFixed(1)}</div>
       <div>平均構成比: {toPct(item.avgShare, 1)}</div>
-      <div>バラツキ: {item.variance.toFixed(3)}</div>
-      <div>1位率: {toPct(item.dominance, 0)}</div>
+      <div>バラツキ(CV): {item.variance.toFixed(2)}</div>
       <div>安定度: {toPct(item.stability, 0)}</div>
       <div>
-        取扱店舗: {item.activeStoreCount}/{item.storeCount}
+        カバー率: {item.activeStoreCount}/{item.storeCount} ({toPct(item.dominance, 0)})
       </div>
       <div>売上: {fmt(item.totalSales)}</div>
       <div>
@@ -440,10 +439,9 @@ function TableView({
             <Th>カテゴリ</Th>
             <Th>Index</Th>
             <Th>構成比</Th>
-            <Th>バラツキ</Th>
-            <Th>1位率</Th>
+            <Th>バラツキ(CV)</Th>
             <Th>安定度</Th>
-            <Th>店舗数</Th>
+            <Th>カバー率</Th>
             <Th>売上合計</Th>
             <Th>タイプ</Th>
           </tr>
@@ -456,8 +454,7 @@ function TableView({
                 {s.index.toFixed(1)}
               </Td>
               <Td>{toPct(s.avgShare, 1)}</Td>
-              <Td>{s.variance.toFixed(3)}</Td>
-              <Td>{toPct(s.dominance, 0)}</Td>
+              <Td>{s.variance.toFixed(2)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
               <Td>
                 {s.activeStoreCount}/{s.storeCount}
@@ -622,7 +619,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
       <HeaderRow>
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
-          <Subtitle>構成比ベース指数加重ランキング | 商品力 × バラツキ × 1位率</Subtitle>
+          <Subtitle>構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率</Subtitle>
         </div>
         <Controls>
           <ButtonGroup>
