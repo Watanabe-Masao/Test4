@@ -13,6 +13,8 @@ import { CategoryExplorerTable } from './CategoryExplorerTable'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
 import { useDuckDBLevelAggregation, useDuckDBCategoryHourly } from '@/application/hooks/duckdb'
 import { ChartSkeleton } from '@/presentation/components/common'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 import type { HierarchyItem, SortKey, SortDir } from './useCategoryExplorerData'
 import {
   Wrapper,
@@ -331,20 +333,18 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
   return (
     <Wrapper>
       <HeaderRow>
-        <BreadcrumbBar style={{ marginBottom: 0 }}>
-          {breadcrumb.map((bc, i) => (
-            <Fragment key={i}>
-              {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
-              <BreadcrumbItem
-                $active={i === breadcrumb.length - 1}
-                onClick={() => setFilter(bc.filter)}
-              >
-                {bc.label}
-              </BreadcrumbItem>
-            </Fragment>
-          ))}
-          {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
-        </BreadcrumbBar>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span
+            style={{
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            カテゴリードリルダウン分析
+          </span>
+          <ChartHelpButton guide={CHART_GUIDES['category-hierarchy-explorer']} />
+        </div>
         {hasPrevYear && (
           <TabGroup role="tablist" aria-label="表示切替">
             <Tab
@@ -358,6 +358,20 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
           </TabGroup>
         )}
       </HeaderRow>
+      <BreadcrumbBar>
+        {breadcrumb.map((bc, i) => (
+          <Fragment key={i}>
+            {i > 0 && <BreadcrumbSep>▸</BreadcrumbSep>}
+            <BreadcrumbItem
+              $active={i === breadcrumb.length - 1}
+              onClick={() => setFilter(bc.filter)}
+            >
+              {bc.label}
+            </BreadcrumbItem>
+          </Fragment>
+        ))}
+        {filter.departmentCode && <ResetBtn onClick={() => setFilter({})}>リセット</ResetBtn>}
+      </BreadcrumbBar>
       <SummaryBar>
         <SummaryItem>
           <SummaryLabel>{levelLabels[currentLevel]}数</SummaryLabel>

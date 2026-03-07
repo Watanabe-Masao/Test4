@@ -86,11 +86,30 @@ export function analyzeDowGap(
     })
   }
 
+  const isSameStructure = dowCounts.every((d) => d.diff === 0)
+  const hasPrevDowSalesFlag = prevDowSales != null && prevDowSales.some((v) => v > 0)
+
+  const missingDataWarnings: string[] = []
+  if (!hasPrevDowSalesFlag) {
+    missingDataWarnings.push('前年の曜日別売上データがありません（全体平均で代替しています）')
+  }
+  if (dailyAverageSales <= 0) {
+    missingDataWarnings.push('当年の日平均売上データがありません')
+  }
+  if (isSameStructure) {
+    missingDataWarnings.push(
+      `${currentYear}年${currentMonth}月と${previousYear}年${previousMonth}月は曜日構成が同一のため、曜日ギャップは0です`,
+    )
+  }
+
   return {
     dowCounts,
     estimatedImpact,
     isValid: dailyAverageSales > 0,
     prevDowDailyAvg,
+    hasPrevDowSales: hasPrevDowSalesFlag,
+    isSameStructure,
+    missingDataWarnings,
   }
 }
 
@@ -177,4 +196,7 @@ export const ZERO_DOW_GAP_ANALYSIS: DowGapAnalysis = {
   estimatedImpact: 0,
   isValid: false,
   prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+  hasPrevDowSales: false,
+  isSameStructure: true,
+  missingDataWarnings: ['前年データが読み込まれていません'],
 }

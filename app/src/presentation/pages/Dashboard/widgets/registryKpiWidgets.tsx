@@ -327,12 +327,31 @@ function DowGapKpiCard({
 
   // 平均法（デフォルト）
   const impact = dowGap.estimatedImpact
+  const warnings = dowGap.missingDataWarnings ?? []
+  const hasWarnings = warnings.length > 0
+  const subParts: string[] = []
+  if (dowGap.isSameStructure) {
+    subParts.push('曜日構成同一（ギャップなし）')
+  } else {
+    subParts.push(`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日`)
+    if (gapSummary) subParts.push(gapSummary)
+  }
+  if (!dowGap.hasPrevDowSales) {
+    subParts.push('⚠ 前年曜日別売上なし')
+  }
+
   return (
     <KpiCard
       label="曜日ギャップ（平均）"
       value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
-      subText={`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`}
-      accent={impact >= 0 ? palette.positive : palette.negative}
+      subText={subParts.join(' / ')}
+      accent={
+        hasWarnings && impact === 0
+          ? palette.slate
+          : impact >= 0
+            ? palette.positive
+            : palette.negative
+      }
       onClick={() => onExplain('dowGapImpact')}
       formulaSummary={
         hasActualDay ? (
