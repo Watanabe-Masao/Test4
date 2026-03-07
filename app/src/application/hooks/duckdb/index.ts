@@ -61,12 +61,16 @@ export type { DailyFeatureRow, HourlyProfileRow, DowPatternRow } from './useFeat
 export {
   useDuckDBCategoryMixWeekly,
   useDuckDBCategoryBenchmark,
+  useDuckDBCategoryBenchmarkTrend,
   buildCategoryBenchmarkScores,
+  buildCategoryTrendData,
 } from './useAdvancedQueries'
 export type {
   CategoryMixWeeklyRow,
   CategoryBenchmarkRow,
+  CategoryBenchmarkTrendRow,
   CategoryBenchmarkScore,
+  CategoryTrendPoint,
   ProductType,
 } from './useAdvancedQueries'
 

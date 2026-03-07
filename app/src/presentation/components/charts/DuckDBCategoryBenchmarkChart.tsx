@@ -1,12 +1,12 @@
 /**
  * DuckDB カテゴリベンチマーク — 商品力分析ダッシュボード
  *
- * 指数加重ランキングによる総合カテゴリ評価:
- * 1. 総合人気指数: Index = (ΣS/N)×100
- * 2. 店舗バラツキ: スコアの標準偏差
- * 3. 1位支配力: 1位取得率
- * 4. 安定度: 1 - 順位分散/最大分散
- * 5. 商品力マップ: 指数×バラツキの4タイプ分類
+ * 構成比実数値ベースの総合カテゴリ評価:
+ * 1. 総合指数 (Index): 平均構成比を 0-100 に正規化
+ * 2. バラツキ: 構成比の変動係数 (CV)
+ * 3. カバー率: 実販売店舗数 / 全店舗数
+ * 4. 安定度: 1 - CV/2
+ * 5. 商品力マップ: Index × バラツキの4タイプ分類
  *
  * 表示ビュー:
  * - チャート: 横棒グラフ（Index順）
@@ -17,10 +17,13 @@ import { useState, useMemo, memo } from 'react'
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   Cell,
   ScatterChart,
   Scatter,
@@ -32,7 +35,9 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import {
   useDuckDBCategoryBenchmark,
+  useDuckDBCategoryBenchmarkTrend,
   buildCategoryBenchmarkScores,
+  buildCategoryTrendData,
   type CategoryBenchmarkScore,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
@@ -259,7 +264,7 @@ interface Props {
 }
 
 type CategoryLevel = 'department' | 'line' | 'klass'
-type ViewMode = 'chart' | 'table' | 'map'
+type ViewMode = 'chart' | 'table' | 'map' | 'trend'
 
 const LEVEL_LABELS: Record<CategoryLevel, string> = {
   department: '部門',
@@ -271,6 +276,7 @@ const VIEW_LABELS: Record<ViewMode, string> = {
   chart: 'チャート',
   table: 'テーブル',
   map: 'マップ',
+  trend: 'トレンド',
 }
 
 const TYPE_LABELS: Record<ProductType, string> = {
@@ -330,11 +336,10 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
       </div>
       <div>Index: {item.index.toFixed(1)}</div>
       <div>平均構成比: {toPct(item.avgShare, 1)}</div>
-      <div>バラツキ: {item.variance.toFixed(3)}</div>
-      <div>1位率: {toPct(item.dominance, 0)}</div>
+      <div>バラツキ(CV): {item.variance.toFixed(2)}</div>
       <div>安定度: {toPct(item.stability, 0)}</div>
       <div>
-        取扱店舗: {item.activeStoreCount}/{item.storeCount}
+        カバー率: {item.activeStoreCount}/{item.storeCount} ({toPct(item.dominance, 0)})
       </div>
       <div>売上: {fmt(item.totalSales)}</div>
       <div>
@@ -440,10 +445,9 @@ function TableView({
             <Th>カテゴリ</Th>
             <Th>Index</Th>
             <Th>構成比</Th>
-            <Th>バラツキ</Th>
-            <Th>1位率</Th>
+            <Th>バラツキ(CV)</Th>
             <Th>安定度</Th>
-            <Th>店舗数</Th>
+            <Th>カバー率</Th>
             <Th>売上合計</Th>
             <Th>タイプ</Th>
           </tr>
@@ -456,8 +460,7 @@ function TableView({
                 {s.index.toFixed(1)}
               </Td>
               <Td>{toPct(s.avgShare, 1)}</Td>
-              <Td>{s.variance.toFixed(3)}</Td>
-              <Td>{toPct(s.dominance, 0)}</Td>
+              <Td>{s.variance.toFixed(2)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
               <Td>
                 {s.activeStoreCount}/{s.storeCount}
@@ -486,18 +489,16 @@ function MapView({
   const scatterData = scores.map((s) => ({
     ...s,
     x: s.index,
-    y: s.variance,
+    y: s.stability * 100,
   }))
-
-  const maxVariance = Math.max(...scores.map((s) => s.variance), 0.5)
 
   return (
     <MapSection>
       <div style={{ position: 'relative' }}>
-        <MapQuadrantLabel style={{ top: 4, left: 90 }}>不安定</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ top: 4, right: 30 }}>地域特化</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ bottom: 30, left: 90 }}>普通</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ bottom: 30, right: 30 }}>主力</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ top: 4, left: 90 }}>普通</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ top: 4, right: 30 }}>主力</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ bottom: 30, left: 90 }}>不安定</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ bottom: 30, right: 30 }}>地域特化</MapQuadrantLabel>
         <ResponsiveContainer width="100%" height={280}>
           <ScatterChart margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} />
@@ -509,7 +510,7 @@ function MapView({
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
               stroke={ct.grid}
               label={{
-                value: 'Index (商品力)',
+                value: 'Index (構成比)',
                 position: 'bottom',
                 offset: -5,
                 fontSize: 10,
@@ -519,12 +520,12 @@ function MapView({
             <YAxis
               type="number"
               dataKey="y"
-              name="バラツキ"
-              domain={[0, Math.ceil(maxVariance * 10) / 10]}
+              name="安定度"
+              domain={[0, 100]}
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
               stroke={ct.grid}
               label={{
-                value: 'バラツキ',
+                value: '安定度 (%)',
                 angle: -90,
                 position: 'insideLeft',
                 offset: 5,
@@ -543,12 +544,123 @@ function MapView({
         </ResponsiveContainer>
       </div>
       <MapLegend>
-        <LegendItem $color={TYPE_COLORS.flagship}>主力（高Index・低バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.regional}>地域特化（高Index・高バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.standard}>普通（低Index・低バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.unstable}>不安定（低Index・高バラツキ）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.flagship}>主力（高Index・高安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.regional}>地域特化（高Index・低安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.standard}>普通（低Index・高安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.unstable}>不安定（低Index・低安定度）</LegendItem>
       </MapLegend>
     </MapSection>
+  )
+}
+
+// ── 色パレット（トレンド用） ──
+
+const TREND_COLORS = [
+  '#6366f1', // indigo
+  '#22c55e', // green
+  '#f59e0b', // amber
+  '#ef4444', // red
+  '#3b82f6', // blue
+  '#8b5cf6', // violet
+  '#14b8a6', // teal
+  '#f97316', // orange
+  '#ec4899', // pink
+  '#64748b', // slate
+]
+
+function TrendView({
+  trendData,
+  topCodes,
+  scores,
+  ct,
+}: {
+  trendData: ReturnType<typeof buildCategoryTrendData>
+  topCodes: readonly string[]
+  scores: readonly CategoryBenchmarkScore[]
+  ct: ReturnType<typeof useChartTheme>
+}) {
+  // カテゴリコード → 名前のマップ
+  const nameMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const s of scores) map.set(s.code, s.name)
+    return map
+  }, [scores])
+
+  // date → { dateKey, code1: score, code2: score, ... } のピボットデータ
+  const chartData = useMemo(() => {
+    const dateMap = new Map<string, Record<string, string | number>>()
+    for (const p of trendData) {
+      let entry = dateMap.get(p.dateKey)
+      if (!entry) {
+        entry = { dateKey: p.dateKey }
+        dateMap.set(p.dateKey, entry)
+      }
+      entry[p.code] = p.compositeScore
+    }
+    const arr = Array.from(dateMap.values())
+    arr.sort((a, b) => String(a.dateKey).localeCompare(String(b.dateKey)))
+    return arr
+  }, [trendData])
+
+  if (chartData.length === 0) {
+    return <EmptyState>トレンドデータがありません</EmptyState>
+  }
+
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={320}>
+        <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} />
+          <XAxis
+            dataKey="dateKey"
+            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
+            stroke={ct.grid}
+            tickFormatter={(v: string) => v.slice(5)}
+          />
+          <YAxis
+            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
+            stroke={ct.grid}
+            label={{
+              value: 'Index × 安定度',
+              angle: -90,
+              position: 'insideLeft',
+              offset: 5,
+              fontSize: 10,
+              fill: ct.textMuted,
+            }}
+          />
+          <Tooltip
+            contentStyle={{
+              background: ct.bg2,
+              border: `1px solid ${ct.grid}`,
+              borderRadius: 8,
+              fontSize: ct.fontSize.sm,
+              fontFamily: ct.fontFamily,
+            }}
+            labelFormatter={(v) => String(v)}
+            formatter={(value, name) => [
+              Number(value).toFixed(2),
+              nameMap.get(String(name)) ?? String(name),
+            ]}
+          />
+          <Legend
+            formatter={(value) => nameMap.get(String(value)) ?? String(value)}
+            wrapperStyle={{ fontSize: '0.6rem' }}
+          />
+          {topCodes.map((code, i) => (
+            <Line
+              key={code}
+              type="monotone"
+              dataKey={code}
+              stroke={TREND_COLORS[i % TREND_COLORS.length]}
+              strokeWidth={2}
+              dot={false}
+              connectNulls
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
 
@@ -580,10 +692,27 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     level,
   )
 
+  // トレンドデータ取得（トレンドビュー用）
+  const { data: trendRows } = useDuckDBCategoryBenchmarkTrend(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+  )
+
   const totalStoreCount = selectedStoreIds.size
   const scores = useMemo(
     () => (rawRows ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount) : []),
     [rawRows, minStores, totalStoreCount],
+  )
+
+  // トレンド表示用: 上位10カテゴリのコード
+  const topCodes = useMemo(() => scores.slice(0, 10).map((s) => s.code), [scores])
+
+  const trendData = useMemo(
+    () => (trendRows ? buildCategoryTrendData(trendRows, topCodes, totalStoreCount) : []),
+    [trendRows, topCodes, totalStoreCount],
   )
 
   // KPIサマリー
@@ -622,7 +751,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
       <HeaderRow>
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
-          <Subtitle>構成比ベース指数加重ランキング | 商品力 × バラツキ × 1位率</Subtitle>
+          <Subtitle>構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率</Subtitle>
         </div>
         <Controls>
           <ButtonGroup>
@@ -683,6 +812,9 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
         {view === 'chart' && <ChartView scores={scores} ct={ct} fmt={fmt} />}
         {view === 'table' && <TableView scores={scores} fmt={fmt} />}
         {view === 'map' && <MapView scores={scores} ct={ct} fmt={fmt} />}
+        {view === 'trend' && (
+          <TrendView trendData={trendData} topCodes={topCodes} scores={scores} ct={ct} />
+        )}
       </div>
     </Wrapper>
   )

@@ -194,3 +194,84 @@ export async function queryCategoryBenchmark(
     ORDER BY code, sales_rank`
   return queryToObjects<CategoryBenchmarkRow>(conn, sql)
 }
+
+// ── カテゴリベンチマーク 日別トレンド ──
+
+/** 日別カテゴリ×店舗の構成比行 */
+export interface CategoryBenchmarkTrendRow {
+  readonly dateKey: string
+  readonly code: string
+  readonly name: string
+  readonly storeId: string
+  readonly totalSales: number
+  readonly share: number
+}
+
+/**
+ * カテゴリベンチマーク日別トレンド
+ *
+ * 日別 × カテゴリ × 店舗 の構成比を返す。
+ * アプリ層で日別の Index × 安定度 を算出してトレンドを描画する。
+ */
+export async function queryCategoryBenchmarkTrend(
+  conn: AsyncDuckDBConnection,
+  params: CategoryBenchmarkParams,
+): Promise<readonly CategoryBenchmarkTrendRow[]> {
+  let codeCol: string
+  let nameCol: string
+
+  switch (params.level) {
+    case 'department':
+      codeCol = 'cts.dept_code'
+      nameCol = 'cts.dept_name'
+      break
+    case 'line':
+      codeCol = 'cts.line_code'
+      nameCol = 'cts.line_name'
+      break
+    case 'klass':
+      codeCol = 'cts.klass_code'
+      nameCol = 'cts.klass_name'
+      break
+  }
+
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
+  const where = buildWhereClause([
+    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
+    'cts.is_prev_year = FALSE',
+    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  ])
+
+  const sql = `
+    WITH daily_cat_store AS (
+      SELECT
+        cts.date_key,
+        ${codeCol} AS code,
+        ${nameCol} AS name,
+        cts.store_id,
+        SUM(cts.total_amount) AS total_sales
+      FROM category_time_sales cts
+      ${where}
+      GROUP BY cts.date_key, ${codeCol}, ${nameCol}, cts.store_id
+    ),
+    daily_store_total AS (
+      SELECT date_key, store_id, SUM(total_sales) AS store_sales
+      FROM daily_cat_store
+      GROUP BY date_key, store_id
+    )
+    SELECT
+      dcs.date_key,
+      dcs.code,
+      dcs.name,
+      dcs.store_id,
+      dcs.total_sales,
+      CASE WHEN dst.store_sales > 0
+        THEN dcs.total_sales / dst.store_sales
+        ELSE 0 END AS share
+    FROM daily_cat_store dcs
+    JOIN daily_store_total dst
+      ON dcs.date_key = dst.date_key AND dcs.store_id = dst.store_id
+    ORDER BY dcs.date_key, dcs.code`
+  return queryToObjects<CategoryBenchmarkTrendRow>(conn, sql)
+}
