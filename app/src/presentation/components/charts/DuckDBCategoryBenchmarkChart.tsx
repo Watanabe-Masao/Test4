@@ -40,11 +40,15 @@ import {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
   buildBoxPlotData,
+  buildBoxPlotDataByDate,
   buildStoreBreakdown,
+  buildDateBreakdown,
   type CategoryBenchmarkScore,
   type CategoryBenchmarkRow,
+  type CategoryBenchmarkTrendRow,
   type BoxPlotStats,
   type StoreBreakdownItem,
+  type DateBreakdownItem,
   type BenchmarkMetric,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
@@ -305,9 +309,16 @@ const VIEW_LABELS: Record<ViewMode, string> = {
   boxplot: '箱ひげ図',
 }
 
+type BoxPlotAxis = 'store' | 'date'
+
 const BOX_METRIC_LABELS: Record<BoxMetric, string> = {
   sales: '販売金額',
   quantity: '販売数量',
+}
+
+const BOX_AXIS_LABELS: Record<BoxPlotAxis, string> = {
+  store: '店舗別',
+  date: '期間別',
 }
 
 const BENCHMARK_METRIC_LABELS: Record<BenchmarkMetric, string> = {
@@ -887,13 +898,177 @@ function StoreBreakdownChart({
   )
 }
 
+/** 日別ドリルダウンバーチャート */
+function DateBreakdownChart({
+  items,
+  ct,
+  fmt,
+  categoryName,
+  onClose,
+}: {
+  items: readonly DateBreakdownItem[]
+  ct: ReturnType<typeof useChartTheme>
+  fmt: (v: number) => string
+  categoryName: string
+  onClose: () => void
+}) {
+  const marginLeft = 90
+  const marginRight = 40
+  const marginTop = 10
+  const marginBottom = 30
+  const rowHeight = 28
+  const chartHeight = Math.max(120, items.length * rowHeight + marginTop + marginBottom)
+
+  const xMax = useMemo(() => {
+    if (items.length === 0) return 100
+    const m = Math.max(...items.map((d) => d.value))
+    const mag = Math.pow(10, Math.floor(Math.log10(m || 1)))
+    return Math.ceil(m / mag) * mag * 1.05
+  }, [items])
+
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
+  return (
+    <div
+      style={{
+        marginTop: 12,
+        padding: '8px 0',
+        borderTop: `1px solid ${ct.grid}`,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 4,
+          padding: '0 4px',
+        }}
+      >
+        <span style={{ fontSize: '0.7rem', fontWeight: 600, color: ct.text }}>
+          {categoryName} — 日別内訳
+        </span>
+        <button
+          onClick={onClose}
+          style={{
+            all: 'unset',
+            cursor: 'pointer',
+            fontSize: '0.6rem',
+            padding: '2px 8px',
+            borderRadius: 4,
+            color: ct.textMuted,
+            background: ct.bg2 === '#fff' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+          }}
+        >
+          閉じる
+        </button>
+      </div>
+      <svg width="100%" height={chartHeight} viewBox={`0 0 800 ${chartHeight}`}>
+        {/* Grid lines */}
+        {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
+          const xPx = marginLeft + frac * (800 - marginLeft - marginRight)
+          const val = frac * xMax
+          return (
+            <g key={frac}>
+              <line
+                x1={xPx}
+                y1={marginTop}
+                x2={xPx}
+                y2={chartHeight - marginBottom}
+                stroke={ct.grid}
+                strokeOpacity={0.3}
+                strokeDasharray="3 3"
+              />
+              <text
+                x={xPx}
+                y={chartHeight - marginBottom + 16}
+                textAnchor="middle"
+                fill={ct.textMuted}
+                fontSize={10}
+              >
+                {val >= 1000000
+                  ? `${(val / 1000000).toFixed(1)}M`
+                  : val >= 1000
+                    ? `${(val / 1000).toFixed(0)}K`
+                    : String(Math.round(val))}
+              </text>
+            </g>
+          )
+        })}
+        {/* Date bars */}
+        {items.map((item, i) => {
+          const plotW = 800 - marginLeft - marginRight
+          const yCenter = marginTop + i * rowHeight + rowHeight / 2
+          const barH = rowHeight * 0.6
+          const scale = xMax > 0 ? plotW / xMax : 0
+          const barW = Math.max(item.value * scale, 1)
+          // date_key を MM/DD 表示に整形
+          const dateLabel = item.dateKey.length >= 10 ? item.dateKey.slice(5) : item.dateKey
+          const isHovered = hoveredIdx === i
+
+          return (
+            <g
+              key={item.dateKey}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+            >
+              <rect
+                x={0}
+                y={marginTop + i * rowHeight}
+                width={800}
+                height={rowHeight}
+                fill={
+                  isHovered
+                    ? ct.bg2 === '#fff'
+                      ? '#f3f4f6'
+                      : 'rgba(255,255,255,0.05)'
+                    : 'transparent'
+                }
+              />
+              <text
+                x={marginLeft - 6}
+                y={yCenter + 4}
+                textAnchor="end"
+                fill={ct.textMuted}
+                fontSize={10}
+              >
+                {dateLabel}
+              </text>
+              <rect
+                x={marginLeft}
+                y={yCenter - barH / 2}
+                width={barW}
+                height={barH}
+                fill="#10b981"
+                fillOpacity={isHovered ? 0.8 : 0.5}
+                rx={2}
+              />
+              <text
+                x={marginLeft + barW + 4}
+                y={yCenter + 4}
+                fill={ct.textMuted}
+                fontSize={9}
+                fontFamily="monospace"
+              >
+                {fmt(item.value)}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
 function BoxPlotView({
   boxData,
   ct,
   fmt,
   metricLabel,
   rawRows,
+  trendRows,
   boxMetric,
+  boxAxis,
   storeNameMap,
 }: {
   boxData: readonly BoxPlotStats[]
@@ -901,7 +1076,9 @@ function BoxPlotView({
   fmt: (v: number) => string
   metricLabel: string
   rawRows: readonly CategoryBenchmarkRow[] | null
+  trendRows: readonly CategoryBenchmarkTrendRow[] | null
   boxMetric: 'sales' | 'quantity'
+  boxAxis: BoxPlotAxis
   storeNameMap: ReadonlyMap<string, string>
 }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -909,9 +1086,15 @@ function BoxPlotView({
 
   // 店舗別ドリルダウンデータ
   const storeBreakdown = useMemo(() => {
-    if (!selectedCode || !rawRows) return null
+    if (boxAxis !== 'store' || !selectedCode || !rawRows) return null
     return buildStoreBreakdown(rawRows, selectedCode, boxMetric)
-  }, [selectedCode, rawRows, boxMetric])
+  }, [selectedCode, rawRows, boxMetric, boxAxis])
+
+  // 日別ドリルダウンデータ
+  const dateBreakdown = useMemo(() => {
+    if (boxAxis !== 'date' || !selectedCode || !trendRows) return null
+    return buildDateBreakdown(trendRows, selectedCode)
+  }, [selectedCode, trendRows, boxAxis])
 
   const selectedName = useMemo(
     () => boxData.find((d) => d.code === selectedCode)?.name ?? '',
@@ -1140,7 +1323,7 @@ function BoxPlotView({
             <div>Q1 (25%): {fmt(hovered.q1)}</div>
             <div>最小値: {fmt(hovered.min)}</div>
             <div>平均値: {fmt(hovered.mean)}</div>
-            <div>店舗数: {hovered.count}</div>
+            <div>{boxAxis === 'store' ? '店舗数' : '日数'}: {hovered.count}</div>
           </div>
         )}
       </div>
@@ -1179,11 +1362,20 @@ function BoxPlotView({
           平均値
         </span>
       </MapLegend>
-      {/* 店舗別ドリルダウン */}
-      {selectedCode && storeBreakdown && storeBreakdown.length > 0 && (
+      {/* ドリルダウン */}
+      {selectedCode && boxAxis === 'store' && storeBreakdown && storeBreakdown.length > 0 && (
         <StoreBreakdownChart
           items={storeBreakdown}
           storeNameMap={storeNameMap}
+          ct={ct}
+          fmt={fmt}
+          categoryName={selectedName}
+          onClose={() => setSelectedCode(null)}
+        />
+      )}
+      {selectedCode && boxAxis === 'date' && dateBreakdown && dateBreakdown.length > 0 && (
+        <DateBreakdownChart
+          items={dateBreakdown}
           ct={ct}
           fmt={fmt}
           categoryName={selectedName}
@@ -1216,6 +1408,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [view, setView] = useState<ViewMode>('chart')
   const [minStores, setMinStores] = useState(2)
   const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
+  const [boxAxis, setBoxAxis] = useState<BoxPlotAxis>('store')
   const [benchmarkMetric, setBenchmarkMetric] = useState<BenchmarkMetric>('share')
   const [parentDeptCode, setParentDeptCode] = useState<string>('')
   const [parentLineCode, setParentLineCode] = useState<string>('')
@@ -1281,11 +1474,22 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     [trendRows, topCodes, totalStoreCount],
   )
 
-  // 箱ひげ図データ（上位20カテゴリ）
-  const boxPlotData = useMemo(
+  // 箱ひげ図データ（上位20カテゴリ）— 店舗別
+  const boxPlotDataByStore = useMemo(
     () => (rawRows ? buildBoxPlotData(rawRows, boxMetric, 20, minStores, totalStoreCount) : []),
     [rawRows, boxMetric, minStores, totalStoreCount],
   )
+
+  // 箱ひげ図データ（上位20カテゴリ）— 期間別（日別変動）
+  const boxPlotDataByDate = useMemo(
+    () =>
+      trendRows && rawRows
+        ? buildBoxPlotDataByDate(trendRows, rawRows, boxMetric, 20, minStores, totalStoreCount)
+        : [],
+    [trendRows, rawRows, boxMetric, minStores, totalStoreCount],
+  )
+
+  const boxPlotData = boxAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
 
   // KPIサマリー
   const kpis = useMemo(() => {
@@ -1409,13 +1613,24 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             ))}
           </ButtonGroup>
           {view === 'boxplot' && (
-            <ButtonGroup>
-              {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
-                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
-                  {BOX_METRIC_LABELS[m]}
-                </ToggleBtn>
-              ))}
-            </ButtonGroup>
+            <>
+              <ButtonGroup>
+                {(Object.keys(BOX_AXIS_LABELS) as BoxPlotAxis[]).map((a) => (
+                  <ToggleBtn key={a} $active={boxAxis === a} onClick={() => setBoxAxis(a)}>
+                    {BOX_AXIS_LABELS[a]}
+                  </ToggleBtn>
+                ))}
+              </ButtonGroup>
+              {boxAxis === 'store' && (
+                <ButtonGroup>
+                  {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
+                    <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                      {BOX_METRIC_LABELS[m]}
+                    </ToggleBtn>
+                  ))}
+                </ButtonGroup>
+              )}
+            </>
           )}
         </Controls>
       </HeaderRow>
@@ -1464,10 +1679,12 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
           <BoxPlotView
             boxData={boxPlotData}
             ct={ct}
-            fmt={boxMetric === 'sales' ? fmt : (v: number) => v.toLocaleString()}
-            metricLabel={BOX_METRIC_LABELS[boxMetric]}
+            fmt={boxMetric === 'sales' || boxAxis === 'date' ? fmt : (v: number) => v.toLocaleString()}
+            metricLabel={boxAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]}
             rawRows={rawRows ?? null}
+            trendRows={trendRows ?? null}
             boxMetric={boxMetric}
+            boxAxis={boxAxis}
             storeNameMap={storeNameMap}
           />
         )}

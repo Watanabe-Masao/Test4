@@ -514,6 +514,105 @@ export function buildStoreBreakdown(
   return items
 }
 
+/**
+ * 日別の箱ひげ図データを構築する（期間内の日別変動を分析）
+ *
+ * 店舗別箱ひげ図が「同じカテゴリを店舗間で比較」するのに対し、
+ * 日別箱ひげ図は「同じカテゴリの日ごとの変動」を可視化する。
+ *
+ * @param trendRows - 日別カテゴリ×店舗の構成比データ
+ * @param benchmarkRows - ベンチマーク行（スコア順の決定に使用）
+ * @param _metric - 予約（トレンドデータは totalSales のみ保持）
+ * @param topN - 上位N件のカテゴリ
+ * @param minStores - 最低取扱店舗数フィルタ
+ * @param totalStoreCount - 選択された全店舗数
+ */
+export function buildBoxPlotDataByDate(
+  trendRows: readonly CategoryBenchmarkTrendRow[],
+  benchmarkRows: readonly CategoryBenchmarkRow[],
+  _metric: 'sales' | 'quantity',
+  topN = 20,
+  minStores = 1,
+  totalStoreCount = 0,
+): readonly BoxPlotStats[] {
+  // スコアで上位Nカテゴリを決定
+  const scores = buildCategoryBenchmarkScores(benchmarkRows, minStores, totalStoreCount)
+  const topCodes = new Set(scores.slice(0, topN).map((s) => s.code))
+
+  // カテゴリ × 日付 でグループ化し、全店舗の合計を日単位で算出
+  const catDateValues = new Map<string, { name: string; dailyValues: Map<string, number> }>()
+
+  for (const row of trendRows) {
+    if (!topCodes.has(row.code)) continue
+    let entry = catDateValues.get(row.code)
+    if (!entry) {
+      entry = { name: row.name, dailyValues: new Map() }
+      catDateValues.set(row.code, entry)
+    }
+    // metric === 'quantity' の場合も totalSales しかトレンドデータにないため sales を使用
+    const val = row.totalSales
+    const prev = entry.dailyValues.get(row.dateKey) ?? 0
+    entry.dailyValues.set(row.dateKey, prev + val)
+  }
+
+  // scores の順序で結果を生成
+  const results: BoxPlotStats[] = []
+  for (const s of scores) {
+    if (!topCodes.has(s.code)) continue
+    const entry = catDateValues.get(s.code)
+    if (!entry || entry.dailyValues.size === 0) continue
+
+    const values = Array.from(entry.dailyValues.values())
+    const sorted = [...values].sort((a, b) => a - b)
+    const mean = sorted.reduce((a, b) => a + b, 0) / sorted.length
+
+    results.push({
+      code: s.code,
+      name: entry.name,
+      min: sorted[0],
+      q1: quantile(sorted, 0.25),
+      median: quantile(sorted, 0.5),
+      q3: quantile(sorted, 0.75),
+      max: sorted[sorted.length - 1],
+      mean,
+      count: sorted.length,
+    })
+  }
+
+  return results
+}
+
+/** 日別の値（ドリルダウン用） */
+export interface DateBreakdownItem {
+  readonly dateKey: string
+  readonly value: number
+}
+
+/**
+ * 指定カテゴリの日別合計値を抽出する（箱ひげ図ドリルダウン用）
+ *
+ * @param trendRows - 日別カテゴリ×店舗の構成比データ
+ * @param categoryCode - 対象カテゴリコード
+ * @returns 日付昇順でソートされた日別データ
+ */
+export function buildDateBreakdown(
+  trendRows: readonly CategoryBenchmarkTrendRow[],
+  categoryCode: string,
+): readonly DateBreakdownItem[] {
+  const dateMap = new Map<string, number>()
+  for (const row of trendRows) {
+    if (row.code !== categoryCode) continue
+    const prev = dateMap.get(row.dateKey) ?? 0
+    dateMap.set(row.dateKey, prev + row.totalSales)
+  }
+  const items: DateBreakdownItem[] = []
+  for (const [dateKey, value] of dateMap) {
+    items.push({ dateKey, value })
+  }
+  items.sort((a, b) => a.dateKey.localeCompare(b.dateKey))
+  return items
+}
+
 /** カテゴリ階層一覧フック（フィルタ用ドロップダウン） */
 export function useDuckDBCategoryHierarchy(
   conn: AsyncDuckDBConnection | null,

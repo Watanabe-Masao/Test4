@@ -15,23 +15,11 @@ import {
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId, CustomCategory } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { safeDivide } from '@/domain/calculations/utils'
 import { ToggleBar, ToggleLabel, EmptyState } from './CategoryPage.styles'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import type { ComparisonMode } from './categoryData'
 import { CategoryTotalView } from './CategoryTotalView'
 import { CategoryComparisonView } from './CategoryComparisonView'
-
-type SortKey =
-  | 'label'
-  | 'cost'
-  | 'price'
-  | 'grossProfit'
-  | 'markup'
-  | 'costShare'
-  | 'priceShare'
-  | 'crossMult'
-type SortDir = 'asc' | 'desc'
 
 export function CategoryPage() {
   const { isComputing } = useCalculation()
@@ -45,11 +33,6 @@ export function CategoryPage() {
     setExplainMetric(metricId)
   }, [])
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
-  const [supplierSort, setSupplierSort] = useState<{ key: SortKey; dir: SortDir }>({
-    key: 'cost',
-    dir: 'desc',
-  })
-  const [supplierFilter, setSupplierFilter] = useState('')
 
   // Build store name map for comparison charts (must be before early return)
   const storeNames = useMemo(() => {
@@ -59,56 +42,6 @@ export function CategoryPage() {
     })
     return map
   }, [selectedResults, stores])
-
-  // Filtered + sorted supplier data (must be before early return)
-  const filteredSupplierData = useMemo(() => {
-    if (!currentResult) return []
-    const supplierList = Array.from(currentResult.supplierTotals.values())
-    const tAbsPrice = supplierList.reduce((sum, s) => sum + Math.abs(s.price), 0)
-    const tPrice = supplierList.reduce((sum, s) => sum + s.price, 0)
-    let list = supplierList
-    if (supplierFilter) {
-      const q = supplierFilter.toLowerCase()
-      list = list.filter(
-        (s) => s.supplierName.toLowerCase().includes(q) || s.supplierCode.includes(q),
-      )
-    }
-    const { key, dir } = supplierSort
-    const sorted = [...list].sort((a, b) => {
-      let va: number, vb: number
-      switch (key) {
-        case 'cost':
-          va = a.cost
-          vb = b.cost
-          break
-        case 'price':
-          va = a.price
-          vb = b.price
-          break
-        case 'grossProfit':
-          va = a.price - a.cost
-          vb = b.price - b.cost
-          break
-        case 'markup':
-          va = a.markupRate
-          vb = b.markupRate
-          break
-        case 'priceShare':
-          va = safeDivide(Math.abs(a.price), tAbsPrice, 0)
-          vb = safeDivide(Math.abs(b.price), tAbsPrice, 0)
-          break
-        case 'crossMult':
-          va = safeDivide(a.price - a.cost, tPrice, 0)
-          vb = safeDivide(b.price - b.cost, tPrice, 0)
-          break
-        default:
-          va = a.cost
-          vb = b.cost
-      }
-      return dir === 'asc' ? va - vb : vb - va
-    })
-    return sorted
-  }, [currentResult, supplierSort, supplierFilter])
 
   if (isComputing && !currentResult) {
     return (
@@ -129,11 +62,6 @@ export function CategoryPage() {
   const r = currentResult
   const hasMultipleStores = selectedResults.length > 1
 
-  const supplierData = Array.from(r.supplierTotals.values())
-  const totalSupplierPrice = supplierData.reduce((sum, s) => sum + s.price, 0)
-  const totalSupplierAbsPrice = supplierData.reduce((sum, s) => sum + Math.abs(s.price), 0)
-  const totalSupplierCost = supplierData.reduce((sum, s) => sum + s.cost, 0)
-
   const handleCustomCategoryChange = (supplierCode: string, value: string) => {
     if (!value || value === 'uncategorized') {
       const next = Object.fromEntries(
@@ -148,12 +76,6 @@ export function CategoryPage() {
         },
       })
     }
-  }
-
-  const toggleSort = (key: SortKey) => {
-    setSupplierSort((prev) =>
-      prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'desc' },
-    )
   }
 
   const showComparison = comparisonMode === 'comparison' && hasMultipleStores
@@ -186,16 +108,8 @@ export function CategoryPage() {
           selectedResults={selectedResults}
           stores={stores}
           settings={settings}
-          filteredSupplierData={filteredSupplierData}
-          totalSupplierCost={totalSupplierCost}
-          totalSupplierPrice={totalSupplierPrice}
-          totalSupplierAbsPrice={totalSupplierAbsPrice}
           onExplain={handleExplain}
           onCustomCategoryChange={handleCustomCategoryChange}
-          supplierSort={supplierSort}
-          onToggleSort={toggleSort}
-          supplierFilter={supplierFilter}
-          onSupplierFilterChange={setSupplierFilter}
         />
       )}
 

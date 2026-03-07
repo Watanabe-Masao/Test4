@@ -66,7 +66,9 @@ export {
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
   buildBoxPlotData,
+  buildBoxPlotDataByDate,
   buildStoreBreakdown,
+  buildDateBreakdown,
 } from './useAdvancedQueries'
 export type {
   CategoryMixWeeklyRow,
@@ -77,6 +79,7 @@ export type {
   CategoryTrendPoint,
   BoxPlotStats,
   StoreBreakdownItem,
+  DateBreakdownItem,
   BenchmarkMetric,
   ProductType,
 } from './useAdvancedQueries'
