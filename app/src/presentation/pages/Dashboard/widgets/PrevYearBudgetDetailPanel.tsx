@@ -237,7 +237,7 @@ export function PrevYearBudgetDetailPanel({
   const [viewMode, setViewMode] = useState<ViewMode>('daily')
   const theme = useTheme()
 
-  const title = type === 'sameDow' ? '当年予算 vs 前年同曜日' : '当年予算 vs 前年同日'
+  const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
   const offsetLabel =
     type === 'sameDow' ? `曜日オフセット: ${dowOffset}日` : '同日（オフセットなし）'
 

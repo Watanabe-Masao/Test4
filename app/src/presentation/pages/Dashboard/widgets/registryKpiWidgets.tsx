@@ -156,14 +156,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
   // ── KPI: 前年比較（月間フル集計、dataEndDay非依存） ──
   {
     id: 'kpi-py-same-dow',
-    label: '予算 vs 前年同曜日',
+    label: '予算成長率（同曜日）',
     group: '前年比較',
     size: 'kpi',
     render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="予算 vs 前年同曜日"
+            label="予算成長率（同曜日）"
             value="-"
             subText="前年データ未読込"
             accent={palette.blueDark}
@@ -189,7 +189,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
         .join(' / ')
       return (
         <KpiCard
-          label="予算 vs 前年同曜日"
+          label="予算成長率（同曜日）"
           value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.blueDark}
@@ -198,7 +198,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
             prevVsBudget != null
               ? {
                   direction: prevVsBudget >= 1 ? 'up' : 'down',
-                  label: `対予算 ${formatPercent(prevVsBudget)}`,
+                  label: `前年水準: 予算の${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
@@ -209,14 +209,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
   },
   {
     id: 'kpi-py-same-date',
-    label: '予算 vs 前年同日',
+    label: '予算成長率（同日）',
     group: '前年比較',
     size: 'kpi',
     render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="予算 vs 前年同日"
+            label="予算成長率（同日）"
             value="-"
             subText="前年データ未読込"
             accent={palette.cyanDark}
@@ -242,7 +242,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
         .join(' / ')
       return (
         <KpiCard
-          label="予算 vs 前年同日"
+          label="予算成長率（同日）"
           value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.cyanDark}
@@ -251,7 +251,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
             prevVsBudget != null
               ? {
                   direction: prevVsBudget >= 1 ? 'up' : 'down',
-                  label: `対予算 ${formatPercent(prevVsBudget)}`,
+                  label: `前年水準: 予算の${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
