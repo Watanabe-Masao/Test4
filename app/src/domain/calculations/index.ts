@@ -113,7 +113,13 @@ export type {
 } from './factorDecomposition'
 
 // 曜日ギャップ分析
-export { analyzeDowGap, countDowsInMonth, ZERO_DOW_GAP_ANALYSIS } from './dowGapAnalysis'
+export {
+  analyzeDowGap,
+  analyzeDowGapActualDay,
+  countDowsInMonth,
+  ZERO_DOW_GAP_ANALYSIS,
+  ZERO_ACTUAL_DAY_IMPACT,
+} from './dowGapAnalysis'
 
 // 因果チェーン分析
 export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'

@@ -16,7 +16,12 @@
  * 売上の高い曜日（土日）と低い曜日（平日）の入れ替わりを正確に反映する。
  */
 
-import type { DowDayCount, DowGapAnalysis } from '@/domain/models/ComparisonContext'
+import type {
+  DowDayCount,
+  DowGapAnalysis,
+  ActualDayImpact,
+  ShiftedDay,
+} from '@/domain/models/ComparisonContext'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 
@@ -87,6 +92,77 @@ export function analyzeDowGap(
     isValid: dailyAverageSales > 0,
     prevDowDailyAvg,
   }
+}
+
+/**
+ * 実日法による曜日ギャップ分析
+ *
+ * 同日マッピング (offset=0) と同曜日マッピング (offset=N) の前年日集合を比較し、
+ * マッピング境界で「加わった日」「失われた日」の実売上から影響額を算出する。
+ *
+ * ## 計算式
+ *
+ * estimatedImpact = Σ(shiftedIn の prevSales) - Σ(shiftedOut の prevSales)
+ *
+ * @param sameDateMapping 同日マッピングの日別データ（prevDay + prevSales）
+ * @param sameDowMapping  同曜日マッピングの日別データ（prevDay + prevSales）
+ * @param prevYear  前年
+ * @param prevMonth 前年月
+ */
+export function analyzeDowGapActualDay(
+  sameDateMapping: readonly { readonly prevDay: number; readonly prevSales: number }[],
+  sameDowMapping: readonly { readonly prevDay: number; readonly prevSales: number }[],
+  prevYear: number,
+  prevMonth: number,
+): ActualDayImpact {
+  if (sameDateMapping.length === 0 || sameDowMapping.length === 0) {
+    return ZERO_ACTUAL_DAY_IMPACT
+  }
+
+  // prevDay → prevSales のルックアップを構築
+  const sameDateByDay = new Map(sameDateMapping.map((r) => [r.prevDay, r.prevSales]))
+  const sameDowByDay = new Map(sameDowMapping.map((r) => [r.prevDay, r.prevSales]))
+
+  const shiftedIn: ShiftedDay[] = []
+  const shiftedOut: ShiftedDay[] = []
+
+  // sameDow にあるが sameDate にない → DOW alignment で「加わった日」
+  for (const [prevDay, prevSales] of sameDowByDay) {
+    if (!sameDateByDay.has(prevDay)) {
+      const dow = new Date(prevYear, prevMonth - 1, prevDay).getDay()
+      shiftedIn.push({ prevDay, dow, label: DOW_LABELS[dow], prevSales })
+    }
+  }
+
+  // sameDate にあるが sameDow にない → DOW alignment で「失われた日」
+  for (const [prevDay, prevSales] of sameDateByDay) {
+    if (!sameDowByDay.has(prevDay)) {
+      const dow = new Date(prevYear, prevMonth - 1, prevDay).getDay()
+      shiftedOut.push({ prevDay, dow, label: DOW_LABELS[dow], prevSales })
+    }
+  }
+
+  // 日付順にソート
+  shiftedIn.sort((a, b) => a.prevDay - b.prevDay)
+  shiftedOut.sort((a, b) => a.prevDay - b.prevDay)
+
+  const gainedTotal = shiftedIn.reduce((s, d) => s + d.prevSales, 0)
+  const lostTotal = shiftedOut.reduce((s, d) => s + d.prevSales, 0)
+
+  return {
+    estimatedImpact: gainedTotal - lostTotal,
+    shiftedIn,
+    shiftedOut,
+    isValid: shiftedIn.length > 0 || shiftedOut.length > 0,
+  }
+}
+
+/** ゼロ値の ActualDayImpact */
+export const ZERO_ACTUAL_DAY_IMPACT: ActualDayImpact = {
+  estimatedImpact: 0,
+  shiftedIn: [],
+  shiftedOut: [],
+  isValid: false,
 }
 
 /** ゼロ値の DowGapAnalysis（データ不足時のフォールバック） */

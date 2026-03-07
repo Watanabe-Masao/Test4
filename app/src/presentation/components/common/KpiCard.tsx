@@ -122,7 +122,7 @@ export function KpiCard({
   trend?: { direction: 'up' | 'down' | 'flat'; label: string }
   badge?: 'actual' | 'estimated'
   /** Level 1: one-line formula hint shown below value (e.g. "売上 − 原価") */
-  formulaSummary?: string
+  formulaSummary?: React.ReactNode
 }) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

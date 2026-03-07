@@ -33,4 +33,30 @@ export interface DowGapAnalysis {
   readonly isValid: boolean
   /** 前年の曜日別日平均売上 (7要素: 日〜土)。曜日別データがない場合は全体平均で埋める */
   readonly prevDowDailyAvg: readonly number[]
+  /** 実日法: 同曜日/同日マッピング差分から算出した影響額。undefined = 未算出 */
+  readonly actualDayImpact?: ActualDayImpact
+}
+
+/** 実日法による曜日ギャップ分析: マッピング境界日の実売上ベース */
+export interface ActualDayImpact {
+  /** 実日ベースの推定影響額 = Σ(shiftedIn の売上) - Σ(shiftedOut の売上) */
+  readonly estimatedImpact: number
+  /** 同曜日マッピングで加わった日（同日にはない前年日） */
+  readonly shiftedIn: readonly ShiftedDay[]
+  /** 同曜日マッピングで失われた日（同日にはあるが同曜日にない前年日） */
+  readonly shiftedOut: readonly ShiftedDay[]
+  /** 分析が有効か（マッピングデータ不足なら false） */
+  readonly isValid: boolean
+}
+
+/** マッピング境界で加わった/失われた1日分のデータ */
+export interface ShiftedDay {
+  /** 前年の日番号 */
+  readonly prevDay: number
+  /** 曜日 (0=日, ..., 6=土) */
+  readonly dow: number
+  /** 曜日ラベル */
+  readonly label: string
+  /** 前年の実売上 */
+  readonly prevSales: number
 }

@@ -125,7 +125,7 @@ export function DashboardPage() {
     return sales
   }, [prevYearMonthlyKpi])
 
-  // 曜日ギャップ分析（前年予算比較パネル用）
+  // 曜日ギャップ分析（前年予算比較パネル用）— 平均法 + 実日法
   const dowGap = useDowGapAnalysis(
     settings.targetYear,
     settings.targetMonth,
@@ -134,6 +134,8 @@ export function DashboardPage() {
     currentResult?.averageDailySales ?? 0,
     prevYearMonthlyKpi.hasPrevYear,
     prevDowSales,
+    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDate.dailyMapping : undefined,
+    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDow.dailyMapping : undefined,
   )
 
   // 前年データが未ロードの場合、IndexedDB から自動取得
