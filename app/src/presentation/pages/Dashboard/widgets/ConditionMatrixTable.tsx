@@ -192,14 +192,7 @@ interface Props {
 }
 
 export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: Props) {
-  const {
-    duckConn,
-    duckDataVersion,
-    selectedStoreIds,
-    year,
-    month,
-    daysInMonth,
-  } = ctx
+  const { duckConn, duckDataVersion, selectedStoreIds, year, month, daysInMonth } = ctx
 
   // スライダーによる日範囲選択（他のグラフと統一）
   const [dayStart, dayEnd, setDayRange] = useDayRange(daysInMonth)

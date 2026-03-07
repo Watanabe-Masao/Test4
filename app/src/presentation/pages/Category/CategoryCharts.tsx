@@ -48,129 +48,13 @@ function makePieLabel(ct: ReturnType<typeof useChartTheme>) {
   }
 }
 
-/** 相乗積チャート（円グラフ / パレート図 切替） */
-export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({
-  items,
-}: {
-  items: CategoryChartItem[]
-}) {
-  const ct = useChartTheme()
-  const [view, setView] = useState<ChartView>('pie')
+const MODE_LABELS: Record<PieMode, string> = {
+  cost: '原価',
+  price: '売価',
+  crossMult: '相乗積',
+}
 
-  const totalPrice = items.reduce((s, d) => s + d.price, 0)
-
-  const data = items
-    .map((d) => {
-      const crossMult = safeDivide(d.price - d.cost, totalPrice, 0)
-      return { name: d.label, value: Math.abs(crossMult), color: d.color }
-    })
-    .filter((d) => d.value > 0)
-
-  if (data.length === 0) return null
-
-  const renderLabel = makePieLabel(ct)
-  const paretoData = buildParetoData(data)
-
-  return (
-    <PieWrapper>
-      <PieTitle>カテゴリ別 相乗積構成</PieTitle>
-      <PieToggle>
-        <Chip $active={view === 'pie'} onClick={() => setView('pie')}>
-          円グラフ
-        </Chip>
-        <Chip $active={view === 'pareto'} onClick={() => setView('pareto')}>
-          パレート図
-        </Chip>
-      </PieToggle>
-      {view === 'pie' ? (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="48%"
-              outerRadius="70%"
-              innerRadius="40%"
-              dataKey="value"
-              label={renderLabel}
-              strokeWidth={2}
-              stroke={ct.bg3}
-            >
-              {data.map((entry, index) => (
-                <Cell key={index} fill={entry.color} fillOpacity={0.85} />
-              ))}
-            </Pie>
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value) => [toPct(value as number, 2), '相乗積'],
-              })}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      ) : (
-        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="80%">
-          <ComposedChart data={paretoData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
-            <XAxis
-              dataKey="name"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
-              axisLine={{ stroke: ct.grid }}
-              tickLine={false}
-              interval={0}
-              angle={-30}
-              textAnchor="end"
-              height={50}
-            />
-            <YAxis
-              yAxisId="left"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => toPct(v, 0)}
-              width={45}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-              axisLine={false}
-              tickLine={false}
-              domain={[0, 1]}
-              tickFormatter={(v) => toPct(v, 0)}
-              width={45}
-            />
-            <Tooltip
-              content={createChartTooltip({
-                ct,
-                formatter: (value, name) => {
-                  const v = Number(value)
-                  if (name === 'cumPct') return [toPct(v), '累計']
-                  return [toPct(v, 2), '相乗積']
-                },
-              })}
-            />
-            <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
-              {paretoData.map((entry, i) => (
-                <Cell key={i} fill={entry.color} fillOpacity={0.8} />
-              ))}
-            </Bar>
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="cumPct"
-              stroke={ct.colors.danger}
-              strokeWidth={2}
-              dot={{ r: 3, fill: ct.colors.danger }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      )}
-    </PieWrapper>
-  )
-})
-
-/** 構成比チャート（円グラフ / パレート図 切替） */
+/** 構成比チャート（原価 / 売価 / 相乗積 切替、円グラフ / パレート図 切替） */
 export const CompositionChart = memo(function CompositionChart({
   items,
 }: {
@@ -180,28 +64,42 @@ export const CompositionChart = memo(function CompositionChart({
   const [mode, setMode] = useState<PieMode>('cost')
   const [view, setView] = useState<ChartView>('pie')
 
+  const totalPrice = items.reduce((s, d) => s + d.price, 0)
+  const isCrossMult = mode === 'crossMult'
+
   const data = items
-    .filter((d) => (mode === 'cost' ? d.cost : d.price) !== 0)
     .map((d) => {
-      const value = Math.abs(mode === 'cost' ? d.cost : d.price)
+      let value: number
+      if (mode === 'cost') {
+        value = Math.abs(d.cost)
+      } else if (mode === 'price') {
+        value = Math.abs(d.price)
+      } else {
+        value = Math.abs(safeDivide(d.price - d.cost, totalPrice, 0))
+      }
       return { name: d.label, value, color: d.color }
     })
+    .filter((d) => d.value > 0)
 
   if (data.length === 0) return null
 
   const renderLabel = makePieLabel(ct)
   const paretoData = buildParetoData(data)
 
+  const tooltipLabel = MODE_LABELS[mode]
+  const tooltipFormatter = isCrossMult
+    ? (value: number) => toPct(value, 2)
+    : (value: number) => formatCurrency(value)
+
   return (
     <PieWrapper>
       <PieTitle>カテゴリ別 構成比</PieTitle>
       <PieToggle>
-        <Chip $active={mode === 'cost'} onClick={() => setMode('cost')}>
-          原価
-        </Chip>
-        <Chip $active={mode === 'price'} onClick={() => setMode('price')}>
-          売価
-        </Chip>
+        {(Object.keys(MODE_LABELS) as PieMode[]).map((m) => (
+          <Chip key={m} $active={mode === m} onClick={() => setMode(m)}>
+            {MODE_LABELS[m]}
+          </Chip>
+        ))}
         <span style={{ width: 8 }} />
         <Chip $active={view === 'pie'} onClick={() => setView('pie')}>
           円グラフ
@@ -231,10 +129,7 @@ export const CompositionChart = memo(function CompositionChart({
             <Tooltip
               content={createChartTooltip({
                 ct,
-                formatter: (value) => [
-                  formatCurrency(value as number),
-                  mode === 'cost' ? '原価' : '売価',
-                ],
+                formatter: (value) => [tooltipFormatter(value as number), tooltipLabel],
               })}
             />
           </PieChart>
@@ -258,7 +153,7 @@ export const CompositionChart = memo(function CompositionChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={toAxisYen}
+              tickFormatter={isCrossMult ? (v) => toPct(v, 0) : toAxisYen}
               width={50}
             />
             <YAxis
@@ -277,7 +172,7 @@ export const CompositionChart = memo(function CompositionChart({
                 formatter: (value, name) => {
                   const v = Number(value)
                   if (name === 'cumPct') return [toPct(v), '累計']
-                  return [formatCurrency(v), mode === 'cost' ? '原価' : '売価']
+                  return [tooltipFormatter(v), tooltipLabel]
                 },
               })}
             />

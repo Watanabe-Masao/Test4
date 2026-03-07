@@ -16,7 +16,6 @@ import { isUserCategory } from '@/domain/constants/customCategories'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
-  ChartGrid,
   Section,
   SectionTitle,
   TableWrapper,
@@ -37,8 +36,7 @@ import {
   DrillToggle,
   DrillLabel,
 } from './CategoryPage.styles'
-import { CrossMultiplicationChart, CompositionChart } from './CategoryCharts'
-import type { CategoryChartItem } from './categoryData'
+import { CompositionChart } from './CategoryCharts'
 import { CUSTOM_CATEGORY_COLORS, buildUnifiedCategoryData } from './categoryData'
 
 type SortKey =
@@ -141,23 +139,17 @@ export function CategoryTotalView({
         />
       </KpiRow>
 
-      {/* チャート（相乗積 + 構成比） */}
+      {/* チャート（構成比: 原価 / 売価 / 相乗積） */}
       <ChartErrorBoundary>
-        {(() => {
-          const chartItems: CategoryChartItem[] = categoryData.map((d) => ({
+        <CompositionChart
+          items={categoryData.map((d) => ({
             label: d.label,
             cost: d.cost,
             price: d.price,
             markup: d.markup,
             color: d.color,
-          }))
-          return (
-            <ChartGrid>
-              <CrossMultiplicationChart items={chartItems} />
-              <CompositionChart items={chartItems} />
-            </ChartGrid>
-          )
-        })()}
+          }))}
+        />
       </ChartErrorBoundary>
 
       {/* ── カテゴリ明細テーブル ── */}
