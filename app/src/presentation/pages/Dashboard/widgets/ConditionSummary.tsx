@@ -45,6 +45,7 @@ import {
   GpRateDetailTable,
   DiscountRateDetailTable,
   MarkupRateDetailTable,
+  CostInclusionDetailTable,
   SimpleBreakdown,
 } from './ConditionDetailPanels'
 
@@ -219,10 +220,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       sub: `原価算入費 ${formatCurrency(r.totalCostInclusion)} / 売上 ${formatCurrency(r.totalSales)}`,
       signal: metricSignal(r.costInclusionRate, 'costInclusion', effectiveConfig),
       metricId: 'totalCostInclusion',
-      storeValue: (sr) => ({
-        value: formatPercent(sr.costInclusionRate),
-        signal: metricSignal(sr.costInclusionRate, 'costInclusion', effectiveConfig, sr.storeId),
-      }),
+      detailBreakdown: 'costInclusion',
     })
   }
 
@@ -408,6 +406,18 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
               />
             ) : breakdownItem.detailBreakdown === 'markupRate' ? (
               <MarkupRateDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                expandedMarkupStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'costInclusion' ? (
+              <CostInclusionDetailTable
                 sortedStoreEntries={sortedStoreEntries}
                 stores={stores}
                 result={r}

@@ -479,6 +479,152 @@ export function MarkupRateDetailTable({
   )
 }
 
+// ─── Cost Inclusion Detail ──────────────────────────────
+
+interface CostInclusionDetailProps extends DetailPanelProps {
+  readonly expandedMarkupStore: string | null
+  readonly onExpandToggle: (storeId: string) => void
+}
+
+/** 店舗の日別データから品目別に集約する */
+function aggregateCostInclusionItems(
+  sr: StoreResult,
+): { itemName: string; cost: number }[] {
+  const agg = new Map<string, number>()
+  for (const [, dr] of sr.daily) {
+    for (const item of dr.costInclusion.items) {
+      agg.set(item.itemName, (agg.get(item.itemName) ?? 0) + item.cost)
+    }
+  }
+  return [...agg.entries()]
+    .map(([itemName, cost]) => ({ itemName, cost }))
+    .sort((a, b) => b.cost - a.cost)
+}
+
+export function CostInclusionDetailTable({
+  sortedStoreEntries,
+  stores,
+  result: r,
+  effectiveConfig,
+  expandedMarkupStore,
+  onExpandToggle,
+}: CostInclusionDetailProps) {
+  const totalItems = aggregateCostInclusionItems(r)
+  const grandTotal = r.totalCostInclusion
+
+  return (
+    <>
+      <DetailHeader>
+        <DetailTitle>原価算入費 — 店舗別 品目内訳</DetailTitle>
+      </DetailHeader>
+      <BTable>
+        <thead>
+          <tr>
+            <BTh>店舗名</BTh>
+            <BTh>原価算入費</BTh>
+            <BTh>原価算入率</BTh>
+            <BTh>構成比</BTh>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedStoreEntries.flatMap(([storeId, sr]) => {
+            const store = stores.get(storeId)
+            const storeName = store?.name ?? storeId
+            const isExpanded = expandedMarkupStore === storeId
+            const sig = metricSignal(sr.costInclusionRate, 'costInclusion', effectiveConfig, sr.storeId)
+            const sigColor = SIGNAL_COLORS[sig]
+            const share = grandTotal > 0 ? sr.totalCostInclusion / grandTotal : 0
+
+            const rows: React.ReactNode[] = [
+              <BTr
+                key={storeId}
+                onClick={() => onExpandToggle(storeId)}
+                style={{ cursor: 'pointer' }}
+              >
+                <BTd>
+                  <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
+                  <BSignalDot $color={sigColor} />
+                  {storeName}
+                </BTd>
+                <BTd>{formatCurrency(sr.totalCostInclusion)}</BTd>
+                <BTd $color={sigColor}>{formatPercent(sr.costInclusionRate)}</BTd>
+                <BTd>{formatPercent(share)}</BTd>
+              </BTr>,
+            ]
+
+            if (isExpanded) {
+              const storeItems = aggregateCostInclusionItems(sr)
+              const storeTotal = sr.totalCostInclusion
+              if (storeItems.length === 0) {
+                rows.push(
+                  <SubRow key={`${storeId}-empty`}>
+                    <BTd colSpan={4} style={{ paddingLeft: '28px', fontSize: '0.7rem', color: '#999' }}>
+                      品目データなし
+                    </BTd>
+                  </SubRow>,
+                )
+              } else {
+                rows.push(
+                  <SubRow key={`${storeId}-header`}>
+                    <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>品目</BTd>
+                    <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>金額</BTd>
+                    <BTd />
+                    <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
+                  </SubRow>,
+                )
+                for (const item of storeItems) {
+                  const itemShare = storeTotal > 0 ? item.cost / storeTotal : 0
+                  rows.push(
+                    <SubRow key={`${storeId}-${item.itemName}`}>
+                      <BTd style={{ paddingLeft: '28px' }}>{item.itemName}</BTd>
+                      <BTd>{formatCurrency(item.cost)}</BTd>
+                      <BTd />
+                      <BTd>{formatPercent(itemShare)}</BTd>
+                    </SubRow>,
+                  )
+                }
+              }
+            }
+
+            return rows
+          })}
+          {/* Total row */}
+          <BTr $highlight>
+            <BTd $bold>合計</BTd>
+            <BTd $bold>{formatCurrency(grandTotal)}</BTd>
+            <BTd $bold>{formatPercent(r.costInclusionRate)}</BTd>
+            <BTd $bold>{formatPercent(1)}</BTd>
+          </BTr>
+          {/* Grand total item breakdown */}
+          {totalItems.length > 0 && (
+            <>
+              <SubRow>
+                <BTd style={{ paddingLeft: '12px', fontSize: '0.7rem', fontWeight: 600 }}>
+                  全店 品目内訳
+                </BTd>
+                <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>金額</BTd>
+                <BTd />
+                <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
+              </SubRow>
+              {totalItems.map((item) => {
+                const itemShare = grandTotal > 0 ? item.cost / grandTotal : 0
+                return (
+                  <SubRow key={`total-${item.itemName}`}>
+                    <BTd style={{ paddingLeft: '20px' }}>{item.itemName}</BTd>
+                    <BTd>{formatCurrency(item.cost)}</BTd>
+                    <BTd />
+                    <BTd>{formatPercent(itemShare)}</BTd>
+                  </SubRow>
+                )
+              })}
+            </>
+          )}
+        </tbody>
+      </BTable>
+    </>
+  )
+}
+
 // ─── Simple Breakdown ───────────────────────────────────
 
 interface SimpleBreakdownProps {
