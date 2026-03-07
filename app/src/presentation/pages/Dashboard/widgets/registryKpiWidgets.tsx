@@ -1,8 +1,10 @@
+import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
-import type { WidgetDef } from './types'
+import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
+import type { WidgetDef, WidgetContext } from './types'
 
 // ── KPI: 収益概況 ──
 export const WIDGETS_KPI: readonly WidgetDef[] = [
@@ -156,14 +158,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
   // ── KPI: 前年比較（月間フル集計、dataEndDay非依存） ──
   {
     id: 'kpi-py-same-dow',
-    label: '前年同曜日 vs 予算',
+    label: '予算成長率（同曜日）',
     group: '前年比較',
     size: 'kpi',
     render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="前年同曜日 vs 予算"
+            label="予算成長率（同曜日）"
             value="-"
             subText="前年データ未読込"
             accent={palette.blueDark}
@@ -189,7 +191,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
         .join(' / ')
       return (
         <KpiCard
-          label="前年同曜日 vs 予算"
+          label="予算成長率（同曜日）"
           value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.blueDark}
@@ -198,7 +200,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
             prevVsBudget != null
               ? {
                   direction: prevVsBudget >= 1 ? 'up' : 'down',
-                  label: `前年比 ${formatPercent(prevVsBudget)}`,
+                  label: `前年水準: 予算の${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
@@ -209,14 +211,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
   },
   {
     id: 'kpi-py-same-date',
-    label: '前年同日 vs 予算',
+    label: '予算成長率（同日）',
     group: '前年比較',
     size: 'kpi',
     render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
-            label="前年同日 vs 予算"
+            label="予算成長率（同日）"
             value="-"
             subText="前年データ未読込"
             accent={palette.cyanDark}
@@ -242,7 +244,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
         .join(' / ')
       return (
         <KpiCard
-          label="前年同日 vs 予算"
+          label="予算成長率（同日）"
           value={budgetVsPrev != null ? formatPercent(budgetVsPrev) : '-'}
           subText={sub}
           accent={palette.cyanDark}
@@ -251,7 +253,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
             prevVsBudget != null
               ? {
                   direction: prevVsBudget >= 1 ? 'up' : 'down',
-                  label: `前年比 ${formatPercent(prevVsBudget)}`,
+                  label: `前年水準: 予算の${formatPercent(prevVsBudget)}`,
                 }
               : undefined
           }
@@ -267,24 +269,118 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '前年比較',
     size: 'kpi',
     isVisible: ({ dowGap }) => dowGap.isValid,
-    render: ({ dowGap, onExplain }) => {
-      const impact = dowGap.estimatedImpact
-      const totalDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
-      const DOW_SHORT = ['日', '月', '火', '水', '木', '金', '土'] as const
-      const gapSummary = dowGap.dowCounts
-        .filter((d) => d.diff !== 0)
-        .map((d) => `${DOW_SHORT[d.dow]}${d.diff > 0 ? '+' : ''}${d.diff}`)
-        .join(' ')
-      return (
-        <KpiCard
-          label="曜日ギャップ"
-          value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
-          subText={`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`}
-          accent={impact >= 0 ? palette.positive : palette.negative}
-          onClick={() => onExplain('dowGapImpact')}
-          formulaSummary="合計日数差 × 日平均売上"
-        />
-      )
-    },
+    render: (ctx) => <DowGapKpiCard dowGap={ctx.dowGap} onExplain={ctx.onExplain} />,
   },
 ]
+
+// ── 曜日ギャップ KPI カード（平均法 / 実日法 切り替え） ──
+
+const DOW_SHORT = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+function DowGapKpiCard({
+  dowGap,
+  onExplain,
+}: {
+  dowGap: DowGapAnalysis
+  onExplain: WidgetContext['onExplain']
+}) {
+  const [showActual, setShowActual] = useState(false)
+  const toggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      setShowActual((v) => !v)
+    },
+    [],
+  )
+
+  const actualDay = dowGap.actualDayImpact
+  const hasActualDay = actualDay != null && actualDay.isValid
+  const isActualView = showActual && hasActualDay
+
+  const totalDiff = dowGap.dowCounts.reduce((s, d) => s + d.diff, 0)
+  const gapSummary = dowGap.dowCounts
+    .filter((d) => d.diff !== 0)
+    .map((d) => `${DOW_SHORT[d.dow]}${d.diff > 0 ? '+' : ''}${d.diff}`)
+    .join(' ')
+
+  if (isActualView) {
+    const impact = actualDay.estimatedImpact
+    const details = [
+      ...actualDay.shiftedIn.map(
+        (d) => `${d.label}: +${formatCurrency(d.prevSales)}`,
+      ),
+      ...actualDay.shiftedOut.map(
+        (d) => `${d.label}: -${formatCurrency(d.prevSales)}`,
+      ),
+    ].join(' / ')
+    const subText = details || `日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`
+
+    return (
+      <KpiCard
+        label="曜日ギャップ（実日）"
+        value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+        subText={subText}
+        accent={impact >= 0 ? palette.positive : palette.negative}
+        onClick={() => onExplain('dowGapImpact')}
+        formulaSummary={
+          <>
+            {'マッピング境界日の実売上 '}
+            <ToggleLink onClick={toggle}>平均に切替</ToggleLink>
+          </>
+        }
+      />
+    )
+  }
+
+  // 平均法（デフォルト）
+  const impact = dowGap.estimatedImpact
+  return (
+    <KpiCard
+      label="曜日ギャップ（平均）"
+      value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+      subText={`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`}
+      accent={impact >= 0 ? palette.positive : palette.negative}
+      onClick={() => onExplain('dowGapImpact')}
+      formulaSummary={
+        hasActualDay ? (
+          <>
+            {'Σ(曜日別日平均 × 日数差) '}
+            <ToggleLink onClick={toggle}>実日に切替</ToggleLink>
+          </>
+        ) : (
+          'Σ(曜日別日平均 × 日数差)'
+        )
+      }
+    />
+  )
+}
+
+// ── 切り替えリンク（styled-components の外部定義は避け、インライン + span で実装） ──
+function ToggleLink({
+  onClick,
+  children,
+}: {
+  onClick: (e: React.MouseEvent) => void
+  children: React.ReactNode
+}) {
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick(e as unknown as React.MouseEvent)
+        }
+      }}
+      style={{
+        cursor: 'pointer',
+        textDecoration: 'underline',
+        opacity: 0.8,
+      }}
+    >
+      {children}
+    </span>
+  )
+}

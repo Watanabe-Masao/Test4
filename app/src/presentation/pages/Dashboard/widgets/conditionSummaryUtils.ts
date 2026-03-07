@@ -34,7 +34,15 @@ export interface ConditionItem {
   signal: SignalLevel
   metricId?: MetricId
   storeValue?: (sr: StoreResult) => { value: string; signal: SignalLevel }
-  detailBreakdown?: 'gpRate' | 'discountRate' | 'markupRate'
+  detailBreakdown?:
+    | 'gpRate'
+    | 'discountRate'
+    | 'markupRate'
+    | 'costInclusion'
+    | 'salesYoY'
+    | 'customerYoY'
+    | 'txValue'
+    | 'dailySales'
 }
 
 // ─── Signal Logic ───────────────────────────────────────

@@ -19,8 +19,6 @@ import {
   computeGpBeforeConsumable,
   computeGpAfterConsumable,
   computeGpAfterConsumableAmount,
-  customersBreakdown,
-  txValueBreakdown,
 } from './conditionSummaryUtils'
 import {
   Wrapper,
@@ -45,6 +43,11 @@ import {
   GpRateDetailTable,
   DiscountRateDetailTable,
   MarkupRateDetailTable,
+  CostInclusionDetailTable,
+  SalesYoYDetailTable,
+  CustomerYoYDetailTable,
+  TxValueDetailTable,
+  DailySalesDetailTable,
   SimpleBreakdown,
 } from './ConditionDetailPanels'
 
@@ -219,10 +222,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       sub: `原価算入費 ${formatCurrency(r.totalCostInclusion)} / 売上 ${formatCurrency(r.totalSales)}`,
       signal: metricSignal(r.costInclusionRate, 'costInclusion', effectiveConfig),
       metricId: 'totalCostInclusion',
-      storeValue: (sr) => ({
-        value: formatPercent(sr.costInclusionRate),
-        signal: metricSignal(sr.costInclusionRate, 'costInclusion', effectiveConfig, sr.storeId),
-      }),
+      detailBreakdown: 'costInclusion',
     })
   }
 
@@ -240,6 +240,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       sub: `当年 ${formatCurrency(r.totalSales)} / 前年 ${formatCurrency(prevYear.totalSales)}`,
       signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
       metricId: 'salesTotal',
+      detailBreakdown: 'salesYoY',
     })
   }
 
@@ -257,7 +258,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
       sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
       signal: metricSignal(custYoY, 'customerYoY', effectiveConfig),
       metricId: 'totalCustomers',
-      storeValue: customersBreakdown,
+      detailBreakdown: 'customerYoY',
     })
   }
 
@@ -280,7 +281,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
           : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
       signal: txYoY != null ? metricSignal(txYoY, 'txValue', effectiveConfig) : 'blue',
       metricId: 'totalCustomers',
-      storeValue: txValueBreakdown,
+      detailBreakdown: 'txValue',
     })
   }
 
@@ -301,10 +302,11 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   if (isMetricEnabled(effectiveConfig, 'dailySales') && budgetDailyAvg > 0) {
     const dailyRatio = safeDivide(r.averageDailySales, budgetDailyAvg, 0)
     items.push({
-      label: '日販達成率',
+      label: '売上予算達成率',
       value: formatPercent(dailyRatio, 2),
       sub: `日販 ${formatCurrency(r.averageDailySales)} / 予算日販 ${formatCurrency(budgetDailyAvg)}`,
       signal: metricSignal(dailyRatio, 'dailySales', effectiveConfig),
+      detailBreakdown: 'dailySales',
     })
   }
 
@@ -416,6 +418,71 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 onDisplayModeChange={setDisplayMode}
                 settings={settings}
                 expandedMarkupStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'costInclusion' ? (
+              <CostInclusionDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                expandedMarkupStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'salesYoY' ? (
+              <SalesYoYDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                prevYear={ctx.prevYear}
+                prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+                expandedStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'customerYoY' ? (
+              <CustomerYoYDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                prevYear={ctx.prevYear}
+                prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+                expandedStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'txValue' ? (
+              <TxValueDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                expandedStore={expandedMarkupStore}
+                onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+              />
+            ) : breakdownItem.detailBreakdown === 'dailySales' ? (
+              <DailySalesDetailTable
+                sortedStoreEntries={sortedStoreEntries}
+                stores={stores}
+                result={r}
+                effectiveConfig={effectiveConfig}
+                displayMode={displayMode}
+                onDisplayModeChange={setDisplayMode}
+                settings={settings}
+                daysInMonth={ctx.daysInMonth}
+                expandedStore={expandedMarkupStore}
                 onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
               />
             ) : (

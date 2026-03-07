@@ -5,12 +5,14 @@
  * - styled-components でテーマ対応（ダーク/ライト自動切替）
  * - カラードット付きの統一レイアウト
  * - formatter / labelFormatter を統一インターフェースで提供
+ * - オプションのトレンドバッジ（前年比 ↑↓ 表示）
  *
  * ポジショニングは Recharts が担当するため、このコンポーネントは描画のみ。
  */
 import { memo } from 'react'
 import styled from 'styled-components'
 import type { ChartTheme } from './chartTheme'
+import { toPct } from './chartTheme'
 
 // ── 型定義 ──
 
@@ -21,6 +23,14 @@ interface PayloadEntry {
   dataKey?: string | number
   /** recharts が注入する元データ行（BarChart の data 配列の該当要素） */
   payload?: Record<string, unknown>
+}
+
+/** トレンドバッジの情報 */
+export interface TrendInfo {
+  /** 前年比（1.0 = 100%、1.05 = +5%） */
+  ratio: number
+  /** 表示ラベル（省略時は自動生成: "前年比 +5.0%"） */
+  label?: string
 }
 
 export interface ChartTooltipProps {
@@ -41,6 +51,11 @@ export interface ChartTooltipProps {
     label: string | number | undefined,
     payload?: readonly PayloadEntry[],
   ) => string
+  /**
+   * 各データ系列のトレンド情報を返すコールバック。
+   * name をキーに TrendInfo を返すと、値の横にトレンドバッジを表示する。
+   */
+  trendResolver?: (name: string, entry: PayloadEntry) => TrendInfo | null
 }
 
 // ── スタイル ──
@@ -55,7 +70,7 @@ const Wrapper = styled.div<{ $ct: ChartTheme }>`
   color: ${(p) => p.$ct.text};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   pointer-events: none;
-  max-width: 320px;
+  max-width: 360px;
 `
 
 const Label = styled.div`
@@ -91,6 +106,16 @@ const Value = styled.span`
   font-weight: 500;
 `
 
+const TrendBadge = styled.span<{ $positive: boolean; $ct: ChartTheme }>`
+  font-size: ${(p) => p.$ct.fontSize.xs}px;
+  font-weight: 600;
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  background: ${(p) => (p.$positive ? p.$ct.colors.success : p.$ct.colors.danger)}20;
+  color: ${(p) => (p.$positive ? p.$ct.colors.success : p.$ct.colors.danger)};
+`
+
 // ── コンポーネント ──
 
 export const ChartTooltip = memo(function ChartTooltip({
@@ -100,6 +125,7 @@ export const ChartTooltip = memo(function ChartTooltip({
   ct,
   formatter,
   labelFormatter,
+  trendResolver,
 }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
 
@@ -120,11 +146,18 @@ export const ChartTooltip = memo(function ChartTooltip({
           displayName = fmtName
         }
 
+        const trend = trendResolver ? trendResolver(name, entry) : null
+
         return (
           <Row key={`${name}-${i}`}>
             {entry.color && <Dot $color={entry.color} />}
             <Name>{displayName}</Name>
             <Value>{displayValue ?? '-'}</Value>
+            {trend && (
+              <TrendBadge $positive={trend.ratio >= 1} $ct={ct}>
+                {trend.label ?? formatTrend(trend.ratio)}
+              </TrendBadge>
+            )}
           </Row>
         )
       })}
@@ -132,16 +165,36 @@ export const ChartTooltip = memo(function ChartTooltip({
   )
 })
 
+/** 前年比をトレンドバッジ用テキストに変換 */
+function formatTrend(ratio: number): string {
+  const diff = ratio - 1
+  const arrow = diff >= 0 ? '\u2191' : '\u2193'
+  return `${arrow}${toPct(Math.abs(diff), 1)}`
+}
+
 /**
  * ChartTooltip のファクトリ。Recharts の content prop に直接渡せる形で返す。
  *
  * @example
  * <Tooltip content={createChartTooltip({ ct, formatter, labelFormatter })} />
+ *
+ * // トレンド付き
+ * <Tooltip content={createChartTooltip({
+ *   ct,
+ *   formatter: ...,
+ *   trendResolver: (name, entry) => {
+ *     const prev = entry.payload?.prevYearSales as number | undefined
+ *     const cur = entry.value as number
+ *     if (prev && prev > 0) return { ratio: cur / prev }
+ *     return null
+ *   },
+ * })} />
  */
 export function createChartTooltip(opts: {
   ct: ChartTheme
   formatter?: ChartTooltipProps['formatter']
   labelFormatter?: ChartTooltipProps['labelFormatter']
+  trendResolver?: ChartTooltipProps['trendResolver']
 }) {
   return function ChartTooltipContent(props: Record<string, unknown>) {
     return (
@@ -152,6 +205,7 @@ export function createChartTooltip(opts: {
         ct={opts.ct}
         formatter={opts.formatter}
         labelFormatter={opts.labelFormatter}
+        trendResolver={opts.trendResolver}
       />
     )
   }

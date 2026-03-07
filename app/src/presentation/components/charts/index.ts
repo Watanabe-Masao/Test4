@@ -38,11 +38,13 @@ export {
   toAxisCompact,
   toTooltipYen,
   useCurrencyFormatter,
+  useAxisFormatter,
   STORE_COLORS,
 } from './chartTheme'
 export type { ChartTheme } from './chartTheme'
 export { ChartTooltip, createChartTooltip } from './ChartTooltip'
-export type { ChartTooltipProps } from './ChartTooltip'
+export type { ChartTooltipProps, TrendInfo } from './ChartTooltip'
+export { ChartAnnotation } from './ChartAnnotation'
 export {
   ChartTitle,
   ChartViewToggle,
