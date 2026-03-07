@@ -2,7 +2,8 @@ import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
@@ -90,7 +91,6 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
   daysInMonth,
 }: Props) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
   const [view, setView] = useState<ViewType>('structure')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
 
@@ -218,7 +218,7 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={fmt}
+                tickFormatter={toAxisYen}
                 width={55}
               />
               <YAxis
@@ -337,7 +337,7 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={fmt}
+                tickFormatter={toAxisYen}
                 width={55}
               />
               <Area
@@ -380,14 +380,16 @@ export const RevenueStructureChart = memo(function RevenueStructureChart({
           )}
 
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-              const n = name as string
-              if (n.includes('Rate')) return [toPct(value as number), allLabels[n] ?? n]
-              return [toComma(value as number), allLabels[n] ?? n]
-            }}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (value == null) return ['-', allLabels[name] ?? name]
+                const n = name
+                if (n.includes('Rate')) return [toPct(value as number), allLabels[n] ?? n]
+                return [toComma(value as number), allLabels[n] ?? n]
+              },
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

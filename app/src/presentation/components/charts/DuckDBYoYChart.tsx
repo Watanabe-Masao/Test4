@@ -28,7 +28,8 @@ import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ComparisonFrame } from '@/domain/models'
 import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -226,11 +227,13 @@ const LineChartView = memo(function LineChartView({ chartData, ct, fmt }: LineCh
         <YAxis
           tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
           stroke={ct.grid}
-          tickFormatter={(v: number) => fmt(v)}
+          tickFormatter={toAxisYen}
         />
         <Tooltip
-          contentStyle={tooltipStyle(ct)}
-          formatter={(value: number | undefined) => [value != null ? fmt(value) : '-']}
+          content={createChartTooltip({
+            ct,
+            formatter: (value: unknown) => [value != null ? fmt(Number(value)) : '-', null],
+          })}
         />
         <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
@@ -286,14 +289,16 @@ const WaterfallView = memo(function WaterfallView({ waterfallData, ct, fmt }: Wa
         <YAxis
           tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
           stroke={ct.grid}
-          tickFormatter={(v: number) => fmt(v)}
+          tickFormatter={toAxisYen}
         />
         <Tooltip
-          contentStyle={tooltipStyle(ct)}
-          formatter={(value: unknown, name?: string) => {
-            if (name === 'base') return [null, null]
-            return [fmt(Number(value)), '金額']
-          }}
+          content={createChartTooltip({
+            ct,
+            formatter: (value: unknown, name: string) => {
+              if (name === 'base') return [null, null]
+              return [fmt(Number(value)), '金額']
+            },
+          })}
         />
 
         {/* Transparent base for waterfall positioning */}

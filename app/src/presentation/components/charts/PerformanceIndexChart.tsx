@@ -13,7 +13,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toPct, toDevScore } from './chartTheme'
+import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { ChartHelpButton } from './ChartHeader'
@@ -547,24 +548,27 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           )}
 
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-              const n = name as string
-              const v = value as number
-              if (
-                n.includes('pi') ||
-                n.includes('Pi') ||
-                n.includes('Ma7') ||
-                n.includes('prevPi')
-              ) {
-                return [toComma(v), allLabels[n] ?? n]
-              }
-              if (n.includes('Dev') || n.includes('dev')) return [v.toFixed(1), allLabels[n] ?? n]
-              if (n.includes('Z') || n.includes('z')) return [v.toFixed(2), allLabels[n] ?? n]
-              return [toComma(v), allLabels[n] ?? n]
-            }}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (value == null) return ['-', allLabels[name] ?? name]
+                const v = value as number
+                if (
+                  name.includes('pi') ||
+                  name.includes('Pi') ||
+                  name.includes('Ma7') ||
+                  name.includes('prevPi')
+                ) {
+                  return [toComma(v), allLabels[name] ?? name]
+                }
+                if (name.includes('Dev') || name.includes('dev'))
+                  return [v.toFixed(1), allLabels[name] ?? name]
+                if (name.includes('Z') || name.includes('z'))
+                  return [v.toFixed(2), allLabels[name] ?? name]
+                return [toComma(v), allLabels[name] ?? name]
+              },
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

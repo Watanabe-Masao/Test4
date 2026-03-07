@@ -13,7 +13,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toManYen, toPct } from './chartTheme'
+import { useChartTheme, toComma, toManYen, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -284,9 +285,14 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
                 tickFormatter={(v: number) => toManYen(v)}
               />
               <Tooltip
-                contentStyle={tooltipStyle(ct)}
-                formatter={(value, name) => [toComma(Math.round(value as number)) + '円', name]}
-                labelFormatter={(label) => `${label}日`}
+                content={createChartTooltip({
+                  ct,
+                  formatter: (value, name) => [
+                    toComma(Math.round(value as number)) + '円',
+                    name,
+                  ],
+                  labelFormatter: (label) => `${label}日`,
+                })}
               />
 
               {/* 95% 信頼区間バンド */}
@@ -359,9 +365,14 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
                 }}
               />
               <Tooltip
-                contentStyle={tooltipStyle(ct)}
-                formatter={(value, name) => [toComma(Math.round(value as number)) + '円', name]}
-                labelFormatter={(label) => `${label}日`}
+                content={createChartTooltip({
+                  ct,
+                  formatter: (value, name) => [
+                    toComma(Math.round(value as number)) + '円',
+                    name,
+                  ],
+                  labelFormatter: (label) => `${label}日`,
+                })}
               />
 
               <ReferenceLine y={0} stroke={ct.colors.slate} strokeDasharray="6 4" />

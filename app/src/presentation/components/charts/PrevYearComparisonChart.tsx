@@ -11,7 +11,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 
@@ -205,16 +206,18 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={fmt}
+              tickFormatter={toAxisYen}
               width={55}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                const label = name === 'currentCum' ? '当年累計' : '前年同曜日累計'
-                return [value != null ? toComma(value as number) : '-', label]
-              }}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  const label = name === 'currentCum' ? '当年累計' : '前年同曜日累計'
+                  return [value != null ? toComma(value as number) : '-', label]
+                },
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

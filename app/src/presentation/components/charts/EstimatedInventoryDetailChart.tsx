@@ -13,12 +13,13 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import {
   useChartTheme,
-  tooltipStyle,
   useCurrencyFormatter,
   toComma,
   toPct,
+  toAxisYen,
   STORE_COLORS,
 } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/useInventoryEstimation'
@@ -229,14 +230,16 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={currFmt}
+                tickFormatter={toAxisYen}
                 width={55}
               />
             )}
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value: number | undefined) => [value != null ? toComma(value) : '-']}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => [value != null ? toComma(value as number) : '-', name],
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
 
@@ -340,7 +343,7 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={currFmt}
+            tickFormatter={toAxisYen}
             width={55}
           />
           <YAxis
@@ -349,16 +352,18 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={currFmt}
+            tickFormatter={toAxisYen}
             width={55}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              value != null ? toComma(value) : '-',
-              AGG_LABELS[name as string] ?? String(name),
-            ]}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [
+                value != null ? toComma(value as number) : '-',
+                AGG_LABELS[name as string] ?? String(name),
+              ],
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

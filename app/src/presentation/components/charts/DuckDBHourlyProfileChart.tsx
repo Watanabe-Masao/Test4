@@ -26,7 +26,8 @@ import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBHourlyProfile, type HourlyProfileRow } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
+import { useChartTheme, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -210,13 +211,16 @@ export const DuckDBHourlyProfileChart = memo(function DuckDBHourlyProfileChart({
             tickFormatter={(v: number) => toPct(v, 0)}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name?: string) => {
-              if (value == null) return ['-']
-              if (name === 'ピーク') return [toPct(value, 1)]
-              return [toPct(value, 1)]
-            }}
-            labelFormatter={(label: unknown) => `${String(label)}時`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown, name: string) => {
+                if (value == null) return ['-', null]
+                const v = value as number
+                if (name === 'ピーク') return [toPct(v, 1), null]
+                return [toPct(v, 1), null]
+              },
+              labelFormatter: (label: unknown) => `${String(label)}時`,
+            })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

@@ -2,12 +2,8 @@
  * 客数・客単価分析チャート群
  */
 import { memo } from 'react'
-import {
-  useChartTheme,
-  tooltipStyle,
-  useCurrencyFormatter,
-  toComma,
-} from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import {
   Bar,
   XAxis,
@@ -92,11 +88,10 @@ export const DowCustomerChart = memo(function DowCustomerChart({
             }}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(v: number | undefined, name: string | undefined) => [
-              toComma(v ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar
@@ -193,11 +188,10 @@ export const MovingAverageChart = memo(function MovingAverageChart({
             tickFormatter={toComma}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(v: number | undefined, name: string | undefined) => [
-              toComma(v ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Area
@@ -314,11 +308,10 @@ export const RelationshipChart = memo(function RelationshipChart({
             domain={['auto', 'auto']}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(v: number | undefined, name: string | undefined) => [
-              `${v ?? 0}%`,
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (v, name) => [`${(v as number) ?? 0}%`, name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {showCurrent && (
@@ -387,7 +380,6 @@ export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart
   data: DailyCustomerEntry[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   const withCust = data.filter((e) => e.customers > 0)
   const chartData = withCust.map((e) => ({
@@ -415,7 +407,7 @@ export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={50}
           />
           <YAxis
@@ -427,10 +419,13 @@ export const CustomerSalesScatterChart = memo(function CustomerSalesScatterChart
             width={45}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(v: number | undefined, name: string | undefined) =>
-              name === '売上' ? [toComma(v ?? 0), name ?? ''] : [toComma(v ?? 0), name ?? '']
-            }
+            content={createChartTooltip({
+              ct,
+              formatter: (v, name) =>
+                name === '売上'
+                  ? [toComma((v as number) ?? 0), name ?? '']
+                  : [toComma((v as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar
@@ -527,11 +522,10 @@ export const SameDowComparisonChart = memo(function SameDowComparisonChart({
             tickFormatter={toComma}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(v: number | undefined, name: string | undefined) => [
-              toComma(v ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (v, name) => [toComma((v as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Bar

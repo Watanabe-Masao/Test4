@@ -17,7 +17,8 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from './SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, toComma, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, toComma, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { DayRangeSlider } from './DayRangeSlider'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -52,7 +53,6 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
   const [viewMode, setViewMode] = useState<ViewMode>('cumulative')
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
@@ -151,16 +151,18 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
             }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={50}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              if (value == null) return ['-', ALL_LABELS[name as string] ?? String(name)]
-              return [toComma(value as number), ALL_LABELS[name as string] ?? String(name)]
-            }}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (value == null) return ['-', ALL_LABELS[name] ?? name]
+                return [toComma(value as number), ALL_LABELS[name] ?? name]
+              },
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

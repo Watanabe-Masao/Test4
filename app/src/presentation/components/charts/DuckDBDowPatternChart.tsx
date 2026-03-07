@@ -28,7 +28,8 @@ import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBDowPattern, type DowPatternRow } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -215,7 +216,7 @@ export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
             yAxisId="sales"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => fmt(v)}
+            tickFormatter={toAxisYen}
           />
           <YAxis
             yAxisId="index"
@@ -225,12 +226,14 @@ export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
             tickFormatter={(v: number) => toPct(v, 0)}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name?: string) => {
-              if (value == null) return ['-']
-              if (name === 'インデックス') return [toPct(value, 1)]
-              return [fmt(value)]
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown, name: string) => {
+                if (value == null) return ['-', null]
+                if (name === 'インデックス') return [toPct(Number(value), 1), null]
+                return [fmt(Number(value)), null]
+              },
+            })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

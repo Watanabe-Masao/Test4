@@ -11,7 +11,8 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import type { CategoryTimeSalesIndex } from '@/domain/models'
 import { usePeriodFilter } from './periodFilterHooks'
@@ -202,7 +203,7 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={metricMode === 'amount' ? fmt : (v: number) => toComma(v)}
+                tickFormatter={metricMode === 'amount' ? toAxisYen : (v: number) => toComma(v)}
                 width={50}
               />
               {!showPrev && (
@@ -212,24 +213,26 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
                   tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={metricMode === 'amount' ? (v: number) => toComma(v) : fmt}
+                  tickFormatter={metricMode === 'amount' ? (v: number) => toComma(v) : toAxisYen}
                   width={45}
                 />
               )}
               <Tooltip
-                contentStyle={tooltipStyle(ct)}
-                formatter={(value, name) => {
-                  const labels: Record<string, string> = {
-                    amount: showPrev ? `${curLbl}売上` : '売上金額',
-                    quantity: showPrev ? `${curLbl}数量` : '数量',
-                    prevAmount: `${prevLbl}売上`,
-                    prevQuantity: `${prevLbl}数量`,
-                  }
-                  const label = labels[name as string] ?? String(name)
-                  if (name === 'amount' || name === 'prevAmount')
-                    return [toComma(value as number) + '円', label]
-                  return [toComma(value as number) + '点', label]
-                }}
+                content={createChartTooltip({
+                  ct,
+                  formatter: (value: unknown, name: string) => {
+                    const labels: Record<string, string> = {
+                      amount: showPrev ? `${curLbl}売上` : '売上金額',
+                      quantity: showPrev ? `${curLbl}数量` : '数量',
+                      prevAmount: `${prevLbl}売上`,
+                      prevQuantity: `${prevLbl}数量`,
+                    }
+                    const label = labels[name] ?? String(name)
+                    if (name === 'amount' || name === 'prevAmount')
+                      return [toComma(value as number) + '円', label]
+                    return [toComma(value as number) + '点', label]
+                  },
+                })}
               />
               <Legend
                 wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
@@ -510,24 +513,26 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
                       }}
                       axisLine={false}
                       tickLine={false}
-                      tickFormatter={fmt}
+                      tickFormatter={toAxisYen}
                       width={50}
                     />
                     <ReferenceLine y={0} stroke={ct.grid} />
                     <Tooltip
-                      contentStyle={tooltipStyle(ct)}
-                      formatter={(value: number | undefined, name: string | undefined) => {
-                        const labels: Record<string, string> = {
-                          current: curLbl,
-                          prevYear: `${prevLbl}同曜日`,
-                          diff: '差分',
-                        }
-                        const label = labels[name as string] ?? String(name)
-                        const v = value ?? 0
-                        if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
-                        return [`${toComma(v)}円`, label]
-                      }}
-                      itemSorter={(item) => -(typeof item.value === 'number' ? item.value : 0)}
+                      content={createChartTooltip({
+                        ct,
+                        formatter: (value: unknown, name: string) => {
+                          const labels: Record<string, string> = {
+                            current: curLbl,
+                            prevYear: `${prevLbl}同曜日`,
+                            diff: '差分',
+                          }
+                          const label = labels[name] ?? String(name)
+                          const v = (value as number) ?? 0
+                          if (name === 'diff')
+                            return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
+                          return [`${toComma(v)}円`, label]
+                        },
+                      })}
                     />
                     <Legend
                       wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

@@ -20,7 +20,8 @@ import {
   useDuckDBDeptKpiTrend,
   type DeptKpiMonthlyTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, STORE_COLORS } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
@@ -238,7 +239,7 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
             yAxisId="sales"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => fmt(v)}
+            tickFormatter={toAxisYen}
           />
           <YAxis
             yAxisId="gpRate"
@@ -248,12 +249,14 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
             tickFormatter={(v: number) => `${v}%`}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name?: string) => {
-              if (value == null) return ['-']
-              if (name?.includes('粗利率')) return [`${value}%`]
-              return [fmt(value)]
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown, name: string) => {
+                if (value == null) return ['-', null]
+                if (name?.includes('粗利率')) return [`${Number(value)}%`, null]
+                return [fmt(Number(value)), null]
+              },
+            })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

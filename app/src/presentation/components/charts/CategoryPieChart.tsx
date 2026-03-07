@@ -2,7 +2,8 @@ import { useState, memo } from 'react'
 import { PieChart, Pie, Cell, Tooltip, type PieLabelRenderProps } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import type { CostPricePair, CategoryType } from '@/domain/models'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 
@@ -154,8 +155,10 @@ export const CategoryPieChart = memo(function CategoryPieChart({
             ))}
           </Pie>
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value) => [toComma(value as number), mode === 'cost' ? '原価' : '売価']}
+            content={createChartTooltip({
+              ct,
+              formatter: (value) => [toComma(value as number), mode === 'cost' ? '原価' : '売価'],
+            })}
           />
         </PieChart>
       </ResponsiveContainer>

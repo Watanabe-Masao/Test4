@@ -19,7 +19,8 @@ import {
   LabelList,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter } from '@/presentation/components/charts'
+import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import {
@@ -197,15 +198,18 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
           tick={{ fontSize: ct.fontSize.xs, fill: ct.textSecondary, fontFamily: ct.monoFamily }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={fmt}
+          tickFormatter={toAxisYen}
         />
         <Tooltip
-          contentStyle={tooltipStyle(ct)}
-          formatter={(_value: unknown, _name: unknown, props: { payload?: WaterfallItem }) => {
-            const item = props.payload
-            if (!item) return ['-', '-']
-            return [formatCurrency(item.value), item.name]
-          }}
+          content={createChartTooltip({
+            ct,
+            formatter: (_value, name, entry) => {
+              if (name === 'base') return [null, null]
+              const item = entry.payload as WaterfallItem | undefined
+              if (!item) return ['-', '-']
+              return [formatCurrency(item.value), item.name]
+            },
+          })}
         />
         <ReferenceLine y={0} stroke={ct.grid} />
         <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />

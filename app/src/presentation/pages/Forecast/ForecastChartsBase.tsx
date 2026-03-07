@@ -7,12 +7,12 @@ import type { DayOfWeekAverage } from '@/application/hooks/useForecast'
 import { formatPercent, safeDivide } from '@/domain/calculations/utils'
 import {
   useChartTheme,
-  tooltipStyle,
-  useCurrencyFormatter,
+  toAxisYen,
   toComma,
   toPct,
   STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import {
   BarChart,
   Bar,
@@ -40,7 +40,6 @@ export const WeeklyChart = memo(function WeeklyChart({
   dowColors: string[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   return (
     <ChartWrapper>
@@ -58,15 +57,14 @@ export const WeeklyChart = memo(function WeeklyChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={50}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              toComma(value ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [toComma(value as number ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {DOW_LABELS.map((label, i) => (
@@ -125,11 +123,14 @@ export const DayOfWeekChart = memo(function DayOfWeekChart({
             width={45}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => {
-              if (name === 'index') return [formatPercent(value ?? 0), '曜日指数']
-              return [toComma(value ?? 0), '平均売上']
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (name === 'index')
+                  return [formatPercent((value as number) ?? 0), '曜日指数']
+                return [toComma((value as number) ?? 0), '平均売上']
+              },
+            })}
           />
           <Bar
             dataKey="index"
@@ -186,7 +187,7 @@ export const StoreComparisonRadarChart = memo(function StoreComparisonRadarChart
           />
           <PolarRadiusAxis
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
-            tickFormatter={useCurrencyFormatter()}
+            tickFormatter={toAxisYen}
           />
           {storeForecasts.map((sf, i) => (
             <Radar
@@ -201,8 +202,10 @@ export const StoreComparisonRadarChart = memo(function StoreComparisonRadarChart
           ))}
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [toComma(value ?? 0), '']}
+            content={createChartTooltip({
+              ct,
+              formatter: (value) => [toComma((value as number) ?? 0), ''],
+            })}
           />
         </RadarChart>
       </ResponsiveContainer>
@@ -221,7 +224,6 @@ export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
   }[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   // Build grouped bar data per week
   const data =
@@ -250,15 +252,14 @@ export const StoreComparisonBarChart = memo(function StoreComparisonBarChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={50}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              toComma(value ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {storeForecasts.map((sf, i) => (

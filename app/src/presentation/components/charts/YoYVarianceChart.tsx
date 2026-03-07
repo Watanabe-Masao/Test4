@@ -13,7 +13,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { ChartHelpButton } from './ChartHeader'
@@ -400,7 +401,7 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v: number) => toComma(v)}
+                tickFormatter={toAxisYen}
                 width={55}
               />
               <YAxis
@@ -409,7 +410,7 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v: number) => toComma(v)}
+                tickFormatter={toAxisYen}
                 width={55}
               />
               <Bar yAxisId="left" dataKey="salesDiff" maxBarSize={16} radius={[2, 2, 0, 0]}>
@@ -441,7 +442,7 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v: number) => toComma(v)}
+                tickFormatter={toAxisYen}
                 width={55}
               />
               <YAxis
@@ -526,21 +527,23 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
           )}
 
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-              const n = name as string
-              if (n.includes('Growth') || n.includes('growth') || n.includes('Ma7')) {
-                return [toPct(value as number), allLabels[n] ?? n]
-              }
-              if (n.includes('customer') || n.includes('Customer')) {
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (value == null) return ['-', allLabels[name] ?? name]
+                const n = name
+                if (n.includes('Growth') || n.includes('growth') || n.includes('Ma7')) {
+                  return [toPct(value as number), allLabels[n] ?? n]
+                }
+                if (n.includes('customer') || n.includes('Customer')) {
+                  const v = value as number
+                  return [`${v >= 0 ? '+' : ''}${toComma(v)}人`, allLabels[n] ?? n]
+                }
                 const v = value as number
-                return [`${v >= 0 ? '+' : ''}${toComma(v)}人`, allLabels[n] ?? n]
-              }
-              const v = value as number
-              return [`${v >= 0 ? '+' : ''}${toComma(v)}`, allLabels[n] ?? n]
-            }}
-            labelFormatter={(label) => `${label}日`}
+                return [`${v >= 0 ? '+' : ''}${toComma(v)}`, allLabels[n] ?? n]
+              },
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

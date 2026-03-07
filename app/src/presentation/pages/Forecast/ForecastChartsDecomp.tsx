@@ -2,12 +2,8 @@
  * 要因分解分析チャート群
  */
 import { memo } from 'react'
-import {
-  useChartTheme,
-  tooltipStyle,
-  useCurrencyFormatter,
-  toComma,
-} from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import {
   BarChart,
   Bar,
@@ -47,7 +43,6 @@ export const DecompTrendChart = memo(function DecompTrendChart({
   data: DailyDecompEntry[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   return (
     <ChartWrapper>
@@ -65,16 +60,18 @@ export const DecompTrendChart = memo(function DecompTrendChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={55}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              toComma(value ?? 0),
-              EFFECT_LABELS[name as string] ?? name ?? '',
-            ]}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [
+                toComma((value as number) ?? 0),
+                EFFECT_LABELS[name] ?? name ?? '',
+              ],
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
@@ -119,7 +116,6 @@ export const DecompDailyBarChart = memo(function DecompDailyBarChart({
   data: DailyDecompEntry[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   return (
     <ChartWrapper>
@@ -137,16 +133,18 @@ export const DecompDailyBarChart = memo(function DecompDailyBarChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={55}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              toComma(value ?? 0),
-              EFFECT_LABELS[name as string] ?? name ?? '',
-            ]}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [
+                toComma((value as number) ?? 0),
+                EFFECT_LABELS[name] ?? name ?? '',
+              ],
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
@@ -182,7 +180,6 @@ export const DecompDowChart = memo(function DecompDowChart({
   dowColors: string[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
 
   return (
     <ChartWrapper>
@@ -200,22 +197,24 @@ export const DecompDowChart = memo(function DecompDowChart({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={55}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => {
-              const label =
-                name === 'avgCustEffect'
-                  ? '客数効果'
-                  : name === 'avgTicketEffect'
-                    ? '客単価効果'
-                    : name === 'avgSalesDiff'
-                      ? '売上差'
-                      : (name ?? '')
-              return [toComma(value ?? 0), label]
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                const label =
+                  name === 'avgCustEffect'
+                    ? '客数効果'
+                    : name === 'avgTicketEffect'
+                      ? '客単価効果'
+                      : name === 'avgSalesDiff'
+                        ? '売上差'
+                        : (name ?? '')
+                return [toComma((value as number) ?? 0), label]
+              },
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
