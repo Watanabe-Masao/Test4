@@ -483,6 +483,37 @@ export function buildBoxPlotData(
   return results
 }
 
+/** 店舗別の値（ドリルダウン用） */
+export interface StoreBreakdownItem {
+  readonly storeId: string
+  readonly value: number
+}
+
+/**
+ * 指定カテゴリの店舗別値を抽出する（箱ひげ図ドリルダウン用）
+ *
+ * @param rows - SQL 結果行
+ * @param categoryCode - 対象カテゴリコード
+ * @param metric - 'sales' = 販売金額, 'quantity' = 販売数量
+ * @returns 値降順でソートされた店舗別データ
+ */
+export function buildStoreBreakdown(
+  rows: readonly CategoryBenchmarkRow[],
+  categoryCode: string,
+  metric: 'sales' | 'quantity',
+): readonly StoreBreakdownItem[] {
+  const items: StoreBreakdownItem[] = []
+  for (const row of rows) {
+    if (row.code !== categoryCode) continue
+    items.push({
+      storeId: row.storeId,
+      value: metric === 'sales' ? row.totalSales : row.totalQuantity,
+    })
+  }
+  items.sort((a, b) => b.value - a.value)
+  return items
+}
+
 /** カテゴリ階層一覧フック（フィルタ用ドロップダウン） */
 export function useDuckDBCategoryHierarchy(
   conn: AsyncDuckDBConnection | null,
