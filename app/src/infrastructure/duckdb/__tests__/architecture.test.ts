@@ -141,7 +141,7 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
     'duckdb-category-trend',
     'duckdb-category-hourly',
     'duckdb-category-mix',
-    'duckdb-store-benchmark',
+    'duckdb-category-benchmark',
   ]
 
   // 統合ウィジェット（DuckDB/CTS 自動切替）
@@ -198,7 +198,7 @@ describe('charts/index.ts の DuckDB エクスポート', () => {
     'DuckDBCategoryTrendChart',
     'DuckDBCategoryHourlyChart',
     'DuckDBCategoryMixChart',
-    'DuckDBStoreBenchmarkChart',
+    'DuckDBCategoryBenchmarkChart',
   ]
 
   for (const exportName of expectedExports) {

@@ -154,10 +154,6 @@ export function autoInjectDataWidgets(
     // DuckDB 専用ウィジェット: DuckDB 初期化完了を待って注入
     if (isDuckDBOnlyWidget(w.id)) {
       if (!ctx.isDuckDBReady) return false
-      // 店舗比較系は複数店舗が必要
-      if (w.id === 'duckdb-store-benchmark') {
-        return ctx.storeCount > 1
-      }
       return true
     }
     // DuckDB 時系列ウィジェット: DuckDB 初期化完了を待って注入

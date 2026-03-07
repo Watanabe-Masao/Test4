@@ -4,7 +4,7 @@ import {
   DuckDBCategoryTrendChart,
   DuckDBCategoryHourlyChart,
   DuckDBCategoryMixChart,
-  DuckDBStoreBenchmarkChart,
+  DuckDBCategoryBenchmarkChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 
@@ -87,18 +87,17 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
     ),
   },
   {
-    id: 'duckdb-store-benchmark',
-    label: '店舗ベンチマーク（DuckDB）',
+    id: 'duckdb-category-benchmark',
+    label: 'カテゴリベンチマーク（DuckDB）',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.stores.size > 1,
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBStoreBenchmarkChart
+      <DuckDBCategoryBenchmarkChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
-        stores={ctx.stores}
       />
     ),
   },

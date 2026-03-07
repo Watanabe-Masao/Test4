@@ -19,7 +19,7 @@ import type { StoreDaySummaryRow, DailyCumulativeRow } from '../queries/storeDay
 import type { DeptKpiRankedRow, DeptKpiSummaryRow } from '../queries/departmentKpi'
 import type { YoyDailyRow, YoyCategoryRow } from '../queries/yoyComparison'
 import type { DailyFeatureRow, HourlyProfileRow, DowPatternRow } from '../queries/features'
-import type { CategoryMixWeeklyRow, StoreBenchmarkRow } from '../queries/advancedAnalytics'
+import type { CategoryMixWeeklyRow, CategoryBenchmarkRow } from '../queries/advancedAnalytics'
 
 // ── CtsFilterParams → WHERE 生成のテスト ──
 
@@ -332,17 +332,17 @@ describe('クエリ結果型の構造', () => {
     expect(row.shareShift).toBeNull()
   })
 
-  it('StoreBenchmarkRow の必須プロパティ', () => {
-    const row: StoreBenchmarkRow = {
+  it('CategoryBenchmarkRow の必須プロパティ', () => {
+    const row: CategoryBenchmarkRow = {
+      code: 'D01',
+      name: '青果',
       storeId: '1',
-      weekStart: '2026-02-02',
-      weekSales: 700000,
-      avgDailySales: 100000,
+      totalSales: 700000,
       salesRank: 1,
-      salesPercentile: 100,
+      storeCount: 3,
     }
-    expect(row.storeId).toBe('1')
+    expect(row.code).toBe('D01')
     expect(row.salesRank).toBe(1)
-    expect(row.salesPercentile).toBe(100)
+    expect(row.storeCount).toBe(3)
   })
 })

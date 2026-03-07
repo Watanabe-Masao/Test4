@@ -168,9 +168,8 @@ describe('autoInjectDataWidgets', () => {
   it('DuckDB: 店舗が1つの場合は店舗比較系が注入されない', () => {
     const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    // 統合店舗比較 + DuckDB 専用店舗ベンチマーク ともに非注入
+    // 統合店舗比較は非注入
     expect(result!).not.toContain('chart-store-timeslot-comparison')
-    expect(result!).not.toContain('duckdb-store-benchmark')
   })
 
   it('DuckDB: 複数店舗の場合は店舗比較系が注入される', () => {
@@ -178,7 +177,11 @@ describe('autoInjectDataWidgets', () => {
     expect(result).not.toBeNull()
     // 統合店舗比較ウィジェット
     expect(result!).toContain('chart-store-timeslot-comparison')
-    // DuckDB 専用店舗ベンチマーク
-    expect(result!).toContain('duckdb-store-benchmark')
+  })
+
+  it('DuckDB: カテゴリベンチマークが注入される', () => {
+    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    expect(result).not.toBeNull()
+    expect(result!).toContain('duckdb-category-benchmark')
   })
 })

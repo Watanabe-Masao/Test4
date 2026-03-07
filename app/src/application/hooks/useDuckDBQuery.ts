@@ -33,7 +33,8 @@ export {
   useDuckDBDowPattern,
   // 高度分析
   useDuckDBCategoryMixWeekly,
-  useDuckDBStoreBenchmark,
+  useDuckDBCategoryBenchmark,
+  buildCategoryBenchmarkScores,
   // 店舗期間メトリクス + 予算分析
   useDuckDBStorePeriodMetrics,
   useDuckDBDailyCumulativeBudget,
@@ -64,7 +65,9 @@ export type {
   HourlyProfileRow,
   DowPatternRow,
   CategoryMixWeeklyRow,
-  StoreBenchmarkRow,
+  CategoryBenchmarkRow,
+  CategoryBenchmarkScore,
+  ProductType,
   PeriodMetrics,
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,

@@ -85,12 +85,12 @@ export type {
   DeptDailyTrendRow,
 } from './queries/features'
 
-export { queryCategoryMixWeekly, queryStoreBenchmark } from './queries/advancedAnalytics'
+export { queryCategoryMixWeekly, queryCategoryBenchmark } from './queries/advancedAnalytics'
 export type {
   CategoryMixWeeklyRow,
   CategoryMixParams,
-  StoreBenchmarkRow,
-  StoreBenchmarkParams,
+  CategoryBenchmarkRow,
+  CategoryBenchmarkParams,
 } from './queries/advancedAnalytics'
 
 export { queryConditionMatrix } from './queries/conditionMatrix'
