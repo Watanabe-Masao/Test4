@@ -13,7 +13,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
+import { useChartTheme, tooltipStyle, toComma, toPct, toDevScore } from './chartTheme'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { ChartHelpButton } from './ChartHeader'
@@ -116,11 +116,6 @@ const VIEW_LABELS: Record<ViewType, string> = {
   pi: 'PI値',
   deviation: '偏差値',
   zScore: 'Zスコア',
-}
-
-/** 偏差値 = 50 + 10z */
-function toDevScore(z: number): number {
-  return 50 + 10 * z
 }
 
 interface Props {

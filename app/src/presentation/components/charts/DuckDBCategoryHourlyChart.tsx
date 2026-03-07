@@ -13,6 +13,7 @@ import { useMemo, useState, useCallback, memo } from 'react'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
+import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -162,11 +163,7 @@ const ErrorMsg = styled.div`
 
 // ── Constants ──
 
-/** 営業時間帯の範囲 */
-const HOUR_START = 6
-const HOUR_END = 22
-
-const HOURS = Array.from({ length: HOUR_END - HOUR_START + 1 }, (_, i) => i + HOUR_START)
+const HOURS = Array.from({ length: HOUR_MAX - HOUR_MIN + 1 }, (_, i) => i + HOUR_MIN)
 
 /** 上位表示カテゴリ数 */
 const TOP_CATEGORIES = 10
@@ -244,7 +241,7 @@ function buildHeatmapData(rows: readonly CategoryHourlyRow[]): HeatmapData {
   }
 
   // Global peak hour
-  let globalPeakHour = HOUR_START
+  let globalPeakHour = HOUR_MIN
   let globalPeakVal = 0
   for (const [hour, total] of globalHourTotals) {
     if (total > globalPeakVal) {
@@ -254,7 +251,7 @@ function buildHeatmapData(rows: readonly CategoryHourlyRow[]): HeatmapData {
   }
 
   const categories: CategoryHeatmapRow[] = sorted.map((cat) => {
-    let peakHour = HOUR_START
+    let peakHour = HOUR_MIN
     let peakAmount = 0
     for (const [hour, amount] of cat.hourly) {
       if (amount > peakAmount) {
@@ -304,7 +301,7 @@ export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart
     () =>
       hourlyRows
         ? buildHeatmapData(hourlyRows)
-        : { categories: [], maxAmount: 0, globalPeakHour: HOUR_START },
+        : { categories: [], maxAmount: 0, globalPeakHour: HOUR_MIN },
     [hourlyRows],
   )
 

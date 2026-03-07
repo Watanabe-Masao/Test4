@@ -13,6 +13,7 @@
 import { useState, useMemo, memo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -181,8 +182,6 @@ interface SimilarityPair {
 
 // ── Constants ──
 
-const HOUR_MIN = 6
-const HOUR_MAX = 22
 const CORE_THRESHOLD = 0.8 // top 80% of sales defines core time
 const SIMILARITY_HIGH = 0.95
 
