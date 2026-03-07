@@ -13,6 +13,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
+import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
 import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -214,9 +215,6 @@ interface CannibalizationResult {
 }
 
 // ── Constants ──
-
-const HOUR_MIN = 6
-const HOUR_MAX = 22
 
 const TOP_N_OPTIONS = [3, 5, 7, 10] as const
 

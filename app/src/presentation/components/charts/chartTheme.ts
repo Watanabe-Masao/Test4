@@ -96,6 +96,19 @@ export function toPct(v: number, decimals = 1): string {
   return `${(v * 100).toFixed(decimals)}%`
 }
 
+// ── 偏差値計算 ──
+
+/** 偏差値の平均（50） */
+export const DEVIATION_MEAN = 50
+
+/** 偏差値の標準偏差倍率（10） */
+export const DEVIATION_SD = 10
+
+/** Zスコアを偏差値に変換する: 偏差値 = 50 + 10z */
+export function toDevScore(z: number): number {
+  return DEVIATION_MEAN + DEVIATION_SD * z
+}
+
 /** グローバル設定に基づく通貨フォーマッタを返すフック */
 export function useCurrencyFormatter(): (v: number) => string {
   const currencyUnit = useUiStore((s) => s.currencyUnit)

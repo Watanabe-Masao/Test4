@@ -115,6 +115,12 @@ export function correlationMatrix(
 
 // ─── Normalization ────────────────────────────────────
 
+/** 正規化の中点（全値同一の場合のデフォルト値） */
+const NORMALIZATION_MIDPOINT = 50
+
+/** 正規化のスケール上限（0-100） */
+const NORMALIZATION_SCALE = 100
+
 /**
  * Min-Max正規化（0-100スケール）。
  *
@@ -138,7 +144,7 @@ export function normalizeMinMax(values: readonly number[]): NormalizedSeries {
   const range = max - min
   if (range === 0) {
     return {
-      values: values.map(() => 50),
+      values: values.map(() => NORMALIZATION_MIDPOINT),
       min,
       max,
       range: 0,
@@ -146,7 +152,7 @@ export function normalizeMinMax(values: readonly number[]): NormalizedSeries {
   }
 
   return {
-    values: values.map((v) => safeDivide(v - min, range, 0) * 100),
+    values: values.map((v) => safeDivide(v - min, range, 0) * NORMALIZATION_SCALE),
     min,
     max,
     range,

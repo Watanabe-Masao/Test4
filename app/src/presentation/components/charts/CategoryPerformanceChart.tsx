@@ -21,7 +21,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
+import { useChartTheme, tooltipStyle, toComma, toDevScore } from './chartTheme'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
@@ -121,11 +121,6 @@ const LEVEL_LABELS: Record<LevelType, string> = {
   department: '部門',
   line: 'ライン',
   klass: 'クラス',
-}
-
-/** 偏差値 = 50 + 10z */
-function toDevScore(z: number): number {
-  return 50 + 10 * z
 }
 
 interface Props {

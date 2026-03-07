@@ -23,6 +23,10 @@ import {
 } from './ImportHistoryTab.styles'
 import { ImportProvenanceModal } from './ImportProvenanceModal'
 
+/** データ品質スコアの色分け閾値（%） */
+const QUALITY_GOOD = 80
+const QUALITY_FAIR = 50
+
 // ─── インポート履歴タブ ────────────────────────────────
 export function ImportHistoryTab() {
   const data = useDataStore((s) => s.data)
@@ -168,9 +172,9 @@ export function ImportHistoryTab() {
                     )
                   : 0
               const qualityColor =
-                quality >= 80
+                quality >= QUALITY_GOOD
                   ? palette.successDark
-                  : quality >= 50
+                  : quality >= QUALITY_FAIR
                     ? palette.warningDark
                     : palette.dangerDark
 
@@ -243,9 +247,9 @@ export function ImportHistoryTab() {
                             const pct =
                               daysInMonth > 0 ? Math.round((ps.days / daysInMonth) * 100) : 0
                             const c =
-                              pct >= 80
+                              pct >= QUALITY_GOOD
                                 ? palette.successDark
-                                : pct >= 50
+                                : pct >= QUALITY_FAIR
                                   ? palette.warningDark
                                   : palette.dangerDark
                             return (
