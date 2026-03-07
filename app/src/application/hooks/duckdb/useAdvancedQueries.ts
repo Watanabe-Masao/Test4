@@ -225,8 +225,8 @@ export function buildCategoryBenchmarkScores(
     })
   }
 
-  // Sort by index descending
-  results.sort((a, b) => b.index - a.index)
+  // Sort by index × stability descending（高構成比 × 安定 が上位）
+  results.sort((a, b) => b.index * b.stability - a.index * a.stability)
   return results
 }
 

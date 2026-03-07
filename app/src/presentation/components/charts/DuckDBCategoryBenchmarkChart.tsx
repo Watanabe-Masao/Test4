@@ -483,18 +483,16 @@ function MapView({
   const scatterData = scores.map((s) => ({
     ...s,
     x: s.index,
-    y: s.variance,
+    y: s.stability * 100,
   }))
-
-  const maxVariance = Math.max(...scores.map((s) => s.variance), 0.5)
 
   return (
     <MapSection>
       <div style={{ position: 'relative' }}>
-        <MapQuadrantLabel style={{ top: 4, left: 90 }}>不安定</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ top: 4, right: 30 }}>地域特化</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ bottom: 30, left: 90 }}>普通</MapQuadrantLabel>
-        <MapQuadrantLabel style={{ bottom: 30, right: 30 }}>主力</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ top: 4, left: 90 }}>普通</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ top: 4, right: 30 }}>主力</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ bottom: 30, left: 90 }}>不安定</MapQuadrantLabel>
+        <MapQuadrantLabel style={{ bottom: 30, right: 30 }}>地域特化</MapQuadrantLabel>
         <ResponsiveContainer width="100%" height={280}>
           <ScatterChart margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.3} />
@@ -506,7 +504,7 @@ function MapView({
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
               stroke={ct.grid}
               label={{
-                value: 'Index (商品力)',
+                value: 'Index (構成比)',
                 position: 'bottom',
                 offset: -5,
                 fontSize: 10,
@@ -516,12 +514,12 @@ function MapView({
             <YAxis
               type="number"
               dataKey="y"
-              name="バラツキ"
-              domain={[0, Math.ceil(maxVariance * 10) / 10]}
+              name="安定度"
+              domain={[0, 100]}
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
               stroke={ct.grid}
               label={{
-                value: 'バラツキ',
+                value: '安定度 (%)',
                 angle: -90,
                 position: 'insideLeft',
                 offset: 5,
@@ -540,10 +538,10 @@ function MapView({
         </ResponsiveContainer>
       </div>
       <MapLegend>
-        <LegendItem $color={TYPE_COLORS.flagship}>主力（高Index・低バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.regional}>地域特化（高Index・高バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.standard}>普通（低Index・低バラツキ）</LegendItem>
-        <LegendItem $color={TYPE_COLORS.unstable}>不安定（低Index・高バラツキ）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.flagship}>主力（高Index・高安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.regional}>地域特化（高Index・低安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.standard}>普通（低Index・高安定度）</LegendItem>
+        <LegendItem $color={TYPE_COLORS.unstable}>不安定（低Index・低安定度）</LegendItem>
       </MapLegend>
     </MapSection>
   )
