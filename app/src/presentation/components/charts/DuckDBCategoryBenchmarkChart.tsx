@@ -93,14 +93,29 @@ const Subtitle = styled.div`
 
 const Controls = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing[3]};
-  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  align-items: stretch;
   flex-wrap: wrap;
+`
+
+const ControlGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`
+
+const ControlLabel = styled.span`
+  font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text4};
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
 `
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 4px;
+  align-items: center;
 `
 
 const ToggleBtn = styled.button<{ $active: boolean }>`
@@ -120,8 +135,13 @@ const ToggleBtn = styled.button<{ $active: boolean }>`
   white-space: nowrap;
   transition: all 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 `
 
@@ -1416,6 +1436,10 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [parentDeptCode, setParentDeptCode] = useState<string>('')
   const [parentLineCode, setParentLineCode] = useState<string>('')
 
+  // 単一店舗選択時は店舗別比較が無意味なため、期間別を強制する
+  const isSingleStore = selectedStoreIds.size === 1
+  const effectiveAxis: AnalysisAxis = isSingleStore ? 'date' : analysisAxis
+
   // 階層フィルタ用: 部門一覧
   const { data: deptList } = useDuckDBCategoryHierarchy(
     duckConn,
@@ -1481,7 +1505,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   )
 
   // 分析軸に応じたスコアを選択
-  const scores = analysisAxis === 'store' ? storeScores : dateScores
+  const scores = effectiveAxis === 'store' ? storeScores : dateScores
 
   // トレンド表示用: 上位10カテゴリのコード
   const topCodes = useMemo(() => scores.slice(0, 10).map((s) => s.code), [scores])
@@ -1506,7 +1530,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     [trendRows, rawRows, boxMetric, minStores, totalStoreCount],
   )
 
-  const boxPlotData = analysisAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
+  const boxPlotData = effectiveAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
 
   // KPIサマリー
   const kpis = useMemo(() => {
@@ -1545,7 +1569,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
           <Subtitle>
-            {analysisAxis === 'date'
+            {effectiveAxis === 'date'
               ? '期間別分析 | 日別構成比の変動 × バラツキ(CV) × カバー率'
               : benchmarkMetric === 'share'
                 ? '構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率'
@@ -1553,103 +1577,131 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
           </Subtitle>
         </div>
         <Controls>
-          <ButtonGroup>
-            {(Object.keys(LEVEL_LABELS) as CategoryLevel[]).map((l) => (
-              <ToggleBtn
-                key={l}
-                $active={level === l}
-                onClick={() => {
-                  setLevel(l)
-                  // レベル変更時に子フィルタをリセット
-                  if (l === 'department') {
-                    setParentDeptCode('')
-                    setParentLineCode('')
-                  } else if (l === 'line') {
-                    setParentLineCode('')
-                  }
-                }}
-              >
-                {LEVEL_LABELS[l]}
-              </ToggleBtn>
-            ))}
-          </ButtonGroup>
+          <ControlGroup>
+            <ControlLabel>階層</ControlLabel>
+            <ButtonGroup>
+              {(Object.keys(LEVEL_LABELS) as CategoryLevel[]).map((l) => (
+                <ToggleBtn
+                  key={l}
+                  $active={level === l}
+                  onClick={() => {
+                    setLevel(l)
+                    if (l === 'department') {
+                      setParentDeptCode('')
+                      setParentLineCode('')
+                    } else if (l === 'line') {
+                      setParentLineCode('')
+                    }
+                  }}
+                >
+                  {LEVEL_LABELS[l]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          </ControlGroup>
           {/* 階層フィルタ: ライン/クラス表示時に親カテゴリを絞り込み */}
           {level !== 'department' && deptList && deptList.length > 0 && (
-            <FilterSelect
-              value={parentDeptCode}
-              onChange={(e) => {
-                setParentDeptCode(e.target.value)
-                setParentLineCode('')
-              }}
-            >
-              <option value="">全部門</option>
-              {deptList.map((d) => (
-                <option key={d.code} value={d.code}>
-                  {d.name}
-                </option>
-              ))}
-            </FilterSelect>
+            <ControlGroup>
+              <ControlLabel>部門</ControlLabel>
+              <FilterSelect
+                value={parentDeptCode}
+                onChange={(e) => {
+                  setParentDeptCode(e.target.value)
+                  setParentLineCode('')
+                }}
+              >
+                <option value="">全部門</option>
+                {deptList.map((d) => (
+                  <option key={d.code} value={d.code}>
+                    {d.name}
+                  </option>
+                ))}
+              </FilterSelect>
+            </ControlGroup>
           )}
           {level === 'klass' && lineList && lineList.length > 0 && (
-            <FilterSelect
-              value={parentLineCode}
-              onChange={(e) => setParentLineCode(e.target.value)}
-            >
-              <option value="">全ライン</option>
-              {lineList.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.name}
-                </option>
-              ))}
-            </FilterSelect>
+            <ControlGroup>
+              <ControlLabel>ライン</ControlLabel>
+              <FilterSelect
+                value={parentLineCode}
+                onChange={(e) => setParentLineCode(e.target.value)}
+              >
+                <option value="">全ライン</option>
+                {lineList.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.name}
+                  </option>
+                ))}
+              </FilterSelect>
+            </ControlGroup>
           )}
-          <ButtonGroup>
-            {(Object.keys(ANALYSIS_AXIS_LABELS) as AnalysisAxis[]).map((a) => (
-              <ToggleBtn key={a} $active={analysisAxis === a} onClick={() => setAnalysisAxis(a)}>
-                {ANALYSIS_AXIS_LABELS[a]}
-              </ToggleBtn>
-            ))}
-          </ButtonGroup>
-          {analysisAxis === 'store' && (
+          <ControlGroup>
+            <ControlLabel>分析軸</ControlLabel>
             <ButtonGroup>
-              {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
+              {(Object.keys(ANALYSIS_AXIS_LABELS) as AnalysisAxis[]).map((a) => (
                 <ToggleBtn
-                  key={m}
-                  $active={benchmarkMetric === m}
-                  onClick={() => setBenchmarkMetric(m)}
+                  key={a}
+                  $active={effectiveAxis === a}
+                  onClick={() => setAnalysisAxis(a)}
+                  disabled={a === 'store' && isSingleStore}
+                  title={
+                    a === 'store' && isSingleStore ? '店舗別比較には複数店舗の選択が必要です' : undefined
+                  }
                 >
-                  {BENCHMARK_METRIC_LABELS[m]}
+                  {ANALYSIS_AXIS_LABELS[a]}
                 </ToggleBtn>
               ))}
             </ButtonGroup>
+          </ControlGroup>
+          {effectiveAxis === 'store' && (
+            <ControlGroup>
+              <ControlLabel>指標</ControlLabel>
+              <ButtonGroup>
+                {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
+                  <ToggleBtn
+                    key={m}
+                    $active={benchmarkMetric === m}
+                    onClick={() => setBenchmarkMetric(m)}
+                  >
+                    {BENCHMARK_METRIC_LABELS[m]}
+                  </ToggleBtn>
+                ))}
+              </ButtonGroup>
+            </ControlGroup>
           )}
-          <ButtonGroup>
-            {(Object.keys(VIEW_LABELS) as ViewMode[]).map((v) => (
-              <ToggleBtn key={v} $active={view === v} onClick={() => setView(v)}>
-                {VIEW_LABELS[v]}
-              </ToggleBtn>
-            ))}
-          </ButtonGroup>
-          {analysisAxis === 'store' && (
+          <ControlGroup>
+            <ControlLabel>表示</ControlLabel>
             <ButtonGroup>
-              <span style={{ fontSize: '0.6rem', color: ct.textMuted, whiteSpace: 'nowrap' }}>
-                最低店舗数:
-              </span>
-              {[1, 2, 3].map((n) => (
-                <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
-                  {n === 1 ? '全て' : `${n}店以上`}
+              {(Object.keys(VIEW_LABELS) as ViewMode[]).map((v) => (
+                <ToggleBtn key={v} $active={view === v} onClick={() => setView(v)}>
+                  {VIEW_LABELS[v]}
                 </ToggleBtn>
               ))}
             </ButtonGroup>
+          </ControlGroup>
+          {effectiveAxis === 'store' && (
+            <ControlGroup>
+              <ControlLabel>最低店舗数</ControlLabel>
+              <ButtonGroup>
+                {[1, 2, 3].map((n) => (
+                  <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
+                    {n === 1 ? '全て' : `${n}店以上`}
+                  </ToggleBtn>
+                ))}
+              </ButtonGroup>
+            </ControlGroup>
           )}
-          {view === 'boxplot' && analysisAxis === 'store' && (
-            <ButtonGroup>
-              {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
-                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
-                  {BOX_METRIC_LABELS[m]}
-                </ToggleBtn>
-              ))}
-            </ButtonGroup>
+          {view === 'boxplot' && effectiveAxis === 'store' && (
+            <ControlGroup>
+              <ControlLabel>箱ひげ指標</ControlLabel>
+              <ButtonGroup>
+                {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
+                  <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                    {BOX_METRIC_LABELS[m]}
+                  </ToggleBtn>
+                ))}
+              </ButtonGroup>
+            </ControlGroup>
           )}
         </Controls>
       </HeaderRow>
@@ -1688,9 +1740,9 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             scores={scores}
             fmt={fmt}
             metricLabel={
-              analysisAxis === 'date' ? '日別構成比' : BENCHMARK_METRIC_LABELS[benchmarkMetric]
+              effectiveAxis === 'date' ? '日別構成比' : BENCHMARK_METRIC_LABELS[benchmarkMetric]
             }
-            isDateAxis={analysisAxis === 'date'}
+            isDateAxis={effectiveAxis === 'date'}
           />
         )}
         {view === 'map' && <MapView scores={scores} ct={ct} fmt={fmt} />}
@@ -1702,17 +1754,17 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             boxData={boxPlotData}
             ct={ct}
             fmt={
-              boxMetric === 'sales' || analysisAxis === 'date'
+              boxMetric === 'sales' || effectiveAxis === 'date'
                 ? fmt
                 : (v: number) => v.toLocaleString()
             }
             metricLabel={
-              analysisAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]
+              effectiveAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]
             }
             rawRows={rawRows ?? null}
             trendRows={trendRows ?? null}
             boxMetric={boxMetric}
-            boxAxis={analysisAxis}
+            boxAxis={effectiveAxis}
             storeNameMap={storeNameMap}
           />
         )}
