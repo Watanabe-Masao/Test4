@@ -42,9 +42,9 @@ IndexedDB はブラウザの**同一オリジンポリシー**に基づくアク
 
 ## 入力検証
 
-### FileImportService のバリデーション
+### ImportService のバリデーション
 
-`FileImportService`（`application/usecases/import/FileImportService.ts`）は
+`ImportService`（`infrastructure/ImportService.ts` + `ImportDataProcessor.ts`）は
 ファイルインポート時に以下の検証を行います:
 
 1. **ファイル種別判定**: ファイル名パターン・カラム構造に基づく種別の自動判定

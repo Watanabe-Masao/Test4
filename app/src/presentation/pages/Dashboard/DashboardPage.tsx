@@ -454,12 +454,16 @@ export function DashboardPage() {
                       {renderDraggable(
                         halfBuffer[0],
                         idx1,
-                        <ChartErrorBoundary><LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget></ChartErrorBoundary>,
+                        <ChartErrorBoundary>
+                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
+                        </ChartErrorBoundary>,
                       )}
                       {renderDraggable(
                         halfBuffer[1],
                         idx2,
-                        <ChartErrorBoundary><LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget></ChartErrorBoundary>,
+                        <ChartErrorBoundary>
+                          <LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget>
+                        </ChartErrorBoundary>,
                       )}
                     </ChartRow>,
                   )
@@ -470,7 +474,9 @@ export function DashboardPage() {
                       {renderDraggable(
                         halfBuffer[0],
                         idx1,
-                        <ChartErrorBoundary><LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget></ChartErrorBoundary>,
+                        <ChartErrorBoundary>
+                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
+                        </ChartErrorBoundary>,
                       )}
                     </ChartRow>,
                   )
@@ -487,7 +493,9 @@ export function DashboardPage() {
                       {renderDraggable(
                         w,
                         idx,
-                        <ChartErrorBoundary><LazyWidget>{w.render(ctx)}</LazyWidget></ChartErrorBoundary>,
+                        <ChartErrorBoundary>
+                          <LazyWidget>{w.render(ctx)}</LazyWidget>
+                        </ChartErrorBoundary>,
                       )}
                     </FullChartRow>,
                   )

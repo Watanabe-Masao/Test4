@@ -37,13 +37,13 @@
 
 ### ファイル自動判定
 
-`FileImportService`（`application/usecases/import/`）がファイル名パターン、
+`ImportService`（`infrastructure/`）がファイル名パターン、
 カラム構造、データ形式から種別を自動判定します。
 手動でファイル種別を指定する必要はありません。
 
 ### データバリデーション
 
-インポート時に `FileImportService.validateImportedData` が以下を検証します:
+インポート時に `ImportService` が以下を検証します:
 
 - 必須カラムの存在チェック
 - データ型の妥当性チェック
@@ -64,7 +64,7 @@
        |
        v
 2. パース・バリデーション
-   FileImportService がファイルを解析し ImportedData を生成
+   ImportService / ImportDataProcessor がファイルを解析し ImportedData を生成
        |
        v
 3. IndexedDB 保存

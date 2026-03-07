@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseDate, getDayOfMonth } from './dateParser'
+import { parseDate } from './dateParser'
 
 describe('parseDate', () => {
   it('Excelシリアル値（数値）', () => {
@@ -58,23 +58,5 @@ describe('parseDate', () => {
   it('範囲外の数値は null', () => {
     expect(parseDate(-1)).toBeNull()
     expect(parseDate(0)).toBeNull()
-  })
-})
-
-describe('getDayOfMonth', () => {
-  it('日付から日を取得', () => {
-    expect(getDayOfMonth('2026-02-15')).toBe(15)
-  })
-
-  it('月初', () => {
-    expect(getDayOfMonth('2026-02-01')).toBe(1)
-  })
-
-  it('月末', () => {
-    expect(getDayOfMonth('2026-01-31')).toBe(31)
-  })
-
-  it('パース不能な値は null', () => {
-    expect(getDayOfMonth('invalid')).toBeNull()
   })
 })

@@ -71,8 +71,8 @@ export function exportToCsv(
   options: CsvExportOptions,
 ): void {
   if (rows.length > WORKER_THRESHOLD && typeof Worker !== 'undefined') {
-    exportToCsvViaWorker(rows, options).catch(() => {
-      // Worker 失敗時はメインスレッドでフォールバック
+    exportToCsvViaWorker(rows, options).catch((err) => {
+      console.warn('[csvExporter] Worker フォールバック:', err)
       const csv = toCsvString(rows, options.delimiter)
       downloadCsv(csv, options)
     })
@@ -102,7 +102,9 @@ async function exportToCsvViaWorker(
         reject(new Error('Worker timeout'))
       }, 30_000)
 
-      worker.onmessage = (event: MessageEvent<{ type: string; csvContent?: string; requestId: number }>) => {
+      worker.onmessage = (
+        event: MessageEvent<{ type: string; csvContent?: string; requestId: number }>,
+      ) => {
         if (event.data.requestId !== requestId) return
         clearTimeout(timeout)
         if (event.data.type === 'result' && event.data.csvContent) {

@@ -30,7 +30,7 @@
 - SQL クエリパラメータに Branded Type（`ValidatedDateKey`）を導入し、
   検証していない文字列がクエリに渡るとコンパイルエラー
 - `storeIdFilter` で SQL インジェクション文字を排除してからクエリ組み立て
-- `FileImportService` でインポート時にデータソース間の乖離を検出・警告
+- `ImportService` / `ImportDataProcessor` でインポート時にデータソース間の乖離を検出・警告
 
 **原則:** 信頼境界を明確にし、内部では「検証済み」を型で保証する。
 
@@ -105,7 +105,9 @@
 **適用例:**
 - `useDuckDBQuery.ts` → `duckdb/index.ts` からの re-export バレルに変換
 - `ForecastCharts.tsx` → `ForecastCharts/index.ts` からの re-export
-- `murmurhash.ts`, `diffCalculator.ts` の移動時に元パスに re-export を残置
+- `hash.ts`（`application/services/` → `domain/utilities/`）、`diffCalculator.ts` の移動時に元パスに re-export を残置
+- `useDailySalesData.ts`（`presentation/components/charts/` → `application/hooks/`）の移動時に元パスに re-export を残置
+- `DashboardPage.styles.ts` の 5 分割後もバレル re-export で後方互換を維持
 
 **原則:** 内部リファクタリングで外部の import を壊さない。
 破壊的変更は「やむを得ない場合」のみ。

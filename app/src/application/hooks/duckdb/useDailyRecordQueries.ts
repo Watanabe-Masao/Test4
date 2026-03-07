@@ -12,7 +12,7 @@ import {
   queryPrevYearDailyRecords,
   queryAggregatedDailyRecords,
   type DailyRecordRow,
-} from '@/infrastructure/duckdb/queries/dailyRecords'
+} from '@/infrastructure/duckdb'
 import { useAsyncQuery, type AsyncQueryResult } from './useAsyncQuery'
 
 /**

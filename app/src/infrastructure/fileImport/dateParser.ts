@@ -125,14 +125,6 @@ export function parseDate(value: unknown, contextYear?: number): Date | null {
   return null
 }
 
-/**
- * 日付から日(1-31)を取得する
- */
-export function getDayOfMonth(value: unknown): number | null {
-  const date = parseDate(value)
-  return date ? date.getDate() : null
-}
-
 /** 日付コンポーネント（年月日） */
 export interface DateComponents {
   readonly year: number

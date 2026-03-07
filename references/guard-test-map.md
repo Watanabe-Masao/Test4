@@ -107,7 +107,6 @@
 | `application/hooks/useBackup.ts` | バックアップ |
 | `application/hooks/useImport.ts` | ファイルインポート |
 | `application/usecases/import/FileImportService.ts` | インポートサービス |
-| `application/workers/fileParseWorker.ts` | ファイル解析ワーカー |
 | `application/workers/useFileParseWorker.ts` | ワーカーフック |
 | `application/usecases/export/ExportService.ts` | エクスポート |
 | `application/hooks/useI18n.ts` | i18n ブリッジ |

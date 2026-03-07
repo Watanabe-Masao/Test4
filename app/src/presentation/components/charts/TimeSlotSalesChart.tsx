@@ -140,6 +140,7 @@ export const TimeSlotSalesChart = memo(function TimeSlotSalesChart({
                   onClick={() => {
                     if (canWoW) setCompMode('wow')
                   }}
+                  aria-disabled={!canWoW}
                   style={canWoW ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
                 >
                   前週比
