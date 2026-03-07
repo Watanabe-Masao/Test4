@@ -106,7 +106,7 @@ const PanelFooter = styled.div`
 
 interface Props {
   readonly title: string
-  readonly registry: readonly WidgetDef<unknown>[]
+  readonly registry: readonly WidgetDef[]
   readonly activeIds: readonly string[]
   readonly defaultIds: readonly string[]
   readonly onApply: (ids: string[]) => void
@@ -154,7 +154,7 @@ export function WidgetSettingsPanel({
   }
 
   // Group widgets
-  const groups = new Map<string, WidgetDef<unknown>[]>()
+  const groups = new Map<string, WidgetDef[]>()
   registry.forEach((w) => {
     const list = groups.get(w.group) ?? []
     list.push(w)

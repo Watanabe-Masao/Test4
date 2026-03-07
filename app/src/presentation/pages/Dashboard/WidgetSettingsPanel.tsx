@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { Button } from '@/presentation/components/common'
-import { WIDGET_REGISTRY } from './widgets/registry'
+import { UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
+import type { WidgetDef } from '@/presentation/components/widgets'
 import { DEFAULT_WIDGET_IDS } from './widgets/widgetLayout'
 import {
   getAllPresets,
@@ -10,7 +11,6 @@ import {
   saveActivePreset,
 } from './widgets/layoutPresets'
 import type { LayoutPreset } from './widgets/layoutPresets'
-import type { WidgetDef } from './widgets/types'
 import {
   PanelOverlay,
   Panel,
@@ -240,7 +240,7 @@ export function WidgetSettingsPanel({
 
   const handleSelectAll = () => {
     setActivePreset(null)
-    setSelected(new Set(WIDGET_REGISTRY.map((w) => w.id)))
+    setSelected(new Set(UNIFIED_WIDGET_REGISTRY.map((w) => w.id)))
   }
 
   const handleDeselectAll = () => {
@@ -250,7 +250,7 @@ export function WidgetSettingsPanel({
 
   // Group widgets
   const groups = new Map<string, WidgetDef[]>()
-  WIDGET_REGISTRY.forEach((w) => {
+  UNIFIED_WIDGET_REGISTRY.forEach((w) => {
     const list = groups.get(w.group) ?? []
     list.push(w)
     groups.set(w.group, list)

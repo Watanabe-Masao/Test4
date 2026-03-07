@@ -2,7 +2,7 @@
  * DailyPage ウィジェットレジストリ
  *
  * 日別トレンドページの各セクションをウィジェットとして定義。
- * ダッシュボードなど他ページからも配置可能にする。
+ * UnifiedWidgetContext を使い、全ページから利用可能。
  */
 import { KpiCard } from '@/presentation/components/common'
 import {
@@ -11,25 +11,13 @@ import {
   ShapleyTimeSeriesChart,
 } from '@/presentation/components/charts'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
-import type { WidgetDef, PageWidgetConfig } from '@/presentation/components/widgets'
-import type { StoreResult } from '@/domain/models'
-import type { PrevYearData } from '@/application/hooks'
+import type { WidgetDef } from '@/presentation/components/widgets'
 
-export interface DailyWidgetContext {
-  readonly result: StoreResult
-  readonly daysInMonth: number
-  readonly year: number
-  readonly month: number
-  readonly targetRate: number
-  readonly warningRate: number
-  readonly prevYear: PrevYearData
-}
-
-const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
+export const DAILY_WIDGETS: readonly WidgetDef[] = [
   {
     id: 'daily-chart-sales',
     label: '日別売上チャート',
-    group: 'チャート',
+    group: '日別トレンド',
     size: 'full',
     render: (ctx) => (
       <DailySalesChart
@@ -45,7 +33,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-chart-gp-rate',
     label: '粗利率トレンド',
-    group: 'チャート',
+    group: '日別トレンド',
     size: 'half',
     render: (ctx) => (
       <GrossProfitRateChart
@@ -59,7 +47,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-chart-shapley',
     label: 'シャープリー時系列',
-    group: 'チャート',
+    group: '日別トレンド',
     size: 'half',
     render: (ctx) => (
       <ShapleyTimeSeriesChart
@@ -75,7 +63,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-kpi-sales',
     label: '総売上高',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => (
       <KpiCard
@@ -100,21 +88,21 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-kpi-cost',
     label: '総仕入原価',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => <KpiCard label="総仕入原価" value={formatCurrency(ctx.result.totalCost)} />,
   },
   {
     id: 'daily-kpi-discount',
     label: '売変額',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => <KpiCard label="売変額" value={formatCurrency(ctx.result.totalDiscount)} />,
   },
   {
     id: 'daily-kpi-gp-rate',
     label: '粗利率/推定マージン率',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => {
       const r = ctx.result
@@ -139,7 +127,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-kpi-markup',
     label: '値入率',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => (
       <KpiCard
@@ -152,7 +140,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   {
     id: 'daily-kpi-cost-inclusion',
     label: '原価算入費',
-    group: 'KPI',
+    group: '日別トレンド',
     size: 'kpi',
     render: (ctx) => (
       <KpiCard label="原価算入費" value={formatCurrency(ctx.result.totalCostInclusion)} />
@@ -160,7 +148,7 @@ const DAILY_WIDGETS: readonly WidgetDef<DailyWidgetContext>[] = [
   },
 ]
 
-const DEFAULT_DAILY_WIDGET_IDS = [
+export const DEFAULT_DAILY_WIDGET_IDS = [
   'daily-chart-sales',
   'daily-chart-gp-rate',
   'daily-chart-shapley',
@@ -171,10 +159,3 @@ const DEFAULT_DAILY_WIDGET_IDS = [
   'daily-kpi-markup',
   'daily-kpi-cost-inclusion',
 ]
-
-export const DAILY_WIDGET_CONFIG: PageWidgetConfig<DailyWidgetContext> = {
-  pageKey: 'daily',
-  registry: DAILY_WIDGETS,
-  defaultWidgetIds: DEFAULT_DAILY_WIDGET_IDS,
-  settingsTitle: '日別トレンドのカスタマイズ',
-}

@@ -9,15 +9,13 @@ function storageKey(pageKey: PageKey): string {
   return `widget_layout_${pageKey}_v1`
 }
 
-export function buildWidgetMap<T>(
-  registry: readonly WidgetDef<T>[],
-): ReadonlyMap<string, WidgetDef<T>> {
+export function buildWidgetMap(registry: readonly WidgetDef[]): ReadonlyMap<string, WidgetDef> {
   return new Map(registry.map((w) => [w.id, w]))
 }
 
 export function loadPageLayout(
   pageKey: PageKey,
-  registry: readonly WidgetDef<unknown>[],
+  registry: readonly WidgetDef[],
   defaultIds: readonly string[],
 ): string[] {
   // dashboard は既存の localStorage キーを使い続ける（後方互換）

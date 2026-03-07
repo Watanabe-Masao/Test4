@@ -40,6 +40,9 @@ const ReportsPage = lazyWithRetry(() =>
 const AdminPage = lazyWithRetry(() =>
   import('@/presentation/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })),
 )
+const CustomPage = lazyWithRetry(() =>
+  import('@/presentation/pages/CustomPage/CustomPage').then((m) => ({ default: m.CustomPage })),
+)
 export const MobileDashboardPage = lazyWithRetry(() =>
   import('@/presentation/pages/Mobile/MobileDashboardPage').then((m) => ({
     default: m.MobileDashboardPage,
@@ -57,6 +60,7 @@ export function AppRoutes() {
       <Route path="/cost-detail" element={<CostDetailPage />} />
       <Route path="/reports" element={<ReportsPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/custom/:pageId" element={<CustomPage />} />
       {/* 旧ルートからのリダイレクト */}
       <Route path="/analysis" element={<Navigate to="/insight" replace />} />
       <Route path="/forecast" element={<Navigate to="/insight" replace />} />

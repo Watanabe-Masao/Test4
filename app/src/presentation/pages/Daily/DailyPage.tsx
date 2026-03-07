@@ -7,15 +7,9 @@ import {
   MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
-import {
-  useCalculation,
-  useStoreSelection,
-  usePrevYearData,
-  useExplanations,
-} from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
-import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { CostPricePair } from '@/domain/models'
 import {
@@ -24,9 +18,10 @@ import {
   getTransferAmount,
   useCumulativeRates,
 } from '@/application/hooks/useDailyPageData'
-import { PageWidgetContainer } from '@/presentation/components/widgets'
-import { DAILY_WIDGET_CONFIG } from './widgets'
-import type { DailyWidgetContext } from './widgets'
+import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
+import type { PageWidgetConfig } from '@/presentation/components/widgets'
+import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
+import { DEFAULT_DAILY_WIDGET_IDS } from './widgets'
 import {
   TableWrapper,
   Table,
@@ -52,21 +47,27 @@ type ExpandableColumn =
 const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
+const DAILY_CONFIG: PageWidgetConfig = {
+  pageKey: 'daily',
+  registry: UNIFIED_WIDGET_REGISTRY,
+  defaultWidgetIds: DEFAULT_DAILY_WIDGET_IDS,
+  settingsTitle: '日別トレンドのカスタマイズ',
+}
+
 export function DailyPage() {
   const nav = useNavigate()
-  const { isComputing, daysInMonth } = useCalculation()
   const { currentResult, storeName, stores } = useStoreSelection()
   const suppliers = useDataStore((s) => s.data.suppliers)
   const dataStores = useDataStore((s) => s.data.stores)
   const settings = useSettingsStore((s) => s.settings)
   const prevYear = usePrevYearData()
+  const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 
-  // 指標説明
-  const explanations = useExplanations()
-  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
-  const handleExplain = useCallback((metricId: MetricId) => {
-    setExplainMetric(metricId)
-  }, [])
+  const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
+  const handleExplain = useCallback(
+    (metricId: Parameters<typeof setExplainMetric>[0]) => setExplainMetric(metricId),
+    [setExplainMetric],
+  )
 
   const [expanded, setExpanded] = useState<Set<ExpandableColumn>>(new Set())
 
@@ -119,7 +120,6 @@ export function DailyPage() {
     [isInterDeptOutExpanded, days, stores],
   )
 
-  // 累計粗利率 & 累計売変率の事前計算
   const cumulativeData = useCumulativeRates(days)
 
   const toggleExpand = (col: ExpandableColumn) => {
@@ -131,7 +131,7 @@ export function DailyPage() {
     })
   }
 
-  if (isComputing && !currentResult) {
+  if (isComputing && !ctx) {
     return (
       <MainContent title="日別トレンド" storeName={storeName}>
         <PageSkeleton />
@@ -139,7 +139,7 @@ export function DailyPage() {
     )
   }
 
-  if (!currentResult) {
+  if (!ctx || !currentResult) {
     return (
       <MainContent title="日別トレンド" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>
@@ -154,18 +154,7 @@ export function DailyPage() {
   const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
   const fmtOrDashPositive = (val: number) => (val > 0 ? formatCurrency(val) : '-')
 
-  // ウィジェットコンテキスト
-  const widgetCtx: DailyWidgetContext = {
-    result: currentResult,
-    daysInMonth,
-    year: settings.targetYear,
-    month: settings.targetMonth,
-    targetRate: settings.targetGrossProfitRate,
-    warningRate: settings.warningThreshold,
-    prevYear,
-  }
-
-  // 日別明細テーブル（ウィジェットの後に固定コンテンツとして表示）
+  // 日別明細テーブル
   const dailyDetailTable = (
     <Card>
       <CardTitle>日別明細</CardTitle>
@@ -300,14 +289,13 @@ export function DailyPage() {
                     })}
                   <Td>{fmtOrDash(rec.interStoreIn.cost)}</Td>
                   {isInterStoreInExpanded &&
-                    interStoreInKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interStoreIn,
-                        k.from,
-                        k.to,
-                      )
-                      return <SubTd key={`si-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                    })}
+                    interStoreInKeys.map((k) => (
+                      <SubTd key={`si-${k.key}`}>
+                        {fmtOrDash(
+                          getTransferAmount(rec.transferBreakdown.interStoreIn, k.from, k.to),
+                        )}
+                      </SubTd>
+                    ))}
                   <Td $negative={rec.interStoreOut.cost < 0}>
                     {fmtOrDash(rec.interStoreOut.cost)}
                   </Td>
@@ -326,14 +314,13 @@ export function DailyPage() {
                     })}
                   <Td>{fmtOrDash(rec.interDepartmentIn.cost)}</Td>
                   {isInterDeptInExpanded &&
-                    interDeptInKeys.map((k) => {
-                      const amt = getTransferAmount(
-                        rec.transferBreakdown.interDepartmentIn,
-                        k.from,
-                        k.to,
-                      )
-                      return <SubTd key={`di-${k.key}`}>{fmtOrDash(amt)}</SubTd>
-                    })}
+                    interDeptInKeys.map((k) => (
+                      <SubTd key={`di-${k.key}`}>
+                        {fmtOrDash(
+                          getTransferAmount(rec.transferBreakdown.interDepartmentIn, k.from, k.to),
+                        )}
+                      </SubTd>
+                    ))}
                   <Td $negative={rec.interDepartmentOut.cost < 0}>
                     {fmtOrDash(rec.interDepartmentOut.cost)}
                   </Td>
@@ -422,19 +409,14 @@ export function DailyPage() {
 
   return (
     <MainContent title="日別トレンド" storeName={storeName}>
-      <PageWidgetContainer
-        config={DAILY_WIDGET_CONFIG}
-        context={widgetCtx}
-        headerContent={dailyDetailTable}
-      />
+      <PageWidgetContainer config={DAILY_CONFIG} context={ctx} headerContent={dailyDetailTable} />
 
-      {/* 指標説明パネル */}
-      {explainMetric && explanations.has(explainMetric) && (
+      {explainMetric && ctx.explanations.has(explainMetric) && (
         <MetricBreakdownPanel
-          explanation={explanations.get(explainMetric)!}
-          allExplanations={explanations}
+          explanation={ctx.explanations.get(explainMetric)!}
+          allExplanations={ctx.explanations}
           stores={dataStores}
-          onClose={() => setExplainMetric(null)}
+          onClose={handleExplainClose}
         />
       )}
     </MainContent>

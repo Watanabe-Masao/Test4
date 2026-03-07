@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo, memo, type ReactNode } from 'react'
+import { useState, useCallback, useRef, useEffect, memo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainContent } from '@/presentation/components/Layout'
 import {
@@ -10,30 +10,11 @@ import {
   MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
-import {
-  useCalculation,
-  usePrevYearData,
-  useStoreSelection,
-  useAutoLoadPrevYear,
-  useExplanations,
-  useComparisonFrame,
-  usePrevYearMonthlyKpi,
-  useDowGapAnalysis,
-} from '@/application/hooks'
-import { useDuckDB } from '@/application/hooks/useDuckDB'
-import {
-  useMonthlyHistory,
-  currentResultToMonthlyPoint,
-  useMonthlyDataPoints,
-} from '@/application/hooks/useMonthlyHistory'
-import type { MetricId, DateRange, ViewType } from '@/domain/models'
+import { useStoreSelection } from '@/application/hooks'
+import type { ViewType } from '@/domain/models'
 import { VIEW_TO_PATH } from '@/presentation/routes'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useRepository } from '@/application/context/useRepository'
-import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import {
   CategoryHierarchyProvider,
   CurrencyUnitToggle,
@@ -41,9 +22,11 @@ import {
   useCrossChartSelection,
 } from '@/presentation/components/charts'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
+import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
+import type { WidgetDef } from '@/presentation/components/widgets'
+import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
-import type { WidgetDef, WidgetContext } from './widgets/types'
-import { WIDGET_MAP, loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
+import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
   Section,
@@ -103,75 +86,20 @@ const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode 
 
 export function DashboardPage() {
   const nav = useNavigate()
-  const { isCalculated, isComputing, daysInMonth } = useCalculation()
-  const { currentResult, storeName, stores, selectedStoreIds } = useStoreSelection()
-  const data = useDataStore((s) => s.data)
+  const { stores } = useStoreSelection()
   const storeResults = useDataStore((s) => s.storeResults)
-  const settings = useSettingsStore((s) => s.settings)
-  const prevYear = usePrevYearData(currentResult?.elapsedDays)
-  const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
+  const dataStores = useDataStore((s) => s.data.stores)
 
-  // 前年の曜日別合計売上を算出（曜日ギャップ分析用）
-  const prevDowSales = useMemo(() => {
-    if (!prevYearMonthlyKpi.hasPrevYear) return undefined
-    const srcYear = prevYearMonthlyKpi.sourceYear
-    const srcMonth = prevYearMonthlyKpi.sourceMonth
-    if (srcYear === 0) return undefined
-    const sales = [0, 0, 0, 0, 0, 0, 0]
-    for (const row of prevYearMonthlyKpi.sameDate.dailyMapping) {
-      const dow = new Date(srcYear, srcMonth - 1, row.prevDay).getDay()
-      sales[dow] += row.prevSales
-    }
-    return sales
-  }, [prevYearMonthlyKpi])
-
-  // 曜日ギャップ分析（前年予算比較パネル用）— 平均法 + 実日法
-  const dowGap = useDowGapAnalysis(
-    settings.targetYear,
-    settings.targetMonth,
-    prevYearMonthlyKpi.sourceYear,
-    prevYearMonthlyKpi.sourceMonth,
-    currentResult?.averageDailySales ?? 0,
-    prevYearMonthlyKpi.hasPrevYear,
-    prevDowSales,
-    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDate.dailyMapping : undefined,
-    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDow.dailyMapping : undefined,
-  )
-
-  // 前年データが未ロードの場合、IndexedDB から自動取得
-  useAutoLoadPrevYear()
-
-  // 過去月データ（季節性分析用）
-  const repo = useRepository()
-  const targetYear = settings.targetYear
-  const targetMonth = settings.targetMonth
-  const historicalMonths = useMonthlyHistory(repo, targetYear, targetMonth)
-  const currentMonthlyPoint = useMemo(() => {
-    if (!currentResult) return null
-    return currentResultToMonthlyPoint(targetYear, targetMonth, currentResult, stores.size)
-  }, [currentResult, targetYear, targetMonth, stores.size])
-  const monthlyHistory = useMonthlyDataPoints(
-    historicalMonths,
-    targetYear,
-    targetMonth,
-    currentMonthlyPoint,
-  )
-
-  // 指標説明
-  const explanations = useExplanations()
-  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
-  const handleExplain = useCallback((metricId: MetricId) => {
-    setExplainMetric(metricId)
-  }, [])
-
-  // 前年予算比較詳細パネル
-  const [prevYearDetailType, setPrevYearDetailType] = useState<'sameDow' | 'sameDate' | null>(null)
-  const handlePrevYearDetail = useCallback((type: 'sameDow' | 'sameDate') => {
-    setPrevYearDetailType(type)
-  }, [])
-
-  // 販売データ存在範囲の検出（スライダーデフォルト値用）
-  const dataMaxDay = useMemo(() => detectDataMaxDay(data), [data])
+  const {
+    ctx,
+    isComputing,
+    isCalculated,
+    storeName,
+    explainMetric,
+    setExplainMetric,
+    prevYearDetailType,
+    setPrevYearDetailType,
+  } = useUnifiedWidgetContext()
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -232,37 +160,19 @@ export function DashboardPage() {
     })
   }, [])
 
-  // 部門KPIインデックス（Application層フック経由。早期リターン前に呼ぶ: hooks の呼び出し順序維持）
-  const deptKpiIndex = useDeptKpiView()
-
-  // DuckDB エンジン初期化 + データロード（早期リターン前に呼ぶ: hooks の呼び出し順序維持）
-  // repo を渡すことで IndexedDB の過去月データも自動ロードされ、月跨ぎクエリが可能になる
-  const duck = useDuckDB(data, targetYear, targetMonth, repo)
-
-  // 比較フレーム（全チャート共通の前年期間決定）— hooks の呼び出し順序維持のため早期リターン前
-  const baseRange: DateRange = useMemo(
-    () => ({
-      from: { year: targetYear, month: targetMonth, day: 1 },
-      to: { year: targetYear, month: targetMonth, day: daysInMonth },
-    }),
-    [targetYear, targetMonth, daysInMonth],
-  )
-  const frame = useComparisonFrame(baseRange)
-
   // データ駆動ウィジェットの自動注入
-  // duck.isReady を依存配列に含め、DuckDB 初期化完了時にも再注入を試みる
   useEffect(() => {
     const injected = autoInjectDataWidgets(widgetIdsRef.current, {
-      prevYearHasPrevYear: prevYear.hasPrevYear,
+      prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
       storeCount: stores.size,
-      hasDiscountData: currentResult?.hasDiscountData,
-      isDuckDBReady: duck.isReady,
+      hasDiscountData: ctx?.result.hasDiscountData,
+      isDuckDBReady: (ctx?.duckConn ?? null) != null,
     })
     if (injected) {
       setWidgetIds(injected)
       saveLayout(injected)
     }
-  }, [prevYear.hasPrevYear, stores.size, currentResult?.hasDiscountData, duck.isReady])
+  }, [ctx?.prevYear.hasPrevYear, stores.size, ctx?.result.hasDiscountData, ctx?.duckConn])
 
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {
@@ -271,6 +181,8 @@ export function DashboardPage() {
     },
     [nav],
   )
+
+  const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
 
   // ─── Empty / Loading states ──
 
@@ -294,7 +206,7 @@ export function DashboardPage() {
     )
   }
 
-  if (!currentResult) {
+  if (!ctx) {
     return (
       <MainContent title="ダッシュボード" storeName={storeName}>
         <Section>
@@ -307,51 +219,9 @@ export function DashboardPage() {
     )
   }
 
-  const r = currentResult
-
-  // ── 日付範囲の算出（チャート用フックに渡す） ──
-  const effectiveEndDay =
-    r.elapsedDays != null && r.elapsedDays > 0 ? Math.min(r.elapsedDays, daysInMonth) : daysInMonth
-
-  const currentDateRange: DateRange = {
-    from: { year: targetYear, month: targetMonth, day: 1 },
-    to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
-  }
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear ? frame.previous : undefined
-
-  const ctx: WidgetContext = {
-    result: r,
-    daysInMonth,
-    targetRate: settings.targetGrossProfitRate,
-    warningRate: settings.warningThreshold,
-    year: targetYear,
-    month: targetMonth,
-    storeKey: storeName,
-    prevYear,
-    prevYearMonthlyKpi,
-    allStoreResults: storeResults,
-    stores: data.stores,
-    currentDateRange,
-    prevYearDateRange,
-    selectedStoreIds,
-    dataEndDay: settings.dataEndDay,
-    dataMaxDay,
-    elapsedDays: r.elapsedDays,
-    departmentKpi: deptKpiIndex,
-    explanations,
-    onExplain: handleExplain,
-    monthlyHistory,
-    duckConn: duck.conn,
-    duckDataVersion: duck.dataVersion,
-    duckLoadedMonthCount: duck.loadedMonthCount,
-    comparisonFrame: frame,
-    dowGap,
-    onPrevYearDetail: handlePrevYearDetail,
-  }
-
   // Resolve active widgets (isVisible でデータ有無をフィルタ)
   const activeWidgets = widgetIds
-    .map((id) => WIDGET_MAP.get(id))
+    .map((id) => UNIFIED_WIDGET_MAP.get(id))
     .filter((w): w is WidgetDef => w != null)
     .filter((w) => (w.isVisible ? w.isVisible(ctx) : true))
 
@@ -520,32 +390,42 @@ export function DashboardPage() {
         </MainContent>
 
         {/* 指標説明パネル */}
-        {explainMetric && explanations.has(explainMetric) && (
+        {explainMetric && ctx.explanations.has(explainMetric) && (
           <MetricBreakdownPanel
-            explanation={explanations.get(explainMetric)!}
-            allExplanations={explanations}
-            stores={data.stores}
-            onClose={() => setExplainMetric(null)}
+            explanation={ctx.explanations.get(explainMetric)!}
+            allExplanations={ctx.explanations}
+            stores={dataStores}
+            onClose={handleExplainClose}
           />
         )}
 
         {/* 前年予算比較詳細パネル */}
-        {prevYearDetailType && prevYearMonthlyKpi.hasPrevYear && (
+        {prevYearDetailType && ctx.prevYearMonthlyKpi?.hasPrevYear && (
           <PrevYearBudgetDetailPanel
             type={prevYearDetailType}
             entry={
               prevYearDetailType === 'sameDow'
-                ? prevYearMonthlyKpi.sameDow
-                : prevYearMonthlyKpi.sameDate
+                ? ctx.prevYearMonthlyKpi.sameDow
+                : ctx.prevYearMonthlyKpi.sameDate
             }
-            budgetDaily={r.budgetDaily}
-            budgetTotal={r.budget}
-            targetYear={targetYear}
-            targetMonth={targetMonth}
-            sourceYear={prevYearMonthlyKpi.sourceYear}
-            sourceMonth={prevYearMonthlyKpi.sourceMonth}
-            dowOffset={prevYearMonthlyKpi.dowOffset}
-            dowGap={dowGap}
+            budgetDaily={ctx.result.budgetDaily}
+            budgetTotal={ctx.result.budget}
+            targetYear={ctx.year}
+            targetMonth={ctx.month}
+            sourceYear={ctx.prevYearMonthlyKpi.sourceYear}
+            sourceMonth={ctx.prevYearMonthlyKpi.sourceMonth}
+            dowOffset={ctx.prevYearMonthlyKpi.dowOffset}
+            dowGap={
+              ctx.dowGap ?? {
+                dowCounts: [],
+                estimatedImpact: 0,
+                isValid: false,
+                prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+                hasPrevDowSales: false,
+                isSameStructure: true,
+                missingDataWarnings: [],
+              }
+            }
             onClose={() => setPrevYearDetailType(null)}
           />
         )}

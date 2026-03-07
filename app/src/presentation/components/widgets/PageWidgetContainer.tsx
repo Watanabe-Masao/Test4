@@ -8,7 +8,7 @@ import { useState, useCallback, useRef, memo, type ReactNode } from 'react'
 import styled from 'styled-components'
 import { Chip, ChipGroup, ChartErrorBoundary } from '@/presentation/components/common'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
-import type { WidgetDef, PageWidgetConfig } from './types'
+import type { WidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
 import { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 
@@ -149,23 +149,23 @@ const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode 
 
 // ─── Component ──────────────────────────────────────────
 
-interface Props<T> {
+interface Props {
   /** ページウィジェット設定 */
-  readonly config: PageWidgetConfig<T>
+  readonly config: PageWidgetConfig
   /** ウィジェットに渡すコンテキスト */
-  readonly context: T
+  readonly context: UnifiedWidgetContext
   /** ツールバーに追加する要素（CurrencyUnitToggle など） */
   readonly toolbarExtra?: ReactNode
   /** ウィジェット外のページ固有コンテンツ（ウィジェットの前に表示） */
   readonly headerContent?: ReactNode
 }
 
-export function PageWidgetContainer<T>({ config, context, toolbarExtra, headerContent }: Props<T>) {
+export function PageWidgetContainer({ config, context, toolbarExtra, headerContent }: Props) {
   const { pageKey, registry, defaultWidgetIds, settingsTitle } = config
   const widgetMap = buildWidgetMap(registry)
 
   const [widgetIds, setWidgetIds] = useState<string[]>(() =>
-    loadPageLayout(pageKey, registry as readonly WidgetDef<unknown>[], defaultWidgetIds),
+    loadPageLayout(pageKey, registry, defaultWidgetIds),
   )
   const [showSettings, setShowSettings] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -233,7 +233,7 @@ export function PageWidgetContainer<T>({ config, context, toolbarExtra, headerCo
   // Resolve active widgets
   const activeWidgets = widgetIds
     .map((id) => widgetMap.get(id))
-    .filter((w): w is WidgetDef<T> => w != null)
+    .filter((w): w is WidgetDef => w != null)
     .filter((w) => (w.isVisible ? w.isVisible(context) : true))
 
   const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')
@@ -241,7 +241,7 @@ export function PageWidgetContainer<T>({ config, context, toolbarExtra, headerCo
 
   let flatIdx = 0
 
-  const renderDraggable = (widget: WidgetDef<T>, index: number, content: ReactNode) => {
+  const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
     if (!editMode) {
       return (
         <WidgetWrapper key={widget.id} data-widget-id={widget.id}>
@@ -313,7 +313,7 @@ export function PageWidgetContainer<T>({ config, context, toolbarExtra, headerCo
       {chartWidgets.length > 0 &&
         (() => {
           const elements: ReactNode[] = []
-          let halfBuffer: WidgetDef<T>[] = []
+          let halfBuffer: WidgetDef[] = []
 
           const flushHalves = () => {
             if (halfBuffer.length === 0) return
@@ -384,7 +384,7 @@ export function PageWidgetContainer<T>({ config, context, toolbarExtra, headerCo
       {showSettings && (
         <WidgetSettingsPanel
           title={settingsTitle}
-          registry={registry as readonly WidgetDef<unknown>[]}
+          registry={registry}
           activeIds={widgetIds}
           defaultIds={[...defaultWidgetIds]}
           onApply={handleApplyLayout}
