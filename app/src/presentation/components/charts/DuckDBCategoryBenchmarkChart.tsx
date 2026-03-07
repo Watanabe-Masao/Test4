@@ -1645,7 +1645,9 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
                   onClick={() => setAnalysisAxis(a)}
                   disabled={a === 'store' && isSingleStore}
                   title={
-                    a === 'store' && isSingleStore ? '店舗別比較には複数店舗の選択が必要です' : undefined
+                    a === 'store' && isSingleStore
+                      ? '店舗別比較には複数店舗の選択が必要です'
+                      : undefined
                   }
                 >
                   {ANALYSIS_AXIS_LABELS[a]}
