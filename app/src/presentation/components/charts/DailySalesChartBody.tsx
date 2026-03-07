@@ -24,7 +24,8 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { type ChartTheme, tooltipStyle, useCurrencyFormatter, toComma } from './chartTheme'
+import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import type { DailySalesDataResult } from './useDailySalesData'
 
 export type ViewType = 'standard' | 'prevYearCum' | 'vsLastYear'
@@ -68,8 +69,6 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
   cumMode,
   wfLegendPayload,
 }: Props) {
-  const fmt = useCurrencyFormatter()
-
   // recharts requires a mutable array
   const chartData = data as unknown as Record<string, unknown>[]
 
@@ -110,7 +109,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
           tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={fmt}
+          tickFormatter={toAxisYen}
           width={50}
         />
         {needRightAxis && (
@@ -120,20 +119,22 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={45}
           />
         )}
         <Tooltip
-          contentStyle={tooltipStyle(ct)}
-          formatter={(value, name) => {
-            const n = name as string
-            if (n.includes('Base') || n === 'wfSalesCum' || n === 'wfYoyCum')
-              return [null, null] as unknown as [string, string]
-            if (value == null) return ['-', ALL_LABELS[n] ?? String(name)]
-            return [toComma(value as number), ALL_LABELS[n] ?? n]
-          }}
-          labelFormatter={(label) => `${label}日`}
+          content={createChartTooltip({
+            ct,
+            formatter: (value, name) => {
+              const n = name as string
+              if (n.includes('Base') || n === 'wfSalesCum' || n === 'wfYoyCum')
+                return [null, null] as unknown as [string, string]
+              if (value == null) return ['-', ALL_LABELS[n] ?? String(name)]
+              return [toComma(value as number), ALL_LABELS[n] ?? n]
+            },
+            labelFormatter: (label) => `${label}日`,
+          })}
         />
         <Legend
           wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

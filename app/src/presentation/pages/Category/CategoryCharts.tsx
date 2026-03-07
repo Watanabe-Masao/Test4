@@ -16,12 +16,8 @@ import {
   type PieLabelRenderProps,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import {
-  useChartTheme,
-  tooltipStyle,
-  useCurrencyFormatter,
-  toPct,
-} from '@/presentation/components/charts/chartTheme'
+import { useChartTheme, toAxisYen, toPct } from '@/presentation/components/charts/chartTheme'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'
@@ -105,8 +101,10 @@ export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({
               ))}
             </Pie>
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value) => [toPct(value as number, 2), '相乗積']}
+              content={createChartTooltip({
+                ct,
+                formatter: (value) => [toPct(value as number, 2), '相乗積'],
+              })}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -143,12 +141,14 @@ export const CrossMultiplicationChart = memo(function CrossMultiplicationChart({
               width={45}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value: unknown, name: string | undefined) => {
-                const v = Number(value)
-                if (name === 'cumPct') return [toPct(v), '累計']
-                return [toPct(v, 2), '相乗積']
-              }}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  const v = Number(value)
+                  if (name === 'cumPct') return [toPct(v), '累計']
+                  return [toPct(v, 2), '相乗積']
+                },
+              })}
             />
             <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
               {paretoData.map((entry, i) => (
@@ -177,7 +177,6 @@ export const CompositionChart = memo(function CompositionChart({
   items: CategoryChartItem[]
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
   const [mode, setMode] = useState<PieMode>('cost')
   const [view, setView] = useState<ChartView>('pie')
 
@@ -230,11 +229,13 @@ export const CompositionChart = memo(function CompositionChart({
               ))}
             </Pie>
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value) => [
-                formatCurrency(value as number),
-                mode === 'cost' ? '原価' : '売価',
-              ]}
+              content={createChartTooltip({
+                ct,
+                formatter: (value) => [
+                  formatCurrency(value as number),
+                  mode === 'cost' ? '原価' : '売価',
+                ],
+              })}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -257,7 +258,7 @@ export const CompositionChart = memo(function CompositionChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={fmt}
+              tickFormatter={toAxisYen}
               width={50}
             />
             <YAxis
@@ -271,12 +272,14 @@ export const CompositionChart = memo(function CompositionChart({
               width={45}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value: unknown, name: string | undefined) => {
-                const v = Number(value)
-                if (name === 'cumPct') return [toPct(v), '累計']
-                return [formatCurrency(v), mode === 'cost' ? '原価' : '売価']
-              }}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  const v = Number(value)
+                  if (name === 'cumPct') return [toPct(v), '累計']
+                  return [formatCurrency(v), mode === 'cost' ? '原価' : '売価']
+                },
+              })}
             />
             <Bar yAxisId="left" dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32}>
               {paretoData.map((entry, i) => (

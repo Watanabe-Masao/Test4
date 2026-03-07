@@ -21,7 +21,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toDevScore } from './chartTheme'
+import { useChartTheme, toComma, toDevScore } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
@@ -385,11 +386,13 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
               dot={{ fill: ct.colors.purple, r: 3 }}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-                return [(value as number).toFixed(1), allLabels[name as string] ?? String(name)]
-              }}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  if (value == null) return ['-', allLabels[name] ?? name]
+                  return [(value as number).toFixed(1), allLabels[name] ?? name]
+                },
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
@@ -471,14 +474,13 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
               </>
             )}
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                if (value == null) return ['-', allLabels[name as string] ?? String(name)]
-                return [
-                  toComma(Math.round(value as number)),
-                  allLabels[name as string] ?? String(name),
-                ]
-              }}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  if (value == null) return ['-', allLabels[name] ?? name]
+                  return [toComma(Math.round(value as number)), allLabels[name] ?? name]
+                },
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

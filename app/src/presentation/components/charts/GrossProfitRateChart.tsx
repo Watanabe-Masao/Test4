@@ -2,7 +2,8 @@ import { memo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toPct } from './chartTheme'
+import { useChartTheme, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
@@ -93,9 +94,11 @@ export const GrossProfitRateChart = memo(function GrossProfitRateChart({
             width={40}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value) => [toPct(value as number), '粗利率']}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown) => [toPct(value as number), '粗利率'],
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <ReferenceLine
             y={targetRate}

@@ -19,11 +19,11 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import {
   useChartTheme,
-  tooltipStyle,
-  useCurrencyFormatter,
   toComma,
+  toAxisYen,
   STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
+import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
@@ -35,8 +35,6 @@ export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCate
   storeNames: Map<string, string>
 }) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
-
   const data = CATEGORY_ORDER.filter((cat) =>
     selectedResults.some((sr) => sr.categoryTotals.has(cat)),
   ).map((cat) => {
@@ -65,15 +63,14 @@ export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCate
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={fmt}
+            tickFormatter={toAxisYen}
             width={50}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              toComma(value ?? 0),
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           {selectedResults.map((sr, i) => {
@@ -148,8 +145,10 @@ export const StoreComparisonMarkupRadarChart = memo(function StoreComparisonMark
           })}
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(1)}%`, '']}
+            content={createChartTooltip({
+              ct,
+              formatter: (value) => [`${((value as number) ?? 0).toFixed(1)}%`, ''],
+            })}
           />
         </RadarChart>
       </ResponsiveContainer>

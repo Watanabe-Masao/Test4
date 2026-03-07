@@ -23,7 +23,8 @@ import {
   useDuckDBCategoryDailyTrend,
   type CategoryDailyTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DowPresetSelector } from './DowPresetSelector'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -474,17 +475,19 @@ export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
           <YAxis
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => fmt(v)}
+            tickFormatter={toAxisYen}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name?: string) => {
-              if (value == null) return ['-']
-              const cat = categories.find((c) => c.code === name)
-              const label = cat ? cat.name : (name ?? '')
-              return [fmt(value), label]
-            }}
-            labelFormatter={(label: unknown) => `日付: ${String(label)}`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown, name: string) => {
+                if (value == null) return ['-', null]
+                const cat = categories.find((c) => c.code === name)
+                const label = cat ? cat.name : name
+                return [fmt(value as number), label]
+              },
+              labelFormatter: (label: unknown) => `日付: ${String(label)}`,
+            })}
           />
           <Legend
             wrapperStyle={{ fontSize: '0.6rem', cursor: 'pointer' }}

@@ -13,7 +13,8 @@ import {
   Cell,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toAxisYen, toComma, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import {
@@ -264,7 +265,7 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={fmt}
+                tickFormatter={toAxisYen}
                 width={55}
               />
             )}
@@ -276,7 +277,7 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
                 tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={fmt}
+                tickFormatter={toAxisYen}
                 width={55}
               />
             )}
@@ -295,17 +296,19 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
             )}
 
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                if (name === 'achieveRate') {
-                  return [value != null ? `${(value as number).toFixed(1)}%` : '-', allLabels[name]]
-                }
-                return [
-                  value != null ? toComma(value as number) : '-',
-                  allLabels[name as string] ?? String(name),
-                ]
-              }}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  if (name === 'achieveRate') {
+                    return [value != null ? `${(value as number).toFixed(1)}%` : '-', allLabels[name]]
+                  }
+                  return [
+                    value != null ? toComma(value as number) : '-',
+                    allLabels[name as string] ?? String(name),
+                  ]
+                },
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

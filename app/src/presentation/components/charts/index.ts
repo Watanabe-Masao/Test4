@@ -34,10 +34,15 @@ export {
   toYen,
   toComma,
   toPct,
+  toAxisYen,
+  toAxisCompact,
+  toTooltipYen,
   useCurrencyFormatter,
   STORE_COLORS,
 } from './chartTheme'
 export type { ChartTheme } from './chartTheme'
+export { ChartTooltip, createChartTooltip } from './ChartTooltip'
+export type { ChartTooltipProps } from './ChartTooltip'
 export {
   ChartTitle,
   ChartViewToggle,

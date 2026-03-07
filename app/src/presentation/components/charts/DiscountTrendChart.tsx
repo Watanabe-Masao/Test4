@@ -2,7 +2,8 @@ import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'
@@ -131,7 +132,6 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [activeCode, setActiveCode] = useState<string>('71')
@@ -279,7 +279,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={fmt}
+              tickFormatter={toAxisYen}
               width={50}
             />
             <YAxis
@@ -292,14 +292,16 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
               width={45}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                const n = name as string
-                if (n === 'cumRate' || n === 'prevCumRate')
-                  return [value != null ? toPct(value as number) : '-', labelMap[n] ?? n]
-                return [value != null ? toComma(value as number) : '-', labelMap[n] ?? n]
-              }}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value, name) => {
+                  const n = name as string
+                  if (n === 'cumRate' || n === 'prevCumRate')
+                    return [value != null ? toPct(value as number) : '-', labelMap[n] ?? n]
+                  return [value != null ? toComma(value as number) : '-', labelMap[n] ?? n]
+                },
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}

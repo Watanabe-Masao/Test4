@@ -18,7 +18,8 @@ import {
   useDuckDBDailyCumulative,
   type DailyCumulativeRow,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -143,18 +144,20 @@ export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
             yAxisId="daily"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => fmt(v)}
+            tickFormatter={toAxisYen}
           />
           <YAxis
             yAxisId="cumulative"
             orientation="right"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => fmt(v)}
+            tickFormatter={toAxisYen}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined) => [value != null ? fmt(value) : '-']}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown) => [value != null ? fmt(Number(value)) : '-', null],
+            })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

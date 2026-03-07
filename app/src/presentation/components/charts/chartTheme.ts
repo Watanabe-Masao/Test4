@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'
+import { format as d3format } from 'd3-format'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
@@ -73,7 +74,7 @@ export const STORE_COLORS = [
 
 /** 金額を万円表示する */
 export function toManYen(v: number): string {
-  return `${Math.round(v / 10000)}万`
+  return `${Math.round(v / 10000).toLocaleString('ja-JP')}万`
 }
 
 /** 金額を千円表示する */
@@ -94,6 +95,42 @@ export function toComma(v: number): string {
 /** パーセント表示する */
 export function toPct(v: number, decimals = 2): string {
   return `${(v * 100).toFixed(decimals)}%`
+}
+
+// ── d3-format ベースの軸フォーマッタ ──
+
+const fmtSi = d3format(',.3~s')
+const fmtCommaInt = d3format(',.0f')
+
+/**
+ * 軸ラベル用の金額フォーマッタ。
+ * 値の大きさに応じて SI 接頭辞（千/万/億）を自動適用する。
+ * 例: 1500 → "1,500", 15000 → "1.5万", 150000000 → "1.5億"
+ */
+export function toAxisYen(v: number): string {
+  const abs = Math.abs(v)
+  if (abs === 0) return '0'
+  if (abs >= 1e8) return `${(v / 1e8).toLocaleString('ja-JP', { maximumFractionDigits: 1 })}億`
+  if (abs >= 1e4) return `${(v / 1e4).toLocaleString('ja-JP', { maximumFractionDigits: 1 })}万`
+  if (abs >= 1e3) return `${(v / 1e3).toLocaleString('ja-JP', { maximumFractionDigits: 1 })}千`
+  return fmtCommaInt(v)
+}
+
+/**
+ * 軸ラベル用のコンパクト数値フォーマッタ（単位なし）。
+ * 例: 1500 → "1.5K", 1500000 → "1.5M"
+ */
+export function toAxisCompact(v: number): string {
+  if (v === 0) return '0'
+  return fmtSi(v)
+}
+
+/**
+ * Tooltip 用の金額フォーマッタ。カンマ区切り + 円。
+ * toYen のエイリアスだが、Tooltip 専用であることを明示する。
+ */
+export function toTooltipYen(v: number): string {
+  return toYen(v)
 }
 
 // ── 偏差値計算 ──

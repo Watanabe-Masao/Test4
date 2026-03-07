@@ -12,7 +12,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle } from './chartTheme'
+import { useChartTheme } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { analyzeTrend } from '@/application/hooks/useStatistics'
@@ -221,14 +222,16 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
             }}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value) => {
-              const v = value as number
-              return [
-                `指数: ${Math.round(v * 100)}（${v > 1 ? '繁忙' : v < 1 ? '閑散' : '平常'}）`,
-                '季節性',
-              ]
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value) => {
+                const v = value as number
+                return [
+                  `指数: ${Math.round(v * 100)}（${v > 1 ? '繁忙' : v < 1 ? '閑散' : '平常'}）`,
+                  '季節性',
+                ]
+              },
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
 

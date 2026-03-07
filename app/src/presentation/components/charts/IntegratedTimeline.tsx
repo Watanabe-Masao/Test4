@@ -11,7 +11,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma } from './chartTheme'
+import { useChartTheme, toComma } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -286,13 +287,15 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
             }
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              const v = value as number
-              if (isNorm) return [`${v.toFixed(1)}`, name]
-              return [toComma(v), name]
-            }}
-            labelFormatter={(label) => `${label}日`}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                const v = value as number
+                if (isNorm) return [`${v.toFixed(1)}`, name]
+                return [toComma(v), name]
+              },
+              labelFormatter: (label) => `${label}日`,
+            })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
 

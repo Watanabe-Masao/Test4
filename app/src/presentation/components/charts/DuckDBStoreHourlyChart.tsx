@@ -23,11 +23,12 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import {
   useChartTheme,
-  tooltipStyle,
   useCurrencyFormatter,
   STORE_COLORS,
   toPct,
+  toAxisYen,
 } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
@@ -442,14 +443,19 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
           <YAxis
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
-            tickFormatter={(v: number) => (mode === 'ratio' ? toPct(v / 100) : fmt(v))}
+            tickFormatter={(v: number) => (mode === 'ratio' ? toPct(v / 100) : toAxisYen(v))}
           />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value: number | undefined, name?: string) => [
-              value != null ? (mode === 'ratio' ? toPct(value / 100) : fmt(value)) : '-',
-              name ?? '',
-            ]}
+            content={createChartTooltip({
+              ct,
+              formatter: (value: unknown, name: string) => {
+                const v = value as number | undefined
+                return [
+                  v != null ? (mode === 'ratio' ? toPct(v / 100) : fmt(v)) : '-',
+                  name,
+                ]
+              },
+            })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 

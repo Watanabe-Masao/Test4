@@ -14,7 +14,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'
@@ -202,14 +203,16 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
               width={40}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value, name) => {
-                if (name === 'rate') return [toPct(value as number), '粗利率']
-                if (name === 'prevRate')
-                  return [value != null ? toPct(value as number) : '-', '前年粗利率']
-                return [toComma(value as number), '粗利額累計']
-              }}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value: unknown, name: string) => {
+                  if (name === 'rate') return [toPct(value as number), '粗利率']
+                  if (name === 'prevRate')
+                    return [value != null ? toPct(value as number) : '-', '前年粗利率']
+                  return [toComma(value as number), '粗利額累計']
+                },
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <Legend
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
@@ -303,9 +306,11 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
               width={40}
             />
             <Tooltip
-              contentStyle={tooltipStyle(ct)}
-              formatter={(value) => [toPct(value as number), '粗利率']}
-              labelFormatter={(label) => `${label}日`}
+              content={createChartTooltip({
+                ct,
+                formatter: (value: unknown) => [toPct(value as number), '粗利率'],
+                labelFormatter: (label) => `${label}日`,
+              })}
             />
             <ReferenceLine
               y={targetRate}

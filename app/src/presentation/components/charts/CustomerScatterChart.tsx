@@ -12,7 +12,8 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import styled from 'styled-components'
-import { useChartTheme, tooltipStyle, toComma, toPct } from './chartTheme'
+import { useChartTheme, toComma, toPct } from './chartTheme'
+import { createChartTooltip } from './ChartTooltip'
 import type { DailyRecord } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 
@@ -405,22 +406,28 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
           )}
           <ZAxis dataKey="sales" range={[40, 400]} name="売上" />
           <Tooltip
-            contentStyle={tooltipStyle(ct)}
-            formatter={(value, name) => {
-              if (name === '客数') return [`${toComma(value as number)}人`, name]
-              if (name === '客単価') return [`${toComma(value as number)}円`, name]
-              if (name === '客数変化率' || name === '客単価変化率')
-                return [toPct(value as number), name]
-              if (name === '売上') return [toComma(value as number), name]
-              return [String(value), String(name)]
-            }}
-            labelFormatter={(_, payload) => {
-              if (payload && payload.length > 0) {
-                const p = payload[0].payload as { day?: number; dowLabel?: string }
-                return p.day != null ? `${p.day}日（${p.dowLabel ?? ''}）` : ''
-              }
-              return ''
-            }}
+            content={createChartTooltip({
+              ct,
+              formatter: (value, name) => {
+                if (name === '客数') return [`${toComma(value as number)}人`, name]
+                if (name === '客単価') return [`${toComma(value as number)}円`, name]
+                if (name === '客数変化率' || name === '客単価変化率')
+                  return [toPct(value as number), name]
+                if (name === '売上') return [toComma(value as number), name]
+                return [String(value), String(name)]
+              },
+              labelFormatter: (_label, payload) => {
+                if (payload && payload.length > 0) {
+                  const p = payload[0] as unknown as {
+                    payload: { day?: number; dowLabel?: string }
+                  }
+                  return p.payload?.day != null
+                    ? `${p.payload.day}日（${p.payload.dowLabel ?? ''}）`
+                    : ''
+                }
+                return ''
+              },
+            })}
           />
           {/* Average / zero reference lines */}
           {isYoy ? (
