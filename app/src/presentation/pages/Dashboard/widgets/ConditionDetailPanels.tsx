@@ -43,7 +43,25 @@ import {
   BreakdownLabel,
   BreakdownValue,
   BreakdownSignal,
+  StoreBorderTr,
 } from './ConditionSummary.styles'
+
+// ─── Helpers ────────────────────────────────────────────
+
+/** Prorate grossProfitBudget to the elapsed period using budgetDaily distribution */
+function prorateGpBudget(
+  sr: StoreResult,
+  elapsedDays: number | undefined,
+  daysInMonth: number | undefined,
+): number {
+  const dim = daysInMonth ?? 31
+  const effectiveEndDay = elapsedDays ?? dim
+  const isPartial = elapsedDays != null && elapsedDays < dim
+  if (!isPartial) return sr.grossProfitBudget
+  let periodBudgetSum = 0
+  for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += sr.budgetDaily.get(d) ?? 0
+  return sr.budget > 0 ? sr.grossProfitBudget * (periodBudgetSum / sr.budget) : 0
+}
 
 // ─── Shared Props ───────────────────────────────────────
 
@@ -55,6 +73,9 @@ interface DetailPanelProps {
   readonly displayMode: DisplayMode
   readonly onDisplayModeChange: (mode: DisplayMode) => void
   readonly settings: AppSettings
+  readonly elapsedDays?: number
+  readonly daysInMonth?: number
+  readonly dataMaxDay?: number
 }
 
 // ─── GP Rate Detail ─────────────────────────────────────
@@ -66,6 +87,8 @@ export function GpRateDetailTable({
   effectiveConfig,
   displayMode,
   onDisplayModeChange,
+  elapsedDays,
+  daysInMonth,
 }: DetailPanelProps) {
   const gpBefore = computeGpBeforeConsumable(r)
   const gpAfter = computeGpAfterConsumable(r)
@@ -139,17 +162,18 @@ export function GpRateDetailTable({
                 </BTr>
               )
             }
-            // amount mode
+            // amount mode (period-prorated GP budget)
             const gpAmt = computeGpAmount(sr)
             const gpAfterAmt = computeGpAfterConsumableAmount(sr)
-            const diffAmt = gpAfterAmt - sr.grossProfitBudget
+            const storeGpBudget = prorateGpBudget(sr, elapsedDays, daysInMonth)
+            const diffAmt = gpAfterAmt - storeGpBudget
             return (
               <BTr key={storeId}>
                 <BTd>
                   <BSignalDot $color={sigColor} />
                   {storeName}
                 </BTd>
-                <BTd>{formatCurrency(sr.grossProfitBudget)}</BTd>
+                <BTd>{formatCurrency(storeGpBudget)}</BTd>
                 <BTd>{formatCurrency(gpAmt)}</BTd>
                 <BTd>{formatCurrency(gpAfterAmt)}</BTd>
                 <BTd $color={sigColor}>
@@ -180,11 +204,12 @@ export function GpRateDetailTable({
             }
             const totalGpAmt = computeGpAmount(r)
             const totalAfterAmt = computeGpAfterConsumableAmount(r)
-            const totalDiffAmt = totalAfterAmt - r.grossProfitBudget
+            const totalGpBudget = prorateGpBudget(r, elapsedDays, daysInMonth)
+            const totalDiffAmt = totalAfterAmt - totalGpBudget
             return (
               <BTr $highlight>
                 <BTd $bold>合計</BTd>
-                <BTd $bold>{formatCurrency(r.grossProfitBudget)}</BTd>
+                <BTd $bold>{formatCurrency(totalGpBudget)}</BTd>
                 <BTd $bold>{formatCurrency(totalGpAmt)}</BTd>
                 <BTd $bold>{formatCurrency(totalAfterAmt)}</BTd>
                 <BTd $bold $color={totalColor}>
@@ -512,6 +537,7 @@ export function CostInclusionDetailTable({
 }: CostInclusionDetailProps) {
   const totalItems = aggregateCostInclusionItems(r)
   const grandTotal = r.totalCostInclusion
+  const hasExpanded = expandedMarkupStore != null
 
   return (
     <>
@@ -524,11 +550,10 @@ export function CostInclusionDetailTable({
             <BTh>店舗名</BTh>
             <BTh>原価算入費</BTh>
             <BTh>原価算入率</BTh>
-            <BTh>構成比</BTh>
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr]) => {
+          {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
             const isExpanded = expandedMarkupStore === storeId
@@ -539,9 +564,19 @@ export function CostInclusionDetailTable({
               sr.storeId,
             )
             const sigColor = SIGNAL_COLORS[sig]
-            const share = grandTotal > 0 ? sr.totalCostInclusion / grandTotal : 0
 
-            const rows: React.ReactNode[] = [
+            const rows: React.ReactNode[] = []
+
+            // Add store boundary separator when any store is expanded (except first)
+            if (hasExpanded && idx > 0) {
+              rows.push(
+                <StoreBorderTr key={`${storeId}-border`}>
+                  <td colSpan={3} />
+                </StoreBorderTr>,
+              )
+            }
+
+            rows.push(
               <BTr
                 key={storeId}
                 onClick={() => onExpandToggle(storeId)}
@@ -554,9 +589,8 @@ export function CostInclusionDetailTable({
                 </BTd>
                 <BTd>{formatCurrency(sr.totalCostInclusion)}</BTd>
                 <BTd $color={sigColor}>{formatPercent(sr.costInclusionRate)}</BTd>
-                <BTd>{formatPercent(share)}</BTd>
               </BTr>,
-            ]
+            )
 
             if (isExpanded) {
               const storeItems = aggregateCostInclusionItems(sr)
@@ -565,7 +599,7 @@ export function CostInclusionDetailTable({
                 rows.push(
                   <SubRow key={`${storeId}-empty`}>
                     <BTd
-                      colSpan={4}
+                      colSpan={3}
                       style={{ paddingLeft: '28px', fontSize: '0.7rem', color: '#999' }}
                     >
                       品目データなし
@@ -579,7 +613,6 @@ export function CostInclusionDetailTable({
                       品目
                     </BTd>
                     <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>金額</BTd>
-                    <BTd />
                     <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
                   </SubRow>,
                 )
@@ -589,7 +622,6 @@ export function CostInclusionDetailTable({
                     <SubRow key={`${storeId}-${item.itemName}`}>
                       <BTd style={{ paddingLeft: '28px' }}>{item.itemName}</BTd>
                       <BTd>{formatCurrency(item.cost)}</BTd>
-                      <BTd />
                       <BTd>{formatPercent(itemShare)}</BTd>
                     </SubRow>,
                   )
@@ -604,7 +636,6 @@ export function CostInclusionDetailTable({
             <BTd $bold>合計</BTd>
             <BTd $bold>{formatCurrency(grandTotal)}</BTd>
             <BTd $bold>{formatPercent(r.costInclusionRate)}</BTd>
-            <BTd $bold>{formatPercent(1)}</BTd>
           </BTr>
           {/* Grand total item breakdown */}
           {totalItems.length > 0 && (
@@ -614,7 +645,6 @@ export function CostInclusionDetailTable({
                   全店 品目内訳
                 </BTd>
                 <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>金額</BTd>
-                <BTd />
                 <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
               </SubRow>
               {totalItems.map((item) => {
@@ -623,7 +653,6 @@ export function CostInclusionDetailTable({
                   <SubRow key={`total-${item.itemName}`}>
                     <BTd style={{ paddingLeft: '20px' }}>{item.itemName}</BTd>
                     <BTd>{formatCurrency(item.cost)}</BTd>
-                    <BTd />
                     <BTd>{formatPercent(itemShare)}</BTd>
                   </SubRow>
                 )
@@ -652,6 +681,7 @@ export function SalesYoYDetailTable({
   effectiveConfig,
   prevYear,
   prevYearMonthlyKpi,
+  dataMaxDay,
 }: SalesYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
   const prevTotal = prevYear.totalSales
@@ -680,7 +710,7 @@ export function SalesYoYDetailTable({
           {sortedStoreEntries.map(([storeId, sr]) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
-            const prevStoreSales = computeStorePrevSales(prevYearMonthlyKpi, storeId)
+            const prevStoreSales = computeStorePrevSales(prevYearMonthlyKpi, storeId, dataMaxDay)
             const storeYoY = safeDivide(sr.totalSales, prevStoreSales, 0)
             const sig =
               prevStoreSales > 0
@@ -761,6 +791,7 @@ export function CustomerYoYDetailTable({
   effectiveConfig,
   prevYear,
   prevYearMonthlyKpi,
+  dataMaxDay,
 }: CustomerYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
   const prevTotal = prevYear.totalCustomers
@@ -788,7 +819,11 @@ export function CustomerYoYDetailTable({
           {sortedStoreEntries.map(([storeId, sr]) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
-            const prevStoreCustomers = computeStorePrevCustomers(prevYearMonthlyKpi, storeId)
+            const prevStoreCustomers = computeStorePrevCustomers(
+              prevYearMonthlyKpi,
+              storeId,
+              dataMaxDay,
+            )
             const storeYoY = safeDivide(sr.totalCustomers, prevStoreCustomers, 0)
             const sig =
               prevStoreCustomers > 0
@@ -873,6 +908,7 @@ export function TxValueDetailTable({
   const txTotal = safeDivide(r.totalSales, r.totalCustomers, 0)
   const fmtTx = (v: number) =>
     `${v.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`
+  const hasExpanded = expandedStore != null
 
   return (
     <>
@@ -889,13 +925,24 @@ export function TxValueDetailTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr]) => {
+          {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
             const storeTx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
             const isExpanded = expandedStore === storeId
 
-            const rows: React.ReactNode[] = [
+            const rows: React.ReactNode[] = []
+
+            // Store boundary separator when any store is expanded (except first)
+            if (hasExpanded && idx > 0) {
+              rows.push(
+                <StoreBorderTr key={`${storeId}-border`}>
+                  <td colSpan={4} />
+                </StoreBorderTr>,
+              )
+            }
+
+            rows.push(
               <BTr
                 key={storeId}
                 onClick={() => onExpandToggle(storeId)}
@@ -910,7 +957,7 @@ export function TxValueDetailTable({
                 <BTd>{sr.totalCustomers.toLocaleString()}人</BTd>
                 <BTd>{fmtTx(storeTx)}</BTd>
               </BTr>,
-            ]
+            )
 
             // Daily trend per store
             if (isExpanded) {
@@ -1075,19 +1122,23 @@ export function DailySalesDetailTable({
 
 // ─── YoY Helper Functions ──────────────────────────────
 
-/** Store-level prev-year sales from storeContributions */
-function computeStorePrevSales(kpi: PrevYearMonthlyKpi, storeId: string): number {
+/** Store-level prev-year sales from storeContributions, filtered by maxDay */
+function computeStorePrevSales(kpi: PrevYearMonthlyKpi, storeId: string, maxDay?: number): number {
   if (!kpi.hasPrevYear) return 0
   return kpi.sameDow.storeContributions
-    .filter((c) => c.storeId === storeId)
+    .filter((c) => c.storeId === storeId && (maxDay == null || c.mappedDay <= maxDay))
     .reduce((sum, c) => sum + c.sales, 0)
 }
 
-/** Store-level prev-year customers from storeContributions */
-function computeStorePrevCustomers(kpi: PrevYearMonthlyKpi, storeId: string): number {
+/** Store-level prev-year customers from storeContributions, filtered by maxDay */
+function computeStorePrevCustomers(
+  kpi: PrevYearMonthlyKpi,
+  storeId: string,
+  maxDay?: number,
+): number {
   if (!kpi.hasPrevYear) return 0
   return kpi.sameDow.storeContributions
-    .filter((c) => c.storeId === storeId)
+    .filter((c) => c.storeId === storeId && (maxDay == null || c.mappedDay <= maxDay))
     .reduce((sum, c) => sum + c.customers, 0)
 }
 

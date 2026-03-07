@@ -383,6 +383,13 @@ export const SubRow = styled.tr`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
 `
 
+/** Store boundary row — thicker top border to visually separate expanded store sections */
+export const StoreBorderTr = styled.tr`
+  & > td {
+    border-top: 3px double ${({ theme }) => theme.colors.border};
+  }
+`
+
 export const BarCell = styled.div<{ $ratio: number; $color: string }>`
   display: flex;
   align-items: center;
