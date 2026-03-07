@@ -1,4 +1,4 @@
-import { useMemo, useState, memo } from 'react'
+import { useMemo, useState, useCallback, memo } from 'react'
 import type { ReactNode } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
@@ -35,6 +35,81 @@ const Title = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text2};
+`
+
+const Controls = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[2]};
+  align-items: center;
+  flex-wrap: wrap;
+`
+
+const ControlGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`
+
+const ControlLabel = styled.span`
+  font-size: 0.5rem;
+  color: ${({ theme }) => theme.colors.text4};
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+`
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 3px;
+  align-items: center;
+`
+
+const ToggleBtn = styled.button<{ $active: boolean }>`
+  padding: 2px 8px;
+  font-size: 0.55rem;
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ $active, theme }) =>
+    $active
+      ? theme.mode === 'dark'
+        ? 'rgba(99,102,241,0.2)'
+        : 'rgba(99,102,241,0.08)'
+      : 'transparent'};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  &:hover:not(:disabled) {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+const StoreChip = styled.button<{ $active: boolean; $color: string }>`
+  padding: 2px 8px;
+  font-size: 0.55rem;
+  border: 1px solid ${({ $active, $color }) => ($active ? $color : 'transparent')};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ $active, $color }) => ($active ? `${$color}18` : 'transparent')};
+  color: ${({ $active, $color, theme }) => ($active ? $color : theme.colors.text4)};
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: ${({ $active }) => ($active ? 1 : 0.5)};
+  &:hover {
+    opacity: 1;
+  }
+`
+
+const StoreDotInline = styled.span<{ $color: string }>`
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
 `
 
 const CompTable = styled.div`
@@ -101,12 +176,12 @@ const RankBadge = styled.span<{ $rank: number }>`
 `
 
 type SortKey = 'sales' | 'cost' | 'diff' | 'gpRate' | 'discountRate' | 'markupRate'
+type SeriesMode = 'all' | 'sales' | 'purchase' | 'inventory'
 
 interface Props {
   comparisonResults: readonly StoreResult[]
   stores: ReadonlyMap<string, Store>
   daysInMonth: number
-  /** ヘッダーに追加表示する要素（タブ切替など） */
   headerExtra?: ReactNode
 }
 
@@ -120,6 +195,8 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
   const [sortKey, setSortKey] = useState<SortKey>('sales')
   const [sortDesc, setSortDesc] = useState(true)
+  const [seriesMode, setSeriesMode] = useState<SeriesMode>('sales')
+  const [visibleStoreIds, setVisibleStoreIds] = useState<Set<string> | null>(null) // null = all
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDesc((d) => !d)
@@ -141,11 +218,41 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
     [comparisonResults, stores],
   )
 
-  // 推定在庫を表示可能な店舗が1つでもあるか
   const anyHasInventory = storeEntries.some((s) => s.hasInventory)
 
+  const toggleStore = useCallback(
+    (storeId: string) => {
+      setVisibleStoreIds((prev) => {
+        if (prev === null) {
+          // All visible → hide this one
+          const next = new Set(storeEntries.map((s) => s.storeId))
+          next.delete(storeId)
+          return next.size === 0 ? null : next
+        }
+        const next = new Set(prev)
+        if (next.has(storeId)) {
+          next.delete(storeId)
+          // If all removed, show all
+          return next.size === 0 ? null : next
+        }
+        next.add(storeId)
+        // If all added, return null (= all)
+        return next.size === storeEntries.length ? null : next
+      })
+    },
+    [storeEntries],
+  )
+
+  const isStoreVisible = useCallback(
+    (storeId: string) => visibleStoreIds === null || visibleStoreIds.has(storeId),
+    [visibleStoreIds],
+  )
+
+  const showSales = seriesMode === 'all' || seriesMode === 'sales'
+  const showPurchase = seriesMode === 'all' || seriesMode === 'purchase'
+  const showInventory = (seriesMode === 'all' || seriesMode === 'inventory') && anyHasInventory
+
   const chartData = useMemo(() => {
-    // 店舗ごとに推定在庫を事前計算
     const invByStore = new Map<string, ReturnType<typeof computeEstimatedInventory>>()
     for (const s of storeEntries) {
       if (s.hasInventory) {
@@ -180,11 +287,56 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
 
   if (storeEntries.length < 2) return null
 
+  const visibleEntries = storeEntries.filter((s) => isStoreVisible(s.storeId))
+
   return (
     <Wrapper aria-label="売仕比較チャート">
       <Header>
         <Title>売上・仕入・推定在庫 店舗比較</Title>
-        {headerExtra}
+        <Controls>
+          <ControlGroup>
+            <ControlLabel>表示系列</ControlLabel>
+            <ButtonGroup>
+              <ToggleBtn $active={seriesMode === 'sales'} onClick={() => setSeriesMode('sales')}>
+                売上
+              </ToggleBtn>
+              <ToggleBtn
+                $active={seriesMode === 'purchase'}
+                onClick={() => setSeriesMode('purchase')}
+              >
+                仕入
+              </ToggleBtn>
+              {anyHasInventory && (
+                <ToggleBtn
+                  $active={seriesMode === 'inventory'}
+                  onClick={() => setSeriesMode('inventory')}
+                >
+                  推定在庫
+                </ToggleBtn>
+              )}
+              <ToggleBtn $active={seriesMode === 'all'} onClick={() => setSeriesMode('all')}>
+                全て
+              </ToggleBtn>
+            </ButtonGroup>
+          </ControlGroup>
+          <ControlGroup>
+            <ControlLabel>店舗フィルタ</ControlLabel>
+            <ButtonGroup>
+              {storeEntries.map((s, i) => (
+                <StoreChip
+                  key={s.storeId}
+                  $active={isStoreVisible(s.storeId)}
+                  $color={STORE_COLORS[i % STORE_COLORS.length]}
+                  onClick={() => toggleStore(s.storeId)}
+                >
+                  <StoreDotInline $color={STORE_COLORS[i % STORE_COLORS.length]} />
+                  {s.name.length > 6 ? s.name.slice(0, 6) + '…' : s.name}
+                </StoreChip>
+              ))}
+            </ButtonGroup>
+          </ControlGroup>
+          {headerExtra}
+        </Controls>
       </Header>
 
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={300}>
@@ -196,8 +348,7 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
             axisLine={{ stroke: ct.grid }}
             tickLine={false}
           />
-          {/* 左軸: 推定在庫（累計スケール） */}
-          {anyHasInventory && (
+          {showInventory && (
             <YAxis
               yAxisId="left"
               tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
@@ -207,10 +358,9 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
               width={55}
             />
           )}
-          {/* 右軸: 売上・仕入（日次スケール） */}
           <YAxis
             yAxisId="right"
-            orientation={anyHasInventory ? 'right' : 'left'}
+            orientation={showInventory ? 'right' : 'left'}
             tick={{ fill: ct.textMuted, fontSize: ct.fontSize.xs, fontFamily: ct.monoFamily }}
             axisLine={false}
             tickLine={false}
@@ -227,57 +377,69 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
               labelFormatter: (label) => `${label}日`,
             })}
           />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
-
-          {/* 棒グラフ: 売上金額（店舗色、高不透明度） */}
-          {storeEntries.map((s, i) => (
-            <Bar
-              key={`${s.storeId}_sales`}
-              yAxisId="right"
-              dataKey={`${s.name}_売上`}
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
-              fillOpacity={0.45}
-              isAnimationActive={false}
-            />
-          ))}
-
-          {/* 棒グラフ: 仕入金額（店舗色、低不透明度） */}
-          {storeEntries.map((s, i) => (
-            <Bar
-              key={`${s.storeId}_purchase`}
-              yAxisId="right"
-              dataKey={`${s.name}_仕入`}
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
-              fillOpacity={0.2}
-              isAnimationActive={false}
-            />
-          ))}
-
-          {/* 折れ線: 推定在庫（期首在庫ありの店舗のみ） */}
-          {storeEntries.map((s, i) =>
-            s.hasInventory ? (
-              <Line
-                key={`${s.storeId}_inv`}
-                yAxisId="left"
-                type="monotone"
-                dataKey={`${s.name}_推定在庫`}
-                stroke={STORE_COLORS[i % STORE_COLORS.length]}
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{
-                  r: 4,
-                  fill: STORE_COLORS[i % STORE_COLORS.length],
-                  stroke: ct.bg2,
-                  strokeWidth: 2,
-                }}
-                isAnimationActive={false}
-              />
-            ) : null,
+          {seriesMode === 'all' && (
+            <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
           )}
+
+          {/* 棒グラフ: 売上 */}
+          {showSales &&
+            visibleEntries.map((s) => {
+              const i = storeEntries.indexOf(s)
+              return (
+                <Bar
+                  key={`${s.storeId}_sales`}
+                  yAxisId="right"
+                  dataKey={`${s.name}_売上`}
+                  fill={STORE_COLORS[i % STORE_COLORS.length]}
+                  fillOpacity={seriesMode === 'all' ? 0.35 : 0.55}
+                  isAnimationActive={false}
+                />
+              )
+            })}
+
+          {/* 棒グラフ: 仕入 */}
+          {showPurchase &&
+            visibleEntries.map((s) => {
+              const i = storeEntries.indexOf(s)
+              return (
+                <Bar
+                  key={`${s.storeId}_purchase`}
+                  yAxisId="right"
+                  dataKey={`${s.name}_仕入`}
+                  fill={STORE_COLORS[i % STORE_COLORS.length]}
+                  fillOpacity={seriesMode === 'all' ? 0.15 : 0.45}
+                  isAnimationActive={false}
+                />
+              )
+            })}
+
+          {/* 折れ線: 推定在庫 */}
+          {showInventory &&
+            visibleEntries.map((s) => {
+              const i = storeEntries.indexOf(s)
+              return s.hasInventory ? (
+                <Line
+                  key={`${s.storeId}_inv`}
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey={`${s.name}_推定在庫`}
+                  stroke={STORE_COLORS[i % STORE_COLORS.length]}
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{
+                    r: 4,
+                    fill: STORE_COLORS[i % STORE_COLORS.length],
+                    stroke: ct.bg2,
+                    strokeWidth: 2,
+                  }}
+                  isAnimationActive={false}
+                />
+              ) : null
+            })}
         </ComposedChart>
       </ResponsiveContainer>
 
-      {/* 店舗サマリーテーブル（ソート可能 + 粗利率・売変率・原価算入率列追加） */}
+      {/* 店舗サマリーテーブル */}
       <CompTable>
         <MiniTable>
           <thead>
@@ -313,7 +475,6 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
                   safeDivide(s.result.estMethodMargin, s.result.totalCoreSales, 0)
                 return { s, i, diff, gpRate, discountRate: s.result.discountRate }
               })
-              // ソート用の値取得
               const getVal = (row: (typeof rows)[0]): number => {
                 switch (sortKey) {
                   case 'sales':
@@ -335,8 +496,16 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
               )
               return sorted.map((row, rank) => {
                 const estClosing = row.s.result.estMethodClosingInventory
+                const dimmed = !isStoreVisible(row.s.storeId)
                 return (
-                  <tr key={row.s.storeId}>
+                  <tr
+                    key={row.s.storeId}
+                    style={{
+                      opacity: dimmed ? 0.4 : 1,
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => toggleStore(row.s.storeId)}
+                  >
                     <MiniTd>
                       <RankBadge $rank={rank + 1}>{rank + 1}</RankBadge>
                       <StoreDot $color={STORE_COLORS[row.i % STORE_COLORS.length]} />
