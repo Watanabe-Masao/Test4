@@ -2,31 +2,25 @@
  * CostDetailPage ウィジェットレジストリ
  *
  * 原価明細ページの KPI とタブコンテンツをウィジェット化。
+ * UnifiedWidgetContext を使い、全ページから利用可能。
  */
 import { KpiCard, KpiGrid } from '@/presentation/components/common'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import { palette } from '@/presentation/theme/tokens'
-import type { WidgetDef, PageWidgetConfig } from '@/presentation/components/widgets'
-import type { MetricId } from '@/domain/models'
-import type { CostDetailData } from './useCostDetailData'
+import type { WidgetDef } from '@/presentation/components/widgets'
 import { PurchaseTab } from './PurchaseTab'
 import { TransferTab } from './TransferTab'
 import { CostInclusionTab } from './CostInclusionTab'
 
-export interface CostDetailWidgetContext {
-  readonly d: CostDetailData
-  readonly onExplain: (metricId: MetricId) => void
-}
-
-const COST_DETAIL_WIDGETS: readonly WidgetDef<CostDetailWidgetContext>[] = [
+export const COST_DETAIL_WIDGETS: readonly WidgetDef[] = [
   {
     id: 'costdetail-kpi-summary',
     label: 'サマリーKPI',
-    group: 'KPI',
+    group: '原価明細',
     size: 'full',
     render: (ctx) => {
-      const { d, onExplain } = ctx
-      if (!d.typeIn || !d.typeOut) return null
+      const d = ctx.costDetailData
+      if (!d?.typeIn || !d?.typeOut) return null
       return (
         <KpiGrid>
           <KpiCard
@@ -45,52 +39,66 @@ const COST_DETAIL_WIDGETS: readonly WidgetDef<CostDetailWidgetContext>[] = [
             label="原価算入費合計"
             value={formatCurrency(d.totalCostInclusionAmount)}
             accent={palette.orange}
-            onClick={() => onExplain('totalCostInclusion')}
+            onClick={() => ctx.onExplain('totalCostInclusion')}
           />
           <KpiCard
             label="原価算入率"
             value={formatPercent(d.costInclusionRate)}
             subText={`売上高: ${formatCurrency(d.totalSales)}`}
             accent={palette.orangeDark}
-            onClick={() => onExplain('totalCostInclusion')}
+            onClick={() => ctx.onExplain('totalCostInclusion')}
           />
         </KpiGrid>
       )
     },
+    isVisible: (ctx) => ctx.costDetailData != null,
   },
   {
     id: 'costdetail-purchase',
     label: '仕入明細',
-    group: '明細タブ',
+    group: '原価明細',
     size: 'full',
-    render: (ctx) => <PurchaseTab d={ctx.d} />,
+    render: (ctx) => {
+      if (!ctx.costDetailData) return null
+      return <PurchaseTab d={ctx.costDetailData} />
+    },
+    isVisible: (ctx) => ctx.costDetailData != null,
   },
   {
     id: 'costdetail-transfer',
     label: '移動明細',
-    group: '明細タブ',
+    group: '原価明細',
     size: 'full',
-    render: (ctx) => <TransferTab d={ctx.d} />,
+    render: (ctx) => {
+      if (!ctx.costDetailData) return null
+      return <TransferTab d={ctx.costDetailData} />
+    },
+    isVisible: (ctx) => ctx.costDetailData != null,
   },
   {
     id: 'costdetail-cost-inclusion',
     label: '消耗品明細',
-    group: '明細タブ',
+    group: '原価明細',
     size: 'full',
-    render: (ctx) => <CostInclusionTab d={ctx.d} onExplain={ctx.onExplain} />,
+    render: (ctx) => {
+      if (!ctx.costDetailData) return null
+      return <CostInclusionTab d={ctx.costDetailData} onExplain={ctx.onExplain} />
+    },
+    isVisible: (ctx) => ctx.costDetailData != null,
   },
 ]
 
-const DEFAULT_COST_DETAIL_WIDGET_IDS = [
+export const DEFAULT_COST_DETAIL_WIDGET_IDS = [
+  // 原価 KPI
+  'kpi-inventory-cost',
+  'kpi-delivery-sales',
+  'kpi-cost-inclusion',
   'costdetail-kpi-summary',
+  // 仕入明細
   'costdetail-purchase',
   'costdetail-transfer',
   'costdetail-cost-inclusion',
+  // 店舗比較
+  'chart-sales-purchase-comparison',
+  'exec-daily-inventory',
 ]
-
-export const COST_DETAIL_WIDGET_CONFIG: PageWidgetConfig<CostDetailWidgetContext> = {
-  pageKey: 'costDetail',
-  registry: COST_DETAIL_WIDGETS,
-  defaultWidgetIds: DEFAULT_COST_DETAIL_WIDGET_IDS,
-  settingsTitle: '原価明細のカスタマイズ',
-}

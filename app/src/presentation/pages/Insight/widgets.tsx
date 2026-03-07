@@ -2,66 +2,74 @@
  * InsightPage ウィジェットレジストリ
  *
  * インサイトページの各タブコンテンツをウィジェットとして定義。
+ * UnifiedWidgetContext を使い、全ページから利用可能。
  */
-import type { WidgetDef, PageWidgetConfig } from '@/presentation/components/widgets'
-import type { InsightData } from './useInsightData'
-import type { StoreResult, MetricId } from '@/domain/models'
+import type { WidgetDef } from '@/presentation/components/widgets'
 import { BudgetTabContent, GrossProfitTabContent } from './InsightTabBudget'
 import { ForecastTabContent, DecompositionTabContent } from './InsightTabForecast'
 
-export interface InsightWidgetContext {
-  readonly d: InsightData
-  readonly r: StoreResult
-  readonly onExplain: (metricId: MetricId) => void
-}
-
-const INSIGHT_WIDGETS: readonly WidgetDef<InsightWidgetContext>[] = [
+export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
   {
     id: 'insight-budget',
     label: '予算と実績',
-    group: '分析タブ',
+    group: 'インサイト',
     size: 'full',
-    render: (ctx) => <BudgetTabContent d={ctx.d} r={ctx.r} onExplain={ctx.onExplain} />,
+    render: (ctx) => {
+      if (!ctx.insightData) return null
+      return <BudgetTabContent d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
+    },
+    isVisible: (ctx) => ctx.insightData != null,
   },
   {
     id: 'insight-gross-profit',
     label: '損益構造',
-    group: '分析タブ',
+    group: 'インサイト',
     size: 'full',
-    render: (ctx) => <GrossProfitTabContent d={ctx.d} r={ctx.r} onExplain={ctx.onExplain} />,
+    render: (ctx) => {
+      if (!ctx.insightData) return null
+      return <GrossProfitTabContent d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
+    },
+    isVisible: (ctx) => ctx.insightData != null,
   },
   {
     id: 'insight-forecast',
     label: '予測・パターン',
-    group: '分析タブ',
+    group: 'インサイト',
     size: 'full',
-    render: (ctx) =>
-      ctx.d.forecastData ? (
-        <ForecastTabContent d={ctx.d} r={ctx.r} onExplain={ctx.onExplain} />
-      ) : null,
-    isVisible: (ctx) => ctx.d.forecastData != null,
+    render: (ctx) => {
+      if (!ctx.insightData?.forecastData) return null
+      return <ForecastTabContent d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
+    },
+    isVisible: (ctx) => ctx.insightData?.forecastData != null,
   },
   {
     id: 'insight-decomposition',
     label: '売上要因分解',
-    group: '分析タブ',
+    group: 'インサイト',
     size: 'full',
-    render: (ctx) =>
-      ctx.d.customerData && ctx.d.forecastData ? <DecompositionTabContent d={ctx.d} /> : null,
-    isVisible: (ctx) => ctx.d.customerData != null && ctx.d.forecastData != null,
+    render: (ctx) => {
+      if (!ctx.insightData?.customerData || !ctx.insightData?.forecastData) return null
+      return <DecompositionTabContent d={ctx.insightData} />
+    },
+    isVisible: (ctx) =>
+      ctx.insightData?.customerData != null && ctx.insightData?.forecastData != null,
   },
 ]
 
-const DEFAULT_INSIGHT_WIDGET_IDS = [
-  'insight-budget',
+export const DEFAULT_INSIGHT_WIDGET_IDS = [
+  // 粗利 KPI
+  'kpi-inv-gross-profit',
+  'kpi-est-margin',
+  'kpi-core-markup',
+  'kpi-discount-loss',
+  // 損益構造・粗利分析
   'insight-gross-profit',
-  'insight-forecast',
+  'analysis-waterfall',
+  'analysis-gp-heatmap',
+  'analysis-structural-overview',
+  // 売変分析
+  'chart-discount-breakdown',
+  // 要因分解
   'insight-decomposition',
+  'analysis-causal-chain',
 ]
-
-export const INSIGHT_WIDGET_CONFIG: PageWidgetConfig<InsightWidgetContext> = {
-  pageKey: 'insight',
-  registry: INSIGHT_WIDGETS,
-  defaultWidgetIds: DEFAULT_INSIGHT_WIDGET_IDS,
-  settingsTitle: 'インサイトのカスタマイズ',
-}

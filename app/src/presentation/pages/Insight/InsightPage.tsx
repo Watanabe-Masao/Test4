@@ -1,60 +1,57 @@
-import { useState, useCallback } from 'react'
+import { useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { MetricBreakdownPanel, PageSkeleton } from '@/presentation/components/common'
-import { useCalculation, useExplanations } from '@/application/hooks'
+import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
+import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { useDataStore } from '@/application/stores/dataStore'
-import type { MetricId } from '@/domain/models'
-import { PageWidgetContainer } from '@/presentation/components/widgets'
+import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { EmptyState } from './InsightPage.styles'
 import { useInsightData } from './useInsightData'
-import { INSIGHT_WIDGET_CONFIG } from './widgets'
-import type { InsightWidgetContext } from './widgets'
+import { DEFAULT_INSIGHT_WIDGET_IDS } from './widgets'
+
+const INSIGHT_CONFIG: PageWidgetConfig = {
+  pageKey: 'insight',
+  registry: UNIFIED_WIDGET_REGISTRY,
+  defaultWidgetIds: DEFAULT_INSIGHT_WIDGET_IDS,
+  settingsTitle: 'インサイトのカスタマイズ',
+}
 
 export function InsightPage() {
-  const { isComputing } = useCalculation()
-  const d = useInsightData()
-  const explanations = useExplanations()
   const dataStores = useDataStore((s) => s.data.stores)
-  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
-  const handleExplain = useCallback((metricId: MetricId) => {
-    setExplainMetric(metricId)
-  }, [])
+  const insightData = useInsightData()
+  const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 
-  if (isComputing && !d.currentResult) {
+  const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
+
+  // insightData を統一コンテキストに注入
+  const enrichedCtx = useMemo(() => (ctx ? { ...ctx, insightData } : null), [ctx, insightData])
+
+  if (isComputing && !enrichedCtx) {
     return (
-      <MainContent title="インサイト" storeName={d.storeName}>
+      <MainContent title="インサイト" storeName={storeName}>
         <PageSkeleton />
       </MainContent>
     )
   }
 
-  if (!d.currentResult) {
+  if (!enrichedCtx) {
     return (
-      <MainContent title="インサイト" storeName={d.storeName}>
+      <MainContent title="インサイト" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>
       </MainContent>
     )
   }
 
-  const r = d.currentResult
-
-  const widgetCtx: InsightWidgetContext = {
-    d,
-    r,
-    onExplain: handleExplain,
-  }
-
   return (
-    <MainContent title="インサイト" storeName={d.storeName}>
-      <PageWidgetContainer config={INSIGHT_WIDGET_CONFIG} context={widgetCtx} />
+    <MainContent title="インサイト" storeName={storeName}>
+      <PageWidgetContainer config={INSIGHT_CONFIG} context={enrichedCtx} />
 
-      {/* 指標説明パネル */}
-      {explainMetric && explanations.has(explainMetric) && (
+      {explainMetric && enrichedCtx.explanations.has(explainMetric) && (
         <MetricBreakdownPanel
-          explanation={explanations.get(explainMetric)!}
-          allExplanations={explanations}
+          explanation={enrichedCtx.explanations.get(explainMetric)!}
+          allExplanations={enrichedCtx.explanations}
           stores={dataStores}
-          onClose={() => setExplainMetric(null)}
+          onClose={handleExplainClose}
         />
       )}
     </MainContent>

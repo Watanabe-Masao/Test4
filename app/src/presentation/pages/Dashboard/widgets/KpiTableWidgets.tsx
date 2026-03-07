@@ -570,7 +570,7 @@ export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
               <KpiSubTh>差異</KpiSubTh>
               <KpiSubTh>達成率</KpiSubTh>
               {/* 在庫 */}
-              <KpiSubTh style={{ borderLeft: groupBorder }}>機首在庫</KpiSubTh>
+              <KpiSubTh style={{ borderLeft: groupBorder }}>期首在庫</KpiSubTh>
               <KpiSubTh>期末在庫</KpiSubTh>
               {/* 着地 */}
               <BudgetTh style={{ borderLeft: groupBorder }}>最終粗利着地</BudgetTh>

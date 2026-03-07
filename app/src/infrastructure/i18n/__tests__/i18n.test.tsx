@@ -17,7 +17,7 @@ describe('I18nContext', () => {
   it('デフォルトロケールは日本語', () => {
     const { result } = renderHook(() => useI18n(), { wrapper })
     expect(result.current.locale).toBe('ja')
-    expect(result.current.messages.nav.dashboard).toBe('ダッシュボード')
+    expect(result.current.messages.nav.dashboard).toBe('概要')
   })
 
   it('ロケールを英語に切り替えできる', () => {
@@ -28,7 +28,7 @@ describe('I18nContext', () => {
     })
 
     expect(result.current.locale).toBe('en')
-    expect(result.current.messages.nav.dashboard).toBe('Dashboard')
+    expect(result.current.messages.nav.dashboard).toBe('Overview')
   })
 
   it('テンプレート文字列を置換できる', () => {

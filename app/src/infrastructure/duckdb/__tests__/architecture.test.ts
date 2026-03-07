@@ -142,6 +142,7 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
     'duckdb-category-hourly',
     'duckdb-category-mix',
     'duckdb-category-benchmark',
+    'duckdb-category-boxplot',
   ]
 
   // 統合ウィジェット（DuckDB/CTS 自動切替）

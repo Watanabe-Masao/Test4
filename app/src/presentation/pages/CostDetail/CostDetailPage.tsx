@@ -1,57 +1,59 @@
-import { useState, useCallback } from 'react'
+import { useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { MetricBreakdownPanel, PageSkeleton } from '@/presentation/components/common'
-import { useCalculation, useExplanations } from '@/application/hooks'
+import { PageWidgetContainer, UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
+import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { useDataStore } from '@/application/stores/dataStore'
-import type { MetricId } from '@/domain/models'
-import { PageWidgetContainer } from '@/presentation/components/widgets'
+import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { EmptyState } from './CostDetailPage.styles'
 import { useCostDetailData } from './useCostDetailData'
-import { COST_DETAIL_WIDGET_CONFIG } from './widgets'
-import type { CostDetailWidgetContext } from './widgets'
+import { DEFAULT_COST_DETAIL_WIDGET_IDS } from './widgets'
+
+const COST_DETAIL_CONFIG: PageWidgetConfig = {
+  pageKey: 'costDetail',
+  registry: UNIFIED_WIDGET_REGISTRY,
+  defaultWidgetIds: DEFAULT_COST_DETAIL_WIDGET_IDS,
+  settingsTitle: '原価明細のカスタマイズ',
+}
 
 export function CostDetailPage() {
-  const { isComputing } = useCalculation()
-  const d = useCostDetailData()
-  const explanations = useExplanations()
   const dataStores = useDataStore((s) => s.data.stores)
-  const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
-  const handleExplain = useCallback((metricId: MetricId) => {
-    setExplainMetric(metricId)
-  }, [])
+  const costDetailData = useCostDetailData()
+  const { ctx, isComputing, storeName, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
 
-  if (isComputing && !d.currentResult) {
+  const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
+
+  const enrichedCtx = useMemo(
+    () => (ctx ? { ...ctx, costDetailData } : null),
+    [ctx, costDetailData],
+  )
+
+  if (isComputing && !enrichedCtx) {
     return (
-      <MainContent title="原価明細" storeName={d.storeName}>
+      <MainContent title="原価明細" storeName={storeName}>
         <PageSkeleton />
       </MainContent>
     )
   }
 
-  if (!d.currentResult || !d.typeIn || !d.typeOut || !d.typeNet) {
+  if (!enrichedCtx) {
     return (
-      <MainContent title="原価明細" storeName={d.storeName}>
+      <MainContent title="原価明細" storeName={storeName}>
         <EmptyState>計算を実行してください</EmptyState>
       </MainContent>
     )
   }
 
-  const widgetCtx: CostDetailWidgetContext = {
-    d,
-    onExplain: handleExplain,
-  }
-
   return (
-    <MainContent title="原価明細" storeName={d.storeName}>
-      <PageWidgetContainer config={COST_DETAIL_WIDGET_CONFIG} context={widgetCtx} />
+    <MainContent title="原価明細" storeName={storeName}>
+      <PageWidgetContainer config={COST_DETAIL_CONFIG} context={enrichedCtx} />
 
-      {/* 指標説明パネル */}
-      {explainMetric && explanations.has(explainMetric) && (
+      {explainMetric && enrichedCtx.explanations.has(explainMetric) && (
         <MetricBreakdownPanel
-          explanation={explanations.get(explainMetric)!}
-          allExplanations={explanations}
+          explanation={enrichedCtx.explanations.get(explainMetric)!}
+          allExplanations={enrichedCtx.explanations}
           stores={dataStores}
-          onClose={() => setExplainMetric(null)}
+          onClose={handleExplainClose}
         />
       )}
     </MainContent>

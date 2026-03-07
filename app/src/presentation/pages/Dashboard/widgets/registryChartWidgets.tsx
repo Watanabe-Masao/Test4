@@ -31,6 +31,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         year={year}
         month={month}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
+        budgetDaily={r.budgetDaily}
       />
     ),
   },
