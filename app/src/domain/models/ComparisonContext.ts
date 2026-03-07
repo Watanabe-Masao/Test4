@@ -35,6 +35,12 @@ export interface DowGapAnalysis {
   readonly prevDowDailyAvg: readonly number[]
   /** 実日法: 同曜日/同日マッピング差分から算出した影響額。undefined = 未算出 */
   readonly actualDayImpact?: ActualDayImpact
+  /** 前年の曜日別売上データが提供されているか（false = 全体平均で代替） */
+  readonly hasPrevDowSales: boolean
+  /** 曜日構成が同一か（全曜日の日数差が0） */
+  readonly isSameStructure: boolean
+  /** 不足データの説明（バリデーション用） */
+  readonly missingDataWarnings: readonly string[]
 }
 
 /** 実日法による曜日ギャップ分析: マッピング境界日の実売上ベース */

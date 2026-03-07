@@ -21,6 +21,8 @@ import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 import {
   Wrapper,
   Title,
@@ -192,7 +194,10 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
     <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
       <ControlRow>
         <div>
-          <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Title style={{ marginBottom: 0 }}>時間帯×曜日ヒートマップ（DuckDB）</Title>
+            <ChartHelpButton guide={CHART_GUIDES['heatmap-hour-dow']} />
+          </div>
           <Subtitle>
             {isAmountMode
               ? `セル色 = 売上額（日平均） | 赤枠 = 異常検出 (Z > ${Z_SCORE_THRESHOLD})`

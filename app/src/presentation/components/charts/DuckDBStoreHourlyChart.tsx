@@ -10,7 +10,7 @@
  * - 各店舗のピーク時間帯・コアタイム・折り返し時間
  * - 店舗間パターン類似度（コサイン類似度）
  */
-import { useState, useMemo, memo } from 'react'
+import { useState, useMemo, memo, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
@@ -26,6 +26,7 @@ import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
+import { Modal } from '@/presentation/components/common'
 
 // ── Styled Components ──
 
@@ -98,6 +99,13 @@ const StoreCard = styled.div<{ $borderColor: string }>`
     theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
   font-size: 0.6rem;
   min-width: 140px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};
+  }
 `
 
 const StoreName = styled.span`
@@ -110,24 +118,49 @@ const PeakInfo = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
-const InsightBar = styled.div`
+const ModalSimilarityList = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: ${({ theme }) => theme.spacing[2]};
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: 0.6rem;
 `
 
-const SimilarityBadge = styled.span<{ $high: boolean }>`
-  padding: 1px 6px;
+const ModalSimilarityRow = styled.div<{ $high: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $high }) => ($high ? `${sc.positive}18` : 'transparent')};
-  color: ${({ $high, theme }) => ($high ? sc.positive : theme.colors.text4)};
+  background: ${({ $high }) => ($high ? `${sc.positive}12` : 'transparent')};
+  font-size: 0.7rem;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+const ModalPairLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+const ModalSimValue = styled.span<{ $high: boolean }>`
+  font-weight: 600;
+  color: ${({ $high }) => ($high ? sc.positive : 'inherit')};
+`
+
+const ModalStoreDetail = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  border-left: 3px solid ${({ theme }) => theme.colors.palette.primary};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+  font-size: 0.7rem;
+  line-height: 1.8;
+`
+
+const ModalSectionTitle = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text2};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+  margin-top: ${({ theme }) => theme.spacing[3]};
 `
 
 const ErrorMsg = styled.div`
@@ -365,6 +398,15 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
   const [mode, setMode] = useState<Mode>('amount')
+  const [selectedStoreInfo, setSelectedStoreInfo] = useState<StoreInfo | null>(null)
+
+  const handleStoreCardClick = useCallback((store: StoreInfo) => {
+    setSelectedStoreInfo(store)
+  }, [])
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedStoreInfo(null)
+  }, [])
 
   const {
     data: storeRows,
@@ -457,15 +499,21 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
               name={store.name}
               fill={store.color}
               opacity={0.8}
+              stackId={mode === 'ratio' ? 'ratio' : undefined}
             />
           ))}
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Store summary cards with analytics */}
+      {/* Store summary cards with analytics — click to open detail modal */}
       <SummaryGrid>
         {storeInfos.map((store) => (
-          <StoreCard key={store.storeId} $borderColor={store.color}>
+          <StoreCard
+            key={store.storeId}
+            $borderColor={store.color}
+            onClick={() => handleStoreCardClick(store)}
+            title="クリックで類似度分析を表示"
+          >
             <StoreName>{store.name}</StoreName>
             <PeakInfo>
               ピーク: {store.peakHour}時 ({fmt(store.peakAmount)})
@@ -478,19 +526,81 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
         ))}
       </SummaryGrid>
 
-      {/* Pattern similarity insights */}
-      {similarities.length > 0 && (
-        <InsightBar>
-          {similarities.map((pair) => (
-            <SimilarityBadge
-              key={`${pair.storeA}-${pair.storeB}`}
-              $high={pair.similarity >= SIMILARITY_HIGH}
-            >
-              {pair.storeA} × {pair.storeB}: {toPct(pair.similarity)}
-              {pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
-            </SimilarityBadge>
-          ))}
-        </InsightBar>
+      {/* Store detail + similarity modal */}
+      {selectedStoreInfo && (
+        <Modal title={`${selectedStoreInfo.name} — 時間帯分析`} onClose={handleCloseModal}>
+          <ModalStoreDetail>
+            <div>
+              <strong>ピーク時間帯:</strong> {selectedStoreInfo.peakHour}時（
+              {fmt(selectedStoreInfo.peakAmount)}）
+            </div>
+            <div>
+              <strong>コアタイム:</strong> {selectedStoreInfo.coreTimeStart}〜
+              {selectedStoreInfo.coreTimeEnd}時
+            </div>
+            <div>
+              <strong>折り返し:</strong> {selectedStoreInfo.turnoverHour}時
+            </div>
+          </ModalStoreDetail>
+
+          {similarities.length > 0 && (
+            <>
+              <ModalSectionTitle>店舗間パターン類似度（コサイン類似度）</ModalSectionTitle>
+              <ModalSimilarityList>
+                {similarities
+                  .filter(
+                    (pair) =>
+                      pair.storeA === selectedStoreInfo.name ||
+                      pair.storeB === selectedStoreInfo.name,
+                  )
+                  .map((pair) => (
+                    <ModalSimilarityRow
+                      key={`${pair.storeA}-${pair.storeB}`}
+                      $high={pair.similarity >= SIMILARITY_HIGH}
+                    >
+                      <ModalPairLabel>
+                        {pair.storeA === selectedStoreInfo.name ? pair.storeB : pair.storeA}
+                      </ModalPairLabel>
+                      <ModalSimValue $high={pair.similarity >= SIMILARITY_HIGH}>
+                        {toPct(pair.similarity)}
+                        {pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
+                      </ModalSimValue>
+                    </ModalSimilarityRow>
+                  ))}
+              </ModalSimilarityList>
+
+              {similarities.filter(
+                (p) => p.storeA !== selectedStoreInfo.name && p.storeB !== selectedStoreInfo.name,
+              ).length > 0 && (
+                <>
+                  <ModalSectionTitle>その他の店舗ペア</ModalSectionTitle>
+                  <ModalSimilarityList>
+                    {similarities
+                      .filter(
+                        (p) =>
+                          p.storeA !== selectedStoreInfo.name &&
+                          p.storeB !== selectedStoreInfo.name,
+                      )
+                      .map((pair) => (
+                        <ModalSimilarityRow
+                          key={`${pair.storeA}-${pair.storeB}`}
+                          $high={pair.similarity >= SIMILARITY_HIGH}
+                        >
+                          <ModalPairLabel>
+                            {pair.storeA} × {pair.storeB}
+                          </ModalPairLabel>
+                          <ModalSimValue $high={pair.similarity >= SIMILARITY_HIGH}>
+                            {toPct(pair.similarity)}
+                            {pair.similarity >= SIMILARITY_HIGH && ' (高相似度)'}
+                          </ModalSimValue>
+                        </ModalSimilarityRow>
+                      ))}
+                  </ModalSimilarityList>
+                </>
+              )}
+            </>
+          )}
+        </Modal>
       )}
     </Wrapper>
   )

@@ -17,6 +17,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import type { WidgetContext } from './types'
+import { Button } from '@/presentation/components/common'
 import { STableWrapper, STableTitle, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import {
   KpiGroupTh,
@@ -30,6 +31,21 @@ import {
 } from './KpiTableWidgets.styles'
 import { EditableNumberCell } from './EditableNumberCell'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
+import styled from 'styled-components'
+
+const TableHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+const TableTitleText = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin: 0;
+`
 
 function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
   const varColor = sc.cond(rec.gpRateVariance >= 0)
@@ -109,6 +125,73 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       useUiStore.getState().invalidateCalculation()
     }
   }, [agg.purchaseMaxDay])
+
+  const handleExportCsv = useCallback(() => {
+    const headers = [
+      '店舗',
+      '粗利予算額',
+      '粗利率実績',
+      '予算差異',
+      '値入',
+      '売変',
+      isPartialPeriod ? '経過予算' : '予算',
+      '売上実績',
+      '売上差異',
+      '達成率',
+      '期首在庫',
+      '期末在庫',
+      '最終粗利着地',
+      '最終売上着地',
+    ]
+
+    const buildRow = (r: typeof agg, label: string) => {
+      const gpRateBudget = r.grossProfitRateBudget
+      const gpRateActual = getEffectiveGrossProfitRate(r)
+      const gpRateVariance = gpRateActual - gpRateBudget
+      let periodBudgetSum = 0
+      for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
+      const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
+      const salesVariance = r.totalSales - periodBudget
+      const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
+      const gpLanding = r.estMethodMarginRate
+      const salesLanding = r.projectedSales - r.budget
+
+      return [
+        label,
+        fmtPct(gpRateBudget),
+        fmtPct(gpRateActual),
+        fmtPtDiff(gpRateVariance * 100),
+        fmtPct(r.coreMarkupRate),
+        formatPercent(-r.discountRate, 2),
+        formatCurrency(periodBudget),
+        formatCurrency(r.totalSales),
+        formatCurrency(salesVariance),
+        formatPercent(periodAchRate),
+        r.openingInventory != null ? formatCurrency(r.openingInventory) : '-',
+        r.closingInventory != null ? formatCurrency(r.closingInventory) : '-',
+        fmtPct(gpLanding),
+        formatCurrency(salesLanding),
+      ]
+    }
+
+    const rows = storeEntries.map((s) => buildRow(s.result, s.label))
+    if (storeEntries.length > 1) rows.push(buildRow(agg, '合計'))
+
+    const bom = '\uFEFF'
+    const csvContent =
+      bom +
+      [headers, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `店舗別KPI一覧_${ctx.year}年${ctx.month}月.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [storeEntries, agg, effectiveEndDay, isPartialPeriod, ctx.year, ctx.month])
 
   if (storeEntries.length === 0) {
     return (
@@ -306,7 +389,18 @@ function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
 
   return (
     <STableWrapper>
-      <STableTitle>店舗別KPI一覧{isPartialPeriod ? `（〜${effectiveEndDay}日）` : ''}</STableTitle>
+      <TableHeader>
+        <TableTitleText>
+          店舗別KPI一覧{isPartialPeriod ? `（〜${effectiveEndDay}日）` : ''}
+        </TableTitleText>
+        <Button
+          $variant="outline"
+          onClick={handleExportCsv}
+          style={{ fontSize: '0.65rem', padding: '4px 10px' }}
+        >
+          CSV出力
+        </Button>
+      </TableHeader>
       {purchaseShort && (
         <KpiWarningBar $clickable onClick={handleFilterToPurchase}>
           仕入データ: {agg.purchaseMaxDay}日まで（売上: {agg.elapsedDays}日まで） —{' '}

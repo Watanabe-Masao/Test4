@@ -14,6 +14,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import styled from 'styled-components'
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import { createChartTooltip } from './ChartTooltip'
+import { ChartHelpButton } from './ChartHeader'
+import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 
@@ -288,11 +290,14 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
   return (
     <Wrapper aria-label="客数散布図チャート">
       <HeaderRow>
-        <Title>
-          {isYoy
-            ? '前年比 客数変化率×客単価変化率（バブルサイズ = 売上額 / 色 = 曜日）'
-            : '客数×客単価 効率分析（バブルサイズ = 売上額 / 色 = 曜日）'}
-        </Title>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Title>
+            {isYoy
+              ? '前年比 客数変化率×客単価変化率（バブルサイズ = 売上額 / 色 = 曜日）'
+              : '客数×客単価 効率分析（バブルサイズ = 売上額 / 色 = 曜日）'}
+          </Title>
+          <ChartHelpButton guide={CHART_GUIDES['customer-scatter']} />
+        </div>
         {hasPrev && (
           <ViewToggle>
             <ViewBtn $active={axisMode === 'absolute'} onClick={() => setAxisMode('absolute')}>

@@ -220,6 +220,9 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       estimatedImpact: 0,
       isValid: false,
       prevDowDailyAvg: [0, 0, 0, 0, 0, 0, 0],
+      hasPrevDowSales: false,
+      isSameStructure: true,
+      missingDataWarnings: [],
     },
     onPrevYearDetail: () => {},
     comparisonFrame: {

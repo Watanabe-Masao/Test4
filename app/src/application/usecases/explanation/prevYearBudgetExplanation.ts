@@ -203,10 +203,16 @@ export function generatePrevYearBudgetExplanations(
       )
     }
 
+    const warnings = dowGap.missingDataWarnings ?? []
+    const formulaNote =
+      warnings.length > 0
+        ? `曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)\n\n⚠ ${warnings.join('\n⚠ ')}`
+        : '曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)'
+
     map.set('dowGapImpact', {
       metric: 'dowGapImpact',
       title: '曜日ギャップ影響額',
-      formula: '曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)',
+      formula: formulaNote,
       value: dowGap.estimatedImpact,
       unit: 'yen',
       scope,
