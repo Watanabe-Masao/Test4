@@ -41,6 +41,7 @@ import {
   buildCategoryTrendData,
   buildBoxPlotData,
   buildBoxPlotDataByDate,
+  buildCategoryBenchmarkScoresByDate,
   buildStoreBreakdown,
   buildDateBreakdown,
   type CategoryBenchmarkScore,
@@ -309,14 +310,14 @@ const VIEW_LABELS: Record<ViewMode, string> = {
   boxplot: '箱ひげ図',
 }
 
-type BoxPlotAxis = 'store' | 'date'
+type AnalysisAxis = 'store' | 'date'
 
 const BOX_METRIC_LABELS: Record<BoxMetric, string> = {
   sales: '販売金額',
   quantity: '販売数量',
 }
 
-const BOX_AXIS_LABELS: Record<BoxPlotAxis, string> = {
+const ANALYSIS_AXIS_LABELS: Record<AnalysisAxis, string> = {
   store: '店舗別',
   date: '期間別',
 }
@@ -489,10 +490,12 @@ function TableView({
   scores,
   fmt,
   metricLabel,
+  isDateAxis,
 }: {
   scores: readonly CategoryBenchmarkScore[]
   fmt: (v: number) => string
   metricLabel: string
+  isDateAxis?: boolean
 }) {
   const isPi = scores.length > 0 && scores[0].metric !== 'share'
 
@@ -506,7 +509,7 @@ function TableView({
             <Th>{metricLabel}</Th>
             <Th>バラツキ(CV)</Th>
             <Th>安定度</Th>
-            <Th>カバー率</Th>
+            <Th>{isDateAxis ? '日数' : 'カバー率'}</Th>
             <Th>売上合計</Th>
             <Th>タイプ</Th>
           </tr>
@@ -521,9 +524,7 @@ function TableView({
               <Td>{isPi ? s.avgShare.toFixed(1) : toPct(s.avgShare, 1)}</Td>
               <Td>{s.variance.toFixed(2)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
-              <Td>
-                {s.activeStoreCount}/{s.storeCount}
-              </Td>
+              <Td>{isDateAxis ? `${s.storeCount}日` : `${s.activeStoreCount}/${s.storeCount}`}</Td>
               <Td>{fmt(s.totalSales)}</Td>
               <Td>
                 <TypeBadge $type={s.productType}>{TYPE_LABELS[s.productType]}</TypeBadge>
@@ -1078,7 +1079,7 @@ function BoxPlotView({
   rawRows: readonly CategoryBenchmarkRow[] | null
   trendRows: readonly CategoryBenchmarkTrendRow[] | null
   boxMetric: 'sales' | 'quantity'
-  boxAxis: BoxPlotAxis
+  boxAxis: AnalysisAxis
   storeNameMap: ReadonlyMap<string, string>
 }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -1410,7 +1411,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [view, setView] = useState<ViewMode>('chart')
   const [minStores, setMinStores] = useState(2)
   const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
-  const [boxAxis, setBoxAxis] = useState<BoxPlotAxis>('store')
+  const [analysisAxis, setAnalysisAxis] = useState<AnalysisAxis>('store')
   const [benchmarkMetric, setBenchmarkMetric] = useState<BenchmarkMetric>('share')
   const [parentDeptCode, setParentDeptCode] = useState<string>('')
   const [parentLineCode, setParentLineCode] = useState<string>('')
@@ -1460,13 +1461,27 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   )
 
   const totalStoreCount = selectedStoreIds.size
-  const scores = useMemo(
+
+  // 店舗別スコア
+  const storeScores = useMemo(
     () =>
       rawRows
         ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount, benchmarkMetric)
         : [],
     [rawRows, minStores, totalStoreCount, benchmarkMetric],
   )
+
+  // 期間別スコア（日別データポイント）
+  const dateScores = useMemo(
+    () =>
+      trendRows && rawRows
+        ? buildCategoryBenchmarkScoresByDate(trendRows, rawRows, minStores, totalStoreCount)
+        : [],
+    [trendRows, rawRows, minStores, totalStoreCount],
+  )
+
+  // 分析軸に応じたスコアを選択
+  const scores = analysisAxis === 'store' ? storeScores : dateScores
 
   // トレンド表示用: 上位10カテゴリのコード
   const topCodes = useMemo(() => scores.slice(0, 10).map((s) => s.code), [scores])
@@ -1491,7 +1506,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     [trendRows, rawRows, boxMetric, minStores, totalStoreCount],
   )
 
-  const boxPlotData = boxAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
+  const boxPlotData = analysisAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
 
   // KPIサマリー
   const kpis = useMemo(() => {
@@ -1530,9 +1545,11 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
           <Subtitle>
-            {benchmarkMetric === 'share'
-              ? '構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率'
-              : `${BENCHMARK_METRIC_LABELS[benchmarkMetric]}ベース商品力分析 | PI値 = 値÷客数×1000`}
+            {analysisAxis === 'date'
+              ? '期間別分析 | 日別構成比の変動 × バラツキ(CV) × カバー率'
+              : benchmarkMetric === 'share'
+                ? '構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率'
+                : `${BENCHMARK_METRIC_LABELS[benchmarkMetric]}ベース商品力分析 | PI値 = 値÷客数×1000`}
           </Subtitle>
         </div>
         <Controls>
@@ -1587,16 +1604,25 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             </FilterSelect>
           )}
           <ButtonGroup>
-            {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
-              <ToggleBtn
-                key={m}
-                $active={benchmarkMetric === m}
-                onClick={() => setBenchmarkMetric(m)}
-              >
-                {BENCHMARK_METRIC_LABELS[m]}
+            {(Object.keys(ANALYSIS_AXIS_LABELS) as AnalysisAxis[]).map((a) => (
+              <ToggleBtn key={a} $active={analysisAxis === a} onClick={() => setAnalysisAxis(a)}>
+                {ANALYSIS_AXIS_LABELS[a]}
               </ToggleBtn>
             ))}
           </ButtonGroup>
+          {analysisAxis === 'store' && (
+            <ButtonGroup>
+              {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
+                <ToggleBtn
+                  key={m}
+                  $active={benchmarkMetric === m}
+                  onClick={() => setBenchmarkMetric(m)}
+                >
+                  {BENCHMARK_METRIC_LABELS[m]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          )}
           <ButtonGroup>
             {(Object.keys(VIEW_LABELS) as ViewMode[]).map((v) => (
               <ToggleBtn key={v} $active={view === v} onClick={() => setView(v)}>
@@ -1604,35 +1630,26 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
               </ToggleBtn>
             ))}
           </ButtonGroup>
-          <ButtonGroup>
-            <span style={{ fontSize: '0.6rem', color: ct.textMuted, whiteSpace: 'nowrap' }}>
-              最低店舗数:
-            </span>
-            {[1, 2, 3].map((n) => (
-              <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
-                {n === 1 ? '全て' : `${n}店以上`}
-              </ToggleBtn>
-            ))}
-          </ButtonGroup>
-          {view === 'boxplot' && (
-            <>
-              <ButtonGroup>
-                {(Object.keys(BOX_AXIS_LABELS) as BoxPlotAxis[]).map((a) => (
-                  <ToggleBtn key={a} $active={boxAxis === a} onClick={() => setBoxAxis(a)}>
-                    {BOX_AXIS_LABELS[a]}
-                  </ToggleBtn>
-                ))}
-              </ButtonGroup>
-              {boxAxis === 'store' && (
-                <ButtonGroup>
-                  {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
-                    <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
-                      {BOX_METRIC_LABELS[m]}
-                    </ToggleBtn>
-                  ))}
-                </ButtonGroup>
-              )}
-            </>
+          {analysisAxis === 'store' && (
+            <ButtonGroup>
+              <span style={{ fontSize: '0.6rem', color: ct.textMuted, whiteSpace: 'nowrap' }}>
+                最低店舗数:
+              </span>
+              {[1, 2, 3].map((n) => (
+                <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
+                  {n === 1 ? '全て' : `${n}店以上`}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          )}
+          {view === 'boxplot' && analysisAxis === 'store' && (
+            <ButtonGroup>
+              {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
+                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                  {BOX_METRIC_LABELS[m]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
           )}
         </Controls>
       </HeaderRow>
@@ -1670,7 +1687,10 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
           <TableView
             scores={scores}
             fmt={fmt}
-            metricLabel={BENCHMARK_METRIC_LABELS[benchmarkMetric]}
+            metricLabel={
+              analysisAxis === 'date' ? '日別構成比' : BENCHMARK_METRIC_LABELS[benchmarkMetric]
+            }
+            isDateAxis={analysisAxis === 'date'}
           />
         )}
         {view === 'map' && <MapView scores={scores} ct={ct} fmt={fmt} />}
@@ -1682,13 +1702,17 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             boxData={boxPlotData}
             ct={ct}
             fmt={
-              boxMetric === 'sales' || boxAxis === 'date' ? fmt : (v: number) => v.toLocaleString()
+              boxMetric === 'sales' || analysisAxis === 'date'
+                ? fmt
+                : (v: number) => v.toLocaleString()
             }
-            metricLabel={boxAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]}
+            metricLabel={
+              analysisAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]
+            }
             rawRows={rawRows ?? null}
             trendRows={trendRows ?? null}
             boxMetric={boxMetric}
-            boxAxis={boxAxis}
+            boxAxis={analysisAxis}
             storeNameMap={storeNameMap}
           />
         )}
