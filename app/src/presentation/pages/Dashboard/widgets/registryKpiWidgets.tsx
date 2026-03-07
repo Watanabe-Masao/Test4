@@ -14,13 +14,41 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'reports' },
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, prevYear, onExplain }) => (
       <KpiCard
         label="コア売上"
         value={formatCurrency(r.totalCoreSales)}
-        subText={`花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
+        subText={`総売上: ${formatCurrency(r.totalSales)} / 花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
         accent={palette.purpleDark}
         onClick={() => onExplain('coreSales')}
+        trend={
+          prevYear.hasPrevYear && prevYear.totalSales > 0
+            ? {
+                direction:
+                  r.totalSales > prevYear.totalSales
+                    ? 'up'
+                    : r.totalSales < prevYear.totalSales
+                      ? 'down'
+                      : 'flat',
+                label: `前年比 ${formatPercent(r.totalSales / prevYear.totalSales)}`,
+              }
+            : undefined
+        }
+      />
+    ),
+  },
+  {
+    id: 'kpi-total-cost',
+    label: '総仕入原価',
+    group: '収益概況',
+    size: 'kpi',
+    render: ({ result: r, onExplain }) => (
+      <KpiCard
+        label="総仕入原価"
+        value={formatCurrency(r.totalCost)}
+        subText={`在庫仕入: ${formatCurrency(r.inventoryCost)} / 納品: ${formatCurrency(r.deliverySalesCost)}`}
+        accent={palette.orangeDark}
+        onClick={() => onExplain('inventoryCost')}
       />
     ),
   },
@@ -134,6 +162,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
       <KpiCard
         label="売変ロス原価"
         value={formatCurrency(r.discountLossCost)}
+        subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
         accent={palette.dangerDeep}
         onClick={() => onExplain('discountLossCost')}
       />
@@ -148,6 +177,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
       <KpiCard
         label="コア値入率"
         value={formatPercent(r.coreMarkupRate)}
+        subText={`平均値入率: ${formatPercent(r.averageMarkupRate)}`}
         accent={palette.cyanDark}
         onClick={() => onExplain('coreMarkupRate')}
       />

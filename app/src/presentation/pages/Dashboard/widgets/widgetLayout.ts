@@ -40,6 +40,14 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   ['duckdb-dept-hourly', 'chart-dept-hourly-pattern'],
   ['duckdb-store-hourly', 'chart-store-timeslot-comparison'],
   ['analysis-duckdb-yoy', 'analysis-yoy-variance'],
+  // Daily KPI統合マイグレーション
+  ['daily-kpi-sales', 'kpi-core-sales'],
+  ['daily-kpi-cost', 'kpi-total-cost'],
+  ['daily-kpi-discount', 'kpi-discount-loss'],
+  ['daily-kpi-gp-rate', 'kpi-inv-gross-profit'],
+  ['daily-kpi-markup', 'kpi-core-markup'],
+  ['daily-kpi-cost-inclusion', 'kpi-cost-inclusion'],
+  ['daily-chart-sales', 'chart-daily-sales'],
 ])
 
 /** 旧 ID を統合 ID に変換し、重複を除去する */
