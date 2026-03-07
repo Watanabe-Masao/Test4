@@ -151,3 +151,28 @@ export function useCurrencyFormatter(): (v: number) => string {
   const currencyUnit = useUiStore((s) => s.currencyUnit)
   return useMemo(() => (currencyUnit === 'yen' ? toYen : toSenYen), [currencyUnit])
 }
+
+/**
+ * 千円軸用のコンパクトフォーマッタ。
+ * 千円ベースの値を自動スケーリングする。
+ * 例: 1500(千円) → "150万", 1500000(千円) → "15億"
+ */
+function toAxisSen(v: number): string {
+  const yen = v * 1000
+  return toAxisYen(yen)
+}
+
+/**
+ * 通貨単位設定に連動する軸フォーマッタを返すフック。
+ *
+ * - 'yen' モード: toAxisYen（円ベースで千/万/億を自動切替）
+ * - 'sen' モード: toAxisSen（千円ベースの値を万/億に変換）
+ *
+ * @example
+ * const axisFormatter = useAxisFormatter()
+ * <YAxis tickFormatter={axisFormatter} />
+ */
+export function useAxisFormatter(): (v: number) => string {
+  const currencyUnit = useUiStore((s) => s.currencyUnit)
+  return useMemo(() => (currencyUnit === 'yen' ? toAxisYen : toAxisSen), [currencyUnit])
+}

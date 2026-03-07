@@ -139,6 +139,25 @@ const GuideSectionLabel = styled.span`
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `
 
+const MetricTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  white-space: nowrap;
+`
+
+const MetricSummary = styled.span`
+  opacity: 0.7;
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+`
+
 /** チャートタイトル横に表示するヘルプボタン + 展開パネル */
 export function ChartHelpButton({ guide }: { guide: ChartGuide }) {
   const [open, setOpen] = useState(false)
@@ -154,8 +173,29 @@ export function ChartHelpButton({ guide }: { guide: ChartGuide }) {
   )
 }
 
-/** ガイドパネル本体（ChartHelpButton から分離して直接使用も可能） */
-export function ChartGuidePanel({ guide }: { guide: ChartGuide }) {
+/** Explanation L1 要約の型（application 層への依存を避けるため最小限の型を定義） */
+interface MetricSummaryInfo {
+  readonly title: string
+  readonly summary?: string
+}
+
+/**
+ * ガイドパネル本体（ChartHelpButton から分離して直接使用も可能）
+ *
+ * @param guide - チャートガイド定義
+ * @param metricSummaries - 関連指標の L1 要約。キーは MetricId。
+ *   ExplanationService.generateExplanations() の結果から title / formula を渡す。
+ */
+export function ChartGuidePanel({
+  guide,
+  metricSummaries,
+}: {
+  guide: ChartGuide
+  metricSummaries?: ReadonlyMap<string, MetricSummaryInfo>
+}) {
+  const hasMetrics =
+    guide.relatedMetrics && guide.relatedMetrics.length > 0 && metricSummaries && metricSummaries.size > 0
+
   return (
     <GuidePanel role="note" aria-label="グラフの読み方">
       <GuidePurpose>{guide.purpose}</GuidePurpose>
@@ -175,6 +215,23 @@ export function ChartGuidePanel({ guide }: { guide: ChartGuide }) {
               <li key={i}>{item}</li>
             ))}
           </GuideList>
+        </GuideSection>
+      )}
+      {hasMetrics && (
+        <GuideSection>
+          <GuideSectionLabel>関連指標:</GuideSectionLabel>
+          <div style={{ marginTop: 4 }}>
+            {guide.relatedMetrics!.map((metricId) => {
+              const info = metricSummaries!.get(metricId)
+              if (!info) return null
+              return (
+                <MetricTag key={metricId}>
+                  {info.title}
+                  {info.summary && <MetricSummary> — {info.summary}</MetricSummary>}
+                </MetricTag>
+              )
+            })}
+          </div>
         </GuideSection>
       )}
     </GuidePanel>

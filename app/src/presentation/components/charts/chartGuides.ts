@@ -12,6 +12,12 @@ export interface ChartGuide {
   readonly howToRead: readonly string[]
   /** 注目ポイント */
   readonly keyPoints?: readonly string[]
+  /**
+   * 関連する MetricId の一覧。
+   * ChartGuidePanel が Explanation サービスの L1 要約を引いて表示する。
+   * 例: ['salesTotal', 'invMethodGrossProfitRate']
+   */
+  readonly relatedMetrics?: readonly string[]
 }
 
 /**
@@ -32,6 +38,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '合計が売上差と完全一致することがこのグラフの信頼性の証拠です',
       '客数効果と客単価効果のバランスに注目してください',
     ],
+    relatedMetrics: ['salesTotal', 'totalCustomers'],
   },
 
   'performance-index': {
@@ -55,6 +62,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '正負で改善方向と悪化方向を区別',
     ],
     keyPoints: ['最も感度の高い指標を優先的に管理することで効率的な改善が可能です'],
+    relatedMetrics: ['invMethodGrossProfitRate', 'discountRate', 'averageMarkupRate'],
   },
 
   'causal-chain': {
@@ -99,6 +107,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '前年比バッジで各項目の変動を確認',
     ],
     keyPoints: ['在庫法の粗利率が推定法と大きく乖離する場合、在庫異常の可能性があります'],
+    relatedMetrics: ['salesTotal', 'purchaseCost', 'invMethodGrossProfit', 'invMethodGrossProfitRate'],
   },
 
   'estimated-inventory-detail': {
@@ -112,6 +121,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       'この指標は推定値です。在庫法の実績値がある場合はそちらを優先してください',
       '推定在庫が急減する日は棚卸ロスや売変の影響を確認してください',
     ],
+    relatedMetrics: ['estMethodClosingInventory', 'estMethodMarginRate'],
   },
 
   // ─── 基本チャート ──────────────────────────────────────
@@ -123,6 +133,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '破線 = 前年同月の日別売上（あれば）',
       '棒グラフ = 日別の売上額',
     ],
+    relatedMetrics: ['salesTotal'],
   },
 
   'budget-vs-actual': {
@@ -132,6 +143,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '破線 = 予算累計',
       '面積 = 乖離幅（プラスなら予算超過、マイナスなら未達）',
     ],
+    relatedMetrics: ['salesTotal', 'budget', 'budgetAchievementRate'],
   },
 
   'category-pie': {
@@ -146,6 +158,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '赤線 = 目標粗利率',
       '目標を下回る日は原因調査の対象',
     ],
+    relatedMetrics: ['invMethodGrossProfitRate'],
   },
 
   'sales-purchase-comparison': {
@@ -164,6 +177,7 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '折れ線 = 売変率（売変額÷粗売上）',
       '売変率の急上昇は値引き増加のシグナル',
     ],
+    relatedMetrics: ['discountTotal', 'discountRate'],
   },
 
   'customer-trend': {
