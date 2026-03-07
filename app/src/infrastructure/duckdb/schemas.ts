@@ -4,7 +4,7 @@
  * 全テーブルに year, month, day, date_key を持たせ、
  * date_key BETWEEN で月跨ぎクエリに対応する。
  *
- * StoreDayRecord系（purchase, transfers, flowers等）は
+ * StoreDayIndex系（purchase, transfers, flowers等）は
  * dataLoader が year/month を外部付与してINSERTする。
  */
 
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS time_slots (
 )`
 
 // ── purchase ──
-// ソース: PurchaseData = StoreDayRecord<PurchaseDayEntry>（year/month は dataLoader が付与）
+// ソース: PurchaseData = StoreDayIndex<PurchaseDayEntry>（year/month は dataLoader が付与）
 export const PURCHASE_DDL = `
 CREATE TABLE IF NOT EXISTS purchase (
   year          INTEGER NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS purchase (
 )`
 
 // ── special_sales ──
-// ソース: SpecialSalesData = StoreDayRecord<SpecialSalesDayEntry>
+// ソース: SpecialSalesData = StoreDayIndex<SpecialSalesDayEntry>
 // type: 'flowers' | 'directProduce' で区別
 export const SPECIAL_SALES_DDL = `
 CREATE TABLE IF NOT EXISTS special_sales (
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS special_sales (
 )`
 
 // ── transfers ──
-// ソース: TransferData = StoreDayRecord<TransferDayEntry>
+// ソース: TransferData = StoreDayIndex<TransferDayEntry>
 // direction: 'interStoreIn' | 'interStoreOut' | 'interDeptIn' | 'interDeptOut'
 export const TRANSFERS_DDL = `
 CREATE TABLE IF NOT EXISTS transfers (
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS transfers (
 )`
 
 // ── consumables ──
-// ソース: CostInclusionData = StoreDayRecord<CostInclusionDailyRecord>
+// ソース: CostInclusionData = StoreDayIndex<CostInclusionDailyRecord>
 export const COST_INCLUSIONS_DDL = `
 CREATE TABLE IF NOT EXISTS consumables (
   year     INTEGER NOT NULL,

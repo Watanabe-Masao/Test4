@@ -3,7 +3,7 @@ import { Suspense, useState, useCallback, useEffect, useMemo } from 'react'
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { darkTheme, lightTheme, GlobalStyle } from '@/presentation/theme'
 import type { ThemeMode } from '@/presentation/theme'
-import { AppStateProvider, RepositoryProvider } from '@/application/context'
+import { RepositoryProvider } from '@/application/context'
 import { useUiStore } from '@/application/stores/uiStore'
 import { AppShell, NavBar, BottomNav } from '@/presentation/components/Layout'
 import {
@@ -236,11 +236,9 @@ function App() {
           <AuthProvider>
             <RepositoryProvider repository={indexedDBRepository}>
               <HashRouter>
-                <AppStateProvider>
-                  <ToastProvider>
-                    <AppContent />
-                  </ToastProvider>
-                </AppStateProvider>
+                <ToastProvider>
+                  <AppContent />
+                </ToastProvider>
               </HashRouter>
             </RepositoryProvider>
           </AuthProvider>

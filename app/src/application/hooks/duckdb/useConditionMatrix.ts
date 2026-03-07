@@ -7,10 +7,7 @@
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import {
-  queryConditionMatrix,
-  type ConditionMatrixRow,
-} from '@/infrastructure/duckdb/queries/conditionMatrix'
+import { queryConditionMatrix, type ConditionMatrixRow } from '@/infrastructure/duckdb'
 import { useAsyncQuery, type AsyncQueryResult } from './useAsyncQuery'
 
 export type { ConditionMatrixRow }

@@ -199,11 +199,3 @@ export interface DepartmentKpiRecord {
 export interface DepartmentKpiData {
   readonly records: readonly DepartmentKpiRecord[]
 }
-
-// ─── 後方互換 ──────────────────────────────────────────
-
-/**
- * @deprecated StoreDayRecord は StoreDayIndex に名前変更。
- * 新規コードでは StoreDayIndex を使い、データ保持には flat array を使用すること。
- */
-export type StoreDayRecord<T> = StoreDayIndex<T>

@@ -25,9 +25,6 @@ function flatRecordKey(rec: DatedRecord): string {
 // ドメイン層で定義された型を再エクスポート
 export type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models'
 
-/** 変更種別 */
-export type ChangeType = 'insert' | 'modify' | 'remove'
-
 // ─── データ種別名マッピング ──────────────────────────────
 
 const DATA_TYPE_NAMES: Record<string, string> = {

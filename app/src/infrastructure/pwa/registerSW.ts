@@ -26,7 +26,7 @@ export function registerServiceWorker(): void {
       .then((registration) => {
         // 定期的に SW の更新をチェック
         setInterval(() => {
-          registration.update().catch(() => {})
+          registration.update().catch((err) => console.warn('[SW] 更新チェック失敗:', err))
         }, UPDATE_INTERVAL)
       })
       .catch((err) => {

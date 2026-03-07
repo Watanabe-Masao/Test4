@@ -90,8 +90,8 @@ export function usePersistence(): PersistenceState & PersistenceActions {
         useUiStore.getState().invalidateCalculation()
         setAutoRestored(true)
       })
-      .catch(() => {
-        // ストレージアクセスエラーは無視
+      .catch((err) => {
+        console.warn('[usePersistence] ストレージアクセスエラー:', err)
       })
     return () => {
       cancelled = true

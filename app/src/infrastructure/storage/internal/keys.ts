@@ -18,7 +18,7 @@ export function importHistoryKey(year: number, month: number): string {
   return `${year}-${String(month).padStart(2, '0')}_importHistory`
 }
 
-/** StoreDayRecord 系のフィールド名 → DataType マッピング */
+/** StoreDayIndex 系のフィールド名 → DataType マッピング */
 export const STORE_DAY_FIELDS: readonly { field: keyof ImportedData; type: StorageDataType }[] = [
   { field: 'purchase', type: 'purchase' },
   // classifiedSales は配列形式のため STORE_DAY_FIELDS には含めない（個別処理）

@@ -41,7 +41,7 @@ export async function saveImportedData(
 ): Promise<void> {
   const entries: { storeName: string; key: string; value: unknown }[] = []
 
-  // StoreDayRecord 系 — envelope 形式で保存
+  // StoreDayIndex 系 — envelope 形式で保存
   for (const { field, type } of STORE_DAY_FIELDS) {
     entries.push({
       storeName: STORE_MONTHLY,
@@ -160,7 +160,7 @@ export async function loadImportedData(year: number, month: number): Promise<Imp
   const base = createEmptyImportedData()
   const result: Record<string, unknown> = { ...base }
 
-  // StoreDayRecord 系 — envelope 対応（新旧どちらの形式も読める）
+  // StoreDayIndex 系 — envelope 対応（新旧どちらの形式も読める）
   for (const { field } of STORE_DAY_FIELDS) {
     const raw = rawData.get(field)
     const unwrapped = unwrapEnvelope<Record<string, unknown>>(raw, year, month)

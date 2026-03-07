@@ -257,9 +257,9 @@ describe('calculateDiff (additional coverage)', () => {
     })
   })
 
-  // ─── StoreDayRecord 系の差分 ──────────────────────────
+  // ─── StoreDayIndex 系の差分 ──────────────────────────
 
-  describe('StoreDayRecord diffs', () => {
+  describe('StoreDayIndex diffs', () => {
     it('新規日の挿入はゼロ・null 値を除外する', () => {
       const existing = makeData({
         flowers: {
@@ -951,7 +951,7 @@ describe('calculateDiff (additional coverage)', () => {
   // ─── autoApproved の挙動 ──────────────────────────────
 
   describe('autoApproved behavior', () => {
-    it('既存が空の StoreDayRecord 種別は autoApproved', () => {
+    it('既存が空の StoreDayIndex 種別は autoApproved', () => {
       const incoming = makeData({
         flowers: {
           records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],
@@ -965,7 +965,7 @@ describe('calculateDiff (additional coverage)', () => {
       expect(result.autoApproved).toContain('directProduce')
     })
 
-    it('挿入のみの StoreDayRecord 種別は autoApproved', () => {
+    it('挿入のみの StoreDayIndex 種別は autoApproved', () => {
       const existing = makeData({
         flowers: {
           records: [{ year: 2025, month: 1, day: 1, storeId: '1', price: 10000, cost: 5000 }],

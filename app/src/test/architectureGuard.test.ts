@@ -89,8 +89,6 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   // ファイルインポート（infrastructure のパーサー + rawFileStore を使用）
   'application/hooks/useImport.ts',
   'application/usecases/import/FileImportService.ts',
-  'application/workers/fileParseWorker.ts',
-  'application/workers/useFileParseWorker.ts',
   // エクスポート機能ブリッジ（Phase 3 で作成: ExportPort の実装）
   'application/usecases/export/ExportService.ts',
   // i18n ブリッジ（Phase 10-3a: presentation 層から infrastructure/i18n への直接依存を回避）
@@ -108,12 +106,11 @@ const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
 
 /**
  * Infrastructure → Application の許可リスト。
- * 後方互換 re-export のみ許可。
+ * 純粋ユーティリティ（hash等）の参照を許可。
  */
-const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set([
-  // 後方互換 re-export（Phase 1 で作成）
-  'infrastructure/utilities/murmurhash.ts',
-  'infrastructure/storage/diffCalculator.ts',
+const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set<string>([
+  // hash ユーティリティは domain/utilities/hash.ts に移動済み。
+  // Infrastructure からの application import は現在ゼロ。
 ])
 
 // ─── テスト ──────────────────────────────────────────────

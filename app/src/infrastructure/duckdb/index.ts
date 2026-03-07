@@ -92,3 +92,14 @@ export type {
   StoreBenchmarkRow,
   StoreBenchmarkParams,
 } from './queries/advancedAnalytics'
+
+export { queryConditionMatrix } from './queries/conditionMatrix'
+export type { ConditionMatrixRow, PeriodMetrics } from './queries/conditionMatrix'
+
+export {
+  queryDailyRecords,
+  queryPrevYearDailyRecords,
+  queryAggregatedDailyRecords,
+  dailyRecordTotalCost,
+} from './queries/dailyRecords'
+export type { DailyRecordRow } from './queries/dailyRecords'

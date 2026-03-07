@@ -34,7 +34,9 @@ export interface ReportExportError {
 export type ReportWorkerRequest = ReportExportRequest
 export type ReportWorkerResponse = ReportExportSuccess | ReportExportError
 
-// ── CSV 生成（csvExporter.ts のロジックを Worker 内で再実装） ──
+// ── CSV 生成（infrastructure/export/csvExporter.ts の toCsvString と同一ロジック） ──
+// ⚠ csvExporter.ts を変更した場合はここも同期すること。
+//   パリティテスト: application/workers/__tests__/csvParity.test.ts
 
 function toCsvStringInWorker(
   rows: readonly (readonly (string | number | null | undefined)[])[],

@@ -1,4 +1,4 @@
-export { parseDate, getDayOfMonth } from './dateParser'
+export { parseDate } from './dateParser'
 export { detectFileType, getDataTypeName } from './FileTypeDetector'
 export type { DetectionResult } from './FileTypeDetector'
 export { readTabularFile, parseCsvString } from './tabularReader'

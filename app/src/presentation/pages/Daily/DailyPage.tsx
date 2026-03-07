@@ -24,8 +24,14 @@ import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
-import type { DailyRecord, TransferBreakdownEntry, CostPricePair } from '@/domain/models'
+import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import type { CostPricePair } from '@/domain/models'
+import {
+  collectSupplierKeys,
+  collectTransferKeys,
+  getTransferAmount,
+  useCumulativeRates,
+} from '@/application/hooks/useDailyPageData'
 import {
   ChartGrid,
   TableWrapper,
@@ -48,61 +54,6 @@ type ExpandableColumn =
   | 'interStoreOut'
   | 'interDepartmentIn'
   | 'interDepartmentOut'
-
-/** 取引先別の内訳キーを全日から収集 */
-function collectSupplierKeys(
-  days: [number, DailyRecord][],
-  suppliers: ReadonlyMap<string, { code: string; name: string }>,
-): { code: string; name: string }[] {
-  const seen = new Map<string, string>()
-  for (const [, rec] of days) {
-    for (const [code] of rec.supplierBreakdown) {
-      if (!seen.has(code)) {
-        seen.set(code, suppliers.get(code)?.name ?? code)
-      }
-    }
-  }
-  return Array.from(seen.entries()).map(([code, name]) => ({ code, name }))
-}
-
-/** 移動明細のfrom→toキーを収集 */
-function collectTransferKeys(
-  days: [number, DailyRecord][],
-  field: keyof DailyRecord['transferBreakdown'],
-  stores: ReadonlyMap<string, { id: string; name: string }>,
-): { key: string; from: string; to: string; label: string }[] {
-  const seen = new Map<string, { from: string; to: string }>()
-  for (const [, rec] of days) {
-    const entries = rec.transferBreakdown[field]
-    for (const e of entries) {
-      const key = `${e.fromStoreId}->${e.toStoreId}`
-      if (!seen.has(key)) {
-        seen.set(key, { from: e.fromStoreId, to: e.toStoreId })
-      }
-    }
-  }
-  return Array.from(seen.entries()).map(([key, { from, to }]) => {
-    const fromName = stores.get(from)?.name ?? from
-    const toName = stores.get(to)?.name ?? to
-    // コンパクトな店番号表示を試行
-    const fromLabel = from.length <= 3 ? from.padStart(2, '0') : fromName
-    const toLabel = to.length <= 3 ? to.padStart(2, '0') : toName
-    return { key, from, to, label: `${fromLabel}→${toLabel}` }
-  })
-}
-
-/** 移動明細の特定キーの合計を取得 */
-function getTransferAmount(
-  entries: readonly TransferBreakdownEntry[],
-  from: string,
-  to: string,
-): number {
-  let total = 0
-  for (const e of entries) {
-    if (e.fromStoreId === from && e.toStoreId === to) total += e.cost
-  }
-  return total
-}
 
 const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
@@ -175,26 +126,7 @@ export function DailyPage() {
   )
 
   // 累計粗利率 & 累計売変率の事前計算
-  const cumulativeData = useMemo(() => {
-    const map = new Map<number, { grossProfitRate: number; discountRate: number }>()
-    let cumSales = 0
-    let cumCost = 0
-    let cumDiscount = 0
-    let cumGrossSales = 0
-
-    for (const [day, rec] of days) {
-      cumSales += rec.sales
-      cumCost += rec.totalCost
-      cumDiscount += rec.discountAbsolute
-      cumGrossSales += rec.grossSales
-
-      map.set(day, {
-        grossProfitRate: safeDivide(cumSales - cumCost, cumSales, 0),
-        discountRate: safeDivide(cumDiscount, cumGrossSales, 0),
-      })
-    }
-    return map
-  }, [days])
+  const cumulativeData = useCumulativeRates(days)
 
   const toggleExpand = (col: ExpandableColumn) => {
     setExpanded((prev) => {

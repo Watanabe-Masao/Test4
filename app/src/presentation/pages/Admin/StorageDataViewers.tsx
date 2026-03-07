@@ -24,7 +24,7 @@ export interface MonthEntry {
   dataTypeCount: number
 }
 
-// StoreDayRecord 型のデータ種別
+// StoreDayIndex 型のデータ種別
 export const STORE_DAY_TYPES = [
   'purchase',
   'sales',
