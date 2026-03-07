@@ -11,17 +11,11 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DrillAction, ViewType } from '@/domain/models'
-import { useUiStore } from '@/application/stores/uiStore'
 import { useAnalysisContextStore } from '@/application/stores/analysisContextStore'
+import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 
-const VIEW_TO_PATH: Record<string, string> = {
-  dashboard: '/dashboard',
-  daily: '/daily',
-  insight: '/insight',
-  category: '/category',
-  'cost-detail': '/cost-detail',
-  reports: '/reports',
-  admin: '/admin',
+function viewToPath(view: string): string {
+  return VIEW_TO_PATH[view as ViewType] ?? `/${view}`
 }
 
 export function useDrillAction() {
@@ -47,9 +41,8 @@ export function useDrillAction() {
           // Type B: 詳細ページへ遷移
           if (action.navigate) {
             const { view, params } = action.navigate
-            const path = VIEW_TO_PATH[view] ?? `/${view}`
+            const path = viewToPath(view)
             const search = params ? '?' + new URLSearchParams(params).toString() : ''
-            useUiStore.getState().setCurrentView(view as ViewType)
             nav(path + search)
           }
           break
@@ -58,11 +51,10 @@ export function useDrillAction() {
           // Type C: 比較セクションへ遷移
           if (action.compare) {
             const { view, tab, params } = action.compare
-            const path = VIEW_TO_PATH[view] ?? `/${view}`
+            const path = viewToPath(view)
             const searchParams = new URLSearchParams(params ?? {})
             if (tab) searchParams.set('tab', tab)
             const search = searchParams.toString() ? '?' + searchParams.toString() : ''
-            useUiStore.getState().setCurrentView(view as ViewType)
             nav(path + search)
           }
           break

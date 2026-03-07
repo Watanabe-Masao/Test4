@@ -22,7 +22,6 @@ import {
 } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
-import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
 import type { CostPricePair } from '@/domain/models'
@@ -345,7 +344,6 @@ export function DailyPage() {
                           $direction={anomaly}
                           onClick={(e) => {
                             e.stopPropagation()
-                            useUiStore.getState().setCurrentView('insight')
                             nav('/insight?tab=decomposition')
                           }}
                           title="要因分析を見る"

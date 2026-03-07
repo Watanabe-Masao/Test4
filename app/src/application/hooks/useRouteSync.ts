@@ -1,12 +1,11 @@
 /**
- * ルート ↔ UI状態 同期フック
+ * ルート同期フック — URL が唯一のソース
  *
- * URL pathname を唯一のソースとし、ブラウザの戻る/進むボタンにも追従する。
- * ビュー切替は navigate() で URL を更新し、状態はそこから導出する。
+ * currentView は URL pathname から導出する。store には保持しない。
+ * ビュー切替は navigate() のみ。React Router が再レンダーをトリガーする。
  */
 import { useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useUiStore } from '@/application/stores/uiStore'
 import {
   PATH_TO_VIEW,
   VIEW_TO_PATH,
@@ -20,27 +19,24 @@ export function useCurrentView(): ViewType {
   return PATH_TO_VIEW[location.pathname] ?? 'dashboard'
 }
 
-/** ビュー切替ハンドラを返すフック（URL を更新し、store にも同期する） */
+/**
+ * ルート同期フック
+ *
+ * - currentView: URL から導出（唯一のソース）
+ * - handleViewChange: navigate() でルートを変更
+ */
 export function useRouteSync() {
-  const location = useLocation()
+  const currentView = useCurrentView()
   const navigate = useNavigate()
-  const currentView = useUiStore((s) => s.currentView)
 
-  // URL変更 → 状態更新（ブラウザの戻る/進むボタン対応）+ 隣接ページ先読み
+  // 隣接ページの先読み（idle 時）
   useEffect(() => {
-    const view = PATH_TO_VIEW[location.pathname]
-    if (view && view !== currentView) {
-      useUiStore.getState().setCurrentView(view)
-    }
-    // 現在ページから遷移しやすいページのチャンクを idle 時に先読み
-    if (view) preloadAdjacentPages(view)
-  }, [location.pathname, currentView])
+    preloadAdjacentPages(currentView)
+  }, [currentView])
 
-  // ビュー切替ハンドラ（state と URL を同時に更新）
   const handleViewChange = useCallback(
     (view: ViewType) => {
       if (view === currentView) return
-      useUiStore.getState().setCurrentView(view)
       navigate(VIEW_TO_PATH[view])
     },
     [navigate, currentView],
