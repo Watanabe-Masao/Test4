@@ -87,6 +87,8 @@ export interface CategoryBenchmarkScore {
   readonly stability: number
   /** 平均順位 */
   readonly avgRank: number
+  /** 平均構成比: 全店舗の売上構成比の平均 (0-1) */
+  readonly avgShare: number
   /** 商品力タイプ */
   readonly productType: ProductType
 }
@@ -103,8 +105,13 @@ function classifyProductType(index: number, variance: number): ProductType {
   return 'unstable' // 不安定商品
 }
 
+/**
+ * @param rows - SQL 結果行（構成比ベースランキング）
+ * @param minStores - 最低取扱店舗数フィルタ（デフォルト: 1 = フィルタなし）
+ */
 export function buildCategoryBenchmarkScores(
   rows: readonly CategoryBenchmarkRow[],
+  minStores = 1,
 ): readonly CategoryBenchmarkScore[] {
   // カテゴリ別にグループ化
   const categoryMap = new Map<
@@ -116,6 +123,7 @@ export function buildCategoryBenchmarkScores(
       scores: number[]
       ranks: number[]
       rank1Count: number
+      shareSum: number
     }
   >()
 
@@ -129,12 +137,14 @@ export function buildCategoryBenchmarkScores(
         scores: [],
         ranks: [],
         rank1Count: 0,
+        shareSum: 0,
       }
       categoryMap.set(row.code, cat)
     }
     cat.totalSales += row.totalSales
+    cat.shareSum += row.share
 
-    // s(r) = e^{-k(r-1)}
+    // s(r) = e^{-k(r-1)}  ※ランキングは構成比ベース
     const n = row.storeCount
     const k = n > 1 ? Math.log(5) / (n - 1) : 0
     const score = Math.exp(-k * (row.salesRank - 1))
@@ -146,6 +156,9 @@ export function buildCategoryBenchmarkScores(
   const results: CategoryBenchmarkScore[] = []
   for (const [code, cat] of categoryMap) {
     const n = cat.storeCount
+    // 最低取扱店舗数フィルタ
+    if (n < minStores) continue
+
     const scoreSum = cat.scores.reduce((a, b) => a + b, 0)
 
     // 1. 総合人気指数
@@ -169,6 +182,9 @@ export function buildCategoryBenchmarkScores(
     // 5. タイプ分類
     const productType = classifyProductType(index, variance)
 
+    // 平均構成比
+    const avgShare = n > 0 ? cat.shareSum / n : 0
+
     results.push({
       code,
       name: cat.name,
@@ -180,6 +196,7 @@ export function buildCategoryBenchmarkScores(
       dominance,
       stability,
       avgRank,
+      avgShare,
       productType,
     })
   }
