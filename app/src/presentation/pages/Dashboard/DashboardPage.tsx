@@ -31,7 +31,6 @@ import { VIEW_TO_PATH } from '@/presentation/routes'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useUiStore } from '@/application/stores/uiStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
@@ -266,7 +265,6 @@ export function DashboardPage() {
   const handleWidgetLink = useCallback(
     (view: ViewType, tab?: string) => {
       const path = VIEW_TO_PATH[view] + (tab ? `?tab=${tab}` : '')
-      useUiStore.getState().setCurrentView(view)
       nav(path)
     },
     [nav],

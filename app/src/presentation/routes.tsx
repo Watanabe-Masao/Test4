@@ -1,11 +1,18 @@
 /**
  * ルーティング定義
  *
- * 遅延ロードされるページコンポーネントと、ViewType ↔ URLパスのマッピングを管理する。
+ * 遅延ロードされるページコンポーネントと Route 構造を管理する。
+ * ViewType ↔ URLパスのマッピングは application/navigation/viewMapping.ts に定義。
  */
 import { Routes, Route, Navigate } from 'react-router-dom'
-import type { ViewType } from '@/domain/models'
 import { lazyWithRetry } from '@/presentation/lazyWithRetry'
+
+// ── バレル re-export（後方互換） ──
+export {
+  VIEW_TO_PATH,
+  PATH_TO_VIEW,
+  preloadAdjacentPages,
+} from '@/application/navigation/viewMapping'
 
 // ─── 遅延ロード: ページコンポーネント（チャンク読込リトライ付き） ──
 const DashboardPage = lazyWithRetry(() =>
@@ -33,21 +40,11 @@ const ReportsPage = lazyWithRetry(() =>
 const AdminPage = lazyWithRetry(() =>
   import('@/presentation/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })),
 )
-
-// ─── ViewType ↔ URLパス マッピング ──────────────────────────
-export const VIEW_TO_PATH: Record<ViewType, string> = {
-  dashboard: '/dashboard',
-  daily: '/daily',
-  insight: '/insight',
-  category: '/category',
-  'cost-detail': '/cost-detail',
-  reports: '/reports',
-  admin: '/admin',
-}
-
-export const PATH_TO_VIEW: Record<string, ViewType> = Object.fromEntries(
-  Object.entries(VIEW_TO_PATH).map(([view, path]) => [path, view as ViewType]),
-) as Record<string, ViewType>
+export const MobileDashboardPage = lazyWithRetry(() =>
+  import('@/presentation/pages/Mobile/MobileDashboardPage').then((m) => ({
+    default: m.MobileDashboardPage,
+  })),
+)
 
 // ─── ルート定義コンポーネント ────────────────────────────────
 export function AppRoutes() {

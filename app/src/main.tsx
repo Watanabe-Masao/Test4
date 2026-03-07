@@ -9,5 +9,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// PWA: Service Worker 登録
-registerServiceWorker()
+// PWA: Service Worker 登録（本番ビルドのみ）
+if (import.meta.env.PROD) {
+  registerServiceWorker()
+}

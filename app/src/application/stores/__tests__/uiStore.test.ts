@@ -40,14 +40,6 @@ describe('uiStore', () => {
     expect(useUiStore.getState().selectedStoreIds.size).toBe(0)
   })
 
-  it('setCurrentView でビューを変更できる', () => {
-    useUiStore.getState().setCurrentView('category')
-    expect(useUiStore.getState().currentView).toBe('category')
-
-    useUiStore.getState().setCurrentView('dashboard')
-    expect(useUiStore.getState().currentView).toBe('dashboard')
-  })
-
   it('setImporting でインポート中フラグを制御できる', () => {
     useUiStore.getState().setImporting(true)
     expect(useUiStore.getState().isImporting).toBe(true)
@@ -69,7 +61,7 @@ describe('uiStore', () => {
     expect(useUiStore.getState().isCalculated).toBe(false)
   })
 
-  it('reset で状態がリセットされる（currentView は維持）', () => {
+  it('reset で状態がリセットされる', () => {
     useUiStore.getState().toggleStore('s1')
     useUiStore.getState().setImporting(true)
     useUiStore.getState().setCalculated(true)

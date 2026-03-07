@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { ViewType } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
 export type CurrencyUnit = 'sen' | 'yen'
@@ -8,7 +7,6 @@ export type CurrencyUnit = 'sen' | 'yen'
 export interface UiStore {
   // State
   selectedStoreIds: ReadonlySet<string>
-  currentView: ViewType
   isCalculated: boolean
   isImporting: boolean
   currencyUnit: CurrencyUnit
@@ -16,7 +14,6 @@ export interface UiStore {
   // Actions
   toggleStore: (storeId: string) => void
   selectAllStores: () => void
-  setCurrentView: (view: ViewType) => void
   setImporting: (isImporting: boolean) => void
   setCalculated: (isCalculated: boolean) => void
   invalidateCalculation: () => void
@@ -31,7 +28,6 @@ export const useUiStore = create<UiStore>()(
       (set) => ({
         // State
         selectedStoreIds: new Set<string>(),
-        currentView: 'dashboard' as ViewType,
         isCalculated: false,
         isImporting: false,
         currencyUnit: 'sen' as CurrencyUnit,
@@ -51,8 +47,6 @@ export const useUiStore = create<UiStore>()(
 
         selectAllStores: () =>
           set({ selectedStoreIds: new Set<string>() }, false, 'selectAllStores'),
-
-        setCurrentView: (view) => set({ currentView: view }, false, 'setCurrentView'),
 
         setImporting: (isImporting) => set({ isImporting }, false, 'setImporting'),
 
@@ -108,7 +102,6 @@ export const useUiStore = create<UiStore>()(
         },
         partialize: (state) =>
           ({
-            currentView: state.currentView,
             currencyUnit: state.currencyUnit,
           }) as UiStore,
       },
