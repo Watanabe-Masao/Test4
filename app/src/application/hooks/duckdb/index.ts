@@ -67,6 +67,7 @@ export type {
   CategoryMixWeeklyRow,
   CategoryBenchmarkRow,
   CategoryBenchmarkScore,
+  ProductType,
 } from './useAdvancedQueries'
 
 // 店舗期間メトリクス + 予算分析

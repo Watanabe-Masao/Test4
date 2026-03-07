@@ -67,6 +67,7 @@ export type {
   CategoryMixWeeklyRow,
   CategoryBenchmarkRow,
   CategoryBenchmarkScore,
+  ProductType,
   PeriodMetrics,
   DailyCumulativeBudgetRow,
   BudgetAnalysisSummaryRow,
