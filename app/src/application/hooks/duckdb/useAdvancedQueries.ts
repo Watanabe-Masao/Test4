@@ -73,6 +73,9 @@ export function useDuckDBCategoryBenchmark(
  * 4. 安定度 (stability): 1 - CV/2（CV が小さいほど安定）
  * 5. 商品力タイプ: 指数とバラツキから4タイプに分類
  */
+/** ベンチマーク指標の種類 */
+export type BenchmarkMetric = 'share' | 'salesPi' | 'quantityPi'
+
 export interface CategoryBenchmarkScore {
   readonly code: string
   readonly name: string
@@ -82,18 +85,20 @@ export interface CategoryBenchmarkScore {
   readonly storeCount: number
   /** 実販売店舗数（実際に売上がある店舗数） */
   readonly activeStoreCount: number
-  /** 総合指数 (0-100): 平均構成比の正規化値 */
+  /** 総合指数 (0-100): 平均値の正規化値 */
   readonly index: number
-  /** バラツキ: 構成比の変動係数 CV (低=均一、高=偏り) */
+  /** バラツキ: 変動係数 CV (低=均一、高=偏り) */
   readonly variance: number
   /** カバー率: 実販売店舗数 / 全店舗数 (0-1) */
   readonly dominance: number
   /** 安定度: 1 - CV/2 (0-1, 高=安定) */
   readonly stability: number
-  /** 平均構成比: 全店舗の売上構成比の平均 (0-1) */
+  /** 平均値: 使用メトリックの全店舗平均（構成比の場合は0-1、PIの場合は実数） */
   readonly avgShare: number
   /** 商品力タイプ */
   readonly productType: ProductType
+  /** 使用されたメトリック */
+  readonly metric: BenchmarkMetric
 }
 
 /** 商品力4タイプ分類 */
@@ -113,20 +118,27 @@ function classifyProductType(index: number, cv: number): ProductType {
   return 'unstable' // 不安定: 低構成比 × 偏り
 }
 
+/** PI値を算出: value / customers × 1000（客数0の場合は0） */
+function computePi(value: number, customers: number): number {
+  return customers > 0 ? (value / customers) * 1000 : 0
+}
+
 /**
- * 構成比実数値ベースのカテゴリスコア算出
+ * カテゴリスコア算出（構成比 or PI値ベース）
  *
- * @param rows - SQL 結果行（カテゴリ×店舗の構成比データ）
+ * @param rows - SQL 結果行（カテゴリ×店舗のデータ）
  * @param minStores - 最低取扱店舗数フィルタ（デフォルト: 1 = フィルタなし）
- * @param totalStoreCount - 選択された全店舗数。販売0の店舗も share=0 として含めて計算する。
+ * @param totalStoreCount - 選択された全店舗数。販売0の店舗も 0 として含めて計算する。
  *                          0 の場合は SQL の store_count をそのまま使う（全店舗モード）。
+ * @param metric - 指標: 'share'=構成比, 'salesPi'=金額PI値, 'quantityPi'=数量PI値
  */
 export function buildCategoryBenchmarkScores(
   rows: readonly CategoryBenchmarkRow[],
   minStores = 1,
   totalStoreCount = 0,
+  metric: BenchmarkMetric = 'share',
 ): readonly CategoryBenchmarkScore[] {
-  // カテゴリ別にグループ化（各店舗の構成比を個別に保持）
+  // カテゴリ別にグループ化
   const categoryMap = new Map<
     string,
     {
@@ -137,6 +149,7 @@ export function buildCategoryBenchmarkScores(
       shares: number[]
       salesPerStore: number[]
       quantityPerStore: number[]
+      customersPerStore: number[]
     }
   >()
 
@@ -151,6 +164,7 @@ export function buildCategoryBenchmarkScores(
         shares: [],
         salesPerStore: [],
         quantityPerStore: [],
+        customersPerStore: [],
       }
       categoryMap.set(row.code, cat)
     }
@@ -159,9 +173,10 @@ export function buildCategoryBenchmarkScores(
     cat.shares.push(row.share)
     cat.salesPerStore.push(row.totalSales)
     cat.quantityPerStore.push(row.totalQuantity)
+    cat.customersPerStore.push(row.storeCustomers)
   }
 
-  // Phase 1: 各カテゴリの平均構成比を算出し、正規化用の最大値を求める
+  // Phase 1: メトリック値を算出し、正規化用の最大値を求める
   interface CatEntry {
     code: string
     name: string
@@ -169,31 +184,44 @@ export function buildCategoryBenchmarkScores(
     totalQuantity: number
     sqlStoreCount: number
     n: number
-    allShares: number[]
+    metricValues: number[]
     salesPerStore: number[]
     quantityPerStore: number[]
-    avgShare: number
+    avgMetric: number
   }
   const entries: CatEntry[] = []
-  let maxAvgShare = 0
+  let maxAvgMetric = 0
 
   for (const [code, cat] of categoryMap) {
     const n = totalStoreCount > 0 ? Math.max(totalStoreCount, cat.sqlStoreCount) : cat.sqlStoreCount
     if (cat.sqlStoreCount < minStores) continue
 
-    // 販売0店舗を share=0 として補完
-    const allShares = [...cat.shares]
+    // メトリック値を選択
+    let metricValues: number[]
+    switch (metric) {
+      case 'salesPi':
+        metricValues = cat.salesPerStore.map((s, i) => computePi(s, cat.customersPerStore[i]))
+        break
+      case 'quantityPi':
+        metricValues = cat.quantityPerStore.map((q, i) => computePi(q, cat.customersPerStore[i]))
+        break
+      default:
+        metricValues = [...cat.shares]
+        break
+    }
+
+    // 販売0店舗を 0 として補完
     const salesPerStore = [...cat.salesPerStore]
     const quantityPerStore = [...cat.quantityPerStore]
     const missingStores = n - cat.sqlStoreCount
     for (let i = 0; i < missingStores; i++) {
-      allShares.push(0)
+      metricValues.push(0)
       salesPerStore.push(0)
       quantityPerStore.push(0)
     }
 
-    const avgShare = allShares.reduce((a, b) => a + b, 0) / n
-    if (avgShare > maxAvgShare) maxAvgShare = avgShare
+    const avgMetric = metricValues.reduce((a, b) => a + b, 0) / n
+    if (avgMetric > maxAvgMetric) maxAvgMetric = avgMetric
 
     entries.push({
       code,
@@ -202,26 +230,26 @@ export function buildCategoryBenchmarkScores(
       totalQuantity: cat.totalQuantity,
       sqlStoreCount: cat.sqlStoreCount,
       n,
-      allShares,
+      metricValues,
       salesPerStore,
       quantityPerStore,
-      avgShare,
+      avgMetric,
     })
   }
 
   // Phase 2: スコア算出
   const results: CategoryBenchmarkScore[] = []
   for (const entry of entries) {
-    const { code, name, totalSales, sqlStoreCount, n, allShares, avgShare } = entry
+    const { code, name, totalSales, sqlStoreCount, n, metricValues, avgMetric } = entry
 
-    // 1. Index: 平均構成比を 0-100 に正規化（最大の平均構成比 = 100）
-    const index = maxAvgShare > 0 ? (avgShare / maxAvgShare) * 100 : 0
+    // 1. Index: 平均値を 0-100 に正規化（データセット内最大 = 100）
+    const index = maxAvgMetric > 0 ? (avgMetric / maxAvgMetric) * 100 : 0
 
-    // 2. バラツキ: 構成比の変動係数 (CV = σ / μ)
+    // 2. バラツキ: 変動係数 (CV = σ / μ)
     const stddev = Math.sqrt(
-      allShares.reduce((s, v) => s + (v - avgShare) ** 2, 0) / Math.max(n - 1, 1),
+      metricValues.reduce((s, v) => s + (v - avgMetric) ** 2, 0) / Math.max(n - 1, 1),
     )
-    const cv = avgShare > 0 ? stddev / avgShare : 0
+    const cv = avgMetric > 0 ? stddev / avgMetric : 0
 
     // 3. カバー率: 実販売店舗数 / 全店舗数
     const dominance = n > 0 ? sqlStoreCount / n : 0
@@ -236,15 +264,16 @@ export function buildCategoryBenchmarkScores(
       code,
       name,
       totalSales,
-      scoreSum: avgShare * n,
+      scoreSum: avgMetric * n,
       storeCount: n,
       activeStoreCount: sqlStoreCount,
       index,
       variance: cv,
       dominance,
       stability,
-      avgShare,
+      avgShare: avgMetric,
       productType,
+      metric,
     })
   }
 

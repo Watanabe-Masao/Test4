@@ -73,6 +73,7 @@ export type {
   CategoryBenchmarkScore,
   CategoryTrendPoint,
   BoxPlotStats,
+  BenchmarkMetric,
   ProductType,
   PeriodMetrics,
   DailyCumulativeBudgetRow,

@@ -41,6 +41,7 @@ import {
   buildBoxPlotData,
   type CategoryBenchmarkScore,
   type BoxPlotStats,
+  type BenchmarkMetric,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
@@ -288,6 +289,12 @@ const BOX_METRIC_LABELS: Record<BoxMetric, string> = {
   quantity: '販売数量',
 }
 
+const BENCHMARK_METRIC_LABELS: Record<BenchmarkMetric, string> = {
+  share: '構成比',
+  salesPi: '金額PI値',
+  quantityPi: '数量PI値',
+}
+
 const TYPE_LABELS: Record<ProductType, string> = {
   flagship: '主力',
   regional: '地域特化',
@@ -344,7 +351,14 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
         {item.name} ({item.code})
       </div>
       <div>Index: {item.index.toFixed(1)}</div>
-      <div>平均構成比: {toPct(item.avgShare, 1)}</div>
+      <div>
+        {item.metric === 'share'
+          ? '平均構成比'
+          : item.metric === 'salesPi'
+            ? '金額PI値'
+            : '数量PI値'}
+        : {item.metric === 'share' ? toPct(item.avgShare, 1) : item.avgShare.toFixed(1)}
+      </div>
       <div>バラツキ(CV): {item.variance.toFixed(2)}</div>
       <div>安定度: {toPct(item.stability, 0)}</div>
       <div>
@@ -442,10 +456,14 @@ function ChartView({
 function TableView({
   scores,
   fmt,
+  metricLabel,
 }: {
   scores: readonly CategoryBenchmarkScore[]
   fmt: (v: number) => string
+  metricLabel: string
 }) {
+  const isPi = scores.length > 0 && scores[0].metric !== 'share'
+
   return (
     <div style={{ overflowX: 'auto' }}>
       <DataTable>
@@ -453,7 +471,7 @@ function TableView({
           <tr>
             <Th>カテゴリ</Th>
             <Th>Index</Th>
-            <Th>構成比</Th>
+            <Th>{metricLabel}</Th>
             <Th>バラツキ(CV)</Th>
             <Th>安定度</Th>
             <Th>カバー率</Th>
@@ -468,7 +486,7 @@ function TableView({
               <Td $color={indexColor(s.index)} $bold>
                 {s.index.toFixed(1)}
               </Td>
-              <Td>{toPct(s.avgShare, 1)}</Td>
+              <Td>{isPi ? s.avgShare.toFixed(1) : toPct(s.avgShare, 1)}</Td>
               <Td>{s.variance.toFixed(2)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
               <Td>
@@ -963,6 +981,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [view, setView] = useState<ViewMode>('chart')
   const [minStores, setMinStores] = useState(2)
   const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
+  const [benchmarkMetric, setBenchmarkMetric] = useState<BenchmarkMetric>('share')
 
   const {
     data: rawRows,
@@ -987,8 +1006,11 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
 
   const totalStoreCount = selectedStoreIds.size
   const scores = useMemo(
-    () => (rawRows ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount) : []),
-    [rawRows, minStores, totalStoreCount],
+    () =>
+      rawRows
+        ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount, benchmarkMetric)
+        : [],
+    [rawRows, minStores, totalStoreCount, benchmarkMetric],
   )
 
   // トレンド表示用: 上位10カテゴリのコード
@@ -1041,13 +1063,28 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
       <HeaderRow>
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
-          <Subtitle>構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率</Subtitle>
+          <Subtitle>
+            {benchmarkMetric === 'share'
+              ? '構成比ベース商品力分析 | 平均構成比 × バラツキ(CV) × カバー率'
+              : `${BENCHMARK_METRIC_LABELS[benchmarkMetric]}ベース商品力分析 | PI値 = 値÷客数×1000`}
+          </Subtitle>
         </div>
         <Controls>
           <ButtonGroup>
             {(Object.keys(LEVEL_LABELS) as CategoryLevel[]).map((l) => (
               <ToggleBtn key={l} $active={level === l} onClick={() => setLevel(l)}>
                 {LEVEL_LABELS[l]}
+              </ToggleBtn>
+            ))}
+          </ButtonGroup>
+          <ButtonGroup>
+            {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
+              <ToggleBtn
+                key={m}
+                $active={benchmarkMetric === m}
+                onClick={() => setBenchmarkMetric(m)}
+              >
+                {BENCHMARK_METRIC_LABELS[m]}
               </ToggleBtn>
             ))}
           </ButtonGroup>
@@ -1109,7 +1146,13 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
       {/* メインビュー */}
       <div style={{ marginTop: 16 }}>
         {view === 'chart' && <ChartView scores={scores} ct={ct} fmt={fmt} />}
-        {view === 'table' && <TableView scores={scores} fmt={fmt} />}
+        {view === 'table' && (
+          <TableView
+            scores={scores}
+            fmt={fmt}
+            metricLabel={BENCHMARK_METRIC_LABELS[benchmarkMetric]}
+          />
+        )}
         {view === 'map' && <MapView scores={scores} ct={ct} fmt={fmt} />}
         {view === 'trend' && (
           <TrendView trendData={trendData} topCodes={topCodes} scores={scores} ct={ct} />

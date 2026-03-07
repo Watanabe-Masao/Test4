@@ -104,6 +104,8 @@ export interface CategoryBenchmarkRow {
   readonly storeId: string
   readonly totalSales: number
   readonly totalQuantity: number
+  /** 店舗の期間合計客数（花卉ファイル由来、0の場合はPI計算不可） */
+  readonly storeCustomers: number
   /** 店舗内売上構成比 (0-1): 店舗規模の影響を排除したランキング基準 */
   readonly share: number
   readonly salesRank: number
@@ -172,6 +174,13 @@ export async function queryCategoryBenchmark(
       FROM cat_store
       GROUP BY store_id
     ),
+    store_cust AS (
+      SELECT store_id, SUM(customers) AS total_customers
+      FROM store_day_summary
+      WHERE date_key BETWEEN '${dateFrom}' AND '${dateTo}'
+        AND is_prev_year = FALSE
+      GROUP BY store_id
+    ),
     cat_share AS (
       SELECT
         cs.code,
@@ -179,11 +188,13 @@ export async function queryCategoryBenchmark(
         cs.store_id,
         cs.total_sales,
         cs.total_quantity,
+        COALESCE(sc.total_customers, 0)::INTEGER AS store_customers,
         CASE WHEN st.store_sales > 0
           THEN cs.total_sales / st.store_sales
           ELSE 0 END AS share
       FROM cat_store cs
       JOIN store_total st ON cs.store_id = st.store_id
+      LEFT JOIN store_cust sc ON cs.store_id = sc.store_id
     )
     SELECT
       code,
@@ -191,6 +202,7 @@ export async function queryCategoryBenchmark(
       store_id,
       total_sales,
       total_quantity,
+      store_customers,
       share,
       RANK() OVER (PARTITION BY code ORDER BY share DESC)::INTEGER AS sales_rank,
       COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count

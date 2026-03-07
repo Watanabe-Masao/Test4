@@ -339,6 +339,7 @@ describe('クエリ結果型の構造', () => {
       storeId: '1',
       totalSales: 700000,
       totalQuantity: 350,
+      storeCustomers: 1200,
       share: 0.35,
       salesRank: 1,
       storeCount: 3,
