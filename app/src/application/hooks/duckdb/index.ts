@@ -64,6 +64,7 @@ export {
   useDuckDBCategoryBenchmarkTrend,
   useDuckDBCategoryHierarchy,
   buildCategoryBenchmarkScores,
+  buildCategoryBenchmarkScoresByDate,
   buildCategoryTrendData,
   buildBoxPlotData,
   buildBoxPlotDataByDate,

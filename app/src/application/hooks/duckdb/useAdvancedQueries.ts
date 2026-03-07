@@ -391,6 +391,156 @@ export function buildCategoryTrendData(
   return results
 }
 
+// ── 期間別（日別）スコア算出 ──
+
+/**
+ * カテゴリスコア算出（日別データポイントベース）
+ *
+ * 店舗別スコアが「同じカテゴリの店舗間バラツキ」を見るのに対し、
+ * 日別スコアは「同じカテゴリの日別変動」を見る。
+ * 各日の全店舗合計売上からカテゴリ構成比を算出し、
+ * その日別構成比の平均・CV・安定度を計算する。
+ *
+ * @param trendRows - 日別カテゴリ×店舗のデータ
+ * @param benchmarkRows - ベンチマーク行（minStores フィルタ用）
+ * @param minStores - 最低取扱店舗数フィルタ
+ * @param totalStoreCount - 選択された全店舗数
+ */
+export function buildCategoryBenchmarkScoresByDate(
+  trendRows: readonly CategoryBenchmarkTrendRow[],
+  benchmarkRows: readonly CategoryBenchmarkRow[],
+  minStores = 1,
+  totalStoreCount = 0,
+): readonly CategoryBenchmarkScore[] {
+  // minStores フィルタ用にカテゴリの店舗数を取得
+  const storeCountMap = new Map<string, number>()
+  for (const row of benchmarkRows) {
+    storeCountMap.set(row.code, row.storeCount)
+  }
+
+  // date × category の売上を集計
+  // date → category → totalSales
+  const dateCatSales = new Map<string, Map<string, { sales: number; name: string }>>()
+  const catTotalSales = new Map<string, { sales: number; name: string }>()
+
+  for (const row of trendRows) {
+    // date × category
+    let dateMap = dateCatSales.get(row.dateKey)
+    if (!dateMap) {
+      dateMap = new Map()
+      dateCatSales.set(row.dateKey, dateMap)
+    }
+    const prev = dateMap.get(row.code) ?? { sales: 0, name: row.name }
+    dateMap.set(row.code, { sales: prev.sales + row.totalSales, name: row.name })
+
+    // カテゴリ合計
+    const ct = catTotalSales.get(row.code) ?? { sales: 0, name: row.name }
+    catTotalSales.set(row.code, { sales: ct.sales + row.totalSales, name: row.name })
+  }
+
+  // 各日の全カテゴリ合計を算出
+  const dateTotals = new Map<string, number>()
+  for (const [dateKey, catMap] of dateCatSales) {
+    let total = 0
+    for (const [, v] of catMap) total += v.sales
+    dateTotals.set(dateKey, total)
+  }
+
+  // カテゴリ別に日別構成比を収集
+  const categoryShares = new Map<
+    string,
+    { name: string; totalSales: number; shares: number[]; sqlStoreCount: number }
+  >()
+
+  for (const [code, catInfo] of catTotalSales) {
+    const sqlStoreCount = storeCountMap.get(code) ?? 0
+    if (sqlStoreCount < minStores) continue
+
+    const shares: number[] = []
+    for (const [dateKey, catMap] of dateCatSales) {
+      const catSales = catMap.get(code)?.sales ?? 0
+      const dateTotal = dateTotals.get(dateKey) ?? 0
+      shares.push(dateTotal > 0 ? catSales / dateTotal : 0)
+    }
+
+    categoryShares.set(code, {
+      name: catInfo.name,
+      totalSales: catInfo.sales,
+      shares,
+      sqlStoreCount,
+    })
+  }
+
+  // Phase 1: 平均構成比の最大値を求める
+  let maxAvgShare = 0
+  const entries: {
+    code: string
+    name: string
+    totalSales: number
+    shares: number[]
+    avgShare: number
+    n: number
+    sqlStoreCount: number
+  }[] = []
+
+  for (const [code, cat] of categoryShares) {
+    const n = cat.shares.length
+    if (n === 0) continue
+    const avgShare = cat.shares.reduce((a, b) => a + b, 0) / n
+    if (avgShare > maxAvgShare) maxAvgShare = avgShare
+    entries.push({
+      code,
+      name: cat.name,
+      totalSales: cat.totalSales,
+      shares: cat.shares,
+      avgShare,
+      n,
+      sqlStoreCount: cat.sqlStoreCount,
+    })
+  }
+
+  // Phase 2: スコア算出
+  const effectiveStoreCount =
+    totalStoreCount > 0
+      ? totalStoreCount
+      : entries.length > 0
+        ? Math.max(...entries.map((e) => e.sqlStoreCount))
+        : 0
+  const results: CategoryBenchmarkScore[] = []
+  for (const entry of entries) {
+    const { code, name, totalSales, shares, avgShare, n, sqlStoreCount } = entry
+
+    const index = maxAvgShare > 0 ? (avgShare / maxAvgShare) * 100 : 0
+    const stddev = Math.sqrt(
+      shares.reduce((s, v) => s + (v - avgShare) ** 2, 0) / Math.max(n - 1, 1),
+    )
+    const cv = avgShare > 0 ? stddev / avgShare : 0
+    const dominance =
+      effectiveStoreCount > 0 ? sqlStoreCount / effectiveStoreCount : sqlStoreCount > 0 ? 1 : 0
+    const stability = Math.max(0, 1 - cv / 2)
+    const productType = classifyProductType(index, cv)
+
+    results.push({
+      code,
+      name,
+      totalSales,
+      scoreSum: avgShare * n,
+      storeCount: n, // 日数
+      activeStoreCount: n, // 日数（全日にデータあり）
+      index,
+      variance: cv,
+      dominance,
+      stability,
+      avgShare,
+      productType,
+      metric: 'share',
+    })
+  }
+
+  results.sort((a, b) => b.index * b.stability - a.index * a.stability)
+  return results
+}
+
 // ── 箱ひげ図（Box Plot）データ ──
 
 /** 箱ひげ図の統計量 */
