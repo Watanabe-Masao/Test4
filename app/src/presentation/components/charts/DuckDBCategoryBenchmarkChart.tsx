@@ -36,6 +36,7 @@ import type { DateRange } from '@/domain/models'
 import {
   useDuckDBCategoryBenchmark,
   useDuckDBCategoryBenchmarkTrend,
+  useDuckDBCategoryHierarchy,
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
   buildBoxPlotData,
@@ -255,6 +256,22 @@ const KpiValue = styled.div`
 const KpiSub = styled.div`
   font-size: 0.55rem;
   color: ${({ theme }) => theme.colors.text3};
+`
+
+const FilterSelect = styled.select`
+  padding: 2px 6px;
+  font-size: 0.6rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff')};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  max-width: 140px;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
 `
 
 // ── Types ──
@@ -982,6 +999,27 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [minStores, setMinStores] = useState(2)
   const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
   const [benchmarkMetric, setBenchmarkMetric] = useState<BenchmarkMetric>('share')
+  const [parentDeptCode, setParentDeptCode] = useState<string>('')
+  const [parentLineCode, setParentLineCode] = useState<string>('')
+
+  // 階層フィルタ用: 部門一覧
+  const { data: deptList } = useDuckDBCategoryHierarchy(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'department',
+  )
+
+  // 階層フィルタ用: ライン一覧（選択部門でフィルタ）
+  const { data: lineList } = useDuckDBCategoryHierarchy(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'line',
+    parentDeptCode || undefined,
+  )
 
   const {
     data: rawRows,
@@ -993,6 +1031,8 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     currentDateRange,
     selectedStoreIds,
     level,
+    parentDeptCode || undefined,
+    parentLineCode || undefined,
   )
 
   // トレンドデータ取得（トレンドビュー用）
@@ -1002,6 +1042,8 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     currentDateRange,
     selectedStoreIds,
     level,
+    parentDeptCode || undefined,
+    parentLineCode || undefined,
   )
 
   const totalStoreCount = selectedStoreIds.size
@@ -1072,11 +1114,54 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
         <Controls>
           <ButtonGroup>
             {(Object.keys(LEVEL_LABELS) as CategoryLevel[]).map((l) => (
-              <ToggleBtn key={l} $active={level === l} onClick={() => setLevel(l)}>
+              <ToggleBtn
+                key={l}
+                $active={level === l}
+                onClick={() => {
+                  setLevel(l)
+                  // レベル変更時に子フィルタをリセット
+                  if (l === 'department') {
+                    setParentDeptCode('')
+                    setParentLineCode('')
+                  } else if (l === 'line') {
+                    setParentLineCode('')
+                  }
+                }}
+              >
                 {LEVEL_LABELS[l]}
               </ToggleBtn>
             ))}
           </ButtonGroup>
+          {/* 階層フィルタ: ライン/クラス表示時に親カテゴリを絞り込み */}
+          {level !== 'department' && deptList && deptList.length > 0 && (
+            <FilterSelect
+              value={parentDeptCode}
+              onChange={(e) => {
+                setParentDeptCode(e.target.value)
+                setParentLineCode('')
+              }}
+            >
+              <option value="">全部門</option>
+              {deptList.map((d) => (
+                <option key={d.code} value={d.code}>
+                  {d.name}
+                </option>
+              ))}
+            </FilterSelect>
+          )}
+          {level === 'klass' && lineList && lineList.length > 0 && (
+            <FilterSelect
+              value={parentLineCode}
+              onChange={(e) => setParentLineCode(e.target.value)}
+            >
+              <option value="">全ライン</option>
+              {lineList.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
+            </FilterSelect>
+          )}
           <ButtonGroup>
             {(Object.keys(BENCHMARK_METRIC_LABELS) as BenchmarkMetric[]).map((m) => (
               <ToggleBtn

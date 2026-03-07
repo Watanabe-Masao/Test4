@@ -117,6 +117,67 @@ export interface CategoryBenchmarkParams {
   readonly dateTo: string
   readonly storeIds?: readonly string[]
   readonly level: 'department' | 'line' | 'klass'
+  /** ライン・クラス表示時の親部門コードフィルタ */
+  readonly parentDeptCode?: string
+  /** クラス表示時の親ラインコードフィルタ */
+  readonly parentLineCode?: string
+}
+
+/** カテゴリ階層アイテム */
+export interface CategoryHierarchyItem {
+  readonly code: string
+  readonly name: string
+}
+
+/**
+ * 指定レベルの distinct カテゴリ一覧を取得（階層フィルタ用）
+ */
+export async function queryCategoryHierarchy(
+  conn: AsyncDuckDBConnection,
+  params: {
+    readonly dateFrom: string
+    readonly dateTo: string
+    readonly storeIds?: readonly string[]
+    readonly level: 'department' | 'line' | 'klass'
+    readonly parentDeptCode?: string
+  },
+): Promise<readonly CategoryHierarchyItem[]> {
+  let codeCol: string
+  let nameCol: string
+
+  switch (params.level) {
+    case 'department':
+      codeCol = 'cts.dept_code'
+      nameCol = 'cts.dept_name'
+      break
+    case 'line':
+      codeCol = 'cts.line_code'
+      nameCol = 'cts.line_name'
+      break
+    case 'klass':
+      codeCol = 'cts.klass_code'
+      nameCol = 'cts.klass_name'
+      break
+  }
+
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
+  const conditions = [
+    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
+    'cts.is_prev_year = FALSE',
+    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
+
+  const sql = `
+    SELECT DISTINCT ${codeCol} AS code, ${nameCol} AS name
+    FROM category_time_sales cts
+    ${where}
+    ORDER BY code`
+  return queryToObjects<CategoryHierarchyItem>(conn, sql)
 }
 
 /**
@@ -151,11 +212,18 @@ export async function queryCategoryBenchmark(
 
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
+  const conditions = [
     `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'cts.is_prev_year = FALSE',
     storeIdFilterWithAlias(params.storeIds, 'cts'),
-  ])
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  if (params.parentLineCode) {
+    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
 
   const sql = `
     WITH cat_store AS (
@@ -253,11 +321,18 @@ export async function queryCategoryBenchmarkTrend(
 
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
+  const conditions = [
     `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'cts.is_prev_year = FALSE',
     storeIdFilterWithAlias(params.storeIds, 'cts'),
-  ])
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  if (params.parentLineCode) {
+    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
 
   const sql = `
     WITH daily_cat_store AS (
