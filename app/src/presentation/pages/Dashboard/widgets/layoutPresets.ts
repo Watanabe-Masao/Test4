@@ -70,6 +70,7 @@ const ANALYST_PRESET: LayoutPreset = {
     'analysis-gp-heatmap',
     'exec-daily-store-sales',
     'exec-department-kpi',
+    'duckdb-pi-cv-map',
   ],
 }
 
