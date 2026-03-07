@@ -103,6 +103,7 @@ export interface CategoryBenchmarkRow {
   readonly name: string
   readonly storeId: string
   readonly totalSales: number
+  readonly totalQuantity: number
   /** 店舗内売上構成比 (0-1): 店舗規模の影響を排除したランキング基準 */
   readonly share: number
   readonly salesRank: number
@@ -160,7 +161,8 @@ export async function queryCategoryBenchmark(
         ${codeCol} AS code,
         ${nameCol} AS name,
         cts.store_id,
-        SUM(cts.total_amount) AS total_sales
+        SUM(cts.total_amount) AS total_sales,
+        SUM(cts.total_quantity) AS total_quantity
       FROM category_time_sales cts
       ${where}
       GROUP BY ${codeCol}, ${nameCol}, cts.store_id
@@ -176,6 +178,7 @@ export async function queryCategoryBenchmark(
         cs.name,
         cs.store_id,
         cs.total_sales,
+        cs.total_quantity,
         CASE WHEN st.store_sales > 0
           THEN cs.total_sales / st.store_sales
           ELSE 0 END AS share
@@ -187,6 +190,7 @@ export async function queryCategoryBenchmark(
       name,
       store_id,
       total_sales,
+      total_quantity,
       share,
       RANK() OVER (PARTITION BY code ORDER BY share DESC)::INTEGER AS sales_rank,
       COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count

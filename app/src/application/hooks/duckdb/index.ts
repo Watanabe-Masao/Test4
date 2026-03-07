@@ -64,6 +64,7 @@ export {
   useDuckDBCategoryBenchmarkTrend,
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
+  buildBoxPlotData,
 } from './useAdvancedQueries'
 export type {
   CategoryMixWeeklyRow,
@@ -71,6 +72,7 @@ export type {
   CategoryBenchmarkTrendRow,
   CategoryBenchmarkScore,
   CategoryTrendPoint,
+  BoxPlotStats,
   ProductType,
 } from './useAdvancedQueries'
 

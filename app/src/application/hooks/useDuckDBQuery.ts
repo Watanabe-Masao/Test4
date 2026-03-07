@@ -37,6 +37,7 @@ export {
   useDuckDBCategoryBenchmarkTrend,
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
+  buildBoxPlotData,
   // 店舗期間メトリクス + 予算分析
   useDuckDBStorePeriodMetrics,
   useDuckDBDailyCumulativeBudget,
@@ -71,6 +72,7 @@ export type {
   CategoryBenchmarkTrendRow,
   CategoryBenchmarkScore,
   CategoryTrendPoint,
+  BoxPlotStats,
   ProductType,
   PeriodMetrics,
   DailyCumulativeBudgetRow,

@@ -38,7 +38,9 @@ import {
   useDuckDBCategoryBenchmarkTrend,
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
+  buildBoxPlotData,
   type CategoryBenchmarkScore,
+  type BoxPlotStats,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
@@ -264,7 +266,8 @@ interface Props {
 }
 
 type CategoryLevel = 'department' | 'line' | 'klass'
-type ViewMode = 'chart' | 'table' | 'map' | 'trend'
+type ViewMode = 'chart' | 'table' | 'map' | 'trend' | 'boxplot'
+type BoxMetric = 'sales' | 'quantity'
 
 const LEVEL_LABELS: Record<CategoryLevel, string> = {
   department: '部門',
@@ -277,6 +280,12 @@ const VIEW_LABELS: Record<ViewMode, string> = {
   table: 'テーブル',
   map: 'マップ',
   trend: 'トレンド',
+  boxplot: '箱ひげ図',
+}
+
+const BOX_METRIC_LABELS: Record<BoxMetric, string> = {
+  sales: '販売金額',
+  quantity: '販売数量',
 }
 
 const TYPE_LABELS: Record<ProductType, string> = {
@@ -664,6 +673,280 @@ function TrendView({
   )
 }
 
+// ── 箱ひげ図 (Box Plot) ──
+
+/**
+ * 箱ひげ図ビュー — SVG 直接描画
+ *
+ * Recharts の Bar shape 型制約を避けるため、
+ * 純粋 SVG で箱ひげ図を描画する。
+ */
+function BoxPlotView({
+  boxData,
+  ct,
+  fmt,
+  metricLabel,
+}: {
+  boxData: readonly BoxPlotStats[]
+  ct: ReturnType<typeof useChartTheme>
+  fmt: (v: number) => string
+  metricLabel: string
+}) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
+  const marginLeft = 90
+  const marginRight = 40
+  const marginTop = 10
+  const marginBottom = 30
+  const rowHeight = 36
+  const chartHeight = Math.max(200, boxData.length * rowHeight + marginTop + marginBottom)
+
+  const xMax = useMemo(() => {
+    if (boxData.length === 0) return 100
+    const m = Math.max(...boxData.map((d) => d.max))
+    // Round up to a nice number
+    const mag = Math.pow(10, Math.floor(Math.log10(m)))
+    return Math.ceil(m / mag) * mag * 1.05
+  }, [boxData])
+
+  if (boxData.length === 0) {
+    return <EmptyState>箱ひげ図データがありません</EmptyState>
+  }
+
+  const hovered = hoveredIdx !== null ? boxData[hoveredIdx] : null
+
+  return (
+    <div>
+      <div style={{ position: 'relative' }}>
+        <svg width="100%" height={chartHeight} viewBox={`0 0 800 ${chartHeight}`}>
+          {/* Grid lines */}
+          {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
+            const xPx = marginLeft + frac * (800 - marginLeft - marginRight)
+            const val = frac * xMax
+            return (
+              <g key={frac}>
+                <line
+                  x1={xPx}
+                  y1={marginTop}
+                  x2={xPx}
+                  y2={chartHeight - marginBottom}
+                  stroke={ct.grid}
+                  strokeOpacity={0.3}
+                  strokeDasharray="3 3"
+                />
+                <text
+                  x={xPx}
+                  y={chartHeight - marginBottom + 16}
+                  textAnchor="middle"
+                  fill={ct.textMuted}
+                  fontSize={10}
+                >
+                  {val >= 1000000
+                    ? `${(val / 1000000).toFixed(1)}M`
+                    : val >= 1000
+                      ? `${(val / 1000).toFixed(0)}K`
+                      : String(Math.round(val))}
+                </text>
+              </g>
+            )
+          })}
+          {/* Box plots */}
+          {boxData.map((d, i) => {
+            const plotW = 800 - marginLeft - marginRight
+            const yCenter = marginTop + i * rowHeight + rowHeight / 2
+            const barH = rowHeight * 0.55
+            const scale = xMax > 0 ? plotW / xMax : 0
+
+            const xMinPx = marginLeft + d.min * scale
+            const xQ1Px = marginLeft + d.q1 * scale
+            const xMedianPx = marginLeft + d.median * scale
+            const xMeanPx = marginLeft + d.mean * scale
+            const xQ3Px = marginLeft + d.q3 * scale
+            const xMaxPx = marginLeft + d.max * scale
+            const whiskerH = barH * 0.5
+
+            return (
+              <g
+                key={d.code}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Hover background */}
+                <rect
+                  x={0}
+                  y={marginTop + i * rowHeight}
+                  width={800}
+                  height={rowHeight}
+                  fill={
+                    hoveredIdx === i
+                      ? ct.bg2 === '#fff'
+                        ? '#f3f4f6'
+                        : 'rgba(255,255,255,0.05)'
+                      : 'transparent'
+                  }
+                />
+                {/* Category label */}
+                <text
+                  x={marginLeft - 6}
+                  y={yCenter + 4}
+                  textAnchor="end"
+                  fill={ct.textMuted}
+                  fontSize={10}
+                >
+                  {d.name.length > 10 ? d.name.slice(0, 10) + '…' : d.name}
+                </text>
+                {/* Left whisker: min → Q1 */}
+                <line
+                  x1={xMinPx}
+                  y1={yCenter}
+                  x2={xQ1Px}
+                  y2={yCenter}
+                  stroke="#6366f1"
+                  strokeWidth={1}
+                  strokeDasharray="3 2"
+                />
+                <line
+                  x1={xMinPx}
+                  y1={yCenter - whiskerH / 2}
+                  x2={xMinPx}
+                  y2={yCenter + whiskerH / 2}
+                  stroke="#6366f1"
+                  strokeWidth={2}
+                />
+                {/* IQR box */}
+                <rect
+                  x={xQ1Px}
+                  y={yCenter - barH / 2}
+                  width={Math.max(xQ3Px - xQ1Px, 1)}
+                  height={barH}
+                  fill="#6366f1"
+                  fillOpacity={0.6}
+                  stroke="#6366f1"
+                  strokeWidth={1}
+                  rx={2}
+                />
+                {/* Median line */}
+                <line
+                  x1={xMedianPx}
+                  y1={yCenter - barH / 2}
+                  x2={xMedianPx}
+                  y2={yCenter + barH / 2}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+                {/* Right whisker: Q3 → max */}
+                <line
+                  x1={xQ3Px}
+                  y1={yCenter}
+                  x2={xMaxPx}
+                  y2={yCenter}
+                  stroke="#6366f1"
+                  strokeWidth={1}
+                  strokeDasharray="3 2"
+                />
+                <line
+                  x1={xMaxPx}
+                  y1={yCenter - whiskerH / 2}
+                  x2={xMaxPx}
+                  y2={yCenter + whiskerH / 2}
+                  stroke="#6366f1"
+                  strokeWidth={2}
+                />
+                {/* Mean marker (×) */}
+                <line
+                  x1={xMeanPx - 3}
+                  y1={yCenter - 3}
+                  x2={xMeanPx + 3}
+                  y2={yCenter + 3}
+                  stroke="#f59e0b"
+                  strokeWidth={1.5}
+                />
+                <line
+                  x1={xMeanPx - 3}
+                  y1={yCenter + 3}
+                  x2={xMeanPx + 3}
+                  y2={yCenter - 3}
+                  stroke="#f59e0b"
+                  strokeWidth={1.5}
+                />
+              </g>
+            )
+          })}
+        </svg>
+        {/* Hover tooltip */}
+        {hovered && hoveredIdx !== null && (
+          <div
+            style={{
+              position: 'absolute',
+              top: marginTop + hoveredIdx * rowHeight - 10,
+              right: marginRight,
+              background: ct.bg2,
+              border: `1px solid ${ct.grid}`,
+              borderRadius: 8,
+              padding: '6px 10px',
+              fontSize: ct.fontSize.sm,
+              fontFamily: ct.fontFamily,
+              color: ct.text,
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+              {hovered.name} ({hovered.code})
+            </div>
+            <div style={{ fontSize: '0.6rem', color: ct.textMuted, marginBottom: 2 }}>
+              {metricLabel}
+            </div>
+            <div>最大値: {fmt(hovered.max)}</div>
+            <div>Q3 (75%): {fmt(hovered.q3)}</div>
+            <div>中央値: {fmt(hovered.median)}</div>
+            <div>Q1 (25%): {fmt(hovered.q1)}</div>
+            <div>最小値: {fmt(hovered.min)}</div>
+            <div>平均値: {fmt(hovered.mean)}</div>
+            <div>店舗数: {hovered.count}</div>
+          </div>
+        )}
+      </div>
+      <MapLegend>
+        <LegendItem $color="#6366f1">Q1-Q3 (四分位範囲)</LegendItem>
+        <span
+          style={{
+            fontSize: '0.6rem',
+            color: ct.textMuted,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              width: 12,
+              height: 2,
+              background: '#fff',
+              border: '1px solid #6366f1',
+            }}
+          />
+          中央値
+        </span>
+        <span
+          style={{
+            fontSize: '0.6rem',
+            color: ct.textMuted,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <span style={{ color: '#f59e0b', fontWeight: 700 }}>×</span>
+          平均値
+        </span>
+      </MapLegend>
+    </div>
+  )
+}
+
 // ── Component ──
 
 export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmarkChart({
@@ -679,6 +962,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const [level, setLevel] = useState<CategoryLevel>('department')
   const [view, setView] = useState<ViewMode>('chart')
   const [minStores, setMinStores] = useState(2)
+  const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
 
   const {
     data: rawRows,
@@ -713,6 +997,12 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   const trendData = useMemo(
     () => (trendRows ? buildCategoryTrendData(trendRows, topCodes, totalStoreCount) : []),
     [trendRows, topCodes, totalStoreCount],
+  )
+
+  // 箱ひげ図データ（上位20カテゴリ）
+  const boxPlotData = useMemo(
+    () => (rawRows ? buildBoxPlotData(rawRows, boxMetric, 20, minStores, totalStoreCount) : []),
+    [rawRows, boxMetric, minStores, totalStoreCount],
   )
 
   // KPIサマリー
@@ -778,6 +1068,15 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
               </ToggleBtn>
             ))}
           </ButtonGroup>
+          {view === 'boxplot' && (
+            <ButtonGroup>
+              {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
+                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                  {BOX_METRIC_LABELS[m]}
+                </ToggleBtn>
+              ))}
+            </ButtonGroup>
+          )}
         </Controls>
       </HeaderRow>
 
@@ -814,6 +1113,14 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
         {view === 'map' && <MapView scores={scores} ct={ct} fmt={fmt} />}
         {view === 'trend' && (
           <TrendView trendData={trendData} topCodes={topCodes} scores={scores} ct={ct} />
+        )}
+        {view === 'boxplot' && (
+          <BoxPlotView
+            boxData={boxPlotData}
+            ct={ct}
+            fmt={boxMetric === 'sales' ? fmt : (v: number) => v.toLocaleString()}
+            metricLabel={BOX_METRIC_LABELS[boxMetric]}
+          />
         )}
       </div>
     </Wrapper>

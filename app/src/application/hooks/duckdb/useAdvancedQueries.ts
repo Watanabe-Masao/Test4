@@ -132,8 +132,11 @@ export function buildCategoryBenchmarkScores(
     {
       name: string
       totalSales: number
+      totalQuantity: number
       sqlStoreCount: number
       shares: number[]
+      salesPerStore: number[]
+      quantityPerStore: number[]
     }
   >()
 
@@ -143,13 +146,19 @@ export function buildCategoryBenchmarkScores(
       cat = {
         name: row.name,
         totalSales: 0,
+        totalQuantity: 0,
         sqlStoreCount: row.storeCount,
         shares: [],
+        salesPerStore: [],
+        quantityPerStore: [],
       }
       categoryMap.set(row.code, cat)
     }
     cat.totalSales += row.totalSales
+    cat.totalQuantity += row.totalQuantity
     cat.shares.push(row.share)
+    cat.salesPerStore.push(row.totalSales)
+    cat.quantityPerStore.push(row.totalQuantity)
   }
 
   // Phase 1: 各カテゴリの平均構成比を算出し、正規化用の最大値を求める
@@ -157,9 +166,12 @@ export function buildCategoryBenchmarkScores(
     code: string
     name: string
     totalSales: number
+    totalQuantity: number
     sqlStoreCount: number
     n: number
     allShares: number[]
+    salesPerStore: number[]
+    quantityPerStore: number[]
     avgShare: number
   }
   const entries: CatEntry[] = []
@@ -171,8 +183,14 @@ export function buildCategoryBenchmarkScores(
 
     // 販売0店舗を share=0 として補完
     const allShares = [...cat.shares]
+    const salesPerStore = [...cat.salesPerStore]
+    const quantityPerStore = [...cat.quantityPerStore]
     const missingStores = n - cat.sqlStoreCount
-    for (let i = 0; i < missingStores; i++) allShares.push(0)
+    for (let i = 0; i < missingStores; i++) {
+      allShares.push(0)
+      salesPerStore.push(0)
+      quantityPerStore.push(0)
+    }
 
     const avgShare = allShares.reduce((a, b) => a + b, 0) / n
     if (avgShare > maxAvgShare) maxAvgShare = avgShare
@@ -181,9 +199,12 @@ export function buildCategoryBenchmarkScores(
       code,
       name: cat.name,
       totalSales: cat.totalSales,
+      totalQuantity: cat.totalQuantity,
       sqlStoreCount: cat.sqlStoreCount,
       n,
       allShares,
+      salesPerStore,
+      quantityPerStore,
       avgShare,
     })
   }
@@ -328,6 +349,98 @@ export function buildCategoryTrendData(
   }
 
   results.sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.code.localeCompare(b.code))
+  return results
+}
+
+// ── 箱ひげ図（Box Plot）データ ──
+
+/** 箱ひげ図の統計量 */
+export interface BoxPlotStats {
+  readonly code: string
+  readonly name: string
+  readonly min: number
+  readonly q1: number
+  readonly median: number
+  readonly q3: number
+  readonly max: number
+  readonly mean: number
+  readonly count: number
+}
+
+/** 四分位数を算出 */
+function quantile(sorted: readonly number[], q: number): number {
+  if (sorted.length === 0) return 0
+  if (sorted.length === 1) return sorted[0]
+  const pos = (sorted.length - 1) * q
+  const lo = Math.floor(pos)
+  const hi = Math.ceil(pos)
+  const frac = pos - lo
+  return sorted[lo] * (1 - frac) + sorted[hi] * frac
+}
+
+/**
+ * カテゴリベンチマーク行から箱ひげ図データを構築する
+ *
+ * @param rows - SQL 結果行
+ * @param metric - 'sales' = 販売金額, 'quantity' = 販売数量
+ * @param topN - 上位N件のカテゴリ（Index×安定度順）
+ * @param minStores - 最低取扱店舗数フィルタ
+ * @param totalStoreCount - 選択された全店舗数
+ */
+export function buildBoxPlotData(
+  rows: readonly CategoryBenchmarkRow[],
+  metric: 'sales' | 'quantity',
+  topN = 20,
+  minStores = 1,
+  totalStoreCount = 0,
+): readonly BoxPlotStats[] {
+  // まずスコアを計算して上位Nカテゴリを決定
+  const scores = buildCategoryBenchmarkScores(rows, minStores, totalStoreCount)
+  const topCodes = new Set(scores.slice(0, topN).map((s) => s.code))
+
+  // カテゴリ別に店舗値を収集
+  const catValues = new Map<string, { name: string; values: number[] }>()
+  for (const row of rows) {
+    if (!topCodes.has(row.code)) continue
+    let entry = catValues.get(row.code)
+    if (!entry) {
+      entry = { name: row.name, values: [] }
+      catValues.set(row.code, entry)
+    }
+    entry.values.push(metric === 'sales' ? row.totalSales : row.totalQuantity)
+  }
+
+  // 販売0の店舗を補完
+  if (totalStoreCount > 0) {
+    for (const entry of catValues.values()) {
+      const missing = totalStoreCount - entry.values.length
+      for (let i = 0; i < missing; i++) entry.values.push(0)
+    }
+  }
+
+  // scores の順序（Index×安定度降順）で結果を生成
+  const results: BoxPlotStats[] = []
+  for (const s of scores) {
+    if (!topCodes.has(s.code)) continue
+    const entry = catValues.get(s.code)
+    if (!entry || entry.values.length === 0) continue
+
+    const sorted = [...entry.values].sort((a, b) => a - b)
+    const mean = sorted.reduce((a, b) => a + b, 0) / sorted.length
+
+    results.push({
+      code: s.code,
+      name: entry.name,
+      min: sorted[0],
+      q1: quantile(sorted, 0.25),
+      median: quantile(sorted, 0.5),
+      q3: quantile(sorted, 0.75),
+      max: sorted[sorted.length - 1],
+      mean,
+      count: sorted.length,
+    })
+  }
+
   return results
 }
 
