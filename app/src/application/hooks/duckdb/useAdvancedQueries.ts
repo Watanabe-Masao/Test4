@@ -7,8 +7,10 @@ import type { DateRange } from '@/domain/models'
 import {
   queryCategoryMixWeekly,
   queryCategoryBenchmark,
+  queryCategoryBenchmarkTrend,
   type CategoryMixWeeklyRow,
   type CategoryBenchmarkRow,
+  type CategoryBenchmarkTrendRow,
 } from '@/infrastructure/duckdb/queries/advancedAnalytics'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
 
@@ -230,4 +232,103 @@ export function buildCategoryBenchmarkScores(
   return results
 }
 
-export type { CategoryMixWeeklyRow, CategoryBenchmarkRow }
+// ── カテゴリベンチマーク 日別トレンド ──
+
+/** カテゴリベンチマーク日別トレンドフック */
+export function useDuckDBCategoryBenchmarkTrend(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  level: 'department' | 'line' | 'klass',
+): AsyncQueryResult<readonly CategoryBenchmarkTrendRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryCategoryBenchmarkTrend(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        level,
+      })
+  }, [dateRange, storeIds, level])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+/** 日別トレンドデータのポイント */
+export interface CategoryTrendPoint {
+  readonly dateKey: string
+  readonly code: string
+  readonly name: string
+  readonly avgShare: number
+  readonly cv: number
+  readonly stability: number
+  /** 複合スコア: avgShare × stability（ソート・プロット用の絶対値） */
+  readonly compositeScore: number
+}
+
+/**
+ * 日別トレンドデータ構築
+ *
+ * SQL の日別構成比データから、各日×各カテゴリの
+ * avgShare / CV / stability / compositeScore を算出する。
+ *
+ * @param rows - 日別カテゴリ×店舗の構成比データ
+ * @param topCodes - 表示するカテゴリコードのリスト（上位N件など）
+ * @param totalStoreCount - 選択全店舗数（0=全店舗モード）
+ */
+export function buildCategoryTrendData(
+  rows: readonly CategoryBenchmarkTrendRow[],
+  topCodes: readonly string[],
+  totalStoreCount = 0,
+): readonly CategoryTrendPoint[] {
+  const topSet = new Set(topCodes)
+
+  // date × code でグループ化
+  const grouped = new Map<string, { name: string; shares: number[]; sqlStoreCount: number }>()
+  for (const row of rows) {
+    if (!topSet.has(row.code)) continue
+    const key = `${row.dateKey}|${row.code}`
+    let entry = grouped.get(key)
+    if (!entry) {
+      entry = { name: row.name, shares: [], sqlStoreCount: 0 }
+      grouped.set(key, entry)
+    }
+    entry.shares.push(row.share)
+    entry.sqlStoreCount = entry.shares.length
+  }
+
+  const results: CategoryTrendPoint[] = []
+  for (const [key, entry] of grouped) {
+    const [dateKey, code] = key.split('|')
+    const n =
+      totalStoreCount > 0 ? Math.max(totalStoreCount, entry.sqlStoreCount) : entry.sqlStoreCount
+    const allShares = [...entry.shares]
+    const missingStores = n - entry.sqlStoreCount
+    for (let i = 0; i < missingStores; i++) allShares.push(0)
+
+    const avgShare = allShares.reduce((a, b) => a + b, 0) / n
+    const stddev = Math.sqrt(
+      allShares.reduce((s, v) => s + (v - avgShare) ** 2, 0) / Math.max(n - 1, 1),
+    )
+    const cv = avgShare > 0 ? stddev / avgShare : 0
+    const stability = Math.max(0, 1 - cv / 2)
+
+    results.push({
+      dateKey,
+      code,
+      name: entry.name,
+      avgShare,
+      cv,
+      stability,
+      compositeScore: avgShare * stability * 10000, // スケール調整（%表示しやすく）
+    })
+  }
+
+  results.sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.code.localeCompare(b.code))
+  return results
+}
+
+export type { CategoryMixWeeklyRow, CategoryBenchmarkRow, CategoryBenchmarkTrendRow }
