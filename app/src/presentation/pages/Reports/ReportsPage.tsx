@@ -7,9 +7,10 @@ import type { MetricId } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { useExport } from '@/application/hooks/useExport'
+import { PageWidgetContainer } from '@/presentation/components/widgets'
 import { ReportHeader, ReportDate, EmptyState, ExportBar, ExportButton } from './ReportsPage.styles'
-import { ReportSummaryGrid } from './ReportSummaryGrid'
-import { ReportDeptTable } from './ReportDeptTable'
+import { REPORTS_WIDGET_CONFIG } from './widgets'
+import type { ReportsWidgetContext } from './widgets'
 
 export function ReportsPage() {
   const { isComputing, daysInMonth } = useCalculation()
@@ -89,21 +90,31 @@ export function ReportsPage() {
   const today = new Date()
   const reportDate = `${settings.targetYear}年${settings.targetMonth}月${today.getDate()}日`
 
-  return (
-    <MainContent title="月次レポート" storeName={storeName}>
+  const widgetCtx: ReportsWidgetContext = {
+    result: currentResult,
+    settings,
+    daysInMonth,
+    deptKpiIndex,
+    onExplain: handleExplain,
+  }
+
+  // レポートヘッダーとエクスポートバーはウィジェットの外に固定表示
+  const headerContent = (
+    <>
       <ReportHeader>
         <div />
         <ReportDate>{reportDate} 現在</ReportDate>
       </ReportHeader>
+    </>
+  )
 
-      <ReportSummaryGrid
-        result={currentResult}
-        settings={settings}
-        daysInMonth={daysInMonth}
-        onExplain={handleExplain}
+  return (
+    <MainContent title="月次レポート" storeName={storeName}>
+      <PageWidgetContainer
+        config={REPORTS_WIDGET_CONFIG}
+        context={widgetCtx}
+        headerContent={headerContent}
       />
-
-      <ReportDeptTable deptKpiIndex={deptKpiIndex} onExplain={handleExplain} />
 
       {/* CSVエクスポート */}
       <ExportBar>
