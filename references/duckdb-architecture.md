@@ -16,7 +16,7 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
  │ 保存済み  │      │ DB ファイル│      │ engine.ts    │        │ useDuckDB    │    │ DuckDB   │
  │ インポート│ load │ Parquet   │ fast │ schemas.ts   │ query  │ hooks/duckdb/│    │ ウィジェ │
  │ データ   │──→  │ キャッシュ │──→  │ dataLoader.ts│──→    │ (~28 hooks)  │──→│ ット群   │
- └──────────┘      └──────────┘      │ queries/*.ts │        │ (11ファイル) │    │ (15個)   │
+ └──────────┘      └──────────┘      │ queries/*.ts │        │ (12ファイル) │    │ (15個)   │
                                      └──────────────┘        └──────────────┘    └──────────┘
 ```
 
@@ -87,8 +87,9 @@ hooks/duckdb/
 ├── useFeatureQueries.ts      # 特徴量クエリ（3フック）
 ├── useAdvancedQueries.ts     # 高度分析クエリ（2フック）
 ├── useMetricsQueries.ts      # 指標クエリ（3フック）
-├── useDailyRecordQueries.ts  # 日次レコードクエリ（3フック）
-└── useConditionMatrix.ts     # 条件マトリクスクエリ
+├── useDailyRecordQueries.ts       # 日次レコードクエリ（3フック）
+├── useComparisonContextQuery.ts   # 比較コンテキストクエリ
+└── useConditionMatrix.ts          # 条件マトリクスクエリ
 ```
 
 `hooks/useDuckDBQuery.ts` は後方互換のためバレル re-export として残存している。

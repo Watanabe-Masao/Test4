@@ -63,7 +63,7 @@ export const WeeklyChart = memo(function WeeklyChart({
           <Tooltip
             content={createChartTooltip({
               ct,
-              formatter: (value, name) => [toComma(value as number ?? 0), name ?? ''],
+              formatter: (value, name) => [toComma((value as number) ?? 0), name ?? ''],
             })}
           />
           <Legend wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }} />
@@ -126,8 +126,7 @@ export const DayOfWeekChart = memo(function DayOfWeekChart({
             content={createChartTooltip({
               ct,
               formatter: (value, name) => {
-                if (name === 'index')
-                  return [formatPercent((value as number) ?? 0), '曜日指数']
+                if (name === 'index') return [formatPercent((value as number) ?? 0), '曜日指数']
                 return [toComma((value as number) ?? 0), '平均売上']
               },
             })}

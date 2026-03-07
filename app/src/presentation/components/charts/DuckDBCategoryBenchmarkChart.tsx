@@ -36,7 +36,7 @@ import {
   type CategoryBenchmarkScore,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 import { palette } from '@/presentation/theme/tokens'
@@ -330,8 +330,8 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
       </div>
       <div>Index: {item.index.toFixed(1)}</div>
       <div>バラツキ: {item.variance.toFixed(3)}</div>
-      <div>1位率: {(item.dominance * 100).toFixed(0)}%</div>
-      <div>安定度: {(item.stability * 100).toFixed(0)}%</div>
+      <div>1位率: {toPct(item.dominance, 0)}</div>
+      <div>安定度: {toPct(item.stability, 0)}</div>
       <div>売上: {fmt(item.totalSales)}</div>
       <div>
         タイプ: <TypeBadge $type={item.productType}>{TYPE_LABELS[item.productType]}</TypeBadge>
@@ -451,8 +451,8 @@ function TableView({
                 {s.index.toFixed(1)}
               </Td>
               <Td>{s.variance.toFixed(3)}</Td>
-              <Td>{(s.dominance * 100).toFixed(0)}%</Td>
-              <Td>{(s.stability * 100).toFixed(0)}%</Td>
+              <Td>{toPct(s.dominance, 0)}</Td>
+              <Td>{toPct(s.stability, 0)}</Td>
               <Td>{s.avgRank.toFixed(1)}</Td>
               <Td>{fmt(s.totalSales)}</Td>
               <Td>

@@ -335,7 +335,7 @@ cd app && npm run dev           # Vite 開発サーバー
 
 ## Explanation（説明責任）
 
-50 MetricId に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
+81 MetricId（型定義済み）に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
 詳細は `references/explanation-architecture.md` と `references/metric-id-registry.md` を参照。
 
 **鉄則:** 計算を再実行しない（StoreResult の値をそのまま使う）。Domain 層は型定義のみ。

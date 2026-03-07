@@ -13,7 +13,7 @@ File Import -> IndexedDB -> DuckDB -> Query Module -> Hook -> Chart/Widget
 2. **IndexedDB**: `DataRepository` がインポートデータをブラウザ内に永続化
 3. **DuckDB**: `useDuckDB` フックが IndexedDB のデータを DuckDB テーブルにロード
 4. **Query Module**: SQL クエリで集約・分析を実行
-5. **Hook**: `useDuckDBQuery.ts` の各フックがクエリ結果を React ステートとして管理
+5. **Hook**: `application/hooks/duckdb/` の各フックがクエリ結果を React ステートとして管理
 6. **Chart/Widget**: Recharts ベースのチャートコンポーネントが表示用データを描画
 
 ---
@@ -147,10 +147,29 @@ interface CtsFilterParams {
 
 ---
 
-## 4. useDuckDBQuery フック一覧
+## 4. DuckDB フック一覧
 
-全フックは `app/src/application/hooks/useDuckDBQuery.ts` に配置。
+フックは `app/src/application/hooks/duckdb/` ディレクトリに分割配置。
 `useAsyncQuery<T>` をベースに、ローディング・エラー・データ状態を管理する。
+
+### ファイル構成
+
+| ファイル | 担当 |
+|---|---|
+| `useAsyncQuery.ts` | 汎用非同期クエリフック（ベース） |
+| `useCtsQueries.ts` | カテゴリ時間帯売上クエリ |
+| `useDeptKpiQueries.ts` | 部門 KPI クエリ |
+| `useSummaryQueries.ts` | 日別サマリークエリ |
+| `useYoyQueries.ts` | 前年比較クエリ |
+| `useFeatureQueries.ts` | 特徴量クエリ |
+| `useAdvancedQueries.ts` | 高度分析クエリ |
+| `useMetricsQueries.ts` | メトリクスクエリ |
+| `useComparisonContextQuery.ts` | 比較コンテキストクエリ |
+| `useConditionMatrix.ts` | コンディションマトリクスクエリ |
+| `useDailyRecordQueries.ts` | 日次レコードクエリ |
+| `index.ts` | バレルエクスポート |
+
+> **後方互換:** `application/hooks/useDuckDBQuery.ts` もバレル re-export として残存。
 
 ### 戻り値型
 

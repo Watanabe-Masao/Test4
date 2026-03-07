@@ -63,11 +63,14 @@ export function ChartAnnotation({
   placement = 'top',
 }: ChartAnnotationProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [referenceEl, setReferenceEl] = useState<HTMLElement | null>(null)
+  const [floatingEl, setFloatingEl] = useState<HTMLElement | null>(null)
 
-  const { refs, floatingStyles, context } = useFloating({
+  const { floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     placement,
+    elements: { reference: referenceEl, floating: floatingEl },
     middleware: [offset(8), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   })
@@ -78,13 +81,13 @@ export function ChartAnnotation({
 
   return (
     <>
-      <Trigger ref={refs.setReference} {...getReferenceProps()}>
+      <Trigger ref={setReferenceEl} {...getReferenceProps()}>
         {children}
       </Trigger>
       {isOpen && (
         <FloatingPortal>
           <Popover
-            ref={refs.setFloating}
+            ref={setFloatingEl}
             style={floatingStyles}
             $ct={ct}
             {...getFloatingProps()}

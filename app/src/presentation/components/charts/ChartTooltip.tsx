@@ -47,10 +47,7 @@ export interface ChartTooltipProps {
     entry: PayloadEntry,
   ) => readonly [string | null, string | null]
   /** ラベル（X軸値）のフォーマット。payload を受け取るオーバーロードも可 */
-  labelFormatter?: (
-    label: string | number | undefined,
-    payload?: readonly PayloadEntry[],
-  ) => string
+  labelFormatter?: (label: string | number | undefined, payload?: readonly PayloadEntry[]) => string
   /**
    * 各データ系列のトレンド情報を返すコールバック。
    * name をキーに TrendInfo を返すと、値の横にトレンドバッジを表示する。

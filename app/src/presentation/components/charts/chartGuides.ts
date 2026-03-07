@@ -107,7 +107,12 @@ export const CHART_GUIDES: Readonly<Record<string, ChartGuide>> = {
       '前年比バッジで各項目の変動を確認',
     ],
     keyPoints: ['在庫法の粗利率が推定法と大きく乖離する場合、在庫異常の可能性があります'],
-    relatedMetrics: ['salesTotal', 'purchaseCost', 'invMethodGrossProfit', 'invMethodGrossProfitRate'],
+    relatedMetrics: [
+      'salesTotal',
+      'purchaseCost',
+      'invMethodGrossProfit',
+      'invMethodGrossProfitRate',
+    ],
   },
 
   'estimated-inventory-detail': {

@@ -300,7 +300,10 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
                 ct,
                 formatter: (value, name) => {
                   if (name === 'achieveRate') {
-                    return [value != null ? `${(value as number).toFixed(1)}%` : '-', allLabels[name]]
+                    return [
+                      value != null ? `${(value as number).toFixed(1)}%` : '-',
+                      allLabels[name],
+                    ]
                   }
                   return [
                     value != null ? toComma(value as number) : '-',

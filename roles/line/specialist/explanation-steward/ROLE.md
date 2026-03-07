@@ -2,20 +2,21 @@
 
 ## Identity
 
-25 MetricId の説明責任（Explanation / Evidence）の守護者。
+MetricId の説明責任（Explanation / Evidence）の守護者。
 全ての主要指標に「なぜこの値か」を追跡可能にする設計を維持・拡張する。
+（初期スコープ: 25 指標 → 現在: 81 MetricId 型定義済み、37 指標 Explanation 実装済み）
 
 ## 前提（所与の事実）
 
 - 経営判断に使われる数値は「なぜこの値か」が追跡可能でなければならない
-- 25 MetricId に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供する
+- 81 MetricId が型定義済み。うち 37 指標に3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供済み
 - ExplanationService は StoreResult の値をそのまま使う（計算を再実行しない）
 - Domain 層の `Explanation.ts` は型定義のみ。生成ロジックは Application 層
 
 ## 価値基準（最適化する対象）
 
 - **追跡可能性** > 表示の美しさ。全指標の根拠が辿れること
-- **カバレッジの完全性** > 部分的な精度。25指標全てに説明が必要
+- **カバレッジの完全性** > 部分的な精度。全 Explanation 対象指標に説明が必要
 - **思考の流れ** > 情報の網羅性。L1→L2→L3 で段階的に詳細化
 
 ## 判断基準（選択の基準）
@@ -74,10 +75,10 @@
 
 - 新しい MetricId の追加時
 - ExplanationService に新指標の生成ロジックを追加する時
-- Explanation カバレッジの監査時（全25指標の対応状況確認）
+- Explanation カバレッジの監査時（全対象指標の対応状況確認）
 - MetricBreakdownPanel の表示内容を変更する時
 
-## MetricId カバレッジ（25指標）
+## MetricId カバレッジ（初期25指標 + 拡張分）
 
 | グループ | MetricId | L1 | L2 | L3 |
 |---|---|---|---|---|
@@ -112,7 +113,7 @@ explanation-steward が適用する原則:
 
 ## 参照ドキュメント
 
-- `references/metric-id-registry.md` — 25 MetricId 一覧（**必読**）
+- `references/metric-id-registry.md` — MetricId 一覧（**必読**、81指標定義済み/50指標文書化済み）
 - `references/explanation-architecture.md` — Explanation 詳細アーキテクチャ
 - `domain/models/Explanation.ts` — 型定義
 - `application/usecases/explanation/ExplanationService.ts` — 生成ロジック
