@@ -285,14 +285,20 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     })
   }
 
-  // 10. GP Amount Budget Ratio
+  // 10. GP Amount Budget Ratio (period-prorated)
   if (isMetricEnabled(effectiveConfig, 'gpAmount') && r.grossProfitBudget > 0) {
     const gpAmt = computeGpAfterConsumableAmount(r)
-    const gpBudgetRatio = safeDivide(gpAmt, r.grossProfitBudget, 0)
+    const effectiveEndDay = ctx.elapsedDays ?? ctx.daysInMonth
+    let periodBudgetSum = 0
+    for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
+    const isPartialPeriod = ctx.elapsedDays != null && ctx.elapsedDays < ctx.daysInMonth
+    const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
+    const periodGPBudget = r.budget > 0 ? r.grossProfitBudget * (periodBudget / r.budget) : 0
+    const gpBudgetRatio = safeDivide(gpAmt, periodGPBudget, 0)
     items.push({
       label: '粗利額予算比',
       value: formatPercent(gpBudgetRatio, 2),
-      sub: `粗利額 ${formatCurrency(gpAmt)} / 予算 ${formatCurrency(r.grossProfitBudget)}`,
+      sub: `粗利額 ${formatCurrency(gpAmt)} / 予算 ${formatCurrency(periodGPBudget)}`,
       signal: metricSignal(gpBudgetRatio, 'gpAmount', effectiveConfig),
     })
   }
@@ -397,6 +403,8 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 displayMode={displayMode}
                 onDisplayModeChange={setDisplayMode}
                 settings={settings}
+                elapsedDays={ctx.elapsedDays}
+                daysInMonth={ctx.daysInMonth}
               />
             ) : breakdownItem.detailBreakdown === 'discountRate' ? (
               <DiscountRateDetailTable
@@ -445,6 +453,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
                 expandedStore={expandedMarkupStore}
                 onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+                dataMaxDay={ctx.dataMaxDay}
               />
             ) : breakdownItem.detailBreakdown === 'customerYoY' ? (
               <CustomerYoYDetailTable
@@ -459,6 +468,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
                 prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
                 expandedStore={expandedMarkupStore}
                 onExpandToggle={(id) => setExpandedMarkupStore((prev) => (prev === id ? null : id))}
+                dataMaxDay={ctx.dataMaxDay}
               />
             ) : breakdownItem.detailBreakdown === 'txValue' ? (
               <TxValueDetailTable

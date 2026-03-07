@@ -53,7 +53,7 @@ const Popover = styled.div<{ $ct: ChartTheme }>`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   max-width: 280px;
   line-height: 1.5;
-  z-index: 100;
+  z-index: 1100;
 `
 
 export function ChartAnnotation({
