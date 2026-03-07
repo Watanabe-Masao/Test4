@@ -8,7 +8,7 @@
  * 販売効率 x 店舗ばらつき x 売上規模 を同時に可視化。
  * DuckDB カテゴリベンチマークデータを利用。
  */
-import { useState, useMemo, memo, useCallback } from 'react'
+import { useState, useMemo, memo } from 'react'
 import {
   ScatterChart,
   Scatter,
@@ -33,87 +33,22 @@ import {
 import { useChartTheme, useCurrencyFormatter } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common'
 import { formatCurrency } from '@/domain/calculations/utils'
+import {
+  ChartPanel,
+  ChartHeaderRow,
+  ChartPanelTitle,
+  ChartPanelSubtitle,
+  ControlStrip,
+  ControlItem,
+  ControlItemLabel,
+  ControlBtnGroup,
+  ToggleBtn,
+  ChartErrorMsg,
+  HIERARCHY_LABELS,
+  type HierarchyLevel,
+} from './DuckDBChartParts'
 
-// ── styled-components ──
-
-const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-const Subtitle = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-top: 2px;
-`
-
-const Controls = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-  align-items: stretch;
-  flex-wrap: wrap;
-`
-
-const ControlGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`
-
-const ControlLabel = styled.span`
-  font-size: 0.5rem;
-  color: ${({ theme }) => theme.colors.text4};
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
-`
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-`
-
-const ToggleBtn = styled.button<{ $active: boolean }>`
-  padding: 2px 10px;
-  font-size: 0.6rem;
-  border: 1px solid
-    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, theme }) =>
-    $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
-      : 'transparent'};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-  }
-`
+// ── chart-specific styled-components ──
 
 const LegendRow = styled.div`
   display: flex;
@@ -149,13 +84,6 @@ const QuadrantLabel = styled.div`
   pointer-events: none;
 `
 
-const ErrorMsg = styled.div`
-  padding: 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
-
 // ── 定数 ──
 
 const TYPE_COLORS: Record<ProductType, string> = {
@@ -172,21 +100,12 @@ const PI_METRIC_LABELS: Record<PiMetric, string> = {
   quantityPi: '数量PI',
 }
 
-/** バブルサイズに使う指標 */
 type BubbleSizeMetric = 'sales' | 'quantity' | 'none'
 
 const BUBBLE_SIZE_LABELS: Record<BubbleSizeMetric, string> = {
   sales: '販売金額',
   quantity: '販売点数',
   none: 'なし',
-}
-
-type HierarchyLevel = 'department' | 'line' | 'klass'
-
-const HIERARCHY_LABELS: Record<HierarchyLevel, string> = {
-  department: '部門',
-  line: 'ライン',
-  klass: 'クラス',
 }
 
 // ── Tooltip ──
@@ -249,6 +168,15 @@ function BubbleTooltip({
   )
 }
 
+// ── ユーティリティ ──
+
+function computeMedian(values: readonly number[]): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid]
+}
+
 // ── メインコンポーネント ──
 
 interface Props {
@@ -256,7 +184,6 @@ interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
-  readonly totalCustomers?: number
 }
 
 export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
@@ -296,104 +223,99 @@ export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
     }))
   }, [scores, bubbleSize])
 
-  // 中央値を算出（参照線用）
   const medians = useMemo(() => {
     if (scatterData.length === 0) return { piMedian: 0, cvMedian: 0 }
-    const sortedPi = [...scatterData].sort((a, b) => a.x - b.x)
-    const sortedCv = [...scatterData].sort((a, b) => a.y - b.y)
-    const mid = Math.floor(sortedPi.length / 2)
     return {
-      piMedian:
-        sortedPi.length % 2 === 0 ? (sortedPi[mid - 1].x + sortedPi[mid].x) / 2 : sortedPi[mid].x,
-      cvMedian:
-        sortedCv.length % 2 === 0 ? (sortedCv[mid - 1].y + sortedCv[mid].y) / 2 : sortedCv[mid].y,
+      piMedian: computeMedian(scatterData.map((d) => d.x)),
+      cvMedian: computeMedian(scatterData.map((d) => d.y)),
     }
   }, [scatterData])
-
-  const handlePiMetric = useCallback((m: PiMetric) => setPiMetric(m), [])
-  const handleBubbleSize = useCallback((m: BubbleSizeMetric) => setBubbleSize(m), [])
-  const handleLevel = useCallback((l: HierarchyLevel) => setLevel(l), [])
 
   const piLabel = PI_METRIC_LABELS[piMetric]
   const bubbleLabel = BUBBLE_SIZE_LABELS[bubbleSize]
 
   if (benchmarkResult.isLoading) {
     return (
-      <Wrapper>
-        <Title>PI-CV マップ</Title>
+      <ChartPanel>
+        <ChartPanelTitle>PI-CV マップ</ChartPanelTitle>
         <ChartSkeleton height="280px" />
-      </Wrapper>
+      </ChartPanel>
     )
   }
 
   if (benchmarkResult.error) {
     return (
-      <Wrapper>
-        <Title>PI-CV マップ</Title>
-        <ErrorMsg>データの取得に失敗しました</ErrorMsg>
-      </Wrapper>
+      <ChartPanel>
+        <ChartPanelTitle>PI-CV マップ</ChartPanelTitle>
+        <ChartErrorMsg>データの取得に失敗しました</ChartErrorMsg>
+      </ChartPanel>
     )
   }
 
   if (scatterData.length === 0) {
     return (
-      <Wrapper>
-        <Title>PI-CV マップ</Title>
-        <ErrorMsg>データがありません</ErrorMsg>
-      </Wrapper>
+      <ChartPanel>
+        <ChartPanelTitle>PI-CV マップ</ChartPanelTitle>
+        <ChartErrorMsg>データがありません</ChartErrorMsg>
+      </ChartPanel>
     )
   }
 
-  const maxPi = Math.max(...scatterData.map((d) => d.x)) * 1.15
-  const maxCv = Math.max(...scatterData.map((d) => d.y)) * 1.15
+  let maxPi = 0
+  let maxCv = 0
+  for (const d of scatterData) {
+    if (d.x > maxPi) maxPi = d.x
+    if (d.y > maxCv) maxCv = d.y
+  }
+  maxPi *= 1.15
+  maxCv *= 1.15
 
-  // バブルサイズ: none の場合は全ドット同サイズ
   const zRange: [number, number] = bubbleSize === 'none' ? [80, 80] : [40, 500]
 
   return (
-    <Wrapper>
-      <HeaderRow>
+    <ChartPanel>
+      <ChartHeaderRow>
         <div>
-          <Title>PI-CV マップ</Title>
-          <Subtitle>
+          <ChartPanelTitle>PI-CV マップ</ChartPanelTitle>
+          <ChartPanelSubtitle>
             販売効率({piLabel}) x 店舗ばらつき(CV)
             {bubbleSize !== 'none' && ` x ${bubbleLabel}`} / {HIERARCHY_LABELS[level]}別 /{' '}
             {scores.length}カテゴリ
-          </Subtitle>
+          </ChartPanelSubtitle>
         </div>
-        <Controls>
-          <ControlGroup>
-            <ControlLabel>PI指標</ControlLabel>
-            <ButtonGroup>
+        <ControlStrip>
+          <ControlItem>
+            <ControlItemLabel>PI指標</ControlItemLabel>
+            <ControlBtnGroup>
               {(Object.keys(PI_METRIC_LABELS) as PiMetric[]).map((m) => (
-                <ToggleBtn key={m} $active={piMetric === m} onClick={() => handlePiMetric(m)}>
+                <ToggleBtn key={m} $active={piMetric === m} onClick={() => setPiMetric(m)}>
                   {PI_METRIC_LABELS[m]}
                 </ToggleBtn>
               ))}
-            </ButtonGroup>
-          </ControlGroup>
-          <ControlGroup>
-            <ControlLabel>バブルサイズ</ControlLabel>
-            <ButtonGroup>
+            </ControlBtnGroup>
+          </ControlItem>
+          <ControlItem>
+            <ControlItemLabel>バブルサイズ</ControlItemLabel>
+            <ControlBtnGroup>
               {(Object.keys(BUBBLE_SIZE_LABELS) as BubbleSizeMetric[]).map((m) => (
-                <ToggleBtn key={m} $active={bubbleSize === m} onClick={() => handleBubbleSize(m)}>
+                <ToggleBtn key={m} $active={bubbleSize === m} onClick={() => setBubbleSize(m)}>
                   {BUBBLE_SIZE_LABELS[m]}
                 </ToggleBtn>
               ))}
-            </ButtonGroup>
-          </ControlGroup>
-          <ControlGroup>
-            <ControlLabel>階層</ControlLabel>
-            <ButtonGroup>
+            </ControlBtnGroup>
+          </ControlItem>
+          <ControlItem>
+            <ControlItemLabel>階層</ControlItemLabel>
+            <ControlBtnGroup>
               {(Object.keys(HIERARCHY_LABELS) as HierarchyLevel[]).map((l) => (
-                <ToggleBtn key={l} $active={level === l} onClick={() => handleLevel(l)}>
+                <ToggleBtn key={l} $active={level === l} onClick={() => setLevel(l)}>
                   {HIERARCHY_LABELS[l]}
                 </ToggleBtn>
               ))}
-            </ButtonGroup>
-          </ControlGroup>
-        </Controls>
-      </HeaderRow>
+            </ControlBtnGroup>
+          </ControlItem>
+        </ControlStrip>
+      </ChartHeaderRow>
 
       <div style={{ position: 'relative' }}>
         <QuadrantLabel style={{ top: 8, left: 90 }}>低PI・高CV</QuadrantLabel>
@@ -468,6 +390,6 @@ export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
         <LegendItem $color={TYPE_COLORS.standard}>低PI・低CV (定番)</LegendItem>
         <LegendItem $color={TYPE_COLORS.unstable}>低PI・高CV (不安定)</LegendItem>
       </LegendRow>
-    </Wrapper>
+    </ChartPanel>
   )
 })
