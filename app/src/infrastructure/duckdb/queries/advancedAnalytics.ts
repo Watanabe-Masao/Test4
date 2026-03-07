@@ -103,6 +103,9 @@ export interface CategoryBenchmarkRow {
   readonly name: string
   readonly storeId: string
   readonly totalSales: number
+  readonly totalQuantity: number
+  /** 店舗の期間合計客数（花卉ファイル由来、0の場合はPI計算不可） */
+  readonly storeCustomers: number
   /** 店舗内売上構成比 (0-1): 店舗規模の影響を排除したランキング基準 */
   readonly share: number
   readonly salesRank: number
@@ -114,6 +117,67 @@ export interface CategoryBenchmarkParams {
   readonly dateTo: string
   readonly storeIds?: readonly string[]
   readonly level: 'department' | 'line' | 'klass'
+  /** ライン・クラス表示時の親部門コードフィルタ */
+  readonly parentDeptCode?: string
+  /** クラス表示時の親ラインコードフィルタ */
+  readonly parentLineCode?: string
+}
+
+/** カテゴリ階層アイテム */
+export interface CategoryHierarchyItem {
+  readonly code: string
+  readonly name: string
+}
+
+/**
+ * 指定レベルの distinct カテゴリ一覧を取得（階層フィルタ用）
+ */
+export async function queryCategoryHierarchy(
+  conn: AsyncDuckDBConnection,
+  params: {
+    readonly dateFrom: string
+    readonly dateTo: string
+    readonly storeIds?: readonly string[]
+    readonly level: 'department' | 'line' | 'klass'
+    readonly parentDeptCode?: string
+  },
+): Promise<readonly CategoryHierarchyItem[]> {
+  let codeCol: string
+  let nameCol: string
+
+  switch (params.level) {
+    case 'department':
+      codeCol = 'cts.dept_code'
+      nameCol = 'cts.dept_name'
+      break
+    case 'line':
+      codeCol = 'cts.line_code'
+      nameCol = 'cts.line_name'
+      break
+    case 'klass':
+      codeCol = 'cts.klass_code'
+      nameCol = 'cts.klass_name'
+      break
+  }
+
+  const dateFrom = validateDateKey(params.dateFrom)
+  const dateTo = validateDateKey(params.dateTo)
+  const conditions = [
+    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
+    'cts.is_prev_year = FALSE',
+    storeIdFilterWithAlias(params.storeIds, 'cts'),
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
+
+  const sql = `
+    SELECT DISTINCT ${codeCol} AS code, ${nameCol} AS name
+    FROM category_time_sales cts
+    ${where}
+    ORDER BY code`
+  return queryToObjects<CategoryHierarchyItem>(conn, sql)
 }
 
 /**
@@ -148,11 +212,18 @@ export async function queryCategoryBenchmark(
 
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
+  const conditions = [
     `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'cts.is_prev_year = FALSE',
     storeIdFilterWithAlias(params.storeIds, 'cts'),
-  ])
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  if (params.parentLineCode) {
+    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
 
   const sql = `
     WITH cat_store AS (
@@ -160,7 +231,8 @@ export async function queryCategoryBenchmark(
         ${codeCol} AS code,
         ${nameCol} AS name,
         cts.store_id,
-        SUM(cts.total_amount) AS total_sales
+        SUM(cts.total_amount) AS total_sales,
+        SUM(cts.total_quantity) AS total_quantity
       FROM category_time_sales cts
       ${where}
       GROUP BY ${codeCol}, ${nameCol}, cts.store_id
@@ -170,23 +242,35 @@ export async function queryCategoryBenchmark(
       FROM cat_store
       GROUP BY store_id
     ),
+    store_cust AS (
+      SELECT store_id, SUM(customers) AS total_customers
+      FROM store_day_summary
+      WHERE date_key BETWEEN '${dateFrom}' AND '${dateTo}'
+        AND is_prev_year = FALSE
+      GROUP BY store_id
+    ),
     cat_share AS (
       SELECT
         cs.code,
         cs.name,
         cs.store_id,
         cs.total_sales,
+        cs.total_quantity,
+        COALESCE(sc.total_customers, 0)::INTEGER AS store_customers,
         CASE WHEN st.store_sales > 0
           THEN cs.total_sales / st.store_sales
           ELSE 0 END AS share
       FROM cat_store cs
       JOIN store_total st ON cs.store_id = st.store_id
+      LEFT JOIN store_cust sc ON cs.store_id = sc.store_id
     )
     SELECT
       code,
       name,
       store_id,
       total_sales,
+      total_quantity,
+      store_customers,
       share,
       RANK() OVER (PARTITION BY code ORDER BY share DESC)::INTEGER AS sales_rank,
       COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count
@@ -237,11 +321,18 @@ export async function queryCategoryBenchmarkTrend(
 
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
-  const where = buildWhereClause([
+  const conditions = [
     `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
     'cts.is_prev_year = FALSE',
     storeIdFilterWithAlias(params.storeIds, 'cts'),
-  ])
+  ]
+  if (params.parentDeptCode) {
+    conditions.push(`cts.dept_code = '${params.parentDeptCode.replace(/'/g, "''")}'`)
+  }
+  if (params.parentLineCode) {
+    conditions.push(`cts.line_code = '${params.parentLineCode.replace(/'/g, "''")}'`)
+  }
+  const where = buildWhereClause(conditions)
 
   const sql = `
     WITH daily_cat_store AS (

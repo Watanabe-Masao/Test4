@@ -62,15 +62,20 @@ export {
   useDuckDBCategoryMixWeekly,
   useDuckDBCategoryBenchmark,
   useDuckDBCategoryBenchmarkTrend,
+  useDuckDBCategoryHierarchy,
   buildCategoryBenchmarkScores,
   buildCategoryTrendData,
+  buildBoxPlotData,
 } from './useAdvancedQueries'
 export type {
   CategoryMixWeeklyRow,
   CategoryBenchmarkRow,
   CategoryBenchmarkTrendRow,
+  CategoryHierarchyItem,
   CategoryBenchmarkScore,
   CategoryTrendPoint,
+  BoxPlotStats,
+  BenchmarkMetric,
   ProductType,
 } from './useAdvancedQueries'
 
