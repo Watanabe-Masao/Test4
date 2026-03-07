@@ -146,10 +146,10 @@ describe('datasetRegistry.isDuplicate', () => {
 
 describe('datasetRegistry.isSchemaUpToDate', () => {
   it('最新スキーマバージョンで登録された場合は true', async () => {
-    // SCHEMA_VERSION = 2
+    // SCHEMA_VERSION = 3
     await datasetRegistry.register(2025, 6, {
       fileHashes: {},
-      schemaVersion: 2,
+      schemaVersion: 3,
       loadedToDuckDB: false,
     })
 

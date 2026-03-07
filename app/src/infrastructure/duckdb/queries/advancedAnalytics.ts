@@ -3,7 +3,7 @@
  *
  * DuckDB のウィンドウ関数を活用した高度な分析:
  * - カテゴリ構成比の週次推移（構成シフト検出）
- * - 店舗ベンチマーク（週次ランキング推移）
+ * - カテゴリベンチマーク（指数加重ランキング）
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilterWithAlias } from '../queryRunner'
@@ -95,61 +95,81 @@ export async function queryCategoryMixWeekly(
   return queryToObjects<CategoryMixWeeklyRow>(conn, sql)
 }
 
-// ── 店舗ベンチマーク ──
+// ── カテゴリベンチマーク（指数加重ランキング） ──
 
-export interface StoreBenchmarkRow {
+/** カテゴリベンチマーク結果行: カテゴリ×店舗の順位・スコア */
+export interface CategoryBenchmarkRow {
+  readonly code: string
+  readonly name: string
   readonly storeId: string
-  readonly weekStart: string
-  readonly weekSales: number
-  readonly avgDailySales: number
+  readonly totalSales: number
   readonly salesRank: number
-  readonly salesPercentile: number
+  readonly storeCount: number
 }
 
-export interface StoreBenchmarkParams {
+export interface CategoryBenchmarkParams {
   readonly dateFrom: string
   readonly dateTo: string
   readonly storeIds?: readonly string[]
+  readonly level: 'department' | 'line' | 'klass'
 }
 
 /**
- * 店舗ベンチマーク — 週次ランキング推移
+ * カテゴリベンチマーク — 各カテゴリにおける店舗別売上ランキング
  *
- * store_day_summary から店舗×週で集約し、RANK() + PERCENT_RANK() で
- * 各週における相対的な店舗順位を算出する。
- * バンプチャートで店舗の浮沈を可視化するウィジェット向け。
+ * category_time_sales から指定階層(部門/ライン/クラス)×店舗で集約し、
+ * RANK() でカテゴリ内の店舗順位を算出する。
+ * 指数加重スコア s(r)=e^{-k(r-1)} の計算はアプリ層で行う。
  */
-export async function queryStoreBenchmark(
+export async function queryCategoryBenchmark(
   conn: AsyncDuckDBConnection,
-  params: StoreBenchmarkParams,
-): Promise<readonly StoreBenchmarkRow[]> {
+  params: CategoryBenchmarkParams,
+): Promise<readonly CategoryBenchmarkRow[]> {
+  let codeCol: string
+  let nameCol: string
+
+  switch (params.level) {
+    case 'department':
+      codeCol = 'cts.dept_code'
+      nameCol = 'cts.dept_name'
+      break
+    case 'line':
+      codeCol = 'cts.line_code'
+      nameCol = 'cts.line_name'
+      break
+    case 'klass':
+      codeCol = 'cts.klass_code'
+      nameCol = 'cts.klass_name'
+      break
+  }
+
   const dateFrom = validateDateKey(params.dateFrom)
   const dateTo = validateDateKey(params.dateTo)
   const where = buildWhereClause([
-    `sds.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
-    'sds.is_prev_year = FALSE',
-    storeIdFilterWithAlias(params.storeIds, 'sds'),
+    `cts.date_key BETWEEN '${dateFrom}' AND '${dateTo}'`,
+    'cts.is_prev_year = FALSE',
+    storeIdFilterWithAlias(params.storeIds, 'cts'),
   ])
 
   const sql = `
-    WITH store_weekly AS (
+    WITH cat_store AS (
       SELECT
-        sds.store_id,
-        DATE_TRUNC('week', make_date(sds.year, sds.month, sds.day))::VARCHAR AS week_start,
-        SUM(sds.sales) AS week_sales,
-        COUNT(DISTINCT sds.date_key) AS days
-      FROM store_day_summary sds
+        ${codeCol} AS code,
+        ${nameCol} AS name,
+        cts.store_id,
+        SUM(cts.total_amount) AS total_sales
+      FROM category_time_sales cts
       ${where}
-      GROUP BY sds.store_id, week_start
+      GROUP BY ${codeCol}, ${nameCol}, cts.store_id
     )
     SELECT
+      code,
+      name,
       store_id,
-      week_start,
-      week_sales,
-      ROUND(week_sales * 1.0 / NULLIF(days, 0), 0) AS avg_daily_sales,
-      RANK() OVER (PARTITION BY week_start ORDER BY week_sales DESC)::INTEGER AS sales_rank,
-      ROUND(PERCENT_RANK() OVER (PARTITION BY week_start ORDER BY week_sales) * 100, 1) AS sales_percentile
-    FROM store_weekly
-    ORDER BY week_start, sales_rank`
-  return queryToObjects<StoreBenchmarkRow>(conn, sql)
+      total_sales,
+      RANK() OVER (PARTITION BY code ORDER BY total_sales DESC)::INTEGER AS sales_rank,
+      COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count
+    FROM cat_store
+    ORDER BY code, sales_rank`
+  return queryToObjects<CategoryBenchmarkRow>(conn, sql)
 }

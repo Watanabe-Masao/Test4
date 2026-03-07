@@ -48,7 +48,7 @@ export {
   useDuckDBCategoryDailyTrend,
   useDuckDBCategoryHourly,
   useDuckDBCategoryMixWeekly,
-  useDuckDBStoreBenchmark,
+  useDuckDBCategoryBenchmark,
   useDuckDBStorePeriodMetrics,
   useDuckDBDailyCumulativeBudget,
   useDuckDBBudgetAnalysisSummary,
