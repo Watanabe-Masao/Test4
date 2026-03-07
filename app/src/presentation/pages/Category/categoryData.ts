@@ -13,7 +13,7 @@ import { safeDivide } from '@/domain/calculations/utils'
 // ─── Types ───────────────────────────────────────────────
 
 export type ComparisonMode = 'total' | 'comparison'
-export type PieMode = 'cost' | 'price'
+export type PieMode = 'cost' | 'price' | 'crossMult'
 export type ChartView = 'pie' | 'pareto'
 
 /** チャート共通データ型 */
