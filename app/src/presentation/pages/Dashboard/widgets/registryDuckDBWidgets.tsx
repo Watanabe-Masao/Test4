@@ -7,6 +7,7 @@ import {
   DuckDBCategoryBenchmarkChart,
   DuckDBCategoryBoxPlotChart,
   DuckDBPiCvBubbleChart,
+  DuckDBCvTimeSeriesChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 
@@ -131,6 +132,21 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
         totalCustomers={ctx.result.totalCustomers}
+      />
+    ),
+  },
+  {
+    id: 'duckdb-cv-timeseries',
+    label: 'CV時系列分析（DuckDB）',
+    group: '構造分析',
+    size: 'full',
+    isVisible: (ctx) => ctx.duckDataVersion > 0,
+    render: (ctx) => (
+      <DuckDBCvTimeSeriesChart
+        duckConn={ctx.duckConn}
+        duckDataVersion={ctx.duckDataVersion}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
       />
     ),
   },
