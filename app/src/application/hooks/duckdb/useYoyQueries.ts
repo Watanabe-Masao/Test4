@@ -25,12 +25,12 @@ export function useDuckDBYoyDaily(
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
   const curKeys = frame ? toDateKeys(frame.current) : null
   const prevKeys = frame ? toDateKeys(frame.previous) : null
-  const storeArr = storeIdsToArray(storeIds)
 
   const queryFn = useMemo(() => {
     if (!curKeys || !prevKeys) return null
     const { dateFrom: cdf, dateTo: cdt } = curKeys
     const { dateFrom: pdf, dateTo: pdt } = prevKeys
+    const storeArr = storeIdsToArray(storeIds)
     return (c: AsyncDuckDBConnection) =>
       queryYoyDailyComparison(c, {
         curDateFrom: cdf,
@@ -39,7 +39,7 @@ export function useDuckDBYoyDaily(
         prevDateTo: pdt,
         storeIds: storeArr,
       })
-  }, [curKeys, prevKeys, storeArr])
+  }, [curKeys, prevKeys, storeIds])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -54,12 +54,12 @@ export function useDuckDBYoyCategory(
 ): AsyncQueryResult<readonly YoyCategoryRow[]> {
   const curKeys = frame ? toDateKeys(frame.current) : null
   const prevKeys = frame ? toDateKeys(frame.previous) : null
-  const storeArr = storeIdsToArray(storeIds)
 
   const queryFn = useMemo(() => {
     if (!curKeys || !prevKeys) return null
     const { dateFrom: cdf, dateTo: cdt } = curKeys
     const { dateFrom: pdf, dateTo: pdt } = prevKeys
+    const storeArr = storeIdsToArray(storeIds)
     return (c: AsyncDuckDBConnection) =>
       queryYoyCategoryComparison(c, {
         curDateFrom: cdf,
@@ -69,7 +69,7 @@ export function useDuckDBYoyCategory(
         storeIds: storeArr,
         level,
       })
-  }, [curKeys, prevKeys, storeArr, level])
+  }, [curKeys, prevKeys, storeIds, level])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

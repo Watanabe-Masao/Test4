@@ -163,12 +163,13 @@ describe('queryCategoryBenchmark', () => {
     expect(sql).toContain('cts.store_id')
   })
 
-  it('RANK() ウィンドウ関数でカテゴリ内ランキングを算出する', async () => {
+  it('構成比ベースの RANK() ウィンドウ関数でカテゴリ内ランキングを算出する', async () => {
     const conn = makeMockConn()
     await queryCategoryBenchmark(conn as never, baseBenchmarkParams)
     const sql = conn.getCapturedSql()[0]
     expect(sql).toContain('RANK() OVER')
     expect(sql).toContain('PARTITION BY code')
+    expect(sql).toContain('ORDER BY share DESC')
     expect(sql).toContain('sales_rank')
     expect(sql).toContain('store_count')
   })
@@ -226,6 +227,15 @@ describe('queryCategoryBenchmark', () => {
     ).rejects.toThrow('Invalid date key')
   })
 
+  it('構成比の計算 CTE（store_total, cat_share）が含まれる', async () => {
+    const conn = makeMockConn()
+    await queryCategoryBenchmark(conn as never, baseBenchmarkParams)
+    const sql = conn.getCapturedSql()[0]
+    expect(sql).toContain('store_total')
+    expect(sql).toContain('cat_share')
+    expect(sql).toContain('share')
+  })
+
   it('モックデータを正しく返す', async () => {
     const rows = [
       {
@@ -233,6 +243,7 @@ describe('queryCategoryBenchmark', () => {
         name: '青果',
         storeId: '1',
         totalSales: 700000,
+        share: 0.35,
         salesRank: 1,
         storeCount: 3,
       },
@@ -243,5 +254,6 @@ describe('queryCategoryBenchmark', () => {
     expect(result[0].code).toBe('D01')
     expect(result[0].salesRank).toBe(1)
     expect(result[0].storeCount).toBe(3)
+    expect(result[0].share).toBe(0.35)
   })
 })

@@ -22,6 +22,9 @@ export interface AsyncQueryResult<T> {
  * queryFn が変わるたびにクエリを再実行し、結果をステートに反映する。
  * conn が null の場合はクエリを実行せず { data: null } を返す。
  */
+/** Debounce delay to prevent rapid re-querying on cascading state updates */
+const QUERY_DEBOUNCE_MS = 50
+
 export function useAsyncQuery<T>(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
@@ -41,30 +44,32 @@ export function useAsyncQuery<T>(
     const seq = ++seqRef.current
     let cancelled = false
 
-    const run = async () => {
-      await Promise.resolve()
+    const timerId = setTimeout(() => {
       if (cancelled) return
       setIsLoading(true)
       setError(null)
-      try {
-        const result = await queryFn(conn)
-        if (!cancelled && seq === seqRef.current) {
-          setData(result)
-        }
-      } catch (err: unknown) {
-        if (!cancelled && seq === seqRef.current) {
-          setError(err instanceof Error ? err.message : String(err))
-        }
-      } finally {
-        if (!cancelled && seq === seqRef.current) {
-          setIsLoading(false)
+      const run = async () => {
+        try {
+          const result = await queryFn(conn)
+          if (!cancelled && seq === seqRef.current) {
+            setData(result)
+          }
+        } catch (err: unknown) {
+          if (!cancelled && seq === seqRef.current) {
+            setError(err instanceof Error ? err.message : String(err))
+          }
+        } finally {
+          if (!cancelled && seq === seqRef.current) {
+            setIsLoading(false)
+          }
         }
       }
-    }
-    run()
+      run()
+    }, QUERY_DEBOUNCE_MS)
 
     return () => {
       cancelled = true
+      clearTimeout(timerId)
     }
   }, [conn, dataVersion, queryFn])
 

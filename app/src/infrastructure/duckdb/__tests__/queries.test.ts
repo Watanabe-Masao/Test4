@@ -338,6 +338,7 @@ describe('クエリ結果型の構造', () => {
       name: '青果',
       storeId: '1',
       totalSales: 700000,
+      share: 0.35,
       salesRank: 1,
       storeCount: 3,
     }

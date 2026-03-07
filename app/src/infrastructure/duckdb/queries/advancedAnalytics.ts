@@ -103,6 +103,8 @@ export interface CategoryBenchmarkRow {
   readonly name: string
   readonly storeId: string
   readonly totalSales: number
+  /** 店舗内売上構成比 (0-1): 店舗規模の影響を排除したランキング基準 */
+  readonly share: number
   readonly salesRank: number
   readonly storeCount: number
 }
@@ -115,10 +117,11 @@ export interface CategoryBenchmarkParams {
 }
 
 /**
- * カテゴリベンチマーク — 各カテゴリにおける店舗別売上ランキング
+ * カテゴリベンチマーク — 各カテゴリにおける店舗別構成比ランキング
  *
  * category_time_sales から指定階層(部門/ライン/クラス)×店舗で集約し、
- * RANK() でカテゴリ内の店舗順位を算出する。
+ * 各店舗内の売上構成比で RANK() を算出する。
+ * 構成比ベースにすることで店舗規模の影響を排除する。
  * 指数加重スコア s(r)=e^{-k(r-1)} の計算はアプリ層で行う。
  */
 export async function queryCategoryBenchmark(
@@ -161,15 +164,33 @@ export async function queryCategoryBenchmark(
       FROM category_time_sales cts
       ${where}
       GROUP BY ${codeCol}, ${nameCol}, cts.store_id
+    ),
+    store_total AS (
+      SELECT store_id, SUM(total_sales) AS store_sales
+      FROM cat_store
+      GROUP BY store_id
+    ),
+    cat_share AS (
+      SELECT
+        cs.code,
+        cs.name,
+        cs.store_id,
+        cs.total_sales,
+        CASE WHEN st.store_sales > 0
+          THEN cs.total_sales / st.store_sales
+          ELSE 0 END AS share
+      FROM cat_store cs
+      JOIN store_total st ON cs.store_id = st.store_id
     )
     SELECT
       code,
       name,
       store_id,
       total_sales,
-      RANK() OVER (PARTITION BY code ORDER BY total_sales DESC)::INTEGER AS sales_rank,
+      share,
+      RANK() OVER (PARTITION BY code ORDER BY share DESC)::INTEGER AS sales_rank,
       COUNT(*) OVER (PARTITION BY code)::INTEGER AS store_count
-    FROM cat_store
+    FROM cat_share
     ORDER BY code, sales_rank`
   return queryToObjects<CategoryBenchmarkRow>(conn, sql)
 }

@@ -329,9 +329,11 @@ function BenchmarkChartTooltip({ active, payload, ct, fmt }: ChartTooltipProps) 
         {item.name} ({item.code})
       </div>
       <div>Index: {item.index.toFixed(1)}</div>
+      <div>平均構成比: {toPct(item.avgShare, 1)}</div>
       <div>バラツキ: {item.variance.toFixed(3)}</div>
       <div>1位率: {toPct(item.dominance, 0)}</div>
       <div>安定度: {toPct(item.stability, 0)}</div>
+      <div>取扱店舗: {item.activeStoreCount}/{item.storeCount}</div>
       <div>売上: {fmt(item.totalSales)}</div>
       <div>
         タイプ: <TypeBadge $type={item.productType}>{TYPE_LABELS[item.productType]}</TypeBadge>
@@ -435,10 +437,11 @@ function TableView({
           <tr>
             <Th>カテゴリ</Th>
             <Th>Index</Th>
+            <Th>構成比</Th>
             <Th>バラツキ</Th>
             <Th>1位率</Th>
             <Th>安定度</Th>
-            <Th>平均順位</Th>
+            <Th>店舗数</Th>
             <Th>売上合計</Th>
             <Th>タイプ</Th>
           </tr>
@@ -450,10 +453,11 @@ function TableView({
               <Td $color={indexColor(s.index)} $bold>
                 {s.index.toFixed(1)}
               </Td>
+              <Td>{toPct(s.avgShare, 1)}</Td>
               <Td>{s.variance.toFixed(3)}</Td>
               <Td>{toPct(s.dominance, 0)}</Td>
               <Td>{toPct(s.stability, 0)}</Td>
-              <Td>{s.avgRank.toFixed(1)}</Td>
+              <Td>{s.activeStoreCount}/{s.storeCount}</Td>
               <Td>{fmt(s.totalSales)}</Td>
               <Td>
                 <TypeBadge $type={s.productType}>{TYPE_LABELS[s.productType]}</TypeBadge>
@@ -558,6 +562,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
 
   const [level, setLevel] = useState<CategoryLevel>('department')
   const [view, setView] = useState<ViewMode>('chart')
+  const [minStores, setMinStores] = useState(2)
 
   const {
     data: rawRows,
@@ -571,7 +576,11 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
     level,
   )
 
-  const scores = useMemo(() => (rawRows ? buildCategoryBenchmarkScores(rawRows) : []), [rawRows])
+  const totalStoreCount = selectedStoreIds.size
+  const scores = useMemo(
+    () => (rawRows ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount) : []),
+    [rawRows, minStores, totalStoreCount],
+  )
 
   // KPIサマリー
   const kpis = useMemo(() => {
@@ -609,7 +618,7 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
       <HeaderRow>
         <div>
           <Title>カテゴリベンチマーク（DuckDB）</Title>
-          <Subtitle>指数加重ランキング | 商品力 × バラツキ × 1位率</Subtitle>
+          <Subtitle>構成比ベース指数加重ランキング | 商品力 × バラツキ × 1位率</Subtitle>
         </div>
         <Controls>
           <ButtonGroup>
@@ -623,6 +632,16 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
             {(Object.keys(VIEW_LABELS) as ViewMode[]).map((v) => (
               <ToggleBtn key={v} $active={view === v} onClick={() => setView(v)}>
                 {VIEW_LABELS[v]}
+              </ToggleBtn>
+            ))}
+          </ButtonGroup>
+          <ButtonGroup>
+            <span style={{ fontSize: '0.6rem', color: ct.textMuted, whiteSpace: 'nowrap' }}>
+              最低店舗数:
+            </span>
+            {[1, 2, 3].map((n) => (
+              <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
+                {n === 1 ? '全て' : `${n}店以上`}
               </ToggleBtn>
             ))}
           </ButtonGroup>
