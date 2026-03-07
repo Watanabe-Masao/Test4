@@ -337,10 +337,7 @@ export function CategoryTotalView({
 /** 取引先行 + 日別ドリルダウンを描画 */
 function renderSupplierRows(
   rows: React.ReactNode[],
-  catSuppliers: Map<
-    string,
-    { cost: number; price: number; name: string; category: string }
-  >,
+  catSuppliers: Map<string, { cost: number; price: number; name: string; category: string }>,
   sr: StoreResult,
   catKey: string,
   storeId: string,
@@ -351,9 +348,7 @@ function renderSupplierRows(
   expandedSupplier: string | null,
   setExpandedSupplier: (v: string | null) => void,
 ) {
-  const sortedSuppliers = Array.from(catSuppliers.entries()).sort(
-    ([, a], [, b]) => b.cost - a.cost,
-  )
+  const sortedSuppliers = Array.from(catSuppliers.entries()).sort(([, a], [, b]) => b.cost - a.cost)
 
   for (const [code, sup] of sortedSuppliers) {
     const supGP = sup.price - sup.cost
