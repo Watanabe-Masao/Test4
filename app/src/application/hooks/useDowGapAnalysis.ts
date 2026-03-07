@@ -42,7 +42,12 @@ export function useDowGapAnalysis(
       prevDowSales,
     )
     // 実日法: マッピングデータがあれば算出
-    if (sameDateMapping && sameDowMapping && sameDateMapping.length > 0 && sameDowMapping.length > 0) {
+    if (
+      sameDateMapping &&
+      sameDowMapping &&
+      sameDateMapping.length > 0 &&
+      sameDowMapping.length > 0
+    ) {
       const actualDay = analyzeDowGapActualDay(
         sameDateMapping,
         sameDowMapping,

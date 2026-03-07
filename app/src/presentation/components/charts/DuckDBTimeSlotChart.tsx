@@ -539,8 +539,7 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
                           }
                           const label = labels[name] ?? String(name)
                           const v = (value as number) ?? 0
-                          if (name === 'diff')
-                            return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
+                          if (name === 'diff') return [`${v >= 0 ? '+' : ''}${toComma(v)}円`, label]
                           return [`${toComma(v)}円`, label]
                         },
                       })}

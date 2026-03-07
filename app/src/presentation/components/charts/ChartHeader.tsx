@@ -194,7 +194,10 @@ export function ChartGuidePanel({
   metricSummaries?: ReadonlyMap<string, MetricSummaryInfo>
 }) {
   const hasMetrics =
-    guide.relatedMetrics && guide.relatedMetrics.length > 0 && metricSummaries && metricSummaries.size > 0
+    guide.relatedMetrics &&
+    guide.relatedMetrics.length > 0 &&
+    metricSummaries &&
+    metricSummaries.size > 0
 
   return (
     <GuidePanel role="note" aria-label="グラフの読み方">

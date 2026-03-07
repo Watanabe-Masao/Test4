@@ -285,13 +285,10 @@ function DowGapKpiCard({
   onExplain: WidgetContext['onExplain']
 }) {
   const [showActual, setShowActual] = useState(false)
-  const toggle = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      setShowActual((v) => !v)
-    },
-    [],
-  )
+  const toggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowActual((v) => !v)
+  }, [])
 
   const actualDay = dowGap.actualDayImpact
   const hasActualDay = actualDay != null && actualDay.isValid
@@ -306,12 +303,8 @@ function DowGapKpiCard({
   if (isActualView) {
     const impact = actualDay.estimatedImpact
     const details = [
-      ...actualDay.shiftedIn.map(
-        (d) => `${d.label}: +${formatCurrency(d.prevSales)}`,
-      ),
-      ...actualDay.shiftedOut.map(
-        (d) => `${d.label}: -${formatCurrency(d.prevSales)}`,
-      ),
+      ...actualDay.shiftedIn.map((d) => `${d.label}: +${formatCurrency(d.prevSales)}`),
+      ...actualDay.shiftedOut.map((d) => `${d.label}: -${formatCurrency(d.prevSales)}`),
     ].join(' / ')
     const subText = details || `日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`
 

@@ -21,13 +21,7 @@ import {
   useDuckDBStoreAggregation,
   type StoreAggregationRow,
 } from '@/application/hooks/useDuckDBQuery'
-import {
-  useChartTheme,
-  useCurrencyFormatter,
-  STORE_COLORS,
-  toPct,
-  toAxisYen,
-} from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './ChartTooltip'
 import { sc } from '@/presentation/theme/semanticColors'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -450,10 +444,7 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
               ct,
               formatter: (value: unknown, name: string) => {
                 const v = value as number | undefined
-                return [
-                  v != null ? (mode === 'ratio' ? toPct(v / 100) : fmt(v)) : '-',
-                  name,
-                ]
+                return [v != null ? (mode === 'ratio' ? toPct(v / 100) : fmt(v)) : '-', name]
               },
             })}
           />

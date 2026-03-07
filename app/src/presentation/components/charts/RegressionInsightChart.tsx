@@ -287,10 +287,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
               <Tooltip
                 content={createChartTooltip({
                   ct,
-                  formatter: (value, name) => [
-                    toComma(Math.round(value as number)) + '円',
-                    name,
-                  ],
+                  formatter: (value, name) => [toComma(Math.round(value as number)) + '円', name],
                   labelFormatter: (label) => `${label}日`,
                 })}
               />
@@ -367,10 +364,7 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
               <Tooltip
                 content={createChartTooltip({
                   ct,
-                  formatter: (value, name) => [
-                    toComma(Math.round(value as number)) + '円',
-                    name,
-                  ],
+                  formatter: (value, name) => [toComma(Math.round(value as number)) + '円', name],
                   labelFormatter: (label) => `${label}日`,
                 })}
               />

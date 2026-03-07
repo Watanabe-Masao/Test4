@@ -482,10 +482,7 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
           <Tooltip
             content={createChartTooltip({
               ct,
-              formatter: (value, name) => [
-                value != null ? fmt(value as number) : '-',
-                name ?? '',
-              ],
+              formatter: (value, name) => [value != null ? fmt(value as number) : '-', name ?? ''],
             })}
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
