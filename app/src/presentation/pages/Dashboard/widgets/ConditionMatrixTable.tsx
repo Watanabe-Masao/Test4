@@ -7,7 +7,7 @@
  * 列: 売上 / 点数 / 客数 / 客単価 / 売変率 / 総仕入金額
  * スライダーで分析期間を変更可能。
  */
-import { useState, useMemo, memo } from 'react'
+import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/calculations/utils'
@@ -21,7 +21,7 @@ import {
   type TrendDirectionRow,
   type TrendDirection,
 } from '@/application/hooks/duckdb/useConditionMatrix'
-import { DuckDBDateRangePicker } from '@/presentation/components/charts'
+import { DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
 
 // ─── Styled Components ──────────────────────────────────
@@ -111,10 +111,6 @@ const WarningMsg = styled.div`
   color: ${palette.caution};
 `
 
-const PickerWrapper = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[3]};
-`
-
 const DirectionArrow = styled.span<{ $dir: TrendDirection }>`
   font-size: 14px;
   font-weight: 700;
@@ -200,16 +196,22 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
     duckConn,
     duckDataVersion,
     selectedStoreIds,
-    currentDateRange,
     year,
     month,
     daysInMonth,
-    duckLoadedMonthCount,
   } = ctx
 
-  // ローカル期間状態（スライダーで変更可能）
-  const [localRange, setLocalRange] = useState<DateRange | null>(null)
-  const effectiveRange = localRange ?? currentDateRange
+  // スライダーによる日範囲選択（他のグラフと統一）
+  const [dayStart, dayEnd, setDayRange] = useDayRange(daysInMonth)
+
+  // 日番号から DateRange に変換
+  const effectiveRange: DateRange = useMemo(
+    () => ({
+      from: { year, month, day: dayStart },
+      to: { year, month, day: dayEnd },
+    }),
+    [year, month, dayStart, dayEnd],
+  )
 
   // DuckDB からデータ取得
   const {
@@ -268,16 +270,14 @@ export const ConditionMatrixTable = memo(function ConditionMatrixTable({ ctx }: 
 
       {!isLoading && !error && !matrix && <LoadingMsg>データがありません</LoadingMsg>}
 
-      <PickerWrapper>
-        <DuckDBDateRangePicker
-          value={effectiveRange}
-          onChange={setLocalRange}
-          year={year}
-          month={month}
-          daysInMonth={daysInMonth}
-          loadedMonthCount={duckLoadedMonthCount}
-        />
-      </PickerWrapper>
+      <DayRangeSlider
+        min={1}
+        max={daysInMonth}
+        start={dayStart}
+        end={dayEnd}
+        onChange={setDayRange}
+        elapsedDays={ctx.elapsedDays}
+      />
     </Section>
   )
 })
