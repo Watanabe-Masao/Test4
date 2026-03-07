@@ -4,10 +4,11 @@ import { MetricBreakdownPanel, PageSkeleton } from '@/presentation/components/co
 import { useCalculation, useExplanations } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId } from '@/domain/models'
-import { TabBar, Tab, EmptyState } from './InsightPage.styles'
+import { PageWidgetContainer } from '@/presentation/components/widgets'
+import { EmptyState } from './InsightPage.styles'
 import { useInsightData } from './useInsightData'
-import { BudgetTabContent, GrossProfitTabContent } from './InsightTabBudget'
-import { ForecastTabContent, DecompositionTabContent } from './InsightTabForecast'
+import { INSIGHT_WIDGET_CONFIG } from './widgets'
+import type { InsightWidgetContext } from './widgets'
 
 export function InsightPage() {
   const { isComputing } = useCalculation()
@@ -37,37 +38,15 @@ export function InsightPage() {
 
   const r = d.currentResult
 
+  const widgetCtx: InsightWidgetContext = {
+    d,
+    r,
+    onExplain: handleExplain,
+  }
+
   return (
     <MainContent title="インサイト" storeName={d.storeName}>
-      {/* タブバー — 問いの深さ順 */}
-      <TabBar>
-        <Tab $active={d.activeTab === 'budget'} onClick={() => d.setActiveTab('budget')}>
-          予算と実績
-        </Tab>
-        <Tab $active={d.activeTab === 'grossProfit'} onClick={() => d.setActiveTab('grossProfit')}>
-          損益構造
-        </Tab>
-        <Tab
-          $active={d.activeTab === 'decomposition'}
-          onClick={() => d.setActiveTab('decomposition')}
-        >
-          売上要因
-        </Tab>
-        <Tab $active={d.activeTab === 'forecast'} onClick={() => d.setActiveTab('forecast')}>
-          予測・パターン
-        </Tab>
-      </TabBar>
-
-      {d.activeTab === 'budget' && <BudgetTabContent d={d} r={r} onExplain={handleExplain} />}
-      {d.activeTab === 'grossProfit' && (
-        <GrossProfitTabContent d={d} r={r} onExplain={handleExplain} />
-      )}
-      {d.activeTab === 'forecast' && d.forecastData && (
-        <ForecastTabContent d={d} r={r} onExplain={handleExplain} />
-      )}
-      {d.activeTab === 'decomposition' && d.customerData && d.forecastData && (
-        <DecompositionTabContent d={d} />
-      )}
+      <PageWidgetContainer config={INSIGHT_WIDGET_CONFIG} context={widgetCtx} />
 
       {/* 指標説明パネル */}
       {explainMetric && explanations.has(explainMetric) && (

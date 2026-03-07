@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import {
-  Chip,
-  ChipGroup,
   MetricBreakdownPanel,
   PageSkeleton,
 } from '@/presentation/components/common'
@@ -15,11 +13,11 @@ import {
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MetricId, CustomCategory } from '@/domain/models'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { ToggleBar, ToggleLabel, EmptyState } from './CategoryPage.styles'
+import { EmptyState } from './CategoryPage.styles'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
-import type { ComparisonMode } from './categoryData'
-import { CategoryTotalView } from './CategoryTotalView'
-import { CategoryComparisonView } from './CategoryComparisonView'
+import { PageWidgetContainer } from '@/presentation/components/widgets'
+import { CATEGORY_WIDGET_CONFIG } from './widgets'
+import type { CategoryWidgetContext } from './widgets'
 
 export function CategoryPage() {
   const { isComputing } = useCalculation()
@@ -32,7 +30,6 @@ export function CategoryPage() {
   const handleExplain = useCallback((metricId: MetricId) => {
     setExplainMetric(metricId)
   }, [])
-  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('total')
 
   // Build store name map for comparison charts (must be before early return)
   const storeNames = useMemo(() => {
@@ -78,44 +75,24 @@ export function CategoryPage() {
     }
   }
 
-  const showComparison = comparisonMode === 'comparison' && hasMultipleStores
+  const widgetCtx: CategoryWidgetContext = {
+    r,
+    selectedResults,
+    stores,
+    storeNames,
+    settings,
+    onExplain: handleExplain,
+    onCustomCategoryChange: handleCustomCategoryChange,
+    hasMultipleStores,
+  }
 
   return (
     <MainContent title="カテゴリ分析" storeName={storeName}>
-      <ToggleBar>
-        <CurrencyUnitToggle />
-      </ToggleBar>
-      {hasMultipleStores && (
-        <ToggleBar>
-          <ToggleLabel>表示モード:</ToggleLabel>
-          <ChipGroup>
-            <Chip $active={comparisonMode === 'total'} onClick={() => setComparisonMode('total')}>
-              合計モード
-            </Chip>
-            <Chip
-              $active={comparisonMode === 'comparison'}
-              onClick={() => setComparisonMode('comparison')}
-            >
-              店舗間比較モード
-            </Chip>
-          </ChipGroup>
-        </ToggleBar>
-      )}
-
-      {!showComparison && (
-        <CategoryTotalView
-          r={r}
-          selectedResults={selectedResults}
-          stores={stores}
-          settings={settings}
-          onExplain={handleExplain}
-          onCustomCategoryChange={handleCustomCategoryChange}
-        />
-      )}
-
-      {showComparison && (
-        <CategoryComparisonView selectedResults={selectedResults} storeNames={storeNames} />
-      )}
+      <PageWidgetContainer
+        config={CATEGORY_WIDGET_CONFIG}
+        context={widgetCtx}
+        toolbarExtra={<CurrencyUnitToggle />}
+      />
 
       {explainMetric && explanations.has(explainMetric) && (
         <MetricBreakdownPanel
