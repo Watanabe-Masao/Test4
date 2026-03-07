@@ -1323,7 +1323,9 @@ function BoxPlotView({
             <div>Q1 (25%): {fmt(hovered.q1)}</div>
             <div>最小値: {fmt(hovered.min)}</div>
             <div>平均値: {fmt(hovered.mean)}</div>
-            <div>{boxAxis === 'store' ? '店舗数' : '日数'}: {hovered.count}</div>
+            <div>
+              {boxAxis === 'store' ? '店舗数' : '日数'}: {hovered.count}
+            </div>
           </div>
         )}
       </div>
@@ -1679,7 +1681,9 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
           <BoxPlotView
             boxData={boxPlotData}
             ct={ct}
-            fmt={boxMetric === 'sales' || boxAxis === 'date' ? fmt : (v: number) => v.toLocaleString()}
+            fmt={
+              boxMetric === 'sales' || boxAxis === 'date' ? fmt : (v: number) => v.toLocaleString()
+            }
             metricLabel={boxAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]}
             rawRows={rawRows ?? null}
             trendRows={trendRows ?? null}
