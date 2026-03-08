@@ -1,0 +1,1 @@
+export { GrossProfitRateChart } from './GrossProfitRateChart'
