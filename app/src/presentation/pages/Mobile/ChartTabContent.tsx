@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { ChartCard, ChartTitle } from './MobileDashboardPage.styles'
 

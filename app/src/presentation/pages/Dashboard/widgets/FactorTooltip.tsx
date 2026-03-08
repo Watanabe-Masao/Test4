@@ -1,7 +1,7 @@
 /**
  * カテゴリ別要因分解チャートのツールチップ
  */
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { TipBox, TipTitle, TipRow, TipHint, valColor } from './CategoryFactorBreakdown.styles'
 import type { DecompLevel, FactorItem } from './categoryFactorBreakdown.types'
 

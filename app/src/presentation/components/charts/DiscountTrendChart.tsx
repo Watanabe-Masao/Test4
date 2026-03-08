@@ -8,7 +8,8 @@ import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
-import { safeDivide, formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 
 const Wrapper = styled.div`
   width: 100%;

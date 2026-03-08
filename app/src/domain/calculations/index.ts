@@ -2,10 +2,6 @@
 export {
   safeNumber,
   safeDivide,
-  formatCurrency,
-  formatManYen,
-  formatPercent,
-  formatPointDiff,
   calculateTransactionValue,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
@@ -14,6 +10,9 @@ export {
   computeActiveDowDivisorMap,
 } from './utils'
 export type { AverageMode, AveragingContext } from './utils'
+
+// フォーマット — 後方互換 re-export（新規コードは @/domain/formatting を直接使用）
+export { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '../formatting'
 
 // 在庫法
 export { calculateInvMethod } from './invMethod'

@@ -14,7 +14,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
 import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import { sc } from '@/presentation/theme/semanticColors'
 

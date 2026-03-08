@@ -6,11 +6,8 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import {
-  formatCurrency,
-  formatPercent,
-  getEffectiveGrossProfitRate,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { DepartmentKpiRecord } from '@/domain/models'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'

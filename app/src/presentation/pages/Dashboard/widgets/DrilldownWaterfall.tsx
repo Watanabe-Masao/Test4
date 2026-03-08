@@ -20,8 +20,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
 import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { formatCurrency } from '@/domain/formatting'
 import {
-  formatCurrency,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'

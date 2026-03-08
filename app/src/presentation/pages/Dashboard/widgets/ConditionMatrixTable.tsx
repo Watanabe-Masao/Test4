@@ -10,7 +10,7 @@
 import { useMemo, memo } from 'react'
 import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
-import { formatPercent } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import { dateRangeDays } from '@/domain/models'
 import type { DateRange } from '@/domain/models'
 import {

@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
-  safeNumber,
-  safeDivide,
   formatCurrency,
   formatManYen,
   formatPercent,
   formatPointDiff,
+} from '@/domain/formatting'
+import {
+  safeNumber,
+  safeDivide,
   calculateMovingAverage,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,

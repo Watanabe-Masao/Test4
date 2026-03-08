@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { Chip } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import {
   PieChart,

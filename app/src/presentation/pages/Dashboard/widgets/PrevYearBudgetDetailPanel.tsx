@@ -13,7 +13,8 @@ import { useState, useMemo, useCallback } from 'react'
 import styled, { useTheme } from 'styled-components'
 import type { PrevYearMonthlyKpiEntry } from '@/application/hooks/usePrevYearMonthlyKpi'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import {
   Overlay,
   Panel,

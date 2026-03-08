@@ -13,11 +13,8 @@
 import { useState, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import {
-  formatCurrency,
-  formatPercent,
-  calculateTransactionValue,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
   DailyRecord,

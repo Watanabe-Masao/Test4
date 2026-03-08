@@ -12,7 +12,7 @@ import {
   type HierarchyFilter,
 } from '@/presentation/components/charts/categoryHierarchyHooks'
 import { toComma } from '@/presentation/components/charts/chartTheme'
-import { formatPercent } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import {
   aggregateForDrill,
   buildDrillItems,

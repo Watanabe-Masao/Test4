@@ -1,12 +1,8 @@
 import { useState } from 'react'
 import type { StoreResult, Store } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
-import {
-  formatPercent,
-  formatCurrency,
-  formatPointDiff,
-  safeDivide,
-} from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CATEGORY_ORDER } from '@/domain/constants/categories'

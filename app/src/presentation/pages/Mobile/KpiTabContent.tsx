@@ -1,6 +1,5 @@
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import {
-  formatCurrency,
-  formatPercent,
   safeDivide,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {

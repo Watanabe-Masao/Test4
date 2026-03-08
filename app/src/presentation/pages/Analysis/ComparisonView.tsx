@@ -1,9 +1,6 @@
 import { Card, CardTitle } from '@/presentation/components/common'
-import {
-  formatCurrency,
-  formatPercent,
-  getEffectiveGrossProfitRate,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 

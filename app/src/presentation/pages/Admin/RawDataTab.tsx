@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { useDataStore } from '@/application/stores/dataStore'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
 import type {
   PurchaseDayEntry,

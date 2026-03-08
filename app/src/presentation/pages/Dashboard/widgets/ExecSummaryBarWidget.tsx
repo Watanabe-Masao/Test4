@@ -2,10 +2,8 @@ import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
-  formatCurrency,
-  formatPercent,
-  formatPointDiff,
   safeDivide,
   calculateTransactionValue,
 } from '@/domain/calculations/utils'

@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import styled from 'styled-components'
-import { formatPercent } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 
 // ─── Types ──────────────────────────────────────────────

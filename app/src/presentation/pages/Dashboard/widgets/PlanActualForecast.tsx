@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
-  formatCurrency,
-  formatPercent,
-  formatPointDiff,
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,

@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Card, CardTitle, ChartErrorBoundary } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import {
   Section,
   Table,

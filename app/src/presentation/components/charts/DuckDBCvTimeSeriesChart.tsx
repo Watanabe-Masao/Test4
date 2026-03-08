@@ -24,7 +24,7 @@ import {
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import {
   ChartPanel,
   ChartHeaderRow,

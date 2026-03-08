@@ -6,9 +6,8 @@ import {
   useBudgetChartData,
 } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import {
-  formatCurrency,
-  formatPercent,
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
