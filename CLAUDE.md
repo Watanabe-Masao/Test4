@@ -258,7 +258,7 @@ cd app && npm run dev           # Vite 開発サーバー
 - styled-components 6（テーマトークン経由、ダーク/ライト対応）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100` / `endOfLine: "lf"`
 
-## 設計思想 — 10原則（要約）
+## 設計思想 — 15原則（要約）
 
 詳細と適用例は `references/design-principles.md` を参照。管理責任: architecture ロール。
 
@@ -272,6 +272,23 @@ cd app && npm run dev           # Vite 開発サーバー
 8. **文字列はカタログ** — UI 文字列は messages.ts に一元管理
 9. **描画は純粋** — memo + フックで描画と計算を分離
 10. **最小セレクタ** — ストアはスライスで購読。広すぎる購読は禁止
+11. **Command と Query を分離** — JS確定計算と DuckDB探索は責務が異なる。同一ロジックの二重実装禁止
+12. **横断的関心事は Contract で管理** — 複数機能に跨る関心事（比較、説明等）は Contract インターフェースで変更箇所を限定
+13. **型の粒度は変更頻度に合わせる** — 変更頻度が異なるフィールドは別の型に分離（原則#4の型への具体化）
+14. **全パターンに例外なし** — チャート・Hook・Handler 構造は規模に関わらず同一。AI開発で判断不要
+15. **配置はパスで決まる** — ファイルの配置先はパスベースルールで機械的に判定。曖昧さゼロ
+
+## アーキテクチャ進化計画（要約）
+
+詳細は `references/architecture-evolution-plan.md` を参照。
+
+CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に **処理契約** を導入する。
+
+- **Command側:** JS計算エンジン（単月確定値 → WriteModel = StoreCalculation）
+- **Query側:** DuckDB探索エンジン（任意範囲 → ReadModel = QueryResult）
+- **ViewModel:** WriteModel + ReadModel を描画データに変換
+- **統一構造:** チャート（.tsx + .styles.ts + .vm.ts）、クエリ（QueryHandler + Input/Output型）
+- **移行:** Phase 0〜7 の段階的実行。各フェーズに完了基準と Architecture Guard を定義
 
 ## モジュール構造の進化方針（要約）
 
