@@ -178,19 +178,19 @@ export function movingAverage(
  * 曜日別の平均売上・標準偏差を計算する。
  *
  * SQL: AVG(daily_sales) per dow, STDDEV_POP(daily_sales) per dow の JS 置き換え。
+ *
+ * dateKey (YYYY-MM-DD) から直接曜日を計算するため月跨ぎデータに対応。
  */
 export function dowAggregate(
   dailyData: readonly { readonly dateKey: string; readonly totalSales: number }[],
-  year: number,
-  month: number,
 ): DowAggregate[] {
   // 曜日ごとに売上を収集
   const dowMap = new Map<number, number[]>()
 
   for (const d of dailyData) {
-    // dateKey から日を取得
-    const day = Number(d.dateKey.split('-')[2])
-    const dow = new Date(year, month - 1, day).getDay()
+    // dateKey (YYYY-MM-DD) から直接 Date を生成して曜日を取得
+    const parts = d.dateKey.split('-')
+    const dow = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getDay()
     const arr = dowMap.get(dow) ?? []
     arr.push(d.totalSales)
     dowMap.set(dow, arr)

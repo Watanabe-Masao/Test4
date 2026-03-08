@@ -133,7 +133,7 @@ describe('dowAggregate', () => {
       { dateKey: '2026-01-02', totalSales: 400 },
       { dateKey: '2026-01-03', totalSales: 120 },
     ]
-    const result = dowAggregate(daily, 2026, 1)
+    const result = dowAggregate(daily)
 
     expect(result).toHaveLength(3)
     // 各曜日1日ずつなので dayCount=1, stddev=0

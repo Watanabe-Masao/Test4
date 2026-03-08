@@ -1,0 +1,299 @@
+/**
+ * JS 計算ベースクエリフック群
+ *
+ * DuckDB から生データ（store_day_summary SELECT *）を取得し、
+ * rawAggregation.ts の純粋関数で集約・統計計算を行うフック群。
+ *
+ * DuckDB SQL 内の集約ロジック（GROUP BY, OVER, STDDEV_POP 等）を
+ * JS 側に移行する Phase 3 の中核。
+ *
+ * ## 移行パターン
+ *
+ * Before: useDuckDBDailyCumulative → queryDailyCumulative (SQL: SUM OVER)
+ * After:  useJsDailyCumulative → queryStoreDaySummary (SQL: SELECT *) → aggregateByDay + cumulativeSum (JS)
+ *
+ * チャートコンポーネントの API（返り値の型）は変更しない。
+ */
+import { useMemo } from 'react'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { DateRange } from '@/domain/models'
+import {
+  queryStoreDaySummary,
+  type StoreDaySummaryRow,
+} from '@/infrastructure/duckdb/queries/storeDaySummary'
+import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
+import type { DowPatternRow, DailyFeatureRow } from '@/infrastructure/duckdb/queries/features'
+import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
+import {
+  aggregateByDay,
+  cumulativeSum,
+  movingAverage,
+  stddevPop,
+  zScore as calcZScore,
+  coefficientOfVariation,
+} from '@/domain/calculations/rawAggregation'
+import { safeDivide } from '@/domain/calculations/utils'
+
+// ─── 生データ取得（共通） ────────────────────────────────
+
+/**
+ * store_day_summary の生レコードを取得するフック。
+ *
+ * SQL は SELECT * WHERE のみ。集約は JS 側で行う。
+ */
+function useRawSummaryRows(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): AsyncQueryResult<readonly StoreDaySummaryRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryStoreDaySummary(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        isPrevYear,
+      })
+  }, [dateRange, storeIds, isPrevYear])
+
+  return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+// ─── 日別累積売上（JS計算版） ──────────────────────────
+
+/**
+ * DuckDB 生データ → JS aggregateByDay + cumulativeSum
+ *
+ * SQL の SUM(sales) OVER (ORDER BY date_key) を置き換え。
+ * 返り値は DailyCumulativeRow[] 互換。
+ */
+export function useJsDailyCumulative(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+  isPrevYear?: boolean,
+): AsyncQueryResult<readonly DailyCumulativeRow[]> {
+  const {
+    data: rawRows,
+    isLoading,
+    error,
+  } = useRawSummaryRows(conn, dataVersion, dateRange, storeIds, isPrevYear)
+
+  const data = useMemo(() => {
+    if (!rawRows) return null
+    const daily = aggregateByDay(rawRows)
+    return cumulativeSum(daily)
+  }, [rawRows])
+
+  return { data, isLoading, error }
+}
+
+// ─── 曜日パターン（JS計算版） ──────────────────────────
+
+/**
+ * DuckDB 生データ → JS aggregateByDay + dowAggregate
+ *
+ * SQL の AVG/STDDEV_POP per dow を置き換え。
+ * 返り値は DowPatternRow[] 互換（storeId は集約後 'ALL'）。
+ */
+export function useJsDowPattern(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+): AsyncQueryResult<readonly DowPatternRow[]> {
+  const {
+    data: rawRows,
+    isLoading,
+    error,
+  } = useRawSummaryRows(conn, dataVersion, dateRange, storeIds)
+
+  const data = useMemo(() => {
+    if (!rawRows) return null
+    return computeDowPattern(rawRows)
+  }, [rawRows])
+
+  return { data, isLoading, error }
+}
+
+/**
+ * 店舗別曜日パターンを計算する純粋関数。
+ *
+ * DuckDB SQL の WITH daily AS (...) GROUP BY store_id, dow と同等。
+ */
+function computeDowPattern(rows: readonly StoreDaySummaryRow[]): DowPatternRow[] {
+  // store_id ごとにグループ化
+  const storeMap = new Map<string, Map<string, number>>()
+  for (const r of rows) {
+    let dateMap = storeMap.get(r.storeId)
+    if (!dateMap) {
+      dateMap = new Map()
+      storeMap.set(r.storeId, dateMap)
+    }
+    dateMap.set(r.dateKey, (dateMap.get(r.dateKey) ?? 0) + r.sales)
+  }
+
+  const result: DowPatternRow[] = []
+
+  for (const [storeId, dateMap] of storeMap) {
+    // 曜日ごとに売上を収集
+    const dowSales = new Map<number, number[]>()
+    for (const [dateKey, sales] of dateMap) {
+      const parts = dateKey.split('-')
+      const dow = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getDay()
+      const arr = dowSales.get(dow) ?? []
+      arr.push(sales)
+      dowSales.set(dow, arr)
+    }
+
+    for (const [dow, sales] of dowSales) {
+      const count = sales.length
+      const avg = sales.reduce((s, v) => s + v, 0) / count
+      const variance = sales.reduce((s, v) => s + (v - avg) ** 2, 0) / count
+      result.push({
+        storeId,
+        dow,
+        avgSales: avg,
+        dayCount: count,
+        salesStddev: Math.sqrt(variance),
+      })
+    }
+  }
+
+  return result.sort((a, b) => {
+    if (a.storeId < b.storeId) return -1
+    if (a.storeId > b.storeId) return 1
+    return a.dow - b.dow
+  })
+}
+
+// ─── 日別特徴量ベクトル（JS計算版） ────────────────────
+
+/**
+ * DuckDB 生データ → JS 移動平均 + Z-score + CV + スパイク比率
+ *
+ * SQL のウィンドウ関数 (AVG OVER w3/w7/w28, LAG, STDDEV_POP, cumulative SUM) を置き換え。
+ * 返り値は DailyFeatureRow[] 互換。
+ */
+export function useJsDailyFeatures(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+): AsyncQueryResult<readonly DailyFeatureRow[]> {
+  const {
+    data: rawRows,
+    isLoading,
+    error,
+  } = useRawSummaryRows(conn, dataVersion, dateRange, storeIds)
+
+  const data = useMemo(() => {
+    if (!rawRows) return null
+    return computeDailyFeatures(rawRows)
+  }, [rawRows])
+
+  return { data, isLoading, error }
+}
+
+/**
+ * 店舗別日次特徴量を計算する純粋関数。
+ *
+ * DuckDB SQL の WINDOW w3/w7/w28 と等価な計算を JS で行う。
+ */
+function computeDailyFeatures(rows: readonly StoreDaySummaryRow[]): DailyFeatureRow[] {
+  // store_id ごとにグループ化
+  const storeMap = new Map<string, { dateKey: string; sales: number }[]>()
+  for (const r of rows) {
+    const arr = storeMap.get(r.storeId) ?? []
+    arr.push({ dateKey: r.dateKey, sales: r.sales })
+    storeMap.set(r.storeId, arr)
+  }
+
+  const result: DailyFeatureRow[] = []
+
+  for (const [storeId, records] of storeMap) {
+    // dateKey 順にソート
+    const sorted = [...records].sort((a, b) =>
+      a.dateKey < b.dateKey ? -1 : a.dateKey > b.dateKey ? 1 : 0,
+    )
+    const values = sorted.map((r) => r.sales)
+
+    // 移動平均
+    const ma3 = movingAverage(
+      sorted.map((r) => ({ dateKey: r.dateKey, value: r.sales })),
+      3,
+    )
+    const ma7 = movingAverage(
+      sorted.map((r) => ({ dateKey: r.dateKey, value: r.sales })),
+      7,
+    )
+    const ma28 = movingAverage(
+      sorted.map((r) => ({ dateKey: r.dateKey, value: r.sales })),
+      28,
+    )
+
+    let cumulative = 0
+
+    for (let i = 0; i < sorted.length; i++) {
+      const sales = values[i]
+      cumulative += sales
+
+      // 前日比・前週同曜日比
+      const diff1d = i >= 1 ? sales - values[i - 1] : null
+      const diff7d = i >= 7 ? sales - values[i - 7] : null
+
+      // 7日窓の CV
+      let cv7day: number | null = null
+      if (i >= 6) {
+        const window7 = values.slice(i - 6, i + 1)
+        cv7day = coefficientOfVariation(window7)
+      }
+
+      // 28日窓の CV
+      let cv28day: number | null = null
+      if (i >= 27) {
+        const window28 = values.slice(i - 27, i + 1)
+        cv28day = coefficientOfVariation(window28)
+      }
+
+      // Z-score (28日窓ベース)
+      let zScoreVal: number | null = null
+      if (i >= 27) {
+        const window28 = values.slice(i - 27, i + 1)
+        const mean = window28.reduce((s, v) => s + v, 0) / window28.length
+        const sd = stddevPop(window28)
+        zScoreVal = sd > 0 ? calcZScore(sales, mean, sd) : null
+      }
+
+      // スパイク比率 (7日窓ベース)
+      let spikeRatio: number | null = null
+      if (i >= 6) {
+        const ma7val = ma7[i].ma
+        spikeRatio = ma7val != null && ma7val > 0 ? safeDivide(sales, ma7val, 0) : null
+      }
+
+      result.push({
+        storeId,
+        dateKey: sorted[i].dateKey,
+        sales,
+        salesMa3: ma3[i].ma,
+        salesMa7: ma7[i].ma,
+        salesMa28: ma28[i].ma,
+        salesDiff1d: diff1d,
+        salesDiff7d: diff7d,
+        cumulativeSales: cumulative,
+        cv7day,
+        cv28day,
+        zScore: zScoreVal,
+        spikeRatio,
+      })
+    }
+  }
+
+  return result
+}
