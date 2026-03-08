@@ -7,6 +7,14 @@ export type {
   StoreDerivedData,
   StoreResult,
 } from './StoreResult'
+export type {
+  StoreSalesView,
+  StoreInventoryView,
+  StoreBudgetView,
+  StoreForecastView,
+  StoreMarginView,
+  StoreCategoryView,
+} from './StoreResultSubsets'
 export type { AppSettings, ViewType, DataType, StorageDataType, CustomCategory } from './Settings'
 export { CUSTOM_CATEGORIES } from './Settings'
 export type { ImportedData } from './ImportedData'
