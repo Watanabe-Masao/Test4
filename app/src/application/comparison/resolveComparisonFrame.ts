@@ -10,6 +10,7 @@
  * - 管理画面からの手動オーバーライドを適用する
  */
 import type { DateRange, ComparisonFrame, AlignmentPolicy } from '@/domain/models'
+import { getDaysInMonth } from '@/domain/constants/defaults'
 
 export interface ComparisonOverrides {
   /** 前年データ取得元の年（null = currentRange.from.year - 1） */
@@ -73,10 +74,15 @@ export function resolveComparisonFrame(
         : calcSameDowOffset(curYear, curMonth, prevYear, prevMonth)
   }
 
-  // 前年の日付範囲を構築
+  // 前年の日付範囲を構築（前年月の実日数でクランプ）
+  const prevDaysInMonth = getDaysInMonth(prevYear, prevMonth)
   const previous: DateRange = {
-    from: { year: prevYear, month: prevMonth, day: currentRange.from.day },
-    to: { year: prevYear, month: prevMonth, day: currentRange.to.day },
+    from: {
+      year: prevYear,
+      month: prevMonth,
+      day: Math.min(currentRange.from.day, prevDaysInMonth),
+    },
+    to: { year: prevYear, month: prevMonth, day: Math.min(currentRange.to.day, prevDaysInMonth) },
   }
 
   return {

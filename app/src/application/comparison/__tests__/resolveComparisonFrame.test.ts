@@ -53,6 +53,8 @@ describe('resolveComparisonFrame', () => {
     })
     expect(frame.previous.from.year).toBe(2024)
     expect(frame.previous.from.month).toBe(2)
+    // 2024年2月はうるう年(29日) → to.day=31 が 29 にクランプされる
+    expect(frame.previous.to.day).toBe(29)
   })
 
   it('dowOffset 手動オーバーライドが反映される', () => {
@@ -84,5 +86,49 @@ describe('resolveComparisonFrame', () => {
     })
     expect(frame.previous.from.year).toBe(2025)
     expect(frame.dowOffset).toBe(1) // 自動計算
+  })
+
+  // ── 月境界: 前年月の日数が少ない場合のクランプ ──
+
+  it('31日月 → 前年2月(28日)にオーバーライド時、to.day が28にクランプされる', () => {
+    // 当年3月31日 → 前年2月(非うるう年2025: 28日)
+    const frame = resolveComparisonFrame(currentRange, 'sameDate', {
+      sourceMonth: 2,
+    })
+    expect(frame.previous.to).toEqual({ year: 2025, month: 2, day: 28 })
+    expect(frame.previous.from).toEqual({ year: 2025, month: 2, day: 1 })
+  })
+
+  it('うるう年 → 非うるう年で2月29日が28日にクランプされる', () => {
+    // 2024年(うるう年)2月29日 → 2023年(非うるう年)2月
+    const leapRange: DateRange = {
+      from: { year: 2024, month: 2, day: 1 },
+      to: { year: 2024, month: 2, day: 29 },
+    }
+    const frame = resolveComparisonFrame(leapRange, 'sameDate')
+    expect(frame.previous.to).toEqual({ year: 2023, month: 2, day: 28 })
+    expect(frame.previous.from).toEqual({ year: 2023, month: 2, day: 1 })
+  })
+
+  it('非うるう年 → うるう年はクランプ不要（28 ≤ 29）', () => {
+    const nonLeapRange: DateRange = {
+      from: { year: 2025, month: 2, day: 1 },
+      to: { year: 2025, month: 2, day: 28 },
+    }
+    const frame = resolveComparisonFrame(nonLeapRange, 'sameDate')
+    // 2024年はうるう年(29日) → 28はクランプ不要
+    expect(frame.previous.to).toEqual({ year: 2024, month: 2, day: 28 })
+  })
+
+  it('31日月 → 30日月にオーバーライド時、to.day が30にクランプされる', () => {
+    // 当年1月31日 → 前年11月(30日)
+    const janRange: DateRange = {
+      from: { year: 2026, month: 1, day: 1 },
+      to: { year: 2026, month: 1, day: 31 },
+    }
+    const frame = resolveComparisonFrame(janRange, 'sameDate', {
+      sourceMonth: 11,
+    })
+    expect(frame.previous.to).toEqual({ year: 2025, month: 11, day: 30 })
   })
 })

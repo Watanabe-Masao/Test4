@@ -166,7 +166,15 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear ? frame.previous : undefined
+  // prevTotalCustomers（JS エンジン）は elapsedDays 分のみの客数。
+  // DuckDB 側の prevYearDateRange も同じ日数にクリップしないと
+  // PI = 全月売上 ÷ 一部客数 × 1000 で前年値が膨張する。
+  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
+    ? {
+        from: frame.previous.from,
+        to: { ...frame.previous.to, day: Math.min(frame.previous.to.day, effectiveEndDay) },
+      }
+    : undefined
 
   const ctx: UnifiedWidgetContext = {
     // コア

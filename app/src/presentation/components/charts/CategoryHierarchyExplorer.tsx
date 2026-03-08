@@ -122,6 +122,7 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
     selectedStoreIds,
     currentLevel,
     hierarchy,
+    true, // isPrevYear
   )
 
   const hasPrevYear = (prevLevelAgg.data?.length ?? 0) > 0
