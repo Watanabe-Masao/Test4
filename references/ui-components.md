@@ -488,6 +488,17 @@ import { Wrapper, Title } from './XxxChart.styles'
 | コスト | 💰 | コスト詳細ページ |
 | レポート | 📄 | レポートページ |
 
+### ステータスアイコン一覧
+
+Toast 等のフィードバック要素にも絵文字/記号を使用:
+
+| レベル | 記号 | 用途 |
+|--------|------|------|
+| success | `✓` | 成功通知 |
+| error | `!` | エラー通知 |
+| warning | `⚠` | 警告通知 |
+| info | `i` | 情報通知 |
+
 ### アイコン追加ルール
 
 - 新しいナビゲーション項目には Unicode 絵文字を使用する
@@ -503,13 +514,50 @@ import { Wrapper, Title } from './XxxChart.styles'
 
 | 項目 | 対応状況 | 詳細 |
 |------|---------|------|
-| `aria-label` | 部分的 | チャートの Wrapper、NavBar ボタン、Modal に適用済み |
-| `role` 属性 | 部分的 | Modal（`role="dialog"`）、Toast（`role="alert"`）|
-| キーボード操作 | 部分的 | `focus-visible` スタイル、`tabIndex` の一部使用 |
+| `aria-label` | 対応済み | チャート Wrapper、NavBar ボタン、Modal、KpiCard（クリック可能時）に適用 |
+| `role` 属性 | 対応済み | Modal（`role="dialog"`）、Toast（`role="alert"` + `role="status"`）、KpiCard（`role="button"`）、TabBar（`role="tablist"` / `role="tab"`） |
+| キーボード操作 | 対応済み | `focus-visible` 全インタラクティブ要素、TabBar 矢印キー/Home/End、Modal Escape/フォーカストラップ、KpiCard Enter/Space |
+| ライブリージョン | 対応済み | Toast コンテナ `aria-live="polite"`、個別 Toast `aria-live="assertive"` |
 | 色覚多様性 | 対応済み | CUD パレット（`semanticColors.ts`）で Positive/Negative/Caution を色覚特性に配慮 |
 | コントラスト比 | 対応済み | ダーク/ライトテーマで十分なコントラスト比を確保 |
 
-### 必須ルール
+### 実装済みパターン
+
+#### ナビゲーション
+- `<nav aria-label="...">` でナビゲーション領域を識別
+- `aria-current="page"` でアクティブページを示す
+- NavBar / BottomNav 両方で統一
+
+#### タブ（WAI-ARIA Tabs パターン）
+- `TabBar.ts` が完全な WAI-ARIA タブパターンを実装:
+  - `role="tablist"` / `role="tab"` / `aria-selected`
+  - 矢印キー（Left/Right）、Home/End キーによるナビゲーション
+  - `tabIndex` 管理（アクティブ: 0、非アクティブ: -1）
+
+#### モーダル（WAI-ARIA Dialog パターン）
+- `Modal.tsx` が完全なダイアログパターンを実装:
+  - `role="dialog"` + `aria-modal="true"` + `aria-labelledby`
+  - フォーカストラップ（Tab/Shift+Tab でモーダル内を循環）
+  - Escape キーで閉じる
+  - 閉じた後にフォーカスを元の要素に復元
+
+#### 通知（ライブリージョン）
+- `Toast.tsx`:
+  - コンテナ: `role="status"` + `aria-live="polite"`
+  - 個別通知: `role="alert"` + `aria-live="assertive"`
+  - 装飾的アイコンに `aria-hidden="true"`
+
+#### インタラクティブ要素
+- `KpiCard`: クリック可能時に `role="button"` + `tabIndex={0}` + `onKeyDown`（Enter/Space）
+- 全ボタン・タブ・チップに `:focus-visible` スタイル:
+  ```css
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
+  ```
+
+### 必須ルール（新規コンポーネント作成時）
 
 1. **全チャートに `aria-label` を付与する**
    ```tsx
@@ -517,23 +565,14 @@ import { Wrapper, Title } from './XxxChart.styles'
    ```
 
 2. **インタラクティブ要素に `focus-visible` を付与する**
-   ```css
-   &:focus-visible {
-     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
-     outline-offset: 2px;
-   }
-   ```
 
-3. **モーダルには `role="dialog"` と `aria-modal="true"` を付与する**
+3. **モーダルには `role="dialog"` + `aria-modal="true"` + `aria-labelledby` を付与する**
 
-4. **通知には `role="alert"` を使用する**（Toast コンポーネント）
+4. **通知には `role="alert"` を使用する**（Toast コンポーネント経由）
 
 5. **色だけで情報を伝えない** — テキストラベルまたはパターンを併用する
    - CUD パレット（`sc.cond()`, `sc.cond3()`）を使用
 
-### 推奨ルール（段階的導入）
+6. **タブパターンには `TabBar` コンポーネントを使用する**（キーボードナビゲーション内蔵）
 
-- チャート内の操作要素（ViewBtn, Tab, Chip）に `aria-pressed` を追加
-- テーブルに `aria-sort` を追加（ソート可能な場合）
-- 長いリストに `aria-live="polite"` を追加（動的更新時）
-- スキップリンクの追加（メインコンテンツへのジャンプ）
+7. **クリック可能な非ボタン要素には `role="button"` + `tabIndex={0}` + `onKeyDown` を付与する**
