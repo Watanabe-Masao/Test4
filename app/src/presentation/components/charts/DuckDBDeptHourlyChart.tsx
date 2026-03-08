@@ -14,7 +14,6 @@ import React, { useState, useMemo, useCallback } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
-import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
@@ -24,166 +23,27 @@ import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-
-// ── Styled Components ──
-
-const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
-`
-
-const Subtitle = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-`
-
-const Controls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const TopNSelector = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const TopNSelect = styled.select`
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text2};
-  cursor: pointer;
-`
-
-const TabGroup = styled.div`
-  display: flex;
-  gap: 2px;
-  background: ${({ theme }) => theme.colors.bg2};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  padding: 2px;
-`
-
-const Tab = styled.button<{ $active: boolean }>`
-  padding: 2px 8px;
-  font-size: 0.6rem;
-  border: none;
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, theme }) => ($active ? theme.colors.bg3 : 'transparent')};
-  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.text4)};
-  font-weight: ${({ $active, theme }) =>
-    $active ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.normal};
-  cursor: pointer;
-  transition: all 0.15s;
-`
-
-const ChipContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[1]};
-  margin-bottom: ${({ theme }) => theme.spacing[3]};
-`
-
-const DeptChip = styled.button<{ $color: string; $active: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[1]};
-  padding: 2px 8px;
-  font-size: 0.6rem;
-  border: 1px solid ${({ $active, $color, theme }) => ($active ? $color : theme.colors.border)};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, $color }) => ($active ? `${$color}18` : 'transparent')};
-  color: ${({ $active, $color, theme }) => ($active ? $color : theme.colors.text3)};
-  cursor: pointer;
-  transition: all 0.15s;
-  opacity: ${({ $active }) => ($active ? 1 : 0.6)};
-
-  &:hover {
-    border-color: ${({ $color }) => $color};
-    opacity: 1;
-  }
-`
-
-const ColorDot = styled.span<{ $color: string }>`
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${({ $color }) => $color};
-`
-
-const SummaryRow = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[4]};
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: 0 ${({ theme }) => theme.spacing[2]};
-  font-size: 0.6rem;
-  flex-wrap: wrap;
-`
-
-const SummaryItem = styled.div`
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const SummaryLabel = styled.span`
-  color: ${({ theme }) => theme.colors.text4};
-  margin-right: ${({ theme }) => theme.spacing[1]};
-`
-
-const InsightBar = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[1]};
-`
-
-const InsightItem = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-`
-
-const InsightTitle = styled.div`
-  font-size: 0.6rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-const ErrorMsg = styled.div`
-  padding: 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
+import {
+  Wrapper,
+  Title,
+  Subtitle,
+  HeaderRow,
+  Controls,
+  TopNSelector,
+  TopNSelect,
+  TabGroup,
+  Tab,
+  ChipContainer,
+  DeptChip,
+  ColorDot,
+  SummaryRow,
+  SummaryItem,
+  SummaryLabel,
+  InsightBar,
+  InsightItem,
+  InsightTitle,
+  ErrorMsg,
+} from './DuckDBDeptHourlyChart.styles'
 
 // ── Types ──
 
