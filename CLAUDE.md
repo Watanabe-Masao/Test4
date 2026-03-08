@@ -35,7 +35,7 @@
 
 | ロール | 位置づけ | 渡し先 |
 |---|---|---|
-| architecture | 設計判断（**設計思想10原則の管理者**） | → implementation |
+| architecture | 設計判断（**設計思想16原則の管理者**） | → implementation |
 | implementation | コーディング | → review-gate |
 | specialist/invariant-guardian | 数学検証 | ← → implementation |
 | specialist/duckdb-specialist | DuckDB専門 | ← → implementation |

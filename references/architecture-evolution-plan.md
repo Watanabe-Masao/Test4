@@ -401,7 +401,7 @@ export interface ChartRegistryEntry {
 ### フェーズ構成
 
 ```
-Phase 0: 衛生整備
+Phase 0: 衛生整備 ✅ 完了
    open-issues C-1〜C-5 解消
 
 Phase 1: 低リスク・高効果の構造改善 ← 並行3トラック
@@ -442,7 +442,7 @@ Phase 7: 縦スライス導入
 
 | Phase | 完了基準 | 計測方法 |
 |---|---|---|
-| 0 | open-issues セクション1 が0件 | ドキュメント確認 |
+| 0 | open-issues セクション1 が0件 ✅ | ドキュメント確認 |
 | 1A | presentation/ → domain/calculations/utils の value import が0 | Architecture Guard |
 | 1B | 150行超のフック（型定義除く）が0 | 行数カウント |
 | 1C | 20件超のバレルが0 | エクスポート数カウント |
