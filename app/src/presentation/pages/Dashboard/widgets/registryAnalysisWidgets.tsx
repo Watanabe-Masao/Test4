@@ -118,10 +118,9 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
-        prevYearDateRange={ctx.prevYearDateRange}
+        prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
         totalCustomers={ctx.result.totalCustomers}
-        prevTotalCustomers={ctx.prevYear.hasPrevYear ? ctx.prevYear.totalCustomers : 0}
       />
     ),
   },

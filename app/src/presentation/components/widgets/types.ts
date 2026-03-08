@@ -13,6 +13,7 @@ import type {
   DateRange,
   ViewType,
   ComparisonFrame,
+  PrevYearScope,
   Store,
   AppSettings,
 } from '@/domain/models'
@@ -66,6 +67,7 @@ export interface UnifiedWidgetContext {
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
   readonly currentDateRange?: DateRange
   readonly prevYearDateRange?: DateRange
+  readonly prevYearScope?: PrevYearScope
   readonly dataEndDay?: number | null
   readonly dataMaxDay?: number
   readonly elapsedDays?: number | undefined

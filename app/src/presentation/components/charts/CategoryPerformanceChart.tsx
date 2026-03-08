@@ -22,7 +22,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toComma, toDevScore } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import type { DateRange } from '@/domain/models'
+import type { DateRange, PrevYearScope } from '@/domain/models'
 import { useDuckDBLevelAggregation } from '@/application/hooks/duckdb'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { ChartSkeleton } from '@/presentation/components/common'
@@ -56,10 +56,9 @@ interface Props {
   duckConn: AsyncDuckDBConnection | null
   duckDataVersion: number
   currentDateRange: DateRange
-  prevYearDateRange?: DateRange
+  prevYearScope?: PrevYearScope
   selectedStoreIds: ReadonlySet<string>
   totalCustomers: number
-  prevTotalCustomers: number
 }
 
 interface CategoryRow {
@@ -79,11 +78,12 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
-  prevYearDateRange,
+  prevYearScope,
   selectedStoreIds,
   totalCustomers,
-  prevTotalCustomers,
 }: Props) {
+  const prevYearDateRange = prevYearScope?.dateRange
+  const prevTotalCustomers = prevYearScope?.totalCustomers ?? 0
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('piRank')
   const [level, setLevel] = useState<LevelType>('department')

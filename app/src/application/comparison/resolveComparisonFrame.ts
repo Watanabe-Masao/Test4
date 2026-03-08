@@ -9,7 +9,7 @@
  * - 同曜日オフセットを算出する
  * - 管理画面からの手動オーバーライドを適用する
  */
-import type { DateRange, ComparisonFrame, AlignmentPolicy } from '@/domain/models'
+import type { DateRange, ComparisonFrame, AlignmentPolicy, PrevYearScope } from '@/domain/models'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 
 export interface ComparisonOverrides {
@@ -90,6 +90,35 @@ export function resolveComparisonFrame(
     previous,
     dowOffset,
     policy,
+  }
+}
+
+/**
+ * ComparisonFrame + JS 集計値から PrevYearScope を構築する。
+ *
+ * DOW offset で DuckDB クエリ範囲を JS エンジンの有効範囲に合わせる:
+ * - JS は origDay - offset でマッピングし、mappedDay < 1 をスキップ
+ * - DuckDB は from.day + offset 〜 min(effectiveEndDay + offset, daysInPrevMonth) をクエリ
+ */
+export function buildPrevYearScope(
+  frame: ComparisonFrame,
+  effectiveEndDay: number,
+  totalCustomers: number,
+): PrevYearScope {
+  const offset = frame.dowOffset
+  return {
+    dateRange: {
+      from: {
+        ...frame.previous.from,
+        day: frame.previous.from.day + offset,
+      },
+      to: {
+        ...frame.previous.to,
+        day: Math.min(effectiveEndDay + offset, frame.previous.to.day),
+      },
+    },
+    totalCustomers,
+    dowOffset: offset,
   }
 }
 

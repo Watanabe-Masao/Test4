@@ -18,6 +18,7 @@ import {
   usePrevYearMonthlyKpi,
   useDowGapAnalysis,
 } from '@/application/hooks'
+import { buildPrevYearScope } from '@/application/comparison/resolveComparisonFrame'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -166,15 +167,14 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  // prevTotalCustomers（JS エンジン）は elapsedDays 分のみの客数。
-  // DuckDB 側の prevYearDateRange も同じ日数にクリップしないと
-  // PI = 全月売上 ÷ 一部客数 × 1000 で前年値が膨張する。
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
-    ? {
-        from: frame.previous.from,
-        to: { ...frame.previous.to, day: Math.min(frame.previous.to.day, effectiveEndDay) },
-      }
+  // prevYearScope: DOW offset + elapsedDays で調整済みの前年日付範囲と客数をセットで管理。
+  // buildPrevYearScope が JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
+  const prevYearScope = prevYear.hasPrevYear
+    ? buildPrevYearScope(frame, effectiveEndDay, prevYear.totalCustomers)
     : undefined
+
+  // 後方互換: prevYearDateRange は prevYearScope.dateRange と同一
+  const prevYearDateRange: DateRange | undefined = prevYearScope?.dateRange
 
   const ctx: UnifiedWidgetContext = {
     // コア
@@ -197,6 +197,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     allStoreResults: storeResults,
     currentDateRange,
     prevYearDateRange,
+    prevYearScope,
     dataEndDay: settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,

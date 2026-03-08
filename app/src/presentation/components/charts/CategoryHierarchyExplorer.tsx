@@ -7,7 +7,7 @@
  */
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange, PrevYearScope } from '@/domain/models'
 import { toPct } from './chartTheme'
 import { CategoryExplorerTable } from './CategoryExplorerTable'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
@@ -37,7 +37,7 @@ interface Props {
   duckConn: AsyncDuckDBConnection | null
   duckDataVersion: number
   currentDateRange: DateRange
-  prevYearDateRange?: DateRange
+  prevYearScope?: PrevYearScope
   selectedStoreIds: ReadonlySet<string>
   totalCustomers?: number
 }
@@ -53,10 +53,11 @@ export const CategoryHierarchyExplorer = memo(function CategoryHierarchyExplorer
   duckConn,
   duckDataVersion,
   currentDateRange,
-  prevYearDateRange,
+  prevYearScope,
   selectedStoreIds,
   totalCustomers,
 }: Props) {
+  const prevYearDateRange = prevYearScope?.dateRange
   const [filter, setFilter] = useState<HierarchyFilter>({})
   const [sortKey, setSortKey] = useState<SortKey>('amount')
   const [sortDir, setSortDir] = useState<SortDir>('desc')

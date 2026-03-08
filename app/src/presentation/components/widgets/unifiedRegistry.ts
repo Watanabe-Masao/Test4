@@ -36,6 +36,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
       to: { year: ctx.year, month: ctx.month, day: ctx.daysInMonth },
     },
     prevYearDateRange: ctx.prevYearDateRange,
+    prevYearScope: ctx.prevYearScope,
     selectedStoreIds: ctx.selectedStoreIds,
     dataEndDay: ctx.dataEndDay ?? null,
     dataMaxDay: ctx.dataMaxDay ?? 0,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { resolveComparisonFrame, calcSameDowOffset } from '../resolveComparisonFrame'
-import type { DateRange } from '@/domain/models'
+import { resolveComparisonFrame, calcSameDowOffset, buildPrevYearScope } from '../resolveComparisonFrame'
+import type { DateRange, ComparisonFrame } from '@/domain/models'
 
 describe('calcSameDowOffset', () => {
   it('同じ月初曜日なら offset=0', () => {
@@ -130,5 +130,72 @@ describe('resolveComparisonFrame', () => {
       sourceMonth: 11,
     })
     expect(frame.previous.to).toEqual({ year: 2025, month: 11, day: 30 })
+  })
+})
+
+// ── buildPrevYearScope ──
+
+describe('buildPrevYearScope', () => {
+  function makeFrame(
+    offset: number,
+    prevFrom: { year: number; month: number; day: number },
+    prevTo: { year: number; month: number; day: number },
+  ): ComparisonFrame {
+    return {
+      current: { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+      previous: { from: prevFrom, to: prevTo },
+      dowOffset: offset,
+      policy: 'sameDayOfWeek',
+    }
+  }
+
+  it('offset=0 のとき from/to はそのまま', () => {
+    const frame = makeFrame(0, { year: 2025, month: 3, day: 1 }, { year: 2025, month: 3, day: 31 })
+    const scope = buildPrevYearScope(frame, 31, 500)
+    expect(scope.dateRange.from.day).toBe(1)
+    expect(scope.dateRange.to.day).toBe(31)
+    expect(scope.totalCustomers).toBe(500)
+    expect(scope.dowOffset).toBe(0)
+  })
+
+  it('offset=3 のとき from.day が 4 になる（月初3日をスキップ）', () => {
+    const frame = makeFrame(3, { year: 2025, month: 3, day: 1 }, { year: 2025, month: 3, day: 31 })
+    const scope = buildPrevYearScope(frame, 31, 450)
+    // JS: origDay 4→mapped 1, ..., origDay 31→mapped 28. スキップ: day 1-3
+    // DuckDB: from=4, to=min(31+3,31)=31
+    expect(scope.dateRange.from.day).toBe(4)
+    expect(scope.dateRange.to.day).toBe(31)
+  })
+
+  it('offset=3 + effectiveEndDay=20 のとき to.day が 23 になる', () => {
+    const frame = makeFrame(3, { year: 2025, month: 3, day: 1 }, { year: 2025, month: 3, day: 31 })
+    const scope = buildPrevYearScope(frame, 20, 300)
+    // DuckDB: from=4, to=min(20+3,31)=23
+    expect(scope.dateRange.from.day).toBe(4)
+    expect(scope.dateRange.to.day).toBe(23)
+  })
+
+  it('offset=3 + 前年月が28日の場合、to.day が28にクランプされる', () => {
+    // 2025年2月(28日)
+    const frame = makeFrame(3, { year: 2025, month: 2, day: 1 }, { year: 2025, month: 2, day: 28 })
+    const scope = buildPrevYearScope(frame, 28, 200)
+    // DuckDB: from=4, to=min(28+3,28)=28
+    expect(scope.dateRange.from.day).toBe(4)
+    expect(scope.dateRange.to.day).toBe(28)
+  })
+
+  it('effectiveEndDay が小さく offset が大きい場合でも正しい範囲', () => {
+    const frame = makeFrame(6, { year: 2025, month: 3, day: 1 }, { year: 2025, month: 3, day: 31 })
+    const scope = buildPrevYearScope(frame, 10, 100)
+    // DuckDB: from=7, to=min(10+6,31)=16
+    expect(scope.dateRange.from.day).toBe(7)
+    expect(scope.dateRange.to.day).toBe(16)
+  })
+
+  it('totalCustomers と dowOffset が正しくバンドルされる', () => {
+    const frame = makeFrame(2, { year: 2025, month: 3, day: 1 }, { year: 2025, month: 3, day: 31 })
+    const scope = buildPrevYearScope(frame, 31, 1234)
+    expect(scope.totalCustomers).toBe(1234)
+    expect(scope.dowOffset).toBe(2)
   })
 })

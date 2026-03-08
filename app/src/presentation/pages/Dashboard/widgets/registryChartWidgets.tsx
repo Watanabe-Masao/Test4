@@ -110,7 +110,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
-        prevYearDateRange={ctx.prevYearDateRange}
+        prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
         totalCustomers={ctx.result.totalCustomers}
       />
