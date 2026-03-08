@@ -135,7 +135,8 @@ export function useJsDowPattern(
  *
  * DuckDB SQL の WITH daily AS (...) GROUP BY store_id, dow と同等。
  */
-function computeDowPattern(rows: readonly StoreDaySummaryRow[]): DowPatternRow[] {
+/** @internal テスト用に export */
+export function computeDowPattern(rows: readonly StoreDaySummaryRow[]): DowPatternRow[] {
   // store_id ごとにグループ化
   const storeMap = new Map<string, Map<string, number>>()
   for (const r of rows) {
@@ -214,7 +215,8 @@ export function useJsDailyFeatures(
  *
  * DuckDB SQL の WINDOW w3/w7/w28 と等価な計算を JS で行う。
  */
-function computeDailyFeatures(rows: readonly StoreDaySummaryRow[]): DailyFeatureRow[] {
+/** @internal テスト用に export */
+export function computeDailyFeatures(rows: readonly StoreDaySummaryRow[]): DailyFeatureRow[] {
   // store_id ごとにグループ化
   const storeMap = new Map<string, { dateKey: string; sales: number }[]>()
   for (const r of rows) {
@@ -352,7 +354,8 @@ export function useJsYoyDaily(
  *
  * SQL の FULL OUTER JOIN ON store_id=store_id AND month=month AND day=day と同等。
  */
-function computeYoyDaily(
+/** @internal テスト用に export */
+export function computeYoyDaily(
   curRows: readonly StoreDaySummaryRow[],
   prevRows: readonly StoreDaySummaryRow[],
 ): YoyDailyRow[] {
@@ -461,7 +464,8 @@ export function useJsHourlyProfile(
  * SQL の SUM(amount) OVER (PARTITION BY store_id) → hourShare
  * RANK() OVER (PARTITION BY store_id ORDER BY SUM(amount) DESC) → hourRank
  */
-function computeHourlyProfile(
+/** @internal テスト用に export */
+export function computeHourlyProfile(
   rows: readonly { readonly storeId: string; readonly hour: number; readonly amount: number }[],
 ): HourlyProfileRow[] {
   // store_id ごとに集約
