@@ -81,7 +81,7 @@
 - `app/src/test/architectureGuard.test.ts`（300行、9件の検証）
 - 不変条件: INV-ARCH-01 〜 INV-ARCH-08
 
-## 設計思想10原則（本ロールが管理）
+## 設計思想16原則（本ロールが管理）
 
 全ロールの判断基準となる普遍的原則。詳細は `references/design-principles.md` を参照。
 
@@ -95,10 +95,16 @@
 8. **文字列はカタログ** — UI 文字列は messages.ts に一元管理
 9. **描画は純粋** — memo + フックで描画と計算を分離
 10. **最小セレクタ** — ストアはスライスで購読。広すぎる購読は禁止
+11. **Command/Query分離** — JS確定計算とDuckDB探索は責務が異なる。二重実装禁止
+12. **Contractで管理** — 横断的関心事はContractインターフェースで変更箇所を限定
+13. **型粒度は変更頻度** — 変更頻度が異なるフィールドは別の型に分離
+14. **例外なし** — チャート・Hook・Handler構造は規模に関わらず同一パターン
+15. **配置はパスで決まる** — ファイル配置はパスベースルールで機械的に判定
+16. **Raw データは真実源** — DuckDBは派生キャッシュ。破損時はIndexedDBから再構築
 
 ## 参照ドキュメント
 
-- `references/design-principles.md` — 設計思想10原則 詳細と適用例（**本ロールが管理**）
+- `references/design-principles.md` — 設計思想16原則 詳細と適用例（**本ロールが管理**）
 - `references/data-flow.md` — データフローアーキテクチャ（**本ロールが管理**）
 - `references/guard-test-map.md` — ガードテスト一覧
 - `references/engine-responsibility.md` — JS vs DuckDB 責務マトリクス

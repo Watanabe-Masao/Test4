@@ -153,6 +153,116 @@ props が変わらない限り再描画しない。
 **原則:** 「何を購読するか」は「何を描画するか」と一致させる。
 広すぎる購読はパフォーマンス問題の温床。
 
+### 11. Command と Query を分離する
+
+JS 計算エンジン（Command 側）と DuckDB 探索エンジン（Query 側）は責務が異なる。
+Command は単月確定値を決定論的に計算し、Query は任意の日付範囲を探索・集約する。
+両者を明示的に分離し、同一の集約ロジックを JS と SQL の両方に実装してはならない。
+
+**適用例:**
+- `domain/calculations/`（Command 側）は純粋な JS 関数で粗利計算・要因分解・予測を行い、
+  出力は `StoreResult`（WriteModel）
+- `application/queries/`（Query 側）は `QueryHandler<TInput, TOutput>` インターフェースに従い、
+  DuckDB に SQL を発行。`DailyCumulativeHandler`, `AggregatedRatesHandler` 等が統一パターンで実装
+- `architectureGuard.test.ts` が `application/queries/ → domain/calculations/` の import を禁止し、
+  Query が Command に依存しないことを機械的に検証
+- `application/usecases/calculation/` から `infrastructure/duckdb/` への依存も同テストで禁止し、
+  Command が Query に依存しないことを保証
+
+**原則:** 同じ集約ロジックを JS と SQL の両方に実装してはならない。確定値は JS、探索は DuckDB。
+
+### 12. 横断的関心事は Contract で管理する
+
+複数の機能やページに跨る関心事（比較、説明等）を各消費者がバラバラに実装すると、
+新モード追加時の変更箇所が爆発する。Contract インターフェースを導入し、
+変更箇所を構造的に限定する。
+
+**適用例:**
+- `domain/patterns/comparison/ComparisonContract.ts` が比較の横断的関心事を管理。
+  `ComparisonEntry<T>` と `ComparisonResult<T>` の型で、Presentation 層は個別の
+  比較モード名（`sameDayOfWeek`, `sameDate` 等）を知らずにループ処理で描画する
+- 新しい比較モードの追加は 4 箇所に限定: (1) `AlignmentPolicy` に新モード追加、
+  (2) `resolveComparisonFrame()` に新ロジック追加、(3) `ComparisonContext` に新 PeriodSnapshot 追加、
+  (4) `useComparisonContextQuery` に新クエリ追加
+- `architectureGuard.test.ts` が Presentation 層から比較コンテキストの内部モジュールへの
+  直接 import を禁止し、`useComparisonContext` 経由のみを許可
+- `application/queries/QueryContract.ts` が全 DuckDB クエリの共通インターフェース
+  （`QueryHandler<TInput, TOutput>`）を定義し、クエリ追加時の構造を統一
+
+**原則:** 横断的関心事の変更箇所を Contract で限定し、新モード追加を機械的な作業にする。
+
+### 13. 型の粒度は変更頻度に合わせる
+
+変更頻度が異なるフィールドを一つの型に詰め込むと、低頻度のフィールド変更が
+高頻度の消費者を巻き込む。変更頻度ごとに型を分離し、消費者は必要最小限の
+サブセット型を参照する。これは原則 #4（変更頻度で分離）の型への具体化である。
+
+**適用例:**
+- `StoreResult` は `StoreConfigData`（設定値: 在庫・予算）+ `StoreAggregatedData`（集約値: 売上・日別）+
+  `StoreDerivedData`（導出値: 予測・レート）の 3 層合成型。構築側は変更頻度ごとに分離し、
+  消費側は `StoreResult` を通じて一様にアクセスする
+- `StoreResultSubsets.ts` が `StoreSalesView`, `StoreInventoryView`, `StoreBudgetView`,
+  `StoreForecastView`, `StoreMarginView`, `StoreCategoryView` の 6 つの Pick 型を提供。
+  消費者は必要なフィールドだけに依存し、テスト時のモックが軽量になる
+- `QueryContract.ts` が `DateRangeFilter`, `StoreFilter`, `BaseQueryInput` を段階的に合成。
+  日付範囲のみ必要なクエリは `DateRangeFilter` だけに依存する
+
+**原則:** 消費者が依存するフィールドを型で明示化し、変更の影響範囲を型システムで制限する。
+
+### 14. 全パターンに例外なし
+
+チャート・Hook・Handler の構造は規模に関わらず同一パターンに従う。
+「小さいから省略してよい」「特殊だから別パターンにしてよい」を許可すると、
+パターンの判断コストが発生し、AI 開発での自動生成が困難になる。
+
+**適用例:**
+- チャートは規模に関わらず `.tsx`（描画）+ `.styles.ts`（スタイル）+ `.vm.ts`（ViewModel）の
+  3 ファイル構成。`GrossProfitRateChart/`, `DuckDBCategoryBoxPlotChart`, `StructuralOverviewChart` 等、
+  全チャートが同一構造を持つ
+- QueryHandler は `DailyCumulativeHandler`, `AggregatedRatesHandler` 等、
+  全て `{ name, execute(conn, input) }` の統一インターフェース。
+  入力型（`*Input extends BaseQueryInput`）と出力型（`*Output`）を明示化
+- ViewModel（`.vm.ts`）は WriteModel → 描画データの純粋変換関数。
+  `buildGrossProfitRateViewModel()` のように `build*ViewModel()` の命名規則に従う
+
+**原則:** 構造の統一は判断コストをゼロにする。例外を作るコストは、統一を維持するコストより常に高い。
+
+### 15. 配置はパスで決まる
+
+ファイルの配置先はパスベースのルールで機械的に判定する。
+「このファイルはどこに置くべきか」の曖昧さをゼロにし、
+配置の判断を人の裁量に委ねない。
+
+**適用例:**
+- CLAUDE.md のファイルパスベース自動ルーティング表: `domain/calculations/` の変更は
+  `invariant-guardian` ロールが担当、`infrastructure/duckdb/` は `duckdb-specialist`、
+  `application/usecases/explanation/` は `explanation-steward` と機械的に決定
+- `architectureGuard.test.ts` がパスベースで依存ルールを検証:
+  `domain/` 配下のファイルは外部層への import がゼロ件、
+  `presentation/` 配下は `infrastructure/` への直接 import が禁止（許可リスト除く）
+- レイヤー構造（`domain/`, `application/`, `infrastructure/`, `presentation/`）自体がパスで
+  責務を決定。パスを見れば何層のコードかが分かり、許される依存が自動的に決まる
+
+**原則:** 配置の判断を人に委ねない。パスが配置先を決め、テストが配置ルールを検証する。
+
+### 16. Raw データは唯一の真実源
+
+DuckDB（OPFS 永続化）は `normalized_records`（IndexedDB）の派生キャッシュであり、
+真のデータソースではない。破損時は IndexedDB から再構築可能でなければならない。
+DuckDB から IndexedDB への書き戻しは禁止する。
+
+**適用例:**
+- `rawFileStore.ts` がインポートされた元ファイル（CSV/XLSX の Blob）を IndexedDB に SHA-256 ハッシュ付きで保存。
+  これが唯一の原本であり、DuckDB はここから派生する
+- `infrastructure/duckdb/recovery.ts` の `rebuildFromIndexedDB()` が全テーブルを DROP → CREATE し、
+  IndexedDB に保存された全月分のデータを DuckDB に再投入。DB 破損時の完全復旧を保証
+- `useDataRecovery` フックが UI に復旧機能を提供: `rebuildDuckDB()`（IndexedDB → DuckDB 再構築）、
+  `clearDuckDBCache()`（OPFS ファイル削除。次回起動時に再構築）
+- `architectureGuard.test.ts` が `storage/ → duckdb/queries/` の import を禁止し、
+  DuckDB クエリ結果を IndexedDB に書き戻すことを構造的に不可能にしている
+
+**原則:** キャッシュは壊れてもよい。原本は壊してはならない。データの流れは常に一方向（IndexedDB → DuckDB）。
+
 ---
 
 ## 反例集（やりがちだがダメなパターン）

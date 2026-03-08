@@ -359,19 +359,18 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | `grossProfitBudget` | 粗利予算（全体） | yen | 設定値 | **✅ MetricId + Explanation** |
 | `grossProfitRateBudget` | 粗利率予算 | rate | 粗利予算 ÷ 売上予算 | **✅ MetricId + Explanation** |
 | `grossProfitBudgetAchievement` | 粗利予算達成率 | rate | 粗利実績 ÷ 粗利予算 | **✅ MetricId + Explanation** |
-| `grossProfitBudgetVariance` | 粗利予算差異 | yen | 粗利実績 − 経過粗利予算 | **MetricId ✅ / 計算未実装** |
-| `grossProfitProgressGap` | 粗利進捗ギャップ | rate | 粗利達成率 − 経過予算率 | **MetricId ✅ / 計算未実装** |
-| `projectedGrossProfit` | 粗利着地予測 | yen | 予測売上 × 有効粗利率 | **MetricId ✅ / Presentation で計算中** |
-| `projectedGPAchievement` | 粗利着地予測達成率 | rate | 粗利着地予測 ÷ 粗利予算 | **MetricId ✅ / Presentation で計算中** |
-| `requiredDailyGrossProfit` | 必要日次粗利 | yen | (粗利予算 − 粗利実績) ÷ 残日数 | **MetricId ✅ / 計算未実装** |
+| `grossProfitBudgetVariance` | 粗利予算差異 | yen | 粗利実績 − 経過粗利予算 | **✅ MetricId + Explanation** |
+| `grossProfitProgressGap` | 粗利進捗ギャップ | rate | 粗利達成率 − 経過予算率 | **✅ MetricId + Explanation** |
+| `projectedGrossProfit` | 粗利着地予測 | yen | 予測売上 × 有効粗利率 | **✅ MetricId + Explanation** |
+| `projectedGPAchievement` | 粗利着地予測達成率 | rate | 粗利着地予測 ÷ 粗利予算 | **✅ MetricId + Explanation** |
+| `requiredDailyGrossProfit` | 必要日次粗利 | yen | (粗利予算 − 粗利実績) ÷ 残日数 | **✅ MetricId + Explanation** |
 
 **注意:**
 - 粗利予算の経過按分は売上予算の `budgetElapsedRate` と同じ経過率を使う。
 - 粗利実績には在庫法粗利（`invMethodGrossProfit`）を優先使用する。
   在庫法が `null` の場合は推定マージン（`estMethodMargin`）をフォールバックに使う。
-- `projectedGrossProfit` / `projectedGPAchievement` は現在 Presentation 層
-  （`PlanActualForecast.tsx`）でインライン計算されている。
-  → Domain/Application 層に移行すべき（禁止事項 #6: UI が生データソースを直接参照しない）。
+- `projectedGrossProfit` / `projectedGPAchievement` は Domain 層
+  （`budgetAnalysis.ts`）に移行済み（2026-03-08）。Explanation も `budgetExplanations.ts` で実装。
 
 ---
 
@@ -416,12 +415,12 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | 客数・客生産性 | 4 | 1 | 3 |
 | 原価算入費 | 1 | 1 | 0 |
 | 売上予算系 | 11 | 11 | 0 |
-| 粗利予算系 | 8 | 3 | 5 |
+| 粗利予算系 | 8 | 8 | 0 |
 | 仕入予算系 | 4 | 0 | 4 |
 | 前年予算比較系 | 3 | 3 | 0 |
-| **合計** | **50** | **37** | **13** |
+| **合計** | **50** | **42** | **8** |
 
-→ 本レジストリには 50 MetricId を記載。うち 37 指標は計算 + Explanation 実装完了。
+→ 本レジストリには 50 MetricId を記載。うち 42 指標は計算 + Explanation 実装完了。
 → コード上の `Explanation.ts` の MetricId 型定義と `domain/constants/metricDefs.ts` の
 → `METRIC_DEFS` は共に 50 件で、本レジストリと一致する。
 → 更新日: 2026-03-08

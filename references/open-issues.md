@@ -15,10 +15,9 @@
 
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
-| R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | DuckDB・Storage への直接 import が 10+ ファイル。`ExportPort` のみポート化済み |
-| R-4 | God コンポーネント（300行超）10 ファイル | Low | DashboardPage(547行), DailyPage(595行), DuckDBTimeSlotChart(651行) 等。段階的な分離が必要 |
-| R-5 | DashboardPage.styles.ts（1,272行） | Low | 7つのスタイル関心事が 1 ファイルに集約 |
-| R-6 | ImportService.ts（736行） | Low | 5つの関心事が混在。オーケストレーション・処理・正規化に分割検討 |
+| R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | 調査完了（2026-03-08）: 25ファイル40箇所の直接importを特定。ExportPort パターンに倣い DuckDBPort / StoragePort拡張 / ImportPort / I18nPort の4ポートを Phase 5 で新設予定 |
+| R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。残: チャート500行超17ファイルの .vm.ts 作成は Phase 6 で継続 |
+| R-6 | FileImportService.ts（632行） | Low | infrastructure/ImportService.ts は227行に分割解決済み。application/usecases/import/FileImportService.ts（632行）は5つの関心事が混在。Phase 1B（UseCase 抽出）で対応予定 |
 | R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
 
 ## 3. 解決済みの課題（アーカイブ）
@@ -46,3 +45,4 @@
 | S-17 | CSV ロジック二重実装 | 2026-03-08 | `domain/utilities/csv.ts` に一元化。`csvExporter.ts` は re-export、`reportExportWorker.ts` は直接 import に変更。重複コード削除 |
 | S-18 | サイレントエラー握り潰し | 2026-03-08 | `IndexedDBStore.test.ts` の空 `.catch(() => {})` に `console.warn` を追加。他34箇所は適切にハンドリング済みを確認 |
 | S-19 | api.md の Hook 構成が古い | 2026-03-08 | api.md セクション4は既に12ファイル分割構成を正しく記載。`useDuckDBQuery.ts` の後方互換 re-export も記載済み |
+| S-20 | DashboardPage.styles.ts（1,272行） | 2026-03-08 | 5分割完了（バレル re-export で後方互換維持）。現在19行のバレルファイル |

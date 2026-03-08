@@ -12,6 +12,10 @@
 | `app/src/domain/calculations/__tests__/factorDecomposition.test.ts` | invariant-guardian | 30件 | シャープリー恒等式（2/3/5要素）、2↔3↔5 一貫性 |
 | `app/src/application/hooks/__tests__/usePrevYearMonthlyKpi.test.ts` | invariant-guardian | 34件 | aggregateWithOffset 集約不変条件（売上・客数合計一致、マッピング範囲、ソート順） |
 | `app/src/application/usecases/explanation/__tests__/prevYearBudgetExplanation.test.ts` | invariant-guardian | 9件 | 前年予算 Explanation 不変条件（breakdown 合計一致、evidenceRefs 網羅性、無効入力） |
+| `app/src/domain/calculations/__tests__/conditionResolver.test.ts` | invariant-guardian | — | conditionResolver 条件判定ロジック |
+| `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
+| `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
+| `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
 
 ## ルール → テスト対応
 
