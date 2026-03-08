@@ -23,7 +23,8 @@ export {
   STORE_COLORS,
 } from './chartTheme'
 export type { ChartTheme } from './chartTheme'
-export { ChartTooltip, createChartTooltip } from './ChartTooltip'
+export { ChartTooltip } from './ChartTooltip'
+export { createChartTooltip } from './createChartTooltip'
 export type { ChartTooltipProps, TrendInfo } from './ChartTooltip'
 export { ChartAnnotation } from './ChartAnnotation'
 export {

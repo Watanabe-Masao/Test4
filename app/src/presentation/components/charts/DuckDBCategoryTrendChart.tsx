@@ -23,7 +23,7 @@ import {
   type CategoryDailyTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { DowPresetSelector } from './DowPresetSelector'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'

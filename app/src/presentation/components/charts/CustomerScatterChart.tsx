@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toComma, toPct } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'

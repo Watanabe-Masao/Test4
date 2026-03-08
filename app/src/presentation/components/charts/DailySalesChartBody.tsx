@@ -25,7 +25,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { type ChartTheme, toAxisYen, toComma } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import type { DailySalesDataResult } from './useDailySalesData'
 
 export type ViewType = 'standard' | 'prevYearCum' | 'vsLastYear'

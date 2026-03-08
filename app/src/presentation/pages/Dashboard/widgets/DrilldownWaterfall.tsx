@@ -18,7 +18,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { formatCurrency } from '@/domain/formatting'
 import {
   calculateItemsPerCustomer,

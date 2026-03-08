@@ -15,7 +15,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { Wrapper, HeaderRow, Title, TabGroup, Tab } from './GrossProfitAmountChart.styles'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord } from '@/domain/models'

@@ -12,7 +12,7 @@ import {
 } from '@/presentation/components/common'
 import { useStoreSelection } from '@/application/hooks'
 import type { ViewType } from '@/domain/models'
-import { VIEW_TO_PATH } from '@/presentation/routes'
+import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'
 import {

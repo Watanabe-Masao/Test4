@@ -21,7 +21,7 @@ import {
   type StoreAggregationRow,
 } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toPct, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 import { Modal } from '@/presentation/components/common'

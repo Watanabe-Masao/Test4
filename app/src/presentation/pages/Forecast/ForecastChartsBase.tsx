@@ -13,7 +13,7 @@ import {
   toPct,
   STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import {
   BarChart,
   Bar,

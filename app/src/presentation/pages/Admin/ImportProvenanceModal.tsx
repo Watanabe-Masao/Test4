@@ -16,7 +16,7 @@ import {
   DataVerifyValue,
 } from './ImportHistoryTab.styles'
 
-export function formatTimestamp(iso: string): string {
+function formatTimestamp(iso: string): string {
   try {
     const d = new Date(iso)
     const y = d.getFullYear()

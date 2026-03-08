@@ -15,7 +15,7 @@ import {
   KpiValue,
   KpiSub,
 } from './DiscountTrendChart.styles'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'

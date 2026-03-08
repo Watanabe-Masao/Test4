@@ -12,9 +12,8 @@ import {
   UnifiedHeatmapWidget,
   UnifiedDeptHourlyWidget,
   UnifiedStoreHourlyWidget,
-  isTimeSeriesVisible,
-  isStoreComparisonVisible,
 } from './UnifiedAnalyticsWidgets'
+import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly WidgetDef[] = [

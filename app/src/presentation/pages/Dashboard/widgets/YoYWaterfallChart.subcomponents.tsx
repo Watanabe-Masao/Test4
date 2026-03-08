@@ -20,7 +20,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'

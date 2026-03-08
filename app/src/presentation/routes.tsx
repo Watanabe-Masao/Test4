@@ -7,13 +7,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazyWithRetry } from '@/presentation/lazyWithRetry'
 
-// ── バレル re-export（後方互換） ──
-export {
-  VIEW_TO_PATH,
-  PATH_TO_VIEW,
-  preloadAdjacentPages,
-} from '@/application/navigation/viewMapping'
-
 // ─── 遅延ロード: ページコンポーネント（チャンク読込リトライ付き） ──
 const DashboardPage = lazyWithRetry(() =>
   import('@/presentation/pages/Dashboard/DashboardPage').then((m) => ({

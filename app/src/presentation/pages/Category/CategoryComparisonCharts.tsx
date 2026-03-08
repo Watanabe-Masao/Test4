@@ -23,7 +23,7 @@ import {
   toAxisYen,
   STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
 /** 店舗間カテゴリ比較バーチャート */
