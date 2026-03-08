@@ -2,10 +2,7 @@ import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
-import {
-  safeDivide,
-  calculateTransactionValue,
-} from '@/domain/calculations/utils'
+import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { calculationCache } from '@/application/services/calculationCache'

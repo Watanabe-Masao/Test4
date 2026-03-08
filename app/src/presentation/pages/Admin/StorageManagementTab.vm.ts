@@ -43,9 +43,7 @@ export function formatMonthBadge(entry: MonthEntry): string {
   return `${entry.dataTypeCount}種別 / ${entry.totalRecords.toLocaleString()}件`
 }
 
-export function findCtsSummary(
-  entry: MonthEntry,
-): MonthEntry['summary'][number] | undefined {
+export function findCtsSummary(entry: MonthEntry): MonthEntry['summary'][number] | undefined {
   return entry.summary.find((s) => s.dataType === 'categoryTimeSales')
 }
 
@@ -89,9 +87,7 @@ export function formatBackupFormatInfo(preview: BackupMeta): string {
 
 // ─── Storage Pressure ───────────────────────────────────
 
-export function getStoragePressureMessage(
-  level: StoragePressureLevelVM,
-): string | null {
+export function getStoragePressureMessage(level: StoragePressureLevelVM): string | null {
   if (level === 'critical') {
     return 'ストレージ容量が危険水準です。不要なデータを削除してください。'
   }
@@ -116,9 +112,7 @@ export function formatRebuildSummary(result: RebuildResultVM): string {
   return `再構築完了: ${result.monthCount} 月分（${result.durationMs.toFixed(0)}ms）`
 }
 
-export function formatSkippedMonths(
-  skippedMonths: RebuildResultVM['skippedMonths'],
-): string {
+export function formatSkippedMonths(skippedMonths: RebuildResultVM['skippedMonths']): string {
   return `スキップ: ${skippedMonths.map((s) => `${s.year}-${s.month}`).join(', ')}`
 }
 
@@ -128,8 +122,6 @@ export function hasSkippedMonths(result: RebuildResultVM): boolean {
 
 // ─── Raw File Groups ────────────────────────────────────
 
-export function formatRawFileGroupDataTypes(
-  files: readonly { dataType: string }[],
-): string {
+export function formatRawFileGroupDataTypes(files: readonly { dataType: string }[]): string {
   return files.map((f) => f.dataType).join(', ')
 }

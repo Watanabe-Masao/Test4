@@ -24,7 +24,11 @@ import {
   filterDataForMonth,
 } from './FileImportService'
 import type { ImportSummary, MonthPartitions, ProgressCallback } from './FileImportService'
-import { buildMonthData, mergeInsertsOnly, DEFAULT_MERGE_ACTION } from '../../hooks/useImport.helpers'
+import {
+  buildMonthData,
+  mergeInsertsOnly,
+  DEFAULT_MERGE_ACTION,
+} from '../../hooks/useImport.helpers'
 import type { DataRepository } from '@/domain/repositories'
 
 // ─── 型定義 ──────────────────────────────────────────────
@@ -92,8 +96,12 @@ export async function orchestrateImport(
   onProgress?: ProgressCallback,
   overrideType?: DataType,
 ): Promise<ImportResult> {
-  const { summary, data: processedData, detectedYearMonth, monthPartitions } =
-    await processDroppedFiles(files, settings, currentData, onProgress, overrideType)
+  const {
+    summary,
+    data: processedData,
+    detectedYearMonth,
+    monthPartitions,
+  } = await processDroppedFiles(files, settings, currentData, onProgress, overrideType)
 
   if (summary.successCount === 0) {
     return {
@@ -130,7 +138,14 @@ export async function orchestrateImport(
     const result = summary.results[i]
     if (result.ok && result.type && fileArray[i]) {
       effects
-        .saveRawFile(saveYear, saveMonth, result.type, fileArray[i], result.filename, result.relativePath)
+        .saveRawFile(
+          saveYear,
+          saveMonth,
+          result.type,
+          fileArray[i],
+          result.filename,
+          result.relativePath,
+        )
         .catch((e) => {
           console.warn('[ImportOrchestrator] saveRawFile failed:', e)
         })
@@ -174,7 +189,8 @@ export async function resolveImportDiff(
   settings: AppSettings,
   effects: ImportSideEffects,
 ): Promise<ResolveDiffResult> {
-  const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } = pending
+  const { incomingData, existingData, importedTypes, summary, monthPartitions, multiMonth } =
+    pending
 
   if (multiMonth) {
     return resolveMultiMonthDiff(
@@ -188,7 +204,15 @@ export async function resolveImportDiff(
     )
   }
 
-  return resolveSingleMonthDiff(incomingData, existingData, importedTypes, action, settings, summary, effects)
+  return resolveSingleMonthDiff(
+    incomingData,
+    existingData,
+    importedTypes,
+    action,
+    settings,
+    summary,
+    effects,
+  )
 }
 
 // ─── 内部関数 ────────────────────────────────────────────
@@ -252,7 +276,11 @@ async function orchestrateMultiMonth(
         summary,
         finalData: null,
         pendingDiff: {
-          diffResult: { diffs: aggregatedDiffs, needsConfirmation, autoApproved: aggregatedAutoApproved },
+          diffResult: {
+            diffs: aggregatedDiffs,
+            needsConfirmation,
+            autoApproved: aggregatedAutoApproved,
+          },
           incomingData: processedData,
           existingData: createEmptyImportedData(),
           importedTypes,
@@ -381,7 +409,12 @@ async function resolveMultiMonthDiff(
   const { months, existingByMonth } = multiMonth
   const { targetYear, targetMonth } = settings
 
-  const primaryMonthData = filterDataForMonth(incomingData, targetYear, targetMonth, monthPartitions)
+  const primaryMonthData = filterDataForMonth(
+    incomingData,
+    targetYear,
+    targetMonth,
+    monthPartitions,
+  )
   const primaryExisting = existingByMonth.get(`${targetYear}-${targetMonth}`) ?? null
   const primaryFinalData = buildMonthData(primaryExisting, primaryMonthData, action)
 
@@ -441,7 +474,12 @@ async function resolveSingleMonthDiff(
 
 // ─── ヘルパー ────────────────────────────────────────────
 
-function saveSummaryCache(data: ImportedData, year: number, month: number, repo: DataRepository): void {
+function saveSummaryCache(
+  data: ImportedData,
+  year: number,
+  month: number,
+  repo: DataRepository,
+): void {
   if (!repo.isAvailable()) return
   try {
     const daysInMonth = getDaysInMonth(year, month)

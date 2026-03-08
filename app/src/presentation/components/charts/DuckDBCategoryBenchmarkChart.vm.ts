@@ -4,7 +4,11 @@
  * データ変換・計算・定数定義など、Reactに依存しない純粋ロジック。
  * .tsx 側は描画のみに集中する。
  */
-import type { CategoryBenchmarkScore, BenchmarkMetric, ProductType } from '@/application/hooks/useDuckDBQuery'
+import type {
+  CategoryBenchmarkScore,
+  BenchmarkMetric,
+  ProductType,
+} from '@/application/hooks/useDuckDBQuery'
 import { palette } from '@/presentation/theme/tokens'
 
 // ── Types ──
@@ -126,7 +130,11 @@ export interface TrendChartRow {
 }
 
 export function buildTrendPivotData(
-  trendData: readonly { readonly dateKey: string; readonly code: string; readonly compositeScore: number }[],
+  trendData: readonly {
+    readonly dateKey: string
+    readonly code: string
+    readonly compositeScore: number
+  }[],
 ): readonly TrendChartRow[] {
   const dateMap = new Map<string, Record<string, string | number>>()
   for (const p of trendData) {
@@ -150,10 +158,7 @@ export function buildNameMap(scores: readonly CategoryBenchmarkScore[]): Map<str
 
 // ── Subtitle ──
 
-export function getSubtitle(
-  effectiveAxis: AnalysisAxis,
-  benchmarkMetric: BenchmarkMetric,
-): string {
+export function getSubtitle(effectiveAxis: AnalysisAxis, benchmarkMetric: BenchmarkMetric): string {
   if (effectiveAxis === 'date') {
     return '期間別分析 | 日別構成比の変動 × バラツキ(CV) × カバー率'
   }

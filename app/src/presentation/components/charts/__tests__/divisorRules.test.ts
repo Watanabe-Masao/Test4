@@ -53,10 +53,7 @@ function readChartFile(filename: string): string {
   const mainContent = fs.readFileSync(path.join(CHARTS_DIR, filename), 'utf-8')
   // Companion hook: TimeSlotSalesChart.tsx → useTimeSlotData.ts 等
   const baseName = filename.replace(/Chart\.tsx$|\.tsx$/, '')
-  const hookCandidates = [
-    `use${baseName}Data.ts`,
-    `use${baseName}Data.tsx`,
-  ]
+  const hookCandidates = [`use${baseName}Data.ts`, `use${baseName}Data.tsx`]
   let hookContent = ''
   for (const hook of hookCandidates) {
     const hookPath = path.join(CHARTS_DIR, hook)
@@ -385,10 +382,7 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
  * の両方を検証する。
  */
 
-const CANONICAL_DIVISOR_FILE = path.resolve(
-  __dirname,
-  '../../../../domain/calculations/divisor.ts',
-)
+const CANONICAL_DIVISOR_FILE = path.resolve(__dirname, '../../../../domain/calculations/divisor.ts')
 const canonicalContent = fs.readFileSync(CANONICAL_DIVISOR_FILE, 'utf-8')
 
 describe('divisor.ts（正規ロケーション）: 実装の健全性', () => {

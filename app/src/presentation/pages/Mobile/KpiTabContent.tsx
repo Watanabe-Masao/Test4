@@ -1,8 +1,5 @@
 import { formatCurrency, formatPercent } from '@/domain/formatting'
-import {
-  safeDivide,
-  calculateTransactionValue,
-} from '@/domain/calculations/utils'
+import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { PrevYearData } from '@/application/hooks'

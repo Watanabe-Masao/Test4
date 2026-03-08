@@ -326,7 +326,9 @@ export function computeDrillData(
 // ── Summary card text ──
 
 export function salesCompositionText(nodes: NodesViewModel): string {
-  const costRatio = toPct(safeDivide(nodes.cost.value as number, nodes.grossSales.value as number, 0))
+  const costRatio = toPct(
+    safeDivide(nodes.cost.value as number, nodes.grossSales.value as number, 0),
+  )
   const discountRatio = toPct(nodes.discountRate)
   const costInclusionRatio = toPct(
     safeDivide(nodes.costInclusion.value as number, nodes.totalSales.value as number, 0),
@@ -381,7 +383,10 @@ export function gpEstSubText(nodes: NodesViewModel): string {
 }
 
 export function budgetRemainingText(nodes: NodesViewModel): string {
-  return fmtMan((nodes.budget.value as number) - ((nodes.gpInv.value as number) ?? nodes.gpEst.value as number))
+  return fmtMan(
+    (nodes.budget.value as number) -
+      ((nodes.gpInv.value as number) ?? (nodes.gpEst.value as number)),
+  )
 }
 
 // ── Drill through target mapping ──
