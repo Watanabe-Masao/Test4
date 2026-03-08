@@ -145,6 +145,29 @@ interface CtsFilterParams {
 | `queryCategoryMixWeekly(conn, params)` | `CategoryMixWeeklyRow[]` | カテゴリ構成比の週次推移（LAG 付き） |
 | `queryStoreBenchmark(conn, params)` | `StoreBenchmarkRow[]` | 店舗ランキング週次推移（RANK OVER） |
 
+### 3.7 budgetAnalysis.ts（2 関数）
+
+| 関数 | 戻り値型 | 説明 |
+|---|---|---|
+| `queryDailyCumulativeBudget(conn, params)` | `DailyCumulativeBudgetRow[]` | 日別累積予算 vs 実績の推移 |
+| `queryBudgetAnalysisSummary(conn, params)` | `BudgetAnalysisSummaryRow[]` | 予算分析サマリ（達成率・消化率等） |
+
+### 3.8 conditionMatrix.ts（2 関数）
+
+| 関数 | 戻り値型 | 説明 |
+|---|---|---|
+| `computeMidDateKey(fromKey, toKey)` | `string` | 2つの日付キーの中間日を計算 |
+| `queryConditionMatrix(conn, params)` | `ConditionMatrixRow[]` | 条件マトリクス（多次元条件分析） |
+
+### 3.9 dailyRecords.ts（4 関数）
+
+| 関数 | 戻り値型 | 説明 |
+|---|---|---|
+| `queryDailyRecords(conn, params)` | `DailyRecordRow[]` | 日別レコード取得 |
+| `queryPrevYearDailyRecords(conn, params)` | `DailyRecordRow[]` | 前年日別レコード取得 |
+| `queryAggregatedDailyRecords(conn, params)` | `AggregatedDailyRow[]` | 集約済み日別レコード |
+| `dailyRecordTotalCost(row)` | `number` | 日別レコードの合計原価を計算 |
+
 ---
 
 ## 4. DuckDB フック一覧
