@@ -126,6 +126,11 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     requiredDailySales: 87241,
     remainingBudget: 2520000,
     dailyCumulative,
+    grossProfitBudgetVariance: 0,
+    grossProfitProgressGap: 0,
+    requiredDailyGrossProfit: 0,
+    projectedGrossProfit: 0,
+    projectedGPAchievement: 0,
     ...overrides,
   }
 }

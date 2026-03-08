@@ -67,6 +67,11 @@ function makeStoreResult(overrides: Partial<StoreResult>): StoreResult {
     requiredDailySales: 0,
     remainingBudget: 0,
     dailyCumulative: new Map(),
+    grossProfitBudgetVariance: 0,
+    grossProfitProgressGap: 0,
+    requiredDailyGrossProfit: 0,
+    projectedGrossProfit: 0,
+    projectedGPAchievement: 0,
     ...overrides,
   }
 }

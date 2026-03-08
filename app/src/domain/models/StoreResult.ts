@@ -120,6 +120,13 @@ export interface StoreDerivedData {
   readonly requiredDailySales: number // 必要日次売上（残余予算 / 残日数）
   readonly remainingBudget: number // 残余予算
   readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }>
+
+  // ─── 粗利予算系導出 ────────────────────────────────
+  readonly grossProfitBudgetVariance: number // 粗利予算差異 = 粗利実績 − 経過粗利予算
+  readonly grossProfitProgressGap: number // 粗利進捗ギャップ = 粗利達成率 − 経過予算率
+  readonly requiredDailyGrossProfit: number // 必要日次粗利 = (粗利予算 − 粗利実績) / 残日数
+  readonly projectedGrossProfit: number // 粗利着地予測 = 粗利実績 + 日平均粗利 × 残日数
+  readonly projectedGPAchievement: number // 粗利着地予測達成率 = 粗利着地予測 / 粗利予算
 }
 
 /**
