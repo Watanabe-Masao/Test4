@@ -905,7 +905,7 @@ export function TxValueDetailTable({
   expandedStore,
   onExpandToggle,
 }: TxValueDetailProps) {
-  const txTotal = safeDivide(r.totalSales, r.totalCustomers, 0)
+  const txTotal = r.transactionValue
   const fmtTx = (v: number) =>
     `${v.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`
   const hasExpanded = expandedStore != null
@@ -928,7 +928,7 @@ export function TxValueDetailTable({
           {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
-            const storeTx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
+            const storeTx = sr.transactionValue
             const isExpanded = expandedStore === storeId
 
             const rows: React.ReactNode[] = []

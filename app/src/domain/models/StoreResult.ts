@@ -105,6 +105,7 @@ export interface StoreDerivedData {
   readonly coreMarkupRate: number // コア値入率
   readonly costInclusionRate: number // 原価算入率
   readonly averageCustomersPerDay: number // 日平均客数
+  readonly transactionValue: number // 客単価 = totalSales / totalCustomers
 
   // ─── 予算・予測系導出 ────────────────────────────
   readonly grossProfitRateBudget: number // 粗利率予算 = grossProfitBudget / budget

@@ -347,6 +347,7 @@ export function aggregateStoreResults(
     estMethodMarginRate,
     estMethodClosingInventory,
     totalCustomers,
+    transactionValue: safeDivide(totalSales, totalCustomers, 0),
     averageCustomersPerDay: safeDivide(totalCustomers, salesDays, 0),
     totalDiscount,
     discountRate,

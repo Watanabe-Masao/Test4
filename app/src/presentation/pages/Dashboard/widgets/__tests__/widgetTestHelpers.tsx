@@ -76,6 +76,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     estMethodMarginRate: 0.22,
     estMethodClosingInventory: null,
     totalCustomers: 0,
+    transactionValue: 0,
     averageCustomersPerDay: 0,
     totalDiscount: 2000,
     discountRate: 0.02,

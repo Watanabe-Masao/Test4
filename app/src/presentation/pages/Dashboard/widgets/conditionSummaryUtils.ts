@@ -90,7 +90,7 @@ export function customersBreakdown(sr: StoreResult): { value: string; signal: Si
 }
 
 export function txValueBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  const tx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
+  const tx = sr.transactionValue
   return {
     value: `${tx.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`,
     signal: 'blue',

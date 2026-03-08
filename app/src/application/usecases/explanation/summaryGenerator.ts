@@ -73,8 +73,8 @@ export function generateTextSummary(
   // 3) 客数・客単価（前年比がある場合）
   if (prev && prev.totalCustomers > 0 && result.totalCustomers > 0) {
     const custRatio = safeDivide(result.totalCustomers - prev.totalCustomers, prev.totalCustomers)
-    const curTx = safeDivide(result.totalSales, result.totalCustomers)
-    const prevTx = safeDivide(prev.totalSales, prev.totalCustomers)
+    const curTx = result.transactionValue
+    const prevTx = prev.transactionValue
     const txRatio = safeDivide(curTx - prevTx, prevTx)
     lines.push(
       `主な要因: 客数 ${custRatio >= 0 ? '+' : ''}${fmtRate(custRatio)}%` +

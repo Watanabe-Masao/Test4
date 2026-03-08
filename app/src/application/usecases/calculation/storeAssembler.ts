@@ -213,6 +213,7 @@ export function assembleStoreResult(
     estMethodClosingInventory: estResult.closingInventory,
     totalCustomers: acc.totalCustomers,
     averageCustomersPerDay: safeDivide(acc.totalCustomers, acc.salesDays, 0),
+    transactionValue: safeDivide(acc.totalSales, acc.totalCustomers, 0),
     totalDiscount: acc.totalDiscount,
     discountRate,
     discountLossCost,

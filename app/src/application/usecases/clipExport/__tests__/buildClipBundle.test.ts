@@ -77,6 +77,7 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     totalCoreSales: 170000,
     totalDiscount: -5000,
     totalCustomers: 350,
+    transactionValue: 180000 / 350,
     totalCostInclusion: 1000,
     discountEntries: ZERO_DISCOUNT_ENTRIES,
     daily,

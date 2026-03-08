@@ -264,7 +264,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
   // 9. Transaction Value
   if (isMetricEnabled(effectiveConfig, 'txValue') && r.totalCustomers > 0) {
-    const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
+    const txValue = r.transactionValue
     const prevTxValue =
       prevYear.hasPrevYear && prevYear.totalCustomers > 0
         ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)

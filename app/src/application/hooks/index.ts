@@ -11,7 +11,6 @@ export type {
   PrevYearMonthlyKpiEntry,
   StoreContribution,
 } from './usePrevYearMonthlyKpi'
-export { usePrevYearCategoryTimeSales } from './usePrevYearCategoryTimeSales'
 export { useAutoLoadPrevYear } from './useAutoLoadPrevYear'
 export { useKeyboardShortcuts } from './useKeyboardShortcuts'
 export { useUndoRedo } from './useUndoRedo'

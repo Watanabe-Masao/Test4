@@ -83,6 +83,7 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     estMethodMarginRate: 0,
     estMethodClosingInventory: null,
     totalCustomers: 0,
+    transactionValue: 0,
     averageCustomersPerDay: 0,
     totalDiscount: 0,
     discountRate: 0,
