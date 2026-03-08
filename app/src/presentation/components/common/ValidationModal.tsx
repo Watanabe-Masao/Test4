@@ -1,122 +1,19 @@
-import styled from 'styled-components'
 import { useState } from 'react'
 import { Modal } from './Modal'
 import { Button } from './Button'
 import type { ValidationMessage } from '@/domain/models'
-
-const MessageList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const MessageItem = styled.div<{ $level: ValidationMessage['level'] }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  background: ${({ $level, theme }) =>
-    $level === 'error'
-      ? `${theme.colors.palette.danger}18`
-      : $level === 'warning'
-        ? `${theme.colors.palette.warning}18`
-        : `${theme.colors.palette.primary}18`};
-  border-left: 3px solid
-    ${({ $level, theme }) =>
-      $level === 'error'
-        ? theme.colors.palette.danger
-        : $level === 'warning'
-          ? theme.colors.palette.warning
-          : theme.colors.palette.primary};
-  color: ${({ theme }) => theme.colors.text};
-`
-
-const MessageHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing[3]};
-`
-
-const LevelBadge = styled.span<{ $level: ValidationMessage['level'] }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: ${({ $level, theme }) =>
-    $level === 'error'
-      ? theme.colors.palette.danger
-      : $level === 'warning'
-        ? theme.colors.palette.warning
-        : theme.colors.palette.primary};
-`
-
-const DetailsToggle = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  cursor: pointer;
-  padding: 0;
-  margin-left: auto;
-  white-space: nowrap;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text2};
-  }
-`
-
-const DetailsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-left: ${({ theme }) => theme.spacing[8]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  max-height: 150px;
-  overflow-y: auto;
-`
-
-const DetailLine = styled.div`
-  line-height: 1.4;
-`
-
-// ─── 次のステップセクション ──────────────────────────
-const NextStepsBox = styled.div<{ $variant: 'success' | 'warning' | 'error' }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.radii.md};
-  margin-top: ${({ theme }) => theme.spacing[4]};
-  background: ${({ $variant, theme }) =>
-    $variant === 'success'
-      ? `${theme.colors.palette.success}12`
-      : $variant === 'warning'
-        ? `${theme.colors.palette.warning}12`
-        : `${theme.colors.palette.danger}12`};
-  border: 1px solid
-    ${({ $variant, theme }) =>
-      $variant === 'success'
-        ? `${theme.colors.palette.success}30`
-        : $variant === 'warning'
-          ? `${theme.colors.palette.warning}30`
-          : `${theme.colors.palette.danger}30`};
-`
-
-const NextStepsTitle = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text};
-`
-
-const NextStepsText = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  line-height: 1.6;
-`
+import {
+  MessageList,
+  MessageItem,
+  MessageHeader,
+  LevelBadge,
+  DetailsToggle,
+  DetailsList,
+  DetailLine,
+  NextStepsBox,
+  NextStepsTitle,
+  NextStepsText,
+} from './ValidationModal.styles'
 
 const LEVEL_LABELS: Record<ValidationMessage['level'], string> = {
   error: 'ERROR',
