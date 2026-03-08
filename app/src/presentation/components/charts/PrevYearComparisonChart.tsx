@@ -10,95 +10,23 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import styled from 'styled-components'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './ChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
+import {
+  Wrapper,
+  Title,
+  SummaryRow,
+  Metric,
+  MetricLabel,
+  MetricValue,
+  ProgressBarWrap,
+  ProgressTrack,
+  ProgressFill,
+  ProgressLabel,
+  ChartArea,
+} from './PrevYearComparisonChart.styles'
 import { useDayRange } from './useDayRange'
-
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-  padding-left: ${({ theme }) => theme.spacing[4]};
-`
-
-const SummaryRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-`
-
-const Metric = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 80px;
-`
-
-const MetricLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.text3};
-  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
-`
-
-const MetricValue = styled.span<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $color, theme }) => $color ?? theme.colors.text};
-`
-
-const ProgressBarWrap = styled.div`
-  flex: 1;
-  min-width: 120px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`
-
-const ProgressTrack = styled.div`
-  height: 8px;
-  background: ${({ theme }) => theme.colors.bg4};
-  border-radius: 4px;
-  overflow: hidden;
-`
-
-const ProgressFill = styled.div<{ $pct: number; $color: string }>`
-  height: 100%;
-  width: ${({ $pct }) => Math.min($pct, 100)}%;
-  background: ${({ $color }) => $color};
-  border-radius: 4px;
-  transition: width 0.6s ease;
-`
-
-const ProgressLabel = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const ChartArea = styled.div`
-  width: 100%;
-  height: 280px;
-`
 
 interface Props {
   currentDaily: ReadonlyMap<number, { sales: number }>
