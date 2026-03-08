@@ -12,9 +12,10 @@
  * - 返り値は常に >= 1（0除算防止保証）
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models'
+import type { AggregateMode } from '@/domain/models/UnifiedFilter'
 
-/** 集計モード */
-export type AggregateMode = 'total' | 'dailyAvg' | 'dowAvg'
+/** @deprecated UnifiedFilter.ts から import してください */
+export type { AggregateMode } from '@/domain/models/UnifiedFilter'
 
 /**
  * 【TR-DIV-001】集計モードに基づく除数を算出

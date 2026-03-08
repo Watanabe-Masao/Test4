@@ -82,6 +82,10 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useComparisonContextQuery.ts',
   // DuckDB 統合 — コンディションマトリクスクエリフック
   'application/hooks/duckdb/useConditionMatrix.ts',
+  // DuckDB 統合 — JS計算版クエリフック（Phase 3: SQL集約→JS純粋関数移行）
+  'application/hooks/duckdb/useJsAggregationQueries.ts',
+  // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
+  'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
   'application/hooks/useStoragePersistence.ts',
   'application/hooks/useDataRecovery.ts',
@@ -446,6 +450,97 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  // ─── 統一フィルタ層ガード（DuckDB直接参照の段階的廃止）──
+
+  /**
+   * presentation/ が DuckDB フックを直接使用するファイルの許可リスト。
+   *
+   * 段階的に JS 計算エンジン（filterStore + useFilterSelectors）経由に
+   * 移行し、このリストを空にしていく。新規ファイルの追加は禁止。
+   *
+   * 移行ルール:
+   * - UI は DuckDB を直接参照せず、filterStore 経由で条件を設定
+   * - データ取得は application/hooks の汎用フック経由
+   * - 計算は domain/calculations の純粋関数で実行
+   */
+  const PRESENTATION_DUCKDB_HOOK_ALLOWLIST = new Set([
+    // ── ウィジェットコンテキスト（Phase B で移行） ──
+    'hooks/useUnifiedWidgetContext.ts',
+    'components/widgets/types.ts',
+    // ── DuckDB チャート（Phase C Wave 1-3 で移行） ──
+    'components/charts/CategoryHierarchyExplorer.tsx',
+    'components/charts/CategoryPerformanceChart.tsx',
+    'components/charts/DuckDBCategoryBenchmarkChart.styles.ts',
+    'components/charts/DuckDBCategoryHourlyChart.tsx',
+    'components/charts/DuckDBDeptHourlyChart.tsx',
+    'components/charts/DuckDBDowPatternChart.tsx',
+    'components/charts/DuckDBFeatureChart.tsx',
+    'components/charts/DuckDBHeatmapChart.helpers.ts',
+    'components/charts/DuckDBHourlyProfileChart.tsx',
+    'components/charts/DuckDBTimeSlotChart.tsx',
+    'components/charts/DuckDBTimeSlotChart.vm.ts',
+    'components/charts/DuckDBYoYChart.tsx',
+    'components/charts/ShapleyTimeSeriesChart.tsx',
+    // ── ページ・ウィジェット（Phase C で移行） ──
+    'pages/Admin/AdminPage.tsx',
+    'pages/Admin/ImportHistoryTab.tsx',
+    'pages/Admin/PrevYearMappingTab.tsx',
+    'pages/Admin/StorageManagementTab.tsx',
+    'pages/Category/CategoryPage.tsx',
+    'pages/CostDetail/useCostDetailData.ts',
+    'pages/Daily/DailyPage.tsx',
+    'pages/Dashboard/DashboardPage.tsx',
+    'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
+    'pages/Dashboard/widgets/DayDetailModal.tsx',
+    'pages/Dashboard/widgets/DayDetailModal.vm.ts',
+    'pages/Dashboard/widgets/MonthlyCalendar.tsx',
+    'pages/Dashboard/widgets/RangeComparison.tsx',
+    'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
+    'pages/Dashboard/widgets/types.ts',
+    'pages/Forecast/ForecastPage.helpers.ts',
+    'pages/Mobile/KpiTabContent.tsx',
+    'pages/Reports/ReportsPage.tsx',
+    // ── レイアウト（DuckDB 接続状態表示用） ──
+    'components/Layout/MainContent.tsx',
+    'components/Layout/NavBar.tsx',
+  ])
+
+  it('presentation/ の新規ファイルは DuckDB フックを直接使用しない（filterStore 経由を使用）', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    // DuckDB フックの import パターン
+    const DUCKDB_HOOK_PATTERNS = [
+      /import\s+.*from\s+['"]@\/application\/hooks\/duckdb['"]/,
+      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks['"]/,
+      /import\s+.*useDuckDB.*from\s+['"]@\/application\/hooks\/useDuckDB['"]/,
+    ]
+
+    for (const file of files) {
+      const rel = path.relative(path.join(SRC_DIR, 'presentation'), file)
+      if (PRESENTATION_DUCKDB_HOOK_ALLOWLIST.has(rel)) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      for (const pattern of DUCKDB_HOOK_PATTERNS) {
+        if (pattern.test(content)) {
+          violations.push(
+            `${relativePath(file)}: DuckDB フックを直接使用。filterStore + useFilterSelectors 経由を使用してください`,
+          )
+          break
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
+    // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
+    const MAX_ALLOWLIST_SIZE = 35
+    expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,
@@ -456,6 +551,16 @@ describe('Architecture Guard', () => {
     for (const rel of allAllowlists) {
       const fullPath = path.join(SRC_DIR, rel)
       expect(fs.existsSync(fullPath), `Allowlisted file does not exist: ${rel}`).toBe(true)
+    }
+  })
+
+  it('DuckDB フック許可リストのファイルが実在する', () => {
+    for (const rel of PRESENTATION_DUCKDB_HOOK_ALLOWLIST) {
+      const fullPath = path.join(SRC_DIR, 'presentation', rel)
+      expect(
+        fs.existsSync(fullPath),
+        `DuckDB hook allowlisted file does not exist: presentation/${rel}`,
+      ).toBe(true)
     }
   })
 })

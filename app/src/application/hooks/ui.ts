@@ -9,3 +9,9 @@ export { useStoreSelection } from './useStoreSelection'
 export { useExplanations, useMetricExplanation } from './useExplanation'
 export { useRouteSync, useCurrentView } from './useRouteSync'
 export { useAppShortcuts } from './useAppShortcuts'
+export {
+  useFilterDateRange,
+  useFilterStoreIds,
+  useUnifiedFilter,
+  useFilterAsQueryInput,
+} from './useFilterSelectors'
