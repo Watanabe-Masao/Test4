@@ -12,7 +12,6 @@
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
 import {
   useDuckDBHourDowMatrix,
   useDuckDBLevelAggregation,
@@ -66,6 +65,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
+  prevYearScope,
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -85,8 +85,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
     [deptCode, lineCode, klassCode],
   )
 
-  const frame = useComparisonFrame(currentDateRange)
-  const prevYearRange = frame.previous
+  const prevYearRange = prevYearScope?.dateRange
 
   // 当年 時間帯×曜日マトリクス
   const {
@@ -108,6 +107,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
     prevYearRange,
     selectedStoreIds,
     hierarchy,
+    true, // isPrevYear
   )
 
   // 階層ドロップダウン

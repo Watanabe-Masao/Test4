@@ -34,6 +34,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
+      prevYearScope={ctx.prevYearScope}
     />
   )
 })
@@ -51,6 +52,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
       selectedStoreIds={ctx.selectedStoreIds}
+      prevYearScope={ctx.prevYearScope}
     />
   )
 })
@@ -99,6 +101,7 @@ export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: W
       duckDataVersion={ctx.duckDataVersion}
       frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}
       selectedStoreIds={ctx.selectedStoreIds}
+      prevYearScope={ctx.prevYearScope}
     />
   )
 })

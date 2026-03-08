@@ -25,7 +25,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ComparisonFrame } from '@/domain/models'
+import type { ComparisonFrame, PrevYearScope } from '@/domain/models'
 import { useDuckDBYoyDaily, type YoyDailyRow } from '@/application/hooks/useDuckDBQuery'
 import { useChartTheme, useCurrencyFormatter, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
@@ -54,6 +54,7 @@ interface Props {
   readonly duckDataVersion: number
   readonly frame: ComparisonFrame | undefined
   readonly selectedStoreIds: ReadonlySet<string>
+  readonly prevYearScope?: PrevYearScope
 }
 
 interface ChartDataPoint {
@@ -276,6 +277,7 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
   duckDataVersion,
   frame,
   selectedStoreIds,
+  prevYearScope,
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -286,7 +288,7 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
     data: rows,
     isLoading,
     error,
-  } = useDuckDBYoyDaily(duckConn, duckDataVersion, frame, selectedStoreIds)
+  } = useDuckDBYoyDaily(duckConn, duckDataVersion, frame, selectedStoreIds, prevYearScope)
 
   const chartData = useMemo(() => (rows ? buildChartData(rows) : []), [rows])
   const waterfallData = useMemo(

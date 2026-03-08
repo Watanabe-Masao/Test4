@@ -11,8 +11,7 @@
  */
 import { useState, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
-import { useComparisonFrame } from '@/application/hooks/useComparisonFrame'
+import type { DateRange, PrevYearScope } from '@/domain/models'
 import {
   useDuckDBHourlyAggregation,
   useDuckDBDistinctDayCount,
@@ -114,6 +113,7 @@ interface Params {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  readonly prevYearScope?: PrevYearScope
 }
 
 export function useDuckDBTimeSlotData({
@@ -121,6 +121,7 @@ export function useDuckDBTimeSlotData({
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
+  prevYearScope,
 }: Params) {
   const [viewMode, setViewMode] = useState<ViewMode>('chart')
   const [metricMode, setMetricMode] = useState<MetricMode>('amount')
@@ -140,9 +141,8 @@ export function useDuckDBTimeSlotData({
     [deptCode, lineCode, klassCode],
   )
 
-  const frame = useComparisonFrame(currentDateRange)
   const wowRange = useMemo(() => buildWowRange(currentDateRange), [currentDateRange])
-  const compRange = compMode === 'wow' ? wowRange : frame.previous
+  const compRange = compMode === 'wow' ? wowRange : prevYearScope?.dateRange
   const compIsPrevYear = compMode === 'yoy'
 
   // ── DuckDB queries ──

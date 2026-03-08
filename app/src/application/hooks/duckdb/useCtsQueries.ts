@@ -137,6 +137,7 @@ export function useDuckDBHourDowMatrix(
   dateRange: DateRange | undefined,
   storeIds: ReadonlySet<string>,
   hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
+  isPrevYear?: boolean,
 ): AsyncQueryResult<readonly HourDowMatrixRow[]> {
   const queryFn = useMemo(() => {
     if (!dateRange) return null
@@ -148,9 +149,10 @@ export function useDuckDBHourDowMatrix(
       deptCode: hierarchy?.deptCode,
       lineCode: hierarchy?.lineCode,
       klassCode: hierarchy?.klassCode,
+      isPrevYear,
     }
     return (c: AsyncDuckDBConnection) => queryHourDowMatrix(c, params)
-  }, [dateRange, storeIds, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode])
+  }, [dateRange, storeIds, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

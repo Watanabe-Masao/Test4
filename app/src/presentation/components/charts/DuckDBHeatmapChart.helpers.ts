@@ -1,5 +1,5 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange, PrevYearScope } from '@/domain/models'
 import type { HourDowMatrixRow } from '@/application/hooks/useDuckDBQuery'
 
 // ── Types ──
@@ -11,6 +11,7 @@ export interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  readonly prevYearScope?: PrevYearScope
 }
 
 export interface CellData {
