@@ -52,3 +52,5 @@ export type {
 } from './ConditionConfig'
 export type { AggregateMode, HierarchyFilter, UnifiedFilterState } from './UnifiedFilter'
 export { EMPTY_HIERARCHY } from './UnifiedFilter'
+export type { FetchStatus, ValidatedFetchResult, DataValidation } from './DataFetchResult'
+export { validateRecords } from './DataFetchResult'
