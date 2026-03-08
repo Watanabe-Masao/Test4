@@ -23,7 +23,6 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBDailyFeatures, type DailyFeatureRow } from '@/application/hooks/useDuckDBQuery'
@@ -32,70 +31,16 @@ import { createChartTooltip } from './ChartTooltip'
 import { palette } from '@/presentation/theme/tokens'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-
-const Wrapper = styled.div`
-  width: 100%;
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[4]}
-    ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text2};
-  margin-bottom: ${({ theme }) => theme.spacing[1]};
-`
-
-const Subtitle = styled.div`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const AnomalyGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: ${({ theme }) => theme.spacing[2]};
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  padding: 0 ${({ theme }) => theme.spacing[2]};
-`
-
-const AnomalyCard = styled.div<{ $type: 'spike' | 'dip' }>`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  background: ${({ $type, theme }) =>
-    $type === 'spike'
-      ? theme.mode === 'dark'
-        ? `${theme.colors.palette.dangerDark}1f`
-        : `${theme.colors.palette.dangerDark}0f`
-      : theme.mode === 'dark'
-        ? `${theme.colors.palette.blueDark}1f`
-        : `${theme.colors.palette.blueDark}0f`};
-  border-left: 3px solid
-    ${({ $type, theme }) =>
-      $type === 'spike' ? theme.colors.palette.dangerDark : theme.colors.palette.blueDark};
-  border-radius: ${({ theme }) => theme.radii.md};
-  font-size: 0.6rem;
-`
-
-const AnomalyDate = styled.div`
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text2};
-`
-
-const AnomalyValue = styled.div`
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const ErrorMsg = styled.div`
-  padding: 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
+import {
+  Wrapper,
+  Title,
+  Subtitle,
+  AnomalyGrid,
+  AnomalyCard,
+  AnomalyDate,
+  AnomalyValue,
+  ErrorMsg,
+} from './DuckDBFeatureChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null

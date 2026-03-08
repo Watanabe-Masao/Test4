@@ -5,13 +5,28 @@
  * 閾値超過を自動通知するウィジェット。
  */
 import { useCallback, useMemo } from 'react'
-import styled, { useTheme } from 'styled-components'
-import { palette } from '@/presentation/theme/tokens'
+import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/useAlerts'
 import { formatPercent } from '@/domain/formatting'
 import type { Alert, AlertSeverity } from '@/application/hooks/useAlerts'
 import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
+import {
+  Wrapper,
+  Header,
+  Title,
+  BadgeCount,
+  AlertList,
+  AlertCard,
+  SeverityIcon,
+  AlertBody,
+  AlertMessage,
+  AlertDetail,
+  DetailItem,
+  AlertFooter,
+  ExplainLink,
+  EmptyState,
+} from './AlertPanel.styles'
 
 // ─── Alert → MetricId Mapping ───────────────────────────
 
@@ -22,152 +37,6 @@ const ALERT_METRIC_MAP: Record<string, MetricId> = {
   'budget-achievement': 'budgetAchievementRate',
   'discount-rate': 'discountRate',
 }
-
-// ─── Styled Components ──────────────────────────────────
-
-const Wrapper = styled.div`
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
-`
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-  margin: 0;
-`
-
-const BadgeCount = styled.span<{ $severity: AlertSeverity }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  background: ${({ $severity }) =>
-    $severity === 'critical'
-      ? palette.dangerDark
-      : $severity === 'warning'
-        ? palette.caution
-        : palette.blueDark};
-  color: ${({ $severity, theme }) =>
-    $severity === 'warning' ? theme.colors.text : theme.colors.palette.white};
-`
-
-const AlertList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
-  max-height: 400px;
-  overflow-y: auto;
-`
-
-const AlertCard = styled.div<{ $severity: AlertSeverity; $clickable: boolean }>`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[3]};
-  padding: ${({ theme }) => theme.spacing[4]};
-  background: ${({ theme }) => theme.colors.bg2};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-left: 4px solid
-    ${({ $severity }) =>
-      $severity === 'critical'
-        ? palette.dangerDark
-        : $severity === 'warning'
-          ? palette.caution
-          : palette.blueDark};
-  border-radius: ${({ theme }) => theme.radii.md};
-  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
-
-  ${({ $clickable, theme }) =>
-    $clickable &&
-    `
-    &:hover {
-      border-color: ${theme.colors.palette.primary};
-      box-shadow: 0 0 0 1px ${theme.colors.palette.primary}40;
-    }
-    &:focus-visible {
-      outline: 2px solid ${theme.colors.palette.primary};
-      outline-offset: 2px;
-    }
-  `}
-`
-
-const SeverityIcon = styled.div<{ $severity: AlertSeverity }>`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: bold;
-  background: ${({ $severity }) =>
-    $severity === 'critical'
-      ? `${palette.dangerDark}20`
-      : $severity === 'warning'
-        ? `${palette.caution}20`
-        : `${palette.blueDark}20`};
-  color: ${({ $severity }) =>
-    $severity === 'critical'
-      ? palette.dangerDark
-      : $severity === 'warning'
-        ? palette.caution
-        : palette.blueDark};
-`
-
-const AlertBody = styled.div`
-  flex: 1;
-  min-width: 0;
-`
-
-const AlertMessage = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  color: ${({ theme }) => theme.colors.text};
-  line-height: 1.4;
-`
-
-const AlertDetail = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[3]};
-  margin-top: ${({ theme }) => theme.spacing[2]};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ theme }) => theme.colors.text3};
-`
-
-const DetailItem = styled.span`
-  white-space: nowrap;
-`
-
-const AlertFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: ${({ theme }) => theme.spacing[2]};
-`
-
-const ExplainLink = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  color: ${({ theme }) => theme.colors.palette.primary};
-  white-space: nowrap;
-`
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[8]};
-  color: ${({ theme }) => theme.colors.text3};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-`
 
 // ─── Alert Value Formatters (threshold/actual/delta) ────
 

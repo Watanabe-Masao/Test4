@@ -1,5 +1,4 @@
 import { memo, useMemo } from 'react'
-import styled from 'styled-components'
 import {
   BarChart,
   Bar,
@@ -17,20 +16,7 @@ import { createChartTooltip } from '@/presentation/components/charts/ChartToolti
 import { formatCurrency } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import { sc } from '@/presentation/theme/semanticColors'
-
-const Wrapper = styled.div`
-  background: ${({ theme }) => theme.colors.bg3};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.lg};
-  padding: ${({ theme }) => theme.spacing[6]};
-`
-
-const Title = styled.h4`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
-`
+import { Wrapper, Title } from './WaterfallChart.styles'
 
 interface WaterfallItem {
   name: string

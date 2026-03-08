@@ -11,7 +11,6 @@
 import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import {
@@ -41,65 +40,15 @@ import {
   formatDateKey,
   type HierarchyLevel,
 } from './DuckDBChartParts'
-
-// ── chart-specific styled-components ──
-
-const StatusTable = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-  margin-top: ${({ theme }) => theme.spacing[3]};
-  justify-content: center;
-`
-
-const StatusBadge = styled.span<{ $color: string }>`
-  font-size: 0.6rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: ${({ $color }) => `${$color}18`};
-  color: ${({ $color }) => $color};
-  font-weight: 600;
-`
-
-const HeatmapGrid = styled.div`
-  overflow-x: auto;
-  margin-top: ${({ theme }) => theme.spacing[2]};
-`
-
-const HeatmapTable = styled.table`
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 0.55rem;
-`
-
-const HeatmapTh = styled.th`
-  padding: 3px 6px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text3};
-  text-align: center;
-  white-space: nowrap;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const HeatmapRowHeader = styled.td`
-  padding: 3px 8px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text2};
-  white-space: nowrap;
-  border-right: 1px solid ${({ theme }) => theme.colors.border};
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
-
-const HeatmapCell = styled.td<{ $bg: string; $textColor: string }>`
-  padding: 2px 4px;
-  text-align: center;
-  background: ${({ $bg }) => $bg};
-  color: ${({ $textColor }) => $textColor};
-  font-size: 0.5rem;
-  min-width: 32px;
-`
+import {
+  StatusTable,
+  StatusBadge,
+  HeatmapGrid,
+  HeatmapTable,
+  HeatmapTh,
+  HeatmapRowHeader,
+  HeatmapCell,
+} from './DuckDBCvTimeSeriesChart.styles'
 
 // ── 定数 ──
 

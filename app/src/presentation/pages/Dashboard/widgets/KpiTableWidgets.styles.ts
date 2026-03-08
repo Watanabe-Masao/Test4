@@ -125,3 +125,17 @@ export const TipVal = styled.span<{ $color?: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   color: ${({ $color }) => $color ?? 'inherit'};
 `
+
+export const TableHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+export const TableTitleText = styled.h3`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+  margin: 0;
+`

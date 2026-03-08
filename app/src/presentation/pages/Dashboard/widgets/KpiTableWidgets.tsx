@@ -25,24 +25,11 @@ import {
   KpiTooltip,
   TipLabel,
   TipVal,
+  TableHeader,
+  TableTitleText,
 } from './KpiTableWidgets.styles'
 import { EditableNumberCell } from './EditableNumberCell'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
-import styled from 'styled-components'
-
-const TableHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const TableTitleText = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-  margin: 0;
-`
 
 function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
   const varColor = sc.cond(rec.gpRateVariance >= 0)
