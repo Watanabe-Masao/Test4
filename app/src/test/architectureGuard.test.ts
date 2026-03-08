@@ -82,6 +82,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useComparisonContextQuery.ts',
   // DuckDB 統合 — コンディションマトリクスクエリフック
   'application/hooks/duckdb/useConditionMatrix.ts',
+  // DuckDB 統合 — JS計算版クエリフック（Phase 3: SQL集約→JS純粋関数移行）
+  'application/hooks/duckdb/useJsAggregationQueries.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
