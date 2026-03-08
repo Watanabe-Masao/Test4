@@ -363,6 +363,48 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  // ─── CQRS Contract Guards（Phase 2） ──────────────────
+
+  it('application/queries/ は domain/calculations/ に依存しない（Query は Command に依存しない）', () => {
+    const queriesDir = path.join(SRC_DIR, 'application', 'queries')
+    if (!fs.existsSync(queriesDir)) return
+    const files = collectTsFiles(queriesDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/domain/calculations')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — Query ハンドラーは Command 側（domain/calculations）に依存できません`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('application/usecases/calculation/ は infrastructure/duckdb/ に依存しない（Command は Query に依存しない）', () => {
+    const calcDir = path.join(SRC_DIR, 'application', 'usecases', 'calculation')
+    if (!fs.existsSync(calcDir)) return
+    const files = collectTsFiles(calcDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — Command ハンドラーは DuckDB に依存できません`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,
