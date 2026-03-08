@@ -111,8 +111,8 @@ const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
  * 純粋ユーティリティ（hash等）の参照を許可。
  */
 const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set<string>([
-  // hash ユーティリティは domain/utilities/hash.ts に移動済み。
-  // Infrastructure からの application import は現在ゼロ。
+  // RawDataPort アダプター: application/ports の RawDataPort インターフェースを実装
+  'infrastructure/storage/IndexedDBRawDataAdapter.ts',
 ])
 
 // ─── テスト ──────────────────────────────────────────────
