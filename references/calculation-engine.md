@@ -16,6 +16,7 @@
 | 売変影響分析 | `discountImpact.ts` | 売変ロス原価算出 |
 | ピン止め区間 | `pinIntervals.ts` | 区間別在庫法粗利率計算 |
 | 要因分解 | `factorDecomposition.ts` | シャープリー値ベースの売上変動要因分解 |
+| 生データ集約 | `rawAggregation.ts` | DuckDB 生データの JS 集約（累積・移動平均・統計） |
 | ユーティリティ | `utils.ts` | 安全除算・数値変換・フォーマット |
 
 ### 設計原則
@@ -450,6 +451,31 @@ S = C × Q × (p·s)
 |---|---|
 | `alertSystem.ts` | アラートルール（閾値超過検出・優先度判定） |
 | `conditionResolver.ts` | 条件判定（複数条件の論理結合・評価） |
+
+### 13.7 生データ集約 (rawAggregation.ts)
+
+DuckDB から取得した生データ（`store_day_summary` の `SELECT * WHERE` 結果）を
+JS 純粋関数で集約する。SQL ウィンドウ関数の代替として使用。
+
+| 関数 | 説明 | 代替する SQL |
+|---|---|---|
+| `aggregateByDay` | 日別に売上・客数・仕入を集約 | `GROUP BY date_key` |
+| `cumulativeSum` | 日別累積売上を算出 | `SUM() OVER (ORDER BY date_key)` |
+| `movingAverage` | N日移動平均 | `AVG() OVER (ROWS N PRECEDING)` |
+| `dowAggregate` | 曜日別平均売上（dateKey から曜日判定） | `AVG(sales) GROUP BY dow` |
+| `hourlyAggregate` | 時間帯別集約 | `SUM() GROUP BY hour` |
+| `aggregatePeriodRates` | 期間集約（平均値入率・売変率） | `AVG() GROUP BY` |
+| `stddevPop` | 母標準偏差 | `STDDEV_POP()` |
+| `zScore` | Zスコア算出 | SQL 内 `(value - AVG) / STDDEV` |
+| `coefficientOfVariation` | 変動係数（CV = σ/μ） | SQL 内算出 |
+| `rankBy` | 降順ランキング | `RANK() OVER (ORDER BY ...)` |
+| `yoyMerge` | 当年/前年のキーマッチング結合 | `FULL OUTER JOIN` |
+| `categoryShare` | 構成比算出（各要素 / 合計） | `value / SUM() OVER ()` |
+
+**設計原則:**
+- 全て純粋関数（副作用なし、フレームワーク非依存）
+- 23テスト（`rawAggregation.test.ts`）で全関数をカバー
+- DuckDB の生データ型（`store_day_summary` のカラム）に依存しない汎用設計
 
 ---
 

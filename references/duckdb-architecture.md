@@ -78,19 +78,25 @@ DuckDB スキーマは以下の基本テーブルと VIEW で構成される:
 
 ```
 hooks/duckdb/
-├── index.ts                  # バレル re-export
-├── useAsyncQuery.ts          # 基盤フック（シーケンス番号によるキャンセル制御）
-├── useCtsQueries.ts          # 時間帯売上クエリ（9フック）
-├── useDeptKpiQueries.ts      # 部門KPIクエリ（2フック）
-├── useSummaryQueries.ts      # サマリクエリ（2フック）
-├── useYoyQueries.ts          # 前年比較クエリ（2フック）
-├── useFeatureQueries.ts      # 特徴量クエリ（3フック）
-├── useAdvancedQueries.ts     # 高度分析クエリ（2フック）
-├── useMetricsQueries.ts      # 指標クエリ（3フック）
+├── index.ts                       # バレル re-export
+├── useAsyncQuery.ts               # 基盤フック（シーケンス番号によるキャンセル制御）
+├── useJsAggregationQueries.ts     # JS集約フック（SQL→JS移行済み、5フック）★新規
+├── useCtsQueries.ts               # 時間帯売上クエリ（9フック）
+├── useDeptKpiQueries.ts           # 部門KPIクエリ（2フック）
+├── useSummaryQueries.ts           # サマリクエリ（2フック、内部でJS版に委譲）
+├── useYoyQueries.ts               # 前年比較クエリ（2フック、日別はJS版に委譲）
+├── useFeatureQueries.ts           # 特徴量クエリ（3フック、全てJS版に委譲）
+├── useAdvancedQueries.ts          # 高度分析クエリ（2フック）
+├── useMetricsQueries.ts           # 指標クエリ（3フック）
 ├── useDailyRecordQueries.ts       # 日次レコードクエリ（3フック）
 ├── useComparisonContextQuery.ts   # 比較コンテキストクエリ
 └── useConditionMatrix.ts          # 条件マトリクスクエリ
 ```
+
+`useJsAggregationQueries.ts` は DuckDB から `SELECT * WHERE` で生データを取得し、
+`domain/calculations/rawAggregation.ts` の純粋関数で集約を実行する。
+既存フック（`useSummaryQueries`, `useFeatureQueries`, `useYoyQueries`）は
+内部で JS 版に委譲し、外部 API は変更なし（後方互換維持）。
 
 `hooks/useDuckDBQuery.ts` は後方互換のためバレル re-export として残存している。
 
@@ -159,35 +165,18 @@ hooks/duckdb/
 - KPI カード、ウォーターフォール、感度分析等の `StoreResult` 消費ウィジェット
 
 **DuckDB でなければならないもの:**
-- 月跨ぎクエリ（JS の CTS インデックスは単月分のみ保持）
-- 時間帯×曜日×カテゴリの多次元集約（SQL の GROUP BY が適切）
+- `category_time_sales` / `time_slots` の多次元集約（行数が多く SQL GROUP BY でのデータ削減が有効）
 - 大量レコードの集約（10万件超の走査は SQL が JS より効率的）
+
+**JS で実行するもの（DuckDB は SELECT * のみ）:**
+- `store_day_summary` 系の集約（日別累積、移動平均、Zスコア、曜日パターン等）
+  → `rawAggregation.ts` の純粋関数 + `useJsAggregationQueries.ts` のフック
+- 前年比較（日別）: 2回の SELECT * → JS で yoyMerge
+- Hybrid: SQL GROUP BY でデータ削減 → JS でウィンドウ関数（share, rank）
 
 **やってはならないこと:**
 - 同じ集約ロジックを JS と SQL の両方に実装する（二重実装）
-- 一部のウィジェットだけ DuckDB 対応し、同種の他のウィジェットは CTS のまま放置する
-  （現状の Unified 5個 + CTS 専用 2個 は一貫性を欠いている）
-- CTS インデックスによる JS 集約を「DuckDB のフォールバック」として維持する
-  （フォールバックが必要なら全ウィジェットに適用すべきであり、
-  一部だけに適用するのは中途半端で保守コストだけが増える）
-
-### 現状の課題: CTS フォールバックの不完全な適用
-
-CTS（CategoryTimeSalesIndex）による JS 集約パスは、DuckDB 導入前の
-時間帯・カテゴリ分析の実装である。DuckDB 導入後、5つのウィジェットで
-「DuckDB 優先、CTS フォールバック」の Unified パターンが適用されたが、
-**同種の残り2つ（CategoryHierarchyExplorer, CategoryPerformanceChart）は
-CTS 専用のまま** であり、一貫性がない。
-
-「両方対応する」なら全てに同じことをやらなければならないが、
-現状は中途半端であり、コード全体の一貫性に欠ける。
-
-**目標状態:**
-- CTS インデックスによる集約パスを廃止し、DuckDB に統一する
-- `WidgetContext` から `ctsIndex` / `prevCtsIndex` を除去する
-- `useAnalyticsResolver` から `'cts'` ソースを削除する
-- CategoryHierarchyExplorer と CategoryPerformanceChart を DuckDB 版に移行する
-- 対応する DuckDB クエリ（`queryLevelAggregation`, `queryCategoryHourly` 等）は既に存在する
+- SQL→JS 移行時に既存フック名・型を変更する（委譲パターンで後方互換維持）
 
 ### OPFS 永続化戦略
 
@@ -270,8 +259,10 @@ DuckDB Worker は以下のメッセージタイプを処理する:
 
 1. **エンジンの責務は排他的**: 1つのデータ集約に対して、JS と DuckDB の両方で
    実装してはならない。どちらが担うかを明確にし、一方だけに実装する。
-2. **SQL 集約の徹底**: 時系列・カテゴリ分析は DuckDB の SQL で集約済みデータを取得し、
-   UI での生レコード走査を排除する。
+2. **DuckDB はデータ取得、JS は集約**: `store_day_summary` 系の集約は JS 純粋関数
+   （`rawAggregation.ts`）で実行し、DuckDB は `SELECT * WHERE` によるフィルタ済み
+   データ取得に専念する。`category_time_sales` 系は行数が多いため SQL GROUP BY を維持し、
+   ウィンドウ関数（share, rank）のみ JS に移行する（Hybrid パターン）。
 3. **月跨ぎ対応**: `duckDateRange`（自由日付範囲）を使い、月単位制約を超えた分析が可能。
    `useDuckDB` フックが複数月のデータを DuckDB にロードする。
 4. **非同期安全**: `useAsyncQuery` フックがシーケンス番号によるキャンセル制御を内蔵し、
@@ -280,3 +271,6 @@ DuckDB Worker は以下のメッセージタイプを処理する:
    やデータ不足時に非表示。店舗比較系は `stores.size > 1` をガード。
 6. **永続化は best-effort**: OPFS / Parquet キャッシュは起動高速化のための最適化であり、
    失敗しても `full-reload` で正常動作する。データの権威は IndexedDB（原本）にある。
+7. **後方互換の委譲パターン**: SQL→JS 移行時、既存フック名（`useDuckDBDailyCumulative` 等）
+   は維持し、内部で JS 版（`useJsDailyCumulative` 等）に委譲する。
+   チャートコンポーネントの変更は不要。

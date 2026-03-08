@@ -30,20 +30,24 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 
 ### DuckDB 探索エンジン（infrastructure/duckdb/queries/）
 
-任意日付範囲の探索・集約。SQL ウィンドウ関数で月跨ぎ対応。
+任意日付範囲の探索・集約。SQL でフィルタ済みデータを取得し、集約は用途に応じて
+SQL または JS で実行する（後述「SQL→JS 移行」参照）。
 
-| 計算内容 | モジュール | スコープ |
-|---|---|---|
-| 時間帯×曜日×カテゴリ集約 | `categoryTimeSales.ts` | 自由日付範囲 |
-| 店舗ベンチマーク | `advancedAnalytics.ts` | 自由日付範囲 |
-| カテゴリ構成比推移 | `advancedAnalytics.ts` | 週次集約 |
-| 部門 KPI 集約 | `departmentKpi.ts` | 自由日付範囲 |
-| 日次累積・指標推移 | `storeDaySummary.ts` | 自由日付範囲 |
-| 前年比較 | `yoyComparison.ts` | 自由日付範囲 |
-| 特徴量・異常検出（Zスコア） | `features.ts` | 月跨ぎ（28日ウィンドウ関数） |
-| 予算累積推移・サマリー | `budgetAnalysis.ts` | 月跨ぎ（日別累積） |
-| 日次レコード詳細 | `dailyRecords.ts` | 自由日付範囲 |
-| 条件マトリクス集約 | `conditionMatrix.ts` | 自由日付範囲 |
+| 計算内容 | モジュール | 集約方式 | スコープ |
+|---|---|---|---|
+| 時間帯×曜日×カテゴリ集約 | `categoryTimeSales.ts` | SQL GROUP BY | 自由日付範囲 |
+| 店舗ベンチマーク | `advancedAnalytics.ts` | SQL | 自由日付範囲 |
+| カテゴリ構成比推移 | `advancedAnalytics.ts` | SQL | 週次集約 |
+| 部門 KPI 集約 | `departmentKpi.ts` | SQL（WHERE のみ） | 自由日付範囲 |
+| 日次累積・指標推移 | `storeDaySummary.ts` | **JS**（移行済み） | 自由日付範囲 |
+| 前年比較（日別） | `yoyComparison.ts` | **JS**（移行済み） | 自由日付範囲 |
+| 前年比較（カテゴリ別） | `yoyComparison.ts` | SQL FULL OUTER JOIN | 自由日付範囲 |
+| 特徴量・異常検出（Zスコア） | `features.ts` | **JS**（移行済み） | 月跨ぎ |
+| 曜日パターン | `features.ts` | **JS**（移行済み） | 自由日付範囲 |
+| 時間帯プロファイル | `features.ts` | **Hybrid**（SQL GROUP BY + JS share/rank） | 自由日付範囲 |
+| 予算累積推移・サマリー | `budgetAnalysis.ts` | SQL | 月跨ぎ（日別累積） |
+| 日次レコード詳細 | `dailyRecords.ts` | SQL | 自由日付範囲 |
+| 条件マトリクス集約 | `conditionMatrix.ts` | SQL | 自由日付範囲 |
 
 ### 両エンジンに存在する概念の区別
 
@@ -54,6 +58,47 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | 予算分析 | `calculateBudgetAnalysis()`: StoreResult から達成率・消化率を算出 | `queryDailyCumulativeBudget()`: 任意期間の日別累積推移 |
 | 異常値検出 | `detectAnomalies()`: 単月の日次データのσ乖離検出 | `queryDailyFeatures()`: 28日ウィンドウZスコア |
 | トレンド | `analyzeTrend()`: 月次粒度の複数月推移 | `queryStoreDaySummary()`: 日次粒度の累積推移 |
+
+### SQL→JS 移行（Phase 3）
+
+DuckDB の SQL ウィンドウ関数・集約ロジックの一部を JS 純粋関数に移行した。
+DuckDB は**フィルタ済みの生データ取得**（`SELECT * WHERE`）に専念し、
+集約計算は `domain/calculations/rawAggregation.ts` の純粋関数で実行する。
+
+**移行パターン:**
+
+```
+移行前:  DuckDB SQL (GROUP BY + WINDOW) → Hook → UI
+移行後:  DuckDB SQL (SELECT * WHERE)    → JS 純粋関数 → Hook → UI
+```
+
+**移行済みフック（`application/hooks/duckdb/useJsAggregationQueries.ts`）:**
+
+| フック | 移行前の SQL | JS 代替 |
+|---|---|---|
+| `useJsDailyCumulative` | `SUM() OVER (ORDER BY date_key)` | `aggregateByDay` + `cumulativeSum` |
+| `useJsDailyFeatures` | `AVG/STDDEV_POP OVER (ROWS 3/7/28)` | `movingAverage` + `stddevPop` + `zScore` |
+| `useJsDowPattern` | `AVG(sales) GROUP BY dow` + `STDDEV_POP` | `dowAggregate` + `stddevPop` + `coefficientOfVariation` |
+| `useJsYoyDaily` | `FULL OUTER JOIN` (当年 × 前年) | 2回の `SELECT *` + `yoyMerge` |
+| `useJsHourlyProfile` | `SUM() OVER` + `RANK()` | SQL GROUP BY (store_id, hour) + JS `categoryShare` + `rankBy` |
+
+**既存フックは委譲パターンで後方互換維持:**
+```typescript
+// useSummaryQueries.ts — 外部 API は変更なし
+export function useDuckDBDailyCumulative(...) {
+  return useJsDailyCumulative(...)  // 内部で JS 版に委譲
+}
+```
+
+**未移行（SQL 維持）:**
+- `category_time_sales` 系: データ量が多く SQL GROUP BY によるデータ削減が有効
+- `advancedAnalytics` 系: 複雑な SQL（LAG, 週次集約）が密結合
+- `budgetAnalysis` 系: SQL 累積計算が効率的
+- `departmentKpi` 系: 集約なし（WHERE + ORDER BY のみ）で移行不要
+
+**純粋関数の配置:**
+- `domain/calculations/rawAggregation.ts` — 統計計算（aggregateByDay, cumulativeSum, movingAverage, stddevPop, zScore, rankBy, yoyMerge 等）
+- `domain/calculations/rawAggregation.test.ts` — 23テストで全関数をカバー
 
 ## 判定フロー
 
@@ -72,13 +117,14 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 
 ## 出力の違い
 
-| | JS 計算エンジン | DuckDB 探索エンジン |
-|---|---|---|
-| 出力 | `StoreResult` | SQL 集約結果（行配列） |
-| スコープ | 単月確定値 | 任意日付範囲 |
-| 定義場所 | `domain/calculations/` | `infrastructure/duckdb/queries/` |
-| フック | `application/usecases/` | `application/hooks/duckdb/` |
-| テスト | ユニットテスト + 不変条件テスト | integration テスト |
+| | JS 計算エンジン（確定値） | JS 集約エンジン（探索値） | DuckDB SQL |
+|---|---|---|---|
+| 出力 | `StoreResult` | 集約結果（行配列） | SQL 集約結果（行配列） |
+| スコープ | 単月確定値 | 任意日付範囲 | 任意日付範囲 |
+| 定義場所 | `domain/calculations/` | `domain/calculations/rawAggregation.ts` | `infrastructure/duckdb/queries/` |
+| フック | `application/usecases/` | `application/hooks/duckdb/useJsAggregationQueries.ts` | `application/hooks/duckdb/` |
+| テスト | ユニットテスト + 不変条件テスト | ユニットテスト（23テスト） | integration テスト |
+| データ取得 | IndexedDB → 計算パイプライン | DuckDB `SELECT * WHERE` → JS | DuckDB SQL 集約 |
 
 ## DuckDB の位置づけ — 5層データモデルにおける派生キャッシュ
 

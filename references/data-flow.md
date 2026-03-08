@@ -102,6 +102,23 @@ metadata（ImportHistory 等）         ─ 全段階の監査証跡
 - 破損時は `rebuildFromIndexedDB()` で `normalized_records` から再構築可能
 - DuckDB → IndexedDB の書き戻しは禁止
 
+**DuckDB + JS 集約の2パターン:**
+
+```
+パターン A（SQL 集約維持）:  category_time_sales 系
+  DuckDB SQL (GROUP BY + WINDOW) → Hook → UI
+
+パターン B（JS 集約移行済み）:  store_day_summary 系
+  DuckDB SQL (SELECT * WHERE) → rawAggregation.ts 純粋関数 → Hook → UI
+
+パターン C（Hybrid）:  時間帯プロファイル
+  DuckDB SQL (GROUP BY store_id, hour) → JS (share計算 + rank) → Hook → UI
+```
+
+パターン B/C では DuckDB はフィルタ済み生データの取得に専念し、
+集約計算は `domain/calculations/rawAggregation.ts` の純粋関数で実行する。
+詳細は `engine-responsibility.md` の「SQL→JS 移行」セクションを参照。
+
 ### UI の責務
 
 UIコンポーネントは**描画のみ**を行う。具体的には:
