@@ -364,7 +364,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 ## Explanation（説明責任）
 
-81 MetricId（型定義済み）に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
+50 MetricId（型定義済み）に対して3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供。
 詳細は `references/explanation-architecture.md` と `references/metric-id-registry.md` を参照。
 
 **鉄則:** 計算を再実行しない（StoreResult の値をそのまま使う）。Domain 層は型定義のみ。

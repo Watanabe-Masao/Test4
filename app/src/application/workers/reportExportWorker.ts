@@ -34,29 +34,8 @@ export interface ReportExportError {
 export type ReportWorkerRequest = ReportExportRequest
 export type ReportWorkerResponse = ReportExportSuccess | ReportExportError
 
-// ── CSV 生成（infrastructure/export/csvExporter.ts の toCsvString と同一ロジック） ──
-// ⚠ csvExporter.ts を変更した場合はここも同期すること。
-//   パリティテスト: application/workers/__tests__/csvParity.test.ts
-
-function toCsvStringInWorker(
-  rows: readonly (readonly (string | number | null | undefined)[])[],
-  delimiter: string,
-): string {
-  return rows
-    .map((row) =>
-      row
-        .map((cell) => {
-          if (cell == null) return ''
-          const s = String(cell)
-          if (s.includes(delimiter) || s.includes('\n') || s.includes('"')) {
-            return `"${s.replace(/"/g, '""')}"`
-          }
-          return s
-        })
-        .join(delimiter),
-    )
-    .join('\r\n')
-}
+// CSV 生成は domain/utilities/csv.ts に一元化
+import { toCsvString } from '@/domain/utilities/csv'
 
 // ── Worker Handler ──
 
@@ -66,7 +45,7 @@ self.onmessage = (event: MessageEvent<ReportWorkerRequest>) => {
   if (type === 'export') {
     try {
       const { rows, delimiter, requestId } = event.data
-      const csvContent = toCsvStringInWorker(rows, delimiter ?? ',')
+      const csvContent = toCsvString(rows, delimiter ?? ',')
 
       const response: ReportExportSuccess = {
         type: 'result',
