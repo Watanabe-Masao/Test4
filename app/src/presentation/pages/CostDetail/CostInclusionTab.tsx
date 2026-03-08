@@ -8,7 +8,7 @@ import {
   KpiGrid,
   ChartErrorBoundary,
 } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { palette } from '@/presentation/theme/tokens'
 import type { MetricId } from '@/domain/models'
 import {

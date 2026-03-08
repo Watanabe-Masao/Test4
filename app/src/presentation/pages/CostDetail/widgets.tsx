@@ -5,7 +5,7 @@
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
 import { KpiCard, KpiGrid } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { palette } from '@/presentation/theme/tokens'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { PurchaseTab } from './PurchaseTab'

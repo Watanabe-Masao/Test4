@@ -11,30 +11,30 @@ export {
   detectDivergence,
   cosineSimilarity,
   movingAverage,
-} from '@/domain/calculations/correlation'
+} from '@/domain/calculations/algorithms/correlation'
 
 export type {
   CorrelationResult,
   NormalizedSeries,
   DivergencePoint,
-} from '@/domain/calculations/correlation'
+} from '@/domain/calculations/algorithms/correlation'
 
 // ── トレンド分析 ────────────────────────────────────────
-export { analyzeTrend } from '@/domain/calculations/trendAnalysis'
-export type { MonthlyDataPoint, TrendAnalysisResult } from '@/domain/calculations/trendAnalysis'
+export { analyzeTrend } from '@/domain/calculations/algorithms/trendAnalysis'
+export type { MonthlyDataPoint, TrendAnalysisResult } from '@/domain/calculations/algorithms/trendAnalysis'
 
 // ── 高度な予測・回帰 ───────────────────────────────────
 export {
   linearRegression,
   calculateWMA,
   calculateMonthEndProjection,
-} from '@/domain/calculations/advancedForecast'
+} from '@/domain/calculations/algorithms/advancedForecast'
 
 export type {
   LinearRegressionResult,
   WMAEntry,
   MonthEndProjection,
-} from '@/domain/calculations/advancedForecast'
+} from '@/domain/calculations/algorithms/advancedForecast'
 
 // ── 標準偏差（forecast モジュール内） ──────────────────
 export { calculateStdDev } from '@/domain/calculations/forecast'

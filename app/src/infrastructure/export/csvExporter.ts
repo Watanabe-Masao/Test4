@@ -15,30 +15,10 @@ export interface CsvExportOptions {
   delimiter?: string
 }
 
-/**
- * 2次元配列を CSV 文字列に変換する。
- * セル内のカンマ・改行・ダブルクォートを適切にエスケープする。
- */
-export function toCsvString(
-  rows: readonly (readonly (string | number | null | undefined)[])[],
-  delimiter = ',',
-): string {
-  return rows
-    .map((row) =>
-      row
-        .map((cell) => {
-          if (cell == null) return ''
-          const s = String(cell)
-          // カンマ、改行、ダブルクォートを含む場合はクォートで囲む
-          if (s.includes(delimiter) || s.includes('\n') || s.includes('"')) {
-            return `"${s.replace(/"/g, '""')}"`
-          }
-          return s
-        })
-        .join(delimiter),
-    )
-    .join('\r\n')
-}
+// toCsvString は domain/utilities/csv.ts に一元化
+import { toCsvString } from '@/domain/utilities/csv'
+
+export { toCsvString }
 
 /**
  * CSV 文字列をブラウザからダウンロードさせる。

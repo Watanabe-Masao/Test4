@@ -13,7 +13,7 @@
  *   Worker 内でも呼び出し可能（副作用なし）
  */
 import type { ImportedData, AppSettings, StoreResult } from '@/domain/models'
-import { hashData } from '@/application/services/hash'
+import { hashData } from '@/domain/utilities/hash'
 
 // ─── フィンガープリント生成 ──────────────────────────────
 

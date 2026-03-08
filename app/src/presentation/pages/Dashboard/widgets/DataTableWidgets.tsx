@@ -4,10 +4,9 @@
  * TableWidgets.tsx から分割。
  */
 import React, { type ReactNode } from 'react'
-import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import {
   STableWrapper,
@@ -17,31 +16,7 @@ import {
   STd,
   ScrollWrapper,
 } from '../DashboardPage.styles'
-
-const GroupTh = styled(STh)`
-  text-align: center;
-  font-size: 0.6rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`
-
-const SubTh = styled(STh)`
-  text-align: center;
-  font-size: 0.55rem;
-  white-space: nowrap;
-`
-
-const SummaryRow = styled.tr`
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
-  font-weight: 600;
-`
-
-const StickyTd = styled(STd)`
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background: inherit;
-`
+import { GroupTh, SubTh, SummaryRow, StickyTd, InvTd } from './DataTableWidgets.styles'
 
 const DOW_LABELS_TABLE = ['日', '月', '火', '水', '木', '金', '土'] as const
 const DOW_COLORS: Record<number, string | undefined> = {
@@ -189,10 +164,6 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 }
 
 /* ── 日別推定在庫テーブル ──────────────────────────────── */
-
-const InvTd = styled(STd)<{ $neg?: boolean }>`
-  color: ${({ $neg, theme }) => ($neg ? theme.colors.palette.danger : theme.colors.text2)};
-`
 
 export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
   const { result: r, daysInMonth } = ctx

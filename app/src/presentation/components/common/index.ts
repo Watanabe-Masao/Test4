@@ -1,43 +1,12 @@
-export { Button } from './Button'
-export { Card, CardTitle } from './Card'
-export { Chip, ChipGroup } from './Chip'
-export { KpiCard, KpiGrid } from './KpiCard'
-export { FileDropZone } from './FileDropZone'
-export { UploadCard } from './UploadCard'
-export { ToastProvider } from './Toast'
-export { useToast } from './useToast'
-export { Modal } from './Modal'
-export { SettingsModal } from './SettingsModal'
-export { ValidationModal } from './ValidationModal'
-export { ImportProgressBar } from './ImportProgressBar'
-export { ImportProgress as ImportProgressSteps, ImportSummaryCard } from './ImportWizard'
-export type { ImportStage } from './ImportWizard'
-export {
-  DataTableWrapper,
-  StickyTableWrapper,
-  DataTableTitle,
-  DataTable,
-  DataTh,
-  DataTd,
-  DataTr,
-} from './DataTable'
-export { Skeleton, KpiCardSkeleton, ChartSkeleton, TableSkeleton, PageSkeleton } from './Skeleton'
-export { ErrorBoundary, ChartErrorBoundary, PageErrorBoundary } from './ErrorBoundary'
-export { MonthSelector } from './MonthSelector'
-export { MetricBreakdownPanel } from './MetricBreakdownPanel'
-export { TabBar, Tab } from './TabBar'
-export { EmptyState } from './EmptyState'
-export { Section, SectionTitle } from './Section'
-export {
-  CalcRow,
-  CalcLabel,
-  CalcValue,
-  CalcHighlight,
-  CalcPurpose,
-  CalcNullGuide,
-  VarianceRow,
-  VarianceLabel,
-  VarianceValue,
-} from './CalcRow'
-export { DiffConfirmModal } from './DiffConfirmModal'
-export type { DiffConfirmResult } from './DiffConfirmModal'
+/**
+ * common バレル — サブバレルから re-export
+ *
+ * 新規コードは具体的なサブバレルから直接 import を推奨:
+ *   import { Card } from '@/presentation/components/common/layout'
+ *   import { KpiCard } from '@/presentation/components/common/tables'
+ *   import { Modal } from '@/presentation/components/common/feedback'
+ */
+export * from './layout'
+export * from './forms'
+export * from './tables'
+export * from './feedback'

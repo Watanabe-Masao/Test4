@@ -9,7 +9,7 @@
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { Explanation, FormulaDetail, MetricId, MetricUnit, Store } from '@/domain/models'
-import { formatCurrency, formatPercent } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { useExport } from './useExport'
 import { generateMetricSummary } from '@/application/usecases/explanation/ExplanationService'
 

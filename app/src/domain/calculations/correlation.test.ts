@@ -7,7 +7,7 @@ import {
   cosineSimilarity,
   movingAverage,
   calculateZScores,
-} from './correlation'
+} from './algorithms/correlation'
 
 describe('correlation', () => {
   describe('pearsonCorrelation', () => {

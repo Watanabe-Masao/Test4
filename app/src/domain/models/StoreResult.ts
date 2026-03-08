@@ -105,6 +105,7 @@ export interface StoreDerivedData {
   readonly coreMarkupRate: number // コア値入率
   readonly costInclusionRate: number // 原価算入率
   readonly averageCustomersPerDay: number // 日平均客数
+  readonly transactionValue: number // 客単価 = totalSales / totalCustomers
 
   // ─── 予算・予測系導出 ────────────────────────────
   readonly grossProfitRateBudget: number // 粗利率予算 = grossProfitBudget / budget
@@ -119,6 +120,13 @@ export interface StoreDerivedData {
   readonly requiredDailySales: number // 必要日次売上（残余予算 / 残日数）
   readonly remainingBudget: number // 残余予算
   readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }>
+
+  // ─── 粗利予算系導出 ────────────────────────────────
+  readonly grossProfitBudgetVariance: number // 粗利予算差異 = 粗利実績 − 経過粗利予算
+  readonly grossProfitProgressGap: number // 粗利進捗ギャップ = 粗利達成率 − 経過予算率
+  readonly requiredDailyGrossProfit: number // 必要日次粗利 = (粗利予算 − 粗利実績) / 残日数
+  readonly projectedGrossProfit: number // 粗利着地予測 = 粗利実績 + 日平均粗利 × 残日数
+  readonly projectedGPAchievement: number // 粗利着地予測達成率 = 粗利着地予測 / 粗利予算
 }
 
 /**

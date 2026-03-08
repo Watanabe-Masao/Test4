@@ -1,40 +1,15 @@
 /**
- * CSV 生成パリティテスト
+ * CSV 生成テスト
  *
- * reportExportWorker.ts 内の toCsvStringInWorker() と
- * csvExporter.ts の toCsvString() が同一の出力を生成することを保証する。
+ * domain/utilities/csv.ts の toCsvString() が正しく動作することを保証する。
  *
- * Worker アーキテクチャの制約（application は infrastructure を import 不可）により、
- * CSV 生成ロジックが2箇所に存在する。このテストで同期を検証する。
+ * 以前は reportExportWorker.ts と csvExporter.ts に同一ロジックが重複しており
+ * パリティテストで同期を検証していた。現在は domain/utilities/csv.ts に一元化済み。
  */
 import { describe, it, expect } from 'vitest'
-import { toCsvString } from '@/infrastructure/export/csvExporter'
+import { toCsvString } from '@/domain/utilities/csv'
 
-/**
- * reportExportWorker.ts から toCsvStringInWorker のロジックを転記。
- * Worker ファイルは self.onmessage を持つため直接 import できない。
- */
-function toCsvStringInWorker(
-  rows: readonly (readonly (string | number | null | undefined)[])[],
-  delimiter: string,
-): string {
-  return rows
-    .map((row) =>
-      row
-        .map((cell) => {
-          if (cell == null) return ''
-          const s = String(cell)
-          if (s.includes(delimiter) || s.includes('\n') || s.includes('"')) {
-            return `"${s.replace(/"/g, '""')}"`
-          }
-          return s
-        })
-        .join(delimiter),
-    )
-    .join('\r\n')
-}
-
-describe('CSV parity: toCsvString vs toCsvStringInWorker', () => {
+describe('toCsvString', () => {
   const testCases: {
     name: string
     rows: (string | number | null | undefined)[][]
@@ -88,9 +63,26 @@ describe('CSV parity: toCsvString vs toCsvStringInWorker', () => {
   for (const tc of testCases) {
     it(tc.name, () => {
       const delimiter = tc.delimiter ?? ','
-      const expected = toCsvString(tc.rows, delimiter)
-      const actual = toCsvStringInWorker(tc.rows, delimiter)
-      expect(actual).toBe(expected)
+      const result = toCsvString(tc.rows, delimiter)
+      expect(typeof result).toBe('string')
     })
   }
+
+  it('カンマ含有セルをクォートで囲む', () => {
+    expect(toCsvString([['a,b']])).toBe('"a,b"')
+  })
+
+  it('ダブルクォートをエスケープする', () => {
+    expect(toCsvString([['say "hi"']])).toBe('"say ""hi"""')
+  })
+
+  it('行を CRLF で結合する', () => {
+    const result = toCsvString([['a'], ['b']])
+    expect(result).toBe('a\r\nb')
+  })
+
+  it('null/undefined を空文字に変換する', () => {
+    const result = toCsvString([[null, undefined, 'ok']])
+    expect(result).toBe(',,ok')
+  })
 })

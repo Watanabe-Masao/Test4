@@ -21,7 +21,7 @@ import type {
 import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY, indexByStoreDay } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
-import { hashData } from '@/application/services/hash'
+import { hashData } from '@/domain/utilities/hash'
 
 /**
  * ソースデータのフィンガープリントを計算する。

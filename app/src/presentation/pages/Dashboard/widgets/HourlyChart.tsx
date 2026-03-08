@@ -8,7 +8,7 @@
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
-import { formatPercent } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import {
   findCoreTime,
   findTurnaroundHour,

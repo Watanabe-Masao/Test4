@@ -1,12 +1,8 @@
 import { useState, memo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import {
-  formatCurrency,
-  formatPercent,
-  formatPointDiff,
-  getEffectiveGrossProfitRate,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecRow,

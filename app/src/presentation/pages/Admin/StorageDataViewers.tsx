@@ -13,36 +13,8 @@ import {
   RawTd,
   LoadingText,
 } from './StorageManagementTab.styles'
-
-// ─── Types ──────────────────────────────────────────────
-
-export interface MonthEntry {
-  year: number
-  month: number
-  summary: { dataType: StorageDataType; label: string; recordCount: number }[]
-  totalRecords: number
-  dataTypeCount: number
-}
-
-// StoreDayIndex 型のデータ種別
-export const STORE_DAY_TYPES = [
-  'purchase',
-  'sales',
-  'discount',
-  'interStoreIn',
-  'interStoreOut',
-  'flowers',
-  'directProduce',
-  'consumables',
-]
-
-// ─── LoadSlice type ─────────────────────────────────────
-
-export type LoadSliceFn = <T>(
-  year: number,
-  month: number,
-  dataType: StorageDataType,
-) => Promise<T | null>
+import { STORE_DAY_TYPES, type MonthEntry, type LoadSliceFn } from './StorageDataViewers.types'
+export type { MonthEntry, LoadSliceFn } from './StorageDataViewers.types'
 
 // ─── Raw Data Viewer ────────────────────────────────────
 

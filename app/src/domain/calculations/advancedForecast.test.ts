@@ -4,7 +4,7 @@ import {
   linearRegression,
   projectDowAdjusted,
   calculateMonthEndProjection,
-} from './advancedForecast'
+} from './algorithms/advancedForecast'
 
 describe('advancedForecast', () => {
   describe('calculateWMA', () => {

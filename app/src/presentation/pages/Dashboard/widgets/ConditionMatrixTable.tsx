@@ -8,9 +8,8 @@
  * スライダーで分析期間を変更可能。
  */
 import { useMemo, memo } from 'react'
-import styled from 'styled-components'
 import { palette } from '@/presentation/theme/tokens'
-import { formatPercent } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
 import { dateRangeDays } from '@/domain/models'
 import type { DateRange } from '@/domain/models'
 import {
@@ -23,100 +22,19 @@ import {
 } from '@/application/hooks/duckdb/useConditionMatrix'
 import { DayRangeSlider, useDayRange } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
-
-// ─── Styled Components ──────────────────────────────────
-
-const Section = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[6]};
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
-  padding-top: ${({ theme }) => theme.spacing[6]};
-`
-
-const SectionTitle = styled.h5`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`
-
-const TableWrapper = styled.div`
-  overflow-x: auto;
-`
-
-const MTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-const MTh = styled.th`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  font-size: 10px;
-  color: ${({ theme }) => theme.colors.text3};
-  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
-  &:first-child {
-    text-align: left;
-  }
-`
-
-const MTd = styled.td<{ $color?: string; $bold?: boolean }>`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $color, theme }) => $color ?? theme.colors.text};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  white-space: nowrap;
-  font-size: 11px;
-  ${({ $bold }) => $bold && 'font-weight: 700;'}
-  &:first-child {
-    text-align: left;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: ${({ theme }) => theme.typography.fontSize.xs};
-  }
-`
-
-const MTr = styled.tr<{ $separator?: boolean }>`
-  ${({ $separator, theme }) =>
-    $separator &&
-    `
-    border-top: 2px solid ${theme.colors.border};
-  `}
-`
-
-const LoadingMsg = styled.div`
-  padding: ${({ theme }) => theme.spacing[4]};
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text4};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-const ErrorMsg = styled.div`
-  padding: ${({ theme }) => theme.spacing[4]};
-  text-align: center;
-  color: ${palette.danger};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs};
-`
-
-const WarningMsg = styled.div`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
-  margin-top: ${({ theme }) => theme.spacing[2]};
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.08)'};
-  border: 1px solid ${palette.caution};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  font-size: 0.65rem;
-  color: ${palette.caution};
-`
-
-const DirectionArrow = styled.span<{ $dir: TrendDirection }>`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${({ $dir }) =>
-    $dir === 'up' ? palette.positive : $dir === 'down' ? palette.negative : palette.slate};
-`
+import {
+  Section,
+  SectionTitle,
+  TableWrapper,
+  MTable,
+  MTh,
+  MTd,
+  MTr,
+  LoadingMsg,
+  ErrorMsg,
+  WarningMsg,
+  DirectionArrow,
+} from './ConditionMatrixTable.styles'
 
 // ─── Helpers ────────────────────────────────────────────
 

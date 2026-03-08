@@ -19,7 +19,7 @@ import {
   toAxisYen,
   STORE_COLORS,
 } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { DayRangeSlider } from './DayRangeSlider'
 import { useDayRange } from './useDayRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/useInventoryEstimation'

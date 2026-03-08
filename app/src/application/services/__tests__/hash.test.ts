@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { murmurhash3, hashData } from '../hash'
+import { murmurhash3, hashData } from '@/domain/utilities/hash'
 
 describe('murmurhash3', () => {
   it('returns consistent hash for same input', () => {

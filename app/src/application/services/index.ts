@@ -22,4 +22,4 @@ export {
   computeGlobalFingerprint,
   CalculationCache,
 } from './calculationCache'
-export { murmurhash3, hashData } from '@/application/services/hash'
+export { murmurhash3, hashData } from '@/domain/utilities/hash'

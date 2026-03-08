@@ -17,13 +17,13 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | シャープリー要因分解 | `factorDecomposition.ts` | 単月 |
 | 在庫法/推定法 粗利計算 | `invMethod.ts`, `estMethod.ts` | 単月 |
 | 予算達成率・消化率 | `budgetAnalysis.ts` | 単月（StoreResult 確定値） |
-| 感度分析・弾力性 | `sensitivity.ts` | 単月 |
+| 感度分析・弾力性 | `algorithms/sensitivity.ts` | 単月 |
 | 因果チェーン | `causalChain.ts` | 単月 |
 | 予測・異常値検出 | `forecast.ts` | 単月（日次データの週別・曜日別集計） |
-| トレンド分析・季節性 | `trendAnalysis.ts` | 複数月（月次粒度の推移分析） |
-| 線形回帰・加重移動平均 | `advancedForecast.ts` | 単月（日次データの回帰） |
-| 相関分析・正規化 | `correlation.ts` | 汎用統計関数 |
-| アラート・閾値評価 | `alertSystem.ts` | 単月（StoreResult からルール評価） |
+| トレンド分析・季節性 | `algorithms/trendAnalysis.ts` | 複数月（月次粒度の推移分析） |
+| 線形回帰・加重移動平均 | `algorithms/advancedForecast.ts` | 単月（日次データの回帰） |
+| 相関分析・正規化 | `algorithms/correlation.ts` | 汎用統計関数 |
+| アラート・閾値評価 | `rules/alertSystem.ts` | 単月（StoreResult からルール評価） |
 | 日別推定在庫計算 | `inventoryCalc.ts` | 単月（推定法による在庫推移） |
 | 売変影響分析 | `discountImpact.ts` | 単月（売変ロス原価の算出） |
 | ピン止め区間粗利計算 | `pinIntervals.ts` | 区間（在庫確定日で区切られた期間） |
@@ -79,6 +79,29 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | 定義場所 | `domain/calculations/` | `infrastructure/duckdb/queries/` |
 | フック | `application/usecases/` | `application/hooks/duckdb/` |
 | テスト | ユニットテスト + 不変条件テスト | integration テスト |
+
+## DuckDB の位置づけ — 5層データモデルにおける派生キャッシュ
+
+DuckDB は **normalized_records（IndexedDB）から派生するキャッシュ層** である。
+詳細は `data-model-layers.md` を参照。
+
+```
+normalized_records (IndexedDB)
+  ↓ dataLoader.loadMonth()
+DuckDB tables (in-memory + OPFS)
+  ↓ queries/*.ts
+SQL 集約結果 → UI
+```
+
+**鉄則:**
+1. DuckDB が壊れても `rebuildFromIndexedDB()` で完全再構築可能
+2. DuckDB のクエリ結果を IndexedDB に書き戻すことは禁止（Architecture Guard で保証）
+3. UI が DuckDB に直接書き込むことは禁止
+4. DuckDB は探索（読み取り専用）にのみ使用する
+
+**Architecture Guard:**
+- `storage/` は `duckdb/queries/` に依存しない（書き戻し禁止）
+- `presentation/` は `duckdb/` を直接参照しない（`application/hooks` 経由）
 
 ## 永続化とトランスポート（計算エンジンの外側）
 

@@ -1,6 +1,7 @@
 import { ChartErrorBoundary } from '@/presentation/components/common'
 import type { StoreResult } from '@/domain/models'
-import { formatCurrency, formatPercent, safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import {
   ChartGrid,

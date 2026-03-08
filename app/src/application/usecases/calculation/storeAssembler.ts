@@ -14,7 +14,10 @@ import {
   calculateDiscountRate,
 } from '@/domain/calculations/estMethod'
 import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
-import { calculateBudgetAnalysis } from '@/domain/calculations/budgetAnalysis'
+import {
+  calculateBudgetAnalysis,
+  calculateGrossProfitBudget,
+} from '@/domain/calculations/budgetAnalysis'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { MonthlyAccumulator } from './types'
 
@@ -185,6 +188,17 @@ export function assembleStoreResult(
     daysInMonth,
   })
 
+  // 粗利予算分析（在庫法粗利 → 推定法マージンの順でフォールバック）
+  const effectiveGrossProfit = invResult.grossProfit ?? estResult.margin
+  const gpBudgetAnalysis = calculateGrossProfitBudget({
+    grossProfit: effectiveGrossProfit,
+    grossProfitBudget: gpBudget,
+    budgetElapsedRate: budgetAnalysis.budgetElapsedRate,
+    elapsedDays: acc.elapsedDays,
+    salesDays: acc.salesDays,
+    daysInMonth,
+  })
+
   return {
     storeId,
     openingInventory: invConfig?.openingInventory ?? null,
@@ -213,6 +227,7 @@ export function assembleStoreResult(
     estMethodClosingInventory: estResult.closingInventory,
     totalCustomers: acc.totalCustomers,
     averageCustomersPerDay: safeDivide(acc.totalCustomers, acc.salesDays, 0),
+    transactionValue: safeDivide(acc.totalSales, acc.totalCustomers, 0),
     totalDiscount: acc.totalDiscount,
     discountRate,
     discountLossCost,
@@ -242,5 +257,10 @@ export function assembleStoreResult(
     requiredDailySales: budgetAnalysis.requiredDailySales,
     remainingBudget: budgetAnalysis.remainingBudget,
     dailyCumulative: budgetAnalysis.dailyCumulative,
+    grossProfitBudgetVariance: gpBudgetAnalysis.grossProfitBudgetVariance,
+    grossProfitProgressGap: gpBudgetAnalysis.grossProfitProgressGap,
+    requiredDailyGrossProfit: gpBudgetAnalysis.requiredDailyGrossProfit,
+    projectedGrossProfit: gpBudgetAnalysis.projectedGrossProfit,
+    projectedGPAchievement: gpBudgetAnalysis.projectedGPAchievement,
   }
 }

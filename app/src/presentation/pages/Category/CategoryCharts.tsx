@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { Chip } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import {
   PieChart,
@@ -17,7 +17,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toAxisYen, toPct } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
 import { buildParetoData } from './categoryData'

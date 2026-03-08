@@ -4,7 +4,7 @@
  * 要因分解の結果をテーブル形式で表示する。
  * ドリルダウン対応のカテゴリ名セルと合計行を含む。
  */
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { Table, DrillIcon, NameCell, ValCell, valColor } from './CategoryFactorBreakdown.styles'
 import type { DecompLevel, FactorItem, FactorTotals } from './categoryFactorBreakdown.types'
 

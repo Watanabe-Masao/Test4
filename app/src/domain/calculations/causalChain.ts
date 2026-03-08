@@ -272,7 +272,7 @@ export function buildCausalSteps(
   }
 
   const summaryLines: string[] = [
-    `売上 ${fmtComma(r.totalSales)}円 / 客数 ${fmtComma(r.totalCustomers)}人 / 客単価 ${fmtComma(safeDivide(r.totalSales, r.totalCustomers, 0))}円`,
+    `売上 ${fmtComma(r.totalSales)}円 / 客数 ${fmtComma(r.totalCustomers)}人 / 客単価 ${fmtComma(r.transactionValue)}円`,
     `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
   ]
 

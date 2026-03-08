@@ -5,45 +5,7 @@
  * DailySalesChart や DuckDBCategoryTrendChart 等のチャートで共用する。
  */
 import { useCallback, memo } from 'react'
-import styled from 'styled-components'
-
-const Row = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[1]};
-`
-
-const Label = styled.span`
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.colors.text4};
-  margin-right: ${({ theme }) => theme.spacing[1]};
-`
-
-const Chip = styled.button<{ $active: boolean }>`
-  padding: 2px 6px;
-  font-size: 0.6rem;
-  min-width: 24px;
-  border: 1px solid
-    ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ $active, theme }) =>
-    $active
-      ? theme.mode === 'dark'
-        ? 'rgba(99,102,241,0.2)'
-        : 'rgba(99,102,241,0.08)'
-      : 'transparent'};
-  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.palette.primary};
-  }
-`
-
-const ResetChip = styled(Chip)`
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-`
+import { Row, Label, Chip, ResetChip } from './DowPresetSelector.styles'
 
 /** 曜日ラベル（日本語）- JS Date.getDay() 順: 0=日, 1=月, ..., 6=土 */
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const

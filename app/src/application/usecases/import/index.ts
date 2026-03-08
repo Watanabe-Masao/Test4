@@ -12,3 +12,12 @@ export type {
   ProgressCallback,
   MonthPartitions,
 } from './FileImportService'
+
+// ImportOrchestrator
+export { orchestrateImport, resolveImportDiff } from './ImportOrchestrator'
+export type {
+  PendingDiffCheck,
+  ImportResult,
+  ResolveDiffResult,
+  ImportSideEffects,
+} from './ImportOrchestrator'

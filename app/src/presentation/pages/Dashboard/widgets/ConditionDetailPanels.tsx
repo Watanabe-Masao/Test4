@@ -1,13 +1,9 @@
 import { useState } from 'react'
 import type { StoreResult, Store } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
-import {
-  formatPercent,
-  formatCurrency,
-  formatPointDiff,
-  safeDivide,
-} from '@/domain/calculations/utils'
-import { resolveThresholds, evaluateSignal } from '@/domain/calculations/conditionResolver'
+import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
+import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { AppSettings } from '@/domain/models'
@@ -905,7 +901,7 @@ export function TxValueDetailTable({
   expandedStore,
   onExpandToggle,
 }: TxValueDetailProps) {
-  const txTotal = safeDivide(r.totalSales, r.totalCustomers, 0)
+  const txTotal = r.transactionValue
   const fmtTx = (v: number) =>
     `${v.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`
   const hasExpanded = expandedStore != null
@@ -928,7 +924,7 @@ export function TxValueDetailTable({
           {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
             const store = stores.get(storeId)
             const storeName = store?.name ?? storeId
-            const storeTx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
+            const storeTx = sr.transactionValue
             const isExpanded = expandedStore === storeId
 
             const rows: React.ReactNode[] = []

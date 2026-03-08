@@ -18,7 +18,8 @@ import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { YoYWaterfallChartWidget } from './YoYWaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
-import { UnifiedYoYWidget, isYoYVisible } from './UnifiedAnalyticsWidgets'
+import { UnifiedYoYWidget } from './UnifiedAnalyticsWidgets'
+import { isYoYVisible } from './widgetVisibility'
 
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [

@@ -127,7 +127,9 @@ const TEST_CATEGORY_TIME_SALES: CategoryTimeSalesData = {
 // fake-indexeddb は各テスト間でDB状態が共有される可能性があるため、
 // 毎回クリアする
 beforeEach(async () => {
-  await clearAllData().catch(() => {})
+  await clearAllData().catch((err) => {
+    console.warn('[test setup] clearAllData failed:', err)
+  })
 })
 
 describe('isIndexedDBAvailable', () => {

@@ -77,6 +77,31 @@
                                                  └────────────────┘
 ```
 
+### 5層データモデルとの対応
+
+データフローの4段階は、5層データモデル（`data-model-layers.md` 参照）と以下のように対応する。
+
+```
+5層データモデル                     4段階データフロー
+─────────────                     ─────────────
+raw_data（元ファイル Blob）          ─ 段階1 の入力
+  ↓ パース・バリデーション
+normalized_records（ImportedData）   ─ 段階1 の出力
+  ↓ 計算 + インデックス構築
+derived_metrics（StoreResult）       ─ 段階2-3 の出力
+  ↓ フック・フィルタ
+UI（描画のみ）                       ─ 段階4
+
+settings（AppSettings 等）           ─ 段階2 の入力パラメータ
+metadata（ImportHistory 等）         ─ 全段階の監査証跡
+```
+
+**DuckDB の位置づけ:**
+- `normalized_records`（IndexedDB）から派生するキャッシュ層
+- 段階4（動的フィルタ）で SQL 探索に使用
+- 破損時は `rebuildFromIndexedDB()` で `normalized_records` から再構築可能
+- DuckDB → IndexedDB の書き戻しは禁止
+
 ### UI の責務
 
 UIコンポーネントは**描画のみ**を行う。具体的には:
@@ -99,40 +124,28 @@ UIが**やってはならない**こと:
 
 | ID | 関数名 | 役割 | 定義場所 |
 |---|---|---|---|
-| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） | `periodFilterUtils.ts` / `usecases/categoryTimeSales/divisor.ts` |
+| TR-DIV-001 | `computeDivisor` | mode + day数 → 除数（>= 1 保証） | `domain/calculations/divisor.ts`（`periodFilterUtils.ts` が re-export） |
 | TR-DIV-002 | `countDistinctDays` | records → distinct day 数 | 同上 |
 | TR-DIV-003 | `computeDowDivisorMap` | records → 曜日別除数 Map | 同上 |
-| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 | `periodFilterUtils.ts` |
+| TR-FIL-001 | `filterByStore` | records + storeIds → 店舗絞込 | 同上 |
 
-**注意:** TR-DIV-001〜003 は現在 presentation 層（`periodFilterUtils.ts`）と
-application 層（`usecases/categoryTimeSales/divisor.ts`）の2箇所に重複定義されている。
-domain 層の `computeAverageDivisor`（`domain/calculations/utils.ts`）がより汎用的な
-上位実装であり、将来的に統一予定。
+### CTS → DuckDB 統一（完了）
 
-### 既知の課題と移行方針
-
-時間帯・カテゴリ系ウィジェットの CTS インデックス依存は DuckDB への統一が目標。
+時間帯・カテゴリ系ウィジェットの CTS インデックス依存を DuckDB に統一した。
 
 **完了済み:**
 1. DuckDB クエリに `queryLevelAggregation`, `queryCategoryHourly`,
-   `queryDistinctDayCount`, `queryDowDivisorMap` 等の集約関数を実装済み
-2. 5つの Unified ウィジェットで DuckDB 優先パスを確立済み
-3. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData`（生データ）を除去済み
-
-**追加完了（2026-03）:**
-4. `CategoryHierarchyExplorer` と `CategoryPerformanceChart` を DuckDB 専用に変換済み
-
-**未完了（CTS → DuckDB 統一）:**
-- Unified 5ウィジェットから CTS フォールバックパスを削除
-- `WidgetContext` から `ctsIndex` / `prevCtsIndex` を除去
-- `useAnalyticsResolver` から `'cts'` ソースを削除
-- 不要になった CTS 集約関数（`aggregation.ts`, `filters.ts`）と
-  レガシーチャート（`TimeSlotSalesChart` 等5つ）を削除
-- `application/usecases/categoryTimeSales/` ディレクトリの整理（`useCtsQueries.ts` が依然として参照中）
-
-**移行時の注意:**
-- `divisorRules.test.ts` のアーキテクチャガードテストを維持する
-- 段階的に1コンポーネントずつ移行し、各段階でテスト・ビルドを通す
+   `queryDistinctDayCount`, `queryDowDivisorMap` 等の集約関数を実装
+2. 5つの Unified ウィジェットで DuckDB 専用パスを確立
+3. `WidgetContext` から `categoryTimeSales: CategoryTimeSalesData`（生データ）を除去
+4. `CategoryHierarchyExplorer` と `CategoryPerformanceChart` を DuckDB 専用に変換
+5. レガシー CTS コードを全削除（2026-03）:
+   - `application/usecases/categoryTimeSales/` ディレクトリ削除（除数計算は `domain/calculations/divisor.ts` に移動）
+   - `CategoryTimeSalesIndex` 型と `EMPTY_CTS_INDEX` を domain/models から削除
+   - `useCategoryTimeSalesIndex` フック削除
+   - `TimeSlotSalesChart` コンポーネントと `useTimeSlotData` フック削除（DuckDBTimeSlotChart に統一）
+   - `useCategoryExplorerData` フック削除（DuckDB クエリに統一）
+   - `divisorRules.test.ts` のアーキテクチャガードテストは維持・更新済み
 
 ### 計算根拠の保持パターン（storeContributions）
 

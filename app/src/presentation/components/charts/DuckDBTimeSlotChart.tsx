@@ -23,11 +23,10 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import styled from 'styled-components'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -61,34 +60,9 @@ import {
   MiniTh,
   MiniTd,
 } from './TimeSlotSalesChart.styles'
+import { HierarchyRow, HierarchySelect, ErrorMsg } from './DuckDBTimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-
-// ── Local Styled Components ──
-
-const HierarchyRow = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  flex-wrap: wrap;
-`
-
-const HierarchySelect = styled.select`
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: ${({ theme }) => theme.colors.bg2};
-  color: ${({ theme }) => theme.colors.text2};
-  cursor: pointer;
-`
-
-const ErrorMsg = styled.div`
-  padding: 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.text3};
-`
 
 // ── Props ──
 

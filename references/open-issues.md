@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-07
+> 更新日: 2026-03-08
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -9,24 +9,17 @@
 
 ## 1. 現在の課題（対応が必要）
 
-| # | 課題 | 優先度 | 詳細 |
-|---|---|---|---|
-| C-1 | hash.ts の配置ミス（Infrastructure→Application 逆依存） | High | `application/services/hash.ts` が infrastructure から import されており層間依存違反。`domain/utilities/hash.ts` へ移動が必要 |
-| C-2 | MetricId レジストリの数値不整合 | High | コード上 81 MetricId が定義済みだが `metric-id-registry.md` は 50、`implementation-plan-constants-metrics.md` は 41 と記載。実態に合わせて更新が必要 |
-| C-3 | CSV ロジック二重実装 | Medium | `csvExporter.ts:toCsvString()` と `reportExportWorker.ts:toCsvStringInWorker()` が同一ロジック。Worker 制約上やむを得ないがパリティテストが未作成 |
-| C-4 | サイレントエラー握り潰し（8箇所以上） | Medium | `.catch(() => {})` パターンでエラーが完全に無視されている。最低限 `console.warn` を追加すべき |
-| C-5 | api.md の Hook 構成が古い | Medium | api.md は単一ファイル `useDuckDBQuery.ts` を記載するが、実際は `application/hooks/duckdb/` に 12 ファイルに分割済み |
+なし（全件解決済み）
 
 ## 2. 将来のリスク（いま壊れていないが放置すると問題になる）
 
 | # | リスク | 優先度 | 詳細 |
 |---|---|---|---|
 | R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | DuckDB・Storage への直接 import が 10+ ファイル。`ExportPort` のみポート化済み |
-| R-2 | Presentation 層内のデータ集計フック | Medium | `useCategoryExplorerData.ts`, `useDailySalesData.ts`, `useTimeSlotData.ts` が presentation/ に配置されているが純粋なデータ変換であり application/ に属すべき |
-| R-3 | DailyPage.tsx 内のデータ集計関数 | Medium | `collectSupplierKeys()`, `collectTransferKeys()`, `cumulativeData` useMemo が UI 層に直接定義されている（禁止事項 #6/#7 違反） |
 | R-4 | God コンポーネント（300行超）10 ファイル | Low | DashboardPage(547行), DailyPage(595行), DuckDBTimeSlotChart(651行) 等。段階的な分離が必要 |
 | R-5 | DashboardPage.styles.ts（1,272行） | Low | 7つのスタイル関心事が 1 ファイルに集約 |
 | R-6 | ImportService.ts（736行） | Low | 5つの関心事が混在。オーケストレーション・処理・正規化に分割検討 |
+| R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
 
 ## 3. 解決済みの課題（アーカイブ）
 
@@ -48,3 +41,8 @@
 | S-12 | conditionResolver.ts のテスト未作成 | 2026-03-07 | `domain/calculations/__tests__/conditionResolver.test.ts` 作成済み |
 | S-13 | ESLint が storybook-static/ を lint 対象にしていた | 2026-03-07 | `eslint.config.js` の `globalIgnores` に `storybook-static` を追加 |
 | S-14 | ChartAnnotation.tsx の react-hooks/refs エラー | 2026-03-07 | floating-ui の `elements` パターンに変更し `refs` のレンダー中アクセスを回避 |
+| S-15 | hash.ts の配置ミス（Infrastructure→Application 逆依存） | 2026-03-08 | `application/services/hash.ts`（re-export）を削除。全 import を `@/domain/utilities/hash` に統一 |
+| S-16 | MetricId レジストリの数値不整合 | 2026-03-08 | コード上の MetricId は 50 件。CLAUDE.md・metric-id-registry.md・implementation-plan の誤記（81件）を修正 |
+| S-17 | CSV ロジック二重実装 | 2026-03-08 | `domain/utilities/csv.ts` に一元化。`csvExporter.ts` は re-export、`reportExportWorker.ts` は直接 import に変更。重複コード削除 |
+| S-18 | サイレントエラー握り潰し | 2026-03-08 | `IndexedDBStore.test.ts` の空 `.catch(() => {})` に `console.warn` を追加。他34箇所は適切にハンドリング済みを確認 |
+| S-19 | api.md の Hook 構成が古い | 2026-03-08 | api.md セクション4は既に12ファイル分割構成を正しく記載。`useDuckDBQuery.ts` の後方互換 re-export も記載済み |

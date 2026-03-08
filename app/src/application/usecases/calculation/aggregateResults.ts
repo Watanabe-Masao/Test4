@@ -14,6 +14,7 @@ import {
 } from '@/domain/models'
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateGrossProfitBudget } from '@/domain/calculations/budgetAnalysis'
 
 function addToCategory(
   map: Map<CategoryType, CostPricePair>,
@@ -347,6 +348,7 @@ export function aggregateStoreResults(
     estMethodMarginRate,
     estMethodClosingInventory,
     totalCustomers,
+    transactionValue: safeDivide(totalSales, totalCustomers, 0),
     averageCustomersPerDay: safeDivide(totalCustomers, salesDays, 0),
     totalDiscount,
     discountRate,
@@ -377,5 +379,13 @@ export function aggregateStoreResults(
     requiredDailySales,
     remainingBudget,
     dailyCumulative,
+    ...calculateGrossProfitBudget({
+      grossProfit: invMethodGrossProfit ?? estMethodMargin,
+      grossProfitBudget: gpBudget,
+      budgetElapsedRate,
+      elapsedDays,
+      salesDays,
+      daysInMonth,
+    }),
   }
 }

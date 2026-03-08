@@ -183,7 +183,10 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
 })
 
 describe('charts/index.ts の DuckDB エクスポート', () => {
-  const chartsIndex = readFile('presentation/components/charts/index.ts')
+  // サブバレル経由の re-export を含めて検証
+  const chartsIndex =
+    readFile('presentation/components/charts/index.ts') +
+    readFile('presentation/components/charts/duckdb.ts')
 
   const expectedExports = [
     'DuckDBFeatureChart',

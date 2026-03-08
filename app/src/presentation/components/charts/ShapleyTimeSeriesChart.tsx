@@ -18,7 +18,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from './SafeResponsiveContainer'
 import { useChartTheme, toComma, toAxisYen } from './chartTheme'
-import { createChartTooltip } from './ChartTooltip'
+import { createChartTooltip } from './createChartTooltip'
 import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { DayRangeSlider } from './DayRangeSlider'
 import { DowPresetSelector } from './DowPresetSelector'

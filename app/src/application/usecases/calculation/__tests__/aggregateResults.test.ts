@@ -83,6 +83,7 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     estMethodMarginRate: 0,
     estMethodClosingInventory: null,
     totalCustomers: 0,
+    transactionValue: 0,
     averageCustomersPerDay: 0,
     totalDiscount: 0,
     discountRate: 0,
@@ -113,6 +114,11 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     requiredDailySales: 0,
     remainingBudget: 0,
     dailyCumulative: new Map<number, { sales: number; budget: number }>(),
+    grossProfitBudgetVariance: 0,
+    grossProfitProgressGap: 0,
+    requiredDailyGrossProfit: 0,
+    projectedGrossProfit: 0,
+    projectedGPAchievement: 0,
     ...overrides,
   }
 }

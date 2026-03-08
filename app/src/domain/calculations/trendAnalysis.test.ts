@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { analyzeTrend } from './trendAnalysis'
-import type { MonthlyDataPoint } from './trendAnalysis'
+import { analyzeTrend } from './algorithms/trendAnalysis'
+import type { MonthlyDataPoint } from './algorithms/trendAnalysis'
 
 function makePoint(year: number, month: number, totalSales: number): MonthlyDataPoint {
   return {

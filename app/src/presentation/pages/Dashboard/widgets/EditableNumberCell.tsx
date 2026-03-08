@@ -4,7 +4,7 @@
  * KpiTableWidgets.tsx から分割。
  */
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
-import { formatCurrency } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 import { EditableCell, CellInput, EditHint, KpiTooltip } from './KpiTableWidgets.styles'
 import { fmtPct } from './kpiTableUtils'
 

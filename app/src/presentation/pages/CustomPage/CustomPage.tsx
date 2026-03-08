@@ -12,13 +12,7 @@ import type { PageWidgetConfig } from '@/presentation/components/widgets'
 import { usePageStore } from '@/application/stores/pageStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { useDataStore } from '@/application/stores/dataStore'
-import styled from 'styled-components'
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 48px 24px;
-  color: ${({ theme }) => theme.colors.text3};
-`
+import { EmptyState } from './CustomPage.styles'
 
 export function CustomPage() {
   const { pageId } = useParams<{ pageId: string }>()

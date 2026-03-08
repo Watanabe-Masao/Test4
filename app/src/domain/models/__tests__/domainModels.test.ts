@@ -14,8 +14,6 @@ import {
   // DataTypes exports
   categoryTimeSalesRecordKey,
   mergeCategoryTimeSalesData,
-  // CategoryTimeSalesIndex exports
-  EMPTY_CTS_INDEX,
 } from '@/domain/models'
 import type {
   ClassifiedSalesRecord,
@@ -23,7 +21,6 @@ import type {
   DiscountEntry,
   CategoryTimeSalesRecord,
   CategoryTimeSalesData,
-  CategoryTimeSalesIndex,
 } from '@/domain/models'
 
 // ─── Test helpers ──────────────────────────────────────────
@@ -684,34 +681,3 @@ describe('DataTypes', () => {
   })
 })
 
-// ═══════════════════════════════════════════════════════════
-// CategoryTimeSalesIndex.ts
-// ═══════════════════════════════════════════════════════════
-
-describe('CategoryTimeSalesIndex', () => {
-  describe('EMPTY_CTS_INDEX', () => {
-    it('should have an empty byStoreDate map', () => {
-      expect(EMPTY_CTS_INDEX.byStoreDate.size).toBe(0)
-    })
-
-    it('should have an empty storeIds set', () => {
-      expect(EMPTY_CTS_INDEX.storeIds.size).toBe(0)
-    })
-
-    it('should have an empty allDateKeys set', () => {
-      expect(EMPTY_CTS_INDEX.allDateKeys.size).toBe(0)
-    })
-
-    it('should have recordCount of 0', () => {
-      expect(EMPTY_CTS_INDEX.recordCount).toBe(0)
-    })
-
-    it('should satisfy the CategoryTimeSalesIndex interface', () => {
-      const index: CategoryTimeSalesIndex = EMPTY_CTS_INDEX
-      expect(index.byStoreDate).toBeInstanceOf(Map)
-      expect(index.storeIds).toBeInstanceOf(Set)
-      expect(index.allDateKeys).toBeInstanceOf(Set)
-      expect(typeof index.recordCount).toBe('number')
-    })
-  })
-})

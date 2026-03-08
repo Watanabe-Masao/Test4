@@ -111,8 +111,8 @@ const PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set<string>([
  * 純粋ユーティリティ（hash等）の参照を許可。
  */
 const INFRASTRUCTURE_TO_APPLICATION_ALLOWLIST = new Set<string>([
-  // hash ユーティリティは domain/utilities/hash.ts に移動済み。
-  // Infrastructure からの application import は現在ゼロ。
+  // RawDataPort アダプター: application/ports の RawDataPort インターフェースを実装
+  'infrastructure/storage/IndexedDBRawDataAdapter.ts',
 ])
 
 // ─── テスト ──────────────────────────────────────────────
@@ -261,13 +261,13 @@ describe('Architecture Guard', () => {
       '@/domain/calculations/factorDecomposition',
       '@/domain/calculations/forecast',
       '@/domain/calculations/inventoryCalc',
-      '@/domain/calculations/alertSystem',
-      '@/domain/calculations/correlation',
-      '@/domain/calculations/trendAnalysis',
-      '@/domain/calculations/sensitivity',
+      '@/domain/calculations/rules/alertSystem',
+      '@/domain/calculations/algorithms/correlation',
+      '@/domain/calculations/algorithms/trendAnalysis',
+      '@/domain/calculations/algorithms/sensitivity',
       '@/domain/calculations/causalChain',
       '@/domain/calculations/pinIntervals',
-      '@/domain/calculations/advancedForecast',
+      '@/domain/calculations/algorithms/advancedForecast',
       '@/domain/calculations/dowGapAnalysis',
     ]
 
@@ -313,6 +313,129 @@ describe('Architecture Guard', () => {
           violations.push(
             `${relativePath(file)}: ${mod} を直接 import。useComparisonContext 経由を使用してください`,
           )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('storage/ は duckdb/queries/ に依存しない（DuckDB → IndexedDB 書き戻し禁止）', () => {
+    const storageDir = path.join(SRC_DIR, 'infrastructure', 'storage')
+    if (!fs.existsSync(storageDir)) return
+    const files = collectTsFiles(storageDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb/queries')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — DuckDB クエリ結果を IndexedDB に書き戻すことは禁止`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('presentation/ は duckdb/ を直接 import しない（DevTools 除く）', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      // DevTools は開発専用。queryProfiler への直接参照を許可
+      if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
+
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb')) {
+          violations.push(
+            `${rel}: ${imp} — presentation は DuckDB を直接参照できません。application/hooks 経由を使用してください`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  // ─── CQRS Contract Guards（Phase 2） ──────────────────
+
+  it('application/queries/ は domain/calculations/ に依存しない（Query は Command に依存しない）', () => {
+    const queriesDir = path.join(SRC_DIR, 'application', 'queries')
+    if (!fs.existsSync(queriesDir)) return
+    const files = collectTsFiles(queriesDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/domain/calculations')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — Query ハンドラーは Command 側（domain/calculations）に依存できません`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('application/usecases/calculation/ は infrastructure/duckdb/ に依存しない（Command は Query に依存しない）', () => {
+    const calcDir = path.join(SRC_DIR, 'application', 'usecases', 'calculation')
+    if (!fs.existsSync(calcDir)) return
+    const files = collectTsFiles(calcDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — Command ハンドラーは DuckDB に依存できません`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  // ─── Vertical Slice Guards（Phase 7） ──────────────────
+
+  it('features/ 間の直接 import がない（shared/ 経由のみ）', () => {
+    const featuresDir = path.join(SRC_DIR, 'features')
+    if (!fs.existsSync(featuresDir)) return
+    const files = collectTsFiles(featuresDir)
+    const violations: string[] = []
+
+    // features/*/内のスライス名を収集
+    const sliceDirs = fs
+      .readdirSync(featuresDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && e.name !== 'shared')
+      .map((e) => e.name)
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      const imports = extractImports(file)
+
+      // このファイルが属するスライスを特定
+      const ownerSlice = sliceDirs.find((s) => rel.startsWith(`features/${s}/`))
+      if (!ownerSlice) continue
+
+      for (const imp of imports) {
+        // 他のスライスへの直接参照をチェック
+        for (const otherSlice of sliceDirs) {
+          if (otherSlice === ownerSlice) continue
+          if (imp.includes(`/features/${otherSlice}/`) || imp.startsWith(`@/features/${otherSlice}`)) {
+            violations.push(
+              `${rel}: ${imp} — features/${ownerSlice}/ は features/${otherSlice}/ に直接依存できません。shared/ 経由を使用してください`,
+            )
+          }
         }
       }
     }

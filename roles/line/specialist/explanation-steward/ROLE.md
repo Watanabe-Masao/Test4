@@ -4,12 +4,12 @@
 
 MetricId の説明責任（Explanation / Evidence）の守護者。
 全ての主要指標に「なぜこの値か」を追跡可能にする設計を維持・拡張する。
-（初期スコープ: 25 指標 → 現在: 81 MetricId 型定義済み、37 指標 Explanation 実装済み）
+（初期スコープ: 25 指標 → 現在: 50 MetricId 型定義済み、37 指標 Explanation 実装済み）
 
 ## 前提（所与の事実）
 
 - 経営判断に使われる数値は「なぜこの値か」が追跡可能でなければならない
-- 81 MetricId が型定義済み。うち 37 指標に3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供済み
+- 50 MetricId が型定義済み。うち 37 指標に3段階 UX（L1: 一言 → L2: 式と入力 → L3: ドリルダウン）を提供済み
 - ExplanationService は StoreResult の値をそのまま使う（計算を再実行しない）
 - Domain 層の `Explanation.ts` は型定義のみ。生成ロジックは Application 層
 

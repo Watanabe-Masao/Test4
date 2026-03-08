@@ -3,7 +3,7 @@
  */
 import { memo } from 'react'
 import { useChartTheme, toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import {
   BarChart,
   Bar,

@@ -1,12 +1,13 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import { formatPercent, formatCurrency, safeDivide } from '@/domain/calculations/utils'
+import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import {
   resolveThresholds,
   evaluateSignal,
   isMetricEnabled,
-} from '@/domain/calculations/conditionResolver'
+} from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
 import { ConditionMatrixTable } from './ConditionMatrixTable'
@@ -264,7 +265,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
 
   // 9. Transaction Value
   if (isMetricEnabled(effectiveConfig, 'txValue') && r.totalCustomers > 0) {
-    const txValue = safeDivide(r.totalSales, r.totalCustomers, 0)
+    const txValue = r.transactionValue
     const prevTxValue =
       prevYear.hasPrevYear && prevYear.totalCustomers > 0
         ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)

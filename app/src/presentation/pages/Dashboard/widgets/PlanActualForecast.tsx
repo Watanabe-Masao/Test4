@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
-  formatCurrency,
-  formatPercent,
-  formatPointDiff,
   safeDivide,
   calculateTransactionValue,
   getEffectiveGrossProfitRate,
@@ -18,42 +16,9 @@ import {
   ExecColTitle,
   ExecColSub,
   ExecBody,
-  ExecRow,
-  ExecLabel,
-  ExecVal,
-  ExecSub,
   ExecDividerLine,
 } from '../DashboardPage.styles'
-
-function ExecMetric({
-  label,
-  value,
-  sub,
-  subColor,
-  formula,
-}: {
-  label: string
-  value: string
-  sub?: string
-  subColor?: string
-  /** 計算根拠（算出式）— 小さいグレー文字で表示 */
-  formula?: string
-}) {
-  return (
-    <div>
-      <ExecRow>
-        <ExecLabel>{label}</ExecLabel>
-        <ExecVal>{value}</ExecVal>
-      </ExecRow>
-      {sub && <ExecSub $color={subColor}>{sub}</ExecSub>}
-      {formula && (
-        <ExecSub style={{ fontSize: '0.55rem', opacity: 0.55, marginTop: '1px' }}>
-          {formula}
-        </ExecSub>
-      )}
-    </div>
-  )
-}
+import { ExecMetric } from './ExecMetric'
 
 export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const r = ctx.result
@@ -67,19 +32,15 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const actualGP = r.invMethodGrossProfit ?? r.estMethodMargin
   const actualGPRate = getEffectiveGrossProfitRate(r)
 
-  const elapsedGPBudget =
-    r.grossProfitBudget > 0 ? r.grossProfitBudget * safeDivide(r.elapsedDays, daysInMonth) : 0
-
+  const elapsedGPBudget = r.grossProfitBudget * r.budgetElapsedRate
   const remainingDays = daysInMonth - r.elapsedDays
   const dailyAvgGP = r.salesDays > 0 ? actualGP / r.salesDays : 0
-  const projectedGP = actualGP + dailyAvgGP * remainingDays
 
   const salesAchievement = safeDivide(r.totalSales, elapsedBudget)
   const progressRatio = safeDivide(
     safeDivide(r.totalSales, r.budget),
     safeDivide(r.elapsedDays, daysInMonth),
   )
-  const projectedGPAchievement = safeDivide(projectedGP, r.grossProfitBudget)
 
   return (
     <ExecGrid>
@@ -265,15 +226,15 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecDividerLine />
           <ExecMetric
             label="月末粗利着地"
-            value={formatCurrency(projectedGP)}
-            sub={`予算差: ${formatCurrency(projectedGP - r.grossProfitBudget)}`}
-            subColor={sc.cond(projectedGP >= r.grossProfitBudget)}
+            value={formatCurrency(r.projectedGrossProfit)}
+            sub={`予算差: ${formatCurrency(r.projectedGrossProfit - r.grossProfitBudget)}`}
+            subColor={sc.cond(r.projectedGrossProfit >= r.grossProfitBudget)}
             formula={`実績${formatCurrency(actualGP)} + 日平均${formatCurrency(Math.round(dailyAvgGP))} × 残${remainingDays}日`}
           />
           <ExecMetric
             label="着地粗利達成率"
-            value={formatPercent(projectedGPAchievement)}
-            formula={`着地粗利 ÷ 月間粗利予算 = ${formatCurrency(projectedGP)} ÷ ${formatCurrency(r.grossProfitBudget)}`}
+            value={formatPercent(r.projectedGPAchievement)}
+            formula={`着地粗利 ÷ 月間粗利予算 = ${formatCurrency(r.projectedGrossProfit)} ÷ ${formatCurrency(r.grossProfitBudget)}`}
           />
           {r.totalCustomers > 0 &&
             r.salesDays > 0 &&

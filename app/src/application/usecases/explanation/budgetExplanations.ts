@@ -213,5 +213,81 @@ export function registerBudgetExplanations(
       ],
       evidenceRefs: [],
     })
+
+    map.set('grossProfitBudgetVariance', {
+      metric: 'grossProfitBudgetVariance',
+      title: '粗利予算差異',
+      formula: '粗利予算差異 = 粗利実績 − 経過粗利予算（= 粗利予算 × 予算経過率）',
+      value: result.grossProfitBudgetVariance,
+      unit: 'yen',
+      scope,
+      inputs: [
+        inp('粗利実績', gpActual, 'yen'),
+        inp('粗利予算', result.grossProfitBudget, 'yen', 'grossProfitBudget'),
+        inp('予算経過率', result.budgetElapsedRate, 'rate', 'budgetElapsedRate'),
+      ],
+      evidenceRefs: [],
+    })
+
+    map.set('grossProfitProgressGap', {
+      metric: 'grossProfitProgressGap',
+      title: '粗利進捗ギャップ',
+      formula: '粗利進捗ギャップ = 粗利達成率 − 予算経過率',
+      value: result.grossProfitProgressGap,
+      unit: 'rate',
+      scope,
+      inputs: [
+        inp('粗利達成率', gpBudgetAchievement, 'rate', 'grossProfitBudgetAchievement'),
+        inp('予算経過率', result.budgetElapsedRate, 'rate', 'budgetElapsedRate'),
+      ],
+      evidenceRefs: [],
+    })
+
+    map.set('requiredDailyGrossProfit', {
+      metric: 'requiredDailyGrossProfit',
+      title: '必要日次粗利',
+      formula: '必要日次粗利 = (粗利予算 − 粗利実績) ÷ 残日数',
+      value: result.requiredDailyGrossProfit,
+      unit: 'yen',
+      scope,
+      inputs: [
+        inp('粗利予算', result.grossProfitBudget, 'yen', 'grossProfitBudget'),
+        inp('粗利実績', gpActual, 'yen'),
+        inp('残日数', result.elapsedDays > 0 ? 30 - result.elapsedDays : 0, 'count'),
+      ],
+      evidenceRefs: [],
+    })
+
+    map.set('projectedGrossProfit', {
+      metric: 'projectedGrossProfit',
+      title: '粗利着地予測',
+      formula: '粗利着地予測 = 粗利実績 + 日平均粗利 × 残日数',
+      value: result.projectedGrossProfit,
+      unit: 'yen',
+      scope,
+      inputs: [
+        inp('粗利実績', gpActual, 'yen'),
+        inp(
+          '日平均粗利',
+          result.salesDays > 0 ? gpActual / result.salesDays : 0,
+          'yen',
+        ),
+      ],
+      evidenceRefs: [],
+    })
+
+    map.set('projectedGPAchievement', {
+      metric: 'projectedGPAchievement',
+      title: '粗利着地予測達成率',
+      formula: '粗利着地予測達成率 = 粗利着地予測 ÷ 粗利予算',
+      value: result.projectedGPAchievement,
+      unit: 'rate',
+      scope,
+      inputs: [
+        inp('粗利着地予測', result.projectedGrossProfit, 'yen', 'projectedGrossProfit'),
+        inp('粗利予算', result.grossProfitBudget, 'yen', 'grossProfitBudget'),
+      ],
+      evidenceRefs: [],
+    })
   }
 }

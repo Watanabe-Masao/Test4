@@ -3,7 +3,7 @@ import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/u
 import type { MetricId, StoreResult, CustomCategory } from '@/domain/models'
 import type { ConditionMetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import { resolveThresholds, evaluateSignal } from '@/domain/calculations/conditionResolver'
+import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import { CONDITION_METRIC_MAP } from '@/domain/constants/conditionMetrics'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
@@ -90,7 +90,7 @@ export function customersBreakdown(sr: StoreResult): { value: string; signal: Si
 }
 
 export function txValueBreakdown(sr: StoreResult): { value: string; signal: SignalLevel } {
-  const tx = safeDivide(sr.totalSales, sr.totalCustomers, 0)
+  const tx = sr.transactionValue
   return {
     value: `${tx.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`,
     signal: 'blue',

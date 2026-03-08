@@ -76,6 +76,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     estMethodMarginRate: 0.22,
     estMethodClosingInventory: null,
     totalCustomers: 0,
+    transactionValue: 0,
     averageCustomersPerDay: 0,
     totalDiscount: 2000,
     discountRate: 0.02,
@@ -114,6 +115,11 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     requiredDailySales: 0,
     remainingBudget: 1500000,
     dailyCumulative: new Map(),
+    grossProfitBudgetVariance: 0,
+    grossProfitProgressGap: 0,
+    requiredDailyGrossProfit: 0,
+    projectedGrossProfit: 0,
+    projectedGPAchievement: 0,
   }
   return { ...defaults, ...overrides }
 }

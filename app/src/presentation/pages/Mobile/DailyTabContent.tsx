@@ -1,4 +1,5 @@
-import { formatCurrency, calculateTransactionValue } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
+import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { DailySalesEntry } from './ChartTabContent'
 import {

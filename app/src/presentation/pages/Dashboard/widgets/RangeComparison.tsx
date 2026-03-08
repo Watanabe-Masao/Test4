@@ -1,6 +1,6 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
 import { fmtSen } from './drilldownUtils'
 import type { PrevYearData } from '@/application/hooks'
 import {

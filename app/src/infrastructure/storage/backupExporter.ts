@@ -22,12 +22,39 @@
  * ```
  */
 import type { DataRepository } from '@/domain/repositories'
-import type { ImportedData, BudgetData, AppSettings, ImportHistoryEntry } from '@/domain/models'
+import type {
+  ImportedData,
+  BudgetData,
+  AppSettings,
+  ImportHistoryEntry,
+  RawDataManifest,
+} from '@/domain/models'
 import { budgetFromSerializable } from './internal/serialization'
 import { writeFile, pruneOldFiles } from './folderAccess'
+import { rawFileStore } from './rawFileStore'
 
 /** バックアップファイルのフォーマットバージョン */
-const BACKUP_FORMAT_VERSION = 2
+const BACKUP_FORMAT_VERSION = 3
+
+// ─── v3 フォーマット設計 ──────────────────────────────────
+//
+// v3 は 5層データモデルに対応したバックアップ形式。v2 との後方互換を維持する。
+//
+// 追加フィールド:
+//   rawManifest?: RawDataManifest[]
+//     - raw_data 層のファイルメタデータ（Blob は含まない）
+//     - インポート元ファイルのハッシュ・サイズ・データ種別を記録
+//     - リストア時の監査証跡として使用
+//
+// 読み込み互換性:
+//   v2 → v3 読み込み: rawManifest が undefined のまま正常動作
+//   v3 → v2 読み込み: rawManifest フィールドは無視される（unknown プロパティ）
+//
+// formatVersion 判定:
+//   v1: checksum なし、appSettings なし
+//   v2: checksum あり、appSettings あり
+//   v3: v2 + rawManifest あり
+// ───────────────────────────────────────────────────────────
 
 /** バックアップのメタデータ */
 export interface BackupMeta {
@@ -48,12 +75,14 @@ interface BackupMonthData {
   readonly importHistory?: readonly ImportHistoryEntry[]
 }
 
-/** バックアップファイル全体の構造 (v2) */
+/** バックアップファイル全体の構造 (v3) */
 interface BackupFile {
   readonly meta: BackupMeta
   readonly months: readonly BackupMonthData[]
   /** アプリケーション全体設定 (v2+) */
   readonly appSettings?: AppSettings
+  /** raw_data 層のファイルメタデータ (v3+) */
+  readonly rawManifest?: readonly RawDataManifest[]
 }
 
 /** インポート結果 */
@@ -65,6 +94,8 @@ export interface BackupImportResult {
   readonly restoredAppSettings?: AppSettings
   /** v2: 復元されたインポート履歴の月数 */
   readonly importHistoryRestored: number
+  /** v3: 復元された Raw データマニフェスト数 */
+  readonly rawManifestRestored: number
 }
 
 // ─── JSON → Map 復元ヘルパー ─────────────────────────────
@@ -176,6 +207,32 @@ class BackupExporter {
       }
     }
 
+    // v3: rawManifest を収集（rawFileStore が利用不可の場合はスキップ）
+    let rawManifest: RawDataManifest[] = []
+    try {
+      for (const { year, month } of storedMonths) {
+        const files = await rawFileStore.listFiles(year, month)
+        if (files.length > 0) {
+          rawManifest.push({
+            year,
+            month,
+            files: files.map((f) => ({
+              filename: f.filename,
+              ...(f.relativePath ? { relativePath: f.relativePath } : {}),
+              dataType: f.dataType as import('@/domain/models').DataType,
+              hash: f.hash,
+              size: f.size,
+              savedAt: f.savedAt,
+            })),
+            importedAt: files[0].savedAt,
+          })
+        }
+      }
+    } catch {
+      // rawFileStore が利用不可（IndexedDB 未初期化等）の場合、rawManifest は空
+      rawManifest = []
+    }
+
     const mapReplacer = (_key: string, value: unknown) => {
       if (value instanceof Map) return Object.fromEntries(value)
       return value
@@ -195,6 +252,7 @@ class BackupExporter {
       },
       months,
       appSettings,
+      rawManifest: rawManifest.length > 0 ? rawManifest : undefined,
     }
 
     const json = JSON.stringify(backup, mapReplacer)
@@ -226,13 +284,14 @@ class BackupExporter {
 
     const backup = JSON.parse(text) as BackupFile
 
-    // バージョンチェック
+    // バージョンチェック（v1/v2/v3 全対応）
     if (!backup.meta || backup.meta.formatVersion > BACKUP_FORMAT_VERSION) {
       return {
         monthsImported: 0,
         monthsSkipped: 0,
         errors: [`Unsupported backup format version: ${backup.meta?.formatVersion}`],
         importHistoryRestored: 0,
+        rawManifestRestored: 0,
       }
     }
 
@@ -252,6 +311,7 @@ class BackupExporter {
             `Checksum mismatch: backup may be corrupted (expected ${backup.meta.checksum.slice(0, 8)}..., got ${computed.slice(0, 8)}...)`,
           ],
           importHistoryRestored: 0,
+          rawManifestRestored: 0,
         }
       }
     }
@@ -298,6 +358,7 @@ class BackupExporter {
       errors,
       restoredAppSettings: backup.appSettings ?? undefined,
       importHistoryRestored,
+      rawManifestRestored: backup.rawManifest?.length ?? 0,
     }
   }
 

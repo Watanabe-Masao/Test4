@@ -422,10 +422,9 @@ budgetElapsedRate     = cumulativeBudget / budget               … 予算時間
 | **合計** | **50** | **37** | **13** |
 
 → 本レジストリには 50 MetricId を記載。うち 37 指標は計算 + Explanation 実装完了。
-→ **注:** コード上の `Explanation.ts` には 81 MetricId が型定義済み。
-→ `domain/constants/metricDefs.ts` の `METRIC_DEFS` にも全 81 件のメタデータが登録済み。
-→ 本レジストリ未記載の 31 件は DuckDB 探索系・要因分解系・条件マトリクス系の指標。
-→ 更新日: 2026-03-07
+→ コード上の `Explanation.ts` の MetricId 型定義と `domain/constants/metricDefs.ts` の
+→ `METRIC_DEFS` は共に 50 件で、本レジストリと一致する。
+→ 更新日: 2026-03-08
 
 ### 概念の区別
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './sensitivity'
-import type { SensitivityBase, SensitivityDeltas } from './sensitivity'
+import { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './algorithms/sensitivity'
+import type { SensitivityBase, SensitivityDeltas } from './algorithms/sensitivity'
 
 const BASE: SensitivityBase = {
   totalSales: 10_000_000, // 1000万円

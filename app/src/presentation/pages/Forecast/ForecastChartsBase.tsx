@@ -4,7 +4,8 @@
 import { memo } from 'react'
 import { calculateForecast } from '@/application/hooks/useForecast'
 import type { DayOfWeekAverage } from '@/application/hooks/useForecast'
-import { formatPercent, safeDivide } from '@/domain/calculations/utils'
+import { formatPercent } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
 import {
   useChartTheme,
   toAxisYen,
@@ -12,7 +13,7 @@ import {
   toPct,
   STORE_COLORS,
 } from '@/presentation/components/charts/chartTheme'
-import { createChartTooltip } from '@/presentation/components/charts/ChartTooltip'
+import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import {
   BarChart,
   Bar,

@@ -9,13 +9,13 @@ import {
   calculateSensitivity,
   calculateElasticity,
   extractSensitivityBase,
-} from '@/domain/calculations/sensitivity'
+} from '@/domain/calculations/algorithms/sensitivity'
 import type {
   SensitivityBase,
   SensitivityDeltas,
   SensitivityResult,
   ElasticityResult,
-} from '@/domain/calculations/sensitivity'
+} from '@/domain/calculations/algorithms/sensitivity'
 import type { StoreResult } from '@/domain/models'
 
 // Re-export types for presentation layer

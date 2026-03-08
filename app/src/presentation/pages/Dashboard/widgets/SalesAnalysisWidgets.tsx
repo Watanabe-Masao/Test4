@@ -5,11 +5,8 @@
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import {
-  formatCurrency,
-  formatPercent,
-  calculateTransactionValue,
-} from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/application/hooks/useForecast'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
