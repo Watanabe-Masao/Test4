@@ -1,22 +1,22 @@
 /**
  * PeriodFilter 純粋関数ユーティリティ — re-export バレル
  *
- * 正規の定義は application/usecases/categoryTimeSales/divisor.ts にある。
+ * 正規の定義は domain/calculations/divisor.ts にある。
  * 本ファイルは後方互換のため re-export し、チャートからの import パスを維持する。
  *
- * @see @/application/usecases/categoryTimeSales/divisor.ts — 正規の定義元
+ * @see @/domain/calculations/divisor.ts — 正規の定義元
  * @see divisorRules.test.ts — アーキテクチャガードテスト
  * @see PeriodFilter.test.ts — 不変条件テスト
  */
 
 // ── 正規ロケーションからの re-export ──────────────────────
-export type { AggregateMode } from '@/application/usecases/categoryTimeSales'
+export type { AggregateMode } from '@/domain/calculations/divisor'
 export {
   computeDivisor,
   countDistinctDays,
   computeDowDivisorMap,
   filterByStore,
-} from '@/application/usecases/categoryTimeSales'
+} from '@/domain/calculations/divisor'
 
 /* ── Utility: 曜日カウント計算（テスト専用） ─────────────── */
 

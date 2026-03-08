@@ -124,3 +124,12 @@ export {
 // 因果チェーン分析
 export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
 export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'
+
+// 除数計算（CTS/DuckDB 共通）
+export {
+  computeDivisor,
+  countDistinctDays,
+  computeDowDivisorMap,
+  filterByStore,
+} from './divisor'
+export type { AggregateMode } from './divisor'

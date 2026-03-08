@@ -58,8 +58,6 @@ export {
   dateRangeDays,
   dateRangeToKeys,
 } from './CalendarDate'
-export type { CategoryTimeSalesIndex } from './CategoryTimeSalesIndex'
-export { EMPTY_CTS_INDEX } from './CategoryTimeSalesIndex'
 export type {
   DiscountType,
   DiscountTypeDef,

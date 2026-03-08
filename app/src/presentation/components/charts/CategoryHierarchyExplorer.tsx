@@ -15,7 +15,7 @@ import { useDuckDBLevelAggregation, useDuckDBCategoryHourly } from '@/applicatio
 import { ChartSkeleton } from '@/presentation/components/common'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
-import type { HierarchyItem, SortKey, SortDir } from './useCategoryExplorerData'
+import type { HierarchyItem, SortKey, SortDir } from './categoryExplorerTypes'
 import {
   Wrapper,
   BreadcrumbBar,

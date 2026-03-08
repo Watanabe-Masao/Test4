@@ -8,7 +8,6 @@ export { EstimatedInventoryDetailChart } from './EstimatedInventoryDetailChart'
 export { PrevYearComparisonChart } from './PrevYearComparisonChart'
 export { GrossProfitAmountChart } from './GrossProfitAmountChart'
 export { DiscountTrendChart } from './DiscountTrendChart'
-export { TimeSlotSalesChart } from './TimeSlotSalesChart'
 export { CategoryHierarchyExplorer } from './CategoryHierarchyExplorer'
 export { CategoryHierarchyProvider } from './CategoryHierarchyContext'
 export {

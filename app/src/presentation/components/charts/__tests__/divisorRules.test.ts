@@ -26,10 +26,7 @@ const CHARTS_DIR = path.resolve(__dirname, '..')
  * usePeriodFilter を使用するチャートファイル一覧。
  * 新しいチャートを追加した場合、ここに追加すること。
  */
-const CHART_FILES_USING_PERIOD_FILTER = [
-  'TimeSlotSalesChart.tsx',
-  'CategoryHierarchyExplorer.tsx',
-] as const
+const CHART_FILES_USING_PERIOD_FILTER = [] as const
 
 /** PeriodFilter 本体（ルール定義元なので検査対象外） */
 const PERIOD_FILTER_FILE = 'PeriodFilter.tsx'
@@ -59,7 +56,6 @@ function readChartFile(filename: string): string {
   const hookCandidates = [
     `use${baseName}Data.ts`,
     `use${baseName}Data.tsx`,
-    `useTimeSlotData.ts`, // 特殊ケース
   ]
   let hookContent = ''
   for (const hook of hookCandidates) {
@@ -201,6 +197,12 @@ describe('RULE-4: 二重 0除算ガード禁止', () => {
     /computeDivisor\([^)]*\)\s*\|\|\s*1/,
     /computeDivisor\([^)]*\)\s*>\s*0\s*\?/,
   ]
+
+  if (CHART_FILES_USING_PERIOD_FILTER.length === 0) {
+    it('(no charts using period filter — all migrated to DuckDB)', () => {
+      expect(true).toBe(true)
+    })
+  }
 
   for (const file of CHART_FILES_USING_PERIOD_FILTER) {
     it(`${file}: computeDivisor に対する二重ガードがないこと`, () => {
@@ -375,7 +377,7 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
 /* ── 純粋関数定義元のルール定義チェック ────────── */
 
 /**
- * 正規の定義元は application/usecases/categoryTimeSales/divisor.ts。
+ * 正規の定義元は domain/calculations/divisor.ts。
  * periodFilterUtils.ts はバレル re-export として後方互換を維持する。
  * このセクションでは:
  *   1. 正規ロケーション（divisor.ts）に実装が存在すること
@@ -385,7 +387,7 @@ describe('網羅性: usePeriodFilter 使用ファイルの管理', () => {
 
 const CANONICAL_DIVISOR_FILE = path.resolve(
   __dirname,
-  '../../../../application/usecases/categoryTimeSales/divisor.ts',
+  '../../../../domain/calculations/divisor.ts',
 )
 const canonicalContent = fs.readFileSync(CANONICAL_DIVISOR_FILE, 'utf-8')
 
