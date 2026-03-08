@@ -77,6 +77,31 @@
                                                  └────────────────┘
 ```
 
+### 5層データモデルとの対応
+
+データフローの4段階は、5層データモデル（`data-model-layers.md` 参照）と以下のように対応する。
+
+```
+5層データモデル                     4段階データフロー
+─────────────                     ─────────────
+raw_data（元ファイル Blob）          ─ 段階1 の入力
+  ↓ パース・バリデーション
+normalized_records（ImportedData）   ─ 段階1 の出力
+  ↓ 計算 + インデックス構築
+derived_metrics（StoreResult）       ─ 段階2-3 の出力
+  ↓ フック・フィルタ
+UI（描画のみ）                       ─ 段階4
+
+settings（AppSettings 等）           ─ 段階2 の入力パラメータ
+metadata（ImportHistory 等）         ─ 全段階の監査証跡
+```
+
+**DuckDB の位置づけ:**
+- `normalized_records`（IndexedDB）から派生するキャッシュ層
+- 段階4（動的フィルタ）で SQL 探索に使用
+- 破損時は `rebuildFromIndexedDB()` で `normalized_records` から再構築可能
+- DuckDB → IndexedDB の書き戻しは禁止
+
 ### UI の責務
 
 UIコンポーネントは**描画のみ**を行う。具体的には:

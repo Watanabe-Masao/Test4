@@ -80,6 +80,29 @@ StoreResult の確定値を消費する単月計算。全て純粋関数。
 | フック | `application/usecases/` | `application/hooks/duckdb/` |
 | テスト | ユニットテスト + 不変条件テスト | integration テスト |
 
+## DuckDB の位置づけ — 5層データモデルにおける派生キャッシュ
+
+DuckDB は **normalized_records（IndexedDB）から派生するキャッシュ層** である。
+詳細は `data-model-layers.md` を参照。
+
+```
+normalized_records (IndexedDB)
+  ↓ dataLoader.loadMonth()
+DuckDB tables (in-memory + OPFS)
+  ↓ queries/*.ts
+SQL 集約結果 → UI
+```
+
+**鉄則:**
+1. DuckDB が壊れても `rebuildFromIndexedDB()` で完全再構築可能
+2. DuckDB のクエリ結果を IndexedDB に書き戻すことは禁止（Architecture Guard で保証）
+3. UI が DuckDB に直接書き込むことは禁止
+4. DuckDB は探索（読み取り専用）にのみ使用する
+
+**Architecture Guard:**
+- `storage/` は `duckdb/queries/` に依存しない（書き戻し禁止）
+- `presentation/` は `duckdb/` を直接参照しない（`application/hooks` 経由）
+
 ## 永続化とトランスポート（計算エンジンの外側）
 
 以下は「計算」ではなく「データの保存・転送」であり、エンジン責務の外側に位置する。

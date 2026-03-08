@@ -320,6 +320,49 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  it('storage/ は duckdb/queries/ に依存しない（DuckDB → IndexedDB 書き戻し禁止）', () => {
+    const storageDir = path.join(SRC_DIR, 'infrastructure', 'storage')
+    if (!fs.existsSync(storageDir)) return
+    const files = collectTsFiles(storageDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb/queries')) {
+          violations.push(
+            `${relativePath(file)}: ${imp} — DuckDB クエリ結果を IndexedDB に書き戻すことは禁止`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('presentation/ は duckdb/ を直接 import しない（DevTools 除く）', () => {
+    const presDir = path.join(SRC_DIR, 'presentation')
+    const files = collectTsFiles(presDir)
+    const violations: string[] = []
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      // DevTools は開発専用。queryProfiler への直接参照を許可
+      if (PRESENTATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
+
+      const imports = extractImports(file)
+      for (const imp of imports) {
+        if (imp.startsWith('@/infrastructure/duckdb')) {
+          violations.push(
+            `${rel}: ${imp} — presentation は DuckDB を直接参照できません。application/hooks 経由を使用してください`,
+          )
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,

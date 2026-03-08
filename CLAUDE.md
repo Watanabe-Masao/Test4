@@ -258,7 +258,7 @@ cd app && npm run dev           # Vite 開発サーバー
 - styled-components 6（テーマトークン経由、ダーク/ライト対応）
 - Prettier: `semi: false` / `singleQuote: true` / `printWidth: 100` / `endOfLine: "lf"`
 
-## 設計思想 — 15原則（要約）
+## 設計思想 — 16原則（要約）
 
 詳細と適用例は `references/design-principles.md` を参照。管理責任: architecture ロール。
 
@@ -277,6 +277,7 @@ cd app && npm run dev           # Vite 開発サーバー
 13. **型の粒度は変更頻度に合わせる** — 変更頻度が異なるフィールドは別の型に分離（原則#4の型への具体化）
 14. **全パターンに例外なし** — チャート・Hook・Handler 構造は規模に関わらず同一。AI開発で判断不要
 15. **配置はパスで決まる** — ファイルの配置先はパスベースルールで機械的に判定。曖昧さゼロ
+16. **Raw データは唯一の真実源** — DuckDB は normalized_records の派生キャッシュ。破損時は IndexedDB から再構築可能。DuckDB → IndexedDB の書き戻しは禁止
 
 ## アーキテクチャ進化計画（要約）
 

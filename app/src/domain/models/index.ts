@@ -125,6 +125,7 @@ export type {
   StoredRecord,
 } from './ScopeResolution'
 export { summarizeImportPlan } from './ScopeResolution'
+export type { RawFileRecord, RawDataManifest } from './RawData'
 export type {
   ThresholdSet,
   ThresholdDirection,
