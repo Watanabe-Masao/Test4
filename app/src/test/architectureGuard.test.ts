@@ -405,6 +405,44 @@ describe('Architecture Guard', () => {
     expect(violations).toEqual([])
   })
 
+  // ─── Vertical Slice Guards（Phase 7） ──────────────────
+
+  it('features/ 間の直接 import がない（shared/ 経由のみ）', () => {
+    const featuresDir = path.join(SRC_DIR, 'features')
+    if (!fs.existsSync(featuresDir)) return
+    const files = collectTsFiles(featuresDir)
+    const violations: string[] = []
+
+    // features/*/内のスライス名を収集
+    const sliceDirs = fs
+      .readdirSync(featuresDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && e.name !== 'shared')
+      .map((e) => e.name)
+
+    for (const file of files) {
+      const rel = relativePath(file)
+      const imports = extractImports(file)
+
+      // このファイルが属するスライスを特定
+      const ownerSlice = sliceDirs.find((s) => rel.startsWith(`features/${s}/`))
+      if (!ownerSlice) continue
+
+      for (const imp of imports) {
+        // 他のスライスへの直接参照をチェック
+        for (const otherSlice of sliceDirs) {
+          if (otherSlice === ownerSlice) continue
+          if (imp.includes(`/features/${otherSlice}/`) || imp.startsWith(`@/features/${otherSlice}`)) {
+            violations.push(
+              `${rel}: ${imp} — features/${ownerSlice}/ は features/${otherSlice}/ に直接依存できません。shared/ 経由を使用してください`,
+            )
+          }
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
   it('許可リストのファイルが実在する', () => {
     const allAllowlists = [
       ...APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST,
