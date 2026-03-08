@@ -17,24 +17,25 @@ export type {
   AnomalyDetectionResult,
 } from './forecast'
 
+// algorithms/ サブディレクトリ
 export {
   calculateWMA,
   linearRegression,
   projectDowAdjusted,
   calculateMonthEndProjection,
-} from './advancedForecast'
-export type { WMAEntry, MonthEndProjection, LinearRegressionResult } from './advancedForecast'
+} from './algorithms/advancedForecast'
+export type { WMAEntry, MonthEndProjection, LinearRegressionResult } from './algorithms/advancedForecast'
 
-export { analyzeTrend } from './trendAnalysis'
-export type { MonthlyDataPoint, TrendAnalysisResult } from './trendAnalysis'
+export { analyzeTrend } from './algorithms/trendAnalysis'
+export type { MonthlyDataPoint, TrendAnalysisResult } from './algorithms/trendAnalysis'
 
-export { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './sensitivity'
+export { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './algorithms/sensitivity'
 export type {
   SensitivityBase,
   SensitivityDeltas,
   SensitivityResult,
   ElasticityResult,
-} from './sensitivity'
+} from './algorithms/sensitivity'
 
 export { computeEstimatedInventory, computeEstimatedInventoryDetails } from './inventoryCalc'
 export type { InventoryPoint, InventoryDetailRow } from './inventoryCalc'

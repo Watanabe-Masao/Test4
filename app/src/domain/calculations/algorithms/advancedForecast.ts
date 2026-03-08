@@ -6,8 +6,8 @@
  * - 信頼区間付き予測
  * - 線形回帰による傾向推定
  */
-import { safeDivide } from './utils'
-import { calculateStdDev } from './forecast'
+import { safeDivide } from '../utils'
+import { calculateStdDev } from '../forecast'
 
 // ─── Types ────────────────────────────────────────────
 

@@ -4,7 +4,7 @@
  * IndexedDB に保存された過去月データを横断的に分析する。
  * 月次 KPI の推移、季節性パターン、前月比/前年同月比を計算する。
  */
-import { safeDivide } from './utils'
+import { safeDivide } from '../utils'
 
 // ─── Types ────────────────────────────────────────────
 

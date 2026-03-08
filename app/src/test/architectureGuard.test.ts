@@ -261,13 +261,13 @@ describe('Architecture Guard', () => {
       '@/domain/calculations/factorDecomposition',
       '@/domain/calculations/forecast',
       '@/domain/calculations/inventoryCalc',
-      '@/domain/calculations/alertSystem',
-      '@/domain/calculations/correlation',
-      '@/domain/calculations/trendAnalysis',
-      '@/domain/calculations/sensitivity',
+      '@/domain/calculations/rules/alertSystem',
+      '@/domain/calculations/algorithms/correlation',
+      '@/domain/calculations/algorithms/trendAnalysis',
+      '@/domain/calculations/algorithms/sensitivity',
       '@/domain/calculations/causalChain',
       '@/domain/calculations/pinIntervals',
-      '@/domain/calculations/advancedForecast',
+      '@/domain/calculations/algorithms/advancedForecast',
       '@/domain/calculations/dowGapAnalysis',
     ]
 

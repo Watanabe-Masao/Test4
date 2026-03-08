@@ -12,7 +12,7 @@
  *   Infrastructure(IndexedDB) → Application(このフック) → Presentation(SeasonalBenchmarkChart)
  */
 import { useState, useEffect, useMemo, useRef } from 'react'
-import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
+import type { MonthlyDataPoint } from '@/domain/calculations/algorithms/trendAnalysis'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import type { StoreDaySummaryIndex } from '@/domain/models'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'

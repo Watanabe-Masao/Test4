@@ -97,7 +97,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'ys', label: '系列Y（数値配列）' },
     ],
     implementedBy: 'pearsonCorrelation',
-    module: 'correlation',
+    module: 'algorithms/correlation',
   },
 
   cosineSimilarity: {
@@ -115,7 +115,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'b', label: 'ベクトルB（数値配列）' },
     ],
     implementedBy: 'cosineSimilarity',
-    module: 'correlation',
+    module: 'algorithms/correlation',
   },
 
   zScore: {
@@ -130,7 +130,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       '平均±2σ を超える日を自動フラグし、調査対象として提示する。',
     inputs: [{ name: 'values', label: '数値配列', source: 'DailyRecord.totalSales（日次系列）' }],
     implementedBy: 'calculateZScores',
-    module: 'correlation',
+    module: 'algorithms/correlation',
   },
 
   minMaxNormalize: {
@@ -145,7 +145,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       '売上と客数など単位の異なる系列を同一スケールに揃え、乖離度を計算する。',
     inputs: [{ name: 'values', label: '数値配列' }],
     implementedBy: 'normalizeMinMax',
-    module: 'correlation',
+    module: 'algorithms/correlation',
   },
 
   simpleMovingAverage: {
@@ -179,7 +179,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'window', label: 'ウィンドウサイズ（デフォルト5）' },
     ],
     implementedBy: 'calculateWMA',
-    module: 'advancedForecast',
+    module: 'algorithms/advancedForecast',
   },
 
   // ═══════════════════════════════════════════════════════
@@ -307,7 +307,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'dailySales', label: '日次売上配列', source: 'DailyRecord.totalSales（日次系列）' },
     ],
     implementedBy: 'linearRegression',
-    module: 'advancedForecast',
+    module: 'algorithms/advancedForecast',
   },
 
   monthEndProjection: {
@@ -326,7 +326,7 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       { name: 'dailySales', label: '日次売上配列', source: 'DailyRecord.totalSales（日次系列）' },
     ],
     implementedBy: 'calculateMonthEndProjection',
-    module: 'advancedForecast',
+    module: 'algorithms/advancedForecast',
   },
 
   // ═══════════════════════════════════════════════════════
@@ -471,6 +471,6 @@ export const FORMULA_REGISTRY: Readonly<Record<FormulaId, FormulaMeta>> = {
       },
     ],
     implementedBy: 'analyzeTrend',
-    module: 'trendAnalysis',
+    module: 'algorithms/trendAnalysis',
   },
 } as const

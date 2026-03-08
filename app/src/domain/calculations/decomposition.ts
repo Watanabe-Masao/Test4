@@ -24,11 +24,11 @@ export {
 export { buildCausalSteps, storeResultToCausalPrev } from './causalChain'
 export type { ColorHint, CausalFactor, CausalStep, CausalChainPrevInput } from './causalChain'
 
-// アラート・閾値
-export { evaluateAlerts, evaluateAllStoreAlerts, DEFAULT_ALERT_RULES } from './alertSystem'
-export type { AlertRule, Alert, AlertSeverity, AlertRuleType } from './alertSystem'
+// アラート・閾値（rules/ サブディレクトリ）
+export { evaluateAlerts, evaluateAllStoreAlerts, DEFAULT_ALERT_RULES } from './rules/alertSystem'
+export type { AlertRule, Alert, AlertSeverity, AlertRuleType } from './rules/alertSystem'
 
-// 相関分析・統計
+// 相関分析・統計（algorithms/ サブディレクトリ）
 export {
   pearsonCorrelation,
   correlationMatrix,
@@ -37,10 +37,10 @@ export {
   cosineSimilarity,
   movingAverage as statisticalMovingAverage,
   calculateZScores,
-} from './correlation'
+} from './algorithms/correlation'
 export type {
   CorrelationResult,
   NormalizedSeries,
   DivergencePoint,
   CorrelationMatrixCell,
-} from './correlation'
+} from './algorithms/correlation'

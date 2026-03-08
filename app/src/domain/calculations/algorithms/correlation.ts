@@ -4,7 +4,7 @@
  * 統合タイムラインや店舗クラスタリングで使用する
  * 統計的な分析の純粋関数群。
  */
-import { safeDivide } from './utils'
+import { safeDivide } from '../utils'
 
 // ─── Types ────────────────────────────────────────────
 

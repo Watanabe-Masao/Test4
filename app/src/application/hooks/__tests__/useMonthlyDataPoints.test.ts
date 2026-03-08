@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { useMonthlyDataPoints } from '../useMonthlyHistory'
-import type { MonthlyDataPoint } from '@/domain/calculations/trendAnalysis'
+import type { MonthlyDataPoint } from '@/domain/calculations/algorithms/trendAnalysis'
 import { renderHook } from '@testing-library/react'
 
 // ── Helpers ──────────────────────────────────────────

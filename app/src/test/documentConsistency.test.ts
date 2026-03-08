@@ -227,9 +227,9 @@ describe('Engine responsibility ↔ code consistency', () => {
   it('JS modules listed in engine-responsibility.md exist in domain/calculations/', () => {
     const doc = readFile('references/engine-responsibility.md')
 
-    // JS テーブルからモジュール名を抽出（`module.ts` パターン）
+    // JS テーブルからモジュール名を抽出（`module.ts` or `subdir/module.ts` パターン）
     const jsSection = doc.split('### DuckDB')[0]
-    const modulePattern = /`(\w+\.ts)`/g
+    const modulePattern = /`([\w/]+\.ts)`/g
     const modules = new Set<string>()
     let match
     while ((match = modulePattern.exec(jsSection)) !== null) {

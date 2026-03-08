@@ -4,7 +4,7 @@
  * カスタマイズ可能なアラートルールを定義し、
  * StoreResult から閾値超過を自動検出する。
  */
-import { safeDivide, getEffectiveGrossProfitRate } from './utils'
+import { safeDivide, getEffectiveGrossProfitRate } from '../utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 
 // ─── Types ────────────────────────────────────────────

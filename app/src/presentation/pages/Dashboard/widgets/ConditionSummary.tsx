@@ -7,7 +7,7 @@ import {
   resolveThresholds,
   evaluateSignal,
   isMetricEnabled,
-} from '@/domain/calculations/conditionResolver'
+} from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { WidgetContext } from './types'
 import { ConditionMatrixTable } from './ConditionMatrixTable'

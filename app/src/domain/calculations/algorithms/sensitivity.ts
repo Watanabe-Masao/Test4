@@ -6,7 +6,7 @@
  *
  * 弾性値（Elasticity）: パラメータ1pt変動あたりの粗利変動額
  */
-import { safeDivide } from './utils'
+import { safeDivide } from '../utils'
 
 // ─── Types ────────────────────────────────────────────
 
