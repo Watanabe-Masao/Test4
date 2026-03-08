@@ -22,8 +22,16 @@ import {
   type StoreDaySummaryRow,
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
-import type { DowPatternRow, DailyFeatureRow } from '@/infrastructure/duckdb/queries/features'
+import type {
+  DowPatternRow,
+  DailyFeatureRow,
+  HourlyProfileRow,
+} from '@/infrastructure/duckdb/queries/features'
 import type { YoyDailyRow } from '@/infrastructure/duckdb/queries/yoyComparison'
+import {
+  queryStoreAggregation,
+  type CtsFilterParams,
+} from '@/infrastructure/duckdb/queries/categoryTimeSales'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
 import {
   aggregateByDay,
@@ -406,5 +414,102 @@ function computeYoyDaily(
     const aKey = a.curDateKey ?? a.prevDateKey ?? ''
     const bKey = b.curDateKey ?? b.prevDateKey ?? ''
     return aKey < bKey ? -1 : aKey > bKey ? 1 : 0
+  })
+}
+
+// ─── 時間帯別売上構成比（JS計算版） ──────────────────
+
+/**
+ * DuckDB の GROUP BY (store_id, hour) 結果 → JS で share + rank 計算
+ *
+ * SQL の SUM(amount) OVER (PARTITION BY store_id) + RANK() OVER を置き換え。
+ * queryStoreAggregation (GROUP BY store_id, hour) の結果を再利用し、
+ * share と rank は JS で計算する。
+ *
+ * 返り値は HourlyProfileRow[] 互換。
+ */
+export function useJsHourlyProfile(
+  conn: AsyncDuckDBConnection | null,
+  dataVersion: number,
+  dateRange: DateRange | undefined,
+  storeIds: ReadonlySet<string>,
+): AsyncQueryResult<readonly HourlyProfileRow[]> {
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    const params: CtsFilterParams = {
+      dateFrom,
+      dateTo,
+      storeIds: storeIdsToArray(storeIds),
+    }
+    return (c: AsyncDuckDBConnection) => queryStoreAggregation(c, params)
+  }, [dateRange, storeIds])
+
+  const { data: storeRows, isLoading, error } = useAsyncQuery(conn, dataVersion, queryFn)
+
+  const data = useMemo(() => {
+    if (!storeRows) return null
+    return computeHourlyProfile(storeRows)
+  }, [storeRows])
+
+  return { data, isLoading, error }
+}
+
+/**
+ * 店舗×時間帯データから HourlyProfileRow[] を生成する純粋関数。
+ *
+ * SQL の SUM(amount) OVER (PARTITION BY store_id) → hourShare
+ * RANK() OVER (PARTITION BY store_id ORDER BY SUM(amount) DESC) → hourRank
+ */
+function computeHourlyProfile(
+  rows: readonly { readonly storeId: string; readonly hour: number; readonly amount: number }[],
+): HourlyProfileRow[] {
+  // store_id ごとに集約
+  const storeMap = new Map<string, Map<number, number>>()
+  for (const r of rows) {
+    let hourMap = storeMap.get(r.storeId)
+    if (!hourMap) {
+      hourMap = new Map()
+      storeMap.set(r.storeId, hourMap)
+    }
+    hourMap.set(r.hour, (hourMap.get(r.hour) ?? 0) + r.amount)
+  }
+
+  const result: HourlyProfileRow[] = []
+
+  for (const [storeId, hourMap] of storeMap) {
+    // 店舗ごとの合計
+    let storeTotal = 0
+    for (const amount of hourMap.values()) storeTotal += amount
+
+    // 時間帯エントリをソートしてランキング
+    const entries = [...hourMap.entries()].map(([hour, amount]) => ({
+      hour,
+      amount,
+      share: safeDivide(amount, storeTotal, 0),
+    }))
+
+    // amount 降順でランク付け (RANK: 同値同順位)
+    const sorted = [...entries].sort((a, b) => b.amount - a.amount)
+    let currentRank = 1
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i].amount < sorted[i - 1].amount) {
+        currentRank = i + 1
+      }
+      const e = sorted[i]
+      result.push({
+        storeId,
+        hour: e.hour,
+        totalAmount: e.amount,
+        hourShare: e.share,
+        hourRank: currentRank,
+      })
+    }
+  }
+
+  return result.sort((a, b) => {
+    if (a.storeId < b.storeId) return -1
+    if (a.storeId > b.storeId) return 1
+    return a.hour - b.hour
   })
 }
