@@ -21,7 +21,10 @@ export type {
 
 // ── トレンド分析 ────────────────────────────────────────
 export { analyzeTrend } from '@/domain/calculations/algorithms/trendAnalysis'
-export type { MonthlyDataPoint, TrendAnalysisResult } from '@/domain/calculations/algorithms/trendAnalysis'
+export type {
+  MonthlyDataPoint,
+  TrendAnalysisResult,
+} from '@/domain/calculations/algorithms/trendAnalysis'
 
 // ── 高度な予測・回帰 ───────────────────────────────────
 export {

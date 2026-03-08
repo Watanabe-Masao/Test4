@@ -24,12 +24,20 @@ export {
   projectDowAdjusted,
   calculateMonthEndProjection,
 } from './algorithms/advancedForecast'
-export type { WMAEntry, MonthEndProjection, LinearRegressionResult } from './algorithms/advancedForecast'
+export type {
+  WMAEntry,
+  MonthEndProjection,
+  LinearRegressionResult,
+} from './algorithms/advancedForecast'
 
 export { analyzeTrend } from './algorithms/trendAnalysis'
 export type { MonthlyDataPoint, TrendAnalysisResult } from './algorithms/trendAnalysis'
 
-export { calculateSensitivity, calculateElasticity, extractSensitivityBase } from './algorithms/sensitivity'
+export {
+  calculateSensitivity,
+  calculateElasticity,
+  extractSensitivityBase,
+} from './algorithms/sensitivity'
 export type {
   SensitivityBase,
   SensitivityDeltas,

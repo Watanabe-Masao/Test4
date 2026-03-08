@@ -4,7 +4,10 @@
  * データ変換・ビジネスロジック・フォーマット判定を分離。
  * React / styled-components に依存しない純粋関数群。
  */
-import type { CategoryTrendPoint, CategoryBenchmarkTrendRow } from '@/application/hooks/useDuckDBQuery'
+import type {
+  CategoryTrendPoint,
+  CategoryBenchmarkTrendRow,
+} from '@/application/hooks/useDuckDBQuery'
 
 // ── 型定義 ──
 

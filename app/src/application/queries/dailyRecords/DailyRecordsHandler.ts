@@ -26,7 +26,10 @@ export interface DailyRecordsOutput {
 /** 当年日別明細 */
 export const dailyRecordsHandler: QueryHandler<DailyRecordsInput, DailyRecordsOutput> = {
   name: 'DailyRecords',
-  async execute(conn: AsyncDuckDBConnection, input: DailyRecordsInput): Promise<DailyRecordsOutput> {
+  async execute(
+    conn: AsyncDuckDBConnection,
+    input: DailyRecordsInput,
+  ): Promise<DailyRecordsOutput> {
     const records = await queryDailyRecords(conn, input.dateRange, input.storeIds)
     return { records }
   },
@@ -35,7 +38,10 @@ export const dailyRecordsHandler: QueryHandler<DailyRecordsInput, DailyRecordsOu
 /** 前年日別明細 */
 export const prevYearDailyRecordsHandler: QueryHandler<DailyRecordsInput, DailyRecordsOutput> = {
   name: 'PrevYearDailyRecords',
-  async execute(conn: AsyncDuckDBConnection, input: DailyRecordsInput): Promise<DailyRecordsOutput> {
+  async execute(
+    conn: AsyncDuckDBConnection,
+    input: DailyRecordsInput,
+  ): Promise<DailyRecordsOutput> {
     const records = await queryPrevYearDailyRecords(conn, input.dateRange, input.storeIds)
     return { records }
   },
@@ -44,7 +50,10 @@ export const prevYearDailyRecordsHandler: QueryHandler<DailyRecordsInput, DailyR
 /** 全店舗集約日別明細 */
 export const aggregatedDailyRecordsHandler: QueryHandler<DailyRecordsInput, DailyRecordsOutput> = {
   name: 'AggregatedDailyRecords',
-  async execute(conn: AsyncDuckDBConnection, input: DailyRecordsInput): Promise<DailyRecordsOutput> {
+  async execute(
+    conn: AsyncDuckDBConnection,
+    input: DailyRecordsInput,
+  ): Promise<DailyRecordsOutput> {
     const records = await queryAggregatedDailyRecords(conn, input.dateRange, input.storeIds)
     return { records }
   },

@@ -596,9 +596,7 @@ export function buildSalesYoYDetailVm(
     const prevStoreSales = computeStorePrevSales(prevYearMonthlyKpi, storeId, dataMaxDay)
     const storeYoY = safeDivide(sr.totalSales, prevStoreSales, 0)
     const sig =
-      prevStoreSales > 0
-        ? metricSignal(storeYoY, 'salesYoY', effectiveConfig, sr.storeId)
-        : 'blue'
+      prevStoreSales > 0 ? metricSignal(storeYoY, 'salesYoY', effectiveConfig, sr.storeId) : 'blue'
     const sigColor = SIGNAL_COLORS[sig]
 
     return {

@@ -77,10 +77,7 @@ export type StoreBudgetView = Pick<
  */
 export type StoreForecastView = Pick<
   StoreResult,
-  | 'storeId'
-  | 'projectedSales'
-  | 'projectedAchievement'
-  | 'averageDailySales'
+  'storeId' | 'projectedSales' | 'projectedAchievement' | 'averageDailySales'
 >
 
 /**
@@ -108,8 +105,5 @@ export type StoreMarginView = Pick<
  */
 export type StoreCategoryView = Pick<
   StoreResult,
-  | 'storeId'
-  | 'categoryTotals'
-  | 'supplierTotals'
-  | 'transferDetails'
+  'storeId' | 'categoryTotals' | 'supplierTotals' | 'transferDetails'
 >

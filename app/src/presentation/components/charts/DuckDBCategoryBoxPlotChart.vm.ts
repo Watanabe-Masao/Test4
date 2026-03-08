@@ -85,9 +85,7 @@ export function computeBoxPlotXMax(boxData: readonly BoxPlotStats[]): number {
 /**
  * ブレイクダウン用のXMax（value値ベース）。
  */
-export function computeBreakdownXMax(
-  items: readonly { readonly value: number }[],
-): number {
+export function computeBreakdownXMax(items: readonly { readonly value: number }[]): number {
   if (items.length === 0) return 100
   return computeXMax(items.map((d) => d.value))
 }
@@ -118,11 +116,7 @@ export const GRID_FRACTIONS = [0, 0.25, 0.5, 0.75, 1] as const
 /**
  * グリッド分率からX座標のピクセル位置を計算する。
  */
-export function gridFracToXPx(
-  frac: number,
-  totalWidth: number,
-  margins: ChartMargins,
-): number {
+export function gridFracToXPx(frac: number, totalWidth: number, margins: ChartMargins): number {
   return margins.left + frac * (totalWidth - margins.left - margins.right)
 }
 
@@ -207,11 +201,7 @@ export function formatDateLabel(dateKey: string): string {
 
 // ── Background Fill ──
 
-export function rowBgFill(
-  isSelected: boolean,
-  isHovered: boolean,
-  isLightTheme: boolean,
-): string {
+export function rowBgFill(isSelected: boolean, isHovered: boolean, isLightTheme: boolean): string {
   if (isSelected) {
     return isLightTheme ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.15)'
   }

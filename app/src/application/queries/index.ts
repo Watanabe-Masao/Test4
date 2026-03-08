@@ -8,7 +8,13 @@
  */
 
 // 契約型
-export type { QueryHandler, AsyncQueryResult, DateRangeFilter, StoreFilter, BaseQueryInput } from './QueryContract'
+export type {
+  QueryHandler,
+  AsyncQueryResult,
+  DateRangeFilter,
+  StoreFilter,
+  BaseQueryInput,
+} from './QueryContract'
 
 // ポート
 export type { QueryExecutor } from './QueryPort'

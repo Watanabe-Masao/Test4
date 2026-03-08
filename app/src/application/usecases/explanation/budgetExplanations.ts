@@ -267,11 +267,7 @@ export function registerBudgetExplanations(
       scope,
       inputs: [
         inp('粗利実績', gpActual, 'yen'),
-        inp(
-          '日平均粗利',
-          result.salesDays > 0 ? gpActual / result.salesDays : 0,
-          'yen',
-        ),
+        inp('日平均粗利', result.salesDays > 0 ? gpActual / result.salesDays : 0, 'yen'),
       ],
       evidenceRefs: [],
     })

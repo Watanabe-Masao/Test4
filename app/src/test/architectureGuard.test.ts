@@ -431,7 +431,10 @@ describe('Architecture Guard', () => {
         // 他のスライスへの直接参照をチェック
         for (const otherSlice of sliceDirs) {
           if (otherSlice === ownerSlice) continue
-          if (imp.includes(`/features/${otherSlice}/`) || imp.startsWith(`@/features/${otherSlice}`)) {
+          if (
+            imp.includes(`/features/${otherSlice}/`) ||
+            imp.startsWith(`@/features/${otherSlice}`)
+          ) {
             violations.push(
               `${rel}: ${imp} — features/${ownerSlice}/ は features/${otherSlice}/ に直接依存できません。shared/ 経由を使用してください`,
             )

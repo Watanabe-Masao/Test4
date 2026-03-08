@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  formatCurrency,
-  formatManYen,
-  formatPercent,
-  formatPointDiff,
-} from '@/domain/formatting'
+import { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
   safeNumber,
   safeDivide,

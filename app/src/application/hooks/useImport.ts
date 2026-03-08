@@ -61,7 +61,11 @@ export function useImport() {
 
   /** インポート結果を state に反映する */
   const applyImportResult = useCallback(
-    (finalData: ImportedData, maxDay: number, messages: ReturnType<typeof validateImportedData>) => {
+    (
+      finalData: ImportedData,
+      maxDay: number,
+      messages: ReturnType<typeof validateImportedData>,
+    ) => {
       useDataStore.getState().setImportedData(finalData)
       calculationCache.clear()
       useUiStore.getState().invalidateCalculation()
@@ -95,7 +99,9 @@ export function useImport() {
         const effects: ImportSideEffects = {
           repo,
           saveRawFile: (year, month, dataType, file, filename, relativePath) =>
-            rawFileStore.saveFile(year, month, dataType, file, filename, relativePath).then(() => {}),
+            rawFileStore
+              .saveFile(year, month, dataType, file, filename, relativePath)
+              .then(() => {}),
         }
 
         const result = await orchestrateImport(

@@ -302,4 +302,3 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     render: (ctx) => <DowGapKpiCard dowGap={ctx.dowGap} onExplain={ctx.onExplain} />,
   },
 ]
-

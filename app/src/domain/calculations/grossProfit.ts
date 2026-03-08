@@ -37,10 +37,5 @@ export type { BudgetAnalysisInput, BudgetAnalysisResult } from './budgetAnalysis
 export { sumStoreValues, sumNullableValues, weightedAverageBySales } from './aggregation'
 
 // 除数計算
-export {
-  computeDivisor,
-  countDistinctDays,
-  computeDowDivisorMap,
-  filterByStore,
-} from './divisor'
+export { computeDivisor, countDistinctDays, computeDowDivisorMap, filterByStore } from './divisor'
 export type { AggregateMode } from './divisor'

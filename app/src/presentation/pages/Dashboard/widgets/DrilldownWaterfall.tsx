@@ -30,7 +30,15 @@ import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtil
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
-import { Section, TabRow, TabBtn, PiRow, PiItem, DecompRow, DecompBtn } from './DrilldownWaterfall.styles'
+import {
+  Section,
+  TabRow,
+  TabBtn,
+  PiRow,
+  PiItem,
+  DecompRow,
+  DecompBtn,
+} from './DrilldownWaterfall.styles'
 
 interface WaterfallItem {
   name: string

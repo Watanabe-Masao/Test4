@@ -75,10 +75,7 @@ export function formatYoYTooltipEntry(
 
 // ── Legend formatter ──
 
-export function formatLegendLabel(
-  value: string,
-  labelMap: Record<string, string>,
-): string {
+export function formatLegendLabel(value: string, labelMap: Record<string, string>): string {
   return labelMap[value] ?? value
 }
 
@@ -92,9 +89,7 @@ export function getPrevDataKey(metricMode: MetricMode): string {
   return metricMode === 'amount' ? 'prevAmount' : 'prevQuantity'
 }
 
-export function getYAxisTickFormatter(
-  metricMode: MetricMode,
-): (v: number) => string {
+export function getYAxisTickFormatter(metricMode: MetricMode): (v: number) => string {
   return metricMode === 'amount' ? toAxisYen : (v: number) => toComma(v)
 }
 
@@ -138,10 +133,7 @@ export function formatCompRatio(compLabel: string, ratio: number): string {
 
 // ── YoY summary helpers ──
 
-export function formatYoYDiffYen(
-  diff: number,
-  fmt: (v: number) => string,
-): string {
+export function formatYoYDiffYen(diff: number, fmt: (v: number) => string): string {
   return `${diff >= 0 ? '+' : ''}${fmt(diff)}円`
 }
 

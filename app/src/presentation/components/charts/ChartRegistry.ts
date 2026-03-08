@@ -16,13 +16,7 @@ import type { ViewType } from '@/domain/models'
 import type { MetricId } from '@/domain/models/Explanation'
 
 /** チャートの業務ドメイン分類 */
-export type ChartDomain =
-  | 'sales'
-  | 'inventory'
-  | 'category'
-  | 'customer'
-  | 'forecast'
-  | 'shared'
+export type ChartDomain = 'sales' | 'inventory' | 'category' | 'customer' | 'forecast' | 'shared'
 
 /** チャートレジストリのエントリ */
 export interface ChartRegistryEntry {
