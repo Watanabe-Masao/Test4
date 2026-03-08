@@ -58,6 +58,7 @@ export function useBackup(repo: DataRepository | null): {
           monthsSkipped: 0,
           errors: ['Repository not available'],
           importHistoryRestored: 0,
+          rawManifestRestored: 0,
         }
       }
       setIsImporting(true)

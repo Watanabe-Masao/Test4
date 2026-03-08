@@ -269,7 +269,7 @@ describe('backupExporter', () => {
 
       const meta = await backupExporter.readMeta(blob)
       expect(meta).not.toBeNull()
-      expect(meta!.formatVersion).toBe(2)
+      expect(meta!.formatVersion).toBe(3)
       expect(meta!.months).toHaveLength(1)
       expect(meta!.months[0]).toEqual({ year: 2025, month: 1 })
     })
@@ -350,7 +350,7 @@ describe('backupExporter', () => {
       const text = await blob.text()
       const parsed = JSON.parse(text)
 
-      expect(parsed.meta.formatVersion).toBe(2)
+      expect(parsed.meta.formatVersion).toBe(3)
       expect(parsed.meta.checksum).toBeDefined()
       expect(parsed.meta.checksum).toHaveLength(64) // SHA-256 hex = 64 chars
     })
@@ -423,7 +423,7 @@ describe('backupExporter', () => {
 
       const meta = await backupExporter.readMeta(blob)
       expect(meta).not.toBeNull()
-      expect(meta!.formatVersion).toBe(2)
+      expect(meta!.formatVersion).toBe(3)
       expect(meta!.checksum).toBeDefined()
     })
   })
