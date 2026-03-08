@@ -36,8 +36,9 @@ export interface LoadResult {
  */
 export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
   // DROP all tables (including materialized summary if exists)
+  // マテリアライズ後は store_day_summary が TABLE になっているため両方 DROP する
+  await conn.query('DROP TABLE IF EXISTS store_day_summary')
   await conn.query('DROP VIEW IF EXISTS store_day_summary')
-  await conn.query('DROP TABLE IF EXISTS store_day_summary_mat')
   for (const name of TABLE_NAMES) {
     await conn.query(`DROP TABLE IF EXISTS ${name}`)
   }

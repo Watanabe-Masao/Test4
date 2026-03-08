@@ -33,9 +33,9 @@ describe('resetTables', () => {
 
     const calls = queryMock.mock.calls.map((c) => c[0] as string)
 
-    // Verify DROP VIEW
-    expect(calls[0]).toBe('DROP VIEW IF EXISTS store_day_summary')
-    expect(calls[1]).toBe('DROP TABLE IF EXISTS store_day_summary_mat')
+    // Verify DROP TABLE/VIEW (マテリアライズ後は TABLE になるため両方 DROP)
+    expect(calls[0]).toBe('DROP TABLE IF EXISTS store_day_summary')
+    expect(calls[1]).toBe('DROP VIEW IF EXISTS store_day_summary')
 
     // Verify all tables are dropped
     for (const name of TABLE_NAMES) {

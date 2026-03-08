@@ -170,9 +170,10 @@ describe('STORE_DAY_SUMMARY_VIEW_DDL', () => {
 })
 
 describe('MATERIALIZE_SUMMARY_DDL', () => {
-  it('DROP TABLE + CREATE TABLE AS SELECT を含む', () => {
-    expect(MATERIALIZE_SUMMARY_DDL).toContain('DROP TABLE IF EXISTS')
+  it('VIEW → 同名 TABLE 置換の DDL を含む', () => {
     expect(MATERIALIZE_SUMMARY_DDL).toContain('CREATE TABLE')
     expect(MATERIALIZE_SUMMARY_DDL).toContain('SELECT * FROM store_day_summary')
+    expect(MATERIALIZE_SUMMARY_DDL).toContain('DROP VIEW IF EXISTS store_day_summary')
+    expect(MATERIALIZE_SUMMARY_DDL).toContain('RENAME TO store_day_summary')
   })
 })
