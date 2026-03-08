@@ -131,7 +131,6 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
         selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={ctx.result.totalCustomers}
       />
     ),
   },

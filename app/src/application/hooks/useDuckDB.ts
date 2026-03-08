@@ -29,6 +29,7 @@ import type { DataRepository } from '@/domain/repositories'
 import { getDuckDBEngine } from '@/infrastructure/duckdb/engine'
 import type { DuckDBEngineState } from '@/infrastructure/duckdb/engine'
 import { resetTables, loadMonth } from '@/infrastructure/duckdb/dataLoader'
+import { materializeSummary } from '@/infrastructure/duckdb/queries/storeDaySummary'
 
 export interface DuckDBHookResult {
   /** エンジン初期化済み + データロード完了 + エラーなし */
@@ -232,6 +233,10 @@ export function useDuckDB(
           }
         }
       }
+
+      // 全月ロード完了後、VIEW を物理テーブルに昇格（全後続クエリが高速化）
+      await materializeSummary(conn)
+      if (loadSeqRef.current !== seq || !isMounted.current) return
 
       if (isMounted.current && loadSeqRef.current === seq) {
         lastFingerprint.current = fingerprint

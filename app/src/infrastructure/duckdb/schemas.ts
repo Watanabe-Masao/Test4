@@ -331,7 +331,8 @@ LEFT JOIN (
   AND cs.is_prev_year = qty.is_prev_year`
 
 // ── マテリアライズ用 ──
-// パフォーマンス不足時に VIEW → TABLE に昇格
+// データロード完了後に VIEW → 同名 TABLE に昇格（全後続クエリが高速化）
 export const MATERIALIZE_SUMMARY_DDL = `
-DROP TABLE IF EXISTS store_day_summary_mat;
-CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary`
+CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary;
+DROP VIEW IF EXISTS store_day_summary;
+ALTER TABLE store_day_summary_mat RENAME TO store_day_summary`

@@ -273,6 +273,18 @@ cd app && npm run dev           # Vite 開発サーバー
 9. **描画は純粋** — memo + フックで描画と計算を分離
 10. **最小セレクタ** — ストアはスライスで購読。広すぎる購読は禁止
 
+## モジュール構造の進化方針（要約）
+
+詳細は `references/module-structure-evolution.md` を参照。
+
+現在の**層別構造（横スライス）** から、業務ドメイン境界による**機能別構造（縦スライス）** へ
+段階的に移行する。各機能スライス（sales / inventory / category / customer / forecast）が
+内部に4層（Presentation → Application → Domain ← Infrastructure）を持つ。
+
+- **縦の壁:** 機能間の直接依存は禁止。共通基盤は `shared/` 経由
+- **横の壁:** 各スライス内部の層間依存は従来通り維持
+- **移行原則:** 新規は縦スライスで作り、既存は改修タイミングで移動。バレル re-export で後方互換
+
 ## UI/UX 4原則（要約）
 
 詳細は `references/uiux-principles.md` を参照。
