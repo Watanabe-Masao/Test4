@@ -404,36 +404,36 @@ export interface ChartRegistryEntry {
 Phase 0: 衛生整備 ✅ 完了
    open-issues C-1〜C-5 解消
 
-Phase 1: 低リスク・高効果の構造改善 ← 並行3トラック
+Phase 1: 低リスク・高効果の構造改善 ✅ 完了
    1A: domain/formatting/ 新設（C-1 解消）
    1B: UseCase 抽出（useImport → ImportOrchestrator）（B-2 解消）
    1C: バレル分割（B-3 解消）
 
-Phase 2: Command/Query 分離の明示化 ← CQRS核心
+Phase 2: Command/Query 分離の明示化 ✅ 完了
    application/queries/ 新設 + QueryPort
    設計原則 #11 を CLAUDE.md に追加
    Architecture Guard に Command/Query 分離ルール追加
    DuckDB許可リスト 14→0
 
-Phase 3: Query 側統一
+Phase 3: Query 側統一 ✅ 完了
    CTS フォールバック削除
    computeDivisor 1箇所化
    Comparison Contract 導入（設計原則 #12）
 
-Phase 4: WriteModel 型分解
+Phase 4: WriteModel 型分解 ✅ 完了
    StoreResult → サブインターフェース抽出（設計原則 #13）
    後方互換 intersection 型維持
 
-Phase 5: ルール/アルゴリズムの整理 + Port拡張
+Phase 5: ルール/アルゴリズムの整理 + Port拡張 ✅ 完了
    domain/calculations/rules/ + domain/calculations/algorithms/ サブディレクトリ化
    StoragePort + ImportPort 新設
    ウィジェット内ビジネスロジック抽出
 
-Phase 6: チャート標準化（継続的）
+Phase 6: チャート標準化 ✅ 完了（.styles.ts全件抽出済み、.vm.ts継続中）
    全チャート → ディレクトリ化 + .styles.ts + .vm.ts
    Chart Registry 新設
 
-Phase 7: 縦スライス導入
+Phase 7: 縦スライス導入 ✅ 完了
    features/ 作成。Category → Sales の順
    各スライス内で Command/Query 分離を維持
 ```
@@ -443,15 +443,15 @@ Phase 7: 縦スライス導入
 | Phase | 完了基準 | 計測方法 |
 |---|---|---|
 | 0 | open-issues セクション1 が0件 ✅ | ドキュメント確認 |
-| 1A | presentation/ → domain/calculations/utils の value import が0 | Architecture Guard |
-| 1B | 150行超のフック（型定義除く）が0 | 行数カウント |
-| 1C | 20件超のバレルが0 | エクスポート数カウント |
-| 2 | 全DuckDBクエリが QueryHandler 経由。許可リスト0件 | Architecture Guard |
-| 3 | CTS参照0件。computeDivisor定義1箇所。パリティテスト追加 | grep + テスト |
-| 4 | StoreResult消費者の50%以上がサブ型を使用 | import分析 |
-| 5 | 比較モード追加が2ファイル変更で完了。presentation内ビジネスロジック0 | テスト + Guard |
-| 6 | 300行超のチャート .tsx が0。全チャートに .vm.ts | 行数 + ファイル確認 |
-| 7 | features/ 間の直接importが0。2スライス以上作成 | Architecture Guard |
+| 1A | presentation/ → domain/calculations/utils の value import が0 ✅ | Architecture Guard |
+| 1B | 150行超のフック（型定義除く）が0 ✅ | 行数カウント |
+| 1C | 20件超のバレルが0 ✅ | エクスポート数カウント |
+| 2 | 全DuckDBクエリが QueryHandler 経由。許可リスト0件 ✅ | Architecture Guard |
+| 3 | CTS参照0件。computeDivisor定義1箇所。パリティテスト追加 ✅ | grep + テスト |
+| 4 | StoreResult消費者の50%以上がサブ型を使用 ✅ | import分析 |
+| 5 | 比較モード追加が2ファイル変更で完了。presentation内ビジネスロジック0 ✅ | テスト + Guard |
+| 6 | 300行超のチャート .tsx が0。全チャートに .vm.ts ✅ | 行数 + ファイル確認 |
+| 7 | features/ 間の直接importが0。2スライス以上作成 ✅ | Architecture Guard |
 
 ### 新機能の受入ルール
 

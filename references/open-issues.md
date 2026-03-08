@@ -17,7 +17,7 @@
 |---|---|---|---|
 | R-1 | Application→Infrastructure 直接 import（ポート抽象不足） | Medium | 調査完了（2026-03-08）: 25ファイル40箇所の直接importを特定。ExportPort パターンに倣い DuckDBPort / StoragePort拡張 / ImportPort / I18nPort の4ポートを Phase 5 で新設予定 |
 | R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。残: チャート500行超17ファイルの .vm.ts 作成は Phase 6 で継続 |
-| R-6 | ImportService.ts（632行） | Low | 736行→632行に縮小。5つの関心事が混在。Phase 1B（UseCase 抽出）で対応予定 |
+| R-6 | FileImportService.ts（632行） | Low | infrastructure/ImportService.ts は227行に分割解決済み。application/usecases/import/FileImportService.ts（632行）は5つの関心事が混在。Phase 1B（UseCase 抽出）で対応予定 |
 | R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
 
 ## 3. 解決済みの課題（アーカイブ）
