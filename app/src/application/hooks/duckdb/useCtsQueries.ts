@@ -249,6 +249,7 @@ export function useDuckDBCategoryHourly(
   storeIds: ReadonlySet<string>,
   level: 'department' | 'line' | 'klass',
   hierarchy?: { deptCode?: string; lineCode?: string; klassCode?: string },
+  isPrevYear?: boolean,
 ): AsyncQueryResult<readonly CategoryHourlyRow[]> {
   const queryFn = useMemo(() => {
     if (!dateRange) return null
@@ -261,9 +262,10 @@ export function useDuckDBCategoryHourly(
         deptCode: hierarchy?.deptCode,
         lineCode: hierarchy?.lineCode,
         klassCode: hierarchy?.klassCode,
+        isPrevYear,
         level,
       })
-  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode])
+  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
