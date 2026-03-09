@@ -14,3 +14,15 @@ export {
 } from './CalendarDate'
 export type { AlignmentPolicy, ComparisonFrame, PrevYearScope } from './ComparisonFrame'
 export type { DowDayCount, DowGapAnalysis } from './ComparisonContext'
+export type {
+  ComparisonPreset,
+  PeriodSelection,
+  AdjacentMonths,
+  PeriodQueryInput,
+} from './PeriodSelection'
+export {
+  calcAdjacentMonths,
+  buildPeriodQueryInput,
+  applyPreset,
+  createDefaultPeriodSelection,
+} from './PeriodSelection'
