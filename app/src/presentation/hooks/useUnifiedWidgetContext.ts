@@ -180,34 +180,21 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   }
 
   const r = currentResult
-  const effectiveEndDay =
-    r.elapsedDays != null && r.elapsedDays > 0 ? Math.min(r.elapsedDays, daysInMonth) : daysInMonth
 
-  // period1 の日範囲を尊重しつつ、effectiveEndDay でキャップ
-  const p1From = periodSelection.period1.from
-  const p1To = periodSelection.period1.to
-  const currentDateRange: DateRange = {
-    from: {
-      year: p1From.year,
-      month: p1From.month,
-      day: p1From.day,
-    },
-    to: {
-      year: p1To.year,
-      month: p1To.month,
-      day: Math.min(p1To.day, effectiveEndDay),
-    },
-  }
+  // currentDateRange: periodSelection.period1 をそのまま使用。
+  // dataEndDay/elapsedDays によるキャップは行わない。
+  // カレンダーの期間選択が唯一の範囲指定元。
+  const currentDateRange: DateRange = periodSelection.period1
+
   // 月全体の範囲（予算・前年表示用。期間ピッカーでトリミングされない）
   const fullMonthRange: DateRange = {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: daysInMonth },
   }
-  // prevYearScope: DOW offset + periodSelection.period1 の有効範囲で調整済みの前年日付範囲と客数。
-  // periodSelection から導出。effectiveEndDay でキャップして
-  // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
+  // prevYearScope: DOW offset + periodSelection から導出。
+  // elapsedDays キャップなし（カレンダーの期間選択に従う）。
   const prevYearScope = prevYear.hasPrevYear
-    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers, effectiveEndDay)
+    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers)
     : undefined
 
   // 比較期間: periodSelection.period2 を直接使用（プリセットにより自動算出済み）
