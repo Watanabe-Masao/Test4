@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useRef } from 'react'
 import {
   ActiveTrack,
   NumInput,
@@ -34,6 +34,54 @@ export const DayRangeSlider = memo(function DayRangeSlider({
   const rightPct = ((max - end) / (max - min)) * 100
   const isFullRange = start === min && end === max
   const exceedsValidPeriod = elapsedDays != null && elapsedDays > 0 && end > elapsedDays
+
+  // ── トラックドラッグ: 両ハンドル同時移動 ──
+  const trackRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{ startX: number; origStart: number; origEnd: number } | null>(null)
+
+  const handleTrackPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      const el = trackRef.current
+      if (!el) return
+      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+      dragRef.current = { startX: e.clientX, origStart: start, origEnd: end }
+    },
+    [start, end],
+  )
+
+  const handleTrackPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current || !trackRef.current) return
+      const trackWidth = trackRef.current.getBoundingClientRect().width
+      const range = max - min
+      const pxPerUnit = trackWidth / range
+      const dx = e.clientX - dragRef.current.startX
+      const shift = Math.round(dx / pxPerUnit)
+      const { origStart, origEnd } = dragRef.current
+
+      let newStart = origStart + shift
+      let newEnd = origEnd + shift
+      if (newStart < min) {
+        newEnd += min - newStart
+        newStart = min
+      }
+      if (newEnd > max) {
+        newStart -= newEnd - max
+        newEnd = max
+      }
+      newStart = Math.max(min, newStart)
+      newEnd = Math.min(max, newEnd)
+      if (newStart !== start || newEnd !== end) {
+        onChange(newStart, newEnd)
+      }
+    },
+    [min, max, start, end, onChange],
+  )
+
+  const handleTrackPointerUp = useCallback(() => {
+    dragRef.current = null
+  }, [])
 
   const handleStartInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,9 +124,15 @@ export const DayRangeSlider = memo(function DayRangeSlider({
         ▶
       </StepBtn>
       <UnitLabel>日</UnitLabel>
-      <TrackWrap>
+      <TrackWrap ref={trackRef}>
         <Track />
-        <ActiveTrack $left={leftPct} $right={rightPct} />
+        <ActiveTrack
+          $left={leftPct}
+          $right={rightPct}
+          onPointerDown={handleTrackPointerDown}
+          onPointerMove={handleTrackPointerMove}
+          onPointerUp={handleTrackPointerUp}
+        />
         <RangeInput
           type="range"
           min={min}

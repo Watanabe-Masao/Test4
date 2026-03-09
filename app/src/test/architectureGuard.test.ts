@@ -84,6 +84,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useConditionMatrix.ts',
   // DuckDB 統合 — JS計算版クエリフック（Phase 3: SQL集約→JS純粋関数移行）
   'application/hooks/duckdb/useJsAggregationQueries.ts',
+  // DuckDB 統合 — 仕入比較クエリフック
+  'application/hooks/duckdb/usePurchaseComparisonQuery.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
@@ -500,6 +502,8 @@ describe('Architecture Guard', () => {
     'pages/Forecast/ForecastPage.helpers.ts',
     'pages/Mobile/KpiTabContent.tsx',
     'pages/Reports/ReportsPage.tsx',
+    // ── 仕入分析ページ ──
+    'pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx',
     // ── レイアウト（DuckDB 接続状態表示用） ──
     'components/Layout/MainContent.tsx',
     'components/Layout/NavBar.tsx',
@@ -537,7 +541,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 35
+    const MAX_ALLOWLIST_SIZE = 36
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

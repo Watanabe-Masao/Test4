@@ -27,6 +27,11 @@ const CostDetailPage = lazyWithRetry(() =>
     default: m.CostDetailPage,
   })),
 )
+const PurchaseAnalysisPage = lazyWithRetry(() =>
+  import('@/presentation/pages/PurchaseAnalysis/PurchaseAnalysisPage').then((m) => ({
+    default: m.PurchaseAnalysisPage,
+  })),
+)
 const ReportsPage = lazyWithRetry(() =>
   import('@/presentation/pages/Reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
 )
@@ -51,6 +56,7 @@ export function AppRoutes() {
       <Route path="/insight" element={<InsightPage />} />
       <Route path="/category" element={<CategoryPage />} />
       <Route path="/cost-detail" element={<CostDetailPage />} />
+      <Route path="/purchase-analysis" element={<PurchaseAnalysisPage />} />
       <Route path="/reports" element={<ReportsPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/custom/:pageId" element={<CustomPage />} />

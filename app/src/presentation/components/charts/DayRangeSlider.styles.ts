@@ -58,10 +58,19 @@ export const ActiveTrack = styled.div<{ $left: number; $right: number }>`
   position: absolute;
   left: ${({ $left }) => $left}%;
   right: ${({ $right }) => $right}%;
-  height: 4px;
-  border-radius: 2px;
+  height: 12px;
+  margin-top: -4px;
+  border-radius: 6px;
   background: ${({ theme }) => theme.colors.palette.primary};
   opacity: 0.6;
+  cursor: grab;
+  touch-action: none;
+  z-index: 1;
+
+  &:active {
+    cursor: grabbing;
+    opacity: 0.8;
+  }
 `
 
 export const RangeInput = styled.input`
