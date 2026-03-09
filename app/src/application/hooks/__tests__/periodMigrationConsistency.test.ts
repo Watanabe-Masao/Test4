@@ -152,20 +152,28 @@ describe('期間モデル移行整合性', () => {
     }
 
     for (const { year, month, endDay, customers } of testCases) {
-      it(`${year}/${month} endDay=${endDay}: 旧と新の dateRange が整合`, () => {
+      it(`${year}/${month} endDay=${endDay}: 新モデルで期間長が維持される`, () => {
         const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDayOfWeek')
         const newScope = buildNewPrevYearScope(year, month, endDay, customers, 'prevYearSameDow')
 
-        // from.day: 旧 = frame.previous.from.day + offset, 新 = applyPreset で 1+offset
+        // from は旧モデルと同じ（offset 適用済み）
         expect(newScope.dateRange.from.day).toBe(oldScope.dateRange.from.day)
-        // to.day: 旧 = min(endDay + offset, frame.previous.to.day)
-        //         新 = min(endDay + offset, prevDaysInMonth)
-        expect(newScope.dateRange.to.day).toBe(oldScope.dateRange.to.day)
-
         expect(newScope.dateRange.from.year).toBe(oldScope.dateRange.from.year)
         expect(newScope.dateRange.from.month).toBe(oldScope.dateRange.from.month)
-        expect(newScope.dateRange.to.year).toBe(oldScope.dateRange.to.year)
-        expect(newScope.dateRange.to.month).toBe(oldScope.dateRange.to.month)
+
+        // 期間長が period1 と一致することを検証（旧モデルの月末クランプバグを修正）
+        const fromDate = new Date(
+          newScope.dateRange.from.year,
+          newScope.dateRange.from.month - 1,
+          newScope.dateRange.from.day,
+        )
+        const toDate = new Date(
+          newScope.dateRange.to.year,
+          newScope.dateRange.to.month - 1,
+          newScope.dateRange.to.day,
+        )
+        const newDays = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)
+        expect(newDays).toBe(endDay - 1) // endDay days from day 1, so (endDay - 1) day span
 
         expect(newScope.totalCustomers).toBe(customers)
         expect(newScope.dowOffset).toBe(oldScope.dowOffset)
@@ -204,7 +212,7 @@ describe('期間モデル移行整合性', () => {
 
     describe('prevYearSameDow', () => {
       for (const { year, month, endDay, customers } of testCases) {
-        it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで旧パスと一致`, () => {
+        it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで期間長が正しい`, () => {
           const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDayOfWeek')
           const newScope = buildNewPrevYearScopeWithParam(
             year,
@@ -214,8 +222,23 @@ describe('期間モデル移行整合性', () => {
             'prevYearSameDow',
           )
 
+          // from は一致（オフセット適用済み）
           expect(newScope.dateRange.from).toEqual(oldScope.dateRange.from)
-          expect(newScope.dateRange.to).toEqual(oldScope.dateRange.to)
+
+          // 新モデルは期間長を維持する（月末クランプバグ修正）
+          const fromDate = new Date(
+            newScope.dateRange.from.year,
+            newScope.dateRange.from.month - 1,
+            newScope.dateRange.from.day,
+          )
+          const toDate = new Date(
+            newScope.dateRange.to.year,
+            newScope.dateRange.to.month - 1,
+            newScope.dateRange.to.day,
+          )
+          const newDays = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)
+          expect(newDays).toBe(endDay - 1)
+
           expect(newScope.totalCustomers).toBe(customers)
           expect(newScope.dowOffset).toBe(oldScope.dowOffset)
         })

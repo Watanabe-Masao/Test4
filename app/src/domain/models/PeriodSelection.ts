@@ -281,11 +281,22 @@ export function buildPrevYearScopeFromSelection(
   const period2 = selection.period2
 
   if (effectiveEndDay != null) {
-    const cappedToDay = Math.min(effectiveEndDay + offset, period2.to.day)
+    // Date 演算で月跨ぎを正しく処理する
+    const capDate = new Date(
+      period2.from.year,
+      period2.from.month - 1,
+      effectiveEndDay + offset,
+    )
+    const toDate = new Date(period2.to.year, period2.to.month - 1, period2.to.day)
+    const effectiveTo = capDate < toDate ? capDate : toDate
     return {
       dateRange: {
         from: period2.from,
-        to: { ...period2.to, day: cappedToDay },
+        to: {
+          year: effectiveTo.getFullYear(),
+          month: effectiveTo.getMonth() + 1,
+          day: effectiveTo.getDate(),
+        },
       },
       totalCustomers,
       dowOffset: offset,
