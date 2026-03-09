@@ -22,6 +22,7 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
+import type { MergedPeriodMetrics } from '@/application/hooks/usePeriodAwareKpi'
 import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 
@@ -66,6 +67,10 @@ export interface UnifiedWidgetContext {
   // ── 期間選択（新モデル） ──
   /** 期間選択の全状態（periodSelectionStore から） */
   readonly periodSelection?: PeriodSelection
+  /** 期間連動メトリクス（DuckDB ベース。部分月選択時に提供） */
+  readonly periodMetrics?: MergedPeriodMetrics
+  /** 選択期間が月全日かどうか（true: StoreResult を使う、false: periodMetrics を使う） */
+  readonly isPeriodFullMonth?: boolean
 
   // ── Dashboard 固有（他ページではオプション） ──
   readonly storeKey?: string

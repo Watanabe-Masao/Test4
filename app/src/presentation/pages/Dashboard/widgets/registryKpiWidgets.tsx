@@ -3,8 +3,20 @@ import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
-import type { WidgetDef } from './types'
+import type { WidgetDef, WidgetContext } from './types'
 import { DowGapKpiCard } from './DowGapKpiCard'
+
+/**
+ * 期間連動値の取得ヘルパー。
+ * periodMetrics がある（部分月）場合はそちらの値、なければ StoreResult の値を返す。
+ */
+function pv(ctx: WidgetContext, pmField: string, srField: string): number {
+  const pm = ctx.periodMetrics
+  if (pm && !ctx.isPeriodFullMonth) {
+    return (pm as unknown as Record<string, number>)[pmField] ?? 0
+  }
+  return (ctx.result as unknown as Record<string, number>)[srField] ?? 0
+}
 
 // ── KPI: 収益概況 ──
 export const WIDGETS_KPI: readonly WidgetDef[] = [
@@ -14,43 +26,55 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'reports' },
-    render: ({ result: r, prevYear, onExplain }) => (
-      <KpiCard
-        label="コア売上"
-        value={formatCurrency(r.totalCoreSales)}
-        subText={`総売上: ${formatCurrency(r.totalSales)} / 花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
-        accent={palette.purpleDark}
-        onClick={() => onExplain('coreSales')}
-        trend={
-          prevYear.hasPrevYear && prevYear.totalSales > 0
-            ? {
-                direction:
-                  r.totalSales > prevYear.totalSales
-                    ? 'up'
-                    : r.totalSales < prevYear.totalSales
-                      ? 'down'
-                      : 'flat',
-                label: `前年比 ${formatPercent(r.totalSales / prevYear.totalSales)}`,
-              }
-            : undefined
-        }
-      />
-    ),
+    render: (ctx) => {
+      const { prevYear, onExplain } = ctx
+      const totalCoreSales = pv(ctx, 'totalCoreSales', 'totalCoreSales')
+      const totalSales = pv(ctx, 'totalSales', 'totalSales')
+      const flowersPrice = pv(ctx, 'totalFlowersPrice', 'flowerSalesPrice')
+      const directProducePrice = pv(ctx, 'totalDirectProducePrice', 'directProduceSalesPrice')
+      return (
+        <KpiCard
+          label="コア売上"
+          value={formatCurrency(totalCoreSales)}
+          subText={`総売上: ${formatCurrency(totalSales)} / 花: ${formatCurrency(flowersPrice)} / 産直: ${formatCurrency(directProducePrice)}`}
+          accent={palette.purpleDark}
+          onClick={() => onExplain('coreSales')}
+          trend={
+            prevYear.hasPrevYear && prevYear.totalSales > 0
+              ? {
+                  direction:
+                    totalSales > prevYear.totalSales
+                      ? 'up'
+                      : totalSales < prevYear.totalSales
+                        ? 'down'
+                        : 'flat',
+                  label: `前年比 ${formatPercent(totalSales / prevYear.totalSales)}`,
+                }
+              : undefined
+          }
+        />
+      )
+    },
   },
   {
     id: 'kpi-total-cost',
     label: '総仕入原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
-      <KpiCard
-        label="総仕入原価"
-        value={formatCurrency(r.totalCost)}
-        subText={`在庫仕入: ${formatCurrency(r.inventoryCost)} / 納品: ${formatCurrency(r.deliverySalesCost)}`}
-        accent={palette.orangeDark}
-        onClick={() => onExplain('inventoryCost')}
-      />
-    ),
+    render: (ctx) => {
+      const totalCost = pv(ctx, 'totalCost', 'totalCost')
+      const inventoryCost = pv(ctx, 'inventoryCost', 'inventoryCost')
+      const deliverySalesCost = pv(ctx, 'deliverySalesCost', 'deliverySalesCost')
+      return (
+        <KpiCard
+          label="総仕入原価"
+          value={formatCurrency(totalCost)}
+          subText={`在庫仕入: ${formatCurrency(inventoryCost)} / 納品: ${formatCurrency(deliverySalesCost)}`}
+          accent={palette.orangeDark}
+          onClick={() => ctx.onExplain('inventoryCost')}
+        />
+      )
+    },
   },
   {
     id: 'kpi-inv-gross-profit',
@@ -58,8 +82,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => {
-      if (r.invMethodGrossProfitRate == null) {
+    render: (ctx) => {
+      const pm = ctx.periodMetrics
+      const usepm = pm && !ctx.isPeriodFullMonth
+      const grossProfitRate = usepm
+        ? pm.invMethodGrossProfitRate
+        : ctx.result.invMethodGrossProfitRate
+      if (grossProfitRate == null) {
         return (
           <KpiCard
             label="【在庫法】実績粗利益"
@@ -70,16 +99,19 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
           />
         )
       }
-      const afterRate = safeDivide(r.invMethodGrossProfit! - r.totalCostInclusion, r.totalSales, 0)
+      const grossProfit = usepm ? pm.invMethodGrossProfit! : ctx.result.invMethodGrossProfit!
+      const totalCostInclusion = pv(ctx, 'totalCostInclusion', 'totalCostInclusion')
+      const totalSales = pv(ctx, 'totalSales', 'totalSales')
+      const afterRate = safeDivide(grossProfit - totalCostInclusion, totalSales, 0)
       return (
         <KpiCard
           label="【在庫法】実績粗利益"
-          value={formatCurrency(r.invMethodGrossProfit)}
-          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          value={formatCurrency(grossProfit)}
+          subText={`実績粗利率: ${formatPercent(grossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(totalCostInclusion)})`}
           accent={sc.positive}
           badge="actual"
           formulaSummary="売上 − 売上原価（期首+仕入−期末）"
-          onClick={() => onExplain('invMethodGrossProfit')}
+          onClick={() => ctx.onExplain('invMethodGrossProfit')}
         />
       )
     },
@@ -90,17 +122,21 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => {
-      const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
+    render: (ctx) => {
+      const estMethodMargin = pv(ctx, 'estMethodMargin', 'estMethodMargin')
+      const totalCostInclusion = pv(ctx, 'totalCostInclusion', 'totalCostInclusion')
+      const totalCoreSales = pv(ctx, 'totalCoreSales', 'totalCoreSales')
+      const estMethodMarginRate = pv(ctx, 'estMethodMarginRate', 'estMethodMarginRate')
+      const beforeRate = safeDivide(estMethodMargin + totalCostInclusion, totalCoreSales, 0)
       return (
         <KpiCard
           label="【推定法】推定マージン"
-          value={formatCurrency(r.estMethodMargin)}
-          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          value={formatCurrency(estMethodMargin)}
+          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(estMethodMarginRate)} (消耗品: ${formatCurrency(totalCostInclusion)})`}
           accent={palette.warningDark}
           badge="estimated"
           formulaSummary="コア売上 − 推定原価（理論値）"
-          onClick={() => onExplain('estMethodMargin')}
+          onClick={() => ctx.onExplain('estMethodMargin')}
         />
       )
     },
@@ -112,12 +148,12 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '在庫仕入原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="在庫仕入原価"
-        value={formatCurrency(r.inventoryCost)}
+        value={formatCurrency(pv(ctx, 'inventoryCost', 'inventoryCost'))}
         accent={palette.orangeDark}
-        onClick={() => onExplain('inventoryCost')}
+        onClick={() => ctx.onExplain('inventoryCost')}
       />
     ),
   },
@@ -126,13 +162,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '売上納品原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="売上納品原価"
-        value={formatCurrency(r.deliverySalesCost)}
-        subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
+        value={formatCurrency(pv(ctx, 'deliverySalesCost', 'deliverySalesCost'))}
+        subText={`売価: ${formatCurrency(pv(ctx, 'deliverySalesPrice', 'deliverySalesPrice'))}`}
         accent={palette.pinkDark}
-        onClick={() => onExplain('deliverySalesCost')}
+        onClick={() => ctx.onExplain('deliverySalesCost')}
       />
     ),
   },
@@ -142,13 +178,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'cost-detail' },
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="原価算入費"
-        value={formatCurrency(r.totalCostInclusion)}
-        subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
+        value={formatCurrency(pv(ctx, 'totalCostInclusion', 'totalCostInclusion'))}
+        subText={`原価算入率: ${formatPercent(pv(ctx, 'costInclusionRate', 'costInclusionRate'))}`}
         accent={palette.orange}
-        onClick={() => onExplain('totalCostInclusion')}
+        onClick={() => ctx.onExplain('totalCostInclusion')}
       />
     ),
   },
@@ -158,13 +194,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="売変ロス原価"
-        value={formatCurrency(r.discountLossCost)}
-        subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
+        value={formatCurrency(pv(ctx, 'discountLossCost', 'discountLossCost'))}
+        subText={`売変額: ${formatCurrency(pv(ctx, 'totalDiscount', 'totalDiscount'))}`}
         accent={palette.dangerDeep}
-        onClick={() => onExplain('discountLossCost')}
+        onClick={() => ctx.onExplain('discountLossCost')}
       />
     ),
   },
@@ -173,13 +209,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: 'コア値入率',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="コア値入率"
-        value={formatPercent(r.coreMarkupRate)}
-        subText={`平均値入率: ${formatPercent(r.averageMarkupRate)}`}
+        value={formatPercent(pv(ctx, 'coreMarkupRate', 'coreMarkupRate'))}
+        subText={`平均値入率: ${formatPercent(pv(ctx, 'averageMarkupRate', 'averageMarkupRate'))}`}
         accent={palette.cyanDark}
-        onClick={() => onExplain('coreMarkupRate')}
+        onClick={() => ctx.onExplain('coreMarkupRate')}
       />
     ),
   },
