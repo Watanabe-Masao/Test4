@@ -118,10 +118,12 @@ export interface PurchaseDailyData {
   readonly prev: readonly PurchaseDailyPoint[]
 }
 
-/** カテゴリ別日別ピボットのセル（原価/売価） */
+/** カテゴリ別日別ピボットのセル（原価/売価 — 当期+前期） */
 export interface PurchaseDailyPivotCell {
   readonly cost: number
   readonly price: number
+  readonly prevCost: number
+  readonly prevPrice: number
 }
 
 /** カテゴリ別日別ピボットの列定義 */
@@ -134,9 +136,23 @@ export interface PurchaseDailyPivotColumn {
 /** カテゴリ別日別ピボットの行（日付単位） */
 export interface PurchaseDailyPivotRow {
   readonly day: number
+  /** 曜日 (0=日, 1=月, ..., 6=土) */
+  readonly dayOfWeek: number
   readonly cells: Readonly<Record<string, PurchaseDailyPivotCell>>
   readonly totalCost: number
   readonly totalPrice: number
+  readonly prevTotalCost: number
+  readonly prevTotalPrice: number
+}
+
+/** 週次小計行 */
+export interface PurchaseDailyPivotSubtotal {
+  readonly weekIndex: number
+  readonly cells: Readonly<Record<string, PurchaseDailyPivotCell>>
+  readonly totalCost: number
+  readonly totalPrice: number
+  readonly prevTotalCost: number
+  readonly prevTotalPrice: number
 }
 
 /** カテゴリ別日別ピボットデータ全体 */
@@ -147,6 +163,8 @@ export interface PurchaseDailyPivotData {
     readonly byColumn: Readonly<Record<string, PurchaseDailyPivotCell>>
     readonly grandCost: number
     readonly grandPrice: number
+    readonly prevGrandCost: number
+    readonly prevGrandPrice: number
   }
 }
 

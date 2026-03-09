@@ -57,7 +57,7 @@ export const Td = styled.td<{ $align?: 'left' | 'right' }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
 `
 
-export const DiffCell = styled(Td)<{ $positive?: boolean }>`
+export const DiffCell = styled(Td)<{ $positive?: boolean; $groupStart?: boolean }>`
   color: ${({ $positive, theme }) =>
     $positive == null
       ? theme.colors.text4
@@ -65,6 +65,7 @@ export const DiffCell = styled(Td)<{ $positive?: boolean }>`
         ? theme.colors.palette.positive
         : theme.colors.palette.negative};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  ${({ $groupStart, theme }) => $groupStart && `border-left: 2px solid ${theme.colors.border};`}
 `
 
 export const TrTotal = styled.tr`
@@ -257,4 +258,67 @@ export const ProgressFill = styled.div<{ $width: number; $color: string }>`
   background: ${({ $color }) => $color};
   border-radius: 3px;
   transition: width 0.3s ease;
+`
+
+/* ─── Category Tabs ────────────── */
+
+export const TabBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[1]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  padding-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+export const TabButton = styled.button<{ $active: boolean; $color?: string }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.normal};
+  color: ${({ $active, theme }) => ($active ? theme.colors.text : theme.colors.text3)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.bg2 : 'transparent')};
+  border: 1px solid ${({ $active, theme }) => ($active ? theme.colors.border : 'transparent')};
+  border-bottom: ${({ $active, $color }) =>
+    $active ? `3px solid ${$color ?? '#3b82f6'}` : '3px solid transparent'};
+  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg2};
+  }
+`
+
+export const ToggleRow = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  cursor: pointer;
+  user-select: none;
+`
+
+export const TrSubtotal = styled.tr`
+  background: ${({ theme }) => theme.colors.bg3};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  & > td {
+    border-top: 1px solid ${({ theme }) => theme.colors.border};
+    border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  }
+`
+
+/* ─── Day-of-week styling ────────────── */
+
+export const DowCell = styled(Td)<{ $dow: number }>`
+  text-align: center;
+  color: ${({ $dow, theme }) =>
+    $dow === 0
+      ? theme.colors.palette.danger
+      : $dow === 6
+        ? theme.colors.palette.info
+        : theme.colors.text3};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
 `
