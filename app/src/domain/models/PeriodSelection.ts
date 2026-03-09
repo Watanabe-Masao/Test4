@@ -169,11 +169,7 @@ export function applyPreset(
       const offset = (((currentDow - prevDow) % 7) + 7) % 7
 
       const fromDate = new Date(prevYear, period1.from.month - 1, period1.from.day + offset)
-      const toDate = new Date(
-        period1.to.year - 1,
-        period1.to.month - 1,
-        period1.to.day + offset,
-      )
+      const toDate = new Date(period1.to.year - 1, period1.to.month - 1, period1.to.day + offset)
 
       return {
         from: {
@@ -282,11 +278,7 @@ export function buildPrevYearScopeFromSelection(
 
   if (effectiveEndDay != null) {
     // Date 演算で月跨ぎを正しく処理する
-    const capDate = new Date(
-      period2.from.year,
-      period2.from.month - 1,
-      effectiveEndDay + offset,
-    )
+    const capDate = new Date(period2.from.year, period2.from.month - 1, effectiveEndDay + offset)
     const toDate = new Date(period2.to.year, period2.to.month - 1, period2.to.day)
     const effectiveTo = capDate < toDate ? capDate : toDate
     return {
