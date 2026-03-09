@@ -14,7 +14,7 @@ export const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: -${({ theme }) => theme.spacing[8]};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: 0;
   padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
   background: ${({ theme }) => theme.colors.bg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -40,9 +40,9 @@ export const Badge = styled.span`
 `
 
 export const MonthBadgeButton = styled.button`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.pill};
   color: ${({ theme }) => theme.colors.text2};
   background: ${({ theme }) => theme.colors.bg3};
@@ -77,19 +77,6 @@ export const ContextBar = styled.div`
   gap: ${({ theme }) => theme.spacing[2]};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};
-`
-
-/** ヘッダー内のチップを大きめに表示するラッパー */
-export const HeaderChipArea = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-
-  /* Chip のサイズをヘッダー用に拡大 */
-  button {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
-    padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[5]};
-  }
 `
 
 // ── Month Picker Popup ──
@@ -181,9 +168,9 @@ export const BadgeWrapper = styled.div`
 // ── Period Range Picker ──
 
 export const PeriodBadgeButton = styled.button<{ $isPartial?: boolean }>`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
   border-radius: ${({ theme }) => theme.radii.pill};
   color: ${({ $isPartial, theme }) =>
     $isPartial ? theme.colors.palette.warning : theme.colors.text3};

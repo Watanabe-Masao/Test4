@@ -22,19 +22,8 @@ export interface AsyncQueryResult<T> {
  * queryFn が変わるたびにクエリを再実行し、結果をステートに反映する。
  * conn が null の場合はクエリを実行せず { data: null } を返す。
  */
-/**
- * Debounce delay to prevent rapid re-querying on cascading state updates.
- * カレンダーのスライダー操作等で連続的に変更が発生する場合に
- * クエリの乱発を防ぐ。
- */
-const QUERY_DEBOUNCE_MS = 150
-
-/**
- * isLoading を true にするまでの遅延。
- * 高速なクエリ（< 200ms）ではローディング表示を出さず、
- * 古いデータを表示し続ける（stale-while-revalidate）。
- */
-const LOADING_INDICATOR_DELAY_MS = 200
+/** Debounce delay to prevent rapid re-querying on cascading state updates */
+const QUERY_DEBOUNCE_MS = 50
 
 export function useAsyncQuery<T>(
   conn: AsyncDuckDBConnection | null,
@@ -57,16 +46,8 @@ export function useAsyncQuery<T>(
 
     const timerId = setTimeout(() => {
       if (cancelled) return
-      // stale-while-revalidate: 古いデータを表示し続ける。
-      // isLoading は遅延後に設定し、高速クエリではフリッカーを防ぐ。
+      setIsLoading(true)
       setError(null)
-      let loadingTimerId: ReturnType<typeof setTimeout> | null = null
-      loadingTimerId = setTimeout(() => {
-        if (!cancelled && seq === seqRef.current) {
-          setIsLoading(true)
-        }
-      }, LOADING_INDICATOR_DELAY_MS)
-
       const run = async () => {
         try {
           const result = await queryFn(conn)
@@ -78,7 +59,6 @@ export function useAsyncQuery<T>(
             setError(err instanceof Error ? err.message : String(err))
           }
         } finally {
-          if (loadingTimerId != null) clearTimeout(loadingTimerId)
           if (!cancelled && seq === seqRef.current) {
             setIsLoading(false)
           }

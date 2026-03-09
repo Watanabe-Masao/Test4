@@ -27,7 +27,6 @@ export type ComparisonPreset =
   | 'prevYearSameMonth' // 前年同月
   | 'prevYearSameDow' // 前年同曜日合わせ
   | 'prevMonth' // 前月
-  | 'prevWeek' // 前週（7日前にシフト）
   | 'custom' // 自由指定（プリセットなし）
 
 /** 期間選択の永続化対象 */
@@ -202,24 +201,6 @@ export function applyPreset(
           year: toY,
           month: toM,
           day: Math.min(period1.to.day, lastDayOfMonth(toY, toM)),
-        },
-      }
-    }
-
-    case 'prevWeek': {
-      // 7日前にシフト（月跨ぎ対応）
-      const fromDate = new Date(period1.from.year, period1.from.month - 1, period1.from.day - 7)
-      const toDate = new Date(period1.to.year, period1.to.month - 1, period1.to.day - 7)
-      return {
-        from: {
-          year: fromDate.getFullYear(),
-          month: fromDate.getMonth() + 1,
-          day: fromDate.getDate(),
-        },
-        to: {
-          year: toDate.getFullYear(),
-          month: toDate.getMonth() + 1,
-          day: toDate.getDate(),
         },
       }
     }
