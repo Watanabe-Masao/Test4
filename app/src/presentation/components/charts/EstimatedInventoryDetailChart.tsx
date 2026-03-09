@@ -20,8 +20,8 @@ import {
   STORE_COLORS,
 } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/useInventoryEstimation'
 import type { InventoryDetailRow } from '@/application/hooks/useInventoryEstimation'
 import type { DailyRecord, Store, StoreResult } from '@/domain/models'
@@ -74,7 +74,15 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
 }: Props) {
   const ct = useChartTheme()
   const currFmt = useCurrencyFormatter()
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   const canCompare = (comparisonResults?.length ?? 0) >= 2
   const [viewMode, setViewMode] = useState<ViewMode>('aggregate')
@@ -266,12 +274,16 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
           </ComposedChart>
         </ResponsiveContainer>
 
-        <DayRangeSlider
+        <DualPeriodSlider
           min={1}
           max={daysInMonth}
-          start={rangeStart}
-          end={rangeEnd}
-          onChange={setRange}
+          p1Start={rangeStart}
+          p1End={rangeEnd}
+          onP1Change={setRange}
+          p2Start={p2Start}
+          p2End={p2End}
+          onP2Change={onP2Change}
+          p2Enabled={p2Enabled}
         />
 
         {/* 比較サマリーテーブル */}
@@ -428,12 +440,16 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
         </ComposedChart>
       </ResponsiveContainer>
 
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
 
       {/* ---- テーブル ---- */}

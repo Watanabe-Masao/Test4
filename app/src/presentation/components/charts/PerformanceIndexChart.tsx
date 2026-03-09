@@ -14,8 +14,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toComma, toPct, toDevScore } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'
@@ -60,7 +60,15 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
 }: Props) {
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('pi')
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   const { chartData, stats, piMa7, prevPiMa7 } = useMemo(() => {
     // Phase 1: Collect raw values
@@ -501,12 +509,16 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
       {view === 'zScore' && hasAnomalies && onDayClick && (
         <AnomalyNote>異常値をクリックすると詳細を表示</AnomalyNote>
