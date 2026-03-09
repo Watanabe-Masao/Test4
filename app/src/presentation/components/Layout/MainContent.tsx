@@ -1,10 +1,8 @@
 import { useTheme } from 'styled-components'
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
-import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
-import { DayRangeSlider } from '@/presentation/components/charts/DayRangeSlider'
 import {
   Main,
   Header,
@@ -22,10 +20,6 @@ import {
   YearLabel,
   MonthGrid,
   MonthCell,
-  PeriodBadgeButton,
-  PeriodDropdown,
-  PeriodLabel,
-  PeriodResetBtn,
 } from './MainContent.styles'
 import { ComparisonPresetToggle } from './ComparisonPresetToggle'
 
@@ -105,70 +99,6 @@ function InlineMonthPicker() {
   )
 }
 
-/**
- * InlinePeriodPicker — 分析期間（日範囲）の指定コンポーネント
- *
- * period1 の from.day 〜 to.day をコンパクトに表示し、
- * クリックで DayRangeSlider を含むドロップダウンを開く。
- * 月全日と異なる場合はバッジの色で視覚的に区別する。
- */
-function InlinePeriodPicker() {
-  const { selection, setPeriod1 } = usePeriodSelection()
-  const [open, setOpen] = useState(false)
-
-  const { from, to } = selection.period1
-  const daysInMonth = useMemo(
-    () => new Date(from.year, from.month, 0).getDate(),
-    [from.year, from.month],
-  )
-  const isFullMonth = from.day === 1 && to.day === daysInMonth
-
-  const handleChange = useCallback(
-    (start: number, end: number) => {
-      setPeriod1({
-        from: { ...from, day: start },
-        to: { ...to, day: end },
-      })
-    },
-    [from, to, setPeriod1],
-  )
-
-  const handleReset = useCallback(() => {
-    setPeriod1({
-      from: { ...from, day: 1 },
-      to: { ...to, day: daysInMonth },
-    })
-  }, [from, to, daysInMonth, setPeriod1])
-
-  const label = isFullMonth ? `1〜${daysInMonth}日` : `${from.day}〜${to.day}日`
-
-  return (
-    <BadgeWrapper>
-      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={!isFullMonth}>
-        {label}
-      </PeriodBadgeButton>
-      {open && (
-        <>
-          <PickerOverlay onClick={() => setOpen(false)} />
-          <PeriodDropdown>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <PeriodLabel>分析期間</PeriodLabel>
-              {!isFullMonth && <PeriodResetBtn onClick={handleReset}>全期間</PeriodResetBtn>}
-            </div>
-            <DayRangeSlider
-              min={1}
-              max={daysInMonth}
-              start={from.day}
-              end={to.day}
-              onChange={handleChange}
-            />
-          </PeriodDropdown>
-        </>
-      )}
-    </BadgeWrapper>
-  )
-}
-
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
@@ -212,7 +142,6 @@ export function MainContent({
         <TitleRow>
           <Title>{title}</Title>
           <InlineMonthPicker />
-          <InlinePeriodPicker />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
