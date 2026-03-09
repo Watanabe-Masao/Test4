@@ -14,7 +14,6 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { MergedPeriodMetrics } from '@/application/hooks/usePeriodAwareKpi'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -119,10 +118,4 @@ export interface WidgetContext {
   dowGap: DowGapAnalysis
   /** 前年予算比較詳細パネルを開く */
   onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
-  /** 期間連動メトリクス — period1（DuckDB ベース。部分月選択時に提供） */
-  periodMetrics?: MergedPeriodMetrics
-  /** 比較期間のメトリクス — period2（DuckDB ベース。比較 ON 時に提供） */
-  period2Metrics?: MergedPeriodMetrics
-  /** 選択期間が月全日かどうか（true: StoreResult を使う、false: periodMetrics を使う） */
-  isPeriodFullMonth?: boolean
 }

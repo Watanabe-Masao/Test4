@@ -4,9 +4,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
-import { toDateKey } from '@/domain/models'
-import type { DateRange } from '@/domain/models'
-import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
+import { DayRangeSlider } from '@/presentation/components/charts/DayRangeSlider'
 import {
   Main,
   Header,
@@ -25,9 +23,11 @@ import {
   MonthGrid,
   MonthCell,
   PeriodBadgeButton,
-  HeaderChipArea,
+  PeriodDropdown,
+  PeriodLabel,
+  PeriodResetBtn,
 } from './MainContent.styles'
-import { DualPeriodPicker } from './DualPeriodPicker'
+import { ComparisonPresetToggle } from './ComparisonPresetToggle'
 
 // ── Components ──
 
@@ -106,15 +106,14 @@ function InlineMonthPicker() {
 }
 
 /**
- * InlineDualPeriodPicker — 期間1・期間2 の統合ピッカー
+ * InlinePeriodPicker — 分析期間（日範囲）の指定コンポーネント
  *
- * 1つのバッジをクリックすると、期間1・期間2 を上下に分けた
- * 統合パネルが開く。期間選択の全操作がこのパネルで完結する。
+ * period1 の from.day 〜 to.day をコンパクトに表示し、
+ * クリックで DayRangeSlider を含むドロップダウンを開く。
+ * 月全日と異なる場合はバッジの色で視覚的に区別する。
  */
-function InlineDualPeriodPicker() {
-  const { selection, setPeriod1, setPeriod2, setPreset, setComparisonEnabled } =
-    usePeriodSelection()
-  const settings = useSettingsStore((s) => s.settings)
+function InlinePeriodPicker() {
+  const { selection, setPeriod1 } = usePeriodSelection()
   const [open, setOpen] = useState(false)
 
   const { from, to } = selection.period1
@@ -124,78 +123,46 @@ function InlineDualPeriodPicker() {
   )
   const isFullMonth = from.day === 1 && to.day === daysInMonth
 
-  const isSameMonth = from.year === to.year && from.month === to.month
-  const p1Label = isSameMonth
-    ? `${from.month}/${from.day}〜${to.day}日`
-    : `${toDateKey(from)}〜${toDateKey(to)}`
+  const handleChange = useCallback(
+    (start: number, end: number) => {
+      setPeriod1({
+        from: { ...from, day: start },
+        to: { ...to, day: end },
+      })
+    },
+    [from, to, setPeriod1],
+  )
 
-  // 比較期間のラベル
-  const p2From = selection.period2.from
-  const p2To = selection.period2.to
-  const p2SameMonth = p2From.year === p2To.year && p2From.month === p2To.month
-  const p2Label = p2SameMonth
-    ? `${p2From.year}/${p2From.month}/${p2From.day}〜${p2To.day}`
-    : `${toDateKey(p2From)}〜${toDateKey(p2To)}`
+  const handleReset = useCallback(() => {
+    setPeriod1({
+      from: { ...from, day: 1 },
+      to: { ...to, day: daysInMonth },
+    })
+  }, [from, to, daysInMonth, setPeriod1])
 
-  const handleP1Change = useCallback(
-    (range: DateRange) => {
-      setPeriod1(range)
-    },
-    [setPeriod1],
-  )
-  const handleP2Change = useCallback(
-    (range: DateRange) => {
-      setPeriod2(range)
-    },
-    [setPeriod2],
-  )
-  const handlePresetChange = useCallback(
-    (preset: ComparisonPreset) => {
-      setPreset(preset)
-    },
-    [setPreset],
-  )
-  const handleComparisonToggle = useCallback(
-    (enabled: boolean) => {
-      setComparisonEnabled(enabled)
-    },
-    [setComparisonEnabled],
-  )
+  const label = isFullMonth ? `1〜${daysInMonth}日` : `${from.day}〜${to.day}日`
 
   return (
     <BadgeWrapper>
       <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={!isFullMonth}>
-        {p1Label}
+        {label}
       </PeriodBadgeButton>
-      {selection.comparisonEnabled && (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            color: '#9ca3af',
-            marginLeft: '4px',
-            cursor: 'pointer',
-          }}
-          onClick={() => setOpen(!open)}
-        >
-          vs {p2Label}
-        </span>
-      )}
       {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />
-          <DualPeriodPicker
-            period1={selection.period1}
-            period2={selection.period2}
-            comparisonEnabled={selection.comparisonEnabled}
-            activePreset={selection.activePreset}
-            onPeriod1Change={handleP1Change}
-            onPeriod2Change={handleP2Change}
-            onPresetChange={handlePresetChange}
-            onComparisonToggle={handleComparisonToggle}
-            year={settings.targetYear}
-            month={settings.targetMonth}
-            daysInMonth={daysInMonth}
-          />
+          <PeriodDropdown>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <PeriodLabel>分析期間</PeriodLabel>
+              {!isFullMonth && <PeriodResetBtn onClick={handleReset}>全期間</PeriodResetBtn>}
+            </div>
+            <DayRangeSlider
+              min={1}
+              max={daysInMonth}
+              start={from.day}
+              end={to.day}
+              onChange={handleChange}
+            />
+          </PeriodDropdown>
         </>
       )}
     </BadgeWrapper>
@@ -245,13 +212,14 @@ export function MainContent({
         <TitleRow>
           <Title>{title}</Title>
           <InlineMonthPicker />
-          <InlineDualPeriodPicker />
+          <InlinePeriodPicker />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
-        <HeaderChipArea>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <ComparisonPresetToggle />
           <HeaderContext />
           {actions}
-        </HeaderChipArea>
+        </div>
       </Header>
       {children}
     </Main>

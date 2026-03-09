@@ -22,7 +22,6 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { MergedPeriodMetrics } from '@/application/hooks/usePeriodAwareKpi'
 import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 
@@ -67,20 +66,11 @@ export interface UnifiedWidgetContext {
   // ── 期間選択（新モデル） ──
   /** 期間選択の全状態（periodSelectionStore から） */
   readonly periodSelection?: PeriodSelection
-  /** 期間連動メトリクス（DuckDB ベース。部分月選択時に提供） */
-  readonly periodMetrics?: MergedPeriodMetrics
-  /** 比較期間のメトリクス — period2（DuckDB ベース。比較 ON 時に提供） */
-  readonly period2Metrics?: MergedPeriodMetrics
-  /** 選択期間が月全日かどうか（true: StoreResult を使う、false: periodMetrics を使う） */
-  readonly isPeriodFullMonth?: boolean
 
   // ── Dashboard 固有（他ページではオプション） ──
   readonly storeKey?: string
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
-  /** 実績データの有効範囲（ピッカーで指定、effectiveEndDay でキャップ） */
   readonly currentDateRange?: DateRange
-  /** 月全体の範囲（予算・前年表示用。トリミングされない） */
-  readonly fullMonthRange?: DateRange
   readonly prevYearDateRange?: DateRange
   readonly prevYearScope?: PrevYearScope
   readonly dataEndDay?: number | null

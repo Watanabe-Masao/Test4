@@ -81,7 +81,6 @@ export function useDuckDBStorePeriodMetrics(
   dateRange: DateRange | undefined,
   storeIds: ReadonlySet<string>,
   defaultMarkupRate: number,
-  isPrevYear = false,
 ): AsyncQueryResult<readonly PeriodMetrics[]> {
   const queryFn = useMemo(() => {
     if (!dateRange) return null
@@ -96,7 +95,7 @@ export function useDuckDBStorePeriodMetrics(
           dateFrom: fromKey,
           dateTo: toKey,
           storeIds: storeIdArr,
-          isPrevYear,
+          isPrevYear: false,
         }),
         queryInventoryConfigs(c, dateRange.from.year, dateRange.from.month, storeIdArr),
       ])
@@ -104,7 +103,7 @@ export function useDuckDBStorePeriodMetrics(
       // 2. JS: ドメイン計算（計算ロジックの単一権威）
       return calculateAllPeriodMetrics(summaryRows, invConfigs, defaultMarkupRate)
     }
-  }, [dateRange, storeIds, defaultMarkupRate, isPrevYear])
+  }, [dateRange, storeIds, defaultMarkupRate])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

@@ -18,7 +18,6 @@ import {
   useDowGapAnalysis,
 } from '@/application/hooks'
 import { buildPrevYearScopeFromSelection, deriveDowOffset } from '@/domain/models/PeriodSelection'
-import { usePeriodAwareKpi } from '@/application/hooks/usePeriodAwareKpi'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -128,21 +127,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // 期間連動 KPI（DuckDB ベース）— period1 + period2 独立テーブル
-  // カレンダーで選択した期間をそのまま使う。
-  // elapsedDays（有効取り込み期間）はデータ存在範囲の参考値であり、
-  // DuckDB クエリ範囲を制限しない（データが無い日は集計結果が0になるだけ）。
-  const periodAwareKpi = usePeriodAwareKpi(
-    duck.conn,
-    duck.dataVersion,
-    currentResult ? periodSelection.period1 : undefined,
-    periodSelection.comparisonEnabled ? periodSelection.period2 : undefined,
-    periodSelection.comparisonEnabled,
-    selectedStoreIds,
-    daysInMonth,
-    settings.targetGrossProfitRate,
-  )
-
   // 比較フレーム — periodSelection から導出（useComparisonFrame を置換）
   const frame: ComparisonFrame = useMemo(() => {
     const p = periodSelection
@@ -180,27 +164,22 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   }
 
   const r = currentResult
+  const effectiveEndDay =
+    r.elapsedDays != null && r.elapsedDays > 0 ? Math.min(r.elapsedDays, daysInMonth) : daysInMonth
 
-  // currentDateRange: periodSelection.period1 をそのまま使用。
-  // dataEndDay/elapsedDays によるキャップは行わない。
-  // カレンダーの期間選択が唯一の範囲指定元。
-  const currentDateRange: DateRange = periodSelection.period1
-
-  // 月全体の範囲（予算・前年表示用。期間ピッカーでトリミングされない）
-  const fullMonthRange: DateRange = {
+  const currentDateRange: DateRange = {
     from: { year: targetYear, month: targetMonth, day: 1 },
-    to: { year: targetYear, month: targetMonth, day: daysInMonth },
+    to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  // prevYearScope: DOW offset + periodSelection から導出。
-  // elapsedDays キャップなし（カレンダーの期間選択に従う）。
+  // prevYearScope: DOW offset + elapsedDays で調整済みの前年日付範囲と客数をセットで管理。
+  // periodSelection から導出。effectiveEndDay でキャップして
+  // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
   const prevYearScope = prevYear.hasPrevYear
-    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers)
+    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers, effectiveEndDay)
     : undefined
 
-  // 比較期間: periodSelection.period2 を直接使用（プリセットにより自動算出済み）
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
-    ? prevYearScope?.dateRange
-    : undefined
+  // 後方互換: prevYearDateRange は prevYearScope.dateRange と同一
+  const prevYearDateRange: DateRange | undefined = prevYearScope?.dateRange
 
   const ctx: UnifiedWidgetContext = {
     // コア
@@ -220,15 +199,11 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 期間選択
     periodSelection,
-    periodMetrics: periodAwareKpi.periodMetrics ?? undefined,
-    period2Metrics: periodAwareKpi.period2Metrics ?? undefined,
-    isPeriodFullMonth: periodAwareKpi.isFullMonth,
 
     // Dashboard 固有
     storeKey: storeName,
     allStoreResults: storeResults,
     currentDateRange,
-    fullMonthRange,
     prevYearDateRange,
     prevYearScope,
     dataEndDay: settings.dataEndDay,
