@@ -258,19 +258,39 @@ export function deriveDowOffset(
  * 旧 buildPrevYearScope(ComparisonFrame, effectiveEndDay, totalCustomers) を置換。
  *
  * 新モデルでは period2 にオフセットが既に焼き込まれているため、
- * ComparisonFrame + effectiveEndDay による調整が不要。
- * period2 = PrevYearScope.dateRange となる。
+ * ComparisonFrame による調整が不要。
+ *
+ * effectiveEndDay が指定された場合、前年の to.day を
+ * min(effectiveEndDay + offset, period2.to.day) にキャップして
+ * JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
  *
  * @param selection 期間選択状態
  * @param totalCustomers JS エンジンで算出された前年客数（period2 と同スコープ）
+ * @param effectiveEndDay 当期の有効日数（データ可用性による上限）
  */
 export function buildPrevYearScopeFromSelection(
   selection: PeriodSelection,
   totalCustomers: number,
+  effectiveEndDay?: number,
 ): PrevYearScope {
+  const offset = deriveDowOffset(selection.period1, selection.period2, selection.activePreset)
+  const period2 = selection.period2
+
+  if (effectiveEndDay != null) {
+    const cappedToDay = Math.min(effectiveEndDay + offset, period2.to.day)
+    return {
+      dateRange: {
+        from: period2.from,
+        to: { ...period2.to, day: cappedToDay },
+      },
+      totalCustomers,
+      dowOffset: offset,
+    }
+  }
+
   return {
-    dateRange: selection.period2,
+    dateRange: period2,
     totalCustomers,
-    dowOffset: deriveDowOffset(selection.period1, selection.period2, selection.activePreset),
+    dowOffset: offset,
   }
 }

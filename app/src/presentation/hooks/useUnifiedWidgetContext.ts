@@ -18,7 +18,7 @@ import {
   usePrevYearMonthlyKpi,
   useDowGapAnalysis,
 } from '@/application/hooks'
-import { buildPrevYearScope } from '@/application/comparison/resolveComparisonFrame'
+import { buildPrevYearScopeFromSelection } from '@/domain/models/PeriodSelection'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -170,9 +170,10 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
   // prevYearScope: DOW offset + elapsedDays で調整済みの前年日付範囲と客数をセットで管理。
-  // buildPrevYearScope が JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
+  // periodSelection から導出。effectiveEndDay でキャップして
+  // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
   const prevYearScope = prevYear.hasPrevYear
-    ? buildPrevYearScope(frame, effectiveEndDay, prevYear.totalCustomers)
+    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers, effectiveEndDay)
     : undefined
 
   // 後方互換: prevYearDateRange は prevYearScope.dateRange と同一

@@ -45,11 +45,10 @@ function buildOldPrevYearScope(
 }
 
 /**
- * 新モデルの結果を構築するヘルパー
+ * 新モデルの結果を構築するヘルパー（period1.to.day = effectiveEndDay 方式）
  *
  * PeriodSelection + buildPrevYearScopeFromSelection の処理を再現。
- * ただし period1.to.day を effectiveEndDay に調整して
- * applyPreset を再適用する（ユーザーが期間を絞った場合を模擬）。
+ * period1.to.day を effectiveEndDay に調整して applyPreset を再適用。
  */
 function buildNewPrevYearScope(
   year: number,
@@ -71,6 +70,34 @@ function buildNewPrevYearScope(
     activePreset: preset,
   }
   return buildPrevYearScopeFromSelection(selection, totalCustomers)
+}
+
+/**
+ * 新モデルの結果を構築するヘルパー（effectiveEndDay パラメータ方式）
+ *
+ * useUnifiedWidgetContext の実際のパスを模擬:
+ * period1.to.day = daysInMonth（月末）のまま、effectiveEndDay を第3引数で渡す。
+ */
+function buildNewPrevYearScopeWithParam(
+  year: number,
+  month: number,
+  effectiveEndDay: number,
+  totalCustomers: number,
+  preset: 'prevYearSameMonth' | 'prevYearSameDow' = 'prevYearSameMonth',
+) {
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const period1: DateRange = {
+    from: { year, month, day: 1 },
+    to: { year, month, day: daysInMonth },
+  }
+  const period2 = applyPreset(period1, preset, period1)
+  const selection: PeriodSelection = {
+    period1,
+    period2,
+    comparisonEnabled: true,
+    activePreset: preset,
+  }
+  return buildPrevYearScopeFromSelection(selection, totalCustomers, effectiveEndDay)
 }
 
 describe('期間モデル移行整合性', () => {
@@ -144,6 +171,48 @@ describe('期間モデル移行整合性', () => {
         expect(newScope.dowOffset).toBe(oldScope.dowOffset)
       })
     }
+  })
+
+  describe('effectiveEndDay パラメータ方式 — useUnifiedWidgetContext 実パス', () => {
+    const testCases = [
+      { year: 2026, month: 2, endDay: 28, customers: 500 },
+      { year: 2026, month: 3, endDay: 20, customers: 300 },
+      { year: 2026, month: 3, endDay: 31, customers: 1000 },
+      { year: 2025, month: 1, endDay: 15, customers: 200 },
+      { year: 2025, month: 12, endDay: 25, customers: 750 },
+    ]
+
+    describe('prevYearSameMonth', () => {
+      for (const { year, month, endDay, customers } of testCases) {
+        it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで旧パスと一致`, () => {
+          const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDate')
+          const newScope = buildNewPrevYearScopeWithParam(
+            year, month, endDay, customers, 'prevYearSameMonth',
+          )
+
+          expect(newScope.dateRange.from).toEqual(oldScope.dateRange.from)
+          expect(newScope.dateRange.to).toEqual(oldScope.dateRange.to)
+          expect(newScope.totalCustomers).toBe(oldScope.totalCustomers)
+          expect(newScope.dowOffset).toBe(oldScope.dowOffset)
+        })
+      }
+    })
+
+    describe('prevYearSameDow', () => {
+      for (const { year, month, endDay, customers } of testCases) {
+        it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで旧パスと一致`, () => {
+          const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDayOfWeek')
+          const newScope = buildNewPrevYearScopeWithParam(
+            year, month, endDay, customers, 'prevYearSameDow',
+          )
+
+          expect(newScope.dateRange.from).toEqual(oldScope.dateRange.from)
+          expect(newScope.dateRange.to).toEqual(oldScope.dateRange.to)
+          expect(newScope.totalCustomers).toBe(customers)
+          expect(newScope.dowOffset).toBe(oldScope.dowOffset)
+        })
+      }
+    })
   })
 
   describe('usePrevYearData の日次マッピングとの整合', () => {
