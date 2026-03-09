@@ -29,7 +29,14 @@ import {
 
 const navItemDefs: {
   view: ViewType
-  labelKey: 'dashboard' | 'daily' | 'insight' | 'category' | 'costDetail' | 'reports'
+  labelKey:
+    | 'dashboard'
+    | 'daily'
+    | 'insight'
+    | 'category'
+    | 'costDetail'
+    | 'purchaseAnalysis'
+    | 'reports'
   icon: string
 }[] = [
   { view: 'dashboard', labelKey: 'dashboard', icon: '📊' },
@@ -37,6 +44,7 @@ const navItemDefs: {
   { view: 'insight', labelKey: 'insight', icon: '📈' },
   { view: 'category', labelKey: 'category', icon: '📁' },
   { view: 'cost-detail', labelKey: 'costDetail', icon: '💰' },
+  { view: 'purchase-analysis', labelKey: 'purchaseAnalysis', icon: '🏭' },
   { view: 'reports', labelKey: 'reports', icon: '📄' },
 ]
 

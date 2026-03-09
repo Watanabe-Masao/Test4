@@ -46,6 +46,7 @@ export type ViewType =
   | 'insight'
   | 'category'
   | 'cost-detail'
+  | 'purchase-analysis'
   | 'reports'
   | 'admin'
 

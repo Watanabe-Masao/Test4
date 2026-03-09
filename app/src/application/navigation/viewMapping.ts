@@ -11,6 +11,7 @@ export const VIEW_TO_PATH: Record<ViewType, string> = {
   insight: '/insight',
   category: '/category',
   'cost-detail': '/cost-detail',
+  'purchase-analysis': '/purchase-analysis',
   reports: '/reports',
   admin: '/admin',
 }

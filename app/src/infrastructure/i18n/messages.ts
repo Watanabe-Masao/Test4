@@ -25,6 +25,7 @@ export interface MessageCatalog {
     darkMode: string
     costDetail: string
     insight: string
+    purchaseAnalysis: string
   }
 
   // ─── 共通 ──────────────────────────────────────────
@@ -130,6 +131,7 @@ export const jaMessages: MessageCatalog = {
     darkMode: 'ダークモード',
     costDetail: '仕入・原価',
     insight: '粗利分析',
+    purchaseAnalysis: '仕入分析',
   },
   common: {
     loading: '読み込み中...',
@@ -221,6 +223,7 @@ export const enMessages: MessageCatalog = {
     darkMode: 'Dark Mode',
     costDetail: 'Cost Detail',
     insight: 'Gross Profit',
+    purchaseAnalysis: 'Purchase Analysis',
   },
   common: {
     loading: 'Loading...',
