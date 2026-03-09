@@ -169,6 +169,69 @@ function InlinePeriodPicker() {
   )
 }
 
+/**
+ * InlineComparisonPeriodBadge — 比較期間の表示・編集コンポーネント
+ *
+ * period2 の年月日範囲をコンパクトに表示する。
+ * プリセット使用時は自動算出された比較期間を表示し、
+ * クリックでカスタム編集に切り替えできる。
+ */
+function InlineComparisonPeriodBadge() {
+  const { selection, setPeriod2 } = usePeriodSelection()
+  const [open, setOpen] = useState(false)
+
+  const { from, to } = selection.period2
+  const isSameMonth = from.year === to.year && from.month === to.month
+  const daysInMonth = useMemo(
+    () => new Date(from.year, from.month, 0).getDate(),
+    [from.year, from.month],
+  )
+
+  const label = isSameMonth
+    ? `${from.year}/${from.month}月 ${from.day}〜${to.day}日`
+    : `${from.year}/${from.month}/${from.day}〜${to.year}/${to.month}/${to.day}`
+
+  const isCustom = selection.activePreset === 'custom'
+
+  const handleChange = useCallback(
+    (start: number, end: number) => {
+      setPeriod2({
+        from: { ...from, day: start },
+        to: { ...to, day: end },
+      })
+    },
+    [from, to, setPeriod2],
+  )
+
+  if (!selection.comparisonEnabled) return null
+
+  return (
+    <BadgeWrapper>
+      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={isCustom}>
+        vs {label}
+      </PeriodBadgeButton>
+      {open && isSameMonth && (
+        <>
+          <PickerOverlay onClick={() => setOpen(false)} />
+          <PeriodDropdown>
+            <PeriodLabel>
+              比較期間 ({from.year}/{from.month}月)
+              {!isCustom && <span style={{ marginLeft: 8, opacity: 0.6 }}>プリセット連動中</span>}
+            </PeriodLabel>
+            <DayRangeSlider
+              min={1}
+              max={daysInMonth}
+              start={from.day}
+              end={to.day}
+              onChange={handleChange}
+            />
+          </PeriodDropdown>
+        </>
+      )}
+    </BadgeWrapper>
+  )
+}
+
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
@@ -213,6 +276,7 @@ export function MainContent({
           <Title>{title}</Title>
           <InlineMonthPicker />
           <InlinePeriodPicker />
+          <InlineComparisonPeriodBadge />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

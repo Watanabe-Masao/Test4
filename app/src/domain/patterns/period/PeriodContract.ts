@@ -146,6 +146,7 @@ export const PRESET_LABELS: Readonly<
   prevYearSameMonth: { label: '比較期（前年同月）', shortLabel: '前年同月' },
   prevYearSameDow: { label: '比較期（前年同曜日）', shortLabel: '前年同曜日' },
   prevMonth: { label: '比較期（前月）', shortLabel: '前月' },
+  prevWeek: { label: '比較期（前週）', shortLabel: '前週' },
   custom: { label: '比較期（カスタム）', shortLabel: 'カスタム' },
 }
 

@@ -28,7 +28,7 @@ export function DowGapKpiCard({
   const gapSummary = dowGap.dowCounts
     .filter((d) => d.diff !== 0)
     .map((d) => `${DOW_SHORT[d.dow]}${d.diff > 0 ? '+' : ''}${d.diff}`)
-    .join(' ')
+    .join(', ')
 
   if (isActualView) {
     const impact = actualDay.estimatedImpact

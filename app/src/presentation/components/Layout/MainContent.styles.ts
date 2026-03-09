@@ -14,7 +14,7 @@ export const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: -${({ theme }) => theme.spacing[8]};
-  margin-bottom: 0;
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
   padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
   background: ${({ theme }) => theme.colors.bg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
