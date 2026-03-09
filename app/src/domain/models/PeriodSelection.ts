@@ -20,6 +20,7 @@
  * - 比較の初期値は ON
  */
 import type { DateRange, CalendarDate } from './CalendarDate'
+import type { PrevYearScope } from './ComparisonFrame'
 
 /** 比較プリセット — 期間-2 の自動算出方法 */
 export type ComparisonPreset =
@@ -229,5 +230,47 @@ export function createDefaultPeriodSelection(year: number, month: number): Perio
     period2,
     comparisonEnabled: true,
     activePreset: 'prevYearSameMonth',
+  }
+}
+
+/**
+ * PeriodSelection から DOW オフセットを導出する。
+ *
+ * prevYearSameDow プリセット時のみ非ゼロ。
+ * period1/period2 の月初曜日差から算出する。
+ *
+ * 旧 ComparisonFrame.dowOffset と同値を返す。
+ */
+export function deriveDowOffset(
+  period1: DateRange,
+  period2: DateRange,
+  preset: ComparisonPreset,
+): number {
+  if (preset !== 'prevYearSameDow') return 0
+  const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
+  const prevDow = new Date(period2.from.year, period2.from.month - 1, 1).getDay()
+  return ((currentDow - prevDow) % 7 + 7) % 7
+}
+
+/**
+ * PeriodSelection + JS集計値から PrevYearScope を構築する。
+ *
+ * 旧 buildPrevYearScope(ComparisonFrame, effectiveEndDay, totalCustomers) を置換。
+ *
+ * 新モデルでは period2 にオフセットが既に焼き込まれているため、
+ * ComparisonFrame + effectiveEndDay による調整が不要。
+ * period2 = PrevYearScope.dateRange となる。
+ *
+ * @param selection 期間選択状態
+ * @param totalCustomers JS エンジンで算出された前年客数（period2 と同スコープ）
+ */
+export function buildPrevYearScopeFromSelection(
+  selection: PeriodSelection,
+  totalCustomers: number,
+): PrevYearScope {
+  return {
+    dateRange: selection.period2,
+    totalCustomers,
+    dowOffset: deriveDowOffset(selection.period1, selection.period2, selection.activePreset),
   }
 }

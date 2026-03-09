@@ -4,8 +4,11 @@ import {
   calcAdjacentMonths,
   buildPeriodQueryInput,
   createDefaultPeriodSelection,
+  deriveDowOffset,
+  buildPrevYearScopeFromSelection,
 } from '../PeriodSelection'
 import type { DateRange } from '../CalendarDate'
+import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
 describe('PeriodSelection', () => {
   const feb2026: DateRange = {
@@ -134,6 +137,97 @@ describe('PeriodSelection', () => {
       expect(input.period1).toEqual(sel.period1)
       expect(input.period2).toBeUndefined()
       expect(input.period2Adjacent).toBeUndefined()
+    })
+  })
+
+  describe('deriveDowOffset', () => {
+    it('prevYearSameMonth: オフセット 0', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      expect(deriveDowOffset(sel.period1, sel.period2, 'prevYearSameMonth')).toBe(0)
+    })
+
+    it('prevMonth: オフセット 0', () => {
+      const p1 = feb2026
+      const p2 = applyPreset(p1, 'prevMonth', p1)
+      expect(deriveDowOffset(p1, p2, 'prevMonth')).toBe(0)
+    })
+
+    it('custom: オフセット 0', () => {
+      const p1 = feb2026
+      const p2: DateRange = {
+        from: { year: 2024, month: 6, day: 1 },
+        to: { year: 2024, month: 6, day: 30 },
+      }
+      expect(deriveDowOffset(p1, p2, 'custom')).toBe(0)
+    })
+
+    it('prevYearSameDow: 旧 calcSameDowOffset と同値', () => {
+      // 複数月でクロスチェック
+      const testCases = [
+        { year: 2026, month: 2 },
+        { year: 2026, month: 3 },
+        { year: 2026, month: 6 },
+        { year: 2025, month: 1 },
+        { year: 2025, month: 12 },
+      ]
+      for (const { year, month } of testCases) {
+        const sel = createDefaultPeriodSelection(year, month)
+        const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+        const newOffset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+        const oldOffset = calcSameDowOffset(year, month)
+        expect(newOffset, `${year}/${month}: new=${newOffset} vs old=${oldOffset}`).toBe(
+          oldOffset,
+        )
+      }
+    })
+  })
+
+  describe('buildPrevYearScopeFromSelection', () => {
+    it('dateRange は period2 と一致', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      const scope = buildPrevYearScopeFromSelection(sel, 500)
+      expect(scope.dateRange).toEqual(sel.period2)
+    })
+
+    it('totalCustomers がバンドルされる', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      const scope = buildPrevYearScopeFromSelection(sel, 1234)
+      expect(scope.totalCustomers).toBe(1234)
+    })
+
+    it('prevYearSameMonth: dowOffset=0', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      const scope = buildPrevYearScopeFromSelection(sel, 100)
+      expect(scope.dowOffset).toBe(0)
+    })
+
+    it('prevYearSameDow: dowOffset は旧システムと一致', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+      const sameDowSel = { ...sel, period2: p2, activePreset: 'prevYearSameDow' as const }
+      const scope = buildPrevYearScopeFromSelection(sameDowSel, 100)
+      const expectedOffset = calcSameDowOffset(2026, 3)
+      expect(scope.dowOffset).toBe(expectedOffset)
+    })
+
+    it('prevYearSameDow: period2.from.day = period1.from.day + offset', () => {
+      // 構造的整合性: applyPreset のオフセット焼き込みと deriveDowOffset の導出が一致
+      const testCases = [
+        { year: 2026, month: 2 },
+        { year: 2026, month: 6 },
+        { year: 2025, month: 12 },
+      ]
+      for (const { year, month } of testCases) {
+        const sel = createDefaultPeriodSelection(year, month)
+        const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+        const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+        // applyPreset は from.day = period1.from.day + offset を計算している
+        // period1.from.day = 1 なので period2.from.day = 1 + offset
+        expect(
+          p2.from.day,
+          `${year}/${month}: period2.from.day=${p2.from.day} vs 1+offset=${1 + offset}`,
+        ).toBe(Math.min(1 + offset, new Date(year - 1, month, 0).getDate()))
+      }
     })
   })
 })

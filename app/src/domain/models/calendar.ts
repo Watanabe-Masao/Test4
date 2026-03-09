@@ -25,4 +25,6 @@ export {
   buildPeriodQueryInput,
   applyPreset,
   createDefaultPeriodSelection,
+  deriveDowOffset,
+  buildPrevYearScopeFromSelection,
 } from './PeriodSelection'

@@ -30,6 +30,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -57,6 +58,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const data = useDataStore((s) => s.data)
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
@@ -191,6 +193,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     explanations,
     onExplain: handleExplain,
     departmentKpi: deptKpiIndex,
+
+    // 期間選択
+    periodSelection,
 
     // Dashboard 固有
     storeKey: storeName,
