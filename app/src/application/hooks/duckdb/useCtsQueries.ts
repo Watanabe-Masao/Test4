@@ -152,7 +152,14 @@ export function useDuckDBHourDowMatrix(
       isPrevYear,
     }
     return (c: AsyncDuckDBConnection) => queryHourDowMatrix(c, params)
-  }, [dateRange, storeIds, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
+  }, [
+    dateRange,
+    storeIds,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    isPrevYear,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
@@ -267,7 +274,15 @@ export function useDuckDBCategoryHourly(
         isPrevYear,
         level,
       })
-  }, [dateRange, storeIds, level, hierarchy?.deptCode, hierarchy?.lineCode, hierarchy?.klassCode, isPrevYear])
+  }, [
+    dateRange,
+    storeIds,
+    level,
+    hierarchy?.deptCode,
+    hierarchy?.lineCode,
+    hierarchy?.klassCode,
+    isPrevYear,
+  ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }

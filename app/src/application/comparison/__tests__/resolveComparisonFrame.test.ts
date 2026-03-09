@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { resolveComparisonFrame, calcSameDowOffset, buildPrevYearScope } from '../resolveComparisonFrame'
+import {
+  resolveComparisonFrame,
+  calcSameDowOffset,
+  buildPrevYearScope,
+} from '../resolveComparisonFrame'
 import type { DateRange, ComparisonFrame } from '@/domain/models'
 
 describe('calcSameDowOffset', () => {

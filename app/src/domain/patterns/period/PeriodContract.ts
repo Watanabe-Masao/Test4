@@ -21,7 +21,11 @@
  *   3. usePeriodQueries にクエリ追加
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
-import type { PeriodSelection, ComparisonPreset, AdjacentMonths } from '@/domain/models/PeriodSelection'
+import type {
+  PeriodSelection,
+  ComparisonPreset,
+  AdjacentMonths,
+} from '@/domain/models/PeriodSelection'
 
 // ── 期間要求の宣言 ──
 
@@ -164,7 +168,11 @@ export function createPeriodEntry<T>(
 /**
  * 当期の PeriodEntry を構築する
  */
-export function createCurrentEntry<T>(period: DateRange, data: T, hasData: boolean): PeriodEntry<T> {
+export function createCurrentEntry<T>(
+  period: DateRange,
+  data: T,
+  hasData: boolean,
+): PeriodEntry<T> {
   return createPeriodEntry('current', period, data, hasData, '当期', '当期')
 }
 

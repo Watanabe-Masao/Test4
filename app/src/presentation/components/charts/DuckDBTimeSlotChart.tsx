@@ -87,7 +87,13 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const d = useDuckDBTimeSlotData({ duckConn, duckDataVersion, currentDateRange, selectedStoreIds, prevYearScope })
+  const d = useDuckDBTimeSlotData({
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    prevYearScope,
+  })
 
   if (d.error) {
     return (

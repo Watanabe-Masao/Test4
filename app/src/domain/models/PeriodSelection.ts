@@ -156,10 +156,7 @@ export function applyPreset(
         to: {
           year: period1.to.year - 1,
           month: period1.to.month,
-          day: Math.min(
-            period1.to.day,
-            lastDayOfMonth(period1.to.year - 1, period1.to.month),
-          ),
+          day: Math.min(period1.to.day, lastDayOfMonth(period1.to.year - 1, period1.to.month)),
         },
       }
 
@@ -168,7 +165,7 @@ export function applyPreset(
       const prevYear = period1.from.year - 1
       const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
       const prevDow = new Date(prevYear, period1.from.month - 1, 1).getDay()
-      const offset = ((currentDow - prevDow) % 7 + 7) % 7
+      const offset = (((currentDow - prevDow) % 7) + 7) % 7
       const prevDaysInMonth = lastDayOfMonth(prevYear, period1.from.month)
 
       return {
@@ -180,7 +177,10 @@ export function applyPreset(
         to: {
           year: period1.to.year - 1,
           month: period1.to.month,
-          day: Math.min(period1.to.day + offset, lastDayOfMonth(period1.to.year - 1, period1.to.month)),
+          day: Math.min(
+            period1.to.day + offset,
+            lastDayOfMonth(period1.to.year - 1, period1.to.month),
+          ),
         },
       }
     }
@@ -249,7 +249,7 @@ export function deriveDowOffset(
   if (preset !== 'prevYearSameDow') return 0
   const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
   const prevDow = new Date(period2.from.year, period2.from.month - 1, 1).getDay()
-  return ((currentDow - prevDow) % 7 + 7) % 7
+  return (((currentDow - prevDow) % 7) + 7) % 7
 }
 
 /**

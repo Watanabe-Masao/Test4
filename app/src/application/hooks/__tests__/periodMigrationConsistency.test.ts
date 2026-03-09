@@ -187,7 +187,11 @@ describe('期間モデル移行整合性', () => {
         it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで旧パスと一致`, () => {
           const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDate')
           const newScope = buildNewPrevYearScopeWithParam(
-            year, month, endDay, customers, 'prevYearSameMonth',
+            year,
+            month,
+            endDay,
+            customers,
+            'prevYearSameMonth',
           )
 
           expect(newScope.dateRange.from).toEqual(oldScope.dateRange.from)
@@ -203,7 +207,11 @@ describe('期間モデル移行整合性', () => {
         it(`${year}/${month} endDay=${endDay}: effectiveEndDay パラメータで旧パスと一致`, () => {
           const oldScope = buildOldPrevYearScope(year, month, endDay, customers, 'sameDayOfWeek')
           const newScope = buildNewPrevYearScopeWithParam(
-            year, month, endDay, customers, 'prevYearSameDow',
+            year,
+            month,
+            endDay,
+            customers,
+            'prevYearSameDow',
           )
 
           expect(newScope.dateRange.from).toEqual(oldScope.dateRange.from)

@@ -74,8 +74,9 @@ export function usePeriodResolver(need: PeriodNeed): ResolvedPeriods {
       ...base,
       period2: selection.comparisonEnabled ? selection.period2 : undefined,
       period1Adjacent: calcAdjacentMonths(selection.period1),
-      period2Adjacent:
-        selection.comparisonEnabled ? calcAdjacentMonths(selection.period2) : undefined,
+      period2Adjacent: selection.comparisonEnabled
+        ? calcAdjacentMonths(selection.period2)
+        : undefined,
     }
   }, [selection, need])
 }
