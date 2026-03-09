@@ -32,11 +32,7 @@ export async function queryPurchaseBySupplier(
   month: number,
   storeIds?: readonly string[],
 ): Promise<readonly PurchaseSupplierRow[]> {
-  const where = buildWhereClause([
-    `year = ${year}`,
-    `month = ${month}`,
-    storeIdFilter(storeIds),
-  ])
+  const where = buildWhereClause([`year = ${year}`, `month = ${month}`, storeIdFilter(storeIds)])
   const sql = `
     SELECT
       COALESCE(supplier_code, 'UNKNOWN') AS supplier_code,
@@ -59,11 +55,7 @@ export async function queryPurchaseTotal(
   month: number,
   storeIds?: readonly string[],
 ): Promise<PurchaseTotalRow> {
-  const where = buildWhereClause([
-    `year = ${year}`,
-    `month = ${month}`,
-    storeIdFilter(storeIds),
-  ])
+  const where = buildWhereClause([`year = ${year}`, `month = ${month}`, storeIdFilter(storeIds)])
   const sql = `
     SELECT
       COALESCE(SUM(cost), 0) AS total_cost,

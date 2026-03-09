@@ -31,7 +31,15 @@ import {
   EmptyState,
 } from './PurchaseAnalysisPage.styles'
 
-type SortKey = 'name' | 'currentCost' | 'prevCost' | 'costDiff' | 'costChangeRate' | 'currentCostShare' | 'costShareDiff' | 'currentMarkupRate'
+type SortKey =
+  | 'name'
+  | 'currentCost'
+  | 'prevCost'
+  | 'costDiff'
+  | 'costChangeRate'
+  | 'currentCostShare'
+  | 'costShareDiff'
+  | 'currentMarkupRate'
 type SortDir = 'asc' | 'desc'
 
 function useSort(defaultKey: SortKey = 'currentCost') {
@@ -151,7 +159,9 @@ export function PurchaseAnalysisPage() {
     <MainContent title="仕入分析">
       {/* KPI */}
       <Section>
-        <SectionTitle>全体概要（{targetYear}/{targetMonth}月 vs {prevYear}/{prevMonth}月）</SectionTitle>
+        <SectionTitle>
+          全体概要（{targetYear}/{targetMonth}月 vs {prevYear}/{prevMonth}月）
+        </SectionTitle>
         <KpiGrid>
           <KpiCard
             label="仕入原価合計"

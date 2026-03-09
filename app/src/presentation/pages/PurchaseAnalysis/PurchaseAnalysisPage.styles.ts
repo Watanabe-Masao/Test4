@@ -35,8 +35,7 @@ export const Th = styled.th<{ $align?: 'left' | 'right'; $sortable?: boolean }>`
   user-select: none;
 
   &:hover {
-    ${({ $sortable, theme }) =>
-      $sortable ? `background: ${theme.colors.bg3};` : ''}
+    ${({ $sortable, theme }) => ($sortable ? `background: ${theme.colors.bg3};` : '')}
   }
 `
 
