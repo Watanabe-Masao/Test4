@@ -16,8 +16,8 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { Wrapper, HeaderRow, Title, TabGroup, Tab } from './GrossProfitAmountChart.styles'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
 
@@ -48,7 +48,15 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const [gpView, setGpView] = useState<GpView>('amountRate')
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   let cumSales = 0
   let cumCost = 0
@@ -300,12 +308,16 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
           </BarChart>
         </ResponsiveContainer>
       )}
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

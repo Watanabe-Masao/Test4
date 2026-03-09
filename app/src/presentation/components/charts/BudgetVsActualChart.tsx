@@ -15,8 +15,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen, toComma, toPct } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import {
   Wrapper,
   HeaderRow,
@@ -74,7 +74,15 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   const fmt = useCurrencyFormatter()
   const [view, setView] = useState<BudgetViewType>('line')
   const totalDaysForSlider = daysInMonth ?? data.length
-  const [rangeStart, rangeEnd, setRange] = useDayRange(totalDaysForSlider)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(totalDaysForSlider)
   const hasPrevYear = showPrevYear || data.some((d) => d.prevYearCum != null && d.prevYearCum > 0)
 
   // ── 比較モード ──
@@ -521,12 +529,16 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
           </ComposedChart>
         </ResponsiveContainer>
       </ChartArea>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={totalDaysForSlider}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

@@ -16,8 +16,8 @@ import {
   KpiSub,
 } from './DiscountTrendChart.styles'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
@@ -48,7 +48,15 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
   const [viewMode, setViewMode] = useState<ViewMode>('stacked')
   const [activeCode, setActiveCode] = useState<string>('71')
 
@@ -272,12 +280,16 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )
