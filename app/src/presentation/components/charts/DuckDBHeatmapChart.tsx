@@ -211,7 +211,7 @@ export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
                 売上金額
               </Tab>
               <Tab $active={!isAmountMode} onClick={() => setHeatmapMode('yoyDiff')}>
-                前年比増減
+                比較期増減
               </Tab>
             </TabGroup>
           )}

@@ -93,7 +93,7 @@ function buildDailyBreakdown(
 
     const details: BreakdownDetail[] = [
       { label: '対象日当年予算', value: dayBudget, unit: 'yen' },
-      { label: '前年売上実績', value: row.prevSales, unit: 'yen' },
+      { label: '比較期売上実績', value: row.prevSales, unit: 'yen' },
     ]
 
     // 店舗別内訳（複数店舗がある場合のみ）
@@ -108,9 +108,9 @@ function buildDailyBreakdown(
 
     details.push(
       { label: '予算対比', value: dayRatio, unit: 'rate' },
-      { label: '前年客数', value: row.prevCustomers, unit: 'count' },
+      { label: '比較期客数', value: row.prevCustomers, unit: 'count' },
       {
-        label: '前年客単価',
+        label: '比較期客単価',
         value: safeDivide(row.prevSales, row.prevCustomers, 0),
         unit: 'yen',
       },
@@ -160,17 +160,17 @@ export function generatePrevYearBudgetExplanations(
   const sameDowRatio = safeDivide(pk.sameDow.sales, budget, 0)
   map.set('prevYearSameDowBudgetRatio', {
     metric: 'prevYearSameDowBudgetRatio',
-    title: '前年同曜日予算比',
-    formula: '前年同曜日予算比 = 前年同曜日売上 ÷ 当年月間予算',
+    title: '比較期（同曜日）予算比',
+    formula: '比較期（同曜日）予算比 = 比較期同曜日売上 ÷ 当期月間予算',
     value: sameDowRatio,
     unit: 'rate',
     scope,
     inputs: [
-      inp('前年同曜日売上', pk.sameDow.sales, 'yen'),
-      inp('前年同曜日客数', pk.sameDow.customers, 'count'),
-      inp('前年同曜日客単価', safeDivide(pk.sameDow.sales, pk.sameDow.customers, 0), 'yen'),
-      inp('当年月間予算', budget, 'yen', 'budget'),
-      inp('予算 ÷ 前年', safeDivide(budget, pk.sameDow.sales, 0), 'rate'),
+      inp('比較期同曜日売上', pk.sameDow.sales, 'yen'),
+      inp('比較期同曜日客数', pk.sameDow.customers, 'count'),
+      inp('比較期同曜日客単価', safeDivide(pk.sameDow.sales, pk.sameDow.customers, 0), 'yen'),
+      inp('当期月間予算', budget, 'yen', 'budget'),
+      inp('予算 ÷ 比較期', safeDivide(budget, pk.sameDow.sales, 0), 'rate'),
     ],
     breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily, pk.sourceYear, pk.sourceMonth, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDow, storeId),
@@ -180,17 +180,17 @@ export function generatePrevYearBudgetExplanations(
   const sameDateRatio = safeDivide(pk.sameDate.sales, budget, 0)
   map.set('prevYearSameDateBudgetRatio', {
     metric: 'prevYearSameDateBudgetRatio',
-    title: '前年同日予算比',
-    formula: '前年同日予算比 = 前年同日売上 ÷ 当年月間予算',
+    title: '比較期（同日）予算比',
+    formula: '比較期（同日）予算比 = 比較期同日売上 ÷ 当期月間予算',
     value: sameDateRatio,
     unit: 'rate',
     scope,
     inputs: [
-      inp('前年同日売上', pk.sameDate.sales, 'yen'),
-      inp('前年同日客数', pk.sameDate.customers, 'count'),
-      inp('前年同日客単価', safeDivide(pk.sameDate.sales, pk.sameDate.customers, 0), 'yen'),
-      inp('当年月間予算', budget, 'yen', 'budget'),
-      inp('予算 ÷ 前年', safeDivide(budget, pk.sameDate.sales, 0), 'rate'),
+      inp('比較期同日売上', pk.sameDate.sales, 'yen'),
+      inp('比較期同日客数', pk.sameDate.customers, 'count'),
+      inp('比較期同日客単価', safeDivide(pk.sameDate.sales, pk.sameDate.customers, 0), 'yen'),
+      inp('当期月間予算', budget, 'yen', 'budget'),
+      inp('予算 ÷ 比較期', safeDivide(budget, pk.sameDate.sales, 0), 'rate'),
     ],
     breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily, pk.sourceYear, pk.sourceMonth, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDate, storeId),
@@ -218,8 +218,8 @@ export function generatePrevYearBudgetExplanations(
     const warnings = dowGap.missingDataWarnings ?? []
     const formulaNote =
       warnings.length > 0
-        ? `曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)\n\n⚠ ${warnings.join('\n⚠ ')}`
-        : '曜日ギャップ影響額 = Σ(前年曜日別日平均売上 × 日数差)'
+        ? `曜日ギャップ影響額 = Σ(比較期曜日別日平均売上 × 日数差)\n\n⚠ ${warnings.join('\n⚠ ')}`
+        : '曜日ギャップ影響額 = Σ(比較期曜日別日平均売上 × 日数差)'
 
     map.set('dowGapImpact', {
       metric: 'dowGapImpact',

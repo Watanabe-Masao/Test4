@@ -54,23 +54,23 @@ describe('PeriodContract', () => {
     it('prevYearSameMonth プリセットのラベルが適用される', () => {
       const entry = createComparisonPeriodEntry(feb2025, 80, true, 'prevYearSameMonth')
       expect(entry.key).toBe('comparison')
-      expect(entry.label).toBe('前年同月')
+      expect(entry.label).toBe('比較期（前年同月）')
       expect(entry.shortLabel).toBe('前年同月')
     })
 
     it('prevYearSameDow プリセットのラベル', () => {
       const entry = createComparisonPeriodEntry(feb2025, 80, true, 'prevYearSameDow')
-      expect(entry.label).toBe('前年同曜日')
+      expect(entry.label).toBe('比較期（前年同曜日）')
     })
 
     it('prevMonth プリセットのラベル', () => {
       const entry = createComparisonPeriodEntry(feb2025, 80, true, 'prevMonth')
-      expect(entry.label).toBe('前月')
+      expect(entry.label).toBe('比較期（前月）')
     })
 
     it('custom プリセットのラベル', () => {
       const entry = createComparisonPeriodEntry(feb2025, 80, true, 'custom')
-      expect(entry.label).toBe('カスタム')
+      expect(entry.label).toBe('比較期（カスタム）')
     })
   })
 

@@ -164,8 +164,8 @@ export function DailyPage() {
             <tr>
               <Th>日</Th>
               <Th>売上</Th>
-              {prevYear.hasPrevYear && <Th>前年同曜日</Th>}
-              {prevYear.hasPrevYear && <Th>前年比</Th>}
+              {prevYear.hasPrevYear && <Th>比較期</Th>}
+              {prevYear.hasPrevYear && <Th>比較期比</Th>}
               <Th
                 $clickable
                 $expanded={isPurchaseExpanded}

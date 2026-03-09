@@ -218,9 +218,9 @@ export function PrevYearMappingTab() {
     <>
       {/* 現在の状態 */}
       <Section>
-        <SectionTitle>前年比マッピング設定</SectionTitle>
+        <SectionTitle>比較期マッピング設定</SectionTitle>
         <HelpText>
-          前年比データの参照元とする年月や、曜日オフセット（同曜日対応付け）を手動で変更できます。
+          比較期データの参照元とする年月や、曜日オフセット（同曜日対応付け）を手動で変更できます。
           自動設定で期待通りの比較にならない場合にご利用ください。
         </HelpText>
 
@@ -310,13 +310,13 @@ export function PrevYearMappingTab() {
               ))}
             </Select>
             <HelpText style={{ margin: 0, minWidth: 200 }}>
-              当年 day d に対応する前年の日 = d + offset
+              当期 day d に対応する比較期の日 = d + offset
             </HelpText>
           </FieldRow>
         </FieldGroup>
 
         <ActionRow>
-          <PrimaryButton onClick={handleReload}>前年データを再読込</PrimaryButton>
+          <PrimaryButton onClick={handleReload}>比較期データを再読込</PrimaryButton>
           {isOverridden && (
             <SecondaryButton onClick={handleResetToAuto}>自動に戻す</SecondaryButton>
           )}

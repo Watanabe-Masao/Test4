@@ -75,7 +75,7 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
     })
     const explanation = result.get('prevYearSameDowBudgetRatio')!
     const breakdownSum = explanation.breakdown!.reduce((s, b) => {
-      const salesDetail = b.details?.find((d) => d.label === '前年売上実績')
+      const salesDetail = b.details?.find((d) => d.label === '比較期売上実績')
       return s + (salesDetail?.value ?? 0)
     }, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
@@ -92,7 +92,7 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
     })
     const explanation = result.get('prevYearSameDateBudgetRatio')!
     const breakdownSum = explanation.breakdown!.reduce((s, b) => {
-      const salesDetail = b.details?.find((d) => d.label === '前年売上実績')
+      const salesDetail = b.details?.find((d) => d.label === '比較期売上実績')
       return s + (salesDetail?.value ?? 0)
     }, 0)
     expect(breakdownSum).toBe(makeEntry().sales)
@@ -194,9 +194,9 @@ describe('generatePrevYearBudgetExplanations 不変条件', () => {
     for (const b of explanation.breakdown!) {
       expect(b.details).toBeDefined()
       const labels = b.details!.map((d) => d.label)
-      expect(labels).toContain('前年売上実績')
-      expect(labels).toContain('前年客数')
-      expect(labels).toContain('前年客単価')
+      expect(labels).toContain('比較期売上実績')
+      expect(labels).toContain('比較期客数')
+      expect(labels).toContain('比較期客単価')
       expect(labels).toContain('対象日当年予算')
       expect(labels).toContain('予算対比')
     }

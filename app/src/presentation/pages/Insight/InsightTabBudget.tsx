@@ -138,15 +138,15 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
             />
             {d.prevYear.hasPrevYear && (
               <KpiCard
-                label="前年同曜日売上"
+                label="比較期売上"
                 value={d.formatCurrency(d.prevYear.totalSales)}
-                subText={`前年同曜日比: ${d.prevYear.totalSales > 0 ? d.formatPercent(r.totalSales / d.prevYear.totalSales) : '-'}`}
+                subText={`比較期比: ${d.prevYear.totalSales > 0 ? d.formatPercent(r.totalSales / d.prevYear.totalSales) : '-'}`}
                 accent={palette.slate}
               />
             )}
             {d.prevYear.hasPrevYear && d.prevYear.totalSales > 0 && (
               <KpiCard
-                label="前年同曜日比"
+                label="比較期比"
                 value={d.formatPercent(r.totalSales / d.prevYear.totalSales)}
                 subText={`差額: ${d.formatCurrency(r.totalSales - d.prevYear.totalSales)}`}
                 accent={sc.cond(r.totalSales >= d.prevYear.totalSales)}
@@ -167,13 +167,13 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                   $active={d.chartMode === 'prev-year'}
                   onClick={() => d.setChartMode('prev-year')}
                 >
-                  当年 vs 前年同曜日
+                  当期 vs 比較期
                 </Chip>
                 <Chip
                   $active={d.chartMode === 'all-three'}
                   onClick={() => d.setChartMode('all-three')}
                 >
-                  予算 vs 実績 vs 前年
+                  予算 vs 実績 vs 比較期
                 </Chip>
               </ChipGroup>
             </ToggleSection>
@@ -223,10 +223,10 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                     <Th>達成率</Th>
                     <Th>売変率</Th>
                     <Th>累計売変率</Th>
-                    {d.prevYear.hasPrevYear && <Th>前年同曜日</Th>}
-                    {d.prevYear.hasPrevYear && <Th>前年比</Th>}
-                    {d.prevYear.hasPrevYear && <Th>前年同曜日累計</Th>}
-                    {d.prevYear.hasPrevYear && <Th>累計前年比</Th>}
+                    {d.prevYear.hasPrevYear && <Th>比較期</Th>}
+                    {d.prevYear.hasPrevYear && <Th>比較期比</Th>}
+                    {d.prevYear.hasPrevYear && <Th>比較期累計</Th>}
+                    {d.prevYear.hasPrevYear && <Th>累計比較期比</Th>}
                   </tr>
                 </thead>
                 <tbody>

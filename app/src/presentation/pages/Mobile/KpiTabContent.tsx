@@ -132,13 +132,13 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
             <KpiDivider />
             <KpiGrid>
               <KpiMiniCard>
-                <KpiMiniLabel>前年売上比</KpiMiniLabel>
+                <KpiMiniLabel>比較期売上比</KpiMiniLabel>
                 <KpiMiniValue $color={pyRatio != null ? sc.cond(pyRatio >= 1) : undefined}>
                   {pyRatio != null ? formatPercent(pyRatio) : '-'}
                 </KpiMiniValue>
               </KpiMiniCard>
               <KpiMiniCard>
-                <KpiMiniLabel>前年客数比</KpiMiniLabel>
+                <KpiMiniLabel>比較期客数比</KpiMiniLabel>
                 <KpiMiniValue
                   $color={pyCustomerRatio != null ? sc.cond(pyCustomerRatio >= 1) : undefined}
                 >
@@ -146,7 +146,7 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
                 </KpiMiniValue>
               </KpiMiniCard>
               <KpiMiniCard>
-                <KpiMiniLabel>前年客単価</KpiMiniLabel>
+                <KpiMiniLabel>比較期客単価</KpiMiniLabel>
                 <KpiMiniValue>
                   {prevTxValue != null ? formatCurrency(prevTxValue) : '-'}
                 </KpiMiniValue>

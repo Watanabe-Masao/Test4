@@ -102,15 +102,15 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
             label="客単価"
             value={`${d.avgTxValue.toLocaleString()}円`}
             subText={
-              d.prevAvgTxValue > 0 ? `前年: ${d.prevAvgTxValue.toLocaleString()}円` : undefined
+              d.prevAvgTxValue > 0 ? `比較期: ${d.prevAvgTxValue.toLocaleString()}円` : undefined
             }
             accent={palette.purpleDark}
           />
           {d.prevTotalCustomers > 0 && (
             <KpiCard
-              label="客数前年比"
+              label="客数比較期比"
               value={d.formatPercent(d.customerYoY)}
-              subText={`前年: ${d.prevTotalCustomers.toLocaleString()}人`}
+              subText={`比較期: ${d.prevTotalCustomers.toLocaleString()}人`}
               accent={d.customerYoY >= 1 ? sc.positive : sc.negative}
             />
           )}
@@ -392,7 +392,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
       {d.customerData.hasDecompData ? (
         <>
           <Section>
-            <SectionTitle>売上要因分解（客数×客単価 / 前年比）</SectionTitle>
+            <SectionTitle>売上要因分解（客数×客単価 / 比較期比）</SectionTitle>
             <ChartErrorBoundary>
               <ChartGrid>
                 <DecompTrendChart data={d.customerData.dailyDecomp} />
@@ -481,10 +481,10 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                       <FcTh>日数</FcTh>
                       <FcTh>平均客数</FcTh>
                       <FcTh>平均客単価</FcTh>
-                      {d.customerData.hasPrevCustomers && <FcTh>前年客数</FcTh>}
-                      {d.customerData.hasPrevCustomers && <FcTh>前年客単価</FcTh>}
-                      {d.customerData.hasPrevCustomers && <FcTh>客数前年比</FcTh>}
-                      {d.customerData.hasPrevCustomers && <FcTh>客単価前年比</FcTh>}
+                      {d.customerData.hasPrevCustomers && <FcTh>比較期客数</FcTh>}
+                      {d.customerData.hasPrevCustomers && <FcTh>比較期客単価</FcTh>}
+                      {d.customerData.hasPrevCustomers && <FcTh>客数比較期比</FcTh>}
+                      {d.customerData.hasPrevCustomers && <FcTh>客単価比較期比</FcTh>}
                     </tr>
                   </thead>
                   <tbody>
@@ -530,7 +530,7 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
           )}
         </>
       ) : (
-        <EmptyState>前年データがないため要因分解を表示できません</EmptyState>
+        <EmptyState>比較期データがないため要因分解を表示できません</EmptyState>
       )}
     </>
   )

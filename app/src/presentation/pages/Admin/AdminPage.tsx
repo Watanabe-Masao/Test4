@@ -398,7 +398,7 @@ export function AdminPage() {
           保存データ管理
         </Tab>
         <Tab $active={activeTab === 'prevyear'} onClick={() => setActiveTab('prevyear')}>
-          前年比設定
+          比較期設定
         </Tab>
       </Tabs>
 

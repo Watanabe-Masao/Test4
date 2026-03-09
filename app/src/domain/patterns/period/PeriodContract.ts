@@ -143,10 +143,10 @@ export interface ResolvedPeriods {
 export const PRESET_LABELS: Readonly<
   Record<ComparisonPreset, { readonly label: string; readonly shortLabel: string }>
 > = {
-  prevYearSameMonth: { label: '前年同月', shortLabel: '前年同月' },
-  prevYearSameDow: { label: '前年同曜日', shortLabel: '前年同曜日' },
-  prevMonth: { label: '前月', shortLabel: '前月' },
-  custom: { label: 'カスタム', shortLabel: 'カスタム' },
+  prevYearSameMonth: { label: '比較期（前年同月）', shortLabel: '前年同月' },
+  prevYearSameDow: { label: '比較期（前年同曜日）', shortLabel: '前年同曜日' },
+  prevMonth: { label: '比較期（前月）', shortLabel: '前月' },
+  custom: { label: '比較期（カスタム）', shortLabel: 'カスタム' },
 }
 
 // ── ヘルパー関数 ──
