@@ -52,13 +52,13 @@ import { useAsyncQuery, storeIdsToArray, type AsyncQueryResult } from './useAsyn
 
 // ── DateRange → date_key 変換 ──
 
-function toDateKey(d: { year: number; month: number; day: number }): string {
+export function toDateKey(d: { year: number; month: number; day: number }): string {
   return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
 }
 
 // ── カテゴリラベル解決 ──
 
-function categoryLabel(
+export function categoryLabel(
   catId: CustomCategoryId,
   userCategories: ReadonlyMap<string, string>,
 ): string {
@@ -85,7 +85,7 @@ const CUSTOM_CATEGORY_COLORS: Record<PresetCategoryId, string> = {
 
 const USER_CATEGORY_DEFAULT_COLOR = '#14b8a6'
 
-function categoryColor(catId: CustomCategoryId): string {
+export function categoryColor(catId: CustomCategoryId): string {
   if (isUserCategory(catId)) return USER_CATEGORY_DEFAULT_COLOR
   if (isPresetCategory(catId)) return CUSTOM_CATEGORY_COLORS[catId] ?? '#64748b'
   return '#64748b'
@@ -93,7 +93,7 @@ function categoryColor(catId: CustomCategoryId): string {
 
 // ── 値入率算出 ──
 
-function markupRate(cost: number, price: number): number {
+export function markupRate(cost: number, price: number): number {
   return price > 0 ? 1 - cost / price : 0
 }
 
@@ -519,7 +519,7 @@ interface DayCellAccum {
   prevPrice: number
 }
 
-function buildDailyPivot(
+export function buildDailyPivot(
   curDailyBySupplier: readonly PurchaseDailySupplierRow[],
   prevDailyBySupplier: readonly PurchaseDailySupplierRow[],
   curSpecialDaily: readonly CategoryDailyRow[],
