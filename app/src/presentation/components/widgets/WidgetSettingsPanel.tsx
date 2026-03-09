@@ -23,6 +23,8 @@ import {
   ModeBtn,
   OrderItem,
   OrderIndex,
+  BulkActionRow,
+  EmptyOrderMessage,
 } from './WidgetSettingsPanel.styles'
 
 // ─── Component ──────────────────────────────────────────
@@ -164,14 +166,14 @@ export function WidgetSettingsPanel({
 
         {mode === 'select' && (
           <>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <BulkActionRow>
               <Button $variant="outline" onClick={handleSelectAll}>
                 全選択
               </Button>
               <Button $variant="outline" onClick={handleDeselectAll}>
                 全解除
               </Button>
-            </div>
+            </BulkActionRow>
 
             {Array.from(groups.entries()).map(([group, widgets]) => (
               <PanelGroup key={group}>
@@ -197,9 +199,9 @@ export function WidgetSettingsPanel({
         {mode === 'order' && (
           <>
             {orderedWidgets.length === 0 ? (
-              <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text3, #888)' }}>
+              <EmptyOrderMessage>
                 ウィジェットが選択されていません。「選択」タブでウィジェットを追加してください。
-              </div>
+              </EmptyOrderMessage>
             ) : (
               <div>
                 {orderedWidgets.map((w, i) => (
