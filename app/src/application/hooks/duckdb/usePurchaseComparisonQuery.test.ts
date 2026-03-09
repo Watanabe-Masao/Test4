@@ -1,0 +1,159 @@
+import { describe, it, expect } from 'vitest'
+import {
+  toDateKey,
+  categoryLabel,
+  categoryColor,
+  markupRate,
+  buildDailyPivot,
+} from './usePurchaseComparisonQuery'
+import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'
+
+describe('usePurchaseComparisonQuery helpers', () => {
+  describe('toDateKey', () => {
+    it('formats date as YYYY-MM-DD with zero-padded month and day', () => {
+      expect(toDateKey({ year: 2025, month: 3, day: 5 })).toBe('2025-03-05')
+      expect(toDateKey({ year: 2025, month: 12, day: 25 })).toBe('2025-12-25')
+    })
+  })
+
+  describe('categoryLabel', () => {
+    it('returns preset label for preset category', () => {
+      const userCats = new Map<string, string>()
+      expect(categoryLabel('flowers', userCats)).toBe('花')
+    })
+
+    it('returns user category name from map', () => {
+      const userCats = new Map([['user:abc', '自家製パン']])
+      expect(categoryLabel('user:abc' as never, userCats)).toBe('自家製パン')
+    })
+
+    it('falls back to stripped id when user category not in map', () => {
+      const userCats = new Map<string, string>()
+      expect(categoryLabel('user:xyz' as never, userCats)).toBe('xyz')
+    })
+  })
+
+  describe('categoryColor', () => {
+    it('returns specific color for preset category', () => {
+      expect(categoryColor('flowers')).toBe('#ec4899')
+      expect(categoryColor('market_purchase')).toBe('#f59e0b')
+    })
+
+    it('returns teal for user categories', () => {
+      expect(categoryColor('user:test' as never)).toBe('#14b8a6')
+    })
+  })
+
+  describe('markupRate', () => {
+    it('calculates markup rate correctly', () => {
+      expect(markupRate(700, 1000)).toBeCloseTo(0.3)
+    })
+
+    it('returns 0 when price is 0', () => {
+      expect(markupRate(100, 0)).toBe(0)
+    })
+  })
+
+  describe('buildDailyPivot', () => {
+    const cat: CategoryComparisonRow = {
+      categoryId: 'market_purchase',
+      category: '市場仕入',
+      color: '#f59e0b',
+      currentCost: 1000,
+      currentPrice: 1200,
+      prevCost: 900,
+      prevPrice: 1100,
+      costDiff: 100,
+      priceDiff: 100,
+      costChangeRate: 0.11,
+      currentCostShare: 1,
+      prevCostShare: 1,
+      costShareDiff: 0,
+      currentMarkupRate: 0.17,
+      prevMarkupRate: 0.18,
+      currentPriceShare: 1,
+      crossMultiplication: 0.17,
+    }
+
+    it('builds pivot with no data', () => {
+      const result = buildDailyPivot([], [], [], [], [], [], [cat], {}, 2025, 3)
+      expect(result.columns).toHaveLength(1)
+      expect(result.columns[0].key).toBe('market_purchase')
+      expect(result.rows).toHaveLength(0)
+      expect(result.totals.grandCost).toBe(0)
+    })
+
+    it('aggregates current period supplier data into correct category', () => {
+      const curDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 500, totalPrice: 600 },
+        { day: 1, supplierCode: 'S002', supplierName: 'B', totalCost: 300, totalPrice: 400 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const, S002: 'market_purchase' as const }
+
+      const result = buildDailyPivot(curDaily, [], [], [], [], [], [cat], supplierMap, 2025, 3)
+      expect(result.rows).toHaveLength(1)
+      expect(result.rows[0].day).toBe(1)
+      expect(result.rows[0].totalCost).toBe(800)
+      expect(result.rows[0].totalPrice).toBe(1000)
+      expect(result.totals.grandCost).toBe(800)
+    })
+
+    it('aggregates previous period data separately', () => {
+      const prevDaily = [
+        { day: 5, supplierCode: 'S001', supplierName: 'A', totalCost: 400, totalPrice: 500 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const }
+
+      const result = buildDailyPivot([], prevDaily, [], [], [], [], [cat], supplierMap, 2025, 3)
+      expect(result.rows).toHaveLength(1)
+      expect(result.rows[0].prevTotalCost).toBe(400)
+      expect(result.rows[0].prevTotalPrice).toBe(500)
+      expect(result.totals.prevGrandCost).toBe(400)
+    })
+
+    it('includes special sales in correct category', () => {
+      const curSpecial = [
+        { day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 },
+      ]
+      const flowerCat: CategoryComparisonRow = {
+        ...cat,
+        categoryId: 'flowers',
+        category: '花',
+        color: '#ec4899',
+      }
+
+      const result = buildDailyPivot([], [], curSpecial, [], [], [], [flowerCat], {}, 2025, 3)
+      expect(result.rows).toHaveLength(1)
+      expect(result.rows[0].totalCost).toBe(200)
+    })
+
+    it('includes inter-store transfers (In only)', () => {
+      const curTransfers = [
+        { day: 3, categoryKey: 'interStoreIn', totalCost: 150, totalPrice: 180 },
+        { day: 3, categoryKey: 'interStoreOut', totalCost: 100, totalPrice: 120 },
+      ]
+      const storeCat: CategoryComparisonRow = {
+        ...cat,
+        categoryId: 'inter_store',
+        category: '店間移動',
+        color: '#8b5cf6',
+      }
+
+      const result = buildDailyPivot([], [], [], [], curTransfers, [], [storeCat], {}, 2025, 3)
+      expect(result.rows).toHaveLength(1)
+      // Only 'interStoreIn' should be counted
+      expect(result.rows[0].totalCost).toBe(150)
+    })
+
+    it('computes dayOfWeek correctly', () => {
+      // 2025-03-01 is a Saturday (6)
+      const curDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 100, totalPrice: 120 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const }
+
+      const result = buildDailyPivot(curDaily, [], [], [], [], [], [cat], supplierMap, 2025, 3)
+      expect(result.rows[0].dayOfWeek).toBe(6) // Saturday
+    })
+  })
+})
