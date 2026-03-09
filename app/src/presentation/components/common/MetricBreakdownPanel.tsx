@@ -242,7 +242,7 @@ const DrilldownTab = React.memo(function DrilldownTab({ vm }: { vm: VM }) {
                   >
                     <MbpTd>
                       {row.hasDetails && <ExpandIcon>{isExpanded ? '▼' : '▶'}</ExpandIcon>}
-                      {row.day}日
+                      {row.dayLabel ?? `${row.day}日`}
                     </MbpTd>
                     <MbpTd>{row.formattedValue}</MbpTd>
                   </MbpTr>

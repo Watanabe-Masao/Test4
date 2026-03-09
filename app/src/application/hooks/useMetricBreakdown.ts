@@ -31,6 +31,8 @@ export interface ReverseLink {
 
 export interface BreakdownRow {
   readonly day: number
+  /** カスタム日ラベル（例: "2025年02月01日 (土)"）。未設定時は "{day}日" を表示 */
+  readonly dayLabel?: string
   readonly formattedValue: string
   readonly hasDetails: boolean
   readonly details?: readonly { label: string; formattedValue: string }[]
@@ -248,6 +250,7 @@ export function useMetricBreakdown({
     if (!current.breakdown) return []
     return current.breakdown.map((entry) => ({
       day: entry.day,
+      dayLabel: entry.label,
       formattedValue: formatValue(entry.value, entry.unit ?? current.unit),
       hasDetails: !!(entry.details && entry.details.length > 0),
       details: entry.details?.map((d) => ({

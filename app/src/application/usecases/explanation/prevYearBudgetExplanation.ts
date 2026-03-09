@@ -51,9 +51,21 @@ function buildEvidenceRefs(entry: PrevYearMonthlyKpiEntry, budgetStoreId: string
  * メイン値: 前年売上 ÷ 当日予算 = 予算対比率
  * 詳細: 対象日当年予算, 前年売上実績(→店舗内訳), 予算対比, 前年客数, 前年客単価
  */
+const DOW_LABELS_SHORT = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+function formatPrevDayLabel(sourceYear: number, sourceMonth: number, prevDay: number): string {
+  const d = new Date(sourceYear, sourceMonth - 1, prevDay)
+  const dow = DOW_LABELS_SHORT[d.getDay()]
+  const m = String(sourceMonth).padStart(2, '0')
+  const day = String(prevDay).padStart(2, '0')
+  return `${sourceYear}年${m}月${day}日 (${dow})`
+}
+
 function buildDailyBreakdown(
   entry: PrevYearMonthlyKpiEntry,
   budgetDaily: ReadonlyMap<number, number>,
+  sourceYear: number,
+  sourceMonth: number,
   stores?: ReadonlyMap<string, Store>,
 ): BreakdownEntry[] {
   // 店舗別の日別データを mappedDay でグループ化
@@ -108,7 +120,7 @@ function buildDailyBreakdown(
       day: row.currentDay,
       value: dayRatio,
       unit: 'rate' as const,
-      label: `前年${row.prevDay}日`,
+      label: formatPrevDayLabel(sourceYear, sourceMonth, row.prevDay),
       details,
     }
   })
@@ -160,7 +172,7 @@ export function generatePrevYearBudgetExplanations(
       inp('当年月間予算', budget, 'yen', 'budget'),
       inp('予算 ÷ 前年', safeDivide(budget, pk.sameDow.sales, 0), 'rate'),
     ],
-    breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily, stores),
+    breakdown: buildDailyBreakdown(pk.sameDow, budgetDaily, pk.sourceYear, pk.sourceMonth, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDow, storeId),
   })
 
@@ -180,7 +192,7 @@ export function generatePrevYearBudgetExplanations(
       inp('当年月間予算', budget, 'yen', 'budget'),
       inp('予算 ÷ 前年', safeDivide(budget, pk.sameDate.sales, 0), 'rate'),
     ],
-    breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily, stores),
+    breakdown: buildDailyBreakdown(pk.sameDate, budgetDaily, pk.sourceYear, pk.sourceMonth, stores),
     evidenceRefs: buildEvidenceRefs(pk.sameDate, storeId),
   })
 

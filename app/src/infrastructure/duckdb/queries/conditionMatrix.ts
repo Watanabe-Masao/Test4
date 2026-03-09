@@ -128,6 +128,14 @@ function conditionalColumns(prefix: string, condition: string): string {
     COUNT(DISTINCT CASE WHEN ${c} AND s.sales > 0 THEN s.date_key END) AS ${prefix}_sales_days`
 }
 
+/** Date → YYYY-MM-DD DateKey 文字列 */
+function formatDateKey(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 /**
  * 期間の中間日（DateKey）を算出する。
  * fromKey と toKey の間の日数を半分にした日を返す。
@@ -175,11 +183,15 @@ export async function queryConditionMatrix(
   midDate.setDate(midDate.getDate() + 1)
   const midNextKey = `${midDate.getFullYear()}-${String(midDate.getMonth() + 1).padStart(2, '0')}-${String(midDate.getDate()).padStart(2, '0')}`
 
-  // 前週シフト用の日付条件
-  const pwDateCondition = `
-    CAST(REPLACE(s.date_key, '/', '-') AS DATE)
-      BETWEEN CAST(REPLACE('${fromKey}', '/', '-') AS DATE) - INTERVAL '7' DAY
-          AND CAST(REPLACE('${toKey}', '/', '-') AS DATE) - INTERVAL '7' DAY`
+  // 前週シフト用の日付範囲を JS で事前計算
+  // SQL の CAST(date_key AS DATE) は無効な date_key（例: 2025-02-32）でエラーになるため回避
+  const pwFromDate = new Date(fromKey)
+  pwFromDate.setDate(pwFromDate.getDate() - 7)
+  const pwToDate = new Date(toKey)
+  pwToDate.setDate(pwToDate.getDate() - 7)
+  const pwFromKey = formatDateKey(pwFromDate)
+  const pwToKey = formatDateKey(pwToDate)
+  const pwDateCondition = `s.date_key BETWEEN '${pwFromKey}' AND '${pwToKey}'`
 
   // 各期間の分類条件
   const curCond = `s.date_key BETWEEN '${fromKey}' AND '${toKey}' AND s.is_prev_year = FALSE`

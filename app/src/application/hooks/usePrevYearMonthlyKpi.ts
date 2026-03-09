@@ -16,7 +16,7 @@ import { getDaysInMonth } from '@/domain/constants/defaults'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
-import { deriveDowOffset } from '@/domain/models/PeriodSelection'
+import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
 /** 日別マッピング行: 前年の1日 → 当年の対応日 */
 export interface DayMappingRow {
@@ -174,12 +174,9 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
     const srcYear = periodSelection.period2.from.year
     const srcMonth = periodSelection.period2.from.month
 
-    // 同曜日オフセット — periodSelection から導出
-    const dowOffset = deriveDowOffset(
-      periodSelection.period1,
-      periodSelection.period2,
-      periodSelection.activePreset,
-    )
+    // 同曜日オフセット — 常に算出する（preset に依存しない）
+    // sameDow KPI は常に曜日寄せの値を表示するため
+    const dowOffset = calcSameDowOffset(targetYear, targetMonth, srcYear, srcMonth)
 
     // flat records → index 変換
     const flowersIndex =
