@@ -116,6 +116,62 @@ export const ChartWrapper = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing[4]};
 `
 
+/* ─── Pivot Table (category × date matrix) ────────────── */
+
+export const PivotTableWrapper = styled.div`
+  overflow-x: auto;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+
+  & > table {
+    th:first-child,
+    td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: inherit;
+    }
+  }
+`
+
+export const PivotGroupTh = styled.th`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[3]};
+  text-align: center;
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme }) => theme.colors.text2};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 2px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+`
+
+export const PurchasePivotGroupTh = styled(PivotGroupTh)<{ $color?: string }>`
+  border-top: 3px solid ${({ $color }) => $color ?? 'transparent'};
+`
+
+export const PivotSubTh = styled.th`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  text-align: right;
+  background: ${({ theme }) => theme.colors.bg3};
+  color: ${({ theme }) => theme.colors.text3};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+
+  &.group-start {
+    border-left: 2px solid ${({ theme }) => theme.colors.border};
+  }
+`
+
+export const PivotTd = styled(Td)<{ $groupStart?: boolean; $negative?: boolean }>`
+  ${({ $groupStart, theme }) => $groupStart && `border-left: 2px solid ${theme.colors.border};`}
+  color: ${({ $negative, theme }) => ($negative ? theme.colors.palette.danger : theme.colors.text)};
+`
+
 export const SubNote = styled.span`
   font-size: 0.7rem;
   color: ${({ theme }) => theme.colors.text4};

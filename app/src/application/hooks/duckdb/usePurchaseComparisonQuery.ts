@@ -13,6 +13,7 @@ import {
   queryPurchaseBySupplier,
   queryPurchaseTotal,
   queryPurchaseDaily,
+  queryPurchaseDailyBySupplier,
   queryPurchaseByStore,
   querySalesDaily,
 } from '@/infrastructure/duckdb/queries/purchaseComparison'
@@ -24,7 +25,12 @@ import type {
   StoreComparisonRow,
   PurchaseComparisonKpi,
   PurchaseDailyData,
+  PurchaseDailyPivotData,
+  PurchaseDailyPivotColumn,
+  PurchaseDailyPivotCell,
+  PurchaseDailyPivotRow,
 } from '@/domain/models/PurchaseComparison'
+import type { PurchaseDailySupplierRow } from '@/infrastructure/duckdb/queries/purchaseComparison'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
@@ -101,7 +107,7 @@ export function usePurchaseComparisonQuery(
     if (dataVersion === 0) return null
 
     return async (c: AsyncDuckDBConnection) => {
-      // 並列: 当期/比較期の取引先別 + 合計 + 売上 + 日別
+      // 並列: 当期/比較期の取引先別 + 合計 + 売上 + 日別 + 日別×取引先別
       const [
         curSuppliers,
         prevSuppliers,
@@ -115,6 +121,7 @@ export function usePurchaseComparisonQuery(
         prevStores,
         curSalesDaily,
         prevSalesDaily,
+        curDailyBySupplier,
       ] = await Promise.all([
         queryPurchaseBySupplier(c, curDateFrom, curDateTo, storeIdArr),
         queryPurchaseBySupplier(c, prevDateFrom, prevDateTo, storeIdArr),
@@ -138,6 +145,7 @@ export function usePurchaseComparisonQuery(
         queryPurchaseByStore(c, prevDateFrom, prevDateTo, storeIdArr),
         querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
         querySalesDaily(c, prevDateFrom, prevDateTo, storeIdArr, true),
+        queryPurchaseDailyBySupplier(c, curDateFrom, curDateTo, storeIdArr),
       ])
 
       // ── 取引先別比較 ──
@@ -298,12 +306,20 @@ export function usePurchaseComparisonQuery(
         prevSales: prevSalesTotal,
       }
 
+      // ── カテゴリ別日別ピボット ──
+      const dailyPivot = buildDailyPivot(
+        curDailyBySupplier,
+        byCategory,
+        supplierCategoryMap,
+      )
+
       return {
         kpi,
         bySupplier,
         byCategory,
         byStore,
         daily,
+        dailyPivot,
         isReady: true,
       } satisfies PurchaseComparisonResult
     }
@@ -320,4 +336,72 @@ export function usePurchaseComparisonQuery(
   ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
+}
+
+// ── カテゴリ別日別ピボット構築 ──
+
+function buildDailyPivot(
+  dailyBySupplier: readonly PurchaseDailySupplierRow[],
+  byCategory: readonly CategoryComparisonRow[],
+  supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>>,
+): PurchaseDailyPivotData {
+  // 列定義: byCategory の順序（原価降順）を使う
+  const columns: PurchaseDailyPivotColumn[] = byCategory.map((cat) => ({
+    key: cat.categoryId,
+    label: cat.category,
+    color: cat.color,
+  }))
+  const columnKeys = columns.map((c) => c.key)
+
+  // 日別にグループ化
+  const dayMap = new Map<number, Map<string, PurchaseDailyPivotCell>>()
+  for (const row of dailyBySupplier) {
+    const catId = supplierCategoryMap[row.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
+    if (!dayMap.has(row.day)) {
+      const cells = new Map<string, PurchaseDailyPivotCell>()
+      for (const k of columnKeys) cells.set(k, { cost: 0, price: 0 })
+      dayMap.set(row.day, cells)
+    }
+    const cells = dayMap.get(row.day)!
+    const existing = cells.get(catId) ?? { cost: 0, price: 0 }
+    cells.set(catId, {
+      cost: existing.cost + row.totalCost,
+      price: existing.price + row.totalPrice,
+    })
+  }
+
+  // 列合計
+  const totalsByCol: Record<string, PurchaseDailyPivotCell> = {}
+  for (const k of columnKeys) totalsByCol[k] = { cost: 0, price: 0 }
+  let grandCost = 0
+  let grandPrice = 0
+
+  // 行構築（日付順）
+  const sortedDays = Array.from(dayMap.keys()).sort((a, b) => a - b)
+  const rows: PurchaseDailyPivotRow[] = []
+  for (const day of sortedDays) {
+    const cellMap = dayMap.get(day)!
+    const cells: Record<string, PurchaseDailyPivotCell> = {}
+    let rowCost = 0
+    let rowPrice = 0
+    for (const k of columnKeys) {
+      const c = cellMap.get(k) ?? { cost: 0, price: 0 }
+      cells[k] = c
+      totalsByCol[k] = {
+        cost: totalsByCol[k].cost + c.cost,
+        price: totalsByCol[k].price + c.price,
+      }
+      rowCost += c.cost
+      rowPrice += c.price
+    }
+    grandCost += rowCost
+    grandPrice += rowPrice
+    rows.push({ day, cells, totalCost: rowCost, totalPrice: rowPrice })
+  }
+
+  return {
+    columns,
+    rows,
+    totals: { byColumn: totalsByCol, grandCost, grandPrice },
+  }
 }

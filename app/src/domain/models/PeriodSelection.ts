@@ -162,25 +162,29 @@ export function applyPreset(
 
     case 'prevYearSameDow': {
       // 前年同月の月初曜日差分でオフセットして同曜日に合わせる
+      // Date 演算で月末オーバーフローを正しく処理し、期間長を維持する
       const prevYear = period1.from.year - 1
       const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
       const prevDow = new Date(prevYear, period1.from.month - 1, 1).getDay()
       const offset = (((currentDow - prevDow) % 7) + 7) % 7
-      const prevDaysInMonth = lastDayOfMonth(prevYear, period1.from.month)
+
+      const fromDate = new Date(prevYear, period1.from.month - 1, period1.from.day + offset)
+      const toDate = new Date(
+        period1.to.year - 1,
+        period1.to.month - 1,
+        period1.to.day + offset,
+      )
 
       return {
         from: {
-          year: prevYear,
-          month: period1.from.month,
-          day: Math.min(period1.from.day + offset, prevDaysInMonth),
+          year: fromDate.getFullYear(),
+          month: fromDate.getMonth() + 1,
+          day: fromDate.getDate(),
         },
         to: {
-          year: period1.to.year - 1,
-          month: period1.to.month,
-          day: Math.min(
-            period1.to.day + offset,
-            lastDayOfMonth(period1.to.year - 1, period1.to.month),
-          ),
+          year: toDate.getFullYear(),
+          month: toDate.getMonth() + 1,
+          day: toDate.getDate(),
         },
       }
     }
