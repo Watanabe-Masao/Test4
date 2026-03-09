@@ -210,11 +210,7 @@ function InlineComparisonPeriodBadge() {
           <CalendarRangePicker
             value={selection.period2}
             onChange={handleChange}
-            label={
-              isCustom
-                ? '比較期間（期間-2）'
-                : '比較期間（期間-2）— プリセット連動中'
-            }
+            label={isCustom ? '比較期間（期間-2）' : '比較期間（期間-2）— プリセット連動中'}
             year={from.year}
             month={from.month}
             daysInMonth={daysInMonth}
