@@ -182,6 +182,11 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       day: Math.min(p1To.day, effectiveEndDay),
     },
   }
+  // 月全体の範囲（予算・前年表示用。期間ピッカーでトリミングされない）
+  const fullMonthRange: DateRange = {
+    from: { year: targetYear, month: targetMonth, day: 1 },
+    to: { year: targetYear, month: targetMonth, day: daysInMonth },
+  }
   // prevYearScope: DOW offset + periodSelection.period1 の有効範囲で調整済みの前年日付範囲と客数。
   // periodSelection から導出。effectiveEndDay でキャップして
   // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
@@ -217,6 +222,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     storeKey: storeName,
     allStoreResults: storeResults,
     currentDateRange,
+    fullMonthRange,
     prevYearDateRange,
     prevYearScope,
     dataEndDay: settings.dataEndDay,

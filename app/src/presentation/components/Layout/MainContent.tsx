@@ -4,7 +4,8 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
-import { DayRangeSlider } from '@/presentation/components/charts/DayRangeSlider'
+import { toDateKey } from '@/domain/models'
+import type { DateRange } from '@/domain/models'
 import {
   Main,
   Header,
@@ -23,12 +24,10 @@ import {
   MonthGrid,
   MonthCell,
   PeriodBadgeButton,
-  PeriodDropdown,
-  PeriodLabel,
-  PeriodResetBtn,
   HeaderChipArea,
 } from './MainContent.styles'
 import { ComparisonPresetToggle } from './ComparisonPresetToggle'
+import { CalendarRangePicker } from './CalendarRangePicker'
 
 // ── Components ──
 
@@ -109,9 +108,9 @@ function InlineMonthPicker() {
 /**
  * InlinePeriodPicker — 分析期間（日範囲）の指定コンポーネント
  *
- * period1 の from.day 〜 to.day をコンパクトに表示し、
- * クリックで DayRangeSlider を含むドロップダウンを開く。
- * 月全日と異なる場合はバッジの色で視覚的に区別する。
+ * period1 の日付範囲をコンパクトに表示し、
+ * クリックで CalendarRangePicker（react-day-picker）を開く。
+ * 2ヶ月並列表示で月跨ぎの期間指定を直感的に行える。
  */
 function InlinePeriodPicker() {
   const { selection, setPeriod1 } = usePeriodSelection()
@@ -125,23 +124,18 @@ function InlinePeriodPicker() {
   const isFullMonth = from.day === 1 && to.day === daysInMonth
 
   const handleChange = useCallback(
-    (start: number, end: number) => {
-      setPeriod1({
-        from: { ...from, day: start },
-        to: { ...to, day: end },
-      })
+    (range: DateRange) => {
+      setPeriod1(range)
     },
-    [from, to, setPeriod1],
+    [setPeriod1],
   )
 
-  const handleReset = useCallback(() => {
-    setPeriod1({
-      from: { ...from, day: 1 },
-      to: { ...to, day: daysInMonth },
-    })
-  }, [from, to, daysInMonth, setPeriod1])
-
-  const label = isFullMonth ? `1〜${daysInMonth}日` : `${from.day}〜${to.day}日`
+  const isSameMonth = from.year === to.year && from.month === to.month
+  const label = isSameMonth
+    ? isFullMonth
+      ? `${from.month}/${from.day}〜${to.day}日`
+      : `${from.month}/${from.day}〜${to.day}日`
+    : `${toDateKey(from)}〜${toDateKey(to)}`
 
   return (
     <BadgeWrapper>
@@ -151,19 +145,14 @@ function InlinePeriodPicker() {
       {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />
-          <PeriodDropdown>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <PeriodLabel>分析期間</PeriodLabel>
-              {!isFullMonth && <PeriodResetBtn onClick={handleReset}>全期間</PeriodResetBtn>}
-            </div>
-            <DayRangeSlider
-              min={1}
-              max={daysInMonth}
-              start={from.day}
-              end={to.day}
-              onChange={handleChange}
-            />
-          </PeriodDropdown>
+          <CalendarRangePicker
+            value={selection.period1}
+            onChange={handleChange}
+            label="分析期間（期間-1）"
+            year={from.year}
+            month={from.month}
+            daysInMonth={daysInMonth}
+          />
         </>
       )}
     </BadgeWrapper>
@@ -177,10 +166,16 @@ function InlinePeriodPicker() {
  * クリックで年月選択グリッド＋日範囲スライダーのドロップダウンを開き、
  * 比較先を自由に変更できる。
  */
+/**
+ * InlineComparisonPeriodBadge — 比較期間の表示・編集コンポーネント
+ *
+ * period2 の年月日範囲をコンパクトに表示する。
+ * クリックで CalendarRangePicker を開き、
+ * 比較先を自由に変更できる。
+ */
 function InlineComparisonPeriodBadge() {
   const { selection, setPeriod2 } = usePeriodSelection()
   const [open, setOpen] = useState(false)
-  const [pickerYear, setPickerYear] = useState(selection.period2.from.year)
 
   const { from, to } = selection.period2
   const isSameMonth = from.year === to.year && from.month === to.month
@@ -191,90 +186,39 @@ function InlineComparisonPeriodBadge() {
 
   const label = isSameMonth
     ? `${from.year}/${from.month}月 ${from.day}〜${to.day}日`
-    : `${from.year}/${from.month}/${from.day}〜${to.year}/${to.month}/${to.day}`
+    : `${toDateKey(from)}〜${toDateKey(to)}`
 
   const isCustom = selection.activePreset === 'custom'
 
-  const handleOpen = useCallback(() => {
-    setPickerYear(from.year)
-    setOpen(true)
-  }, [from.year])
-
-  const handleMonthSelect = useCallback(
-    (month: number) => {
-      const newDaysInMonth = new Date(pickerYear, month, 0).getDate()
-      setPeriod2({
-        from: { year: pickerYear, month, day: 1 },
-        to: { year: pickerYear, month, day: newDaysInMonth },
-      })
+  const handleChange = useCallback(
+    (range: DateRange) => {
+      setPeriod2(range)
     },
-    [pickerYear, setPeriod2],
-  )
-
-  const handleDayChange = useCallback(
-    (start: number, end: number) => {
-      setPeriod2({
-        from: { ...from, day: start },
-        to: { ...to, day: end },
-      })
-    },
-    [from, to, setPeriod2],
+    [setPeriod2],
   )
 
   if (!selection.comparisonEnabled) return null
 
   return (
     <BadgeWrapper>
-      <PeriodBadgeButton onClick={handleOpen} $isPartial={isCustom}>
+      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={isCustom}>
         vs {label}
       </PeriodBadgeButton>
       {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />
-          <PeriodDropdown>
-            <PeriodLabel style={{ marginBottom: 8 }}>
-              比較期間
-              {!isCustom && (
-                <span style={{ marginLeft: 8, opacity: 0.6, fontSize: '0.85em' }}>
-                  プリセット連動中（変更でカスタムに切替）
-                </span>
-              )}
-            </PeriodLabel>
-
-            {/* 年月選択グリッド */}
-            <PickerHeader>
-              <YearArrow onClick={() => setPickerYear((y) => y - 1)}>◀</YearArrow>
-              <YearLabel>{pickerYear}年</YearLabel>
-              <YearArrow onClick={() => setPickerYear((y) => y + 1)}>▶</YearArrow>
-            </PickerHeader>
-            <MonthGrid>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <MonthCell
-                  key={m}
-                  $active={pickerYear === from.year && m === from.month}
-                  onClick={() => handleMonthSelect(m)}
-                >
-                  {m}月
-                </MonthCell>
-              ))}
-            </MonthGrid>
-
-            {/* 日範囲スライダー（同月の場合のみ） */}
-            {isSameMonth && (
-              <div style={{ marginTop: 12 }}>
-                <PeriodLabel>
-                  日範囲 ({from.year}/{from.month}月)
-                </PeriodLabel>
-                <DayRangeSlider
-                  min={1}
-                  max={daysInMonth}
-                  start={from.day}
-                  end={to.day}
-                  onChange={handleDayChange}
-                />
-              </div>
-            )}
-          </PeriodDropdown>
+          <CalendarRangePicker
+            value={selection.period2}
+            onChange={handleChange}
+            label={
+              isCustom
+                ? '比較期間（期間-2）'
+                : '比較期間（期間-2）— プリセット連動中'
+            }
+            year={from.year}
+            month={from.month}
+            daysInMonth={daysInMonth}
+          />
         </>
       )}
     </BadgeWrapper>

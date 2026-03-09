@@ -70,7 +70,10 @@ export interface UnifiedWidgetContext {
   // ── Dashboard 固有（他ページではオプション） ──
   readonly storeKey?: string
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
+  /** 実績データの有効範囲（ピッカーで指定、effectiveEndDay でキャップ） */
   readonly currentDateRange?: DateRange
+  /** 月全体の範囲（予算・前年表示用。トリミングされない） */
+  readonly fullMonthRange?: DateRange
   readonly prevYearDateRange?: DateRange
   readonly prevYearScope?: PrevYearScope
   readonly dataEndDay?: number | null
