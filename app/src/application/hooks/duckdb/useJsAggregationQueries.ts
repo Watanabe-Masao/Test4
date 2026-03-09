@@ -32,6 +32,7 @@ import {
   queryStoreAggregation,
   type CtsFilterParams,
 } from '@/infrastructure/duckdb/queries/categoryTimeSales'
+import { toDateKey } from '@/domain/models/CalendarDate'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
 import {
   aggregateByDay,
@@ -184,11 +185,32 @@ export function computeDowPattern(rows: readonly StoreDaySummaryRow[]): DowPatte
 
 // ─── 日別特徴量ベクトル（JS計算版） ────────────────────
 
+/** MA-28 のために必要な先行データ日数 */
+const MA_LOOKBACK_DAYS = 27
+
+/**
+ * DateRange を lookbackDays 分だけ前に拡張する。
+ * 移動平均の計算で月初のデータ欠落を防ぐ。
+ */
+function extendRangeBack(range: DateRange, lookbackDays: number): DateRange {
+  const fromDate = new Date(range.from.year, range.from.month - 1, range.from.day - lookbackDays)
+  return {
+    from: {
+      year: fromDate.getFullYear(),
+      month: fromDate.getMonth() + 1,
+      day: fromDate.getDate(),
+    },
+    to: range.to,
+  }
+}
+
 /**
  * DuckDB 生データ → JS 移動平均 + Z-score + CV + スパイク比率
  *
  * SQL のウィンドウ関数 (AVG OVER w3/w7/w28, LAG, STDDEV_POP, cumulative SUM) を置き換え。
- * 返り値は DailyFeatureRow[] 互換。
+ *
+ * MA-28 のために、dateRange.from の 27日前からデータを取得し、
+ * 計算後に元の dateRange に含まれる行のみを返す。
  */
 export function useJsDailyFeatures(
   conn: AsyncDuckDBConnection | null,
@@ -196,16 +218,27 @@ export function useJsDailyFeatures(
   dateRange: DateRange | undefined,
   storeIds: ReadonlySet<string>,
 ): AsyncQueryResult<readonly DailyFeatureRow[]> {
+  // MA-28 用に取得範囲を前方に拡張
+  const extendedRange = useMemo(
+    () => (dateRange ? extendRangeBack(dateRange, MA_LOOKBACK_DAYS) : undefined),
+    [dateRange],
+  )
+
   const {
     data: rawRows,
     isLoading,
     error,
-  } = useRawSummaryRows(conn, dataVersion, dateRange, storeIds)
+  } = useRawSummaryRows(conn, dataVersion, extendedRange, storeIds)
+
+  const trimFromKey = useMemo(
+    () => (dateRange ? toDateKey(dateRange.from) : undefined),
+    [dateRange],
+  )
 
   const data = useMemo(() => {
     if (!rawRows) return null
-    return computeDailyFeatures(rawRows)
-  }, [rawRows])
+    return computeDailyFeatures(rawRows, trimFromKey)
+  }, [rawRows, trimFromKey])
 
   return { data, isLoading, error }
 }
@@ -214,9 +247,15 @@ export function useJsDailyFeatures(
  * 店舗別日次特徴量を計算する純粋関数。
  *
  * DuckDB SQL の WINDOW w3/w7/w28 と等価な計算を JS で行う。
+ *
+ * @param rows 生データ（拡張範囲を含む場合あり）
+ * @param trimFromDateKey 指定時、この日付以降の行のみを返す（MA計算用の先行データは含めない）
  */
 /** @internal テスト用に export */
-export function computeDailyFeatures(rows: readonly StoreDaySummaryRow[]): DailyFeatureRow[] {
+export function computeDailyFeatures(
+  rows: readonly StoreDaySummaryRow[],
+  trimFromDateKey?: string,
+): DailyFeatureRow[] {
   // store_id ごとにグループ化
   const storeMap = new Map<string, { dateKey: string; sales: number }[]>()
   for (const r of rows) {
@@ -306,6 +345,10 @@ export function computeDailyFeatures(rows: readonly StoreDaySummaryRow[]): Daily
     }
   }
 
+  // 先行データ（lookback 分）を除外して本来の期間のみ返す
+  if (trimFromDateKey) {
+    return result.filter((r) => r.dateKey >= trimFromDateKey)
+  }
   return result
 }
 

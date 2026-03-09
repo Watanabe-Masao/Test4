@@ -7,10 +7,17 @@ export const Main = styled.main`
 `
 
 export const Header = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
+  margin: -${({ theme }) => theme.spacing[8]};
+  margin-bottom: 0;
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
+  background: ${({ theme }) => theme.colors.bg};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `
 
 export const TitleRow = styled.div`
@@ -156,4 +163,64 @@ export const MonthCell = styled.button<{ $active?: boolean }>`
 export const BadgeWrapper = styled.div`
   position: relative;
   display: inline-block;
+`
+
+// ── Period Range Picker ──
+
+export const PeriodBadgeButton = styled.button<{ $isPartial?: boolean }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.pill};
+  color: ${({ $isPartial, theme }) =>
+    $isPartial ? theme.colors.palette.warning : theme.colors.text3};
+  background: ${({ $isPartial, theme }) =>
+    $isPartial ? `${theme.colors.palette.warning}15` : theme.colors.bg3};
+  border: 1px solid
+    ${({ $isPartial, theme }) =>
+      $isPartial ? `${theme.colors.palette.warning}40` : 'transparent'};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  white-space: nowrap;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.palette.primary}60;
+    background: ${({ theme }) => theme.colors.palette.primary}10;
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
+export const PeriodDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  z-index: 201;
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: ${({ theme }) => theme.spacing[4]};
+  min-width: 320px;
+`
+
+export const PeriodLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+export const PeriodResetBtn = styled.button`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.palette.primary};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.palette.primary}10;
+  }
 `

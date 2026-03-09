@@ -36,10 +36,14 @@ export interface LoadResult {
  */
 export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
   // DROP all tables (including materialized summary if exists)
-  // DuckDB は DROP TABLE IF EXISTS でも名前が VIEW として存在するとエラーになるため、
-  // VIEW → TABLE の順で DROP する（マテリアライズ前は VIEW、後は TABLE）。
-  await conn.query('DROP VIEW IF EXISTS store_day_summary')
-  await conn.query('DROP TABLE IF EXISTS store_day_summary')
+  // DuckDB は DROP VIEW/TABLE IF EXISTS でも型不一致でエラーになるため try-catch で吸収
+  for (const type of ['VIEW', 'TABLE'] as const) {
+    try {
+      await conn.query(`DROP ${type} IF EXISTS store_day_summary`)
+    } catch {
+      // 型不一致（VIEW vs TABLE）の場合は無視
+    }
+  }
   for (const name of TABLE_NAMES) {
     await conn.query(`DROP TABLE IF EXISTS ${name}`)
   }
