@@ -25,6 +25,7 @@ import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObs
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
+import { WidgetPeriodToggle } from '@/presentation/components/common/WidgetPeriodToggle'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -232,10 +233,16 @@ export function DashboardPage() {
   // Flat index tracker for D&D
   let flatIdx = 0
 
-  const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
+  const renderDraggable = (
+    widget: WidgetDef,
+    index: number,
+    content: ReactNode,
+    showPeriodToggle = false,
+  ) => {
     if (!editMode)
       return (
         <WidgetWrapper key={widget.id} data-widget-id={widget.id}>
+          {showPeriodToggle && <WidgetPeriodToggle widgetId={widget.id} />}
           {content}
           {widget.linkTo && (
             <WidgetLinkBtn
@@ -327,6 +334,7 @@ export function DashboardPage() {
                         <ChartErrorBoundary>
                           <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
                         </ChartErrorBoundary>,
+                        true,
                       )}
                       {renderDraggable(
                         halfBuffer[1],
@@ -334,6 +342,7 @@ export function DashboardPage() {
                         <ChartErrorBoundary>
                           <LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget>
                         </ChartErrorBoundary>,
+                        true,
                       )}
                     </ChartRow>,
                   )
@@ -347,6 +356,7 @@ export function DashboardPage() {
                         <ChartErrorBoundary>
                           <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
                         </ChartErrorBoundary>,
+                        true,
                       )}
                     </ChartRow>,
                   )
@@ -366,6 +376,7 @@ export function DashboardPage() {
                         <ChartErrorBoundary>
                           <LazyWidget>{w.render(ctx)}</LazyWidget>
                         </ChartErrorBoundary>,
+                        true,
                       )}
                     </FullChartRow>,
                   )
