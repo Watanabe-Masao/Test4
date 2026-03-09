@@ -5,25 +5,9 @@
  * 仕入動向を把握するためのダッシュボード。
  * period1/period2（日付範囲）ベースで同曜日比較にも対応。
  */
-import { useState, useCallback, useMemo } from 'react'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
-} from 'recharts'
+import { Fragment, useState, useCallback, useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, PageSkeleton } from '@/presentation/components/common'
-import {
-  SafeResponsiveContainer,
-  createChartTooltip,
-} from '@/presentation/components/charts/chartInfra'
-import { useChartTheme, toAxisYen } from '@/presentation/components/charts/chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -37,6 +21,7 @@ import type {
   SupplierComparisonRow,
   CategoryComparisonRow,
   StoreComparisonRow,
+  PurchaseDailyPivotData,
 } from '@/domain/models/PurchaseComparison'
 import {
   Section,
@@ -52,8 +37,12 @@ import {
   MarkupCell,
   MarkupIndicator,
   EmptyState,
-  ChartWrapper,
   SubNote,
+  PivotTableWrapper,
+  PivotGroupTh,
+  PurchasePivotGroupTh,
+  PivotSubTh,
+  PivotTd,
 } from './PurchaseAnalysisPage.styles'
 
 // ── ソート ──
@@ -197,7 +186,7 @@ export function PurchaseAnalysisPage() {
     )
   }
 
-  const { kpi, bySupplier, byCategory, byStore, daily } = result
+  const { kpi, bySupplier, byCategory, byStore, dailyPivot } = result
 
   const sortedSuppliers = sortRows(bySupplier, supplierSort.sortKey, supplierSort.sortDir)
   const sortedCategories = sortRows(byCategory, categorySort.sortKey, categorySort.sortDir)
@@ -248,10 +237,10 @@ export function PurchaseAnalysisPage() {
         </KpiGrid>
       </Section>
 
-      {/* 日別累計チャート */}
+      {/* カテゴリ別日別明細 */}
       <Section>
-        <SectionTitle>日別仕入推移（累計）</SectionTitle>
-        <PurchaseDailyChart currentDaily={daily.current} prevDaily={daily.prev} />
+        <SectionTitle>カテゴリ別日別明細（原価/売価）</SectionTitle>
+        <PurchaseDailyPivotTable pivot={dailyPivot} />
       </Section>
 
       {/* カテゴリ明細 */}
@@ -502,175 +491,74 @@ function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] })
   )
 }
 
-// ── 日別累計チャート ──
+// ── カテゴリ別日別ピボットテーブル ──
 
-interface DailyChartPoint {
-  day: number
-  curCost: number
-  curCumCost: number
-  curCumMarkup: number
-  curCumSales: number
-  prevCumCost: number | null
-  prevCumMarkup: number | null
-  prevCumSales: number | null
-}
+const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
 
-function PurchaseDailyChart({
-  currentDaily,
-  prevDaily,
-}: {
-  currentDaily: readonly {
-    day: number
-    cost: number
-    price: number
-    markup: number
-    sales: number
-  }[]
-  prevDaily: readonly { day: number; cost: number; price: number; markup: number; sales: number }[]
-}) {
-  const ct = useChartTheme()
-
-  const chartData = useMemo(() => {
-    const curMap = new Map(currentDaily.map((d) => [d.day, d]))
-    const prevMap = new Map(prevDaily.map((d) => [d.day, d]))
-    const maxDay = Math.max(...currentDaily.map((d) => d.day), ...prevDaily.map((d) => d.day), 1)
-
-    const points: DailyChartPoint[] = []
-    let curCumCost = 0
-    let curCumMarkup = 0
-    let curCumSales = 0
-    let prevCumCost = 0
-    let prevCumMarkup = 0
-    let prevCumSales = 0
-
-    for (let day = 1; day <= maxDay; day++) {
-      const cur = curMap.get(day)
-      const prev = prevMap.get(day)
-      if (cur) {
-        curCumCost += cur.cost
-        curCumMarkup += cur.markup
-        curCumSales += cur.sales
-      }
-      if (prev) {
-        prevCumCost += prev.cost
-        prevCumMarkup += prev.markup
-        prevCumSales += prev.sales
-      }
-      points.push({
-        day,
-        curCost: cur?.cost ?? 0,
-        curCumCost,
-        curCumMarkup,
-        curCumSales,
-        prevCumCost: prevDaily.length > 0 ? prevCumCost : null,
-        prevCumMarkup: prevDaily.length > 0 ? prevCumMarkup : null,
-        prevCumSales: prevDaily.length > 0 ? prevCumSales : null,
-      })
-    }
-    return points
-  }, [currentDaily, prevDaily])
-
-  if (chartData.length === 0) {
+function PurchaseDailyPivotTable({ pivot }: { pivot: PurchaseDailyPivotData }) {
+  if (pivot.columns.length === 0) {
     return <EmptyState>日別データがありません</EmptyState>
   }
 
   return (
-    <ChartWrapper>
-      <SafeResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} />
-          <XAxis
-            dataKey="day"
-            tick={{ fontSize: ct.fontSize.sm, fill: ct.textMuted }}
-            tickFormatter={(v: number) => `${v}日`}
-          />
-          <YAxis
-            yAxisId="left"
-            tickFormatter={toAxisYen}
-            tick={{ fontSize: ct.fontSize.sm, fill: ct.textMuted }}
-          />
-          <Tooltip
-            content={createChartTooltip({
-              ct,
-              formatter: (value, name) => [
-                `${Math.round(Number(value)).toLocaleString('ja-JP')}円`,
-                name,
-              ],
-              labelFormatter: (label) => `${label}日`,
-            })}
-          />
-          <Legend wrapperStyle={{ fontSize: ct.fontSize.sm }} />
-          {/* 当期日別仕入（バー） */}
-          <Bar yAxisId="left" dataKey="curCost" name="当期仕入原価" barSize={8} opacity={0.6}>
-            {chartData.map((_, i) => (
-              <Cell key={i} fill={palette.primary} />
+    <PivotTableWrapper>
+      <Table>
+        <thead>
+          <tr>
+            <Th rowSpan={2}>日付</Th>
+            {pivot.columns.map((col) => (
+              <PurchasePivotGroupTh key={col.key} colSpan={2} $color={col.color}>
+                {col.label}
+              </PurchasePivotGroupTh>
             ))}
-          </Bar>
-          {/* 当期累計原価（太い線） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="curCumCost"
-            name="当期累計原価"
-            stroke={palette.primary}
-            strokeWidth={2.5}
-            dot={false}
-          />
-          {/* 当期累計値入高（緑） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="curCumMarkup"
-            name="当期累計値入高"
-            stroke={palette.successDark}
-            strokeWidth={2}
-            dot={false}
-          />
-          {/* 前年累計原価（破線） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="prevCumCost"
-            name="前年累計原価"
-            stroke={palette.slate}
-            strokeWidth={1.5}
-            strokeDasharray="6 3"
-            dot={false}
-          />
-          {/* 前年累計値入高（破線） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="prevCumMarkup"
-            name="前年累計値入高"
-            stroke={palette.warningDark}
-            strokeWidth={1.5}
-            strokeDasharray="6 3"
-            dot={false}
-          />
-          {/* 当期累計売上（赤系） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="curCumSales"
-            name="当期累計売上"
-            stroke={palette.dangerDark}
-            strokeWidth={2}
-            dot={false}
-          />
-          {/* 前年累計売上（破線） */}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="prevCumSales"
-            name="前年累計売上"
-            stroke={palette.pinkDark}
-            strokeWidth={1.5}
-            strokeDasharray="6 3"
-            dot={false}
-          />
-        </ComposedChart>
-      </SafeResponsiveContainer>
-    </ChartWrapper>
+            <PivotGroupTh colSpan={2}>合計</PivotGroupTh>
+          </tr>
+          <tr>
+            {pivot.columns.map((col) => (
+              <Fragment key={col.key}>
+                <PivotSubTh className="group-start">原価</PivotSubTh>
+                <PivotSubTh>売価</PivotSubTh>
+              </Fragment>
+            ))}
+            <PivotSubTh className="group-start">原価</PivotSubTh>
+            <PivotSubTh>売価</PivotSubTh>
+          </tr>
+        </thead>
+        <tbody>
+          {pivot.rows.map((row) => (
+            <tr key={row.day}>
+              <Td>{row.day}日</Td>
+              {pivot.columns.map((col) => {
+                const cell = row.cells[col.key]
+                return (
+                  <Fragment key={col.key}>
+                    <PivotTd $groupStart $negative={cell.cost < 0}>
+                      {fmtOrDash(cell.cost)}
+                    </PivotTd>
+                    <PivotTd $negative={cell.price < 0}>{fmtOrDash(cell.price)}</PivotTd>
+                  </Fragment>
+                )
+              })}
+              <PivotTd $groupStart>{fmtOrDash(row.totalCost)}</PivotTd>
+              <PivotTd>{fmtOrDash(row.totalPrice)}</PivotTd>
+            </tr>
+          ))}
+          <TrTotal>
+            <Td>合計</Td>
+            {pivot.columns.map((col) => {
+              const cell = pivot.totals.byColumn[col.key]
+              return (
+                <Fragment key={col.key}>
+                  <PivotTd $groupStart>{formatCurrency(cell.cost)}</PivotTd>
+                  <PivotTd>{formatCurrency(cell.price)}</PivotTd>
+                </Fragment>
+              )
+            })}
+            <PivotTd $groupStart>{formatCurrency(pivot.totals.grandCost)}</PivotTd>
+            <PivotTd>{formatCurrency(pivot.totals.grandPrice)}</PivotTd>
+          </TrTotal>
+        </tbody>
+      </Table>
+    </PivotTableWrapper>
   )
 }

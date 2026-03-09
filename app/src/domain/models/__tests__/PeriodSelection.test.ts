@@ -217,11 +217,25 @@ describe('PeriodSelection', () => {
         const sel = createDefaultPeriodSelection(year, month)
         const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
         const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+        // Date 演算で月跨ぎも正しく処理される
+        const expectedFrom = new Date(year - 1, month - 1, 1 + offset)
         expect(
           p2.from.day,
-          `${year}/${month}: period2.from.day=${p2.from.day} vs 1+offset=${1 + offset}`,
-        ).toBe(Math.min(1 + offset, new Date(year - 1, month, 0).getDate()))
+          `${year}/${month}: period2.from.day=${p2.from.day} vs expected=${expectedFrom.getDate()}`,
+        ).toBe(expectedFrom.getDate())
       }
+    })
+
+    it('prevYearSameDow: 期間長が維持される（月末オーバーフロー時に月跨ぎ）', () => {
+      // 2026/2/1〜28 → 2025/2/2〜3/1（offset=1, 28日間を維持）
+      const result = applyPreset(feb2026, 'prevYearSameDow', feb2026)
+      const fromDate = new Date(result.from.year, result.from.month - 1, result.from.day)
+      const toDate = new Date(result.to.year, result.to.month - 1, result.to.day)
+      const p1FromDate = new Date(feb2026.from.year, feb2026.from.month - 1, feb2026.from.day)
+      const p1ToDate = new Date(feb2026.to.year, feb2026.to.month - 1, feb2026.to.day)
+      const p1Days = (p1ToDate.getTime() - p1FromDate.getTime()) / (1000 * 60 * 60 * 24)
+      const p2Days = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)
+      expect(p2Days).toBe(p1Days)
     })
   })
 })

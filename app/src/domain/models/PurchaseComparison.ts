@@ -118,6 +118,38 @@ export interface PurchaseDailyData {
   readonly prev: readonly PurchaseDailyPoint[]
 }
 
+/** カテゴリ別日別ピボットのセル（原価/売価） */
+export interface PurchaseDailyPivotCell {
+  readonly cost: number
+  readonly price: number
+}
+
+/** カテゴリ別日別ピボットの列定義 */
+export interface PurchaseDailyPivotColumn {
+  readonly key: string
+  readonly label: string
+  readonly color: string
+}
+
+/** カテゴリ別日別ピボットの行（日付単位） */
+export interface PurchaseDailyPivotRow {
+  readonly day: number
+  readonly cells: Readonly<Record<string, PurchaseDailyPivotCell>>
+  readonly totalCost: number
+  readonly totalPrice: number
+}
+
+/** カテゴリ別日別ピボットデータ全体 */
+export interface PurchaseDailyPivotData {
+  readonly columns: readonly PurchaseDailyPivotColumn[]
+  readonly rows: readonly PurchaseDailyPivotRow[]
+  readonly totals: {
+    readonly byColumn: Readonly<Record<string, PurchaseDailyPivotCell>>
+    readonly grandCost: number
+    readonly grandPrice: number
+  }
+}
+
 /** 仕入比較分析の全結果 */
 export interface PurchaseComparisonResult {
   readonly kpi: PurchaseComparisonKpi
@@ -125,5 +157,6 @@ export interface PurchaseComparisonResult {
   readonly byCategory: readonly CategoryComparisonRow[]
   readonly byStore: readonly StoreComparisonRow[]
   readonly daily: PurchaseDailyData
+  readonly dailyPivot: PurchaseDailyPivotData
   readonly isReady: boolean
 }

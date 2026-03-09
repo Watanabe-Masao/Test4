@@ -144,6 +144,39 @@ export async function querySalesDaily(
   return queryToObjects<SalesDailyRow>(conn, sql)
 }
 
+/** 日別×取引先別仕入集計（ピボットテーブル用） */
+export interface PurchaseDailySupplierRow {
+  readonly day: number
+  readonly supplierCode: string
+  readonly totalCost: number
+  readonly totalPrice: number
+}
+
+/**
+ * 指定日付範囲の日別×取引先別仕入集計を取得する（ピボットテーブル用）
+ */
+export async function queryPurchaseDailyBySupplier(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly PurchaseDailySupplierRow[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT
+      day,
+      COALESCE(supplier_code, 'UNKNOWN') AS supplier_code,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM purchase
+    ${where}
+    GROUP BY day, supplier_code
+    ORDER BY day, supplier_code`
+  return queryToObjects<PurchaseDailySupplierRow>(conn, sql)
+}
+
 /**
  * 指定日付範囲の日別仕入集計を取得する（チャート用）
  */
