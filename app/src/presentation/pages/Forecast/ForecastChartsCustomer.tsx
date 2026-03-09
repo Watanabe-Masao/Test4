@@ -41,15 +41,15 @@ export const DowCustomerChart = memo(function DowCustomerChart({
   const data = averages.map((a, i) => ({
     name: a.dow,
     今年客数: a.avgCustomers,
-    ...(hasPrev ? { 前年客数: a.prevAvgCustomers } : {}),
+    ...(hasPrev ? { 比較期客数: a.prevAvgCustomers } : {}),
     今年客単価: a.avgTxValue,
-    ...(hasPrev ? { 前年客単価: a.prevAvgTxValue } : {}),
+    ...(hasPrev ? { 比較期客単価: a.prevAvgTxValue } : {}),
     color: dowColors[i],
   }))
 
   return (
     <ChartWrapper>
-      <ChartTitle>曜日別 平均客数・客単価{hasPrev ? '（前年比較）' : ''}</ChartTitle>
+      <ChartTitle>曜日別 平均客数・客単価{hasPrev ? '（比較期比較）' : ''}</ChartTitle>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -109,7 +109,7 @@ export const DowCustomerChart = memo(function DowCustomerChart({
           {hasPrev && (
             <Bar
               yAxisId="left"
-              dataKey="前年客数"
+              dataKey="比較期客数"
               fill="#94a3b8"
               fillOpacity={0.4}
               radius={[4, 4, 0, 0]}
@@ -128,7 +128,7 @@ export const DowCustomerChart = memo(function DowCustomerChart({
             <Line
               yAxisId="right"
               type="monotone"
-              dataKey="前年客単価"
+              dataKey="比較期客単価"
               stroke="#8b5cf6"
               strokeWidth={1.5}
               strokeDasharray="4 4"
@@ -155,12 +155,12 @@ export const MovingAverageChart = memo(function MovingAverageChart({
     day: `${e.day}`,
     客数MA: e.customersMA,
     客単価MA: e.txValueMA,
-    ...(hasPrev ? { 前年客数MA: e.prevCustomersMA, 前年客単価MA: e.prevTxValueMA } : {}),
+    ...(hasPrev ? { 比較期客数MA: e.prevCustomersMA, 比較期客単価MA: e.prevTxValueMA } : {}),
   }))
 
   return (
     <ChartWrapper>
-      <ChartTitle>客数・客単価 移動平均（5日窓）{hasPrev ? ' vs 前年' : ''}</ChartTitle>
+      <ChartTitle>客数・客単価 移動平均（5日窓）{hasPrev ? ' vs 比較期' : ''}</ChartTitle>
       <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="85%">
         <ComposedChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
@@ -207,7 +207,7 @@ export const MovingAverageChart = memo(function MovingAverageChart({
             <Area
               yAxisId="left"
               type="monotone"
-              dataKey="前年客数MA"
+              dataKey="比較期客数MA"
               fill="#94a3b8"
               fillOpacity={0.08}
               stroke="#94a3b8"
@@ -227,7 +227,7 @@ export const MovingAverageChart = memo(function MovingAverageChart({
             <Line
               yAxisId="right"
               type="monotone"
-              dataKey="前年客単価MA"
+              dataKey="比較期客単価MA"
               stroke="#a78bfa"
               strokeWidth={1.5}
               strokeDasharray="4 4"
@@ -272,9 +272,9 @@ export const RelationshipChart = memo(function RelationshipChart({
       const existing = dayMap.get(e.day) ?? { day: `${e.day}` }
       dayMap.set(e.day, {
         ...existing,
-        前年売上指数: Math.round(e.salesIndex * 100),
-        前年客数指数: Math.round(e.customersIndex * 100),
-        前年客単価指数: Math.round(e.txValueIndex * 100),
+        比較期売上指数: Math.round(e.salesIndex * 100),
+        比較期客数指数: Math.round(e.customersIndex * 100),
+        比較期客単価指数: Math.round(e.txValueIndex * 100),
       })
     }
   }
@@ -282,10 +282,10 @@ export const RelationshipChart = memo(function RelationshipChart({
 
   const title =
     viewMode === 'compare'
-      ? '売上・客数・客単価 関係性推移（今年 vs 前年）'
+      ? '売上・客数・客単価 関係性推移（当期 vs 比較期）'
       : viewMode === 'prev'
-        ? '売上・客数・客単価 関係性推移（前年）'
-        : '売上・客数・客単価 関係性推移（今年）'
+        ? '売上・客数・客単価 関係性推移（比較期）'
+        : '売上・客数・客単価 関係性推移（当期）'
 
   return (
     <ChartWrapper style={{ height: 360 }}>
@@ -343,7 +343,7 @@ export const RelationshipChart = memo(function RelationshipChart({
             <>
               <Line
                 type="monotone"
-                dataKey="前年売上指数"
+                dataKey="比較期売上指数"
                 stroke="#3b82f6"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
@@ -351,7 +351,7 @@ export const RelationshipChart = memo(function RelationshipChart({
               />
               <Line
                 type="monotone"
-                dataKey="前年客数指数"
+                dataKey="比較期客数指数"
                 stroke="#06b6d4"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
@@ -359,7 +359,7 @@ export const RelationshipChart = memo(function RelationshipChart({
               />
               <Line
                 type="monotone"
-                dataKey="前年客単価指数"
+                dataKey="比較期客単価指数"
                 stroke="#8b5cf6"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"

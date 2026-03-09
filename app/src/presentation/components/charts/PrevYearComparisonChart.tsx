@@ -84,17 +84,17 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   const hasSummary = latestCurrentCum > 0 && prevCumAtLatest > 0
 
   return (
-    <Wrapper aria-label="前年比較チャート">
-      <Title>当年 vs 前年同曜日（累計売上推移）</Title>
+    <Wrapper aria-label="期間比較チャート">
+      <Title>当期 vs 比較期（累計売上推移）</Title>
       {hasSummary && (
         <SummaryRow>
           <Metric>
-            <MetricLabel>当年累計</MetricLabel>
+            <MetricLabel>当期累計</MetricLabel>
             <MetricValue>{fmt(latestCurrentCum)}円</MetricValue>
           </Metric>
           <ProgressBarWrap>
             <ProgressLabel>
-              <span>前年比 {toPct(yoyRatio)}</span>
+              <span>比較期比 {toPct(yoyRatio)}</span>
               <span>
                 {yoyDiff >= 0 ? '+' : ''}
                 {fmt(yoyDiff)}円
@@ -105,7 +105,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
             </ProgressTrack>
           </ProgressBarWrap>
           <Metric>
-            <MetricLabel>前年同時点</MetricLabel>
+            <MetricLabel>比較期同時点</MetricLabel>
             <MetricValue $color={ct.colors.slate}>{fmt(prevCumAtLatest)}円</MetricValue>
           </Metric>
         </SummaryRow>
@@ -141,7 +141,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
               content={createChartTooltip({
                 ct,
                 formatter: (value, name) => {
-                  const label = name === 'currentCum' ? '当年累計' : '前年同曜日累計'
+                  const label = name === 'currentCum' ? '当期累計' : '比較期累計'
                   return [value != null ? toComma(value as number) : '-', label]
                 },
                 labelFormatter: (label) => `${label}日`,
@@ -151,8 +151,8 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
               wrapperStyle={{ fontSize: ct.fontSize.xs, fontFamily: ct.fontFamily }}
               formatter={(value) => {
                 const labels: Record<string, string> = {
-                  currentCum: '当年累計',
-                  prevYearCum: '前年同曜日累計',
+                  currentCum: '当期累計',
+                  prevYearCum: '比較期累計',
                 }
                 return labels[value] ?? value
               }}
@@ -183,7 +183,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 label={{
-                  value: `前年同曜日月間 ${fmt(prevTotal)}`,
+                  value: `比較期月間 ${fmt(prevTotal)}`,
                   position: 'right',
                   fill: ct.colors.slate,
                   fontSize: ct.fontSize.xs,

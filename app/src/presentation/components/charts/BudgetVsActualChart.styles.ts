@@ -177,7 +177,7 @@ export const VIEW_LABELS: Record<BudgetViewType, string> = {
   diff: '差分',
   rate: '達成率',
   area: 'エリア',
-  prevYearDiff: '前年差',
+  prevYearDiff: '比較期差',
 }
 
 export const VIEW_TITLES: Record<BudgetViewType, string> = {
@@ -185,7 +185,7 @@ export const VIEW_TITLES: Record<BudgetViewType, string> = {
   diff: '予算差異（実績 − 予算）',
   rate: '予算達成率推移',
   area: '予算 vs 実績（エリア）',
-  prevYearDiff: '予算差・前年差 累計推移',
+  prevYearDiff: '予算差・比較期差 累計推移',
 }
 
 /* ── 比較モード ── */
@@ -193,8 +193,8 @@ export type CompareMode = 'budgetVsActual' | 'currentVsPrev' | 'all'
 
 export const COMPARE_LABELS: Record<CompareMode, string> = {
   budgetVsActual: '予算 vs 実績',
-  currentVsPrev: '当年 vs 前年同曜日',
-  all: '予算 vs 実績 vs 前年',
+  currentVsPrev: '当期 vs 比較期',
+  all: '予算 vs 実績 vs 比較期',
 }
 
 /** 比較モード別の利用可能ビュー */
@@ -208,11 +208,11 @@ export const VIEWS_BY_COMPARE: Record<CompareMode, readonly BudgetViewType[]> = 
 export const COMPARE_TITLES: Partial<Record<CompareMode, Partial<Record<BudgetViewType, string>>>> =
   {
     currentVsPrev: {
-      line: '当年 vs 前年同曜日（累計推移）',
-      area: '当年 vs 前年同曜日（エリア）',
+      line: '当期 vs 比較期（累計推移）',
+      area: '当期 vs 比較期（エリア）',
     },
     all: {
-      line: '予算 vs 実績 vs 前年同曜日（累計推移）',
-      area: '予算 vs 実績 vs 前年同曜日（エリア）',
+      line: '予算 vs 実績 vs 比較期（累計推移）',
+      area: '予算 vs 実績 vs 比較期（エリア）',
     },
   }

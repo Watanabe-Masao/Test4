@@ -141,11 +141,11 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   const allLabels: Record<string, string> = {
     actualCum: '実績累計',
     budgetCum: '予算累計',
-    prevYearCum: '前年同曜日累計',
+    prevYearCum: '比較期累計',
     diff: '予算差異',
     achieveRate: '達成率(%)',
     budgetDiff: '予算差（累計）',
-    prevYearDiff: '前年差（累計）',
+    prevYearDiff: '比較期差（累計）',
   }
 
   const chartTitle = COMPARE_TITLES[compareMode]?.[effectiveView] ?? VIEW_TITLES[effectiveView]
@@ -211,16 +211,16 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
       {compareMode === 'currentVsPrev' && currentActual > 0 && latestPrevYearCum != null && (
         <SummaryRow>
           <Metric>
-            <MetricLabel>当年累計</MetricLabel>
+            <MetricLabel>当期累計</MetricLabel>
             <MetricValue>{fmt(currentActual)}円</MetricValue>
           </Metric>
           <Metric>
-            <MetricLabel>前年同曜日累計</MetricLabel>
+            <MetricLabel>比較期累計</MetricLabel>
             <MetricValue>{fmt(latestPrevYearCum)}円</MetricValue>
           </Metric>
           {prevYearDiffAmt != null && (
             <Metric>
-              <MetricLabel>前年差</MetricLabel>
+              <MetricLabel>比較期差</MetricLabel>
               <MetricValue $color={prevYearDiffAmt >= 0 ? ct.colors.success : ct.colors.danger}>
                 {prevYearDiffAmt >= 0 ? '+' : ''}
                 {fmt(prevYearDiffAmt)}円

@@ -306,19 +306,19 @@ export function DayDetailModal({
               {dayTxVal > 0 ? formatCurrency(dayTxVal) : '-'}
               {prevYear.hasPrevYear && pyTxVal > 0 && txValRatio > 0 && (
                 <KpiMiniSub style={{ color: sc.cond(txValRatio >= 1) }}>
-                  (前年比{formatPercent(txValRatio)})
+                  (比較期比{formatPercent(txValRatio)})
                 </KpiMiniSub>
               )}
             </KpiMiniValue>
           </KpiMini>
           <KpiMini $accent={sc.cond(pyRatio >= 1)}>
-            <KpiMiniLabel>前年売上</KpiMiniLabel>
+            <KpiMiniLabel>比較期売上</KpiMiniLabel>
             <KpiMiniValue>
               {prevYear.hasPrevYear && pySales > 0 ? formatCurrency(pySales) : '-'}
             </KpiMiniValue>
           </KpiMini>
           <KpiMini $accent={sc.cond(pyRatio >= 1)}>
-            <KpiMiniLabel>前年比</KpiMiniLabel>
+            <KpiMiniLabel>比較期比</KpiMiniLabel>
             <KpiMiniValue $color={pyRatio > 0 ? sc.cond(pyRatio >= 1) : undefined}>
               {prevYear.hasPrevYear && pyRatio > 0 ? formatPercent(pyRatio) : '-'}
             </KpiMiniValue>
@@ -341,11 +341,11 @@ export function DayDetailModal({
         {/* ── Tab: 売上分析 ── */}
         {tab === 'sales' && (
           <>
-            {/* 比較モード切替: 前年比 / 前週比 */}
+            {/* 比較モード切替: 比較期比 / 前週比 */}
             {(prevYear.hasPrevYear || canWoW) && (
               <ToggleGroup style={{ marginBottom: '12px' }}>
                 <ToggleBtn $active={compMode === 'yoy'} onClick={() => setCompMode('yoy')}>
-                  前年比
+                  比較期比
                 </ToggleBtn>
                 <ToggleBtn
                   $active={compMode === 'wow'}

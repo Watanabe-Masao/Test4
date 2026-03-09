@@ -43,20 +43,20 @@ interface Props {
 
 const ALL_LABELS: Record<string, string> = {
   sales: '売上',
-  prevYearSales: '前年同曜日売上',
+  prevYearSales: '比較期売上',
   discount: '売変額',
-  prevYearDiscount: '前年売変額',
+  prevYearDiscount: '比較期売変額',
   salesMa7: '売上7日移動平均',
-  currentCum: '当年累計',
-  prevYearCum: '前年同曜日累計',
+  currentCum: '当期累計',
+  prevYearCum: '比較期累計',
   budgetCum: '予算累計',
   budgetDaily: '予算（日割）',
-  yoyDiff: '前年差',
-  yoyDiffCum: '前年差累計',
+  yoyDiff: '比較期差',
+  yoyDiffCum: '比較期差累計',
   wfSalesUp: '増加',
   wfSalesDown: '減少',
-  wfYoyUp: '前年差+',
-  wfYoyDown: '前年差-',
+  wfYoyUp: '比較期差+',
+  wfYoyDown: '比較期差-',
 }
 
 export const DailySalesChartBody = memo(function DailySalesChartBody({
