@@ -54,8 +54,7 @@ export const PresetChip = styled.button<{ $active?: boolean }>`
         ? 'rgba(99,102,241,0.2)'
         : 'rgba(99,102,241,0.08)'
       : 'transparent'};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.primary : theme.colors.text3};
+  color: ${({ $active, theme }) => ($active ? theme.colors.palette.primary : theme.colors.text3)};
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;

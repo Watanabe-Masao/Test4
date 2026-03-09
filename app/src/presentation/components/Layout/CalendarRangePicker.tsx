@@ -113,7 +113,9 @@ export function CalendarRangePicker({
   const activePresetKey = useMemo(() => {
     const f = toDateKey(value.from)
     const t = toDateKey(value.to)
-    return presets.find((p) => toDateKey(p.range.from) === f && toDateKey(p.range.to) === t)?.key ?? null
+    return (
+      presets.find((p) => toDateKey(p.range.from) === f && toDateKey(p.range.to) === t)?.key ?? null
+    )
   }, [value, presets])
 
   // 日数
