@@ -112,9 +112,7 @@ describe('usePurchaseComparisonQuery helpers', () => {
     })
 
     it('includes special sales in correct category', () => {
-      const curSpecial = [
-        { day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 },
-      ]
+      const curSpecial = [{ day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 }]
       const flowerCat: CategoryComparisonRow = {
         ...cat,
         categoryId: 'flowers',
