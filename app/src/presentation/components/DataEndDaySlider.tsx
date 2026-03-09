@@ -22,11 +22,14 @@ export function DataEndDaySlider({
   detectedMaxDay,
   settings,
   updateSettings,
+  onPeriodEndDayChange,
 }: {
   readonly daysInMonth: number
   readonly detectedMaxDay: number
   readonly settings: AppSettings
   readonly updateSettings: (patch: Partial<AppSettings>) => void
+  /** 期間選択ストアへの同期（Application 層でスコーピング） */
+  readonly onPeriodEndDayChange?: (endDay: number) => void
 }) {
   const currentEndDay =
     settings.dataEndDay != null ? Math.min(settings.dataEndDay, daysInMonth) : daysInMonth
@@ -44,9 +47,10 @@ export function DataEndDaySlider({
       clearTimeout(sliderTimerRef.current)
       sliderTimerRef.current = setTimeout(() => {
         updateSettings({ dataEndDay: v === daysInMonth ? null : v })
+        onPeriodEndDayChange?.(v)
       }, 150)
     },
-    [updateSettings, daysInMonth],
+    [updateSettings, daysInMonth, onPeriodEndDayChange],
   )
   // クリーンアップ
   useEffect(() => () => clearTimeout(sliderTimerRef.current), [])
@@ -66,9 +70,11 @@ export function DataEndDaySlider({
             <SliderResetBtn
               onClick={() => {
                 clearTimeout(sliderTimerRef.current)
+                const effectiveDay = detectedMaxDay >= daysInMonth ? daysInMonth : detectedMaxDay
                 updateSettings({
-                  dataEndDay: detectedMaxDay >= daysInMonth ? null : detectedMaxDay,
+                  dataEndDay: effectiveDay === daysInMonth ? null : effectiveDay,
                 })
+                onPeriodEndDayChange?.(effectiveDay)
               }}
             >
               リセット

@@ -44,6 +44,7 @@ import {
   PrivacyDot,
 } from '@/presentation/components/DataManagementSidebar.styles'
 import { DataEndDaySlider } from '@/presentation/components/DataEndDaySlider'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { InventorySettingsSection } from '@/presentation/components/InventorySettingsSection'
 
 const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
@@ -197,6 +198,16 @@ export function DataManagementSidebar({
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
   const hasNonBudgetData = detectedMaxDay > 0
 
+  // 期間選択ストアへの双方向同期（DataEndDaySlider → periodSelectionStore）
+  const setPeriod1 = usePeriodSelectionStore((s) => s.setPeriod1)
+  const period1 = usePeriodSelectionStore((s) => s.selection.period1)
+  const handlePeriodEndDayChange = useCallback(
+    (endDay: number) => {
+      setPeriod1({ ...period1, to: { ...period1.to, day: endDay } })
+    },
+    [setPeriod1, period1],
+  )
+
   return (
     <>
       <Sidebar title="データ管理">
@@ -243,6 +254,7 @@ export function DataManagementSidebar({
             detectedMaxDay={detectedMaxDay}
             settings={settings}
             updateSettings={updateSettings}
+            onPeriodEndDayChange={handlePeriodEndDayChange}
           />
         )}
 
