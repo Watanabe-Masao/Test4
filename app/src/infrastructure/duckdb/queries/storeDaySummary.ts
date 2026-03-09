@@ -9,7 +9,6 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
-import { MATERIALIZE_SUMMARY_DDL } from '../schemas'
 
 // ── 結果型 ──
 
@@ -149,10 +148,27 @@ export async function queryDailyCumulative(
 /**
  * VIEW を実テーブルにマテリアライズする（パフォーマンス最適化用）。
  * VIEW へのクエリが遅い場合に呼ぶ。
+ *
+ * DuckDB は DROP VIEW IF EXISTS でも対象が TABLE だとエラーになるため、
+ * VIEW / TABLE の両方を try-catch で DROP してから RENAME する。
  */
 export async function materializeSummary(conn: AsyncDuckDBConnection): Promise<void> {
-  const stmts = MATERIALIZE_SUMMARY_DDL.split(';').filter((s) => s.trim())
-  for (const stmt of stmts) {
-    await conn.query(stmt)
+  await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
+  // DuckDB は型不一致で IF EXISTS でもエラーになるため両方試す
+  await safeDropObject(conn, 'store_day_summary', 'VIEW')
+  await safeDropObject(conn, 'store_day_summary', 'TABLE')
+  await conn.query('ALTER TABLE store_day_summary_mat RENAME TO store_day_summary')
+}
+
+/** DuckDB の DROP ... IF EXISTS が型不一致でエラーになる問題を吸収 */
+async function safeDropObject(
+  conn: AsyncDuckDBConnection,
+  name: string,
+  type: 'VIEW' | 'TABLE',
+): Promise<void> {
+  try {
+    await conn.query(`DROP ${type} IF EXISTS ${name}`)
+  } catch {
+    // 型不一致（VIEW vs TABLE）の場合は無視
   }
 }

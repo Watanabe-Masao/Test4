@@ -194,7 +194,7 @@ describe('queryDailyCumulative', () => {
 })
 
 describe('materializeSummary', () => {
-  it('MATERIALIZE_SUMMARY_DDL を分割して実行する', async () => {
+  it('VIEW/TABLE 両対応で DROP してからマテリアライズする', async () => {
     const capturedSql: string[] = []
     const conn = {
       query: vi.fn((sql: string) => {
@@ -202,9 +202,26 @@ describe('materializeSummary', () => {
         return Promise.resolve({ toArray: () => [] })
       }),
     }
-    // DDL には複数の SQL 文が含まれる前提（; で分割）
     await materializeSummary(conn as never)
-    // 少なくとも1回以上の SQL 実行を確認
-    expect(conn.query).toHaveBeenCalled()
+    expect(capturedSql[0]).toContain('CREATE TABLE store_day_summary_mat')
+    expect(capturedSql).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('DROP VIEW IF EXISTS store_day_summary'),
+        expect.stringContaining('DROP TABLE IF EXISTS store_day_summary'),
+        expect.stringContaining('RENAME TO store_day_summary'),
+      ]),
+    )
+  })
+
+  it('DROP VIEW が型不一致エラーでも続行する', async () => {
+    const conn = {
+      query: vi.fn((sql: string) => {
+        if (sql.includes('DROP VIEW')) {
+          return Promise.reject(new Error('Catalog Error: Existing object is of type Table'))
+        }
+        return Promise.resolve({ toArray: () => [] })
+      }),
+    }
+    await expect(materializeSummary(conn as never)).resolves.toBeUndefined()
   })
 })
