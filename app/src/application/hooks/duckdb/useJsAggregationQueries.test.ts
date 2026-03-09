@@ -325,6 +325,7 @@ describe('computeDailyFeatures', () => {
         dateKey: `2025-12-${String(i + 5).padStart(2, '0')}`,
         day: i + 5,
         month: 12,
+        storeId: 'S1',
         sales: 100,
       }),
     )
@@ -333,6 +334,7 @@ describe('computeDailyFeatures', () => {
         dateKey: `2026-01-${String(i + 1).padStart(2, '0')}`,
         day: i + 1,
         month: 1,
+        storeId: 'S1',
         sales: 200,
       }),
     )
