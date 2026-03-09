@@ -149,6 +149,18 @@ export const OrderItem = styled.div<{ $isDragging?: boolean; $isOver?: boolean }
   }
 `
 
+export const BulkActionRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+`
+
+export const EmptyOrderMessage = styled.div`
+  padding: ${({ theme }) => theme.spacing[6]} 0;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 export const OrderIndex = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text4};

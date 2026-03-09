@@ -21,6 +21,7 @@ import {
   MonthGrid,
   MonthCell,
 } from './MainContent.styles'
+import { ComparisonPresetToggle } from './ComparisonPresetToggle'
 
 // ── Components ──
 
@@ -144,6 +145,7 @@ export function MainContent({
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <ComparisonPresetToggle />
           <HeaderContext />
           {actions}
         </div>

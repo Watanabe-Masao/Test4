@@ -21,6 +21,7 @@ import {
   WidgetWrapper,
   EmptyState,
   EmptyTitle,
+  LazyPlaceholder,
 } from './PageWidgetContainer.styles'
 
 // ─── Lazy Widget ────────────────────────────────────────
@@ -31,7 +32,7 @@ const LazyWidget = memo(function LazyWidget({ children }: { children: ReactNode 
     freezeOnceVisible: true,
   })
 
-  return <div ref={ref}>{hasBeenVisible ? children : <div style={{ minHeight: 300 }} />}</div>
+  return <div ref={ref}>{hasBeenVisible ? children : <LazyPlaceholder />}</div>
 })
 
 // ─── Component ──────────────────────────────────────────

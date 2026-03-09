@@ -109,6 +109,10 @@ export const WidgetWrapper = styled.div`
   position: relative;
 `
 
+export const LazyPlaceholder = styled.div`
+  min-height: 300px;
+`
+
 export const EmptyState = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[12]} ${({ theme }) => theme.spacing[8]};

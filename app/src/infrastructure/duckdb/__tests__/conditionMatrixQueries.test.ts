@@ -76,11 +76,13 @@ describe('queryConditionMatrix', () => {
     expect(sql).toContain('s.is_prev_year = TRUE')
   })
 
-  it('前週同期のために日付を -7日シフトする SQL が含まれる', async () => {
+  it('前週同期のために日付を -7日シフトした範囲が含まれる', async () => {
     const conn = makeMockConn()
     await queryConditionMatrix(conn as never, feb2026)
     const sql = conn.getCapturedSql()[0]
-    expect(sql).toContain("INTERVAL '7' DAY")
+    // JS で事前計算された前週範囲（2026-01-25 〜 2026-02-21）
+    expect(sql).toContain("'2026-01-25'")
+    expect(sql).toContain("'2026-02-21'")
   })
 
   it('総仕入原価を算出するための原価カラムを含む', async () => {
@@ -122,7 +124,8 @@ describe('queryConditionMatrix', () => {
     // 幅広い WHERE で必要な全行を1回でフェッチ
     expect(sql).toContain('WHERE')
     expect(sql).toContain('OR')
-    expect(sql).toContain("INTERVAL '7' DAY")
+    // JS で事前計算された前週範囲が含まれる
+    expect(sql).toContain("'2026-01-25'")
   })
 
   it('ORDER BY store_id が含まれる', async () => {
