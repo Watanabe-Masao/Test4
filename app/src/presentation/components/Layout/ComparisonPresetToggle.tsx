@@ -13,6 +13,7 @@ const PRESET_OPTIONS: readonly { key: ComparisonPreset; label: string }[] = [
   { key: 'prevYearSameMonth', label: '前年同月' },
   { key: 'prevYearSameDow', label: '前年同曜日' },
   { key: 'prevMonth', label: '前月' },
+  { key: 'prevWeek', label: '前週' },
 ]
 
 export const ComparisonPresetToggle = memo(function ComparisonPresetToggle() {

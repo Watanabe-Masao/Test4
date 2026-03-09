@@ -42,6 +42,8 @@ export const SubText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   color: ${({ theme }) => theme.colors.text3};
   margin-top: ${({ theme }) => theme.spacing[2]};
+  word-break: break-word;
+  line-height: 1.5;
 `
 
 /** Level 1: one-line formula always visible below the value */
