@@ -172,15 +172,19 @@ describe('期間ソース干渉テスト', () => {
         'sameDayOfWeek',
       )
       const oldFrom = frame.previous.from.day + frame.dowOffset
-      const oldTo = Math.min(daysInMonth + frame.dowOffset, frame.previous.to.day)
 
       // 新: prevYearSameDow
       const p1: DateRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
       const p2 = applyPreset(p1, 'prevYearSameDow', p1)
 
-      // buildPrevYearScope で from.day + offset と to.day の最終値が一致
+      // from.day は一致
       expect(p2.from.day).toBe(oldFrom)
-      expect(p2.to.day).toBe(oldTo)
+
+      // 新モデルは期間長を維持する（月末クランプせず月跨ぎ可能）
+      const p2From = new Date(p2.from.year, p2.from.month - 1, p2.from.day)
+      const p2To = new Date(p2.to.year, p2.to.month - 1, p2.to.day)
+      const p2Days = (p2To.getTime() - p2From.getTime()) / (1000 * 60 * 60 * 24)
+      expect(p2Days).toBe(daysInMonth - 1)
     })
   })
 

@@ -307,11 +307,7 @@ export function usePurchaseComparisonQuery(
       }
 
       // ── カテゴリ別日別ピボット ──
-      const dailyPivot = buildDailyPivot(
-        curDailyBySupplier,
-        byCategory,
-        supplierCategoryMap,
-      )
+      const dailyPivot = buildDailyPivot(curDailyBySupplier, byCategory, supplierCategoryMap)
 
       return {
         kpi,
