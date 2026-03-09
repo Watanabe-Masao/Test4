@@ -26,6 +26,7 @@ import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { WidgetPeriodToggle } from '@/presentation/components/common/WidgetPeriodToggle'
+import { useWidgetPeriodStore, resolveWidgetPeriod2 } from '@/application/stores/widgetPeriodStore'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
@@ -101,6 +102,35 @@ export function DashboardPage() {
     prevYearDetailType,
     setPrevYearDetailType,
   } = useUnifiedWidgetContext()
+
+  const widgetOverrides = useWidgetPeriodStore((s) => s.overrides)
+
+  /**
+   * ウィジェットごとの期間オーバーライドを適用したコンテキストを返す。
+   * linked=true（デフォルト）の場合はグローバルctxをそのまま返す。
+   * linked=false の場合は prevYearDateRange を customPeriod2 で置換。
+   */
+  const resolveCtxForWidget = useCallback(
+    (widgetId: string) => {
+      if (!ctx) return ctx
+      const globalPeriod2 = ctx.periodSelection?.period2 ?? ctx.comparisonFrame?.previous
+      if (!globalPeriod2) return ctx
+
+      const { period2, isLinked } = resolveWidgetPeriod2(widgetId, widgetOverrides, globalPeriod2)
+      if (isLinked) return ctx
+
+      // カスタム期間でコンテキストを上書き
+      return {
+        ...ctx,
+        prevYearDateRange: period2,
+        currentDateRange: ctx.currentDateRange,
+        comparisonFrame: ctx.comparisonFrame
+          ? { ...ctx.comparisonFrame, previous: period2 }
+          : ctx.comparisonFrame,
+      }
+    },
+    [ctx, widgetOverrides],
+  )
 
   const [widgetIds, setWidgetIds] = useState<string[]>(loadLayout)
   const [showSettings, setShowSettings] = useState(false)
@@ -332,7 +362,9 @@ export function DashboardPage() {
                         halfBuffer[0],
                         idx1,
                         <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
+                          <LazyWidget>
+                            {halfBuffer[0].render(resolveCtxForWidget(halfBuffer[0].id)!)}
+                          </LazyWidget>
                         </ChartErrorBoundary>,
                         true,
                       )}
@@ -340,7 +372,9 @@ export function DashboardPage() {
                         halfBuffer[1],
                         idx2,
                         <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[1].render(ctx)}</LazyWidget>
+                          <LazyWidget>
+                            {halfBuffer[1].render(resolveCtxForWidget(halfBuffer[1].id)!)}
+                          </LazyWidget>
                         </ChartErrorBoundary>,
                         true,
                       )}
@@ -354,7 +388,9 @@ export function DashboardPage() {
                         halfBuffer[0],
                         idx1,
                         <ChartErrorBoundary>
-                          <LazyWidget>{halfBuffer[0].render(ctx)}</LazyWidget>
+                          <LazyWidget>
+                            {halfBuffer[0].render(resolveCtxForWidget(halfBuffer[0].id)!)}
+                          </LazyWidget>
                         </ChartErrorBoundary>,
                         true,
                       )}
@@ -374,7 +410,7 @@ export function DashboardPage() {
                         w,
                         idx,
                         <ChartErrorBoundary>
-                          <LazyWidget>{w.render(ctx)}</LazyWidget>
+                          <LazyWidget>{w.render(resolveCtxForWidget(w.id)!)}</LazyWidget>
                         </ChartErrorBoundary>,
                         true,
                       )}
