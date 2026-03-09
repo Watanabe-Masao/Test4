@@ -1,8 +1,9 @@
 import { useTheme } from 'styled-components'
-import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
+import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
 import {
   Main,
   Header,
@@ -20,6 +21,7 @@ import {
   YearLabel,
   MonthGrid,
   MonthCell,
+  PeriodInfo,
 } from './MainContent.styles'
 import { ComparisonPresetToggle } from './ComparisonPresetToggle'
 
@@ -99,6 +101,30 @@ function InlineMonthPicker() {
   )
 }
 
+function formatDateRange(range: { from: { year: number; month: number; day: number }; to: { year: number; month: number; day: number } }): string {
+  const { from, to } = range
+  if (from.year === to.year && from.month === to.month) {
+    return `${from.year}/${from.month}/${from.day}〜${to.day}`
+  }
+  return `${from.year}/${from.month}/${from.day}〜${to.year}/${to.month}/${to.day}`
+}
+
+function PeriodDisplay() {
+  const { selection } = usePeriodSelection()
+  const label = useMemo(() => {
+    const p1 = formatDateRange(selection.period1)
+    const p2 = formatDateRange(selection.period2)
+    return { p1, p2 }
+  }, [selection.period1, selection.period2])
+
+  return (
+    <PeriodInfo>
+      <span>当期: {label.p1}</span>
+      {selection.comparisonEnabled && <span>比較: {label.p2}</span>}
+    </PeriodInfo>
+  )
+}
+
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
@@ -142,6 +168,7 @@ export function MainContent({
         <TitleRow>
           <Title>{title}</Title>
           <InlineMonthPicker />
+          <PeriodDisplay />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

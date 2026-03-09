@@ -165,3 +165,11 @@ export const BadgeWrapper = styled.div`
   display: inline-block;
 `
 
+export const PeriodInfo = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[3]};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  white-space: nowrap;
+`
+

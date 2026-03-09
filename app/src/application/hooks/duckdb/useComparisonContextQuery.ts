@@ -142,12 +142,24 @@ export function useComparisonContextQuery(
       const sameDowSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
       const sameDateSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
 
-      // 曜日ギャップ分析
+      // 曜日ギャップ分析 — 前年の曜日別合計売上を集計して渡す
       const dailyAvgSales =
         currentSnapshot.metrics.salesDays > 0
           ? currentSnapshot.metrics.totalSales / currentSnapshot.metrics.salesDays
           : 0
-      const dowGap = analyzeDowGap(targetYear, targetMonth, prevYear, prevMonth, dailyAvgSales)
+      const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
+      for (const row of prevRows) {
+        const dow = new Date(prevYear, prevMonth - 1, row.day).getDay()
+        prevDowSales[dow] += row.sales
+      }
+      const dowGap = analyzeDowGap(
+        targetYear,
+        targetMonth,
+        prevYear,
+        prevMonth,
+        dailyAvgSales,
+        prevDowSales,
+      )
 
       return {
         current: currentSnapshot,
