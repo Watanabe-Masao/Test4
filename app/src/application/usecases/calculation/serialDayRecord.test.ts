@@ -4,11 +4,7 @@
  * 月跨ぎデータがシリアル値で正しく処理されることを検証する。
  */
 import { describe, it, expect } from 'vitest'
-import {
-  toSerialRecords,
-  aggregateBySerial,
-  toContinuousArray,
-} from './serialDayRecord'
+import { toSerialRecords, aggregateBySerial, toContinuousArray } from './serialDayRecord'
 import { dateKeyToSerial, serialToDateKey } from '@/domain/models/DaySerial'
 
 // ── テストヘルパー ──
@@ -79,10 +75,7 @@ describe('toSerialRecords', () => {
   })
 
   it('年跨ぎデータも連続したシリアル値になる', () => {
-    const rows = [
-      makeRow('2025-12-31', 'S1', 100),
-      makeRow('2026-01-01', 'S1', 200),
-    ]
+    const rows = [makeRow('2025-12-31', 'S1', 100), makeRow('2026-01-01', 'S1', 200)]
     const result = toSerialRecords(rows)
     expect(result[1].serial - result[0].serial).toBe(1) // 年跨ぎ
   })
@@ -219,8 +212,7 @@ describe('toContinuousArray', () => {
     // 7日移動平均: arr[6] = (100+200+300+400+500+600+700) / 7 = 400
     const window = 7
     const salesValues = arr.map((d) => d.sales)
-    const ma7AtDay7 =
-      salesValues.slice(0, window).reduce((a, b) => a + b, 0) / window
+    const ma7AtDay7 = salesValues.slice(0, window).reduce((a, b) => a + b, 0) / window
 
     expect(ma7AtDay7).toBe(400)
     // 月跨ぎを意識せず、連続整数インデックスで移動平均が計算できる

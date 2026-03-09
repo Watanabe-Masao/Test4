@@ -6,6 +6,7 @@ import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
 import { toDateKey } from '@/domain/models'
 import type { DateRange } from '@/domain/models'
+import type { ComparisonPreset } from '@/domain/models/PeriodSelection'
 import {
   Main,
   Header,
@@ -26,8 +27,7 @@ import {
   PeriodBadgeButton,
   HeaderChipArea,
 } from './MainContent.styles'
-import { ComparisonPresetToggle } from './ComparisonPresetToggle'
-import { CalendarRangePicker } from './CalendarRangePicker'
+import { DualPeriodPicker } from './DualPeriodPicker'
 
 // ── Components ──
 
@@ -106,14 +106,15 @@ function InlineMonthPicker() {
 }
 
 /**
- * InlinePeriodPicker — 分析期間（日範囲）の指定コンポーネント
+ * InlineDualPeriodPicker — 期間1・期間2 の統合ピッカー
  *
- * period1 の日付範囲をコンパクトに表示し、
- * クリックで CalendarRangePicker（react-day-picker）を開く。
- * 2ヶ月並列表示で月跨ぎの期間指定を直感的に行える。
+ * 1つのバッジをクリックすると、期間1・期間2 を上下に分けた
+ * 統合パネルが開く。期間選択の全操作がこのパネルで完結する。
  */
-function InlinePeriodPicker() {
-  const { selection, setPeriod1 } = usePeriodSelection()
+function InlineDualPeriodPicker() {
+  const { selection, setPeriod1, setPeriod2, setPreset, setComparisonEnabled } =
+    usePeriodSelection()
+  const settings = useSettingsStore((s) => s.settings)
   const [open, setOpen] = useState(false)
 
   const { from, to } = selection.period1
@@ -123,96 +124,76 @@ function InlinePeriodPicker() {
   )
   const isFullMonth = from.day === 1 && to.day === daysInMonth
 
-  const handleChange = useCallback(
+  const isSameMonth = from.year === to.year && from.month === to.month
+  const p1Label = isSameMonth
+    ? `${from.month}/${from.day}〜${to.day}日`
+    : `${toDateKey(from)}〜${toDateKey(to)}`
+
+  // 比較期間のラベル
+  const p2From = selection.period2.from
+  const p2To = selection.period2.to
+  const p2SameMonth = p2From.year === p2To.year && p2From.month === p2To.month
+  const p2Label = p2SameMonth
+    ? `${p2From.year}/${p2From.month}/${p2From.day}〜${p2To.day}`
+    : `${toDateKey(p2From)}〜${toDateKey(p2To)}`
+
+  const handleP1Change = useCallback(
     (range: DateRange) => {
       setPeriod1(range)
     },
     [setPeriod1],
   )
-
-  const isSameMonth = from.year === to.year && from.month === to.month
-  const label = isSameMonth
-    ? isFullMonth
-      ? `${from.month}/${from.day}〜${to.day}日`
-      : `${from.month}/${from.day}〜${to.day}日`
-    : `${toDateKey(from)}〜${toDateKey(to)}`
-
-  return (
-    <BadgeWrapper>
-      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={!isFullMonth}>
-        {label}
-      </PeriodBadgeButton>
-      {open && (
-        <>
-          <PickerOverlay onClick={() => setOpen(false)} />
-          <CalendarRangePicker
-            value={selection.period1}
-            onChange={handleChange}
-            label="分析期間（期間-1）"
-            year={from.year}
-            month={from.month}
-            daysInMonth={daysInMonth}
-          />
-        </>
-      )}
-    </BadgeWrapper>
-  )
-}
-
-/**
- * InlineComparisonPeriodBadge — 比較期間の表示・編集コンポーネント
- *
- * period2 の年月日範囲をコンパクトに表示する。
- * クリックで年月選択グリッド＋日範囲スライダーのドロップダウンを開き、
- * 比較先を自由に変更できる。
- */
-/**
- * InlineComparisonPeriodBadge — 比較期間の表示・編集コンポーネント
- *
- * period2 の年月日範囲をコンパクトに表示する。
- * クリックで CalendarRangePicker を開き、
- * 比較先を自由に変更できる。
- */
-function InlineComparisonPeriodBadge() {
-  const { selection, setPeriod2 } = usePeriodSelection()
-  const [open, setOpen] = useState(false)
-
-  const { from, to } = selection.period2
-  const isSameMonth = from.year === to.year && from.month === to.month
-  const daysInMonth = useMemo(
-    () => new Date(from.year, from.month, 0).getDate(),
-    [from.year, from.month],
-  )
-
-  const label = isSameMonth
-    ? `${from.year}/${from.month}月 ${from.day}〜${to.day}日`
-    : `${toDateKey(from)}〜${toDateKey(to)}`
-
-  const isCustom = selection.activePreset === 'custom'
-
-  const handleChange = useCallback(
+  const handleP2Change = useCallback(
     (range: DateRange) => {
       setPeriod2(range)
     },
     [setPeriod2],
   )
-
-  if (!selection.comparisonEnabled) return null
+  const handlePresetChange = useCallback(
+    (preset: ComparisonPreset) => {
+      setPreset(preset)
+    },
+    [setPreset],
+  )
+  const handleComparisonToggle = useCallback(
+    (enabled: boolean) => {
+      setComparisonEnabled(enabled)
+    },
+    [setComparisonEnabled],
+  )
 
   return (
     <BadgeWrapper>
-      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={isCustom}>
-        vs {label}
+      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={!isFullMonth}>
+        {p1Label}
       </PeriodBadgeButton>
+      {selection.comparisonEnabled && (
+        <span
+          style={{
+            fontSize: '0.75rem',
+            color: '#9ca3af',
+            marginLeft: '4px',
+            cursor: 'pointer',
+          }}
+          onClick={() => setOpen(!open)}
+        >
+          vs {p2Label}
+        </span>
+      )}
       {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />
-          <CalendarRangePicker
-            value={selection.period2}
-            onChange={handleChange}
-            label={isCustom ? '比較期間（期間-2）' : '比較期間（期間-2）— プリセット連動中'}
-            year={from.year}
-            month={from.month}
+          <DualPeriodPicker
+            period1={selection.period1}
+            period2={selection.period2}
+            comparisonEnabled={selection.comparisonEnabled}
+            activePreset={selection.activePreset}
+            onPeriod1Change={handleP1Change}
+            onPeriod2Change={handleP2Change}
+            onPresetChange={handlePresetChange}
+            onComparisonToggle={handleComparisonToggle}
+            year={settings.targetYear}
+            month={settings.targetMonth}
             daysInMonth={daysInMonth}
           />
         </>
@@ -264,12 +245,10 @@ export function MainContent({
         <TitleRow>
           <Title>{title}</Title>
           <InlineMonthPicker />
-          <InlinePeriodPicker />
-          <InlineComparisonPeriodBadge />
+          <InlineDualPeriodPicker />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
         <HeaderChipArea>
-          <ComparisonPresetToggle />
           <HeaderContext />
           {actions}
         </HeaderChipArea>

@@ -22,6 +22,65 @@ export const CalendarDropdown = styled.div`
   min-width: 280px;
 `
 
+/** 期間1・期間2 を上下に並べる統合パネル */
+export const DualPeriodPanel = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  z-index: 201;
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: ${({ theme }) => theme.spacing[4]};
+  min-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+`
+
+/** 期間セクション（期間1 or 期間2） */
+export const PeriodSection = styled.div<{ $active?: boolean; $color?: string }>`
+  padding: ${({ theme }) => theme.spacing[3]};
+  border: 2px solid
+    ${({ $active, $color, theme }) =>
+      $active ? ($color ?? theme.colors.palette.primary) : theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  transition: border-color 0.15s;
+  cursor: pointer;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`
+
+/** セクションヘッダー（ラベル + 日付表示） */
+export const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+export const SectionTitle = styled.span<{ $color?: string }>`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+`
+
+export const SectionDateRange = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+export const SectionDays = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-left: ${({ theme }) => theme.spacing[2]};
+`
+
 export const CalendarHeader = styled.div`
   display: flex;
   align-items: center;
