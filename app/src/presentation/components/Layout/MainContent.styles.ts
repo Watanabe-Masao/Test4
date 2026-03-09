@@ -177,8 +177,7 @@ export const PeriodBadgeButton = styled.button<{ $isPartial?: boolean }>`
   background: ${({ $isPartial, theme }) =>
     $isPartial ? `${theme.colors.palette.warning}15` : theme.colors.bg3};
   border: 1px solid
-    ${({ $isPartial, theme }) =>
-      $isPartial ? `${theme.colors.palette.warning}40` : 'transparent'};
+    ${({ $isPartial, theme }) => ($isPartial ? `${theme.colors.palette.warning}40` : 'transparent')};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
   white-space: nowrap;
