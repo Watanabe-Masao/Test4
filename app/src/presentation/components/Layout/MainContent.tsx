@@ -26,6 +26,7 @@ import {
   PeriodDropdown,
   PeriodLabel,
   PeriodResetBtn,
+  HeaderChipArea,
 } from './MainContent.styles'
 import { ComparisonPresetToggle } from './ComparisonPresetToggle'
 
@@ -173,12 +174,13 @@ function InlinePeriodPicker() {
  * InlineComparisonPeriodBadge — 比較期間の表示・編集コンポーネント
  *
  * period2 の年月日範囲をコンパクトに表示する。
- * プリセット使用時は自動算出された比較期間を表示し、
- * クリックでカスタム編集に切り替えできる。
+ * クリックで年月選択グリッド＋日範囲スライダーのドロップダウンを開き、
+ * 比較先を自由に変更できる。
  */
 function InlineComparisonPeriodBadge() {
   const { selection, setPeriod2 } = usePeriodSelection()
   const [open, setOpen] = useState(false)
+  const [pickerYear, setPickerYear] = useState(selection.period2.from.year)
 
   const { from, to } = selection.period2
   const isSameMonth = from.year === to.year && from.month === to.month
@@ -193,7 +195,23 @@ function InlineComparisonPeriodBadge() {
 
   const isCustom = selection.activePreset === 'custom'
 
-  const handleChange = useCallback(
+  const handleOpen = useCallback(() => {
+    setPickerYear(from.year)
+    setOpen(true)
+  }, [from.year])
+
+  const handleMonthSelect = useCallback(
+    (month: number) => {
+      const newDaysInMonth = new Date(pickerYear, month, 0).getDate()
+      setPeriod2({
+        from: { year: pickerYear, month, day: 1 },
+        to: { year: pickerYear, month, day: newDaysInMonth },
+      })
+    },
+    [pickerYear, setPeriod2],
+  )
+
+  const handleDayChange = useCallback(
     (start: number, end: number) => {
       setPeriod2({
         from: { ...from, day: start },
@@ -207,24 +225,55 @@ function InlineComparisonPeriodBadge() {
 
   return (
     <BadgeWrapper>
-      <PeriodBadgeButton onClick={() => setOpen(!open)} $isPartial={isCustom}>
+      <PeriodBadgeButton onClick={handleOpen} $isPartial={isCustom}>
         vs {label}
       </PeriodBadgeButton>
-      {open && isSameMonth && (
+      {open && (
         <>
           <PickerOverlay onClick={() => setOpen(false)} />
           <PeriodDropdown>
-            <PeriodLabel>
-              比較期間 ({from.year}/{from.month}月)
-              {!isCustom && <span style={{ marginLeft: 8, opacity: 0.6 }}>プリセット連動中</span>}
+            <PeriodLabel style={{ marginBottom: 8 }}>
+              比較期間
+              {!isCustom && (
+                <span style={{ marginLeft: 8, opacity: 0.6, fontSize: '0.85em' }}>
+                  プリセット連動中（変更でカスタムに切替）
+                </span>
+              )}
             </PeriodLabel>
-            <DayRangeSlider
-              min={1}
-              max={daysInMonth}
-              start={from.day}
-              end={to.day}
-              onChange={handleChange}
-            />
+
+            {/* 年月選択グリッド */}
+            <PickerHeader>
+              <YearArrow onClick={() => setPickerYear((y) => y - 1)}>◀</YearArrow>
+              <YearLabel>{pickerYear}年</YearLabel>
+              <YearArrow onClick={() => setPickerYear((y) => y + 1)}>▶</YearArrow>
+            </PickerHeader>
+            <MonthGrid>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <MonthCell
+                  key={m}
+                  $active={pickerYear === from.year && m === from.month}
+                  onClick={() => handleMonthSelect(m)}
+                >
+                  {m}月
+                </MonthCell>
+              ))}
+            </MonthGrid>
+
+            {/* 日範囲スライダー（同月の場合のみ） */}
+            {isSameMonth && (
+              <div style={{ marginTop: 12 }}>
+                <PeriodLabel>
+                  日範囲 ({from.year}/{from.month}月)
+                </PeriodLabel>
+                <DayRangeSlider
+                  min={1}
+                  max={daysInMonth}
+                  start={from.day}
+                  end={to.day}
+                  onChange={handleDayChange}
+                />
+              </div>
+            )}
           </PeriodDropdown>
         </>
       )}
@@ -279,11 +328,11 @@ export function MainContent({
           <InlineComparisonPeriodBadge />
           {storeName && <StoreBadge>{storeName}</StoreBadge>}
         </TitleRow>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <HeaderChipArea>
           <ComparisonPresetToggle />
           <HeaderContext />
           {actions}
-        </div>
+        </HeaderChipArea>
       </Header>
       {children}
     </Main>
