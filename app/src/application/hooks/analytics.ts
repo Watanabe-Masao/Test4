@@ -52,7 +52,6 @@ export type {
   WMAEntry,
   MonthEndProjection,
 } from './useStatistics'
-export { useComparisonFrame } from './useComparisonFrame'
 export { useComparisonContext } from './useComparisonContext'
 export { useShapleyTimeSeries } from './useShapleyTimeSeries'
 export type { ShapleyDayItem, ShapleyTimeSeriesResult } from './useShapleyTimeSeries'

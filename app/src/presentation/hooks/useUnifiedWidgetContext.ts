@@ -7,18 +7,17 @@
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import type { MetricId, DateRange } from '@/domain/models'
+import type { MetricId, DateRange, ComparisonFrame } from '@/domain/models'
 import {
   useCalculation,
   useStoreSelection,
   usePrevYearData,
   useExplanations,
   useAutoLoadPrevYear,
-  useComparisonFrame,
   usePrevYearMonthlyKpi,
   useDowGapAnalysis,
 } from '@/application/hooks'
-import { buildPrevYearScopeFromSelection } from '@/domain/models/PeriodSelection'
+import { buildPrevYearScopeFromSelection, deriveDowOffset } from '@/domain/models/PeriodSelection'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -128,15 +127,18 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // 比較フレーム
-  const baseRange: DateRange = useMemo(
-    () => ({
-      from: { year: targetYear, month: targetMonth, day: 1 },
-      to: { year: targetYear, month: targetMonth, day: daysInMonth },
-    }),
-    [targetYear, targetMonth, daysInMonth],
-  )
-  const frame = useComparisonFrame(baseRange)
+  // 比較フレーム — periodSelection から導出（useComparisonFrame を置換）
+  const frame: ComparisonFrame = useMemo(() => {
+    const p = periodSelection
+    const dowOffset = deriveDowOffset(p.period1, p.period2, p.activePreset)
+    const policy = p.activePreset === 'prevYearSameDow' ? 'sameDayOfWeek' : 'sameDate'
+    return {
+      current: p.period1,
+      previous: p.period2,
+      dowOffset,
+      policy,
+    } satisfies ComparisonFrame
+  }, [periodSelection])
 
   // Store name map for category comparison
   const storeNames = useMemo(() => {

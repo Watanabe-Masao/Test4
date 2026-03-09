@@ -10,12 +10,13 @@
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
-import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
+import { deriveDowOffset } from '@/domain/models/PeriodSelection'
 
 /** 日別マッピング行: 前年の1日 → 当年の対応日 */
 export interface DayMappingRow {
@@ -152,8 +153,7 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
   const prevYearCS = data.prevYearClassifiedSales
   const prevYearFlowers = data.prevYearFlowers
   const { targetYear, targetMonth } = settings
-  const prevYearSourceYear = settings.prevYearSourceYear ?? undefined
-  const prevYearSourceMonth = settings.prevYearSourceMonth ?? undefined
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
 
   return useMemo(() => {
     if (prevYearCS.records.length === 0) return EMPTY
@@ -170,18 +170,15 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
-    // ソース年月の決定
-    const srcYear =
-      prevYearSourceYear != null && !isNaN(prevYearSourceYear) ? prevYearSourceYear : targetYear - 1
-    const srcMonth =
-      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth) ? prevYearSourceMonth : targetMonth
+    // ソース年月 — periodSelection.period2 から取得
+    const srcYear = periodSelection.period2.from.year
+    const srcMonth = periodSelection.period2.from.month
 
-    // 同曜日オフセット
-    const dowOffset = calcSameDowOffset(
-      targetYear,
-      targetMonth,
-      prevYearSourceYear != null && !isNaN(prevYearSourceYear) ? prevYearSourceYear : undefined,
-      prevYearSourceMonth != null && !isNaN(prevYearSourceMonth) ? prevYearSourceMonth : undefined,
+    // 同曜日オフセット — periodSelection から導出
+    const dowOffset = deriveDowOffset(
+      periodSelection.period1,
+      periodSelection.period2,
+      periodSelection.activePreset,
     )
 
     // flat records → index 変換
@@ -212,7 +209,6 @@ export function usePrevYearMonthlyKpi(): PrevYearMonthlyKpi {
     isAllStores,
     targetYear,
     targetMonth,
-    prevYearSourceYear,
-    prevYearSourceMonth,
+    periodSelection,
   ])
 }
