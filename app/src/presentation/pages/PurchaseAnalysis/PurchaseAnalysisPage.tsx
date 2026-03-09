@@ -5,7 +5,9 @@
  * 仕入動向を把握するためのダッシュボード。
  * period1/period2（日付範囲）ベースで同曜日比較にも対応。
  */
-import { Fragment, useState, useCallback, useMemo } from 'react'
+import { Fragment, useState, useCallback, useMemo, memo } from 'react'
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, PageSkeleton } from '@/presentation/components/common'
 import { palette } from '@/presentation/theme/tokens'
@@ -17,12 +19,14 @@ import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { usePurchaseComparisonQuery } from '@/application/hooks/duckdb/usePurchaseComparisonQuery'
+import { ComparisonPresetToggle } from '@/presentation/components/Layout/ComparisonPresetToggle'
 import type {
   SupplierComparisonRow,
   CategoryComparisonRow,
   StoreComparisonRow,
   PurchaseDailyPivotData,
   PurchaseComparisonKpi,
+  PurchaseDailyData,
 } from '@/domain/models/PurchaseComparison'
 import {
   Section,
@@ -41,7 +45,6 @@ import {
   SubNote,
   PivotTableWrapper,
   PivotGroupTh,
-  PurchasePivotGroupTh,
   PivotSubTh,
   PivotTd,
   DrillTr,
@@ -54,6 +57,12 @@ import {
   ProgressSub,
   ProgressBar,
   ProgressFill,
+  TabBar,
+  TabButton,
+  ToggleRow,
+  TrSubtotal,
+  DowCell,
+  ChartWrapper,
 } from './PurchaseAnalysisPage.styles'
 
 // ── ソート ──
@@ -186,10 +195,10 @@ export function PurchaseAnalysisPage() {
     storeNames,
   )
 
-  const supplierSort = useSort('currentCost')
   const categorySort = useSort('currentCost')
 
-  if (isLoading || !result) {
+  // 初回ロード時のみスケルトン表示。以降はデータ保持したまま再読み込み
+  if (!result) {
     return (
       <MainContent title="仕入分析">
         {isLoading ? <PageSkeleton /> : <EmptyState>データを読み込んでください</EmptyState>}
@@ -197,9 +206,8 @@ export function PurchaseAnalysisPage() {
     )
   }
 
-  const { kpi, bySupplier, byCategory, byStore, dailyPivot, categorySuppliers } = result
+  const { kpi, byCategory, byStore, daily, dailyPivot, categorySuppliers } = result
 
-  const sortedSuppliers = sortRows(bySupplier, supplierSort.sortKey, supplierSort.sortDir)
   const sortedCategories = sortRows(byCategory, categorySort.sortKey, categorySort.sortDir)
 
   // 期間ラベル
@@ -208,6 +216,12 @@ export function PurchaseAnalysisPage() {
 
   return (
     <MainContent title="仕入分析">
+      {/* 比較プリセット切り替え + ローディング */}
+      <SectionHeader>
+        <ComparisonPresetToggle />
+        {isLoading && <SubNote>データ更新中...</SubNote>}
+      </SectionHeader>
+
       {/* 前年対比進捗 */}
       <Section>
         <SectionTitle>前年対比進捗</SectionTitle>
@@ -276,6 +290,12 @@ export function PurchaseAnalysisPage() {
         />
       </Section>
 
+      {/* 売上 vs 仕入 チャート */}
+      <Section>
+        <SectionTitle>売上 vs 仕入原価（日別推移）</SectionTitle>
+        <PurchaseVsSalesChart daily={daily} />
+      </Section>
+
       {/* 店舗別比較（ドリルダウン付き） */}
       {byStore.length > 1 && (
         <Section>
@@ -286,12 +306,6 @@ export function PurchaseAnalysisPage() {
           <StoreComparisonTable rows={byStore} />
         </Section>
       )}
-
-      {/* 取引先別 */}
-      <Section>
-        <SectionTitle>取引先別比較（{bySupplier.length}件）</SectionTitle>
-        <SupplierComparisonTable rows={sortedSuppliers} sort={supplierSort} />
-      </Section>
     </MainContent>
   )
 }
@@ -498,84 +512,6 @@ function CategoryDetailTable({
   )
 }
 
-// ── 取引先別比較テーブル ──
-
-function SupplierComparisonTable({
-  rows,
-  sort,
-}: {
-  rows: readonly SupplierComparisonRow[]
-  sort: ReturnType<typeof useSort>
-}) {
-  const { sortKey, sortDir, handleSort } = sort
-
-  if (rows.length === 0) {
-    return <EmptyState>データがありません</EmptyState>
-  }
-
-  return (
-    <TableWrapper>
-      <Table>
-        <thead>
-          <tr>
-            <Th $align="left" $sortable onClick={() => handleSort('name')}>
-              取引先{sortIndicator('name', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('currentCost')}>
-              当期原価{sortIndicator('currentCost', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('prevCost')}>
-              前年原価{sortIndicator('prevCost', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('costDiff')}>
-              差額{sortIndicator('costDiff', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('costChangeRate')}>
-              増減率{sortIndicator('costChangeRate', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('currentCostShare')}>
-              構成比{sortIndicator('currentCostShare', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('costShareDiff')}>
-              構成比変化{sortIndicator('costShareDiff', sortKey, sortDir)}
-            </Th>
-            <Th $sortable onClick={() => handleSort('currentMarkupRate')}>
-              値入率{sortIndicator('currentMarkupRate', sortKey, sortDir)}
-            </Th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i}>
-              <Td $align="left">{row.supplierName}</Td>
-              <Td>{formatCurrency(row.currentCost)}</Td>
-              <Td>{formatCurrency(row.prevCost)}</Td>
-              <DiffCell $positive={diffColor(row.costDiff)}>
-                {row.costDiff >= 0 ? '+' : ''}
-                {formatCurrency(row.costDiff)}
-              </DiffCell>
-              <DiffCell $positive={diffColor(row.costChangeRate)}>
-                {row.costChangeRate >= 0 ? '+' : ''}
-                {formatPercent(row.costChangeRate)}
-              </DiffCell>
-              <Td>{formatPercent(row.currentCostShare)}</Td>
-              <DiffCell $positive={diffColor(row.costShareDiff)}>
-                {formatPointDiff(row.costShareDiff)}
-              </DiffCell>
-              <Td>
-                {formatPercent(row.currentMarkupRate)}
-                <span style={{ opacity: 0.5, marginLeft: 4 }}>
-                  ({formatPercent(row.prevMarkupRate)})
-                </span>
-              </Td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </TableWrapper>
-  )
-}
-
 // ── 店舗別比較テーブル（ドリルダウン付き） ──
 
 function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] }) {
@@ -661,74 +597,404 @@ function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] })
   )
 }
 
-// ── カテゴリ別日別ピボットテーブル ──
+// ── 曜日ラベル ──
+
+const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+const DOW_OPTIONS = DOW_LABELS.map((label, i) => ({ value: i, label }))
+
+// ── 小計計算（コンポーネント側で動的に算出） ──
+
+interface WeekSubtotal {
+  readonly afterDay: number
+  readonly cells: Readonly<
+    Record<string, { cost: number; price: number; prevCost: number; prevPrice: number }>
+  >
+  readonly totalCost: number
+  readonly totalPrice: number
+  readonly prevTotalCost: number
+  readonly prevTotalPrice: number
+}
+
+function computeSubtotals(
+  rows: readonly import('@/domain/models/PurchaseComparison').PurchaseDailyPivotRow[],
+  columnKeys: readonly string[],
+  startDow: number,
+): WeekSubtotal[] {
+  const result: WeekSubtotal[] = []
+  const emptyAccum = () => ({ cost: 0, price: 0, prevCost: 0, prevPrice: 0 })
+  let accum: Record<string, { cost: number; price: number; prevCost: number; prevPrice: number }> =
+    {}
+  for (const k of columnKeys) accum[k] = emptyAccum()
+  let totalCost = 0
+  let totalPrice = 0
+  let prevTotalCost = 0
+  let prevTotalPrice = 0
+  let count = 0
+
+  // 小計は「選択した曜日の前日」で締める（＝選択曜日が週の開始日）
+  const endDow = (startDow + 6) % 7
+
+  for (const row of rows) {
+    for (const k of columnKeys) {
+      const c = row.cells[k]
+      accum[k].cost += c.cost
+      accum[k].price += c.price
+      accum[k].prevCost += c.prevCost
+      accum[k].prevPrice += c.prevPrice
+    }
+    totalCost += row.totalCost
+    totalPrice += row.totalPrice
+    prevTotalCost += row.prevTotalCost
+    prevTotalPrice += row.prevTotalPrice
+    count++
+
+    if (row.dayOfWeek === endDow && count > 0) {
+      result.push({
+        afterDay: row.day,
+        cells: { ...accum },
+        totalCost,
+        totalPrice,
+        prevTotalCost,
+        prevTotalPrice,
+      })
+      accum = {}
+      for (const k of columnKeys) accum[k] = emptyAccum()
+      totalCost = 0
+      totalPrice = 0
+      prevTotalCost = 0
+      prevTotalPrice = 0
+      count = 0
+    }
+  }
+  // 残りを最後の小計として追加
+  if (count > 0) {
+    result.push({
+      afterDay: rows[rows.length - 1].day,
+      cells: { ...accum },
+      totalCost,
+      totalPrice,
+      prevTotalCost,
+      prevTotalPrice,
+    })
+  }
+  return result
+}
+
+// ── カテゴリ別日別ピボットテーブル（タブ切り替え） ──
 
 const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
 
-function PurchaseDailyPivotTable({ pivot }: { pivot: PurchaseDailyPivotData }) {
+const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
+  pivot,
+}: {
+  pivot: PurchaseDailyPivotData
+}) {
+  const [activeTab, setActiveTab] = useState<string>('__all__')
+  const [showSubtotals, setShowSubtotals] = useState(true)
+  const [subtotalStartDow, setSubtotalStartDow] = useState(1) // デフォルト: 月曜起点
+
+  const columnKeys = useMemo(() => pivot.columns.map((c) => c.key), [pivot.columns])
+
+  const subtotalMap = useMemo(() => {
+    if (!showSubtotals) return new Map<number, WeekSubtotal>()
+    const subs = computeSubtotals(pivot.rows, columnKeys, subtotalStartDow)
+    return new Map(subs.map((s) => [s.afterDay, s]))
+  }, [pivot.rows, columnKeys, subtotalStartDow, showSubtotals])
+
   if (pivot.columns.length === 0) {
     return <EmptyState>日別データがありません</EmptyState>
   }
 
+  const isAllTab = activeTab === '__all__'
+  const activeCol = pivot.columns.find((c) => c.key === activeTab)
+
+  // セルの値を取得するヘルパー
+  const getCost = (row: import('@/domain/models/PurchaseComparison').PurchaseDailyPivotRow) =>
+    isAllTab ? row.totalCost : (row.cells[activeTab]?.cost ?? 0)
+  const getPrice = (row: import('@/domain/models/PurchaseComparison').PurchaseDailyPivotRow) =>
+    isAllTab ? row.totalPrice : (row.cells[activeTab]?.price ?? 0)
+  const getPrevCost = (row: import('@/domain/models/PurchaseComparison').PurchaseDailyPivotRow) =>
+    isAllTab ? row.prevTotalCost : (row.cells[activeTab]?.prevCost ?? 0)
+  const getPrevPrice = (row: import('@/domain/models/PurchaseComparison').PurchaseDailyPivotRow) =>
+    isAllTab ? row.prevTotalPrice : (row.cells[activeTab]?.prevPrice ?? 0)
+
+  const getSubCost = (sub: WeekSubtotal) =>
+    isAllTab ? sub.totalCost : (sub.cells[activeTab]?.cost ?? 0)
+  const getSubPrice = (sub: WeekSubtotal) =>
+    isAllTab ? sub.totalPrice : (sub.cells[activeTab]?.price ?? 0)
+  const getSubPrevCost = (sub: WeekSubtotal) =>
+    isAllTab ? sub.prevTotalCost : (sub.cells[activeTab]?.prevCost ?? 0)
+  const getSubPrevPrice = (sub: WeekSubtotal) =>
+    isAllTab ? sub.prevTotalPrice : (sub.cells[activeTab]?.prevPrice ?? 0)
+
+  // 合計
+  const totCost = isAllTab ? pivot.totals.grandCost : (pivot.totals.byColumn[activeTab]?.cost ?? 0)
+  const totPrice = isAllTab
+    ? pivot.totals.grandPrice
+    : (pivot.totals.byColumn[activeTab]?.price ?? 0)
+  const totPrevCost = isAllTab
+    ? pivot.totals.prevGrandCost
+    : (pivot.totals.byColumn[activeTab]?.prevCost ?? 0)
+  const totPrevPrice = isAllTab
+    ? pivot.totals.prevGrandPrice
+    : (pivot.totals.byColumn[activeTab]?.prevPrice ?? 0)
+
+  const markupRateVal = (cost: number, price: number) => (price > 0 ? 1 - cost / price : 0)
+
   return (
-    <PivotTableWrapper>
-      <Table>
-        <thead>
-          <tr>
-            <Th rowSpan={2}>日付</Th>
-            {pivot.columns.map((col) => (
-              <PurchasePivotGroupTh key={col.key} colSpan={2} $color={col.color}>
-                {col.label}
-              </PurchasePivotGroupTh>
-            ))}
-            <PivotGroupTh colSpan={2}>合計</PivotGroupTh>
-          </tr>
-          <tr>
-            {pivot.columns.map((col) => (
-              <Fragment key={col.key}>
-                <PivotSubTh className="group-start">原価</PivotSubTh>
-                <PivotSubTh>売価</PivotSubTh>
-              </Fragment>
-            ))}
-            <PivotSubTh className="group-start">原価</PivotSubTh>
-            <PivotSubTh>売価</PivotSubTh>
-          </tr>
-        </thead>
-        <tbody>
-          {pivot.rows.map((row) => (
-            <tr key={row.day}>
-              <Td>{row.day}日</Td>
-              {pivot.columns.map((col) => {
-                const cell = row.cells[col.key]
-                return (
-                  <Fragment key={col.key}>
-                    <PivotTd $groupStart $negative={cell.cost < 0}>
-                      {fmtOrDash(cell.cost)}
-                    </PivotTd>
-                    <PivotTd $negative={cell.price < 0}>{fmtOrDash(cell.price)}</PivotTd>
-                  </Fragment>
-                )
-              })}
-              <PivotTd $groupStart>{fmtOrDash(row.totalCost)}</PivotTd>
-              <PivotTd>{fmtOrDash(row.totalPrice)}</PivotTd>
+    <>
+      {/* タブ */}
+      <TabBar>
+        <TabButton $active={isAllTab} $color="#3b82f6" onClick={() => setActiveTab('__all__')}>
+          全カテゴリ
+        </TabButton>
+        {pivot.columns.map((col) => (
+          <TabButton
+            key={col.key}
+            $active={activeTab === col.key}
+            $color={col.color}
+            onClick={() => setActiveTab(col.key)}
+          >
+            {col.label}
+          </TabButton>
+        ))}
+      </TabBar>
+
+      {/* 小計コントロール */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+        <ToggleRow>
+          <input
+            type="checkbox"
+            checked={showSubtotals}
+            onChange={(e) => setShowSubtotals(e.target.checked)}
+          />
+          小計を表示
+        </ToggleRow>
+        {showSubtotals && (
+          <ToggleRow as="span">
+            起点曜日:
+            <select
+              value={subtotalStartDow}
+              onChange={(e) => setSubtotalStartDow(Number(e.target.value))}
+              style={{ padding: '2px 4px', fontSize: '0.85rem' }}
+            >
+              {DOW_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </ToggleRow>
+        )}
+      </div>
+
+      {/* テーブル */}
+      <PivotTableWrapper>
+        <Table>
+          <thead>
+            <tr>
+              <Th rowSpan={2}>日付</Th>
+              <Th rowSpan={2}>曜</Th>
+              <PivotGroupTh colSpan={3}>
+                当期{activeCol ? `（${activeCol.label}）` : ''}
+              </PivotGroupTh>
+              <PivotGroupTh colSpan={3}>前期</PivotGroupTh>
+              <PivotGroupTh colSpan={2}>差異</PivotGroupTh>
             </tr>
-          ))}
-          <TrTotal>
-            <Td>合計</Td>
-            {pivot.columns.map((col) => {
-              const cell = pivot.totals.byColumn[col.key]
+            <tr>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh>値入率</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+              <PivotSubTh>値入率</PivotSubTh>
+              <PivotSubTh className="group-start">原価</PivotSubTh>
+              <PivotSubTh>売価</PivotSubTh>
+            </tr>
+          </thead>
+          <tbody>
+            {pivot.rows.map((row) => {
+              const cost = getCost(row)
+              const price = getPrice(row)
+              const prevCost = getPrevCost(row)
+              const prevPrice = getPrevPrice(row)
+              const sub = subtotalMap.get(row.day)
+
               return (
-                <Fragment key={col.key}>
-                  <PivotTd $groupStart>{formatCurrency(cell.cost)}</PivotTd>
-                  <PivotTd>{formatCurrency(cell.price)}</PivotTd>
+                <Fragment key={row.day}>
+                  <tr>
+                    <Td>{row.day}日</Td>
+                    <DowCell $dow={row.dayOfWeek}>{DOW_LABELS[row.dayOfWeek]}</DowCell>
+                    <PivotTd $groupStart $negative={cost < 0}>
+                      {fmtOrDash(cost)}
+                    </PivotTd>
+                    <PivotTd $negative={price < 0}>{fmtOrDash(price)}</PivotTd>
+                    <PivotTd>{price > 0 ? formatPercent(markupRateVal(cost, price)) : '-'}</PivotTd>
+                    <PivotTd $groupStart>{fmtOrDash(prevCost)}</PivotTd>
+                    <PivotTd>{fmtOrDash(prevPrice)}</PivotTd>
+                    <PivotTd>
+                      {prevPrice > 0 ? formatPercent(markupRateVal(prevCost, prevPrice)) : '-'}
+                    </PivotTd>
+                    <DiffCell $groupStart $positive={diffColor(cost - prevCost)}>
+                      {cost - prevCost !== 0 ? fmtOrDash(cost - prevCost) : '-'}
+                    </DiffCell>
+                    <DiffCell $positive={diffColor(price - prevPrice)}>
+                      {price - prevPrice !== 0 ? fmtOrDash(price - prevPrice) : '-'}
+                    </DiffCell>
+                  </tr>
+                  {showSubtotals && sub && (
+                    <TrSubtotal>
+                      <Td $align="left" colSpan={2}>
+                        小計
+                      </Td>
+                      <PivotTd $groupStart>{formatCurrency(getSubCost(sub))}</PivotTd>
+                      <PivotTd>{formatCurrency(getSubPrice(sub))}</PivotTd>
+                      <PivotTd>
+                        {formatPercent(markupRateVal(getSubCost(sub), getSubPrice(sub)))}
+                      </PivotTd>
+                      <PivotTd $groupStart>{formatCurrency(getSubPrevCost(sub))}</PivotTd>
+                      <PivotTd>{formatCurrency(getSubPrevPrice(sub))}</PivotTd>
+                      <PivotTd>
+                        {formatPercent(markupRateVal(getSubPrevCost(sub), getSubPrevPrice(sub)))}
+                      </PivotTd>
+                      <DiffCell
+                        $groupStart
+                        $positive={diffColor(getSubCost(sub) - getSubPrevCost(sub))}
+                      >
+                        {formatCurrency(getSubCost(sub) - getSubPrevCost(sub))}
+                      </DiffCell>
+                      <DiffCell $positive={diffColor(getSubPrice(sub) - getSubPrevPrice(sub))}>
+                        {formatCurrency(getSubPrice(sub) - getSubPrevPrice(sub))}
+                      </DiffCell>
+                    </TrSubtotal>
+                  )}
                 </Fragment>
               )
             })}
-            <PivotTd $groupStart>{formatCurrency(pivot.totals.grandCost)}</PivotTd>
-            <PivotTd>{formatCurrency(pivot.totals.grandPrice)}</PivotTd>
-          </TrTotal>
-        </tbody>
-      </Table>
-    </PivotTableWrapper>
+            <TrTotal>
+              <Td $align="left" colSpan={2}>
+                合計
+              </Td>
+              <PivotTd $groupStart>{formatCurrency(totCost)}</PivotTd>
+              <PivotTd>{formatCurrency(totPrice)}</PivotTd>
+              <PivotTd>{formatPercent(markupRateVal(totCost, totPrice))}</PivotTd>
+              <PivotTd $groupStart>{formatCurrency(totPrevCost)}</PivotTd>
+              <PivotTd>{formatCurrency(totPrevPrice)}</PivotTd>
+              <PivotTd>{formatPercent(markupRateVal(totPrevCost, totPrevPrice))}</PivotTd>
+              <DiffCell $groupStart $positive={diffColor(totCost - totPrevCost)}>
+                {formatCurrency(totCost - totPrevCost)}
+              </DiffCell>
+              <DiffCell $positive={diffColor(totPrice - totPrevPrice)}>
+                {formatCurrency(totPrice - totPrevPrice)}
+              </DiffCell>
+            </TrTotal>
+          </tbody>
+        </Table>
+      </PivotTableWrapper>
+    </>
   )
+})
+
+// ── 売上 vs 仕入原価 チャート ──
+
+function buildSalesVsCostData(daily: PurchaseDailyData) {
+  const salesMap = new Map(daily.current.map((d) => [d.day, d]))
+  const allDays = Array.from(new Set([...daily.current.map((d) => d.day)])).sort((a, b) => a - b)
+
+  const points = allDays.map((day) => {
+    const cur = salesMap.get(day)
+    return { day, sales: cur?.sales ?? 0, cost: cur?.cost ?? 0 }
+  })
+  const cumSalesArr = points.reduce<number[]>((acc, p, i) => {
+    acc.push((i > 0 ? acc[i - 1] : 0) + p.sales)
+    return acc
+  }, [])
+  const cumCostArr = points.reduce<number[]>((acc, p, i) => {
+    acc.push((i > 0 ? acc[i - 1] : 0) + p.cost)
+    return acc
+  }, [])
+
+  return points.map((p, i) => ({
+    day: `${p.day}日`,
+    sales: Math.round(p.sales),
+    cost: Math.round(p.cost),
+    cumSales: Math.round(cumSalesArr[i]),
+    cumCost: Math.round(cumCostArr[i]),
+    cumDiff: Math.round(cumSalesArr[i] - cumCostArr[i]),
+    costToSalesRatio:
+      cumSalesArr[i] > 0 ? Math.round((cumCostArr[i] / cumSalesArr[i]) * 10000) / 100 : 0,
+  }))
 }
+
+const PurchaseVsSalesChart = memo(function PurchaseVsSalesChart({
+  daily,
+}: {
+  daily: PurchaseDailyData
+}) {
+  const chartData = useMemo(() => buildSalesVsCostData(daily), [daily])
+
+  if (chartData.length === 0) {
+    return <EmptyState>日別データがありません</EmptyState>
+  }
+
+  const fmtYen = (v: number) => {
+    if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
+    if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}K`
+    return String(v)
+  }
+
+  return (
+    <>
+      <ChartWrapper style={{ height: 320 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <XAxis dataKey="day" fontSize={11} />
+            <YAxis yAxisId="left" tickFormatter={fmtYen} fontSize={11} />
+            <YAxis yAxisId="right" orientation="right" tickFormatter={fmtYen} fontSize={11} />
+            <Tooltip formatter={(value) => [formatCurrency(Number(value)), '']} />
+            <Legend />
+            <Bar yAxisId="left" dataKey="sales" name="売上" fill={palette.positive} opacity={0.7} />
+            <Bar
+              yAxisId="left"
+              dataKey="cost"
+              name="仕入原価"
+              fill={palette.negative}
+              opacity={0.7}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="cumDiff"
+              name="累計差（売上-仕入）"
+              stroke={palette.info}
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+      <SubNote style={{ display: 'block', marginTop: 12, marginBottom: 8 }}>
+        仕入対売上比率（累計）
+      </SubNote>
+      <ChartWrapper style={{ height: 200 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <XAxis dataKey="day" fontSize={11} />
+            <YAxis domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={11} />
+            <Tooltip formatter={(value) => [`${Number(value).toFixed(2)}%`, '仕入/売上比率']} />
+            <Line
+              type="monotone"
+              dataKey="costToSalesRatio"
+              name="仕入/売上比率"
+              stroke={palette.warning}
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+    </>
+  )
+})
