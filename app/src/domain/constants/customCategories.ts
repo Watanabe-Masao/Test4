@@ -15,6 +15,10 @@ export type PresetCategoryId =
   | 'processed'
   | 'consumables'
   | 'direct_delivery'
+  | 'flowers'
+  | 'direct_produce'
+  | 'inter_store'
+  | 'inter_department'
   | 'other'
   | 'uncategorized'
 
@@ -52,6 +56,10 @@ export const PRESET_CATEGORY_DEFS: readonly CustomCategoryDef[] = [
   { id: 'processed', label: '加工品' },
   { id: 'consumables', label: '消耗品' },
   { id: 'direct_delivery', label: '直伝' },
+  { id: 'flowers', label: '花' },
+  { id: 'direct_produce', label: '産直' },
+  { id: 'inter_store', label: '店間' },
+  { id: 'inter_department', label: '部門間' },
   { id: 'other', label: 'その他' },
   { id: 'uncategorized', label: '未分類' },
 ] as const

@@ -1,10 +1,12 @@
 /**
  * 仕入比較クエリフック
  *
- * 当期・比較期の purchase テーブルを取引先別に集約し、
- * 前年比較データを構築する。date_key BETWEEN で同曜日にも対応。
+ * 当期・比較期の purchase + special_sales + transfers テーブルを
+ * 取引先別・カテゴリ別に集約し、前年比較データを構築する。
+ * date_key BETWEEN で同曜日にも対応。
  *
  * カテゴリ集約は supplierCategoryMap（settings）を使って JS 側で行う。
+ * 花・産直・店間・部門間は固定カテゴリとして別テーブルから取得する。
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -16,8 +18,12 @@ import {
   queryPurchaseDailyBySupplier,
   queryPurchaseByStore,
   querySalesDaily,
+  querySpecialSalesDaily,
+  querySpecialSalesTotal,
+  queryTransfersDaily,
+  queryTransfersTotal,
+  querySalesTotal,
 } from '@/infrastructure/duckdb/queries/purchaseComparison'
-import { queryAggregatedRates } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type {
   PurchaseComparisonResult,
   SupplierComparisonRow,
@@ -30,7 +36,10 @@ import type {
   PurchaseDailyPivotCell,
   PurchaseDailyPivotRow,
 } from '@/domain/models/PurchaseComparison'
-import type { PurchaseDailySupplierRow } from '@/infrastructure/duckdb/queries/purchaseComparison'
+import type {
+  PurchaseDailySupplierRow,
+  CategoryDailyRow,
+} from '@/infrastructure/duckdb/queries/purchaseComparison'
 import type { CustomCategoryId } from '@/domain/constants/customCategories'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import {
@@ -66,6 +75,10 @@ const CUSTOM_CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   processed: '#a855f7',
   consumables: '#ea580c',
   direct_delivery: '#06b6d4',
+  flowers: '#ec4899',
+  direct_produce: '#84cc16',
+  inter_store: '#8b5cf6',
+  inter_department: '#f97316',
   other: '#64748b',
   uncategorized: '#94a3b8',
 }
@@ -82,6 +95,20 @@ function categoryColor(catId: CustomCategoryId): string {
 
 function markupRate(cost: number, price: number): number {
   return price > 0 ? 1 - cost / price : 0
+}
+
+// ── special_sales / transfers のキー → PresetCategoryId 変換 ──
+
+const SPECIAL_SALES_CATEGORY_MAP: Record<string, PresetCategoryId> = {
+  flowers: 'flowers',
+  directProduce: 'direct_produce',
+}
+
+const TRANSFERS_CATEGORY_MAP: Record<string, PresetCategoryId> = {
+  interStoreIn: 'inter_store',
+  interStoreOut: 'inter_store',
+  interDeptIn: 'inter_department',
+  interDeptOut: 'inter_department',
 }
 
 // ── フック ──
@@ -107,14 +134,14 @@ export function usePurchaseComparisonQuery(
     if (dataVersion === 0) return null
 
     return async (c: AsyncDuckDBConnection) => {
-      // 並列: 当期/比較期の取引先別 + 合計 + 売上 + 日別 + 日別×取引先別
+      // 並列: 当期/比較期の全データを取得
       const [
         curSuppliers,
         prevSuppliers,
         curTotal,
         prevTotal,
-        curSales,
-        prevSales,
+        curSalesTotal,
+        prevSalesTotal,
         curDaily,
         prevDaily,
         curStores,
@@ -122,23 +149,19 @@ export function usePurchaseComparisonQuery(
         curSalesDaily,
         prevSalesDaily,
         curDailyBySupplier,
+        curSpecialDaily,
+        curTransfersDaily,
+        curSpecialTotal,
+        prevSpecialTotal,
+        curTransfersTotal,
+        prevTransfersTotal,
       ] = await Promise.all([
         queryPurchaseBySupplier(c, curDateFrom, curDateTo, storeIdArr),
         queryPurchaseBySupplier(c, prevDateFrom, prevDateTo, storeIdArr),
         queryPurchaseTotal(c, curDateFrom, curDateTo, storeIdArr),
         queryPurchaseTotal(c, prevDateFrom, prevDateTo, storeIdArr),
-        queryAggregatedRates(c, {
-          dateFrom: curDateFrom,
-          dateTo: curDateTo,
-          storeIds: storeIdArr,
-          isPrevYear: false,
-        }),
-        queryAggregatedRates(c, {
-          dateFrom: prevDateFrom,
-          dateTo: prevDateTo,
-          storeIds: storeIdArr,
-          isPrevYear: true,
-        }),
+        querySalesTotal(c, curDateFrom, curDateTo, storeIdArr, false),
+        querySalesTotal(c, prevDateFrom, prevDateTo, storeIdArr, true),
         queryPurchaseDaily(c, curDateFrom, curDateTo, storeIdArr),
         queryPurchaseDaily(c, prevDateFrom, prevDateTo, storeIdArr),
         queryPurchaseByStore(c, curDateFrom, curDateTo, storeIdArr),
@@ -146,6 +169,12 @@ export function usePurchaseComparisonQuery(
         querySalesDaily(c, curDateFrom, curDateTo, storeIdArr, false),
         querySalesDaily(c, prevDateFrom, prevDateTo, storeIdArr, true),
         queryPurchaseDailyBySupplier(c, curDateFrom, curDateTo, storeIdArr),
+        querySpecialSalesDaily(c, curDateFrom, curDateTo, storeIdArr),
+        queryTransfersDaily(c, curDateFrom, curDateTo, storeIdArr),
+        querySpecialSalesTotal(c, curDateFrom, curDateTo, storeIdArr),
+        querySpecialSalesTotal(c, prevDateFrom, prevDateTo, storeIdArr),
+        queryTransfersTotal(c, curDateFrom, curDateTo, storeIdArr),
+        queryTransfersTotal(c, prevDateFrom, prevDateTo, storeIdArr),
       ])
 
       // ── 取引先別比較 ──
@@ -185,26 +214,158 @@ export function usePurchaseComparisonQuery(
       }
       bySupplier.sort((a, b) => b.currentCost - a.currentCost)
 
-      // ── カテゴリ別集約 ──
+      // ── カテゴリ別集約（仕入取引先ベース） ──
       const catMap = new Map<
         string,
-        { catId: CustomCategoryId; curC: number; curP: number; prevC: number; prevP: number }
+        {
+          catId: CustomCategoryId
+          curC: number
+          curP: number
+          prevC: number
+          prevP: number
+          suppliers: SupplierComparisonRow[]
+        }
       >()
 
       for (const row of bySupplier) {
         const catId = supplierCategoryMap[row.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
         const label = categoryLabel(catId, userCategories)
-        const existing = catMap.get(label) ?? { catId, curC: 0, curP: 0, prevC: 0, prevP: 0 }
+        const existing = catMap.get(label) ?? {
+          catId,
+          curC: 0,
+          curP: 0,
+          prevC: 0,
+          prevP: 0,
+          suppliers: [],
+        }
         catMap.set(label, {
           catId: existing.catId,
           curC: existing.curC + row.currentCost,
           curP: existing.curP + row.currentPrice,
           prevC: existing.prevC + row.prevCost,
           prevP: existing.prevP + row.prevPrice,
+          suppliers: [...existing.suppliers, row],
         })
       }
 
+      // ── special_sales / transfers をカテゴリに追加 ──
+      const addExtraCategory = (
+        key: string,
+        catId: PresetCategoryId,
+        curC: number,
+        curP: number,
+        prevC: number,
+        prevP: number,
+      ) => {
+        if (curC === 0 && curP === 0 && prevC === 0 && prevP === 0) return
+        const label = PRESET_CATEGORY_LABELS[catId]
+        const existing = catMap.get(label)
+        if (existing) {
+          catMap.set(label, {
+            ...existing,
+            curC: existing.curC + curC,
+            curP: existing.curP + curP,
+            prevC: existing.prevC + prevC,
+            prevP: existing.prevP + prevP,
+          })
+        } else {
+          catMap.set(label, {
+            catId,
+            curC,
+            curP,
+            prevC,
+            prevP,
+            suppliers: [
+              {
+                supplierCode: `__${key}__`,
+                supplierName: label,
+                currentCost: curC,
+                currentPrice: curP,
+                prevCost: prevC,
+                prevPrice: prevP,
+                costDiff: curC - prevC,
+                priceDiff: curP - prevP,
+                costChangeRate: prevC > 0 ? (curC - prevC) / prevC : 0,
+                currentCostShare: 0,
+                prevCostShare: 0,
+                costShareDiff: 0,
+                currentMarkupRate: markupRate(curC, curP),
+                prevMarkupRate: markupRate(prevC, prevP),
+              },
+            ],
+          })
+        }
+      }
+
+      // special_sales（花・産直）の合計をカテゴリに追加
+      const curSpecialMap = new Map(curSpecialTotal.map((r) => [r.categoryKey, r]))
+      const prevSpecialMap = new Map(prevSpecialTotal.map((r) => [r.categoryKey, r]))
+      for (const key of new Set([
+        ...curSpecialTotal.map((r) => r.categoryKey),
+        ...prevSpecialTotal.map((r) => r.categoryKey),
+      ])) {
+        const catId = SPECIAL_SALES_CATEGORY_MAP[key]
+        if (!catId) continue
+        const cur = curSpecialMap.get(key)
+        const prev = prevSpecialMap.get(key)
+        addExtraCategory(
+          key,
+          catId,
+          cur?.totalCost ?? 0,
+          cur?.totalPrice ?? 0,
+          prev?.totalCost ?? 0,
+          prev?.totalPrice ?? 0,
+        )
+      }
+
+      // transfers（店間・部門間）の合計をカテゴリに追加
+      // In のみ仕入として集計（Out は出庫なので別扱い）
+      const curTransMap = new Map(curTransfersTotal.map((r) => [r.categoryKey, r]))
+      const prevTransMap = new Map(prevTransfersTotal.map((r) => [r.categoryKey, r]))
+      for (const direction of ['interStoreIn', 'interDeptIn'] as const) {
+        const catId = TRANSFERS_CATEGORY_MAP[direction]
+        if (!catId) continue
+        const cur = curTransMap.get(direction)
+        const prev = prevTransMap.get(direction)
+        addExtraCategory(
+          direction,
+          catId,
+          cur?.totalCost ?? 0,
+          cur?.totalPrice ?? 0,
+          prev?.totalCost ?? 0,
+          prev?.totalPrice ?? 0,
+        )
+      }
+
+      // ── 全カテゴリの合計を再計算（special_sales/transfers 含む） ──
+      let allCurCost = curTotal.totalCost
+      let allCurPrice = curTotal.totalPrice
+      let allPrevCost = prevTotal.totalCost
+      let allPrevPrice = prevTotal.totalPrice
+      for (const r of curSpecialTotal) {
+        allCurCost += r.totalCost
+        allCurPrice += r.totalPrice
+      }
+      for (const r of prevSpecialTotal) {
+        allPrevCost += r.totalCost
+        allPrevPrice += r.totalPrice
+      }
+      for (const r of curTransfersTotal) {
+        if (r.categoryKey === 'interStoreIn' || r.categoryKey === 'interDeptIn') {
+          allCurCost += r.totalCost
+          allCurPrice += r.totalPrice
+        }
+      }
+      for (const r of prevTransfersTotal) {
+        if (r.categoryKey === 'interStoreIn' || r.categoryKey === 'interDeptIn') {
+          allPrevCost += r.totalCost
+          allPrevPrice += r.totalPrice
+        }
+      }
+
+      // ── CategoryComparisonRow 構築 ──
       const byCategory: CategoryComparisonRow[] = []
+      const categorySuppliers: Record<string, readonly SupplierComparisonRow[]> = {}
       for (const [cat, v] of catMap) {
         byCategory.push({
           categoryId: v.catId,
@@ -217,17 +378,17 @@ export function usePurchaseComparisonQuery(
           costDiff: v.curC - v.prevC,
           priceDiff: v.curP - v.prevP,
           costChangeRate: v.prevC > 0 ? (v.curC - v.prevC) / v.prevC : 0,
-          currentCostShare: curTotal.totalCost > 0 ? v.curC / curTotal.totalCost : 0,
-          prevCostShare: prevTotal.totalCost > 0 ? v.prevC / prevTotal.totalCost : 0,
+          currentCostShare: allCurCost > 0 ? v.curC / allCurCost : 0,
+          prevCostShare: allPrevCost > 0 ? v.prevC / allPrevCost : 0,
           costShareDiff:
-            (curTotal.totalCost > 0 ? v.curC / curTotal.totalCost : 0) -
-            (prevTotal.totalCost > 0 ? v.prevC / prevTotal.totalCost : 0),
+            (allCurCost > 0 ? v.curC / allCurCost : 0) -
+            (allPrevCost > 0 ? v.prevC / allPrevCost : 0),
           currentMarkupRate: markupRate(v.curC, v.curP),
           prevMarkupRate: markupRate(v.prevC, v.prevP),
-          currentPriceShare: curTotal.totalPrice > 0 ? Math.abs(v.curP) / curTotal.totalPrice : 0,
-          crossMultiplication:
-            curTotal.totalPrice > 0 ? (v.curP - v.curC) / curTotal.totalPrice : 0,
+          currentPriceShare: allCurPrice > 0 ? Math.abs(v.curP) / allCurPrice : 0,
+          crossMultiplication: allCurPrice > 0 ? (v.curP - v.curC) / allCurPrice : 0,
         })
+        categorySuppliers[v.catId] = v.suppliers
       }
       byCategory.sort((a, b) => b.currentCost - a.currentCost)
 
@@ -281,33 +442,31 @@ export function usePurchaseComparisonQuery(
       byStore.sort((a, b) => b.currentCost - a.currentCost)
 
       // ── KPI ──
-      const curSalesTotal = curSales?.totalSales ?? 0
-      const prevSalesTotal = prevSales?.totalSales ?? 0
-
       const kpi: PurchaseComparisonKpi = {
-        currentTotalCost: curTotal.totalCost,
-        prevTotalCost: prevTotal.totalCost,
-        totalCostDiff: curTotal.totalCost - prevTotal.totalCost,
-        totalCostChangeRate:
-          prevTotal.totalCost > 0
-            ? (curTotal.totalCost - prevTotal.totalCost) / prevTotal.totalCost
-            : 0,
-        currentTotalPrice: curTotal.totalPrice,
-        prevTotalPrice: prevTotal.totalPrice,
-        totalPriceDiff: curTotal.totalPrice - prevTotal.totalPrice,
-        currentMarkupRate: markupRate(curTotal.totalCost, curTotal.totalPrice),
-        prevMarkupRate: markupRate(prevTotal.totalCost, prevTotal.totalPrice),
-        markupRateDiff:
-          markupRate(curTotal.totalCost, curTotal.totalPrice) -
-          markupRate(prevTotal.totalCost, prevTotal.totalPrice),
-        currentCostToSalesRatio: curSalesTotal > 0 ? curTotal.totalCost / curSalesTotal : 0,
-        prevCostToSalesRatio: prevSalesTotal > 0 ? prevTotal.totalCost / prevSalesTotal : 0,
+        currentTotalCost: allCurCost,
+        prevTotalCost: allPrevCost,
+        totalCostDiff: allCurCost - allPrevCost,
+        totalCostChangeRate: allPrevCost > 0 ? (allCurCost - allPrevCost) / allPrevCost : 0,
+        currentTotalPrice: allCurPrice,
+        prevTotalPrice: allPrevPrice,
+        totalPriceDiff: allCurPrice - allPrevPrice,
+        currentMarkupRate: markupRate(allCurCost, allCurPrice),
+        prevMarkupRate: markupRate(allPrevCost, allPrevPrice),
+        markupRateDiff: markupRate(allCurCost, allCurPrice) - markupRate(allPrevCost, allPrevPrice),
+        currentCostToSalesRatio: curSalesTotal > 0 ? allCurCost / curSalesTotal : 0,
+        prevCostToSalesRatio: prevSalesTotal > 0 ? allPrevCost / prevSalesTotal : 0,
         currentSales: curSalesTotal,
         prevSales: prevSalesTotal,
       }
 
       // ── カテゴリ別日別ピボット ──
-      const dailyPivot = buildDailyPivot(curDailyBySupplier, byCategory, supplierCategoryMap)
+      const dailyPivot = buildDailyPivot(
+        curDailyBySupplier,
+        curSpecialDaily,
+        curTransfersDaily,
+        byCategory,
+        supplierCategoryMap,
+      )
 
       return {
         kpi,
@@ -316,6 +475,7 @@ export function usePurchaseComparisonQuery(
         byStore,
         daily,
         dailyPivot,
+        categorySuppliers,
         isReady: true,
       } satisfies PurchaseComparisonResult
     }
@@ -338,6 +498,8 @@ export function usePurchaseComparisonQuery(
 
 function buildDailyPivot(
   dailyBySupplier: readonly PurchaseDailySupplierRow[],
+  specialSalesDaily: readonly CategoryDailyRow[],
+  transfersDaily: readonly CategoryDailyRow[],
   byCategory: readonly CategoryComparisonRow[],
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>>,
 ): PurchaseDailyPivotData {
@@ -351,19 +513,48 @@ function buildDailyPivot(
 
   // 日別にグループ化
   const dayMap = new Map<number, Map<string, PurchaseDailyPivotCell>>()
-  for (const row of dailyBySupplier) {
-    const catId = supplierCategoryMap[row.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
-    if (!dayMap.has(row.day)) {
+
+  const ensureDay = (day: number): Map<string, PurchaseDailyPivotCell> => {
+    if (!dayMap.has(day)) {
       const cells = new Map<string, PurchaseDailyPivotCell>()
       for (const k of columnKeys) cells.set(k, { cost: 0, price: 0 })
-      dayMap.set(row.day, cells)
+      dayMap.set(day, cells)
     }
-    const cells = dayMap.get(row.day)!
+    return dayMap.get(day)!
+  }
+
+  const addToCell = (
+    cells: Map<string, PurchaseDailyPivotCell>,
+    catId: string,
+    cost: number,
+    price: number,
+  ) => {
     const existing = cells.get(catId) ?? { cost: 0, price: 0 }
-    cells.set(catId, {
-      cost: existing.cost + row.totalCost,
-      price: existing.price + row.totalPrice,
-    })
+    cells.set(catId, { cost: existing.cost + cost, price: existing.price + price })
+  }
+
+  // purchase (取引先別)
+  for (const row of dailyBySupplier) {
+    const catId = supplierCategoryMap[row.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
+    const cells = ensureDay(row.day)
+    addToCell(cells, catId, row.totalCost, row.totalPrice)
+  }
+
+  // special_sales (花・産直)
+  for (const row of specialSalesDaily) {
+    const catId = SPECIAL_SALES_CATEGORY_MAP[row.categoryKey]
+    if (!catId) continue
+    const cells = ensureDay(row.day)
+    addToCell(cells, catId, row.totalCost, row.totalPrice)
+  }
+
+  // transfers (店間・部門間 — In のみ)
+  for (const row of transfersDaily) {
+    const catId = TRANSFERS_CATEGORY_MAP[row.categoryKey]
+    if (!catId) continue
+    if (row.categoryKey !== 'interStoreIn' && row.categoryKey !== 'interDeptIn') continue
+    const cells = ensureDay(row.day)
+    addToCell(cells, catId, row.totalCost, row.totalPrice)
   }
 
   // 列合計

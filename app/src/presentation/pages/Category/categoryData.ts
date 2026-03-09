@@ -48,6 +48,10 @@ export const CUSTOM_CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   processed: '#a855f7',
   consumables: '#ea580c',
   direct_delivery: '#06b6d4',
+  flowers: '#ec4899',
+  direct_produce: '#84cc16',
+  inter_store: '#8b5cf6',
+  inter_department: '#f97316',
   other: '#64748b',
   uncategorized: '#94a3b8',
 }

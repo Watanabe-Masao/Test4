@@ -158,5 +158,7 @@ export interface PurchaseComparisonResult {
   readonly byStore: readonly StoreComparisonRow[]
   readonly daily: PurchaseDailyData
   readonly dailyPivot: PurchaseDailyPivotData
+  /** カテゴリID → 所属する取引先行（ドリルダウン用） */
+  readonly categorySuppliers: Readonly<Record<string, readonly SupplierComparisonRow[]>>
   readonly isReady: boolean
 }
