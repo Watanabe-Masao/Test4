@@ -90,6 +90,8 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
       missingDataWarnings: [],
     },
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
+    periodMetrics: ctx.periodMetrics,
+    isPeriodFullMonth: ctx.isPeriodFullMonth,
   }
 }
 

@@ -18,6 +18,7 @@ import {
   useDowGapAnalysis,
 } from '@/application/hooks'
 import { buildPrevYearScopeFromSelection, deriveDowOffset } from '@/domain/models/PeriodSelection'
+import { usePeriodAwareKpi } from '@/application/hooks/usePeriodAwareKpi'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -127,6 +128,29 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
+  // 期間連動 KPI（DuckDB ベース）
+  const periodAwareKpi = usePeriodAwareKpi(
+    duck.conn,
+    duck.dataVersion,
+    currentResult
+      ? {
+          from: periodSelection.period1.from,
+          to: {
+            ...periodSelection.period1.to,
+            day: Math.min(
+              periodSelection.period1.to.day,
+              currentResult.elapsedDays != null && currentResult.elapsedDays > 0
+                ? Math.min(currentResult.elapsedDays, daysInMonth)
+                : daysInMonth,
+            ),
+          },
+        }
+      : undefined,
+    selectedStoreIds,
+    daysInMonth,
+    settings.targetGrossProfitRate,
+  )
+
   // 比較フレーム — periodSelection から導出（useComparisonFrame を置換）
   const frame: ComparisonFrame = useMemo(() => {
     const p = periodSelection
@@ -217,6 +241,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
 
     // 期間選択
     periodSelection,
+    periodMetrics: periodAwareKpi.periodMetrics ?? undefined,
+    isPeriodFullMonth: periodAwareKpi.isFullMonth,
 
     // Dashboard 固有
     storeKey: storeName,
