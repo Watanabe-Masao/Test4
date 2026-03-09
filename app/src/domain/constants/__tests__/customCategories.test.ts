@@ -141,7 +141,7 @@ describe('createUserCategoryId', () => {
 
 describe('PRESET_CATEGORY_DEFS', () => {
   it('contains exactly 8 preset categories', () => {
-    expect(PRESET_CATEGORY_DEFS).toHaveLength(8)
+    expect(PRESET_CATEGORY_DEFS).toHaveLength(12)
   })
 
   it('each entry has a non-empty id and label', () => {
@@ -171,6 +171,10 @@ describe('PRESET_CATEGORY_DEFS', () => {
     expect(ids).toContain('processed')
     expect(ids).toContain('consumables')
     expect(ids).toContain('direct_delivery')
+    expect(ids).toContain('flowers')
+    expect(ids).toContain('direct_produce')
+    expect(ids).toContain('inter_store')
+    expect(ids).toContain('inter_department')
     expect(ids).toContain('other')
     expect(ids).toContain('uncategorized')
   })
@@ -209,8 +213,8 @@ describe('PRESET_CATEGORY_LABELS', () => {
     }
   })
 
-  it('has exactly 8 entries', () => {
-    expect(Object.keys(PRESET_CATEGORY_LABELS)).toHaveLength(8)
+  it('has exactly 12 entries', () => {
+    expect(Object.keys(PRESET_CATEGORY_LABELS)).toHaveLength(12)
   })
 
   it('returns correct label for each id', () => {
@@ -229,8 +233,8 @@ describe('LEGACY_LABEL_TO_ID', () => {
     }
   })
 
-  it('has exactly 8 entries', () => {
-    expect(Object.keys(LEGACY_LABEL_TO_ID)).toHaveLength(8)
+  it('has exactly 12 entries', () => {
+    expect(Object.keys(LEGACY_LABEL_TO_ID)).toHaveLength(12)
   })
 
   it('is the inverse of PRESET_CATEGORY_LABELS', () => {

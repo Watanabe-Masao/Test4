@@ -54,6 +54,10 @@ const CATEGORY_COLORS: Record<PresetCategoryId, string> = {
   processed: palette.purpleDeep,
   consumables: palette.orange,
   direct_delivery: palette.cyanDark,
+  flowers: '#ec4899',
+  direct_produce: '#84cc16',
+  inter_store: '#8b5cf6',
+  inter_department: '#f97316',
   other: palette.slate,
   uncategorized: palette.slate,
 }

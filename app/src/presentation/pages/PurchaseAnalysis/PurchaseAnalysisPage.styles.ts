@@ -176,3 +176,85 @@ export const SubNote = styled.span`
   font-size: 0.7rem;
   color: ${({ theme }) => theme.colors.text4};
 `
+
+/* ─── Drill-down (expandable rows) ────────────── */
+
+export const DrillTr = styled.tr<{ $expanded?: boolean }>`
+  cursor: pointer;
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg2};
+  }
+  ${({ $expanded, theme }) => $expanded && `background: ${theme.colors.bg2};`}
+`
+
+export const DrillToggle = styled.span`
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: ${({ theme }) => theme.colors.text4};
+  margin-right: 4px;
+  transition: transform 0.15s;
+`
+
+export const ChildTr = styled.tr`
+  background: ${({ theme }) => theme.colors.bg2};
+  & > td {
+    font-size: ${({ theme }) => theme.typography.fontSize.xs};
+    color: ${({ theme }) => theme.colors.text3};
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+`
+
+/* ─── Progress bar ────────────── */
+
+export const ProgressSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+export const ProgressCard = styled.div`
+  padding: ${({ theme }) => theme.spacing[4]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  background: ${({ theme }) => theme.colors.bg};
+`
+
+export const ProgressLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+export const ProgressValue = styled.div<{ $accent?: string }>`
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  color: ${({ $accent, theme }) => $accent ?? theme.colors.text};
+`
+
+export const ProgressSub = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+`
+
+export const ProgressBar = styled.div`
+  height: 6px;
+  background: ${({ theme }) => theme.colors.bg3};
+  border-radius: 3px;
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  overflow: hidden;
+`
+
+export const ProgressFill = styled.div<{ $width: number; $color: string }>`
+  height: 100%;
+  width: ${({ $width }) => Math.min($width, 100)}%;
+  background: ${({ $color }) => $color};
+  border-radius: 3px;
+  transition: width 0.3s ease;
+`

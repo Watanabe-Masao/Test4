@@ -22,6 +22,7 @@ import type {
   CategoryComparisonRow,
   StoreComparisonRow,
   PurchaseDailyPivotData,
+  PurchaseComparisonKpi,
 } from '@/domain/models/PurchaseComparison'
 import {
   Section,
@@ -43,6 +44,16 @@ import {
   PurchasePivotGroupTh,
   PivotSubTh,
   PivotTd,
+  DrillTr,
+  DrillToggle,
+  ChildTr,
+  ProgressSection,
+  ProgressCard,
+  ProgressLabel,
+  ProgressValue,
+  ProgressSub,
+  ProgressBar,
+  ProgressFill,
 } from './PurchaseAnalysisPage.styles'
 
 // ── ソート ──
@@ -186,7 +197,7 @@ export function PurchaseAnalysisPage() {
     )
   }
 
-  const { kpi, bySupplier, byCategory, byStore, dailyPivot } = result
+  const { kpi, bySupplier, byCategory, byStore, dailyPivot, categorySuppliers } = result
 
   const sortedSuppliers = sortRows(bySupplier, supplierSort.sortKey, supplierSort.sortDir)
   const sortedCategories = sortRows(byCategory, categorySort.sortKey, categorySort.sortDir)
@@ -197,6 +208,12 @@ export function PurchaseAnalysisPage() {
 
   return (
     <MainContent title="仕入分析">
+      {/* 前年対比進捗 */}
+      <Section>
+        <SectionTitle>前年対比進捗</SectionTitle>
+        <YoyProgressCards kpi={kpi} />
+      </Section>
+
       {/* KPI */}
       <Section>
         <SectionHeader>
@@ -209,13 +226,13 @@ export function PurchaseAnalysisPage() {
           <KpiCard
             label="仕入原価合計"
             value={formatCurrency(kpi.currentTotalCost)}
-            subText={`前年: ${formatCurrency(kpi.prevTotalCost)} / 差額: ${kpi.totalCostDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalCostDiff)}`}
+            subText={`前年比: ${formatPercent(kpi.prevTotalCost > 0 ? kpi.currentTotalCost / kpi.prevTotalCost : 0)} / 前年: ${formatCurrency(kpi.prevTotalCost)} / 差額: ${kpi.totalCostDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalCostDiff)}`}
             accent={kpi.totalCostDiff >= 0 ? palette.negative : palette.positive}
           />
           <KpiCard
             label="仕入売価合計"
             value={formatCurrency(kpi.currentTotalPrice)}
-            subText={`前年: ${formatCurrency(kpi.prevTotalPrice)} / 差額: ${kpi.totalPriceDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalPriceDiff)}`}
+            subText={`前年比: ${formatPercent(kpi.prevTotalPrice > 0 ? kpi.currentTotalPrice / kpi.prevTotalPrice : 0)} / 前年: ${formatCurrency(kpi.prevTotalPrice)} / 差額: ${kpi.totalPriceDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalPriceDiff)}`}
             accent={kpi.totalPriceDiff >= 0 ? palette.negative : palette.positive}
           />
           <KpiCard
@@ -243,19 +260,29 @@ export function PurchaseAnalysisPage() {
         <PurchaseDailyPivotTable pivot={dailyPivot} />
       </Section>
 
-      {/* カテゴリ明細 */}
+      {/* カテゴリ明細（ドリルダウン付き） */}
       <Section>
         <SectionHeader>
           <SectionTitle>カテゴリ明細</SectionTitle>
-          <SubNote>標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率</SubNote>
+          <SubNote>
+            標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率 / クリックで展開
+          </SubNote>
         </SectionHeader>
-        <CategoryDetailTable rows={sortedCategories} kpi={kpi} sort={categorySort} />
+        <CategoryDetailTable
+          rows={sortedCategories}
+          kpi={kpi}
+          sort={categorySort}
+          categorySuppliers={categorySuppliers}
+        />
       </Section>
 
-      {/* 店舗別比較 */}
+      {/* 店舗別比較（ドリルダウン付き） */}
       {byStore.length > 1 && (
         <Section>
-          <SectionTitle>店舗別比較（{byStore.length}店舗）</SectionTitle>
+          <SectionHeader>
+            <SectionTitle>店舗別比較（{byStore.length}店舗）</SectionTitle>
+            <SubNote>クリックで取引先別の内訳を表示</SubNote>
+          </SectionHeader>
           <StoreComparisonTable rows={byStore} />
         </Section>
       )}
@@ -269,18 +296,77 @@ export function PurchaseAnalysisPage() {
   )
 }
 
-// ── カテゴリ明細テーブル ──
+// ── 前年対比進捗カード ──
+
+function YoyProgressCards({ kpi }: { kpi: PurchaseComparisonKpi }) {
+  const salesRatio = kpi.prevSales > 0 ? kpi.currentSales / kpi.prevSales : 0
+  const costRatio = kpi.prevTotalCost > 0 ? kpi.currentTotalCost / kpi.prevTotalCost : 0
+  const priceRatio = kpi.prevTotalPrice > 0 ? kpi.currentTotalPrice / kpi.prevTotalPrice : 0
+
+  const salesColor = salesRatio >= 1 ? palette.positive : palette.warning
+  const costColor = costRatio <= 1 ? palette.positive : palette.negative
+  const priceColor = priceRatio <= 1 ? palette.positive : palette.negative
+
+  return (
+    <ProgressSection>
+      <ProgressCard>
+        <ProgressLabel>売上 前年比</ProgressLabel>
+        <ProgressValue $accent={salesColor}>{formatPercent(salesRatio)}</ProgressValue>
+        <ProgressSub>
+          当期: {formatCurrency(kpi.currentSales)} / 前年: {formatCurrency(kpi.prevSales)}
+        </ProgressSub>
+        <ProgressBar>
+          <ProgressFill $width={salesRatio * 100} $color={salesColor} />
+        </ProgressBar>
+      </ProgressCard>
+      <ProgressCard>
+        <ProgressLabel>仕入原価 前年比</ProgressLabel>
+        <ProgressValue $accent={costColor}>{formatPercent(costRatio)}</ProgressValue>
+        <ProgressSub>
+          当期: {formatCurrency(kpi.currentTotalCost)} / 前年: {formatCurrency(kpi.prevTotalCost)}
+        </ProgressSub>
+        <ProgressBar>
+          <ProgressFill $width={costRatio * 100} $color={costColor} />
+        </ProgressBar>
+      </ProgressCard>
+      <ProgressCard>
+        <ProgressLabel>仕入売価 前年比</ProgressLabel>
+        <ProgressValue $accent={priceColor}>{formatPercent(priceRatio)}</ProgressValue>
+        <ProgressSub>
+          当期: {formatCurrency(kpi.currentTotalPrice)} / 前年: {formatCurrency(kpi.prevTotalPrice)}
+        </ProgressSub>
+        <ProgressBar>
+          <ProgressFill $width={priceRatio * 100} $color={priceColor} />
+        </ProgressBar>
+      </ProgressCard>
+    </ProgressSection>
+  )
+}
+
+// ── カテゴリ明細テーブル（ドリルダウン付き） ──
 
 function CategoryDetailTable({
   rows,
   kpi,
   sort,
+  categorySuppliers,
 }: {
   rows: readonly CategoryComparisonRow[]
   kpi: { currentTotalCost: number; currentTotalPrice: number; currentMarkupRate: number }
   sort: ReturnType<typeof useSort>
+  categorySuppliers: Readonly<Record<string, readonly SupplierComparisonRow[]>>
 }) {
   const { sortKey, sortDir, handleSort } = sort
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set())
+
+  const toggleCategory = useCallback((catId: string) => {
+    setExpandedCats((prev) => {
+      const next = new Set(prev)
+      if (next.has(catId)) next.delete(catId)
+      else next.add(catId)
+      return next
+    })
+  }, [])
 
   if (rows.length === 0) {
     return <EmptyState>データがありません</EmptyState>
@@ -290,6 +376,8 @@ function CategoryDetailTable({
   const totalPrice = rows.reduce((s, r) => s + r.currentPrice, 0)
   const totalMarkup = totalPrice - totalCost
   const totalCrossMult = rows.reduce((s, r) => s + r.crossMultiplication, 0)
+  const totalPrevCost = rows.reduce((s, r) => s + r.prevCost, 0)
+  const totalPrevPrice = rows.reduce((s, r) => s + r.prevPrice, 0)
 
   return (
     <TableWrapper>
@@ -307,39 +395,85 @@ function CategoryDetailTable({
             <Th $sortable onClick={() => handleSort('currentMarkupRate')}>
               値入率{sortIndicator('currentMarkupRate', sortKey, sortDir)}
             </Th>
-            <Th $sortable onClick={() => handleSort('currentCostShare')}>
-              構成比（原価）{sortIndicator('currentCostShare', sortKey, sortDir)}
+            <Th $sortable onClick={() => handleSort('prevCost')}>
+              前年原価{sortIndicator('prevCost', sortKey, sortDir)}
             </Th>
-            <Th>売価構成比</Th>
+            <Th>前年売価</Th>
+            <Th>前年値入率</Th>
+            <Th $sortable onClick={() => handleSort('costDiff')}>
+              原価差額{sortIndicator('costDiff', sortKey, sortDir)}
+            </Th>
+            <Th $sortable onClick={() => handleSort('currentCostShare')}>
+              構成比{sortIndicator('currentCostShare', sortKey, sortDir)}
+            </Th>
             <Th>相乗積</Th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
             const markup = row.currentPrice - row.currentCost
-            const prevMarkupRate = row.prevMarkupRate
-            const markupDiff = row.currentMarkupRate - prevMarkupRate
+            const markupDiff = row.currentMarkupRate - row.prevMarkupRate
+            const isExpanded = expandedCats.has(row.categoryId)
+            const suppliers = categorySuppliers[row.categoryId] ?? []
+            const hasChildren = suppliers.length > 0
+
             return (
-              <tr key={row.categoryId}>
-                <Td $align="left">
-                  <Badge $color={row.color} />
-                  {row.category}
-                </Td>
-                <Td>{formatCurrency(row.currentCost)}</Td>
-                <Td>{formatCurrency(row.currentPrice)}</Td>
-                <DiffCell $positive={diffColor(markup)}>{formatCurrency(markup)}</DiffCell>
-                <MarkupCell $rate={row.currentMarkupRate}>
-                  {formatPercent(row.currentMarkupRate)}
-                  {markupDiff !== 0 && (
-                    <MarkupIndicator $isDown={markupDiff < 0}>
-                      {markupDiff > 0 ? '▲' : '▼'}
-                    </MarkupIndicator>
-                  )}
-                </MarkupCell>
-                <Td>{formatPercent(row.currentCostShare)}</Td>
-                <Td>{formatPercent(row.currentPriceShare)}</Td>
-                <Td>{formatPercent(row.crossMultiplication)}</Td>
-              </tr>
+              <Fragment key={row.categoryId}>
+                <DrillTr
+                  $expanded={isExpanded}
+                  onClick={() => hasChildren && toggleCategory(row.categoryId)}
+                >
+                  <Td $align="left">
+                    {hasChildren && <DrillToggle>{isExpanded ? '▼' : '▶'}</DrillToggle>}
+                    <Badge $color={row.color} />
+                    {row.category}
+                  </Td>
+                  <Td>{formatCurrency(row.currentCost)}</Td>
+                  <Td>{formatCurrency(row.currentPrice)}</Td>
+                  <DiffCell $positive={diffColor(markup)}>{formatCurrency(markup)}</DiffCell>
+                  <MarkupCell $rate={row.currentMarkupRate}>
+                    {formatPercent(row.currentMarkupRate)}
+                    {markupDiff !== 0 && (
+                      <MarkupIndicator $isDown={markupDiff < 0}>
+                        {markupDiff > 0 ? '▲' : '▼'}
+                      </MarkupIndicator>
+                    )}
+                  </MarkupCell>
+                  <Td>{formatCurrency(row.prevCost)}</Td>
+                  <Td>{formatCurrency(row.prevPrice)}</Td>
+                  <Td>{formatPercent(row.prevMarkupRate)}</Td>
+                  <DiffCell $positive={diffColor(row.costDiff)}>
+                    {row.costDiff >= 0 ? '+' : ''}
+                    {formatCurrency(row.costDiff)}
+                  </DiffCell>
+                  <Td>{formatPercent(row.currentCostShare)}</Td>
+                  <Td>{formatPercent(row.crossMultiplication)}</Td>
+                </DrillTr>
+                {isExpanded &&
+                  suppliers.map((s) => {
+                    const sMarkup = s.currentPrice - s.currentCost
+                    return (
+                      <ChildTr key={s.supplierCode}>
+                        <Td $align="left" style={{ paddingLeft: 32 }}>
+                          {s.supplierName}
+                        </Td>
+                        <Td>{formatCurrency(s.currentCost)}</Td>
+                        <Td>{formatCurrency(s.currentPrice)}</Td>
+                        <Td>{formatCurrency(sMarkup)}</Td>
+                        <Td>{formatPercent(s.currentMarkupRate)}</Td>
+                        <Td>{formatCurrency(s.prevCost)}</Td>
+                        <Td>{formatCurrency(s.prevPrice)}</Td>
+                        <Td>{formatPercent(s.prevMarkupRate)}</Td>
+                        <DiffCell $positive={diffColor(s.costDiff)}>
+                          {s.costDiff >= 0 ? '+' : ''}
+                          {formatCurrency(s.costDiff)}
+                        </DiffCell>
+                        <Td>{formatPercent(s.currentCostShare)}</Td>
+                        <Td>-</Td>
+                      </ChildTr>
+                    )
+                  })}
+              </Fragment>
             )
           })}
           <TrTotal>
@@ -348,7 +482,13 @@ function CategoryDetailTable({
             <Td>{formatCurrency(totalPrice)}</Td>
             <Td>{formatCurrency(totalMarkup)}</Td>
             <Td>{formatPercent(kpi.currentMarkupRate)}</Td>
-            <Td>{formatPercent(1)}</Td>
+            <Td>{formatCurrency(totalPrevCost)}</Td>
+            <Td>{formatCurrency(totalPrevPrice)}</Td>
+            <Td>{formatPercent(totalPrevPrice > 0 ? 1 - totalPrevCost / totalPrevPrice : 0)}</Td>
+            <Td>
+              {totalCost - totalPrevCost >= 0 ? '+' : ''}
+              {formatCurrency(totalCost - totalPrevCost)}
+            </Td>
             <Td>{formatPercent(1)}</Td>
             <Td>{formatPercent(totalCrossMult)}</Td>
           </TrTotal>
@@ -436,9 +576,20 @@ function SupplierComparisonTable({
   )
 }
 
-// ── 店舗別比較テーブル ──
+// ── 店舗別比較テーブル（ドリルダウン付き） ──
 
 function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] }) {
+  const [expandedStores, setExpandedStores] = useState<Set<string>>(new Set())
+
+  const toggleStore = useCallback((storeId: string) => {
+    setExpandedStores((prev) => {
+      const next = new Set(prev)
+      if (next.has(storeId)) next.delete(storeId)
+      else next.add(storeId)
+      return next
+    })
+  }, [])
+
   if (rows.length === 0) return null
 
   return (
@@ -461,28 +612,47 @@ function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] })
           {rows.map((row) => {
             const curMarkup = row.currentPrice - row.currentCost
             const markupDiff = row.currentMarkupRate - row.prevMarkupRate
+            const isExpanded = expandedStores.has(row.storeId)
             return (
-              <tr key={row.storeId}>
-                <Td $align="left">{row.storeName}</Td>
-                <Td>{formatCurrency(row.currentCost)}</Td>
-                <Td>{formatCurrency(row.currentPrice)}</Td>
-                <DiffCell $positive={diffColor(curMarkup)}>{formatCurrency(curMarkup)}</DiffCell>
-                <MarkupCell $rate={row.currentMarkupRate}>
-                  {formatPercent(row.currentMarkupRate)}
-                  {markupDiff !== 0 && (
-                    <MarkupIndicator $isDown={markupDiff < 0}>
-                      {markupDiff > 0 ? '▲' : '▼'}
-                    </MarkupIndicator>
-                  )}
-                </MarkupCell>
-                <Td>{formatCurrency(row.prevCost)}</Td>
-                <Td>{formatCurrency(row.prevPrice)}</Td>
-                <Td>{formatPercent(row.prevMarkupRate)}</Td>
-                <DiffCell $positive={diffColor(row.costDiff)}>
-                  {row.costDiff >= 0 ? '+' : ''}
-                  {formatCurrency(row.costDiff)}
-                </DiffCell>
-              </tr>
+              <Fragment key={row.storeId}>
+                <DrillTr $expanded={isExpanded} onClick={() => toggleStore(row.storeId)}>
+                  <Td $align="left">
+                    <DrillToggle>{isExpanded ? '▼' : '▶'}</DrillToggle>
+                    {row.storeName}
+                  </Td>
+                  <Td>{formatCurrency(row.currentCost)}</Td>
+                  <Td>{formatCurrency(row.currentPrice)}</Td>
+                  <DiffCell $positive={diffColor(curMarkup)}>{formatCurrency(curMarkup)}</DiffCell>
+                  <MarkupCell $rate={row.currentMarkupRate}>
+                    {formatPercent(row.currentMarkupRate)}
+                    {markupDiff !== 0 && (
+                      <MarkupIndicator $isDown={markupDiff < 0}>
+                        {markupDiff > 0 ? '▲' : '▼'}
+                      </MarkupIndicator>
+                    )}
+                  </MarkupCell>
+                  <Td>{formatCurrency(row.prevCost)}</Td>
+                  <Td>{formatCurrency(row.prevPrice)}</Td>
+                  <Td>{formatPercent(row.prevMarkupRate)}</Td>
+                  <DiffCell $positive={diffColor(row.costDiff)}>
+                    {row.costDiff >= 0 ? '+' : ''}
+                    {formatCurrency(row.costDiff)}
+                  </DiffCell>
+                </DrillTr>
+                {isExpanded && (
+                  <ChildTr>
+                    <Td colSpan={9} $align="left" style={{ paddingLeft: 32 }}>
+                      原価前年比:{' '}
+                      {formatPercent(row.prevCost > 0 ? row.currentCost / row.prevCost : 0)}
+                      {' / '}
+                      売価前年比:{' '}
+                      {formatPercent(row.prevPrice > 0 ? row.currentPrice / row.prevPrice : 0)}
+                      {' / '}
+                      値入率変化: {formatPointDiff(markupDiff)}
+                    </Td>
+                  </ChildTr>
+                )}
+              </Fragment>
             )
           })}
         </tbody>

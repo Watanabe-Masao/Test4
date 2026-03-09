@@ -200,3 +200,137 @@ export async function queryPurchaseDaily(
     ORDER BY day`
   return queryToObjects<PurchaseDailyRow>(conn, sql)
 }
+
+/** カテゴリ別日別集計行（花・産直・店間・部門間用） */
+export interface CategoryDailyRow {
+  readonly day: number
+  readonly categoryKey: string
+  readonly totalCost: number
+  readonly totalPrice: number
+}
+
+/**
+ * special_sales（花・産直）の日別集計
+ */
+export async function querySpecialSalesDaily(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly CategoryDailyRow[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT
+      day,
+      type AS category_key,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM special_sales
+    ${where}
+    GROUP BY day, type
+    ORDER BY day, type`
+  return queryToObjects<CategoryDailyRow>(conn, sql)
+}
+
+/**
+ * special_sales（花・産直）の合計
+ */
+export async function querySpecialSalesTotal(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT
+      type AS category_key,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM special_sales
+    ${where}
+    GROUP BY type`
+  return queryToObjects<{ categoryKey: string; totalCost: number; totalPrice: number }>(conn, sql)
+}
+
+/**
+ * transfers（店間・部門間）の日別集計
+ */
+export async function queryTransfersDaily(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly CategoryDailyRow[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT
+      day,
+      direction AS category_key,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM transfers
+    ${where}
+    GROUP BY day, direction
+    ORDER BY day, direction`
+  return queryToObjects<CategoryDailyRow>(conn, sql)
+}
+
+/**
+ * transfers（店間・部門間）の合計
+ */
+export async function queryTransfersTotal(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+): Promise<readonly { categoryKey: string; totalCost: number; totalPrice: number }[]> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([`date_key BETWEEN '${df}' AND '${dt}'`, storeIdFilter(storeIds)])
+  const sql = `
+    SELECT
+      direction AS category_key,
+      COALESCE(SUM(cost), 0) AS total_cost,
+      COALESCE(SUM(price), 0) AS total_price
+    FROM transfers
+    ${where}
+    GROUP BY direction`
+  return queryToObjects<{ categoryKey: string; totalCost: number; totalPrice: number }>(conn, sql)
+}
+
+/** 売上合計（classified_sales 直接、is_prev_year 不要） */
+export interface SalesTotalRow {
+  readonly totalSales: number
+}
+
+/**
+ * 指定日付範囲の売上合計を取得（classified_sales から直接集約）
+ */
+export async function querySalesTotal(
+  conn: AsyncDuckDBConnection,
+  dateFrom: string,
+  dateTo: string,
+  storeIds?: readonly string[],
+  isPrevYear = false,
+): Promise<number> {
+  const df = validateDateKey(dateFrom)
+  const dt = validateDateKey(dateTo)
+  const where = buildWhereClause([
+    `date_key BETWEEN '${df}' AND '${dt}'`,
+    `is_prev_year = ${isPrevYear}`,
+    storeIdFilter(storeIds),
+  ])
+  const sql = `
+    SELECT COALESCE(SUM(sales_amount), 0) AS total_sales
+    FROM classified_sales
+    ${where}`
+  const rows = await queryToObjects<SalesTotalRow>(conn, sql)
+  return rows.length > 0 ? rows[0].totalSales : 0
+}
