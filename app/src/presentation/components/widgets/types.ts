@@ -13,9 +13,11 @@ import type {
   DateRange,
   ViewType,
   ComparisonFrame,
+  PrevYearScope,
   Store,
   AppSettings,
 } from '@/domain/models'
+import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
@@ -61,11 +63,16 @@ export interface UnifiedWidgetContext {
   readonly onExplain: (metricId: MetricId) => void
   readonly departmentKpi: DepartmentKpiIndex
 
+  // ── 期間選択（新モデル） ──
+  /** 期間選択の全状態（periodSelectionStore から） */
+  readonly periodSelection?: PeriodSelection
+
   // ── Dashboard 固有（他ページではオプション） ──
   readonly storeKey?: string
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
   readonly currentDateRange?: DateRange
   readonly prevYearDateRange?: DateRange
+  readonly prevYearScope?: PrevYearScope
   readonly dataEndDay?: number | null
   readonly dataMaxDay?: number
   readonly elapsedDays?: number | undefined

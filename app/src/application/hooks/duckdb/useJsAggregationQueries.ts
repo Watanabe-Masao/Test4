@@ -16,7 +16,7 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange, ComparisonFrame } from '@/domain/models'
+import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models'
 import {
   queryStoreDaySummary,
   type StoreDaySummaryRow,
@@ -322,7 +322,11 @@ export function useJsYoyDaily(
   dataVersion: number,
   frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
+  prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
+  // prevYearScope が渡された場合はオフセット調整済み範囲を使用
+  const prevDateRange = prevYearScope?.dateRange ?? frame?.previous
+
   // 当期データ取得
   const {
     data: curRows,
@@ -335,7 +339,7 @@ export function useJsYoyDaily(
     data: prevRows,
     isLoading: prevLoading,
     error: prevError,
-  } = useRawSummaryRows(conn, dataVersion, frame?.previous, storeIds, true)
+  } = useRawSummaryRows(conn, dataVersion, prevDateRange, storeIds, true)
 
   const data = useMemo(() => {
     if (!curRows || !prevRows) return null

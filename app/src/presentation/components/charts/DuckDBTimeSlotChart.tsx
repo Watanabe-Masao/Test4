@@ -24,7 +24,7 @@ import {
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type { DateRange, PrevYearScope } from '@/domain/models'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { formatCoreTime, formatTurnaroundHour } from './timeSlotUtils'
@@ -71,6 +71,7 @@ interface Props {
   readonly duckDataVersion: number
   readonly currentDateRange: DateRange
   readonly selectedStoreIds: ReadonlySet<string>
+  readonly prevYearScope?: PrevYearScope
 }
 
 // ── Component ──
@@ -80,12 +81,19 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
   duckDataVersion,
   currentDateRange,
   selectedStoreIds,
+  prevYearScope,
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
   const { messages } = useI18n()
 
-  const d = useDuckDBTimeSlotData({ duckConn, duckDataVersion, currentDateRange, selectedStoreIds })
+  const d = useDuckDBTimeSlotData({
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    prevYearScope,
+  })
 
   if (d.error) {
     return (

@@ -10,6 +10,7 @@ import { useRepository } from '../context/useRepository'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useDataStore } from '../stores/dataStore'
 import { useUiStore } from '../stores/uiStore'
+import { usePeriodSelectionStore } from '../stores/periodSelectionStore'
 import { calculationCache } from '../services/calculationCache'
 import { createEmptyImportedData } from '@/domain/models'
 
@@ -61,7 +62,10 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         calculationCache.clear()
         useUiStore.getState().invalidateCalculation()
 
-        // 4. 新しい年月のデータを IndexedDB からロード
+        // 4. 期間選択ストアを新しい月で初期化（プリセット・比較ON/OFF を維持）
+        usePeriodSelectionStore.getState().resetToMonth(year, month)
+
+        // 5. 新しい年月のデータを IndexedDB からロード
         if (repo.isAvailable()) {
           const data = await repo.loadMonthlyData(year, month)
           if (data) {

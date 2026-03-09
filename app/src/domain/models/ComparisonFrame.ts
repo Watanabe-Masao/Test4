@@ -20,3 +20,19 @@ export interface ComparisonFrame {
   /** 適用されたポリシー */
   readonly policy: AlignmentPolicy
 }
+
+/**
+ * 前年比較スコープ — DuckDB 日付範囲と JS 集計値の整合性を型で保証
+ *
+ * DOW offset + elapsedDays で調整済みの日付範囲と、
+ * 同じスコープで算出された客数をセットで管理する。
+ * 分離すると「DuckDB は全月クエリ ÷ JS は一部日数の客数」のようなスコープ不一致が発生する。
+ */
+export interface PrevYearScope {
+  /** DuckDB クエリ用の前年日付範囲（DOW offset + elapsedDays で調整済み） */
+  readonly dateRange: DateRange
+  /** JS エンジンで算出された前年客数（dateRange と同じスコープ） */
+  readonly totalCustomers: number
+  /** 同曜日寄せの日オフセット (0-6) */
+  readonly dowOffset: number
+}

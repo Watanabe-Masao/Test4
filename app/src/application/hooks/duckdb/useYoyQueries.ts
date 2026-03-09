@@ -6,7 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { ComparisonFrame } from '@/domain/models'
+import type { ComparisonFrame, PrevYearScope } from '@/domain/models'
 import {
   queryYoyCategoryComparison,
   type YoyDailyRow,
@@ -21,8 +21,9 @@ export function useDuckDBYoyDaily(
   dataVersion: number,
   frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
+  prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
-  return useJsYoyDaily(conn, dataVersion, frame, storeIds)
+  return useJsYoyDaily(conn, dataVersion, frame, storeIds, prevYearScope)
 }
 
 /** カテゴリ別前年比較 */
@@ -32,9 +33,12 @@ export function useDuckDBYoyCategory(
   frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
   level: 'department' | 'line' | 'klass',
+  prevYearScope?: PrevYearScope,
 ): AsyncQueryResult<readonly YoyCategoryRow[]> {
   const curKeys = frame ? toDateKeys(frame.current) : null
-  const prevKeys = frame ? toDateKeys(frame.previous) : null
+  // prevYearScope が渡された場合はオフセット調整済み範囲を使用
+  const prevRange = prevYearScope?.dateRange ?? frame?.previous
+  const prevKeys = prevRange ? toDateKeys(prevRange) : null
 
   const queryFn = useMemo(() => {
     if (!curKeys || !prevKeys) return null

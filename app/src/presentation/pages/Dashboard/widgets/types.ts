@@ -7,6 +7,7 @@ import type {
   DateRange,
   ViewType,
   ComparisonFrame,
+  PrevYearScope,
 } from '@/domain/models'
 import type { Store } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
@@ -85,6 +86,8 @@ export interface WidgetContext {
    * チャート用フックの compareRange パラメータに渡す。
    */
   prevYearDateRange?: DateRange
+  /** 前年比較スコープ（DOW offset 調整済み日付範囲 + 同スコープの客数） */
+  prevYearScope?: PrevYearScope
   /** 選択中の店舗ID（空 = 全店） */
   selectedStoreIds: ReadonlySet<string>
   /** 取込データ有効末日 (null = 月末) */

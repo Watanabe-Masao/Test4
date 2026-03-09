@@ -7,17 +7,17 @@
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import type { MetricId, DateRange } from '@/domain/models'
+import type { MetricId, DateRange, ComparisonFrame } from '@/domain/models'
 import {
   useCalculation,
   useStoreSelection,
   usePrevYearData,
   useExplanations,
   useAutoLoadPrevYear,
-  useComparisonFrame,
   usePrevYearMonthlyKpi,
   useDowGapAnalysis,
 } from '@/application/hooks'
+import { buildPrevYearScopeFromSelection, deriveDowOffset } from '@/domain/models/PeriodSelection'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
 import {
   useMonthlyHistory,
@@ -29,6 +29,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -56,6 +57,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const data = useDataStore((s) => s.data)
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
   const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
@@ -125,15 +127,18 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // 比較フレーム
-  const baseRange: DateRange = useMemo(
-    () => ({
-      from: { year: targetYear, month: targetMonth, day: 1 },
-      to: { year: targetYear, month: targetMonth, day: daysInMonth },
-    }),
-    [targetYear, targetMonth, daysInMonth],
-  )
-  const frame = useComparisonFrame(baseRange)
+  // 比較フレーム — periodSelection から導出（useComparisonFrame を置換）
+  const frame: ComparisonFrame = useMemo(() => {
+    const p = periodSelection
+    const dowOffset = deriveDowOffset(p.period1, p.period2, p.activePreset)
+    const policy = p.activePreset === 'prevYearSameDow' ? 'sameDayOfWeek' : 'sameDate'
+    return {
+      current: p.period1,
+      previous: p.period2,
+      dowOffset,
+      policy,
+    } satisfies ComparisonFrame
+  }, [periodSelection])
 
   // Store name map for category comparison
   const storeNames = useMemo(() => {
@@ -166,15 +171,15 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  // prevTotalCustomers（JS エンジン）は elapsedDays 分のみの客数。
-  // DuckDB 側の prevYearDateRange も同じ日数にクリップしないと
-  // PI = 全月売上 ÷ 一部客数 × 1000 で前年値が膨張する。
-  const prevYearDateRange: DateRange | undefined = prevYear.hasPrevYear
-    ? {
-        from: frame.previous.from,
-        to: { ...frame.previous.to, day: Math.min(frame.previous.to.day, effectiveEndDay) },
-      }
+  // prevYearScope: DOW offset + elapsedDays で調整済みの前年日付範囲と客数をセットで管理。
+  // periodSelection から導出。effectiveEndDay でキャップして
+  // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
+  const prevYearScope = prevYear.hasPrevYear
+    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers, effectiveEndDay)
     : undefined
+
+  // 後方互換: prevYearDateRange は prevYearScope.dateRange と同一
+  const prevYearDateRange: DateRange | undefined = prevYearScope?.dateRange
 
   const ctx: UnifiedWidgetContext = {
     // コア
@@ -192,11 +197,15 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     onExplain: handleExplain,
     departmentKpi: deptKpiIndex,
 
+    // 期間選択
+    periodSelection,
+
     // Dashboard 固有
     storeKey: storeName,
     allStoreResults: storeResults,
     currentDateRange,
     prevYearDateRange,
+    prevYearScope,
     dataEndDay: settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,

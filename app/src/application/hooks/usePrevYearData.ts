@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useStoreSelection } from './useStoreSelection'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import {
@@ -9,9 +10,9 @@ import {
   ZERO_DISCOUNT_ENTRIES,
   indexByStoreDay,
 } from '@/domain/models'
+import { deriveDowOffset } from '@/domain/models/PeriodSelection'
 import type { DiscountEntry } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
-import { resolveComparisonFrame } from '@/application/comparison/resolveComparisonFrame'
 
 export interface PrevYearDailyEntry {
   readonly sales: number
@@ -47,12 +48,6 @@ const EMPTY: PrevYearData = {
   totalDiscountEntries: ZERO_DISCOUNT_ENTRIES,
 }
 
-/** null / undefined を除外して有効な数値のみ返す。無効なら undefined。 */
-function validNum(v: number | null | undefined): number | undefined {
-  if (v == null || isNaN(v)) return undefined
-  return v
-}
-
 // 後方互換: calcSameDowOffset は resolveComparisonFrame モジュールに移動済み
 export { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
@@ -70,11 +65,9 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
   const prevYearCS = data.prevYearClassifiedSales
   const prevYearFlowers = data.prevYearFlowers // 前年客数は前年花ファイルから
   const { targetYear, targetMonth } = settings
-  // null / undefined / NaN を安全に処理
-  const prevYearSourceYear = validNum(settings.prevYearSourceYear)
-  const prevYearSourceMonth = validNum(settings.prevYearSourceMonth)
-  const prevYearDowOffset = validNum(settings.prevYearDowOffset)
-  const alignmentPolicy = settings.alignmentPolicy ?? 'sameDayOfWeek'
+
+  // 前年同曜日オフセット — periodSelectionStore から導出
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
 
   return useMemo(() => {
     if (prevYearCS.records.length === 0) return EMPTY
@@ -91,21 +84,13 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
     if (targetIds.length === 0) return EMPTY
 
-    // 前年同曜日オフセット — resolveComparisonFrame で一元管理
+    // 前年同曜日オフセット — periodSelectionStore の period1/period2 から導出
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
-    const frame = resolveComparisonFrame(
-      {
-        from: { year: targetYear, month: targetMonth, day: 1 },
-        to: { year: targetYear, month: targetMonth, day: Math.max(1, daysInTargetMonth) },
-      },
-      alignmentPolicy,
-      {
-        sourceYear: prevYearSourceYear,
-        sourceMonth: prevYearSourceMonth,
-        dowOffset: prevYearDowOffset,
-      },
+    const offset = deriveDowOffset(
+      periodSelection.period1,
+      periodSelection.period2,
+      periodSelection.activePreset,
     )
-    const offset = frame.dowOffset
 
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 
@@ -194,9 +179,6 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
     targetYear,
     targetMonth,
     elapsedDays,
-    prevYearSourceYear,
-    prevYearSourceMonth,
-    prevYearDowOffset,
-    alignmentPolicy,
+    periodSelection,
   ])
 }
