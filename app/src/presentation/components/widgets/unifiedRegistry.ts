@@ -91,6 +91,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
     },
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
     periodMetrics: ctx.periodMetrics,
+    period2Metrics: ctx.period2Metrics,
     isPeriodFullMonth: ctx.isPeriodFullMonth,
   }
 }

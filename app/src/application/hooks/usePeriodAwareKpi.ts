@@ -1,11 +1,11 @@
 /**
  * usePeriodAwareKpi — 期間連動 KPI フック
  *
- * periodSelection.period1 の日付範囲に連動して KPI 値を再集計する。
+ * periodSelection の period1 / period2 に連動して KPI 値を再集計する。
  *
- * ## データフロー
+ * ## データフロー（period1 / period2 共通パイプライン）
  *
- * 1. DuckDB: store_day_summary から currentDateRange の生データを取得
+ * 1. DuckDB: store_day_summary から生データを取得（テーブルA: period1, テーブルB: period2）
  * 2. JS: periodMetricsCalculator で指標を算出（PeriodMetrics[]）
  * 3. 集約: 複数店舗の PeriodMetrics を単一の MergedPeriodMetrics にマージ
  *
@@ -14,8 +14,10 @@
  * - isFullMonth=true: StoreResult（JS計算エンジンの権威値）を使うべき
  * - isFullMonth=false: PeriodMetrics（DuckDB探索エンジン）を使う
  *
- * ウィジェットは `ctx.periodMetrics` が存在する場合にそちらを優先し、
- * なければ `ctx.result` にフォールバックする。
+ * ## 2テーブル設計
+ *
+ * period1 と period2 は独立したクエリで取得し、独立した PeriodMetrics を返す。
+ * 同一パイプライン（DuckDB → JS計算）を通るため、計算ロジックの一貫性が保証される。
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
@@ -37,11 +39,15 @@ import { safeDivide } from '@/domain/calculations/utils'
 export type MergedPeriodMetrics = PeriodMetrics
 
 export interface PeriodAwareKpiResult {
-  /** マージ済み期間メトリクス（DuckDB 未ロードまたは全月時は null） */
+  /** マージ済み期間メトリクス — period1（DuckDB 未ロードまたは全月時は null） */
   readonly periodMetrics: MergedPeriodMetrics | null
-  /** 店舗別期間メトリクス */
+  /** 店舗別期間メトリクス — period1 */
   readonly storeMetrics: readonly PeriodMetrics[] | null
-  /** DuckDB クエリ実行中 */
+  /** マージ済み期間メトリクス — period2（比較期間。無効時は null） */
+  readonly period2Metrics: MergedPeriodMetrics | null
+  /** 店舗別期間メトリクス — period2 */
+  readonly store2Metrics: readonly PeriodMetrics[] | null
+  /** DuckDB クエリ実行中（period1 or period2） */
   readonly isLoading: boolean
   /** 選択期間が月全日かどうか */
   readonly isFullMonth: boolean
@@ -224,9 +230,14 @@ function mergePeriodMetrics(metrics: readonly PeriodMetrics[]): MergedPeriodMetr
 /**
  * 期間連動 KPI を提供するフック。
  *
+ * period1（当期）と period2（比較期）を独立したテーブルとして
+ * 同一パイプライン（DuckDB → JS計算）で処理する。
+ *
  * @param conn DuckDB 接続
  * @param dataVersion DuckDB データバージョン
  * @param currentDateRange periodSelection.period1 から導出された日付範囲
+ * @param comparisonDateRange periodSelection.period2 から導出された比較日付範囲
+ * @param comparisonEnabled 比較が有効か
  * @param storeIds 選択中の店舗 ID
  * @param daysInMonth 対象月の日数
  * @param defaultMarkupRate デフォルト値入率
@@ -235,6 +246,8 @@ export function usePeriodAwareKpi(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,
   currentDateRange: DateRange | undefined,
+  comparisonDateRange: DateRange | undefined,
+  comparisonEnabled: boolean,
   storeIds: ReadonlySet<string>,
   daysInMonth: number,
   defaultMarkupRate: number,
@@ -245,25 +258,50 @@ export function usePeriodAwareKpi(
     return currentDateRange.from.day === 1 && currentDateRange.to.day >= daysInMonth
   }, [currentDateRange, daysInMonth])
 
+  // ── テーブルA: period1（当期） ──
   // 全月時はクエリ不要（StoreResult を使う）
-  const queryRange = isFullMonth ? undefined : currentDateRange
+  const queryRange1 = isFullMonth ? undefined : currentDateRange
 
   const {
     data: storeMetrics,
-    isLoading,
-    error,
-  } = useDuckDBStorePeriodMetrics(conn, dataVersion, queryRange, storeIds, defaultMarkupRate)
+    isLoading: isLoading1,
+    error: error1,
+  } = useDuckDBStorePeriodMetrics(conn, dataVersion, queryRange1, storeIds, defaultMarkupRate)
 
   const periodMetrics = useMemo(() => {
     if (!storeMetrics || storeMetrics.length === 0) return null
     return mergePeriodMetrics(storeMetrics)
   }, [storeMetrics])
 
+  // ── テーブルB: period2（比較期） ──
+  // 比較が無効の場合はクエリしない
+  const queryRange2 = comparisonEnabled ? comparisonDateRange : undefined
+
+  const {
+    data: store2Metrics,
+    isLoading: isLoading2,
+    error: error2,
+  } = useDuckDBStorePeriodMetrics(
+    conn,
+    dataVersion,
+    queryRange2,
+    storeIds,
+    defaultMarkupRate,
+    true, // isPrevYear: 前年データテーブルから取得
+  )
+
+  const period2Metrics = useMemo(() => {
+    if (!store2Metrics || store2Metrics.length === 0) return null
+    return mergePeriodMetrics(store2Metrics)
+  }, [store2Metrics])
+
   return {
     periodMetrics,
     storeMetrics,
-    isLoading,
+    period2Metrics,
+    store2Metrics,
+    isLoading: isLoading1 || isLoading2,
     isFullMonth,
-    error,
+    error: error1 ?? error2,
   }
 }

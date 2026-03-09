@@ -69,6 +69,8 @@ export interface UnifiedWidgetContext {
   readonly periodSelection?: PeriodSelection
   /** 期間連動メトリクス（DuckDB ベース。部分月選択時に提供） */
   readonly periodMetrics?: MergedPeriodMetrics
+  /** 比較期間のメトリクス — period2（DuckDB ベース。比較 ON 時に提供） */
+  readonly period2Metrics?: MergedPeriodMetrics
   /** 選択期間が月全日かどうか（true: StoreResult を使う、false: periodMetrics を使う） */
   readonly isPeriodFullMonth?: boolean
 

@@ -128,24 +128,16 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // 期間連動 KPI（DuckDB ベース）
+  // 期間連動 KPI（DuckDB ベース）— period1 + period2 独立テーブル
+  // カレンダーで選択した期間をそのまま使う。
+  // elapsedDays（有効取り込み期間）はデータ存在範囲の参考値であり、
+  // DuckDB クエリ範囲を制限しない（データが無い日は集計結果が0になるだけ）。
   const periodAwareKpi = usePeriodAwareKpi(
     duck.conn,
     duck.dataVersion,
-    currentResult
-      ? {
-          from: periodSelection.period1.from,
-          to: {
-            ...periodSelection.period1.to,
-            day: Math.min(
-              periodSelection.period1.to.day,
-              currentResult.elapsedDays != null && currentResult.elapsedDays > 0
-                ? Math.min(currentResult.elapsedDays, daysInMonth)
-                : daysInMonth,
-            ),
-          },
-        }
-      : undefined,
+    currentResult ? periodSelection.period1 : undefined,
+    periodSelection.comparisonEnabled ? periodSelection.period2 : undefined,
+    periodSelection.comparisonEnabled,
     selectedStoreIds,
     daysInMonth,
     settings.targetGrossProfitRate,
@@ -242,6 +234,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     // 期間選択
     periodSelection,
     periodMetrics: periodAwareKpi.periodMetrics ?? undefined,
+    period2Metrics: periodAwareKpi.period2Metrics ?? undefined,
     isPeriodFullMonth: periodAwareKpi.isFullMonth,
 
     // Dashboard 固有
