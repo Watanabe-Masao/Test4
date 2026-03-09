@@ -37,7 +37,9 @@ export interface SupplierComparisonRow {
 
 /** カテゴリ別仕入比較 */
 export interface CategoryComparisonRow {
+  readonly categoryId: string
   readonly category: string
+  readonly color: string
   readonly currentCost: number
   readonly currentPrice: number
   readonly prevCost: number
@@ -50,6 +52,10 @@ export interface CategoryComparisonRow {
   readonly costShareDiff: number
   readonly currentMarkupRate: number
   readonly prevMarkupRate: number
+  /** 売価構成比 */
+  readonly currentPriceShare: number
+  /** 相乗積 = (売価 - 原価) / 総売価 */
+  readonly crossMultiplication: number
 }
 
 /** 全体KPI */
@@ -84,10 +90,40 @@ export interface PurchaseComparisonKpi {
   readonly prevSales: number
 }
 
+/** 店舗別仕入比較 */
+export interface StoreComparisonRow {
+  readonly storeId: string
+  readonly storeName: string
+  readonly currentCost: number
+  readonly currentPrice: number
+  readonly prevCost: number
+  readonly prevPrice: number
+  readonly costDiff: number
+  readonly currentMarkupRate: number
+  readonly prevMarkupRate: number
+}
+
+/** 日別仕入データポイント */
+export interface PurchaseDailyPoint {
+  readonly day: number
+  readonly cost: number
+  readonly price: number
+  readonly markup: number
+  readonly sales: number
+}
+
+/** 日別仕入データ（当期・比較期） */
+export interface PurchaseDailyData {
+  readonly current: readonly PurchaseDailyPoint[]
+  readonly prev: readonly PurchaseDailyPoint[]
+}
+
 /** 仕入比較分析の全結果 */
 export interface PurchaseComparisonResult {
   readonly kpi: PurchaseComparisonKpi
   readonly bySupplier: readonly SupplierComparisonRow[]
   readonly byCategory: readonly CategoryComparisonRow[]
+  readonly byStore: readonly StoreComparisonRow[]
+  readonly daily: PurchaseDailyData
   readonly isReady: boolean
 }
