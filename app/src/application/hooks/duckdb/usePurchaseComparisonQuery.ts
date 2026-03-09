@@ -29,7 +29,10 @@ import { useAsyncQuery, storeIdsToArray, type AsyncQueryResult } from './useAsyn
 
 // ── カテゴリラベル解決 ──
 
-function categoryLabel(catId: CustomCategoryId, userCategories: ReadonlyMap<string, string>): string {
+function categoryLabel(
+  catId: CustomCategoryId,
+  userCategories: ReadonlyMap<string, string>,
+): string {
   if (isPresetCategory(catId)) return PRESET_CATEGORY_LABELS[catId]
   return userCategories.get(catId) ?? catId.replace('user:', '')
 }
@@ -179,10 +182,8 @@ export function usePurchaseComparisonQuery(
         markupRateDiff:
           markupRate(curTotal.totalCost, curTotal.totalPrice) -
           markupRate(prevTotal.totalCost, prevTotal.totalPrice),
-        currentCostToSalesRatio:
-          curSalesTotal > 0 ? curTotal.totalCost / curSalesTotal : 0,
-        prevCostToSalesRatio:
-          prevSalesTotal > 0 ? prevTotal.totalCost / prevSalesTotal : 0,
+        currentCostToSalesRatio: curSalesTotal > 0 ? curTotal.totalCost / curSalesTotal : 0,
+        prevCostToSalesRatio: prevSalesTotal > 0 ? prevTotal.totalCost / prevSalesTotal : 0,
         currentSales: curSalesTotal,
         prevSales: prevSalesTotal,
       }

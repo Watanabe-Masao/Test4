@@ -101,7 +101,10 @@ function InlineMonthPicker() {
   )
 }
 
-function formatDateRange(range: { from: { year: number; month: number; day: number }; to: { year: number; month: number; day: number } }): string {
+function formatDateRange(range: {
+  from: { year: number; month: number; day: number }
+  to: { year: number; month: number; day: number }
+}): string {
   const { from, to } = range
   if (from.year === to.year && from.month === to.month) {
     return `${from.year}/${from.month}/${from.day}〜${to.day}`

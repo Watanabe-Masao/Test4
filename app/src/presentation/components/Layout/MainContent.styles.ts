@@ -172,4 +172,3 @@ export const PeriodInfo = styled.div`
   color: ${({ theme }) => theme.colors.text3};
   white-space: nowrap;
 `
-
