@@ -317,6 +317,32 @@ describe('computeDailyFeatures', () => {
   it('空配列を渡すと空配列を返す', () => {
     expect(computeDailyFeatures([])).toEqual([])
   })
+
+  it('trimFromDateKey 指定で先行データを除外する', () => {
+    // 12月のデータ（先行データ）+ 1月のデータ
+    const decRows = Array.from({ length: 27 }, (_, i) =>
+      mkRow({
+        dateKey: `2025-12-${String(i + 5).padStart(2, '0')}`,
+        day: i + 5,
+        month: 12,
+        sales: 100,
+      }),
+    )
+    const janRows = Array.from({ length: 10 }, (_, i) =>
+      mkRow({
+        dateKey: `2026-01-${String(i + 1).padStart(2, '0')}`,
+        day: i + 1,
+        month: 1,
+        sales: 200,
+      }),
+    )
+    const result = computeDailyFeatures([...decRows, ...janRows], '2026-01-01')
+    // 12月のデータは除外される
+    expect(result.every((r) => r.dateKey >= '2026-01-01')).toBe(true)
+    expect(result).toHaveLength(10)
+    // 1月1日でも MA-28 が計算される（先行27日分のデータがあるため）
+    expect(result[0].salesMa28).toBeTypeOf('number')
+  })
 })
 
 // ─── computeYoyDaily ──────────────────────────────────
