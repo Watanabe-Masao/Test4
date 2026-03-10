@@ -29,8 +29,7 @@ export function useCalculation() {
   // 計算エポック: 非同期結果の順序逆転を防止する
   const epochRef = useRef(0)
 
-  const canCalculate =
-    Object.keys(data.purchase).length > 0 && data.classifiedSales.records.length > 0
+  const canCalculate = data.classifiedSales.records.length > 0
 
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
 

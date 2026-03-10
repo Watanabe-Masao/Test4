@@ -125,7 +125,10 @@ export function validateImportedData(
 
   // ── 必須データチェック ──
   if (data.purchase.records.length === 0) {
-    messages.push({ level: 'error', message: '仕入データがありません' })
+    messages.push({
+      level: 'warning',
+      message: '仕入データがありません（売上分析モードで動作します）',
+    })
   }
   if (data.classifiedSales.records.length === 0) {
     messages.push({ level: 'error', message: '分類別売上データがありません' })
