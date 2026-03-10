@@ -426,12 +426,13 @@ describe('processFileData', () => {
 })
 
 describe('validateImportedData', () => {
-  it('仕入・分類別売上の両方が必須', () => {
+  it('空データは分類別売上エラー・仕入は警告', () => {
     const messages = validateImportedData(emptyData())
     const errors = messages.filter((m) => m.level === 'error')
-    expect(errors).toHaveLength(2)
-    expect(errors[0].message).toContain('仕入')
-    expect(errors[1].message).toContain('分類別売上')
+    const warnings = messages.filter((m) => m.level === 'warning')
+    expect(errors).toHaveLength(1)
+    expect(errors[0].message).toContain('分類別売上')
+    expect(warnings.some((w) => w.message.includes('仕入'))).toBe(true)
   })
 
   it('仕入・分類別売上がある場合はエラーなし', () => {

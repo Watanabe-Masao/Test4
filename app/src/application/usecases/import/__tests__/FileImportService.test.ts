@@ -94,12 +94,13 @@ function fullData(): ImportedData {
 }
 
 describe('validateImportedData', () => {
-  it('空データは仕入・売上エラー', () => {
+  it('空データは分類別売上エラー・仕入は警告', () => {
     const messages = validateImportedData(makeData())
     const errors = messages.filter((m) => m.level === 'error')
-    expect(errors.length).toBe(2)
-    expect(errors[0].message).toContain('仕入')
-    expect(errors[1].message).toContain('分類別売上')
+    const warnings = messages.filter((m) => m.level === 'warning')
+    expect(errors).toHaveLength(1)
+    expect(errors[0].message).toContain('分類別売上')
+    expect(warnings.some((w) => w.message.includes('仕入'))).toBe(true)
   })
 
   it('完全なデータではエラーなし', () => {
