@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { alignRows, toYoyDailyRows, type AlignableRow } from '../alignRows'
 
-function makeRow(overrides: Partial<AlignableRow> & { dateKey: string; storeId: string }): AlignableRow {
+function makeRow(
+  overrides: Partial<AlignableRow> & { dateKey: string; storeId: string },
+): AlignableRow {
   return {
     year: 2026,
     month: 3,
@@ -14,8 +16,12 @@ function makeRow(overrides: Partial<AlignableRow> & { dateKey: string; storeId: 
 
 describe('alignRows', () => {
   it('当期・比較期の両方にある行をマージする', () => {
-    const current = [makeRow({ dateKey: '2026-03-01', storeId: 'S1', month: 3, day: 1, sales: 200 })]
-    const previous = [makeRow({ dateKey: '2025-03-01', storeId: 'S1', year: 2025, month: 3, day: 1, sales: 150 })]
+    const current = [
+      makeRow({ dateKey: '2026-03-01', storeId: 'S1', month: 3, day: 1, sales: 200 }),
+    ]
+    const previous = [
+      makeRow({ dateKey: '2025-03-01', storeId: 'S1', year: 2025, month: 3, day: 1, sales: 150 }),
+    ]
 
     const aligned = alignRows(current, previous)
     expect(aligned).toHaveLength(1)
@@ -27,7 +33,9 @@ describe('alignRows', () => {
   })
 
   it('当期のみの行は compareSales が null', () => {
-    const current = [makeRow({ dateKey: '2026-03-15', storeId: 'S1', month: 3, day: 15, sales: 300 })]
+    const current = [
+      makeRow({ dateKey: '2026-03-15', storeId: 'S1', month: 3, day: 15, sales: 300 }),
+    ]
     const previous: AlignableRow[] = []
 
     const aligned = alignRows(current, previous)
@@ -39,7 +47,9 @@ describe('alignRows', () => {
 
   it('比較期のみの行は currentSales が 0', () => {
     const current: AlignableRow[] = []
-    const previous = [makeRow({ dateKey: '2025-03-20', storeId: 'S1', year: 2025, month: 3, day: 20, sales: 180 })]
+    const previous = [
+      makeRow({ dateKey: '2025-03-20', storeId: 'S1', year: 2025, month: 3, day: 20, sales: 180 }),
+    ]
 
     const aligned = alignRows(current, previous)
     expect(aligned).toHaveLength(1)
@@ -100,9 +110,26 @@ describe('alignRows', () => {
 
 describe('toYoyDailyRows', () => {
   it('AlignedRow を YoyDailyRow 互換の shape に変換する', () => {
-    const current = [makeRow({ dateKey: '2026-03-01', storeId: 'S1', month: 3, day: 1, sales: 200, customers: 20 })]
+    const current = [
+      makeRow({
+        dateKey: '2026-03-01',
+        storeId: 'S1',
+        month: 3,
+        day: 1,
+        sales: 200,
+        customers: 20,
+      }),
+    ]
     const previous = [
-      makeRow({ dateKey: '2025-03-01', storeId: 'S1', year: 2025, month: 3, day: 1, sales: 150, customers: 15 }),
+      makeRow({
+        dateKey: '2025-03-01',
+        storeId: 'S1',
+        year: 2025,
+        month: 3,
+        day: 1,
+        sales: 150,
+        customers: 15,
+      }),
     ]
 
     const aligned = alignRows(current, previous)

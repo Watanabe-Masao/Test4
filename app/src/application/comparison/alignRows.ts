@@ -76,9 +76,7 @@ interface GroupedEntry {
   customers: number
 }
 
-function groupByAlignmentKey(
-  rows: readonly AlignableRow[],
-): Map<string, GroupedEntry> {
+function groupByAlignmentKey(rows: readonly AlignableRow[]): Map<string, GroupedEntry> {
   const map = new Map<string, GroupedEntry>()
   for (const r of rows) {
     const key = makeAlignmentKey(r.storeId, r.month, r.day)
@@ -153,9 +151,7 @@ export function alignRows(
  * 既存チャートコンポーネント（YoYChart 等）が YoyDailyRow を期待するため、
  * 移行期間中の互換性を維持する Chart VM 変換。
  */
-export function toYoyDailyRows(
-  aligned: readonly AlignedRow[],
-): {
+export function toYoyDailyRows(aligned: readonly AlignedRow[]): {
   readonly curDateKey: string | null
   readonly prevDateKey: string | null
   readonly storeId: string

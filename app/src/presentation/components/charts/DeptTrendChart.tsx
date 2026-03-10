@@ -23,14 +23,7 @@ import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toAxisYen } from './
 import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import {
-  Wrapper,
-  Title,
-  Subtitle,
-  DeptSelector,
-  DeptChip,
-  ErrorMsg,
-} from './DeptTrendChart.styles'
+import { Wrapper, Title, Subtitle, DeptSelector, DeptChip, ErrorMsg } from './DeptTrendChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
