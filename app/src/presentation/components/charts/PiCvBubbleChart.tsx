@@ -6,7 +6,7 @@
  * バブルサイズ: 売上金額 / 販売点数 / なし（選択可能）
  *
  * 販売効率 x 店舗ばらつき x 売上規模 を同時に可視化。
- * DuckDB カテゴリベンチマークデータを利用。
+ * カテゴリベンチマークデータを利用。
  */
 import { useState, useMemo, memo } from 'react'
 import {
@@ -45,8 +45,8 @@ import {
   ChartErrorMsg,
   HIERARCHY_LABELS,
   type HierarchyLevel,
-} from './DuckDBChartParts'
-import { LegendRow, LegendItem, QuadrantLabel } from './DuckDBPiCvBubbleChart.styles'
+} from './ChartParts'
+import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
 
 // ── 定数 ──
 
@@ -150,7 +150,7 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
+export const PiCvBubbleChart = memo(function PiCvBubbleChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

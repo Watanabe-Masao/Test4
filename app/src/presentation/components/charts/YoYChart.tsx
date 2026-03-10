@@ -1,7 +1,7 @@
 /**
- * DuckDB 前年比較チャート
+ * 前年比較チャート
  *
- * DuckDB の YoY JOIN クエリを使い、当年 vs 前年の日別売上比較を表示する。
+ * YoY JOIN クエリを使い、当年 vs 前年の日別売上比較を表示する。
  * 月跨ぎクエリに対応しているため、自由な日付範囲で前年比較が可能。
  *
  * 表示モード:
@@ -43,7 +43,7 @@ import {
   SummaryRow,
   SummaryItem,
   ErrorMsg,
-} from './DuckDBYoYChart.styles'
+} from './YoYChart.styles'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -272,7 +272,7 @@ const WaterfallView = memo(function WaterfallView({ waterfallData, ct, fmt }: Wa
 
 // ─── Main component ───────────────────────────────────
 
-export const DuckDBYoYChart = memo(function DuckDBYoYChart({
+export const YoYChart = memo(function YoYChart({
   duckConn,
   duckDataVersion,
   frame,
@@ -298,8 +298,8 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="前年比較（DuckDB）">
-        <Title>前年比較（DuckDB）</Title>
+      <Wrapper aria-label="前年比較">
+        <Title>前年比較</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -322,9 +322,9 @@ export const DuckDBYoYChart = memo(function DuckDBYoYChart({
   const growthRate = totalPrev > 0 ? toPct(totalDiff / totalPrev, 1) : '-'
 
   return (
-    <Wrapper aria-label="前年比較（DuckDB）">
+    <Wrapper aria-label="前年比較">
       <HeaderRow>
-        <Title>前年比較（DuckDB）</Title>
+        <Title>前年比較</Title>
         <TabGroup>
           <Tab $active={viewMode === 'line'} onClick={() => setViewMode('line')}>
             日次比較

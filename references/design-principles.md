@@ -217,7 +217,7 @@ Command は単月確定値を決定論的に計算し、Query は任意の日付
 
 **適用例:**
 - チャートは規模に関わらず `.tsx`（描画）+ `.styles.ts`（スタイル）+ `.vm.ts`（ViewModel）の
-  3 ファイル構成。`GrossProfitRateChart/`, `DuckDBCategoryBoxPlotChart`, `StructuralOverviewChart` 等、
+  3 ファイル構成。`GrossProfitRateChart/`, `CategoryBoxPlotChart`, `StructuralOverviewChart` 等、
   全チャートが同一構造を持つ
 - QueryHandler は `DailyCumulativeHandler`, `AggregatedRatesHandler` 等、
   全て `{ name, execute(conn, input) }` の統一インターフェース。

@@ -213,7 +213,7 @@ export function PurchaseAnalysisPage() {
     )
   }
 
-  const { kpi, byCategory, byStore, daily, dailyPivot, categorySuppliers } = result
+  const { kpi, byCategory, byStore, daily, dailyPivot, categorySuppliers, isDetailReady } = result
 
   const sortedCategories = sortRows(byCategory, categorySort.sortKey, categorySort.sortDir)
 
@@ -275,43 +275,52 @@ export function PurchaseAnalysisPage() {
         </KpiGrid>
       </Section>
 
-      {/* カテゴリ別日別明細 */}
-      <Section>
-        <SectionTitle>カテゴリ別日別明細（原価/売価）</SectionTitle>
-        <PurchaseDailyPivotTable pivot={dailyPivot} />
-      </Section>
-
-      {/* カテゴリ明細（ドリルダウン付き） */}
-      <Section>
-        <SectionHeader>
-          <SectionTitle>カテゴリ明細</SectionTitle>
-          <SubNote>
-            標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率 / クリックで展開
-          </SubNote>
-        </SectionHeader>
-        <CategoryDetailTable
-          rows={sortedCategories}
-          kpi={kpi}
-          sort={categorySort}
-          categorySuppliers={categorySuppliers}
-        />
-      </Section>
-
-      {/* 売上 vs 仕入 チャート */}
-      <Section>
-        <SectionTitle>売上 vs 仕入原価（日別推移）</SectionTitle>
-        <PurchaseVsSalesChart daily={daily} />
-      </Section>
-
-      {/* 店舗別比較（ドリルダウン付き） */}
-      {byStore.length > 1 && (
+      {/* 詳細セクション: KPI先行表示後に詳細をロード */}
+      {!isDetailReady ? (
         <Section>
-          <SectionHeader>
-            <SectionTitle>店舗別比較（{byStore.length}店舗）</SectionTitle>
-            <SubNote>クリックで取引先別の内訳を表示</SubNote>
-          </SectionHeader>
-          <StoreComparisonTable rows={byStore} />
+          <PageSkeleton />
         </Section>
+      ) : (
+        <>
+          {/* カテゴリ別日別明細 */}
+          <Section>
+            <SectionTitle>カテゴリ別日別明細（原価/売価）</SectionTitle>
+            <PurchaseDailyPivotTable pivot={dailyPivot} />
+          </Section>
+
+          {/* カテゴリ明細（ドリルダウン付き） */}
+          <Section>
+            <SectionHeader>
+              <SectionTitle>カテゴリ明細</SectionTitle>
+              <SubNote>
+                標準カテゴリ + カスタムカテゴリの統合集計 / 相乗積合計 = 全体値入率 / クリックで展開
+              </SubNote>
+            </SectionHeader>
+            <CategoryDetailTable
+              rows={sortedCategories}
+              kpi={kpi}
+              sort={categorySort}
+              categorySuppliers={categorySuppliers}
+            />
+          </Section>
+
+          {/* 売上 vs 仕入 チャート */}
+          <Section>
+            <SectionTitle>売上 vs 仕入原価（日別推移）</SectionTitle>
+            <PurchaseVsSalesChart daily={daily} />
+          </Section>
+
+          {/* 店舗別比較（ドリルダウン付き） */}
+          {byStore.length > 1 && (
+            <Section>
+              <SectionHeader>
+                <SectionTitle>店舗別比較（{byStore.length}店舗）</SectionTitle>
+                <SubNote>クリックで取引先別の内訳を表示</SubNote>
+              </SectionHeader>
+              <StoreComparisonTable rows={byStore} />
+            </Section>
+          )}
+        </>
       )}
     </MainContent>
   )

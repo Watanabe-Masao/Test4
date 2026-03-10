@@ -160,7 +160,7 @@ UIが**やってはならない**こと:
    - `application/usecases/categoryTimeSales/` ディレクトリ削除（除数計算は `domain/calculations/divisor.ts` に移動）
    - `CategoryTimeSalesIndex` 型と `EMPTY_CTS_INDEX` を domain/models から削除
    - `useCategoryTimeSalesIndex` フック削除
-   - `TimeSlotSalesChart` コンポーネントと `useTimeSlotData` フック削除（DuckDBTimeSlotChart に統一）
+   - `TimeSlotSalesChart` コンポーネントと `useTimeSlotData` フック削除（TimeSlotChart に統一）
    - `useCategoryExplorerData` フック削除（DuckDB クエリに統一）
    - `divisorRules.test.ts` のアーキテクチャガードテストは維持・更新済み
 

@@ -24,7 +24,7 @@ app/src/
 
 | 問題 | 現在の状態 |
 |---|---|
-| **ファイル密度** | `charts/DuckDB*.tsx` が 18 ファイル超、1ディレクトリに密集 |
+| **ファイル密度** | `charts/*.tsx` が 18 ファイル超、1ディレクトリに密集 |
 | **変更の波及範囲** | 「カテゴリ分析を変更」→ 4層を横断して探索が必要 |
 | **暗黙の機能境界** | 売上系・在庫系・カテゴリ系の区別がディレクトリ構造に現れない |
 | **共通コードの重複** | 同種のチャートが styled-components・定数・型を個別に定義 |
@@ -121,7 +121,7 @@ shared/                     # 複数機能が使う共通基盤
 
 ```
 Phase 0（現在）
-  shared/ に共通パーツを抽出する（DuckDBChartParts.ts が先行例）
+  shared/ に共通パーツを抽出する（ChartParts.ts が先行例）
   新規チャートは共通パーツを import して重複を防ぐ
 
 Phase 1（次の新機能から）
@@ -141,13 +141,13 @@ Phase 3（安定後）
 
 ```
 現在:
-  charts/DuckDBChartParts.ts           ← 共通styled-components（抽出済み）
-  charts/DuckDBCvTimeSeriesChart.tsx   ← DuckDBChartParts を import（実施済み）
-  charts/DuckDBPiCvBubbleChart.tsx     ← DuckDBChartParts を import（実施済み）
+  charts/ChartParts.ts           ← 共通styled-components（抽出済み）
+  charts/CvTimeSeriesChart.tsx   ← ChartParts を import（実施済み）
+  charts/PiCvBubbleChart.tsx     ← ChartParts を import（実施済み）
 
 次のステップ:
-  既存の DuckDB チャート（DuckDBCategoryBenchmarkChart 等）も
-  改修タイミングで DuckDBChartParts を import に切り替える
+  既存のチャート（CategoryBenchmarkChart 等）も
+  改修タイミングで ChartParts を import に切り替える
 ```
 
 ### バレル re-export による後方互換
@@ -155,12 +155,12 @@ Phase 3（安定後）
 移動時は必ず元パスにバレルを残し、既存の import を壊さない:
 
 ```typescript
-// 移動前: presentation/components/charts/DuckDBPiCvBubbleChart.tsx
-// 移動後: features/category/presentation/DuckDBPiCvBubbleChart.tsx
+// 移動前: presentation/components/charts/PiCvBubbleChart.tsx
+// 移動後: features/category/presentation/PiCvBubbleChart.tsx
 
 // 元の場所に残すバレル:
-// presentation/components/charts/DuckDBPiCvBubbleChart.tsx
-export { DuckDBPiCvBubbleChart } from '@/features/category/presentation/DuckDBPiCvBubbleChart'
+// presentation/components/charts/PiCvBubbleChart.tsx
+export { PiCvBubbleChart } from '@/features/category/presentation/PiCvBubbleChart'
 ```
 
 ## 縦スライスと既存設計原則の関係

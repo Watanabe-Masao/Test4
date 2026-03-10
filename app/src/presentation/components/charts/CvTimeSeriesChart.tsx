@@ -39,7 +39,7 @@ import {
   HIERARCHY_LABELS,
   formatDateKey,
   type HierarchyLevel,
-} from './DuckDBChartParts'
+} from './ChartParts'
 import {
   StatusTable,
   StatusBadge,
@@ -48,7 +48,7 @@ import {
   HeatmapTh,
   HeatmapRowHeader,
   HeatmapCell,
-} from './DuckDBCvTimeSeriesChart.styles'
+} from './CvTimeSeriesChart.styles'
 
 // ── 定数 ──
 
@@ -313,7 +313,7 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-export const DuckDBCvTimeSeriesChart = memo(function DuckDBCvTimeSeriesChart({
+export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

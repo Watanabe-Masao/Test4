@@ -1,5 +1,5 @@
 /**
- * DuckDB カテゴリ箱ひげ図 — 独立ウィジェット
+ * カテゴリ箱ひげ図 — 独立ウィジェット
  *
  * カテゴリベンチマークから分離された箱ひげ図ビュー。
  * 店舗別 / 期間別の分布を箱ひげ図で表示し、
@@ -40,7 +40,7 @@ import {
   MapLegend,
   LegendItem,
   FilterSelect,
-} from './DuckDBCategoryBoxPlotChart.styles'
+} from './CategoryBoxPlotChart.styles'
 
 // ── Types ──
 
@@ -704,7 +704,7 @@ function BoxPlotView({
 
 // ── Main Component ──
 
-export const DuckDBCategoryBoxPlotChart = memo(function DuckDBCategoryBoxPlotChart({
+export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -790,8 +790,8 @@ export const DuckDBCategoryBoxPlotChart = memo(function DuckDBCategoryBoxPlotCha
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリ箱ひげ図（DuckDB）">
-        <Title>カテゴリ箱ひげ図（DuckDB）</Title>
+      <Wrapper aria-label="カテゴリ箱ひげ図">
+        <Title>カテゴリ箱ひげ図</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -808,10 +808,10 @@ export const DuckDBCategoryBoxPlotChart = memo(function DuckDBCategoryBoxPlotCha
   }
 
   return (
-    <Wrapper aria-label="カテゴリ箱ひげ図（DuckDB）">
+    <Wrapper aria-label="カテゴリ箱ひげ図">
       <HeaderRow>
         <div>
-          <Title>カテゴリ箱ひげ図（DuckDB）</Title>
+          <Title>カテゴリ箱ひげ図</Title>
           <Subtitle>
             {effectiveAxis === 'date'
               ? 'カテゴリ別 日別販売金額の分布'

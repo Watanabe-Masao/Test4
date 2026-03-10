@@ -1,14 +1,14 @@
 /**
- * DuckDB 日付範囲ピッカー
+ * 日付範囲ピッカー
  *
- * DuckDB クエリ用の自由日付範囲を選択するコンパクトなUI。
+ * 分析クエリ用の自由日付範囲を選択するコンパクトなUI。
  * HTML5 date input を使用し、月跨ぎの任意期間を指定できる。
  *
  * クイックプリセット:
  * - 当月: 現在の targetYear/targetMonth の全日
  * - 過去3ヶ月: 当月含む直近3ヶ月
  * - 過去6ヶ月: 当月含む直近6ヶ月
- * - 全期間: DuckDB にロードされた全データ範囲
+ * - 全期間: ロードされた全データ範囲
  */
 import { useCallback, useMemo } from 'react'
 import type { DateRange, CalendarDate } from '@/domain/models'
@@ -20,7 +20,7 @@ import {
   Separator,
   PresetButton,
   DaysInfo,
-} from './DuckDBDateRangePicker.styles'
+} from './DateRangePicker.styles'
 
 type PresetKey = 'month' | '3m' | '6m' | 'all'
 
@@ -46,7 +46,7 @@ function monthsAgo(year: number, month: number, count: number): CalendarDate {
   return { year: y, month: m, day: 1 }
 }
 
-export function DuckDBDateRangePicker({
+export function DateRangePicker({
   value,
   onChange,
   year,
@@ -128,8 +128,8 @@ export function DuckDBDateRangePicker({
   )
 
   return (
-    <Wrapper aria-label="DuckDB 分析期間セレクタ">
-      <Label>DuckDB 分析期間:</Label>
+    <Wrapper aria-label="分析期間セレクタ">
+      <Label>分析期間:</Label>
       <DateInput
         type="date"
         value={fromStr}

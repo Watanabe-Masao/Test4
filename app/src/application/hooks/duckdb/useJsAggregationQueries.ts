@@ -28,6 +28,7 @@ import type {
   HourlyProfileRow,
 } from '@/infrastructure/duckdb/queries/features'
 import type { YoyDailyRow } from '@/infrastructure/duckdb/queries/yoyComparison'
+import { alignRows, toYoyDailyRows } from '@/application/comparison/alignRows'
 import {
   queryStoreAggregation,
   type CtsFilterParams,
@@ -399,72 +400,16 @@ export function useJsYoyDaily(
 /**
  * 当期と前期の生データから YoY 日別比較を計算する純粋関数。
  *
- * SQL の FULL OUTER JOIN ON store_id=store_id AND month=month AND day=day と同等。
+ * Comparison/Alignment 層（alignRows）で整列し、
+ * Chart VM 変換（toYoyDailyRows）で YoyDailyRow 互換 shape に戻す。
  */
 /** @internal テスト用に export */
 export function computeYoyDaily(
   curRows: readonly StoreDaySummaryRow[],
   prevRows: readonly StoreDaySummaryRow[],
 ): YoyDailyRow[] {
-  // store × (month, day) でグループ化して売上・客数を合算
-  type DailyGroup = {
-    dateKey: string
-    sales: number
-    customers: number
-  }
-
-  function groupByStoreMonthDay(rows: readonly StoreDaySummaryRow[]): Map<string, DailyGroup> {
-    const map = new Map<string, DailyGroup>()
-    for (const r of rows) {
-      // キー: storeId + month + day（月と日で当期・前期をマッチング）
-      const key = `${r.storeId}|${r.month}|${r.day}`
-      const existing = map.get(key)
-      if (existing) {
-        existing.sales += r.sales
-        existing.customers += r.customers
-      } else {
-        map.set(key, {
-          dateKey: r.dateKey,
-          sales: r.sales,
-          customers: r.customers,
-        })
-      }
-    }
-    return map
-  }
-
-  const curMap = groupByStoreMonthDay(curRows)
-  const prevMap = groupByStoreMonthDay(prevRows)
-
-  // FULL OUTER JOIN
-  const allKeys = new Set([...curMap.keys(), ...prevMap.keys()])
-  const result: YoyDailyRow[] = []
-
-  for (const key of allKeys) {
-    const parts = key.split('|')
-    const storeId = parts[0]
-    const cur = curMap.get(key)
-    const prev = prevMap.get(key)
-
-    result.push({
-      curDateKey: cur?.dateKey ?? null,
-      prevDateKey: prev?.dateKey ?? null,
-      storeId,
-      curSales: cur?.sales ?? 0,
-      prevSales: prev?.sales ?? null,
-      salesDiff: (cur?.sales ?? 0) - (prev?.sales ?? 0),
-      curCustomers: cur?.customers ?? 0,
-      prevCustomers: prev?.customers ?? null,
-    })
-  }
-
-  return result.sort((a, b) => {
-    if (a.storeId < b.storeId) return -1
-    if (a.storeId > b.storeId) return 1
-    const aKey = a.curDateKey ?? a.prevDateKey ?? ''
-    const bKey = b.curDateKey ?? b.prevDateKey ?? ''
-    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0
-  })
+  const aligned = alignRows(curRows, prevRows)
+  return toYoyDailyRows(aligned)
 }
 
 // ─── 時間帯別売上構成比（JS計算版） ──────────────────

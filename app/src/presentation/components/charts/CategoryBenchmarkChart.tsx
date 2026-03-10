@@ -1,5 +1,5 @@
 /**
- * DuckDB カテゴリベンチマーク — 商品力分析ダッシュボード
+ * カテゴリベンチマーク — 商品力分析ダッシュボード
  *
  * 構成比実数値ベースの総合カテゴリ評価:
  * 1. 総合指数 (Index): 平均構成比を 0-100 に正規化
@@ -14,7 +14,7 @@
  * - マップ: 商品力4象限マップ
  * - トレンド: 上位カテゴリの推移
  *
- * 箱ひげ図は DuckDBCategoryBoxPlotChart に分離。
+ * 箱ひげ図は CategoryBoxPlotChart に分離。
  */
 import { useState, useMemo, memo } from 'react'
 import {
@@ -75,7 +75,7 @@ import {
   KpiValue,
   KpiSub,
   FilterSelect,
-} from './DuckDBCategoryBenchmarkChart.styles'
+} from './CategoryBenchmarkChart.styles'
 
 // ── Types ──
 
@@ -513,7 +513,7 @@ function TrendView({
 
 // ── Component ──
 
-export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmarkChart({
+export const CategoryBenchmarkChart = memo(function CategoryBenchmarkChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -623,8 +623,8 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリベンチマーク（DuckDB）">
-        <Title>カテゴリベンチマーク（DuckDB）</Title>
+      <Wrapper aria-label="カテゴリベンチマーク">
+        <Title>カテゴリベンチマーク</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -641,10 +641,10 @@ export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmar
   }
 
   return (
-    <Wrapper aria-label="カテゴリベンチマーク（DuckDB）">
+    <Wrapper aria-label="カテゴリベンチマーク">
       <HeaderRow>
         <div>
-          <Title>カテゴリベンチマーク（DuckDB）</Title>
+          <Title>カテゴリベンチマーク</Title>
           <Subtitle>
             {effectiveAxis === 'date'
               ? '期間別分析 | 日別構成比の変動 × バラツキ(CV) × カバー率'

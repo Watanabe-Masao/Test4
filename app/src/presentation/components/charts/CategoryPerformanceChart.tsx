@@ -1,7 +1,7 @@
 /**
- * カテゴリPI値・偏差値分析 — DuckDB 版
+ * カテゴリPI値・偏差値分析
  *
- * DuckDB の queryLevelAggregation で階層別集約データを取得し、
+ * queryLevelAggregation で階層別集約データを取得し、
  * PI値（金額PI / 点数PI）と偏差値を算出して横棒チャートで表示する。
  */
 import { useState, useMemo, memo } from 'react'

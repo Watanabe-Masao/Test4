@@ -1,7 +1,7 @@
 /**
- * DuckDB 時間帯別売上チャート（統合版）
+ * 時間帯別売上チャート
  *
- * レガシー TimeSlotSalesChart の全機能を DuckDB ベースで再実装:
+ * レガシー TimeSlotSalesChart の全機能を統合パイプラインで再実装:
  * - チャート / KPIサマリー / 前年比較 の3ビュー
  * - 金額 / 点数 メトリック切替
  * - 前年 / 前週 比較モード
@@ -60,7 +60,7 @@ import {
   MiniTh,
   MiniTd,
 } from './TimeSlotSalesChart.styles'
-import { HierarchyRow, HierarchySelect, ErrorMsg } from './DuckDBTimeSlotChart.styles'
+import { HierarchyRow, HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
@@ -76,7 +76,7 @@ interface Props {
 
 // ── Component ──
 
-export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
+export const TimeSlotChart = memo(function TimeSlotChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -97,8 +97,8 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
 
   if (d.error) {
     return (
-      <Wrapper aria-label="時間帯別売上（DuckDB）">
-        <Title>時間帯別売上（DuckDB）</Title>
+      <Wrapper aria-label="時間帯別売上">
+        <Title>時間帯別売上</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {d.error}
         </ErrorMsg>
@@ -122,7 +122,7 @@ export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
       : `時間帯別${d.metricMode === 'amount' ? '売上' : '数量'}${d.viewMode === 'kpi' ? ' サマリー' : ''}`
 
   return (
-    <Wrapper aria-label="時間帯別売上（DuckDB）">
+    <Wrapper aria-label="時間帯別売上">
       <HeaderRow>
         <Title>
           {titleText}

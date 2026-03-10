@@ -1,8 +1,8 @@
 /**
- * DuckDB 特徴量分析チャート
+ * 特徴量分析チャート
  *
- * DuckDB のウィンドウ関数を使い、日別売上の移動平均・Zスコア・スパイク比率を
- * リアルタイムに算出して表示する。DuckDB が未準備の場合は非表示。
+ * ウィンドウ関数を使い、日別売上の移動平均・Zスコア・スパイク比率を
+ * リアルタイムに算出して表示する。データが未準備の場合は非表示。
  *
  * 表示項目:
  * - 日別売上実績線
@@ -40,7 +40,7 @@ import {
   AnomalyDate,
   AnomalyValue,
   ErrorMsg,
-} from './DuckDBFeatureChart.styles'
+} from './FeatureChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -131,7 +131,7 @@ function buildChartData(features: readonly DailyFeatureRow[]): {
   return { chartData, anomalies }
 }
 
-export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
+export const FeatureChart = memo(function FeatureChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -154,8 +154,8 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="売上トレンド分析（DuckDB）">
-        <Title>売上トレンド分析（DuckDB）</Title>
+      <Wrapper aria-label="売上トレンド分析">
+        <Title>売上トレンド分析</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -172,8 +172,8 @@ export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
   }
 
   return (
-    <Wrapper aria-label="売上トレンド分析（DuckDB）">
-      <Title>売上トレンド分析（DuckDB）</Title>
+    <Wrapper aria-label="売上トレンド分析">
+      <Title>売上トレンド分析</Title>
       <Subtitle>
         移動平均（3日/7日/28日）・Zスコア異常検出 | 赤棒 = Z &gt; {Z_SCORE_THRESHOLD} の異常日
       </Subtitle>

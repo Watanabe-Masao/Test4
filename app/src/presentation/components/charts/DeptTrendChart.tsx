@@ -1,7 +1,7 @@
 /**
- * DuckDB 部門KPI月別トレンドチャート
+ * 部門KPI月別トレンドチャート
  *
- * DuckDB に格納された複数月の department_kpi データから
+ * 複数月の department_kpi データから
  * 部門別の粗利率・売上実績の月次推移を表示する。
  *
  * マルチ月データロードが有効な場合、IndexedDB に保存された
@@ -23,14 +23,7 @@ import { useChartTheme, useCurrencyFormatter, STORE_COLORS, toAxisYen } from './
 import { createChartTooltip } from './createChartTooltip'
 import { useI18n } from '@/application/hooks/useI18n'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
-import {
-  Wrapper,
-  Title,
-  Subtitle,
-  DeptSelector,
-  DeptChip,
-  ErrorMsg,
-} from './DuckDBDeptTrendChart.styles'
+import { Wrapper, Title, Subtitle, DeptSelector, DeptChip, ErrorMsg } from './DeptTrendChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -83,7 +76,7 @@ function buildChartData(
   return { chartData, deptNames }
 }
 
-export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
+export const DeptTrendChart = memo(function DeptTrendChart({
   duckConn,
   duckDataVersion,
   loadedMonthCount,
@@ -130,8 +123,8 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
-        <Title>部門別KPIトレンド（DuckDB）</Title>
+      <Wrapper aria-label="部門別KPIトレンド">
+        <Title>部門別KPIトレンド</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -154,8 +147,8 @@ export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
     : deptEntries
 
   return (
-    <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
-      <Title>部門別KPIトレンド（DuckDB）</Title>
+    <Wrapper aria-label="部門別KPIトレンド">
+      <Title>部門別KPIトレンド</Title>
       <Subtitle>
         粗利率（線）・売上実績（棒）の月次推移 | {loadedMonthCount}ヶ月分ロード済み
       </Subtitle>

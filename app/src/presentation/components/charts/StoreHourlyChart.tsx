@@ -1,7 +1,7 @@
 /**
- * DuckDB 店舗×時間帯比較チャート
+ * 店舗×時間帯比較チャート
  *
- * DuckDB の StoreAggregation クエリを使い、店舗ごとの時間帯別売上を
+ * StoreAggregation クエリを使い、店舗ごとの時間帯別売上を
  * グループ棒グラフで比較表示する。金額 / 構成比モードの切替が可能。
  *
  * 表示項目:
@@ -13,7 +13,7 @@
 import { useState, useMemo, memo, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
+import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import {
@@ -43,7 +43,7 @@ import {
   ModalStoreDetail,
   ModalSectionTitle,
   ErrorMsg,
-} from './DuckDBStoreHourlyChart.styles'
+} from './StoreHourlyChart.styles'
 
 // ── Types ──
 
@@ -262,7 +262,7 @@ function buildChartData(
 
 // ── Component ──
 
-export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
+export const StoreHourlyChart = memo(function StoreHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -299,8 +299,8 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
-        <Title>店舗×時間帯比較（DuckDB）</Title>
+      <Wrapper aria-label="店舗×時間帯比較">
+        <Title>店舗×時間帯比較</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -317,10 +317,10 @@ export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
   }
 
   return (
-    <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
+    <Wrapper aria-label="店舗×時間帯比較">
       <HeaderRow>
         <div>
-          <Title>店舗×時間帯比較（DuckDB）</Title>
+          <Title>店舗×時間帯比較</Title>
           <Subtitle>店舗別の時間帯売上パターン | ピーク・コアタイム・類似度分析</Subtitle>
         </div>
         <ToggleGroup role="tablist" aria-label="表示モード切替">

@@ -1,8 +1,8 @@
 /**
  * DuckDB 統合のアーキテクチャガードテスト
  *
- * DuckDB ウィジェット群が設計原則に従っていることを静的に検証する:
- * - DuckDB チャートが生データ（records[]）を直接参照していないこと
+ * 統一パイプライン（ADR-003）のチャート群が設計原則に従っていることを静的に検証する:
+ * - パイプラインチャートが生データ（records[]）を直接参照していないこと
  * - クエリモジュールのエクスポートが useDuckDBQuery.ts と整合していること
  * - ウィジェットレジストリに全 DuckDB ウィジェットが登録されていること
  */
@@ -18,24 +18,31 @@ function readFile(relativePath: string): string {
   return fs.readFileSync(path.join(SRC_ROOT, relativePath), 'utf-8')
 }
 
-function listDuckDBCharts(): string[] {
-  const chartsDir = path.join(SRC_ROOT, 'presentation/components/charts')
-  return fs.readdirSync(chartsDir).filter((f) => f.startsWith('DuckDB') && f.endsWith('.tsx'))
+/**
+ * DuckDB データ供給パイプラインのチャートファイル一覧
+ *
+ * ADR-003 により DuckDB プレフィックスを削除済み。
+ * duckdb.ts バレルで re-export されているチャートを正規のリストとする。
+ */
+function listPipelineCharts(): string[] {
+  const barrelContent = readFile('presentation/components/charts/duckdb.ts')
+  const matches = barrelContent.match(/from '\.\/(\w+)'/g) ?? []
+  return matches.map((m) => {
+    const name = m.match(/from '\.\/(\w+)'/)?.[1]
+    return `${name}.tsx`
+  })
 }
 
 // ── テスト ──
 
-describe('DuckDB ウィジェットが禁止パターンを使用していないこと', () => {
-  const chartFiles = listDuckDBCharts()
+describe('パイプラインチャートが禁止パターンを使用していないこと', () => {
+  const chartFiles = listPipelineCharts()
 
-  it('DuckDB チャートファイルが存在する', () => {
+  it('パイプラインチャートファイルが存在する', () => {
     expect(chartFiles.length).toBeGreaterThanOrEqual(10)
   })
 
   for (const file of chartFiles) {
-    // DateRangePicker はウィジェットではなくコントロールなのでスキップ
-    if (file === 'DuckDBDateRangePicker.tsx') continue
-
     describe(file, () => {
       const content = readFile(`presentation/components/charts/${file}`)
 
@@ -189,20 +196,20 @@ describe('charts/index.ts の DuckDB エクスポート', () => {
     readFile('presentation/components/charts/duckdb.ts')
 
   const expectedExports = [
-    'DuckDBFeatureChart',
-    'DuckDBCumulativeChart',
-    'DuckDBYoYChart',
-    'DuckDBDeptTrendChart',
-    'DuckDBTimeSlotChart',
-    'DuckDBHeatmapChart',
-    'DuckDBDeptHourlyChart',
-    'DuckDBStoreHourlyChart',
-    'DuckDBDowPatternChart',
-    'DuckDBHourlyProfileChart',
-    'DuckDBCategoryTrendChart',
-    'DuckDBCategoryHourlyChart',
-    'DuckDBCategoryMixChart',
-    'DuckDBCategoryBenchmarkChart',
+    'FeatureChart',
+    'CumulativeChart',
+    'YoYChart',
+    'DeptTrendChart',
+    'TimeSlotChart',
+    'HeatmapChart',
+    'DeptHourlyChart',
+    'StoreHourlyChart',
+    'DowPatternChart',
+    'HourlyProfileChart',
+    'CategoryTrendChart',
+    'CategoryHourlyChart',
+    'CategoryMixChart',
+    'CategoryBenchmarkChart',
   ]
 
   for (const exportName of expectedExports) {

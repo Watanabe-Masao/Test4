@@ -1,7 +1,7 @@
 /**
- * DuckDB 部門別時間帯パターンチャート
+ * 部門別時間帯パターンチャート
  *
- * DuckDB の CategoryHourly クエリを使い、上位N部門の時間帯別売上を
+ * CategoryHourly クエリを使い、上位N部門の時間帯別売上を
  * 積み上げ面グラフまたは独立面グラフで表示する。
  *
  * 表示項目:
@@ -13,7 +13,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
+import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
@@ -43,7 +43,7 @@ import {
   InsightItem,
   InsightTitle,
   ErrorMsg,
-} from './DuckDBDeptHourlyChart.styles'
+} from './DeptHourlyChart.styles'
 
 // ── Types ──
 
@@ -204,7 +204,7 @@ function detectCannibalization(
 
 // ── Component ──
 
-export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
+export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,
@@ -263,8 +263,8 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
-        <Title>部門別時間帯パターン（DuckDB）</Title>
+      <Wrapper aria-label="部門別時間帯パターン">
+        <Title>部門別時間帯パターン</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -281,10 +281,10 @@ export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
   }
 
   return (
-    <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
+    <Wrapper aria-label="部門別時間帯パターン">
       <HeaderRow>
         <div>
-          <Title>部門別時間帯パターン（DuckDB）</Title>
+          <Title>部門別時間帯パターン</Title>
           <Subtitle>
             上位{topN}部門の時間帯別売上 |{' '}
             {viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}

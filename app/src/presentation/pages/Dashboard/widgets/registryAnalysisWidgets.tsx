@@ -10,9 +10,9 @@ import {
   SensitivityDashboard,
   RegressionInsightChart,
   SeasonalBenchmarkChart,
-  DuckDBFeatureChart,
-  DuckDBCumulativeChart,
-  DuckDBDeptTrendChart,
+  FeatureChart,
+  CumulativeChart,
+  DeptTrendChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
@@ -193,12 +193,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
   },
   {
     id: 'analysis-duckdb-features',
-    label: '売上トレンド分析（DuckDB）',
+    label: '売上トレンド分析',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBFeatureChart
+      <FeatureChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -208,12 +208,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
   },
   {
     id: 'analysis-duckdb-cumulative',
-    label: '累積売上推移（DuckDB）',
+    label: '累積売上推移',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCumulativeChart
+      <CumulativeChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -224,12 +224,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
   // 注: analysis-duckdb-yoy → analysis-yoy-variance に統合（データソース自動解決）
   {
     id: 'analysis-duckdb-dept-trend',
-    label: '部門別KPIトレンド（DuckDB）',
+    label: '部門別KPIトレンド',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
-      <DuckDBDeptTrendChart
+      <DeptTrendChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         loadedMonthCount={ctx.duckLoadedMonthCount}

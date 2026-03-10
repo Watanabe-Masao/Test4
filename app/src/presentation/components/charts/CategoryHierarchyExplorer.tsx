@@ -1,8 +1,8 @@
 /**
- * カテゴリ階層エクスプローラー — DuckDB 版コントローラー
+ * カテゴリ階層エクスプローラー
  *
  * 部門→ライン→クラス の階層ドリルダウンを提供する。
- * データは DuckDB の queryLevelAggregation と queryCategoryHourly で取得。
+ * データは queryLevelAggregation と queryCategoryHourly で取得。
  * テーブル描画は CategoryExplorerTable に委譲。
  */
 import { Fragment, memo, useMemo, useState, useCallback } from 'react'

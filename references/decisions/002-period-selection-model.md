@@ -1,8 +1,11 @@
 # ADR-002: 期間選択モデル刷新 — 月跨ぎ対応・自由日付範囲
 
-**ステータス**: Accepted（採用済み）
+**ステータス**: Superseded by [ADR-003](003-unified-pipeline-architecture.md)
 **日付**: 2026-03-09
 **影響範囲**: domain / application / infrastructure / presentation
+**備考**: Phase 1-2 のコード（PeriodSelection.ts, periodSelectionStore.ts）は
+ADR-003 の構成要素として活用中。PeriodContract.ts と usePeriodResolver() は
+ADR-003 移行時に未使用と判断し削除済み。Phase 4 以降は ADR-003 に吸収
 
 ---
 
@@ -177,8 +180,8 @@ WidgetContext.periodResult
 | ファイル | 内容 | テスト |
 |---|---|---|
 | `domain/models/PeriodSelection.ts` | 型定義 + 算出関数 | 13件 PASS |
-| `domain/patterns/period/PeriodContract.ts` | Contract パターン | 18件 PASS |
-| `domain/patterns/period/index.ts` | バレル | — |
+| ~~`domain/patterns/period/PeriodContract.ts`~~ | ~~Contract パターン~~ | **削除済み**（ADR-003 で未使用） |
+| ~~`domain/patterns/period/index.ts`~~ | ~~バレル~~ | **削除済み** |
 | `domain/models/calendar.ts` | バレル更新 | — |
 
 ### Phase 2: Application 層 — Store（完了）
@@ -191,7 +194,7 @@ WidgetContext.periodResult
 
 | ファイル | 内容 | テスト |
 |---|---|---|
-| `application/hooks/usePeriodResolver.ts` | PeriodNeed → ResolvedPeriods | 9件 PASS |
+| ~~`application/hooks/usePeriodResolver.ts`~~ | ~~PeriodNeed → ResolvedPeriods~~ | **削除済み**（ADR-003 で未使用） |
 
 ### Phase 4: 消費側の移行（未着手）
 
@@ -213,7 +216,7 @@ WidgetContext.periodResult
 | `usePrevYearMonthlyKpi.ts` | 同上 |
 | `useYoyQueries.ts` | `period2: DateRange` |
 | `useJsAggregationQueries.ts` | 同上 |
-| `DuckDBYoYChart.tsx` | `period2` prop |
+| `YoYChart.tsx` | `period2` prop |
 | `DayDetailModal.tsx/.vm.ts` | period2 |
 
 #### 4-c: dataEndDay → period1（9ファイル）

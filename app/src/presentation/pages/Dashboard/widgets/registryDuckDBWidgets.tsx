@@ -1,26 +1,26 @@
 import {
-  DuckDBDowPatternChart,
-  DuckDBHourlyProfileChart,
-  DuckDBCategoryTrendChart,
-  DuckDBCategoryHourlyChart,
-  DuckDBCategoryMixChart,
-  DuckDBCategoryBenchmarkChart,
-  DuckDBCategoryBoxPlotChart,
-  DuckDBPiCvBubbleChart,
-  DuckDBCvTimeSeriesChart,
+  DowPatternChart,
+  HourlyProfileChart,
+  CategoryTrendChart,
+  CategoryHourlyChart,
+  CategoryMixChart,
+  CategoryBenchmarkChart,
+  CategoryBoxPlotChart,
+  PiCvBubbleChart,
+  CvTimeSeriesChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 
-// ── DuckDB Phase 2: グループB — 新規分析ウィジェット ──
+// ── 分析ウィジェット（DuckDB データ供給） ──
 export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   {
     id: 'duckdb-dow-pattern',
-    label: '曜日パターン分析（DuckDB）',
+    label: '曜日パターン分析',
     group: 'トレンド分析',
     size: 'half',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBDowPatternChart
+      <DowPatternChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -30,12 +30,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-hourly-profile',
-    label: '時間帯プロファイル（DuckDB）',
+    label: '時間帯プロファイル',
     group: 'トレンド分析',
     size: 'half',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBHourlyProfileChart
+      <HourlyProfileChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -45,12 +45,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-category-trend',
-    label: 'カテゴリ別売上推移（DuckDB）',
+    label: 'カテゴリ別売上推移',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCategoryTrendChart
+      <CategoryTrendChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -58,15 +58,14 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
       />
     ),
   },
-  // ── DuckDB Phase 2: グループC — 高度分析ウィジェット ──
   {
     id: 'duckdb-category-hourly',
-    label: 'カテゴリ×時間帯（DuckDB）',
+    label: 'カテゴリ×時間帯',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCategoryHourlyChart
+      <CategoryHourlyChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -76,12 +75,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-category-mix',
-    label: 'カテゴリ構成比推移（DuckDB）',
+    label: 'カテゴリ構成比推移',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
-      <DuckDBCategoryMixChart
+      <CategoryMixChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -91,12 +90,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-category-benchmark',
-    label: 'カテゴリベンチマーク（DuckDB）',
+    label: 'カテゴリベンチマーク',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCategoryBenchmarkChart
+      <CategoryBenchmarkChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -106,12 +105,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-category-boxplot',
-    label: 'カテゴリ箱ひげ図（DuckDB）',
+    label: 'カテゴリ箱ひげ図',
     group: 'トレンド分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCategoryBoxPlotChart
+      <CategoryBoxPlotChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -121,12 +120,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-pi-cv-map',
-    label: 'PI-CVマップ（DuckDB）',
+    label: 'PI-CVマップ',
     group: '構造分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBPiCvBubbleChart
+      <PiCvBubbleChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -136,12 +135,12 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
   },
   {
     id: 'duckdb-cv-timeseries',
-    label: 'CV時系列分析（DuckDB）',
+    label: 'CV時系列分析',
     group: '構造分析',
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCvTimeSeriesChart
+      <CvTimeSeriesChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}

@@ -1,7 +1,7 @@
 /**
- * DuckDB チャート共通パーツ
+ * チャート共通パーツ
  *
- * DuckDB 系チャートコンポーネントで共通する styled-components と定数。
+ * チャートコンポーネントで共通する styled-components と定数。
  */
 
 // ── Styled Components（styles ファイルから re-export） ──
@@ -17,7 +17,7 @@ export {
   ControlBtnGroup,
   ToggleBtn,
   ChartErrorMsg,
-} from './DuckDBChartParts.styles'
+} from './ChartParts.styles'
 
 // ── 定数 ──
 
