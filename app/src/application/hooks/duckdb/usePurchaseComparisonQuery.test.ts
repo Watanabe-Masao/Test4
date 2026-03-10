@@ -111,6 +111,62 @@ describe('usePurchaseComparisonQuery helpers', () => {
       expect(result.totals.prevGrandCost).toBe(400)
     })
 
+    it('aligns prev day numbers when dowOffset > 0 (same-weekday mode)', () => {
+      // 2026年3月: 日曜始まり, 2025年3月: 土曜始まり → offset=1
+      // prev day 2 → current day 1, prev day 3 → current day 2
+      const curDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 100, totalPrice: 120 },
+      ]
+      const prevDaily = [
+        { day: 2, supplierCode: 'S001', supplierName: 'A', totalCost: 400, totalPrice: 500 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const }
+
+      const result = buildDailyPivot(
+        curDaily,
+        prevDaily,
+        [],
+        [],
+        [],
+        [],
+        [cat],
+        supplierMap,
+        2026,
+        3,
+        1, // dowOffset=1
+      )
+      // prev day 2 should align to current day 1
+      expect(result.rows).toHaveLength(1)
+      expect(result.rows[0].day).toBe(1)
+      expect(result.rows[0].totalCost).toBe(100)
+      expect(result.rows[0].prevTotalCost).toBe(400)
+    })
+
+    it('wraps prev day from next month when dowOffset causes underflow', () => {
+      // offset=1, prev day 1 (from April) → current day 31 (March has 31 days)
+      const prevDaily = [
+        { day: 1, supplierCode: 'S001', supplierName: 'A', totalCost: 300, totalPrice: 350 },
+      ]
+      const supplierMap = { S001: 'market_purchase' as const }
+
+      const result = buildDailyPivot(
+        [],
+        prevDaily,
+        [],
+        [],
+        [],
+        [],
+        [cat],
+        supplierMap,
+        2026,
+        3,
+        1, // dowOffset=1
+      )
+      expect(result.rows).toHaveLength(1)
+      expect(result.rows[0].day).toBe(31) // mapped to last day of March
+      expect(result.rows[0].prevTotalCost).toBe(300)
+    })
+
     it('includes special sales in correct category', () => {
       const curSpecial = [{ day: 2, categoryKey: 'flowers', totalCost: 200, totalPrice: 250 }]
       const flowerCat: CategoryComparisonRow = {

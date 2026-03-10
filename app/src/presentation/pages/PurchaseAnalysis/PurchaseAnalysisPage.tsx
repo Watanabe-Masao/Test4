@@ -19,6 +19,7 @@ import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { usePurchaseComparisonQuery } from '@/application/hooks/duckdb/usePurchaseComparisonQuery'
+import { deriveDowOffset } from '@/domain/models/PeriodSelection'
 import { ComparisonPresetToggle } from '@/presentation/components/Layout/ComparisonPresetToggle'
 import type {
   SupplierComparisonRow,
@@ -184,6 +185,11 @@ export function PurchaseAnalysisPage() {
     return map
   }, [stores])
 
+  const dowOffset = useMemo(
+    () => deriveDowOffset(selection.period1, selection.period2, selection.activePreset),
+    [selection.period1, selection.period2, selection.activePreset],
+  )
+
   const { data: result, isLoading } = usePurchaseComparisonQuery(
     duck.conn,
     duck.dataVersion,
@@ -193,6 +199,7 @@ export function PurchaseAnalysisPage() {
     settings.supplierCategoryMap,
     userCategories,
     storeNames,
+    dowOffset,
   )
 
   const categorySort = useSort('currentCost')

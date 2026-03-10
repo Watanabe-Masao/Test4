@@ -122,6 +122,7 @@ export function usePurchaseComparisonQuery(
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>>,
   userCategories: ReadonlyMap<string, string>,
   storeNames: ReadonlyMap<string, string>,
+  dowOffset = 0,
 ): AsyncQueryResult<PurchaseComparisonResult> {
   const storeIdArr = useMemo(() => storeIdsToArray(storeIds), [storeIds])
 
@@ -479,6 +480,7 @@ export function usePurchaseComparisonQuery(
         supplierCategoryMap,
         curYear,
         curMonth,
+        dowOffset,
       )
 
       return {
@@ -504,6 +506,7 @@ export function usePurchaseComparisonQuery(
     storeNames,
     period1.from.year,
     period1.from.month,
+    dowOffset,
   ])
 
   return useAsyncQuery(conn, dataVersion, queryFn)
@@ -530,6 +533,7 @@ export function buildDailyPivot(
   supplierCategoryMap: Readonly<Partial<Record<string, CustomCategoryId>>>,
   curYear: number,
   curMonth: number,
+  dowOffset = 0,
 ): PurchaseDailyPivotData {
   // 列定義: byCategory の順序（原価降順）を使う
   const columns: PurchaseDailyPivotColumn[] = byCategory.map((cat) => ({
@@ -540,6 +544,15 @@ export function buildDailyPivot(
   const columnKeys = columns.map((c) => c.key)
 
   const emptyCell = (): DayCellAccum => ({ cost: 0, price: 0, prevCost: 0, prevPrice: 0 })
+
+  // 前期日付を当期日付にアラインする（同曜日オフセット対応）
+  // offset=1 の場合: prev day 2 → current day 1, prev day 1(翌月) → current day 末日
+  const daysInCurMonth = new Date(curYear, curMonth, 0).getDate()
+  const alignPrevDay = (prevDay: number): number => {
+    if (dowOffset === 0) return prevDay
+    const d = prevDay - dowOffset
+    return d >= 1 ? d : d + daysInCurMonth
+  }
 
   // 日別にグループ化
   const dayMap = new Map<number, Map<string, DayCellAccum>>()
@@ -584,20 +597,20 @@ export function buildDailyPivot(
     addCur(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
   }
 
-  // ── 前期データ ──
+  // ── 前期データ（dowOffset で日付をアラインして当期日と対応させる）──
   for (const row of prevDailyBySupplier) {
     const catId = supplierCategoryMap[row.supplierCode] ?? UNCATEGORIZED_CATEGORY_ID
-    addPrev(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
+    addPrev(ensureDay(alignPrevDay(row.day)), catId, row.totalCost, row.totalPrice)
   }
   for (const row of prevSpecialDaily) {
     const catId = SPECIAL_SALES_CATEGORY_MAP[row.categoryKey]
-    if (catId) addPrev(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
+    if (catId) addPrev(ensureDay(alignPrevDay(row.day)), catId, row.totalCost, row.totalPrice)
   }
   for (const row of prevTransfersDaily) {
     const catId = TRANSFERS_CATEGORY_MAP[row.categoryKey]
     if (!catId) continue
     if (row.categoryKey !== 'interStoreIn' && row.categoryKey !== 'interDeptIn') continue
-    addPrev(ensureDay(row.day), catId, row.totalCost, row.totalPrice)
+    addPrev(ensureDay(alignPrevDay(row.day)), catId, row.totalCost, row.totalPrice)
   }
 
   // 列合計
