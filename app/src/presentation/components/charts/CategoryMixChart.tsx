@@ -35,7 +35,7 @@ import {
   ShiftName,
   ShiftValue,
   ErrorMsg,
-} from './DuckDBCategoryMixChart.styles'
+} from './CategoryMixChart.styles'
 
 // ── Constants ──
 
@@ -234,7 +234,7 @@ function MixTooltip({ active, label, payload, categories, ct }: CustomTooltipPro
 
 // ── Component ──
 
-export const DuckDBCategoryMixChart = memo(function DuckDBCategoryMixChart({
+export const CategoryMixChart = memo(function CategoryMixChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

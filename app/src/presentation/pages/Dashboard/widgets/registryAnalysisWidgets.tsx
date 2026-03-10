@@ -10,9 +10,9 @@ import {
   SensitivityDashboard,
   RegressionInsightChart,
   SeasonalBenchmarkChart,
-  DuckDBFeatureChart,
-  DuckDBCumulativeChart,
-  DuckDBDeptTrendChart,
+  FeatureChart,
+  CumulativeChart,
+  DeptTrendChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
@@ -198,7 +198,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBFeatureChart
+      <FeatureChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -213,7 +213,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0,
     render: (ctx) => (
-      <DuckDBCumulativeChart
+      <CumulativeChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         currentDateRange={ctx.currentDateRange}
@@ -229,7 +229,7 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     size: 'full',
     isVisible: (ctx) => ctx.duckDataVersion > 0 && ctx.duckLoadedMonthCount >= 2,
     render: (ctx) => (
-      <DuckDBDeptTrendChart
+      <DeptTrendChart
         duckConn={ctx.duckConn}
         duckDataVersion={ctx.duckDataVersion}
         loadedMonthCount={ctx.duckLoadedMonthCount}

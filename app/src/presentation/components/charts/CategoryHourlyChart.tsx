@@ -12,7 +12,7 @@
 import { useMemo, useState, useCallback, memo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
-import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
+import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
 import { useCurrencyFormatter, toPct } from './chartTheme'
 import { useI18n } from '@/application/hooks/useI18n'
@@ -34,7 +34,7 @@ import {
   SummaryItem,
   ScrollContainer,
   ErrorMsg,
-} from './DuckDBCategoryHourlyChart.styles'
+} from './CategoryHourlyChart.styles'
 
 // ── Constants ──
 
@@ -151,7 +151,7 @@ function buildHeatmapData(rows: readonly CategoryHourlyRow[]): HeatmapData {
 
 // ── Component ──
 
-export const DuckDBCategoryHourlyChart = memo(function DuckDBCategoryHourlyChart({
+export const CategoryHourlyChart = memo(function CategoryHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

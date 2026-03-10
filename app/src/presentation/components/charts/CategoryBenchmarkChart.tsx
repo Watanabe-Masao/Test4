@@ -14,7 +14,7 @@
  * - マップ: 商品力4象限マップ
  * - トレンド: 上位カテゴリの推移
  *
- * 箱ひげ図は DuckDBCategoryBoxPlotChart に分離。
+ * 箱ひげ図は CategoryBoxPlotChart に分離。
  */
 import { useState, useMemo, memo } from 'react'
 import {
@@ -75,7 +75,7 @@ import {
   KpiValue,
   KpiSub,
   FilterSelect,
-} from './DuckDBCategoryBenchmarkChart.styles'
+} from './CategoryBenchmarkChart.styles'
 
 // ── Types ──
 
@@ -513,7 +513,7 @@ function TrendView({
 
 // ── Component ──
 
-export const DuckDBCategoryBenchmarkChart = memo(function DuckDBCategoryBenchmarkChart({
+export const CategoryBenchmarkChart = memo(function CategoryBenchmarkChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

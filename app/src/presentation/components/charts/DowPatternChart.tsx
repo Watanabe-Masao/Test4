@@ -39,7 +39,7 @@ import {
   SummaryRow,
   SummaryItem,
   ErrorMsg,
-} from './DuckDBDowPatternChart.styles'
+} from './DowPatternChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -121,7 +121,7 @@ function buildChartData(rows: readonly DowPatternRow[]): DowSummary {
   return { chartData, overallAvg: Math.round(overallAvg), strongestDow, weakestDow, cv }
 }
 
-export const DuckDBDowPatternChart = memo(function DuckDBDowPatternChart({
+export const DowPatternChart = memo(function DowPatternChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

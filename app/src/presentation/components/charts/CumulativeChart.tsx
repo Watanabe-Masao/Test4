@@ -29,7 +29,7 @@ import {
   SummaryRow,
   SummaryItem,
   ErrorMsg,
-} from './DuckDBCumulativeChart.styles'
+} from './CumulativeChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -52,7 +52,7 @@ function buildChartData(rows: readonly DailyCumulativeRow[]): ChartDataPoint[] {
   }))
 }
 
-export const DuckDBCumulativeChart = memo(function DuckDBCumulativeChart({
+export const CumulativeChart = memo(function CumulativeChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

@@ -13,7 +13,7 @@
 import { useState, useMemo, memo, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
+import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import {
@@ -43,7 +43,7 @@ import {
   ModalStoreDetail,
   ModalSectionTitle,
   ErrorMsg,
-} from './DuckDBStoreHourlyChart.styles'
+} from './StoreHourlyChart.styles'
 
 // ── Types ──
 
@@ -262,7 +262,7 @@ function buildChartData(
 
 // ── Component ──
 
-export const DuckDBStoreHourlyChart = memo(function DuckDBStoreHourlyChart({
+export const StoreHourlyChart = memo(function StoreHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

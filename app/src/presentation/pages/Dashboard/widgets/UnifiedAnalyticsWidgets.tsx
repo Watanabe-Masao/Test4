@@ -5,19 +5,19 @@
  * CTS フォールバックは廃止済み（エンジン責務分離方針）。
  *
  * 対象ウィジェット:
- * 1. 時間帯別売上     : DuckDBTimeSlotChart
- * 2. 時間帯×曜日ヒートマップ : DuckDBHeatmapChart
- * 3. 部門別時間帯パターン  : DuckDBDeptHourlyChart
- * 4. 店舗×時間帯比較    : DuckDBStoreHourlyChart
- * 5. 前年比較         : DuckDBYoYChart
+ * 1. 時間帯別売上     : TimeSlotChart
+ * 2. 時間帯×曜日ヒートマップ : HeatmapChart
+ * 3. 部門別時間帯パターン  : DeptHourlyChart
+ * 4. 店舗×時間帯比較    : StoreHourlyChart
+ * 5. 前年比較         : YoYChart
  */
 import { memo } from 'react'
 import {
-  DuckDBTimeSlotChart,
-  DuckDBHeatmapChart,
-  DuckDBDeptHourlyChart,
-  DuckDBStoreHourlyChart,
-  DuckDBYoYChart,
+  TimeSlotChart,
+  HeatmapChart,
+  DeptHourlyChart,
+  StoreHourlyChart,
+  YoYChart,
 } from '@/presentation/components/charts'
 import type { WidgetContext } from './types'
 
@@ -29,7 +29,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
   ctx: WidgetContext
 }) {
   return (
-    <DuckDBTimeSlotChart
+    <TimeSlotChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
@@ -47,7 +47,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
   ctx: WidgetContext
 }) {
   return (
-    <DuckDBHeatmapChart
+    <HeatmapChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
@@ -65,7 +65,7 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
   ctx: WidgetContext
 }) {
   return (
-    <DuckDBDeptHourlyChart
+    <DeptHourlyChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
@@ -82,7 +82,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
   ctx: WidgetContext
 }) {
   return (
-    <DuckDBStoreHourlyChart
+    <StoreHourlyChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
       currentDateRange={ctx.currentDateRange}
@@ -96,7 +96,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 
 export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: WidgetContext }) {
   return (
-    <DuckDBYoYChart
+    <YoYChart
       duckConn={ctx.duckConn}
       duckDataVersion={ctx.duckDataVersion}
       frame={ctx.prevYear.hasPrevYear ? ctx.comparisonFrame : undefined}

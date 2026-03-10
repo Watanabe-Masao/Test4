@@ -45,8 +45,8 @@ import {
   ChartErrorMsg,
   HIERARCHY_LABELS,
   type HierarchyLevel,
-} from './DuckDBChartParts'
-import { LegendRow, LegendItem, QuadrantLabel } from './DuckDBPiCvBubbleChart.styles'
+} from './ChartParts'
+import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
 
 // ── 定数 ──
 
@@ -150,7 +150,7 @@ interface Props {
   readonly selectedStoreIds: ReadonlySet<string>
 }
 
-export const DuckDBPiCvBubbleChart = memo(function DuckDBPiCvBubbleChart({
+export const PiCvBubbleChart = memo(function PiCvBubbleChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

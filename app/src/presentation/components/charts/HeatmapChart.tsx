@@ -43,7 +43,7 @@ import {
   HierarchyRow,
   HierarchySelect,
   DiffDataCell,
-} from './DuckDBHeatmapChart.styles'
+} from './HeatmapChart.styles'
 import {
   type HeatmapMode,
   type Props,
@@ -56,11 +56,11 @@ import {
   buildHeatmapData,
   interpolateColor,
   buildDiffMap,
-} from './DuckDBHeatmapChart.helpers'
+} from './HeatmapChart.helpers'
 
 // ── Component ──
 
-export const DuckDBHeatmapChart = memo(function DuckDBHeatmapChart({
+export const HeatmapChart = memo(function HeatmapChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

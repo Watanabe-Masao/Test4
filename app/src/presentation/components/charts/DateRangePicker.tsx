@@ -20,7 +20,7 @@ import {
   Separator,
   PresetButton,
   DaysInfo,
-} from './DuckDBDateRangePicker.styles'
+} from './DateRangePicker.styles'
 
 type PresetKey = 'month' | '3m' | '6m' | 'all'
 
@@ -46,7 +46,7 @@ function monthsAgo(year: number, month: number, count: number): CalendarDate {
   return { year: y, month: m, day: 1 }
 }
 
-export function DuckDBDateRangePicker({
+export function DateRangePicker({
   value,
   onChange,
   year,

@@ -30,7 +30,7 @@ import {
   DeptSelector,
   DeptChip,
   ErrorMsg,
-} from './DuckDBDeptTrendChart.styles'
+} from './DeptTrendChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -83,7 +83,7 @@ function buildChartData(
   return { chartData, deptNames }
 }
 
-export const DuckDBDeptTrendChart = memo(function DuckDBDeptTrendChart({
+export const DeptTrendChart = memo(function DeptTrendChart({
   duckConn,
   duckDataVersion,
   loadedMonthCount,

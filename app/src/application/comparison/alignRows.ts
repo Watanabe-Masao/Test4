@@ -150,7 +150,7 @@ export function alignRows(
 /**
  * AlignedRow[] を YoyDailyRow[] 互換の shape に変換する。
  *
- * 既存チャートコンポーネント（DuckDBYoYChart 等）が YoyDailyRow を期待するため、
+ * 既存チャートコンポーネント（YoYChart 等）が YoyDailyRow を期待するため、
  * 移行期間中の互換性を維持する Chart VM 変換。
  */
 export function toYoyDailyRows(

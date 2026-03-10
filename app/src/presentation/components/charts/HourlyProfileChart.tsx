@@ -37,7 +37,7 @@ import {
   SummaryRow,
   SummaryItem,
   ErrorMsg,
-} from './DuckDBHourlyProfileChart.styles'
+} from './HourlyProfileChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -108,7 +108,7 @@ function buildChartData(rows: readonly HourlyProfileRow[]): HourlySummary {
   return { chartData, peakHours, top3Concentration, activeHoursCount }
 }
 
-export const DuckDBHourlyProfileChart = memo(function DuckDBHourlyProfileChart({
+export const HourlyProfileChart = memo(function HourlyProfileChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

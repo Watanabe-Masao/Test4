@@ -4,7 +4,7 @@
 export { DayRangeSlider } from './DayRangeSlider'
 export { useDayRange } from './useDayRange'
 export { CurrencyUnitToggle } from './CurrencyUnitToggle'
-export { DuckDBDateRangePicker } from './DuckDBDateRangePicker'
+export { DateRangePicker } from './DateRangePicker'
 export { DowPresetSelector } from './DowPresetSelector'
 export { SafeResponsiveContainer } from './SafeResponsiveContainer'
 export {

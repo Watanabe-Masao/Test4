@@ -40,7 +40,7 @@ import {
   MapLegend,
   LegendItem,
   FilterSelect,
-} from './DuckDBCategoryBoxPlotChart.styles'
+} from './CategoryBoxPlotChart.styles'
 
 // ── Types ──
 
@@ -704,7 +704,7 @@ function BoxPlotView({
 
 // ── Main Component ──
 
-export const DuckDBCategoryBoxPlotChart = memo(function DuckDBCategoryBoxPlotChart({
+export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

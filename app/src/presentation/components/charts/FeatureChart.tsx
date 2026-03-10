@@ -40,7 +40,7 @@ import {
   AnomalyDate,
   AnomalyValue,
   ErrorMsg,
-} from './DuckDBFeatureChart.styles'
+} from './FeatureChart.styles'
 
 interface Props {
   readonly duckConn: AsyncDuckDBConnection | null
@@ -131,7 +131,7 @@ function buildChartData(features: readonly DailyFeatureRow[]): {
   return { chartData, anomalies }
 }
 
-export const DuckDBFeatureChart = memo(function DuckDBFeatureChart({
+export const FeatureChart = memo(function FeatureChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

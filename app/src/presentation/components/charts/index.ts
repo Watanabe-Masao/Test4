@@ -3,7 +3,7 @@
  *
  * 新規コードは具体的なサブバレルから直接 import を推奨:
  *   import { DailySalesChart } from '@/presentation/components/charts/core'
- *   import { DuckDBFeatureChart } from '@/presentation/components/charts/duckdb'
+ *   import { FeatureChart } from '@/presentation/components/charts/duckdb'
  *   import { StructuralOverviewChart } from '@/presentation/components/charts/advanced'
  *   import { useChartTheme } from '@/presentation/components/charts/chartInfra'
  */

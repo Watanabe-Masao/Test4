@@ -43,7 +43,7 @@ import {
   SummaryRow,
   SummaryItem,
   ErrorMsg,
-} from './DuckDBYoYChart.styles'
+} from './YoYChart.styles'
 
 // ─── Types ────────────────────────────────────────────
 
@@ -272,7 +272,7 @@ const WaterfallView = memo(function WaterfallView({ waterfallData, ct, fmt }: Wa
 
 // ─── Main component ───────────────────────────────────
 
-export const DuckDBYoYChart = memo(function DuckDBYoYChart({
+export const YoYChart = memo(function YoYChart({
   duckConn,
   duckDataVersion,
   frame,

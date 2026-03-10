@@ -1,20 +1,23 @@
 /**
- * DuckDB バックドチャートコンポーネント
+ * DuckDB データ供給チャートコンポーネント
+ *
+ * 統一パイプライン（ADR-003）により、チャート名から DuckDB プレフィックスを削除。
+ * 内部では DuckDB Data Provider → Comparison/Alignment → JS Analysis → Chart VM を使用。
  */
-export { DuckDBFeatureChart } from './DuckDBFeatureChart'
-export { DuckDBCumulativeChart } from './DuckDBCumulativeChart'
-export { DuckDBYoYChart } from './DuckDBYoYChart'
-export { DuckDBDeptTrendChart } from './DuckDBDeptTrendChart'
-export { DuckDBDowPatternChart } from './DuckDBDowPatternChart'
-export { DuckDBHourlyProfileChart } from './DuckDBHourlyProfileChart'
-export { DuckDBTimeSlotChart } from './DuckDBTimeSlotChart'
-export { DuckDBHeatmapChart } from './DuckDBHeatmapChart'
-export { DuckDBDeptHourlyChart } from './DuckDBDeptHourlyChart'
-export { DuckDBStoreHourlyChart } from './DuckDBStoreHourlyChart'
-export { DuckDBCategoryTrendChart } from './DuckDBCategoryTrendChart'
-export { DuckDBCategoryHourlyChart } from './DuckDBCategoryHourlyChart'
-export { DuckDBCategoryMixChart } from './DuckDBCategoryMixChart'
-export { DuckDBCategoryBenchmarkChart } from './DuckDBCategoryBenchmarkChart'
-export { DuckDBCategoryBoxPlotChart } from './DuckDBCategoryBoxPlotChart'
-export { DuckDBPiCvBubbleChart } from './DuckDBPiCvBubbleChart'
-export { DuckDBCvTimeSeriesChart } from './DuckDBCvTimeSeriesChart'
+export { FeatureChart } from './FeatureChart'
+export { CumulativeChart } from './CumulativeChart'
+export { YoYChart } from './YoYChart'
+export { DeptTrendChart } from './DeptTrendChart'
+export { DowPatternChart } from './DowPatternChart'
+export { HourlyProfileChart } from './HourlyProfileChart'
+export { TimeSlotChart } from './TimeSlotChart'
+export { HeatmapChart } from './HeatmapChart'
+export { DeptHourlyChart } from './DeptHourlyChart'
+export { StoreHourlyChart } from './StoreHourlyChart'
+export { CategoryTrendChart } from './CategoryTrendChart'
+export { CategoryHourlyChart } from './CategoryHourlyChart'
+export { CategoryMixChart } from './CategoryMixChart'
+export { CategoryBenchmarkChart } from './CategoryBenchmarkChart'
+export { CategoryBoxPlotChart } from './CategoryBoxPlotChart'
+export { PiCvBubbleChart } from './PiCvBubbleChart'
+export { CvTimeSeriesChart } from './CvTimeSeriesChart'

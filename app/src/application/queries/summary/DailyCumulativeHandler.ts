@@ -2,7 +2,7 @@
  * DailyCumulativeHandler — 日別累積売上クエリ
  *
  * StoreDaySummary から日別の累積売上・累積粗利等を取得する。
- * DuckDBCumulativeChart, DailySalesChart 等で使用。
+ * CumulativeChart, DailySalesChart 等で使用。
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

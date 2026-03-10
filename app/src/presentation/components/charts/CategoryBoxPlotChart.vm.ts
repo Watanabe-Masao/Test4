@@ -1,5 +1,5 @@
 /**
- * DuckDBCategoryBoxPlotChart ViewModel
+ * CategoryBoxPlotChart ViewModel
  *
  * データ変換・レイアウト計算・フォーマット判定を分離する。
  * React / styled-components に依存しない純粋関数群。

@@ -60,7 +60,7 @@ import {
   MiniTh,
   MiniTd,
 } from './TimeSlotSalesChart.styles'
-import { HierarchyRow, HierarchySelect, ErrorMsg } from './DuckDBTimeSlotChart.styles'
+import { HierarchyRow, HierarchySelect, ErrorMsg } from './TimeSlotChart.styles'
 import { useDuckDBTimeSlotData } from './useDuckDBTimeSlotData'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 
@@ -76,7 +76,7 @@ interface Props {
 
 // ── Component ──
 
-export const DuckDBTimeSlotChart = memo(function DuckDBTimeSlotChart({
+export const TimeSlotChart = memo(function TimeSlotChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

@@ -17,7 +17,7 @@ export {
   ControlBtnGroup,
   ToggleBtn,
   ChartErrorMsg,
-} from './DuckDBChartParts.styles'
+} from './ChartParts.styles'
 
 // ── 定数 ──
 

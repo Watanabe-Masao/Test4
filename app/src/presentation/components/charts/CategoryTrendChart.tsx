@@ -44,7 +44,7 @@ import {
   BreadcrumbSep,
   ExcludeInfo,
   ResetLink,
-} from './DuckDBCategoryTrendChart.styles'
+} from './CategoryTrendChart.styles'
 
 // ── Constants ──
 
@@ -147,7 +147,7 @@ function buildChartData(
 
 // ── Component ──
 
-export const DuckDBCategoryTrendChart = memo(function DuckDBCategoryTrendChart({
+export const CategoryTrendChart = memo(function CategoryTrendChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

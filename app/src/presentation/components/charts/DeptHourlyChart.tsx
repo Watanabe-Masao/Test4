@@ -13,7 +13,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { HOUR_MIN, HOUR_MAX } from './DuckDBHeatmapChart.helpers'
+import { HOUR_MIN, HOUR_MAX } from './HeatmapChart.helpers'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import { useDuckDBCategoryHourly, type CategoryHourlyRow } from '@/application/hooks/useDuckDBQuery'
@@ -43,7 +43,7 @@ import {
   InsightItem,
   InsightTitle,
   ErrorMsg,
-} from './DuckDBDeptHourlyChart.styles'
+} from './DeptHourlyChart.styles'
 
 // ── Types ──
 
@@ -204,7 +204,7 @@ function detectCannibalization(
 
 // ── Component ──
 
-export const DuckDBDeptHourlyChart = React.memo(function DuckDBDeptHourlyChart({
+export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   duckConn,
   duckDataVersion,
   currentDateRange,

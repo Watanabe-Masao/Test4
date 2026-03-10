@@ -1,5 +1,5 @@
 /**
- * DuckDBCvTimeSeriesChart ViewModel
+ * CvTimeSeriesChart ViewModel
  *
  * データ変換・ビジネスロジック・フォーマット判定を分離。
  * React / styled-components に依存しない純粋関数群。
