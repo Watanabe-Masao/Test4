@@ -179,4 +179,6 @@ export interface PurchaseComparisonResult {
   /** カテゴリID → 所属する取引先行（ドリルダウン用） */
   readonly categorySuppliers: Readonly<Record<string, readonly SupplierComparisonRow[]>>
   readonly isReady: boolean
+  /** 詳細データ（カテゴリ・日別・店舗別）がロード済みか */
+  readonly isDetailReady: boolean
 }
