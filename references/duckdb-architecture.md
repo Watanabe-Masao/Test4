@@ -45,8 +45,8 @@ KPI・粗利等の権威的指標計算は JS 計算パイプライン（`StoreR
 | **Application** | `hooks/useDuckDB.ts` | DB 初期化 + データロード管理フック |
 | | `hooks/duckdb/*.ts` | クエリフック群（11ファイル、~29フック、`useAsyncQuery` ベース） |
 | | `hooks/useDuckDBQuery.ts` | バレル re-export（後方互換） |
-| **Presentation** | `charts/DuckDB*.tsx` | 15 個の DuckDB ウィジェット |
-| | `charts/DuckDBDateRangePicker.tsx` | 自由日付範囲セレクタ |
+| **Presentation** | `charts/*.tsx` | 15 個のチャートウィジェット |
+| | `charts/DateRangePicker.tsx` | 自由日付範囲セレクタ |
 
 #### DuckDB テーブル一覧
 
@@ -115,25 +115,25 @@ hooks/duckdb/
 | `storePeriodMetrics.ts` | `queryStorePeriodMetrics`, `queryStorePeriodMetricsSingle` | 店舗期間メトリクス |
 | `conditionMatrix.ts` | `queryConditionMatrix` | 条件マトリクス集約 |
 
-### DuckDB ウィジェット一覧（15個）
+### チャートウィジェット一覧（15個）
 
 | ウィジェット | 分析内容 | サイズ |
 |---|---|---|
-| `DuckDBFeatureChart` | 日次特徴量分析 | full |
-| `DuckDBCumulativeChart` | 累積売上推移 | full |
-| `DuckDBYoYChart` | 前年同期比較 | full |
-| `DuckDBDeptTrendChart` | 部門 KPI トレンド | full |
-| `DuckDBTimeSlotChart` | 時間帯別売上（前年比較付き） | full |
-| `DuckDBHeatmapChart` | 時間帯×曜日ヒートマップ | full |
-| `DuckDBDeptHourlyChart` | 部門別時間帯パターン | full |
-| `DuckDBStoreHourlyChart` | 店舗×時間帯比較 | full |
-| `DuckDBDowPatternChart` | 曜日パターン分析 | half |
-| `DuckDBHourlyProfileChart` | 時間帯プロファイル | half |
-| `DuckDBCategoryTrendChart` | カテゴリ別日次売上推移 | full |
-| `DuckDBCategoryHourlyChart` | カテゴリ×時間帯ヒートマップ | full |
-| `DuckDBCategoryMixChart` | カテゴリ構成比の週次推移 | full |
-| `DuckDBStoreBenchmarkChart` | 店舗ベンチマーク（ランキング推移） | full |
-| `DuckDBDateRangePicker` | 自由日付範囲セレクタ（ウィジェットではなくコントロール） | — |
+| `FeatureChart` | 日次特徴量分析 | full |
+| `CumulativeChart` | 累積売上推移 | full |
+| `YoYChart` | 前年同期比較 | full |
+| `DeptTrendChart` | 部門 KPI トレンド | full |
+| `TimeSlotChart` | 時間帯別売上（前年比較付き） | full |
+| `HeatmapChart` | 時間帯×曜日ヒートマップ | full |
+| `DeptHourlyChart` | 部門別時間帯パターン | full |
+| `StoreHourlyChart` | 店舗×時間帯比較 | full |
+| `DowPatternChart` | 曜日パターン分析 | half |
+| `HourlyProfileChart` | 時間帯プロファイル | half |
+| `CategoryTrendChart` | カテゴリ別日次売上推移 | full |
+| `CategoryHourlyChart` | カテゴリ×時間帯ヒートマップ | full |
+| `CategoryMixChart` | カテゴリ構成比の週次推移 | full |
+| `StoreBenchmarkChart` | 店舗ベンチマーク（ランキング推移） | full |
+| `DateRangePicker` | 自由日付範囲セレクタ（ウィジェットではなくコントロール） | — |
 
 ### 2つの計算エンジンの責務分離
 
