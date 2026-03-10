@@ -6,6 +6,12 @@
 **注意:** 同じ概念（例: 予算分析、Zスコア）が両エンジンに存在する場合がある。
 これはスコープが異なるため二重実装には該当しない（単月確定値 vs 月跨ぎ探索）。
 
+> **移行方針（ADR-003）:** 本文書の「DuckDB 探索エンジン」は段階的に
+> **DuckDB Data Provider**（取得 + 前処理）と **JS Analysis**（集約）に分離される。
+> 「DuckDB チャート」と「JS チャート」の二分法は廃止し、統一パイプライン
+> （DuckDB → Comparison/Alignment → JS Analysis → Chart VM → Chart）に移行する。
+> 詳細は `decisions/003-unified-pipeline-architecture.md` を参照。
+
 ## 責務割当
 
 ### JS 計算エンジン（domain/calculations/）
@@ -113,6 +119,21 @@ export function useDuckDBDailyCumulative(...) {
 ├── 10万件超の走査が必要か？
 │   └── Yes → DuckDB
 └── 上記いずれでもない → JS が妥当（シンプルな計算は JS に寄せる）
+```
+
+### 判定フロー（ADR-003 移行後）
+
+```
+この処理は…
+├── StoreResult の確定値を消費するか？
+│   └── Yes → JS（domain/calculations/）— 変更なし
+├── 比較先の決定が必要か？
+│   └── Yes → Comparison / Alignment 層（application/comparison/）
+├── データ取得が必要か？
+│   ├── 多次元集約（GROUP BY 3変数以上）？ → DuckDB + SQL 前集約
+│   ├── 10万件超？ → DuckDB + SQL 前集約
+│   └── それ以外 → DuckDB SELECT * WHERE → JS Analysis
+└── 分析計算（差分・累積・移動平均等）→ JS Analysis（domain/calculations/rawAggregation.ts）
 ```
 
 ## 出力の違い

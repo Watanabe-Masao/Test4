@@ -1,8 +1,10 @@
 # ADR-002: 期間選択モデル刷新 — 月跨ぎ対応・自由日付範囲
 
-**ステータス**: Accepted（採用済み）
+**ステータス**: Superseded by [ADR-003](003-unified-pipeline-architecture.md)
 **日付**: 2026-03-09
 **影響範囲**: domain / application / infrastructure / presentation
+**備考**: Phase 1-3 のコード（PeriodSelection.ts, PeriodContract.ts, periodSelectionStore.ts,
+usePeriodResolver.ts）は ADR-003 の構成要素として活用。Phase 4 以降は ADR-003 に吸収
 
 ---
 
