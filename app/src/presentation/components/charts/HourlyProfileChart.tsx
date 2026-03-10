@@ -1,7 +1,7 @@
 /**
- * DuckDB 時間帯別売上プロファイルチャート (Group B2)
+ * 時間帯別売上プロファイルチャート (Group B2)
  *
- * DuckDB の時間帯別集計クエリを使い、時間帯ごとの売上構成比を
+ * 時間帯別集計クエリを使い、時間帯ごとの売上構成比を
  * エリアチャートで表示する。ピーク時間帯（Top3）はハイライト表示。
  *
  * 表示項目:
@@ -133,8 +133,8 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
-        <Title>時間帯別売上プロファイル（DuckDB）</Title>
+      <Wrapper aria-label="時間帯別売上プロファイル">
+        <Title>時間帯別売上プロファイル</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -151,8 +151,8 @@ export const HourlyProfileChart = memo(function HourlyProfileChart({
   }
 
   return (
-    <Wrapper aria-label="時間帯別売上プロファイル（DuckDB）">
-      <Title>時間帯別売上プロファイル（DuckDB）</Title>
+    <Wrapper aria-label="時間帯別売上プロファイル">
+      <Title>時間帯別売上プロファイル</Title>
       <Subtitle>時間帯別売上構成比 | &#9733; = ピーク時間帯</Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>

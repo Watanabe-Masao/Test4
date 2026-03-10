@@ -1,7 +1,7 @@
 /**
- * DuckDB カテゴリ構成比推移チャート
+ * カテゴリ構成比推移チャート
  *
- * DuckDB の週次カテゴリ構成比クエリを使い、カテゴリ別売上構成比の
+ * 週次カテゴリ構成比クエリを使い、カテゴリ別売上構成比の
  * 週次推移を積み上げ面グラフで表示する。
  *
  * 表示項目:
@@ -271,8 +271,8 @@ export const CategoryMixChart = memo(function CategoryMixChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
-        <Title>カテゴリ構成比推移（DuckDB）</Title>
+      <Wrapper aria-label="カテゴリ構成比推移">
+        <Title>カテゴリ構成比推移</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -289,8 +289,8 @@ export const CategoryMixChart = memo(function CategoryMixChart({
   }
 
   return (
-    <Wrapper aria-label="カテゴリ構成比推移（DuckDB）">
-      <Title>カテゴリ構成比推移（DuckDB）</Title>
+    <Wrapper aria-label="カテゴリ構成比推移">
+      <Title>カテゴリ構成比推移</Title>
       <Subtitle>週次のカテゴリ別売上構成比 | マルチ月対応</Subtitle>
 
       <ControlRow>

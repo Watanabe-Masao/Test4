@@ -6,7 +6,7 @@
  * バブルサイズ: 売上金額 / 販売点数 / なし（選択可能）
  *
  * 販売効率 x 店舗ばらつき x 売上規模 を同時に可視化。
- * DuckDB カテゴリベンチマークデータを利用。
+ * カテゴリベンチマークデータを利用。
  */
 import { useState, useMemo, memo } from 'react'
 import {

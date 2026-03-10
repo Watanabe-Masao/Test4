@@ -1,7 +1,7 @@
 /**
- * DuckDB カテゴリ×時間帯分析チャート
+ * カテゴリ×時間帯分析チャート
  *
- * DuckDB のカテゴリ別時間帯集約クエリを使い、カテゴリ（行）×時間帯（列）の
+ * カテゴリ別時間帯集約クエリを使い、カテゴリ（行）×時間帯（列）の
  * ヒートマップをHTML table で描画する。各カテゴリのピーク時間帯に星マーカーを表示。
  *
  * 表示項目:
@@ -182,8 +182,8 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
-        <Title>カテゴリ×時間帯分析（DuckDB）</Title>
+      <Wrapper aria-label="カテゴリ×時間帯分析">
+        <Title>カテゴリ×時間帯分析</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -202,8 +202,8 @@ export const CategoryHourlyChart = memo(function CategoryHourlyChart({
   const { categories, maxAmount, globalPeakHour } = heatmapData
 
   return (
-    <Wrapper aria-label="カテゴリ×時間帯分析（DuckDB）">
-      <Title>カテゴリ×時間帯分析（DuckDB）</Title>
+    <Wrapper aria-label="カテゴリ×時間帯分析">
+      <Title>カテゴリ×時間帯分析</Title>
       <Subtitle>カテゴリ別の時間帯売上分布 | ★ = ピーク</Subtitle>
 
       <ControlRow>

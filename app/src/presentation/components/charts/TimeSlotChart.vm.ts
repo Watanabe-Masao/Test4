@@ -1,5 +1,5 @@
 /**
- * DuckDB 時間帯別売上チャート — ViewModel
+ * 時間帯別売上チャート — ViewModel
  *
  * 描画に必要なデータ変換・フォーマット・ラベル生成をすべてここに集約する。
  * React / styled-components に依存しない純粋関数群。

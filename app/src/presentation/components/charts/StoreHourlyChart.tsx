@@ -1,7 +1,7 @@
 /**
- * DuckDB 店舗×時間帯比較チャート
+ * 店舗×時間帯比較チャート
  *
- * DuckDB の StoreAggregation クエリを使い、店舗ごとの時間帯別売上を
+ * StoreAggregation クエリを使い、店舗ごとの時間帯別売上を
  * グループ棒グラフで比較表示する。金額 / 構成比モードの切替が可能。
  *
  * 表示項目:
@@ -299,8 +299,8 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
-        <Title>店舗×時間帯比較（DuckDB）</Title>
+      <Wrapper aria-label="店舗×時間帯比較">
+        <Title>店舗×時間帯比較</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -317,10 +317,10 @@ export const StoreHourlyChart = memo(function StoreHourlyChart({
   }
 
   return (
-    <Wrapper aria-label="店舗×時間帯比較（DuckDB）">
+    <Wrapper aria-label="店舗×時間帯比較">
       <HeaderRow>
         <div>
-          <Title>店舗×時間帯比較（DuckDB）</Title>
+          <Title>店舗×時間帯比較</Title>
           <Subtitle>店舗別の時間帯売上パターン | ピーク・コアタイム・類似度分析</Subtitle>
         </div>
         <ToggleGroup role="tablist" aria-label="表示モード切替">

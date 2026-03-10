@@ -1,7 +1,7 @@
 /**
- * DuckDB 部門KPI月別トレンドチャート
+ * 部門KPI月別トレンドチャート
  *
- * DuckDB に格納された複数月の department_kpi データから
+ * 複数月の department_kpi データから
  * 部門別の粗利率・売上実績の月次推移を表示する。
  *
  * マルチ月データロードが有効な場合、IndexedDB に保存された
@@ -130,8 +130,8 @@ export const DeptTrendChart = memo(function DeptTrendChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
-        <Title>部門別KPIトレンド（DuckDB）</Title>
+      <Wrapper aria-label="部門別KPIトレンド">
+        <Title>部門別KPIトレンド</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -154,8 +154,8 @@ export const DeptTrendChart = memo(function DeptTrendChart({
     : deptEntries
 
   return (
-    <Wrapper aria-label="部門別KPIトレンド（DuckDB）">
-      <Title>部門別KPIトレンド（DuckDB）</Title>
+    <Wrapper aria-label="部門別KPIトレンド">
+      <Title>部門別KPIトレンド</Title>
       <Subtitle>
         粗利率（線）・売上実績（棒）の月次推移 | {loadedMonthCount}ヶ月分ロード済み
       </Subtitle>

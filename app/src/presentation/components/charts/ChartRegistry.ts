@@ -52,7 +52,7 @@ export interface ChartDataRequirements {
   readonly queryHandler?: readonly string[]
   /** 比較コンテキストの使用 */
   readonly comparison?: boolean
-  /** DuckDB 接続の使用 */
+  /** データベース接続の使用 */
   readonly duckdb?: boolean
 }
 

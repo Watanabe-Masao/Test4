@@ -1,8 +1,8 @@
 /**
- * DuckDB データ供給チャートコンポーネント
+ * パイプラインチャートコンポーネント
  *
- * 統一パイプライン（ADR-003）により、チャート名から DuckDB プレフィックスを削除。
- * 内部では DuckDB Data Provider → Comparison/Alignment → JS Analysis → Chart VM を使用。
+ * 統一パイプライン（ADR-003）による分析チャート群。
+ * Data Provider → Comparison/Alignment → JS Analysis → Chart VM のパイプラインで処理。
  */
 export { FeatureChart } from './FeatureChart'
 export { CumulativeChart } from './CumulativeChart'

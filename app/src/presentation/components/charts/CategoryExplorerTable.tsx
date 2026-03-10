@@ -2,7 +2,7 @@
  * カテゴリエクスプローラー テーブル描画コンポーネント
  *
  * カテゴリ階層データのテーブル・ツリーマップ表示のみを担う。
- * データ集約・ソート・フィルタは CategoryHierarchyExplorer が DuckDB 経由で担当。
+ * データ集約・ソート・フィルタは CategoryHierarchyExplorer が担当。
  */
 import { memo } from 'react'
 import { toComma, toPct } from './chartTheme'

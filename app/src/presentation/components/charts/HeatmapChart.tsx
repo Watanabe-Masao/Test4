@@ -1,7 +1,7 @@
 /**
- * DuckDB 時間帯×曜日ヒートマップ
+ * 時間帯×曜日ヒートマップ
  *
- * DuckDB の HourDowMatrix クエリを使い、時間帯（行）× 曜日（列）の
+ * HourDowMatrix クエリを使い、時間帯（行）× 曜日（列）の
  * 売上日平均をヒートマップで表示する。セル色は売上額に比例し、
  * Z-score が 2 を超えるセルには赤枠の異常マーカーを付与する。
  *
@@ -165,8 +165,8 @@ export const HeatmapChart = memo(function HeatmapChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
-        <Title>時間帯×曜日ヒートマップ（DuckDB）</Title>
+      <Wrapper aria-label="時間帯×曜日ヒートマップ">
+        <Title>時間帯×曜日ヒートマップ</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -191,11 +191,11 @@ export const HeatmapChart = memo(function HeatmapChart({
   const isAmountMode = heatmapMode === 'amount'
 
   return (
-    <Wrapper aria-label="時間帯×曜日ヒートマップ（DuckDB）">
+    <Wrapper aria-label="時間帯×曜日ヒートマップ">
       <ControlRow>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Title style={{ marginBottom: 0 }}>時間帯×曜日ヒートマップ（DuckDB）</Title>
+            <Title style={{ marginBottom: 0 }}>時間帯×曜日ヒートマップ</Title>
             <ChartHelpButton guide={CHART_GUIDES['heatmap-hour-dow']} />
           </div>
           <Subtitle>

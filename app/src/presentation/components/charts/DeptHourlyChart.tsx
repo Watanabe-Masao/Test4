@@ -1,7 +1,7 @@
 /**
- * DuckDB 部門別時間帯パターンチャート
+ * 部門別時間帯パターンチャート
  *
- * DuckDB の CategoryHourly クエリを使い、上位N部門の時間帯別売上を
+ * CategoryHourly クエリを使い、上位N部門の時間帯別売上を
  * 積み上げ面グラフまたは独立面グラフで表示する。
  *
  * 表示項目:
@@ -263,8 +263,8 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
-        <Title>部門別時間帯パターン（DuckDB）</Title>
+      <Wrapper aria-label="部門別時間帯パターン">
+        <Title>部門別時間帯パターン</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -281,10 +281,10 @@ export const DeptHourlyChart = React.memo(function DeptHourlyChart({
   }
 
   return (
-    <Wrapper aria-label="部門別時間帯パターン（DuckDB）">
+    <Wrapper aria-label="部門別時間帯パターン">
       <HeaderRow>
         <div>
-          <Title>部門別時間帯パターン（DuckDB）</Title>
+          <Title>部門別時間帯パターン</Title>
           <Subtitle>
             上位{topN}部門の時間帯別売上 |{' '}
             {viewMode === 'stacked' ? '積み上げ面グラフ' : '独立面グラフ'}

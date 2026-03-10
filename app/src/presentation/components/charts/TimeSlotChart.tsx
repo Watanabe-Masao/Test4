@@ -1,7 +1,7 @@
 /**
- * DuckDB 時間帯別売上チャート（統合版）
+ * 時間帯別売上チャート
  *
- * レガシー TimeSlotSalesChart の全機能を DuckDB ベースで再実装:
+ * レガシー TimeSlotSalesChart の全機能を統合パイプラインで再実装:
  * - チャート / KPIサマリー / 前年比較 の3ビュー
  * - 金額 / 点数 メトリック切替
  * - 前年 / 前週 比較モード
@@ -97,8 +97,8 @@ export const TimeSlotChart = memo(function TimeSlotChart({
 
   if (d.error) {
     return (
-      <Wrapper aria-label="時間帯別売上（DuckDB）">
-        <Title>時間帯別売上（DuckDB）</Title>
+      <Wrapper aria-label="時間帯別売上">
+        <Title>時間帯別売上</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {d.error}
         </ErrorMsg>
@@ -122,7 +122,7 @@ export const TimeSlotChart = memo(function TimeSlotChart({
       : `時間帯別${d.metricMode === 'amount' ? '売上' : '数量'}${d.viewMode === 'kpi' ? ' サマリー' : ''}`
 
   return (
-    <Wrapper aria-label="時間帯別売上（DuckDB）">
+    <Wrapper aria-label="時間帯別売上">
       <HeaderRow>
         <Title>
           {titleText}

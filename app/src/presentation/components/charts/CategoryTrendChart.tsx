@@ -1,7 +1,7 @@
 /**
- * DuckDB カテゴリ別日次売上推移チャート
+ * カテゴリ別日次売上推移チャート
  *
- * DuckDB のカテゴリ別日次トレンドクエリを使い、上位Nカテゴリの
+ * カテゴリ別日次トレンドクエリを使い、上位Nカテゴリの
  * 日次売上推移をマルチライン折れ線グラフで表示する。
  *
  * 表示項目:
@@ -261,8 +261,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
-        <Title>カテゴリ別売上推移（DuckDB）</Title>
+      <Wrapper aria-label="カテゴリ別売上推移">
+        <Title>カテゴリ別売上推移</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -286,8 +286,8 @@ export const CategoryTrendChart = memo(function CategoryTrendChart({
   const topCategory = visibleCategories[0]
 
   return (
-    <Wrapper aria-label="カテゴリ別売上推移（DuckDB）">
-      <Title>カテゴリ別売上推移（DuckDB）</Title>
+    <Wrapper aria-label="カテゴリ別売上推移">
+      <Title>カテゴリ別売上推移</Title>
       <Subtitle>
         上位{topN}カテゴリの日次売上トレンド | 月跨ぎ対応
         {selectedDows.length > 0 && ' | 曜日フィルタ適用中'}

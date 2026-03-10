@@ -1,7 +1,7 @@
 /**
- * DuckDB 月跨ぎ累積売上チャート
+ * 月跨ぎ累積売上チャート
  *
- * DuckDB の日別累積クエリを使い、複数月にわたる累積売上の推移を表示する。
+ * 日別累積クエリを使い、複数月にわたる累積売上の推移を表示する。
  * 単月ではなく、IndexedDB に保存されている全月のデータを横断表示できる。
  *
  * 表示項目:
@@ -72,8 +72,8 @@ export const CumulativeChart = memo(function CumulativeChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="累積売上推移（DuckDB）">
-        <Title>累積売上推移（DuckDB）</Title>
+      <Wrapper aria-label="累積売上推移">
+        <Title>累積売上推移</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -93,8 +93,8 @@ export const CumulativeChart = memo(function CumulativeChart({
   const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
 
   return (
-    <Wrapper aria-label="累積売上推移（DuckDB）">
-      <Title>累積売上推移（DuckDB）</Title>
+    <Wrapper aria-label="累積売上推移">
+      <Title>累積売上推移</Title>
       <Subtitle>日別売上（棒）と累積売上（面）| 月跨ぎ対応</Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>

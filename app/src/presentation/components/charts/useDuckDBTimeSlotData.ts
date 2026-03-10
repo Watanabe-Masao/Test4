@@ -1,7 +1,7 @@
 /**
- * DuckDB TimeSlotChart のデータロジックフック
+ * TimeSlotChart のデータロジックフック
  *
- * レガシー useTimeSlotData.ts の全機能を DuckDB SQL クエリで実現:
+ * レガシー useTimeSlotData.ts の全機能を SQL クエリで実現:
  * - 時間帯集約（金額/点数）
  * - 前年/前週比較
  * - KPI算出（コアタイム、折り返し時間帯、ピーク等）

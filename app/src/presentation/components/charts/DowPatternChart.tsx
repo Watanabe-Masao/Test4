@@ -1,7 +1,7 @@
 /**
- * DuckDB 曜日別売上パターンチャート (Group B1)
+ * 曜日別売上パターンチャート (Group B1)
  *
- * DuckDB の曜日別集計クエリを使い、曜日ごとの平均売上と全曜日平均比の
+ * 曜日別集計クエリを使い、曜日ごとの平均売上と全曜日平均比の
  * インデックスを表示する。平均以上/以下で棒の色を分ける。
  *
  * 表示項目:
@@ -147,8 +147,8 @@ export const DowPatternChart = memo(function DowPatternChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="曜日別売上パターン（DuckDB）">
-        <Title>曜日別売上パターン（DuckDB）</Title>
+      <Wrapper aria-label="曜日別売上パターン">
+        <Title>曜日別売上パターン</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -165,8 +165,8 @@ export const DowPatternChart = memo(function DowPatternChart({
   }
 
   return (
-    <Wrapper aria-label="曜日別売上パターン（DuckDB）">
-      <Title>曜日別売上パターン（DuckDB）</Title>
+    <Wrapper aria-label="曜日別売上パターン">
+      <Title>曜日別売上パターン</Title>
       <Subtitle>曜日別平均売上 | 赤線 = 全曜日平均</Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>
