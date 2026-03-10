@@ -112,7 +112,7 @@ function makeDataWithRecords() {
 
 describe('useCalculation', () => {
   describe('canCalculate', () => {
-    it('is false when data has no purchase records', () => {
+    it('is false when no data is imported', () => {
       const { result } = renderHook(() => useCalculation())
       expect(result.current.canCalculate).toBe(false)
     })
@@ -140,9 +140,40 @@ describe('useCalculation', () => {
       expect(result.current.canCalculate).toBe(false)
     })
 
-    it('is true when both purchase and classifiedSales have data', () => {
+    it('is true when classifiedSales has data (purchase optional)', () => {
       act(() => {
         useDataStore.getState().setImportedData(makeDataWithRecords() as never)
+      })
+      const { result } = renderHook(() => useCalculation())
+      expect(result.current.canCalculate).toBe(true)
+    })
+
+    it('is true even without purchase data if classifiedSales exists', () => {
+      act(() => {
+        const data = {
+          ...createEmptyImportedData(),
+          classifiedSales: {
+            records: [
+              {
+                year: 2025,
+                month: 1,
+                day: 1,
+                storeId: 's1',
+                storeName: 'S1',
+                groupName: 'G',
+                departmentName: 'D',
+                lineName: 'L',
+                className: 'C',
+                salesAmount: 100,
+                discount71: 0,
+                discount72: 0,
+                discount73: 0,
+                discount74: 0,
+              },
+            ],
+          },
+        }
+        useDataStore.getState().setImportedData(data as never)
       })
       const { result } = renderHook(() => useCalculation())
       expect(result.current.canCalculate).toBe(true)
