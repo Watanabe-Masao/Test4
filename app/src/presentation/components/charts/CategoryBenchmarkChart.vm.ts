@@ -1,14 +1,26 @@
 /**
  * カテゴリベンチマーク — ViewModel
  *
- * データ変換・計算・定数定義など、Reactに依存しない純粋ロジック。
+ * 状態管理・データ変換・計算・定数定義を集約。
  * .tsx 側は描画のみに集中する。
  */
-import type {
-  CategoryBenchmarkScore,
-  BenchmarkMetric,
-  ProductType,
+import { useState, useMemo } from 'react'
+import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { DateRange } from '@/domain/models'
+import {
+  useDuckDBCategoryBenchmark,
+  useDuckDBCategoryBenchmarkTrend,
+  useDuckDBCategoryHierarchy,
+  buildCategoryBenchmarkScores,
+  buildCategoryTrendData,
+  buildCategoryBenchmarkScoresByDate,
+  type CategoryBenchmarkScore,
+  type BenchmarkMetric,
+  type ProductType,
+  type CategoryTrendPoint,
 } from '@/application/hooks/useDuckDBQuery'
+import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useI18n } from '@/application/hooks/useI18n'
 import { palette } from '@/presentation/theme/tokens'
 
 // ── Types ──
@@ -201,4 +213,209 @@ export function resolveEffectiveAxis(
   isSingleStore: boolean,
 ): AnalysisAxis {
   return isSingleStore ? 'date' : analysisAxis
+}
+
+// ── Props ──
+
+export interface CategoryBenchmarkChartProps {
+  readonly duckConn: AsyncDuckDBConnection | null
+  readonly duckDataVersion: number
+  readonly currentDateRange: DateRange
+  readonly selectedStoreIds: ReadonlySet<string>
+}
+
+// ── Hierarchy item (from duckdb query) ──
+
+interface HierarchyItem {
+  readonly code: string
+  readonly name: string
+}
+
+// ── ViewModel hook return type ──
+
+export interface CategoryBenchmarkChartVm {
+  readonly ct: ReturnType<typeof useChartTheme>
+  readonly fmt: (v: number) => string
+  readonly errorMessage: string
+
+  readonly level: CategoryLevel
+  readonly setLevel: (l: CategoryLevel) => void
+  readonly view: ViewMode
+  readonly setView: (v: ViewMode) => void
+  readonly minStores: number
+  readonly setMinStores: (n: number) => void
+  readonly analysisAxis: AnalysisAxis
+  readonly setAnalysisAxis: (a: AnalysisAxis) => void
+  readonly benchmarkMetric: BenchmarkMetric
+  readonly setBenchmarkMetric: (m: BenchmarkMetric) => void
+  readonly parentDeptCode: string
+  readonly setParentDeptCode: (code: string) => void
+  readonly parentLineCode: string
+  readonly setParentLineCode: (code: string) => void
+
+  readonly isSingleStore: boolean
+  readonly effectiveAxis: AnalysisAxis
+  readonly deptList: readonly HierarchyItem[] | null
+  readonly lineList: readonly HierarchyItem[] | null
+
+  readonly scores: readonly CategoryBenchmarkScore[]
+  readonly topCodes: readonly string[]
+  readonly trendData: readonly CategoryTrendPoint[]
+  readonly kpis: KpiSummary | null
+  readonly subtitle: string
+  readonly tableMetricLabel: string
+
+  readonly error: string | null
+  readonly isLoading: boolean
+  readonly hasRawData: boolean
+  readonly hasConnection: boolean
+}
+
+// ── ViewModel Hook ──
+
+export function useCategoryBenchmarkChartVm(
+  props: CategoryBenchmarkChartProps,
+): CategoryBenchmarkChartVm {
+  const { duckConn, duckDataVersion, currentDateRange, selectedStoreIds } = props
+
+  const ct = useChartTheme()
+  const fmt = useCurrencyFormatter()
+  const { messages } = useI18n()
+
+  const [level, setLevelRaw] = useState<CategoryLevel>('department')
+  const [view, setView] = useState<ViewMode>('chart')
+  const [minStores, setMinStores] = useState(2)
+  const [analysisAxis, setAnalysisAxis] = useState<AnalysisAxis>('store')
+  const [benchmarkMetric, setBenchmarkMetric] = useState<BenchmarkMetric>('share')
+  const [parentDeptCode, setParentDeptCodeRaw] = useState<string>('')
+  const [parentLineCode, setParentLineCode] = useState<string>('')
+
+  const setLevel = (l: CategoryLevel) => {
+    setLevelRaw(l)
+    if (l === 'department') {
+      setParentDeptCodeRaw('')
+      setParentLineCode('')
+    } else if (l === 'line') {
+      setParentLineCode('')
+    }
+  }
+
+  const setParentDeptCode = (code: string) => {
+    setParentDeptCodeRaw(code)
+    setParentLineCode('')
+  }
+
+  const isSingleStore = selectedStoreIds.size === 1
+  const effectiveAxis = resolveEffectiveAxis(analysisAxis, isSingleStore)
+
+  const { data: deptList } = useDuckDBCategoryHierarchy(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'department',
+  )
+
+  const { data: lineList } = useDuckDBCategoryHierarchy(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    'line',
+    parentDeptCode || undefined,
+  )
+
+  const {
+    data: rawRows,
+    error,
+    isLoading,
+  } = useDuckDBCategoryBenchmark(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    parentDeptCode || undefined,
+    parentLineCode || undefined,
+  )
+
+  const { data: trendRows } = useDuckDBCategoryBenchmarkTrend(
+    duckConn,
+    duckDataVersion,
+    currentDateRange,
+    selectedStoreIds,
+    level,
+    parentDeptCode || undefined,
+    parentLineCode || undefined,
+  )
+
+  const totalStoreCount = selectedStoreIds.size
+
+  const storeScores = useMemo(
+    () =>
+      rawRows
+        ? buildCategoryBenchmarkScores(rawRows, minStores, totalStoreCount, benchmarkMetric)
+        : [],
+    [rawRows, minStores, totalStoreCount, benchmarkMetric],
+  )
+
+  const dateScores = useMemo(
+    () =>
+      trendRows && rawRows
+        ? buildCategoryBenchmarkScoresByDate(trendRows, rawRows, minStores, totalStoreCount)
+        : [],
+    [trendRows, rawRows, minStores, totalStoreCount],
+  )
+
+  const scores = effectiveAxis === 'store' ? storeScores : dateScores
+
+  const topCodes = useMemo(() => extractTopCodes(scores), [scores])
+
+  const trendData = useMemo(
+    () => (trendRows ? buildCategoryTrendData(trendRows, topCodes, totalStoreCount) : []),
+    [trendRows, topCodes, totalStoreCount],
+  )
+
+  const kpis = useMemo(() => computeKpis(scores), [scores])
+
+  const subtitle = getSubtitle(effectiveAxis, benchmarkMetric)
+  const tableMetricLabel = getTableMetricLabel(effectiveAxis, benchmarkMetric)
+
+  return {
+    ct,
+    fmt,
+    errorMessage: messages.errors.dataFetchFailed,
+
+    level,
+    setLevel,
+    view,
+    setView,
+    minStores,
+    setMinStores,
+    analysisAxis,
+    setAnalysisAxis,
+    benchmarkMetric,
+    setBenchmarkMetric,
+    parentDeptCode,
+    setParentDeptCode,
+    parentLineCode,
+    setParentLineCode,
+
+    isSingleStore,
+    effectiveAxis,
+    deptList: deptList ?? null,
+    lineList: lineList ?? null,
+
+    scores,
+    topCodes,
+    trendData,
+    kpis,
+    subtitle,
+    tableMetricLabel,
+
+    error: error ?? null,
+    isLoading,
+    hasRawData: rawRows != null,
+    hasConnection: duckConn != null && duckDataVersion > 0,
+  }
 }

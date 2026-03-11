@@ -6,25 +6,15 @@
  * ドリルダウンで店舗別・日別の内訳を確認できる。
  */
 import { useState, useMemo, memo } from 'react'
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import type { DateRange } from '@/domain/models'
+import type {
+  CategoryBenchmarkRow,
+  CategoryBenchmarkTrendRow,
+} from '@/application/hooks/useDuckDBQuery'
 import {
-  useDuckDBCategoryBenchmark,
-  useDuckDBCategoryBenchmarkTrend,
-  useDuckDBCategoryHierarchy,
-  buildBoxPlotData,
-  buildBoxPlotDataByDate,
   buildStoreBreakdown,
   buildDateBreakdown,
-  type CategoryBenchmarkRow,
-  type CategoryBenchmarkTrendRow,
   type BoxPlotStats,
-  type StoreBreakdownItem,
-  type DateBreakdownItem,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
-import { useI18n } from '@/application/hooks/useI18n'
-import { useDataStore } from '@/application/stores'
 import { EmptyState, ChartSkeleton } from '@/presentation/components/common'
 import {
   Wrapper,
@@ -41,345 +31,18 @@ import {
   LegendItem,
   FilterSelect,
 } from './CategoryBoxPlotChart.styles'
-
-// ── Types ──
-
-interface Props {
-  readonly duckConn: AsyncDuckDBConnection | null
-  readonly duckDataVersion: number
-  readonly currentDateRange: DateRange
-  readonly selectedStoreIds: ReadonlySet<string>
-}
-
-type CategoryLevel = 'department' | 'line' | 'klass'
-type BoxMetric = 'sales' | 'quantity'
-type AnalysisAxis = 'store' | 'date'
-
-const LEVEL_LABELS: Record<CategoryLevel, string> = {
-  department: '部門',
-  line: 'ライン',
-  klass: 'クラス',
-}
-
-const BOX_METRIC_LABELS: Record<BoxMetric, string> = {
-  sales: '販売金額',
-  quantity: '販売数量',
-}
-
-const ANALYSIS_AXIS_LABELS: Record<AnalysisAxis, string> = {
-  store: '店舗別',
-  date: '期間別',
-}
-
-// ── StoreBreakdownChart ──
-
-function StoreBreakdownChart({
-  items,
-  storeNameMap,
-  ct,
-  fmt,
-  categoryName,
-  onClose,
-}: {
-  items: readonly StoreBreakdownItem[]
-  storeNameMap: ReadonlyMap<string, string>
-  ct: ReturnType<typeof useChartTheme>
-  fmt: (v: number) => string
-  categoryName: string
-  onClose: () => void
-}) {
-  const marginLeft = 90
-  const marginRight = 40
-  const marginTop = 10
-  const marginBottom = 30
-  const rowHeight = 28
-  const chartHeight = Math.max(120, items.length * rowHeight + marginTop + marginBottom)
-
-  const xMax = useMemo(() => {
-    if (items.length === 0) return 100
-    const m = Math.max(...items.map((d) => d.value))
-    const mag = Math.pow(10, Math.floor(Math.log10(m || 1)))
-    return Math.ceil(m / mag) * mag * 1.05
-  }, [items])
-
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-
-  return (
-    <div style={{ marginTop: 12, padding: '8px 0', borderTop: `1px solid ${ct.grid}` }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 4,
-          padding: '0 4px',
-        }}
-      >
-        <span style={{ fontSize: '0.7rem', fontWeight: 600, color: ct.text }}>
-          {categoryName} — 店舗別内訳
-        </span>
-        <button
-          onClick={onClose}
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: '0.6rem',
-            padding: '2px 8px',
-            borderRadius: 4,
-            color: ct.textMuted,
-            background: ct.bg2 === '#fff' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
-          }}
-        >
-          閉じる
-        </button>
-      </div>
-      <svg width="100%" height={chartHeight} viewBox={`0 0 800 ${chartHeight}`}>
-        {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
-          const xPx = marginLeft + frac * (800 - marginLeft - marginRight)
-          const val = frac * xMax
-          return (
-            <g key={frac}>
-              <line
-                x1={xPx}
-                y1={marginTop}
-                x2={xPx}
-                y2={chartHeight - marginBottom}
-                stroke={ct.grid}
-                strokeOpacity={0.3}
-                strokeDasharray="3 3"
-              />
-              <text
-                x={xPx}
-                y={chartHeight - marginBottom + 16}
-                textAnchor="middle"
-                fill={ct.textMuted}
-                fontSize={10}
-              >
-                {val >= 1000000
-                  ? `${(val / 1000000).toFixed(1)}M`
-                  : val >= 1000
-                    ? `${(val / 1000).toFixed(0)}K`
-                    : String(Math.round(val))}
-              </text>
-            </g>
-          )
-        })}
-        {items.map((item, i) => {
-          const plotW = 800 - marginLeft - marginRight
-          const yCenter = marginTop + i * rowHeight + rowHeight / 2
-          const barH = rowHeight * 0.6
-          const scale = xMax > 0 ? plotW / xMax : 0
-          const barW = Math.max(item.value * scale, 1)
-          const storeName = storeNameMap.get(item.storeId) ?? item.storeId
-          const isHovered = hoveredIdx === i
-
-          return (
-            <g
-              key={item.storeId}
-              onMouseEnter={() => setHoveredIdx(i)}
-              onMouseLeave={() => setHoveredIdx(null)}
-            >
-              <rect
-                x={0}
-                y={marginTop + i * rowHeight}
-                width={800}
-                height={rowHeight}
-                fill={
-                  isHovered
-                    ? ct.bg2 === '#fff'
-                      ? '#f3f4f6'
-                      : 'rgba(255,255,255,0.05)'
-                    : 'transparent'
-                }
-              />
-              <text
-                x={marginLeft - 6}
-                y={yCenter + 4}
-                textAnchor="end"
-                fill={ct.textMuted}
-                fontSize={10}
-              >
-                {storeName.length > 10 ? storeName.slice(0, 10) + '…' : storeName}
-              </text>
-              <rect
-                x={marginLeft}
-                y={yCenter - barH / 2}
-                width={barW}
-                height={barH}
-                fill="#6366f1"
-                fillOpacity={isHovered ? 0.8 : 0.5}
-                rx={2}
-              />
-              <text
-                x={marginLeft + barW + 4}
-                y={yCenter + 4}
-                fill={ct.textMuted}
-                fontSize={9}
-                fontFamily="monospace"
-              >
-                {fmt(item.value)}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
-
-// ── DateBreakdownChart ──
-
-function DateBreakdownChart({
-  items,
-  ct,
-  fmt,
-  categoryName,
-  onClose,
-}: {
-  items: readonly DateBreakdownItem[]
-  ct: ReturnType<typeof useChartTheme>
-  fmt: (v: number) => string
-  categoryName: string
-  onClose: () => void
-}) {
-  const marginLeft = 90
-  const marginRight = 40
-  const marginTop = 10
-  const marginBottom = 30
-  const rowHeight = 28
-  const chartHeight = Math.max(120, items.length * rowHeight + marginTop + marginBottom)
-
-  const xMax = useMemo(() => {
-    if (items.length === 0) return 100
-    const m = Math.max(...items.map((d) => d.value))
-    const mag = Math.pow(10, Math.floor(Math.log10(m || 1)))
-    return Math.ceil(m / mag) * mag * 1.05
-  }, [items])
-
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-
-  return (
-    <div style={{ marginTop: 12, padding: '8px 0', borderTop: `1px solid ${ct.grid}` }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 4,
-          padding: '0 4px',
-        }}
-      >
-        <span style={{ fontSize: '0.7rem', fontWeight: 600, color: ct.text }}>
-          {categoryName} — 日別内訳
-        </span>
-        <button
-          onClick={onClose}
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: '0.6rem',
-            padding: '2px 8px',
-            borderRadius: 4,
-            color: ct.textMuted,
-            background: ct.bg2 === '#fff' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
-          }}
-        >
-          閉じる
-        </button>
-      </div>
-      <svg width="100%" height={chartHeight} viewBox={`0 0 800 ${chartHeight}`}>
-        {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
-          const xPx = marginLeft + frac * (800 - marginLeft - marginRight)
-          const val = frac * xMax
-          return (
-            <g key={frac}>
-              <line
-                x1={xPx}
-                y1={marginTop}
-                x2={xPx}
-                y2={chartHeight - marginBottom}
-                stroke={ct.grid}
-                strokeOpacity={0.3}
-                strokeDasharray="3 3"
-              />
-              <text
-                x={xPx}
-                y={chartHeight - marginBottom + 16}
-                textAnchor="middle"
-                fill={ct.textMuted}
-                fontSize={10}
-              >
-                {val >= 1000000
-                  ? `${(val / 1000000).toFixed(1)}M`
-                  : val >= 1000
-                    ? `${(val / 1000).toFixed(0)}K`
-                    : String(Math.round(val))}
-              </text>
-            </g>
-          )
-        })}
-        {items.map((item, i) => {
-          const plotW = 800 - marginLeft - marginRight
-          const yCenter = marginTop + i * rowHeight + rowHeight / 2
-          const barH = rowHeight * 0.6
-          const scale = xMax > 0 ? plotW / xMax : 0
-          const barW = Math.max(item.value * scale, 1)
-          const dateLabel = item.dateKey.length >= 10 ? item.dateKey.slice(5) : item.dateKey
-          const isHovered = hoveredIdx === i
-
-          return (
-            <g
-              key={item.dateKey}
-              onMouseEnter={() => setHoveredIdx(i)}
-              onMouseLeave={() => setHoveredIdx(null)}
-            >
-              <rect
-                x={0}
-                y={marginTop + i * rowHeight}
-                width={800}
-                height={rowHeight}
-                fill={
-                  isHovered
-                    ? ct.bg2 === '#fff'
-                      ? '#f3f4f6'
-                      : 'rgba(255,255,255,0.05)'
-                    : 'transparent'
-                }
-              />
-              <text
-                x={marginLeft - 6}
-                y={yCenter + 4}
-                textAnchor="end"
-                fill={ct.textMuted}
-                fontSize={10}
-              >
-                {dateLabel}
-              </text>
-              <rect
-                x={marginLeft}
-                y={yCenter - barH / 2}
-                width={barW}
-                height={barH}
-                fill="#10b981"
-                fillOpacity={isHovered ? 0.8 : 0.5}
-                rx={2}
-              />
-              <text
-                x={marginLeft + barW + 4}
-                y={yCenter + 4}
-                fill={ct.textMuted}
-                fontSize={9}
-                fontFamily="monospace"
-              >
-                {fmt(item.value)}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
+import {
+  useCategoryBoxPlotChartVm,
+  LEVEL_LABELS,
+  BOX_METRIC_LABELS,
+  ANALYSIS_AXIS_LABELS,
+  type Props,
+  type CategoryLevel,
+  type BoxMetric,
+  type AnalysisAxis,
+  type ChartTheme,
+} from './CategoryBoxPlotChart.vm'
+import { StoreBreakdownChart, DateBreakdownChart } from './CategoryBoxPlotBreakdownCharts'
 
 // ── BoxPlotView ──
 
@@ -395,7 +58,7 @@ function BoxPlotView({
   storeNameMap,
 }: {
   boxData: readonly BoxPlotStats[]
-  ct: ReturnType<typeof useChartTheme>
+  ct: ChartTheme
   fmt: (v: number) => string
   metricLabel: string
   rawRows: readonly CategoryBenchmarkRow[] | null
@@ -588,7 +251,7 @@ function BoxPlotView({
                   stroke="#6366f1"
                   strokeWidth={2}
                 />
-                {/* Mean marker (×) */}
+                {/* Mean marker */}
                 <line
                   x1={xMeanPx - 3}
                   y1={yCenter - 3}
@@ -704,106 +367,25 @@ function BoxPlotView({
 
 // ── Main Component ──
 
-export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
-  duckConn,
-  duckDataVersion,
-  currentDateRange,
-  selectedStoreIds,
-}: Props) {
-  const ct = useChartTheme()
-  const fmt = useCurrencyFormatter()
-  const { messages } = useI18n()
-  const storesMap = useDataStore((s) => s.data.stores)
-  const storeNameMap = useMemo(() => {
-    const m = new Map<string, string>()
-    for (const [id, store] of storesMap) m.set(id, store.name)
-    return m
-  }, [storesMap])
+export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart(props: Props) {
+  const vm = useCategoryBoxPlotChartVm(props)
 
-  const [level, setLevel] = useState<CategoryLevel>('department')
-  const [minStores, setMinStores] = useState(2)
-  const [boxMetric, setBoxMetric] = useState<BoxMetric>('sales')
-  const [analysisAxis, setAnalysisAxis] = useState<AnalysisAxis>('store')
-  const [parentDeptCode, setParentDeptCode] = useState<string>('')
-  const [parentLineCode, setParentLineCode] = useState<string>('')
-
-  const isSingleStore = selectedStoreIds.size === 1
-  const effectiveAxis: AnalysisAxis = isSingleStore ? 'date' : analysisAxis
-
-  const { data: deptList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'department',
-  )
-
-  const { data: lineList } = useDuckDBCategoryHierarchy(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    'line',
-    parentDeptCode || undefined,
-  )
-
-  const {
-    data: rawRows,
-    error,
-    isLoading,
-  } = useDuckDBCategoryBenchmark(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
-  )
-
-  const { data: trendRows } = useDuckDBCategoryBenchmarkTrend(
-    duckConn,
-    duckDataVersion,
-    currentDateRange,
-    selectedStoreIds,
-    level,
-    parentDeptCode || undefined,
-    parentLineCode || undefined,
-  )
-
-  const totalStoreCount = selectedStoreIds.size
-
-  const boxPlotDataByStore = useMemo(
-    () => (rawRows ? buildBoxPlotData(rawRows, boxMetric, 20, minStores, totalStoreCount) : []),
-    [rawRows, boxMetric, minStores, totalStoreCount],
-  )
-
-  const boxPlotDataByDate = useMemo(
-    () =>
-      trendRows && rawRows
-        ? buildBoxPlotDataByDate(trendRows, rawRows, boxMetric, 20, minStores, totalStoreCount)
-        : [],
-    [trendRows, rawRows, boxMetric, minStores, totalStoreCount],
-  )
-
-  const boxPlotData = effectiveAxis === 'store' ? boxPlotDataByStore : boxPlotDataByDate
-
-  if (error) {
+  if (vm.error) {
     return (
       <Wrapper aria-label="カテゴリ箱ひげ図">
         <Title>カテゴリ箱ひげ図</Title>
         <ErrorMsg>
-          {messages.errors.dataFetchFailed}: {error}
+          {vm.messages.errors.dataFetchFailed}: {vm.error}
         </ErrorMsg>
       </Wrapper>
     )
   }
 
-  if (isLoading && !rawRows) {
+  if (vm.isLoading && !vm.rawRows) {
     return <ChartSkeleton />
   }
 
-  if (!duckConn || duckDataVersion === 0) {
+  if (!props.duckConn || props.duckDataVersion === 0) {
     return <EmptyState>データをインポートしてください</EmptyState>
   }
 
@@ -812,47 +394,28 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
       <HeaderRow>
         <div>
           <Title>カテゴリ箱ひげ図</Title>
-          <Subtitle>
-            {effectiveAxis === 'date'
-              ? 'カテゴリ別 日別販売金額の分布'
-              : `カテゴリ別 店舗間${BOX_METRIC_LABELS[boxMetric]}の分布`}
-          </Subtitle>
+          <Subtitle>{vm.subtitle}</Subtitle>
         </div>
         <Controls>
           <ControlGroup>
             <ControlLabel>階層</ControlLabel>
             <ButtonGroup>
               {(Object.keys(LEVEL_LABELS) as CategoryLevel[]).map((l) => (
-                <ToggleBtn
-                  key={l}
-                  $active={level === l}
-                  onClick={() => {
-                    setLevel(l)
-                    if (l === 'department') {
-                      setParentDeptCode('')
-                      setParentLineCode('')
-                    } else if (l === 'line') {
-                      setParentLineCode('')
-                    }
-                  }}
-                >
+                <ToggleBtn key={l} $active={vm.level === l} onClick={() => vm.handleLevelChange(l)}>
                   {LEVEL_LABELS[l]}
                 </ToggleBtn>
               ))}
             </ButtonGroup>
           </ControlGroup>
-          {level !== 'department' && deptList && deptList.length > 0 && (
+          {vm.level !== 'department' && vm.deptList && vm.deptList.length > 0 && (
             <ControlGroup>
               <ControlLabel>部門</ControlLabel>
               <FilterSelect
-                value={parentDeptCode}
-                onChange={(e) => {
-                  setParentDeptCode(e.target.value)
-                  setParentLineCode('')
-                }}
+                value={vm.parentDeptCode}
+                onChange={(e) => vm.handleDeptChange(e.target.value)}
               >
                 <option value="">全部門</option>
-                {deptList.map((d) => (
+                {vm.deptList.map((d) => (
                   <option key={d.code} value={d.code}>
                     {d.name}
                   </option>
@@ -860,15 +423,15 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
               </FilterSelect>
             </ControlGroup>
           )}
-          {level === 'klass' && lineList && lineList.length > 0 && (
+          {vm.level === 'klass' && vm.lineList && vm.lineList.length > 0 && (
             <ControlGroup>
               <ControlLabel>ライン</ControlLabel>
               <FilterSelect
-                value={parentLineCode}
-                onChange={(e) => setParentLineCode(e.target.value)}
+                value={vm.parentLineCode}
+                onChange={(e) => vm.handleLineChange(e.target.value)}
               >
                 <option value="">全ライン</option>
-                {lineList.map((l) => (
+                {vm.lineList.map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.name}
                   </option>
@@ -882,11 +445,11 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
               {(Object.keys(ANALYSIS_AXIS_LABELS) as AnalysisAxis[]).map((a) => (
                 <ToggleBtn
                   key={a}
-                  $active={effectiveAxis === a}
-                  onClick={() => setAnalysisAxis(a)}
-                  disabled={a === 'store' && isSingleStore}
+                  $active={vm.effectiveAxis === a}
+                  onClick={() => vm.setAnalysisAxis(a)}
+                  disabled={a === 'store' && vm.isSingleStore}
                   title={
-                    a === 'store' && isSingleStore
+                    a === 'store' && vm.isSingleStore
                       ? '店舗別比較には複数店舗の選択が必要です'
                       : undefined
                   }
@@ -896,21 +459,21 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
               ))}
             </ButtonGroup>
           </ControlGroup>
-          <ControlGroup $hidden={effectiveAxis !== 'store'}>
+          <ControlGroup $hidden={vm.effectiveAxis !== 'store'}>
             <ControlLabel>指標</ControlLabel>
             <ButtonGroup>
               {(Object.keys(BOX_METRIC_LABELS) as BoxMetric[]).map((m) => (
-                <ToggleBtn key={m} $active={boxMetric === m} onClick={() => setBoxMetric(m)}>
+                <ToggleBtn key={m} $active={vm.boxMetric === m} onClick={() => vm.setBoxMetric(m)}>
                   {BOX_METRIC_LABELS[m]}
                 </ToggleBtn>
               ))}
             </ButtonGroup>
           </ControlGroup>
-          <ControlGroup $hidden={effectiveAxis !== 'store'}>
+          <ControlGroup $hidden={vm.effectiveAxis !== 'store'}>
             <ControlLabel>最低店舗数</ControlLabel>
             <ButtonGroup>
               {[1, 2, 3].map((n) => (
-                <ToggleBtn key={n} $active={minStores === n} onClick={() => setMinStores(n)}>
+                <ToggleBtn key={n} $active={vm.minStores === n} onClick={() => vm.setMinStores(n)}>
                   {n === 1 ? '全て' : `${n}店以上`}
                 </ToggleBtn>
               ))}
@@ -920,20 +483,18 @@ export const CategoryBoxPlotChart = memo(function CategoryBoxPlotChart({
       </HeaderRow>
 
       <BoxPlotView
-        boxData={boxPlotData}
-        ct={ct}
-        fmt={
-          boxMetric === 'sales' || effectiveAxis === 'date'
-            ? fmt
-            : (v: number) => v.toLocaleString()
-        }
-        metricLabel={effectiveAxis === 'date' ? '販売金額（日別）' : BOX_METRIC_LABELS[boxMetric]}
-        rawRows={rawRows ?? null}
-        trendRows={trendRows ?? null}
-        boxMetric={boxMetric}
-        boxAxis={effectiveAxis}
-        storeNameMap={storeNameMap}
+        boxData={vm.boxPlotData}
+        ct={vm.ct}
+        fmt={vm.fmt}
+        metricLabel={vm.metricLabel}
+        rawRows={vm.rawRows}
+        trendRows={vm.trendRows}
+        boxMetric={vm.boxMetric}
+        boxAxis={vm.effectiveAxis}
+        storeNameMap={vm.storeNameMap}
       />
     </Wrapper>
   )
 })
+
+export default CategoryBoxPlotChart

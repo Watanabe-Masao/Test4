@@ -88,6 +88,12 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/jsAggregationLogic.ts',
   // DuckDB 統合 — 仕入比較クエリフック
   'application/hooks/duckdb/usePurchaseComparisonQuery.ts',
+  // DuckDB 統合 — 仕入比較データ構築ヘルパー（純粋関数）
+  'application/hooks/duckdb/purchaseComparisonBuilders.ts',
+  // DuckDB 統合 — カテゴリベンチマーク算出ロジック（純粋関数）
+  'application/hooks/duckdb/categoryBenchmarkLogic.ts',
+  // DuckDB 統合 — 箱ひげ図データ構築ロジック（純粋関数）
+  'application/hooks/duckdb/categoryBoxPlotLogic.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携

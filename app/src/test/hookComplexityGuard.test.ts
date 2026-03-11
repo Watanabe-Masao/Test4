@@ -156,6 +156,90 @@ describe('R7: stores/ の set() コールバック内に算術式がない', () 
   })
 })
 
+// ─── R1/R4: 分割後ファイルの行数上限 ─────────────────────
+
+describe('R1/R4: 分割後ファイルの行数制限', () => {
+  const fileLimits: [string, number][] = [
+    // Phase 1: usePurchaseComparisonQuery 分割
+    ['application/hooks/duckdb/usePurchaseComparisonQuery.ts', 300],
+    ['application/hooks/duckdb/purchaseComparisonBuilders.ts', 600],
+    // Phase 2: useAdvancedQueries 分割
+    ['application/hooks/duckdb/useAdvancedQueries.ts', 200],
+    ['application/hooks/duckdb/categoryBenchmarkLogic.ts', 450],
+    ['application/hooks/duckdb/categoryBoxPlotLogic.ts', 250],
+    // Phase 7: ImportOrchestrator 分割
+    ['application/usecases/import/ImportOrchestrator.ts', 250],
+    ['application/usecases/import/singleMonthImport.ts', 200],
+    ['application/usecases/import/multiMonthImport.ts', 250],
+    // Phase 8: renderClipHtml 分割
+    ['application/usecases/clipExport/renderClipHtml.ts', 60],
+  ]
+
+  it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return // ファイルが存在しない場合はスキップ
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lineCount = content.split('\n').length
+    expect(lineCount, `${relPath} は ${lineCount} 行 (上限: ${maxLines})`).toBeLessThanOrEqual(
+      maxLines,
+    )
+  })
+})
+
+// ─── R1: 分離した純粋関数モジュールに React import がない ──
+
+describe('R1: 純粋関数モジュールに React import がない', () => {
+  const pureModules = [
+    'application/hooks/duckdb/purchaseComparisonBuilders.ts',
+    'application/hooks/duckdb/categoryBenchmarkLogic.ts',
+    'application/hooks/duckdb/categoryBoxPlotLogic.ts',
+    'application/usecases/import/singleMonthImport.ts',
+    'application/usecases/import/multiMonthImport.ts',
+    'application/usecases/import/importHelpers.ts',
+    'application/usecases/clipExport/clipCss.ts',
+    'application/usecases/clipExport/clipJs.ts',
+  ]
+
+  it.each(pureModules)('%s に React import がない', (relPath) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    expect(content, `${relPath} に React import が含まれています`).not.toMatch(
+      /import\s.*from\s+['"]react['"]/,
+    )
+  })
+})
+
+// ─── R1: hook ファイルに build* 関数定義が残っていない ────
+
+describe('R1: hook ファイルに抽出済み build* 関数が残っていない', () => {
+  const hookFiles = [
+    'application/hooks/duckdb/usePurchaseComparisonQuery.ts',
+    'application/hooks/duckdb/useAdvancedQueries.ts',
+  ]
+
+  it.each(hookFiles)('%s に build*/compute* 関数定義がない', (relPath) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lines = content.split('\n')
+    const violations: string[] = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      // 関数定義を検出（re-export は許可）
+      if (
+        /^(export\s+)?function\s+(build|compute)\w+/.test(line.trim()) &&
+        !line.includes('re-export')
+      ) {
+        violations.push(`${relPath}:${i + 1}: ${line.trim()}`)
+      }
+    }
+
+    expect(violations, `抽出済み関数が残っています:\n${violations.join('\n')}`).toEqual([])
+  })
+})
+
 // ─── R10: カバレッジ目的の export 禁止 ──────────────────
 
 describe('R10: hooks/ の export にカバレッジ目的のコメントがない', () => {
