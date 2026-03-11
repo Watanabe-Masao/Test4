@@ -1,10 +1,10 @@
 /**
- * 安全な数値変換（null/undefined/NaN → 0）
+ * 安全な数値変換（null/undefined/NaN/±Infinity → 0）
  */
 export function safeNumber(n: unknown): number {
   if (n == null) return 0
   const num = Number(n)
-  return isNaN(num) ? 0 : num
+  return Number.isFinite(num) ? num : 0
 }
 
 /**
