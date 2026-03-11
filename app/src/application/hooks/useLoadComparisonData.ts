@@ -61,7 +61,11 @@ type LoadAction =
       error: string
     }
 
-function loadReducer(_state: ComparisonLoadStatus, action: LoadAction): ComparisonLoadStatus {
+/** @internal テスト用にエクスポート */
+export function loadReducer(
+  _state: ComparisonLoadStatus,
+  action: LoadAction,
+): ComparisonLoadStatus {
   switch (action.type) {
     case 'start':
       return {
@@ -96,16 +100,16 @@ function loadReducer(_state: ComparisonLoadStatus, action: LoadAction): Comparis
 
 // ── ユーティリティ ──
 
-/** QueryMonth 配列からソース月（中心月）を決定する */
-function findSourceMonth(queryRanges: readonly QueryMonth[]): QueryMonth | null {
+/** QueryMonth 配列からソース月（中心月）を決定する @internal テスト用にエクスポート */
+export function findSourceMonth(queryRanges: readonly QueryMonth[]): QueryMonth | null {
   if (queryRanges.length === 0) return null
   // 中央の月をソースとする（±1 拡張の中心）
   const mid = Math.floor(queryRanges.length / 2)
   return queryRanges[mid]
 }
 
-/** QueryMonth のキー文字列 */
-function monthKey(m: QueryMonth): string {
+/** QueryMonth のキー文字列 @internal テスト用にエクスポート */
+export function monthKey(m: QueryMonth): string {
   return `${m.year}-${m.month}`
 }
 

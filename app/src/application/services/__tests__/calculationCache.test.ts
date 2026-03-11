@@ -259,6 +259,28 @@ describe('CalculationCache', () => {
     expect(cache.hasGlobalCache).toBe(false)
   })
 
+  it('setGlobalResultWithFingerprint でキャッシュし getGlobalResultByFingerprint で取得できる', () => {
+    const results = new Map([['s1', makeStoreResult('s1')]])
+    cache.setGlobalResultWithFingerprint('fp-123', results)
+    expect(cache.hasGlobalCache).toBe(true)
+    expect(cache.currentGlobalFingerprint).toBe('fp-123')
+
+    const cached = cache.getGlobalResultByFingerprint('fp-123')
+    expect(cached).toBe(results)
+  })
+
+  it('getGlobalResultByFingerprint はフィンガープリント不一致で null を返す', () => {
+    const results = new Map([['s1', makeStoreResult('s1')]])
+    cache.setGlobalResultWithFingerprint('fp-123', results)
+
+    const cached = cache.getGlobalResultByFingerprint('fp-different')
+    expect(cached).toBeNull()
+  })
+
+  it('currentGlobalFingerprint は初期状態で null', () => {
+    expect(cache.currentGlobalFingerprint).toBeNull()
+  })
+
   it('setGlobalResult が個別キャッシュも更新する', () => {
     const data = createEmptyImportedData()
     const results = new Map([
