@@ -17,7 +17,20 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/domain/**', 'src/infrastructure/**', 'src/application/**'],
-      exclude: ['**/*.d.ts', '**/index.ts'],
+      exclude: [
+        '**/*.d.ts',
+        '**/index.ts',
+        // バレル re-export ファイル（テスト対象外）
+        'src/application/hooks/analytics.ts',
+        'src/application/hooks/calculation.ts',
+        'src/application/hooks/data.ts',
+        'src/application/hooks/ui.ts',
+        // Worker ファイル（ブラウザ/Worker コンテキスト専用、vitest でテスト不能）
+        'src/application/workers/calculationWorker.ts',
+        'src/application/workers/reportExportWorker.ts',
+        'src/infrastructure/duckdb/worker/duckdbWorker.ts',
+        'src/infrastructure/pwa/registerSW.ts',
+      ],
       thresholds: {
         lines: 70,
         'src/domain/calculations/**': {

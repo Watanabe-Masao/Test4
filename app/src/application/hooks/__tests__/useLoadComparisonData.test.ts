@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { loadReducer, findSourceMonth, monthKey } from '../useLoadComparisonData'
-import type { ComparisonLoadStatus } from '../useLoadComparisonData'
+import {
+  loadReducer,
+  findSourceMonth,
+  monthKey,
+} from '@/application/comparison/comparisonLoadLogic'
+import type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 
 const INITIAL: ComparisonLoadStatus = {

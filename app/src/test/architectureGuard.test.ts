@@ -84,6 +84,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/useConditionMatrix.ts',
   // DuckDB 統合 — JS計算版クエリフック（Phase 3: SQL集約→JS純粋関数移行）
   'application/hooks/duckdb/useJsAggregationQueries.ts',
+  // DuckDB 統合 — JS集約純粋関数（useJsAggregationQueries から分離、DuckDB型に依存）
+  'application/hooks/duckdb/jsAggregationLogic.ts',
   // DuckDB 統合 — 仕入比較クエリフック
   'application/hooks/duckdb/usePurchaseComparisonQuery.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）

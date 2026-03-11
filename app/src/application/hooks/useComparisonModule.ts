@@ -29,16 +29,11 @@ import type { ComparisonFrame, PrevYearScope } from '@/domain/models/ComparisonF
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { aggregateAllStores, indexByStoreDay, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
-import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
+import { aggregateDailyByAlignment } from '@/application/comparison/buildComparisonAggregation'
 import {
-  analyzeDowGap,
-  analyzeDowGapActualDay,
-  ZERO_DOW_GAP_ANALYSIS,
-} from '@/domain/calculations/dowGapAnalysis'
-import {
-  aggregateDailyByAlignment,
-  aggregateKpiByAlignment,
-} from '@/application/comparison/buildComparisonAggregation'
+  buildKpiProjection,
+  buildDowGapProjection,
+} from '@/application/comparison/comparisonProjections'
 
 // ── 出力型 ──
 
@@ -194,46 +189,12 @@ export function useComparisonModule(
     const targetIds = isAllStores
       ? allStoreIds
       : allStoreIds.filter((id) => selectedStoreIds.has(id))
-    if (targetIds.length === 0) return EMPTY_KPI
-
-    const srcYear = scope.period2.from.year
-    const srcMonth = scope.period2.from.month
 
     const prevYearFlowers = data.prevYearFlowers
     const flowersIndex =
       prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
 
-    // 同曜日KPI: scope の alignmentMap は既に DOW offset 込み
-    const sameDow = aggregateKpiByAlignment(allAgg, flowersIndex, targetIds, scope.alignmentMap)
-
-    // 同日KPI: DOW offset なしで再構築
-    const sameDateScope = buildComparisonScope({
-      ...periodSelection,
-      activePreset: 'prevYearSameMonth',
-    })
-    const sameDate = aggregateKpiByAlignment(
-      allAgg,
-      flowersIndex,
-      targetIds,
-      sameDateScope.alignmentMap,
-    )
-
-    // 月全体の dowOffset（月初の曜日差分）
-    const dowOffset = calcSameDowOffset(
-      scope.period1.from.year,
-      scope.period1.from.month,
-      srcYear,
-      srcMonth,
-    )
-
-    return {
-      hasPrevYear: true,
-      sameDow,
-      sameDate,
-      sourceYear: srcYear,
-      sourceMonth: srcMonth,
-      dowOffset,
-    }
+    return buildKpiProjection(allAgg, flowersIndex, targetIds, scope, periodSelection)
   }, [
     scope,
     data.prevYearClassifiedSales,
@@ -244,40 +205,16 @@ export function useComparisonModule(
   ])
 
   // 6. 曜日ギャップ分析
-  const dowGap = useMemo((): DowGapAnalysis => {
-    if (!kpi.hasPrevYear || kpi.sourceYear === 0) return ZERO_DOW_GAP_ANALYSIS
-
-    // 前年曜日別売上を構築
-    const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
-    for (const row of kpi.sameDate.dailyMapping) {
-      const dow = new Date(kpi.sourceYear, kpi.sourceMonth - 1, row.prevDay).getDay()
-      prevDowSales[dow] += row.prevSales
-    }
-
-    const currentYear = periodSelection.period1.from.year
-    const currentMonth = periodSelection.period1.from.month
-
-    const base = analyzeDowGap(
-      currentYear,
-      currentMonth,
-      kpi.sourceYear,
-      kpi.sourceMonth,
-      currentAverageDailySales,
-      prevDowSales,
-    )
-
-    if (kpi.sameDate.dailyMapping.length > 0 && kpi.sameDow.dailyMapping.length > 0) {
-      const actualDay = analyzeDowGapActualDay(
-        kpi.sameDate.dailyMapping,
-        kpi.sameDow.dailyMapping,
-        kpi.sourceYear,
-        kpi.sourceMonth,
-      )
-      return { ...base, actualDayImpact: actualDay }
-    }
-
-    return base
-  }, [kpi, currentAverageDailySales, periodSelection])
+  const dowGap = useMemo(
+    (): DowGapAnalysis =>
+      buildDowGapProjection(
+        kpi,
+        periodSelection.period1.from.year,
+        periodSelection.period1.from.month,
+        currentAverageDailySales,
+      ),
+    [kpi, currentAverageDailySales, periodSelection],
+  )
 
   // 7. 前年スコープ（旧互換 — DuckDB日付範囲 + 客数）
   const prevYearScope = useMemo((): PrevYearScope | undefined => {
