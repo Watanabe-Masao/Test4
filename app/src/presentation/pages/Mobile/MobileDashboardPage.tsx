@@ -6,14 +6,10 @@
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  useCalculation,
-  usePrevYearData,
-  useStoreSelection,
-  useAutoLoadPrevYear,
-  useMonthSwitcher,
-} from '@/application/hooks'
+import { useCalculation, useStoreSelection, useMonthSwitcher } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
+import { useComparisonModule } from '@/application/hooks/useComparisonModule'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { KpiTabContent } from './KpiTabContent'
 import { ChartTabContent } from './ChartTabContent'
@@ -47,9 +43,13 @@ export function MobileDashboardPage() {
   const { isCalculated, daysInMonth } = useCalculation()
   const { currentResult, storeName } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
-  const prevYear = usePrevYearData(currentResult?.elapsedDays)
-
-  useAutoLoadPrevYear()
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
+  const comparison = useComparisonModule(
+    periodSelection,
+    currentResult?.elapsedDays,
+    currentResult?.averageDailySales ?? 0,
+  )
+  const prevYear = comparison.daily
 
   const { isSwitching, goToPrevMonth, goToNextMonth } = useMonthSwitcher()
   const { targetYear, targetMonth } = settings

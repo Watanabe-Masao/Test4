@@ -11,11 +11,13 @@
  * - SQL がデータ取得、JS が計算（useComparisonContextQuery に委譲）
  * - 下の層は上の層のロジックに依存しない
  * - リクエスト時に if 不要
+ * - 比較年月は periodSelection.period2 から導出（settings は参照しない）
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ComparisonContext } from '@/application/comparison/ComparisonContext'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { createEmptyComparisonContext } from '@/application/comparison/comparisonContextFactory'
 import { useComparisonContextQuery } from './duckdb/useComparisonContextQuery'
 
@@ -24,6 +26,9 @@ import { useComparisonContextQuery } from './duckdb/useComparisonContextQuery'
  *
  * ヘッダの表示期間に関係なく、対象年月の月間全体で
  * 当年・前年同曜日・前年同日の3期間メトリクスを返す。
+ *
+ * 比較年月は periodSelection.period2 から導出する。
+ * settings.prevYearSourceYear/Month は参照しない（Admin UI 補助値のみ）。
  *
  * @param conn DuckDB 接続（null なら空コンテキスト）
  * @param dataVersion データバージョン（再クエリトリガー）
@@ -40,9 +45,10 @@ export function useComparisonContext(
   const targetMonth = settings.targetMonth
   const defaultMarkupRate = settings.defaultMarkupRate
 
-  // 前年の年月を決定
-  const prevYear = settings.prevYearSourceYear ?? targetYear - 1
-  const prevMonth = settings.prevYearSourceMonth ?? targetMonth
+  // 比較年月は periodSelection.period2 から導出（settings は参照しない）
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
+  const prevYear = periodSelection.period2.from.year
+  const prevMonth = periodSelection.period2.from.month
 
   // DuckDB クエリ + JS 計算（infrastructure 参照は duckdb/ 層に閉じ込める）
   const { data } = useComparisonContextQuery(

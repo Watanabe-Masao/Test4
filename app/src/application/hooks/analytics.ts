@@ -85,3 +85,7 @@ export type {
   StoreContribution,
 } from './usePrevYearMonthlyKpi'
 export { useAutoLoadPrevYear } from './useAutoLoadPrevYear'
+export { useLoadComparisonData } from './useLoadComparisonData'
+export type { ComparisonLoadStatus } from './useLoadComparisonData'
+export { useComparisonModule } from './useComparisonModule'
+export type { ComparisonModule } from './useComparisonModule'

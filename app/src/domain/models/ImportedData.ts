@@ -30,6 +30,15 @@ export interface ImportedData {
   readonly budget: ReadonlyMap<string, BudgetData>
 }
 
+/** 比較データアクセサ（comparison 統一名） */
+export function getComparisonFields(data: ImportedData) {
+  return {
+    comparisonClassifiedSales: data.prevYearClassifiedSales,
+    comparisonCategoryTimeSales: data.prevYearCategoryTimeSales,
+    comparisonFlowers: data.prevYearFlowers,
+  } as const
+}
+
 /** 空のインポートデータ */
 export function createEmptyImportedData(): ImportedData {
   return {

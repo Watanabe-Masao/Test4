@@ -1,7 +1,8 @@
 import { useTheme } from 'styled-components'
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useCalculation, useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { useCalculation, useStoreSelection } from '@/application/hooks'
+import { useDataStore } from '@/application/stores/dataStore'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
 import {
@@ -131,7 +132,7 @@ function PeriodDisplay() {
 function HeaderContext() {
   const { isCalculated, isComputing } = useCalculation()
   const { stores, selectedStoreIds } = useStoreSelection()
-  const prevYear = usePrevYearData()
+  const hasPrevYear = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
   const theme = useTheme()
 
   const storeLabel =
@@ -149,7 +150,7 @@ function HeaderContext() {
     <ContextBar>
       <StatusDot $color={statusColor} />
       <span>{storeLabel}</span>
-      {prevYear.hasPrevYear && <span>| 前年有</span>}
+      {hasPrevYear && <span>| 前年有</span>}
     </ContextBar>
   )
 }
