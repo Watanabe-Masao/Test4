@@ -9,9 +9,7 @@ import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/rules
 import type { Alert, AlertSeverity, AlertRule } from '@/domain/calculations/rules/alertSystem'
 import type { StoreResult } from '@/domain/models'
 
-// Re-export types, constants, and raw function for presentation layer
 export type { Alert, AlertSeverity, AlertRule }
-export { DEFAULT_ALERT_RULES, evaluateAlerts }
 
 interface AlertOptions {
   readonly targetGrossProfitRate: number

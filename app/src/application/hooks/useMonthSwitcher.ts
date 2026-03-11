@@ -9,9 +9,8 @@ import { useCallback, useState } from 'react'
 import { useRepository } from '../context/useRepository'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useDataStore } from '../stores/dataStore'
-import { useUiStore } from '../stores/uiStore'
 import { usePeriodSelectionStore } from '../stores/periodSelectionStore'
-import { calculationCache } from '../services/calculationCache'
+import { invalidateAfterStateChange } from '../services/stateInvalidation'
 import { createEmptyImportedData } from '@/domain/models'
 
 export interface MonthSwitcherState {
@@ -49,18 +48,16 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         }
 
         // 2. ステートをリセット（空データ）
-        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
+
         useDataStore.getState().setImportedData(createEmptyImportedData())
         useDataStore.getState().setStoreResults(new Map())
         useDataStore.getState().setValidationMessages([])
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateAfterStateChange()
 
         // 3. 設定を更新（targetYear / targetMonth）
-        // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
+
         useSettingsStore.getState().updateSettings({ targetYear: year, targetMonth: month })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateAfterStateChange()
 
         // 4. 期間選択ストアを新しい月で初期化（プリセット・比較ON/OFF を維持）
         usePeriodSelectionStore.getState().resetToMonth(year, month)
@@ -69,10 +66,8 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
         if (repo.isAvailable()) {
           const data = await repo.loadMonthlyData(year, month)
           if (data) {
-            // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
             useDataStore.getState().setImportedData(data)
-            calculationCache.clear()
-            useUiStore.getState().invalidateCalculation()
+            invalidateAfterStateChange()
           }
         }
         // useAutoLoadPrevYear は targetYear/targetMonth の変更を検知して自動的に前年データをロードする

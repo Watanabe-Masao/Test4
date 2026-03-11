@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { calculationCache } from '@/application/services/calculationCache'
+import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import type { AppSettings, InventoryConfig } from '@/domain/models'
 
 /**
@@ -91,8 +90,7 @@ export function useUndoRedo() {
     }
 
     // 全更新完了後に1回だけ cache clear + invalidate
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
+    invalidateAfterStateChange()
 
     setCanUndo(undoStack.current.length > 0)
     setCanRedo(true)
@@ -118,8 +116,7 @@ export function useUndoRedo() {
     }
 
     // 全更新完了後に1回だけ cache clear + invalidate
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
+    invalidateAfterStateChange()
 
     setCanUndo(true)
     setCanRedo(redoStack.current.length > 0)

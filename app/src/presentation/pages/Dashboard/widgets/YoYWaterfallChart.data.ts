@@ -1,7 +1,7 @@
 /**
  * YoYWaterfallChart の型定義・定数データ・データ変換関数
  */
-import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
+import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 

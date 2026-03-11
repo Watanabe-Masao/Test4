@@ -24,7 +24,7 @@ import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
-import { decompose2, decompose3, decompose5 } from '@/application/hooks/useFactorDecomposition'
+import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix, recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import type { CategoryTimeSalesRecord } from '@/domain/models'

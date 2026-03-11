@@ -1,20 +1,9 @@
 /**
- * ExplanationService 拡張テスト
+ * ExplanationService エッジケーステスト
  *
- * 既存テスト（ExplanationService.test.ts）でカバーされていないブランチを
- * 網羅的にテストし、ライン・ブランチカバレッジを 100% に近づける。
- *
- * 対象:
- * - expandDailyEvidence の aggregate 分岐
- * - costComponentDetails 各コスト要素の非ゼロ分岐
- * - salesComponentDetails 各売上要素の非ゼロ分岐
- * - supplierDetails の取引先内訳
- * - deliverySalesCost breakdown の花/産直原価分岐
- * - totalCostInclusion breakdown の itemName / itemCode 分岐
- * - grossProfitBudgetAchievement の grossProfitBudget > 0 分岐
- * - resolveFormulaDetail の formulaRef 解決
- * - generateTextSummary の全条件ブランチ
- * - generateMetricSummary のエッジケース
+ * 各種コスト要素・売上要素の非ゼロ分岐、取引先内訳、
+ * 予算達成率、formulaRef 解決、テキスト要約など、
+ * メインテストでカバーしきれないエッジケースを検証する。
  */
 import { describe, it, expect } from 'vitest'
 import {

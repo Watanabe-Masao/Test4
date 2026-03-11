@@ -12,8 +12,7 @@
  */
 import { useEffect, useReducer, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
-import { calculationCache } from '@/application/services/calculationCache'
+import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type {
@@ -24,7 +23,10 @@ import type {
   SpecialSalesData,
 } from '@/domain/models'
 import type { ComparisonScope, QueryMonth } from '@/domain/models/ComparisonScope'
-import { mergeAdjacentMonthRecords, adjacentMonth } from './useAutoLoadPrevYear'
+import {
+  mergeAdjacentMonthRecords,
+  adjacentMonth,
+} from '@/application/comparison/adjacentMonthUtils'
 
 // 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
 export type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
@@ -191,8 +193,7 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
           prevYearCategoryTimeSales: { records: mergedCTSRecords },
           prevYearFlowers: prevFlowers ?? { records: [] },
         })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateAfterStateChange()
 
         if (!cancelled) {
           dispatch({

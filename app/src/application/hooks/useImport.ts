@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { calculationCache } from '@/application/services/calculationCache'
+import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
 import { validateImportedData } from '@/application/usecases/import'
 import type { ImportSummary } from '@/application/usecases/import'
@@ -55,8 +55,7 @@ export function useImport() {
     const { targetYear, targetMonth } = settingsRef.current
     const dim = getDaysInMonth(targetYear, targetMonth)
     useSettingsStore.getState().updateSettings({ dataEndDay: maxDay >= dim ? null : maxDay })
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
+    invalidateAfterStateChange()
   }, [])
 
   /** インポート結果を state に反映する */
@@ -67,8 +66,7 @@ export function useImport() {
       messages: ReturnType<typeof validateImportedData>,
     ) => {
       useDataStore.getState().setImportedData(finalData)
-      calculationCache.clear()
-      useUiStore.getState().invalidateCalculation()
+      invalidateAfterStateChange()
       dataRef.current = finalData
       applyDataEndDay(maxDay)
       useDataStore.getState().setValidationMessages(messages)
@@ -80,8 +78,7 @@ export function useImport() {
   const applyDetectedYearMonth = useCallback((ym: { year: number; month: number } | null) => {
     if (!ym) return
     useSettingsStore.getState().updateSettings({ targetYear: ym.year, targetMonth: ym.month })
-    calculationCache.clear()
-    useUiStore.getState().invalidateCalculation()
+    invalidateAfterStateChange()
     settingsRef.current = { ...settingsRef.current, targetYear: ym.year, targetMonth: ym.month }
   }, [])
 

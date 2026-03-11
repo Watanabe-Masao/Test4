@@ -25,6 +25,3 @@ export function useForecast(input: ForecastInput | null): ForecastResult | null 
 export function useWeekRanges(year: number, month: number) {
   return useMemo(() => getWeekRanges(year, month), [year, month])
 }
-
-// Non-hook re-exports for helper functions that cannot use hooks
-export { calculateForecast, getWeekRanges }

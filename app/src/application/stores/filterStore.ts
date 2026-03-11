@@ -62,7 +62,7 @@ interface FilterStoreActions {
   /** 部門フィルタを設定 */
   setDepartmentFilter: (department: string | null) => void
   /** dayRange をデータ有効範囲に合わせてリセット */
-  resetDayRange: (daysInMonth: number, dataMaxDay?: number) => void
+  resetDayRange: (endDay: number) => void
   /** 全フィルタをリセット */
   resetAll: (daysInMonth?: number) => void
 }
@@ -136,12 +136,7 @@ export const useFilterStore = create<FilterStore>()(
       setDepartmentFilter: (department) =>
         set({ departmentFilter: department }, false, 'setDepartmentFilter'),
 
-      resetDayRange: (daysInMonth, dataMaxDay) =>
-        set(
-          { dayRange: [1, dataMaxDay != null ? Math.min(dataMaxDay, daysInMonth) : daysInMonth] },
-          false,
-          'resetDayRange',
-        ),
+      resetDayRange: (endDay) => set({ dayRange: [1, endDay] }, false, 'resetDayRange'),
 
       resetAll: (daysInMonth) =>
         set(
