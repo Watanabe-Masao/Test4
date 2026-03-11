@@ -69,6 +69,61 @@ function createEmptySnapshot(year: number, month: number): PeriodSnapshot {
   }
 }
 
+/** 合算済みスカラー値から率・推定法を再計算する */
+function recalculateRates(sums: {
+  totalSales: number
+  totalCoreSales: number
+  totalPurchasePrice: number
+  totalPurchaseCost: number
+  deliverySalesPrice: number
+  deliverySalesCost: number
+  totalTransferPrice: number
+  totalTransferCost: number
+  totalDiscount: number
+  totalCostInclusion: number
+  totalCustomers: number
+  salesDays: number
+}) {
+  const allPurchasePrice =
+    sums.totalPurchasePrice + sums.deliverySalesPrice + sums.totalTransferPrice
+  const allPurchaseCost = sums.totalPurchaseCost + sums.deliverySalesCost + sums.totalTransferCost
+  const averageMarkupRate =
+    allPurchasePrice > 0 ? (allPurchasePrice - allPurchaseCost) / allPurchasePrice : 0
+  const corePurchasePrice = sums.totalPurchasePrice + sums.totalTransferPrice
+  const corePurchaseCost = sums.totalPurchaseCost + sums.totalTransferCost
+  const coreMarkupRate =
+    corePurchasePrice > 0 ? (corePurchasePrice - corePurchaseCost) / corePurchasePrice : 0
+  const discountRate =
+    sums.totalSales + sums.totalDiscount > 0
+      ? sums.totalDiscount / (sums.totalSales + sums.totalDiscount)
+      : 0
+  const costInclusionRate = sums.totalSales > 0 ? sums.totalCostInclusion / sums.totalSales : 0
+  const averageCustomersPerDay = sums.salesDays > 0 ? sums.totalCustomers / sums.salesDays : 0
+
+  // 推定法: コア売上ベースで再計算
+  const grossSalesEst =
+    discountRate < 1 ? sums.totalCoreSales / (1 - discountRate) : sums.totalCoreSales
+  const estMethodCogs = grossSalesEst * (1 - coreMarkupRate) + sums.totalCostInclusion
+  const estMethodMargin = sums.totalCoreSales - estMethodCogs
+  const estMethodMarginRate = sums.totalCoreSales > 0 ? estMethodMargin / sums.totalCoreSales : 0
+  const discountLossCost =
+    discountRate < 1
+      ? (1 - coreMarkupRate) * sums.totalCoreSales * (discountRate / (1 - discountRate))
+      : (1 - coreMarkupRate) * sums.totalCoreSales * discountRate
+
+  return {
+    averageMarkupRate,
+    coreMarkupRate,
+    discountRate,
+    costInclusionRate,
+    averageCustomersPerDay,
+    estMethodCogs,
+    estMethodMargin,
+    estMethodMarginRate,
+    discountLossCost,
+  }
+}
+
 /**
  * PeriodMetrics[] を全店合算した単一の PeriodMetrics に集約する
  *
@@ -146,24 +201,20 @@ export function aggregateMetrics(metrics: readonly PeriodMetrics[]): PeriodMetri
   }
 
   // 率は合算後に再計算
-  const allPurchasePrice = totalPurchasePrice + deliverySalesPrice + totalTransferPrice
-  const allPurchaseCost = totalPurchaseCost + deliverySalesCost + totalTransferCost
-  const averageMarkupRate =
-    allPurchasePrice > 0 ? (allPurchasePrice - allPurchaseCost) / allPurchasePrice : 0
-  const corePurchasePrice = totalPurchasePrice + totalTransferPrice
-  const corePurchaseCost = totalPurchaseCost + totalTransferCost
-  const coreMarkupRate =
-    corePurchasePrice > 0 ? (corePurchasePrice - corePurchaseCost) / corePurchasePrice : 0
-  const discountRate =
-    totalSales + totalDiscount > 0 ? totalDiscount / (totalSales + totalDiscount) : 0
-  const costInclusionRate = totalSales > 0 ? totalCostInclusion / totalSales : 0
-  const averageCustomersPerDay = salesDays > 0 ? totalCustomers / salesDays : 0
-
-  // 推定法: コア売上ベースで再計算
-  const grossSalesEst = discountRate < 1 ? totalCoreSales / (1 - discountRate) : totalCoreSales
-  const estMethodCogs = grossSalesEst * (1 - coreMarkupRate) + totalCostInclusion
-  const estMethodMargin = totalCoreSales - estMethodCogs
-  const estMethodMarginRate = totalCoreSales > 0 ? estMethodMargin / totalCoreSales : 0
+  const rates = recalculateRates({
+    totalSales,
+    totalCoreSales,
+    totalPurchasePrice,
+    totalPurchaseCost,
+    deliverySalesPrice,
+    deliverySalesCost,
+    totalTransferPrice,
+    totalTransferCost,
+    totalDiscount,
+    totalCostInclusion,
+    totalCustomers,
+    salesDays,
+  })
 
   return {
     storeId: 'all',
@@ -191,25 +242,22 @@ export function aggregateMetrics(metrics: readonly PeriodMetrics[]): PeriodMetri
     totalTransferCost,
     totalTransferPrice,
     totalDiscount,
-    discountRate,
-    discountLossCost:
-      discountRate < 1
-        ? (1 - coreMarkupRate) * totalCoreSales * (discountRate / (1 - discountRate))
-        : (1 - coreMarkupRate) * totalCoreSales * discountRate,
-    averageMarkupRate,
-    coreMarkupRate,
+    discountRate: rates.discountRate,
+    discountLossCost: rates.discountLossCost,
+    averageMarkupRate: rates.averageMarkupRate,
+    coreMarkupRate: rates.coreMarkupRate,
     totalCostInclusion,
-    costInclusionRate,
+    costInclusionRate: rates.costInclusionRate,
     totalCustomers,
-    averageCustomersPerDay,
+    averageCustomersPerDay: rates.averageCustomersPerDay,
     openingInventory: null,
     closingInventory: null,
     invMethodCogs: null,
     invMethodGrossProfit: null,
     invMethodGrossProfitRate: null,
-    estMethodCogs,
-    estMethodMargin,
-    estMethodMarginRate,
+    estMethodCogs: rates.estMethodCogs,
+    estMethodMargin: rates.estMethodMargin,
+    estMethodMarginRate: rates.estMethodMarginRate,
     estMethodClosingInventory: null,
     grossProfitBudget,
     salesDays,

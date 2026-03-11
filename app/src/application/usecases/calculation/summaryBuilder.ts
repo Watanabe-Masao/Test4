@@ -48,6 +48,63 @@ export function computeSummaryFingerprint(data: ImportedData): string {
   return `sds:${hash.toString(36)}`
 }
 
+/** 移動レコードから8方向のコスト・売価を合計する */
+function sumTransferAmounts(
+  interInDay:
+    | {
+        interStoreIn: readonly { cost: number; price: number }[]
+        interDepartmentIn: readonly { cost: number; price: number }[]
+      }
+    | undefined,
+  interOutDay:
+    | {
+        interStoreOut: readonly { cost: number; price: number }[]
+        interDepartmentOut: readonly { cost: number; price: number }[]
+      }
+    | undefined,
+) {
+  let interStoreInCost = 0
+  let interStoreInPrice = 0
+  let interStoreOutCost = 0
+  let interStoreOutPrice = 0
+  let interDeptInCost = 0
+  let interDeptInPrice = 0
+  let interDeptOutCost = 0
+  let interDeptOutPrice = 0
+
+  if (interInDay) {
+    for (const r of interInDay.interStoreIn) {
+      interStoreInCost += r.cost
+      interStoreInPrice += r.price
+    }
+    for (const r of interInDay.interDepartmentIn) {
+      interDeptInCost += r.cost
+      interDeptInPrice += r.price
+    }
+  }
+  if (interOutDay) {
+    for (const r of interOutDay.interStoreOut) {
+      interStoreOutCost += r.cost
+      interStoreOutPrice += r.price
+    }
+    for (const r of interOutDay.interDepartmentOut) {
+      interDeptOutCost += r.cost
+      interDeptOutPrice += r.price
+    }
+  }
+
+  return {
+    interStoreInCost,
+    interStoreInPrice,
+    interStoreOutCost,
+    interStoreOutPrice,
+    interDeptInCost,
+    interDeptInPrice,
+    interDeptOutCost,
+    interDeptOutPrice,
+  }
+}
+
 /**
  * 単一店舗の日別サマリーを構築する。
  * dailyBuilder.buildDailyRecords の結合ロジックを抽出し、
@@ -98,35 +155,16 @@ function buildStoreDay(
     const directProducePrice = directProduceDay?.price ?? ZERO_COST_PRICE_PAIR.price
 
     // 移動
-    let interStoreInCost = 0
-    let interStoreInPrice = 0
-    let interStoreOutCost = 0
-    let interStoreOutPrice = 0
-    let interDeptInCost = 0
-    let interDeptInPrice = 0
-    let interDeptOutCost = 0
-    let interDeptOutPrice = 0
-
-    if (interInDay) {
-      for (const r of interInDay.interStoreIn) {
-        interStoreInCost += r.cost
-        interStoreInPrice += r.price
-      }
-      for (const r of interInDay.interDepartmentIn) {
-        interDeptInCost += r.cost
-        interDeptInPrice += r.price
-      }
-    }
-    if (interOutDay) {
-      for (const r of interOutDay.interStoreOut) {
-        interStoreOutCost += r.cost
-        interStoreOutPrice += r.price
-      }
-      for (const r of interOutDay.interDepartmentOut) {
-        interDeptOutCost += r.cost
-        interDeptOutPrice += r.price
-      }
-    }
+    const {
+      interStoreInCost,
+      interStoreInPrice,
+      interStoreOutCost,
+      interStoreOutPrice,
+      interDeptInCost,
+      interDeptInPrice,
+      interDeptOutCost,
+      interDeptOutPrice,
+    } = sumTransferAmounts(interInDay, interOutDay)
 
     // 消耗品
     const costInclusionCost = (costInclusionDay ?? ZERO_COST_INCLUSION_DAILY).cost

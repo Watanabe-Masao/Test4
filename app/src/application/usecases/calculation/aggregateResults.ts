@@ -77,17 +77,36 @@ function mergeDailyRecord(existing: DailyRecord, rec: DailyRecord): DailyRecord 
   }
 }
 
-/**
- * 複数店舗の StoreResult を合算する
- */
-export function aggregateStoreResults(
-  results: readonly StoreResult[],
-  daysInMonth: number,
-): StoreResult {
-  if (results.length === 0) {
-    throw new Error('Cannot aggregate 0 results')
-  }
+// ── 集約の中間結果型 ──
 
+interface ScalarAccumulation {
+  totalSales: number
+  totalCoreSales: number
+  deliverySalesPrice: number
+  flowerSalesPrice: number
+  directProduceSalesPrice: number
+  grossSales: number
+  totalCost: number
+  inventoryCost: number
+  deliverySalesCost: number
+  totalDiscount: number
+  aggDiscountEntries: ReturnType<typeof addDiscountEntries>
+  totalCostInclusion: number
+  totalCustomers: number
+  budget: number
+  gpBudget: number
+  elapsedDays: number
+  salesDays: number
+  purchaseMaxDay: number
+  hasDiscountData: boolean
+  openInv: number
+  closeInv: number
+  hasOpening: boolean
+  hasClosing: boolean
+}
+
+/** 全店舗のスカラー値を合算する */
+function accumulateScalars(results: readonly StoreResult[]): ScalarAccumulation {
   let totalSales = 0
   let totalCoreSales = 0
   let deliverySalesPrice = 0
@@ -107,22 +126,10 @@ export function aggregateStoreResults(
   let salesDays = 0
   let purchaseMaxDay = 0
   let hasDiscountData = false
-
   let openInv = 0
   let closeInv = 0
   let hasOpening = false
   let hasClosing = false
-
-  const aggDaily = new Map<number, DailyRecord>()
-  const aggCategory = new Map<CategoryType, CostPricePair>()
-  const aggSupplier = new Map<string, SupplierTotal>()
-  const aggBudgetDaily = new Map<number, number>()
-  const aggTransfer = {
-    interStoreIn: { ...ZERO_COST_PRICE_PAIR },
-    interStoreOut: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
-  }
 
   for (const r of results) {
     totalSales += r.totalSales
@@ -147,7 +154,6 @@ export function aggregateStoreResults(
     salesDays = Math.max(salesDays, r.salesDays)
     purchaseMaxDay = Math.max(purchaseMaxDay, r.purchaseMaxDay)
     if (r.hasDiscountData) hasDiscountData = true
-
     if (r.openingInventory != null) {
       openInv += r.openingInventory
       hasOpening = true
@@ -156,7 +162,49 @@ export function aggregateStoreResults(
       closeInv += r.closingInventory
       hasClosing = true
     }
+  }
 
+  return {
+    totalSales,
+    totalCoreSales,
+    deliverySalesPrice,
+    flowerSalesPrice,
+    directProduceSalesPrice,
+    grossSales,
+    totalCost,
+    inventoryCost,
+    deliverySalesCost,
+    totalDiscount,
+    aggDiscountEntries,
+    totalCostInclusion,
+    totalCustomers,
+    budget,
+    gpBudget,
+    elapsedDays,
+    salesDays,
+    purchaseMaxDay,
+    hasDiscountData,
+    openInv,
+    closeInv,
+    hasOpening,
+    hasClosing,
+  }
+}
+
+/** 日別・カテゴリ・取引先・予算・移動を集約する */
+function aggregateCollections(results: readonly StoreResult[]) {
+  const aggDaily = new Map<number, DailyRecord>()
+  const aggCategory = new Map<CategoryType, CostPricePair>()
+  const aggSupplier = new Map<string, SupplierTotal>()
+  const aggBudgetDaily = new Map<number, number>()
+  const aggTransfer = {
+    interStoreIn: { ...ZERO_COST_PRICE_PAIR },
+    interStoreOut: { ...ZERO_COST_PRICE_PAIR },
+    interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
+    interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
+  }
+
+  for (const r of results) {
     // 日別集計
     for (const [day, rec] of r.daily) {
       const existing = aggDaily.get(day)
@@ -220,9 +268,20 @@ export function aggregateStoreResults(
     )
   }
 
-  const discountRate = calculateDiscountRate(totalSales, totalDiscount)
+  return { aggDaily, aggCategory, aggSupplier, aggBudgetDaily, aggTransfer }
+}
 
-  // 値入率（storeAssembler と同じ式: 店間・部門間移動も仕入として算入）
+/** 合算値から値入率を計算する */
+function calculateMarkupRates(
+  aggSupplier: ReadonlyMap<string, SupplierTotal>,
+  aggCategory: ReadonlyMap<CategoryType, CostPricePair>,
+  aggTransfer: {
+    interStoreIn: CostPricePair
+    interStoreOut: CostPricePair
+    interDepartmentIn: CostPricePair
+    interDepartmentOut: CostPricePair
+  },
+) {
   let totalPurchaseCost = 0
   let totalPurchasePrice = 0
   for (const [, st] of aggSupplier) {
@@ -251,13 +310,16 @@ export function aggregateStoreResults(
     0,
   )
 
-  const costInclusionRate = safeDivide(totalCostInclusion, totalSales, 0)
-  const averageDailySales = safeDivide(totalSales, salesDays, 0)
+  return { averageMarkupRate, coreMarkupRate }
+}
 
-  const openingInventory = hasOpening ? openInv : null
-  const closingInventory = hasClosing ? closeInv : null
-
-  // 在庫法集計
+/** 在庫法の集約結果を計算する */
+function calculateAggregateInventory(
+  openingInventory: number | null,
+  closingInventory: number | null,
+  totalCost: number,
+  totalSales: number,
+) {
   let invMethodCogs: number | null = null
   let invMethodGrossProfit: number | null = null
   let invMethodGrossProfitRate: number | null = null
@@ -266,8 +328,11 @@ export function aggregateStoreResults(
     invMethodGrossProfit = totalSales - invMethodCogs
     invMethodGrossProfitRate = safeDivide(invMethodGrossProfit, totalSales, 0)
   }
+  return { invMethodCogs, invMethodGrossProfit, invMethodGrossProfitRate }
+}
 
-  // 推定法集計
+/** 推定法の集約結果を計算する */
+function calculateAggregateEstMethod(results: readonly StoreResult[], totalCoreSales: number) {
   const estMethodCogs = results.reduce((s, r) => s + r.estMethodCogs, 0)
   const estMethodMargin = results.reduce((s, r) => s + r.estMethodMargin, 0)
   const estMethodMarginRate = safeDivide(estMethodMargin, totalCoreSales, 0)
@@ -275,14 +340,24 @@ export function aggregateStoreResults(
   const estMethodClosingInventory = hasEstClosing
     ? results.reduce((s, r) => s + (r.estMethodClosingInventory ?? 0), 0)
     : null
+  return { estMethodCogs, estMethodMargin, estMethodMarginRate, estMethodClosingInventory }
+}
 
-  const discountLossCost = results.reduce((s, r) => s + r.discountLossCost, 0)
+/** 予算分析の集約結果を計算する */
+function calculateAggregateBudget(
+  totalSales: number,
+  budget: number,
+  averageDailySales: number,
+  elapsedDays: number,
+  daysInMonth: number,
+  aggBudgetDaily: ReadonlyMap<number, number>,
+  aggDaily: ReadonlyMap<number, DailyRecord>,
+) {
   const remainingDays = daysInMonth - elapsedDays
   const projectedSales = totalSales + averageDailySales * remainingDays
   const projectedAchievement = safeDivide(projectedSales, budget, 0)
-
-  // 集約予算分析
   const budgetAchievementRate = safeDivide(totalSales, budget, 0)
+
   let aggCumulativeBudget = 0
   for (let d = 1; d <= elapsedDays; d++) {
     aggCumulativeBudget += aggBudgetDaily.get(d) ?? 0
@@ -305,7 +380,28 @@ export function aggregateStoreResults(
     dailyCumulative.set(d, { sales: cumSales, budget: cumBudget })
   }
 
-  const transferDetails: TransferDetails = {
+  return {
+    projectedSales,
+    projectedAchievement,
+    budgetAchievementRate,
+    budgetProgressRate,
+    budgetElapsedRate,
+    budgetProgressGap,
+    budgetVariance,
+    requiredDailySales,
+    remainingBudget,
+    dailyCumulative,
+  }
+}
+
+/** TransferDetails を構築する */
+function buildTransferDetails(aggTransfer: {
+  interStoreIn: CostPricePair
+  interStoreOut: CostPricePair
+  interDepartmentIn: CostPricePair
+  interDepartmentOut: CostPricePair
+}): TransferDetails {
+  return {
     ...aggTransfer,
     netTransfer: {
       cost:
@@ -320,6 +416,57 @@ export function aggregateStoreResults(
         aggTransfer.interDepartmentOut.price,
     },
   }
+}
+
+/**
+ * 複数店舗の StoreResult を合算する
+ */
+export function aggregateStoreResults(
+  results: readonly StoreResult[],
+  daysInMonth: number,
+): StoreResult {
+  if (results.length === 0) {
+    throw new Error('Cannot aggregate 0 results')
+  }
+
+  const scalars = accumulateScalars(results)
+  const { aggDaily, aggCategory, aggSupplier, aggBudgetDaily, aggTransfer } =
+    aggregateCollections(results)
+
+  const discountRate = calculateDiscountRate(scalars.totalSales, scalars.totalDiscount)
+  const { averageMarkupRate, coreMarkupRate } = calculateMarkupRates(
+    aggSupplier,
+    aggCategory,
+    aggTransfer,
+  )
+
+  const costInclusionRate = safeDivide(scalars.totalCostInclusion, scalars.totalSales, 0)
+  const averageDailySales = safeDivide(scalars.totalSales, scalars.salesDays, 0)
+
+  const openingInventory = scalars.hasOpening ? scalars.openInv : null
+  const closingInventory = scalars.hasClosing ? scalars.closeInv : null
+
+  const inv = calculateAggregateInventory(
+    openingInventory,
+    closingInventory,
+    scalars.totalCost,
+    scalars.totalSales,
+  )
+  const est = calculateAggregateEstMethod(results, scalars.totalCoreSales)
+
+  const discountLossCost = results.reduce((s, r) => s + r.discountLossCost, 0)
+
+  const budgetAnalysis = calculateAggregateBudget(
+    scalars.totalSales,
+    scalars.budget,
+    averageDailySales,
+    scalars.elapsedDays,
+    daysInMonth,
+    aggBudgetDaily,
+    aggDaily,
+  )
+
+  const transferDetails = buildTransferDetails(aggTransfer)
 
   return {
     storeId: 'aggregate',
@@ -329,62 +476,53 @@ export function aggregateStoreResults(
     costInclusionInventory: null,
     inventoryDate: null,
     closingInventoryDay: null,
-    purchaseMaxDay,
-    hasDiscountData,
-    totalSales,
-    totalCoreSales,
-    deliverySalesPrice,
-    flowerSalesPrice,
-    directProduceSalesPrice,
-    grossSales,
-    totalCost,
-    inventoryCost,
-    deliverySalesCost,
-    invMethodCogs,
-    invMethodGrossProfit,
-    invMethodGrossProfitRate,
-    estMethodCogs,
-    estMethodMargin,
-    estMethodMarginRate,
-    estMethodClosingInventory,
-    totalCustomers,
-    transactionValue: safeDivide(totalSales, totalCustomers, 0),
-    averageCustomersPerDay: safeDivide(totalCustomers, salesDays, 0),
-    totalDiscount,
+    purchaseMaxDay: scalars.purchaseMaxDay,
+    hasDiscountData: scalars.hasDiscountData,
+    totalSales: scalars.totalSales,
+    totalCoreSales: scalars.totalCoreSales,
+    deliverySalesPrice: scalars.deliverySalesPrice,
+    flowerSalesPrice: scalars.flowerSalesPrice,
+    directProduceSalesPrice: scalars.directProduceSalesPrice,
+    grossSales: scalars.grossSales,
+    totalCost: scalars.totalCost,
+    inventoryCost: scalars.inventoryCost,
+    deliverySalesCost: scalars.deliverySalesCost,
+    invMethodCogs: inv.invMethodCogs,
+    invMethodGrossProfit: inv.invMethodGrossProfit,
+    invMethodGrossProfitRate: inv.invMethodGrossProfitRate,
+    estMethodCogs: est.estMethodCogs,
+    estMethodMargin: est.estMethodMargin,
+    estMethodMarginRate: est.estMethodMarginRate,
+    estMethodClosingInventory: est.estMethodClosingInventory,
+    totalCustomers: scalars.totalCustomers,
+    transactionValue: safeDivide(scalars.totalSales, scalars.totalCustomers, 0),
+    averageCustomersPerDay: safeDivide(scalars.totalCustomers, scalars.salesDays, 0),
+    totalDiscount: scalars.totalDiscount,
     discountRate,
     discountLossCost,
-    discountEntries: aggDiscountEntries,
+    discountEntries: scalars.aggDiscountEntries,
     averageMarkupRate,
     coreMarkupRate,
-    totalCostInclusion,
+    totalCostInclusion: scalars.totalCostInclusion,
     costInclusionRate,
-    budget,
-    grossProfitBudget: gpBudget,
-    grossProfitRateBudget: safeDivide(gpBudget, budget, 0),
+    budget: scalars.budget,
+    grossProfitBudget: scalars.gpBudget,
+    grossProfitRateBudget: safeDivide(scalars.gpBudget, scalars.budget, 0),
     budgetDaily: aggBudgetDaily,
     daily: aggDaily,
     categoryTotals: aggCategory,
     supplierTotals: aggSupplier,
     transferDetails,
-    elapsedDays,
-    salesDays,
+    elapsedDays: scalars.elapsedDays,
+    salesDays: scalars.salesDays,
     averageDailySales,
-    projectedSales,
-    projectedAchievement,
-    budgetAchievementRate,
-    budgetProgressRate,
-    budgetElapsedRate,
-    budgetProgressGap,
-    budgetVariance,
-    requiredDailySales,
-    remainingBudget,
-    dailyCumulative,
+    ...budgetAnalysis,
     ...calculateGrossProfitBudget({
-      grossProfit: invMethodGrossProfit ?? estMethodMargin,
-      grossProfitBudget: gpBudget,
-      budgetElapsedRate,
-      elapsedDays,
-      salesDays,
+      grossProfit: inv.invMethodGrossProfit ?? est.estMethodMargin,
+      grossProfitBudget: scalars.gpBudget,
+      budgetElapsedRate: budgetAnalysis.budgetElapsedRate,
+      elapsedDays: scalars.elapsedDays,
+      salesDays: scalars.salesDays,
       daysInMonth,
     }),
   }

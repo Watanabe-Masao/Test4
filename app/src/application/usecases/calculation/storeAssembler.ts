@@ -30,6 +30,97 @@ function addToCategory(
   map.set(category, addCostPricePairs(existing, pair))
 }
 
+/** 移動合計から転送コスト・価格合計を計算する */
+function calculateTransferTotals(transferTotals: MonthlyAccumulator['transferTotals']) {
+  const transferPrice =
+    transferTotals.interStoreIn.price +
+    transferTotals.interStoreOut.price +
+    transferTotals.interDepartmentIn.price +
+    transferTotals.interDepartmentOut.price
+  const transferCost =
+    transferTotals.interStoreIn.cost +
+    transferTotals.interStoreOut.cost +
+    transferTotals.interDepartmentIn.cost +
+    transferTotals.interDepartmentOut.cost
+  return { transferPrice, transferCost }
+}
+
+/** 値入率（全カテゴリ・コア）を計算する */
+function calculateMarkupRates(
+  acc: MonthlyAccumulator,
+  transferPrice: number,
+  transferCost: number,
+  defaultMarkupRate: number,
+) {
+  const allPurchasePrice =
+    acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
+  const allPurchaseCost =
+    acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
+  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
+  const coreMarkupRate = safeDivide(
+    acc.totalPurchasePrice + transferPrice - (acc.totalPurchaseCost + transferCost),
+    acc.totalPurchasePrice + transferPrice,
+    defaultMarkupRate,
+  )
+  return { averageMarkupRate, coreMarkupRate }
+}
+
+/** カテゴリ集計にカテゴリ別の合算を追加する */
+function finalizeCategoryTotals(acc: MonthlyAccumulator): void {
+  addToCategory(acc.categoryTotals, 'flowers', {
+    cost: acc.totalFlowerCost,
+    price: acc.totalFlowerPrice,
+  })
+  addToCategory(acc.categoryTotals, 'directProduce', {
+    cost: acc.totalDirectProduceCost,
+    price: acc.totalDirectProducePrice,
+  })
+  addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalCostInclusion, price: 0 })
+  addToCategory(
+    acc.categoryTotals,
+    'interStore',
+    addCostPricePairs(acc.transferTotals.interStoreIn, acc.transferTotals.interStoreOut),
+  )
+  addToCategory(
+    acc.categoryTotals,
+    'interDepartment',
+    addCostPricePairs(acc.transferTotals.interDepartmentIn, acc.transferTotals.interDepartmentOut),
+  )
+}
+
+/** 移動詳細を構築する */
+function buildTransferDetails(
+  transferTotals: MonthlyAccumulator['transferTotals'],
+): TransferDetails {
+  const { transferPrice, transferCost } = calculateTransferTotals(transferTotals)
+  return {
+    ...transferTotals,
+    netTransfer: { cost: transferCost, price: transferPrice },
+  }
+}
+
+/** 予算データを解決する */
+function resolveBudget(
+  storeId: string,
+  data: ImportedData,
+  settings: AppSettings,
+  daysInMonth: number,
+) {
+  const invConfig = data.settings.get(storeId)
+  const budgetData = data.budget.get(storeId)
+  const budget = budgetData?.total ?? settings.defaultBudget
+  const budgetDaily: ReadonlyMap<number, number> = (() => {
+    if (budgetData?.daily && budgetData.daily.size > 0) return budgetData.daily
+    if (budget <= 0 || daysInMonth <= 0) return new Map<number, number>()
+    const perDay = budget / daysInMonth
+    const m = new Map<number, number>()
+    for (let d = 1; d <= daysInMonth; d++) m.set(d, perDay)
+    return m
+  })()
+  const gpBudget = invConfig?.grossProfitBudget ?? 0
+  return { budget, budgetDaily, gpBudget }
+}
+
 /**
  * 月間集計から最終的な StoreResult を組み立てる
  */
@@ -41,7 +132,6 @@ export function assembleStoreResult(
   daysInMonth: number,
 ): StoreResult {
   const invConfig = data.settings.get(storeId)
-  const budgetData = data.budget.get(storeId)
 
   // 売上納品
   const deliverySalesPrice = acc.totalFlowerPrice + acc.totalDirectProducePrice
@@ -63,26 +153,12 @@ export function assembleStoreResult(
   // 売変率
   const discountRate = calculateDiscountRate(acc.totalSales, acc.totalDiscount)
 
-  // 値入率（店間・部門間移動も仕入として算入）
-  const transferPrice =
-    acc.transferTotals.interStoreIn.price +
-    acc.transferTotals.interStoreOut.price +
-    acc.transferTotals.interDepartmentIn.price +
-    acc.transferTotals.interDepartmentOut.price
-  const transferCost =
-    acc.transferTotals.interStoreIn.cost +
-    acc.transferTotals.interStoreOut.cost +
-    acc.transferTotals.interDepartmentIn.cost +
-    acc.transferTotals.interDepartmentOut.cost
-
-  const allPurchasePrice =
-    acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
-  const allPurchaseCost =
-    acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
-  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  const coreMarkupRate = safeDivide(
-    acc.totalPurchasePrice + transferPrice - (acc.totalPurchaseCost + transferCost),
-    acc.totalPurchasePrice + transferPrice,
+  // 値入率
+  const { transferPrice, transferCost } = calculateTransferTotals(acc.transferTotals)
+  const { averageMarkupRate, coreMarkupRate } = calculateMarkupRates(
+    acc,
+    transferPrice,
+    transferCost,
     settings.defaultMarkupRate,
   )
 
@@ -115,42 +191,10 @@ export function assembleStoreResult(
   const costInclusionRate = safeDivide(acc.totalCostInclusion, acc.totalSales, 0)
 
   // カテゴリ集計
-  addToCategory(acc.categoryTotals, 'flowers', {
-    cost: acc.totalFlowerCost,
-    price: acc.totalFlowerPrice,
-  })
-  addToCategory(acc.categoryTotals, 'directProduce', {
-    cost: acc.totalDirectProduceCost,
-    price: acc.totalDirectProducePrice,
-  })
-  addToCategory(acc.categoryTotals, 'consumables', { cost: acc.totalCostInclusion, price: 0 })
-  addToCategory(
-    acc.categoryTotals,
-    'interStore',
-    addCostPricePairs(acc.transferTotals.interStoreIn, acc.transferTotals.interStoreOut),
-  )
-  addToCategory(
-    acc.categoryTotals,
-    'interDepartment',
-    addCostPricePairs(acc.transferTotals.interDepartmentIn, acc.transferTotals.interDepartmentOut),
-  )
+  finalizeCategoryTotals(acc)
 
   // 移動詳細
-  const transferDetails: TransferDetails = {
-    ...acc.transferTotals,
-    netTransfer: {
-      cost:
-        acc.transferTotals.interStoreIn.cost +
-        acc.transferTotals.interStoreOut.cost +
-        acc.transferTotals.interDepartmentIn.cost +
-        acc.transferTotals.interDepartmentOut.cost,
-      price:
-        acc.transferTotals.interStoreIn.price +
-        acc.transferTotals.interStoreOut.price +
-        acc.transferTotals.interDepartmentIn.price +
-        acc.transferTotals.interDepartmentOut.price,
-    },
-  }
+  const transferDetails = buildTransferDetails(acc.transferTotals)
 
   // 取引先値入率の後計算
   for (const [code, st] of acc.supplierTotals) {
@@ -161,17 +205,7 @@ export function assembleStoreResult(
   }
 
   // 予算
-  const budget = budgetData?.total ?? settings.defaultBudget
-  // 日別予算が無い場合は均等日割りにフォールバック
-  const budgetDaily: ReadonlyMap<number, number> = (() => {
-    if (budgetData?.daily && budgetData.daily.size > 0) return budgetData.daily
-    if (budget <= 0 || daysInMonth <= 0) return new Map<number, number>()
-    const perDay = budget / daysInMonth
-    const m = new Map<number, number>()
-    for (let d = 1; d <= daysInMonth; d++) m.set(d, perDay)
-    return m
-  })()
-  const gpBudget = invConfig?.grossProfitBudget ?? 0
+  const { budget, budgetDaily, gpBudget } = resolveBudget(storeId, data, settings, daysInMonth)
 
   // 予算分析
   const salesDaily = new Map<number, number>()

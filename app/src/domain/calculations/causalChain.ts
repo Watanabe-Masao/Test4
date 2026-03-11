@@ -74,6 +74,8 @@ export function storeResultToCausalPrev(r: StoreResult): CausalChainPrevInput {
   }
 }
 
+// ── フォーマットヘルパー ──
+
 /** パーセントフォーマット（toPctと同等だがReact非依存） */
 function fmtPct(v: number, decimals = 1): string {
   return `${(v * 100).toFixed(decimals)}%`
@@ -83,32 +85,35 @@ function fmtComma(v: number): string {
   return Math.round(v).toLocaleString('ja-JP')
 }
 
-/**
- * StoreResult（当年）+ 前年データから因果チェーンのステップ列を生成する。
- *
- * ステップ構造:
- * 1. 粗利率の状況 — メイン指標の現在位置
- * 2. 粗利率変動の要因分解 — 原価・売変・消耗品の成分変動
- * 3. 売変種別内訳 — 売変データがある場合のみ
- * 4. 成分サマリー — 売上差のShapley分解 + 全成分の現在値
- *
- * 設計原則: 各ステップは数値の成分を提示するのみ。
- * 解釈（「なぜ」）や推奨（「どうすべき」）は含めない。
- */
-export function buildCausalSteps(
-  result: StoreResult,
-  prevYear: CausalChainPrevInput | undefined,
-): readonly CausalStep[] {
-  const r = result
-  const prev = prevYear
-  const steps: CausalStep[] = []
+/** 円表記（符号付き） */
+function fmtYen(v: number): string {
+  const sign = v >= 0 ? '+' : ''
+  return `${sign}${fmtComma(v)}円`
+}
 
-  // Step 1: 粗利率の状況
-  const currentGPRate = getEffectiveGrossProfitRate(r)
-  const prevGPRate = prev?.grossProfitRate ?? null
+/** 差分のフォーマット（%表記、符号付き） */
+function fmtDelta(v: number): string {
+  return `${v >= 0 ? '+' : ''}${fmtPct(v)}`
+}
+
+/** factors 配列内で最大 value のインデックスを返す */
+function findMaxFactorIndex(factors: readonly CausalFactor[]): number {
+  if (factors.length === 0) return 0
+  return factors.reduce((max, f, i) => (f.value > factors[max].value ? i : max), 0)
+}
+
+// ── ステップビルダー ──
+
+/** Step 1: 粗利率の状況 */
+function buildGrossProfitStep(
+  currentGPRate: number,
+  prevGPRate: number | null,
+  budgetGPRate: number,
+  costRate: number,
+  discountRate: number,
+  costInclusionRate: number,
+): CausalStep {
   const gpRateDelta = prevGPRate != null ? currentGPRate - prevGPRate : 0
-
-  const budgetGPRate = r.grossProfitRateBudget
   const budgetDelta = budgetGPRate > 0 ? currentGPRate - budgetGPRate : 0
 
   const deltaDesc =
@@ -116,46 +121,52 @@ export function buildCausalSteps(
       ? `前年 ${fmtPct(prevGPRate)} → 今年 ${fmtPct(currentGPRate)}（${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}）`
       : `今年 ${fmtPct(currentGPRate)}`
 
-  const costRate = safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
-  const discountRate = r.discountRate
-  const costInclusionRate = r.costInclusionRate
+  const factors: CausalFactor[] = [
+    ...(prevGPRate != null
+      ? [
+          {
+            label: '前年比変動',
+            value: Math.abs(gpRateDelta),
+            formatted: `${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}`,
+            colorHint: gpRateDelta >= 0 ? ('positive' as const) : ('negative' as const),
+          },
+        ]
+      : []),
+    ...(budgetGPRate > 0
+      ? [
+          {
+            label: '予算比変動',
+            value: Math.abs(budgetDelta),
+            formatted: `${budgetDelta >= 0 ? '+' : ''}${fmtPct(budgetDelta)}`,
+            colorHint: budgetDelta >= 0 ? ('positive' as const) : ('negative' as const),
+          },
+        ]
+      : []),
+    {
+      label: '現在の粗利率',
+      value: currentGPRate,
+      formatted: fmtPct(currentGPRate),
+      colorHint: 'primary' as const,
+    },
+  ]
 
-  steps.push({
+  return {
     title: '粗利率の状況',
     description: deltaDesc,
-    factors: [
-      ...(prevGPRate != null
-        ? [
-            {
-              label: '前年比変動',
-              value: Math.abs(gpRateDelta),
-              formatted: `${gpRateDelta >= 0 ? '+' : ''}${fmtPct(gpRateDelta)}`,
-              colorHint: gpRateDelta >= 0 ? ('positive' as const) : ('negative' as const),
-            },
-          ]
-        : []),
-      ...(budgetGPRate > 0
-        ? [
-            {
-              label: '予算比変動',
-              value: Math.abs(budgetDelta),
-              formatted: `${budgetDelta >= 0 ? '+' : ''}${fmtPct(budgetDelta)}`,
-              colorHint: budgetDelta >= 0 ? ('positive' as const) : ('negative' as const),
-            },
-          ]
-        : []),
-      {
-        label: '現在の粗利率',
-        value: currentGPRate,
-        formatted: fmtPct(currentGPRate),
-        colorHint: 'primary' as const,
-      },
-    ],
+    factors,
     maxFactorIndex: 0,
     insight: `構成: 原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
-  })
+  }
+}
 
-  // Step 2: 要因分解
+/** Step 2: 粗利率変動の要因分解 */
+function buildFactorDecompositionStep(
+  costRate: number,
+  discountRate: number,
+  costInclusionRate: number,
+  prev: CausalChainPrevInput | undefined,
+  result: StoreResult,
+): CausalStep {
   const prevCostRate = prev?.costRate ?? null
   const prevDiscountRate = prev ? prev.discountRate : null
   const prevCostInclusionRate = prev?.costInclusionRate ?? null
@@ -165,7 +176,7 @@ export function buildCausalSteps(
   const costInclusionDelta =
     prevCostInclusionRate != null ? costInclusionRate - prevCostInclusionRate : 0
 
-  const factors2: CausalFactor[] = [
+  const factors: CausalFactor[] = [
     {
       label: '原価率変動',
       value: Math.abs(costDelta),
@@ -186,8 +197,6 @@ export function buildCausalSteps(
     },
   ]
 
-  const maxIdx2 = factors2.reduce((max, f, i) => (f.value > factors2[max].value ? i : max), 0)
-
   // Shapley分解（売上差 = 客数効果 + 客単価効果）
   const prevSales = prev?.totalSales ?? null
   const prevCust = prev?.totalCustomers ?? null
@@ -195,65 +204,77 @@ export function buildCausalSteps(
   if (prevSales != null && prevCust != null && prevCust > 0) {
     const { custEffect, ticketEffect } = decompose2(
       prevSales,
-      r.totalSales,
+      result.totalSales,
       prevCust,
-      r.totalCustomers,
+      result.totalCustomers,
     )
-    const salesDelta = r.totalSales - prevSales
+    const salesDelta = result.totalSales - prevSales
     shapleyInsight = `売上差 ${fmtYen(salesDelta)} = 客数効果 ${fmtYen(custEffect)} + 客単価効果 ${fmtYen(ticketEffect)}`
   }
 
-  steps.push({
+  return {
     title: '粗利率変動の要因分解',
     description: `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
-    factors: factors2,
-    maxFactorIndex: maxIdx2,
+    factors,
+    maxFactorIndex: findMaxFactorIndex(factors),
     insight:
       shapleyInsight ||
       (prev
         ? `原価率差 ${fmtDelta(costDelta)} / 売変率差 ${fmtDelta(discountDelta)} / 原価算入率差 ${fmtDelta(costInclusionDelta)}`
         : '前年データなし'),
+  }
+}
+
+/** Step 3: 売変種別内訳（売変データがある場合のみ） */
+function buildDiscountBreakdownStep(
+  result: StoreResult,
+  prevEntries: readonly DiscountEntry[] | undefined,
+): CausalStep | null {
+  const entries = result.discountEntries
+  if (entries.length === 0) return null
+
+  const entryFactors = entries.map((e: DiscountEntry) => {
+    const prevEntry = prevEntries?.find((pe: DiscountEntry) => pe.type === e.type)
+    const delta = prevEntry ? e.amount - prevEntry.amount : 0
+    return {
+      label: e.label,
+      value: Math.abs(delta),
+      formatted: `${fmtComma(e.amount)}円${prevEntry ? `（差: ${delta >= 0 ? '+' : ''}${fmtComma(delta)}円）` : ''}`,
+      colorHint: DISCOUNT_COLOR_HINTS[e.type] ?? ('secondary' as const),
+    }
   })
 
-  // Step 3: 売変種別内訳
-  const entries = r.discountEntries
-  const prevEntries = prev?.discountEntries
-
-  if (entries.length > 0) {
-    const entryFactors = entries.map((e: DiscountEntry) => {
-      const prevEntry = prevEntries?.find((pe: DiscountEntry) => pe.type === e.type)
-      const delta = prevEntry ? e.amount - prevEntry.amount : 0
-      return {
-        label: e.label,
-        value: Math.abs(delta),
-        formatted: `${fmtComma(e.amount)}円${prevEntry ? `（差: ${delta >= 0 ? '+' : ''}${fmtComma(delta)}円）` : ''}`,
-        colorHint: DISCOUNT_COLOR_HINTS[e.type] ?? ('secondary' as const),
-      }
-    })
-
-    const maxIdx3 =
-      entryFactors.length > 0
-        ? entryFactors.reduce((max, f, i) => (f.value > entryFactors[max].value ? i : max), 0)
-        : 0
-
-    steps.push({
-      title: '売変種別内訳',
-      description: `売変合計: ${fmtComma(r.totalDiscount)}円（${fmtPct(r.discountRate)}）`,
-      factors: entryFactors,
-      maxFactorIndex: maxIdx3,
-      insight: `売変率 ${fmtPct(r.discountRate)}（売変合計 ${fmtComma(r.totalDiscount)}円 / 粗売上 ${fmtComma(r.grossSales)}円）`,
-    })
+  return {
+    title: '売変種別内訳',
+    description: `売変合計: ${fmtComma(result.totalDiscount)}円（${fmtPct(result.discountRate)}）`,
+    factors: entryFactors,
+    maxFactorIndex: findMaxFactorIndex(entryFactors),
+    insight: `売変率 ${fmtPct(result.discountRate)}（売変合計 ${fmtComma(result.totalDiscount)}円 / 粗売上 ${fmtComma(result.grossSales)}円）`,
   }
+}
 
-  // Step 4: 成分サマリー — 全成分の現在値とShapley分解
+/** Step 4: 成分サマリー */
+function buildSummaryStep(
+  result: StoreResult,
+  prev: CausalChainPrevInput | undefined,
+  costRate: number,
+  discountRate: number,
+  costInclusionRate: number,
+): CausalStep {
+  const prevSales = prev?.totalSales ?? null
+  const prevCust = prev?.totalCustomers ?? null
+  const prevCostRate = prev?.costRate ?? null
+  const prevDiscountRate = prev ? prev.discountRate : null
+  const prevCostInclusionRate = prev?.costInclusionRate ?? null
+
   const summaryFactors: CausalFactor[] = []
 
   if (prevSales != null && prevCust != null && prevCust > 0) {
     const { custEffect, ticketEffect } = decompose2(
       prevSales,
-      r.totalSales,
+      result.totalSales,
       prevCust,
-      r.totalCustomers,
+      result.totalCustomers,
     )
     summaryFactors.push(
       {
@@ -272,41 +293,76 @@ export function buildCausalSteps(
   }
 
   const summaryLines: string[] = [
-    `売上 ${fmtComma(r.totalSales)}円 / 客数 ${fmtComma(r.totalCustomers)}人 / 客単価 ${fmtComma(r.transactionValue)}円`,
+    `売上 ${fmtComma(result.totalSales)}円 / 客数 ${fmtComma(result.totalCustomers)}人 / 客単価 ${fmtComma(result.transactionValue)}円`,
     `原価率 ${fmtPct(costRate)} / 売変率 ${fmtPct(discountRate)} / 原価算入率 ${fmtPct(costInclusionRate)}`,
   ]
 
   if (prev) {
     const lines: string[] = []
+    const costDelta = prevCostRate != null ? costRate - prevCostRate : 0
+    const discountDelta = prevDiscountRate != null ? discountRate - prevDiscountRate : 0
+    const costInclusionDelta =
+      prevCostInclusionRate != null ? costInclusionRate - prevCostInclusionRate : 0
     if (prevCostRate != null) lines.push(`原価率差 ${fmtDelta(costDelta)}`)
     if (prevDiscountRate != null) lines.push(`売変率差 ${fmtDelta(discountDelta)}`)
     if (prevCostInclusionRate != null) lines.push(`原価算入率差 ${fmtDelta(costInclusionDelta)}`)
     if (lines.length > 0) summaryLines.push(lines.join(' / '))
   }
 
-  const maxSummaryIdx =
-    summaryFactors.length > 0
-      ? summaryFactors.reduce((max, f, i) => (f.value > summaryFactors[max].value ? i : max), 0)
-      : 0
-
-  steps.push({
+  return {
     title: '成分サマリー',
     description: '全成分の現在値と変動',
     factors: summaryFactors,
-    maxFactorIndex: maxSummaryIdx,
+    maxFactorIndex: findMaxFactorIndex(summaryFactors),
     insight: summaryLines.join('\n'),
-  })
+  }
+}
+
+// ── メインエントリ ──
+
+/**
+ * StoreResult（当年）+ 前年データから因果チェーンのステップ列を生成する。
+ *
+ * ステップ構造:
+ * 1. 粗利率の状況 — メイン指標の現在位置
+ * 2. 粗利率変動の要因分解 — 原価・売変・消耗品の成分変動
+ * 3. 売変種別内訳 — 売変データがある場合のみ
+ * 4. 成分サマリー — 売上差のShapley分解 + 全成分の現在値
+ *
+ * 設計原則: 各ステップは数値の成分を提示するのみ。
+ * 解釈（「なぜ」）や推奨（「どうすべき」）は含めない。
+ */
+export function buildCausalSteps(
+  result: StoreResult,
+  prevYear: CausalChainPrevInput | undefined,
+): readonly CausalStep[] {
+  const currentGPRate = getEffectiveGrossProfitRate(result)
+  const prevGPRate = prevYear?.grossProfitRate ?? null
+  const costRate = safeDivide(result.inventoryCost + result.deliverySalesCost, result.grossSales, 0)
+  const discountRate = result.discountRate
+  const costInclusionRate = result.costInclusionRate
+
+  const steps: CausalStep[] = []
+
+  steps.push(
+    buildGrossProfitStep(
+      currentGPRate,
+      prevGPRate,
+      result.grossProfitRateBudget,
+      costRate,
+      discountRate,
+      costInclusionRate,
+    ),
+  )
+
+  steps.push(
+    buildFactorDecompositionStep(costRate, discountRate, costInclusionRate, prevYear, result),
+  )
+
+  const discountStep = buildDiscountBreakdownStep(result, prevYear?.discountEntries)
+  if (discountStep) steps.push(discountStep)
+
+  steps.push(buildSummaryStep(result, prevYear, costRate, discountRate, costInclusionRate))
 
   return steps
-}
-
-/** 円表記（符号付き） */
-function fmtYen(v: number): string {
-  const sign = v >= 0 ? '+' : ''
-  return `${sign}${fmtComma(v)}円`
-}
-
-/** 差分のフォーマット（%表記、符号付き） */
-function fmtDelta(v: number): string {
-  return `${v >= 0 ? '+' : ''}${fmtPct(v)}`
 }
