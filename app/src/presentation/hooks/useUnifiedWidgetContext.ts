@@ -4,21 +4,15 @@
  * 全ページで共通のコンテキストを構築する。
  * ページ固有のデータ（insightData, costDetailData 等）は
  * 各ページから追加で注入する。
+ *
+ * 比較関連は useComparisonModule() 1本に統合済み。
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import type { MetricId, DateRange, ComparisonFrame } from '@/domain/models'
-import {
-  useCalculation,
-  useStoreSelection,
-  usePrevYearData,
-  useExplanations,
-  useAutoLoadPrevYear,
-  usePrevYearMonthlyKpi,
-  useDowGapAnalysis,
-} from '@/application/hooks'
-import { buildPrevYearScopeFromSelection, deriveDowOffset } from '@/domain/models/PeriodSelection'
+import type { MetricId, DateRange } from '@/domain/models'
+import { useCalculation, useStoreSelection, useExplanations } from '@/application/hooks'
 import { useDuckDB } from '@/application/hooks/useDuckDB'
+import { useComparisonModule } from '@/application/hooks/useComparisonModule'
 import {
   useMonthlyHistory,
   currentResultToMonthlyPoint,
@@ -58,36 +52,13 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const storeResults = useDataStore((s) => s.storeResults)
   const settings = useSettingsStore((s) => s.settings)
   const periodSelection = usePeriodSelectionStore((s) => s.selection)
-  const prevYear = usePrevYearData(currentResult?.elapsedDays)
-  const prevYearMonthlyKpi = usePrevYearMonthlyKpi()
 
-  // 曜日ギャップ分析用
-  const prevDowSales = useMemo(() => {
-    if (!prevYearMonthlyKpi.hasPrevYear) return undefined
-    const srcYear = prevYearMonthlyKpi.sourceYear
-    if (srcYear === 0) return undefined
-    const srcMonth = prevYearMonthlyKpi.sourceMonth
-    const sales = [0, 0, 0, 0, 0, 0, 0]
-    for (const row of prevYearMonthlyKpi.sameDate.dailyMapping) {
-      const dow = new Date(srcYear, srcMonth - 1, row.prevDay).getDay()
-      sales[dow] += row.prevSales
-    }
-    return sales
-  }, [prevYearMonthlyKpi])
-
-  const dowGap = useDowGapAnalysis(
-    settings.targetYear,
-    settings.targetMonth,
-    prevYearMonthlyKpi.sourceYear,
-    prevYearMonthlyKpi.sourceMonth,
+  // ── 比較サブシステム（1フックで全比較データを取得） ──
+  const comparison = useComparisonModule(
+    periodSelection,
+    currentResult?.elapsedDays,
     currentResult?.averageDailySales ?? 0,
-    prevYearMonthlyKpi.hasPrevYear,
-    prevDowSales,
-    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDate.dailyMapping : undefined,
-    prevYearMonthlyKpi.hasPrevYear ? prevYearMonthlyKpi.sameDow.dailyMapping : undefined,
   )
-
-  useAutoLoadPrevYear()
 
   // 過去月データ（季節性分析用）
   const repo = useRepository()
@@ -127,19 +98,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
-  // 比較フレーム — periodSelection から導出（useComparisonFrame を置換）
-  const frame: ComparisonFrame = useMemo(() => {
-    const p = periodSelection
-    const dowOffset = deriveDowOffset(p.period1, p.period2, p.activePreset)
-    const policy = p.activePreset === 'prevYearSameDow' ? 'sameDayOfWeek' : 'sameDate'
-    return {
-      current: p.period1,
-      previous: p.period2,
-      dowOffset,
-      policy,
-    } satisfies ComparisonFrame
-  }, [periodSelection])
-
   // Store name map for category comparison
   const storeNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -171,15 +129,6 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     from: { year: targetYear, month: targetMonth, day: 1 },
     to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
   }
-  // prevYearScope: DOW offset + elapsedDays で調整済みの前年日付範囲と客数をセットで管理。
-  // periodSelection から導出。effectiveEndDay でキャップして
-  // JS エンジンの有効範囲と DuckDB クエリ範囲を一致させる。
-  const prevYearScope = prevYear.hasPrevYear
-    ? buildPrevYearScopeFromSelection(periodSelection, prevYear.totalCustomers, effectiveEndDay)
-    : undefined
-
-  // 後方互換: prevYearDateRange は prevYearScope.dateRange と同一
-  const prevYearDateRange: DateRange | undefined = prevYearScope?.dateRange
 
   const ctx: UnifiedWidgetContext = {
     // コア
@@ -190,7 +139,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     year: targetYear,
     month: targetMonth,
     settings,
-    prevYear,
+    prevYear: comparison.daily,
     stores: data.stores,
     selectedStoreIds,
     explanations,
@@ -204,8 +153,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     storeKey: storeName,
     allStoreResults: storeResults,
     currentDateRange,
-    prevYearDateRange,
-    prevYearScope,
+    prevYearDateRange: comparison.prevYearDateRange,
+    prevYearScope: comparison.prevYearScope,
     dataEndDay: settings.dataEndDay,
     dataMaxDay,
     elapsedDays: r.elapsedDays,
@@ -213,9 +162,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     duckConn: duck.conn,
     duckDataVersion: duck.dataVersion,
     duckLoadedMonthCount: duck.loadedMonthCount,
-    prevYearMonthlyKpi,
-    comparisonFrame: frame,
-    dowGap,
+    prevYearMonthlyKpi: comparison.kpi,
+    comparisonFrame: comparison.comparisonFrame,
+    dowGap: comparison.dowGap,
     onPrevYearDetail: handlePrevYearDetail,
 
     // Category 固有

@@ -9,7 +9,8 @@ import {
 } from '@/presentation/components/common'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { useStoreSelection, usePrevYearData } from '@/application/hooks'
+import { useStoreSelection } from '@/application/hooks'
+import type { PrevYearData } from '@/application/hooks/usePrevYearData'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models'
 import {
@@ -44,6 +45,17 @@ type ExpandableColumn =
   | 'interDepartmentIn'
   | 'interDepartmentOut'
 
+const EMPTY_PREV_YEAR: PrevYearData = {
+  hasPrevYear: false,
+  daily: new Map(),
+  totalSales: 0,
+  totalDiscount: 0,
+  totalCustomers: 0,
+  grossSales: 0,
+  discountRate: 0,
+  totalDiscountEntries: [],
+}
+
 const EMPTY_SUPPLIER_KEYS: { code: string; name: string }[] = []
 const EMPTY_TRANSFER_KEYS: { key: string; from: string; to: string; label: string }[] = []
 
@@ -60,8 +72,8 @@ export function DailyPage() {
   const suppliers = useDataStore((s) => s.data.suppliers)
   const dataStores = useDataStore((s) => s.data.stores)
   const settings = useSettingsStore((s) => s.settings)
-  const prevYear = usePrevYearData()
   const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
+  const prevYear: PrevYearData = ctx?.prevYear ?? EMPTY_PREV_YEAR
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
   const handleExplain = useCallback(

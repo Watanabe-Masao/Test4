@@ -28,3 +28,5 @@ export {
   deriveDowOffset,
   buildPrevYearScopeFromSelection,
 } from './PeriodSelection'
+export type { AlignmentEntry, AlignmentMode, QueryMonth, ComparisonScope } from './ComparisonScope'
+export { buildComparisonScope } from './ComparisonScope'

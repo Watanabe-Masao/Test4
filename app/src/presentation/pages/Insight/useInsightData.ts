@@ -1,11 +1,8 @@
 import { useState, useMemo } from 'react'
-import {
-  useCalculation,
-  useStoreSelection,
-  usePrevYearData,
-  useBudgetChartData,
-} from '@/application/hooks'
+import { useCalculation, useStoreSelection, useBudgetChartData } from '@/application/hooks'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
+import { useComparisonModule } from '@/application/hooks/useComparisonModule'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import {
   safeDivide,
@@ -35,8 +32,14 @@ export type ViewMode = 'total' | 'comparison'
 export function useInsightData() {
   const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
-  const prevYear = usePrevYearData(currentResult?.elapsedDays)
   const settings = useSettingsStore((s) => s.settings)
+  const periodSelection = usePeriodSelectionStore((s) => s.selection)
+  const comparison = useComparisonModule(
+    periodSelection,
+    currentResult?.elapsedDays,
+    currentResult?.averageDailySales ?? 0,
+  )
+  const prevYear = comparison.daily
   const { targetYear, targetMonth } = settings
 
   const [activeTab, setActiveTab] = useState<InsightTab>('budget')

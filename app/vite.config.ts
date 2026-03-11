@@ -42,7 +42,7 @@ export default defineConfig({
           'vendor-styled': ['styled-components'],
           'vendor-table': ['@tanstack/react-table'],
           'vendor-router': ['react-router-dom'],
-          'vendor-state': ['zustand', 'immer'],
+          'vendor-state': ['zustand'],
           'vendor-duckdb': ['@duckdb/duckdb-wasm'],
         },
       },

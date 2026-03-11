@@ -21,6 +21,8 @@ describe('safeNumber', () => {
   it('0は0', () => expect(safeNumber(0)).toBe(0))
   it('負の数', () => expect(safeNumber(-5)).toBe(-5))
   it('小数', () => expect(safeNumber(3.14)).toBe(3.14))
+  it('Infinityは0', () => expect(safeNumber(Infinity)).toBe(0))
+  it('-Infinityは0', () => expect(safeNumber(-Infinity)).toBe(0))
 })
 
 describe('safeDivide', () => {
