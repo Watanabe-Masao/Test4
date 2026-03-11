@@ -116,7 +116,7 @@ describe('loadMonth', () => {
     expect(result.durationMs).toBeGreaterThanOrEqual(0)
   })
 
-  it('resets tables on error and rethrows', async () => {
+  it('deletes partial month data on error and rethrows', async () => {
     // Make the first query for classified_sales succeed, but we need to
     // make the data trigger a bulk insert that fails
     const failConn = {

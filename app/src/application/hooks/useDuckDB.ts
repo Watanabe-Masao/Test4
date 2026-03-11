@@ -103,6 +103,12 @@ export function useDuckDB(
   // 古い loadData の部分的 INSERT と競合しない。
   const loadSeqRef = useRef(0)
 
+  // ミューテックス: loadData の並行実行を防ぐ。
+  // 先行の loadData が resetTables/loadMonth を実行中に新しい loadData が開始されると、
+  // 両者の DROP/CREATE SQL が同一コネクション上でインターリーブし
+  // 「Table does not exist」エラーを引き起こす。Promise チェーンで直列化する。
+  const loadMutexRef = useRef<Promise<void>>(Promise.resolve())
+
   // マウント追跡
   useEffect(() => {
     isMounted.current = true
@@ -198,6 +204,27 @@ export function useDuckDB(
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
     const seq = ++loadSeqRef.current
 
+    // 先行の loadData の DB 操作完了を待つ。
+    // 世代番号だけでは resetTables の DROP → CREATE 途中に新しい loadData が
+    // 割り込むことを防げない（SQL がインターリーブする）。
+    const prevLoad = loadMutexRef.current
+    let releaseMutex: () => void
+    loadMutexRef.current = new Promise<void>((resolve) => {
+      releaseMutex = resolve
+    })
+
+    try {
+      await prevLoad
+    } catch {
+      // 先行の loadData のエラーは無視（自身のロードに影響しない）
+    }
+
+    // 先行待ち中に更に新しい loadData が発行された場合は bail out
+    if (loadSeqRef.current !== seq || !isMounted.current) {
+      releaseMutex!()
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -248,6 +275,7 @@ export function useDuckDB(
         setError(err instanceof Error ? err.message : String(err))
       }
     } finally {
+      releaseMutex!()
       if (isMounted.current && loadSeqRef.current === seq) {
         setIsLoading(false)
       }

@@ -168,12 +168,14 @@ export async function loadMonth(
     // app_settings は loadMonth ではなく loadAppSettings() で別途投入
     rowCounts.app_settings = 0
   } catch (err) {
-    // INSERT失敗時はテーブルをリセットして部分データの残存を防ぐ
+    // INSERT失敗時は該当月のデータのみ削除して部分データの残存を防ぐ。
+    // resetTables() は全テーブルを DROP → CREATE するため、他の月のデータも消失し、
+    // 並行実行時に SQL インターリーブで「Table does not exist」エラーを誘発する。
     console.error(`DuckDB loadMonth failed for ${year}-${month}:`, err)
     try {
-      await resetTables(conn)
-    } catch (resetErr) {
-      console.error('DuckDB resetTables after load failure also failed:', resetErr)
+      await deleteMonth(conn, year, month)
+    } catch (deleteErr) {
+      console.error('DuckDB deleteMonth after load failure also failed:', deleteErr)
     }
     throw err
   }
