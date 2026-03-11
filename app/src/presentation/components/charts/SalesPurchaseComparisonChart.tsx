@@ -4,8 +4,8 @@ import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend 
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toComma, toPct, toAxisYen, STORE_COLORS } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
@@ -45,7 +45,15 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
   headerExtra,
 }: Props) {
   const ct = useChartTheme()
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
   const [sortKey, setSortKey] = useState<SortKey>('sales')
   const [sortDesc, setSortDesc] = useState(true)
   const [seriesMode, setSeriesMode] = useState<SeriesMode>('sales')
@@ -379,12 +387,16 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
         </MiniTable>
       </CompTable>
 
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

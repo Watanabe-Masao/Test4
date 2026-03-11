@@ -3,6 +3,8 @@
  */
 export { DayRangeSlider } from './DayRangeSlider'
 export { useDayRange } from './useDayRange'
+export { DualPeriodSlider } from './DualPeriodSlider'
+export { useDualPeriodRange } from './useDualPeriodRange'
 export { CurrencyUnitToggle } from './CurrencyUnitToggle'
 export { DateRangePicker } from './DateRangePicker'
 export { DowPresetSelector } from './DowPresetSelector'

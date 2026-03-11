@@ -20,9 +20,9 @@ import { SafeResponsiveContainer as ResponsiveContainer } from './SafeResponsive
 import { useChartTheme, toComma, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
 import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
-import { DayRangeSlider } from './DayRangeSlider'
+import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
-import { useDayRange } from './useDayRange'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { useShapleyTimeSeries } from '@/application/hooks'
 
@@ -54,7 +54,15 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
 }: Props) {
   const ct = useChartTheme()
   const [viewMode, setViewMode] = useState<ViewMode>('cumulative')
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
@@ -200,12 +208,16 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

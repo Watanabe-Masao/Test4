@@ -7,9 +7,9 @@
 import { useState, useCallback, memo } from 'react'
 import { Wrapper, HeaderRow, Title, ViewToggle, ViewBtn, Sep } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
-import { DayRangeSlider } from './DayRangeSlider'
+import { DualPeriodSlider } from './DualPeriodSlider'
 import { DowPresetSelector } from './DowPresetSelector'
-import { useDayRange } from './useDayRange'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import { useDailySalesData } from './useDailySalesData'
 import { DailySalesChartBody, type ViewType } from './DailySalesChartBody'
 import type { DailyRecord } from '@/domain/models'
@@ -62,7 +62,15 @@ export const DailySalesChart = memo(function DailySalesChart({
   const [waterfall, setWaterfall] = useState(false)
   /** 累計/単日切替（prevYearCum, vsLastYear 用） */
   const [cumMode, setCumMode] = useState<'cumulative' | 'daily'>('cumulative')
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
@@ -146,12 +154,16 @@ export const DailySalesChart = memo(function DailySalesChart({
         cumMode={cumMode}
         wfLegendPayload={wfLegendPayload}
       />
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

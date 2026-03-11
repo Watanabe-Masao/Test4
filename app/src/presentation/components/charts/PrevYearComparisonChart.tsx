@@ -12,7 +12,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toComma, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
+import { DualPeriodSlider } from './DualPeriodSlider'
 import {
   Wrapper,
   Title,
@@ -26,7 +26,7 @@ import {
   ProgressLabel,
   ChartArea,
 } from './PrevYearComparisonChart.styles'
-import { useDayRange } from './useDayRange'
+import { useDualPeriodRange } from './useDualPeriodRange'
 
 interface Props {
   currentDaily: ReadonlyMap<number, { sales: number }>
@@ -41,7 +41,15 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   // 累計データ構築
   let currentCum = 0
@@ -194,12 +202,16 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
           </AreaChart>
         </ResponsiveContainer>
       </ChartArea>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

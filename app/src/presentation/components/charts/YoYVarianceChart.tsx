@@ -14,8 +14,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
 import { createChartTooltip } from './createChartTooltip'
-import { DayRangeSlider } from './DayRangeSlider'
-import { useDayRange } from './useDayRange'
+import { DualPeriodSlider } from './DualPeriodSlider'
+import { useDualPeriodRange } from './useDualPeriodRange'
 import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import {
@@ -71,7 +71,15 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
   const ct = useChartTheme()
   const [view, setView] = useState<ViewType>('salesGap')
   const [growthSub, setGrowthSub] = useState<GrowthSubMode>('daily')
-  const [rangeStart, rangeEnd, setRange] = useDayRange(daysInMonth)
+  const {
+    p1Start: rangeStart,
+    p1End: rangeEnd,
+    onP1Change: setRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(daysInMonth)
 
   const { chartData, totals, salesGrowthMa7, customerGrowthMa7, txValueGrowthMa7 } = useMemo(() => {
     let cumSalesDiff = 0,
@@ -470,12 +478,16 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={daysInMonth}
-        start={rangeStart}
-        end={rangeEnd}
-        onChange={setRange}
+        p1Start={rangeStart}
+        p1End={rangeEnd}
+        onP1Change={setRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
       />
     </Wrapper>
   )

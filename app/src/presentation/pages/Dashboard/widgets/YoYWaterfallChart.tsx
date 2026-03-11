@@ -7,7 +7,7 @@
  * 前週比モード: 選択期間の7日前と比較。
  */
 import { useState, useMemo, memo } from 'react'
-import { DayRangeSlider, useDayRange } from '@/presentation/components/charts'
+import { DualPeriodSlider, useDualPeriodRange } from '@/presentation/components/charts'
 import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
@@ -53,7 +53,15 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
   const [showHelp, setShowHelp] = useState(false)
 
   // Period slider state
-  const [dayStart, dayEnd, setDayRange] = useDayRange(ctx.daysInMonth)
+  const {
+    p1Start: dayStart,
+    p1End: dayEnd,
+    onP1Change: setDayRange,
+    p2Start,
+    p2End,
+    onP2Change,
+    p2Enabled,
+  } = useDualPeriodRange(ctx.daysInMonth)
 
   // WoW availability check — canWoW が false なら yoy にフォールバック（派生状態）
   const wowRange = wowPrevRange(dayStart, dayEnd)
@@ -296,12 +304,16 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         </ModeBtn>
       </ModeRow>
 
-      <DayRangeSlider
+      <DualPeriodSlider
         min={1}
         max={ctx.daysInMonth}
-        start={dayStart}
-        end={dayEnd}
-        onChange={setDayRange}
+        p1Start={dayStart}
+        p1End={dayEnd}
+        onP1Change={setDayRange}
+        p2Start={p2Start}
+        p2End={p2End}
+        onP2Change={onP2Change}
+        p2Enabled={p2Enabled}
         elapsedDays={ctx.elapsedDays}
       />
 
