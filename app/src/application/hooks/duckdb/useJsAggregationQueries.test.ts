@@ -22,7 +22,7 @@ import {
   computeDailyFeatures,
   computeYoyDaily,
   computeHourlyProfile,
-} from './useJsAggregationQueries'
+} from './jsAggregationLogic'
 import type { StoreDaySummaryRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
 
 // ─── StoreDaySummaryRow テストデータヘルパー ──────────

@@ -105,6 +105,32 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 - **ロール**: architecture
 - **代替**: `rec.totalCost`（事前計算済みフィールド）を使用
 
+## フック複雑度不変条件
+
+### INV-HOOK-01: hooks/ に @internal export が存在しない
+
+- **テスト**: `hookComplexityGuard.test.ts` — `R3: hooks/ に @internal export がない`
+- **ロール**: architecture
+- **違反時の影響**: テストのためだけの export が設計を歪める
+
+### INV-HOOK-02: テストに typeof === 'function' アサーションが存在しない
+
+- **テスト**: `hookComplexityGuard.test.ts` — `R3: テストに typeof === "function" アサーションがない`
+- **ロール**: architecture
+- **違反時の影響**: 存在確認テストがカバレッジを水増しする
+
+### INV-HOOK-03: hooks/ の export にカバレッジ目的のコメントが存在しない
+
+- **テスト**: `hookComplexityGuard.test.ts` — `R10: hooks/ の export にカバレッジ目的のコメントがない`
+- **ロール**: architecture
+- **違反時の影響**: カバレッジ回復のための設計変更が混入する
+
+### INV-STORE-01: stores/ の set() コールバック内に算術式が存在しない
+
+- **テスト**: `hookComplexityGuard.test.ts` — `R7: stores/ の set() コールバック内に算術式がない`
+- **ロール**: architecture
+- **違反時の影響**: store action に業務ロジックが埋め込まれテスト困難になる
+
 ## 計算ルール不変条件
 
 ### INV-DIV-01: domain 内の除算は safeDivide を経由

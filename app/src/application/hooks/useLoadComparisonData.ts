@@ -26,92 +26,15 @@ import type {
 import type { ComparisonScope, QueryMonth } from '@/domain/models/ComparisonScope'
 import { mergeAdjacentMonthRecords, adjacentMonth } from './useAutoLoadPrevYear'
 
-// ── 型定義 ──
-
-/** 比較データ読込状態 */
-export interface ComparisonLoadStatus {
-  readonly status: 'idle' | 'loading' | 'success' | 'partial' | 'error'
-  readonly requestedRanges: readonly QueryMonth[]
-  readonly loadedRanges: readonly QueryMonth[]
-  readonly lastError: string | null
-}
-
-const IDLE_STATUS: ComparisonLoadStatus = {
-  status: 'idle',
-  requestedRanges: [],
-  loadedRanges: [],
-  lastError: null,
-}
-
-// ── Reducer ──
-
-type LoadAction =
-  | { type: 'start'; requestedRanges: readonly QueryMonth[] }
-  | { type: 'success'; requestedRanges: readonly QueryMonth[]; loadedRanges: readonly QueryMonth[] }
-  | {
-      type: 'partial'
-      requestedRanges: readonly QueryMonth[]
-      loadedRanges: readonly QueryMonth[]
-      error: string
-    }
-  | {
-      type: 'error'
-      requestedRanges: readonly QueryMonth[]
-      loadedRanges: readonly QueryMonth[]
-      error: string
-    }
-
-/** @internal テスト用にエクスポート */
-export function loadReducer(
-  _state: ComparisonLoadStatus,
-  action: LoadAction,
-): ComparisonLoadStatus {
-  switch (action.type) {
-    case 'start':
-      return {
-        status: 'loading',
-        requestedRanges: action.requestedRanges,
-        loadedRanges: [],
-        lastError: null,
-      }
-    case 'success':
-      return {
-        status: 'success',
-        requestedRanges: action.requestedRanges,
-        loadedRanges: action.loadedRanges,
-        lastError: null,
-      }
-    case 'partial':
-      return {
-        status: 'partial',
-        requestedRanges: action.requestedRanges,
-        loadedRanges: action.loadedRanges,
-        lastError: action.error,
-      }
-    case 'error':
-      return {
-        status: 'error',
-        requestedRanges: action.requestedRanges,
-        loadedRanges: action.loadedRanges,
-        lastError: action.error,
-      }
-  }
-}
-
-// ── ユーティリティ ──
-
-/** QueryMonth 配列からソース月（中心月）を決定する @internal テスト用にエクスポート */
-export function findSourceMonth(queryRanges: readonly QueryMonth[]): QueryMonth | null {
-  if (queryRanges.length === 0) return null
-  // 中央の月をソースとする（±1 拡張の中心）
-  const mid = Math.floor(queryRanges.length / 2)
-  return queryRanges[mid]
-}
-
-/** QueryMonth のキー文字列 @internal テスト用にエクスポート */
-export function monthKey(m: QueryMonth): string {
-  return `${m.year}-${m.month}`
-}
+// 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
+export type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
+import {
+  type ComparisonLoadStatus,
+  IDLE_STATUS,
+  loadReducer,
+  findSourceMonth,
+  monthKey,
+} from '@/application/comparison/comparisonLoadLogic'
 
 // ── フック ──
 

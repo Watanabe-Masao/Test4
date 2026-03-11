@@ -18,3 +18,37 @@ export interface InventoryConfig {
   readonly flowerCostRate?: number // 店別花掛け率（undefined = グローバル設定を使用）
   readonly directProduceCostRate?: number // 店別産直掛け率（undefined = グローバル設定を使用）
 }
+
+const DEFAULT_INVENTORY_CONFIG: Omit<InventoryConfig, 'storeId'> = {
+  openingInventory: null,
+  closingInventory: null,
+  grossProfitBudget: null,
+  productInventory: null,
+  costInclusionInventory: null,
+  inventoryDate: null,
+  closingInventoryDay: null,
+}
+
+/**
+ * 既存在庫設定に部分更新を適用する純粋関数。
+ *
+ * 期末在庫（消耗品込）= 商品在庫 + 消耗品在庫 を自動計算する。
+ */
+export function mergeInventoryConfig(
+  existing: InventoryConfig | undefined,
+  storeId: string,
+  update: Partial<InventoryConfig>,
+): InventoryConfig {
+  const base = existing ?? { storeId, ...DEFAULT_INVENTORY_CONFIG }
+  const merged = { ...base, ...update }
+  if (
+    ('productInventory' in update || 'costInclusionInventory' in update) &&
+    (merged.productInventory != null || merged.costInclusionInventory != null)
+  ) {
+    return {
+      ...merged,
+      closingInventory: (merged.productInventory ?? 0) + (merged.costInclusionInventory ?? 0),
+    }
+  }
+  return merged
+}

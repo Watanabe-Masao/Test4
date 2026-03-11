@@ -16,6 +16,7 @@
 | `app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts` | invariant-guardian | — | 曜日ギャップ分析の不変条件 |
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
+| `app/src/test/hookComplexityGuard.test.ts` | architecture | 4件 | R3(@internal禁止), R3(typeofテスト禁止), R7(store算術式禁止), R10(カバレッジexport禁止) |
 
 ## ルール → テスト対応
 
@@ -88,6 +89,15 @@
 | evidenceRefs に budget 参照が含まれる | INV-EXPL-03 |
 | explanation.value = safeDivide(sales, budget) | INV-EXPL-04 |
 | 無効入力 → 空 Map | INV-EXPL-05 |
+
+### hookComplexityGuard.test.ts（architecture ロール管理）
+
+| ルール ID | 検証内容 | 不変条件 ID |
+|---|---|---|
+| R3 | hooks/ に @internal export がない | INV-HOOK-01 |
+| R3 | テストに typeof === 'function' アサーションがない | INV-HOOK-02 |
+| R7 | stores/ の set() コールバック内に算術式がない | INV-STORE-01 |
+| R10 | hooks/ の export にカバレッジ目的のコメントがない | INV-HOOK-03 |
 
 ## 許可リスト管理
 

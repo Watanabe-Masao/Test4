@@ -10,7 +10,7 @@ import type {
   InventoryConfig,
   StoreExplanations,
 } from '@/domain/models'
-import { createEmptyImportedData } from '@/domain/models'
+import { createEmptyImportedData, mergeInventoryConfig } from '@/domain/models'
 
 // ─── Types ────────────────────────────────────────────
 export interface DataStore {
@@ -39,6 +39,20 @@ export interface DataStore {
 // ─── Initial values ──────────────────────────────────
 const initialData = createEmptyImportedData()
 
+// ─── 共有 updater ──────────────────────────────────────
+type PrevYearPayload = Parameters<DataStore['setPrevYearAutoData']>[0]
+
+function applyPrevYearData(state: { data: ImportedData }, payload: PrevYearPayload) {
+  return {
+    data: {
+      ...state.data,
+      prevYearClassifiedSales: payload.prevYearClassifiedSales,
+      prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
+      prevYearFlowers: payload.prevYearFlowers,
+    },
+  }
+}
+
 // ─── Store ────────────────────────────────────────────
 export const useDataStore = create<DataStore>()(
   devtools(
@@ -60,65 +74,17 @@ export const useDataStore = create<DataStore>()(
       setValidationMessages: (messages) =>
         set({ validationMessages: messages }, false, 'setValidationMessages'),
 
-      setPrevYearAutoData: ({
-        prevYearClassifiedSales,
-        prevYearCategoryTimeSales,
-        prevYearFlowers,
-      }) =>
-        set(
-          (state) => ({
-            data: {
-              ...state.data,
-              prevYearClassifiedSales,
-              prevYearCategoryTimeSales,
-              prevYearFlowers,
-            },
-          }),
-          false,
-          'setPrevYearAutoData',
-        ),
+      setPrevYearAutoData: (payload) =>
+        set((state) => applyPrevYearData(state, payload), false, 'setPrevYearAutoData'),
 
-      setComparisonData: ({
-        prevYearClassifiedSales,
-        prevYearCategoryTimeSales,
-        prevYearFlowers,
-      }) =>
-        set(
-          (state) => ({
-            data: {
-              ...state.data,
-              prevYearClassifiedSales,
-              prevYearCategoryTimeSales,
-              prevYearFlowers,
-            },
-          }),
-          false,
-          'setComparisonData',
-        ),
+      setComparisonData: (payload) =>
+        set((state) => applyPrevYearData(state, payload), false, 'setComparisonData'),
 
       updateInventory: (storeId, config) =>
         set(
           (state) => {
             const newSettings = new Map(state.data.settings)
-            const existing = newSettings.get(storeId) ?? {
-              storeId,
-              openingInventory: null,
-              closingInventory: null,
-              grossProfitBudget: null,
-              productInventory: null,
-              costInclusionInventory: null,
-              inventoryDate: null,
-              closingInventoryDay: null,
-            }
-            const merged = { ...existing, ...config }
-            // 期末在庫（消耗品込）= 商品在庫 + 消耗品在庫 （自動計算）
-            if (
-              ('productInventory' in config || 'costInclusionInventory' in config) &&
-              (merged.productInventory != null || merged.costInclusionInventory != null)
-            ) {
-              merged.closingInventory =
-                (merged.productInventory ?? 0) + (merged.costInclusionInventory ?? 0)
-            }
+            const merged = mergeInventoryConfig(newSettings.get(storeId), storeId, config)
             newSettings.set(storeId, merged)
             return { data: { ...state.data, settings: newSettings } }
           },
