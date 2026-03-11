@@ -448,25 +448,3 @@ export function calculateDiff(
 
   return { diffs, needsConfirmation, autoApproved }
 }
-
-/**
- * 差分結果の概要テキストを生成する
- */
-export function summarizeDiff(diff: DiffResult): string {
-  const parts: string[] = []
-  let totalInserts = 0
-  let totalModifications = 0
-  let totalRemovals = 0
-
-  for (const d of diff.diffs) {
-    totalInserts += d.inserts.length
-    totalModifications += d.modifications.length
-    totalRemovals += d.removals.length
-  }
-
-  if (totalInserts > 0) parts.push(`新規 ${totalInserts}件`)
-  if (totalModifications > 0) parts.push(`変更 ${totalModifications}件`)
-  if (totalRemovals > 0) parts.push(`削除 ${totalRemovals}件`)
-
-  return parts.join('、') || '変更なし'
-}

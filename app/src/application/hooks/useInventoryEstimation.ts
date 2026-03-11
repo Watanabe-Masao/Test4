@@ -58,6 +58,3 @@ export function useEstimatedInventoryDetails(
     )
   }, [daily, daysInMonth, openingInventory, closingInventory, markupRate, discountRate])
 }
-
-// Non-hook re-exports for loop contexts (e.g. multi-store comparison useMemo)
-export { computeEstimatedInventory, computeEstimatedInventoryDetails }

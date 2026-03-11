@@ -12,19 +12,10 @@
  */
 import { useEffect, useReducer, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
-import { calculationCache } from '@/application/services/calculationCache'
+import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
-import { getDaysInMonth } from '@/domain/constants/defaults'
-import type {
-  ClassifiedSalesData,
-  ClassifiedSalesRecord,
-  CategoryTimeSalesData,
-  CategoryTimeSalesRecord,
-  SpecialSalesData,
-} from '@/domain/models'
-import type { ComparisonScope, QueryMonth } from '@/domain/models/ComparisonScope'
-import { mergeAdjacentMonthRecords, adjacentMonth } from './useAutoLoadPrevYear'
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
+import { loadComparisonDataAsync } from '@/application/comparison/loadComparisonDataAsync'
 
 // 型と純粋ロジックは comparisonLoadLogic.ts に分離済み
 export type { ComparisonLoadStatus } from '@/application/comparison/comparisonLoadLogic'
@@ -71,147 +62,30 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
     if (!source) return
 
     let cancelled = false
-    const sourceYear = source.year
-    const sourceMonth = source.month
-    const ranges = scope.queryRanges
 
-    dispatch({ type: 'start', requestedRanges: ranges })
-
-    const prev = adjacentMonth(sourceYear, sourceMonth, -1)
-    const next = adjacentMonth(sourceYear, sourceMonth, 1)
-
-    ;(async () => {
-      const loadedRanges: QueryMonth[] = []
-
-      try {
-        // ソース月のデータをロード
-        const prevCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          sourceYear,
-          sourceMonth,
-          'classifiedSales',
-        )
-        if (cancelled || !prevCS || prevCS.records.length === 0) {
-          if (!cancelled) {
-            dispatch({
-              type: 'partial',
-              requestedRanges: ranges,
-              loadedRanges: [],
-              error: 'No classified sales data found for comparison period',
-            })
-          }
-          return
-        }
-        loadedRanges.push({ year: sourceYear, month: sourceMonth })
-
-        // カテゴリ時間帯売上
-        const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          sourceYear,
-          sourceMonth,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
-
-        // 前月（underflow 用）
-        const prevPrevCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          prev.year,
-          prev.month,
-          'classifiedSales',
-        )
-        if (cancelled) return
-        if (prevPrevCS) loadedRanges.push({ year: prev.year, month: prev.month })
-
-        const prevPrevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          prev.year,
-          prev.month,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
-
-        // 翌月（overflow 用）
-        const prevNextCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          next.year,
-          next.month,
-          'classifiedSales',
-        )
-        if (cancelled) return
-        if (prevNextCS) loadedRanges.push({ year: next.year, month: next.month })
-
-        const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          next.year,
-          next.month,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
-
-        const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
-        if (isNaN(daysInSourceMonth) || daysInSourceMonth <= 0) {
-          dispatch({
-            type: 'error',
-            requestedRanges: ranges,
-            loadedRanges,
-            error: `Invalid days in month: ${sourceYear}-${sourceMonth}`,
-          })
-          return
-        }
-
-        const daysInPrevMonth = getDaysInMonth(prev.year, prev.month)
-
-        const mergedCSRecords = mergeAdjacentMonthRecords<ClassifiedSalesRecord>(
-          prevCS.records,
-          prevPrevCS?.records,
-          prevNextCS?.records,
-          sourceYear,
-          sourceMonth,
-          daysInSourceMonth,
-          daysInPrevMonth,
-        )
-
-        const mergedCTSRecords = mergeAdjacentMonthRecords<CategoryTimeSalesRecord>(
-          prevCTS?.records ?? [],
-          prevPrevCTS?.records,
-          prevNextCTS?.records,
-          sourceYear,
-          sourceMonth,
-          daysInSourceMonth,
-          daysInPrevMonth,
-        )
-
-        if (cancelled) return
-
-        // 花データ（客数）
-        const prevFlowers = await repo.loadDataSlice<SpecialSalesData>(
-          sourceYear,
-          sourceMonth,
-          'flowers',
-        )
-        if (cancelled) return
-
-        useDataStore.getState().setPrevYearAutoData({
-          prevYearClassifiedSales: { records: mergedCSRecords },
-          prevYearCategoryTimeSales: { records: mergedCTSRecords },
-          prevYearFlowers: prevFlowers ?? { records: [] },
-        })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
-
-        if (!cancelled) {
-          dispatch({
-            type: 'success',
-            requestedRanges: ranges,
-            loadedRanges,
-          })
-        }
-      } catch (err) {
+    loadComparisonDataAsync(
+      repo,
+      source.year,
+      source.month,
+      scope.queryRanges,
+      dispatch,
+      () => cancelled,
+    )
+      .then((result) => {
+        if (cancelled || !result) return
+        useDataStore.getState().setPrevYearAutoData(result)
+        invalidateAfterStateChange()
+      })
+      .catch((err) => {
         if (!cancelled) {
           dispatch({
             type: 'error',
-            requestedRanges: ranges,
-            loadedRanges,
+            requestedRanges: scope.queryRanges,
+            loadedRanges: [],
             error: err instanceof Error ? err.message : 'Unknown error loading comparison data',
           })
         }
-      }
-    })()
+      })
 
     return () => {
       cancelled = true

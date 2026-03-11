@@ -24,11 +24,7 @@ import {
   filterDataForMonth,
 } from './FileImportService'
 import type { ImportSummary, MonthPartitions, ProgressCallback } from './FileImportService'
-import {
-  buildMonthData,
-  mergeInsertsOnly,
-  DEFAULT_MERGE_ACTION,
-} from '../../hooks/useImport.helpers'
+import { buildMonthData, mergeInsertsOnly, DEFAULT_MERGE_ACTION } from './importDataMerge'
 import type { DataRepository } from '@/domain/repositories'
 
 // ─── 型定義 ──────────────────────────────────────────────

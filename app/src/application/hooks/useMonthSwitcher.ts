@@ -8,11 +8,7 @@
 import { useCallback, useState } from 'react'
 import { useRepository } from '../context/useRepository'
 import { useSettingsStore } from '../stores/settingsStore'
-import { useDataStore } from '../stores/dataStore'
-import { useUiStore } from '../stores/uiStore'
-import { usePeriodSelectionStore } from '../stores/periodSelectionStore'
-import { calculationCache } from '../services/calculationCache'
-import { createEmptyImportedData } from '@/domain/models'
+import { executeMonthSwitch } from '../services/monthSwitchSequence'
 
 export interface MonthSwitcherState {
   /** 切替処理中かどうか */
@@ -40,41 +36,7 @@ export function useMonthSwitcher(): MonthSwitcherState & MonthSwitcherActions {
 
       setIsSwitching(true)
       try {
-        // 1. 現在のデータを保存
-        const currentData = useDataStore.getState().data
-        const hasData =
-          currentData.classifiedSales.records.length > 0 || currentData.purchase.records.length > 0
-        if (hasData && repo.isAvailable()) {
-          await repo.saveMonthlyData(currentData, settings.targetYear, settings.targetMonth)
-        }
-
-        // 2. ステートをリセット（空データ）
-        // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
-        useDataStore.getState().setImportedData(createEmptyImportedData())
-        useDataStore.getState().setStoreResults(new Map())
-        useDataStore.getState().setValidationMessages([])
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
-
-        // 3. 設定を更新（targetYear / targetMonth）
-        // UPDATE_SETTINGS side effects: calculationCache.clear() + invalidateCalculation()
-        useSettingsStore.getState().updateSettings({ targetYear: year, targetMonth: month })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
-
-        // 4. 期間選択ストアを新しい月で初期化（プリセット・比較ON/OFF を維持）
-        usePeriodSelectionStore.getState().resetToMonth(year, month)
-
-        // 5. 新しい年月のデータを IndexedDB からロード
-        if (repo.isAvailable()) {
-          const data = await repo.loadMonthlyData(year, month)
-          if (data) {
-            // SET_IMPORTED_DATA side effects: calculationCache.clear() + invalidateCalculation()
-            useDataStore.getState().setImportedData(data)
-            calculationCache.clear()
-            useUiStore.getState().invalidateCalculation()
-          }
-        }
+        await executeMonthSwitch(repo, year, month)
         // useAutoLoadPrevYear は targetYear/targetMonth の変更を検知して自動的に前年データをロードする
       } finally {
         setIsSwitching(false)

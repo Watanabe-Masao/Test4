@@ -2,8 +2,8 @@
  * 基本チャート群 — 週別・曜日・店舗比較
  */
 import { memo } from 'react'
-import { calculateForecast } from '@/application/hooks/useForecast'
-import type { DayOfWeekAverage } from '@/application/hooks/useForecast'
+import { calculateForecast } from '@/application/hooks/calculation'
+import type { DayOfWeekAverage } from '@/application/hooks/calculation'
 import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import {

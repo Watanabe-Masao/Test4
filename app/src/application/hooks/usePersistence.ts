@@ -5,9 +5,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import { calculationCache } from '@/application/services/calculationCache'
+import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
 import { calculateDiff } from '@/application/services/diffCalculator'
 import type { ImportedData, DiffResult } from '@/domain/models'
@@ -86,8 +85,7 @@ export function usePersistence(): PersistenceState & PersistenceActions {
           targetYear: meta.year,
           targetMonth: meta.month,
         })
-        calculationCache.clear()
-        useUiStore.getState().invalidateCalculation()
+        invalidateAfterStateChange()
         setAutoRestored(true)
       })
       .catch((err) => {

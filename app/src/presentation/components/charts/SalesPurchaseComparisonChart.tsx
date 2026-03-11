@@ -6,7 +6,7 @@ import { useChartTheme, toComma, toPct, toAxisYen, STORE_COLORS } from './chartT
 import { createChartTooltip } from './createChartTooltip'
 import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
-import { computeEstimatedInventory } from '@/application/hooks/useInventoryEstimation'
+import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { Store, StoreResult } from '@/domain/models'
 import {

@@ -30,8 +30,6 @@ export interface DataStore {
     prevYearCategoryTimeSales: CategoryTimeSalesData
     prevYearFlowers: SpecialSalesData
   }) => void
-  /** エイリアス: setPrevYearAutoData と同一（comparison 統一名） */
-  setComparisonData: DataStore['setPrevYearAutoData']
   updateInventory: (storeId: string, config: Partial<InventoryConfig>) => void
   reset: () => void
 }
@@ -76,9 +74,6 @@ export const useDataStore = create<DataStore>()(
 
       setPrevYearAutoData: (payload) =>
         set((state) => applyPrevYearData(state, payload), false, 'setPrevYearAutoData'),
-
-      setComparisonData: (payload) =>
-        set((state) => applyPrevYearData(state, payload), false, 'setComparisonData'),
 
       updateInventory: (storeId, config) =>
         set(

@@ -6,7 +6,7 @@
 import {
   decomposePriceMix as decomposePriceMixDomain,
   type CategoryQtyAmt,
-} from '@/application/hooks/useFactorDecomposition'
+} from '@/application/hooks/calculation'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 
 export function recordsToCategoryQtyAmt(

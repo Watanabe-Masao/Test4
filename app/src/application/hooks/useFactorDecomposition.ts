@@ -96,10 +96,3 @@ export function useDecomposePriceMix(
     [curCategories, prevCategories],
   )
 }
-
-/**
- * Non-hook re-exports for use in loops / non-component contexts.
- * Presentation helpers (e.g. categoryFactorUtils, ForecastPage.helpers) that run
- * decomposition inside map/reduce cannot use hooks — they use these instead.
- */
-export { decompose2, decompose3, decompose5, decomposePriceMix }

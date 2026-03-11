@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateDiff, summarizeDiff } from '../diffCalculator'
+import { calculateDiff } from '../diffCalculator'
 import type { DiffResult } from '@/domain/models'
 import { createEmptyImportedData } from '@/domain/models'
 import type {
@@ -85,9 +85,24 @@ function makeDiff(overrides: Partial<DataTypeDiff> = {}): DataTypeDiff {
   }
 }
 
-// ─── summarizeDiff ──────────────────────────────────────
+// ─── summarizeDiff (テスト用ヘルパー) ─────────────────────
+function summarizeDiff(diff: DiffResult): string {
+  const parts: string[] = []
+  let totalInserts = 0
+  let totalModifications = 0
+  let totalRemovals = 0
+  for (const d of diff.diffs) {
+    totalInserts += d.inserts.length
+    totalModifications += d.modifications.length
+    totalRemovals += d.removals.length
+  }
+  if (totalInserts > 0) parts.push(`新規 ${totalInserts}件`)
+  if (totalModifications > 0) parts.push(`変更 ${totalModifications}件`)
+  if (totalRemovals > 0) parts.push(`削除 ${totalRemovals}件`)
+  return parts.join('、') || '変更なし'
+}
 
-describe('summarizeDiff (additional coverage)', () => {
+describe('summarizeDiff のフォーマット', () => {
   it('空の diffs 配列は「変更なし」を返す', () => {
     const result: DiffResult = { diffs: [], needsConfirmation: false, autoApproved: [] }
     expect(summarizeDiff(result)).toBe('変更なし')
@@ -184,7 +199,7 @@ describe('summarizeDiff (additional coverage)', () => {
 
 // ─── calculateDiff: 基本動作 ────────────────────────────
 
-describe('calculateDiff (additional coverage)', () => {
+describe('calculateDiff の差分検出', () => {
   describe('空データのハンドリング', () => {
     it('既存・新規ともに空の場合は差分なし、needsConfirmation=false', () => {
       const result = calculateDiff(makeData(), makeData(), new Set(['purchase']))

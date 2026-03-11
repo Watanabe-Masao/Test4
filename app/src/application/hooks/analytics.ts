@@ -57,8 +57,9 @@ export { useShapleyTimeSeries } from './useShapleyTimeSeries'
 export type { ShapleyDayItem, ShapleyTimeSeriesResult } from './useShapleyTimeSeries'
 export { useDeptKpiView } from './useDeptKpiView'
 export type { DepartmentKpiIndex } from './useDeptKpiView'
-export { useAlerts, DEFAULT_ALERT_RULES, evaluateAlerts } from './useAlerts'
+export { useAlerts } from './useAlerts'
 export type { Alert, AlertSeverity, AlertRule } from './useAlerts'
+export { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/domain/calculations/rules/alertSystem'
 export {
   resolveTimeSeriesSource,
   resolveYoYSource,
