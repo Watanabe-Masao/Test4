@@ -1,4 +1,5 @@
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import type { StoreResult } from '@/domain/models/StoreResult'
@@ -25,6 +26,7 @@ export type KpiTabContentProps = {
 }
 
 export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabContentProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const elapsedDiff = r.totalSales - elapsedBudget
   const pyRatio =
     prevYear.hasPrevYear && prevYear.totalSales > 0 ? r.totalSales / prevYear.totalSales : null
@@ -43,12 +45,12 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
       <KpiCardWrapper>
         <KpiRow>
           <KpiLabel>売上実績</KpiLabel>
-          <KpiValue>{formatCurrency(r.totalSales)}</KpiValue>
+          <KpiValue>{fmtCurrency(r.totalSales)}</KpiValue>
         </KpiRow>
-        <KpiSub>予算: {formatCurrency(elapsedBudget)}</KpiSub>
+        <KpiSub>予算: {fmtCurrency(elapsedBudget)}</KpiSub>
         <KpiSub $color={sc.cond(elapsedDiff >= 0)}>
           差異: {elapsedDiff >= 0 ? '+' : ''}
-          {formatCurrency(elapsedDiff)}
+          {fmtCurrency(elapsedDiff)}
         </KpiSub>
         <KpiDivider />
         <KpiGrid>
@@ -66,12 +68,12 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
           </KpiMiniCard>
           <KpiMiniCard>
             <KpiMiniLabel>月間予算</KpiMiniLabel>
-            <KpiMiniValue>{formatCurrency(r.budget)}</KpiMiniValue>
+            <KpiMiniValue>{fmtCurrency(r.budget)}</KpiMiniValue>
           </KpiMiniCard>
           <KpiMiniCard>
             <KpiMiniLabel>残予算</KpiMiniLabel>
             <KpiMiniValue $color={r.remainingBudget <= 0 ? sc.positive : undefined}>
-              {formatCurrency(r.remainingBudget)}
+              {fmtCurrency(r.remainingBudget)}
             </KpiMiniValue>
           </KpiMiniCard>
         </KpiGrid>
@@ -84,17 +86,17 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
           <KpiValue>{formatPercent(r.averageMarkupRate)}</KpiValue>
         </KpiRow>
         <KpiSub>
-          売変率: {formatPercent(r.discountRate)} ({formatCurrency(r.totalDiscount)})
+          売変率: {formatPercent(r.discountRate)} ({fmtCurrency(r.totalDiscount)})
         </KpiSub>
         <KpiDivider />
         <KpiGrid>
           <KpiMiniCard>
             <KpiMiniLabel>仕入原価</KpiMiniLabel>
-            <KpiMiniValue>{formatCurrency(r.totalCost)}</KpiMiniValue>
+            <KpiMiniValue>{fmtCurrency(r.totalCost)}</KpiMiniValue>
           </KpiMiniCard>
           <KpiMiniCard>
             <KpiMiniLabel>原価算入費</KpiMiniLabel>
-            <KpiMiniValue>{formatCurrency(r.totalCostInclusion)}</KpiMiniValue>
+            <KpiMiniValue>{fmtCurrency(r.totalCostInclusion)}</KpiMiniValue>
           </KpiMiniCard>
           {r.invMethodGrossProfitRate != null && (
             <KpiMiniCard>
@@ -113,7 +115,7 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
           {r.invMethodGrossProfit != null && (
             <KpiMiniCard>
               <KpiMiniLabel>粗利額</KpiMiniLabel>
-              <KpiMiniValue>{formatCurrency(r.invMethodGrossProfit)}</KpiMiniValue>
+              <KpiMiniValue>{fmtCurrency(r.invMethodGrossProfit)}</KpiMiniValue>
             </KpiMiniCard>
           )}
         </KpiGrid>
@@ -123,10 +125,10 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
       <KpiCardWrapper>
         <KpiRow>
           <KpiLabel>客数</KpiLabel>
-          <KpiValue>{formatCurrency(r.totalCustomers)}</KpiValue>
+          <KpiValue>{fmtCurrency(r.totalCustomers)}</KpiValue>
         </KpiRow>
-        <KpiSub>客単価: {formatCurrency(txValue)}</KpiSub>
-        <KpiSub>日平均客数: {formatCurrency(safeDivide(r.totalCustomers, r.elapsedDays))}</KpiSub>
+        <KpiSub>客単価: {fmtCurrency(txValue)}</KpiSub>
+        <KpiSub>日平均客数: {fmtCurrency(safeDivide(r.totalCustomers, r.elapsedDays))}</KpiSub>
         {prevYear.hasPrevYear && (
           <>
             <KpiDivider />
@@ -147,13 +149,11 @@ export function KpiTabContent({ r, elapsedBudget, prevYear, settings }: KpiTabCo
               </KpiMiniCard>
               <KpiMiniCard>
                 <KpiMiniLabel>比較期客単価</KpiMiniLabel>
-                <KpiMiniValue>
-                  {prevTxValue != null ? formatCurrency(prevTxValue) : '-'}
-                </KpiMiniValue>
+                <KpiMiniValue>{prevTxValue != null ? fmtCurrency(prevTxValue) : '-'}</KpiMiniValue>
               </KpiMiniCard>
               <KpiMiniCard>
                 <KpiMiniLabel>当年客単価</KpiMiniLabel>
-                <KpiMiniValue>{formatCurrency(txValue)}</KpiMiniValue>
+                <KpiMiniValue>{fmtCurrency(txValue)}</KpiMiniValue>
               </KpiMiniCard>
             </KpiGrid>
           </>

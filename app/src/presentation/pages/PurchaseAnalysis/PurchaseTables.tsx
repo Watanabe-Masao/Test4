@@ -2,7 +2,8 @@
  * カテゴリ明細テーブル・店舗別比較テーブル
  */
 import { Fragment, useState, useCallback } from 'react'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type {
   SupplierComparisonRow,
   CategoryComparisonRow,
@@ -38,6 +39,7 @@ export function CategoryDetailTable({
   sort: ReturnType<typeof useSort>
   categorySuppliers: Readonly<Record<string, readonly SupplierComparisonRow[]>>
 }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const { sortKey, sortDir, handleSort } = sort
   const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set())
 
@@ -110,9 +112,9 @@ export function CategoryDetailTable({
                     <Badge $color={row.color} />
                     {row.category}
                   </Td>
-                  <Td>{formatCurrency(row.currentCost)}</Td>
-                  <Td>{formatCurrency(row.currentPrice)}</Td>
-                  <DiffCell $positive={diffColor(markup)}>{formatCurrency(markup)}</DiffCell>
+                  <Td>{fmtCurrency(row.currentCost)}</Td>
+                  <Td>{fmtCurrency(row.currentPrice)}</Td>
+                  <DiffCell $positive={diffColor(markup)}>{fmtCurrency(markup)}</DiffCell>
                   <MarkupCell $rate={row.currentMarkupRate}>
                     {formatPercent(row.currentMarkupRate)}
                     {markupDiff !== 0 && (
@@ -121,12 +123,12 @@ export function CategoryDetailTable({
                       </MarkupIndicator>
                     )}
                   </MarkupCell>
-                  <Td>{formatCurrency(row.prevCost)}</Td>
-                  <Td>{formatCurrency(row.prevPrice)}</Td>
+                  <Td>{fmtCurrency(row.prevCost)}</Td>
+                  <Td>{fmtCurrency(row.prevPrice)}</Td>
                   <Td>{formatPercent(row.prevMarkupRate)}</Td>
                   <DiffCell $positive={diffColor(row.costDiff)}>
                     {row.costDiff >= 0 ? '+' : ''}
-                    {formatCurrency(row.costDiff)}
+                    {fmtCurrency(row.costDiff)}
                   </DiffCell>
                   <Td>{formatPercent(row.currentCostShare)}</Td>
                   <Td>{formatPercent(row.crossMultiplication)}</Td>
@@ -139,16 +141,16 @@ export function CategoryDetailTable({
                         <Td $align="left" style={{ paddingLeft: 32 }}>
                           {s.supplierName}
                         </Td>
-                        <Td>{formatCurrency(s.currentCost)}</Td>
-                        <Td>{formatCurrency(s.currentPrice)}</Td>
-                        <Td>{formatCurrency(sMarkup)}</Td>
+                        <Td>{fmtCurrency(s.currentCost)}</Td>
+                        <Td>{fmtCurrency(s.currentPrice)}</Td>
+                        <Td>{fmtCurrency(sMarkup)}</Td>
                         <Td>{formatPercent(s.currentMarkupRate)}</Td>
-                        <Td>{formatCurrency(s.prevCost)}</Td>
-                        <Td>{formatCurrency(s.prevPrice)}</Td>
+                        <Td>{fmtCurrency(s.prevCost)}</Td>
+                        <Td>{fmtCurrency(s.prevPrice)}</Td>
                         <Td>{formatPercent(s.prevMarkupRate)}</Td>
                         <DiffCell $positive={diffColor(s.costDiff)}>
                           {s.costDiff >= 0 ? '+' : ''}
-                          {formatCurrency(s.costDiff)}
+                          {fmtCurrency(s.costDiff)}
                         </DiffCell>
                         <Td>{formatPercent(s.currentCostShare)}</Td>
                         <Td>-</Td>
@@ -160,16 +162,16 @@ export function CategoryDetailTable({
           })}
           <TrTotal>
             <Td $align="left">合計</Td>
-            <Td>{formatCurrency(totalCost)}</Td>
-            <Td>{formatCurrency(totalPrice)}</Td>
-            <Td>{formatCurrency(totalMarkup)}</Td>
+            <Td>{fmtCurrency(totalCost)}</Td>
+            <Td>{fmtCurrency(totalPrice)}</Td>
+            <Td>{fmtCurrency(totalMarkup)}</Td>
             <Td>{formatPercent(kpi.currentMarkupRate)}</Td>
-            <Td>{formatCurrency(totalPrevCost)}</Td>
-            <Td>{formatCurrency(totalPrevPrice)}</Td>
+            <Td>{fmtCurrency(totalPrevCost)}</Td>
+            <Td>{fmtCurrency(totalPrevPrice)}</Td>
             <Td>{formatPercent(totalPrevPrice > 0 ? 1 - totalPrevCost / totalPrevPrice : 0)}</Td>
             <Td>
               {totalCost - totalPrevCost >= 0 ? '+' : ''}
-              {formatCurrency(totalCost - totalPrevCost)}
+              {fmtCurrency(totalCost - totalPrevCost)}
             </Td>
             <Td>{formatPercent(1)}</Td>
             <Td>{formatPercent(totalCrossMult)}</Td>
@@ -183,6 +185,7 @@ export function CategoryDetailTable({
 // ── 店舗別比較テーブル（ドリルダウン付き） ──
 
 export function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonRow[] }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [expandedStores, setExpandedStores] = useState<Set<string>>(new Set())
 
   const toggleStore = useCallback((storeId: string) => {
@@ -224,9 +227,9 @@ export function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonR
                     <DrillToggle>{isExpanded ? '▼' : '▶'}</DrillToggle>
                     {row.storeName}
                   </Td>
-                  <Td>{formatCurrency(row.currentCost)}</Td>
-                  <Td>{formatCurrency(row.currentPrice)}</Td>
-                  <DiffCell $positive={diffColor(curMarkup)}>{formatCurrency(curMarkup)}</DiffCell>
+                  <Td>{fmtCurrency(row.currentCost)}</Td>
+                  <Td>{fmtCurrency(row.currentPrice)}</Td>
+                  <DiffCell $positive={diffColor(curMarkup)}>{fmtCurrency(curMarkup)}</DiffCell>
                   <MarkupCell $rate={row.currentMarkupRate}>
                     {formatPercent(row.currentMarkupRate)}
                     {markupDiff !== 0 && (
@@ -235,12 +238,12 @@ export function StoreComparisonTable({ rows }: { rows: readonly StoreComparisonR
                       </MarkupIndicator>
                     )}
                   </MarkupCell>
-                  <Td>{formatCurrency(row.prevCost)}</Td>
-                  <Td>{formatCurrency(row.prevPrice)}</Td>
+                  <Td>{fmtCurrency(row.prevCost)}</Td>
+                  <Td>{fmtCurrency(row.prevPrice)}</Td>
                   <Td>{formatPercent(row.prevMarkupRate)}</Td>
                   <DiffCell $positive={diffColor(row.costDiff)}>
                     {row.costDiff >= 0 ? '+' : ''}
-                    {formatCurrency(row.costDiff)}
+                    {fmtCurrency(row.costDiff)}
                   </DiffCell>
                 </DrillTr>
                 {isExpanded && (

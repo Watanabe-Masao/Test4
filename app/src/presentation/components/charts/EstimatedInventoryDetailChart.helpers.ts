@@ -1,8 +1,8 @@
 export type ViewMode = 'aggregate' | 'compare'
 
-import { formatCurrency } from '@/domain/formatting'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 
-export const fmt = (v: number) => formatCurrency(v)
+export const createFmt = (fmtCurrency: CurrencyFormatter) => (v: number) => fmtCurrency(v)
 
 export const AGG_LABELS: Record<string, string> = {
   inventoryCost: '在庫仕入原価',

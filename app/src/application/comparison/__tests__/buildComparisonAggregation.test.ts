@@ -296,7 +296,13 @@ describe('aggregateKpiByAlignment', () => {
 
 describe('aggregateKpiByAlignment 集約不変条件', () => {
   const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
-    S1: { 1: makeSummary(100000), 2: makeSummary(120000), 3: makeSummary(80000), 15: makeSummary(200000), 28: makeSummary(150000) },
+    S1: {
+      1: makeSummary(100000),
+      2: makeSummary(120000),
+      3: makeSummary(80000),
+      15: makeSummary(200000),
+      28: makeSummary(150000),
+    },
     S2: { 1: makeSummary(90000), 3: makeSummary(110000), 10: makeSummary(95000) },
     S3: { 5: makeSummary(70000), 20: makeSummary(130000) },
   }

@@ -5,7 +5,7 @@
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
 import { KpiCard, KpiGrid } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { palette } from '@/presentation/theme/tokens'
 import type { WidgetDef } from '@/presentation/components/widgets'
 import { PurchaseTab } from './PurchaseTab'
@@ -20,31 +20,32 @@ export const COST_DETAIL_WIDGETS: readonly WidgetDef[] = [
     size: 'full',
     render: (ctx) => {
       const d = ctx.costDetailData
+      const { fmtCurrency } = ctx
       if (!d?.typeIn || !d?.typeOut) return null
       return (
         <KpiGrid>
           <KpiCard
             label={`${d.typeLabel}入`}
-            value={formatCurrency(d.typeIn.cost)}
-            subText={`売価: ${formatCurrency(d.typeIn.price)}`}
+            value={fmtCurrency(d.typeIn.cost)}
+            subText={`売価: ${fmtCurrency(d.typeIn.price)}`}
             accent={palette.blueDark}
           />
           <KpiCard
             label={`${d.typeLabel}出`}
-            value={formatCurrency(d.typeOut.cost)}
-            subText={`売価: ${formatCurrency(d.typeOut.price)}`}
+            value={fmtCurrency(d.typeOut.cost)}
+            subText={`売価: ${fmtCurrency(d.typeOut.price)}`}
             accent={palette.dangerDark}
           />
           <KpiCard
             label="原価算入費合計"
-            value={formatCurrency(d.totalCostInclusionAmount)}
+            value={fmtCurrency(d.totalCostInclusionAmount)}
             accent={palette.orange}
             onClick={() => ctx.onExplain('totalCostInclusion')}
           />
           <KpiCard
             label="原価算入率"
             value={formatPercent(d.costInclusionRate)}
-            subText={`売上高: ${formatCurrency(d.totalSales)}`}
+            subText={`売上高: ${fmtCurrency(d.totalSales)}`}
             accent={palette.orangeDark}
             onClick={() => ctx.onExplain('totalCostInclusion')}
           />

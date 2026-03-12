@@ -24,6 +24,7 @@ import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/in
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
 import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
 import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -62,6 +63,8 @@ export interface UnifiedWidgetContext {
   readonly explanations: StoreExplanations
   readonly onExplain: (metricId: MetricId) => void
   readonly departmentKpi: DepartmentKpiIndex
+  /** 通貨単位設定に連動するフォーマッタ（千円/円切替対応） */
+  readonly fmtCurrency: CurrencyFormatter
 
   // ── 期間選択（新モデル） ──
   /** 期間選択の全状態（periodSelectionStore から） */

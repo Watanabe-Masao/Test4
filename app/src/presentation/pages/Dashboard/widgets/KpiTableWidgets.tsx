@@ -6,15 +6,15 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency } from '@/domain/formatting'
 import type { DepartmentKpiRecord } from '@/domain/models'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import { KpiGroupTh, KpiSubTh, BudgetTh, BudgetTd } from './KpiTableWidgets.styles'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
 import { StoreKpiTableInner } from './StoreKpiTableInner'
 
-function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
+function renderKpiRow(rec: DepartmentKpiRecord, fmtCurrency: CurrencyFormatter): ReactNode {
   const varColor = sc.cond(rec.gpRateVariance >= 0)
   const salesDiffColor = sc.cond(rec.salesVariance >= 0)
   const achColor = sc.achievement(
@@ -31,14 +31,14 @@ function renderKpiRow(rec: DepartmentKpiRecord): ReactNode {
       <STd style={{ color: varColor }}>{fmtPtDiff(rec.gpRateVariance)}</STd>
       <BudgetTd>{fmtPct(rec.markupRate)}</BudgetTd>
       <STd style={{ color: discColor }}>{fmtPct(rec.discountRate)}</STd>
-      <BudgetTd>{formatCurrency(rec.salesBudget)}</BudgetTd>
-      <STd>{formatCurrency(rec.salesActual)}</STd>
-      <STd style={{ color: salesDiffColor }}>{formatCurrency(rec.salesVariance)}</STd>
+      <BudgetTd>{fmtCurrency(rec.salesBudget)}</BudgetTd>
+      <STd>{fmtCurrency(rec.salesActual)}</STd>
+      <STd style={{ color: salesDiffColor }}>{fmtCurrency(rec.salesVariance)}</STd>
       <STd style={{ color: achColor }}>{fmtPct(rec.salesAchievement)}</STd>
-      <STd>{formatCurrency(rec.openingInventory)}</STd>
-      <STd>{formatCurrency(rec.closingInventory)}</STd>
+      <STd>{fmtCurrency(rec.openingInventory)}</STd>
+      <STd>{fmtCurrency(rec.closingInventory)}</STd>
       <BudgetTd>{fmtPct(rec.gpRateLanding)}</BudgetTd>
-      <STd>{rec.salesLanding ? formatCurrency(rec.salesLanding) : '-'}</STd>
+      <STd>{rec.salesLanding ? fmtCurrency(rec.salesLanding) : '-'}</STd>
     </tr>
   )
 }
@@ -48,7 +48,7 @@ export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
 }
 
 export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
-  const { departmentKpi } = ctx
+  const { departmentKpi, fmtCurrency } = ctx
   if (departmentKpi.records.length === 0) {
     return (
       <STableWrapper>
@@ -108,7 +108,7 @@ export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
               <KpiSubTh>最終売上着地</KpiSubTh>
             </tr>
           </thead>
-          <tbody>{departmentKpi.records.map((rec) => renderKpiRow(rec))}</tbody>
+          <tbody>{departmentKpi.records.map((rec) => renderKpiRow(rec, fmtCurrency))}</tbody>
         </STable>
       </ScrollWrapper>
     </STableWrapper>

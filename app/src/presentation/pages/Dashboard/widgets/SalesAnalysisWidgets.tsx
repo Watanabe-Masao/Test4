@@ -5,14 +5,14 @@
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/application/hooks/calculation'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
 
 export function renderDowAverage(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month, prevYear } = ctx
+  const { result: r, year, month, prevYear, fmtCurrency } = ctx
   const dailySales = new Map<number, number>()
   const dailyBudget = new Map<number, number>()
   for (const [d, rec] of r.daily) {
@@ -107,15 +107,15 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
             return (
               <tr key={a.label}>
                 <STd>{a.label}</STd>
-                <STd>{formatCurrency(a.avgSales)}</STd>
+                <STd>{fmtCurrency(a.avgSales)}</STd>
                 <STd>{a.salesCount}日</STd>
-                <STd>{formatCurrency(a.avgBudget)}</STd>
+                <STd>{fmtCurrency(a.avgBudget)}</STd>
                 <STd>{a.budgetCount}日</STd>
-                <STd style={{ color: diffColor }}>{formatCurrency(a.diff)}</STd>
-                {prevYear.hasPrevYear && <STd>{formatCurrency(a.avgPrevYear)}</STd>}
+                <STd style={{ color: diffColor }}>{fmtCurrency(a.diff)}</STd>
+                {prevYear.hasPrevYear && <STd>{fmtCurrency(a.avgPrevYear)}</STd>}
                 {prevYear.hasPrevYear && (
                   <STd style={{ color: a.avgPrevYear > 0 ? pyDiffColor : undefined }}>
-                    {a.avgPrevYear > 0 ? formatCurrency(pyDiff) : '-'}
+                    {a.avgPrevYear > 0 ? fmtCurrency(pyDiff) : '-'}
                   </STd>
                 )}
                 {prevYear.hasPrevYear && (
@@ -129,7 +129,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
                   </STd>
                 )}
                 {hasCustomers && (
-                  <STd>{a.avgTxValue > 0 ? formatCurrency(a.avgTxValue) + '円' : '-'}</STd>
+                  <STd>{a.avgTxValue > 0 ? fmtCurrency(a.avgTxValue) + '円' : '-'}</STd>
                 )}
               </tr>
             )
@@ -141,7 +141,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
 }
 
 export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month, prevYear } = ctx
+  const { result: r, year, month, prevYear, fmtCurrency } = ctx
 
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
@@ -221,18 +221,18 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                 <STd>
                   {month}/{w.startDay}～{month}/{w.endDay}
                 </STd>
-                <STd>{formatCurrency(w.totalSales)}</STd>
-                <STd>{formatCurrency(w.totalBudget)}</STd>
-                <STd style={{ color: diffColor }}>{formatCurrency(w.diff)}</STd>
+                <STd>{fmtCurrency(w.totalSales)}</STd>
+                <STd>{fmtCurrency(w.totalBudget)}</STd>
+                <STd style={{ color: diffColor }}>{fmtCurrency(w.diff)}</STd>
                 <STd style={{ color: achColor }}>
                   {w.totalBudget > 0 ? formatPercent(achievement, 0) : '-'}
                 </STd>
                 <STd>{formatPercent(w.markupRate)}</STd>
                 <STd>{w.days}日</STd>
-                {prevYear.hasPrevYear && <STd>{formatCurrency(w.prevYearWeekSales)}</STd>}
+                {prevYear.hasPrevYear && <STd>{fmtCurrency(w.prevYearWeekSales)}</STd>}
                 {prevYear.hasPrevYear && (
                   <STd style={{ color: w.prevYearWeekSales > 0 ? pyWeekDiffColor : undefined }}>
-                    {w.prevYearWeekSales > 0 ? formatCurrency(pyWeekDiff) : '-'}
+                    {w.prevYearWeekSales > 0 ? fmtCurrency(pyWeekDiff) : '-'}
                   </STd>
                 )}
                 {prevYear.hasPrevYear && (
@@ -246,7 +246,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
                   </STd>
                 )}
                 {hasWeeklyCustomers && (
-                  <STd>{w.weekTxValue > 0 ? formatCurrency(w.weekTxValue) + '円' : '-'}</STd>
+                  <STd>{w.weekTxValue > 0 ? fmtCurrency(w.weekTxValue) + '円' : '-'}</STd>
                 )}
               </tr>
             )

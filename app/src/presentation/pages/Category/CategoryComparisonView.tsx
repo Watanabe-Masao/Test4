@@ -1,6 +1,7 @@
 import { ChartErrorBoundary } from '@/presentation/components/common'
 import type { StoreResult } from '@/domain/models'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import {
@@ -29,6 +30,7 @@ export function CategoryComparisonView({
   selectedResults,
   storeNames,
 }: CategoryComparisonViewProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   return (
     <>
       {/* 比較チャート */}
@@ -85,14 +87,12 @@ export function CategoryComparisonView({
                   </Td>
                   {selectedResults.map((sr) => {
                     const pair = sr.categoryTotals.get(cat)
-                    return (
-                      <Td key={`${sr.storeId}-cost`}>{pair ? formatCurrency(pair.cost) : '-'}</Td>
-                    )
+                    return <Td key={`${sr.storeId}-cost`}>{pair ? fmtCurrency(pair.cost) : '-'}</Td>
                   })}
                   {selectedResults.map((sr) => {
                     const pair = sr.categoryTotals.get(cat)
                     return (
-                      <Td key={`${sr.storeId}-price`}>{pair ? formatCurrency(pair.price) : '-'}</Td>
+                      <Td key={`${sr.storeId}-price`}>{pair ? fmtCurrency(pair.price) : '-'}</Td>
                     )
                   })}
                   {selectedResults.map((sr) => {
@@ -157,15 +157,11 @@ export function CategoryComparisonView({
                     <Td>{code}</Td>
                     {selectedResults.map((sr) => {
                       const st = sr.supplierTotals.get(code)
-                      return (
-                        <Td key={`${sr.storeId}-cost`}>{st ? formatCurrency(st.cost) : '-'}</Td>
-                      )
+                      return <Td key={`${sr.storeId}-cost`}>{st ? fmtCurrency(st.cost) : '-'}</Td>
                     })}
                     {selectedResults.map((sr) => {
                       const st = sr.supplierTotals.get(code)
-                      return (
-                        <Td key={`${sr.storeId}-price`}>{st ? formatCurrency(st.price) : '-'}</Td>
-                      )
+                      return <Td key={`${sr.storeId}-price`}>{st ? fmtCurrency(st.price) : '-'}</Td>
                     })}
                     {selectedResults.map((sr) => {
                       const st = sr.supplierTotals.get(code)

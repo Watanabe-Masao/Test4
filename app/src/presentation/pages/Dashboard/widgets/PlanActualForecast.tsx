@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import {
   safeDivide,
   calculateTransactionValue,
@@ -22,7 +22,7 @@ import { ExecMetric } from './ExecMetric'
 
 export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
   const r = ctx.result
-  const { daysInMonth } = ctx
+  const { daysInMonth, fmtCurrency } = ctx
 
   let elapsedBudget = 0
   for (let d = 1; d <= r.elapsedDays; d++) {
@@ -51,15 +51,11 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecColSub>予算・在庫</ExecColSub>
         </ExecColHeader>
         <ExecBody>
-          <ExecMetric
-            label="月間売上予算"
-            value={formatCurrency(r.budget)}
-            formula="予算データより"
-          />
+          <ExecMetric label="月間売上予算" value={fmtCurrency(r.budget)} formula="予算データより" />
           <ExecMetric
             label="月間粗利額予算"
-            value={formatCurrency(r.grossProfitBudget)}
-            formula={`売上予算 × 粗利率予算 = ${formatCurrency(r.budget)} × ${formatPercent(r.grossProfitRateBudget)}`}
+            value={fmtCurrency(r.grossProfitBudget)}
+            formula={`売上予算 × 粗利率予算 = ${fmtCurrency(r.budget)} × ${formatPercent(r.grossProfitRateBudget)}`}
           />
           <ExecMetric
             label="月間粗利率予算"
@@ -69,12 +65,12 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecDividerLine />
           <ExecMetric
             label="期首在庫"
-            value={formatCurrency(r.openingInventory)}
+            value={fmtCurrency(r.openingInventory)}
             formula="在庫設定より（手入力 or 前月期末在庫）"
           />
           <ExecMetric
             label="期末在庫目標"
-            value={formatCurrency(r.closingInventory)}
+            value={fmtCurrency(r.closingInventory)}
             formula="在庫設定より（商品在庫 + 消耗品在庫）"
           />
         </ExecBody>
@@ -91,13 +87,13 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
         <ExecBody>
           <ExecMetric
             label="期中売上予算"
-            value={formatCurrency(elapsedBudget)}
+            value={fmtCurrency(elapsedBudget)}
             formula={`1〜${r.elapsedDays}日の日別予算合計`}
           />
           <ExecMetric
             label="期中売上実績"
-            value={formatCurrency(r.totalSales)}
-            sub={`差異: ${formatCurrency(r.totalSales - elapsedBudget)}`}
+            value={fmtCurrency(r.totalSales)}
+            sub={`差異: ${fmtCurrency(r.totalSales - elapsedBudget)}`}
             subColor={sc.cond(r.totalSales >= elapsedBudget)}
             formula="売上分類データの合計"
           />
@@ -105,7 +101,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             label="売上達成率"
             value={formatPercent(salesAchievement)}
             sub={`進捗比: ${formatPercent(progressRatio)}`}
-            formula={`実績 ÷ 経過予算 = ${formatCurrency(r.totalSales)} ÷ ${formatCurrency(elapsedBudget)}`}
+            formula={`実績 ÷ 経過予算 = ${fmtCurrency(r.totalSales)} ÷ ${fmtCurrency(elapsedBudget)}`}
           />
           {ctx.prevYear.hasPrevYear &&
             ctx.prevYear.totalSales > 0 &&
@@ -114,10 +110,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
               return (
                 <>
                   <ExecDividerLine />
-                  <ExecMetric
-                    label="前年同曜日売上"
-                    value={formatCurrency(ctx.prevYear.totalSales)}
-                  />
+                  <ExecMetric label="前年同曜日売上" value={fmtCurrency(ctx.prevYear.totalSales)} />
                   <ExecMetric
                     label="前年同曜日比"
                     value={formatPercent(pyRatio)}
@@ -140,13 +133,13 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                   <ExecDividerLine />
                   <ExecMetric
                     label="期中客数"
-                    value={`${formatCurrency(r.totalCustomers)}人`}
-                    sub={`日平均: ${formatCurrency(r.averageCustomersPerDay)}人`}
+                    value={`${fmtCurrency(r.totalCustomers)}人`}
+                    sub={`日平均: ${fmtCurrency(r.averageCustomersPerDay)}人`}
                   />
                   <ExecMetric
                     label="客単価"
-                    value={formatCurrency(txValue) + '円'}
-                    sub={pyTxValue ? `前年: ${formatCurrency(pyTxValue)}円` : undefined}
+                    value={fmtCurrency(txValue) + '円'}
+                    sub={pyTxValue ? `前年: ${fmtCurrency(pyTxValue)}円` : undefined}
                   />
                   {custRatio != null && (
                     <ExecMetric
@@ -161,8 +154,8 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
           <ExecDividerLine />
           <ExecMetric
             label="期中粗利額実績"
-            value={formatCurrency(actualGP)}
-            sub={`差異: ${formatCurrency(actualGP - elapsedGPBudget)}`}
+            value={fmtCurrency(actualGP)}
+            sub={`差異: ${fmtCurrency(actualGP - elapsedGPBudget)}`}
             subColor={sc.cond(actualGP >= elapsedGPBudget)}
             formula={
               r.invMethodGrossProfit != null
@@ -175,7 +168,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
             value={formatPercent(actualGPRate)}
             sub={`予算比: ${formatPointDiff(actualGPRate - r.grossProfitRateBudget)}`}
             subColor={sc.cond(actualGPRate >= r.grossProfitRateBudget)}
-            formula={`粗利額 ÷ 売上 = ${formatCurrency(actualGP)} ÷ ${formatCurrency(r.totalSales)}`}
+            formula={`粗利額 ÷ 売上 = ${fmtCurrency(actualGP)} ÷ ${fmtCurrency(r.totalSales)}`}
           />
           {r.totalCostInclusion > 0 &&
             (() => {
@@ -190,7 +183,7 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                 <>
                   <ExecMetric
                     label="原価算入比（原価算入費）"
-                    value={formatCurrency(r.totalCostInclusion)}
+                    value={fmtCurrency(r.totalCostInclusion)}
                   />
                   <ExecMetric label="粗利率（消耗品控除前）" value={formatPercent(beforeRate)} />
                   <ExecMetric
@@ -213,28 +206,28 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
         <ExecBody>
           <ExecMetric
             label="月末売上着地"
-            value={formatCurrency(r.projectedSales)}
-            sub={`予算差: ${formatCurrency(r.projectedSales - r.budget)}`}
+            value={fmtCurrency(r.projectedSales)}
+            sub={`予算差: ${fmtCurrency(r.projectedSales - r.budget)}`}
             subColor={sc.cond(r.projectedSales >= r.budget)}
-            formula={`日販 × ${daysInMonth}営業日 = ${formatCurrency(Math.round(r.totalSales / r.salesDays))} × ${daysInMonth}`}
+            formula={`日販 × ${daysInMonth}営業日 = ${fmtCurrency(Math.round(r.totalSales / r.salesDays))} × ${daysInMonth}`}
           />
           <ExecMetric
             label="着地売上達成率"
             value={formatPercent(r.projectedAchievement)}
-            formula={`着地売上 ÷ 月間予算 = ${formatCurrency(r.projectedSales)} ÷ ${formatCurrency(r.budget)}`}
+            formula={`着地売上 ÷ 月間予算 = ${fmtCurrency(r.projectedSales)} ÷ ${fmtCurrency(r.budget)}`}
           />
           <ExecDividerLine />
           <ExecMetric
             label="月末粗利着地"
-            value={formatCurrency(r.projectedGrossProfit)}
-            sub={`予算差: ${formatCurrency(r.projectedGrossProfit - r.grossProfitBudget)}`}
+            value={fmtCurrency(r.projectedGrossProfit)}
+            sub={`予算差: ${fmtCurrency(r.projectedGrossProfit - r.grossProfitBudget)}`}
             subColor={sc.cond(r.projectedGrossProfit >= r.grossProfitBudget)}
-            formula={`実績${formatCurrency(actualGP)} + 日平均${formatCurrency(Math.round(dailyAvgGP))} × 残${remainingDays}日`}
+            formula={`実績${fmtCurrency(actualGP)} + 日平均${fmtCurrency(Math.round(dailyAvgGP))} × 残${remainingDays}日`}
           />
           <ExecMetric
             label="着地粗利達成率"
             value={formatPercent(r.projectedGPAchievement)}
-            formula={`着地粗利 ÷ 月間粗利予算 = ${formatCurrency(r.projectedGrossProfit)} ÷ ${formatCurrency(r.grossProfitBudget)}`}
+            formula={`着地粗利 ÷ 月間粗利予算 = ${fmtCurrency(r.projectedGrossProfit)} ÷ ${fmtCurrency(r.grossProfitBudget)}`}
           />
           {r.totalCustomers > 0 &&
             r.salesDays > 0 &&
@@ -252,13 +245,13 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                   <ExecDividerLine />
                   <ExecMetric
                     label="月末客数着地"
-                    value={`${formatCurrency(projectedCustomers)}人`}
-                    formula={`実績${formatCurrency(r.totalCustomers)}人 + 日平均${formatCurrency(avgDailyCustomers)}人 × 残${remainingDays}日`}
+                    value={`${fmtCurrency(projectedCustomers)}人`}
+                    formula={`実績${fmtCurrency(r.totalCustomers)}人 + 日平均${fmtCurrency(avgDailyCustomers)}人 × 残${remainingDays}日`}
                   />
                   <ExecMetric
                     label="着地客単価"
-                    value={formatCurrency(projectedTxValue) + '円'}
-                    formula={`着地売上 ÷ 着地客数 = ${formatCurrency(r.projectedSales)} ÷ ${projectedCustomers.toLocaleString('ja-JP')}`}
+                    value={fmtCurrency(projectedTxValue) + '円'}
+                    formula={`着地売上 ÷ 着地客数 = ${fmtCurrency(r.projectedSales)} ÷ ${projectedCustomers.toLocaleString('ja-JP')}`}
                   />
                 </>
               )

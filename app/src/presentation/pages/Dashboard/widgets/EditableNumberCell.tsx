@@ -4,7 +4,7 @@
  * KpiTableWidgets.tsx から分割。
  */
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { EditableCell, CellInput, EditHint, KpiTooltip } from './KpiTableWidgets.styles'
 import { fmtPct } from './kpiTableUtils'
 
@@ -23,6 +23,7 @@ export function EditableNumberCell({
   tooltip?: ReactNode
   style?: React.CSSProperties
 }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [hovered, setHovered] = useState(false)
@@ -48,7 +49,7 @@ export function EditableNumberCell({
   }, [editing])
 
   const displayVal =
-    value != null ? (format === 'percent' ? fmtPct(value) : formatCurrency(value)) : '-'
+    value != null ? (format === 'percent' ? fmtPct(value) : fmtCurrency(value)) : '-'
 
   return (
     <EditableCell

@@ -14,6 +14,7 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -118,4 +119,6 @@ export interface WidgetContext {
   dowGap: DowGapAnalysis
   /** 前年予算比較詳細パネルを開く */
   onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
+  /** 通貨単位設定に連動するフォーマッタ（千円/円切替対応） */
+  fmtCurrency: CurrencyFormatter
 }

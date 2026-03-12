@@ -1,7 +1,8 @@
 import type { DepartmentKpiIndex } from '@/application/usecases/departmentKpi/indexBuilder'
 import type { MetricId } from '@/domain/models'
 import { KpiCard, KpiGrid } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -22,6 +23,8 @@ interface ReportDeptTableProps {
 }
 
 export function ReportDeptTable({ deptKpiIndex, onExplain }: ReportDeptTableProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+
   if (deptKpiIndex.records.length === 0) return null
 
   return (
@@ -36,7 +39,7 @@ export function ReportDeptTable({ deptKpiIndex, onExplain }: ReportDeptTableProp
         <KpiCard
           label="売上達成率（全体）"
           value={formatPercent(deptKpiIndex.summary.overallSalesAchievement)}
-          subText={`予算: ${formatCurrency(deptKpiIndex.summary.totalSalesBudget)} / 実績: ${formatCurrency(deptKpiIndex.summary.totalSalesActual)}`}
+          subText={`予算: ${fmtCurrency(deptKpiIndex.summary.totalSalesBudget)} / 実績: ${fmtCurrency(deptKpiIndex.summary.totalSalesActual)}`}
           accent={sc.achievement(deptKpiIndex.summary.overallSalesAchievement)}
           onClick={() => onExplain('budgetAchievementRate')}
         />
@@ -87,8 +90,8 @@ export function ReportDeptTable({ deptKpiIndex, onExplain }: ReportDeptTableProp
                 </DeptTd>
                 <DeptTd>{formatPercent(dept.markupRate)}</DeptTd>
                 <DeptTd>{formatPercent(dept.discountRate)}</DeptTd>
-                <DeptTd>{formatCurrency(dept.salesBudget)}</DeptTd>
-                <DeptTd>{formatCurrency(dept.salesActual)}</DeptTd>
+                <DeptTd>{fmtCurrency(dept.salesBudget)}</DeptTd>
+                <DeptTd>{fmtCurrency(dept.salesActual)}</DeptTd>
                 <DeptTd $good={dept.salesAchievement >= 1} $warn={dept.salesAchievement < 0.9}>
                   {formatPercent(dept.salesAchievement)}
                 </DeptTd>
@@ -112,8 +115,8 @@ export function ReportDeptTable({ deptKpiIndex, onExplain }: ReportDeptTableProp
               </Td>
               <Td $accent>{formatPercent(deptKpiIndex.summary.weightedMarkupRate)}</Td>
               <Td $accent>{formatPercent(deptKpiIndex.summary.weightedDiscountRate)}</Td>
-              <Td $accent>{formatCurrency(deptKpiIndex.summary.totalSalesBudget)}</Td>
-              <Td $accent>{formatCurrency(deptKpiIndex.summary.totalSalesActual)}</Td>
+              <Td $accent>{fmtCurrency(deptKpiIndex.summary.totalSalesBudget)}</Td>
+              <Td $accent>{fmtCurrency(deptKpiIndex.summary.totalSalesActual)}</Td>
               <Td $accent>{formatPercent(deptKpiIndex.summary.overallSalesAchievement)}</Td>
             </TotalRow>
           </tbody>

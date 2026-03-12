@@ -3,7 +3,8 @@ import { KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
 import type { MetricId, StoreResult, Store, CustomCategory } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { AppSettings } from '@/domain/models'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { isUserCategory } from '@/domain/constants/customCategories'
@@ -47,6 +48,7 @@ export function CategoryTotalView({
   onExplain,
   onCustomCategoryChange,
 }: CategoryTotalViewProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   // ドリルダウン state: カテゴリ → 店舗 → 取引先 → 日別
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const [expandedStore, setExpandedStore] = useState<string | null>(null)
@@ -77,7 +79,7 @@ export function CategoryTotalView({
         />
         <KpiCard
           label="粗利額"
-          value={formatCurrency(totalGrossProfit)}
+          value={fmtCurrency(totalGrossProfit)}
           accent={sc.positive}
           onClick={
             r.invMethodGrossProfit != null ? () => onExplain('invMethodGrossProfit') : undefined
@@ -85,13 +87,13 @@ export function CategoryTotalView({
         />
         <KpiCard
           label="原価合計"
-          value={formatCurrency(totalCatCost)}
+          value={fmtCurrency(totalCatCost)}
           accent={palette.warningDark}
           onClick={() => onExplain('purchaseCost')}
         />
         <KpiCard
           label="売価合計"
-          value={formatCurrency(totalCatPrice)}
+          value={fmtCurrency(totalCatPrice)}
           accent={palette.blueDark}
           onClick={() => onExplain('salesTotal')}
         />
@@ -172,10 +174,10 @@ export function CategoryTotalView({
                         <Badge $color={d.color} />
                         {d.label}
                       </Td>
-                      <Td>{formatCurrency(d.cost)}</Td>
-                      <Td>{formatCurrency(d.price)}</Td>
+                      <Td>{fmtCurrency(d.cost)}</Td>
+                      <Td>{fmtCurrency(d.price)}</Td>
                       <GrossProfitCell $positive={grossProfit >= 0}>
-                        {formatCurrency(grossProfit)}
+                        {fmtCurrency(grossProfit)}
                       </GrossProfitCell>
                       <MarkupCell $rate={d.markup}>{formatPercent(d.markup)}</MarkupCell>
                       <Td>{formatPercent(costShare)}</Td>
@@ -225,6 +227,7 @@ export function CategoryTotalView({
                           onCustomCategoryChange,
                           expandedSupplier,
                           setExpandedSupplier,
+                          fmtCurrency,
                         )
                       } else {
                         // 複数店舗: 店舗行を表示
@@ -272,10 +275,10 @@ export function CategoryTotalView({
                                 {sName}
                               </DrillLabel>
                             </Td>
-                            <Td>{formatCurrency(storeCost)}</Td>
-                            <Td>{formatCurrency(storePrice)}</Td>
+                            <Td>{fmtCurrency(storeCost)}</Td>
+                            <Td>{fmtCurrency(storePrice)}</Td>
                             <GrossProfitCell $positive={sGP >= 0}>
-                              {formatCurrency(sGP)}
+                              {fmtCurrency(sGP)}
                             </GrossProfitCell>
                             <MarkupCell $rate={sMarkup}>{formatPercent(sMarkup)}</MarkupCell>
                             <Td></Td>
@@ -298,6 +301,7 @@ export function CategoryTotalView({
                             onCustomCategoryChange,
                             expandedSupplier,
                             setExpandedSupplier,
+                            fmtCurrency,
                           )
                         }
                       }
@@ -308,9 +312,9 @@ export function CategoryTotalView({
                 rows.push(
                   <TrTotal key="total">
                     <Td>合計</Td>
-                    <Td>{formatCurrency(totalCatCost)}</Td>
-                    <Td>{formatCurrency(totalCatPrice)}</Td>
-                    <Td>{formatCurrency(totalGrossProfit)}</Td>
+                    <Td>{fmtCurrency(totalCatCost)}</Td>
+                    <Td>{fmtCurrency(totalCatPrice)}</Td>
+                    <Td>{fmtCurrency(totalGrossProfit)}</Td>
                     <Td
                       style={{ cursor: 'pointer' }}
                       onClick={() => onExplain('averageMarkupRate')}
@@ -348,6 +352,7 @@ function renderSupplierRows(
   onCustomCategoryChange: (supplierCode: string, value: string) => void,
   expandedSupplier: string | null,
   setExpandedSupplier: (v: string | null) => void,
+  fmtCurrency: (value: number) => string,
 ) {
   const sortedSuppliers = Array.from(catSuppliers.entries()).sort(([, a], [, b]) => b.cost - a.cost)
 
@@ -395,9 +400,9 @@ function renderSupplierRows(
             </span>
           </DrillLabel>
         </Td>
-        <Td>{formatCurrency(sup.cost)}</Td>
-        <Td>{formatCurrency(sup.price)}</Td>
-        <GrossProfitCell $positive={supGP >= 0}>{formatCurrency(supGP)}</GrossProfitCell>
+        <Td>{fmtCurrency(sup.cost)}</Td>
+        <Td>{fmtCurrency(sup.price)}</Td>
+        <GrossProfitCell $positive={supGP >= 0}>{fmtCurrency(supGP)}</GrossProfitCell>
         <MarkupCell $rate={supMarkup}>{formatPercent(supMarkup)}</MarkupCell>
         <Td></Td>
         <Td></Td>
@@ -447,9 +452,9 @@ function renderSupplierRows(
                 {settings.targetMonth}/{day}日
               </DrillLabel>
             </Td>
-            <Td>{formatCurrency(daySup.cost)}</Td>
-            <Td>{formatCurrency(daySup.price)}</Td>
-            <GrossProfitCell $positive={dayGP >= 0}>{formatCurrency(dayGP)}</GrossProfitCell>
+            <Td>{fmtCurrency(daySup.cost)}</Td>
+            <Td>{fmtCurrency(daySup.price)}</Td>
+            <GrossProfitCell $positive={dayGP >= 0}>{fmtCurrency(dayGP)}</GrossProfitCell>
             <MarkupCell $rate={dayMarkup}>{formatPercent(dayMarkup)}</MarkupCell>
             <Td></Td>
             <Td></Td>

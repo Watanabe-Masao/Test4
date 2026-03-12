@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { WidgetContext } from './types'
 
@@ -14,6 +14,7 @@ export function DowGapKpiCard({
   dowGap: DowGapAnalysis
   onExplain: WidgetContext['onExplain']
 }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [showActual, setShowActual] = useState(false)
   const toggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -33,15 +34,15 @@ export function DowGapKpiCard({
   if (isActualView) {
     const impact = actualDay.estimatedImpact
     const details = [
-      ...actualDay.shiftedIn.map((d) => `${d.label}: +${formatCurrency(d.prevSales)}`),
-      ...actualDay.shiftedOut.map((d) => `${d.label}: -${formatCurrency(d.prevSales)}`),
+      ...actualDay.shiftedIn.map((d) => `${d.label}: +${fmtCurrency(d.prevSales)}`),
+      ...actualDay.shiftedOut.map((d) => `${d.label}: -${fmtCurrency(d.prevSales)}`),
     ].join(' / ')
     const subText = details || `日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日 / ${gapSummary}`
 
     return (
       <KpiCard
         label="曜日ギャップ（実日）"
-        value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+        value={`${impact >= 0 ? '+' : ''}${fmtCurrency(impact)}`}
         subText={subText}
         accent={impact >= 0 ? palette.positive : palette.negative}
         onClick={() => onExplain('dowGapImpact')}
@@ -73,7 +74,7 @@ export function DowGapKpiCard({
   return (
     <KpiCard
       label="曜日ギャップ（平均）"
-      value={`${impact >= 0 ? '+' : ''}${formatCurrency(impact)}`}
+      value={`${impact >= 0 ? '+' : ''}${fmtCurrency(impact)}`}
       subText={subParts.join(' / ')}
       accent={
         hasWarnings && impact === 0

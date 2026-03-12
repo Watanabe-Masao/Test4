@@ -13,6 +13,7 @@ import type { WidgetContext } from '../types'
 import type { StoreResult, DailyRecord, CostPricePair, StoreExplanations } from '@/domain/models'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import type { PrevYearData, PrevYearDailyEntry } from '@/application/hooks'
+import { formatCurrency } from '@/domain/formatting'
 
 const ZERO: CostPricePair = { cost: 0, price: 0 }
 
@@ -232,6 +233,7 @@ export function makeWidgetContext(overrides: Partial<WidgetContext> = {}): Widge
       missingDataWarnings: [],
     },
     onPrevYearDetail: () => {},
+    fmtCurrency: formatCurrency,
     comparisonFrame: {
       current: { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
       previous: { from: { year: 2025, month: 2, day: 1 }, to: { year: 2025, month: 2, day: 28 } },

@@ -21,9 +21,8 @@ import {
   type CategoryTrendPoint,
   type CategoryBenchmarkTrendRow,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme } from './chartTheme'
+import { useChartTheme, useCurrencyFormat } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
 import {
   ChartPanel,
   ChartHeaderRow,
@@ -267,9 +266,10 @@ interface SalesCvTooltipProps {
   payload?: readonly { dataKey: string; value: number; color: string; name: string }[]
   label?: string
   ct: ReturnType<typeof useChartTheme>
+  fmtCurrency: (v: number | null) => string
 }
 
-function SalesCvTooltipContent({ active, payload, label, ct }: SalesCvTooltipProps) {
+function SalesCvTooltipContent({ active, payload, label, ct, fmtCurrency }: SalesCvTooltipProps) {
   if (!active || !payload || payload.length === 0) return null
 
   return (
@@ -293,7 +293,7 @@ function SalesCvTooltipContent({ active, payload, label, ct }: SalesCvTooltipPro
           <div key={entry.dataKey} style={{ color: entry.color, fontSize: '0.6rem' }}>
             {entry.name}
             {isSales
-              ? `: ${formatCurrency(entry.value)}`
+              ? `: ${fmtCurrency(entry.value)}`
               : isCv
                 ? `: ${entry.value.toFixed(3)}`
                 : `: ${entry.value}`}
@@ -320,6 +320,7 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
   selectedStoreIds,
 }: Props) {
   const ct = useChartTheme()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [level, setLevel] = useState<HierarchyLevel>('department')
   const [viewMode, setViewMode] = useState<ViewMode>('cvLine')
   const [overlay, setOverlay] = useState<OverlayMode>('both')
@@ -559,7 +560,7 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
               yAxisId="sales"
               tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
               stroke={ct.grid}
-              tickFormatter={(v: number) => formatCurrency(v)}
+              tickFormatter={(v: number) => fmtCurrency(v)}
               label={{
                 value: '売上',
                 angle: -90,
@@ -584,7 +585,7 @@ export const CvTimeSeriesChart = memo(function CvTimeSeriesChart({
                 fill: ct.textMuted,
               }}
             />
-            <Tooltip content={<SalesCvTooltipContent ct={ct} />} />
+            <Tooltip content={<SalesCvTooltipContent ct={ct} fmtCurrency={fmtCurrency} />} />
             <Legend verticalAlign="bottom" iconSize={8} wrapperStyle={{ fontSize: '0.6rem' }} />
             {topCodes.map((code, i) => (
               <Bar

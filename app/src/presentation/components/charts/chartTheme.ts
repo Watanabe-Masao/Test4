@@ -141,7 +141,62 @@ export function toDevScore(z: number): number {
   return DEVIATION_MEAN + DEVIATION_SD * z
 }
 
-/** グローバル設定に基づく通貨フォーマッタを返すフック */
+/** 通貨フォーマッタの型（VM 等に渡す用） */
+export type CurrencyFormatter = (v: number | null) => string
+
+/** 千円値（サフィックスなし） */
+function formatSenValue(n: number | null): string {
+  if (n == null || isNaN(n)) return '-'
+  return Math.round(n / 1000).toLocaleString('ja-JP')
+}
+
+/** 千円値（サフィックス付き） */
+function formatSenWithUnit(n: number | null): string {
+  if (n == null || isNaN(n)) return '-'
+  return `${Math.round(n / 1000).toLocaleString('ja-JP')}千`
+}
+
+/** 円値（サフィックス付き） — null 安全版 */
+function formatYenWithUnit(n: number | null): string {
+  if (n == null || isNaN(n)) return '-'
+  return `${Math.round(n).toLocaleString('ja-JP')}円`
+}
+
+/** 通貨フォーマットの結果セット */
+export interface CurrencyFormat {
+  /** 数値のみ（"1,234,567" or "1,235"） */
+  readonly format: CurrencyFormatter
+  /** 単位付き（"1,234,567円" or "1,235千"） */
+  readonly formatWithUnit: CurrencyFormatter
+  /** 単位文字列（"円" or "千円"） */
+  readonly unit: string
+}
+
+const YEN_FORMAT: CurrencyFormat = {
+  format: formatCurrency,
+  formatWithUnit: formatYenWithUnit,
+  unit: '円',
+}
+
+const SEN_FORMAT: CurrencyFormat = {
+  format: formatSenValue,
+  formatWithUnit: formatSenWithUnit,
+  unit: '千円',
+}
+
+/**
+ * 通貨単位設定に連動するフォーマッタセットを返すフック。
+ *
+ * - format: サフィックスなし（KPIカード、テーブルセル用）
+ * - formatWithUnit: サフィックス付き（ツールチップ、インライン表示用）
+ * - unit: 単位文字列
+ */
+export function useCurrencyFormat(): CurrencyFormat {
+  const currencyUnit = useUiStore((s) => s.currencyUnit)
+  return currencyUnit === 'yen' ? YEN_FORMAT : SEN_FORMAT
+}
+
+/** グローバル設定に基づく通貨フォーマッタを返すフック（単位付き） */
 export function useCurrencyFormatter(): (v: number) => string {
   const currencyUnit = useUiStore((s) => s.currencyUnit)
   return useMemo(() => (currencyUnit === 'yen' ? toYen : toSenYen), [currencyUnit])

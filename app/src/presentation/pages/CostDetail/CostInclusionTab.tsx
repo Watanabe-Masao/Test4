@@ -8,7 +8,8 @@ import {
   KpiGrid,
   ChartErrorBoundary,
 } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import type { MetricId } from '@/domain/models'
 import {
@@ -35,19 +36,20 @@ interface CostInclusionTabProps {
 }
 
 export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   return (
     <>
       <KpiGrid>
         <KpiCard
           label="原価算入費合計"
-          value={formatCurrency(d.totalCostInclusionAmount)}
+          value={fmtCurrency(d.totalCostInclusionAmount)}
           accent={palette.orange}
           onClick={() => onExplain('totalCostInclusion')}
         />
         <KpiCard
           label="原価算入率"
           value={formatPercent(d.costInclusionRate)}
-          subText={`売上高: ${formatCurrency(d.totalSales)}`}
+          subText={`売上高: ${fmtCurrency(d.totalSales)}`}
           accent={palette.orangeDark}
           onClick={() => onExplain('totalCostInclusion')}
         />
@@ -60,7 +62,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
         <KpiCard
           label="計上日数"
           value={`${d.dailyCostInclusionData.length}日`}
-          subText={`日平均: ${d.dailyCostInclusionData.length > 0 ? formatCurrency(d.totalCostInclusionAmount / d.dailyCostInclusionData.length) : '-'}`}
+          subText={`日平均: ${d.dailyCostInclusionData.length > 0 ? fmtCurrency(d.totalCostInclusionAmount / d.dailyCostInclusionData.length) : '-'}`}
           accent={palette.blueDark}
         />
       </KpiGrid>
@@ -142,7 +144,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                                   $width={(item.totalCost / d.maxItemCost) * 100}
                                   $color={palette.orange}
                                 />
-                                {formatCurrency(item.totalCost)}
+                                {fmtCurrency(item.totalCost)}
                               </CostInclusionTd>
                               <CostInclusionTd>{formatPercent(ratio)}</CostInclusionTd>
                               <CostInclusionTd>{item.dayCount}日</CostInclusionTd>
@@ -164,7 +166,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                                     <CostInclusionTd>
                                       {detail.quantity.toLocaleString()}
                                     </CostInclusionTd>
-                                    <CostInclusionTd>{formatCurrency(detail.cost)}</CostInclusionTd>
+                                    <CostInclusionTd>{fmtCurrency(detail.cost)}</CostInclusionTd>
                                     <CostInclusionTd />
                                     <CostInclusionTd />
                                   </TrRow>
@@ -183,9 +185,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                             .reduce((s, i) => s + i.totalQuantity, 0)
                             .toLocaleString()}
                         </CostInclusionTd>
-                        <CostInclusionTd>
-                          {formatCurrency(d.totalCostInclusionAmount)}
-                        </CostInclusionTd>
+                        <CostInclusionTd>{fmtCurrency(d.totalCostInclusionAmount)}</CostInclusionTd>
                         <CostInclusionTd>100.0%</CostInclusionTd>
                         <CostInclusionTd />
                       </TrTotal>
@@ -226,7 +226,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                                   $width={(acc.totalCost / d.maxAccountCost) * 100}
                                   $color={palette.purpleDark}
                                 />
-                                {formatCurrency(acc.totalCost)}
+                                {fmtCurrency(acc.totalCost)}
                               </CostInclusionTd>
                               <CostInclusionTd>{formatPercent(ratio)}</CostInclusionTd>
                             </Tr>
@@ -238,7 +238,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                             {d.accountAggregates.reduce((s, a) => s + a.itemCount, 0)}品目
                           </CostInclusionTd>
                           <CostInclusionTd>
-                            {formatCurrency(d.totalCostInclusionAmount)}
+                            {fmtCurrency(d.totalCostInclusionAmount)}
                           </CostInclusionTd>
                           <CostInclusionTd>100.0%</CostInclusionTd>
                         </TrTotal>
@@ -254,7 +254,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                         <Card key={acc.accountCode} style={{ marginBottom: '1rem' }}>
                           <CardTitle>
                             科目 {acc.accountCode}（{items.length}品目 /{' '}
-                            {formatCurrency(acc.totalCost)}）
+                            {fmtCurrency(acc.totalCost)}）
                           </CardTitle>
                           <TableWrapper>
                             <Table>
@@ -272,9 +272,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                                     <CostInclusionTd>
                                       {item.totalQuantity.toLocaleString()}
                                     </CostInclusionTd>
-                                    <CostInclusionTd>
-                                      {formatCurrency(item.totalCost)}
-                                    </CostInclusionTd>
+                                    <CostInclusionTd>{fmtCurrency(item.totalCost)}</CostInclusionTd>
                                   </Tr>
                                 ))}
                               </tbody>
@@ -307,13 +305,13 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                       {d.dailyCostInclusionData.map((entry) => (
                         <Tr key={entry.day}>
                           <CostInclusionTd>{entry.day}日</CostInclusionTd>
-                          <CostInclusionTd>{formatCurrency(entry.cost)}</CostInclusionTd>
+                          <CostInclusionTd>{fmtCurrency(entry.cost)}</CostInclusionTd>
                           <CostInclusionTd>{entry.itemCount}品目</CostInclusionTd>
                           <CostInclusionTd $muted>
                             {entry.items.slice(0, 5).map((item, i) => (
                               <span key={i}>
                                 {i > 0 && ' / '}
-                                {item.itemName}({formatCurrency(item.cost)})
+                                {item.itemName}({fmtCurrency(item.cost)})
                               </span>
                             ))}
                             {entry.items.length > 5 && ` 他${entry.items.length - 5}件`}
@@ -322,9 +320,7 @@ export function CostInclusionTab({ d, onExplain }: CostInclusionTabProps) {
                       ))}
                       <TrTotal>
                         <CostInclusionTd>合計</CostInclusionTd>
-                        <CostInclusionTd>
-                          {formatCurrency(d.totalCostInclusionAmount)}
-                        </CostInclusionTd>
+                        <CostInclusionTd>{fmtCurrency(d.totalCostInclusionAmount)}</CostInclusionTd>
                         <CostInclusionTd>
                           {d.dailyCostInclusionData.reduce((s, entry) => s + entry.itemCount, 0)}件
                         </CostInclusionTd>

@@ -5,8 +5,12 @@
  * レンダリングのみに専念する。
  */
 import { useState, useMemo } from 'react'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
+import {
+  useCurrencyFormat,
+  type CurrencyFormatter,
+} from '@/presentation/components/charts/chartTheme'
 import {
   type DailyYoYRow,
   buildSalesYoYDetailVm,
@@ -31,6 +35,7 @@ function renderDailyYoYRows(
   rows: readonly DailyYoYRow[],
   mode: 'cumulative' | 'daily',
   metric: 'sales' | 'customers',
+  fmtCurrency: CurrencyFormatter,
 ): React.ReactNode[] {
   let cumCurrent = 0
   let cumPrev = 0
@@ -46,9 +51,7 @@ function renderDailyYoYRows(
     const yoy = safeDivide(displayCurrent, displayPrev, 0)
 
     const fmtVal =
-      metric === 'sales'
-        ? (v: number) => formatCurrency(v)
-        : (v: number) => `${v.toLocaleString()}人`
+      metric === 'sales' ? (v: number) => fmtCurrency(v) : (v: number) => `${v.toLocaleString()}人`
 
     return (
       <BTr key={row.day}>
@@ -73,6 +76,7 @@ export function SalesYoYDetailTable({
   dataMaxDay,
 }: SalesYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
+  const { format: fmtCurrency } = useCurrencyFormat()
 
   const vm = useMemo(
     () =>
@@ -84,8 +88,18 @@ export function SalesYoYDetailTable({
         prevYear,
         prevYearMonthlyKpi,
         dataMaxDay,
+        fmtCurrency,
       ),
-    [sortedStoreEntries, stores, result, effectiveConfig, prevYear, prevYearMonthlyKpi, dataMaxDay],
+    [
+      sortedStoreEntries,
+      stores,
+      result,
+      effectiveConfig,
+      prevYear,
+      prevYearMonthlyKpi,
+      dataMaxDay,
+      fmtCurrency,
+    ],
   )
 
   return (
@@ -150,7 +164,7 @@ export function SalesYoYDetailTable({
                 <BTh>前年比</BTh>
               </tr>
             </thead>
-            <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'sales')}</tbody>
+            <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'sales', fmtCurrency)}</tbody>
           </BTable>
         </>
       )}
@@ -170,6 +184,7 @@ export function CustomerYoYDetailTable({
   dataMaxDay,
 }: CustomerYoYDetailProps) {
   const [dailyMode, setDailyMode] = useState<'cumulative' | 'daily'>('cumulative')
+  const { format: fmtCurrency } = useCurrencyFormat()
 
   const vm = useMemo(
     () =>
@@ -247,7 +262,7 @@ export function CustomerYoYDetailTable({
                 <BTh>前年比</BTh>
               </tr>
             </thead>
-            <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'customers')}</tbody>
+            <tbody>{renderDailyYoYRows(vm.dailyRows, dailyMode, 'customers', fmtCurrency)}</tbody>
           </BTable>
         </>
       )}

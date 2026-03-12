@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useUiStore } from '@/application/stores/uiStore'
@@ -30,7 +30,7 @@ const TABS: { key: SummaryTab; label: string }[] = [
 ]
 
 export function ExecSummaryBarWidget(ctx: WidgetContext) {
-  const { result: r, prevYear, onExplain } = ctx
+  const { result: r, prevYear, onExplain, fmtCurrency } = ctx
   const [tab, setTab] = useState<SummaryTab>('sales')
 
   const pyRatio =
@@ -76,10 +76,10 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               <ExecSummaryLabel>売上実績（営業日）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
               <ExecSummaryValue>
-                {formatCurrency(elapsedBudget)} / {formatCurrency(r.totalSales)}
+                {fmtCurrency(elapsedBudget)} / {fmtCurrency(r.totalSales)}
               </ExecSummaryValue>
               <ExecSummarySub $color={sc.cond(elapsedDiff >= 0)}>
-                予算差異: {formatCurrency(elapsedDiff)}
+                予算差異: {fmtCurrency(elapsedDiff)}
               </ExecSummarySub>
               <ExecSummarySub $color={sc.cond(r.budgetProgressRate >= 1)}>
                 売上予算達成率: {formatPercent(r.budgetProgressRate)}
@@ -99,14 +99,14 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               <ExecSummaryLabel>売上消化率（月間）</ExecSummaryLabel>
               <ExecSummarySub>売上予算 / 売上実績</ExecSummarySub>
               <ExecSummaryValue>
-                {formatCurrency(r.budget)} / {formatCurrency(r.totalSales)}
+                {fmtCurrency(r.budget)} / {fmtCurrency(r.totalSales)}
               </ExecSummaryValue>
               <ExecSummarySub>予算経過率: {formatPercent(r.budgetElapsedRate)}</ExecSummarySub>
               <ExecSummarySub $color={sc.cond(r.budgetAchievementRate >= 1)}>
                 予算消化率: {formatPercent(r.budgetAchievementRate)}
               </ExecSummarySub>
               <ExecSummarySub $color={r.remainingBudget <= 0 ? sc.positive : undefined}>
-                残予算: {formatCurrency(r.remainingBudget)}
+                残予算: {fmtCurrency(r.remainingBudget)}
               </ExecSummarySub>
             </ExecSummaryItem>
           </ExecSummaryBar>
@@ -122,17 +122,15 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
               <ExecSummaryHint>根拠</ExecSummaryHint>
               <ExecSummaryLabel>在庫金額/総仕入高</ExecSummaryLabel>
               <ExecSummarySub>
-                期首在庫:{' '}
-                {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未入力'}
+                期首在庫: {r.openingInventory != null ? fmtCurrency(r.openingInventory) : '未入力'}
               </ExecSummarySub>
-              <ExecSummarySub>期中仕入高: {formatCurrency(r.totalCost)}</ExecSummarySub>
+              <ExecSummarySub>期中仕入高: {fmtCurrency(r.totalCost)}</ExecSummarySub>
               <ExecSummaryValue>
-                期末在庫:{' '}
-                {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未入力'}
+                期末在庫: {r.closingInventory != null ? fmtCurrency(r.closingInventory) : '未入力'}
               </ExecSummaryValue>
               {r.estMethodClosingInventory != null && (
                 <ExecSummarySub>
-                  推定期末在庫: {formatCurrency(r.estMethodClosingInventory)}
+                  推定期末在庫: {fmtCurrency(r.estMethodClosingInventory)}
                 </ExecSummarySub>
               )}
               {purchaseShort && (
@@ -155,15 +153,15 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                 return (
                   <>
                     <ExecSummaryValue>
-                      {formatPercent(r.averageMarkupRate)} / {formatCurrency(markupAmount)}
+                      {formatPercent(r.averageMarkupRate)} / {fmtCurrency(markupAmount)}
                     </ExecSummaryValue>
                     <ExecSummarySub>
                       売変率 / 売変額: {formatPercent(r.discountRate)} /{' '}
-                      {formatCurrency(r.totalDiscount)}
+                      {fmtCurrency(r.totalDiscount)}
                     </ExecSummarySub>
                     <ExecSummarySub>
                       推定マージン額（売変還元法）:{' '}
-                      {formatCurrency(Math.round(r.grossSales * estGpRate))}
+                      {fmtCurrency(Math.round(r.grossSales * estGpRate))}
                     </ExecSummarySub>
                     {missingDiscount && (
                       <WarningBanner>
@@ -203,7 +201,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                         </ExecSummaryValue>
                         <ExecSummarySub>
                           在庫法 減算比 {formatPointDiff(invDiff)} 原価算入費:{' '}
-                          {formatCurrency(r.totalCostInclusion)}円
+                          {fmtCurrency(r.totalCostInclusion)}円
                         </ExecSummarySub>
                         <ExecSummarySub $color={palette.slateDark}>
                           参考（推定法・在庫差分率）: {formatPercent(estBeforeRate)} /{' '}
@@ -227,7 +225,7 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                         </ExecSummaryValue>
                         <ExecSummarySub>
                           推定法（在庫差分） 減算比 {formatPointDiff(estDiff)} 原価算入費:{' '}
-                          {formatCurrency(r.totalCostInclusion)}円
+                          {fmtCurrency(r.totalCostInclusion)}円
                         </ExecSummarySub>
                       </>
                     )
@@ -268,17 +266,17 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   <ExecSummaryHint>根拠</ExecSummaryHint>
                   <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
                   <ExecSummarySub>
-                    客数: {formatCurrency(r.totalCustomers)}人 / 日平均:{' '}
-                    {formatCurrency(r.averageCustomersPerDay)}人
+                    客数: {fmtCurrency(r.totalCustomers)}人 / 日平均:{' '}
+                    {fmtCurrency(r.averageCustomersPerDay)}人
                   </ExecSummarySub>
-                  <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>
+                  <ExecSummaryValue>{fmtCurrency(txValue)}円</ExecSummaryValue>
                   {custRatio != null && (
                     <ExecSummarySub $color={sc.cond(custRatio >= 1)}>
                       客数前年比: {formatPercent(custRatio)}
                     </ExecSummarySub>
                   )}
                   {pyTxValue != null && (
-                    <ExecSummarySub>前年客単価: {formatCurrency(pyTxValue)}円</ExecSummarySub>
+                    <ExecSummarySub>前年客単価: {fmtCurrency(pyTxValue)}円</ExecSummarySub>
                   )}
                 </ExecSummaryItem>
               </ExecSummaryBar>

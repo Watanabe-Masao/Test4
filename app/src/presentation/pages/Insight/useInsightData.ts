@@ -3,7 +3,8 @@ import { useCalculation, useStoreSelection, useBudgetChartData } from '@/applica
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { useComparisonModule } from '@/application/hooks/useComparisonModule'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   safeDivide,
   calculateTransactionValue,
@@ -30,6 +31,7 @@ export type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
 export type ViewMode = 'total' | 'comparison'
 
 export function useInsightData() {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const { daysInMonth } = useCalculation()
   const { currentResult, selectedResults, storeName, stores } = useStoreSelection()
   const settings = useSettingsStore((s) => s.settings)
@@ -190,7 +192,7 @@ export function useInsightData() {
     handleDowColorChange,
     // Re-exports for sub-components
     DOW_LABELS,
-    formatCurrency,
+    fmtCurrency,
     formatPercent,
     safeDivide,
     calculateTransactionValue,

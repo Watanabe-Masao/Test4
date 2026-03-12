@@ -21,7 +21,8 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import { sc } from '@/presentation/theme/semanticColors'
 import {
@@ -90,6 +91,7 @@ export const SalesSummaryRow = memo(function SalesSummaryRow({
   prevSales,
   curSales,
 }: SalesSummaryRowProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const yoyDiff = curSales - prevSales
   const yoyRatio = safeDivide(curSales, prevSales, 0)
 
@@ -97,17 +99,17 @@ export const SalesSummaryRow = memo(function SalesSummaryRow({
     <SummaryRow>
       <SummaryItem>
         <SummaryLabel>{prevLabel}売上</SummaryLabel>
-        <SummaryValue>{formatCurrency(prevSales)}</SummaryValue>
+        <SummaryValue>{fmtCurrency(prevSales)}</SummaryValue>
       </SummaryItem>
       <SummaryItem>
         <SummaryLabel>{curLabel}売上</SummaryLabel>
-        <SummaryValue>{formatCurrency(curSales)}</SummaryValue>
+        <SummaryValue>{fmtCurrency(curSales)}</SummaryValue>
       </SummaryItem>
       <SummaryItem>
         <SummaryLabel>差額</SummaryLabel>
         <SummaryValue $color={sc.cond(yoyDiff >= 0)}>
           {yoyDiff >= 0 ? '+' : ''}
-          {formatCurrency(yoyDiff)}
+          {fmtCurrency(yoyDiff)}
         </SummaryValue>
       </SummaryItem>
       <SummaryItem>
@@ -139,6 +141,7 @@ export const PISummaryRow = memo(function PISummaryRow({
   prevPPI,
   curPPI,
 }: PISummaryRowProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   return (
     <SummaryRow>
       <SummaryItem>
@@ -151,12 +154,12 @@ export const PISummaryRow = memo(function PISummaryRow({
       </SummaryItem>
       <SummaryItem>
         <SummaryLabel>点単価({prevLabel})</SummaryLabel>
-        <SummaryValue>{formatCurrency(Math.round(prevPPI))}</SummaryValue>
+        <SummaryValue>{fmtCurrency(Math.round(prevPPI))}</SummaryValue>
       </SummaryItem>
       <SummaryItem>
         <SummaryLabel>点単価({curLabel})</SummaryLabel>
         <SummaryValue $color={sc.cond(curPPI >= prevPPI)}>
-          {formatCurrency(Math.round(curPPI))}
+          {fmtCurrency(Math.round(curPPI))}
         </SummaryValue>
       </SummaryItem>
     </SummaryRow>
@@ -174,6 +177,7 @@ interface WaterfallBarChartProps {
 export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: WaterfallBarChartProps) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { format: fmtCurrency } = useCurrencyFormat()
 
   const colors = {
     positive: sc.positive,
@@ -208,7 +212,7 @@ export const WaterfallBarChart = memo(function WaterfallBarChart({ data }: Water
               if (name === 'base') return [null, null]
               const item = entry.payload as WaterfallItem | undefined
               if (!item) return ['-', '-']
-              return [formatCurrency(item.value), item.name]
+              return [fmtCurrency(item.value), item.name]
             },
           })}
         />

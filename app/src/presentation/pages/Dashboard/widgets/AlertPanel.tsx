@@ -7,7 +7,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
 import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
@@ -47,21 +47,21 @@ function isRateAlert(alert: Alert): boolean {
   )
 }
 
-function formatAlertValue(alert: Alert): string {
+function formatAlertValue(alert: Alert, fmtCurrency: (v: number) => string): string {
   if (isRateAlert(alert)) return formatPercent(alert.value)
-  return formatCurrency(alert.value)
+  return fmtCurrency(alert.value)
 }
 
-function formatAlertThreshold(alert: Alert): string {
+function formatAlertThreshold(alert: Alert, fmtCurrency: (v: number) => string): string {
   if (isRateAlert(alert)) return formatPercent(alert.threshold)
-  return formatCurrency(alert.threshold)
+  return fmtCurrency(alert.threshold)
 }
 
-function formatAlertDelta(alert: Alert): string {
+function formatAlertDelta(alert: Alert, fmtCurrency: (v: number) => string): string {
   const delta = alert.value - alert.threshold
   const sign = delta >= 0 ? '+' : ''
   if (isRateAlert(alert)) return `${sign}${formatPercent(delta).replace('%', 'pt')}`
-  return `${sign}${formatCurrency(delta)}`
+  return `${sign}${fmtCurrency(delta)}`
 }
 
 const SEVERITY_ICONS: Record<AlertSeverity, string> = {
@@ -74,6 +74,7 @@ const SEVERITY_ICONS: Record<AlertSeverity, string> = {
 
 export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
   const theme = useTheme()
+  const { fmtCurrency } = ctx
   const r = ctx.result
   const targetGpRate = ctx.targetRate
 
@@ -172,9 +173,9 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
                 <AlertBody>
                   <AlertMessage>{alert.message}</AlertMessage>
                   <AlertDetail>
-                    <DetailItem>実測: {formatAlertValue(alert)}</DetailItem>
-                    <DetailItem>閾値: {formatAlertThreshold(alert)}</DetailItem>
-                    <DetailItem>乖離: {formatAlertDelta(alert)}</DetailItem>
+                    <DetailItem>実測: {formatAlertValue(alert, fmtCurrency)}</DetailItem>
+                    <DetailItem>閾値: {formatAlertThreshold(alert, fmtCurrency)}</DetailItem>
+                    <DetailItem>乖離: {formatAlertDelta(alert, fmtCurrency)}</DetailItem>
                   </AlertDetail>
                   {isClickable && (
                     <AlertFooter>
