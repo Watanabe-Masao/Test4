@@ -43,7 +43,8 @@ describe('buildComparisonScope', () => {
   })
 
   describe('prevYearSameDow', () => {
-    it('should apply DOW offset', () => {
+    it('should use sameDayOfWeek alignment mode with candidate range', () => {
+      // V2: period2 は候補取得範囲（前年同日 ±7日）
       const selection = makePeriodSelection(
         { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
         'prevYearSameDow',
@@ -51,24 +52,13 @@ describe('buildComparisonScope', () => {
       const scope = buildComparisonScope(selection)
 
       expect(scope.alignmentMode).toBe('sameDayOfWeek')
+      // dowOffset は旧パス互換値（V2 resolver では使わない）
       expect(scope.dowOffset).toBeGreaterThanOrEqual(0)
       expect(scope.dowOffset).toBeLessThanOrEqual(6)
 
-      // 各エントリの target → source が dowOffset 分ずれている
-      if (scope.dowOffset > 0) {
-        const first = scope.alignmentMap[0]
-        const sourceDate = new Date(
-          first.sourceDate.year,
-          first.sourceDate.month - 1,
-          first.sourceDate.day,
-        )
-        const targetDate = new Date(
-          first.targetDate.year,
-          first.targetDate.month - 1,
-          first.targetDate.day,
-        )
-        expect(sourceDate.getDay()).toBe(targetDate.getDay())
-      }
+      // alignmentMap はまだ positional mapping（旧パス互換）
+      // V2 では resolveComparisonRows が日単位で解決するため alignmentMap を参照しない
+      expect(scope.alignmentMap.length).toBeGreaterThan(0)
     })
   })
 

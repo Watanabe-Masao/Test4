@@ -68,12 +68,19 @@ describe('PeriodSelection', () => {
       expect(result).toEqual(custom)
     })
 
-    it('prevYearSameDow: 曜日オフセット付きで前年', () => {
+    it('prevYearSameDow: 候補取得範囲（前年同日 ±7日）', () => {
+      // V2: period2 は候補取得範囲。period1.from の前年 -7日 ～ period1.to の前年 +7日
       const result = applyPreset(feb2026, 'prevYearSameDow', feb2026)
-      expect(result.from.year).toBe(2025)
-      expect(result.from.month).toBe(2)
-      // オフセットにより day >= 1
-      expect(result.from.day).toBeGreaterThanOrEqual(1)
+      // from: 2025-02-01 - 7日 = 2025-01-25
+      const expectedFrom = new Date(2025, 0, 25) // 2025-01-25
+      expect(result.from.year).toBe(expectedFrom.getFullYear())
+      expect(result.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(result.from.day).toBe(expectedFrom.getDate())
+      // to: 2025-02-28 + 7日 = 2025-03-07
+      const expectedTo = new Date(2025, 1, 35) // Date 正規化で 2025-03-07
+      expect(result.to.year).toBe(expectedTo.getFullYear())
+      expect(result.to.month).toBe(expectedTo.getMonth() + 1)
+      expect(result.to.day).toBe(expectedTo.getDate())
     })
   })
 
@@ -158,12 +165,12 @@ describe('PeriodSelection', () => {
       expect(deriveDowOffset(p1, p2, 'custom')).toBe(0)
     })
 
-    it('prevYearSameDow: 非ゼロオフセットを返す（DOW差による）', () => {
-      // 2026年2月と2025年2月の月初曜日が異なればオフセットは非ゼロ
+    it('prevYearSameDow: deriveDowOffset は 0-6 の範囲を返す', () => {
+      // V2 では deriveDowOffset は旧パス互換用。V2 resolver は dowOffset を使わない。
+      // ただし deriveDowOffset 自体は period1/period2 の月初 DOW 差を返す関数として健全。
       const sel = createDefaultPeriodSelection(2026, 2)
       const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
       const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
-      // 月初曜日差から算出される値（0-6）
       expect(offset).toBeGreaterThanOrEqual(0)
       expect(offset).toBeLessThanOrEqual(6)
     })
@@ -207,7 +214,8 @@ describe('PeriodSelection', () => {
       expect(scope.dowOffset).toBe(expected)
     })
 
-    it('prevYearSameDow: period2.from.day = period1.from.day + offset', () => {
+    it('prevYearSameDow: period2 は前年同日 ±7日の候補範囲', () => {
+      // V2: period2 は候補取得範囲（resolver が日単位で比較先を引く）
       const testCases = [
         { year: 2026, month: 2 },
         { year: 2026, month: 6 },
@@ -216,18 +224,16 @@ describe('PeriodSelection', () => {
       for (const { year, month } of testCases) {
         const sel = createDefaultPeriodSelection(year, month)
         const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
-        const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
-        // Date 演算で月跨ぎも正しく処理される
-        const expectedFrom = new Date(year - 1, month - 1, 1 + offset)
-        expect(
-          p2.from.day,
-          `${year}/${month}: period2.from.day=${p2.from.day} vs expected=${expectedFrom.getDate()}`,
-        ).toBe(expectedFrom.getDate())
+        // from は前年同日 - 7日
+        const expectedFrom = new Date(year - 1, month - 1, 1 - 7)
+        expect(p2.from.year).toBe(expectedFrom.getFullYear())
+        expect(p2.from.month).toBe(expectedFrom.getMonth() + 1)
+        expect(p2.from.day).toBe(expectedFrom.getDate())
       }
     })
 
-    it('prevYearSameDow: 期間長が維持される（月末オーバーフロー時に月跨ぎ）', () => {
-      // 2026/2/1〜28 → 2025/2/2〜3/1（offset=1, 28日間を維持）
+    it('prevYearSameDow: 候補範囲は期間長 + 14日（±7日分）', () => {
+      // V2: period2 は period1 の前年同日 ±7日なので、期間長 + 14日
       const result = applyPreset(feb2026, 'prevYearSameDow', feb2026)
       const fromDate = new Date(result.from.year, result.from.month - 1, result.from.day)
       const toDate = new Date(result.to.year, result.to.month - 1, result.to.day)
@@ -235,7 +241,8 @@ describe('PeriodSelection', () => {
       const p1ToDate = new Date(feb2026.to.year, feb2026.to.month - 1, feb2026.to.day)
       const p1Days = (p1ToDate.getTime() - p1FromDate.getTime()) / (1000 * 60 * 60 * 24)
       const p2Days = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)
-      expect(p2Days).toBe(p1Days)
+      // 候補範囲 = 期間長 + 14日（from -7, to +7）
+      expect(p2Days).toBe(p1Days + 14)
     })
   })
 })

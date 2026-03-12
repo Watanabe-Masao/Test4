@@ -161,15 +161,20 @@ export function applyPreset(
       }
 
     case 'prevYearSameDow': {
-      // 前年同月の月初曜日差分でオフセットして同曜日に合わせる
-      // Date 演算で月末オーバーフローを正しく処理し、期間長を維持する
-      const prevYear = period1.from.year - 1
-      const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
-      const prevDow = new Date(prevYear, period1.from.month - 1, 1).getDay()
-      const offset = (((currentDow - prevDow) % 7) + 7) % 7
-
-      const fromDate = new Date(prevYear, period1.from.month - 1, period1.from.day + offset)
-      const toDate = new Date(period1.to.year - 1, period1.to.month - 1, period1.to.day + offset)
+      // V2: period2 は「1:1 比較期間」ではなく「resolver 用の候補取得範囲」。
+      // sameDayOfWeek の比較先は resolveComparisonRows が日単位で解決する。
+      // ここでは resolver が ±7 日の候補を引けるよう、前年同日 ±7 日の範囲を返す。
+      const candidateWindow = 7
+      const fromDate = new Date(
+        period1.from.year - 1,
+        period1.from.month - 1,
+        period1.from.day - candidateWindow,
+      )
+      const toDate = new Date(
+        period1.to.year - 1,
+        period1.to.month - 1,
+        period1.to.day + candidateWindow,
+      )
 
       return {
         from: {
