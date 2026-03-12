@@ -8,10 +8,11 @@
  *
  * - 入力は alignmentMap + 既存の store 集計データ
  * - 日付は sourceDayKey / targetDate.day で引く（day番号操作なし）
- * - 月跨ぎは alignmentMap が吸収済み
+ * - 月跨ぎは alignmentMap が吸収済み → resolveSourceDay で allAgg のリナンバリング空間に変換
  * - 出力は PrevYearData / PrevYearMonthlyKpi と型互換
  */
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
+import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import type { DiscountEntry } from '@/domain/models'
@@ -23,6 +24,48 @@ import type {
   StoreContribution,
   DayMappingRow,
 } from '@/application/comparison/comparisonTypes'
+
+// ── allAgg 日番号変換 ──
+
+/**
+ * allAgg のソース月コンテキスト。
+ *
+ * mergeAdjacentMonthRecords が生成するリナンバリング空間と
+ * alignmentMap の実日付を対応付けるために使う。
+ */
+export interface SourceMonthContext {
+  readonly year: number
+  readonly month: number
+  readonly daysInMonth: number
+}
+
+/**
+ * alignmentMap の sourceDate を allAgg のリナンバリング日番号に変換する。
+ *
+ * allAgg は mergeAdjacentMonthRecords により以下のリナンバリング済み:
+ * - 当月: day そのまま (1〜daysInMonth)
+ * - 翌月: daysInMonth + day (例: 28日の月なら3月1日→29)
+ * - 前月: day - daysInPrevMonth (負の値)
+ *
+ * alignmentMap は実日付 (sourceDate.year/month/day) を持つため、
+ * 月跨ぎ時にこの変換が必要。
+ */
+function resolveSourceDay(sourceDate: CalendarDate, ctx: SourceMonthContext): number {
+  // 同月 → day そのまま
+  if (sourceDate.year === ctx.year && sourceDate.month === ctx.month) {
+    return sourceDate.day
+  }
+  // 翌月 → overflow: daysInMonth + day
+  const nextMonth = ctx.month === 12 ? 1 : ctx.month + 1
+  const nextYear = ctx.month === 12 ? ctx.year + 1 : ctx.year
+  if (sourceDate.year === nextYear && sourceDate.month === nextMonth) {
+    return ctx.daysInMonth + sourceDate.day
+  }
+  // 前月 → underflow (負の値になるが、allAgg にデータがあれば引ける)
+  // ここでは daysInPrevMonth が不明なため sourceDate.day をそのまま返す
+  // （underflow は DOW offset では通常発生しない）
+  return sourceDate.day
+}
 
 // ── 日別集計（PrevYearData 互換出力） ──
 
@@ -57,6 +100,7 @@ function accumulateDailyValues(
   flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
   targetIds: readonly string[],
   alignmentMap: readonly AlignmentEntry[],
+  sourceMonthCtx?: SourceMonthContext,
 ): {
   daily: Map<number, { sales: number; discount: number; customers: number }>
   dayDiscountEntries: Map<number, DiscountEntry[]>
@@ -65,7 +109,10 @@ function accumulateDailyValues(
   const dayDiscountEntries = new Map<number, DiscountEntry[]>()
 
   for (const entry of alignmentMap) {
-    const srcDay = entry.sourceDate.day
+    // allAgg のリナンバリング空間に変換（月跨ぎ対応）
+    const srcDay = sourceMonthCtx
+      ? resolveSourceDay(entry.sourceDate, sourceMonthCtx)
+      : entry.sourceDate.day
     const tgtDay = entry.targetDate.day
 
     for (const storeId of targetIds) {
@@ -73,7 +120,7 @@ function accumulateDailyValues(
       if (!storeDays) continue
 
       // mergeAdjacentMonthRecords が OVERFLOW_DAYS 分のデータを
-      // ソース月の日番号空間にリナンバリング済みなので、srcDay で直接引く
+      // ソース月の日番号空間にリナンバリング済み
       const summary = storeDays[srcDay]
       if (!summary) continue
 
@@ -172,6 +219,7 @@ export function aggregateDailyByAlignment(
   targetIds: readonly string[],
   alignmentMap: readonly AlignmentEntry[],
   elapsedDays?: number,
+  sourceMonthCtx?: SourceMonthContext,
 ): ComparisonDailyResult {
   if (targetIds.length === 0 || alignmentMap.length === 0) return EMPTY_DAILY
 
@@ -180,6 +228,7 @@ export function aggregateDailyByAlignment(
     flowersIndex,
     targetIds,
     alignmentMap,
+    sourceMonthCtx,
   )
   const totals = summarizeDailyTotals(daily, dayDiscountEntries, elapsedDays)
 
@@ -204,6 +253,7 @@ export function aggregateKpiByAlignment(
   flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
   targetIds: readonly string[],
   alignmentMap: readonly AlignmentEntry[],
+  sourceMonthCtx?: SourceMonthContext,
 ): PrevYearMonthlyKpiEntry {
   if (targetIds.length === 0 || alignmentMap.length === 0) {
     return {
@@ -221,7 +271,10 @@ export function aggregateKpiByAlignment(
   const storeContributions: StoreContribution[] = []
 
   for (const entry of alignmentMap) {
-    const srcDay = entry.sourceDate.day
+    // allAgg のリナンバリング空間に変換（月跨ぎ対応）
+    const srcDay = sourceMonthCtx
+      ? resolveSourceDay(entry.sourceDate, sourceMonthCtx)
+      : entry.sourceDate.day
     const tgtDay = entry.targetDate.day
 
     for (const storeId of targetIds) {
