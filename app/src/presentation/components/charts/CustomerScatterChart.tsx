@@ -17,6 +17,7 @@ import { ChartHelpButton } from './ChartHeader'
 import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   Wrapper,
   HeaderRow,
@@ -46,7 +47,7 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 }
 
 export const CustomerScatterChart = memo(function CustomerScatterChart({
@@ -91,7 +92,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
 
       if (prevYearDaily) {
         for (let d = 1; d <= daysInMonth; d++) {
-          const prev = prevYearDaily.get(d)
+          const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
           if (!prev || !prev.customers || prev.customers <= 0) continue
           const txVal = calculateTransactionValue(prev.sales, prev.customers)
           prevPoints.push({ day: d, customers: prev.customers, txValue: txVal, sales: prev.sales })
@@ -156,7 +157,7 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
       const rec = daily.get(d)
       const customers = rec?.customers ?? 0
       if (customers <= 0) continue
-      const prevEntry = prevYearDaily.get(d)
+      const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
       if (!prevEntry || !prevEntry.customers || prevEntry.customers <= 0) continue
       const txValue = calculateTransactionValue(rec?.sales ?? 0, customers)
       const prevTxValue = calculateTransactionValue(prevEntry.sales, prevEntry.customers)

@@ -93,7 +93,7 @@ export function useDailySalesData(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
   prevYearDaily:
-    | ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
     | undefined,
   isWf: boolean,
   rangeStart: number,
@@ -104,7 +104,14 @@ export function useDailySalesData(
   budgetDaily?: ReadonlyMap<number, number>,
 ): DailySalesDataResult {
   const { baseData, salesMa7, discountMa7, prevDiscountMa7, wfData } = useMemo(() => {
-    const result = buildBaseDayItems(daily, daysInMonth, prevYearDaily, budgetDaily)
+    const result = buildBaseDayItems(
+      daily,
+      daysInMonth,
+      prevYearDaily,
+      budgetDaily,
+      year ?? 2000,
+      month ?? 1,
+    )
     const wf = isWf
       ? buildWaterfallData(
           result.baseData,
@@ -114,7 +121,7 @@ export function useDailySalesData(
         )
       : null
     return { ...result, wfData: wf }
-  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily])
+  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month])
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
   const dowFilter = useMemo(() => {

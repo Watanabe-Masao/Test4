@@ -23,6 +23,7 @@ import type {
   ComparisonFrame,
   CategoryTimeSalesRecord,
 } from '@/domain/models'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
 import type { PrevYearData } from '@/application/hooks'
 import {
@@ -123,14 +124,14 @@ export function DayDetailModal({
   const ach = budget > 0 ? actual / budget : 0
   const cumDiff = cumSales - cumBudget
   const cumAch = cumBudget > 0 ? cumSales / cumBudget : 0
-  const pySales = prevYear.daily.get(day)?.sales ?? 0
+  const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
   const pyRatio = pySales > 0 ? actual / pySales : 0
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
   // ── Customer metrics ──
   const dayCust = record?.customers ?? 0
   const dayTxVal = calculateTransactionValue(actual, dayCust)
-  const pyCust = prevYear.daily.get(day)?.customers ?? 0
+  const pyCust = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.customers ?? 0
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)

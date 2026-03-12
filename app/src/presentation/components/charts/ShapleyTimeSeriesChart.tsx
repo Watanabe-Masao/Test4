@@ -31,7 +31,7 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 }
 
 type ViewMode = 'cumulative' | 'daily'
@@ -66,7 +66,13 @@ export const ShapleyTimeSeriesChart = memo(function ShapleyTimeSeriesChart({
   const [selectedDows, setSelectedDows] = useState<number[]>([])
   const handleDowChange = useCallback((dows: number[]) => setSelectedDows(dows), [])
 
-  const { data: shapleyData, hasPrev } = useShapleyTimeSeries(daily, daysInMonth, prevYearDaily)
+  const { data: shapleyData, hasPrev } = useShapleyTimeSeries(
+    daily,
+    daysInMonth,
+    prevYearDaily,
+    year,
+    month,
+  )
 
   const filteredData = useMemo(() => {
     const dowSet =

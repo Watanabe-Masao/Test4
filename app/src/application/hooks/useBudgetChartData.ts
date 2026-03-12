@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { StoreResult } from '@/domain/models'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 export interface BudgetChartDataPoint {
   readonly day: number
@@ -19,6 +20,8 @@ export function useBudgetChartData(
   currentResult: StoreResult | null | undefined,
   daysInMonth: number,
   prevYear: PrevYearData,
+  year: number,
+  month: number,
 ): readonly BudgetChartDataPoint[] {
   return useMemo(() => {
     if (!currentResult) return []
@@ -34,7 +37,7 @@ export function useBudgetChartData(
     for (let d = 1; d <= daysInMonth; d++) {
       cumActual += salesDaily.get(d) ?? 0
       cumBudget += currentResult.budgetDaily.get(d) ?? 0
-      cumPrevYear += prevYear.daily.get(d)?.sales ?? 0
+      cumPrevYear += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
       data.push({
         day: d,
         actualCum: cumActual,
@@ -44,5 +47,5 @@ export function useBudgetChartData(
     }
 
     return data
-  }, [currentResult, daysInMonth, prevYear])
+  }, [currentResult, daysInMonth, prevYear, year, month])
 }

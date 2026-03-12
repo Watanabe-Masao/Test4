@@ -13,6 +13,7 @@ import {
   calculateAveragePricePerItem,
 } from '@/domain/calculations/utils'
 import { useDuckDBCategoryTimeRecords } from '@/application/hooks/duckdb'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { DateRange, CategoryTimeSalesRecord } from '@/domain/models'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { decomposePriceMix } from './categoryFactorUtils'
@@ -102,8 +103,9 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
       }
     } else {
       // 前年比
-      for (const [day, entry] of prevYear.daily) {
-        if (day >= dayStart && day <= dayEnd) {
+      for (let d = dayStart; d <= dayEnd; d++) {
+        const entry = prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
+        if (entry) {
           sales += entry.sales
           customers += entry.customers
         }
@@ -118,6 +120,8 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
     dayEnd,
     wowRange.prevStart,
     wowRange.prevEnd,
+    ctx.year,
+    ctx.month,
   ])
 
   // 期間指定でCTSレコードをDuckDBから取得

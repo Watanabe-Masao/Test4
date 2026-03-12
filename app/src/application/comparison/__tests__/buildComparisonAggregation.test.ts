@@ -97,8 +97,8 @@ describe('aggregateDailyByAlignment', () => {
 
     expect(result.totalSales).toBe(3000)
     expect(result.daily.size).toBe(1)
-    // 同じ targetDay にマージされる
-    const dayEntry = result.daily.get(1)
+    // 同じ targetDayKey にマージされる
+    const dayEntry = result.daily.get('2026-03-01')
     expect(dayEntry).toBeDefined()
   })
 
@@ -126,7 +126,7 @@ describe('aggregateDailyByAlignment', () => {
     expect(result.daily.size).toBe(3)
   })
 
-  it('elapsedDays で集計範囲を制限する', () => {
+  it('alignmentMap がキャップされていれば集計範囲も制限される', () => {
     const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
       S1: {
         1: makeSummary(100),
@@ -134,17 +134,16 @@ describe('aggregateDailyByAlignment', () => {
         3: makeSummary(300),
       },
     }
+    // alignmentMap を2日分に制限（buildEffectivePeriod1 がキャップ済みの想定）
     const alignment = [
       makeAlignmentEntry(2025, 3, 1, 2026, 3, 1),
       makeAlignmentEntry(2025, 3, 2, 2026, 3, 2),
-      makeAlignmentEntry(2025, 3, 3, 2026, 3, 3),
     ]
 
-    // elapsedDays=2 → targetDay 1,2 のみ合計
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1'], alignment, 2)
+    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1'], alignment)
 
     expect(result.totalSales).toBe(300) // 100 + 200 のみ
-    expect(result.daily.size).toBe(3) // daily Map 自体は3日分ある
+    expect(result.daily.size).toBe(2)
   })
 
   it('存在しない店舗データはスキップする', () => {
@@ -543,7 +542,6 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
       undefined,
       ['S1'],
       sameDowAlignment,
-      undefined,
       sourceMonthCtx,
     )
 
@@ -551,8 +549,8 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
     expect(result.totalSales).toBe(sameDowExpectedSales)
     expect(result.daily.size).toBe(28)
 
-    // day=28 のエントリが 3月1日の売上を持つ
-    const day28 = result.daily.get(28)
+    // targetDate 2026-02-28 のエントリが 3月1日の売上を持つ
+    const day28 = result.daily.get('2026-02-28')
     expect(day28).toBeDefined()
     expect(day28!.sales).toBe(mar1Sales)
   })

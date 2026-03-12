@@ -3,6 +3,7 @@ import type { ForecastInput, WeeklySummary } from '@/application/hooks/calculati
 import { calculateTransactionValue, safeDivide } from '@/domain/calculations'
 import type { DailyRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 export const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
 export const DEFAULT_DOW_COLORS = [
@@ -72,13 +73,15 @@ export interface DailyCustomerEntry {
 export function buildDailyCustomerData(
   daily: ReadonlyMap<number, DailyRecord>,
   prevYear: PrevYearData,
+  year: number,
+  month: number,
 ): DailyCustomerEntry[] {
   const entries: DailyCustomerEntry[] = []
   for (const [d, rec] of daily) {
     if (rec.sales <= 0) continue
     const customers = rec.customers ?? 0
     const txValue = calculateTransactionValue(rec.sales, customers)
-    const py = prevYear.daily.get(d)
+    const py = prevYear.daily.get(toDateKeyFromParts(year, month, d))
     const prevCustomers = py?.customers ?? 0
     const prevSales = py?.sales ?? 0
     const prevTxValue = calculateTransactionValue(prevSales, prevCustomers)

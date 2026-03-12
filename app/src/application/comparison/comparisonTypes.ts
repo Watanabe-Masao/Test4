@@ -13,7 +13,7 @@
  *         └── storeContributions: StoreContribution[] ← 店舗×日別根拠
  *
  * PrevYearData                ← 日別比較データ（経過日数キャップ付き）
- *   └── daily: Map<day, PrevYearDailyEntry>
+ *   └── daily: Map<DateKey, PrevYearDailyEntry>
  */
 import type { DiscountEntry } from '@/domain/models'
 
@@ -134,7 +134,7 @@ export interface ResolvedComparisonRow {
 /** 日別比較データ（経過日数分のキャップ付き合計を含む） */
 export interface PrevYearData {
   readonly hasPrevYear: boolean
-  readonly daily: ReadonlyMap<number, PrevYearDailyEntry>
+  readonly daily: ReadonlyMap<string, PrevYearDailyEntry>
   /** 経過日数分の前年同曜日売上合計 */
   readonly totalSales: number
   /** 経過日数分の前年同曜日売変合計 */

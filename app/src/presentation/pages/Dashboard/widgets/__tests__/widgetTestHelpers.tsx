@@ -141,7 +141,7 @@ export function makeEmptyPrevYear(): PrevYearData {
 
 /** 前年データ付き PrevYearData */
 export function makePrevYear(
-  daily: Map<number, PrevYearDailyEntry>,
+  daily: Map<string, PrevYearDailyEntry>,
   overrides: Partial<PrevYearData> = {},
 ): PrevYearData {
   let totalSales = 0

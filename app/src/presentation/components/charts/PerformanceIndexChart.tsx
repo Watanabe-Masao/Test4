@@ -25,6 +25,7 @@ import {
   calculateMovingAverage,
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   Wrapper,
   HeaderRow,
@@ -47,7 +48,9 @@ const VIEW_LABELS: Record<ViewType, string> = {
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  year: number
+  month: number
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   /** 日クリック時コールバック（異常値バーのクリックでナビゲーション） */
   onDayClick?: (day: number) => void
 }
@@ -55,6 +58,8 @@ interface Props {
 export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   daily,
   daysInMonth,
+  year,
+  month,
   prevYearDaily,
   onDayClick,
 }: Props) {
@@ -106,7 +111,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       // PI値 = 売上 / 客数 × 1000
       const pi = customers > 0 ? safeDivide(sales, customers, 0) * 1000 : null
 
-      const prev = prevYearDaily?.get(d)
+      const prev = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
       const prevCustomers = prev?.customers ?? 0
       const prevPi =
         prevCustomers > 0 ? safeDivide(prev?.sales ?? 0, prevCustomers, 0) * 1000 : null
@@ -171,7 +176,7 @@ export const PerformanceIndexChart = memo(function PerformanceIndexChart({
       piMa7: piMa,
       prevPiMa7: prevPiMa,
     }
-  }, [daily, daysInMonth, prevYearDaily])
+  }, [daily, daysInMonth, year, month, prevYearDaily])
 
   const data = chartData
     .map((d, i) => ({

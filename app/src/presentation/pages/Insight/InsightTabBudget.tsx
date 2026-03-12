@@ -8,6 +8,7 @@ import {
   ChartErrorBoundary,
 } from '@/presentation/components/common'
 import type { MetricId, StoreResult } from '@/domain/models'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   BudgetVsActualChart,
   PrevYearComparisonChart,
@@ -181,7 +182,12 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
           <ChartSection>
             <ChartErrorBoundary>
               {d.chartMode === 'budget-vs-actual' && (
-                <BudgetVsActualChart data={d.chartData} budget={r.budget} />
+                <BudgetVsActualChart
+                  data={d.chartData}
+                  budget={r.budget}
+                  year={d.year}
+                  month={d.month}
+                />
               )}
               {d.chartMode === 'prev-year' &&
                 d.prevYear.hasPrevYear &&
@@ -193,14 +199,27 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                       currentDaily={currentDaily}
                       prevYearDaily={d.prevYear.daily}
                       daysInMonth={d.daysInMonth}
+                      year={d.year}
+                      month={d.month}
                     />
                   )
                 })()}
               {d.chartMode === 'all-three' && (
-                <BudgetVsActualChart data={d.chartData} budget={r.budget} showPrevYear />
+                <BudgetVsActualChart
+                  data={d.chartData}
+                  budget={r.budget}
+                  showPrevYear
+                  year={d.year}
+                  month={d.month}
+                />
               )}
               {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
-                <BudgetVsActualChart data={d.chartData} budget={r.budget} />
+                <BudgetVsActualChart
+                  data={d.chartData}
+                  budget={r.budget}
+                  year={d.year}
+                  month={d.month}
+                />
               )}
             </ChartErrorBoundary>
           </ChartSection>
@@ -248,7 +267,9 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                         const discountRateCum = d.safeDivide(cumDiscount, cumGrossSales, 0)
                         const cumDiscountRate = discountRateCum
                         const budgetVariance = cd.actualCum - cd.budgetCum
-                        const pyDaySales = d.prevYear.daily.get(cd.day)?.sales ?? 0
+                        const pyDaySales =
+                          d.prevYear.daily.get(toDateKeyFromParts(d.year, d.month, cd.day))
+                            ?.sales ?? 0
                         cumPrevYear += pyDaySales
                         const pyDayRatio = pyDaySales > 0 ? daySales / pyDaySales : 0
                         const pyCumRatio = cumPrevYear > 0 ? cd.actualCum / cumPrevYear : 0

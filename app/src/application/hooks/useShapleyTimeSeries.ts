@@ -6,6 +6,7 @@
  */
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { decompose2 } from '@/domain/calculations/factorDecomposition'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 
@@ -42,8 +43,10 @@ export function useShapleyTimeSeries(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
   prevYearDaily:
-    | ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
     | undefined,
+  year: number,
+  month: number,
 ): ShapleyTimeSeriesResult {
   const data = useMemo(() => {
     if (!prevYearDaily) return []
@@ -55,7 +58,7 @@ export function useShapleyTimeSeries(
 
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
-      const prevEntry = prevYearDaily.get(d)
+      const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
       const curSales = rec?.sales ?? 0
       const prevSales = prevEntry?.sales ?? 0
       const curCust = rec?.customers ?? 0
@@ -84,7 +87,7 @@ export function useShapleyTimeSeries(
       })
     }
     return items
-  }, [daily, daysInMonth, prevYearDaily])
+  }, [daily, daysInMonth, prevYearDaily, year, month])
 
   return { data, hasPrev: !!prevYearDaily }
 }
