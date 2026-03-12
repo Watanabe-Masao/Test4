@@ -17,6 +17,8 @@
 | `app/src/domain/calculations/__tests__/formulaRegistry.test.ts` | invariant-guardian | — | 計算式レジストリの整合性 |
 | `app/src/test/documentConsistency.test.ts` | documentation-steward | 12件 | 不変条件カタログ↔ガードテスト相互参照、エンジン責務↔実コード、CLAUDE.md 参照パス |
 | `app/src/test/hookComplexityGuard.test.ts` | architecture | 4件 | R3(@internal禁止), R3(typeofテスト禁止), R7(store算術式禁止), R10(カバレッジexport禁止) |
+| `app/src/test/comparisonMigrationGuard.test.ts` | architecture | 4件 | 旧 day/offset 比較パターン禁止、ComparisonFrame 新規使用禁止 |
+| `app/src/domain/models/__tests__/ComparisonScopeInvariant.test.ts` | invariant-guardian | 3件 | ComparisonScope 意味論（候補窓、位置ベース、1:1対応） |
 
 ## ルール → テスト対応
 
@@ -99,6 +101,23 @@
 | R7 | stores/ の set() コールバック内に算術式がない | INV-STORE-01 |
 | R10 | hooks/ の export にカバレッジ目的のコメントがない | INV-HOOK-03 |
 
+### comparisonMigrationGuard.test.ts（architecture ロール管理）
+
+| ルール ID | 検証内容 | 不変条件 ID |
+|---|---|---|
+| — | presentation/application で prevYear.daily.get(day) 禁止 | INV-CMP-01 |
+| — | day 番号 + offset による前年比較禁止 | INV-CMP-02 |
+| — | ComparisonFrame.previous の新規使用禁止 | INV-CMP-03 |
+| — | aggregateWithOffset の新規使用禁止 | INV-CMP-04 |
+
+### ComparisonScopeInvariant.test.ts（invariant-guardian ロール管理）
+
+| 検証内容 | 不変条件 ID |
+|---|---|
+| prevYearSameDow の period2 は候補窓（period1 + 14日） | INV-CMP-05 |
+| alignmentMap は位置ベースで DOW 解決を担当しない | INV-CMP-06 |
+| 1:1 プリセットの alignmentMap 長 = effectivePeriod1 長 | INV-CMP-07 |
+
 ## 許可リスト管理
 
 ### application → infrastructure 許可リスト（14件）
@@ -124,3 +143,30 @@
 | `application/workers/useFileParseWorker.ts` | ワーカーフック |
 | `application/usecases/export/ExportService.ts` | エクスポート |
 | `application/hooks/useI18n.ts` | i18n ブリッジ |
+
+### 比較移行許可リスト（INV-CMP-01: 9件、INV-CMP-03: 4件）
+
+移行完了時にファイルを許可リストから削除する。新規追加は禁止。
+
+#### INV-CMP-01: prevYear.daily.get(day) 許可リスト
+
+| ファイル | 状態 |
+|---|---|
+| `presentation/pages/Daily/DailyPage.tsx` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/SalesAnalysisWidgets.tsx` | 移行待ち |
+| `presentation/pages/Insight/InsightTabBudget.tsx` | 移行待ち |
+| `presentation/pages/Forecast/ForecastPage.helpers.ts` | 移行待ち |
+| `application/hooks/useBudgetChartData.ts` | 移行待ち |
+| `application/usecases/clipExport/buildClipBundle.ts` | 移行待ち |
+
+#### INV-CMP-03: comparisonFrame.previous 許可リスト
+
+| ファイル | 状態 |
+|---|---|
+| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx` | 移行待ち |
+| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | 移行待ち |

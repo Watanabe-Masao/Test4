@@ -170,7 +170,7 @@ UIが**やってはならない**こと:
 後段の Explanation（説明責任）の根拠データとして活用するパターン。
 
 ```
-  aggregateWithOffset（役割4: 集約フック）
+  aggregateKpiByAlignment（役割4: 集約フック。旧 aggregateWithOffset は廃止済み）
        │
        ├─ 合計値: entry.sales, entry.customers
        │    └→ KPI カード表示
