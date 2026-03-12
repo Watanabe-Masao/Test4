@@ -88,7 +88,6 @@ const COMPARISON_PRESETS: readonly { key: ComparisonPreset; label: string }[] = 
   { key: 'prevYearSameMonth', label: '前年同月' },
   { key: 'prevYearSameDow', label: '前年同曜日' },
   { key: 'prevMonth', label: '前月' },
-  { key: 'prevWeek', label: '前週' },
   { key: 'custom', label: '自由指定' },
 ]
 
