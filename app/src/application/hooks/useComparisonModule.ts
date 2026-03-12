@@ -22,10 +22,7 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { prepareComparisonInputs } from '@/application/comparison/comparisonDataPrep'
-import {
-  aggregateDailyByAlignment,
-  type SourceMonthContext,
-} from '@/application/comparison/buildComparisonAggregation'
+import { aggregateDailyByAlignment } from '@/application/comparison/buildComparisonAggregation'
 import {
   buildKpiProjection,
   buildDowGapProjection,
