@@ -437,6 +437,7 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
     'presentation/pages/Admin/ImportHistoryTab.tsx',
     'presentation/pages/Dashboard/DashboardPage.tsx',
     'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
+    'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
   ])
 
   const allRegisteredPaths = new Set([

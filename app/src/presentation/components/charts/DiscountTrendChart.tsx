@@ -22,6 +22,7 @@ import type { DailyRecord, DiscountEntry } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 /** 売変種別ごとのカラーパレット（DISCOUNT_TYPES の順序に対応） */
 const DISCOUNT_COLORS = ['#ef4444', '#f97316', '#eab308', '#a855f7'] as const
@@ -35,8 +36,10 @@ interface Props {
   discountEntries?: readonly DiscountEntry[]
   /** 月間粗売上 */
   totalGrossSales?: number
+  year: number
+  month: number
   /** 前年日次データ（売変額の前年比較ライン用） */
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number }>
 }
 
 /** 売変内訳分析チャート（71-74種別切替対応） */
@@ -45,6 +48,8 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   daysInMonth,
   discountEntries,
   totalGrossSales,
+  year,
+  month,
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
@@ -78,7 +83,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       const cumRate = safeDivide(cumDiscount, cumGrossSales, 0)
 
       // 前年売変比較
-      const prevEntry = prevYearDaily?.get(d)
+      const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
       const prevDayDiscount = prevEntry?.discount ?? 0
       prevCumDiscount += prevDayDiscount
       // 前年粗売上は不明なので売上で近似（データソースの制約）
@@ -107,7 +112,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       result.push(entry)
     }
     return result
-  }, [daily, daysInMonth, prevYearDaily])
+  }, [daily, daysInMonth, year, month, prevYearDaily])
 
   const hasData = allData.some((d) => (d.discount as number) > 0)
   if (!hasData) return null

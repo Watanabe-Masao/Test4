@@ -27,17 +27,22 @@ import {
   ChartArea,
 } from './PrevYearComparisonChart.styles'
 import { useDualPeriodRange } from './useDualPeriodRange'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 interface Props {
   currentDaily: ReadonlyMap<number, { sales: number }>
-  prevYearDaily: ReadonlyMap<number, { sales: number }>
+  prevYearDaily: ReadonlyMap<string, { sales: number }>
   daysInMonth: number
+  year: number
+  month: number
 }
 
 export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   currentDaily,
   prevYearDaily,
   daysInMonth,
+  year,
+  month,
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
@@ -58,7 +63,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
   const allData = []
   for (let d = 1; d <= daysInMonth; d++) {
     currentCum += currentDaily.get(d)?.sales ?? 0
-    prevCum += prevYearDaily.get(d)?.sales ?? 0
+    prevCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
     allData.push({
       day: d,
       currentCum,
@@ -75,7 +80,7 @@ export const PrevYearComparisonChart = memo(function PrevYearComparisonChart({
       .sort((a, b) => b - a)[0] ?? 0
   let prevCumAtLatest = 0
   for (let d = 1; d <= latestDay; d++) {
-    prevCumAtLatest += prevYearDaily.get(d)?.sales ?? 0
+    prevCumAtLatest += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
   }
 
   // ループ後の prevCum が前年月間合計

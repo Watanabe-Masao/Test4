@@ -3,6 +3,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
 import { formatPercent } from '@/domain/formatting'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { safeDivide } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
@@ -162,9 +163,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
   for (let d = 1; d <= daysInMonth; d++) {
     runBudget += r.budgetDaily.get(d) ?? 0
     runSales += r.daily.get(d)?.sales ?? 0
-    runPrevYear += prevYear.daily.get(d)?.sales ?? 0
+    runPrevYear += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
     runCustomers += r.daily.get(d)?.customers ?? 0
-    runPrevCustomers += prevYear.daily.get(d)?.customers ?? 0
+    runPrevCustomers += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.customers ?? 0
     cumBudget.set(d, runBudget)
     cumSales.set(d, runSales)
     cumPrevYear.set(d, runPrevYear)
@@ -192,7 +193,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       budget += r.budgetDaily.get(d) ?? 0
       const daySales = r.daily.get(d)?.sales ?? 0
       sales += daySales
-      pySales += prevYear.daily.get(d)?.sales ?? 0
+      pySales += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
       if (daySales > 0) salesDaysCount++
     }
     const diff = sales - budget
@@ -396,7 +397,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                             {/* 前年比 (色+アイコン) */}
                             {prevYear.hasPrevYear &&
                               (() => {
-                                const pyDaySales = prevYear.daily.get(day)?.sales ?? 0
+                                const pyDaySales =
+                                  prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ??
+                                  0
                                 if (pyDaySales <= 0) return null
                                 const pyRatio = actual / pyDaySales
                                 const pyColor = pyRatio >= 1 ? sc.positive : sc.negative

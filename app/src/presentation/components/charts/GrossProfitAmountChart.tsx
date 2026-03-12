@@ -20,6 +20,7 @@ import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 type GpView = 'amountRate' | 'rateOnly'
 
@@ -29,8 +30,10 @@ interface Props {
   grossProfitBudget: number
   targetRate: number
   warningRate?: number
+  year: number
+  month: number
   /** 前年の日次データ（粗利率の前年比較用） */
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   /** 前年の仕入コストマップ（日→仕入原価）。省略時は前年粗利率ラインを表示しない */
   prevYearCostMap?: ReadonlyMap<number, number>
 }
@@ -42,6 +45,8 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   grossProfitBudget,
   targetRate,
   warningRate,
+  year,
+  month,
   prevYearDaily,
   prevYearCostMap,
 }: Props) {
@@ -78,7 +83,7 @@ export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
 
     let prevRate: number | null = null
     if (hasPrevGp) {
-      const prevSales = prevYearDaily!.get(d)?.sales ?? 0
+      const prevSales = prevYearDaily!.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
       const prevCostVal = prevYearCostMap!.get(d) ?? 0
       prevCumSales += prevSales
       prevCumCost += prevCostVal

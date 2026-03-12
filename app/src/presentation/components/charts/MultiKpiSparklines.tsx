@@ -4,6 +4,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import { useChartTheme, toComma, toPct } from './chartTheme'
 import type { DailyRecord } from '@/domain/models'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   Wrapper,
   HeaderRow,
@@ -29,12 +30,16 @@ interface MetricDef {
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  year: number
+  month: number
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 }
 
 export const MultiKpiSparklines = memo(function MultiKpiSparklines({
   daily,
   daysInMonth,
+  year,
+  month,
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
@@ -108,7 +113,7 @@ export const MultiKpiSparklines = memo(function MultiKpiSparklines({
         costRate,
       })
 
-      const prev = prevYearDaily?.get(d)
+      const prev = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
       if (prev) {
         const pSales = prev.sales
         const pCustomers = prev.customers ?? 0
@@ -143,7 +148,7 @@ export const MultiKpiSparklines = memo(function MultiKpiSparklines({
     }
 
     return { sparkData: rows, summaries: sums }
-  }, [daily, daysInMonth, prevYearDaily, metrics])
+  }, [daily, daysInMonth, year, month, prevYearDaily, metrics])
 
   return (
     <Wrapper>

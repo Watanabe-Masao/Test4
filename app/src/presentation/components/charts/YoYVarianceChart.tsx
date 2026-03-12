@@ -31,6 +31,7 @@ import {
   SummaryLabel,
 } from './YoYVarianceChart.styles'
 import type { DailyRecord } from '@/domain/models'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   safeDivide,
   calculateTransactionValue,
@@ -55,7 +56,9 @@ const GROWTH_SUB_LABELS: Record<GrowthSubMode, string> = {
 interface Props {
   daily: ReadonlyMap<number, DailyRecord>
   daysInMonth: number
-  prevYearDaily: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  year: number
+  month: number
+  prevYearDaily: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 }
 
 /** NaN → null */
@@ -66,6 +69,8 @@ function maToNull(values: number[]): (number | null)[] {
 export const YoYVarianceChart = memo(function YoYVarianceChart({
   daily,
   daysInMonth,
+  year,
+  month,
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
@@ -119,7 +124,7 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
 
     for (let d = 1; d <= daysInMonth; d++) {
       const rec = daily.get(d)
-      const prev = prevYearDaily.get(d)
+      const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
       const curSales = rec?.sales ?? 0
       const prevSales = prev?.sales ?? 0
       const curDiscount = rec?.discountAbsolute ?? 0
@@ -213,7 +218,7 @@ export const YoYVarianceChart = memo(function YoYVarianceChart({
       customerGrowthMa7: cMa7,
       txValueGrowthMa7: tMa7,
     }
-  }, [daily, daysInMonth, prevYearDaily])
+  }, [daily, daysInMonth, year, month, prevYearDaily])
 
   const data = chartData
     .map((d, i) => ({

@@ -85,10 +85,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: 'マルチKPIダッシュボード',
     group: 'トレンド分析',
     size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => (
+    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <MultiKpiSparklines
         daily={r.daily}
         daysInMonth={daysInMonth}
+        year={year}
+        month={month}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
       />
     ),
@@ -98,10 +100,12 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     label: 'PI値・偏差値・Zスコア',
     group: 'トレンド分析',
     size: 'full',
-    render: ({ result: r, daysInMonth, prevYear }) => (
+    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <PerformanceIndexChart
         daily={r.daily}
         daysInMonth={daysInMonth}
+        year={year}
+        month={month}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
       />
     ),

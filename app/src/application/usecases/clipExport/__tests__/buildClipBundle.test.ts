@@ -136,9 +136,9 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
 }
 
 function makePrevYearData(overrides: Partial<PrevYearData> = {}): PrevYearData {
-  const daily = new Map<number, PrevYearDailyEntry>()
-  daily.set(1, { sales: 95000, customers: 190, discount: -3000 })
-  daily.set(2, { sales: 75000, customers: 140, discount: -2000 })
+  const daily = new Map<string, PrevYearDailyEntry>()
+  daily.set('2025-01-01', { sales: 95000, customers: 190, discount: -3000 })
+  daily.set('2025-01-02', { sales: 75000, customers: 140, discount: -2000 })
 
   return {
     hasPrevYear: true,

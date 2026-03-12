@@ -42,6 +42,7 @@ import {
   COMPARE_TITLES,
 } from './BudgetVsActualChart.styles'
 import type { BudgetViewType, CompareMode } from './BudgetVsActualChart.styles'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 
 interface DataPoint {
   day: number
@@ -58,8 +59,10 @@ interface Props {
   salesDays?: number
   /** 月の総日数 */
   daysInMonth?: number
+  year: number
+  month: number
   /** 前年日別データ（前年差ビュー用） */
-  prevYearDaily?: ReadonlyMap<number, { sales: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number }>
 }
 
 export const BudgetVsActualChart = memo(function BudgetVsActualChart({
@@ -68,6 +71,8 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   showPrevYear,
   salesDays,
   daysInMonth,
+  year,
+  month,
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
@@ -127,7 +132,7 @@ export const BudgetVsActualChart = memo(function BudgetVsActualChart({
     let pCum = 0
     const days = daysInMonth ?? data.length
     for (let d = 1; d <= days; d++) {
-      pCum += prevYearDaily.get(d)?.sales ?? 0
+      pCum += prevYearDaily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
       prevYearCumMap.set(d, pCum)
     }
   }

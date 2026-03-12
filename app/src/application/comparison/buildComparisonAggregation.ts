@@ -72,7 +72,7 @@ function resolveSourceDay(sourceDate: CalendarDate, ctx: SourceMonthContext): nu
 /** aggregateByAlignmentMap の出力 — PrevYearData と互換 */
 export interface ComparisonDailyResult {
   readonly hasPrevYear: boolean
-  readonly daily: ReadonlyMap<number, PrevYearDailyEntry>
+  readonly daily: ReadonlyMap<string, PrevYearDailyEntry>
   readonly totalSales: number
   readonly totalDiscount: number
   readonly totalCustomers: number
@@ -102,18 +102,18 @@ function accumulateDailyValues(
   alignmentMap: readonly AlignmentEntry[],
   sourceMonthCtx?: SourceMonthContext,
 ): {
-  daily: Map<number, { sales: number; discount: number; customers: number }>
-  dayDiscountEntries: Map<number, DiscountEntry[]>
+  daily: Map<string, { sales: number; discount: number; customers: number }>
+  dayDiscountEntries: Map<string, DiscountEntry[]>
 } {
-  const daily = new Map<number, { sales: number; discount: number; customers: number }>()
-  const dayDiscountEntries = new Map<number, DiscountEntry[]>()
+  const daily = new Map<string, { sales: number; discount: number; customers: number }>()
+  const dayDiscountEntries = new Map<string, DiscountEntry[]>()
 
   for (const entry of alignmentMap) {
     // allAgg のリナンバリング空間に変換（月跨ぎ対応）
     const srcDay = sourceMonthCtx
       ? resolveSourceDay(entry.sourceDate, sourceMonthCtx)
       : entry.sourceDate.day
-    const tgtDay = entry.targetDate.day
+    const tgtKey = entry.targetDayKey
 
     for (const storeId of targetIds) {
       const storeDays = allAgg[storeId]
@@ -131,23 +131,23 @@ function accumulateDailyValues(
       const flowerEntry = flowersIndex?.[storeId]?.[srcDay]
       const customers = flowerEntry?.customers ?? 0
 
-      const existing = daily.get(tgtDay)
+      const existing = daily.get(tgtKey)
       if (existing) {
-        daily.set(tgtDay, {
+        daily.set(tgtKey, {
           sales: existing.sales + sales,
           discount: existing.discount + discount,
           customers: existing.customers + customers,
         })
       } else {
-        daily.set(tgtDay, { sales, discount, customers })
+        daily.set(tgtKey, { sales, discount, customers })
       }
 
       // 売変種別内訳を蓄積
-      const existingEntries = dayDiscountEntries.get(tgtDay) ?? [
+      const existingEntries = dayDiscountEntries.get(tgtKey) ?? [
         ...ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })),
       ]
       dayDiscountEntries.set(
-        tgtDay,
+        tgtKey,
         addDiscountEntries(existingEntries, summary.discountEntries) as DiscountEntry[],
       )
     }
@@ -156,11 +156,15 @@ function accumulateDailyValues(
   return { daily, dayDiscountEntries }
 }
 
-/** 経過日数フィルタを適用し、合計値・率を算出する */
+/**
+ * 合計値・率を算出する。
+ *
+ * alignmentMap は buildEffectivePeriod1 で既に elapsedDays キャップ済みのため、
+ * daily Map の全エントリを合計すればよい。
+ */
 function summarizeDailyTotals(
-  daily: ReadonlyMap<number, { sales: number; discount: number; customers: number }>,
-  dayDiscountEntries: ReadonlyMap<number, DiscountEntry[]>,
-  elapsedDays?: number,
+  daily: ReadonlyMap<string, { sales: number; discount: number; customers: number }>,
+  dayDiscountEntries: ReadonlyMap<string, DiscountEntry[]>,
 ): {
   totalSales: number
   totalDiscount: number
@@ -169,24 +173,21 @@ function summarizeDailyTotals(
   discountRate: number
   totalDiscountEntries: readonly DiscountEntry[]
 } {
-  const maxDay = elapsedDays ?? Infinity
   let totalSales = 0
   let totalDiscount = 0
   let totalCustomers = 0
   let totalDiscountEntriesAcc: DiscountEntry[] = [...ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))]
 
-  for (const [day, val] of daily) {
-    if (day <= maxDay) {
-      totalSales += val.sales
-      totalDiscount += val.discount
-      totalCustomers += val.customers
-      const dayEntries = dayDiscountEntries.get(day)
-      if (dayEntries) {
-        totalDiscountEntriesAcc = addDiscountEntries(
-          totalDiscountEntriesAcc,
-          dayEntries,
-        ) as DiscountEntry[]
-      }
+  for (const [key, val] of daily) {
+    totalSales += val.sales
+    totalDiscount += val.discount
+    totalCustomers += val.customers
+    const dayEntries = dayDiscountEntries.get(key)
+    if (dayEntries) {
+      totalDiscountEntriesAcc = addDiscountEntries(
+        totalDiscountEntriesAcc,
+        dayEntries,
+      ) as DiscountEntry[]
     }
   }
 
@@ -210,15 +211,13 @@ function summarizeDailyTotals(
  * @param allAgg      aggregateAllStores() の出力（store → day → summary）
  * @param flowersIndex indexByStoreDay() の出力（客数ルックアップ用）
  * @param targetIds   対象店舗ID配列
- * @param alignmentMap ComparisonScope.alignmentMap
- * @param elapsedDays  経過日数上限（指定時は total 集計をこの日数分に制限）
+ * @param alignmentMap ComparisonScope.alignmentMap（elapsedDays キャップ済み）
  */
 export function aggregateDailyByAlignment(
   allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>>,
   flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
   targetIds: readonly string[],
   alignmentMap: readonly AlignmentEntry[],
-  elapsedDays?: number,
   sourceMonthCtx?: SourceMonthContext,
 ): ComparisonDailyResult {
   if (targetIds.length === 0 || alignmentMap.length === 0) return EMPTY_DAILY
@@ -230,7 +229,7 @@ export function aggregateDailyByAlignment(
     alignmentMap,
     sourceMonthCtx,
   )
-  const totals = summarizeDailyTotals(daily, dayDiscountEntries, elapsedDays)
+  const totals = summarizeDailyTotals(daily, dayDiscountEntries)
 
   return {
     hasPrevYear: true,

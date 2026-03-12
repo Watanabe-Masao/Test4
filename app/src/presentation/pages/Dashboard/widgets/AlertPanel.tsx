@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
 import { formatPercent } from '@/domain/formatting'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
 import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
@@ -79,13 +80,14 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
   const targetGpRate = ctx.targetRate
 
   const alerts = useMemo(() => {
-    // PrevYearData.daily is Map<number, PrevYearDailyEntry>
-    // evaluateAlerts expects Map<number, number> (sales only)
+    // PrevYearData.daily は DateKey キー。evaluateAlerts は day number キーを期待
     let prevYearDailySales: ReadonlyMap<number, number> | undefined
     if (ctx.prevYear.hasPrevYear && ctx.prevYear.daily.size > 0) {
       const salesMap = new Map<number, number>()
-      for (const [day, entry] of ctx.prevYear.daily) {
-        salesMap.set(day, entry.sales)
+      const daysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
+      for (let d = 1; d <= daysInMonth; d++) {
+        const entry = ctx.prevYear.daily.get(toDateKeyFromParts(ctx.year, ctx.month, d))
+        if (entry) salesMap.set(d, entry.sales)
       }
       prevYearDailySales = salesMap
     }
@@ -94,7 +96,7 @@ export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
       targetGrossProfitRate: targetGpRate,
       prevYearDailySales,
     })
-  }, [r, ctx.storeKey, targetGpRate, ctx.prevYear])
+  }, [r, ctx.storeKey, targetGpRate, ctx.prevYear, ctx.year, ctx.month])
 
   const criticalCount = alerts.filter((a) => a.severity === 'critical').length
   const warningCount = alerts.filter((a) => a.severity === 'warning').length

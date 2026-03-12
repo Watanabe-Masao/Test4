@@ -7,6 +7,7 @@
 import type { StoreResult, CategoryTimeSalesRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type {
   ClipBundle,
   ClipDailyEntry,
@@ -132,7 +133,7 @@ export function buildClipBundle(params: BuildClipBundleParams): ClipBundle {
   // 前年日別データ
   const prevYearDaily: ClipPrevYearEntry[] = []
   for (let d = 1; d <= daysInMonth; d++) {
-    const entry = prevYear.daily.get(d)
+    const entry = prevYear.daily.get(toDateKeyFromParts(year, month, d))
     if (entry) {
       prevYearDaily.push({
         day: d,

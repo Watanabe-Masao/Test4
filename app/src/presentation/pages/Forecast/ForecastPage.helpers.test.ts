@@ -156,9 +156,9 @@ describe('buildDailyCustomerData', () => {
     daily.set(1, { sales: 1000, customers: 10 } as never)
     daily.set(2, { sales: 1200, customers: 12 } as never)
 
-    const prevYearDaily = new Map<number, { sales: number; discount: number; customers: number }>()
-    prevYearDaily.set(1, { sales: 800, discount: 0, customers: 8 })
-    prevYearDaily.set(2, { sales: 900, discount: 0, customers: 9 })
+    const prevYearDaily = new Map<string, { sales: number; discount: number; customers: number }>()
+    prevYearDaily.set('2025-01-01', { sales: 800, discount: 0, customers: 8 })
+    prevYearDaily.set('2025-01-02', { sales: 900, discount: 0, customers: 9 })
 
     const prevYear: PrevYearData = {
       hasPrevYear: true,
@@ -171,7 +171,7 @@ describe('buildDailyCustomerData', () => {
       totalDiscountEntries: [],
     }
 
-    const entries = buildDailyCustomerData(daily as never, prevYear)
+    const entries = buildDailyCustomerData(daily as never, prevYear, 2025, 1)
     expect(entries).toHaveLength(2)
     expect(entries[0].prevCustomers).toBe(8)
     expect(entries[0].prevSales).toBe(800)
@@ -196,7 +196,7 @@ describe('buildDailyCustomerData', () => {
       totalDiscountEntries: [],
     }
 
-    const entries = buildDailyCustomerData(daily as never, prevYear)
+    const entries = buildDailyCustomerData(daily as never, prevYear, 2025, 1)
     expect(entries).toHaveLength(1)
     expect(entries[0].day).toBe(3)
   })
@@ -218,7 +218,7 @@ describe('buildDailyCustomerData', () => {
       totalDiscountEntries: [],
     }
 
-    const entries = buildDailyCustomerData(daily as never, prevYear)
+    const entries = buildDailyCustomerData(daily as never, prevYear, 2025, 1)
     expect(entries.map((e) => e.day)).toEqual([3, 10, 15])
   })
 })

@@ -5,6 +5,7 @@
  * React に依存せず、単体テスト可能。
  */
 import type { DailyRecord } from '@/domain/models'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
   safeDivide,
   calculateTransactionValue,
@@ -34,9 +35,11 @@ export function buildBaseDayItems(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
   prevYearDaily:
-    | ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
     | undefined,
   budgetDaily: ReadonlyMap<number, number> | undefined,
+  year: number,
+  month: number,
 ): BaseDayItemsResult {
   const rawSales: number[] = []
   const rawDiscount: number[] = []
@@ -56,7 +59,7 @@ export function buildBaseDayItems(
     const grossSales = rec?.grossSales ?? 0
     rawSales.push(sales)
     rawDiscount.push(discount)
-    const prevEntry = prevYearDaily?.get(d)
+    const prevEntry = prevYearDaily?.get(toDateKeyFromParts(year, month, d))
     const prevSales = prevEntry?.sales ?? null
     const prevDiscount = prevEntry?.discount ?? null
     rawPrevDiscount.push(prevEntry?.discount ?? 0)

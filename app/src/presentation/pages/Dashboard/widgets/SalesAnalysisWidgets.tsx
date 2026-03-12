@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
+import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { getWeekRanges } from '@/application/hooks/calculation'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
@@ -46,7 +47,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
       buckets[dow].budgetTotal += budget
       buckets[dow].budgetCount++
     }
-    const pySales = prevYear.daily.get(d)?.sales ?? 0
+    const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
     if (pySales > 0) {
       buckets[dow].prevYearTotal += pySales
       buckets[dow].prevYearCount++
@@ -164,7 +165,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
         totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
         totalCustomers += rec.customers ?? 0
       }
-      prevYearWeekSales += prevYear.daily.get(d)?.sales ?? 0
+      prevYearWeekSales += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
     }
     const markupRate =
       totalPurchasePrice > 0 ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice : 0

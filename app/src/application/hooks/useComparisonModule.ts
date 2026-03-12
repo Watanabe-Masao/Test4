@@ -149,10 +149,9 @@ export function useComparisonModule(
       inputs.flowersIndex,
       inputs.targetIds,
       scope.alignmentMap,
-      elapsedDays,
       { year, month, daysInMonth: new Date(year, month, 0).getDate() },
     )
-  }, [scope, inputs, elapsedDays])
+  }, [scope, inputs])
 
   // 6. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {

@@ -59,7 +59,13 @@ export function useInsightData() {
     return m
   }, [currentResult])
 
-  const chartData = useBudgetChartData(currentResult, daysInMonth, prevYear)
+  const chartData = useBudgetChartData(
+    currentResult,
+    daysInMonth,
+    prevYear,
+    targetYear,
+    targetMonth,
+  )
 
   // ─── 予測データ ─────────────────────────────────────────
   const forecastData = useMemo(() => {
@@ -89,9 +95,9 @@ export function useInsightData() {
   // ─── 客数・要因分解データ ───────────────────────────────
   const customerData = useMemo(() => {
     if (!currentResult || !forecastData) return null
-    const customerEntries = buildDailyCustomerData(currentResult.daily, prevYear)
-    const hasCustomerData = customerEntries.some((e) => e.customers > 0)
     const { year, month } = forecastData
+    const customerEntries = buildDailyCustomerData(currentResult.daily, prevYear, year, month)
+    const hasCustomerData = customerEntries.some((e) => e.customers > 0)
     const dowCustomerAvg = buildDowCustomerAverages(customerEntries, year, month)
     const movingAvgData = buildMovingAverages(customerEntries, 5)
     const relationshipData = buildRelationshipData(customerEntries)
@@ -160,6 +166,8 @@ export function useInsightData() {
     stores,
     prevYear,
     daysInMonth,
+    year: targetYear,
+    month: targetMonth,
     // State
     activeTab,
     setActiveTab,

@@ -21,7 +21,7 @@ interface Props {
   daysInMonth: number
   year: number
   month: number
-  prevYearDaily?: ReadonlyMap<number, { sales: number; discount: number; customers?: number }>
+  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
   budgetDaily?: ReadonlyMap<number, number>
   mode?: DailyChartMode
 }

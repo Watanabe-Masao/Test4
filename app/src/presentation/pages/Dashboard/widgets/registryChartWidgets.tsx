@@ -6,6 +6,7 @@ import {
   CategoryHierarchyExplorer,
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
+import { fromDateKey } from '@/domain/models/CalendarDate'
 import type { WidgetDef } from './types'
 import {
   UnifiedTimeSlotWidget,
@@ -49,7 +50,7 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'full',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear }) => {
+    render: ({ result: r, daysInMonth, targetRate, warningRate, prevYear, year, month }) => {
       // 前年仕入コストマップの構築（前年粗利率ライン表示用）
       // 注: prevYear.daily は classifiedSales 由来。仕入コストは個別に持っていないため
       // 「前年売変データから近似」する。正確な前年粗利率は在庫データが必要。
@@ -57,10 +58,11 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
       let prevYearCostMap: ReadonlyMap<number, number> | undefined
       if (prevYear.hasPrevYear && prevYear.totalSales > 0) {
         const costMap = new Map<number, number>()
-        for (const [day, entry] of prevYear.daily) {
+        for (const [dateKey, entry] of prevYear.daily) {
           // 前年は日別仕入原価を持たないため、売上-売変で近似
           // これは粗売上≈売上+売変として、原価≈売上×(1-値入率) の近似
           // 正確な値ではないが傾向比較には有用
+          const day = fromDateKey(dateKey).day
           costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
         }
         prevYearCostMap = costMap
@@ -69,6 +71,8 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
         <GrossProfitAmountChart
           daily={r.daily}
           daysInMonth={daysInMonth}
+          year={year}
+          month={month}
           grossProfitBudget={r.grossProfitBudget}
           targetRate={targetRate}
           warningRate={warningRate}
@@ -84,10 +88,12 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'full',
     isVisible: (ctx) => ctx.result.hasDiscountData,
-    render: ({ result: r, daysInMonth, prevYear }) => (
+    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <DiscountTrendChart
         daily={r.daily}
         daysInMonth={daysInMonth}
+        year={year}
+        month={month}
         discountEntries={r.discountEntries}
         totalGrossSales={r.grossSales}
         prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}

@@ -144,23 +144,25 @@
 | `application/usecases/export/ExportService.ts` | エクスポート |
 | `application/hooks/useI18n.ts` | i18n ブリッジ |
 
-### 比較移行許可リスト（INV-CMP-01: 9件、INV-CMP-03: 4件）
+### 比較移行許可リスト（INV-CMP-01: 11件、INV-CMP-03: 4件）
 
 移行完了時にファイルを許可リストから削除する。新規追加は禁止。
 
-#### INV-CMP-01: prevYear.daily.get(day) 許可リスト
+#### INV-CMP-01: prevYear.daily.get() 許可リスト
 
 | ファイル | 状態 |
 |---|---|
-| `presentation/pages/Daily/DailyPage.tsx` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | 移行待ち |
-| `presentation/pages/Dashboard/widgets/SalesAnalysisWidgets.tsx` | 移行待ち |
-| `presentation/pages/Insight/InsightTabBudget.tsx` | 移行待ち |
-| `presentation/pages/Forecast/ForecastPage.helpers.ts` | 移行待ち |
-| `application/hooks/useBudgetChartData.ts` | 移行待ち |
-| `application/usecases/clipExport/buildClipBundle.ts` | 移行待ち |
+| `presentation/pages/Daily/DailyPage.tsx` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/AlertPanel.tsx` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/SalesAnalysisWidgets.tsx` | DateKey 移行済み |
+| `presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx` | DateKey 移行済み |
+| `presentation/pages/Insight/InsightTabBudget.tsx` | DateKey 移行済み |
+| `presentation/pages/Forecast/ForecastPage.helpers.ts` | DateKey 移行済み |
+| `application/hooks/useBudgetChartData.ts` | DateKey 移行済み |
+| `application/usecases/clipExport/buildClipBundle.ts` | DateKey 移行済み |
 
 #### INV-CMP-03: comparisonFrame.previous 許可リスト
 
