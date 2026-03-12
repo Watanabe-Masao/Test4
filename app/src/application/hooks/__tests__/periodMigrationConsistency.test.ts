@@ -257,7 +257,7 @@ describe('期間モデル移行整合性', () => {
     })
   })
 
-  describe('usePrevYearData の日次マッピングとの整合', () => {
+  describe('V1 日次マッピングとの整合', () => {
     it('sameDow: V2 候補範囲が前年同日 ±7 日で resolver 用の十分な範囲を持つ', () => {
       // V2 では period2 は候補取得範囲（前年同日 ±7 日）。
       // 実際の日次マッピングは V2 resolver が行うため、
