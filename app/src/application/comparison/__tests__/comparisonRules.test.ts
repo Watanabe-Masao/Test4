@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  resolveRequestedCompareDateKey,
-  resolveSameDayOfWeekDateKey,
-} from '../comparisonRules'
+import { resolveRequestedCompareDateKey, resolveSameDayOfWeekDateKey } from '../comparisonRules'
 import type { MatchableRow } from '../comparisonTypes'
 
 function makeRow(overrides: Partial<MatchableRow> & { dateKey: string }): MatchableRow {
@@ -101,7 +98,15 @@ describe('resolveSameDayOfWeekDateKey', () => {
   })
 
   it('月跨ぎ期間: 2026-03-28 ～ 2026-04-03 をまとめて解決', () => {
-    const dates = ['2026-03-28', '2026-03-29', '2026-03-30', '2026-03-31', '2026-04-01', '2026-04-02', '2026-04-03']
+    const dates = [
+      '2026-03-28',
+      '2026-03-29',
+      '2026-03-30',
+      '2026-03-31',
+      '2026-04-01',
+      '2026-04-02',
+      '2026-04-03',
+    ]
 
     for (const dateKey of dates) {
       const row = makeRow({ dateKey })

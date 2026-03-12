@@ -18,11 +18,7 @@
  * - 重複は ambiguous として表面化（silent sum しない）
  * - alignmentKey は requestedCompareDateKey ベース（missing でもキーが安定）
  */
-import type {
-  CompareModeV2,
-  MatchableRow,
-  ResolvedComparisonRow,
-} from './comparisonTypes'
+import type { CompareModeV2, MatchableRow, ResolvedComparisonRow } from './comparisonTypes'
 import { resolveRequestedCompareDateKey } from './comparisonRules'
 import { buildComparisonIndex } from './comparisonIndex'
 

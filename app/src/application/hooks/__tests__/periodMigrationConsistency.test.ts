@@ -241,7 +241,11 @@ describe('期間モデル移行整合性', () => {
           const daysInMonth = new Date(year, month, 0).getDate()
           const candidateTo = new Date(year - 1, month - 1, daysInMonth + 7)
           const offset = newScope.dowOffset
-          const capDate = new Date(expectedFrom.getFullYear(), expectedFrom.getMonth(), endDay + offset)
+          const capDate = new Date(
+            expectedFrom.getFullYear(),
+            expectedFrom.getMonth(),
+            endDay + offset,
+          )
           const effectiveTo = capDate < candidateTo ? capDate : candidateTo
           expect(newScope.dateRange.to.year).toBe(effectiveTo.getFullYear())
           expect(newScope.dateRange.to.month).toBe(effectiveTo.getMonth() + 1)
