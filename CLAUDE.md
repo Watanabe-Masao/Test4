@@ -363,22 +363,24 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 **制約の変更:** 「やりたいことの邪魔になるから」は理由にならない。
 「この制約が防いでいたバグが、別の仕組みで防がれるようになった」は理由になる。
 
-## 過剰複雑性の防止（10ルール）
+## 過剰複雑性の防止（12ルール）
 
 ガードテスト: `app/src/test/hookComplexityGuard.test.ts`
 
 | ルール | 内容 | 検証方法 |
 |---|---|---|
-| R1 | 1つの hook/service/module に複数の責務を載せない | レビュー |
-| R2 | データ取得と副作用更新を分離する（load→merge→setStore→cache clear→UI invalidation の直結禁止） | レビュー |
+| R1 | 1つの hook/service/module に複数の責務を載せない | ガードテスト（useMemo ≤7, useState ≤6, hook 300行上限） |
+| R2 | データ取得と副作用更新を分離する（load→merge→setStore→cache clear→UI invalidation の直結禁止） | ガードテスト（useEffect 内の副作用チェーン検出） |
 | R3 | テスト用 export を禁止する（@internal export、typeof === 'function' テスト） | ガードテスト |
-| R4 | pure function は仕様軸を1つに絞る（集計+補完+マッピング+上限制御の同居禁止） | レビュー |
-| R5 | facade に判断・分岐・派生計算を増やさない | レビュー |
+| R4 | pure function は仕様軸を1つに絞る（集計+補完+マッピング+上限制御の同居禁止） | ガードテスト（純粋関数モジュール React-free） + レビュー |
+| R5 | facade に判断・分岐・派生計算を増やさない | ガードテスト（facade 分岐 ≤5） |
 | R6 | 同義 API/action の併存を禁止する（名前は違うが中身は同じ） | レビュー |
 | R7 | store の action に業務ロジック（算術式）を埋め込まない | ガードテスト |
 | R8 | キャッシュは本体機能より複雑にしない | レビュー |
 | R9 | 機能追加時は「分岐追加」より「分離」を優先する | レビュー |
 | R10 | カバレッジ回復のための実装変更を禁止する | ガードテスト |
+| R11 | hook ファイルは 300行以下。超過時は純粋関数を *Logic.ts に分離し thin wrapper にする | ガードテスト |
+| R12 | Presentation コンポーネントは 400行以下（新規）。既存は hookComplexityGuard の登録上限を超えない | ガードテスト |
 
 ### 即差し戻し条件
 
@@ -392,6 +394,10 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 - pure function が複数仕様軸を抱えている
 - キャッシュ処理の方が本体より複雑
 - 新要件への対応が「if追加」中心
+- hook の useMemo が 7 個以上ある（R11）
+- hook の useState が 6 個以上ある（R11）
+- hook ファイルが 300行を超えている（R11 — allowlist 登録済みファイルはその上限）
+- Presentation コンポーネントが登録上限を超えている（R12）
 
 ## Explanation（説明責任）
 
