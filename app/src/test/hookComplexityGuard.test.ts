@@ -306,10 +306,9 @@ describe('R11: hooks/ の useMemo 呼び出しが上限以下', () => {
       }
     }
 
-    expect(
-      violations,
-      `useMemo 過多のファイルが検出されました:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, `useMemo 過多のファイルが検出されました:\n${violations.join('\n')}`).toEqual(
+      [],
+    )
   })
 })
 
@@ -418,7 +417,8 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
     ['presentation/pages/Dashboard/widgets/ConditionSummary.tsx', 550],
     ['presentation/pages/Dashboard/widgets/HourlyChart.tsx', 550],
     ['presentation/pages/Insight/InsightTabBudget.tsx', 540],
-    ['presentation/components/charts/CategoryBoxPlotChart.tsx', 530],
+    ['presentation/components/charts/CategoryBoxPlotChart.tsx', 200],
+    ['presentation/components/charts/CategoryBoxPlotView.tsx', 400],
     ['presentation/components/charts/YoYVarianceChart.tsx', 520],
     ['presentation/components/charts/StoreHourlyChart.tsx', 510],
     ['presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx', 490],
@@ -506,10 +506,9 @@ describe('R5: facade ファイルの分岐が 5 以下', () => {
       }
     }
 
-    expect(
-      violations,
-      `facade に分岐ロジックが混入しています:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, `facade に分岐ロジックが混入しています:\n${violations.join('\n')}`).toEqual(
+      [],
+    )
   })
 })
 
@@ -579,9 +578,6 @@ describe('R2: useEffect 内に fetch→store→cache の密結合がない', () 
       }
     }
 
-    expect(
-      violations,
-      `副作用チェーンが検出されました:\n${violations.join('\n')}`,
-    ).toEqual([])
+    expect(violations, `副作用チェーンが検出されました:\n${violations.join('\n')}`).toEqual([])
   })
 })

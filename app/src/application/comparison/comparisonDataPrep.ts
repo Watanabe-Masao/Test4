@@ -34,9 +34,7 @@ export function prepareComparisonInputs(
   const allStoreIds = Object.keys(allAgg)
   if (allStoreIds.length === 0) return null
 
-  const targetIds = isAllStores
-    ? allStoreIds
-    : allStoreIds.filter((id) => selectedStoreIds.has(id))
+  const targetIds = isAllStores ? allStoreIds : allStoreIds.filter((id) => selectedStoreIds.has(id))
   if (targetIds.length === 0) return null
 
   const prevYearFlowers = data.prevYearFlowers
