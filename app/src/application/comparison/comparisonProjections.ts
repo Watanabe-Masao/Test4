@@ -18,7 +18,10 @@ import {
   analyzeDowGapActualDay,
   ZERO_DOW_GAP_ANALYSIS,
 } from '@/domain/calculations/dowGapAnalysis'
-import { aggregateKpiByAlignment } from '@/application/comparison/buildComparisonAggregation'
+import {
+  aggregateKpiByAlignment,
+  type SourceMonthContext,
+} from '@/application/comparison/buildComparisonAggregation'
 
 // ── ゼロ値 ──
 
@@ -58,8 +61,21 @@ export function buildKpiProjection(
   const srcYear = scope.period2.from.year
   const srcMonth = scope.period2.from.month
 
+  // allAgg のソース月コンテキスト（月跨ぎ時のリナンバリング変換に必要）
+  const sourceMonthCtx: SourceMonthContext = {
+    year: srcYear,
+    month: srcMonth,
+    daysInMonth: new Date(srcYear, srcMonth, 0).getDate(),
+  }
+
   // 同曜日KPI: scope の alignmentMap は既に DOW offset 込み
-  const sameDow = aggregateKpiByAlignment(allAgg, flowersIndex, targetIds, scope.alignmentMap)
+  const sameDow = aggregateKpiByAlignment(
+    allAgg,
+    flowersIndex,
+    targetIds,
+    scope.alignmentMap,
+    sourceMonthCtx,
+  )
 
   // 同日KPI: DOW offset なしで再構築
   // period2 も再算出する（元の period2 は DOW offset が焼込済みのため）
@@ -78,6 +94,7 @@ export function buildKpiProjection(
     flowersIndex,
     targetIds,
     sameDateScope.alignmentMap,
+    sourceMonthCtx,
   )
 
   // 月全体の dowOffset（月初の曜日差分）

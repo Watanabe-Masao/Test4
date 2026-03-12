@@ -22,7 +22,10 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { prepareComparisonInputs } from '@/application/comparison/comparisonDataPrep'
-import { aggregateDailyByAlignment } from '@/application/comparison/buildComparisonAggregation'
+import {
+  aggregateDailyByAlignment,
+  type SourceMonthContext,
+} from '@/application/comparison/buildComparisonAggregation'
 import {
   buildKpiProjection,
   buildDowGapProjection,
@@ -143,12 +146,14 @@ export function useComparisonModule(
   // 5. 日別集計（PrevYearData 互換）
   const daily = useMemo((): PrevYearData => {
     if (!scope || !inputs) return EMPTY_DAILY
+    const { year, month } = scope.period2.from
     return aggregateDailyByAlignment(
       inputs.allAgg,
       inputs.flowersIndex,
       inputs.targetIds,
       scope.alignmentMap,
       elapsedDays,
+      { year, month, daysInMonth: new Date(year, month, 0).getDate() },
     )
   }, [scope, inputs, elapsedDays])
 

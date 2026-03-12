@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { aggregateDailyByAlignment, aggregateKpiByAlignment } from '../buildComparisonAggregation'
+import {
+  aggregateDailyByAlignment,
+  aggregateKpiByAlignment,
+  type SourceMonthContext,
+} from '../buildComparisonAggregation'
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/ClassifiedSales'
@@ -384,5 +388,184 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
     expect(noFlowers.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(noFlowers.sales)
     expect(noFlowers.customers).toBe(0)
     expect(noFlowers.transactionValue).toBe(0)
+  })
+})
+
+// ── 月跨ぎ: resolveSourceDay + SourceMonthContext ──
+//
+// 実シナリオ: 2026年2月 vs 2025年2月（同曜日比較、DOW offset=1）
+//
+// 2025年2月: 1日(土) 〜 28日(金) — 28日間
+// 2026年2月: 1日(日) 〜 28日(土) — 28日間
+// DOW offset = 1（日曜 - 土曜 = 1日ずれ）
+//
+// 同曜日 alignmentMap（period2 に offset 焼込済み）:
+//   当期 2026/2/1(日) → 前年 2025/2/2(日)
+//   当期 2026/2/2(月) → 前年 2025/2/3(月)
+//   ...
+//   当期 2026/2/27(金) → 前年 2025/2/28(金)
+//   当期 2026/2/28(土) → 前年 2025/3/1(土)  ← 月跨ぎ！
+//
+// allAgg リナンバリング（mergeAdjacentMonthRecords）:
+//   2025/2/1 → day=1, ..., 2025/2/28 → day=28
+//   2025/3/1 → day=29（= 28 + 1）, 2025/3/2 → day=30, ...
+//
+// resolveSourceDay の変換:
+//   source(2025,2,2) → 2（同月なのでそのまま）
+//   source(2025,3,1) → 29（翌月: daysInMonth(28) + 1 = 29）
+
+describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () => {
+  // 1店舗・28日分の連続データ（日別売上は曜日パターン: 土日高め）
+  // 2025年2月: 1日(土)〜28日(金)
+  const feb2025DailySales = [
+    // Week 1: 土,日,月,火,水,木,金
+    2047609, 1800000, 1436878, 1523406, 1246231, 1276671, 1635982,
+    // Week 2: 土,日,月,火,水,木,金
+    2100000, 1850000, 1480000, 1560000, 1290000, 1310000, 1670000,
+    // Week 3: 土,日,月,火,水,木,金
+    2050000, 1820000, 1450000, 1540000, 1260000, 1295000, 1650000,
+    // Week 4: 土,日,月,火,水,木,金
+    2080000, 1830000, 1460000, 1550000, 1270000, 1300000, 1660000,
+  ]
+  // 2025年3月1日(土)の売上（翌月オーバーフロー、allAgg ではday=29）
+  const mar1Sales = 2150000
+
+  // allAgg: リナンバリング済み（day 1-28 = 2月、day 29 = 3月1日）
+  const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
+    S1: Object.fromEntries([
+      ...feb2025DailySales.map((sales, i) => [i + 1, makeSummary(sales)] as const),
+      [29, makeSummary(mar1Sales)], // 3月1日 → リナンバリング day=29
+    ]),
+  }
+
+  const sourceMonthCtx: SourceMonthContext = {
+    year: 2025,
+    month: 2,
+    daysInMonth: 28,
+  }
+
+  // 同日 alignmentMap: 2026/2/N → 2025/2/N（1:1）
+  const sameDateAlignment = Array.from({ length: 28 }, (_, i) =>
+    makeAlignmentEntry(2025, 2, i + 1, 2026, 2, i + 1),
+  )
+
+  // 同曜日 alignmentMap: offset=1 なので 2025/2/2 から始まり、最終日は 2025/3/1
+  const sameDowAlignment = [
+    ...Array.from({ length: 27 }, (_, i) => makeAlignmentEntry(2025, 2, i + 2, 2026, 2, i + 1)),
+    makeAlignmentEntry(2025, 3, 1, 2026, 2, 28), // 月跨ぎ: 3月1日(土)
+  ]
+
+  // 期待値を手計算
+  const sameDateExpectedSales = feb2025DailySales.reduce((s, v) => s + v, 0)
+  // 同曜日: day 2-28 + 3月1日 = feb[1..27] + mar1Sales
+  const sameDowExpectedSales = feb2025DailySales.slice(1).reduce((s, v) => s + v, 0) + mar1Sales
+
+  it('同日KPI: 2月1日〜28日の合計が正しい', () => {
+    const result = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDateAlignment,
+      sourceMonthCtx,
+    )
+
+    expect(result.sales).toBe(sameDateExpectedSales)
+    expect(result.dailyMapping).toHaveLength(28)
+    // 1日目 = 2025/2/1(土) の売上
+    expect(result.dailyMapping[0].prevSales).toBe(feb2025DailySales[0])
+    // 最終日 = 2025/2/28(金) の売上
+    expect(result.dailyMapping[27].prevSales).toBe(feb2025DailySales[27])
+  })
+
+  it('同曜日KPI: 2月2日〜28日 + 3月1日の合計（月跨ぎ含む）', () => {
+    const result = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDowAlignment,
+      sourceMonthCtx,
+    )
+
+    expect(result.sales).toBe(sameDowExpectedSales)
+    expect(result.dailyMapping).toHaveLength(28)
+    // 1日目 → prevDay は 2025/2/2(日)
+    expect(result.dailyMapping[0].prevSales).toBe(feb2025DailySales[1]) // day 2
+    // 最終日（当期2/28） → prevDay は 3月1日(土)、allAgg の day=29 から取得
+    const lastEntry = result.dailyMapping[27]
+    expect(lastEntry.currentDay).toBe(28)
+    expect(lastEntry.prevSales).toBe(mar1Sales) // 3月1日の売上
+  })
+
+  it('同曜日と同日の売上が異なる（2/1 が外れ 3/1 が入る）', () => {
+    const sameDateResult = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDateAlignment,
+      sourceMonthCtx,
+    )
+    const sameDowResult = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDowAlignment,
+      sourceMonthCtx,
+    )
+
+    // 同日: 2/1〜2/28、同曜日: 2/2〜2/28 + 3/1
+    // 差分 = 3月1日の売上 - 2月1日の売上
+    const expectedDiff = mar1Sales - feb2025DailySales[0]
+    expect(sameDowResult.sales - sameDateResult.sales).toBe(expectedDiff)
+    // 2つの値は等しくない
+    expect(sameDowResult.sales).not.toBe(sameDateResult.sales)
+  })
+
+  it('sourceMonthCtx なしでは 3月1日 の lookup が誤る（day=1 で 2月1日を返す）', () => {
+    // sourceMonthCtx を渡さない場合、3月1日の sourceDate.day=1 がそのまま使われ
+    // allAgg[1]（2月1日のデータ）を引いてしまう
+    const resultWithoutCtx = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDowAlignment,
+      // sourceMonthCtx を渡さない
+    )
+
+    // 月跨ぎ日の売上が 2月1日の値（2047609）になってしまう（本来は 3月1日の 2150000）
+    const lastEntry = resultWithoutCtx.dailyMapping[27]
+    expect(lastEntry.prevSales).toBe(feb2025DailySales[0]) // バグ: 2月1日の値を返す
+    expect(lastEntry.prevSales).not.toBe(mar1Sales) // 本来あるべき値ではない
+  })
+
+  it('aggregateDailyByAlignment も月跨ぎを正しく解決する', () => {
+    const result = aggregateDailyByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDowAlignment,
+      undefined,
+      sourceMonthCtx,
+    )
+
+    expect(result.hasPrevYear).toBe(true)
+    expect(result.totalSales).toBe(sameDowExpectedSales)
+    expect(result.daily.size).toBe(28)
+
+    // day=28 のエントリが 3月1日の売上を持つ
+    const day28 = result.daily.get(28)
+    expect(day28).toBeDefined()
+    expect(day28!.sales).toBe(mar1Sales)
+  })
+
+  it('不変条件: Σ(dailyMapping.prevSales) === entry.sales（月跨ぎでも）', () => {
+    const result = aggregateKpiByAlignment(
+      allAgg,
+      undefined,
+      ['S1'],
+      sameDowAlignment,
+      sourceMonthCtx,
+    )
+
+    expect(result.dailyMapping.reduce((s, d) => s + d.prevSales, 0)).toBe(result.sales)
   })
 })
