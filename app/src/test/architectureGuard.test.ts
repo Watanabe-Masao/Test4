@@ -490,7 +490,6 @@ describe('Architecture Guard', () => {
     'components/charts/HeatmapChart.helpers.ts',
     'components/charts/HourlyProfileChart.tsx',
     'components/charts/TimeSlotChart.tsx',
-    'components/charts/TimeSlotChart.vm.ts',
     'components/charts/YoYChart.tsx',
     'components/charts/ShapleyTimeSeriesChart.tsx',
     // ── ページ・ウィジェット（Phase C で移行） ──
@@ -504,7 +503,6 @@ describe('Architecture Guard', () => {
     'pages/Dashboard/DashboardPage.tsx',
     'pages/Dashboard/widgets/ConditionMatrixTable.styles.ts',
     'pages/Dashboard/widgets/DayDetailModal.tsx',
-    'pages/Dashboard/widgets/DayDetailModal.vm.ts',
     'pages/Dashboard/widgets/MonthlyCalendar.tsx',
     'pages/Dashboard/widgets/RangeComparison.tsx',
     'pages/Dashboard/widgets/YoYWaterfallChart.tsx',
