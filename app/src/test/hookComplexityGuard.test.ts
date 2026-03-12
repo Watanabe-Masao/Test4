@@ -476,6 +476,187 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
   })
 })
 
+// ─── 第3期: Infrastructure 層ファイルサイズ制限 ─────────────
+
+describe('Infrastructure 層の分割後ファイル行数制限', () => {
+  const fileLimits: [string, number][] = [
+    // Phase 1: dataLoader 分割
+    ['infrastructure/duckdb/dataLoader.ts', 250],
+    ['infrastructure/duckdb/dataConversions.ts', 540],
+    // Phase 2: duckdbWorker 分割
+    ['infrastructure/duckdb/worker/duckdbWorker.ts', 200],
+    ['infrastructure/duckdb/worker/workerHandlers.ts', 350],
+    // Phase 3: categoryTimeSales 分割
+    ['infrastructure/duckdb/queries/categoryTimeSales.ts', 150],
+    ['infrastructure/duckdb/queries/ctsHourlyQueries.ts', 200],
+    ['infrastructure/duckdb/queries/ctsHierarchyQueries.ts', 260],
+    // Phase 4: monthlyDataOperations 分割
+    ['infrastructure/storage/internal/monthlyDataOperations.ts', 100],
+    ['infrastructure/storage/internal/monthlyDataSave.ts', 220],
+    ['infrastructure/storage/internal/monthlyDataLoad.ts', 270],
+    // Phase 5: backupExporter 分割
+    ['infrastructure/storage/backupExporter.ts', 350],
+    ['infrastructure/storage/backupFormat.ts', 120],
+    // Phase 6: ImportDataProcessor 整理
+    ['infrastructure/ImportDataProcessor.ts', 400],
+    ['infrastructure/storeIdNormalization.ts', 80],
+  ]
+
+  it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lineCount = content.split('\n').length
+    expect(lineCount, `${relPath} は ${lineCount} 行 (上限: ${maxLines})`).toBeLessThanOrEqual(
+      maxLines,
+    )
+  })
+
+  it('未登録の infrastructure .ts ファイルが 400 行以下', () => {
+    const infraDir = path.join(SRC_DIR, 'infrastructure')
+    const registeredPaths = new Set(fileLimits.map(([p]) => p))
+    const files = collectTsFiles(infraDir)
+    const violations: string[] = []
+
+    // 除外: schemas.ts (DDL定数), clipJs.ts (テンプレートリテラル)
+    const excludeFiles = new Set([
+      'infrastructure/duckdb/schemas.ts',
+      'infrastructure/export/clipJs.ts',
+    ])
+
+    for (const file of files) {
+      const relPath = rel(file)
+      if (registeredPaths.has(relPath)) continue
+      if (excludeFiles.has(relPath)) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const lineCount = content.split('\n').length
+      if (lineCount > 400) {
+        violations.push(`${relPath}: ${lineCount}行 (汎用上限: 400)`)
+      }
+    }
+
+    expect(
+      violations,
+      `400行超の未登録 infrastructure ファイルが検出されました:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+})
+
+// ─── 第3期: Domain 層ファイルサイズ制限 ──────────────────
+
+describe('Domain 層の分割後ファイル行数制限', () => {
+  const fileLimits: [string, number][] = [
+    // Phase 7: formulaRegistry 分割
+    ['domain/constants/formulaRegistry.ts', 60],
+    ['domain/constants/formulaRegistryCore.ts', 200],
+    ['domain/constants/formulaRegistryBusiness.ts', 340],
+    // Phase 8: calculations/utils 分割
+    ['domain/calculations/utils.ts', 100],
+    ['domain/calculations/averageDivisor.ts', 120],
+    ['domain/calculations/dataDetection.ts', 80],
+  ]
+
+  it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lineCount = content.split('\n').length
+    expect(lineCount, `${relPath} は ${lineCount} 行 (上限: ${maxLines})`).toBeLessThanOrEqual(
+      maxLines,
+    )
+  })
+
+  it('未登録の domain .ts ファイルが 300 行以下', () => {
+    const domainDir = path.join(SRC_DIR, 'domain')
+    const registeredPaths = new Set(fileLimits.map(([p]) => p))
+    const files = collectTsFiles(domainDir)
+    const violations: string[] = []
+
+    // 除外: metricDefs.ts (凝集的カタログ), PeriodSelection.ts (300行境界)
+    const excludeFiles = new Set([
+      'domain/constants/metricDefs.ts',
+      'domain/models/PeriodSelection.ts',
+    ])
+
+    for (const file of files) {
+      const relPath = rel(file)
+      if (registeredPaths.has(relPath)) continue
+      if (excludeFiles.has(relPath)) continue
+
+      const content = fs.readFileSync(file, 'utf-8')
+      const lineCount = content.split('\n').length
+      if (lineCount > 300) {
+        violations.push(`${relPath}: ${lineCount}行 (汎用上限: 300)`)
+      }
+    }
+
+    expect(
+      violations,
+      `300行超の未登録 domain ファイルが検出されました:\n${violations.join('\n')}`,
+    ).toEqual([])
+  })
+})
+
+// ─── 第3期: Application usecases ファイルサイズ制限 ─────────
+
+describe('Application usecases の分割後ファイル行数制限', () => {
+  const fileLimits: [string, number][] = [
+    // Phase 9: FileImportService 分割
+    ['application/usecases/import/FileImportService.ts', 220],
+    ['application/usecases/import/importValidation.ts', 450],
+    // Phase 10: periodMetricsCalculator + ExplanationService 分割
+    ['application/usecases/calculation/periodMetricsCalculator.ts', 300],
+    ['application/usecases/calculation/periodMetricsTypes.ts', 140],
+    ['application/usecases/explanation/ExplanationService.ts', 280],
+    ['application/usecases/explanation/salesExplanations.ts', 230],
+  ]
+
+  it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lineCount = content.split('\n').length
+    expect(lineCount, `${relPath} は ${lineCount} 行 (上限: ${maxLines})`).toBeLessThanOrEqual(
+      maxLines,
+    )
+  })
+})
+
+// ─── 第3期: 分割後の純粋モジュールに React import がない ──────
+
+describe('第3期: 分割後の純粋モジュールに React import がない', () => {
+  const pureModules = [
+    // Infrastructure
+    'infrastructure/duckdb/dataConversions.ts',
+    'infrastructure/duckdb/worker/workerHandlers.ts',
+    'infrastructure/duckdb/queries/ctsHourlyQueries.ts',
+    'infrastructure/duckdb/queries/ctsHierarchyQueries.ts',
+    'infrastructure/storage/internal/monthlyDataSave.ts',
+    'infrastructure/storage/internal/monthlyDataLoad.ts',
+    'infrastructure/storage/backupFormat.ts',
+    'infrastructure/storeIdNormalization.ts',
+    // Domain
+    'domain/constants/formulaRegistryCore.ts',
+    'domain/constants/formulaRegistryBusiness.ts',
+    'domain/calculations/averageDivisor.ts',
+    'domain/calculations/dataDetection.ts',
+    // Application
+    'application/usecases/import/importValidation.ts',
+    'application/usecases/calculation/periodMetricsTypes.ts',
+    'application/usecases/explanation/salesExplanations.ts',
+  ]
+
+  it.each(pureModules)('%s に React import がない', (relPath) => {
+    const filePath = path.join(SRC_DIR, relPath)
+    if (!fs.existsSync(filePath)) return
+    const content = fs.readFileSync(filePath, 'utf-8')
+    expect(content, `${relPath} に React import が含まれています`).not.toMatch(
+      /import\s.*from\s+['"]react['"]/,
+    )
+  })
+})
+
 // ─── R5: facade ファイルの分岐数制限 ─────────────────────
 
 describe('R5: facade ファイルの分岐が 5 以下', () => {
