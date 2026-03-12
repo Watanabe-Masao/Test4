@@ -11,7 +11,7 @@ import type {
   HourlyProfileRow,
 } from '@/infrastructure/duckdb/queries/features'
 import type { YoyDailyRow } from '@/infrastructure/duckdb/queries/yoyComparison'
-import { alignRows, toYoyDailyRows } from '@/application/comparison/alignRows'
+import { alignRows, toYoyDailyRows, type CompareMode } from '@/application/comparison/alignRows'
 import {
   movingAverage,
   stddevPop,
@@ -179,12 +179,17 @@ export function computeDailyFeatures(
  *
  * Comparison/Alignment 層（alignRows）で整列し、
  * Chart VM 変換（toYoyDailyRows）で YoyDailyRow 互換 shape に戻す。
+ *
+ * compareMode と dowOffset を渡すと、current 行ごとに比較先を解決する。
+ * 省略時は sameDate / offset=0（後方互換）。
  */
 export function computeYoyDaily(
   curRows: readonly StoreDaySummaryRow[],
   prevRows: readonly StoreDaySummaryRow[],
+  compareMode: CompareMode = 'sameDate',
+  dowOffset: number = 0,
 ): YoyDailyRow[] {
-  const aligned = alignRows(curRows, prevRows)
+  const aligned = alignRows(curRows, prevRows, compareMode, dowOffset)
   return toYoyDailyRows(aligned)
 }
 

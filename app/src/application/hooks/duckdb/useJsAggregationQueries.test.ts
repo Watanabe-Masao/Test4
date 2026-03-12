@@ -393,7 +393,9 @@ describe('computeYoyDaily', () => {
     const result = computeYoyDaily(curRows, [])
     expect(result).toHaveLength(2)
     expect(result[0].prevSales).toBeNull()
-    expect(result[0].prevDateKey).toBeNull()
+    // 新設計: compareDateKey は解決済みの比較先日付を常に保持する
+    // （データが存在しなくても「どの日付を探したか」を示す）
+    expect(result[0].prevDateKey).toBe('2025-01-01')
     expect(result[0].curSales).toBe(100)
   })
 

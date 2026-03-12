@@ -136,6 +136,44 @@ export function useDuckDBDailyCumulative(...) {
 └── 分析計算（差分・累積・移動平均等）→ JS Analysis（domain/calculations/rawAggregation.ts）
 ```
 
+## Comparison / Alignment 層の責務
+
+`application/comparison/alignRows.ts` が比較先の解決を一元的に担う。
+
+### 整列モデル: current row 起点の date pair 解決
+
+旧設計では current / previous を `storeId|month|day` で箱分けして merge していたが、
+以下の問題があった:
+- `year` がキーに含まれないため異なる年のデータが衝突
+- `sameDate` と `sameDayOfWeek` を区別できない
+- 月跨ぎ時に対応関係が中間表現に残らない
+
+新設計では:
+1. previous 行を `storeId|dateKey` でインデックス化
+2. current 行ごとに `compareMode` + `dowOffset` から比較先 dateKey を算出
+3. previous インデックスから O(1) でルックアップ
+
+```
+alignmentKey = storeId|currentDateKey|compareDateKey|compareMode
+```
+
+**結果:** 月跨ぎ・2月末・leap year を Date 演算で自然に吸収する。
+
+### 比較先解決ロジック
+
+| compareMode | 解決方法 |
+|---|---|
+| `sameDate` | `Date(year-1, month-1, day)` — 前年同月同日 |
+| `sameDayOfWeek` | `Date(year-1, month-1, day+dowOffset)` — 前年同月 (day+offset) 日 |
+
+Date コンストラクタが月跨ぎ（3/32→4/1）や 2月末（2/29 の非 leap year）を自動正規化する。
+
+### ComparisonScope.alignmentMap との関係
+
+`domain/models/ComparisonScope.ts` の `AlignmentEntry`（sourceDate ↔ targetDate ペア）は
+JS集計（buildComparisonAggregation）で使用する。`alignRows` は DuckDB 行の整列に特化し、
+`resolveCompareDateKey` で同等の日付解決を行う。両者は独立だが同じ設計思想を共有する。
+
 ## 出力の違い
 
 | | JS 計算エンジン（確定値） | JS 集約エンジン（探索値） | DuckDB SQL |
