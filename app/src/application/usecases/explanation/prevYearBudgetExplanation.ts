@@ -20,6 +20,7 @@ import type {
   PrevYearMonthlyKpiEntry,
 } from '@/application/hooks/usePrevYearMonthlyKpi'
 import { safeDivide } from '@/domain/calculations/utils'
+import { formatCurrency } from '@/domain/formatting'
 
 function inp(
   name: string,
@@ -208,7 +209,7 @@ export function generatePrevYearBudgetExplanations(
       const impact = dc.diff * dowAvg
       dowInputs.push(
         inp(
-          `${DOW_LABELS[dc.dow]}曜: ${dc.previousCount}→${dc.currentCount} (${dc.diff >= 0 ? '+' : ''}${dc.diff}) × 日平均${Math.round(dowAvg).toLocaleString('ja-JP')}`,
+          `${DOW_LABELS[dc.dow]}曜: ${dc.previousCount}→${dc.currentCount} (${dc.diff >= 0 ? '+' : ''}${dc.diff}) × 日平均${formatCurrency(dowAvg)}`,
           impact,
           'yen',
         ),

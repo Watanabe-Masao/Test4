@@ -268,8 +268,8 @@ export function ExecSummaryBarWidget(ctx: WidgetContext) {
                   <ExecSummaryHint>根拠</ExecSummaryHint>
                   <ExecSummaryLabel>客数・客単価</ExecSummaryLabel>
                   <ExecSummarySub>
-                    客数: {r.totalCustomers.toLocaleString('ja-JP')}人 / 日平均:{' '}
-                    {Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人
+                    客数: {formatCurrency(r.totalCustomers)}人 / 日平均:{' '}
+                    {formatCurrency(r.averageCustomersPerDay)}人
                   </ExecSummarySub>
                   <ExecSummaryValue>{formatCurrency(txValue)}円</ExecSummaryValue>
                   {custRatio != null && (
