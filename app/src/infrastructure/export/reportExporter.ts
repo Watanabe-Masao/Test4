@@ -104,13 +104,11 @@ export function exportStoreKpiReport(
       store?.name ?? storeId,
       result.totalSales,
       result.budget ?? null,
-      result.budgetAchievementRate ? Math.round(result.budgetAchievementRate * 1000) / 10 : null,
+      result.budgetAchievementRate ? formatPercent(result.budgetAchievementRate) : null,
       result.invMethodGrossProfit ?? null,
-      result.invMethodGrossProfitRate
-        ? Math.round(result.invMethodGrossProfitRate * 1000) / 10
-        : null,
+      result.invMethodGrossProfitRate ? formatPercent(result.invMethodGrossProfitRate) : null,
       result.estMethodMargin ?? null,
-      result.estMethodMarginRate ? Math.round(result.estMethodMarginRate * 1000) / 10 : null,
+      result.estMethodMarginRate ? formatPercent(result.estMethodMarginRate) : null,
       result.totalCustomers ?? null,
       txValue,
       result.averageDailySales ? Math.round(result.averageDailySales) : null,
@@ -144,9 +142,7 @@ export function exportMonthlyPLReport(
     ['粗利(在庫法)', result.invMethodGrossProfit ?? null, ''],
     [
       '粗利率(在庫法)',
-      result.invMethodGrossProfitRate
-        ? `${(result.invMethodGrossProfitRate * 100).toFixed(1)}%`
-        : null,
+      result.invMethodGrossProfitRate ? formatPercent(result.invMethodGrossProfitRate) : null,
       '',
     ],
     [''],
@@ -154,7 +150,7 @@ export function exportMonthlyPLReport(
     ['推定マージン', result.estMethodMargin ?? null, '※実績粗利ではありません（理論値）'],
     [
       '推定マージン率',
-      result.estMethodMarginRate ? `${(result.estMethodMarginRate * 100).toFixed(1)}%` : null,
+      result.estMethodMarginRate ? formatPercent(result.estMethodMarginRate) : null,
       '',
     ],
     ['推定期末棚卸', result.estMethodClosingInventory ?? null, ''],
@@ -162,18 +158,14 @@ export function exportMonthlyPLReport(
     ['予算', result.budget ?? null, ''],
     [
       '予算達成率',
-      result.budgetAchievementRate ? `${(result.budgetAchievementRate * 100).toFixed(1)}%` : null,
+      result.budgetAchievementRate ? formatPercent(result.budgetAchievementRate) : null,
       '',
     ],
-    [
-      '予算進捗率',
-      result.budgetProgressRate ? `${(result.budgetProgressRate * 100).toFixed(1)}%` : null,
-      '',
-    ],
+    ['予算進捗率', result.budgetProgressRate ? formatPercent(result.budgetProgressRate) : null, ''],
     ['着地予測', result.projectedSales ? Math.round(result.projectedSales) : null, ''],
     [
       '予測達成率',
-      result.projectedAchievement ? `${(result.projectedAchievement * 100).toFixed(1)}%` : null,
+      result.projectedAchievement ? formatPercent(result.projectedAchievement) : null,
       '',
     ],
   ]
@@ -203,7 +195,7 @@ function formatInputsList(inputs: Explanation['inputs']): string {
         inp.unit === 'yen'
           ? formatCurrency(inp.value)
           : inp.unit === 'rate'
-            ? formatPercent(inp.value, 1)
+            ? formatPercent(inp.value)
             : inp.value.toLocaleString('ja-JP')
       return `${inp.name}=${val}`
     })

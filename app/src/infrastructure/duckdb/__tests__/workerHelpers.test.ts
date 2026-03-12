@@ -1,26 +1,10 @@
 /**
  * DuckDB Worker ヘルパー関数のユニットテスト
  *
- * snakeToCamel と structRowToObject は Worker 内部関数だが、
- * ロジックの正確性を確認するためテスト用に同等の実装をテストする。
+ * snakeToCamel と structRowToObject は rowConversion.ts に定義された共有関数。
  */
 import { describe, it, expect } from 'vitest'
-
-// Worker 内部関数は直接 import できないため、同等のロジックをテスト
-// (duckdbWorker.ts は Worker エントリポイントで import.meta.url を使うため)
-
-function snakeToCamel(s: string): string {
-  return s.replace(/_([a-z0-9])/g, (_, c: string) => c.toUpperCase())
-}
-
-function structRowToObject(row: Record<string, unknown>): Record<string, unknown> {
-  const obj: Record<string, unknown> = {}
-  for (const key of Object.keys(row)) {
-    const val = row[key]
-    obj[snakeToCamel(key)] = typeof val === 'bigint' ? Number(val) : val
-  }
-  return obj
-}
+import { snakeToCamel, structRowToObject } from '../rowConversion'
 
 describe('snakeToCamel', () => {
   it('単純な snake_case', () => {
