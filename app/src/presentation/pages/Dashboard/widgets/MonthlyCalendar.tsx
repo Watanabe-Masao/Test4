@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
@@ -55,7 +55,7 @@ function fmtSenDiff(n: number): string {
 }
 
 export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
-  const { result: r, daysInMonth, year, month, prevYear } = ctx
+  const { result: r, daysInMonth, year, month, prevYear, fmtCurrency } = ctx
   const [pins, setPins] = useState<Map<number, number>>(new Map())
   const [pinDay, setPinDay] = useState<number | null>(null)
   const [detailDay, setDetailDay] = useState<number | null>(null)
@@ -453,23 +453,23 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
               </div>
               <div>
                 <IntervalMetricLabel>売上</IntervalMetricLabel>
-                <IntervalMetricValue>{formatCurrency(iv.totalSales)}</IntervalMetricValue>
+                <IntervalMetricValue>{fmtCurrency(iv.totalSales)}</IntervalMetricValue>
               </div>
               <div>
                 <IntervalMetricLabel>粗利</IntervalMetricLabel>
-                <IntervalMetricValue>{formatCurrency(iv.grossProfit)}</IntervalMetricValue>
+                <IntervalMetricValue>{fmtCurrency(iv.grossProfit)}</IntervalMetricValue>
               </div>
               <div>
                 <IntervalMetricLabel>売上原価</IntervalMetricLabel>
-                <IntervalMetricValue>{formatCurrency(iv.cogs)}</IntervalMetricValue>
+                <IntervalMetricValue>{fmtCurrency(iv.cogs)}</IntervalMetricValue>
               </div>
               <div>
                 <IntervalMetricLabel>期首在庫</IntervalMetricLabel>
-                <IntervalMetricValue>{formatCurrency(iv.openingInventory)}</IntervalMetricValue>
+                <IntervalMetricValue>{fmtCurrency(iv.openingInventory)}</IntervalMetricValue>
               </div>
               <div>
                 <IntervalMetricLabel>期末在庫</IntervalMetricLabel>
-                <IntervalMetricValue>{formatCurrency(iv.closingInventory)}</IntervalMetricValue>
+                <IntervalMetricValue>{fmtCurrency(iv.closingInventory)}</IntervalMetricValue>
               </div>
             </IntervalCard>
           ))}

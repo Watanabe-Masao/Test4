@@ -1,19 +1,8 @@
 /**
  * useComparisonModule — 比較サブシステムの唯一のファサード
  *
- * 比較に関するすべてのロジック（scope構築・データ読込・集計・KPI・曜日ギャップ）を
- * 1つのフックに統合する。UI は この1フックだけ呼べばいい。
- *
- * ## 旧ロジックとの対応
- *
- * | 旧 | 新（このモジュール内部） |
- * |---|---|
- * | useAutoLoadPrevYear() | useLoadComparisonData(scope) |
- * | usePrevYearData(elapsedDays) | aggregateDailyByAlignment() |
- * | usePrevYearMonthlyKpi() | aggregateKpiByAlignment() |
- * | useDowGapAnalysis() | dowGap 算出 |
- * | ComparisonFrame構築 | scope から導出 |
- * | buildPrevYearScopeFromSelection() | scope.effectivePeriod2 から導出 |
+ * scope構築 → データ読込 → daily/kpi集計 → dowGap算出 を一括で行い、
+ * 比較データの唯一の生産者として機能する。UIはこの1フックだけ呼べばいい。
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -23,8 +12,11 @@ import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import type { ComparisonLoadStatus } from './useLoadComparisonData'
 import { useLoadComparisonData } from './useLoadComparisonData'
-import type { PrevYearData } from './usePrevYearData'
-import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './usePrevYearMonthlyKpi'
+import type {
+  PrevYearData,
+  PrevYearMonthlyKpi,
+  PrevYearMonthlyKpiEntry,
+} from '@/application/comparison/comparisonTypes'
 import type { ComparisonFrame, PrevYearScope } from '@/domain/models/ComparisonFrame'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'

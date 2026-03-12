@@ -5,6 +5,7 @@
  * レンダリングのみに専念する。
  */
 import { useMemo } from 'react'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { buildTxValueDetailVm, buildDailySalesDetailVm } from './conditionPanelSalesDetail.vm'
 import { SIGNAL_COLORS } from './conditionSummaryUtils'
 import {
@@ -38,9 +39,10 @@ export function TxValueDetailTable({
   expandedStore,
   onExpandToggle,
 }: TxValueDetailProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildTxValueDetailVm(sortedStoreEntries, stores, result),
-    [sortedStoreEntries, stores, result],
+    () => buildTxValueDetailVm(sortedStoreEntries, stores, result, fmtCurrency),
+    [sortedStoreEntries, stores, result, fmtCurrency],
   )
 
   const hasExpanded = expandedStore != null
@@ -135,9 +137,18 @@ export function DailySalesDetailTable({
   expandedStore,
   onExpandToggle,
 }: DailySalesDetailProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildDailySalesDetailVm(sortedStoreEntries, stores, result, effectiveConfig, daysInMonth),
-    [sortedStoreEntries, stores, result, effectiveConfig, daysInMonth],
+    () =>
+      buildDailySalesDetailVm(
+        sortedStoreEntries,
+        stores,
+        result,
+        effectiveConfig,
+        daysInMonth,
+        fmtCurrency,
+      ),
+    [sortedStoreEntries, stores, result, effectiveConfig, daysInMonth, fmtCurrency],
   )
 
   return (

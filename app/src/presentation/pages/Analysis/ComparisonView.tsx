@@ -1,11 +1,13 @@
 import { Card, CardTitle } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import { TableWrapper, Table, Th, Td, Tr } from './AnalysisPage.styles'
 
 /** 比較モード: 店舗別予算メトリクスを横並び表示 */
 export function ComparisonView({ results }: { results: StoreResult[] }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const storeAnalyses = results.map((r) => {
     const actualGrossProfit = r.invMethodGrossProfit ?? r.estMethodMargin
     const actualGrossProfitRate = getEffectiveGrossProfitRate(r)
@@ -29,13 +31,13 @@ export function ComparisonView({ results }: { results: StoreResult[] }) {
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>予算</Td>
               {storeAnalyses.map(({ r }) => (
-                <Td key={r.storeId}>{formatCurrency(r.budget)}</Td>
+                <Td key={r.storeId}>{fmtCurrency(r.budget)}</Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>実績売上</Td>
               {storeAnalyses.map(({ r }) => (
-                <Td key={r.storeId}>{formatCurrency(r.totalSales)}</Td>
+                <Td key={r.storeId}>{fmtCurrency(r.totalSales)}</Td>
               ))}
             </Tr>
             <Tr>
@@ -59,7 +61,7 @@ export function ComparisonView({ results }: { results: StoreResult[] }) {
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>月末予測売上</Td>
               {storeAnalyses.map(({ r }) => (
-                <Td key={r.storeId}>{formatCurrency(r.projectedSales)}</Td>
+                <Td key={r.storeId}>{fmtCurrency(r.projectedSales)}</Td>
               ))}
             </Tr>
             <Tr>
@@ -82,20 +84,20 @@ export function ComparisonView({ results }: { results: StoreResult[] }) {
                   $positive={r.remainingBudget < 0}
                   $negative={r.remainingBudget > 0}
                 >
-                  {formatCurrency(r.remainingBudget)}
+                  {fmtCurrency(r.remainingBudget)}
                 </Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>粗利額予算</Td>
               {storeAnalyses.map(({ r }) => (
-                <Td key={r.storeId}>{formatCurrency(r.grossProfitBudget)}</Td>
+                <Td key={r.storeId}>{fmtCurrency(r.grossProfitBudget)}</Td>
               ))}
             </Tr>
             <Tr>
               <Td style={{ textAlign: 'left', fontWeight: 600 }}>粗利額実績</Td>
               {storeAnalyses.map(({ r, actualGrossProfit }) => (
-                <Td key={r.storeId}>{formatCurrency(actualGrossProfit)}</Td>
+                <Td key={r.storeId}>{fmtCurrency(actualGrossProfit)}</Td>
               ))}
             </Tr>
             <Tr>

@@ -6,6 +6,7 @@
  */
 import { useMemo } from 'react'
 import { DISCOUNT_TYPES } from '@/domain/models'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { buildGpRateDetailVm, buildDiscountRateDetailVm } from './conditionPanelProfitability.vm'
 import {
   DetailHeader,
@@ -32,6 +33,7 @@ export function GpRateDetailTable({
   elapsedDays,
   daysInMonth,
 }: DetailPanelProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
     () =>
       buildGpRateDetailVm(
@@ -41,8 +43,9 @@ export function GpRateDetailTable({
         effectiveConfig,
         elapsedDays,
         daysInMonth,
+        fmtCurrency,
       ),
-    [sortedStoreEntries, stores, result, effectiveConfig, elapsedDays, daysInMonth],
+    [sortedStoreEntries, stores, result, effectiveConfig, elapsedDays, daysInMonth, fmtCurrency],
   )
 
   return (
@@ -154,9 +157,11 @@ export function DiscountRateDetailTable({
   displayMode,
   onDisplayModeChange,
 }: DetailPanelProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildDiscountRateDetailVm(sortedStoreEntries, stores, result, effectiveConfig),
-    [sortedStoreEntries, stores, result, effectiveConfig],
+    () =>
+      buildDiscountRateDetailVm(sortedStoreEntries, stores, result, effectiveConfig, fmtCurrency),
+    [sortedStoreEntries, stores, result, effectiveConfig, fmtCurrency],
   )
 
   return (

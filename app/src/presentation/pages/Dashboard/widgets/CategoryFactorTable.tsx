@@ -4,7 +4,7 @@
  * 要因分解の結果をテーブル形式で表示する。
  * ドリルダウン対応のカテゴリ名セルと合計行を含む。
  */
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { Table, DrillIcon, NameCell, ValCell, valColor } from './CategoryFactorBreakdown.styles'
 import type { DecompLevel, FactorItem, FactorTotals } from './categoryFactorBreakdown.types'
 
@@ -29,6 +29,7 @@ export function CategoryFactorTable({
   curLabel,
   onDrill,
 }: CategoryFactorTableProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   return (
     <Table>
       <thead>
@@ -52,46 +53,46 @@ export function CategoryFactorTable({
               {item.name}
               {item.hasChildren && <DrillIcon>&#9656;</DrillIcon>}
             </NameCell>
-            <ValCell>{formatCurrency(item.prevAmount)}</ValCell>
-            <ValCell>{formatCurrency(item.curAmount)}</ValCell>
+            <ValCell>{fmtCurrency(item.prevAmount)}</ValCell>
+            <ValCell>{fmtCurrency(item.curAmount)}</ValCell>
             <ValCell $color={valColor(item.totalChange)}>
               {item.totalChange >= 0 ? '+' : ''}
-              {formatCurrency(item.totalChange)}
+              {fmtCurrency(item.totalChange)}
             </ValCell>
             {hasCust && (
               <ValCell $color={valColor(item.custEffect)}>
                 {item.custEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.custEffect))}
+                {fmtCurrency(Math.round(item.custEffect))}
               </ValCell>
             )}
             {activeLevel === 2 && (
               <ValCell $color={valColor(item.ticketEffect)}>
                 {item.ticketEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.ticketEffect))}
+                {fmtCurrency(Math.round(item.ticketEffect))}
               </ValCell>
             )}
             {activeLevel >= 3 && (
               <ValCell $color={valColor(item.qtyEffect)}>
                 {item.qtyEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.qtyEffect))}
+                {fmtCurrency(Math.round(item.qtyEffect))}
               </ValCell>
             )}
             {activeLevel === 3 && (
               <ValCell $color={valColor(item.priceEffect)}>
                 {item.priceEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.priceEffect))}
+                {fmtCurrency(Math.round(item.priceEffect))}
               </ValCell>
             )}
             {activeLevel === 5 && (
               <ValCell $color={valColor(item.pricePureEffect)}>
                 {item.pricePureEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.pricePureEffect))}
+                {fmtCurrency(Math.round(item.pricePureEffect))}
               </ValCell>
             )}
             {activeLevel === 5 && (
               <ValCell $color={valColor(item.mixEffect)}>
                 {item.mixEffect >= 0 ? '+' : ''}
-                {formatCurrency(Math.round(item.mixEffect))}
+                {fmtCurrency(Math.round(item.mixEffect))}
               </ValCell>
             )}
           </tr>
@@ -100,46 +101,46 @@ export function CategoryFactorTable({
       <tfoot>
         <tr>
           <th style={{ textAlign: 'left' }}>合計</th>
-          <ValCell as="th">{formatCurrency(totals.prevAmount)}</ValCell>
-          <ValCell as="th">{formatCurrency(totals.curAmount)}</ValCell>
+          <ValCell as="th">{fmtCurrency(totals.prevAmount)}</ValCell>
+          <ValCell as="th">{fmtCurrency(totals.curAmount)}</ValCell>
           <ValCell as="th" $color={valColor(totals.totalChange)}>
             {totals.totalChange >= 0 ? '+' : ''}
-            {formatCurrency(totals.totalChange)}
+            {fmtCurrency(totals.totalChange)}
           </ValCell>
           {hasCust && (
             <ValCell as="th" $color={valColor(totals.custEffect)}>
               {totals.custEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.custEffect))}
+              {fmtCurrency(Math.round(totals.custEffect))}
             </ValCell>
           )}
           {activeLevel === 2 && (
             <ValCell as="th" $color={valColor(totals.ticketEffect)}>
               {totals.ticketEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.ticketEffect))}
+              {fmtCurrency(Math.round(totals.ticketEffect))}
             </ValCell>
           )}
           {activeLevel >= 3 && (
             <ValCell as="th" $color={valColor(totals.qtyEffect)}>
               {totals.qtyEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.qtyEffect))}
+              {fmtCurrency(Math.round(totals.qtyEffect))}
             </ValCell>
           )}
           {activeLevel === 3 && (
             <ValCell as="th" $color={valColor(totals.priceEffect)}>
               {totals.priceEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.priceEffect))}
+              {fmtCurrency(Math.round(totals.priceEffect))}
             </ValCell>
           )}
           {activeLevel === 5 && (
             <ValCell as="th" $color={valColor(totals.pricePureEffect)}>
               {totals.pricePureEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.pricePureEffect))}
+              {fmtCurrency(Math.round(totals.pricePureEffect))}
             </ValCell>
           )}
           {activeLevel === 5 && (
             <ValCell as="th" $color={valColor(totals.mixEffect)}>
               {totals.mixEffect >= 0 ? '+' : ''}
-              {formatCurrency(Math.round(totals.mixEffect))}
+              {fmtCurrency(Math.round(totals.mixEffect))}
             </ValCell>
           )}
         </tr>

@@ -2,8 +2,9 @@ import type { StoreResult } from '@/domain/models/StoreResult'
 import type { AppSettings } from '@/domain/models/Settings'
 import type { MetricId } from '@/domain/models'
 import { Card, CardTitle, KpiCard, KpiGrid } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/domain/constants/categories'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -41,6 +42,8 @@ export function ReportSummaryGrid({
   daysInMonth,
   onExplain,
 }: ReportSummaryGridProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+
   // Category data
   const categoryData = CATEGORY_ORDER.flatMap((cat) => {
     const pair = r.categoryTotals.get(cat)
@@ -66,13 +69,13 @@ export function ReportSummaryGrid({
         <KpiGrid>
           <KpiCard
             label="総売上高"
-            value={formatCurrency(r.totalSales)}
+            value={fmtCurrency(r.totalSales)}
             accent={palette.primary}
             onClick={() => onExplain('salesTotal')}
           />
           <KpiCard
             label="【在庫法】実績粗利益"
-            value={r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
+            value={r.invMethodGrossProfit != null ? fmtCurrency(r.invMethodGrossProfit) : '-'}
             subText={
               r.invMethodGrossProfitRate != null
                 ? `実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)}`
@@ -88,14 +91,14 @@ export function ReportSummaryGrid({
           <KpiCard
             label="予算達成率"
             value={formatPercent(r.budgetAchievementRate)}
-            subText={`予算: ${formatCurrency(r.budget)}`}
+            subText={`予算: ${fmtCurrency(r.budget)}`}
             accent={palette.infoDark}
             onClick={() => onExplain('budgetAchievementRate')}
           />
           <KpiCard
             label="月末予測達成率"
             value={formatPercent(r.projectedAchievement)}
-            subText={`予測売上: ${formatCurrency(r.projectedSales)}`}
+            subText={`予測売上: ${fmtCurrency(r.projectedSales)}`}
             accent={sc.achievement(r.projectedAchievement)}
             onClick={() => onExplain('projectedSales')}
           />
@@ -150,11 +153,11 @@ export function ReportSummaryGrid({
               </Tr>
               <Tr onClick={() => onExplain('budgetAchievementRate')} style={{ cursor: 'pointer' }}>
                 <Td>予算達成</Td>
-                <Td>{formatCurrency(r.budget)}</Td>
-                <Td>{formatCurrency(r.totalSales)}</Td>
+                <Td>{fmtCurrency(r.budget)}</Td>
+                <Td>{fmtCurrency(r.totalSales)}</Td>
                 <Td $accent={r.totalSales >= r.budget}>
                   {r.totalSales >= r.budget ? '+' : ''}
-                  {formatCurrency(r.totalSales - r.budget)}
+                  {fmtCurrency(r.totalSales - r.budget)}
                 </Td>
                 <Td>
                   {r.budgetAchievementRate >= 1
@@ -180,7 +183,7 @@ export function ReportSummaryGrid({
         <KpiGrid>
           <KpiCard
             label="月間予算"
-            value={formatCurrency(r.budget)}
+            value={fmtCurrency(r.budget)}
             accent={palette.primary}
             onClick={() => onExplain('budget')}
           />
@@ -199,7 +202,7 @@ export function ReportSummaryGrid({
           />
           <KpiCard
             label="残余予算"
-            value={formatCurrency(r.remainingBudget)}
+            value={fmtCurrency(r.remainingBudget)}
             accent={sc.cond(r.remainingBudget <= 0)}
             onClick={() => onExplain('remainingBudget')}
           />
@@ -219,22 +222,22 @@ export function ReportSummaryGrid({
           )}
           <CalcRow $clickable onClick={() => onExplain('salesTotal')}>
             <CalcLabel>総売上高</CalcLabel>
-            <CalcValue>{formatCurrency(r.totalSales)}</CalcValue>
+            <CalcValue>{fmtCurrency(r.totalSales)}</CalcValue>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('purchaseCost')}>
             <CalcLabel>総仕入原価</CalcLabel>
-            <CalcValue>{formatCurrency(r.totalCost)}</CalcValue>
+            <CalcValue>{fmtCurrency(r.totalCost)}</CalcValue>
           </CalcRow>
           <CalcRow>
             <CalcLabel>期首在庫</CalcLabel>
             <CalcValue>
-              {r.openingInventory != null ? formatCurrency(r.openingInventory) : '未設定'}
+              {r.openingInventory != null ? fmtCurrency(r.openingInventory) : '未設定'}
             </CalcValue>
           </CalcRow>
           <CalcRow>
             <CalcLabel>期末在庫</CalcLabel>
             <CalcValue>
-              {r.closingInventory != null ? formatCurrency(r.closingInventory) : '未設定'}
+              {r.closingInventory != null ? fmtCurrency(r.closingInventory) : '未設定'}
             </CalcValue>
           </CalcRow>
           <CalcRow
@@ -243,7 +246,7 @@ export function ReportSummaryGrid({
           >
             <CalcLabel>売上原価 (COGS)</CalcLabel>
             <CalcHighlight>
-              {r.invMethodCogs != null ? formatCurrency(r.invMethodCogs) : '-'}
+              {r.invMethodCogs != null ? fmtCurrency(r.invMethodCogs) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow
@@ -254,7 +257,7 @@ export function ReportSummaryGrid({
           >
             <CalcLabel>実績粗利益</CalcLabel>
             <CalcHighlight $color={sc.positive}>
-              {r.invMethodGrossProfit != null ? formatCurrency(r.invMethodGrossProfit) : '-'}
+              {r.invMethodGrossProfit != null ? fmtCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow
@@ -278,7 +281,7 @@ export function ReportSummaryGrid({
           <CalcPurpose>目的：在庫差異・異常検知（実績粗利ではありません）</CalcPurpose>
           <CalcRow $clickable onClick={() => onExplain('coreSales')}>
             <CalcLabel>コア売上</CalcLabel>
-            <CalcValue>{formatCurrency(r.totalCoreSales)}</CalcValue>
+            <CalcValue>{fmtCurrency(r.totalCoreSales)}</CalcValue>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('coreMarkupRate')}>
             <CalcLabel>コア値入率</CalcLabel>
@@ -290,12 +293,12 @@ export function ReportSummaryGrid({
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodCogs')}>
             <CalcLabel>推定原価</CalcLabel>
-            <CalcHighlight>{formatCurrency(r.estMethodCogs)}</CalcHighlight>
+            <CalcHighlight>{fmtCurrency(r.estMethodCogs)}</CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodMargin')}>
             <CalcLabel>推定マージン</CalcLabel>
             <CalcHighlight $color={palette.warningDark}>
-              {formatCurrency(r.estMethodMargin)}
+              {fmtCurrency(r.estMethodMargin)}
             </CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodMarginRate')}>
@@ -314,9 +317,7 @@ export function ReportSummaryGrid({
           >
             <CalcLabel>推定期末在庫（理論値）</CalcLabel>
             <CalcHighlight $color={palette.cyanDark}>
-              {r.estMethodClosingInventory != null
-                ? formatCurrency(r.estMethodClosingInventory)
-                : '-'}
+              {r.estMethodClosingInventory != null ? fmtCurrency(r.estMethodClosingInventory) : '-'}
             </CalcHighlight>
           </CalcRow>
         </Card>
@@ -342,7 +343,7 @@ export function ReportSummaryGrid({
                     {severity === 'mid' && ' — 注意'}
                   </VarianceLabel>
                   <VarianceValue>
-                    {formatCurrency(invDiff)}（{formatPercent(invDiffRate)}）
+                    {fmtCurrency(invDiff)}（{formatPercent(invDiffRate)}）
                   </VarianceValue>
                 </VarianceRow>
               )
@@ -356,28 +357,28 @@ export function ReportSummaryGrid({
         <KpiGrid>
           <KpiCard
             label="在庫仕入原価"
-            value={formatCurrency(r.inventoryCost)}
+            value={fmtCurrency(r.inventoryCost)}
             accent={palette.warningDark}
             onClick={() => onExplain('inventoryCost')}
           />
           <KpiCard
             label="売上納品原価"
-            value={formatCurrency(r.deliverySalesCost)}
-            subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
+            value={fmtCurrency(r.deliverySalesCost)}
+            subText={`売価: ${fmtCurrency(r.deliverySalesPrice)}`}
             accent={palette.pinkDark}
             onClick={() => onExplain('deliverySalesCost')}
           />
           <KpiCard
             label="原価算入費"
-            value={formatCurrency(r.totalCostInclusion)}
+            value={fmtCurrency(r.totalCostInclusion)}
             subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
             accent={palette.orange}
             onClick={() => onExplain('totalCostInclusion')}
           />
           <KpiCard
             label="売変ロス原価"
-            value={formatCurrency(r.discountLossCost)}
-            subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
+            value={fmtCurrency(r.discountLossCost)}
+            subText={`売変額: ${fmtCurrency(r.totalDiscount)}`}
             accent={sc.negative}
             onClick={() => onExplain('discountLossCost')}
           />
@@ -389,22 +390,22 @@ export function ReportSummaryGrid({
         <KpiGrid>
           <KpiCard
             label="店間入"
-            value={formatCurrency(r.transferDetails.interStoreIn.cost)}
+            value={fmtCurrency(r.transferDetails.interStoreIn.cost)}
             accent={sc.positive}
           />
           <KpiCard
             label="店間出"
-            value={formatCurrency(r.transferDetails.interStoreOut.cost)}
+            value={fmtCurrency(r.transferDetails.interStoreOut.cost)}
             accent={sc.negative}
           />
           <KpiCard
             label="部門間入"
-            value={formatCurrency(r.transferDetails.interDepartmentIn.cost)}
+            value={fmtCurrency(r.transferDetails.interDepartmentIn.cost)}
             accent={palette.blueDark}
           />
           <KpiCard
             label="部門間出"
-            value={formatCurrency(r.transferDetails.interDepartmentOut.cost)}
+            value={fmtCurrency(r.transferDetails.interDepartmentOut.cost)}
             accent={palette.purpleDeep}
           />
         </KpiGrid>
@@ -431,8 +432,8 @@ export function ReportSummaryGrid({
                   return (
                     <Tr key={d.category}>
                       <Td>{d.label}</Td>
-                      <Td>{formatCurrency(d.cost)}</Td>
-                      <Td>{formatCurrency(d.price)}</Td>
+                      <Td>{fmtCurrency(d.cost)}</Td>
+                      <Td>{fmtCurrency(d.price)}</Td>
                       <Td>{formatPercent(d.markup)}</Td>
                       <Td>{formatPercent(share)}</Td>
                     </Tr>
@@ -440,8 +441,8 @@ export function ReportSummaryGrid({
                 })}
                 <TotalRow>
                   <Td>合計</Td>
-                  <Td $accent>{formatCurrency(categoryData.reduce((s, d) => s + d.cost, 0))}</Td>
-                  <Td $accent>{formatCurrency(categoryData.reduce((s, d) => s + d.price, 0))}</Td>
+                  <Td $accent>{fmtCurrency(categoryData.reduce((s, d) => s + d.cost, 0))}</Td>
+                  <Td $accent>{fmtCurrency(categoryData.reduce((s, d) => s + d.price, 0))}</Td>
                   <Td $accent>
                     {formatPercent(
                       safeDivide(

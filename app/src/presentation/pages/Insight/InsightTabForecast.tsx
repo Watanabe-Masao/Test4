@@ -8,8 +8,8 @@ import {
   ChartErrorBoundary,
 } from '@/presentation/components/common'
 import type { MetricId, StoreResult } from '@/domain/models'
-import { formatCurrency } from '@/domain/formatting'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -53,6 +53,7 @@ interface ForecastTabProps {
 }
 
 export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   if (!d.forecastData) return null
 
   return (
@@ -70,13 +71,13 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
         />
         <KpiCard
           label="日平均売上"
-          value={d.formatCurrency(r.averageDailySales)}
+          value={d.fmtCurrency(r.averageDailySales)}
           accent={sc.positive}
           onClick={() => onExplain('salesTotal')}
         />
         <KpiCard
           label="月末予測売上"
-          value={d.formatCurrency(r.projectedSales)}
+          value={d.fmtCurrency(r.projectedSales)}
           subText={`達成率予測: ${d.formatPercent(r.projectedAchievement)}`}
           accent={palette.infoDark}
           onClick={() => onExplain('projectedSales')}
@@ -94,8 +95,8 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
         <KpiGrid>
           <KpiCard
             label="累計客数"
-            value={`${formatCurrency(d.totalCustomers)}人`}
-            subText={`日平均: ${formatCurrency(d.avgDailyCustomers)}人`}
+            value={`${fmtCurrency(d.totalCustomers)}人`}
+            subText={`日平均: ${fmtCurrency(d.avgDailyCustomers)}人`}
             accent={palette.cyanDark}
             onClick={() => onExplain('totalCustomers')}
           />
@@ -281,7 +282,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                         {w.startDay}日〜{w.endDay}日
                       </FcTd>
                       <FcTd>{w.days}日</FcTd>
-                      <FcTd>{d.formatCurrency(w.totalSales)}</FcTd>
+                      <FcTd>{d.fmtCurrency(w.totalSales)}</FcTd>
                       {d.customerData?.hasCustomerData && (
                         <FcTd>
                           {weekCustomers > 0 ? `${weekCustomers.toLocaleString()}人` : '-'}
@@ -290,7 +291,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                       {d.customerData?.hasCustomerData && (
                         <FcTd>{weekTxValue > 0 ? `${weekTxValue.toLocaleString()}円` : '-'}</FcTd>
                       )}
-                      <FcTd>{d.formatCurrency(w.totalGrossProfit)}</FcTd>
+                      <FcTd>{d.fmtCurrency(w.totalGrossProfit)}</FcTd>
                       <FcTd>{d.formatPercent(w.grossProfitRate)}</FcTd>
                     </FcTr>
                   )
@@ -324,7 +325,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                       const sw = sf.forecast.weeklySummaries[wi]
                       return (
                         <FcTd key={`s-${sf.storeId}`}>
-                          {sw ? d.formatCurrency(sw.totalSales) : '-'}
+                          {sw ? d.fmtCurrency(sw.totalSales) : '-'}
                         </FcTd>
                       )
                     })}
@@ -332,7 +333,7 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                       const sw = sf.forecast.weeklySummaries[wi]
                       return (
                         <FcTd key={`g-${sf.storeId}`}>
-                          {sw ? d.formatCurrency(sw.totalGrossProfit) : '-'}
+                          {sw ? d.fmtCurrency(sw.totalGrossProfit) : '-'}
                         </FcTd>
                       )
                     })}
@@ -365,8 +366,8 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
                   {d.forecastData.forecast.anomalies.map((a) => (
                     <FcTr key={a.day}>
                       <FcTd>{a.day}日</FcTd>
-                      <FcTd>{d.formatCurrency(a.value)}</FcTd>
-                      <FcTd>{d.formatCurrency(a.mean)}</FcTd>
+                      <FcTd>{d.fmtCurrency(a.value)}</FcTd>
+                      <FcTd>{d.fmtCurrency(a.mean)}</FcTd>
                       <FcTd>{a.zScore.toFixed(2)}</FcTd>
                       <FcTd>
                         <AnomalyBadge $type={a.zScore > 0 ? 'high' : 'low'}>
@@ -428,12 +429,10 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                           <FcTd>
                             {w.startDay}日〜{w.endDay}日
                           </FcTd>
-                          <FcTd $highlight={w.salesDiff < 0}>{d.formatCurrency(w.salesDiff)}</FcTd>
-                          <FcTd $highlight={w.custEffect < 0}>
-                            {d.formatCurrency(w.custEffect)}
-                          </FcTd>
+                          <FcTd $highlight={w.salesDiff < 0}>{d.fmtCurrency(w.salesDiff)}</FcTd>
+                          <FcTd $highlight={w.custEffect < 0}>{d.fmtCurrency(w.custEffect)}</FcTd>
                           <FcTd $highlight={w.ticketEffect < 0}>
-                            {d.formatCurrency(w.ticketEffect)}
+                            {d.fmtCurrency(w.ticketEffect)}
                           </FcTd>
                           <FcTd>{d.formatPercent(custPct)}</FcTd>
                         </FcTr>
@@ -457,9 +456,9 @@ export function DecompositionTabContent({ d }: Omit<ForecastTabProps, 'onExplain
                         <FcTrTotal>
                           <FcTd>合計</FcTd>
                           <FcTd></FcTd>
-                          <FcTd>{d.formatCurrency(totals.salesDiff)}</FcTd>
-                          <FcTd>{d.formatCurrency(totals.custEffect)}</FcTd>
-                          <FcTd>{d.formatCurrency(totals.ticketEffect)}</FcTd>
+                          <FcTd>{d.fmtCurrency(totals.salesDiff)}</FcTd>
+                          <FcTd>{d.fmtCurrency(totals.custEffect)}</FcTd>
+                          <FcTd>{d.fmtCurrency(totals.ticketEffect)}</FcTd>
                           <FcTd>{d.formatPercent(totalCustPct)}</FcTd>
                         </FcTrTotal>
                       )

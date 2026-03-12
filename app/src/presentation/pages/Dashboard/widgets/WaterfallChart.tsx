@@ -13,7 +13,6 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
-import { formatCurrency } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Wrapper, Title } from './WaterfallChart.styles'
@@ -32,7 +31,7 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
 }: {
   ctx: WidgetContext
 }) {
-  const r = ctx.result
+  const { result: r, fmtCurrency } = ctx
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
 
@@ -125,7 +124,7 @@ export const WaterfallChartWidget = memo(function WaterfallChartWidget({
                 if (name === 'base') return [null, null]
                 const item = entry.payload as WaterfallItem | undefined
                 if (!item) return ['-', '-']
-                return [formatCurrency(item.value), item.name]
+                return [fmtCurrency(item.value), item.name]
               },
             })}
           />

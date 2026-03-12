@@ -8,7 +8,7 @@ import {
   KpiGrid,
   ChartErrorBoundary,
 } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
@@ -33,13 +33,13 @@ import {
 } from './CostDetailPage.styles'
 import type { CostDetailData } from './useCostDetailData'
 
-const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
-
 interface TransferTabProps {
   readonly d: CostDetailData
 }
 
 export function TransferTab({ d }: TransferTabProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+  const fmtOrDash = (val: number) => (val !== 0 ? fmtCurrency(val) : '-')
   return (
     <>
       <Section>
@@ -62,20 +62,20 @@ export function TransferTab({ d }: TransferTabProps) {
       <KpiGrid>
         <KpiCard
           label={`${d.typeLabel}入`}
-          value={formatCurrency(d.typeIn!.cost)}
-          subText={`売価: ${formatCurrency(d.typeIn!.price)}`}
+          value={fmtCurrency(d.typeIn!.cost)}
+          subText={`売価: ${fmtCurrency(d.typeIn!.price)}`}
           accent={palette.blueDark}
         />
         <KpiCard
           label={`${d.typeLabel}出`}
-          value={formatCurrency(d.typeOut!.cost)}
-          subText={`売価: ${formatCurrency(d.typeOut!.price)}`}
+          value={fmtCurrency(d.typeOut!.cost)}
+          subText={`売価: ${fmtCurrency(d.typeOut!.price)}`}
           accent={palette.dangerDark}
         />
         <KpiCard
           label="純増減"
-          value={formatCurrency(d.typeNet!.cost)}
-          subText={`売価: ${formatCurrency(d.typeNet!.price)}`}
+          value={fmtCurrency(d.typeNet!.cost)}
+          subText={`売価: ${fmtCurrency(d.typeNet!.price)}`}
           accent={sc.cond(d.typeNet!.cost >= 0)}
         />
       </KpiGrid>
@@ -102,9 +102,7 @@ export function TransferTab({ d }: TransferTabProps) {
                     >
                       <FlowTd $label>全て表示</FlowTd>
                       <FlowTd $label>-</FlowTd>
-                      <FlowTd>
-                        {formatCurrency(d.dailyTotals.inCost + d.dailyTotals.outCost)}
-                      </FlowTd>
+                      <FlowTd>{fmtCurrency(d.dailyTotals.inCost + d.dailyTotals.outCost)}</FlowTd>
                       <FlowTd>
                         <FlowBar $pct={100} $dir="neutral" />
                       </FlowTd>
@@ -114,7 +112,7 @@ export function TransferTab({ d }: TransferTabProps) {
                         <FlowGroupHeader>
                           <FlowTd colSpan={4} $label>
                             {group.fromName}（{group.fromId}）から — {group.entries.length}件 /{' '}
-                            {formatCurrency(group.totalCost)}
+                            {fmtCurrency(group.totalCost)}
                           </FlowTd>
                         </FlowGroupHeader>
                         {group.entries.map((f) => {
@@ -134,7 +132,7 @@ export function TransferTab({ d }: TransferTabProps) {
                             >
                               <FlowTd $label>{f.fromName}</FlowTd>
                               <FlowTd $label>{f.toName}</FlowTd>
-                              <FlowTd $negative={f.cost < 0}>{formatCurrency(f.cost)}</FlowTd>
+                              <FlowTd $negative={f.cost < 0}>{fmtCurrency(f.cost)}</FlowTd>
                               <FlowTd>
                                 <FlowBar $pct={pct} $dir={dir} />
                               </FlowTd>
@@ -172,14 +170,14 @@ export function TransferTab({ d }: TransferTabProps) {
                   {d.pairDailyData.map((entry) => (
                     <Tr key={entry.day}>
                       <Td>{entry.day}日</Td>
-                      <Td $negative={entry.cost < 0}>{formatCurrency(entry.cost)}</Td>
-                      <Td $negative={entry.price < 0}>{formatCurrency(entry.price)}</Td>
+                      <Td $negative={entry.cost < 0}>{fmtCurrency(entry.cost)}</Td>
+                      <Td $negative={entry.price < 0}>{fmtCurrency(entry.price)}</Td>
                     </Tr>
                   ))}
                   <TrTotal>
                     <Td>合計</Td>
-                    <Td>{formatCurrency(d.pairDailyData.reduce((s, e) => s + e.cost, 0))}</Td>
-                    <Td>{formatCurrency(d.pairDailyData.reduce((s, e) => s + e.price, 0))}</Td>
+                    <Td>{fmtCurrency(d.pairDailyData.reduce((s, e) => s + e.cost, 0))}</Td>
+                    <Td>{fmtCurrency(d.pairDailyData.reduce((s, e) => s + e.price, 0))}</Td>
                   </TrTotal>
                 </tbody>
               </Table>
@@ -249,23 +247,23 @@ export function TransferTab({ d }: TransferTabProps) {
                       return (
                         <Fragment key={store.storeId}>
                           <PivotTd $groupStart $negative={cell.cost < 0} $positive={cell.cost > 0}>
-                            {formatCurrency(cell.cost)}
+                            {fmtCurrency(cell.cost)}
                           </PivotTd>
                           <PivotTd $negative={cell.price < 0} $positive={cell.price > 0}>
-                            {formatCurrency(cell.price)}
+                            {fmtCurrency(cell.price)}
                           </PivotTd>
                         </Fragment>
                       )
                     })}
-                    <PivotTd $groupStart>{formatCurrency(d.transferPivot.totals.inCost)}</PivotTd>
+                    <PivotTd $groupStart>{fmtCurrency(d.transferPivot.totals.inCost)}</PivotTd>
                     <PivotTd $negative={d.transferPivot.totals.outCost < 0}>
-                      {formatCurrency(d.transferPivot.totals.outCost)}
+                      {fmtCurrency(d.transferPivot.totals.outCost)}
                     </PivotTd>
                     <PivotTd
                       $negative={d.transferPivot.totals.net < 0}
                       $positive={d.transferPivot.totals.net > 0}
                     >
-                      {formatCurrency(d.transferPivot.totals.net)}
+                      {fmtCurrency(d.transferPivot.totals.net)}
                     </PivotTd>
                   </TrTotal>
                 </tbody>

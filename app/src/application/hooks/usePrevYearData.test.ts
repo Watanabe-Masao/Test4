@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcSameDowOffset } from './usePrevYearData'
+import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 
 describe('calcSameDowOffset', () => {
   it('2026年2月: オフセット1（日曜 vs 前年土曜）', () => {

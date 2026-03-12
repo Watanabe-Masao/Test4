@@ -90,6 +90,7 @@ function toDashboardContext(ctx: UnifiedWidgetContext): DashboardWidgetContext {
       missingDataWarnings: [],
     },
     onPrevYearDetail: ctx.onPrevYearDetail ?? (() => {}),
+    fmtCurrency: ctx.fmtCurrency,
   }
 }
 

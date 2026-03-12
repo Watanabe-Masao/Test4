@@ -14,6 +14,7 @@ import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/c
 import {
   useChartTheme,
   useCurrencyFormatter,
+  useCurrencyFormat,
   toComma,
   toPct,
   toAxisYen,
@@ -40,7 +41,7 @@ import {
   TotalRow,
   StoreDot,
 } from './EstimatedInventoryDetailChart.styles'
-import { fmt, AGG_LABELS } from './EstimatedInventoryDetailChart.helpers'
+import { createFmt, AGG_LABELS } from './EstimatedInventoryDetailChart.helpers'
 import type { ViewMode } from './EstimatedInventoryDetailChart.helpers'
 
 /* ------------------------------------------------------------------ */
@@ -74,6 +75,8 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
 }: Props) {
   const ct = useChartTheme()
   const currFmt = useCurrencyFormatter()
+  const { format: fmtCurrency } = useCurrencyFormat()
+  const fmt = createFmt(fmtCurrency)
   const {
     p1Start: rangeStart,
     p1End: rangeEnd,

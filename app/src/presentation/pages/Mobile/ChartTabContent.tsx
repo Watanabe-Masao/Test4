@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { ChartCard, ChartTitle } from './MobileDashboardPage.styles'
 
@@ -25,6 +25,7 @@ export type ChartTabContentProps = {
 }
 
 export function ChartTabContent({ dailySalesData }: ChartTabContentProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const theme = useTheme() as AppTheme
   const chartText = theme.colors.text3
   const chartGrid = theme.colors.border
@@ -58,7 +59,7 @@ export function ChartTabContent({ dailySalesData }: ChartTabContentProps) {
               fontSize: 11,
             }}
             formatter={(v: number | undefined, name: string | undefined) => [
-              formatCurrency(v ?? 0),
+              fmtCurrency(v ?? 0),
               name ?? '',
             ]}
             labelFormatter={(label) => `${label}日`}

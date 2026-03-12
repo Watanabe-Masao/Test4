@@ -2,8 +2,7 @@ import type { StoreResult, Store } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import type { AppSettings } from '@/domain/models'
 import type { DisplayMode } from './conditionSummaryUtils'
-import type { PrevYearData } from '@/application/hooks/usePrevYearData'
-import type { PrevYearMonthlyKpi } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 import type { ConditionItem } from './conditionSummaryUtils'
 
 // ─── Shared Props ───────────────────────────────────────

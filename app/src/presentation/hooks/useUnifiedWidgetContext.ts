@@ -24,6 +24,7 @@ import { useRepository } from '@/application/context/useRepository'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
 import { useDeptKpiView } from '@/application/hooks/useDeptKpiView'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -95,6 +96,9 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   // 部門KPIインデックス
   const deptKpiIndex = useDeptKpiView()
 
+  // 通貨フォーマッタ（千円/円切替対応）
+  const { format: fmtCurrency } = useCurrencyFormat()
+
   // DuckDB エンジン初期化
   const duck = useDuckDB(data, targetYear, targetMonth, repo)
 
@@ -145,6 +149,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     explanations,
     onExplain: handleExplain,
     departmentKpi: deptKpiIndex,
+    fmtCurrency,
 
     // 期間選択
     periodSelection,

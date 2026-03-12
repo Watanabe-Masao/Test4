@@ -1,7 +1,7 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { WidgetDef } from './types'
 import { DowGapKpiCard } from './DowGapKpiCard'
@@ -14,11 +14,11 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'reports' },
-    render: ({ result: r, prevYear, onExplain }) => (
+    render: ({ result: r, prevYear, onExplain, fmtCurrency }) => (
       <KpiCard
         label="コア売上"
-        value={formatCurrency(r.totalCoreSales)}
-        subText={`総売上: ${formatCurrency(r.totalSales)} / 花: ${formatCurrency(r.flowerSalesPrice)} / 産直: ${formatCurrency(r.directProduceSalesPrice)}`}
+        value={fmtCurrency(r.totalCoreSales)}
+        subText={`総売上: ${fmtCurrency(r.totalSales)} / 花: ${fmtCurrency(r.flowerSalesPrice)} / 産直: ${fmtCurrency(r.directProduceSalesPrice)}`}
         accent={palette.purpleDark}
         onClick={() => onExplain('coreSales')}
         trend={
@@ -42,11 +42,11 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '総仕入原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, onExplain, fmtCurrency }) => (
       <KpiCard
         label="総仕入原価"
-        value={formatCurrency(r.totalCost)}
-        subText={`在庫仕入: ${formatCurrency(r.inventoryCost)} / 納品: ${formatCurrency(r.deliverySalesCost)}`}
+        value={fmtCurrency(r.totalCost)}
+        subText={`在庫仕入: ${fmtCurrency(r.inventoryCost)} / 納品: ${fmtCurrency(r.deliverySalesCost)}`}
         accent={palette.orangeDark}
         onClick={() => onExplain('inventoryCost')}
       />
@@ -58,7 +58,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => {
+    render: ({ result: r, onExplain, fmtCurrency }) => {
       if (r.invMethodGrossProfitRate == null) {
         return (
           <KpiCard
@@ -74,8 +74,8 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
       return (
         <KpiCard
           label="【在庫法】実績粗利益"
-          value={formatCurrency(r.invMethodGrossProfit)}
-          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          value={fmtCurrency(r.invMethodGrossProfit)}
+          subText={`実績粗利率: ${formatPercent(r.invMethodGrossProfitRate)} / ${formatPercent(afterRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`}
           accent={sc.positive}
           badge="actual"
           formulaSummary="売上 − 売上原価（期首+仕入−期末）"
@@ -90,13 +90,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => {
+    render: ({ result: r, onExplain, fmtCurrency }) => {
       const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
       return (
         <KpiCard
           label="【推定法】推定マージン"
-          value={formatCurrency(r.estMethodMargin)}
-          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${formatCurrency(r.totalCostInclusion)})`}
+          value={fmtCurrency(r.estMethodMargin)}
+          subText={`推定マージン率: ${formatPercent(beforeRate)} / ${formatPercent(r.estMethodMarginRate)} (消耗品: ${fmtCurrency(r.totalCostInclusion)})`}
           accent={palette.warningDark}
           badge="estimated"
           formulaSummary="コア売上 − 推定原価（理論値）"
@@ -112,10 +112,10 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '在庫仕入原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, onExplain, fmtCurrency }) => (
       <KpiCard
         label="在庫仕入原価"
-        value={formatCurrency(r.inventoryCost)}
+        value={fmtCurrency(r.inventoryCost)}
         accent={palette.orangeDark}
         onClick={() => onExplain('inventoryCost')}
       />
@@ -126,11 +126,11 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '売上納品原価',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, onExplain, fmtCurrency }) => (
       <KpiCard
         label="売上納品原価"
-        value={formatCurrency(r.deliverySalesCost)}
-        subText={`売価: ${formatCurrency(r.deliverySalesPrice)}`}
+        value={fmtCurrency(r.deliverySalesCost)}
+        subText={`売価: ${fmtCurrency(r.deliverySalesPrice)}`}
         accent={palette.pinkDark}
         onClick={() => onExplain('deliverySalesCost')}
       />
@@ -142,10 +142,10 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'cost-detail' },
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, onExplain, fmtCurrency }) => (
       <KpiCard
         label="原価算入費"
-        value={formatCurrency(r.totalCostInclusion)}
+        value={fmtCurrency(r.totalCostInclusion)}
         subText={`原価算入率: ${formatPercent(r.costInclusionRate)}`}
         accent={palette.orange}
         onClick={() => onExplain('totalCostInclusion')}
@@ -158,11 +158,11 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain }) => (
+    render: ({ result: r, onExplain, fmtCurrency }) => (
       <KpiCard
         label="売変ロス原価"
-        value={formatCurrency(r.discountLossCost)}
-        subText={`売変額: ${formatCurrency(r.totalDiscount)}`}
+        value={fmtCurrency(r.discountLossCost)}
+        subText={`売変額: ${fmtCurrency(r.totalDiscount)}`}
         accent={palette.dangerDeep}
         onClick={() => onExplain('discountLossCost')}
       />
@@ -191,7 +191,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '予算成長率（同曜日）',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain, fmtCurrency }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
@@ -208,13 +208,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
       const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
       const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
-        `前年: ${formatCurrency(py.sales)}`,
-        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        `前年: ${fmtCurrency(py.sales)}`,
+        hasBudget ? `予算: ${fmtCurrency(r.budget)}` : null,
         hasBudget
-          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${fmtCurrency(r.budget - py.sales)}`
           : null,
         py.customers > 0
-          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${fmtCurrency(prevCustUnit)}`
           : null,
       ]
         .filter(Boolean)
@@ -244,7 +244,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: '予算成長率（同日）',
     group: '前年比較',
     size: 'kpi',
-    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain }) => {
+    render: ({ result: r, prevYearMonthlyKpi: pk, onExplain, fmtCurrency }) => {
       if (!pk.hasPrevYear) {
         return (
           <KpiCard
@@ -261,13 +261,13 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
       const prevVsBudget = hasBudget ? safeDivide(py.sales, r.budget, 0) : null
       const prevCustUnit = safeDivide(py.sales, py.customers, 0)
       const sub = [
-        `前年: ${formatCurrency(py.sales)}`,
-        hasBudget ? `予算: ${formatCurrency(r.budget)}` : null,
+        `前年: ${fmtCurrency(py.sales)}`,
+        hasBudget ? `予算: ${fmtCurrency(r.budget)}` : null,
         hasBudget
-          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${formatCurrency(r.budget - py.sales)}`
+          ? `差額: ${r.budget - py.sales >= 0 ? '+' : ''}${fmtCurrency(r.budget - py.sales)}`
           : null,
         py.customers > 0
-          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${formatCurrency(prevCustUnit)}`
+          ? `客数: ${py.customers.toLocaleString('ja-JP')}人 / 客単価: ${fmtCurrency(prevCustUnit)}`
           : null,
       ]
         .filter(Boolean)

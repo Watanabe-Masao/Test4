@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
 import type {
   PurchaseDayEntry,
@@ -50,6 +50,7 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
 }
 
 export function RawDataTab() {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const data = useDataStore((s) => s.data)
   const [dataType, setDataType] = useState<RawDataType>('classifiedSales')
 
@@ -218,7 +219,7 @@ export function RawDataTab() {
   const fmt = (v: number) => {
     if (v === 0) return '-'
     if (isIntegerType) return v.toLocaleString('ja-JP')
-    return formatCurrency(v)
+    return fmtCurrency(v)
   }
 
   return (

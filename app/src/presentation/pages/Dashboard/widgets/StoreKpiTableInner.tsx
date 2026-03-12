@@ -6,7 +6,7 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
@@ -36,6 +36,7 @@ function EditableLandingCell({
   groupBorder,
   gpLandingTooltip,
   salesLandingTooltip,
+  fmtCurrency,
 }: {
   r: {
     estMethodMarginRate: number
@@ -46,6 +47,7 @@ function EditableLandingCell({
   groupBorder: string
   gpLandingTooltip?: ReactNode
   salesLandingTooltip?: ReactNode
+  fmtCurrency: (v: number | null) => string
 }) {
   const [gpHover, setGpHover] = useState(false)
   const [slHover, setSlHover] = useState(false)
@@ -68,7 +70,7 @@ function EditableLandingCell({
         onMouseEnter={() => setSlHover(true)}
         onMouseLeave={() => setSlHover(false)}
       >
-        {formatCurrency(salesLanding)}
+        {fmtCurrency(salesLanding)}
         {slHover && salesLandingTooltip && <KpiTooltip>{salesLandingTooltip}</KpiTooltip>}
       </STd>
     </>
@@ -77,7 +79,7 @@ function EditableLandingCell({
 
 export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
   const dataState = useDataStore((s) => s.data)
-  const { result: agg, allStoreResults, stores } = ctx
+  const { result: agg, allStoreResults, stores, fmtCurrency } = ctx
 
   // 店舗をコード順でソート
   const storeEntries = [...allStoreResults.entries()]
@@ -159,14 +161,14 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
         fmtPtDiff(gpRateVariance * 100),
         fmtPct(r.coreMarkupRate),
         formatPercent(-r.discountRate, 2),
-        formatCurrency(periodBudget),
-        formatCurrency(r.totalSales),
-        formatCurrency(salesVariance),
+        fmtCurrency(periodBudget),
+        fmtCurrency(r.totalSales),
+        fmtCurrency(salesVariance),
         formatPercent(periodAchRate),
-        r.openingInventory != null ? formatCurrency(r.openingInventory) : '-',
-        r.closingInventory != null ? formatCurrency(r.closingInventory) : '-',
+        r.openingInventory != null ? fmtCurrency(r.openingInventory) : '-',
+        r.closingInventory != null ? fmtCurrency(r.closingInventory) : '-',
         fmtPct(gpLanding),
-        formatCurrency(salesLanding),
+        fmtCurrency(salesLanding),
       ]
     }
 
@@ -187,7 +189,7 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     a.download = `店舗別KPI一覧_${ctx.year}年${ctx.month}月.csv`
     a.click()
     URL.revokeObjectURL(url)
-  }, [storeEntries, agg, effectiveEndDay, isPartialPeriod, ctx.year, ctx.month])
+  }, [storeEntries, agg, effectiveEndDay, isPartialPeriod, ctx.year, ctx.month, fmtCurrency])
 
   if (storeEntries.length === 0) {
     return (
@@ -236,13 +238,13 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
         <div>
           <div>
             <TipLabel>推定期末在庫:</TipLabel>
-            <TipVal>{formatCurrency(r.estMethodClosingInventory)}</TipVal>
+            <TipVal>{fmtCurrency(r.estMethodClosingInventory)}</TipVal>
           </div>
           {r.closingInventory != null && r.estMethodClosingInventory != null && (
             <div>
               <TipLabel>推定との差:</TipLabel>
               <TipVal $color={sc.cond(r.closingInventory - r.estMethodClosingInventory <= 0)}>
-                {formatCurrency(r.closingInventory - r.estMethodClosingInventory)}
+                {fmtCurrency(r.closingInventory - r.estMethodClosingInventory)}
               </TipVal>
             </div>
           )}
@@ -267,13 +269,13 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
           {r.grossProfitBudget > 0 && (
             <div>
               <TipLabel>粗利予算額(月間):</TipLabel>
-              <TipVal>{formatCurrency(r.grossProfitBudget)}</TipVal>
+              <TipVal>{fmtCurrency(r.grossProfitBudget)}</TipVal>
             </div>
           )}
           {isPartialPeriod && periodGPBudget > 0 && (
             <div>
               <TipLabel>経過粗利予算(〜{effectiveEndDay}日):</TipLabel>
-              <TipVal>{formatCurrency(periodGPBudget)}</TipVal>
+              <TipVal>{fmtCurrency(periodGPBudget)}</TipVal>
             </div>
           )}
         </div>
@@ -283,25 +285,25 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       <div>
         <div>
           <TipLabel>月間予算:</TipLabel>
-          <TipVal>{formatCurrency(r.budget)}</TipVal>
+          <TipVal>{fmtCurrency(r.budget)}</TipVal>
         </div>
         {isPartialPeriod && (
           <div>
             <TipLabel>経過予算(〜{effectiveEndDay}日):</TipLabel>
-            <TipVal>{formatCurrency(periodBudget)}</TipVal>
+            <TipVal>{fmtCurrency(periodBudget)}</TipVal>
           </div>
         )}
         <div>
           <TipLabel>売上実績:</TipLabel>
-          <TipVal>{formatCurrency(r.totalSales)}</TipVal>
+          <TipVal>{fmtCurrency(r.totalSales)}</TipVal>
         </div>
         <div>
           <TipLabel>着地予測:</TipLabel>
-          <TipVal>{formatCurrency(r.projectedSales)}</TipVal>
+          <TipVal>{fmtCurrency(r.projectedSales)}</TipVal>
         </div>
         <div>
           <TipLabel>予算差異(着地):</TipLabel>
-          <TipVal $color={salesLandingColor}>{formatCurrency(salesLanding)}</TipVal>
+          <TipVal $color={salesLandingColor}>{fmtCurrency(salesLanding)}</TipVal>
         </div>
         <div>
           <TipLabel>達成率予測:</TipLabel>
@@ -355,13 +357,13 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
         <BudgetTd style={{ borderLeft: groupBorder }}>{fmtPct(r.coreMarkupRate)}</BudgetTd>
         <STd style={{ color: sc.negative }}>{formatPercent(-r.discountRate, 2)}</STd>
         {/* 売上 */}
-        <BudgetTd style={{ borderLeft: groupBorder }}>{formatCurrency(periodBudget)}</BudgetTd>
-        <STd>{formatCurrency(r.totalSales)}</STd>
-        <STd style={{ color: salesDiffColor }}>{formatCurrency(salesVariance)}</STd>
+        <BudgetTd style={{ borderLeft: groupBorder }}>{fmtCurrency(periodBudget)}</BudgetTd>
+        <STd>{fmtCurrency(r.totalSales)}</STd>
+        <STd style={{ color: salesDiffColor }}>{fmtCurrency(salesVariance)}</STd>
         <STd style={{ color: achColor }}>{formatPercent(periodAchRate)}</STd>
         {/* 在庫 */}
         <STd style={{ borderLeft: groupBorder }}>
-          {r.openingInventory != null ? formatCurrency(r.openingInventory) : '-'}
+          {r.openingInventory != null ? fmtCurrency(r.openingInventory) : '-'}
         </STd>
         {storeId && !isSummary ? (
           <EditableNumberCell
@@ -372,12 +374,13 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
             tooltip={closingInvTooltip}
           />
         ) : (
-          <STd>{r.closingInventory != null ? formatCurrency(r.closingInventory) : '-'}</STd>
+          <STd>{r.closingInventory != null ? fmtCurrency(r.closingInventory) : '-'}</STd>
         )}
         {/* 着地 */}
         <EditableLandingCell
           r={r}
           groupBorder={groupBorder}
+          fmtCurrency={fmtCurrency}
           gpLandingTooltip={gpLandingTooltip}
           salesLandingTooltip={salesLandingTooltip}
         />

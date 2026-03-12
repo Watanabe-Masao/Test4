@@ -5,6 +5,7 @@
  * レンダリングのみに専念する。
  */
 import { useMemo } from 'react'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { buildMarkupRateDetailVm, buildCostInclusionDetailVm } from './conditionPanelMarkupCost.vm'
 import {
   DetailHeader,
@@ -37,9 +38,18 @@ export function MarkupRateDetailTable({
   expandedMarkupStore,
   onExpandToggle,
 }: MarkupDetailProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildMarkupRateDetailVm(sortedStoreEntries, stores, result, effectiveConfig, settings),
-    [sortedStoreEntries, stores, result, effectiveConfig, settings],
+    () =>
+      buildMarkupRateDetailVm(
+        sortedStoreEntries,
+        stores,
+        result,
+        effectiveConfig,
+        settings,
+        fmtCurrency,
+      ),
+    [sortedStoreEntries, stores, result, effectiveConfig, settings, fmtCurrency],
   )
 
   return (
@@ -182,9 +192,11 @@ export function CostInclusionDetailTable({
   expandedMarkupStore,
   onExpandToggle,
 }: CostInclusionDetailProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const vm = useMemo(
-    () => buildCostInclusionDetailVm(sortedStoreEntries, stores, result, effectiveConfig),
-    [sortedStoreEntries, stores, result, effectiveConfig],
+    () =>
+      buildCostInclusionDetailVm(sortedStoreEntries, stores, result, effectiveConfig, fmtCurrency),
+    [sortedStoreEntries, stores, result, effectiveConfig, fmtCurrency],
   )
 
   const hasExpanded = expandedMarkupStore != null

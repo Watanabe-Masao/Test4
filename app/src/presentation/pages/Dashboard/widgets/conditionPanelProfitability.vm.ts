@@ -3,7 +3,8 @@
  */
 import type { StoreResult, Store } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
-import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
@@ -80,6 +81,7 @@ export function buildGpRateDetailVm(
   effectiveConfig: ConditionSummaryConfig,
   elapsedDays: number | undefined,
   daysInMonth: number | undefined,
+  fmtCurrency: CurrencyFormatter,
 ): GpRateDetailVm {
   const gpSignal = (diffPt: number, storeId?: string): SignalLevel => {
     const t = resolveThresholds(effectiveConfig, 'gpRate', storeId)
@@ -109,11 +111,11 @@ export function buildGpRateDetailVm(
       afterRate: formatPercent(after),
       costInclusionRate: formatPercent(sr.costInclusionRate),
       diffPointStr: formatPointDiff(after - sr.grossProfitRateBudget),
-      gpBudgetAmt: formatCurrency(storeGpBudget),
-      gpBeforeAmt: formatCurrency(gpAmt),
-      gpAfterAmt: formatCurrency(gpAfterAmt),
+      gpBudgetAmt: fmtCurrency(storeGpBudget),
+      gpBeforeAmt: fmtCurrency(gpAmt),
+      gpAfterAmt: fmtCurrency(gpAfterAmt),
       diffAmt,
-      diffAmtStr: formatCurrency(diffAmt),
+      diffAmtStr: fmtCurrency(diffAmt),
       diffAmtSign: diffAmt >= 0 ? '+' : '',
     }
   })
@@ -138,11 +140,11 @@ export function buildGpRateDetailVm(
       afterRate: formatPercent(gpAfter),
       costInclusionRate: formatPercent(result.costInclusionRate),
       diffPointStr: formatPointDiff(gpAfter - result.grossProfitRateBudget),
-      gpBudgetAmt: formatCurrency(totalGpBudget),
-      gpBeforeAmt: formatCurrency(totalGpAmt),
-      gpAfterAmt: formatCurrency(totalAfterAmt),
+      gpBudgetAmt: fmtCurrency(totalGpBudget),
+      gpBeforeAmt: fmtCurrency(totalGpAmt),
+      gpAfterAmt: fmtCurrency(totalAfterAmt),
       totalDiffAmt,
-      totalDiffAmtStr: formatCurrency(totalDiffAmt),
+      totalDiffAmtStr: fmtCurrency(totalDiffAmt),
       totalDiffAmtSign: totalDiffAmt >= 0 ? '+' : '',
     },
   }
@@ -182,6 +184,7 @@ export function buildDiscountRateDetailVm(
   stores: ReadonlyMap<string, Store>,
   result: StoreResult,
   effectiveConfig: ConditionSummaryConfig,
+  fmtCurrency: CurrencyFormatter,
 ): DiscountRateDetailVm {
   const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
     const store = stores.get(storeId)
@@ -193,7 +196,7 @@ export function buildDiscountRateDetailVm(
       const entry = sr.discountEntries.find((e) => e.type === dt.type)
       const amt = entry?.amount ?? 0
       const rate = sr.grossSales > 0 ? safeDivide(amt, sr.grossSales, 0) : 0
-      return { type: dt.type, rateStr: formatPercent(rate), amtStr: formatCurrency(amt) }
+      return { type: dt.type, rateStr: formatPercent(rate), amtStr: fmtCurrency(amt) }
     })
 
     return {
@@ -201,7 +204,7 @@ export function buildDiscountRateDetailVm(
       storeName,
       sigColor,
       rateStr: formatPercent(sr.discountRate),
-      amtStr: formatCurrency(sr.totalDiscount),
+      amtStr: fmtCurrency(sr.totalDiscount),
       entries,
     }
   })
@@ -212,7 +215,7 @@ export function buildDiscountRateDetailVm(
     const entry = result.discountEntries.find((e) => e.type === dt.type)
     const amt = entry?.amount ?? 0
     const rate = result.grossSales > 0 ? safeDivide(amt, result.grossSales, 0) : 0
-    return { type: dt.type, rateStr: formatPercent(rate), amtStr: formatCurrency(amt) }
+    return { type: dt.type, rateStr: formatPercent(rate), amtStr: fmtCurrency(amt) }
   })
 
   return {
@@ -220,7 +223,7 @@ export function buildDiscountRateDetailVm(
     total: {
       totalColor,
       rateStr: formatPercent(result.discountRate),
-      amtStr: formatCurrency(result.totalDiscount),
+      amtStr: fmtCurrency(result.totalDiscount),
       entries: totalEntries,
     },
   }

@@ -2,7 +2,8 @@
  * 客単価・日販達成率・日別YoY描画の ViewModel
  */
 import type { StoreResult, Store } from '@/domain/models'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
@@ -42,6 +43,7 @@ export function buildTxValueDetailVm(
   sortedStoreEntries: readonly [string, StoreResult][],
   stores: ReadonlyMap<string, Store>,
   result: StoreResult,
+  fmtCurrency: CurrencyFormatter,
 ): TxValueDetailVm {
   const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
     const store = stores.get(storeId)
@@ -55,7 +57,7 @@ export function buildTxValueDetailVm(
       return {
         day,
         dayLabel: `${day}日`,
-        salesStr: formatCurrency(dr.sales),
+        salesStr: fmtCurrency(dr.sales),
         customersStr: `${customers.toLocaleString()}人`,
         txStr: formatTxValue(dayTx),
       }
@@ -64,7 +66,7 @@ export function buildTxValueDetailVm(
     return {
       storeId,
       storeName,
-      salesStr: formatCurrency(sr.totalSales),
+      salesStr: fmtCurrency(sr.totalSales),
       customersStr: `${sr.totalCustomers.toLocaleString()}人`,
       txStr: formatTxValue(storeTx),
       dailyRows,
@@ -73,7 +75,7 @@ export function buildTxValueDetailVm(
 
   return {
     storeRows,
-    totalSalesStr: formatCurrency(result.totalSales),
+    totalSalesStr: fmtCurrency(result.totalSales),
     totalCustomersStr: `${result.totalCustomers.toLocaleString()}人`,
     totalTxStr: formatTxValue(result.transactionValue),
   }
@@ -120,6 +122,7 @@ export function buildDailySalesDetailVm(
   result: StoreResult,
   effectiveConfig: ConditionSummaryConfig,
   daysInMonth: number,
+  fmtCurrency: CurrencyFormatter,
 ): DailySalesDetailVm {
   const budgetDailyAvg = daysInMonth > 0 ? result.budget / daysInMonth : 0
   const dailyRatio = safeDivide(result.averageDailySales, budgetDailyAvg, 0)
@@ -149,8 +152,8 @@ export function buildDailySalesDetailVm(
       return {
         day,
         dayLabel: `${day}日`,
-        salesStr: formatCurrency(dr.sales),
-        budgetStr: formatCurrency(dayBudget),
+        salesStr: fmtCurrency(dr.sales),
+        budgetStr: fmtCurrency(dayBudget),
         rateStr: cumBudget > 0 ? formatPercent(dayRate, 2) : '—',
         hasRate: cumBudget > 0,
       }
@@ -160,11 +163,11 @@ export function buildDailySalesDetailVm(
       storeId,
       storeName,
       sigColor,
-      salesStr: formatCurrency(sr.totalSales),
-      budgetStr: formatCurrency(sr.budget),
+      salesStr: fmtCurrency(sr.totalSales),
+      budgetStr: fmtCurrency(sr.budget),
       achievementStr: sr.budget > 0 ? formatPercent(achievementRate, 2) : '—',
-      dailySalesStr: formatCurrency(sr.averageDailySales),
-      budgetDailyStr: formatCurrency(storeBudgetDaily),
+      dailySalesStr: fmtCurrency(sr.averageDailySales),
+      budgetDailyStr: fmtCurrency(storeBudgetDaily),
       hasBudget: sr.budget > 0,
       dailyBreakdown,
     }
@@ -172,12 +175,12 @@ export function buildDailySalesDetailVm(
 
   return {
     storeRows,
-    totalSalesStr: formatCurrency(result.totalSales),
-    totalBudgetStr: formatCurrency(result.budget),
+    totalSalesStr: fmtCurrency(result.totalSales),
+    totalBudgetStr: fmtCurrency(result.budget),
     totalAchievementStr:
       result.budget > 0 ? formatPercent(safeDivide(result.totalSales, result.budget, 0), 2) : '—',
-    totalDailySalesStr: formatCurrency(result.averageDailySales),
-    totalBudgetDailyStr: formatCurrency(budgetDailyAvg),
+    totalDailySalesStr: fmtCurrency(result.averageDailySales),
+    totalBudgetDailyStr: fmtCurrency(budgetDailyAvg),
     totalColor,
     hasTotalBudget: result.budget > 0,
   }
@@ -198,6 +201,7 @@ export function buildDailyYoYRenderRows(
   rows: readonly DailyYoYRow[],
   mode: 'cumulative' | 'daily',
   metric: 'sales' | 'customers',
+  fmtCurrency: CurrencyFormatter,
 ): DailyYoYRenderRow[] {
   let cumCurrent = 0
   let cumPrev = 0
@@ -213,9 +217,7 @@ export function buildDailyYoYRenderRows(
     const yoy = safeDivide(displayCurrent, displayPrev, 0)
 
     const fmtVal =
-      metric === 'sales'
-        ? (v: number) => formatCurrency(v)
-        : (v: number) => `${v.toLocaleString()}人`
+      metric === 'sales' ? (v: number) => fmtCurrency(v) : (v: number) => `${v.toLocaleString()}人`
 
     return {
       day: row.day,

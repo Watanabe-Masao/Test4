@@ -1,6 +1,5 @@
 import { memo, useState } from 'react'
 import { Chip } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import {
   PieChart,
@@ -16,7 +15,12 @@ import {
   type PieLabelRenderProps,
 } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toAxisYen, toPct } from '@/presentation/components/charts/chartTheme'
+import {
+  useChartTheme,
+  useCurrencyFormat,
+  toAxisYen,
+  toPct,
+} from '@/presentation/components/charts/chartTheme'
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
 import { PieWrapper, PieTitle, PieToggle } from './CategoryPage.styles'
 import type { CategoryChartItem, PieMode, ChartView } from './categoryData'
@@ -61,6 +65,7 @@ export const CompositionChart = memo(function CompositionChart({
   items: CategoryChartItem[]
 }) {
   const ct = useChartTheme()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [mode, setMode] = useState<PieMode>('cost')
   const [view, setView] = useState<ChartView>('pie')
 
@@ -89,7 +94,7 @@ export const CompositionChart = memo(function CompositionChart({
   const tooltipLabel = MODE_LABELS[mode]
   const tooltipFormatter = isCrossMult
     ? (value: number) => toPct(value, 2)
-    : (value: number) => formatCurrency(value)
+    : (value: number) => fmtCurrency(value)
 
   return (
     <PieWrapper>

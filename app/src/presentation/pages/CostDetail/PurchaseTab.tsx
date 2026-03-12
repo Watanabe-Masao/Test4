@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Card, CardTitle, ChartErrorBoundary } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   Section,
   Table,
@@ -17,13 +17,13 @@ import {
 } from './CostDetailPage.styles'
 import type { CostDetailData } from './useCostDetailData'
 
-const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
-
 interface PurchaseTabProps {
   readonly d: CostDetailData
 }
 
 export function PurchaseTab({ d }: PurchaseTabProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+  const fmtOrDash = (val: number) => (val !== 0 ? fmtCurrency(val) : '-')
   return (
     <>
       {d.purchasePivot.columns.length === 0 ? (
@@ -81,15 +81,13 @@ export function PurchaseTab({ d }: PurchaseTabProps) {
                         const cell = d.purchasePivot.totals.byColumn[col.key]
                         return (
                           <Fragment key={col.key}>
-                            <PivotTd $groupStart>{formatCurrency(cell.cost)}</PivotTd>
-                            <PivotTd>{formatCurrency(cell.price)}</PivotTd>
+                            <PivotTd $groupStart>{fmtCurrency(cell.cost)}</PivotTd>
+                            <PivotTd>{fmtCurrency(cell.price)}</PivotTd>
                           </Fragment>
                         )
                       })}
-                      <PivotTd $groupStart>
-                        {formatCurrency(d.purchasePivot.totals.grandCost)}
-                      </PivotTd>
-                      <PivotTd>{formatCurrency(d.purchasePivot.totals.grandPrice)}</PivotTd>
+                      <PivotTd $groupStart>{fmtCurrency(d.purchasePivot.totals.grandCost)}</PivotTd>
+                      <PivotTd>{fmtCurrency(d.purchasePivot.totals.grandPrice)}</PivotTd>
                     </TrTotal>
                   </tbody>
                 </Table>

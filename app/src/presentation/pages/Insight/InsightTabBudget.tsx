@@ -84,13 +84,13 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
             <KpiCard
               label="予算消化率"
               value={d.formatPercent(r.budgetAchievementRate)}
-              subText={`予算: ${d.formatCurrency(r.budget)}`}
+              subText={`予算: ${d.fmtCurrency(r.budget)}`}
               accent={sc.positive}
               onClick={() => onExplain('budgetAchievementRate')}
             />
             <KpiCard
               label="月末予測売上"
-              value={d.formatCurrency(r.projectedSales)}
+              value={d.fmtCurrency(r.projectedSales)}
               accent={palette.infoDark}
               onClick={() => onExplain('projectedSales')}
               trend={
@@ -104,14 +104,14 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
             <KpiCard
               label="達成率予測"
               value={d.formatPercent(r.projectedAchievement)}
-              subText={`残余予算: ${d.formatCurrency(r.remainingBudget)}`}
+              subText={`残余予算: ${d.fmtCurrency(r.remainingBudget)}`}
               accent={sc.achievement(r.projectedAchievement)}
               onClick={() => onExplain('remainingBudget')}
             />
             <KpiCard
               label="粗利額予算"
-              value={d.formatCurrency(r.grossProfitBudget)}
-              subText={`実績: ${d.formatCurrency(d.actualGrossProfit)}`}
+              value={d.fmtCurrency(r.grossProfitBudget)}
+              subText={`実績: ${d.fmtCurrency(d.actualGrossProfit)}`}
               accent={palette.purpleDark}
               badge={r.invMethodGrossProfit != null ? 'actual' : 'estimated'}
               formulaSummary={
@@ -139,7 +139,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
             {d.prevYear.hasPrevYear && (
               <KpiCard
                 label="比較期売上"
-                value={d.formatCurrency(d.prevYear.totalSales)}
+                value={d.fmtCurrency(d.prevYear.totalSales)}
                 subText={`比較期比: ${d.prevYear.totalSales > 0 ? d.formatPercent(r.totalSales / d.prevYear.totalSales) : '-'}`}
                 accent={palette.slate}
               />
@@ -148,7 +148,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
               <KpiCard
                 label="比較期比"
                 value={d.formatPercent(r.totalSales / d.prevYear.totalSales)}
-                subText={`差額: ${d.formatCurrency(r.totalSales - d.prevYear.totalSales)}`}
+                subText={`差額: ${d.fmtCurrency(r.totalSales - d.prevYear.totalSales)}`}
                 accent={sc.cond(r.totalSales >= d.prevYear.totalSales)}
               />
             )}
@@ -255,18 +255,18 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                         return (
                           <Tr key={cd.day}>
                             <Td>{cd.day}</Td>
-                            <Td>{d.formatCurrency(dayBudget)}</Td>
-                            <Td>{d.formatCurrency(daySales)}</Td>
+                            <Td>{d.fmtCurrency(dayBudget)}</Td>
+                            <Td>{d.fmtCurrency(daySales)}</Td>
                             <Td $positive={variance > 0} $negative={variance < 0}>
                               {variance > 0 ? '+' : ''}
-                              {d.formatCurrency(variance)}
+                              {d.fmtCurrency(variance)}
                             </Td>
-                            <Td>{d.formatCurrency(dayDiscountAbsolute)}</Td>
-                            <Td>{d.formatCurrency(cd.budgetCum)}</Td>
-                            <Td>{d.formatCurrency(cd.actualCum)}</Td>
+                            <Td>{d.fmtCurrency(dayDiscountAbsolute)}</Td>
+                            <Td>{d.fmtCurrency(cd.budgetCum)}</Td>
+                            <Td>{d.fmtCurrency(cd.actualCum)}</Td>
                             <Td $positive={budgetVariance > 0} $negative={budgetVariance < 0}>
                               {budgetVariance > 0 ? '+' : ''}
-                              {d.formatCurrency(budgetVariance)}
+                              {d.fmtCurrency(budgetVariance)}
                             </Td>
                             <Td $positive={achievement >= 1} $negative={achievement < 0.9}>
                               {d.formatPercent(achievement)}
@@ -274,7 +274,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                             <Td>{d.formatPercent(discountRateCum)}</Td>
                             <Td>{d.formatPercent(cumDiscountRate)}</Td>
                             {d.prevYear.hasPrevYear && (
-                              <Td>{pyDaySales > 0 ? d.formatCurrency(pyDaySales) : '-'}</Td>
+                              <Td>{pyDaySales > 0 ? d.fmtCurrency(pyDaySales) : '-'}</Td>
                             )}
                             {d.prevYear.hasPrevYear && (
                               <Td
@@ -285,7 +285,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                               </Td>
                             )}
                             {d.prevYear.hasPrevYear && (
-                              <Td>{cumPrevYear > 0 ? d.formatCurrency(cumPrevYear) : '-'}</Td>
+                              <Td>{cumPrevYear > 0 ? d.fmtCurrency(cumPrevYear) : '-'}</Td>
                             )}
                             {d.prevYear.hasPrevYear && (
                               <Td
@@ -326,17 +326,17 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
           <CalcRow>
             <CalcLabel>期首在庫</CalcLabel>
             <CalcValue>
-              {r.openingInventory != null ? d.formatCurrency(r.openingInventory) : '未設定'}
+              {r.openingInventory != null ? d.fmtCurrency(r.openingInventory) : '未設定'}
             </CalcValue>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('purchaseCost')}>
             <CalcLabel>＋ 総仕入原価</CalcLabel>
-            <CalcValue>{d.formatCurrency(r.totalCost)}</CalcValue>
+            <CalcValue>{d.fmtCurrency(r.totalCost)}</CalcValue>
           </CalcRow>
           <CalcRow>
             <CalcLabel>－ 期末在庫</CalcLabel>
             <CalcValue>
-              {r.closingInventory != null ? d.formatCurrency(r.closingInventory) : '未設定'}
+              {r.closingInventory != null ? d.fmtCurrency(r.closingInventory) : '未設定'}
             </CalcValue>
           </CalcRow>
           <CalcRow
@@ -345,12 +345,12 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
           >
             <CalcLabel>＝ 売上原価 (COGS)</CalcLabel>
             <CalcHighlight>
-              {r.invMethodCogs != null ? d.formatCurrency(r.invMethodCogs) : '-'}
+              {r.invMethodCogs != null ? d.fmtCurrency(r.invMethodCogs) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('salesTotal')} style={{ marginTop: 8 }}>
             <CalcLabel>総売上高</CalcLabel>
-            <CalcValue>{d.formatCurrency(r.totalSales)}</CalcValue>
+            <CalcValue>{d.fmtCurrency(r.totalSales)}</CalcValue>
           </CalcRow>
           <CalcRow
             $clickable={r.invMethodGrossProfit != null}
@@ -360,7 +360,7 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
           >
             <CalcLabel>実績粗利益</CalcLabel>
             <CalcHighlight $color={sc.positive}>
-              {r.invMethodGrossProfit != null ? d.formatCurrency(r.invMethodGrossProfit) : '-'}
+              {r.invMethodGrossProfit != null ? d.fmtCurrency(r.invMethodGrossProfit) : '-'}
             </CalcHighlight>
           </CalcRow>
           <CalcRow
@@ -387,11 +387,11 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
           <Formula>推定原価 = 粗売上 × (1 - 値入率) + 原価算入費</Formula>
           <CalcRow $clickable onClick={() => onExplain('coreSales')}>
             <CalcLabel>コア売上</CalcLabel>
-            <CalcValue>{d.formatCurrency(r.totalCoreSales)}</CalcValue>
+            <CalcValue>{d.fmtCurrency(r.totalCoreSales)}</CalcValue>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('grossSales')}>
             <CalcLabel>粗売上（売変前）</CalcLabel>
-            <CalcValue>{d.formatCurrency(r.grossSales)}</CalcValue>
+            <CalcValue>{d.fmtCurrency(r.grossSales)}</CalcValue>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('discountRate')}>
             <CalcLabel>売変率</CalcLabel>
@@ -403,12 +403,12 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodCogs')}>
             <CalcLabel>推定原価</CalcLabel>
-            <CalcHighlight>{d.formatCurrency(r.estMethodCogs)}</CalcHighlight>
+            <CalcHighlight>{d.fmtCurrency(r.estMethodCogs)}</CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodMargin')}>
             <CalcLabel>推定マージン</CalcLabel>
             <CalcHighlight $color={palette.warningDark}>
-              {d.formatCurrency(r.estMethodMargin)}
+              {d.fmtCurrency(r.estMethodMargin)}
             </CalcHighlight>
           </CalcRow>
           <CalcRow $clickable onClick={() => onExplain('estMethodMarginRate')}>
@@ -428,7 +428,7 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
             <CalcLabel>推定期末在庫（理論値）</CalcLabel>
             <CalcHighlight $color={palette.cyanDark}>
               {r.estMethodClosingInventory != null
-                ? d.formatCurrency(r.estMethodClosingInventory)
+                ? d.fmtCurrency(r.estMethodClosingInventory)
                 : '-'}
             </CalcHighlight>
           </CalcRow>
@@ -456,7 +456,7 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
                       {severity === 'mid' && ' — 注意'}
                     </VarianceLabel>
                     <VarianceValue>
-                      {d.formatCurrency(invDiff)}（{d.formatPercent(invDiffRate)}）
+                      {d.fmtCurrency(invDiff)}（{d.formatPercent(invDiffRate)}）
                     </VarianceValue>
                   </VarianceRow>
                 </>
@@ -485,24 +485,24 @@ export function GrossProfitTabContent({ d, r, onExplain }: BudgetTabProps) {
         <KpiGrid>
           <KpiCard
             label="店間入"
-            value={d.formatCurrency(r.transferDetails.interStoreIn.cost)}
-            subText={`売価: ${d.formatCurrency(r.transferDetails.interStoreIn.price)}`}
+            value={d.fmtCurrency(r.transferDetails.interStoreIn.cost)}
+            subText={`売価: ${d.fmtCurrency(r.transferDetails.interStoreIn.price)}`}
             accent={sc.positive}
           />
           <KpiCard
             label="店間出"
-            value={d.formatCurrency(r.transferDetails.interStoreOut.cost)}
-            subText={`売価: ${d.formatCurrency(r.transferDetails.interStoreOut.price)}`}
+            value={d.fmtCurrency(r.transferDetails.interStoreOut.cost)}
+            subText={`売価: ${d.fmtCurrency(r.transferDetails.interStoreOut.price)}`}
             accent={sc.negative}
           />
           <KpiCard
             label="部門間入"
-            value={d.formatCurrency(r.transferDetails.interDepartmentIn.cost)}
+            value={d.fmtCurrency(r.transferDetails.interDepartmentIn.cost)}
             accent={palette.blueDark}
           />
           <KpiCard
             label="部門間出"
-            value={d.formatCurrency(r.transferDetails.interDepartmentOut.cost)}
+            value={d.fmtCurrency(r.transferDetails.interDepartmentOut.cost)}
             accent={palette.purpleDeep}
           />
         </KpiGrid>

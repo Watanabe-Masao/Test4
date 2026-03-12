@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { DailySalesEntry } from './ChartTabContent'
@@ -18,6 +18,8 @@ export type DailyTabContentProps = {
 }
 
 export function DailyTabContent({ dailySalesData, r }: DailyTabContentProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+
   return (
     <>
       <DailyHeader $isWeekend={false}>
@@ -40,9 +42,9 @@ export function DailyTabContent({ dailySalesData, r }: DailyTabContentProps) {
               {entry.day} {DOW_LABELS[entry.dow]}
             </DailyDay>
             <DailyValues>
-              <DailyCol>{formatCurrency(entry.sales)}</DailyCol>
-              <DailyCol>{customers > 0 ? formatCurrency(customers) : '-'}</DailyCol>
-              <DailyCol>{tv > 0 ? formatCurrency(tv) : '-'}</DailyCol>
+              <DailyCol>{fmtCurrency(entry.sales)}</DailyCol>
+              <DailyCol>{customers > 0 ? fmtCurrency(customers) : '-'}</DailyCol>
+              <DailyCol>{tv > 0 ? fmtCurrency(tv) : '-'}</DailyCol>
             </DailyValues>
           </DailyRow>
         )

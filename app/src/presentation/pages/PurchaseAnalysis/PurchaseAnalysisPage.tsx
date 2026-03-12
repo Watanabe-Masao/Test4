@@ -9,7 +9,8 @@ import { useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { KpiCard, KpiGrid, PageSkeleton } from '@/presentation/components/common'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
@@ -42,6 +43,7 @@ import { PurchaseVsSalesChart } from './PurchaseVsSalesChart'
 // ── メインコンポーネント ──
 
 export function PurchaseAnalysisPage() {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const settings = useSettingsStore((s) => s.settings)
   const data = useDataStore((s) => s.data)
   const repo = useRepository()
@@ -130,14 +132,14 @@ export function PurchaseAnalysisPage() {
         <KpiGrid>
           <KpiCard
             label="仕入原価合計"
-            value={formatCurrency(kpi.currentTotalCost)}
-            subText={`前年比: ${formatPercent(kpi.prevTotalCost > 0 ? kpi.currentTotalCost / kpi.prevTotalCost : 0)} / 前年: ${formatCurrency(kpi.prevTotalCost)} / 差額: ${kpi.totalCostDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalCostDiff)}`}
+            value={fmtCurrency(kpi.currentTotalCost)}
+            subText={`前年比: ${formatPercent(kpi.prevTotalCost > 0 ? kpi.currentTotalCost / kpi.prevTotalCost : 0)} / 前年: ${fmtCurrency(kpi.prevTotalCost)} / 差額: ${kpi.totalCostDiff >= 0 ? '+' : ''}${fmtCurrency(kpi.totalCostDiff)}`}
             accent={kpi.totalCostDiff >= 0 ? palette.negative : palette.positive}
           />
           <KpiCard
             label="仕入売価合計"
-            value={formatCurrency(kpi.currentTotalPrice)}
-            subText={`前年比: ${formatPercent(kpi.prevTotalPrice > 0 ? kpi.currentTotalPrice / kpi.prevTotalPrice : 0)} / 前年: ${formatCurrency(kpi.prevTotalPrice)} / 差額: ${kpi.totalPriceDiff >= 0 ? '+' : ''}${formatCurrency(kpi.totalPriceDiff)}`}
+            value={fmtCurrency(kpi.currentTotalPrice)}
+            subText={`前年比: ${formatPercent(kpi.prevTotalPrice > 0 ? kpi.currentTotalPrice / kpi.prevTotalPrice : 0)} / 前年: ${fmtCurrency(kpi.prevTotalPrice)} / 差額: ${kpi.totalPriceDiff >= 0 ? '+' : ''}${fmtCurrency(kpi.totalPriceDiff)}`}
             accent={kpi.totalPriceDiff >= 0 ? palette.negative : palette.positive}
           />
           <KpiCard
@@ -149,7 +151,7 @@ export function PurchaseAnalysisPage() {
           <KpiCard
             label="仕入対売上比率"
             value={formatPercent(kpi.currentCostToSalesRatio)}
-            subText={`前年: ${formatPercent(kpi.prevCostToSalesRatio)} / 売上: ${formatCurrency(kpi.currentSales)}`}
+            subText={`前年: ${formatPercent(kpi.prevCostToSalesRatio)} / 売上: ${fmtCurrency(kpi.currentSales)}`}
             accent={
               kpi.currentCostToSalesRatio <= kpi.prevCostToSalesRatio
                 ? palette.positive
@@ -213,6 +215,7 @@ export function PurchaseAnalysisPage() {
 // ── 前年対比進捗カード ──
 
 function YoyProgressCards({ kpi }: { kpi: PurchaseComparisonKpi }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const salesRatio = kpi.prevSales > 0 ? kpi.currentSales / kpi.prevSales : 0
   const costRatio = kpi.prevTotalCost > 0 ? kpi.currentTotalCost / kpi.prevTotalCost : 0
   const priceRatio = kpi.prevTotalPrice > 0 ? kpi.currentTotalPrice / kpi.prevTotalPrice : 0
@@ -227,7 +230,7 @@ function YoyProgressCards({ kpi }: { kpi: PurchaseComparisonKpi }) {
         <ProgressLabel>売上 前年比</ProgressLabel>
         <ProgressValue $accent={salesColor}>{formatPercent(salesRatio)}</ProgressValue>
         <ProgressSub>
-          当期: {formatCurrency(kpi.currentSales)} / 前年: {formatCurrency(kpi.prevSales)}
+          当期: {fmtCurrency(kpi.currentSales)} / 前年: {fmtCurrency(kpi.prevSales)}
         </ProgressSub>
         <ProgressBar>
           <ProgressFill $width={salesRatio * 100} $color={salesColor} />
@@ -237,7 +240,7 @@ function YoyProgressCards({ kpi }: { kpi: PurchaseComparisonKpi }) {
         <ProgressLabel>仕入原価 前年比</ProgressLabel>
         <ProgressValue $accent={costColor}>{formatPercent(costRatio)}</ProgressValue>
         <ProgressSub>
-          当期: {formatCurrency(kpi.currentTotalCost)} / 前年: {formatCurrency(kpi.prevTotalCost)}
+          当期: {fmtCurrency(kpi.currentTotalCost)} / 前年: {fmtCurrency(kpi.prevTotalCost)}
         </ProgressSub>
         <ProgressBar>
           <ProgressFill $width={costRatio * 100} $color={costColor} />
@@ -247,7 +250,7 @@ function YoyProgressCards({ kpi }: { kpi: PurchaseComparisonKpi }) {
         <ProgressLabel>仕入売価 前年比</ProgressLabel>
         <ProgressValue $accent={priceColor}>{formatPercent(priceRatio)}</ProgressValue>
         <ProgressSub>
-          当期: {formatCurrency(kpi.currentTotalPrice)} / 前年: {formatCurrency(kpi.prevTotalPrice)}
+          当期: {fmtCurrency(kpi.currentTotalPrice)} / 前年: {fmtCurrency(kpi.prevTotalPrice)}
         </ProgressSub>
         <ProgressBar>
           <ProgressFill $width={priceRatio * 100} $color={priceColor} />

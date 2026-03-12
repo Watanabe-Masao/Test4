@@ -19,7 +19,7 @@ import {
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { useChartTheme, useCurrencyFormatter, toAxisYen } from '@/presentation/components/charts'
 import { createChartTooltip } from '@/presentation/components/charts/createChartTooltip'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
@@ -72,6 +72,7 @@ export function DrilldownWaterfall({
 }) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [viewMode, setViewMode] = useState<ViewMode>('factor')
   const [decompLevel, setDecompLevel] = useState<DecompLevel | null>(null)
 
@@ -322,9 +323,9 @@ export function DrilldownWaterfall({
             </PiItem>
           </span>
           <span>
-            点単価: {formatCurrency(Math.round(piSummary.prevPPI))}→{' '}
+            点単価: {fmtCurrency(Math.round(piSummary.prevPPI))}→{' '}
             <PiItem $color={sc.cond(piSummary.curPPI >= piSummary.prevPPI)}>
-              {formatCurrency(Math.round(piSummary.curPPI))}
+              {fmtCurrency(Math.round(piSummary.curPPI))}
             </PiItem>
           </span>
         </PiRow>
@@ -367,7 +368,7 @@ export function DrilldownWaterfall({
                   if (name === 'base') return [null, null]
                   const item = entry.payload as WaterfallItem | undefined
                   if (!item) return ['-', '-']
-                  return [formatCurrency(item.value), item.name]
+                  return [fmtCurrency(item.value), item.name]
                 },
               })}
             />

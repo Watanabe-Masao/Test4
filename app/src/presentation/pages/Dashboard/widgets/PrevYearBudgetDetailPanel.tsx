@@ -11,9 +11,10 @@
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
-import type { PrevYearMonthlyKpiEntry } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type { PrevYearMonthlyKpiEntry } from '@/application/comparison/comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import {
   Overlay,
@@ -112,6 +113,7 @@ export function PrevYearBudgetDetailPanel({
 }: PrevYearBudgetDetailPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('daily')
   const theme = useTheme()
+  const { format: fmtCurrency } = useCurrencyFormat()
 
   const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
   const offsetLabel =
@@ -192,14 +194,14 @@ export function PrevYearBudgetDetailPanel({
         <MbpTd colSpan={2}>
           {weekNum}週目 ({wt.days}日間)
         </MbpTd>
-        <NumTd>{formatCurrency(wt.sales)}</NumTd>
+        <NumTd>{fmtCurrency(wt.sales)}</NumTd>
         <NumTd>{wt.customers.toLocaleString('ja-JP')}</NumTd>
-        <NumTd>{wt.customers > 0 ? formatCurrency(wCustUnit) : '-'}</NumTd>
+        <NumTd>{wt.customers > 0 ? fmtCurrency(wCustUnit) : '-'}</NumTd>
         <MbpTd />
-        <NumTd>{formatCurrency(wt.budget)}</NumTd>
+        <NumTd>{fmtCurrency(wt.budget)}</NumTd>
         <NumTd>
           {wt.budget - wt.sales >= 0 ? '+' : ''}
-          {formatCurrency(wt.budget - wt.sales)}
+          {fmtCurrency(wt.budget - wt.sales)}
         </NumTd>
         <NumTd>{wt.sales > 0 ? formatPercent(wRatio) : '-'}</NumTd>
       </WeekRow>
@@ -240,16 +242,16 @@ export function PrevYearBudgetDetailPanel({
           <MbpTd>
             {sourceMonth}/{row.prevDay}
           </MbpTd>
-          <NumTd>{formatCurrency(displaySales)}</NumTd>
+          <NumTd>{fmtCurrency(displaySales)}</NumTd>
           <NumTd>{displayCustomers.toLocaleString('ja-JP')}</NumTd>
-          <NumTd>{displayCustomers > 0 ? formatCurrency(custUnitPrice) : '-'}</NumTd>
+          <NumTd>{displayCustomers > 0 ? fmtCurrency(custUnitPrice) : '-'}</NumTd>
           <MbpTd>
             {targetMonth}/{row.currentDay}
           </MbpTd>
-          <NumTd>{formatCurrency(displayBudget)}</NumTd>
+          <NumTd>{fmtCurrency(displayBudget)}</NumTd>
           <RatioCell $ratio={diff >= 0 ? 1.1 : 0.9}>
             {diff >= 0 ? '+' : ''}
-            {formatCurrency(diff)}
+            {fmtCurrency(diff)}
           </RatioCell>
           <RatioCell $ratio={ratio}>{displaySales > 0 ? formatPercent(ratio) : '-'}</RatioCell>
         </MbpTr>,
@@ -266,14 +268,14 @@ export function PrevYearBudgetDetailPanel({
       <TotalRow key="total">
         <MbpTd>合計</MbpTd>
         <MbpTd>{entry.dailyMapping.length}日</MbpTd>
-        <NumTd>{formatCurrency(entry.sales)}</NumTd>
+        <NumTd>{fmtCurrency(entry.sales)}</NumTd>
         <NumTd>{entry.customers.toLocaleString('ja-JP')}</NumTd>
-        <NumTd>{entry.customers > 0 ? formatCurrency(prevTransactionValue) : '-'}</NumTd>
+        <NumTd>{entry.customers > 0 ? fmtCurrency(prevTransactionValue) : '-'}</NumTd>
         <MbpTd />
-        <NumTd>{formatCurrency(budgetTotal)}</NumTd>
+        <NumTd>{fmtCurrency(budgetTotal)}</NumTd>
         <NumTd>
           {budgetTotal - entry.sales >= 0 ? '+' : ''}
-          {formatCurrency(budgetTotal - entry.sales)}
+          {fmtCurrency(budgetTotal - entry.sales)}
         </NumTd>
         <NumTd>{entry.sales > 0 ? formatPercent(budgetVsPrevYear) : '-'}</NumTd>
       </TotalRow>,
@@ -315,21 +317,21 @@ export function PrevYearBudgetDetailPanel({
         <SummaryGrid>
           <SummaryCard>
             <SummaryLabel>前年売上</SummaryLabel>
-            <SummaryValue>{formatCurrency(entry.sales)}</SummaryValue>
+            <SummaryValue>{fmtCurrency(entry.sales)}</SummaryValue>
             <SummarySub>客数: {entry.customers.toLocaleString('ja-JP')}人</SummarySub>
           </SummaryCard>
           <SummaryCard>
             <SummaryLabel>前年客単価</SummaryLabel>
-            <SummaryValue>{formatCurrency(prevTransactionValue)}</SummaryValue>
+            <SummaryValue>{fmtCurrency(prevTransactionValue)}</SummaryValue>
             <SummarySub>売上 ÷ 客数</SummarySub>
           </SummaryCard>
           <SummaryCard>
             <SummaryLabel>当年月間予算</SummaryLabel>
-            <SummaryValue>{formatCurrency(budgetTotal)}</SummaryValue>
+            <SummaryValue>{fmtCurrency(budgetTotal)}</SummaryValue>
             <SummarySub>
               対前年: {formatPercent(budgetVsPrevYear)}
               {budgetVsPrevYear !== 1 &&
-                ` (${budgetTotal - entry.sales >= 0 ? '+' : ''}${formatCurrency(budgetTotal - entry.sales)})`}
+                ` (${budgetTotal - entry.sales >= 0 ? '+' : ''}${fmtCurrency(budgetTotal - entry.sales)})`}
             </SummarySub>
           </SummaryCard>
           <SummaryCard>
@@ -381,7 +383,7 @@ export function PrevYearBudgetDetailPanel({
                   }}
                 >
                   {dowGap.estimatedImpact >= 0 ? '+' : ''}
-                  {formatCurrency(dowGap.estimatedImpact)}
+                  {fmtCurrency(dowGap.estimatedImpact)}
                 </SummaryValue>
                 <SummarySub>Σ(前年曜日別日平均 × 日数差)</SummarySub>
               </SummaryCard>
@@ -411,7 +413,7 @@ export function PrevYearBudgetDetailPanel({
                   }}
                 >
                   {estimatedUnitPriceImpact >= 0 ? '+' : ''}
-                  {formatCurrency(Math.round(estimatedUnitPriceImpact))}
+                  {fmtCurrency(Math.round(estimatedUnitPriceImpact))}
                 </SummaryValue>
                 <SummarySub>曜日構成変化による客単価変動</SummarySub>
               </SummaryCard>

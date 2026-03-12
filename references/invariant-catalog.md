@@ -173,7 +173,7 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 Σ(storeContributions[*].sales) = entry.sales
 ```
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件1`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件1`
 - **ロール**: invariant-guardian
 - **違反時の影響**: Explanation の evidenceRefs が示すデータと表示値が乖離する
 
@@ -183,7 +183,7 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 Σ(storeContributions[*].customers) = entry.customers
 ```
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件2`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件2`
 - **ロール**: invariant-guardian
 
 ### INV-AGG-03: dailyMapping 売上合計 = entry.sales
@@ -192,7 +192,7 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 Σ(dailyMapping[*].prevSales) = entry.sales
 ```
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件3`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件3`
 - **ロール**: invariant-guardian
 - **違反時の影響**: 日別ドリルダウンの合計が月間合計に一致しない
 
@@ -202,12 +202,12 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 Σ(dailyMapping[*].prevCustomers) = entry.customers
 ```
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件4`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件4`
 - **ロール**: invariant-guardian
 
 ### INV-AGG-05: transactionValue = Math.round(sales / customers)
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件5`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件5`
 - **ロール**: invariant-guardian
 - **特記**: customers = 0 のとき transactionValue = 0
 
@@ -218,13 +218,13 @@ domain/ → application/ | infrastructure/ | presentation/ のインポート = 
 ∀ c ∈ storeContributions: 1 ≤ c.mappedDay ≤ daysInMonth
 ```
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件6`, `不変条件7`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件6`, `不変条件7`
 - **ロール**: invariant-guardian
 - **違反時の影響**: 月外の日付がドリルダウンに表示される
 
 ### INV-AGG-07: offset=0 では originalDay = mappedDay
 
-- **テスト**: `usePrevYearMonthlyKpi.test.ts` — `不変条件8`
+- **テスト**: `buildComparisonAggregation.test.ts` — `不変条件8`
 - **ロール**: invariant-guardian
 - **特記**: 同日アライメントではオフセットなし
 

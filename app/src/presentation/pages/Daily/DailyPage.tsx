@@ -10,9 +10,10 @@ import {
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks'
-import type { PrevYearData } from '@/application/hooks/usePrevYearData'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import type { PrevYearData } from '@/application/comparison/comparisonTypes'
+import { formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   collectSupplierKeys,
   collectTransferKeys,
@@ -73,6 +74,7 @@ export function DailyPage() {
   const dataStores = useDataStore((s) => s.data.stores)
   const settings = useSettingsStore((s) => s.settings)
   const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const prevYear: PrevYearData = ctx?.prevYear ?? EMPTY_PREV_YEAR
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
@@ -163,8 +165,8 @@ export function DailyPage() {
     <ToggleIcon $expanded={expanded.has(col)}>&#9654;</ToggleIcon>
   )
 
-  const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
-  const fmtOrDashPositive = (val: number) => (val > 0 ? formatCurrency(val) : '-')
+  const fmtOrDash = (val: number) => (val !== 0 ? fmtCurrency(val) : '-')
+  const fmtOrDashPositive = (val: number) => (val > 0 ? fmtCurrency(val) : '-')
 
   // 日別明細テーブル
   const dailyDetailTable = (
@@ -269,9 +271,9 @@ export function DailyPage() {
                       </AnomalyBadge>
                     )}
                   </Td>
-                  <Td>{formatCurrency(rec.sales)}</Td>
+                  <Td>{fmtCurrency(rec.sales)}</Td>
                   {prevYear.hasPrevYear && (
-                    <PrevYearTd>{prevSales > 0 ? formatCurrency(prevSales) : '-'}</PrevYearTd>
+                    <PrevYearTd>{prevSales > 0 ? fmtCurrency(prevSales) : '-'}</PrevYearTd>
                   )}
                   {prevYear.hasPrevYear &&
                     (() => {
@@ -279,7 +281,7 @@ export function DailyPage() {
                       const ratio = (rec.sales / prevSales) * 100
                       return <PrevYearTd $positive={ratio >= 100}>{ratio.toFixed(1)}%</PrevYearTd>
                     })()}
-                  <Td>{formatCurrency(rec.purchase.cost)}</Td>
+                  <Td>{fmtCurrency(rec.purchase.cost)}</Td>
                   {isPurchaseExpanded &&
                     supplierKeys.map((s) => {
                       const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
@@ -289,7 +291,7 @@ export function DailyPage() {
                         </SubTd>
                       )
                     })}
-                  <Td>{formatCurrency(rec.purchase.price)}</Td>
+                  <Td>{fmtCurrency(rec.purchase.price)}</Td>
                   {isPurchaseExpanded &&
                     supplierKeys.map((s) => {
                       const pair: CostPricePair | undefined = rec.supplierBreakdown.get(s.code)
@@ -352,11 +354,9 @@ export function DailyPage() {
                   <Td>{fmtOrDashPositive(rec.flowers.price)}</Td>
                   <Td>{fmtOrDashPositive(rec.directProduce.price)}</Td>
                   <Td $negative={rec.discountAbsolute > 0}>
-                    {rec.discountAbsolute > 0 ? formatCurrency(rec.discountAbsolute) : '-'}
+                    {rec.discountAbsolute > 0 ? fmtCurrency(rec.discountAbsolute) : '-'}
                   </Td>
-                  <Td>
-                    {rec.costInclusion.cost > 0 ? formatCurrency(rec.costInclusion.cost) : '-'}
-                  </Td>
+                  <Td>{rec.costInclusion.cost > 0 ? fmtCurrency(rec.costInclusion.cost) : '-'}</Td>
                   {(() => {
                     const cum = cumulativeData.get(day)
                     const gpr = cum?.grossProfitRate ?? 0

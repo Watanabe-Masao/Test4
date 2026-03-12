@@ -1,7 +1,7 @@
 /**
  * カテゴリ別要因分解チャートのツールチップ
  */
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { TipBox, TipTitle, TipRow, TipHint, valColor } from './CategoryFactorBreakdown.styles'
 import type { DecompLevel, FactorItem } from './categoryFactorBreakdown.types'
 
@@ -21,6 +21,7 @@ interface FactorTooltipProps {
 }
 
 export function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTooltipProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   if (!active || !payload?.length) return null
   const item = payload[0]?.payload
   if (!item) return null
@@ -31,36 +32,36 @@ export function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTo
     <TipBox>
       <TipTitle>{item.name}</TipTitle>
       <TipRow>
-        {pL}: {formatCurrency(item.prevAmount)}
+        {pL}: {fmtCurrency(item.prevAmount)}
       </TipRow>
       <TipRow>
-        {cL}: {formatCurrency(item.curAmount)}
+        {cL}: {fmtCurrency(item.curAmount)}
       </TipRow>
       <TipRow $color={valColor(item.totalChange)}>
         増減: {item.totalChange >= 0 ? '+' : ''}
-        {formatCurrency(item.totalChange)}
+        {fmtCurrency(item.totalChange)}
       </TipRow>
       {item.custEffect !== 0 && (
         <TipRow $color={FACTOR_COLORS.cust}>
           客数効果: {item.custEffect >= 0 ? '+' : ''}
-          {formatCurrency(Math.round(item.custEffect))}
+          {fmtCurrency(Math.round(item.custEffect))}
         </TipRow>
       )}
       {lvl === 2 && (
         <TipRow $color={FACTOR_COLORS.ticket}>
           客単価効果: {item.ticketEffect >= 0 ? '+' : ''}
-          {formatCurrency(Math.round(item.ticketEffect))}
+          {fmtCurrency(Math.round(item.ticketEffect))}
         </TipRow>
       )}
       {lvl === 3 && (
         <>
           <TipRow $color={FACTOR_COLORS.qty}>
             点数効果: {item.qtyEffect >= 0 ? '+' : ''}
-            {formatCurrency(Math.round(item.qtyEffect))}
+            {fmtCurrency(Math.round(item.qtyEffect))}
           </TipRow>
           <TipRow $color={FACTOR_COLORS.price}>
             単価効果: {item.priceEffect >= 0 ? '+' : ''}
-            {formatCurrency(Math.round(item.priceEffect))}
+            {fmtCurrency(Math.round(item.priceEffect))}
           </TipRow>
         </>
       )}
@@ -68,15 +69,15 @@ export function FactorTooltip({ active, payload, prevLabel, curLabel }: FactorTo
         <>
           <TipRow $color={FACTOR_COLORS.qty}>
             点数効果: {item.qtyEffect >= 0 ? '+' : ''}
-            {formatCurrency(Math.round(item.qtyEffect))}
+            {fmtCurrency(Math.round(item.qtyEffect))}
           </TipRow>
           <TipRow $color={FACTOR_COLORS.price}>
             価格効果: {item.pricePureEffect >= 0 ? '+' : ''}
-            {formatCurrency(Math.round(item.pricePureEffect))}
+            {fmtCurrency(Math.round(item.pricePureEffect))}
           </TipRow>
           <TipRow $color={FACTOR_COLORS.mix}>
             構成比変化効果: {item.mixEffect >= 0 ? '+' : ''}
-            {formatCurrency(Math.round(item.mixEffect))}
+            {fmtCurrency(Math.round(item.mixEffect))}
           </TipRow>
         </>
       )}

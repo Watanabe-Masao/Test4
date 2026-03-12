@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { StoreResult } from '@/domain/models'
-import type { PrevYearData } from './usePrevYearData'
+import type { PrevYearData } from '@/application/comparison/comparisonTypes'
 
 export interface BudgetChartDataPoint {
   readonly day: number

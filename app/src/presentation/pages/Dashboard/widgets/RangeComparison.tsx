@@ -1,6 +1,7 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent, formatPointDiff } from '@/domain/formatting'
+import { formatPercent, formatPointDiff } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { fmtSen } from './drilldownUtils'
 import type { PrevYearData } from '@/application/hooks'
 import {
@@ -54,6 +55,7 @@ export function RangeComparisonPanel({
   rangeBData,
   prevYear,
 }: RangeComparisonPanelProps) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   // Single range summary
   const singleRange =
     rangeAData && !rangeBData ? rangeAData : !rangeAData && rangeBData ? rangeBData : null
@@ -67,16 +69,16 @@ export function RangeComparisonPanel({
           <RangeSummaryGrid>
             <RangeSummaryItem>
               <RangeSummaryItemLabel>売上予算</RangeSummaryItemLabel>
-              <RangeSummaryItemValue>{formatCurrency(singleRange.budget)}</RangeSummaryItemValue>
+              <RangeSummaryItemValue>{fmtCurrency(singleRange.budget)}</RangeSummaryItemValue>
             </RangeSummaryItem>
             <RangeSummaryItem>
               <RangeSummaryItemLabel>売上実績</RangeSummaryItemLabel>
-              <RangeSummaryItemValue>{formatCurrency(singleRange.sales)}</RangeSummaryItemValue>
+              <RangeSummaryItemValue>{fmtCurrency(singleRange.sales)}</RangeSummaryItemValue>
             </RangeSummaryItem>
             <RangeSummaryItem>
               <RangeSummaryItemLabel>予算差異</RangeSummaryItemLabel>
               <RangeSummaryItemValue $color={sc.cond(singleRange.diff >= 0)}>
-                {formatCurrency(singleRange.diff)}
+                {fmtCurrency(singleRange.diff)}
               </RangeSummaryItemValue>
             </RangeSummaryItem>
             <RangeSummaryItem>
@@ -89,9 +91,7 @@ export function RangeComparisonPanel({
               <>
                 <RangeSummaryItem>
                   <RangeSummaryItemLabel>前年同期売上</RangeSummaryItemLabel>
-                  <RangeSummaryItemValue>
-                    {formatCurrency(singleRange.pySales)}
-                  </RangeSummaryItemValue>
+                  <RangeSummaryItemValue>{fmtCurrency(singleRange.pySales)}</RangeSummaryItemValue>
                 </RangeSummaryItem>
                 <RangeSummaryItem>
                   <RangeSummaryItemLabel>前年比</RangeSummaryItemLabel>
@@ -103,7 +103,7 @@ export function RangeComparisonPanel({
             )}
             <RangeSummaryItem>
               <RangeSummaryItemLabel>日平均売上</RangeSummaryItemLabel>
-              <RangeSummaryItemValue>{formatCurrency(singleRange.avgDaily)}</RangeSummaryItemValue>
+              <RangeSummaryItemValue>{fmtCurrency(singleRange.avgDaily)}</RangeSummaryItemValue>
             </RangeSummaryItem>
           </RangeSummaryGrid>
         </div>
@@ -135,15 +135,15 @@ export function RangeComparisonPanel({
     <>
       <RangeMetricRow>
         <RangeMetricLabel>売上予算</RangeMetricLabel>
-        <RangeMetricValue>{formatCurrency(d.budget)}</RangeMetricValue>
+        <RangeMetricValue>{fmtCurrency(d.budget)}</RangeMetricValue>
       </RangeMetricRow>
       <RangeMetricRow>
         <RangeMetricLabel>売上実績</RangeMetricLabel>
-        <RangeMetricValue>{formatCurrency(d.sales)}</RangeMetricValue>
+        <RangeMetricValue>{fmtCurrency(d.sales)}</RangeMetricValue>
       </RangeMetricRow>
       <RangeMetricRow>
         <RangeMetricLabel>予算差異</RangeMetricLabel>
-        <RangeMetricValue $color={sc.cond(d.diff >= 0)}>{formatCurrency(d.diff)}</RangeMetricValue>
+        <RangeMetricValue $color={sc.cond(d.diff >= 0)}>{fmtCurrency(d.diff)}</RangeMetricValue>
       </RangeMetricRow>
       <RangeMetricRow>
         <RangeMetricLabel>予算達成率</RangeMetricLabel>
@@ -153,7 +153,7 @@ export function RangeComparisonPanel({
         <>
           <RangeMetricRow>
             <RangeMetricLabel>前年同期</RangeMetricLabel>
-            <RangeMetricValue>{formatCurrency(d.pySales)}</RangeMetricValue>
+            <RangeMetricValue>{fmtCurrency(d.pySales)}</RangeMetricValue>
           </RangeMetricRow>
           <RangeMetricRow>
             <RangeMetricLabel>前年比</RangeMetricLabel>
@@ -165,7 +165,7 @@ export function RangeComparisonPanel({
       )}
       <RangeMetricRow>
         <RangeMetricLabel>日平均売上</RangeMetricLabel>
-        <RangeMetricValue>{formatCurrency(d.avgDaily)}</RangeMetricValue>
+        <RangeMetricValue>{fmtCurrency(d.avgDaily)}</RangeMetricValue>
       </RangeMetricRow>
     </>
   )
@@ -199,7 +199,7 @@ export function RangeComparisonPanel({
               <span>売上実績</span>
               <CompareBarDiff $color={cmpColor(rangeAData.sales, rangeBData.sales)}>
                 {salesDiff >= 0 ? '+' : ''}
-                {formatCurrency(salesDiff)}
+                {fmtCurrency(salesDiff)}
               </CompareBarDiff>
             </CompareBarLabel>
             <CompareBarTrack>
@@ -223,7 +223,7 @@ export function RangeComparisonPanel({
               <span>売上予算</span>
               <CompareBarDiff $color={cmpColor(rangeAData.budget, rangeBData.budget)}>
                 {rangeAData.budget - rangeBData.budget >= 0 ? '+' : ''}
-                {formatCurrency(rangeAData.budget - rangeBData.budget)}
+                {fmtCurrency(rangeAData.budget - rangeBData.budget)}
               </CompareBarDiff>
             </CompareBarLabel>
             <CompareBarTrack>
@@ -241,7 +241,7 @@ export function RangeComparisonPanel({
               <span>日平均売上</span>
               <CompareBarDiff $color={cmpColor(rangeAData.avgDaily, rangeBData.avgDaily)}>
                 {avgDiff >= 0 ? '+' : ''}
-                {formatCurrency(avgDiff)}
+                {fmtCurrency(avgDiff)}
               </CompareBarDiff>
             </CompareBarLabel>
             <CompareBarTrack>
@@ -283,7 +283,7 @@ export function RangeComparisonPanel({
                 <span>前年同期売上</span>
                 <CompareBarDiff $color={cmpColor(pyA, pyB)}>
                   {pyA - pyB >= 0 ? '+' : ''}
-                  {formatCurrency(pyA - pyB)}
+                  {fmtCurrency(pyA - pyB)}
                 </CompareBarDiff>
               </CompareBarLabel>
               <CompareBarTrack>

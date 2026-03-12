@@ -291,3 +291,98 @@ describe('aggregateKpiByAlignment', () => {
     expect(result.transactionValue).toBe(0)
   })
 })
+
+// ── aggregateKpiByAlignment 不変条件（INV-AGG-*） ──
+
+describe('aggregateKpiByAlignment 集約不変条件', () => {
+  const allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>> = {
+    S1: {
+      1: makeSummary(100000),
+      2: makeSummary(120000),
+      3: makeSummary(80000),
+      15: makeSummary(200000),
+      28: makeSummary(150000),
+    },
+    S2: { 1: makeSummary(90000), 3: makeSummary(110000), 10: makeSummary(95000) },
+    S3: { 5: makeSummary(70000), 20: makeSummary(130000) },
+  }
+  const flowers: StoreDayIndex<SpecialSalesDayEntry> = {
+    S1: {
+      1: { storeId: 'S1', year: 2025, month: 3, day: 1, price: 0, cost: 0, customers: 50 },
+      2: { storeId: 'S1', year: 2025, month: 3, day: 2, price: 0, cost: 0, customers: 60 },
+      3: { storeId: 'S1', year: 2025, month: 3, day: 3, price: 0, cost: 0, customers: 40 },
+      15: { storeId: 'S1', year: 2025, month: 3, day: 15, price: 0, cost: 0, customers: 100 },
+      28: { storeId: 'S1', year: 2025, month: 3, day: 28, price: 0, cost: 0, customers: 75 },
+    },
+    S2: {
+      1: { storeId: 'S2', year: 2025, month: 3, day: 1, price: 0, cost: 0, customers: 45 },
+      3: { storeId: 'S2', year: 2025, month: 3, day: 3, price: 0, cost: 0, customers: 55 },
+      10: { storeId: 'S2', year: 2025, month: 3, day: 10, price: 0, cost: 0, customers: 48 },
+    },
+    S3: {
+      5: { storeId: 'S3', year: 2025, month: 3, day: 5, price: 0, cost: 0, customers: 35 },
+      20: { storeId: 'S3', year: 2025, month: 3, day: 20, price: 0, cost: 0, customers: 65 },
+    },
+  }
+  const allIds = ['S1', 'S2', 'S3'] as const
+
+  // 全日を1:1でマッピング
+  const allDays = [1, 2, 3, 5, 10, 15, 20, 28]
+  const alignment = allDays.map((d) => makeAlignmentEntry(2025, 3, d, 2026, 3, d))
+
+  const entry = aggregateKpiByAlignment(allAgg, flowers, allIds, alignment)
+
+  it('INV-AGG-001: Σ(storeContributions.sales) === entry.sales', () => {
+    expect(entry.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(entry.sales)
+  })
+
+  it('INV-AGG-002: Σ(storeContributions.customers) === entry.customers', () => {
+    expect(entry.storeContributions.reduce((s, c) => s + c.customers, 0)).toBe(entry.customers)
+  })
+
+  it('INV-AGG-003: Σ(dailyMapping.prevSales) === entry.sales', () => {
+    expect(entry.dailyMapping.reduce((s, d) => s + d.prevSales, 0)).toBe(entry.sales)
+  })
+
+  it('INV-AGG-004: Σ(dailyMapping.prevCustomers) === entry.customers', () => {
+    expect(entry.dailyMapping.reduce((s, d) => s + d.prevCustomers, 0)).toBe(entry.customers)
+  })
+
+  it('INV-AGG-005: transactionValue === Math.round(sales / customers)', () => {
+    if (entry.customers > 0) {
+      expect(entry.transactionValue).toBe(Math.round(entry.sales / entry.customers))
+    } else {
+      expect(entry.transactionValue).toBe(0)
+    }
+  })
+
+  it('INV-AGG-006: dailyMapping は currentDay 昇順', () => {
+    for (let i = 1; i < entry.dailyMapping.length; i++) {
+      expect(entry.dailyMapping[i].currentDay).toBeGreaterThan(entry.dailyMapping[i - 1].currentDay)
+    }
+  })
+
+  it('INV-AGG-009: 空入力 → ゼロ entry', () => {
+    const empty = aggregateKpiByAlignment({}, undefined, [], alignment)
+    expect(empty.sales).toBe(0)
+    expect(empty.customers).toBe(0)
+    expect(empty.transactionValue).toBe(0)
+    expect(empty.dailyMapping).toHaveLength(0)
+    expect(empty.storeContributions).toHaveLength(0)
+  })
+
+  it('一部店舗のみ選択しても不変条件1-4が成立', () => {
+    const partial = aggregateKpiByAlignment(allAgg, flowers, ['S1'], alignment)
+    expect(partial.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(partial.sales)
+    expect(partial.storeContributions.reduce((s, c) => s + c.customers, 0)).toBe(partial.customers)
+    expect(partial.dailyMapping.reduce((s, d) => s + d.prevSales, 0)).toBe(partial.sales)
+    expect(partial.dailyMapping.reduce((s, d) => s + d.prevCustomers, 0)).toBe(partial.customers)
+  })
+
+  it('flowers データなしでも sales の不変条件は維持（customers=0）', () => {
+    const noFlowers = aggregateKpiByAlignment(allAgg, undefined, allIds, alignment)
+    expect(noFlowers.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(noFlowers.sales)
+    expect(noFlowers.customers).toBe(0)
+    expect(noFlowers.transactionValue).toBe(0)
+  })
+})

@@ -6,7 +6,7 @@
 import React, { type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import type { WidgetContext } from './types'
 import {
   STableWrapper,
@@ -25,7 +25,7 @@ const DOW_COLORS: Record<number, string | undefined> = {
 }
 
 export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
-  const { result: r, allStoreResults, stores, year, month, daysInMonth } = ctx
+  const { result: r, allStoreResults, stores, year, month, daysInMonth, fmtCurrency } = ctx
 
   // Individual stores sorted by code
   const storeEntries: { id: string; label: string; result: typeof r }[] = []
@@ -65,9 +65,9 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
     const rec = sr.daily.get(day)
     return (
       <>
-        <STd style={{ borderLeft: borderStyle }}>{rec ? formatCurrency(rec.sales) : ''}</STd>
+        <STd style={{ borderLeft: borderStyle }}>{rec ? fmtCurrency(rec.sales) : ''}</STd>
         <STd style={{ color: rec && rec.discountAmount !== 0 ? sc.negative : undefined }}>
-          {rec ? formatCurrency(rec.discountAmount) : ''}
+          {rec ? fmtCurrency(rec.discountAmount) : ''}
         </STd>
         {hasCustomers && <STd>{rec?.customers ? rec.customers.toLocaleString('ja-JP') : ''}</STd>}
       </>
@@ -78,8 +78,8 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
     const t = getStoreTotals(sr)
     return (
       <>
-        <STd style={{ borderLeft: borderStyle }}>{formatCurrency(t.sales)}</STd>
-        <STd style={{ color: sc.negative }}>{formatCurrency(t.discount)}</STd>
+        <STd style={{ borderLeft: borderStyle }}>{fmtCurrency(t.sales)}</STd>
+        <STd style={{ color: sc.negative }}>{fmtCurrency(t.discount)}</STd>
         {hasCustomers && <STd>{t.customers.toLocaleString('ja-JP')}</STd>}
       </>
     )
@@ -166,7 +166,7 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 /* ── 日別推定在庫テーブル ──────────────────────────────── */
 
 export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
-  const { result: r, daysInMonth } = ctx
+  const { result: r, daysInMonth, fmtCurrency } = ctx
 
   const openingInv = r.openingInventory
   if (openingInv == null) {
@@ -236,8 +236,8 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
       <STableTitle>
         日別推定在庫
         <span style={{ fontSize: '0.7rem', fontWeight: 400, marginLeft: 8, opacity: 0.6 }}>
-          期首在庫: {formatCurrency(openingInv)}
-          {closingInv != null && ` / 実在庫: ${formatCurrency(closingInv)}`}
+          期首在庫: {fmtCurrency(openingInv)}
+          {closingInv != null && ` / 実在庫: ${fmtCurrency(closingInv)}`}
           {` / 値入率: ${formatPercent(markupRate)} / 売変率: ${formatPercent(discountRate)}`}
         </span>
       </STableTitle>
@@ -275,28 +275,28 @@ export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
               return (
                 <tr key={row.day} style={!hasData ? { opacity: 0.5 } : undefined}>
                   <STd style={{ textAlign: 'left', fontWeight: 600 }}>{row.day}</STd>
-                  <STd>{row.inventoryCost !== 0 ? formatCurrency(row.inventoryCost) : '-'}</STd>
-                  <STd>{row.coreSales > 0 ? formatCurrency(row.coreSales) : '-'}</STd>
-                  <STd>{row.costInclusion > 0 ? formatCurrency(row.costInclusion) : '-'}</STd>
-                  <STd>{row.estCogs > 0 ? formatCurrency(row.estCogs) : '-'}</STd>
-                  <STd>{formatCurrency(row.cumInvCost)}</STd>
-                  <STd>{formatCurrency(row.cumEstCogs)}</STd>
+                  <STd>{row.inventoryCost !== 0 ? fmtCurrency(row.inventoryCost) : '-'}</STd>
+                  <STd>{row.coreSales > 0 ? fmtCurrency(row.coreSales) : '-'}</STd>
+                  <STd>{row.costInclusion > 0 ? fmtCurrency(row.costInclusion) : '-'}</STd>
+                  <STd>{row.estCogs > 0 ? fmtCurrency(row.estCogs) : '-'}</STd>
+                  <STd>{fmtCurrency(row.cumInvCost)}</STd>
+                  <STd>{fmtCurrency(row.cumEstCogs)}</STd>
                   <InvTd $neg={row.estimatedInv < 0} style={{ fontWeight: 600 }}>
-                    {formatCurrency(row.estimatedInv)}
+                    {fmtCurrency(row.estimatedInv)}
                   </InvTd>
                 </tr>
               )
             })}
             <tr style={{ fontWeight: 700, borderTop: '2px solid' }}>
               <STd style={{ textAlign: 'left' }}>合計</STd>
-              <STd>{formatCurrency(totalInvCost)}</STd>
-              <STd>{formatCurrency(totalCoreSales)}</STd>
-              <STd>{formatCurrency(rows.reduce((s, row) => s + row.costInclusion, 0))}</STd>
-              <STd>{formatCurrency(totalEstCogs)}</STd>
-              <STd>{formatCurrency(totalInvCost)}</STd>
-              <STd>{formatCurrency(totalEstCogs)}</STd>
+              <STd>{fmtCurrency(totalInvCost)}</STd>
+              <STd>{fmtCurrency(totalCoreSales)}</STd>
+              <STd>{fmtCurrency(rows.reduce((s, row) => s + row.costInclusion, 0))}</STd>
+              <STd>{fmtCurrency(totalEstCogs)}</STd>
+              <STd>{fmtCurrency(totalInvCost)}</STd>
+              <STd>{fmtCurrency(totalEstCogs)}</STd>
               <InvTd $neg={(lastRow?.estimatedInv ?? 0) < 0} style={{ fontWeight: 700 }}>
-                {formatCurrency(lastRow?.estimatedInv ?? 0)}
+                {fmtCurrency(lastRow?.estimatedInv ?? 0)}
               </InvTd>
             </tr>
           </tbody>

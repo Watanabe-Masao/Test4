@@ -2,7 +2,8 @@
  * 値入率・原価算入費の ViewModel
  */
 import type { StoreResult, Store } from '@/domain/models'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CATEGORY_ORDER } from '@/domain/constants/categories'
@@ -73,6 +74,7 @@ export function buildMarkupRateDetailVm(
   result: StoreResult,
   effectiveConfig: ConditionSummaryConfig,
   settings: AppSettings,
+  fmtCurrency: CurrencyFormatter,
 ): MarkupRateDetailVm {
   const markupSignal = (rate: number, storeId?: string): SignalLevel => {
     const t = resolveThresholds(effectiveConfig, 'markupRate', storeId)
@@ -97,8 +99,8 @@ export function buildMarkupRateDetailVm(
       crossMultStr: formatPercent(cr.crossMultiplication),
       markupRate: formatPercent(cr.markupRate),
       priceShare: formatPercent(cr.priceShare),
-      cost: formatCurrency(cr.cost),
-      price: formatCurrency(cr.price),
+      cost: fmtCurrency(cr.cost),
+      price: fmtCurrency(cr.price),
     }))
 
     return {
@@ -107,8 +109,8 @@ export function buildMarkupRateDetailVm(
       sigColor,
       avgMarkupRate: formatPercent(sr.averageMarkupRate),
       coreMarkupRate: formatPercent(sr.coreMarkupRate),
-      totalCost: formatCurrency(crossRows.reduce((sum, c) => sum + c.cost, 0)),
-      totalPrice: formatCurrency(crossRows.reduce((sum, c) => sum + c.price, 0)),
+      totalCost: fmtCurrency(crossRows.reduce((sum, c) => sum + c.cost, 0)),
+      totalPrice: fmtCurrency(crossRows.reduce((sum, c) => sum + c.price, 0)),
       crossRows: crossRowVms,
       totalCross: formatPercent(totalCross),
       maxCross,
@@ -129,8 +131,8 @@ export function buildMarkupRateDetailVm(
     total: {
       avgMarkupRate: formatPercent(result.averageMarkupRate),
       coreMarkupRate: formatPercent(result.coreMarkupRate),
-      totalCost: formatCurrency(totalCost),
-      totalPrice: formatCurrency(totalPrice),
+      totalCost: fmtCurrency(totalCost),
+      totalPrice: fmtCurrency(totalPrice),
     },
   }
 }
@@ -166,6 +168,7 @@ export function buildCostInclusionDetailVm(
   stores: ReadonlyMap<string, Store>,
   result: StoreResult,
   effectiveConfig: ConditionSummaryConfig,
+  fmtCurrency: CurrencyFormatter,
 ): CostInclusionDetailVm {
   const totalItems = aggregateCostInclusionItems(result)
   const grandTotal = result.totalCostInclusion
@@ -183,7 +186,7 @@ export function buildCostInclusionDetailVm(
       const itemShare = storeTotal > 0 ? item.cost / storeTotal : 0
       return {
         itemName: item.itemName,
-        costStr: formatCurrency(item.cost),
+        costStr: fmtCurrency(item.cost),
         shareStr: formatPercent(itemShare),
       }
     })
@@ -192,7 +195,7 @@ export function buildCostInclusionDetailVm(
       storeId,
       storeName,
       sigColor,
-      totalCostStr: formatCurrency(sr.totalCostInclusion),
+      totalCostStr: fmtCurrency(sr.totalCostInclusion),
       rateStr: formatPercent(sr.costInclusionRate),
       items: itemVms,
       hasItems: storeItems.length > 0,
@@ -203,14 +206,14 @@ export function buildCostInclusionDetailVm(
     const itemShare = grandTotal > 0 ? item.cost / grandTotal : 0
     return {
       itemName: item.itemName,
-      costStr: formatCurrency(item.cost),
+      costStr: fmtCurrency(item.cost),
       shareStr: formatPercent(itemShare),
     }
   })
 
   return {
     storeRows,
-    grandTotalStr: formatCurrency(grandTotal),
+    grandTotalStr: fmtCurrency(grandTotal),
     grandRateStr: formatPercent(result.costInclusionRate),
     totalItems: totalItemVms,
     hasTotalItems: totalItems.length > 0,

@@ -5,7 +5,7 @@ import { useMemo, memo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import { palette } from '@/presentation/theme/tokens'
-import { formatCurrency } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type { PurchaseDailyData } from '@/domain/models/PurchaseComparison'
 import { EmptyState, SubNote, ChartWrapper } from './PurchaseAnalysisPage.styles'
 
@@ -47,6 +47,7 @@ export const PurchaseVsSalesChart = memo(function PurchaseVsSalesChart({
 }: {
   daily: PurchaseDailyData
 }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
   const chartData = useMemo(() => buildSalesVsCostData(daily), [daily])
 
   if (chartData.length === 0) {
@@ -68,7 +69,7 @@ export const PurchaseVsSalesChart = memo(function PurchaseVsSalesChart({
             <XAxis dataKey="day" fontSize={11} />
             <YAxis yAxisId="left" tickFormatter={fmtYen} fontSize={11} />
             <YAxis yAxisId="right" orientation="right" tickFormatter={fmtYen} fontSize={11} />
-            <Tooltip formatter={(value) => [formatCurrency(Number(value)), '']} />
+            <Tooltip formatter={(value) => [fmtCurrency(Number(value)), '']} />
             <Legend />
             <Bar yAxisId="left" dataKey="sales" name="売上" fill={palette.positive} opacity={0.7} />
             <Bar

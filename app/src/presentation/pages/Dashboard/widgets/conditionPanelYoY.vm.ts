@@ -2,11 +2,11 @@
  * 前年比（売上・客数）の ViewModel
  */
 import type { StoreResult, Store } from '@/domain/models'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import type { PrevYearData } from '@/application/hooks/usePrevYearData'
-import type { PrevYearMonthlyKpi } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 
 // ─── Helpers ────────────────────────────────────────────
@@ -98,6 +98,7 @@ export function buildSalesYoYDetailVm(
   prevYear: PrevYearData,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dataMaxDay: number | undefined,
+  fmtCurrency: CurrencyFormatter,
 ): SalesYoYDetailVm {
   const prevTotal = prevYear.totalSales
   const yoyTotal = safeDivide(result.totalSales, prevTotal, 0)
@@ -119,8 +120,8 @@ export function buildSalesYoYDetailVm(
       storeId,
       storeName,
       sigColor,
-      currentSalesStr: formatCurrency(sr.totalSales),
-      prevSalesStr: prevStoreSales > 0 ? formatCurrency(prevStoreSales) : '—',
+      currentSalesStr: fmtCurrency(sr.totalSales),
+      prevSalesStr: prevStoreSales > 0 ? fmtCurrency(prevStoreSales) : '—',
       yoyStr: prevStoreSales > 0 ? formatPercent(storeYoY, 2) : '—',
       hasPrev: prevStoreSales > 0,
     }
@@ -128,8 +129,8 @@ export function buildSalesYoYDetailVm(
 
   return {
     storeRows,
-    totalCurrentStr: formatCurrency(result.totalSales),
-    totalPrevStr: formatCurrency(prevTotal),
+    totalCurrentStr: fmtCurrency(result.totalSales),
+    totalPrevStr: fmtCurrency(prevTotal),
     totalYoYStr: formatPercent(yoyTotal, 2),
     totalColor,
     dailyRows,

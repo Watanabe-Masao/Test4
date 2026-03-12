@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from './useStoreSelection'
-import type { PrevYearMonthlyKpi } from './usePrevYearMonthlyKpi'
+import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import {
   generateExplanations,

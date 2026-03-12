@@ -29,9 +29,8 @@ import {
   type CategoryBenchmarkScore,
   type ProductType,
 } from '@/application/hooks/useDuckDBQuery'
-import { useChartTheme, useCurrencyFormatter } from './chartTheme'
+import { useChartTheme, useCurrencyFormatter, useCurrencyFormat } from './chartTheme'
 import { ChartSkeleton } from '@/presentation/components/common'
-import { formatCurrency } from '@/domain/formatting'
 import {
   ChartPanel,
   ChartHeaderRow,
@@ -89,6 +88,7 @@ function BubbleTooltip({
   payload,
   ct,
   fmt,
+  fmtCurrency,
   piLabel,
   bubbleLabel,
 }: {
@@ -96,6 +96,7 @@ function BubbleTooltip({
   payload?: readonly BubbleTooltipPayload[]
   ct: ReturnType<typeof useChartTheme>
   fmt: (v: number) => string
+  fmtCurrency: (v: number | null) => string
   piLabel: string
   bubbleLabel: string
 }) {
@@ -122,7 +123,7 @@ function BubbleTooltip({
       <div>売上: {fmt(item.totalSales)}</div>
       {bubbleLabel !== 'なし' && (
         <div>
-          {bubbleLabel}: {formatCurrency(item.bubbleValue)}
+          {bubbleLabel}: {fmtCurrency(item.bubbleValue)}
         </div>
       )}
       <div>
@@ -158,6 +159,7 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
 }: Props) {
   const ct = useChartTheme()
   const fmt = useCurrencyFormatter()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const [piMetric, setPiMetric] = useState<PiMetric>('salesPi')
   const [bubbleSize, setBubbleSize] = useState<BubbleSizeMetric>('sales')
   const [level, setLevel] = useState<HierarchyLevel>('department')
@@ -323,7 +325,13 @@ export const PiCvBubbleChart = memo(function PiCvBubbleChart({
             <ZAxis type="number" dataKey="bubbleValue" range={zRange} name={bubbleLabel} />
             <Tooltip
               content={
-                <BubbleTooltip ct={ct} fmt={fmt} piLabel={piLabel} bubbleLabel={bubbleLabel} />
+                <BubbleTooltip
+                  ct={ct}
+                  fmt={fmt}
+                  fmtCurrency={fmtCurrency}
+                  piLabel={piLabel}
+                  bubbleLabel={bubbleLabel}
+                />
               }
               cursor={{ strokeDasharray: '3 3' }}
             />

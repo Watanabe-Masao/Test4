@@ -2,7 +2,8 @@
  * カテゴリ別日別ピボットテーブル（タブ切り替え・小計付き）
  */
 import { Fragment, useState, useMemo, memo } from 'react'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import type {
   PurchaseDailyPivotData,
   PurchaseDailyPivotRow,
@@ -106,13 +107,13 @@ function computeSubtotals(
 
 // ── コンポーネント ──
 
-const fmtOrDash = (val: number) => (val !== 0 ? formatCurrency(val) : '-')
-
 export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
   pivot,
 }: {
   pivot: PurchaseDailyPivotData
 }) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+  const fmtOrDash = (val: number) => (val !== 0 ? fmtCurrency(val) : '-')
   const [activeTab, setActiveTab] = useState<string>('__all__')
   const [showSubtotals, setShowSubtotals] = useState(true)
   const [subtotalStartDow, setSubtotalStartDow] = useState(1) // デフォルト: 月曜起点
@@ -271,13 +272,13 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                       <Td $align="left" colSpan={2}>
                         小計
                       </Td>
-                      <PivotTd $groupStart>{formatCurrency(getSubCost(sub))}</PivotTd>
-                      <PivotTd>{formatCurrency(getSubPrice(sub))}</PivotTd>
+                      <PivotTd $groupStart>{fmtCurrency(getSubCost(sub))}</PivotTd>
+                      <PivotTd>{fmtCurrency(getSubPrice(sub))}</PivotTd>
                       <PivotTd>
                         {formatPercent(markupRateVal(getSubCost(sub), getSubPrice(sub)))}
                       </PivotTd>
-                      <PivotTd $groupStart>{formatCurrency(getSubPrevCost(sub))}</PivotTd>
-                      <PivotTd>{formatCurrency(getSubPrevPrice(sub))}</PivotTd>
+                      <PivotTd $groupStart>{fmtCurrency(getSubPrevCost(sub))}</PivotTd>
+                      <PivotTd>{fmtCurrency(getSubPrevPrice(sub))}</PivotTd>
                       <PivotTd>
                         {formatPercent(markupRateVal(getSubPrevCost(sub), getSubPrevPrice(sub)))}
                       </PivotTd>
@@ -285,10 +286,10 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
                         $groupStart
                         $positive={diffColor(getSubCost(sub) - getSubPrevCost(sub))}
                       >
-                        {formatCurrency(getSubCost(sub) - getSubPrevCost(sub))}
+                        {fmtCurrency(getSubCost(sub) - getSubPrevCost(sub))}
                       </DiffCell>
                       <DiffCell $positive={diffColor(getSubPrice(sub) - getSubPrevPrice(sub))}>
-                        {formatCurrency(getSubPrice(sub) - getSubPrevPrice(sub))}
+                        {fmtCurrency(getSubPrice(sub) - getSubPrevPrice(sub))}
                       </DiffCell>
                     </TrSubtotal>
                   )}
@@ -299,17 +300,17 @@ export const PurchaseDailyPivotTable = memo(function PurchaseDailyPivotTable({
               <Td $align="left" colSpan={2}>
                 合計
               </Td>
-              <PivotTd $groupStart>{formatCurrency(totCost)}</PivotTd>
-              <PivotTd>{formatCurrency(totPrice)}</PivotTd>
+              <PivotTd $groupStart>{fmtCurrency(totCost)}</PivotTd>
+              <PivotTd>{fmtCurrency(totPrice)}</PivotTd>
               <PivotTd>{formatPercent(markupRateVal(totCost, totPrice))}</PivotTd>
-              <PivotTd $groupStart>{formatCurrency(totPrevCost)}</PivotTd>
-              <PivotTd>{formatCurrency(totPrevPrice)}</PivotTd>
+              <PivotTd $groupStart>{fmtCurrency(totPrevCost)}</PivotTd>
+              <PivotTd>{fmtCurrency(totPrevPrice)}</PivotTd>
               <PivotTd>{formatPercent(markupRateVal(totPrevCost, totPrevPrice))}</PivotTd>
               <DiffCell $groupStart $positive={diffColor(totCost - totPrevCost)}>
-                {formatCurrency(totCost - totPrevCost)}
+                {fmtCurrency(totCost - totPrevCost)}
               </DiffCell>
               <DiffCell $positive={diffColor(totPrice - totPrevPrice)}>
-                {formatCurrency(totPrice - totPrevPrice)}
+                {fmtCurrency(totPrice - totPrevPrice)}
               </DiffCell>
             </TrTotal>
           </tbody>

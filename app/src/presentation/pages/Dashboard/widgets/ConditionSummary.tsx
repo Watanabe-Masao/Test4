@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { MetricId } from '@/domain/models'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
@@ -57,7 +57,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   ctx: WidgetContext
 }) {
   const r = ctx.result
-  const { onExplain, allStoreResults, stores } = ctx
+  const { onExplain, allStoreResults, stores, fmtCurrency } = ctx
   const settings = useSettingsStore((s) => s.settings)
 
   const [breakdownItem, setBreakdownItem] = useState<ConditionItem | null>(null)
@@ -170,7 +170,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '予算消化率',
       value: formatPercent(r.budgetProgressRate),
-      sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${formatCurrency(r.remainingBudget)}`,
+      sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${fmtCurrency(r.remainingBudget)}`,
       signal: metricSignal(r.budgetProgressRate, 'budgetProgress', effectiveConfig),
       metricId: 'budgetProgressRate',
       storeValue: (sr) => ({
@@ -185,7 +185,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '着地予測達成率',
       value: formatPercent(r.projectedAchievement),
-      sub: `予測 ${formatCurrency(r.projectedSales)} / 予算 ${formatCurrency(r.budget)}`,
+      sub: `予測 ${fmtCurrency(r.projectedSales)} / 予算 ${fmtCurrency(r.budget)}`,
       signal: metricSignal(r.projectedAchievement, 'projectedAchievement', effectiveConfig),
       metricId: 'projectedSales',
       storeValue: (sr) => ({
@@ -205,7 +205,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '売変率',
       value: formatPercent(r.discountRate),
-      sub: `売変額 ${formatCurrency(r.totalDiscount)} / 粗売上 ${formatCurrency(r.grossSales)}`,
+      sub: `売変額 ${fmtCurrency(r.totalDiscount)} / 粗売上 ${fmtCurrency(r.grossSales)}`,
       signal: metricSignal(r.discountRate, 'discountRate', effectiveConfig),
       metricId: 'discountRate',
       detailBreakdown: 'discountRate',
@@ -217,7 +217,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '原価算入率',
       value: formatPercent(r.costInclusionRate),
-      sub: `原価算入費 ${formatCurrency(r.totalCostInclusion)} / 売上 ${formatCurrency(r.totalSales)}`,
+      sub: `原価算入費 ${fmtCurrency(r.totalCostInclusion)} / 売上 ${fmtCurrency(r.totalSales)}`,
       signal: metricSignal(r.costInclusionRate, 'costInclusion', effectiveConfig),
       metricId: 'totalCostInclusion',
       detailBreakdown: 'costInclusion',
@@ -235,7 +235,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '売上前年比',
       value: formatPercent(salesYoY, 2),
-      sub: `当年 ${formatCurrency(r.totalSales)} / 前年 ${formatCurrency(prevYear.totalSales)}`,
+      sub: `当年 ${fmtCurrency(r.totalSales)} / 前年 ${fmtCurrency(prevYear.totalSales)}`,
       signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
       metricId: 'salesTotal',
       detailBreakdown: 'salesYoY',
@@ -296,7 +296,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '粗利額予算比',
       value: formatPercent(gpBudgetRatio, 2),
-      sub: `粗利額 ${formatCurrency(gpAmt)} / 予算 ${formatCurrency(periodGPBudget)}`,
+      sub: `粗利額 ${fmtCurrency(gpAmt)} / 予算 ${fmtCurrency(periodGPBudget)}`,
       signal: metricSignal(gpBudgetRatio, 'gpAmount', effectiveConfig),
     })
   }
@@ -308,7 +308,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '売上予算達成率',
       value: formatPercent(dailyRatio, 2),
-      sub: `日販 ${formatCurrency(r.averageDailySales)} / 予算日販 ${formatCurrency(budgetDailyAvg)}`,
+      sub: `日販 ${fmtCurrency(r.averageDailySales)} / 予算日販 ${fmtCurrency(budgetDailyAvg)}`,
       signal: metricSignal(dailyRatio, 'dailySales', effectiveConfig),
       detailBreakdown: 'dailySales',
     })
@@ -324,7 +324,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     items.push({
       label: '必達ペース比',
       value: formatPercent(paceRatio, 2),
-      sub: `必要日販 ${formatCurrency(r.requiredDailySales)} / 実績日販 ${formatCurrency(r.averageDailySales)}`,
+      sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}`,
       signal: metricSignal(paceRatio, 'requiredPace', effectiveConfig),
     })
   }

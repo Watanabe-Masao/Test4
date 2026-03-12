@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
-import { useChartTheme, toComma, toPct, toAxisYen } from './chartTheme'
+import { useChartTheme, useCurrencyFormat, toComma, toPct, toAxisYen } from './chartTheme'
 import {
   Wrapper,
   HeaderRow,
@@ -20,7 +20,7 @@ import { DualPeriodSlider } from './DualPeriodSlider'
 import { useDualPeriodRange } from './useDualPeriodRange'
 import type { DailyRecord, DiscountEntry } from '@/domain/models'
 import { DISCOUNT_TYPES } from '@/domain/models'
-import { formatCurrency, formatPercent } from '@/domain/formatting'
+import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 
 /** 売変種別ごとのカラーパレット（DISCOUNT_TYPES の順序に対応） */
@@ -48,6 +48,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
   prevYearDaily,
 }: Props) {
   const ct = useChartTheme()
+  const { format: fmtCurrency } = useCurrencyFormat()
   const {
     p1Start: rangeStart,
     p1End: rangeEnd,
@@ -178,7 +179,7 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
                 <KpiLabel>
                   {dt.label}（{dt.type}）
                 </KpiLabel>
-                <KpiValue>{formatCurrency(amt)}</KpiValue>
+                <KpiValue>{fmtCurrency(amt)}</KpiValue>
                 <KpiSub>
                   構成比: {formatPercent(pct)} / 売変率: {formatPercent(rate)}
                 </KpiSub>
