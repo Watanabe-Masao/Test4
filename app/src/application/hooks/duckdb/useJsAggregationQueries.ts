@@ -17,6 +17,7 @@
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models'
+import type { CompareMode } from '@/application/comparison/alignRows'
 import {
   queryStoreDaySummary,
   type StoreDaySummaryRow,
@@ -192,9 +193,11 @@ export function useJsDailyFeatures(
 // ─── YoY 日別比較（JS計算版） ─────────────────────────
 
 /**
- * DuckDB 生データ（当期 + 前期を別取得）→ JS FULL OUTER JOIN
+ * DuckDB 生データ（当期 + 前期を別取得）→ JS date pair 解決
  *
- * SQL の FULL OUTER JOIN ON month=month AND day=day を置き換え。
+ * compareMode と dowOffset を渡すと、current 行ごとに比較先を解決する。
+ * 省略時は sameDate / offset=0（後方互換）。
+ *
  * 返り値は YoyDailyRow[] 互換。
  */
 export function useJsYoyDaily(
@@ -203,6 +206,8 @@ export function useJsYoyDaily(
   frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
   prevYearScope?: PrevYearScope,
+  compareMode?: CompareMode,
+  dowOffset?: number,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
   // prevYearScope が渡された場合はオフセット調整済み範囲を使用
   const prevDateRange = prevYearScope?.dateRange ?? frame?.previous
@@ -223,8 +228,8 @@ export function useJsYoyDaily(
 
   const data = useMemo(() => {
     if (!curRows || !prevRows) return null
-    return computeYoyDaily(curRows, prevRows)
-  }, [curRows, prevRows])
+    return computeYoyDaily(curRows, prevRows, compareMode, dowOffset)
+  }, [curRows, prevRows, compareMode, dowOffset])
 
   return {
     data,
