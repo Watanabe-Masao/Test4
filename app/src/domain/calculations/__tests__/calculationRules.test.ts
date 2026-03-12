@@ -436,12 +436,13 @@ describe('RULE-C1: Chart files のパーセント書式は toPct を経由する
       const content = fs.readFileSync(path.join(CHART_DIR, file), 'utf-8')
       const usesToPct = /toPct\s*\(/.test(content)
       if (usesToPct) {
-        const hasImport = /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"]\.\/chartTheme['"]/.test(
-          content,
-        )
+        const hasChartThemeImport =
+          /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"]\.\/chartTheme['"]/.test(content)
+        const hasFormatPercentAlias =
+          /import\s+\{[^}]*formatPercent\s+as\s+toPct[^}]*\}/.test(content)
         expect(
-          hasImport,
-          `charts/${file} が toPct を使用していますが './chartTheme' から import していません`,
+          hasChartThemeImport || hasFormatPercentAlias,
+          `charts/${file} が toPct を使用していますが chartTheme または formatPercent alias から import していません`,
         ).toBe(true)
       }
     }

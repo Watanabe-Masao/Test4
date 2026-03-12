@@ -1,11 +1,12 @@
 /**
  * 客単価・日販達成率・シンプル内訳の詳細パネル
  *
- * ConditionDetailPanels.tsx から分割 (Group 4: Sales Detail)
+ * VM (conditionPanelSalesDetail.vm.ts) で計算済みデータを受け取り、
+ * レンダリングのみに専念する。
  */
-import { formatPercent, formatCurrency } from '@/domain/formatting'
-import { safeDivide } from '@/domain/calculations/utils'
-import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
+import { useMemo } from 'react'
+import { buildTxValueDetailVm, buildDailySalesDetailVm } from './conditionPanelSalesDetail.vm'
+import { SIGNAL_COLORS } from './conditionSummaryUtils'
 import {
   DetailHeader,
   DetailTitle,
@@ -33,13 +34,15 @@ import type {
 export function TxValueDetailTable({
   sortedStoreEntries,
   stores,
-  result: r,
+  result,
   expandedStore,
   onExpandToggle,
 }: TxValueDetailProps) {
-  const txTotal = r.transactionValue
-  const fmtTx = (v: number) =>
-    `${v.toLocaleString('ja-JP', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}円`
+  const vm = useMemo(
+    () => buildTxValueDetailVm(sortedStoreEntries, stores, result),
+    [sortedStoreEntries, stores, result],
+  )
+
   const hasExpanded = expandedStore != null
 
   return (
@@ -57,18 +60,13 @@ export function TxValueDetailTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
-            const store = stores.get(storeId)
-            const storeName = store?.name ?? storeId
-            const storeTx = sr.transactionValue
-            const isExpanded = expandedStore === storeId
-
+          {vm.storeRows.flatMap((row, idx) => {
+            const isExpanded = expandedStore === row.storeId
             const rows: React.ReactNode[] = []
 
-            // Store boundary separator when any store is expanded (except first)
             if (hasExpanded && idx > 0) {
               rows.push(
-                <StoreBorderTr key={`${storeId}-border`}>
+                <StoreBorderTr key={`${row.storeId}-border`}>
                   <td colSpan={4} />
                 </StoreBorderTr>,
               )
@@ -76,41 +74,39 @@ export function TxValueDetailTable({
 
             rows.push(
               <BTr
-                key={storeId}
-                onClick={() => onExpandToggle(storeId)}
+                key={row.storeId}
+                onClick={() => onExpandToggle(row.storeId)}
                 style={{ cursor: 'pointer' }}
               >
                 <BTd>
                   <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
                   <BSignalDot $color={SIGNAL_COLORS.blue} />
-                  {storeName}
+                  {row.storeName}
                 </BTd>
-                <BTd>{formatCurrency(sr.totalSales)}</BTd>
-                <BTd>{sr.totalCustomers.toLocaleString()}人</BTd>
-                <BTd>{fmtTx(storeTx)}</BTd>
+                <BTd>{row.salesStr}</BTd>
+                <BTd>{row.customersStr}</BTd>
+                <BTd>{row.txStr}</BTd>
               </BTr>,
             )
 
-            // Daily trend per store
             if (isExpanded) {
               rows.push(
-                <SubRow key={`${storeId}-header`}>
-                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>日</BTd>
+                <SubRow key={`${row.storeId}-header`}>
+                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>
+                    日
+                  </BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>売上</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客数</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客単価</BTd>
                 </SubRow>,
               )
-              const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
-              for (const [day, dr] of days) {
-                const customers = dr.customers ?? 0
-                const dayTx = safeDivide(dr.sales, customers, 0)
+              for (const dr of row.dailyRows) {
                 rows.push(
-                  <SubRow key={`${storeId}-${day}`}>
-                    <BTd style={{ paddingLeft: '28px' }}>{day}日</BTd>
-                    <BTd>{formatCurrency(dr.sales)}</BTd>
-                    <BTd>{customers.toLocaleString()}人</BTd>
-                    <BTd>{fmtTx(dayTx)}</BTd>
+                  <SubRow key={`${row.storeId}-${dr.day}`}>
+                    <BTd style={{ paddingLeft: '28px' }}>{dr.dayLabel}</BTd>
+                    <BTd>{dr.salesStr}</BTd>
+                    <BTd>{dr.customersStr}</BTd>
+                    <BTd>{dr.txStr}</BTd>
                   </SubRow>,
                 )
               }
@@ -120,9 +116,9 @@ export function TxValueDetailTable({
           })}
           <BTr $highlight>
             <BTd $bold>合計</BTd>
-            <BTd $bold>{formatCurrency(r.totalSales)}</BTd>
-            <BTd $bold>{r.totalCustomers.toLocaleString()}人</BTd>
-            <BTd $bold>{fmtTx(txTotal)}</BTd>
+            <BTd $bold>{vm.totalSalesStr}</BTd>
+            <BTd $bold>{vm.totalCustomersStr}</BTd>
+            <BTd $bold>{vm.totalTxStr}</BTd>
           </BTr>
         </tbody>
       </BTable>
@@ -135,16 +131,17 @@ export function TxValueDetailTable({
 export function DailySalesDetailTable({
   sortedStoreEntries,
   stores,
-  result: r,
+  result,
   effectiveConfig,
   daysInMonth,
   expandedStore,
   onExpandToggle,
 }: DailySalesDetailProps) {
-  const budgetDailyAvg = daysInMonth > 0 ? r.budget / daysInMonth : 0
-  const dailyRatio = safeDivide(r.averageDailySales, budgetDailyAvg, 0)
-  const totalSig = metricSignal(dailyRatio, 'dailySales', effectiveConfig)
-  const totalColor = SIGNAL_COLORS[totalSig]
+  const vm = useMemo(
+    () =>
+      buildDailySalesDetailVm(sortedStoreEntries, stores, result, effectiveConfig, daysInMonth),
+    [sortedStoreEntries, stores, result, effectiveConfig, daysInMonth],
+  )
 
   return (
     <>
@@ -163,65 +160,46 @@ export function DailySalesDetailTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr]) => {
-            const store = stores.get(storeId)
-            const storeName = store?.name ?? storeId
-            const storeBudgetDaily = daysInMonth > 0 ? sr.budget / daysInMonth : 0
-            const storeRatio = safeDivide(sr.averageDailySales, storeBudgetDaily, 0)
-            const achievementRate = safeDivide(sr.totalSales, sr.budget, 0)
-            const sig =
-              storeBudgetDaily > 0
-                ? metricSignal(storeRatio, 'dailySales', effectiveConfig, sr.storeId)
-                : 'blue'
-            const sigColor = SIGNAL_COLORS[sig]
-            const isExpanded = expandedStore === storeId
-
+          {vm.storeRows.flatMap((row) => {
+            const isExpanded = expandedStore === row.storeId
             const rows: React.ReactNode[] = [
               <BTr
-                key={storeId}
-                onClick={() => onExpandToggle(storeId)}
+                key={row.storeId}
+                onClick={() => onExpandToggle(row.storeId)}
                 style={{ cursor: 'pointer' }}
               >
                 <BTd>
                   <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                  <BSignalDot $color={sigColor} />
-                  {storeName}
+                  <BSignalDot $color={row.sigColor} />
+                  {row.storeName}
                 </BTd>
-                <BTd>{formatCurrency(sr.totalSales)}</BTd>
-                <BTd>{formatCurrency(sr.budget)}</BTd>
-                <BTd $color={sigColor}>
-                  {sr.budget > 0 ? formatPercent(achievementRate, 2) : '—'}
-                </BTd>
-                <BTd>{formatCurrency(sr.averageDailySales)}</BTd>
-                <BTd>{formatCurrency(storeBudgetDaily)}</BTd>
+                <BTd>{row.salesStr}</BTd>
+                <BTd>{row.budgetStr}</BTd>
+                <BTd $color={row.sigColor}>{row.achievementStr}</BTd>
+                <BTd>{row.dailySalesStr}</BTd>
+                <BTd>{row.budgetDailyStr}</BTd>
               </BTr>,
             ]
 
-            // Daily breakdown per store
             if (isExpanded) {
               rows.push(
-                <SubRow key={`${storeId}-header`}>
-                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>日</BTd>
+                <SubRow key={`${row.storeId}-header`}>
+                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>
+                    日
+                  </BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>売上</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>予算</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>達成率</BTd>
                   <BTd colSpan={2} />
                 </SubRow>,
               )
-              const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
-              let cumSales = 0
-              let cumBudget = 0
-              for (const [day, dr] of days) {
-                const dayBudget = sr.budgetDaily.get(day) ?? 0
-                cumSales += dr.sales
-                cumBudget += dayBudget
-                const dayRate = safeDivide(cumSales, cumBudget, 0)
+              for (const day of row.dailyBreakdown) {
                 rows.push(
-                  <SubRow key={`${storeId}-${day}`}>
-                    <BTd style={{ paddingLeft: '28px' }}>{day}日</BTd>
-                    <BTd>{formatCurrency(dr.sales)}</BTd>
-                    <BTd>{formatCurrency(dayBudget)}</BTd>
-                    <BTd>{cumBudget > 0 ? formatPercent(dayRate, 2) : '—'}</BTd>
+                  <SubRow key={`${row.storeId}-${day.day}`}>
+                    <BTd style={{ paddingLeft: '28px' }}>{day.dayLabel}</BTd>
+                    <BTd>{day.salesStr}</BTd>
+                    <BTd>{day.budgetStr}</BTd>
+                    <BTd>{day.rateStr}</BTd>
                     <BTd colSpan={2} />
                   </SubRow>,
                 )
@@ -232,13 +210,13 @@ export function DailySalesDetailTable({
           })}
           <BTr $highlight>
             <BTd $bold>合計</BTd>
-            <BTd $bold>{formatCurrency(r.totalSales)}</BTd>
-            <BTd $bold>{formatCurrency(r.budget)}</BTd>
-            <BTd $bold $color={totalColor}>
-              {r.budget > 0 ? formatPercent(safeDivide(r.totalSales, r.budget, 0), 2) : '—'}
+            <BTd $bold>{vm.totalSalesStr}</BTd>
+            <BTd $bold>{vm.totalBudgetStr}</BTd>
+            <BTd $bold $color={vm.totalColor}>
+              {vm.totalAchievementStr}
             </BTd>
-            <BTd $bold>{formatCurrency(r.averageDailySales)}</BTd>
-            <BTd $bold>{formatCurrency(budgetDailyAvg)}</BTd>
+            <BTd $bold>{vm.totalDailySalesStr}</BTd>
+            <BTd $bold>{vm.totalBudgetDailyStr}</BTd>
           </BTr>
         </tbody>
       </BTable>

@@ -4,6 +4,7 @@ import { format as d3format } from 'd3-format'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
+import { formatPercent } from '@/domain/formatting'
 
 /** recharts用のテーマカラーを取得するフック */
 export function useChartTheme() {
@@ -92,10 +93,8 @@ export function toComma(v: number): string {
   return Math.round(v).toLocaleString('ja-JP')
 }
 
-/** パーセント表示する */
-export function toPct(v: number, decimals = 2): string {
-  return `${(v * 100).toFixed(decimals)}%`
-}
+/** パーセント表示する（domain/formatting の formatPercent に委譲） */
+export const toPct = (v: number, decimals = 2): string => formatPercent(v, decimals)
 
 // ── d3-format ベースの軸フォーマッタ ──
 
