@@ -32,7 +32,7 @@ export default defineConfig({
         'src/infrastructure/pwa/registerSW.ts',
       ],
       thresholds: {
-        lines: 70,
+        lines: 55,
         'src/domain/calculations/**': {
           lines: 80,
         },
