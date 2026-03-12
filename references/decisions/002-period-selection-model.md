@@ -146,7 +146,7 @@ settingsStore.targetYear/Month + dataEndDay
   → filterStore.dayRange [1, endDay]
   → useFilterDateRange() → DateRange（月内のみ）
   → useComparisonFrame() → ComparisonFrame
-  → usePrevYearData() → PrevYearData
+  → usePrevYearData() → PrevYearData  ← 削除済み（useComparisonModule に移行完了）
   → WidgetContext に全部載せる
   → 各ウィジェットが暗黙的に必要なものを取る
 ```
@@ -212,7 +212,7 @@ WidgetContext.periodResult
 |---|---|
 | `useComparisonFrame.ts` | 削除 |
 | `resolveComparisonFrame.ts` | `applyPreset()` に統合済み |
-| `usePrevYearData.ts` | period2 DateRange でマッピング |
+| `usePrevYearData.ts` | 削除済み（useComparisonModule に移行完了） |
 | `usePrevYearMonthlyKpi.ts` | 同上 |
 | `useYoyQueries.ts` | `period2: DateRange` |
 | `useJsAggregationQueries.ts` | 同上 |
@@ -238,7 +238,7 @@ WidgetContext.periodResult
 `DailySalesChart.tsx`, `GrossProfitAmountChart.tsx`, `DiscountTrendChart.tsx`,
 `CustomerScatterChart.tsx`, `MultiKpiSparklines.tsx`, `PerformanceIndexChart.tsx`,
 `RevenueStructureChart.tsx`, `IntegratedTimeline.tsx`
-+ `usePrevYearData.ts` を DateKey ベース Map に変更
++ ~~`usePrevYearData.ts` を DateKey ベース Map に変更~~ ← 削除済み（useComparisonModule に移行完了）
 
 #### 4-e: Admin UI + 月切替
 

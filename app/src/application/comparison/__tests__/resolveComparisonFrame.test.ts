@@ -26,6 +26,38 @@ describe('calcSameDowOffset', () => {
     const withDefault = calcSameDowOffset(2026, 3)
     expect(withDefault).toBe(withExplicit)
   })
+
+  it('オフセットは常に 0〜6 の範囲', () => {
+    for (let year = 2020; year <= 2030; year++) {
+      for (let month = 1; month <= 12; month++) {
+        const offset = calcSameDowOffset(year, month)
+        expect(offset).toBeGreaterThanOrEqual(0)
+        expect(offset).toBeLessThanOrEqual(6)
+      }
+    }
+  })
+
+  it('オフセットが曜日差と一致する', () => {
+    for (let year = 2020; year <= 2030; year++) {
+      for (let month = 1; month <= 12; month++) {
+        const offset = calcSameDowOffset(year, month)
+        const curDow = new Date(year, month - 1, 1).getDay()
+        const prevDow = new Date(year - 1, month - 1, 1).getDay()
+        const expected = (((curDow - prevDow) % 7) + 7) % 7
+        expect(offset).toBe(expected)
+      }
+    }
+  })
+
+  it('連続年ではオフセットは1または2', () => {
+    for (let year = 2020; year <= 2030; year++) {
+      for (let month = 1; month <= 12; month++) {
+        const offset = calcSameDowOffset(year, month)
+        expect(offset).toBeGreaterThanOrEqual(1)
+        expect(offset).toBeLessThanOrEqual(2)
+      }
+    }
+  })
 })
 
 describe('resolveComparisonFrame', () => {
