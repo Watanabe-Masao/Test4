@@ -1,0 +1,227 @@
+/**
+ * 粗利率・売変率の ViewModel
+ */
+import type { StoreResult, Store } from '@/domain/models'
+import { DISCOUNT_TYPES } from '@/domain/models'
+import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'
+import { safeDivide } from '@/domain/calculations/utils'
+import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
+import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
+import {
+  type SignalLevel,
+  SIGNAL_COLORS,
+  computeGpBeforeConsumable,
+  computeGpAfterConsumable,
+  computeGpAmount,
+  computeGpAfterConsumableAmount,
+  metricSignal,
+} from './conditionSummaryUtils'
+
+// ─── Helpers ────────────────────────────────────────────
+
+/** Prorate grossProfitBudget to the elapsed period using budgetDaily distribution */
+export function prorateGpBudget(
+  sr: StoreResult,
+  elapsedDays: number | undefined,
+  daysInMonth: number | undefined,
+): number {
+  const dim = daysInMonth ?? 31
+  const effectiveEndDay = elapsedDays ?? dim
+  const isPartial = elapsedDays != null && elapsedDays < dim
+  if (!isPartial) return sr.grossProfitBudget
+  let periodBudgetSum = 0
+  for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += sr.budgetDaily.get(d) ?? 0
+  return sr.budget > 0 ? sr.grossProfitBudget * (periodBudgetSum / sr.budget) : 0
+}
+
+// ─── GP Rate Detail VM ──────────────────────────────────
+
+export interface GpRateStoreRowVm {
+  readonly storeId: string
+  readonly storeName: string
+  readonly sigColor: string
+  readonly budgetRate: string
+  readonly beforeRate: string
+  readonly afterRate: string
+  readonly costInclusionRate: string
+  readonly diffPointStr: string
+  readonly gpBudgetAmt: string
+  readonly gpBeforeAmt: string
+  readonly gpAfterAmt: string
+  readonly diffAmt: number
+  readonly diffAmtStr: string
+  readonly diffAmtSign: string
+}
+
+export interface GpRateTotalVm {
+  readonly totalColor: string
+  readonly budgetRate: string
+  readonly beforeRate: string
+  readonly afterRate: string
+  readonly costInclusionRate: string
+  readonly diffPointStr: string
+  readonly gpBudgetAmt: string
+  readonly gpBeforeAmt: string
+  readonly gpAfterAmt: string
+  readonly totalDiffAmt: number
+  readonly totalDiffAmtStr: string
+  readonly totalDiffAmtSign: string
+}
+
+export interface GpRateDetailVm {
+  readonly storeRows: readonly GpRateStoreRowVm[]
+  readonly total: GpRateTotalVm
+}
+
+export function buildGpRateDetailVm(
+  sortedStoreEntries: readonly [string, StoreResult][],
+  stores: ReadonlyMap<string, Store>,
+  result: StoreResult,
+  effectiveConfig: ConditionSummaryConfig,
+  elapsedDays: number | undefined,
+  daysInMonth: number | undefined,
+): GpRateDetailVm {
+  const gpSignal = (diffPt: number, storeId?: string): SignalLevel => {
+    const t = resolveThresholds(effectiveConfig, 'gpRate', storeId)
+    return evaluateSignal(diffPt, t, 'higher_better')
+  }
+
+  const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
+    const store = stores.get(storeId)
+    const storeName = store?.name ?? storeId
+    const before = computeGpBeforeConsumable(sr)
+    const after = computeGpAfterConsumable(sr)
+    const diff = (after - sr.grossProfitRateBudget) * 100
+    const sig = gpSignal(diff, sr.storeId)
+    const sigColor = SIGNAL_COLORS[sig]
+
+    const gpAmt = computeGpAmount(sr)
+    const gpAfterAmt = computeGpAfterConsumableAmount(sr)
+    const storeGpBudget = prorateGpBudget(sr, elapsedDays, daysInMonth)
+    const diffAmt = gpAfterAmt - storeGpBudget
+
+    return {
+      storeId,
+      storeName,
+      sigColor,
+      budgetRate: formatPercent(sr.grossProfitRateBudget),
+      beforeRate: formatPercent(before),
+      afterRate: formatPercent(after),
+      costInclusionRate: formatPercent(sr.costInclusionRate),
+      diffPointStr: formatPointDiff(after - sr.grossProfitRateBudget),
+      gpBudgetAmt: formatCurrency(storeGpBudget),
+      gpBeforeAmt: formatCurrency(gpAmt),
+      gpAfterAmt: formatCurrency(gpAfterAmt),
+      diffAmt,
+      diffAmtStr: formatCurrency(diffAmt),
+      diffAmtSign: diffAmt >= 0 ? '+' : '',
+    }
+  })
+
+  const gpBefore = computeGpBeforeConsumable(result)
+  const gpAfter = computeGpAfterConsumable(result)
+  const gpDiff = (gpAfter - result.grossProfitRateBudget) * 100
+  const totalSig = gpSignal(gpDiff)
+  const totalColor = SIGNAL_COLORS[totalSig]
+
+  const totalGpAmt = computeGpAmount(result)
+  const totalAfterAmt = computeGpAfterConsumableAmount(result)
+  const totalGpBudget = prorateGpBudget(result, elapsedDays, daysInMonth)
+  const totalDiffAmt = totalAfterAmt - totalGpBudget
+
+  return {
+    storeRows,
+    total: {
+      totalColor,
+      budgetRate: formatPercent(result.grossProfitRateBudget),
+      beforeRate: formatPercent(gpBefore),
+      afterRate: formatPercent(gpAfter),
+      costInclusionRate: formatPercent(result.costInclusionRate),
+      diffPointStr: formatPointDiff(gpAfter - result.grossProfitRateBudget),
+      gpBudgetAmt: formatCurrency(totalGpBudget),
+      gpBeforeAmt: formatCurrency(totalGpAmt),
+      gpAfterAmt: formatCurrency(totalAfterAmt),
+      totalDiffAmt,
+      totalDiffAmtStr: formatCurrency(totalDiffAmt),
+      totalDiffAmtSign: totalDiffAmt >= 0 ? '+' : '',
+    },
+  }
+}
+
+// ─── Discount Rate Detail VM ─────────────────────────────
+
+export interface DiscountEntryVm {
+  readonly type: string
+  readonly rateStr: string
+  readonly amtStr: string
+}
+
+export interface DiscountStoreRowVm {
+  readonly storeId: string
+  readonly storeName: string
+  readonly sigColor: string
+  readonly rateStr: string
+  readonly amtStr: string
+  readonly entries: readonly DiscountEntryVm[]
+}
+
+export interface DiscountTotalVm {
+  readonly totalColor: string
+  readonly rateStr: string
+  readonly amtStr: string
+  readonly entries: readonly DiscountEntryVm[]
+}
+
+export interface DiscountRateDetailVm {
+  readonly storeRows: readonly DiscountStoreRowVm[]
+  readonly total: DiscountTotalVm
+}
+
+export function buildDiscountRateDetailVm(
+  sortedStoreEntries: readonly [string, StoreResult][],
+  stores: ReadonlyMap<string, Store>,
+  result: StoreResult,
+  effectiveConfig: ConditionSummaryConfig,
+): DiscountRateDetailVm {
+  const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
+    const store = stores.get(storeId)
+    const storeName = store?.name ?? storeId
+    const sig = metricSignal(sr.discountRate, 'discountRate', effectiveConfig, sr.storeId)
+    const sigColor = SIGNAL_COLORS[sig]
+
+    const entries = DISCOUNT_TYPES.map((dt) => {
+      const entry = sr.discountEntries.find((e) => e.type === dt.type)
+      const amt = entry?.amount ?? 0
+      const rate = sr.grossSales > 0 ? safeDivide(amt, sr.grossSales, 0) : 0
+      return { type: dt.type, rateStr: formatPercent(rate), amtStr: formatCurrency(amt) }
+    })
+
+    return {
+      storeId,
+      storeName,
+      sigColor,
+      rateStr: formatPercent(sr.discountRate),
+      amtStr: formatCurrency(sr.totalDiscount),
+      entries,
+    }
+  })
+
+  const totalSig = metricSignal(result.discountRate, 'discountRate', effectiveConfig)
+  const totalColor = SIGNAL_COLORS[totalSig]
+  const totalEntries = DISCOUNT_TYPES.map((dt) => {
+    const entry = result.discountEntries.find((e) => e.type === dt.type)
+    const amt = entry?.amount ?? 0
+    const rate = result.grossSales > 0 ? safeDivide(amt, result.grossSales, 0) : 0
+    return { type: dt.type, rateStr: formatPercent(rate), amtStr: formatCurrency(amt) }
+  })
+
+  return {
+    storeRows,
+    total: {
+      totalColor,
+      rateStr: formatPercent(result.discountRate),
+      amtStr: formatCurrency(result.totalDiscount),
+      entries: totalEntries,
+    },
+  }
+}
