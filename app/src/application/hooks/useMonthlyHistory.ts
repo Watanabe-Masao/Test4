@@ -4,18 +4,15 @@
  * IndexedDB に保存された過去月の classifiedSales + StoreDaySummaryCache から
  * MonthlyDataPoint[] を構築し、季節性分析・トレンド分析に使用する。
  *
- * StoreDaySummaryCache が利用可能な月は、売変率・原価率・原価算入率・値入率など
- * 全成分の月次推移を提供できる。キャッシュがない月は classifiedSales のみで
- * 売上データを提供し、成分フィールドは null になる。
- *
- * データフローアーキテクチャ:
- *   Infrastructure(IndexedDB) → Application(このフック) → Presentation(SeasonalBenchmarkChart)
+ * 純粋な変換ロジックは monthlyHistoryLogic.ts に分離。
  */
 import { useState, useEffect, useMemo, useRef } from 'react'
 import type { MonthlyDataPoint } from '@/domain/calculations/algorithms/trendAnalysis'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
-import type { StoreDaySummaryIndex } from '@/domain/models'
-import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { aggregateSummaryRates } from './monthlyHistoryLogic'
+
+// 後方互換 re-export
+export { currentResultToMonthlyPoint } from './monthlyHistoryLogic'
 
 /**
  * 過去月データを MonthlyDataPoint[] として返すフック。
@@ -130,52 +127,6 @@ export function useMonthlyHistory(
 }
 
 /**
- * 現在の StoreResult を MonthlyDataPoint に変換するヘルパー。
- * 過去月データに当月を追加して最新の季節性分析に含めるために使用。
- */
-export function currentResultToMonthlyPoint(
-  year: number,
-  month: number,
-  result: {
-    readonly totalSales: number
-    readonly totalCustomers: number
-    readonly invMethodGrossProfit: number | null
-    readonly invMethodGrossProfitRate: number | null
-    readonly estMethodMargin: number
-    readonly estMethodMarginRate: number
-    readonly budget: number
-    readonly budgetAchievementRate: number
-    readonly discountRate: number
-    readonly inventoryCost: number
-    readonly deliverySalesCost: number
-    readonly grossSales: number
-    readonly costInclusionRate: number
-    readonly averageMarkupRate: number
-  },
-  storeCount: number,
-): MonthlyDataPoint {
-  const costRate =
-    result.grossSales > 0
-      ? (result.inventoryCost + result.deliverySalesCost) / result.grossSales
-      : null
-  return {
-    year,
-    month,
-    totalSales: result.totalSales,
-    totalCustomers: result.totalCustomers,
-    grossProfit: result.invMethodGrossProfit ?? result.estMethodMargin,
-    grossProfitRate: getEffectiveGrossProfitRate(result),
-    budget: result.budget > 0 ? result.budget : null,
-    budgetAchievement: result.budgetAchievementRate,
-    storeCount,
-    discountRate: result.discountRate,
-    costRate,
-    costInclusionRate: result.costInclusionRate,
-    averageMarkupRate: result.averageMarkupRate,
-  }
-}
-
-/**
  * StoreDaySummaryCache から成分情報（売変率、原価率、原価算入率、値入率、客数、粗利）を算出。
  * キャッシュがない場合は null を返す。
  */
@@ -198,63 +149,6 @@ async function loadComponentRates(
     return aggregateSummaryRates(cache.summaries)
   } catch {
     return null
-  }
-}
-
-/**
- * StoreDaySummaryIndex の全店舗・全日を集約して成分率を算出する。
- */
-function aggregateSummaryRates(summaries: StoreDaySummaryIndex): {
-  discountRate: number
-  costRate: number
-  costInclusionRate: number
-  averageMarkupRate: number
-  totalCustomers: number
-  grossProfit: number
-  grossProfitRate: number
-} | null {
-  let totalSales = 0
-  let totalGrossSales = 0
-  let totalDiscount = 0
-  let totalPurchaseCost = 0
-  let totalPurchasePrice = 0
-  let totalFlowersCost = 0
-  let totalDirectProduceCost = 0
-  let totalCostInclusion = 0
-  let totalCustomers = 0
-
-  for (const days of Object.values(summaries)) {
-    for (const day of Object.values(days)) {
-      totalSales += day.sales
-      totalGrossSales += day.grossSales
-      totalDiscount += day.discountAmount
-      totalPurchaseCost += day.purchaseCost
-      totalPurchasePrice += day.purchasePrice
-      totalFlowersCost += day.flowersCost
-      totalDirectProduceCost += day.directProduceCost
-      totalCostInclusion += day.costInclusionCost
-      totalCustomers += day.customers
-    }
-  }
-
-  if (totalSales === 0) return null
-
-  const inventoryCost = totalPurchaseCost - totalFlowersCost - totalDirectProduceCost
-  const deliverySalesCost = totalFlowersCost + totalDirectProduceCost
-  const allCost = inventoryCost + deliverySalesCost
-  const allPrice = totalPurchasePrice
-
-  const grossProfit = totalSales - allCost
-  const grossProfitRate = safeDivide(grossProfit, totalSales)
-
-  return {
-    discountRate: safeDivide(totalDiscount, totalSales),
-    costRate: safeDivide(allCost, totalGrossSales),
-    costInclusionRate: safeDivide(totalCostInclusion, totalSales),
-    averageMarkupRate: safeDivide(allPrice - totalPurchaseCost, allPrice),
-    totalCustomers,
-    grossProfit,
-    grossProfitRate,
   }
 }
 

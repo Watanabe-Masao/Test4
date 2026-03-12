@@ -173,6 +173,9 @@ describe('R1/R4: 分割後ファイルの行数制限', () => {
     ['application/usecases/import/multiMonthImport.ts', 250],
     // Phase 8: renderClipHtml 分割
     ['application/usecases/clipExport/renderClipHtml.ts', 60],
+    // 追加抽出: useConditionMatrix, useMonthlyHistory
+    ['application/hooks/duckdb/useConditionMatrix.ts', 60],
+    ['application/hooks/useMonthlyHistory.ts', 200],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
@@ -198,6 +201,8 @@ describe('R1: 純粋関数モジュールに React import がない', () => {
     'application/usecases/import/importHelpers.ts',
     'application/usecases/clipExport/clipCss.ts',
     'application/usecases/clipExport/clipJs.ts',
+    'application/hooks/duckdb/conditionMatrixLogic.ts',
+    'application/hooks/monthlyHistoryLogic.ts',
   ]
 
   it.each(pureModules)('%s に React import がない', (relPath) => {

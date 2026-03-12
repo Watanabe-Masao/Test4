@@ -94,6 +94,8 @@ const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
   'application/hooks/duckdb/categoryBenchmarkLogic.ts',
   // DuckDB 統合 — 箱ひげ図データ構築ロジック（純粋関数）
   'application/hooks/duckdb/categoryBoxPlotLogic.ts',
+  // DuckDB 統合 — コンディションマトリクス算出ロジック（純粋関数）
+  'application/hooks/duckdb/conditionMatrixLogic.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
