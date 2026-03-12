@@ -168,10 +168,7 @@ export function analyzeDowGapActualDay(
   const shiftedOut: ShiftedDay[] = []
 
   // 両マッピングを currentDay で突き合わせ
-  const allCurrentDays = new Set([
-    ...sameDateByCurrentDay.keys(),
-    ...sameDowByCurrentDay.keys(),
-  ])
+  const allCurrentDays = new Set([...sameDateByCurrentDay.keys(), ...sameDowByCurrentDay.keys()])
 
   for (const currentDay of allCurrentDays) {
     const dateEntry = sameDateByCurrentDay.get(currentDay)
