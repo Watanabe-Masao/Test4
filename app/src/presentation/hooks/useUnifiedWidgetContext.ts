@@ -76,8 +76,8 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
     currentMonthlyPoint,
   )
 
-  // 指標説明
-  const explanations = useExplanations()
+  // 指標説明（comparison module と同じデータソースを使う）
+  const explanations = useExplanations(comparison.kpi, comparison.dowGap)
   const [explainMetric, setExplainMetric] = useState<MetricId | null>(null)
   const handleExplain = useCallback((metricId: MetricId) => {
     setExplainMetric(metricId)
