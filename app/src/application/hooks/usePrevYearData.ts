@@ -86,11 +86,7 @@ export function usePrevYearData(elapsedDays?: number): PrevYearData {
 
     // 前年同曜日オフセット — periodSelectionStore の period1/period2 から導出
     const daysInTargetMonth = getDaysInMonth(targetYear, targetMonth)
-    const offset = deriveDowOffset(
-      periodSelection.period1,
-      periodSelection.period2,
-      periodSelection.activePreset,
-    )
+    const offset = deriveDowOffset(periodSelection.period1, periodSelection.activePreset)
 
     if (isNaN(daysInTargetMonth) || daysInTargetMonth <= 0) return EMPTY
 

@@ -212,17 +212,16 @@ describe('期間ソース干渉テスト', () => {
   })
 
   describe('5. DOW オフセットの一貫性', () => {
-    it('deriveDowOffset は V2 候補範囲の from 月で計算される（V1 calcSameDowOffset とは異なる場合がある）', () => {
+    it('deriveDowOffset は period1 の前年同月の月初曜日差で計算される', () => {
       for (let month = 1; month <= 12; month++) {
         const year = 2026
         const sel = createDefaultPeriodSelection(year, month)
-        const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
-        const newOffset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+        const newOffset = deriveDowOffset(sel.period1, 'prevYearSameDow')
 
-        // V2 の deriveDowOffset は period2.from の月の1日の曜日を使う
-        // period2.from は前年同日 -7 日なので、月が変わる場合がある
+        // deriveDowOffset は period1.from の前年同月の月初曜日差を返す
+        // period2 の候補窓の月ずれに影響されない
         const currentDow = new Date(year, month - 1, 1).getDay()
-        const prevDow = new Date(p2.from.year, p2.from.month - 1, 1).getDay()
+        const prevDow = new Date(year - 1, month - 1, 1).getDay()
         const expectedOffset = (((currentDow - prevDow) % 7) + 7) % 7
         expect(newOffset, `month ${month}`).toBe(expectedOffset)
       }
@@ -231,7 +230,7 @@ describe('期間ソース干渉テスト', () => {
     it('prevYearSameMonth では deriveDowOffset = 0（二重適用の防止）', () => {
       for (let month = 1; month <= 12; month++) {
         const sel = createDefaultPeriodSelection(2026, month)
-        expect(deriveDowOffset(sel.period1, sel.period2, 'prevYearSameMonth')).toBe(0)
+        expect(deriveDowOffset(sel.period1, 'prevYearSameMonth')).toBe(0)
       }
     })
   })
