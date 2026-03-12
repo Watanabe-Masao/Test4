@@ -98,7 +98,7 @@ export function analyzeDowGap(
   }
   if (isSameStructure) {
     missingDataWarnings.push(
-      `${currentYear}年${currentMonth}月と${previousYear}年${previousMonth}月は曜日構成が同一のため、曜日ギャップは0です`,
+      `${currentYear}年${currentMonth}月と${previousYear}年${previousMonth}月は曜日構成が同一のため、平均法の影響額は0です（実日法で境界日の売上差を確認できます）`,
     )
   }
 
@@ -116,48 +116,107 @@ export function analyzeDowGap(
 /**
  * 実日法による曜日ギャップ分析
  *
- * 同日マッピング (offset=0) と同曜日マッピング (offset=N) の前年日集合を比較し、
- * マッピング境界で「加わった日」「失われた日」の実売上から影響額を算出する。
+ * 同日マッピング (offset=0) と同曜日マッピング (offset=N) を **当年日 (currentDay)** で
+ * 突き合わせ、同じ当年日に対して前年の対応日が異なる箇所を「境界シフト」として検出する。
+ *
+ * ## なぜ currentDay で比較するか
+ *
+ * prevDay（前年日番号）で比較すると、同曜日マッピングが月境界を跨ぐ場合に
+ * 翌月の日番号が同月の日番号と衝突する（例: 2月28日→3月1日 で prevDay=1 が 2月1日と衝突）。
+ * currentDay は常に当年の1ヶ月内に収まるため衝突しない。
  *
  * ## 計算式
  *
  * estimatedImpact = Σ(shiftedIn の prevSales) - Σ(shiftedOut の prevSales)
  *
- * @param sameDateMapping 同日マッピングの日別データ（prevDay + prevSales）
- * @param sameDowMapping  同曜日マッピングの日別データ（prevDay + prevSales）
+ * @param sameDateMapping 同日マッピングの日別データ（currentDay + prevDay + prevSales）
+ * @param sameDowMapping  同曜日マッピングの日別データ（currentDay + prevDay + prevSales）
  * @param prevYear  前年
  * @param prevMonth 前年月
+ * @param currentYear  当年（shiftedIn の曜日算出用）
+ * @param currentMonth 当月（shiftedIn の曜日算出用）
  */
 export function analyzeDowGapActualDay(
-  sameDateMapping: readonly { readonly prevDay: number; readonly prevSales: number }[],
-  sameDowMapping: readonly { readonly prevDay: number; readonly prevSales: number }[],
+  sameDateMapping: readonly {
+    readonly currentDay: number
+    readonly prevDay: number
+    readonly prevSales: number
+  }[],
+  sameDowMapping: readonly {
+    readonly currentDay: number
+    readonly prevDay: number
+    readonly prevSales: number
+  }[],
   prevYear: number,
   prevMonth: number,
+  currentYear: number,
+  currentMonth: number,
 ): ActualDayImpact {
   if (sameDateMapping.length === 0 || sameDowMapping.length === 0) {
     return ZERO_ACTUAL_DAY_IMPACT
   }
 
-  // prevDay → prevSales のルックアップを構築
-  const sameDateByDay = new Map(sameDateMapping.map((r) => [r.prevDay, r.prevSales]))
-  const sameDowByDay = new Map(sameDowMapping.map((r) => [r.prevDay, r.prevSales]))
+  // currentDay をキーにルックアップを構築（衝突しない）
+  const sameDateByCurrentDay = new Map(
+    sameDateMapping.map((r) => [r.currentDay, { prevDay: r.prevDay, prevSales: r.prevSales }]),
+  )
+  const sameDowByCurrentDay = new Map(
+    sameDowMapping.map((r) => [r.currentDay, { prevDay: r.prevDay, prevSales: r.prevSales }]),
+  )
 
   const shiftedIn: ShiftedDay[] = []
   const shiftedOut: ShiftedDay[] = []
 
-  // sameDow にあるが sameDate にない → DOW alignment で「加わった日」
-  for (const [prevDay, prevSales] of sameDowByDay) {
-    if (!sameDateByDay.has(prevDay)) {
-      const dow = new Date(prevYear, prevMonth - 1, prevDay).getDay()
-      shiftedIn.push({ prevDay, dow, label: DOW_LABELS[dow], prevSales })
-    }
-  }
+  // 両マッピングを currentDay で突き合わせ
+  const allCurrentDays = new Set([
+    ...sameDateByCurrentDay.keys(),
+    ...sameDowByCurrentDay.keys(),
+  ])
 
-  // sameDate にあるが sameDow にない → DOW alignment で「失われた日」
-  for (const [prevDay, prevSales] of sameDateByDay) {
-    if (!sameDowByDay.has(prevDay)) {
-      const dow = new Date(prevYear, prevMonth - 1, prevDay).getDay()
-      shiftedOut.push({ prevDay, dow, label: DOW_LABELS[dow], prevSales })
+  for (const currentDay of allCurrentDays) {
+    const dateEntry = sameDateByCurrentDay.get(currentDay)
+    const dowEntry = sameDowByCurrentDay.get(currentDay)
+
+    if (dateEntry && dowEntry) {
+      // 両方に存在: prevDay が異なれば境界シフト
+      if (dateEntry.prevDay === dowEntry.prevDay) continue
+
+      // shiftedOut: sameDate の prevDay は DOW alignment で失われた日
+      const outDow = new Date(prevYear, prevMonth - 1, dateEntry.prevDay).getDay()
+      shiftedOut.push({
+        prevDay: dateEntry.prevDay,
+        dow: outDow,
+        label: DOW_LABELS[outDow],
+        prevSales: dateEntry.prevSales,
+      })
+
+      // shiftedIn: sameDow の prevDay は DOW alignment で加わった日
+      // sameDow alignment は曜日を保存するので、DOW は当年日から算出
+      const inDow = new Date(currentYear, currentMonth - 1, currentDay).getDay()
+      shiftedIn.push({
+        prevDay: dowEntry.prevDay,
+        dow: inDow,
+        label: DOW_LABELS[inDow],
+        prevSales: dowEntry.prevSales,
+      })
+    } else if (dowEntry && !dateEntry) {
+      // sameDow のみ → DOW alignment で加わった日
+      const inDow = new Date(currentYear, currentMonth - 1, currentDay).getDay()
+      shiftedIn.push({
+        prevDay: dowEntry.prevDay,
+        dow: inDow,
+        label: DOW_LABELS[inDow],
+        prevSales: dowEntry.prevSales,
+      })
+    } else if (dateEntry && !dowEntry) {
+      // sameDate のみ → DOW alignment で失われた日
+      const outDow = new Date(prevYear, prevMonth - 1, dateEntry.prevDay).getDay()
+      shiftedOut.push({
+        prevDay: dateEntry.prevDay,
+        dow: outDow,
+        label: DOW_LABELS[outDow],
+        prevSales: dateEntry.prevSales,
+      })
     }
   }
 
