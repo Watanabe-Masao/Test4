@@ -2,13 +2,12 @@
  * KPIテーブル用フォーマットユーティリティ
  *
  * KpiTableWidgets.tsx から分割。
+ * パーセント基本フォーマットは domain/formatting に委譲。
  */
+import { formatPercent } from '@/domain/formatting'
 
-export function fmtPct(v: number): string {
-  // 既に小数 (0.2220) なら %表示, 1超えなら既にパーセント値
-  const pct = Math.abs(v) <= 1 ? v * 100 : v
-  return `${pct.toFixed(2)}%`
-}
+/** パーセントフォーマット（formatPercent に委譲、常に比率値×100で表示） */
+export const fmtPct = (v: number): string => formatPercent(v)
 
 export function fmtPtDiff(v: number): string {
   // ポイント差異（例: 0.31 → +0.31pt）
