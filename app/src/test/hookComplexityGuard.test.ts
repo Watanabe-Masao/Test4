@@ -462,7 +462,9 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
       const content = fs.readFileSync(filePath, 'utf-8')
       const lineCount = content.split('\n').length
       if (lineCount > 600) {
-        violations.push(`${relPath}: ${lineCount}行 (中型上限: 600)。Tier 2 に昇格または分割すること`)
+        violations.push(
+          `${relPath}: ${lineCount}行 (中型上限: 600)。Tier 2 に昇格または分割すること`,
+        )
       }
     }
     expect(violations, `600行超の中型コンポーネント:\n${violations.join('\n')}`).toEqual([])
