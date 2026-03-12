@@ -253,8 +253,8 @@ describe('causalChain', () => {
 
       const steps = buildCausalSteps(result, undefined)
 
-      // 25.0% が表示される（推定法の20%ではなく）
-      expect(steps[0].description).toContain('25.0%')
+      // 25.00% が表示される（推定法の20%ではなく）
+      expect(steps[0].description).toContain('25.00%')
     })
 
     it('予算粗利率が0の場合、予算比変動ファクターが含まれない', () => {

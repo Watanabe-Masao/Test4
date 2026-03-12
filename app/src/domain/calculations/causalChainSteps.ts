@@ -3,7 +3,7 @@
  *
  * causalChain.ts から抽出。各ステップの CausalStep 構築を担う。
  */
-import { decompose2 } from './factorDecomposition'
+import type { TwoFactorResult } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 import type { DiscountType } from '@/domain/models/ClassifiedSales'
 import type { CausalChainPrevInput } from './causalChain'
@@ -85,6 +85,7 @@ export function buildFactorDecompositionStep(
   costInclusionRate: number,
   prev: CausalChainPrevInput | undefined,
   result: StoreResult,
+  shapley: TwoFactorResult | null,
 ): CausalStep {
   const prevCostRate = prev?.costRate ?? null
   const prevDiscountRate = prev ? prev.discountRate : null
@@ -116,19 +117,10 @@ export function buildFactorDecompositionStep(
     },
   ]
 
-  // Shapley分解（売上差 = 客数効果 + 客単価効果）
-  const prevSales = prev?.totalSales ?? null
-  const prevCust = prev?.totalCustomers ?? null
   let shapleyInsight = ''
-  if (prevSales != null && prevCust != null && prevCust > 0) {
-    const { custEffect, ticketEffect } = decompose2(
-      prevSales,
-      result.totalSales,
-      prevCust,
-      result.totalCustomers,
-    )
-    const salesDelta = result.totalSales - prevSales
-    shapleyInsight = `売上差 ${fmtYen(salesDelta)} = 客数効果 ${fmtYen(custEffect)} + 客単価効果 ${fmtYen(ticketEffect)}`
+  if (shapley && prev?.totalSales != null) {
+    const salesDelta = result.totalSales - prev.totalSales
+    shapleyInsight = `売上差 ${fmtYen(salesDelta)} = 客数効果 ${fmtYen(shapley.custEffect)} + 客単価効果 ${fmtYen(shapley.ticketEffect)}`
   }
 
   return {
@@ -179,33 +171,26 @@ export function buildSummaryStep(
   costRate: number,
   discountRate: number,
   costInclusionRate: number,
+  shapley: TwoFactorResult | null,
 ): CausalStep {
-  const prevSales = prev?.totalSales ?? null
-  const prevCust = prev?.totalCustomers ?? null
   const prevCostRate = prev?.costRate ?? null
   const prevDiscountRate = prev ? prev.discountRate : null
   const prevCostInclusionRate = prev?.costInclusionRate ?? null
 
   const summaryFactors: CausalFactor[] = []
 
-  if (prevSales != null && prevCust != null && prevCust > 0) {
-    const { custEffect, ticketEffect } = decompose2(
-      prevSales,
-      result.totalSales,
-      prevCust,
-      result.totalCustomers,
-    )
+  if (shapley) {
     summaryFactors.push(
       {
         label: '客数効果',
-        value: Math.abs(custEffect),
-        formatted: fmtYen(custEffect),
+        value: Math.abs(shapley.custEffect),
+        formatted: fmtYen(shapley.custEffect),
         colorHint: 'primary',
       },
       {
         label: '客単価効果',
-        value: Math.abs(ticketEffect),
-        formatted: fmtYen(ticketEffect),
+        value: Math.abs(shapley.ticketEffect),
+        formatted: fmtYen(shapley.ticketEffect),
         colorHint: 'secondary',
       },
     )

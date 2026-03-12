@@ -300,11 +300,11 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
             </ResultRow>
             {!isAllZero && (
               <Formula>
-                粗売上 {toManYen(simValues.simGrossSales)} − 原価 {toManYen(simValues.simCost)} − 売変{' '}
-                {toManYen(simValues.simDiscount)} − 消耗品 {toManYen(simValues.simConsumable)}
+                粗売上 {toManYen(simValues.simGrossSales)} − 原価 {toManYen(simValues.simCost)} −
+                売変 {toManYen(simValues.simDiscount)} − 消耗品 {toManYen(simValues.simConsumable)}
                 <br />= {toManYen(sensitivity.simulatedGrossProfit)}（現在{' '}
-                {toManYen(sensitivity.baseGrossProfit)} → 差 {fmtDelta(sensitivity.grossProfitDelta)}
-                ）
+                {toManYen(sensitivity.baseGrossProfit)} → 差{' '}
+                {fmtDelta(sensitivity.grossProfitDelta)}）
               </Formula>
             )}
           </ResultCard>
@@ -326,8 +326,8 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
             {!isAllZero && (
               <Formula>
                 粗利 {toManYen(sensitivity.simulatedGrossProfit)} ÷ 売上{' '}
-                {toManYen(sensitivity.simulatedSales)}（現在 {toPct(sensitivity.baseGrossProfitRate)}
-                ）
+                {toManYen(sensitivity.simulatedSales)}（現在{' '}
+                {toPct(sensitivity.baseGrossProfitRate)}）
               </Formula>
             )}
           </ResultCard>

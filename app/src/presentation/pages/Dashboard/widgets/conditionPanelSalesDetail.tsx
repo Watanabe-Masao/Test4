@@ -92,9 +92,7 @@ export function TxValueDetailTable({
             if (isExpanded) {
               rows.push(
                 <SubRow key={`${row.storeId}-header`}>
-                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>
-                    日
-                  </BTd>
+                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>日</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>売上</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客数</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>客単価</BTd>
@@ -138,8 +136,7 @@ export function DailySalesDetailTable({
   onExpandToggle,
 }: DailySalesDetailProps) {
   const vm = useMemo(
-    () =>
-      buildDailySalesDetailVm(sortedStoreEntries, stores, result, effectiveConfig, daysInMonth),
+    () => buildDailySalesDetailVm(sortedStoreEntries, stores, result, effectiveConfig, daysInMonth),
     [sortedStoreEntries, stores, result, effectiveConfig, daysInMonth],
   )
 
@@ -184,9 +181,7 @@ export function DailySalesDetailTable({
             if (isExpanded) {
               rows.push(
                 <SubRow key={`${row.storeId}-header`}>
-                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>
-                    日
-                  </BTd>
+                  <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>日</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>売上</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>予算</BTd>
                   <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>達成率</BTd>

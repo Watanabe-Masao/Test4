@@ -14,9 +14,6 @@ export function safeDivide(numerator: number, denominator: number, fallback = 0)
   return denominator !== 0 ? numerator / denominator : fallback
 }
 
-// フォーマット関数は domain/formatting/ に移動済み
-// 後方互換のため re-export は calculations/index.ts で維持
-
 /**
  * 客単価（1客あたり売上）を計算する
  */

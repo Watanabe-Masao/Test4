@@ -5,10 +5,7 @@
  * レンダリングのみに専念する。
  */
 import { useMemo } from 'react'
-import {
-  buildMarkupRateDetailVm,
-  buildCostInclusionDetailVm,
-} from './conditionPanelMarkupCost.vm'
+import { buildMarkupRateDetailVm, buildCostInclusionDetailVm } from './conditionPanelMarkupCost.vm'
 import {
   DetailHeader,
   DetailTitle,

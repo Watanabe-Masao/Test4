@@ -10,7 +10,7 @@
  */
 
 // ── 正規ロケーションからの re-export ──────────────────────
-export type { AggregateMode } from '@/domain/calculations/divisor'
+export type { AggregateMode } from '@/domain/models/UnifiedFilter'
 export {
   computeDivisor,
   countDistinctDays,

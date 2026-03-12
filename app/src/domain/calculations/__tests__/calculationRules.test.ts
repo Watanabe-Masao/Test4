@@ -438,8 +438,9 @@ describe('RULE-C1: Chart files のパーセント書式は toPct を経由する
       if (usesToPct) {
         const hasChartThemeImport =
           /import\s+\{[^}]*toPct[^}]*\}\s+from\s+['"]\.\/chartTheme['"]/.test(content)
-        const hasFormatPercentAlias =
-          /import\s+\{[^}]*formatPercent\s+as\s+toPct[^}]*\}/.test(content)
+        const hasFormatPercentAlias = /import\s+\{[^}]*formatPercent\s+as\s+toPct[^}]*\}/.test(
+          content,
+        )
         expect(
           hasChartThemeImport || hasFormatPercentAlias,
           `charts/${file} が toPct を使用していますが chartTheme または formatPercent alias から import していません`,

@@ -31,8 +31,8 @@ export interface CausalStep {
   readonly insight: string
 }
 
-/** パーセントフォーマット（因果チェーンではデフォルト小数1位） */
-export const fmtPct = (v: number, decimals = 1): string => formatPercent(v, decimals)
+/** パーセントフォーマット（formatPercent に委譲、デフォルト小数2位） */
+export const fmtPct = (v: number, decimals = 2): string => formatPercent(v, decimals)
 
 /** カンマ区切り数値（formatCurrency に委譲） */
 export const fmtComma = (v: number): string => formatCurrency(v)

@@ -14,9 +14,6 @@
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import type { AggregateMode } from '@/domain/models/UnifiedFilter'
 
-/** @deprecated UnifiedFilter.ts から import してください */
-export type { AggregateMode } from '@/domain/models/UnifiedFilter'
-
 /**
  * 【TR-DIV-001】集計モードに基づく除数を算出
  *

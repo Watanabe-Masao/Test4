@@ -38,3 +38,19 @@ export function formatPointDiff(n: number | null, decimals = 1): string {
   const pt = n * 100
   return `${pt > 0 ? '+' : ''}${pt.toFixed(decimals)}pt`
 }
+
+/**
+ * 客数フォーマット（カンマ区切り + 人）
+ */
+export function formatCustomers(n: number | null): string {
+  if (n == null || isNaN(n)) return '-'
+  return `${Math.round(n).toLocaleString('ja-JP')}人`
+}
+
+/**
+ * 客単価フォーマット（カンマ区切り + 円）
+ */
+export function formatTransactionValue(n: number | null, decimals = 0): string {
+  if (n == null || isNaN(n)) return '-'
+  return `${n.toLocaleString('ja-JP', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}円`
+}
