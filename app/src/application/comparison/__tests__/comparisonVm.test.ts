@@ -2,9 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { toYoyDailyRowVm } from '../comparisonVm'
 import type { ResolvedComparisonRow } from '../comparisonTypes'
 
-function makeResolved(
-  overrides: Partial<ResolvedComparisonRow>,
-): ResolvedComparisonRow {
+function makeResolved(overrides: Partial<ResolvedComparisonRow>): ResolvedComparisonRow {
   return {
     compareMode: 'sameDate',
     alignmentKey: 'S1||2026-03-01|2025-03-01|sameDate',

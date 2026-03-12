@@ -62,11 +62,7 @@ export function resolveSameDayOfWeekDateKey(row: MatchableRow): string {
 
   const candidates: Date[] = []
   for (let diff = -7; diff <= 7; diff++) {
-    const d = new Date(
-      anchorDate.getFullYear(),
-      anchorDate.getMonth(),
-      anchorDate.getDate() + diff,
-    )
+    const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate() + diff)
     if (d.getDay() === currentDow) {
       candidates.push(d)
     }
@@ -83,10 +79,7 @@ export function resolveSameDayOfWeekDateKey(row: MatchableRow): string {
  * compareMode に応じて比較先の日付を決定する。
  * データの存在確認は行わない。
  */
-export function resolveRequestedCompareDateKey(
-  row: MatchableRow,
-  mode: CompareModeV2,
-): string {
+export function resolveRequestedCompareDateKey(row: MatchableRow, mode: CompareModeV2): string {
   switch (mode) {
     case 'sameDate': {
       const d = new Date(row.year - 1, row.month - 1, row.day)

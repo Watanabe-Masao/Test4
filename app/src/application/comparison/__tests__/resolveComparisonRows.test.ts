@@ -21,9 +21,7 @@ function makeRow(
 describe('resolveComparisonRows — sameDate match', () => {
   it('1:1 正常 match', () => {
     const current = [makeRow({ dateKey: '2026-03-15', storeId: 'S1', sales: 200, customers: 20 })]
-    const previous = [
-      makeRow({ dateKey: '2025-03-15', storeId: 'S1', sales: 150, customers: 15 }),
-    ]
+    const previous = [makeRow({ dateKey: '2025-03-15', storeId: 'S1', sales: 150, customers: 15 })]
 
     const result = resolveComparisonRows(current, previous, 'sameDate')
     expect(result).toHaveLength(1)
