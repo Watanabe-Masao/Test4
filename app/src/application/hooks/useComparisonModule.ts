@@ -28,7 +28,8 @@ import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './usePrevYearM
 import type { ComparisonFrame, PrevYearScope } from '@/domain/models/ComparisonFrame'
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import { aggregateAllStores, indexByStoreDay, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
+import { prepareComparisonInputs } from '@/application/comparison/comparisonDataPrep'
 import { aggregateDailyByAlignment } from '@/application/comparison/buildComparisonAggregation'
 import {
   buildKpiProjection,
@@ -141,70 +142,37 @@ export function useComparisonModule(
     }
   }, [scope])
 
-  // 4. 日別集計（PrevYearData 互換）
+  // 4. 共通入力データ準備（allAgg / targetIds / flowersIndex の重複排除）
+  const inputs = useMemo(
+    () => prepareComparisonInputs(data, selectedStoreIds, isAllStores),
+    [data, selectedStoreIds, isAllStores],
+  )
+
+  // 5. 日別集計（PrevYearData 互換）
   const daily = useMemo((): PrevYearData => {
-    if (!scope) return EMPTY_DAILY
-    const prevYearCS = data.prevYearClassifiedSales
-    if (prevYearCS.records.length === 0) return EMPTY_DAILY
-
-    const allAgg = aggregateAllStores(prevYearCS)
-    const allStoreIds = Object.keys(allAgg)
-    if (allStoreIds.length === 0) return EMPTY_DAILY
-
-    const targetIds = isAllStores
-      ? allStoreIds
-      : allStoreIds.filter((id) => selectedStoreIds.has(id))
-    if (targetIds.length === 0) return EMPTY_DAILY
-
-    const prevYearFlowers = data.prevYearFlowers
-    const flowersIndex =
-      prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
-
+    if (!scope || !inputs) return EMPTY_DAILY
     return aggregateDailyByAlignment(
-      allAgg,
-      flowersIndex,
-      targetIds,
+      inputs.allAgg,
+      inputs.flowersIndex,
+      inputs.targetIds,
       scope.alignmentMap,
       elapsedDays,
     )
-  }, [
-    scope,
-    data.prevYearClassifiedSales,
-    data.prevYearFlowers,
-    selectedStoreIds,
-    isAllStores,
-    elapsedDays,
-  ])
+  }, [scope, inputs, elapsedDays])
 
-  // 5. 月間KPI集計（PrevYearMonthlyKpi 互換）
+  // 6. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {
-    if (!scope) return EMPTY_KPI
-    const prevYearCS = data.prevYearClassifiedSales
-    if (prevYearCS.records.length === 0) return EMPTY_KPI
+    if (!scope || !inputs) return EMPTY_KPI
+    return buildKpiProjection(
+      inputs.allAgg,
+      inputs.flowersIndex,
+      inputs.targetIds,
+      scope,
+      periodSelection,
+    )
+  }, [scope, inputs, periodSelection])
 
-    const allAgg = aggregateAllStores(prevYearCS)
-    const allStoreIds = Object.keys(allAgg)
-    if (allStoreIds.length === 0) return EMPTY_KPI
-
-    const targetIds = isAllStores
-      ? allStoreIds
-      : allStoreIds.filter((id) => selectedStoreIds.has(id))
-
-    const prevYearFlowers = data.prevYearFlowers
-    const flowersIndex =
-      prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
-
-    return buildKpiProjection(allAgg, flowersIndex, targetIds, scope, periodSelection)
-  }, [
-    scope,
-    data.prevYearClassifiedSales,
-    data.prevYearFlowers,
-    selectedStoreIds,
-    isAllStores,
-    periodSelection,
-  ])
-
-  // 6. 曜日ギャップ分析
+  // 7. 曜日ギャップ分析
   const dowGap = useMemo(
     (): DowGapAnalysis =>
       buildDowGapProjection(
@@ -216,7 +184,7 @@ export function useComparisonModule(
     [kpi, currentAverageDailySales, periodSelection],
   )
 
-  // 7. 前年スコープ（旧互換 — DuckDB日付範囲 + 客数）
+  // 8. 前年スコープ（旧互換 — DuckDB日付範囲 + 客数）
   const prevYearScope = useMemo((): PrevYearScope | undefined => {
     if (!scope || !daily.hasPrevYear) return undefined
     return {
