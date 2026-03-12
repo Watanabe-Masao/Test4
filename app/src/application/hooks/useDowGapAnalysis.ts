@@ -16,6 +16,7 @@ export type { DowGapAnalysis }
 
 /** 日別マッピングの最小型（DayMappingRow の部分型） */
 interface DayMapping {
+  readonly currentDay: number
   readonly prevDay: number
   readonly prevSales: number
 }
@@ -53,6 +54,8 @@ export function useDowGapAnalysis(
         sameDowMapping,
         previousYear,
         previousMonth,
+        currentYear,
+        currentMonth,
       )
       return { ...base, actualDayImpact: actualDay }
     }

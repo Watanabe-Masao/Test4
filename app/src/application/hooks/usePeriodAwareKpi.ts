@@ -281,14 +281,7 @@ export function usePeriodAwareKpi(
     data: store2Metrics,
     isLoading: isLoading2,
     error: error2,
-  } = useDuckDBStorePeriodMetrics(
-    conn,
-    dataVersion,
-    queryRange2,
-    storeIds,
-    defaultMarkupRate,
-    true, // isPrevYear: 前年データテーブルから取得
-  )
+  } = useDuckDBStorePeriodMetrics(conn, dataVersion, queryRange2, storeIds, defaultMarkupRate)
 
   const period2Metrics = useMemo(() => {
     if (!store2Metrics || store2Metrics.length === 0) return null

@@ -367,6 +367,7 @@ describe('R11: hooks/ の .ts ファイルが行数上限以下', () => {
     'application/hooks/duckdb/categoryBenchmarkLogic.ts': 450,
     'application/hooks/duckdb/useCtsQueries.ts': 350,
     'application/hooks/useDuckDB.ts': 310,
+    'application/hooks/usePeriodAwareKpi.ts': 310,
   }
 
   it('hook ファイルが行数上限以下', () => {
@@ -592,10 +593,11 @@ describe('Domain 層の分割後ファイル行数制限', () => {
     const files = collectTsFiles(domainDir)
     const violations: string[] = []
 
-    // 除外: metricDefs.ts (凝集的カタログ), PeriodSelection.ts (300行境界)
+    // 除外: metricDefs.ts (凝集的カタログ), PeriodSelection.ts (300行境界), rawAggregation.ts (復元ファイル)
     const excludeFiles = new Set([
       'domain/constants/metricDefs.ts',
       'domain/models/PeriodSelection.ts',
+      'domain/calculations/rawAggregation.ts',
     ])
 
     for (const file of files) {

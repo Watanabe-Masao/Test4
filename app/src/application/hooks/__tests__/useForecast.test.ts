@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { calculateForecast, getWeekRanges } from '../useForecast'
+import { calculateForecast, getWeekRanges } from '@/domain/calculations/forecast'
 
-describe('useForecast re-exports', () => {
+describe('forecast re-exports', () => {
   it('calculateForecast が関数としてエクスポートされる', () => {
     expect(typeof calculateForecast).toBe('function')
   })
