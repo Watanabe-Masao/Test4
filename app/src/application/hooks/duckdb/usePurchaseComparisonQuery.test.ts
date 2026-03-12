@@ -5,10 +5,10 @@ import {
   categoryColor,
   markupRate,
   buildDailyPivot,
-} from './usePurchaseComparisonQuery'
+} from './purchaseComparisonBuilders'
 import type { CategoryComparisonRow } from '@/domain/models/PurchaseComparison'
 
-describe('usePurchaseComparisonQuery helpers', () => {
+describe('purchaseComparisonBuilders', () => {
   describe('toDateKey', () => {
     it('formats date as YYYY-MM-DD with zero-padded month and day', () => {
       expect(toDateKey({ year: 2025, month: 3, day: 5 })).toBe('2025-03-05')
