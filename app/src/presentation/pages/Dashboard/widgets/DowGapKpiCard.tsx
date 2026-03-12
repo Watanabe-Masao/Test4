@@ -15,7 +15,8 @@ export function DowGapKpiCard({
   onExplain: WidgetContext['onExplain']
 }) {
   const { format: fmtCurrency } = useCurrencyFormat()
-  const [showActual, setShowActual] = useState(false)
+  // 曜日構成同一（平均法=0）の場合、実日法がデフォルト
+  const [showActual, setShowActual] = useState(dowGap.isSameStructure)
   const toggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     setShowActual((v) => !v)
@@ -62,7 +63,7 @@ export function DowGapKpiCard({
   const hasWarnings = warnings.length > 0
   const subParts: string[] = []
   if (dowGap.isSameStructure) {
-    subParts.push('曜日構成同一（ギャップなし）')
+    subParts.push('曜日構成同一（平均法=0、実日法で確認可）')
   } else {
     subParts.push(`日数差: ${totalDiff >= 0 ? '+' : ''}${totalDiff}日`)
     if (gapSummary) subParts.push(gapSummary)

@@ -5,6 +5,7 @@
  * React に依存せず、単体テスト可能。
  */
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
+import { applyPreset } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './comparisonTypes'
@@ -61,8 +62,15 @@ export function buildKpiProjection(
   const sameDow = aggregateKpiByAlignment(allAgg, flowersIndex, targetIds, scope.alignmentMap)
 
   // 同日KPI: DOW offset なしで再構築
+  // period2 も再算出する（元の period2 は DOW offset が焼込済みのため）
+  const sameDatePeriod2 = applyPreset(
+    periodSelection.period1,
+    'prevYearSameMonth',
+    periodSelection.period2,
+  )
   const sameDateScope = buildComparisonScope({
     ...periodSelection,
+    period2: sameDatePeriod2,
     activePreset: 'prevYearSameMonth',
   })
   const sameDate = aggregateKpiByAlignment(
@@ -127,6 +135,8 @@ export function buildDowGapProjection(
       kpi.sameDow.dailyMapping,
       kpi.sourceYear,
       kpi.sourceMonth,
+      currentYear,
+      currentMonth,
     )
     return { ...base, actualDayImpact: actualDay }
   }
