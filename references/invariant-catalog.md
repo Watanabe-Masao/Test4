@@ -313,3 +313,60 @@ hasPrevYear = false ∨ budget ≤ 0 → |Map| = 0
 - **テスト**: `divisorRules.test.ts` — `網羅性: usePeriodFilter 使用ファイルの管理`
 - **ロール**: invariant-guardian
 - **登録必須**: `CHART_FILES_USING_PERIOD_FILTER` に追加すること
+
+## 比較サブシステム移行不変条件
+
+### INV-CMP-01: prevYear.daily.get(day) の新規使用禁止
+
+- **テスト**: `comparisonMigrationGuard.test.ts` — `INV-CMP-01`
+- **ロール**: architecture
+- **対象**: presentation/, application/hooks/, application/usecases/
+- **許可リスト**: 9件（凍結、増加禁止）
+- **違反時の影響**: 旧 day 番号参照が残留し、前年同曜日比較で日付ズレが発生する
+
+### INV-CMP-02: day 番号 + offset による前年比較禁止
+
+- **テスト**: `comparisonMigrationGuard.test.ts` — `INV-CMP-02`
+- **ロール**: architecture
+- **対象**: presentation/, application/hooks/
+- **違反時の影響**: origDay - offset の旧式マッピングが復活し、月跨ぎ・曜日ズレが発生する
+
+### INV-CMP-03: comparisonFrame.previous の新規使用禁止
+
+- **テスト**: `comparisonMigrationGuard.test.ts` — `INV-CMP-03`
+- **ロール**: architecture
+- **対象**: presentation/
+- **許可リスト**: 4件（凍結、増加禁止）
+- **違反時の影響**: 旧 ComparisonFrame ベースの日付範囲構築が残留する
+
+### INV-CMP-04: aggregateWithOffset の新規使用禁止
+
+- **テスト**: `comparisonMigrationGuard.test.ts` — `INV-CMP-04`
+- **ロール**: architecture
+- **違反時の影響**: 旧 offset 集計が復活し、alignmentMap ベースの集計と二重実装になる
+
+### INV-CMP-05: prevYearSameDow の period2 は候補窓
+
+```
+dateRangeDays(period2) = dateRangeDays(period1) + 14
+```
+
+- **テスト**: `ComparisonScopeInvariant.test.ts` — `INV-CMP-05`
+- **ロール**: invariant-guardian
+- **違反時の影響**: 候補窓が 1:1 比較期間として誤用され、日付対応が崩れる
+
+### INV-CMP-06: alignmentMap は位置ベース（DOW 解決を担当しない）
+
+- **テスト**: `ComparisonScopeInvariant.test.ts` — `INV-CMP-06`
+- **ロール**: invariant-guardian
+- **違反時の影響**: buildAlignmentMap が DOW 一致を保証すると誤認し、resolver を迂回する
+
+### INV-CMP-07: 1:1 プリセットの alignmentMap 長 = effectivePeriod1 長
+
+```
+|alignmentMap| = dateRangeDays(effectivePeriod1)
+```
+
+- **テスト**: `ComparisonScopeInvariant.test.ts` — `INV-CMP-07`
+- **ロール**: invariant-guardian
+- **違反時の影響**: 集計の日数と表示の日数が不一致になる

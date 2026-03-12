@@ -244,7 +244,7 @@ export function aggregateDailyByAlignment(
 /**
  * alignmentMap ベースの月間KPI集計。
  *
- * aggregateWithOffset() の alignmentMap 版。
+ * 旧 offset 版は廃止済み。
  * 全 alignmentMap エントリに対して集計し、
  * PrevYearMonthlyKpiEntry 互換の結果を返す。
  */
