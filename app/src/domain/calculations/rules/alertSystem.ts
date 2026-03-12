@@ -5,6 +5,7 @@
  * StoreResult から閾値超過を自動検出する。
  */
 import { safeDivide, getEffectiveGrossProfitRate } from '../utils'
+import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'
 import type { StoreResult } from '@/domain/models/StoreResult'
 
 // ─── Types ────────────────────────────────────────────
@@ -125,7 +126,7 @@ export function evaluateAlerts(
             ruleId: rule.id,
             ruleLabel: rule.label,
             severity: rule.severity,
-            message: `${storeName}: 粗利率 ${(gpRate * 100).toFixed(1)}% (目標 ${(options.targetGrossProfitRate * 100).toFixed(1)}%, 乖離 -${(diff * 100).toFixed(1)}pt)`,
+            message: `${storeName}: 粗利率 ${formatPercent(gpRate)} (目標 ${formatPercent(options.targetGrossProfitRate)}, 乖離 ${formatPointDiff(-diff)})`,
             value: gpRate,
             threshold: options.targetGrossProfitRate - rule.threshold,
             storeId,
@@ -146,7 +147,7 @@ export function evaluateAlerts(
               ruleId: rule.id,
               ruleLabel: rule.label,
               severity: rule.severity,
-              message: `${storeName} ${day}日: 前年比 ${(ratio * 100).toFixed(0)}% (${record.sales.toLocaleString()} / 前年 ${prevYearSales.toLocaleString()})`,
+              message: `${storeName} ${day}日: 前年比 ${formatPercent(ratio, 0)} (${formatCurrency(record.sales)} / 前年 ${formatCurrency(prevYearSales)})`,
               value: ratio,
               threshold: rule.threshold,
               storeId,
@@ -170,7 +171,7 @@ export function evaluateAlerts(
             ruleId: rule.id,
             ruleLabel: rule.label,
             severity: rule.severity,
-            message: `${storeName}: 消耗品比率 ${(ratio * 100).toFixed(1)}% (閾値 ${(rule.threshold * 100).toFixed(1)}%)`,
+            message: `${storeName}: 消耗品比率 ${formatPercent(ratio)} (閾値 ${formatPercent(rule.threshold)})`,
             value: ratio,
             threshold: rule.threshold,
             storeId,
@@ -187,7 +188,7 @@ export function evaluateAlerts(
             ruleId: rule.id,
             ruleLabel: rule.label,
             severity: rule.severity,
-            message: `${storeName}: 予算進捗率 ${(result.budgetProgressRate * 100).toFixed(1)}% (閾値 ${(rule.threshold * 100).toFixed(0)}%)`,
+            message: `${storeName}: 予算進捗率 ${formatPercent(result.budgetProgressRate)} (閾値 ${formatPercent(rule.threshold, 0)})`,
             value: result.budgetProgressRate,
             threshold: rule.threshold,
             storeId,
@@ -209,7 +210,7 @@ export function evaluateAlerts(
             ruleId: rule.id,
             ruleLabel: rule.label,
             severity: rule.severity,
-            message: `${storeName}: 売変率 ${(discRate * 100).toFixed(1)}% (閾値 ${(rule.threshold * 100).toFixed(1)}%)`,
+            message: `${storeName}: 売変率 ${formatPercent(discRate)} (閾値 ${formatPercent(rule.threshold)})`,
             value: discRate,
             threshold: rule.threshold,
             storeId,

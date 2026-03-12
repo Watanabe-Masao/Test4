@@ -194,13 +194,9 @@ export function DiscountRateDetailTable({
                 <BSignalDot $color={row.sigColor} />
                 {row.storeName}
               </BTd>
-              <BTd $color={row.sigColor}>
-                {displayMode === 'rate' ? row.rateStr : row.amtStr}
-              </BTd>
+              <BTd $color={row.sigColor}>{displayMode === 'rate' ? row.rateStr : row.amtStr}</BTd>
               {row.entries.map((e) => (
-                <BTd key={e.type}>
-                  {displayMode === 'rate' ? e.rateStr : e.amtStr}
-                </BTd>
+                <BTd key={e.type}>{displayMode === 'rate' ? e.rateStr : e.amtStr}</BTd>
               ))}
             </BTr>
           ))}

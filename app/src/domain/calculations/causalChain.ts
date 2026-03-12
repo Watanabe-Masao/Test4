@@ -5,6 +5,8 @@
  * ステップビルダーは causalChainSteps.ts に委譲。
  */
 import { safeDivide, getEffectiveGrossProfitRate } from './utils'
+import { decompose2 } from './factorDecomposition'
+import type { TwoFactorResult } from './factorDecomposition'
 import type { StoreResult, DiscountEntry } from '@/domain/models'
 import type { CausalStep } from './causalChainFormatters'
 import {
@@ -30,11 +32,16 @@ export interface CausalChainPrevInput {
   readonly totalCustomers: number | null
 }
 
+/** 原価率を算出する（仕入原価＋売上納品原価 / 粗売上） */
+function computeCostRate(r: StoreResult): number {
+  return safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0)
+}
+
 /** StoreResult → CausalChainPrevInput 変換 */
 export function storeResultToCausalPrev(r: StoreResult): CausalChainPrevInput {
   return {
     grossProfitRate: getEffectiveGrossProfitRate(r),
-    costRate: safeDivide(r.inventoryCost + r.deliverySalesCost, r.grossSales, 0),
+    costRate: computeCostRate(r),
     discountRate: r.discountRate,
     costInclusionRate: r.costInclusionRate,
     discountEntries: r.discountEntries,
@@ -58,9 +65,20 @@ export function buildCausalSteps(
 ): readonly CausalStep[] {
   const currentGPRate = getEffectiveGrossProfitRate(result)
   const prevGPRate = prevYear?.grossProfitRate ?? null
-  const costRate = safeDivide(result.inventoryCost + result.deliverySalesCost, result.grossSales, 0)
+  const costRate = computeCostRate(result)
   const discountRate = result.discountRate
   const costInclusionRate = result.costInclusionRate
+
+  // Shapley 2因子分解を1回だけ計算（Step 2 と Step 4 で共有）
+  const shapley: TwoFactorResult | null =
+    prevYear?.totalSales != null && prevYear?.totalCustomers != null && prevYear.totalCustomers > 0
+      ? decompose2(
+          prevYear.totalSales,
+          result.totalSales,
+          prevYear.totalCustomers,
+          result.totalCustomers,
+        )
+      : null
 
   const steps: CausalStep[] = []
 
@@ -76,13 +94,20 @@ export function buildCausalSteps(
   )
 
   steps.push(
-    buildFactorDecompositionStep(costRate, discountRate, costInclusionRate, prevYear, result),
+    buildFactorDecompositionStep(
+      costRate,
+      discountRate,
+      costInclusionRate,
+      prevYear,
+      result,
+      shapley,
+    ),
   )
 
   const discountStep = buildDiscountBreakdownStep(result, prevYear?.discountEntries)
   if (discountStep) steps.push(discountStep)
 
-  steps.push(buildSummaryStep(result, prevYear, costRate, discountRate, costInclusionRate))
+  steps.push(buildSummaryStep(result, prevYear, costRate, discountRate, costInclusionRate, shapley))
 
   return steps
 }

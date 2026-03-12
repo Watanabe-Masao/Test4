@@ -14,9 +14,6 @@ export {
 } from './utils'
 export type { AverageMode, AveragingContext } from './utils'
 
-// フォーマット — 後方互換 re-export
-export { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '../formatting'
-
 // 在庫法
 export { calculateInvMethod } from './invMethod'
 export type { InvMethodInput, InvMethodResult } from './invMethod'
@@ -38,4 +35,4 @@ export { sumStoreValues, sumNullableValues, weightedAverageBySales } from './agg
 
 // 除数計算
 export { computeDivisor, countDistinctDays, computeDowDivisorMap, filterByStore } from './divisor'
-export type { AggregateMode } from './divisor'
+export type { AggregateMode } from '@/domain/models/UnifiedFilter'
