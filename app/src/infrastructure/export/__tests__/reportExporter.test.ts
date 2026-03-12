@@ -307,7 +307,7 @@ describe('exportMonthlyPLReport', () => {
     // Find the row with 粗利率(在庫法)
     const gpRateRow = rows.find((r) => r[0] === '粗利率(在庫法)')
     expect(gpRateRow).toBeDefined()
-    expect(gpRateRow![1]).toBe('25.6%')
+    expect(gpRateRow![1]).toBe('25.60%')
   })
 
   it('handles null inventory values', () => {
@@ -463,7 +463,7 @@ describe('exportExplanationReport', () => {
 
     const rows = getLastCallRows()
     const inputsStr = rows[1][4] as string
-    expect(inputsStr).toContain('粗利率=25.6%')
+    expect(inputsStr).toContain('粗利率=25.60%')
   })
 
   it('formats count inputs with locale in formatInputsList', () => {

@@ -28,24 +28,7 @@ function parquetPath(tableName: string): string {
   return `opfs://${PARQUET_CACHE_DIR}/${tableName}.parquet`
 }
 
-/**
- * snake_case → camelCase 変換
- */
-function snakeToCamel(s: string): string {
-  return s.replace(/_([a-z0-9])/g, (_, c: string) => c.toUpperCase())
-}
-
-/**
- * Arrow StructRow → plain JS object（BigInt → number 変換含む）
- */
-function structRowToObject(row: Record<string, unknown>): Record<string, unknown> {
-  const obj: Record<string, unknown> = {}
-  for (const key of Object.keys(row)) {
-    const val = row[key]
-    obj[snakeToCamel(key)] = typeof val === 'bigint' ? Number(val) : val
-  }
-  return obj
-}
+import { structRowToObject } from '../rowConversion'
 
 export async function checkOpfsAvailable(): Promise<boolean> {
   try {
