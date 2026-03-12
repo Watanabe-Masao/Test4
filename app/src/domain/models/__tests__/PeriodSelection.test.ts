@@ -147,30 +147,20 @@ describe('PeriodSelection', () => {
   describe('deriveDowOffset', () => {
     it('prevYearSameMonth: オフセット 0', () => {
       const sel = createDefaultPeriodSelection(2026, 3)
-      expect(deriveDowOffset(sel.period1, sel.period2, 'prevYearSameMonth')).toBe(0)
+      expect(deriveDowOffset(sel.period1, 'prevYearSameMonth')).toBe(0)
     })
 
     it('prevMonth: オフセット 0', () => {
-      const p1 = feb2026
-      const p2 = applyPreset(p1, 'prevMonth', p1)
-      expect(deriveDowOffset(p1, p2, 'prevMonth')).toBe(0)
+      expect(deriveDowOffset(feb2026, 'prevMonth')).toBe(0)
     })
 
     it('custom: オフセット 0', () => {
-      const p1 = feb2026
-      const p2: DateRange = {
-        from: { year: 2024, month: 6, day: 1 },
-        to: { year: 2024, month: 6, day: 30 },
-      }
-      expect(deriveDowOffset(p1, p2, 'custom')).toBe(0)
+      expect(deriveDowOffset(feb2026, 'custom')).toBe(0)
     })
 
     it('prevYearSameDow: deriveDowOffset は 0-6 の範囲を返す', () => {
-      // V2 では deriveDowOffset は旧パス互換用。V2 resolver は dowOffset を使わない。
-      // ただし deriveDowOffset 自体は period1/period2 の月初 DOW 差を返す関数として健全。
       const sel = createDefaultPeriodSelection(2026, 2)
-      const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
-      const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+      const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
       expect(offset).toBeGreaterThanOrEqual(0)
       expect(offset).toBeLessThanOrEqual(6)
     })
@@ -178,11 +168,36 @@ describe('PeriodSelection', () => {
     it('prevYearSameDow: 全12ヶ月で 0-6 の範囲に収まる', () => {
       for (let month = 1; month <= 12; month++) {
         const sel = createDefaultPeriodSelection(2026, month)
-        const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
-        const offset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+        const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
         expect(offset).toBeGreaterThanOrEqual(0)
         expect(offset).toBeLessThanOrEqual(6)
       }
+    })
+
+    it('prevYearSameDow: period1 の前年同月の月初曜日差を返す', () => {
+      // 2026年2月1日 = 日曜 (0), 2025年2月1日 = 土曜 (6)
+      // offset = (0 - 6 + 7) % 7 = 1
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
+      const currentDow = new Date(2026, 1, 1).getDay() // Sunday = 0
+      const prevDow = new Date(2025, 1, 1).getDay() // Saturday = 6
+      const expected = (((currentDow - prevDow) % 7) + 7) % 7
+      expect(offset).toBe(expected)
+    })
+
+    it('prevYearSameDow: period2 の候補窓の月ずれに影響されない', () => {
+      // 2026年2月 → period2 候補窓は 2025/1/25〜2025/3/7（from.month = 1）
+      // 旧実装: period2.from.month=1 で offset 計算 → 誤り
+      // 新実装: period1.from.year-1, period1.from.month=2 で計算 → 正しい
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+      // period2.from は1月にずれているが、offset は2月基準で計算される
+      expect(p2.from.month).toBe(1) // 候補窓の from は1月
+      const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
+      // 2026/2/1(日) vs 2025/2/1(土) → offset=1
+      const currentDow = new Date(2026, 1, 1).getDay()
+      const prevDow = new Date(2025, 1, 1).getDay()
+      expect(offset).toBe((((currentDow - prevDow) % 7) + 7) % 7)
     })
   })
 
@@ -210,7 +225,7 @@ describe('PeriodSelection', () => {
       const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
       const sameDowSel = { ...sel, period2: p2, activePreset: 'prevYearSameDow' as const }
       const scope = buildPrevYearScopeFromSelection(sameDowSel, 100)
-      const expected = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
+      const expected = deriveDowOffset(sel.period1, 'prevYearSameDow')
       expect(scope.dowOffset).toBe(expected)
     })
 

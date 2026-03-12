@@ -242,18 +242,15 @@ export function createDefaultPeriodSelection(year: number, month: number): Perio
  * PeriodSelection から DOW オフセットを導出する。
  *
  * prevYearSameDow プリセット時のみ非ゼロ。
- * period1/period2 の月初曜日差から算出する。
+ * period1 の月初曜日と、その前年同月の月初曜日の差から算出する。
  *
- * 旧 ComparisonFrame.dowOffset と同値を返す。
+ * 注意: period2 は候補取得窓（前年同日 ±7日）のため from.month が
+ * 前月にずれうる。比較基準月は常に period1 の前年同月を使う。
  */
-export function deriveDowOffset(
-  period1: DateRange,
-  period2: DateRange,
-  preset: ComparisonPreset,
-): number {
+export function deriveDowOffset(period1: DateRange, preset: ComparisonPreset): number {
   if (preset !== 'prevYearSameDow') return 0
   const currentDow = new Date(period1.from.year, period1.from.month - 1, 1).getDay()
-  const prevDow = new Date(period2.from.year, period2.from.month - 1, 1).getDay()
+  const prevDow = new Date(period1.from.year - 1, period1.from.month - 1, 1).getDay()
   return (((currentDow - prevDow) % 7) + 7) % 7
 }
 
@@ -278,7 +275,7 @@ export function buildPrevYearScopeFromSelection(
   totalCustomers: number,
   effectiveEndDay?: number,
 ): PrevYearScope {
-  const offset = deriveDowOffset(selection.period1, selection.period2, selection.activePreset)
+  const offset = deriveDowOffset(selection.period1, selection.activePreset)
   const period2 = selection.period2
 
   if (effectiveEndDay != null) {

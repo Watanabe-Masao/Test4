@@ -72,8 +72,8 @@ export function PurchaseAnalysisPage() {
   }, [stores])
 
   const dowOffset = useMemo(
-    () => deriveDowOffset(selection.period1, selection.period2, selection.activePreset),
-    [selection.period1, selection.period2, selection.activePreset],
+    () => deriveDowOffset(selection.period1, selection.activePreset),
+    [selection.period1, selection.activePreset],
   )
 
   const { data: result, isLoading } = usePurchaseComparisonQuery(

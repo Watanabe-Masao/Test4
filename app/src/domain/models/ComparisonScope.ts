@@ -224,7 +224,7 @@ export function buildComparisonScope(
   elapsedDays?: number,
 ): ComparisonScope {
   const { period1, period2, activePreset } = selection
-  const dowOffset = deriveDowOffset(period1, period2, activePreset)
+  const dowOffset = deriveDowOffset(period1, activePreset)
   const alignmentMode: AlignmentMode =
     activePreset === 'prevYearSameDow' ? 'sameDayOfWeek' : 'sameDate'
 
