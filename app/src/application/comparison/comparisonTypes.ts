@@ -77,6 +77,60 @@ export interface PrevYearDailyEntry {
   readonly customers: number
 }
 
+// ── V2 比較型（Comparison/Alignment V2） ──
+
+/** V2 比較モード — current row ごとに比較先を日単位で解決する */
+export type CompareModeV2 = 'sameDate' | 'sameDayOfWeek' | 'prevMonth'
+
+/** 整列に必要な最小フィールド（AlignableRow の上位互換、grainKey 付き） */
+export interface MatchableRow {
+  readonly dateKey: string
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly storeId: string
+  readonly sales: number
+  readonly customers: number
+  /** 将来の部門別・カテゴリ別拡張用 */
+  readonly grainKey?: string
+}
+
+/**
+ * マッチ結果ステータス
+ *
+ * - matched: 1:1 で比較先が見つかった
+ * - missing_previous: requested date に対応するデータが存在しない
+ * - missing_current: 将来の full outer 対応用（current row 主導の V2 では通常発生しない）
+ * - ambiguous_previous: 同一キーに複数行が存在する（データ契約違反の表面化）
+ */
+export type MatchStatus = 'matched' | 'missing_previous' | 'missing_current' | 'ambiguous_previous'
+
+/**
+ * V2 canonical row — 比較先が確定済みの1行
+ *
+ * current row ごとに resolveComparisonRows() が生成する。
+ * requestedCompareDateKey と compareDateKey を分離し、
+ * 「本来はこの日を見たかったが、存在しなかった」を追跡可能にする。
+ */
+export interface ResolvedComparisonRow {
+  readonly compareMode: CompareModeV2
+  /** 安定キー（requestedCompareDateKey ベース。missing/ambiguous でも一意） */
+  readonly alignmentKey: string
+  readonly storeId: string
+  readonly grainKey?: string
+  /** 当期の日付キー (YYYY-MM-DD) */
+  readonly currentDateKey: string | null
+  /** ルール上の比較先日付キー（暦上の要求値） */
+  readonly requestedCompareDateKey: string | null
+  /** 実際にマッチした比較先日付キー（matched 時のみ値あり） */
+  readonly compareDateKey: string | null
+  readonly currentSales: number | null
+  readonly compareSales: number | null
+  readonly currentCustomers: number | null
+  readonly compareCustomers: number | null
+  readonly status: MatchStatus
+}
+
 /** 日別比較データ（経過日数分のキャップ付き合計を含む） */
 export interface PrevYearData {
   readonly hasPrevYear: boolean

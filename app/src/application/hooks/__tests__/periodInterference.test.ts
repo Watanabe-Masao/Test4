@@ -22,7 +22,6 @@ import type { PeriodSelection, DateRange } from '@/domain/models'
 import {
   resolveComparisonFrame,
   buildPrevYearScope,
-  calcSameDowOffset,
 } from '@/application/comparison/resolveComparisonFrame'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 
@@ -161,30 +160,32 @@ describe('期間ソース干渉テスト', () => {
       expect(p2.to).toEqual(frame.previous.to)
     })
 
-    it('prevYearSameDow ↔ sameDayOfWeek の同値性', () => {
+    it('prevYearSameDow: V2 候補範囲は前年同日 ±7 日', () => {
       const year = 2026
       const month = 3
       const daysInMonth = new Date(year, month, 0).getDate()
 
-      // 旧: sameDayOfWeek
-      const frame = resolveComparisonFrame(
-        { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } },
-        'sameDayOfWeek',
-      )
-      const oldFrom = frame.previous.from.day + frame.dowOffset
-
-      // 新: prevYearSameDow
+      // 新: prevYearSameDow — V2 では候補取得範囲（前年同日 ±7 日）
       const p1: DateRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
       const p2 = applyPreset(p1, 'prevYearSameDow', p1)
 
-      // from.day は一致
-      expect(p2.from.day).toBe(oldFrom)
+      // from = 前年同日 - 7 日
+      const expectedFrom = new Date(year - 1, month - 1, 1 - 7)
+      expect(p2.from.year).toBe(expectedFrom.getFullYear())
+      expect(p2.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(p2.from.day).toBe(expectedFrom.getDate())
 
-      // 新モデルは期間長を維持する（月末クランプせず月跨ぎ可能）
+      // to = 前年同日 + 7 日
+      const expectedTo = new Date(year - 1, month - 1, daysInMonth + 7)
+      expect(p2.to.year).toBe(expectedTo.getFullYear())
+      expect(p2.to.month).toBe(expectedTo.getMonth() + 1)
+      expect(p2.to.day).toBe(expectedTo.getDate())
+
+      // 候補範囲の長さは period1 の長さ + 14 日
       const p2From = new Date(p2.from.year, p2.from.month - 1, p2.from.day)
       const p2To = new Date(p2.to.year, p2.to.month - 1, p2.to.day)
       const p2Days = (p2To.getTime() - p2From.getTime()) / (1000 * 60 * 60 * 24)
-      expect(p2Days).toBe(daysInMonth - 1)
+      expect(p2Days).toBe(daysInMonth - 1 + 14)
     })
   })
 
@@ -211,14 +212,19 @@ describe('期間ソース干渉テスト', () => {
   })
 
   describe('5. DOW オフセットの一貫性', () => {
-    it('deriveDowOffset と calcSameDowOffset が全月で一致', () => {
+    it('deriveDowOffset は V2 候補範囲の from 月で計算される（V1 calcSameDowOffset とは異なる場合がある）', () => {
       for (let month = 1; month <= 12; month++) {
         const year = 2026
         const sel = createDefaultPeriodSelection(year, month)
         const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
         const newOffset = deriveDowOffset(sel.period1, p2, 'prevYearSameDow')
-        const oldOffset = calcSameDowOffset(year, month)
-        expect(newOffset, `month ${month}`).toBe(oldOffset)
+
+        // V2 の deriveDowOffset は period2.from の月の1日の曜日を使う
+        // period2.from は前年同日 -7 日なので、月が変わる場合がある
+        const currentDow = new Date(year, month - 1, 1).getDay()
+        const prevDow = new Date(p2.from.year, p2.from.month - 1, 1).getDay()
+        const expectedOffset = (((currentDow - prevDow) % 7) + 7) % 7
+        expect(newOffset, `month ${month}`).toBe(expectedOffset)
       }
     })
 
@@ -231,7 +237,7 @@ describe('期間ソース干渉テスト', () => {
   })
 
   describe('6. setPeriod1 → applyPreset の連鎖的整合性', () => {
-    it('prevYearSameDow プリセットで period1 変更 → period2 のオフセットが正しい', () => {
+    it('prevYearSameDow プリセットで period1 変更 → period2 が候補範囲として正しい', () => {
       usePeriodSelectionStore.getState().setPreset('prevYearSameDow')
 
       // period1 の to.day を 20 に変更
@@ -240,15 +246,24 @@ describe('期間ソース干渉テスト', () => {
       usePeriodSelectionStore.getState().setPeriod1(newP1)
 
       const { selection } = usePeriodSelectionStore.getState()
-      const offset = deriveDowOffset(selection.period1, selection.period2, 'prevYearSameDow')
 
-      // period2.to.day = min(20 + offset, prevDaysInMonth)
-      const prevDaysInMonth = new Date(
-        selection.period2.to.year,
-        selection.period2.to.month,
-        0,
-      ).getDate()
-      expect(selection.period2.to.day).toBe(Math.min(20 + offset, prevDaysInMonth))
+      // V2: period2 は前年同日 ±7 日の候補範囲
+      const expectedFrom = new Date(
+        selection.period1.from.year - 1,
+        selection.period1.from.month - 1,
+        selection.period1.from.day - 7,
+      )
+      const expectedTo = new Date(
+        selection.period1.to.year - 1,
+        selection.period1.to.month - 1,
+        selection.period1.to.day + 7,
+      )
+      expect(selection.period2.from.year).toBe(expectedFrom.getFullYear())
+      expect(selection.period2.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(selection.period2.from.day).toBe(expectedFrom.getDate())
+      expect(selection.period2.to.year).toBe(expectedTo.getFullYear())
+      expect(selection.period2.to.month).toBe(expectedTo.getMonth() + 1)
+      expect(selection.period2.to.day).toBe(expectedTo.getDate())
     })
 
     it('prevMonth プリセットで period1 変更 → period2 が前月に正しくマッピング', () => {

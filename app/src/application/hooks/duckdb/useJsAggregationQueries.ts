@@ -17,7 +17,6 @@
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange, ComparisonFrame, PrevYearScope } from '@/domain/models'
-import type { CompareMode } from '@/application/comparison/alignRows'
 import {
   queryStoreDaySummary,
   type StoreDaySummaryRow,
@@ -39,9 +38,11 @@ import { aggregateByDay, cumulativeSum } from '@/domain/calculations/rawAggregat
 import {
   computeDowPattern,
   computeDailyFeatures,
-  computeYoyDaily,
+  computeYoyDailyV2,
   computeHourlyProfile,
 } from './jsAggregationLogic'
+import type { CompareModeV2 } from '@/application/comparison/comparisonTypes'
+import type { AlignmentPolicy } from '@/domain/models/ComparisonFrame'
 
 // ─── 生データ取得（共通） ────────────────────────────────
 
@@ -190,15 +191,21 @@ export function useJsDailyFeatures(
   return { data, isLoading, error }
 }
 
-// ─── YoY 日別比較（JS計算版） ─────────────────────────
+// ─── YoY 日別比較（JS計算版 V2） ─────────────────────
+
+/** AlignmentPolicy → CompareModeV2 の変換 */
+function toCompareModeV2(policy: AlignmentPolicy | undefined): CompareModeV2 {
+  if (policy === 'sameDayOfWeek') return 'sameDayOfWeek'
+  return 'sameDate'
+}
 
 /**
- * DuckDB 生データ（当期 + 前期を別取得）→ JS date pair 解決
+ * DuckDB 生データ（当期 + 前期を別取得）→ V2 日単位比較先解決
  *
- * compareMode と dowOffset を渡すと、current 行ごとに比較先を解決する。
- * 省略時は sameDate / offset=0（後方互換）。
+ * V2: dowOffset を受け取らず、compareMode に応じて日単位で比較先を解決する。
+ * compareMode は frame.policy から導出する（第一ソース）。
  *
- * 返り値は YoyDailyRow[] 互換。
+ * 返り値は YoyDailyRow[] 互換（YoyDailyRowVm は YoyDailyRow の上位互換）。
  */
 export function useJsYoyDaily(
   conn: AsyncDuckDBConnection | null,
@@ -206,11 +213,12 @@ export function useJsYoyDaily(
   frame: ComparisonFrame | undefined,
   storeIds: ReadonlySet<string>,
   prevYearScope?: PrevYearScope,
-  compareMode?: CompareMode,
-  dowOffset?: number,
 ): AsyncQueryResult<readonly YoyDailyRow[]> {
   // prevYearScope が渡された場合はオフセット調整済み範囲を使用
   const prevDateRange = prevYearScope?.dateRange ?? frame?.previous
+
+  // compareMode は frame.policy から導出（第一ソース）
+  const resolvedMode = toCompareModeV2(frame?.policy)
 
   // 当期データ取得
   const {
@@ -228,8 +236,8 @@ export function useJsYoyDaily(
 
   const data = useMemo(() => {
     if (!curRows || !prevRows) return null
-    return computeYoyDaily(curRows, prevRows, compareMode, dowOffset)
-  }, [curRows, prevRows, compareMode, dowOffset])
+    return computeYoyDailyV2(curRows, prevRows, resolvedMode)
+  }, [curRows, prevRows, resolvedMode])
 
   return {
     data,
