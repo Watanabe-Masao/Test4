@@ -40,17 +40,14 @@ import {
   CloseBtn,
 } from './ConditionSummary.styles'
 import { ConditionSettingsPanelWidget } from './ConditionSettingsPanel'
+import { GpRateDetailTable, DiscountRateDetailTable } from './conditionPanelProfitability'
+import { MarkupRateDetailTable, CostInclusionDetailTable } from './conditionPanelMarkupCost'
+import { SalesYoYDetailTable, CustomerYoYDetailTable } from './conditionPanelYoY'
 import {
-  GpRateDetailTable,
-  DiscountRateDetailTable,
-  MarkupRateDetailTable,
-  CostInclusionDetailTable,
-  SalesYoYDetailTable,
-  CustomerYoYDetailTable,
   TxValueDetailTable,
   DailySalesDetailTable,
   SimpleBreakdown,
-} from './ConditionDetailPanels'
+} from './conditionPanelSalesDetail'
 
 // ─── Component ──────────────────────────────────────────
 

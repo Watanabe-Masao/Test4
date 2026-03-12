@@ -2,7 +2,9 @@
  * 因果チェーンのフォーマットヘルパーと型定義
  *
  * causalChain.ts から抽出した純粋関数群。
+ * パーセント/通貨の基本フォーマットは domain/formatting に委譲。
  */
+import { formatPercent, formatCurrency } from '@/domain/formatting'
 
 /** セマンティックなカラーヒント。実際の色は Presentation 層で解決する。 */
 export type ColorHint =
@@ -29,14 +31,11 @@ export interface CausalStep {
   readonly insight: string
 }
 
-/** パーセントフォーマット */
-export function fmtPct(v: number, decimals = 1): string {
-  return `${(v * 100).toFixed(decimals)}%`
-}
+/** パーセントフォーマット（因果チェーンではデフォルト小数1位） */
+export const fmtPct = (v: number, decimals = 1): string => formatPercent(v, decimals)
 
-export function fmtComma(v: number): string {
-  return Math.round(v).toLocaleString('ja-JP')
-}
+/** カンマ区切り数値（formatCurrency に委譲） */
+export const fmtComma = (v: number): string => formatCurrency(v)
 
 /** 円表記（符号付き） */
 export function fmtYen(v: number): string {

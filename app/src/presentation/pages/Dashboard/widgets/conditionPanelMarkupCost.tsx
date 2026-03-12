@@ -1,18 +1,14 @@
 /**
  * 値入率・原価算入費の詳細パネル
  *
- * ConditionDetailPanels.tsx から分割 (Group 2: Markup & Cost)
+ * VM (conditionPanelMarkupCost.vm.ts) で計算済みデータを受け取り、
+ * レンダリングのみに専念する。
  */
-import type { StoreResult } from '@/domain/models'
-import { formatPercent, formatCurrency } from '@/domain/formatting'
-import { CATEGORY_ORDER } from '@/domain/constants/categories'
-import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
+import { useMemo } from 'react'
 import {
-  type SignalLevel,
-  SIGNAL_COLORS,
-  metricSignal,
-  buildCrossMult,
-} from './conditionSummaryUtils'
+  buildMarkupRateDetailVm,
+  buildCostInclusionDetailVm,
+} from './conditionPanelMarkupCost.vm'
 import {
   DetailHeader,
   DetailTitle,
@@ -31,27 +27,12 @@ import {
 } from './ConditionSummary.styles'
 import type { MarkupDetailProps, CostInclusionDetailProps } from './conditionDetailTypes'
 
-// ─── Helpers ────────────────────────────────────────────
-
-/** 店舗の日別データから品目別に集約する */
-function aggregateCostInclusionItems(sr: StoreResult): { itemName: string; cost: number }[] {
-  const agg = new Map<string, number>()
-  for (const [, dr] of sr.daily) {
-    for (const item of dr.costInclusion.items) {
-      agg.set(item.itemName, (agg.get(item.itemName) ?? 0) + item.cost)
-    }
-  }
-  return [...agg.entries()]
-    .map(([itemName, cost]) => ({ itemName, cost }))
-    .sort((a, b) => b.cost - a.cost)
-}
-
 // ─── Markup Rate Detail ─────────────────────────────────
 
 export function MarkupRateDetailTable({
   sortedStoreEntries,
   stores,
-  result: r,
+  result,
   effectiveConfig,
   displayMode,
   onDisplayModeChange,
@@ -59,11 +40,10 @@ export function MarkupRateDetailTable({
   expandedMarkupStore,
   onExpandToggle,
 }: MarkupDetailProps) {
-  const markupSignal = (rate: number, storeId?: string): SignalLevel => {
-    const t = resolveThresholds(effectiveConfig, 'markupRate', storeId)
-    const diff = (rate - r.grossProfitRateBudget) * 100
-    return evaluateSignal(diff, t, 'higher_better')
-  }
+  const vm = useMemo(
+    () => buildMarkupRateDetailVm(sortedStoreEntries, stores, result, effectiveConfig, settings),
+    [sortedStoreEntries, stores, result, effectiveConfig, settings],
+  )
 
   return (
     <>
@@ -96,40 +76,33 @@ export function MarkupRateDetailTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr]) => {
-            const store = stores.get(storeId)
-            const storeName = store?.name ?? storeId
-            const isExpanded = expandedMarkupStore === storeId
-            const crossRows = buildCrossMult(sr, settings.supplierCategoryMap)
-            const sig = markupSignal(sr.averageMarkupRate, sr.storeId)
-            const sigColor = SIGNAL_COLORS[sig]
-
+          {vm.storeRows.flatMap((row) => {
+            const isExpanded = expandedMarkupStore === row.storeId
             const rows: React.ReactNode[] = [
               <BTr
-                key={storeId}
-                onClick={() => onExpandToggle(storeId)}
+                key={row.storeId}
+                onClick={() => onExpandToggle(row.storeId)}
                 style={{ cursor: 'pointer' }}
               >
                 <BTd>
                   <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                  <BSignalDot $color={sigColor} />
-                  {storeName}
+                  <BSignalDot $color={row.sigColor} />
+                  {row.storeName}
                 </BTd>
-                <BTd $color={sigColor}>{formatPercent(sr.averageMarkupRate)}</BTd>
-                <BTd>{formatPercent(sr.coreMarkupRate)}</BTd>
+                <BTd $color={row.sigColor}>{row.avgMarkupRate}</BTd>
+                <BTd>{row.coreMarkupRate}</BTd>
                 {displayMode === 'amount' && (
                   <>
-                    <BTd>{formatCurrency(crossRows.reduce((sum, c) => sum + c.cost, 0))}</BTd>
-                    <BTd>{formatCurrency(crossRows.reduce((sum, c) => sum + c.price, 0))}</BTd>
+                    <BTd>{row.totalCost}</BTd>
+                    <BTd>{row.totalPrice}</BTd>
                   </>
                 )}
               </BTr>,
             ]
 
-            // Drill-down: 相乗積テーブル
             if (isExpanded) {
               rows.push(
-                <SubRow key={`${storeId}-header`}>
+                <SubRow key={`${row.storeId}-header`}>
                   <BTd
                     colSpan={displayMode === 'amount' ? 5 : 3}
                     style={{ padding: '4px 12px', fontSize: '0.7rem', fontWeight: 600 }}
@@ -139,45 +112,38 @@ export function MarkupRateDetailTable({
                 </SubRow>,
               )
 
-              const maxCross = Math.max(
-                ...crossRows.map((c) => Math.abs(c.crossMultiplication)),
-                0.001,
-              )
-
-              crossRows.forEach((cr) => {
+              for (const cr of row.crossRows) {
                 rows.push(
-                  <SubRow key={`${storeId}-${cr.label}`}>
+                  <SubRow key={`${row.storeId}-${cr.label}`}>
                     <BTd style={{ paddingLeft: '28px' }}>
                       <CategoryDot $color={cr.color} />
                       {cr.label}
                     </BTd>
                     <BTd>
                       <BarCell
-                        $ratio={Math.abs(cr.crossMultiplication) / maxCross}
+                        $ratio={Math.abs(cr.crossMultiplication) / row.maxCross}
                         $color={cr.color}
                       >
-                        {formatPercent(cr.crossMultiplication)}
+                        {cr.crossMultStr}
                       </BarCell>
                     </BTd>
                     <BTd>
-                      {formatPercent(cr.markupRate)} × {formatPercent(cr.priceShare)}
+                      {cr.markupRate} × {cr.priceShare}
                     </BTd>
                     {displayMode === 'amount' && (
                       <>
-                        <BTd>{formatCurrency(cr.cost)}</BTd>
-                        <BTd>{formatCurrency(cr.price)}</BTd>
+                        <BTd>{cr.cost}</BTd>
+                        <BTd>{cr.price}</BTd>
                       </>
                     )}
                   </SubRow>,
                 )
-              })
+              }
 
-              // Sub total
-              const totalCross = crossRows.reduce((s, c) => s + c.crossMultiplication, 0)
               rows.push(
-                <SubRow key={`${storeId}-total`}>
+                <SubRow key={`${row.storeId}-total`}>
                   <BTd style={{ paddingLeft: '28px', fontWeight: 700 }}>合計</BTd>
-                  <BTd $bold>{formatPercent(totalCross)}</BTd>
+                  <BTd $bold>{row.totalCross}</BTd>
                   <BTd $bold>= 平均値入率</BTd>
                   {displayMode === 'amount' && (
                     <>
@@ -194,26 +160,12 @@ export function MarkupRateDetailTable({
           {/* Total row */}
           <BTr $highlight>
             <BTd $bold>合計</BTd>
-            <BTd $bold>{formatPercent(r.averageMarkupRate)}</BTd>
-            <BTd $bold>{formatPercent(r.coreMarkupRate)}</BTd>
+            <BTd $bold>{vm.total.avgMarkupRate}</BTd>
+            <BTd $bold>{vm.total.coreMarkupRate}</BTd>
             {displayMode === 'amount' && (
               <>
-                <BTd $bold>
-                  {formatCurrency(
-                    CATEGORY_ORDER.reduce(
-                      (sum, cat) => sum + (r.categoryTotals.get(cat)?.cost ?? 0),
-                      0,
-                    ),
-                  )}
-                </BTd>
-                <BTd $bold>
-                  {formatCurrency(
-                    CATEGORY_ORDER.reduce(
-                      (sum, cat) => sum + (r.categoryTotals.get(cat)?.price ?? 0),
-                      0,
-                    ),
-                  )}
-                </BTd>
+                <BTd $bold>{vm.total.totalCost}</BTd>
+                <BTd $bold>{vm.total.totalPrice}</BTd>
               </>
             )}
           </BTr>
@@ -228,13 +180,16 @@ export function MarkupRateDetailTable({
 export function CostInclusionDetailTable({
   sortedStoreEntries,
   stores,
-  result: r,
+  result,
   effectiveConfig,
   expandedMarkupStore,
   onExpandToggle,
 }: CostInclusionDetailProps) {
-  const totalItems = aggregateCostInclusionItems(r)
-  const grandTotal = r.totalCostInclusion
+  const vm = useMemo(
+    () => buildCostInclusionDetailVm(sortedStoreEntries, stores, result, effectiveConfig),
+    [sortedStoreEntries, stores, result, effectiveConfig],
+  )
+
   const hasExpanded = expandedMarkupStore != null
 
   return (
@@ -251,24 +206,13 @@ export function CostInclusionDetailTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStoreEntries.flatMap(([storeId, sr], idx) => {
-            const store = stores.get(storeId)
-            const storeName = store?.name ?? storeId
-            const isExpanded = expandedMarkupStore === storeId
-            const sig = metricSignal(
-              sr.costInclusionRate,
-              'costInclusion',
-              effectiveConfig,
-              sr.storeId,
-            )
-            const sigColor = SIGNAL_COLORS[sig]
-
+          {vm.storeRows.flatMap((row, idx) => {
+            const isExpanded = expandedMarkupStore === row.storeId
             const rows: React.ReactNode[] = []
 
-            // Add store boundary separator when any store is expanded (except first)
             if (hasExpanded && idx > 0) {
               rows.push(
-                <StoreBorderTr key={`${storeId}-border`}>
+                <StoreBorderTr key={`${row.storeId}-border`}>
                   <td colSpan={3} />
                 </StoreBorderTr>,
               )
@@ -276,26 +220,24 @@ export function CostInclusionDetailTable({
 
             rows.push(
               <BTr
-                key={storeId}
-                onClick={() => onExpandToggle(storeId)}
+                key={row.storeId}
+                onClick={() => onExpandToggle(row.storeId)}
                 style={{ cursor: 'pointer' }}
               >
                 <BTd>
                   <ExpandIcon $expanded={isExpanded}>▶</ExpandIcon>
-                  <BSignalDot $color={sigColor} />
-                  {storeName}
+                  <BSignalDot $color={row.sigColor} />
+                  {row.storeName}
                 </BTd>
-                <BTd>{formatCurrency(sr.totalCostInclusion)}</BTd>
-                <BTd $color={sigColor}>{formatPercent(sr.costInclusionRate)}</BTd>
+                <BTd>{row.totalCostStr}</BTd>
+                <BTd $color={row.sigColor}>{row.rateStr}</BTd>
               </BTr>,
             )
 
             if (isExpanded) {
-              const storeItems = aggregateCostInclusionItems(sr)
-              const storeTotal = sr.totalCostInclusion
-              if (storeItems.length === 0) {
+              if (!row.hasItems) {
                 rows.push(
-                  <SubRow key={`${storeId}-empty`}>
+                  <SubRow key={`${row.storeId}-empty`}>
                     <BTd
                       colSpan={3}
                       style={{ paddingLeft: '28px', fontSize: '0.7rem', color: '#999' }}
@@ -306,7 +248,7 @@ export function CostInclusionDetailTable({
                 )
               } else {
                 rows.push(
-                  <SubRow key={`${storeId}-header`}>
+                  <SubRow key={`${row.storeId}-header`}>
                     <BTd style={{ paddingLeft: '28px', fontSize: '0.7rem', fontWeight: 600 }}>
                       品目
                     </BTd>
@@ -314,13 +256,12 @@ export function CostInclusionDetailTable({
                     <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
                   </SubRow>,
                 )
-                for (const item of storeItems) {
-                  const itemShare = storeTotal > 0 ? item.cost / storeTotal : 0
+                for (const item of row.items) {
                   rows.push(
-                    <SubRow key={`${storeId}-${item.itemName}`}>
+                    <SubRow key={`${row.storeId}-${item.itemName}`}>
                       <BTd style={{ paddingLeft: '28px' }}>{item.itemName}</BTd>
-                      <BTd>{formatCurrency(item.cost)}</BTd>
-                      <BTd>{formatPercent(itemShare)}</BTd>
+                      <BTd>{item.costStr}</BTd>
+                      <BTd>{item.shareStr}</BTd>
                     </SubRow>,
                   )
                 }
@@ -332,11 +273,11 @@ export function CostInclusionDetailTable({
           {/* Total row */}
           <BTr $highlight>
             <BTd $bold>合計</BTd>
-            <BTd $bold>{formatCurrency(grandTotal)}</BTd>
-            <BTd $bold>{formatPercent(r.costInclusionRate)}</BTd>
+            <BTd $bold>{vm.grandTotalStr}</BTd>
+            <BTd $bold>{vm.grandRateStr}</BTd>
           </BTr>
           {/* Grand total item breakdown */}
-          {totalItems.length > 0 && (
+          {vm.hasTotalItems && (
             <>
               <SubRow>
                 <BTd style={{ paddingLeft: '12px', fontSize: '0.7rem', fontWeight: 600 }}>
@@ -345,16 +286,13 @@ export function CostInclusionDetailTable({
                 <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>金額</BTd>
                 <BTd style={{ fontSize: '0.7rem', fontWeight: 600 }}>構成比</BTd>
               </SubRow>
-              {totalItems.map((item) => {
-                const itemShare = grandTotal > 0 ? item.cost / grandTotal : 0
-                return (
-                  <SubRow key={`total-${item.itemName}`}>
-                    <BTd style={{ paddingLeft: '20px' }}>{item.itemName}</BTd>
-                    <BTd>{formatCurrency(item.cost)}</BTd>
-                    <BTd>{formatPercent(itemShare)}</BTd>
-                  </SubRow>
-                )
-              })}
+              {vm.totalItems.map((item) => (
+                <SubRow key={`total-${item.itemName}`}>
+                  <BTd style={{ paddingLeft: '20px' }}>{item.itemName}</BTd>
+                  <BTd>{item.costStr}</BTd>
+                  <BTd>{item.shareStr}</BTd>
+                </SubRow>
+              ))}
             </>
           )}
         </tbody>

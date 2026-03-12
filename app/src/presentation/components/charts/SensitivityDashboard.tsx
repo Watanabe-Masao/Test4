@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, memo } from 'react'
-import { toPct, toComma } from './chartTheme'
+import { toPct, toComma, toManYen } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { ChartHelpButton } from './ChartHeader'
@@ -188,8 +188,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
     setScenarios((prev) => prev.filter((_, i) => i !== idx))
   }, [])
 
-  const fmtMan = (v: number) => `${Math.round(v / 10000).toLocaleString()}万`
-  const fmtDelta = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v / 10000).toLocaleString()}万`
+  const fmtDelta = (v: number) => `${v >= 0 ? '+' : ''}${toManYen(v)}`
   const isAllZero = Object.values(deltas).every((d) => d === 0)
 
   const elasticityMap: Record<keyof SensitivityDeltas, number> = {
@@ -291,7 +290,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
           <ResultCard $color={sc.positive}>
             <ResultLabel>粗利額</ResultLabel>
             <ResultRow>
-              <ResultValue>{fmtMan(sensitivity.simulatedGrossProfit)}</ResultValue>
+              <ResultValue>{toManYen(sensitivity.simulatedGrossProfit)}</ResultValue>
               <ResultDelta
                 $positive={sensitivity.grossProfitDelta >= 0}
                 $isZero={sensitivity.grossProfitDelta === 0}
@@ -301,10 +300,10 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
             </ResultRow>
             {!isAllZero && (
               <Formula>
-                粗売上 {fmtMan(simValues.simGrossSales)} − 原価 {fmtMan(simValues.simCost)} − 売変{' '}
-                {fmtMan(simValues.simDiscount)} − 消耗品 {fmtMan(simValues.simConsumable)}
-                <br />= {fmtMan(sensitivity.simulatedGrossProfit)}（現在{' '}
-                {fmtMan(sensitivity.baseGrossProfit)} → 差 {fmtDelta(sensitivity.grossProfitDelta)}
+                粗売上 {toManYen(simValues.simGrossSales)} − 原価 {toManYen(simValues.simCost)} − 売変{' '}
+                {toManYen(simValues.simDiscount)} − 消耗品 {toManYen(simValues.simConsumable)}
+                <br />= {toManYen(sensitivity.simulatedGrossProfit)}（現在{' '}
+                {toManYen(sensitivity.baseGrossProfit)} → 差 {fmtDelta(sensitivity.grossProfitDelta)}
                 ）
               </Formula>
             )}
@@ -326,8 +325,8 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
             </ResultRow>
             {!isAllZero && (
               <Formula>
-                粗利 {fmtMan(sensitivity.simulatedGrossProfit)} ÷ 売上{' '}
-                {fmtMan(sensitivity.simulatedSales)}（現在 {toPct(sensitivity.baseGrossProfitRate)}
+                粗利 {toManYen(sensitivity.simulatedGrossProfit)} ÷ 売上{' '}
+                {toManYen(sensitivity.simulatedSales)}（現在 {toPct(sensitivity.baseGrossProfitRate)}
                 ）
               </Formula>
             )}
@@ -336,7 +335,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
           <ResultCard $color={palette.blueDark}>
             <ResultLabel>月間売上</ResultLabel>
             <ResultRow>
-              <ResultValue>{fmtMan(sensitivity.simulatedSales)}</ResultValue>
+              <ResultValue>{toManYen(sensitivity.simulatedSales)}</ResultValue>
               <ResultDelta
                 $positive={sensitivity.salesDelta >= 0}
                 $isZero={sensitivity.salesDelta === 0}
@@ -347,7 +346,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
             {!isAllZero && (
               <Formula>
                 客数 {toComma(Math.round(simValues.simCustomers))}人 × 客単価{' '}
-                {toComma(Math.round(simValues.simTxValue))}円（現在 {fmtMan(base.totalSales)}）
+                {toComma(Math.round(simValues.simTxValue))}円（現在 {toManYen(base.totalSales)}）
               </Formula>
             )}
           </ResultCard>
@@ -355,7 +354,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
           <ResultCard $color={palette.purpleDark}>
             <ResultLabel>着地予測</ResultLabel>
             <ResultRow>
-              <ResultValue>{fmtMan(sensitivity.simulatedProjectedSales)}</ResultValue>
+              <ResultValue>{toManYen(sensitivity.simulatedProjectedSales)}</ResultValue>
               <ResultDelta
                 $positive={sensitivity.projectedSalesDelta >= 0}
                 $isZero={sensitivity.projectedSalesDelta === 0}
@@ -419,9 +418,9 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
                 <ScenarioTd>{toComma(Math.round(baseValues.customers))}人</ScenarioTd>
                 <ScenarioTd>{toComma(Math.round(baseValues.txValue))}円</ScenarioTd>
                 <ScenarioTd>{toPct(baseValues.costRate)}</ScenarioTd>
-                <ScenarioTd $highlight>{fmtMan(sensitivity.baseGrossProfit)}</ScenarioTd>
+                <ScenarioTd $highlight>{toManYen(sensitivity.baseGrossProfit)}</ScenarioTd>
                 <ScenarioTd $highlight>{toPct(sensitivity.baseGrossProfitRate)}</ScenarioTd>
-                <ScenarioTd>{fmtMan(base.totalSales)}</ScenarioTd>
+                <ScenarioTd>{toManYen(base.totalSales)}</ScenarioTd>
                 <ScenarioTd></ScenarioTd>
               </tr>
               {scenarios.map((s, i) => (
@@ -447,9 +446,9 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({ result 
                       ? `${s.deltas.costRateDelta >= 0 ? '+' : ''}${toPct(s.deltas.costRateDelta)}`
                       : '-'}
                   </ScenarioTd>
-                  <ScenarioTd $highlight>{fmtMan(s.grossProfit)}</ScenarioTd>
+                  <ScenarioTd $highlight>{toManYen(s.grossProfit)}</ScenarioTd>
                   <ScenarioTd $highlight>{toPct(s.grossProfitRate)}</ScenarioTd>
-                  <ScenarioTd>{fmtMan(s.sales)}</ScenarioTd>
+                  <ScenarioTd>{toManYen(s.sales)}</ScenarioTd>
                   <ScenarioTd>
                     <LoadBtn onClick={() => handleLoadScenario(s)}>読込</LoadBtn>
                     <DeleteBtn onClick={() => handleDeleteScenario(i)}>✕</DeleteBtn>

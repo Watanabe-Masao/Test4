@@ -140,8 +140,8 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                   <ExecDividerLine />
                   <ExecMetric
                     label="期中客数"
-                    value={`${r.totalCustomers.toLocaleString('ja-JP')}人`}
-                    sub={`日平均: ${Math.round(r.averageCustomersPerDay).toLocaleString('ja-JP')}人`}
+                    value={`${formatCurrency(r.totalCustomers)}人`}
+                    sub={`日平均: ${formatCurrency(r.averageCustomersPerDay)}人`}
                   />
                   <ExecMetric
                     label="客単価"
@@ -252,8 +252,8 @@ export function renderPlanActualForecast(ctx: WidgetContext): ReactNode {
                   <ExecDividerLine />
                   <ExecMetric
                     label="月末客数着地"
-                    value={`${projectedCustomers.toLocaleString('ja-JP')}人`}
-                    formula={`実績${r.totalCustomers.toLocaleString('ja-JP')}人 + 日平均${Math.round(avgDailyCustomers).toLocaleString('ja-JP')}人 × 残${remainingDays}日`}
+                    value={`${formatCurrency(projectedCustomers)}人`}
+                    formula={`実績${formatCurrency(r.totalCustomers)}人 + 日平均${formatCurrency(avgDailyCustomers)}人 × 残${remainingDays}日`}
                   />
                   <ExecMetric
                     label="着地客単価"

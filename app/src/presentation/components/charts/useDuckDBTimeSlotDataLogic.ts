@@ -6,7 +6,7 @@
 import type { DateRange } from '@/domain/models'
 import type { HourlyAggregationRow } from '@/application/hooks/useDuckDBQuery'
 import { findCoreTime, findTurnaroundHour } from './timeSlotUtils'
-import { toPct } from './chartTheme'
+import { formatPercent as toPct } from '@/domain/formatting'
 
 // ── Types ──
 

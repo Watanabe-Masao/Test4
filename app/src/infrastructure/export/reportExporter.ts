@@ -8,6 +8,7 @@ import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'
 import type { Explanation } from '@/domain/models/Explanation'
 import { exportToCsv } from './csvExporter'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 
 type Row = (string | number | null)[]
 
@@ -200,9 +201,9 @@ function formatInputsList(inputs: Explanation['inputs']): string {
     .map((inp) => {
       const val =
         inp.unit === 'yen'
-          ? Math.round(inp.value).toLocaleString('ja-JP')
+          ? formatCurrency(inp.value)
           : inp.unit === 'rate'
-            ? (inp.value * 100).toFixed(1) + '%'
+            ? formatPercent(inp.value, 1)
             : inp.value.toLocaleString('ja-JP')
       return `${inp.name}=${val}`
     })

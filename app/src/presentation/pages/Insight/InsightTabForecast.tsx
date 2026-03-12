@@ -8,6 +8,7 @@ import {
   ChartErrorBoundary,
 } from '@/presentation/components/common'
 import type { MetricId, StoreResult } from '@/domain/models'
+import { formatCurrency } from '@/domain/formatting'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -93,8 +94,8 @@ export function ForecastTabContent({ d, r, onExplain }: ForecastTabProps) {
         <KpiGrid>
           <KpiCard
             label="累計客数"
-            value={`${d.totalCustomers.toLocaleString()}人`}
-            subText={`日平均: ${Math.round(d.avgDailyCustomers).toLocaleString()}人`}
+            value={`${formatCurrency(d.totalCustomers)}人`}
+            subText={`日平均: ${formatCurrency(d.avgDailyCustomers)}人`}
             accent={palette.cyanDark}
             onClick={() => onExplain('totalCustomers')}
           />

@@ -4,6 +4,7 @@ import { format as d3format } from 'd3-format'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { palette } from '@/presentation/theme/tokens'
 import { useUiStore } from '@/application/stores/uiStore'
+import { formatPercent, formatCurrency } from '@/domain/formatting'
 
 /** recharts用のテーマカラーを取得するフック */
 export function useChartTheme() {
@@ -82,20 +83,14 @@ export function toSenYen(v: number): string {
   return `${Math.round(v / 1000).toLocaleString('ja-JP')}千`
 }
 
-/** 金額を円表示する（カンマ区切り＋円サフィックス） */
-export function toYen(v: number): string {
-  return `${Math.round(v).toLocaleString('ja-JP')}円`
-}
+/** 金額を円表示する（formatCurrency に委譲＋円サフィックス） */
+export const toYen = (v: number): string => `${formatCurrency(v)}円`
 
-/** 金額をカンマ区切りで表示する */
-export function toComma(v: number): string {
-  return Math.round(v).toLocaleString('ja-JP')
-}
+/** 金額をカンマ区切りで表示する（formatCurrency に委譲） */
+export const toComma = (v: number): string => formatCurrency(v)
 
-/** パーセント表示する */
-export function toPct(v: number, decimals = 2): string {
-  return `${(v * 100).toFixed(decimals)}%`
-}
+/** パーセント表示する（domain/formatting の formatPercent に委譲） */
+export const toPct = (v: number, decimals = 2): string => formatPercent(v, decimals)
 
 // ── d3-format ベースの軸フォーマッタ ──
 
