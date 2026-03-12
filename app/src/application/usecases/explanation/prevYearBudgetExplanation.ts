@@ -18,7 +18,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type {
   PrevYearMonthlyKpi,
   PrevYearMonthlyKpiEntry,
-} from '@/application/hooks/usePrevYearMonthlyKpi'
+} from '@/application/comparison/comparisonTypes'
 import { safeDivide } from '@/domain/calculations/utils'
 import { formatCurrency } from '@/domain/formatting'
 

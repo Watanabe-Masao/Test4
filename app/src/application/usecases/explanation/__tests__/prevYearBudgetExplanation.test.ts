@@ -13,7 +13,7 @@ import { generatePrevYearBudgetExplanations } from '../prevYearBudgetExplanation
 import type {
   PrevYearMonthlyKpi,
   PrevYearMonthlyKpiEntry,
-} from '@/application/hooks/usePrevYearMonthlyKpi'
+} from '@/application/comparison/comparisonTypes'
 import { safeDivide } from '@/domain/calculations/utils'
 
 // ── テストデータ ──

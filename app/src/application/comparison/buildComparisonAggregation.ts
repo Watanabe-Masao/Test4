@@ -17,12 +17,12 @@ import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import type { DiscountEntry } from '@/domain/models'
 import { addDiscountEntries, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
-import type { PrevYearDailyEntry } from '@/application/hooks/usePrevYearData'
 import type {
+  PrevYearDailyEntry,
   PrevYearMonthlyKpiEntry,
   StoreContribution,
   DayMappingRow,
-} from '@/application/hooks/usePrevYearMonthlyKpi'
+} from '@/application/comparison/comparisonTypes'
 
 // ── 日別集計（PrevYearData 互換出力） ──
 

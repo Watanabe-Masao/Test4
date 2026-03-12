@@ -11,7 +11,7 @@
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'
-import type { PrevYearMonthlyKpiEntry } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type { PrevYearMonthlyKpiEntry } from '@/application/comparison/comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'

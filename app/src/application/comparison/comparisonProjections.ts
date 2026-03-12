@@ -7,7 +7,7 @@
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
-import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from '../hooks/usePrevYearMonthlyKpi'
+import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import type { ClassifiedSalesDaySummary } from '@/domain/models'

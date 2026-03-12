@@ -5,8 +5,7 @@ import type { StoreResult, Store } from '@/domain/models'
 import { formatPercent, formatCurrency } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import type { PrevYearData } from '@/application/hooks/usePrevYearData'
-import type { PrevYearMonthlyKpi } from '@/application/hooks/usePrevYearMonthlyKpi'
+import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 
 // ─── Helpers ────────────────────────────────────────────

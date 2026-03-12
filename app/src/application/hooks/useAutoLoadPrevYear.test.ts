@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { adjacentMonth, mergeAdjacentMonthRecords, OVERFLOW_DAYS } from './useAutoLoadPrevYear'
+import {
+  adjacentMonth,
+  mergeAdjacentMonthRecords,
+  OVERFLOW_DAYS,
+} from '@/application/comparison/adjacentMonthUtils'
 
 // ─── adjacentMonth ──────────────────────────────────────
 

@@ -74,18 +74,15 @@ export type {
   ResolvedSource,
   CachedResult,
 } from './useAnalyticsResolver'
-export { useDowGapAnalysis } from './useDowGapAnalysis'
-export type { DowGapAnalysis } from './useDowGapAnalysis'
+export type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 export { useDrillAction } from './useDrillAction'
-export { usePrevYearData } from './usePrevYearData'
-export type { PrevYearData, PrevYearDailyEntry } from './usePrevYearData'
-export { usePrevYearMonthlyKpi } from './usePrevYearMonthlyKpi'
 export type {
+  PrevYearData,
+  PrevYearDailyEntry,
   PrevYearMonthlyKpi,
   PrevYearMonthlyKpiEntry,
   StoreContribution,
-} from './usePrevYearMonthlyKpi'
-export { useAutoLoadPrevYear } from './useAutoLoadPrevYear'
+} from '@/application/comparison/comparisonTypes'
 export { useLoadComparisonData } from './useLoadComparisonData'
 export type { ComparisonLoadStatus } from './useLoadComparisonData'
 export { useComparisonModule } from './useComparisonModule'

@@ -10,7 +10,7 @@ import {
 import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks'
-import type { PrevYearData } from '@/application/hooks/usePrevYearData'
+import type { PrevYearData } from '@/application/comparison/comparisonTypes'
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models'
 import {
