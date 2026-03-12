@@ -1,6 +1,8 @@
 export type ViewMode = 'aggregate' | 'compare'
 
-export const fmt = (v: number) => Math.round(v).toLocaleString('ja-JP')
+import { formatCurrency } from '@/domain/formatting'
+
+export const fmt = (v: number) => formatCurrency(v)
 
 export const AGG_LABELS: Record<string, string> = {
   inventoryCost: '在庫仕入原価',

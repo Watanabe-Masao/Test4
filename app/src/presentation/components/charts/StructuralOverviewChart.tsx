@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState, memo } from 'react'
-import { toPct, toComma } from './chartTheme'
+import { toPct, toComma, toManYen } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
@@ -131,7 +131,7 @@ export const StructuralOverviewChart = memo(function StructuralOverviewChart({
 
   const fmtMan = (v: number | null | undefined) => {
     if (v == null) return '-'
-    return `${Math.round(v / 10000).toLocaleString()}万`
+    return toManYen(v)
   }
 
   const fmtSen = (v: number) => {

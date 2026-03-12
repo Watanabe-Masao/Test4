@@ -8,18 +8,15 @@
  */
 import type { StoreResult, Explanation } from '@/domain/models'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { formatCurrency, formatPercent } from '@/domain/formatting'
 
-// ─── フォーマッタ ────────────────────────────────────────────
+// ─── フォーマッタ（domain/formatting に委譲）─────────────────
 
 /** 金額を日本語ロケールのカンマ区切りで表示 */
-function fmtYen(n: number): string {
-  return Math.round(n).toLocaleString('ja-JP')
-}
+const fmtYen = (n: number): string => formatCurrency(n)
 
 /** 率を百分率で表示 (小数1桁) */
-function fmtRate(n: number): string {
-  return (n * 100).toFixed(1)
-}
+const fmtRate = (n: number): string => formatPercent(n, 1).replace('%', '')
 
 // ─── 公開 API ────────────────────────────────────────────────
 

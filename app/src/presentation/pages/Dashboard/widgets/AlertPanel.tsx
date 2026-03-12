@@ -7,7 +7,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
-import { formatPercent } from '@/domain/formatting'
+import { formatPercent, formatCurrency } from '@/domain/formatting'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
 import type { MetricId } from '@/domain/models'
 import type { WidgetContext } from './types'
@@ -49,19 +49,19 @@ function isRateAlert(alert: Alert): boolean {
 
 function formatAlertValue(alert: Alert): string {
   if (isRateAlert(alert)) return formatPercent(alert.value)
-  return Math.round(alert.value).toLocaleString('ja-JP')
+  return formatCurrency(alert.value)
 }
 
 function formatAlertThreshold(alert: Alert): string {
   if (isRateAlert(alert)) return formatPercent(alert.threshold)
-  return Math.round(alert.threshold).toLocaleString('ja-JP')
+  return formatCurrency(alert.threshold)
 }
 
 function formatAlertDelta(alert: Alert): string {
   const delta = alert.value - alert.threshold
   const sign = delta >= 0 ? '+' : ''
   if (isRateAlert(alert)) return `${sign}${formatPercent(delta).replace('%', 'pt')}`
-  return `${sign}${Math.round(delta).toLocaleString('ja-JP')}`
+  return `${sign}${formatCurrency(delta)}`
 }
 
 const SEVERITY_ICONS: Record<AlertSeverity, string> = {
