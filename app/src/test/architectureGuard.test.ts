@@ -61,41 +61,14 @@ function relativePath(filePath: string): string {
 
 /**
  * Application → Infrastructure の許可リスト。
- * これらのファイルは infrastructure に直接依存することが現時点で許可されている。
- * Phase 2〜6 で段階的に解消する。
+ *
+ * application/hooks/duckdb/ は adapter pattern として infrastructure/duckdb/ への
+ * 依存が構造的に正しいため、ディレクトリ単位で許可（個別登録不要）。
+ * 以下は duckdb/ 以外で infrastructure に依存するファイルのみ。
  */
 const APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST = new Set([
-  // DuckDB 統合 — ライフサイクル管理
+  // DuckDB 統合 — ライフサイクル管理（hooks/ 直下、duckdb/ サブディレクトリ外）
   'application/hooks/useDuckDB.ts',
-  // DuckDB 統合 — 責務別クエリフック（Phase 6 で useDuckDBQuery.ts から分割）
-  'application/hooks/duckdb/useCtsQueries.ts',
-  'application/hooks/duckdb/useDeptKpiQueries.ts',
-  'application/hooks/duckdb/useSummaryQueries.ts',
-  'application/hooks/duckdb/useYoyQueries.ts',
-  'application/hooks/duckdb/useFeatureQueries.ts',
-  'application/hooks/duckdb/useAdvancedQueries.ts',
-  // DuckDB 統合 — 店舗期間メトリクス + 予算分析クエリフック
-  'application/hooks/duckdb/useMetricsQueries.ts',
-  // DuckDB 統合 — 日別明細クエリフック
-  'application/hooks/duckdb/useDailyRecordQueries.ts',
-  // DuckDB 統合 — 比較コンテキストクエリフック
-  'application/hooks/duckdb/useComparisonContextQuery.ts',
-  // DuckDB 統合 — コンディションマトリクスクエリフック
-  'application/hooks/duckdb/useConditionMatrix.ts',
-  // DuckDB 統合 — JS計算版クエリフック（Phase 3: SQL集約→JS純粋関数移行）
-  'application/hooks/duckdb/useJsAggregationQueries.ts',
-  // DuckDB 統合 — JS集約純粋関数（useJsAggregationQueries から分離、DuckDB型に依存）
-  'application/hooks/duckdb/jsAggregationLogic.ts',
-  // DuckDB 統合 — 仕入比較クエリフック
-  'application/hooks/duckdb/usePurchaseComparisonQuery.ts',
-  // DuckDB 統合 — 仕入比較データ構築ヘルパー（純粋関数）
-  'application/hooks/duckdb/purchaseComparisonBuilders.ts',
-  // DuckDB 統合 — カテゴリベンチマーク算出ロジック（純粋関数）
-  'application/hooks/duckdb/categoryBenchmarkLogic.ts',
-  // DuckDB 統合 — 箱ひげ図データ構築ロジック（純粋関数）
-  'application/hooks/duckdb/categoryBoxPlotLogic.ts',
-  // DuckDB 統合 — コンディションマトリクス算出ロジック（純粋関数）
-  'application/hooks/duckdb/conditionMatrixLogic.ts',
   // DuckDB 統合 — 汎用生データ取得（filterStore 経由の統一エントリーポイント）
   'application/hooks/useRawDataFetch.ts',
   // 永続化インフラ接続 — ストレージ状態・復旧・バックアップ・フォルダ連携
@@ -162,6 +135,8 @@ describe('Architecture Guard', () => {
 
     for (const file of files) {
       const rel = relativePath(file)
+      // DuckDB adapter hooks: infrastructure/duckdb/ への依存は構造的に正しい
+      if (rel.startsWith('application/hooks/duckdb/')) continue
       if (APPLICATION_TO_INFRASTRUCTURE_ALLOWLIST.has(rel)) continue
 
       const imports = extractImports(file)
@@ -465,15 +440,16 @@ describe('Architecture Guard', () => {
   // ─── 統一フィルタ層ガード（DuckDB直接参照の段階的廃止）──
 
   /**
+   * ⚠️ TECH DEBT — filterStore 抽象化完了後に廃止予定
+   *
    * presentation/ が DuckDB フックを直接使用するファイルの許可リスト。
+   * これは正しいアーキテクチャではなく、filterStore + useFilterSelectors への
+   * 移行が完了するまでの暫定措置。
    *
-   * 段階的に JS 計算エンジン（filterStore + useFilterSelectors）経由に
-   * 移行し、このリストを空にしていく。新規ファイルの追加は禁止。
-   *
-   * 移行ルール:
-   * - UI は DuckDB を直接参照せず、filterStore 経由で条件を設定
-   * - データ取得は application/hooks の汎用フック経由
-   * - 計算は domain/calculations の純粋関数で実行
+   * ルール:
+   * - 新規ファイルの追加は禁止（MAX_ALLOWLIST_SIZE = 34 で凍結）
+   * - 移行完了したファイルはリストから削除する
+   * - リスト増加が必要な場合は architecture ロールの承認が必要
    */
   const PRESENTATION_DUCKDB_HOOK_ALLOWLIST = new Set([
     // ── ウィジェットコンテキスト（Phase B で移行） ──
@@ -549,7 +525,7 @@ describe('Architecture Guard', () => {
 
   it('presentation/ の DuckDB フック許可リストは増やさない（移行時に減らすのみ）', () => {
     // 許可リストのサイズ上限。移行が進むにつれてこの数値を減らしていく。
-    const MAX_ALLOWLIST_SIZE = 36
+    const MAX_ALLOWLIST_SIZE = 34
     expect(PRESENTATION_DUCKDB_HOOK_ALLOWLIST.size).toBeLessThanOrEqual(MAX_ALLOWLIST_SIZE)
   })
 

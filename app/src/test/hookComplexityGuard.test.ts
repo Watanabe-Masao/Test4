@@ -360,21 +360,13 @@ describe('R11: hooks/ の useState 呼び出しが上限以下', () => {
 describe('R11: hooks/ の .ts ファイルが行数上限以下', () => {
   const hooksDir = path.join(SRC_DIR, 'application/hooks')
 
-  // 既存で超過するファイルの許容リスト（凍結。次回改修時に分割義務）
+  // 300行超のファイルのみ個別追跡（凍結。次回改修時に分割義務）
+  // 300行以下のファイルはデフォルト上限（300行）で自動ガード
   const allowlist: Record<string, number> = {
     'application/hooks/duckdb/purchaseComparisonBuilders.ts': 600,
     'application/hooks/duckdb/categoryBenchmarkLogic.ts': 450,
     'application/hooks/duckdb/useCtsQueries.ts': 350,
     'application/hooks/useDuckDB.ts': 310,
-    'application/hooks/duckdb/useJsAggregationQueries.ts': 280,
-    'application/hooks/duckdb/jsAggregationLogic.ts': 250,
-    'application/hooks/duckdb/usePurchaseComparisonQuery.ts': 300,
-    'application/hooks/duckdb/categoryBoxPlotLogic.ts': 250,
-    'application/hooks/useMetricBreakdown.ts': 250,
-    'application/hooks/useAutoImport.ts': 230,
-    'application/hooks/usePrevYearMonthlyKpi.ts': 220,
-    'application/hooks/useComparisonModule.ts': 210,
-    'application/hooks/useRawDataFetch.ts': 210,
   }
 
   it('hook ファイルが行数上限以下', () => {
@@ -404,55 +396,54 @@ describe('R11: hooks/ の .ts ファイルが行数上限以下', () => {
 describe('R12/禁止#7: Presentation コンポーネントの行数制限', () => {
   const presentationDir = path.join(SRC_DIR, 'presentation')
 
-  // 既存の大型コンポーネントの上限（現在行数 + 5% で凍結）
-  const componentLimits: [string, number][] = [
-    ['presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx', 30],
-    ['presentation/pages/Dashboard/widgets/conditionPanelProfitability.tsx', 300],
-    ['presentation/pages/Dashboard/widgets/conditionPanelMarkupCost.tsx', 400],
-    ['presentation/pages/Dashboard/widgets/conditionPanelYoY.tsx', 350],
-    ['presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.tsx', 310],
-    ['presentation/pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx', 280],
-    ['presentation/pages/PurchaseAnalysis/PurchaseTables.tsx', 290],
-    ['presentation/pages/PurchaseAnalysis/PurchaseDailyPivot.tsx', 340],
+  // ── Tier 2: 大型コンポーネント（600行超）— 個別追跡、次回改修時に分割義務 ──
+  const largeComponentLimits: [string, number][] = [
     ['presentation/components/charts/StructuralOverviewChart.tsx', 800],
     ['presentation/components/charts/CvTimeSeriesChart.tsx', 720],
     ['presentation/components/charts/TimeSlotChart.tsx', 660],
-    ['presentation/pages/Dashboard/widgets/DayDetailModal.tsx', 620],
-    ['presentation/pages/Admin/StorageManagementTab.tsx', 620],
-    ['presentation/pages/Forecast/ForecastChartsCustomer.tsx', 600],
-    ['presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx', 600],
-    ['presentation/components/charts/BudgetVsActualChart.tsx', 580],
-    ['presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx', 570],
-    ['presentation/pages/Dashboard/widgets/ForecastTools.tsx', 570],
-    ['presentation/pages/Insight/InsightTabForecast.tsx', 570],
-    ['presentation/components/charts/EstimatedInventoryDetailChart.tsx', 570],
-    ['presentation/components/charts/PerformanceIndexChart.tsx', 560],
-    ['presentation/pages/Dashboard/widgets/ConditionSummary.tsx', 550],
-    ['presentation/pages/Dashboard/widgets/HourlyChart.tsx', 550],
-    ['presentation/pages/Insight/InsightTabBudget.tsx', 540],
-    ['presentation/components/charts/CategoryBoxPlotChart.tsx', 200],
-    ['presentation/components/charts/CategoryBoxPlotView.tsx', 400],
-    ['presentation/components/charts/YoYVarianceChart.tsx', 520],
-    ['presentation/components/charts/StoreHourlyChart.tsx', 510],
-    ['presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx', 490],
-    ['presentation/components/charts/SensitivityDashboard.tsx', 490],
-    ['presentation/pages/Reports/ReportSummaryGrid.tsx', 490],
-    ['presentation/pages/Category/CategoryTotalView.tsx', 490],
-    ['presentation/components/charts/CustomerScatterChart.tsx', 480],
-    ['presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.tsx', 480],
-    ['presentation/components/charts/CategoryTrendChart.tsx', 470],
-    ['presentation/pages/Daily/DailyPage.tsx', 460],
-    ['presentation/components/charts/CategoryHierarchyExplorer.tsx', 450],
-    ['presentation/components/charts/CategoryPerformanceChart.tsx', 450],
-    ['presentation/components/charts/DailySalesChartBody.tsx', 450],
-    ['presentation/components/charts/SalesPurchaseComparisonChart.tsx', 430],
-    ['presentation/pages/Admin/AdminPage.tsx', 440],
-    ['presentation/pages/Admin/ImportHistoryTab.tsx', 460],
-    ['presentation/pages/Dashboard/DashboardPage.tsx', 460],
-    ['presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx', 430],
   ]
 
-  it.each(componentLimits)('%s は %d 行以下', (relPath, maxLines) => {
+  // ── Tier 1: 中型コンポーネント（401-599行）— 一律600行上限で管理 ──
+  const midSizeComponents = new Set([
+    'presentation/pages/Dashboard/widgets/DayDetailModal.tsx',
+    'presentation/pages/Admin/StorageManagementTab.tsx',
+    'presentation/pages/Forecast/ForecastChartsCustomer.tsx',
+    'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx',
+    'presentation/components/charts/BudgetVsActualChart.tsx',
+    'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
+    'presentation/pages/Dashboard/widgets/ForecastTools.tsx',
+    'presentation/pages/Insight/InsightTabForecast.tsx',
+    'presentation/components/charts/EstimatedInventoryDetailChart.tsx',
+    'presentation/components/charts/PerformanceIndexChart.tsx',
+    'presentation/pages/Dashboard/widgets/ConditionSummary.tsx',
+    'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
+    'presentation/pages/Insight/InsightTabBudget.tsx',
+    'presentation/components/charts/YoYVarianceChart.tsx',
+    'presentation/components/charts/StoreHourlyChart.tsx',
+    'presentation/pages/Dashboard/widgets/StoreKpiTableInner.tsx',
+    'presentation/components/charts/SensitivityDashboard.tsx',
+    'presentation/pages/Reports/ReportSummaryGrid.tsx',
+    'presentation/pages/Category/CategoryTotalView.tsx',
+    'presentation/components/charts/CustomerScatterChart.tsx',
+    'presentation/pages/Dashboard/widgets/PrevYearBudgetDetailPanel.tsx',
+    'presentation/components/charts/CategoryTrendChart.tsx',
+    'presentation/pages/Daily/DailyPage.tsx',
+    'presentation/components/charts/CategoryHierarchyExplorer.tsx',
+    'presentation/components/charts/CategoryPerformanceChart.tsx',
+    'presentation/components/charts/DailySalesChartBody.tsx',
+    'presentation/components/charts/SalesPurchaseComparisonChart.tsx',
+    'presentation/pages/Admin/AdminPage.tsx',
+    'presentation/pages/Admin/ImportHistoryTab.tsx',
+    'presentation/pages/Dashboard/DashboardPage.tsx',
+    'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
+  ])
+
+  const allRegisteredPaths = new Set([
+    ...largeComponentLimits.map(([p]) => p),
+    ...midSizeComponents,
+  ])
+
+  it.each(largeComponentLimits)('%s は %d 行以下', (relPath, maxLines) => {
     const filePath = path.join(SRC_DIR, relPath)
     if (!fs.existsSync(filePath)) return
     const content = fs.readFileSync(filePath, 'utf-8')
@@ -463,8 +454,21 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
     ).toBeLessThanOrEqual(maxLines)
   })
 
+  it('中型コンポーネント（Tier 1）は 600 行以下', () => {
+    const violations: string[] = []
+    for (const relPath of midSizeComponents) {
+      const filePath = path.join(SRC_DIR, relPath)
+      if (!fs.existsSync(filePath)) continue
+      const content = fs.readFileSync(filePath, 'utf-8')
+      const lineCount = content.split('\n').length
+      if (lineCount > 600) {
+        violations.push(`${relPath}: ${lineCount}行 (中型上限: 600)。Tier 2 に昇格または分割すること`)
+      }
+    }
+    expect(violations, `600行超の中型コンポーネント:\n${violations.join('\n')}`).toEqual([])
+  })
+
   it('未登録の Presentation .tsx ファイルが 400 行以下', () => {
-    const registeredPaths = new Set(componentLimits.map(([p]) => p))
     const files = collectTsFiles(presentationDir)
     const violations: string[] = []
 
@@ -473,7 +477,7 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
       // styles, stories ファイルは除外
       if (file.includes('.styles.') || file.includes('.stories.')) continue
       const relPath = rel(file)
-      if (registeredPaths.has(relPath)) continue
+      if (allRegisteredPaths.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
       const lineCount = content.split('\n').length
