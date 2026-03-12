@@ -207,6 +207,13 @@ describe('R1: 純粋関数モジュールに React import がない', () => {
     'application/hooks/monthlyHistoryLogic.ts',
     'application/comparison/comparisonDataPrep.ts',
     'application/comparison/buildComparisonAggregation.ts',
+    // Presentation 層 Logic ファイル（React-free）
+    'presentation/components/charts/useDuckDBTimeSlotDataLogic.ts',
+    // Presentation VM ファイル（React-free）
+    'presentation/pages/Dashboard/widgets/conditionPanelProfitability.vm.ts',
+    'presentation/pages/Dashboard/widgets/conditionPanelMarkupCost.vm.ts',
+    'presentation/pages/Dashboard/widgets/conditionPanelYoY.vm.ts',
+    'presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.vm.ts',
   ]
 
   it.each(pureModules)('%s に React import がない', (relPath) => {
@@ -399,8 +406,14 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
 
   // 既存の大型コンポーネントの上限（現在行数 + 5% で凍結）
   const componentLimits: [string, number][] = [
-    ['presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx', 1300],
-    ['presentation/pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx', 1050],
+    ['presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx', 30],
+    ['presentation/pages/Dashboard/widgets/conditionPanelProfitability.tsx', 300],
+    ['presentation/pages/Dashboard/widgets/conditionPanelMarkupCost.tsx', 400],
+    ['presentation/pages/Dashboard/widgets/conditionPanelYoY.tsx', 350],
+    ['presentation/pages/Dashboard/widgets/conditionPanelSalesDetail.tsx', 310],
+    ['presentation/pages/PurchaseAnalysis/PurchaseAnalysisPage.tsx', 280],
+    ['presentation/pages/PurchaseAnalysis/PurchaseTables.tsx', 290],
+    ['presentation/pages/PurchaseAnalysis/PurchaseDailyPivot.tsx', 340],
     ['presentation/components/charts/StructuralOverviewChart.tsx', 800],
     ['presentation/components/charts/CvTimeSeriesChart.tsx', 720],
     ['presentation/components/charts/TimeSlotChart.tsx', 660],

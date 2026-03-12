@@ -34,7 +34,7 @@
 
 | カテゴリ | 該当数 | 最大ファイル |
 |---|---|---|
-| 1,000行超 | 3 | ConditionDetailPanels.tsx (1,253行) |
+| 1,000行超 | 0 | ConditionDetailPanels.tsx → 18行バレル+4分割ファイル（2026-03-12 完了）、PurchaseAnalysisPage.tsx → 260行+4分割ファイル（2026-03-12 完了） |
 | 500〜999行 | ~25 | StructuralOverviewChart.tsx (957行) |
 | チャート500行超 | 17 | DuckDB系16 + 通常系12 |
 | フック200行超 | 13 | useImport.ts (510行) |

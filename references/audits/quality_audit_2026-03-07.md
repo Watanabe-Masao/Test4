@@ -53,7 +53,7 @@ co-export しているため、React Fast Refresh が効かないケース。
 
 | ファイル | 行数 |
 |---|---|
-| `Dashboard/widgets/ConditionDetailPanels.tsx` | 1,202 |
+| `Dashboard/widgets/ConditionDetailPanels.tsx` | ~~1,202~~ → 18行バレル（2026-03-12 分割完了。conditionPanel{Profitability,MarkupCost,YoY,SalesDetail}.tsx に分離） |
 
 ### 500〜999行（分割検討）
 
