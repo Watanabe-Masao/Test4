@@ -18,13 +18,13 @@ export type {
   CategoryQtyAmt,
   PriceMixResult,
 } from './useFactorDecomposition'
-// domain 純粋関数: hooks ファイルではなく domain から直接 re-export
+// bridge 経由: 全 call path で dual-run compare を観測可能にする
 export {
   decompose2,
   decompose3,
   decompose5,
   decomposePriceMix,
-} from '@/domain/calculations/factorDecomposition'
+} from '@/application/services/factorDecompositionBridge'
 export { useForecast, useWeekRanges } from './useForecast'
 export type { ForecastInput, ForecastResult, WeeklySummary, DayOfWeekAverage } from './useForecast'
 export { calculateForecast, getWeekRanges } from '@/domain/calculations/forecast'
