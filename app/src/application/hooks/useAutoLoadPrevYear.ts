@@ -33,13 +33,12 @@ export { OVERFLOW_DAYS, adjacentMonth, mergeAdjacentMonthRecords }
  * 全マージレコードの year/month は sourceYear/sourceMonth に正規化される。
  */
 export function useAutoLoadPrevYear(): void {
-  const data = useDataStore((s) => s.data)
+  const hasPrevYearData = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
+  const hasCurrentData = useDataStore((s) => s.data.classifiedSales.records.length > 0)
   const settings = useSettingsStore((s) => s.settings)
   const repo = useRepository()
 
   const { targetYear, targetMonth } = settings
-  const hasPrevYearData = data.prevYearClassifiedSales.records.length > 0
-  const hasCurrentData = data.classifiedSales.records.length > 0
 
   // ソース年月（オーバーライドまたは自動）
   const rawSourceYear = settings.prevYearSourceYear
@@ -64,49 +63,18 @@ export function useAutoLoadPrevYear(): void {
 
     ;(async () => {
       try {
-        // ソース年月の分類別売上データをロード
-        const prevCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          sourceYear,
-          sourceMonth,
-          'classifiedSales',
-        )
+        // 全スライスを並列ロード（逐次 await → Promise.all で I/O 待ち短縮）
+        const [prevCS, prevCTS, prevPrevCS, prevPrevCTS, prevNextCS, prevNextCTS, prevFlowers] =
+          await Promise.all([
+            repo.loadDataSlice<ClassifiedSalesData>(sourceYear, sourceMonth, 'classifiedSales'),
+            repo.loadDataSlice<CategoryTimeSalesData>(sourceYear, sourceMonth, 'categoryTimeSales'),
+            repo.loadDataSlice<ClassifiedSalesData>(prev.year, prev.month, 'classifiedSales'),
+            repo.loadDataSlice<CategoryTimeSalesData>(prev.year, prev.month, 'categoryTimeSales'),
+            repo.loadDataSlice<ClassifiedSalesData>(next.year, next.month, 'classifiedSales'),
+            repo.loadDataSlice<CategoryTimeSalesData>(next.year, next.month, 'categoryTimeSales'),
+            repo.loadDataSlice<SpecialSalesData>(sourceYear, sourceMonth, 'flowers'),
+          ])
         if (cancelled || !prevCS || prevCS.records.length === 0) return
-
-        // ソース年月の分類別時間帯売上をロード
-        const prevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          sourceYear,
-          sourceMonth,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
-
-        // ソース前月（underflow 用）
-        const prevPrevCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          prev.year,
-          prev.month,
-          'classifiedSales',
-        )
-        if (cancelled) return
-        const prevPrevCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          prev.year,
-          prev.month,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
-
-        // ソース翌月（overflow 用）
-        const prevNextCS = await repo.loadDataSlice<ClassifiedSalesData>(
-          next.year,
-          next.month,
-          'classifiedSales',
-        )
-        if (cancelled) return
-        const prevNextCTS = await repo.loadDataSlice<CategoryTimeSalesData>(
-          next.year,
-          next.month,
-          'categoryTimeSales',
-        )
-        if (cancelled) return
 
         const daysInSourceMonth = getDaysInMonth(sourceYear, sourceMonth)
         if (isNaN(daysInSourceMonth) || daysInSourceMonth <= 0) return
@@ -133,14 +101,6 @@ export function useAutoLoadPrevYear(): void {
           daysInPrevMonth,
         )
 
-        if (cancelled) return
-
-        // 前年花データ（客数）をロード
-        const prevFlowers = await repo.loadDataSlice<SpecialSalesData>(
-          sourceYear,
-          sourceMonth,
-          'flowers',
-        )
         if (cancelled) return
 
         useDataStore.getState().setPrevYearAutoData({

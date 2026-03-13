@@ -91,6 +91,45 @@ export function computeGlobalFingerprint(
   return `gfp:${hash.toString(36)}`
 }
 
+// ─── dataVersion ベースの軽量キャッシュキー ─────────────────
+
+/**
+ * 計算結果に影響する設定フィールドだけをハッシュする。
+ * AppSettings は小さいのでここだけの hash は十分軽量。
+ */
+function buildSettingsFingerprint(settings: AppSettings): string {
+  const hash = hashData({
+    targetYear: settings.targetYear,
+    targetMonth: settings.targetMonth,
+    targetGrossProfitRate: settings.targetGrossProfitRate,
+    warningThreshold: settings.warningThreshold,
+    flowerCostRate: settings.flowerCostRate,
+    directProduceCostRate: settings.directProduceCostRate,
+    defaultMarkupRate: settings.defaultMarkupRate,
+    defaultBudget: settings.defaultBudget,
+    dataEndDay: settings.dataEndDay,
+    supplierCategoryMap: settings.supplierCategoryMap,
+    prevYearSourceYear: settings.prevYearSourceYear,
+    prevYearSourceMonth: settings.prevYearSourceMonth,
+    prevYearDowOffset: settings.prevYearDowOffset,
+    alignmentPolicy: settings.alignmentPolicy,
+    conditionConfig: settings.conditionConfig,
+  })
+  return hash.toString(36)
+}
+
+/**
+ * dataVersion + settings hash + daysInMonth で O(1) のキャッシュキーを生成する。
+ * computeGlobalFingerprint の軽量代替。
+ */
+export function computeCacheKey(
+  dataVersion: number,
+  settings: AppSettings,
+  daysInMonth: number,
+): string {
+  return `v${dataVersion}:s${buildSettingsFingerprint(settings)}:d${daysInMonth}`
+}
+
 // ─── キャッシュストア ────────────────────────────────────
 
 interface CacheEntry {
@@ -99,12 +138,23 @@ interface CacheEntry {
   timestamp: number
 }
 
+/** cacheKey ベースのグローバルキャッシュエントリ */
+interface GlobalCacheEntry {
+  cacheKey: string
+  result: ReadonlyMap<string, StoreResult>
+  timestamp: number
+}
+
 const MAX_ENTRIES = 100
+const MAX_GLOBAL_ENTRIES = 20
 
 export class CalculationCache {
   private storeCache = new Map<string, CacheEntry>()
   private globalFingerprint: string | null = null
   private globalResult: ReadonlyMap<string, StoreResult> | null = null
+  // cacheKey ベースのグローバルキャッシュ（Phase 2 追加）
+  private globalCacheByKey = new Map<string, GlobalCacheEntry>()
+  private currentCacheKey: string | null = null
 
   /**
    * キャッシュから店舗の計算結果を取得する。
@@ -212,11 +262,53 @@ export class CalculationCache {
     this.globalResult = results
   }
 
+  // ─── cacheKey ベース（Phase 2: O(1) lookup） ────────
+
+  /**
+   * cacheKey で全店舗の計算結果を取得する。
+   * dataVersion + settings hash による O(1) の Map lookup。
+   */
+  getGlobalResultByCacheKey(cacheKey: string): ReadonlyMap<string, StoreResult> | null {
+    return this.globalCacheByKey.get(cacheKey)?.result ?? null
+  }
+
+  /**
+   * cacheKey 付きで全店舗の結果をキャッシュする。
+   */
+  setGlobalResultWithCacheKey(cacheKey: string, results: ReadonlyMap<string, StoreResult>): void {
+    this.currentCacheKey = cacheKey
+    this.globalCacheByKey.set(cacheKey, {
+      cacheKey,
+      result: results,
+      timestamp: Date.now(),
+    })
+
+    // LRU 制限
+    if (this.globalCacheByKey.size > MAX_GLOBAL_ENTRIES) {
+      let oldestKey: string | null = null
+      let oldestTime = Infinity
+      for (const [key, entry] of this.globalCacheByKey) {
+        if (entry.timestamp < oldestTime) {
+          oldestTime = entry.timestamp
+          oldestKey = key
+        }
+      }
+      if (oldestKey) this.globalCacheByKey.delete(oldestKey)
+    }
+  }
+
+  /** 現在のキャッシュキー */
+  get currentGlobalCacheKey(): string | null {
+    return this.currentCacheKey
+  }
+
   /** キャッシュをクリアする */
   clear(): void {
     this.storeCache.clear()
     this.globalFingerprint = null
     this.globalResult = null
+    this.globalCacheByKey.clear()
+    this.currentCacheKey = null
   }
 
   /** キャッシュされている店舗数 */

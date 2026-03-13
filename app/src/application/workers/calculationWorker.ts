@@ -2,40 +2,41 @@
  * Phase 5.2: 計算用 Web Worker
  *
  * メインスレッドをブロックせずに全店舗の計算を実行する。
- * フィンガープリント生成も Worker 内で行い、メインスレッドの
- * 負荷を最小化する。
+ * dataVersion ベースの軽量キャッシュキーで判定し、
+ * メインスレッドの負荷を最小化する。
  *
  * Vite が Worker をモジュールとしてバンドルするため、
  * 通常のインポートパス (@/) が利用可能。
  */
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
 import { calculateAllStores } from '@/application/usecases/calculation'
-import { computeGlobalFingerprint } from '@/application/services/calculationCache'
+import { computeCacheKey } from '@/application/services/calculationCache'
 
 // ─── Message Protocol ─────────────────────────────────
 
 export interface CalculateRequest {
   type: 'calculate'
   data: ImportedData
+  dataVersion: number
   settings: AppSettings
   daysInMonth: number
   requestId?: number
-  /** メインスレッド側の最新フィンガープリント（キャッシュ判定用） */
-  lastFingerprint?: string
+  /** メインスレッド側の最新キャッシュキー（キャッシュ判定用） */
+  lastCacheKey?: string
 }
 
 export interface CalculateResponse {
   type: 'result'
   results: ReadonlyMap<string, StoreResult>
-  /** Worker 内で生成したフィンガープリント */
-  fingerprint: string
+  /** Worker 内で生成したキャッシュキー */
+  cacheKey: string
   requestId?: number
 }
 
-/** フィンガープリントが一致した場合のキャッシュヒット応答 */
+/** キャッシュキーが一致した場合のキャッシュヒット応答 */
 export interface CacheHitResponse {
   type: 'cache-hit'
-  fingerprint: string
+  cacheKey: string
   requestId?: number
 }
 
@@ -50,7 +51,7 @@ export type WorkerResponse = CalculateResponse | CacheHitResponse | CalculateErr
 
 // ─── Worker 内部キャッシュ ────────────────────────────
 
-let cachedFingerprint: string | null = null
+let cachedCacheKey: string | null = null
 let cachedResults: ReadonlyMap<string, StoreResult> | null = null
 
 // ─── Worker Handler ───────────────────────────────────
@@ -60,24 +61,24 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
 
   if (type === 'calculate') {
     try {
-      const { data, settings, daysInMonth, requestId, lastFingerprint } = event.data
+      const { data, dataVersion, settings, daysInMonth, requestId, lastCacheKey } = event.data
 
-      // Worker 内でフィンガープリントを生成
-      const fingerprint = computeGlobalFingerprint(data, settings, daysInMonth)
+      // Worker 内で軽量キャッシュキーを生成（O(1) — filter/serialize なし）
+      const cacheKey = computeCacheKey(dataVersion, settings, daysInMonth)
 
-      // メインスレッドから渡されたフィンガープリントと一致すればキャッシュヒット
-      if (lastFingerprint && fingerprint === lastFingerprint) {
-        const response: CacheHitResponse = { type: 'cache-hit', fingerprint, requestId }
+      // メインスレッドから渡されたキャッシュキーと一致すればキャッシュヒット
+      if (lastCacheKey && cacheKey === lastCacheKey) {
+        const response: CacheHitResponse = { type: 'cache-hit', cacheKey, requestId }
         self.postMessage(response)
         return
       }
 
       // Worker 内部キャッシュとも比較
-      if (fingerprint === cachedFingerprint && cachedResults) {
+      if (cacheKey === cachedCacheKey && cachedResults) {
         const response: CalculateResponse = {
           type: 'result',
           results: cachedResults,
-          fingerprint,
+          cacheKey,
           requestId,
         }
         self.postMessage(response)
@@ -88,10 +89,10 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       const results = calculateAllStores(data, settings, daysInMonth)
 
       // Worker 内部キャッシュを更新
-      cachedFingerprint = fingerprint
+      cachedCacheKey = cacheKey
       cachedResults = results
 
-      const response: CalculateResponse = { type: 'result', results, fingerprint, requestId }
+      const response: CalculateResponse = { type: 'result', results, cacheKey, requestId }
       self.postMessage(response)
     } catch (err) {
       const response: CalculateError = {

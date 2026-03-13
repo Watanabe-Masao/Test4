@@ -99,12 +99,13 @@ describe('useWorkerCalculation', () => {
 
     // 非同期計算を開始 (resolve しないので await しない)
     act(() => {
-      result.current.calculateAsync(data, mockSettings, 31)
+      result.current.calculateAsync(data, 1, mockSettings, 31)
     })
 
     expect(mockWorkerInstance.postMessage).toHaveBeenCalledWith({
       type: 'calculate',
       data,
+      dataVersion: 1,
       settings: mockSettings,
       daysInMonth: 31,
       requestId: expect.any(Number),
@@ -122,7 +123,7 @@ describe('useWorkerCalculation', () => {
     let resolvedResult: WorkerCalculateResult | undefined
 
     await act(async () => {
-      const promise = result.current.calculateAsync(data, mockSettings, 31)
+      const promise = result.current.calculateAsync(data, 1, mockSettings, 31)
 
       // postMessage で送信された requestId を取得
       const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]
@@ -135,7 +136,7 @@ describe('useWorkerCalculation', () => {
           data: {
             type: 'result',
             results: new Map([['s1', { storeId: 's1' }]]),
-            fingerprint: 'abc123',
+            cacheKey: 'v1:sXX:d31',
             requestId: reqId,
           },
         })
@@ -161,7 +162,7 @@ describe('useWorkerCalculation', () => {
     })
 
     await act(async () => {
-      const promise = result.current.calculateAsync(data, mockSettings, 31)
+      const promise = result.current.calculateAsync(data, 1, mockSettings, 31)
 
       // postMessage で送信された requestId を取得
       const sentMsg = mockWorkerInstance.postMessage.mock.calls[0][0]
