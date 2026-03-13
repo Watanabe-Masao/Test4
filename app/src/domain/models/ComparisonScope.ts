@@ -138,18 +138,57 @@ function buildEffectivePeriod1(period1: DateRange, elapsedDays?: number): DateRa
 }
 
 /**
+ * sameDayOfWeek 用: 前年同日を anchor として ±7日から同曜日最近傍を選択
+ *
+ * comparisonRules.ts の resolveSameDayOfWeekDateKey と同一アルゴリズム。
+ * domain 層内で完結させるため独立実装。
+ *
+ * 1. anchor = new Date(year - 1, month - 1, day)（Date 正規化に従う）
+ * 2. 候補 = anchor ±7日（15日間）
+ * 3. フィルタ = targetDate と同じ曜日
+ * 4. ソート = anchor からの距離昇順、同距離なら未来側優先
+ * 5. 先頭を採用
+ */
+function resolveSameDowSource(targetDate: Date): Date {
+  const anchor = new Date(
+    targetDate.getFullYear() - 1,
+    targetDate.getMonth(),
+    targetDate.getDate(),
+  )
+  const targetDow = targetDate.getDay()
+
+  let bestCandidate = anchor
+  let bestDist = Infinity
+
+  for (let diff = -7; diff <= 7; diff++) {
+    const d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + diff)
+    if (d.getDay() !== targetDow) continue
+
+    const dist = Math.abs(d.getTime() - anchor.getTime())
+    if (dist < bestDist || (dist === bestDist && d.getTime() >= anchor.getTime())) {
+      bestDist = dist
+      bestCandidate = d
+    }
+  }
+
+  return bestCandidate
+}
+
+/**
  * 日付対応表を構築する。
  *
- * effectivePeriod1 の各日に対して、period2 の対応日を 1:1 で算出する。
+ * effectivePeriod1 の各日に対して、比較期の対応日を 1:1 で算出する。
  *
- * period2 には既に DOW offset が焼き込まれている（applyPreset で処理済み）。
- * したがってここでは追加の offset 調整は不要。
- * period1 の day[i] ↔ period2 の day[i] で対応する。
+ * - sameDate / prevMonth: period2.from + dayIndex の位置ベースマッピング
+ * - sameDayOfWeek: 各日ごとに前年同日 anchor ±7日から同曜日最近傍を選択
  *
- * この設計により、day番号操作 (origDay - offset) を完全に廃止し、
  * 月跨ぎ・2月末・leap year をすべて Date 演算で吸収する。
  */
-function buildAlignmentMap(effectivePeriod1: DateRange, period2: DateRange): AlignmentEntry[] {
+function buildAlignmentMap(
+  effectivePeriod1: DateRange,
+  period2: DateRange,
+  alignmentMode: AlignmentMode,
+): AlignmentEntry[] {
   const entries: AlignmentEntry[] = []
   const p1From = toDate(effectivePeriod1.from)
   const p1To = toDate(effectivePeriod1.to)
@@ -159,9 +198,16 @@ function buildAlignmentMap(effectivePeriod1: DateRange, period2: DateRange): Ali
   let dayIndex = 0
 
   while (p1Cur <= p1To) {
-    // 比較期の対応日 = period2.from + dayIndex（offset は period2 に焼込済み）
-    const sourceDateObj = new Date(p2From.getTime())
-    sourceDateObj.setDate(sourceDateObj.getDate() + dayIndex)
+    let sourceDateObj: Date
+
+    if (alignmentMode === 'sameDayOfWeek') {
+      // per-day DOW resolution: 前年同日 anchor ±7日から同曜日最近傍
+      sourceDateObj = resolveSameDowSource(p1Cur)
+    } else {
+      // 位置ベースマッピング: period2.from + dayIndex
+      sourceDateObj = new Date(p2From.getTime())
+      sourceDateObj.setDate(sourceDateObj.getDate() + dayIndex)
+    }
 
     const targetDate = fromDate(p1Cur)
     const sourceDate = fromDate(sourceDateObj)
@@ -230,8 +276,8 @@ export function buildComparisonScope(
 
   const effectivePeriod1 = buildEffectivePeriod1(period1, elapsedDays)
 
-  // 日付対応表を構築（period2 には既に DOW offset が焼込済み）
-  const alignmentMap = buildAlignmentMap(effectivePeriod1, period2)
+  // 日付対応表を構築
+  const alignmentMap = buildAlignmentMap(effectivePeriod1, period2, alignmentMode)
 
   // effectivePeriod2 は alignmentMap のソース日付から導出
   const derivedP2 = deriveEffectivePeriod2(alignmentMap)

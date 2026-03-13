@@ -5,10 +5,12 @@
  *
  * ## 背景
  *
- * buildAlignmentMap は period2.from + dayIndex の位置ベースマッピングを行う。
- * しかし applyPreset('prevYearSameDow') は候補窓（±7 日）を返すため、
- * prevYearSameDow ではこの位置マッピングは DOW 解決を担当しない。
- * 実際の DOW 解決は resolveComparisonRows が担う。
+ * buildAlignmentMap は alignmentMode に応じてマッピング方式を切り替える:
+ * - sameDate / prevMonth: period2.from + dayIndex の位置ベースマッピング
+ * - sameDayOfWeek: 各日ごとに前年同日 anchor ±7日から同曜日最近傍を選択
+ *
+ * applyPreset('prevYearSameDow') は候補窓（±7 日）を返し、
+ * buildAlignmentMap が各日の DOW 解決を行う。
  *
  * このテストで設計の境界と責務を明文化し、不整合の検出を機械化する。
  */
@@ -77,25 +79,20 @@ describe('INV-CMP-05: prevYearSameDow の period2 は候補窓', () => {
   })
 })
 
-// ── INV-CMP-06: alignmentMap は位置ベース（DOW 解決を担当しない） ──
+// ── INV-CMP-06: alignmentMap は DOW 解決を担当する ──
 
-describe('INV-CMP-06: prevYearSameDow の alignmentMap は DOW 解決を担当しない', () => {
-  it('alignmentMap の sourceDate と targetDate の曜日が一致しないエントリが存在しうる', () => {
+describe('INV-CMP-06: prevYearSameDow の alignmentMap は DOW 解決を担当する', () => {
+  it('alignmentMap の全エントリで sourceDate と targetDate の曜日が一致する', () => {
     const selection = makePeriodSelection(MARCH_2026, 'prevYearSameDow')
     const scope = buildComparisonScope(selection)
 
-    // prevYearSameDow の period2 は候補窓（-7日シフト）なので、
-    // 位置ベースマッピングでは曜日が合わないエントリが存在する
+    // buildAlignmentMap が sameDayOfWeek モードで per-day DOW 解決を行う。
+    // 全エントリで曜日が一致することを検証する。
     const mismatchCount = scope.alignmentMap.filter(
       (e) => getDow(e.sourceDate) !== getDow(e.targetDate),
     ).length
 
-    // 候補窓の場合、少なくとも一部は曜日不一致になる（offset が0でない限り）
-    // DOW offset が 0 のケースは理論上存在するが、連続年では offset は 1 or 2
-    // このテストは「alignmentMap が曜日一致を保証しない」ことの明文化
-    if (scope.dowOffset !== 0) {
-      expect(mismatchCount).toBeGreaterThan(0)
-    }
+    expect(mismatchCount).toBe(0)
   })
 
   it('prevYearSameMonth では alignmentMap の位置対応が正しい（同日）', () => {

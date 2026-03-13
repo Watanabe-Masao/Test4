@@ -61,9 +61,15 @@ function resolveSourceDay(sourceDate: CalendarDate, ctx: SourceMonthContext): nu
   if (sourceDate.year === nextYear && sourceDate.month === nextMonth) {
     return ctx.daysInMonth + sourceDate.day
   }
-  // 前月 → underflow (負の値になるが、allAgg にデータがあれば引ける)
-  // ここでは daysInPrevMonth が不明なため sourceDate.day をそのまま返す
-  // （underflow は DOW offset では通常発生しない）
+  // 前月 → underflow: day - daysInPrevMonth（≤0 になる）
+  // mergeAdjacentMonthRecords と同じリナンバリング規則に従う
+  const prevMonth = ctx.month === 1 ? 12 : ctx.month - 1
+  const prevYear = ctx.month === 1 ? ctx.year - 1 : ctx.year
+  if (sourceDate.year === prevYear && sourceDate.month === prevMonth) {
+    const daysInPrevMonth = new Date(prevYear, prevMonth, 0).getDate()
+    return sourceDate.day - daysInPrevMonth
+  }
+  // それ以外（±1ヶ月を超える場合）→ データが見つからない可能性が高い
   return sourceDate.day
 }
 
