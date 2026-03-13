@@ -2,31 +2,35 @@
  * comparisonDataPrep — 比較集計の入力データ準備（pure function）
  *
  * useComparisonModule 内で daily / kpi 集計の両方に必要な
- * allAgg, targetIds, flowersIndex の準備を共通化する。
+ * SourceDataIndex, targetIds の準備を共通化する。
  * React 依存なし。
  */
 import type { ImportedData } from '@/domain/models'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
 import { aggregateAllStores, indexByStoreDay } from '@/domain/models'
+import type { SourceDataIndex, SourceMonthContext } from '@/application/comparison/sourceDataIndex'
+import { buildSourceDataIndex } from '@/application/comparison/sourceDataIndex'
 
 /** prepareComparisonInputs の出力 */
 export interface ComparisonInputs {
+  readonly sourceIndex: SourceDataIndex
+  readonly targetIds: readonly string[]
+}
+
+/** 内部: raw 素材（allAgg + flowersIndex + targetIds） */
+interface RawInputs {
   readonly allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>>
   readonly targetIds: readonly string[]
   readonly flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined
 }
 
-/**
- * 比較集計に必要な入力データを準備する。
- *
- * 前年分類別売上が空、または対象店舗がない場合は null を返す。
- */
-export function prepareComparisonInputs(
+/** raw 素材を準備する（allAgg + flowersIndex + targetIds） */
+function prepareRawInputs(
   data: ImportedData,
   selectedStoreIds: ReadonlySet<string>,
   isAllStores: boolean,
-): ComparisonInputs | null {
+): RawInputs | null {
   const prevYearCS = data.prevYearClassifiedSales
   if (prevYearCS.records.length === 0) return null
 
@@ -42,4 +46,23 @@ export function prepareComparisonInputs(
     prevYearFlowers.records.length > 0 ? indexByStoreDay(prevYearFlowers.records) : undefined
 
   return { allAgg, targetIds, flowersIndex }
+}
+
+/**
+ * 比較集計に必要な入力データを準備する。
+ *
+ * 前年分類別売上が空、対象店舗がない、またはソース月が不明な場合は null を返す。
+ * SourceDataIndex を構築し、allAgg のリナンバリング詳細を封じ込める。
+ */
+export function prepareComparisonInputs(
+  data: ImportedData,
+  selectedStoreIds: ReadonlySet<string>,
+  isAllStores: boolean,
+  sourceMonthCtx: SourceMonthContext,
+): ComparisonInputs | null {
+  const raw = prepareRawInputs(data, selectedStoreIds, isAllStores)
+  if (!raw) return null
+
+  const sourceIndex = buildSourceDataIndex(raw.allAgg, raw.flowersIndex, sourceMonthCtx)
+  return { sourceIndex, targetIds: raw.targetIds }
 }

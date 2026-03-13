@@ -125,49 +125,49 @@ export function useComparisonModule(
   const loadStatus = useLoadComparisonData(scope)
 
   // 3. 比較フレーム（旧互換）
-  const comparisonFrame = useMemo((): ComparisonFrame => {
-    if (!scope) return EMPTY_FRAME
-    return {
-      current: scope.effectivePeriod1,
-      previous: scope.effectivePeriod2,
-      dowOffset: scope.dowOffset,
-      policy: scope.alignmentMode === 'sameDayOfWeek' ? 'sameDayOfWeek' : 'sameDate',
-    }
-  }, [scope])
-
-  // 4. 共通入力データ準備（allAgg / targetIds / flowersIndex の重複排除）
-  const inputs = useMemo(
-    () => prepareComparisonInputs(data, selectedStoreIds, isAllStores),
-    [data, selectedStoreIds, isAllStores],
+  const comparisonFrame = useMemo(
+    (): ComparisonFrame =>
+      scope
+        ? {
+            current: scope.effectivePeriod1,
+            previous: scope.effectivePeriod2,
+            dowOffset: scope.dowOffset,
+            policy: scope.alignmentMode === 'sameDayOfWeek' ? 'sameDayOfWeek' : 'sameDate',
+          }
+        : EMPTY_FRAME,
+    [scope],
   )
 
-  // 5. 日別集計（PrevYearData 互換）
-  // SourceMonthContext は allAgg のベース月（loadComparisonDataAsync で使った sourceMonth）に合わせる。
-  // period2.from は prevYearSameDow で候補窓の先頭にずれるため、
+  // 4. 共通入力データ準備（SourceDataIndex 構築 + targetIds）
+  // SourceMonthContext は allAgg のベース月に合わせる。
   // findSourceMonth(queryRanges) で実際のロード基準月を使う。
-  const daily = useMemo((): PrevYearData => {
-    if (!scope || !inputs) return EMPTY_DAILY
+  const inputs = useMemo(() => {
+    if (!scope) return null
     const source = findSourceMonth(scope.queryRanges)
     const { year, month } = source ?? scope.period2.from
-    return aggregateDailyByAlignment(
-      inputs.allAgg,
-      inputs.flowersIndex,
-      inputs.targetIds,
-      scope.alignmentMap,
-      { year, month, daysInMonth: new Date(year, month, 0).getDate() },
-    )
+    return prepareComparisonInputs(data, selectedStoreIds, isAllStores, {
+      year,
+      month,
+      daysInMonth: new Date(year, month, 0).getDate(),
+    })
+  }, [data, selectedStoreIds, isAllStores, scope])
+
+  // 5. 日別集計（PrevYearData 互換）
+  const daily = useMemo((): PrevYearData => {
+    if (!scope || !inputs) return EMPTY_DAILY
+    return aggregateDailyByAlignment(inputs.sourceIndex, inputs.targetIds, scope.alignmentMap)
   }, [scope, inputs])
 
   // 6. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {
     if (!scope || !inputs) return EMPTY_KPI
-    return buildKpiProjection(
-      inputs.allAgg,
-      inputs.flowersIndex,
-      inputs.targetIds,
-      scope,
-      periodSelection,
-    )
+    const source = findSourceMonth(scope.queryRanges)
+    const { year, month } = source ?? scope.period2.from
+    return buildKpiProjection(inputs.sourceIndex, inputs.targetIds, scope, periodSelection, {
+      year,
+      month,
+      daysInMonth: new Date(year, month, 0).getDate(),
+    })
   }, [scope, inputs, periodSelection])
 
   // 7. 曜日ギャップ分析

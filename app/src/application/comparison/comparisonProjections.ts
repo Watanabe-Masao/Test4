@@ -10,19 +10,15 @@ import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'
 import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from './comparisonTypes'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import type { StoreDayIndex, SpecialSalesDayEntry } from '@/domain/models'
-import type { ClassifiedSalesDaySummary } from '@/domain/models'
 import { calcSameDowOffset } from '@/application/comparison/resolveComparisonFrame'
 import {
   analyzeDowGap,
   analyzeDowGapActualDay,
   ZERO_DOW_GAP_ANALYSIS,
 } from '@/domain/calculations/dowGapAnalysis'
-import {
-  aggregateKpiByAlignment,
-  type SourceMonthContext,
-} from '@/application/comparison/buildComparisonAggregation'
-import { findSourceMonth } from '@/application/comparison/comparisonLoadLogic'
+import { aggregateKpiByAlignment } from '@/application/comparison/buildComparisonAggregation'
+import type { SourceDataIndex } from '@/application/comparison/sourceDataIndex'
+import type { SourceMonthContext } from '@/application/comparison/sourceDataIndex'
 
 // ── ゼロ値 ──
 
@@ -51,34 +47,19 @@ const EMPTY_KPI: PrevYearMonthlyKpi = {
  * useComparisonModule の kpi useMemo から抽出。
  */
 export function buildKpiProjection(
-  allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>>,
-  flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
+  sourceIndex: SourceDataIndex,
   targetIds: readonly string[],
   scope: ComparisonScope,
   periodSelection: PeriodSelection,
+  sourceMonthCtx: SourceMonthContext,
 ): PrevYearMonthlyKpi {
   if (targetIds.length === 0) return EMPTY_KPI
 
-  // allAgg のソース月コンテキスト（月跨ぎ時のリナンバリング変換に必要）。
-  // period2.from は prevYearSameDow で候補窓の先頭にずれるため、
-  // findSourceMonth(queryRanges) で実際のロード基準月を使う。
-  const source = findSourceMonth(scope.queryRanges)
-  const srcYear = source?.year ?? scope.period2.from.year
-  const srcMonth = source?.month ?? scope.period2.from.month
-  const sourceMonthCtx: SourceMonthContext = {
-    year: srcYear,
-    month: srcMonth,
-    daysInMonth: new Date(srcYear, srcMonth, 0).getDate(),
-  }
+  const srcYear = sourceMonthCtx.year
+  const srcMonth = sourceMonthCtx.month
 
   // 同曜日KPI: scope の alignmentMap は既に DOW offset 込み
-  const sameDow = aggregateKpiByAlignment(
-    allAgg,
-    flowersIndex,
-    targetIds,
-    scope.alignmentMap,
-    sourceMonthCtx,
-  )
+  const sameDow = aggregateKpiByAlignment(sourceIndex, targetIds, scope.alignmentMap)
 
   // 同日KPI: DOW offset なしで再構築
   // period2 も再算出する（元の period2 は DOW offset が焼込済みのため）
@@ -92,13 +73,7 @@ export function buildKpiProjection(
     period2: sameDatePeriod2,
     activePreset: 'prevYearSameMonth',
   })
-  const sameDate = aggregateKpiByAlignment(
-    allAgg,
-    flowersIndex,
-    targetIds,
-    sameDateScope.alignmentMap,
-    sourceMonthCtx,
-  )
+  const sameDate = aggregateKpiByAlignment(sourceIndex, targetIds, sameDateScope.alignmentMap)
 
   // 月全体の dowOffset（月初の曜日差分）
   const dowOffset = calcSameDowOffset(
