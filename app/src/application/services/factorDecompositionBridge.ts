@@ -31,6 +31,11 @@ import {
   decompose5Wasm,
   decomposePriceMixWasm,
 } from './factorDecompositionWasm'
+import {
+  recordCall,
+  recordMismatch,
+  recordNullMismatch,
+} from './dualRunObserver'
 
 // Re-export types for consumer convenience
 export type { TwoFactorResult, ThreeFactorResult, FiveFactorResult, PriceMixResult, CategoryQtyAmt }
@@ -101,6 +106,7 @@ function compareResults(
       executionMode: getExecutionMode(),
     }
     console.warn('[factorDecomposition dual-run mismatch]', log)
+    recordMismatch(fnName, maxAbsDiff, sumInvariantTs, sumInvariantWasm, inputSummary)
   }
 }
 
@@ -112,6 +118,7 @@ export function decompose2(
   prevCust: number,
   curCust: number,
 ): TwoFactorResult {
+  if (import.meta.env.DEV) recordCall('decompose2')
   const mode = getExecutionMode()
 
   if (mode === 'ts-only' || !isWasmReady()) {
@@ -146,6 +153,7 @@ export function decompose3(
   prevTotalQty: number,
   curTotalQty: number,
 ): ThreeFactorResult {
+  if (import.meta.env.DEV) recordCall('decompose3')
   const mode = getExecutionMode()
 
   if (mode === 'ts-only' || !isWasmReady()) {
@@ -191,6 +199,7 @@ export function decomposePriceMix(
   curCategories: readonly CategoryQtyAmt[],
   prevCategories: readonly CategoryQtyAmt[],
 ): PriceMixResult | null {
+  if (import.meta.env.DEV) recordCall('decomposePriceMix')
   const mode = getExecutionMode()
 
   if (mode === 'ts-only' || !isWasmReady()) {
@@ -218,6 +227,7 @@ export function decomposePriceMix(
         tsNull: tsResult === null,
         wasmNull: wasmResult === null,
       })
+      recordNullMismatch('decomposePriceMix')
     }
   }
   return tsResult
@@ -233,6 +243,7 @@ export function decompose5(
   curCategories: readonly CategoryQtyAmt[],
   prevCategories: readonly CategoryQtyAmt[],
 ): FiveFactorResult | null {
+  if (import.meta.env.DEV) recordCall('decompose5')
   const mode = getExecutionMode()
 
   if (mode === 'ts-only' || !isWasmReady()) {
@@ -307,6 +318,7 @@ export function decompose5(
         tsNull: tsResult === null,
         wasmNull: wasmResult === null,
       })
+      recordNullMismatch('decompose5')
     }
   }
   return tsResult
