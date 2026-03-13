@@ -6,7 +6,11 @@ import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
-import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
+import {
+  type PrevYearData,
+  type PrevYearMonthlyKpi,
+  buildSameDowPoints,
+} from '@/application/comparison/comparisonTypes'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 
 // ─── Helpers ────────────────────────────────────────────
@@ -47,22 +51,18 @@ export interface DailyYoYRow {
 export function buildDailyYoYRows(r: StoreResult, kpi: PrevYearMonthlyKpi): DailyYoYRow[] {
   if (!kpi.hasPrevYear) return []
 
-  const mapping = kpi.sameDow.dailyMapping
-  const dayMap = new Map<number, { prevSales: number; prevCustomers: number }>()
-  for (const row of mapping) {
-    dayMap.set(row.currentDay, { prevSales: row.prevSales, prevCustomers: row.prevCustomers })
-  }
+  const pointMap = buildSameDowPoints(kpi.sameDow.dailyMapping)
 
   const rows: DailyYoYRow[] = []
   const days = [...r.daily.entries()].sort(([a], [b]) => a - b)
   for (const [day, dr] of days) {
-    const prev = dayMap.get(day)
+    const point = pointMap.get(day)
     rows.push({
       day,
       currentSales: dr.sales,
-      prevSales: prev?.prevSales ?? 0,
+      prevSales: point?.sales ?? 0,
       currentCustomers: dr.customers ?? 0,
-      prevCustomers: prev?.prevCustomers ?? 0,
+      prevCustomers: point?.customers ?? 0,
     })
   }
   return rows

@@ -11,20 +11,9 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/application/hooks/calculation'
-import type { DayMappingRow } from '@/application/comparison/comparisonTypes'
+import { buildSameDowPoints } from '@/application/comparison/comparisonTypes'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
-
-/** sameDow.dailyMapping から currentDay → { sales, customers } の Map を構築 */
-function buildPrevSameDowMap(
-  dailyMapping: readonly DayMappingRow[],
-): ReadonlyMap<number, { sales: number; customers: number }> {
-  const map = new Map<number, { sales: number; customers: number }>()
-  for (const row of dailyMapping) {
-    map.set(row.currentDay, { sales: row.prevSales, customers: row.prevCustomers })
-  }
-  return map
-}
 
 export function renderDowAverage(ctx: WidgetContext): ReactNode {
   const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
@@ -38,7 +27,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
   }
 
   // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
-  const prevSameDowByDay = buildPrevSameDowMap(prevYearMonthlyKpi.sameDow.dailyMapping)
+  const prevSameDowByDay = buildSameDowPoints(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
   const buckets = Array.from({ length: 7 }, () => ({
@@ -162,7 +151,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
   const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
 
   // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
-  const prevSameDowByDay = buildPrevSameDowMap(prevYearMonthlyKpi.sameDow.dailyMapping)
+  const prevSameDowByDay = buildSameDowPoints(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
