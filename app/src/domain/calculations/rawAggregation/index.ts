@@ -21,3 +21,12 @@ export {
   categoryShare,
 } from './aggregationUtilities'
 export type { HourlyAggregate, PeriodRates, YoyEntry, CategoryShare } from './aggregationUtilities'
+
+export { computeDowPattern, computeDailyFeatures, computeHourlyProfile } from './featureAggregation'
+export type {
+  DowPatternRow,
+  DailyFeatureRow,
+  HourlyProfileRow,
+  DowPatternInput,
+  DailyFeatureInput,
+} from './featureAggregation'

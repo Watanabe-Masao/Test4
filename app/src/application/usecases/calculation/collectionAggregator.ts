@@ -14,6 +14,8 @@ import type {
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRates as calcMarkupRatesDomain } from '@/domain/calculations/markupRate'
+import { calculateTransferTotals as calcTransferTotalsDomain } from '@/domain/calculations/costAggregation'
 import { addToCategory, mergeDailyRecord } from './scalarAccumulator'
 
 /** 日別・カテゴリ・取引先・予算・移動を集約する */
@@ -113,29 +115,28 @@ export function calculateMarkupRates(
     totalPurchaseCost += st.cost
     totalPurchasePrice += st.price
   }
-  const transferPrice =
-    aggTransfer.interStoreIn.price +
-    aggTransfer.interStoreOut.price +
-    aggTransfer.interDepartmentIn.price +
-    aggTransfer.interDepartmentOut.price
-  const transferCost =
-    aggTransfer.interStoreIn.cost +
-    aggTransfer.interStoreOut.cost +
-    aggTransfer.interDepartmentIn.cost +
-    aggTransfer.interDepartmentOut.cost
+  const { transferPrice, transferCost } = calcTransferTotalsDomain({
+    interStoreInPrice: aggTransfer.interStoreIn.price,
+    interStoreInCost: aggTransfer.interStoreIn.cost,
+    interStoreOutPrice: aggTransfer.interStoreOut.price,
+    interStoreOutCost: aggTransfer.interStoreOut.cost,
+    interDepartmentInPrice: aggTransfer.interDepartmentIn.price,
+    interDepartmentInCost: aggTransfer.interDepartmentIn.cost,
+    interDepartmentOutPrice: aggTransfer.interDepartmentOut.price,
+    interDepartmentOutCost: aggTransfer.interDepartmentOut.cost,
+  })
   const flowerCat = aggCategory.get('flowers') ?? ZERO_COST_PRICE_PAIR
   const directProduceCat = aggCategory.get('directProduce') ?? ZERO_COST_PRICE_PAIR
-  const allPurchasePrice =
-    totalPurchasePrice + flowerCat.price + directProduceCat.price + transferPrice
-  const allPurchaseCost = totalPurchaseCost + flowerCat.cost + directProduceCat.cost + transferCost
-  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  const coreMarkupRate = safeDivide(
-    totalPurchasePrice + transferPrice - (totalPurchaseCost + transferCost),
-    totalPurchasePrice + transferPrice,
-    0,
-  )
 
-  return { averageMarkupRate, coreMarkupRate }
+  return calcMarkupRatesDomain({
+    purchasePrice: totalPurchasePrice,
+    purchaseCost: totalPurchaseCost,
+    deliveryPrice: flowerCat.price + directProduceCat.price,
+    deliveryCost: flowerCat.cost + directProduceCat.cost,
+    transferPrice,
+    transferCost,
+    defaultMarkupRate: 0,
+  })
 }
 
 /** 在庫法の集約結果を計算する */
@@ -229,19 +230,18 @@ export function buildTransferDetails(aggTransfer: {
   interDepartmentIn: CostPricePair
   interDepartmentOut: CostPricePair
 }): TransferDetails {
+  const { transferPrice, transferCost } = calcTransferTotalsDomain({
+    interStoreInPrice: aggTransfer.interStoreIn.price,
+    interStoreInCost: aggTransfer.interStoreIn.cost,
+    interStoreOutPrice: aggTransfer.interStoreOut.price,
+    interStoreOutCost: aggTransfer.interStoreOut.cost,
+    interDepartmentInPrice: aggTransfer.interDepartmentIn.price,
+    interDepartmentInCost: aggTransfer.interDepartmentIn.cost,
+    interDepartmentOutPrice: aggTransfer.interDepartmentOut.price,
+    interDepartmentOutCost: aggTransfer.interDepartmentOut.cost,
+  })
   return {
     ...aggTransfer,
-    netTransfer: {
-      cost:
-        aggTransfer.interStoreIn.cost +
-        aggTransfer.interStoreOut.cost +
-        aggTransfer.interDepartmentIn.cost +
-        aggTransfer.interDepartmentOut.cost,
-      price:
-        aggTransfer.interStoreIn.price +
-        aggTransfer.interStoreOut.price +
-        aggTransfer.interDepartmentIn.price +
-        aggTransfer.interDepartmentOut.price,
-    },
+    netTransfer: { cost: transferCost, price: transferPrice },
   }
 }

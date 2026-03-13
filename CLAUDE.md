@@ -364,18 +364,24 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 **鉄則:** UIは描画のみ。生レコード走査・インライン計算・独自集約は禁止。
 
-## 2つの計算エンジン（要約）
+## 3つの Execution Engine（要約）
 
-詳細は `references/engine-responsibility.md` と `references/duckdb-architecture.md` を参照。
+設計思想・判定ルール・禁止原則は `references/engine-boundary-policy.md` を参照。
+具体的なモジュール割当・移行パターンは `references/engine-responsibility.md` を参照。
+DuckDB アーキテクチャは `references/duckdb-architecture.md` を参照。
 
-| | JS 計算エンジン | DuckDB 探索エンジン |
-|---|---|---|
-| 役割 | 権威的な指標計算 | 自由範囲の探索・集約 |
-| スコープ | 単月確定値 | 任意日付範囲 |
-| 出力 | StoreResult | SQL 集約結果 |
-| 例 | シャープリー分解、粗利計算 | 時間帯×曜日集約、月跨ぎ分析 |
+| Execution Engine | 役割 | 実装 | 制約 |
+|---|---|---|---|
+| **Authoritative Business Calculation** | 正式な業務確定値を導く純粋計算 | `domain/calculations/` (TS → 将来 Rust/WASM) | pure only, 副作用なし, UI非依存 |
+| **Application Orchestration / Storage / UI** | 取得・保存・状態管理・非同期・表示制御・ViewModel | TypeScript | pure+authoritative を新規実装しない |
+| **Exploration** | 任意条件の探索・自由集計・drilldown | DuckDB SQL | 正式値の唯一定義元にしない |
 
-**鉄則:** 同じ集約ロジックを JS と SQL の両方に実装してはならない（二重実装禁止）。
+`domain/calculations/` は Authoritative Engine の **staging area** であり、Application Engine の一部ではない。
+TypeScript で実装されていることは Application 責務であることを意味しない。
+
+**鉄則:**
+- 同じ集約ロジックを JS と SQL の両方に実装してはならない（二重実装禁止）
+- pure かつ authoritative な処理を TypeScript の制御層（hooks, stores, usecases）に新規実装してはならない
 
 ## シャープリー恒等式（数学的不変条件）
 
@@ -385,7 +391,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 **合計値は実際の売上差に完全一致。** カテゴリデータからの再計算は禁止。
 
-## 禁止事項（8件）
+## 禁止事項（9件）
 
 詳細（壊れるパターン・背景）は `references/prohibition-quick-ref.md` を参照。
 
@@ -399,6 +405,7 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 | 6 | UI が生データソースを直接参照する | データソース混同、計算ロジック分散 |
 | 7 | UI にデータ変換・副作用・状態管理を混在させる | God Component 化、テスト不能 |
 | 8 | 比較データの sourceDate を落とす変換を行う | 月跨ぎ時の出典追跡不能、前年比表示の不正 |
+| 9 | pure かつ authoritative な処理を TypeScript の制御層に新規実装する | 正式値の定義元が分散し、責務境界が崩壊する |
 
 **制約の変更:** 「やりたいことの邪魔になるから」は理由にならない。
 「この制約が防いでいたバグが、別の仕組みで防がれるようになった」は理由になる。

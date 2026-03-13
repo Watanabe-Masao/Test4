@@ -8,8 +8,8 @@ import { safeDivide } from './utils'
 export interface BudgetAnalysisInput {
   readonly totalSales: number // 実績売上合計
   readonly budget: number // 月間予算
-  readonly budgetDaily: ReadonlyMap<number, number> // 日別予算
-  readonly salesDaily: ReadonlyMap<number, number> // 日別売上
+  readonly budgetDaily: Readonly<Record<number, number>> // 日別予算
+  readonly salesDaily: Readonly<Record<number, number>> // 日別売上
   readonly elapsedDays: number // 経過日数
   readonly salesDays: number // 営業日数（売上がある日数）
   readonly daysInMonth: number // 月の日数
@@ -27,7 +27,9 @@ export interface BudgetAnalysisResult {
   readonly projectedAchievement: number // 予算達成率予測
   readonly requiredDailySales: number // 必要日次売上（残余予算 / 残日数）
   readonly remainingBudget: number // 残余予算
-  readonly dailyCumulative: ReadonlyMap<number, { sales: number; budget: number }> // 日別累計
+  readonly dailyCumulative: Readonly<
+    Record<number, { readonly sales: number; readonly budget: number }>
+  > // 日別累計
 }
 
 /**
@@ -42,7 +44,7 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
   // 予算消化率（日別累計 vs 予算累計）
   let cumulativeBudget = 0
   for (let d = 1; d <= elapsedDays; d++) {
-    cumulativeBudget += budgetDaily.get(d) ?? 0
+    cumulativeBudget += budgetDaily[d] ?? 0
   }
   const budgetProgressRate = safeDivide(totalSales, cumulativeBudget, 0)
 
@@ -74,13 +76,13 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
   const remainingBudget = budget - totalSales
 
   // 日別累計
-  const dailyCumulative = new Map<number, { sales: number; budget: number }>()
+  const dailyCumulative: Record<number, { readonly sales: number; readonly budget: number }> = {}
   let cumSales = 0
   let cumBudget = 0
   for (let d = 1; d <= daysInMonth; d++) {
-    cumSales += salesDaily.get(d) ?? 0
-    cumBudget += budgetDaily.get(d) ?? 0
-    dailyCumulative.set(d, { sales: cumSales, budget: cumBudget })
+    cumSales += salesDaily[d] ?? 0
+    cumBudget += budgetDaily[d] ?? 0
+    dailyCumulative[d] = { sales: cumSales, budget: cumBudget }
   }
 
   return {

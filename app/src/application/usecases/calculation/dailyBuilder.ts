@@ -3,7 +3,6 @@ import type {
   CategoryType,
   SupplierTotal,
   DailyRecord,
-  TransferBreakdownEntry,
   ImportedData,
 } from '@/domain/models'
 import {
@@ -13,9 +12,15 @@ import {
   getDailyTotalCost,
   indexByStoreDay,
 } from '@/domain/models'
-import { aggregateForStore, ZERO_DISCOUNT_ENTRIES, addDiscountEntries } from '@/domain/models'
+import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
 import { calculateCoreSales } from '@/domain/calculations/estMethod'
 import type { MonthlyAccumulator } from './types'
+import {
+  buildTransferBreakdown,
+  aggregateSupplierDay,
+  accumulateDay,
+  type MutableMonthlyAccumulator,
+} from './dailyBuilderHelpers'
 
 /**
  * 店舗の日別レコードを構築し、月間集計を蓄積する
@@ -46,29 +51,30 @@ export function buildDailyRecords(
   const categoryTotals = new Map<CategoryType, CostPricePair>()
   const supplierTotals = new Map<string, SupplierTotal>()
 
-  let totalSales = 0
+  const acc: MutableMonthlyAccumulator = {
+    totalSales: 0,
+    totalPurchaseCost: 0,
+    totalPurchasePrice: 0,
+    totalFlowerPrice: 0,
+    totalFlowerCost: 0,
+    totalDirectProducePrice: 0,
+    totalDirectProduceCost: 0,
+    totalDiscount: 0,
+    totalDiscountEntries: ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e })),
+    totalCostInclusion: 0,
+    totalCustomers: 0,
+    transferTotals: {
+      interStoreIn: { ...ZERO_COST_PRICE_PAIR },
+      interStoreOut: { ...ZERO_COST_PRICE_PAIR },
+      interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
+      interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
+    },
+  }
   let totalCost = 0
-  let totalFlowerPrice = 0
-  let totalFlowerCost = 0
-  let totalDirectProducePrice = 0
-  let totalDirectProduceCost = 0
-  let totalPurchaseCost = 0
-  let totalPurchasePrice = 0
-  let totalDiscount = 0
-  let totalDiscountEntries = ZERO_DISCOUNT_ENTRIES.map((e) => ({ ...e }))
-  let totalCostInclusion = 0
-  let totalCustomers = 0
   let salesDays = 0
   let elapsedDays = 0
   let purchaseMaxDay = 0
   let hasDiscountData = false
-
-  const transferTotals = {
-    interStoreIn: { ...ZERO_COST_PRICE_PAIR },
-    interStoreOut: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentIn: { ...ZERO_COST_PRICE_PAIR },
-    interDepartmentOut: { ...ZERO_COST_PRICE_PAIR },
-  }
 
   for (let day = 1; day <= daysInMonth; day++) {
     const purchaseDay = purchaseStore[day]
@@ -100,71 +106,9 @@ export function buildDailyRecords(
     // 売上納品 = 花 + 産直
     const deliverySales = addCostPricePairs(flowers, directProduce)
 
-    // 店間移動
-    let interStoreIn = ZERO_COST_PRICE_PAIR
-    let interStoreOut = ZERO_COST_PRICE_PAIR
-    let interDepartmentIn = ZERO_COST_PRICE_PAIR
-    let interDepartmentOut = ZERO_COST_PRICE_PAIR
-
-    // 移動明細（from→to別）
-    const tbInterStoreIn: TransferBreakdownEntry[] = []
-    const tbInterStoreOut: TransferBreakdownEntry[] = []
-    const tbInterDepartmentIn: TransferBreakdownEntry[] = []
-    const tbInterDepartmentOut: TransferBreakdownEntry[] = []
-
-    if (interInDay) {
-      interStoreIn = interInDay.interStoreIn.reduce(
-        (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
-        { ...ZERO_COST_PRICE_PAIR },
-      )
-      interDepartmentIn = interInDay.interDepartmentIn.reduce(
-        (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
-        { ...ZERO_COST_PRICE_PAIR },
-      )
-      for (const r of interInDay.interStoreIn) {
-        tbInterStoreIn.push({
-          fromStoreId: r.fromStoreId,
-          toStoreId: r.toStoreId,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
-      for (const r of interInDay.interDepartmentIn) {
-        tbInterDepartmentIn.push({
-          fromStoreId: r.fromStoreId,
-          toStoreId: r.toStoreId,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
-    }
-
-    if (interOutDay) {
-      interStoreOut = interOutDay.interStoreOut.reduce(
-        (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
-        { ...ZERO_COST_PRICE_PAIR },
-      )
-      interDepartmentOut = interOutDay.interDepartmentOut.reduce(
-        (acc, r) => ({ cost: acc.cost + r.cost, price: acc.price + r.price }),
-        { ...ZERO_COST_PRICE_PAIR },
-      )
-      for (const r of interOutDay.interStoreOut) {
-        tbInterStoreOut.push({
-          fromStoreId: r.fromStoreId,
-          toStoreId: r.toStoreId,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
-      for (const r of interOutDay.interDepartmentOut) {
-        tbInterDepartmentOut.push({
-          fromStoreId: r.fromStoreId,
-          toStoreId: r.toStoreId,
-          cost: r.cost,
-          price: r.price,
-        })
-      }
-    }
+    // 移動内訳（店間・部門間の入出）
+    const transfer = buildTransferBreakdown(interInDay, interOutDay)
+    const { interStoreIn, interStoreOut, interDepartmentIn, interDepartmentOut } = transfer
 
     // 消耗品
     const costInclusion = costInclusionDay ?? ZERO_COST_INCLUSION_DAILY
@@ -182,31 +126,9 @@ export function buildDailyRecords(
     const grossSales = daySales + discountAbsolute
 
     // 取引先別内訳
-    const supplierBreakdown = new Map<string, CostPricePair>()
-    if (purchaseDay) {
-      for (const [code, sup] of Object.entries(purchaseDay.suppliers)) {
-        supplierBreakdown.set(code, { cost: sup.cost, price: sup.price })
-
-        if (!supplierTotals.has(code)) {
-          supplierTotals.set(code, {
-            supplierCode: code,
-            supplierName: sup.name,
-            category: 'other' as import('@/domain/models').CategoryType,
-            cost: 0,
-            price: 0,
-            markupRate: 0,
-          })
-        }
-        const st = supplierTotals.get(code)
-        if (st) {
-          supplierTotals.set(code, {
-            ...st,
-            cost: st.cost + sup.cost,
-            price: st.price + sup.price,
-          })
-        }
-      }
-    }
+    const supplierBreakdown = purchaseDay
+      ? aggregateSupplierDay(purchaseDay.suppliers, supplierTotals)
+      : new Map<string, CostPricePair>()
 
     // 日別レコード生成（データがある日のみ）
     // 経過日数判定: 消耗品のみの日は除外（消耗品は売上と異なる期間のデータが入る場合がある）
@@ -253,66 +175,49 @@ export function buildDailyRecords(
         discountAbsolute,
         discountEntries,
         supplierBreakdown,
-        transferBreakdown: {
-          interStoreIn: tbInterStoreIn,
-          interStoreOut: tbInterStoreOut,
-          interDepartmentIn: tbInterDepartmentIn,
-          interDepartmentOut: tbInterDepartmentOut,
-        },
+        transferBreakdown: transfer.breakdown,
       }
       daily.set(day, rec)
       totalCost += dayTotalCost
     }
 
-    // 月間集計
-    totalSales += daySales
-    totalPurchaseCost += purchase.cost
-    totalPurchasePrice += purchase.price
-    totalFlowerPrice += flowers.price
-    totalFlowerCost += flowers.cost
-    totalDirectProducePrice += directProduce.price
-    totalDirectProduceCost += directProduce.cost
-    totalDiscount += discountAbsolute
-    totalDiscountEntries = addDiscountEntries(
-      totalDiscountEntries,
+    // 月間集計 + 移動集計
+    accumulateDay(acc, {
+      sales: daySales,
+      purchase,
+      flowers,
+      directProduce,
+      discountAbsolute,
       discountEntries,
-    ) as typeof totalDiscountEntries
-    totalCostInclusion += costInclusion.cost
-    totalCustomers += dayCustomers
-
-    // 移動集計
-    transferTotals.interStoreIn = addCostPricePairs(transferTotals.interStoreIn, interStoreIn)
-    transferTotals.interStoreOut = addCostPricePairs(transferTotals.interStoreOut, interStoreOut)
-    transferTotals.interDepartmentIn = addCostPricePairs(
-      transferTotals.interDepartmentIn,
+      costInclusion,
+      customers: dayCustomers,
+      interStoreIn,
+      interStoreOut,
       interDepartmentIn,
-    )
-    transferTotals.interDepartmentOut = addCostPricePairs(
-      transferTotals.interDepartmentOut,
       interDepartmentOut,
-    )
+    })
   }
 
   return {
     daily,
     categoryTotals,
     supplierTotals,
-    totalSales,
+    totalSales: acc.totalSales,
     totalCost,
-    totalFlowerPrice,
-    totalFlowerCost,
-    totalDirectProducePrice,
-    totalDirectProduceCost,
-    totalPurchaseCost,
-    totalPurchasePrice,
-    totalDiscount,
-    totalDiscountEntries,
-    totalCostInclusion,
-    totalCustomers,
+    totalFlowerPrice: acc.totalFlowerPrice,
+    totalFlowerCost: acc.totalFlowerCost,
+    totalDirectProducePrice: acc.totalDirectProducePrice,
+    totalDirectProduceCost: acc.totalDirectProduceCost,
+    totalPurchaseCost: acc.totalPurchaseCost,
+    totalPurchasePrice: acc.totalPurchasePrice,
+    totalDiscount: acc.totalDiscount,
+    totalDiscountEntries: acc.totalDiscountEntries,
+    totalCostInclusion: acc.totalCostInclusion,
+    totalCustomers: acc.totalCustomers,
     salesDays,
     elapsedDays,
     purchaseMaxDay,
     hasDiscountData,
-    transferTotals,
+    transferTotals: acc.transferTotals,
   }
 }
