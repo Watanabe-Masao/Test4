@@ -55,14 +55,13 @@ describe('INV-CMP-01: prevYear.daily.get(day) の新規使用禁止', () => {
     'presentation/pages/Dashboard/widgets/DayDetailModal.tsx',
     'presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts',
     'presentation/pages/Dashboard/widgets/MonthlyCalendar.tsx',
-    'presentation/pages/Dashboard/widgets/SalesAnalysisWidgets.tsx',
     'presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx',
     'presentation/pages/Insight/InsightTabBudget.tsx',
     'presentation/pages/Forecast/ForecastPage.helpers.ts',
     'application/hooks/useBudgetChartData.ts',
     'application/usecases/clipExport/buildClipBundle.ts',
   ])
-  const MAX_ALLOWLIST_SIZE = 11
+  const MAX_ALLOWLIST_SIZE = 10
 
   it('許可リストのサイズが上限を超えない', () => {
     expect(

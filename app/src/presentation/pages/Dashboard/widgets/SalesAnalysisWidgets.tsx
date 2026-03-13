@@ -2,18 +2,32 @@
  * 売上分析ウィジェット（曜日平均・週別サマリー）
  *
  * TableWidgets.tsx から分割。
+ *
+ * 前年同曜日データは sameDow.dailyMapping を唯一の参照源とする。
+ * prevYear.daily を直接引かず、dailyMapping の currentDay ベースで再配置済みの値を使う。
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { getWeekRanges } from '@/application/hooks/calculation'
+import type { DayMappingRow } from '@/application/comparison/comparisonTypes'
 import type { WidgetContext } from './types'
 import { STableWrapper, STableTitle, STable, STh, STd } from '../DashboardPage.styles'
 
+/** sameDow.dailyMapping から currentDay → { sales, customers } の Map を構築 */
+function buildPrevSameDowMap(
+  dailyMapping: readonly DayMappingRow[],
+): ReadonlyMap<number, { sales: number; customers: number }> {
+  const map = new Map<number, { sales: number; customers: number }>()
+  for (const row of dailyMapping) {
+    map.set(row.currentDay, { sales: row.prevSales, customers: row.prevCustomers })
+  }
+  return map
+}
+
 export function renderDowAverage(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month, prevYear, fmtCurrency } = ctx
+  const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
   const dailySales = new Map<number, number>()
   const dailyBudget = new Map<number, number>()
   for (const [d, rec] of r.daily) {
@@ -22,6 +36,9 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
   for (const [d, b] of r.budgetDaily) {
     dailyBudget.set(d, b)
   }
+
+  // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
+  const prevSameDowByDay = buildPrevSameDowMap(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土']
   const buckets = Array.from({ length: 7 }, () => ({
@@ -47,7 +64,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
       buckets[dow].budgetTotal += budget
       buckets[dow].budgetCount++
     }
-    const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+    const pySales = prevSameDowByDay.get(d)?.sales ?? 0
     if (pySales > 0) {
       buckets[dow].prevYearTotal += pySales
       buckets[dow].prevYearCount++
@@ -142,7 +159,10 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
 }
 
 export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
-  const { result: r, year, month, prevYear, fmtCurrency } = ctx
+  const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
+
+  // sameDow.dailyMapping から currentDay ベースの前年値マップを構築
+  const prevSameDowByDay = buildPrevSameDowMap(prevYearMonthlyKpi.sameDow.dailyMapping)
 
   const weekRanges = getWeekRanges(year, month)
   const summaries = weekRanges.map(({ weekNumber, startDay, endDay }) => {
@@ -165,7 +185,7 @@ export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
         totalPurchaseCost += rec.purchase.cost + rec.flowers.cost + rec.directProduce.cost
         totalCustomers += rec.customers ?? 0
       }
-      prevYearWeekSales += prevYear.daily.get(toDateKeyFromParts(year, month, d))?.sales ?? 0
+      prevYearWeekSales += prevSameDowByDay.get(d)?.sales ?? 0
     }
     const markupRate =
       totalPurchasePrice > 0 ? (totalPurchasePrice - totalPurchaseCost) / totalPurchasePrice : 0
