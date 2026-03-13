@@ -20,6 +20,7 @@ export {
   calculationCache,
   computeFingerprint,
   computeGlobalFingerprint,
+  computeCacheKey,
   CalculationCache,
 } from './calculationCache'
 export { murmurhash3, hashData } from '@/domain/utilities/hash'

@@ -30,12 +30,13 @@ export function useExplanations(
   comparisonKpi: PrevYearMonthlyKpi,
   comparisonDowGap: DowGapAnalysis,
 ): StoreExplanations {
-  const data = useDataStore((s) => s.data)
   const settings = useSettingsStore((s) => s.settings)
   const { currentResult } = useStoreSelection()
 
   return useMemo(() => {
     if (!currentResult) return new Map()
+    // data はスナップショットで取得（購読ではなく useMemo 内で参照）
+    const data = useDataStore.getState().data
     const base = generateExplanations(currentResult, data, settings)
 
     // 前年予算比較の Explanation をマージ
@@ -60,7 +61,7 @@ export function useExplanations(
     }
 
     return base
-  }, [currentResult, data, settings, comparisonKpi, comparisonDowGap])
+  }, [currentResult, settings, comparisonKpi, comparisonDowGap])
 }
 
 /**

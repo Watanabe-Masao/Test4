@@ -8,7 +8,7 @@ import type { StoreResult } from '@/domain/models'
 
 /** 店舗選択フック（複数選択対応） */
 export function useStoreSelection() {
-  const data = useDataStore((s) => s.data)
+  const stores = useDataStore((s) => s.data.stores)
   const storeResults = useDataStore((s) => s.storeResults)
   const selectedStoreIds = useUiStore((s) => s.selectedStoreIds)
   const settings = useSettingsStore((s) => s.settings)
@@ -55,10 +55,10 @@ export function useStoreSelection() {
     if (isAllStores) return '全店合計'
     if (selectedStoreIds.size === 1) {
       const id = Array.from(selectedStoreIds)[0]
-      return data.stores.get(id)?.name ?? id
+      return stores.get(id)?.name ?? id
     }
     return `${selectedStoreIds.size}店舗合計`
-  }, [isAllStores, selectedStoreIds, data.stores])
+  }, [isAllStores, selectedStoreIds, stores])
 
   return {
     selectedStoreIds,
@@ -66,7 +66,7 @@ export function useStoreSelection() {
     currentResult,
     selectedResults,
     storeName,
-    stores: data.stores,
+    stores,
     toggleStore,
     selectAllStores,
   }

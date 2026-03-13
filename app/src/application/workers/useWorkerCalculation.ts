@@ -4,27 +4,27 @@
  * 計算処理を Web Worker にオフロードし、メインスレッドの
  * ブロッキングを防止する。Worker 非対応環境では同期フォールバック。
  *
- * Worker 内でフィンガープリントも生成し、キャッシュヒット判定を
- * メインスレッドから分離する。
+ * dataVersion ベースの軽量キャッシュキーでキャッシュヒット判定を行う。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppSettings, StoreResult, ImportedData } from '@/domain/models'
 import type { WorkerResponse } from './calculationWorker'
 import { calculateAllStores } from '@/application/usecases/calculation'
-import { computeGlobalFingerprint } from '@/application/services/calculationCache'
+import { computeCacheKey } from '@/application/services/calculationCache'
 
 /** Worker 計算結果（新規計算 or キャッシュヒット） */
 export type WorkerCalculateResult =
-  | { results: ReadonlyMap<string, StoreResult>; fingerprint: string }
-  | { cacheHit: true; fingerprint: string }
+  | { results: ReadonlyMap<string, StoreResult>; cacheKey: string }
+  | { cacheHit: true; cacheKey: string }
 
 interface WorkerCalculationResult {
-  /** Worker を使った非同期計算（フィンガープリント付き結果を返す） */
+  /** Worker を使った非同期計算（cacheKey 付き結果を返す） */
   calculateAsync: (
     data: ImportedData,
+    dataVersion: number,
     settings: AppSettings,
     daysInMonth: number,
-    lastFingerprint?: string,
+    lastCacheKey?: string,
   ) => Promise<WorkerCalculateResult>
   /** 計算中フラグ */
   isComputing: boolean
@@ -61,18 +61,19 @@ export function useWorkerCalculation(): WorkerCalculationResult {
   const calculateAsync = useCallback(
     (
       data: ImportedData,
+      dataVersion: number,
       settings: AppSettings,
       daysInMonth: number,
-      lastFingerprint?: string,
+      lastCacheKey?: string,
     ): Promise<WorkerCalculateResult> => {
       if (!worker) {
-        // フォールバック: 同期計算 + フィンガープリント生成
-        const fingerprint = computeGlobalFingerprint(data, settings, daysInMonth)
-        if (lastFingerprint && fingerprint === lastFingerprint) {
-          return Promise.resolve({ cacheHit: true as const, fingerprint })
+        // フォールバック: 同期計算 + cacheKey 生成
+        const cacheKey = computeCacheKey(dataVersion, settings, daysInMonth)
+        if (lastCacheKey && cacheKey === lastCacheKey) {
+          return Promise.resolve({ cacheHit: true as const, cacheKey })
         }
         const results = calculateAllStores(data, settings, daysInMonth)
-        return Promise.resolve({ results, fingerprint })
+        return Promise.resolve({ results, cacheKey })
       }
 
       // リクエストIDで応答を識別し、並行計算時のクロスコンタミを防止
@@ -89,9 +90,9 @@ export function useWorkerCalculation(): WorkerCalculationResult {
           setIsComputing(false)
 
           if (event.data.type === 'result') {
-            resolve({ results: event.data.results, fingerprint: event.data.fingerprint })
+            resolve({ results: event.data.results, cacheKey: event.data.cacheKey })
           } else if (event.data.type === 'cache-hit') {
-            resolve({ cacheHit: true as const, fingerprint: event.data.fingerprint })
+            resolve({ cacheHit: true as const, cacheKey: event.data.cacheKey })
           } else {
             reject(new Error(event.data.message))
           }
@@ -110,10 +111,11 @@ export function useWorkerCalculation(): WorkerCalculationResult {
         worker.postMessage({
           type: 'calculate',
           data,
+          dataVersion,
           settings,
           daysInMonth,
           requestId: thisRequestId,
-          lastFingerprint,
+          lastCacheKey,
         })
       })
     },

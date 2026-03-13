@@ -36,13 +36,11 @@ import {
  * 隣接月マージ済みデータを dataStore に書き込む。
  */
 export function useLoadComparisonData(scope: ComparisonScope | null): ComparisonLoadStatus {
-  const data = useDataStore((s) => s.data)
+  const hasComparisonData = useDataStore((s) => s.data.prevYearClassifiedSales.records.length > 0)
+  const hasCurrentData = useDataStore((s) => s.data.classifiedSales.records.length > 0)
   const repo = useRepository()
   const [loadStatus, dispatch] = useReducer(loadReducer, IDLE_STATUS)
   const prevScopeKey = useRef<string>('')
-
-  const hasComparisonData = data.prevYearClassifiedSales.records.length > 0
-  const hasCurrentData = data.classifiedSales.records.length > 0
 
   const shouldLoad = scope != null && hasCurrentData
 

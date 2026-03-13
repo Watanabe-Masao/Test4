@@ -16,6 +16,8 @@ import { createEmptyImportedData, mergeInventoryConfig } from '@/domain/models'
 export interface DataStore {
   // State
   data: ImportedData
+  /** 入力データが変更されるたびにインクリメントされるバージョン番号（キャッシュキー用） */
+  dataVersion: number
   storeResults: ReadonlyMap<string, StoreResult>
   storeExplanations: ReadonlyMap<string, StoreExplanations>
   validationMessages: readonly ValidationMessage[]
@@ -40,7 +42,10 @@ const initialData = createEmptyImportedData()
 // ─── 共有 updater ──────────────────────────────────────
 type PrevYearPayload = Parameters<DataStore['setPrevYearAutoData']>[0]
 
-function applyPrevYearData(state: { data: ImportedData }, payload: PrevYearPayload) {
+function applyPrevYearData(
+  state: { data: ImportedData; dataVersion: number },
+  payload: PrevYearPayload,
+) {
   return {
     data: {
       ...state.data,
@@ -48,6 +53,7 @@ function applyPrevYearData(state: { data: ImportedData }, payload: PrevYearPaylo
       prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
       prevYearFlowers: payload.prevYearFlowers,
     },
+    dataVersion: state.dataVersion + 1,
   }
 }
 
@@ -57,12 +63,14 @@ export const useDataStore = create<DataStore>()(
     (set) => ({
       // State
       data: initialData,
+      dataVersion: 0,
       storeResults: new Map(),
       storeExplanations: new Map(),
       validationMessages: [],
 
       // Actions
-      setImportedData: (data) => set({ data }, false, 'setImportedData'),
+      setImportedData: (data) =>
+        set((state) => ({ data, dataVersion: state.dataVersion + 1 }), false, 'setImportedData'),
 
       setStoreResults: (results) => set({ storeResults: results }, false, 'setStoreResults'),
 
@@ -81,7 +89,10 @@ export const useDataStore = create<DataStore>()(
             const newSettings = new Map(state.data.settings)
             const merged = mergeInventoryConfig(newSettings.get(storeId), storeId, config)
             newSettings.set(storeId, merged)
-            return { data: { ...state.data, settings: newSettings } }
+            return {
+              data: { ...state.data, settings: newSettings },
+              dataVersion: state.dataVersion + 1,
+            }
           },
           false,
           'updateInventory',
@@ -89,12 +100,13 @@ export const useDataStore = create<DataStore>()(
 
       reset: () =>
         set(
-          {
+          (state) => ({
             data: initialData,
+            dataVersion: state.dataVersion + 1,
             storeResults: new Map(),
             storeExplanations: new Map(),
             validationMessages: [],
-          },
+          }),
           false,
           'reset',
         ),

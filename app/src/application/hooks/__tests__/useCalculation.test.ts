@@ -15,7 +15,7 @@ import { createEmptyImportedData } from '@/domain/models'
 
 vi.mock('@/application/workers', () => ({
   useWorkerCalculation: () => ({
-    calculateAsync: vi.fn(() => Promise.resolve({ fingerprint: 'fp', results: new Map() })),
+    calculateAsync: vi.fn(() => Promise.resolve({ cacheKey: 'v1:sXX:d31', results: new Map() })),
     isComputing: false,
     isWorkerAvailable: false, // disable Worker so sync path is used
   }),
@@ -23,25 +23,23 @@ vi.mock('@/application/workers', () => ({
 
 vi.mock('../services/calculationCache', () => ({
   calculationCache: {
-    getGlobalResult: vi.fn(() => null), // always cache miss
-    setGlobalResult: vi.fn(),
-    setGlobalResultWithFingerprint: vi.fn(),
-    getGlobalResultByFingerprint: vi.fn(() => null),
+    getGlobalResultByCacheKey: vi.fn(() => null), // always cache miss
+    setGlobalResultWithCacheKey: vi.fn(),
     clear: vi.fn(),
-    currentGlobalFingerprint: null,
+    currentGlobalCacheKey: null,
   },
+  computeCacheKey: vi.fn(() => 'v1:sXX:d31'),
 }))
 
 // Also mock from the @/ path alias used by the hook
 vi.mock('@/application/services/calculationCache', () => ({
   calculationCache: {
-    getGlobalResult: vi.fn(() => null),
-    setGlobalResult: vi.fn(),
-    setGlobalResultWithFingerprint: vi.fn(),
-    getGlobalResultByFingerprint: vi.fn(() => null),
+    getGlobalResultByCacheKey: vi.fn(() => null),
+    setGlobalResultWithCacheKey: vi.fn(),
     clear: vi.fn(),
-    currentGlobalFingerprint: null,
+    currentGlobalCacheKey: null,
   },
+  computeCacheKey: vi.fn(() => 'v1:sXX:d31'),
 }))
 
 vi.mock('@/application/usecases/calculation', () => ({
