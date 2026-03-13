@@ -21,8 +21,12 @@ import type { DiscountEntry } from '@/domain/models'
 
 /** 日別マッピング行: 前年の1日 → 当年の対応日 */
 export interface DayMappingRow {
-  /** 前年の日番号 */
+  /** 前年のカレンダー日（1-31） */
   readonly prevDay: number
+  /** 前年の月（1-12） */
+  readonly prevMonth: number
+  /** 前年の年 */
+  readonly prevYear: number
   /** 当年の対応日番号 */
   readonly currentDay: number
   /** 前年売上 */

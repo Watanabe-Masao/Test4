@@ -140,15 +140,19 @@ export function analyzeDowGapActualDay(
   sameDateMapping: readonly {
     readonly currentDay: number
     readonly prevDay: number
+    readonly prevMonth: number
+    readonly prevYear: number
     readonly prevSales: number
   }[],
   sameDowMapping: readonly {
     readonly currentDay: number
     readonly prevDay: number
+    readonly prevMonth: number
+    readonly prevYear: number
     readonly prevSales: number
   }[],
-  prevYear: number,
-  prevMonth: number,
+  _prevYear: number,
+  _prevMonth: number,
   currentYear: number,
   currentMonth: number,
 ): ActualDayImpact {
@@ -158,10 +162,16 @@ export function analyzeDowGapActualDay(
 
   // currentDay をキーにルックアップを構築（衝突しない）
   const sameDateByCurrentDay = new Map(
-    sameDateMapping.map((r) => [r.currentDay, { prevDay: r.prevDay, prevSales: r.prevSales }]),
+    sameDateMapping.map((r) => [
+      r.currentDay,
+      { prevDay: r.prevDay, prevMonth: r.prevMonth, prevYear: r.prevYear, prevSales: r.prevSales },
+    ]),
   )
   const sameDowByCurrentDay = new Map(
-    sameDowMapping.map((r) => [r.currentDay, { prevDay: r.prevDay, prevSales: r.prevSales }]),
+    sameDowMapping.map((r) => [
+      r.currentDay,
+      { prevDay: r.prevDay, prevMonth: r.prevMonth, prevYear: r.prevYear, prevSales: r.prevSales },
+    ]),
   )
 
   const shiftedIn: ShiftedDay[] = []
@@ -179,7 +189,11 @@ export function analyzeDowGapActualDay(
       if (dateEntry.prevDay === dowEntry.prevDay) continue
 
       // shiftedOut: sameDate の prevDay は DOW alignment で失われた日
-      const outDow = new Date(prevYear, prevMonth - 1, dateEntry.prevDay).getDay()
+      const outDow = new Date(
+        dateEntry.prevYear,
+        dateEntry.prevMonth - 1,
+        dateEntry.prevDay,
+      ).getDay()
       shiftedOut.push({
         prevDay: dateEntry.prevDay,
         dow: outDow,
@@ -207,7 +221,11 @@ export function analyzeDowGapActualDay(
       })
     } else if (dateEntry && !dowEntry) {
       // sameDate のみ → DOW alignment で失われた日
-      const outDow = new Date(prevYear, prevMonth - 1, dateEntry.prevDay).getDay()
+      const outDow = new Date(
+        dateEntry.prevYear,
+        dateEntry.prevMonth - 1,
+        dateEntry.prevDay,
+      ).getDay()
       shiftedOut.push({
         prevDay: dateEntry.prevDay,
         dow: outDow,

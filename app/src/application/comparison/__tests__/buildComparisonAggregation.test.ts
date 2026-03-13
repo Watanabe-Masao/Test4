@@ -216,6 +216,8 @@ describe('aggregateKpiByAlignment', () => {
     expect(result.dailyMapping).toHaveLength(1)
     expect(result.dailyMapping[0]).toEqual({
       prevDay: 5,
+      prevMonth: 3,
+      prevYear: 2025,
       currentDay: 1,
       prevSales: 2000,
       prevCustomers: 40,

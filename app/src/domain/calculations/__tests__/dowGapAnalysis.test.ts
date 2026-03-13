@@ -92,11 +92,15 @@ describe('analyzeDowGapActualDay', () => {
     const sameDate = Array.from({ length: 31 }, (_, i) => ({
       currentDay: i + 1,
       prevDay: i + 1,
+      prevMonth: 3,
+      prevYear: 2025,
       prevSales: (i + 1) * 10000,
     }))
     const sameDow = Array.from({ length: 30 }, (_, i) => ({
       currentDay: i + 1,
       prevDay: i + 2,
+      prevMonth: 3,
+      prevYear: 2025,
       prevSales: (i + 2) * 10000,
     }))
 
@@ -110,13 +114,13 @@ describe('analyzeDowGapActualDay', () => {
 
   it('shiftedOut: sameDateにあるがsameDowにない日を検出', () => {
     const sameDate = [
-      { currentDay: 1, prevDay: 1, prevSales: 100000 },
-      { currentDay: 2, prevDay: 2, prevSales: 200000 },
-      { currentDay: 3, prevDay: 3, prevSales: 300000 },
+      { currentDay: 1, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 100000 },
+      { currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
+      { currentDay: 3, prevDay: 3, prevMonth: 3, prevYear: 2025, prevSales: 300000 },
     ]
     const sameDow = [
-      { currentDay: 1, prevDay: 2, prevSales: 200000 },
-      { currentDay: 2, prevDay: 3, prevSales: 300000 },
+      { currentDay: 1, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
+      { currentDay: 2, prevDay: 3, prevMonth: 3, prevYear: 2025, prevSales: 300000 },
     ]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 3, 2026, 3)
 
@@ -132,13 +136,13 @@ describe('analyzeDowGapActualDay', () => {
 
   it('shiftedIn: sameDowにあるがsameDateにない日を検出', () => {
     const sameDate = [
-      { currentDay: 1, prevDay: 1, prevSales: 100000 },
-      { currentDay: 2, prevDay: 2, prevSales: 200000 },
+      { currentDay: 1, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 100000 },
+      { currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
     ]
     const sameDow = [
-      { currentDay: 1, prevDay: 1, prevSales: 100000 },
-      { currentDay: 2, prevDay: 2, prevSales: 200000 },
-      { currentDay: 3, prevDay: 28, prevSales: 500000 },
+      { currentDay: 1, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 100000 },
+      { currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
+      { currentDay: 3, prevDay: 28, prevMonth: 3, prevYear: 2025, prevSales: 500000 },
     ]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 3, 2026, 3)
 
@@ -152,10 +156,10 @@ describe('analyzeDowGapActualDay', () => {
     // shiftedOut は prevYear/prevMonth から DOW を算出
     // 2025年3月1日 = 土曜日
     const sameDate = [
-      { currentDay: 1, prevDay: 1, prevSales: 100000 },
-      { currentDay: 2, prevDay: 2, prevSales: 200000 },
+      { currentDay: 1, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 100000 },
+      { currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
     ]
-    const sameDow = [{ currentDay: 2, prevDay: 2, prevSales: 200000 }]
+    const sameDow = [{ currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 }]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 3, 2026, 3)
 
     expect(result.shiftedOut).toHaveLength(1)
@@ -171,8 +175,8 @@ describe('analyzeDowGapActualDay', () => {
 
   it('差分がなければ shiftedIn/Out ともに空', () => {
     const mapping = [
-      { currentDay: 1, prevDay: 1, prevSales: 100000 },
-      { currentDay: 2, prevDay: 2, prevSales: 200000 },
+      { currentDay: 1, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 100000 },
+      { currentDay: 2, prevDay: 2, prevMonth: 3, prevYear: 2025, prevSales: 200000 },
     ]
     const result = analyzeDowGapActualDay(mapping, mapping, 2025, 3, 2026, 3)
     expect(result.shiftedIn).toHaveLength(0)
@@ -188,6 +192,8 @@ describe('analyzeDowGapActualDay', () => {
     const sameDate = Array.from({ length: 28 }, (_, i) => ({
       currentDay: i + 1,
       prevDay: i + 1,
+      prevMonth: 2,
+      prevYear: 2025,
       prevSales: [
         2047609,
         1436878,
@@ -219,10 +225,12 @@ describe('analyzeDowGapActualDay', () => {
         1523406, // week 4
       ][i],
     }))
-    // sameDow: offset=1 なので prevDay が1つずれる。最終日は月跨ぎで prevDay=1
+    // sameDow: offset=1 なので prevDay が1つずれる。最終日は月跨ぎで prevDay=1 (3月1日)
     const sameDow = Array.from({ length: 28 }, (_, i) => ({
       currentDay: i + 1,
       prevDay: i < 27 ? i + 2 : 1, // 最終日: prevDay=1 (3月1日)
+      prevMonth: i < 27 ? 2 : 3, // 最終日は3月
+      prevYear: 2025,
       prevSales: [
         // prevDay 2-28 (2月の日曜〜土曜) + prevDay 1 (3月1日=土曜日)
         1436878,
@@ -274,14 +282,14 @@ describe('analyzeDowGapActualDay', () => {
   it('prevDayが同じでも異なるデータを持つ月跨ぎケースでcurrentDayベース比較が正しく動く', () => {
     // 旧実装ではprevDayの衝突でshiftが検出できなかったケース
     // sameDate: currentDay=1 → prevDay=1 (Feb 1), currentDay=2 → prevDay=2 (Feb 2)
-    // sameDow:  currentDay=1 → prevDay=2 (Feb 2), currentDay=2 → prevDay=1 (Mar 1 → prevDay=1が衝突)
+    // sameDow:  currentDay=1 → prevDay=2 (Feb 2), currentDay=2 → prevDay=1 (Mar 1)
     const sameDate = [
-      { currentDay: 1, prevDay: 1, prevSales: 500000 }, // Feb 1
-      { currentDay: 2, prevDay: 2, prevSales: 300000 }, // Feb 2
+      { currentDay: 1, prevDay: 1, prevMonth: 2, prevYear: 2025, prevSales: 500000 }, // Feb 1
+      { currentDay: 2, prevDay: 2, prevMonth: 2, prevYear: 2025, prevSales: 300000 }, // Feb 2
     ]
     const sameDow = [
-      { currentDay: 1, prevDay: 2, prevSales: 300000 }, // Feb 2
-      { currentDay: 2, prevDay: 1, prevSales: 400000 }, // Mar 1 (prevDay=1 collides with Feb 1)
+      { currentDay: 1, prevDay: 2, prevMonth: 2, prevYear: 2025, prevSales: 300000 }, // Feb 2
+      { currentDay: 2, prevDay: 1, prevMonth: 3, prevYear: 2025, prevSales: 400000 }, // Mar 1
     ]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 2, 2026, 2)
 

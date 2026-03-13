@@ -88,6 +88,8 @@ function weekNumber(year: number, month: number, day: number): number {
 
 interface TableRow {
   readonly prevDay: number
+  readonly prevMonth: number
+  readonly prevYear: number
   readonly currentDay: number
   readonly prevSales: number
   readonly prevCustomers: number
@@ -125,9 +127,9 @@ export function PrevYearBudgetDetailPanel({
       ...row,
       budget: budgetDaily.get(row.currentDay) ?? 0,
       week: weekNumber(targetYear, targetMonth, row.currentDay),
-      dow: getDow(sourceYear, sourceMonth, row.prevDay),
+      dow: getDow(row.prevYear, row.prevMonth, row.prevDay),
     }))
-  }, [entry.dailyMapping, budgetDaily, targetYear, targetMonth, sourceYear, sourceMonth])
+  }, [entry.dailyMapping, budgetDaily, targetYear, targetMonth])
 
   // 週別集計
   const weeklyTotals = useMemo(() => {
@@ -240,7 +242,7 @@ export function PrevYearBudgetDetailPanel({
         <MbpTr key={i}>
           <DowTd $dow={row.dow}>{DOW_LABELS[row.dow]}</DowTd>
           <MbpTd>
-            {sourceMonth}/{row.prevDay}
+            {row.prevMonth}/{row.prevDay}
           </MbpTd>
           <NumTd>{fmtCurrency(displaySales)}</NumTd>
           <NumTd>{displayCustomers.toLocaleString('ja-JP')}</NumTd>

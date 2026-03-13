@@ -136,7 +136,7 @@ export function buildDowGapProjection(
   // 前年曜日別売上を構築
   const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
   for (const row of kpi.sameDate.dailyMapping) {
-    const dow = new Date(kpi.sourceYear, kpi.sourceMonth - 1, row.prevDay).getDay()
+    const dow = new Date(row.prevYear, row.prevMonth - 1, row.prevDay).getDay()
     prevDowSales[dow] += row.prevSales
   }
 
