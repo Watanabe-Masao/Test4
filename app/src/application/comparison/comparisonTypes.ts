@@ -72,6 +72,60 @@ export interface PrevYearMonthlyKpi {
   readonly dowOffset: number
 }
 
+// ── 同曜日比較の表示用モデル ──
+
+/**
+ * 同曜日比較の1日分の表示用モデル。
+ *
+ * DayMappingRow の全情報を保持したまま、UI が必要とするキーを付加する。
+ * `buildPrevSameDowMap()` のように currentDay → number に劣化させず、
+ * sourceDate の出典を末端まで保持する。
+ *
+ * ## 構造的再発防止
+ *
+ * 同曜日比較の UI は必ずこの型を経由する。
+ * Map<number, number> や Map<number, { sales, customers }> を直接使わない。
+ */
+export interface SameDowPoint {
+  /** 当年の日番号（表示位置） */
+  readonly currentDay: number
+  /** 前年のソース日付（出典） */
+  readonly sourceDate: {
+    readonly year: number
+    readonly month: number
+    readonly day: number
+  }
+  /** 前年売上 */
+  readonly sales: number
+  /** 前年客数 */
+  readonly customers: number
+}
+
+/**
+ * DayMappingRow[] から SameDowPoint の Map を構築する。
+ *
+ * 同曜日比較の UI 入力として唯一の入口。
+ * source date を保持するため、デバッグ・ツールチップ・監査で出典を追跡できる。
+ */
+export function buildSameDowPoints(
+  dailyMapping: readonly DayMappingRow[],
+): ReadonlyMap<number, SameDowPoint> {
+  const map = new Map<number, SameDowPoint>()
+  for (const row of dailyMapping) {
+    map.set(row.currentDay, {
+      currentDay: row.currentDay,
+      sourceDate: {
+        year: row.prevYear,
+        month: row.prevMonth,
+        day: row.prevDay,
+      },
+      sales: row.prevSales,
+      customers: row.prevCustomers,
+    })
+  }
+  return map
+}
+
 // ── 日別比較型 ──
 
 /** 日別比較データの1エントリ */

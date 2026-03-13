@@ -334,6 +334,58 @@ describe('buildComparisonScope', () => {
     })
   })
 
+  // ── sourceMonth テスト ──
+
+  describe('sourceMonth', () => {
+    it('prevYearSameMonth: sourceMonth はソース月に一致する', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevYearSameMonth',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.sourceMonth).toEqual({ year: 2025, month: 3 })
+    })
+
+    it('prevYearSameDow: 2月の月跨ぎで February が選択される（March ではない）', () => {
+      // 2026/2 の prevYearSameDow: 大半の sourceDate は 2025/2、末尾1日だけ 2025/3
+      // findSourceMonth(queryRanges) では queryRanges=[Jan,Feb,Mar,Apr] の中央が
+      // March になるバグがあった。sourceMonth は alignmentMap の最頻月で導出する。
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 2, day: 1 }, to: { year: 2026, month: 2, day: 28 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.sourceMonth).toEqual({ year: 2025, month: 2 })
+    })
+
+    it('prevYearSameDow: 3月でも正しくソース月が導出される', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.sourceMonth).toEqual({ year: 2025, month: 3 })
+    })
+
+    it('prevMonth: sourceMonth は前月に一致する', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevMonth',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.sourceMonth).toEqual({ year: 2026, month: 2 })
+    })
+
+    it('年跨ぎ: 1月の prevYearSameMonth で 12月が選択される', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 1, day: 1 }, to: { year: 2026, month: 1, day: 31 } },
+        'prevYearSameMonth',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.sourceMonth).toEqual({ year: 2025, month: 1 })
+    })
+  })
+
   // ── effectivePeriod2 テスト ──
 
   describe('effectivePeriod2', () => {

@@ -23,7 +23,6 @@ import {
   type ComparisonLoadStatus,
   IDLE_STATUS,
   loadReducer,
-  findSourceMonth,
   monthKey,
 } from '@/application/comparison/comparisonLoadLogic'
 
@@ -58,8 +57,8 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
     // 既にデータがある場合はスキップ（明示インポート優先）
     if (hasComparisonData) return
 
-    const source = findSourceMonth(scope.queryRanges)
-    if (!source) return
+    const source = scope.sourceMonth
+    if (!source || source.year === 0) return
 
     let cancelled = false
 
