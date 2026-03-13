@@ -1,20 +1,18 @@
 /**
  * 期間メトリクス計算モジュール
  *
- * store_day_summary の生データ（SQL取得）から
- * JS ドメイン計算関数で指標を算出する。
- *
- * 役割分担:
- *   SQL: store_day_summary からの生データ取得（DuckDB の強み: JOIN, 集約, 期間フィルタ）
- *   JS:  ビジネスロジック計算（JS の強み: 型安全, テスト容易, 動的利用）
- *
- * storePeriodMetrics.ts（SQL CTE で計算ロジックを再実装していたもの）を廃止し、
- * 二重実装を解消する。計算ロジックの権威は domain/calculations/* に一本化される。
+ * store_day_summary の生データ（SQL取得）から domain/calculations/ の純粋関数で指標を算出する。
+ * SQL は生データ取得に専念し、計算ロジックの権威は domain/calculations/* に一本化される。
  */
 import { calculateEstMethod, calculateDiscountRate } from '@/domain/calculations/estMethod'
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
 import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRates } from '@/domain/calculations/markupRate'
+import {
+  calculateTransferTotals,
+  calculateInventoryCost,
+} from '@/domain/calculations/costAggregation'
 import type { DaySummaryInput, PeriodMetrics, PeriodInventoryConfig } from './periodMetricsTypes'
 
 // ── 型の re-export（後方互換） ──
@@ -152,32 +150,37 @@ function calculatePeriodMetrics(
   const deliverySalesCost = agg.totalFlowersCost + agg.totalDirectProduceCost
 
   // ── 移動合計 ──
-  const totalTransferCost =
-    agg.interStoreInCost + agg.interStoreOutCost + agg.interDeptInCost + agg.interDeptOutCost
-  const totalTransferPrice =
-    agg.interStoreInPrice + agg.interStoreOutPrice + agg.interDeptInPrice + agg.interDeptOutPrice
+  const { transferPrice: totalTransferPrice, transferCost: totalTransferCost } =
+    calculateTransferTotals({
+      interStoreInPrice: agg.interStoreInPrice,
+      interStoreInCost: agg.interStoreInCost,
+      interStoreOutPrice: agg.interStoreOutPrice,
+      interStoreOutCost: agg.interStoreOutCost,
+      interDepartmentInPrice: agg.interDeptInPrice,
+      interDepartmentInCost: agg.interDeptInCost,
+      interDepartmentOutPrice: agg.interDeptOutPrice,
+      interDepartmentOutCost: agg.interDeptOutCost,
+    })
 
   // ── 総仕入原価（getDailyTotalCost と同一構成: 消耗品除く）──
   const totalCost = agg.totalPurchaseCost + deliverySalesCost + totalTransferCost
 
   // ── 在庫仕入原価（売上納品除外）──
-  const inventoryCost = agg.totalPurchaseCost + totalTransferCost
+  const inventoryCost = calculateInventoryCost(totalCost, deliverySalesCost)
 
   // ── 売変率 ──
   const discountRate = calculateDiscountRate(agg.totalSales, agg.totalDiscount)
 
   // ── 値入率 ──
-  const allPurchasePrice = agg.totalPurchasePrice + deliverySalesPrice + totalTransferPrice
-  const allPurchaseCost = agg.totalPurchaseCost + deliverySalesCost + totalTransferCost
-  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-
-  const corePurchasePrice = agg.totalPurchasePrice + totalTransferPrice
-  const corePurchaseCost = agg.totalPurchaseCost + totalTransferCost
-  const coreMarkupRate = safeDivide(
-    corePurchasePrice - corePurchaseCost,
-    corePurchasePrice,
+  const { averageMarkupRate, coreMarkupRate } = calculateMarkupRates({
+    purchasePrice: agg.totalPurchasePrice,
+    purchaseCost: agg.totalPurchaseCost,
+    deliveryPrice: deliverySalesPrice,
+    deliveryCost: deliverySalesCost,
+    transferPrice: totalTransferPrice,
+    transferCost: totalTransferCost,
     defaultMarkupRate,
-  )
+  })
 
   // ── 在庫法 ──
   const invResult = calculateInvMethod({

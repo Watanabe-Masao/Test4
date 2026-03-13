@@ -19,6 +19,11 @@ import {
   calculateGrossProfitBudget,
 } from '@/domain/calculations/budgetAnalysis'
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRates } from '@/domain/calculations/markupRate'
+import {
+  calculateTransferTotals as calcTransferTotals,
+  calculateInventoryCost,
+} from '@/domain/calculations/costAggregation'
 import type { MonthlyAccumulator } from './types'
 
 function addToCategory(
@@ -30,39 +35,18 @@ function addToCategory(
   map.set(category, addCostPricePairs(existing, pair))
 }
 
-/** 移動合計から転送コスト・価格合計を計算する */
-function calculateTransferTotals(transferTotals: MonthlyAccumulator['transferTotals']) {
-  const transferPrice =
-    transferTotals.interStoreIn.price +
-    transferTotals.interStoreOut.price +
-    transferTotals.interDepartmentIn.price +
-    transferTotals.interDepartmentOut.price
-  const transferCost =
-    transferTotals.interStoreIn.cost +
-    transferTotals.interStoreOut.cost +
-    transferTotals.interDepartmentIn.cost +
-    transferTotals.interDepartmentOut.cost
-  return { transferPrice, transferCost }
-}
-
-/** 値入率（全カテゴリ・コア）を計算する */
-function calculateMarkupRates(
-  acc: MonthlyAccumulator,
-  transferPrice: number,
-  transferCost: number,
-  defaultMarkupRate: number,
-) {
-  const allPurchasePrice =
-    acc.totalPurchasePrice + acc.totalFlowerPrice + acc.totalDirectProducePrice + transferPrice
-  const allPurchaseCost =
-    acc.totalPurchaseCost + acc.totalFlowerCost + acc.totalDirectProduceCost + transferCost
-  const averageMarkupRate = safeDivide(allPurchasePrice - allPurchaseCost, allPurchasePrice, 0)
-  const coreMarkupRate = safeDivide(
-    acc.totalPurchasePrice + transferPrice - (acc.totalPurchaseCost + transferCost),
-    acc.totalPurchasePrice + transferPrice,
-    defaultMarkupRate,
-  )
-  return { averageMarkupRate, coreMarkupRate }
+/** MonthlyAccumulator の transferTotals → TransferTotalsInput に変換して domain 関数を呼ぶ */
+function computeTransferTotals(transferTotals: MonthlyAccumulator['transferTotals']) {
+  return calcTransferTotals({
+    interStoreInPrice: transferTotals.interStoreIn.price,
+    interStoreInCost: transferTotals.interStoreIn.cost,
+    interStoreOutPrice: transferTotals.interStoreOut.price,
+    interStoreOutCost: transferTotals.interStoreOut.cost,
+    interDepartmentInPrice: transferTotals.interDepartmentIn.price,
+    interDepartmentInCost: transferTotals.interDepartmentIn.cost,
+    interDepartmentOutPrice: transferTotals.interDepartmentOut.price,
+    interDepartmentOutCost: transferTotals.interDepartmentOut.cost,
+  })
 }
 
 /** カテゴリ集計にカテゴリ別の合算を追加する */
@@ -92,7 +76,7 @@ function finalizeCategoryTotals(acc: MonthlyAccumulator): void {
 function buildTransferDetails(
   transferTotals: MonthlyAccumulator['transferTotals'],
 ): TransferDetails {
-  const { transferPrice, transferCost } = calculateTransferTotals(transferTotals)
+  const { transferPrice, transferCost } = computeTransferTotals(transferTotals)
   return {
     ...transferTotals,
     netTransfer: { cost: transferCost, price: transferPrice },
@@ -145,7 +129,7 @@ export function assembleStoreResult(
   )
 
   // 在庫仕入原価 = 総仕入原価 - 売上納品原価
-  const inventoryCost = acc.totalCost - deliverySalesCost
+  const inventoryCost = calculateInventoryCost(acc.totalCost, deliverySalesCost)
 
   // 粗売上（月間）
   const grossSales = acc.totalSales + acc.totalDiscount
@@ -154,13 +138,16 @@ export function assembleStoreResult(
   const discountRate = calculateDiscountRate(acc.totalSales, acc.totalDiscount)
 
   // 値入率
-  const { transferPrice, transferCost } = calculateTransferTotals(acc.transferTotals)
-  const { averageMarkupRate, coreMarkupRate } = calculateMarkupRates(
-    acc,
+  const { transferPrice, transferCost } = computeTransferTotals(acc.transferTotals)
+  const { averageMarkupRate, coreMarkupRate } = calculateMarkupRates({
+    purchasePrice: acc.totalPurchasePrice,
+    purchaseCost: acc.totalPurchaseCost,
+    deliveryPrice: acc.totalFlowerPrice + acc.totalDirectProducePrice,
+    deliveryCost: acc.totalFlowerCost + acc.totalDirectProduceCost,
     transferPrice,
     transferCost,
-    settings.defaultMarkupRate,
-  )
+    defaultMarkupRate: settings.defaultMarkupRate,
+  })
 
   // 【在庫法】
   const invResult = calculateInvMethod({
