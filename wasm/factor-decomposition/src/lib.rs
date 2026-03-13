@@ -1,9 +1,16 @@
-mod decompose;
-mod price_mix;
-mod types;
-mod utils;
+// lib.rs — wasm_bindgen FFI adapter only.
+// Pure authoritative logic lives in decompose.rs / price_mix.rs / utils.rs.
+// This file handles only: FFI boundary, Float64Array conversion, null sentinels.
 
-use decompose::{decompose2 as decompose2_inner, decompose3 as decompose3_inner};
+pub mod decompose;
+pub mod price_mix;
+pub mod types;
+pub mod utils;
+
+use decompose::{
+    decompose2 as decompose2_inner, decompose3 as decompose3_inner,
+    decompose5 as decompose5_inner,
+};
 use price_mix::decompose_price_mix as decompose_price_mix_inner;
 use wasm_bindgen::prelude::*;
 
@@ -94,38 +101,24 @@ pub fn decompose5(
     let cur_cats = build_categories(&cur_keys, cur_qtys, cur_amts);
     let prev_cats = build_categories(&prev_keys, prev_qtys, prev_amts);
 
-    // Step 1: 3-variable Shapley
-    let d3 = decompose3_inner(prev_sales, cur_sales, prev_cust, cur_cust, prev_total_qty, cur_total_qty);
-
-    // Step 2: price/mix ratio
     let arr = js_sys::Float64Array::new_with_length(5);
-    match decompose_price_mix_inner(&cur_cats, &prev_cats) {
+    match decompose5_inner(
+        prev_sales, cur_sales, prev_cust, cur_cust, prev_total_qty, cur_total_qty,
+        &cur_cats, &prev_cats,
+    ) {
         None => {
-            arr.set_index(0, 1.0); // null
+            arr.set_index(0, 1.0); // null sentinel
             arr.set_index(1, 0.0);
             arr.set_index(2, 0.0);
             arr.set_index(3, 0.0);
             arr.set_index(4, 0.0);
         }
-        Some(pm) => {
-            // Step 3: Split price-per-item effect by price/mix ratio
-            let pm_total = pm.price_effect + pm.mix_effect;
-            let (price_effect, mix_effect) = if pm_total.abs() < 1.0 {
-                // Near-zero price change: split equally
-                (d3.price_per_item_effect * 0.5, d3.price_per_item_effect * 0.5)
-            } else {
-                let price_fraction = pm.price_effect / pm_total;
-                (
-                    d3.price_per_item_effect * price_fraction,
-                    d3.price_per_item_effect * (1.0 - price_fraction),
-                )
-            };
-
+        Some(r) => {
             arr.set_index(0, 0.0); // valid
-            arr.set_index(1, d3.cust_effect);
-            arr.set_index(2, d3.qty_effect);
-            arr.set_index(3, price_effect);
-            arr.set_index(4, mix_effect);
+            arr.set_index(1, r.cust_effect);
+            arr.set_index(2, r.qty_effect);
+            arr.set_index(3, r.price_effect);
+            arr.set_index(4, r.mix_effect);
         }
     }
     arr
