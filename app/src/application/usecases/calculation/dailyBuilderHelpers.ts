@@ -10,8 +10,10 @@ import type {
   TransferDayEntry,
   SupplierTotal,
   CategoryType,
+  DiscountEntry,
+  CostInclusionDailyRecord,
 } from '@/domain/models'
-import { ZERO_COST_PRICE_PAIR } from '@/domain/models'
+import { ZERO_COST_PRICE_PAIR, addCostPricePairs, addDiscountEntries } from '@/domain/models'
 
 // ── 移動内訳 ─────────────────────────────────
 
@@ -108,4 +110,77 @@ export function aggregateSupplierDay(
     }
   }
   return breakdown
+}
+
+// ── 月次アキュムレーション ──────────────────────
+
+/** accumulateMonthly が更新する可変アキュムレータ */
+export interface MutableMonthlyAccumulator {
+  totalSales: number
+  totalPurchaseCost: number
+  totalPurchasePrice: number
+  totalFlowerPrice: number
+  totalFlowerCost: number
+  totalDirectProducePrice: number
+  totalDirectProduceCost: number
+  totalDiscount: number
+  totalDiscountEntries: DiscountEntry[]
+  totalCostInclusion: number
+  totalCustomers: number
+  transferTotals: {
+    interStoreIn: CostPricePair
+    interStoreOut: CostPricePair
+    interDepartmentIn: CostPricePair
+    interDepartmentOut: CostPricePair
+  }
+}
+
+/** 1日分の値を月次アキュムレータに加算する（mutable 更新） */
+export function accumulateDay(
+  acc: MutableMonthlyAccumulator,
+  day: {
+    sales: number
+    purchase: CostPricePair
+    flowers: CostPricePair
+    directProduce: CostPricePair
+    discountAbsolute: number
+    discountEntries: readonly DiscountEntry[]
+    costInclusion: CostInclusionDailyRecord
+    customers: number
+    interStoreIn: CostPricePair
+    interStoreOut: CostPricePair
+    interDepartmentIn: CostPricePair
+    interDepartmentOut: CostPricePair
+  },
+): void {
+  acc.totalSales += day.sales
+  acc.totalPurchaseCost += day.purchase.cost
+  acc.totalPurchasePrice += day.purchase.price
+  acc.totalFlowerPrice += day.flowers.price
+  acc.totalFlowerCost += day.flowers.cost
+  acc.totalDirectProducePrice += day.directProduce.price
+  acc.totalDirectProduceCost += day.directProduce.cost
+  acc.totalDiscount += day.discountAbsolute
+  acc.totalDiscountEntries = addDiscountEntries(
+    acc.totalDiscountEntries,
+    day.discountEntries,
+  ) as DiscountEntry[]
+  acc.totalCostInclusion += day.costInclusion.cost
+  acc.totalCustomers += day.customers
+  acc.transferTotals.interStoreIn = addCostPricePairs(
+    acc.transferTotals.interStoreIn,
+    day.interStoreIn,
+  )
+  acc.transferTotals.interStoreOut = addCostPricePairs(
+    acc.transferTotals.interStoreOut,
+    day.interStoreOut,
+  )
+  acc.transferTotals.interDepartmentIn = addCostPricePairs(
+    acc.transferTotals.interDepartmentIn,
+    day.interDepartmentIn,
+  )
+  acc.transferTotals.interDepartmentOut = addCostPricePairs(
+    acc.transferTotals.interDepartmentOut,
+    day.interDepartmentOut,
+  )
 }
