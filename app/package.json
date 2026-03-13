@@ -8,6 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --out-dir pkg",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -30,6 +31,7 @@
     "@tanstack/react-table": "^8.21.3",
     "d3-format": "^3.1.2",
     "date-fns": "^4.1.0",
+    "factor-decomposition-wasm": "file:../wasm/factor-decomposition/pkg",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",
@@ -67,6 +69,8 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^7.3.1",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.5.0",
     "vitest": "^4.0.18"
   }
 }

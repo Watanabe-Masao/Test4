@@ -6,7 +6,11 @@
  */
 import type { StoreResult, CategoryTimeSalesRecord } from '@/domain/models'
 import type { PrevYearData } from '@/application/hooks'
-import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
+import {
+  decompose2,
+  decompose3,
+  decompose5,
+} from '@/application/services/factorDecompositionBridge'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type {
   ClipBundle,
