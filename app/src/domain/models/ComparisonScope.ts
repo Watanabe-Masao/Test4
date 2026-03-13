@@ -65,6 +65,13 @@ export interface ComparisonScope {
   readonly queryRanges: readonly QueryMonth[]
   /** 日付対応表 — 全集計・全クエリはこれを参照 */
   readonly alignmentMap: readonly AlignmentEntry[]
+  /**
+   * データロード・集計の基準月（alignmentMap のソース日付から導出）。
+   *
+   * findSourceMonth(queryRanges) の中央値ベースでは sameDayOfWeek 時に
+   * 月跨ぎで誤った月を選択するバグがあったため、alignmentMap の最頻月を使う。
+   */
+  readonly sourceMonth: QueryMonth
 }
 
 // ── ユーティリティ（内部用） ──
@@ -222,6 +229,37 @@ function buildAlignmentMap(
   return entries
 }
 
+/**
+ * alignmentMap のソース日付から最頻月を導出する。
+ *
+ * findSourceMonth(queryRanges) の中央値ベースでは、sameDayOfWeek 時に
+ * effectivePeriod2 が月跨ぎすると queryRanges の要素数が偶数になり、
+ * 中央が翌月側にずれて誤った月をデータロード基準に選んでしまう。
+ * alignmentMap のソース日付をカウントして最頻月を使うことでこれを防ぐ。
+ */
+function deriveSourceMonth(alignmentMap: readonly AlignmentEntry[]): QueryMonth {
+  if (alignmentMap.length === 0) {
+    return { year: 0, month: 1 }
+  }
+
+  const counts = new Map<string, { count: number; year: number; month: number }>()
+  for (const entry of alignmentMap) {
+    const key = `${entry.sourceDate.year}-${entry.sourceDate.month}`
+    const existing = counts.get(key)
+    if (existing) {
+      existing.count++
+    } else {
+      counts.set(key, { count: 1, year: entry.sourceDate.year, month: entry.sourceDate.month })
+    }
+  }
+
+  let best: { count: number; year: number; month: number } = { count: 0, year: 0, month: 1 }
+  for (const v of counts.values()) {
+    if (v.count > best.count) best = v
+  }
+  return { year: best.year, month: best.month }
+}
+
 /** effectivePeriod2 を alignmentMap から導出 */
 function deriveEffectivePeriod2(alignmentMap: readonly AlignmentEntry[]): DateRange | null {
   if (alignmentMap.length === 0) return null
@@ -282,6 +320,9 @@ export function buildComparisonScope(
   // 読込対象月は effectivePeriod2（実際に必要な月 ± 1）
   const queryRanges = buildQueryRanges(effectivePeriod2)
 
+  // データロード・集計の基準月を alignmentMap の最頻月から導出
+  const sourceMonth = deriveSourceMonth(alignmentMap)
+
   return {
     period1,
     period2,
@@ -292,5 +333,6 @@ export function buildComparisonScope(
     effectivePeriod2,
     queryRanges,
     alignmentMap,
+    sourceMonth,
   }
 }

@@ -27,7 +27,6 @@ import {
   buildKpiProjection,
   buildDowGapProjection,
 } from '@/application/comparison/comparisonProjections'
-import { findSourceMonth } from '@/application/comparison/comparisonLoadLogic'
 
 // ── 出力型 ──
 
@@ -139,12 +138,10 @@ export function useComparisonModule(
   )
 
   // 4. 共通入力データ準備（SourceDataIndex 構築 + targetIds）
-  // SourceMonthContext は allAgg のベース月に合わせる。
-  // findSourceMonth(queryRanges) で実際のロード基準月を使う。
+  // SourceMonthContext は scope.sourceMonth（alignmentMap の最頻月）を使う。
   const inputs = useMemo(() => {
     if (!scope) return null
-    const source = findSourceMonth(scope.queryRanges)
-    const { year, month } = source ?? scope.period2.from
+    const { year, month } = scope.sourceMonth
     return prepareComparisonInputs(data, selectedStoreIds, isAllStores, {
       year,
       month,
@@ -161,8 +158,7 @@ export function useComparisonModule(
   // 6. 月間KPI集計（PrevYearMonthlyKpi 互換）
   const kpi = useMemo((): PrevYearMonthlyKpi => {
     if (!scope || !inputs) return EMPTY_KPI
-    const source = findSourceMonth(scope.queryRanges)
-    const { year, month } = source ?? scope.period2.from
+    const { year, month } = scope.sourceMonth
     return buildKpiProjection(inputs.sourceIndex, inputs.targetIds, scope, periodSelection, {
       year,
       month,
