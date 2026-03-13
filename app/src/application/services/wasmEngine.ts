@@ -4,7 +4,7 @@
  * factorDecomposition WASM モジュールの初期化・状態管理・モード切替を担当する。
  *
  * 保証:
- * 1. WASM 未初期化でも UI は通常どおり動く（デフォルト ts-only）
+ * 1. WASM 未初期化でも UI は通常どおり動く（PROD: ts-only、DEV: dual-run-compare）
  * 2. 初期化失敗時も TS 実装へ確実にフォールバック（state → 'error' → 以降 TS 固定）
  * 3. モード切替が render 順に影響しない（bridge は同期関数）
  * 4. 初期化は UI イベントループをブロックしない（非同期）
@@ -37,6 +37,9 @@ export async function initFactorDecompositionWasm(): Promise<void> {
     await wasm.default()
     wasmExports = wasm
     wasmState = 'ready'
+    if (import.meta.env.DEV) {
+      console.info('[wasmEngine] ready — dual-run compare available')
+    }
   } catch (e) {
     wasmState = 'error'
     console.warn('[wasmEngine] WASM initialization failed, falling back to TS:', e)
@@ -86,9 +89,14 @@ function loadModeFromStorage(): void {
     const stored = localStorage.getItem('factorDecomposition.executionMode')
     if (stored === 'ts-only' || stored === 'wasm-only' || stored === 'dual-run-compare') {
       currentMode = stored
+    } else if (import.meta.env.DEV) {
+      currentMode = 'dual-run-compare'
     }
   } catch {
-    // localStorage unavailable — use default
+    // localStorage unavailable — DEV ではそれでも compare を有効化
+    if (import.meta.env.DEV) {
+      currentMode = 'dual-run-compare'
+    }
   }
 }
 
