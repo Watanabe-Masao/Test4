@@ -23,6 +23,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wasm/factor-decomposition/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/factor-decomposition/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM module
+        working-directory: wasm/factor-decomposition
+        run: wasm-pack build --target web --release
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
