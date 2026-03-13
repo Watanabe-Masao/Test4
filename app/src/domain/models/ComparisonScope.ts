@@ -150,11 +150,7 @@ function buildEffectivePeriod1(period1: DateRange, elapsedDays?: number): DateRa
  * 5. 先頭を採用
  */
 function resolveSameDowSource(targetDate: Date): Date {
-  const anchor = new Date(
-    targetDate.getFullYear() - 1,
-    targetDate.getMonth(),
-    targetDate.getDate(),
-  )
+  const anchor = new Date(targetDate.getFullYear() - 1, targetDate.getMonth(), targetDate.getDate())
   const targetDow = targetDate.getDay()
 
   let bestCandidate = anchor
