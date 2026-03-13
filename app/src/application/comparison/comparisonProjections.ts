@@ -22,6 +22,7 @@ import {
   aggregateKpiByAlignment,
   type SourceMonthContext,
 } from '@/application/comparison/buildComparisonAggregation'
+import { findSourceMonth } from '@/application/comparison/comparisonLoadLogic'
 
 // ── ゼロ値 ──
 
@@ -58,10 +59,12 @@ export function buildKpiProjection(
 ): PrevYearMonthlyKpi {
   if (targetIds.length === 0) return EMPTY_KPI
 
-  const srcYear = scope.period2.from.year
-  const srcMonth = scope.period2.from.month
-
-  // allAgg のソース月コンテキスト（月跨ぎ時のリナンバリング変換に必要）
+  // allAgg のソース月コンテキスト（月跨ぎ時のリナンバリング変換に必要）。
+  // period2.from は prevYearSameDow で候補窓の先頭にずれるため、
+  // findSourceMonth(queryRanges) で実際のロード基準月を使う。
+  const source = findSourceMonth(scope.queryRanges)
+  const srcYear = source?.year ?? scope.period2.from.year
+  const srcMonth = source?.month ?? scope.period2.from.month
   const sourceMonthCtx: SourceMonthContext = {
     year: srcYear,
     month: srcMonth,

@@ -27,6 +27,7 @@ import {
   buildKpiProjection,
   buildDowGapProjection,
 } from '@/application/comparison/comparisonProjections'
+import { findSourceMonth } from '@/application/comparison/comparisonLoadLogic'
 
 // ── 出力型 ──
 
@@ -141,9 +142,13 @@ export function useComparisonModule(
   )
 
   // 5. 日別集計（PrevYearData 互換）
+  // SourceMonthContext は allAgg のベース月（loadComparisonDataAsync で使った sourceMonth）に合わせる。
+  // period2.from は prevYearSameDow で候補窓の先頭にずれるため、
+  // findSourceMonth(queryRanges) で実際のロード基準月を使う。
   const daily = useMemo((): PrevYearData => {
     if (!scope || !inputs) return EMPTY_DAILY
-    const { year, month } = scope.period2.from
+    const source = findSourceMonth(scope.queryRanges)
+    const { year, month } = source ?? scope.period2.from
     return aggregateDailyByAlignment(
       inputs.allAgg,
       inputs.flowersIndex,

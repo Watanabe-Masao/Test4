@@ -43,8 +43,12 @@ describe('buildComparisonScope', () => {
   })
 
   describe('prevYearSameDow', () => {
-    it('should use sameDayOfWeek alignment mode with candidate range', () => {
-      // V2: period2 は候補取得範囲（前年同日 ±7日）
+    /** CalendarDate → Date */
+    function toDate(cd: { year: number; month: number; day: number }): Date {
+      return new Date(cd.year, cd.month - 1, cd.day)
+    }
+
+    it('should use sameDayOfWeek alignment mode', () => {
       const selection = makePeriodSelection(
         { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
         'prevYearSameDow',
@@ -52,13 +56,98 @@ describe('buildComparisonScope', () => {
       const scope = buildComparisonScope(selection)
 
       expect(scope.alignmentMode).toBe('sameDayOfWeek')
-      // dowOffset は旧パス互換値（V2 resolver では使わない）
       expect(scope.dowOffset).toBeGreaterThanOrEqual(0)
       expect(scope.dowOffset).toBeLessThanOrEqual(6)
+      expect(scope.alignmentMap).toHaveLength(31)
+    })
 
-      // alignmentMap はまだ positional mapping（旧パス互換）
-      // V2 では resolveComparisonRows が日単位で解決するため alignmentMap を参照しない
-      expect(scope.alignmentMap.length).toBeGreaterThan(0)
+    it('全エントリで sourceDate と targetDate が同曜日', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+
+      for (const entry of scope.alignmentMap) {
+        const srcDow = toDate(entry.sourceDate).getDay()
+        const tgtDow = toDate(entry.targetDate).getDay()
+        expect(srcDow).toBe(tgtDow)
+      }
+    })
+
+    it('sourceDate は前年同日 anchor の ±7日以内', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+
+      for (const entry of scope.alignmentMap) {
+        const tgt = toDate(entry.targetDate)
+        const anchor = new Date(tgt.getFullYear() - 1, tgt.getMonth(), tgt.getDate())
+        const src = toDate(entry.sourceDate)
+        const diffDays = Math.abs(src.getTime() - anchor.getTime()) / (24 * 60 * 60 * 1000)
+        expect(diffDays).toBeLessThanOrEqual(7)
+      }
+    })
+
+    it('月初: 2026-03-01（日曜）の比較先は前年近傍日曜', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 1 }, to: { year: 2026, month: 3, day: 1 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      const entry = scope.alignmentMap[0]
+      const srcDow = toDate(entry.sourceDate).getDay()
+      const tgtDow = toDate(entry.targetDate).getDay()
+      expect(srcDow).toBe(tgtDow)
+      expect(entry.sourceDate.year).toBe(2025)
+    })
+
+    it('月末: 2026-03-31 の比較先が隣月に入る場合がある', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 31 }, to: { year: 2026, month: 3, day: 31 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      const entry = scope.alignmentMap[0]
+      const srcDow = toDate(entry.sourceDate).getDay()
+      const tgtDow = toDate(entry.targetDate).getDay()
+      expect(srcDow).toBe(tgtDow)
+      // 4月に入ることもありえる
+      const anchor = new Date(2025, 2, 31)
+      const src = toDate(entry.sourceDate)
+      const diffDays = Math.abs(src.getTime() - anchor.getTime()) / (24 * 60 * 60 * 1000)
+      expect(diffDays).toBeLessThanOrEqual(7)
+    })
+
+    it('閏年: 2024-02-29 → anchor 正規化後の同曜日', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2024, month: 2, day: 29 }, to: { year: 2024, month: 2, day: 29 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      const entry = scope.alignmentMap[0]
+      const srcDow = toDate(entry.sourceDate).getDay()
+      const tgtDow = toDate(entry.targetDate).getDay()
+      expect(srcDow).toBe(tgtDow)
+      // anchor = new Date(2023, 1, 29) = 2023-03-01（Date正規化）
+      const anchor = new Date(2023, 1, 29)
+      const src = toDate(entry.sourceDate)
+      const diffDays = Math.abs(src.getTime() - anchor.getTime()) / (24 * 60 * 60 * 1000)
+      expect(diffDays).toBeLessThanOrEqual(7)
+    })
+
+    it('月跨ぎ期間でも全エントリ同曜日', () => {
+      const selection = makePeriodSelection(
+        { from: { year: 2026, month: 3, day: 28 }, to: { year: 2026, month: 4, day: 3 } },
+        'prevYearSameDow',
+      )
+      const scope = buildComparisonScope(selection)
+      expect(scope.alignmentMap).toHaveLength(7)
+      for (const entry of scope.alignmentMap) {
+        expect(toDate(entry.sourceDate).getDay()).toBe(toDate(entry.targetDate).getDay())
+      }
     })
   })
 
