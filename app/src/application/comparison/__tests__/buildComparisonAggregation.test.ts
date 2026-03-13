@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import {
-  aggregateDailyByAlignment,
-  aggregateKpiByAlignment,
-  type SourceMonthContext,
-} from '../buildComparisonAggregation'
+import { aggregateDailyByAlignment, aggregateKpiByAlignment } from '../buildComparisonAggregation'
+import { buildSourceDataIndex, type SourceMonthContext } from '../sourceDataIndex'
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'
 import { ZERO_DISCOUNT_ENTRIES } from '@/domain/models/ClassifiedSales'
@@ -54,18 +51,29 @@ function makeFlowersIndex(
   return { [storeId]: days }
 }
 
+/** テスト用: allAgg + flowersIndex から SourceDataIndex を構築するヘルパー */
+function makeSourceIndex(
+  allAgg: Record<string, Record<number, ClassifiedSalesDaySummary>>,
+  flowersIndex: StoreDayIndex<SpecialSalesDayEntry> | undefined,
+  ctx: SourceMonthContext = { year: 2025, month: 3, daysInMonth: 31 },
+) {
+  return buildSourceDataIndex(allAgg, flowersIndex, ctx)
+}
+
 // ── aggregateDailyByAlignment ──
 
 describe('aggregateDailyByAlignment', () => {
   it('空の targetIds で EMPTY_DAILY を返す', () => {
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
-    const result = aggregateDailyByAlignment({}, undefined, [], alignment)
+    const idx = makeSourceIndex({}, undefined)
+    const result = aggregateDailyByAlignment(idx, [], alignment)
     expect(result.hasPrevYear).toBe(false)
     expect(result.totalSales).toBe(0)
   })
 
   it('空の alignmentMap で EMPTY_DAILY を返す', () => {
-    const result = aggregateDailyByAlignment({}, undefined, ['S1'], [])
+    const idx = makeSourceIndex({}, undefined)
+    const result = aggregateDailyByAlignment(idx, ['S1'], [])
     expect(result.hasPrevYear).toBe(false)
   })
 
@@ -75,8 +83,9 @@ describe('aggregateDailyByAlignment', () => {
     }
     const flowers = makeFlowersIndex('S1', { 1: 100 })
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, flowers)
 
-    const result = aggregateDailyByAlignment(allAgg, flowers, ['S1'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1'], alignment)
 
     expect(result.hasPrevYear).toBe(true)
     expect(result.totalSales).toBe(1000)
@@ -92,8 +101,9 @@ describe('aggregateDailyByAlignment', () => {
       S2: { 1: makeSummary(2000) },
     }
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1', 'S2'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1', 'S2'], alignment)
 
     expect(result.totalSales).toBe(3000)
     expect(result.daily.size).toBe(1)
@@ -117,8 +127,9 @@ describe('aggregateDailyByAlignment', () => {
       makeAlignmentEntry(2025, 3, 6, 2026, 3, 2),
       makeAlignmentEntry(2025, 3, 7, 2026, 3, 3),
     ]
+    const idx = makeSourceIndex(allAgg, flowers)
 
-    const result = aggregateDailyByAlignment(allAgg, flowers, ['S1'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1'], alignment)
 
     expect(result.hasPrevYear).toBe(true)
     expect(result.totalSales).toBe(1800)
@@ -139,8 +150,9 @@ describe('aggregateDailyByAlignment', () => {
       makeAlignmentEntry(2025, 3, 1, 2026, 3, 1),
       makeAlignmentEntry(2025, 3, 2, 2026, 3, 2),
     ]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1'], alignment)
 
     expect(result.totalSales).toBe(300) // 100 + 200 のみ
     expect(result.daily.size).toBe(2)
@@ -151,9 +163,10 @@ describe('aggregateDailyByAlignment', () => {
       S1: { 1: makeSummary(1000) },
     }
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, undefined)
 
     // S2 はデータなし
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1', 'S2'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1', 'S2'], alignment)
 
     expect(result.totalSales).toBe(1000)
   })
@@ -163,8 +176,9 @@ describe('aggregateDailyByAlignment', () => {
       S1: { 1: makeSummary(500) },
     }
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1'], alignment)
 
     expect(result.totalCustomers).toBe(0)
     expect(result.totalSales).toBe(500)
@@ -175,8 +189,9 @@ describe('aggregateDailyByAlignment', () => {
       S1: { 1: makeSummary(1000, -100) },
     }
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateDailyByAlignment(allAgg, undefined, ['S1'], alignment)
+    const result = aggregateDailyByAlignment(idx, ['S1'], alignment)
 
     // discountRate = safeDivide(-100, 1000) = -0.1
     expect(result.discountRate).toBeCloseTo(-0.1)
@@ -188,7 +203,8 @@ describe('aggregateDailyByAlignment', () => {
 describe('aggregateKpiByAlignment', () => {
   it('空の targetIds でゼロを返す', () => {
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
-    const result = aggregateKpiByAlignment({}, undefined, [], alignment)
+    const idx = makeSourceIndex({}, undefined)
+    const result = aggregateKpiByAlignment(idx, [], alignment)
     expect(result.sales).toBe(0)
     expect(result.customers).toBe(0)
     expect(result.transactionValue).toBe(0)
@@ -197,7 +213,8 @@ describe('aggregateKpiByAlignment', () => {
   })
 
   it('空の alignmentMap でゼロを返す', () => {
-    const result = aggregateKpiByAlignment({}, undefined, ['S1'], [])
+    const idx = makeSourceIndex({}, undefined)
+    const result = aggregateKpiByAlignment(idx, ['S1'], [])
     expect(result.sales).toBe(0)
   })
 
@@ -207,8 +224,9 @@ describe('aggregateKpiByAlignment', () => {
     }
     const flowers = makeFlowersIndex('S1', { 5: 40 })
     const alignment = [makeAlignmentEntry(2025, 3, 5, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, flowers)
 
-    const result = aggregateKpiByAlignment(allAgg, flowers, ['S1'], alignment)
+    const result = aggregateKpiByAlignment(idx, ['S1'], alignment)
 
     expect(result.sales).toBe(2000)
     expect(result.customers).toBe(40)
@@ -251,8 +269,9 @@ describe('aggregateKpiByAlignment', () => {
       makeAlignmentEntry(2025, 3, 1, 2026, 3, 1),
       makeAlignmentEntry(2025, 3, 2, 2026, 3, 2),
     ]
+    const idx = makeSourceIndex(allAgg, flowers)
 
-    const result = aggregateKpiByAlignment(allAgg, flowers, ['S1', 'S2'], alignment)
+    const result = aggregateKpiByAlignment(idx, ['S1', 'S2'], alignment)
 
     expect(result.sales).toBe(4500) // 1000+1500+800+1200
     expect(result.customers).toBe(90) // 20+30+15+25
@@ -273,8 +292,9 @@ describe('aggregateKpiByAlignment', () => {
       makeAlignmentEntry(2025, 3, 10, 2026, 3, 3),
       makeAlignmentEntry(2025, 3, 8, 2026, 3, 1),
     ]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateKpiByAlignment(allAgg, undefined, ['S1'], alignment)
+    const result = aggregateKpiByAlignment(idx, ['S1'], alignment)
 
     expect(result.dailyMapping[0].currentDay).toBe(1)
     expect(result.dailyMapping[0].prevDay).toBe(8)
@@ -287,8 +307,9 @@ describe('aggregateKpiByAlignment', () => {
       S1: { 1: makeSummary(500) },
     }
     const alignment = [makeAlignmentEntry(2025, 3, 1, 2026, 3, 1)]
+    const idx = makeSourceIndex(allAgg, undefined)
 
-    const result = aggregateKpiByAlignment(allAgg, undefined, ['S1'], alignment)
+    const result = aggregateKpiByAlignment(idx, ['S1'], alignment)
 
     expect(result.sales).toBe(500)
     expect(result.customers).toBe(0)
@@ -334,8 +355,9 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
   // 全日を1:1でマッピング
   const allDays = [1, 2, 3, 5, 10, 15, 20, 28]
   const alignment = allDays.map((d) => makeAlignmentEntry(2025, 3, d, 2026, 3, d))
+  const idx = makeSourceIndex(allAgg, flowers)
 
-  const entry = aggregateKpiByAlignment(allAgg, flowers, allIds, alignment)
+  const entry = aggregateKpiByAlignment(idx, allIds, alignment)
 
   it('INV-AGG-001: Σ(storeContributions.sales) === entry.sales', () => {
     expect(entry.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(entry.sales)
@@ -368,7 +390,8 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
   })
 
   it('INV-AGG-009: 空入力 → ゼロ entry', () => {
-    const empty = aggregateKpiByAlignment({}, undefined, [], alignment)
+    const emptyIdx = makeSourceIndex({}, undefined)
+    const empty = aggregateKpiByAlignment(emptyIdx, [], alignment)
     expect(empty.sales).toBe(0)
     expect(empty.customers).toBe(0)
     expect(empty.transactionValue).toBe(0)
@@ -377,7 +400,7 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
   })
 
   it('一部店舗のみ選択しても不変条件1-4が成立', () => {
-    const partial = aggregateKpiByAlignment(allAgg, flowers, ['S1'], alignment)
+    const partial = aggregateKpiByAlignment(idx, ['S1'], alignment)
     expect(partial.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(partial.sales)
     expect(partial.storeContributions.reduce((s, c) => s + c.customers, 0)).toBe(partial.customers)
     expect(partial.dailyMapping.reduce((s, d) => s + d.prevSales, 0)).toBe(partial.sales)
@@ -385,14 +408,15 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
   })
 
   it('flowers データなしでも sales の不変条件は維持（customers=0）', () => {
-    const noFlowers = aggregateKpiByAlignment(allAgg, undefined, allIds, alignment)
+    const noFlowersIdx = makeSourceIndex(allAgg, undefined)
+    const noFlowers = aggregateKpiByAlignment(noFlowersIdx, allIds, alignment)
     expect(noFlowers.storeContributions.reduce((s, c) => s + c.sales, 0)).toBe(noFlowers.sales)
     expect(noFlowers.customers).toBe(0)
     expect(noFlowers.transactionValue).toBe(0)
   })
 })
 
-// ── 月跨ぎ: resolveSourceDay + SourceMonthContext ──
+// ── 月跨ぎ: SourceDataIndex による正しいリナンバリング解決 ──
 //
 // 実シナリオ: 2026年2月 vs 2025年2月（同曜日比較、DOW offset=1）
 //
@@ -411,7 +435,7 @@ describe('aggregateKpiByAlignment 集約不変条件', () => {
 //   2025/2/1 → day=1, ..., 2025/2/28 → day=28
 //   2025/3/1 → day=29（= 28 + 1）, 2025/3/2 → day=30, ...
 //
-// resolveSourceDay の変換:
+// SourceDataIndex の変換:
 //   source(2025,2,2) → 2（同月なのでそのまま）
 //   source(2025,3,1) → 29（翌月: daysInMonth(28) + 1 = 29）
 
@@ -445,6 +469,9 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
     daysInMonth: 28,
   }
 
+  // SourceDataIndex を構築（リナンバリングを封じ込める）
+  const idx = buildSourceDataIndex(allAgg, undefined, sourceMonthCtx)
+
   // 同日 alignmentMap: 2026/2/N → 2025/2/N（1:1）
   const sameDateAlignment = Array.from({ length: 28 }, (_, i) =>
     makeAlignmentEntry(2025, 2, i + 1, 2026, 2, i + 1),
@@ -462,13 +489,7 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
   const sameDowExpectedSales = feb2025DailySales.slice(1).reduce((s, v) => s + v, 0) + mar1Sales
 
   it('同日KPI: 2月1日〜28日の合計が正しい', () => {
-    const result = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDateAlignment,
-      sourceMonthCtx,
-    )
+    const result = aggregateKpiByAlignment(idx, ['S1'], sameDateAlignment)
 
     expect(result.sales).toBe(sameDateExpectedSales)
     expect(result.dailyMapping).toHaveLength(28)
@@ -479,13 +500,7 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
   })
 
   it('同曜日KPI: 2月2日〜28日 + 3月1日の合計（月跨ぎ含む）', () => {
-    const result = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDowAlignment,
-      sourceMonthCtx,
-    )
+    const result = aggregateKpiByAlignment(idx, ['S1'], sameDowAlignment)
 
     expect(result.sales).toBe(sameDowExpectedSales)
     expect(result.dailyMapping).toHaveLength(28)
@@ -498,20 +513,8 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
   })
 
   it('同曜日と同日の売上が異なる（2/1 が外れ 3/1 が入る）', () => {
-    const sameDateResult = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDateAlignment,
-      sourceMonthCtx,
-    )
-    const sameDowResult = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDowAlignment,
-      sourceMonthCtx,
-    )
+    const sameDateResult = aggregateKpiByAlignment(idx, ['S1'], sameDateAlignment)
+    const sameDowResult = aggregateKpiByAlignment(idx, ['S1'], sameDowAlignment)
 
     // 同日: 2/1〜2/28、同曜日: 2/2〜2/28 + 3/1
     // 差分 = 3月1日の売上 - 2月1日の売上
@@ -521,31 +524,8 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
     expect(sameDowResult.sales).not.toBe(sameDateResult.sales)
   })
 
-  it('sourceMonthCtx なしでは 3月1日 の lookup が誤る（day=1 で 2月1日を返す）', () => {
-    // sourceMonthCtx を渡さない場合、3月1日の sourceDate.day=1 がそのまま使われ
-    // allAgg[1]（2月1日のデータ）を引いてしまう
-    const resultWithoutCtx = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDowAlignment,
-      // sourceMonthCtx を渡さない
-    )
-
-    // 月跨ぎ日の売上が 2月1日の値（2047609）になってしまう（本来は 3月1日の 2150000）
-    const lastEntry = resultWithoutCtx.dailyMapping[27]
-    expect(lastEntry.prevSales).toBe(feb2025DailySales[0]) // バグ: 2月1日の値を返す
-    expect(lastEntry.prevSales).not.toBe(mar1Sales) // 本来あるべき値ではない
-  })
-
   it('aggregateDailyByAlignment も月跨ぎを正しく解決する', () => {
-    const result = aggregateDailyByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDowAlignment,
-      sourceMonthCtx,
-    )
+    const result = aggregateDailyByAlignment(idx, ['S1'], sameDowAlignment)
 
     expect(result.hasPrevYear).toBe(true)
     expect(result.totalSales).toBe(sameDowExpectedSales)
@@ -558,13 +538,7 @@ describe('月跨ぎ同曜日比較: 2026年2月 vs 2025年2月 (offset=1)', () =
   })
 
   it('不変条件: Σ(dailyMapping.prevSales) === entry.sales（月跨ぎでも）', () => {
-    const result = aggregateKpiByAlignment(
-      allAgg,
-      undefined,
-      ['S1'],
-      sameDowAlignment,
-      sourceMonthCtx,
-    )
+    const result = aggregateKpiByAlignment(idx, ['S1'], sameDowAlignment)
 
     expect(result.dailyMapping.reduce((s, d) => s + d.prevSales, 0)).toBe(result.sales)
   })
