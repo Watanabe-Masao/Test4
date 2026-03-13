@@ -14,10 +14,11 @@ import {
   calculateDiscountRate,
 } from '@/domain/calculations/estMethod'
 import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
+// bridge 経由: 将来の dual-run compare を観測可能にする
 import {
   calculateBudgetAnalysis,
   calculateGrossProfitBudget,
-} from '@/domain/calculations/budgetAnalysis'
+} from '@/application/services/budgetAnalysisBridge'
 import { safeDivide } from '@/domain/calculations/utils'
 import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import {

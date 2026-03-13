@@ -26,8 +26,7 @@ export type { EstMethodInput, EstMethodResult } from './estMethod'
 export { calculateDiscountImpact } from './discountImpact'
 export type { DiscountImpactInput, DiscountImpactResult } from './discountImpact'
 
-// 予算分析
-export { calculateBudgetAnalysis } from './budgetAnalysis'
+// 予算分析（型のみ re-export。runtime は budgetAnalysisBridge 経由で使用する）
 export type { BudgetAnalysisInput, BudgetAnalysisResult } from './budgetAnalysis'
 
 // 全店集計
