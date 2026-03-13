@@ -36,7 +36,7 @@ import { useMonthSwitcher } from '../useMonthSwitcher'
 
 beforeEach(() => {
   useDataStore.getState().reset()
-  useUiStore.getState().reset()
+  useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
   vi.clearAllMocks()
 })

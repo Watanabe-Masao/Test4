@@ -9,6 +9,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useDeviceSync } from '@/application/hooks/useDeviceSync'
 import { RawDataViewer, CTSViewer, type MonthEntry } from './StorageDataViewers'
+import { ClearAllDataSection } from './ClearAllDataSection'
 import {
   Section,
   SectionTitle,
@@ -103,7 +104,6 @@ export function StorageManagementTab() {
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
   const [deleteTarget, setDeleteTarget] = useState<{ year: number; month: number } | null>(null)
   const [deleting, setDeleting] = useState(false)
-
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
@@ -537,7 +537,14 @@ export function StorageManagementTab() {
         )}
       </Section>
 
-      {/* 削除確認ダイアログ */}
+      {/* ─── 全データ削除（危険操作） ─────────────────── */}
+      <ClearAllDataSection
+        monthCount={months.length}
+        totalRecords={grandTotalRecords}
+        onComplete={loadData}
+      />
+
+      {/* 月別削除確認ダイアログ */}
       {deleteTarget &&
         (() => {
           const targetEntry = months.find(

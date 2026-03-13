@@ -11,3 +11,7 @@ export { generateExplanations } from './explanation'
 // ─── Clip Export use case ────────────────────────────────
 export { buildClipBundle, renderClipHtml, downloadClipHtml } from './clipExport'
 export type { ClipBundle, BuildClipBundleParams } from './clipExport'
+
+// ─── Data Management use case ───────────────────────────
+export { clearAllData } from './dataManagement'
+export type { ClearAllDataEffects } from './dataManagement'
