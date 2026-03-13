@@ -370,3 +370,29 @@ dateRangeDays(period2) = dateRangeDays(period1) + 14
 - **テスト**: `ComparisonScopeInvariant.test.ts` — `INV-CMP-07`
 - **ロール**: invariant-guardian
 - **違反時の影響**: 集計の日数と表示の日数が不一致になる
+
+### INV-CMP-08: dailyMapping の独自 Map 変換禁止（sourceDate 劣化防止）
+
+```
+presentation 層・application/hooks 層で dailyMapping を直接ループして
+Map<number, { sales, customers }> を構築するコード = 0件
+（PrevYearBudgetDetailPanel.tsx は全フィールド保持のため許可）
+```
+
+- **テスト**: `comparisonMigrationGuard.test.ts` — `INV-CMP-08`
+- **ロール**: architecture
+- **違反時の影響**: DayMappingRow の sourceDate（prevYear/prevMonth/prevDay）が失われ、月跨ぎ時に出典追跡不能。前年比が 0 表示になるバグの再発源。
+- **正しい手段**: `buildSameDowPoints()` を唯一の入口として使用する
+
+### INV-CMP-09: buildSameDowPoints は sourceDate を保持する
+
+```
+∀ point ∈ buildSameDowPoints(mapping):
+  point.sourceDate = { year: row.prevYear, month: row.prevMonth, day: row.prevDay }
+Σ(points.sales) = Σ(mapping.prevSales)
+Σ(points.customers) = Σ(mapping.prevCustomers)
+```
+
+- **テスト**: `sameDowPoint.test.ts` — 7件
+- **ロール**: invariant-guardian
+- **違反時の影響**: 月跨ぎ同曜日比較（例: 2026/2/28 → 2025/3/1）で sourceDate.month が失われる

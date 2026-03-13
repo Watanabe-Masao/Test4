@@ -5,7 +5,7 @@
 
 ## クイックリファレンス表
 
-全7件。全ロールが遵守必須。
+全8件。全ロールが遵守必須。
 
 | # | 禁止事項 | 壊れるもの | 検出手段 |
 |---|---|---|---|
@@ -16,6 +16,7 @@
 | 5 | domain/ に外部依存・副作用を持ち込む | テストにモック必要、不変条件テスト実行困難 | architectureGuard.test.ts |
 | 6 | UI が生データソースを直接参照する | データソース混同、計算ロジック分散、テスト困難 | review-gate チェック |
 | 7 | UI に変換・副作用・状態管理を混在させる（God Component） | 717行の MetricBreakdownPanel 事件。Storybook 不可、テスト不可 | 300行閾値 + review-gate |
+| 8 | 比較データの sourceDate を落とす変換を行う | 月跨ぎ時の出典追跡不能、前年比0表示（buildPrevSameDowMap 事件） | comparisonMigrationGuard.test.ts (INV-CMP-08) + sameDowPoint.test.ts |
 
 ## チェック手順（review-gate 用）
 
@@ -26,6 +27,7 @@
 5. `npm test` で architectureGuard.test.ts が通ること
 6. 新規 UI コンポーネントが生データ（records[]）を直接触っていないか確認
 7. 新規/変更ファイルが 300行を超えていないか確認
+8. `dailyMapping` を直接ループする独自変換がないか確認（`buildSameDowPoints()` を経由すること）
 
 ---
 
@@ -188,3 +190,40 @@ ComponentName.styles.ts   — styled-component 定義のみ
 useComponentName.ts       — データ変換・状態管理・副作用（ViewModel フック）
 ComponentName.tsx         — ViewModel を受け取り JSX を返す（描画のみ）
 ```
+
+---
+
+### 8. 比較データの sourceDate を落とす変換を行ってはならない
+
+`DayMappingRow` の `prevYear`/`prevMonth`/`prevDay` を落として
+`Map<number, number>` や `Map<number, { sales, customers }>` に変換してはならない。
+同曜日比較の UI データは `buildSameDowPoints()` を唯一の入口とし、
+`SameDowPoint` 型（sourceDate を含む）を使うこと。
+
+**これをやると何が壊れるか:**
+`buildPrevSameDowMap()` が `DayMappingRow` を `Map<number, { sales, customers }>` に
+劣化させていた。月跨ぎ（例: 2026/2/28 → 2025/3/1）で、
+「その値は前年のどの実日付から来たか」が復元不能になった。
+デバッグ時に出典を追跡できず、ツールチップに正しい日付を表示できず、
+前年比が 0 として表示されるバグが長期間残った。
+
+**壊れるパターン:**
+- `dailyMapping` をループして独自の `Map<number, ...>` を構築する
+- `currentDay → sales` だけを抽出し、sourceDate を捨てる
+- 表とグラフで別々に `dailyMapping` を解釈する独自変換を作る
+
+**正しいパターン:**
+```typescript
+// buildSameDowPoints() を使う（comparisonTypes.ts で定義）
+const points = buildSameDowPoints(kpi.sameDow.dailyMapping)
+// 各 point は sourceDate を保持する
+const p = points.get(28)
+// p.sourceDate → { year: 2025, month: 3, day: 1 }
+// p.sales → 1722
+// p.customers → 80
+```
+
+**検出:**
+- ガードテスト `comparisonMigrationGuard.test.ts` (INV-CMP-08) が
+  presentation 層での `dailyMapping` 独自ループを検出する
+- `sameDowPoint.test.ts` が sourceDate 保持と合計整合性を検証する
