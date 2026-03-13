@@ -421,3 +421,18 @@ export function categoryShare(
     share: safeDivide(r.amount, total, 0),
   }))
 }
+
+// ─── 特徴量集約（rawAggregation/ から re-export）──────────
+
+export {
+  computeDowPattern,
+  computeDailyFeatures,
+  computeHourlyProfile,
+} from './rawAggregation/featureAggregation'
+export type {
+  DowPatternRow,
+  DailyFeatureRow,
+  HourlyProfileRow,
+  DowPatternInput,
+  DailyFeatureInput,
+} from './rawAggregation/featureAggregation'

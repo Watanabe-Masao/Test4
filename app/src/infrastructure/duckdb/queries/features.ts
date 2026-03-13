@@ -16,39 +16,15 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 import { validateDateKey, validateCode } from '../queryParams'
 
-// ── 結果型 ──
+// ── 結果型（domain/calculations/rawAggregation から re-export）──
 
-export interface DailyFeatureRow {
-  readonly storeId: string
-  readonly dateKey: string
-  readonly sales: number
-  readonly salesMa3: number | null
-  readonly salesMa7: number | null
-  readonly salesMa28: number | null
-  readonly salesDiff1d: number | null
-  readonly salesDiff7d: number | null
-  readonly cumulativeSales: number
-  readonly cv7day: number | null
-  readonly cv28day: number | null
-  readonly zScore: number | null
-  readonly spikeRatio: number | null
-}
+import type {
+  DailyFeatureRow,
+  HourlyProfileRow,
+  DowPatternRow,
+} from '@/domain/calculations/rawAggregation'
 
-export interface HourlyProfileRow {
-  readonly storeId: string
-  readonly hour: number
-  readonly totalAmount: number
-  readonly hourShare: number
-  readonly hourRank: number
-}
-
-export interface DowPatternRow {
-  readonly storeId: string
-  readonly dow: number
-  readonly avgSales: number
-  readonly dayCount: number
-  readonly salesStddev: number | null
-}
+export type { DailyFeatureRow, HourlyProfileRow, DowPatternRow }
 
 export interface DeptDailyTrendRow {
   readonly storeId: string
