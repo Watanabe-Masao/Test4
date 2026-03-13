@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { useUiStore } from '@/application/stores/uiStore'
-import { useSettingsStore } from '@/application/stores/settingsStore'
-import { calculationCache } from '@/application/services/calculationCache'
 import {
   useImport,
   useStoreSelection,
   useSettings,
-  usePersistence,
   useStorageAdmin,
   useAutoBackup,
   useAutoImport,
@@ -72,7 +68,6 @@ export function DataManagementSidebar({
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
-  const { clearAll } = usePersistence()
   const { listMonths } = useStorageAdmin()
   const repo = useRepository()
   const { loadedTypes, maxDayByType } = useDataSummary(data)
@@ -181,19 +176,6 @@ export function DataManagementSidebar({
     [resolveDiff, showToast],
   )
 
-  const handleClearData = useCallback(async () => {
-    useDataStore.getState().reset()
-    useUiStore.getState().reset()
-    useSettingsStore.getState().reset()
-    calculationCache.clear()
-    try {
-      await clearAll()
-      showToast('データをクリアしました', 'info')
-    } catch {
-      showToast('データクリアに失敗しました', 'error')
-    }
-  }, [clearAll, showToast])
-
   const daysInMonth = getDaysInMonth(settings.targetYear, settings.targetMonth)
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
   const hasNonBudgetData = detectedMaxDay > 0
@@ -291,11 +273,6 @@ export function DataManagementSidebar({
             <Button $variant="outline" onClick={() => setShowSettings(true)}>
               ⚙ 設定
             </Button>
-            {loadedTypes.size > 0 && (
-              <Button $variant="ghost" onClick={handleClearData}>
-                データクリア
-              </Button>
-            )}
           </SidebarActions>
         </SidebarSection>
       </Sidebar>

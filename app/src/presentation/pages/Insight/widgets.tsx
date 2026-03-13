@@ -5,6 +5,7 @@
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
 import type { WidgetDef } from '@/presentation/components/widgets'
+import { PiCvBubbleChart } from '@/presentation/components/charts'
 import { BudgetTabContent, GrossProfitTabContent } from './InsightTabBudget'
 import { ForecastTabContent, DecompositionTabContent } from './InsightTabForecast'
 
@@ -54,6 +55,24 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     isVisible: (ctx) =>
       ctx.insightData?.customerData != null && ctx.insightData?.forecastData != null,
   },
+  {
+    id: 'insight-pi-cv-map',
+    label: 'カテゴリベンチマーク',
+    group: '構造分析',
+    size: 'full',
+    isVisible: (ctx) => (ctx.duckDataVersion ?? 0) > 0,
+    render: (ctx) => {
+      if (!ctx.duckConn || !ctx.duckDataVersion || !ctx.currentDateRange) return null
+      return (
+        <PiCvBubbleChart
+          duckConn={ctx.duckConn}
+          duckDataVersion={ctx.duckDataVersion}
+          currentDateRange={ctx.currentDateRange}
+          selectedStoreIds={ctx.selectedStoreIds}
+        />
+      )
+    },
+  },
 ]
 
 export const DEFAULT_INSIGHT_WIDGET_IDS = [
@@ -72,4 +91,6 @@ export const DEFAULT_INSIGHT_WIDGET_IDS = [
   // 要因分解
   'insight-decomposition',
   'analysis-causal-chain',
+  // 構造分析（L3）
+  'insight-pi-cv-map',
 ]

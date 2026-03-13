@@ -6,10 +6,10 @@
  *
  * 表示項目:
  * - 日別売上（棒グラフ）
- * - 累積売上（面グラフ）
+ * - 累積売上（線グラフ）
  */
 import { useMemo, memo } from 'react'
-import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -72,8 +72,8 @@ export const CumulativeChart = memo(function CumulativeChart({
 
   if (error) {
     return (
-      <Wrapper aria-label="累積売上推移">
-        <Title>累積売上推移</Title>
+      <Wrapper aria-label="売上進捗">
+        <Title>売上進捗</Title>
         <ErrorMsg>
           {messages.errors.dataFetchFailed}: {error}
         </ErrorMsg>
@@ -93,9 +93,11 @@ export const CumulativeChart = memo(function CumulativeChart({
   const avgDaily = chartData.length > 0 ? Math.round(totalSales / chartData.length) : 0
 
   return (
-    <Wrapper aria-label="累積売上推移">
-      <Title>累積売上推移</Title>
-      <Subtitle>日別売上（棒）と累積売上（面）| 月跨ぎ対応</Subtitle>
+    <Wrapper aria-label="売上進捗">
+      <Title>売上進捗</Title>
+      <Subtitle>
+        累計 {fmt(totalSales)} | 日平均 {fmt(avgDaily)} | {chartData.length}日経過
+      </Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
@@ -126,14 +128,13 @@ export const CumulativeChart = memo(function CumulativeChart({
           />
           <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
-          <Area
+          <Line
             yAxisId="cumulative"
             dataKey="cumulative"
             name="累積売上"
-            fill={palette.primary}
-            fillOpacity={0.1}
             stroke={palette.primary}
             strokeWidth={2}
+            dot={false}
           />
           <Bar
             yAxisId="daily"

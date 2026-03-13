@@ -1,28 +1,16 @@
 /**
  * 曜日別売上パターンチャート (Group B1)
  *
- * 曜日別集計クエリを使い、曜日ごとの平均売上と全曜日平均比の
- * インデックスを表示する。平均以上/以下で棒の色を分ける。
+ * 曜日別集計クエリを使い、曜日ごとの平均売上を表示する。
+ * 平均以上/以下で棒の濃度を分ける。
  *
  * 表示項目:
- * - 曜日別平均売上（棒グラフ、色分け）
+ * - 曜日別平均売上（棒グラフ、opacity 色分け）
  * - 全曜日平均ライン（ReferenceLine）
- * - 平均比インデックス（折れ線、右軸、%表示）
- * - サマリー行: 最強曜日 / 最弱曜日 / 週内変動率(CV)
+ * - サマリー行: 最多曜日 / 最少曜日 / 全曜日平均 / CV
  */
 import { useMemo, memo } from 'react'
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-  Cell,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts'
 import { SafeResponsiveContainer as ResponsiveContainer } from '@/presentation/components/charts/SafeResponsiveContainer'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
@@ -54,7 +42,6 @@ interface ChartDataPoint {
   readonly dow: number
   readonly label: string
   readonly avgSales: number
-  readonly index: number
 }
 
 interface DowSummary {
@@ -85,12 +72,10 @@ function buildChartData(rows: readonly DowPatternRow[]): DowSummary {
   const totalSales = dowEntries.reduce((sum, e) => sum + e.avgSales, 0)
   const overallAvg = dowEntries.length > 0 ? totalSales / dowEntries.length : 0
 
-  // Build chart data with index (avgSales / overallAvg)
   const chartData: ChartDataPoint[] = dowEntries.map((e) => ({
     dow: e.dow,
     label: DOW_LABELS[e.dow],
     avgSales: e.avgSales,
-    index: overallAvg > 0 ? e.avgSales / overallAvg : 0,
   }))
 
   // Find strongest / weakest
@@ -167,10 +152,12 @@ export const DowPatternChart = memo(function DowPatternChart({
   return (
     <Wrapper aria-label="曜日別売上パターン">
       <Title>曜日別売上パターン</Title>
-      <Subtitle>曜日別平均売上 | 赤線 = 全曜日平均</Subtitle>
+      <Subtitle>
+        {strongestDow}曜に売上が集中しています（CV {toPct(cv, 1)}）
+      </Subtitle>
 
       <ResponsiveContainer width="100%" height={300}>
-        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
+        <BarChart data={chartData} margin={{ top: 4, right: 20, left: 10, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} strokeOpacity={0.5} />
           <XAxis
             dataKey="label"
@@ -178,71 +165,50 @@ export const DowPatternChart = memo(function DowPatternChart({
             stroke={ct.grid}
           />
           <YAxis
-            yAxisId="sales"
             tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
             stroke={ct.grid}
             tickFormatter={toAxisYen}
           />
-          <YAxis
-            yAxisId="index"
-            orientation="right"
-            tick={{ fontSize: ct.fontSize.xs, fill: ct.textMuted }}
-            stroke={ct.grid}
-            tickFormatter={(v: number) => toPct(v, 0)}
-          />
           <Tooltip
             content={createChartTooltip({
               ct,
-              formatter: (value: unknown, name: string) => {
+              formatter: (value: unknown) => {
                 if (value == null) return ['-', null]
-                if (name === 'インデックス') return [toPct(Number(value), 1), null]
                 return [fmt(Number(value)), null]
               },
             })}
           />
-          <Legend wrapperStyle={{ fontSize: '0.6rem' }} />
 
-          {/* 曜日別平均売上（色分け棒グラフ） */}
-          <Bar yAxisId="sales" dataKey="avgSales" name="平均売上" barSize={32}>
+          <Bar dataKey="avgSales" name="平均売上" barSize={32}>
             {chartData.map((entry) => (
               <Cell
                 key={entry.dow}
-                fill={entry.avgSales >= overallAvg ? palette.primary : palette.slate}
+                fill={palette.primary}
+                fillOpacity={entry.avgSales >= overallAvg ? 1 : 0.5}
               />
             ))}
           </Bar>
 
-          {/* インデックス線（右軸） */}
-          <Line
-            yAxisId="index"
-            dataKey="index"
-            name="インデックス"
-            stroke={palette.cyan}
-            strokeWidth={2}
-            dot={{ r: 3, fill: palette.cyan }}
-          />
-
-          {/* 全曜日平均ライン */}
           <ReferenceLine
-            yAxisId="sales"
             y={overallAvg}
             stroke={palette.dangerDark}
             strokeWidth={1.5}
             strokeDasharray="6 3"
             label={{
-              value: `平均 ${fmt(overallAvg)}`,
+              value: '全曜日平均',
               position: 'right',
               fontSize: ct.fontSize.xs,
               fill: palette.dangerDark,
             }}
           />
-        </ComposedChart>
+        </BarChart>
       </ResponsiveContainer>
 
       <SummaryRow>
-        <SummaryItem>最強曜日: {strongestDow}</SummaryItem>
-        <SummaryItem>最弱曜日: {weakestDow}</SummaryItem>
-        <SummaryItem>週内変動率: {toPct(cv, 1)}</SummaryItem>
+        <SummaryItem>最多: {strongestDow}曜</SummaryItem>
+        <SummaryItem>最少: {weakestDow}曜</SummaryItem>
+        <SummaryItem>全曜日平均: {fmt(overallAvg)}</SummaryItem>
+        <SummaryItem>CV: {toPct(cv, 1)}</SummaryItem>
       </SummaryRow>
     </Wrapper>
   )

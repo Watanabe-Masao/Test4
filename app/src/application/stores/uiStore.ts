@@ -18,7 +18,7 @@ export interface UiStore {
   setCalculated: (isCalculated: boolean) => void
   invalidateCalculation: () => void
   setCurrencyUnit: (unit: CurrencyUnit) => void
-  reset: () => void
+  resetTransientState: () => void
 }
 
 // ─── Store ────────────────────────────────────────────
@@ -56,7 +56,7 @@ export const useUiStore = create<UiStore>()(
 
         setCurrencyUnit: (unit) => set({ currencyUnit: unit }, false, 'setCurrencyUnit'),
 
-        reset: () =>
+        resetTransientState: () =>
           set(
             {
               selectedStoreIds: new Set<string>(),
@@ -64,7 +64,7 @@ export const useUiStore = create<UiStore>()(
               isImporting: false,
             },
             false,
-            'reset',
+            'resetTransientState',
           ),
       }),
       {

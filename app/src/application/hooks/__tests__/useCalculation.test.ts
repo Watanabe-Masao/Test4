@@ -62,7 +62,7 @@ import { validateImportedData, hasValidationErrors } from '@/application/usecase
 
 beforeEach(() => {
   useDataStore.getState().reset()
-  useUiStore.getState().reset()
+  useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
   vi.clearAllMocks()
 })

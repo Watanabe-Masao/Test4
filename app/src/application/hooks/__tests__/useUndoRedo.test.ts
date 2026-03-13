@@ -15,7 +15,7 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 
 beforeEach(() => {
   useDataStore.getState().reset()
-  useUiStore.getState().reset()
+  useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
 })
 

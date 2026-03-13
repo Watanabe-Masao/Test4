@@ -42,7 +42,7 @@ import { calculateDiff } from '@/application/services/diffCalculator'
 
 beforeEach(() => {
   useDataStore.getState().reset()
-  useUiStore.getState().reset()
+  useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
   vi.clearAllMocks()
 })

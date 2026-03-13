@@ -15,7 +15,7 @@ import { createEmptyImportedData } from '@/domain/models'
 
 beforeEach(() => {
   useDataStore.getState().reset()
-  useUiStore.getState().reset()
+  useUiStore.getState().resetTransientState()
   useSettingsStore.getState().reset()
 })
 

@@ -3,7 +3,7 @@ import { useUiStore } from '../uiStore'
 
 describe('uiStore', () => {
   beforeEach(() => {
-    useUiStore.getState().reset()
+    useUiStore.getState().resetTransientState()
   })
 
   it('初期状態のデフォルト値', () => {
@@ -61,12 +61,12 @@ describe('uiStore', () => {
     expect(useUiStore.getState().isCalculated).toBe(false)
   })
 
-  it('reset で状態がリセットされる', () => {
+  it('resetTransientState で一時状態がリセットされる', () => {
     useUiStore.getState().toggleStore('s1')
     useUiStore.getState().setImporting(true)
     useUiStore.getState().setCalculated(true)
 
-    useUiStore.getState().reset()
+    useUiStore.getState().resetTransientState()
 
     const state = useUiStore.getState()
     expect(state.selectedStoreIds.size).toBe(0)

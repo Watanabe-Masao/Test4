@@ -1,6 +1,6 @@
 import {
   DailySalesChart,
-  CategoryPieChart,
+  CategoryRankingCard,
   GrossProfitAmountChart,
   DiscountTrendChart,
   CategoryHierarchyExplorer,
@@ -38,11 +38,11 @@ export const WIDGETS_CHART: readonly WidgetDef[] = [
   // 注: 予算vs実績チャート → DailySalesChart「累計推移」ビューに統合
   {
     id: 'chart-category-pie',
-    label: 'カテゴリ別構成',
+    label: 'カテゴリ偏り',
     group: '収益概況',
     size: 'half',
     linkTo: { view: 'category' },
-    render: ({ result: r }) => <CategoryPieChart categoryTotals={r.categoryTotals} />,
+    render: ({ result: r }) => <CategoryRankingCard categoryTotals={r.categoryTotals} />,
   },
   {
     id: 'chart-gross-profit-amount',
