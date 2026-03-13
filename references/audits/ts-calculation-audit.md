@@ -16,7 +16,6 @@
 | `application/usecases/calculation/storeAssembler.ts` | `calculateTransferTotals()` | 34-46 | inline helper | 移動合計は StoreResult フィールドを決定する | **Step 3.2** |
 | `application/usecases/calculation/periodMetricsCalculator.ts` | `calculatePeriodMetrics()` 内の値入率計算 | 170-180 | inline | storeAssembler と同一パターンの重複。domain/ の共通関数に統合 | **Step 3.1** |
 | `application/usecases/calculation/periodMetricsCalculator.ts` | `calculatePeriodMetrics()` 内のコスト集計 | 155-164 | inline | storeAssembler と同一パターンの重複 | **Step 3.2** |
-| `application/usecases/calculation/periodMetricsCalculator.ts` | `aggregateSummaryRows()` | 92-134 | export | pure な行集約。データ構成処理として domain/ 候補 | **将来** |
 | `application/usecases/calculation/collectionAggregator.ts` | `calculateMarkupRates()` | - | export | 別シグネチャだが同じ業務意味の値入率計算 | **Step 3.1** |
 
 ### Category B: Pure + Exploration（現状維持 or rawAggregation 統合）
@@ -40,6 +39,7 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 | `presentation/components/charts/*/*.vm.ts` | 各 `buildViewModel` | ViewModel 変換。TS 残留 |
 | `application/usecases/dailySalesTransform.ts` | `buildBaseDayItems()`, `buildWaterfallData()` | 表示データ構築。TS 残留 |
 | `application/comparison/comparisonVm.ts` | `toYoyDailyRowVm()` | VM 変換。TS 残留 |
+| `application/usecases/calculation/periodMetricsCalculator.ts` | `aggregateSummaryRows()` | SQL結果形状（`DaySummaryInput`）を集約する処理。domain/ はインフラ型を知るべきでないため application 残留 |
 | `application/usecases/explanation/*` | 各 explanation builder | メタデータ登録。TS 残留 |
 | `application/usecases/departmentKpi/indexBuilder.ts` | 加重平均・ランキング計算 | 探索用表示。TS 残留 |
 | `application/hooks/useBudgetChartData.ts` | 累積チャートデータ構築 | ViewModel。TS 残留 |
@@ -51,7 +51,7 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 
 | ファイル | 関数 | 行 | 判断 |
 |----------|------|---|------|
-| `application/usecases/calculation/dailyBuilder.ts` | `buildDailyRecords()` | 17-224 | **Phase 2-3 で分解実施済み。** 319行→224行。`buildTransferBreakdown()` と `aggregateSupplierDay()` を `dailyBuilderHelpers.ts` に抽出。さらなる分解候補: 月次アキュムレーション部分 |
+| `application/usecases/calculation/dailyBuilder.ts` | `buildDailyRecords()` | 17-223 | **Phase 2-3 + 残留 Task 1 で分解完了。** 319行→223行。`dailyBuilderHelpers.ts` に3関数を抽出: `buildTransferBreakdown()`, `aggregateSupplierDay()`, `accumulateDay()` |
 
 ### Category E: Non-pure（TS 残留）
 
@@ -174,8 +174,7 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 ### Tier 2/3 の FFI 化方針
 
 **forecast (Tier 2):**
-- 入力 `ForecastInput.dailySales: ReadonlyMap<number, number>` → `Record<number, number>` に変換するアダプタを用意
-- FFI 境界で `Object.entries()` → Rust 側で `HashMap` に変換
+- **変更不要。** `buildForecastInput()` が既に ReadonlyMap → Record 変換を担当。呼び出し元6箇所で安定
 - 出力はそのまま serializable
 
 **budgetAnalysis (Tier 3):**
