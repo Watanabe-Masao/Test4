@@ -272,7 +272,10 @@ export function aggregateKpiByAlignment(
 
   let totalSales = 0
   let totalCustomers = 0
-  const dayMap = new Map<number, { prevDay: number; sales: number; customers: number }>()
+  const dayMap = new Map<
+    number,
+    { prevDay: number; prevMonth: number; prevYear: number; sales: number; customers: number }
+  >()
   const storeContributions: StoreContribution[] = []
 
   for (const entry of alignmentMap) {
@@ -309,7 +312,13 @@ export function aggregateKpiByAlignment(
         existing.sales += sales
         existing.customers += customers
       } else {
-        dayMap.set(tgtDay, { prevDay: srcDay, sales, customers })
+        dayMap.set(tgtDay, {
+          prevDay: entry.sourceDate.day,
+          prevMonth: entry.sourceDate.month,
+          prevYear: entry.sourceDate.year,
+          sales,
+          customers,
+        })
       }
     }
   }
@@ -318,6 +327,8 @@ export function aggregateKpiByAlignment(
     .sort(([a], [b]) => a - b)
     .map(([currentDay, d]) => ({
       prevDay: d.prevDay,
+      prevMonth: d.prevMonth,
+      prevYear: d.prevYear,
       currentDay,
       prevSales: d.sales,
       prevCustomers: d.customers,

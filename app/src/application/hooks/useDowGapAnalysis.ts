@@ -18,6 +18,8 @@ export type { DowGapAnalysis }
 interface DayMapping {
   readonly currentDay: number
   readonly prevDay: number
+  readonly prevMonth: number
+  readonly prevYear: number
   readonly prevSales: number
 }
 
