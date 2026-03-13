@@ -1,4 +1,5 @@
-use crate::types::{ThreeFactorResult, TwoFactorResult};
+use crate::price_mix::decompose_price_mix;
+use crate::types::{FiveFactorResult, ThreeFactorResult, TwoFactorResult};
 use crate::utils::safe_divide;
 
 /// S = C × T (customers × ticket price) Shapley decomposition
@@ -48,6 +49,49 @@ pub fn decompose3(
             * sixth
             * (2.0 * c0 * q0 + c1 * q0 + c0 * q1 + 2.0 * c1 * q1),
     }
+}
+
+/// S = C × Q × P̄ split into 4 factors: customer + qty + price + mix
+///
+/// Composes 3-variable Shapley (decompose3) with price/mix decomposition:
+/// 1. decompose3 → cust_effect, qty_effect, price_per_item_effect
+/// 2. decompose_price_mix → price_effect, mix_effect (ratio)
+/// 3. Split price_per_item_effect by the price/mix ratio
+///
+/// Returns None when price/mix decomposition is not computable
+/// (empty categories or zero total quantity in either period).
+pub fn decompose5(
+    prev_sales: f64,
+    cur_sales: f64,
+    prev_cust: f64,
+    cur_cust: f64,
+    prev_total_qty: f64,
+    cur_total_qty: f64,
+    cur_categories: &[(String, f64, f64)],
+    prev_categories: &[(String, f64, f64)],
+) -> Option<FiveFactorResult> {
+    let d3 = decompose3(prev_sales, cur_sales, prev_cust, cur_cust, prev_total_qty, cur_total_qty);
+
+    let pm = decompose_price_mix(cur_categories, prev_categories)?;
+
+    let pm_total = pm.price_effect + pm.mix_effect;
+    let (price_effect, mix_effect) = if pm_total.abs() < 1.0 {
+        // Near-zero price change: split equally
+        (d3.price_per_item_effect * 0.5, d3.price_per_item_effect * 0.5)
+    } else {
+        let price_fraction = pm.price_effect / pm_total;
+        (
+            d3.price_per_item_effect * price_fraction,
+            d3.price_per_item_effect * (1.0 - price_fraction),
+        )
+    };
+
+    Some(FiveFactorResult {
+        cust_effect: d3.cust_effect,
+        qty_effect: d3.qty_effect,
+        price_effect,
+        mix_effect,
+    })
 }
 
 #[cfg(test)]
