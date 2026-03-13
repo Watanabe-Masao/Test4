@@ -323,7 +323,7 @@ DuckDB → IndexedDB の書き戻しは禁止。
 | 6 | discountImpact | Tier 1 ✅ | scalar。売変インパクト |
 | 7 | pinIntervals | Tier 1 ✅ | scalar + array |
 | 8 | forecast | Tier 2 ⚠️ | 入力に ReadonlyMap。出力は serializable |
-| 9 | budgetAnalysis | Tier 3 ❌ | 入出力とも ReadonlyMap。型リファクタリング必要 |
+| 9 | budgetAnalysis | Tier 1 ✅ | Record ベースに変更済み。StoreResult 側は application 層で Map↔Record 変換 |
 
 **Pure Analytics Substrate（FFI Tier 付き）:**
 

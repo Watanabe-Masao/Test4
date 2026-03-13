@@ -194,16 +194,20 @@ export function assembleStoreResult(
   // 予算
   const { budget, budgetDaily, gpBudget } = resolveBudget(storeId, data, settings, daysInMonth)
 
-  // 予算分析
-  const salesDaily = new Map<number, number>()
+  // 予算分析（domain 関数は Record ベース — Map↔Record 変換）
+  const salesDailyRecord: Record<number, number> = {}
   for (const [d, rec] of acc.daily) {
-    salesDaily.set(d, rec.sales)
+    salesDailyRecord[d] = rec.sales
+  }
+  const budgetDailyRecord: Record<number, number> = {}
+  for (const [d, v] of budgetDaily) {
+    budgetDailyRecord[d] = v
   }
   const budgetAnalysis = calculateBudgetAnalysis({
     totalSales: acc.totalSales,
     budget,
-    budgetDaily,
-    salesDaily,
+    budgetDaily: budgetDailyRecord,
+    salesDaily: salesDailyRecord,
     elapsedDays: acc.elapsedDays,
     salesDays: acc.salesDays,
     daysInMonth,
@@ -277,7 +281,9 @@ export function assembleStoreResult(
     budgetVariance: budgetAnalysis.budgetVariance,
     requiredDailySales: budgetAnalysis.requiredDailySales,
     remainingBudget: budgetAnalysis.remainingBudget,
-    dailyCumulative: budgetAnalysis.dailyCumulative,
+    dailyCumulative: new Map(
+      Object.entries(budgetAnalysis.dailyCumulative).map(([k, v]) => [Number(k), v]),
+    ),
     grossProfitBudgetVariance: gpBudgetAnalysis.grossProfitBudgetVariance,
     grossProfitProgressGap: gpBudgetAnalysis.grossProfitProgressGap,
     requiredDailyGrossProfit: gpBudgetAnalysis.requiredDailyGrossProfit,

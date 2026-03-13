@@ -138,7 +138,7 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 | 6 | discountImpact | Tier 1 ✅ | `DiscountImpactInput` (scalar) | `DiscountImpactResult` (scalar) | utils (safeDivide) | 売変インパクト |
 | 7 | pinIntervals | Tier 1 ✅ | scalar + array | `PinInterval[]` (plain object) | なし | ピン間隔計算 |
 | 8 | forecast | Tier 2 ⚠️ | `ReadonlyMap<number, number>` 入力 | plain object array | utils (safeDivide) | 入力アダプタ必要 |
-| 9 | budgetAnalysis | Tier 3 ❌ | `ReadonlyMap` 入力 | `ReadonlyMap` 出力 | utils (safeDivide) | 入出力とも非 serializable |
+| 9 | budgetAnalysis | Tier 1 ✅ | `Record<number, number>` 入力 | `Record<number, {...}>` 出力 | utils (safeDivide) | **Tier 3→1 昇格済み** (ReadonlyMap → Record) |
 
 ### Pure Analytics Substrate（分析基盤。authoritative ではないが pure）
 
@@ -167,9 +167,9 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 
 | Tier | 定義 | 該当数 | モジュール |
 |---|---|---|---|
-| **Tier 1** | 入出力とも JSON serializable。そのまま FFI 境界にできる | 7 Authoritative + 4 Substrate | factorDecomposition, markupRate, costAggregation, invMethod, estMethod, discountImpact, pinIntervals / rawAggregation, correlation, trendAnalysis, sensitivity |
+| **Tier 1** | 入出力とも JSON serializable。そのまま FFI 境界にできる | 8 Authoritative + 4 Substrate | factorDecomposition, markupRate, costAggregation, invMethod, estMethod, discountImpact, pinIntervals, budgetAnalysis / rawAggregation, correlation, trendAnalysis, sensitivity |
 | **Tier 2** | 入力に ReadonlyMap あり。出力は serializable。入力アダプタで対応可 | 1 Authoritative + 1 Substrate | forecast / advancedForecast |
-| **Tier 3** | 入出力とも非 serializable。FFI 化には型リファクタリングが必要 | 1 Authoritative | budgetAnalysis |
+| **Tier 3** | 入出力とも非 serializable。FFI 化には型リファクタリングが必要 | 0 | (全 Authoritative モジュールが Tier 1-2 に昇格済み) |
 
 ### Tier 2/3 の FFI 化方針
 
@@ -177,10 +177,10 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 - **変更不要。** `buildForecastInput()` が既に ReadonlyMap → Record 変換を担当。呼び出し元6箇所で安定
 - 出力はそのまま serializable
 
-**budgetAnalysis (Tier 3):**
-- 入力: `budgetDaily`, `salesDaily` が ReadonlyMap → Record に変換
-- 出力: `dailyCumulative: ReadonlyMap` → `Record` または `Array<{day, sales, budget}>` に変更
-- **型リファクタリングが必要**。別タスクとして実施
+**budgetAnalysis (Tier 1 — 昇格済み):**
+- 入力: `budgetDaily`, `salesDaily` を `Readonly<Record<number, number>>` に変更済み
+- 出力: `dailyCumulative` を `Readonly<Record<number, {sales, budget}>>` に変更済み
+- storeAssembler.ts で Map↔Record 変換を実施（StoreResult 側は ReadonlyMap のまま維持）
 
 ### 依存グラフ
 

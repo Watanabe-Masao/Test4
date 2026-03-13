@@ -1,21 +1,21 @@
 import { describe, it, expect } from 'vitest'
 import { calculateBudgetAnalysis } from './budgetAnalysis'
 
-function makeUniformBudget(totalBudget: number, days: number): ReadonlyMap<number, number> {
+function makeUniformBudget(totalBudget: number, days: number): Readonly<Record<number, number>> {
   const daily = totalBudget / days
-  const map = new Map<number, number>()
+  const rec: Record<number, number> = {}
   for (let d = 1; d <= days; d++) {
-    map.set(d, daily)
+    rec[d] = daily
   }
-  return map
+  return rec
 }
 
 describe('calculateBudgetAnalysis', () => {
   it('基本的な予算分析', () => {
     const budgetDaily = makeUniformBudget(6_000_000, 28)
-    const salesDaily = new Map<number, number>()
+    const salesDaily: Record<number, number> = {}
     for (let d = 1; d <= 14; d++) {
-      salesDaily.set(d, 250_000) // 14日 × 250,000 = 3,500,000
+      salesDaily[d] = 250_000 // 14日 × 250,000 = 3,500,000
     }
 
     const result = calculateBudgetAnalysis({
@@ -42,8 +42,8 @@ describe('calculateBudgetAnalysis', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 1_000_000,
       budget: 0,
-      budgetDaily: new Map(),
-      salesDaily: new Map([[1, 1_000_000]]),
+      budgetDaily: {},
+      salesDaily: { 1: 1_000_000 },
       elapsedDays: 1,
       salesDays: 1,
       daysInMonth: 30,
@@ -58,7 +58,7 @@ describe('calculateBudgetAnalysis', () => {
       totalSales: 0,
       budget: 6_000_000,
       budgetDaily: makeUniformBudget(6_000_000, 30),
-      salesDaily: new Map(),
+      salesDaily: {},
       elapsedDays: 0,
       salesDays: 0,
       daysInMonth: 30,
@@ -70,15 +70,15 @@ describe('calculateBudgetAnalysis', () => {
   })
 
   it('日別累計が正しく計算されること', () => {
-    const budgetDaily = new Map<number, number>([
-      [1, 100_000],
-      [2, 200_000],
-      [3, 300_000],
-    ])
-    const salesDaily = new Map<number, number>([
-      [1, 150_000],
-      [2, 250_000],
-    ])
+    const budgetDaily: Record<number, number> = {
+      1: 100_000,
+      2: 200_000,
+      3: 300_000,
+    }
+    const salesDaily: Record<number, number> = {
+      1: 150_000,
+      2: 250_000,
+    }
 
     const result = calculateBudgetAnalysis({
       totalSales: 400_000,
@@ -90,26 +90,23 @@ describe('calculateBudgetAnalysis', () => {
       daysInMonth: 3,
     })
 
-    expect(result.dailyCumulative.get(1)).toEqual({ sales: 150_000, budget: 100_000 })
-    expect(result.dailyCumulative.get(2)).toEqual({ sales: 400_000, budget: 300_000 })
-    expect(result.dailyCumulative.get(3)).toEqual({ sales: 400_000, budget: 600_000 })
+    expect(result.dailyCumulative[1]).toEqual({ sales: 150_000, budget: 100_000 })
+    expect(result.dailyCumulative[2]).toEqual({ sales: 400_000, budget: 300_000 })
+    expect(result.dailyCumulative[3]).toEqual({ sales: 400_000, budget: 600_000 })
   })
 
   it('予算消化率の計算', () => {
-    const budgetDaily = new Map<number, number>([
-      [1, 200_000],
-      [2, 200_000],
-      [3, 200_000],
-    ])
+    const budgetDaily: Record<number, number> = {
+      1: 200_000,
+      2: 200_000,
+      3: 200_000,
+    }
 
     const result = calculateBudgetAnalysis({
       totalSales: 500_000,
       budget: 600_000,
       budgetDaily,
-      salesDaily: new Map([
-        [1, 200_000],
-        [2, 300_000],
-      ]),
+      salesDaily: { 1: 200_000, 2: 300_000 },
       elapsedDays: 2,
       salesDays: 2,
       daysInMonth: 3,
@@ -126,8 +123,8 @@ describe('calculateBudgetAnalysis', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 0,
       budget: 1_000_000,
-      budgetDaily: new Map(),
-      salesDaily: new Map(),
+      budgetDaily: {},
+      salesDaily: {},
       elapsedDays: 5,
       salesDays: 0,
       daysInMonth: 30,
@@ -140,7 +137,7 @@ describe('calculateBudgetAnalysis', () => {
       totalSales: 7_500_000,
       budget: 6_000_000,
       budgetDaily: makeUniformBudget(6_000_000, 31),
-      salesDaily: new Map(Array.from({ length: 31 }, (_, i) => [i + 1, 241_935])),
+      salesDaily: Object.fromEntries(Array.from({ length: 31 }, (_, i) => [i + 1, 241_935])),
       elapsedDays: 31,
       salesDays: 31,
       daysInMonth: 31,
@@ -155,7 +152,7 @@ describe('calculateBudgetAnalysis', () => {
       totalSales: 1_000_000,
       budget: 10_000_000,
       budgetDaily: makeUniformBudget(10_000_000, 30),
-      salesDaily: new Map([[1, 1_000_000]]),
+      salesDaily: { 1: 1_000_000 },
       elapsedDays: 15,
       salesDays: 1,
       daysInMonth: 30,
@@ -170,15 +167,8 @@ describe('calculateBudgetAnalysis', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 500_000,
       budget: 600_000,
-      budgetDaily: new Map([
-        [1, 200_000],
-        [2, 200_000],
-        [3, 200_000],
-      ]),
-      salesDaily: new Map([
-        [1, 200_000],
-        [2, 300_000],
-      ]),
+      budgetDaily: { 1: 200_000, 2: 200_000, 3: 200_000 },
+      salesDaily: { 1: 200_000, 2: 300_000 },
       elapsedDays: 2,
       salesDays: 2,
       daysInMonth: 3,
@@ -194,12 +184,8 @@ describe('calculateBudgetAnalysis', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 100_000,
       budget: 600_000,
-      budgetDaily: new Map([
-        [1, 200_000],
-        [2, 200_000],
-        [3, 200_000],
-      ]),
-      salesDaily: new Map([[1, 100_000]]),
+      budgetDaily: { 1: 200_000, 2: 200_000, 3: 200_000 },
+      salesDaily: { 1: 100_000 },
       elapsedDays: 2,
       salesDays: 1,
       daysInMonth: 3,
@@ -215,15 +201,8 @@ describe('calculateBudgetAnalysis', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 500_000,
       budget: 600_000,
-      budgetDaily: new Map([
-        [1, 200_000],
-        [2, 200_000],
-        [3, 200_000],
-      ]),
-      salesDaily: new Map([
-        [1, 200_000],
-        [2, 300_000],
-      ]),
+      budgetDaily: { 1: 200_000, 2: 200_000, 3: 200_000 },
+      salesDaily: { 1: 200_000, 2: 300_000 },
       elapsedDays: 2,
       salesDays: 2,
       daysInMonth: 3,
@@ -239,7 +218,7 @@ describe('calculateBudgetAnalysis', () => {
       totalSales: 3_500_000,
       budget: 6_000_000,
       budgetDaily: makeUniformBudget(6_000_000, 28),
-      salesDaily: new Map(Array.from({ length: 14 }, (_, i) => [i + 1, 250_000])),
+      salesDaily: Object.fromEntries(Array.from({ length: 14 }, (_, i) => [i + 1, 250_000])),
       elapsedDays: 14,
       salesDays: 14,
       daysInMonth: 28,
@@ -255,7 +234,7 @@ describe('calculateBudgetAnalysis', () => {
       totalSales: 7_500_000,
       budget: 6_000_000,
       budgetDaily: makeUniformBudget(6_000_000, 31),
-      salesDaily: new Map(Array.from({ length: 31 }, (_, i) => [i + 1, 241_935])),
+      salesDaily: Object.fromEntries(Array.from({ length: 31 }, (_, i) => [i + 1, 241_935])),
       elapsedDays: 31,
       salesDays: 31,
       daysInMonth: 31,
