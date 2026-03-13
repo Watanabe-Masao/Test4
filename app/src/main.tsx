@@ -13,3 +13,10 @@ createRoot(document.getElementById('root')!).render(
 if (import.meta.env.PROD) {
   registerServiceWorker()
 }
+
+// WASM: factorDecomposition エンジン初期化（DEV のみ、非同期 fire-and-forget）
+if (import.meta.env.DEV) {
+  import('@/application/services/wasmEngine').then(({ initFactorDecompositionWasm }) => {
+    initFactorDecompositionWasm()
+  })
+}
