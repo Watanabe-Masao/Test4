@@ -7,7 +7,7 @@
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { decompose2 } from '@/domain/calculations/factorDecomposition'
+import { decompose2 } from '@/application/services/factorDecompositionBridge'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 
 export interface ShapleyDayItem {

@@ -10,7 +10,7 @@ import {
   decompose3,
   decompose5,
   decomposePriceMix,
-} from '@/domain/calculations/factorDecomposition'
+} from '@/application/services/factorDecompositionBridge'
 import type {
   TwoFactorResult,
   ThreeFactorResult,

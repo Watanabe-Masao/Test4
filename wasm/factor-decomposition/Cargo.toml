@@ -1,0 +1,22 @@
+[package]
+name = "factor-decomposition-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Shapley-based factor decomposition for sales analysis (WASM target)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[dev-dependencies]
+# Property testing omitted for now — golden fixtures suffice for Phase 5
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false  # Disable binaryen optimization (not available in this environment)
+
+[profile.release]
+opt-level = "s"   # Optimize for size (small WASM binary)
+lto = true

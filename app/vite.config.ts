@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 import { resolve } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 
@@ -20,7 +22,7 @@ function swVersionPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), swVersionPlugin()],
+  plugins: [react(), wasm(), topLevelAwait(), swVersionPlugin()],
   base: '/Test4/',
   resolve: {
     alias: {
@@ -28,7 +30,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['@duckdb/duckdb-wasm'],
+    exclude: ['@duckdb/duckdb-wasm', 'factor-decomposition-wasm'],
   },
   assetsInclude: ['**/*.wasm'],
   build: {
