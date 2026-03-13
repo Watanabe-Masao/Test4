@@ -29,7 +29,11 @@ interface MismatchEntry {
   readonly sumInvariantTs: 'ok' | 'violated'
   readonly sumInvariantWasm: 'ok' | 'violated'
   readonly inputSummary: Record<string, number | undefined>
-  readonly classification: 'numeric-within-tolerance' | 'numeric-over-tolerance' | 'invariant-violation' | 'null-mismatch'
+  readonly classification:
+    | 'numeric-within-tolerance'
+    | 'numeric-over-tolerance'
+    | 'invariant-violation'
+    | 'null-mismatch'
 }
 
 /* ── 内部状態 ─────────────────────────────────── */

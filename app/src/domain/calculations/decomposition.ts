@@ -3,12 +3,7 @@
  */
 // 要因分解（シャープリー値ベース）
 // 関数は domain pure 参照実装から直接 export
-export {
-  decompose2,
-  decompose3,
-  decompose5,
-  decomposePriceMix,
-} from './factorDecomposition'
+export { decompose2, decompose3, decompose5, decomposePriceMix } from './factorDecomposition'
 // 型は domain の factorDecomposition.ts から直接 export（pure 参照実装）
 export type {
   CategoryQtyAmt,

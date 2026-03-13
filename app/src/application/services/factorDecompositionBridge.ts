@@ -31,11 +31,7 @@ import {
   decompose5Wasm,
   decomposePriceMixWasm,
 } from './factorDecompositionWasm'
-import {
-  recordCall,
-  recordMismatch,
-  recordNullMismatch,
-} from './dualRunObserver'
+import { recordCall, recordMismatch, recordNullMismatch } from './dualRunObserver'
 
 // Re-export types for consumer convenience
 export type { TwoFactorResult, ThreeFactorResult, FiveFactorResult, PriceMixResult, CategoryQtyAmt }

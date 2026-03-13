@@ -111,18 +111,15 @@ describe('観測パイプライン統合テスト', () => {
     vi.spyOn(console, 'warn')
 
     // WASM mock を TS と同じ結果を返すように設定（clean 検証用）
-    vi.mocked(decompose2Wasm).mockImplementation(
-      (ps, cs, pc, cc) => decompose2TS(ps, cs, pc, cc),
+    vi.mocked(decompose2Wasm).mockImplementation((ps, cs, pc, cc) => decompose2TS(ps, cs, pc, cc))
+    vi.mocked(decompose3Wasm).mockImplementation((ps, cs, pc, cc, ptq, ctq) =>
+      decompose3TS(ps, cs, pc, cc, ptq, ctq),
     )
-    vi.mocked(decompose3Wasm).mockImplementation(
-      (ps, cs, pc, cc, ptq, ctq) => decompose3TS(ps, cs, pc, cc, ptq, ctq),
+    vi.mocked(decompose5Wasm).mockImplementation((ps, cs, pc, cc, ptq, ctq, cur, prev) =>
+      decompose5TS(ps, cs, pc, cc, ptq, ctq, cur, prev),
     )
-    vi.mocked(decompose5Wasm).mockImplementation(
-      (ps, cs, pc, cc, ptq, ctq, cur, prev) =>
-        decompose5TS(ps, cs, pc, cc, ptq, ctq, cur, prev),
-    )
-    vi.mocked(decomposePriceMixWasm).mockImplementation(
-      (cur, prev) => decomposePriceMixTS(cur, prev),
+    vi.mocked(decomposePriceMixWasm).mockImplementation((cur, prev) =>
+      decomposePriceMixTS(cur, prev),
     )
   })
 
@@ -145,13 +142,20 @@ describe('観測パイプライン統合テスト', () => {
     it('decompose5: 4要因合計 = salesDiff', () => {
       const d = NORMAL
       const r = decompose5(
-        d.prevSales, d.curSales, d.prevCust, d.curCust,
-        d.prevQty, d.curQty, d.curCats, d.prevCats,
+        d.prevSales,
+        d.curSales,
+        d.prevCust,
+        d.curCust,
+        d.prevQty,
+        d.curQty,
+        d.curCats,
+        d.prevCats,
       )
       expect(r).not.toBeNull()
-      expect(
-        r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect,
-      ).toBeCloseTo(d.curSales - d.prevSales, 0)
+      expect(r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect).toBeCloseTo(
+        d.curSales - d.prevSales,
+        0,
+      )
     })
 
     it('decomposePriceMix: non-null', () => {
@@ -165,8 +169,14 @@ describe('観測パイプライン統合テスト', () => {
       decompose2(d.prevSales, d.curSales, d.prevCust, d.curCust)
       decompose3(d.prevSales, d.curSales, d.prevCust, d.curCust, d.prevQty, d.curQty)
       decompose5(
-        d.prevSales, d.curSales, d.prevCust, d.curCust,
-        d.prevQty, d.curQty, d.curCats, d.prevCats,
+        d.prevSales,
+        d.curSales,
+        d.prevCust,
+        d.curCust,
+        d.prevQty,
+        d.curQty,
+        d.curCats,
+        d.prevCats,
       )
       decomposePriceMix(d.curCats, d.prevCats)
 
@@ -181,13 +191,20 @@ describe('観測パイプライン統合テスト', () => {
     it('decompose5: 新規/消滅カテゴリありでも非null', () => {
       const d = CATEGORY_CHANGE
       const r = decompose5(
-        d.prevSales, d.curSales, d.prevCust, d.curCust,
-        d.prevQty, d.curQty, d.curCats, d.prevCats,
+        d.prevSales,
+        d.curSales,
+        d.prevCust,
+        d.curCust,
+        d.prevQty,
+        d.curQty,
+        d.curCats,
+        d.prevCats,
       )
       expect(r).not.toBeNull()
-      expect(
-        r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect,
-      ).toBeCloseTo(d.curSales - d.prevSales, 0)
+      expect(r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect).toBeCloseTo(
+        d.curSales - d.prevSales,
+        0,
+      )
     })
 
     it('decomposePriceMix: 新規/消滅カテゴリあり', () => {
@@ -206,13 +223,20 @@ describe('観測パイプライン統合テスト', () => {
     it('decompose5: 構成比逆転でも恒等式成立', () => {
       const d = PRICE_SHOCK
       const r = decompose5(
-        d.prevSales, d.curSales, d.prevCust, d.curCust,
-        d.prevQty, d.curQty, d.curCats, d.prevCats,
+        d.prevSales,
+        d.curSales,
+        d.prevCust,
+        d.curCust,
+        d.prevQty,
+        d.curQty,
+        d.curCats,
+        d.prevCats,
       )
       expect(r).not.toBeNull()
-      expect(
-        r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect,
-      ).toBeCloseTo(d.curSales - d.prevSales, 0)
+      expect(r!.custEffect + r!.qtyEffect + r!.priceEffect + r!.mixEffect).toBeCloseTo(
+        d.curSales - d.prevSales,
+        0,
+      )
     })
 
     it('decomposePriceMix: 構成比大変動でも安定', () => {
@@ -245,17 +269,11 @@ describe('観測パイプライン統合テスト', () => {
         cumTicket += r.ticketEffect
 
         // 各日で恒等式成立
-        expect(r.custEffect + r.ticketEffect).toBeCloseTo(
-          day.curSales - day.prevSales,
-          0,
-        )
+        expect(r.custEffect + r.ticketEffect).toBeCloseTo(day.curSales - day.prevSales, 0)
       }
 
       // 累積合計 = 全日の売上差合計
-      const totalDiff = TIME_SERIES_DAYS.reduce(
-        (acc, d) => acc + (d.curSales - d.prevSales),
-        0,
-      )
+      const totalDiff = TIME_SERIES_DAYS.reduce((acc, d) => acc + (d.curSales - d.prevSales), 0)
       expect(cumCust + cumTicket).toBeCloseTo(totalDiff, 0)
     })
 
@@ -279,8 +297,14 @@ describe('観測パイプライン統合テスト', () => {
         decompose2(d.prevSales, d.curSales, d.prevCust, d.curCust)
         decompose3(d.prevSales, d.curSales, d.prevCust, d.curCust, d.prevQty, d.curQty)
         decompose5(
-          d.prevSales, d.curSales, d.prevCust, d.curCust,
-          d.prevQty, d.curQty, d.curCats, d.prevCats,
+          d.prevSales,
+          d.curSales,
+          d.prevCust,
+          d.curCust,
+          d.prevQty,
+          d.curQty,
+          d.curCats,
+          d.prevCats,
         )
         decomposePriceMix(d.curCats, d.prevCats)
       }
@@ -325,22 +349,44 @@ describe('観測パイプライン統合テスト', () => {
 
       it(`${name}: decompose3 bridge = direct`, () => {
         const bridge = decompose3(
-          d.prevSales, d.curSales, d.prevCust, d.curCust, d.prevQty, d.curQty,
+          d.prevSales,
+          d.curSales,
+          d.prevCust,
+          d.curCust,
+          d.prevQty,
+          d.curQty,
         )
         const direct = decompose3TS(
-          d.prevSales, d.curSales, d.prevCust, d.curCust, d.prevQty, d.curQty,
+          d.prevSales,
+          d.curSales,
+          d.prevCust,
+          d.curCust,
+          d.prevQty,
+          d.curQty,
         )
         expect(bridge).toEqual(direct)
       })
 
       it(`${name}: decompose5 bridge = direct`, () => {
         const bridge = decompose5(
-          d.prevSales, d.curSales, d.prevCust, d.curCust,
-          d.prevQty, d.curQty, d.curCats, d.prevCats,
+          d.prevSales,
+          d.curSales,
+          d.prevCust,
+          d.curCust,
+          d.prevQty,
+          d.curQty,
+          d.curCats,
+          d.prevCats,
         )
         const direct = decompose5TS(
-          d.prevSales, d.curSales, d.prevCust, d.curCust,
-          d.prevQty, d.curQty, d.curCats, d.prevCats,
+          d.prevSales,
+          d.curSales,
+          d.prevCust,
+          d.curCust,
+          d.prevQty,
+          d.curQty,
+          d.curCats,
+          d.prevCats,
         )
         expect(bridge).toEqual(direct)
       })
