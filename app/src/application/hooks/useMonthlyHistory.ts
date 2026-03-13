@@ -7,7 +7,7 @@
  * 純粋な変換ロジックは monthlyHistoryLogic.ts に分離。
  */
 import { useState, useEffect, useMemo, useRef } from 'react'
-import type { MonthlyDataPoint } from '@/domain/calculations/algorithms/trendAnalysis'
+import type { MonthlyDataPoint } from '@/application/services/forecastBridge'
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 import { aggregateSummaryRates } from './monthlyHistoryLogic'
 

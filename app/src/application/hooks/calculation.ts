@@ -27,7 +27,8 @@ export {
 } from '@/application/services/factorDecompositionBridge'
 export { useForecast, useWeekRanges } from './useForecast'
 export type { ForecastInput, ForecastResult, WeeklySummary, DayOfWeekAverage } from './useForecast'
-export { calculateForecast, getWeekRanges } from '@/domain/calculations/forecast'
+// bridge 経由: forecast も dual-run compare を観測可能にする
+export { calculateForecast, getWeekRanges } from '@/application/services/forecastBridge'
 export { useEstimatedInventory, useEstimatedInventoryDetails } from './useInventoryEstimation'
 export type { InventoryPoint, InventoryDetailRow } from './useInventoryEstimation'
 export {

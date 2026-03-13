@@ -294,6 +294,244 @@ describe('forecast invariants', () => {
     })
   })
 
+  // ── F-INV-5b: 曜日別平均の再集約整合 ────────────────
+  describe('F-INV-5b: DOW averages re-aggregate to total sales', () => {
+    it('曜日平均 × カウントの合計 == 総売上', () => {
+      const dailySales = new Map<number, number>()
+      for (let d = 1; d <= 31; d++) {
+        dailySales.set(d, 50_000 + d * 1_000)
+      }
+
+      const averages = calculateDayOfWeekAverages({
+        year: 2026,
+        month: 1,
+        dailySales,
+        dailyGrossProfit: new Map(),
+      })
+
+      const reAggregated = averages.reduce((s, a) => s + a.averageSales * a.count, 0)
+      const totalSales = Array.from(dailySales.values()).reduce((s, v) => s + v, 0)
+      expect(reAggregated).toBeCloseTo(totalSales, 5)
+    })
+
+    it('観測数ゼロ曜日の平均は 0', () => {
+      // 月〜金のみ営業（土日休み）
+      const dailySales = new Map<number, number>()
+      for (let d = 1; d <= 28; d++) {
+        const date = new Date(2026, 1, d) // Feb 2026
+        const dow = date.getDay()
+        dailySales.set(d, dow === 0 || dow === 6 ? 0 : 100_000)
+      }
+
+      const averages = calculateDayOfWeekAverages({
+        year: 2026,
+        month: 2,
+        dailySales,
+        dailyGrossProfit: new Map(),
+      })
+
+      const sunday = averages.find((a) => a.dayOfWeek === 0)!
+      const saturday = averages.find((a) => a.dayOfWeek === 6)!
+      expect(sunday.averageSales).toBe(0)
+      expect(sunday.count).toBe(0)
+      expect(saturday.averageSales).toBe(0)
+      expect(saturday.count).toBe(0)
+    })
+  })
+
+  // ── F-INV-7b: 閏年・月末境界の projection 安定 ──────
+  describe('F-INV-7b: leap year and month-end projection stability', () => {
+    it('閏年2月の projection が壊れない', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 20; d++) {
+        sales.set(d, 100_000)
+      }
+      const result = calculateMonthEndProjection(2024, 2, sales) // 閏年
+      expect(Number.isFinite(result.linearProjection)).toBe(true)
+      expect(Number.isFinite(result.dowAdjustedProjection)).toBe(true)
+      expect(Number.isFinite(result.wmaProjection)).toBe(true)
+      expect(result.linearProjection).toBeGreaterThan(0)
+    })
+
+    it('月末境界で異常増幅しない', () => {
+      // 28日月 vs 31日月で同データ
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 25; d++) {
+        sales.set(d, 100_000)
+      }
+      const feb = calculateMonthEndProjection(2026, 2, sales) // 28日
+      const jan = calculateMonthEndProjection(2026, 1, sales) // 31日
+
+      // 31日月は28日月より大きい予測になるが、2倍以上にはならない
+      expect(jan.linearProjection).toBeGreaterThanOrEqual(feb.linearProjection)
+      expect(jan.linearProjection).toBeLessThan(feb.linearProjection * 2)
+    })
+  })
+
+  // ── F-INV-8b: projection 非破綻 ───────────────────
+  describe('F-INV-8b: projection never produces NaN or Infinity', () => {
+    it('疎な観測（2日分のみ）', () => {
+      const sales = new Map<number, number>([
+        [1, 500_000],
+        [15, 300_000],
+      ])
+      const result = calculateMonthEndProjection(2026, 1, sales)
+      expect(Number.isFinite(result.linearProjection)).toBe(true)
+      expect(Number.isFinite(result.dowAdjustedProjection)).toBe(true)
+      expect(Number.isFinite(result.wmaProjection)).toBe(true)
+      expect(Number.isFinite(result.regressionProjection)).toBe(true)
+      expect(Number.isNaN(result.dailyTrend)).toBe(false)
+    })
+
+    it('全日同額（分散ゼロ）', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 10; d++) {
+        sales.set(d, 100_000)
+      }
+      const result = calculateMonthEndProjection(2026, 1, sales)
+      expect(Number.isFinite(result.linearProjection)).toBe(true)
+      expect(Number.isFinite(result.confidenceInterval.lower)).toBe(true)
+      expect(Number.isFinite(result.confidenceInterval.upper)).toBe(true)
+    })
+
+    it('微小な売上値', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 10; d++) {
+        sales.set(d, 1) // 1円
+      }
+      const result = calculateMonthEndProjection(2026, 1, sales)
+      expect(Number.isFinite(result.linearProjection)).toBe(true)
+      expect(result.linearProjection).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  // ── F-INV-12b: トレンド一貫性 ───────────────────────
+  describe('F-INV-12b: trend consistency with input pattern', () => {
+    it('単調増加入力 → トレンドが逆符号にならない', () => {
+      const dps: MonthlyDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+        year: 2025,
+        month: i + 1,
+        totalSales: 1_000_000 * (i + 1),
+        totalCustomers: null,
+        grossProfit: null,
+        grossProfitRate: null,
+        budget: null,
+        budgetAchievement: null,
+        storeCount: 1,
+        discountRate: null,
+        costRate: null,
+        costInclusionRate: null,
+        averageMarkupRate: null,
+      }))
+      const result = analyzeTrend(dps)
+      expect(result.overallTrend).toBe('up')
+    })
+
+    it('単調減少入力 → down', () => {
+      const dps: MonthlyDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+        year: 2025,
+        month: i + 1,
+        totalSales: 12_000_000 - 1_000_000 * i,
+        totalCustomers: null,
+        grossProfit: null,
+        grossProfitRate: null,
+        budget: null,
+        budgetAchievement: null,
+        storeCount: 1,
+        discountRate: null,
+        costRate: null,
+        costInclusionRate: null,
+        averageMarkupRate: null,
+      }))
+      const result = analyzeTrend(dps)
+      expect(result.overallTrend).toBe('down')
+    })
+
+    it('定数列 → 傾きが過大にならない', () => {
+      const dps: MonthlyDataPoint[] = Array.from({ length: 6 }, (_, i) => ({
+        year: 2025,
+        month: i + 1,
+        totalSales: 5_000_000,
+        totalCustomers: null,
+        grossProfit: null,
+        grossProfitRate: null,
+        budget: null,
+        budgetAchievement: null,
+        storeCount: 1,
+        discountRate: null,
+        costRate: null,
+        costInclusionRate: null,
+        averageMarkupRate: null,
+      }))
+      const result = analyzeTrend(dps)
+      expect(result.overallTrend).toBe('flat')
+    })
+  })
+
+  // ── F-INV-13b: 有界性・極端入力耐性 ────────────────
+  describe('F-INV-13b: boundedness under extreme inputs', () => {
+    it('極大値でも全出力が finite', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 20; d++) {
+        sales.set(d, 1_000_000_000) // 10億
+      }
+      const result = calculateMonthEndProjection(2026, 1, sales)
+      expect(Number.isFinite(result.linearProjection)).toBe(true)
+      expect(Number.isFinite(result.dowAdjustedProjection)).toBe(true)
+      expect(Number.isFinite(result.wmaProjection)).toBe(true)
+      expect(Number.isFinite(result.regressionProjection)).toBe(true)
+      expect(Number.isFinite(result.confidenceInterval.lower)).toBe(true)
+      expect(Number.isFinite(result.confidenceInterval.upper)).toBe(true)
+    })
+
+    it('極大値でも linearRegression が finite', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 20; d++) {
+        sales.set(d, 1_000_000_000 + d * 1_000_000)
+      }
+      const result = linearRegression(sales)
+      expect(Number.isFinite(result.slope)).toBe(true)
+      expect(Number.isFinite(result.intercept)).toBe(true)
+      expect(Number.isFinite(result.rSquared)).toBe(true)
+      expect(result.rSquared).toBeGreaterThanOrEqual(0)
+      expect(result.rSquared).toBeLessThanOrEqual(1)
+    })
+
+    it('微小差分でも安定', () => {
+      const sales = new Map<number, number>()
+      for (let d = 1; d <= 20; d++) {
+        sales.set(d, 100_000 + d) // 1円刻み
+      }
+      const result = linearRegression(sales)
+      expect(Number.isFinite(result.slope)).toBe(true)
+      expect(result.rSquared).toBeGreaterThanOrEqual(0)
+      expect(result.rSquared).toBeLessThanOrEqual(1)
+    })
+
+    it('analyzeTrend: 極大値でも seasonalIndex が finite', () => {
+      const dps: MonthlyDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+        year: 2025,
+        month: i + 1,
+        totalSales: 10_000_000_000 + i * 100_000_000,
+        totalCustomers: null,
+        grossProfit: null,
+        grossProfitRate: null,
+        budget: null,
+        budgetAchievement: null,
+        storeCount: 1,
+        discountRate: null,
+        costRate: null,
+        costInclusionRate: null,
+        averageMarkupRate: null,
+      }))
+      const result = analyzeTrend(dps)
+      for (const idx of result.seasonalIndex) {
+        expect(Number.isFinite(idx)).toBe(true)
+      }
+      expect(result.seasonalIndex).toHaveLength(12)
+    })
+  })
+
   // ── calculateForecast 統合不変条件 ────────────────
   describe('calculateForecast integrated invariants', () => {
     it('統合結果が個別関数と一致する', () => {
