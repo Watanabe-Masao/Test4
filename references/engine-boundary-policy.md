@@ -304,38 +304,51 @@ DuckDB → IndexedDB の書き戻しは禁止。
 - `application/usecases/calculation/` 内の inline helper / 重複計算を `domain/calculations/` に抽出
 - 既存ロジックとの一致をテストで保証
 
-### Step 4. Authoritative 候補確定
+### Step 4. Authoritative 候補確定 ✅ 完了
 
 **目的:**
 
 - authoritative 候補と pure analytics substrate を区別する
 - 将来の FFI 境界に備えてデータ契約を整理する
 
-**Authoritative 候補:**
+**Authoritative 候補（FFI Tier 付き）:**
 
-| 優先度 | モジュール | 独立性 | 備考 |
+| 優先度 | モジュール | FFI Tier | 備考 |
 |---|---|---|---|
-| 1 | factorDecomposition | 高 | Shapley 恒等式で正しさ検証可能。最初の試験導入対象 |
-| 2 | markupRate | 高 | Step 3 で抽出済み |
-| 3 | costAggregation | 高 | Step 3 で抽出済み |
-| 4 | forecast | 中 | 週次サマリ・異常検知 |
-| 5 | budgetAnalysis | 中 | 予算分析 |
-| 6 | invMethod / estMethod | 中 | 粗利計算の核心 |
+| 1 | factorDecomposition | Tier 1 ✅ | Shapley 恒等式検証可。Map/Set 内部のみ |
+| 2 | markupRate | Tier 1 ✅ | Phase 2-1 で抽出済み。全 scalar |
+| 3 | costAggregation | Tier 1 ✅ | Phase 2-2 で抽出済み。全 scalar |
+| 4 | invMethod | Tier 1 ✅ | scalar + null。粗利計算の核心 |
+| 5 | estMethod | Tier 1 ✅ | scalar + null。推定法粗利計算 |
+| 6 | discountImpact | Tier 1 ✅ | scalar。売変インパクト |
+| 7 | pinIntervals | Tier 1 ✅ | scalar + array |
+| 8 | forecast | Tier 2 ⚠️ | 入力に ReadonlyMap。出力は serializable |
+| 9 | budgetAnalysis | Tier 3 ❌ | 入出力とも ReadonlyMap。型リファクタリング必要 |
 
-**Pure Analytics Substrate 候補:**
+**Pure Analytics Substrate（FFI Tier 付き）:**
 
-| モジュール | 独立性 | 備考 |
+| モジュール | FFI Tier | 備考 |
 |---|---|---|
-| rawAggregation | 高 | 23関数、統計処理。Authoritative Engine が依存する基盤 |
-| correlation | - | 将来候補 |
-| trendAnalysis | - | 将来候補 |
-| sensitivity | - | 将来候補 |
+| rawAggregation | Tier 1 ✅ | 23関数。全 array/plain object |
+| correlation | Tier 1 ✅ | 相関・正規化・乖離検出 |
+| trendAnalysis | Tier 1 ✅ | トレンド分析 |
+| sensitivity | Tier 1 ✅ | 感度分析・弾力性 |
+| advancedForecast | Tier 2 ⚠️ | 一部 ReadonlyMap 入力 |
+
+**FFI Tier 定義:**
+
+| Tier | 定義 | 対応 |
+|---|---|---|
+| Tier 1 | 入出力とも JSON serializable | そのまま FFI 境界にできる |
+| Tier 2 | 入力に ReadonlyMap あり、出力は serializable | 入力アダプタで対応可 |
+| Tier 3 | 入出力とも非 serializable | 型リファクタリングが必要 |
 
 **補足:**
 
 - pure 判定は必要条件
 - FFI 適合判定は移管容易性の条件
 - この二つは分けて扱う
+- 詳細は `references/audits/ts-calculation-audit.md` を参照
 
 ### Step 5. 小規模試験導入
 
@@ -392,15 +405,20 @@ cd app && npm run build-storybook  # Storybook ビルド通過
 ## 16. 実施順序
 
 ```
-Step 1: 設計文書              ✅ 完了
+Phase 0: 設計文書              ✅ 完了
   ↓
-Step 2: TS 側監査             ✅ 完了
+Phase 1: TS 側監査             ✅ 完了
   ↓
-Step 3: pure 化リファクタリング  ✅ 完了
+Phase 2: staging area 集約     ✅ 完了
+  2-1: markupRate 抽出         ✅
+  2-2: costAggregation 抽出    ✅
+  2-3: dailyBuilder 分解準備    ✅
   ↓
-Step 4: authoritative 候補確定・契約整理
+Phase 3: exploration 整理      ✅ 完了（文書）
   ↓
-Step 5: 小規模試験導入（別計画）
+Phase 4: 候補確定・FFI 契約    ✅ 完了（文書）
+  ↓
+Phase 5: 小規模試験導入（別計画）
 ```
 
 ## 既存 engine-responsibility.md との関係

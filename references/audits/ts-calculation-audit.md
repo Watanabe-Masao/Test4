@@ -51,7 +51,7 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 
 | ファイル | 関数 | 行 | 判断 |
 |----------|------|---|------|
-| `application/usecases/calculation/dailyBuilder.ts` | `buildDailyRecords()` | 23-318 | 引数のみを読み戻り値を返す構造のため **pure である**。ただし責務が大きい（300行超のループに集約・構成・集計が混在）。内部の集計ロジックはより小さな pure function への分解候補。将来の移管容易性のためにも分解が望ましい |
+| `application/usecases/calculation/dailyBuilder.ts` | `buildDailyRecords()` | 17-224 | **Phase 2-3 で分解実施済み。** 319行→224行。`buildTransferBreakdown()` と `aggregateSupplierDay()` を `dailyBuilderHelpers.ts` に抽出。さらなる分解候補: 月次アキュムレーション部分 |
 
 ### Category E: Non-pure（TS 残留）
 
@@ -60,22 +60,150 @@ domain/ 移管時はインターフェース分離が必要（将来課題）。
 | `application/hooks/duckdb/useJsAggregationQueries.ts` | 各 hook | React hook wrapper。TS 残留 |
 | `application/hooks/monthlyHistoryLogic.ts` | 月次履歴構築 | state 依存あり。TS 残留 |
 
-## 重点確認事項
+## 実施済み対応
 
-1. **`calculateMarkupRates()` の重複**: `storeAssembler.ts:49-66` と `collectionAggregator.ts` の
-   `calculateMarkupRates` は同名だが入力型が異なる。domain/ で統一インターフェースを設計する必要あり
+### Phase 2-1: markupRate 重複解消 ✅
 
-2. **`periodMetricsCalculator.ts` と `storeAssembler.ts` の並行計算パス**: 同一のビジネスロジック
-   （値入率、コスト算出、在庫法/推定法委譲）が2箇所に存在。共通 pure 関数への集約が必要
+- `domain/calculations/markupRate.ts` を新設
+- 3箇所（storeAssembler, periodMetricsCalculator, collectionAggregator）の重複を統合
+- 統一インターフェース `MarkupRateInput` → `MarkupRateResult`
 
-3. **`jsAggregationLogic.ts` の infrastructure/ 型依存**: `StoreDaySummaryRow` 等の
-   infrastructure 型を直接 import。domain/ 移管時はインターフェース分離が必要（将来課題）
+### Phase 2-2: costAggregation 重複解消 ✅
 
-## 対応優先順位
+- `domain/calculations/costAggregation.ts` を新設
+- 2箇所（storeAssembler, periodMetricsCalculator）の重複を統合
+- `calculateTransferTotals()` + `calculateInventoryCost()`
 
-| 優先度 | 対象 | Step | 理由 |
-|--------|------|------|------|
-| 1 | markupRate 重複解消 | Step 3.1 | 3箇所に散在。authoritative logic の重複定義 |
-| 2 | costAggregation 重複解消 | Step 3.2 | 2箇所に散在。StoreResult フィールドを決定 |
-| 3 | dailyBuilder 分解 | 将来 | 責務過大だが現状動作に問題なし |
-| 4 | jsAggregationLogic の型依存解消 | 将来 | exploration 用。緊急度低い |
+### Phase 2-3: dailyBuilder 分解準備 ✅
+
+- `dailyBuilderHelpers.ts` を新設し2つの pure 関数を抽出:
+  - `buildTransferBreakdown()` — 移動内訳の集計+明細変換
+  - `aggregateSupplierDay()` — 取引先内訳の日次集約
+- dailyBuilder.ts: 319行 → 224行
+
+---
+
+## Phase 3: jsAggregationLogic.ts 整理結果
+
+### 関数別所属確定
+
+| 関数 | 責務 | 分類 | rawAggregation 統合 | infrastructure 型依存 |
+|---|---|---|---|---|
+| `computeDowPattern()` | 曜日パターン集計 | Pure + Exploration | ✅ 統合候補 | `StoreDaySummaryRow` → 使用フィールド: `storeId`, `dow`, `sales`, `customers` |
+| `computeDailyFeatures()` | 日次特徴量計算 | Pure + Exploration | ✅ 統合候補 | `StoreDaySummaryRow` → 使用フィールド: `storeId`, `dateKey`, `sales` |
+| `computeHourlyProfile()` | 時間帯プロファイル | Pure + Exploration | ✅ 統合候補 | generic signature（`{ storeId, hour, amount }[]`）。型依存なし |
+| `computeYoyDaily()` | YoY日次比較 | Application 調整 | ❌ 残留 | `StoreDaySummaryRow` + comparison 層に委譲 |
+| `computeYoyDailyV2()` | YoY日次比較 v2 | Application 調整 | ❌ 残留 | `StoreDaySummaryRow` + ViewModel 変換含む |
+
+### rawAggregation 統合方針
+
+3関数（`computeDowPattern`, `computeDailyFeatures`, `computeHourlyProfile`）は
+`domain/calculations/rawAggregation/` への統合候補。ただし以下の前提条件を満たす必要がある:
+
+1. **interface 分離**: `StoreDaySummaryRow` への直接依存を解消し、
+   使用フィールドのみの minimal interface を定義する
+   - `computeDowPattern` → `{ storeId: string; dow: number; sales: number; customers: number }`
+   - `computeDailyFeatures` → `{ storeId: string; dateKey: string; sales: number }`
+   - `computeHourlyProfile` → 既に generic（変更不要）
+
+2. **出力型の分離**: `DowPatternRow`, `DailyFeatureRow`, `HourlyProfileRow` は現在
+   `infrastructure/duckdb/queries/` に定義されている。domain/ 移管時は
+   `domain/calculations/rawAggregation/` に同等の型を定義し、
+   infrastructure 側は re-export または adapter で対応
+
+3. **rawAggregation 関数の再利用**: `computeDailyFeatures` は既に
+   `movingAverage`, `stddevPop`, `zScore`, `coefficientOfVariation` を使用。
+   統合時の依存関係は自然
+
+### 統合の実施時期
+
+**現時点ではコード移動は行わない。** 理由:
+- infrastructure 型依存の解消は interface 分離を伴い、影響範囲が広い
+- 出力型が infrastructure 層に定義されており、移動には複数ファイルの変更が必要
+- まず方針を固め、別タスクとして実施する
+
+---
+
+## Phase 4: Authoritative 候補確定 + FFI 契約整理
+
+### Authoritative モジュール（正式業務値を決定する）
+
+| 優先度 | モジュール | FFI Tier | 入力 | 出力 | 依存 | 備考 |
+|---|---|---|---|---|---|---|
+| 1 | factorDecomposition | Tier 1 ✅ | scalar + `readonly CategoryQtyAmt[]` | plain object | utils (safeDivide) | Shapley 恒等式検証可。Map/Set 内部のみ |
+| 2 | markupRate | Tier 1 ✅ | `MarkupRateInput` (全 scalar) | `MarkupRateResult` (全 scalar) | utils (safeDivide) | Phase 2-1 で抽出済み |
+| 3 | costAggregation | Tier 1 ✅ | `TransferTotalsInput` (全 scalar) | `TransferTotalsResult` (全 scalar) | なし | Phase 2-2 で抽出済み |
+| 4 | invMethod | Tier 1 ✅ | `InvMethodInput` (scalar + null) | `InvMethodResult` (scalar + null) | utils (safeDivide) | 在庫法粗利計算 |
+| 5 | estMethod | Tier 1 ✅ | `EstMethodInput` (scalar + null) | `EstMethodResult` (scalar + null) | utils (safeDivide) | 推定法粗利計算 |
+| 6 | discountImpact | Tier 1 ✅ | `DiscountImpactInput` (scalar) | `DiscountImpactResult` (scalar) | utils (safeDivide) | 売変インパクト |
+| 7 | pinIntervals | Tier 1 ✅ | scalar + array | `PinInterval[]` (plain object) | なし | ピン間隔計算 |
+| 8 | forecast | Tier 2 ⚠️ | `ReadonlyMap<number, number>` 入力 | plain object array | utils (safeDivide) | 入力アダプタ必要 |
+| 9 | budgetAnalysis | Tier 3 ❌ | `ReadonlyMap` 入力 | `ReadonlyMap` 出力 | utils (safeDivide) | 入出力とも非 serializable |
+
+### Pure Analytics Substrate（分析基盤。authoritative ではないが pure）
+
+| モジュール | FFI Tier | 入力 | 出力 | 備考 |
+|---|---|---|---|---|
+| rawAggregation | Tier 1 ✅ | readonly array | plain object array | 23関数。統計処理基盤 |
+| correlation | Tier 1 ✅ | array | plain object | 相関・正規化・乖離検出 |
+| trendAnalysis | Tier 1 ✅ | `MonthlyDataPoint[]` | `TrendAnalysisResult` | トレンド分析 |
+| sensitivity | Tier 1 ✅ | `SensitivityBase` (plain) | plain object | 感度分析・弾力性 |
+| advancedForecast | Tier 2 ⚠️ | 一部 `ReadonlyMap` | plain object | WMA・線形回帰 |
+
+### 補助モジュール（Authoritative でも Substrate でもない）
+
+| モジュール | 性質 | 理由 |
+|---|---|---|
+| utils.ts | 共通ユーティリティ | 全モジュールの依存基盤（safeDivide 等） |
+| aggregation.ts | StoreResult 集約 | StoreResult 依存。Application 寄り |
+| causalChain.ts / causalChainSteps.ts / causalChainFormatters.ts | 因果チェーン構築 | StoreResult 依存。説明責務 |
+| rules/alertSystem.ts | アラート評価 | StoreResult 依存、Map 出力 |
+| dataDetection.ts | データ検知 | ReadonlyMap 入力。補助 |
+| divisor.ts / averageDivisor.ts | 除数計算 | Map/Set in interface。探索寄り |
+| inventoryCalc.ts | 在庫計算 | ReadonlyMap + DailyRecord 依存。Tier 2 |
+| dowGapAnalysis.ts | 曜日ギャップ分析 | 内部 Map/Set。出力は serializable |
+
+### FFI 適合性サマリ
+
+| Tier | 定義 | 該当数 | モジュール |
+|---|---|---|---|
+| **Tier 1** | 入出力とも JSON serializable。そのまま FFI 境界にできる | 7 Authoritative + 4 Substrate | factorDecomposition, markupRate, costAggregation, invMethod, estMethod, discountImpact, pinIntervals / rawAggregation, correlation, trendAnalysis, sensitivity |
+| **Tier 2** | 入力に ReadonlyMap あり。出力は serializable。入力アダプタで対応可 | 1 Authoritative + 1 Substrate | forecast / advancedForecast |
+| **Tier 3** | 入出力とも非 serializable。FFI 化には型リファクタリングが必要 | 1 Authoritative | budgetAnalysis |
+
+### Tier 2/3 の FFI 化方針
+
+**forecast (Tier 2):**
+- 入力 `ForecastInput.dailySales: ReadonlyMap<number, number>` → `Record<number, number>` に変換するアダプタを用意
+- FFI 境界で `Object.entries()` → Rust 側で `HashMap` に変換
+- 出力はそのまま serializable
+
+**budgetAnalysis (Tier 3):**
+- 入力: `budgetDaily`, `salesDaily` が ReadonlyMap → Record に変換
+- 出力: `dailyCumulative: ReadonlyMap` → `Record` または `Array<{day, sales, budget}>` に変更
+- **型リファクタリングが必要**。別タスクとして実施
+
+### 依存グラフ
+
+```
+Authoritative モジュール群
+├── factorDecomposition ─→ utils (safeDivide)
+├── markupRate ──────────→ utils (safeDivide)
+├── costAggregation ─────→ (依存なし)
+├── invMethod ───────────→ utils (safeDivide)
+├── estMethod ───────────→ utils (safeDivide)
+├── discountImpact ──────→ utils (safeDivide)
+├── forecast ────────────→ utils (safeDivide)
+├── budgetAnalysis ──────→ utils (safeDivide)
+└── pinIntervals ────────→ (依存なし)
+
+Pure Analytics Substrate
+├── rawAggregation ──────→ (依存なし)
+├── correlation ─────────→ (依存なし)
+├── trendAnalysis ───────→ (依存なし)
+├── sensitivity ─────────→ (依存なし)
+└── advancedForecast ────→ (依存なし)
+
+utils.ts は全 Authoritative モジュールの共通依存。
+FFI 移管時は utils も一緒に移管する必要がある。
+```
