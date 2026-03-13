@@ -6,7 +6,6 @@ import {
   CategoryMixChart,
   CategoryBenchmarkChart,
   CategoryBoxPlotChart,
-  PiCvBubbleChart,
   CvTimeSeriesChart,
 } from '@/presentation/components/charts'
 import type { WidgetDef } from './types'
@@ -118,21 +117,7 @@ export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
       />
     ),
   },
-  {
-    id: 'duckdb-pi-cv-map',
-    label: 'PI-CVマップ',
-    group: '構造分析',
-    size: 'full',
-    isVisible: (ctx) => ctx.duckDataVersion > 0,
-    render: (ctx) => (
-      <PiCvBubbleChart
-        duckConn={ctx.duckConn}
-        duckDataVersion={ctx.duckDataVersion}
-        currentDateRange={ctx.currentDateRange}
-        selectedStoreIds={ctx.selectedStoreIds}
-      />
-    ),
-  },
+  // PI-CVマップ → Insight ページに移動（L3 分析向け）
   {
     id: 'duckdb-cv-timeseries',
     label: 'CV時系列分析',

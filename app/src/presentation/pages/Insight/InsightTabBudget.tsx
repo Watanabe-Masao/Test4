@@ -10,7 +10,8 @@ import {
 import type { MetricId, StoreResult } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import {
-  BudgetVsActualChart,
+  BudgetProgressCard,
+  BudgetTrendChart,
   PrevYearComparisonChart,
   EstimatedInventoryDetailChart,
 } from '@/presentation/components/charts'
@@ -155,6 +156,9 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
             )}
           </KpiGrid>
 
+          {/* L1: 予算進捗カード */}
+          <BudgetProgressCard data={d.chartData} budget={r.budget} daysInMonth={d.daysInMonth} />
+
           {d.prevYear.hasPrevYear && (
             <ToggleSection>
               <ChipGroup>
@@ -182,7 +186,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
           <ChartSection>
             <ChartErrorBoundary>
               {d.chartMode === 'budget-vs-actual' && (
-                <BudgetVsActualChart
+                <BudgetTrendChart
                   data={d.chartData}
                   budget={r.budget}
                   year={d.year}
@@ -205,7 +209,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                   )
                 })()}
               {d.chartMode === 'all-three' && (
-                <BudgetVsActualChart
+                <BudgetTrendChart
                   data={d.chartData}
                   budget={r.budget}
                   showPrevYear
@@ -214,7 +218,7 @@ export function BudgetTabContent({ d, r, onExplain }: BudgetTabProps) {
                 />
               )}
               {d.chartMode !== 'budget-vs-actual' && !d.prevYear.hasPrevYear && (
-                <BudgetVsActualChart
+                <BudgetTrendChart
                   data={d.chartData}
                   budget={r.budget}
                   year={d.year}
