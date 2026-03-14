@@ -13,16 +13,8 @@ describe('App', () => {
     expect(screen.getByText('データ管理')).toBeInTheDocument()
   })
 
-  it('renders file upload area', () => {
+  it('renders import button in sidebar', () => {
     render(<App />)
-    expect(screen.getByText('ファイル/フォルダをドラッグ＆ドロップ')).toBeInTheDocument()
-  })
-
-  it('renders upload cards for file types', () => {
-    render(<App />)
-    expect(screen.getByText('6_仕入')).toBeInTheDocument()
-    expect(screen.getByText('1_分類別売上')).toBeInTheDocument()
-    expect(screen.getByText('2_売上納品_花')).toBeInTheDocument()
-    expect(screen.getByText('5_店間入')).toBeInTheDocument()
+    expect(screen.getByText('取込')).toBeInTheDocument()
   })
 })
