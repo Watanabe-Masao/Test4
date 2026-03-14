@@ -138,6 +138,85 @@ describe('dualRunObserver', () => {
     })
   })
 
+  describe('grossProfit / budgetAnalysis 関数の記録', () => {
+    it('grossProfit 関数を recordCall で記録できる', () => {
+      recordCall('calculateInvMethod')
+      recordCall('calculateEstMethod')
+      recordCall('calculateInventoryCost')
+
+      const summary = dualRunStatsHandler() as {
+        totalCalls: number
+        byFunction: Record<string, { calls: number }>
+      }
+      expect(summary.totalCalls).toBe(3)
+      expect(summary.byFunction.calculateInvMethod.calls).toBe(1)
+      expect(summary.byFunction.calculateEstMethod.calls).toBe(1)
+      expect(summary.byFunction.calculateInventoryCost.calls).toBe(1)
+    })
+
+    it('grossProfit 関数の recordMismatch が集計される', () => {
+      recordMismatch('calculateInvMethod', 1e-8, 'ok', 'ok', { sales: 100000 })
+      recordMismatch('calculateMarkupRates', 0.5, 'ok', 'violated', { coreSalesPrice: 50000 })
+
+      const summary = dualRunStatsHandler() as {
+        totalMismatches: number
+        totalInvariantViolations: number
+        byFunction: Record<string, { mismatches: number; invariantViolations: number }>
+      }
+      expect(summary.totalMismatches).toBe(2)
+      expect(summary.totalInvariantViolations).toBe(1)
+      expect(summary.byFunction.calculateInvMethod.mismatches).toBe(1)
+      expect(summary.byFunction.calculateMarkupRates.invariantViolations).toBe(1)
+    })
+
+    it('budgetAnalysis 関数を recordCall / recordMismatch で記録できる', () => {
+      recordCall('calculateBudgetAnalysis')
+      recordCall('calculateGrossProfitBudget')
+      recordMismatch('calculateBudgetAnalysis', 1e-12, 'ok', 'ok', { sales: 500000 })
+
+      const summary = dualRunStatsHandler() as {
+        totalCalls: number
+        totalMismatches: number
+        byFunction: Record<string, { calls: number; mismatches: number }>
+      }
+      expect(summary.totalCalls).toBe(2)
+      expect(summary.totalMismatches).toBe(1)
+      expect(summary.byFunction.calculateBudgetAnalysis.calls).toBe(1)
+      expect(summary.byFunction.calculateBudgetAnalysis.mismatches).toBe(1)
+      expect(summary.byFunction.calculateGrossProfitBudget.calls).toBe(1)
+    })
+
+    it('getSummary に全 14 関数が反映される', () => {
+      const summary = dualRunStatsHandler() as {
+        byFunction: Record<string, { calls: number }>
+      }
+      const fnNames = Object.keys(summary.byFunction)
+      expect(fnNames).toContain('decompose2')
+      expect(fnNames).toContain('calculateInvMethod')
+      expect(fnNames).toContain('calculateEstMethod')
+      expect(fnNames).toContain('calculateCoreSales')
+      expect(fnNames).toContain('calculateDiscountRate')
+      expect(fnNames).toContain('calculateDiscountImpact')
+      expect(fnNames).toContain('calculateMarkupRates')
+      expect(fnNames).toContain('calculateTransferTotals')
+      expect(fnNames).toContain('calculateInventoryCost')
+      expect(fnNames).toContain('calculateBudgetAnalysis')
+      expect(fnNames).toContain('calculateGrossProfitBudget')
+      expect(fnNames).toHaveLength(14)
+    })
+
+    it('grossProfit 関数の recordNullMismatch', () => {
+      recordNullMismatch('calculateInvMethod')
+
+      const summary = dualRunStatsHandler() as {
+        totalNullMismatches: number
+        byFunction: Record<string, { nullMismatches: number }>
+      }
+      expect(summary.totalNullMismatches).toBe(1)
+      expect(summary.byFunction.calculateInvMethod.nullMismatches).toBe(1)
+    })
+  })
+
   describe('mismatch classification', () => {
     it('numeric-within-tolerance: maxAbsDiff ≤ 1e-10 かつ invariant ok', () => {
       recordMismatch('decompose2', 1e-11, 'ok', 'ok', { prevSales: 0, curSales: 0 })
