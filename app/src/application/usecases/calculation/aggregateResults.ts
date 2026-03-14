@@ -125,5 +125,6 @@ export function aggregateStoreResults(
       salesDays: scalars.salesDays,
       daysInMonth,
     }),
+    metricWarnings: new Map(),
   }
 }

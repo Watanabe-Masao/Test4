@@ -127,6 +127,9 @@ export interface StoreDerivedData {
   readonly requiredDailyGrossProfit: number // 必要日次粗利 = (粗利予算 − 粗利実績) / 残日数
   readonly projectedGrossProfit: number // 粗利着地予測 = 粗利実績 + 日平均粗利 × 残日数
   readonly projectedGPAchievement: number // 粗利着地予測達成率 = 粗利着地予測 / 粗利予算
+
+  // ─── 計算ステータス ──────────────────────────────────
+  readonly metricWarnings: ReadonlyMap<string, readonly string[]> // MetricId → warnings
 }
 
 /**

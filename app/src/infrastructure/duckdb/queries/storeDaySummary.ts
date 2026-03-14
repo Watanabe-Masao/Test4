@@ -9,6 +9,7 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildWhereClause, storeIdFilter } from '../queryRunner'
 import { validateDateKey } from '../queryParams'
+import type { DailyCumulativeRow } from './aggregates/dailyAggregation'
 
 // ── 結果型 ──
 
@@ -57,11 +58,8 @@ export interface AggregatedRatesRow {
   readonly totalCustomers: number
 }
 
-export interface DailyCumulativeRow {
-  readonly dateKey: string
-  readonly dailySales: number
-  readonly cumulativeSales: number
-}
+// DailyCumulativeRow は aggregates/dailyAggregation.ts に移管。後方互換 re-export。
+export type { DailyCumulativeRow } from './aggregates/dailyAggregation'
 
 // ── フィルタ条件 ──
 
