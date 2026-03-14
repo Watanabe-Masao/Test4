@@ -8,9 +8,22 @@ import {
   TrendBadge,
   ExplainHint,
   MethodBadge,
+  WarningBadge,
+  ReferenceBadge,
 } from './KpiCard.styles'
+import type { WarningSeverity } from '@/domain/constants'
 
 export { KpiGrid } from './KpiCard.styles'
+
+/** KpiCard に渡す warning 情報 */
+export interface KpiWarningInfo {
+  /** 最も深刻な severity */
+  readonly severity: WarningSeverity
+  /** badge に表示するラベル */
+  readonly label: string
+  /** tooltip に表示するメッセージ */
+  readonly message: string
+}
 
 export function KpiCard({
   label,
@@ -21,6 +34,8 @@ export function KpiCard({
   trend,
   badge,
   formulaSummary,
+  warning,
+  isReference,
 }: {
   label: string
   value: string
@@ -31,6 +46,10 @@ export function KpiCard({
   badge?: 'actual' | 'estimated'
   /** Level 1: one-line formula hint shown below value (e.g. "売上 − 原価") */
   formulaSummary?: React.ReactNode
+  /** Warning info from resolver (severity + label + tooltip message) */
+  warning?: KpiWarningInfo
+  /** Whether this is a reference value (not authoritative) */
+  isReference?: boolean
 }) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -68,6 +87,12 @@ export function KpiCard({
             {badge === 'actual' ? '実績' : '推定'}
           </MethodBadge>
         )}
+        {warning && (
+          <WarningBadge $severity={warning.severity} title={warning.message}>
+            {warning.label}
+          </WarningBadge>
+        )}
+        {isReference && !warning && <ReferenceBadge title="参考値です">参考値</ReferenceBadge>}
       </Label>
       <Value>
         {value}

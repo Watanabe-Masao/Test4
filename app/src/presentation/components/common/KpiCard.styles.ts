@@ -103,6 +103,54 @@ export const MethodBadge = styled.span<{ $variant: 'actual' | 'estimated' }>`
         : `${theme.colors.palette.warningDark}30`};
 `
 
+/** Warning badge: severity-based coloring */
+export const WarningBadge = styled.span<{
+  $severity: 'info' | 'warning' | 'critical'
+}>`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  letter-spacing: 0.02em;
+  margin-left: ${({ theme }) => theme.spacing[2]};
+  background: ${({ $severity, theme }) =>
+    $severity === 'critical'
+      ? `${theme.colors.palette.danger}18`
+      : $severity === 'warning'
+        ? `${theme.colors.palette.warningDark}18`
+        : `${theme.colors.palette.primary}12`};
+  color: ${({ $severity, theme }) =>
+    $severity === 'critical'
+      ? theme.colors.palette.danger
+      : $severity === 'warning'
+        ? theme.colors.palette.warningDeep
+        : theme.colors.palette.primary};
+  border: 1px solid
+    ${({ $severity, theme }) =>
+      $severity === 'critical'
+        ? `${theme.colors.palette.danger}30`
+        : $severity === 'warning'
+          ? `${theme.colors.palette.warningDark}30`
+          : `${theme.colors.palette.primary}20`};
+`
+
+/** Reference value indicator (not authoritative) */
+export const ReferenceBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  letter-spacing: 0.02em;
+  margin-left: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => `${theme.colors.text4}12`};
+  color: ${({ theme }) => theme.colors.text4};
+  border: 1px solid ${({ theme }) => `${theme.colors.text4}20`};
+`
+
 export const KpiGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

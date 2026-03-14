@@ -371,3 +371,42 @@ export const SourceTag = styled.span`
   padding: 1px ${({ theme }) => theme.spacing[2]};
   border-radius: ${({ theme }) => theme.radii.sm};
 `
+
+/** Warning alert box for MetricBreakdownPanel formula tab */
+export const WarningAlertBox = styled.div<{
+  $severity: 'info' | 'warning' | 'critical'
+}>`
+  display: flex;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
+  background: ${({ $severity, theme }) =>
+    $severity === 'critical'
+      ? `${theme.colors.palette.danger}10`
+      : $severity === 'warning'
+        ? `${theme.colors.palette.warningDark}10`
+        : `${theme.colors.palette.primary}08`};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid
+    ${({ $severity, theme }) =>
+      $severity === 'critical'
+        ? theme.colors.palette.danger
+        : $severity === 'warning'
+          ? theme.colors.palette.warningDark
+          : theme.colors.palette.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
+export const WarningAlertLabel = styled.span<{
+  $severity: 'info' | 'warning' | 'critical'
+}>`
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ $severity, theme }) =>
+    $severity === 'critical'
+      ? theme.colors.palette.danger
+      : $severity === 'warning'
+        ? theme.colors.palette.warningDeep
+        : theme.colors.palette.primary};
+  white-space: nowrap;
+`

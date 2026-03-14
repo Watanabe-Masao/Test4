@@ -13,10 +13,12 @@ export {
   getWarningLabel,
   getWarningMessage,
   getWarningSeverity,
+  getWarningCategory,
   resolveWarnings,
   getMaxSeverity,
+  getAllWarningCodes,
 } from './warningCatalog'
-export type { WarningSeverity, WarningEntry } from './warningCatalog'
+export type { WarningCategory, WarningSeverity, WarningEntry } from './warningCatalog'
 export type {
   PresetCategoryId,
   UserCategoryId,

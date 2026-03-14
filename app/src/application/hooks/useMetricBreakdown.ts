@@ -23,6 +23,8 @@ import {
   formatMetricValue,
   resolveStoreName,
 } from '@/application/usecases/metricBreakdownTransform'
+import type { WarningSeverity } from '@/domain/constants'
+import { resolveWarnings, getMaxSeverity } from '@/domain/constants'
 
 // ─── ViewModel 型定義 ──────────────────────────────────
 
@@ -94,6 +96,15 @@ export interface MetricBreakdownViewModel {
 
   // ── Evidence Tab ──
   readonly evidenceRefsByType: ReadonlyMap<string, readonly EvidenceRefRow[]>
+
+  // ── Warnings ──
+  readonly resolvedWarnings: readonly {
+    readonly code: string
+    readonly severity: WarningSeverity
+    readonly label: string
+    readonly message: string
+  }[]
+  readonly maxWarningSeverity: WarningSeverity | null
 
   // ── Navigation ──
   readonly breadcrumb: readonly BreadcrumbItem[]
@@ -214,6 +225,15 @@ export function useMetricBreakdown({
     [history, allExplanations],
   )
 
+  const { resolvedWarnings: resolvedWarningsList, maxSeverity: maxWarningSeverity } =
+    useMemo(() => {
+      const codes = current.warnings ?? []
+      return {
+        resolvedWarnings: resolveWarnings(codes),
+        maxSeverity: getMaxSeverity(codes),
+      }
+    }, [current.warnings])
+
   return {
     title: current.title,
     formattedValue: formatMetricValue(current.value, current.unit),
@@ -232,6 +252,8 @@ export function useMetricBreakdown({
     expandedDays,
     toggleDay,
     evidenceRefsByType,
+    resolvedWarnings: resolvedWarningsList,
+    maxWarningSeverity,
     breadcrumb,
     navigateTo,
     navigateBack,

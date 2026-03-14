@@ -75,7 +75,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'null',
-    warningRule: 'discount_rate_out_of_domain',
+    warningRule: 'calc_discount_rate_out_of_domain',
   },
 
   // ─── 値入率 ─────────────────────────────────────────────
@@ -136,7 +136,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'null',
-    warningRule: 'discount_rate_out_of_domain',
+    warningRule: 'calc_discount_rate_out_of_domain',
   },
   estMethodMargin: {
     label: '推定粗利（値入率ベース）',
@@ -147,7 +147,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'null',
-    warningRule: 'discount_rate_out_of_domain',
+    warningRule: 'calc_discount_rate_out_of_domain',
   },
   estMethodMarginRate: {
     label: '推定粗利率（値入率ベース）',
@@ -158,7 +158,7 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'null',
-    warningRule: 'discount_rate_out_of_domain',
+    warningRule: 'calc_discount_rate_out_of_domain',
   },
   estMethodClosingInventory: {
     label: '推定期末在庫',

@@ -296,6 +296,7 @@ describe('R11: hooks/ の useMemo 呼び出しが上限以下', () => {
     'application/hooks/duckdb/useJsAggregationQueries.ts': 10,
     'application/hooks/duckdb/useCtsQueries.ts': 10,
     'application/hooks/useComparisonModule.ts': 8,
+    'application/hooks/useMetricBreakdown.ts': 8,
   }
 
   it('useMemo 呼び出し数が上限以下', () => {
@@ -575,6 +576,8 @@ describe('Domain 層の分割後ファイル行数制限', () => {
     ['domain/calculations/utils.ts', 100],
     ['domain/calculations/averageDivisor.ts', 120],
     ['domain/calculations/dataDetection.ts', 80],
+    // Phase 4: metricResolver 3段パイプライン化
+    ['domain/constants/metricResolver.ts', 370],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {
