@@ -23,8 +23,13 @@ import {
   formatMetricValue,
   resolveStoreName,
 } from '@/application/usecases/metricBreakdownTransform'
-import type { WarningSeverity } from '@/domain/constants'
-import { resolveWarnings, getMaxSeverity } from '@/domain/constants'
+import type { WarningSeverity, DisplayMode } from '@/domain/constants'
+import {
+  resolveWarnings,
+  getMaxSeverity,
+  resolveMetric,
+  deriveDisplayMode,
+} from '@/domain/constants'
 
 // ─── ViewModel 型定義 ──────────────────────────────────
 
@@ -105,6 +110,9 @@ export interface MetricBreakdownViewModel {
     readonly message: string
   }[]
   readonly maxWarningSeverity: WarningSeverity | null
+
+  // ── Display Mode ──
+  readonly displayMode: DisplayMode
 
   // ── Navigation ──
   readonly breadcrumb: readonly BreadcrumbItem[]
@@ -225,14 +233,23 @@ export function useMetricBreakdown({
     [history, allExplanations],
   )
 
-  const { resolvedWarnings: resolvedWarningsList, maxSeverity: maxWarningSeverity } =
-    useMemo(() => {
-      const codes = current.warnings ?? []
-      return {
-        resolvedWarnings: resolveWarnings(codes),
-        maxSeverity: getMaxSeverity(codes),
-      }
-    }, [current.warnings])
+  const {
+    resolvedWarnings: resolvedWarningsList,
+    maxSeverity: maxWarningSeverity,
+    displayMode,
+  } = useMemo(() => {
+    const codes = current.warnings ?? []
+    const warningMap = new Map<string, readonly string[]>()
+    if (codes.length > 0) {
+      warningMap.set(currentMetric, codes)
+    }
+    const resolution = resolveMetric(currentMetric, current.value, warningMap)
+    return {
+      resolvedWarnings: resolveWarnings(codes),
+      maxSeverity: getMaxSeverity(codes),
+      displayMode: deriveDisplayMode(resolution),
+    }
+  }, [current.warnings, current.value, currentMetric])
 
   return {
     title: current.title,
@@ -254,6 +271,7 @@ export function useMetricBreakdown({
     evidenceRefsByType,
     resolvedWarnings: resolvedWarningsList,
     maxWarningSeverity,
+    displayMode,
     breadcrumb,
     navigateTo,
     navigateBack,

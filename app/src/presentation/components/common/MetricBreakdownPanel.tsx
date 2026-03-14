@@ -53,6 +53,7 @@ import {
   SourceTag,
   WarningAlertBox,
   WarningAlertLabel,
+  DisplayModeBadge,
 } from './MetricBreakdownPanel.styles'
 
 interface MetricBreakdownPanelProps {
@@ -82,8 +83,20 @@ export function MetricBreakdownPanel({
       >
         <MbpHeader>
           <div>
-            <MbpTitle>{vm.title}</MbpTitle>
-            <ValueDisplay>{vm.formattedValue}</ValueDisplay>
+            <MbpTitle>
+              {vm.title}
+              {vm.displayMode === 'reference' && (
+                <DisplayModeBadge $mode="reference" title="参考値です">
+                  参考値
+                </DisplayModeBadge>
+              )}
+              {vm.displayMode === 'hidden' && (
+                <DisplayModeBadge $mode="hidden" title="計算条件不足のため非表示">
+                  非表示
+                </DisplayModeBadge>
+              )}
+            </MbpTitle>
+            <ValueDisplay>{vm.displayMode === 'hidden' ? '—' : vm.formattedValue}</ValueDisplay>
             <ScopeInfo>{vm.scopeLabel}</ScopeInfo>
           </div>
           <HeaderActions>

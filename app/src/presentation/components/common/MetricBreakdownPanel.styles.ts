@@ -398,6 +398,23 @@ export const WarningAlertBox = styled.div<{
   color: ${({ theme }) => theme.colors.text2};
 `
 
+/** Display mode badge for MetricBreakdownPanel header */
+export const DisplayModeBadge = styled.span<{
+  $mode: 'reference' | 'hidden'
+}>`
+  display: inline-flex;
+  align-items: center;
+  padding: 1px ${({ theme }) => theme.spacing[2]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  margin-left: ${({ theme }) => theme.spacing[2]};
+  background: ${({ $mode, theme }) =>
+    $mode === 'hidden' ? `${theme.colors.palette.danger}10` : `${theme.colors.text4}15`};
+  color: ${({ $mode, theme }) =>
+    $mode === 'hidden' ? theme.colors.palette.danger : theme.colors.text4};
+`
+
 export const WarningAlertLabel = styled.span<{
   $severity: 'info' | 'warning' | 'critical'
 }>`

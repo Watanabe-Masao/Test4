@@ -351,6 +351,46 @@ describe('resolveMetric (policy 統合)', () => {
     expect(result.status).toBe('invalid')
     expect(result.exploratoryAllowed).toBe(true)
   })
+
+  it('projectedAchievement: partial でも authoritative 可', () => {
+    const warnings = new Map([['projectedAchievement', ['obs_window_incomplete']]])
+    const result = resolveMetric('projectedAchievement', 0.92, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('projectedAchievement: invalid でも exploratory 可', () => {
+    const result = resolveMetric('projectedAchievement', 0, new Map(), 'invalid')
+    expect(result.status).toBe('invalid')
+    expect(result.exploratoryAllowed).toBe(true)
+  })
+
+  it('requiredDailySales: partial でも authoritative 可', () => {
+    const warnings = new Map([['requiredDailySales', ['obs_window_incomplete']]])
+    const result = resolveMetric('requiredDailySales', 500000, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('grossProfitBudgetAchievement: partial でも authoritative 可', () => {
+    const warnings = new Map([['grossProfitBudgetAchievement', ['obs_window_incomplete']]])
+    const result = resolveMetric('grossProfitBudgetAchievement', 0.78, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('projectedGrossProfit: partial でも authoritative 可', () => {
+    const warnings = new Map([['projectedGrossProfit', ['obs_window_incomplete']]])
+    const result = resolveMetric('projectedGrossProfit', 1200000, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('projectedGPAchievement: invalid でも exploratory 可', () => {
+    const result = resolveMetric('projectedGPAchievement', 0, new Map(), 'invalid')
+    expect(result.status).toBe('invalid')
+    expect(result.exploratoryAllowed).toBe(true)
+  })
 })
 
 // ═══════════════════════════════════════════════════════════
@@ -557,6 +597,16 @@ describe('getRegisteredMetricIds', () => {
     expect(ids).toContain('discountLossCost')
     expect(ids).toContain('budgetAchievementRate')
     expect(ids).toContain('projectedSales')
+    expect(ids).toContain('projectedAchievement')
+    expect(ids).toContain('requiredDailySales')
+    expect(ids).toContain('grossProfitBudgetAchievement')
+    expect(ids).toContain('projectedGrossProfit')
+    expect(ids).toContain('projectedGPAchievement')
+    expect(ids).toContain('grossProfitBudgetVariance')
+    expect(ids).toContain('budgetProgressRate')
+    expect(ids).toContain('budgetElapsedRate')
+    expect(ids).toContain('budgetProgressGap')
+    expect(ids).toContain('grossProfitProgressGap')
     expect(ids).not.toContain('salesTotal')
     expect(ids).not.toContain('totalCustomers')
   })
