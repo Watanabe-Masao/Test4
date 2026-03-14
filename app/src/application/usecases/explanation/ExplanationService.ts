@@ -96,12 +96,11 @@ export function generateExplanations(
   // ─── 推定法 ──────────────────────────────────────────
 
   const estWarnings = result.metricWarnings.get('estMethodCogs') ?? []
-  const estWarningNote = estWarnings.length > 0 ? `\n\n⚠ ${estWarnings.join('\n⚠ ')}` : ''
 
   map.set('estMethodCogs', {
     metric: 'estMethodCogs',
     title: '推定原価（推定法・理論値）',
-    formula: '推定原価 = コア売上 ÷ (1 - 売変率) × (1 - 値入率) + 原価算入費' + estWarningNote,
+    formula: '推定原価 = コア売上 ÷ (1 - 売変率) × (1 - 値入率) + 原価算入費',
     value: result.estMethodCogs,
     unit: 'yen',
     scope,
@@ -112,12 +111,13 @@ export function generateExplanations(
       inp('原価算入費', result.totalCostInclusion, 'yen', 'totalCostInclusion'),
     ],
     evidenceRefs: [],
+    warnings: estWarnings.length > 0 ? estWarnings : undefined,
   })
 
   map.set('estMethodMargin', {
     metric: 'estMethodMargin',
     title: '推定マージン（推定法・理論値）',
-    formula: '推定マージン = コア売上 - 推定原価' + estWarningNote,
+    formula: '推定マージン = コア売上 - 推定原価',
     value: result.estMethodMargin,
     unit: 'yen',
     scope,
@@ -126,12 +126,13 @@ export function generateExplanations(
       inp('推定原価', result.estMethodCogs, 'yen', 'estMethodCogs'),
     ],
     evidenceRefs: [],
+    warnings: estWarnings.length > 0 ? estWarnings : undefined,
   })
 
   map.set('estMethodMarginRate', {
     metric: 'estMethodMarginRate',
     title: '推定マージン率（推定法・理論値）',
-    formula: '推定マージン率 = 推定マージン ÷ コア売上' + estWarningNote,
+    formula: '推定マージン率 = 推定マージン ÷ コア売上',
     value: result.estMethodMarginRate,
     unit: 'rate',
     scope,
@@ -140,6 +141,7 @@ export function generateExplanations(
       inp('コア売上', result.totalCoreSales, 'yen', 'coreSales'),
     ],
     evidenceRefs: [],
+    warnings: estWarnings.length > 0 ? estWarnings : undefined,
   })
 
   if (result.estMethodClosingInventory !== null) {

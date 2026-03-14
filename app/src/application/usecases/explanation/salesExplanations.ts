@@ -180,14 +180,10 @@ export function registerSalesExplanations(
   })
 
   const discountLossWarnings = result.metricWarnings.get('discountLossCost') ?? []
-  const discountLossFormula =
-    discountLossWarnings.length > 0
-      ? `売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 ÷ (1 - 売変率)\n\n⚠ ${discountLossWarnings.join('\n⚠ ')}`
-      : '売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 ÷ (1 - 売変率)'
   map.set('discountLossCost', {
     metric: 'discountLossCost',
     title: '売変ロス原価',
-    formula: discountLossFormula,
+    formula: '売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 ÷ (1 - 売変率)',
     value: result.discountLossCost,
     unit: 'yen',
     scope,
@@ -197,6 +193,7 @@ export function registerSalesExplanations(
       inp('売変率', result.discountRate, 'rate', 'discountRate'),
     ],
     evidenceRefs: [],
+    warnings: discountLossWarnings.length > 0 ? discountLossWarnings : undefined,
   })
 
   // ─── 値入率 ──────────────────────────────────────────

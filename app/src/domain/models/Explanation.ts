@@ -242,6 +242,8 @@ export interface Explanation {
   readonly evidenceRefs: readonly EvidenceRef[]
   /** FORMULA_REGISTRY から解決された数式詳細（formulaRef がある指標のみ） */
   readonly formulaDetail?: FormulaDetail
+  /** 警告コード（warningCatalog で表示文言に解決する） */
+  readonly warnings?: readonly string[]
 }
 
 // ─── StoreExplanations ────────────────────────────────────
