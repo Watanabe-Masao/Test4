@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
   useImport,
@@ -39,8 +39,8 @@ const FolderSyncStatus = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  color: ${({ theme }) => theme.text3};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
 `
 
 const FolderRow = styled.div`
@@ -53,13 +53,14 @@ const FolderDot = styled.span<{ $active: boolean }>`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: ${({ $active, theme }) => ($active ? theme.positive : theme.text4)};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.palette.positive : theme.colors.text4};
   flex-shrink: 0;
 `
 
 const FolderName = styled.span`
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  color: ${({ theme }) => theme.text2};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text2};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -69,14 +70,14 @@ const FolderName = styled.span`
 const SmallBtn = styled.button`
   all: unset;
   cursor: pointer;
-  font-size: ${({ theme }) => theme.fontSize.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   padding: 1px 6px;
   border-radius: 4px;
-  color: ${({ theme }) => theme.text4};
+  color: ${({ theme }) => theme.colors.text4};
   background: ${({ theme }) =>
     theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
   &:hover {
-    color: ${({ theme }) => theme.text2};
+    color: ${({ theme }) => theme.colors.text2};
   }
 `
 
@@ -176,6 +177,24 @@ export function DataManagementSidebar({
     },
     [setPeriod1, period1],
   )
+
+  // データ検出日に基づく期間自動初期化:
+  // dataEndDay 未設定 + データ検出日 < 月末 の場合、検出日で自動設定
+  const autoInitRef = useRef<string>('')
+  useEffect(() => {
+    if (!hasNonBudgetData) return
+    if (detectedMaxDay >= daysInMonth) return
+    // 明示的に dataEndDay が設定済みならスキップ
+    if (settings.dataEndDay != null) return
+    // 同じ年月+検出日で二重実行を防止
+    const key = `${settings.targetYear}-${settings.targetMonth}-${detectedMaxDay}`
+    if (autoInitRef.current === key) return
+    autoInitRef.current = key
+    updateSettings({ dataEndDay: detectedMaxDay })
+    // period1 の to.day を検出日に更新（period1 は依存配列に含めず最新値を取得）
+    const currentPeriod1 = usePeriodSelectionStore.getState().selection.period1
+    setPeriod1({ ...currentPeriod1, to: { ...currentPeriod1.to, day: detectedMaxDay } })
+  }, [hasNonBudgetData, detectedMaxDay, daysInMonth, settings.dataEndDay, settings.targetYear, settings.targetMonth, updateSettings, setPeriod1])
 
   // 長押しでデータ再スキャン
   const handleLongPress = useCallback(() => {

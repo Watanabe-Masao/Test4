@@ -8,7 +8,7 @@ import { useCallback, useState, useMemo } from 'react'
 import { Modal } from './Modal'
 import { FileDropZone } from './FileDropZone'
 import { UploadCard } from './UploadCard'
-import { ImportProgressSteps } from './ImportWizard'
+import { ImportProgress as ImportProgressSteps } from './ImportWizard'
 import { ImportProgressBar } from './ImportProgressBar'
 import { ImportSummaryCard } from './ImportWizard'
 import styled from 'styled-components'
@@ -43,8 +43,8 @@ const PrivacyInfoBox = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  color: ${({ theme }) => theme.text4};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
   margin-top: 8px;
 `
 
@@ -52,7 +52,7 @@ const PrivacyDot = styled.span`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: ${({ theme }) => theme.positive};
+  background: ${({ theme }) => theme.colors.palette.positive};
   flex-shrink: 0;
 `
 

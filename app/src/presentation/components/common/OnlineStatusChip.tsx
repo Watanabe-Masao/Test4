@@ -12,11 +12,14 @@ const Chip = styled.button<{ $online: boolean }>`
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border: 1px solid ${({ theme, $online }) => ($online ? theme.positive : theme.negative)};
+  border: 1px solid
+    ${({ theme, $online }) =>
+      $online ? theme.colors.palette.positive : theme.colors.palette.negative};
   border-radius: 12px;
-  background: ${({ theme }) => theme.bg2};
-  color: ${({ theme, $online }) => ($online ? theme.positive : theme.negative)};
-  font-size: ${({ theme }) => theme.fontSize.xs};
+  background: ${({ theme }) => theme.colors.bg2};
+  color: ${({ theme, $online }) =>
+    $online ? theme.colors.palette.positive : theme.colors.palette.negative};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -34,7 +37,8 @@ const Dot = styled.span<{ $online: boolean }>`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: ${({ $online, theme }) => ($online ? theme.positive : theme.negative)};
+  background: ${({ $online, theme }) =>
+    $online ? theme.colors.palette.positive : theme.colors.palette.negative};
 `
 
 interface OnlineStatusChipProps {
