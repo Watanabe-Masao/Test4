@@ -50,7 +50,7 @@ import type {
   TrendAnalysisResult,
 } from '@/domain/calculations/algorithms/trendAnalysis'
 
-import { getExecutionMode, getWasmState } from './wasmEngine'
+import { getExecutionMode, getWasmState, getForecastWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   calculateStdDevWasm,
@@ -99,10 +99,8 @@ export interface ForecastMismatchLog {
 
 /* ── 内部ヘルパー ─────────────────────────────── */
 
-// forecast WASM は未実装のため、isWasmReady は常に false を返す。
-// Rust/WASM 実装後に getForecastWasmExports() !== null に変更する。
 function isWasmReady(): boolean {
-  return false
+  return getForecastWasmExports() !== null
 }
 
 function isDualRun(): boolean {

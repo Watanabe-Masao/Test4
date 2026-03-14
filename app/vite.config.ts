@@ -35,6 +35,7 @@ export default defineConfig({
       'factor-decomposition-wasm',
       'gross-profit-wasm',
       'budget-analysis-wasm',
+      'forecast-wasm',
     ],
   },
   assetsInclude: ['**/*.wasm'],
