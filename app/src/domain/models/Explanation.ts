@@ -112,6 +112,12 @@ export interface MetricTokens {
     | 'average'
 }
 
+/** 計算エンジンの種別 */
+export type SourceEngine = 'ts' | 'sql' | 'rust'
+
+/** フォールバック戦略 */
+export type FallbackRule = 'none' | 'zero' | 'null' | 'estimated'
+
 /** 指標メタデータ */
 export interface MetricMeta {
   readonly label: string
@@ -121,6 +127,14 @@ export interface MetricMeta {
   readonly storeResultField?: string
   /** 主要計算公式（FORMULA_REGISTRY 参照）。ソースデータ・単純加減算は省略 */
   readonly formulaRef?: FormulaId
+  /** 正式値の責任者（TS / SQL / Rust） */
+  readonly authoritativeOwner?: SourceEngine
+  /** 計算を実行するエンジン */
+  readonly sourceEngine?: SourceEngine
+  /** 分母ゼロやデータ欠損時のフォールバック戦略 */
+  readonly fallbackRule?: FallbackRule
+  /** 警告条件（この条件に該当する場合 warning を付与する） */
+  readonly warningRule?: string
 }
 
 // ─── Unit ─────────────────────────────────────────────────

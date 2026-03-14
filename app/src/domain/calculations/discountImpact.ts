@@ -1,4 +1,6 @@
 import { safeDivide } from './utils'
+import type { CalculationResult } from '@/domain/models/CalculationResult'
+import { okResult, invalidResult } from '@/domain/models/CalculationResult'
 
 /**
  * 売変影響分析
@@ -17,18 +19,61 @@ export interface DiscountImpactResult {
 }
 
 /**
- * 売変ロス原価を算出する
+ * 売変率の定義域を検証する
+ *
+ * 有効範囲: 0 ≤ discountRate < 1
+ * - discountRate < 0: 業務上あり得ない（invalid）
+ * - discountRate >= 1: 分母ゼロ（invalid）
+ */
+function validateDiscountRate(discountRate: number): readonly string[] {
+  const warnings: string[] = []
+  if (discountRate < 0) {
+    warnings.push('discount_rate_negative')
+  }
+  if (discountRate >= 1) {
+    warnings.push('discount_rate_out_of_domain')
+  }
+  return warnings
+}
+
+/**
+ * 売変ロス原価を算出する（CalculationResult 版）
  *
  * 売変ロス原価 = (1 - 値入率) × コア売上 × 売変率 / (1 - 売変率)
  *
  * 売変（値引）によって失われた売価を、原価換算した金額。
+ *
+ * discountRate >= 1 または discountRate < 0 の場合は invalid を返す。
+ */
+export function calculateDiscountImpactWithStatus(
+  input: DiscountImpactInput,
+): CalculationResult<DiscountImpactResult> {
+  const { coreSales, markupRate, discountRate } = input
+  const warnings = validateDiscountRate(discountRate)
+
+  if (warnings.length > 0) {
+    return invalidResult(warnings)
+  }
+
+  const discountLossCost =
+    (1 - markupRate) * coreSales * safeDivide(discountRate, 1 - discountRate, 0)
+
+  return okResult({ discountLossCost })
+}
+
+/**
+ * 売変ロス原価を算出する（後方互換）
+ *
+ * @deprecated calculateDiscountImpactWithStatus を使用してください
  */
 export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImpactResult {
+  const result = calculateDiscountImpactWithStatus(input)
+  if (result.value != null) {
+    return result.value
+  }
+  // 後方互換: invalid 時は従来の safeDivide fallback を使用
   const { coreSales, markupRate, discountRate } = input
-
-  // 売変率100%時 (divisor=0) は discountRate をそのまま使用（フォールバック）
   const discountLossCost =
     (1 - markupRate) * coreSales * safeDivide(discountRate, 1 - discountRate, discountRate)
-
   return { discountLossCost }
 }

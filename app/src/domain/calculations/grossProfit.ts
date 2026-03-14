@@ -19,11 +19,16 @@ export { calculateInvMethod } from './invMethod'
 export type { InvMethodInput, InvMethodResult } from './invMethod'
 
 // 推定法（runtime は grossProfitBridge 経由で使用する）
-export { calculateEstMethod, calculateCoreSales, calculateDiscountRate } from './estMethod'
+export {
+  calculateEstMethod,
+  calculateEstMethodWithStatus,
+  calculateCoreSales,
+  calculateDiscountRate,
+} from './estMethod'
 export type { EstMethodInput, EstMethodResult } from './estMethod'
 
 // 売変影響（runtime は grossProfitBridge 経由で使用する）
-export { calculateDiscountImpact } from './discountImpact'
+export { calculateDiscountImpact, calculateDiscountImpactWithStatus } from './discountImpact'
 export type { DiscountImpactInput, DiscountImpactResult } from './discountImpact'
 
 // 値入率（runtime は grossProfitBridge 経由で使用する）

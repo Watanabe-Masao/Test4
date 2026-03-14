@@ -62,6 +62,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'discount', domain: 'actual', measure: 'rate' },
     storeResultField: 'discountRate',
     formulaRef: 'ratioCalculation',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'zero',
   },
   discountLossCost: {
     label: '売変ロス原価',
@@ -69,6 +72,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'discount', domain: 'actual', measure: 'value' },
     storeResultField: 'discountLossCost',
     formulaRef: 'discountLossCost',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
+    warningRule: 'discount_rate_out_of_domain',
   },
 
   // ─── 値入率 ─────────────────────────────────────────────
@@ -94,6 +101,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'cogs', domain: 'actual', measure: 'value' },
     storeResultField: 'invMethodCogs',
     formulaRef: 'inventoryMethodCogs',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
   },
   invMethodGrossProfit: {
     label: '実績粗利益（在庫法）',
@@ -101,6 +111,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'actual', measure: 'value' },
     storeResultField: 'invMethodGrossProfit',
     formulaRef: 'inventoryMethodCogs',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
   },
   invMethodGrossProfitRate: {
     label: '実績粗利率（在庫法）',
@@ -108,6 +121,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'actual', measure: 'rate' },
     storeResultField: 'invMethodGrossProfitRate',
     formulaRef: 'ratioCalculation',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
   },
 
   // ─── 粗利（推定法 — 値入率ベース） ──────────────────────
@@ -117,6 +133,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'cogs', domain: 'estimated', measure: 'value' },
     storeResultField: 'estMethodCogs',
     formulaRef: 'estimationMethodCogs',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
+    warningRule: 'discount_rate_out_of_domain',
   },
   estMethodMargin: {
     label: '推定粗利（値入率ベース）',
@@ -124,6 +144,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'estimated', measure: 'value' },
     storeResultField: 'estMethodMargin',
     formulaRef: 'estimationMethodCogs',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
+    warningRule: 'discount_rate_out_of_domain',
   },
   estMethodMarginRate: {
     label: '推定粗利率（値入率ベース）',
@@ -131,6 +155,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'gp', domain: 'estimated', measure: 'rate' },
     storeResultField: 'estMethodMarginRate',
     formulaRef: 'ratioCalculation',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'null',
+    warningRule: 'discount_rate_out_of_domain',
   },
   estMethodClosingInventory: {
     label: '推定期末在庫',
@@ -194,6 +222,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'sales', domain: 'budget', measure: 'achievement' },
     storeResultField: 'budgetAchievementRate',
     formulaRef: 'ratioCalculation',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'zero',
   },
   budgetProgressRate: {
     label: '売上予算消化率',
@@ -227,6 +258,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     tokens: { entity: 'sales', domain: 'forecast', measure: 'value' },
     storeResultField: 'projectedSales',
     formulaRef: 'monthEndProjection',
+    authoritativeOwner: 'ts',
+    sourceEngine: 'ts',
+    fallbackRule: 'zero',
   },
   projectedAchievement: {
     label: '着地予測達成率',

@@ -36,7 +36,7 @@ export interface BudgetAnalysisResult {
  * 予算分析を実行する
  */
 export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnalysisResult {
-  const { totalSales, budget, budgetDaily, salesDaily, elapsedDays, salesDays, daysInMonth } = input
+  const { totalSales, budget, budgetDaily, salesDaily, elapsedDays, daysInMonth } = input
 
   // 予算達成率 = 売上 / 予算
   const budgetAchievementRate = safeDivide(totalSales, budget, 0)
@@ -51,11 +51,10 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
   // 予算経過率 = 経過日までの累計予算 / 月間予算
   const budgetElapsedRate = safeDivide(cumulativeBudget, budget, 0)
 
-  // 日平均売上（営業日ベース）
-  const averageDailySales = safeDivide(totalSales, salesDays, 0)
+  // 日平均売上（観測期間ベース: 月初〜最終売上計上日）
+  const averageDailySales = safeDivide(totalSales, elapsedDays, 0)
 
-  // 月末予測売上 = 日平均売上 × 月の日数
-  // ※ 営業日ベースなので残日数分も営業日で換算
+  // 月末予測売上 = 実績 + 日平均 × 残日数（分母と乗数は同一基準）
   const remainingDays = daysInMonth - elapsedDays
   const projectedSales = totalSales + averageDailySales * remainingDays
 
@@ -123,8 +122,7 @@ export interface GrossProfitBudgetResult {
  * 粗利予算分析を実行する
  */
 export function calculateGrossProfitBudget(input: GrossProfitBudgetInput): GrossProfitBudgetResult {
-  const { grossProfit, grossProfitBudget, budgetElapsedRate, elapsedDays, salesDays, daysInMonth } =
-    input
+  const { grossProfit, grossProfitBudget, budgetElapsedRate, elapsedDays, daysInMonth } = input
 
   const elapsedGPBudget = grossProfitBudget * budgetElapsedRate
   const grossProfitBudgetVariance = grossProfit - elapsedGPBudget
@@ -136,7 +134,8 @@ export function calculateGrossProfitBudget(input: GrossProfitBudgetInput): Gross
   const requiredDailyGrossProfit =
     remainingDays > 0 ? safeDivide(grossProfitBudget - grossProfit, remainingDays, 0) : 0
 
-  const averageDailyGP = safeDivide(grossProfit, salesDays, 0)
+  // 日平均粗利（観測期間ベース: 分母と乗数は同一基準）
+  const averageDailyGP = safeDivide(grossProfit, elapsedDays, 0)
   const projectedGrossProfit = grossProfit + averageDailyGP * remainingDays
   const projectedGPAchievement = safeDivide(projectedGrossProfit, grossProfitBudget, 0)
 
