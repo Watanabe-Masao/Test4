@@ -4,8 +4,7 @@
  * 5 pure 関数 × 4 フィクスチャで dual-run compare pipeline を自動検証する。
  * Date 依存関数は compare 対象外。
  *
- * 注: forecast WASM は未実装のため、WASM mock は TS passthrough。
- * Rust 実装後に実質的な observation が可能になる。
+ * Rust/WASM 実装済み。WASM mock は TS passthrough で dual-run compare を検証する。
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
@@ -84,6 +83,9 @@ describe('forecast 自動観測ハーネス', () => {
     resetObserver()
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getForecastWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getForecastWasmExports>,
+    )
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     setupCleanMocks()
   })
@@ -159,16 +161,11 @@ describe('forecast 自動観測ハーネス', () => {
   })
 
   describe('mismatch 検出の動作確認', () => {
-    it('forecast WASM 未実装: isWasmReady=false のため dual-run compare は実行されない', () => {
-      // forecast bridge の isWasmReady() は常に false を返す（Rust/WASM 未実装）
-      // そのため dual-run compare は実行されず、mismatch は記録されない
-      // Rust 実装後に isWasmReady() が true を返すようになったら、
-      // 実際の mismatch 検出テストに差し替える
+    it('WASM ready + 意図的な差分 → mismatch が記録される', () => {
       vi.mocked(calculateStdDevWasm).mockReturnValue({ mean: 99999, stdDev: 99999 })
       calculateStdDev([...NORMAL.dailySales.values()])
       const result = buildRunResult('forecast', 'mismatch-test')
-      // isWasmReady=false → ts-only パスを通るため mismatch は 0
-      expect(result.summary.totalMismatches).toBe(0)
+      expect(result.summary.totalMismatches).toBeGreaterThanOrEqual(1)
     })
   })
 })

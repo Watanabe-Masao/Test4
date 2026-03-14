@@ -33,6 +33,7 @@ jobs:
             wasm/factor-decomposition/target
             wasm/gross-profit/target
             wasm/budget-analysis/target
+            wasm/forecast/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/*/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
@@ -45,6 +46,7 @@ jobs:
           cd wasm/factor-decomposition && wasm-pack build --target web --release
           cd ../gross-profit && wasm-pack build --target web --release
           cd ../budget-analysis && wasm-pack build --target web --release
+          cd ../forecast && wasm-pack build --target web --release
 
       - uses: actions/setup-node@v4
         with:
