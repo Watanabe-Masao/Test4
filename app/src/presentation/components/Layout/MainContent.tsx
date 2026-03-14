@@ -5,6 +5,7 @@ import { useCalculation, useStoreSelection } from '@/application/hooks'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useMonthSwitcher } from '@/application/hooks/useMonthSwitcher'
 import { usePeriodSelection } from '@/application/hooks/usePeriodResolver'
+import { deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 import {
   Main,
   Header,
@@ -117,9 +118,9 @@ function PeriodDisplay() {
   const { selection } = usePeriodSelection()
   const label = useMemo(() => {
     const p1 = formatDateRange(selection.period1)
-    const p2 = formatDateRange(selection.period2)
+    const p2 = formatDateRange(deriveEffectivePeriod2(selection))
     return { p1, p2 }
-  }, [selection.period1, selection.period2])
+  }, [selection])
 
   return (
     <PeriodInfo>

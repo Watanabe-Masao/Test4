@@ -18,7 +18,7 @@ import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { usePurchaseComparisonQuery } from '@/application/hooks/duckdb/usePurchaseComparisonQuery'
-import { deriveDowOffset } from '@/domain/models/PeriodSelection'
+import { deriveDowOffset, deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 import { ComparisonPresetToggle } from '@/presentation/components/Layout/ComparisonPresetToggle'
 import type { PurchaseComparisonKpi } from '@/domain/models/PurchaseComparison'
 import {
@@ -76,11 +76,13 @@ export function PurchaseAnalysisPage() {
     [selection.period1, selection.activePreset],
   )
 
+  const effectivePeriod2 = useMemo(() => deriveEffectivePeriod2(selection), [selection])
+
   const { data: result, isLoading } = usePurchaseComparisonQuery(
     duck.conn,
     duck.dataVersion,
     selection.period1,
-    selection.period2,
+    effectivePeriod2,
     selectedStoreIds,
     settings.supplierCategoryMap,
     userCategories,
@@ -105,7 +107,7 @@ export function PurchaseAnalysisPage() {
 
   // 期間ラベル
   const curLabel = periodLabel(selection.period1)
-  const prevLabel = periodLabel(selection.period2)
+  const prevLabel = periodLabel(effectivePeriod2)
 
   return (
     <MainContent title="仕入分析">

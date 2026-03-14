@@ -5,6 +5,7 @@ import {
   buildPeriodQueryInput,
   createDefaultPeriodSelection,
   deriveDowOffset,
+  deriveEffectivePeriod2,
   buildPrevYearScopeFromSelection,
 } from '../PeriodSelection'
 import type { DateRange } from '../CalendarDate'
@@ -198,6 +199,64 @@ describe('PeriodSelection', () => {
       const currentDow = new Date(2026, 1, 1).getDay()
       const prevDow = new Date(2025, 1, 1).getDay()
       expect(offset).toBe((((currentDow - prevDow) % 7) + 7) % 7)
+    })
+  })
+
+  describe('deriveEffectivePeriod2', () => {
+    it('prevYearSameMonth: period2 をそのまま返す', () => {
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const effective = deriveEffectivePeriod2(sel)
+      expect(effective).toEqual(sel.period2)
+    })
+
+    it('prevMonth: period2 をそのまま返す', () => {
+      const sel = createDefaultPeriodSelection(2026, 3)
+      const p2 = applyPreset(sel.period1, 'prevMonth', sel.period2)
+      const prevMonthSel = { ...sel, period2: p2, activePreset: 'prevMonth' as const }
+      const effective = deriveEffectivePeriod2(prevMonthSel)
+      expect(effective).toEqual(p2)
+    })
+
+    it('prevYearSameDow: 候補窓ではなく正確な比較期間を返す', () => {
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+      const sameDowSel = { ...sel, period2: p2, activePreset: 'prevYearSameDow' as const }
+
+      const effective = deriveEffectivePeriod2(sameDowSel)
+
+      // 候補窓（±7日）ではないことを確認
+      expect(effective).not.toEqual(p2)
+
+      // period1 から1年前 + dowOffset の期間であること
+      const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
+      const expectedFrom = new Date(2026, 1, 1) // period1.from
+      expectedFrom.setTime(expectedFrom.getTime() - 365 * 86400000 + offset * 86400000)
+      expect(effective.from.year).toBe(expectedFrom.getFullYear())
+      expect(effective.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(effective.from.day).toBe(expectedFrom.getDate())
+    })
+
+    it('prevYearSameDow: 期間の日数が period1 と同じ', () => {
+      const sel = createDefaultPeriodSelection(2026, 2) // 2/1〜2/28
+      const p2 = applyPreset(sel.period1, 'prevYearSameDow', sel.period2)
+      const sameDowSel = { ...sel, period2: p2, activePreset: 'prevYearSameDow' as const }
+
+      const effective = deriveEffectivePeriod2(sameDowSel)
+
+      // effective の日数 = period1 の日数
+      const p1Days =
+        (new Date(sel.period1.to.year, sel.period1.to.month - 1, sel.period1.to.day).getTime() -
+          new Date(
+            sel.period1.from.year,
+            sel.period1.from.month - 1,
+            sel.period1.from.day,
+          ).getTime()) /
+        86400000
+      const effDays =
+        (new Date(effective.to.year, effective.to.month - 1, effective.to.day).getTime() -
+          new Date(effective.from.year, effective.from.month - 1, effective.from.day).getTime()) /
+        86400000
+      expect(effDays).toBe(p1Days)
     })
   })
 
