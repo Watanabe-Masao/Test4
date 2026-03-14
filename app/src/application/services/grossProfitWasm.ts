@@ -81,17 +81,12 @@ export function calculateCoreSalesWasm(
   }
 }
 
-export function calculateDiscountRateWasm(
-  salesAmount: number,
-  discountAmount: number,
-): number {
+export function calculateDiscountRateWasm(salesAmount: number, discountAmount: number): number {
   const wasm = getGrossProfitWasm()
   return wasm.calculate_discount_rate(salesAmount, discountAmount)
 }
 
-export function calculateDiscountImpactWasm(
-  input: DiscountImpactInput,
-): DiscountImpactResult {
+export function calculateDiscountImpactWasm(input: DiscountImpactInput): DiscountImpactResult {
   const wasm = getGrossProfitWasm()
   const value = wasm.calculate_discount_impact(
     input.coreSales,
@@ -118,9 +113,7 @@ export function calculateMarkupRatesWasm(input: MarkupRateInput): MarkupRateResu
   }
 }
 
-export function calculateTransferTotalsWasm(
-  input: TransferTotalsInput,
-): TransferTotalsResult {
+export function calculateTransferTotalsWasm(input: TransferTotalsInput): TransferTotalsResult {
   const wasm = getGrossProfitWasm()
   const arr = wasm.calculate_transfer_totals(
     input.interStoreInPrice,
@@ -138,10 +131,7 @@ export function calculateTransferTotalsWasm(
   }
 }
 
-export function calculateInventoryCostWasm(
-  totalCost: number,
-  deliverySalesCost: number,
-): number {
+export function calculateInventoryCostWasm(totalCost: number, deliverySalesCost: number): number {
   const wasm = getGrossProfitWasm()
   return wasm.calculate_inventory_cost(totalCost, deliverySalesCost)
 }

@@ -2,190 +2,370 @@
 
 ## 目的
 
-dual-run compare の観測結果をどう読み、どう評価するかを統一する。
-観測者が異なっても同じ基準で判断できるようにする。
+dual-run compare の観測結果を、手動確認に依存せず評価できるようにする。
+本ガイドは、各 engine の自動観測ハーネスが出力する
+
+- summary JSON
+- mismatch log JSON
+- call coverage
+- mode 別実行結果
+- rollback / fallback 結果
+
+を主な判断材料として扱う。
+
+本ガイドの役割は、**観測結果を promotion 判定に使える形で読む基準を固定すること** である。
 
 ---
 
-## 1. Mismatch Taxonomy 評価基準
+## 基本原則
 
-`compare-conventions.md` で定義された 5 分類を昇格判断に結びつける。
+### 1. 観測の主対象は自動出力である
+
+評価の主対象は次に限定する。
+
+- `__dualRunStats()` 由来の summary
+- `__dualRunStats('log')` 由来の詳細ログ
+- E2E 観測ハーネスの pass / fail
+- compare bridge tests
+- mode 別テスト
+- fallback / rollback テスト
+- JSON / Markdown レポート
+
+### 2. 手動観測は補助情報である
+
+DevTools 確認、画面目視、runbook の手入力は補助情報としてのみ扱う。
+これらが存在しなくても、一次評価が完了できることを前提とする。
+
+### 3. 評価は「意味差」を優先する
+
+数値差そのものより、次を重く扱う。
+
+- invariant violation
+- null mismatch
+- compare 対象関数が踏まれていない
+- fallback 不全
+- rollback 不全
+- compare 対象外境界の破壊
+
+### 4. 観測結果は engine 単位ではなく、経路単位でも見る
+
+同じ engine でも、経路により結果が異なることがある。
+したがって評価は次の 3 軸で行う。
+
+- **engine 単位** — engine 全体の verdict
+- **path 単位** — 特定の UI 操作経路やデータ経路
+- **fixture 単位** — 入力データのカテゴリ（normal / zero / extreme / boundary）
+
+---
+
+## 観測で使う入力
+
+### 1. summary
+
+`__dualRunStats()` の集計結果。最低限次が読めることを想定する。
+
+- function ごとの call count
+- mismatch count
+- maxAbsDiff
+- mismatch kind 別件数
+- verdict または同等の集約指標
+
+### 2. detail log
+
+`__dualRunStats('log')` の詳細ログ。個別 mismatch の内容を確認するために使う。
+
+### 3. 自動観測レポート
+
+観測ハーネスが出力する JSON / Markdown。
+promotion 判定では、summary より上位の集約材料として使ってよい。
+
+### 4. テスト結果
+
+- invariant tests
+- compare bridge tests
+- wasm-only tests
+- fallback / rollback tests
+
+これらは観測評価における**前提条件**であり、fail がある場合は観測評価以前に NG とする。
+
+---
+
+## Mismatch Taxonomy の評価基準
 
 ### numeric-within-tolerance
 
 | 項目 | 内容 |
 |---|---|
-| 条件 | maxAbsDiff ≤ 1e-10 かつ invariant ok |
-| 昇格判断 | **原則許容。** 浮動小数点精度差であり、業務影響なし |
-| 注意点 | 分布を確認する。特定 engine / 特定関数 / 特定入力パターンに偏る場合は要調査 |
-| 対応 | 偏りがなければ記録のみ。偏りがあれば原因を特定し、Rust 実装の演算順序を確認 |
+| 意味 | 比較対象の数値差が定義済み tolerance 内に収まっている |
+| 評価 | **原則 pass** |
+| 記録 | 件数・偏り・分布を記録する |
+| promotion blocking | **No** — blocking 条件ではない |
+| 調査トリガー | 特定関数に偏る / 特定 fixture でのみ頻発 / maxAbsDiff が tolerance 上限に張り付き |
 
 ### numeric-over-tolerance
 
 | 項目 | 内容 |
 |---|---|
-| 条件 | maxAbsDiff > 1e-10 かつ invariant ok |
-| 昇格判断 | **promotion-candidate 判定では原則 NG** |
-| 例外 | 再現性と原因が明確で、非業務影響であることが説明可能な場合は保留可 |
-| 対応 | 原因を特定する。TS と Rust の演算順序差、safeDivide の挙動差、型変換の精度ロスを確認 |
+| 意味 | 比較対象の数値差が tolerance を超えている |
+| 評価 | **原則 fail** |
+| promotion blocking | **Yes** — promotion-candidate 判定で NG。wasm-only trial 開始条件を満たさない |
+| 例外扱い条件 | 原因明確 + invariant 保持 + null mismatch なし + 業務意味影響なし + promotion matrix に記録済み |
+| 自動判定 | fail とし、例外判断は別途レビュー対象 |
 
 ### null-mismatch
 
 | 項目 | 内容 |
 |---|---|
-| 条件 | TS=null / WASM=non-null、またはその逆 |
-| 昇格判断 | **原則 NG。** null は意味差であり、浮動小数点精度では説明できない |
-| 対応 | WASM adapter の null sentinel 処理（NaN ↔ null 変換）を確認。bridge の null 比較ロジックを確認 |
+| 意味 | TS と WASM の間で nullable field の null / number 判定が不一致 |
+| 評価 | **即 fail** |
+| promotion blocking | **Yes** — 意味差。promotion-candidate 判定で NG |
+| 典型例 | TS は null、WASM は number（またはその逆） |
+| 重み | 数値差より重い。nullable 契約のズレは設計差または adapter 差を示す |
 
 ### invariant-violation
 
 | 項目 | 内容 |
 |---|---|
-| 条件 | invariant checker が TS 側または WASM 側で violated を返す |
-| 昇格判断 | **即 NG。** 数学的不変条件の破壊は最重大 |
-| 対応 | 試験停止。原因を特定し、修正後に観測を最初からやり直す |
-
-### semantic-mismatch
-
-| 項目 | 内容 |
-|---|---|
-| 条件 | 件数差、順序差、discrete value の不一致（forecast の anomaly 件数・trend direction 等） |
-| 昇格判断 | **原則 NG。** 業務的意味が異なる |
-| 対応 | exact match が必要な項目で不一致が出た場合は、Rust ロジックの再検証 |
+| 意味 | 対象 engine の恒等式・境界条件・整合条件のいずれかが破れている |
+| 評価 | **即 fail** |
+| promotion blocking | **Yes** — 最重。観測結果は promotion 判定に使えない |
+| wasm-only trial 中 | 停止条件 |
+| 典型例 | COGS 恒等式不成立 / grossProfit 整合不成立 / 0 ≤ R² ≤ 1 不成立 / finite 条件不成立 |
 
 ---
 
-## 2. 観測ログの最低必要量
+## Call Coverage の評価
 
-「何件見れば十分か」を engine ごとに定義する。
+### 目的
 
-### 共通最低ライン
+「観測したつもりで compare 対象関数が一度も呼ばれていない」事故を防ぐ。
 
-全 engine に共通して以下を満たすこと:
+### 必須条件
 
-- 主要 runtime path をすべて 1 回以上通過
-- 主要データ条件を複数パターンで検証
-- observer summary を複数回保存（異なるセッションで）
-- mismatch が発生した場合は必ず記録・分類
-- verdict が `clean` または `tolerance-only` であることを複数回確認
+各 engine は、観測対象経路に対応する compare 対象関数の call count が **1 以上** でなければならない。
 
-### engine 別の目安
+### 評価ルール
 
-#### factorDecomposition（4 関数）
-
-| 経路 | 必要な観測 |
+| 結果 | 条件 |
 |---|---|
-| decompose2 | 2 要因分解の主要パターン（prevSales > 0, prevSales = 0） |
-| decompose3 | 3 要因分解の主要パターン |
-| decompose5 | 5 要因分解の主要パターン |
-| decomposePriceMix | price/mix 分解のパターン |
-| 時系列 | 複数月のデータでの連続実行 |
-
-#### grossProfit（8 関数）
-
-| 経路 | 必要な観測 |
-|---|---|
-| calculateInvMethod | 在庫法: 通常 / null 在庫 / ゼロ売上 |
-| calculateEstMethod | 推定法: 通常 / null 在庫 / ゼロ割引率 |
-| calculateCoreSales | 通常 / over-delivery |
-| calculateDiscountRate | 通常 / ゼロ売上 |
-| calculateDiscountImpact | 通常 / ゼロ割引率 |
-| calculateMarkupRates | 通常 / fallback 発動 |
-| calculateTransferTotals | 4 方向合計パターン |
-| calculateInventoryCost | 単純減算パターン |
-
-#### budgetAnalysis（2 関数）
-
-| 経路 | 必要な観測 |
-|---|---|
-| calculateBudgetAnalysis | 通常 / ゼロ予算 / 月途中 / 月末 |
-| calculateGrossProfitBudget | 通常 / ゼロ売上 |
-
-#### forecast（5 pure 関数）
-
-| 経路 | 必要な観測 |
-|---|---|
-| calculateStdDev | 通常配列 / 空配列 / 1 要素 |
-| detectAnomalies | 異常あり / 異常なし / 閾値境界 |
-| calculateWMA | 通常 / 短配列 |
-| linearRegression | 通常 / 2 点 / 全同値 |
-| analyzeTrend | 上昇 / 下降 / 横ばい |
-
-**注:** forecast は Rust 未実装のため、compare は TS stub 同士で動作する。
-Rust 実装後に実質的な観測が必要。
+| **pass** | 期待した関数がすべて 1 回以上呼ばれている |
+| **fail** | 期待した関数のうち 1 つでも call count = 0 |
+| **warning** | 呼ばれてはいるが想定より少なく、経路踏破が不十分な可能性 |
 
 ---
 
-## 3. 観測結果テンプレート
+## Engine 別の最低 Coverage 目安
 
-各 engine の観測結果を統一フォーマットで記録する。
-評価会に持ち込める形式とする。
+### factorDecomposition
 
-### 記録欄
+**最低限見る関数:**
+- decompose2
+- decompose3
+- decompose5
+- decomposePriceMix
 
-```markdown
-## 観測記録
+**最低経路:** 標準分解 / price-mix / time-series
 
-| 項目 | 内容 |
-|---|---|
-| 実施日 | YYYY-MM-DD |
-| 実施者 | （名前またはセッション ID） |
-| Engine | factorDecomposition / grossProfit / budgetAnalysis / forecast |
-| 対象関数 | （FnName） |
-| 対象経路 | （UI 操作の概要） |
-| データ条件 | （入力データの特徴: 月次 / 複数店舗 / 特殊値 等） |
-| Execution Mode | ts-only / wasm-only / dual-run-compare |
-| WASM State | idle / loading / ready / error |
-| Observer Summary | （__dualRunStats() の出力要約） |
-| Total Calls | （totalCalls） |
-| Total Mismatches | （totalMismatches） |
-| Mismatch Kind | numeric-within-tolerance / numeric-over-tolerance / null-mismatch / invariant-violation / なし |
-| maxAbsDiff | （数値） |
-| Invariant Violation | あり / なし |
-| Null Mismatch | あり / なし |
-| UI 差異 | あり / なし |
-| Verdict | clean / tolerance-only / needs-investigation |
-| 判定 | OK / NG / 要継続観測 |
-| 備考 | （特記事項） |
-```
+### grossProfit
 
-### 記録のタイミング
+**最低限見る関数:**
+- calculateInvMethod
+- calculateEstMethod
+- calculateMarkupRates
+- calculateTransferTotals
+- calculateDiscountImpact
 
-- **dual-run-compare モードでの開発利用後** — セッション終了時に `__dualRunStats()` を確認
-- **特定の UI 操作を意図的にテストした後** — 経路カバレッジを埋める目的
-- **mismatch 発生時** — `__dualRunStats('log')` で詳細を記録
+**最低経路:** inventory path / estimated path / markup-transfer path
 
-### 記録の保存先
+### budgetAnalysis
 
-観測記録は以下のいずれかに保存する:
+**最低限見る関数:**
+- calculateBudgetAnalysis
+- calculateGrossProfitBudget
 
-- GitHub Issue のコメント（engine ごとの tracking issue）
-- `references/observation-logs/` ディレクトリ（ファイル名: `YYYY-MM-DD-{engine}.md`）
+**最低経路:** single-store budget analysis / gross profit budget path
+
+**注意:** `calculateAggregateBudget` は compare 対象外。coverage 条件に入れない。
+
+### forecast
+
+**最低限見る関数:**
+- calculateStdDev
+- detectAnomalies
+- calculateWMA
+- linearRegression
+- analyzeTrend
+
+**最低経路:** stddev path / anomalies path / regression-trend path
+
+**注意:** Date 依存関数は compare 対象外。coverage 条件に含めない。
 
 ---
 
-## 4. 判定フロー
+## Fixture Coverage の評価
 
+### 目的
+
+特定の正常系だけ clean でも昇格候補にしないため。
+
+### 最低フィクスチャ群
+
+各 engine は少なくとも次を自動観測で通すこと。
+
+| フィクスチャ | 内容 |
+|---|---|
+| normal | 通常値 |
+| zero / null / missing | 欠損系 |
+| extreme | 大値・小値 |
+| boundary | 境界値 |
+
+### 評価
+
+| 結果 | 条件 |
+|---|---|
+| **pass** | 全 fixture で fail 条件なし |
+| **fail** | 1 fixture でも fail 条件あり |
+| **warning** | すべて pass だが numeric-within-tolerance の偏りがある |
+
+---
+
+## maxAbsDiff の扱い
+
+### 目的
+
+数値差の最大値を横断的に見る。
+
+### 評価原則
+
+- 単独では fail 条件にしない
+- mismatch kind とセットで読む
+- numeric-over-tolerance を伴うなら fail
+- numeric-within-tolerance のみなら参考値
+
+### 使い方
+
+- engine 間比較
+- fixture 間比較
+- 同一関数の偏り確認
+
+**注意:** maxAbsDiff が小さくても invariant violation があれば fail。
+maxAbsDiff は主判定ではなく補助指標。
+
+---
+
+## 観測結果の最終判定
+
+### pass
+
+以下をすべて満たす。
+
+- expected call coverage を満たす
+- invariant-violation = 0
+- null-mismatch = 0
+- numeric-over-tolerance = 0
+- fallback / rollback 条件を満たす
+- compare 対象境界が壊れていない
+
+### warning
+
+以下のいずれかを満たす。
+
+- numeric-within-tolerance > 0
+- maxAbsDiff がやや大きい
+- fixture 間で差分分布が偏る
+- coverage は満たすが件数が少ない
+
+warning は promotion の blocking 条件ではないが、**記録対象** とする。
+
+### fail
+
+以下のいずれかを満たす。
+
+- invariant-violation > 0
+- null-mismatch > 0
+- numeric-over-tolerance > 0
+- expected call coverage 不足
+- fallback 失敗
+- rollback 失敗
+- compare 対象外境界の破壊
+
+---
+
+## 観測結果テンプレート
+
+### 必須記録欄
+
+- 実施日
+- engine
+- path
+- fixture
+- execution mode
+- wasm state
+- expected functions
+- observed call counts
+- mismatch counts
+- maxAbsDiff
+- pass / warning / fail
+- notes
+
+### 推奨 JSON 例
+
+```json
+{
+  "engine": "budgetAnalysis",
+  "path": "single-store-budget",
+  "fixture": "normal",
+  "mode": "dual-run-compare",
+  "wasmState": "ready",
+  "callCounts": {
+    "calculateBudgetAnalysis": 3,
+    "calculateGrossProfitBudget": 1
+  },
+  "mismatchCounts": {
+    "numericWithinTolerance": 0,
+    "numericOverTolerance": 0,
+    "nullMismatch": 0,
+    "invariantViolation": 0
+  },
+  "maxAbsDiff": 0,
+  "status": "pass",
+  "notes": []
+}
 ```
-観測実施
-  │
-  ├→ verdict: clean → 記録して継続
-  │
-  ├→ verdict: tolerance-only → 分布確認
-  │     ├→ 偏りなし → 記録して継続
-  │     └→ 偏りあり → 原因調査 → 修正 or 説明文書化
-  │
-  └→ verdict: needs-investigation → 即対応
-        ├→ invariant-violation → 試験停止、原因修正
-        ├→ null-mismatch → adapter 再検証
-        └→ numeric-over-tolerance → 演算順序・型変換確認
-```
 
-### 充足判断
+---
 
-以下を全て満たしたとき、観測量が十分と判断する:
+## Promotion Criteria との関係
 
-1. engine 別の目安（上記）の全経路を少なくとも 1 回カバー
-2. 複数セッション（異なるタイミング）で観測
-3. verdict が一貫して `clean` または `tolerance-only`
-4. needs-investigation が出た場合は原因が特定・解決済み
+このガイドは `promotion-criteria.md` の入力資料である。
+promotion 判定では、ここで定義した
+
+- pass / warning / fail
+- coverage
+- fixture 要件
+- mismatch kind の扱い
+
+をそのまま参照する。
+
+**重要:** promotion 判定において、手動観測記録は必須入力ではない。
+このガイドに従い、自動観測の出力だけで一次判定できることを原則とする。
+
+---
+
+## Rollback Policy との関係
+
+観測結果が fail の場合、`rollback-policy.md` に従う。
+特に次は即 rollback 候補とする。
+
+- invariant violation
+- null mismatch
+- numeric-over-tolerance
+- fallback 不全
+- rollback 不全
+
+---
+
+## 実務運用上の要約
+
+観測結果は、人が頑張って読むログではなく、**自動判定の入力** として扱う。
+人手で見るのは、fail または説明が必要な warning が出た場合のみでよい。

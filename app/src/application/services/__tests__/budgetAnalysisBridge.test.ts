@@ -49,10 +49,7 @@ vi.mock('../budgetAnalysisWasm', () => ({
 }))
 
 import { calculateBudgetAnalysis, calculateGrossProfitBudget } from '../budgetAnalysisBridge'
-import {
-  calculateBudgetAnalysisWasm,
-  calculateGrossProfitBudgetWasm,
-} from '../budgetAnalysisWasm'
+import { calculateBudgetAnalysisWasm, calculateGrossProfitBudgetWasm } from '../budgetAnalysisWasm'
 
 /* ── テストヘルパー ─────────────────────────────── */
 
@@ -69,9 +66,7 @@ function makeBudgetInput(overrides?: Partial<BudgetAnalysisInput>): BudgetAnalys
   }
 }
 
-function makeGPBudgetInput(
-  overrides?: Partial<GrossProfitBudgetInput>,
-): GrossProfitBudgetInput {
+function makeGPBudgetInput(overrides?: Partial<GrossProfitBudgetInput>): GrossProfitBudgetInput {
   return {
     grossProfit: 900_000,
     grossProfitBudget: 3_000_000,

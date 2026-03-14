@@ -11,9 +11,9 @@
 
 | Engine | Current State | Compare | Rust | WASM | Observation | Blocker | Next Action | Risk | Rollback Ready |
 |---|---|---|---|---|---|---|---|---|---|
-| factorDecomposition | observation-ready | ✅ | ✅ | ✅ | 未実施 | 観測量不足 | 観測ログ蓄積 | Low | ✅ |
-| grossProfit | observation-ready | ✅ | ✅ | ✅ | 未実施 | 観測量不足 | 観測ログ蓄積 | Low | ✅ |
-| budgetAnalysis | observation-ready | ✅ | ✅ | ✅ | 未実施 | 観測量不足 | 観測ログ蓄積 | Low | ✅ |
+| factorDecomposition | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
+| grossProfit | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
+| budgetAnalysis | observation-ready | ✅ | ✅ | ✅ | 未実施 | 自動観測ハーネス未整備 | 自動観測ハーネス構築 | Low | ✅ |
 | forecast | compare-implemented | ✅ | ❌ | ❌ | 未実施 | Rust 未実装 | Rust crate 作成 | Medium | ✅（TS stub） |
 
 ---
@@ -34,14 +34,16 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
 
-**Blocker:** 観測量不足。dual-run-compare モードでの実利用による観測ログが蓄積されていない。
+**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
 
-**次の一手:** dev 環境で dual-run-compare モードを有効にし、通常の開発利用を通じて観測ログを蓄積する。`__dualRunStats()` で verdict を定期確認する。
+**次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 4 関数の call coverage + mismatch summary を自動取得できるようにする。
 
 **promotion-candidate までに必要なこと:**
-- 主要分解経路（2/3/5 要因 + priceMix）を各 1 回以上観測
-- 複数セッションで verdict が `clean` or `tolerance-only` を確認
-- null-mismatch / invariant-violation がゼロであることを確認
+- 自動観測ハーネスが pass
+- compare 対象 4 関数の expected call coverage を満たす（各 call count ≥ 1）
+- フィクスチャ群（normal / zero-null / extreme / boundary）で fail なし
+- invariant-violation = 0 / null-mismatch = 0 / numeric-over-tolerance = 0
+- fallback / rollback テスト pass
 
 ---
 
@@ -59,14 +61,17 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
 
-**Blocker:** 観測量不足。dual-run-compare モードでの実利用による観測ログが蓄積されていない。
+**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
 
-**次の一手:** dev 環境で dual-run-compare モードを有効にし、grossProfit に関連する画面操作（在庫法・推定法の粗利表示）を通じて観測ログを蓄積する。
+**次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 8 関数（特に invMethod / estMethod の null 在庫パターン）の call coverage + mismatch summary を自動取得できるようにする。
 
 **promotion-candidate までに必要なこと:**
-- 8 関数の主要経路を各 1 回以上観測（特に invMethod / estMethod の null 在庫パターン）
-- 複数セッションで verdict 確認
-- null-mismatch / invariant-violation がゼロであることを確認
+- 自動観測ハーネスが pass
+- compare 対象 8 関数の expected call coverage を満たす
+- inventory path / estimated path / markup-transfer path の経路 coverage
+- フィクスチャ群で fail なし
+- invariant-violation = 0 / null-mismatch = 0 / numeric-over-tolerance = 0
+- fallback / rollback テスト pass
 
 ---
 
@@ -84,14 +89,19 @@
 | cross-validation | TS golden fixture との一致確認済み |
 | edge cases | ゼロ予算 / ゼロ売上 / 月末境界カバー済み |
 
-**Blocker:** 観測量不足。dual-run-compare モードでの実利用による観測ログが蓄積されていない。
+**Blocker:** 自動観測ハーネス未整備。固定フィクスチャによる自動 dual-run compare + summary 回収の仕組みがない。
 
-**次の一手:** dev 環境で dual-run-compare モードを有効にし、予算分析画面を通じて観測ログを蓄積する。
+**注意:** `calculateAggregateBudget` は compare 対象外。coverage 条件に含めない。
+
+**次の一手:** 自動観測ハーネスを構築し、固定フィクスチャで compare 対象 2 関数の call coverage + mismatch summary を自動取得できるようにする。
 
 **promotion-candidate までに必要なこと:**
-- 2 関数の主要パターン（通常 / ゼロ予算 / 月途中 / 月末）を観測
-- 複数セッションで verdict 確認
-- null-mismatch / invariant-violation がゼロであることを確認
+- 自動観測ハーネスが pass
+- compare 対象 2 関数の expected call coverage を満たす
+- single-store budget / gross profit budget の経路 coverage
+- フィクスチャ群で fail なし
+- invariant-violation = 0 / null-mismatch = 0 / numeric-over-tolerance = 0
+- fallback / rollback テスト pass
 
 ---
 
@@ -116,9 +126,9 @@
 **promotion-candidate までに必要なこと:**
 1. Rust crate 作成 + cargo test 通過
 2. wasm-pack build + adapter 接続
-3. observation-ready 到達
-4. 観測ログ蓄積
-5. verdict 確認
+3. 自動観測ハーネス構築
+4. observation-ready 到達
+5. 自動観測 pass + coverage 充足
 
 **Risk:** Medium — ReadonlyMap 入力の変換（sorted `[key, value][]`）が forecast 固有の複雑さ。`forecast-compare-readiness.md` に変換戦略を記載済み。
 

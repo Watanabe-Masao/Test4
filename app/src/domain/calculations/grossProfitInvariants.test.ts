@@ -490,9 +490,7 @@ describe('grossProfit invariants', () => {
       )
       assertAllFinite(calculateDiscountImpact(makeDiscountInput({ coreSales: big })))
       assertAllFinite(
-        calculateMarkupRates(
-          makeMarkupInput({ purchasePrice: big, purchaseCost: big * 0.7 }),
-        ),
+        calculateMarkupRates(makeMarkupInput({ purchasePrice: big, purchaseCost: big * 0.7 })),
       )
       assertAllFinite(
         calculateTransferTotals(

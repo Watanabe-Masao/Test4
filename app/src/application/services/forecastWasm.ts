@@ -57,9 +57,7 @@ export function linearRegressionWasm(
   throw new Error('forecast WASM not yet implemented: linearRegression')
 }
 
-export function analyzeTrendWasm(
-  dataPoints: readonly MonthlyDataPoint[],
-): TrendAnalysisResult {
+export function analyzeTrendWasm(dataPoints: readonly MonthlyDataPoint[]): TrendAnalysisResult {
   void dataPoints
   throw new Error('forecast WASM not yet implemented: analyzeTrend')
 }
