@@ -39,7 +39,10 @@ interface Props {
   year: number
   month: number
   /** 前年日次データ（売変額の前年比較ライン用） */
-  prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; discountEntries?: Record<string, number> }>
+  prevYearDaily?: ReadonlyMap<
+    string,
+    { sales: number; discount: number; discountEntries?: Record<string, number> }
+  >
 }
 
 /** 売変内訳分析チャート（71-74種別切替対応） */
@@ -110,7 +113,12 @@ export const DiscountTrendChart = memo(function DiscountTrendChart({
       }
 
       // 前年の種別別売変額
-      if (prevYearDaily && prevEntry && 'discountEntries' in prevEntry && prevEntry.discountEntries) {
+      if (
+        prevYearDaily &&
+        prevEntry &&
+        'discountEntries' in prevEntry &&
+        prevEntry.discountEntries
+      ) {
         for (const dt of DISCOUNT_TYPES) {
           entry[`prevD${dt.type}`] = prevEntry.discountEntries[dt.type] ?? 0
         }

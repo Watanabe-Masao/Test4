@@ -118,9 +118,7 @@ export function ImportModal({ onClose }: ImportModalProps) {
     <Modal title="ファイル取込" onClose={onClose}>
       <Section>
         <FileDropZone onFiles={handleFiles} />
-        {importStage !== 'idle' && (
-          <ImportProgressSteps progress={progress} stage={importStage} />
-        )}
+        {importStage !== 'idle' && <ImportProgressSteps progress={progress} stage={importStage} />}
         {importStage === 'idle' && progress && <ImportProgressBar progress={progress} />}
         {lastSummary && importStage === 'idle' && (
           <ImportSummaryCard summary={lastSummary} onDismiss={() => setLastSummary(null)} />

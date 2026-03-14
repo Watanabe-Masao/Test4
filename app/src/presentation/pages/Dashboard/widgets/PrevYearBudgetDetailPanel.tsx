@@ -122,13 +122,15 @@ export function PrevYearBudgetDetailPanel({
   // dailyMapping の先頭/末尾から実際の比較期間を算出
   const periodLabels = useMemo(() => {
     const dm = entry.dailyMapping
-    if (dm.length === 0) return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
+    if (dm.length === 0)
+      return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
     const first = dm[0]
     const last = dm[dm.length - 1]
     // 同月内なら日だけ省略表記
-    const prev = first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
-      ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
-      : `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevYear}年${last.prevMonth}月${last.prevDay}日`
+    const prev =
+      first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
+        ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
+        : `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevYear}年${last.prevMonth}月${last.prevDay}日`
     const cur = `${targetYear}年${targetMonth}月${first.currentDay}日〜${last.currentDay}日`
     return { prev, cur }
   }, [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth])

@@ -194,7 +194,16 @@ export function DataManagementSidebar({
     // period1 の to.day を検出日に更新（period1 は依存配列に含めず最新値を取得）
     const currentPeriod1 = usePeriodSelectionStore.getState().selection.period1
     setPeriod1({ ...currentPeriod1, to: { ...currentPeriod1.to, day: detectedMaxDay } })
-  }, [hasNonBudgetData, detectedMaxDay, daysInMonth, settings.dataEndDay, settings.targetYear, settings.targetMonth, updateSettings, setPeriod1])
+  }, [
+    hasNonBudgetData,
+    detectedMaxDay,
+    daysInMonth,
+    settings.dataEndDay,
+    settings.targetYear,
+    settings.targetMonth,
+    updateSettings,
+    setPeriod1,
+  ])
 
   // 長押しでデータ再スキャン
   const handleLongPress = useCallback(() => {
@@ -293,9 +302,7 @@ export function DataManagementSidebar({
                       <SmallBtn onClick={() => autoImport.scanNow()}>スキャン</SmallBtn>
                     </>
                   ) : (
-                    <SmallBtn onClick={() => autoImport.selectFolder()}>
-                      取込元を選択
-                    </SmallBtn>
+                    <SmallBtn onClick={() => autoImport.selectFolder()}>取込元を選択</SmallBtn>
                   )}
                 </FolderRow>
               )}
