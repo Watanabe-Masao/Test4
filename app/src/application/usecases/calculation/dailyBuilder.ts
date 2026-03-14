@@ -13,7 +13,7 @@ import {
   indexByStoreDay,
 } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
-import { calculateCoreSales } from '@/domain/calculations/estMethod'
+import { calculateCoreSales } from '@/application/services/grossProfitBridge'
 import type { MonthlyAccumulator } from './types'
 import {
   buildTransferBreakdown,

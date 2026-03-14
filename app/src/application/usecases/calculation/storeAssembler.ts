@@ -7,24 +7,22 @@ import type {
   ImportedData,
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
-import { calculateInvMethod } from '@/domain/calculations/invMethod'
+// bridge 経由: 将来の dual-run compare を観測可能にする
 import {
+  calculateInvMethod,
   calculateEstMethod,
   calculateCoreSales,
   calculateDiscountRate,
-} from '@/domain/calculations/estMethod'
-import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
-// bridge 経由: 将来の dual-run compare を観測可能にする
+  calculateDiscountImpact,
+  calculateMarkupRates,
+  calculateTransferTotals as calcTransferTotals,
+  calculateInventoryCost,
+} from '@/application/services/grossProfitBridge'
 import {
   calculateBudgetAnalysis,
   calculateGrossProfitBudget,
 } from '@/application/services/budgetAnalysisBridge'
 import { safeDivide } from '@/domain/calculations/utils'
-import { calculateMarkupRates } from '@/domain/calculations/markupRate'
-import {
-  calculateTransferTotals as calcTransferTotals,
-  calculateInventoryCost,
-} from '@/domain/calculations/costAggregation'
 import type { MonthlyAccumulator } from './types'
 
 function addToCategory(

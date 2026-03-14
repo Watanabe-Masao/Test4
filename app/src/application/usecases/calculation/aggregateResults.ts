@@ -4,7 +4,7 @@
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
  */
 import type { StoreResult } from '@/domain/models'
-import { calculateDiscountRate } from '@/domain/calculations/estMethod'
+import { calculateDiscountRate } from '@/application/services/grossProfitBridge'
 import { safeDivide } from '@/domain/calculations/utils'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import { calculateGrossProfitBudget } from '@/application/services/budgetAnalysisBridge'
