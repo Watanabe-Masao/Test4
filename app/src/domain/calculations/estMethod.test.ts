@@ -189,7 +189,7 @@ describe('calculateEstMethodWithStatus', () => {
     })
     expect(result.status).toBe('invalid')
     expect(result.value).toBeNull()
-    expect(result.warnings).toContain('discount_rate_out_of_domain')
+    expect(result.warnings).toContain('calc_discount_rate_out_of_domain')
   })
 
   it('売変率 < 0 → invalid', () => {
@@ -203,7 +203,7 @@ describe('calculateEstMethodWithStatus', () => {
     })
     expect(result.status).toBe('invalid')
     expect(result.value).toBeNull()
-    expect(result.warnings).toContain('discount_rate_negative')
+    expect(result.warnings).toContain('calc_discount_rate_negative')
   })
 
   it('値入率 > 1 → ok with warning', () => {
@@ -218,7 +218,7 @@ describe('calculateEstMethodWithStatus', () => {
     // markupRate > 1 は invalid ではなく warning 付き ok
     expect(result.status).toBe('ok')
     expect(result.value).not.toBeNull()
-    expect(result.warnings).toContain('markup_rate_exceeds_one')
+    expect(result.warnings).toContain('calc_markup_rate_exceeds_one')
   })
 
   it('値入率 < 0 → ok with warning', () => {
@@ -232,7 +232,7 @@ describe('calculateEstMethodWithStatus', () => {
     })
     expect(result.status).toBe('ok')
     expect(result.value).not.toBeNull()
-    expect(result.warnings).toContain('markup_rate_negative')
+    expect(result.warnings).toContain('calc_markup_rate_negative')
   })
 
   it('openingInventory null → closingInventory null in ok result', () => {

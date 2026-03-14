@@ -38,16 +38,16 @@ export interface EstMethodResult {
 function validateEstMethodRates(discountRate: number, markupRate: number): readonly string[] {
   const warnings: string[] = []
   if (discountRate < 0) {
-    warnings.push('discount_rate_negative')
+    warnings.push('calc_discount_rate_negative')
   }
   if (discountRate >= 1) {
-    warnings.push('discount_rate_out_of_domain')
+    warnings.push('calc_discount_rate_out_of_domain')
   }
   if (markupRate < 0) {
-    warnings.push('markup_rate_negative')
+    warnings.push('calc_markup_rate_negative')
   }
   if (markupRate > 1) {
-    warnings.push('markup_rate_exceeds_one')
+    warnings.push('calc_markup_rate_exceeds_one')
   }
   return warnings
 }
@@ -76,7 +76,11 @@ export function calculateEstMethodWithStatus(
   } = input
   const warnings = validateEstMethodRates(discountRate, markupRate)
 
-  if (warnings.some((w) => w === 'discount_rate_out_of_domain' || w === 'discount_rate_negative')) {
+  if (
+    warnings.some(
+      (w) => w === 'calc_discount_rate_out_of_domain' || w === 'calc_discount_rate_negative',
+    )
+  ) {
     return invalidResult(warnings)
   }
 
@@ -100,7 +104,7 @@ export function calculateEstMethodWithStatus(
 
   // markupRate 警告がある場合は ok だが warnings 付き
   const markupWarnings = warnings.filter(
-    (w) => w === 'markup_rate_negative' || w === 'markup_rate_exceeds_one',
+    (w) => w === 'calc_markup_rate_negative' || w === 'calc_markup_rate_exceeds_one',
   )
   return okResult(result, markupWarnings)
 }

@@ -51,6 +51,8 @@ import {
   FormulaExpression,
   FormulaDescription,
   SourceTag,
+  WarningAlertBox,
+  WarningAlertLabel,
 } from './MetricBreakdownPanel.styles'
 
 interface MetricBreakdownPanelProps {
@@ -139,6 +141,18 @@ type VM = ReturnType<typeof useMetricBreakdown>
 const FormulaTab = React.memo(function FormulaTab({ vm }: { vm: VM }) {
   return (
     <>
+      {vm.resolvedWarnings.length > 0 && (
+        <MbpSection>
+          <MbpSectionTitle>警告</MbpSectionTitle>
+          {vm.resolvedWarnings.map((w) => (
+            <WarningAlertBox key={w.code} $severity={w.severity}>
+              <WarningAlertLabel $severity={w.severity}>{w.label}</WarningAlertLabel>
+              <span>{w.message}</span>
+            </WarningAlertBox>
+          ))}
+        </MbpSection>
+      )}
+
       <MbpSection>
         <MbpSectionTitle>計算式</MbpSectionTitle>
         <FormulaBox>{vm.formula}</FormulaBox>

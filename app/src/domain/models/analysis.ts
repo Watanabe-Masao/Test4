@@ -5,6 +5,7 @@ export type {
   MetricId,
   MetricTokens,
   MetricMeta,
+  MetricAcceptancePolicy,
   MetricUnit,
   EvidenceRef,
   ExplanationInput,

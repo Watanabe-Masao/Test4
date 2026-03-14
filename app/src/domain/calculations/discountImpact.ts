@@ -28,10 +28,10 @@ export interface DiscountImpactResult {
 function validateDiscountRate(discountRate: number): readonly string[] {
   const warnings: string[] = []
   if (discountRate < 0) {
-    warnings.push('discount_rate_negative')
+    warnings.push('calc_discount_rate_negative')
   }
   if (discountRate >= 1) {
-    warnings.push('discount_rate_out_of_domain')
+    warnings.push('calc_discount_rate_out_of_domain')
   }
   return warnings
 }

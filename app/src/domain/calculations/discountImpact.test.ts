@@ -98,7 +98,7 @@ describe('calculateDiscountImpactWithStatus', () => {
     })
     expect(result.status).toBe('invalid')
     expect(result.value).toBeNull()
-    expect(result.warnings).toContain('discount_rate_out_of_domain')
+    expect(result.warnings).toContain('calc_discount_rate_out_of_domain')
   })
 
   it('売変率 > 1 → invalid', () => {
@@ -109,7 +109,7 @@ describe('calculateDiscountImpactWithStatus', () => {
     })
     expect(result.status).toBe('invalid')
     expect(result.value).toBeNull()
-    expect(result.warnings).toContain('discount_rate_out_of_domain')
+    expect(result.warnings).toContain('calc_discount_rate_out_of_domain')
   })
 
   it('売変率 < 0 → invalid', () => {
@@ -120,7 +120,7 @@ describe('calculateDiscountImpactWithStatus', () => {
     })
     expect(result.status).toBe('invalid')
     expect(result.value).toBeNull()
-    expect(result.warnings).toContain('discount_rate_negative')
+    expect(result.warnings).toContain('calc_discount_rate_negative')
   })
 
   it('売変率0.99（1に近いが有効） → ok', () => {

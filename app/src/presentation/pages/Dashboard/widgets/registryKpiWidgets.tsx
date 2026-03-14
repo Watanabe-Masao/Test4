@@ -1,10 +1,26 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { KpiCard } from '@/presentation/components/common'
+import type { KpiWarningInfo } from '@/presentation/components/common/KpiCard'
 import { formatPercent } from '@/domain/formatting'
 import { safeDivide } from '@/domain/calculations/utils'
-import type { WidgetDef } from './types'
+import { getMaxSeverity, getWarningLabel, getWarningMessage } from '@/domain/constants'
+import type { MetricId } from '@/domain/models'
+import type { WidgetDef, WidgetContext } from './types'
 import { DowGapKpiCard } from './DowGapKpiCard'
+
+/** Build KpiWarningInfo from explanation warnings for a given metric */
+function buildKpiWarning(ctx: WidgetContext, metricId: MetricId): KpiWarningInfo | undefined {
+  const warnings = ctx.explanations.get(metricId)?.warnings
+  if (!warnings || warnings.length === 0) return undefined
+  const severity = getMaxSeverity(warnings)
+  if (!severity) return undefined
+  return {
+    severity,
+    label: getWarningLabel(warnings[0]),
+    message: warnings.map(getWarningMessage).join('\n'),
+  }
+}
 
 // ── KPI: 収益概況 ──
 export const WIDGETS_KPI: readonly WidgetDef[] = [
@@ -90,7 +106,8 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain, fmtCurrency }) => {
+    render: (ctx) => {
+      const { result: r, onExplain, fmtCurrency } = ctx
       const beforeRate = safeDivide(r.estMethodMargin + r.totalCostInclusion, r.totalCoreSales, 0)
       return (
         <KpiCard
@@ -101,6 +118,7 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
           badge="estimated"
           formulaSummary="コア売上 − 推定原価（理論値）"
           onClick={() => onExplain('estMethodMargin')}
+          warning={buildKpiWarning(ctx, 'estMethodMargin')}
         />
       )
     },
@@ -158,13 +176,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     group: '収益概況',
     size: 'kpi',
     linkTo: { view: 'insight', tab: 'grossProfit' },
-    render: ({ result: r, onExplain, fmtCurrency }) => (
+    render: (ctx) => (
       <KpiCard
         label="売変ロス原価"
-        value={fmtCurrency(r.discountLossCost)}
-        subText={`売変額: ${fmtCurrency(r.totalDiscount)}`}
+        value={ctx.fmtCurrency(ctx.result.discountLossCost)}
+        subText={`売変額: ${ctx.fmtCurrency(ctx.result.totalDiscount)}`}
         accent={palette.dangerDeep}
-        onClick={() => onExplain('discountLossCost')}
+        onClick={() => ctx.onExplain('discountLossCost')}
+        warning={buildKpiWarning(ctx, 'discountLossCost')}
       />
     ),
   },
@@ -173,13 +192,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     label: 'コア値入率',
     group: '収益概況',
     size: 'kpi',
-    render: ({ result: r, onExplain }) => (
+    render: (ctx) => (
       <KpiCard
         label="コア値入率"
-        value={formatPercent(r.coreMarkupRate)}
-        subText={`平均値入率: ${formatPercent(r.averageMarkupRate)}`}
+        value={formatPercent(ctx.result.coreMarkupRate)}
+        subText={`平均値入率: ${formatPercent(ctx.result.averageMarkupRate)}`}
         accent={palette.cyanDark}
-        onClick={() => onExplain('coreMarkupRate')}
+        onClick={() => ctx.onExplain('coreMarkupRate')}
+        warning={buildKpiWarning(ctx, 'coreMarkupRate')}
       />
     ),
   },

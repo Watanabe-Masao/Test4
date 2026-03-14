@@ -4,25 +4,84 @@
  * METRIC_DEFS の authoritativeOwner / fallbackRule / warningRule を
  * 実際の計算結果に適用し、正式値の判定と警告の解決を行う。
  *
- * ## 責務
- * 3層に分かれる:
- * 1. raw value resolution — fallbackRule に基づく値の解決
- * 2. fallback / warning evaluation — warningRule に基づく警告検出
- * 3. authoritative acceptance — 正式採用可否の判定
+ * ## 3段階パイプライン
+ * resolver は内部的に 3 段階で判定を行う:
+ *
+ * 1. **Raw Value Resolution** — fallbackRule に基づく値の解決
+ *    入力: rawValue, fallbackRule
+ *    出力: RawValueResolution { value, isFallback, fallbackRule }
+ *
+ * 2. **Warning Evaluation** — warnings の集約と severity 判定
+ *    入力: metricId, metricWarnings
+ *    出力: WarningEvaluation { warnings, maxSeverity, matchesWarningRule }
+ *
+ * 3. **Acceptance Decision** — authoritative/exploratory の採用判定
+ *    入力: RawValueResolution + WarningEvaluation + calculationStatus
+ *    出力: AcceptanceDecision { status, authoritativeAccepted, exploratoryAllowed }
+ *
+ * ## 設計原則
+ * - KPI 特例は resolver 本体に if 分岐として増やさない
+ * - KPI ごとの振る舞いは registry (METRIC_DEFS) のフィールドで決める
+ * - resolver が読む registry フィールド: authoritativeOwner, sourceEngine, fallbackRule, warningRule
  *
  * ## 利用箇所
  * - storeAssembler: 計算結果の最終採用判定
  * - ExplanationService: 警告の表示判定
  * - UI: 指標の信頼性表示
  */
-import type { MetricId, MetricMeta, FallbackRule } from '../models/Explanation'
+import type {
+  MetricId,
+  MetricMeta,
+  MetricAcceptancePolicy,
+  FallbackRule,
+} from '../models/Explanation'
 import type { CalculationStatus } from '../models/CalculationResult'
 import type { WarningSeverity } from './warningCatalog'
-import { getMaxSeverity } from './warningCatalog'
+import { getMaxSeverity, getWarningCategory } from './warningCatalog'
 import { METRIC_DEFS } from './metricDefs'
 
-// ── 指標値の解決結果（後方互換） ──
+// ── Stage 1: Raw Value Resolution ──
 
+/** Stage 1 の出力: fallbackRule 適用後の値 */
+export interface RawValueResolution {
+  /** 解決後の値 */
+  readonly value: number | null
+  /** fallback が適用されたか */
+  readonly isFallback: boolean
+  /** 適用された fallbackRule */
+  readonly fallbackRule: FallbackRule | undefined
+}
+
+// ── Stage 2: Warning Evaluation ──
+
+/** Stage 2 の出力: warnings の集約結果 */
+export interface WarningEvaluation {
+  /** 該当する警告コード一覧 */
+  readonly warnings: readonly string[]
+  /** 最大 severity */
+  readonly maxSeverity: WarningSeverity | null
+  /** warningRule にマッチする警告があるか */
+  readonly matchesWarningRule: boolean
+}
+
+// ── Stage 3: Acceptance Decision ──
+
+/** Stage 3 の出力: 採用判定結果 */
+export interface AcceptanceDecision {
+  /** 解決ステータス */
+  readonly status: ResolutionStatus
+  /** authoritative として正式採用してよいか */
+  readonly authoritativeAccepted: boolean
+  /** exploratory として表示してよいか */
+  readonly exploratoryAllowed: boolean
+}
+
+// ── 最終解決結果 ──
+
+/** 指標解決の採用ステータス */
+export type ResolutionStatus = 'ok' | 'partial' | 'invalid' | 'estimated' | 'fallback'
+
+/** 指標値の解決結果（後方互換） */
 export interface ResolvedMetricValue {
   /** 採用値（fallback 適用後） */
   readonly value: number | null
@@ -34,16 +93,10 @@ export interface ResolvedMetricValue {
   readonly owner: MetricMeta['authoritativeOwner']
 }
 
-// ── 強化版解決結果 ──
-
-/** 指標解決の採用ステータス */
-export type ResolutionStatus = 'ok' | 'partial' | 'invalid' | 'estimated' | 'fallback'
-
 /**
  * 強化版の指標解決結果
  *
- * resolveMetricValue() の上位版。
- * authoritative 採用可否と exploratory 表示可否を返す。
+ * 3段階パイプラインの最終出力。
  */
 export interface MetricResolution {
   /** 採用値（fallback 適用後） */
@@ -64,55 +117,182 @@ export interface MetricResolution {
   readonly isFallback: boolean
 }
 
-// ── 公開関数 ──
+// ── Stage 1: Raw Value Resolution ──
 
 /**
- * fallbackRule に基づいて値を解決する
+ * Stage 1: fallbackRule に基づいて値を解決する
  *
  * - 'zero': null/undefined → 0
  * - 'null': null/undefined → null（そのまま）
  * - 'none': フォールバックなし（null/undefined → null）
  * - 'estimated': 推定値として扱う（null/undefined → null）
  */
-export function applyFallbackRule(
-  value: number | null | undefined,
-  rule: FallbackRule | undefined,
-): { value: number | null; isFallback: boolean } {
-  if (value != null) {
-    return { value, isFallback: false }
+export function resolveRawValue(
+  rawValue: number | null | undefined,
+  fallbackRule: FallbackRule | undefined,
+): RawValueResolution {
+  if (rawValue != null) {
+    return { value: rawValue, isFallback: false, fallbackRule }
   }
-  switch (rule) {
+  switch (fallbackRule) {
     case 'zero':
-      return { value: 0, isFallback: true }
+      return { value: 0, isFallback: true, fallbackRule }
     case 'null':
     case 'none':
     case 'estimated':
     case undefined:
-      return { value: null, isFallback: true }
+      return { value: null, isFallback: true, fallbackRule }
   }
 }
 
 /**
- * 指標の警告を検出する
+ * 後方互換: applyFallbackRule
+ */
+export function applyFallbackRule(
+  value: number | null | undefined,
+  rule: FallbackRule | undefined,
+): { value: number | null; isFallback: boolean } {
+  const result = resolveRawValue(value, rule)
+  return { value: result.value, isFallback: result.isFallback }
+}
+
+// ── Stage 2: Warning Evaluation ──
+
+/**
+ * Stage 2: warnings を集約し severity を判定する
  *
- * metricWarnings（CalculationResult 由来）と warningRule を照合し、
- * 該当する警告があるかを判定する。
+ * metricWarnings から該当 metricId の warnings を取得し、
+ * warningRule とのマッチングを行う。
+ */
+export function evaluateWarnings(
+  metricId: MetricId,
+  metricWarnings: ReadonlyMap<string, readonly string[]>,
+): WarningEvaluation {
+  const meta = METRIC_DEFS[metricId]
+  const warnings = metricWarnings.get(metricId) ?? []
+  const maxSeverity = getMaxSeverity(warnings)
+  const matchesWarningRule =
+    meta.warningRule != null && warnings.length > 0 && warnings.includes(meta.warningRule)
+
+  return { warnings, maxSeverity, matchesWarningRule }
+}
+
+/**
+ * 後方互換: hasMetricWarning
  */
 export function hasMetricWarning(
   metricId: MetricId,
   metricWarnings: ReadonlyMap<string, readonly string[]>,
 ): boolean {
+  return evaluateWarnings(metricId, metricWarnings).matchesWarningRule
+}
+
+// ── Stage 3: Acceptance Decision ──
+
+/** デフォルトの acceptance policy（policy 未設定時に使用） */
+export const DEFAULT_ACCEPTANCE_POLICY: Readonly<Required<MetricAcceptancePolicy>> = {
+  allowAuthoritativeWhenPartial: false,
+  allowAuthoritativeWhenEstimated: false,
+  allowExploratoryWhenInvalid: false,
+  blockingWarningCategories: [],
+  blockingWarningCodes: [],
+} as const
+
+/**
+ * Stage 3: authoritative/exploratory の採用判定を行う
+ *
+ * ## ステータス判定ルール
+ * - invalid: warningRule に critical が含まれる → authoritative 不可
+ * - partial: 値はあるが warning あり → exploratory 可、authoritative 原則不可
+ * - estimated: fallbackRule='estimated' かつ fallback 適用 → metric ごとの判断
+ * - fallback: fallback が適用された → exploratory 可
+ * - ok: 問題なし → 全可
+ *
+ * ## authoritative 採用可否（policy 駆動）
+ * - ok → 可
+ * - fallback (fallbackRule='zero') → 可（0 は妥当な業務値）
+ * - partial → policy.allowAuthoritativeWhenPartial に従う（デフォルト: 不可）
+ * - estimated → policy.allowAuthoritativeWhenEstimated に従う（デフォルト: 不可）
+ * - invalid → 不可
+ * - blockingWarningCategories/blockingWarningCodes に該当 → 不可
+ *
+ * ## exploratory 表示可否
+ * - ok / fallback / estimated / partial → 可
+ * - invalid → policy.allowExploratoryWhenInvalid に従う（デフォルト: 不可）
+ */
+export function decideAcceptance(
+  rawResolution: RawValueResolution,
+  warningEval: WarningEvaluation,
+  calculationStatus?: CalculationStatus,
+  policy?: MetricAcceptancePolicy,
+): AcceptanceDecision {
+  const p = { ...DEFAULT_ACCEPTANCE_POLICY, ...policy }
+
+  const status = determineStatus(
+    rawResolution.value,
+    rawResolution.isFallback,
+    rawResolution.fallbackRule,
+    warningEval.maxSeverity,
+    calculationStatus,
+  )
+
+  let authoritativeAccepted = isAuthoritativeAccepted(status, rawResolution.fallbackRule, p)
+
+  // blocking check: warning categories / codes → authoritative 不可
+  if (authoritativeAccepted && warningEval.warnings.length > 0) {
+    if (isBlockedByPolicy(warningEval.warnings, p)) {
+      authoritativeAccepted = false
+    }
+  }
+
+  const exploratoryAllowed = status !== 'invalid' || p.allowExploratoryWhenInvalid
+
+  return { status, authoritativeAccepted, exploratoryAllowed }
+}
+
+// ── 統合: resolveMetric (公開 API) ──
+
+/**
+ * 強化版の指標値解決（公開 API）
+ *
+ * 3段階パイプラインを組み立てて最終結果を返す。
+ */
+export function resolveMetric(
+  metricId: MetricId,
+  rawValue: number | null | undefined,
+  metricWarnings: ReadonlyMap<string, readonly string[]>,
+  calculationStatus?: CalculationStatus,
+): MetricResolution {
   const meta = METRIC_DEFS[metricId]
-  if (!meta.warningRule) return false
-  const warnings = metricWarnings.get(metricId)
-  if (!warnings || warnings.length === 0) return false
-  return warnings.includes(meta.warningRule)
+
+  // Stage 1: Raw Value Resolution
+  const rawResolution = resolveRawValue(rawValue, meta.fallbackRule)
+
+  // Stage 2: Warning Evaluation
+  const warningEval = evaluateWarnings(metricId, metricWarnings)
+
+  // Stage 3: Acceptance Decision
+  const acceptance = decideAcceptance(
+    rawResolution,
+    warningEval,
+    calculationStatus,
+    meta.acceptancePolicy,
+  )
+
+  return {
+    value: rawResolution.value,
+    status: acceptance.status,
+    warnings: warningEval.warnings,
+    maxSeverity: warningEval.maxSeverity,
+    authoritativeAccepted: acceptance.authoritativeAccepted,
+    exploratoryAllowed: acceptance.exploratoryAllowed,
+    owner: meta.authoritativeOwner,
+    isFallback: rawResolution.isFallback,
+  }
 }
 
 /**
- * 指標値を Registry に基づいて解決する（後方互換版）
- *
- * fallbackRule を適用し、warningRule を検出し、authoritativeOwner を返す。
+ * 後方互換: resolveMetricValue
  */
 export function resolveMetricValue(
   metricId: MetricId,
@@ -120,7 +300,7 @@ export function resolveMetricValue(
   metricWarnings: ReadonlyMap<string, readonly string[]>,
 ): ResolvedMetricValue {
   const meta = METRIC_DEFS[metricId]
-  const { value, isFallback } = applyFallbackRule(rawValue, meta.fallbackRule)
+  const { value, isFallback } = resolveRawValue(rawValue, meta.fallbackRule)
   const hasWarning = hasMetricWarning(metricId, metricWarnings)
 
   return {
@@ -131,64 +311,32 @@ export function resolveMetricValue(
   }
 }
 
+// ── Display Mode ──
+
+/** UI 表示モード */
+export type DisplayMode = 'authoritative' | 'reference' | 'hidden'
+
 /**
- * 強化版の指標値解決
+ * MetricResolution から UI の displayMode を導出する
  *
- * authoritative 採用可否と exploratory 表示可否まで判定する。
- *
- * ## ステータス判定ルール
- * - invalid: warningRule に critical が含まれる → authoritative 不可
- * - partial: 値はあるが warning あり → exploratory 可、authoritative 原則不可
- * - estimated: fallbackRule='estimated' かつ fallback 適用 → metric ごとの判断
- * - fallback: fallback が適用された → exploratory 可
- * - ok: 問題なし → 全可
- *
- * ## authoritative 採用可否
- * - ok → 可
- * - fallback (fallbackRule='zero') → 可（0 は妥当な業務値）
- * - estimated → 不可
- * - partial → 不可
- * - invalid → 不可
- *
- * ## exploratory 表示可否
- * - ok / fallback / estimated / partial → 可
- * - invalid → 不可
+ * authoritative-display-rules.md の決定ロジック:
+ * - invalid かつ exploratory 不可 → 'hidden'
+ * - authoritative 採用可 → 'authoritative'
+ * - exploratory 可 → 'reference'
+ * - それ以外 → 'hidden'
  */
-export function resolveMetric(
-  metricId: MetricId,
-  rawValue: number | null | undefined,
-  metricWarnings: ReadonlyMap<string, readonly string[]>,
-  calculationStatus?: CalculationStatus,
-): MetricResolution {
-  const meta = METRIC_DEFS[metricId]
-  const { value, isFallback } = applyFallbackRule(rawValue, meta.fallbackRule)
-  const warnings = metricWarnings.get(metricId) ?? []
-  const maxSeverity = getMaxSeverity(warnings)
-
-  // ── status 判定 ──
-  const status = determineStatus(
-    value,
-    isFallback,
-    meta.fallbackRule,
-    maxSeverity,
-    calculationStatus,
-  )
-
-  // ── authoritative / exploratory 判定 ──
-  const authoritativeAccepted = isAuthoritativeAccepted(status, meta.fallbackRule)
-  const exploratoryAllowed = status !== 'invalid'
-
-  return {
-    value,
-    status,
-    warnings,
-    maxSeverity,
-    authoritativeAccepted,
-    exploratoryAllowed,
-    owner: meta.authoritativeOwner,
-    isFallback,
-  }
+export function deriveDisplayMode(resolution: {
+  readonly status: ResolutionStatus
+  readonly authoritativeAccepted: boolean
+  readonly exploratoryAllowed: boolean
+}): DisplayMode {
+  if (resolution.status === 'invalid' && !resolution.exploratoryAllowed) return 'hidden'
+  if (resolution.authoritativeAccepted) return 'authoritative'
+  if (resolution.exploratoryAllowed) return 'reference'
+  return 'hidden'
 }
+
+// ── ユーティリティ（公開） ──
 
 /**
  * 指標の authoritativeOwner を取得する
@@ -251,11 +399,12 @@ function determineStatus(
 }
 
 /**
- * authoritative 採用可否を判定する
+ * authoritative 採用可否を判定する（policy 駆動）
  */
 function isAuthoritativeAccepted(
   status: ResolutionStatus,
   fallbackRule: FallbackRule | undefined,
+  policy: Required<MetricAcceptancePolicy>,
 ): boolean {
   switch (status) {
     case 'ok':
@@ -263,9 +412,36 @@ function isAuthoritativeAccepted(
     case 'fallback':
       // fallbackRule='zero' の場合、0 は妥当な業務値なので採用可
       return fallbackRule === 'zero'
-    case 'estimated':
     case 'partial':
+      return policy.allowAuthoritativeWhenPartial
+    case 'estimated':
+      return policy.allowAuthoritativeWhenEstimated
     case 'invalid':
       return false
   }
+}
+
+/**
+ * warning の category/code が policy の blocking リストに該当するか判定する
+ */
+function isBlockedByPolicy(
+  warnings: readonly string[],
+  policy: Required<MetricAcceptancePolicy>,
+): boolean {
+  if (policy.blockingWarningCategories.length > 0) {
+    for (const code of warnings) {
+      const category = getWarningCategory(code)
+      if (policy.blockingWarningCategories.includes(category)) {
+        return true
+      }
+    }
+  }
+  if (policy.blockingWarningCodes.length > 0) {
+    for (const code of warnings) {
+      if (policy.blockingWarningCodes.includes(code)) {
+        return true
+      }
+    }
+  }
+  return false
 }

@@ -4,6 +4,7 @@
  * ## 責務
  * warning code（意味状態）と表示文言を分離する。
  * domain 計算が返す warning code に対して:
+ * - category（分類）
  * - severity（深刻度）
  * - label（短縮表示ラベル）
  * - message（詳細説明）
@@ -14,7 +15,23 @@
  * - code は domain 計算が生成する文字列と一致する
  * - UI / explanation は code を介して表示文言を取得する
  * - severity によって authoritative 採用可否を判断できる
+ *
+ * ## 命名規則
+ * - すべて lowercase snake_case
+ * - 先頭にカテゴリ接頭辞:
+ *   - calc_* : 計算定義域異常
+ *   - obs_*  : 観測期間異常
+ *   - cmp_*  : 比較期間不足/比較異常
+ *   - fb_*   : fallback 発動
+ *   - auth_* : authoritative 採用不可
+ * - 1 code = 1 事象
+ * - UI 文言を code に埋め込まない
  */
+
+// ── Warning Category ──
+
+/** 警告の分類カテゴリ */
+export type WarningCategory = 'calc' | 'obs' | 'cmp' | 'fb' | 'auth'
 
 // ── Warning Severity ──
 
@@ -27,6 +44,8 @@ export type WarningSeverity = 'info' | 'warning' | 'critical'
 export interface WarningEntry {
   /** 警告コード（domain 計算が返す文字列と一致） */
   readonly code: string
+  /** 分類カテゴリ */
+  readonly category: WarningCategory
   /** 深刻度 */
   readonly severity: WarningSeverity
   /** 短縮表示ラベル（badge / chip 用） */
@@ -43,29 +62,70 @@ export interface WarningEntry {
  * domain/calculations/ が返す warning 文字列と 1:1 対応する。
  */
 const WARNING_ENTRIES: readonly WarningEntry[] = [
+  // ── calc_* : 計算定義域異常 ──
   {
-    code: 'discount_rate_negative',
+    code: 'calc_discount_rate_negative',
+    category: 'calc',
     severity: 'critical',
     label: '売変率異常',
     message: '売変率が負の値です。データの整合性を確認してください。',
   },
   {
-    code: 'discount_rate_out_of_domain',
+    code: 'calc_discount_rate_out_of_domain',
+    category: 'calc',
     severity: 'critical',
     label: '売変率定義域外',
     message: '売変率が100%以上のため、推定法による計算ができません。',
   },
   {
-    code: 'markup_rate_negative',
+    code: 'calc_markup_rate_negative',
+    category: 'calc',
     severity: 'warning',
     label: '値入率異常',
     message: '値入率が負の値です。仕入データを確認してください。',
   },
   {
-    code: 'markup_rate_exceeds_one',
+    code: 'calc_markup_rate_exceeds_one',
+    category: 'calc',
     severity: 'warning',
     label: '値入率超過',
     message: '値入率が100%を超えています。仕入データを確認してください。',
+  },
+
+  // ── obs_* : 観測期間異常 ──
+  {
+    code: 'obs_window_incomplete',
+    category: 'obs',
+    severity: 'warning',
+    label: '観測期間不足',
+    message: '観測期間が不完全です。集計値は部分的な実績に基づいています。',
+  },
+
+  // ── cmp_* : 比較期間不足/比較異常 ──
+  {
+    code: 'cmp_prior_year_insufficient',
+    category: 'cmp',
+    severity: 'warning',
+    label: '前年データ不足',
+    message: '前年同期間のデータが不足しています。比較値の信頼性が低い可能性があります。',
+  },
+
+  // ── fb_* : fallback 発動 ──
+  {
+    code: 'fb_estimated_value_used',
+    category: 'fb',
+    severity: 'info',
+    label: '推定値使用',
+    message: '正式値が取得できないため、推定値を使用しています。',
+  },
+
+  // ── auth_* : authoritative 採用不可 ──
+  {
+    code: 'auth_partial_rejected',
+    category: 'auth',
+    severity: 'info',
+    label: '参考値',
+    message: '警告があるため正式値として採用されていません。参考値として表示しています。',
   },
 ] as const
 
@@ -114,6 +174,28 @@ export function getWarningSeverity(code: string): WarningSeverity {
 }
 
 /**
+ * warning code から category を取得する
+ *
+ * 未登録の code の場合は接頭辞から推定を試み、それも失敗すれば 'calc' を返す。
+ */
+export function getWarningCategory(code: string): WarningCategory {
+  const entry = WARNING_MAP.get(code)
+  if (entry) return entry.category
+  // 未登録でも接頭辞から推定
+  const prefix = code.split('_')[0]
+  if (
+    prefix === 'calc' ||
+    prefix === 'obs' ||
+    prefix === 'cmp' ||
+    prefix === 'fb' ||
+    prefix === 'auth'
+  ) {
+    return prefix
+  }
+  return 'calc'
+}
+
+/**
  * 複数の warning code を severity 付きで解決する
  *
  * UI が badge / tooltip を描画する際に使う。
@@ -128,6 +210,7 @@ export function resolveWarnings(
     }
     return {
       code,
+      category: getWarningCategory(code),
       severity: 'warning' as const,
       label: code,
       message: code,
@@ -158,4 +241,11 @@ export function getMaxSeverity(codes: readonly string[]): WarningSeverity | null
     }
   }
   return max
+}
+
+/**
+ * 全登録済み warning code を返す（テスト用）
+ */
+export function getAllWarningCodes(): readonly string[] {
+  return WARNING_ENTRIES.map((e) => e.code)
 }
