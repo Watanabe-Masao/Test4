@@ -26,6 +26,7 @@ export {
   applyPreset,
   createDefaultPeriodSelection,
   deriveDowOffset,
+  deriveEffectivePeriod2,
   buildPrevYearScopeFromSelection,
 } from './PeriodSelection'
 export type { AlignmentEntry, AlignmentMode, QueryMonth, ComparisonScope } from './ComparisonScope'

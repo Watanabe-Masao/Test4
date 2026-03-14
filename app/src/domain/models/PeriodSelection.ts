@@ -255,6 +255,48 @@ export function deriveDowOffset(period1: DateRange, preset: ComparisonPreset): n
 }
 
 /**
+ * prevYearSameDow プリセット時の実際の比較期間を算出する。
+ *
+ * selection.period2 は ±7日の候補取得窓であり、実際の比較期間ではない。
+ * period1 から1年前にシフトし、dowOffset 分を加算して同曜日合わせした
+ * 正確な比較期間を返す。
+ *
+ * prevYearSameDow 以外のプリセットでは selection.period2 をそのまま返す。
+ */
+export function deriveEffectivePeriod2(selection: PeriodSelection): DateRange {
+  const offset = deriveDowOffset(selection.period1, selection.activePreset)
+  if (selection.activePreset !== 'prevYearSameDow' || offset === 0) {
+    return selection.period2
+  }
+  const offsetMs = offset * 86400000
+  const fromDate = new Date(
+    selection.period1.from.year,
+    selection.period1.from.month - 1,
+    selection.period1.from.day,
+  )
+  const toDate = new Date(
+    selection.period1.to.year,
+    selection.period1.to.month - 1,
+    selection.period1.to.day,
+  )
+  // 前年日付 = 当年日付 - 1年 + dowOffset日
+  const prevFrom = new Date(fromDate.getTime() - 365 * 86400000 + offsetMs)
+  const prevTo = new Date(toDate.getTime() - 365 * 86400000 + offsetMs)
+  return {
+    from: {
+      year: prevFrom.getFullYear(),
+      month: prevFrom.getMonth() + 1,
+      day: prevFrom.getDate(),
+    },
+    to: {
+      year: prevTo.getFullYear(),
+      month: prevTo.getMonth() + 1,
+      day: prevTo.getDate(),
+    },
+  }
+}
+
+/**
  * PeriodSelection + JS集計値から PrevYearScope を構築する。
  *
  * 旧 buildPrevYearScope(ComparisonFrame, effectiveEndDay, totalCustomers) を置換。

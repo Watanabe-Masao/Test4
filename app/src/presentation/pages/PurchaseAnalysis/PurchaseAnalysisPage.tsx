@@ -18,7 +18,7 @@ import { useDuckDB } from '@/application/hooks/useDuckDB'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useRepository } from '@/application/context/useRepository'
 import { usePurchaseComparisonQuery } from '@/application/hooks/duckdb/usePurchaseComparisonQuery'
-import { deriveDowOffset } from '@/domain/models/PeriodSelection'
+import { deriveDowOffset, deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 import { ComparisonPresetToggle } from '@/presentation/components/Layout/ComparisonPresetToggle'
 import type { PurchaseComparisonKpi } from '@/domain/models/PurchaseComparison'
 import {
@@ -76,40 +76,7 @@ export function PurchaseAnalysisPage() {
     [selection.period1, selection.activePreset],
   )
 
-  // prevYearSameDow プリセットの場合、period2 は ±7日の候補取得窓であり
-  // 実際の比較期間ではない。period1 + dowOffset から正確な比較期間を算出する。
-  const effectivePeriod2 = useMemo(() => {
-    if (selection.activePreset !== 'prevYearSameDow' || dowOffset === 0) {
-      return selection.period2
-    }
-    const offsetMs = dowOffset * 86400000
-    const fromDate = new Date(
-      selection.period1.from.year,
-      selection.period1.from.month - 1,
-      selection.period1.from.day,
-    )
-    const toDate = new Date(
-      selection.period1.to.year,
-      selection.period1.to.month - 1,
-      selection.period1.to.day,
-    )
-    // dowOffset は正値（前年の月初曜日を当年に合わせるオフセット）
-    // 前年日付 = 当年日付 - 1年 + dowOffset日
-    const prevFrom = new Date(fromDate.getTime() - 365 * 86400000 + offsetMs)
-    const prevTo = new Date(toDate.getTime() - 365 * 86400000 + offsetMs)
-    return {
-      from: {
-        year: prevFrom.getFullYear(),
-        month: prevFrom.getMonth() + 1,
-        day: prevFrom.getDate(),
-      },
-      to: {
-        year: prevTo.getFullYear(),
-        month: prevTo.getMonth() + 1,
-        day: prevTo.getDate(),
-      },
-    }
-  }, [selection.period1, selection.period2, selection.activePreset, dowOffset])
+  const effectivePeriod2 = useMemo(() => deriveEffectivePeriod2(selection), [selection])
 
   const { data: result, isLoading } = usePurchaseComparisonQuery(
     duck.conn,
