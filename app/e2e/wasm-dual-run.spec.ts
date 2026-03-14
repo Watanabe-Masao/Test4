@@ -8,7 +8,7 @@
  *
  * 注: E2E は `npm run preview`（本番ビルド）で実行される。
  * DEV のみの WASM 初期化・dual-run compare は本番では無効。
- * DEV 環境での観測は references/wasm-dual-run-runbook.md を参照。
+ * DEV 環境での観測は references/03-guides/wasm-dual-run-runbook.md を参照。
  */
 import { test, expect } from '@playwright/test'
 

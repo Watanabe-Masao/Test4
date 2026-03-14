@@ -327,8 +327,8 @@ rollback 不全は promotion-candidate 判定で NG とする。
 
 ## 関連文書
 
-- `references/compare-conventions.md`
-- `references/observation-evaluation-guide.md`
-- `references/engine-promotion-matrix.md`
-- `references/rollback-policy.md`
-- `references/engine-maturity-matrix.md`
+- `references/03-guides/compare-conventions.md`
+- `references/02-status/observation-evaluation-guide.md`
+- `references/02-status/engine-promotion-matrix.md`
+- `references/03-guides/rollback-policy.md`
+- `references/02-status/engine-maturity-matrix.md`

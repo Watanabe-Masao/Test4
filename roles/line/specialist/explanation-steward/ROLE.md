@@ -113,7 +113,7 @@ explanation-steward が適用する原則:
 
 ## 参照ドキュメント
 
-- `references/metric-id-registry.md` — MetricId 一覧（**必読**、81指標定義済み/50指標文書化済み）
-- `references/explanation-architecture.md` — Explanation 詳細アーキテクチャ
+- `references/03-guides/metric-id-registry.md` — MetricId 一覧（**必読**、81指標定義済み/50指標文書化済み）
+- `references/03-guides/explanation-architecture.md` — Explanation 詳細アーキテクチャ
 - `domain/models/Explanation.ts` — 型定義
 - `application/usecases/explanation/ExplanationService.ts` — 生成ロジック

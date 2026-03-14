@@ -29,19 +29,19 @@
 
 ## KPI 追加の場合（該当時のみ）
 
-> 詳細: [references/extension-playbook.md](../references/extension-playbook.md) セクション A
+> 詳細: [references/extension-playbook.md](../references/03-guides/extension-playbook.md) セクション A
 
 - [ ] `domain/calculations/` に計算関数を追加
 - [ ] MetricId / MetricMeta を登録
 - [ ] Explanation（L1/L2/L3）を実装
-- [ ] `references/metric-id-registry.md` を更新
+- [ ] `references/03-guides/metric-id-registry.md` を更新
 - [ ] 不変条件テストを追加
 
 ## DuckDB クエリ追加の場合（該当時のみ）
 
-> 詳細: [references/extension-playbook.md](../references/extension-playbook.md) セクション B
+> 詳細: [references/extension-playbook.md](../references/03-guides/extension-playbook.md) セクション B
 
-- [ ] `references/engine-responsibility.md` で責務重複がないことを確認
+- [ ] `references/01-principles/engine-responsibility.md` で責務重複がないことを確認
 - [ ] SQL / Runner を実装
 - [ ] チャートコンポーネントを追加
 - [ ] パフォーマンス計測を実施

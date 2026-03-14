@@ -23,10 +23,10 @@ import { evaluateObservation } from './utils/observationAssertions'
 import { EXPECTED_FUNCTIONS } from './utils/observationExpectations'
 import { buildJsonReport, buildMarkdownReport } from './utils/observationReport'
 
-import grossProfitNormal from './fixtures/observation/grossProfit-normal.json'
-import grossProfitNullZero from './fixtures/observation/grossProfit-null-zero-missing.json'
-import budgetAnalysisNormal from './fixtures/observation/budgetAnalysis-normal.json'
-import forecastNormal from './fixtures/observation/forecast-normal.json'
+import grossProfitNormal from './fixtures/observation/grossProfit-normal.json' with { type: 'json' }
+import grossProfitNullZero from './fixtures/observation/grossProfit-null-zero-missing.json' with { type: 'json' }
+import budgetAnalysisNormal from './fixtures/observation/budgetAnalysis-normal.json' with { type: 'json' }
+import forecastNormal from './fixtures/observation/forecast-normal.json' with { type: 'json' }
 
 /* ── ヘルパー ── */
 

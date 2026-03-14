@@ -37,7 +37,7 @@ function listDir(relativePath: string): string[] {
 describe('MetricId registry consistency', () => {
   it('metric-id-registry.md covers all MetricIds defined in Explanation.ts', () => {
     const explanationTs = readFile('app/src/domain/models/Explanation.ts')
-    const registry = readFile('references/metric-id-registry.md')
+    const registry = readFile('references/03-guides/metric-id-registry.md')
 
     // Explanation.ts から MetricId 型定義ブロックだけを抽出
     const metricIdBlockMatch = explanationTs.match(/export type MetricId =\n([\s\S]*?)(?:\n\n|$)/)
@@ -117,7 +117,7 @@ describe('Role directory consistency', () => {
 
 describe('Guard test map consistency', () => {
   it('guard-test-map.md references existing test files', () => {
-    const guardTestMap = readFile('references/guard-test-map.md')
+    const guardTestMap = readFile('references/03-guides/guard-test-map.md')
     const testFilePattern = /`([^`]*\.test\.ts[x]?)`/g
     const referencedFiles: string[] = []
     let match
@@ -166,7 +166,7 @@ describe('Reference path validity', () => {
 describe('Prohibition consistency', () => {
   it('prohibition-quick-ref.md covers all prohibitions in CLAUDE.md', () => {
     const claudeMd = readFile('CLAUDE.md')
-    const quickRef = readFile('references/prohibition-quick-ref.md')
+    const quickRef = readFile('references/01-principles/prohibition-quick-ref.md')
 
     // CLAUDE.md の禁止事項番号を抽出
     const prohibitionPattern = /### (\d+)\. /g
@@ -187,8 +187,8 @@ describe('Prohibition consistency', () => {
 
 describe('Invariant catalog ↔ guard test map consistency', () => {
   it('all INV-* IDs in invariant-catalog.md appear in guard-test-map.md', () => {
-    const catalog = readFile('references/invariant-catalog.md')
-    const guardMap = readFile('references/guard-test-map.md')
+    const catalog = readFile('references/03-guides/invariant-catalog.md')
+    const guardMap = readFile('references/03-guides/guard-test-map.md')
 
     const invPattern = /### (INV-[A-Z]+-\d+)/g
     const catalogIds: string[] = []
@@ -204,8 +204,8 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
   })
 
   it('all INV-* IDs in guard-test-map.md appear in invariant-catalog.md', () => {
-    const catalog = readFile('references/invariant-catalog.md')
-    const guardMap = readFile('references/guard-test-map.md')
+    const catalog = readFile('references/03-guides/invariant-catalog.md')
+    const guardMap = readFile('references/03-guides/guard-test-map.md')
 
     const invPattern = /INV-[A-Z]+-\d+/g
     const mapIds = new Set<string>()
@@ -225,7 +225,7 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
 
 describe('Engine responsibility ↔ code consistency', () => {
   it('JS modules listed in engine-responsibility.md exist in domain/calculations/', () => {
-    const doc = readFile('references/engine-responsibility.md')
+    const doc = readFile('references/01-principles/engine-responsibility.md')
 
     // JS テーブルからモジュール名を抽出（`module.ts` or `subdir/module.ts` パターン）
     const jsSection = doc.split('### DuckDB')[0]
@@ -243,7 +243,7 @@ describe('Engine responsibility ↔ code consistency', () => {
   })
 
   it('DuckDB modules listed in engine-responsibility.md exist in infrastructure/duckdb/queries/', () => {
-    const doc = readFile('references/engine-responsibility.md')
+    const doc = readFile('references/01-principles/engine-responsibility.md')
 
     // DuckDB テーブルからモジュール名を抽出
     const duckSection = doc.split('### DuckDB')[1]?.split('### 両エンジン')[0] ?? ''
