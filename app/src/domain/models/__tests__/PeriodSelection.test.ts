@@ -69,6 +69,45 @@ describe('PeriodSelection', () => {
       expect(result).toEqual(custom)
     })
 
+    it('prevWeek: period1 を -7日シフト', () => {
+      // period1: 2026/2/1〜28 → period2: 2026/1/25〜2/21
+      const result = applyPreset(feb2026, 'prevWeek', feb2026)
+      const expectedFrom = new Date(2026, 1, 1 - 7) // 2026-01-25
+      const expectedTo = new Date(2026, 1, 28 - 7) // 2026-02-21
+      expect(result.from.year).toBe(expectedFrom.getFullYear())
+      expect(result.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(result.from.day).toBe(expectedFrom.getDate())
+      expect(result.to.year).toBe(expectedTo.getFullYear())
+      expect(result.to.month).toBe(expectedTo.getMonth() + 1)
+      expect(result.to.day).toBe(expectedTo.getDate())
+    })
+
+    it('prevYearNextWeek: period1 を -1年 +7日シフト', () => {
+      // period1: 2026/2/1〜28 → period2: 2025/2/8〜3/7
+      const result = applyPreset(feb2026, 'prevYearNextWeek', feb2026)
+      const expectedFrom = new Date(2025, 1, 1 + 7) // 2025-02-08
+      const expectedTo = new Date(2025, 1, 28 + 7) // 2025-03-07
+      expect(result.from.year).toBe(expectedFrom.getFullYear())
+      expect(result.from.month).toBe(expectedFrom.getMonth() + 1)
+      expect(result.from.day).toBe(expectedFrom.getDate())
+      expect(result.to.year).toBe(expectedTo.getFullYear())
+      expect(result.to.month).toBe(expectedTo.getMonth() + 1)
+      expect(result.to.day).toBe(expectedTo.getDate())
+    })
+
+    it('prevWeek: 月初の前週は前月にまたがる', () => {
+      const mar: DateRange = {
+        from: { year: 2026, month: 3, day: 1 },
+        to: { year: 2026, month: 3, day: 5 },
+      }
+      const result = applyPreset(mar, 'prevWeek', mar)
+      // 3/1-7 = 2/22, 3/5-7 = 2/26
+      expect(result.from.month).toBe(2)
+      expect(result.from.day).toBe(22)
+      expect(result.to.month).toBe(2)
+      expect(result.to.day).toBe(26)
+    })
+
     it('prevYearSameDow: 候補取得範囲（前年同日 ±7日）', () => {
       // V2: period2 は候補取得範囲。period1.from の前年 -7日 ～ period1.to の前年 +7日
       const result = applyPreset(feb2026, 'prevYearSameDow', feb2026)
@@ -159,6 +198,14 @@ describe('PeriodSelection', () => {
       expect(deriveDowOffset(feb2026, 'custom')).toBe(0)
     })
 
+    it('prevWeek: オフセット 0', () => {
+      expect(deriveDowOffset(feb2026, 'prevWeek')).toBe(0)
+    })
+
+    it('prevYearNextWeek: オフセット 0', () => {
+      expect(deriveDowOffset(feb2026, 'prevYearNextWeek')).toBe(0)
+    })
+
     it('prevYearSameDow: deriveDowOffset は 0-6 の範囲を返す', () => {
       const sel = createDefaultPeriodSelection(2026, 2)
       const offset = deriveDowOffset(sel.period1, 'prevYearSameDow')
@@ -214,6 +261,22 @@ describe('PeriodSelection', () => {
       const p2 = applyPreset(sel.period1, 'prevMonth', sel.period2)
       const prevMonthSel = { ...sel, period2: p2, activePreset: 'prevMonth' as const }
       const effective = deriveEffectivePeriod2(prevMonthSel)
+      expect(effective).toEqual(p2)
+    })
+
+    it('prevWeek: period2 をそのまま返す', () => {
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const p2 = applyPreset(sel.period1, 'prevWeek', sel.period2)
+      const prevWeekSel = { ...sel, period2: p2, activePreset: 'prevWeek' as const }
+      const effective = deriveEffectivePeriod2(prevWeekSel)
+      expect(effective).toEqual(p2)
+    })
+
+    it('prevYearNextWeek: period2 をそのまま返す', () => {
+      const sel = createDefaultPeriodSelection(2026, 2)
+      const p2 = applyPreset(sel.period1, 'prevYearNextWeek', sel.period2)
+      const nwSel = { ...sel, period2: p2, activePreset: 'prevYearNextWeek' as const }
+      const effective = deriveEffectivePeriod2(nwSel)
       expect(effective).toEqual(p2)
     })
 

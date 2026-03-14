@@ -27,6 +27,8 @@ export type ComparisonPreset =
   | 'prevYearSameMonth' // 前年同月
   | 'prevYearSameDow' // 前年同曜日合わせ
   | 'prevMonth' // 前月
+  | 'prevWeek' // 前週（-7日）
+  | 'prevYearNextWeek' // 前年翌週（-1年 +7日）
   | 'custom' // 自由指定（プリセットなし）
 
 /** 期間選択の永続化対象 */
@@ -206,6 +208,42 @@ export function applyPreset(
           year: toY,
           month: toM,
           day: Math.min(period1.to.day, lastDayOfMonth(toY, toM)),
+        },
+      }
+    }
+
+    case 'prevWeek': {
+      // 前週: period1 を -7日シフト（既存 WoW と統一）
+      const fromDate = new Date(period1.from.year, period1.from.month - 1, period1.from.day - 7)
+      const toDate = new Date(period1.to.year, period1.to.month - 1, period1.to.day - 7)
+      return {
+        from: {
+          year: fromDate.getFullYear(),
+          month: fromDate.getMonth() + 1,
+          day: fromDate.getDate(),
+        },
+        to: {
+          year: toDate.getFullYear(),
+          month: toDate.getMonth() + 1,
+          day: toDate.getDate(),
+        },
+      }
+    }
+
+    case 'prevYearNextWeek': {
+      // 前年翌週: period1 を -1年 +7日シフト
+      const fromDate = new Date(period1.from.year - 1, period1.from.month - 1, period1.from.day + 7)
+      const toDate = new Date(period1.to.year - 1, period1.to.month - 1, period1.to.day + 7)
+      return {
+        from: {
+          year: fromDate.getFullYear(),
+          month: fromDate.getMonth() + 1,
+          day: fromDate.getDate(),
+        },
+        to: {
+          year: toDate.getFullYear(),
+          month: toDate.getMonth() + 1,
+          day: toDate.getDate(),
         },
       }
     }

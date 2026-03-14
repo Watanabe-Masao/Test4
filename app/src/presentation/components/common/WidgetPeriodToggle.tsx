@@ -10,6 +10,7 @@ import { useWidgetPeriodStore, resolveWidgetPeriod2 } from '@/application/stores
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { PRESET_LABELS } from '@/domain/patterns/period/PeriodContract'
 import type { DateRange } from '@/domain/models/CalendarDate'
+import { deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 
 const ToggleRow = styled.div`
   display: flex;
@@ -75,9 +76,14 @@ export const WidgetPeriodToggle = memo(function WidgetPeriodToggle({
   const setCustomPeriod2 = useWidgetPeriodStore((s) => s.setCustomPeriod2)
   const globalSelection = usePeriodSelectionStore((s) => s.selection)
 
+  const effectiveGlobalPeriod2 = useMemo(
+    () => deriveEffectivePeriod2(globalSelection),
+    [globalSelection],
+  )
+
   const { period2, isLinked } = useMemo(
-    () => resolveWidgetPeriod2(widgetId, overrides, globalSelection.period2),
-    [widgetId, overrides, globalSelection.period2],
+    () => resolveWidgetPeriod2(widgetId, overrides, effectiveGlobalPeriod2),
+    [widgetId, overrides, effectiveGlobalPeriod2],
   )
 
   const presetLabel = isLinked ? PRESET_LABELS[globalSelection.activePreset].shortLabel : 'カスタム'

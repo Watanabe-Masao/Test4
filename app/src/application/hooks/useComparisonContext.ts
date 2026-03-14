@@ -18,6 +18,7 @@ import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ComparisonContext } from '@/application/comparison/ComparisonContext'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
+import { deriveEffectivePeriod2 } from '@/domain/models/PeriodSelection'
 import { createEmptyComparisonContext } from '@/application/comparison/comparisonContextFactory'
 import { useComparisonContextQuery } from './duckdb/useComparisonContextQuery'
 
@@ -45,10 +46,11 @@ export function useComparisonContext(
   const targetMonth = settings.targetMonth
   const defaultMarkupRate = settings.defaultMarkupRate
 
-  // 比較年月は periodSelection.period2 から導出（settings は参照しない）
+  // 比較年月は effectivePeriod2 から導出（settings は参照しない）
   const periodSelection = usePeriodSelectionStore((s) => s.selection)
-  const prevYear = periodSelection.period2.from.year
-  const prevMonth = periodSelection.period2.from.month
+  const effective = deriveEffectivePeriod2(periodSelection)
+  const prevYear = effective.from.year
+  const prevMonth = effective.from.month
 
   // DuckDB クエリ + JS 計算（infrastructure 参照は duckdb/ 層に閉じ込める）
   const { data } = useComparisonContextQuery(
