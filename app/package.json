@@ -8,7 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --out-dir pkg",
+    "build:wasm": "cd ../wasm/factor-decomposition && wasm-pack build --target web --out-dir pkg && cd ../gross-profit && wasm-pack build --target web --out-dir pkg && cd ../budget-analysis && wasm-pack build --target web --out-dir pkg",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -32,6 +32,7 @@
     "d3-format": "^3.1.2",
     "date-fns": "^4.1.0",
     "factor-decomposition-wasm": "file:../wasm/factor-decomposition/pkg",
+    "budget-analysis-wasm": "file:../wasm/budget-analysis/pkg",
     "gross-profit-wasm": "file:../wasm/gross-profit/pkg",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",

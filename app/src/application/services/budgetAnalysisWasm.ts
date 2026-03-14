@@ -4,10 +4,7 @@
  * WASM の Float64Array 戻り値を既存の型に変換する薄い adapter。
  * ロジック判断・比較・モード判断・フォールバックは一切含めない（bridge の責務）。
  *
- * 現時点では WASM 実装は存在しないため、getWasmExports() 経由で
- * 将来の WASM export を呼び出す形のスタブとする。
- * WASM モジュールに budgetAnalysis 関数が追加されるまで、これらの関数は
- * bridge の vi.mock でモックされた状態でのみテストから呼ばれる。
+ * Rust 実装 (wasm/budget-analysis/) の wasm-bindgen export を呼び出す。
  */
 import type {
   BudgetAnalysisInput,
@@ -15,30 +12,12 @@ import type {
   GrossProfitBudgetInput,
   GrossProfitBudgetResult,
 } from '@/domain/calculations/budgetAnalysis'
-import { getWasmExports } from './wasmEngine'
+import { getBudgetAnalysisWasmExports } from './wasmEngine'
 
-/* ── 将来の WASM export 型定義 ─────────────────── */
+/* ── WASM export 取得 ──────────────────────────── */
 
-/**
- * budgetAnalysis WASM モジュールが export する関数の型。
- * Rust 実装完了後、wasm-bindgen が生成する型に置き換える。
- */
-interface BudgetAnalysisWasmExports {
-  calculate_budget_analysis: (
-    totalSales: number,
-    budget: number,
-    days: number[],
-    budgetDays: Float64Array,
-    salesDays: Float64Array,
-    elapsedDays: number,
-    salesDaysCount: number,
-    daysInMonth: number,
-  ) => Float64Array
-  calculate_gross_profit_budget: (...args: number[]) => Float64Array
-}
-
-function getBudgetAnalysisWasm(): BudgetAnalysisWasmExports {
-  return getWasmExports()! as unknown as BudgetAnalysisWasmExports
+function getBudgetAnalysisWasm() {
+  return getBudgetAnalysisWasmExports()!
 }
 
 /* ── WASM 呼び出し wrapper ────────────────────── */
@@ -48,24 +27,26 @@ export function calculateBudgetAnalysisWasm(
 ): BudgetAnalysisResult {
   const wasm = getBudgetAnalysisWasm()
 
-  // budgetDaily / salesDaily を並列配列として渡す
-  const days = Object.keys(input.budgetDaily).map(Number).sort((a, b) => a - b)
-  const budgetDays = new Float64Array(days.map((d) => input.budgetDaily[d] ?? 0))
-  const salesDays = new Float64Array(days.map((d) => input.salesDaily[d] ?? 0))
+  // budgetDaily / salesDaily を daysInMonth 長の flat array に変換
+  // index i = day (i+1) の値。欠損は 0。
+  const budgetDailyArr = new Float64Array(input.daysInMonth)
+  const salesDailyArr = new Float64Array(input.daysInMonth)
+  for (let d = 1; d <= input.daysInMonth; d++) {
+    budgetDailyArr[d - 1] = input.budgetDaily[d] ?? 0
+    salesDailyArr[d - 1] = input.salesDaily[d] ?? 0
+  }
 
   const arr = wasm.calculate_budget_analysis(
     input.totalSales,
     input.budget,
-    days,
-    budgetDays,
-    salesDays,
+    budgetDailyArr,
     input.elapsedDays,
     input.salesDays,
     input.daysInMonth,
   )
 
-  // dailyCumulative は WASM 側でも計算されるが、
-  // compare 対象は scalar フィールドのみ。ここでは空で返す。
+  // dailyCumulative は WASM 側では計算しない。
+  // compare 対象は scalar フィールドのみ。
   return {
     budgetAchievementRate: arr[0],
     budgetProgressRate: arr[1],

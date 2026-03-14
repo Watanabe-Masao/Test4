@@ -168,6 +168,9 @@ describe('BudgetAnalysisMismatchLog shape（モック WASM で差分検出）', 
   beforeEach(() => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getBudgetAnalysisWasmExports').mockReturnValue(
+      {} as unknown as ReturnType<typeof wasmEngine.getBudgetAnalysisWasmExports>,
+    )
   })
 
   it('calculateBudgetAnalysis: 不一致時に console.warn + 正しい log shape', () => {
@@ -220,6 +223,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateBudgetAnalysis: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getBudgetAnalysisWasmExports').mockReturnValue(
+      {} as unknown as ReturnType<typeof wasmEngine.getBudgetAnalysisWasmExports>,
+    )
 
     const input = makeBudgetInput()
     const direct = calculateBudgetAnalysisDirect(input)
@@ -235,6 +241,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateGrossProfitBudget: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
+    vi.spyOn(wasmEngine, 'getBudgetAnalysisWasmExports').mockReturnValue(
+      {} as unknown as ReturnType<typeof wasmEngine.getBudgetAnalysisWasmExports>,
+    )
 
     const input = makeGPBudgetInput()
     const direct = calculateGrossProfitBudgetDirect(input)

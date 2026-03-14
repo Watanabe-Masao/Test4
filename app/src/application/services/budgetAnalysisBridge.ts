@@ -25,7 +25,7 @@ import type {
   GrossProfitBudgetInput,
   GrossProfitBudgetResult,
 } from '@/domain/calculations/budgetAnalysis'
-import { getExecutionMode, getWasmState } from './wasmEngine'
+import { getExecutionMode, getWasmState, getBudgetAnalysisWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   calculateBudgetAnalysisWasm,
@@ -59,7 +59,7 @@ export interface BudgetAnalysisMismatchLog {
 /* ── 内部ヘルパー ─────────────────────────────── */
 
 function isWasmReady(): boolean {
-  return getWasmState() === 'ready'
+  return getBudgetAnalysisWasmExports() !== null
 }
 
 function isDualRun(): boolean {
