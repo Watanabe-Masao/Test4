@@ -150,19 +150,18 @@ export function buildSingleDayRange(year: number, month: number, day: number): D
   return { from: { year, month, day }, to: { year, month, day } }
 }
 
-export function buildPrevDayRange(comparisonFrame: ComparisonFrame, day: number): DateRange {
-  return {
-    from: {
-      year: comparisonFrame.previous.from.year,
-      month: comparisonFrame.previous.from.month,
-      day,
-    },
-    to: {
-      year: comparisonFrame.previous.to.year,
-      month: comparisonFrame.previous.to.month,
-      day,
-    },
-  }
+export function buildPrevDayRange(
+  comparisonFrame: ComparisonFrame,
+  year: number,
+  month: number,
+  day: number,
+): DateRange {
+  const curDate = new Date(year, month - 1, day)
+  const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+  const py = prevDate.getFullYear()
+  const pm = prevDate.getMonth() + 1
+  const pd = prevDate.getDate()
+  return { from: { year: py, month: pm, day: pd }, to: { year: py, month: pm, day: pd } }
 }
 
 export function buildWowPrevDayRange(
@@ -180,19 +179,18 @@ export function buildCumDateRange(year: number, month: number, day: number): Dat
   return { from: { year, month, day: 1 }, to: { year, month, day } }
 }
 
-export function buildCumPrevDateRange(comparisonFrame: ComparisonFrame, day: number): DateRange {
-  return {
-    from: {
-      year: comparisonFrame.previous.from.year,
-      month: comparisonFrame.previous.from.month,
-      day: 1,
-    },
-    to: {
-      year: comparisonFrame.previous.to.year,
-      month: comparisonFrame.previous.to.month,
-      day,
-    },
-  }
+export function buildCumPrevDateRange(
+  comparisonFrame: ComparisonFrame,
+  year: number,
+  month: number,
+  day: number,
+): DateRange {
+  const curDate = new Date(year, month - 1, day)
+  const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+  const py = prevDate.getFullYear()
+  const pm = prevDate.getMonth() + 1
+  const pd = prevDate.getDate()
+  return { from: { year: py, month: pm, day: 1 }, to: { year: py, month: pm, day: pd } }
 }
 
 // ── Breakdown (仕入内訳) ──

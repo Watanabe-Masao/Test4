@@ -233,21 +233,18 @@ export function DayDetailModal({
   )
   const cumCategoryRecords = cumResult.data ?? EMPTY_RECORDS
 
-  const cumPrevDateRange: DateRange = useMemo(
-    () => ({
-      from: {
-        year: comparisonFrame.previous.from.year,
-        month: comparisonFrame.previous.from.month,
-        day: 1,
-      },
-      to: {
-        year: comparisonFrame.previous.to.year,
-        month: comparisonFrame.previous.to.month,
-        day,
-      },
-    }),
-    [comparisonFrame.previous, day],
-  )
+  const cumPrevDateRange: DateRange = useMemo(() => {
+    // dowOffset を使って正確な累計終了日を計算（同曜日モードでも正しい日を特定）
+    const curDate = new Date(year, month - 1, day)
+    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+    const py = prevDate.getFullYear()
+    const pm = prevDate.getMonth() + 1
+    const pd = prevDate.getDate()
+    return {
+      from: { year: py, month: pm, day: 1 },
+      to: { year: py, month: pm, day: pd },
+    }
+  }, [year, month, day, comparisonFrame.dowOffset])
 
   const cumPrevResult = useDuckDBCategoryTimeRecords(
     duckConn,
