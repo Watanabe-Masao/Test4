@@ -1,0 +1,32 @@
+{
+  "invMethod": {
+    "openingInventory": 1000000,
+    "closingInventory": 800000,
+    "totalPurchaseCost": 500000,
+    "totalSales": 900000
+  },
+  "estMethod": {
+    "coreSales": 500000,
+    "discountRate": 0.05,
+    "markupRate": 0.3,
+    "costInclusionCost": 10000,
+    "openingInventory": 1000000,
+    "inventoryPurchaseCost": 300000
+  },
+  "coreSales": { "totalSales": 900000, "flowerSalesPrice": 50000, "directProduceSalesPrice": 40000 },
+  "discountRate": { "discountAmount": 25000, "salesAmount": 500000 },
+  "discountImpact": { "coreSales": 500000, "markupRate": 0.3, "discountRate": 0.05 },
+  "markupRates": {
+    "purchasePrice": 100000, "purchaseCost": 70000,
+    "deliveryPrice": 20000, "deliveryCost": 15000,
+    "transferPrice": 10000, "transferCost": 8000,
+    "defaultMarkupRate": 0.25
+  },
+  "transferTotals": {
+    "interStoreInPrice": 10000, "interStoreInCost": 7000,
+    "interStoreOutPrice": 5000, "interStoreOutCost": 3500,
+    "interDepartmentInPrice": 8000, "interDepartmentInCost": 6000,
+    "interDepartmentOutPrice": 4000, "interDepartmentOutCost": 3000
+  },
+  "inventoryCost": { "totalCost": 500000, "deliverySalesCost": 40000 }
+}

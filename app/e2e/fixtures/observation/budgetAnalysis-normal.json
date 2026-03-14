@@ -1,0 +1,19 @@
+{
+  "budgetAnalysis": {
+    "totalSales": 3000000,
+    "budget": 10000000,
+    "budgetDaily": { "1": 300000, "2": 350000, "3": 320000, "4": 280000, "5": 310000 },
+    "salesDaily": { "1": 500000, "2": 600000, "3": 550000, "4": 480000, "5": 870000 },
+    "elapsedDays": 5,
+    "salesDays": 5,
+    "daysInMonth": 30
+  },
+  "grossProfitBudget": {
+    "grossProfit": 900000,
+    "grossProfitBudget": 3000000,
+    "budgetElapsedRate": 0.167,
+    "elapsedDays": 5,
+    "salesDays": 5,
+    "daysInMonth": 30
+  }
+}

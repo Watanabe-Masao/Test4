@@ -1,0 +1,14 @@
+{
+  "dailySalesEntries": [
+    [1, 100000], [2, 120000], [3, 95000], [4, 130000], [5, 110000],
+    [6, 105000], [7, 115000], [8, 108000], [9, 125000], [10, 112000]
+  ],
+  "monthlyData": [
+    { "year": 2025, "month": 1, "totalSales": 1000000, "totalCustomers": 5000, "grossProfit": 300000, "grossProfitRate": 0.3, "budget": 1100000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 },
+    { "year": 2025, "month": 2, "totalSales": 1100000, "totalCustomers": 5500, "grossProfit": 330000, "grossProfitRate": 0.3, "budget": 1210000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 },
+    { "year": 2025, "month": 3, "totalSales": 1050000, "totalCustomers": 5250, "grossProfit": 315000, "grossProfitRate": 0.3, "budget": 1155000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 },
+    { "year": 2025, "month": 4, "totalSales": 1200000, "totalCustomers": 6000, "grossProfit": 360000, "grossProfitRate": 0.3, "budget": 1320000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 },
+    { "year": 2025, "month": 5, "totalSales": 1150000, "totalCustomers": 5750, "grossProfit": 345000, "grossProfitRate": 0.3, "budget": 1265000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 },
+    { "year": 2025, "month": 6, "totalSales": 1300000, "totalCustomers": 6500, "grossProfit": 390000, "grossProfitRate": 0.3, "budget": 1430000, "budgetAchievement": 0.909, "storeCount": 1, "discountRate": 0.05, "costRate": 0.65, "costInclusionRate": 0.02, "averageMarkupRate": 0.3 }
+  ]
+}
