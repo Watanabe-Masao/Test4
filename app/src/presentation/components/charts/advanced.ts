@@ -1,7 +1,6 @@
 /**
  * 高度分析チャートコンポーネント
  */
-export { StructuralOverviewChart } from './StructuralOverviewChart'
 export { IntegratedTimeline } from './IntegratedTimeline'
 export { CausalChainExplorer } from './CausalChainExplorer'
 export { SensitivityDashboard } from './SensitivityDashboard'

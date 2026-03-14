@@ -160,77 +160,75 @@ export function analyzeDowGapActualDay(
     return ZERO_ACTUAL_DAY_IMPACT
   }
 
-  // currentDay をキーにルックアップを構築（衝突しない）
-  const sameDateByCurrentDay = new Map(
-    sameDateMapping.map((r) => [
-      r.currentDay,
-      { prevDay: r.prevDay, prevMonth: r.prevMonth, prevYear: r.prevYear, prevSales: r.prevSales },
-    ]),
-  )
-  const sameDowByCurrentDay = new Map(
-    sameDowMapping.map((r) => [
-      r.currentDay,
-      { prevDay: r.prevDay, prevMonth: r.prevMonth, prevYear: r.prevYear, prevSales: r.prevSales },
-    ]),
-  )
+  // 境界値計算: 全日を列挙するのではなく、
+  // 2つのマッピングの前年日付の集合差分（境界日のみ）で影響額を算出する。
+  //
+  // sameDate の前年日付集合 A と sameDow の前年日付集合 B の差分:
+  //   shiftedIn  = B \ A (DOW alignment で加わった境界日)
+  //   shiftedOut = A \ B (DOW alignment で失われた境界日)
+
+  // 前年日付をキーとして集合を構築（年月日で一意化）
+  type PrevDateKey = string
+  const makePrevKey = (y: number, m: number, d: number): PrevDateKey => `${y}-${m}-${d}`
+
+  const sameDatePrevDates = new Map<
+    PrevDateKey,
+    { prevDay: number; prevMonth: number; prevYear: number; prevSales: number }
+  >()
+  for (const r of sameDateMapping) {
+    sameDatePrevDates.set(makePrevKey(r.prevYear, r.prevMonth, r.prevDay), {
+      prevDay: r.prevDay,
+      prevMonth: r.prevMonth,
+      prevYear: r.prevYear,
+      prevSales: r.prevSales,
+    })
+  }
+
+  const sameDowPrevDates = new Map<
+    PrevDateKey,
+    {
+      prevDay: number
+      prevMonth: number
+      prevYear: number
+      prevSales: number
+      currentDay: number
+    }
+  >()
+  for (const r of sameDowMapping) {
+    sameDowPrevDates.set(makePrevKey(r.prevYear, r.prevMonth, r.prevDay), {
+      prevDay: r.prevDay,
+      prevMonth: r.prevMonth,
+      prevYear: r.prevYear,
+      prevSales: r.prevSales,
+      currentDay: r.currentDay,
+    })
+  }
 
   const shiftedIn: ShiftedDay[] = []
   const shiftedOut: ShiftedDay[] = []
 
-  // 両マッピングを currentDay で突き合わせ
-  const allCurrentDays = new Set([...sameDateByCurrentDay.keys(), ...sameDowByCurrentDay.keys()])
-
-  for (const currentDay of allCurrentDays) {
-    const dateEntry = sameDateByCurrentDay.get(currentDay)
-    const dowEntry = sameDowByCurrentDay.get(currentDay)
-
-    if (dateEntry && dowEntry) {
-      // 両方に存在: prevDay が異なれば境界シフト
-      if (dateEntry.prevDay === dowEntry.prevDay) continue
-
-      // shiftedOut: sameDate の prevDay は DOW alignment で失われた日
-      const outDow = new Date(
-        dateEntry.prevYear,
-        dateEntry.prevMonth - 1,
-        dateEntry.prevDay,
-      ).getDay()
-      shiftedOut.push({
-        prevDay: dateEntry.prevDay,
-        dow: outDow,
-        label: DOW_LABELS[outDow],
-        prevSales: dateEntry.prevSales,
-      })
-
-      // shiftedIn: sameDow の prevDay は DOW alignment で加わった日
-      // sameDow alignment は曜日を保存するので、DOW は当年日から算出
-      const inDow = new Date(currentYear, currentMonth - 1, currentDay).getDay()
+  // B \ A: sameDow にあるが sameDate にない前年日 → DOW alignment で加わった境界日
+  for (const [key, entry] of sameDowPrevDates) {
+    if (!sameDatePrevDates.has(key)) {
+      const inDow = new Date(currentYear, currentMonth - 1, entry.currentDay).getDay()
       shiftedIn.push({
-        prevDay: dowEntry.prevDay,
+        prevDay: entry.prevDay,
         dow: inDow,
         label: DOW_LABELS[inDow],
-        prevSales: dowEntry.prevSales,
+        prevSales: entry.prevSales,
       })
-    } else if (dowEntry && !dateEntry) {
-      // sameDow のみ → DOW alignment で加わった日
-      const inDow = new Date(currentYear, currentMonth - 1, currentDay).getDay()
-      shiftedIn.push({
-        prevDay: dowEntry.prevDay,
-        dow: inDow,
-        label: DOW_LABELS[inDow],
-        prevSales: dowEntry.prevSales,
-      })
-    } else if (dateEntry && !dowEntry) {
-      // sameDate のみ → DOW alignment で失われた日
-      const outDow = new Date(
-        dateEntry.prevYear,
-        dateEntry.prevMonth - 1,
-        dateEntry.prevDay,
-      ).getDay()
+    }
+  }
+
+  // A \ B: sameDate にあるが sameDow にない前年日 → DOW alignment で失われた境界日
+  for (const [key, entry] of sameDatePrevDates) {
+    if (!sameDowPrevDates.has(key)) {
+      const outDow = new Date(entry.prevYear, entry.prevMonth - 1, entry.prevDay).getDay()
       shiftedOut.push({
-        prevDay: dateEntry.prevDay,
+        prevDay: entry.prevDay,
         dow: outDow,
         label: DOW_LABELS[outDow],
-        prevSales: dateEntry.prevSales,
+        prevSales: entry.prevSales,
       })
     }
   }

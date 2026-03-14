@@ -399,7 +399,6 @@ describe('R12/禁止#7: Presentation コンポーネントの行数制限', () =
 
   // ── Tier 2: 大型コンポーネント（600行超）— 個別追跡、次回改修時に分割義務 ──
   const largeComponentLimits: [string, number][] = [
-    ['presentation/components/charts/StructuralOverviewChart.tsx', 800],
     ['presentation/components/charts/CvTimeSeriesChart.tsx', 720],
     ['presentation/components/charts/TimeSlotChart.tsx', 660],
   ]

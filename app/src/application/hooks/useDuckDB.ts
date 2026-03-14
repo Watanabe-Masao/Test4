@@ -77,6 +77,11 @@ function computeFingerprint(
   ].join(':')
 }
 
+// グローバルミューテックス: 全 useDuckDB インスタンスの loadData を直列化する。
+// 各インスタンスが同一の DuckDB コネクションを共有するため、
+// インスタンスごとの mutex では resetTables/loadMonth のインターリーブを防げない。
+let globalLoadMutex: Promise<void> = Promise.resolve()
+
 export function useDuckDB(
   data: ImportedData | undefined,
   year: number,
@@ -102,12 +107,6 @@ export function useDuckDB(
   // これにより useAutoLoadPrevYear の data 変更で再トリガーされた新しい loadData が
   // 古い loadData の部分的 INSERT と競合しない。
   const loadSeqRef = useRef(0)
-
-  // ミューテックス: loadData の並行実行を防ぐ。
-  // 先行の loadData が resetTables/loadMonth を実行中に新しい loadData が開始されると、
-  // 両者の DROP/CREATE SQL が同一コネクション上でインターリーブし
-  // 「Table does not exist」エラーを引き起こす。Promise チェーンで直列化する。
-  const loadMutexRef = useRef<Promise<void>>(Promise.resolve())
 
   // マウント追跡
   useEffect(() => {
@@ -204,12 +203,12 @@ export function useDuckDB(
     // 新しい世代番号を発行。先行の loadData は次の await 後にこの値を検出して bail out する。
     const seq = ++loadSeqRef.current
 
-    // 先行の loadData の DB 操作完了を待つ。
-    // 世代番号だけでは resetTables の DROP → CREATE 途中に新しい loadData が
+    // グローバルミューテックスで全インスタンスの loadData を直列化する。
+    // 世代番号だけでは resetTables の DROP → CREATE 途中に別インスタンスの loadData が
     // 割り込むことを防げない（SQL がインターリーブする）。
-    const prevLoad = loadMutexRef.current
+    const prevLoad = globalLoadMutex
     let releaseMutex: () => void
-    loadMutexRef.current = new Promise<void>((resolve) => {
+    globalLoadMutex = new Promise<void>((resolve) => {
       releaseMutex = resolve
     })
 

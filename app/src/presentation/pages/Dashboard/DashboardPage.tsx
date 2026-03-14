@@ -278,9 +278,8 @@ export function DashboardPage() {
     <CrossChartSelectionProvider>
       <DrillThroughScrollHandler />
       <CategoryHierarchyProvider>
-        <MainContent title="ダッシュボード" storeName={storeName}>
+        <MainContent title="ダッシュボード" storeName={storeName} actions={<CurrencyUnitToggle />}>
           <Toolbar>
-            <CurrencyUnitToggle />
             <ChipGroup>
               <Chip $active={editMode} onClick={() => setEditMode(!editMode)}>
                 {editMode ? '編集完了' : '並べ替え'}

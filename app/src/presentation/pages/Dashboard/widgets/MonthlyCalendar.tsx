@@ -72,16 +72,22 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
     try {
       const storeName = ctx.stores.get(ctx.storeKey)?.name ?? ctx.storeKey
       const curRange = { from: { year, month, day: 1 }, to: { year, month, day: daysInMonth } }
+      // dowOffset を使って前年月の正確な開始/終了日を計算
+      const startDate = new Date(year, month - 1, 1)
+      const endDate = new Date(year, month - 1, daysInMonth)
+      const offsetMs = ctx.comparisonFrame.dowOffset * 86400000
+      const prevStartDate = new Date(startDate.getTime() + offsetMs)
+      const prevEndDate = new Date(endDate.getTime() + offsetMs)
       const prevRange = {
         from: {
-          year: ctx.comparisonFrame.previous.from.year,
-          month: ctx.comparisonFrame.previous.from.month,
-          day: 1,
+          year: prevStartDate.getFullYear(),
+          month: prevStartDate.getMonth() + 1,
+          day: prevStartDate.getDate(),
         },
         to: {
-          year: ctx.comparisonFrame.previous.to.year,
-          month: ctx.comparisonFrame.previous.to.month,
-          day: daysInMonth,
+          year: prevEndDate.getFullYear(),
+          month: prevEndDate.getMonth() + 1,
+          day: prevEndDate.getDate(),
         },
       }
 

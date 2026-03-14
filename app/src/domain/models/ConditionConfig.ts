@@ -36,6 +36,7 @@ export type ConditionMetricId =
   | 'gpAmount'
   | 'dailySales'
   | 'requiredPace'
+  | 'itemsYoY'
 
 /** メトリクスレジストリエントリ（コード内定義、不変） */
 export interface ConditionMetricDef {

@@ -169,9 +169,20 @@ export function aggregateDailyByAlignment(
   const { daily, dayDiscountEntries } = accumulateDailyValues(sourceIndex, targetIds, alignmentMap)
   const totals = summarizeDailyTotals(daily, dayDiscountEntries)
 
+  // Attach per-type discount breakdown to each daily entry
+  const dailyWithEntries = new Map(
+    Array.from(daily.entries()).map(([key, val]) => {
+      const entries = dayDiscountEntries.get(key)
+      const discountEntries: Record<string, number> | undefined = entries
+        ? Object.fromEntries(entries.map((e) => [e.type, e.amount]))
+        : undefined
+      return [key, { ...val, discountEntries }]
+    }),
+  )
+
   return {
     hasPrevYear: true,
-    daily,
+    daily: dailyWithEntries,
     ...totals,
   }
 }

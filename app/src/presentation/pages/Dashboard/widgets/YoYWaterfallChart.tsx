@@ -150,17 +150,30 @@ export const YoYWaterfallChartWidget = memo(function YoYWaterfallChartWidget({
         to: { year: ctx.year, month: ctx.month, day: wowRange.prevEnd },
       }
     }
-    const prev = ctx.comparisonFrame.previous
+    // dowOffset を使って正確な比較日を計算（同曜日モードでも正しい期間を特定）
+    const startDate = new Date(ctx.year, ctx.month - 1, dayStart)
+    const endDate = new Date(ctx.year, ctx.month - 1, dayEnd)
+    const offsetMs = ctx.comparisonFrame.dowOffset * 86400000
+    const prevStart = new Date(startDate.getTime() + offsetMs)
+    const prevEnd = new Date(endDate.getTime() + offsetMs)
     return {
-      from: { year: prev.from.year, month: prev.from.month, day: dayStart },
-      to: { year: prev.to.year, month: prev.to.month, day: dayEnd },
+      from: {
+        year: prevStart.getFullYear(),
+        month: prevStart.getMonth() + 1,
+        day: prevStart.getDate(),
+      },
+      to: {
+        year: prevEnd.getFullYear(),
+        month: prevEnd.getMonth() + 1,
+        day: prevEnd.getDate(),
+      },
     }
   }, [
     activeCompMode,
     canWoW,
     ctx.year,
     ctx.month,
-    ctx.comparisonFrame.previous,
+    ctx.comparisonFrame.dowOffset,
     dayStart,
     dayEnd,
     wowRange.prevStart,

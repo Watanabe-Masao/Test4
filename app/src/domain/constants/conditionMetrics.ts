@@ -131,6 +131,17 @@ export const CONDITION_METRIC_DEFS: readonly ConditionMetricDef[] = [
     inputStep: 1,
     inputUnit: '%',
   },
+  {
+    id: 'itemsYoY',
+    label: '販売点数前年比',
+    direction: 'higher_better',
+    unit: 'pct',
+    defaults: { blue: 1.0, yellow: 0.95, red: 0.9 },
+    displayMultiplier: 100,
+    inputStep: 1,
+    inputUnit: '%',
+    requiresPrevYear: true,
+  },
 ] as const
 
 /** ID → Def のマップ（O(1) ルックアップ用） */

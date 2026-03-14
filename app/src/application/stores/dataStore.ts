@@ -53,7 +53,9 @@ function applyPrevYearData(
       prevYearCategoryTimeSales: payload.prevYearCategoryTimeSales,
       prevYearFlowers: payload.prevYearFlowers,
     },
-    dataVersion: state.dataVersion + 1,
+    // 前年データは補足データのため dataVersion はインクリメントしない
+    // (計算エンジンの再起動を防止)
+    dataVersion: state.dataVersion,
   }
 }
 

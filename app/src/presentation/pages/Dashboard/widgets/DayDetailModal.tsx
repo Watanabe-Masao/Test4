@@ -15,6 +15,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
+import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
@@ -108,7 +109,7 @@ export function DayDetailModal({
   comparisonFrame,
   onClose,
 }: DayDetailModalProps) {
-  const { format: fmtCurrency } = useCurrencyFormat()
+  const { formatWithUnit: fmtCurrencyWithUnit } = useCurrencyFormat()
   const [tab, setTab] = useState<ModalTab>('sales')
   const [compMode, setCompMode] = useState<CompMode>('yoy')
   const DOW_NAMES = ['日', '月', '火', '水', '木', '金', '土']
@@ -161,21 +162,18 @@ export function DayDetailModal({
   )
   const dayRecords = dayResult.data ?? EMPTY_RECORDS
 
-  const prevDayRange: DateRange = useMemo(
-    () => ({
-      from: {
-        year: comparisonFrame.previous.from.year,
-        month: comparisonFrame.previous.from.month,
-        day,
-      },
-      to: {
-        year: comparisonFrame.previous.to.year,
-        month: comparisonFrame.previous.to.month,
-        day,
-      },
-    }),
-    [comparisonFrame.previous, day],
-  )
+  const prevDayRange: DateRange = useMemo(() => {
+    // dowOffset を使って正確な比較日を計算（同曜日モードでも正しい1日を特定）
+    const curDate = new Date(year, month - 1, day)
+    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+    const py = prevDate.getFullYear()
+    const pm = prevDate.getMonth() + 1
+    const pd = prevDate.getDate()
+    return {
+      from: { year: py, month: pm, day: pd },
+      to: { year: py, month: pm, day: pd },
+    }
+  }, [year, month, day, comparisonFrame.dowOffset])
 
   const prevDayResult = useDuckDBCategoryTimeRecords(
     duckConn,
@@ -235,21 +233,18 @@ export function DayDetailModal({
   )
   const cumCategoryRecords = cumResult.data ?? EMPTY_RECORDS
 
-  const cumPrevDateRange: DateRange = useMemo(
-    () => ({
-      from: {
-        year: comparisonFrame.previous.from.year,
-        month: comparisonFrame.previous.from.month,
-        day: 1,
-      },
-      to: {
-        year: comparisonFrame.previous.to.year,
-        month: comparisonFrame.previous.to.month,
-        day,
-      },
-    }),
-    [comparisonFrame.previous, day],
-  )
+  const cumPrevDateRange: DateRange = useMemo(() => {
+    // dowOffset を使って正確な累計終了日を計算（同曜日モードでも正しい日を特定）
+    const curDate = new Date(year, month - 1, day)
+    const prevDate = new Date(curDate.getTime() + comparisonFrame.dowOffset * 86400000)
+    const py = prevDate.getFullYear()
+    const pm = prevDate.getMonth() + 1
+    const pd = prevDate.getDate()
+    return {
+      from: { year: py, month: pm, day: 1 },
+      to: { year: py, month: pm, day: pd },
+    }
+  }, [year, month, day, comparisonFrame.dowOffset])
 
   const cumPrevResult = useDuckDBCategoryTimeRecords(
     duckConn,
@@ -267,22 +262,25 @@ export function DayDetailModal({
           <DetailTitle>
             {month}月{day}日（{dayOfWeek}）の詳細
           </DetailTitle>
-          <DetailCloseBtn onClick={onClose}>✕</DetailCloseBtn>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CurrencyUnitToggle />
+            <DetailCloseBtn onClick={onClose}>✕</DetailCloseBtn>
+          </div>
         </DetailHeader>
 
         {/* ── KPI Row 1: Sales ── */}
         <DetailKpiGrid>
           <DetailKpiCard $accent={palette.primary}>
             <DetailKpiLabel>予算</DetailKpiLabel>
-            <DetailKpiValue>{fmtCurrency(budget)}</DetailKpiValue>
+            <DetailKpiValue>{fmtCurrencyWithUnit(budget)}</DetailKpiValue>
           </DetailKpiCard>
           <DetailKpiCard $accent={sc.cond(actual >= budget)}>
             <DetailKpiLabel>実績</DetailKpiLabel>
-            <DetailKpiValue>{fmtCurrency(actual)}</DetailKpiValue>
+            <DetailKpiValue>{fmtCurrencyWithUnit(actual)}</DetailKpiValue>
           </DetailKpiCard>
           <DetailKpiCard $accent={sc.cond(diff >= 0)}>
             <DetailKpiLabel>予算差異</DetailKpiLabel>
-            <DetailKpiValue $color={sc.cond(diff >= 0)}>{fmtCurrency(diff)}</DetailKpiValue>
+            <DetailKpiValue $color={sc.cond(diff >= 0)}>{fmtCurrencyWithUnit(diff)}</DetailKpiValue>
           </DetailKpiCard>
           <DetailKpiCard $accent={sc.achievement(ach)}>
             <DetailKpiLabel>達成率</DetailKpiLabel>
@@ -306,7 +304,7 @@ export function DayDetailModal({
           <KpiMini $accent={palette.purpleDark}>
             <KpiMiniLabel>客単価</KpiMiniLabel>
             <KpiMiniValue>
-              {dayTxVal > 0 ? fmtCurrency(dayTxVal) : '-'}
+              {dayTxVal > 0 ? fmtCurrencyWithUnit(dayTxVal) : '-'}
               {prevYear.hasPrevYear && pyTxVal > 0 && txValRatio > 0 && (
                 <KpiMiniSub style={{ color: sc.cond(txValRatio >= 1) }}>
                   (比較期比{formatPercent(txValRatio)})
@@ -317,7 +315,7 @@ export function DayDetailModal({
           <KpiMini $accent={sc.cond(pyRatio >= 1)}>
             <KpiMiniLabel>比較期売上</KpiMiniLabel>
             <KpiMiniValue>
-              {prevYear.hasPrevYear && pySales > 0 ? fmtCurrency(pySales) : '-'}
+              {prevYear.hasPrevYear && pySales > 0 ? fmtCurrencyWithUnit(pySales) : '-'}
             </KpiMiniValue>
           </KpiMini>
           <KpiMini $accent={sc.cond(pyRatio >= 1)}>
@@ -404,15 +402,15 @@ export function DayDetailModal({
                 <div>
                   <DetailRow>
                     <DetailLabel>予算累計</DetailLabel>
-                    <DetailValue>{fmtCurrency(cumBudget)}</DetailValue>
+                    <DetailValue>{fmtCurrencyWithUnit(cumBudget)}</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>実績累計</DetailLabel>
-                    <DetailValue>{fmtCurrency(cumSales)}</DetailValue>
+                    <DetailValue>{fmtCurrencyWithUnit(cumSales)}</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計差異</DetailLabel>
-                    <DetailValue $color={sc.cond(cumDiff >= 0)}>{fmtCurrency(cumDiff)}</DetailValue>
+                    <DetailValue $color={sc.cond(cumDiff >= 0)}>{fmtCurrencyWithUnit(cumDiff)}</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計達成率</DetailLabel>
@@ -428,18 +426,18 @@ export function DayDetailModal({
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計客単価</DetailLabel>
-                    <DetailValue>{cumTxVal > 0 ? fmtCurrency(cumTxVal) : '-'}</DetailValue>
+                    <DetailValue>{cumTxVal > 0 ? fmtCurrencyWithUnit(cumTxVal) : '-'}</DetailValue>
                   </DetailRow>
                   {prevYear.hasPrevYear && cumPrevYear > 0 && (
                     <>
                       <DetailRow>
                         <DetailLabel>前年累計</DetailLabel>
-                        <DetailValue>{fmtCurrency(cumPrevYear)}</DetailValue>
+                        <DetailValue>{fmtCurrencyWithUnit(cumPrevYear)}</DetailValue>
                       </DetailRow>
                       <DetailRow>
                         <DetailLabel>前年累計客単価</DetailLabel>
                         <DetailValue>
-                          {cumPrevTxVal > 0 ? fmtCurrency(cumPrevTxVal) : '-'}
+                          {cumPrevTxVal > 0 ? fmtCurrencyWithUnit(cumPrevTxVal) : '-'}
                         </DetailValue>
                       </DetailRow>
                     </>
@@ -516,9 +514,9 @@ export function DayDetailModal({
                         <DetailRow key={item.label}>
                           <DetailLabel>{item.label}</DetailLabel>
                           <DetailValue>
-                            {fmtCurrency(item.price)}{' '}
+                            {fmtCurrencyWithUnit(item.price)}{' '}
                             <span style={{ color: palette.slate, fontSize: '0.75rem' }}>
-                              (原 {fmtCurrency(item.cost)})
+                              (原 {fmtCurrencyWithUnit(item.cost)})
                             </span>
                             <span
                               style={{
@@ -535,7 +533,7 @@ export function DayDetailModal({
                     })}
                     <DetailRow>
                       <DetailLabel>総仕入原価</DetailLabel>
-                      <DetailValue>{fmtCurrency(totalCost)}</DetailValue>
+                      <DetailValue>{fmtCurrencyWithUnit(totalCost)}</DetailValue>
                     </DetailRow>
                     {actual > 0 && totalCost > 0 && (
                       <DetailRow>
@@ -546,7 +544,7 @@ export function DayDetailModal({
                     {record.costInclusion.cost > 0 && (
                       <DetailRow>
                         <DetailLabel>原価算入費</DetailLabel>
-                        <DetailValue>{fmtCurrency(record.costInclusion.cost)}</DetailValue>
+                        <DetailValue>{fmtCurrencyWithUnit(record.costInclusion.cost)}</DetailValue>
                       </DetailRow>
                     )}
                     {record.discountAmount !== 0 && (
@@ -554,7 +552,7 @@ export function DayDetailModal({
                         <DetailRow>
                           <DetailLabel>売変額</DetailLabel>
                           <DetailValue $color={sc.negative}>
-                            {fmtCurrency(record.discountAmount)}
+                            {fmtCurrencyWithUnit(record.discountAmount)}
                           </DetailValue>
                         </DetailRow>
                         {record.grossSales > 0 && (

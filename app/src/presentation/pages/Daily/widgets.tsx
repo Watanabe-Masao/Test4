@@ -59,7 +59,5 @@ export const DEFAULT_DAILY_WIDGET_IDS = [
   'exec-weekly-summary',
   'exec-daily-store-sales',
   // 分析
-  'analysis-revenue-structure',
-  'analysis-multi-kpi',
   'analysis-customer-scatter',
 ]

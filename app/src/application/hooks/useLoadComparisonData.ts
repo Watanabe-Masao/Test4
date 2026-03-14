@@ -12,7 +12,6 @@
  */
 import { useEffect, useReducer, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
-import { invalidateAfterStateChange } from '@/application/services/stateInvalidation'
 import { useRepository } from '../context/useRepository'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import { loadComparisonDataAsync } from '@/application/comparison/loadComparisonDataAsync'
@@ -71,7 +70,6 @@ export function useLoadComparisonData(scope: ComparisonScope | null): Comparison
       .then((result) => {
         if (cancelled || !result) return
         useDataStore.getState().setPrevYearAutoData(result)
-        invalidateAfterStateChange()
       })
       .catch((err) => {
         if (!cancelled) {

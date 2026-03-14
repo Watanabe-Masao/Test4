@@ -85,7 +85,6 @@ export const DEFAULT_INSIGHT_WIDGET_IDS = [
   'insight-gross-profit',
   'analysis-waterfall',
   'analysis-gp-heatmap',
-  'analysis-structural-overview',
   // 売変分析
   'chart-discount-breakdown',
   // 要因分解
