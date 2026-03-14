@@ -3,6 +3,7 @@ import {
   applyFallbackRule,
   hasMetricWarning,
   resolveMetricValue,
+  resolveMetric,
   getMetricOwner,
   getRegisteredMetricIds,
 } from './metricResolver'
@@ -80,6 +81,103 @@ describe('resolveMetricValue', () => {
     expect(result.value).toBe(100000)
     expect(result.hasWarning).toBe(true)
     expect(result.owner).toBe('ts')
+  })
+})
+
+describe('resolveMetric（強化版）', () => {
+  describe('authoritative 採用可否', () => {
+    it('正常値 → authoritative 採用可', () => {
+      const result = resolveMetric('discountRate', 0.05, new Map())
+      expect(result.status).toBe('ok')
+      expect(result.authoritativeAccepted).toBe(true)
+      expect(result.exploratoryAllowed).toBe(true)
+      expect(result.warnings).toEqual([])
+    })
+
+    it('fallbackRule=zero で null → authoritative 採用可（0 は妥当な業務値）', () => {
+      const result = resolveMetric('discountRate', null, new Map())
+      expect(result.value).toBe(0)
+      expect(result.status).toBe('fallback')
+      expect(result.authoritativeAccepted).toBe(true)
+      expect(result.isFallback).toBe(true)
+    })
+
+    it('fallbackRule=null で null → authoritative 不可', () => {
+      const result = resolveMetric('invMethodCogs', null, new Map())
+      expect(result.value).toBeNull()
+      expect(result.status).toBe('invalid')
+      expect(result.authoritativeAccepted).toBe(false)
+      expect(result.exploratoryAllowed).toBe(false)
+    })
+
+    it('critical warning → invalid → authoritative 不可', () => {
+      const warnings = new Map([['estMethodCogs', ['discount_rate_out_of_domain']]])
+      const result = resolveMetric('estMethodCogs', 100000, warnings)
+      expect(result.status).toBe('invalid')
+      expect(result.authoritativeAccepted).toBe(false)
+      expect(result.exploratoryAllowed).toBe(false)
+      expect(result.maxSeverity).toBe('critical')
+    })
+
+    it('warning severity → partial → exploratory 可、authoritative 不可', () => {
+      const warnings = new Map([['estMethodCogs', ['markup_rate_negative']]])
+      const result = resolveMetric('estMethodCogs', 100000, warnings)
+      expect(result.status).toBe('partial')
+      expect(result.authoritativeAccepted).toBe(false)
+      expect(result.exploratoryAllowed).toBe(true)
+      expect(result.maxSeverity).toBe('warning')
+    })
+  })
+
+  describe('calculationStatus 直接渡し', () => {
+    it('calculationStatus=invalid → invalid', () => {
+      const result = resolveMetric('discountRate', 0.05, new Map(), 'invalid')
+      expect(result.status).toBe('invalid')
+      expect(result.authoritativeAccepted).toBe(false)
+    })
+
+    it('calculationStatus=partial → partial', () => {
+      const result = resolveMetric('discountRate', 0.05, new Map(), 'partial')
+      expect(result.status).toBe('partial')
+      expect(result.authoritativeAccepted).toBe(false)
+      expect(result.exploratoryAllowed).toBe(true)
+    })
+
+    it('calculationStatus=estimated → estimated', () => {
+      const result = resolveMetric('discountRate', 0.05, new Map(), 'estimated')
+      expect(result.status).toBe('estimated')
+      expect(result.authoritativeAccepted).toBe(false)
+      expect(result.exploratoryAllowed).toBe(true)
+    })
+  })
+
+  describe('owner 情報', () => {
+    it('authoritativeOwner が設定された指標', () => {
+      const result = resolveMetric('invMethodCogs', 50000, new Map())
+      expect(result.owner).toBe('ts')
+    })
+
+    it('authoritativeOwner が未設定の指標', () => {
+      const result = resolveMetric('salesTotal', 1000000, new Map())
+      expect(result.owner).toBeUndefined()
+    })
+  })
+
+  describe('warning 情報', () => {
+    it('警告なし → 空配列', () => {
+      const result = resolveMetric('discountRate', 0.05, new Map())
+      expect(result.warnings).toEqual([])
+      expect(result.maxSeverity).toBeNull()
+    })
+
+    it('警告あり → コード一覧と maxSeverity', () => {
+      const warnings = new Map([
+        ['estMethodCogs', ['discount_rate_out_of_domain', 'markup_rate_negative']],
+      ])
+      const result = resolveMetric('estMethodCogs', 100000, warnings)
+      expect(result.warnings).toEqual(['discount_rate_out_of_domain', 'markup_rate_negative'])
+      expect(result.maxSeverity).toBe('critical')
+    })
   })
 })
 

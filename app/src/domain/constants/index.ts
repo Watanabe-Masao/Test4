@@ -8,6 +8,15 @@ export {
 export { CATEGORY_LABELS, CATEGORY_ORDER } from './categories'
 export { METRIC_DEFS } from './metricDefs'
 export { FORMULA_REGISTRY } from './formulaRegistry'
+export {
+  getWarningEntry,
+  getWarningLabel,
+  getWarningMessage,
+  getWarningSeverity,
+  resolveWarnings,
+  getMaxSeverity,
+} from './warningCatalog'
+export type { WarningSeverity, WarningEntry } from './warningCatalog'
 export type {
   PresetCategoryId,
   UserCategoryId,
