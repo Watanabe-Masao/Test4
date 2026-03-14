@@ -118,6 +118,20 @@ export type SourceEngine = 'ts' | 'sql' | 'rust'
 /** フォールバック戦略 */
 export type FallbackRule = 'none' | 'zero' | 'null' | 'estimated'
 
+/** KPI 個別の acceptance policy */
+export interface MetricAcceptancePolicy {
+  /** partial 状態でも authoritative として採用可能か（デフォルト: false） */
+  readonly allowAuthoritativeWhenPartial?: boolean
+  /** estimated 状態でも authoritative として採用可能か（デフォルト: false） */
+  readonly allowAuthoritativeWhenEstimated?: boolean
+  /** invalid 状態でも exploratory として表示可能か（デフォルト: false） */
+  readonly allowExploratoryWhenInvalid?: boolean
+  /** authoritative 採用を拒否する warning カテゴリ */
+  readonly blockingWarningCategories?: readonly string[]
+  /** authoritative 採用を拒否する warning コード */
+  readonly blockingWarningCodes?: readonly string[]
+}
+
 /** 指標メタデータ */
 export interface MetricMeta {
   readonly label: string
@@ -135,6 +149,8 @@ export interface MetricMeta {
   readonly fallbackRule?: FallbackRule
   /** 警告条件（この条件に該当する場合 warning を付与する） */
   readonly warningRule?: string
+  /** KPI 個別の acceptance policy */
+  readonly acceptancePolicy?: MetricAcceptancePolicy
 }
 
 // ─── Unit ─────────────────────────────────────────────────

@@ -576,8 +576,8 @@ describe('Domain 層の分割後ファイル行数制限', () => {
     ['domain/calculations/utils.ts', 100],
     ['domain/calculations/averageDivisor.ts', 120],
     ['domain/calculations/dataDetection.ts', 80],
-    // Phase 4: metricResolver 3段パイプライン化
-    ['domain/constants/metricResolver.ts', 370],
+    // Phase 4-5: metricResolver 3段パイプライン化 + policy 駆動 + displayMode
+    ['domain/constants/metricResolver.ts', 450],
   ]
 
   it.each(fileLimits)('%s は %d 行以下', (relPath, maxLines) => {

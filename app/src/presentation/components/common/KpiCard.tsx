@@ -25,6 +25,9 @@ export interface KpiWarningInfo {
   readonly message: string
 }
 
+/** UI 表示モード（authoritative-display-rules.md 準拠） */
+export type KpiDisplayMode = 'authoritative' | 'reference' | 'hidden'
+
 export function KpiCard({
   label,
   value,
@@ -36,6 +39,7 @@ export function KpiCard({
   formulaSummary,
   warning,
   isReference,
+  displayMode,
 }: {
   label: string
   value: string
@@ -50,6 +54,8 @@ export function KpiCard({
   warning?: KpiWarningInfo
   /** Whether this is a reference value (not authoritative) */
   isReference?: boolean
+  /** Display mode derived from MetricResolution */
+  displayMode?: KpiDisplayMode
 }) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -87,16 +93,18 @@ export function KpiCard({
             {badge === 'actual' ? '実績' : '推定'}
           </MethodBadge>
         )}
-        {warning && (
+        {warning && displayMode !== 'hidden' && (
           <WarningBadge $severity={warning.severity} title={warning.message}>
             {warning.label}
           </WarningBadge>
         )}
-        {isReference && !warning && <ReferenceBadge title="参考値です">参考値</ReferenceBadge>}
+        {(isReference || displayMode === 'reference') && !warning && displayMode !== 'hidden' && (
+          <ReferenceBadge title="参考値です">参考値</ReferenceBadge>
+        )}
       </Label>
       <Value>
-        {value}
-        {trend && (
+        {displayMode === 'hidden' ? '—' : value}
+        {displayMode !== 'hidden' && trend && (
           <TrendBadge $direction={trend.direction}>
             {trend.direction === 'up' ? '↑' : trend.direction === 'down' ? '↓' : '→'}
             {trend.label}

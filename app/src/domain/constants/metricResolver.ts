@@ -29,10 +29,15 @@
  * - ExplanationService: 警告の表示判定
  * - UI: 指標の信頼性表示
  */
-import type { MetricId, MetricMeta, FallbackRule } from '../models/Explanation'
+import type {
+  MetricId,
+  MetricMeta,
+  MetricAcceptancePolicy,
+  FallbackRule,
+} from '../models/Explanation'
 import type { CalculationStatus } from '../models/CalculationResult'
 import type { WarningSeverity } from './warningCatalog'
-import { getMaxSeverity } from './warningCatalog'
+import { getMaxSeverity, getWarningCategory } from './warningCatalog'
 import { METRIC_DEFS } from './metricDefs'
 
 // ── Stage 1: Raw Value Resolution ──
@@ -184,6 +189,15 @@ export function hasMetricWarning(
 
 // ── Stage 3: Acceptance Decision ──
 
+/** デフォルトの acceptance policy（policy 未設定時に使用） */
+export const DEFAULT_ACCEPTANCE_POLICY: Readonly<Required<MetricAcceptancePolicy>> = {
+  allowAuthoritativeWhenPartial: false,
+  allowAuthoritativeWhenEstimated: false,
+  allowExploratoryWhenInvalid: false,
+  blockingWarningCategories: [],
+  blockingWarningCodes: [],
+} as const
+
 /**
  * Stage 3: authoritative/exploratory の採用判定を行う
  *
@@ -194,22 +208,26 @@ export function hasMetricWarning(
  * - fallback: fallback が適用された → exploratory 可
  * - ok: 問題なし → 全可
  *
- * ## authoritative 採用可否
+ * ## authoritative 採用可否（policy 駆動）
  * - ok → 可
  * - fallback (fallbackRule='zero') → 可（0 は妥当な業務値）
- * - estimated → 不可
- * - partial → 不可
+ * - partial → policy.allowAuthoritativeWhenPartial に従う（デフォルト: 不可）
+ * - estimated → policy.allowAuthoritativeWhenEstimated に従う（デフォルト: 不可）
  * - invalid → 不可
+ * - blockingWarningCategories/blockingWarningCodes に該当 → 不可
  *
  * ## exploratory 表示可否
  * - ok / fallback / estimated / partial → 可
- * - invalid → 不可
+ * - invalid → policy.allowExploratoryWhenInvalid に従う（デフォルト: 不可）
  */
 export function decideAcceptance(
   rawResolution: RawValueResolution,
   warningEval: WarningEvaluation,
   calculationStatus?: CalculationStatus,
+  policy?: MetricAcceptancePolicy,
 ): AcceptanceDecision {
+  const p = { ...DEFAULT_ACCEPTANCE_POLICY, ...policy }
+
   const status = determineStatus(
     rawResolution.value,
     rawResolution.isFallback,
@@ -218,8 +236,16 @@ export function decideAcceptance(
     calculationStatus,
   )
 
-  const authoritativeAccepted = isAuthoritativeAccepted(status, rawResolution.fallbackRule)
-  const exploratoryAllowed = status !== 'invalid'
+  let authoritativeAccepted = isAuthoritativeAccepted(status, rawResolution.fallbackRule, p)
+
+  // blocking check: warning categories / codes → authoritative 不可
+  if (authoritativeAccepted && warningEval.warnings.length > 0) {
+    if (isBlockedByPolicy(warningEval.warnings, p)) {
+      authoritativeAccepted = false
+    }
+  }
+
+  const exploratoryAllowed = status !== 'invalid' || p.allowExploratoryWhenInvalid
 
   return { status, authoritativeAccepted, exploratoryAllowed }
 }
@@ -246,7 +272,12 @@ export function resolveMetric(
   const warningEval = evaluateWarnings(metricId, metricWarnings)
 
   // Stage 3: Acceptance Decision
-  const acceptance = decideAcceptance(rawResolution, warningEval, calculationStatus)
+  const acceptance = decideAcceptance(
+    rawResolution,
+    warningEval,
+    calculationStatus,
+    meta.acceptancePolicy,
+  )
 
   return {
     value: rawResolution.value,
@@ -278,6 +309,31 @@ export function resolveMetricValue(
     isFallback,
     owner: meta.authoritativeOwner,
   }
+}
+
+// ── Display Mode ──
+
+/** UI 表示モード */
+export type DisplayMode = 'authoritative' | 'reference' | 'hidden'
+
+/**
+ * MetricResolution から UI の displayMode を導出する
+ *
+ * authoritative-display-rules.md の決定ロジック:
+ * - invalid かつ exploratory 不可 → 'hidden'
+ * - authoritative 採用可 → 'authoritative'
+ * - exploratory 可 → 'reference'
+ * - それ以外 → 'hidden'
+ */
+export function deriveDisplayMode(resolution: {
+  readonly status: ResolutionStatus
+  readonly authoritativeAccepted: boolean
+  readonly exploratoryAllowed: boolean
+}): DisplayMode {
+  if (resolution.status === 'invalid' && !resolution.exploratoryAllowed) return 'hidden'
+  if (resolution.authoritativeAccepted) return 'authoritative'
+  if (resolution.exploratoryAllowed) return 'reference'
+  return 'hidden'
 }
 
 // ── ユーティリティ（公開） ──
@@ -343,11 +399,12 @@ function determineStatus(
 }
 
 /**
- * authoritative 採用可否を判定する
+ * authoritative 採用可否を判定する（policy 駆動）
  */
 function isAuthoritativeAccepted(
   status: ResolutionStatus,
   fallbackRule: FallbackRule | undefined,
+  policy: Required<MetricAcceptancePolicy>,
 ): boolean {
   switch (status) {
     case 'ok':
@@ -355,9 +412,36 @@ function isAuthoritativeAccepted(
     case 'fallback':
       // fallbackRule='zero' の場合、0 は妥当な業務値なので採用可
       return fallbackRule === 'zero'
-    case 'estimated':
     case 'partial':
+      return policy.allowAuthoritativeWhenPartial
+    case 'estimated':
+      return policy.allowAuthoritativeWhenEstimated
     case 'invalid':
       return false
   }
+}
+
+/**
+ * warning の category/code が policy の blocking リストに該当するか判定する
+ */
+function isBlockedByPolicy(
+  warnings: readonly string[],
+  policy: Required<MetricAcceptancePolicy>,
+): boolean {
+  if (policy.blockingWarningCategories.length > 0) {
+    for (const code of warnings) {
+      const category = getWarningCategory(code)
+      if (policy.blockingWarningCategories.includes(category)) {
+        return true
+      }
+    }
+  }
+  if (policy.blockingWarningCodes.length > 0) {
+    for (const code of warnings) {
+      if (policy.blockingWarningCodes.includes(code)) {
+        return true
+      }
+    }
+  }
+  return false
 }

@@ -9,8 +9,11 @@ import {
   decideAcceptance,
   getMetricOwner,
   getRegisteredMetricIds,
+  DEFAULT_ACCEPTANCE_POLICY,
+  deriveDisplayMode,
 } from './metricResolver'
 import type { RawValueResolution, WarningEvaluation } from './metricResolver'
+import type { MetricAcceptancePolicy } from '../models/Explanation'
 
 // ═══════════════════════════════════════════════════════════
 // Stage 1: Raw Value Resolution
@@ -223,6 +226,134 @@ describe('decideAcceptance (Stage 3)', () => {
 })
 
 // ═══════════════════════════════════════════════════════════
+// Stage 3: Acceptance Decision (Policy 駆動)
+// ═══════════════════════════════════════════════════════════
+
+describe('decideAcceptance (Policy 駆動)', () => {
+  const noWarning: WarningEvaluation = {
+    warnings: [],
+    maxSeverity: null,
+    matchesWarningRule: false,
+  }
+
+  const warningOnly: WarningEvaluation = {
+    warnings: ['calc_markup_rate_negative'],
+    maxSeverity: 'warning',
+    matchesWarningRule: false,
+  }
+
+  it('policy 未設定時はデフォルト動作', () => {
+    const raw: RawValueResolution = { value: 100, isFallback: false, fallbackRule: undefined }
+    const result = decideAcceptance(raw, warningOnly)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(false) // default: partial → 不可
+  })
+
+  it('allowAuthoritativeWhenPartial=true → partial でも authoritative 可', () => {
+    const raw: RawValueResolution = { value: 100, isFallback: false, fallbackRule: undefined }
+    const policy: MetricAcceptancePolicy = { allowAuthoritativeWhenPartial: true }
+    const result = decideAcceptance(raw, warningOnly, undefined, policy)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('allowAuthoritativeWhenEstimated=true → estimated でも authoritative 可', () => {
+    const raw: RawValueResolution = { value: null, isFallback: true, fallbackRule: 'estimated' }
+    const policy: MetricAcceptancePolicy = { allowAuthoritativeWhenEstimated: true }
+    const result = decideAcceptance(raw, noWarning, undefined, policy)
+    expect(result.status).toBe('estimated')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('allowExploratoryWhenInvalid=true → invalid でも exploratory 可', () => {
+    const raw: RawValueResolution = { value: null, isFallback: false, fallbackRule: undefined }
+    const policy: MetricAcceptancePolicy = { allowExploratoryWhenInvalid: true }
+    const result = decideAcceptance(raw, noWarning, undefined, policy)
+    expect(result.status).toBe('invalid')
+    expect(result.authoritativeAccepted).toBe(false)
+    expect(result.exploratoryAllowed).toBe(true)
+  })
+
+  it('blockingWarningCategories で authoritative 拒否', () => {
+    const raw: RawValueResolution = { value: 100, isFallback: false, fallbackRule: 'zero' }
+    const calcWarning: WarningEvaluation = {
+      warnings: ['calc_markup_rate_negative'],
+      maxSeverity: 'warning',
+      matchesWarningRule: false,
+    }
+    const policy: MetricAcceptancePolicy = {
+      allowAuthoritativeWhenPartial: true,
+      blockingWarningCategories: ['calc'],
+    }
+    const result = decideAcceptance(raw, calcWarning, undefined, policy)
+    // partial + allowPartial=true だが、blocking category で拒否
+    expect(result.authoritativeAccepted).toBe(false)
+  })
+
+  it('blockingWarningCodes で authoritative 拒否', () => {
+    const raw: RawValueResolution = { value: 100, isFallback: false, fallbackRule: 'zero' }
+    const calcWarning: WarningEvaluation = {
+      warnings: ['calc_markup_rate_negative'],
+      maxSeverity: 'warning',
+      matchesWarningRule: false,
+    }
+    const policy: MetricAcceptancePolicy = {
+      allowAuthoritativeWhenPartial: true,
+      blockingWarningCodes: ['calc_markup_rate_negative'],
+    }
+    const result = decideAcceptance(raw, calcWarning, undefined, policy)
+    expect(result.authoritativeAccepted).toBe(false)
+  })
+
+  it('blocking に該当しない warning なら authoritative 可', () => {
+    const raw: RawValueResolution = { value: 100, isFallback: false, fallbackRule: 'zero' }
+    const obsWarning: WarningEvaluation = {
+      warnings: ['obs_window_incomplete'],
+      maxSeverity: 'warning',
+      matchesWarningRule: false,
+    }
+    const policy: MetricAcceptancePolicy = {
+      allowAuthoritativeWhenPartial: true,
+      blockingWarningCategories: ['calc'],
+    }
+    const result = decideAcceptance(raw, obsWarning, undefined, policy)
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+})
+
+describe('DEFAULT_ACCEPTANCE_POLICY', () => {
+  it('安全側デフォルト値を持つ', () => {
+    expect(DEFAULT_ACCEPTANCE_POLICY.allowAuthoritativeWhenPartial).toBe(false)
+    expect(DEFAULT_ACCEPTANCE_POLICY.allowAuthoritativeWhenEstimated).toBe(false)
+    expect(DEFAULT_ACCEPTANCE_POLICY.allowExploratoryWhenInvalid).toBe(false)
+    expect(DEFAULT_ACCEPTANCE_POLICY.blockingWarningCategories).toEqual([])
+    expect(DEFAULT_ACCEPTANCE_POLICY.blockingWarningCodes).toEqual([])
+  })
+})
+
+describe('resolveMetric (policy 統合)', () => {
+  it('budgetAchievementRate: partial でも authoritative 可（policy 設定済み）', () => {
+    const warnings = new Map([['budgetAchievementRate', ['obs_window_incomplete']]])
+    const result = resolveMetric('budgetAchievementRate', 0.85, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(true)
+  })
+
+  it('estMethodMargin: calc warning で authoritative 拒否（blockingWarningCategories）', () => {
+    const warnings = new Map([['estMethodMargin', ['calc_markup_rate_negative']]])
+    const result = resolveMetric('estMethodMargin', 50000, warnings)
+    expect(result.status).toBe('partial')
+    expect(result.authoritativeAccepted).toBe(false)
+  })
+
+  it('projectedSales: invalid でも exploratory 可（allowExploratoryWhenInvalid）', () => {
+    const result = resolveMetric('projectedSales', 0, new Map(), 'invalid')
+    expect(result.status).toBe('invalid')
+    expect(result.exploratoryAllowed).toBe(true)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════
 // 後方互換 API
 // ═══════════════════════════════════════════════════════════
 
@@ -428,5 +559,81 @@ describe('getRegisteredMetricIds', () => {
     expect(ids).toContain('projectedSales')
     expect(ids).not.toContain('salesTotal')
     expect(ids).not.toContain('totalCustomers')
+  })
+})
+
+// ═══════════════════════════════════════════════════════════
+// Display Mode
+// ═══════════════════════════════════════════════════════════
+
+describe('deriveDisplayMode', () => {
+  it('ok + authoritative → authoritative', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'ok',
+        authoritativeAccepted: true,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('authoritative')
+  })
+
+  it('partial + authoritative 不可 + exploratory 可 → reference', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'partial',
+        authoritativeAccepted: false,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('reference')
+  })
+
+  it('partial + authoritative 可（policy 許可） → authoritative', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'partial',
+        authoritativeAccepted: true,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('authoritative')
+  })
+
+  it('invalid + exploratory 不可 → hidden', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'invalid',
+        authoritativeAccepted: false,
+        exploratoryAllowed: false,
+      }),
+    ).toBe('hidden')
+  })
+
+  it('invalid + exploratory 可（policy 許可） → reference', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'invalid',
+        authoritativeAccepted: false,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('reference')
+  })
+
+  it('estimated + authoritative 不可 → reference', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'estimated',
+        authoritativeAccepted: false,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('reference')
+  })
+
+  it('fallback + authoritative 可 → authoritative', () => {
+    expect(
+      deriveDisplayMode({
+        status: 'fallback',
+        authoritativeAccepted: true,
+        exploratoryAllowed: true,
+      }),
+    ).toBe('authoritative')
   })
 })

@@ -76,6 +76,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     sourceEngine: 'ts',
     fallbackRule: 'null',
     warningRule: 'calc_discount_rate_out_of_domain',
+    acceptancePolicy: {
+      blockingWarningCategories: ['calc'],
+    },
   },
 
   // ─── 値入率 ─────────────────────────────────────────────
@@ -124,6 +127,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'null',
+    acceptancePolicy: {
+      // partial は authoritative 不可（在庫法粗利率は正確な値が必須）
+    },
   },
 
   // ─── 粗利（推定法 — 値入率ベース） ──────────────────────
@@ -137,6 +143,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     sourceEngine: 'ts',
     fallbackRule: 'null',
     warningRule: 'calc_discount_rate_out_of_domain',
+    acceptancePolicy: {
+      blockingWarningCategories: ['calc'],
+    },
   },
   estMethodMargin: {
     label: '推定粗利（値入率ベース）',
@@ -148,6 +157,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     sourceEngine: 'ts',
     fallbackRule: 'null',
     warningRule: 'calc_discount_rate_out_of_domain',
+    acceptancePolicy: {
+      blockingWarningCategories: ['calc'],
+    },
   },
   estMethodMarginRate: {
     label: '推定粗利率（値入率ベース）',
@@ -159,6 +171,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     sourceEngine: 'ts',
     fallbackRule: 'null',
     warningRule: 'calc_discount_rate_out_of_domain',
+    acceptancePolicy: {
+      blockingWarningCategories: ['calc'],
+    },
   },
   estMethodClosingInventory: {
     label: '推定期末在庫',
@@ -225,6 +240,9 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'zero',
+    acceptancePolicy: {
+      allowAuthoritativeWhenPartial: true,
+    },
   },
   budgetProgressRate: {
     label: '売上予算消化率',
@@ -261,6 +279,10 @@ export const METRIC_DEFS: Readonly<Record<MetricId, MetricMeta>> = {
     authoritativeOwner: 'ts',
     sourceEngine: 'ts',
     fallbackRule: 'zero',
+    acceptancePolicy: {
+      allowAuthoritativeWhenPartial: true,
+      allowExploratoryWhenInvalid: true,
+    },
   },
   projectedAchievement: {
     label: '着地予測達成率',

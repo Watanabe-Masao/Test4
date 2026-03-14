@@ -166,3 +166,54 @@ describe('分類体系カバレッジ', () => {
     expect(categories).toContain('auth')
   })
 })
+
+describe('カタログ整合性', () => {
+  it('全 code の category が接頭辞と一致する', () => {
+    for (const code of getAllWarningCodes()) {
+      const entry = getWarningEntry(code)!
+      const prefixCategory = code.split('_')[0]
+      expect(entry.category, `${code} の category と接頭辞が不一致`).toBe(prefixCategory)
+    }
+  })
+
+  it('全 code に label と message が設定されている', () => {
+    for (const code of getAllWarningCodes()) {
+      const entry = getWarningEntry(code)!
+      expect(entry.label.length, `${code} の label が空`).toBeGreaterThan(0)
+      expect(entry.message.length, `${code} の message が空`).toBeGreaterThan(0)
+    }
+  })
+
+  it('label に UI 記号（⚠, ❌ 等）が含まれない', () => {
+    for (const code of getAllWarningCodes()) {
+      const entry = getWarningEntry(code)!
+      expect(entry.label, `${code} の label に UI 記号が含まれています`).not.toMatch(/[⚠❌✓✗🔴🟡]/u)
+    }
+  })
+
+  it('code に UI 文言が混入していない（日本語を含まない）', () => {
+    for (const code of getAllWarningCodes()) {
+      expect(code, `${code} に日本語が含まれています`).toMatch(/^[a-z0-9_]+$/)
+    }
+  })
+
+  it('severity は info / warning / critical のいずれか', () => {
+    const validSeverities = ['info', 'warning', 'critical']
+    for (const code of getAllWarningCodes()) {
+      const entry = getWarningEntry(code)!
+      expect(validSeverities, `${code} の severity が不正: ${entry.severity}`).toContain(
+        entry.severity,
+      )
+    }
+  })
+
+  it('category は calc / obs / cmp / fb / auth のいずれか', () => {
+    const validCategories = ['calc', 'obs', 'cmp', 'fb', 'auth']
+    for (const code of getAllWarningCodes()) {
+      const entry = getWarningEntry(code)!
+      expect(validCategories, `${code} の category が不正: ${entry.category}`).toContain(
+        entry.category,
+      )
+    }
+  })
+})
