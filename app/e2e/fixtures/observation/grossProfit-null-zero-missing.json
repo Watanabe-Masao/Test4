@@ -1,0 +1,32 @@
+{
+  "invMethod": {
+    "openingInventory": null,
+    "closingInventory": null,
+    "totalPurchaseCost": 500000,
+    "totalSales": 900000
+  },
+  "estMethod": {
+    "coreSales": 500000,
+    "discountRate": 0.05,
+    "markupRate": 0.3,
+    "costInclusionCost": 10000,
+    "openingInventory": null,
+    "inventoryPurchaseCost": 300000
+  },
+  "coreSales": { "totalSales": 0, "flowerSalesPrice": 0, "directProduceSalesPrice": 0 },
+  "discountRate": { "discountAmount": 0, "salesAmount": 0 },
+  "discountImpact": { "coreSales": 0, "markupRate": 0, "discountRate": 0 },
+  "markupRates": {
+    "purchasePrice": 0, "purchaseCost": 0,
+    "deliveryPrice": 0, "deliveryCost": 0,
+    "transferPrice": 0, "transferCost": 0,
+    "defaultMarkupRate": 0.25
+  },
+  "transferTotals": {
+    "interStoreInPrice": 0, "interStoreInCost": 0,
+    "interStoreOutPrice": 0, "interStoreOutCost": 0,
+    "interDepartmentInPrice": 0, "interDepartmentInCost": 0,
+    "interDepartmentOutPrice": 0, "interDepartmentOutCost": 0
+  },
+  "inventoryCost": { "totalCost": 0, "deliverySalesCost": 0 }
+}

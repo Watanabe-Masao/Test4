@@ -113,8 +113,83 @@ cd app && npx vitest run src/test/observation/
 各 engine の観測テストには「WASM が異なる値を返す」ケースも含まれている。
 これにより、mismatch detection pipeline 自体が正しく動作することも自動検証する。
 
+## E2E 観測（Playwright ベース）
+
+vitest integration test に加え、DEV サーバーを利用した E2E 観測も実装済み。
+実 WASM バイナリ + 実 TS の dual-run compare をブラウザ環境で検証する。
+
+### なぜ E2E も必要か
+
+vitest ベースの観測は WASM を mock している。実 WASM の FFI 境界（Float64Array の
+packing/unpacking、NaN ↔ null 変換、precision）はブラウザ環境でしか検証できない。
+
+### 前提条件
+
+- DEV サーバー（`npm run dev`）で `import.meta.env.DEV === true`
+- `__dualRunStats` / `__runObservation` が window に登録済み
+- 全 4 engine の WASM モジュールが初期化済み（main.tsx で init）
+- `playwright.observation.config.ts` を使用（PROD preview ではなく DEV server）
+
+### 構成
+
+```
+app/e2e/
+├── dual-run-observation.spec.ts       — メイン E2E spec
+├── utils/
+│   ├── dualRunStatsClient.ts          — __dualRunStats Playwright wrapper
+│   ├── observationMode.ts             — localStorage 経由の mode 切替 + reload
+│   ├── observationAssertions.ts       — pass / warning / fail 判定
+│   ├── observationExpectations.ts     — 全 engine × 関数名の期待値定義
+│   ├── observationReport.ts           — JSON / Markdown レポート生成
+│   └── observationRunner.ts           — 観測オーケストレータ
+├── fixtures/observation/
+│   ├── grossProfit-normal.json
+│   ├── grossProfit-null-zero-missing.json
+│   ├── budgetAnalysis-normal.json
+│   └── forecast-normal.json
+app/src/application/services/
+└── observationEntry.ts                — DEV-only __runObservation ハンドラ
+app/playwright.observation.config.ts   — DEV server 向け Playwright config
+```
+
+### 動作フロー
+
+```
+1. Playwright → page.goto('/') + waitForLoadState('networkidle')
+2. setObservationMode(page, 'dual-run-compare') → localStorage 書込み + reload
+3. resetDualRunStats(page) → observer.reset()
+4. runObservation(page, engine, fixtureData) → window.__runObservation() 呼出し
+5. getDualRunSummary(page) → verdict / callCounts / mismatchCounts 回収
+6. getDualRunLog(page) → mismatch 詳細ログ回収
+7. evaluateObservation() → pass / warning / fail 判定
+8. buildJsonReport() / buildMarkdownReport() → レポート生成
+```
+
+### テストカバレッジ
+
+| describe | テスト内容 | テスト数 |
+|---|---|---|
+| Infrastructure | __dualRunStats / __runObservation 可用性、reset 動作、mode 切替 | 4 |
+| grossProfit | normal (8関数)、null-zero-missing (safe execution) | 2 |
+| budgetAnalysis | normal (2関数) | 1 |
+| forecast | normal (5関数) | 1 |
+| Cross-engine report | 全 3 engine の JSON + Markdown レポート生成 | 1 |
+
+### 実行方法
+
+```bash
+cd app && npx playwright test --config=playwright.observation.config.ts
+```
+
+### 判定基準
+
+- **pass**: 全関数が呼ばれ、mismatch なし（または numeric-within-tolerance のみ）
+- **warning**: tolerance 内の mismatch あり（WASM 精度差は想定内）
+- **fail**: invariant-violation / null-mismatch / 未呼出関数あり
+
 ## 制限事項
 
-- WASM は mock（実 WASM バイナリはロードしない）。実 WASM の検証はブラウザ DEV 環境で行う
-- Date 依存関数（forecast の 5 関数）は compare 対象外
+- vitest 観測: WASM は mock（実 WASM バイナリはロードしない）
+- E2E 観測: DEV サーバー必須（PROD ビルドでは dual-run compare 無効）
+- E2E 観測: WASM 未初期化の場合、ts-only にフォールバック（compare は発生しない）
 - 観測ハーネスは TS 実装の正しさを 4 フィクスチャ × 全関数で保証する
