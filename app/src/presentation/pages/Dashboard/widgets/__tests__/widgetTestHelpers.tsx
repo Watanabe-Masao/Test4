@@ -121,6 +121,7 @@ export function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResu
     requiredDailyGrossProfit: 0,
     projectedGrossProfit: 0,
     projectedGPAchievement: 0,
+    metricWarnings: new Map(),
   }
   return { ...defaults, ...overrides }
 }

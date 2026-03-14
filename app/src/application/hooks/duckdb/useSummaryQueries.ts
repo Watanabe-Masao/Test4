@@ -1,21 +1,21 @@
 /**
  * StoreDaySummary クエリフック群
  *
- * Phase 3 移行済み: 日別累積売上は JS 計算版 (useJsAggregationQueries) に委譲。
- * DuckDB は生データ取得のみ。集約ロジックは rawAggregation.ts の純粋関数で実行。
+ * 日別累積売上は SQL 集約版 (useJsAggregationQueries) に委譲。
+ * 集約は DuckDB SQL、意味づけは TS 側が担当。
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DateRange } from '@/domain/models'
 import {
   queryAggregatedRates,
-  type DailyCumulativeRow,
   type AggregatedRatesRow,
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
+import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
 import { useJsDailyCumulative } from './useJsAggregationQueries'
 
-/** 日別累積売上（JS計算版に移行済み） */
+/** 日別累積売上（SQL 集約版に委譲） */
 export function useDuckDBDailyCumulative(
   conn: AsyncDuckDBConnection | null,
   dataVersion: number,

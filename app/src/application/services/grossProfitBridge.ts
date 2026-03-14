@@ -16,9 +16,11 @@
 import {
   calculateInvMethod as calculateInvMethodTS,
   calculateEstMethod as calculateEstMethodTS,
+  calculateEstMethodWithStatus as calculateEstMethodWithStatusTS,
   calculateCoreSales as calculateCoreSalesTS,
   calculateDiscountRate as calculateDiscountRateTS,
   calculateDiscountImpact as calculateDiscountImpactTS,
+  calculateDiscountImpactWithStatus as calculateDiscountImpactWithStatusTS,
   calculateMarkupRates as calculateMarkupRatesTS,
   calculateTransferTotals as calculateTransferTotalsTS,
   calculateInventoryCost as calculateInventoryCostTS,
@@ -35,6 +37,7 @@ import type {
   TransferTotalsInput,
   TransferTotalsResult,
 } from '@/domain/calculations/grossProfit'
+import type { CalculationResult } from '@/domain/models/CalculationResult'
 import { getExecutionMode, getWasmState, getGrossProfitWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
@@ -440,4 +443,78 @@ export function calculateInventoryCost(totalCost: number, deliverySalesCost: num
     )
   }
   return tsResult
+}
+
+/* ── CalculationResult 版（TS authoritative — status/warnings の正本） ── */
+
+/**
+ * 推定法マージン計算（CalculationResult 版）
+ *
+ * Status/warnings は TS authoritative。WASM は数値検証のみ（dual-run 時）。
+ */
+export function calculateEstMethodWithStatus(
+  input: EstMethodInput,
+): CalculationResult<EstMethodResult> {
+  if (import.meta.env.DEV) recordCall('calculateEstMethod')
+
+  const tsStatusResult = calculateEstMethodWithStatusTS(input)
+
+  // dual-run: 数値比較のみ（status/warnings は TS が権威）
+  if (isDualRun() && tsStatusResult.value) {
+    const wasmResult = calculateEstMethodWasm(input)
+    compareNumericResults(
+      'calculateEstMethod',
+      {
+        grossSales: tsStatusResult.value.grossSales,
+        cogs: tsStatusResult.value.cogs,
+        margin: tsStatusResult.value.margin,
+        marginRate: tsStatusResult.value.marginRate,
+        closingInventory: tsStatusResult.value.closingInventory,
+      },
+      {
+        grossSales: wasmResult.grossSales,
+        cogs: wasmResult.cogs,
+        margin: wasmResult.margin,
+        marginRate: wasmResult.marginRate,
+        closingInventory: wasmResult.closingInventory,
+      },
+      {
+        coreSales: input.coreSales,
+        discountRate: input.discountRate,
+        markupRate: input.markupRate,
+      },
+    )
+  }
+
+  return tsStatusResult
+}
+
+/**
+ * 売変ロス原価計算（CalculationResult 版）
+ *
+ * Status/warnings は TS authoritative。WASM は数値検証のみ（dual-run 時）。
+ */
+export function calculateDiscountImpactWithStatus(
+  input: DiscountImpactInput,
+): CalculationResult<DiscountImpactResult> {
+  if (import.meta.env.DEV) recordCall('calculateDiscountImpact')
+
+  const tsStatusResult = calculateDiscountImpactWithStatusTS(input)
+
+  // dual-run: 数値比較のみ（status/warnings は TS が権威）
+  if (isDualRun() && tsStatusResult.value) {
+    const wasmResult = calculateDiscountImpactWasm(input)
+    compareNumericResults(
+      'calculateDiscountImpact',
+      { discountLossCost: tsStatusResult.value.discountLossCost },
+      { discountLossCost: wasmResult.discountLossCost },
+      {
+        coreSales: input.coreSales,
+        markupRate: input.markupRate,
+        discountRate: input.discountRate,
+      },
+    )
+  }
+
+  return tsStatusResult
 }

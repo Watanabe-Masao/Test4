@@ -1,16 +1,13 @@
 /**
- * JS 計算ベースクエリフック群
+ * クエリフック群（集約は SQL、統計計算は JS）
  *
- * DuckDB から生データ（store_day_summary SELECT *）を取得し、
- * rawAggregation.ts の純粋関数で集約・統計計算を行うフック群。
+ * DuckDB SQL で集約（GROUP BY, SUM OVER 等）し、
+ * 統計計算（移動平均、Z-score、曜日パターン等）は JS の純粋関数で行う。
  *
- * DuckDB SQL 内の集約ロジック（GROUP BY, OVER, STDDEV_POP 等）を
- * JS 側に移行する Phase 3 の中核。
+ * ## 責務分担
  *
- * ## 移行パターン
- *
- * Before: useDuckDBDailyCumulative → queryDailyCumulative (SQL: SUM OVER)
- * After:  useJsDailyCumulative → queryStoreDaySummary (SQL: SELECT *) → aggregateByDay + cumulativeSum (JS)
+ * - SQL (DuckDB): 明細からの GROUP BY 集約、ウィンドウ関数（aggregate-source）
+ * - JS (TS): 統計計算、意味づけ（authoritative-metric / derived）
  *
  * チャートコンポーネントの API（返り値の型）は変更しない。
  */
@@ -21,7 +18,8 @@ import {
   queryStoreDaySummary,
   type StoreDaySummaryRow,
 } from '@/infrastructure/duckdb/queries/storeDaySummary'
-import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
+import type { DailyCumulativeRow } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
+import { queryDailyCumulativeAggregation } from '@/infrastructure/duckdb/queries/aggregates/dailyAggregation'
 import type {
   DowPatternRow,
   DailyFeatureRow,
@@ -34,7 +32,6 @@ import {
 } from '@/infrastructure/duckdb/queries/categoryTimeSales'
 import { toDateKey } from '@/domain/models/CalendarDate'
 import { useAsyncQuery, toDateKeys, storeIdsToArray, type AsyncQueryResult } from './useAsyncQuery'
-import { aggregateByDay, cumulativeSum } from '@/domain/calculations/rawAggregation'
 import {
   computeDowPattern,
   computeDailyFeatures,
@@ -73,12 +70,12 @@ function useRawSummaryRows(
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
-// ─── 日別累積売上（JS計算版） ──────────────────────────
+// ─── 日別累積売上（SQL 集約版） ──────────────────────────
 
 /**
- * DuckDB 生データ → JS aggregateByDay + cumulativeSum
+ * DuckDB SQL で日別売上を GROUP BY 集約 + ウィンドウ関数で累積合計
  *
- * SQL の SUM(sales) OVER (ORDER BY date_key) を置き換え。
+ * 集約は SQL 側（aggregate-source）、TS 側は結果の受け渡しのみ。
  * 返り値は DailyCumulativeRow[] 互換。
  */
 export function useJsDailyCumulative(
@@ -88,19 +85,19 @@ export function useJsDailyCumulative(
   storeIds: ReadonlySet<string>,
   isPrevYear?: boolean,
 ): AsyncQueryResult<readonly DailyCumulativeRow[]> {
-  const {
-    data: rawRows,
-    isLoading,
-    error,
-  } = useRawSummaryRows(conn, dataVersion, dateRange, storeIds, isPrevYear)
+  const queryFn = useMemo(() => {
+    if (!dateRange) return null
+    const { dateFrom, dateTo } = toDateKeys(dateRange)
+    return (c: AsyncDuckDBConnection) =>
+      queryDailyCumulativeAggregation(c, {
+        dateFrom,
+        dateTo,
+        storeIds: storeIdsToArray(storeIds),
+        isPrevYear,
+      })
+  }, [dateRange, storeIds, isPrevYear])
 
-  const data = useMemo(() => {
-    if (!rawRows) return null
-    const daily = aggregateByDay(rawRows)
-    return cumulativeSum(daily)
-  }, [rawRows])
-
-  return { data, isLoading, error }
+  return useAsyncQuery(conn, dataVersion, queryFn)
 }
 
 // ─── 曜日パターン（JS計算版） ──────────────────────────

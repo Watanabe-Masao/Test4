@@ -10,10 +10,10 @@ import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
 // bridge 経由: 将来の dual-run compare を観測可能にする
 import {
   calculateInvMethod,
-  calculateEstMethod,
   calculateCoreSales,
   calculateDiscountRate,
-  calculateDiscountImpact,
+  calculateEstMethodWithStatus,
+  calculateDiscountImpactWithStatus,
   calculateMarkupRates,
   calculateTransferTotals as calcTransferTotals,
   calculateInventoryCost,
@@ -156,8 +156,8 @@ export function assembleStoreResult(
     totalSales: acc.totalSales,
   })
 
-  // 【推定法】
-  const estResult = calculateEstMethod({
+  // 【推定法】（CalculationResult 版 — status/warnings を伝搬）
+  const estStatusResult = calculateEstMethodWithStatus({
     coreSales: totalCoreSales,
     discountRate,
     markupRate: coreMarkupRate,
@@ -165,13 +165,33 @@ export function assembleStoreResult(
     openingInventory: invConfig?.openingInventory ?? null,
     inventoryPurchaseCost: inventoryCost,
   })
+  const estResult = estStatusResult.value ?? {
+    grossSales: 0,
+    cogs: 0,
+    margin: 0,
+    marginRate: 0,
+    closingInventory: null,
+  }
 
-  // 売変ロス原価
-  const { discountLossCost } = calculateDiscountImpact({
+  // 売変ロス原価（CalculationResult 版）
+  const discountImpactStatusResult = calculateDiscountImpactWithStatus({
     coreSales: totalCoreSales,
     markupRate: coreMarkupRate,
     discountRate,
   })
+  const discountLossCost = discountImpactStatusResult.value?.discountLossCost ?? 0
+
+  // 計算警告の収集
+  const metricWarnings = new Map<string, readonly string[]>()
+  if (estStatusResult.warnings.length > 0) {
+    metricWarnings.set('estMethodCogs', estStatusResult.warnings)
+    metricWarnings.set('estMethodMargin', estStatusResult.warnings)
+    metricWarnings.set('estMethodMarginRate', estStatusResult.warnings)
+    metricWarnings.set('estMethodClosingInventory', estStatusResult.warnings)
+  }
+  if (discountImpactStatusResult.warnings.length > 0) {
+    metricWarnings.set('discountLossCost', discountImpactStatusResult.warnings)
+  }
 
   // 原価算入率
   const costInclusionRate = safeDivide(acc.totalCostInclusion, acc.totalSales, 0)
@@ -288,5 +308,6 @@ export function assembleStoreResult(
     requiredDailyGrossProfit: gpBudgetAnalysis.requiredDailyGrossProfit,
     projectedGrossProfit: gpBudgetAnalysis.projectedGrossProfit,
     projectedGPAchievement: gpBudgetAnalysis.projectedGPAchievement,
+    metricWarnings,
   }
 }

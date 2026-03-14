@@ -131,6 +131,7 @@ function makeStoreResult(overrides: Partial<StoreResult> = {}): StoreResult {
     requiredDailyGrossProfit: 0,
     projectedGrossProfit: 0,
     projectedGPAchievement: 0,
+    metricWarnings: new Map(),
     ...overrides,
   }
 }
