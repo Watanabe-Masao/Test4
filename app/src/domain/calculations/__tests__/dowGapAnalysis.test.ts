@@ -124,13 +124,15 @@ describe('analyzeDowGapActualDay', () => {
     ]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 3, 2026, 3)
 
-    // currentDay=1: prevDay 1 vs 2 → shift (out: prevDay=1, in: prevDay=2)
-    // currentDay=2: prevDay 2 vs 3 → shift (out: prevDay=2, in: prevDay=3)
-    // currentDay=3: sameDateのみ → shiftedOut (prevDay=3)
-    expect(result.shiftedOut).toHaveLength(3)
-    expect(result.shiftedIn).toHaveLength(2)
+    // set-difference approach:
+    // sameDatePrevDates = {(3,2025,1), (3,2025,2), (3,2025,3)}
+    // sameDowPrevDates  = {(3,2025,2), (3,2025,3)}
+    // shiftedOut (sameDate \ sameDow) = {prevDay=1} → 1 entry
+    // shiftedIn  (sameDow \ sameDate) = empty → 0 entries
+    expect(result.shiftedOut).toHaveLength(1)
+    expect(result.shiftedIn).toHaveLength(0)
     expect(result.isValid).toBe(true)
-    // impact = gained(200000 + 300000) - lost(100000 + 200000 + 300000) = 500000 - 600000 = -100000
+    // impact = gained(0) - lost(100000) = -100000
     expect(result.estimatedImpact).toBe(-100000)
   })
 
@@ -293,13 +295,16 @@ describe('analyzeDowGapActualDay', () => {
     ]
     const result = analyzeDowGapActualDay(sameDate, sameDow, 2025, 2, 2026, 2)
 
-    // currentDay=1: prevDay 1 vs 2 → shift detected
-    // currentDay=2: prevDay 2 vs 1 → shift detected
+    // set-difference approach:
+    // sameDatePrevDates = {(2,2025,1), (2,2025,2)}
+    // sameDowPrevDates  = {(2,2025,2), (3,2025,1)}
+    // shiftedOut (sameDate \ sameDow) = {(2,2025,1)} → 1 entry
+    // shiftedIn  (sameDow \ sameDate) = {(3,2025,1)} → 1 entry
     expect(result.isValid).toBe(true)
-    expect(result.shiftedIn).toHaveLength(2)
-    expect(result.shiftedOut).toHaveLength(2)
+    expect(result.shiftedIn).toHaveLength(1)
+    expect(result.shiftedOut).toHaveLength(1)
 
-    // Impact = gained(300000 + 400000) - lost(500000 + 300000) = 700000 - 800000 = -100000
+    // Impact = gained(400000) - lost(500000) = -100000
     expect(result.estimatedImpact).toBe(-100000)
   })
 })

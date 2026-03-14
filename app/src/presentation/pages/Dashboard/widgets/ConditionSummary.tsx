@@ -9,6 +9,7 @@ import {
   isMetricEnabled,
 } from '@/domain/calculations/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { useDataStore } from '@/application/stores/dataStore'
 import type { WidgetContext } from './types'
 import { ConditionMatrixTable } from './ConditionMatrixTable'
 import {
@@ -121,6 +122,10 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     [onExplain],
   )
 
+  // ─── CTS data for itemsYoY ──────────────────────────
+  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
+  const prevCtsRecords = useDataStore((s) => s.data.prevYearCategoryTimeSales.records)
+
   // ─── Build condition items ───────────────────────────
 
   const gpBefore = computeGpBeforeConsumable(r)
@@ -138,7 +143,11 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     return evaluateSignal(diff, t, 'higher_better')
   }
 
+  const prevYear = ctx.prevYear
+
   const items: ConditionItem[] = []
+
+  // ── Group 1: Profitability / Budget ──────────────────
 
   // 1. Gross Profit Rate
   if (isMetricEnabled(effectiveConfig, 'gpRate')) {
@@ -153,137 +162,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     })
   }
 
-  // 2. Markup Rate
-  if (isMetricEnabled(effectiveConfig, 'markupRate')) {
-    items.push({
-      label: '値入率',
-      value: formatPercent(r.averageMarkupRate),
-      sub: `コア値入率 ${formatPercent(r.coreMarkupRate)}`,
-      signal: markupSignal(r.averageMarkupRate),
-      metricId: 'averageMarkupRate',
-      detailBreakdown: 'markupRate',
-    })
-  }
-
-  // 3. Budget Progress Rate
-  if (isMetricEnabled(effectiveConfig, 'budgetProgress')) {
-    items.push({
-      label: '予算消化率',
-      value: formatPercent(r.budgetProgressRate),
-      sub: `達成率 ${formatPercent(r.budgetAchievementRate)} / 残予算 ${fmtCurrency(r.remainingBudget)}`,
-      signal: metricSignal(r.budgetProgressRate, 'budgetProgress', effectiveConfig),
-      metricId: 'budgetProgressRate',
-      storeValue: (sr) => ({
-        value: formatPercent(sr.budgetProgressRate),
-        signal: metricSignal(sr.budgetProgressRate, 'budgetProgress', effectiveConfig, sr.storeId),
-      }),
-    })
-  }
-
-  // 4. Projected Achievement
-  if (isMetricEnabled(effectiveConfig, 'projectedAchievement')) {
-    items.push({
-      label: '着地予測達成率',
-      value: formatPercent(r.projectedAchievement),
-      sub: `予測 ${fmtCurrency(r.projectedSales)} / 予算 ${fmtCurrency(r.budget)}`,
-      signal: metricSignal(r.projectedAchievement, 'projectedAchievement', effectiveConfig),
-      metricId: 'projectedSales',
-      storeValue: (sr) => ({
-        value: formatPercent(sr.projectedAchievement),
-        signal: metricSignal(
-          sr.projectedAchievement,
-          'projectedAchievement',
-          effectiveConfig,
-          sr.storeId,
-        ),
-      }),
-    })
-  }
-
-  // 5. Discount Rate
-  if (isMetricEnabled(effectiveConfig, 'discountRate')) {
-    items.push({
-      label: '売変率',
-      value: formatPercent(r.discountRate),
-      sub: `売変額 ${fmtCurrency(r.totalDiscount)} / 粗売上 ${fmtCurrency(r.grossSales)}`,
-      signal: metricSignal(r.discountRate, 'discountRate', effectiveConfig),
-      metricId: 'discountRate',
-      detailBreakdown: 'discountRate',
-    })
-  }
-
-  // 6. Cost Inclusion Rate
-  if (isMetricEnabled(effectiveConfig, 'costInclusion')) {
-    items.push({
-      label: '原価算入率',
-      value: formatPercent(r.costInclusionRate),
-      sub: `原価算入費 ${fmtCurrency(r.totalCostInclusion)} / 売上 ${fmtCurrency(r.totalSales)}`,
-      signal: metricSignal(r.costInclusionRate, 'costInclusion', effectiveConfig),
-      metricId: 'totalCostInclusion',
-      detailBreakdown: 'costInclusion',
-    })
-  }
-
-  // 7. Sales YoY
-  const prevYear = ctx.prevYear
-  if (
-    isMetricEnabled(effectiveConfig, 'salesYoY') &&
-    prevYear.hasPrevYear &&
-    prevYear.totalSales > 0
-  ) {
-    const salesYoY = safeDivide(r.totalSales, prevYear.totalSales, 0)
-    items.push({
-      label: '売上前年比',
-      value: formatPercent(salesYoY, 2),
-      sub: `当年 ${fmtCurrency(r.totalSales)} / 前年 ${fmtCurrency(prevYear.totalSales)}`,
-      signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
-      metricId: 'salesTotal',
-      detailBreakdown: 'salesYoY',
-    })
-  }
-
-  // 8. Customer YoY
-  if (
-    isMetricEnabled(effectiveConfig, 'customerYoY') &&
-    prevYear.hasPrevYear &&
-    prevYear.totalCustomers > 0 &&
-    r.totalCustomers > 0
-  ) {
-    const custYoY = r.totalCustomers / prevYear.totalCustomers
-    items.push({
-      label: '客数前年比',
-      value: formatPercent(custYoY, 2),
-      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
-      signal: metricSignal(custYoY, 'customerYoY', effectiveConfig),
-      metricId: 'totalCustomers',
-      detailBreakdown: 'customerYoY',
-    })
-  }
-
-  // 9. Transaction Value
-  if (isMetricEnabled(effectiveConfig, 'txValue') && r.totalCustomers > 0) {
-    const txValue = r.transactionValue
-    const prevTxValue =
-      prevYear.hasPrevYear && prevYear.totalCustomers > 0
-        ? safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
-        : null
-    const txYoY = prevTxValue != null && prevTxValue > 0 ? txValue / prevTxValue : null
-    const fmtTx = (v: number) =>
-      `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
-    items.push({
-      label: '客単価',
-      value: fmtTx(txValue),
-      sub:
-        prevTxValue != null
-          ? `前年: ${fmtTx(prevTxValue)} (${formatPercent(txYoY!, 2)})`
-          : `日平均客数: ${Math.round(r.averageCustomersPerDay)}人`,
-      signal: txYoY != null ? metricSignal(txYoY, 'txValue', effectiveConfig) : 'blue',
-      metricId: 'totalCustomers',
-      detailBreakdown: 'txValue',
-    })
-  }
-
-  // 10. GP Amount Budget Ratio (period-prorated)
+  // 2. GP Amount Budget Ratio (period-prorated)
   if (isMetricEnabled(effectiveConfig, 'gpAmount') && r.grossProfitBudget > 0) {
     const gpAmt = computeGpAfterConsumableAmount(r)
     const effectiveEndDay = ctx.elapsedDays ?? ctx.daysInMonth
@@ -301,7 +180,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     })
   }
 
-  // 11. Daily Sales Achievement
+  // 3. Daily Sales Achievement (売上予算達成率)
   const budgetDailyAvg = ctx.daysInMonth > 0 ? r.budget / ctx.daysInMonth : 0
   if (isMetricEnabled(effectiveConfig, 'dailySales') && budgetDailyAvg > 0) {
     const dailyRatio = safeDivide(r.averageDailySales, budgetDailyAvg, 0)
@@ -314,7 +193,107 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
     })
   }
 
-  // 12. Required Pace Ratio
+  // 4. Markup Rate
+  if (isMetricEnabled(effectiveConfig, 'markupRate')) {
+    items.push({
+      label: '値入率',
+      value: formatPercent(r.averageMarkupRate),
+      sub: `コア値入率 ${formatPercent(r.coreMarkupRate)}`,
+      signal: markupSignal(r.averageMarkupRate),
+      metricId: 'averageMarkupRate',
+      detailBreakdown: 'markupRate',
+    })
+  }
+
+  // 5. Discount Rate
+  if (isMetricEnabled(effectiveConfig, 'discountRate')) {
+    items.push({
+      label: '売変率',
+      value: formatPercent(r.discountRate),
+      sub: `売変額 ${fmtCurrency(r.totalDiscount)} / 粗売上 ${fmtCurrency(r.grossSales)}`,
+      signal: metricSignal(r.discountRate, 'discountRate', effectiveConfig),
+      metricId: 'discountRate',
+      detailBreakdown: 'discountRate',
+    })
+  }
+
+  // ── Group 2: YoY / Pace ──────────────────────────────
+
+  // 6. Sales YoY
+  if (
+    isMetricEnabled(effectiveConfig, 'salesYoY') &&
+    prevYear.hasPrevYear &&
+    prevYear.totalSales > 0
+  ) {
+    const salesYoY = safeDivide(r.totalSales, prevYear.totalSales, 0)
+    items.push({
+      label: '売上前年比',
+      value: formatPercent(salesYoY, 2),
+      sub: `当年 ${fmtCurrency(r.totalSales)} / 前年 ${fmtCurrency(prevYear.totalSales)}`,
+      signal: metricSignal(salesYoY, 'salesYoY', effectiveConfig),
+      metricId: 'salesTotal',
+      detailBreakdown: 'salesYoY',
+    })
+  }
+
+  // 7. Customer YoY
+  if (
+    isMetricEnabled(effectiveConfig, 'customerYoY') &&
+    prevYear.hasPrevYear &&
+    prevYear.totalCustomers > 0 &&
+    r.totalCustomers > 0
+  ) {
+    const custYoY = r.totalCustomers / prevYear.totalCustomers
+    items.push({
+      label: '客数前年比',
+      value: formatPercent(custYoY, 2),
+      sub: `${r.totalCustomers.toLocaleString()}人 / 前年${prevYear.totalCustomers.toLocaleString()}人`,
+      signal: metricSignal(custYoY, 'customerYoY', effectiveConfig),
+      metricId: 'totalCustomers',
+      detailBreakdown: 'customerYoY',
+    })
+  }
+
+  // 8. Items YoY (販売点数前年比) — derived from CTS quantity data
+  if (isMetricEnabled(effectiveConfig, 'itemsYoY') && prevYear.hasPrevYear) {
+    const curQty = ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    const prevQty = prevCtsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0)
+    if (curQty > 0 && prevQty > 0) {
+      const itemsYoY = curQty / prevQty
+      items.push({
+        label: '販売点数前年比',
+        value: formatPercent(itemsYoY, 2),
+        sub: `当年 ${curQty.toLocaleString()}点 / 前年 ${prevQty.toLocaleString()}点`,
+        signal: metricSignal(itemsYoY, 'itemsYoY', effectiveConfig),
+      })
+    }
+  }
+
+  // 9. Transaction Value YoY (客単価前年比)
+  if (
+    isMetricEnabled(effectiveConfig, 'txValue') &&
+    prevYear.hasPrevYear &&
+    r.totalCustomers > 0 &&
+    prevYear.totalCustomers > 0
+  ) {
+    const txValue = r.transactionValue
+    const prevTxValue = safeDivide(prevYear.totalSales, prevYear.totalCustomers, 0)
+    const txYoY = prevTxValue > 0 ? txValue / prevTxValue : null
+    const fmtTx = (v: number) =>
+      `${v.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}円`
+    if (txYoY != null) {
+      items.push({
+        label: '客単価前年比',
+        value: formatPercent(txYoY, 2),
+        sub: `当年 ${fmtTx(txValue)} / 前年 ${fmtTx(prevTxValue)}`,
+        signal: metricSignal(txYoY, 'txValue', effectiveConfig),
+        metricId: 'totalCustomers',
+        detailBreakdown: 'txValue',
+      })
+    }
+  }
+
+  // 10. Required Pace Ratio (必要ベース比)
   if (
     isMetricEnabled(effectiveConfig, 'requiredPace') &&
     r.averageDailySales > 0 &&
@@ -322,7 +301,7 @@ export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   ) {
     const paceRatio = safeDivide(r.requiredDailySales, r.averageDailySales, 0)
     items.push({
-      label: '必達ペース比',
+      label: '必要ベース比',
       value: formatPercent(paceRatio, 2),
       sub: `必要日販 ${fmtCurrency(r.requiredDailySales)} / 実績日販 ${fmtCurrency(r.averageDailySales)}`,
       signal: metricSignal(paceRatio, 'requiredPace', effectiveConfig),

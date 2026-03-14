@@ -133,6 +133,8 @@ export interface PrevYearDailyEntry {
   readonly sales: number
   readonly discount: number
   readonly customers: number
+  /** 売変種別内訳（type → amount）。種別別チャート表示用 */
+  readonly discountEntries?: Record<string, number>
 }
 
 // ── V2 比較型（Comparison/Alignment V2） ──

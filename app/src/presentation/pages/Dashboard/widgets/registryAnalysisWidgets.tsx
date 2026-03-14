@@ -1,10 +1,7 @@
 import {
-  RevenueStructureChart,
   CustomerScatterChart,
-  MultiKpiSparklines,
   PerformanceIndexChart,
   CategoryPerformanceChart,
-  StructuralOverviewChart,
   IntegratedTimeline,
   CausalChainExplorer,
   SensitivityDashboard,
@@ -49,15 +46,6 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
   },
   // ── 多角的分析 ──
   {
-    id: 'analysis-revenue-structure',
-    label: '収益構造分析',
-    group: 'トレンド分析',
-    size: 'full',
-    render: ({ result: r, daysInMonth }) => (
-      <RevenueStructureChart daily={r.daily} daysInMonth={daysInMonth} />
-    ),
-  },
-  {
     id: 'analysis-yoy-variance',
     label: '前年差異分析',
     group: 'トレンド分析',
@@ -72,21 +60,6 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     size: 'full',
     render: ({ result: r, daysInMonth, year, month, prevYear }) => (
       <CustomerScatterChart
-        daily={r.daily}
-        daysInMonth={daysInMonth}
-        year={year}
-        month={month}
-        prevYearDaily={prevYear.hasPrevYear ? prevYear.daily : undefined}
-      />
-    ),
-  },
-  {
-    id: 'analysis-multi-kpi',
-    label: 'マルチKPIダッシュボード',
-    group: 'トレンド分析',
-    size: 'full',
-    render: ({ result: r, daysInMonth, year, month, prevYear }) => (
-      <MultiKpiSparklines
         daily={r.daily}
         daysInMonth={daysInMonth}
         year={year}
@@ -129,13 +102,6 @@ export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
     ),
   },
   // ── Phase 4: 統合ビュー + 研究者向け分析 ──
-  {
-    id: 'analysis-structural-overview',
-    label: '収益構造俯瞰図',
-    group: '収益概況',
-    size: 'full',
-    render: ({ result: r }) => <StructuralOverviewChart result={r} />,
-  },
   {
     id: 'analysis-integrated-timeline',
     label: '統合タイムライン',
