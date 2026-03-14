@@ -7,6 +7,14 @@ export type { PurchaseData } from '@/domain/models'
 /** 既知の店舗IDセット */
 type StoreSet = ReadonlySet<string>
 
+/** 合計・小計パターン（取引先名に含まれる場合はスキップ） */
+const SUBTOTAL_PATTERNS = ['合計', '小計', '計', 'total', 'subtotal']
+
+function isSubtotalSupplier(name: string): boolean {
+  const lower = name.toLowerCase().trim()
+  return SUBTOTAL_PATTERNS.some((p) => lower === p || lower.endsWith(p))
+}
+
 /**
  * 仕入データを処理する（年月パーティション対応）
  *
@@ -54,6 +62,7 @@ export function processPurchase(
     const storeId = String(parseInt(stoMatch[1]))
 
     if (!stores.has(storeId)) continue
+    if (isSubtotalSupplier(supplierName)) continue
 
     columnMap.push({ col, supplierCode, supplierName, storeId })
   }
