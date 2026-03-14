@@ -202,7 +202,12 @@ describe('dualRunObserver', () => {
       expect(fnNames).toContain('calculateInventoryCost')
       expect(fnNames).toContain('calculateBudgetAnalysis')
       expect(fnNames).toContain('calculateGrossProfitBudget')
-      expect(fnNames).toHaveLength(14)
+      expect(fnNames).toContain('calculateStdDev')
+      expect(fnNames).toContain('detectAnomalies')
+      expect(fnNames).toContain('calculateWMA')
+      expect(fnNames).toContain('linearRegression')
+      expect(fnNames).toContain('analyzeTrend')
+      expect(fnNames).toHaveLength(19)
     })
 
     it('grossProfit 関数の recordNullMismatch', () => {

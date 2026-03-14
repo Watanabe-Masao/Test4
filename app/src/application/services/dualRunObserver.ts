@@ -28,6 +28,12 @@ type FnName =
   // budgetAnalysis
   | 'calculateBudgetAnalysis'
   | 'calculateGrossProfitBudget'
+  // forecast
+  | 'calculateStdDev'
+  | 'detectAnomalies'
+  | 'calculateWMA'
+  | 'linearRegression'
+  | 'analyzeTrend'
 
 interface FnStats {
   calls: number
@@ -87,6 +93,12 @@ const stats: Record<FnName, FnStats> = {
   // budgetAnalysis
   calculateBudgetAnalysis: makeFnStats(),
   calculateGrossProfitBudget: makeFnStats(),
+  // forecast
+  calculateStdDev: makeFnStats(),
+  detectAnomalies: makeFnStats(),
+  calculateWMA: makeFnStats(),
+  linearRegression: makeFnStats(),
+  analyzeTrend: makeFnStats(),
 }
 
 const mismatchLog: MismatchEntry[] = []

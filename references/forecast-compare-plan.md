@@ -197,13 +197,16 @@ compare 実装時に以下の 5 関数名を `FnName` に追加:
 | `semantic-mismatch` | anomaly 件数/順序差、trend direction 不一致 |
 | `invariant-violation` | R² 範囲外、stdDev 負値、finite 違反 |
 
-## このフェーズでやらないこと
+## 実装状態（Phase 10 完了）
 
-- compare 実装本体（forecastBridge.ts の書き換え）
-- forecastWasm.ts の作成
-- forecastBridge.test.ts の作成
-- dualRunObserver.ts への forecast 関数追加
+- ✅ compare 実装本体（forecastBridge.ts の書き換え）
+- ✅ forecastWasm.ts の作成（スタブ — Rust 未実装）
+- ✅ forecastBridge.test.ts の作成（36 テスト）
+- ✅ dualRunObserver.ts への forecast 5 関数追加（FnName 19 関数）
+
+## 未実施（将来フェーズ）
+
 - Rust 実装
-- WASM 接続
-- Date 依存関数の pure 化
+- WASM 接続（isWasmReady を getForecastWasmExports に変更）
+- Date 依存関数の pure 化（曜日テーブル注入）
 - observer / authoritative 昇格

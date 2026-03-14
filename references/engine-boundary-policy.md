@@ -431,3 +431,33 @@ Phase 5: 小規模試験導入（別計画）
 |---|---|
 | **engine-boundary-policy.md**（本文書） | 設計思想・判定ルール・禁止原則・実施計画 |
 | **engine-responsibility.md** | 具体的なモジュール割当・移行パターン・データ契約 |
+
+## 17. Import Boundary Rules（Phase 10 追加）
+
+### Runtime authoritative path
+
+- compare 対象関数の runtime 呼び出しは **bridge 経由** で統一する
+- `domain/calculations/` からの direct import は **型参照** と **テスト** に限定する
+- presentation / hooks が domain の計算関数を直接 import して runtime 呼び出しすることは禁止
+
+### 逆依存禁止
+
+- `domain/` → `application/` の import は禁止（既存ルール通り）
+- `domain/` → `infrastructure/` の import は禁止
+
+### Aggregate responsibility
+
+- aggregate（multi-store orchestration）は bridge に混ぜない
+- single-store authoritative core のみが bridge の compare 対象
+- aggregate は application 層に残す
+
+### Barrel 方針
+
+- bridge 対象関数の barrel は bridge から re-export する
+- type-only export は domain barrel から直接許容する
+- 直接 import を許す例外: テストファイル、Storybook
+
+### 静的ガード
+
+- `hookComplexityGuard.test.ts` の architecture guard セクションで
+  bridge 対象 runtime 関数の直接 import を検出する（将来追加候補）
