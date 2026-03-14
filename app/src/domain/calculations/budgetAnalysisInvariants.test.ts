@@ -104,8 +104,9 @@ describe('budgetAnalysis invariants', () => {
       expect(Number.isFinite(result.projectedSales)).toBe(true)
     })
 
-    it('salesDays = 0', () => {
+    it('salesDays = 0（elapsedDays > 0 なので観測期間ベースで計算）', () => {
       const result = calculateBudgetAnalysis(makeInput({ salesDays: 0, totalSales: 0 }))
+      // averageDailySales = 0 / 14(elapsedDays) = 0
       expect(result.averageDailySales).toBe(0)
       expect(Number.isFinite(result.projectedSales)).toBe(true)
     })

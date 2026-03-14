@@ -119,7 +119,7 @@ describe('calculateBudgetAnalysis', () => {
     expect(result.budgetElapsedRate).toBeCloseTo(400_000 / 600_000, 6)
   })
 
-  it('営業日0の場合の日平均', () => {
+  it('観測期間内の売上0の場合の日平均', () => {
     const result = calculateBudgetAnalysis({
       totalSales: 0,
       budget: 1_000_000,
@@ -129,6 +129,7 @@ describe('calculateBudgetAnalysis', () => {
       salesDays: 0,
       daysInMonth: 30,
     })
+    // 日平均 = 0 / 5 = 0（観測期間ベース）
     expect(result.averageDailySales).toBe(0)
   })
 
@@ -157,9 +158,9 @@ describe('calculateBudgetAnalysis', () => {
       salesDays: 1,
       daysInMonth: 30,
     })
-    // 日平均 = 1,000,000 (1営業日)
-    // 予測 = 1,000,000 + 1,000,000 × 15 = 16,000,000
-    expect(result.projectedSales).toBe(16_000_000)
+    // 日平均 = 1,000,000 / 15 ≈ 66,667（観測期間ベース）
+    // 予測 = 1,000,000 + 66,667 × 15 = 2,000,000
+    expect(result.projectedSales).toBeCloseTo(2_000_000, 0)
   })
 
   // ── budgetProgressGap ─────────────────────────────

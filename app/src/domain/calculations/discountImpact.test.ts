@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateDiscountImpact } from './discountImpact'
+import { calculateDiscountImpact, calculateDiscountImpactWithStatus } from './discountImpact'
 
 describe('calculateDiscountImpact', () => {
   it('基本的な売変ロス原価計算', () => {
@@ -64,5 +64,74 @@ describe('calculateDiscountImpact', () => {
     // = 0.75 × 10,000,000 × 0.1111...
     // = 833,333.33...
     expect(result.discountLossCost).toBeCloseTo(833_333.33, 0)
+  })
+})
+
+describe('calculateDiscountImpactWithStatus', () => {
+  it('正常範囲の売変率 → ok', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 5_000_000,
+      markupRate: 0.26,
+      discountRate: 0.02,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    expect(result.value!.discountLossCost).toBeCloseTo(75_510.2, 0)
+    expect(result.warnings).toHaveLength(0)
+  })
+
+  it('売変率0 → ok（ロスも0）', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 5_000_000,
+      markupRate: 0.26,
+      discountRate: 0,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value!.discountLossCost).toBe(0)
+  })
+
+  it('売変率1.0 → invalid', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 1_000_000,
+      markupRate: 0.26,
+      discountRate: 1.0,
+    })
+    expect(result.status).toBe('invalid')
+    expect(result.value).toBeNull()
+    expect(result.warnings).toContain('discount_rate_out_of_domain')
+  })
+
+  it('売変率 > 1 → invalid', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 1_000_000,
+      markupRate: 0.26,
+      discountRate: 1.5,
+    })
+    expect(result.status).toBe('invalid')
+    expect(result.value).toBeNull()
+    expect(result.warnings).toContain('discount_rate_out_of_domain')
+  })
+
+  it('売変率 < 0 → invalid', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 1_000_000,
+      markupRate: 0.26,
+      discountRate: -0.1,
+    })
+    expect(result.status).toBe('invalid')
+    expect(result.value).toBeNull()
+    expect(result.warnings).toContain('discount_rate_negative')
+  })
+
+  it('売変率0.99（1に近いが有効） → ok', () => {
+    const result = calculateDiscountImpactWithStatus({
+      coreSales: 1_000_000,
+      markupRate: 0.26,
+      discountRate: 0.99,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    // (1 - 0.26) × 1,000,000 × 0.99 / 0.01 = 73,260,000
+    expect(result.value!.discountLossCost).toBeCloseTo(73_260_000, 0)
   })
 })

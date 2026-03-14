@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { calculateEstMethod, calculateCoreSales, calculateDiscountRate } from './estMethod'
+import {
+  calculateEstMethod,
+  calculateEstMethodWithStatus,
+  calculateCoreSales,
+  calculateDiscountRate,
+} from './estMethod'
 
 describe('calculateEstMethod', () => {
   it('基本的な推定計算', () => {
@@ -154,6 +159,108 @@ describe('calculateEstMethod', () => {
       inventoryPurchaseCost: 500_000,
     })
     expect(result.closingInventory).toBeNull()
+  })
+})
+
+describe('calculateEstMethodWithStatus', () => {
+  it('正常範囲 → ok', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 5_000_000,
+      discountRate: 0.02,
+      markupRate: 0.26,
+      costInclusionCost: 50_000,
+      openingInventory: 1_000_000,
+      inventoryPurchaseCost: 4_000_000,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    expect(result.value!.grossSales).toBeCloseTo(5_102_040.816, 0)
+    expect(result.warnings).toHaveLength(0)
+  })
+
+  it('売変率1.0 → invalid', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: 1.0,
+      markupRate: 0.25,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 0,
+    })
+    expect(result.status).toBe('invalid')
+    expect(result.value).toBeNull()
+    expect(result.warnings).toContain('discount_rate_out_of_domain')
+  })
+
+  it('売変率 < 0 → invalid', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: -0.05,
+      markupRate: 0.25,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 0,
+    })
+    expect(result.status).toBe('invalid')
+    expect(result.value).toBeNull()
+    expect(result.warnings).toContain('discount_rate_negative')
+  })
+
+  it('値入率 > 1 → ok with warning', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: 0,
+      markupRate: 1.5,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 0,
+    })
+    // markupRate > 1 は invalid ではなく warning 付き ok
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    expect(result.warnings).toContain('markup_rate_exceeds_one')
+  })
+
+  it('値入率 < 0 → ok with warning', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: 0,
+      markupRate: -0.1,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 0,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    expect(result.warnings).toContain('markup_rate_negative')
+  })
+
+  it('openingInventory null → closingInventory null in ok result', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: 0,
+      markupRate: 0.25,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 500_000,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value!.closingInventory).toBeNull()
+  })
+
+  it('売変率0.99（有効だが高い） → ok', () => {
+    const result = calculateEstMethodWithStatus({
+      coreSales: 1_000_000,
+      discountRate: 0.99,
+      markupRate: 0.26,
+      costInclusionCost: 0,
+      openingInventory: null,
+      inventoryPurchaseCost: 0,
+    })
+    expect(result.status).toBe('ok')
+    expect(result.value).not.toBeNull()
+    // 粗売上 = 1,000,000 / 0.01 = 100,000,000
+    expect(result.value!.grossSales).toBeCloseTo(100_000_000, 0)
   })
 })
 
