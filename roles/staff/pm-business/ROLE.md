@@ -148,7 +148,7 @@ pm-business は人間（Authority）に対してタスク全体の結果を**チ
 
 ## 参照ドキュメント
 
-- `references/metric-id-registry.md` — MetricId 一覧（81定義/50文書化/37実装済み）
-- `references/prohibition-quick-ref.md` — 7禁止事項
-- `references/open-issues.md` — 課題管理（現在の課題・将来のリスク・解決済み）
+- `references/03-guides/metric-id-registry.md` — MetricId 一覧（81定義/50文書化/37実装済み）
+- `references/01-principles/prohibition-quick-ref.md` — 7禁止事項
+- `references/02-status/open-issues.md` — 課題管理（現在の課題・将来のリスク・解決済み）
 - CLAUDE.md §ルーティング表 — 作業→ロールの対応

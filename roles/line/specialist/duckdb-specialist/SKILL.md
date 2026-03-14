@@ -10,7 +10,7 @@
 
 ### 方法論（手順）
 
-1. `references/engine-responsibility.md` でエンジン選択を確認（DuckDB が適切か？）
+1. `references/01-principles/engine-responsibility.md` でエンジン選択を確認（DuckDB が適切か？）
 2. 対応する `infrastructure/duckdb/queries/` モジュールにクエリ関数を追加
 3. `queryParams.ts` でパラメータバリデーションを追加（Branded Type 使用）
 4. `application/hooks/duckdb/` に対応するフックを追加（`useAsyncQuery` ベース）

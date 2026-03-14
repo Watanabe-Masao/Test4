@@ -115,7 +115,7 @@ implementation が日常的に適用する原則（architecture が管理する1
 
 ## 参照ドキュメント
 
-- `references/prohibition-quick-ref.md` — 7禁止事項（**必読**）
-- `references/invariant-catalog.md` — 不変条件カタログ
-- `references/data-models.md` — 型定義
-- `references/api.md` — DuckDB クエリ関数一覧
+- `references/01-principles/prohibition-quick-ref.md` — 7禁止事項（**必読**）
+- `references/03-guides/invariant-catalog.md` — 不変条件カタログ
+- `references/03-guides/data-models.md` — 型定義
+- `references/03-guides/api.md` — DuckDB クエリ関数一覧

@@ -257,7 +257,7 @@ DuckDB → IndexedDB の書き戻しは禁止。
 
 **成果物:**
 
-- `references/engine-boundary-policy.md`（本文書）
+- `references/01-principles/engine-boundary-policy.md`（本文書）
 - `CLAUDE.md` 更新（3つのエンジン + 禁止事項 #9）
 - 既存 `engine-responsibility.md` との整合確認
 
