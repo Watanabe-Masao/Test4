@@ -19,6 +19,8 @@ export {
   getAllWarningCodes,
 } from './warningCatalog'
 export type { WarningCategory, WarningSeverity, WarningEntry } from './warningCatalog'
+export { resolveMetric, deriveDisplayMode } from './metricResolver'
+export type { DisplayMode, MetricResolution } from './metricResolver'
 export type {
   PresetCategoryId,
   UserCategoryId,
