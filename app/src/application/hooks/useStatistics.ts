@@ -20,24 +20,25 @@ export type {
 } from '@/domain/calculations/algorithms/correlation'
 
 // ── トレンド分析 ────────────────────────────────────────
-export { analyzeTrend } from '@/domain/calculations/algorithms/trendAnalysis'
+// bridge 経由: forecast 関連の全 call path を統一する
+export { analyzeTrend } from '@/application/services/forecastBridge'
 export type {
   MonthlyDataPoint,
   TrendAnalysisResult,
-} from '@/domain/calculations/algorithms/trendAnalysis'
+} from '@/application/services/forecastBridge'
 
 // ── 高度な予測・回帰 ───────────────────────────────────
 export {
   linearRegression,
   calculateWMA,
   calculateMonthEndProjection,
-} from '@/domain/calculations/algorithms/advancedForecast'
+} from '@/application/services/forecastBridge'
 
 export type {
   LinearRegressionResult,
   WMAEntry,
   MonthEndProjection,
-} from '@/domain/calculations/algorithms/advancedForecast'
+} from '@/application/services/forecastBridge'
 
 // ── 標準偏差（forecast モジュール内） ──────────────────
-export { calculateStdDev } from '@/domain/calculations/forecast'
+export { calculateStdDev } from '@/application/services/forecastBridge'

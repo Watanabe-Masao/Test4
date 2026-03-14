@@ -4,7 +4,7 @@
  * useMonthlyHistory から抽出。StoreResult → MonthlyDataPoint 変換と
  * StoreDaySummaryIndex の成分率集約を担う。
  */
-import type { MonthlyDataPoint } from '@/domain/calculations/algorithms/trendAnalysis'
+import type { MonthlyDataPoint } from '@/application/services/forecastBridge'
 import type { StoreDaySummaryIndex } from '@/domain/models'
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 

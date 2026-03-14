@@ -20,7 +20,7 @@ import type {
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, ZERO_COST_INCLUSION_DAILY, indexByStoreDay } from '@/domain/models'
 import { aggregateForStore, ZERO_DISCOUNT_ENTRIES } from '@/domain/models'
-import { calculateCoreSales } from '@/domain/calculations/estMethod'
+import { calculateCoreSales } from '@/application/services/grossProfitBridge'
 import { hashData } from '@/domain/utilities/hash'
 
 /**

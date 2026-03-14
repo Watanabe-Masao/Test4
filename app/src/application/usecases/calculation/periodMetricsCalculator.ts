@@ -4,15 +4,11 @@
  * store_day_summary の生データ（SQL取得）から domain/calculations/ の純粋関数で指標を算出する。
  * SQL は生データ取得に専念し、計算ロジックの権威は domain/calculations/* に一本化される。
  */
-import { calculateEstMethod, calculateDiscountRate } from '@/domain/calculations/estMethod'
-import { calculateInvMethod } from '@/domain/calculations/invMethod'
-import { calculateDiscountImpact } from '@/domain/calculations/discountImpact'
-import { safeDivide } from '@/domain/calculations/utils'
-import { calculateMarkupRates } from '@/domain/calculations/markupRate'
 import {
-  calculateTransferTotals,
-  calculateInventoryCost,
-} from '@/domain/calculations/costAggregation'
+  calculateEstMethod, calculateDiscountRate, calculateInvMethod, calculateDiscountImpact,
+  calculateMarkupRates, calculateTransferTotals, calculateInventoryCost,
+} from '@/application/services/grossProfitBridge'
+import { safeDivide } from '@/domain/calculations/utils'
 import type { DaySummaryInput, PeriodMetrics, PeriodInventoryConfig } from './periodMetricsTypes'
 
 // ── 型の re-export（後方互換） ──

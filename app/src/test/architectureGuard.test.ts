@@ -250,6 +250,8 @@ describe('Architecture Guard', () => {
     // それ以外のモジュール（factorDecomposition, forecast, inventoryCalc, etc.）は禁止
     const PROHIBITED_MODULES = [
       '@/domain/calculations/factorDecomposition',
+      '@/domain/calculations/grossProfit',
+      '@/domain/calculations/budgetAnalysis',
       '@/domain/calculations/forecast',
       '@/domain/calculations/inventoryCalc',
       '@/domain/calculations/rules/alertSystem',

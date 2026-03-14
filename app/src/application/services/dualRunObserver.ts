@@ -10,7 +10,30 @@
  *   __dualRunStats('log')   — mismatch ログ一覧
  */
 
-type FnName = 'decompose2' | 'decompose3' | 'decompose5' | 'decomposePriceMix'
+type FnName =
+  // factorDecomposition
+  | 'decompose2'
+  | 'decompose3'
+  | 'decompose5'
+  | 'decomposePriceMix'
+  // grossProfit
+  | 'calculateInvMethod'
+  | 'calculateEstMethod'
+  | 'calculateCoreSales'
+  | 'calculateDiscountRate'
+  | 'calculateDiscountImpact'
+  | 'calculateMarkupRates'
+  | 'calculateTransferTotals'
+  | 'calculateInventoryCost'
+  // budgetAnalysis
+  | 'calculateBudgetAnalysis'
+  | 'calculateGrossProfitBudget'
+  // forecast
+  | 'calculateStdDev'
+  | 'detectAnomalies'
+  | 'calculateWMA'
+  | 'linearRegression'
+  | 'analyzeTrend'
 
 interface FnStats {
   calls: number
@@ -53,10 +76,29 @@ function makeFnStats(): FnStats {
 }
 
 const stats: Record<FnName, FnStats> = {
+  // factorDecomposition
   decompose2: makeFnStats(),
   decompose3: makeFnStats(),
   decompose5: makeFnStats(),
   decomposePriceMix: makeFnStats(),
+  // grossProfit
+  calculateInvMethod: makeFnStats(),
+  calculateEstMethod: makeFnStats(),
+  calculateCoreSales: makeFnStats(),
+  calculateDiscountRate: makeFnStats(),
+  calculateDiscountImpact: makeFnStats(),
+  calculateMarkupRates: makeFnStats(),
+  calculateTransferTotals: makeFnStats(),
+  calculateInventoryCost: makeFnStats(),
+  // budgetAnalysis
+  calculateBudgetAnalysis: makeFnStats(),
+  calculateGrossProfitBudget: makeFnStats(),
+  // forecast
+  calculateStdDev: makeFnStats(),
+  detectAnomalies: makeFnStats(),
+  calculateWMA: makeFnStats(),
+  linearRegression: makeFnStats(),
+  analyzeTrend: makeFnStats(),
 }
 
 const mismatchLog: MismatchEntry[] = []

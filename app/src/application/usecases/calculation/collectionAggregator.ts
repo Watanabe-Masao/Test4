@@ -14,8 +14,9 @@ import type {
 } from '@/domain/models'
 import { ZERO_COST_PRICE_PAIR, addCostPricePairs } from '@/domain/models'
 import { safeDivide } from '@/domain/calculations/utils'
-import { calculateMarkupRates as calcMarkupRatesDomain } from '@/domain/calculations/markupRate'
-import { calculateTransferTotals as calcTransferTotalsDomain } from '@/domain/calculations/costAggregation'
+// bridge 経由: 将来の dual-run compare を観測可能にする
+import { calculateMarkupRates as calcMarkupRatesDomain } from '@/application/services/grossProfitBridge'
+import { calculateTransferTotals as calcTransferTotalsDomain } from '@/application/services/grossProfitBridge'
 import { addToCategory, mergeDailyRecord } from './scalarAccumulator'
 
 /** 日別・カテゴリ・取引先・予算・移動を集約する */

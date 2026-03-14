@@ -5,13 +5,13 @@
  * application 層で予測結果を提供する。
  */
 import { useMemo } from 'react'
-import { calculateForecast, getWeekRanges } from '@/domain/calculations/forecast'
+import { calculateForecast, getWeekRanges } from '@/application/services/forecastBridge'
 import type {
   ForecastInput,
   ForecastResult,
   WeeklySummary,
   DayOfWeekAverage,
-} from '@/domain/calculations/forecast'
+} from '@/application/services/forecastBridge'
 
 // Re-export types for presentation layer
 export type { ForecastInput, ForecastResult, WeeklySummary, DayOfWeekAverage }

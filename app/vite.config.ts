@@ -30,7 +30,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['@duckdb/duckdb-wasm', 'factor-decomposition-wasm'],
+    exclude: ['@duckdb/duckdb-wasm', 'factor-decomposition-wasm', 'gross-profit-wasm', 'budget-analysis-wasm'],
   },
   assetsInclude: ['**/*.wasm'],
   build: {
