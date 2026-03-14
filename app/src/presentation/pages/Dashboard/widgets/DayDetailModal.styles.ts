@@ -311,6 +311,7 @@ export const StackLabel = styled.span`
 `
 export const StackTrack = styled.div`
   flex: 1;
+  min-width: 0;
   height: 32px;
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.bg4};
@@ -319,7 +320,7 @@ export const StackTrack = styled.div`
   position: relative;
 `
 export const StackSegment = styled.div<{ $flex: number; $color: string }>`
-  flex: ${({ $flex }) => Math.max($flex, 0)};
+  flex: ${({ $flex }) => Math.max($flex, 0)} 0 0%;
   min-width: 0;
   background: ${({ $color }) => $color};
   height: 100%;

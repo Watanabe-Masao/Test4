@@ -363,7 +363,7 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
         )}
 
         {/* ── vsLastYear 累計モード: 当年累計=棒、前年累計=線 ── */}
-        {!isWf && view === 'vsLastYear' && cumMode === 'cumulative' && hasPrev && (
+        {!isWf && view === 'vsLastYear' && cumMode === 'cumulative' && (
           <>
             <Bar
               yAxisId="left"
@@ -372,25 +372,29 @@ export const DailySalesChartBody = memo(function DailySalesChartBody({
               radius={[3, 3, 0, 0]}
               maxBarSize={18}
             />
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="prevYearCum"
-              stroke={ct.colors.slate}
-              strokeWidth={2.5}
-              dot={false}
-              connectNulls
-            />
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="yoyDiffCum"
-              stroke={ct.colors.success}
-              strokeWidth={1.5}
-              strokeDasharray="4 2"
-              dot={false}
-              connectNulls
-            />
+            {hasPrev && (
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="prevYearCum"
+                stroke={ct.colors.slate}
+                strokeWidth={2.5}
+                dot={false}
+                connectNulls
+              />
+            )}
+            {hasPrev && (
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="yoyDiffCum"
+                stroke={ct.colors.success}
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                connectNulls
+              />
+            )}
           </>
         )}
 
