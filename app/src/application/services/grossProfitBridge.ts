@@ -35,7 +35,7 @@ import type {
   TransferTotalsInput,
   TransferTotalsResult,
 } from '@/domain/calculations/grossProfit'
-import { getExecutionMode, getWasmState } from './wasmEngine'
+import { getExecutionMode, getWasmState, getGrossProfitWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
 import {
   calculateInvMethodWasm,
@@ -91,7 +91,7 @@ export interface GrossProfitMismatchLog {
 /* ── 内部ヘルパー ─────────────────────────────── */
 
 function isWasmReady(): boolean {
-  return getWasmState() === 'ready'
+  return getGrossProfitWasmExports() !== null
 }
 
 function isDualRun(): boolean {

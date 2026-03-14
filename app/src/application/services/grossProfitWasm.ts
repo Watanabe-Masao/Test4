@@ -4,10 +4,7 @@
  * WASM の Float64Array 戻り値を既存の型に変換する薄い adapter。
  * ロジック判断・比較・モード判断・フォールバックは一切含めない（bridge の責務）。
  *
- * 現時点では WASM 実装は存在しないため、getWasmExports() 経由で
- * 将来の WASM export を呼び出す形のスタブとする。
- * WASM モジュールに grossProfit 関数が追加されるまで、これらの関数は
- * bridge の vi.mock でモックされた状態でのみテストから呼ばれる。
+ * Rust 実装 (wasm/gross-profit/) の wasm-bindgen export を呼び出す。
  */
 import type {
   InvMethodInput,
@@ -21,27 +18,12 @@ import type {
   TransferTotalsInput,
   TransferTotalsResult,
 } from '@/domain/calculations/grossProfit'
-import { getWasmExports } from './wasmEngine'
+import { getGrossProfitWasmExports } from './wasmEngine'
 
-/* ── 将来の WASM export 型定義 ─────────────────── */
+/* ── WASM export 取得 ──────────────────────────── */
 
-/**
- * grossProfit WASM モジュールが export する関数の型。
- * Rust 実装完了後、wasm-bindgen が生成する型に置き換える。
- */
-interface GrossProfitWasmExports {
-  calculate_inv_method: (...args: number[]) => Float64Array
-  calculate_est_method: (...args: number[]) => Float64Array
-  calculate_core_sales: (...args: number[]) => Float64Array
-  calculate_discount_rate: (salesAmount: number, discountAmount: number) => number
-  calculate_discount_impact: (...args: number[]) => number
-  calculate_markup_rates: (...args: number[]) => Float64Array
-  calculate_transfer_totals: (...args: number[]) => Float64Array
-  calculate_inventory_cost: (totalCost: number, deliverySalesCost: number) => number
-}
-
-function getGrossProfitWasm(): GrossProfitWasmExports {
-  return getWasmExports()! as unknown as GrossProfitWasmExports
+function getGrossProfitWasm() {
+  return getGrossProfitWasmExports()!
 }
 
 /* ── WASM 呼び出し wrapper ────────────────────── */
