@@ -118,8 +118,20 @@ export function PrevYearBudgetDetailPanel({
   const { format: fmtCurrency } = useCurrencyFormat()
 
   const title = type === 'sameDow' ? '予算成長率（同曜日）' : '予算成長率（同日）'
-  const offsetLabel =
-    type === 'sameDow' ? `曜日オフセット: ${dowOffset}日` : '同日（オフセットなし）'
+
+  // dailyMapping の先頭/末尾から実際の比較期間を算出
+  const periodLabels = useMemo(() => {
+    const dm = entry.dailyMapping
+    if (dm.length === 0) return { prev: `${sourceYear}年${sourceMonth}月`, cur: `${targetYear}年${targetMonth}月` }
+    const first = dm[0]
+    const last = dm[dm.length - 1]
+    // 同月内なら日だけ省略表記
+    const prev = first.prevMonth === last.prevMonth && first.prevYear === last.prevYear
+      ? `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevDay}日`
+      : `${first.prevYear}年${first.prevMonth}月${first.prevDay}日〜${last.prevYear}年${last.prevMonth}月${last.prevDay}日`
+    const cur = `${targetYear}年${targetMonth}月${first.currentDay}日〜${last.currentDay}日`
+    return { prev, cur }
+  }, [entry.dailyMapping, sourceYear, sourceMonth, targetYear, targetMonth])
 
   // 日別データ + 週番号
   const baseRows: readonly TableRow[] = useMemo(() => {
@@ -305,13 +317,9 @@ export function PrevYearBudgetDetailPanel({
 
         {/* 期間情報 */}
         <PeriodInfo>
-          <PeriodItem>
-            前年: {sourceYear}年{sourceMonth}月
-          </PeriodItem>
-          <PeriodItem>
-            当年: {targetYear}年{targetMonth}月
-          </PeriodItem>
-          <PeriodItem>{offsetLabel}</PeriodItem>
+          <PeriodItem>前年: {periodLabels.prev}</PeriodItem>
+          <PeriodItem>当年: {periodLabels.cur}</PeriodItem>
+          {type === 'sameDow' && <PeriodItem>曜日オフセット: {dowOffset}日</PeriodItem>}
           <PeriodItem>対応日数: {entry.dailyMapping.length}日</PeriodItem>
         </PeriodInfo>
 

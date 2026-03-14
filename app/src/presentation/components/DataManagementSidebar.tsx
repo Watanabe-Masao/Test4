@@ -12,49 +12,80 @@ import { useRepository } from '@/application/context/useRepository'
 import { Sidebar } from '@/presentation/components/Layout'
 import {
   Button,
-  FileDropZone,
-  UploadCard,
   Chip,
   ChipGroup,
   useToast,
   SettingsModal,
   ValidationModal,
-  ImportProgressBar,
-  ImportProgressSteps,
-  ImportSummaryCard,
   MonthSelector,
   DiffConfirmModal,
+  ImportModal,
+  OnlineStatusChip,
 } from '@/presentation/components/common'
-import type { ImportStage, DiffConfirmResult } from '@/presentation/components/common'
-import type { ImportSummary } from '@/application/usecases/import'
-import type { DataType } from '@/domain/models'
+import type { DiffConfirmResult } from '@/presentation/components/common'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import { detectDataMaxDay } from '@/domain/calculations/utils'
-import { useDataSummary } from '@/application/hooks/useDataSummary'
 import {
-  UploadGrid,
   SidebarSection,
   SectionLabel,
   SidebarActions,
-  PrivacyInfoBox,
-  PrivacyDot,
 } from '@/presentation/components/DataManagementSidebar.styles'
 import { DataEndDaySlider } from '@/presentation/components/DataEndDaySlider'
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { InventorySettingsSection } from '@/presentation/components/InventorySettingsSection'
+import styled from 'styled-components'
 
-const uploadTypes: { type: DataType; label: string; multi?: boolean }[] = [
-  { type: 'budget', label: '0_売上予算' },
-  { type: 'classifiedSales', label: '1_分類別売上', multi: true },
-  { type: 'flowers', label: '2_売上納品_花' },
-  { type: 'directProduce', label: '3_売上納品_産直' },
-  { type: 'interStoreOut', label: '4_店間出' },
-  { type: 'interStoreIn', label: '5_店間入' },
-  { type: 'purchase', label: '6_仕入' },
-  { type: 'categoryTimeSales', label: '7.分類別時間帯売上', multi: true },
-  { type: 'consumables', label: '8.原価算入費', multi: true },
-  { type: 'initialSettings', label: '999_初期設定' },
-]
+const FolderSyncStatus = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: ${({ theme }) => theme.fontSize.xs};
+  color: ${({ theme }) => theme.text3};
+`
+
+const FolderRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+const FolderDot = styled.span<{ $active: boolean }>`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${({ $active, theme }) => ($active ? theme.positive : theme.text4)};
+  flex-shrink: 0;
+`
+
+const FolderName = styled.span`
+  font-size: ${({ theme }) => theme.fontSize.xs};
+  color: ${({ theme }) => theme.text2};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+`
+
+const SmallBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.fontSize.xs};
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: ${({ theme }) => theme.text4};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  &:hover {
+    color: ${({ theme }) => theme.text2};
+  }
+`
+
+const TopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`
 
 export function DataManagementSidebar({
   showSettingsExternal,
@@ -64,15 +95,14 @@ export function DataManagementSidebar({
   onSettingsExternalClose?: () => void
 } = {}) {
   const data = useDataStore((s) => s.data)
-  const { importFiles, progress, validationMessages, pendingDiff, resolveDiff } = useImport()
+  const { importFiles, validationMessages, pendingDiff, resolveDiff } = useImport()
   const { selectedStoreIds, stores, toggleStore, selectAllStores } = useStoreSelection()
   const { settings, updateSettings } = useSettings()
   const showToast = useToast()
   const { listMonths } = useStorageAdmin()
   const repo = useRepository()
-  const { loadedTypes, maxDayByType } = useDataSummary(data)
 
-  // 自動バックアップ: データ変更のたびにフォルダへ書き出し
+  // 自動バックアップ
   const backupTrigger = useMemo(
     () =>
       `${data.stores.size}:${data.budget.size}:${data.settings.size}:${data.classifiedSales.records.length}`,
@@ -80,7 +110,7 @@ export function DataManagementSidebar({
   )
   const autoBackup = useAutoBackup(repo, backupTrigger)
 
-  // 自動インポート: フォルダ内のファイルを自動取込
+  // 自動インポート
   const handleAutoImportFiles = useCallback(
     async (files: File[]) => {
       await importFiles(files)
@@ -88,13 +118,13 @@ export function DataManagementSidebar({
     [importFiles],
   )
   const autoImport = useAutoImport(handleAutoImportFiles)
+
   const [storedMonths, setStoredMonths] = useState<readonly { year: number; month: number }[]>([])
   const [showSettings, setShowSettings] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
-  const [importStage, setImportStage] = useState<ImportStage>('idle')
-  const [lastSummary, setLastSummary] = useState<ImportSummary | null>(null)
+  const [showImportModal, setShowImportModal] = useState(false)
 
-  // 保存済み月リストを取得（MonthSelector のデータ有無表示用）
+  // 保存済み月リストを取得
   useEffect(() => {
     let cancelled = false
     listMonths()
@@ -107,56 +137,13 @@ export function DataManagementSidebar({
     return () => {
       cancelled = true
     }
-  }, [listMonths, data]) // data 変更時にも再取得（インポート後に反映）
+  }, [listMonths, data])
 
   const isSettingsOpen = showSettings || showSettingsExternal
   const closeSettings = useCallback(() => {
     setShowSettings(false)
     onSettingsExternalClose?.()
   }, [onSettingsExternalClose])
-
-  const handleFiles = useCallback(
-    async (files: FileList | File[], overrideType?: DataType) => {
-      setImportStage('reading')
-      setLastSummary(null)
-      try {
-        const summary = await importFiles(files, overrideType)
-        setImportStage('validating')
-
-        summary.results.forEach((r) => {
-          if (r.ok) {
-            showToast(`${r.typeName}: ${r.filename}`, 'success')
-          } else {
-            showToast(`${r.filename}: ${r.error}`, 'error')
-          }
-        })
-
-        setImportStage('saving')
-        // 保存は useImport 内で処理されるので少し待つ
-        await new Promise((r) => setTimeout(r, 300))
-        setImportStage('done')
-        setLastSummary(summary)
-
-        if (summary.successCount > 0) {
-          setShowValidation(true)
-        }
-
-        // 完了ステージを3秒後にリセット
-        setTimeout(() => setImportStage('idle'), 3000)
-      } catch {
-        setImportStage('idle')
-      }
-    },
-    [importFiles, showToast],
-  )
-
-  const handleSingleFile = useCallback(
-    async (files: File | File[], typeHint: DataType) => {
-      const fileArray = Array.isArray(files) ? files : [files]
-      await handleFiles(fileArray, typeHint)
-    },
-    [handleFiles],
-  )
 
   const handleDiffConfirm = useCallback(
     (result: DiffConfirmResult) => {
@@ -180,7 +167,7 @@ export function DataManagementSidebar({
   const detectedMaxDay = useMemo(() => detectDataMaxDay(data), [data])
   const hasNonBudgetData = detectedMaxDay > 0
 
-  // 期間選択ストアへの双方向同期（DataEndDaySlider → periodSelectionStore）
+  // 期間選択ストアへの双方向同期
   const setPeriod1 = usePeriodSelectionStore((s) => s.setPeriod1)
   const period1 = usePeriodSelectionStore((s) => s.selection.period1)
   const handlePeriodEndDayChange = useCallback(
@@ -190,44 +177,30 @@ export function DataManagementSidebar({
     [setPeriod1, period1],
   )
 
+  // 長押しでデータ再スキャン
+  const handleLongPress = useCallback(() => {
+    if (autoImport.folderConfigured) {
+      autoImport.scanNow().catch(() => {})
+      showToast('フォルダを再スキャンしています...', 'info')
+    }
+  }, [autoImport, showToast])
+
   return (
     <>
       <Sidebar title="データ管理">
+        {/* オンライン/オフラインステータス + インポートボタン */}
+        <SidebarSection>
+          <TopRow>
+            <OnlineStatusChip onLongPress={handleLongPress} />
+            <Button $variant="primary" onClick={() => setShowImportModal(true)}>
+              取込
+            </Button>
+          </TopRow>
+        </SidebarSection>
+
         <SidebarSection>
           <SectionLabel>対象年月</SectionLabel>
           <MonthSelector storedMonths={storedMonths} />
-        </SidebarSection>
-
-        <SidebarSection>
-          <FileDropZone onFiles={handleFiles} />
-          {importStage !== 'idle' && (
-            <ImportProgressSteps progress={progress} stage={importStage} />
-          )}
-          {importStage === 'idle' && progress && <ImportProgressBar progress={progress} />}
-          {lastSummary && importStage === 'idle' && (
-            <ImportSummaryCard summary={lastSummary} onDismiss={() => setLastSummary(null)} />
-          )}
-        </SidebarSection>
-
-        <SidebarSection>
-          <SectionLabel>ファイル種別</SectionLabel>
-          <UploadGrid>
-            {uploadTypes.map(({ type, label, multi }) => (
-              <UploadCard
-                key={type}
-                dataType={type}
-                label={label}
-                loaded={loadedTypes.has(type)}
-                maxDay={maxDayByType.get(type)}
-                onFile={handleSingleFile}
-                multiple={multi}
-              />
-            ))}
-          </UploadGrid>
-          <PrivacyInfoBox>
-            <PrivacyDot />
-            ローカル保存 | サーバー送信なし
-          </PrivacyInfoBox>
         </SidebarSection>
 
         {hasNonBudgetData && (
@@ -268,14 +241,59 @@ export function DataManagementSidebar({
           />
         )}
 
+        {/* フォルダ同期ステータス */}
+        {(autoBackup.supported || autoImport.supported) && (
+          <SidebarSection>
+            <SectionLabel>フォルダ同期</SectionLabel>
+            <FolderSyncStatus>
+              {autoBackup.supported && (
+                <FolderRow>
+                  <FolderDot $active={autoBackup.folderConfigured} />
+                  {autoBackup.folderConfigured ? (
+                    <>
+                      <FolderName title={autoBackup.folderName ?? undefined}>
+                        バックアップ: {autoBackup.folderName}
+                      </FolderName>
+                      <SmallBtn onClick={() => autoBackup.backupNow()}>保存</SmallBtn>
+                    </>
+                  ) : (
+                    <SmallBtn onClick={() => autoBackup.selectFolder()}>
+                      バックアップ先を選択
+                    </SmallBtn>
+                  )}
+                </FolderRow>
+              )}
+              {autoImport.supported && (
+                <FolderRow>
+                  <FolderDot $active={autoImport.folderConfigured} />
+                  {autoImport.folderConfigured ? (
+                    <>
+                      <FolderName title={autoImport.folderName ?? undefined}>
+                        自動取込: {autoImport.folderName}
+                      </FolderName>
+                      <SmallBtn onClick={() => autoImport.scanNow()}>スキャン</SmallBtn>
+                    </>
+                  ) : (
+                    <SmallBtn onClick={() => autoImport.selectFolder()}>
+                      取込元を選択
+                    </SmallBtn>
+                  )}
+                </FolderRow>
+              )}
+            </FolderSyncStatus>
+          </SidebarSection>
+        )}
+
         <SidebarSection>
           <SidebarActions>
             <Button $variant="outline" onClick={() => setShowSettings(true)}>
-              ⚙ 設定
+              設定
             </Button>
           </SidebarActions>
         </SidebarSection>
       </Sidebar>
+
+      {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} />}
 
       {isSettingsOpen && (
         <SettingsModal
