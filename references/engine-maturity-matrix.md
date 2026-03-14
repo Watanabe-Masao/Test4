@@ -47,6 +47,17 @@
 | budgetAnalysis | promotion-candidate | 観測ログ蓄積 + verdict 確認 |
 | forecast | rust-implemented | Rust crate 作成 + 5 pure 関数実装 |
 
+### 昇格判断フレーム（Phase 11 成果物）
+
+各遷移の判断基準は以下の文書で定義されている:
+
+| 文書 | 内容 |
+|---|---|
+| `promotion-criteria.md` | 共通昇格基準（promotion-candidate / wasm-only 試験 / authoritative 条件） |
+| `observation-evaluation-guide.md` | mismatch 評価基準・観測ログ最低量・記録テンプレート |
+| `engine-promotion-matrix.md` | 4 engine の現在地・blocker・次条件の一覧 |
+| `rollback-policy.md` | wasm-only 試験時の復旧手順・即 rollback 条件 |
+
 ## Aggregate Boundary
 
 | モジュール | single-store core | aggregate | 備考 |
