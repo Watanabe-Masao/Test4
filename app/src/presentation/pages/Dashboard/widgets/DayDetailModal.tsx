@@ -410,7 +410,9 @@ export function DayDetailModal({
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計差異</DetailLabel>
-                    <DetailValue $color={sc.cond(cumDiff >= 0)}>{fmtCurrencyWithUnit(cumDiff)}</DetailValue>
+                    <DetailValue $color={sc.cond(cumDiff >= 0)}>
+                      {fmtCurrencyWithUnit(cumDiff)}
+                    </DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>累計達成率</DetailLabel>

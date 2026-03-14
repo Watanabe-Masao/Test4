@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
   useImport,
@@ -178,24 +178,6 @@ export function DataManagementSidebar({
     [setPeriod1, period1],
   )
 
-  // データ検出日に基づく期間自動初期化:
-  // dataEndDay 未設定 + データ検出日 < 月末 の場合、検出日で自動設定
-  const autoInitRef = useRef<string>('')
-  useEffect(() => {
-    if (!hasNonBudgetData) return
-    if (detectedMaxDay >= daysInMonth) return
-    // 明示的に dataEndDay が設定済みならスキップ
-    if (settings.dataEndDay != null) return
-    // 同じ年月+検出日で二重実行を防止
-    const key = `${settings.targetYear}-${settings.targetMonth}-${detectedMaxDay}`
-    if (autoInitRef.current === key) return
-    autoInitRef.current = key
-    updateSettings({ dataEndDay: detectedMaxDay })
-    // period1 の to.day を検出日に更新（period1 は依存配列に含めず最新値を取得）
-    const currentPeriod1 = usePeriodSelectionStore.getState().selection.period1
-    setPeriod1({ ...currentPeriod1, to: { ...currentPeriod1.to, day: detectedMaxDay } })
-  }, [hasNonBudgetData, detectedMaxDay, daysInMonth, settings.dataEndDay, settings.targetYear, settings.targetMonth, updateSettings, setPeriod1])
-
   // 長押しでデータ再スキャン
   const handleLongPress = useCallback(() => {
     if (autoImport.folderConfigured) {
@@ -293,9 +275,7 @@ export function DataManagementSidebar({
                       <SmallBtn onClick={() => autoImport.scanNow()}>スキャン</SmallBtn>
                     </>
                   ) : (
-                    <SmallBtn onClick={() => autoImport.selectFolder()}>
-                      取込元を選択
-                    </SmallBtn>
+                    <SmallBtn onClick={() => autoImport.selectFolder()}>取込元を選択</SmallBtn>
                   )}
                 </FolderRow>
               )}
