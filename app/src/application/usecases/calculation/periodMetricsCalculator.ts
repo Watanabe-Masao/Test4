@@ -1,12 +1,12 @@
-/**
- * 期間メトリクス計算モジュール
- *
- * store_day_summary の生データ（SQL取得）から domain/calculations/ の純粋関数で指標を算出する。
- * SQL は生データ取得に専念し、計算ロジックの権威は domain/calculations/* に一本化される。
- */
+/** 期間メトリクス計算: store_day_summary の生データから domain/calculations/ の純粋関数で指標を算出 */
 import {
-  calculateEstMethod, calculateDiscountRate, calculateInvMethod, calculateDiscountImpact,
-  calculateMarkupRates, calculateTransferTotals, calculateInventoryCost,
+  calculateEstMethod,
+  calculateDiscountRate,
+  calculateInvMethod,
+  calculateDiscountImpact,
+  calculateMarkupRates,
+  calculateTransferTotals,
+  calculateInventoryCost,
 } from '@/application/services/grossProfitBridge'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { DaySummaryInput, PeriodMetrics, PeriodInventoryConfig } from './periodMetricsTypes'

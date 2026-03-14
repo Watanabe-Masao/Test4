@@ -59,10 +59,7 @@ import {
   calculateDayOfWeekAverages,
   getWeekRanges,
 } from '../forecastBridge'
-import {
-  calculateStdDevWasm,
-  linearRegressionWasm,
-} from '../forecastWasm'
+import { calculateStdDevWasm, linearRegressionWasm } from '../forecastWasm'
 
 /* ── テストヘルパー ─────────────────────────────── */
 
@@ -85,39 +82,93 @@ const sampleDailySales = makeDailySalesMap([
 
 const sampleMonthlyData: readonly MonthlyDataPoint[] = [
   {
-    year: 2025, month: 1, totalSales: 1000000, totalCustomers: 5000,
-    grossProfit: 300000, grossProfitRate: 0.3, budget: 1100000, budgetAchievement: 0.91,
-    storeCount: 1, discountRate: 0.05, costRate: 0.65, costInclusionRate: 0.02,
+    year: 2025,
+    month: 1,
+    totalSales: 1000000,
+    totalCustomers: 5000,
+    grossProfit: 300000,
+    grossProfitRate: 0.3,
+    budget: 1100000,
+    budgetAchievement: 0.91,
+    storeCount: 1,
+    discountRate: 0.05,
+    costRate: 0.65,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.3,
   },
   {
-    year: 2025, month: 2, totalSales: 1100000, totalCustomers: 5200,
-    grossProfit: 330000, grossProfitRate: 0.3, budget: 1050000, budgetAchievement: 1.05,
-    storeCount: 1, discountRate: 0.04, costRate: 0.64, costInclusionRate: 0.02,
+    year: 2025,
+    month: 2,
+    totalSales: 1100000,
+    totalCustomers: 5200,
+    grossProfit: 330000,
+    grossProfitRate: 0.3,
+    budget: 1050000,
+    budgetAchievement: 1.05,
+    storeCount: 1,
+    discountRate: 0.04,
+    costRate: 0.64,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.31,
   },
   {
-    year: 2025, month: 3, totalSales: 1050000, totalCustomers: 5100,
-    grossProfit: 315000, grossProfitRate: 0.3, budget: 1080000, budgetAchievement: 0.97,
-    storeCount: 1, discountRate: 0.045, costRate: 0.645, costInclusionRate: 0.02,
+    year: 2025,
+    month: 3,
+    totalSales: 1050000,
+    totalCustomers: 5100,
+    grossProfit: 315000,
+    grossProfitRate: 0.3,
+    budget: 1080000,
+    budgetAchievement: 0.97,
+    storeCount: 1,
+    discountRate: 0.045,
+    costRate: 0.645,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.305,
   },
   {
-    year: 2025, month: 4, totalSales: 1200000, totalCustomers: 5500,
-    grossProfit: 360000, grossProfitRate: 0.3, budget: 1150000, budgetAchievement: 1.04,
-    storeCount: 1, discountRate: 0.035, costRate: 0.63, costInclusionRate: 0.02,
+    year: 2025,
+    month: 4,
+    totalSales: 1200000,
+    totalCustomers: 5500,
+    grossProfit: 360000,
+    grossProfitRate: 0.3,
+    budget: 1150000,
+    budgetAchievement: 1.04,
+    storeCount: 1,
+    discountRate: 0.035,
+    costRate: 0.63,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.32,
   },
   {
-    year: 2025, month: 5, totalSales: 1250000, totalCustomers: 5600,
-    grossProfit: 375000, grossProfitRate: 0.3, budget: 1200000, budgetAchievement: 1.04,
-    storeCount: 1, discountRate: 0.03, costRate: 0.62, costInclusionRate: 0.02,
+    year: 2025,
+    month: 5,
+    totalSales: 1250000,
+    totalCustomers: 5600,
+    grossProfit: 375000,
+    grossProfitRate: 0.3,
+    budget: 1200000,
+    budgetAchievement: 1.04,
+    storeCount: 1,
+    discountRate: 0.03,
+    costRate: 0.62,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.33,
   },
   {
-    year: 2025, month: 6, totalSales: 1300000, totalCustomers: 5800,
-    grossProfit: 390000, grossProfitRate: 0.3, budget: 1250000, budgetAchievement: 1.04,
-    storeCount: 1, discountRate: 0.028, costRate: 0.61, costInclusionRate: 0.02,
+    year: 2025,
+    month: 6,
+    totalSales: 1300000,
+    totalCustomers: 5800,
+    grossProfit: 390000,
+    grossProfitRate: 0.3,
+    budget: 1250000,
+    budgetAchievement: 1.04,
+    storeCount: 1,
+    discountRate: 0.028,
+    costRate: 0.61,
+    costInclusionRate: 0.02,
     averageMarkupRate: 0.34,
   },
 ]
@@ -289,7 +340,11 @@ describe('Date 依存関数: compare 対象外（全モードで直接委譲）'
       month: 3,
       dailySales: sampleDailySales,
       dailyGrossProfit: makeDailySalesMap([
-        [1, 30000], [2, 36000], [3, 28500], [4, 39000], [5, 33000],
+        [1, 30000],
+        [2, 36000],
+        [3, 28500],
+        [4, 39000],
+        [5, 33000],
       ]),
     }
     const result = calculateForecast(input)
@@ -382,7 +437,11 @@ describe('F-INV invariants: bridge 経由でも成立', () => {
 
   it('F-INV-7: 完全線形データ → R² ≈ 1', () => {
     const linear = makeDailySalesMap([
-      [1, 100], [2, 200], [3, 300], [4, 400], [5, 500],
+      [1, 100],
+      [2, 200],
+      [3, 300],
+      [4, 400],
+      [5, 500],
     ])
     const result = linearRegression(linear)
     expect(result.rSquared).toBeCloseTo(1.0, 10)
@@ -402,7 +461,10 @@ describe('F-INV invariants: bridge 経由でも成立', () => {
   })
 
   it('F-INV-10: < 3 データ → anomaly 空配列', () => {
-    const small = makeDailySalesMap([[1, 100], [2, 200]])
+    const small = makeDailySalesMap([
+      [1, 100],
+      [2, 200],
+    ])
     expect(detectAnomalies(small)).toEqual([])
   })
 

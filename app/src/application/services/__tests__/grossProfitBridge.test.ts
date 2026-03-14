@@ -278,7 +278,9 @@ describe('GrossProfitMismatchLog shape（モック WASM で差分検出）', () 
   beforeEach(() => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
   })
 
   it('calculateInvMethod: 不一致時に console.warn + 正しい log shape', () => {
@@ -379,7 +381,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateInvMethod: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
 
     const input = makeInvInput()
     const direct = calculateInvMethodDirect(input)
@@ -399,7 +403,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateDiscountRate: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
 
     const direct = calculateDiscountRateDirect(25_000, 500_000)
     vi.mocked(calculateDiscountRateWasm).mockReturnValueOnce(direct)
@@ -414,7 +420,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateEstMethod: closingInventory 含め全一致なら warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
 
     const input = makeEstInput()
     const direct = calculateEstMethodDirect(input)
@@ -430,7 +438,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateMarkupRates: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
 
     const input = makeMarkupInput()
     const direct = calculateMarkupRatesDirect(input)
@@ -446,7 +456,9 @@ describe('dual-run-compare + WASM 一致時は console.warn しない', () => {
   it('calculateInventoryCost: TS と WASM が一致すれば warn なし', () => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
 
     const direct = calculateInventoryCostDirect(500_000, 40_000)
     vi.mocked(calculateInventoryCostWasm).mockReturnValueOnce(direct)
@@ -465,7 +477,9 @@ describe('null mismatch 検出', () => {
   beforeEach(() => {
     setExecutionMode('dual-run-compare')
     vi.spyOn(wasmEngine, 'getWasmState').mockReturnValue('ready')
-    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue({} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>)
+    vi.spyOn(wasmEngine, 'getGrossProfitWasmExports').mockReturnValue(
+      {} as ReturnType<typeof wasmEngine.getGrossProfitWasmExports>,
+    )
   })
 
   it('calculateInvMethod: TS=null / WASM=non-null の null mismatch', () => {

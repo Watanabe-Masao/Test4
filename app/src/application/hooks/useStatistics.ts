@@ -22,10 +22,7 @@ export type {
 // ── トレンド分析 ────────────────────────────────────────
 // bridge 経由: forecast 関連の全 call path を統一する
 export { analyzeTrend } from '@/application/services/forecastBridge'
-export type {
-  MonthlyDataPoint,
-  TrendAnalysisResult,
-} from '@/application/services/forecastBridge'
+export type { MonthlyDataPoint, TrendAnalysisResult } from '@/application/services/forecastBridge'
 
 // ── 高度な予測・回帰 ───────────────────────────────────
 export {

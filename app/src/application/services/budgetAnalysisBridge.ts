@@ -27,10 +27,7 @@ import type {
 } from '@/domain/calculations/budgetAnalysis'
 import { getExecutionMode, getWasmState, getBudgetAnalysisWasmExports } from './wasmEngine'
 import type { WasmState, ExecutionMode } from './wasmEngine'
-import {
-  calculateBudgetAnalysisWasm,
-  calculateGrossProfitBudgetWasm,
-} from './budgetAnalysisWasm'
+import { calculateBudgetAnalysisWasm, calculateGrossProfitBudgetWasm } from './budgetAnalysisWasm'
 import { recordCall, recordMismatch } from './dualRunObserver'
 
 // Re-export types for consumer convenience
@@ -153,9 +150,7 @@ export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnaly
 /**
  * 粗利予算分析（単店 authoritative core）
  */
-export function calculateGrossProfitBudget(
-  input: GrossProfitBudgetInput,
-): GrossProfitBudgetResult {
+export function calculateGrossProfitBudget(input: GrossProfitBudgetInput): GrossProfitBudgetResult {
   if (import.meta.env.DEV) recordCall('calculateGrossProfitBudget')
   const mode = getExecutionMode()
 

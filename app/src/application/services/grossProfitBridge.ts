@@ -151,7 +151,13 @@ function compareNumericResults(
       executionMode: getExecutionMode(),
     }
     console.warn('[grossProfit dual-run mismatch]', log)
-    recordMismatch(fnName, maxAbsDiff, invariantTs, invariantWasm, inputSummary as Record<string, number | undefined>)
+    recordMismatch(
+      fnName,
+      maxAbsDiff,
+      invariantTs,
+      invariantWasm,
+      inputSummary as Record<string, number | undefined>,
+    )
   }
 }
 
@@ -178,9 +184,21 @@ export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
     const wasmResult = calculateInvMethodWasm(input)
     compareNumericResults(
       'calculateInvMethod',
-      { cogs: tsResult.cogs, grossProfit: tsResult.grossProfit, grossProfitRate: tsResult.grossProfitRate },
-      { cogs: wasmResult.cogs, grossProfit: wasmResult.grossProfit, grossProfitRate: wasmResult.grossProfitRate },
-      { openingInventory: input.openingInventory, closingInventory: input.closingInventory, totalSales: input.totalSales },
+      {
+        cogs: tsResult.cogs,
+        grossProfit: tsResult.grossProfit,
+        grossProfitRate: tsResult.grossProfitRate,
+      },
+      {
+        cogs: wasmResult.cogs,
+        grossProfit: wasmResult.grossProfit,
+        grossProfitRate: wasmResult.grossProfitRate,
+      },
+      {
+        openingInventory: input.openingInventory,
+        closingInventory: input.closingInventory,
+        totalSales: input.totalSales,
+      },
     )
   }
   return tsResult
@@ -221,7 +239,11 @@ export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
         marginRate: wasmResult.marginRate,
         closingInventory: wasmResult.closingInventory,
       },
-      { coreSales: input.coreSales, discountRate: input.discountRate, markupRate: input.markupRate },
+      {
+        coreSales: input.coreSales,
+        discountRate: input.discountRate,
+        markupRate: input.markupRate,
+      },
     )
   }
   return tsResult
@@ -271,10 +293,7 @@ export function calculateCoreSales(
 /**
  * 売変率計算
  */
-export function calculateDiscountRate(
-  totalDiscountAmount: number,
-  totalSales: number,
-): number {
+export function calculateDiscountRate(totalDiscountAmount: number, totalSales: number): number {
   if (import.meta.env.DEV) recordCall('calculateDiscountRate')
   const mode = getExecutionMode()
 
@@ -323,7 +342,11 @@ export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImp
       'calculateDiscountImpact',
       { discountLossCost: tsResult.discountLossCost },
       { discountLossCost: wasmResult.discountLossCost },
-      { coreSales: input.coreSales, markupRate: input.markupRate, discountRate: input.discountRate },
+      {
+        coreSales: input.coreSales,
+        markupRate: input.markupRate,
+        discountRate: input.discountRate,
+      },
     )
   }
   return tsResult
@@ -351,7 +374,10 @@ export function calculateMarkupRates(input: MarkupRateInput): MarkupRateResult {
     compareNumericResults(
       'calculateMarkupRates',
       { averageMarkupRate: tsResult.averageMarkupRate, coreMarkupRate: tsResult.coreMarkupRate },
-      { averageMarkupRate: wasmResult.averageMarkupRate, coreMarkupRate: wasmResult.coreMarkupRate },
+      {
+        averageMarkupRate: wasmResult.averageMarkupRate,
+        coreMarkupRate: wasmResult.coreMarkupRate,
+      },
       { purchasePrice: input.purchasePrice, purchaseCost: input.purchaseCost },
     )
   }

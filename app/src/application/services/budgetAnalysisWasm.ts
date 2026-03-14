@@ -22,9 +22,7 @@ function getBudgetAnalysisWasm() {
 
 /* ── WASM 呼び出し wrapper ────────────────────── */
 
-export function calculateBudgetAnalysisWasm(
-  input: BudgetAnalysisInput,
-): BudgetAnalysisResult {
+export function calculateBudgetAnalysisWasm(input: BudgetAnalysisInput): BudgetAnalysisResult {
   const wasm = getBudgetAnalysisWasm()
 
   // budgetDaily / salesDaily を daysInMonth 長の flat array に変換
