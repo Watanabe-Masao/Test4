@@ -12,17 +12,10 @@ import {
   renderDailyInventoryTable,
   renderStoreKpiTable,
 } from './TableWidgets'
-import { ExecSummaryBarWidget } from './ExecSummaryBarWidget'
 
 // ── 概要・ステータス ──
+// exec-summary-bar は KpiSummaryTable + ConditionSummaryEnhanced ヘッダに吸収済み
 export const WIDGETS_EXEC: readonly WidgetDef[] = [
-  {
-    id: 'exec-summary-bar',
-    label: 'サマリーバー',
-    group: 'モニタリング',
-    size: 'full',
-    render: (ctx) => <ExecSummaryBarWidget key={ctx.storeKey} {...ctx} />,
-  },
   {
     id: 'analysis-condition-summary',
     label: 'コンディションサマリー',

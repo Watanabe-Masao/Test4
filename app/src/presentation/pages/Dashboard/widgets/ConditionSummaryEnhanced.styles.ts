@@ -134,8 +134,20 @@ export const MetricBtn = styled.button<{ $active: boolean; $color: string }>`
   }
 `
 
-export const MetricIcon = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+export const MetricIcon = styled.span<{ $color?: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ $color }) => ($color ? `${$color}18` : 'transparent')};
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
 `
 
 export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
@@ -432,13 +444,55 @@ export const LegendItem = styled.span`
   gap: 3px;
 `
 
+// ─── Budget Header ─────────────────────────────────────
+
+export const BudgetHeaderRow = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[8]};
+  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(59,130,246,0.02)'};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  flex-wrap: wrap;
+  align-items: baseline;
+`
+
+export const BudgetHeaderItem = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: ${({ theme }) => theme.spacing[2]};
+`
+
+export const BudgetHeaderLabel = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text4};
+  white-space: nowrap;
+`
+
+export const BudgetHeaderValue = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+export const BudgetGrowthBadge = styled.span<{ $positive: boolean }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $positive }) => ($positive ? '#10b981' : '#ef4444')};
+  background: ${({ $positive }) => ($positive ? '#10b98112' : '#ef444412')};
+  padding: 1px ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+`
+
 // ─── Card Grid (横一列カードレイアウト) ─────────────────
 
 export const CardGridRow = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: ${({ theme }) => theme.spacing[4]};
-  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[6]};
+  gap: ${({ theme }) => theme.spacing[5]};
+  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]};
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -489,9 +543,10 @@ export const CondCardLabel = styled.div`
 
 export const CondCardValue = styled.div<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ $color }) => $color};
+  letter-spacing: -0.5px;
 `
 
 export const CondCardSub = styled.div`

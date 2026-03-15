@@ -13,19 +13,12 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
   Section,
-  TableWrapper,
   Table,
   Th,
   Td,
   Tr,
   TrTotal,
   EmptyState,
-  FlowTable,
-  FlowTh,
-  FlowTd,
-  FlowTr,
-  FlowGroupHeader,
-  FlowBar,
   PivotGroupTh,
   PivotSubTh,
   PivotTd,
@@ -80,110 +73,8 @@ export function TransferTab({ d }: TransferTabProps) {
         />
       </KpiGrid>
 
-      {d.groupedFlows.length > 0 && (
-        <Section>
-          <Card>
-            <CardTitle>{d.typeLabel}移動 ペア一覧</CardTitle>
-            <ChartErrorBoundary>
-              <TableWrapper>
-                <FlowTable>
-                  <thead>
-                    <tr>
-                      <FlowTh>移動元</FlowTh>
-                      <FlowTh>移動先</FlowTh>
-                      <FlowTh>原価</FlowTh>
-                      <FlowTh>規模</FlowTh>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <FlowTr
-                      $active={d.selectedPair === null}
-                      onClick={() => d.setSelectedPair(null)}
-                    >
-                      <FlowTd $label>全て表示</FlowTd>
-                      <FlowTd $label>-</FlowTd>
-                      <FlowTd>{fmtCurrency(d.dailyTotals.inCost + d.dailyTotals.outCost)}</FlowTd>
-                      <FlowTd>
-                        <FlowBar $pct={100} $dir="neutral" />
-                      </FlowTd>
-                    </FlowTr>
-                    {d.groupedFlows.map((group) => (
-                      <Fragment key={`grp-${group.fromId}`}>
-                        <FlowGroupHeader>
-                          <FlowTd colSpan={4} $label>
-                            {group.fromName}（{group.fromId}）から — {group.entries.length}件 /{' '}
-                            {fmtCurrency(group.totalCost)}
-                          </FlowTd>
-                        </FlowGroupHeader>
-                        {group.entries.map((f) => {
-                          const key = `${f.from}->${f.to}`
-                          const pct = Math.round((Math.abs(f.cost) / d.maxFlowCost) * 100)
-                          const dir =
-                            f.cost > 0
-                              ? ('in' as const)
-                              : f.cost < 0
-                                ? ('out' as const)
-                                : ('neutral' as const)
-                          return (
-                            <FlowTr
-                              key={key}
-                              $active={d.selectedPair === key}
-                              onClick={() => d.setSelectedPair(d.selectedPair === key ? null : key)}
-                            >
-                              <FlowTd $label>{f.fromName}</FlowTd>
-                              <FlowTd $label>{f.toName}</FlowTd>
-                              <FlowTd $negative={f.cost < 0}>{fmtCurrency(f.cost)}</FlowTd>
-                              <FlowTd>
-                                <FlowBar $pct={pct} $dir={dir} />
-                              </FlowTd>
-                            </FlowTr>
-                          )
-                        })}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </FlowTable>
-              </TableWrapper>
-            </ChartErrorBoundary>
-          </Card>
-        </Section>
-      )}
-
       {d.flows.length === 0 ? (
         <EmptyState>{d.typeLabel}移動データがありません</EmptyState>
-      ) : d.selectedPair && d.pairDailyData ? (
-        <ChartErrorBoundary>
-          <Card>
-            <CardTitle>
-              {d.selectedFlow?.fromName ?? ''} → {d.selectedFlow?.toName ?? ''}
-            </CardTitle>
-            <TableWrapper>
-              <Table>
-                <thead>
-                  <tr>
-                    <Th>日</Th>
-                    <Th>原価</Th>
-                    <Th>売価</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {d.pairDailyData.map((entry) => (
-                    <Tr key={entry.day}>
-                      <Td>{entry.day}日</Td>
-                      <Td $negative={entry.cost < 0}>{fmtCurrency(entry.cost)}</Td>
-                      <Td $negative={entry.price < 0}>{fmtCurrency(entry.price)}</Td>
-                    </Tr>
-                  ))}
-                  <TrTotal>
-                    <Td>合計</Td>
-                    <Td>{fmtCurrency(d.pairDailyData.reduce((s, e) => s + e.cost, 0))}</Td>
-                    <Td>{fmtCurrency(d.pairDailyData.reduce((s, e) => s + e.price, 0))}</Td>
-                  </TrTotal>
-                </tbody>
-              </Table>
-            </TableWrapper>
-          </Card>
-        </ChartErrorBoundary>
       ) : (
         <ChartErrorBoundary>
           <Card>

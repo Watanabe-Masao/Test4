@@ -7,7 +7,7 @@
 
 import { safeDivide } from '@/domain/calculations/utils'
 import { computeGpAfterConsumable, computeGpAfterConsumableAmount } from './conditionSummaryUtils'
-import type { StoreResult, Store } from '@/domain/models'
+import type { StoreResult, Store, AlignmentPolicy } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
 // ─── Types ──────────────────────────────────────────────
@@ -32,11 +32,11 @@ export interface MetricDef {
 }
 
 export const METRIC_DEFS: Record<MetricKey, MetricDef> = {
-  sales: { label: '売上', icon: '📊', color: '#3b82f6', isRate: false },
-  gp: { label: '粗利額', icon: '💰', color: '#8b5cf6', isRate: false },
-  gpRate: { label: '粗利率', icon: '📈', color: '#06b6d4', isRate: true },
-  markupRate: { label: '値入率', icon: '🏷', color: '#f59e0b', isRate: true },
-  discountRate: { label: '値引率', icon: '🔖', color: '#ef4444', isRate: true },
+  sales: { label: '売上', icon: 'S', color: '#3b82f6', isRate: false },
+  gp: { label: '粗利額', icon: 'GP', color: '#8b5cf6', isRate: false },
+  gpRate: { label: '粗利率', icon: '%', color: '#06b6d4', isRate: true },
+  markupRate: { label: '値入率', icon: 'M', color: '#f59e0b', isRate: true },
+  discountRate: { label: '値引率', icon: 'D', color: '#ef4444', isRate: true },
 }
 
 export interface EnhancedRow {
@@ -339,7 +339,7 @@ export function buildCardSummaries(
   cards.push({
     key: 'sales',
     label: '売上予算',
-    icon: '📊',
+    icon: 'S',
     color: '#3b82f6',
     value: fmtAchievement(salesAch, false),
     sub: `予算 ${fmtCurrency(salesM.budget)} / 実績 ${fmtCurrency(salesM.actual)}`,
@@ -352,7 +352,7 @@ export function buildCardSummaries(
   cards.push({
     key: 'gp',
     label: '粗利額予算',
-    icon: '💰',
+    icon: 'GP',
     color: '#8b5cf6',
     value: fmtAchievement(gpAch, false),
     sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
@@ -365,7 +365,7 @@ export function buildCardSummaries(
   cards.push({
     key: 'gpRate',
     label: '粗利率',
-    icon: '📈',
+    icon: '%',
     color: '#06b6d4',
     value: formatPercent100(gpRateM.actual),
     sub: `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`,
@@ -377,7 +377,7 @@ export function buildCardSummaries(
   cards.push({
     key: 'markupRate',
     label: '値入率',
-    icon: '🏷',
+    icon: 'M',
     color: '#f59e0b',
     value: formatPercent100(result.averageMarkupRate * 100),
     sub: `コア値入率 ${formatPercent100(result.coreMarkupRate * 100)}`,
@@ -388,7 +388,7 @@ export function buildCardSummaries(
   cards.push({
     key: 'discountRate',
     label: '値引率',
-    icon: '🔖',
+    icon: 'D',
     color: '#ef4444',
     value: formatPercent100(result.discountRate * 100),
     sub: `値引額 ${fmtCurrency(result.totalDiscount)}`,
@@ -401,4 +401,46 @@ export function buildCardSummaries(
   })
 
   return cards
+}
+
+// ─── Budget Header ──────────────────────────────────────
+
+export interface BudgetHeaderData {
+  readonly monthlyBudget: number
+  readonly grossProfitBudget: number
+  readonly grossProfitRateBudget: number
+  readonly prevYearSales: number | null
+  readonly budgetGrowthRate: number | null
+  readonly alignmentLabel: string
+}
+
+/** 月間固定の予算コンテキスト情報を構築する */
+export function buildBudgetHeader(
+  result: StoreResult,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
+  policy: AlignmentPolicy,
+): BudgetHeaderData {
+  const alignmentLabel = policy === 'sameDayOfWeek' ? '同曜日' : '同日'
+
+  let prevYearSales: number | null = null
+  if (prevYearMonthlyKpi.hasPrevYear) {
+    prevYearSales =
+      policy === 'sameDayOfWeek'
+        ? prevYearMonthlyKpi.sameDow.sales
+        : prevYearMonthlyKpi.sameDate.sales
+  }
+
+  const budgetGrowthRate =
+    prevYearSales != null && prevYearSales > 0
+      ? safeDivide(result.budget, prevYearSales, 0) - 1
+      : null
+
+  return {
+    monthlyBudget: result.budget,
+    grossProfitBudget: result.grossProfitBudget,
+    grossProfitRateBudget: result.grossProfitRateBudget,
+    prevYearSales,
+    budgetGrowthRate,
+    alignmentLabel,
+  }
 }
