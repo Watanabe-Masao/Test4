@@ -72,6 +72,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
   const [showYoY, setShowYoY] = useState(false)
   const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
+  const [prevYearMode, setPrevYearMode] = useState<'sameDate' | 'sameDow'>('sameDate')
 
   const { daysInMonth, elapsedDays } = ctx
   const effectiveElapsed = elapsedDays ?? daysInMonth
@@ -173,20 +174,39 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
           <BudgetHeaderLabel>粗利率予算</BudgetHeaderLabel>
           <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
         </BudgetHeaderItem>
-        {budgetHeader.prevYearSales != null && (
+        {(budgetHeader.prevYearSalesSameDate != null ||
+          budgetHeader.prevYearSalesSameDow != null) && (
           <BudgetHeaderItem>
-            <BudgetHeaderLabel>前年売上(同月)</BudgetHeaderLabel>
-            <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.prevYearSales)}</BudgetHeaderValue>
+            <BudgetHeaderLabel
+              as="button"
+              onClick={() => setPrevYearMode((p) => (p === 'sameDate' ? 'sameDow' : 'sameDate'))}
+              style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+            >
+              前年売上({prevYearMode === 'sameDate' ? '同月' : '同曜日'}) ▼
+            </BudgetHeaderLabel>
+            <BudgetHeaderValue>
+              {ctx.fmtCurrency(
+                (prevYearMode === 'sameDate'
+                  ? budgetHeader.prevYearSalesSameDate
+                  : budgetHeader.prevYearSalesSameDow) ?? 0,
+              )}
+            </BudgetHeaderValue>
           </BudgetHeaderItem>
         )}
-        {budgetHeader.budgetVsPrevYear != null && (
-          <BudgetHeaderItem>
-            <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
-            <BudgetGrowthBadge $positive={budgetHeader.budgetVsPrevYear >= 1}>
-              {formatPercent(budgetHeader.budgetVsPrevYear)}
-            </BudgetGrowthBadge>
-          </BudgetHeaderItem>
-        )}
+        {(() => {
+          const ratio =
+            prevYearMode === 'sameDate'
+              ? budgetHeader.budgetVsPrevYearSameDate
+              : budgetHeader.budgetVsPrevYearSameDow
+          return (
+            ratio != null && (
+              <BudgetHeaderItem>
+                <BudgetHeaderLabel>予算前年比</BudgetHeaderLabel>
+                <BudgetGrowthBadge $positive={ratio >= 1}>{formatPercent(ratio)}</BudgetGrowthBadge>
+              </BudgetHeaderItem>
+            )
+          )
+        })()}
         {budgetHeader.dowGap && (
           <>
             <BudgetHeaderItem>
