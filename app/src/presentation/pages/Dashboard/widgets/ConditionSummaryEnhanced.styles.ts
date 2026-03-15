@@ -160,7 +160,7 @@ export const MetricLabel = styled.span<{ $active: boolean; $color: string }>`
 // ─── Total Summary ──────────────────────────────────────
 
 export const TotalSection = styled.div`
-  padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[10]};
+  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) =>
     theme.mode === 'dark'
@@ -197,11 +197,11 @@ export const SectionLabel = styled.span`
 `
 
 export const BigValue = styled.div`
-  font-size: 28px;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
 `
 
 export const SubValue = styled.div`
@@ -212,18 +212,18 @@ export const SubValue = styled.div`
 `
 
 export const MainValue = styled.div`
-  font-size: 24px;
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
 export const AchValue = styled.div<{ $color: string }>`
-  font-size: 28px;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ $color }) => $color};
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
 `
 
 export const SmallLabel = styled.div`
@@ -298,10 +298,11 @@ export const MonoLg = styled.span<{ $color?: string; $bold?: boolean }>`
 
 // ─── Store Row ──────────────────────────────────────────
 
-export const StoreRowWrapper = styled.div`
-  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
+export const StoreRowWrapper = styled.div<{ $clickable?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   transition: background 0.12s;
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
   &:nth-child(even) {
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.012)'};
@@ -312,11 +313,10 @@ export const StoreRowWrapper = styled.div`
   }
 `
 
-/** 店舗行の3カラムグリッド: [順位+名前] [予算→実績] [達成率] */
+/** 店舗行のグリッド */
 export const StoreRowGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(100px, 1fr) minmax(140px, 1.2fr) minmax(80px, auto);
-  gap: ${({ theme }) => theme.spacing[4]};
+  gap: ${({ theme }) => theme.spacing[6]};
   align-items: center;
 `
 
@@ -653,5 +653,89 @@ export const DrillCloseBtn = styled.button`
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
     outline-offset: 2px;
+  }
+`
+
+// ─── Table Header ──────────────────────────────────────
+
+export const TableHeaderRow = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[10]};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+`
+
+export const TableHeaderCell = styled.span<{ $align?: 'left' | 'center' | 'right' }>`
+  font-size: 10px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-family: ${({ theme }) => theme.typography.fontFamily.primary};
+  color: ${({ theme }) => theme.colors.text4};
+  text-align: ${({ $align }) => $align ?? 'left'};
+  letter-spacing: 0.5px;
+`
+
+// ─── Daily Detail Modal ────────────────────────────────
+
+export const DailyModalPanel = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 14px;
+  min-width: 500px;
+  max-width: 860px;
+  width: 92vw;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.18),
+    0 0 0 1px
+      ${({ theme }) => (theme.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')};
+  animation: drillSlideUp 0.22s ease-out;
+`
+
+export const DailyTableWrapper = styled.div`
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+`
+
+export const DailyTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+`
+
+export const DailyTh = styled.th<{ $align?: string }>`
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  text-align: ${({ $align }) => $align ?? 'right'};
+  font-size: 10px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text4};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: ${({ theme }) => theme.colors.bg2};
+  z-index: 1;
+`
+
+export const DailyTd = styled.td<{ $color?: string; $bold?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[4]};
+  text-align: right;
+  color: ${({ $color, theme }) => $color ?? theme.colors.text};
+  font-weight: ${({ $bold }) => ($bold ? 700 : 400)};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border}44;
+  white-space: nowrap;
+`
+
+export const DailyTr = styled.tr`
+  transition: background 0.1s;
+  &:hover {
+    background: ${({ theme }) =>
+      theme.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
   }
 `

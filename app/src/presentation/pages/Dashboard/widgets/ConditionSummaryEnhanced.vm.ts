@@ -6,7 +6,11 @@
  */
 
 import { safeDivide } from '@/domain/calculations/utils'
-import { computeGpAfterConsumable, computeGpAfterConsumableAmount } from './conditionSummaryUtils'
+import {
+  computeGpAfterConsumable,
+  computeGpAfterConsumableAmount,
+  computeGpBeforeConsumable,
+} from './conditionSummaryUtils'
 import type { StoreResult, Store } from '@/domain/models'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
@@ -37,7 +41,7 @@ export const METRIC_DEFS: Record<MetricKey, MetricDef> = {
   gp: { label: '粗利額', icon: 'GP', color: '#8b5cf6', isRate: false },
   gpRate: { label: '粗利率', icon: '%', color: '#06b6d4', isRate: true },
   markupRate: { label: '値入率', icon: 'M', color: '#f59e0b', isRate: true },
-  discountRate: { label: '値引率', icon: 'D', color: '#ef4444', isRate: true },
+  discountRate: { label: '売変率', icon: 'D', color: '#ef4444', isRate: true },
 }
 
 export interface EnhancedRow {
@@ -49,6 +53,8 @@ export interface EnhancedRow {
   readonly achievement: number
   readonly diff: number
   readonly yoy: number | null
+  /** 粗利率メトリクス専用: 原算前粗利率 (×100済) */
+  readonly gpBeforeConsumable: number | null
 }
 
 export interface EnhancedTotal {
@@ -58,6 +64,8 @@ export interface EnhancedTotal {
   readonly achievement: number
   readonly diff: number
   readonly yoy: number | null
+  /** 粗利率メトリクス専用: 原算前粗利率 (×100済) */
+  readonly gpBeforeConsumable: number | null
 }
 
 // ─── Budget Calculation ─────────────────────────────────
@@ -193,7 +201,20 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
       yoy = computeYoY(actual, ly, def.isRate)
     }
 
-    rows.push({ storeId, storeName, budget, actual, ly, achievement, diff, yoy })
+    // 粗利率メトリクス: 原算前粗利率
+    const gpBeforeConsumable = metric === 'gpRate' ? computeGpBeforeConsumable(sr) * 100 : null
+
+    rows.push({
+      storeId,
+      storeName,
+      budget,
+      actual,
+      ly,
+      achievement,
+      diff,
+      yoy,
+      gpBeforeConsumable,
+    })
   }
 
   // 店舗コード順にソート
@@ -224,7 +245,7 @@ export function buildTotal(input: BuildRowsInput): EnhancedTotal {
     const actual = rows.length > 0 ? rows.reduce((s, r) => s + r.actual, 0) / rows.length : 0
     const achievement = actual - budget
     const diff = actual - budget
-    return { budget, actual, ly: null, achievement, diff, yoy: null }
+    return { budget, actual, ly: null, achievement, diff, yoy: null, gpBeforeConsumable: null }
   }
 
   const budget = rows.reduce((s, r) => s + r.budget, 0)
@@ -244,7 +265,7 @@ export function buildTotal(input: BuildRowsInput): EnhancedTotal {
     yoy = computeYoY(actual, ly, false)
   }
 
-  return { budget, actual, ly, achievement, diff, yoy }
+  return { budget, actual, ly, achievement, diff, yoy, gpBeforeConsumable: null }
 }
 
 // ─── Public: Build Total from main result ───────────────
@@ -273,7 +294,151 @@ export function buildTotalFromResult(
     yoy = computeYoY(actual, ly, false)
   }
 
-  return { budget, actual, ly, achievement, diff, yoy }
+  const gpBeforeConsumable = metric === 'gpRate' ? computeGpBeforeConsumable(result) * 100 : null
+
+  return { budget, actual, ly, achievement, diff, yoy, gpBeforeConsumable }
+}
+
+// ─── Daily Modal Data ───────────────────────────────────
+
+export interface DailyDetailRow {
+  readonly day: number
+  readonly budget: number
+  readonly actual: number
+  readonly diff: number
+  readonly achievement: number
+  readonly cumBudget: number
+  readonly cumActual: number
+  readonly cumDiff: number
+  readonly cumAchievement: number
+}
+
+/** 日別モーダルの前年比行 */
+export interface DailyYoYRow {
+  readonly day: number
+  readonly prevActual: number
+  readonly curActual: number
+  readonly yoy: number
+}
+
+/** 店舗の日別詳細データを構築する（売上・粗利額用） */
+export function buildDailyDetailRows(
+  sr: StoreResult,
+  metric: MetricKey,
+  elapsedDays: number,
+  daysInMonth: number,
+): readonly DailyDetailRow[] {
+  const effectiveElapsed = elapsedDays ?? daysInMonth
+  const rows: DailyDetailRow[] = []
+  let cumBudget = 0
+  let cumActual = 0
+
+  for (let day = 1; day <= effectiveElapsed; day++) {
+    let dailyBudget: number
+    let dailyActual: number
+
+    if (metric === 'sales') {
+      dailyBudget = sr.budgetDaily.get(day) ?? 0
+      dailyActual = sr.daily.get(day)?.sales ?? 0
+    } else if (metric === 'gp') {
+      // GP daily budget = GP budget × (daily sales budget / monthly sales budget)
+      const salesBudgetDay = sr.budgetDaily.get(day) ?? 0
+      dailyBudget = sr.budget > 0 ? sr.grossProfitBudget * (salesBudgetDay / sr.budget) : 0
+      const dailyRecord = sr.daily.get(day)
+      // GP actual = sales - totalCost - costInclusion (day level)
+      dailyActual = dailyRecord
+        ? dailyRecord.sales - dailyRecord.totalCost - dailyRecord.costInclusion.cost
+        : 0
+    } else {
+      // Rate metrics: use daily rate values
+      const dailyRecord = sr.daily.get(day)
+      if (!dailyRecord) {
+        rows.push({
+          day,
+          budget: 0,
+          actual: 0,
+          diff: 0,
+          achievement: 0,
+          cumBudget: cumBudget,
+          cumActual: cumActual,
+          cumDiff: cumActual - cumBudget,
+          cumAchievement: 0,
+        })
+        continue
+      }
+      if (metric === 'markupRate') {
+        dailyBudget = sr.grossProfitRateBudget * 100
+        const grossSales = dailyRecord.grossSales
+        dailyActual = grossSales > 0 ? ((grossSales - dailyRecord.totalCost) / grossSales) * 100 : 0
+      } else {
+        dailyBudget = 0
+        dailyActual = 0
+      }
+    }
+
+    cumBudget += dailyBudget
+    cumActual += dailyActual
+
+    const diff = dailyActual - dailyBudget
+    const achievement =
+      metric === 'markupRate'
+        ? dailyActual - dailyBudget
+        : dailyBudget > 0
+          ? safeDivide(dailyActual, dailyBudget, 0) * 100
+          : 0
+    const cumDiff = cumActual - cumBudget
+    const cumAchievement =
+      metric === 'markupRate'
+        ? cumBudget > 0
+          ? safeDivide(cumActual, effectiveElapsed > 0 ? day : 1, 0) -
+            sr.grossProfitRateBudget * 100
+          : 0
+        : cumBudget > 0
+          ? safeDivide(cumActual, cumBudget, 0) * 100
+          : 0
+
+    rows.push({
+      day,
+      budget: dailyBudget,
+      actual: dailyActual,
+      diff,
+      achievement,
+      cumBudget,
+      cumActual,
+      cumDiff,
+      cumAchievement,
+    })
+  }
+  return rows
+}
+
+/** 店舗の日別前年比データを構築する（storeContributions ベース） */
+export function buildDailyYoYRows(
+  sr: StoreResult,
+  storeId: string,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi,
+  elapsedDays: number,
+  daysInMonth: number,
+): readonly DailyYoYRow[] {
+  if (!prevYearMonthlyKpi.hasPrevYear) return []
+  const effectiveElapsed = elapsedDays ?? daysInMonth
+
+  // storeContributions から storeId × mappedDay でインデックス化
+  const prevByDay = new Map<number, number>()
+  for (const c of prevYearMonthlyKpi.sameDow.storeContributions) {
+    if (c.storeId === storeId) {
+      prevByDay.set(c.mappedDay, (prevByDay.get(c.mappedDay) ?? 0) + c.sales)
+    }
+  }
+
+  const rows: DailyYoYRow[] = []
+  for (let day = 1; day <= effectiveElapsed; day++) {
+    const curActual = sr.daily.get(day)?.sales ?? 0
+    const prevActual = prevByDay.get(day) ?? 0
+    const yoy = prevActual > 0 ? safeDivide(curActual, prevActual, 0) * 100 : 0
+    rows.push({ day, prevActual, curActual, yoy })
+  }
+  return rows
 }
 
 // ─── Signal Colors ──────────────────────────────────────
@@ -388,11 +553,11 @@ export function buildCardSummaries(
   // 値引率
   cards.push({
     key: 'discountRate',
-    label: '値引率',
+    label: '売変率',
     icon: 'D',
     color: '#ef4444',
     value: formatPercent100(result.discountRate * 100),
-    sub: `値引額 ${fmtCurrency(result.totalDiscount)}`,
+    sub: `売変額 ${fmtCurrency(result.totalDiscount)}`,
     signalColor:
       result.discountRate * 100 > 3
         ? '#ef4444'
