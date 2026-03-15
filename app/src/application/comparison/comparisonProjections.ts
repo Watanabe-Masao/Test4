@@ -59,8 +59,19 @@ export function buildKpiProjection(
   const srcMonth = sourceMonthCtx.month
 
   // 同曜日KPI: scope の alignmentMap は elapsedDays でキャップ済みのため、
-  // 月間フル集計用に elapsedDays なしで再構築する（sameDate と同じパターン）
-  const sameDowScope = buildComparisonScope(periodSelection)
+  // 月間フル集計用に elapsedDays なしで再構築する。
+  // activePreset に関わらず常に prevYearSameDow を指定し、
+  // sameDayOfWeek alignmentMode を確保する。
+  const sameDowPeriod2 = applyPreset(
+    periodSelection.period1,
+    'prevYearSameDow',
+    periodSelection.period2,
+  )
+  const sameDowScope = buildComparisonScope({
+    ...periodSelection,
+    period2: sameDowPeriod2,
+    activePreset: 'prevYearSameDow',
+  })
   const sameDow = aggregateKpiByAlignment(sourceIndex, targetIds, sameDowScope.alignmentMap)
 
   // 同日KPI: DOW offset なしで再構築

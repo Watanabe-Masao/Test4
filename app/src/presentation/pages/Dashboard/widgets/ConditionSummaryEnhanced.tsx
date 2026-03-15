@@ -72,10 +72,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
   const [showYoY, setShowYoY] = useState(false)
   const [dailyStoreId, setDailyStoreId] = useState<string | null>(null)
-  const [prevYearMode, setPrevYearMode] = useState<'sameDate' | 'sameDow'>('sameDate')
 
   const { daysInMonth, elapsedDays } = ctx
   const effectiveElapsed = elapsedDays ?? daysInMonth
+
+  // 共通ヘッダの比較プリセットに連動（同曜日 or 同日）
+  const prevYearMode = ctx.comparisonFrame.policy === 'sameDayOfWeek' ? 'sameDow' : 'sameDate'
 
   // ─── Budget header (monthly fixed context) ─────────────
   const budgetHeader = useMemo(
@@ -177,12 +179,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         {(budgetHeader.prevYearSalesSameDate != null ||
           budgetHeader.prevYearSalesSameDow != null) && (
           <BudgetHeaderItem>
-            <BudgetHeaderLabel
-              as="button"
-              onClick={() => setPrevYearMode((p) => (p === 'sameDate' ? 'sameDow' : 'sameDate'))}
-              style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-            >
-              前年売上({prevYearMode === 'sameDate' ? '同月' : '同曜日'}) ▼
+            <BudgetHeaderLabel>
+              前年売上({prevYearMode === 'sameDate' ? '同日' : '同曜日'})
             </BudgetHeaderLabel>
             <BudgetHeaderValue>
               {ctx.fmtCurrency(
@@ -207,7 +205,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
             )
           )
         })()}
-        {budgetHeader.dowGap && (
+        {/* 曜日GAPは同日比較時のみ表示（同曜日比較では曜日が揃うためGAPなし） */}
+        {prevYearMode === 'sameDate' && budgetHeader.dowGap && (
           <>
             <BudgetHeaderItem>
               <BudgetHeaderLabel>曜日GAP({budgetHeader.dowGap.label})</BudgetHeaderLabel>
