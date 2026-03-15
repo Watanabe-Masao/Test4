@@ -77,7 +77,13 @@ export function computeGpAmount(sr: StoreResult): number {
 }
 
 export function computeGpAfterConsumableAmount(sr: StoreResult): number {
-  return computeGpAmount(sr) - sr.totalCostInclusion
+  if (sr.invMethodGrossProfit != null) {
+    // 在庫法: invMethodGrossProfit は原価算入費を含まないため別途控除
+    return sr.invMethodGrossProfit - sr.totalCostInclusion
+  }
+  // 推定法: estMethodMargin の COGS (= grossSales × (1 - markupRate) + costInclusion)
+  // に原価算入費が既に含まれるため追加控除不要
+  return sr.estMethodMargin
 }
 
 // ─── Store Breakdown Extractors ─────────────────────────

@@ -13,6 +13,7 @@ import {
 } from '@/presentation/components/charts/categoryHierarchyHooks'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import {
   aggregateForDrill,
   buildDrillItems,
@@ -348,11 +349,11 @@ export function useDrilldownData(props: CategoryDrilldownProps) {
   const summaryPrevYear = compare === 'daily' ? pySales : cumPrevYear
   const summaryWow = compare === 'daily' ? (wowPrevSales ?? 0) : 0
   const budgetDiff = summaryActual - summaryBudget
-  const budgetAch = summaryBudget > 0 ? summaryActual / summaryBudget : 0
+  const budgetAch = calculateAchievementRate(summaryActual, summaryBudget)
   const pyDiff = summaryActual - summaryPrevYear
-  const pyRatio = summaryPrevYear > 0 ? summaryActual / summaryPrevYear : 0
+  const pyRatio = calculateAchievementRate(summaryActual, summaryPrevYear)
   const wowDiff = summaryActual - summaryWow
-  const wowRatio = summaryWow > 0 ? summaryActual / summaryWow : 0
+  const wowRatio = calculateAchievementRate(summaryActual, summaryWow)
 
   /* ── BarSection 用データ ──────────────────── */
 

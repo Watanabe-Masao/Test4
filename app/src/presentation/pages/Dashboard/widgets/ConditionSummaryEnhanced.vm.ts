@@ -6,6 +6,8 @@
  */
 
 import { safeDivide } from '@/domain/calculations/utils'
+import { calculateMarkupRates } from '@/domain/calculations/markupRate'
+import { calculateDiscountRate } from '@/domain/calculations/estMethod'
 import {
   computeGpAfterConsumable,
   computeGpAfterConsumableAmount,
@@ -356,6 +358,14 @@ export function buildDailyDetailRows(
   daysInMonth: number,
 ): readonly DailyDetailRow[] {
   const effectiveElapsed = elapsedDays ?? daysInMonth
+
+  // GP: 日別は推定法（sales - totalCost - costInclusion）で計算するが、
+  // 店別行は在庫法（invMethodGrossProfit）を使うため差異が出る。
+  // 在庫法の調整額を各日に按分し、累計が店別行の値と一致するようにする。
+  if (metric === 'gp') {
+    return buildGpDailyRows(sr, effectiveElapsed)
+  }
+
   const rows: DailyDetailRow[] = []
   let cumBudget = 0
   let cumActual = 0
@@ -367,15 +377,6 @@ export function buildDailyDetailRows(
     if (metric === 'sales') {
       dailyBudget = sr.budgetDaily.get(day) ?? 0
       dailyActual = sr.daily.get(day)?.sales ?? 0
-    } else if (metric === 'gp') {
-      // GP daily budget = GP budget × (daily sales budget / monthly sales budget)
-      const salesBudgetDay = sr.budgetDaily.get(day) ?? 0
-      dailyBudget = sr.budget > 0 ? sr.grossProfitBudget * (salesBudgetDay / sr.budget) : 0
-      const dailyRecord = sr.daily.get(day)
-      // GP actual = sales - totalCost - costInclusion (day level)
-      dailyActual = dailyRecord
-        ? dailyRecord.sales - dailyRecord.totalCost - dailyRecord.costInclusion.cost
-        : 0
     } else {
       // Rate metrics: use daily rate values
       const dailyRecord = sr.daily.get(day)
@@ -395,12 +396,29 @@ export function buildDailyDetailRows(
       }
       if (metric === 'markupRate') {
         dailyBudget = sr.grossProfitRateBudget * 100
-        const grossSales = dailyRecord.grossSales
-        dailyActual = grossSales > 0 ? ((grossSales - dailyRecord.totalCost) / grossSales) * 100 : 0
+        // domain/calculations/markupRate の calculateMarkupRates を使用
+        const { averageMarkupRate } = calculateMarkupRates({
+          purchasePrice: dailyRecord.purchase.price,
+          purchaseCost: dailyRecord.purchase.cost,
+          deliveryPrice: dailyRecord.flowers.price + dailyRecord.directProduce.price,
+          deliveryCost: dailyRecord.flowers.cost + dailyRecord.directProduce.cost,
+          transferPrice:
+            dailyRecord.interStoreIn.price +
+            dailyRecord.interStoreOut.price +
+            dailyRecord.interDepartmentIn.price +
+            dailyRecord.interDepartmentOut.price,
+          transferCost:
+            dailyRecord.interStoreIn.cost +
+            dailyRecord.interStoreOut.cost +
+            dailyRecord.interDepartmentIn.cost +
+            dailyRecord.interDepartmentOut.cost,
+          defaultMarkupRate: 0,
+        })
+        dailyActual = averageMarkupRate * 100
       } else if (metric === 'discountRate') {
         dailyBudget = 0
-        const grossSales = dailyRecord.sales + dailyRecord.discountAbsolute
-        dailyActual = grossSales > 0 ? (dailyRecord.discountAbsolute / grossSales) * 100 : 0
+        // domain/calculations/estMethod の calculateDiscountRate を使用
+        dailyActual = calculateDiscountRate(dailyRecord.sales, dailyRecord.discountAbsolute) * 100
       } else if (metric === 'gpRate') {
         dailyBudget = sr.grossProfitRateBudget * 100
         dailyActual =
@@ -448,6 +466,69 @@ export function buildDailyDetailRows(
       cumAchievement,
     })
   }
+  return rows
+}
+
+/**
+ * GP 日別行を構築する。
+ *
+ * 在庫法と推定法を明確に分けて計算する。
+ *
+ * 【在庫法】invMethodGrossProfitRate が有効な場合:
+ *   dailyGP = dailySales × invMethodGrossProfitRate - dailyCostInclusion
+ *   → 在庫法の粗利率を日別売上に一律適用し、原価算入費を控除
+ *   → 累計 = invMethodGrossProfit - totalCostInclusion（店別行と一致）
+ *
+ * 【推定法】invMethodGrossProfitRate が null の場合:
+ *   dailyGP = dailyCoreSales × estMethodMarginRate
+ *   → 推定法マージン率をコア売上に適用（COGS に原価算入費が既に含まれる）
+ *   → 累計 = estMethodMargin（店別行と一致）
+ */
+function buildGpDailyRows(sr: StoreResult, effectiveElapsed: number): DailyDetailRow[] {
+  const useInvMethod = sr.invMethodGrossProfitRate != null
+  const gpRate = useInvMethod ? sr.invMethodGrossProfitRate! : sr.estMethodMarginRate
+
+  const rows: DailyDetailRow[] = []
+  let cumBudget = 0
+  let cumActual = 0
+
+  for (let day = 1; day <= effectiveElapsed; day++) {
+    const salesBudgetDay = sr.budgetDaily.get(day) ?? 0
+    const dailyBudget = sr.budget > 0 ? sr.grossProfitBudget * (salesBudgetDay / sr.budget) : 0
+    const dailyRecord = sr.daily.get(day)
+
+    let dailyActual: number
+    if (!dailyRecord) {
+      dailyActual = 0
+    } else if (useInvMethod) {
+      // 在庫法: 粗利率を売上に適用 → 原価算入費を別途控除
+      dailyActual = dailyRecord.sales * gpRate - dailyRecord.costInclusion.cost
+    } else {
+      // 推定法: マージン率をコア売上に適用（原価算入費はレートに含まれる）
+      dailyActual = dailyRecord.coreSales * gpRate
+    }
+
+    cumBudget += dailyBudget
+    cumActual += dailyActual
+
+    const diff = dailyActual - dailyBudget
+    const achievement = dailyBudget > 0 ? safeDivide(dailyActual, dailyBudget, 0) * 100 : 0
+    const cumDiff = cumActual - cumBudget
+    const cumAchievement = cumBudget > 0 ? safeDivide(cumActual, cumBudget, 0) * 100 : 0
+
+    rows.push({
+      day,
+      budget: dailyBudget,
+      actual: dailyActual,
+      diff,
+      achievement,
+      cumBudget,
+      cumActual,
+      cumDiff,
+      cumAchievement,
+    })
+  }
+
   return rows
 }
 

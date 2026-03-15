@@ -4,7 +4,11 @@
 import type { StoreResult, Store } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import { safeDivide } from '@/domain/calculations/utils'
+import {
+  calculateAchievementRate,
+  calculateTransactionValue,
+  safeDivide,
+} from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { SIGNAL_COLORS, metricSignal } from './conditionSummaryUtils'
 import type { DailyYoYRow } from './conditionPanelYoY.vm'
@@ -53,7 +57,7 @@ export function buildTxValueDetailVm(
     const days = [...sr.daily.entries()].sort(([a], [b]) => a - b)
     const dailyRows = days.map(([day, dr]) => {
       const customers = dr.customers ?? 0
-      const dayTx = safeDivide(dr.sales, customers, 0)
+      const dayTx = calculateTransactionValue(dr.sales, customers)
       return {
         day,
         dayLabel: `${day}日`,
@@ -124,17 +128,17 @@ export function buildDailySalesDetailVm(
   daysInMonth: number,
   fmtCurrency: CurrencyFormatter,
 ): DailySalesDetailVm {
-  const budgetDailyAvg = daysInMonth > 0 ? result.budget / daysInMonth : 0
-  const dailyRatio = safeDivide(result.averageDailySales, budgetDailyAvg, 0)
+  const budgetDailyAvg = safeDivide(result.budget, daysInMonth, 0)
+  const dailyRatio = calculateAchievementRate(result.averageDailySales, budgetDailyAvg)
   const totalSig = metricSignal(dailyRatio, 'dailySales', effectiveConfig)
   const totalColor = SIGNAL_COLORS[totalSig]
 
   const storeRows = sortedStoreEntries.map(([storeId, sr]) => {
     const store = stores.get(storeId)
     const storeName = store?.name ?? storeId
-    const storeBudgetDaily = daysInMonth > 0 ? sr.budget / daysInMonth : 0
-    const storeRatio = safeDivide(sr.averageDailySales, storeBudgetDaily, 0)
-    const achievementRate = safeDivide(sr.totalSales, sr.budget, 0)
+    const storeBudgetDaily = safeDivide(sr.budget, daysInMonth, 0)
+    const storeRatio = calculateAchievementRate(sr.averageDailySales, storeBudgetDaily)
+    const achievementRate_pragmatic = calculateAchievementRate(sr.totalSales, sr.budget)
     const sig =
       storeBudgetDaily > 0
         ? metricSignal(storeRatio, 'dailySales', effectiveConfig, sr.storeId)
@@ -148,13 +152,13 @@ export function buildDailySalesDetailVm(
       const dayBudget = sr.budgetDaily.get(day) ?? 0
       cumSales += dr.sales
       cumBudget += dayBudget
-      const dayRate = safeDivide(cumSales, cumBudget, 0)
+      const dayRate_pragmatic = calculateAchievementRate(cumSales, cumBudget)
       return {
         day,
         dayLabel: `${day}日`,
         salesStr: fmtCurrency(dr.sales),
         budgetStr: fmtCurrency(dayBudget),
-        rateStr: cumBudget > 0 ? formatPercent(dayRate, 2) : '—',
+        rateStr: cumBudget > 0 ? formatPercent(dayRate_pragmatic, 2) : '—',
         hasRate: cumBudget > 0,
       }
     })
@@ -165,7 +169,7 @@ export function buildDailySalesDetailVm(
       sigColor,
       salesStr: fmtCurrency(sr.totalSales),
       budgetStr: fmtCurrency(sr.budget),
-      achievementStr: sr.budget > 0 ? formatPercent(achievementRate, 2) : '—',
+      achievementStr: sr.budget > 0 ? formatPercent(achievementRate_pragmatic, 2) : '—',
       dailySalesStr: fmtCurrency(sr.averageDailySales),
       budgetDailyStr: fmtCurrency(storeBudgetDaily),
       hasBudget: sr.budget > 0,
@@ -178,7 +182,9 @@ export function buildDailySalesDetailVm(
     totalSalesStr: fmtCurrency(result.totalSales),
     totalBudgetStr: fmtCurrency(result.budget),
     totalAchievementStr:
-      result.budget > 0 ? formatPercent(safeDivide(result.totalSales, result.budget, 0), 2) : '—',
+      result.budget > 0
+        ? formatPercent(calculateAchievementRate(result.totalSales, result.budget), 2)
+        : '—',
     totalDailySalesStr: fmtCurrency(result.averageDailySales),
     totalBudgetDailyStr: fmtCurrency(budgetDailyAvg),
     totalColor,

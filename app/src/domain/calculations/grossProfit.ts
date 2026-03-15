@@ -5,6 +5,7 @@
 export {
   safeNumber,
   safeDivide,
+  calculateAchievementRate,
   calculateTransactionValue,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,

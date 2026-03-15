@@ -2,7 +2,7 @@ import { useState, memo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
-import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { WidgetContext } from './types'
 import {
   ExecRow,
@@ -73,17 +73,17 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   const remainingSales1 = salesLanding - actualSales
   const remainingGP1 = remainingSales1 * remainGPRateDecimal
   const totalGP1 = actualGP + remainingGP1
-  const landingGPRate1 = salesLanding > 0 ? totalGP1 / salesLanding : 0
+  const landingGPRate1 = calculateAchievementRate(totalGP1, salesLanding)
 
   const salesDiff = salesLanding - defaultSalesLanding
   const gpRateDiff = remainGPRateDecimal - defaultRemainGPRate
 
   // Tool 1 新規: 残予算対比（残期間売上が残予算の何%か）
-  const tool1RemainingBudgetRate = hasRemainingBudget ? remainingSales1 / remainingBudget : 0
+  const tool1RemainingBudgetRate = calculateAchievementRate(remainingSales1, remainingBudget)
   // Tool 1 新規: 売上着地予算達成率
-  const tool1BudgetAchievement = hasBudget ? salesLanding / r.budget : 0
+  const tool1BudgetAchievement = calculateAchievementRate(salesLanding, r.budget)
   // Tool 1 新規: 前年比
-  const tool1YoyRate = hasPrevYear ? salesLanding / prevYearTotalSales : 0
+  const tool1YoyRate = calculateAchievementRate(salesLanding, prevYearTotalSales)
 
   // ─── Tool 2: ゴールシーク ────────────────────────────
   const defaultTargetMonthlySales = Math.round(r.projectedSales)
@@ -97,26 +97,26 @@ export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   const targetTotalGP2 = targetGPRateDecimal * targetTotalSales2
   const requiredRemainingGP2 = targetTotalGP2 - actualGP
   const remainingSales2 = targetTotalSales2 - actualSales
-  const requiredRemainingGPRate2 = remainingSales2 > 0 ? requiredRemainingGP2 / remainingSales2 : 0
+  const requiredRemainingGPRate2 = calculateAchievementRate(requiredRemainingGP2, remainingSales2)
   const goalDiff = targetGPRateDecimal - defaultTargetGPRate
   const goalSalesDiff = targetMonthlySales - defaultTargetMonthlySales
 
   // Tool 2 売上予算系
   const salesBudget = r.budget
   const projectedTotalSales2 = r.projectedSales
-  const projectedSalesAchievement = salesBudget > 0 ? projectedTotalSales2 / salesBudget : 0
-  const targetSalesAchievement = salesBudget > 0 ? targetTotalSales2 / salesBudget : 0
+  const projectedSalesAchievement = calculateAchievementRate(projectedTotalSales2, salesBudget)
+  const targetSalesAchievement = calculateAchievementRate(targetTotalSales2, salesBudget)
 
   // Tool 2 粗利予算系
   const gpBudget = r.grossProfitBudget
   const projectedTotalGP2 = actualGP + (remainingSales2 > 0 ? remainingSales2 * actualGPRate : 0)
-  const projectedGPAchievement = gpBudget > 0 ? projectedTotalGP2 / gpBudget : 0
-  const targetGPAchievement = gpBudget > 0 ? targetTotalGP2 / gpBudget : 0
+  const projectedGPAchievement = calculateAchievementRate(projectedTotalGP2, gpBudget)
+  const targetGPAchievement = calculateAchievementRate(targetTotalGP2, gpBudget)
 
   // Tool 2 新規: 残予算対比（残期間売上目標が残予算の何%か）
-  const tool2RemainingBudgetRate = hasRemainingBudget ? remainingSales2 / remainingBudget : 0
+  const tool2RemainingBudgetRate = calculateAchievementRate(remainingSales2, remainingBudget)
   // Tool 2 新規: 前年比
-  const tool2YoyRate = hasPrevYear ? targetTotalSales2 / prevYearTotalSales : 0
+  const tool2YoyRate = calculateAchievementRate(targetTotalSales2, prevYearTotalSales)
 
   return (
     <ForecastToolsGrid>

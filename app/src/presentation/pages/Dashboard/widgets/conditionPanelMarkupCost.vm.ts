@@ -5,6 +5,7 @@ import type { StoreResult, Store } from '@/domain/models'
 import { formatPercent } from '@/domain/formatting'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import { resolveThresholds, evaluateSignal } from '@/domain/calculations/rules/conditionResolver'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { CATEGORY_ORDER } from '@/domain/constants/categories'
 import type { AppSettings } from '@/domain/models'
@@ -183,7 +184,7 @@ export function buildCostInclusionDetailVm(
     const storeTotal = sr.totalCostInclusion
 
     const itemVms = storeItems.map((item) => {
-      const itemShare = storeTotal > 0 ? item.cost / storeTotal : 0
+      const itemShare = calculateAchievementRate(item.cost, storeTotal)
       return {
         itemName: item.itemName,
         costStr: fmtCurrency(item.cost),
@@ -203,7 +204,7 @@ export function buildCostInclusionDetailVm(
   })
 
   const totalItemVms = totalItems.map((item) => {
-    const itemShare = grandTotal > 0 ? item.cost / grandTotal : 0
+    const itemShare = calculateAchievementRate(item.cost, grandTotal)
     return {
       itemName: item.itemName,
       costStr: fmtCurrency(item.cost),

@@ -3,6 +3,8 @@ import { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '@/
 import {
   safeNumber,
   safeDivide,
+  calculateAchievementRate,
+  calculateTransactionValue,
   calculateMovingAverage,
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
@@ -63,6 +65,46 @@ describe('formatPointDiff', () => {
   it('マイナス差', () => expect(formatPointDiff(-0.02)).toBe('-2.0pt'))
   it('nullはハイフン', () => expect(formatPointDiff(null)).toBe('-'))
   it('ゼロ', () => expect(formatPointDiff(0)).toBe('0.0pt'))
+})
+
+/* ── calculateAchievementRate（pragmatic: 数学的不変条件なし） ── */
+
+describe('calculateAchievementRate (pragmatic)', () => {
+  it('基本計算: actual / target', () => {
+    expect(calculateAchievementRate(800_000, 1_000_000)).toBeCloseTo(0.8)
+  })
+  it('100%達成', () => {
+    expect(calculateAchievementRate(1_000_000, 1_000_000)).toBe(1)
+  })
+  it('超過達成', () => {
+    expect(calculateAchievementRate(1_200_000, 1_000_000)).toBeCloseTo(1.2)
+  })
+  it('target=0 は 0 を返す（ゼロ除算安全）', () => {
+    expect(calculateAchievementRate(500_000, 0)).toBe(0)
+  })
+  it('actual=0 は 0 を返す', () => {
+    expect(calculateAchievementRate(0, 1_000_000)).toBe(0)
+  })
+  it('both=0 は 0 を返す', () => {
+    expect(calculateAchievementRate(0, 0)).toBe(0)
+  })
+})
+
+/* ── calculateTransactionValue ── */
+
+describe('calculateTransactionValue', () => {
+  it('基本計算: Math.round(sales / customers)', () => {
+    expect(calculateTransactionValue(250_000, 100)).toBe(2500)
+  })
+  it('端数は四捨五入', () => {
+    expect(calculateTransactionValue(100, 3)).toBe(33) // 33.33.. → 33
+  })
+  it('customers=0 は 0 を返す（ゼロ除算安全）', () => {
+    expect(calculateTransactionValue(250_000, 0)).toBe(0)
+  })
+  it('sales=0 は 0 を返す', () => {
+    expect(calculateTransactionValue(0, 100)).toBe(0)
+  })
 })
 
 describe('calculateMovingAverage', () => {

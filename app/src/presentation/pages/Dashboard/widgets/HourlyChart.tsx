@@ -9,6 +9,7 @@ import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { CategoryTimeSalesRecord } from '@/domain/models'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import {
   findCoreTime,
   findTurnaroundHour,
@@ -464,7 +465,7 @@ export const HourlyChart = memo(function HourlyChart({
             <HourlySumItem>
               <SumLabel>全体比</SumLabel>
               <SumValue>
-                {formatPercent(totalAmt > 0 ? selectedData.amount / totalAmt : 0, 2)}
+                {formatPercent(calculateAchievementRate(selectedData.amount, totalAmt), 2)}
               </SumValue>
             </HourlySumItem>
             <HourlySumItem>

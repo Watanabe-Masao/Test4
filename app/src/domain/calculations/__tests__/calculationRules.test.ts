@@ -258,6 +258,50 @@ describe('RULE-I1: overflow day ロジックは overflowDay.ts を経由する',
   })
 })
 
+/* ── RULE-P4: presentation 層のインライン達成率計算の禁止 ── */
+
+describe('RULE-P4: 達成率計算は calculateAchievementRate を経由する', () => {
+  /**
+   * presentation 層でインライン達成率計算を検出。
+   * `x > 0 ? y / x : 0` パターン（達成率のインライン計算）を禁止。
+   * calculateAchievementRate(actual, target) を使用すべき。
+   *
+   * NOTE: calculateAchievementRate は pragmatic 関数（数学的不変条件を持たない実用プリミティブ）。
+   * domain で例外（ゼロ除算）を吸収し、呼び出し側にガードを書かせない。
+   */
+  const INLINE_ACH_PATTERNS = [
+    /\w+\s*>\s*0\s*\?\s*\w[^:]*\/\s*\w+\s*:\s*0/, // x > 0 ? y / x : 0
+  ]
+
+  /** テストヘルパー・定義元は除外 */
+  const EXCLUDE_DIRS = ['__tests__']
+
+  it('Dashboard widgets にインライン達成率計算が存在しないこと', () => {
+    const widgetsDir = path.resolve(PRESENTATION_DIR, 'pages', 'Dashboard', 'widgets')
+    if (!fs.existsSync(widgetsDir)) return
+
+    const files = walkFiles(widgetsDir, '.ts', '.tsx').filter(
+      (f) => !EXCLUDE_DIRS.some((d) => f.includes(path.sep + d + path.sep)),
+    )
+
+    for (const filePath of files) {
+      const content = fs.readFileSync(filePath, 'utf-8')
+      const codeLines = getCodeLines(content)
+      const relPath = path.relative(PRESENTATION_DIR, filePath)
+
+      for (const pattern of INLINE_ACH_PATTERNS) {
+        const violations = findViolations(codeLines, pattern)
+        expect(
+          violations,
+          `presentation/${relPath} にインライン達成率計算を検出:\n` +
+            violations.map((v) => `  L${v.num}: ${v.line}`).join('\n') +
+            '\n→ calculateAchievementRate(actual, target) を使用してください',
+        ).toHaveLength(0)
+      }
+    }
+  })
+})
+
 /* ── RULE-P2: fmtSen ヘルパーの重複定義禁止 ── */
 
 describe('RULE-P2: fmtSen は drilldownUtils.ts から import する', () => {

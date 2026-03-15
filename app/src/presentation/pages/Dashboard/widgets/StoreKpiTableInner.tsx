@@ -7,7 +7,7 @@ import { useState, useCallback, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
-import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -150,7 +150,7 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
       for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
       const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
       const salesVariance = r.totalSales - periodBudget
-      const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
+      const periodAchRate = calculateAchievementRate(r.totalSales, periodBudget)
       const gpLanding = r.estMethodMarginRate
       const salesLanding = r.projectedSales - r.budget
 
@@ -216,7 +216,7 @@ export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
     const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
     const periodGPBudget = r.budget > 0 ? r.grossProfitBudget * (periodBudget / r.budget) : 0
     const salesVariance = r.totalSales - periodBudget
-    const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
+    const periodAchRate = calculateAchievementRate(r.totalSales, periodBudget)
     const gpLanding = r.estMethodMarginRate
     const salesLanding = r.projectedSales - r.budget
 

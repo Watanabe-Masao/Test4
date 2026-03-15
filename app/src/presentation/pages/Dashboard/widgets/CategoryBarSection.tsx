@@ -6,6 +6,7 @@
  */
 import type { BarSectionData, DrillItem } from './useDrilldownData'
 import type { DrilldownData } from './useDrilldownData'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import {
   StackedBarSection,
   StackBarTitle,
@@ -58,11 +59,14 @@ export function CategoryBarSection({ sec, d }: CategoryBarSectionProps) {
     isPrev: boolean,
     compLabel: string,
   ) => {
-    const pct = d.formatPercent(total > 0 ? val / total : 0, 2)
+    const pct = d.formatPercent(calculateAchievementRate(val, total), 2)
     const prevVal = d.isAmountMode ? (it.prevAmount ?? 0) : (it.prevQuantity ?? 0)
     const curVal = d.isAmountMode ? it.amount : it.quantity
     const diff = isPrev ? undefined : curVal - prevVal
-    const yoy = isPrev ? undefined : prevVal > 0 ? d.formatPercent(curVal / prevVal, 2) : undefined
+    const yoy =
+      isPrev ? undefined
+      : prevVal > 0 ? d.formatPercent(calculateAchievementRate(curVal, prevVal), 2)
+      : undefined
     const rowLabel = isPrev ? compLabel : '実績'
     return (
       <>

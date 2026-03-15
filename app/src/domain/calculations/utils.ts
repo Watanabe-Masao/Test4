@@ -15,6 +15,18 @@ export function safeDivide(numerator: number, denominator: number, fallback = 0)
 }
 
 /**
+ * 達成率（実績 / 目標）を計算する
+ *
+ * NOTE(pragmatic): 数学的に厳密な不変条件（シャープリー恒等式等）を持たない
+ * 実用プリミティブ。定義: actual / target, target=0 → 0。
+ * 変数名 `_pragmatic` 接尾辞は正規の数学的定義ではないことを示す。
+ * 後日、予算分析の体系的整理で再定義予定。
+ */
+export function calculateAchievementRate(actual: number, target: number): number {
+  return safeDivide(actual, target, 0)
+}
+
+/**
  * 客単価（1客あたり売上）を計算する
  */
 export function calculateTransactionValue(sales: number, customers: number): number {
