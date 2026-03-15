@@ -105,7 +105,6 @@ function extractLySales(
   storeId: string,
   prevYear: PrevYearData,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
-  tab: PeriodTab,
   isElapsed: boolean,
 ): number | null {
   if (!prevYear.hasPrevYear) return null
@@ -168,7 +167,7 @@ export function buildRows(input: BuildRowsInput): readonly EnhancedRow[] {
     let ly: number | null = null
     let yoy: number | null = null
     if (metric === 'sales') {
-      ly = extractLySales(storeId, input.prevYear, input.prevYearMonthlyKpi, tab, isElapsed)
+      ly = extractLySales(storeId, input.prevYear, input.prevYearMonthlyKpi, isElapsed)
       yoy = computeYoY(actual, ly, def.isRate)
     }
 
