@@ -8,6 +8,7 @@ import { getMaxSeverity, getWarningLabel, getWarningMessage } from '@/domain/con
 import type { MetricId } from '@/domain/models'
 import type { WidgetDef, WidgetContext } from './types'
 import { DowGapKpiCard } from './DowGapKpiCard'
+import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
 
 /** Build KpiWarningInfo from explanation warnings for a given metric */
 function buildKpiWarning(ctx: WidgetContext, metricId: MetricId): KpiWarningInfo | undefined {
@@ -320,5 +321,14 @@ export const WIDGETS_KPI: readonly WidgetDef[] = [
     size: 'kpi',
     isVisible: ({ dowGap }) => dowGap.isValid,
     render: (ctx) => <DowGapKpiCard dowGap={ctx.dowGap} onExplain={ctx.onExplain} />,
+  },
+  // ── Widget: 店別予算達成状況（強化版コンディションサマリー） ──
+  {
+    id: 'widget-budget-achievement',
+    label: '店別予算達成状況',
+    group: '予算達成',
+    size: 'full',
+    isVisible: ({ allStoreResults }) => allStoreResults.size > 0,
+    render: (ctx) => <ConditionSummaryEnhanced ctx={ctx} />,
   },
 ]

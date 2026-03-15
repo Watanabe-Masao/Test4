@@ -1,14 +1,12 @@
 import { memo } from 'react'
-import { formatPercent } from '@/domain/formatting'
-import type { MetricConfig, StoreRow } from './conditionSummaryEnhancedMock'
-import { fmtValue, fmtResult, resultColor, GP_RATE_BUDGET } from './conditionSummaryEnhancedMock'
+import type { EnhancedRow } from './ConditionSummaryEnhanced.vm'
+import { fmtValue, fmtAchievement, resultColor } from './ConditionSummaryEnhanced.vm'
 import {
   StoreRowWrapper,
   RankBadge,
   StoreName,
   StoreAchValue,
   StoreBudgetValue,
-  GpRateNote,
   MonoSm,
   MonoMd,
   MonoLg,
@@ -22,16 +20,16 @@ import {
 // ─── Monthly Row ────────────────────────────────────────
 
 interface MonthlyRowProps {
-  readonly row: StoreRow
+  readonly row: EnhancedRow
   readonly idx: number
-  readonly m: MetricConfig
+  readonly isRate: boolean
   readonly showYoY: boolean
 }
 
 export const MonthlyStoreRow = memo(function MonthlyStoreRow({
   row,
   idx,
-  m,
+  isRate,
   showYoY,
 }: MonthlyRowProps) {
   return (
@@ -41,19 +39,16 @@ export const MonthlyStoreRow = memo(function MonthlyStoreRow({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: showYoY ? 6 : 0,
+          marginBottom: showYoY && row.ly != null ? 6 : 0,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <RankBadge $color="#3b82f6">{idx + 1}</RankBadge>
-          <StoreName>{row.store}</StoreName>
-          {!m.isRate && (
-            <GpRateNote>(率 {formatPercent(GP_RATE_BUDGET[row.store] ?? 0, 0)})</GpRateNote>
-          )}
+          <StoreName>{row.storeName}</StoreName>
         </div>
-        <StoreBudgetValue>{fmtValue(row.budget, m.isRate)}</StoreBudgetValue>
+        <StoreBudgetValue>{fmtValue(row.budget, isRate)}</StoreBudgetValue>
       </div>
-      {showYoY && <YoYInlineRow row={row} m={m} />}
+      {showYoY && row.ly != null && <YoYInlineRow row={row} isRate={isRate} />}
     </StoreRowWrapper>
   )
 })
@@ -61,19 +56,19 @@ export const MonthlyStoreRow = memo(function MonthlyStoreRow({
 // ─── Elapsed Row ────────────────────────────────────────
 
 interface ElapsedRowProps {
-  readonly row: StoreRow
+  readonly row: EnhancedRow
   readonly idx: number
-  readonly m: MetricConfig
+  readonly isRate: boolean
   readonly showYoY: boolean
 }
 
 export const ElapsedStoreRow = memo(function ElapsedStoreRow({
   row,
   idx,
-  m,
+  isRate,
   showYoY,
 }: ElapsedRowProps) {
-  const c = resultColor(row.ach, m.isRate)
+  const c = resultColor(row.achievement, isRate)
   return (
     <StoreRowWrapper>
       <div
@@ -86,45 +81,46 @@ export const ElapsedStoreRow = memo(function ElapsedStoreRow({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <RankBadge $color={c}>{idx + 1}</RankBadge>
-          <StoreName>{row.store}</StoreName>
+          <StoreName>{row.storeName}</StoreName>
         </div>
-        <StoreAchValue $color={c}>{fmtResult(row.ach, m.isRate)}</StoreAchValue>
+        <StoreAchValue $color={c}>{fmtAchievement(row.achievement, isRate)}</StoreAchValue>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 200 }}>
-          <MonoSm>{fmtValue(row.budget, m.isRate)}</MonoSm>
+          <MonoSm>{fmtValue(row.budget, isRate)}</MonoSm>
           <Arrow>→</Arrow>
-          <MonoMd $bold>{fmtValue(row.actual, m.isRate)}</MonoMd>
-          {!m.isRate && (
+          <MonoMd $bold>{fmtValue(row.actual, isRate)}</MonoMd>
+          {!isRate && (
             <DiffSpan $positive={row.diff >= 0}>
               ({row.diff >= 0 ? '+' : ''}
               {fmtValue(row.diff, false)})
             </DiffSpan>
           )}
         </div>
-        {!m.isRate ? (
+        {!isRate ? (
           <div style={{ flex: 1 }}>
             <ProgressTrack $height={6}>
-              <ProgressFill $width={row.ach} $color={c} />
+              <ProgressFill $width={row.achievement} $color={c} />
             </ProgressTrack>
           </div>
         ) : (
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
             <RateChip $color={c}>
-              {row.ach >= 0 ? '▲' : '▼'} {Math.abs(row.ach).toFixed(2)}
+              {row.achievement >= 0 ? '▲' : '▼'} {Math.abs(row.achievement).toFixed(2)}
             </RateChip>
           </div>
         )}
       </div>
-      {showYoY && <YoYInlineRow row={row} m={m} />}
+      {showYoY && row.ly != null && <YoYInlineRow row={row} isRate={isRate} />}
     </StoreRowWrapper>
   )
 })
 
 // ─── Shared YoY Inline ─────────────────────────────────
 
-function YoYInlineRow({ row, m }: { readonly row: StoreRow; readonly m: MetricConfig }) {
-  const yoyColor = resultColor(row.yoy, m.isRate)
+function YoYInlineRow({ row, isRate }: { readonly row: EnhancedRow; readonly isRate: boolean }) {
+  if (row.ly == null || row.yoy == null) return null
+  const yoyColor = resultColor(row.yoy, isRate)
   return (
     <div
       style={{
@@ -136,11 +132,11 @@ function YoYInlineRow({ row, m }: { readonly row: StoreRow; readonly m: MetricCo
       }}
     >
       <span style={{ fontSize: 10, opacity: 0.5 }}>📅</span>
-      <MonoSm>{fmtValue(row.ly, m.isRate)}</MonoSm>
+      <MonoSm>{fmtValue(row.ly, isRate)}</MonoSm>
       <Arrow>→</Arrow>
-      <MonoMd $bold>{fmtValue(row.actual, m.isRate)}</MonoMd>
+      <MonoMd $bold>{fmtValue(row.actual, isRate)}</MonoMd>
       <MonoLg $color={yoyColor} $bold>
-        {fmtResult(row.yoy, m.isRate)}
+        {fmtAchievement(row.yoy, isRate)}
       </MonoLg>
     </div>
   )
