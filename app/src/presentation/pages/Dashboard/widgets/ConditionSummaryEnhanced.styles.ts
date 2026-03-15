@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components'
 
 export const DashWrapper = styled.div`
   width: 100%;
-  max-width: 640px;
   background: ${({ theme }) => theme.colors.bg3};
   border-radius: ${({ theme }) => theme.radii.xl};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -361,4 +360,134 @@ export const LegendDot = styled.span<{ $color: string }>`
   border-radius: 2px;
   background: ${({ $color }) => $color};
   display: inline-block;
+`
+
+// ─── Card Grid (横一列カードレイアウト) ─────────────────
+
+export const CardGridRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[6]} ${({ theme }) => theme.spacing[6]};
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`
+
+export const CondCard = styled.div<{ $borderColor: string }>`
+  display: flex;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[5]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 4px solid ${({ $borderColor }) => $borderColor};
+  border-radius: ${({ theme }) => theme.radii.md};
+  cursor: pointer;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+`
+
+export const CondSignal = styled.div<{ $color: string }>`
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color};
+  box-shadow: 0 0 6px ${({ $color }) => `${$color}60`};
+  flex-shrink: 0;
+  margin-top: 2px;
+`
+
+export const CondCardContent = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+export const CondCardLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[1]};
+`
+
+export const CondCardValue = styled.div<{ $color: string }>`
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ $color }) => $color};
+`
+
+export const CondCardSub = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
+  margin-top: ${({ theme }) => theme.spacing[1]};
+`
+
+// ─── Drill-down Overlay ─────────────────────────────────
+
+export const DrillOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+`
+
+export const DrillPanel = styled.div`
+  background: ${({ theme }) => theme.colors.bg2};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: ${({ theme }) => theme.spacing[6]};
+  min-width: 400px;
+  max-width: 720px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+`
+
+export const DrillHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[4]};
+`
+
+export const DrillTitle = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text};
+`
+
+export const DrillCloseBtn = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs};
+  color: ${({ theme }) => theme.colors.text3};
+  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  display: block;
+  width: 100%;
+  text-align: center;
+  &:hover {
+    background: ${({ theme }) => theme.colors.bg4};
+    color: ${({ theme }) => theme.colors.text};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 2px;
+  }
 `

@@ -12,8 +12,17 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
 // ─── Types ──────────────────────────────────────────────
 
-export type MetricKey = 'sales' | 'gp' | 'gpRate'
+export type MetricKey = 'sales' | 'gp' | 'gpRate' | 'markupRate' | 'discountRate'
 export type PeriodTab = 'monthly' | 'elapsed'
+
+/** Budget comparison が成立するメトリクス */
+export type BudgetMetricKey = 'sales' | 'gp' | 'gpRate'
+/** 比率のみ表示するメトリクス */
+export type RateOnlyMetricKey = 'markupRate' | 'discountRate'
+
+export function isBudgetMetric(key: MetricKey): key is BudgetMetricKey {
+  return key === 'sales' || key === 'gp' || key === 'gpRate'
+}
 
 export interface MetricDef {
   readonly label: string
@@ -26,6 +35,8 @@ export const METRIC_DEFS: Record<MetricKey, MetricDef> = {
   sales: { label: '売上', icon: '📊', color: '#3b82f6', isRate: false },
   gp: { label: '粗利額', icon: '💰', color: '#8b5cf6', isRate: false },
   gpRate: { label: '粗利率', icon: '📈', color: '#06b6d4', isRate: true },
+  markupRate: { label: '値入率', icon: '🏷', color: '#f59e0b', isRate: true },
+  discountRate: { label: '値引率', icon: '🔖', color: '#ef4444', isRate: true },
 }
 
 export interface EnhancedRow {
@@ -94,6 +105,16 @@ function extractMetric(
     case 'gpRate': {
       const budget = sr.grossProfitRateBudget * 100 // → %表示
       const actual = computeGpAfterConsumable(sr) * 100
+      return { budget, actual }
+    }
+    case 'markupRate': {
+      const budget = sr.grossProfitRateBudget * 100
+      const actual = sr.averageMarkupRate * 100
+      return { budget, actual }
+    }
+    case 'discountRate': {
+      const budget = 0
+      const actual = sr.discountRate * 100
       return { budget, actual }
     }
   }
@@ -289,4 +310,95 @@ export function fmtAchievement(val: number, isRate: boolean): string {
 /** すでに 100倍済みの値を %表示する（formatPercent は 0-1 入力前提のため） */
 function formatPercent100(n: number): string {
   return `${n.toFixed(2)}%`
+}
+
+// ─── Card Summary (カード表面用データ) ──────────────────
+
+export interface CardSummary {
+  readonly key: MetricKey
+  readonly label: string
+  readonly icon: string
+  readonly color: string
+  readonly value: string
+  readonly sub: string
+  readonly signalColor: string
+}
+
+/** カード表面に表示する全店合計のサマリーを構築する */
+export function buildCardSummaries(
+  result: StoreResult,
+  elapsedDays: number | undefined,
+  daysInMonth: number,
+  fmtCurrency: (n: number) => string,
+): readonly CardSummary[] {
+  const cards: CardSummary[] = []
+
+  // 売上予算
+  const salesM = extractMetric(result, 'sales', 'elapsed', elapsedDays, daysInMonth)
+  const salesAch = computeAchievement(salesM.actual, salesM.budget, false)
+  cards.push({
+    key: 'sales',
+    label: '売上予算',
+    icon: '📊',
+    color: '#3b82f6',
+    value: fmtAchievement(salesAch, false),
+    sub: `予算 ${fmtCurrency(salesM.budget)} / 実績 ${fmtCurrency(salesM.actual)}`,
+    signalColor: achievementColor(salesAch),
+  })
+
+  // 粗利額予算
+  const gpM = extractMetric(result, 'gp', 'elapsed', elapsedDays, daysInMonth)
+  const gpAch = computeAchievement(gpM.actual, gpM.budget, false)
+  cards.push({
+    key: 'gp',
+    label: '粗利額予算',
+    icon: '💰',
+    color: '#8b5cf6',
+    value: fmtAchievement(gpAch, false),
+    sub: `予算 ${fmtCurrency(gpM.budget)} / 実績 ${fmtCurrency(gpM.actual)}`,
+    signalColor: achievementColor(gpAch),
+  })
+
+  // 粗利率
+  const gpRateM = extractMetric(result, 'gpRate', 'elapsed', elapsedDays, daysInMonth)
+  const gpRateDiff = gpRateM.actual - gpRateM.budget
+  cards.push({
+    key: 'gpRate',
+    label: '粗利率',
+    icon: '📈',
+    color: '#06b6d4',
+    value: formatPercent100(gpRateM.actual),
+    sub: `予算 ${formatPercent100(gpRateM.budget)} / ${gpRateDiff >= 0 ? '+' : ''}${gpRateDiff.toFixed(2)}pp`,
+    signalColor: rateDiffColor(gpRateDiff),
+  })
+
+  // 値入率
+  const markupDiff = (result.averageMarkupRate - result.grossProfitRateBudget) * 100
+  cards.push({
+    key: 'markupRate',
+    label: '値入率',
+    icon: '🏷',
+    color: '#f59e0b',
+    value: formatPercent100(result.averageMarkupRate * 100),
+    sub: `コア値入率 ${formatPercent100(result.coreMarkupRate * 100)}`,
+    signalColor: rateDiffColor(markupDiff),
+  })
+
+  // 値引率
+  cards.push({
+    key: 'discountRate',
+    label: '値引率',
+    icon: '🔖',
+    color: '#ef4444',
+    value: formatPercent100(result.discountRate * 100),
+    sub: `値引額 ${fmtCurrency(result.totalDiscount)}`,
+    signalColor:
+      result.discountRate * 100 > 3
+        ? '#ef4444'
+        : result.discountRate * 100 > 1
+          ? '#eab308'
+          : '#10b981',
+  })
+
+  return cards
 }
