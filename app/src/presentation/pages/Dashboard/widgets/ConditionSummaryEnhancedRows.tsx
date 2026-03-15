@@ -1,6 +1,8 @@
 import { memo } from 'react'
+import { DISCOUNT_TYPES } from '@/domain/models'
 import type { EnhancedRow, MetricKey } from './ConditionSummaryEnhanced.vm'
 import { fmtValue, fmtAchievement, resultColor } from './ConditionSummaryEnhanced.vm'
+import { formatPercent } from '@/domain/formatting'
 import {
   StoreRowWrapper,
   StoreRowGrid,
@@ -21,6 +23,8 @@ interface TableHeaderProps {
   readonly showYoY: boolean
 }
 
+const DISCOUNT_COLS = '1.4fr 0.8fr ' + DISCOUNT_TYPES.map(() => '0.7fr').join(' ')
+
 export const StoreTableHeader = memo(function StoreTableHeader({
   metric,
   showYoY,
@@ -37,8 +41,21 @@ export const StoreTableHeader = memo(function StoreTableHeader({
     )
   }
 
-  const isRate = metric === 'markupRate' || metric === 'discountRate'
-  if (isRate) {
+  if (metric === 'discountRate') {
+    return (
+      <TableHeaderRow style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+        <TableHeaderCell>店名</TableHeaderCell>
+        <TableHeaderCell $align="right">売変率</TableHeaderCell>
+        {DISCOUNT_TYPES.map((dt) => (
+          <TableHeaderCell key={dt.type} $align="right">
+            {dt.label}
+          </TableHeaderCell>
+        ))}
+      </TableHeaderRow>
+    )
+  }
+
+  if (metric === 'markupRate') {
     return (
       <TableHeaderRow style={{ gridTemplateColumns: '1.2fr 1fr 1fr 1fr' }}>
         <TableHeaderCell>店名</TableHeaderCell>
@@ -110,7 +127,42 @@ export const StoreRow = memo(function StoreRow({
     )
   }
 
-  if (isRate) {
+  if (metric === 'discountRate') {
+    // totalDiscount = sum of all entries; each entry rate = (entry / total) * overall rate
+    const totalDiscountAmt = row.discountEntries?.reduce((s, e) => s + e.amount, 0) ?? 0
+    return (
+      <StoreRowWrapper
+        $clickable={!!onStoreClick}
+        onClick={onStoreClick ? () => onStoreClick(row.storeId) : undefined}
+      >
+        <StoreRowGrid style={{ gridTemplateColumns: DISCOUNT_COLS }}>
+          <StoreName>{row.storeName}</StoreName>
+          <MonoMd $bold $color={c} style={{ textAlign: 'right' }}>
+            {fmtValue(row.actual, true)}
+          </MonoMd>
+          {DISCOUNT_TYPES.map((dt) => {
+            const entry = row.discountEntries?.find((e) => e.type === dt.type)
+            if (!entry || totalDiscountAmt === 0) {
+              return (
+                <MonoSm key={dt.type} style={{ textAlign: 'right' }}>
+                  —
+                </MonoSm>
+              )
+            }
+            // 各種別の売変率 = (種別額 / 総売変額) × 総売変率
+            const entryRate = (entry.amount / totalDiscountAmt) * (row.actual / 100)
+            return (
+              <MonoSm key={dt.type} style={{ textAlign: 'right' }}>
+                {formatPercent(entryRate)}
+              </MonoSm>
+            )
+          })}
+        </StoreRowGrid>
+      </StoreRowWrapper>
+    )
+  }
+
+  if (metric === 'markupRate') {
     return (
       <StoreRowWrapper
         $clickable={!!onStoreClick}

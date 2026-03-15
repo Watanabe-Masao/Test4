@@ -4,7 +4,6 @@ import {
   type MetricKey,
   type EnhancedTotal,
   METRIC_DEFS,
-  isBudgetMetric,
   buildRows,
   buildTotalFromResult,
   buildCardSummaries,
@@ -273,11 +272,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                     metric={activeMetric}
                     isRate={activeDef.isRate}
                     showYoY={showYoY && hasYoYData}
-                    onStoreClick={
-                      isBudgetMetric(activeMetric) || activeMetric === 'markupRate'
-                        ? handleStoreClick
-                        : undefined
-                    }
+                    onStoreClick={handleStoreClick}
                   />
                 ))}
               </div>

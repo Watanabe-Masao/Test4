@@ -1,11 +1,18 @@
 import { memo, useState, useMemo, useCallback } from 'react'
+import { DISCOUNT_TYPES } from '@/domain/models'
 import type { StoreResult } from '@/domain/models'
 import type { PrevYearMonthlyKpi } from '@/application/hooks'
-import type { MetricKey, DailyDetailRow, DailyYoYRow } from './ConditionSummaryEnhanced.vm'
+import type {
+  MetricKey,
+  DailyDetailRow,
+  DailyYoYRow,
+  DailyDiscountRow,
+} from './ConditionSummaryEnhanced.vm'
 import {
   METRIC_DEFS,
   buildDailyDetailRows,
   buildDailyYoYRows,
+  buildDailyDiscountRows,
   fmtValue,
   fmtAchievement,
   resultColor,
@@ -65,6 +72,11 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
     [sr, hasYoY, prevYearMonthlyKpi, elapsedDays, daysInMonth],
   )
 
+  const discountRows = useMemo(
+    () => (metric === 'discountRate' ? buildDailyDiscountRows(sr, elapsedDays, daysInMonth) : []),
+    [sr, metric, elapsedDays, daysInMonth],
+  )
+
   const handleOverlayClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
@@ -95,6 +107,8 @@ export const ConditionSummaryDailyModal = memo(function ConditionSummaryDailyMod
         <DailyTableWrapper>
           {showYoY && hasYoY ? (
             <YoYTable rows={yoyRows} fmtCurrency={fmtCurrency} />
+          ) : metric === 'discountRate' ? (
+            <DiscountTable rows={discountRows} fmtCurrency={fmtCurrency} />
           ) : isRate ? (
             <RateTable rows={rows} />
           ) : (
@@ -170,7 +184,7 @@ function AmountTable({
   )
 }
 
-// ─── Rate table (gpRate, markupRate, discountRate) ────────
+// ─── Rate table (gpRate, markupRate) ─────────────────────
 
 function RateTable({ rows }: { readonly rows: readonly DailyDetailRow[] }) {
   return (
@@ -188,6 +202,48 @@ function RateTable({ rows }: { readonly rows: readonly DailyDetailRow[] }) {
             <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
             <DailyTd $bold>{fmtValue(r.actual, true)}</DailyTd>
             <DailyTd>{r.day > 0 ? fmtValue(r.cumActual / r.day, true) : '—'}</DailyTd>
+          </DailyTr>
+        ))}
+      </tbody>
+    </DailyTable>
+  )
+}
+
+// ─── Discount breakdown table (71/72/73/74) ──────────────
+
+function DiscountTable({
+  rows,
+  fmtCurrency,
+}: {
+  readonly rows: readonly DailyDiscountRow[]
+  readonly fmtCurrency: (n: number) => string
+}) {
+  return (
+    <DailyTable>
+      <thead>
+        <tr>
+          <DailyTh $align="center">日</DailyTh>
+          <DailyTh>売変率</DailyTh>
+          <DailyTh>売変額</DailyTh>
+          {DISCOUNT_TYPES.map((dt) => (
+            <DailyTh key={dt.type}>{dt.label}</DailyTh>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <DailyTr key={r.day}>
+            <DailyTd style={{ textAlign: 'center' }}>{r.day}</DailyTd>
+            <DailyTd $bold>{fmtValue(r.totalRate, true)}</DailyTd>
+            <DailyTd>{fmtCurrency(r.totalAmount)}</DailyTd>
+            {DISCOUNT_TYPES.map((dt) => {
+              const entry = r.entries.find((e) => e.type === dt.type)
+              return (
+                <DailyTd key={dt.type}>
+                  {entry && entry.amount > 0 ? fmtCurrency(entry.amount) : '—'}
+                </DailyTd>
+              )
+            })}
           </DailyTr>
         ))}
       </tbody>
