@@ -7,7 +7,7 @@
 
 import { safeDivide } from '@/domain/calculations/utils'
 import { computeGpAfterConsumable, computeGpAfterConsumableAmount } from './conditionSummaryUtils'
-import type { StoreResult, Store, AlignmentPolicy } from '@/domain/models'
+import type { StoreResult, Store } from '@/domain/models'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks'
 
 // ─── Types ──────────────────────────────────────────────
@@ -411,23 +411,19 @@ export interface BudgetHeaderData {
   readonly grossProfitRateBudget: number
   readonly prevYearSales: number | null
   readonly budgetGrowthRate: number | null
-  readonly alignmentLabel: string
 }
 
 /** 月間固定の予算コンテキスト情報を構築する */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
-  policy: AlignmentPolicy,
 ): BudgetHeaderData {
-  const alignmentLabel = policy === 'sameDayOfWeek' ? '同曜日' : '同日'
-
+  // 予算対比の前年売上は常に前年同月のカレンダートータル（アライメント非依存）。
+  // 同曜日/同日の選択は経過分析に関わるが、月間予算との比較では
+  // 前年同月のフル売上が正しい基準値となる。
   let prevYearSales: number | null = null
   if (prevYearMonthlyKpi.hasPrevYear) {
-    prevYearSales =
-      policy === 'sameDayOfWeek'
-        ? prevYearMonthlyKpi.sameDow.sales
-        : prevYearMonthlyKpi.sameDate.sales
+    prevYearSales = prevYearMonthlyKpi.sameDate.sales
   }
 
   const budgetGrowthRate =
@@ -441,6 +437,5 @@ export function buildBudgetHeader(
     grossProfitRateBudget: result.grossProfitRateBudget,
     prevYearSales,
     budgetGrowthRate,
-    alignmentLabel,
   }
 }

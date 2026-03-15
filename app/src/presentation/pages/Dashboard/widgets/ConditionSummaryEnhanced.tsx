@@ -81,8 +81,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   // ─── Budget header (monthly fixed context) ─────────────
   const budgetHeader = useMemo(
-    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi, ctx.comparisonFrame.policy),
-    [ctx.result, ctx.prevYearMonthlyKpi, ctx.comparisonFrame.policy],
+    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi),
+    [ctx.result, ctx.prevYearMonthlyKpi],
   )
 
   // ─── Card summaries (surface) ─────────────────────────
@@ -158,7 +158,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         </BudgetHeaderItem>
         {budgetHeader.prevYearSales != null && (
           <BudgetHeaderItem>
-            <BudgetHeaderLabel>前年売上({budgetHeader.alignmentLabel})</BudgetHeaderLabel>
+            <BudgetHeaderLabel>前年売上(同月)</BudgetHeaderLabel>
             <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.prevYearSales)}</BudgetHeaderValue>
           </BudgetHeaderItem>
         )}
