@@ -9,10 +9,12 @@ import {
   buildRows,
   buildTotalFromResult,
   buildCardSummaries,
+  buildBudgetHeader,
   fmtValue,
   fmtAchievement,
   resultColor,
 } from './ConditionSummaryEnhanced.vm'
+import { formatPercent } from '@/domain/formatting'
 import { MonthlyStoreRow, ElapsedStoreRow } from './ConditionSummaryEnhancedRows'
 import {
   DashWrapper,
@@ -56,6 +58,11 @@ import {
   DrillTitle,
   DrillBody,
   DrillCloseBtn,
+  BudgetHeaderRow,
+  BudgetHeaderItem,
+  BudgetHeaderLabel,
+  BudgetHeaderValue,
+  BudgetGrowthBadge,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Component ──────────────────────────────────────────
@@ -71,6 +78,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 
   const { daysInMonth, elapsedDays } = ctx
   const effectiveElapsed = elapsedDays ?? daysInMonth
+
+  // ─── Budget header (monthly fixed context) ─────────────
+  const budgetHeader = useMemo(
+    () => buildBudgetHeader(ctx.result, ctx.prevYearMonthlyKpi, ctx.comparisonFrame.policy),
+    [ctx.result, ctx.prevYearMonthlyKpi, ctx.comparisonFrame.policy],
+  )
 
   // ─── Card summaries (surface) ─────────────────────────
   const cards = useMemo(
@@ -129,6 +142,37 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         <HeaderTitle>店別 予算達成状況</HeaderTitle>
       </Header>
 
+      {/* Budget Header (月間固定の予算コンテキスト) */}
+      <BudgetHeaderRow>
+        <BudgetHeaderItem>
+          <BudgetHeaderLabel>月間売上予算</BudgetHeaderLabel>
+          <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.monthlyBudget)}</BudgetHeaderValue>
+        </BudgetHeaderItem>
+        <BudgetHeaderItem>
+          <BudgetHeaderLabel>粗利額予算</BudgetHeaderLabel>
+          <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.grossProfitBudget)}</BudgetHeaderValue>
+        </BudgetHeaderItem>
+        <BudgetHeaderItem>
+          <BudgetHeaderLabel>粗利率予算</BudgetHeaderLabel>
+          <BudgetHeaderValue>{formatPercent(budgetHeader.grossProfitRateBudget)}</BudgetHeaderValue>
+        </BudgetHeaderItem>
+        {budgetHeader.prevYearSales != null && (
+          <BudgetHeaderItem>
+            <BudgetHeaderLabel>前年売上({budgetHeader.alignmentLabel})</BudgetHeaderLabel>
+            <BudgetHeaderValue>{ctx.fmtCurrency(budgetHeader.prevYearSales)}</BudgetHeaderValue>
+          </BudgetHeaderItem>
+        )}
+        {budgetHeader.budgetGrowthRate != null && (
+          <BudgetHeaderItem>
+            <BudgetHeaderLabel>予算成長率</BudgetHeaderLabel>
+            <BudgetGrowthBadge $positive={budgetHeader.budgetGrowthRate >= 0}>
+              {budgetHeader.budgetGrowthRate >= 0 ? '+' : ''}
+              {formatPercent(budgetHeader.budgetGrowthRate)}
+            </BudgetGrowthBadge>
+          </BudgetHeaderItem>
+        )}
+      </BudgetHeaderRow>
+
       {/* Card Grid (横一列) */}
       <CardGridRow>
         {cards.map((card) => (
@@ -172,7 +216,7 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
                 )}
                 {hasYoYData && (
                   <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
-                    📅 前年比 {showYoY ? 'ON' : 'OFF'}
+                    YoY 前年比 {showYoY ? 'ON' : 'OFF'}
                   </YoYBtn>
                 )}
                 <DrillCloseBtn onClick={handleClose} aria-label="閉じる">

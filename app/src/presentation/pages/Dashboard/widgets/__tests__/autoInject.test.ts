@@ -37,12 +37,12 @@ const WITH_DUCKDB_MULTI_STORE = {
 
 describe('autoInjectDataWidgets', () => {
   it('データがない場合は null を返す', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], NO_DATA)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], NO_DATA)
     expect(result).toBeNull()
   })
 
   it('DuckDB 準備完了時にウィジェットが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).toContain('chart-timeslot-sales')
     expect(result!).toContain('chart-timeslot-heatmap')
@@ -50,38 +50,38 @@ describe('autoInjectDataWidgets', () => {
   })
 
   it('既存レイアウトのウィジェットは保持される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales', 'chart-daily-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table', 'chart-daily-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
-    expect(result![0]).toBe('kpi-core-sales')
+    expect(result![0]).toBe('kpi-summary-table')
     expect(result![1]).toBe('chart-daily-sales')
   })
 
   it('前年データがある場合に前年比較ウォーターフォールが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_PREV)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB_PREV)
     expect(result).not.toBeNull()
     expect(result!).toContain('analysis-yoy-waterfall')
   })
 
   it('前年データがない場合は前年比較ウォーターフォールは注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).not.toContain('analysis-yoy-waterfall')
   })
 
   it('複数店舗の場合に店舗別比較ウィジェットが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_MULTI_STORE)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB_MULTI_STORE)
     expect(result).not.toBeNull()
     expect(result!).toContain('chart-store-timeslot-comparison')
   })
 
   it('単一店舗の場合は店舗別比較ウィジェットは注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).not.toContain('chart-store-timeslot-comparison')
   })
 
   it('既にレイアウトに含まれるウィジェットは重複注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales', 'chart-timeslot-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table', 'chart-timeslot-sales'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     const salesCount = result!.filter((id) => id === 'chart-timeslot-sales').length
     expect(salesCount).toBe(1)
@@ -89,7 +89,7 @@ describe('autoInjectDataWidgets', () => {
 
   it('2回目の呼び出しでは既に注入済みのウィジェットは再注入されない', () => {
     // 1回目
-    const result1 = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result1 = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result1).not.toBeNull()
 
     // 2回目（同じ条件）
@@ -99,7 +99,7 @@ describe('autoInjectDataWidgets', () => {
 
   it('ユーザーが削除した後は再注入されない', () => {
     // 1回目: 注入
-    const result1 = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result1 = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result1).not.toBeNull()
 
     // ユーザーが chart-timeslot-sales を削除
@@ -121,7 +121,7 @@ describe('autoInjectDataWidgets', () => {
   // ── DuckDB ウィジェット注入テスト ──
 
   it('DuckDB 未準備時は DuckDB ウィジェットが注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], {
+    const result = autoInjectDataWidgets(['kpi-summary-table'], {
       prevYearHasPrevYear: false,
       storeCount: 1,
       isDuckDBReady: false,
@@ -135,7 +135,7 @@ describe('autoInjectDataWidgets', () => {
   })
 
   it('DuckDB 準備完了時に DuckDB 専用ウィジェットが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).toContain('analysis-duckdb-features')
     expect(result!).toContain('analysis-duckdb-cumulative')
@@ -145,7 +145,7 @@ describe('autoInjectDataWidgets', () => {
   })
 
   it('DuckDB 準備完了時に十分な数のウィジェットが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     // DuckDB 専用 + 統合ウィジェット合わせて十分な数が注入される
     const injectedCount = result!.length - 1 // kpi-core-sales を除く
@@ -153,34 +153,34 @@ describe('autoInjectDataWidgets', () => {
   })
 
   it('DuckDB: 前年データがないと前年比較は注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).not.toContain('analysis-yoy-variance')
   })
 
   it('DuckDB: 前年データがあると前年比較が注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_PREV)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB_PREV)
     expect(result).not.toBeNull()
     // 統合 YoY ウィジェット（analysis-yoy-variance）として注入
     expect(result!).toContain('analysis-yoy-variance')
   })
 
   it('DuckDB: 店舗が1つの場合は店舗比較系が注入されない', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     // 統合店舗比較は非注入
     expect(result!).not.toContain('chart-store-timeslot-comparison')
   })
 
   it('DuckDB: 複数店舗の場合は店舗比較系が注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB_MULTI_STORE)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB_MULTI_STORE)
     expect(result).not.toBeNull()
     // 統合店舗比較ウィジェット
     expect(result!).toContain('chart-store-timeslot-comparison')
   })
 
   it('DuckDB: カテゴリベンチマークが注入される', () => {
-    const result = autoInjectDataWidgets(['kpi-core-sales'], WITH_DUCKDB)
+    const result = autoInjectDataWidgets(['kpi-summary-table'], WITH_DUCKDB)
     expect(result).not.toBeNull()
     expect(result!).toContain('duckdb-category-benchmark')
   })

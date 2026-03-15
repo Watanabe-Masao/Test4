@@ -10,25 +10,21 @@ import type { WidgetDef } from './types'
 export const WIDGET_MAP = new Map<string, WidgetDef>(WIDGET_REGISTRY.map((w) => [w.id, w]))
 
 export const DEFAULT_WIDGET_IDS: string[] = [
-  // 概要: 今の状況は？
+  // 予算進捗ハブ（最上位: 予算達成 + 店別ドリルダウン + 予算ヘッダ）
+  'widget-budget-achievement',
+  // モニタリング
   'analysis-condition-summary',
   'analysis-alert-panel',
-  // KPI 概要
-  'kpi-core-sales',
-  'kpi-inv-gross-profit',
-  'kpi-est-margin',
-  // 予算・予実
-  'exec-summary-bar',
+  // 収益概況テーブル（主1+Sub2, 主2+Sub1）
+  'kpi-summary-table',
+  // 予実管理
   'exec-plan-actual-forecast',
   'insight-budget',
-  // 前年比較
-  'kpi-py-same-dow',
-  'kpi-py-same-date',
   // 着地予測
   'exec-forecast-tools',
 ]
 
-const STORAGE_KEY = 'dashboard_layout_v12'
+const STORAGE_KEY = 'dashboard_layout_v13'
 
 /**
  * 旧 DuckDB 専用ウィジェット ID → 統合ウィジェット ID へのマイグレーションマップ。
@@ -41,13 +37,29 @@ const WIDGET_ID_MIGRATION: ReadonlyMap<string, string> = new Map([
   ['duckdb-store-hourly', 'chart-store-timeslot-comparison'],
   ['analysis-duckdb-yoy', 'analysis-yoy-variance'],
   // Daily KPI統合マイグレーション
-  ['daily-kpi-sales', 'kpi-core-sales'],
-  ['daily-kpi-cost', 'kpi-total-cost'],
-  ['daily-kpi-discount', 'kpi-discount-loss'],
-  ['daily-kpi-gp-rate', 'kpi-inv-gross-profit'],
-  ['daily-kpi-markup', 'kpi-core-markup'],
-  ['daily-kpi-cost-inclusion', 'kpi-cost-inclusion'],
+  ['daily-kpi-sales', 'kpi-summary-table'],
+  ['daily-kpi-cost', 'kpi-summary-table'],
+  ['daily-kpi-discount', 'kpi-summary-table'],
+  ['daily-kpi-gp-rate', 'kpi-summary-table'],
+  ['daily-kpi-markup', 'kpi-summary-table'],
+  ['daily-kpi-cost-inclusion', 'kpi-summary-table'],
   ['daily-chart-sales', 'chart-daily-sales'],
+  // KPIカード → 統合テーブルへのマイグレーション
+  ['kpi-core-sales', 'kpi-summary-table'],
+  ['kpi-total-cost', 'kpi-summary-table'],
+  ['kpi-inv-gross-profit', 'kpi-summary-table'],
+  ['kpi-est-margin', 'kpi-summary-table'],
+  ['kpi-inventory-cost', 'kpi-summary-table'],
+  ['kpi-delivery-sales', 'kpi-summary-table'],
+  ['kpi-cost-inclusion', 'kpi-summary-table'],
+  ['kpi-discount-loss', 'kpi-summary-table'],
+  ['kpi-core-markup', 'kpi-summary-table'],
+  // 前年比較 → ConditionSummaryEnhancedヘッダに吸収
+  ['kpi-py-same-dow', 'widget-budget-achievement'],
+  ['kpi-py-same-date', 'widget-budget-achievement'],
+  ['kpi-dow-gap', 'widget-budget-achievement'],
+  // ExecSummaryBar → 統合テーブル + ConditionSummaryEnhancedに吸収
+  ['exec-summary-bar', 'kpi-summary-table'],
 ])
 
 /** 旧 ID を統合 ID に変換し、重複を除去する */
@@ -166,7 +178,7 @@ export function autoInjectDataWidgets(
       return true
     }
     // 従来ウィジェットの既存ロジック
-    if (w.id === 'analysis-yoy-waterfall' || w.id === 'kpi-dow-gap') {
+    if (w.id === 'analysis-yoy-waterfall') {
       return ctx.prevYearHasPrevYear
     }
     // 店別予算達成: 複数店舗時のみ自動注入

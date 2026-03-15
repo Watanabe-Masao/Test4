@@ -8,16 +8,22 @@ import { WIDGETS_DUCKDB } from './registryDuckDBWidgets'
 /**
  * ウィジェットレジストリ（全ウィジェット定義の統合配列）
  *
- * 順序はダッシュボード上の表示順と一致する。
+ * 情報階層に沿った表示順:
+ *   1. 予算進捗 + 収益概況 (KPI)
+ *   2. モニタリング + トレンド (EXEC)
+ *   3. チャート (CHART)
+ *   4. 分析 (ANALYSIS)
+ *   5. DuckDB探索 (DUCKDB)
+ *
  * chart-sales-purchase-comparison は exec ウィジェット群の中間に位置するため、
  * WIDGETS_CHART / WIDGETS_EXEC をスライスして正確な順序を維持している。
  */
 export const WIDGET_REGISTRY: readonly WidgetDef[] = [
   ...WIDGETS_KPI,
   ...WIDGETS_CHART.slice(0, 9),
-  ...WIDGETS_EXEC.slice(0, 9),
+  ...WIDGETS_EXEC.slice(0, 8),
   WIDGETS_CHART[9], // chart-sales-purchase-comparison
-  ...WIDGETS_EXEC.slice(9),
+  ...WIDGETS_EXEC.slice(8),
   ...WIDGETS_ANALYSIS,
   ...WIDGETS_DUCKDB,
 ]
