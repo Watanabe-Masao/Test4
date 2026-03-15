@@ -349,4 +349,92 @@ describe('assembleStoreResult', () => {
 
     expect(result.averageCustomersPerDay).toBe(0)
   })
+
+  describe('設定データの月検証', () => {
+    const settingsFor202501: AppSettings = {
+      ...createDefaultSettings(),
+      targetYear: 2025,
+      targetMonth: 1,
+    }
+
+    it('inventoryDate が対象月と一致 → grossProfitBudget が採用される', () => {
+      const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
+      const data: ImportedData = {
+        ...createEmptyImportedData(),
+        settings: new Map([
+          [
+            '1',
+            {
+              storeId: '1',
+              openingInventory: 500000,
+              closingInventory: 600000,
+              grossProfitBudget: 1500000,
+              productInventory: null,
+              costInclusionInventory: null,
+              inventoryDate: '2025/1/1',
+              closingInventoryDay: null,
+            },
+          ],
+        ]),
+      }
+
+      const result = assembleStoreResult('1', acc, data, settingsFor202501, 31)
+
+      expect(result.grossProfitBudget).toBe(1500000)
+      expect(result.grossProfitRateBudget).toBeGreaterThan(0)
+    })
+
+    it('inventoryDate が対象月と不一致 → grossProfitBudget が 0 になる', () => {
+      const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
+      const data: ImportedData = {
+        ...createEmptyImportedData(),
+        settings: new Map([
+          [
+            '1',
+            {
+              storeId: '1',
+              openingInventory: 500000,
+              closingInventory: 600000,
+              grossProfitBudget: 1500000,
+              productInventory: null,
+              costInclusionInventory: null,
+              inventoryDate: '2024/12/1',
+              closingInventoryDay: null,
+            },
+          ],
+        ]),
+      }
+
+      const result = assembleStoreResult('1', acc, data, settingsFor202501, 31)
+
+      expect(result.grossProfitBudget).toBe(0)
+      expect(result.grossProfitRateBudget).toBe(0)
+    })
+
+    it('inventoryDate が null → 後方互換で grossProfitBudget を採用', () => {
+      const acc = makeAccumulator({ totalSales: 1000000, salesDays: 10, elapsedDays: 10 })
+      const data: ImportedData = {
+        ...createEmptyImportedData(),
+        settings: new Map([
+          [
+            '1',
+            {
+              storeId: '1',
+              openingInventory: 500000,
+              closingInventory: 600000,
+              grossProfitBudget: 1500000,
+              productInventory: null,
+              costInclusionInventory: null,
+              inventoryDate: null,
+              closingInventoryDay: null,
+            },
+          ],
+        ]),
+      }
+
+      const result = assembleStoreResult('1', acc, data, settingsFor202501, 31)
+
+      expect(result.grossProfitBudget).toBe(1500000)
+    })
+  })
 })
