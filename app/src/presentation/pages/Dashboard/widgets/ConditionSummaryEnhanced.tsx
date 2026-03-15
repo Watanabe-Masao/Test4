@@ -1,18 +1,16 @@
 import { useState, useMemo, memo } from 'react'
-import type { MetricKey } from './conditionSummaryEnhancedMock'
+import type { WidgetContext } from './types'
 import {
-  STORES,
-  TOTAL_DAYS,
-  ELAPSED_DAYS,
-  MONTHLY,
-  ELAPSED,
-  METRICS,
+  type MetricKey,
+  type PeriodTab,
+  type EnhancedTotal,
+  METRIC_DEFS,
+  buildRows,
+  buildTotalFromResult,
   fmtValue,
-  fmtResult,
+  fmtAchievement,
   resultColor,
-  computeRow,
-  computeTotal,
-} from './conditionSummaryEnhancedMock'
+} from './ConditionSummaryEnhanced.vm'
 import { MonthlyStoreRow, ElapsedStoreRow } from './ConditionSummaryEnhancedRows'
 import {
   DashWrapper,
@@ -50,25 +48,54 @@ import {
 
 // ─── Component ──────────────────────────────────────────
 
-type TabKey = 'monthly' | 'elapsed'
-
-export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced() {
+export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
+  ctx,
+}: {
+  readonly ctx: WidgetContext
+}) {
   const [metric, setMetric] = useState<MetricKey>('sales')
-  const [tab, setTab] = useState<TabKey>('elapsed')
+  const [tab, setTab] = useState<PeriodTab>('elapsed')
   const [showYoY, setShowYoY] = useState(false)
 
-  const m = METRICS[metric]
+  const def = METRIC_DEFS[metric]
   const isMonthly = tab === 'monthly'
-  const dataset = isMonthly ? MONTHLY : ELAPSED
+  const { daysInMonth, elapsedDays } = ctx
+  const effectiveElapsed = elapsedDays ?? daysInMonth
 
-  const rows = useMemo(() => STORES.map((store) => computeRow(store, dataset, m)), [dataset, m])
+  const rowInput = useMemo(
+    () => ({
+      allStoreResults: ctx.allStoreResults,
+      stores: ctx.stores,
+      metric,
+      tab,
+      elapsedDays,
+      daysInMonth,
+      prevYear: ctx.prevYear,
+      prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
+    }),
+    [
+      ctx.allStoreResults,
+      ctx.stores,
+      metric,
+      tab,
+      elapsedDays,
+      daysInMonth,
+      ctx.prevYear,
+      ctx.prevYearMonthlyKpi,
+    ],
+  )
 
-  const total = useMemo(() => computeTotal(dataset, m), [dataset, m])
+  const rows = useMemo(() => buildRows(rowInput), [rowInput])
+
+  const total = useMemo(() => buildTotalFromResult(ctx.result, rowInput), [ctx.result, rowInput])
 
   const sortedRows = useMemo(
-    () => [...rows].sort((a, b) => (isMonthly ? b.budget - a.budget : b.ach - a.ach)),
+    () =>
+      [...rows].sort((a, b) => (isMonthly ? b.budget - a.budget : b.achievement - a.achievement)),
     [rows, isMonthly],
   )
+
+  const hasYoYData = metric === 'sales' && ctx.prevYear.hasPrevYear
 
   return (
     <DashWrapper>
@@ -79,34 +106,40 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced()
 
         <HeaderControls>
           <TabGroup>
-            {[
-              { key: 'monthly' as const, label: '月間予算' },
-              { key: 'elapsed' as const, label: '経過予算' },
-            ].map((o) => (
+            {(
+              [
+                { key: 'monthly', label: '月間予算' },
+                { key: 'elapsed', label: '経過予算' },
+              ] as const
+            ).map((o) => (
               <TabBtn key={o.key} $active={tab === o.key} onClick={() => setTab(o.key)}>
                 {o.label}
               </TabBtn>
             ))}
           </TabGroup>
-          <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
-            📅 前年比 {showYoY ? 'ON' : 'OFF'}
-          </YoYBtn>
+          {hasYoYData && (
+            <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
+              📅 前年比 {showYoY ? 'ON' : 'OFF'}
+            </YoYBtn>
+          )}
         </HeaderControls>
 
         <MetricRow>
-          {(Object.entries(METRICS) as [MetricKey, typeof m][]).map(([key, val]) => (
-            <MetricBtn
-              key={key}
-              $active={metric === key}
-              $color={val.color}
-              onClick={() => setMetric(key)}
-            >
-              <MetricIcon>{val.icon}</MetricIcon>
-              <MetricLabel $active={metric === key} $color={val.color}>
-                {val.label}
-              </MetricLabel>
-            </MetricBtn>
-          ))}
+          {(Object.entries(METRIC_DEFS) as [MetricKey, (typeof METRIC_DEFS)[MetricKey]][]).map(
+            ([key, val]) => (
+              <MetricBtn
+                key={key}
+                $active={metric === key}
+                $color={val.color}
+                onClick={() => setMetric(key)}
+              >
+                <MetricIcon>{val.icon}</MetricIcon>
+                <MetricLabel $active={metric === key} $color={val.color}>
+                  {val.label}
+                </MetricLabel>
+              </MetricBtn>
+            ),
+          )}
         </MetricRow>
       </Header>
 
@@ -114,15 +147,15 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced()
       <TotalSection>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
-            {isMonthly ? `${TOTAL_DAYS}日間` : `${ELAPSED_DAYS}日経過`}
+            {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
           </PeriodBadge>
           <SectionLabel>全店合計</SectionLabel>
         </div>
 
         {isMonthly ? (
-          <MonthlyTotal total={total} m={m} showYoY={showYoY} />
+          <MonthlyTotalSection total={total} isRate={def.isRate} showYoY={showYoY && hasYoYData} />
         ) : (
-          <ElapsedTotal total={total} m={m} showYoY={showYoY} />
+          <ElapsedTotalSection total={total} isRate={def.isRate} showYoY={showYoY && hasYoYData} />
         )}
       </TotalSection>
 
@@ -130,9 +163,21 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced()
       <div>
         {sortedRows.map((row, idx) =>
           isMonthly ? (
-            <MonthlyStoreRow key={row.store} row={row} idx={idx} m={m} showYoY={showYoY} />
+            <MonthlyStoreRow
+              key={row.storeId}
+              row={row}
+              idx={idx}
+              isRate={def.isRate}
+              showYoY={showYoY && hasYoYData}
+            />
           ) : (
-            <ElapsedStoreRow key={row.store} row={row} idx={idx} m={m} showYoY={showYoY} />
+            <ElapsedStoreRow
+              key={row.storeId}
+              row={row}
+              idx={idx}
+              isRate={def.isRate}
+              showYoY={showYoY && hasYoYData}
+            />
           ),
         )}
       </div>
@@ -141,9 +186,12 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced()
       <Footer>
         <FooterNote>
           {isMonthly
-            ? `月間予算（${TOTAL_DAYS}日）`
-            : `経過予算達成（${ELAPSED_DAYS}/${TOTAL_DAYS}日）`}
-          {showYoY ? ' + 前年同曜日比' : ''} • {m.isRate ? 'ポイント差' : '単位：万円'}
+            ? `月間予算（${daysInMonth}日）`
+            : `経過予算達成（${effectiveElapsed}/${daysInMonth}日）`}
+          {showYoY && hasYoYData ? ' + 前年同曜日比' : ''} •{' '}
+          {def.isRate
+            ? 'ポイント差'
+            : `単位：${ctx.fmtCurrency(10000).includes('万') ? '万円' : '円'}`}
         </FooterNote>
         {!isMonthly && (
           <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#3e4a5e' }}>
@@ -166,38 +214,31 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced()
 
 // ─── Monthly Total (sub-component) ─────────────────────
 
-interface TotalSummaryProps {
-  readonly total: {
-    budget: number
-    actual: number
-    ly: number
-    ach: number
-    diff: number
-    yoy: number
-  }
-  readonly m: (typeof METRICS)[MetricKey]
+interface TotalSectionProps {
+  readonly total: EnhancedTotal
+  readonly isRate: boolean
   readonly showYoY: boolean
 }
 
-function MonthlyTotal({ total, m, showYoY }: TotalSummaryProps) {
+function MonthlyTotalSection({ total, isRate, showYoY }: TotalSectionProps) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <div>
           <SmallLabel>月間予算</SmallLabel>
-          <BigValue>{fmtValue(total.budget, m.isRate)}</BigValue>
+          <BigValue>{fmtValue(total.budget, isRate)}</BigValue>
         </div>
-        {showYoY && (
+        {showYoY && total.ly != null && total.yoy != null && (
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 10, opacity: 0.5, marginBottom: 4, fontWeight: 500 }}>
-              📅 前年比（{ELAPSED_DAYS}日経過）
+              📅 前年比
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <MonoSm>{fmtValue(total.ly, m.isRate)}</MonoSm>
+              <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
               <Arrow>→</Arrow>
-              <MonoMd $bold>{fmtValue(total.actual, m.isRate)}</MonoMd>
-              <MonoLg $color={resultColor(total.yoy, m.isRate)} $bold>
-                {fmtResult(total.yoy, m.isRate)}
+              <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
+              <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
+                {fmtAchievement(total.yoy, isRate)}
               </MonoLg>
             </div>
           </div>
@@ -209,43 +250,43 @@ function MonthlyTotal({ total, m, showYoY }: TotalSummaryProps) {
 
 // ─── Elapsed Total (sub-component) ─────────────────────
 
-function ElapsedTotal({ total, m, showYoY }: TotalSummaryProps) {
-  const achColor = resultColor(total.ach, m.isRate)
+function ElapsedTotalSection({ total, isRate, showYoY }: TotalSectionProps) {
+  const achColor = resultColor(total.achievement, isRate)
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
           <div>
             <SmallLabel>経過予算</SmallLabel>
-            <SubValue>{fmtValue(total.budget, m.isRate)}</SubValue>
+            <SubValue>{fmtValue(total.budget, isRate)}</SubValue>
           </div>
           <Arrow>→</Arrow>
           <div>
             <SmallLabel>実績</SmallLabel>
-            <MainValue>{fmtValue(total.actual, m.isRate)}</MainValue>
+            <MainValue>{fmtValue(total.actual, isRate)}</MainValue>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <SmallLabel>{m.isRate ? '差異' : '達成率'}</SmallLabel>
-          <AchValue $color={achColor}>{fmtResult(total.ach, m.isRate)}</AchValue>
+          <SmallLabel>{isRate ? '差異' : '達成率'}</SmallLabel>
+          <AchValue $color={achColor}>{fmtAchievement(total.achievement, isRate)}</AchValue>
         </div>
       </div>
-      {!m.isRate && (
+      {!isRate && (
         <div style={{ marginTop: 10 }}>
           <ProgressTrack>
-            <ProgressFill $width={total.ach} $color={achColor} />
+            <ProgressFill $width={total.achievement} $color={achColor} />
           </ProgressTrack>
         </div>
       )}
-      {showYoY && (
+      {showYoY && total.ly != null && total.yoy != null && (
         <YoYRow>
           <YoYLabel>📅 前年比</YoYLabel>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <MonoSm>{fmtValue(total.ly, m.isRate)}</MonoSm>
+            <MonoSm>{fmtValue(total.ly, isRate)}</MonoSm>
             <Arrow>→</Arrow>
-            <MonoMd $bold>{fmtValue(total.actual, m.isRate)}</MonoMd>
-            <MonoLg $color={resultColor(total.yoy, m.isRate)} $bold>
-              {fmtResult(total.yoy, m.isRate)}
+            <MonoMd $bold>{fmtValue(total.actual, isRate)}</MonoMd>
+            <MonoLg $color={resultColor(total.yoy, isRate)} $bold>
+              {fmtAchievement(total.yoy, isRate)}
             </MonoLg>
           </div>
         </YoYRow>
