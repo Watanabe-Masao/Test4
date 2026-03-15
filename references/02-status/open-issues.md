@@ -1,7 +1,7 @@
 # 課題管理
 
 > 管理責任: documentation-steward ロール。
-> 更新日: 2026-03-08
+> 更新日: 2026-03-15
 
 課題を3分類し、不要なアクセスを最小化する。
 
@@ -19,6 +19,7 @@
 | R-4 | God コンポーネント（300行超）10 ファイル | Low | .vm.ts ViewModel 抽出を10ファイルで実施済み（2026-03-08）。残: チャート500行超17ファイルの .vm.ts 作成は Phase 6 で継続 |
 | R-6 | FileImportService.ts（632行） | Low | infrastructure/ImportService.ts は227行に分割解決済み。application/usecases/import/FileImportService.ts（632行）は5つの関心事が混在。Phase 1B（UseCase 抽出）で対応予定 |
 | R-7 | 既存コードのサブバレル移行が未完了 | Medium | Phase 1C でサブバレル構造を作成済みだが、既存消費者（数百ファイル）はメインバレル経由のまま。一貫性のため Phase 7（縦スライス）までに全件をサブバレル直接 import に移行する。対象: hooks/(data,calculation,analytics,ui), charts/(core,duckdb,advanced,chartInfra), models/(record,storeTypes,calendar,analysis), calculations/(grossProfit,forecast.barrel,decomposition), common/(layout,forms,tables,feedback) |
+| R-8 | null/0 棲み分け未実装（カテゴリ・時間帯データ） | High | カテゴリ別・時間帯別データで「取り扱いなし（null）」と「実績ゼロ（0）」が区別されていない。判定基準: (1) 営業日 = `salesTotal > 0` の日、(2) 取扱品目 = 当月にその店舗×品目で1件でも実績 > 0。非取扱品目は `null`、取扱品目の売上なし日は `0` として保持。影響: 平均計算（非取扱品目の0混入で平均が下がる）、DuckDB 集計（`COUNT` vs `COUNT(*)`）、チャート描画（0とデータなしの区別）。設計規模: domain/calculations + infrastructure/duckdb + application/usecases に跨る。architecture ロール経由で設計判断が必要 |
 
 ## 3. 解決済みの課題（アーカイブ）
 
