@@ -61,6 +61,7 @@ function rateColor(diff: number): string {
 export function buildSalesSectionRows(
   r: StoreResult,
   fmtCurrency: CurrencyFormatter,
+  totalQuantity?: number | null,
 ): readonly SummaryRow[] {
   const hasBudget = r.budget > 0
   const achRate = hasBudget ? safeDivide(r.totalSales, r.budget, 0) * 100 : null
@@ -89,11 +90,12 @@ export function buildSalesSectionRows(
       metricId: 'totalCustomers',
       drillPage: { view: 'daily' },
     },
-    // Sub2: 販売点数（モック — StoreResult に未実装）
+    // Sub2: 販売点数（CTS totalQuantity から取得）
     {
       key: 'salesQuantity',
       label: '販売点数',
-      value: '—',
+      value:
+        totalQuantity != null ? `${totalQuantity.toLocaleString('ja-JP')}点` : '—',
       budget: null,
       achievement: null,
       achievementColor: null,
@@ -183,12 +185,13 @@ export function buildProfitSectionRows(
 export function buildSections(
   r: StoreResult,
   fmtCurrency: CurrencyFormatter,
+  totalQuantity?: number | null,
 ): readonly SectionData[] {
   return [
     {
       key: 'sales',
       title: '売上',
-      rows: buildSalesSectionRows(r, fmtCurrency),
+      rows: buildSalesSectionRows(r, fmtCurrency, totalQuantity),
       defaultExpanded: true,
     },
     {

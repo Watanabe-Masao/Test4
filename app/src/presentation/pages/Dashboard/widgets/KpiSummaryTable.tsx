@@ -12,6 +12,7 @@
 import { useState, useMemo, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import type { MetricId } from '@/domain/models'
+import { useDataStore } from '@/application/stores/dataStore'
 import {
   type SectionData,
   type SummaryRow,
@@ -51,14 +52,21 @@ export const KpiSummaryTable = memo(function KpiSummaryTable({
 }: {
   readonly ctx: WidgetContext
 }) {
+  const ctsRecords = useDataStore((s) => s.data.categoryTimeSales.records)
+
+  const totalQuantity = useMemo(
+    () => ctsRecords.reduce((sum, rec) => sum + rec.totalQuantity, 0),
+    [ctsRecords],
+  )
+
   const [expandedSections, setExpandedSections] = useState<ReadonlySet<string>>(
     () => new Set(['sales', 'profit']),
   )
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
   const sections = useMemo(
-    () => buildSections(ctx.result, ctx.fmtCurrency),
-    [ctx.result, ctx.fmtCurrency],
+    () => buildSections(ctx.result, ctx.fmtCurrency, totalQuantity),
+    [ctx.result, ctx.fmtCurrency, totalQuantity],
   )
 
   const storeBreakdown = useMemo(
