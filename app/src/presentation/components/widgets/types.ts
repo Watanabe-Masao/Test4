@@ -34,6 +34,7 @@ export type WidgetSize = 'kpi' | 'half' | 'full'
  */
 export type BuiltinPageKey =
   | 'dashboard'
+  | 'storeAnalysis'
   | 'daily'
   | 'insight'
   | 'category'
