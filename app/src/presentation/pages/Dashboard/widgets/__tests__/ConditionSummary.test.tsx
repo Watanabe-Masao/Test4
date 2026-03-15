@@ -15,18 +15,19 @@ describe('ConditionSummaryWidget', () => {
     renderWithTheme(<ConditionSummaryWidget ctx={ctx} />)
 
     expect(screen.getByText('コンディションサマリー')).toBeInTheDocument()
-    expect(screen.getByText('粗利率')).toBeInTheDocument()
-    expect(screen.getByText('値入率')).toBeInTheDocument()
-    expect(screen.getByText('売変率')).toBeInTheDocument()
+    // 粗利率, 値入率, 売変率, 売上前年比 は ConditionSummaryEnhanced に吸収済み
+    // 残存アイテムは前年データ依存のため、基本レンダリングではカードが少ない
   })
 
-  it('原算後粗利率は粗利率カードに統合されている（独立カードなし）', () => {
+  it('吸収済みアイテムが表示されない', () => {
     const ctx = makeWidgetContext()
 
     renderWithTheme(<ConditionSummaryWidget ctx={ctx} />)
 
-    // 原算後粗利率は独立カードとして存在しない（粗利率カードの sub に統合）
-    expect(screen.queryByText('原算後粗利率')).not.toBeInTheDocument()
+    expect(screen.queryByText('粗利率')).not.toBeInTheDocument()
+    expect(screen.queryByText('値入率')).not.toBeInTheDocument()
+    expect(screen.queryByText('売変率')).not.toBeInTheDocument()
+    expect(screen.queryByText('売上前年比')).not.toBeInTheDocument()
   })
 
   it('前年客数データがある場合に客単価前年比カードが表示される', () => {

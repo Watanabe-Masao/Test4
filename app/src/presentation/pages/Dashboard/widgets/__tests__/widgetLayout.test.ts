@@ -13,7 +13,7 @@ beforeEach(() => {
   })
 })
 
-const STORAGE_KEY = 'dashboard_layout_v13'
+const STORAGE_KEY = 'dashboard_layout_v14'
 
 describe('loadLayout', () => {
   it('localStorage が空の場合はデフォルトレイアウトを返す', () => {
