@@ -58,8 +58,10 @@ export function buildKpiProjection(
   const srcYear = sourceMonthCtx.year
   const srcMonth = sourceMonthCtx.month
 
-  // 同曜日KPI: scope の alignmentMap は既に DOW offset 込み
-  const sameDow = aggregateKpiByAlignment(sourceIndex, targetIds, scope.alignmentMap)
+  // 同曜日KPI: scope の alignmentMap は elapsedDays でキャップ済みのため、
+  // 月間フル集計用に elapsedDays なしで再構築する（sameDate と同じパターン）
+  const sameDowScope = buildComparisonScope(periodSelection)
+  const sameDow = aggregateKpiByAlignment(sourceIndex, targetIds, sameDowScope.alignmentMap)
 
   // 同日KPI: DOW offset なしで再構築
   // period2 も再算出する（元の period2 は DOW offset が焼込済みのため）
