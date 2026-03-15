@@ -27,24 +27,35 @@ import {
   RenameInput,
 } from './NavBar.styles'
 
-const navItemDefs: {
-  view: ViewType
-  labelKey:
-    | 'dashboard'
-    | 'daily'
-    | 'insight'
-    | 'category'
-    | 'costDetail'
-    | 'purchaseAnalysis'
-    | 'reports'
-  icon: string
-}[] = [
+type NavLabelKey =
+  | 'dashboard'
+  | 'storeAnalysis'
+  | 'daily'
+  | 'insight'
+  | 'category'
+  | 'costDetail'
+  | 'purchaseAnalysis'
+  | 'reports'
+
+type NavItem = { view: ViewType; labelKey: NavLabelKey; icon: string }
+type NavDivider = { divider: true }
+type NavEntry = NavItem | NavDivider
+
+const navEntries: NavEntry[] = [
+  // L0: ダッシュボード
   { view: 'dashboard', labelKey: 'dashboard', icon: '📊' },
+  { divider: true },
+  // L1/L2: 分析ドリルダウン
+  { view: 'store-analysis', labelKey: 'storeAnalysis', icon: '🏪' },
   { view: 'daily', labelKey: 'daily', icon: '📅' },
   { view: 'insight', labelKey: 'insight', icon: '📈' },
-  { view: 'category', labelKey: 'category', icon: '📁' },
+  { divider: true },
+  // 横断: 原価・カテゴリ
   { view: 'cost-detail', labelKey: 'costDetail', icon: '💰' },
   { view: 'purchase-analysis', labelKey: 'purchaseAnalysis', icon: '🏭' },
+  { view: 'category', labelKey: 'category', icon: '📁' },
+  { divider: true },
+  // 出力
   { view: 'reports', labelKey: 'reports', icon: '📄' },
 ]
 
@@ -183,18 +194,22 @@ export function NavBar({
       }}
     >
       <Logo>荒</Logo>
-      {navItemDefs.map((item) => (
-        <NavButton
-          key={item.view}
-          $active={currentView === item.view}
-          onClick={() => onViewChange(item.view)}
-          title={messages.nav[item.labelKey]}
-          aria-label={messages.nav[item.labelKey]}
-          aria-current={currentView === item.view ? 'page' : undefined}
-        >
-          {item.icon}
-        </NavButton>
-      ))}
+      {navEntries.map((entry, i) =>
+        'divider' in entry ? (
+          <Divider key={`div-${i}`} />
+        ) : (
+          <NavButton
+            key={entry.view}
+            $active={currentView === entry.view}
+            onClick={() => onViewChange(entry.view)}
+            title={messages.nav[entry.labelKey]}
+            aria-label={messages.nav[entry.labelKey]}
+            aria-current={currentView === entry.view ? 'page' : undefined}
+          >
+            {entry.icon}
+          </NavButton>
+        ),
+      )}
 
       {pages.length > 0 && <Divider />}
       {pages.map((page) => (

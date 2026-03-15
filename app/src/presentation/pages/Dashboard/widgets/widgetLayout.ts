@@ -17,6 +17,8 @@ export const DEFAULT_WIDGET_IDS: string[] = [
   'analysis-alert-panel',
   // 収益概況テーブル（主1+Sub2, 主2+Sub1）
   'kpi-summary-table',
+  // 日別予算進捗（売上 vs 予算の累計推移）
+  'chart-daily-sales',
   // 予実管理
   'exec-plan-actual-forecast',
   'insight-budget',

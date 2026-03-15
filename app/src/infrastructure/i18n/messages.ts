@@ -12,6 +12,7 @@ export interface MessageCatalog {
   // ─── ナビゲーション ─────────────────────────────────
   nav: {
     dashboard: string
+    storeAnalysis: string
     category: string
     forecast: string
     analysis: string
@@ -118,6 +119,7 @@ export interface MessageCatalog {
 export const jaMessages: MessageCatalog = {
   nav: {
     dashboard: '概要',
+    storeAnalysis: '店別分析',
     category: 'カテゴリ分析',
     forecast: '予測',
     analysis: '分析',
@@ -210,6 +212,7 @@ export const jaMessages: MessageCatalog = {
 export const enMessages: MessageCatalog = {
   nav: {
     dashboard: 'Overview',
+    storeAnalysis: 'Store Analysis',
     category: 'Category',
     forecast: 'Forecast',
     analysis: 'Analysis',

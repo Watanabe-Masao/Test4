@@ -7,6 +7,7 @@ import type { ViewType } from '@/domain/models'
 
 export const VIEW_TO_PATH: Record<ViewType, string> = {
   dashboard: '/dashboard',
+  'store-analysis': '/store-analysis',
   daily: '/daily',
   insight: '/insight',
   category: '/category',
@@ -25,8 +26,13 @@ export const PATH_TO_VIEW: Record<string, ViewType> = Object.fromEntries(
 /** 各ページから遷移しやすいページの import 関数マップ */
 const PRELOAD_MAP: Partial<Record<ViewType, Array<() => Promise<unknown>>>> = {
   dashboard: [
+    () => import('@/presentation/pages/StoreAnalysis/StoreAnalysisPage'),
     () => import('@/presentation/pages/Daily/DailyPage'),
     () => import('@/presentation/pages/Insight/InsightPage'),
+  ],
+  'store-analysis': [
+    () => import('@/presentation/pages/Daily/DailyPage'),
+    () => import('@/presentation/pages/Dashboard/DashboardPage'),
   ],
   daily: [() => import('@/presentation/pages/Dashboard/DashboardPage')],
   insight: [() => import('@/presentation/pages/Category/CategoryPage')],

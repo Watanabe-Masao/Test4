@@ -42,6 +42,7 @@ export interface AppSettings {
 /** ビュー種別 */
 export type ViewType =
   | 'dashboard'
+  | 'store-analysis'
   | 'daily'
   | 'insight'
   | 'category'
