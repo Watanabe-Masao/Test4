@@ -1,12 +1,14 @@
-import { useState, useMemo, memo } from 'react'
+import { useState, useMemo, memo, useCallback } from 'react'
 import type { WidgetContext } from './types'
 import {
   type MetricKey,
   type PeriodTab,
   type EnhancedTotal,
   METRIC_DEFS,
+  isBudgetMetric,
   buildRows,
   buildTotalFromResult,
+  buildCardSummaries,
   fmtValue,
   fmtAchievement,
   resultColor,
@@ -17,22 +19,17 @@ import {
   Header,
   HeaderMeta,
   HeaderTitle,
-  HeaderControls,
   TabGroup,
   TabBtn,
   YoYBtn,
-  MetricRow,
-  MetricBtn,
-  MetricIcon,
-  MetricLabel,
   TotalSection,
   PeriodBadge,
   SectionLabel,
+  SmallLabel,
   BigValue,
   SubValue,
   MainValue,
   AchValue,
-  SmallLabel,
   Arrow,
   ProgressTrack,
   ProgressFill,
@@ -44,6 +41,18 @@ import {
   Footer,
   FooterNote,
   LegendDot,
+  CardGridRow,
+  CondCard,
+  CondSignal,
+  CondCardContent,
+  CondCardLabel,
+  CondCardValue,
+  CondCardSub,
+  DrillOverlay,
+  DrillPanel,
+  DrillHeader,
+  DrillTitle,
+  DrillCloseBtn,
 } from './ConditionSummaryEnhanced.styles'
 
 // ─── Component ──────────────────────────────────────────
@@ -53,30 +62,40 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
 }: {
   readonly ctx: WidgetContext
 }) {
-  const [metric, setMetric] = useState<MetricKey>('sales')
+  const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
   const [tab, setTab] = useState<PeriodTab>('elapsed')
   const [showYoY, setShowYoY] = useState(false)
 
-  const def = METRIC_DEFS[metric]
-  const isMonthly = tab === 'monthly'
   const { daysInMonth, elapsedDays } = ctx
   const effectiveElapsed = elapsedDays ?? daysInMonth
 
+  // ─── Card summaries (surface) ─────────────────────────
+  const cards = useMemo(
+    () => buildCardSummaries(ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency),
+    [ctx.result, elapsedDays, daysInMonth, ctx.fmtCurrency],
+  )
+
+  // ─── Drill-down data ─────────────────────────────────
+  const isMonthly = tab === 'monthly'
+
   const rowInput = useMemo(
-    () => ({
-      allStoreResults: ctx.allStoreResults,
-      stores: ctx.stores,
-      metric,
-      tab,
-      elapsedDays,
-      daysInMonth,
-      prevYear: ctx.prevYear,
-      prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
-    }),
+    () =>
+      activeMetric
+        ? {
+            allStoreResults: ctx.allStoreResults,
+            stores: ctx.stores,
+            metric: activeMetric,
+            tab,
+            elapsedDays,
+            daysInMonth,
+            prevYear: ctx.prevYear,
+            prevYearMonthlyKpi: ctx.prevYearMonthlyKpi,
+          }
+        : null,
     [
+      activeMetric,
       ctx.allStoreResults,
       ctx.stores,
-      metric,
       tab,
       elapsedDays,
       daysInMonth,
@@ -85,17 +104,19 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
     ],
   )
 
-  const rows = useMemo(() => buildRows(rowInput), [rowInput])
+  // Store rows sorted by store code (vm.buildRows already sorts by code)
+  const rows = useMemo(() => (rowInput ? buildRows(rowInput) : []), [rowInput])
 
-  const total = useMemo(() => buildTotalFromResult(ctx.result, rowInput), [ctx.result, rowInput])
-
-  const sortedRows = useMemo(
-    () =>
-      [...rows].sort((a, b) => (isMonthly ? b.budget - a.budget : b.achievement - a.achievement)),
-    [rows, isMonthly],
+  const total = useMemo(
+    () => (rowInput ? buildTotalFromResult(ctx.result, rowInput) : null),
+    [ctx.result, rowInput],
   )
 
-  const hasYoYData = metric === 'sales' && ctx.prevYear.hasPrevYear
+  const activeDef = activeMetric ? METRIC_DEFS[activeMetric] : null
+  const hasYoYData = activeMetric === 'sales' && ctx.prevYear.hasPrevYear
+  const showBudgetTabs = activeMetric != null && isBudgetMetric(activeMetric)
+
+  const handleClose = useCallback(() => setActiveMetric(null), [])
 
   return (
     <DashWrapper>
@@ -103,111 +124,138 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
       <Header>
         <HeaderMeta>CONDITION SUMMARY</HeaderMeta>
         <HeaderTitle>店別 予算達成状況</HeaderTitle>
-
-        <HeaderControls>
-          <TabGroup>
-            {(
-              [
-                { key: 'monthly', label: '月間予算' },
-                { key: 'elapsed', label: '経過予算' },
-              ] as const
-            ).map((o) => (
-              <TabBtn key={o.key} $active={tab === o.key} onClick={() => setTab(o.key)}>
-                {o.label}
-              </TabBtn>
-            ))}
-          </TabGroup>
-          {hasYoYData && (
-            <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
-              📅 前年比 {showYoY ? 'ON' : 'OFF'}
-            </YoYBtn>
-          )}
-        </HeaderControls>
-
-        <MetricRow>
-          {(Object.entries(METRIC_DEFS) as [MetricKey, (typeof METRIC_DEFS)[MetricKey]][]).map(
-            ([key, val]) => (
-              <MetricBtn
-                key={key}
-                $active={metric === key}
-                $color={val.color}
-                onClick={() => setMetric(key)}
-              >
-                <MetricIcon>{val.icon}</MetricIcon>
-                <MetricLabel $active={metric === key} $color={val.color}>
-                  {val.label}
-                </MetricLabel>
-              </MetricBtn>
-            ),
-          )}
-        </MetricRow>
       </Header>
 
-      {/* Total Summary */}
-      <TotalSection>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
-            {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
-          </PeriodBadge>
-          <SectionLabel>全店合計</SectionLabel>
-        </div>
+      {/* Card Grid (横一列) */}
+      <CardGridRow>
+        {cards.map((card) => (
+          <CondCard
+            key={card.key}
+            $borderColor={card.signalColor}
+            onClick={() => setActiveMetric(card.key)}
+          >
+            <CondSignal $color={card.signalColor} />
+            <CondCardContent>
+              <CondCardLabel>{card.label}</CondCardLabel>
+              <CondCardValue $color={card.signalColor}>{card.value}</CondCardValue>
+              <CondCardSub>{card.sub}</CondCardSub>
+            </CondCardContent>
+          </CondCard>
+        ))}
+      </CardGridRow>
 
-        {isMonthly ? (
-          <MonthlyTotalSection total={total} isRate={def.isRate} showYoY={showYoY && hasYoYData} />
-        ) : (
-          <ElapsedTotalSection total={total} isRate={def.isRate} showYoY={showYoY && hasYoYData} />
-        )}
-      </TotalSection>
+      {/* Drill-down Overlay */}
+      {activeMetric && activeDef && total && (
+        <DrillOverlay onClick={handleClose}>
+          <DrillPanel onClick={(e) => e.stopPropagation()}>
+            <DrillHeader>
+              <DrillTitle>
+                {activeDef.icon} {activeDef.label} 店別詳細
+              </DrillTitle>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                {showBudgetTabs && (
+                  <TabGroup>
+                    {(
+                      [
+                        { key: 'monthly', label: '月間予算' },
+                        { key: 'elapsed', label: '経過予算' },
+                      ] as const
+                    ).map((o) => (
+                      <TabBtn key={o.key} $active={tab === o.key} onClick={() => setTab(o.key)}>
+                        {o.label}
+                      </TabBtn>
+                    ))}
+                  </TabGroup>
+                )}
+                {hasYoYData && (
+                  <YoYBtn $active={showYoY} onClick={() => setShowYoY((p) => !p)}>
+                    📅 前年比 {showYoY ? 'ON' : 'OFF'}
+                  </YoYBtn>
+                )}
+              </div>
+            </DrillHeader>
 
-      {/* Store Rows */}
-      <div>
-        {sortedRows.map((row, idx) =>
-          isMonthly ? (
-            <MonthlyStoreRow
-              key={row.storeId}
-              row={row}
-              idx={idx}
-              isRate={def.isRate}
-              showYoY={showYoY && hasYoYData}
-            />
-          ) : (
-            <ElapsedStoreRow
-              key={row.storeId}
-              row={row}
-              idx={idx}
-              isRate={def.isRate}
-              showYoY={showYoY && hasYoYData}
-            />
-          ),
-        )}
-      </div>
+            {/* Total Summary */}
+            <TotalSection>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <PeriodBadge $color={isMonthly ? '#3b82f6' : '#7c3aed'}>
+                  {isMonthly ? `${daysInMonth}日間` : `${effectiveElapsed}日経過`}
+                </PeriodBadge>
+                <SectionLabel>全店合計</SectionLabel>
+              </div>
 
-      {/* Footer */}
-      <Footer>
-        <FooterNote>
-          {isMonthly
-            ? `月間予算（${daysInMonth}日）`
-            : `経過予算達成（${effectiveElapsed}/${daysInMonth}日）`}
-          {showYoY && hasYoYData ? ' + 前年同曜日比' : ''} •{' '}
-          {def.isRate
-            ? 'ポイント差'
-            : `単位：${ctx.fmtCurrency(10000).includes('万') ? '万円' : '円'}`}
-        </FooterNote>
-        {!isMonthly && (
-          <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#3e4a5e' }}>
-            {[
-              { color: '#10b981', label: '達成' },
-              { color: '#eab308', label: '微未達' },
-              { color: '#ef4444', label: '未達' },
-            ].map((item) => (
-              <span key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <LegendDot $color={item.color} />
-                {item.label}
-              </span>
-            ))}
-          </div>
-        )}
-      </Footer>
+              {isMonthly ? (
+                <MonthlyTotalSection
+                  total={total}
+                  isRate={activeDef.isRate}
+                  showYoY={showYoY && hasYoYData}
+                />
+              ) : (
+                <ElapsedTotalSection
+                  total={total}
+                  isRate={activeDef.isRate}
+                  showYoY={showYoY && hasYoYData}
+                />
+              )}
+            </TotalSection>
+
+            {/* Store Rows (店番順) */}
+            <div>
+              {rows.map((row, idx) =>
+                isMonthly ? (
+                  <MonthlyStoreRow
+                    key={row.storeId}
+                    row={row}
+                    idx={idx}
+                    isRate={activeDef.isRate}
+                    showYoY={showYoY && hasYoYData}
+                  />
+                ) : (
+                  <ElapsedStoreRow
+                    key={row.storeId}
+                    row={row}
+                    idx={idx}
+                    isRate={activeDef.isRate}
+                    showYoY={showYoY && hasYoYData}
+                  />
+                ),
+              )}
+            </div>
+
+            {/* Footer */}
+            <Footer>
+              <FooterNote>
+                {isMonthly
+                  ? `月間予算（${daysInMonth}日）`
+                  : `経過予算達成（${effectiveElapsed}/${daysInMonth}日）`}
+                {showYoY && hasYoYData ? ' + 前年同曜日比' : ''} •{' '}
+                {activeDef.isRate
+                  ? 'ポイント差'
+                  : `単位：${ctx.fmtCurrency(10000).includes('万') ? '万円' : '円'}`}
+              </FooterNote>
+              {!isMonthly && (
+                <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#3e4a5e' }}>
+                  {[
+                    { color: '#10b981', label: '達成' },
+                    { color: '#eab308', label: '微未達' },
+                    { color: '#ef4444', label: '未達' },
+                  ].map((item) => (
+                    <span
+                      key={item.label}
+                      style={{ display: 'flex', alignItems: 'center', gap: 3 }}
+                    >
+                      <LegendDot $color={item.color} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Footer>
+
+            <DrillCloseBtn onClick={handleClose}>閉じる</DrillCloseBtn>
+          </DrillPanel>
+        </DrillOverlay>
+      )}
     </DashWrapper>
   )
 })
