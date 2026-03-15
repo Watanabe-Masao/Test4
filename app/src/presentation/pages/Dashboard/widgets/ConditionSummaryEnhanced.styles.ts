@@ -156,6 +156,17 @@ export const TotalSection = styled.div`
       : 'linear-gradient(135deg, rgba(59,130,246,0.03) 0%, transparent 100%)'};
 `
 
+export const TotalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing[6]};
+  align-items: end;
+`
+
+export const TotalCell = styled.div<{ $align?: 'left' | 'center' | 'right' }>`
+  text-align: ${({ $align }) => $align ?? 'left'};
+`
+
 export const PeriodBadge = styled.span<{ $color: string }>`
   font-size: 10px;
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
@@ -218,6 +229,7 @@ export const Arrow = styled.span`
 
 export const ProgressTrack = styled.div<{ $height?: number }>`
   height: ${({ $height }) => $height ?? 8}px;
+  width: 100%;
   background: ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   overflow: hidden;
@@ -234,14 +246,15 @@ export const ProgressFill = styled.div<{ $width: number; $color: string }>`
 // ─── YoY Row ────────────────────────────────────────────
 
 export const YoYRow = styled.div`
-  margin-top: ${({ theme }) => theme.spacing[5]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
-  border-radius: ${({ theme }) => theme.radii.lg};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
+  border-radius: ${({ theme }) => theme.radii.md};
   background: ${({ theme }) => theme.colors.palette.warningDark}08;
   border: 1px solid ${({ theme }) => theme.colors.palette.warningDark}18;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing[4]};
+  justify-content: flex-end;
 `
 
 export const YoYLabel = styled.span`
@@ -274,7 +287,7 @@ export const MonoLg = styled.span<{ $color?: string; $bold?: boolean }>`
 // ─── Store Row ──────────────────────────────────────────
 
 export const StoreRowWrapper = styled.div`
-  padding: ${({ theme }) => theme.spacing[7]} ${({ theme }) => theme.spacing[10]};
+  padding: ${({ theme }) => theme.spacing[5]} ${({ theme }) => theme.spacing[10]};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   transition: background 0.12s;
   &:nth-child(even) {
@@ -285,6 +298,37 @@ export const StoreRowWrapper = styled.div`
     background: ${({ theme }) =>
       theme.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'};
   }
+`
+
+/** 店舗行の3カラムグリッド: [順位+名前] [予算→実績] [達成率] */
+export const StoreRowGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(140px, 1.2fr) minmax(80px, auto);
+  gap: ${({ theme }) => theme.spacing[4]};
+  align-items: center;
+`
+
+export const StoreRowLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  min-width: 0;
+`
+
+export const StoreRowCenter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+  min-width: 0;
+`
+
+export const StoreRowRight = styled.div`
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  min-width: 80px;
 `
 
 export const RankBadge = styled.span<{ $color: string }>`
@@ -299,25 +343,29 @@ export const RankBadge = styled.span<{ $color: string }>`
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  flex-shrink: 0;
 `
 
 export const StoreName = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 export const StoreAchValue = styled.span<{ $color: string }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
   font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
   color: ${({ $color }) => $color};
 `
 
 export const StoreBudgetValue = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.extrabold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text};
 `
 
@@ -369,6 +417,19 @@ export const LegendDot = styled.span<{ $color: string }>`
   border-radius: 2px;
   background: ${({ $color }) => $color};
   display: inline-block;
+`
+
+export const LegendGroup = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[5]};
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.text4};
+`
+
+export const LegendItem = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 3px;
 `
 
 // ─── Card Grid (横一列カードレイアウト) ─────────────────
