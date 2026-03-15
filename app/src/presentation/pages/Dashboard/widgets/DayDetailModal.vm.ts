@@ -5,7 +5,7 @@
  * DayDetailModal.tsx はこのモジュールから関数・型をインポートして描画のみを行う。
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
-import { calculateTransactionValue } from '@/domain/calculations/utils'
+import { calculateAchievementRate, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { DailyRecord, DateRange, ComparisonFrame } from '@/domain/models'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import type { PrevYearData } from '@/application/hooks'
@@ -44,14 +44,23 @@ export function computeCoreMetrics(
 ): CoreMetrics {
   const actual = record?.sales ?? 0
   const diff = actual - budget
-  const ach = budget > 0 ? actual / budget : 0
+  const ach_pragmatic = calculateAchievementRate(actual, budget)
   const cumDiff = cumSales - cumBudget
-  const cumAch = cumBudget > 0 ? cumSales / cumBudget : 0
+  const cumAch_pragmatic = calculateAchievementRate(cumSales, cumBudget)
   const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-  const pyRatio = pySales > 0 ? actual / pySales : 0
+  const pyRatio_pragmatic = calculateAchievementRate(actual, pySales)
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
-  return { actual, diff, ach, cumDiff, cumAch, pySales, pyRatio, dayOfWeek }
+  return {
+    actual,
+    diff,
+    ach: ach_pragmatic,
+    cumDiff,
+    cumAch: cumAch_pragmatic,
+    pySales,
+    pyRatio: pyRatio_pragmatic,
+    dayOfWeek,
+  }
 }
 
 // ── Customer Metrics ──
@@ -86,10 +95,19 @@ export function computeCustomerMetrics(
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
-  const custRatio = pyCust > 0 ? dayCust / pyCust : 0
-  const txValRatio = pyTxVal > 0 ? dayTxVal / pyTxVal : 0
+  const custRatio_pragmatic = calculateAchievementRate(dayCust, pyCust)
+  const txValRatio_pragmatic = calculateAchievementRate(dayTxVal, pyTxVal)
 
-  return { dayCust, dayTxVal, pyCust, pyTxVal, cumTxVal, cumPrevTxVal, custRatio, txValRatio }
+  return {
+    dayCust,
+    dayTxVal,
+    pyCust,
+    pyTxVal,
+    cumTxVal,
+    cumPrevTxVal,
+    custRatio: custRatio_pragmatic,
+    txValRatio: txValRatio_pragmatic,
+  }
 }
 
 // ── WoW (Week-over-Week) ──
@@ -233,7 +251,7 @@ export function computeBreakdown(record: DailyRecord): BreakdownViewModel {
 }
 
 export function computeCostItemRatio(item: CostItem, totalPrice: number): number {
-  return totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
+  return calculateAchievementRate(Math.abs(item.price), totalPrice)
 }
 
 // ── Formatting helpers (delegate to domain, keep VM as single import point) ──

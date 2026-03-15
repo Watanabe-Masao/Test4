@@ -4,7 +4,7 @@ import { palette } from '@/presentation/theme/tokens'
 import { Button } from '@/presentation/components/common'
 import { formatPercent } from '@/domain/formatting'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
-import { safeDivide } from '@/domain/calculations/utils'
+import { calculateAchievementRate } from '@/domain/calculations/utils'
 import { calculatePinIntervals } from '@/application/hooks/calculation'
 import { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'
 import { downloadClipHtml } from '@/application/usecases/clipExport/downloadClipHtml'
@@ -203,9 +203,9 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
       if (daySales > 0) salesDaysCount++
     }
     const diff = sales - budget
-    const ach = safeDivide(sales, budget)
-    const pyRatio = safeDivide(sales, pySales)
-    const avgDaily = salesDaysCount > 0 ? sales / salesDaysCount : 0
+    const ach = calculateAchievementRate(sales, budget)
+    const pyRatio = calculateAchievementRate(sales, pySales)
+    const avgDaily = calculateAchievementRate(sales, salesDaysCount)
     return { start, end, budget, sales, diff, ach, pySales, pyRatio, salesDaysCount, avgDaily }
   }
   const rangeAData = calcRange(rangeA.start, rangeA.end)
@@ -344,7 +344,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const budget = r.budgetDaily.get(day) ?? 0
                 const actual = rec?.sales ?? 0
                 const dayDiff = actual - budget
-                const achievement = budget > 0 ? actual / budget : 0
+                const achievement_pragmatic = calculateAchievementRate(actual, budget)
                 const isWeekend = di >= 5
                 const diffColor = sc.cond(dayDiff >= 0)
                 const hasActual = actual > 0
@@ -352,7 +352,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                 const cBudget = cumBudget.get(day) ?? 0
                 const cSales = cumSales.get(day) ?? 0
                 const cDiff = cSales - cBudget
-                const cAch = cBudget > 0 ? cSales / cBudget : 0
+                const cAch = calculateAchievementRate(cSales, cBudget)
                 const cDiffColor = sc.cond(cDiff >= 0)
                 const cAchColor = sc.achievement(cAch)
 
@@ -399,7 +399,7 @@ export function MonthlyCalendarWidget({ ctx }: { ctx: WidgetContext }) {
                               </CalCell>
                             </CalMetricRow>
                             {/* 達成率: ミニプログレスバー */}
-                            {budget > 0 && <CalAchBar $pct={achievement} />}
+                            {budget > 0 && <CalAchBar $pct={achievement_pragmatic} />}
                             {/* 前年比 (色+アイコン) */}
                             {prevYear.hasPrevYear &&
                               (() => {

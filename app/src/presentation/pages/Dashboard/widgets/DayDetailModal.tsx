@@ -16,7 +16,7 @@ import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { CurrencyUnitToggle } from '@/presentation/components/charts'
-import { calculateTransactionValue } from '@/domain/calculations/utils'
+import { calculateAchievementRate, calculateTransactionValue } from '@/domain/calculations/utils'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {
   DailyRecord,
@@ -122,11 +122,11 @@ export function DayDetailModal({
   // ── Core metrics ──
   const actual = record?.sales ?? 0
   const diff = actual - budget
-  const ach = budget > 0 ? actual / budget : 0
+  const ach = calculateAchievementRate(actual, budget)
   const cumDiff = cumSales - cumBudget
-  const cumAch = cumBudget > 0 ? cumSales / cumBudget : 0
+  const cumAch = calculateAchievementRate(cumSales, cumBudget)
   const pySales = prevYear.daily.get(toDateKeyFromParts(year, month, day))?.sales ?? 0
-  const pyRatio = pySales > 0 ? actual / pySales : 0
+  const pyRatio = calculateAchievementRate(actual, pySales)
   const dayOfWeek = DOW_NAMES[new Date(year, month - 1, day).getDay()]
 
   // ── Customer metrics ──
@@ -136,8 +136,8 @@ export function DayDetailModal({
   const pyTxVal = calculateTransactionValue(pySales, pyCust)
   const cumTxVal = calculateTransactionValue(cumSales, cumCustomers)
   const cumPrevTxVal = calculateTransactionValue(cumPrevYear, cumPrevCustomers)
-  const custRatio = pyCust > 0 ? dayCust / pyCust : 0
-  const txValRatio = pyTxVal > 0 ? dayTxVal / pyTxVal : 0
+  const custRatio = calculateAchievementRate(dayCust, pyCust)
+  const txValRatio = calculateAchievementRate(dayTxVal, pyTxVal)
 
   // ── WoW metrics (前週比) ──
   const wowDailyRecord = canWoW && dailyMap ? dailyMap.get(wowPrevDay) : undefined
@@ -511,7 +511,7 @@ export function DayDetailModal({
                 return (
                   <>
                     {costItems.map((item) => {
-                      const ratio = totalPrice > 0 ? Math.abs(item.price) / totalPrice : 0
+                      const ratio = calculateAchievementRate(Math.abs(item.price), totalPrice)
                       return (
                         <DetailRow key={item.label}>
                           <DetailLabel>{item.label}</DetailLabel>

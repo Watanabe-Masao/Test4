@@ -4,7 +4,7 @@
  * データ変換・計算ロジックを抽出。React / styled-components に依存しない。
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
-import { getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
+import { calculateAchievementRate, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import type { StoreResult, Store, DepartmentKpiRecord } from '@/domain/models'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
 
@@ -101,7 +101,7 @@ export function computeStoreRowData(
   const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
   const periodGPBudget = r.budget > 0 ? r.grossProfitBudget * (periodBudget / r.budget) : 0
   const salesVariance = r.totalSales - periodBudget
-  const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
+  const periodAchRate = calculateAchievementRate(r.totalSales, periodBudget)
   const gpLanding = r.estMethodMarginRate
   const salesLanding = r.projectedSales - r.budget
 
@@ -181,7 +181,7 @@ export function buildCsvRow(
   for (let d = 1; d <= effectiveEndDay; d++) periodBudgetSum += r.budgetDaily.get(d) ?? 0
   const periodBudget = isPartialPeriod ? periodBudgetSum : r.budget
   const salesVariance = r.totalSales - periodBudget
-  const periodAchRate = periodBudget > 0 ? r.totalSales / periodBudget : 0
+  const periodAchRate = calculateAchievementRate(r.totalSales, periodBudget)
   const gpLanding = r.estMethodMarginRate
   const salesLanding = r.projectedSales - r.budget
 
