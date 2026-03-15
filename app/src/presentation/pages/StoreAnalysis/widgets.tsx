@@ -6,8 +6,6 @@
  */
 
 export const DEFAULT_STORE_ANALYSIS_WIDGET_IDS = [
-  // 収益概況テーブル（主1+Sub2、主2+Sub1）
-  'kpi-summary-table',
   // 店舗別KPI一覧（全店比較）
   'exec-store-kpi',
   // 日別売上 vs 予算（累計推移）

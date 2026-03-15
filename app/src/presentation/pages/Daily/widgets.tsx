@@ -42,8 +42,6 @@ export const DAILY_WIDGETS: readonly WidgetDef[] = [
 ]
 
 export const DEFAULT_DAILY_WIDGET_IDS = [
-  // 収益概況テーブル
-  'kpi-summary-table',
   // チャート（日別売上はDashboard側に統合済み）
   'chart-daily-sales',
   'daily-chart-gp-rate',
