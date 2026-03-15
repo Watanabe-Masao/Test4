@@ -13,6 +13,11 @@ const DashboardPage = lazyWithRetry(() =>
     default: m.DashboardPage,
   })),
 )
+const StoreAnalysisPage = lazyWithRetry(() =>
+  import('@/presentation/pages/StoreAnalysis/StoreAnalysisPage').then((m) => ({
+    default: m.StoreAnalysisPage,
+  })),
+)
 const DailyPage = lazyWithRetry(() =>
   import('@/presentation/pages/Daily/DailyPage').then((m) => ({ default: m.DailyPage })),
 )
@@ -52,6 +57,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/store-analysis" element={<StoreAnalysisPage />} />
       <Route path="/daily" element={<DailyPage />} />
       <Route path="/insight" element={<InsightPage />} />
       <Route path="/category" element={<CategoryPage />} />

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { KpiCard, ChartErrorBoundary } from '@/presentation/components/common'
+import { ChartErrorBoundary } from '@/presentation/components/common'
 import type { MetricId, StoreResult, Store, CustomCategory } from '@/domain/models'
 import { CUSTOM_CATEGORIES } from '@/domain/models'
 import type { AppSettings } from '@/domain/models'
@@ -8,7 +8,6 @@ import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide } from '@/domain/calculations/utils'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'
 import { isUserCategory } from '@/domain/constants/customCategories'
-import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import {
   Section,
@@ -19,7 +18,6 @@ import {
   Td,
   TrTotal,
   Badge,
-  KpiRow,
   MarkupCell,
   GrossProfitCell,
   SectionHeader,
@@ -61,7 +59,7 @@ export function CategoryTotalView({
     settings.userCategoryLabels,
   )
 
-  // KPIサマリー
+  // 合計行用
   const totalCatCost = categoryData.reduce((s, c) => s + c.cost, 0)
   const totalCatPrice = categoryData.reduce((s, c) => s + c.price, 0)
   const totalGrossProfit = totalCatPrice - totalCatCost
@@ -69,36 +67,6 @@ export function CategoryTotalView({
 
   return (
     <>
-      {/* KPIサマリーカード */}
-      <KpiRow>
-        <KpiCard
-          label="全体値入率"
-          value={formatPercent(overallMarkupRate)}
-          accent={palette.primary}
-          onClick={() => onExplain('averageMarkupRate')}
-        />
-        <KpiCard
-          label="粗利額"
-          value={fmtCurrency(totalGrossProfit)}
-          accent={sc.positive}
-          onClick={
-            r.invMethodGrossProfit != null ? () => onExplain('invMethodGrossProfit') : undefined
-          }
-        />
-        <KpiCard
-          label="原価合計"
-          value={fmtCurrency(totalCatCost)}
-          accent={palette.warningDark}
-          onClick={() => onExplain('purchaseCost')}
-        />
-        <KpiCard
-          label="売価合計"
-          value={fmtCurrency(totalCatPrice)}
-          accent={palette.blueDark}
-          onClick={() => onExplain('salesTotal')}
-        />
-      </KpiRow>
-
       {/* チャート（構成比: 原価 / 売価 / 相乗積） */}
       <ChartErrorBoundary>
         <CompositionChart

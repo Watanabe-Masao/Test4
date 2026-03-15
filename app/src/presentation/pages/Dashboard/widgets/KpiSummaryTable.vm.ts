@@ -94,8 +94,7 @@ export function buildSalesSectionRows(
     {
       key: 'salesQuantity',
       label: '販売点数',
-      value:
-        totalQuantity != null ? `${totalQuantity.toLocaleString('ja-JP')}点` : '—',
+      value: totalQuantity != null ? `${totalQuantity.toLocaleString('ja-JP')}点` : '—',
       budget: null,
       achievement: null,
       achievementColor: null,
